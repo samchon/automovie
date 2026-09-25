@@ -6,7 +6,7 @@
  */
 import type { IAutoMovieBuiltEnvironment, IAutoMovieMaterial } from "@automovie/interface";
 
-type Finish = "stone" | "paving" | "plaster" | "dado" | "timber" | "tile" | "bronze" | "textile" | "earth" | "ceramic" | "wicker" | "paper" | "water";
+type Finish = "stone" | "paving" | "plaster" | "dado" | "timber" | "tile" | "bronze" | "textile" | "earth" | "ceramic" | "wicker" | "rope" | "paper" | "water";
 const recipe: Record<Finish, { name: string; color: number; roughness: number; metallic: number }> = {
   stone: { name: "pale limestone", color: 0xc9c0ad, roughness: 0.86, metallic: 0 },
   paving: { name: "jointed limestone paving", color: 0xc9c0ad, roughness: 0.9, metallic: 0 },
@@ -19,6 +19,7 @@ const recipe: Record<Finish, { name: string; color: number; roughness: number; m
   earth: { name: "packed earth", color: 0x8c795c, roughness: 1, metallic: 0 },
   ceramic: { name: "fired earthenware", color: 0x9a684b, roughness: 0.72, metallic: 0 },
   wicker: { name: "dry plant fibre", color: 0xa58658, roughness: 0.96, metallic: 0 },
+  rope: { name: "braided rope fibre", color: 0x96805c, roughness: 0.96, metallic: 0 },
   paper: { name: "parchment and waxed writing face", color: 0xc6aa77, roughness: 0.91, metallic: 0 },
   water: { name: "fountain water", color: 0x668b91, roughness: 0.2, metallic: 0 },
 };
@@ -63,18 +64,19 @@ const material = (finish: Finish): IAutoMovieMaterial => {
 const objectFinish = (model: string, part: string): Finish => {
   const id = model.slice("object.".length);
   if (id === "fountain") return ["water", "jet", "ripple"].includes(part) ? "water" : "stone";
-  if (["altar", "niche", "votive-plaque"].includes(id)) return "stone";
-  if (["lampstand", "portable-lamp", "stylus", "jar-stand"].includes(id)) return "bronze";
+  if (["altar", "niche", "votive-plaque", "bench", "jar-stand", "offering-table"].includes(id)) return "stone";
+  if (["lampstand", "portable-lamp", "stylus", "offering-bowl", "offering-tray"].includes(id)) return "bronze";
   if (id === "censer") return ["ash", "incense"].includes(part) ? "earth" : "bronze";
-  if (["storage-jar", "carry-jar", "small-vessel", "offering-bowl"].includes(id)) return "ceramic";
+  if (["storage-jar", "carry-jar", "small-vessel", "bucket"].includes(id)) return "ceramic";
   if (id === "planter") return part === "soil" ? "earth" : "ceramic";
-  if (["basket", "rope-coil"].includes(id)) return "wicker";
-  if (["scroll", "scroll-bundle", "open-scroll"].includes(id)) return part === "sheet" ? "paper" : "textile";
+  if (id === "basket") return "wicker";
+  if (id === "rope-coil") return "rope";
+  if (["scroll", "scroll-bundle", "open-scroll"].includes(id)) return part.startsWith("sheet") ? "paper" : "rope";
   if (id === "textile" || id === "floor-cushion") return "textile";
   if (id === "writing-tablet" && part === "writing-face") return "paper";
   if (id === "chest" && ["hasp", "strap"].includes(part)) return "bronze";
   if (id === "carrying-yoke" && part === "hook") return "bronze";
-  if (["offering-table", "display-shelf", "display-shelf-office", "desk", "reading-desk", "stool", "scroll-shelf", "chest", "bench", "jar-rack", "carrying-yoke", "handcart", "bucket", "offering-tray", "writing-tablet"].includes(id)) return "timber";
+  if (["display-shelf", "display-shelf-office", "desk", "reading-desk", "stool", "scroll-shelf", "chest", "jar-rack", "carrying-yoke", "handcart", "writing-tablet"].includes(id)) return "timber";
   throw new Error(`${model}/${part}: material surface has no authored assignment`);
 };
 

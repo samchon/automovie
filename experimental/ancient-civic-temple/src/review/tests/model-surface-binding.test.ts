@@ -2,7 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { modelSurfaceBindingCensus } from "../model-surface-binding.mjs";
+import { modelSurfaceBindingCensus, runtimeSurfaceBindingCensus } from "../model-surface-binding.mjs";
+import { TempleFixtureModels } from "../../models/fixtures";
+import { TemplePortableModels } from "../../models/portable";
+import { TempleRitualModels } from "../../models/ritual";
+import { TempleWareModels } from "../../models/wares";
+import { bindTempleMaterials } from "../../materials/bindings";
+import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 const modelRoot = join(__dirname, "../../../docs/models");
 const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
@@ -10,6 +16,35 @@ const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
 const scale = documents.find(
   (document) => document.path === "scale.md",
 )!.source;
+
+const objectModels = () => [
+  ...TempleFixtureModels.build(), ...TemplePortableModels.build(),
+  ...TempleRitualModels.build(), ...TempleWareModels.build(),
+];
+const boundObjects = () => bindTempleMaterials({ models: objectModels() } as IAutoMovieBuiltEnvironment).models;
+
+void test("every emitted object part receives the finish declared by its surface row", () => {
+  const result = runtimeSurfaceBindingCensus(boundObjects(), scale);
+  assert.equal(result.prototypes, objectModels().length);
+  assert.equal(result.parts, objectModels().reduce((sum, model) => sum + model.parts.length, 0));
+  assert.deepEqual(result.failures, []);
+});
+
+void test("ten selected finish mutations are rejected by the same full-population census", () => {
+  const models = boundObjects();
+  const addresses = models.flatMap((model, mi) => model.parts.map((part, pi) => ({ mi, pi, part })));
+  let rejected = 0;
+  for (let i = 0; i < 10; i++) {
+    const { mi, pi, part } = addresses[(i * 37 + 11) % addresses.length]!;
+    const changed = models.map((model, index) => index === mi
+      ? { ...model, parts: model.parts.map((entry, partIndex) => partIndex === pi
+        ? { ...entry, material: part.material === "temple.stone" ? "temple.bronze" : "temple.stone" }
+        : entry) }
+      : model);
+    if (runtimeSurfaceBindingCensus(changed, scale).failures.length > 0) rejected++;
+  }
+  assert.equal(rejected, 10);
+});
 
 void test("surface grammar covers every authored prototype and every part", () => {
   const result = modelSurfaceBindingCensus(documents, scale);

@@ -108,6 +108,57 @@ export const modelSurfaceBindingCensus = (documents, scaleSource) => {
   };
 };
 
+/**
+ * Compare every emitted object part with its document binding, including finish.
+ * @param {readonly {id:string;parts:readonly {id:string;material:string|null}[]}[]} models
+ * @param {string} scaleSource
+ */
+export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
+  const finishForGroup = new Map([
+    ["limestone", "stone"], ["dark-metal", "bronze"],
+    ["dark-wood", "timber"], ["terracotta", "ceramic"],
+    ["wicker", "wicker"], ["parchment", "paper"],
+    ["linen", "textile"], ["rope-fibre", "rope"],
+    ["soil", "earth"], ["water", "water"],
+  ]);
+  const bindings = new Map();
+  const failures = [];
+  for (const cells of tableRows(scaleSource, "| 모델 H2 | part 표면 | 결속 키 | UV0 방식 |")) {
+    const ids = [...(cells[0] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]);
+    const parts = [...(cells[1] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]);
+    const group = cells[2]?.match(/^`([^`]+)`$/)?.[1];
+    for (const id of ids) if (id !== undefined) for (const part of parts) {
+      if (part !== undefined) bindings.set(`${id}|${part}`, group);
+    }
+  }
+  let checked = 0;
+  for (const model of models) {
+    if (!model.id.startsWith("object.")) continue;
+    const name = model.id.slice("object.".length);
+    const candidates = [...new Set([...bindings.keys()].map((address) => address.split("|")[0]))]
+      .filter((id) => {
+        const anchor = id.split("#")[1];
+        return anchor === name || name.startsWith(`${anchor}-`) || name.endsWith(`-${anchor}`);
+      });
+    const exact = candidates.filter((id) => id.split("#")[1] === name);
+    const owner = (exact.length ? exact : candidates).sort((a, b) => b.length - a.length)[0];
+    if (!owner) {
+      failures.push(`${model.id}: no authored surface owner`);
+      continue;
+    }
+    for (const part of model.parts) {
+      checked++;
+      const group = bindings.get(`${owner}|${part.id}`);
+      const expected = finishForGroup.get(group);
+      const actual = part.material?.replace(/^temple\./, "");
+      if (expected === undefined) failures.push(`${model.id}/${part.id}: no authored finish for ${owner}`);
+      else if (actual !== expected) failures.push(`${model.id}/${part.id}: ${actual} != ${group} (${expected})`);
+    }
+  }
+  if (checked === 0) failures.push("no emitted object parts checked");
+  return { prototypes: models.filter((model) => model.id.startsWith("object.")).length, parts: checked, failures };
+};
+
 export const checkModelSurfaceBinding = () => {
   const files = readdirSync(root).filter((file) => file.endsWith(".md")).sort(
     (a, b) => a.localeCompare(b),
