@@ -148,9 +148,9 @@ test("every design H2 has one generated prototype, source owner and face binding
   assert.ok(!buildHousePrototypes().some((p)=>/car|automobile|vehicle/.test(p.id)));
 });
 
-test("every declared finish binds its own fallback, scale, and roughness", () => {
+test("every declared finish binds consistent fallback, scale, roughness, and metallic response", () => {
   const models=new Map(buildHousePrototypes().map((p)=>[p.id,p]));
-  const roleBindings=new Map<string,{fallback:number;scale:readonly [number,number];roughness:number}>();
+  const roleBindings=new Map<string,{fallback:number;scale:readonly [number,number];roughness:number;metallic:number}>();
   let checked=0;
   for(const spec of housePrototypeSpecs) for(const surface of spec.faces) {
     const role=spec.finishes?.[surface]??spec.finishAll;
@@ -160,7 +160,7 @@ test("every declared finish binds its own fallback, scale, and roughness", () =>
     const material=model.model.materials.find((m)=>m.id===surface);
     assert.ok(binding,`${spec.id}/${surface}: missing binding`);
     assert.ok(material,`${spec.id}/${surface}: missing material`);
-    const actual={fallback:binding.fallback,scale:binding.scale,roughness:material.roughness};
+    const actual={fallback:binding.fallback,scale:binding.scale,roughness:material.roughness,metallic:material.metallic};
     const prior=roleBindings.get(role);
     if(prior) assert.deepEqual(actual,prior,`${role}: inconsistent finish parameters`);
     else roleBindings.set(role,actual);
