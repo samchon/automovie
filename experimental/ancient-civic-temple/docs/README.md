@@ -17,7 +17,7 @@ The table maps document roles; it does not require empty directories for inactiv
 | `maps` | Broad world organization, site boundary, scale, temporal state, and external access. |
 | `models` | Deterministic bounded representation of a subject or reusable object. |
 | `spaces` | Building exterior or interior topology, enclosure, openings, and circulation inside the adopted site boundary. |
-| `materials` | Construction, finish, texture scale, optical response, and material state. |
+| `materials` | Construction, finish, texture scale, optical response, and material state. The active draft begins at [the temple surface palette](materials/00-surface-palette.md). |
 | `instances` | Repeated membership, stable identities, transforms, variation, and placement. |
 | `motions` | Deterministic state transitions over time. |
 | `systems` | Coupled lighting, environment, effects, simulation, sound, services, and other processes. |
