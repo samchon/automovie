@@ -40,6 +40,33 @@ const joist = h2("entablature", "ceiling-joist");
 near("ceiling joist touches the boarding underside",
   n(joist, /아랫면은 ([\d.]+)m다/) + n(joist, /깊이 ([\d.]+)m/),
   n(joist, /윗면 Y=([\d.]+)m가 널판/));
+const rafter = h2("entablature", "rafter");
+const datums = readFileSync(new URL("../../docs/spaces/building.md", import.meta.url), "utf8");
+const outerWallFace = n(datums, /west\/east-room \| X=∓([\d.]+) \|/);
+const innerWallFace = n(datums, /west\/east-ring \| X=∓([\d.]+) \|/);
+const wallThickness = n(datums, /내부 경계벽은 ([\d.]+)m다/);
+near("sanctuary rafter pair stops at both faces of the side wall", outerWallFace - innerWallFace, wallThickness);
+assert.ok(rafter.includes("west/east-room 바깥면까지의 외부 꼬리") &&
+  rafter.includes("west/east-ring 안쪽면부터 X=0 용마루") &&
+  rafter.includes("벽 두께 안에는 목재를 방출하지 않는다"),
+"sanctuary rafters may not pass through the side-wall volume");
+const truss = h2("entablature", "sanctuary-truss");
+near("sanctuary tie beam reaches both inside wall faces",
+  n(truss, /평보는 길이 ([\d.]+)m/), 2 * innerWallFace);
+near("truss tie top derives from underside and depth",
+  n(truss, /아랫면 Y=([\d.]+)m/) + n(truss, /단면 ([\d.]+)×([\d.]+)m이며 아랫면/, 2),
+  n(truss, /윗면 ([\d.]+)m로/));
+assert.ok(n(truss, /윗면 ([\d.]+)m로/) < n(truss, /하부\(약 ([\d.]+)m\)/),
+  "tie top must remain below the side roof underside");
+const doorFrame = h2("openings", "door-frame");
+near("door lining leaves the clear passage",
+  n(doorFrame, /상인방은 길이\(유효 폭\+([\d.]+)m\)/),
+  2 * n(doorFrame, /두 문설주는 폭 ([\d.]+)m/));
+const windowFrame = h2("openings", "window-frame");
+near("clerestory surround fits its occupied width",
+  n(windowFrame, /점유 상자는 ([\d.]+)×/),
+  0.4 + 2 * n(windowFrame, /안감 네 조각은 폭 ([\d.]+)m/) +
+  2 * n(windowFrame, /외부 면에만 폭 ([\d.]+)m/));
 const d = h2("openings", "double-door-leaf");
 near("double ring to upper pin", n(d, /받침판 중심은[^\n]*?Y=([\d.]+)m/) + n(d, /중심선 반지름 ([\d.]+)m/), n(d, /연결 핀 두 개는[^\n]*?\(X,Y\)=\(손잡이 중심 X,([\d.]+)m\)/));
 near("double front pin to ring Z", n(d, /앞핀은 Z=\+[\d.]+~\+([\d.]+)m/), n(d, /고리 중심면은 Z=\+([\d.]+)m/));

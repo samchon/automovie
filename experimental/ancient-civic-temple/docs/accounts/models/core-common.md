@@ -38,7 +38,7 @@
 | [columns/porch-column](../../models/columns.md#porch-column) | `shaft` | 891 | `00a3a65fd8557032b1a0f97691bdb5eaa02200456abbbbf9488fc404de6756bd` |
 | [columns/porch-column](../../models/columns.md#porch-column) | `capital` | 891 | `00a3a65fd8557032b1a0f97691bdb5eaa02200456abbbbf9488fc404de6756bd` |
 | [entablature/colonnade-beam](../../models/entablature.md#colonnade-beam) | `timber` | 916 | `b7b7b804c2dcc7ec12dd3a0012698e6234405f757e050d5fa18b0062820d586e` |
-| [entablature/rafter](../../models/entablature.md#rafter) | `timber` | 1079 | `1206a3021a48baf7f3518a729def987977e73126d2387e20c92bf2bad348aac9` |
+| [entablature/rafter](../../models/entablature.md#rafter) | `timber` | 1336 | `7c6d379e64112426599ef6ea3745aea6f1f57f6b6105feeb76472ba552944558` |
 | [entablature/porch-entablature](../../models/entablature.md#porch-entablature) | `beam` | 1016 | `cb24637ebcea728b8e965708b52823df24c3728c70a6d2cc38a95a1e7b6a2746` |
 | [entablature/porch-entablature](../../models/entablature.md#porch-entablature) | `cornice` | 1016 | `cb24637ebcea728b8e965708b52823df24c3728c70a6d2cc38a95a1e7b6a2746` |
 | [entablature/porch-entablature](../../models/entablature.md#porch-entablature) | `raking-trim` | 1016 | `cb24637ebcea728b8e965708b52823df24c3728c70a6d2cc38a95a1e7b6a2746` |
@@ -143,14 +143,14 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |
 | --- | ---: | ---: |
 | fixtures.md | 10 | 6783 |
-| entablature.md | 5 | 3838 |
+| entablature.md | 5 | 4048 |
 | openings.md | 4 | 3830 |
 | wares.md | 6 | 3933 |
 | landscape.md | 4 | 3353 |
 | scale.md | 3 | 5008 |
 | columns.md | 2 | 1732 |
 | cladding.md | 2 | 2971 |
-| 합계 | 36 | 31448 |
+| 합계 | 36 | 31658 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
