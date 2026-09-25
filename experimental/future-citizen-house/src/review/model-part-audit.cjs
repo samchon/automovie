@@ -50,6 +50,8 @@ function parse(lines, anchor) {
   const parts = new Map();
   /** @type {Map<string, string[]>} */
   const inventory = new Map();
+  /** @type {Map<string,{anchor:string,state:string,offset:[number,number,number]}>} */
+  const compositions = new Map();
   /** @type {Set<string>} */
   const miterJoints = new Set();
   /** @type {Map<string, {x:[number,number],y:[number,number],z:[number,number]}[]>} */
@@ -73,6 +75,14 @@ function parse(lines, anchor) {
   /** @type {Map<string,{prefix:string,cols:number,rows:number,pitchX:number,pitchZ:number,width:number,depth:number,y:[number,number],contact:string}>} */
   const grids = new Map();
   for (const line of lines) {
+    const composed = /^@compose\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+)$/.exec(line);
+    if (composed) {
+      const state = composed[1].trim();
+      if (compositions.has(state)) throw Error(`${anchor}: duplicate composition ${state}`);
+      const offset = /** @type {[number,number,number]} */ (composed.slice(4, 7).map((value) => Number(value.replace("−", "-"))));
+      if (!offset.every(Number.isFinite)) throw Error(`${anchor}/${state}: invalid composition offset`);
+      compositions.set(state, { anchor: composed[2].trim(), state: composed[3].trim(), offset });
+    }
     const list = /^@inventory\s+([^:]+):\s*(.+)$/.exec(line);
     if (list) {
       const state = list[1].trim();
@@ -199,7 +209,7 @@ function parse(lines, anchor) {
     if (parts.has(`${state}/${id}`)) throw Error(`${anchor}: grid part duplicate ${state}/${id}`);
     parts.set(`${state}/${id}`, entry);
   }
-  return { envelopes, parts, inventory, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids };
+  return { envelopes, parts, inventory, compositions, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids };
 }
 
 /** @param {Bounds} a @param {Bounds} b */
@@ -618,7 +628,7 @@ function audit(allSections, mutate, onlyState) {
   for (const [anchor, lines] of allSections) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
-    const { envelopes, parts, inventory, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids } = parsed;
+    const { envelopes, parts, inventory, compositions, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids } = parsed;
     const provedMiterJoints = new Set();
     const provedTangents = new Set();
     const provedCurves = new Set();
@@ -633,11 +643,40 @@ function audit(allSections, mutate, onlyState) {
       } catch (error) { errors.push(`cabinet-and-shelf: ${String(error)}`); }
     }
     if (!envelopes.size) { errors.push(`${anchor}: no @envelope rows`); continue; }
+    if (anchor === "entry-bench" && (compositions.size !== 1 || !compositions.has("default")))
+      errors.push("entry-bench: cabinet child composition absent");
     measuredPrototypes++;
     for (const [state, envelope] of envelopes) {
       if (onlyState && state !== onlyState) continue;
       const stateParts = [...parts.values()].filter((part) => part.state === state);
       if (!stateParts.length) errors.push(`${anchor}/${state}: no @part rows`);
+      const composition = compositions.get(state);
+      if (composition) {
+        const childLines = allSections.get(composition.anchor);
+        const child = childLines && parse(childLines, composition.anchor);
+        const childEnvelope = child?.envelopes.get(composition.state);
+        const childParts = [...(child?.parts.values() || [])].filter((part) => part.state === composition.state);
+        if (!childEnvelope || !childParts.length) errors.push(`${anchor}/${state}: composition child state absent`);
+        else {
+          const pieces = [...stateParts, ...childParts.map((part) => ({
+            ...part,
+            x: /** @type {[number,number]} */ (part.x.map((value) => value + composition.offset[0])),
+            y: /** @type {[number,number]} */ (part.y.map((value) => value + composition.offset[1])),
+            z: /** @type {[number,number]} */ (part.z.map((value) => value + composition.offset[2]))
+          }))];
+          for (const axis of /** @type {const} */ (["x", "y", "z"])) {
+            const bounds = [Math.min(...pieces.map((part) => part[axis][0])),
+              Math.max(...pieces.map((part) => part[axis][1]))];
+            if (bounds.some((value, i) => Math.abs(value - envelope[axis][i]) > epsilon))
+              errors.push(`${anchor}/${state}: composite ${axis} envelope differs from child and own parts`);
+          }
+          const attached = stateParts.some((own) => pieces.slice(stateParts.length).some((referent) =>
+            Math.abs(own.y[0] - referent.y[1]) <= epsilon &&
+            Math.min(own.x[1], referent.x[1]) - Math.max(own.x[0], referent.x[0]) > epsilon &&
+            Math.min(own.z[1], referent.z[1]) - Math.max(own.z[0], referent.z[0]) > epsilon));
+          if (!attached) errors.push(`${anchor}/${state}: composite child has no finite face contact`);
+        }
+      }
       const byId = new Map(stateParts.map((part) => [part.id, part]));
       for (const [key, cavities] of voids) {
         if (!key.startsWith(`${state}/`)) continue;
@@ -1003,6 +1042,23 @@ if (process.argv.includes("--fixture")) {
     if (!caught) throw Error(`${label}: cabinet prose/table divergence passed`);
     results.push({ label, caught });
   }
+  const benchSource = sections().get("entry-bench")?.join("\n");
+  const cabinetSection = sections().get("cabinet-and-shelf");
+  const composeLine = "@compose default: cabinet-and-shelf, bench-base/1150x440x480/closed, 0, 0, 0";
+  if (!benchSource?.includes(composeLine) || !cabinetSection) throw Error("entry-bench composition fixture absent");
+  for (const [label, after, expected] of [
+    ["child removed", "", "cabinet child composition absent"],
+    ["child state changed", composeLine.replace("/closed", "/unknown"), "composition child state absent"],
+    ["child lifted", composeLine.replace(", 0, 0, 0", ", 0, 0.01, 0"), "composite y envelope differs"]
+  ]) {
+    const errors = audit(new Map([
+      ["entry-bench", benchSource.replace(composeLine, after).split("\n")],
+      ["cabinet-and-shelf", cabinetSection]
+    ])).errors;
+    if (!errors.some((error) => error.includes(expected)))
+      throw Error(`entry-bench ${label}: expected ${expected}, got ${errors}`);
+    results.push({ label: `entry-bench ${label}`, caught: true });
+  }
   const plantSource = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
   if (!plantSource.includes("0.18, 0.28, 0.60, 0.80, 1.10m")) throw Error("plant prose mutation source absent");
   let plantCaught = false;
@@ -1018,16 +1074,23 @@ if (process.argv.includes("--fixture")) {
   results.push({ label: "potted plant prose soil height changed", caught: true });
   let measuredParts = 0;
   let mutationChecks = 0;
-  for (const [anchor, lines] of sections()) {
+  const completeSections = sections();
+  for (const [anchor, lines] of completeSections) {
     const { envelopes, parts } = parse(lines, anchor);
     if (!envelopes.size) continue;
-    const ownBaseline = audit(new Map([[anchor, lines]]));
+    const cabinetForBench = completeSections.get("cabinet-and-shelf");
+    if (anchor === "entry-bench" && !cabinetForBench) throw Error("entry-bench fixture cabinet absent");
+    const fixtureSections = () => anchor === "entry-bench"
+      ? new Map([[anchor, lines], ["cabinet-and-shelf", /** @type {string[]} */ (cabinetForBench)]])
+      : new Map([[anchor, lines]]);
+    const ownBaseline = audit(fixtureSections());
     if (ownBaseline.errors.length) throw Error(`${anchor}: fixture baseline failed: ${ownBaseline.errors}`);
     for (const part of parts.values()) {
       measuredParts++;
       /** @param {(entry:Part, parsed:ReturnType<typeof parse>)=>void} change @param {string} expected */
       const check = (change, expected) => {
-        const found = audit(new Map([[anchor, lines]]), (_owner, parsed) => {
+        const found = audit(fixtureSections(), (owner, parsed) => {
+          if (owner !== anchor) return;
           const entry = parsed.parts.get(`${part.state}/${part.id}`);
           if (!entry) throw Error(`${anchor}/${part.state}/${part.id}: mutation target absent`);
           change(entry, parsed);

@@ -1701,6 +1701,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 이 wrapper의 단독 부품은 방석 하나다. `support@0.44`는 별도 cabinet/bench-base의 상단 접촉면이며 cabinet 판을 이 부품 표에 복제하지 않는다.
 
+@compose default: cabinet-and-shelf, bench-base/1150x440x480/closed, 0, 0, 0
 @inventory default: cushion
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
