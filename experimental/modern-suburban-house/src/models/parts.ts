@@ -234,6 +234,18 @@ export function metricOvalCup(center:Point,radiusX:number,radiusZ:number,height:
   return mesh;
 }
 
+/** Hollow lamp shade with its open mouth below the ceiling-side cap. */
+export function metricInvertedCup(top:Point,lowerRadius:number,upperRadius:number,height:number,wall:number,sides=16):IAutoMovieMesh {
+  const mesh=metricCup([top[0],0,top[2]],upperRadius,lowerRadius,height,wall,sides);
+  for(let i=0;i<mesh.positions.length;i+=3) {
+    mesh.positions[i+1]=top[1]-mesh.positions[i+1]!;
+    mesh.normals![i+1]=-mesh.normals![i+1]!;
+  }
+  for(let i=0;i<mesh.indices!.length;i+=3)
+    [mesh.indices![i+1],mesh.indices![i+2]]=[mesh.indices![i+2]!,mesh.indices![i+1]!];
+  return mesh;
+}
+
 const fallback = (surface: string): number => {
   if (/countertop|ceramic|basin/.test(surface)) return 0xe9e6df;
   if (/fixture-shade/.test(surface)) return 0xd9cdb8;
@@ -274,6 +286,9 @@ export class PrototypeBuilder {
   }
   ovalCup(surface:string,center:Point,radiusX:number,radiusZ:number,height:number,wall:number):this {
     return this.add(surface,metricOvalCup(center,radiusX,radiusZ,height,wall),"cylinder-metric");
+  }
+  invertedCup(surface:string,top:Point,lowerRadius:number,upperRadius:number,height:number,wall:number):this {
+    return this.add(surface,metricInvertedCup(top,lowerRadius,upperRadius,height,wall),"cylinder-metric");
   }
   private add(surface:string, mesh:IAutoMovieMesh, uv:Exclude<SurfaceBinding["uv"],"mixed-metric">):this {
     const prior=this.surfaceKinds.get(surface);

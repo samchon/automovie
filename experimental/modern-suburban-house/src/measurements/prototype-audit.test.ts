@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { buildHouseObjects, buildHousePrototypes } from "../models/catalogue";
-import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricOvalCup, metricRingZ } from "../models/parts";
+import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricRingZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
 
@@ -22,6 +22,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
     metricRingZ([0,0,0],0.1,0.2,0.02),
     metricCup([0,0,0],0.1,0.14,0.1,0.008),
     metricOvalCup([0,0,0],0.1,0.14,0.1,0.008),
+    metricInvertedCup([0,0,0],0.14,0.10,0.1,0.008),
   ]) {
     assert.ok(mesh.indices?.length);
     assert.equal(mesh.uvs?.length,mesh.positions.length/3*2);
@@ -31,18 +32,19 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   assert.throws(()=>metricRingZ([0,0,0],0.2,0.1,0.02));
   assert.throws(()=>metricCup([0,0,0],0.1,0.14,0.1,0.11));
   assert.throws(()=>metricOvalCup([0,0,0],0.1,0.008,0.1,0.008));
+  assert.throws(()=>metricInvertedCup([0,0,0],0.14,0.10,0.1,0.11));
 });
 
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,67);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils"].includes(p.id)));
+  assert.equal(objects.length,70);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
     ["pantry-containers",["pantry-container","pantry-box","pantry-basket"]],
-    ["kitchen-food-utensils",["kitchen-prep-props","dining-fruit-bowl"]],
+    ["kitchen-food-utensils",["kitchen-cutting-board","kitchen-tool-cup","kitchen-food-jar","dining-fruit-bowl"]],
   ] as const) {
     const parent=parents.find((p)=>p.id===parentId)!;
     const split=children.map((id)=>objects.find((p)=>p.id===id)!);
@@ -56,6 +58,7 @@ test("separate room objects keep each reviewed face once", () => {
     }
   }
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="porch-mat-planter")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="pendant-fixtures")),/missing design host/);
   const withoutMat=structuredClone(parents);
   const porch=withoutMat.find((p)=>p.id==="porch-mat-planter")!;
   porch.model.parts.splice(0,porch.model.parts.length,...porch.model.parts.filter((p)=>p.material!=="field"&&p.material!=="border"));
@@ -68,6 +71,19 @@ test("separate room objects keep each reviewed face once", () => {
   assert.throws(()=>buildHouseObjects(withoutBinding),/incomplete extracted material faces/);
   const extraBinding=parents.map((p)=>p.id==="porch-mat-planter"?{...p,bindings:[...p.bindings,{...p.bindings[0]!,surface:"orphan-face"}]}:p);
   assert.throws(()=>buildHouseObjects(extraBinding),/unassigned object face/);
+  const towels=objects.find((p)=>p.id==="linen-folded-towels")!;
+  assert.equal(towels.model.parts.length,2);
+  const towelYs=towels.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions.filter((_,i)=>i%3===1):[]);
+  assert.equal(Math.min(...towelYs),0);
+  assert.equal(Math.max(...towelYs),0.12);
+  for(const [id,width,drop] of [["island-pendant",0.28,0.80],["dining-pendant",0.48,1.20]] as const) {
+    const object=objects.find((p)=>p.id===id)!;
+    const positions=object.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+    const xs=positions.filter((_,i)=>i%3===0),ys=positions.filter((_,i)=>i%3===1);
+    assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-width)<1e-9);
+    assert.ok(Math.abs(Math.min(...ys)+drop)<1e-9);
+    assert.equal(Math.max(...ys),0);
+  }
 });
 
 test("every design H2 has one generated prototype, source owner and face bindings", () => {

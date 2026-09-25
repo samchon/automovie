@@ -120,8 +120,10 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
         const margin=0.40;
         const back=spec.kind==="plant"?-depth/2-margin:spec.kind==="panel"?-depth-margin:-margin;
         const front=spec.kind==="plant"?depth/2+margin:depth+margin;
+        const floor=spec.pendant?-height-margin:-margin;
+        const ceiling=spec.pendant?margin:height+margin;
         if(bb.min[0]<-width/2-margin||bb.max[0]>width/2+margin||
-          bb.min[1]<-margin||bb.max[1]>height+margin||
+          bb.min[1]<floor||bb.max[1]>ceiling||
           bb.min[2]<back||bb.max[2]>front)
           failures.push(`${p.id}/${part.id}: outside declared model envelope`);
       }

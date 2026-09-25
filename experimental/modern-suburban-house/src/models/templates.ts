@@ -20,6 +20,8 @@ export interface PrototypeSpec {
   rimHeight?: number;
   /** A short horizontal fixture mounted on a vertical wall. */
   wallBar?: boolean;
+  /** One ceiling pendant profile, sharing the same measured generator. */
+  pendant?: "island" | "dining";
   lShelf?: { backDepth:number; rightWidth:number };
 }
 
@@ -59,6 +61,30 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
     case "cabinet":
       {
       const island=pending.has("basin"), vanity=pending.has("ceramic");
+      if(pending.has("countertop")&&pending.has("drawer-front")&&pending.has("leaf")&&!island) {
+        const front=d-0.05,face=front+0.02,plinthFront=d-0.10;
+        b.box("plinth",[-w/2+0.015,0,0.015],[w/2-0.015,0.10,plinthFront]);
+        b.box("carcass",[-w/2+0.015,0.10,0.015],[-w/2+0.035,h-0.03,front]);
+        b.box("carcass",[w/2-0.035,0.10,0.015],[w/2-0.015,h-0.03,front]);
+        b.box("carcass",[-w/2+0.035,0.10,0.015],[w/2-0.035,h-0.03,0.035]);
+        b.box("carcass",[-w/2+0.035,0.10,0.035],[w/2-0.035,0.12,front]);
+        b.box("countertop",[-w/2,h-0.03,0],[w/2,h,d]);
+        const addHandle=(x:number,y:number)=>{
+          for(const dx of [-0.045,0.045])
+            b.box("handle",[x+dx-0.006,y-0.006,face],[x+dx+0.006,y+0.006,d-0.022]);
+          b.box("handle",[x-0.06,y-0.006,d-0.022],[x+0.06,y+0.006,d-0.01]);
+        };
+        const slots=Math.max(1,Math.round(w/0.60));
+        for(let i=0;i<slots;i++) {
+          const left=-w/2+w*i/slots+0.012,right=-w/2+w*(i+1)/slots-0.012,x=(left+right)/2;
+          b.box("leaf",[left,0.10,front],[right,h-0.18,face]);
+          b.box("drawer-front",[left,h-0.18,front],[right,h-0.03,face]);
+          addHandle(x,h-0.26);
+          addHandle(x,h-0.105);
+        }
+        for(const surface of ["plinth","carcass","countertop","leaf","drawer-front","handle"]) pending.delete(surface);
+        break;
+      }
       const bodyTop=spec.bodyTop??h;
       const rear=island?Math.min(0.30,d*0.29):0;
       const frontRuns=island
@@ -146,16 +172,23 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
     case "appliance":
       if(pending.has("drawer-front")&&!pending.has("control-panel")) {
-        side("appliance-body");
-        box("appliance-interior",-w/2+0.025,0.04,0.03,w/2-0.025,h-0.03,d*0.15);
+        const bodyFront=d-0.08,doorFront=d-0.03,doorBottom=0.77,drawerTop=0.75;
+        for(const x of [-w/2,w/2-0.025])
+          b.box("appliance-body",[x,0,0],[x+0.025,h,bodyFront]);
+        b.box("appliance-body",[-w/2+0.025,h-0.025,0],[w/2-0.025,h,bodyFront]);
+        b.box("appliance-body",[-w/2+0.025,0,0],[w/2-0.025,h-0.025,0.025]);
+        pending.delete("appliance-body");
+        box("appliance-interior",-w/2+0.035,doorBottom,0.025,w/2-0.035,h-0.025,0.045);
         if(pending.has("leaf")) {
-          b.box("leaf",[-w/2+0.015,h*0.26,d-0.035],[-0.005,h-0.03,d-0.012]);
-          b.box("leaf",[0.005,h*0.26,d-0.035],[w/2-0.015,h-0.03,d-0.012]);
+          b.box("leaf",[-w/2,doorBottom,bodyFront],[-0.0025,h,doorFront]);
+          b.box("leaf",[0.0025,doorBottom,bodyFront],[w/2,h,doorFront]);
           pending.delete("leaf");
         }
-        box("drawer-front",-w/2+0.015,0.03,d-0.035,w/2-0.015,h*0.26,d-0.012);
+        box("drawer-front",-w/2,0.05,bodyFront,w/2,drawerTop,doorFront);
         if(pending.has("handle")) {
-          for(const x of [-0.05,0.05]) b.box("handle",[x-0.012,h*0.42,d-0.012],[x+0.012,h*0.72,d+0.015]);
+          for(const x of [-0.04,0.04])
+            b.box("handle",[x-0.009,doorBottom+0.20,doorFront],[x+0.009,h-0.18,d]);
+          b.box("handle",[-0.11,drawerTop-0.17,doorFront],[0.11,drawerTop-0.145,d]);
           pending.delete("handle");
         }
         break;
@@ -661,6 +694,19 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       break;
       }
     case "fixture":
+      if(spec.pendant) {
+        const island=spec.pendant==="island";
+        const shadeHeight=island?0.22:0.20;
+        const shadeTop=-h+shadeHeight;
+        const lowerRadius=w/2;
+        const upperRadius=island?0.055:lowerRadius;
+        b.frustum("fixture-canopy",[0,-0.025,0],0.05,0.05,0.025);
+        b.beam("fixture-stem",[0,-0.025,0],[0,shadeTop,0],0.006,0.006);
+        b.invertedCup("fixture-shade",[0,shadeTop,0],lowerRadius,upperRadius,shadeHeight,0.008);
+        b.frustum("fixture-diffuser",[0,-h+0.008,0],lowerRadius-0.008,lowerRadius-0.008,0.006);
+        for(const face of ["fixture-canopy","fixture-stem","fixture-shade","fixture-diffuser"]) pending.delete(face);
+        break;
+      }
       if(spec.wallBar) {
         b.box("fixture-housing",[-w/2,0,0],[w/2,h,0.015]);
         for(const x of [-w/2,w/2-0.025])
@@ -722,11 +768,8 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
     case "props":
       if(pending.size===1&&pending.has("folded")) {
-        for(let shelf=0;shelf<5;shelf++) for(let pile=0;pile<3;pile++) for(let layer=0;layer<2;layer++) {
-          const x=-w/2+0.16+pile*0.30;
-          const y=0.20+0.40*shelf+0.06*layer;
-          b.box("folded",[x,y,0.05],[x+0.28,y+0.06,0.37]);
-        }
+        for(let layer=0;layer<2;layer++)
+          b.box("folded",[-w/2,layer*h/2,0],[w/2,(layer+1)*h/2,d]);
         pending.delete("folded");
         break;
       }
@@ -741,7 +784,8 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       if(pending.has("cutting-board")) {
         b.box("cutting-board",[-w/2,0,0],[-w/2+0.35,0.02,0.25]);
         b.cup("container",[w/2-0.12,0,0.13],0.05,0.06,0.18,0.007);
-        b.box("container",[w/2-0.12,0,0.27],[w/2,0.20,0.39]);
+        // The food jar is a second, independently placeable container part.
+        b.box("container",[-w/2,0,0.26],[-w/2+0.12,0.20,0.38]);
         const toolX=w/2-0.12;
         for(let i=0;i<5;i++) {
           const offset=(i-2)*0.018;
