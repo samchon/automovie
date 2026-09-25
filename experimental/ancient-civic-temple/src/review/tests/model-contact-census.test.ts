@@ -4,8 +4,8 @@ import { auditContactClaims, modelContactClaims, nonContactDecisionRows } from "
 
 void test("every current model contact sentence has its own reviewed decision", () => {
   const claims = modelContactClaims();
-  assert.equal(claims.length, 84);
-  assert.equal(modelContactClaims(true).length, 36);
+  assert.equal(claims.length, 90);
+  assert.equal(modelContactClaims(true).length, 37);
   assert.equal(new Set(claims.map((claim) => claim.id)).size, claims.length);
   assert.ok(claims.some((claim) => claim.sentence.includes("연결 핀 두 개")));
   assert.ok(claims.some((claim) => claim.sentence.includes("둥근기와")));
@@ -14,16 +14,19 @@ void test("every current model contact sentence has its own reviewed decision", 
 
 void test("reviewed non-contact reasons cannot silently absorb a measured joint", () => {
   assert.deepEqual(nonContactDecisionRows(), [
-    "scale#reference-scale:1|non-contact: UV seam construction",
+    "scale#reference-scale:1|non-contact: repetition design requirement",
+    "scale#reference-scale:2|non-contact: phase and datum design requirement",
+    "scale#reference-scale:3|non-contact: UV seam construction",
     "scale#model-review-board:1|non-contact: review-board responsibility",
     "columns#colonnade-column:2|non-contact: instruction to consume the exact formula",
-    "columns#colonnade-column:5|non-contact: stated failure condition, not a positive joint",
-    "entablature#colonnade-beam:7|non-contact: future visual review question",
-    "entablature#colonnade-beam:8|non-contact: failure conditions for the measured joint",
+    "columns#colonnade-column:6|non-contact: stated failure condition, not a positive joint",
+    "entablature#colonnade-beam:8|non-contact: future visual review question",
+    "entablature#colonnade-beam:9|non-contact: failure conditions for the measured joint",
+    "entablature#rafter:5|non-contact: plumb-cut occupancy datum",
     "entablature#porch-entablature:1|non-contact: reference observation",
     "entablature#porch-entablature:7|non-contact: future visual review question",
     "openings#door-frame:2|non-contact: stated failure conditions",
-    "openings#double-door-leaf:7|non-contact: door opening pose is an instances observation",
+    "openings#double-door-leaf:8|non-contact: door opening pose is an instances observation",
     "cladding#ridge-tile:2|non-contact: topology instruction about omitting duplicate caps",
     "cladding#ridge-tile:5|non-contact: stated failure conditions",
     "wares#carry-jar:1|non-contact: reference observation",

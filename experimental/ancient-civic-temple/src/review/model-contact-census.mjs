@@ -33,13 +33,18 @@ export const modelContactClaims = (supplemental = false) => {
 // PASS labels have executable assertions on parsed source numbers, not counts.
 /** @type {Record<string, [string, string][]>} */
 const decisions = {
-  "scale#reference-scale": [["시작 접선에", "non-contact: UV seam construction"]],
+  "scale#reference-scale": [
+    ["하나의 prototype 안에서", "non-contact: repetition design requirement"],
+    ["원형 반복은", "non-contact: phase and datum design requirement"],
+    ["시작 접선에", "non-contact: UV seam construction"],
+  ],
   "scale#model-review-board": [["이 판은", "non-contact: review-board responsibility"]],
   "columns#colonnade-column": [
     ["전체 높이 h는", "colonnade capital supports beam underside"],
     ["source는 반올림한", "non-contact: instruction to consume the exact formula"],
     ["기단이 바닥에", "colonnade base and capital contact their hosts"],
-    ["동측 보 양끝은", "corner columns carry north-south beams and side beams butt to them"],
+    ["동측 보의 끝면은", "east beam corner notch removes the capital penetration"],
+    ["동측 변 중간의", "east capital supports east beam underside"],
     ["원통 하나로", "non-contact: stated failure condition, not a positive joint"],
   ],
   "columns#porch-column": [["주두 판 윗면은", "porch capital supports stone beam underside"]],
@@ -48,6 +53,7 @@ const decisions = {
     ["네 모서리 원주는", "corner columns carry north-south beams and side beams butt to them"],
     ["동·서 보는", "corner columns carry north-south beams and side beams butt to them"],
     ["동측 보 윗면은", "east beam side joint retains contact height"],
+    ["동측 보의 양끝에서", "east beam corner notch removes the capital penetration"],
     ["서측 보와", "colonnade beam ends abut without overlap"],
     ["아랫면 중 기둥", "colonnade beam ends abut without overlap"],
     ["검토 판에서는", "non-contact: future visual review question"],
@@ -58,6 +64,7 @@ const decisions = {
     ["주랑·동측 박공의", "rafter back cut reaches wall"],
     ["각 절단면은", "sanctuary rafters touch wall and slab"],
     ["양 내부 서까래의", "sanctuary rafter tips meet at ridge"],
+    ["각 연속 부재에서", "non-contact: plumb-cut occupancy datum"],
     ["윗면은 지붕", "rafter touches slab and beam"],
   ],
   "entablature#porch-entablature": [
@@ -81,7 +88,8 @@ const decisions = {
   "openings#double-door-leaf": [
     ["맞닿는 선대", "double leaf ring and plate placement"],
     ["손잡이와 받침판", "double plate, pin, rail connected"],
-    ["받침판의 반지름", "double plate, pin, rail connected"],
+    ["중심 Y=", "double plate, pin, rail connected"],
+    ["판 전체는", "double plate, pin, rail connected"],
     ["반지름 0.006m의", "double ring to upper pin"],
     ["핀 축의 받침판", "double plate, pin, rail connected"],
     ["앞핀은 Z=", "double front and back pin contact"],
@@ -156,6 +164,7 @@ const decisions = {
   "scale#reference-scale:supplemental": [["Z축 연결 핀은", "non-contact: UV projection rule rather than an assembly claim"]],
   "scale#articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
   "scale#model-review-board:supplemental": [["조명은 건물", "non-contact: review-board light setting"]],
+  "entablature#colonnade-beam:supplemental": [["중간 원주 위의 아랫면은", "east beam corner notch removes the capital penetration"]],
   "entablature#rafter:supplemental": [
     ["제실 양쪽의", "sanctuary rafter pair stops at both faces of the side wall"],
     ["서까래 없이", "non-contact: stated failure conditions"],

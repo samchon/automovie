@@ -39,10 +39,15 @@ near("colonnade capital supports beam underside", columnTop, beamTop - beamDepth
 near("east capital supports east beam underside", columnTopEast, beamTopEast - beamDepth, 1e-6);
 pass("corner columns carry north-south beams and side beams butt to them",
   column.includes("모서리 원주는 남·북 보 아래의 12° 높이 변형") &&
-    column.includes("동측 보 양끝은 모서리 원주가 아니라 남·북 보의 옆면 접촉") &&
+    column.includes("동측 보의 끝면은 남·북 보 옆면에 닿고") &&
     beam.includes("네 모서리 원주는 12° 높이 변형으로 남·북 보를 직접 받친다") &&
     beam.includes("동·서 보는 남·북 보의 서로 마주 보는 옆면에 끝면을 맞대고"));
-near("east beam side joint retains contact height", beamDepth - (beamTop - beamTopEast), 0.275345671, 1e-6);
+const eastDrop = beamTop - beamTopEast;
+near("east beam side joint retains contact height", beamDepth - eastDrop,
+  n(beam, /끝면의 공통 접촉 높이는 ([\d.]+)m/), 1e-6);
+const cornerNotch = n(beam, /양끝에서 모서리 주두와 겹치는 길이 ([\d.]+)m/);
+const cornerNotchDepth = n(beam, /δ=Ybeam\(12°\)−Ybeam\(19°\)=([\d.]+)m/);
+near("east beam corner notch removes the capital penetration", cornerNotchDepth, eastDrop, 1e-8);
 pass("colonnade base and capital contact their hosts",
   /로컬 원점은 기단 바닥면/.test(column) &&
   n(column, /기단\(정방 [\d.]+×[\d.]+m, 높이 ([\d.]+)m/) > 0 &&
@@ -58,6 +63,8 @@ const courtBack = n(colonnadeDatums, /court-back \| Z=-([\d.]+) \|/);
 const courtFront = n(colonnadeDatums, /court-front \| Z=([\d.]+) \|/);
 const columnInset = n(beam, /중정 경계에서 ([\d.]+)m 안쪽/);
 const beamNearEdge = columnInset - beamWidth / 2;
+near("east beam corner notch spans the exposed capital strip", cornerNotch,
+  (capitalWidth - beamWidth) / 2, 1e-6);
 const roofSupport = n(roofAssembly, /상면은 Y=([\d.]+)m/);
 const roofThickness = n(roofAssembly, /법선 두께는 ([\d.]+)m/);
 const rafterDepth = n(rafter, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
@@ -227,7 +234,7 @@ assert.ok(pinPlateRadialMargin(plateRadius, plateCenterY, doublePinRadius, doubl
 assert.ok(plateRadius > doublePinRadius && Math.abs(doublePinY - plateCenterY) < plateRadius,
   "double pin axis must penetrate the plate disk, not merely touch its rim");
 assert.ok(d.includes("받침판은 문 중앙 가로대의 면 Z=0~+0.006m/−0.056~−0.05m에서 판문과 면 접촉") &&
-  d.includes("Y=1.00~1.10m 띠는 가로대 위에 직접 붙"),
+  d.includes("Y=1.00~1.10m 띠는 가로대에 직접 붙"),
 "double plate must have a positive-area connection to the door rail");
 console.log("PASS double plate, pin, rail connected", plateRadius, doublePinY - plateCenterY);
 const single = h2("openings", "single-door-leaf");
@@ -327,18 +334,25 @@ for (const angle of [19, 22]) {
 assert.ok(tile.includes("마지막 0.16m의 경사 구간은 둥근기와와 두 턱을 만들지 않고") &&
   ridge.includes("용마루 앞 0.16m에서 둥근기와와 턱을 멈추고"),
 "curved tiles must terminate before the ridge cap's 0.15m nose");
-const eastCapTop = 4.53 + 0.02 / Math.cos(19 * Math.PI / 180) -
-  0.13 * Math.tan(19 * Math.PI / 180) + 0.15;
-assert.ok(eastCapTop <= 4.69 - 0.01, "east ridge cap must clear south coping by 0.01m");
+const eastCapAngle = n(ridge, /동측 ([\d.]+)°/);
+const eastCapTop = n(ridge, /slab 용마루 상면 약 ([\d.]+)m에 19°/) +
+  n(ridge, /Y0=([\d.]+)m\/cos\(α\)/) / Math.cos(eastCapAngle * Math.PI / 180) -
+  n(ridge, /cos\(α\)−([\d.]+)m×tan\(α\)/) * Math.tan(eastCapAngle * Math.PI / 180) +
+  n(ridge, /`Y0\+([\d.]+)m`/);
+assert.ok(eastCapTop <= n(ridge, /코핑 아랫면 ([\d.]+)m까지/) -
+  n(ridge, /([\d.]+)m 여유를 확보한다/), "east ridge cap must clear south coping");
 console.log("PASS ridge cap contacts both roof tiles and clears coping", eastCapTop);
 const basket = h2("wares", "basket");
 near("basket torus top", n(basket, /중심 높이 Y=([\d.]+)m/) + n(basket, /관 반지름 ([\d.]+)m인 원환/), n(basket, /맨 위가 Y=([\d.]+)m/));
 const scroll = h2("wares", "scroll");
 assert.ok(scroll.includes("(0,−0.03),(0,+0.03),(0.03√3,0)") && scroll.includes("0.03√3+0.07"));
-assert.ok(scroll.includes("(Y,Z)=(0.02,±(0.175+√(0.02²−0.018²)))m"),
-  "scroll roll centre must be derived from its sheet-edge tangent");
-near("open scroll roll touches sheet top edge", rollSheetGap(0.002, 0.175, 0.02,
-  0.175 + Math.sqrt(0.02 ** 2 - 0.018 ** 2), 0.02), 0);
+const openRoll = scroll.match(/\(Y,Z\)=\(([\d.]+),±\(([\d.]+)\+√\(([\d.]+)²−([\d.]+)²\)\)\)m/);
+assert.ok(openRoll, "scroll roll centre must be derived from its sheet-edge tangent");
+const [, rollY, edgeZ, formulaRadius, verticalGap] = openRoll.map(Number);
+const openRollRadius = n(scroll, /말린 끝은 X축 반지름 ([\d.]+)m/);
+const sheetThickness = n(scroll, /두께 ([\d.]+)m 판으로/);
+near("open scroll roll touches sheet top edge", rollSheetGap(sheetThickness, edgeZ, openRollRadius,
+  edgeZ + Math.sqrt(formulaRadius ** 2 - verticalGap ** 2), rollY), 0);
 const rollRadius = n(scroll, /반지름 ([\d.]+)m·길이 [\d.]+m 원통/);
 const tieRadius = n(scroll, /중심선 반지름 ([\d.]+)m·관 반지름/);
 const tubeRadius = n(scroll, /중심선 반지름 [\d.]+m·관 반지름 ([\d.]+)m/);

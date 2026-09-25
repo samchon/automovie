@@ -4,7 +4,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 모든 prototype이 따를 좌표·단위, 공유 축척 기준(보행 포락 0.6×0.4×1.9m), settings 범위·spaces 순치수에서의 치수 유도, 표현 상한, 반복 부재를 instances에 넘기는 경계를 한 H2에 모두 둔다.
-@evidence principles/core/common.md#substantive-completion 비교 규칙(점유 상자를 settings 범위와 보행 포락에 함께 대조, 통로를 막으면 실패)과 허용·금지 시각 주장 목록이 있어 각 모델 H2가 자기 상한과 축척을 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 점유 상자를 settings 범위·보행 포락과 대조하는 규칙, 허용·금지 시각 주장과 prototype 안 이산 반복의 개수·간격·시작 위치·기준면 요구가 있어 source가 축척이나 반복 위상을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 좌표는 00-delivery#coordinates, 축척은 10-building#use-profile, 상한은 50-production#fidelity, 표면 ID 경계는 20-envelope#material-language, prototype/배치 분담은 00-delivery#build-scope에서 온다고 문장마다 연결한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 보행 포락과 표현 수준을 모델 population의 비교 규칙·리뷰 거리 2~25m·곡면 분할과 법선 규칙이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 결정론적 blocking geometry라는 proxy 상태와 허용 주장(실루엣·부재 분리·실제 빈 공간·두께)과 금지 주장(조각·세로 홈·풍화·정확한 고대 비례)을 population 전체에 정한다.
@@ -36,6 +36,8 @@
 모든 신전 모델은 오른손 Y-up, 길이 m의 [좌표 규약](../settings/00-delivery.md#coordinates)을 따르고 별도의 앞·위 축을 두지 않는다. 공유 축척 기준은 [이용 조건](../settings/10-building.md#use-profile)의 성인 보행 포락 폭 0.6m·깊이 0.4m·높이 1.9m다. 각 모델의 치수는 해당 settings 범위([물체](../settings/35-objects.md), [외피](../settings/20-envelope.md), [실내](../settings/30-interiors.md))와 판정된 spaces의 순치수(문 유효 폭·높이, 주랑 기둥 예산, 지붕 하부 높이)에서 유도하며 primitive 기본 크기를 치수로 쓰지 않는다. 비교 규칙은 모델의 점유 상자를 그 settings 범위와 보행 포락에 함께 대조하는 것이다. 범위를 벗어나거나 보행 포락보다 큰 집기가 방 통로를 막으면 그 모델 H2가 실패다.
 
 표현 상한은 결정론적 blocking geometry다. 허용하는 시각 주장은 리뷰 거리(눈높이 1.6m, 대상까지 약 2~25m)의 실루엣, 부재 분리(기단·몸통·주두, 문틀·문짝의 선대·가로대·판, 테두리·몸통·목), 실제 빈 공간(문 개구, 수반 안쪽, 선반 칸, 궤 뚜껑의 틈), 실제 두께다. 조각 장식, 세로 홈, 공구 자국, 기하로 새긴 나뭇결과 기와 한 장씩의 불규칙, 기하로 새긴 풍화, 끈과 짜임의 미세 형상, 특정 고대 양식의 정확한 비례는 주장하지 않는다. 곡면은 각 H2가 정한 분할 수의 다면체이며 부드러운 법선은 그 H2가 요구한 곳에만 쓴다. 재료의 색·거칠기·결과 무늬는 materials가 정한다. 모델은 안정된 표면 ID와 다음 UV0 물리 좌표를 모두 낸다.
+
+하나의 prototype 안에서 이산 부재를 반복하면 해당 H2가 개수·간격·첫 부재의 위치 또는 각 위상·기준 부재의 어느 면에 붙는지까지 정한다. 원형 반복은 첫 부재의 중심각과 진행 방향을 적고, 다각형 면에 붙는 부재의 돌출은 꼭짓점 외접원이 아니라 그 면의 바깥 법선에서 잰다. 일렬 반복은 첫 중심 또는 첫 모서리와 진행 축을 적는다. 이 규칙은 instances가 정하는 건물 내 prototype 배치 횟수를 대신 정하지 않는다.
 
 모든 방출 part는 position마다 유한한 UV0 한 쌍을 가진다. 로컬 원점에서 1 UV 단위는 1m다. 기본 평면 투영은 각 삼각형의 주법선 축으로 정한다. 법선 +X에는 (U,V)=(−Z,Y), −X에는 (Z,Y), +Y에는 (X,−Z), −Y에는 (X,Z), +Z에는 (X,Y), −Z에는 (−X,Y)를 쓴다. 각 경우 U×V는 해당 바깥법선을 향하므로 양면의 무늬가 거울상으로 뒤집히지 않는다. 면이 바뀌는 단단한 모서리와 서로 다른 part·표면 ID에서는 정점을 복제해 이음을 끊는다. 삼각형 하나 안에서 투영 축을 바꾸지 않는다. 잘린 끝면은 새 면 법선으로 다시 투영하고, 같은 면 안의 반복 부재는 각 prototype의 로컬 원점을 유지하므로 배치가 UV 원점을 새로 고르지 않는다. materials는 이 미터 좌표에서 반복 빈도·색·거칠기·텍스처 이미지를 결정한다. UV0가 없는 part에 texture를 결속하려 하면 source/viewer 검증이 실패해야 하며 단색으로 조용히 건너뛰지 않는다.
 

@@ -12,9 +12,9 @@
  *     소비하던 문장을 찾는 용도이며 host 본문이 그대로면 lint가 다시 보지 않는 결함을 잡는다.
  * 겹침, 실체 안 관찰, 결산 계약 위반이 하나라도 있으면 종료 코드 1이다.
  */
-import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
-import { join, relative } from "node:path";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { dirname, join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
 import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches, modelPartNounMismatches } from "./model-account";
@@ -27,6 +27,7 @@ import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations } from "../spaces/observations";
 import { envelopeSolids } from "./envelope-overlaps";
 import { checkModelTessellation } from "./model-tessellation-census.mjs";
+import { checkModelProseConsistency } from "./model-prose-consistency.mjs";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
 const grid = Number(values.grid);
@@ -201,6 +202,18 @@ try {
   if (failure.stderr) console.error(String(failure.stderr).trim());
 }
 const tessellation = checkModelTessellation();
+const proseConsistency = checkModelProseConsistency();
+const npmCli = [process.env.npm_execpath, join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")]
+  .find((path) => path !== undefined && existsSync(path));
+const unit = npmCli
+  ? spawnSync(process.execPath, [npmCli, "run", "test"], { cwd: join(__dirname, "..", ".."), encoding: "utf8" })
+  : spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "test"], {
+    cwd: join(__dirname, "..", ".."), encoding: "utf8", shell: process.platform === "win32",
+  });
+const unitFailure = unit.status === 0 ? 0 : 1;
+const unitSummary = (unit.stdout ?? "").split(/\r?\n/).filter((line) => /^ℹ (?:tests|pass|fail|todo) /.test(line));
+console.log(`pure unit suite: exit ${unit.status ?? "spawn failure"}; ${unitSummary.join("; ")}`);
+if (unitFailure) console.error((unit.stderr ?? "") + "\n" + (unit.stdout ?? ""));
 const sectionRanks = modelSectionMeasures(modelDocuments);
 console.log(`model H2 ranks: ${sectionRanks.length} sections; top 7 ${sectionRanks.slice(0, 7).map((row) => `${row.title}=${row.body}`).join(", ")}; shortest 4 ${sectionRanks.slice(-4).reverse().map((row) => `${row.title}=${row.body}`).join(", ")}`);
 
@@ -232,6 +245,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + geometryFailures + tessellation.failures.length + Number(addressControlFailed) + Number(ownViewControlFailed);
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
 console.log(`self-check failures: ${failureCount}`);
 process.exitCode = failureCount > 0 ? 1 : 0;

@@ -12,11 +12,51 @@ const files = ["columns", "entablature", "openings", "cladding", "fixtures", "wa
 const curved = /원판|원통|원환|원뿔대|타원체|베지어|반원통|반타원|곡면|파문/;
 const segments = /\d+(?:×\d+)?분할|\d+정점|\d+등분|\d+개 삼각형/;
 
+/** Circular rows are specified by count, pitch and a first centre. The face
+ * normal is the datum for an outward offset, not the cylinder's vertex radius.
+ * @param {string} body
+ * @returns {string[]}
+ */
+export const circularRepetitionFailures = (body) => {
+  const failures = [];
+  for (const row of body.matchAll(/(\d+)개의\s+([가-힣 ]{2,16})은\s+둘레를 따라 중심각\s+([\d.]+)°마다/g)) {
+    const [, countText, noun, pitchText] = row;
+    const count = Number(countText), pitch = Number(pitchText);
+    const first = body.match(new RegExp(`k번째 ${noun.trim()}\\(k=0\\.\\.(\\d+)\\)의 시작각은 θ₀=([\\d.]+)°이고 중심각은 θ\\(k\\)=([\\d.]+)°\\+([\\d.]+)°k`));
+    if (!first) { failures.push(`${noun.trim()}: circular repeat has no first centre`); continue; }
+    const [, lastText, phaseText, repeatedPhaseText, repeatedPitchText] = first;
+    const phase = Number(phaseText);
+    if (Number(lastText) !== count - 1 || Math.abs(count * pitch - 360) > 1e-8 ||
+        Math.abs(Number(repeatedPhaseText) - phase) > 1e-8 ||
+        Math.abs(Number(repeatedPitchText) - pitch) > 1e-8)
+      failures.push(`${noun.trim()}: count, pitch and start formula disagree`);
+    if (!/안쪽 면은 (?:해당 )?[^.\n]+? 면과 같은 평면/.test(body) ||
+        !/바깥 면은 (?:그|해당) 면의 바깥 법선 방향으로 [\d.]+m 나온다/.test(body))
+      failures.push(`${noun.trim()}: outward offset lacks a host face datum`);
+    if (body.includes("벽 면의 가운데") && Math.abs(phase - pitch / 2) > 1e-8)
+      failures.push(`${noun.trim()}: a face-centred row needs a half-pitch phase`);
+  }
+  return failures;
+};
+
+/** @param {string} body @returns {string[]} */
+export const polygonPhaseFailures = (body) => {
+  const failures = [];
+  if (/받침판\([^)]*둘레 (\d+)분할 원판\)/.test(body)) {
+    const plate = body.match(/받침판[^\n]*?둘레 (\d+)분할 원판/);
+    const phase = body.match(/받침판 (\d+)각형은 0번 꼭짓점이 \+X이고 (\d+)번 꼭짓점이 \+Y다/);
+    if (!plate || !phase || Number(plate[1]) !== Number(phase[1]) ||
+        Number(phase[2]) * 4 !== Number(phase[1]))
+      failures.push("round plate pin-side polygon phase is missing or inconsistent");
+  }
+  return failures;
+};
+
 /** @param {string} source @returns {{id:string,body:string}[]} */
 export const modelSections = (source) => source.replace(/\r\n/g, "\n").split(/^## /m).slice(1).map((section) => {
   const anchor = section.match(/\{#([^}]+)\}/)?.[1];
   if (!anchor) throw new Error("model H2 has no anchor");
-  return { id: anchor, body: section.replace(/<!--[\s\S]*?-->/g, "").split("\n").slice(1).join(" ") };
+  return { id: anchor, body: section.replace(/<!--[\s\S]*?-->/g, "").split("\n").slice(1).join("\n") };
 });
 
 /**
@@ -54,6 +94,8 @@ export const tessellationFailures = (id, body) => {
     if (/세로 살/.test(body) && !has((sentence) => /세로 살.*Y=[\d.]+~[\d.]+m/.test(sentence)))
       failures.push(`${id}: vertical slats have no height interval`);
   }
+  failures.push(...circularRepetitionFailures(body).map((failure) => `${id}: ${failure}`));
+  failures.push(...polygonPhaseFailures(body).map((failure) => `${id}: ${failure}`));
   return failures;
 };
 

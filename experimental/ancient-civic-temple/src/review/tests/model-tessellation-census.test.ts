@@ -31,3 +31,19 @@ void test("a newly authored curved H2 without a division is red", () => {
   assert.match(tessellationFailures("new", "반지름 0.2m인 원통을 만든다.").join(" "), /curved construction/);
   assert.deepEqual(tessellationFailures("rectangular", "폭 0.2m인 직육면체를 만든다."), []);
 });
+
+void test("circular repeats require a first centre, compatible pitch and face-based offset", () => {
+  const basket = model("wares", "basket");
+  assert.deepEqual(tessellationFailures("basket", basket), []);
+  assert.match(tessellationFailures("basket", basket.replace("시작각은 θ₀=7.5°", "시작각은 미정")).join(" "), /first centre/);
+  assert.match(tessellationFailures("basket", basket.replace("θ(k)=7.5°+15°k", "θ(k)=7.5°+14°k")).join(" "), /count, pitch/);
+  assert.match(tessellationFailures("basket", basket.replace("θ₀=7.5°", "θ₀=0°").replace("θ(k)=7.5°", "θ(k)=0°")).join(" "), /half-pitch/);
+  assert.match(tessellationFailures("basket", basket.replace("바깥 법선 방향으로 0.004m", "반지름 기준으로 0.004m")).join(" "), /host face datum/);
+});
+
+void test("a pinned polygon plate requires its pin-facing vertex and valid phase", () => {
+  const plate = model("openings", "double-door-leaf");
+  assert.deepEqual(tessellationFailures("plate", plate), []);
+  assert.match(tessellationFailures("plate", plate.replace("0번 꼭짓점이 +X이고 4번 꼭짓점이 +Y", "위상은 미정")).join(" "), /polygon phase/);
+  assert.match(tessellationFailures("plate", plate.replace("4번 꼭짓점이 +Y", "3번 꼭짓점이 +Y")).join(" "), /polygon phase/);
+});

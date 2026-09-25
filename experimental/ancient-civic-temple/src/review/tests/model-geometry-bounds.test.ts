@@ -19,6 +19,8 @@ void test("geometry bounds read every defining input in the review mutations", (
     ["cladding", "겹침 코는 바깥 반지름 0.15m", "겹침 코는 바깥 반지름 0.25m", "east ridge"],
     ["openings", "X=+0.021m·Z=0m이며", "X=+0.00m·Z=0m이며", "double hinge"],
     ["openings", "Z=−0.068~+0.031m", "Z=−0.080~+0.031m", "single hinge"],
+    ["entablature", "δ=Ybeam(12°)−Ybeam(19°)=0.004654329m", "δ=Ybeam(12°)−Ybeam(19°)=0.002m", "east corner rebate"],
+    ["entablature", "로컬 점유 상자는 `0.08×0.12×(L/cos(α)+0.12tan(α))m`", "로컬 점유 상자는 `0.08×0.12×(L/cos(α)+0.10tan(α))m`", "rafter plumb cuts"],
   ];
   for (const [file, before, after, expected] of mutations) {
     assert.ok(source(file).includes(before), `${file}: mutation input exists`);

@@ -48,6 +48,28 @@ export const modelGeometryFailures = (read = diskSource) => {
     return floor < water && Math.abs(jet - (water + above)) < 1e-6;
   });
   const porch = h2(read, "entablature", "porch-entablature");
+  const beam = h2(read, "entablature", "colonnade-beam");
+  const column = h2(read, "columns", "colonnade-column");
+  check("east corner rebate fits capital and beam elevation", () => {
+    const northTop = n(beam, /12° 외쪽 변은 Ybeam=([\d.]+)m/);
+    const eastTop = n(beam, /19° 동측 박공 변은 Ybeam=([\d.]+)m/);
+    const notchLength = n(beam, /모서리 주두와 겹치는 길이 ([\d.]+)m/);
+    const notchDepth = n(beam, /δ=Ybeam\(12°\)−Ybeam\(19°\)=([\d.]+)m/);
+    const capitalWidth = n(column, /주두 판\(정방 ([\d.]+)×/);
+    const beamWidth = n(beam, /보 폭 ([\d.]+)m이므로/);
+    return Math.abs(notchDepth - (northTop - eastTop)) < 1e-8 &&
+      Math.abs(notchLength - (capitalWidth - beamWidth) / 2) < 1e-8;
+  });
+  const rafter = h2(read, "entablature", "rafter");
+  check("rafter plumb cuts fit the declared local box", () => {
+    const width = n(rafter, /단면은 폭 ([\d.]+)m·깊이/);
+    const depth = n(rafter, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
+    const box = rafter.match(/로컬 점유 상자는 `([\d.]+)×([\d.]+)×\(L\/cos\(α\)\+([\d.]+)tan\(α\)\)m`/);
+    assert.ok(box, "rafter must declare plumb-cut box formula");
+    const [boxWidth, boxDepth, extra] = box.slice(1).map(Number);
+    return Math.abs(width - boxWidth) < 1e-8 && Math.abs(depth - boxDepth) < 1e-8 &&
+      Math.abs(depth - extra) < 1e-8;
+  });
   check("porch cornice projection fits declared depth", () => {
     const beam = n(porch, /앞뒤 폭 ([\d.]+)m/);
     const projection = n(porch, /수평 코니스는[^\n]*?\+Z로 ([\d.]+)m 돌출/);
