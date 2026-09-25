@@ -72,6 +72,16 @@
  * their calibration is flattest, and their transfer made a skewed mouth of
  * a symmetric smile.
  *
+ * The eye's slant, `canthalTilt`, is the inclination of the palpebral
+ * fissure (Farkas 1994: the en-ex line against the horizontal), read as the
+ * exocanthion's rise above endocanthion over the fissure's length, the sine
+ * of the angle, signed and positive when the outer corner is higher. The
+ * lateral canthal tendon sets that corner, so the index pairs with the
+ * lateral canthus elevation pair; the medial corner is held by the medial
+ * tendon to the lacrimal crest and is the reference. On the basis a full
+ * unit of the pair turns the fissure about 0.065 (3.7 degrees) and moves no
+ * other index by more than 2.4 percent.
+ *
  * The pairing is anatomical and was checked on the basis: at full weight
  * every paired control moves its own index by 13 to 45 percent and each other
  * index by a smaller amount (the solve still accounts for those cross
@@ -168,6 +178,12 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     id: "fissureHeight",
     definition: "mean ps-pi height (159-145, 386-374) over fissure length",
     channels: ["leftEyeHeight", "rightEyeHeight"],
+  },
+  {
+    id: "canthalTilt",
+    definition:
+      "mean exocanthion rise above endocanthion (33 over 133, 263 over 362) over each fissure's length, signed, positive when the outer corner is higher",
+    channels: ["leftLateralCanthusElevation", "rightLateralCanthusElevation"],
   },
   {
     id: "noseWidth",
@@ -292,6 +308,16 @@ export function measureFaceAnthropometry(
     intercanthal: ratio(W(133, 362), fw),
     fissureLength: ratio(fl, fw),
     fissureHeight: ratio(mean(H(159, 145), H(386, 374)), fl),
+    canthalTilt: ((): number | null => {
+      const rise = (en: number, ex: number): number | null => {
+        const [p, q] = [at(en), at(ex)];
+        const length = D(en, ex);
+        return p && q && length !== null && length > 0
+          ? (p[1] - q[1]) / length
+          : null;
+      };
+      return mean(rise(133, 33), rise(362, 263));
+    })(),
     noseWidth: ratio(W(129, 358), fw),
     noseHeight: ratio(H(168, 2), fh),
     mouthWidth: ratio(mw, fw),

@@ -66,7 +66,11 @@ const face = (): FaceAnthropometryPoint[] => {
  *    subnasale there is no shift; a signed index writes its magnitude to
  *    `mouthLeft` or `mouthRight` by its sign, and an unsigned one (the lip
  *    gap's lower lip depressor pair) takes its value.
- * 4. A missing landmark leaves only the indices that read it null; fewer
+ * 4. Outer canthi raised 3 above inner canthi 30 apart tilt both fissures
+ *    by 3 / sqrt(909), the same in the image turned upside down; lowered,
+ *    the tilt is negative; without one exocanthion, or with the canthi
+ *    of each eye at one point, there is no tilt.
+ * 5. A missing landmark leaves only the indices that read it null; fewer
  *    than two midline landmarks refuse.
  */
 export const test_subject_face_anthropometry = (): void => {
@@ -77,6 +81,7 @@ export const test_subject_face_anthropometry = (): void => {
     intercanthal: 30 / 120,
     fissureLength: 30 / 120,
     fissureHeight: 10 / 30,
+    canthalTilt: 0,
     noseWidth: 36 / 120,
     noseHeight: 40 / 100,
     mouthWidth: 50 / 120,
@@ -191,6 +196,40 @@ export const test_subject_face_anthropometry = (): void => {
         ["mouthLowerDownRight", 0.5],
       ],
     ],
+  );
+  const tilted = [...points];
+  tilted[33] = [-45, 2];
+  tilted[263] = [45, 2];
+  const drooping = [...points];
+  drooping[33] = [-45, 8];
+  drooping[263] = [45, 8];
+  const upside = tilted.map((p) =>
+    p === undefined ? undefined : ([-p[0], -p[1]] as const),
+  );
+  const blind = [...tilted];
+  blind[263] = undefined;
+  const collapsed = [...tilted];
+  collapsed[33] = collapsed[133];
+  collapsed[263] = collapsed[362];
+  TestValidator.predicate(
+    "signed canthal tilt",
+    nclose(
+      measureFaceAnthropometry(tilted).canthalTilt!,
+      3 / Math.sqrt(909),
+      1e-9,
+    ) &&
+      nclose(
+        measureFaceAnthropometry(upside).canthalTilt!,
+        3 / Math.sqrt(909),
+        1e-9,
+      ) &&
+      nclose(
+        measureFaceAnthropometry(drooping).canthalTilt!,
+        -3 / Math.sqrt(909),
+        1e-9,
+      ) &&
+      measureFaceAnthropometry(blind).canthalTilt === null &&
+      measureFaceAnthropometry(collapsed).canthalTilt === null,
   );
   const missing = [...points];
   missing[129] = undefined;
