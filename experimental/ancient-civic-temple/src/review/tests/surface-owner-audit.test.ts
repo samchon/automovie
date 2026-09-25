@@ -65,3 +65,17 @@ void test("missing, malformed, and duplicated table rows fail", () => {
     /방출 owner가 없습니다/,
   );
 });
+
+void test("every ownership row keeps its design link and source path", () => {
+  const row = markdown.split(/\r?\n/).find((line) => line.includes("| `facade-north` |"));
+  assert.ok(row);
+  const columns = row.split("|");
+  const mutate = (index: number, replacement: string): string => {
+    const changed = [...columns];
+    changed[index] = replacement;
+    return markdown.replace(row, changed.join("|"));
+  };
+  assert.ok(auditSurfaceOwners(mutate(2, " missing design link "), emitted).failures.length > 0);
+  assert.ok(auditSurfaceOwners(mutate(3, " src/elsewhere/owner.ts "), emitted).failures.length > 0);
+  assert.ok(auditSurfaceOwners(markdown.replace(row, row.replace("| `facade-north` |", "| extra | `facade-north` |")), emitted).failures.length > 0);
+});

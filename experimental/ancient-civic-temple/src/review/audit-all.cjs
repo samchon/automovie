@@ -7,17 +7,20 @@ const auditStatuses = (statuses) => statuses.reduce(
   0,
 );
 
-/** @param {(command: string, args: string[], options: { shell: boolean; stdio: "inherit" }) => { status: number | null }} [run] */
+/**
+ * @param {(command: string, args: string[], options: { shell: boolean; stdio: "inherit" }) => { status: number | null }} [run]
+ * @param {(line: string) => void} [write]
+ */
 const runAudit = (run = spawnSync, write = (line) => process.stdout.write(line)) => {
   const scripts = ["lint", "test", "self-check"];
   const statuses = scripts.map((script) => {
     const npmCli = process.env.npm_execpath;
-    const directCli = npmCli?.endsWith(".js");
+    const cli = typeof npmCli === "string" && npmCli.endsWith(".js") ? npmCli : null;
     const result = run(
-      directCli ? process.execPath : process.platform === "win32" ? "npm.cmd" : "npm",
-      directCli ? [npmCli, "run", script] : ["run", script],
+      cli ? process.execPath : process.platform === "win32" ? "npm.cmd" : "npm",
+      cli ? [cli, "run", script] : ["run", script],
       {
-        shell: !directCli && process.platform === "win32",
+        shell: !cli && process.platform === "win32",
         stdio: "inherit",
       },
     );
