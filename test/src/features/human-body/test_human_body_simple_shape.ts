@@ -133,11 +133,12 @@ export const test_human_body_simple_shape = (): void => {
   const absRow = table.terms.find((row) => row.channel === "absDefinition")!;
   for (const sample of [
     { ageYears: 11, sex: 1, definition: 0 },
-    { ageYears: 11, sex: -1, definition: 0.496 },
-    { ageYears: 15, sex: 1, definition: 0.24 },
-    { ageYears: 15, sex: -1, definition: 0.845 },
-    { ageYears: 16, sex: 1, definition: 0.926 },
-    { ageYears: 16, sex: -1, definition: 0.7552 },
+    { ageYears: 11, sex: -1, definition: 0.186 },
+    { ageYears: 15, sex: 1, definition: 0.09 },
+    { ageYears: 15, sex: -1, definition: 0.39 },
+    // from 15 to 18 the muscle's fat-free mass shift ramps in: at 16 a third
+    { ageYears: 16, sex: 1, definition: 0.918667 },
+    { ageYears: 16, sex: -1, definition: 0.572 },
   ])
     TestValidator.predicate(
       `age-specific definition ${sample.ageYears} ${sample.sex}`,
@@ -228,7 +229,7 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.equals("age", young.macroAge, 0);
   TestValidator.equals("muscle", young.macroMuscle, 0.5);
   TestValidator.predicate("ptosis lift", nclose(young.buttocksPtosis, -0.2));
-  TestValidator.predicate("abs definition", nclose(young.absDefinition, 0.244));
+  TestValidator.predicate("abs definition", nclose(young.absDefinition, 0.3025));
   // no flank row fires at BMI 22, and the mass direction leaves the banded
   // flank depot alone
   TestValidator.predicate("no flank fat", nclose(young.flankFat, 0));
@@ -389,14 +390,15 @@ export const test_human_body_simple_shape = (): void => {
         name === "massKilograms" ? 0.05 : name === "waistMetres" ? 1e-3 : 1e-4,
       ),
     );
-  // the curve inverse holds at its ends: a feminine extreme reads -1, a
-  // muscle worn past the table's last point reads its last abscissa
+  // the curve inverse holds at its ends: a feminine extreme reads -1, and
+  // the muscle macro at the table's last point (the competition node, 2)
+  // reads its last abscissa
   const ends = projectHumanBodySimpleShape(basis, {
     macroGender: -1,
     macroMuscle: 2,
   });
   TestValidator.equals("sex at the first point", ends.sex, -1);
-  TestValidator.equals("muscle past the last point", ends.muscle, 1);
+  TestValidator.equals("muscle at the last point", ends.muscle, 2);
   // a basis without the identity channels reads them as neutral
   const plain = projectHumanBodySimpleShape(box, {});
   TestValidator.equals("plain sex", plain.sex, 0);

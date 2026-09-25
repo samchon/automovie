@@ -82,6 +82,33 @@ export const humanBodySimpleShapeMath = {
     };
   },
 
+  /**
+   * The excess fat the definition gates read, above essential fat: the
+   * regression's estimate less the fat-free mass the muscle parameter adds
+   * (a trained body at the same mass index carries less fat; adults only,
+   * ramped in from 15 to 18 years), never below
+   * one point over essential fat. The mass model's density keeps the
+   * regression's estimate.
+   */
+  visibleFat(
+    simple: Pick<IAutoMovieHumanBodySimpleShape, "sex" | "ageYears" | "muscle">,
+    bodyMassIndex: number,
+  ): number {
+    const { excess } = humanBodySimpleShapeMath.fat(simple, bodyMassIndex);
+    // the fat-free mass references are adult (Schutz et al. 2002 from 18
+    // years, Kouri et al. 1995 adult athletes): the shift ramps in from 15
+    // to 18 and a child keeps the regression
+    const adult = Math.min(1, Math.max(0, (simple.ageYears - 15) / 3));
+    const added =
+      adult *
+      simple.muscle *
+      humanBodySimpleShapeMath.curve(
+        HUMAN_BODY_SIMPLE_SHAPE.fat.muscleFatFreeMassIndex,
+        simple.sex,
+      );
+    return Math.max(1, excess - (100 * added) / bodyMassIndex);
+  },
+
   /** Fraction of total mass above the body clip ring, with a stated study-domain bridge. */
   headAndNeckFraction(ageYears: number): number {
     const table = HUMAN_BODY_SIMPLE_SHAPE.mass.headAndNeck;
@@ -113,8 +140,10 @@ export const humanBodySimpleShapeMath = {
       ageYears: simple.ageYears,
       bodyMassIndex,
       muscle: simple.muscle,
-      excessFatPercent: humanBodySimpleShapeMath.fat(simple, bodyMassIndex)
-        .excess,
+      excessFatPercent: humanBodySimpleShapeMath.visibleFat(
+        simple,
+        bodyMassIndex,
+      ),
     };
   },
 
