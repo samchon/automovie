@@ -292,6 +292,8 @@ function audit(account, roomOverride) {
     objectSurfaceStates: surfaces.states,
     objectSurfaceParts: surfaces.parts,
     objectSurfaceBindings: surfaces.bindings,
+    objectFaceDeclarations: surfaces.faceDeclarations,
+    provedObjectFaceDeclarations: surfaces.provedFaceDeclarations,
     errors,
   };
 }

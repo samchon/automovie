@@ -9,7 +9,17 @@ function responseDefined(root, description) {
     const target = path.resolve(root, "docs/materials", link[1]);
     return fs.existsSync(target) && fs.readFileSync(target, "utf8").includes(`{#${link[2]}}`);
   }
-  return /#[0-9a-fA-F]{6}\b/.test(description) && /roughness\s+\.?\d+/.test(description);
+  if (!/#[0-9a-fA-F]{6}\b/.test(description) || !/\broughness\s+\.?\d+/.test(description))
+    return false;
+  for (const match of description.matchAll(/\b(roughness|metallic|transmission|clearcoat)\s+([+-]?(?:\d+\.?\d*|\.\d+))/g)) {
+    const value = Number(match[2]);
+    if (!(value >= 0 && value <= 1)) return false;
+  }
+  for (const match of description.matchAll(/\b(ior|thickness)\s+([+-]?(?:\d+\.?\d*|\.\d+))/g)) {
+    const value = Number(match[2]);
+    if (!(match[1] === "ior" ? value > 1 : value > 0)) return false;
+  }
+  return true;
 }
 
 /** @param {string} root @param {Map<string,Map<string,Set<string>>>} models @param {string} materialText @param {string} [modelOverride] */
@@ -23,11 +33,18 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
   );
   const requiredFaces = new Set();
   const proseFaces = new Set();
+  const proseKeyByFace = new Map();
+  const duplicateFaces = [];
   let activeOwner = "";
   for (const line of modelText.split(/\r?\n/)) {
     activeOwner = /^## .*\{#([^}]+)\}/.exec(line)?.[1] || activeOwner;
     const face = /^@material-face\s+([^:]+):\s*([^\s]+)$/.exec(line);
-    if (face) requiredFaces.add(`${activeOwner}/${face[1].trim()}/${face[2]}`);
+    if (face) {
+      const address = `${activeOwner}/${face[1].trim()}/${face[2]}`;
+      if (requiredFaces.has(address)) duplicateFaces.push(address);
+      requiredFaces.add(address);
+      proseKeyByFace.set(address, `${activeOwner}/${face[2]}`);
+    }
     if (!activeOwner || /^@|^\||^<!--/.test(line)) continue;
     for (const match of line.matchAll(/`([a-z][a-z0-9.\-/]+)`/g)) {
       const segments = match[1].split("/");
@@ -39,6 +56,7 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
   const errors = [],
     covered = new Set(),
     overrides = new Set();
+  for (const face of duplicateFaces) errors.push(`${face}: duplicate model face declaration`);
   const finishDefinitions = new Map(), finishReferences = [];
   let bindings = 0,
     parts = 0;
@@ -117,7 +135,7 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
     if (!overrides.has(face))
       errors.push(`${face}: declared material face has no finish binding`);
   for (const face of requiredFaces)
-    if (!proseFaces.has([face.split("/")[0], ...face.split("/").slice(2)].join("/")))
+    if (!proseFaces.has(proseKeyByFace.get(face)))
       errors.push(`${face}: declared material face absent from model prose address`);
   for (const { owner, id } of finishReferences)
     if (!finishDefinitions.has(id)) errors.push(`${owner}: finish ${id} has no response definition`);
@@ -128,6 +146,9 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
     ),
     parts,
     bindings,
+    faceDeclarations: requiredFaces.size,
+    provedFaceDeclarations: [...requiredFaces].filter((face) => overrides.has(face) &&
+      proseFaces.has(proseKeyByFace.get(face))).length,
     finishDefinitions: finishDefinitions.size,
     finishReferences: finishReferences.length,
     errors,
