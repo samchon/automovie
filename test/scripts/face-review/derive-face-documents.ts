@@ -80,7 +80,6 @@ import {
   solveFaceAnthropometry,
   solveFaceNorms,
 } from "./faceAnthropometrySolve";
-import { faceAuricleVertices } from "./faceAuricle";
 import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
@@ -103,7 +102,9 @@ import {
 } from "./faceShapeFitSurface";
 import {
   FACE_UNSEEN_INDICES,
+  faceMidlineTriangles,
   faceUnseenNorm,
+  faceUnseenParts,
   measureFaceUnseen,
 } from "./faceUnseenNorms";
 
@@ -219,60 +220,7 @@ if (command === "identity") {
     resolution?: number;
   })[] = [...FACE_ANTHROPOMETRY_INDICES, ...FACE_UNSEEN_INDICES];
   const lips = basis.contact?.lips ?? null;
-  // The auricles, each the flap its side's auricle-shape targets move, and
-  // the scalp, over which the head's breadth is read.
-  const auricles = Object.fromEntries(
-    (["left", "right"] as const).map((side) => [
-      side,
-      faceAuricleVertices({
-        positions: human.positions,
-        indices: human.indices,
-        region: ["EarFlap", "EarWing", "EarLobe"].flatMap((name) => {
-          const one = channels.get(`${side}${name}`)!;
-          return [one.positive, one.negative].flatMap((endpoint) =>
-            (endpoint === null ? [] : (human.targets[endpoint] ?? [])).filter(
-              (_, i) => i % 4 === 0,
-            ),
-          );
-        }),
-        thickness: 0.01,
-      }),
-    ]),
-  ) as Record<"left" | "right", number[]>;
-  // The head's skin about each ear, the auricle left out, within 3 cm of
-  // the auricle's box: where the ear's protrusion is read from.
-  const skin = new Set(
-    human.regions
-      .filter((region) => region.id.endsWith("/skin"))
-      .flatMap((region) => region.indices),
-  );
-  const mastoids = Object.fromEntries(
-    (["left", "right"] as const).map((side) => {
-      const auricle = new Set(auricles[side]);
-      const P = human.positions;
-      const box = [0, 1, 2].map((k) => {
-        const along = auricles[side].map((v) => P[3 * v + k]!);
-        return [Math.min(...along) - 0.03, Math.max(...along) + 0.03] as const;
-      });
-      return [
-        side,
-        [...skin].filter(
-          (v) =>
-            !auricle.has(v) &&
-            box.every(
-              ([lo, hi], k) => P[3 * v + k]! >= lo && P[3 * v + k]! <= hi,
-            ),
-        ),
-      ];
-    }),
-  ) as Record<"left" | "right", number[]>;
-  const scalp = [
-    ...new Set(
-      (human.hairDomains ?? []).flatMap((domain) =>
-        domain.triangles.flatMap((t) => human.indices.slice(3 * t, 3 * t + 3)),
-      ),
-    ),
-  ];
+  const { auricles, mastoids, scalp } = faceUnseenParts(basis, human);
   const report: Record<string, unknown> = {};
   const derived = documents.map((document) => {
     const subject = subjectOf(document);
@@ -410,6 +358,7 @@ if (command === "identity") {
       build({ ...start, hair: undefined, expression: {} }),
       human.id,
     );
+    const midline = faceMidlineTriangles(rest, human.indices);
     const near = new Set<number>([
       ...(lips === null ? [] : [lips.upper, lips.lower]),
       ...scalp,
@@ -417,15 +366,8 @@ if (command === "identity") {
       ...auricles.right,
       ...mastoids.left,
       ...mastoids.right,
+      ...midline,
     ]);
-    const midline: number[] = [];
-    for (let t = 0; t < human.indices.length; t += 3) {
-      const triangle = human.indices.slice(t, t + 3);
-      const xs = triangle.map((vertex) => rest[3 * vertex]!);
-      if (Math.min(...xs) > 0.005 || Math.max(...xs) < -0.005) continue;
-      midline.push(...triangle);
-      for (const vertex of triangle) near.add(vertex);
-    }
     const rows = new Map<string, number[][]>();
     const row = (name: string): number[][] => {
       if (!rows.has(name)) {

@@ -49,8 +49,10 @@
  * norms send the nose, the lips and the chin together to their bounds,
  * where the index is reached at a nose depth of 0.6 to 1.
  */
+import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
+
 import type { IFaceAnthropometryIndex } from "./faceAnthropometry";
-import { faceAuricleLength } from "./faceAuricle";
+import { faceAuricleLength, faceAuricleVertices } from "./faceAuricle";
 import {
   type FaceMidsagittalPoint,
   faceMidsagittalLandmarks,
@@ -365,6 +367,131 @@ export function faceUnseenNorm(facts: {
     eLineUpper: base.eLineUpper + a.upper + t * (b.upper - a.upper),
     eLineLower: base.eLineLower + a.lower + t * (b.lower - a.lower),
   };
+}
+
+/**
+ * Each unseen reading's adult reference interval: over every ancestry and
+ * sex, at the ages its norm is given for (17 and 60 years, the span of the
+ * lips' ageing), the norm less and plus twice the index's spread.
+ */
+export function faceUnseenIntervals(): Record<
+  FaceUnseenReading,
+  [number, number]
+> {
+  const ancestries = Object.keys(FACE_UNSEEN_NORMS) as FacePopulationAncestry[];
+  return Object.fromEntries(
+    FACE_UNSEEN_INDICES.map((index) => {
+      const norms = ancestries.flatMap((ancestry) =>
+        (["male", "female"] as const).flatMap((sex) =>
+          [17, 60].map(
+            (ageYears) =>
+              faceUnseenNorm({ sex, ancestry, ageYears })![index.norm],
+          ),
+        ),
+      );
+      return [
+        index.id,
+        [
+          Math.min(...norms) - 2 * index.spread,
+          Math.max(...norms) + 2 * index.spread,
+        ],
+      ];
+    }),
+  ) as Record<FaceUnseenReading, [number, number]>;
+}
+
+/**
+ * The parts of a basis surface the unseen readings are taken over, found
+ * once on its neutral: each auricle (the flap its side's ear-shape targets,
+ * `leftEarFlap`, `leftEarWing`, `leftEarLobe` and the right ones, move,
+ * `faceAuricleVertices` at 1 cm), the head's skin within 3 cm of each
+ * auricle's box, the auricle left out (the head behind the ear), and the
+ * scalp (the vertices of its hair domains).
+ */
+export function faceUnseenParts(
+  basis: IAutoMovieHumanFaceBasis,
+  surface: IAutoMovieHumanFaceBasis["surfaces"][number],
+): {
+  auricles: { left: number[]; right: number[] };
+  mastoids: { left: number[]; right: number[] };
+  scalp: number[];
+} {
+  const P = surface.positions;
+  const channels = new Map(basis.channels.map((one) => [one.id, one]));
+  const sides = ["left", "right"] as const;
+  const auricles = Object.fromEntries(
+    sides.map((side) => [
+      side,
+      faceAuricleVertices({
+        positions: P,
+        indices: surface.indices,
+        region: ["EarFlap", "EarWing", "EarLobe"].flatMap((name) => {
+          const one = channels.get(`${side}${name}`);
+          return one === undefined
+            ? []
+            : [one.positive, one.negative].flatMap((endpoint) =>
+                (endpoint === null
+                  ? []
+                  : (surface.targets[endpoint] ?? [])
+                ).filter((_, i) => i % 4 === 0),
+              );
+        }),
+        thickness: 0.01,
+      }),
+    ]),
+  ) as Record<"left" | "right", number[]>;
+  const skin = new Set(
+    surface.regions
+      .filter((region) => region.id.endsWith("/skin"))
+      .flatMap((region) => region.indices),
+  );
+  const mastoids = Object.fromEntries(
+    sides.map((side) => {
+      const auricle = new Set(auricles[side]);
+      const box = [0, 1, 2].map((k) => {
+        const along = auricles[side].map((v) => P[3 * v + k]!);
+        return [Math.min(...along) - 0.03, Math.max(...along) + 0.03] as const;
+      });
+      return [
+        side,
+        [...skin].filter(
+          (v) =>
+            !auricle.has(v) &&
+            box.every(
+              ([lo, hi], k) => P[3 * v + k]! >= lo && P[3 * v + k]! <= hi,
+            ),
+        ),
+      ];
+    }),
+  ) as Record<"left" | "right", number[]>;
+  const scalp = [
+    ...new Set(
+      (surface.hairDomains ?? []).flatMap((domain) =>
+        domain.triangles.flatMap((t) =>
+          surface.indices.slice(3 * t, 3 * t + 3),
+        ),
+      ),
+    ),
+  ];
+  return { auricles, mastoids, scalp };
+}
+
+/**
+ * The triangles of a surface that reach within 5 mm of the midsagittal
+ * plane, over which a profile is read.
+ */
+export function faceMidlineTriangles(
+  positions: readonly number[],
+  indices: readonly number[],
+): number[] {
+  const midline: number[] = [];
+  for (let t = 0; t < indices.length; t += 3) {
+    const triangle = indices.slice(t, t + 3);
+    const xs = triangle.map((vertex) => positions[3 * vertex]!);
+    if (Math.min(...xs) > 0.005 || Math.max(...xs) < -0.005) continue;
+    midline.push(...triangle);
+  }
+  return midline;
 }
 
 /**

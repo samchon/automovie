@@ -4,8 +4,8 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
+import { faceSupportFaults } from "../../../scripts/face-review/faceEnvelope";
 import {
-  faceSupportFaults,
   faceVermilionRatios,
   prepareLipEnvelopeBasis,
 } from "../../../scripts/face-review/prepareLipEnvelopeBasis";
