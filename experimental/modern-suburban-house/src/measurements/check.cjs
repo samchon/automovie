@@ -4,6 +4,10 @@ const { spawnSync } = require("node:child_process");
 
 const root = path.resolve(__dirname, "../..");
 const audit = path.join(__dirname, "model-contract-audit.cjs");
+// npm supplies its JavaScript CLI path to scripts on every supported OS.
+// Executing it through Node avoids cmd.exe and shell-dependent command chains.
+const npmCli = process.env.npm_execpath;
+if (!npmCli) throw new Error("Run this aggregate through npm run check");
 /** @type {Array<[string, string, string[], "exit" | "accounts" | "handoffs" | "material-hosts"]>} */
 const tasks = [
   ["model accounts", process.execPath, [audit, "accounts"], "accounts"],
@@ -12,8 +16,8 @@ const tasks = [
   ["material bindings", process.execPath, [path.join(__dirname, "material-binding-scan.cjs"), "--check"], "exit"],
   ["reviewed referents", process.execPath, [path.join(__dirname, "referent-owner-scan.cjs"), "--check"], "exit"],
   ["model contacts", process.execPath, [path.join(__dirname, "model-contact-check.cjs")], "exit"],
-  ["geometry", "cmd.exe", ["/d", "/s", "/c", "npm run geometry-audit"], "exit"],
-  ["lint", "cmd.exe", ["/d", "/s", "/c", "npm run lint"], "exit"],
+  ["geometry", process.execPath, [npmCli, "run", "geometry-audit"], "exit"],
+  ["lint", process.execPath, [npmCli, "run", "lint"], "exit"],
 ];
 let failed = 0;
 for (const [name, command, args, kind] of tasks) {

@@ -20,7 +20,7 @@ const LIVING: IRoomSpace = {
   floor: PALETTE.woodFloor,
   reservations: [
     // living-plan: no furniture on the floor in front of entry-living-door.
-    { id: "living-door-swing", kind: "swing", x: [-2.85, -1.95], z: [-1.4, -0.35] },
+    { id: "living-door-swing", kind: "swing", x: [-2.89, -1.95], z: [-1.4, -0.35] },
     // living-furniture-use.
     { id: "living-sofa", kind: "furniture", x: [-2.9, -1.95], z: [-3.75, -1.65], y: [0, 0.9] },
     { id: "living-table", kind: "furniture", x: [-3.95, -3.45], z: [-3.3, -2.0], y: [0, 0.42] },
@@ -36,7 +36,7 @@ const LIVING: IRoomSpace = {
     // living-through-route: the bookcase is reached across the floor behind the sofa,
     // Z = [-4.65, -3.75], from the main band (X = -4.00) to the bookcase use zone (X = -2.30).
     { id: "living-bookcase-cross-route", kind: "route", x: [-4.0, -2.3], z: [-4.65, -3.75] },
-    { id: "living-front-route", kind: "route", x: [-4.9, -2.85], z: [-1.45, -0.45] },
+    { id: "living-front-route", kind: "route", x: [-4.9, -2.89], z: [-1.45, -0.45] },
   ],
 };
 

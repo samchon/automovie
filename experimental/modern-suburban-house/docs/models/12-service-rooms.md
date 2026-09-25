@@ -77,7 +77,7 @@
 
 부품은 몸통(깊이 0.28 m)과 두 문 전면 판(0.02 m)이며 손잡이는 각 문짝 하단에서 0.04 m 위, 각 문짝 가로 중심에 파는 폭 0.12 m·높이 0.025 m·깊이 0.012 m의 하단 홈으로, 돌출하지 않고 `leaf` 한 id를 쓴다. 재질 경계는 `carcass`, `leaf`이고 문은 강체다. 경첩·내부 선반·세제 용기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 정면에서 하단 1.50 m가 접는 상판 위 0.56 m 작업 높이를 남기는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
-몸통과 두 문 판의 차고 출입문 쪽 끝에서도 world X=[5.485,5.50], Z=[−3.35,−3.28], Y=[1.50,2.20] m의 문선 부피를 합집합에서 뺀다. 판마다 남는 수직 절단면을 원래 `carcass` 또는 `leaf`로 닫으며 홈 손잡이 중심은 기존 각 문 판의 남은 가로 폭 중앙에서 다시 산출한다. Y=[2.20,2.30] m의 윗몸통은 문선 머리보다 위라 원래 깊이를 유지한다. 팬트리 오른쪽 선반의 가장 가까운 Z 끝 −4.70 m는 차고 문선 끝 −4.40 m에서 0.30 m 떨어져 있어 이 문선에 대한 절개가 필요 없다.
+몸통과 두 문 판의 차고 출입문 쪽 끝에서는 [실내 문선](03-interior-doors.md#interior-door-members)의 세로 판 world X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[1.50,2.20] m와 머리 판 world X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[2.20,2.27] m의 합집합을 뺀다. 두 절개는 Y=2.20 m에서 면으로 만나므로 윗몸통도 2.27 m까지만 0.015×0.07 m 모서리를 비운다. 남은 수직·수평 절단면을 원래 `carcass` 또는 `leaf`로 닫으며 홈 손잡이 중심은 각 문 판의 남은 가로 폭 중앙에서 다시 산출한다. 외곽 X=[5.20,5.50]·Z=[−3.35,−2.05]·Y=[1.50,2.30] m는 유지되고 문선과의 공유 부피는 0이다.
 
 ## 머드룸 신발 벤치 {#mudroom-bench}
 <!--
@@ -100,7 +100,7 @@
 
 신발 벤치는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], 좌면 0.45 m를 외곽으로 받아 길이 0.80 m, 깊이 0.40 m, 높이 0.45 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 앉는 정면이며 배치에서 world +X를 향한다.
 
-부품은 좌판, 옆판 둘, 신발 선반 하나다. 좌판은 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반 상면은 0.10 m다. 신발 두 켤레를 선반 위의 낮은 상자 둘(0.28 × 0.10 × 0.10 m)로 둔다. 재질 경계는 `seat`, `carcass`, `shelf`, `shoe`이고 관절은 없다. 신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 좌면 0.45 m와 신발 선반이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+부품은 좌판, 옆판 둘, 신발 선반 하나다. 좌판은 Y = [0.42, 0.45], 옆판 두께 0.03 m, 신발 선반은 국소 X=[−0.37,0.37]·Z=[0.015,0.40]·Y=[0.07,0.10] m의 두께 0.03 m 판이며 상면은 0.10 m다. 신발 두 켤레를 선반 위의 낮은 상자 둘(0.28 × 0.10 × 0.10 m)로 둔다. 재질 경계는 `seat`, `carcass`, `shelf`, `shoe`이고 관절은 없다. 신발 끈·밑창 형상과 좌판 모서리 모따기는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 좌면 0.45 m와 신발 선반이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
 벤치 뒤 벽의 걸레받이는 계속 두고, 바닥에 닿는 두 `carcass` 옆판의 뒤 하단 국소 Z=[0,0.015], Y=[0,0.10] m를 비운다. 별도 뒤 받침은 만들지 않는다. 새 홈의 닫힌 면은 `carcass`로 받으며, 앉는 상판과 신발 선반의 앞 가장자리·벤치 예약 외곽은 움직이지 않는다. 벤치 뒤쪽 윗부분만 벽 마감에 닿는다.
 
@@ -153,6 +153,8 @@
 
 선반 브래킷 개별 형상·나사·앞 모서리 몰딩은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 위에서 L형 코너가 한 번만 채워졌는지, 정면에서 다섯 단 간격이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
+service-pantry-door의 팬트리 쪽 −Z 문선은 세계 X=[3.22,3.235]·Z=[−5.82,−5.75]·Y=[0,2.20] m다. 선반 다섯 판의 뒤쪽 띠마다 X=[3.22,3.235]·Z=[−5.82,−5.80] m의 0.015×0.020 m 앞 모서리를 판 두께 전체에서 빼고, 받침 띠에서도 같은 겹침을 제거한다. 남은 절단면은 판의 `shelf` 또는 받침의 `cleat`로 닫는다. 그 외의 L형 뒤·오른쪽 띠는 예약 범위를 유지하고 문선과 각 선반의 교집합은 0이다.
+
 ## 팬트리 식품 용기 {#pantry-containers}
 <!--
 @evidence principles/core/common.md#scope-preservation 밀폐 용기·식료품 상자·낮은 바구니 세 변형의 형상만 맡고 개수와 배치는 instances가 소유한다고 넘긴다.
@@ -199,6 +201,8 @@
 
 부품은 네 모서리 기둥(0.04 m 각)과 선반 판 다섯이다. 선반 상면은 차고 바닥 위 0.20 m부터 0.40 m 간격인 0.20, 0.60, 1.00, 1.40, 1.80 m이고 두께 0.03 m다. 수납 상자 넷을 0.40 × 0.35 × 0.28 m로 아래 두 단에 두어 몸체 깊이 안에 담는다. 재질 경계는 `post`, `shelf`, `bin`이고 관절은 없다. 기둥 타공 구멍·볼트·상자 뚜껑 손잡이는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 상자가 0.60 m 안에 드는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 
+네 `post`의 세계 X 중심은 7.17·8.83 m이고 Z 중심은 뒤 −6.43 m·앞 −5.87 m라 0.04 m 각 단면이 예약 끝에 맞는다. 뒤 기둥 둘은 차고 바닥 Y=−0.15 m에서 0.10 m 높이까지 벽 쪽 Z=[−6.45,−6.435] m를 각각 파내며, 이 홈은 [차고 걸레받이](06-interior-trim.md#wall-baseboard)의 0.015×0.10 m 띠와 면으로 맞닿는다. 기둥 윗부분과 선반의 뒤끝은 그 높이 위에서 벽에 닿아도 걸레받이와 겹치지 않는다. 홈의 절단면은 `post`가 덮고 선반 바깥 외곽은 그대로다.
+
 ## 차고 공구 작업대 {#garage-workbench}
 <!--
 @evidence principles/core/common.md#scope-preservation 차고 공구 작업대의 상판·다리·서랍 둘만 맡고 위 공구판은 다음 H2에 둔다.
@@ -221,6 +225,8 @@
 작업대는 [예약](../spaces/rooms/garage-interior.md#garage-storage-use)의 X = [9.00, 10.20], Z = [-6.45, -5.85], 상면 차고 바닥 위 0.90 m를 외곽으로 받아 길이 1.20 m, 깊이 0.60 m, 높이 0.90 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 작업 정면이다.
 
 부품은 상판(두께 0.04 m), 다리 넷, 서랍 둘이다. 다리 0.05 m 각재의 중심을 양끝에서 0.06 m 안쪽에 세우므로 다리 안쪽 순폭은 1.20−2×(0.06+0.025)=1.03 m다. 서랍은 상판 아래 각 폭 0.50 m, 높이 0.12 m이고 사이 틈 0.01 m·양끝 여유 0.01 m씩으로 2×0.50+0.01+2×0.01=1.03 m를 채운다. 각각 피벗 `drawer-left`, `drawer-right`로 +Z로 최대 0.45 m 미끄러져 [서랍 작동 예약 Z = [-5.85, -5.40]](../spaces/rooms/garage-interior.md#garage-storage-use)과 같다. 손잡이는 각 서랍 전면 윗변 아래 0.035 m, 가로 중앙에 폭 0.12 m·높이 0.025 m·깊이 0.015 m로 파는 판 오목 홈이라 전면에서 돌출하지 않고, 연 상태의 최전방은 인출량 0.45 m와 같다. 재질 경계는 `top`, `leg`, `drawer-front`, `handle`이다. 서랍 레일·바이스·상판 흠집은 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 서랍 0.45 m 인출 평면에서 작업 사용 범위와 겹치지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
+
+작업대 다리 네 `leg`의 세계 X 중심은 9.06·10.14 m, 세계 Z 중심은 뒤 −6.405 m·앞 −5.895 m다. 0.05 m 각 단면의 뒤쪽 끝은 Z=−6.430 m로 차고 뒤벽 면 −6.45 m에서 0.020 m 떨어져 0.015 m 걸레받이 앞면 −6.435 m보다 0.005 m 앞에 선다. 다리는 차고 바닥 Y=−0.15 m부터 상판 밑 Y=0.71 m까지 서며, 상판은 예약한 뒤벽까지 닿아도 걸레받이 높이 위이므로 교집합이 없다.
 
 ## 작업대 위 공구판 {#garage-tool-board}
 <!--

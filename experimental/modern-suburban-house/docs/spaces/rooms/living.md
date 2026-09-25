@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 마감 안쪽 두 구간과 X = [-1.95, -1.80] 공유 벽의 1.00 m 개구부가 0.90 m 유효 폭 목표를 담도록 주어져, 다음 층이 거실 경계나 문 위치를 새로 정하지 않아도 됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 폭 3.55 m·깊이 5.80 m를 소파·벽난로·독서 가구의 길이 방향 배치와 앞뒤 출입 분리를 위한 선택으로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 폭 3.55 m·깊이 5.80 m가 마감 X·Z 구간의 차와 일치하고, 그 근거를 거실 설정 링크와 길이 방향 가구 배치·앞뒤 출입 분리라는 공간층 선택으로 첫 문단에 명시했음을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "현관에서 직접 보이며"를 -Z 문설주 경첩으로 거실 쪽 -X로 여는 entry-living-door와 가구를 놓지 않는 문 앞 바닥 X = [-2.85, -1.95]·Z = [-1.40, -0.35]로 만들어 앞쪽 현관에서 보이는 열린 문으로 답한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '현관에서 직접 보이며'에 대해 본문이 -Z 문설주 경첩·거실 쪽 -X 개폐와 X = [-2.85, -1.95]·Z = [-1.40, -0.35] 빈 문 앞 바닥이라는 부모에 없는 공간 결정을 더했음을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation "현관에서 직접 보이며"를 -Z 문설주 경첩으로 거실 쪽 -X로 여는 entry-living-door와 가구를 놓지 않는 문 앞 바닥 X = [-2.89, -1.95]·Z = [-1.40, -0.35]로 만들어 앞쪽 현관에서 보이는 열린 문으로 답한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '현관에서 직접 보이며'에 대해 본문이 -Z 문설주 경첩·거실 쪽 -X 개폐와 X = [-2.89, -1.95]·Z = [-1.40, -0.35] 빈 문 앞 바닥이라는 부모에 없는 공간 결정을 더했음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 거실의 바깥 두 면은 외벽, 오른쪽은 계단 분리 경계와 현관, 뒤쪽은 공용부라는 인접을 정하고 현관·공용부와 직접 연결한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 첫 문단의 바깥 두 면=본채 외벽, 오른쪽=계단 분리 경계·현관, 뒤쪽=후면 공용부 인접과 entry-living-door·상인방 아래 문짝 없는 개구부의 두 연결로 거실 장소 그래프가 산문만으로 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 공용부 쪽 개구부는 common owner, 벽난로 접면은 굴뚝 owner, 두 창 void는 입면 owner에서 소비하고 방 안에서 별도 창 좌표를 만들지 않는다.
@@ -24,7 +24,7 @@
 
 `living-room`은 ground-storey에 속하며 마감 안쪽 X = [-5.50, -1.95], Z = [-6.05, -0.25] m다. 바깥쪽 두 면은 [본채 외벽](../00-building.md#main-building-extent), 오른쪽은 [계단 분리 경계](../02-stair.md#stair-floor-opening)와 현관, 뒤쪽은 후면 공용부다. 폭 3.55 m·깊이 5.80 m의 선택은 [거실의 소파·벽난로·독서 가구](../../settings/10-house.md#living)를 길이 방향으로 배치하고 출입을 앞뒤로 분리하기 위한 것이다.
 
-`entry-living-door`는 X = [-1.95, -1.80]의 현관/거실 공유 벽에 거친 개구부 Z = [-1.35, -0.35], Y = [0, 2.20] m를 만든다. 문틀 뒤 유효 폭 목표는 0.90 m다. -Z 문설주를 경첩으로 삼아 거실 쪽 -X 방향으로 열고, X = [-2.85, -1.95]·Z = [-1.40, -0.35]의 문 앞 바닥에는 가구를 놓지 않는다. 앞쪽 현관에서 보이는 열린 문이 직접 접속을 답한다.
+`entry-living-door`는 X = [-1.95, -1.80]의 현관/거실 공유 벽에 거친 개구부 Z = [-1.35, -0.35], Y = [0, 2.20] m를 만든다. 문틀 뒤 유효 폭 목표는 0.90 m다. -Z 문설주를 경첩으로 삼아 거실 쪽 -X 방향으로 열고, X = [-2.89, -1.95]·Z = [-1.40, -0.35]의 문 앞 바닥에는 가구를 놓지 않는다. 1.00 m 거친 폭에서 문설주 0.03 m 둘과 열린 문짝 두께 0.04 m를 뺀 순폭은 0.90 m이고, 0.94 m 길이의 열린 문짝은 수정된 0.94 m 깊이 예약에 맞는다. 앞쪽 현관에서 보이는 열린 문이 직접 접속을 답한다.
 
 후면 공용부로 통하는 상인방 아래의 문짝 없는 개구부는 [공용부 owner](common.md#common-room-plan)가 소유한다. 벽난로의 왼쪽 외벽 접면과 공간 예약은 [굴뚝 owner](../envelope/left.md#chimney-roof-interface)를 소비한다. 창은 [living-front-window](../envelope/front.md#living-front-window)와 [living-left-window](../envelope/left.md#living-left-window)의 동일 void를 소비하며 방 안쪽에서 별도 창 좌표를 만들지 않는다. 벽난로와 창호의 실제 부재는 미완료다. `src/spaces/rooms/living.ts`가 방의 완결 내부를 소유한다. 거실 문과 창이 같은 방 경계를 품는지, 소파/벽난로가 앞뒤 통행을 막는지, 현관에서 거실을 볼 수 있는지가 관찰 질문이다. 실제 순폭·가구 간섭·창/굴뚝 binding·프레임은 unverified다.
 

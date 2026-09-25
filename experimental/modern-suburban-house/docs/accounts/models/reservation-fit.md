@@ -31,8 +31,8 @@
 | [side-yard-gate](../../models/02-exterior-doors.md#side-yard-gate) | 판 폭 8×0.14+7×0.008+2×0.002 = 1.18 m; 순폭 1.20−0.04−0.05 = 1.11 ≥ 1.05 m. |
 | [exterior-door-surfaces](../../models/02-exterior-doors.md#exterior-door-surfaces) | 면 계약 H2; 문턱은 spaces, 문짝은 위 네 원형이 맡아 점유 중복 0으로 설계됨. |
 | [exterior-door-fidelity](../../models/02-exterior-doors.md#exterior-door-fidelity) | 표현 범위 H2; 추가 스프링·모터 점유 없음, 레일 실제 충돌은 unverified. |
-| [interior-door-members](../../models/03-interior-doors.md#interior-door-members) | 11개 문의 순폭은 거친 폭−2×0.03−0.04 = 거친 폭−0.10 m; 문짝 높이 2.20−0.03−0.01 = 2.16 m. 팬트리만 문 두께 0.04+손잡이 0.035 = 0.075 ≤ 부모의 −Z 점유 0.08 m다. 세탁실–차고 세로 문선은 X=[5.485,5.50]·Z=[−3.35,−3.28] m다. |
-| [interior-door-hinges](../../models/03-interior-doors.md#interior-door-hinges) | 11개 회전 0–π/2; 경첩·열림 쪽은 방 owner에서 받아 새 통로를 만들지 않는다. |
+| [interior-door-members](../../models/03-interior-doors.md#interior-door-members) | 11개 문의 순폭은 거친 폭−2×0.03−0.04 = 거친 폭−0.10 m; 문짝 높이 2.20−0.03−0.01 = 2.16 m. 팬트리 문은 문설주 0.03+문짝 0.04+파인 손잡이 0 = 0.07 ≤ 부모 작동 예약 0.08 m다. 옷방문 열린 손잡이는 종전 0.055에서 0.030 m로 줄여 부모 Z≥−0.20 m를 지키고, 세탁실 두 문은 파인 손잡이로 횡단 띠 Z≤−3.42 m를 비운다. 세탁실–차고 문선 세로 판은 X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[0,2.20] m, 머리 판은 같은 X/Z·Y=[2.20,2.27] m다. |
+| [interior-door-hinges](../../models/03-interior-doors.md#interior-door-hinges) | 11개 회전 0–π/2; entry-living-door 반경 0.94 m는 수정된 living-door-swing X=[−2.89,−1.95] m의 깊이 0.94 m와 같다. 나머지 경첩·열림 쪽은 방 owner에서 받고 door swing 및 route의 교집합은 기준 상태에서 각 문마다 측정한다. |
 | [interior-door-surfaces](../../models/03-interior-doors.md#interior-door-surfaces) | 면 계약 H2; jamb-a/b/core는 한 개구부 챌면을 분할하고 추가 점유 없음. |
 | [interior-door-fidelity](../../models/03-interior-doors.md#interior-door-fidelity) | 표현 범위 H2; 차고 단차는 laundry의 바닥 datum, 모델 문턱 0개. |
 | [stair-balusters](../../models/04-stair-members.md#stair-balusters) | 난간살 0.02 ≤ 0.075 m 예약; n=ceil((L−0.10)/0.12), 빈 간격 (L−0.02n)/(n+1) ≤ 0.10 m는 각 입력 L에서 재계산한다. |
@@ -49,9 +49,9 @@
 | [kitchen-base-run](../../models/10-kitchen-dining.md#kitchen-base-run) | 깊이 0.60+0.02+0.02 = 0.64 ≤ 0.65 m, 상판 0.91 m; 길이 3.35→6칸, 1.30→2칸, 0.30→1칸. `plinth` 뒤 Z=[0,0.015]와 직교 벽 옆 X 끝 0.015 m·Y≤0.10 m를 비워 걸레받이와 체적 교집합 0이다. 앞면 Z=0.62−0.07=0.55 m. |
 | [kitchen-wall-cabinet](../../models/10-kitchen-dining.md#kitchen-wall-cabinet) | 깊이 0.31+0.02+0.02 = 0.35 m; 아래 1.45, 위 2.35 m로 높이 0.90 m. |
 | [kitchen-refrigerator](../../models/10-kitchen-dining.md#kitchen-refrigerator) | 폭 2×0.47+0.005+2×0.0025 = 0.95 m; 깊이 0.72+0.05+0.03 = 0.80; 문 0.50 ≤ 작동 0.55 m. 뒤 하단 0.015×0.10 m만 파내므로 전면·문 피벗과 예약 외곽은 불변이다. |
-| [kitchen-range](../../models/10-kitchen-dining.md#kitchen-range) | 오븐 열림 0.52+손잡이 0.03 = 작동 0.55 m; 조리면 0.91 m, 4화구. 뒤 하단 0.015×0.10 m 홈은 이 전면 작동치를 바꾸지 않는다. |
+| [kitchen-range](../../models/10-kitchen-dining.md#kitchen-range) | 오븐 열림 0.52+파인 손잡이 0 = 0.52 ≤ 작동 예약 0.55 m; 닫힌 깊이 0.65 m ≤ 외곽 예약 0.65 m. 조리면 0.91 m, 4화구. 뒤 하단 0.015×0.10 m 홈은 전면 작동치를 바꾸지 않는다. |
 | [kitchen-microwave](../../models/10-kitchen-dining.md#kitchen-microwave) | 전면 0.58+0.22 = 폭 0.80 m; 아래 1.45·위 1.85로 높이 0.40 m. |
-| [kitchen-island](../../models/10-kitchen-dining.md#kitchen-island) | 2.25×1.05×0.91 m; 몸통 깊이 0.75+좌석 무릎 0.30 = 1.05 m; 싱크 0.50×0.50 m. |
+| [kitchen-island](../../models/10-kitchen-dining.md#kitchen-island) | 2.25×1.05×0.91 m; 몸통 0.71+전면 0.02+손잡이 0.02+좌석 무릎 0.30 = 1.05 m로 외곽 예약과 같다. 싱크 0.50×0.50 m는 상판과 그 아래 몸통 Y=[0.71,0.88] m에서 모두 빠져 볼 외면과 몸통의 교집합 0이다. |
 | [kitchen-dishwasher](../../models/10-kitchen-dining.md#kitchen-dishwasher) | 문 열림 0.60 = 작동 예약 0.60 m, 돌출 손잡이 0; 위끝 0.88 = 섬 상판 아랫면. |
 | [kitchen-island-stool](../../models/10-kitchen-dining.md#kitchen-island-stool) | 좌면 0.64 m, 섬 0.91와 차 0.27 m; 폭 0.44 ≤ 좌석 사용폭 0.65 m. |
 | [dining-table](../../models/10-kitchen-dining.md#dining-table) | 1.70×0.90×0.75 m; 긴변 좌석 사람 X폭 0.60과 모서리 다리는 접하기만 함; 무릎 아래 0.635 m. |
@@ -64,20 +64,20 @@
 | [fireplace-insert-mantel](../../models/11-living.md#fireplace-insert-mantel) | 화구 void 1.04×0.64×0.55 m에 0.025 m 판; 선반 1.60×0.55×0.10 m가 벽돌 상단 Y 1.30에 닿는다. |
 | [laundry-machine](../../models/12-service-rooms.md#laundry-machine) | 깊이 0.72+문·손잡이 0.03 = 0.75 m; 회전 돌출 0.45+0.03 = 0.48 ≤ 0.50 m. 두 기기 뒤 하단 0.015×0.10 m 홈, 건조기 앞벽 쪽 옆 하단 0.015×0.10 m 홈으로 걸레받이 체적 교집합 0이다. 세탁기 차고 문선 쪽은 X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[0.10,0.88] m를 비워 문선과 교집합 0; 두 0.65 m 폭과 앞 작동 한계는 불변. |
 | [laundry-folding-top](../../models/12-service-rooms.md#laundry-folding-top) | 상판 위 0.94−기기 위 0.88 = 두께 0.06 m; 앞 다리·옆판 0. X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[0.88,0.94] m 문선 체적을 빼고 `top`·`cleat` 끝면으로 닫아 교집합 0. |
-| [laundry-upper-storage](../../models/12-service-rooms.md#laundry-upper-storage) | 깊이 0.28+문 0.02 = 0.30 m; 상판 위 0.94→장 아래 1.50의 작업 틈 0.56 m. X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[1.50,2.20] m 문선 체적을 몸통·문에서 빼고 Y>2.20 m는 유지한다. |
+| [laundry-upper-storage](../../models/12-service-rooms.md#laundry-upper-storage) | 깊이 0.28+문 0.02 = 0.30 m; 상판 위 0.94→장 아래 1.50의 작업 틈 0.56 m. X=[5.485,5.50]·Z=[−3.35,−3.28]·Y=[1.50,2.27] m 문선 세로·머리 판 합집합을 몸통·문에서 빼므로 예약 안 외곽을 유지하고 문선과 교집합 0이다. |
 | [mudroom-bench](../../models/12-service-rooms.md#mudroom-bench) | 0.80×0.40×0.45 m; 신발 선반 상면 0.10, 좌면까지 0.35 m. 뒤 하단 0.015×0.10 m와 앞벽 쪽 국소 −X 옆판·선반의 0.015×0.10 m를 각각 비워 두 걸레받이 run과 교집합 0, 앞 0.40 m 외곽 불변. |
 | [mudroom-coat-hooks](../../models/12-service-rooms.md#mudroom-coat-hooks) | 두 외투 폭구간 [-0.40,-0.10]·[0.10,0.40], 간격 0.20 m; 벤치 위 하단 1.10−0.45 = 0.65 m. |
-| [pantry-l-shelf](../../models/12-service-rooms.md#pantry-l-shelf) | 뒤 깊이 0.25·옆 깊이 0.30 m, 코너는 합집합 1판×5단; 상면 0.20+0.40k (k=0…4). |
+| [pantry-l-shelf](../../models/12-service-rooms.md#pantry-l-shelf) | 뒤 깊이 0.25·옆 깊이 0.30 m, 코너는 합집합 1판×5단; 상면 0.20+0.40k (k=0…4). 각 판과 받침에서 문선과 겹치는 X=[3.22,3.235]·Z=[−5.82,−5.80] m를 빼고 남은 판은 부모 선반 예약 안이다. |
 | [pantry-containers](../../models/12-service-rooms.md#pantry-containers) | 용기 0.12×0.12×0.20, 상자 0.18×0.18×0.25, 바구니 0.30×0.20×0.15 m; 모두 높이 ≤0.30 m. |
-| [garage-shelving](../../models/12-service-rooms.md#garage-shelving) | 1.70×0.60×2.05 m; 상자 깊이 0.35 ≤ 0.60, 상자 위 0.28 < 다음 선반 간격 0.40 m. |
-| [garage-workbench](../../models/12-service-rooms.md#garage-workbench) | 상면 0.90 m; 서랍 인출 0.45+오목 손잡이 돌출 0 = 작동 예약 0.45 m. |
+| [garage-shelving](../../models/12-service-rooms.md#garage-shelving) | 1.70×0.60×2.05 m; 상자 깊이 0.35 ≤ 0.60, 상자 위 0.28 < 다음 선반 간격 0.40 m. 뒤 기둥의 Z=[−6.45,−6.435]·Y=[−0.15,−0.05] m를 빼 차고 걸레받이와 교집합 0이다. |
+| [garage-workbench](../../models/12-service-rooms.md#garage-workbench) | 상면은 차고 바닥 위 0.90 m; 서랍 인출 0.45+오목 손잡이 돌출 0 = 작동 예약 0.45 m. 뒤 다리 Z 최후면 −6.430 m는 걸레받이 앞면 −6.435 m보다 0.005 m 앞에서 멈춘다. |
 | [garage-tool-board](../../models/12-service-rooms.md#garage-tool-board) | 1.20×1.00×0.15 m; 공구 최대 전면 돌출 0.13+판 0.02 = 0.15 m. |
 | [headboard-bed](../../models/13-bedrooms.md#headboard-bed) | 주침실 L 2.15·W 1.60·H 0.60·B 1.00 m; 작은 방 둘 L 2.15·W 1.15·H 0.55·B 0.95. |
 | [nightstand-lamp](../../models/13-bedrooms.md#nightstand-lamp) | 주침실 S 0.50·T 0.55·U 1.10 m, 작은 방 S 0.45·T 0.50·U 1.05; 갓 지름 0.25 < S. |
 | [low-dresser](../../models/13-bedrooms.md#low-dresser) | 1.40×0.50×0.80 m; 서랍 최대 0.40 = 예약 0.40 m, 홈 손잡이 돌출 0. 뒤판 시작 Y=0.10 m·뒤 발 Z≥0.015 m여서 걸레받이와 겹침 0, 서랍 작동 한계 불변. |
 | [child-desk](../../models/13-bedrooms.md#child-desk) | L 1.20 또는 1.15, 깊이 0.60·상면 0.75 m; 소품 최고 0.18 m가 뒤쪽 0.25 m 안. 두 뒤 발 Z≥0.015 m, 뒤 상부는 Y>0.10 m라 걸레받이와 겹침 0, 의자 사용면 불변. |
 | [desk-chair](../../models/13-bedrooms.md#desk-chair) | 0.45×0.48×0.82 m 원형은 0.75×0.75 m 사용 예약보다 각 방향 작다. |
-| [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | 1.50×0.60×2.20 m; 문 2×0.76−0.02 = 1.50 m, 양 문 이동 0.72 m는 몸통 안. 벽 앞 상자 뒤 하단 Z=[0,0.015]·Y=[0,0.10] m 홈으로 연속 걸레받이와 교집합 0. 몸통 앞끝 Z=0.49 < 뒤 레일 시작 0.50 m라 옆판·바닥판·상판과 문·레일도 교집합 0이다. 문선은 Z=[0.57,0.60] m에 있어 문짝 Z≤0.57 m와 부피를 공유하지 않는다. |
+| [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | 1.50×0.60×2.20 m; 문 2×0.76−0.02 = 1.50 m, 양 문 이동 0.72 m는 몸통 안. 벽 앞 상자 뒤 하단 Z=[0,0.015]·Y=[0,0.10] m 홈으로 연속 걸레받이와 교집합 0. 옆판·바닥판·상판의 앞끝은 모두 Z=0.49 < 뒤 레일 시작 0.50 m라 문·레일과 부피 교집합 0이다. 문선은 Z=[0.57,0.60] m에 있어 문짝 Z≤0.57 m와 부피를 공유하지 않는다. |
 | [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | 여덟 창 W=2.40/1.60/2.80/1.20/2.00/1.70/2.10/2.10 m에 봉 W+0.20, 모인 두 폭 2×0.18; 돌출 0.083+0.020+0.003 = 0.106 ≤ 0.12 m; 봉·천 최고점은 개구부 위 0.10+0.0125+0.006 = 0.1185 ≤ 두 예약의 상한 0.12 m. |
 | [wardrobe-hanging](../../models/13-bedrooms.md#wardrobe-hanging) | 36벌 두께 합 1.44 m ≤ 두 옆판 사이 실제 봉 4.22−2.13 = 2.09 m; 좌우 남음 (2.09−1.44)/2 = 0.325 m. 판의 뒤 하단 0.015×0.10 m 홈으로 뒤벽 걸레받이와 교집합 0. |
 | [wardrobe-shelves](../../models/13-bedrooms.md#wardrobe-shelves) | 두 더미+용기+간격 2×0.28+0.30+2×0.02 = 0.90 ≤ 안쪽 선반 길이 5.47−4.43 = 1.04 m, 양끝 0.07 m. 옆판 뒤 하단 0.015×0.10 m 홈으로 걸레받이와 교집합 0. |
@@ -87,7 +87,7 @@
 | [towel-bar](../../models/14-bathrooms.md#towel-bar) | 벽 앞면 0.04+봉반지름 0.01+수건 0.03 = 0.08 m; 폭은 각 방 0.25/0.50/0.75. |
 | [sliding-shower-booth](../../models/14-bathrooms.md#sliding-shower-booth) | 앞면 3×0.43−2×0.02 = 1.25 m, 열린 순폭 1.25−0.43−0.02 = 0.80 m. |
 | [bathtub](../../models/14-bathrooms.md#bathtub) | 외곽 0.80×1.80×0.55 m; 가장자리 0.06, 바닥 위 내부 최저 0.15 m. |
-| [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | 레일 길이 1.90 m = 뒤벽 부착 0.10 + 욕조 길이 1.80 m; 커튼 사용 구간은 뒤 0.10 m를 제외한 1.80 m, 걷힘 0.25 m, 법선 ±0.02 ⊂ 예약 폭 0.10 m. |
+| [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | 레일 길이 1.80 m = reviewed 욕조 예약 Z=[−8.70,−6.90] m의 길이; 뒤쪽 0.10 m 벽 간격에는 부재가 없다. 커튼 펼침 1.80 m·걷힘 0.25 m, 법선 ±0.02 ⊂ 예약 폭 0.10 m. |
 | [bath-floor-mats](../../models/14-bathrooms.md#bath-floor-mats) | 샤워 매트 0.65×0.45 ⊂ 0.90×0.60 m; 욕조 매트 0.80×0.45 ⊂ 1.05×1.55 m. |
 | [shower-niche-bottles](../../models/14-bathrooms.md#shower-niche-bottles) | 벽감 0.40 m 길이에 세 병 0.06+0.07+0.055+2×0.025 = 0.235 m; 양끝 여유 0.0825 m, 깊이 0.08 m. |
 | [terrace-table](../../models/15-outdoor.md#terrace-table) | 상판 폭 6×0.125+5×0.01 = 0.80 m; 긴변 좌석 구간 [-0.65,-0.05]·[0.05,0.65], 다리 X 구간 [-0.70,-0.65]·[0.65,0.70]이라 무릎 폭과 내부 겹침 0. 상면 0.74 m. |
