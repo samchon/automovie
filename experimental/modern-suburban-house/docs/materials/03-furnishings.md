@@ -197,7 +197,7 @@
 ## 청회색 침구 {#blue-grey-bedding}
 <!--
 @evidence principles/core/common.md#declared-basis 청회색 침구의 #6E7F8C·roughness 0.92은 settings/10-house.md#bedroom-three의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 청회색 침구는 spaces/03-surface-owners.md의 owner 면의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 청회색 침구는 셋째 침실 침대의 `bedding`과 책장 책의 `book`·옷방 옷의 `clothes` 변형에만 값을 결합하고 그 geometry·경계는 각 모델 owner에 남긴다. 세 침대의 `pillow`는 주침실 침구 H2가 받는다.
 @evidence principles/core/common.md#substantive-completion 청회색 침구는 #6E7F8C(선형 0.156, 0.212, 0.262), roughness 0.92, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#bedroom-three는 색·재료를 말로만 정했고 청회색 침구는 #6E7F8C 값과 roughness 0.92, `bedding` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 청회색 침구는 구성을 '면 직물 이불'로, 외관의 #6E7F8C·roughness 0.92·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
@@ -260,9 +260,9 @@
 @evidence principles/core/common.md#declared-basis 거울의 #EDEDED·roughness 0.02은 settings/10-house.md#powder의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 거울은 models/14-bathrooms.md#wall-mirror의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 거울은 #EDEDED(선형 0.847, 0.847, 0.847), roughness 0.02, metallic 1.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/fixtures.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#powder는 색·재료를 말로만 정했고 거울은 #EDEDED 값과 roughness 0.02, `mirror`·`frame` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#powder는 색·재료를 말로만 정했고 거울은 #EDEDED 값과 roughness 0.02, `mirror` 결합을 더한다. 테두리 `mirror-frame`은 검은 도장 금속이 받는다.
 @evidence principles/design/materials.md#material-construction-appearance 거울은 구성을 '뒷면 은막을 입힌 유리 판'로, 외관의 #EDEDED·roughness 0.02·metallic 1.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 거울의 결합 vocabulary는 `mirror`·`frame`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 거울 재료의 결합 vocabulary는 `mirror`이며 `mirror-frame`은 검은 도장 금속에 분리한다. 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 거울의 반증 견본은 '욕실 view에서 거울이 방을 반사하되 관찰 대상을 가리지 않는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #EDEDED 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 거울은 settings/10-house.md#powder, models/14-bathrooms.md#wall-mirror를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 거울은 의도적으로 무문양의 매끈한 반사면이다. roughness 0.02·금속성 은막과 실제 장면 반사로 세면장 위 거울임을 보이고 frame 파티션에서 끝낸다. 회색 단색판이면 실패다.
@@ -277,16 +277,16 @@
 ## 벽난로 화구 {#firebox-black}
 <!--
 @evidence principles/core/common.md#declared-basis 벽난로 화구의 #1F1F20·roughness 0.90은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 벽난로 화구는 spaces 03 interior-surface-handoff의 `src/spaces/rooms/living.ts` owner가 가진 벽난로 안쪽 접면 중 화구 안쪽 면에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
-@evidence principles/core/common.md#substantive-completion 벽난로 화구는 #1F1F20, roughness 0.90, metallic 0.0, transmission 0.0과 `src/spaces/rooms/living.ts` owner의 벽난로 안쪽 접면 결합, source owner `src/materials/furnishings/fixtures.ts`, 04 view 관찰을 적었고 화구 면의 개별 surface id는 source 단계에서 그 owner가 부여한다고 밝힌다.
+@evidence principles/core/common.md#scope-preservation 벽난로 화구 재료는 models/11-living.md#fireplace-insert-mantel의 `firebox`·`firebox-trim` 면에만 결합하고 벽돌 몸체는 spaces/envelope/left.ts에 남긴다.
+@evidence principles/core/common.md#substantive-completion 벽난로 화구는 #1F1F20, roughness 0.90, metallic 0.0, transmission 0.0, `firebox`·`firebox-trim` 결합, source owner `src/materials/furnishings/fixtures.ts`와 04 view 관찰을 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 벽난로 화구는 #1F1F20 값과 roughness 0.90, 결합 면 결합을 더한다.
-@evidence principles/design/materials.md#material-construction-appearance 벽난로 화구는 구성을 '그을린 내화 벽돌'로, 외관의 #1F1F20·roughness 0.90·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 벽난로 화구의 결합 vocabulary는 spaces 03 interior-surface-handoff의 `src/spaces/rooms/living.ts` owner가 가진 벽난로 안쪽 접면 중 화구 안쪽 면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-construction-appearance 벽난로 화구는 검게 그을린 내화재 외관을 #1F1F20·roughness 0.90·metallic 0.0과 0.10 m 약한 그을음 맵으로 표현하며 별도 벽돌 geometry를 이 재료에서 만들지 않는다.
+@evidence principles/design/materials.md#material-binding-interface 벽난로 화구의 결합 vocabulary는 models/11-living.md#fireplace-insert-mantel의 `firebox`·`firebox-trim`이다. 벽돌 몸체와 목재 mantel은 각기 다른 재료를 받는다.
 @evidence principles/design/materials.md#material-verification-address 벽난로 화구의 반증 견본은 '04 view에서 화구가 벽돌 본체와 목재 선반 사이에서 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #1F1F20 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 벽난로 화구는 settings/10-house.md#living를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 꺼진 화구의 내화재에는 0.10 m 반복의 약한 그을음·거친 표면 결을 쓴다. 화구 안쪽 왼쪽 아래에서 U 수평·V 높이를 두고 벽돌 입구·선반 경계에서 끊으며 불빛을 그려 넣지 않는다.
 @evidence settings/10-house.md#living 벽난로 화구가 '전면 거실'(settings/10-house.md#living)를 링크로 소비해 #1F1F20 값과 결합 면의 근거로 삼았다.
-@evidence spaces/rooms/living.md#living-furniture-use living-furniture-use가 후속 저작으로 둔 벽난로 화구 재료를 #1F1F20, roughness 0.90으로 living owner의 화구 안쪽 면에 결합한다.
+@evidence spaces/rooms/living.md#living-furniture-use living-furniture-use가 후속 저작으로 둔 벽난로 화구 재료를 #1F1F20, roughness 0.90으로 모델 화구의 `firebox`·`firebox-trim`에 결합한다.
 -->
 
 [벽난로의 검은 화구](../settings/10-house.md#living)다. 구성은 그을린 내화 벽돌이며 줄눈은 표현하지 않는다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.90, metallic 0.0, transmission 0.0이고 불은 꺼진 정적 상태라 발광이 없다. 결합 면은 [화구 원형](../models/11-living.md#fireplace-insert-mantel)의 `firebox`·`firebox-trim`이다. 벽돌 본체와 화구 뒤·옆 개구부는 [벽난로 공간 owner](../spaces/envelope/left.md#chimney-roof-interface)가 소유하고 [붉은갈색 벽돌](01-exterior.md#brick-red-brown)을 받는다. 목재 `mantel`은 [꿀빛 가구 목재](#furniture-wood)를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 04 view에서 화구가 벽돌 본체와 목재 선반 사이에서 구별되는지를 관찰한다.

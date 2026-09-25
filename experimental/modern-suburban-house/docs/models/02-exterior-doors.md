@@ -62,7 +62,7 @@
 @evidence obligations/design/models.md#articulation-ownership 두 경첩 축 각각의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 둘 다 닫힘으로 정한다.
 @evidence spaces/envelope/rear.md#garden-door X = [-1.20, 1.20] m 개구부, 바깥 -Z 열림, 0.95 m 목표, 1.80 m 바깥 대기를 문짝 1.17 m와 순폭 1.13 m로 소비한다. 후벽·void·문턱판은 rear owner에 남기고 닫힌 문틀·두 문짝·철물은 이 모델 원형이 받는다.
 @evidence contracts/reservation-fit.md#reservation-fit 순폭 1.13 m와 회전 반경 1.17 m를 owner 목표 0.95 m와 대기 깊이 1.80 m에 대조한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 정원문 바깥 trim·충전 부재를 입면과 models에 겹쳐 배정해 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 trim·문짝은 models로 고쳤다. spaces/envelope/rear.md#garden-door에도 남은 "문과 후벽은 rear owner"를 후벽·void·문턱판과 models 문틀·문짝·철물로 분리했다. spaces/10-ground-floor.md#ground-threshold-junctions의 rear-door 문턱판 +0.02 m는 이미 충분해 그 행은 유지하고 모델 문짝 아래를 +0.03 m로 정했다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 정원문 바깥 trim·충전 부재를 입면과 models에 겹쳐 배정해 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 trim·문짝은 models로 고쳤다. spaces/envelope/rear.md#garden-door와 spaces/site/terrace.md#garden-terrace-plan에도 남은 "문과 후벽은 rear owner" 배정을 고쳐 후벽·void·문턱판은 rear, 테라스와 바깥 대기는 terrace, 닫힌 문틀·문짝·철물은 models로 분리했다. spaces/10-ground-floor.md#ground-threshold-junctions의 rear-door 문턱판 +0.02 m는 이미 충분해 그 행은 유지하고 모델 문짝 아래를 +0.03 m로 정했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 후면 벽의 void와 절단면은 spaces, 닫힌 정원문 두 짝과 문선은 models가 한 번 만든다.
 -->
 

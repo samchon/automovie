@@ -12,8 +12,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity의 '작은 포장 테라스와 식탁·의자'에 없는 문짝 회전 영역·대기·중앙 경로를 뺀 가구 예약 사각형과 좌석 수 비복제 인계를 본문이 더하는지 대조해 부모 반복이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology 테라스는 집 쪽 정원문과 후벽, 바깥쪽 외부 단, 양옆 지표와 맞닿고 지붕이나 벽으로 공용부를 증축하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 테라스가 집 쪽 정원문·실제 후벽, 바깥쪽 외부 단, 양옆 지표와 맞닿는 낮은 포장 단부이고 지붕·벽으로 공용부를 증축하지 않는다는 본문을 대조해 테라스의 인접·접속 관계를 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 후벽과 정원문 geometry는 rear owner, 상부판·단 몸체는 raised-platform-support에서 받고 벽 안쪽까지 겹치지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 후벽·정원문 geometry를 rear owner에 두고 벽 안쪽까지 겹치지 않으며 상부판·단 몸체는 raised-platform-support, 아래 대기는 paving-depth-reservation에서 받는 본문을 대조해 이중 저작이 없음을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 후벽·문 void·문턱판은 rear owner, 닫힌 정원문 문틀·두 문짝·철물은 models/02, 테라스 상부판·단 몸체는 terrace owner로 나누고 벽 안쪽에 포장을 겹치지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문의 후벽·void·문턱판 배정은 garden-door의 rear owner 배정과, 닫힌 문틀·두 문짝·철물 배정은 garden-door-pair의 models owner 배정과 직접 대조했다. terrace.ts에는 문짝이 아닌 포장·대기·단만 남아 세 owner가 같은 닫힌 면을 만들지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 문턱·열린 양 문짝·의자 점유와 중앙 경로를 평면/단면과 03의 양방향 시야로 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문턱·열린 양 문짝·의자 점유·중앙 경로를 평면/단면과 03 양방향 시야에서 보고 배수·시공 성능을 주장하지 않으며 통행·부재·프레임을 unverified로 둔 본문을 대조해 반증 지점을 확인했다.
 @evidence settings/10-house.md#site-identity 공용부에서 닿는 작은 포장 테라스에 식탁·의자를 둘 예약을 만든다.
@@ -26,7 +26,7 @@
 
 문 앞 대기를 지나 바깥 외부 단까지 이어지는 보행 띠는 정원문 중심 X를 축으로 폭 1.50 m다. 가구 사용 예약은 X = [1.50, 4.20], Z = [-14.10, -11.40] m이며 식탁과 의자의 꺼낸 상태까지 이 안에 담도록 후속 가구 owner에 인계한다. 별도 식탁 geometry나 좌석 수는 이 단계에서 복제하지 않는다. 문짝의 회전 영역과 대기, 중앙 경로는 가구 예약에 들어가지 않는다. 03의 정원문 너머에서 작은 야외 식사 자리가 읽히도록 한 저작 선택이며 사진 치수를 추정한 값이 아니다.
 
-상면/옆면과 문 앞 대기를 포함한 완결 테라스는 `src/spaces/site/terrace.ts`가 소유한다. 본채 후벽과 정원문의 geometry는 rear owner이고 그 벽 안쪽까지 테라스를 겹치지 않는다. 상부판·가장자리·단의 몸체는 [높은 평탄면 지지](01-paving-support.md#raised-platform-support), 아래 대기는 [보행 포장 두께](01-paving-support.md#paving-depth-reservation)를 소비한다. 실제 지반/기초·방수/배수 접합과 마감은 후속 단계의 미완료다. 현재 평탄 사용면 예약만으로 배수나 시공 성능이 검증됐다고 주장하지 않는다. 문턱·열린 양 문짝·의자 점유와 중앙 경로를 평면/단면과 03의 양방향 시야에서 검사하며 실제 통행·부재·프레임은 unverified다.
+상면/옆면과 문 앞 대기를 포함한 완결 테라스는 `src/spaces/site/terrace.ts`가 소유한다. [정원문 경계](../envelope/rear.md#garden-door)의 본채 후벽·문 void·문턱판은 `src/spaces/envelope/rear.ts`, 닫힌 문틀·두 문짝·철물은 [정원문 모델 원형](../../models/02-exterior-doors.md#garden-door-pair)이 만들며 terrace source는 벽 안쪽이나 문 충전 면에 겹치지 않는다. 상부판·가장자리·단의 몸체는 [높은 평탄면 지지](01-paving-support.md#raised-platform-support), 아래 대기는 [보행 포장 두께](01-paving-support.md#paving-depth-reservation)를 소비한다. 실제 지반/기초·방수/배수 접합과 마감은 후속 단계의 미완료다. 현재 평탄 사용면 예약만으로 배수나 시공 성능이 검증됐다고 주장하지 않는다. 문턱·열린 양 문짝·의자 점유와 중앙 경로를 평면/단면과 03의 양방향 시야에서 검사하며 실제 통행·부재·프레임은 unverified다.
 
 ## 테라스에서 지표로 내려가는 단 {#garden-steps-plan}
 <!--

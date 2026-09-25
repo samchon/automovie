@@ -220,6 +220,45 @@ function accounts() {
   return { modelFiles: modelFiles.length, h2: all.size, accounts: results };
 }
 
+/** Verify the inverse material-host table against every authored material H2.
+ * A mutation option removes its first row in memory to prove the missing-row
+ * threshold goes red without editing shared production files.
+ * @param {boolean} dropFirst
+ */
+function materialHosts(dropFirst = false) {
+  const files = markdownFiles(path.join(production, "docs/materials"));
+  const all = new Set(files.flatMap((file) => [...sections(fs.readFileSync(file, "utf8")).keys()]
+    .map((anchor) => `${path.relative(production, file).replace(/\\/g, "/")}#${anchor}`)));
+  const accountPath = path.join(production, "docs/accounts/models/material-host-census.md");
+  const section = /** @type {string | undefined} */ (sections(fs.readFileSync(accountPath, "utf8")).get("material-host-census"));
+  if (!section) throw new Error("Missing material-host-census H2");
+  const table = section.split("| material H2 | 결합 대상 또는 비결합 응답 | 설계 owner |")[1]?.split("reviewed spaces가")[0];
+  if (!table) throw new Error("Missing inverse material-host table");
+  const lines = table.split("\n").filter((line) => line.startsWith("| ["));
+  if (dropFirst) lines.shift();
+  const seen = new Set();
+  const duplicates = [];
+  const empty = [];
+  const invalid = [];
+  for (const line of lines) {
+    const [material, target, owner] = line.split("|").slice(1, 4).map((cell) => cell.trim());
+    const head = /^\[[^\]]+\]\((\.\.\/\.\.\/materials\/[^#)]+)#([^)]+)\)$/.exec(material);
+    if (!head) { invalid.push(`material: ${material}`); continue; }
+    const materialId = `docs/${head[1].slice(6)}#${head[2]}`;
+    if (seen.has(materialId)) duplicates.push(materialId);
+    seen.add(materialId);
+    const links = [...owner.matchAll(/\]\((\.\.\/\.\.\/(?:materials|models|spaces)\/[^#)]+)#([^)]+)\)/g)];
+    if (!target || links.length === 0) empty.push(materialId);
+    for (const [, relative, anchor] of links) {
+      const file = path.resolve(path.dirname(accountPath), relative);
+      if (!fs.existsSync(file) || !sections(fs.readFileSync(file, "utf8")).has(anchor)) invalid.push(`${materialId} -> ${relative}#${anchor}`);
+    }
+  }
+  const missing = [...all].filter((id) => !seen.has(id));
+  const extra = [...seen].filter((id) => !all.has(id));
+  return { files: files.length, materialH2: all.size, rows: lines.length, distinct: seen.size, missing, extra, duplicates, empty, invalid, red: missing.length + extra.length + duplicates.length + empty.length + invalid.length > 0 };
+}
+
 function assertionRows() {
   const files = [...markdownFiles(path.join(production, "docs/models")), ...markdownFiles(path.join(production, "docs/accounts/models"))];
   const rows = files.flatMap((file) => fs.readFileSync(file, "utf8").split(/\r?\n/).flatMap((line, index) =>
@@ -235,5 +274,10 @@ else if (command === "history-changes") console.log(JSON.stringify(historyChange
 else if (command === "working-changes") console.log(JSON.stringify(workingChanges(), null, 2));
 else if (command === "handoffs") console.log(JSON.stringify(handoffs(), null, 2));
 else if (command === "accounts") console.log(JSON.stringify(accounts(), null, 2));
+else if (command === "material-hosts") {
+  const result = materialHosts(process.argv[3] === "--mutate-drop-first");
+  console.log(JSON.stringify(result, null, 2));
+  if (result.red) process.exitCode = 1;
+}
 else if (command === "assertion-rows") console.log(JSON.stringify(assertionRows(), null, 2));
-else { console.error("usage: node src/measurements/model-contract-audit.cjs history [ref] | history-changes [ref] | working-changes | handoffs | accounts | assertion-rows"); process.exitCode = 2; }
+else { console.error("usage: node src/measurements/model-contract-audit.cjs history [ref] | history-changes [ref] | working-changes | handoffs | accounts | material-hosts [--mutate-drop-first] | assertion-rows"); process.exitCode = 2; }

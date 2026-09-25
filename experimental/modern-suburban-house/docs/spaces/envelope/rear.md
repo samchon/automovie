@@ -147,7 +147,7 @@
 @evidence principles/design/spaces.md#space-topology garden-door가 kitchen-dining-family와 ground-storey 외부 대기를 잇고 테라스가 그 대기를 포함한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 garden-door가 ground-storey kitchen-dining-family와 외부 대기를 잇고 garden-terrace-plan이 그 대기를 포함한다는 본문 관계를 terrace 쪽 진술과 대조해 안팎 연결 그래프가 일치함을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 바깥 대기 바닥은 terrace owner, 후벽·문 void·문턱판은 rear owner, 닫힌 정원문 문틀·두 문짝·철물은 models/02로 나누고 문턱은 양쪽 바닥 위 0.02 m 이내로 둔다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 garden-door 바깥 대기 바닥은 src/spaces/site/terrace.ts, 후벽·void·문턱판은 rear owner, 닫힌 문틀·두 문짝·철물은 models/02라는 본문 구분을 03-surface-owners와 garden-terrace-plan의 벽 비관통 조건에 대조해 같은 문짝에 이중 owner가 없음을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 garden-terrace-plan 본문과 space-boundary-authority 행을 다시 읽었다. 두 곳 모두 바깥 대기 바닥은 terrace.ts, 후벽·void·문턱판은 rear.ts, 닫힌 문틀·두 문짝·철물은 models/02로 배정한다. 이 H2의 본문과 같은 배분이므로 정원문 문짝의 이중 owner가 없다.
 @evidence principles/design/spaces.md#space-verification-address 양방향 통행, 문짝/식탁 충돌, 프라이버시·채광, 03의 프레임을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임 unverified 목록이 garden-door 대기와 유효 폭 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이 두는 관계에서 식탁·의자가 안쪽 대기를 막지 않게 한다.

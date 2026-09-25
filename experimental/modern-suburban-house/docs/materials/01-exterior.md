@@ -65,11 +65,11 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 ## 붉은갈색 벽돌 {#brick-red-brown}
 <!--
 @evidence principles/core/common.md#declared-basis 붉은갈색 벽돌의 #8A4A3A·roughness 0.85은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 붉은갈색 벽돌은 네 입면 owner의 기단 노출 수직 면, `src/spaces/envelope/left.ts`의 굴뚝 몸체, `src/spaces/rooms/living.ts`의 벽난로 본체에 결합한다. 줄눈은 같은 면의 UV 마스크로 표현하며 별도 메시나 instance를 요구하지 않는다.
+@evidence principles/core/common.md#scope-preservation 붉은갈색 벽돌은 네 입면 owner의 기단 노출 수직 면과 `src/spaces/envelope/left.ts`가 만드는 굴뚝·벽난로 벽돌 몸체에 결합한다. 줄눈은 같은 면의 UV 마스크로 표현하며 별도 메시나 instance를 요구하지 않는다.
 @evidence principles/core/common.md#substantive-completion 붉은갈색 벽돌은 #8A4A3A(선형 0.254, 0.068, 0.042), roughness 0.85, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/brick.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 붉은갈색 벽돌은 #8A4A3A 값과 roughness 0.85, 결합 면 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 붉은갈색 벽돌은 구성을 '소성 점토 벽돌과 시멘트 모르타르 줄눈'로, 외관의 #8A4A3A·roughness 0.85·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 붉은갈색 벽돌의 결합 vocabulary는 네 입면 owner의 기단 노출 수직 면, `src/spaces/envelope/left.ts`의 굴뚝 몸체, `src/spaces/rooms/living.ts`의 벽난로 본체이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 붉은갈색 벽돌의 결합 대상은 네 입면 owner의 기단 노출 수직 면과 `src/spaces/envelope/left.ts`의 굴뚝·벽난로 벽돌 몸체다. 색과 줄눈 마스크는 기존 면에만 붙인다.
 @evidence principles/design/materials.md#material-verification-address 붉은갈색 벽돌의 반증 견본은 '01 외관에서 기단과 굴뚝이 같은 벽돌로 읽히고 줄눈이 창·문을 침범하지 않는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #8A4A3A 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 붉은갈색 벽돌은 spaces/envelope/left.md#chimney-roof-interface를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 기단·굴뚝·벽난로의 벽돌 면에는 줄눈 포함 0.20 × 0.065 m 모듈과 0.01 m 줄눈의 색·거칠기·normal 맵을 쓴다. 벽 길이 U·높이 V, 외벽 바닥선과 굴뚝 하단을 원점으로 하며 홀수 줄은 U를 0.10 m 옮기고 모서리에서 수평 줄눈 높이를 맞추며 개구부에서 끊는다.

@@ -2,7 +2,7 @@
 
 ## 모델 H2 전수 표면 소유와 재료 인터페이스 {#model-surface-ownership}
 <!--
-@evidence contracts/surface-ownership.md#whole-surface-owner 모델 H2 97개를 아래 계정에 한 번씩 적고 부재별 surface id와 source owner를 대조한다. 부모·형제의 원형 인계를 마지막 대응표에서 설계 owner와 잇고 원형을 넘기지 않는 어휘 적중은 별도로 제외한다. 이는 설계 인터페이스 계정이며 아직 없는 modelSources 메시의 실제 face binding은 unverified다.
+@evidence contracts/surface-ownership.md#whole-surface-owner 모델 H2마다 아래 계정에 한 번씩 적고 부재별 surface id와 source owner를 대조한다. 부모·형제의 원형 인계를 마지막 대응표에서 설계 owner와 잇고 원형을 넘기지 않는 어휘 적중은 별도로 제외한다. 이는 설계 인터페이스 계정이며 아직 없는 modelSources 메시의 실제 face binding은 unverified다.
 -->
 
 [원문 계약](../../contracts/surface-ownership.md#whole-surface-owner)의 완결 표면은 한 source만 만든다. 아래 행에서 `—`는 규칙·표현 한계·검증 절차여서 별도 부피를 만들지 않음을 뜻한다. 같은 원형의 구조·관절·표면 설명 H2에 id가 반복되어도 메시를 복제한다는 뜻이 아니다. 모든 닫힌 부재의 앞·뒤·위·아래·절단·오목한 챌면은 [모델 표면 규칙](../../models/00-model-frame.md#model-surface-partition-naming)에 따라 정확히 한 id를 받는다. 관절 이름과 배치 id는 face id가 아니다.
@@ -41,6 +41,7 @@
 | [stair-member-fidelity](../../models/04-stair-members.md#stair-member-fidelity) | — (규칙) | — (새 메시 없음) |
 | [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle` |
 | [coat-closet-rod-shelf](../../models/05-closet-fittings.md#coat-closet-rod-shelf) | `src/models/closet.ts` | `rod`·`shelf` |
+| [wall-baseboard](../../models/06-interior-trim.md#wall-baseboard) | `src/models/interior/baseboard.ts` | `wall-baseboard` |
 | [linen-closet-fittings](../../models/05-closet-fittings.md#linen-closet-fittings) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle`·`shelf` |
 | [closet-fitting-surfaces](../../models/05-closet-fittings.md#closet-fitting-surfaces) | — (규칙) | `leaf`·`leaf-panel`·`rail`·`rod`·`shelf`·`handle` |
 | [closet-fitting-fidelity](../../models/05-closet-fittings.md#closet-fitting-fidelity) | — (규칙) | — (새 메시 없음) |
@@ -107,7 +108,7 @@
 | [wall-art-indoor-plant](../../models/19-room-accents.md#wall-art-indoor-plant) | `src/models/furnishings/props.ts` | `art-frame`·`art-print`·`container`·`stem`·`foliage` |
 | [sofa-throws](../../models/19-room-accents.md#sofa-throws) | `src/models/furnishings/props.ts` | `pillow`·`folded` |
 
-다음 표는 위 97행에 등장한 **모든 face id**의 설계 결속 경로다. 하나의 id가 여러 재료 행에 있으면 모델 H2와 배치 변형을 함께 키로 사용한다(예: `leaf`의 실내 문/주방 가전, `glass`의 건물 창/세탁기 문). 그 선택을 버리고 id 문자열 하나로 재료를 고르면 오결속이다. 이 표는 id 문자열의 설계 경로만 열거한다. 세면장에는 없는 `leaf-panel` 대신 실제 `leaf`를 회갈색 수납장에 결속하고 전자레인지 `leaf`를 스테인리스에 결속하도록 재료 문서를 정정했다. (모델 H2, id) 쌍의 전수 결합과 실제 메시의 face binding은 아직 재생 가능한 생산자·modelSources·materialSources가 없어 unverified다. 존재하지 않는 스크립트의 결과를 이 계정의 근거로 삼지 않는다.
+다음 표는 위 모델 행에 등장한 **모든 face id**의 설계 결속 경로다. 하나의 id가 여러 재료 행에 있으면 모델 H2와 배치 변형을 함께 키로 사용한다(예: `leaf`의 실내 문/주방 가전, `glass`의 건물 창/세탁기 문). 그 선택을 버리고 id 문자열 하나로 재료를 고르면 오결속이다. 이 표는 id 문자열의 설계 경로만 열거한다. 세면장에는 없는 `leaf-panel` 대신 실제 `leaf`를 회갈색 수납장에 결속하고 전자레인지 `leaf`를 스테인리스에 결속하도록 재료 문서를 정정했다. (모델 H2, id) 쌍의 전수 결합과 실제 메시의 face binding은 아직 재생 가능한 생산자·modelSources·materialSources가 없어 unverified다. 존재하지 않는 스크립트의 결과를 이 계정의 근거로 삼지 않는다.
 
 | 재료 H2 | 해당 모델 face id |
 |---|---|
@@ -120,7 +121,7 @@
 | [front-door-wood](../../materials/01-exterior.md#front-door-wood) | `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel` |
 | [garage-door-charcoal](../../materials/01-exterior.md#garage-door-charcoal) | `leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge` |
 | [fence-wood](../../materials/01-exterior.md#fence-wood) | `leaf-panel`·`gate-batten` |
-| [interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill`·`casing`·`casing-a`·`casing-b`·`jamb-a`·`jamb-b`·`jamb-core`·`leaf`·`leaf-panel`·`shelf`·`carcass` |
+| [interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill`·`casing`·`casing-a`·`casing-b`·`jamb-a`·`jamb-b`·`jamb-core`·`leaf`·`leaf-panel`·`shelf`·`carcass`·`wall-baseboard` |
 | [black-coated-metal](../../materials/02-interior-shell.md#black-coated-metal) | `hinge`·`handle`·`baluster`·`bottom-rail`·`hook`·`rail`·`bracket`·`mirror-frame`·`fixture-housing`·`fixture-canopy`·`fixture-stem` |
 | [greige-cabinet](../../materials/03-furnishings.md#greige-cabinet) | `plinth`·`carcass`·`leaf`·`drawer-front` |
 | [light-countertop](../../materials/03-furnishings.md#light-countertop) | `countertop` |
@@ -171,11 +172,12 @@ spaces의 전후면 문턱 상면 +0.02 m는 `src/spaces/envelope/front.ts`·`re
 | [개구부](../../settings/10-house.md#openings), [외부 충전](../../spaces/06-openings.md#external-opening-interface), [정원문 소유](../../spaces/envelope/rear.md#garden-door) | 창·문·경첩·손잡이; rear 벽·void·문턱은 spaces | [창](../../models/01-windows.md#window-member-sizes), [현관문](../../models/02-exterior-doors.md#front-entry-door), [정원문](../../models/02-exterior-doors.md#garden-door-pair), [외부 문 표면](../../models/02-exterior-doors.md#exterior-door-surfaces), [실내 문](../../models/03-interior-doors.md#interior-door-members) |
 | [입면의 벽 절단면](../../spaces/03-surface-owners.md#exterior-surface-handoff) | 벽 몸체·void·벽 절단면은 spaces, 별도 닫힌 창·문 trim/충전 부재는 models | [창 trim](../../models/01-windows.md#window-sill-trim), [문 trim](../../models/02-exterior-doors.md#exterior-door-surfaces) |
 | [실내 문 접합](../../spaces/07-boundary-assembly.md#interior-boundary-junctions), [방 면 인계](../../spaces/03-surface-owners.md#interior-surface-handoff) | 벽 절단·reveal·바닥 전환은 spaces, 11개 실내 문의 닫힌 문설주·문선·문짝·철물은 models | [실내 문 부재](../../models/03-interior-doors.md#interior-door-members) |
+| [방 면 인계](../../spaces/03-surface-owners.md#interior-surface-handoff), [흰 실내 trim](../../materials/02-interior-shell.md#interior-trim-white), [벽 도장](../../materials/02-interior-shell.md#interior-wall-paint), [재료 경계](../../materials/00-material-frame.md#material-binding-rule) | 방의 벽·바닥 마감은 spaces, 별도 닫힌 벽 하단 판은 models; 도장과 흰 trim 결속은 materials | [벽 걸레받이 원형](../../models/06-interior-trim.md#wall-baseboard) |
 | [외벽 모서리 접합](../../spaces/07-boundary-assembly.md#exterior-boundary-junctions), [흰 trim](../../materials/01-exterior.md#trim-white) | 모서리 구조 벽·연속 입면은 spaces, 두 날개의 별도 닫힌 L자 판은 models | [모서리 trim 판](../../models/15-outdoor.md#exterior-corner-trim) |
 | [바닥 타일](../../materials/02-interior-shell.md#bath-floor-tile), [벽 타일](../../materials/02-interior-shell.md#bath-wall-tile), [줄눈](../../materials/02-interior-shell.md#tile-grout) | 별도 오목 geometry 인계 없음; 기존 타일 면 UV의 0.005 m 줄눈·normal 응답 | [줄눈 재료 함수](../../materials/02-interior-shell.md#tile-grout) |
 | [벽돌 외관](../../materials/01-exterior.md#brick-red-brown), [공통 텍스처 응답](../../materials/00-material-frame.md#material-texture-response) | 별도 모르타르 메시 인계 없음; 기존 벽돌 면 UV에서 0.01 m 줄눈·normal 마스크 | [벽돌 재료 함수](../../materials/01-exterior.md#brick-red-brown) |
 | [대문 접속](../../spaces/site/side-walk.md#side-gate-interface), [울타리](../../spaces/site/fence.md#fence-enclosure-plan), [표면 owner](../../spaces/03-surface-owners.md#exterior-surface-handoff) | 대문 문짝·철물은 models; 고정 울타리·문기둥은 spaces | [대문](../../models/02-exterior-doors.md#side-yard-gate) |
-| [테라스](../../spaces/site/terrace.md#garden-terrace-plan), [대지](../../settings/10-house.md#site-identity) | 테라스 식탁·의자·나무·관목 | [식탁](../../models/15-outdoor.md#terrace-table), [의자](../../models/15-outdoor.md#terrace-chair), [나무](../../models/16-planting.md#site-tree-prototypes), [관목](../../models/16-planting.md#site-shrub-prototype) |
+| [테라스](../../spaces/site/terrace.md#garden-terrace-plan), [대지](../../settings/10-house.md#site-identity) | 테라스 식탁·의자·나무·관목, 정원문 문짝은 별도 models 충전; 바깥 대기 바닥은 terrace, 후벽·void·문턱판은 rear | [식탁](../../models/15-outdoor.md#terrace-table), [의자](../../models/15-outdoor.md#terrace-chair), [나무](../../models/16-planting.md#site-tree-prototypes), [관목](../../models/16-planting.md#site-shrub-prototype), [정원문](../../models/02-exterior-doors.md#garden-door-pair) |
 | [광원 소유](../../systems/00-lighting-frame.md#lighting-authority), [공용부 등](../../systems/02-interior-fixtures.md#interior-common-pendants) | 기구 몸체·갓; 광원 레코드는 systems | [펜던트](../../models/17-light-fixtures.md#pendant-fixtures) |
 | [1층 등](../../systems/02-interior-fixtures.md#interior-ground-ceiling), [계단·복도 등](../../systems/02-interior-fixtures.md#interior-stair-hall), [상층 등](../../systems/02-interior-fixtures.md#interior-bedrooms), [차고 등](../../systems/02-interior-fixtures.md#interior-garage) | 천장등·협탁등 몸체 | [천장등](../../models/17-light-fixtures.md#flush-ceiling-fixture), [협탁등](../../models/13-bedrooms.md#nightstand-lamp) |
 | [욕실 등](../../systems/02-interior-fixtures.md#interior-baths), [포치 벽등](../../systems/03-exterior-fixtures.md#exterior-porch-sconce) | 세면등·포치 벽등 몸체 | [세면등](../../models/17-light-fixtures.md#vanity-wall-fixture), [포치 등](../../models/17-light-fixtures.md#porch-wall-sconce) |

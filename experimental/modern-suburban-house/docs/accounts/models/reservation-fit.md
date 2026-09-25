@@ -2,10 +2,10 @@
 
 ## 개구부와 가구 원형의 전수 예약 대조 {#model-reservation-fit}
 <!--
-@evidence contracts/reservation-fit.md#reservation-fit 모델 문서 16개 파일의 H2 97개를 순서대로 한 번씩 대조한다. 아래 표의 계산은 문서 설계 수치만 재계산한 결과이며 source 메시와 후속 instances 배치 충돌은 확인했다고 주장하지 않는다.
+@evidence contracts/reservation-fit.md#reservation-fit 모델 문서의 모든 H2를 순서대로 한 번씩 대조한다. 아래 표의 계산은 문서 설계 수치만 재계산한 결과이며 source 메시와 후속 instances 배치 충돌은 확인했다고 주장하지 않는다.
 -->
 
-[원문 계약](../../contracts/reservation-fit.md#reservation-fit)에 따라 모델 H2 97개를 빠짐없이 아래에 열거한다. 계산의 등호와 부등호는 링크된 H2의 본문 수치 및 그 H2가 인용한 예약으로 재현할 수 있다. `규칙`·`면 계약`·`표현 범위`·`검증 절차` H2는 새 점유를 만들지 않으므로 같은 원형의 부피를 다시 세지 않았다. `unverified`는 source 또는 instances가 아직 없어 실제 메시 충돌을 잴 수 없는 항목이다.
+[원문 계약](../../contracts/reservation-fit.md#reservation-fit)에 따라 모델 H2를 빠짐없이 아래에 열거한다. 계산의 등호와 부등호는 링크된 H2의 본문 수치 및 그 H2가 인용한 예약으로 재현할 수 있다. `규칙`·`면 계약`·`표현 범위`·`검증 절차` H2는 새 점유를 만들지 않으므로 같은 원형의 부피를 다시 세지 않았다. `unverified`는 source 또는 instances가 아직 없어 실제 메시 충돌을 잴 수 없는 항목이다.
 
 | 모델 H2 | 예약 산술 또는 새 점유가 없는 이유 |
 |---|---|
@@ -44,6 +44,7 @@
 | [linen-closet-fittings](../../models/05-closet-fittings.md#linen-closet-fittings) | 문 폭 2×0.525−0.05 = 1.00 m; 선반 0.55 m·문과 간격 0.05 m, 선반 5단. |
 | [closet-fitting-surfaces](../../models/05-closet-fittings.md#closet-fitting-surfaces) | 면 계약 H2; 수납 개구부 2개는 위 원형만 채우고 spaces는 void만 둔다. |
 | [closet-fitting-fidelity](../../models/05-closet-fittings.md#closet-fitting-fidelity) | 표현 범위 H2; 수건·용기 형상은 18·12 H2에서 따로 센다. |
+| [wall-baseboard](../../models/06-interior-trim.md#wall-baseboard) | 높이 0.10 m·최대 돌출 0.015 m; 1.05 m 서비스 띠의 양쪽 벽에 붙어도 1.05−2×0.015 = 1.02 ≥ 0.90 m이며, 문선·계단·타일 종단에서 끊는다. 실제 room별 통로 충돌은 후속 배치 뒤 재측정한다. |
 | [kitchen-base-run](../../models/10-kitchen-dining.md#kitchen-base-run) | 깊이 0.60+0.02+0.02 = 0.64 ≤ 0.65 m, 상판 0.91 m; 길이 3.35→6칸, 1.30→2칸, 0.30→1칸. |
 | [kitchen-wall-cabinet](../../models/10-kitchen-dining.md#kitchen-wall-cabinet) | 깊이 0.31+0.02+0.02 = 0.35 m; 아래 1.45, 위 2.35 m로 높이 0.90 m. |
 | [kitchen-refrigerator](../../models/10-kitchen-dining.md#kitchen-refrigerator) | 폭 2×0.47+0.005+2×0.0025 = 0.95 m; 깊이 0.72+0.05+0.03 = 0.80; 문 0.50 ≤ 작동 0.55 m. |
