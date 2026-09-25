@@ -13,9 +13,11 @@
  * plus measured inversions: stature against the basis's own height rule,
  * mass through the skin volume, and each tape measurement against its rule.
  * Age moves the tissue the way the clinical literature says it does
- * (gluteal ptosis, sarcopenia, fat redistribution toward the trunk, loss of
- * firmness), and muscle definition appears only where the body fat estimate
- * lets it. `projectHumanBodySimpleShape` reads these values back off any
+ * (gluteal and breast ptosis, sarcopenia, fat redistribution toward the
+ * trunk, loss of tone), muscle raises mass and tone and a trained V, and
+ * muscle definition appears only where the body fat lets it: the fat the
+ * definition reads subtracts the fat-free mass the muscle adds, so a trained
+ * body at an athlete's mass index reads an athlete's fat. `projectHumanBodySimpleShape` reads these values back off any
  * detailed shape, so a simple edit changes only what it names and keeps the
  * detailed residue.
  *
@@ -36,7 +38,7 @@ export interface IAutoMovieHumanBodySimpleShape {
   /** Body mass in kilograms, solved against the measured skin volume at the estimated fat fraction's density. */
   massKilograms: number;
 
-  /** Muscularity -1 through +1, the source's muscle macro before the age loss the table applies. */
+  /** Muscularity -1 through +2, the source's muscle macro before the age loss the table applies; 1 is a trained body, 2 the source's competition node. */
   muscle: number;
 
   /** Waist girth in metres, the smallest horizontal girth of the trunk, solved against its rule when given. */
