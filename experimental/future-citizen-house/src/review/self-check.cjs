@@ -76,9 +76,12 @@ if (process.argv.includes("--bench")) {
     );
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
-    const failed = result.error || result.status !== 0;
+    const empty = /NOTHING (?:WAS )?CHECKED/i.test(
+      (result.stdout || "") + (result.stderr || ""),
+    );
+    const failed = result.error || result.status !== 0 || empty;
     console.log(
-      `bench/${name}: ${failed ? `FAIL (${result.error?.message || result.status})` : "PASS"}`,
+      `bench/${name}: ${failed ? `FAIL (${empty ? "empty population" : result.error?.message || result.status})` : "PASS"}`,
     );
     if (failed) failures++;
   }
