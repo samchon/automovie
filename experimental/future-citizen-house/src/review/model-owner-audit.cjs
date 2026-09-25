@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { randomInt } = require("node:crypto");
 const { inventory } = require("./model-inventory.cjs");
-const { objectSurfaceBindings } = require("./model-surface-bindings.cjs");
+const { objectSurfaceBindings, sampleResponseMutation } = require("./model-surface-bindings.cjs");
 
 const root = path.resolve(__dirname, "../..");
 const rooms = path.join(root, "src/house/rooms");
@@ -458,6 +458,8 @@ const faceFindings = objectSurfaceBindings(root, inventory(root), materialText,
   faceSource.replace(selectedFace, renamedFace)).errors;
 const faceRed = faceFindings.some((error) => error.includes("declared material face absent from model prose address"));
 if (!faceRed) result.errors.push("unselected model face mutation remained green");
+const responseMutation = sampleResponseMutation(root, inventory(root), materialText, surfaceRows);
+if (!responseMutation.red) result.errors.push("unselected finish range mutation remained green");
 console.log(
   JSON.stringify(
     {
@@ -485,6 +487,7 @@ console.log(
       unselectedFaceMutation: { population: faceRows.length, mutations: 1,
         red: faceRed ? 1 : 0, first: faceFindings.find((error) =>
           error.includes("declared material face absent from model prose address")) || null },
+      unselectedResponseMutation: responseMutation,
     },
     null,
     2,

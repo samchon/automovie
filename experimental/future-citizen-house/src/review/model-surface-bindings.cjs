@@ -1,6 +1,7 @@
 // Check every new object state and declared face against its material response.
 const fs = require("node:fs");
 const path = require("node:path");
+const { randomInt } = require("node:crypto");
 
 /** @param {string} root @param {string} description */
 function responseDefined(root, description) {
@@ -155,4 +156,16 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
   };
 }
 
-module.exports = { objectSurfaceBindings };
+/** @param {string} root @param {Map<string,Map<string,Set<string>>>} models @param {string} materialText @param {string[]} surfaceRows */
+function sampleResponseMutation(root, models, materialText, surfaceRows) {
+  const candidates = surfaceRows.filter((line) => /\broughness\s+\.?\d+/.test(line));
+  if (!candidates.length) throw Error("empty physical finish response mutation population");
+  const selected = candidates[randomInt(candidates.length)];
+  const changed = selected.replace(/\broughness\s+\.?\d+/, "roughness 1.5");
+  if (changed === selected) throw Error("selected finish response unchanged");
+  const findings = objectSurfaceBindings(root, models, materialText.replace(selected, changed)).errors;
+  const first = findings.find((error) => error.includes("response color/roughness or linked H2 absent")) || null;
+  return { population: candidates.length, mutations: 1, red: first ? 1 : 0, first };
+}
+
+module.exports = { objectSurfaceBindings, sampleResponseMutation };
