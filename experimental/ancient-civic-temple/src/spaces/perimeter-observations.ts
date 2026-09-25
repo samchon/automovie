@@ -1,7 +1,7 @@
 /** Perimeter observations derived from current boundary and opening hosts. */
 import { builtEnvironmentBuildingCensus, builtSpaceContainsPoint, builtSpaceObservationStations, builtSpaceVolumeBounds, Quaternion } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
-import { templeObservationEye as eye, templeViewerLens } from "../geometry/observation-datum";
+import { templeExteriorSettingView, templeObservationEye as eye, templeViewerLens } from "../geometry/observation-datum";
 import { templePlan as p } from "./building";
 import { templeDoorPassages } from "./openings";
 import { templeRoofRules } from "./roofs/assembly";
@@ -101,7 +101,7 @@ const fitDistance = (width: number): number => (width / 0.78) / 2 / (Math.tan(te
  * @evidence spaces/observations.md#geometry-observations 실제 census의 노출 입면과 opening profile에서 외부 시점을 유도한다.
  * @evidenceReview spaces/observations.md#geometry-observations #4155dcf # The facade loop consumes builtEnvironmentBuildingCensus and the opening loop consumes environment.openings, preserving compiled IDs in the resulting exterior questions.
  * @evidence principles/core/source-units.md#source-scope-preservation 현재 boundary와 opening을 읽고 외부 시점만 만들며 입면이나 창을 다시 저작하지 않는다.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # Camera position, target, and label are the only new values; boundary and profile arrays are read but never changed.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # The setting reads templeExteriorSettingView; other stations add only camera positions, targets, and labels while boundary and profile arrays remain unchanged.
  * @evidence principles/core/source-units.md#source-substantive-completion setting, 입면, 네 모서리·지붕·처마 하부, 외부 개구부를 안정 ID의 관찰 목록으로 반환한다.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # The final out list contains explicit setting/corner/roof/underside IDs plus one census-based facade and each outside-facing opening ID.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work observations.md#geometry-observations에서 후퇴벽 낮은 네 면의 기본 pose가 벽 반대편을 향하는 결함을 먼저 고치고, 안타 끝·포치 박공 양면의 새 입면 관찰을 정한 뒤 그 규칙을 구현한다.
@@ -112,7 +112,7 @@ export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): T
   const center = { x: 0, y: 2.2, z: 0 };
   const out: TempleObservation[] = [{
     id: "exterior.setting", group: "exterior", space: null, role: "setting", label: "외부 setting · 정면 좌측 조감",
-    position: { x: -8, y: 15, z: 27 }, target: { x: 0, y: 1.2, z: 0.5 }, note: null,
+    position: templeExteriorSettingView.position, target: templeExteriorSettingView.target, note: null,
   }];
   for (const face of census?.facades ?? []) {
     const width = Math.max(...face.vertices.map((v) => Math.hypot(v.x - face.centroid.x, v.z - face.centroid.z))) * 2;

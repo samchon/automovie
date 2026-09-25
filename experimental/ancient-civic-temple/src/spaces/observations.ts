@@ -15,7 +15,7 @@ import { builtSpaceObservationStations } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { exteriorObservations, openingFacingObservations } from "./perimeter-observations";
 import { roofStepClosures } from "../geometry/roof-solids";
-import { templeObservationEye as eye } from "../geometry/observation-datum";
+import { templeExteriorSettingView, templeObservationEye as eye } from "../geometry/observation-datum";
 import { templePlan as p } from "./building";
 import { templeDoorPassages } from "./openings";
 import { templeRoofEnvelope, templeRoofRules } from "./roofs/assembly";
@@ -451,7 +451,7 @@ const referenceObservations = (): TempleObservation[] => {
     position, target, note: "같은 건물·방으로 읽히는지의 시각 비교 질문(판정 전 unverified)", ...(view === undefined ? {} : { view }),
   });
   return [
-    ref("01-exterior", "01 외관(정면 좌측 조감)", { x: -8, y: 15, z: 27 }, { x: 0, y: 1.2, z: 0.5 }),
+    ref("01-exterior", "01 외관(정면 좌측 조감)", templeExteriorSettingView.position, templeExteriorSettingView.target),
     ref("02-section-axonometric", "02 절개 조감(지붕·천장 숨김)", { x: -17, y: 24, z: 24 }, { x: 0, y: 0, z: 0 },
       { section: "roof-off", offset: 0, ortho: false, span: 4, flip: false }),
     ref("03-courtyard-fountain", "03 중정과 분수(남쪽 주랑 기둥 옆에서 북쪽)", { x: -0.35, y: 1.8, z: 7.8 }, { x: 0, y: 0.6, z: -1.0 }),
