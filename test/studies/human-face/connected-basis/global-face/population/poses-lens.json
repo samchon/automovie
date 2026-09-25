@@ -1,0 +1,189 @@
+{
+  "alan-rickman": {
+    "yaw": -29.320593729090003,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "daniel-radcliffe": {
+    "yaw": 2.1189111533750644,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "emma-watson": {
+    "yaw": 16.01787892858011,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "generated-black-boy-01": {
+    "yaw": -0.42953229316028485,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "generated-black-girl-01": {
+    "yaw": -1.9069571734758128,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "generated-korean-boy-01": {
+    "yaw": 0.2330747089932503,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "generated-white-boy-01": {
+    "yaw": 2.140916891458146,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "generated-white-girl-01": {
+    "yaw": -25.101406741914726,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "kim-min-jung": {
+    "yaw": 8.880347910920838,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "lee-tae-ri": {
+    "yaw": -3.2603986551596575,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "maggie-smith": {
+    "yaw": 14.72702604823357,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "michael-gambon": {
+    "yaw": -8.531988648572142,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "miriam-margolyes": {
+    "yaw": -15.19330487660811,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "oh-seung-yoon": {
+    "yaw": 10.709745079566327,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "park-eun-bin": {
+    "yaw": -0.9778079599552003,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "rupert-grint": {
+    "yaw": -12.084516096207489,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  },
+  "yoo-seung-ho": {
+    "yaw": -4.7629957118664,
+    "pitch": 0,
+    "distance": 2,
+    "target": [
+      0,
+      0,
+      0.06
+    ],
+    "fov": 8.839399962660497
+  }
+}

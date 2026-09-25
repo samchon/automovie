@@ -4,6 +4,8 @@ import type { humanFaceAnatomySchemaReview } from "./anatomy-schema-review";
 import type { humanFaceConnectedReview } from "./connected-review";
 import type { humanFaceDetailReview } from "./detail-review";
 import type { humanFaceInteriorReview } from "./interior-review";
+import type { humanFaceFibreReview } from "./fibre-review";
+import type { humanFaceIrisReview } from "./iris-review";
 import type { humanFaceNumericalHairReview } from "./numerical-hair-review";
 import type { humanFaceOcularReview } from "./ocular-review";
 import type { humanFaceStudyDocuments } from "./studies";
@@ -346,7 +348,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link humanFaceStudyDocuments} Binds the actual eighteen editor-consumed numerical documents to the per-person image and construction account.
  * @evidenceReview {@link humanFaceStudyDocuments} #3aac1f7 Read all eighteen direct JSON imports and their stable registry keys against the actual panel's sorted document list. Each selected item is serialized and parsed before construction; no built-in person or image-fetching code enters the human package. Current independent replay preserves every saved model identity. The population is eighteen rather than nineteen because one subject was removed at the owner's request: its import, registry key, replay document and both inventory records are gone together, so nothing here names a document that no longer exists.
  * @evidence {@link Human.admit} Shares one finite-scalar admission between loading and saving the flat basis document.
- * @evidenceReview {@link Human.admit} #5272322 Read exact schema plus shared numerical-hair and colour-field admission before finite shape/expression/material and nonblank identity checks. Loading and saving reject legacy hair keys and malformed numerical fields; shared domain names remain the compiled builder's responsibility. No generated guides or images are reconstructed by document admission.
+ * @evidenceReview {@link Human.admit} #8707e22 Read exact schema plus shared numerical-hair and colour-field admission before finite shape/expression/material and nonblank identity checks. Loading and saving reject legacy hair keys and malformed numerical fields; shared domain names remain the compiled builder's responsibility. No generated guides or images are reconstructed by document admission. Reread the iris pigments refused through createPortraitIrisMaterials before a document loads or saves. Reread fibre pigment components and density joining the finite-number check; their ranges are the builder rule's.
  * @evidence {@link Human.advance} Steps a directional surface walk one sample along the recorded ray.
  * @evidenceReview {@link Human.advance} #4e0d744 Read the single step the four directional owners share. It was one file with them until each public identity took its own, and moving it changed nothing it computes.
  * @evidence {@link Human.assertDetailValue} Refuses a detail edit outside the channel's own declared range before it is written.
@@ -455,6 +457,10 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidenceReview {@link Human.unit} #5049873 Read the normalisation the envelope section and its construction share: tissue width, crease and rim are separated before any of them is shaped.
  * @evidence {@link Human.writeDetail} Writes one admitted detail edit into the document the editor owns.
  * @evidenceReview {@link Human.writeDetail} #3a5f2ed Read the write the two detail setters share: the value is admitted against its channel first, so the document never holds an edit the editor would refuse.
+ * @evidence {@link humanFaceFibreReview} Retains inspection of the connected fibre pigment path separately from photographic likeness.
+ * @evidenceReview {@link humanFaceFibreReview} #64e98b1 Read the fibre source review: coverage admission, the luminance-ratio colour, the coverage factor and the value-keyed cache. Its source inspection is not photographic likeness acceptance.
+ * @evidence {@link humanFaceIrisReview} Retains inspection of the connected iris pigment path separately from photographic likeness.
+ * @evidenceReview {@link humanFaceIrisReview} #a90c020 Read the iris source review: the globe located by its corneal protrusion, the anatomical disc, texel rasterization, band colour and the PNG codec. Its source inspection is not photographic likeness acceptance.
  */
 export const humanFaceStudyReview = {
   inputs: "inputs.md",

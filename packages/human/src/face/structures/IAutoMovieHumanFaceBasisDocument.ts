@@ -1,5 +1,6 @@
 import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
 import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
 
 /**
  * Compact edits against a separately supplied immutable facial basis.
@@ -44,9 +45,28 @@ export interface IAutoMovieHumanFaceBasisDocument {
    */
   skin?: Record<string, IPortraitColourField[]> | null;
 
-  /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
+  /**
+   * Optional iris pigmentation of each articulated eye, painted by one shared
+   * rule into the basis eye texture's anatomical iris disc. Omission and null
+   * keep the basis texture byte for byte.
+   */
+  iris?: IAutoMovieHumanFaceIris | null;
+
+  /**
+   * Optional overrides by existing material ID: linear RGB `color` and
+   * `roughness`, each in [0,1]. A material whose base-colour texture carries
+   * fibre coverage in its alpha (a brow or lash card cut by a mask or
+   * blended) also takes `pigment`, the fibres' linear RGB albedo in [0,1],
+   * and `density`, a factor on that coverage in [0,4]; both are painted into
+   * the texture by the shared fibre rule.
+   */
   materials?: Record<
     string,
-    { color?: { r: number; g: number; b: number }; roughness?: number }
+    {
+      color?: { r: number; g: number; b: number };
+      roughness?: number;
+      pigment?: [number, number, number];
+      density?: number;
+    }
   >;
 }

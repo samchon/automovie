@@ -3,6 +3,7 @@ export * from "./assertHumanFaceArticulation";
 export * from "./assertHumanFaceBasis";
 export * from "./assertHumanFaceContact";
 export * from "./createHumanFaceBasisBuilder";
+export * from "./createHumanFaceFibrePigment";
 export * from "./createHumanFaceBasisRegion";
 export * from "./createHumanFaceControlMap";
 export * from "./evaluateHumanFacePassage";

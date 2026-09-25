@@ -38,6 +38,7 @@
       import * as THREE from "three";
 
       import {
+        portraitWebAlphaTest,
         portraitWebHairMaskPart,
         portraitWebHairMaskPixels,
       } from "./logic.mjs";
@@ -106,8 +107,13 @@
             texture.flipY = false;
             texture.colorSpace = THREE.SRGBColorSpace;
             mat.map = texture;
-            mat.transparent = true;
-            mat.alphaTest = 0.45;
+            // The material's own alpha mode and cutoff, as the product
+            // viewer applies them; a hard-coded cut thinned brows and lashes.
+            mat.alphaTest = portraitWebAlphaTest(material);
+            mat.transparent =
+              Object.hasOwn(material, "alphaMode")
+                ? material.alphaMode === "blend"
+                : true;
           }
           materials.set(material.id, mat);
         }
@@ -168,7 +174,9 @@
               context.putImageData(pixels, 0, 0);
               maskMaterial.map = new THREE.CanvasTexture(alphaCanvas);
               maskMaterial.map.flipY = false;
-              maskMaterial.alphaTest = 0.45;
+              maskMaterial.alphaTest = portraitWebAlphaTest(
+                model.materials.find((one) => one.id === part.material) ?? {},
+              );
             }
             material = maskMaterial;
           }
@@ -185,6 +193,9 @@
           target.z + distance * Math.cos(yaw) * Math.cos(pitch),
         );
         camera.lookAt(target);
+        // A measured pose may carry a longer lens; omission is the review's
+        // historical 28 degree vertical field.
+        camera.fov = options.fov ?? 28;
         camera.updateProjectionMatrix();
         renderer.render(scene, camera);
         gl.finish();

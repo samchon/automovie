@@ -19,6 +19,8 @@ import { numberOf, numberParameter } from "./parameterValues";
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation This primitive figure catalogue carries no facial joints, landmarks or attachment weights.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact This primitive figure has no lips, teeth or tongue to keep apart.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Primitive rig construction evaluates no facial rest layer, landmark articulation or sparse attachment posing.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Primitive rig construction has no textured globe and paints no iris.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Primitive rig construction has no brow or lash card and paints no fibre.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The stickman declares no contact block; oral contact belongs to the human face basis.
  *
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The stickman catalogue constructs a primitive skeleton and body; it does not provide the connected body basis, its joints, measurements or documents.

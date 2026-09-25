@@ -17,6 +17,9 @@ import { nclose, vclose } from "../internal/predicates";
  * 2. Cyclic coordinate rotations preserve that geometric result, including
  *    directions for which a least-aligned world-axis root frame happens to work.
  * 3. The root and every station centre remain exactly on the input polyline.
+ * 4. Every combed triangle faces along the root's outward normal, for the
+ *    bend into +Y and its mirror into -Y alike: a ribbon over the scalp faces
+ *    away from it, whichever way the curve happens to turn.
  *
  * The transported frame is the subject here, so the surface stands ten metres
  * away and never narrows a ribbon against itself.
@@ -80,6 +83,39 @@ export const test_subject_human_numerical_hair_frame = (): void => {
         "centreline unchanged",
         vclose(Vector3.scale(Vector3.add(a, b), 0.5), points[at], 1e-12),
       );
+    }
+    for (const mirror of [1, -1]) {
+      const bent = original
+        .map((p) => Vector3.create(p.x, mirror * p.y, p.z))
+        .map(rotate);
+      const ribbon = buildHumanFaceHairMesh(
+        [{ points: bent, normal, length: 0.006, clearance: 0.003 }],
+        { clearance: 0, taper: { tipWidth: 1, start: 0 } },
+        { widths: [0.002], query: distant },
+      );
+      const at = (id: number) =>
+        Vector3.create(
+          ...(ribbon.positions.slice(id * 3, id * 3 + 3) as [
+            number,
+            number,
+            number,
+          ]),
+        );
+      const indices = ribbon.indices!;
+      for (let t = 0; t < indices.length; t += 3) {
+        const [p, q, r] = [0, 1, 2].map((k) => at(indices[t + k]!));
+        // The rising segment stands edge-on to the scalp; the combed rows lie
+        // in the plane 4 mm above it.
+        if ([p, q, r].some((v) => Vector3.dot(v!, normal) < 0.004 - 1e-9))
+          continue;
+        TestValidator.predicate(
+          "faces away from the scalp",
+          Vector3.dot(
+            Vector3.cross(Vector3.subtract(q!, p!), Vector3.subtract(r!, p!)),
+            normal,
+          ) > 0,
+        );
+      }
     }
   }
 };

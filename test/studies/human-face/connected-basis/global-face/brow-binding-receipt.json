@@ -1,0 +1,29 @@
+{
+  "source": "mpfb-connected-head-2026-09-24-lower-face",
+  "revision": "mpfb-connected-head-2026-09-24-brow-binding",
+  "vertices": 124,
+  "targets": 177,
+  "removed": [],
+  "recorded": "2026-09-24T03:27:35.851Z",
+  "rule": "Each brow-card vertex attaches to the front-most skin triangle at its own x and y; every skin target is written to the card as the barycentric blend of that triangle's rows, as MPFB's proxy fitting binds a card to the body.",
+  "inputs": {
+    "basis": {
+      "sha256": "29e2ede1fcaaae9b637acf77e37cbdb0dd9346242c41be4562ae47b87487bdb5",
+      "bytes": 25850738
+    },
+    "subjects": {
+      "sha256": "4a021585abcfb139a2ee548da20cb2555aac30f68631ce49de912430662c4bc2",
+      "bytes": 165930
+    },
+    "controls": {
+      "sha256": "6b0c549d0b1ed4ab4c41bb48b05c10b28df0c6f6b4e885696112f29ef04bb8bc",
+      "bytes": 7449
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "b1d53ee3b1a317e2ab0095bca18e6cf807189688e6710c8a8114a9f7b3e13c46",
+      "bytes": 25985618
+    }
+  }
+}
