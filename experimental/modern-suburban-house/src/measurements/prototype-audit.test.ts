@@ -45,8 +45,8 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,77);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine"].includes(p.id)));
+  assert.equal(objects.length,79);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
@@ -70,6 +70,15 @@ test("separate room objects keep each reviewed face once", () => {
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="porch-mat-planter")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="pendant-fixtures")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="laundry-machine")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="headboard-bed")),/missing design host/);
+  for(const [id,width,pillows] of [["primary-bed",1.60,2],["bedroom-two-bed",1.15,1],["bedroom-three-bed",1.15,1]] as const) {
+    const bed=objects.find((p)=>p.id===id)!;
+    const headboard=bed.model.parts.find((part)=>part.material==="headboard")?.geometry;
+    if(headboard?.type!=="mesh") throw Error(`${id}: headboard missing`);
+    const xs=headboard.mesh.positions.filter((_,i)=>i%3===0);
+    assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-width)<1e-9);
+    assert.equal(bed.model.parts.filter((part)=>part.material==="pillow").length,pillows);
+  }
   const withoutMat=structuredClone(parents);
   const porch=withoutMat.find((p)=>p.id==="porch-mat-planter")!;
   porch.model.parts.splice(0,porch.model.parts.length,...porch.model.parts.filter((p)=>p.material!=="field"&&p.material!=="border"));
@@ -87,6 +96,11 @@ test("separate room objects keep each reviewed face once", () => {
   const towelYs=towels.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions.filter((_,i)=>i%3===1):[]);
   assert.equal(Math.min(...towelYs),0);
   assert.equal(Math.max(...towelYs),0.12);
+  const pillow=objects.find((p)=>p.id==="sofa-pillow-left")!;
+  const pillowMesh=pillow.model.parts[0]!.geometry;
+  assert.equal(pillowMesh.type,"mesh");
+  if(pillowMesh.type==="mesh") assert.ok(pillowMesh.mesh.positions.length/3>24);
+  assert.equal(objects.find((p)=>p.id==="living-tray")!.model.parts.length,5);
   for(const [id,width,drop] of [["island-pendant",0.28,0.80],["dining-pendant",0.48,1.20]] as const) {
     const object=objects.find((p)=>p.id===id)!;
     const positions=object.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);

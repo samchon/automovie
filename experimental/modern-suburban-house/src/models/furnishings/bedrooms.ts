@@ -4,10 +4,16 @@ import { curtainEnvelope, type PrototypeSpec } from "../templates";
 import { woodenChairFinishes } from "./finishes";
 
 const primaryRearCurtain = {openingWidth:2.40,openingHeight:1.40,floorDrop:0.75} as const;
+export const bedSizes = {
+  primary:fromReservation("primary-bedroom-bed","z"),
+  childTwo:fromReservation("bedroom-two-bed"),
+  childThree:fromReservation("bedroom-three-bed"),
+} as const;
+export const bedMattressTop = (size:readonly [number,number,number]) => size[1]-0.40;
 
 export const bedroomSpecs: readonly PrototypeSpec[] = [
   ...group("13-bedrooms.md", "src/models/furnishings/bedrooms.ts", [
-    ["headboard-bed","bed",fromReservation("primary-bedroom-bed","z"),"headboard bed-frame mattress bedding pillow",{mattressTop:0.60}],
+    ["headboard-bed","bed",bedSizes.primary,"headboard bed-frame mattress bedding pillow",{mattressTop:bedMattressTop(bedSizes.primary)}],
     ["nightstand-lamp","cabinet",fromReservation("primary-bedroom-rear-nightstand"),"carcass drawer-front lamp-base lamp-shade",{bodyTop:0.55}],
     ["low-dresser","cabinet",fromReservation("primary-bedroom-dresser","z"),"carcass drawer-front handle leg"],
     ["child-desk","table",fromReservation("bedroom-two-desk","z"),"top leg shelf book container pencil"],
