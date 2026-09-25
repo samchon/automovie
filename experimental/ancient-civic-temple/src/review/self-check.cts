@@ -13,6 +13,7 @@
  * 겹침, 실체 안 관찰, 결산 계약 위반이 하나라도 있으면 종료 코드 1이다.
  */
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
@@ -175,6 +176,7 @@ console.log(`models account table mismatches: ${modelMismatches.length}`);
 for (const row of modelMismatches) console.log(`  stale: ${row}`);
 console.log(`model source-input index: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} sections, ${modelInputs.length} part rows; ${parameterAuditMismatches.length} stale, missing or duplicate`);
 for (const row of parameterAuditMismatches) console.log(`  parameter audit: ${row}`);
+console.log(execFileSync(process.execPath, [join(__dirname, "model-design-arithmetic.mjs")], { encoding: "utf8" }).trim());
 const sectionRanks = modelSectionMeasures(modelDocuments);
 console.log(`model H2 ranks: ${sectionRanks.length} sections; top 7 ${sectionRanks.slice(0, 7).map((row) => `${row.title}=${row.body}`).join(", ")}; shortest 4 ${sectionRanks.slice(-4).reverse().map((row) => `${row.title}=${row.body}`).join(", ")}`);
 
