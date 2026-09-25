@@ -97,13 +97,13 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `fixtures#fountain` | `step`, `rim`, `basin-inner`, `nozzle` | `limestone` | 평면·회전 |
 | `fixtures#fountain` | `water`, `ripple`, `jet` | `water` | 평면·회전 |
 | `fixtures#altar` | `step`, `top`, `support` | `limestone` | 평면 |
-| `fixtures#niche` | `plinth`, `body`, `recess`, `cap` | `limestone` | 평면 |
+| `fixtures#niche` | `plinth`, `body`, `recess-frame`, `recess`, `cap` | `limestone` | 평면 |
 | `fixtures#lampstand` | `foot`, `stem`, `knop`, `dish` | `dark-metal` | 회전 |
 | `fixtures#offering-table` | `top`, `trestle` | `limestone` | 평면 |
 | `fixtures#display-shelf` | `side`, `board` | `dark-wood` | 장축 |
 | `fixtures#desk` | `top`, `leg`, `stretcher` | `dark-wood` | 장축 |
 | `fixtures#stool` | `seat`, `leg`, `stretcher` | `dark-wood` | 장축 |
-| `fixtures#scroll-shelf` | `frame`, `divider` | `dark-wood` | 장축 |
+| `fixtures#scroll-shelf` | `frame`, `board`, `divider` | `dark-wood` | 장축 |
 | `fixtures#chest` | `body`, `lid` | `dark-wood` | 장축 |
 | `fixtures#chest` | `hasp`, `strap` | `dark-metal` | 평면 |
 | `wares#storage-jar`, `wares#carry-jar`, `wares#small-vessel` | `body`, `handle` | `terracotta` | 회전·관 |
@@ -128,6 +128,10 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `portable#writing-tablet` | `frame` | `dark-wood` | 평면 |
 | `portable#writing-tablet` | `writing-face` | `parchment` | 평면 |
 | `portable#rope-coil` | `rope`, `tie` | `rope-fibre` | 관 |
+| `ritual#censer` | `foot`, `stem`, `cup` | `dark-metal` | 회전 |
+| `ritual#censer` | `ash`, `incense` | `soil` | 평면·회전 |
+| `ritual#floor-cushion` | `base`, `pad`, `fold` | `linen` | 평면 |
+| `ritual#jar-stand` | `foot`, `post`, `ring` | `limestone` | 회전 |
 | `landscape#cypress` | `trunk` | `dark-wood` | 회전 |
 | `landscape#cypress` | `crown` | `foliage` | 회전 |
 | `landscape#broad-tree` | `trunk`, `branch` | `dark-wood` | 회전 |

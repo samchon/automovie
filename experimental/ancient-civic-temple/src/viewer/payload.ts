@@ -7,7 +7,7 @@
 import { builtEnvironmentBuildingCensus, lowerBuiltEnvironment, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieHeightRule, IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { templeViewerLens } from "../geometry/observation-datum";
-import { createTempleEnvironment } from "../spaces/environment";
+import { createTempleObjectScene } from "../instances/assembly";
 import { templeObservations, templeSpaceNames } from "../spaces/observations";
 
 export interface ViewerPart {
@@ -25,7 +25,7 @@ export interface ViewerPlacement {
 }
 
 export const createViewerPayload = () => {
-  const built = createTempleEnvironment();
+  const built = createTempleObjectScene();
   const environment = built.environment;
   const lowered = lowerBuiltEnvironment(environment);
   const models = environment.models.map((model) => ({
@@ -77,8 +77,8 @@ export const createViewerPayload = () => {
     },
     notices: [
       "재료 미결속: materials 층이 아직 열리지 않아 모든 표면을 중성 클레이로 표시합니다.",
-      "이웃·수목 없음: 배치 구역만 있고 개체는 instances 층 소유로 아직 없습니다. 외벽 하단 " + built.wallBottom.toFixed(2) + "m는 대지 지면의 최저 접촉에서 유도했습니다.",
-      "독립 부재 없음: 기둥·문짝·문틀·기와·수반·집기는 models 층 소유로 아직 없습니다.",
+      "이웃·수목 없음: 배치 구역은 있으나 이웃 외피와 식생 개체는 아직 배치되지 않았습니다. 외벽 하단 " + built.wallBottom.toFixed(2) + "m는 대지 지면의 최저 접촉에서 유도했습니다.",
+      "사물 배치: 76개 역할의 개별 요소와 재사용 prototype을 실제 scene에서 표시합니다. 구조의 독립 기둥·문짝·문틀·기와는 아직 이 전달값에 없습니다.",
       "조명 미결정: systems 층 미개시. 뷰어는 설정 주광의 방향·고도(정면 좌측 위 45°)만 따르고 강도·노출은 검토용 기본값입니다.",
     ],
   };

@@ -27,35 +27,17 @@ export const modelDocumentBodyLength = (source: string): number => [...source
   .replace(/<!--[\s\S]*?-->/g, "")
   .replace(/\s/g, "")].length;
 
-const modelFiles = [
-  "fixtures.md",
-  "entablature.md",
-  "openings.md",
-  "wares.md",
-  "landscape.md",
-  "scale.md",
-  "columns.md",
-  "cladding.md",
-  "portable.md",
-] as const;
-
 /** 파일이 하나도 빠지거나 중복되지 않은 모델 분량 Markdown 행. */
 export const modelAccountRows = (measures: readonly ModelDocumentMeasure[]): string[] => {
   const byPath = new Map(measures.map((measure) => [measure.path, measure]));
   if (byPath.size !== measures.length) throw new Error(
     "models 분량 계측에 중복 경로가 있습니다.",
   );
-  const rows = modelFiles.map((path) => {
-    const measure = byPath.get(path);
-    if (measure === undefined) throw new Error(`models 분량 표에 필요한 ${path}가 없습니다.`);
+  if (byPath.size === 0) throw new Error("models 분량 계측 모집단이 비었습니다.");
+  const rows = [...byPath.keys()].sort((a, b) => a.localeCompare(b)).map((path) => {
+    const measure = byPath.get(path)!;
     return `| ${path} | ${measure.headings} | ${measure.body} |`;
   });
-  const extras = [...byPath.keys()].filter(
-    (path) => !modelFiles.includes(path as typeof modelFiles[number]),
-  );
-  if (extras.length > 0) throw new Error(
-    `models 분량 표에 없는 문서: ${extras.join(", ")}`,
-  );
   return [
     ...rows,
     `| 합계 | ${measures.reduce((sum, measure) => sum + measure.headings, 0)} | ${measures.reduce((sum, measure) => sum + measure.body, 0)} |`,

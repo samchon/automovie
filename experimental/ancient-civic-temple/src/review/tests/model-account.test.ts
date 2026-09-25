@@ -1,14 +1,14 @@
 /** 모델 분량 계측과 계정 표가 동일한 전집합을 쓰는지 검사한다. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches, modelPartNounMismatches } from "../model-account";
 
 void test("every geometry noun retains a part owner, including an omitted truss strut", () => {
   const root = join(__dirname, "../../../docs/models");
-  const docs = ["fixtures", "entablature", "openings", "wares", "landscape", "scale", "columns", "cladding", "portable"]
-    .map((name) => ({ path: `${name}.md`, source: readFileSync(join(root, `${name}.md`), "utf8") }));
+  const docs = readdirSync(root).filter((path) => path.endsWith(".md"))
+    .map((path) => ({ path, source: readFileSync(join(root, path), "utf8") }));
   assert.deepEqual(modelPartNounMismatches(docs), []);
   const changed = docs.map((doc) => doc.path !== "entablature.md" ? doc : {
     ...doc,
@@ -59,22 +59,19 @@ void test("H2 rank measure excludes evidence comments and keeps each section dis
 });
 
 void test("model account includes each source file once and detects stale or extra rows", () => {
-  const paths = [
-    "fixtures.md", "entablature.md", "openings.md", "wares.md",
-    "landscape.md", "scale.md", "columns.md", "cladding.md", "portable.md",
-  ];
+  const paths = ["b.md", "a.md", "c.md"];
   const measures = paths.map((path, i) => ({ path, headings: i + 1, body: (i + 1) * 10 }));
   const rows = modelAccountRows(measures);
-  assert.equal(rows.length, 10);
-  assert.equal(rows[0], "| fixtures.md | 1 | 10 |");
-  assert.equal(rows.at(-1), "| 합계 | 45 | 450 |");
+  assert.equal(rows.length, measures.length + 1);
+  assert.equal(rows[0], "| a.md | 2 | 20 |");
+  assert.equal(rows.at(-1), "| 합계 | 6 | 60 |");
   const table = ["| 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |", "| --- | ---: | ---: |", ...rows].join("\n");
   assert.deepEqual(modelAccountMismatches(table, rows), []);
   assert.deepEqual(modelAccountMismatches(table.replace(/\n/g, "\r\n"), rows), []);
-  assert.deepEqual(modelAccountMismatches(table.replace("| 1 | 10 |", "| 1 | 11 |"), rows), [rows[0]]);
+  assert.deepEqual(modelAccountMismatches(table.replace("| 2 | 20 |", "| 2 | 21 |"), rows), [rows[0]]);
   assert.deepEqual(modelAccountMismatches(`${table}\n${rows[0]}`, rows), [`unexpected: ${rows[0]}`]);
   assert.deepEqual(modelAccountMismatches("no table", rows), rows);
-  assert.throws(() => modelAccountRows(measures.slice(1)), /fixtures.md가 없습니다/);
+  assert.throws(() => modelAccountRows([]), /모집단이 비었습니다/);
   assert.throws(() => modelAccountRows([...measures, measures[0]!]), /중복 경로/);
-  assert.throws(() => modelAccountRows([...measures, { path: "extra.md", headings: 1, body: 1 }]), /표에 없는 문서/);
+  assert.equal(modelAccountRows([...measures, { path: "extra.md", headings: 1, body: 1 }]).length, rows.length + 1);
 });
