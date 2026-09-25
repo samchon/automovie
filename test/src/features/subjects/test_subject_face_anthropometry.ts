@@ -42,6 +42,21 @@ const face = (): FaceAnthropometryPoint[] => {
   pair(136, 365, 45, 70);
   pair(176, 400, 20, 92);
   pair(105, 334, 30, -20);
+  pair(157, 384, 20, 1);
+  pair(154, 381, 20, 9);
+  pair(161, 388, 40, 2);
+  pair(163, 390, 40, 8);
+  pair(70, 300, 50, -14);
+  pair(107, 336, 12, -18);
+  pair(37, 267, 8, 49);
+  pair(39, 269, 16, 51);
+  pair(81, 311, 16, 55);
+  pair(178, 402, 16, 57);
+  pair(181, 405, 16, 64);
+  pair(123, 352, 50, 30);
+  pair(193, 417, 6, 12);
+  pair(196, 419, 8, 24);
+  pair(21, 251, 55, -15);
   return p;
 };
 
@@ -70,8 +85,10 @@ const face = (): FaceAnthropometryPoint[] => {
  *    by 3 / sqrt(909), the same in the image turned upside down; lowered,
  *    the tilt is negative; without one exocanthion, or with the canthi
  *    of each eye at one point, there is no tilt.
- * 5. A missing landmark leaves only the indices that read it null; fewer
- *    than two midline landmarks refuse.
+ * 5. A missing landmark leaves only the indices that read it null (a
+ *    bilateral one when either side is missing, subnasale's eye level and
+ *    a bow peak's width and depth); fewer than two midline landmarks
+ *    refuse.
  */
 export const test_subject_face_anthropometry = (): void => {
   const points = face();
@@ -97,6 +114,18 @@ export const test_subject_face_anthropometry = (): void => {
     chinWidth: 40 / 120,
     chinHeight: 34 / 100,
     browHeight: 20 / 30,
+    eyeLevel: 35 / 100,
+    medialAperture: 8 / 30,
+    lateralAperture: 6 / 30,
+    browSlope: 4 / 30,
+    cupidsBowWidth: 16 / 50,
+    cupidsBowDepth: 1 / 50,
+    upperLateralVermilion: 4 / 50,
+    lowerLateralVermilion: 7 / 50,
+    cheekProminence: 100 / 120,
+    noseUpperWidth: 12 / 120,
+    noseMiddleWidth: 16 / 120,
+    templeWidth: 110 / 120,
   };
   TestValidator.predicate(
     "defining ratios",
@@ -237,6 +266,19 @@ export const test_subject_face_anthropometry = (): void => {
   TestValidator.predicate(
     "missing alare",
     partial.noseWidth === null && partial.mouthWidth !== null,
+  );
+  const sparse = [...points];
+  sparse[2] = undefined;
+  sparse[70] = undefined;
+  sparse[37] = undefined;
+  const without = measureFaceAnthropometry(sparse);
+  TestValidator.predicate(
+    "missing subnasale, brow tail and bow peak",
+    without.eyeLevel === null &&
+      without.browSlope === null &&
+      without.cupidsBowDepth === null &&
+      without.cupidsBowWidth === null &&
+      without.cheekProminence !== null,
   );
   TestValidator.predicate(
     "no midline",

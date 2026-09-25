@@ -82,6 +82,20 @@
  * unit of the pair turns the fissure about 0.065 (3.7 degrees) and moves no
  * other index by more than 2.4 percent.
  *
+ * Twelve more indices carry the fine controls a frontal photograph shows
+ * beyond those: the eyes' height above subnasale (`eyeLevel`), the lid
+ * aperture at the fissure's medial and lateral thirds, the brow's slope
+ * from head to tail, the Cupid's bow's width and depth, the vermilion's
+ * height at its lateral thirds, the cheek contour below the zygoma, the
+ * nasal sidewalls at the upper and middle dorsum and the temples' width.
+ * Each moves its own paired control's index by 8 to 121 percent at full
+ * weight on the basis, more than any other of the new controls moves it but
+ * one: the upper lip's lateral elevation also raises the bow's peaks, a
+ * cross effect the square solve carries. Controls a frontal photograph does
+ * not move (the nasal tip's width, the chin's triangularity) and pairs it
+ * cannot tell apart (the lower nose and nostril widths, both reading as
+ * alar width) have no index.
+ *
  * The pairing is anatomical and was checked on the basis: at full weight
  * every paired control moves its own index by 13 to 45 percent and each other
  * index by a smaller amount (the solve still accounts for those cross
@@ -272,6 +286,76 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
       "mean brow apex to upper lid height (105-159, 334-386) over fissure length",
     channels: ["browElevation"],
   },
+  {
+    id: "eyeLevel",
+    definition:
+      "the canthi's mean height (33, 133, 263, 362) above subnasale (2) over n-me height",
+    channels: ["leftEyeElevation", "rightEyeElevation"],
+  },
+  {
+    id: "medialAperture",
+    definition:
+      "mean lid-to-lid height at the fissure's medial third (157-154, 384-381) over fissure length",
+    channels: ["leftMedialEyeApertureHeight", "rightMedialEyeApertureHeight"],
+  },
+  {
+    id: "lateralAperture",
+    definition:
+      "mean lid-to-lid height at the fissure's lateral third (161-163, 388-390) over fissure length",
+    channels: ["leftLateralEyeApertureHeight", "rightLateralEyeApertureHeight"],
+  },
+  {
+    id: "browSlope",
+    definition:
+      "mean brow head above brow tail (107 over 70, 336 over 300) over fissure length, signed",
+    channels: ["browAngle"],
+  },
+  {
+    id: "cupidsBowWidth",
+    definition: "Cupid's bow peaks' width (37, 267) over mouth width",
+    channels: ["cupidsBowWidth"],
+  },
+  {
+    id: "cupidsBowDepth",
+    definition:
+      "Cupid's bow peaks (37, 267) above labrale superius (0) over mouth width, signed",
+    channels: ["cupidsBowDefinition"],
+  },
+  {
+    id: "upperLateralVermilion",
+    definition:
+      "mean upper vermilion height at its lateral third (39-81, 269-311) over mouth width",
+    channels: ["upperLipLateralElevation"],
+  },
+  {
+    id: "lowerLateralVermilion",
+    definition:
+      "mean lower vermilion height at its lateral third (178-181, 402-405) over mouth width",
+    channels: ["lowerLipLateralElevation"],
+  },
+  {
+    id: "cheekProminence",
+    definition:
+      "cheek contour width below the zygoma (123, 352) over face width",
+    channels: ["leftCheekBone", "rightCheekBone"],
+  },
+  {
+    id: "noseUpperWidth",
+    definition:
+      "nasal sidewall width at the upper dorsum (193, 417) over face width",
+    channels: ["noseUpperWidth"],
+  },
+  {
+    id: "noseMiddleWidth",
+    definition:
+      "nasal sidewall width at the middle dorsum (196, 419) over face width",
+    channels: ["noseMiddleWidth"],
+  },
+  {
+    id: "templeWidth",
+    definition: "temple contour width (21, 251) over face width",
+    channels: ["templeWidth"],
+  },
 ];
 
 /** Every index of one set of landmarks; null where a landmark is absent. */
@@ -356,6 +440,35 @@ export function measureFaceAnthropometry(
     chinWidth: ratio(W(176, 400), fw),
     chinHeight: ratio(H(17, 152), fh),
     browHeight: ratio(mean(H(105, 159), H(334, 386)), fl),
+    eyeLevel: ((): number | null => {
+      const eye = [33, 133, 263, 362].map(at);
+      const [sn] = [2].map(at);
+      return eye.every((p) => p !== undefined) && sn && fh !== null && fh > 0
+        ? (sn[1] - eye.reduce((sum, p) => sum + p![1], 0) / 4) / fh
+        : null;
+    })(),
+    medialAperture: ratio(mean(H(157, 154), H(384, 381)), fl),
+    lateralAperture: ratio(mean(H(161, 163), H(388, 390)), fl),
+    browSlope: ((): number | null => {
+      const rise = (head: number, tail: number): number | null => {
+        const [p, q] = [at(head), at(tail)];
+        return p && q ? q[1] - p[1] : null;
+      };
+      return ratio(mean(rise(107, 70), rise(336, 300)), fl);
+    })(),
+    cupidsBowWidth: ratio(W(37, 267), mw),
+    cupidsBowDepth: ((): number | null => {
+      const [ls, r, l] = [0, 37, 267].map(at);
+      return ls && r && l && mw !== null && mw > 0
+        ? (ls[1] - (r[1] + l[1]) / 2) / mw
+        : null;
+    })(),
+    upperLateralVermilion: ratio(mean(H(39, 81), H(269, 311)), mw),
+    lowerLateralVermilion: ratio(mean(H(178, 181), H(402, 405)), mw),
+    cheekProminence: ratio(W(123, 352), fw),
+    noseUpperWidth: ratio(W(193, 417), fw),
+    noseMiddleWidth: ratio(W(196, 419), fw),
+    templeWidth: ratio(W(21, 251), fw),
   };
 }
 
