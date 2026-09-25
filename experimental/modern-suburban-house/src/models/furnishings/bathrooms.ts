@@ -4,6 +4,7 @@ import type { PrototypeSpec } from "../templates";
 import { finishFaces } from "./finishes";
 
 const tubFootprint=fromReservation("tub-bathroom-tub","z");
+export const bathMatSizes={shower:[0.65,0.008,0.45],tub:[0.80,0.008,0.45]} as const;
 
 export const bathroomSpecs: readonly PrototypeSpec[] = [
   ...group("14-bathrooms.md", "src/models/furnishings/bathrooms.ts", [
@@ -19,7 +20,7 @@ export const bathroomSpecs: readonly PrototypeSpec[] = [
     ["sliding-shower-booth","shower",fromReservation("shower-bathroom-booth"),"shower-tray glass rail handle faucet"],
     ["bathtub","tub",[tubFootprint[0],1.90,tubFootprint[2]],"ceramic faucet",{rimHeight:tubFootprint[1]}],
     ["tub-curtain-rail","bath",[0.10,2.05,1.80],"rail rod curtain"],
-    ["bath-floor-mats","mat",[0.65,0.008,0.45],"field border"],
+    ["bath-floor-mats","mat",bathMatSizes.shower,"field border",{borderWidth:0.04}],
     ["shower-niche-bottles","bath",[0.235,0.20,0.08],"container lid"],
   ]),
 ];

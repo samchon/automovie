@@ -33,6 +33,8 @@ export interface PrototypeSpec {
   pendant?: "island" | "dining";
   laundry?: "washer" | "dryer";
   chairProfile?: "terrace";
+  tableProfile?: "terrace";
+  borderWidth?: number;
   curtain?: WindowCurtainSize;
   lShelf?: { backDepth:number; rightWidth:number };
 }
@@ -394,6 +396,19 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       box("handle",w*0.25,h*0.35,d,w*0.30,h*0.72,d+0.03);
       break;
     case "table":
+      if(spec.tableProfile==="terrace") {
+        const gap=0.01,boards=6,boardDepth=(d-(boards-1)*gap)/boards,legWidth=0.05;
+        for(let i=0;i<boards;i++) {
+          const z=i*(boardDepth+gap);
+          b.box("top",[-w/2,h-0.03,z],[w/2,h,z+boardDepth]);
+        }
+        for(const x of [-w/2+legWidth/2,w/2-legWidth/2])
+          for(const z of [legWidth/2,d-legWidth/2])
+            b.box("leg",[x-legWidth/2,0,z-legWidth/2],[x+legWidth/2,h-0.03,z+legWidth/2]);
+        pending.delete("top");
+        pending.delete("leg");
+        break;
+      }
       const desk=pending.has("pencil");
       box("top",-w/2,h-(desk?0.03:0.04),0,w/2,h,d);
       box("countertop",-w/2,h-0.04,0,w/2,h,d);
@@ -704,13 +719,17 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       break;
     }
     case "mat":
-      box("field",-w/2+0.025,0,0.025,w/2-0.025,h,d-0.025);
+      {
+      const border=spec.borderWidth??0.025;
+      if(!Number.isFinite(border)||border<=0||border*2>=Math.min(w,d)) throw Error(`${spec.id}: invalid mat border`);
+      box("field",-w/2+border,0,border,w/2-border,h,d-border);
       if (pending.has("border")) {
-        for (const [x0,z0,x1,z1] of [[-w/2,0,w/2,0.025],[-w/2,d-0.025,w/2,d],[-w/2,0.025,-w/2+0.025,d-0.025],[w/2-0.025,0.025,w/2,d-0.025]])
+        for (const [x0,z0,x1,z1] of [[-w/2,0,w/2,border],[-w/2,d-border,w/2,d],[-w/2,border,-w/2+border,d-border],[w/2-border,border,w/2,d-border]])
           b.box("border",[x0,0,z0],[x1,h,z1]);
         pending.delete("border");
       }
       break;
+      }
     case "panel":
       if(pending.has("firebox")) {
         const left=-0.52,right=0.52,low=0.23,high=0.87,t=0.025;

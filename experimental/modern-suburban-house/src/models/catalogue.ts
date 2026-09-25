@@ -6,7 +6,7 @@ import { kitchenDiningSpecs } from "./furnishings/kitchen-dining";
 import { livingSpecs } from "./furnishings/living";
 import { serviceRoomSpecs, laundryMachineSizes } from "./furnishings/service-rooms";
 import { bedroomSpecs, bedSizes, bedMattressTop, deskSizes, nightstandSizes, nightstandBodyTop } from "./furnishings/bedrooms";
-import { bathroomSpecs } from "./furnishings/bathrooms";
+import { bathroomSpecs, bathMatSizes } from "./furnishings/bathrooms";
 import { outdoorFurnitureSpecs } from "./furnishings/outdoor";
 import { sidingSpecs } from "./exterior/siding";
 import { exteriorTrimSpecs } from "./exterior/trim";
@@ -175,6 +175,12 @@ export function buildHouseObjects(parents: HousePrototype[] = buildHousePrototyp
     ["front-mature-tree",siteTreeSizes.front],
     ["rear-yard-tree",siteTreeSizes.rear],
   ] as const).map(([id,size])=>buildPrototype({...treeHost,id,size}));
-  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id&&p.id!==treeHost.id),
-    ...separate,...pendants,...machines,...beds,...desks,...childNightstands,...trees];
+  const matHost=housePrototypeSpecs.find((spec)=>spec.id==="bath-floor-mats")!;
+  if(!byId.has(matHost.id)) throw Error("bath-floor-mats: missing design host");
+  const bathMats=([
+    ["shower-bath-mat",bathMatSizes.shower],
+    ["tub-bath-mat",bathMatSizes.tub],
+  ] as const).map(([id,size])=>buildPrototype({...matHost,id,size}));
+  return [...parents.filter((p)=>!splitParents.has(p.id)&&p.id!==pendantHost.id&&p.id!==laundryHost.id&&p.id!==bedHost.id&&p.id!==deskHost.id&&p.id!==treeHost.id&&p.id!==matHost.id),
+    ...separate,...pendants,...machines,...beds,...desks,...childNightstands,...trees,...bathMats];
 }

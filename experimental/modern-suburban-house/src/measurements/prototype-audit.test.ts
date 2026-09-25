@@ -47,8 +47,8 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,85);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk","site-tree-prototypes"].includes(p.id)));
+  assert.equal(objects.length,86);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk","site-tree-prototypes","bath-floor-mats"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
@@ -75,6 +75,17 @@ test("separate room objects keep each reviewed face once", () => {
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="headboard-bed")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="child-desk")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="site-tree-prototypes")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="bath-floor-mats")),/missing design host/);
+  for(const [id,width] of [["shower-bath-mat",0.65],["tub-bath-mat",0.80]] as const) {
+    const mat=objects.find((p)=>p.id===id)!;
+    const positions=mat.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+    const xs=positions.filter((_,i)=>i%3===0);
+    assert.ok(Math.abs(Math.max(...xs)-Math.min(...xs)-width)<1e-9);
+    const field=mat.model.parts.find((part)=>part.material==="field")!.geometry;
+    if(field.type!=="mesh") throw Error(`${id}: field mesh missing`);
+    const fieldXs=field.mesh.positions.filter((_,i)=>i%3===0);
+    assert.ok(Math.abs(Math.max(...fieldXs)-Math.min(...fieldXs)-(width-0.08))<1e-9);
+  }
   const treeHeight=(id:string)=>{
     const tree=objects.find((p)=>p.id===id)!;
     const ys=tree.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions.filter((_,i)=>i%3===1):[]);
@@ -135,6 +146,12 @@ test("separate room objects keep each reviewed face once", () => {
   if(pillowMesh.type==="mesh") assert.ok(pillowMesh.mesh.positions.length/3>24);
   assert.equal(objects.find((p)=>p.id==="living-tray")!.model.parts.length,5);
   const terrace=objects.find((p)=>p.id==="terrace-chair")!;
+  const terraceTable=objects.find((p)=>p.id==="terrace-table")!;
+  assert.equal(terraceTable.model.parts.filter((part)=>part.material==="top").length,6);
+  assert.equal(terraceTable.model.parts.filter((part)=>part.material==="leg").length,4);
+  const tableYs=terraceTable.model.parts.flatMap((part)=>part.geometry.type==="mesh"?
+    part.geometry.mesh.positions.filter((_,i)=>i%3===1):[]);
+  assert.equal(Math.max(...tableYs),0.74);
   assert.equal(terrace.model.parts.filter((part)=>part.material==="seat").length,4);
   assert.equal(terrace.model.parts.filter((part)=>part.material==="leg").length,4);
   assert.equal(terrace.model.parts.filter((part)=>part.material==="back").length,5);
