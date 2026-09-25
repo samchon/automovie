@@ -17,7 +17,7 @@
 @evidence spaces/junctions.md#plinth-coping 코핑 아랫면 4.69m를 기와 줄 끝이 들어가야 할 높이 상한으로 쓴다.
 @evidence spaces/roofs/assembly.md#roof-junctions 합성 지붕 조각의 경계와 골선을 instances가 단위를 자를 기준으로 넘긴다.
 @evidence spaces/roofs/west.md#west-roof 서측 외쪽 지붕 높은 끝 약 4.56m를 코핑 대조의 한 끝으로 쓴다.
-@evidence spaces/roofs/colonnade.md#south-canopy 남쪽 주랑 외쪽 지붕 높은 끝 약 4.05m를 코핑 대조의 한 끝으로 쓴다.
+@evidence spaces/roofs/colonnade.md#south-canopy 남쪽 주랑 외쪽 지붕 높은 끝 slab 상면 약 3.95m를 코핑 대조의 한 끝으로 쓴다.
 @evidence spaces/roofs/east.md#east-roof 19도 동측 박공의 남쪽 용마루 부근 약 4.53m를 코핑 대조의 한 끝으로 쓴다.
 @evidence settings/50-production.md#references 이미지 01·03의 경사를 따라 내려오는 반원 덮개 줄과 처마 끝 반원 단면을 근거로 쓴다.
 -->

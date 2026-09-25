@@ -56,6 +56,10 @@ const slope = 12 * Math.PI / 180;
 near("rafter touches slab and beam", beamTop,
   roofSupport + beamNearEdge * Math.tan(slope) - roofThickness / Math.cos(slope) - rafterDepth,
   1e-6);
+near("east gable rafter bearing within 1 mm of common beam top", beamTop,
+  roofSupport + beamNearEdge * Math.tan(19 * Math.PI / 180) -
+    roofThickness / Math.cos(19 * Math.PI / 180) - rafterDepth,
+  0.001);
 const northSouthLength = n(beam, /길이\(입력 산술상 약 ([\d.]+)m\)/);
 const eastWestLength = n(beam, /잇는 길이\(약 ([\d.]+)m\)/);
 near("north-south beam reaches both capital ends", northSouthLength,
