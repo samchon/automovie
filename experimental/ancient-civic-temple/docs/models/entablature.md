@@ -4,7 +4,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 주랑 네 변의 목재 상부 보를 단면·두 길이 변형·윗면 높이·노출면과 접촉면까지 정한다.
-@evidence principles/core/common.md#substantive-completion 폭 0.26·깊이 0.28m 단면, 남·북 약 7.69m와 동·서 약 7.94m 길이의 산술, 윗면 약 2.904m가 있어 source가 보를 다시 설계하지 않는다.
+@evidence principles/core/common.md#substantive-completion 폭 0.26·깊이 0.28m 단면, 남·북 약 7.69m와 동·서 약 7.94m 길이, 서까래 아랫면이 보의 중정 쪽 윗모서리에 닿는 높이 식이 있어 source가 보 지지점을 다시 설계하지 않는다.
 @evidence principles/core/common.md#declared-basis 폭은 ring-volume의 0.35m 기둥 예산, 길이는 building 기준선의 중정 경계와 기둥 축, 높이는 roofs/assembly 주랑 처마 값에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 주랑 목재 상부라는 설정을 기둥 축 사이 길이 가족·두 보가 맞대는 모서리 규칙이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract timber part 하나에 기둥 위·서까래 받침·맞댐 끝면의 가려진 접촉면과 중정·주랑 쪽 노출 네 면을 구별한다.
@@ -16,14 +16,14 @@
 @evidence settings/20-envelope.md#colonnade 원주 위 어두운 목재 상부라는 정체성을 곧은 목재 보 prototype으로 받는다.
 @evidence spaces/rooms/colonnade.md#ring-volume 0.35m 기둥 예산 안의 보 폭 0.26m와 네 변 배치를 소비한다.
 @evidence spaces/building.md#plan-datums 중정 경계에서 0.175m 안쪽 기둥 축 사이 거리를 두 길이 변형의 산술 입력으로 쓴다.
-@evidence spaces/roofs/assembly.md#roof-junctions 합성 날개 지붕의 중정 쪽 하부 높이를 보 윗면 약 2.904m의 산술 입력으로 쓴다.
+@evidence spaces/roofs/assembly.md#roof-junctions 중정 쪽 상면 3.20m, 외쪽 경사 12°, 법선 두께 0.18m를 보 윗면의 접촉 높이 식에 소비한다.
 @evidence settings/50-production.md#references 이미지 03·05의 원주 위를 잇는 굵은 목재를 보의 형태 근거로 쓴다.
 @evidenceExclude spaces/junctions.md#wall-junctions 벽 끝 맞닿음 규칙은 벽 실체끼리의 폐쇄를 정하며 두 보가 모서리에서 맞대는 방식은 이 H2의 끝면 규칙이 따로 정하므로 소비하지 않는다.
 -->
 
 [연속 주랑](../settings/20-envelope.md#colonnade)의 어두운 목재 상부 보이며 이미지 03·05에서 원주 위를 수평으로 잇는 굵은 목재가 근거다. 기둥 사이를 한 번에 건너는 곧은 각재로 조각·몰딩은 주장하지 않는다. 단면은 폭 0.26m·깊이 0.28m 직사각형이며 폭은 [주랑 공간](../spaces/rooms/colonnade.md#ring-volume)의 0.35m 기둥 예산 안이다.
 
-로컬 원점은 보 아랫면의 길이 방향 중심이고 길이는 로컬 X, 폭은 Z, 깊이는 +Y다. 이 모델은 길이 매개변수를 가진 한 가족이며 source는 판정된 기준선에서 두 길이 변형을 만든다. 남·북 보는 중정 경계에서 0.175m 안쪽의 두 모서리 기둥 축 사이에 기둥 주두 판 반폭을 더한 길이(입력 산술상 약 7.69m)이고, 동·서 보는 남·북 보의 옆면 사이를 잇는 길이(약 7.94m)다. 보 윗면 높이는 합성 날개 지붕의 중정 쪽 하부에서 서까래 깊이 0.12m를 뺀 값(약 2.904m)이고 아랫면은 [주랑 원주](columns.md#colonnade-column) 주두 판 윗면과 맞닿는다. 점유 상자는 길이×0.28×0.26m이며 평평한 면 법선을 쓴다.
+로컬 원점은 보 아랫면의 길이 방향 중심이고 길이는 로컬 X, 폭은 Z, 깊이는 +Y다. 이 모델은 길이 매개변수를 가진 한 가족이며 source는 판정된 기준선에서 두 길이 변형을 만든다. 남·북 보는 중정 경계에서 0.175m 안쪽의 두 모서리 기둥 축 사이에 기둥 주두 판 반폭을 더한 길이(입력 산술상 약 7.69m)이고, 동·서 보는 남·북 보의 옆면 사이를 잇는 길이(약 7.94m)다. 보 중심선은 중정 경계에서 바깥으로 0.175m이고 보 폭 0.26m이므로 중정 쪽 윗모서리는 경계에서 0.175−0.26/2=0.045m 바깥이다. 그 선에서 12° 지붕 slab 하부와 깊이 0.12m 서까래의 아랫면은 `3.20+0.045tan(12°)−0.18/cos(12°)−0.12=2.905543738…m`다. 이것을 보 윗면으로 두고 중정 쪽 윗모서리에서 서까래가 접선으로 받치며 안쪽으로 갈수록 두 부재의 실체가 겹치지 않는다. 보 아랫면은 그 값에서 0.28m 낮고 [주랑 원주](columns.md#colonnade-column) 주두 판 윗면과 맞닿는다. 점유 상자는 길이×0.28×0.26m이며 평평한 면 법선을 쓴다.
 
 part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 중 서까래 받침 구간, 두 보가 맞대는 끝면은 가려진 접촉면이며 나머지 네 면이 중정과 주랑 쪽에 노출된다. 내부 빈 공간은 없다. instances가 네 변에 하나씩 배치하고 materials가 어두운 목재를 결속한다.
 
@@ -32,11 +32,11 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 ## 서까래 {#rafter}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 제실 측벽 두께에서 끊는 두 부재, 만들지 않는 숨은 서까래까지 정한다.
+@evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 제실 측벽 두께에서 끊는 두 부재와 지붕 하부 식, 만들지 않는 숨은 서까래까지 정한다.
 @evidence principles/core/common.md#substantive-completion 폭 0.08·깊이 0.12m 단면과 지붕 조각에서 경사를 유도하는 규칙, 주랑·동측 뒷벽 목록 및 제실 서·동 처마 끝→측벽 바깥면, 측벽 안쪽면→용마루 절단선이 있어 source가 벽 안의 숨은 겹침을 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 주랑 12°는 west·east·north-canopy·south-canopy 지붕에서, 동측 19°는 roofs/assembly의 판정된 동측 박공에서, 제실 22°는 제실 지붕에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 천장과 지붕 하부의 노출 서까래라는 설정을 경사 매개변수 가족·plumb cut·벽 접촉 끝이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract timber part 하나에서 측벽 바깥쪽 꼬리와 내부 서까래를 각각 닫힌 성분으로 두고, 벽 두께 안의 겹친 목재는 만들지 않으며 지붕 slab 아랫면·보 윗면·벽 절단 끝의 가려진 접촉면을 정한다.
+@evidence principles/design/models.md#representation-contract timber part 하나에서 측벽 바깥쪽 꼬리와 내부 서까래를 각각 닫힌 성분으로 두고, 벽 두께 안의 겹친 목재는 만들지 않으며 22° 지붕 하부 식을 따라 slab 아랫면·보 윗면·벽 절단 끝의 가려진 접촉면을 정한다.
 @evidence principles/design/models.md#spatial-convention 원점을 처마 쪽 아래 모서리 선의 중심, +Z를 경사 오르는 방향, +Y를 서까래 윗면 법선으로 둔다.
 @evidence principles/design/models.md#reviewable-structure 1.0m 표본의 연직 끝면과 건물 안 처마 아래 서까래 끝 간격, 제실 측벽 단면에서 west/east-room~west/east-ring 벽 두께 공백을 보고 slab만 보이는 주랑 천장·뜬 끝·벽 관통을 실패로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 03의 주랑 처마 아래 각재 끝과 이미지 04의 제실 서까래를 근거로 하되 서까래 장식이나 결은 주장하지 않는다.
@@ -54,7 +54,7 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 
 [천장과 지붕 하부](../settings/20-envelope.md#ceilings)의 반복 서까래 끝이다. 이미지 03의 주랑 처마 아래로 규칙적으로 드러나는 각재 끝과 이미지 04의 제실 지붕 아래 서까래가 근거다. 단면은 폭 0.08m·깊이 0.12m이며 지붕 slab 아랫면 바로 밑에서 경사를 따라 놓인다.
 
-로컬 원점은 처마 쪽 아래 모서리 선의 중심이다. 로컬 +Z가 경사를 따라 오르는 방향, +Y는 서까래 윗면의 법선이다. 모델은 수평 길이와 경사를 매개변수로 가진 가족이며 source는 판정된 지붕에서 변형을 만든다. 주랑 외쪽 지붕 아래 서까래는 12° 경사로 중정 쪽 처마 끝선에서 주랑 뒷벽(서측·동측 spine의 주랑 쪽 면, 제실 남벽, 후퇴벽, 남측 파라펫)까지 이어지고, 동측 박공 아래는 [판정된 지붕](../spaces/roofs/assembly.md#roof-junctions)의 동측 박공과 같은 19° 경사다. 변형의 경사는 해당 지붕 조각의 경사에서 유도하며 이 문서가 따로 고르지 않는다. 주랑·동측 박공의 처마 쪽 끝은 연직으로 잘린 면(plumb cut)이 드러나고 뒷벽 쪽 끝은 벽면에 닿는다. 제실의 22° 변형은 각 경사면에서 바깥 처마 끝선부터 [제실 측벽](../spaces/building.md#plan-datums)의 west/east-room 바깥면까지의 외부 꼬리와, west/east-ring 안쪽면부터 X=0 용마루 연직면까지의 내부 서까래를 별도 닫힌 각재로 만든다. west/east-room~west/east-ring 벽 두께 안에는 목재를 방출하지 않는다. 각 절단면은 벽면에 맞닿는 가려진 면이고 두 부재의 윗면은 모두 slab 하부에 닿는다. 양 내부 서까래의 윗끝은 X=0 면에서 서로 맞닿고 slab 하부를 뚫지 않는다. 제실 변형에는 주랑 뒷벽 끝 규칙을 적용하지 않는다. 널판 천장 위에 숨는 봉헌실·업무방 위 서까래는 이 표현 상한에서 만들지 않는다.
+로컬 원점은 처마 쪽 아래 모서리 선의 중심이다. 로컬 +Z가 경사를 따라 오르는 방향, +Y는 서까래 윗면의 법선이다. 모델은 수평 길이와 경사를 매개변수로 가진 가족이며 source는 판정된 지붕에서 변형을 만든다. 주랑 외쪽 지붕 아래 서까래는 12° 경사로 중정 쪽 처마 끝선에서 주랑 뒷벽(서측·동측 spine의 주랑 쪽 면, 제실 남벽, 후퇴벽, 남측 파라펫)까지 이어지고, 동측 박공 아래는 [판정된 지붕](../spaces/roofs/assembly.md#roof-junctions)의 동측 박공과 같은 19° 경사다. 변형의 경사는 해당 지붕 조각의 경사에서 유도하며 이 문서가 따로 고르지 않는다. 주랑·동측 박공의 처마 쪽 끝은 연직으로 잘린 면(plumb cut)이 드러나고 뒷벽 쪽 끝은 벽면에 닿는다. 제실의 22° 변형은 각 경사면에서 바깥 처마 끝선 |X|=6.10m부터 [제실 측벽](../spaces/building.md#plan-datums)의 west/east-room 바깥면 |X|=5.90m까지의 외부 꼬리와, west/east-ring 안쪽면 |X|=5.60m부터 X=0 용마루 연직면까지의 내부 서까래를 별도 닫힌 각재로 만든다. 각 절단에서 서까래 윗면의 세계 높이는 `Ytop(|X|)=5.35+(5.75−|X|)tan(22°)−0.18/cos(22°)`이고 아랫면은 이 평행면에서 법선 깊이 0.12m 아래다. west/east-room~west/east-ring 벽 두께 0.30m 안에는 목재를 방출하지 않는다. 각 절단면은 벽면에 맞닿는 가려진 면이고 두 부재의 윗면은 모두 slab 하부에 닿는다. 양 내부 서까래의 윗끝은 X=0 면에서 서로 맞닿고 slab 하부를 뚫지 않는다. 제실 변형에는 주랑 뒷벽 끝 규칙을 적용하지 않는다. 널판 천장 위에 숨는 봉헌실·업무방 위 서까래는 이 표현 상한에서 만들지 않는다.
 
 part와 표면은 `timber` 하나다. 제실 양쪽의 외부 꼬리와 내부 서까래는 같은 표면 ID 아래 각각 닫힌 연결 성분이며, 벽 속 구간을 잇는 가짜 목재는 없다. 윗면은 지붕 slab 아랫면에, 중간 아랫면은 보 윗면에 닿는 가려진 접촉면이다. 배치 간격(주랑 0.50m 중심 간격을 기본 제안으로 둔다)과 모서리 골 쪽에서 짧아지는 길이는 instances가 판정된 골선에서 유도한다.
 
@@ -64,7 +64,7 @@ part와 표면은 `timber` 하나다. 제실 양쪽의 외부 꼬리와 내부 �
 
 <!--
 @evidence principles/core/common.md#scope-preservation 포치의 석재 보, 수평 코니스, 두 경사 트림을 치수·위치·접촉까지 정하고 기둥→보→삼각 막음→지붕 끝선의 연속 관계를 보인다.
-@evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 주두 판 윗면과의 접면, 코니스의 앞면 기준 0.08m 수평 돌출과 경사 트림의 연직 높이 0.12m를 확정해 source가 접촉·투영 기준을 새로 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 반환벽·막음과의 접면, 코니스 돌출 0.08m와 지붕 하부 식으로 얻는 두 경사 트림의 공통 X=0 끝을 정해 source가 접촉 기준을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 길이는 두 반환벽 안쪽 면, 앞면 선은 south-outer, 경사는 roofs/porch 22°, 삼각 막음은 facades/south, 기둥 위치는 entrance-volume에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 정면 포치 설정을 보·코니스·경사 트림의 세 part와 막음 앞면에 붙는 트림이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract beam·cornice·raking-trim part와 보 윗면의 막음 받침 접촉면, 두 끝면과 반환벽 안쪽 면의 맞닿음을 정한다.
@@ -83,7 +83,7 @@ part와 표면은 `timber` 하나다. 제실 양쪽의 외부 꼬리와 내부 �
 
 [정면 포치](../settings/20-envelope.md#entrance-porch)의 수평 보와 작은 삼각 박공의 가장자리 트림이다. 이미지 01에서 두 원주 위에 얹힌 두꺼운 석재 보와 박공을 두르는 돌 테두리가 근거다. 기둥이 보를, 보가 [삼각 막음](../spaces/facades/south.md#south-envelope)을, 막음 위의 [포치 지붕](../spaces/roofs/porch.md#porch-roof)이 트림 선을 따라 끝나는 연속 관계를 보여 준다.
 
-로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판 **윗면에 면 접촉으로 얹힌다**. 앞은 로컬 +Z이고 보 앞면은 Z=0, 뒷면은 Z=−0.30m다. 수평 코니스는 보 앞 윗모서리를 따라 연직 높이 0.10m·보 앞면에서 +Z로 0.08m 돌출하는 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 **세계 연직 높이** 0.12m·삼각 막음 앞면에서 +Z로 0.08m 돌출하는 띠 두 개이며 포치 지붕의 22° 경사와 용마루 X=0에서 만난다. 점유 높이는 보 아랫면 3.20m부터 트림 꼭대기 약 4.473m까지여서 상자는 3.30×약 1.27×0.38m다.
+로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판 **윗면에 면 접촉으로 얹힌다**. 앞은 로컬 +Z이고 보 앞면은 Z=0, 뒷면은 Z=−0.30m다. 보 윗면 Y=3.50m는 삼각 막음 아랫면 Y=3.50m와 같고, X=±1.65m 끝은 두 반환벽 안쪽 면에 닿는다. 수평 코니스는 보 앞 윗모서리를 따라 연직 높이 0.10m·보 앞면에서 +Z로 0.08m 돌출하는 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 **세계 연직 높이** 0.12m·삼각 막음 앞면에서 +Z로 0.08m 돌출하는 띠 두 개다. 지붕 하부와 닿는 윗선은 `Ytop(X)=4.00+1.65tan(22°)−0.18/cos(22°)−|X|tan(22°)`이며 X는 각각 −1.65~0m와 0~+1.65m다. 아랫선은 `Ytop(X)−0.12m`라 두 트림은 X=0의 같은 단면에서 틈이나 중복 없이 만난다. 점유 높이는 보 아랫면 3.20m부터 트림 꼭대기 약 4.473m까지여서 상자는 3.30×약 1.27×0.38m다.
 
 part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 막음 아랫면을 받는 가려진 접촉면이고 보의 두 끝면은 반환벽 안쪽 면과 맞닿는다. 이 모델은 한 번 배치된다.
 

@@ -21,34 +21,90 @@ const near = (label, actual, expected, eps = 1e-6) => {
   assert.ok(Math.abs(actual - expected) <= eps, label + ": " + actual + " vs " + expected);
   console.log("PASS", label, actual, expected);
 };
+/** @param {string} label @param {boolean} condition @param {string} [detail] */
+const pass = (label, condition, detail = "") => {
+  assert.ok(condition, `${label}: ${detail}`);
+  console.log("PASS", label, detail);
+};
 const column = h2("columns", "colonnade-column");
 const beam = h2("entablature", "colonnade-beam");
-const columnTop = n(column, /전체 높이는 약 ([\d.]+)m/);
-const beamTop = n(beam, /보 윗면 높이는[^\n]*?약 ([\d.]+)m/);
+const rafter = h2("entablature", "rafter");
+const roofAssembly = readFileSync(new URL("../../docs/spaces/roofs/assembly.md", import.meta.url), "utf8");
+const columnTop = n(column, /h=2\.905543738…−0\.28=([\d.]+)…m/);
+const beamTop = n(beam, /−0\.12=([\d.]+)…m/);
 const beamDepth = n(beam, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
-near("colonnade capital supports beam underside", columnTop, beamTop - beamDepth);
+near("colonnade capital supports beam underside", columnTop, beamTop - beamDepth, 1e-6);
+pass("colonnade base and capital contact their hosts",
+  /로컬 원점은 기단 바닥면/.test(column) &&
+  n(column, /기단\(정방 [\d.]+×[\d.]+m, 높이 ([\d.]+)m/) > 0 &&
+  Math.abs(columnTop - (beamTop - beamDepth)) < 1e-6,
+  `base Y=0, capital top ${columnTop}, beam underside ${beamTop - beamDepth}`);
 const capitalWidth = n(column, /주두 판\(정방 ([\d.]+)×/);
 const beamWidth = n(beam, /단면은 폭 ([\d.]+)m/);
 assert.ok(beamWidth <= capitalWidth, "beam must fit on the capital plate");
 console.log("PASS colonnade beam fits the capital", beamWidth, capitalWidth);
+const colonnadeDatums = readFileSync(new URL("../../docs/spaces/building.md", import.meta.url), "utf8");
+const courtHalfWidth = n(colonnadeDatums, /west\/east-court \| X=∓([\d.]+) \|/);
+const courtBack = n(colonnadeDatums, /court-back \| Z=-([\d.]+) \|/);
+const courtFront = n(colonnadeDatums, /court-front \| Z=([\d.]+) \|/);
+const columnInset = n(beam, /중정 경계에서 ([\d.]+)m 안쪽/);
+const beamNearEdge = columnInset - beamWidth / 2;
+const roofSupport = n(roofAssembly, /상면은 Y=([\d.]+)m/);
+const roofThickness = n(roofAssembly, /법선 두께는 ([\d.]+)m/);
+const rafterDepth = n(rafter, /단면은 폭 [\d.]+m·깊이 ([\d.]+)m/);
+const slope = 12 * Math.PI / 180;
+near("rafter touches slab and beam", beamTop,
+  roofSupport + beamNearEdge * Math.tan(slope) - roofThickness / Math.cos(slope) - rafterDepth,
+  1e-6);
+const northSouthLength = n(beam, /길이\(입력 산술상 약 ([\d.]+)m\)/);
+const eastWestLength = n(beam, /잇는 길이\(약 ([\d.]+)m\)/);
+near("north-south beam reaches both capital ends", northSouthLength,
+  2 * (courtHalfWidth + columnInset) + capitalWidth, 0.01);
+near("colonnade beam ends abut without overlap", eastWestLength,
+  courtBack + courtFront + 2 * columnInset - beamWidth, 0.01);
 const porchColumn = h2("columns", "porch-column");
 const porchBeam = h2("entablature", "porch-entablature");
 near("porch capital supports stone beam underside",
   n(porchColumn, /전체 높이 ([\d.]+)m/),
   n(porchBeam, /아랫면 Y=([\d.]+)m가 두/));
+const porchHalfWidth = n(colonnadeDatums, /west\/east-porch-inner \| X=∓([\d.]+) \|/);
+const porchBeamLength = n(porchBeam, /보는 길이 ([\d.]+)m/);
+const porchBeamBase = n(porchBeam, /아랫면 Y=([\d.]+)m가 두/);
+const porchBeamHeight = n(porchBeam, /높이 ([\d.]+)m 석재 각재/);
+const southFacade = readFileSync(new URL("../../docs/spaces/facades/south.md", import.meta.url), "utf8");
+near("porch beam touches gable and returns", porchBeamLength, 2 * porchHalfWidth);
+near("porch beam top touches gable underside", porchBeamBase + porchBeamHeight,
+  n(southFacade, /아랫면은 Y=([\d.]+)m/));
+const porchSlope = 22 * Math.PI / 180;
+const porchRidgeTrimTop = 4.00 + porchHalfWidth * Math.tan(porchSlope) -
+  roofThickness / Math.cos(porchSlope);
+pass("porch trim tips meet at ridge",
+  /Ytop\(X\)=4\.00\+1\.65tan\(22°\)−0\.18\/cos\(22°\)−\|X\|tan\(22°\)/.test(porchBeam) &&
+  /X는 각각 −1\.65~0m와 0~\+1\.65m/.test(porchBeam) &&
+  Math.abs(porchRidgeTrimTop - n(porchBeam, /트림 꼭대기 약 ([\d.]+)m/)) < 0.001,
+  `both trim top endpoints share X=0, Y=${porchRidgeTrimTop}`);
 const joist = h2("entablature", "ceiling-joist");
 near("ceiling joist touches the boarding underside",
   n(joist, /아랫면은 ([\d.]+)m다/) + n(joist, /깊이 ([\d.]+)m/),
   n(joist, /윗면 Y=([\d.]+)m가 널판/));
-const rafter = h2("entablature", "rafter");
+const roomInner = n(colonnadeDatums, /west\/east-inner \| X=∓([\d.]+) \|/);
+const roomSide = n(colonnadeDatums, /west\/east-room \| X=∓([\d.]+) \|/);
+near("ceiling joist ends meet the walls", n(joist, /길이는 방의 짧은 변 순치수 ([\d.]+)m/), roomInner - roomSide);
+pass("rafter slope and wall termination",
+  /주랑 외쪽 지붕 아래 서까래는 12°/.test(rafter) &&
+  /동측 박공 아래는[^\n]*?19°/.test(rafter) &&
+  /외쪽 지붕의 경사는 12도/.test(roofAssembly) &&
+  /동측 박공은 19도/.test(roofAssembly) &&
+  /주랑 뒷벽\([^)]*제실 남벽[^)]*남측 파라펫\)까지 이어지고/.test(rafter),
+  "12° outer / 19° east; named roof and wall datums agree");
 const datums = readFileSync(new URL("../../docs/spaces/building.md", import.meta.url), "utf8");
 const outerWallFace = n(datums, /west\/east-room \| X=∓([\d.]+) \|/);
 const innerWallFace = n(datums, /west\/east-ring \| X=∓([\d.]+) \|/);
 const wallThickness = n(datums, /내부 경계벽은 ([\d.]+)m다/);
 near("sanctuary rafter pair stops at both faces of the side wall", outerWallFace - innerWallFace, wallThickness);
-assert.ok(rafter.includes("west/east-room 바깥면까지의 외부 꼬리") &&
-  rafter.includes("west/east-ring 안쪽면부터 X=0 용마루") &&
-  rafter.includes("벽 두께 안에는 목재를 방출하지 않는다"),
+assert.ok(rafter.includes("west/east-room 바깥면 |X|=5.90m까지의 외부 꼬리") &&
+  rafter.includes("west/east-ring 안쪽면 |X|=5.60m부터 X=0 용마루") &&
+  rafter.includes("벽 두께 0.30m 안에는 목재를 방출하지 않는다"),
 "sanctuary rafters may not pass through the side-wall volume");
 const truss = h2("entablature", "sanctuary-truss");
 near("sanctuary tie beam reaches both inside wall faces",
@@ -58,15 +114,80 @@ near("truss tie top derives from underside and depth",
   n(truss, /윗면 ([\d.]+)m로/));
 assert.ok(n(truss, /윗면 ([\d.]+)m로/) < n(truss, /하부\(약 ([\d.]+)m\)/),
   "tie top must remain below the side roof underside");
+const sanctuaryRoof = readFileSync(new URL("../../docs/spaces/roofs/sanctuary.md", import.meta.url), "utf8");
+const sanctuaryRoofSupportX = n(sanctuaryRoof, /지지선은 X=±([\d.]+)m/);
+const sanctuarySupportY = n(sanctuaryRoof, /제실 값 ([\d.]+)m/);
+const sanctuaryLowerAtSide = sanctuarySupportY +
+  (sanctuaryRoofSupportX - innerWallFace) * Math.tan(porchSlope) -
+  roofThickness / Math.cos(porchSlope);
+const sanctuaryLowerAtRidge = sanctuarySupportY +
+  sanctuaryRoofSupportX * Math.tan(porchSlope) - roofThickness / Math.cos(porchSlope);
+const rafterEnds = rafter.match(/바깥 처마 끝선 \|X\|=([\d.]+)m부터[^\n]+?바깥면 \|X\|=([\d.]+)m까지[^\n]+?안쪽면 \|X\|=([\d.]+)m부터 X=0/);
+assert.ok(rafterEnds, "sanctuary rafter two disjoint interval endpoints");
+const [eaveX, outerFaceX, innerFaceX] = rafterEnds.slice(1).map(Number);
+near("sanctuary outer rafter stops at outside wall face", outerFaceX, outerWallFace);
+near("sanctuary inner rafter starts at inside wall face", innerFaceX, innerWallFace);
+near("sanctuary eave ends at roof overhang", eaveX,
+  sanctuaryRoofSupportX + n(roofAssembly, /돌출 ([\d.]+)m와/));
+pass("rafter back cut reaches wall",
+  /뒷벽 쪽 끝은 벽면에 닿는다/.test(rafter) &&
+  Math.abs(outerFaceX - outerWallFace) < 1e-6 &&
+  Math.abs(innerFaceX - innerWallFace) < 1e-6 &&
+  outerFaceX > innerFaceX,
+  `wall faces at X=±${outerFaceX} and ±${innerFaceX}`);
+const rafterTop = rafter.match(/Ytop\(\|X\|\)=([\d.]+)\+\(([\d.]+)−\|X\|\)tan\(([\d.]+)°\)−([\d.]+)\/cos\(([\d.]+)°\)/);
+assert.ok(rafterTop, "sanctuary rafter top must have its own roof-contact equation");
+near("sanctuary rafter support datum", Number(rafterTop[1]), sanctuarySupportY);
+near("sanctuary rafter support X", Number(rafterTop[2]), sanctuaryRoofSupportX);
+near("sanctuary rafter roof thickness", Number(rafterTop[4]), roofThickness);
+near("sanctuary rafter roof pitch", Number(rafterTop[3]), 22);
+near("sanctuary rafter roof pitch divisor", Number(rafterTop[5]), 22);
+/** @param {number} x */
+const rafterY = (x) => Number(rafterTop[1]) +
+  (Number(rafterTop[2]) - Math.abs(x)) * Math.tan(Number(rafterTop[3]) * Math.PI / 180) -
+  Number(rafterTop[4]) / Math.cos(Number(rafterTop[5]) * Math.PI / 180);
+/** @param {number} x */
+const roofUnderY = (x) => sanctuarySupportY +
+  (sanctuaryRoofSupportX - Math.abs(x)) * Math.tan(porchSlope) - roofThickness / Math.cos(porchSlope);
+for (const x of [-eaveX, -outerFaceX, -innerFaceX, 0, innerFaceX, outerFaceX, eaveX])
+  near("sanctuary rafter top touches slab underside at X=" + x, rafterY(x), roofUnderY(x));
+pass("sanctuary rafters touch wall and slab",
+  Math.abs(outerFaceX - innerFaceX - wallThickness) < 1e-6 &&
+  eaveX > outerFaceX && innerFaceX > 0 &&
+  /west\/east-room~west\/east-ring 벽 두께 0\.30m 안에는 목재를 방출하지 않는다/.test(rafter),
+  `outer [${outerFaceX},${eaveX}], wall [${innerFaceX},${outerFaceX}], inner [0,${innerFaceX}]`);
+near("sanctuary rafter tips meet at ridge", rafterY(-0), rafterY(+0));
+pass("truss touches wall and roof underside",
+  Math.abs(n(truss, /길이 ([\d.]+)m/) - 2 * innerWallFace) < 1e-6 &&
+  Math.abs(n(truss, /하부\(약 ([\d.]+)m\)/) - sanctuaryLowerAtSide) < 0.01 &&
+  Math.abs(n(truss, /하부 약 ([\d.]+)m\)까지 오르고/) - sanctuaryLowerAtRidge) < 0.01,
+  `wall face X=±${innerWallFace}; roof underside side/ridge ${sanctuaryLowerAtSide}/${sanctuaryLowerAtRidge}`);
 const doorFrame = h2("openings", "door-frame");
 near("door lining leaves the clear passage",
   n(doorFrame, /상인방은 길이\(유효 폭\+([\d.]+)m\)/),
   2 * n(doorFrame, /두 문설주는 폭 ([\d.]+)m/));
+const liningWidth = n(doorFrame, /두 문설주는 폭 ([\d.]+)m/);
+const doorSurround = n(doorFrame, /테\(폭 ([\d.]+)m/);
+const doorProtrusion = n(doorFrame, /벽면에서 ([\d.]+)m 돌출/);
+pass("door lining touches void and trim wall",
+  /세 조각의 깊이는 그 문이 뚫린 벽의 두께\(0\.30m 또는 0\.60m\)/.test(doorFrame) &&
+  /벽 양면에는 void 둘레를 두르는 테/.test(doorFrame) &&
+  Math.abs(n(doorFrame, /점유 상자는 \(유효 폭\+([\d.]+)m\)/) - 2 * (liningWidth + doorSurround)) < 1e-6 &&
+  Math.abs(n(doorFrame, /벽 두께\+([\d.]+)m\)/) - 2 * doorProtrusion) < 1e-6,
+  `lining depth equals both wall thickness variants; trim occupies ±${doorProtrusion}m beyond wall`);
 const windowFrame = h2("openings", "window-frame");
 near("clerestory surround fits its occupied width",
   n(windowFrame, /점유 상자는 ([\d.]+)×/),
   0.4 + 2 * n(windowFrame, /안감 네 조각은 폭 ([\d.]+)m/) +
   2 * n(windowFrame, /외부 면에만 폭 ([\d.]+)m/));
+const windowLining = n(windowFrame, /안감 네 조각은 폭 ([\d.]+)m/);
+const windowSurround = n(windowFrame, /외부 면에만 폭 ([\d.]+)m/);
+const windowProtrusion = n(windowFrame, /돌출 ([\d.]+)m의 테/);
+pass("window surround touches wall around clear opening",
+  /깊이는 벽 두께\(북측 박공 0\.60m, 제실 남벽과 두 spine 0\.30m\)/.test(windowFrame) &&
+  Math.abs(n(windowFrame, /점유 상자는 ([\d.]+)×/) - (0.4 + 2 * windowLining + 2 * windowSurround)) < 1e-6 &&
+  Math.abs(n(windowFrame, /벽 두께\+([\d.]+)\)m/) - windowProtrusion) < 1e-6,
+  `reveal depth equals both wall thickness variants; external-only trim +${windowProtrusion}m`);
 const d = h2("openings", "double-door-leaf");
 near("double ring to upper pin", n(d, /받침판 중심은[^\n]*?Y=([\d.]+)m/) + n(d, /중심선 반지름 ([\d.]+)m/), n(d, /연결 핀 두 개는[^\n]*?\(X,Y\)=\(손잡이 중심 X,([\d.]+)m\)/));
 near("double front pin to ring Z", n(d, /앞핀은 Z=\+[\d.]+~\+([\d.]+)m/), n(d, /고리 중심면은 Z=\+([\d.]+)m/));
@@ -187,4 +308,219 @@ const tubeRadius = n(scroll, /중심선 반지름 [\d.]+m·관 반지름 ([\d.]+
 const boxExtra = n(scroll, /묶음 0\.288×\(0\.03√3\+([\d.]+)\)/);
 near("three-roll tie envelope width", 2 * (tieRadius + tubeRadius), boxExtra);
 near("three-roll tie touches paper", tieRadius - tubeRadius, rollRadius);
-console.log("checked the arithmetic and contact claims explicitly named above; a whole-H2 contact census remains outstanding");
+// A second, sentence-level census consumes these named relations. Each value
+// below is read from the authored H2 (or its named parent), not a fixture.
+const ringRadius = n(d, /고리 손잡이\(바깥 반지름 ([\d.]+)m/);
+const ringTube = n(d, /고리 손잡이\(바깥 반지름 [\d.]+m, 관 반지름 ([\d.]+)m/);
+pass("double leaf ring and plate placement",
+  Math.abs(ringRadius - plateRadius) <= ringTube &&
+  Math.abs(plateCenterY - n(d, /선대 쪽 높이 ([\d.]+)m/)) < 1e-6 &&
+  pinPlateRadialMargin(plateRadius, plateCenterY, doublePinRadius, doublePinY) > 0,
+  `coaxial plate/ring radii ${plateRadius}/${ringRadius}; pin overlaps both`);
+const frontPlateOuter = n(d, /면 Z=0~\+([\d.]+)m/);
+const frontPinStart = n(d, /앞핀은 Z=\+([\d.]+)~\+[\d.]+m/);
+const frontPinEnd = n(d, /앞핀은 Z=\+[\d.]+~\+([\d.]+)m/);
+const frontRingPlane = n(d, /고리 중심면은 Z=\+([\d.]+)m/);
+pass("double front and back pin contact",
+  Math.abs(frontPlateOuter - frontPinStart) < 1e-6 &&
+  Math.abs(frontPinEnd - frontRingPlane) <= ringTube &&
+  /뒷핀은 Z=−0\.056~−0\.065m/.test(d) &&
+  /받침판은[^\n]*?−0\.056~−0\.05m/.test(d),
+  `front plate/pin plane ${frontPinStart}; ring plane ${frontRingPlane}`);
+const tilePitch = n(tile, /위 단위를 ([\d.]+)m마다 놓으면/);
+pass("tile overhang retains positive support",
+  /끝 0\.08m는 접촉 띠가 없는/.test(tile) &&
+  n(tile, /앞 ([\d.]+)m의 양발 지지/) > 0.08 && tilePitch === 0.44,
+  "0.36m supported before an 0.08m free end");
+near("tile row end meets next unit", n(tile, /껍질은 Z=0\.08~([\d.]+)m/) -
+  n(tile, /Z=([\d.]+)~0\.52m의 기본 판은/), 0.44);
+pass("tegula slab and row contact",
+  /기본 판은 Y=0~0\.02m/.test(tile) &&
+  Math.abs(n(tile, /들린 0\.08m 아랫면이 아래 단위의 윗면 Y=([\d.]+)m/) - flatThickness) < 1e-6,
+  "slab/tegula Y=0; next unit underside equals 0.02m top");
+const capUnder = n(tile, /코핑 아랫면 ([\d.]+)m와/);
+const westSlabTop = n(tile, /slab 상면 약 ([\d.]+)m에 최대 기와/);
+const tileTop = n(tile, /최대 기와 높이 ([\d.]+)m를/);
+const capClearance = n(tile, /여유 ([\d.]+)m에 못 미친다/);
+pass("tile cap clearance bound",
+  westSlabTop + tileTop > capUnder - capClearance &&
+  tile.includes("실제 slab 상면과 0.125m 부재 상한을 합해") &&
+  tile.includes("잘린 끝은 코핑과 만나기 전에 마감"),
+  `west full tile top ${westSlabTop + tileTop} exceeds cap limit ${capUnder - capClearance}`);
+const capOverlap = n(ridge, /앞쪽 ([\d.]+)m 겹침 코는/);
+const capPitch = n(ridge, /([\d.]+)m 피치로 놓였을 때/);
+const capLength = n(ridge, /껍질은 길이 ([\d.]+)m/);
+const noseInside = n(ridge, /안쪽 반지름 ([\d.]+)m로 바깥쪽에/);
+const precedingOutside = n(ridge, /바깥 반지름 ([\d.]+)m·두께 [\d.]+m다/);
+near("ridge nose meets preceding shell", noseInside, precedingOutside);
+near("ridge pitch leaves stated overlap", capLength - capPitch, capOverlap);
+const fountainWater = n(fountain, /물면은[^\n]*?바닥 위 ([\d.]+)m/);
+const rippleHalfWidth = n(fountain, /\(r\/([\d.]+)m\)²/);
+const rippleRise = n(fountain, /\(h\/([\d.]+)m\)²/);
+near("ripple ends touch water plane", (rippleHalfWidth / rippleHalfWidth) ** 2 + (0 / rippleRise) ** 2, 1);
+pass("ripple has positive water contact", fountainWater > 0 && /h≥0/.test(fountain));
+pass("fountain step touches courtyard floor",
+  /로컬 원점은 수반 중심의 중정 바닥 완성면/.test(fountain) &&
+  n(fountain, /받침단은 지름 [\d.]+m·높이 ([\d.]+)m/) > 0,
+  "step underside Y=0 at authored courtyard floor origin");
+const altar = h2("fixtures", "altar");
+const altarStep = n(altar, /석단은 폭 [\d.]+m·깊이 [\d.]+m·높이 ([\d.]+)m/);
+const altarSupport = n(altar, /높이 ([\d.]+)m\)이며 그 사이/);
+const altarTop = n(altar, /상판은 두께 ([\d.]+)m 판/);
+const altarTotal = n(altar, /점유 상자는 [\d.]+×([\d.]+)×/);
+near("altar support and step planes touch", altarStep + altarSupport + altarTop, altarTotal);
+const niche = h2("fixtures", "niche");
+const nichePlinth = n(niche, /받침은 폭 [\d.]+m·깊이 [\d.]+m·높이 ([\d.]+)m/);
+const nicheBody = n(niche, /몸체는 폭 [\d.]+m·깊이 [\d.]+m·높이 ([\d.]+)m/);
+const nicheCap = n(niche, /높이 ([\d.]+)m의 머리판이 얹힌다/);
+near("niche cap touches body", nichePlinth + nicheBody + nicheCap, n(niche, /점유 상자는 [\d.]+×([\d.]+)×/));
+pass("niche back face touches sanctuary wall",
+  /로컬 원점은 바닥면의 뒷변 중심/.test(niche) &&
+  /뒷면은 제실 북쪽 벽과 닿는/.test(niche) && nicheCap >= 0,
+  "back plane is local Z=0; north-wall instance datum remains to be checked in instances");
+near("lamp stem top supports dish bottom",
+  n(lamp, /윗끝 Y=([\d.]+)m에 접시 바닥/),
+  n(lamp, /바닥 Y=([\d.]+)m·바닥 두께/));
+const offeringTable = h2("fixtures", "offering-table");
+near("offering trestles touch top underside",
+  n(offeringTable, /높이 ([\d.]+)m의 석판/),
+  n(offeringTable, /아랫면 Y=([\d.]+)m다/));
+const cypress = h2("landscape", "cypress");
+const cypressTrunkTop = n(cypress, /원뿔대\(높이 ([\d.]+)m\)/);
+const lowerCenter = n(cypress, /아래 덩어리의 중심[^\n]*?\(0,([\d.]+),0\)m/);
+const lowerHeight = n(cypress, /아래 덩어리의 중심[^\n]*?전체 높이 ([\d.]+)m/);
+const middleCenter = n(cypress, /가운데는 \(\+0\.10,([\d.]+),0\)m/);
+const middleHeight = n(cypress, /가운데는[^\n]*?높이 ([\d.]+)m/);
+const upperCenter = n(cypress, /위는 \(-0\.10,([\d.]+),0\)m/);
+const upperHeight = n(cypress, /위는[^\n]*?높이 ([\d.]+)m/);
+pass("cypress masses overlap trunk and neighbors",
+  cypressTrunkTop > lowerCenter - lowerHeight / 2 &&
+  lowerCenter + lowerHeight / 2 > middleCenter - middleHeight / 2 &&
+  middleCenter + middleHeight / 2 > upperCenter - upperHeight / 2,
+  `vertical overlap ${cypressTrunkTop - lowerCenter + lowerHeight / 2}, ${lowerCenter + lowerHeight / 2 - middleCenter + middleHeight / 2}, ${middleCenter + middleHeight / 2 - upperCenter + upperHeight / 2}`);
+const bodyDepth = n(chest, /몸체는 폭 [\d.]+m·깊이 ([\d.]+)m/);
+const bodyTop = n(chest, /몸체는[^\n]*?높이 ([\d.]+)m 상자/);
+const lidDepth = n(chest, /뚜껑은 폭 [\d.]+m·깊이 ([\d.]+)m/);
+const lowerHasp = chest.match(/아래 구간은 Y=([\d.]+)~([\d.]+)m·Z=\+([\d.]+)~\+([\d.]+)m/);
+const upperHasp = chest.match(/윗 구간은 Y=([\d.]+)~([\d.]+)m·Z=\+([\d.]+)~\+([\d.]+)m/);
+assert.ok(lowerHasp && upperHasp, "both chest hasp segments must be measured");
+near("chest lower hasp touches body", Number(lowerHasp[3]), bodyDepth / 2);
+pass("chest lower hasp outside body", Number(lowerHasp[1]) >= 0 &&
+  Number(lowerHasp[2]) <= bodyTop && Number(lowerHasp[4]) > Number(lowerHasp[3]));
+near("chest upper hasp touches lid", Number(upperHasp[3]), lidDepth / 2);
+pass("chest upper hasp outside lid", Number(upperHasp[1]) >= n(chest, /몸체 위 Y=([\d.]+)~/) &&
+  Number(upperHasp[4]) > Number(upperHasp[3]));
+const bridge = chest.match(/연결 구간은 Y=([\d.]+)~([\d.]+)m에서 Z의 앞·뒤 면이 \+([\d.]+)\/\+([\d.]+)m에서 \+([\d.]+)\/\+([\d.]+)m/);
+assert.ok(bridge, "hasp bend must have four face positions");
+pass("chest hasp joints meet without penetration",
+  Math.abs(Number(bridge[1]) - Number(lowerHasp[2])) < 1e-6 &&
+  Math.abs(Number(bridge[2]) - Number(upperHasp[1])) < 1e-6 &&
+  Math.abs(Number(bridge[3]) - Number(lowerHasp[3])) < 1e-6 &&
+  Math.abs(Number(bridge[4]) - Number(lowerHasp[4])) < 1e-6 &&
+  Math.abs(Number(bridge[5]) - Number(upperHasp[3])) < 1e-6 &&
+  Math.abs(Number(bridge[6]) - Number(upperHasp[4])) < 1e-6);
+const backHinge = chest.match(/몸체 뒷면 Z=−([\d.]+)m에 닿는 구간 Y=([\d.]+)~([\d.]+)m, 이음 위로 ([\d.]+)m 오르며 Z=−[\d.]+→−([\d.]+)m/);
+assert.ok(backHinge, "rear hinge body/bend/lid coordinates");
+const lidHinge = chest.match(/뚜껑 뒷면 Z=−([\d.]+)m에 닿는 구간 Y=([\d.]+)~([\d.]+)m/);
+assert.ok(lidHinge, "rear hinge lid coordinates");
+pass("chest hinge crosses lid gap and touches both faces",
+  Math.abs(Number(backHinge[1]) - bodyDepth / 2) < 1e-6 &&
+  Math.abs(Number(lidHinge[1]) - lidDepth / 2) < 1e-6 &&
+  Math.abs(Number(backHinge[3]) + Number(backHinge[4]) - Number(lidHinge[2])) < 1e-6 &&
+  Math.abs(Number(backHinge[5]) - Number(lidHinge[1])) < 1e-6);
+near("chest hinge reaches lid top", Number(lidHinge[3]), n(chest, /뚜껑은[^\n]*?~([\d.]+)m에 놓인다/));
+const corner = chest.match(/연직 모서리\(X=±([\d.]+)m,Z=±([\d.]+)m\)/);
+assert.ok(corner, "corner straps require both body-face datums");
+pass("chest corner straps hug body edges",
+  Math.abs(Number(corner[1]) - n(chest, /몸체는 폭 ([\d.]+)m/) / 2) < 1e-6 &&
+  Math.abs(Number(corner[2]) - bodyDepth / 2) < 1e-6 &&
+  /Y=0~0\.44m로 이어진다/.test(chest));
+const jarShoulder = n(jar, /\(0\.58,([\d.]+)\)/);
+const handleX = n(jar, /중심 \(X,Y,Z\)=\(±([\d.]+),0\.58,0\)m/);
+const handleMajor = n(jar, /어깨의 작은 고리 손잡이[^\n]*?중심선 반지름 ([\d.]+)m/);
+const handleTube = n(jar, /어깨의 작은 고리 손잡이[^\n]*?관 반지름 ([\d.]+)m/);
+pass("storage handle intersects shoulder surface",
+  handleX - handleMajor - handleTube < jarShoulder &&
+  handleX + handleMajor + handleTube > jarShoulder &&
+  Math.abs(handleX + handleMajor + handleTube - n(jar, /바깥 손잡이 끝 X=±([\d.]+)m/)) < 1e-6,
+  `jar shoulder r=${jarShoulder}; ring X=${handleX - handleMajor - handleTube}..${handleX + handleMajor + handleTube}`);
+const carry = h2("wares", "carry-jar");
+const carryEnds = carry.match(/아래 부착점 \(±([\d.]+),([\d.]+),0\)m, 위 부착점 \(±([\d.]+),([\d.]+),0\)m/);
+assert.ok(carryEnds, "carry jar handle endpoints");
+const carryTube = n(carry, /관 반지름 ([\d.]+)m\)는 로컬/);
+pass("carry handle endpoints intersect vessel profile",
+  Math.abs(Number(carryEnds[1]) - n(carry, /\(0\.28,([\d.]+)\)/)) <= carryTube &&
+  Math.abs(Number(carryEnds[3]) - n(carry, /\(0\.45,([\d.]+)\)/)) <= carryTube &&
+  Number(carryEnds[2]) === 0.28 && Number(carryEnds[4]) === 0.45);
+const small = h2("wares", "small-vessel");
+const smallEnds = small.match(/아래 부착점 \(([\d.]+),([\d.]+),0\)m[^\n]*?위 부착점 \(([\d.]+),([\d.]+),0\)m/);
+assert.ok(smallEnds, "small vessel handle endpoints");
+const smallTube = n(small, /관 반지름 ([\d.]+)m\)는 아래 부착점/);
+pass("small vessel handle endpoints intersect profile",
+  Math.abs(Number(smallEnds[1]) - n(small, /\(0\.10,([\d.]+)\)/)) <= smallTube &&
+  Math.abs(Number(smallEnds[3]) - n(small, /\(0\.16,([\d.]+)\)/)) <= smallTube &&
+  Number(smallEnds[2]) === 0.10 && Number(smallEnds[4]) === 0.16);
+near("basket rim touches wall top", n(basket, /중심 높이 Y=([\d.]+)m/),
+  n(basket, /벽은 Y=[\d.]+~([\d.]+)m를/));
+const scrollCentreDistance = Math.hypot(0.03 * Math.sqrt(3), 0.03);
+near("three-roll cylinders mutually tangent", scrollCentreDistance, 2 * rollRadius);
+near("three-roll tie contacts all cylinders", tieRadius - tubeRadius, rollRadius);
+const singlePinFront = single.match(/판 앞면 Z=([\d.]+)m→\+([\d.]+)m와 뒷면 Z=−([\d.]+)m→−([\d.]+)m/);
+assert.ok(singlePinFront, "single-door pins must give both leaf-side and ring-side datums");
+near("single pins touch panel and rings on both sides", Number(singlePinFront[2]),
+  n(single, /Z=\+([\d.]+)m\/−[\d.]+m이고 로컬/));
+near("single rear pin reaches back ring", Number(singlePinFront[4]),
+  n(single, /Z=\+[\d.]+m\/−([\d.]+)m이고 로컬/));
+near("single pin lower face reaches the panel", Number(singlePinFront[3]),
+  n(single, /짝은[^\n]*?두께 ([\d.]+)m이다/));
+const rippleInner = n(fountain, /파문 안쪽 반지름 ([\d.]+)m/);
+const nozzleRadius = n(fountain, /노즐 받침은 반지름 ([\d.]+)m/);
+near("fountain ripple clears nozzle pedestal", rippleInner - nozzleRadius,
+  n(fountain, /([\d.]+)m 밖이므로 서로 관통하지 않는다/));
+const altarTopWidth = n(altar, /제단은[^\n]*?폭 ([\d.]+)m/);
+const altarSupportWidth = n(altar, /받침은 양옆의 두 석판\(폭 ([\d.]+)m/);
+const altarClearSpan = n(altar, /그 사이 폭 ([\d.]+)m/);
+const altarEdgeOverhang = n(altar, /사방으로 ([\d.]+)m 나온다/);
+near("altar support gap remains open", 2 * altarSupportWidth + altarClearSpan +
+  2 * altarEdgeOverhang, altarTopWidth);
+const deskWidth = n(desk, /작성 책상은 폭 ([\d.]+)m/);
+const deskDepth = n(desk, /작성 책상은 폭 [\d.]+m·깊이 ([\d.]+)m/);
+const deskHeight = n(desk, /작성 책상은 폭 [\d.]+m·깊이 [\d.]+m·높이 ([\d.]+)m/);
+const deskTopDepth = n(desk, /상판 두께 ([\d.]+)m/);
+const deskLegWidth = n(desk, /다리는 정방 ([\d.]+)m/);
+const deskBraceBottom = n(desk, /바닥 위 Y=([\d.]+)m에 있다/);
+const deskBraceHeight = n(desk, /연직 높이는 ([\d.]+)m/);
+pass("desk braces connect all four legs",
+  /네 다리 중심은 \(X,Z\)=\(±\(폭\/2−0\.06m\), ±\(깊이\/2−0\.06m\)\)/.test(desk) &&
+  /두 X방향 선과 두 Z방향 선을 잇고/.test(desk) &&
+  deskLegWidth / 2 < deskWidth / 2 - deskLegWidth &&
+  deskLegWidth / 2 < deskDepth / 2 - deskLegWidth &&
+  deskBraceBottom + deskBraceHeight < deskHeight - deskTopDepth,
+  `brace spans ${deskWidth - 2 * deskLegWidth}×${deskDepth - 2 * deskLegWidth}m between four leg centers`);
+const stool = h2("fixtures", "stool");
+const stoolWidth = n(stool, /좌판은 ([\d.]+)×/);
+const stoolDepth = n(stool, /좌판은 [\d.]+×([\d.]+)m/);
+const stoolLegCentreX = n(stool, /중심은 \(X,Z\)=\(±([\d.]+)m/);
+const stoolLegCentreZ = n(stool, /중심은 \(X,Z\)=\(±[\d.]+m,±([\d.]+)m/);
+const stoolLegWidth = n(stool, /네 다리는 정방 ([\d.]+)m/);
+pass("stool braces connect all four legs",
+  /네 다리 중심을 잇는 가로 지지재/.test(stool) &&
+  stoolLegCentreX + stoolLegWidth / 2 < stoolWidth / 2 &&
+  stoolLegCentreZ + stoolLegWidth / 2 < stoolDepth / 2 &&
+  n(stool, /아랫면이 바닥 위 ([\d.]+)m에 있다/) +
+    n(stool, /연직 높이 ([\d.]+)m 단면/) <
+    n(stool, /윗면 높이 ([\d.]+)m다/) - n(stool, /좌판은[^\n]*?두께 ([\d.]+)m/));
+const neighbor = h2("landscape", "neighbor-house");
+const houseRoofThickness = n(neighbor, /slab 두께는 연직 ([\d.]+)m/);
+const houseAFrontTop = n(neighbor, /지붕 아랫면 `[^`]*=([\d.]+)m`까지/);
+const houseARidgeUnder = n(neighbor, /중심 높이 `[^`]*=([\d.]+)m`까지/);
+pass("neighbor gable end remains closed",
+  houseARidgeUnder > houseAFrontTop &&
+  /닫힌 삼각 박공벽을 `wall` part에 포함/.test(neighbor) &&
+  Math.abs(houseARidgeUnder - (n(neighbor, /중심에서 `[^`]*=([\d.]+)m`다/) - houseRoofThickness)) < 1e-6,
+  `A gable wall spans Y=${houseAFrontTop}..${houseARidgeUnder}`);
+const houseWall = n(neighbor, /네 벽의 실체 두께는 안쪽으로 ([\d.]+)m/);
+const houseRecess = n(neighbor, /앞면에서 안쪽으로 ([\d.]+)m 들어가고/);
+near("neighbor recess retains a backing wall", houseWall - houseRecess,
+  n(neighbor, /불투명한 뒷벽 ([\d.]+)m가 남는다/));
+console.log("checked the named contact equations; model-contact-census accounts for every candidate sentence");

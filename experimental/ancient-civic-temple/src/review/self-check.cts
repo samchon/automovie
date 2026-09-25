@@ -181,7 +181,7 @@ console.log(`model construction noun/part census: ${modelDocuments.reduce((sum, 
 for (const row of partNounMismatches) console.log(`  part owner: ${row}`);
 let arithmeticFailures = 0;
 try {
-  console.log(execFileSync(process.execPath, [join(__dirname, "model-design-arithmetic.mjs")], { encoding: "utf8" }).trim());
+  console.log(execFileSync(process.execPath, [join(__dirname, "model-contact-census.mjs")], { encoding: "utf8" }).trim());
 } catch (error) {
   arithmeticFailures = 1;
   const failure = error as { stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
