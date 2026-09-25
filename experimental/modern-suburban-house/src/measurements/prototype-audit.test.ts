@@ -179,6 +179,21 @@ test("separate room objects keep each reviewed face once", () => {
   if(rearPost.type!=="mesh") throw Error("terrace back post missing");
   const zAt=(y:number)=>rearPost.mesh.positions.filter((_,i)=>i%3===2&&Math.abs(rearPost.mesh.positions[i-1]!-y)<1e-9);
   assert.ok(Math.max(...zAt(0.85))<Math.max(...zAt(0.42)));
+  const dining=objects.find((p)=>p.id==="dining-chair")!;
+  assert.equal(dining.model.parts.filter((part)=>part.material==="leg").length,4);
+  assert.equal(dining.model.parts.filter((part)=>part.material==="back").length,8);
+  const diningPost=dining.model.parts.find((part)=>part.material==="back")!.geometry;
+  if(diningPost.type!=="mesh") throw Error("dining back post missing");
+  const diningZAt=(y:number)=>diningPost.mesh.positions.filter((_,i)=>i%3===2&&Math.abs(diningPost.mesh.positions[i-1]!-y)<1e-9);
+  assert.ok(Math.abs(Math.max(...diningZAt(0.42))-Math.max(...diningZAt(0.85))-(0.85-0.42)*Math.tan(5*Math.PI/180))<1e-9);
+  const deskChair=objects.find((p)=>p.id==="desk-chair")!;
+  assert.equal(deskChair.model.parts.filter((part)=>part.material==="leg").length,4);
+  assert.equal(deskChair.model.parts.filter((part)=>part.material==="back").length,3);
+  const backBoard=deskChair.model.parts.find((part)=>part.material==="back"&&part.id.endsWith("-3"))?.geometry;
+  if(backBoard?.type!=="mesh") throw Error("desk back board missing");
+  const boardYs=backBoard.mesh.positions.filter((_,i)=>i%3===1);
+  assert.ok(Math.abs(Math.min(...boardYs)-0.62)<1e-9);
+  assert.ok(Math.abs(Math.max(...boardYs)-0.80)<1e-9);
   for(const [id,width,drop] of [["island-pendant",0.28,0.80],["dining-pendant",0.48,1.20]] as const) {
     const object=objects.find((p)=>p.id===id)!;
     const positions=object.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);

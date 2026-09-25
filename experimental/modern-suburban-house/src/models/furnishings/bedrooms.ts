@@ -29,7 +29,7 @@ export const bedroomSpecs: readonly PrototypeSpec[] = [
     ["nightstand-lamp","cabinet",nightstandSizes.primary,"carcass drawer-front lamp-base lamp-shade",{bodyTop:nightstandBodyTop(nightstandSizes.primary)}],
     ["low-dresser","cabinet",fromReservation("primary-bedroom-dresser","z"),"carcass drawer-front handle leg"],
     ["child-desk","table",deskSizes.childTwo,"top leg shelf book container pencil"],
-    ["desk-chair","chair",[0.45,0.82,0.48],"seat leg back",{finishes:woodenChairFinishes}],
+    ["desk-chair","chair",[0.45,0.82,0.48],"seat leg back",{finishes:woodenChairFinishes,chairProfile:"desk"}],
     ["sliding-closet","shelf",fromReservation("bedroom-two-closet","z"),"carcass leaf handle rail rod shelf clothes casing",
       {finishes:{...finishFaces("trim-white","carcass","leaf","shelf","casing"),
         ...finishFaces("stainless-steel","rail","rod")}}],

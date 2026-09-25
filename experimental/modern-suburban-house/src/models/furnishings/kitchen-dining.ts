@@ -26,6 +26,6 @@ export const kitchenDiningSpecs: readonly PrototypeSpec[] = [
         ...finishFaces("black-glass-panel","control-panel"),...finishFaces("white-enamel","appliance-interior")}}],
     ["kitchen-island-stool","chair",[0.40,0.64,0.42],"seat leg footrest",{finishes:woodenStoolFinishes}],
     ["dining-table","table",fromReservation("common-dining-table"),"top apron leg"],
-    ["dining-chair","chair",[0.45,0.85,0.50],"seat leg back",{finishes:woodenChairFinishes}],
+    ["dining-chair","chair",[0.45,0.85,0.50],"seat leg back",{finishes:woodenChairFinishes,chairProfile:"dining"}],
   ]),
 ];

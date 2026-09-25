@@ -32,7 +32,7 @@ export interface PrototypeSpec {
   /** One ceiling pendant profile, sharing the same measured generator. */
   pendant?: "island" | "dining";
   laundry?: "washer" | "dryer";
-  chairProfile?: "terrace";
+  chairProfile?: "terrace" | "dining" | "desk";
   tableProfile?: "terrace";
   borderWidth?: number;
   tubCurtainLength?: number;
@@ -464,6 +464,37 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           b.shearedBox("back",[x-legWidth/2,0.42,0.09-legWidth/2],[x+legWidth/2,h,0.09+legWidth/2],pivot,slope);
         for(const [bottom,top] of [[0.55,0.63],[0.66,0.74],[0.77,0.85]])
           b.shearedBox("back",[-0.21,bottom,0.08],[0.21,top,0.10],pivot,slope);
+        for(const face of ["seat","leg","back"]) pending.delete(face);
+        break;
+      }
+      if(spec.chairProfile==="dining") {
+        const seatTop=0.45,postWidth=0.035,backCenter=0.0675,pivot=0.42,slope=-Math.tan(5*Math.PI/180);
+        b.box("seat",[-w/2,seatTop-0.03,0],[w/2,seatTop,d]);
+        for(const x of [-w/2+postWidth/2,w/2-postWidth/2])
+          for(const z of [backCenter,d-postWidth/2])
+            b.box("leg",[x-postWidth/2,0,z-postWidth/2],[x+postWidth/2,seatTop-0.03,z+postWidth/2]);
+        for(const x of [-w/2+postWidth/2,w/2-postWidth/2])
+          b.shearedBox("back",[x-postWidth/2,pivot,backCenter-postWidth/2],[x+postWidth/2,h,backCenter+postWidth/2],pivot,slope);
+        const innerLeft=-w/2+postWidth,innerRight=w/2-postWidth;
+        for(const [low,high] of [[0.59,0.62],[0.82,0.85]])
+          b.shearedBox("back",[innerLeft,low,backCenter-0.01],[innerRight,high,backCenter+0.01],pivot,slope);
+        const slat=postWidth,gap=(innerRight-innerLeft-4*slat)/5;
+        for(let i=0;i<4;i++) {
+          const x=innerLeft+(i+1)*gap+i*slat;
+          b.shearedBox("back",[x,0.62,backCenter-0.01],[x+slat,0.82,backCenter+0.01],pivot,slope);
+        }
+        for(const face of ["seat","leg","back"]) pending.delete(face);
+        break;
+      }
+      if(spec.chairProfile==="desk") {
+        const seatTop=0.45,postWidth=0.035,sideInset=0.04;
+        b.box("seat",[-w/2,seatTop-0.03,0],[w/2,seatTop,d]);
+        for(const x of [-w/2+sideInset,w/2-sideInset])
+          for(const z of [sideInset,d-sideInset])
+            b.box("leg",[x-postWidth/2,0,z-postWidth/2],[x+postWidth/2,seatTop-0.03,z+postWidth/2]);
+        for(const x of [-w/2+sideInset,w/2-sideInset])
+          b.box("back",[x-postWidth/2,seatTop-0.03,sideInset-postWidth/2],[x+postWidth/2,h,sideInset+postWidth/2]);
+        b.box("back",[-0.175,0.62,sideInset], [0.175,0.80,sideInset+0.025]);
         for(const face of ["seat","leg","back"]) pending.delete(face);
         break;
       }
