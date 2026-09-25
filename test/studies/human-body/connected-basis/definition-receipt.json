@@ -1,0 +1,41 @@
+{
+  "basis": "mpfb-connected-body-2026-09-25-anatomy-r6",
+  "supersedes": "mpfb-connected-body-2026-09-25-tt-r5",
+  "method": "the source's lean muscular body (macroMuscle 1, macroWeight -1) minus its lean average-muscle body (macroWeight -1), built through this basis, along the neutral's normals; band-passed on the surface by uniform-Laplacian heat diffusion (the fine field after HIGH sweeps less the broad field after LOW sweeps); faded to zero within FADE metres of the nipple fill's centres (recovered from the neutral's vanishing uniform bilaplacian) and of the crotch cut on the midline; stepping aside where an authored relief endpoint carves (abs, deltoids, scapula); split over the breast mound (the source cupsize endpoint's normalized, smoothed displacement) into its own channel; made exactly bilaterally symmetric in the field and in the normals; stored at 10 µm",
+  "parameters": {
+    "LOW": 200,
+    "HIGH": 4,
+    "GAIN": 1,
+    "FADE": 0.04
+  },
+  "exclusionCentres": [
+    [
+      0.10150316974683546,
+      -0.3108117216582278,
+      0.1456283127848101
+    ],
+    [
+      -0.10150318379746834,
+      -0.31081160573417715,
+      0.14562832062025316
+    ],
+    [
+      0,
+      -0.742266297,
+      0.011295066
+    ]
+  ],
+  "channels": {
+    "musculatureDefinition": {
+      "endpoint": "muscle/definition-incr",
+      "vertices": 18077,
+      "mostMillimetres": 11.29
+    },
+    "chestDefinition": {
+      "endpoint": "muscle/chest-definition-incr",
+      "vertices": 1905,
+      "mostMillimetres": 7.93
+    }
+  },
+  "uncompressedSha256": "85fff327ce25b7a2dd75722c0b42ee51859d9b1c5667ae66b9bad47ac2f5162e"
+}

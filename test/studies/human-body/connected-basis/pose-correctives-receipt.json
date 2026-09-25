@@ -1,7 +1,12 @@
 {
-  "basis": "mpfb-connected-body-2026-09-25-tt-r5",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r6",
   "recorded": "2026-09-25",
-  "method": "no state solved. The posed correctives the previous round solved on the everyday bodies and the editor's presets, gated by those bodies' exact channel values, are retired (a corrective per body is a case, and on held-out bodies they did not help); those two sets are read as held-out populations from here on. Every shape-and-pose group (the correctives of one solved state) keeps its rows, and its channel ramps start at its measured shape onset: on the basis with every other corrective and the group switched off, the largest fraction of the shape, bisected to 1/32, at which the state in its full pose crosses on no more triangles than the neutral body in that pose; a right group takes its left mirror's. A group whose state was no worse than the neutral without it at the full shape is retired as unneeded.",
+  "method": {
+    "skin": "dual quaternion blend in the public builder; a posed displacement is carried to the rest frame through the inverse of the vertex's blended rotation, verified against the builder to the micrometre",
+    "onset": "largest pose fraction without a crossing on the state's shape, bisected to 2.5 degrees of the widest travel; channel ramps run from zero to the state's weight so the push grows with the tissue",
+    "solve": "contact solver: the crossed corners of both segments are pushed onto a clearance off the separating plane (the fold bisector of an adjacent pair or the contact plane between the bones, whichever costs less), or out of the entered surface by half their depth where the plane fails, spread as a Laplacian-relaxed displacement field over eight rings, inside a per-pair tissue budget (digits 8, toes 10, default 15, arm against trunk or leg against leg 25, knee and hip folds 50 mm)",
+    "verification": "public builder and census instrument at the state, at the midpoint of the joint ramp and at half the shape weight; a crossing midpoint is queued as its own state"
+  },
   "rounds": [
     {
       "round": 1,
@@ -17,7 +22,7 @@
       "crossingStates": 68,
       "repaired": 64,
       "published": 64,
-      "stillPublished": 41,
+      "stillPublished": 46,
       "unpublished": 4
     },
     {
@@ -34,7 +39,7 @@
       "crossingStates": 458,
       "repaired": 390,
       "published": 390,
-      "stillPublished": 54,
+      "stillPublished": 77,
       "unpublished": 66
     },
     {
@@ -51,7 +56,7 @@
       "crossingStates": 579,
       "repaired": 547,
       "published": 547,
-      "stillPublished": 280,
+      "stillPublished": 361,
       "unpublished": 28
     },
     {
@@ -68,7 +73,7 @@
       "crossingStates": 311,
       "repaired": 286,
       "published": 286,
-      "stillPublished": 169,
+      "stillPublished": 221,
       "unpublished": 20
     },
     {
@@ -85,7 +90,7 @@
       "crossingStates": 153,
       "repaired": 91,
       "published": 91,
-      "stillPublished": 9,
+      "stillPublished": 4,
       "unpublished": 62
     },
     {
@@ -102,7 +107,7 @@
       "crossingStates": 539,
       "repaired": 440,
       "published": 440,
-      "stillPublished": 205,
+      "stillPublished": 231,
       "unpublished": 99
     },
     {
@@ -136,7 +141,7 @@
       "crossingStates": 208,
       "repaired": 144,
       "published": 144,
-      "stillPublished": 126,
+      "stillPublished": 174,
       "unpublished": 64
     },
     {
@@ -153,7 +158,7 @@
       "crossingStates": 34,
       "repaired": 13,
       "published": 13,
-      "stillPublished": 13,
+      "stillPublished": 20,
       "unpublished": 21
     },
     {
@@ -170,7 +175,7 @@
       "crossingStates": 449,
       "repaired": 405,
       "published": 405,
-      "stillPublished": 361,
+      "stillPublished": 707,
       "unpublished": 44
     },
     {
@@ -204,7 +209,7 @@
       "crossingStates": 799,
       "repaired": 714,
       "published": 714,
-      "stillPublished": 229,
+      "stillPublished": 377,
       "unpublished": 83
     },
     {
@@ -218,6 +223,23 @@
       "published": 0,
       "stillPublished": 0,
       "unpublished": 62
+    },
+    {
+      "round": 14,
+      "basis": "mpfb-connected-body-2026-09-25-anatomy-r6a-asym",
+      "supersedes": "mpfb-connected-body-2026-09-25-anatomy-r6",
+      "method": {
+        "skin": "dual quaternion blend in the public builder; a posed displacement is carried to the rest frame through the inverse of the vertex's blended rotation, verified against the builder to the micrometre",
+        "onset": "largest pose fraction without a crossing on the state's shape, bisected to 2.5 degrees of the widest travel; channel ramps run from zero to the state's weight so the push grows with the tissue",
+        "solve": "contact solver: the crossed corners of both segments are pushed onto a clearance off the separating plane (the fold bisector of an adjacent pair or the contact plane between the bones, whichever costs less), or out of the entered surface by half their depth where the plane fails, spread as a Laplacian-relaxed displacement field over eight rings, inside a per-pair tissue budget (digits 8, toes 10, default 15, arm against trunk or leg against leg 25, knee and hip folds 50 mm)",
+        "verification": "public builder and census instrument at the state, at the midpoint of the joint ramp and at half the shape weight; a crossing midpoint is queued as its own state"
+      },
+      "states": 20,
+      "crossingStates": 12,
+      "repaired": 12,
+      "published": 12,
+      "stillPublished": 12,
+      "unpublished": 0
     }
   ],
   "envelope": {
@@ -74525,6 +74547,429 @@
       ],
       "round": 9,
       "mirrorOf": "state/sweep:leftUpperLeg.flexion@100"
+    },
+    {
+      "id": "state/bodies:sex1-age25-bmi40-muscle0-h1.6#2",
+      "state": "bodies:sex1-age25-bmi40-muscle0-h1.6",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 74,
+      "mostPosedMillimetres": 1.9,
+      "mostRestMillimetres": 1.9,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex1-age25-bmi45-muscle0",
+      "state": "bodies:sex1-age25-bmi45-muscle0",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 37,
+      "mostPosedMillimetres": 8,
+      "mostRestMillimetres": 8,
+      "pairs": [
+        "spine x spine"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex-1-age25-bmi45-muscle0-h1.6",
+      "state": "bodies:sex-1-age25-bmi45-muscle0-h1.6",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 88,
+      "mostPosedMillimetres": 3.3,
+      "mostRestMillimetres": 3.3,
+      "pairs": [
+        "hips x hips",
+        "hips x leftUpperLeg",
+        "hips x rightUpperLeg"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex1-age60-bmi40-muscle0",
+      "state": "bodies:sex1-age60-bmi40-muscle0",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 55,
+      "mostPosedMillimetres": 2.2,
+      "mostRestMillimetres": 2.2,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex1-age11-bmi22-muscle1#2",
+      "state": "bodies:sex1-age11-bmi22-muscle1",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 167,
+      "mostPosedMillimetres": 5.9,
+      "mostRestMillimetres": 5.9,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex-1-age90-bmi40-muscle0-h1.6",
+      "state": "bodies:sex-1-age90-bmi40-muscle0-h1.6",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 134,
+      "mostPosedMillimetres": 7.6,
+      "mostRestMillimetres": 7.6,
+      "pairs": [
+        "upperChest x upperChest"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex-1-age11-bmi22-muscle1#2",
+      "state": "bodies:sex-1-age11-bmi22-muscle1",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 61,
+      "mostPosedMillimetres": 3.7,
+      "mostRestMillimetres": 3.6,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex-1-age11-bmi15-muscle1",
+      "state": "bodies:sex-1-age11-bmi15-muscle1",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 78,
+      "mostPosedMillimetres": 3.8,
+      "mostRestMillimetres": 3.8,
+      "pairs": [
+        "leftUpperArm x leftUpperArm",
+        "rightUpperArm x rightUpperArm"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex-1-age25-bmi40-muscle-1-h1.6",
+      "state": "bodies:sex-1-age25-bmi40-muscle-1-h1.6",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 474,
+      "mostPosedMillimetres": 4.3,
+      "mostRestMillimetres": 4.3,
+      "pairs": [
+        "leftUpperLeg x rightUpperLeg"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex1-age11-bmi30-muscle1#2",
+      "state": "bodies:sex1-age11-bmi30-muscle1",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 268,
+      "mostPosedMillimetres": 13.3,
+      "mostRestMillimetres": 13.3,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex1-age60-bmi45-muscle1-h1.6",
+      "state": "bodies:sex1-age60-bmi45-muscle1-h1.6",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 54,
+      "mostPosedMillimetres": 1.6,
+      "mostRestMillimetres": 1.6,
+      "pairs": [
+        "hips x hips"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
+    },
+    {
+      "id": "state/bodies:sex-1-age90-bmi45-muscle1-h1.6#2",
+      "state": "bodies:sex-1-age90-bmi45-muscle1-h1.6",
+      "onset": 0,
+      "full": 1,
+      "weight": 1,
+      "vertices": 112,
+      "mostPosedMillimetres": 4.9,
+      "mostRestMillimetres": 4.9,
+      "pairs": [
+        "upperChest x upperChest"
+      ],
+      "verification": [
+        {
+          "t": 1,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 0.5,
+          "u": 1,
+          "pairs": 0
+        },
+        {
+          "t": 1,
+          "u": 0.5,
+          "pairs": 0
+        },
+        {
+          "narrow": 0,
+          "worse": []
+        }
+      ],
+      "round": 14
     }
   ],
   "describedElsewhere": {
@@ -346502,10 +346947,828 @@
       "onset": 1,
       "unneeded": true,
       "round": 13
+    },
+    {
+      "group": "bodies:sex1-age25-bmi40-muscle0-h1.6",
+      "state": "bodies:sex1-age25-bmi40-muscle0-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age25-bmi40-muscle0-h1.6#2",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 28,
+            "otherTriangles": 28
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 74,
+        "mostPosed": 0.001861157202632786,
+        "log": [
+          "[hips]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7834,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age25-bmi45-muscle0",
+      "state": "bodies:sex1-age25-bmi45-muscle0",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age25-bmi45-muscle0",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "spine",
+            "other": "spine",
+            "triangles": 8,
+            "otherTriangles": 8
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "spine x spine",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 37,
+        "mostPosed": 0.008006891005744357,
+        "log": [
+          "[spine]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7518,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age25-bmi45-muscle0-h1.6",
+      "state": "bodies:sex-1-age25-bmi45-muscle0-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex-1-age25-bmi45-muscle0-h1.6",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 12,
+            "otherTriangles": 12
+          },
+          {
+            "part": "hips",
+            "other": "leftUpperLeg",
+            "triangles": 2,
+            "otherTriangles": 1
+          },
+          {
+            "part": "hips",
+            "other": "rightUpperLeg",
+            "triangles": 2,
+            "otherTriangles": 1
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          },
+          {
+            "pair": "hips x leftUpperLeg",
+            "budget": 0.05
+          },
+          {
+            "pair": "hips x rightUpperLeg",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 88,
+        "mostPosed": 0.003329830558353186,
+        "log": [
+          "[hips]relax:ok@5",
+          "hipsxleftUpperLeg[surface]:ok:surface@0",
+          "hipsxrightUpperLeg[surface]:ok:surface@0"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 8442,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age25-bmi45-muscle0",
+      "state": "bodies:sex-1-age25-bmi45-muscle0",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1387,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age25-bmi45-muscle0-h1.9",
+      "state": "bodies:sex-1-age25-bmi45-muscle0-h1.9",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1396,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age60-bmi40-muscle0",
+      "state": "bodies:sex1-age60-bmi40-muscle0",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age60-bmi40-muscle0",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 12,
+            "otherTriangles": 12
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 55,
+        "mostPosed": 0.002168444429928435,
+        "log": [
+          "[hips]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 8721,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age11-bmi22-muscle1",
+      "state": "bodies:sex1-age11-bmi22-muscle1",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age11-bmi22-muscle1#2",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 62,
+            "otherTriangles": 62
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 167,
+        "mostPosed": 0.005908959513822409,
+        "log": [
+          "[hips]relax:ok@15"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 8529,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age90-bmi40-muscle0-h1.6",
+      "state": "bodies:sex-1-age90-bmi40-muscle0-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex-1-age90-bmi40-muscle0-h1.6",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "upperChest",
+            "other": "upperChest",
+            "triangles": 35,
+            "otherTriangles": 35
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "upperChest x upperChest",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 134,
+        "mostPosed": 0.007603002227843818,
+        "log": [
+          "[upperChest]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7594,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age90-bmi45-muscle0-h1.6",
+      "state": "bodies:sex-1-age90-bmi45-muscle0-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1449,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age90-bmi45-muscle0",
+      "state": "bodies:sex-1-age90-bmi45-muscle0",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1250,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age11-bmi22-muscle1",
+      "state": "bodies:sex-1-age11-bmi22-muscle1",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex-1-age11-bmi22-muscle1#2",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 12,
+            "otherTriangles": 12
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 61,
+        "mostPosed": 0.0036514040171156253,
+        "log": [
+          "[hips]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7488,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age11-bmi15-muscle1",
+      "state": "bodies:sex-1-age11-bmi15-muscle1",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex-1-age11-bmi15-muscle1",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "leftUpperArm",
+            "other": "leftUpperArm",
+            "triangles": 4,
+            "otherTriangles": 4
+          },
+          {
+            "part": "rightUpperArm",
+            "other": "rightUpperArm",
+            "triangles": 4,
+            "otherTriangles": 4
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "leftUpperArm x leftUpperArm",
+            "budget": 0.05
+          },
+          {
+            "pair": "rightUpperArm x rightUpperArm",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 78,
+        "mostPosed": 0.0037547441054767276,
+        "log": [
+          "[leftUpperArm]relax:ok@5",
+          "[rightUpperArm]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7871,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age25-bmi40-muscle-1-h1.6",
+      "state": "bodies:sex-1-age25-bmi40-muscle-1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex-1-age25-bmi40-muscle-1-h1.6",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "leftUpperLeg",
+            "other": "rightUpperLeg",
+            "triangles": 10,
+            "otherTriangles": 10
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "leftUpperLeg x rightUpperLeg",
+            "budget": 0.025
+          }
+        ],
+        "vertices": 474,
+        "mostPosed": 0.004312788249449976,
+        "log": [
+          "leftUpperLegxrightUpperLeg[surface]:ok:surface@1"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7729,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age25-bmi45-muscle-1-h1.6",
+      "state": "bodies:sex-1-age25-bmi45-muscle-1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1260,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age25-bmi45-muscle1-h1.6",
+      "state": "bodies:sex1-age25-bmi45-muscle1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1413,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age11-bmi30-muscle1",
+      "state": "bodies:sex1-age11-bmi30-muscle1",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age11-bmi30-muscle1#2",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 65,
+            "otherTriangles": 65
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 268,
+        "mostPosed": 0.013310985483823036,
+        "log": [
+          "[hips]relax:left@60",
+          "[hips]#0:ok:surface@1",
+          "[hips]#1:ok:surface@0",
+          "[hips]relax:left@60",
+          "[hips]#0:ok:surface@1",
+          "[hips]relax:ok@20"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 9889,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age60-bmi45-muscle1-h1.6",
+      "state": "bodies:sex1-age60-bmi45-muscle1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex1-age60-bmi45-muscle1-h1.6",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "hips",
+            "other": "hips",
+            "triangles": 12,
+            "otherTriangles": 12
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "hips x hips",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 54,
+        "mostPosed": 0.0016041426900704435,
+        "log": [
+          "[hips]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7562,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex1-age90-bmi45-muscle1-h1.6",
+      "state": "bodies:sex1-age90-bmi45-muscle1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1324,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age90-bmi45-muscle-1-h1.6",
+      "state": "bodies:sex-1-age90-bmi45-muscle-1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": null,
+      "outcome": "clear",
+      "ms": 1384,
+      "round": 14
+    },
+    {
+      "group": "bodies:sex-1-age90-bmi45-muscle1-h1.6",
+      "state": "bodies:sex-1-age90-bmi45-muscle1-h1.6",
+      "angle": 1,
+      "travel": 1,
+      "weight": 1,
+      "volume": null,
+      "crossing": {
+        "id": "state/bodies:sex-1-age90-bmi45-muscle1-h1.6#2",
+        "onset": 0,
+        "full": 1,
+        "weight": 1,
+        "pairs": [
+          {
+            "part": "upperChest",
+            "other": "upperChest",
+            "triangles": 24,
+            "otherTriangles": 24
+          }
+        ],
+        "budgets": [
+          {
+            "pair": "upperChest x upperChest",
+            "budget": 0.05
+          }
+        ],
+        "vertices": 112,
+        "mostPosed": 0.0049059932713852615,
+        "log": [
+          "[upperChest]relax:ok@5"
+        ],
+        "verification": [
+          {
+            "t": 1,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 0.5,
+            "u": 1,
+            "pairs": 0
+          },
+          {
+            "t": 1,
+            "u": 0.5,
+            "pairs": 0
+          },
+          {
+            "narrow": 0,
+            "worse": []
+          }
+        ]
+      },
+      "outcome": "repaired",
+      "ms": 7967,
+      "round": 14
     }
   ],
-  "uncompressedSha256": "210cf127d346b6e2ab44d38a0f6ce0a863b2758f35e3ea0838321b6a22702633",
-  "uncompressedBytes": 133267309,
-  "compressedSha256": "a4b600af102e5d4d99ca4efa73ad5ae4571c0146959e3d5ae40eac87c171fcff",
-  "compressedBytes": 30604333
+  "uncompressedSha256": "368445dd5603a1873229e2b4ec61c997610da033323552ab2c220064aa2aa17b",
+  "uncompressedBytes": 133916298,
+  "compressedSha256": "4f80ac797cd9ff912b4598af8796942fd1655691ea0d7fc1855bbfb9224997d9",
+  "compressedBytes": 31444278
 }
