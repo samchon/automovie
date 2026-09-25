@@ -2,6 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import {
   FACE_ANTHROPOMETRY_INDICES,
+  FACE_ANTHROPOMETRY_LOWER_EDGE,
   FACE_ANTHROPOMETRY_UPPER_EDGE,
   type FaceAnthropometryPoint,
   faceAnthropometryFrame,
@@ -12,7 +13,7 @@ import { nclose, throwsError } from "../internal/predicates";
 
 /** A symmetric synthetic face with every landmark the indices read. */
 const face = (): FaceAnthropometryPoint[] => {
-  const p: FaceAnthropometryPoint[] = new Array(469).fill(undefined);
+  const p: FaceAnthropometryPoint[] = new Array(470).fill(undefined);
   const set = (k: number, x: number, y: number) => (p[k] = [x, y]);
   const pair = (r: number, l: number, x: number, y: number) => {
     set(r, -x, y);
@@ -28,6 +29,7 @@ const face = (): FaceAnthropometryPoint[] => {
   set(14, 0, 57);
   set(17, 0, 66);
   set(FACE_ANTHROPOMETRY_UPPER_EDGE, 0, 60);
+  set(FACE_ANTHROPOMETRY_LOWER_EDGE, 0, 64);
   set(152, 0, 100);
   set(199, 0, 90);
   pair(234, 454, 60, 20);
@@ -47,10 +49,11 @@ const face = (): FaceAnthropometryPoint[] => {
  * Frontal anthropometric indices.
  * Scenarios:
  * 1. On a synthetic face every index is its defining ratio (the lip heights
- *    to each lip's own inner edge, the gap between them, and the upper
- *    incisal edge 5 below stomion superius), every index names at least one
- *    channel, and only the lip gap's, the upper display's, the corner
- *    lift's and the mouth shift's are expression (the synthetic corners sit
+ *    to each lip's own inner edge, the gap between them, the upper incisal
+ *    edge 5 below stomion superius and the lower 4 below the upper), every
+ *    index names at least one channel, and only the lip gap's, the upper
+ *    display's, the incisal gap's, the corner lift's and the mouth shift's
+ *    are expression (the synthetic corners sit
  *    level with the lip centre and about the midline, a lift and a shift of
  *    zero); gains, where given, align with the channels.
  * 2. The indices are invariant to rotating, scaling and moving the image:
@@ -82,6 +85,7 @@ export const test_subject_face_anthropometry = (): void => {
     upperLip: 15 / 60,
     lipParting: 2 / 50,
     upperDisplay: 5 / 50,
+    incisalGap: 4 / 50,
     cornerLift: 0,
     mouthShift: 0,
     lowerFaceWidth: 90 / 120,
@@ -99,9 +103,13 @@ export const test_subject_face_anthropometry = (): void => {
           one.channels.length > 0 &&
           one.id in m &&
           (one.expression === true) ===
-            ["lipParting", "upperDisplay", "cornerLift", "mouthShift"].includes(
-              one.id,
-            ) &&
+            [
+              "lipParting",
+              "upperDisplay",
+              "incisalGap",
+              "cornerLift",
+              "mouthShift",
+            ].includes(one.id) &&
           (one.gains === undefined || one.gains.length === one.channels.length),
       ),
   );

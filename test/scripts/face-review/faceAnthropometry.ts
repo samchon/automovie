@@ -39,8 +39,13 @@
  * upper incisors read on the mouth's midline profile
  * (`measureFaceLikenessTeeth`, where it reads the edge itself rather than a
  * bound), passed as the landmark `FACE_ANTHROPOMETRY_UPPER_EDGE`, and on the
- * model the crowns' own edge (`faceIncisalEdges`). A photograph that shows
- * no upper edge leaves the raiser where the expression transfer put it: the
+ * model the crowns' own edge (`faceIncisalEdges`). The lower incisors ride
+ * the mandible, so the gap between the two edges, `incisalGap`, is the
+ * jaw's opening and pairs with `jawOpen`; the lip gap then pairs with the
+ * depressor alone, which a laugh's open jaw exceeds (one photograph's gap
+ * held the depressor at its bound). A photograph that shows no upper edge
+ * leaves the raiser where the expression transfer put it, and one without a
+ * lower edge the jaw: the
  * source's smile already lifts the upper lip 3.2 mm with its seam, and a
  * gap coupled to it in the posed ratio had lifted the lip about 8 mm, above
  * the crowns, where photographs show teeth. The detector's own scores for these units
@@ -139,6 +144,9 @@ export const FACE_ANTHROPOMETRY_MIDLINE = [
  */
 export const FACE_ANTHROPOMETRY_UPPER_EDGE = 468;
 
+/** The landmark index a caller gives the lower incisal edge, as the upper. */
+export const FACE_ANTHROPOMETRY_LOWER_EDGE = 469;
+
 /** The indices, in solve order, with their paired controls. */
 export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
@@ -209,6 +217,13 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     definition:
       "upper incisal edge (FACE_ANTHROPOMETRY_UPPER_EDGE) below stomion superius (13) over mouth width, signed",
     channels: ["mouthUpperUpLeft", "mouthUpperUpRight"],
+    expression: true,
+  },
+  {
+    id: "incisalGap",
+    definition:
+      "lower incisal edge (FACE_ANTHROPOMETRY_LOWER_EDGE) below the upper (FACE_ANTHROPOMETRY_UPPER_EDGE) over mouth width, signed",
+    channels: ["jawOpen"],
     expression: true,
   },
   {
@@ -284,6 +299,15 @@ export function measureFaceAnthropometry(
     lowerVermilion: ratio(H(14, 17), mw),
     upperLip: ratio(H(2, 13), H(2, 152)),
     lipParting: ratio(H(13, 14), mw),
+    incisalGap: ((): number | null => {
+      const [upper, lower] = [
+        FACE_ANTHROPOMETRY_UPPER_EDGE,
+        FACE_ANTHROPOMETRY_LOWER_EDGE,
+      ].map(at);
+      return upper && lower && mw !== null && mw > 0
+        ? (lower[1] - upper[1]) / mw
+        : null;
+    })(),
     upperDisplay: ((): number | null => {
       const [lip, edge] = [13, FACE_ANTHROPOMETRY_UPPER_EDGE].map(at);
       return lip && edge && mw !== null && mw > 0

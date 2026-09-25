@@ -64,6 +64,7 @@ import { gunzipSync } from "node:zlib";
 
 import {
   FACE_ANTHROPOMETRY_INDICES,
+  FACE_ANTHROPOMETRY_LOWER_EDGE,
   FACE_ANTHROPOMETRY_UPPER_EDGE,
   faceAnthropometryWeights,
   measureFaceAnthropometry,
@@ -228,18 +229,19 @@ if (command === "identity") {
           ? []
           : [{ landmark: one.landmark, anchor: one.anchor, surface: human }],
       ),
-      {
-        landmark: FACE_ANTHROPOMETRY_UPPER_EDGE,
+      ...(
+        [
+          [FACE_ANTHROPOMETRY_UPPER_EDGE, incisal.upper],
+          [FACE_ANTHROPOMETRY_LOWER_EDGE, incisal.lower],
+        ] as const
+      ).map(([landmark, vertex]) => ({
+        landmark,
         anchor: {
-          vertices: [incisal.upper, incisal.upper, incisal.upper] as [
-            number,
-            number,
-            number,
-          ],
+          vertices: [vertex, vertex, vertex] as [number, number, number],
           weights: [1, 0, 0] as [number, number, number],
         },
         surface: dentition,
-      },
+      })),
     ];
     const model = build({ ...start, hair: undefined });
     const built = new Map(
@@ -281,12 +283,43 @@ if (command === "identity") {
       }
       return cache.get(name)!;
     };
+    // The jaw turns the mandible rather than displacing it by one endpoint,
+    // so its effect on each anchored point is read from the model built at
+    // five openings and interpolated between them.
+    const openings = [0, 0.25, 0.5, 0.75, 1];
+    const opened = openings.map((w) => {
+      const built = build({
+        ...start,
+        hair: undefined,
+        expression: { ...start.expression, jawOpen: w },
+      });
+      const positions = new Map(
+        [human, dentition].map((surface) => [
+          surface,
+          faceShapeFitSurfacePositions(basis, built, surface.id),
+        ]),
+      );
+      return list.map((one) =>
+        faceShapeFitAnchorPoint(positions.get(one.surface)!, one.anchor),
+      );
+    });
+    const jaw = (weight: number, n: number, axis: number): number => {
+      const w = Math.min(1, Math.max(0, weight));
+      const k = Math.min(openings.length - 2, Math.floor(w * 4));
+      const t = (w - openings[k]!) / (openings[k + 1]! - openings[k]!);
+      return (
+        opened[k]![n]![axis]! +
+        t * (opened[k + 1]![n]![axis]! - opened[k]![n]![axis]!) -
+        opened[0]![n]![axis]!
+      );
+    };
     const contribution = (
       channel: string,
       weight: number,
       n: number,
       axis: number,
     ) => {
+      if (channel === "jawOpen") return jaw(weight, n, axis);
       if (weight === 0) return 0;
       const one = channels.get(channel)!;
       const name = weight > 0 ? one.positive : one.negative;
@@ -339,6 +372,7 @@ if (command === "identity") {
     const photographed = measureFaceAnthropometry([
       ...photo.landmarks.slice(0, 468),
       teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
+      teeth?.lower?.relation === "at" ? teeth.lower.point : undefined,
     ]);
     const before = previous?.[subject]?.anthropometry;
     const render = renders?.get(`portrait:${subject}__reference-yaw`)?.face;
