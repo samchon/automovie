@@ -63,11 +63,34 @@ ref02의 침실 직물과 ref03의 소파·식탁 밀도, ref04의 손님 침구
 @address-state outdoor-mat: body
 <!-- @authored-address-state:end -->
 
+## 주방 상부장 부착 배기 후드 {#kitchen-extractor}
+
+ref03의 조리면 위 상부장 하단에 얇은 금속 배기 후드를 둔다. 상부장 밑면 접합 중심이 원점이고 +X는 조리대 폭, −Y는 아래쪽 필터 면, +Z는 사용자가 서는 쪽이다. 벽 조리대·쿡탑과 후드의 world 정렬은 instances가 결정한다. 환기량·배관·소음 성능은 `unverified`다.
+
+후드는 표에 정한 몸체와 밑면의 좌우 필터 두 장으로 읽힌다. 몸체의 상면은 상부장 밑면 datum과 접촉하고, 필터는 몸체 아래면에 서로 틈을 두고 붙는다. 안정 주소는 `body/upper/underside/edge`, `filter-left/underside/edge/contact`, `filter-right/underside/edge/contact`이며 각 필터의 노출 아래면은 별도 금속 망 face로 구별한다. 흡입 구멍의 실제 유량은 만들지 않으며 몸체·필터·끝면은 차단된 불투명 형상이다.
+
+정면·밑면·45°의 중립 관찰에서 조리대 위 금속 판, 좌우 필터, 중앙 틈을 확인한다. ref03의 상부장 아래 조리 위치를 따르고 ref01·02·04·05의 외피·욕실 설비를 주방 기구의 형상으로 옮기지 않는다. 전원과 배기 연결은 `unverified`다.
+
+@material-face default: filter-left/underside
+@material-face default: filter-right/underside
+@inventory default: body, filter-left, filter-right
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.32..0.32 | -0.097..0 | -0.24..0.24 | - |
+| @part | default | body | box | -0.32..0.32 | -0.09..0 | -0.24..0.24 | underside,filter-left,filter-right |
+| @part | default | filter-left | box | -0.27..-0.01 | -0.097..-0.09 | -0.18..0.18 | body |
+| @part | default | filter-right | box | 0.01..0.27 | -0.097..-0.09 | -0.18..0.18 | body |
+
+<!-- @authored-address-state:start -->
+@address-state default: body, filter-left, filter-right
+<!-- @authored-address-state:end -->
+
 ## 신발·의복·우산 {#personal-articles}
 
 @material-face shoe: body/sole
 
-`personal-articles`는 신발 한 짝, 걸린 코트와 일상 옷 한 벌, 옷걸이, 닫힌 우산과 우산꽂이를 독립 물체로 둔다. 신발 두 짝은 두 instance이고 옷 여덟 벌도 여덟 instance다. 신발·우산·꽂이는 바닥 접촉 중심이 원점이고, 코트·옷·옷걸이는 상부 걸림점이 y=0인 원점에서 −Y로 아래로 뻗는다. 후속 instances가 이 걸림점을 실제 옷장 봉에 맞춘다. 모두 +Z가 전면이다. 신발의 굽·발등·앞코는 닫힌 단일 `body`의 서로 다른 `sole/upper/toe` face, 옷과 우산은 접힌 외형의 `body/front/back/edge` face다. 옷걸이의 고리와 어깨는 같은 연속 부품의 `body/hook/shoulder`로 구별하고 우산꽂이는 열린 `body/outer/inner/rim/sole`의 두께 있는 통이다.
+`personal-articles`는 신발 한 짝, 걸린 코트와 일상 옷 한 벌, 옷걸이, 닫힌 우산과 우산꽂이를 독립 물체로 둔다. 신발 두 짝은 두 instance이고 옷 여덟 벌도 여덟 instance다. 신발·우산·꽂이는 바닥 접촉 중심이 원점이고, 코트·옷·옷걸이는 상부 걸림점이 y=0인 원점에서 −Y로 아래로 뻗는다. 후속 instances가 이 걸림점을 실제 옷장 봉에 맞춘다. 모두 +Z가 전면이다. 신발의 굽·발등·앞코는 닫힌 단일 `body/sole/upper/toe`의 서로 다른 face, 옷과 우산은 접힌 외형의 `body/front/back/edge` face다. 옷걸이의 고리와 어깨는 같은 연속 부품의 `body/hook/shoulder`로 구별하고 우산꽂이는 열린 `body/outer/inner/rim/sole`의 두께 있는 통이다.
 
 신발은 W 폭의 닫힌 밑창을 전 Z 길이로 잇고 뒤쪽 1/3에서 최대 H, 앞코에서 H/2로 내려가는 두 단면을 이어 빈 발목 구멍을 뒤 상부에 낸다. 의복 두 상태는 두께 D의 닫힌 전·후판으로, 어깨 폭 W에서 허리 폭 0.7W로 좁아지는 몸판과 양쪽 소매를 연속 접합한다. 옷걸이는 양 끝 x=±W/2에서 중심 갈고리로 올라가는 가는 삼각 어깨, 우산은 H 방향 접힌 원뿔과 위쪽 손잡이의 연속 실루엣이다. 우산꽂이는 바깥 반폭 W/2에서 벽 두께 W/18을 빼고 상부를 열되 바닥 두께 H/18을 남긴다. 모든 열린 둘레에는 안팎 벽과 rim의 닫힌 두께를 내며, 접합 전에 표의 AABB를 넘는 장식은 추가하지 않는다.
 

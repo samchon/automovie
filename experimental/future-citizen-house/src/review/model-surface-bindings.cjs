@@ -12,9 +12,9 @@ function responseDefined(root, description) {
   return /#[0-9a-fA-F]{6}\b/.test(description) && /roughness\s+\.?\d+/.test(description);
 }
 
-/** @param {string} root @param {Map<string,Map<string,Set<string>>>} models @param {string} materialText */
-function objectSurfaceBindings(root, models, materialText) {
-  const modelText = fs.readFileSync(
+/** @param {string} root @param {Map<string,Map<string,Set<string>>>} models @param {string} materialText @param {string} [modelOverride] */
+function objectSurfaceBindings(root, models, materialText, modelOverride) {
+  const modelText = modelOverride ?? fs.readFileSync(
     path.join(root, "docs/models/005-everyday-objects.md"),
     "utf8",
   );
@@ -22,11 +22,19 @@ function objectSurfaceBindings(root, models, materialText) {
     (match) => match[1],
   );
   const requiredFaces = new Set();
+  const proseFaces = new Set();
   let activeOwner = "";
   for (const line of modelText.split(/\r?\n/)) {
     activeOwner = /^## .*\{#([^}]+)\}/.exec(line)?.[1] || activeOwner;
     const face = /^@material-face\s+([^:]+):\s*([^\s]+)$/.exec(line);
     if (face) requiredFaces.add(`${activeOwner}/${face[1].trim()}/${face[2]}`);
+    if (!activeOwner || /^@|^\||^<!--/.test(line)) continue;
+    for (const match of line.matchAll(/`([a-z][a-z0-9.\-/]+)`/g)) {
+      const segments = match[1].split("/");
+      if (segments.length < 2) continue;
+      for (const namedFace of segments.slice(1))
+        proseFaces.add(`${activeOwner}/${segments[0]}/${namedFace}`);
+    }
   }
   const errors = [],
     covered = new Set(),
@@ -108,6 +116,9 @@ function objectSurfaceBindings(root, models, materialText) {
   for (const face of requiredFaces)
     if (!overrides.has(face))
       errors.push(`${face}: declared material face has no finish binding`);
+  for (const face of requiredFaces)
+    if (!proseFaces.has([face.split("/")[0], ...face.split("/").slice(2)].join("/")))
+      errors.push(`${face}: declared material face absent from model prose address`);
   for (const { owner, id } of finishReferences)
     if (!finishDefinitions.has(id)) errors.push(`${owner}: finish ${id} has no response definition`);
   return {

@@ -446,6 +446,16 @@ while (remainingFinishes.length && finishMutations.length < 10) {
 const finishRed = finishMutations.filter((entry) => entry.red).length;
 if (finishRed !== finishMutations.length)
   result.errors.push(`unselected finish resolution mutations red ${finishRed}/${finishMutations.length}`);
+const faceSource = fs.readFileSync(path.join(root, "docs/models/005-everyday-objects.md"), "utf8");
+const faceRows = faceSource.split(/\r?\n/).filter((line) => line.startsWith("@material-face "));
+if (!faceRows.length) throw Error("empty model face address mutation population");
+const selectedFace = faceRows[randomInt(faceRows.length)];
+const renamedFace = selectedFace.replace(/\/([a-z][a-z0-9-]*)$/, "/unresolved-face");
+if (renamedFace === selectedFace) throw Error("selected model face declaration unchanged");
+const faceFindings = objectSurfaceBindings(root, inventory(root), materialText,
+  faceSource.replace(selectedFace, renamedFace)).errors;
+const faceRed = faceFindings.some((error) => error.includes("declared material face absent from model prose address"));
+if (!faceRed) result.errors.push("unselected model face mutation remained green");
 console.log(
   JSON.stringify(
     {
@@ -470,6 +480,9 @@ console.log(
       },
       unselectedFinishMutations: { population: surfaceRows.length,
         mutations: finishMutations.length, red: finishRed, results: finishMutations },
+      unselectedFaceMutation: { population: faceRows.length, mutations: 1,
+        red: faceRed ? 1 : 0, first: faceFindings.find((error) =>
+          error.includes("declared material face absent from model prose address")) || null },
     },
     null,
     2,

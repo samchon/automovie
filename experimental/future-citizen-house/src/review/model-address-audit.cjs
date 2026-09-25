@@ -2,6 +2,7 @@
 // must name the same population. Validation never writes either population.
 const fs = require("node:fs");
 const path = require("node:path");
+const { randomInt } = require("node:crypto");
 const { inventory } = require("./model-inventory.cjs");
 
 const root = path.resolve(__dirname, "../..");
@@ -111,21 +112,31 @@ function audit(overrides = new Map()) {
 }
 
 function fixture() {
-  const cases = [
-    ["003-service-fixtures", "`rim/upper/edge/underside`, `zone-0..3", "`zone-0..3"],
-    ["003-service-fixtures", "@inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe", "@inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe, badge"],
-    ["001-seating-and-work", "@inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2", "@inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1"],
-  ];
-  let red = 0;
-  for (const [name, before, after] of cases) {
+  /** @type {Array<{name:string,line:string,kind:string}>} */
+  const candidates = [];
+  for (const name of files) {
     const source = fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
-    if (!source.includes(before)) throw Error(`address fixture source absent: ${before}`);
-    const changed = source.replace(before, after);
-    const result = audit(new Map([[name, changed]]));
-    if (!result.errors.length) throw Error(`address fixture remained green: ${before}`);
-    red++;
+    for (const line of source.split(/\r?\n/))
+      if (/^@(address-state|inventory)\s+[^:]+:\s*\S/.test(line))
+        candidates.push({ name, line, kind: line.startsWith("@address-state") ? "address" : "inventory" });
   }
-  return { mutations: cases.length, red };
+  if (!candidates.length) throw Error("empty model state-address mutation population");
+  const remaining = [...candidates];
+  const sampled = [];
+  while (remaining.length && sampled.length < 10)
+    sampled.push(remaining.splice(randomInt(remaining.length), 1)[0]);
+  const results = [];
+  for (const candidate of sampled) {
+    const source = fs.readFileSync(path.join(root, "docs/models", `${candidate.name}.md`), "utf8");
+    const changed = source.split(/\r?\n/).filter((line) => line !== candidate.line).join("\n");
+    if (changed === source) throw Error(`${candidate.name}: selected ${candidate.kind} row unchanged`);
+    const findings = audit(new Map([[candidate.name, changed]])).errors;
+    results.push({ owner: candidate.name, kind: candidate.kind, red: findings.length > 0,
+      first: findings[0] || null });
+  }
+  const red = results.filter((entry) => entry.red).length;
+  if (red !== results.length) throw Error(`random model address mutations red ${red}/${results.length}`);
+  return { population: candidates.length, mutations: results.length, red, results };
 }
 
 if (require.main === module) {
