@@ -142,7 +142,7 @@ export const test_subject_canthal_tilt_basis_preparation = (): void => {
         indices: globeIndices,
       },
       centre,
-      half: [0.5, 0.3],
+      half: [0.35, 0.15],
       resolution: 0.002,
       band: b,
     });
@@ -181,7 +181,7 @@ export const test_subject_canthal_tilt_basis_preparation = (): void => {
     skin: "skin",
     globe: "globe",
     eyes: ["eye"],
-    half: [0.5, 0.3] as [number, number],
+    half: [0.35, 0.15] as [number, number],
     resolution: 0.002,
     band: b,
     corners: [{ label: "eye", shape: {} }],
