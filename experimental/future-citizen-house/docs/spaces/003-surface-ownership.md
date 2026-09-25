@@ -27,7 +27,7 @@
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 단일 직사각형 외피가 내부 방·층 경계를 소비하도록 하며 화면을 위해 고정 그래프를 바꾸지 않는다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d ground floor에서 upper ceiling까지 단일 house 외주를 두고 창의 room·storey 귀속은 기존 cell에서 받는다. C/O의 관찰면 구분과 추후 materials 결합은 room·connector·본채 체적을 바꾸지 않는다. v-096의 설계 판정은 실물 통행·성능이나 최신 GPU 외관의 인증이 아니다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 각 입면이 구조 return·창호·shade·노출 마감 면의 안정 주소를 맡고 층·방과 최종 면을 중복 생성하지 않는 배정을 소비한다. finish 결합은 materials가 정한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 front/rear/left/right/roof는 전체 입면이고 floor/ceiling 노출 면은 층, 외벽 내측 면은 방에 남는다. 물체 형상·배치와 재료 결합은 후속 분기로 이관할 대상이며 현재 문자열은 임시 값이다. 모든 현행 발광 element도 후속 part·instance·system emitter의 대응 없이는 퇴역하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 front/rear/left/right/roof는 전체 입면이고 floor/ceiling 노출 면은 층, 외벽 내측 면은 방에 남는다. 물체 형상·배치와 재료 결합은 후속 분기로 이관할 대상이며 현재 문자열은 임시 값이다. 모든 현행 발광 element도 후속 part·instance·system emitter의 대응 없이는 퇴역하지 않는다.
 -->
 
 [house](001-citizen-house.md#citizen-house-space)의 외피는 [전면](#front-face), [후면](#rear-face), [좌측](#left-face), [우측](#right-face), [지붕](#roof-face)의 다섯 완결 표면이다. 각 면은 하나의 owner가 모든 구조 return·개구·틀·shade·노출 마감 geometry의 안정 주소를 소유한다. 그 주소의 finish 결합은 materials가 결정하고 입면 owner는 결정된 id를 운반한다. 작성자와 source 파일은 [분해 선언](../settings/003-spatial-basis.md#surface-decomposition)을 따른다. 개구부 H2는 같은 입면 내부의 주소이며 작성자를 분할하지 않는다.

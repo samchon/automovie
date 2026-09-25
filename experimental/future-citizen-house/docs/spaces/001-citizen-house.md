@@ -28,7 +28,7 @@
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 집 수준에서는 한 본채 아래 두 층을 두고 그 사이 통행을 single-stair로 한정하며 중정·브리지·추가 계단과 복층 거실을 배제한다. 세부 room 연결과 curtainwall 대응은 링크된 설계와 컴파일 산출물의 별도 검사에 남겨 이 조립 문장만으로 새 트리의 전체 실현을 승인하지 않는다.
 @evidenceReview settings/001-production.md#delivery-scope #e314261 재사용할 집의 공간 범위를 citizen-site, house, 두 storey와 그 안의 방으로 배정한다. 별동이나 추가 체적을 만드는 납품으로 확장하지 않으며 외피와 실내를 같은 본채의 구성으로 유지한다.
 @evidenceReview settings/001-production.md#governing-aim #e9869fc 1층과 2층 partition 및 단일 계단을 집 조립의 직접 입력으로 삼아 현관 이후의 생활 동선을 보존한다. 외관을 꾸미기 위해 추가 계단이나 분리된 체적을 허용하는 조립이라면 이 지배 목적을 소비한 현재 관계가 성립하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 입면·층·방의 건축 면 주소와 물체 prototype·instance·발광 과정·finish 결합의 다른 owner를 읽었다. 현행 메시 교체는 모든 기존 물체와 발광 element를 후속 part·instance 및 해당 emitter에 대응시키는 조건 뒤에만 일어나며 이 집 H2는 건축 공간 관계만 연결한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 입면·층·방의 건축 면 주소와 물체 prototype·instance·발광 과정·finish 결합의 다른 owner를 읽었다. 현행 메시 교체는 모든 기존 물체와 발광 element를 후속 part·instance 및 해당 emitter에 대응시키는 조건 뒤에만 일어나며 이 집 H2는 건축 공간 관계만 연결한다.
 @evidenceExcludeReview settings/001-production.md#module-boundary #6450145 세 spaces 파일의 포함 계층, clear 경계, opening·계단·입면 및 관찰 도출을 모두 대조했으며 어느 결정도 CJS나 ESM을 공간 입력으로 삼지 않는다. stage-one-verification이 컴파일 뒤의 검사를 요구하는 사실도 모듈 로더의 선택은 아니므로, 이 foundation target의 직접 소비는 공간 population 밖의 실행 source와 viewer에 남는다.
 @evidenceExcludeReview settings/001-production.md#settings-coverage-map #eb1d6cc 설정 소유 지도가 방·문·외피를 spaces에, 물체 형상을 models에, 배치를 instances에 배정하고 현재 건축 source·viewer와 후속 이관 상태를 구분한 문장을 확인했다. spaces population은 납품 범위·좌표·층 그래프·외피의 실제 H2를 소비하고 물체 배치 결정을 가져오지 않으므로 이 지도 자체를 공간 사실로 중복 인용하지 않는다.
 -->
@@ -46,7 +46,7 @@
 @evidence settings/003-spatial-basis.md#coordinate-datum 본채와 같은 metre·Y-up 좌표에서 site bounds와 지면·tread 높이를 정하고 현관 floor datum을 소비한다. reference 픽셀을 측량 치수로 사용하지 않는다.
 @evidence settings/004-observation.md#accessibility-products 세 단차로 구성한 도착 경로를 실물 무장애 인증으로 보고하지 않는 공간 설계상의 경계를 소비한다. 키보드나 음성 제품의 구현 책임을 대지 geometry의 통과로 대신하지 않는다.
 @evidenceReview settings/001-production.md#delivery-scope #e314261 site의 15.60×17.00m 안에 집·앞마당과 임시 작업 예약면을 배정했다. 배수망은 집수구 접속 밖을 납품하지 않아 작은 대지라는 범위를 주변 기반시설로 확대하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #6cf0054 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다. 현재 건축 source의 이전 계측 이력과 이 설계 좌표를 구분하고 전체 새 트리 판정은 별도로 둔다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #2227bc8 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다. 현재 건축 source의 이전 계측 이력과 이 설계 좌표를 구분하고 전체 새 트리 판정은 별도로 둔다.
 @evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 세 단차와 flush 격자를 정하면서도 무장애 인증·주행 하중을 미검증으로 명시했다. 물리적 도착을 그렸다는 사실로 viewer의 키보드 대안이나 비시각 동등성을 인증하지 않는다.
 -->
 

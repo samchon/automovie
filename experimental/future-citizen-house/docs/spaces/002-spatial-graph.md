@@ -22,10 +22,10 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외곽 합계, 층간 구멍을 뺀 바닥, 내측 유효 면적을 새 산출물에서 구분하도록 해 서로 다른 면적을 같은 값으로 보고하는 반례를 드러낸다. 공유 datum의 containment·slab·창호 대응은 전수 검증의 질문과 함께 읽히며 실제 결과는 아직 unverified다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 좌표 기준의 11×12m 두 층과 약 250㎡ 목표를 외곽·구조대에 대조했으며 부모는 정확한 net 250㎡를 요구하지 않는다. 264㎡ gross와 미측정 유효 면적을 분리하면 이 단계에서 부모 규모를 고치거나 별도 map 경계를 요구할 모순은 없다.
 @evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 고정된 한 직사각형의 외곽 안에 두 floor datum을 두며 면적을 채우기 위한 별동이나 높이를 늘리는 별도 보이드를 설계하지 않는다. 방 연결과 실제 유효 면적까지 이미 통과했다는 주장은 이 매스 결정에 포함하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #6cf0054 1층 y=0을 그대로 쓰고 같은 축에서 외곽과 내측 clear face 및 2층 y=3.20을 저작한다. 좌표 관례가 준 역할 안에서 정확한 공간 치수를 정하며, 구현된 건축 source의 이전 계측 이력과 제작 수치의 근거·현재 트리의 전체 판정을 혼동하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum #2227bc8 1층 y=0을 그대로 쓰고 같은 축에서 외곽과 내측 clear face 및 2층 y=3.20을 저작한다. 좌표 관례가 준 역할 안에서 정확한 공간 치수를 정하며, 구현된 건축 source의 이전 계측 이력과 제작 수치의 근거·현재 트리의 전체 판정을 혼동하지 않는다.
 -->
 
-**상태: review 선언을 유지한 상류 재판정 중이다.** [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을 따른다. 이 문서의 치수는 reference 픽셀의 역산값이 아닌 저작 결정이다. 고정 그래프의 노드와 연결 의미를 유지하고, 현재 source는 이 값을 plan과 완결 표면 owner로 구현했다. 이전 독립 판정은 컴파일 결과와 GPU 화면을 관찰했으나 현재 수정 트리의 전체 관찰 분모와 production 완료는 `unverified`다.
+**상태: v-112 독립 판정에서 settings·spaces·spaceSources의 review 자격이 재확인됐다.** [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을 따른다. 이 문서의 치수는 reference 픽셀의 역산값이 아닌 저작 결정이다. 고정 그래프의 노드와 연결 의미를 유지하고, 현재 source는 이 값을 plan과 완결 표면 owner로 구현했다. 이전 독립 판정은 컴파일 결과와 GPU 화면을 관찰했으나 현재 수정 트리의 전체 관찰 분모와 production 완료는 `unverified`다.
 
 본채 외곽 x=-5.50..5.50, z=-6.00..6.00을 유지한다. 외벽 0.24m의 기준 내측은 x=-5.26..5.26, z=-5.76..5.76이다. 1층 바닥 y=0, 2층 바닥 y=3.20, 각 층 천장 y=2.90/6.10, 지붕 구조 상단 y=6.40으로 정한다. 내벽 두께는 0.18m다. 0.30m의 층간 구조대와 2.90m의 실내 높이는 계단과 창호 head가 함께 닿는 저작 입력이며 구조 안전 인증값이 아니다.
 
@@ -35,7 +35,7 @@
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 1층 구조와 연속 바닥·천장을 층 owner 하나에 배정하고 개별 room이 그 최종 수평 면을 다시 만들지 못하게 한다. 이 책임은 실제 모듈 존재나 surface 검증 완료를 뜻하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 1층 owner는 연속 바닥·천장 노출 면 주소와 구조 partition을, room owner는 내측 벽면 주소를 맡는다. materials가 finish 결합을 결정하고 현행 material 문자열은 임시 값이다. 방 물체와 모든 발광 element의 퇴역에는 각각 model part 및 필요한 system emitter 대응을 요구하므로 이 H2가 배치·발광을 소유하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 1층 owner는 연속 바닥·천장 노출 면 주소와 구조 partition을, room owner는 내측 벽면 주소를 맡는다. materials가 finish 결합을 결정하고 현행 material 문자열은 임시 값이다. 방 물체와 모든 발광 element의 퇴역에는 각각 model part 및 필요한 system emitter 대응을 요구하므로 이 H2가 배치·발광을 소유하지 않는다.
 -->
 
 <!--
@@ -65,7 +65,7 @@ storey id ground-storey는 house의 자식이며 [매스와 층 datum](#mass-and
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition 상층 slab·계단 구멍 및 연속 수평 마감은 upper owner가 맡고 room은 내측 벽만 맡는 배정을 소비한다. 물체 fit-out은 models와 instances로 분리하고 roof의 실외 하부와 상층 실내 ceiling을 섞지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 upper-storey는 연속 수평 노출 면과 구조 partition, 계단 바닥 개구의 주소를 제공한다. materials가 finish 결합을 결정하고 현재 문자열은 임시 값이다. room은 내측 벽면만 맡고 현행 가구·등기구 메시의 퇴역에는 model part·instance·발광 시 system emitter를 모두 대조한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 upper-storey는 연속 수평 노출 면과 구조 partition, 계단 바닥 개구의 주소를 제공한다. materials가 finish 결합을 결정하고 현재 문자열은 임시 값이다. room은 내측 벽면만 맡고 현행 가구·등기구 메시의 퇴역에는 model part·instance·발광 시 system emitter를 모두 대조한다.
 -->
 
 <!--
@@ -229,7 +229,7 @@ room id는 common-room, parent는 [ground-storey](#ground-level)다. clear cell�
 
 <!--
 @evidence settings/003-spatial-basis.md#surface-decomposition powder 방 owner의 내측 벽면과 독립 core cell을 연결한다. 세면대·변기·청소 수납의 prototype과 배치는 각각 models·instances가 맡으며 세탁 기능은 상층 설비실에 남는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #4264ae2 powder 방은 내측 벽면의 안정 주소만 제공한다. 세면대·변기·청소 수납의 형상·배치는 models·instances, finish 결합은 materials가 맡는다. 현재 방 source의 기구 메시와 material 문자열은 이관 전 임시 값이며 element별 후속 part·instance 대응 없이는 지울 수 없다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 powder 방은 내측 벽면의 안정 주소만 제공한다. 세면대·변기·청소 수납의 형상·배치는 models·instances, finish 결합은 materials가 맡는다. 현재 방 source의 기구 메시와 material 문자열은 이관 전 임시 값이며 element별 후속 part·instance 대응 없이는 지울 수 없다.
 -->
 
 <!--
@@ -238,8 +238,8 @@ room id는 common-room, parent는 [ground-storey](#ground-level)다. clear cell�
 -->
 
 <!--
-@evidence principles/core/common.md#declared-basis ground-program의 powder room과 세면·변기·청소 수납 기능을 전면 화면 우측의 cell에 담았다. 표면 분해는 이 방의 내측 벽 finish만 배정하며 상층 설비실의 세탁기를 여기로 옮기지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb powder room과 세면·변기·청소 수납 기능은 ground-program에서 받고, 전면 화면 우측 cell은 이 공간 설계가 정한다. 개정된 surface-decomposition에서는 방 벽 finish만 받아 물체의 형상·배치 소유권을 혼동하지 않는다.
+@evidence principles/core/common.md#declared-basis ground-program의 powder room과 세면·변기·청소 수납 기능을 전면 화면 우측의 cell에 담았다. 표면 분해는 이 방의 내측 벽면(lining) 형상·안정 주소만 배정하며 상층 설비실의 세탁기를 여기로 옮기지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb powder room과 세면·변기·청소 수납 기능은 ground-program에서 받고, 전면 화면 우측 cell은 이 공간 설계가 정한다. 개정된 surface-decomposition에서는 방 내측 벽면(lining)의 형상·안정 주소만 받아 물체의 형상·배치 소유권을 혼동하지 않는다.
 @evidence principles/core/common.md#scope-preservation powder를 현관 직결의 독립 위생 공간으로 두고 세면·변기·청소 수납 접근을 남긴다. 다른 방으로 가는 통과실로 사용해 프라이버시나 필수 목적지의 접근을 없애지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 세면·변기·청소 수납에 접근할 독립 위생 공간과 현관 직결을 남긴다. 다른 방의 통과실로 사용하거나 core의 불투명 외벽 뒤에 공간 없이 이름만 두는 방식으로 powder의 목적을 축소하지 않는다.
 @evidence principles/core/common.md#substantive-completion powder-utility의 parent와 x/z cell, 직접 진입문과 목적지가 결정됐다. 후속 설비 배치가 이 core의 외곽을 먼저 발명해야 하는 상태가 아니다.
@@ -1612,4 +1612,4 @@ PV는 [캐노피 span](003-surface-ownership.md#roof-face)을 받아 x 방향 �
 | 전체 관찰 분모 | setting, 노출 입면·모서리·지붕·하부·개구부·출입구와 모든 공간의 threshold·4 안쪽 모서리·중심 4방위, 두 L자 방의 추가 모서리 |
 | reference 추가 질문 | 다섯 장을 각각 현재 실물 3D 화면과 대조, 절개는 검사로 표시 |
 
-위 표는 현재 산출물의 검사 계획이며 완료 계정이 아니다. 기존 독립 판정이 건축 source와 GPU 화면의 일부 질문을 관찰했지만, 이 수정 트리에서 표의 각 질문을 실제로 지급한 범위와 전체 production 완료는 unverified다. 조정자의 정정에 따라 stage는 review로 유지하며 열린 evidence·구현·시각 검사를 정해진 경로로 다시 닫는다. 이 수정안의 재검토는 [역할 분담](../settings/001-production.md#roles-and-accessibility)과 [단계 유지 권한](../settings/001-production.md#runtime-and-restart)에 따라 독립 read-only reviewer의 현재 시각 판정 전까지 완료되지 않는다. [프로그램 경계](../settings/002-household.md#program-boundary)가 구분한 실물 사용성·구조·에너지·대피 인증을 이 공간 검사로 대신하지 않는다.
+위 표는 현재 산출물의 검사 계획이며 완료 계정이 아니다. 기존 독립 판정이 건축 source와 GPU 화면의 일부 질문을 관찰했지만, 이 수정 트리에서 표의 각 질문을 실제로 지급한 범위와 전체 production 완료는 unverified다. 조정자의 정정에 따라 stage는 review로 유지하며 열린 evidence·구현·시각 검사를 정해진 경로로 다시 닫는다. 상류 세 층은 v-112의 독립 read-only reviewer가 GPU 화면까지 대조해 review 자격을 재확인했다. 물체 source 이관과 전체 production 완료 판정은 별도 단계다. [프로그램 경계](../settings/002-household.md#program-boundary)가 구분한 실물 사용성·구조·에너지·대피 인증을 이 공간 검사로 대신하지 않는다.

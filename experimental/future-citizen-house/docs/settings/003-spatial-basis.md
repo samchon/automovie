@@ -21,7 +21,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 앞·뒤·기준 바닥과 화면 좌우의 관계가 고정되어 같은 집을 거울상으로 재구성할 위험을 줄인다. 현재 코어가 -X라는 명시는 좌표 관례가 실제 외피 landmark와 만나는 지점을 답한다.
 -->
 
-**상태: review 선언을 유지한 상류 재판정 중이다.** 세계 단위는 m이며 오른손 Y-up 좌표다. +X는 평면 기준 우측, +Z는 후면, 전면은 -Z이며 1층 바닥은 y=0을 기준으로 한다. 정지 library이며 납품 시간축과 fps는 없다. 뷰어의 조작 시간은 초를 쓰되 건물의 상태를 자동 진행시키지 않는다. 약 11×12m 두 층과 약 250㎡라는 목표를 따른다. gross와 유효 면적을 혼용하지 않으며 reference pixel로 치수를 역산하지 않는다.
+**상태: v-112 독립 판정에서 settings·spaces·spaceSources의 review 자격이 재확인됐다.** 세계 단위는 m이며 오른손 Y-up 좌표다. +X는 평면 기준 우측, +Z는 후면, 전면은 -Z이며 1층 바닥은 y=0을 기준으로 한다. 정지 library이며 납품 시간축과 fps는 없다. 뷰어의 조작 시간은 초를 쓰되 건물의 상태를 자동 진행시키지 않는다. 약 11×12m 두 층과 약 250㎡라는 목표를 따른다. gross와 유효 면적을 혼용하지 않으며 reference pixel로 치수를 역산하지 않는다.
 
 전면 바깥(-Z)에서 +Z를 보는 +Y-up 카메라의 화면 오른쪽은 -X다. 평면 우측과 관찰자 화면 우측을 같은 말로 쓰지 않는다. 외피의 “우측 불투명 코어”와 입면 좌우 이름은 reference 전면 관찰 화면을 기준으로 하며, 따라서 코어는 -X 쪽이다.
 
@@ -137,7 +137,7 @@
 @evidence principles/core/common.md#declared-basis 완결 시각 표면 하나를 한 저작자가 소유하라는 사용자 지시를 채택한다.
 @evidence principles/core/common.md#scope-preservation 네 전체 입면·지붕·층·계단·개별 방·대지를 독립 완결 표면으로 보존해 같은 면을 나눠 칠하지 않는다.
 @evidence principles/core/common.md#substantive-completion 이 H2가 구체 표면별 저작자와 source 모듈 배정을 소유하고 기존 한 source 파일의 이름만 바꾸는 완료를 거부한다.
-@evidence principles/core/settings.md#fact-status 이 배정은 기존 방 source의 임시 물체·발광 메시와 건축·방 source의 임시 material 문자열을 최종 models·instances·systems·materials owner와 구분하며 새 경계의 독립 승인은 아직 없다.
+@evidence principles/core/settings.md#fact-status 이 배정은 기존 방 source의 임시 물체·발광 메시와 건축·방 source의 임시 material 문자열을 최종 models·instances·systems·materials owner와 구분하며 상류 소유 경계는 v-112에서 독립 재판정을 통과했고 물체·재료의 후속 source 이관은 미완료다.
 @evidence principles/core/settings.md#source-support 표면별 소유는 사용자 저작 절차이며 자동으로 geometry 품질을 보장한다는 외부 성능 주장으로 쓰지 않는다.
 @evidence principles/core/settings.md#capability-boundary 표면 owner의 편집 권한은 제작 책임이며 건물 부재의 동작 능력이 아니다. 배정된 저작자는 유리·가구의 상태 제약을 해당 설정에서 받아야 한다.
 @evidence principles/core/settings.md#constraint-sufficiency 문자열 그룹만 선언한 채 분해 완료라고 하지 않고 실제 모듈 구현과 독립 판정을 요구한다.
@@ -152,7 +152,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e main author와 source 경로는 저작 책임의 주소다. 방·입면 및 겸용 등기구가 실제로 읽히는지는 공간 그래프·외피·model part·system emitter의 후속 실현과 GPU 관찰에 달려 있다. 이 H2의 분배표가 시각 판정은 아니다.
 -->
 
-**권한: 사용자 직접 지시와 분기 계약.** 완결된 시각 표면의 단독 저작은 사용자 지시다. 물체 형상·표면 주소를 models, 배치를 instances, 발광 과정을 systems, finish 결합을 materials에 나누는 근거는 [분기 소유 표](../../.agents/skills/source-authoring/design-branches.md)와 v-097 F1 상류 수리 지시다. 아래 배정은 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 건축 owner와 구현 모듈을 정한다. 현행 source 보존은 GPU 관찰 경로를 유지하기 위한 임시 결정이다. 이관 수정은 독립 재판정 전이다.
+**권한: 사용자 직접 지시와 분기 계약.** 완결된 시각 표면의 단독 저작은 사용자 지시다. 물체 형상·표면 주소를 models, 배치를 instances, 발광 과정을 systems, finish 결합을 materials에 나누는 근거는 [분기 소유 표](../../.agents/skills/source-authoring/design-branches.md)와 v-097 F1 상류 수리 지시다. 아래 배정은 네 전체 입면, roof/canopy, 두 층, 단일 계단, 개별 room, site의 단독 건축 owner와 구현 모듈을 정한다. 현행 source 보존은 GPU 관찰 경로를 유지하기 위한 임시 결정이다. 상류 소유 수정은 v-112 독립 재판정을 통과했고 물체·재료 source 이관은 아직 미완료다.
 
 **상태: 기존 건축 표면 source와 평벽 부착 현관 선반 source는 구현됐고 물체 소유권·재료 결합 이관은 미완료다.** [1단계 그래프](../spaces/002-spatial-graph.md)를 소비한다. 현관의 우편·충전 기능은 벽을 파지 않은 선반으로 실현하며 건축 niche 구멍이나 lining은 없다. 현재 건축·방 source에 직접 적힌 material 문자열은 materialSources의 승인된 finish 결합이 아닌 임시 값이다. 현재 저작자는 main author 한 명이고 독립 reviewer는 쓰기 권한이 없다. 향후 fan-out을 하더라도 완결 건축 표면 하나는 한 명에게 통째로 배정한다. 파일명이나 임시 메시 존재를 이관 완료로 세지 않는다.
 
