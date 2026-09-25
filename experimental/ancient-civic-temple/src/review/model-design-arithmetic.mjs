@@ -73,4 +73,4 @@ const tubeRadius = n(scroll, /중심선 반지름 [\d.]+m·관 반지름 ([\d.]+
 const boxExtra = n(scroll, /묶음 0\.288×\(0\.03√3\+([\d.]+)\)/);
 near("three-roll tie envelope width", 2 * (tieRadius + tubeRadius), boxExtra);
 near("three-roll tie touches paper", tieRadius - tubeRadius, rollRadius);
-console.log("checked source H2 arithmetic and contact claims");\n
+console.log("checked source H2 arithmetic and contact claims");
