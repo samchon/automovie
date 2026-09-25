@@ -43,13 +43,42 @@ export class TempleWareModels {
     }
     add("basket",m);
 
-    m = new ObjectMesh();
+    const rolledSheet = (mesh: ObjectMesh, yy: number, zz: number, part = "sheet"): ObjectMesh => mesh
+      .rod(part,{x:-0.14,y:yy,z:zz},{x:0.14,y:yy,z:zz},0.03,16)
+      .rod(part,{x:-0.144,y:yy,z:zz},{x:-0.14,y:yy,z:zz},0.012,12)
+      .rod(part,{x:0.14,y:yy,z:zz},{x:0.144,y:yy,z:zz},0.012,12);
     // A single rolled document, with a visible tie and end cores.
-    m.rod("sheet",{x:-0.14,y:0,z:0},{x:0.14,y:0,z:0},0.03,16)
-      .rod("sheet",{x:-0.144,y:0,z:0},{x:-0.14,y:0,z:0},0.012,12)
-      .rod("sheet",{x:0.14,y:0,z:0},{x:0.144,y:0,z:0},0.012,12)
-      .loop("tie",0,0,0,0.0325,0.0025,"yz",16);
+    m = rolledSheet(new ObjectMesh(),0,0).loop("tie",0,0,0,0.0325,0.0025,"yz",16);
     add("scroll",m);
+    // Three touching rolls share one rounded triangular outer cord.
+    const centres: readonly (readonly [number, number])[] = [[0,-0.03],[0,0.03],[0.03*Math.sqrt(3),0]];
+    m = new ObjectMesh();
+    for (const [index,[yy,zz]] of centres.entries()) rolledSheet(m,yy,zz,`sheet-${index+1}`);
+    const normal = (a: readonly [number, number], b: readonly [number, number]): readonly [number, number] => {
+      const dy = b[0]-a[0], dz = b[1]-a[1], length = Math.hypot(dy,dz);
+      return [-dz/length,dy/length];
+    };
+    const tiePath: { x: number; y: number; z: number }[] = [];
+    for (let i=0;i<centres.length;i++) {
+      const current = centres[i]!, previous = centres[(i+centres.length-1)%centres.length]!,
+        next = centres[(i+1)%centres.length]!;
+      const start = normal(previous,current), end = normal(current,next);
+      const from = Math.atan2(start[1],start[0]);
+      let to = Math.atan2(end[1],end[0]);
+      while (to >= from) to -= 2*Math.PI;
+      for (let step=0;step<=16;step++) {
+        const angle = from+(to-from)*step/16;
+        tiePath.push({x:0,y:current[0]+0.0325*Math.cos(angle),z:current[1]+0.0325*Math.sin(angle)});
+      }
+    }
+    tiePath.push(tiePath[0]!);
+    let uStart = 0;
+    for (let i=0;i<tiePath.length-1;i++) {
+      const a=tiePath[i]!, b=tiePath[i+1]!;
+      m.rod("tie",a,b,0.0025,8,uStart);
+      uStart += Math.hypot(b.y-a.y,b.z-a.z);
+    }
+    add("scroll-bundle",m);
     // Open sheet is a distinct state and mesh, not a rotated rolled scroll.
     m = new ObjectMesh().box("sheet",0,0,0,0.25,0.002,0.35)
       .rod("sheet",{x:-0.125,y:0.02,z:-0.184},{x:0.125,y:0.02,z:-0.184},0.02,16)

@@ -58,7 +58,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `fixtures#altar`, `#niche`, `#offering-table` | 석재 `step`, `top`, `support`, `plinth`, `body`, `recess`, `cap`, `trestle` | 기본 평면 투영; 각 독립 석판과 오목한 칸의 단단한 모서리에서 이음. |
 | `fixtures#display-shelf`, `#desk`, `#stool`, `#scroll-shelf`, `#chest` | 목재 `top`, `board`, `frame`, `leg`, `stretcher`, `divider`, `side`, `seat`, `body`, `lid` 긴 면 | 각 판은 가장 긴 로컬 모서리를 U로, 정방 다리는 +Y를 U로 전개한다. 길이가 같으면 +X를 먼저 택한다. 금속 `strap`·걸쇠는 기본 투영. 각 독립 판·다리 끝에서 이음. |
 | `wares#storage-jar`, `#carry-jar`, `#small-vessel`, `#offering-bowl`, `#basket` | 항아리·그릇·바구니 원형 몸체와 손잡이 | Y축 회전체와 원환 전개; 손잡이 베지어 관은 아래 부착점에서 위 부착점까지 중심선 호길이 U와 관 둘레 호길이 V. 바구니 띠는 각 원형 띠의 호길이 U, 세로 살은 +Y를 U. +X 시접·각 손잡이 부착점에서 이음. |
-| `wares#scroll` | `sheet`, `tie` | 말린 종이·끈은 X축 원통/YZ 원환 전개, 펼친 종이는 로컬 +Z 긴 방향을 U, +X를 V로 하는 평면 투영; 종이 끝과 끈 시접에서 이음. |
+| `wares#scroll` | `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie` | 말린 종이·끈은 X축 원통/YZ 원환 전개, 펼친 종이는 로컬 +Z 긴 방향을 U, +X를 V로 하는 평면 투영; 종이 끝과 끈 시접에서 이음. |
 | `landscape#cypress`, `#broad-tree`, `#grass-tuft` | 줄기·가지·잎·풀 | 줄기와 가지는 각 축의 원통 전개, 잎과 풀의 앞뒷면은 기본 평면 투영; 줄기·가지 +X 시접과 각 잎·풀의 외곽에서 이음. |
 | `landscape#neighbor-house` | `roof`, `wall`, `plinth`, `recess` | 지붕 가로 +X를 U, 변형 A는 처마→용마루 경사 방향, 변형 B는 앞 처마→높은 뒤 처마 방향을 V로 둔다. 벽·기단·문창 안쪽은 기본 평면 투영; 지붕 경사·건물 모서리·개구부에서 이음. |
 
@@ -109,7 +109,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `wares#storage-jar`, `wares#carry-jar`, `wares#small-vessel` | `body`, `handle` | `terracotta` | 회전·관 |
 | `wares#offering-bowl` | `bowl` | `dark-metal` | 회전 |
 | `wares#basket` | `wall`, `rim`, `floor` | `wicker` | 회전 |
-| `wares#scroll` | `sheet` | `parchment` | 회전·평면 |
+| `wares#scroll` | `sheet`, `sheet-1`, `sheet-2`, `sheet-3` | `parchment` | 회전·평면 |
 | `wares#scroll` | `tie` | `rope-fibre` | 관 |
 | `portable#bench` | `seat`, `pier` | `limestone` | 평면 |
 | `portable#portable-lamp` | `foot`, `stem`, `dish` | `dark-metal` | 회전 |

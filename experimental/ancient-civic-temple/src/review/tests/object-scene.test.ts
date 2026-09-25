@@ -21,5 +21,5 @@ void test("every inventoried object role reaches the compiled viewer scene as a 
     assert.ok(model.parts.every((part) => part.mesh.positions.length >= 9), `${node} has an empty part`);
   }
   assert.equal(scene.placements.filter(({ node }) => node.startsWith("temple/temple.object.")).length, roles.length);
-  assert.equal(new Set(roles.map(({ prototype }) => prototype)).size, 35);
+  assert.equal(new Set(roles.map(({ prototype }) => prototype)).size, 36);
 });

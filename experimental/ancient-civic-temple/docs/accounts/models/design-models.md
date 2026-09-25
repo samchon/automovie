@@ -13,7 +13,7 @@
 ## 표현 층 완결 결산 {#representation-completion}
 
 <!--
-@evidence obligations/design/models.md#model-representation-completion 52 H2 중 49 원형의 part·부재 대응과 134 표면 결속을 결산하고, 구조적 유효성(현재 modelSources 미활성·unverified)과 의미적 완결(원점·점유·접합·실패 조건의 문서 검사)을 따로 보고한다.
+@evidence obligations/design/models.md#model-representation-completion 공통 규칙 3 H2를 제외한 원형 H2 전체의 part·부재 대응과 표면 결속을 결산하고, 구조적 유효성(현재 modelSources 미활성·unverified)과 의미적 완결(원점·점유·접합·실패 조건의 문서 검사)을 따로 보고한다.
 -->
 
 표현 층은 원형을 정의하는 49개 H2가 part와 표면 목록, 부재 대응 주소, 접촉면·빈 공간·점유 범위를 적어 결산된다. 이동식 소품 13 H2에는 part별 X·Y·Z 표가 있고 전체 49 H2에는 한 부재 문법 검사가 돈다. scale의 세 H2는 공통 규칙을 정하므로 part를 내지 않는다. 축척 관계는 [공통 기준](../../models/scale.md#reference-scale)의 보행 포락에 대한 비율과 판정된 spaces 순치수에서 온다. 계층은 기둥→보→서까래→지붕 하부, 석단→제단→그릇, 칸 선반→두루마리, 손수레 판→축·바퀴의 받침 연쇄로 이어진다. 관절 인터페이스는 두 문짝의 `hinge.<판 ID>`뿐이고 나머지는 의도된 강체다.

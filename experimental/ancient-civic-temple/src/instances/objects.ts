@@ -155,7 +155,8 @@ export class TempleObjectInstances {
       if ((level + bay) % 4 === 0) continue;
       const x = shelf.x + (bayEdges[2 * bay]! + bayEdges[2 * bay + 1]!) / 2;
       const role = level === 0 && bay === 1 ? "stored-scroll" : `stored-scroll-${level}-${bay}`;
-      putOn(r,role,"scroll",x,shelf.z + shelfDepth,
+      const prototype = (level + bay) % 3 === 0 ? "scroll-bundle" : "scroll";
+      putOn(r,role,prototype,x,shelf.z + shelfDepth,
         "scroll-shelf","board",level);
     }
     put(r,"chest","chest",9.05,0,4.30);

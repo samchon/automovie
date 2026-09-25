@@ -14,7 +14,7 @@ const scale = documents.find(
 void test("surface grammar covers every authored prototype and every part", () => {
   const result = modelSurfaceBindingCensus(documents, scale);
   assert.equal(result.prototypes, 49);
-  assert.equal(result.parts, 134);
+  assert.equal(result.parts, 137);
   assert.equal(result.bindingRows, 57);
   assert.deepEqual(result.failures, []);
 });

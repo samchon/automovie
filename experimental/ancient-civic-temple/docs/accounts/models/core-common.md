@@ -24,7 +24,7 @@
 
 분수의 흐름·빛 반사와 등잔의 상태 변화는 systems·motions의 후속 결정이며 모델은 정지 형상만 낸다. 외벽 기단과 코핑, 문턱 바닥, 대지 지면과 먼 능선은 spaces가 이미 소유한 실체라 모델 population에 다시 들이지 않는다. 문틀이 문턱 바닥을, 이웃 외피가 포장 구획을, 창틀이 벽 void 위치를 새로 만들지 않는 것이 각 H2에서 이 경계를 지키는 방식이다.
 
-아래 표는 열 문서의 원형 H2에서는 part마다, 공통 규칙인 scale의 세 H2에서는 `공통 규칙` 요약 행으로 만드는 source 입력 색인이다. `공통 규칙`은 방출 part 이름이 아니다. 각 행은 원본 H2 링크·본문 문자 수·SHA-256을 보존하고, 값이 바뀌면 `self-check --sync-accounts`에서 기계적으로 바뀐다. self-check는 52개 H2와 134개 형상 part 주소의 정확한 일치를 검사한다. 이 색인은 빠진 설계 결정을 `0`으로 인증하지 않는다. 리뷰어와 저작자는 링크된 원본 H2의 위치·크기·단면·분할·접합을 판정하고 구현 중 빠진 선택을 찾으면 해당 H2를 먼저 고친다.
+아래 표는 열 문서의 원형 H2에서는 part마다, 공통 규칙인 scale의 세 H2에서는 `공통 규칙` 요약 행으로 만드는 source 입력 색인이다. `공통 규칙`은 방출 part 이름이 아니다. 각 행은 원본 H2 링크·본문 문자 수·SHA-256을 보존하고, 값이 바뀌면 `self-check --sync-accounts`에서 기계적으로 바뀐다. self-check는 원본 H2와 형상 part 주소 전체의 정확한 일치를 검사한다. 이 색인은 빠진 설계 결정을 `0`으로 인증하지 않는다. 리뷰어와 저작자는 링크된 원본 H2의 위치·크기·단면·분할·접합을 판정하고 구현 중 빠진 선택을 찾으면 해당 H2를 먼저 고친다.
 
 | 모델 H2 | part | 본문 문자 수 | 본문 SHA-256 |
 | --- | --- | ---: | --- |
@@ -150,7 +150,7 @@
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
-| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 10813 | `7a000ca905d1635eae081fd3106fb279e5df6f363b5485d979b1d968277c1304` |
+| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 10879 | `1e820e837c4a11cb044a60755acb044b8ae790766f02b8ae6c81354465958673` |
 | [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 628 | `135c99baf4ca72d99c21f0af68feaf505e2210cf35f15a14cb9dd87535f7896c` |
 | [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 529 | `8a4bcbd14c45e5247319a65707925b942fd32188c8a89adcf54724b8c2441889` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 1031 | `61118931e6e78ca36b1e80ae2ec7dfdb37be4c4adbfa9797feee7a855e5a66e0` |
@@ -163,8 +163,11 @@
 | [wares/basket](../../models/wares.md#basket) | `wall` | 1538 | `0cdb84dd6d2b870bf5e4c193e7c7d34fe9da3db023f2d3b19266d132a03028ad` |
 | [wares/basket](../../models/wares.md#basket) | `rim` | 1538 | `0cdb84dd6d2b870bf5e4c193e7c7d34fe9da3db023f2d3b19266d132a03028ad` |
 | [wares/basket](../../models/wares.md#basket) | `floor` | 1538 | `0cdb84dd6d2b870bf5e4c193e7c7d34fe9da3db023f2d3b19266d132a03028ad` |
-| [wares/scroll](../../models/wares.md#scroll) | `sheet` | 1435 | `f5075e804058a90cd7e4fadcac5b7259f78f299963ded2c63a63de43bf6dc02b` |
-| [wares/scroll](../../models/wares.md#scroll) | `tie` | 1435 | `f5075e804058a90cd7e4fadcac5b7259f78f299963ded2c63a63de43bf6dc02b` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet` | 1957 | `5964f969012f950319a064c6a4630176cffe0abcdfee11fbb590cc601775e23d` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet-1` | 1957 | `5964f969012f950319a064c6a4630176cffe0abcdfee11fbb590cc601775e23d` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet-2` | 1957 | `5964f969012f950319a064c6a4630176cffe0abcdfee11fbb590cc601775e23d` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet-3` | 1957 | `5964f969012f950319a064c6a4630176cffe0abcdfee11fbb590cc601775e23d` |
+| [wares/scroll](../../models/wares.md#scroll) | `tie` | 1957 | `5964f969012f950319a064c6a4630176cffe0abcdfee11fbb590cc601775e23d` |
 
 ## 작업 언어와 식별 표기 {#working-language}
 
@@ -194,9 +197,9 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | openings.md | 4 | 4429 |
 | portable.md | 13 | 7315 |
 | ritual.md | 3 | 2211 |
-| scale.md | 3 | 9776 |
-| wares.md | 6 | 5722 |
-| 합계 | 52 | 55333 |
+| scale.md | 3 | 9836 |
+| wares.md | 6 | 6168 |
+| 합계 | 52 | 55839 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

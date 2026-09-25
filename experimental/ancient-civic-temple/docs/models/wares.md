@@ -193,10 +193,16 @@ part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이�
 | --- | --- | --- | --- | --- |
 | `object.scroll` | `sheet` | X=−0.144~0.144m | Y=−0.030~0.030m | Z=−0.030~0.030m |
 | `object.scroll` | `tie` | X=−0.003~0.003m | Y=−0.035~0.035m | Z=−0.035~0.035m |
+| `object.scroll-bundle` | `sheet-1` | X=−0.144~0.144m | Y=−0.030~0.030m | Z=−0.060~0.000m |
+| `object.scroll-bundle` | `sheet-2` | X=−0.144~0.144m | Y=−0.030~0.030m | Z=0.000~0.060m |
+| `object.scroll-bundle` | `sheet-3` | X=−0.144~0.144m | Y=0.022~0.082m | Z=−0.030~0.030m |
+| `object.scroll-bundle` | `tie` | X=−0.003~0.003m | Y=−0.035~0.087m | Z=−0.065~0.065m |
 | `object.open-scroll` | `sheet` | X=−0.125~0.125m | Y=0.000~0.040m | Z=−0.204~0.204m |
 
-부재 대응: `sheet`=종이; `tie`=끈.
+세 개 묶음의 첫 종이 원통, 둘째 종이 원통, 셋째 종이 원통은 각자 닫힌 부재이고 바깥 끈이 그 셋을 감싼다.
 
-part와 표면은 `sheet`, `tie`다. 위치와 칸별 수량은 instances가 정한다.
+부재 대응: `sheet`=종이; `sheet-1`=첫 종이 원통; `sheet-2`=둘째 종이 원통; `sheet-3`=셋째 종이 원통; `tie`=끈.
+
+part와 표면은 `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie`다. 위치와 칸별 수량은 instances가 정한다.
 
 검토 판에서 끝면의 말림 심과 끈이 돌이나 나무 막대와 구별되는지 본다. 끝면이 막힌 원통, 글자가 있는 펼친 장은 실패다.
