@@ -418,6 +418,27 @@ export interface IAutoMovieHumanBodyBasis {
       boneIndices: number[];
       weights: number[];
     };
+
+    /**
+     * Soft-tissue sag under gravity after skinning, or absent for none. A
+     * vertex carries the tissue the document's rest body has over the same
+     * body with each `lean` channel at its weight, along the rest normal;
+     * its compliance is that times `gain` and the softness, `base` plus the
+     * sum of each `softness.channels` gain times the document's weight of that
+     * channel, held in `range`; it moves by compliance times the change of
+     * gravity's direction (-Y) in its skin's frame, smoothed over `sweeps`
+     * half-steps with the open boundary held.
+     */
+    sag?: {
+      lean: Record<string, number>;
+      gain: number;
+      sweeps: number;
+      softness: {
+        base: number;
+        channels: Record<string, number>;
+        range: [number, number];
+      };
+    };
   }[];
 
   /** Resident finishes; the static exporter owns texture admission. */

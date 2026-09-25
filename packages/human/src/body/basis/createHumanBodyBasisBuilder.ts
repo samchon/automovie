@@ -27,6 +27,7 @@ import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBody
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { createHumanBodySkinDetailTexture } from "./createHumanBodySkinDetailTexture";
+import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
@@ -87,6 +88,11 @@ export function createHumanBodyBasisBuilder(
   let siteColour: ReturnType<typeof createHumanBodySkinColour> | null = null;
   // the micro-relief tile and its scale over the skin's UVs, on first use
   let relief: { texture: string; turns: number } | null = null;
+  const sags = basis.surfaces.map((surface) =>
+    surface.sag === undefined
+      ? null
+      : createHumanBodySurfaceSag(surface, surface.sag),
+  );
   return (inputDocument) => {
     const document = admitHumanBodyBasisDocument(inputDocument);
     if (
@@ -294,13 +300,62 @@ export function createHumanBodyBasisBuilder(
           document.shape.macroAge ?? 0,
         );
     }
+    // gravity's change in the skin's frame moves the soft tissue; a document
+    // at the rest pose the basis was authored in hangs as authored
+    const posed =
+      (document.pose ?? []).length > 0 || (document.shoulders ?? []).length > 0;
+    const atRest = (shape: Record<string, number>) =>
+      evaluateHumanBodyShape(
+        basis,
+        humanBodyBasisWeights(basis, {
+          ...document,
+          shape,
+          pose: undefined,
+          shoulders: undefined,
+        }),
+      );
+    const restShape =
+      posed && sags.some((sag) => sag !== null) ? atRest(document.shape) : null;
     const parts = basis.surfaces.flatMap((surface, index) => {
-      const positions = skinHumanBodySurface(
+      const skinned = skinHumanBodySurface(
         shaped.surfaces[index],
         surface.skin,
         basis.joints,
         transforms,
       );
+      const sag = sags[index];
+      const positions = (() => {
+        if (sag === null || restShape === null) return skinned;
+        const declared = surface.sag!;
+        const lean = atRest({ ...document.shape, ...declared.lean });
+        // the skin's rest down after the pose: each vertex's transform is
+        // rigid, so a point a centimetre below it lands a centimetre along it
+        const below = skinHumanBodySurface(
+          shaped.surfaces[index].map((value, i) =>
+            i % 3 === 1 ? value - 0.01 : value,
+          ),
+          surface.skin,
+          basis.joints,
+          transforms,
+        );
+        const softness = Math.min(
+          declared.softness.range[1],
+          Math.max(
+            declared.softness.range[0],
+            Object.entries(declared.softness.channels).reduce(
+              (total, [id, gain]) => total + gain * (document.shape[id] ?? 0),
+              declared.softness.base,
+            ),
+          ),
+        );
+        return sag({
+          rest: restShape.surfaces[index],
+          lean: lean.surfaces[index],
+          skinned,
+          hanging: below.map((value, i) => (value - skinned[i]) / 0.01),
+          softness,
+        });
+      })();
       const normals = portraitNormals(positions, surface.indices);
       return surface.regions.map((region) => ({
         id: region.id,
