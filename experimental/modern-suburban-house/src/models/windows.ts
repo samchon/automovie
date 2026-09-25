@@ -38,7 +38,9 @@ export function buildWindowPrototype(opening: WindowOpening): HousePrototype {
       !Number.isInteger(units) || units < 1 || kind === "awning" && units !== 1)
     throw Error(`${id}: invalid window opening`);
   const unitWidth = (width - 2*p.frame - (units-1)*p.mullion)/units;
-  if (unitWidth < p.minUnitWidth || height <= 2*p.frame + 2*p.sash + p.muntin)
+  const panelCount=kind==="double-hung"?2:1;
+  if (unitWidth < p.minUnitWidth ||
+      height <= 2*p.frame + panelCount*(2*p.sash+p.muntin))
     throw Error(`${id}: window members cover the glass`);
   const b = new PrototypeBuilder(id,"src/models/windows.ts",
     {frame:"charcoal-metal",sash:"charcoal-metal",mullion:"charcoal-metal",muntin:"charcoal-metal"});

@@ -31,6 +31,7 @@ test("window member grammar rejects missing, fractional and glassless openings",
   assert.throws(()=>buildWindowPrototype({id:"bad",width:2,height:1,units:2,kind:"awning"}),/invalid/);
   assert.throws(()=>buildWindowPrototype({id:"bad",width:windowProfile.minUnitWidth, height:1, units:1,kind:"fixed"}),/cover the glass/);
   assert.throws(()=>buildWindowPrototype({id:"bad",width:1, height:0, units:1,kind:"fixed"}),/invalid/);
+  assert.throws(()=>buildWindowPrototype({id:"bad",width:1, height:0.30, units:1,kind:"double-hung"}),/cover the glass/);
 });
 
 test("window panes follow their own sash track instead of a shared glass plane", () => {
