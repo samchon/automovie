@@ -2,7 +2,7 @@
 
 ## 모델 H2 전수 표면 소유와 재료 인터페이스 {#model-surface-ownership}
 <!--
-@evidence contracts/surface-ownership.md#whole-surface-owner 모델 H2마다 아래 계정에 한 번씩 적고 부재별 surface id와 source owner를 대조한다. 부모·형제의 원형 인계를 마지막 대응표에서 설계 owner와 잇고 원형을 넘기지 않는 어휘 적중은 별도로 제외한다. 이는 설계 인터페이스 계정이며 아직 없는 modelSources 메시의 실제 face binding은 unverified다.
+@evidence contracts/surface-ownership.md#whole-surface-owner 모델 H2마다 아래 계정에 한 번씩 적고 부재별 surface id와 source owner를 대조한다. 부모·형제의 원형 인계를 마지막 대응표에서 설계 owner와 잇고, materials의 명명 면은 material-face-ledger 생산자로 역대조한다. 이 계정과 생산자는 설계 인터페이스를 확인하며 아직 없는 modelSources 메시의 실제 face binding은 unverified다.
 -->
 
 [원문 계약](../../contracts/surface-ownership.md#whole-surface-owner)의 완결 표면은 한 source만 만든다. 아래 행에서 `—`는 규칙·표현 한계·검증 절차여서 별도 부피를 만들지 않음을 뜻한다. 같은 원형의 구조·관절·표면 설명 H2에 id가 반복되어도 메시를 복제한다는 뜻이 아니다. 모든 닫힌 부재의 앞·뒤·위·아래·절단·오목한 챌면은 [모델 표면 규칙](../../models/00-model-frame.md#model-surface-partition-naming)에 따라 정확히 한 id를 받는다. 관절 이름과 배치 id는 face id가 아니다.
@@ -109,7 +109,7 @@
 | [wall-art-indoor-plant](../../models/19-room-accents.md#wall-art-indoor-plant) | `src/models/furnishings/props.ts` | `art-frame`·`art-print`·`container`·`stem`·`foliage` |
 | [sofa-throws](../../models/19-room-accents.md#sofa-throws) | `src/models/furnishings/props.ts` | `pillow`·`folded` |
 
-다음 표는 위 모델 행에 등장한 **모든 face id**의 설계 결속 경로다. 하나의 id가 여러 재료 행에 있으면 모델 H2와 배치 변형을 함께 키로 사용한다(예: `leaf`의 실내 문/주방 가전, `glass`의 건물 창/세탁기 문). 그 선택을 버리고 id 문자열 하나로 재료를 고르면 오결속이다. 이 표는 id 문자열의 설계 경로만 열거한다. 세면장에는 없는 `leaf-panel` 대신 실제 `leaf`를 회갈색 수납장에 결속하고 전자레인지 `leaf`를 스테인리스에 결속하도록 재료 문서를 정정했다. (모델 H2, id) 쌍의 전수 결합과 실제 메시의 face binding은 아직 재생 가능한 생산자·modelSources·materialSources가 없어 unverified다. 존재하지 않는 스크립트의 결과를 이 계정의 근거로 삼지 않는다.
+다음 표는 위 모델 행에 등장한 **모든 face id**의 설계 결속 경로다. 하나의 id가 여러 재료 행에 있으면 모델 H2와 배치 변형을 함께 키로 사용한다(예: `leaf`의 실내 문/주방 가전, `glass`의 건물 창/세탁기 문). 그 선택을 버리고 id 문자열 하나로 재료를 고르면 오결속이다. 이 표는 id 문자열의 설계 경로만 열거한다. 세면장에는 없는 `leaf-panel` 대신 실제 `leaf`를 회갈색 수납장에 결속하고 전자레인지 `leaf`를 스테인리스에 결속하도록 재료 문서를 정정했다. [재료 면 생산자](material-face-ledger.md#material-face-ledger)는 materials 본문에 명명된 면 토큰과 모델 원형 본문의 id·치수를 역대조하지만, 모든 (모델 H2, id) 쌍의 실제 메시 face binding은 modelSources·materialSources가 없어 unverified다.
 
 | 재료 H2 | 해당 모델 face id |
 |---|---|
