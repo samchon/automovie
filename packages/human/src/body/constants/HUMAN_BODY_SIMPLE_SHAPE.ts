@@ -12,10 +12,12 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  * sources pinned in the body study, MakeHuman's age nodes (child 11 years,
  * young 25, old 90), the sarcopenia figure of three to five percent of muscle
  * per decade after thirty, Gonzalez's gluteal ptosis rising with age and
- * weight change, the gluteal mass and pelvic tone muscle raises and age takes, the redistribution of fat from the limbs to the trunk with
- * age, the WHO android/gynoid split by sex, Deurenberg's age-specific body
- * fat estimates from BMI, age and sex, and the body fat bands below which
- * the rectus, deltoid and scapular relief show (ACE essential fat by sex, visible-abs
+ * weight change, the gluteal mass and pelvic tone muscle raises and age
+ * takes, the adolescent maturity before which training builds no muscle, the
+ * redistribution of fat from the limbs to the trunk with age, the WHO
+ * android/gynoid split by sex, Deurenberg's age-specific body fat estimates
+ * from BMI, age and sex, and the body fat bands below which the rectus,
+ * deltoid and scapular relief show (ACE essential fat by sex, visible-abs
  * bands). Stature, mass and the tape measurements are not rows: they are
  * solved by measurement against the basis, with the head allowance, the mass
  * model and the channel each measurement is solved on given here. The body
@@ -130,6 +132,26 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       [1, 2.2],
     ],
   },
+  /**
+   * Training builds little muscle before puberty: children's strength gains
+   * are neural rather than hypertrophic (Faigenbaum et al. 2009; Lloyd et al.
+   * 2014), and the muscle spurt follows peak height velocity, at 11.8 years
+   * in girls and 13.5 in boys (Baxter-Jones et al. 2008), the lean mass
+   * gained fastest in the year after it and the spurt lasting about two years
+   * (Tanner et al. 1981). The ramp runs from a year before peak height
+   * velocity to three years after it: an authored bridge over those
+   * findings, not a fitted curve.
+   */
+  maturity: {
+    startAgeYears: [
+      [-1, 10.8],
+      [1, 12.5],
+    ],
+    endAgeYears: [
+      [-1, 14.8],
+      [1, 16.5],
+    ],
+  },
   /** Channel weight = Σ rows gain · Π curve(parameter); missing channels are skipped. */
   terms: [
     {
@@ -206,7 +228,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         gain: 0.7,
         curves: [
           {
-            parameter: "muscle",
+            parameter: "developedMuscle",
             points: [
               [-1, -1],
               [1, 1],
@@ -249,7 +271,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: -0.4,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [0, 0],
             [1, 1],
@@ -272,7 +294,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 0.5,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, -1],
             [1, 1],
@@ -303,7 +325,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 0.5,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, -1],
             [1, 1],
@@ -412,7 +434,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 1,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [0, 0],
             [1, 1],
@@ -443,7 +465,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         gain: 1,
         curves: [
           {
-            parameter: "muscle",
+            parameter: "developedMuscle",
             points: [
               [0, 0],
               [1, 1],
@@ -593,7 +615,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           ],
         },
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, 1],
             [0, 1],
@@ -608,7 +630,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 0.5,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, -1],
             [1, 1],
@@ -786,7 +808,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 0.6,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [0, 0],
             [1, 1],
@@ -810,7 +832,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 1,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, 0],
             [0, 0.35],
@@ -842,7 +864,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           ],
         },
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, 0],
             [0, 0.35],
@@ -868,7 +890,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       gain: 1,
       curves: [
         {
-          parameter: "muscle",
+          parameter: "developedMuscle",
           points: [
             [-1, 1],
             [0, 0.8],

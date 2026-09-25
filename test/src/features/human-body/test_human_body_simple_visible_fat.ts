@@ -24,6 +24,13 @@ import { nclose } from "../internal/predicates";
  *    reads under 4 points over essential fat, the same body at muscle 0
  *    over 12.
  * 5. The simple tier's muscle reaches 2, the source's competition node.
+ * 6. Maturity runs from 12.5 to 16.5 years for a boy and from 10.8 to 14.8
+ *    for a girl, linear between (half way for a girl at 12.8, and from
+ *    11.65 to 15.65 at sex 0); the developed muscle is the muscle times it,
+ *    so an 11-year-old boy has built none and an adult all of it.
+ * 7. A child who has not built muscle keeps the regression's fat, whatever
+ *    the muscle parameter, and a row calibrated on adult training (the
+ *    gluteal mass) reads nothing on him and its full gain on an adult.
  */
 export const test_human_body_simple_visible_fat = (): void => {
   const math = humanBodySimpleShapeMath;
@@ -62,5 +69,38 @@ export const test_human_body_simple_visible_fat = (): void => {
   TestValidator.predicate(
     "the simple tier's muscle reaches the competition node",
     HUMAN_BODY_SIMPLE_SHAPE.limits.muscle[1] === 2,
+  );
+
+  TestValidator.predicate(
+    "maturity ramps over each sex's adolescence",
+    math.maturity({ sex: 1, ageYears: 12.5 }) === 0 &&
+      math.maturity({ sex: 1, ageYears: 16.5 }) === 1 &&
+      nclose(math.maturity({ sex: -1, ageYears: 12.8 }), 0.5) &&
+      nclose(math.maturity({ sex: 0, ageYears: 13.65 }), 0.5) &&
+      math.maturity({ sex: -1, ageYears: 30 }) === 1,
+  );
+  const boy = { sex: 1, ageYears: 11, muscle: 1.5 };
+  const man = { sex: 1, ageYears: 25, muscle: 1.5 };
+  TestValidator.predicate(
+    "the developed muscle is the muscle times maturity",
+    math.developedMuscle(boy) === 0 && math.developedMuscle(man) === 1.5,
+  );
+  TestValidator.predicate(
+    "a child keeps the regression's fat",
+    nclose(math.visibleFat(boy, 22), math.fat(boy, 22).excess),
+  );
+  const gluteal = HUMAN_BODY_SIMPLE_SHAPE.terms.find(
+    (row) =>
+      row.channel === "buttocksVolume" &&
+      row.curves.some((curve) => curve.parameter === "developedMuscle"),
+  )!;
+  const reading = (simple: typeof boy): number =>
+    math.term(
+      gluteal,
+      math.parameters({ ...simple, statureMetres: 1.5, massKilograms: 45 }),
+    );
+  TestValidator.predicate(
+    "an adult-trained row reads nothing on a child and its gain on an adult",
+    reading(boy) === 0 && nclose(reading({ ...man, muscle: 1 }), 0.5),
   );
 };

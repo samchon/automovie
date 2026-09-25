@@ -49,7 +49,13 @@ Deurenberg's regression gives body fat from the mass index, age and sex, and kno
 
 The fat the definition rows read now subtracts the fat-free mass the muscle parameter adds: `100 · Δ · muscle / BMI` points, with Δ the fat-free mass index one unit of muscle adds. The median young man's fat-free mass index is 18.9 and the young woman's 15.4 ([Schutz et al. 2002](https://doi.org/10.1038/sj.ijo.0802037)); natural male athletes average 21.8 ([Kouri et al. 1995](https://pubmed.ncbi.nlm.nih.gov/7496846/)). So Δ is 2.2 for a man, which takes an average young man at a mass index of 24 to that 21.8, and 1.8 for a woman, the same share of her median.
 
-The references are adult: the shift ramps in from 15 to 18 years, a child keeps the regression, and the mass model's density keeps it too. A swimmer of 1.90 m and 86 kg at muscle 1.1 reads 7.4% fat, inside the 8–12% competitive swimmers report, where the regression alone read 17.6%.
+The references are adult, and so is every row calibrated on training. Training builds little muscle before puberty: children's strength gains are neural rather than hypertrophic ([Faigenbaum et al. 2009](https://doi.org/10.1519/JSC.0b013e31819df407); [Lloyd et al. 2014](https://doi.org/10.1136/bjsports-2013-092952)). The muscle spurt follows peak height velocity, at 11.8 years in girls and 13.5 in boys ([Baxter-Jones et al. 2008](https://pubmed.ncbi.nlm.nih.gov/18467546/)); lean mass grows fastest in the year after it, and the spurt lasts about two years ([Tanner et al. 1981](https://pubmed.ncbi.nlm.nih.gov/7337414/)).
+
+So a maturity ramp runs from a year before peak height velocity to three years after it: 10.8 to 14.8 years for a girl, 12.5 to 16.5 for a boy. The ramp is an authored bridge over those findings, not a fitted curve. The developed muscle is the muscle parameter times that ramp. The shift above reads it, and so do the rows calibrated on adult training: the regional muscle, the gluteal mass, tone and lift, the abdominal tone, the trained V, the adipose chest the pectoral holds back, the definition reliefs and the skeletal prominence. A child keeps the regression and the source's own child node, and the mass model's density keeps the regression too.
+
+Before this ramp, the reliefs and the gluteal rows reached children at an adult's gain. At r6 that crossed the pelvis of a muscular obese 11-year-old boy (97 triangles) and the upper arms of a muscular thin 11-year-old girl, whose musculature relief read 0.865.
+
+A swimmer of 1.90 m and 86 kg at muscle 1.1 reads 7.4% fat, inside the 8–12% competitive swimmers report, where the regression alone read 17.6%.
 
 The simple tier's muscle now reaches 2, the source's competition node, a fat-free mass index near the natural limit of 25 at an athlete's mass index.
 

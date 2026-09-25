@@ -115,6 +115,19 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     muscleFatFreeMassIndex: [number, number][];
   };
 
+  /**
+   * The ages over which a body becomes able to build muscle, as curves over
+   * sex: before `startAgeYears` training adds no measurable muscle, from
+   * `endAgeYears` it adds an adult's, linearly between. The derived
+   * `developedMuscle` is the muscle parameter times this ramp; relations
+   * calibrated on adult training read it instead of `muscle`, and so does
+   * the fat-free mass the definition gates subtract.
+   */
+  maturity: {
+    startAgeYears: [number, number][];
+    endAgeYears: [number, number][];
+  };
+
   /** Channel weight = Σ gain · Π curve(parameter) over the rows naming that channel. */
   terms: {
     channel: string;

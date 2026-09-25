@@ -35,11 +35,13 @@ import { nclose } from "../internal/predicates";
  * 3. The two Deurenberg regressions at ages 11, 15, 16 and adult, for both
  *    sexes, and their authored fractional-age bridge are checked against
  *    hand arithmetic. Jensen's pediatric head-and-neck share and its bridge
- *    to the adult approximation are also checked by hand. Term rows by hand:
- *    a 25-year-old man at BMI 22 with muscle 0.5 gets
+ *    to the adult approximation are also checked by hand, and so is the abs
+ *    definition at 11, 15 and 16 through each sex's maturity ramp. Term rows
+ *    by hand: a 25-year-old man at BMI 22 with muscle 0.5 gets
  *    gender 1, age 0, muscle 0.5, ptosis -0.2 (the lift row only), abs
- *    definition 0.244 (Deurenberg 15.95% less 5% essential, 10.95% on the
- *    band) and no flank fat (its row starts at BMI 22 and the mass
+ *    definition 0.3025 (Deurenberg 15.95% less 5% essential and the 5
+ *    points half a unit of muscle's fat-free mass displaces, 5.95% on the
+ *    band, times the muscle curve's 0.5) and no flank fat (its row starts at BMI 22 and the mass
  *    direction leaves the banded depots alone); rows for channels the
  *    basis lacks are skipped.
  * 4. Saturation: a 90-year-old at BMI 30 with muscle -1 gets ptosis 1 (the
@@ -131,14 +133,19 @@ export const test_human_body_simple_shape = (): void => {
       nclose(humanBodySimpleShapeMath.fat(sample, 20).percent, sample.percent),
     );
   const absRow = table.terms.find((row) => row.channel === "absDefinition")!;
+  // the row reads the developed muscle, and the visible fat subtracts the
+  // fat-free mass it adds: maturity runs from 12.5 to 16.5 years for a boy
+  // and from 10.8 to 14.8 for a girl, so the 11-year-old boy has built none
+  // (0), the girl a twentieth (0.05 x 0.213 on the band at 10.45 points),
+  // the 15-year-old boy five eighths (0.625 x 0.6375 at 5.625 points), and
+  // the rest read their floor of one point
   for (const sample of [
     { ageYears: 11, sex: 1, definition: 0 },
-    { ageYears: 11, sex: -1, definition: 0.186 },
-    { ageYears: 15, sex: 1, definition: 0.09 },
-    { ageYears: 15, sex: -1, definition: 0.39 },
-    // from 15 to 18 the muscle's fat-free mass shift ramps in: at 16 a third
-    { ageYears: 16, sex: 1, definition: 0.918667 },
-    { ageYears: 16, sex: -1, definition: 0.572 },
+    { ageYears: 11, sex: -1, definition: 0.01065 },
+    { ageYears: 15, sex: 1, definition: 0.3984375 },
+    { ageYears: 15, sex: -1, definition: 1 },
+    { ageYears: 16, sex: 1, definition: 0.875 },
+    { ageYears: 16, sex: -1, definition: 1 },
   ])
     TestValidator.predicate(
       `age-specific definition ${sample.ageYears} ${sample.sex}`,
@@ -229,7 +236,10 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.equals("age", young.macroAge, 0);
   TestValidator.equals("muscle", young.macroMuscle, 0.5);
   TestValidator.predicate("ptosis lift", nclose(young.buttocksPtosis, -0.2));
-  TestValidator.predicate("abs definition", nclose(young.absDefinition, 0.3025));
+  TestValidator.predicate(
+    "abs definition",
+    nclose(young.absDefinition, 0.3025),
+  );
   // no flank row fires at BMI 22, and the mass direction leaves the banded
   // flank depot alone
   TestValidator.predicate("no flank fat", nclose(young.flankFat, 0));
