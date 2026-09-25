@@ -10,6 +10,7 @@ export const frontDoorProfile = {
   leafDepth:0.04,
   leafWeatherInset:0.105,
   stile:0.12,
+  gardenStile:0.10,
   glassBottom:1.30,
   gridColumns:3,
   gridRows:2,
@@ -92,6 +93,69 @@ export function buildFrontDoorPrototype(id:string,roughWidth:number,roughHeight:
   for(const z of [zWeather+0.01,zRoom-0.018]) {
     b.ringZ("handle",[hx,p.handleY,z],0.003,0.0325,0.008);
     b.beam("handle",[hx,p.handleY,z],[hx+0.11,p.handleY,z],p.handleRadius,p.handleRadius,12);
+  }
+  return b.finish();
+}
+
+/** Two separately addressable glazed leaves share the surround and handle
+ * profile with the entry. The caller supplies the rear opening, so its world
+ * span is never copied into this model owner. */
+export function buildGardenDoorPrototype(id:string,roughWidth:number,roughHeight:number):HousePrototype {
+  const p=frontDoorProfile;
+  if(![roughWidth,roughHeight].every((n)=>Number.isFinite(n)&&n>0)) throw Error(`${id}: invalid door opening`);
+  const leafWidth=(roughWidth-2*p.jamb)/2;
+  const leafBottom=p.thresholdTop+p.thresholdClearance,leafTop=roughHeight-p.jamb;
+  if(leafWidth<=2*p.gardenStile+0.02 || leafTop-leafBottom<=2*p.gardenStile ||
+      leafTop<=Math.max(...p.hingeLevels)+0.04) throw Error(`${id}: door opening cannot contain its members`);
+  const b=new PrototypeBuilder(id,"src/models/exterior-door.ts",{
+    jamb:"trim-white","exterior-trim":"trim-white",casing:"trim-white",
+    "leaf-exterior":"charcoal-metal","leaf-interior":"charcoal-metal",
+    "leaf-edge":"charcoal-metal",sash:"charcoal-metal",
+    hinge:"charcoal-metal",handle:"charcoal-metal",
+  });
+  const box=(face:string,a:[number,number,number],z:[number,number,number])=>b.box(face,a,z);
+  const back=-p.wallDepth,w0=-roughWidth/2,w1=roughWidth/2;
+  for(const [a,c] of [[w0,w0+p.jamb],[w1-p.jamb,w1]] as const)
+    box("jamb",[a,p.thresholdTop,back],[c,roughHeight-p.jamb,0]);
+  box("jamb",[w0+p.jamb,roughHeight-p.jamb,back],[w1-p.jamb,roughHeight,0]);
+  for(const [a,c] of [[w0-p.exteriorTrim,w0],[w1,w1+p.exteriorTrim]] as const)
+    box("exterior-trim",[a,0,0],[c,roughHeight,p.exteriorTrimDepth]);
+  box("exterior-trim",[w0-p.exteriorTrim,roughHeight,0],
+    [w1+p.exteriorTrim,roughHeight+p.exteriorTrim,p.exteriorTrimDepth]);
+  for(const [a,c] of [[w0-p.casing,w0],[w1,w1+p.casing]] as const)
+    box("casing",[a,0,back-p.casingDepth],[c,roughHeight,back]);
+  box("casing",[w0-p.casing,roughHeight,back-p.casingDepth],
+    [w1+p.casing,roughHeight+p.casing,back]);
+  const weather=-p.leafWeatherInset,room=weather-p.leafDepth,mid=(weather+room)/2;
+  for(let leaf=0;leaf<2;leaf++) {
+    const x0=w0+p.jamb+leaf*leafWidth,x1=x0+leafWidth;
+    const inner0=x0+p.gardenStile,inner1=x1-p.gardenStile;
+    const innerBottom=leafBottom+p.gardenStile,innerTop=leafTop-p.gardenStile;
+    for(const [face,z0,z1] of [["leaf-exterior",mid,weather],["leaf-interior",room,mid]] as const) {
+      box(face,[x0,leafBottom,z0],[inner0,leafTop-0.004,z1]);
+      box(face,[inner1,leafBottom,z0],[x1,leafTop-0.004,z1]);
+      box(face,[inner0,leafBottom,z0],[inner1,innerBottom,z1]);
+      box(face,[inner0,innerTop,z0],[inner1,leafTop-0.004,z1]);
+    }
+    box("leaf-edge",[x0,leafTop-0.004,room],[x1,leafTop,weather]);
+    const lip=0.01;
+    for(const [a,c,d,e] of [
+      [inner0,inner0+lip,innerBottom,innerTop],
+      [inner1-lip,inner1,innerBottom,innerTop],
+      [inner0+lip,inner1-lip,innerBottom,innerBottom+lip],
+      [inner0+lip,inner1-lip,innerTop-lip,innerTop],
+    ] as const) box("sash",[a,d,room],[c,e,weather]);
+    box("glass",[inner0+lip,innerBottom+lip,mid-p.glassDepth/2],
+      [inner1-lip,innerTop-lip,mid+p.glassDepth/2]);
+    const hingeX=leaf===0?x0:x1;
+    for(const level of p.hingeLevels)
+      b.frustum("hinge",[hingeX,level-0.04,room],0.009,0.009,0.08,12);
+    const hx=leaf===0?x1-p.handleInset:x0+p.handleInset;
+    for(const z of [weather+0.01,room-0.018]) {
+      b.ringZ("handle",[hx,p.handleY,z],0.003,0.0325,0.008);
+      const dx=leaf===0?-0.11:0.11;
+      b.beam("handle",[hx,p.handleY,z],[hx+dx,p.handleY,z],p.handleRadius,p.handleRadius,12);
+    }
   }
   return b.finish();
 }
