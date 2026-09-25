@@ -23,9 +23,16 @@
  * control alone would build a face no step asked for. The row says which
  * were held, because a proportion the basis cannot reach is a finding about
  * the basis, not a value to hide. A held control is released when its index
- * asks to come back inside, but one held again after a release stays held:
- * its index cannot settle inside, and releasing it again would only repeat
- * the cycle. Iteration stops when every free index is within `tolerance`
+ * asks to come back inside with the free indices kept where they are: its
+ * reduced sensitivity (the index's change per unit of its control once the
+ * free controls have answered it, the Schur complement of the free
+ * Jacobian) points its miss inward. Its own slope alone does not decide
+ * this: a coupled step can carry a control to the bound its own index
+ * does not ask for (a lower-face width asked below its reach held at the
+ * widest end), and the free controls' answer can reverse what the control
+ * does to its index. One held again after a release stays held: its index
+ * cannot settle inside, and releasing it again would only repeat the
+ * cycle. Iteration stops when every free index is within `tolerance`
  * (relative) of its target, or within its control's `resolution` (absolute:
  * the least difference its measurement resolves, for an index whose target
  * may lie at zero), or after `iterations` steps. The active set holds
@@ -102,10 +109,11 @@ export function solveFaceAnthropometry(props: {
     const free = [...new Array(n).keys()].filter(
       (i) => !unmeasured.includes(i) && !held.has(i),
     );
-    // Jacobian of the free indices with respect to the free controls.
+    // Every index's derivative by each free control, and the Jacobian of
+    // the free indices from them.
     const J = free.map(() => free.map(() => 0));
     const lost = new Set<number>();
-    free.forEach((control, column) => {
+    const columns = free.map((control) => {
       const up = [...values];
       const down = [...values];
       const { lower, upper } = props.controls[control]!;
@@ -113,13 +121,18 @@ export function solveFaceAnthropometry(props: {
       down[control] = Math.max(lower, values[control]! - step);
       const a = props.evaluate(up);
       const b = props.evaluate(down);
-      free.forEach((index, row) => {
-        if (a[index] === null || b[index] === null) lost.add(index);
-        else
-          J[row]![column] =
-            (a[index]! - b[index]!) / (up[control]! - down[control]!);
-      });
+      return a.map((v, i) =>
+        v === null || b[i] === null
+          ? null
+          : (v - b[i]!) / (up[control]! - down[control]!),
+      );
     });
+    free.forEach((index, row) =>
+      columns.forEach((column, c) => {
+        if (column[index] === null) lost.add(index);
+        else J[row]![c] = column[index]!;
+      }),
+    );
     if (lost.size !== 0) {
       unmeasured.push(...lost);
       continue;
@@ -153,19 +166,35 @@ export function solveFaceAnthropometry(props: {
     }
     current = props.evaluate(values);
     unmeasured.push(...free.filter((i) => !held.has(i) && current[i] === null));
-    // A held control whose index now asks to come back inside is released.
+    // A held control whose index now asks to come back inside, the free
+    // indices answered, is released.
     if (!changed)
       for (const control of [...held]) {
         if (pinned.has(control)) continue;
         const { lower, upper } = props.controls[control]!;
         const error = props.targets[control]! - current[control]!;
         const probe = values[control] === upper ? -step : step;
+        const read = props.evaluate(
+          values.map((v, k) => (k === control ? v + probe : v)),
+        );
+        const own = read.map((v, i) =>
+          v === null || current[i] === null ? null : (v - current[i]!) / probe,
+        );
+        const coupling = columns.map((column) => column[control] ?? null);
+        // A reading the probe loses leaves the control where it is held.
+        if (
+          [own[control], ...free.map((i) => own[i]), ...coupling].includes(null)
+        )
+          continue;
+        // The free controls' answer to this control's move, and what it
+        // leaves of its effect on its own index.
+        const answer = solveLinear(
+          free.map((i) => columns.map((column) => column[i]!)),
+          free.map((i) => own[i]!),
+        );
         const slope =
-          (props.evaluate(
-            values.map((v, k) => (k === control ? v + probe : v)),
-          )[control]! -
-            current[control]!) /
-          probe;
+          own[control]! -
+          coupling.reduce<number>((sum, v, c) => sum + v! * answer[c]!, 0);
         const inward =
           (values[control] === upper && error * slope < 0) ||
           (values[control] === lower && error * slope > 0);

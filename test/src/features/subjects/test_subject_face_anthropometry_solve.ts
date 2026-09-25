@@ -32,7 +32,14 @@ import { nclose, throwsError } from "../internal/predicates";
  *    under 0.4), coupled to a solvable one, is released from its bound and
  *    caught again; held for good the second time, the solve stops in six
  *    steps where releasing it again would cycle to the budget.
- * 8. A target list of another length and a singular system refuse.
+ * 8. Three linear indices (rows 1 -0.4 0.8 / 1 1 -1 / 1.3 -0.5 1) asked
+ *    for 0.5, -0.7 and -0.9: the coupled steps hold the second control at
+ *    +1, where its own slope keeps it, but with the other free control
+ *    answering, its index asks to come back inside; released, it ends at
+ *    0.429 with the first two indices met and only the third control held.
+ *    When the release probe loses the second index (its reading absent
+ *    between 0.9 and 0.97), the control stays held.
+ * 9. A target list of another length and a singular system refuse.
  */
 export const test_subject_face_anthropometry_solve = (): void => {
   const model = (v: readonly number[]) => [
@@ -176,6 +183,37 @@ export const test_subject_face_anthropometry_solve = (): void => {
       cycling.values[0] === 1 &&
       cycling.held.includes(0) &&
       nclose(cycling.achieved[1]!, 0.4, 4e-4),
+  );
+  const linear = (lost: boolean) =>
+    solveFaceAnthropometry({
+      controls: [0, 1, 2].map((k) => ({
+        id: `c${k}`,
+        start: 0,
+        lower: -1,
+        upper: 1,
+      })),
+      targets: [0.5, -0.7, -0.9],
+      evaluate: (v) =>
+        [
+          [1, -0.4, 0.8],
+          [1, 1, -1],
+          [1.3, -0.5, 1],
+        ].map((row, i) =>
+          lost && i === 1 && v[1]! > 0.9 && v[1]! < 0.97
+            ? null
+            : row.reduce((sum, m, k) => sum + m * v[k]!, 0),
+        ),
+    });
+  const answered = linear(false);
+  const unanswered = linear(true);
+  TestValidator.predicate(
+    "reduced release",
+    answered.held.join() === "2" &&
+      nclose(answered.values[1]!, 0.429, 1e-3) &&
+      nclose(answered.achieved[0]!, 0.5, 5e-4) &&
+      nclose(answered.achieved[1]!, -0.7, 7e-4) &&
+      unanswered.held.join() === "1,2" &&
+      unanswered.values[1] === 1,
   );
   TestValidator.predicate(
     "length",
