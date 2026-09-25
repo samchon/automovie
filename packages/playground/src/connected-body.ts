@@ -97,6 +97,8 @@ async function main(): Promise<void> {
     basis: basis.id,
     shape: {},
     skinColour: { cheek: { r: faceSkin.r, g: faceSkin.g, b: faceSkin.b } },
+    // and its micro-relief at the measured strength
+    skinDetail: { strength: 1 },
   };
   const loader = new GLTFLoader();
   const decode = async (bytes: Uint8Array<ArrayBuffer>) =>
