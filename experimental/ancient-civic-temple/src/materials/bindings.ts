@@ -39,9 +39,18 @@ const tileMetres: Partial<Record<Finish, number>> = {
   earth: 1,
 };
 
-const material = (finish: Finish): IAutoMovieMaterial => {
+// Object repeats match the prototype table; the full-part census rejects any
+// drift. Building surfaces with the same finish use their own material scale.
+const objectTileMetres: Partial<Record<Finish, number>> = {
+  stone: 0.45, bronze: 0.18, timber: 0.30, ceramic: 0.22,
+  wicker: 0.11, paper: 0.16, textile: 0.24, rope: 0.10,
+  earth: 0.25, water: 0.60,
+};
+
+const material = (finish: Finish, objectScale = false): IAutoMovieMaterial => {
   const { name, color, roughness, metallic } = recipe[finish];
-  const tile = tileMetres[finish];
+  const tile = objectScale ? objectTileMetres[finish] : tileMetres[finish];
+  if (objectScale && tile === undefined) throw new Error(`${finish}: missing object texture repeat`);
   return {
     id: `temple.${finish}`,
     name,
@@ -102,7 +111,7 @@ export const bindTempleMaterials = (environment: IAutoMovieBuiltEnvironment): IA
     const finishes = [...new Set(assignments.map((entry) => entry.finish))];
     return {
       ...model,
-      materials: finishes.map(material),
+      materials: finishes.map((finish) => material(finish, model.id.startsWith("object."))),
       parts: assignments.map(({ part, finish }) => ({ ...part, material: `temple.${finish}` })),
     };
   }),
