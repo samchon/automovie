@@ -1274,6 +1274,10 @@ if (require.main !== module) {
   console.log(JSON.stringify({ baselineParts: baseline.parts, measuredParts, mutationChecks, mutations: results }, null, 2));
 } else {
   const result = audit(sections());
+  // A part population is valid only when the prose claims and the measured
+  // inventory agree. Keep the standalone producer for its own mutation run,
+  // and include its failure in this public part-audit exit code as well.
+  result.errors.push(...require("./model-prose-table-audit.cjs").audit().errors);
   console.log(JSON.stringify(result, null, 2));
   if (result.errors.length) process.exitCode = 1;
 }
