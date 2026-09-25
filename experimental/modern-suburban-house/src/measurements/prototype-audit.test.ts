@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { buildHouseObjects, buildHousePrototypes, buildWindowCurtains, housePrototypeSpecs } from "../models/catalogue";
-import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricPleatedCurtain, metricRingZ } from "../models/parts";
+import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricPleatedCurtain, metricRingZ, metricShearedBox } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
 
@@ -29,6 +29,7 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
     metricOvalCup([0,0,0],0.1,0.14,0.1,0.008),
     metricInvertedCup([0,0,0],0.14,0.10,0.1,0.008),
     metricPleatedCurtain(0,-0.75,1.5),
+    metricShearedBox([-0.02,0.42,0.07],[0.02,0.85,0.11],0.45,-Math.tan(8*Math.PI/180)),
   ]) {
     assert.ok(mesh.indices?.length);
     assert.equal(mesh.uvs?.length,mesh.positions.length/3*2);
@@ -40,13 +41,14 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   assert.throws(()=>metricOvalCup([0,0,0],0.1,0.008,0.1,0.008));
   assert.throws(()=>metricInvertedCup([0,0,0],0.14,0.10,0.1,0.11));
   assert.throws(()=>metricPleatedCurtain(0,1,0));
+  assert.throws(()=>metricShearedBox([0,0,0],[1,1,1],0,Infinity));
 });
 
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,84);
-  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk"].includes(p.id)));
+  assert.equal(objects.length,85);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine","headboard-bed","child-desk","site-tree-prototypes"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
@@ -72,6 +74,13 @@ test("separate room objects keep each reviewed face once", () => {
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="laundry-machine")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="headboard-bed")),/missing design host/);
   assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="child-desk")),/missing design host/);
+  assert.throws(()=>buildHouseObjects(parents.filter((p)=>p.id!=="site-tree-prototypes")),/missing design host/);
+  const treeHeight=(id:string)=>{
+    const tree=objects.find((p)=>p.id===id)!;
+    const ys=tree.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions.filter((_,i)=>i%3===1):[]);
+    return Math.max(...ys)-Math.min(...ys);
+  };
+  assert.ok(treeHeight("front-mature-tree")>treeHeight("rear-yard-tree"));
   for(const [id,width] of [["bedroom-two-desk",1.20],["bedroom-three-desk",1.15]] as const) {
     const desk=objects.find((p)=>p.id===id)!;
     const top=desk.model.parts.find((part)=>part.material==="top")?.geometry;
@@ -125,6 +134,14 @@ test("separate room objects keep each reviewed face once", () => {
   assert.equal(pillowMesh.type,"mesh");
   if(pillowMesh.type==="mesh") assert.ok(pillowMesh.mesh.positions.length/3>24);
   assert.equal(objects.find((p)=>p.id==="living-tray")!.model.parts.length,5);
+  const terrace=objects.find((p)=>p.id==="terrace-chair")!;
+  assert.equal(terrace.model.parts.filter((part)=>part.material==="seat").length,4);
+  assert.equal(terrace.model.parts.filter((part)=>part.material==="leg").length,4);
+  assert.equal(terrace.model.parts.filter((part)=>part.material==="back").length,5);
+  const rearPost=terrace.model.parts.find((part)=>part.material==="back")!.geometry;
+  if(rearPost.type!=="mesh") throw Error("terrace back post missing");
+  const zAt=(y:number)=>rearPost.mesh.positions.filter((_,i)=>i%3===2&&Math.abs(rearPost.mesh.positions[i-1]!-y)<1e-9);
+  assert.ok(Math.max(...zAt(0.85))<Math.max(...zAt(0.42)));
   for(const [id,width,drop] of [["island-pendant",0.28,0.80],["dining-pendant",0.48,1.20]] as const) {
     const object=objects.find((p)=>p.id===id)!;
     const positions=object.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
@@ -184,6 +201,22 @@ test("every design H2 has one generated prototype, source owner and face binding
   assert.ok(report.measuredParts>300);
   assert.equal(report.failures.length,0,report.failures.join("\n"));
   assert.ok(!buildHousePrototypes().some((p)=>/car|automobile|vehicle/.test(p.id)));
+});
+
+test("the same mesh grammar measures every independently selectable object", () => {
+  const objects=buildHouseObjects();
+  const report=auditPrototypePopulation(objects,undefined,"selectable");
+  assert.equal(report.built,objects.length);
+  assert.equal(report.measuredParts,objects.reduce((sum,object)=>sum+object.model.parts.length,0));
+  assert.equal(report.measuredSurfaces,objects.reduce((sum,object)=>sum+object.bindings.length,0));
+  assert.equal(report.failures.length,0,report.failures.join("\n"));
+  const damaged=structuredClone(objects);
+  const tray=damaged.find((object)=>object.id==="living-tray")!;
+  const geometry=tray.model.parts[0]!.geometry;
+  if(geometry.type!=="mesh") throw Error("tray mesh missing");
+  geometry.mesh.uvs?.fill(0);
+  assert.ok(auditPrototypePopulation(damaged,undefined,"selectable").failures.some((failure)=>
+    failure.includes("living-tray")&&failure.includes("collapsed metric UV")));
 });
 
 test("every declared finish binds consistent fallback, scale, roughness, and metallic response", () => {
@@ -247,4 +280,10 @@ test("fresh random part mutations go red", () => {
   const result=runRandomMutations(2);
   assert.equal(result.red,2);
   assert.deepEqual(result.types,{shift:1,float:1,delete:0,overlap:0});
+});
+
+test("fresh selectable object mutations go red", () => {
+  const selectable=runRandomMutations(2,"selectable");
+  assert.equal(selectable.red,2);
+  assert.deepEqual(selectable.types,{shift:1,float:1,delete:0,overlap:0});
 });

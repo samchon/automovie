@@ -12,7 +12,8 @@ export const laundryMachineSizes = {
 export const serviceRoomSpecs: readonly PrototypeSpec[] = [
   ...group("12-service-rooms.md", "src/models/furnishings/service-rooms.ts", [
     ["laundry-machine","appliance",laundryMachineSizes.washer,"appliance-body leaf door-ring glass handle control-panel appliance-interior drum",
-      {laundry:"washer",finishes:{...finishFaces("white-enamel","appliance-body","leaf"),...finishFaces("stainless-steel","door-ring","drum")}}],
+      {laundry:"washer",finishes:{...finishFaces("white-enamel","appliance-body","leaf"),
+        ...finishFaces("stainless-steel","door-ring","drum"),...finishFaces("black-glass-panel","control-panel")}}],
     ["laundry-folding-top","table",fromReservation("laundry-folding-top","z"),"top cleat",
       {finishes:{...finishFaces("stone-counter","top"),...finishFaces("greige-cabinet","cleat")}}],
     ["laundry-upper-storage","cabinet",fromReservation("laundry-upper-storage","z"),"carcass leaf",{finishAll:"greige-cabinet"}],

@@ -62,24 +62,26 @@ const overlap=(a:Bounds,b:Bounds)=>[0,1,2].reduce((v,k)=>v*Math.max(0,Math.min(a
 /** Optional reference compares a mutated output with a fresh independent run.
  * Document/account checks stand on their own; this reference is solely the
  * adversarial output mutation oracle, not a design acceptance claim. */
-export function auditPrototypePopulation(population:readonly HousePrototype[], reference?:readonly HousePrototype[]):PrototypeAudit {
+export function auditPrototypePopulation(population:readonly HousePrototype[], reference?:readonly HousePrototype[], mode:"design"|"selectable"="design"):PrototypeAudit {
   const failures:string[]=[];
   const ids=new Set<string>();
   let measuredParts=0,measuredSurfaces=0;
   let engineValidated=0;
   const canonical=new Map((reference??[]).map((p)=>[p.id,p]));
   const specs=new Map(housePrototypeSpecs.map((s)=>[s.id,s]));
-  if(design.size!==account.size) failures.push(`design/account count ${design.size}/${account.size}`);
-  for(const [id,owner] of design) {
-    if(!account.has(id)) failures.push(`${id}: missing surface account`);
-    if(specs.get(id)?.design!==owner) failures.push(`${id}: design owner missing or wrong`);
-    if(specs.get(id)?.owner!==declaredOwners.get(id)) failures.push(`${id}: source owner differs from model account`);
+  if(mode==="design") {
+    if(design.size!==account.size) failures.push(`design/account count ${design.size}/${account.size}`);
+    for(const [id,owner] of design) {
+      if(!account.has(id)) failures.push(`${id}: missing surface account`);
+      if(specs.get(id)?.design!==owner) failures.push(`${id}: design owner missing or wrong`);
+      if(specs.get(id)?.owner!==declaredOwners.get(id)) failures.push(`${id}: source owner differs from model account`);
+    }
+    for(const spec of housePrototypeSpecs) if(!design.has(spec.id)) failures.push(`${spec.id}: undesigned source prototype`);
   }
-  for(const spec of housePrototypeSpecs) if(!design.has(spec.id)) failures.push(`${spec.id}: undesigned source prototype`);
   for(const p of population) {
     if(ids.has(p.id)) failures.push(`${p.id}: duplicate prototype`);
     ids.add(p.id);
-    const expected=account.get(p.id);
+    const expected=mode==="design"?account.get(p.id):new Set(p.bindings.map((binding)=>binding.surface));
     if(!reference) {
       const engine=validateModel({model:p.model});
       engineValidated++;
@@ -164,13 +166,14 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
       }
     }
   }
-  for(const id of design.keys()) if(!ids.has(id)) failures.push(`${id}: missing prototype`);
-  return {designed:design.size,accounted:account.size,built:ids.size,engineValidated,measuredParts,measuredSurfaces,failures};
+  if(mode==="design") for(const id of design.keys()) if(!ids.has(id)) failures.push(`${id}: missing prototype`);
+  return {designed:mode==="design"?design.size:population.length,accounted:mode==="design"?account.size:population.length,
+    built:ids.size,engineValidated,measuredParts,measuredSurfaces,failures};
 }
 
 /** Fresh random index per trial; no chosen model id or fixed damaged part. */
-export function runRandomMutations(trials:number):{trials:number;red:number;types:Record<string,number>} {
-  const baseline=buildHousePrototypes();
+export function runRandomMutations(trials:number, mode:"design"|"selectable"="design"):{trials:number;red:number;types:Record<string,number>} {
+  const baseline=mode==="design"?buildHousePrototypes():buildHouseObjects();
   let red=0;
   const types:Record<string,number>={shift:0,float:0,delete:0,overlap:0};
   for(let t=0;t<trials;t++) {
@@ -201,7 +204,7 @@ export function runRandomMutations(trials:number):{trials:number;red:number;type
         for(let i=0;i<moved.positions.length;i+=3) for(let k=0;k<3;k++) moved.positions[i+k]+=delta[k]!;
       }
     }
-    if(auditPrototypePopulation(population,baseline).failures.length) red++;
+    if(auditPrototypePopulation(population,baseline,mode).failures.length) red++;
   }
   return {trials,red,types};
 }
@@ -210,12 +213,14 @@ if(process.argv[1] && fileURLToPath(import.meta.url)===process.argv[1]) {
   const prototypes=buildHousePrototypes();
   const audit=auditPrototypePopulation(prototypes);
   const selectable=buildHouseObjects(prototypes);
-  const checked=selectable.map((object)=>({id:object.id,result:validateModel({model:object.model})}));
-  const objectFailures=checked.flatMap(({id,result})=>result.success?[]:result.violations.map((v)=>`${id}: engine ${v.path} ${v.expected}`));
+  const objectAudit=auditPrototypePopulation(selectable,undefined,"selectable");
   const trials=Number(process.argv[2]??0);
   const mutations=trials>0?runRandomMutations(trials):null;
-  const failures=[...audit.failures,...objectFailures];
-  console.log(JSON.stringify({...audit,selectableObjects:selectable.length,selectableEngineValidated:checked.filter(({result})=>result.success).length,
-    failures:failures.slice(0,30),failureCount:failures.length,mutations}));
-  if(failures.length||mutations&&mutations.red!==mutations.trials) process.exitCode=1;
+  const selectableMutations=trials>0?runRandomMutations(trials,"selectable"):null;
+  const failures=[...audit.failures,...objectAudit.failures];
+  console.log(JSON.stringify({...audit,selectableObjects:selectable.length,selectableEngineValidated:objectAudit.engineValidated,
+    selectableMeasuredParts:objectAudit.measuredParts,selectableMeasuredSurfaces:objectAudit.measuredSurfaces,
+    failures:failures.slice(0,30),failureCount:failures.length,mutations,selectableMutations}));
+  if(failures.length||mutations&&mutations.red!==mutations.trials||
+    selectableMutations&&selectableMutations.red!==selectableMutations.trials) process.exitCode=1;
 }

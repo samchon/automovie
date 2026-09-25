@@ -8,7 +8,7 @@ export type Point = readonly [number, number, number];
 export type Size = readonly [number, number, number];
 export type FinishRole = "furniture-wood" | "upholstery" | "siding" | "trim-white" | "roof-shingle" | "charcoal-metal"
   | "greige-cabinet" | "stone-counter" | "dark-bookcase" | "stainless-steel" | "white-enamel"
-  | "primary-bedding" | "olive-bedding" | "blue-grey-bedding" | "mirror-silver";
+  | "primary-bedding" | "olive-bedding" | "blue-grey-bedding" | "mirror-silver" | "black-glass-panel";
 const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number; metallic:number }> = {
   "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50,metallic:0},
   upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92,metallic:0},
@@ -25,6 +25,7 @@ const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,n
   "olive-bedding": {fallback:0x6b7040,scale:[0.01,0.01],roughness:0.92,metallic:0},
   "blue-grey-bedding": {fallback:0x6e7f8c,scale:[0.01,0.01],roughness:0.92,metallic:0},
   "mirror-silver": {fallback:0xededed,scale:[1,1],roughness:0.02,metallic:1},
+  "black-glass-panel": {fallback:0x1f1f20,scale:[1,1],roughness:0.08,metallic:0},
 };
 export interface SurfaceBinding {
   /** Stable material face id from docs/models/00-model-frame.md. */
@@ -76,6 +77,23 @@ export function metricBox(min: Point, max: Point): IAutoMovieMesh {
     indices.push(start,start+1,start+2, start,start+2,start+3);
   }
   return { positions, normals, uvs, indices, skin: null };
+}
+
+/** A box whose upper cross-section is shifted in depth, for fixed inclined joinery. */
+export function metricShearedBox(min:Point,max:Point,pivotY:number,slope:number):IAutoMovieMesh {
+  if(!Number.isFinite(pivotY)||!Number.isFinite(slope)) throw Error("invalid box shear");
+  const mesh=metricBox(min,max);
+  for(let i=0;i<mesh.positions.length;i+=3)
+    mesh.positions[i+2]+=slope*(mesh.positions[i+1]!-pivotY);
+  for(let face=0;face<6;face++) {
+    const start=face*12,a=mesh.positions.slice(start,start+3),b=mesh.positions.slice(start+3,start+6),c=mesh.positions.slice(start+6,start+9);
+    const u=[0,1,2].map((k)=>b[k]!-a[k]!),v=[0,1,2].map((k)=>c[k]!-a[k]!);
+    const cross=[u[1]!*v[2]!-u[2]!*v[1]!,u[2]!*v[0]!-u[0]!*v[2]!,u[0]!*v[1]!-u[1]!*v[0]!];
+    const length=Math.hypot(...cross);
+    for(let j=0;j<4;j++) for(let k=0;k<3;k++) mesh.normals![start+j*3+k]=cross[k]!/length;
+    if(face<4) for(let j=0;j<4;j++) mesh.uvs![face*8+j*2+1]*=Math.hypot(1,slope);
+  }
+  return mesh;
 }
 
 /** Closed twelve or more sided cylinder/frustum; UVs are arc length and Y. */
@@ -204,6 +222,22 @@ export function metricRingZ(center:Point,inside:number,outside:number,depth:numb
   return {positions,normals,uvs,indices,skin:null};
 }
 
+/** Horizontal annular plate, with its top at the supplied Y coordinate. */
+export function metricRingY(top:Point,inside:number,outside:number,depth:number,sides=16):IAutoMovieMesh {
+  const mesh=metricRingZ([0,0,0],inside,outside,depth,sides);
+  for(let i=0;i<mesh.positions.length;i+=3) {
+    const x=mesh.positions[i]!,y=mesh.positions[i+1]!,z=mesh.positions[i+2]!;
+    mesh.positions[i]=top[0]+x;
+    mesh.positions[i+1]=top[1]-z;
+    mesh.positions[i+2]=top[2]+y;
+    const nx=mesh.normals![i]!,ny=mesh.normals![i+1]!,nz=mesh.normals![i+2]!;
+    mesh.normals![i]=nx;
+    mesh.normals![i+1]=-nz;
+    mesh.normals![i+2]=ny;
+  }
+  return mesh;
+}
+
 /** Hollow cylindrical or tapered vessel with a closed foot and open mouth. */
 export function metricCup(center:Point,bottomRadius:number,topRadius:number,height:number,wall:number,sides=16):IAutoMovieMesh {
   if(![...center,bottomRadius,topRadius,height,wall,sides].every(Number.isFinite)||bottomRadius<=wall||topRadius<=wall||height<=wall||wall<=0||sides<3)
@@ -327,6 +361,9 @@ export class PrototypeBuilder {
   box(surface: string, min: Point, max: Point): this {
     return this.add(surface, metricBox(min,max), "box-metric");
   }
+  shearedBox(surface:string,min:Point,max:Point,pivotY:number,slope:number):this {
+    return this.add(surface,metricShearedBox(min,max,pivotY,slope),"box-metric");
+  }
   frustum(surface: string, center: Point, r0:number, r1:number, height:number, sides=16): this {
     return this.add(surface, metricFrustum(center,r0,r1,height,sides), "cylinder-metric");
   }
@@ -338,6 +375,9 @@ export class PrototypeBuilder {
   }
   ringZ(surface:string,center:Point,inside:number,outside:number,depth:number):this {
     return this.add(surface,metricRingZ(center,inside,outside,depth),"cylinder-metric");
+  }
+  ringY(surface:string,top:Point,inside:number,outside:number,depth:number):this {
+    return this.add(surface,metricRingY(top,inside,outside,depth),"cylinder-metric");
   }
   cup(surface:string,center:Point,bottomRadius:number,topRadius:number,height:number,wall:number):this {
     return this.add(surface,metricCup(center,bottomRadius,topRadius,height,wall),"cylinder-metric");
@@ -369,7 +409,7 @@ export class PrototypeBuilder {
       metallic:role(binding.surface)?finishRoles[role(binding.surface)!].metallic:
         !(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
       roughness:role(binding.surface)?finishRoles[role(binding.surface)!].roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,
-      emissive:null,opacity:/glass/.test(binding.surface)?0.38:1,baseColorTexture:null,
+      emissive:null,opacity:/glass/.test(binding.surface)&&binding.surface!=="appliance-glass"?0.38:1,baseColorTexture:null,
     }));
     return { id:this.id, owner:this.owner, bindings, model:{id:this.id,name:this.id,origin:"generated",parts:this.parts,skeleton:null,body:null,materials,asset:null} };
   }

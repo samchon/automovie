@@ -32,6 +32,7 @@ export interface PrototypeSpec {
   /** One ceiling pendant profile, sharing the same measured generator. */
   pendant?: "island" | "dining";
   laundry?: "washer" | "dryer";
+  chairProfile?: "terrace";
   curtain?: WindowCurtainSize;
   lShelf?: { backDepth:number; rightWidth:number };
 }
@@ -249,26 +250,38 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       if(pending.has("door-ring")) {
         const cy=Math.min(0.42,h*0.48),front=d-0.03;
         const body=pending.has("appliance-body");
-        side("appliance-body");
         if(body) {
-          b.box("appliance-body",[-w/2,h-0.025,0],[w/2,h,d]);
+          const wall=0.025,backCut=0.015,plinthTop=0.10;
+          const left=-w/2,right=w/2,innerLeft=left+wall,innerRight=right-wall,casingRight=left+0.07;
+          b.box("appliance-body",[left,0,backCut],[innerLeft,plinthTop,front]);
+          b.box("appliance-body",[left,plinthTop,spec.laundry==="washer"?backCut:0],[innerLeft,h,front]);
+          b.box("appliance-body",[innerRight,0,backCut],[spec.laundry==="dryer"?right-backCut:right,plinthTop,front]);
+          b.box("appliance-body",[innerRight,plinthTop,0],[right,h,front]);
+          b.box("appliance-body",[innerLeft,0,backCut],[innerRight,plinthTop,wall]);
+          if(spec.laundry==="washer") {
+            b.box("appliance-body",[innerLeft,plinthTop,backCut],[casingRight,h,wall]);
+            b.box("appliance-body",[casingRight,plinthTop,0],[innerRight,h,wall]);
+          } else b.box("appliance-body",[innerLeft,plinthTop,0],[innerRight,h,wall]);
+          b.box("appliance-body",[innerLeft,h-wall,wall],[innerRight,h,front]);
           const radius=0.26,plate=0.015;
           b.box("appliance-body",[-w/2,0,front-plate],[w/2,cy-radius,front]);
           b.box("appliance-body",[-w/2,cy+radius,front-plate],[w/2,h-0.12,front]);
           b.box("appliance-body",[-w/2,cy-radius,front-plate],[-radius,cy+radius,front]);
           b.box("appliance-body",[radius,cy-radius,front-plate],[w/2,cy+radius,front]);
-          b.ringZ("appliance-body",[0,cy,front-0.08],0.20,0.26,0.08);
+          b.ringZ("appliance-body",[0,cy,front-0.102],0.20,0.26,0.102);
+          pending.delete("appliance-body");
         }
         if(pending.has("appliance-interior")) {
-          b.beam("appliance-interior",[0,cy,front-0.10],[0,cy,front-0.094],0.20,0.20,16);
+          b.beam("appliance-interior",[0,cy,front-0.103],[0,cy,front-0.102],0.20,0.20,16);
           pending.delete("appliance-interior");
         }
         if(pending.has("drum")) {
-          b.ringZ("drum",[0,cy,front-0.09],0.174,0.18,0.06);
+          b.ringZ("drum",[0,cy,front-0.102],0.174,0.18,0.06);
           pending.delete("drum");
         }
         if(pending.has("leaf")) {
-          b.ringZ("leaf",[0,cy,front],0.195,0.225,0.018);
+          b.ringZ("leaf",[0,cy,front],0.20,0.225,0.018);
+          b.ringZ("leaf",[0,cy,front+0.014],0.195,0.20,0.004);
           pending.delete("leaf");
         }
         if(pending.has("door-ring")) {
@@ -276,15 +289,22 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           pending.delete("door-ring");
         }
         if(pending.has("glass")) {
-          b.beam("glass",[0,cy,front+0.014],[0,cy,front+0.018],0.195,0.195,16);
+          b.beam("glass",[0,cy,front+0.018],[0,cy,front+0.022],0.195,0.195,16);
           pending.delete("glass");
         }
-        box("control-panel",-w/2+0.025,h-0.12,d-0.025,w/2-0.025,h-0.02,d);
+        box("control-panel",-w/2,h-0.12,d-0.03,w/2,h-0.02,d-0.018);
         if(spec.laundry) {
-          const markX=spec.laundry==="washer"?-w*0.22:w*0.16;
-          b.box("control-panel",[markX,h-0.095,d-0.024],[markX+0.055,h-0.075,d]);
+          if(spec.laundry==="washer")
+            b.beam("control-panel",[-w*0.22,h-0.07,d-0.018],[-w*0.22,h-0.07,d-0.015],0.025,0.025,16);
+          else for(let i=0;i<3;i++) {
+            const x=w*0.12+i*0.04;
+            b.box("control-panel",[x,h-0.088,d-0.018],[x+0.018,h-0.068,d-0.015]);
+          }
         }
-        box("handle",-w*0.28,cy-0.045,d-0.008,-w*0.22,cy+0.045,d);
+        if(pending.has("handle")) {
+          b.beam("handle",[0.20,cy,d-0.008],[0.20,cy,d],0.02,0.02,16);
+          pending.delete("handle");
+        }
         break;
       }
       if(pending.has("burner")) {
@@ -292,11 +312,17 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         const mouth={left:-0.32,right:0.32,bottom:0.12,top:0.60,back:0.08,front:0.61};
         const body=pending.has("appliance-body"),interior=pending.has("appliance-interior");
         if(body) {
-          for(const x of [-w/2,mouth.right])
-            b.box("appliance-body",[x,0,0],[x+(x<0?mouth.left+w/2:w/2-mouth.right),0.88,d]);
-          b.box("appliance-body",[mouth.left,0,0],[mouth.right,0.88,mouth.back]);
+          for(const x of [-w/2,mouth.right]) {
+            const right=x+(x<0?mouth.left+w/2:w/2-mouth.right);
+            b.box("appliance-body",[x,0,0.015],[right,0.10,d]);
+            b.box("appliance-body",[x,0.10,0],[right,0.88,d]);
+          }
+          b.box("appliance-body",[mouth.left,0,0.015],[mouth.right,0.10,mouth.back]);
+          b.box("appliance-body",[mouth.left,0.10,0],[mouth.right,0.88,mouth.back]);
           b.box("appliance-body",[mouth.left,0,mouth.back],[mouth.right,mouth.bottom,d]);
-          b.box("appliance-body",[mouth.left,mouth.top,mouth.back],[mouth.right,0.88,d]);
+          b.box("appliance-body",[mouth.left,mouth.top,mouth.back],[mouth.right,0.66,d]);
+          b.box("appliance-body",[mouth.left,0.66,mouth.back],[mouth.right,0.86,0.63]);
+          b.box("appliance-body",[mouth.left,0.86,mouth.back],[mouth.right,0.88,d]);
           pending.delete("appliance-body");
         }
         if(interior) {
@@ -308,9 +334,9 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           b.box("appliance-interior",[mouth.left+t,mouth.bottom+t,mouth.back],[mouth.right-t,mouth.top-t,mouth.back+t]);
           pending.delete("appliance-interior");
         }
-        box("cooktop",-w/2,0.88,0,w/2,0.91,d);
+        box("cooktop",-w/2,0.88,0,w/2,0.90,d);
         for(const x of [-0.20,0.20]) for(const z of [0.19,0.46])
-          b.frustum("burner",[x,0.90,z],0.075,0.075,0.01);
+          b.ringY("burner",[x,0.91,z],0.08,0.10,0.01);
         pending.delete("burner");
         box("control-panel",-w/2,0.66,0.63,w/2,0.86,0.65);
         const door={left:-0.34,right:0.34,bottom:0.10,top:0.62,back:0.61,front:0.65};
@@ -333,7 +359,8 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
             b.box("appliance-body",[x,0,0],[x+(x<0?mouth.left+w/2:w/2-mouth.right),h,d]);
           b.box("appliance-body",[mouth.left,0,0],[mouth.right,h,mouth.back]);
           b.box("appliance-body",[mouth.left,0,mouth.back],[mouth.right,mouth.bottom,d]);
-          b.box("appliance-body",[mouth.left,mouth.top,mouth.back],[mouth.right,h,d]);
+          b.box("appliance-body",[mouth.left,mouth.top,mouth.back],[mouth.right,0.70,d]);
+          b.box("appliance-body",[mouth.left,0.70,mouth.back],[mouth.right,h,mouth.front]);
           pending.delete("appliance-body");
         }
         const t=0.02;
@@ -408,6 +435,22 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       break;
     case "chair":
       {
+      if(spec.chairProfile==="terrace") {
+        const seatTop=0.45,legWidth=0.035,slatGap=0.01,slatDepth=(d-3*slatGap)/4;
+        for(let i=0;i<4;i++) {
+          const z=i*(slatDepth+slatGap);
+          b.box("seat",[-w/2,seatTop-0.03,z],[w/2,seatTop,z+slatDepth]);
+        }
+        for(const x of [-0.21,0.21]) for(const z of [0.0175,0.51])
+          b.box("leg",[x-legWidth/2,0,z-legWidth/2],[x+legWidth/2,seatTop-0.03,z+legWidth/2]);
+        const slope=-Math.tan(8*Math.PI/180),pivot=0.45;
+        for(const x of [-0.21,0.21])
+          b.shearedBox("back",[x-legWidth/2,0.42,0.09-legWidth/2],[x+legWidth/2,h,0.09+legWidth/2],pivot,slope);
+        for(const [bottom,top] of [[0.55,0.63],[0.66,0.74],[0.77,0.85]])
+          b.shearedBox("back",[-0.21,bottom,0.08],[0.21,top,0.10],pivot,slope);
+        for(const face of ["seat","leg","back"]) pending.delete(face);
+        break;
+      }
       const stool=pending.has("footrest");
       const seatTop=stool?h:Math.min(0.45,h*0.54);
       box("seat",-w/2,seatTop-(stool?0.05:0.03),stool?0.02:0,w/2,seatTop,d);
