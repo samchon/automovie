@@ -8,7 +8,7 @@ import { solidsContaining, type ScanSolid } from "./envelope-overlaps";
 type Point = IAutoMovieVector3;
 export interface Triangle { a: Point; b: Point; c: Point; element: string; part: string; minY: number; maxY: number; minX: number; maxX: number; minZ: number; maxZ: number }
 export interface AddressCoverageRow { wall: string; face: number; emitted: number; covered: number; uncovered: number; skyOpen: number; exposed: number; excepted: number; unexpected: number; surfaces: string[] }
-export interface AddressCoverage { step: number; emitted: number; covered: number; uncovered: number; skyOpen: number; exposed: number; excepted: number; unexpected: number; rows: AddressCoverageRow[]; exceptions: Array<AddressException & { samples: number }> }
+export interface AddressCoverage { step: number; emitted: number; covered: number; uncovered: number; skyOpen: number; exposed: number; excepted: number; unexpected: number; addressedInException: number; rows: AddressCoverageRow[]; exceptions: Array<AddressException & { samples: number }> }
 
 export const rayTriangle = (o: Point, d: Point, { a, b, c }: Pick<Triangle, "a" | "b" | "c">): number | null => {
   const e1 = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
@@ -63,10 +63,44 @@ export const emittedTriangles = (environment: IAutoMovieBuiltEnvironment): Trian
   return result;
 };
 
+/** A ray may leave the building under an eave even when a vertical sky ray is blocked. */
+export const rayIntersectsBounds = (origin: Point, direction: Point, triangle: Triangle): boolean => {
+  let near = 0, far = Infinity;
+  for (const axis of ["x", "y", "z"] as const) {
+    const low = triangle[`min${axis.toUpperCase()}` as "minX" | "minY" | "minZ"];
+    const high = triangle[`max${axis.toUpperCase()}` as "maxX" | "maxY" | "maxZ"];
+    if (Math.abs(direction[axis]) < 1e-12) {
+      if (origin[axis] < low - 1e-9 || origin[axis] > high + 1e-9) return false;
+      continue;
+    }
+    let a = (low - origin[axis]) / direction[axis], b = (high - origin[axis]) / direction[axis];
+    if (a > b) [a, b] = [b, a];
+    near = Math.max(near, a);
+    far = Math.min(far, b);
+    if (near > far + 1e-9) return false;
+  }
+  return true;
+};
+
+/** Exterior cell test for a five-centimetre point, using seven fixed escape directions. */
+export const reachesExterior = (point: Point, normal: Point, occluders: readonly Triangle[]): boolean => {
+  const s = Math.SQRT1_2;
+  const lateral = { x: -normal.z, y: 0, z: normal.x };
+  const directions: Point[] = [normal, { x: 0, y: 1, z: 0 },
+    { x: normal.x * s, y: s, z: normal.z * s },
+    { x: (normal.x + lateral.x) * s, y: 0, z: (normal.z + lateral.z) * s },
+    { x: (normal.x - lateral.x) * s, y: 0, z: (normal.z - lateral.z) * s },
+    { x: normal.x * 0.5, y: 0.866, z: normal.z * 0.5 },
+    { x: normal.x * 0.9659, y: 0.2588, z: normal.z * 0.9659 }];
+  return directions.some((direction) => !occluders.some((triangle) =>
+    rayIntersectsBounds(point, direction, triangle) && rayTriangle(point, direction, triangle) !== null));
+};
+
 /** Every emitted wall plan edge is sampled, even if the authored boundary collection omits it. */
 export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, walls: readonly WallSpec[], solids: readonly ScanSolid[], step = 0.1): AddressCoverage => {
   if (!(step > 0 && step <= 0.1)) throw new Error("address coverage: step must be in (0, 0.1] m");
   const tris = emittedTriangles(environment);
+  const occluders = tris.filter((triangle) => !/site-ground|site-distant/.test(triangle.element));
   const bucketSize = 0.5;
   const buckets = new Map<string, Triangle[]>();
   const byElement = new Map<string, Triangle[]>();
@@ -83,15 +117,19 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
     .some((triangle) => triangle.maxY >= point.y && rayTriangle(point, { x: 0, y: 1, z: 0 }, triangle) !== null);
   const rows: AddressCoverageRow[] = [];
   const exceptionCounts = new Map<AddressException, number>(exposedAddressExceptions.map((entry) => [entry, 0]));
-  let emitted = 0, covered = 0, skyOpen = 0, exposed = 0, excepted = 0, unexpected = 0;
+  let emitted = 0, covered = 0, skyOpen = 0, exposed = 0, excepted = 0, unexpected = 0, addressedInException = 0;
   const locatedSpaces = environment.spaces.filter((space) => space.cells.length > 0);
   for (const wall of walls) {
     const element = `element.${wall.id}`;
     const own = byElement.get(element) ?? [];
     if (own.length === 0) continue;
-    const boundaries = environment.boundaries.filter((boundary) => boundary.elements.includes(element) && boundary.face !== undefined).map((boundary) => {
+    const wallBoundaries = environment.boundaries.filter((boundary) => boundary.elements.includes(element) && boundary.face !== undefined);
+    const boundaries = wallBoundaries.map((boundary) => {
       const face = boundary.face!;
-      return { face, normal: Quaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 }), axis: Quaternion.rotateVector(face.rotation, { x: 1, y: 0, z: 0 }) };
+      const faceNormal = Quaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 });
+      // The pediment has two separately addressed faces on one physical wall; each keeps its side even if the other address is removed.
+      const directional = wall.id === "wall.facade-south.pediment";
+      return { face, directional, normal: faceNormal, axis: Quaternion.rotateVector(face.rotation, { x: 1, y: 0, z: 0 }) };
     });
     const cx = wall.plan.reduce((sum, point) => sum + point.x, 0) / wall.plan.length;
     const cz = wall.plan.reduce((sum, point) => sum + point.z, 0) / wall.plan.length;
@@ -118,12 +156,16 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
           });
           if (emittedPart === undefined) continue;
           emitted++; faceEmitted++;
-          const addressed = boundaries.some(({ face, normal: faceNormal, axis }) => {
+          const addressed = boundaries.some(({ face, directional, normal: faceNormal, axis }) => {
             const dx = point.x - face.origin.x, dy = point.y - face.origin.y, dz = point.z - face.origin.z;
-            const offset = Math.abs(dx * faceNormal.x + dy * faceNormal.y + dz * faceNormal.z);
+            const signedOffset = dx * faceNormal.x + dy * faceNormal.y + dz * faceNormal.z;
+            const offset = directional ? signedOffset : Math.abs(signedOffset);
             return Math.abs(offset - face.thickness / 2) <= 0.01 && pointInOutline(face.outline, dx * axis.x + dy * axis.y + dz * axis.z, point.y);
           });
-          if (addressed) { covered++; faceCovered++; continue; }
+          if (addressed) {
+            if (exposedAddressExceptionFor(wall.id, faceIndex, point) !== undefined) addressedInException++;
+            covered++; faceCovered++; continue;
+          }
           surfaces.add(emittedPart.part);
           const front = { x: point.x + normal.x * 0.02, y: point.y, z: point.z + normal.z * 0.02 };
           const far = { x: point.x + normal.x * 0.05, y: point.y, z: point.z + normal.z * 0.05 };
@@ -131,7 +173,14 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
           if (sky) { skyOpen++; faceSky++; }
           if (solidsContaining(solids, front).length > 0) continue;
           const spaces = locatedSpaces.filter((space) => builtSpaceContainsPoint(space, far));
-          if (!spaces.some((space) => space.id === "temple-site") && !(spaces.length === 0 && sky)) continue;
+          // The pediment's named inner surface faces the open porch cell. It needs its own address
+          // even though that cell is inside the authored entrance volume rather than above a roof.
+          const openPorchFace = emittedPart.part === "surface.entrance.pediment-back" &&
+            spaces.some((space) => space.id === "entrance");
+          const exposedCell = openPorchFace || spaces.some((space) => space.id === "temple-site") ||
+            (spaces.length === 0 && reachesExterior({ x: far.x + 0.000291, y: far.y + 0.000173, z: far.z + 0.000113 },
+              { x: normal.x, y: 0, z: normal.z }, occluders));
+          if (!exposedCell) continue;
           exposed++; faceExposed++;
           const exception = exposedAddressExceptionFor(wall.id, faceIndex, point);
           if (exception !== undefined) {
@@ -147,6 +196,6 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
         unexpected: faceUnexpected, surfaces: [...surfaces].sort((a, b) => a.localeCompare(b)) });
     }
   }
-  return { step, emitted, covered, uncovered: emitted - covered, skyOpen, exposed, excepted, unexpected, rows,
+  return { step, emitted, covered, uncovered: emitted - covered, skyOpen, exposed, excepted, unexpected, addressedInException, rows,
     exceptions: exposedAddressExceptions.map((entry) => ({ ...entry, samples: exceptionCounts.get(entry)! })) };
 };

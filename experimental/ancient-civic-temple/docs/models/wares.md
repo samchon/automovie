@@ -4,7 +4,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 큰 저장 항아리를 회전체 윤곽 다섯 점·열린 입·어깨 손잡이 두 개까지 정한다.
-@evidence principles/core/common.md#substantive-completion 높이별 반지름(0.10/0.24/0.18/0.08/0.10m), 입 안쪽 0.15m 깊이, 손잡이 원환 치수, 16분할이 있어 source가 항아리를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이, ±X 어깨에 로컬 XY 평면으로 향하는 두 고리 손잡이의 중심·원환 치수, 몸체 16분할을 확정해 source가 항아리 손잡이 방향을 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 윤곽 구성은 35-objects#vessels, 쓰이는 곳은 30-interiors#storage와 #service-yard, 형태는 이미지 02·05에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 배·어깨·목·입술 네 구간과 열린 입이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 0.15m의 보이는 빈 공간, 부드러운 법선을 정한다.
@@ -22,7 +22,7 @@
 
 [보관실](../settings/30-interiors.md#storage)과 서비스 마당의 큰 도기 항아리다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 바닥·부푼 배·좁은 목·입술과 열린 입, 이미지 02·05의 벽을 따라 선 큰 항아리가 근거다.
 
-로컬 원점은 바닥면 중심이다. 회전체 윤곽은 높이 0에서 반지름 0.10m(바닥), 0.40m에서 0.24m(배), 0.58m에서 0.18m(어깨), 0.64m에서 0.08m(목), 0.70m에서 0.10m(입술 바깥)로 이어지고 입술 안쪽은 반지름 0.08m에서 0.15m 깊이까지 파인다. 어깨에는 작은 고리 손잡이 두 개(원환 반지름 0.04m, 굵기 0.015m)가 마주 붙는다. 회전 16분할, 부드러운 법선이다. 점유 상자는 약 0.56×0.70×0.56m다.
+로컬 원점은 바닥면 중심이다. 회전체 윤곽은 높이 0에서 반지름 0.10m(바닥), 0.40m에서 0.24m(배), 0.58m에서 0.18m(어깨), 0.64m에서 0.08m(목), 0.70m에서 0.10m(입술 바깥)로 이어지고 입술 안쪽은 반지름 0.08m에서 0.15m 깊이까지 파인다. 어깨의 작은 고리 손잡이 두 개(원환 반지름 0.04m, 굵기 0.015m)는 각각 중심 (X,Y,Z)=(±0.20,0.58,0)m이며 로컬 XY 평면에 세운다. 원환은 주환 16분할·관 8분할로 몸체 어깨에 닿고 두 손잡이는 서로 반대 X 방향으로 선다. 몸체 회전 16분할, 부드러운 법선이다. 점유 상자는 약 0.56×0.70×0.56m다.
 
 part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공간이다. 크기군 반복과 위치는 instances가 정한다.
 
@@ -32,7 +32,7 @@ part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공�
 
 <!--
 @evidence principles/core/common.md#scope-preservation 운반 항아리를 윤곽 다섯 점·입 안쪽 깊이·목과 어깨를 잇는 세로 고리 손잡이 두 개까지 정한다.
-@evidence principles/core/common.md#substantive-completion 높이별 반지름(0.07/0.15/0.10/0.05/0.06m), 입 안쪽 0.10m, 손잡이 굵기 0.018m, 16분할이 있어 source가 운반 용기를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 몸체의 높이별 반지름과 입 안쪽 0.10m, ±X 손잡이의 두 부착점·바깥 제어점·곡선 분할·관 굵기를 정해 source가 곡선 경로를 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 몸체와 붙은 곡면 손잡이는 35-objects#vessels, 보관실의 손잡이 달린 운반 용기는 30-interiors#storage에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 큰 항아리와 구별되는 중간 크기와 세로 고리 손잡이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract body·handle part와 손잡이 안쪽 고리·입 안쪽의 빈 공간을 정한다.
@@ -47,7 +47,7 @@ part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공�
 
 손잡이 달린 중간 크기 운반 용기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 몸체와 붙은 곡면 손잡이가 근거다.
 
-로컬 원점은 바닥면 중심이다. 윤곽은 높이 0에서 반지름 0.07m, 0.28m에서 0.15m, 0.40m에서 0.10m, 0.45m에서 0.05m, 0.50m에서 0.06m이며 입 안쪽은 0.10m 깊이까지 파인다. 목과 어깨를 잇는 세로 고리 손잡이 두 개(굵기 0.018m)가 곡면으로 붙는다. 회전 16분할이다. 점유 상자는 약 0.40×0.50×0.30m다.
+로컬 원점은 바닥면 중심이다. 윤곽은 높이 0에서 반지름 0.07m, 0.28m에서 0.15m, 0.40m에서 0.10m, 0.45m에서 0.05m, 0.50m에서 0.06m이며 입 안쪽은 0.10m 깊이까지 파인다. 목과 어깨를 잇는 세로 고리 손잡이 두 개(관 반지름 0.018m)는 로컬 ±X 면에서 아래 부착점 (±0.15,0.28,0)m, 위 부착점 (±0.06,0.45,0)m을 잇는다. 각 경로는 아래점→(±0.20,0.30,0)→(±0.20,0.43,0)→위점을 제어점으로 하는 3차 베지어 곡선이며 길이 12분할·관 둘레 8분할이다. 몸체 회전 16분할이다. 점유 상자는 약 0.44×0.50×0.30m다.
 
 part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽이 빈 공간이다. 위치는 instances가 정한다.
 
@@ -57,7 +57,7 @@ part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽�
 
 <!--
 @evidence principles/core/common.md#scope-preservation 작은 탁상 용기를 윤곽 네 점·입 안쪽 깊이·손잡이 하나까지 정한다.
-@evidence principles/core/common.md#substantive-completion 높이별 반지름(0.05/0.08/0.035/0.045m), 입 안쪽 0.05m, 손잡이 굵기 0.01m, 12분할이 있어 source가 작은 용기를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이에 +X 손잡이의 아래·위 부착점, 두 제어점과 12구간 경로·관 8분할을 더해 source가 손잡이 형상을 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 높이 0.12~0.30m 탁상 용기 범위는 35-objects#vessels에서 오고 봉헌실·관리실·감실의 쓰임은 각 선반·감실 모델 H2가 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 좁은 목과 한쪽 손잡이의 0.20m 용기라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 빈 공간을 정한다.
@@ -71,7 +71,7 @@ part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽�
 
 봉헌실·관리실·감실의 작은 도기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 높이 0.12~0.30m 탁상 용기가 근거다.
 
-로컬 원점은 바닥면 중심이다. 윤곽은 높이 0에서 반지름 0.05m, 0.10m에서 0.08m, 0.16m에서 0.035m, 0.20m에서 0.045m이며 입 안쪽이 0.05m 깊이까지 파인다. 한쪽에 굵기 0.01m의 고리 손잡이 하나가 있다. 회전 12분할이다. 점유 상자는 약 0.20×0.20×0.16m다.
+로컬 원점은 바닥면 중심이다. 윤곽은 높이 0에서 반지름 0.05m, 0.10m에서 0.08m, 0.16m에서 0.035m, 0.20m에서 0.045m이며 입 안쪽이 0.05m 깊이까지 파인다. 한쪽 +X의 고리 손잡이(관 반지름 0.01m)는 아래 부착점 (0.08,0.10,0)m에서 제어점 (0.10,0.10,0)m·(0.10,0.16,0)m를 지나 위 부착점 (0.035,0.16,0)m으로 이어지는 3차 베지어 곡선이다. 경로 12분할·관 둘레 8분할, 몸체 회전 12분할이다. 점유 상자는 약 0.22×0.20×0.16m다.
 
 part와 표면은 `body`, `handle`이다. 위치와 수량은 instances가 정한다.
 
@@ -105,7 +105,7 @@ part와 표면은 `bowl` 하나이며 materials가 금속 또는 도기를 고�
 
 <!--
 @evidence principles/core/common.md#scope-preservation 운반 바구니를 벌어지는 원통 껍질·안쪽 바닥·띠와 살의 요철·테두리까지 정한다.
-@evidence principles/core/common.md#substantive-completion 지름 0.40m·높이 0.32m, 반지름 0.18→0.20m·벽 0.015m, 열 줄 띠와 24개 살의 0.004m 돌출, 테두리 원환이 있어 source가 바구니를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 지름·높이·벽 두께, 열 줄 띠와 24개 세로 살의 폭 0.012m·0.004m 돌출, 테두리 원환을 확정해 source가 세로 살 단면을 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 구성은 35-objects#baskets, 쓰이는 곳은 30-interiors#storage·#service-yard, 형태는 이미지 02·05에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 짠 바구니 설정을 그림 판이 아닌 띠·살 요철의 기하라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract wall·rim·floor part와 위로 열린 빈 공간을 정한다.
@@ -122,7 +122,7 @@ part와 표면은 `bowl` 하나이며 materials가 금속 또는 도기를 고�
 
 [운반 바구니](../settings/35-objects.md#baskets)의 황갈색 짠 바구니다. 이미지 02·05의 둥근 몸체와 테두리가 근거다. 짜임은 리뷰 거리에서 띠와 살의 요철로 표현하며 전면 그림 판을 쓰지 않는다.
 
-로컬 원점은 바닥면 중심이다. 지름 0.40m·높이 0.32m의 약간 벌어지는 원통 껍질(아래 반지름 0.18m, 위 0.20m, 벽 두께 0.015m)이며 바닥 위 0.02m에 안쪽 바닥이 있다. 벽은 높이 방향 열 줄의 띠가 번갈아 0.004m씩 바깥으로 나오고, 24개의 세로 살이 0.004m 튀어나온다. 테두리는 굵기 0.015m 원환이다. 회전 24분할이다. 점유 상자는 0.40×0.32×0.40m다.
+로컬 원점은 바닥면 중심이다. 지름 0.40m·높이 0.32m의 약간 벌어지는 원통 껍질(아래 반지름 0.18m, 위 0.20m, 벽 두께 0.015m)이며 바닥 위 0.02m에 안쪽 바닥이 있다. 벽은 높이 방향 열 줄의 띠가 번갈아 0.004m씩 바깥으로 나오고, 24개의 세로 살은 둘레를 따라 중심각 15°마다 놓이며 각 살의 접선 방향 폭은 0.012m, 바깥 돌출은 0.004m다. 테두리는 굵기 0.015m 원환이다. 회전 24분할이다. 돌출 살과 테두리까지의 점유 상자는 약 0.43×0.32×0.43m다.
 
 part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이다. 보관실·마당의 위치와 수는 instances가 정한다.
 

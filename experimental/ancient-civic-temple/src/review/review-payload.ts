@@ -68,7 +68,7 @@ export const createReviewPayload = (grid: number): ReviewPayload => {
     ledger, surfaces,
     failures: pairs.length + buried.length + ledger.filter((row) => row.findings.length > 0).length +
       boundaryUpper.filter((row) => row.exposed > 0).length + openingFrustum.filter((row) => !row.roomCenterVisible || !row.completeProfileFramed).length +
-      addressCoverage.unexpected + addressCoverage.exceptions.filter((entry) => entry.samples === 0).length +
+      addressCoverage.unexpected + addressCoverage.addressedInException + addressCoverage.exceptions.filter((entry) => entry.samples === 0).length +
       ownFacadeFailures(ownFacades).length + missingExceptionObservations.length,
   };
 };

@@ -10,12 +10,12 @@ const dot = (a: Vector, b: Vector): number => a.x * b.x + a.y * b.y + a.z * b.z;
 const cross = (a: Vector, b: Vector): Vector => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });
 const unit = (a: Vector): Vector => { const length = Math.hypot(a.x, a.y, a.z); return { x: a.x / length, y: a.y / length, z: a.z / length }; };
 
-export interface OwnFacadeSide { sign: -1 | 1; cameraSide: boolean; sampled: number; visible: number; ratio: number }
+export interface OwnFacadeSide { sign: -1 | 1; addressSide: boolean; sampled: number; visible: number; ratio: number }
 export interface OwnFacadeRow { id: string; sides: OwnFacadeSide[] }
 export const ownFacadeFailures = (rows: readonly OwnFacadeRow[], minimum = 0.5): string[] =>
-  rows.filter((row) => !row.sides.some((side) => side.cameraSide && side.ratio >= minimum)).map((row) => row.id);
+  rows.filter((row) => !row.sides.some((side) => side.addressSide && side.ratio >= minimum)).map((row) => row.id);
 
-/** Every one-space facade is sampled on both emitted sides at 5 cm; the camera-side view must be useful. */
+/** Every one-space facade is sampled on both emitted sides at 5 cm; the addressed side must be visible. */
 export const ownFacadeViews = (environment: IAutoMovieBuiltEnvironment, observations: readonly TempleObservation[]): OwnFacadeRow[] => {
   const triangles = emittedTriangles(environment);
   const ids = environment.boundaries.filter((b) => b.spaces.length === 1 && b.face !== undefined);
@@ -30,6 +30,7 @@ export const ownFacadeViews = (environment: IAutoMovieBuiltEnvironment, observat
     const normal = Quaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 });
     const horizontal = Quaternion.rotateVector(face.rotation, { x: 1, y: 0, z: 0 });
     const cameraSign = Math.sign(dot(sub(observation.position, face.origin), normal));
+    const opposedFace = boundary.elements.includes("element.wall.facade-south.pediment");
     const look = unit(sub(observation.target, observation.position));
     const right = unit(cross(look, { x: 0, y: 1, z: 0 }));
     const up = cross(right, look);
@@ -73,7 +74,7 @@ export const ownFacadeViews = (environment: IAutoMovieBuiltEnvironment, observat
         })) visible++;
       }
     }
-    if (sampled > 0) sides.push({ sign, cameraSide: sign === cameraSign, sampled, visible,
+    if (sampled > 0) sides.push({ sign, addressSide: sign === (opposedFace ? 1 : cameraSign), sampled, visible,
       ratio: visible / sampled });
     }
     return { id: boundary.id, sides };

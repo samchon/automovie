@@ -1,10 +1,20 @@
 /** 모델 분량 계측과 계정 표가 동일한 전집합을 쓰는지 검사한다. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures } from "../model-account";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelParameterAuditMismatches } from "../model-account";
 
 void test("model measure excludes comments and whitespace while retaining headings", () => {
   assert.equal(modelDocumentBodyLength("# 제목\n<!-- 제외 -->\n## 단위\n가 나 · 2\n"), 11);
+});
+
+void test("parameter audit has one closed row per real H2 and rejects an omitted, duplicate or open row", () => {
+  const docs = [{ path: "fixture.md", source: "## 하나 {#one}\n본문\n## 둘 {#two}\n본문" }];
+  const table = ["| 모델 H2 | source에 남긴 새 치수 결정 | 본문의 닫힘 근거 |", "| --- | ---: | --- |",
+    "| [one](../../models/fixture.md#one) | 0 | 값 |", "| [two](../../models/fixture.md#two) | 0 | 값 |"].join("\n");
+  assert.deepEqual(modelParameterAuditMismatches(docs, table), []);
+  assert.ok(modelParameterAuditMismatches(docs, table.replace("| [two](../../models/fixture.md#two) | 0 | 값 |", "")).some((row) => row.includes("two")));
+  assert.ok(modelParameterAuditMismatches(docs, `${table}\n| [one](../../models/fixture.md#one) | 0 | 값 |`).some((row) => row.includes("duplicate")));
+  assert.ok(modelParameterAuditMismatches(docs, table.replace("#two) | 0", "#two) | 1")).some((row) => row.includes("not closed")));
 });
 
 void test("H2 rank measure excludes evidence comments and keeps each section distinct", () => {

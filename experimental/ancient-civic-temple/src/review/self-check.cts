@@ -16,13 +16,14 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { createReviewPayload } from "./review-payload";
-import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures } from "./model-account";
+import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelParameterAuditMismatches } from "./model-account";
 import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } from "./space-account";
 import { replaceMeasuredTable } from "./account-sync";
-import { modelHandoffRows } from "./model-handoff-audit";
+import { handoffOtherOwners, modelHandoffRows } from "./model-handoff-audit";
 import { addressCoverageCensus } from "./address-coverage";
-import { ownFacadeFailures } from "./own-facade-view";
+import { ownFacadeFailures, ownFacadeViews } from "./own-facade-view";
 import { createTempleEnvironment } from "../spaces/environment";
+import { templeObservations } from "../spaces/observations";
 import { envelopeSolids } from "./envelope-overlaps";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
@@ -46,6 +47,7 @@ console.log(`observations: ${review.observations.count} (${review.observations.w
 for (const line of review.observations.buried) console.log(`  ${line}`);
 console.log(`emitted wall address census: ${review.addressCoverage.emitted} samples at ${review.addressCoverage.step} m; ${review.addressCoverage.covered} addressed; ${review.addressCoverage.uncovered} unaddressed; ${review.addressCoverage.skyOpen} unaddressed sky-open`);
 console.log(`exposed wall address census: ${review.addressCoverage.exposed} exposed without facade address; ${review.addressCoverage.excepted} named junction exceptions; ${review.addressCoverage.unexpected} unexpected`);
+console.log(`addressed samples inside a named exception: ${review.addressCoverage.addressedInException}`);
 console.log(`named exception observations missing: ${review.missingExceptionObservations.length}${review.missingExceptionObservations.length === 0 ? "" : ` (${review.missingExceptionObservations.join(", ")})`}`);
 console.log(`named exception intervals sampled: ${review.addressCoverage.exceptions.filter((entry) => entry.samples > 0).length}/${review.addressCoverage.exceptions.length}`);
 for (const entry of review.addressCoverage.exceptions) console.log(`  exception ${entry.wall}#${entry.face} ${entry.axis} ${entry.from}..${entry.to}${entry.minY === undefined ? "" : ` above ${entry.minY}`}: ${entry.samples}; ${entry.observation}`);
@@ -65,16 +67,39 @@ const controlCoverage = addressCoverageCensus(omittedEndAddresses, addressContro
 const omittedSouthAddress = { ...addressControl.environment,
   boundaries: addressControl.environment.boundaries.filter((boundary) => boundary.id !== "boundary-south.colonnade-west") };
 const southControl = addressCoverageCensus(omittedSouthAddress, addressControl.walls, controlSolids);
+const omittedUpperAddress = { ...addressControl.environment,
+  boundaries: addressControl.environment.boundaries.filter((boundary) => boundary.id !== "boundary-sanctuary-south.upper") };
+const upperControl = addressCoverageCensus(omittedUpperAddress, addressControl.walls, controlSolids);
+const omittedPedimentFront = { ...addressControl.environment,
+  boundaries: addressControl.environment.boundaries.filter((boundary) => boundary.id !== "boundary-porch-pediment.front") };
+const pedimentControl = addressCoverageCensus(omittedPedimentFront, addressControl.walls, controlSolids);
+const omittedPedimentBack = { ...addressControl.environment,
+  boundaries: addressControl.environment.boundaries.filter((boundary) => boundary.id !== "boundary-porch-pediment.back") };
+const pedimentBackControl = addressCoverageCensus(omittedPedimentBack, addressControl.walls, controlSolids);
 const targetSky = review.addressCoverage.rows.filter((row) => row.wall === "wall.facade-south.entry-back").reduce((sum, row) => sum + row.skyOpen, 0);
 const controlSky = controlCoverage.rows.filter((row) => row.wall === "wall.facade-south.entry-back").reduce((sum, row) => sum + row.skyOpen, 0);
 const addressControlFailed = targetSky !== 0 || controlSky <= targetSky ||
   controlCoverage.unexpected <= review.addressCoverage.unexpected ||
-  southControl.unexpected <= review.addressCoverage.unexpected;
-console.log(`whole-envelope address gate: baseline unexpected ${review.addressCoverage.unexpected}; omitted-end control ${controlCoverage.unexpected} (sky ${controlSky}); omitted-south control ${southControl.unexpected}; ${addressControlFailed ? "FAIL" : "PASS"}`);
+  southControl.unexpected <= review.addressCoverage.unexpected ||
+  upperControl.unexpected <= review.addressCoverage.unexpected ||
+  pedimentControl.unexpected <= review.addressCoverage.unexpected ||
+  pedimentBackControl.unexpected <= review.addressCoverage.unexpected;
+console.log(`whole-envelope address gate: baseline unexpected ${review.addressCoverage.unexpected}; omitted-end ${controlCoverage.unexpected} (sky ${controlSky}); omitted-south ${southControl.unexpected}; omitted-under-eave upper ${upperControl.unexpected}; omitted-pediment-front ${pedimentControl.unexpected}; omitted-pediment-back ${pedimentBackControl.unexpected}; ${addressControlFailed ? "FAIL" : "PASS"}`);
 console.log(`one-space own facade views: ${review.ownFacades.length} stations; ${ownFacadeFailures(review.ownFacades).length} below 50%`);
 for (const row of review.ownFacades) {
-  console.log(`  ${row.id}: ${row.sides.map((side) => `${side.cameraSide ? "camera" : "far"} ${side.visible}/${side.sampled} (${(side.ratio * 100).toFixed(1)}%)`).join("; ")}`);
+  console.log(`  ${row.id}: ${row.sides.map((side) => `${side.addressSide ? "address" : "opposite"} ${side.visible}/${side.sampled} (${(side.ratio * 100).toFixed(1)}%)`).join("; ")}`);
 }
+const viewControlEnvironment = { ...addressControl.environment,
+  boundaries: addressControl.environment.boundaries.filter((boundary) => boundary.id === "boundary-entry.west-end" || boundary.id === "boundary-porch-pediment.front") };
+const authoredObservations = templeObservations(addressControl.environment);
+const occludedWest = authoredObservations.map((observation) => observation.id === "exterior.facade.boundary-entry.west-end"
+  ? { ...observation, position: { x: -1.8, y: 2.2, z: 12.2 } } : observation);
+const wrongPedimentFace = occludedWest.map((observation) => observation.id === "exterior.facade.boundary-porch-pediment.front"
+  ? { ...observation, position: { x: 0, y: 3.3, z: 9.3 } } : observation);
+const occlusionFailures = ownFacadeFailures(ownFacadeViews(viewControlEnvironment, wrongPedimentFace));
+const ownViewControlFailed = !occlusionFailures.includes("boundary-entry.west-end") ||
+  !occlusionFailures.includes("boundary-porch-pediment.front");
+console.log(`own-view negative controls: occluded west-end and wrong-side pediment ${occlusionFailures.join(",")}; ${ownViewControlFailed ? "FAIL" : "PASS"}`);
 console.log(`boundary upper census: ${review.boundaryUpper.length} boundaries; ${review.boundaryUpper.filter((row) => row.tested > 0).length} two-space hosts tested; ${review.boundaryUpper.reduce((sum, row) => sum + row.sampled, 0)} sampled / ${review.boundaryUpper.reduce((sum, row) => sum + row.tested, 0)} adjacent-volume stations; ${review.boundaryUpper.filter((row) => row.exposed > 0).length} unsplit upper bands`);
 for (const row of review.boundaryUpper) console.log(`  ${row.id}: ${row.sampled} sampled, ${row.tested} adjacent-volume stations, ${row.exposed} exposed, max band ${f3(row.maxBand)} m${row.maxAt === null ? "" : ` at u=${f3(row.maxAt.u)}, host=${f3(row.maxAt.hostTop)}, sides=${f3(row.maxAt.firstCap)}/${f3(row.maxAt.secondCap)}`}`);
 console.log(`opening frustum census: ${review.openingFrustum.length} compiled openings; ${review.openingFrustum.filter((row) => row.roomCenterVisible).length} room-facing centers visible; ${review.openingFrustum.filter((row) => row.completeProfileFramed).length} full profiles framed`);
@@ -141,25 +166,28 @@ const modelAccount = values["sync-accounts"]
   ? replaceMeasuredTable(rawModelAccount, "| 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |", modelRows) : rawModelAccount;
 if (values["sync-accounts"] && modelAccount !== rawModelAccount) writeFileSync(modelAccountPath, modelAccount, "utf8");
 const modelMismatches = modelAccountMismatches(modelAccount, modelRows);
+const parameterAuditMismatches = modelParameterAuditMismatches(modelDocuments, modelAccount);
 console.log(`docs/models population: ${models.length} files, ${modelMeasures.reduce((sum, row) => sum + row.headings, 0)} H2`);
 console.log("generated docs/accounts/models/core-common.md#proportion rows:");
 for (const row of modelRows) console.log(row);
 console.log(`models account table mismatches: ${modelMismatches.length}`);
 for (const row of modelMismatches) console.log(`  stale: ${row}`);
+console.log(`model H2 parameter audit: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} sections; ${parameterAuditMismatches.length} missing, duplicated or open`);
+for (const row of parameterAuditMismatches) console.log(`  parameter audit: ${row}`);
 const sectionRanks = modelSectionMeasures(modelDocuments);
 console.log(`model H2 ranks: ${sectionRanks.length} sections; top 7 ${sectionRanks.slice(0, 7).map((row) => `${row.title}=${row.body}`).join(", ")}; shortest 4 ${sectionRanks.slice(-4).reverse().map((row) => `${row.title}=${row.body}`).join(", ")}`);
 
 const vocabulary = readFileSync(join(__dirname, "model-handoff-vocabulary.txt"), "utf8")
   .replace(/\r\n/g, "\n").split("\n").filter((term) => term.length > 0);
-const handoffs = modelHandoffRows(
-  [...walk(join(docs, "settings")), ...spaces].map((file) => ({
+const handoffParents = [...walk(join(docs, "settings")), ...spaces].map((file) => ({
     path: relative(docs, file).split("\\").join("/"), source: readFileSync(file, "utf8"),
-  })),
-  models.map((file) => ({ path: relative(join(docs, "models"), file).split("\\").join("/"), source: readFileSync(file, "utf8") })),
-  vocabulary,
-);
+  }));
+const handoffModels = models.map((file) => ({ path: relative(join(docs, "models"), file).split("\\").join("/"), source: readFileSync(file, "utf8") }));
+const handoffs = modelHandoffRows(handoffParents, handoffModels, vocabulary);
+const reverseOnly = modelHandoffRows(handoffParents, handoffModels, vocabulary, {});
 const ownerless = handoffs.filter((row) => row.owners.length === 0);
 console.log(`model handoff reverse audit: ${vocabulary.length} vocabulary terms, ${handoffs.length} parent H2 rows, ${ownerless.length} ownerless`);
+console.log(`handoff routing provenance: ${Object.keys(handoffOtherOwners).length} explicit parent routes; ${reverseOnly.filter((row) => row.owners.length === 0).length} rows depend on those labels rather than a reverse model citation (semantic fit requires prose review)`);
 if (values.handoffs) {
   for (const row of handoffs) console.log(`  ${row.parent} | ${row.terms.join(", ")} | ${row.owners.join(", ") || "OWNERLESS"}`);
 }
@@ -177,5 +205,5 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-console.log(`self-check failures: ${review.failures + accountMismatches.length + modelMismatches.length + ownerless.length + Number(addressControlFailed)}`);
-process.exitCode = review.failures + accountMismatches.length + modelMismatches.length + ownerless.length + Number(addressControlFailed) > 0 ? 1 : 0;
+console.log(`self-check failures: ${review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + ownerless.length + Number(addressControlFailed) + Number(ownViewControlFailed)}`);
+process.exitCode = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + ownerless.length + Number(addressControlFailed) + Number(ownViewControlFailed) > 0 ? 1 : 0;

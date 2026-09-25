@@ -63,7 +63,7 @@ part와 표면은 `timber` 하나다. 윗면은 지붕 slab 아랫면에, 중간
 
 <!--
 @evidence principles/core/common.md#scope-preservation 포치의 석재 보, 수평 코니스, 두 경사 트림을 치수·위치·접촉까지 정하고 기둥→보→삼각 막음→지붕 끝선의 연속 관계를 보인다.
-@evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 코니스·경사 트림의 높이·돌출, 22° 경사와 용마루 X=0 만남이 있어 source가 박공 트림을 새로 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 주두 판 윗면과의 접면, 코니스의 앞면 기준 0.08m 수평 돌출과 경사 트림의 연직 높이 0.12m를 확정해 source가 접촉·투영 기준을 새로 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 길이는 두 반환벽 안쪽 면, 앞면 선은 south-outer, 경사는 roofs/porch 22°, 삼각 막음은 facades/south, 기둥 위치는 entrance-volume에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 정면 포치 설정을 보·코니스·경사 트림의 세 part와 막음 앞면에 붙는 트림이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract beam·cornice·raking-trim part와 보 윗면의 막음 받침 접촉면, 두 끝면과 반환벽 안쪽 면의 맞닿음을 정한다.
@@ -82,7 +82,7 @@ part와 표면은 `timber` 하나다. 윗면은 지붕 slab 아랫면에, 중간
 
 [정면 포치](../settings/20-envelope.md#entrance-porch)의 수평 보와 작은 삼각 박공의 가장자리 트림이다. 이미지 01에서 두 원주 위에 얹힌 두꺼운 석재 보와 박공을 두르는 돌 테두리가 근거다. 기둥이 보를, 보가 [삼각 막음](../spaces/facades/south.md#south-envelope)을, 막음 위의 [포치 지붕](../spaces/roofs/porch.md#porch-roof)이 트림 선을 따라 끝나는 연속 관계를 보여 준다.
 
-로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판에 얹힌다. 수평 코니스는 보 앞 윗모서리를 따라 높이 0.10m·앞 돌출 0.08m의 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 높이 0.12m·앞 돌출 0.08m의 띠 두 개이며 포치 지붕의 22° 경사와 용마루 X=0에서 만난다. 점유 높이는 보 아랫면 3.20m부터 트림 꼭대기 약 4.473m까지여서 상자는 3.30×약 1.27×0.38m다.
+로컬 원점은 보 아랫면의 앞 모서리(정면 쪽) 중심이다. 보는 길이 3.30m(두 반환벽 안쪽 면 사이), 앞뒤 폭 0.30m, 높이 0.30m 석재 각재로 south-outer에서 안쪽 0.30m 범위에 놓이며 아랫면 Y=3.20m가 두 [포치 원주](columns.md#porch-column)의 주두 판 **윗면에 면 접촉으로 얹힌다**. 앞은 로컬 +Z이고 보 앞면은 Z=0, 뒷면은 Z=−0.30m다. 수평 코니스는 보 앞 윗모서리를 따라 연직 높이 0.10m·보 앞면에서 +Z로 0.08m 돌출하는 띠다. 경사 트림은 삼각 막음 앞면 위 두 경사 가장자리를 따라 **세계 연직 높이** 0.12m·삼각 막음 앞면에서 +Z로 0.08m 돌출하는 띠 두 개이며 포치 지붕의 22° 경사와 용마루 X=0에서 만난다. 점유 높이는 보 아랫면 3.20m부터 트림 꼭대기 약 4.473m까지여서 상자는 3.30×약 1.27×0.38m다.
 
 part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 막음 아랫면을 받는 가려진 접촉면이고 보의 두 끝면은 반환벽 안쪽 면과 맞닿는다. 이 모델은 한 번 배치된다.
 
@@ -92,7 +92,7 @@ part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 �
 
 <!--
 @evidence principles/core/common.md#scope-preservation 제실의 가운데 기둥 목조 트러스를 평보·경사재·가운데 기둥·버팀재 네 부재와 높이·접촉·창과의 여유까지 정한다.
-@evidence principles/core/common.md#substantive-completion 평보 11.20m·0.22×0.28m·아랫면 4.86m, 경사재·가운데 기둥·버팀재 단면, 점유 상자 11.20×약 2.62×0.22m가 있어 source가 트러스를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 평보 11.20m·0.22×0.28m·아랫면 4.86m, 경사재·가운데 기둥·버팀재 단면과 버팀재 발끝 Y=5.69m를 확정해 source가 트러스의 구조 끝점을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 길이는 제실 서·동 벽 안쪽 면, 높이는 roofs/sanctuary의 지지 5.35m와 측벽 안쪽 하부 약 5.22m, 창 여유는 openings.md#clerestories의 창틀 윗끝 약 4.46m에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 높은 목재 박공 천장이라는 설정을 네 부재 트러스와 평보가 창 위 약 0.40m에 걸리는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract tie-beam·principal·king-post·strut part와 평보 끝면의 벽 접촉, 경사재 윗면의 slab 접촉을 정하고 트러스 사이 서까래는 서까래 가족에 맡긴다.
@@ -112,7 +112,7 @@ part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 �
 
 [제실](../settings/30-interiors.md#sanctuary)의 높은 목재 박공 천장과 서까래, [천장 설정](../settings/20-envelope.md#ceilings)의 노출 목재 박공 보가 근거이며 이미지 04에서 벽 사이를 가로지르는 굵은 평보와 경사 부재가 보인다. 형식은 가운데 기둥이 있는 단순한 목조 트러스다.
 
-로컬 원점은 평보 아랫면의 중심이고 폭 방향은 로컬 X, 두께는 Z다. 평보는 길이 11.20m(제실 서·동 벽 안쪽 면 사이), 단면 0.22×0.28m이며 아랫면 Y=4.86m, 윗면 5.14m로 [제실 지붕](../spaces/roofs/sanctuary.md#sanctuary-roof)(지지 5.35m)의 측벽 안쪽 면 위치 하부(약 5.22m)보다 낮게 벽에 걸린다. 두 경사재는 단면 0.18×0.20m로 평보 양끝에서 지붕 하부를 따라 용마루 아래(하부 약 7.48m)까지 오르고, 가운데 기둥(0.18×0.18m)은 평보 윗면에서 용마루 아래까지, 두 버팀재(0.14×0.14m)는 가운데 기둥 아래쪽에서 경사재 가운데로 뻗는다. 점유 상자는 11.20×약 2.62×0.22m다. 측벽 채광구(창틀 윗끝 약 4.46m)는 평보 아래 약 0.40m에 남는다.
+로컬 원점은 평보 아랫면의 중심이고 폭 방향은 로컬 X, 두께는 Z다. 평보는 길이 11.20m(제실 서·동 벽 안쪽 면 사이), 단면 0.22×0.28m이며 아랫면 Y=4.86m, 윗면 5.14m로 [제실 지붕](../spaces/roofs/sanctuary.md#sanctuary-roof)(지지 5.35m)의 측벽 안쪽 면 위치 하부(약 5.22m)보다 낮게 벽에 걸린다. 두 경사재는 단면 0.18×0.20m로 평보 양끝에서 지붕 하부를 따라 용마루 아래(하부 약 7.48m)까지 오르고, 가운데 기둥(0.18×0.18m)은 평보 윗면에서 용마루 아래까지 선다. 두 버팀재(0.14×0.14m)의 발끝 중심은 가운데 기둥의 X=0·Y=5.69m이며 반대쪽 끝은 각 경사재 중심선의 수평 길이 중간점이다. 점유 상자는 11.20×약 2.62×0.22m다. 측벽 채광구(창틀 윗끝 약 4.46m)는 평보 아래 약 0.40m에 남는다.
 
 part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의 두 끝면은 벽 안에 닿는 가려진 접촉면이고 경사재 윗면은 지붕 slab 아랫면에 닿는다. 트러스 사이의 제실 서까래는 [서까래](#rafter) 가족을 쓴다. 배치 위치와 수(북·남 박공 벽과 창에서 떨어진 제실 안 Z 위치)는 instances가 정한다.
 

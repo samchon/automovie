@@ -4,7 +4,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 좁고 높은 상록수를 줄기와 겹친 세 수관 덩어리, 높이·분할·법선, 덩어리 사이 빈틈까지 정한다.
-@evidence principles/core/common.md#substantive-completion 줄기 원뿔대와 세 타원체의 반지름·높이·중심 XYZ를 각각 고정해 source가 수관 축 방향을 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 줄기 원뿔대의 둘레 12분할과 세 타원체의 반지름·높이·중심 XYZ·10×6분할을 확정해 source가 수관 축이나 줄기 단면을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 나무 정체성은 40-environment#vegetation과 이미지 01, 놓일 곳은 spaces/site.md#placement-zones에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 식생 설정을 한 덩어리 원뿔이 아닌 세 덩어리 수관과 빈틈이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract trunk·crown part와 덩어리 사이 허리의 빈틈, 10×6분할과 평평한 면 법선을 정한다.
@@ -20,7 +20,7 @@
 @evidenceExclude spaces/site.md#site-grade 수목 원점은 지면 중심이며 놓일 지면 높이는 instances가 대지 지면 규칙에서 읽어 prototype이 경사를 담지 않는다.
 -->
 
-[식생](../settings/40-environment.md#vegetation)의 키 큰 좁은 수관 나무다. 이미지 01의 짙은 세로 수관이 근거이며 종의 식물학적 정확성은 주장하지 않는다. 줄기·가지 덩어리·잎 덩어리 사이의 빈틈이 리뷰 거리에서 읽혀야 하므로 한 덩어리 원뿔이 아니라 겹친 세 덩어리로 만든다.
+[식생](../settings/40-environment.md#vegetation)의 키 큰 좁은 수관 나무다. 이미지 01의 짙은 세로 수관이 근거이며 종의 식물학적 정확성은 주장하지 않는다. 줄기·가지 덩어리·잎 덩어리 사이의 빈틈이 리뷰 거리에서 읽혀야 하므로 한 덩어리 원뿔이 아니라 겹친 세 덩어리로 만든다. 줄기 원뿔대의 둘레는 12분할이고 높이 방향은 한 구간이다.
 
 로컬 원점은 줄기 밑동의 지면 중심이다. 줄기는 반지름 0.12m에서 0.08m로 줄어드는 원뿔대(높이 1.4m)이고, 수관은 세 개의 길쭉한 타원체 덩어리가 위로 겹친다. 아래 덩어리의 중심 (X,Y,Z)은 (0,3.0,0)m, 수평 반지름 0.75m, 전체 높이 3.6m다. 가운데는 (+0.10,5.4,0)m·반지름 0.62m·높이 3.4m, 위는 (-0.10,7.6,0)m·반지름 0.42m·높이 2.8m다. 두 위쪽 축은 X축에서 서로 반대로 0.10m 어긋난다. 전체 높이 9.0m, 타원체는 10분할(둘레)×6분할(높이) 다면체이며 평평한 면 법선으로 잎 덩어리의 면이 읽히게 한다. 세 덩어리의 X·Z 극값으로 얻는 점유 상자는 1.50×9.0×1.50m다.
 
@@ -32,7 +32,7 @@ part와 표면은 `trunk`, `crown`이다. 덩어리 사이 허리의 좁아짐�
 
 <!--
 @evidence principles/core/common.md#scope-preservation 낮고 넓은 수관 나무를 줄기·세 가지·여섯 수관 덩어리와 빈틈·분할까지 정한다.
-@evidence principles/core/common.md#substantive-completion 줄기·세 가지의 끝 좌표와 여섯 수관의 중심·세 반축을 표로 확정해 source가 덩어리 위치나 크기를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 줄기·세 가지의 끝 좌표와 여섯 수관의 중심·세 반축, 줄기 12분할·가지 8분할을 확정해 source가 덩어리 위치나 가지 단면을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 나무 정체성은 40-environment#vegetation과 이미지 01·03, 놓일 곳은 spaces/site.md#placement-zones에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 식생 설정을 가지가 보이는 여섯 덩어리 수관이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract trunk·branch·crown part와 덩어리 사이 가지가 보이는 빈틈, 10×6분할과 평평한 면 법선을 정한다.
@@ -47,7 +47,7 @@ part와 표면은 `trunk`, `crown`이다. 덩어리 사이 허리의 좁아짐�
 @evidenceExclude spaces/site.md#site-extent 대지 범위 25m는 배치 구역이 이미 담아 수목 prototype은 범위 대신 구역만 소비하고 대지 단위의 cell·model을 만들지 않는다.
 -->
 
-[식생](../settings/40-environment.md#vegetation)의 낮고 넓은 회녹색 수관 나무다. 이미지 01·03의 둥글게 퍼진 수관이 근거다.
+[식생](../settings/40-environment.md#vegetation)의 낮고 넓은 회녹색 수관 나무다. 이미지 01·03의 둥글게 퍼진 수관이 근거다. 줄기 원뿔대는 둘레 12분할·높이 한 구간, 세 가지 원통은 각자 둘레 8분할·길이 한 구간이다.
 
 로컬 원점은 줄기 밑동의 지면 중심이다. 줄기는 반지름 0.18m에서 0.13m로 줄어드는 원뿔대(높이 1.6m)다. 반지름 0.07m인 세 가지는 줄기 중심 (0,1.5,0)m에서 각각 (-1.05,2.6,-0.55)m, (+1.05,2.6,-0.55)m, (0,2.6,+1.10)m로 뻗으며 길이는 약 1.6m다. 수관은 다음 여섯 타원체의 중심과 X·Y·Z 반축으로 정한다. 모든 좌표와 반축은 m다.
 

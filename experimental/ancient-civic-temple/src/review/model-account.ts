@@ -55,3 +55,27 @@ export const modelAccountMismatches = (account: string, rows: readonly string[])
     ...actual.slice(rows.length).map((row) => `unexpected: ${row}`),
   ];
 };
+
+/** The authored one-line parameter audit must cover each actual model H2 exactly once. */
+export const modelParameterAuditMismatches = (documents: readonly { path: string; source: string }[], account: string): string[] => {
+  const expected = documents.flatMap(({ path, source }) => [...source.replace(/\r\n/g, "\n").matchAll(/^## .+ \{#([^}]+)\}$/gm)]
+    .map((match) => `${path}#${match[1]}`));
+  const lines = account.replace(/\r\n/g, "\n").split("\n");
+  const header = lines.indexOf("| 모델 H2 | source에 남긴 새 치수 결정 | 본문의 닫힘 근거 |");
+  if (header < 0 || lines[header + 1] !== "| --- | ---: | --- |") return ["model parameter audit header missing"];
+  const rows: string[] = [];
+  for (const line of lines.slice(header + 2)) {
+    if (!line.startsWith("|")) break;
+    rows.push(line);
+  }
+  const actual = rows.map((line) => {
+    const match = line.match(/^\| \[[^\]]+\]\(\.\.\/\.\.\/models\/([^#)]+#[^)]+)\) \| (\d+) \| [^|]+ \|$/);
+    return match === null ? `malformed:${line}` : `${match[1]}:${match[2]}`;
+  });
+  const observed = actual.map((key) => key.replace(/:\d+$/, ""));
+  return [
+    ...expected.filter((key) => observed.filter((item) => item === key).length !== 1).map((key) => `missing/duplicate ${key}`),
+    ...observed.filter((key) => !expected.includes(key)).map((key) => `unexpected ${key}`),
+    ...actual.filter((key) => !key.endsWith(":0")).map((key) => `not closed ${key}`),
+  ];
+};

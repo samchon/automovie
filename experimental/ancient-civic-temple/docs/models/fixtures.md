@@ -4,7 +4,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 분수 수반을 받침단·테두리 벽·안쪽 바닥·물면·노즐·물줄기·파문 고리까지 정하고 물의 흐름과 반사는 systems로 넘긴다.
-@evidence principles/core/common.md#substantive-completion 받침단 지름 2.30m·테두리 바깥 2.00m·두께 0.18m·높이 0.52m, 물면 0.44m, 물줄기 0.65m와 반지름이 있어 source가 수반을 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 받침단·테두리·물면·물줄기 치수에 더해 파문 고리의 반지름 0.08m·폭 0.008m·높이 0.006m와 반타원 방정식을 확정해 source가 수반 단면을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 외경·테두리 높이·물면·물줄기 높이는 rooms/courtyard.md#court-volume, 단일 물줄기는 30-interiors#fountain, 노즐·고정 수위는 #services, 형태는 이미지 02·03에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 낮은 원형 분수라는 설정과 중정의 수반 치수를 오목한 물 담는 공간과 원형 물면이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract step·rim·basin-inner·water·nozzle·jet part와 표면, 테두리 안쪽의 실제 오목 공간, 받침단 아랫면 접촉, 48분할과 부드러운 법선 위치를 정한다.
@@ -22,7 +22,7 @@
 
 [분수 중정](../settings/30-interiors.md#fountain)의 낮은 원형 석조 수반과 한 줄기 물이다. 이미지 02·03의 둥근 돌 테두리와 낮은 받침단, 가운데서 곧게 오르는 가는 물줄기가 근거이고 이미지 04의 높은 잔형은 채택하지 않는다. 판정된 [중정](../spaces/rooms/courtyard.md#court-volume)의 외경 2.0m, 테두리 높이 0.52m, 물면 테두리 아래 0.08m, 물줄기 물면 위 0.65m를 그대로 쓴다.
 
-로컬 원점은 수반 중심의 중정 바닥 완성면이다. 받침단은 지름 2.30m·높이 0.08m 원판이고, 그 위 테두리 벽은 바깥 지름 2.00m·두께 0.18m의 원환 벽으로 바닥에서 0.52m까지 오르며 윗면 바깥 모서리를 0.02m 모따기한다. 안쪽 바닥은 바닥 위 0.12m에 있어 물 깊이 0.32m를 담는다. 물면은 테두리 안쪽 지름 1.64m 원판으로 바닥 위 0.44m에 있다. 가운데 노즐 받침은 반지름 0.08m 원통으로 안쪽 바닥에서 물면 위 0.05m까지 오르고, 물줄기는 물면 위 0.65m까지 오르는 원뿔대(아래 반지름 0.025m, 위 0.012m)이며 물면에는 반지름 0.08m의 낮은 파문 고리 하나가 있다. 원형 부재는 48분할이고 테두리 벽과 물줄기는 부드러운 법선을 쓴다. 점유 상자는 2.30×약 1.09×2.30m다.
+로컬 원점은 수반 중심의 중정 바닥 완성면이다. 받침단은 지름 2.30m·높이 0.08m 원판이고, 그 위 테두리 벽은 바깥 지름 2.00m·두께 0.18m의 원환 벽으로 바닥에서 0.52m까지 오르며 윗면 바깥 모서리를 0.02m 모따기한다. 안쪽 바닥은 바닥 위 0.12m에 있어 물 깊이 0.32m를 담는다. 물면은 테두리 안쪽 지름 1.64m 원판으로 바닥 위 0.44m에 있다. 가운데 노즐 받침은 반지름 0.08m 원통으로 안쪽 바닥에서 물면 위 0.05m까지 오르고, 물줄기는 물면 위 0.65m까지 오르는 원뿔대(아래 반지름 0.025m, 위 0.012m)이며 물면에는 중심선 반지름 0.08m의 낮은 파문 고리 하나가 있다. 파문 단면은 수평 폭 0.008m·수면 위 높이 0.006m인 **반타원형 마루**다. 중심선에서 가로 편차 r, 수면 위 높이 h에 대해 (r/0.004m)²+(h/0.006m)²=1, h≥0이며 양쪽 밑끝은 수면과 접한다. 원형 부재는 48분할이고 테두리 벽과 물줄기는 부드러운 법선을 쓴다. 점유 상자는 2.30×약 1.09×2.30m다.
 
 part와 표면은 `step`, `rim`, `basin-inner`, `water`, `nozzle`, `jet`이다. 물이 원 밖으로 나오지 않도록 물면은 테두리 안쪽 벽에서 끝나고 사각 판을 쓰지 않는다. 테두리 안쪽 벽과 안쪽 바닥이 물을 담는 실제 오목 공간이다. 받침단 아랫면은 중정 바닥에 닿는 가려진 면이다. 이 모델은 중정 중심에 한 번 배치되고 물의 흐름·빛 반사는 systems의 후속 결정이다.
 
@@ -90,7 +90,7 @@ part와 표면은 `plinth`, `body`, `recess`, `cap`이며 `recess`는 칸 안쪽
 
 <!--
 @evidence principles/core/common.md#scope-preservation 금속 등잔대를 발·줄기·두 마디·접시와 높이·빈 공간·배치 소유까지 정한다.
-@evidence principles/core/common.md#substantive-completion 발 지름 0.26m 원뿔대와 원판, 줄기 반지름 0.015m, 마디 두 개의 높이, 접시 지름 0.22m·깊이 0.04m, 전체 1.15m가 있어 source가 등잔대를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 발 원뿔대 아래/윗지름 0.26/0.16m, 줄기 상단 Y=1.10m, 바닥 기준 마디 중심 0.35/0.80m, 접시 바닥 0.006m·윗끝 1.15m를 확정해 source가 등잔대를 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 형태는 35-objects#lampstands와 이미지 02·04, 불꽃 없음은 30-interiors#services의 꺼진 등잔, 제실 좌우 배치는 #sanctuary에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 등잔대 설정을 넓은 발·마디 둘·얕은 접시의 위계와 불꽃 없는 정지 형상이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract foot·stem·knop·dish part와 접시 안쪽 오목 공간, 16분할을 정한다.
@@ -107,7 +107,7 @@ part와 표면은 `plinth`, `body`, `recess`, `cap`이며 `recess`는 칸 안쪽
 
 [등잔대](../settings/35-objects.md#lampstands)의 어두운 금속 자립 부재다. 이미지 02·04의 넓은 발, 가는 줄기, 얕은 원형 접시가 근거이며 불꽃은 없다.
 
-로컬 원점은 발 바닥의 중심이다. 발은 지름 0.26m의 낮은 원뿔대(높이 0.06m)와 그 위 원판(지름 0.16m, 높이 0.02m), 줄기는 반지름 0.015m 원통으로 높이 1.02m까지 오르며 높이 0.35m와 0.80m에 반지름 0.03m·높이 0.03m의 마디 두 개가 있다. 꼭대기 접시는 지름 0.22m·깊이 0.04m의 얕은 오목 원반으로 전체 높이 1.15m다. 원형 부재는 16분할이다. 점유 상자는 0.26×1.15×0.26m다.
+로컬 원점은 발 바닥의 중심이다. 발은 아래 지름 0.26m·윗지름 0.16m인 낮은 원뿔대(높이 0.06m)와 그 위 원판(지름 0.16m, 높이 0.02m)이다. 줄기는 반지름 0.015m 원통으로 원판 윗면 Y=0.08m부터 길이 1.02m 올라 윗끝 Y=1.10m에 접시 바닥을 받친다. 두 마디는 **바닥 기준 중심 Y=0.35m와 0.80m**에 놓인 반지름 0.03m·높이 0.03m 원통이다. 꼭대기 접시는 지름 0.22m·안쪽 깊이 0.04m, 바닥 두께 0.006m인 얕은 오목 원반이며 바닥 Y=1.10m·테 윗끝 Y=1.15m다. 원형 부재는 16분할이다. 점유 상자는 0.26×1.15×0.26m다.
 
 part와 표면은 `foot`, `stem`, `knop`, `dish`다. 접시 안쪽은 오목한 빈 공간이다. 제실 좌우 배치 수와 전도 없는 위치는 instances가 정한다.
 
@@ -117,7 +117,7 @@ part와 표면은 `foot`, `stem`, `knop`, `dish`다. 접시 안쪽은 오목한 
 
 <!--
 @evidence principles/core/common.md#scope-preservation 봉헌실의 긴 석재 탁자를 상판·두 다리받침과 빈 공간·배치 소유까지 정한다.
-@evidence principles/core/common.md#substantive-completion 상판 2.20×0.75×0.10m·윗면 0.82m, 다리받침 0.12×0.60×0.72m와 양끝 0.35m 안쪽 위치가 있어 source가 탁자를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 상판 2.20×0.75×0.10m·윗면 0.82m, 다리받침 단면과 상판 긴 변의 끝에서 중심선까지 0.35m를 확정해 source가 받침 위치·접면을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 치수 범위는 35-objects#offering-table, 방 역할은 30-interiors#offering-room, 장축·통로 예약은 rooms/offering.md#offering-volume, 형태는 이미지 02에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 봉헌 탁자 설정을 제단과 다른 낮고 긴 비례·상판 아래가 보이는 두 다리받침이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract top·trestle part와 상판 윗면의 용기 면, 다리받침 윗면 접촉, 두 받침 사이와 양끝 아래의 빈 공간을 정한다.
@@ -135,7 +135,7 @@ part와 표면은 `foot`, `stem`, `knop`, `dish`다. 접시 안쪽은 오목한 
 
 [공동 봉헌실](../settings/30-interiors.md#offering-room)의 길게 놓인 석재 봉헌 탁자다. [봉헌 탁자](../settings/35-objects.md#offering-table)의 범위와 이미지 02의 긴 돌 상판이 근거다. 제단과 달리 낮고 길며 상판 아래가 보인다.
 
-로컬 원점은 바닥면 중심이고 긴 변은 로컬 Z다. 상판은 길이 2.20m·폭 0.75m·두께 0.10m이며 윗면 높이 0.82m다. 두 다리받침은 두께 0.12m·폭 0.60m·높이 0.72m의 석판으로 상판 양끝에서 0.35m 안쪽에 선다. 점유 상자는 0.75×0.82×2.20m다.
+로컬 원점은 바닥면 중심이고 긴 변은 로컬 Z다. 상판은 길이 2.20m·폭 0.75m·두께 0.10m이며 윗면 높이 0.82m, 아랫면 Y=0.72m다. 두 다리받침은 Z 방향 두께 0.12m·X 방향 폭 0.60m·높이 0.72m의 석판으로, 각 중심선이 상판 긴 변의 ±Z 끝면에서 안쪽으로 0.35m인 Z=±0.75m에 선다. 받침 윗면은 상판 아랫면에 면 접촉한다. 점유 상자는 0.75×0.82×2.20m다.
 
 part와 표면은 `top`, `trestle`이다. 상판 윗면은 그릇·용기가 놓이는 면이고 다리받침 윗면은 가려진 접촉면이다. 두 다리받침 사이와 양끝 아래는 비어 있다. 봉헌실 안 장축 방향과 양옆 통로는 instances가 판정된 봉헌실 예약에서 정한다.
 
@@ -175,7 +175,7 @@ part와 표면은 `side`, `board`다. 칸은 앞뒤로 열린 빈 공간이며 �
 
 <!--
 @evidence principles/core/common.md#scope-preservation 관리실 작성 책상과 기록실 열람 탁자를 같은 구성의 두 치수 변형으로 상판·다리·가로 지지재까지 정한다.
-@evidence principles/core/common.md#substantive-completion 두 변형의 폭·깊이·높이, 상판 0.04m, 다리 정방 0.06m, 지지재 높이와 단면이 있어 source가 책상을 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 두 변형의 폭·깊이·높이와 상판 0.04m, 다리 중심 X/Z=±(반폭/반깊이−0.06m), 지지재의 높이·단면을 확정해 source가 책상 다리 위치를 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 구성은 35-objects#workstation, 두 방의 역할은 30-interiors#administration과 #records, 형태는 이미지 05의 작업 탁자에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 책상과 좌석 설정을 스툴이 들어가는 빈 공간을 가진 두 치수 변형이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract top·leg·stretcher part와 상판 아래·다리 사이 빈 공간, 서랍·바퀴·쿠션 없음을 정한다.
@@ -194,7 +194,7 @@ part와 표면은 `side`, `board`다. 칸은 앞뒤로 열린 빈 공간이며 �
 
 [관리실](../settings/30-interiors.md#administration)의 작성 책상과 [기록실](../settings/30-interiors.md#records)의 작은 열람 탁자다. [책상과 좌석](../settings/35-objects.md#workstation)의 상판·네 다리·가로 지지재와 이미지 05의 작업 탁자가 근거다. 같은 구성의 두 치수 변형이다.
 
-로컬 원점은 바닥면 중심이다. 작성 책상은 폭 1.10m·깊이 0.60m·높이 0.75m, 열람 탁자는 폭 0.90m·깊이 0.55m·높이 0.72m이며 상판 두께 0.04m, 다리는 정방 0.06m, 가로 지지재는 바닥 위 0.15m에서 네 다리를 잇는 단면 0.04×0.05m 각재다. 점유 상자는 각 폭×높이×깊이다.
+로컬 원점은 바닥면 중심이다. 작성 책상은 폭 1.10m·깊이 0.60m·높이 0.75m, 열람 탁자는 폭 0.90m·깊이 0.55m·높이 0.72m이며 상판 두께 0.04m, 다리는 정방 0.06m다. 두 변형 모두 네 다리 중심은 (X,Z)=(±(폭/2−0.06m), ±(깊이/2−0.06m))의 모든 조합이고, 가로 지지재는 바닥 위 0.15m에서 네 다리 중심을 잇는 단면 0.04×0.05m 각재다. 점유 상자는 각 폭×높이×깊이다.
 
 part와 표면은 `top`, `leg`, `stretcher`다. 상판 아래와 다리 사이는 스툴이 들어갈 빈 공간이다. 서랍·바퀴·쿠션은 없다. 방별 위치는 instances가 정한다.
 
@@ -204,7 +204,7 @@ part와 표면은 `top`, `leg`, `stretcher`다. 상판 아래와 다리 사이�
 
 <!--
 @evidence principles/core/common.md#scope-preservation 관리실·기록실의 스툴을 좌판·네 다리·가로 지지재와 배치 소유까지 정한다.
-@evidence principles/core/common.md#substantive-completion 좌판 0.40×0.35×0.04m·윗면 0.45m, 다리 정방 0.04m, 지지재 0.12m가 있어 source가 스툴을 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 좌판 0.40×0.35×0.04m·윗면 0.45m, 네 다리 중심 X=±0.16m·Z=±0.135m와 정방 0.04m, 지지재 단면 0.025×0.03m·높이 0.12m를 확정해 source가 스툴 형상을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 높이 0.42~0.48m 범위는 35-objects#workstation, 쓰이는 두 방은 30-interiors#administration·#records에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 좌석 설정을 등받이 없는 스툴과 책상 상판보다 약 0.3m 낮은 좌판이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract seat·leg·stretcher part와 좌판 아래 빈 공간을 정한다.
@@ -220,7 +220,7 @@ part와 표면은 `top`, `leg`, `stretcher`다. 상판 아래와 다리 사이�
 
 관리실·기록실의 단순한 좌석이다. [책상과 좌석](../settings/35-objects.md#workstation)의 높이 0.42~0.48m 스툴이 근거다.
 
-로컬 원점은 바닥면 중심이다. 좌판은 0.40×0.35m·두께 0.04m이고 윗면 높이 0.45m이며 네 다리는 정방 0.04m, 바닥 위 0.12m에 가로 지지재가 있다. 점유 상자는 0.40×0.45×0.35m다.
+로컬 원점은 바닥면 중심이다. 좌판은 0.40×0.35m·두께 0.04m이고 윗면 높이 0.45m다. 네 다리는 정방 0.04m이고 중심은 (X,Z)=(±0.16m,±0.135m)의 모든 조합이다. 네 다리 중심을 잇는 가로 지지재는 X 방향 폭 0.025m·연직 높이 0.03m 단면의 각재로, 아랫면이 바닥 위 0.12m에 있다. 점유 상자는 0.40×0.45×0.35m다.
 
 part와 표면은 `seat`, `leg`, `stretcher`다. 좌판 아래는 비어 있다. 위치와 책상과의 관계는 instances가 정한다.
 
@@ -257,7 +257,7 @@ part와 표면은 `frame`, `divider`다. 스무 칸의 빈 공간과 선반 판 
 
 <!--
 @evidence principles/core/common.md#scope-preservation 보관 궤를 몸체·분리된 뚜껑·이음 선·걸쇠·경첩 띠·모서리 띠까지 닫힌 고정 상태로 정한다.
-@evidence principles/core/common.md#substantive-completion 몸체 0.80×0.50×0.44m, 뚜껑 0.82×0.52×0.06m, 이음 선 0.005m, 걸쇠·띠 치수가 있어 source가 궤를 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 몸체·뚜껑·이음 선에 걸쇠 중심 높이 Y=0.40m, 경첩 띠 X=±0.27m·길이 0.16m·두께 0.005m, 네 모서리 띠의 연직 길이 0.44m를 확정해 source가 궤 철물 자리를 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 구성은 35-objects#chests, 잠금 궤가 놓이는 방은 30-interiors#records, 형태는 이미지 05의 걸쇠 달린 낮은 궤에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 보관 궤 설정을 닫힌 뚜껑의 이음 선과 금속 띠로 읽히는 고정 부재라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract body·lid·hasp·strap part와 표면을 정하고 속 빈 공간과 내용물을 납품하지 않는다고 적는다.
@@ -273,7 +273,7 @@ part와 표면은 `frame`, `divider`다. 스무 칸의 빈 공간과 선반 판 
 
 [보관 궤](../settings/35-objects.md#chests)의 목재 몸체와 분리된 뚜껑이다. 이미지 05의 잠금 걸쇠가 있는 낮은 궤가 근거이며 닫힌 상태로 고정한다.
 
-로컬 원점은 바닥면 중심, 앞은 +Z다. 몸체는 폭 0.80m·깊이 0.50m·높이 0.44m 상자이고 뚜껑은 폭 0.82m·깊이 0.52m·두께 0.06m로 몸체 위에 얹히며 몸체와 뚜껑 사이에 0.005m의 들어간 이음 선이 돈다. 앞면 가운데에 쇠 걸쇠 판(0.08×0.10m, 두께 0.01m), 뒷면에 경첩 띠 두 개(폭 0.04m), 네 모서리에 쇠 모서리 띠(폭 0.04m, 두께 0.005m)가 있다. 전체 높이 0.50m, 점유 상자는 0.82×0.50×0.52m다.
+로컬 원점은 바닥면 중심, 앞은 +Z다. 몸체는 폭 0.80m·깊이 0.50m·높이 0.44m 상자이고 뚜껑은 폭 0.82m·깊이 0.52m·두께 0.06m로 몸체 위에 얹히며 몸체와 뚜껑 사이에 0.005m의 들어간 이음 선이 돈다. 앞면 가운데 쇠 걸쇠 판은 폭 0.08m·높이 0.10m·두께 0.01m로 중심 (X,Y,Z)=(0,0.40,+0.255)m에 놓인다. 뒷면 두 경첩 띠는 중심 X=±0.27m·Z=−0.2525m, 폭 0.04m·연직 길이 0.16m·두께 0.005m이며 상단이 뚜껑 윗면 Y=0.50m에 닿는다. 네 모서리 띠는 몸체의 앞왼쪽·앞오른쪽·뒤왼쪽·뒤오른쪽 연직 모서리(X=±0.40m,Z=±0.25m)를 따라 바닥에서 뚜껑 아랫면 Y=0.44m까지 이어지는 길이 0.44m, 폭 0.04m·두께 0.005m다. 전체 높이 0.50m, 점유 상자는 0.82×0.50×0.52m다.
 
 part와 표면은 `body`, `lid`, `hasp`, `strap`이다. 속 빈 공간과 내용물은 납품하지 않는다. 배치는 instances가 정한다.
 
