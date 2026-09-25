@@ -18,6 +18,8 @@
  *   dorsum at soft-tissue nasion;
  * - the nasolabial angle, between the columella's tangent from subnasale
  *   and the line from subnasale to labrale superius;
+ * - the nasal tip protrusion index, sn-prn over the nose's height n-sn
+ *   (Farkas);
  * - the cephalic index, the head's greatest breadth over the scalp (eu-eu,
  *   above the ears) over its length from glabella to opisthocranion (the
  *   midline's most posterior point), which hair hides;
@@ -37,14 +39,11 @@
  * adults and are not aged. `faceUnseenNorm` returns the targets;
  * `measureFaceUnseen` reads the same quantities on a built skin.
  *
- * The nose's projection is not held to a norm. The source's nose-depth
- * control reaches 18.8 mm of nasal tip protrusion (sn-prn) at its bound,
- * where European adults measure 21.1 (men) and 19.9 mm (women) (Kesterke
- * et al., Biol Sex Differ 2016;7:23, 3D, 22 to 25 years), and a tip held
- * there moves the E-line so far forward that the lips and the chin leave
- * their envelopes to follow it; the nose keeps the source's depth, and the
- * nasofacial angle (n-prn against g-pog', Wen 2015: 31.5 to 39.2 degrees)
- * follows from the other readings to within about four degrees.
+ * The nose's projection is held by its index, not by the nasofacial angle
+ * (n-prn against g-pog'): the angle also turns with the forehead and the
+ * chin, and on the source, whose nose projects 13.1 mm (index 0.27), its
+ * norms send the nose, the lips and the chin together to their bounds,
+ * where the index is reached at a nose depth of 0.6 to 1.
  */
 import type { IFaceAnthropometryIndex } from "./faceAnthropometry";
 import { faceAuricleLength } from "./faceAuricle";
@@ -69,6 +68,7 @@ export interface IFaceUnseenNorm {
   facialConvexity: number;
   nasofrontal: number;
   nasolabial: number;
+  nasalProtrusion: number;
   cephalicIndex: number;
   earLength: number;
 }
@@ -85,6 +85,8 @@ export interface IFaceUnseenIndex extends IFaceAnthropometryIndex {
   norm: keyof IFaceUnseenNorm;
   /** The least difference the reading resolves (metres, degrees, ratio). */
   resolution: number;
+  /** The population's standard deviation of the reading, same units. */
+  spread: number;
 }
 
 /**
@@ -92,9 +94,16 @@ export interface IFaceUnseenIndex extends IFaceAnthropometryIndex {
  * position the whole mouth moves with, and the lower lip's own fullness sets
  * it apart from the upper; the chin's projection closes the facial
  * convexity, the nasal root's depth the nasofrontal angle, the columella's
- * inclination the nasolabial angle, the occiput's depth the head's length,
- * and each ear's scale its length. Distances resolve to 0.01 mm, angles to 0.01 degree, a
- * tenth of the profile's sampling, and ratios to 0.0001.
+ * inclination the nasolabial angle, the nose's depth its tip's
+ * protrusion, the occiput's depth the head's length, and each ear's scale
+ * its length. Distances resolve to 0.01 mm, angles to 0.01 degree, a
+ * tenth of the profile's sampling, and ratios to 0.0001. Each spread is
+ * the reading's standard deviation among adults: 2 mm to the E-line
+ * (Ricketts 1968), 4 degrees of convexity and 8 of the nasolabial angle
+ * (Legan and Burstone 1980), 7 of the nasofrontal angle (Farkas 1994,
+ * North American White), 0.02 of the nasal tip protrusion index (Zaidi
+ * 2017, individual data), 0.03 of the cephalic index and 0.04 of the ear's
+ * ratio (ANSUR II).
  */
 export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
   {
@@ -103,6 +112,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "ls' to the E-line (prn-pog'), positive in front",
     channels: ["mouthForwardPosition"],
     resolution: 1e-5,
+    spread: 0.002,
   },
   {
     id: "eLineLower",
@@ -110,6 +120,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "li' to the E-line (prn-pog'), positive in front",
     channels: ["lowerLipVolume"],
     resolution: 1e-5,
+    spread: 0.002,
   },
   {
     id: "facialConvexity",
@@ -117,6 +128,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "angle g-sn-pog'",
     channels: ["chinProjection"],
     resolution: 0.01,
+    spread: 4,
   },
   {
     id: "nasofrontal",
@@ -124,6 +136,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "angle between the forehead tangent and n-prn at n",
     channels: ["nasalRootProjection"],
     resolution: 0.01,
+    spread: 7,
   },
   {
     id: "nasolabial",
@@ -131,6 +144,15 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "angle between the columella tangent and sn-ls at sn",
     channels: ["noseSeptumAngle"],
     resolution: 0.01,
+    spread: 8,
+  },
+  {
+    id: "nasalProtrusion",
+    norm: "nasalProtrusion",
+    definition: "sn-prn over n-sn",
+    channels: ["noseDepth"],
+    resolution: 1e-4,
+    spread: 0.02,
   },
   {
     id: "cephalicIndex",
@@ -138,6 +160,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "eu-eu over g-op",
     channels: ["posteriorHeadDepth"],
     resolution: 1e-4,
+    spread: 0.03,
   },
   {
     id: "earLengthLeft",
@@ -145,6 +168,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "left sa-sba over n-me",
     channels: ["leftEarScale"],
     resolution: 1e-4,
+    spread: 0.04,
   },
   {
     id: "earLengthRight",
@@ -152,6 +176,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     definition: "right sa-sba over n-me",
     channels: ["rightEarScale"],
     resolution: 1e-4,
+    spread: 0.04,
   },
 ];
 
@@ -171,6 +196,16 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
  * Tables 2 and 3: adults 18 to 45, attractive and malocclusion samples
  * excluded), whose Caucasian samples include Middle-Eastern and South-Asian
  * ones.
+ *
+ * Nasal tip protrusion index: European, the 3D Facial Norms' manual
+ * landmarks at 19 to 25 years (Kesterke et al., Biol Sex Differ 2016;7:23,
+ * Additional file 1: sn-prn 21.1 and 20.0, n-sn 56.7 and 54.6 mm); African
+ * and East Asian, that value times the ratio one instrument measured
+ * between the populations (Zaidi et al., PLoS Genet 2017;13:e1006616, 3D,
+ * individual data: West African 0.906 and 0.873, East Asian 0.891 and 0.879
+ * of European, men and women), which puts African-American women at 32.0
+ * against 33.8 measured by caliper (Porter and Olson 2003) and Han Chinese
+ * at 32.2 to 33.2 against 33.2 from CT.
  *
  * Cephalic index: the ratio of the mean breadth to the mean length. White
  * and Black, the 2012 US Army survey (ANSUR II, Gordon et al. 2014,
@@ -195,6 +230,7 @@ export const FACE_UNSEEN_NORMS: Record<
       facialConvexity: 167.8,
       nasofrontal: 137.9,
       nasolabial: 100.1,
+      nasalProtrusion: 0.372,
       cephalicIndex: 0.7708,
       earLength: 0.5225,
     },
@@ -204,6 +240,7 @@ export const FACE_UNSEEN_NORMS: Record<
       facialConvexity: 168.2,
       nasofrontal: 140.6,
       nasolabial: 103.3,
+      nasalProtrusion: 0.366,
       cephalicIndex: 0.778,
       earLength: 0.5282,
     },
@@ -215,6 +252,7 @@ export const FACE_UNSEEN_NORMS: Record<
       facialConvexity: 168.5,
       nasofrontal: 129.7,
       nasolabial: 87.5,
+      nasalProtrusion: 0.337,
       cephalicIndex: 0.7671,
       earLength: 0.4976,
     },
@@ -224,6 +262,7 @@ export const FACE_UNSEEN_NORMS: Record<
       facialConvexity: 170.8,
       nasofrontal: 132.2,
       nasolabial: 85.9,
+      nasalProtrusion: 0.32,
       cephalicIndex: 0.7651,
       earLength: 0.5127,
     },
@@ -235,6 +274,7 @@ export const FACE_UNSEEN_NORMS: Record<
       facialConvexity: 168.3,
       nasofrontal: 133.7,
       nasolabial: 94.7,
+      nasalProtrusion: 0.332,
       cephalicIndex: 0.8484,
       earLength: 0.5214,
     },
@@ -244,6 +284,7 @@ export const FACE_UNSEEN_NORMS: Record<
       facialConvexity: 170.2,
       nasofrontal: 139.3,
       nasolabial: 94.2,
+      nasalProtrusion: 0.322,
       cephalicIndex: 0.8553,
       earLength: 0.5256,
     },
@@ -319,6 +360,7 @@ export function measureFaceUnseen(props: {
     facialConvexity: null,
     nasofrontal: null,
     nasolabial: null,
+    nasalProtrusion: null,
     cephalicIndex: null,
     earLengthLeft: null,
     earLengthRight: null,
@@ -439,6 +481,11 @@ export function measureFaceUnseen(props: {
         ? null
         : angle(forehead, nasion, prn),
     nasolabial: angle(columella, sn, labraleSuperius!),
+    nasalProtrusion:
+      nasion === null
+        ? null
+        : Math.hypot(prn[0] - sn[0], prn[1] - sn[1]) /
+          Math.hypot(nasion[0] - sn[0], nasion[1] - sn[1]),
     cephalicIndex:
       glabella === null || breadth === 0
         ? null

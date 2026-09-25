@@ -18,14 +18,13 @@
  * - stomion (sto): the midpoint of the vermilion seam, given by the caller
  *   (the basis's lip contact pair), because the closed lips meet there;
  * - menton (me): the lowest point of the chin, where its outline turns under
- *   toward the neck. Going down from stomion the profile swells over the
- *   lower lip (less depth lost than height), falls back into the
- *   labiomental fold (more), runs down the chin's front (less) and turns
- *   under at the chin's lower edge (more again), whichever of lip and chin
- *   stands further forward. From where that second steep run opens, the
- *   chin's underside is followed back (at most `chinDepth`) to the point
- *   where it runs level, its height changing by less than `level` of its
- *   depth: the chin's lowest point.
+ *   toward the neck. The lower lip and the chin's front stand on the front
+ *   hull of the profile below stomion (its least concave majorant, which
+ *   spans the labiomental fold, present or not); going down it, the chin
+ *   turns under where the hull first loses more depth than height. From
+ *   there the chin's underside is followed back (at most `chinDepth`) to
+ *   the point where it runs level, its height changing by less than `level`
+ *   of its depth: the chin's lowest point.
  *
  * Heights are along y (the face frame's vertical) in metres. Pure.
  */
@@ -145,25 +144,18 @@ export function faceMidsagittalLandmarks(props: {
     throw new Error("The profile never turns from the columella to the lip.");
   const chin = profile.filter(([y]) => y < props.stomion);
   if (chin.length === 0) throw new Error("No profile lies below the lips.");
-  // Down from stomion the profile swells over the lower lip (shallow),
-  // falls back into the labiomental fold (steep), runs down the chin's
-  // front (shallow) and turns under at the chin's lower edge (steep again):
-  // menton opens that second steep run. The shape is followed rather than
-  // the lower lip taken as the front-most point, which a projecting chin
-  // passes.
+  // The lower lip and the chin's front stand on the lower face's front
+  // hull, which spans the labiomental fold whether or not the face has one
+  // and whichever of lip and chin stands further forward; down from
+  // stomion, menton opens the hull's first stretch that loses more depth
+  // than height, where the chin turns under.
+  const front = faceProfileHull(chin);
   let menton: FaceMidsagittalPoint | null = null;
-  // -1: the seam's crevice, 0: the lower lip's front, 1: the fold, 2: the
-  // chin's front.
-  let phase = -1;
-  for (let k = 1; k < chin.length; ++k) {
-    const dy = chin[k - 1]![0] - chin[k]![0];
-    const dz = chin[k - 1]![1] - chin[k]![1];
-    const steep = dz > dy;
-    if (phase === -1 && !steep) phase = 0;
-    else if (phase === 0 && steep) phase = 1;
-    else if (phase === 1 && !steep) phase = 2;
-    else if (phase === 2 && steep) {
-      menton = chin[k - 1]!;
+  for (let k = front.length - 1; k > 0; --k) {
+    const dy = front[k]![0] - front[k - 1]![0];
+    const dz = front[k]![1] - front[k - 1]![1];
+    if (dz > dy) {
+      menton = front[k]!;
       break;
     }
   }
@@ -317,15 +309,12 @@ export function faceProfileLandmarks(props: {
 }
 
 /**
- * A fold's depth: the point of a stretch of profile (heights descending)
- * deepest behind the stretch's front hull (its least concave majorant),
- * which the swellings on either side span and which small ripples of the
- * surface do not reach. Null for fewer than three points.
+ * The front hull of a stretch of profile (heights descending): its least
+ * concave majorant in depth, the vertices from the lowest point up.
  */
-function faceProfileFold(
+function faceProfileHull(
   points: readonly FaceMidsagittalPoint[],
-): FaceMidsagittalPoint | null {
-  if (points.length < 3) return null;
+): FaceMidsagittalPoint[] {
   const hull: FaceMidsagittalPoint[] = [];
   for (const point of [...points].reverse()) {
     while (hull.length >= 2) {
@@ -338,6 +327,20 @@ function faceProfileFold(
     }
     hull.push(point);
   }
+  return hull;
+}
+
+/**
+ * A fold's depth: the point of a stretch of profile (heights descending)
+ * deepest behind the stretch's front hull, which the swellings on either
+ * side span and which small ripples of the surface do not reach. Null for
+ * fewer than three points.
+ */
+function faceProfileFold(
+  points: readonly FaceMidsagittalPoint[],
+): FaceMidsagittalPoint | null {
+  if (points.length < 3) return null;
+  const hull = faceProfileHull(points);
   // The hull runs up the face from the lowest point; every profile height
   // lies within one of its segments, whose ends' heights differ.
   const majorant = (y: number): number => {

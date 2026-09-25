@@ -82,7 +82,7 @@ const strip = (
  *    is g-sn-pog' with g the brow's front (60, 160), the nasofrontal angle
  *    the tangent's point (45, 158) seen from n against prn, and the
  *    nasolabial angle between (-2, 172) and labrale superius (-20, 156.5)
- *    seen from subnasale; the scalp's two vertices at x = -1 and 1 mm make
+ *    seen from subnasale, and the nasal tip protrusion sn-prn over n-sn; the scalp's two vertices at x = -1 and 1 mm make
  *    the head 2 mm broad, and its length runs from glabella to the neck's
  *    back at (-80, 90); an "ear" of the strip's first two left vertices,
  *    (75, 150) and (60, 160), is hypot(15, 10) mm long over a face from
@@ -92,8 +92,8 @@ const strip = (
  *    a profile with no chin below the lower lip has no E-line or convexity
  *    and keeps its nasal angles, cephalic index and ear length; with no
  *    scalp there is no cephalic index; a profile cut at the nasal tip has
- *    no nasion, so no nasofrontal angle, convexity, cephalic index or ear
- *    length over the face's height, and keeps its lips and nasolabial
+ *    no nasion, so no nasofrontal angle, convexity, nasal tip protrusion,
+ *    cephalic index or ear length over the face's height, and keeps its lips and nasolabial
  *    angle.
  */
 export const test_subject_face_unseen_norms = (): void => {
@@ -177,6 +177,11 @@ export const test_subject_face_unseen_norms = (): void => {
         degrees([-2, 172], sn, [-20, 156.5]),
         1e-6,
       ) &&
+      nclose(
+        measured.nasalProtrusion!,
+        Math.hypot(10, 23) / Math.hypot(45, 2),
+        1e-9,
+      ) &&
       nclose(measured.cephalicIndex!, 2 / Math.hypot(140, 70), 1e-9) &&
       nclose(
         measured.earLengthLeft!,
@@ -191,6 +196,7 @@ export const test_subject_face_unseen_norms = (): void => {
     facialConvexity: null,
     nasofrontal: null,
     nasolabial: null,
+    nasalProtrusion: null,
     cephalicIndex: null,
     earLengthLeft: null,
     earLengthRight: null,
@@ -212,6 +218,7 @@ export const test_subject_face_unseen_norms = (): void => {
         ...unreadable,
         nasofrontal: measured.nasofrontal,
         nasolabial: measured.nasolabial,
+        nasalProtrusion: measured.nasalProtrusion,
         cephalicIndex: measured.cephalicIndex,
         earLengthLeft: measured.earLengthLeft,
       },
@@ -224,6 +231,7 @@ export const test_subject_face_unseen_norms = (): void => {
     [
       cut.facialConvexity,
       cut.nasofrontal,
+      cut.nasalProtrusion,
       cut.cephalicIndex,
       cut.earLengthLeft,
     ].every((one) => one === null) &&

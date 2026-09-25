@@ -20,11 +20,11 @@
  * channel starts at zero; the anthropometric controls
  * (`FACE_ANTHROPOMETRY_INDICES`) are then solved one per index so the model
  * under the photograph's camera has the photograph's proportions
- * (`solveFaceAnthropometry`), together with the controls of what a frontal
- * photograph cannot measure (`FACE_UNSEEN_INDICES`: the profile, the head
- * behind the face and the ears), set to the subject's population at their
- * sex and age (`faceUnseenNorm`) and read on the skin at rest; without a
- * recorded sex or ancestry they keep their start. The model's landmarks are the
+ * (`solveFaceAnthropometry`), and in turn with them the controls of what a
+ * frontal photograph cannot measure (`FACE_UNSEEN_INDICES`: the profile, the
+ * head behind the face and the ears), set to the subject's population at
+ * their sex and age (`faceUnseenNorm`) and read on the skin at rest; without
+ * a recorded sex or ancestry they keep their start. The model's landmarks are the
  * published anchors of that camera on the surface, and shape endpoints are
  * linear, so an index is read from the endpoint rows at the anchored
  * vertices on top of one real build at the starting controls (with the
@@ -76,7 +76,10 @@ import {
   faceAnthropometryWeights,
   measureFaceAnthropometry,
 } from "./faceAnthropometry";
-import { solveFaceAnthropometry } from "./faceAnthropometrySolve";
+import {
+  solveFaceAnthropometry,
+  solveFaceNorms,
+} from "./faceAnthropometrySolve";
 import { faceAuricleVertices } from "./faceAuricle";
 import {
   type IFaceExpressionCalibration,
@@ -364,18 +367,6 @@ if (command === "identity") {
         opened[0]![n]![axis]!
       );
     };
-    const contribution = (
-      channel: string,
-      weight: number,
-      n: number,
-      axis: number,
-    ) => {
-      if (channel === "jawOpen") return jaw(weight, n, axis);
-      if (weight === 0) return 0;
-      const one = channels.get(channel)!;
-      const name = weight > 0 ? one.positive : one.negative;
-      return name === null ? 0 : Math.abs(weight) * endpoint(name)[n]![axis]!;
-    };
     const initial = indices.map((one) => {
       const own = one.expression ? start.expression : start.shape;
       return (
@@ -458,32 +449,44 @@ if (command === "identity") {
       });
       return FACE_UNSEEN_INDICES.map((one) => read[one.id]);
     };
-    const evaluate = (values: readonly number[]) => {
+    // The photograph's indices under its camera, every control at `values`.
+    const frontal = (values: readonly number[]) => {
+      // Every anchored point's displacement from the start: each index's
+      // channels at the values less the same at the start, a whole endpoint
+      // row at a time.
+      const shift = list.map(() => [0, 0, 0]);
+      indices.forEach((index, k) => {
+        for (const [weights, sign] of [
+          [faceAnthropometryWeights(index, values[k]!), 1],
+          [faceAnthropometryWeights(index, initial[k]!), -1],
+        ] as const)
+          for (const [channel, weight] of weights) {
+            if (channel === "jawOpen") {
+              shift.forEach((point, n) => {
+                for (let axis = 0; axis < 3; ++axis)
+                  point[axis]! += sign * jaw(weight, n, axis);
+              });
+              continue;
+            }
+            if (weight === 0) continue;
+            const one = channels.get(channel)!;
+            const name = weight > 0 ? one.positive : one.negative;
+            if (name === null) continue;
+            const rows = endpoint(name);
+            const scale = sign * Math.abs(weight);
+            shift.forEach((point, n) => {
+              for (let axis = 0; axis < 3; ++axis)
+                point[axis]! += scale * rows[n]![axis]!;
+            });
+          }
+      });
       const points: ([number, number] | undefined)[] = [];
       list.forEach((one, n) => {
-        const p = [0, 1, 2].map(
-          (axis) =>
-            base[n]![axis]! +
-            indices.reduce(
-              (sum, index, k) =>
-                sum +
-                faceAnthropometryWeights(index, values[k]!).reduce(
-                  (inner, [channel, weight]) =>
-                    inner + contribution(channel, weight, n, axis),
-                  0,
-                ) -
-                faceAnthropometryWeights(index, initial[k]!).reduce(
-                  (inner, [channel, weight]) =>
-                    inner + contribution(channel, weight, n, axis),
-                  0,
-                ),
-              0,
-            ),
-        );
+        const p = [0, 1, 2].map((axis) => base[n]![axis]! + shift[n]![axis]!);
         points[one.landmark] = faceShapeFitProject(camera, p);
       });
       const measured = measureFaceAnthropometry(points);
-      return [...ids.map((id) => measured[id]!), ...unseen(values)];
+      return ids.map((id) => measured[id]!);
     };
     // The photograph's upper incisal edge where its mouth profile reads the
     // edge itself, not a bound.
@@ -520,36 +523,70 @@ if (command === "identity") {
         photographed[id] === null ? null : photographed[id]! + correction[id]!,
       ]),
     );
-    const solution = solveFaceAnthropometry({
-      controls: indices.map((one, k) => ({
-        id: one.id,
-        start: initial[k]!,
-        lower:
-          one.negative === undefined
-            ? channels.get(one.channels[0]!)!.minimum
-            : -channels.get(one.negative[0]!)!.maximum,
-        upper: channels.get(one.channels[0]!)!.maximum,
-        resolution: one.resolution ?? 0,
-      })),
-      // Without an expression study the documents are the identity at rest,
-      // whose renders are the expression transfer's rest reading, so a state
-      // of the face is not solved there and stays at its start, zero.
-      targets: [
-        ...FACE_ANTHROPOMETRY_INDICES.map((one) =>
-          one.expression === true && expressionStudy === undefined
-            ? null
-            : target[one.id]!,
-        ),
-        ...FACE_UNSEEN_INDICES.map((one) => norm?.[one.norm] ?? null),
-      ],
-      evaluate,
-    });
+    const controls = indices.map((one, k) => ({
+      id: one.id,
+      start: initial[k]!,
+      lower:
+        one.negative === undefined
+          ? channels.get(one.channels[0]!)!.minimum
+          : -channels.get(one.negative[0]!)!.maximum,
+      upper: channels.get(one.channels[0]!)!.maximum,
+      resolution: one.resolution ?? 0,
+    }));
+    // Without an expression study the documents are the identity at rest,
+    // whose renders are the expression transfer's rest reading, so a state
+    // of the face is not solved there and stays at its start, zero.
+    const measuredTargets = FACE_ANTHROPOMETRY_INDICES.map((one) =>
+      one.expression === true && expressionStudy === undefined
+        ? null
+        : target[one.id]!,
+    );
+    const unseenTargets = FACE_UNSEEN_INDICES.map(
+      (one) => norm?.[one.norm] ?? null,
+    );
+    // The two blocks are solved in turn (block Gauss-Seidel): the
+    // photograph's indices exactly with the unseen controls where they
+    // stand, then the most probable unseen form under the norms with the
+    // photograph's controls where they stand (`solveFaceNorms`), until a
+    // sweep leaves the unseen block where it was. The photograph's
+    // measurements are met; the norms, a prior, fill what it does not show.
+    // The blocks meet only through the depth a frontal camera hardly sees;
+    // there is at most one sweep per unseen control.
+    const split = FACE_ANTHROPOMETRY_INDICES.length;
+    let values = [...initial];
+    const sweeps: [number, number][] = [];
+    let seen: ReturnType<typeof solveFaceAnthropometry>;
+    let unseenSolution: ReturnType<typeof solveFaceNorms>;
+    let moved: boolean;
+    do {
+      const fixed = values.slice(split);
+      seen = solveFaceAnthropometry({
+        controls: controls
+          .slice(0, split)
+          .map((one, k) => ({ ...one, start: values[k]! })),
+        targets: measuredTargets,
+        evaluate: (own) => frontal([...own, ...fixed]),
+      });
+      const front = seen.values;
+      const standing = values.slice(split);
+      unseenSolution = solveFaceNorms({
+        controls: controls
+          .slice(split)
+          .map((one, j) => ({ ...one, start: standing[j]! })),
+        targets: unseenTargets,
+        spreads: FACE_UNSEEN_INDICES.map((one) => one.spread),
+        evaluate: (own) => unseen([...front, ...own]),
+      });
+      moved = unseenSolution.values.some((v, j) => v !== standing[j]);
+      values = [...seen.values, ...unseenSolution.values];
+      sweeps.push([seen.iterations, unseenSolution.iterations]);
+    } while (moved && sweeps.length < FACE_UNSEEN_INDICES.length);
     const shape = { ...start.shape };
     const posed = { ...start.expression };
     indices.forEach((one, k) => {
       for (const [channel, weight] of faceAnthropometryWeights(
         one,
-        solution.values[k]!,
+        values[k]!,
       )) {
         const value = Number(weight.toFixed(5));
         if (!one.expression) shape[channel] = value;
@@ -565,27 +602,24 @@ if (command === "identity") {
           {
             photograph: photographed[id],
             correction: correction[id],
-            model: solution.achieved[k],
-            control: solution.values[k],
-            held: solution.held.includes(k),
+            model: seen.achieved[k],
+            control: seen.values[k],
+            held: seen.held.includes(k),
           },
         ]),
       ),
       unseen: Object.fromEntries(
-        FACE_UNSEEN_INDICES.map((one, j) => {
-          const k = ids.length + j;
-          return [
-            one.id,
-            {
-              norm: norm?.[one.norm] ?? null,
-              model: solution.achieved[k],
-              control: solution.values[k],
-              held: solution.held.includes(k),
-            },
-          ];
-        }),
+        FACE_UNSEEN_INDICES.map((one, j) => [
+          one.id,
+          {
+            norm: norm?.[one.norm] ?? null,
+            model: unseenSolution.achieved[j],
+            control: unseenSolution.values[j],
+            held: unseenSolution.held.includes(j),
+          },
+        ]),
       ),
-      iterations: solution.iterations,
+      iterations: sweeps,
     };
     return { ...start, shape, expression: posed };
   });

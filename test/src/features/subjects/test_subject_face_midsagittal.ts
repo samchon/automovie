@@ -62,14 +62,16 @@ const strip = (
  *    the profile turns from losing more depth than height to less; menton
  *    is the chin's level underside at y -70, found by following the chin
  *    back from its turn; upper lip and lower face heights are 19 and 59 mm.
- * 3. A surface that does not reach x = 0 and a nose band with no profile
- *    refuse.
+ * 3. A surface that does not reach x = 0, a nose band with no profile and
+ *    a profile ending on the chin's front, which never turns under, refuse.
  * 4. A chin standing 3 mm in front of the lower lip, read from a stomion
  *    above the seam's steep crevice, still gives menton at the chin's level
  *    underside at y -70.
  * 5. A nose barely standing off the lip, its tip at (0, 150) and no
  *    columella steeper than 45 degrees, meets the lip at the concavity's
  *    depth, (-12, 144.8).
+ * 6. A lower face without a labiomental fold, the lip's front running
+ *    straight into the chin's, still gives menton at y -70.
  */
 export const test_subject_face_midsagittal = (): void => {
   const { positions, indices } = strip();
@@ -156,6 +158,17 @@ export const test_subject_face_midsagittal = (): void => {
     "flat nose",
     nclose(shallow[0], -0.012, 1e-9) && nclose(shallow[1], 0.1448, 1e-9),
   );
+  const foldless = strip(
+    PROFILE.map(([y, z]): [number, number] => (y === -44 ? [y, 146] : [y, z])),
+  );
+  TestValidator.predicate(
+    "no fold",
+    nclose(
+      faceMidsagittalLandmarks({ ...foldless, ...options }).menton[0],
+      -0.07,
+      0.0005,
+    ),
+  );
   TestValidator.predicate(
     "refusals",
     throwsError(
@@ -176,6 +189,14 @@ export const test_subject_face_midsagittal = (): void => {
             nose: [0.5, 0.6],
           }),
         "nose band",
+      ) &&
+      throwsError(
+        () =>
+          faceMidsagittalLandmarks({
+            ...strip(PROFILE.filter(([y]) => y >= -60)),
+            ...options,
+          }),
+        "never turns under",
       ),
   );
 };
