@@ -40,7 +40,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 외곽·좌면·등받이 높이, 널·다리·등받이 기둥 단면, 기울기 축과 깊이 점유, 세 표면 id, 무관절과 측면·평면 관찰을 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work spaces/site/terrace.md#garden-terrace-plan의 2.70 m 가구 사용 구역과 식탁 반폭 0.40 m를 적힌 그대로 소비했고 꺼낸 끝 1.25 m가 그 안에 들어 부모 수정이 없었다.
 @evidence settings/10-house.md#site-identity 후면 정원 포장 테라스에 두라는 의자를 팔걸이 없는 0.50 × 0.55 m 의자 원형으로 만든다. 본문은 공간 예약과 사용 가정을 직접 소비한다.
-@evidence spaces/site/terrace.md#garden-terrace-plan 이 spaces H2가 가구 owner에 넘긴 "꺼낸 상태까지 예약 안" 조건을 식탁 가장자리에서 0.30 m 꺼낸 뒤쪽 끝 1.25 m가 반폭 1.35 m 안에 든다는 산술로 받는다.
+@evidence spaces/site/terrace.md#garden-terrace-plan 테라스의 X = [1.50, 4.20] m·Z = [-14.10, -11.40] m 가구 예약에 대해 의자를 식탁 가장자리에서 0.30 m 꺼낸 뒤쪽 끝 1.25 m가 예약 반폭 1.35 m 안에 든다는 산술로 받는다.
 @evidence obligations/design/models.md#reference-scale 의자 깊이 0.55 m를 식탁 반폭 0.40 m·꺼냄 0.30 m와 더해 예약 반폭 1.35 m에 대조하는 외곽 확인 규칙을 둔다. 공통 척도 기준 자체는 이 H2가 지명하지 않는다.
 -->
 

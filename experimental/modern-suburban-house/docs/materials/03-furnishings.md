@@ -22,11 +22,11 @@
 ## 밝은 석재 상판 {#light-countertop}
 <!--
 @evidence principles/core/common.md#declared-basis 밝은 석재 상판의 #E4E0D8·roughness 0.30은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 밝은 석재 상판은 models/12-service-rooms.md#laundry-folding-top의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 밝은 석재 상판은 주방 하부장·섬·세면장의 `countertop`과 세탁기 위 접는 상판의 `top`에만 결합한다. 받침 `cleat`는 회갈색 패널 수납장이 받으며 판 geometry는 각 모델에 남긴다.
 @evidence principles/core/common.md#substantive-completion 밝은 석재 상판은 #E4E0D8(선형 0.776, 0.745, 0.687), roughness 0.30, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/cabinetry.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 밝은 석재 상판은 #E4E0D8 값과 roughness 0.30, `countertop`·`top`·`cleat` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 밝은 석재 상판은 #E4E0D8 값과 roughness 0.30, `countertop`·`top` 결합을 더한다. `cleat`는 별도 회갈색 도막이다.
 @evidence principles/design/materials.md#material-construction-appearance 밝은 석재 상판은 구성을 '두께 0.03 m 엔지니어드 석재 판'로, 외관의 #E4E0D8·roughness 0.30·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 밝은 석재 상판의 결합 vocabulary는 `countertop`·`top`·`cleat`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 밝은 석재 상판은 세 원형의 `countertop`과 세탁 상판의 `top`에 결합하고, 같은 세탁 원형의 `cleat`는 회갈색 수납장 재료로 분리한다.
 @evidence principles/design/materials.md#material-verification-address 밝은 석재 상판의 반증 견본은 '03 view에서 상판 앞 모서리가 수납장 위 밝은 선으로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #E4E0D8 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 밝은 석재 상판은 settings/10-house.md#kitchen-equipment, models/12-service-rooms.md#laundry-folding-top를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 상판 `countertop`·`top`은 0.30 m 모듈의 연한 석재 입자와 드문 가는 맥을 결정론적으로 만든다. 상판 국소 X/Z를 U/V로 한 모서리를 원점으로 하고 싱크 구멍·앞 모서리에서 결을 절단한다.
@@ -40,11 +40,11 @@
 ## 스테인리스 가전과 수전 {#stainless-steel}
 <!--
 @evidence principles/core/common.md#declared-basis 스테인리스 가전과 수전의 #C0C2C4·roughness 0.30은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 스테인리스 가전과 수전은 models/10-kitchen-dining.md#kitchen-refrigerator, models/10-kitchen-dining.md#kitchen-range, models/10-kitchen-dining.md#kitchen-microwave 및 본문에 링크한 식기세척기·변기 레버의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 스테인리스는 주방 가전과 수전, 욕실 수전·변기 레버, 차고 선반·공구, 세탁기 링·드럼의 금속 파티션에 결합하고 판과 기구의 geometry는 각각의 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 스테인리스 가전과 수전은 #C0C2C4(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/appliances.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#kitchen-equipment는 색·재료를 말로만 정했고 스테인리스 가전과 수전은 #C0C2C4 값과 roughness 0.30, `leaf`·`drawer-front`·`appliance-body`·`handle`·`faucet` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 스테인리스 가전과 수전은 구성을 '도장하지 않은 헤어라인 스테인리스 강판과 주물 수전'로, 외관의 #C0C2C4·roughness 0.30·metallic 1.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 스테인리스 가전과 수전의 결합 vocabulary는 `leaf`·`drawer-front`·`appliance-body`·`handle`·`faucet`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 가전의 `leaf`·`drawer-front`·`appliance-body`·`handle`, 수전 `faucet`·`basin`, 세탁기 `door-ring`·`drum`, 차고 `rail`·`tool-steel`을 각 원형의 금속 경계에서 결속한다.
 @evidence principles/design/materials.md#material-verification-address 스테인리스 가전과 수전의 반증 견본은 '중성 조명 판과 03 view에서 가전이 흰 벽보다 어둡지만 검은 판이 아닌 금속 반사로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #C0C2C4 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 스테인리스 가전과 수전은 settings/10-house.md#kitchen-equipment, models/10-kitchen-dining.md#kitchen-refrigerator를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 가전·수전의 노출 스테인리스에는 0.02 m 반복의 방향성 헤어라인 거칠기 맵을 쓴다. 판의 길이 U를 연마 방향으로, 판 시작 모서리를 원점으로 하고 문·손잡이 파티션 경계에서 방향을 새로 잡는다.
@@ -60,7 +60,7 @@
 ## 검은 유리 조작부 {#black-glass-panel}
 <!--
 @evidence principles/core/common.md#declared-basis 검은 유리 조작부의 #1F1F20·roughness 0.08은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 검은 유리 조작부는 models/12-service-rooms.md#laundry-machine의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 검은 유리 조작부는 레인지 쿡탑·오븐 창, 전자레인지 창·조작부, 식기세척기·세탁기 조작부에 결합하고 각 판의 geometry·경계는 해당 가전 원형에 남긴다.
 @evidence principles/core/common.md#substantive-completion 검은 유리 조작부는 #1F1F20(선형 0.014, 0.014, 0.014), roughness 0.08, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/appliances.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/20-verification.md#visual-grammar는 색·재료를 말로만 정했고 검은 유리 조작부는 #1F1F20 값과 roughness 0.08, `cooktop`·`burner`·`control-panel`·`appliance-glass` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 검은 유리 조작부는 구성을 '검은 유리 세라믹 판'로, 외관의 #1F1F20·roughness 0.08·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
@@ -77,11 +77,11 @@
 ## 흰 에나멜과 도기 {#white-enamel}
 <!--
 @evidence principles/core/common.md#declared-basis 흰 에나멜과 도기의 #F5F5F2·roughness 0.25은 settings/10-house.md#laundry-mudroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 흰 에나멜과 도기는 models/14-bathrooms.md#shared-toilet, models/14-bathrooms.md#bathtub, models/14-bathrooms.md#sliding-shower-booth의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 흰 에나멜과 도기는 변기·세면장·욕조·샤워 트레이, 세탁기 외장·가전 내부, 소품의 `container`·`bowl`·`lamp-base`에 결합하며 geometry는 각 원형에 남긴다.
 @evidence principles/core/common.md#substantive-completion 흰 에나멜과 도기는 #F5F5F2(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/fixtures.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#laundry-mudroom는 색·재료를 말로만 정했고 흰 에나멜과 도기는 #F5F5F2 값과 roughness 0.25, `ceramic`·`toilet-seat`·`lid` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 흰 에나멜과 도기는 구성을 '유약 도기와 법랑 강판'로, 외관의 #F5F5F2·roughness 0.25·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 흰 에나멜과 도기의 결합 vocabulary는 `ceramic`·`toilet-seat`·`lid`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 도기의 `ceramic`·`toilet-seat`·`lid`, 샤워 `shower-tray`, 가전 `appliance-body`·`leaf`·`appliance-interior`, 소품 `accessory`·`container`·`bowl`·`lamp-base`를 각각 결합하고 세탁기 문 링·유리는 별도 재료로 분리한다.
 @evidence principles/design/materials.md#material-verification-address 흰 에나멜과 도기의 반증 견본은 '05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F5F5F2 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 에나멜과 도기는 settings/10-house.md#laundry-mudroom, models/14-bathrooms.md#shared-toilet를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 흰 도기·에나멜은 의도적으로 매끈한 유약 면이다. roughness 0.25의 넓은 하이라이트와 실제 곡면 법선·그림자로 부피를 읽히게 하며 금속·벽 타일 파티션과의 접합에서 끝난다.
@@ -97,11 +97,11 @@
 ## 꿀빛 가구 목재 {#furniture-wood}
 <!--
 @evidence principles/core/common.md#declared-basis 꿀빛 가구 목재의 #A87A4E·roughness 0.50은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 꿀빛 가구 목재는 models/10-kitchen-dining.md#dining-table, models/10-kitchen-dining.md#dining-chair, models/10-kitchen-dining.md#kitchen-island-stool의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 꿀빛 목재는 식탁·의자뿐 아니라 책상·침대·협탁·팬트리 선반·벤치·작업대·테라스 가구·벽난로 `mantel`의 지정된 목재 면에 결합하며 각각의 부재 경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 꿀빛 가구 목재는 #A87A4E(선형 0.392, 0.195, 0.076), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/wood.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 꿀빛 가구 목재는 #A87A4E 값과 roughness 0.50, `top`·`apron`·`leg`·`seat` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 꿀빛 가구 목재는 구성을 '오일 마감 참나무 집성재'로, 외관의 #A87A4E·roughness 0.50·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 꿀빛 가구 목재의 결합 vocabulary는 `top`·`apron`·`leg`·`seat`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 식탁·의자의 `top`·`apron`·`leg`·`seat` 외에도 침대 `headboard`·`bed-frame`, 가구 `carcass`·`drawer-front`·`shelf`, 벽난로 `mantel`, 작업대·소품의 본문에 적힌 목재 파티션에 결합한다.
 @evidence principles/design/materials.md#material-verification-address 꿀빛 가구 목재의 반증 견본은 '03과 05 view에서 가구와 마루가 같은 계열이되 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #A87A4E 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 꿀빛 가구 목재는 settings/10-house.md#living, settings/10-house.md#primary-bedroom를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다.
@@ -120,9 +120,9 @@
 @evidence principles/core/common.md#declared-basis 짙은 책장 목재의 #4A3A2E·roughness 0.55은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 짙은 책장 목재는 models/11-living.md#dark-bookcase의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 짙은 책장 목재는 #4A3A2E(선형 0.068, 0.042, 0.027), roughness 0.55, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/wood.ts`, 리뷰 관찰을 모두 적었다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 짙은 책장 목재는 #4A3A2E 값과 roughness 0.55, `carcass`·`plinth`·`shelf`·`book` 결합을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 짙은 책장 목재는 #4A3A2E 값과 roughness 0.55, 책장 `carcass`·`plinth`·`shelf` 및 액자 `art-frame` 결합을 더한다. 책 `book`은 별도 직물색이다.
 @evidence principles/design/materials.md#material-construction-appearance 짙은 책장 목재는 구성을 '어두운 착색 호두나무 판재'로, 외관의 #4A3A2E·roughness 0.55·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 짙은 책장 목재의 결합 vocabulary는 `carcass`·`plinth`·`shelf`·`book`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 짙은 목재는 책장의 `carcass`·`plinth`·`shelf`와 액자의 `art-frame`에 결합한다. 책 `book`은 회베이지·올리브·청회색 값을 순환해 받으므로 이 재료에서 제외한다.
 @evidence principles/design/materials.md#material-verification-address 짙은 책장 목재의 반증 견본은 '04 view에서 책장이 흰 벽 앞 짙은 덩어리로 읽히되 선반 그림자와 책 색 변화가 보이는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #4A3A2E 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 짙은 책장 목재는 settings/10-house.md#living, models/11-living.md#dark-bookcase를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 짙은 책장 목재는 판 길이 U의 0.15 m 어두운 오크 결 맵을 쓴다. 각 선반·측판의 안쪽 시작 모서리를 원점으로 하고 판 끝에서 끊어 뒤판과 선반이 한 검은 면으로 합쳐지지 않게 한다.
@@ -138,11 +138,11 @@
 ## 회베이지 천갈이 {#grey-beige-upholstery}
 <!--
 @evidence principles/core/common.md#declared-basis 회베이지 천갈이의 #B7AFA3·roughness 0.92은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 회베이지 천갈이는 models/11-living.md#fabric-sofa, models/11-living.md#reading-armchair의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 회베이지 천갈이는 소파·안락의자 몸체뿐 아니라 소파 쿠션, 옷방 옷의 회베이지 변형, 책 표지와 러그 테두리에 재사용한다. 각 원형의 geometry·경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 회베이지 천갈이는 #B7AFA3(선형 0.474, 0.429, 0.366), roughness 0.92, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#living는 색·재료를 말로만 정했고 회베이지 천갈이는 #B7AFA3 값과 roughness 0.92, `base`·`seat-cushion`·`back`·`arm` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 회베이지 천갈이는 구성을 '폼 위 직조 폴리 직물'로, 외관의 #B7AFA3·roughness 0.92·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 회베이지 천갈이의 결합 vocabulary는 `base`·`seat-cushion`·`back`·`arm`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 소파·의자의 `base`·`seat-cushion`·`back`·`arm`과 소파 `pillow`, 옷 `clothes`, 책 `book`, 러그 `border`를 다른 파티션에서 분리 결합한다.
 @evidence principles/design/materials.md#material-verification-address 회베이지 천갈이의 반증 견본은 '04와 03 view에서 소파가 벽보다 어둡고 광택 없이 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #B7AFA3 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 회베이지 천갈이는 settings/10-house.md#living, models/11-living.md#fabric-sofa를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 소파·안락의자의 직조 천은 0.01 m 날실/씨실 반복의 색·법선 결이다. 쿠션 파티션의 국소 가로 U·세로 V와 봉제선 원점을 쓰고 쿠션 이음에서 잘라 부피를 보존한다.
@@ -158,7 +158,7 @@
 ## 회베이지 주침실 침구 {#primary-bedding}
 <!--
 @evidence principles/core/common.md#declared-basis 회베이지 주침실 침구의 #CFC8BC·roughness 0.93은 settings/10-house.md#primary-bedroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 회베이지 주침실 침구는 models/13-bedrooms.md#headboard-bed의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 회베이지는 주침실 침대의 `bedding`과 세 침대 공통 원형의 `pillow`·`mattress`에 결합하고 침대·베개·매트리스 형상은 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 회베이지 주침실 침구는 #CFC8BC(선형 0.624, 0.578, 0.503), roughness 0.93, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#primary-bedroom는 색·재료를 말로만 정했고 회베이지 주침실 침구는 #CFC8BC 값과 roughness 0.93, `bedding`·`pillow`·`mattress` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 회베이지 주침실 침구는 구성을 '면 직물 이불·베개'로, 외관의 #CFC8BC·roughness 0.93·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
@@ -170,18 +170,18 @@
 @evidence spaces/rooms/primary.md#primary-furniture-use primary-furniture-use가 후속 저작으로 둔 회베이지 침구 재료를 #CFC8BC로 주침실 침대 `bedding`에 결합한다.
 -->
 
-[주침실의 회베이지 침구](../settings/10-house.md#primary-bedroom)다. 구성은 면 직물 이불·베개이고 매트리스는 흰 면 커버다. 외관은 `#CFC8BC`(선형 0.624, 0.578, 0.503), roughness 0.93, metallic 0.0, transmission 0.0이다. 결합 면은 주침실 [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `bedding`, 세 침대의 `pillow`와 `mattress`다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 주침실 view에서 침구가 목재 침대와 카펫 사이에서 구별되는지를 관찰한다.
+[주침실의 회베이지 침구](../settings/10-house.md#primary-bedroom)다. 구성은 면 직물 이불·베개와 밝은 회베이지 면 매트리스 커버다. 외관은 `#CFC8BC`(선형 0.624, 0.578, 0.503), roughness 0.93, metallic 0.0, transmission 0.0이다. 결합 면은 주침실 [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `bedding`, 세 침대의 `pillow`와 `mattress`다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 주침실 view에서 침구가 목재 침대와 카펫 사이에서 구별되는지를 관찰한다.
 
 표면 결속 계획: 주침실 침구의 회베이지 직조 결은 0.01 m 모듈이다. 이불 장변 U·단변 V를 침대 발치 모서리에서 시작하고 접힌 끝·베개 경계에서 잘라 천의 방향을 읽힌다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 올리브 침구 {#olive-bedding}
 <!--
 @evidence principles/core/common.md#declared-basis 올리브 침구의 #6B7040·roughness 0.92은 settings/10-house.md#bedroom-two의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 올리브 침구는 models/13-bedrooms.md#headboard-bed의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 올리브 값은 둘째 침실 침대의 `bedding`과 책장 `book`·옷방 `clothes`의 올리브 변형에 결합하며 형상은 각 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 올리브 침구는 #6B7040(선형 0.147, 0.162, 0.051), roughness 0.92, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#bedroom-two는 색·재료를 말로만 정했고 올리브 침구는 #6B7040 값과 roughness 0.92, `bedding` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 올리브 침구는 구성을 '면 직물 이불'로, 외관의 #6B7040·roughness 0.92·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 올리브 침구의 결합 vocabulary는 `bedding`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 올리브 값은 둘째 침대의 `bedding`과 책·옷의 `book`·`clothes`를 서로 다른 부품 경계에서 결속한다.
 @evidence principles/design/materials.md#material-verification-address 올리브 침구의 반증 견본은 '기준 상태 판과 bedroom-two 전체 view에서 이불이 올리브로 식별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #6B7040 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 올리브 침구는 settings/10-house.md#bedroom-two, models/13-bedrooms.md#headboard-bed를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 침실 둘의 올리브 침구 직조 결은 0.01 m 모듈이다. 이불 장변 U·단변 V를 발치에서 시작하고 접힘과 베개 경계에서 끊어 주침실 회베이지와 구별한다.
@@ -201,7 +201,7 @@
 @evidence principles/core/common.md#substantive-completion 청회색 침구는 #6E7F8C(선형 0.156, 0.212, 0.262), roughness 0.92, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#bedroom-three는 색·재료를 말로만 정했고 청회색 침구는 #6E7F8C 값과 roughness 0.92, `bedding` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 청회색 침구는 구성을 '면 직물 이불'로, 외관의 #6E7F8C·roughness 0.92·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 청회색 침구의 결합 vocabulary는 `bedding`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
+@evidence principles/design/materials.md#material-binding-interface 청회색 값은 셋째 침대의 `bedding`과 책·옷의 `book`·`clothes`를 서로 다른 부품 경계에서 결속한다.
 @evidence principles/design/materials.md#material-verification-address 청회색 침구의 반증 견본은 '두 작은 침실 view를 나란히 놓아 따뜻한 실내등 아래에서도 침구색이 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #6E7F8C 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 청회색 침구는 settings/10-house.md#bedroom-three를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 침실 셋의 청회색 침구 직조 결은 0.01 m 모듈이다. 이불 장변 U·단변 V를 발치에서 시작하고 접힘과 베개 경계에서 끊어 다른 두 침구와 구별한다.
@@ -235,11 +235,11 @@
 ## 흰 수건과 얇은 커튼 {#towel-curtain-textile}
 <!--
 @evidence principles/core/common.md#declared-basis 흰 수건과 얇은 커튼의 #EAE6DC·roughness 0.95은 settings/10-house.md#shower-bathroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
-@evidence principles/core/common.md#scope-preservation 흰 수건과 얇은 커튼은 towel-bar·tub-curtain-rail·여덟 창의 primary-window-curtains와 wardrobe-shelves의 부재 면에 마감만 결합하고 geometry·경계는 모델 owner에 남긴다.
+@evidence principles/core/common.md#scope-preservation 흰 수건과 얇은 커튼은 수건걸이·접힌 린넨·욕조 커튼·여덟 창 커튼에, 같은 밝은 직물 외관은 협탁등·펜던트 갓에 결합한다. 각 부재 경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 수건 #EAE6DC(roughness 0.95)와 커튼 #EDE9E0(roughness 0.90, transmission 0.30, 양면), 욕조·여덟 창 커튼의 `curtain` 파티션 및 수건·접힌 린넨 결속, source owner `src/materials/furnishings/textiles.ts`와 관찰을 모두 적는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 settings/10-house.md#shower-bathroom는 색·재료를 말로만 정했고 흰 수건과 얇은 커튼은 #EAE6DC 값과 roughness 0.95, `towel`·`curtain`·`folded` 결합을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 흰 수건과 얇은 커튼은 구성을 '파일 면 직물(수건)과 얇은 폴리 직물(커튼)'로, 외관의 #EAE6DC·roughness 0.95·metallic 0.0을 기준값으로 두고 아래 표면 결속 계획의 결·광학 응답으로 최상층 마감을 표현한다고 적는다.
-@evidence principles/design/materials.md#material-binding-interface 수건과 린넨의 `towel`·`folded`, 욕조와 여덟 창의 `curtain`을 분리 결속하며 얇은 커튼은 양면이다.
+@evidence principles/design/materials.md#material-binding-interface `towel`·`folded`, 욕조와 여덟 창의 `curtain`, 협탁등 `lamp-shade`·펜던트 `fixture-shade`를 분리 결속하며 얇은 커튼은 양면이다.
 @evidence principles/design/materials.md#material-verification-address 흰 수건과 얇은 커튼의 반증 견본은 '욕조 커튼이 빛을 통과시키는지와 수건이 흰 타일과 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #EAE6DC 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 수건과 얇은 커튼은 settings/10-house.md#shower-bathroom, settings/10-house.md#storage를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
 @evidence contracts/texture-readability.md#material-texture-readability 수건은 0.01 m 파일 결, 얇은 커튼은 0.02 m 투과 직조 결을 각 파티션에 따로 쓴다. 세로 매달림을 V, 폭을 U로 두고 각각 아래 왼쪽을 원점으로 하며 봉제 끝·창틀 경계에서 끊는다.
