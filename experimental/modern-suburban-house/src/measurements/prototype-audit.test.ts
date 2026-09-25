@@ -33,14 +33,16 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
   assert.throws(()=>metricOvalCup([0,0,0],0.1,0.008,0.1,0.008));
 });
 
-test("separate porch and wall objects keep each reviewed face once", () => {
+test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,64);
-  assert.ok(!objects.some((p)=>p.id==="porch-mat-planter"||p.id==="wall-art-indoor-plant"));
+  assert.equal(objects.length,67);
+  assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
+    ["pantry-containers",["pantry-container","pantry-box","pantry-basket"]],
+    ["kitchen-food-utensils",["kitchen-prep-props","dining-fruit-bowl"]],
   ] as const) {
     const parent=parents.find((p)=>p.id===parentId)!;
     const split=children.map((id)=>objects.find((p)=>p.id===id)!);
@@ -96,6 +98,16 @@ test("collapsed UVs fail on an otherwise valid mesh", () => {
   if(geometry.type!=="mesh") throw Error("expected mesh");
   geometry.mesh.uvs!.fill(0);
   assert.ok(auditPrototypePopulation(altered).failures.some((line)=>line.includes("collapsed metric UV triangle")));
+});
+
+test("surface projections and duplicate bindings fail", () => {
+  const altered=buildHousePrototypes();
+  const first=altered[0]!;
+  Object.assign(first.bindings[0]!,{uv:"invalid"});
+  first.bindings=[...first.bindings,first.bindings[0]!];
+  const failures=auditPrototypePopulation(altered).failures;
+  assert.ok(failures.some((line)=>line.includes("unknown UV projection")));
+  assert.ok(failures.some((line)=>line.includes("duplicate surface binding")));
 });
 
 test("template refuses unmade surfaces and nonpositive dimensions", () => {

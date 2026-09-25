@@ -40,6 +40,11 @@ const objectVariants = [
   ["porch-planter", "porch-mat-planter", ["container", "stem", "foliage"]],
   ["wall-art", "wall-art-indoor-plant", ["art-frame", "art-print"]],
   ["indoor-plant", "wall-art-indoor-plant", ["container", "stem", "foliage"]],
+  ["pantry-container", "pantry-containers", ["container", "lid"]],
+  ["pantry-box", "pantry-containers", ["box"]],
+  ["pantry-basket", "pantry-containers", ["basket"]],
+  ["kitchen-prep-props", "kitchen-food-utensils", ["cutting-board", "container", "utensil"]],
+  ["dining-fruit-bowl", "kitchen-food-utensils", ["bowl", "fruit"]],
 ] as const;
 
 function extractObject(parent: HousePrototype, id: string, surfaces: readonly string[]): HousePrototype {

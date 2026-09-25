@@ -96,10 +96,13 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
     }
     for(const face of faces) if(face===null||!expected.has(face)) failures.push(`${p.id}: extra face ${face}`);
     for(const binding of p.bindings) {
+      if(!["box-metric","cylinder-metric","ellipsoid-metric","mixed-metric"].includes(binding.uv))
+        failures.push(`${p.id}/${binding.surface}: unknown UV projection`);
       if(binding.scale.some((n)=>!Number.isFinite(n)||n<=0)) failures.push(`${p.id}/${binding.surface}: invalid texture scale`);
       if(!Number.isInteger(binding.fallback)||binding.fallback<0||binding.fallback>0xffffff) failures.push(`${p.id}/${binding.surface}: no fallback colour`);
       if(!p.model.materials.some((m)=>m.id===binding.surface && m.baseColorTexture===null)) failures.push(`${p.id}/${binding.surface}: missing bitmap-free material`);
     }
+    if(boundFaces.size!==p.bindings.length) failures.push(`${p.id}: duplicate surface binding`);
     const partIds=new Set<string>();
     const refParts=new Map(canonical.get(p.id)?.model.parts.map((part)=>[part.id,part])??[]);
     for(const part of p.model.parts) {
