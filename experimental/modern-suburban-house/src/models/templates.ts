@@ -116,6 +116,28 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         for(const surface of ["plinth","carcass","countertop","leaf","drawer-front","handle"]) pending.delete(surface);
         break;
       }
+      if(pending.has("leg")&&pending.has("drawer-front")&&!pending.has("countertop")) {
+        const front=d-0.02,side=0.03;
+        for(const x of [-w/2,w/2-side])
+          b.box("carcass",[x,0.10,0.015],[x+side,h,front]);
+        b.box("carcass",[-w/2+side,0.10,0.015],[w/2-side,h,0.035]);
+        b.box("carcass",[-w/2+side,h-0.02,0.035],[w/2-side,h,front]);
+        b.box("carcass",[-w/2+side,0.08,0.035],[w/2-side,0.10,front]);
+        for(const x of [-w/2+0.035,w/2-0.035]) for(const z of [0.035,d-0.035])
+          b.box("leg",[x-0.02,0,z-0.02],[x+0.02,0.08,z+0.02]);
+        const columns=[[-w/2+side,-0.01],[0.01,w/2-side]];
+        const rows=[[0.12,0.32],[0.35,0.55],[0.58,h-0.02]];
+        for(const [left,right] of columns) for(const [bottom,top] of rows) {
+          const center=(left+right)/2,handleLeft=center-0.06,handleRight=center+0.06;
+          b.box("drawer-front",[left,bottom,front],[right,top-0.04,d]);
+          b.box("drawer-front",[left,top-0.04,front],[handleLeft,top,d]);
+          b.box("drawer-front",[handleRight,top-0.04,front],[right,top,d]);
+          b.box("drawer-front",[handleLeft,top-0.015,front],[handleRight,top,d]);
+          b.box("handle",[handleLeft,top-0.04,front],[handleRight,top-0.015,d-0.008]);
+        }
+        for(const surface of ["carcass","leg","drawer-front","handle"]) pending.delete(surface);
+        break;
+      }
       const bodyTop=spec.bodyTop??h;
       const rear=island?Math.min(0.30,d*0.29):0;
       const frontRuns=island
@@ -284,7 +306,8 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       box("handle",w*0.25,h*0.35,d,w*0.30,h*0.72,d+0.03);
       break;
     case "table":
-      box("top",-w/2,h-0.04,0,w/2,h,d);
+      const desk=pending.has("pencil");
+      box("top",-w/2,h-(desk?0.03:0.04),0,w/2,h,d);
       box("countertop",-w/2,h-0.04,0,w/2,h,d);
       if(pending.has("apron")) {
         const inset=0.02,thickness=0.025,low=h-0.115,high=h-0.035;
@@ -294,7 +317,7 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           b.box("apron",[x+thickness,low,inset+thickness],[x+2*thickness,high,d-inset-thickness]);
         pending.delete("apron");
       }
-      legs("leg",h-0.04);
+      legs("leg",h-(desk?0.03:0.04));
       if (pending.has("cleat")) {
         b.box("cleat",[-w/2,h-0.13,0],[-w/2+0.035,h-0.04,d]);
         b.box("cleat",[w/2-0.035,h-0.13,0],[w/2,h-0.04,d]);
@@ -308,7 +331,7 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         for(const x of [-w*0.23,w*0.22]) b.box("handle",[x-0.06,h-0.14,d-0.012],[x+0.06,h-0.115,d]);
         pending.delete("handle");
       }
-      box("shelf",-w*0.35,h-0.13,0.04,w*0.35,h-0.105,d*0.18);
+      box("shelf",-w/2+0.06,h-0.13,0.04,w/2-0.06,h-0.03,d*0.40);
       if(pending.has("book")) {
         for(let i=0;i<3;i++) b.box("book",[-w*0.30,h+0.025*i,d*0.09],[-w*0.30+0.20,h+0.025*(i+1),d*0.09+0.14]);
         pending.delete("book");
@@ -326,8 +349,8 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       {
       const stool=pending.has("footrest");
       const seatTop=stool?h:Math.min(0.45,h*0.54);
-      box("seat",-w/2,seatTop-0.03,0,w/2,seatTop,d);
-      legs("leg",seatTop-0.03);
+      box("seat",-w/2,seatTop-(stool?0.05:0.03),stool?0.02:0,w/2,seatTop,d);
+      legs("leg",seatTop-(stool?0.05:0.03));
       if(pending.has("back")) {
         const t=Math.min(0.035,w*0.08);
         for(const x of [-w/2,-w/2+w-t]) b.box("back",[x,seatTop-0.03,0.05],[x+t,h,0.05+t]);
@@ -339,7 +362,14 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         }
         pending.delete("back");
       }
-      box("footrest",-w/2+0.03,seatTop*0.36,d*0.66,w/2-0.03,seatTop*0.36+0.025,d*0.71);
+      if(stool) {
+        const inset=0.05,t=0.02,y=0.24;
+        for(const z of [inset,d-inset-t])
+          b.box("footrest",[-w/2+inset,y,z],[w/2-inset,y+t,z+t]);
+        for(const x of [-w/2+inset,w/2-inset-t])
+          b.box("footrest",[x,y,inset+t],[x+t,y+t,d-inset-t]);
+        pending.delete("footrest");
+      }
       break;
       }
     case "sofa":

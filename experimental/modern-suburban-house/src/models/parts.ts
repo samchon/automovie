@@ -6,14 +6,20 @@ import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieMa
 
 export type Point = readonly [number, number, number];
 export type Size = readonly [number, number, number];
-export type FinishRole = "furniture-wood" | "upholstery" | "siding" | "trim-white" | "roof-shingle" | "charcoal-metal";
-const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number }> = {
-  "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50},
-  upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92},
-  siding: {fallback:0xede8dc,scale:[0.3,0.3],roughness:0.55},
-  "trim-white": {fallback:0xf6f4ee,scale:[1,1],roughness:0.35},
-  "roof-shingle": {fallback:0x3a3c3e,scale:[0.3,0.3],roughness:0.90},
-  "charcoal-metal": {fallback:0x2e3033,scale:[1,1],roughness:0.40},
+export type FinishRole = "furniture-wood" | "upholstery" | "siding" | "trim-white" | "roof-shingle" | "charcoal-metal"
+  | "greige-cabinet" | "stone-counter" | "dark-bookcase" | "stainless-steel" | "white-enamel";
+const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number; metallic:number }> = {
+  "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50,metallic:0},
+  upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92,metallic:0},
+  siding: {fallback:0xede8dc,scale:[0.3,0.3],roughness:0.55,metallic:0},
+  "trim-white": {fallback:0xf6f4ee,scale:[1,1],roughness:0.35,metallic:0},
+  "roof-shingle": {fallback:0x3a3c3e,scale:[0.3,0.3],roughness:0.90,metallic:0},
+  "charcoal-metal": {fallback:0x2e3033,scale:[1,1],roughness:0.40,metallic:0},
+  "greige-cabinet": {fallback:0x8a7f72,scale:[1,1],roughness:0.50,metallic:0},
+  "stone-counter": {fallback:0xe4e0d8,scale:[1,1],roughness:0.30,metallic:0},
+  "dark-bookcase": {fallback:0x4a3a2e,scale:[1,1],roughness:0.55,metallic:0},
+  "stainless-steel": {fallback:0xc0c2c4,scale:[1,1],roughness:0.30,metallic:1},
+  "white-enamel": {fallback:0xf5f5f2,scale:[1,1],roughness:0.25,metallic:0},
 };
 export interface SurfaceBinding {
   /** Stable material face id from docs/models/00-model-frame.md. */
@@ -354,7 +360,9 @@ export class PrototypeBuilder {
       scale:role(surface)?finishRoles[role(surface)!].scale:scale(surface),
       fallback:role(surface)?finishRoles[role(surface)!].fallback:fallback(surface)}));
     const materials:IAutoMovieMaterial[]=bindings.map((binding)=>({
-      id:binding.surface,name:binding.surface,baseColor:rgb(binding.fallback),metallic:!(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
+      id:binding.surface,name:binding.surface,baseColor:rgb(binding.fallback),
+      metallic:role(binding.surface)?finishRoles[role(binding.surface)!].metallic:
+        !(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
       roughness:role(binding.surface)?finishRoles[role(binding.surface)!].roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,
       emissive:null,opacity:/glass/.test(binding.surface)?0.38:1,baseColorTexture:null,
     }));

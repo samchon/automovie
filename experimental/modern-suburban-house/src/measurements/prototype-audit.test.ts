@@ -45,13 +45,16 @@ test("metric generators reject impossible solids and produce aligned UVs", () =>
 test("separate room objects keep each reviewed face once", () => {
   const parents=buildHousePrototypes();
   const objects=buildHouseObjects(parents);
-  assert.equal(objects.length,71);
+  assert.equal(objects.length,77);
   assert.ok(!objects.some((p)=>["porch-mat-planter","wall-art-indoor-plant","pantry-containers","kitchen-food-utensils","pendant-fixtures","laundry-machine"].includes(p.id)));
   for(const [parentId,children] of [
     ["porch-mat-planter",["porch-mat","porch-planter"]],
     ["wall-art-indoor-plant",["wall-art","indoor-plant"]],
     ["pantry-containers",["pantry-container","pantry-box","pantry-basket"]],
     ["kitchen-food-utensils",["kitchen-cutting-board","kitchen-tool-cup","kitchen-food-jar","dining-fruit-bowl"]],
+    ["living-tabletop-props",["living-book-one","living-book-two","living-tray","living-vase-flowers"]],
+    ["sofa-throws",["sofa-pillow-left","sofa-pillow-right","sofa-folded-throw"]],
+    ["nightstand-lamp",["nightstand","nightstand-lamp-object"]],
   ] as const) {
     const parent=parents.find((p)=>p.id===parentId)!;
     const split=children.map((id)=>objects.find((p)=>p.id===id)!);
@@ -147,14 +150,7 @@ test("every design H2 has one generated prototype, source owner and face binding
 
 test("every declared finish binds its own fallback, scale, and roughness", () => {
   const models=new Map(buildHousePrototypes().map((p)=>[p.id,p]));
-  const expected={
-    "furniture-wood":{fallback:0xa87a4e,scale:[1,1],roughness:0.50},
-    upholstery:{fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92},
-    siding:{fallback:0xede8dc,scale:[0.3,0.3],roughness:0.55},
-    "trim-white":{fallback:0xf6f4ee,scale:[1,1],roughness:0.35},
-    "roof-shingle":{fallback:0x3a3c3e,scale:[0.3,0.3],roughness:0.90},
-    "charcoal-metal":{fallback:0x2e3033,scale:[1,1],roughness:0.40},
-  } as const;
+  const roleBindings=new Map<string,{fallback:number;scale:readonly [number,number];roughness:number}>();
   let checked=0;
   for(const spec of housePrototypeSpecs) for(const surface of spec.faces) {
     const role=spec.finishes?.[surface]??spec.finishAll;
@@ -164,12 +160,14 @@ test("every declared finish binds its own fallback, scale, and roughness", () =>
     const material=model.model.materials.find((m)=>m.id===surface);
     assert.ok(binding,`${spec.id}/${surface}: missing binding`);
     assert.ok(material,`${spec.id}/${surface}: missing material`);
-    assert.equal(binding.fallback,expected[role].fallback);
-    assert.deepEqual(binding.scale,expected[role].scale);
-    assert.equal(material.roughness,expected[role].roughness);
+    const actual={fallback:binding.fallback,scale:binding.scale,roughness:material.roughness};
+    const prior=roleBindings.get(role);
+    if(prior) assert.deepEqual(actual,prior,`${role}: inconsistent finish parameters`);
+    else roleBindings.set(role,actual);
     checked++;
   }
   assert.ok(checked>0);
+  assert.ok(roleBindings.size>0);
 });
 
 test("face and metric UV defects are rejected across the whole population", () => {

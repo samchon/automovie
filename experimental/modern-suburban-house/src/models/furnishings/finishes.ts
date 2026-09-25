@@ -10,3 +10,6 @@ export const woodenStoolFinishes = {
 export const upholsteredSeatFinishes = {
   base:"upholstery","seat-cushion":"upholstery",back:"upholstery",arm:"upholstery",
 } as const satisfies Readonly<Record<string,FinishRole>>;
+
+export const finishFaces = (role:FinishRole,...faces:string[]):Readonly<Record<string,FinishRole>> =>
+  Object.fromEntries(faces.map((face)=>[face,role]));

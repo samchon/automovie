@@ -62,6 +62,15 @@ const objectVariants: readonly ObjectVariant[] = [
   {id:"kitchen-tool-cup",parent:"kitchen-food-utensils",parts:["container-1"],surfaces:["utensil"]},
   {id:"kitchen-food-jar",parent:"kitchen-food-utensils",parts:["container-2"]},
   {id:"dining-fruit-bowl",parent:"kitchen-food-utensils",surfaces:["bowl","fruit"]},
+  {id:"living-book-one",parent:"living-tabletop-props",parts:["book-1"]},
+  {id:"living-book-two",parent:"living-tabletop-props",parts:["book-2"]},
+  {id:"living-tray",parent:"living-tabletop-props",surfaces:["tray"]},
+  {id:"living-vase-flowers",parent:"living-tabletop-props",surfaces:["container","stem","foliage"]},
+  {id:"sofa-pillow-left",parent:"sofa-throws",parts:["pillow-1"]},
+  {id:"sofa-pillow-right",parent:"sofa-throws",parts:["pillow-2"]},
+  {id:"sofa-folded-throw",parent:"sofa-throws",surfaces:["folded"]},
+  {id:"nightstand",parent:"nightstand-lamp",surfaces:["carcass","drawer-front"]},
+  {id:"nightstand-lamp-object",parent:"nightstand-lamp",surfaces:["lamp-base","lamp-shade"]},
 ];
 
 function membersOf(parent: HousePrototype, variant: ObjectVariant): HousePrototype["model"]["parts"] {
