@@ -86,6 +86,7 @@ const STATIC_FILES: Record<string, { file: string; type: string }> = {
 
 /** Browser modules may only be flat `.mjs` files in this directory. */
 const BROWSER_MODULE = /^\/src\/viewer\/([a-zA-Z0-9-]+\.mjs)$/;
+const TEXTURE_FILE = /^\/textures\/([a-z0-9-]+\.png)$/;
 
 /** Write one response without caching, so a reload always asks again. */
 const send = (
@@ -122,6 +123,9 @@ const handle = (
       "text/javascript; charset=utf-8",
       readFileSync(join(ROOT, "src", "viewer", module[1]!)),
     );
+  const texture = TEXTURE_FILE.exec(path);
+  if (texture !== null)
+    return send(response, 200, "image/png", readFileSync(join(ROOT, "public", "textures", texture[1]!)));
   if (path === "/scene") {
     const current = digestSource();
     if (current !== startDigest)

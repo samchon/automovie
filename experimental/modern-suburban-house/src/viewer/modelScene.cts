@@ -1,8 +1,9 @@
 /** Isolated current-source model view. Each request builds the actual 62-item
  * catalogue and selects one named prototype; no preview geometry is copied.
- * Materials use their authored bitmap-free fallback while the binding carries
- * metric UV and scale for the later texture asset lane. */
+ * Model finishes retain their hex fallback, optical response, metric UV, and
+ * scale; woven faces also receive the generated textile tile. */
 import type { IAutoMovieMesh } from "@automovie/interface";
+import { modelTextileMap } from "../materials/bindings";
 import { buildHouseObjects, buildHousePrototypes } from "../models/catalogue";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
@@ -37,8 +38,11 @@ export function buildModelScene(sourceDigest:string,id:string):IViewerScene {
     if(!binding) throw Error(`${id}/${part.id}: missing surface binding`);
     const material=prototype.model.materials.find((candidate)=>candidate.id===part.material);
     if(!material) throw Error(`${id}/${part.id}: missing material`);
+    const texture=mesh.uvs===null?undefined:modelTextileMap(binding.fallback);
+    const uvs=texture===undefined?undefined:mesh.uvs!.map((value,index)=>value/binding.scale[index%2]!);
     return {id:`${id}/${part.id}`,role:"model",owner:prototype.owner,color:binding.fallback,
       opacity:material.opacity,roughness:material.roughness,metalness:material.metallic,
+      texture,textureTint:texture!==undefined,uvs,
       position:[0,0,0],positions:mesh.positions,normals:mesh.normals,indices:mesh.indices,
       castShadow:true,receiveShadow:true};
   });

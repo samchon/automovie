@@ -63,6 +63,8 @@ const state = {
   subject: "",
   sourceDigest: "",
   error: "",
+  texturesLoaded: 0,
+  texturesFailed: /** @type {string[]} */ ([]),
 };
 Reflect.set(window, "automovieViewer", state);
 
@@ -94,8 +96,9 @@ console.info("RENDERER", state.renderer);
  * Turn one engine mesh item into a lit, shadowed three.js mesh.
  *
  * @param {IViewerSceneItem} item
+ * @param {Map<string, THREE.Texture>} textures
  */
-const buildMesh = (item) => {
+const buildMesh = (item, textures) => {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute(
     "position",
@@ -106,8 +109,12 @@ const buildMesh = (item) => {
     new THREE.Float32BufferAttribute(item.normals, 3),
   );
   geometry.setIndex(item.indices);
+  if (item.uvs !== undefined)
+    geometry.setAttribute("uv", new THREE.Float32BufferAttribute(item.uvs, 2));
+  const map = item.texture === undefined ? undefined : textures.get(item.texture);
   const material = new THREE.MeshStandardMaterial({
-    color: item.color,
+    color: map === undefined || item.textureTint ? item.color : 0xffffff,
+    map: map ?? null,
     roughness: item.roughness ?? 0.8,
     metalness: item.metalness ?? 0,
     opacity: item.opacity ?? 1,
@@ -126,8 +133,9 @@ const buildMesh = (item) => {
  * Build lights and meshes for one scene payload.
  *
  * @param {IViewerScene} payload
+ * @param {Map<string, THREE.Texture>} textures
  */
-const buildScene = (payload) => {
+const buildScene = (payload, textures) => {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xd9dde2);
   const light = payload.lighting;
@@ -158,7 +166,7 @@ const buildScene = (payload) => {
   key.shadow.normalBias = 0.02;
   scene.add(key);
   scene.add(key.target);
-  for (const item of payload.items) scene.add(buildMesh(item));
+  for (const item of payload.items) scene.add(buildMesh(item, textures));
   renderer.toneMappingExposure = light.exposure;
   return scene;
 };
@@ -168,11 +176,27 @@ const buildScene = (payload) => {
  *
  * @param {IViewerScene} payload
  */
-const show = (payload) => {
+const show = async (payload) => {
   const { width, height, pixelRatio } = payload.raster;
   renderer.setPixelRatio(pixelRatio);
   renderer.setSize(width, height);
-  const scene = buildScene(payload);
+  const loader = new THREE.TextureLoader();
+  const textures = new Map();
+  const urls = query.get("textures") === "off" ? [] : [...new Set(payload.items.flatMap((item) => item.texture === undefined ? [] : [item.texture]))];
+  await Promise.all(urls.map(async (url) => {
+    try {
+      const texture = await loader.loadAsync(url);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      textures.set(url, texture);
+    } catch {
+      state.texturesFailed.push(url);
+    }
+  }));
+  state.texturesLoaded = textures.size;
+  const scene = buildScene(payload, textures);
   const cut = Number(query.get("cut") ?? "NaN");
   renderer.clippingPlanes = Number.isFinite(cut)
     ? [new THREE.Plane(new THREE.Vector3(0, -1, 0), cut)]
@@ -252,4 +276,4 @@ const load = async () => {
   return /** @type {IViewerScene} */ (body);
 };
 
-void load().then(show, fail);
+void load().then(show).catch(fail);

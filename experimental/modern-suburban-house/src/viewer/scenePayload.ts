@@ -41,6 +41,12 @@ export interface IViewerSceneItem {
   roughness?: number;
   metalness?: number;
 
+  /** Authored sRGB tile URL and UV repeat coordinates; color is the fallback. */
+  texture?: string;
+  /** Preserve the model fallback hue under a greyscale weave map. */
+  textureTint?: boolean;
+  uvs?: number[];
+
   /** World translation of the mesh origin, meters. */
   position: [number, number, number];
 
