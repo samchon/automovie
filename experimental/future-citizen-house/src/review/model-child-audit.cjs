@@ -223,7 +223,7 @@ function route(item, child, owner) {
       return mapped(`work-desk/support-${child.startsWith("leg--1") ? "left" : "right"}`);
     }
     if (child === "screen") return mapped("work-display/screen");
-    if (child === "screen-stand") return mapped("work-display/stand");
+    if (child === "screen-stand") return mapped("work-display/stand-shaft");
     if (child === "keyboard") return mapped("work-keyboard/keyboard-body");
   }
   if (owner.includes("desk-chair") || owner.includes("dining-chair")) {

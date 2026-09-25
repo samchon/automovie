@@ -18,6 +18,15 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 ## 현관 벤치와 신발장 {#entry-bench}
 
+이 wrapper의 단독 부품은 방석 하나다. `support@0.44`는 별도 cabinet/bench-base의 상단 접촉면이며 cabinet 판을 이 부품 표에 복제하지 않는다.
+
+@inventory default: cushion
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.575..0.575 | 0..0.52 | -0.24..0.25 | - |
+| @part | default | cushion | box | -0.575..0.575 | 0.44..0.52 | -0.24..0.25 | support@0.44 |
+
 `entry-bench`는 폭 1.15, 외함 깊이 0.48, 방석 앞 돌출을 포함한 전체 깊이 0.49, 전체 높이 0.52m다. 바닥 외함 중심이 원점, +Z가 앉는 앞이다. `cabinet/bench-base/1150x440x480/closed`의 두 문 외함 위에 두께 0.08m 방석을 얹어 상면 y=0.52를 만든다. 방석은 z 앞쪽으로 0.01m만 돌출하며 문 seam·손잡이 높이를 가리지 않는다. `entry-bench` wrapper는 `cushion/upper/side/underside`만 만들고, 외함은 독립 `cabinet/bench-base/1150x440x480/closed`의 back·side·door·edge 주소를 그대로 운반한다. wrapper가 외함 판을 복제하거나 새 표면 ID로 바꾸지 않는다. 정면·측면·45°에서 수납 두 leaf와 착석 면이 함께 보여야 한다. ref02 현관의 벤치·신발장 기능을 채택하며 ref01의 바깥 포치를 벤치 형태로 옮기지 않는다. ref03·04·05에는 현관 벤치를 판독할 세부가 없다. 착석 하중·문 간섭은 `unverified`다.
 
 ## 현관 평벽 충전 선반 {#entry-charging-shelf}

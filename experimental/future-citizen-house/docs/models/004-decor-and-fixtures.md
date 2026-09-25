@@ -161,6 +161,27 @@
 
 `decor-bowl`은 외경 0.22, 높이 0.07m, 벽 두께 0.008m이고 아래면 중심 원점, +Y 위다. 상단 개구 내경 0.204m, 안쪽 바닥 y=0.014이며 `shell/outer/inner/rim/sole`로 나눈다. `decor-tray`는 전체 폭 0.36·깊이 0.24·높이 0.032m이며 y=0..0.018m의 타원형 바닥과 y=0.018..0.032m의 높이 0.014m·두께 0.006m 둘레 턱을 가진 낮은 판이고 `base/upper/underside/edge`, `rim/inner/outer/top/underside`이다. `decor-cup`은 몸체 외경 0.085, 높이 0.095, 벽 두께 0.006m의 빈 원통과 외경 0.04m 손잡이를 가진다. 손잡이는 YZ 평면의 외경 0.04m인 닫힌 고리로 튜브 지름 0.006m, 중심 y=0.050,z=+0.0625에 둔다. 고리의 뒤쪽 끝 z=+0.0425는 몸체 외벽에 닿고 앞쪽 끝은 z=+0.0825다. 한 handle 부품 안의 위·아래 접합 pad는 각각 y=0.034..0.042와 0.063..0.071, x=±0.006m이며 뒷면은 컵의 반지름 0.0425m인 원통 바깥면을 따라 굽는다. 두 pad는 몸체 외벽의 유한 곡면에 접하고 빈 내벽 반지름 0.0365m 안으로 들어가지 않는다. pad의 앞면은 고리 몸체에 연속 접합한다. 바닥 접촉 중심 기준 전체 AABB는 x=±0.0425,y=0..0.095,z=−0.0425..+0.0825m다. 주소는 `body/outer/inner/rim/sole`, `handle/outer/inner/contact`다. 세 물체는 모두 놓이는 아래면 중심이 원점이고 +Z는 손잡이가 향한 앞이다. 위·측면·45°와 식탁 거리에서 빈 내부와 서로 다른 높이가 읽혀야 한다. ref03 낮은 탁자의 그릇과 조리대의 작은 소품, ref02 식탁의 그릇을 채택한다. ref01·04·05의 식사 장면은 없으므로 음식·브랜드·문구는 만들지 않는다. 각 소품의 개수와 놓이는 상판은 instances가 맡고 식품 접촉 성능은 `unverified`다.
 
+컵 pad 뒷면은 `z_back(x)=sqrt(R²−x²)`로서 R=0.0425m이고 |x|≤0.006m다. 이 곡면을 몸체 외면과 공유하는 단 하나의 접촉 경계로 두며 pad의 닫힌 내부는 몸체 바깥쪽에만 있다. 따라서 handle의 Z 최소값은 sqrt(0.0425²−0.006²)=0.042074m(바깥쪽 반올림)이고, 단순 AABB의 0.000426m 겹침은 고체 관통이 아니다. `@bore`는 Y축 원통 내부의 위쪽 열린 구멍, `@ellipse`는 타원형 rim의 안쪽·바깥쪽 반축을 적는다. `support`는 탁자 상면의 y=0 접촉이다.
+
+@inventory bowl: shell
+@inventory tray: base, rim
+@inventory cup: body, handle
+@bore bowl: shell, 0.102, 0.014..0.07
+@ellipse tray: rim, 0.174, 0.114, 0.18, 0.12
+@bore cup: body, 0.0365, 0.006..0.095
+@tangent cup: body, handle, 0.0425, 0.006
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | bowl | * | bounds | -0.11..0.11 | 0..0.07 | -0.11..0.11 | - |
+| @part | bowl | shell | hollow | -0.11..0.11 | 0..0.07 | -0.11..0.11 | support |
+| @envelope | tray | * | bounds | -0.18..0.18 | 0..0.032 | -0.12..0.12 | - |
+| @part | tray | base | curved | -0.18..0.18 | 0..0.018 | -0.12..0.12 | support,rim |
+| @part | tray | rim | hollow | -0.18..0.18 | 0.018..0.032 | -0.12..0.12 | base |
+| @envelope | cup | * | bounds | -0.0425..0.0425 | 0..0.095 | -0.0425..0.0825 | - |
+| @part | cup | body | hollow | -0.0425..0.0425 | 0..0.095 | -0.0425..0.0425 | support,handle |
+| @part | cup | handle | curved | -0.006..0.006 | 0.03..0.071 | 0.042074..0.0825 | body |
+
 ## 거실 화면 {#living-display}
 
 `living-display`는 폭 1.43, 높이 0.80, 깊이 0.045m다. 벽 mount 접합면 중심이 원점, +Z가 시청자 쪽이다. mount는 폭 0.18·높이 0.12·깊이 0.018m로 z=0..0.018이다. 뒤판 housing은 폭 1.43·높이 0.80·깊이 0.021m로 z=0.018..0.039이고 bezel의 0.006m 깊이를 합치면 display 외함의 전체 깊이가 0.027m다. bezel은 바깥 가장자리에서 폭 0.018m를 차지하며 중앙 screen을 위한 전면 개구를 실제로 절삭한다. screen은 z=0.039..0.042m의 두께 0.003m 판이고 bezel 전면 z=0.045보다 0.003m 물린다. `screen/front/back/edge`, `bezel/front/back/edge`, `housing/front/back/edge`, `mount/outer/contact`가 안정 주소다. 정면·측면·45°에서 bezel와 벽 이격을 확인한다. ref02와 ref03 거실의 미디어 장치를 채택하며 ref01·04·05의 유리 벽을 화면으로 오인하지 않는다. 영상 내용과 전력 상태는 이 형상에서 `unverified`다.
@@ -221,5 +242,36 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | @part | default | diffuser | cylinder | -0.019..0.019 | -0.989..-0.986 | -0.019..0.019 | shade-wall |
 
 ## 바닥 독서등·구형 협탁등·작업등 {#portable-lamps}
+
+세 변종의 부품 표는 바닥 또는 놓인 상판을 y=0으로 삼는다. reading shade의 중앙 mounting bridge는 독립 `shade-bridge` 부품이고 안쪽 개구와 정확히 맞닿는다. desk-task head의 음각은 diffuser와 같은 외곽에서 끝나며 서로 체적을 공유하지 않는다.
+
+@inventory reading: base, stem-lower, shade, shade-bridge, diffuser
+@radial reading: base, 0, 0.125
+@radial reading: stem-lower, 0, 0.009
+@radial reading: shade, 0.095, 0.1
+@radial reading: shade-bridge, 0, 0.095
+@radial reading: diffuser, 0.010, 0.095
+@inventory bedside-globe: base, stem-short, globe
+@inventory desk-task: base, stem-lower, stem-upper, task-head, diffuser
+@void desk-task: task-head, -0.045..0.045, 0.36..0.364, 0.045..0.135
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | reading | * | bounds | -0.125..0.125 | 0..1.24 | -0.125..0.125 | - |
+| @part | reading | base | cylinder | -0.125..0.125 | 0..0.025 | -0.125..0.125 | support,stem-lower |
+| @part | reading | stem-lower | cylinder | -0.009..0.009 | 0.025..1.10 | -0.009..0.009 | base,shade-bridge |
+| @part | reading | shade | hollow | -0.1..0.1 | 1.03..1.24 | -0.1..0.1 | shade-bridge,diffuser |
+| @part | reading | shade-bridge | cylinder | -0.095..0.095 | 1.10..1.12 | -0.095..0.095 | stem-lower,shade |
+| @part | reading | diffuser | cylinder | -0.095..0.095 | 1.03..1.034 | -0.095..0.095 | shade |
+| @envelope | bedside-globe | * | bounds | -0.11..0.11 | 0..0.29 | -0.11..0.11 | - |
+| @part | bedside-globe | base | cylinder | -0.06..0.06 | 0..0.015 | -0.06..0.06 | support,stem-short |
+| @part | bedside-globe | stem-short | cylinder | -0.009..0.009 | 0.015..0.07 | -0.009..0.009 | base,globe |
+| @part | bedside-globe | globe | curved | -0.11..0.11 | 0.07..0.29 | -0.11..0.11 | stem-short |
+| @envelope | desk-task | * | bounds | -0.065..0.065 | 0..0.42 | -0.065..0.14 | - |
+| @part | desk-task | base | cylinder | -0.065..0.065 | 0..0.02 | -0.065..0.065 | support,stem-lower |
+| @part | desk-task | stem-lower | cylinder | -0.0075..0.0075 | 0.02..0.25 | -0.0075..0.0075 | base,stem-upper |
+| @part | desk-task | stem-upper | cylinder | -0.0075..0.0075 | 0.25..0.36 | -0.0075..0.0075 | stem-lower,task-head |
+| @part | desk-task | task-head | hollow | -0.045..0.045 | 0.36..0.42 | 0..0.14 | stem-upper,diffuser |
+| @part | desk-task | diffuser | curved | -0.045..0.045 | 0.36..0.364 | 0.045..0.135 | task-head |
 
 `portable-lamp/reading`의 전체 점유는 폭·깊이 0.25, 높이 1.24m이고 바닥 받침 지름 0.25m로, 지름 0.018m stem이 y=0.025..1.10, 0.20m 지름의 원통 shade가 y=1.03..1.24다. `portable-lamp/bedside-globe`의 전체 점유는 폭·깊이 0.22, 높이 0.29m이며 상판 받침 지름 0.12·높이 0.015m, 짧은 stem 높이 0.055m, 구형 diffuser 지름 0.22m, 총 높이 0.29m다. `portable-lamp/desk-task`의 전체 점유는 x=±0.065,y=0..0.42,z=−0.065..+0.14m이며 받침 지름 0.13m, 총 높이 0.42m다. 이 변종은 0.015m 지름의 고정 두 구간 stem이 y=0.02..0.25와 y=0.25..0.36, 길이 0.14m 헤드가 +Z 방향으로 뻗어 아래쪽 diffuser 지름 0.09m를 드러낸다. 세 변종 모두 받침 아래면 중심이 원점, +Z가 빛을 향하는 방향이다. `base/upper/edge/sole`은 공통 주소다. reading은 y=0.025..1.10의 `stem-lower/outer/top/contact`, `shade/outer/inner/edge`, 아래쪽 y=1.03..1.034의 `diffuser/front/back/edge`를 낸다. shade의 외경은 0.20m, 벽 두께는 0.005m이고 내부 mounting bridge는 y=1.10..1.12에서 stem 상면에 닿도록 shade와 한 부품으로 연결한다. diffuser는 외경 0.19m·중앙 통과 구멍 지름 0.020m인 얇은 환형 판으로 그 외곽이 shade 내벽에 닿는다. 지름 0.018m stem은 0.001m 반경 여유를 두고 diffuser 구멍을 통과하므로 발광판을 관통하지 않는다. bedside-globe는 y=0.015..0.070의 `stem-short/outer/top/contact`와 중심 y=0.18인 `globe/outer/inner`만 내며 globe 외면이 확산면이다. desk-task는 `stem-lower/outer/top/contact`, `stem-upper/outer/top/contact`, y=0.36..0.42·z=0..0.14의 `task-head/outer/inner/edge`, 헤드 아래 중심 z=+0.09,y=0.36..0.364의 `diffuser/front/back/edge`를 낸다. 변종에 없는 stem·shade·globe·head·diffuser의 주소를 빈 부품으로 만들지 않는다. reading·desk-task의 diffuser와 bedside-globe의 globe 외면은 각각 별도 system emitter가 필요하다. 정면·측면·45°에서 바닥형/탁상형의 크기 차이, 구체와 두 구간 작업등을 판별한다. ref03의 거실 독서등, ref04의 구형 탁상등과 작업등을 각각 채택하고 ref02 협탁의 낮은 조명을 크기 관계로 받는다. ref01·05의 외피 빛 반사를 램프 형상으로 가져오지 않는다. 전기 안전·조도는 `unverified`다.
