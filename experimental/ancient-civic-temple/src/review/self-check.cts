@@ -26,6 +26,7 @@ import { ownFacadeFailures, ownFacadeViews } from "./own-facade-view";
 import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations } from "../spaces/observations";
 import { envelopeSolids } from "./envelope-overlaps";
+import { checkModelTessellation } from "./model-tessellation-census.mjs";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
 const grid = Number(values.grid);
@@ -189,6 +190,7 @@ try {
   if (failure.stdout) console.error(String(failure.stdout).trim());
   if (failure.stderr) console.error(String(failure.stderr).trim());
 }
+const tessellation = checkModelTessellation();
 const sectionRanks = modelSectionMeasures(modelDocuments);
 console.log(`model H2 ranks: ${sectionRanks.length} sections; top 7 ${sectionRanks.slice(0, 7).map((row) => `${row.title}=${row.body}`).join(", ")}; shortest 4 ${sectionRanks.slice(-4).reverse().map((row) => `${row.title}=${row.body}`).join(", ")}`);
 
@@ -220,6 +222,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + Number(addressControlFailed) + Number(ownViewControlFailed);
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + tessellation.failures.length + Number(addressControlFailed) + Number(ownViewControlFailed);
 console.log(`self-check failures: ${failureCount}`);
 process.exitCode = failureCount > 0 ? 1 : 0;
