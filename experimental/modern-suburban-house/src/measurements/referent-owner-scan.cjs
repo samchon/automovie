@@ -22,6 +22,7 @@ const files = (directory) => fs.readdirSync(path.join(docs, directory), { withFi
 /** Each address is a physical maker H2 or a declared no-mesh mask. */
 const owner = {
   "걸레받이": ["models/06-interior-trim.md#wall-baseboard"],
+  "계단 측판": ["models/04-stair-members.md#stair-side-skirt"],
   "문선": ["models/01-windows.md#window-sill-trim", "models/02-exterior-doors.md#front-entry-door", "models/02-exterior-doors.md#garden-door-pair", "models/03-interior-doors.md#interior-door-members"],
   "문틀": ["models/02-exterior-doors.md#front-entry-door", "models/02-exterior-doors.md#garden-door-pair", "models/03-interior-doors.md#interior-door-members"],
   "문설주": ["models/02-exterior-doors.md#front-entry-door", "models/02-exterior-doors.md#garden-door-pair", "models/03-interior-doors.md#interior-door-members"],

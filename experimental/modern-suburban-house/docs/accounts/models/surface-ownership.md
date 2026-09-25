@@ -37,6 +37,7 @@
 | [interior-door-fidelity](../../models/03-interior-doors.md#interior-door-fidelity) | — (규칙) | — (새 메시 없음) |
 | [stair-balusters](../../models/04-stair-members.md#stair-balusters) | `src/models/stair-baluster.ts` | `baluster` |
 | [stair-bottom-member](../../models/04-stair-members.md#stair-bottom-member) | `src/models/stair-baluster.ts` | `bottom-rail` |
+| [stair-side-skirt](../../models/04-stair-members.md#stair-side-skirt) | `src/models/stair-skirt.ts` | `stair-skirt` |
 | [stair-member-surfaces](../../models/04-stair-members.md#stair-member-surfaces) | — (규칙) | `baluster`·`bottom-rail` |
 | [stair-member-fidelity](../../models/04-stair-members.md#stair-member-fidelity) | — (규칙) | — (새 메시 없음) |
 | [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle` |
@@ -121,7 +122,7 @@
 | [front-door-wood](../../materials/01-exterior.md#front-door-wood) | `leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel` |
 | [garage-door-charcoal](../../materials/01-exterior.md#garage-door-charcoal) | `leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge` |
 | [fence-wood](../../materials/01-exterior.md#fence-wood) | `leaf-panel`·`gate-batten` |
-| [interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill`·`interior-casing`·`casing`·`casing-a`·`casing-b`·`jamb-a`·`jamb-b`·`jamb-core`·`leaf`·`leaf-panel`·`shelf`·`carcass`·`wall-baseboard` |
+| [interior-trim-white](../../materials/02-interior-shell.md#interior-trim-white) | `interior-sill`·`interior-casing`·`casing`·`casing-a`·`casing-b`·`jamb-a`·`jamb-b`·`jamb-core`·`leaf`·`leaf-panel`·`shelf`·`carcass`·`wall-baseboard`·`stair-skirt` |
 | [black-coated-metal](../../materials/02-interior-shell.md#black-coated-metal) | `hinge`·`handle`·`baluster`·`bottom-rail`·`hook`·`rail`·`bracket`·`mirror-frame`·`fixture-housing`·`fixture-canopy`·`fixture-stem` |
 | [greige-cabinet](../../materials/03-furnishings.md#greige-cabinet) | `plinth`·`carcass`·`leaf`·`drawer-front` |
 | [light-countertop](../../materials/03-furnishings.md#light-countertop) | `countertop` |

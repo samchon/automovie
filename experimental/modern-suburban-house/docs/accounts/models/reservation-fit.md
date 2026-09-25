@@ -37,6 +37,7 @@
 | [interior-door-fidelity](../../models/03-interior-doors.md#interior-door-fidelity) | 표현 범위 H2; 차고 단차는 laundry의 바닥 datum, 모델 문턱 0개. |
 | [stair-balusters](../../models/04-stair-members.md#stair-balusters) | 난간살 0.02 ≤ 0.075 m 예약; n=ceil((L−0.10)/0.12), 빈 간격 (L−0.02n)/(n+1) ≤ 0.10 m는 각 입력 L에서 재계산한다. |
 | [stair-bottom-member](../../models/04-stair-members.md#stair-bottom-member) | 복도 빈 아래 높이 0.05 ≤ 0.10 m; flight는 디딤에 직접 닿는다. |
+| [stair-side-skirt](../../models/04-stair-members.md#stair-side-skirt) | 아래 flight 구조 외측 X=−0.65와 측판 X=[−0.65,−0.635], 위 flight 구조 외측 Z=−3.41과 측판 Z=[−3.41,−3.395]는 면에서만 접한다. 0.015 m 외측 판은 계단 안쪽 난간 0.075 m 예약을 쓰지 않는다. 위 끝 1.36+9×0.17=2.89 m이고 3.06 m 바닥까지의 마지막 0.17 m는 spaces 챌판이다. 방 쪽 실제 순폭은 unverified다. |
 | [stair-member-surfaces](../../models/04-stair-members.md#stair-member-surfaces) | 면 계약 H2; baluster·bottom-rail만 models, 기둥·손잡이는 spaces. |
 | [stair-member-fidelity](../../models/04-stair-members.md#stair-member-fidelity) | 표현 범위 H2; 새 점유 없음, 하중·법규 검증은 unverified. |
 | [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | 두 트랙 깊이 [0.07,0.10]·[0.11,0.14] ⊂ [0,0.15] m; 문 폭 0.50×2−겹침 0.05 = 거친 폭 0.95 m. |
