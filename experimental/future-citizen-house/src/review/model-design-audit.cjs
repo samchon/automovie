@@ -230,7 +230,7 @@ function checkRemainingPrototypes() {
   const islandWidth = numeric("kitchen-island", /X 폭 ([\d.]+)/);
   const islandBaseWidth = numeric("kitchen-island", /X 점유 -0\.48\.\.\+([\d.]+)/) - (-0.48);
   equalLength(islandWidth - islandBaseWidth, 0.32, "island total overhang");
-  const fridgeRear = numeric("refrigerator", /body는 z=([-−\d.]+)\.\.\+0\.29/);
+  const fridgeRear = numeric("refrigerator", /body는.*?z=([-−\d.]+)\.\.\+0\.29/);
   const fridgeHandleFront = numeric("refrigerator", /z=\+0\.38\.\.\+([\d.]+)/);
   equalLength(fridgeHandleFront - fridgeRear, 0.785, "refrigerator depth incl handle");
   const laundryRear = numeric("laundry-appliances", /본체는 z=([-−\d.]+)\.\.\+0\.30/);
@@ -327,5 +327,5 @@ exerciseMutation("tabletop-props", "z=−0.0425..+0.0825m다", "z=−0.0425..+0.
 exerciseMutation("island-stool", "중심선 x/z=±0.1175", "중심선 x/z=±0.13",
   checkRemainingPrototypes, "stool ring penetrates legs");
 console.log(JSON.stringify({ h2: sections.size, prototypes: Object.keys(prototypes).length,
-  measuredPrototypes: measuredAnchors.size, assertions: verifiedAssertions, errors, mutation }, null, 2));
+  h2WithTargetedNumericCheck: measuredAnchors.size, assertions: verifiedAssertions, errors, mutation }, null, 2));
 if (errors.length) process.exitCode = 1;

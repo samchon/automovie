@@ -93,6 +93,48 @@ function surfaceContact(a, b) {
     separation.filter((size) => size > epsilon).length === 2;
 }
 
+/** @param {string[]} lines @param {Map<string, Part>} envelopes @param {Map<string, Part>} parts */
+function towelFormula(lines, envelopes, parts) {
+  const prose = lines.join("\n");
+  const heights = /허용 전체 높이는 ([\d.]+), ([\d.]+), ([\d.]+)m/.exec(prose);
+  const rule = /h=\(H−([\d.]+)\)\/([\d.]+)/.exec(prose);
+  const footprint = /폭 ([\d.]+), 접힌 깊이 ([\d.]+)m/.exec(prose);
+  if (!heights || !rule || !footprint) return ["folded-towels: prose formula or variant list absent"];
+  const errors = [];
+  const expectedStates = heights.slice(1).map((value) => String(Math.round(Number(value) * 1000)));
+  if (expectedStates.join(",") !== [...envelopes.keys()].join(","))
+    errors.push("folded-towels: table states differ from prose variant heights");
+  /** @param {string} state @param {string} id @param {string} axis @param {number} observed @param {number} expected */
+  const near = (state, id, axis, observed, expected) => {
+    if (Math.abs(observed - expected) > 0.0000001)
+      errors.push(`folded-towels/${state}/${id}/${axis}: table ${observed} differs from prose formula ${expected}`);
+  };
+  for (const state of expectedStates) {
+    const H = Number(state) / 1000;
+    const h = (H - Number(rule[1])) / Number(rule[2]);
+    const envelope = envelopes.get(state);
+    if (!envelope) continue;
+    near(state, "*", "x-min", envelope.x[0], -Number(footprint[1]) / 2);
+    near(state, "*", "x-max", envelope.x[1], Number(footprint[1]) / 2);
+    near(state, "*", "z-min", envelope.z[0], -Number(footprint[2]) / 2);
+    near(state, "*", "z-max", envelope.z[1], Number(footprint[2]) / 2);
+    near(state, "*", "y-max", envelope.y[1], H);
+    /** @type {[string,number,number][]} */
+    const bounds = [
+      ["layer-0", 0, h], ["layer-1", h + 0.004, 2 * h + 0.004],
+      ["layer-2", 2 * h + 0.008, H], ["fold-0", h, h + 0.004],
+      ["fold-1", 2 * h + 0.004, 2 * h + 0.008]
+    ];
+    for (const [id, lower, upper] of bounds) {
+      const part = parts.get(`${state}/${id}`);
+      if (!part) continue;
+      near(state, id, "y-min", part.y[0], lower);
+      near(state, id, "y-max", part.y[1], upper);
+    }
+  }
+  return errors;
+}
+
 /** @param {Map<string,string[]>} allSections */
 function audit(allSections) {
   const errors = [];
@@ -167,6 +209,7 @@ function audit(allSections) {
       errors.push(`${anchor}/${state}: inventory for undeclared state`);
     for (const key of miterJoints) if (!provedMiterJoints.has(key))
       errors.push(`${anchor}/${key}: miter proof has no qualifying joint`);
+    if (anchor === "folded-towels") errors.push(...towelFormula(lines, envelopes, parts));
   }
   return { prototypes: allSections.size, measuredPrototypes, parts: examined, errors };
 }
@@ -214,6 +257,13 @@ if (process.argv.includes("--fixture")) {
   if (removedDeck === bedSource || !audit(new Map([["fixed-bed", removedDeck.split("\n")]])).errors.some((error) => error.includes("inventoried part support-deck absent")))
     throw Error("fixed-bed support deck removal did not fail");
   results.push({ label: "support deck removed", caught: true });
+  const towel = sections().get("folded-towels");
+  if (!towel) throw Error("folded-towels H2 absent");
+  const towelSource = towel.join("\n");
+  const changedFormula = towelSource.replace("h=(H−0.008)/3", "h=(H−0.010)/3");
+  if (changedFormula === towelSource || !audit(new Map([["folded-towels", changedFormula.split("\n")]])).errors.some((error) => error.includes("differs from prose formula")))
+    throw Error("folded towel prose formula mutation did not fail");
+  results.push({ label: "towel prose formula changed", caught: true });
   let measuredParts = 0;
   let mutationChecks = 0;
   for (const [anchor, lines] of sections()) {

@@ -48,7 +48,19 @@
 
 ## 두 문 냉장고 {#refrigerator}
 
-`refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 z=-0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 y=1.05에 0.006m seam이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 y=0..0.08, 앞면에서 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
+`refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 x=±0.45,y=0.08..2.65,z=−0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 y=1.05에 0.006m seam이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 x=±0.45,y=0..0.08,z=−0.38..+0.33으로 문 앞면 z=+0.38보다 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
+
+@inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.45..0.45 | 0..2.65 | -0.38..0.405 | - |
+| @part | default | body | box | -0.45..0.45 | 0.08..2.65 | -0.38..0.29 | toe,door-lower,door-upper |
+| @part | default | door-lower | box | -0.45..0.45 | 0.08..1.047 | 0.29..0.38 | body,handle-lower |
+| @part | default | door-upper | box | -0.45..0.45 | 1.053..2.65 | 0.29..0.38 | body,handle-upper |
+| @part | default | handle-lower | box | 0.359..0.381 | 0.43..0.71 | 0.38..0.405 | door-lower |
+| @part | default | handle-upper | box | 0.359..0.381 | 1.51..1.79 | 0.38..0.405 | door-upper |
+| @part | default | toe | box | -0.45..0.45 | 0..0.08 | -0.38..0.33 | ground,body |
 
 ## 세탁기와 건조기 {#laundry-appliances}
 
