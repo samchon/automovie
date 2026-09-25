@@ -117,17 +117,25 @@ function audit(overrides = new Map()) {
       const before = { proseDecimals, values, witnessed };
       for (const [index, line] of body.entries()) {
         if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
-        proseDecimals += [...line.matchAll(proseDecimal)].length;
+        // Count the union of prose decimals and axis values by source span.
+        // A range's second endpoint can be excluded by the prose filter's
+        // preceding-dot guard even though the axis grammar measures it.
+        const measuredPositions = new Set([...line.matchAll(proseDecimal)]
+          .map((match) => match.index));
         for (const match of line.matchAll(coordinate)) {
           claims++;
           const axis = /** @type {"x"|"y"|"z"} */ (match[1].toLowerCase());
-          for (const token of match[2].match(decimals) || []) {
+          const start = match.index + match[0].indexOf(match[2]);
+          for (const decimal of match[2].matchAll(decimals)) {
+            measuredPositions.add(start + decimal.index);
+            const token = decimal[0];
             values++;
             const number = Math.round(Number(token) * 100000);
             if (sourceValues[axis].has(number) || sourceValues[axis].has(-number)) witnessed++;
             else errors.push(`${owner}: prose line ${index + 1} ${axis}=${token} has no measured-axis witness`);
           }
         }
+        proseDecimals += measuredPositions.size;
       }
       const localDecimals = proseDecimals - before.proseDecimals;
       const localValues = values - before.values;
