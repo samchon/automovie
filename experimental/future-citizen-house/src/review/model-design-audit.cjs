@@ -120,6 +120,8 @@ function checkSeating() {
   equalLength(chairSeatBottom, chairLegTop, "desk-chair leg-to-shell Y contact");
 }
 function checkDeskAndMurphy() {
+  requireThat((sections.get("work-desk") || "").includes("flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다"),
+    "flex desk requires an explicit state key");
   const foldedMax = numeric("work-desk", /`folded` 상태 전체 메시 AABB는 x=−0\.70\.\.\+([\d.]+)/);
   const foldedPanelMax = numeric("work-desk", /`folded` 상태는 x=0\.70\.\.([\d.]+)/);
   const openMax = numeric("work-desk", /`open` 상태는.*?x=0\.70\.\.([\d.]+)/);
@@ -164,16 +166,19 @@ function checkShelvesAndLamps() {
   const cleatTopY = numeric("entry-charging-shelf", /cleat는.*?y=-0\.030\.\.([\d.]+)/);
   equalLength(shelfWallZ, shelfCleatRearZ, "charging shelf cleat-to-wall contact");
   equalLength(shelfBoardY, cleatTopY, "charging shelf cleat-to-board contact");
+  const bracketRearZ = numeric("entry-charging-shelf", /각 브래킷은 z=([\d.]+)에서 평벽/);
+  equalLength(shelfWallZ, bracketRearZ, "charging shelf bracket-to-wall contact");
   const headMaxZ = numeric("portable-lamps", /z=0\.\.([\d.]+)의 `task-head/);
   const diffuserZ = numeric("portable-lamps", /헤드 아래 중심 z=\+([\d.]+)/);
   const diffuserRadius = numeric("portable-lamps", /아래쪽 diffuser 지름 ([\d.]+)m/) / 2;
   contains(0, headMaxZ, diffuserZ + diffuserRadius, "task lamp diffuser inside head Z");
+  const leafCap = numeric("cabinet-and-shelf", /leaf 수는 `n=max\(2,ceil\(\(W−0\.006\)\/([\d.]+)\)\)`/);
   for (const width of [0.50, 0.60, 0.90, 1.15, 2.72, 2.90]) {
-    const count = Math.max(2, Math.ceil((width - 0.006) / 0.60));
+    const count = Math.max(2, Math.ceil((width - 0.006) / leafCap));
     const leafWidth = (width - (count + 1) * 0.003) / count;
     contains(0, 0.60, leafWidth, `cabinet ${width} m leaf width`);
   }
-  requireThat(Math.max(2, Math.ceil((2.90 - 0.006) / 0.60)) === 5, "ref03 wall overhead has five leaves");
+  requireThat(Math.max(2, Math.ceil((2.90 - 0.006) / leafCap)) === 5, "ref03 wall overhead has five leaves");
   const hingeInset = numeric("cabinet-and-shelf", /짝수 leaf는 왼쪽 edge에서 ([\d.]+)m 안쪽/);
   const hingeRadius = numeric("cabinet-and-shelf", /문마다 지름 ([\d.]+)m·축 길이/) / 2;
   requireThat(hingeInset + 0.003 >= hingeRadius, "cabinet hinge stays inside declared width");
@@ -206,6 +211,11 @@ function checkRemainingPrototypes() {
   const tubShellWidth = numeric("bathtub", /바닥 점유 1\.62×([\d.]+)m/);
   const tubInsideWidth = numeric("bathtub", /내벽 간 치수는 길이 1\.53×폭 ([\d.]+)m/);
   equalLength(tubShellWidth - tubInsideWidth, 2 * 0.04, "tub side-wall thickness");
+  const tubWallBottom = numeric("bathtub", /네 외벽이 y=([\d.]+)\.\.0\.58에서 바닥에 닿는다/);
+  const tubFloorUnderside = numeric("bathtub", /내부 바닥판의 아래면 y=([\d.]+)m/);
+  equalLength(tubWallBottom, 0, "tub outer wall-to-floor contact");
+  requireThat(tubFloorUnderside > tubWallBottom && tubFloorUnderside < 0.58,
+    "tub floor underside is supported inside outer wall");
   const islandWidth = numeric("kitchen-island", /X 폭 ([\d.]+)/);
   const islandBaseWidth = numeric("kitchen-island", /X 점유 -0\.48\.\.\+([\d.]+)/) - (-0.48);
   equalLength(islandWidth - islandBaseWidth, 0.32, "island total overhang");
@@ -233,6 +243,12 @@ function checkRemainingPrototypes() {
   const bowlOuter = numeric("tabletop-props", /`decor-bowl`은 외경 ([\d.]+)/);
   const bowlInner = numeric("tabletop-props", /상단 개구 내경 ([\d.]+)m/);
   equalLength(bowlOuter - bowlInner, 2 * 0.008, "decor bowl wall thickness");
+  const cupHandleOuter = numeric("tabletop-props", /외경 ([\d.]+)m 손잡이/);
+  const cupTubeDiameter = numeric("tabletop-props", /튜브 지름 ([\d.]+)m/);
+  const cupHandleCenterZ = numeric("tabletop-props", /중심 y=0\.050,z=\+([\d.]+)/);
+  const cupBoundFrontZ = numeric("tabletop-props", /z=−0\.0425\.\.\+([\d.]+)m다/);
+  equalLength(cupHandleCenterZ + (cupHandleOuter + cupTubeDiameter) / 2, cupBoundFrontZ,
+    "decor cup handle within declared Z bound");
   const displayMountDepth = numeric("living-display", /mount는.*?깊이 ([\d.]+)m/);
   const displayHousingDepth = numeric("living-display", /housing은.*?깊이 ([\d.]+)m/);
   equalLength(displayMountDepth + displayHousingDepth, 0.045, "display total depth");
@@ -249,14 +265,51 @@ checkShelvesAndLamps();
 checkRemainingPrototypes();
 for (const anchor of Object.keys(prototypes)) requireThat(measuredAnchors.has(anchor), `${anchor}: no numeric measurement`);
 
-// Mutation check passes the reviewer’s former shower position to the same gate.
-/** @type {string[]} */
+// Mutate the in-memory authored H2 and rerun the same checks. A missing or
+// non-failing mutation is a broken gate, not a successful audit.
+const verifiedAssertions = assertions;
+/** @type {{ label: string, errors: string[] }[]} */
 const mutation = [];
-const formerHeadLeft = -0.90 - 0.15;
-if (!inBounds(-2.05 / 2, 2.05 / 2, formerHeadLeft)) mutation.push("shower head outside declared X");
-const formerOverheadLeaf = 2.90 - 0.006;
-if (!inBounds(0, 0.60, formerOverheadLeaf)) mutation.push("single overhead leaf exceeds 0.60 m");
-requireThat(mutation.length === 2, "former coordinates/front partition did not fail");
+/** @param {string} anchor @param {string} before @param {string} after @param {() => void} check @param {string} label */
+function exerciseMutation(anchor, before, after, check, label) {
+  const original = sections.get(anchor);
+  if (!original || !original.includes(before)) throw Error(`${label}: mutation input absent`);
+  const start = errors.length;
+  sections.set(anchor, original.replace(before, after));
+  try { check(); } catch (error) { errors.push(`${label}: ${String(error)}`); }
+  sections.set(anchor, original);
+  if (errors.length === start) throw Error(`${label}: mutated H2 incorrectly passed`);
+  mutation.push({ label, errors: errors.splice(start) });
+}
+exerciseMutation("shower", "head는 x=-0.85", "head는 x=-0.90",
+  checkWetAndAppliances, "shower head outside declared X");
+exerciseMutation("desk-chair", "뒤쪽 z=−0.08·앞쪽", "뒤쪽 z=−0.18·앞쪽",
+  checkSeating, "desk-chair rear legs miss seat");
+exerciseMutation("cooking-appliances", "`cooktop`(0.65×0.50×0.014m)",
+  "`cooktop`(0.65×0.50×0.012m)", checkWetAndAppliances, "cooktop declared height misses rim");
+exerciseMutation("portable-lamps", "헤드 아래 중심 z=+0.09", "헤드 아래 중심 z=+0.14",
+  checkShelvesAndLamps, "task lamp diffuser exits head");
+exerciseMutation("work-desk", "flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다",
+  "flex는 상태 없는 호출을 받는다", checkDeskAndMurphy, "flex desk loses required state");
+exerciseMutation("dining-chair", "y=0.415..0.49에서 중심선을", "y=0.415..0.45에서 중심선을",
+  checkSeating, "dining-chair rear leg misses back");
+exerciseMutation("living-sofa", "y=0.45..0.67,z=−0.24", "y=0.55..0.67,z=−0.24",
+  checkSeating, "sofa pillow misses seat");
+exerciseMutation("work-desk", "기둥의 외관은 y=0..0.44", "기둥의 외관은 y=0.05..0.44",
+  checkDeskAndMurphy, "flex desk lower post misses floor");
+exerciseMutation("cabinet-and-shelf", "`oven-sill`(x=±0.32,y=0.098..0.15", "`oven-sill`(x=±0.32,y=0.15..0.15",
+  checkWetAndAppliances, "oven sill misses cabinet bottom");
+exerciseMutation("murphy-bed", "z=2.08, y=0..0.32에 세워", "z=2.08, y=0..0.44에 세워",
+  checkDeskAndMurphy, "murphy supports penetrate bed frame");
+exerciseMutation("entry-charging-shelf", "각 브래킷은 z=0에서 평벽", "각 브래킷은 z=0.02에서 평벽",
+  checkShelvesAndLamps, "charging brackets miss wall");
+exerciseMutation("cabinet-and-shelf", "leaf 수는 `n=max(2,ceil((W−0.006)/0.60))`",
+  "leaf 수는 `n=max(2,ceil((W−0.006)/2.90))`", checkShelvesAndLamps,
+  "overhead single leaf exceeds 0.60 m");
+exerciseMutation("bathtub", "네 외벽이 y=0..0.58", "네 외벽이 y=0.12..0.58",
+  checkRemainingPrototypes, "bathtub outer wall misses floor");
+exerciseMutation("tabletop-props", "z=−0.0425..+0.0755m다", "z=−0.0425..+0.0725m다",
+  checkRemainingPrototypes, "decor cup handle exceeds Z bound");
 console.log(JSON.stringify({ h2: sections.size, prototypes: Object.keys(prototypes).length,
-  measuredPrototypes: measuredAnchors.size, assertions, errors, mutation }, null, 2));
+  measuredPrototypes: measuredAnchors.size, assertions: verifiedAssertions, errors, mutation }, null, 2));
 if (errors.length) process.exitCode = 1;
