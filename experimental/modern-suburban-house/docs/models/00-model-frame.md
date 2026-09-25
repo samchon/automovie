@@ -190,7 +190,7 @@
 @evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고하는 경로를 정한다.
 @evidence principles/core/common.md#substantive-completion 구조 판정을 닫힌 부피·바깥 법선·유한 좌표·id와 관절 노드로, 의미 판정을 예약 산술·표현 한계·리뷰 캡처로 정하고 source가 없어 구조 판정이 현재 unverified라고 적는다.
 @evidence principles/core/common.md#declared-basis 의미 판정 기준을 contracts/reservation-fit.md#reservation-fit과 이 파일의 model-review-set에서 받는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 공용 완결 의무를 이 주택의 여섯 원형 계열과 account 표의 한 줄 형식(계열·원형·예약 owner·산술·캡처 주소)으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 공용 완결 의무를 이 주택의 아홉 원형 계열(창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품)로 나누고 현재 H2별 예약 산술 표와 후속 source 구조·캡처 검사를 분리한다.
 @evidence principles/design/models.md#representation-contract 각 계열의 구조 결과가 갖출 것(닫힌 부피·법선·id·노드)을 정한다.
 @evidence principles/design/models.md#spatial-convention 이 H2는 좌표를 새로 정하지 않고 각 계열 H2의 관례를 검사 대상으로 삼는다.
 @evidence principles/design/models.md#reviewable-structure 의미 판정에 리뷰 캡처 주소를 포함시켜 캡처 없는 계열이 완결로 보고되지 않게 한다.
@@ -198,13 +198,13 @@
 @evidence principles/design/models.md#model-scale-layer-completion 구조적으로 유효해도 척도·층·경계·관찰이 빠진 계열을 의미 판정에서 실패로 보고하는 경로를 정한다.
 @evidence obligations/design/models.md#model-representation-completion 모집단의 구조 판정과 의미 판정을 계열별로 분리해 보고하고 어느 판정도 다른 판정을 함의하지 않는다고 적는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work reservation-fit 계약과 settings fidelity를 그대로 소비했고 완결 보고 형식을 정하는 데 부모 수정이 필요하지 않았다.
-@evidence obligations/core/common.md#purpose-fit 여섯 원형 계열(창·외부 문·실내 문·난간·수납·가구)과 공통 기준 파일 00의 역할을 나열해 각 파일이 사라지면 어느 source 판정이 미정이 되는지를 적는다.
+@evidence obligations/core/common.md#purpose-fit 아홉 원형 계열(창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품)마다 구조와 의미를 따로 판정해 문서 산술만으로 실제 source의 적합성을 주장하지 않는다.
 @evidence obligations/core/common.md#proportionate-development 계열마다 구조·의미 판정을 같은 형식으로 보고하게 해 한 계열이 산술 없이 압축되거나 source 없이 부풀려진 것을 드러낸다.
 -->
 
 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
-모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납 부재([05](05-closet-fittings.md)), 가구·설비([10](10-kitchen-dining.md)–[15](15-outdoor.md)), 식재([16](16-planting.md)), 조명기구([17](17-light-fixtures.md)), 생활 소품([18](18-house-props.md)–[19](19-room-accents.md))이다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 보고 경로는 모델 source 단계의 구조 검사 출력과, 예약 맞춤 account가 계열·원형·예약 owner·산술 결과·캡처 주소를 한 줄씩 나열하는 표다. 소스 owner는 `src/models/frame.ts`다.
+모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납 부재([05](05-closet-fittings.md)), 가구·설비([10](10-kitchen-dining.md)–[15](15-outdoor.md)), 식재([16](16-planting.md)), 조명기구([17](17-light-fixtures.md)), 생활 소품([18](18-house-props.md)–[19](19-room-accents.md))이다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 현재 [예약 맞춤 account](../accounts/models/reservation-fit.md#model-reservation-fit)는 모델 H2와 예약 산술 두 칸만 전수로 열거한다. 구조 검사 결과와 계열별 실제 캡처 주소는 모델 source 단계에서 따로 보고하며 아직 unverified다. 소스 owner는 `src/models/frame.ts`다.
 
 ## 모델 리뷰 뷰 목록 {#model-review-set}
 <!--
