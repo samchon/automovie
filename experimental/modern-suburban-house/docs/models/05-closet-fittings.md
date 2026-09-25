@@ -12,7 +12,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04의 계단 옆 흰 수납문을 채택한다. 실내 문과 같은 오목 패널 두 개로 흰 패널문 문법을 잇는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 트랙 층을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 X 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
-@evidence spaces/rooms/entry.md#entry-coat-storage 개구부 폭 0.95 m와 통로 쪽 돌출 한도를 문짝 0.50 m 둘·겹침 0.05 m 및 국소 깊이 최대 0.14 m로 소비한다.
+@evidence spaces/rooms/entry.md#entry-coat-storage 현관 owner가 고정 몸체와 개구부만 맡는 경계를 받아 폭 0.95 m의 문짝 0.50 m 둘·겹침 0.05 m 및 통로 쪽 국소 깊이 최대 0.14 m를 이 모델에 배정한다.
 @evidence contracts/reservation-fit.md#reservation-fit 두 트랙의 국소 깊이 끝 0.14 m가 0.15 m 경계 안이고 오목 손잡이의 최대 깊이도 0.20 m 한도 안임을 산술로 보인다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage는 원래 문짝·봉까지 entry.ts가 소유한다고 적었으나 실제 source에는 벽과 개구부만 있었다. 부모 H2를 벽·개구부는 spaces, 문짝·봉·선반은 models로 고친 뒤 문짝 원형을 정했다.
 -->
