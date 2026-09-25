@@ -89,11 +89,22 @@ const files = ["00-material-frame.md", "01-exterior.md", "02-interior-shell.md",
  * Later texture and contrast prose may mention a face without binding it. */
 /** @param {string} body */
 const bindingProse = (body) => {
-  const paragraph = body.split(/\n\s*\n/).find((part) => part.includes("결합 면은") || part.includes("결합 대상은"));
-  if (!paragraph) return body;
-  const start = Math.max(paragraph.indexOf("결합 면은"), paragraph.indexOf("결합 대상은"));
-  const end = paragraph.indexOf("source owner", start);
-  return paragraph.slice(start, end < 0 ? undefined : end);
+  const paragraphs = body.split(/\n\s*\n/);
+  // A finish may acquire another host in a later paragraph. Read every
+  // affirmative host-face assignment, not only the first "결합 면은" clause.
+  // The latter mistake let a newly added wall-cap assignment pass unseen.
+  const assignments = paragraphs.filter((part) =>
+    part.includes("결합 면은") || part.includes("결합 대상은") ||
+    (/\]\(\.\.\/models\//.test(part) && /`[a-z][a-z0-9-]*`/.test(part) &&
+      /(?:받는다|결합한다|칠한다|도장한다)/.test(part)));
+  if (!assignments.length) return body;
+  return assignments.map((paragraph) => {
+    const bindingStart = [paragraph.indexOf("결합 면은"), paragraph.indexOf("결합 대상은")]
+      .filter((at) => at >= 0).sort((a, b) => a - b)[0];
+    const start = bindingStart === undefined ? 0 : bindingStart;
+    const end = paragraph.indexOf("source owner", start);
+    return paragraph.slice(start, end < 0 ? undefined : end);
+  }).join("\n\n");
 };
 /** @param {string} prose @param {string} id */
 const bindingHosts = (prose, id) => {
@@ -124,8 +135,28 @@ const bindingHosts = (prose, id) => {
   return [...new Set(linked)];
 };
 const results = [];
+const explicitInvalid = [];
+const tableInvalid = [];
 for (const file of files) {
   for (const { anchor, body } of sections(read(`materials/${file}`))) {
+    if (file === "03-furnishings.md" && anchor === "minor-prop-partitions") {
+      for (const line of body.split(/\r?\n/).filter((value) => value.startsWith("| ["))) {
+        const [, hosts, faceCell] = line.split("|");
+        if (!faceCell) continue;
+        const hostNames = [...hosts.matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)].map((match) => `${match[1]}#${match[2]}`);
+        const faceNames = [...faceCell.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((match) => match[1]);
+        for (const host of hostNames) for (const face of faceNames)
+          if (!modelIds.get(host)?.has(face) || !bodyWitness(host, face))
+            tableInvalid.push(`${file}#${anchor} :: ${host} :: ${face}`);
+      }
+    }
+    // A direct "[host]의 `face` ... 받는다" assignment may occur after the
+    // first binding paragraph. It must have a physical maker somewhere in
+    // the cited model file; a room link in this material H2 cannot rescue it.
+    for (const claim of body.matchAll(/\[[^\]]+\]\(\.\.\/models\/([^#)]+)#[^)]+\)의\s*`([a-z][a-z0-9-]*)`[^.\n]*(?:받는다|결합한다|칠한다|도장한다)/g)) {
+      const maker = [...modelIds].some(([model, ids]) => model.startsWith(`${claim[1]}#`) && ids.has(claim[2]) && bodyWitness(model, claim[2]));
+      if (!maker) explicitInvalid.push(`${file}#${anchor} :: ${claim[1]} :: ${claim[2]}`);
+    }
     const prose = bindingProse(body);
     const accountLine = hostAccount.split(/\r?\n/).find((line) => line.startsWith(`| [${anchor}](../../materials/${file}#${anchor}) |`)) ?? "";
     const modelLinks = [...new Set([...`${body}\n${accountLine}`.matchAll(/\]\((?:\.\.\/)?\.\.\/models\/([^#)]+)#([^)]+)\)/g)].map((m) => `${m[1]}#${m[2]}`))];
@@ -152,7 +183,7 @@ const unowned = results.filter((row) => row.id !== "(no face token)" && !row.mas
 const missingModelWitness = results.filter((row) => row.id !== "(no face token)" && !row.mask && row.owners.length === 0 && row.spaceLinks.length === 0 && row.declaredAnywhere.length);
 const falseLinkedMakers = results.flatMap((row) => (row.missingWitness ?? []).map((model) => `${row.material} :: ${row.id} :: ${model}`));
 const allModelPairs = [...modelIds].flatMap(([model, ids]) => [...ids].map((id) => ({ model, id, witnessed: bodyWitness(model, id) })));
-const summary = { materialH2: files.flatMap((file) => sections(read(`materials/${file}`))).length, tokenRows: results.length, modelResolved: results.filter((row) => row.owners.length).length, spaceCandidates: results.filter((row) => !row.owners.length && row.spaceLinks.length).length, masks: results.filter((row) => row.mask).length, unowned: unowned.length, falseLinkedMakers: falseLinkedMakers.length, modelPairs: allModelPairs.length, unwitnessedModelPairs: allModelPairs.filter((row) => !row.witnessed).length };
+const summary = { materialH2: files.flatMap((file) => sections(read(`materials/${file}`))).length, tokenRows: results.length, modelResolved: results.filter((row) => row.owners.length).length, spaceCandidates: results.filter((row) => !row.owners.length && row.spaceLinks.length).length, masks: results.filter((row) => row.mask).length, unowned: unowned.length, falseLinkedMakers: falseLinkedMakers.length, invalidExplicitClaims: explicitInvalid.length, invalidTableClaims: tableInvalid.length, modelPairs: allModelPairs.length, unwitnessedModelPairs: allModelPairs.filter((row) => !row.witnessed).length };
 const ledgerFile = path.join(docs, "accounts/models/material-face-ledger.md");
 /** @param {string} kind @param {string} id */
 const link = (kind, id) => `[${id}](../../${kind}/${id})`;
@@ -184,10 +215,12 @@ else if (process.argv.includes("--check")) {
   else console.log(JSON.stringify(summary));
 }
 else if (process.argv.includes("--all-model-pairs")) console.log(JSON.stringify({ count: allModelPairs.length, unwitnessed: allModelPairs.filter((row) => !row.witnessed) }, null, 2));
-else if (process.argv.includes("--json")) console.log(JSON.stringify({ summary, results, unowned, falseLinkedMakers }, null, 2));
+else if (process.argv.includes("--json")) console.log(JSON.stringify({ summary, results, unowned, falseLinkedMakers, explicitInvalid, tableInvalid }, null, 2));
 else {
   console.log(`material H2 ${summary.materialH2}; token rows ${summary.tokenRows}; model resolved ${summary.modelResolved}; spaces candidate ${summary.spaceCandidates}; unowned ${summary.unowned}`);
   for (const row of unowned) console.log(`UNOWNED ${row.material} :: ${row.id} (declared elsewhere: ${row.declaredAnywhere.join(", ") || "none"})`);
   for (const row of falseLinkedMakers) console.log(`NO BODY WITNESS ${row}`);
 }
-if (unowned.length || missingModelWitness.length || falseLinkedMakers.length || summary.unwitnessedModelPairs) process.exitCode = 1;
+for (const claim of explicitInvalid) console.error(`INVALID EXPLICIT FACE CLAIM ${claim}`);
+for (const claim of tableInvalid) console.error(`INVALID TABLE FACE CLAIM ${claim}`);
+if (unowned.length || missingModelWitness.length || falseLinkedMakers.length || summary.unwitnessedModelPairs || explicitInvalid.length || tableInvalid.length) process.exitCode = 1;

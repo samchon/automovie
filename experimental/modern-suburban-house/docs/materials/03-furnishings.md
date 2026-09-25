@@ -369,13 +369,22 @@
 
 | 원형 | 결합 surface id | 재료 H2 |
 |---|---|---|
-| [외투장과 린넨장](../models/05-closet-fittings.md#closet-fitting-surfaces), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet), [옷방](../models/13-bedrooms.md#wardrobe-hanging) | 각 원형에 선언된 `carcass`·`leaf`·`leaf-panel`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
-| [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf), [린넨장](../models/05-closet-fittings.md#linen-closet-fittings), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet), [옷방](../models/13-bedrooms.md#wardrobe-hanging) | 각 원형에 선언된 `rail`·`rod` | [스테인리스](#stainless-steel) |
+| [외투장 문](../models/05-closet-fittings.md#coat-closet-doors) | `leaf`·`leaf-panel` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [외투장 봉·선반](../models/05-closet-fittings.md#coat-closet-rod-shelf) | `shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [린넨장](../models/05-closet-fittings.md#linen-closet-fittings) | `leaf`·`leaf-panel`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [미닫이 옷장](../models/13-bedrooms.md#sliding-closet) | `carcass`·`leaf`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [옷방 봉과 선반](../models/13-bedrooms.md#wardrobe-hanging) | `carcass`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [옷방 선반](../models/13-bedrooms.md#wardrobe-shelves) | `carcass`·`shelf` | [흰 실내 trim](02-interior-shell.md#interior-trim-white) |
+| [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf) | `rod` | [스테인리스](#stainless-steel) |
+| [린넨장](../models/05-closet-fittings.md#linen-closet-fittings) | `rail` | [스테인리스](#stainless-steel) |
+| [미닫이 옷장](../models/13-bedrooms.md#sliding-closet) | `rail`·`rod` | [스테인리스](#stainless-steel) |
+| [옷방](../models/13-bedrooms.md#wardrobe-hanging) | `rod` | [스테인리스](#stainless-steel) |
 | [외투장 문](../models/05-closet-fittings.md#coat-closet-doors), [린넨장](../models/05-closet-fittings.md#linen-closet-fittings), [미닫이 옷장](../models/13-bedrooms.md#sliding-closet) | `handle` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
-| [미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[옷방](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
+| [미닫이 옷장](../models/13-bedrooms.md#sliding-closet)·[옷방](../models/13-bedrooms.md#wardrobe-hanging)·[머드룸 외투 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | 세 원형 각각의 `clothes` | 순번별 [회베이지](#grey-beige-upholstery)·[청회색](#blue-grey-bedding)·[올리브](#olive-bedding) 직물 |
 | [팬트리 용기](../models/12-service-rooms.md#pantry-containers) | `container` / `lid`·`basket` | [투명 유리](01-exterior.md#glass-clear) / [가구 목재](#furniture-wood) |
 | [머드룸 걸이](../models/12-service-rooms.md#mudroom-coat-hooks) | `board` / `hook` | [가구 목재](#furniture-wood) / [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
-| [차고 선반·공구판](../models/12-service-rooms.md#garage-shelving) | `bin`·`tool-grip` / `board` / `tool-steel` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) |
+| [차고 선반](../models/12-service-rooms.md#garage-shelving) | `bin` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) |
+| [차고 공구판](../models/12-service-rooms.md#garage-tool-board) | `bin`·`tool-grip` / `board` / `tool-steel` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) |
 | [작은 책상 소품](../models/13-bedrooms.md#child-desk) | `book` / `container` / `pencil` | [침구색 순환](#olive-bedding) / [흰 에나멜](#white-enamel) / [가구 목재](#furniture-wood) |
 | [옷방 선반 바구니](../models/13-bedrooms.md#wardrobe-shelves) | `basket` | [가구 목재](#furniture-wood) |
 | [욕실 매트](../models/14-bathrooms.md#bath-floor-mats) | `field`·`border` | [절제된 러그](#muted-rug) |
@@ -383,10 +392,14 @@
 | [협탁등](../models/13-bedrooms.md#nightstand-lamp) | `lamp-base` / `lamp-shade` | [흰 에나멜](#white-enamel) / [얇은 커튼 직물](#towel-curtain-textile) |
 | [포치 발판·화분](../models/18-house-props.md#porch-mat-planter) | `field`·`border` / `container` / `stem`·`foliage` | [절제된 러그](#muted-rug) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
 | [주방 소품](../models/18-house-props.md#kitchen-food-utensils) | `cutting-board` / `utensil` / `container` / `bowl` / `fruit` | [가구 목재](#furniture-wood) / [스테인리스](#stainless-steel) / [투명 유리](01-exterior.md#glass-clear) / [흰 도기](#white-enamel) / [과일](#food-art-finishes) |
-| [린넨 수건](../models/18-house-props.md#linen-folded-towels)·[소파 직물](../models/19-room-accents.md#sofa-throws) | `folded`·`pillow` | [수건 직물](#towel-curtain-textile)·[회베이지](#grey-beige-upholstery) — 인스턴스별 구별 |
+| [린넨 수건](../models/18-house-props.md#linen-folded-towels) | `folded` | [수건 직물](#towel-curtain-textile) |
+| [소파 직물](../models/19-room-accents.md#sofa-throws) | `pillow`·`folded` | [회베이지](#grey-beige-upholstery)·[수건 직물](#towel-curtain-textile) — 인스턴스별 구별 |
 | [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props) | `book`·`tray` / `container` / `stem`·`foliage` | [직물 색 순환](#olive-bedding)·[가구 목재](#furniture-wood) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
 | [벽 액자·실내 식물](../models/19-room-accents.md#wall-art-indoor-plant) | `art-frame` / `art-print` / `container` / `stem`·`foliage` | [짙은 목재](#dark-bookcase-wood) / [인쇄면](#food-art-finishes) / [흰 도기](#white-enamel) / [식재](#planting-bark-foliage) |
-| [등기구](../models/17-light-fixtures.md#flush-ceiling-fixture) | `fixture-housing`·`fixture-canopy`·`fixture-stem` / `fixture-shade` / `fixture-diffuser`·`fixture-glass` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [밝은 직물](#towel-curtain-textile) / [등기구 확산면](#light-fixture-surfaces) |
+| [평판 천장등](../models/17-light-fixtures.md#flush-ceiling-fixture) | `fixture-housing` / `fixture-diffuser` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [등기구 확산면](#light-fixture-surfaces) |
+| [섬·식탁 매단 등](../models/17-light-fixtures.md#pendant-fixtures) | `fixture-canopy`·`fixture-stem` / `fixture-shade` / `fixture-diffuser` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [밝은 직물](#towel-curtain-textile) / [등기구 확산면](#light-fixture-surfaces) |
+| [세면 벽등](../models/17-light-fixtures.md#vanity-wall-fixture) | `fixture-housing` / `fixture-diffuser` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [등기구 확산면](#light-fixture-surfaces) |
+| [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce) | `fixture-housing`·`fixture-stem` / `fixture-glass` | [검은 도장 금속](02-interior-shell.md#black-coated-metal) / [등기구 확산면](#light-fixture-surfaces) |
 
 이 표는 설계 결속이다. `board`·`tool-grip`·`tool-steel`은 [차고 공구판](../models/12-service-rooms.md#garage-tool-board), `fixture-canopy`·`fixture-shade`·`fixture-stem`은 [펜던트](../models/17-light-fixtures.md#pendant-fixtures), `fixture-glass`와 다른 `fixture-stem`은 [포치 벽등](../models/17-light-fixtures.md#porch-wall-sconce)이 각각 만든다. 실제 `src/materials` 바인딩과 GPU 표면 읽힘은 unverified다. 각 면의 UV 축·원점·반복 길이·경계 절단은 링크된 재료 H2를 따르며, 원형 안의 관절 이름·배치 id는 결속 표에 넣지 않는다. source owner는 `src/materials/bindings.ts`다.
 
