@@ -40,10 +40,10 @@
 | [stair-side-skirt](../../models/04-stair-members.md#stair-side-skirt) | `src/models/stair-skirt.ts` | `stair-skirt` |
 | [stair-member-surfaces](../../models/04-stair-members.md#stair-member-surfaces) | — (규칙) | `baluster`·`bottom-rail` |
 | [stair-member-fidelity](../../models/04-stair-members.md#stair-member-fidelity) | — (규칙) | — (새 메시 없음) |
-| [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle` |
+| [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle`·`casing` |
 | [coat-closet-rod-shelf](../../models/05-closet-fittings.md#coat-closet-rod-shelf) | `src/models/closet.ts` | `rod`·`shelf` |
 | [wall-baseboard](../../models/06-interior-trim.md#wall-baseboard) | `src/models/interior/baseboard.ts` | `wall-baseboard` |
-| [linen-closet-fittings](../../models/05-closet-fittings.md#linen-closet-fittings) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle`·`shelf` |
+| [linen-closet-fittings](../../models/05-closet-fittings.md#linen-closet-fittings) | `src/models/closet.ts` | `leaf`·`leaf-panel`·`rail`·`handle`·`shelf`·`casing` |
 | [closet-fitting-surfaces](../../models/05-closet-fittings.md#closet-fitting-surfaces) | — (규칙) | `leaf`·`leaf-panel`·`rail`·`rod`·`shelf`·`handle` |
 | [closet-fitting-fidelity](../../models/05-closet-fittings.md#closet-fitting-fidelity) | — (규칙) | — (새 메시 없음) |
 | [kitchen-base-run](../../models/10-kitchen-dining.md#kitchen-base-run) | `src/models/furnishings/kitchen-dining.ts` | `plinth`·`carcass`·`leaf`·`drawer-front`·`handle`·`countertop` |
@@ -77,7 +77,7 @@
 | [low-dresser](../../models/13-bedrooms.md#low-dresser) | `src/models/furnishings/bedrooms.ts` | `carcass`·`drawer-front`·`handle`·`leg` |
 | [child-desk](../../models/13-bedrooms.md#child-desk) | `src/models/furnishings/bedrooms.ts` | `top`·`leg`·`shelf`·`book`·`container`·`pencil` |
 | [desk-chair](../../models/13-bedrooms.md#desk-chair) | `src/models/furnishings/bedrooms.ts` | `seat`·`leg`·`back` |
-| [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | `src/models/furnishings/bedrooms.ts` | `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes` |
+| [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | `src/models/furnishings/bedrooms.ts` | `carcass`·`leaf`·`handle`·`rail`·`rod`·`shelf`·`clothes`·`casing` |
 | [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | `src/models/furnishings/bedrooms.ts` | `rod`·`bracket`·`curtain` |
 | [wardrobe-hanging](../../models/13-bedrooms.md#wardrobe-hanging) | `src/models/furnishings/bedrooms.ts` | `rod`·`shelf`·`carcass`·`clothes` |
 | [wardrobe-shelves](../../models/13-bedrooms.md#wardrobe-shelves) | `src/models/furnishings/bedrooms.ts` | `shelf`·`carcass`·`folded`·`shoe-box`·`basket` |

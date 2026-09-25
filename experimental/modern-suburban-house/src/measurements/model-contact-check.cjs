@@ -51,6 +51,18 @@ assert(baseRun.includes("레인지·냉장고 양옆") && baseRun.includes("45°
 const closet = body("13-bedrooms.md", "sliding-closet");
 assert(closet.includes("벽 **앞**") && closet.includes("벽에 개구부나 벽감을 요구하지 않는다") &&
   closet.includes("Z=[0,0.015]"), "sliding closet wall-front relief");
+const coatCasing = body("05-closet-fittings.md", "coat-closet-doors");
+const linenCasing = body("05-closet-fittings.md", "linen-closet-fittings");
+const slidingCasing = process.argv.includes("--mutate-drop-closet-casing")
+  ? closet.replace(/^흰 전면 `casing`.*$/m, "") : closet;
+assert(coatCasing.includes("X=[2.02,2.035]") && coatCasing.includes("Y=[0,2.15]") && coatCasing.includes("Y=[2.15,2.20]") && 2.035 < 2.07,
+  "coat closet casing reaches the floor and remains inside the corridor limit");
+assert(linenCasing.includes("X=[1.92,1.97]") && linenCasing.includes("[2.97,3.02]") &&
+  linenCasing.includes("Y=[0,2.20]") && linenCasing.includes("Y=[2.20,2.25]"),
+  "linen casing meets around the opening without occupying its width");
+assert(slidingCasing.includes("Z=[0.57,0.60]") && slidingCasing.includes("Z≤0.57 m") &&
+  slidingCasing.includes("Y=[0,2.17]") && slidingCasing.includes("Y=[2.17,2.20]"),
+  "sliding closet casing remains ahead of the moving leaves within the reservation");
 
 const interiorDoor = body("03-interior-doors.md", "interior-door-members");
 const casing = interiorDoor.split(/\r?\n/).find((line) => line.includes("차고 공유 벽에서는 열림 쪽 세탁실")) ?? "";

@@ -40,9 +40,9 @@
 | [stair-side-skirt](../../models/04-stair-members.md#stair-side-skirt) | 아래 판은 연결판의 Z=−3.395 면에서, 위 판은 X=−0.635 면에서 접해 0.015×0.015 m 연결판과 체적 교집합 0이다. 위 판의 `Xc=−0.65+(2.75−1.46)×0.28/0.17=1.474705882` m에서 상단 Y=2.75 m로 끝나 reviewed `stair-opening-edge-front`의 Y≥2.75 m 부피와 교집합 0이다. 0.015 m 외측 판은 계단 안쪽 난간 0.075 m 예약을 쓰지 않는다. 방 쪽 실제 순폭은 unverified다. |
 | [stair-member-surfaces](../../models/04-stair-members.md#stair-member-surfaces) | 면 계약 H2; baluster·bottom-rail만 models, 기둥·손잡이는 spaces. |
 | [stair-member-fidelity](../../models/04-stair-members.md#stair-member-fidelity) | 표현 범위 H2; 새 점유 없음, 하중·법규 검증은 unverified. |
-| [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | 두 트랙 깊이 [0.07,0.10]·[0.11,0.14] ⊂ [0,0.15] m; 문 폭 0.50×2−겹침 0.05 = 거친 폭 0.95 m. |
+| [coat-closet-doors](../../models/05-closet-fittings.md#coat-closet-doors) | 두 트랙 깊이 [0.07,0.10]·[0.11,0.14] ⊂ [0,0.15] m; 문 폭 0.50×2−겹침 0.05 = 거친 폭 0.95 m. 세 문선 판은 개구부 바깥 Z 폭과 Y≥2.15 m의 머리띠만 쓰고 통로 끝 X=2.035 < 2.07 m다. |
 | [coat-closet-rod-shelf](../../models/05-closet-fittings.md#coat-closet-rod-shelf) | 봉 몸통 뒤면+0.325 ≤ 0.65 m, 선반 깊이 0.65 m; 계단 아래면에선 절단한다. |
-| [linen-closet-fittings](../../models/05-closet-fittings.md#linen-closet-fittings) | 문 폭 2×0.525−0.05 = 1.00 m; 선반 0.55 m·문과 간격 0.05 m, 선반 5단. |
+| [linen-closet-fittings](../../models/05-closet-fittings.md#linen-closet-fittings) | 문 폭 2×0.525−0.05 = 1.00 m; 선반 0.55 m·문과 간격 0.05 m, 선반 5단. 문선은 개구부 X 바깥과 상단 Y≥2.20 m에만 두어 문·레일과 부피 교집합 0이다. |
 | [closet-fitting-surfaces](../../models/05-closet-fittings.md#closet-fitting-surfaces) | 면 계약 H2; 수납 개구부 2개는 위 원형만 채우고 spaces는 void만 둔다. |
 | [closet-fitting-fidelity](../../models/05-closet-fittings.md#closet-fitting-fidelity) | 표현 범위 H2; 수건·용기 형상은 18·12 H2에서 따로 센다. |
 | [wall-baseboard](../../models/06-interior-trim.md#wall-baseboard) | 높이 0.10 m·돌출 0.015 m; 1.05−2×0.015 = 1.02 ≥ 0.90 m. 실제 문선·계단·타일 벽에서 종단하고 벽 앞 옷장·주방 하부장 뒤에서는 이어 간다. 가구 뒤 또는 옆 접촉면의 Y=[0,0.10]·깊이 0.015 m 빈 띠와의 부피 교집합은 각 해당 행에서 따로 센다. |
@@ -77,7 +77,7 @@
 | [low-dresser](../../models/13-bedrooms.md#low-dresser) | 1.40×0.50×0.80 m; 서랍 최대 0.40 = 예약 0.40 m, 홈 손잡이 돌출 0. 뒤판 시작 Y=0.10 m·뒤 발 Z≥0.015 m여서 걸레받이와 겹침 0, 서랍 작동 한계 불변. |
 | [child-desk](../../models/13-bedrooms.md#child-desk) | L 1.20 또는 1.15, 깊이 0.60·상면 0.75 m; 소품 최고 0.18 m가 뒤쪽 0.25 m 안. 두 뒤 발 Z≥0.015 m, 뒤 상부는 Y>0.10 m라 걸레받이와 겹침 0, 의자 사용면 불변. |
 | [desk-chair](../../models/13-bedrooms.md#desk-chair) | 0.45×0.48×0.82 m 원형은 0.75×0.75 m 사용 예약보다 각 방향 작다. |
-| [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | 1.50×0.60×2.20 m; 문 2×0.76−0.02 = 1.50 m, 양 문 이동 0.72 m는 몸통 안. 벽 앞 상자 뒤 하단 Z=[0,0.015]·Y=[0,0.10] m 홈으로 연속 걸레받이와 교집합 0. 몸통 앞끝 Z=0.49 < 뒤 레일 시작 0.50 m라 옆판·바닥판·상판과 문·레일도 교집합 0이다. |
+| [sliding-closet](../../models/13-bedrooms.md#sliding-closet) | 1.50×0.60×2.20 m; 문 2×0.76−0.02 = 1.50 m, 양 문 이동 0.72 m는 몸통 안. 벽 앞 상자 뒤 하단 Z=[0,0.015]·Y=[0,0.10] m 홈으로 연속 걸레받이와 교집합 0. 몸통 앞끝 Z=0.49 < 뒤 레일 시작 0.50 m라 옆판·바닥판·상판과 문·레일도 교집합 0이다. 문선은 Z=[0.57,0.60] m에 있어 문짝 Z≤0.57 m와 부피를 공유하지 않는다. |
 | [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | 여덟 창 W=2.40/1.60/2.80/1.20/2.00/1.70/2.10/2.10 m에 봉 W+0.20, 모인 두 폭 2×0.18; 돌출 0.08+0.02+0.003 = 0.103 ≤ 0.12 m; 봉·천 최고점은 개구부 위 0.10+0.0125+0.006 = 0.1185 ≤ 두 예약의 상한 0.12 m. |
 | [wardrobe-hanging](../../models/13-bedrooms.md#wardrobe-hanging) | 36벌 두께 합 1.44 m ≤ 두 옆판 사이 실제 봉 4.22−2.13 = 2.09 m; 좌우 남음 (2.09−1.44)/2 = 0.325 m. 판의 뒤 하단 0.015×0.10 m 홈으로 뒤벽 걸레받이와 교집합 0. |
 | [wardrobe-shelves](../../models/13-bedrooms.md#wardrobe-shelves) | 두 더미+용기+간격 2×0.28+0.30+2×0.02 = 0.90 ≤ 안쪽 선반 길이 5.47−4.43 = 1.04 m, 양끝 0.07 m. 옆판 뒤 하단 0.015×0.10 m 홈으로 걸레받이와 교집합 0. |
