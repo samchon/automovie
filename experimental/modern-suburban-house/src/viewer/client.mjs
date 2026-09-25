@@ -108,8 +108,11 @@ const buildMesh = (item) => {
   geometry.setIndex(item.indices);
   const material = new THREE.MeshStandardMaterial({
     color: item.color,
-    roughness: 0.8,
-    metalness: 0,
+    roughness: item.roughness ?? 0.8,
+    metalness: item.metalness ?? 0,
+    opacity: item.opacity ?? 1,
+    transparent: item.opacity !== undefined && item.opacity < 1,
+    depthWrite: item.opacity === undefined || item.opacity >= 1,
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = item.id;

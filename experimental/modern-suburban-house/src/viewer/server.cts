@@ -38,6 +38,7 @@ import { parseArgs } from "node:util";
 
 import { buildCalibrationScene } from "./calibration.cjs";
 import { buildHouseScene } from "./houseScene.cjs";
+import { buildModelScene } from "./modelScene.cjs";
 
 /** Production root: this file lives at `src/viewer/server.cts`. */
 const ROOT = resolve(__dirname, "..", "..");
@@ -138,7 +139,11 @@ const handle = (
       response,
       200,
       "application/json; charset=utf-8",
-      JSON.stringify(url.searchParams.get("subject") === "calibration" ? buildCalibrationScene(current) : buildHouseScene(current)),
+      JSON.stringify(url.searchParams.get("subject") === "calibration"
+        ? buildCalibrationScene(current)
+        : url.searchParams.has("subject")
+          ? buildModelScene(current,url.searchParams.get("subject")!)
+          : buildHouseScene(current)),
     );
   }
   if (path === "/favicon.ico") return send(response, 204, "text/plain", "");

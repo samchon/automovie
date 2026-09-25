@@ -47,7 +47,9 @@
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.cts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",
-    "test": "node --test",
+    "prototype-audit": "tsx src/measurements/prototype-audit.ts 16",
+    "prototype-test": "tsx --test src/measurements/prototype-audit.test.ts",
+    "test": "node --test src/measurements/*.test.cjs",
     "docs-review-host": "node src/measurements/docs-review-host.cjs",
     "check": "node src/measurements/check.cjs"
   },
