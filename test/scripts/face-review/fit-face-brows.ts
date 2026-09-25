@@ -11,14 +11,21 @@
  * and the document's own `materials.skin` albedo go through
  * `fitFaceLikenessBrowPigment`, and the pigment, rounded to five decimals, is
  * written as that material's `pigment`, keeping anything else the override
- * holds. A subject that was not measured, or whose photograph lacks either
+ * holds. The fibres' density is fitted beside it from what each side's
+ * outline shows, photograph against render at the document's current
+ * density (`fitFaceLikenessBrowDensity`), and written as `density` rounded
+ * to three decimals where both read. A subject that was not measured, or whose photograph lacks either
  * sample (a fringe over the brows), keeps its document unchanged. The
  * documents are rewritten in place unless OUTPUT is given; the printed table
  * is the fit's record.
  */
 import fs from "node:fs";
 
-import { fitFaceLikenessBrowPigment } from "./faceLikenessBrowFit";
+import {
+  type IFaceLikenessBrowSamples,
+  fitFaceLikenessBrowDensity,
+  fitFaceLikenessBrowPigment,
+} from "./faceLikenessBrowFit";
 import { readFaceLikenessJson } from "./faceLikenessIo";
 
 const [receiptFile, subjectsFile, material, output] = process.argv.slice(2);
@@ -33,7 +40,7 @@ const receipt = readFaceLikenessJson<{
   subjects: {
     subject: string;
     status: string;
-    colour?: Record<string, { reference: Sample }>;
+    colour?: Record<string, { reference: Sample; render?: Sample }>;
   }[];
 }>(receiptFile);
 const documents = readFaceLikenessJson<
@@ -44,6 +51,7 @@ const documents = readFaceLikenessJson<
       {
         color?: { r: number; g: number; b: number };
         pigment?: [number, number, number];
+        density?: number;
       }
     >;
   }[]
@@ -91,15 +99,44 @@ for (const row of receipt.subjects) {
     number,
     number,
   ];
+  const sides = (side: "reference" | "render") =>
+    (["Right", "Left"] as const).flatMap((k): IFaceLikenessBrowSamples[] => {
+      const tone = row.colour![`browTone${k}`]?.[side];
+      const fibre = row.colour![`brow${k}`]?.[side];
+      const cheek = row.colour![`cheek${k}`]?.[side];
+      return tone && fibre && cheek
+        ? [{ tone: tone.lab, fibre: fibre.lab, cheek: cheek.lab }]
+        : [];
+    });
+  const thickness = fitFaceLikenessBrowDensity({
+    photograph: sides("reference"),
+    render: sides("render"),
+    density: document.materials?.[material]?.density ?? 1,
+  });
   document.materials = {
     ...document.materials,
-    [material]: { ...document.materials?.[material], pigment },
+    [material]: {
+      ...document.materials?.[material],
+      pigment,
+      ...(thickness === null
+        ? {}
+        : { density: Number(thickness.density.toFixed(3)) }),
+    },
   };
   console.log(
     row.subject,
     "pigment",
     pigment.map((value) => value.toFixed(4)).join(" "),
     ...(fit.clamped ? ["clamped"] : []),
+    ...(thickness === null
+      ? ["density unread"]
+      : [
+          "density",
+          thickness.density.toFixed(3),
+          "coverage",
+          thickness.photograph.toFixed(2),
+          thickness.render.toFixed(2),
+        ]),
   );
 }
 fs.writeFileSync(
