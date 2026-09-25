@@ -57,6 +57,11 @@ const face = (): FaceAnthropometryPoint[] => {
   pair(193, 417, 6, 12);
   pair(196, 419, 8, 24);
   pair(21, 251, 55, -15);
+  pair(155, 382, 21, 8);
+  pair(27, 257, 30, -6);
+  pair(230, 450, 30, 16);
+  pair(49, 279, 12, 36);
+  set(1, 0, 32);
   return p;
 };
 
@@ -86,9 +91,9 @@ const face = (): FaceAnthropometryPoint[] => {
  *    the tilt is negative; without one exocanthion, or with the canthi
  *    of each eye at one point, there is no tilt.
  * 5. A missing landmark leaves only the indices that read it null (a
- *    bilateral one when either side is missing, subnasale's eye level and
- *    a bow peak's width and depth); fewer than two midline landmarks
- *    refuse.
+ *    bilateral one when either side is missing, subnasale's eye level,
+ *    a bow peak's width and depth, a lid slope without its run); fewer
+ *    than two midline landmarks refuse.
  */
 export const test_subject_face_anthropometry = (): void => {
   const points = face();
@@ -126,6 +131,11 @@ export const test_subject_face_anthropometry = (): void => {
     noseUpperWidth: 12 / 120,
     noseMiddleWidth: 16 / 120,
     templeWidth: 110 / 120,
+    medialLowerLidSlope: 3 / 6,
+    upperLidHeight: 6 / 30,
+    infraorbitalHeight: 6 / 30,
+    noseTipHeight: 8 / 40,
+    nostrilHeight: 4 / 40,
   };
   TestValidator.predicate(
     "defining ratios",
@@ -271,13 +281,19 @@ export const test_subject_face_anthropometry = (): void => {
   sparse[2] = undefined;
   sparse[70] = undefined;
   sparse[37] = undefined;
+  sparse[155] = undefined;
   const without = measureFaceAnthropometry(sparse);
+  const upright = [...points];
+  upright[382] = upright[362];
+  const plumb = measureFaceAnthropometry(upright);
   TestValidator.predicate(
     "missing subnasale, brow tail and bow peak",
     without.eyeLevel === null &&
       without.browSlope === null &&
       without.cupidsBowDepth === null &&
       without.cupidsBowWidth === null &&
+      without.medialLowerLidSlope === null &&
+      plumb.medialLowerLidSlope === null &&
       without.cheekProminence !== null,
   );
   TestValidator.predicate(

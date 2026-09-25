@@ -82,19 +82,25 @@
  * unit of the pair turns the fissure about 0.065 (3.7 degrees) and moves no
  * other index by more than 2.4 percent.
  *
- * Twelve more indices carry the fine controls a frontal photograph shows
+ * Seventeen more indices carry the fine controls a frontal photograph shows
  * beyond those: the eyes' height above subnasale (`eyeLevel`), the lid
  * aperture at the fissure's medial and lateral thirds, the brow's slope
  * from head to tail, the Cupid's bow's width and depth, the vermilion's
  * height at its lateral thirds, the cheek contour below the zygoma, the
- * nasal sidewalls at the upper and middle dorsum and the temples' width.
- * Each moves its own paired control's index by 8 to 121 percent at full
+ * nasal sidewalls at the upper and middle dorsum and the temples' width;
+ * the lower lid's slope into the medial canthus, which the epicanthal fold
+ * steepens, the upper lid's height to its fold, the lower lid's height to
+ * the infraorbital fold, and the nasal tip's and nostrils' heights above
+ * subnasale. Each moves its own paired control's index by 8 to 121 percent at full
  * weight on the basis, more than any other of the new controls moves it but
- * one: the upper lip's lateral elevation also raises the bow's peaks, a
- * cross effect the square solve carries. Controls a frontal photograph does
- * not move (the nasal tip's width, the chin's triangularity) and pairs it
- * cannot tell apart (the lower nose and nostril widths, both reading as
- * alar width) have no index.
+ * one: the upper lip's lateral elevation also raises the bow's peaks, and
+ * the nasal base's elevation lifts the tip too, cross effects the square
+ * solve carries. Controls a frontal photograph does not move (the nasal
+ * tip's width, the chin's triangularity and projection, the jaw's
+ * prognathism, the nose's depth and root) and pairs it cannot tell apart
+ * (the lower nose and nostril widths, both reading as alar width; the
+ * septum and nostril angles, which move the tip and nostrils together)
+ * have no index.
  *
  * The pairing is anatomical and was checked on the basis: at full weight
  * every paired control moves its own index by 13 to 45 percent and each other
@@ -356,6 +362,35 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     definition: "temple contour width (21, 251) over face width",
     channels: ["templeWidth"],
   },
+  {
+    id: "medialLowerLidSlope",
+    definition:
+      "mean slope of the lower lid from endocanthion to its medial third (133-155, 362-382), rise over run",
+    channels: ["leftEpicanthalFold", "rightEpicanthalFold"],
+  },
+  {
+    id: "upperLidHeight",
+    definition:
+      "mean upper lid margin to the lid's upper landmark (159-27, 386-257) over fissure length",
+    channels: ["leftEyeFoldHeight", "rightEyeFoldHeight"],
+  },
+  {
+    id: "infraorbitalHeight",
+    definition:
+      "mean lower lid margin to the infraorbital landmark (145-230, 374-450) over fissure length",
+    channels: ["leftEyeBagHeight", "rightEyeBagHeight"],
+  },
+  {
+    id: "noseTipHeight",
+    definition: "nasal tip (1) above subnasale (2) over n-sn height",
+    channels: ["noseTipElevation"],
+  },
+  {
+    id: "nostrilHeight",
+    definition:
+      "mean nostril landmark (49, 279) above subnasale (2) over n-sn height",
+    channels: ["noseBaseElevation"],
+  },
 ];
 
 /** Every index of one set of landmarks; null where a landmark is absent. */
@@ -469,6 +504,19 @@ export function measureFaceAnthropometry(
     noseUpperWidth: ratio(W(193, 417), fw),
     noseMiddleWidth: ratio(W(196, 419), fw),
     templeWidth: ratio(W(21, 251), fw),
+    medialLowerLidSlope: ((): number | null => {
+      const slope = (a: number, b: number): number | null => {
+        const [p, q] = [at(a), at(b)];
+        return p && q && p[0] !== q[0]
+          ? Math.abs(p[1] - q[1]) / Math.abs(p[0] - q[0])
+          : null;
+      };
+      return mean(slope(133, 155), slope(362, 382));
+    })(),
+    upperLidHeight: ratio(mean(H(159, 27), H(386, 257)), fl),
+    infraorbitalHeight: ratio(mean(H(145, 230), H(374, 450)), fl),
+    noseTipHeight: ratio(H(1, 2), H(168, 2)),
+    nostrilHeight: ratio(mean(H(49, 2), H(279, 2)), H(168, 2)),
   };
 }
 
