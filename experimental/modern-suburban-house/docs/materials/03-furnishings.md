@@ -33,7 +33,7 @@
 @evidence settings/10-house.md#kitchen-equipment 밝은 석재 상판이 '주방 설비'(settings/10-house.md#kitchen-equipment)를 링크로 소비해 #E4E0D8 값과 결합 면의 근거로 삼았다.
 -->
 
-[밝은 상판](../settings/10-house.md#kitchen-equipment)이다. 구성은 두께 0.03 m 엔지니어드 석재 판이다. 외관은 `#E4E0D8`(선형 0.776, 0.745, 0.687), roughness 0.30, metallic 0.0, transmission 0.0이며 연마면의 색과 반광을 기준으로 하고 석재 입자와 드문 맥을 결속한다. 결합 면은 주방 하부장 띠·싱크 섬·세면장의 `countertop`과 [세탁기 위 접는 상판](../models/12-service-rooms.md#laundry-folding-top)의 `top`이다. 받침 `cleat`는 [회갈색 패널 수납장](#greige-cabinet)을 받는다. source owner는 `src/materials/furnishings/cabinetry.ts`이고, 리뷰는 03 view에서 상판 앞 모서리가 수납장 위 밝은 선으로 읽히는지를 관찰한다.
+[밝은 상판](../settings/10-house.md#kitchen-equipment)이다. 구성은 두께 0.03 m 엔지니어드 석재 판이다. 외관은 `#E4E0D8`(선형 0.776, 0.745, 0.687), roughness 0.30, metallic 0.0, transmission 0.0이며 연마면의 색과 반광을 기준으로 하고 석재 입자와 드문 맥을 결속한다. 결합 면은 [주방 하부장 띠](../models/10-kitchen-dining.md#kitchen-base-run)·[싱크 섬](../models/10-kitchen-dining.md#kitchen-island)·[세면장](../models/14-bathrooms.md#vanity-basin)의 `countertop`과 [세탁기 위 접는 상판](../models/12-service-rooms.md#laundry-folding-top)의 `top`이다. 받침 `cleat`는 [회갈색 패널 수납장](#greige-cabinet)을 받는다. source owner는 `src/materials/furnishings/cabinetry.ts`이고, 리뷰는 03 view에서 상판 앞 모서리가 수납장 위 밝은 선으로 읽히는지를 관찰한다.
 
 표면 결속 계획: 상판 `countertop`·`top`은 0.30 m 모듈의 연한 석재 입자와 드문 가는 맥을 결정론적으로 만든다. 상판 국소 X/Z를 U/V로 한 모서리를 원점으로 하고 싱크 구멍·앞 모서리에서 결을 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -53,11 +53,15 @@
 
 [스테인리스 냉장고·레인지·전자레인지](../settings/10-house.md#kitchen-equipment)와 식기세척기, 수전이다. 구성은 도장하지 않은 헤어라인 스테인리스 강판과 주물 수전이다. 외관은 `#C0C2C4`(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0이며 헤어라인 방향성은 판의 길이 방향 거칠기 맵으로 표현한다. 결합 면은 [양문 냉장고](../models/10-kitchen-dining.md#kitchen-refrigerator)의 `leaf`·`drawer-front`·`appliance-body`·`handle`, [레인지](../models/10-kitchen-dining.md#kitchen-range)의 `leaf`·`appliance-body`·`handle`, [전자레인지](../models/10-kitchen-dining.md#kitchen-microwave)의 `appliance-body`·`leaf`, [식기세척기](../models/10-kitchen-dining.md#kitchen-dishwasher)의 `leaf`·`appliance-body`·`handle`, [공용 변기](../models/14-bathrooms.md#shared-toilet)의 세척 레버 `handle`, 싱크 섬의 `basin`·`faucet`, 세면장·욕조·샤워부스의 `faucet`, [차고 금속 선반](../models/12-service-rooms.md#garage-shelving)의 `post`·`shelf`, [공구판](../models/12-service-rooms.md#garage-tool-board)의 `tool-steel`, [세탁기 원형](../models/12-service-rooms.md#laundry-machine)의 `door-ring`·`drum`이다. 가전 안쪽 `appliance-interior`는 [흰 에나멜](#white-enamel)을 받는다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 중성 조명 판과 03 view에서 가전이 흰 벽보다 어둡지만 검은 판이 아닌 금속 반사로 읽히는지를 관찰한다.
 
-욕실·수납의 금속 `rail`·`rod`와 주방 `utensil`의 금속부도 이 재료를 받는다. 각 막대의 길이 U·둘레 V를 미터로 투영하고 부품 끝에서 끊는다.
+욕실·수납의 금속 `rail`·`rod`와 [주방 조리 소품](../models/18-house-props.md#kitchen-food-utensils)의 `utensil` 금속부도 이 재료를 받는다. 각 막대의 길이 U·둘레 V를 미터로 투영하고 부품 끝에서 끊는다.
 
 표면 결속 계획: 가전·수전의 노출 스테인리스에는 0.02 m 반복의 방향성 헤어라인 거칠기 맵을 쓴다. 판의 길이 U를 연마 방향으로, 판 시작 모서리를 원점으로 하고 문·손잡이 파티션 경계에서 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 추가 `rod`는 [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf)·[옷방 봉](../models/13-bedrooms.md#wardrobe-hanging)·[수건걸이](../models/14-bathrooms.md#towel-bar)의 금속부이고, 주방 `utensil`은 [조리 소품](../models/18-house-props.md#kitchen-food-utensils)이다. 검은 커튼 봉은 이 스테인리스가 아니라 실내 도장 금속이 받는다.
+
+[싱크 섬](../models/10-kitchen-dining.md#kitchen-island)의 `basin`은 이 금속을 받는다. [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `rail`도 이 금속을 받는다. [옷방 봉](../models/13-bedrooms.md#wardrobe-hanging)의 `rod`도 이 금속을 받는다.
+
+[싱크 섬](../models/10-kitchen-dining.md#kitchen-island)·[세면장](../models/14-bathrooms.md#vanity-basin)·[욕조](../models/14-bathrooms.md#bathtub)·[샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `faucet`도 이 금속을 받는다.
 
 ## 검은 유리 조작부 {#black-glass-panel}
 <!--
@@ -72,7 +76,7 @@
 @evidence contracts/texture-readability.md#material-texture-readability `glass`는 의도적으로 매끈하며 roughness 0.08의 좁은 반사와 실제 프레임의 광원·주변 사물 반사로 유리로 읽힌다. 패널 파티션 밖에 맵을 번지게 하지 않고 단색 검은 직사각형이면 실패다.
 -->
 
-오븐 창·쿡탑·조작부다. 구성은 검은 유리 세라믹 판이다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.08, metallic 0.0, transmission 0.0이며 판 뒤 내부는 보이지 않는 불투명 반사면으로 근사한다. 결합 면은 레인지의 `cooktop`·`burner`·`control-panel`·`appliance-glass`, 전자레인지의 `appliance-glass`·`control-panel`, 식기세척기의 `control-panel`, [드럼 세탁기와 건조기](../models/12-service-rooms.md#laundry-machine)의 `control-panel`다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 근접 거리 견본에서 조작부가 스테인리스와 광택으로 구별되는지를 관찰한다.
+오븐 창·쿡탑·조작부다. 구성은 검은 유리 세라믹 판이다. 외관은 `#1F1F20`(선형 0.014, 0.014, 0.014), roughness 0.08, metallic 0.0, transmission 0.0이며 판 뒤 내부는 보이지 않는 불투명 반사면으로 근사한다. 결합 면은 [레인지](../models/10-kitchen-dining.md#kitchen-range)의 `cooktop`·`burner`·`control-panel`·`appliance-glass`, [전자레인지](../models/10-kitchen-dining.md#kitchen-microwave)의 `appliance-glass`·`control-panel`, [식기세척기](../models/10-kitchen-dining.md#kitchen-dishwasher)의 `control-panel`, [드럼 세탁기와 건조기](../models/12-service-rooms.md#laundry-machine)의 `control-panel`다. source owner는 `src/materials/furnishings/appliances.ts`이고, 리뷰는 근접 거리 견본에서 조작부가 스테인리스와 광택으로 구별되는지를 관찰한다.
 
 표면 결속 계획: 검은 조작부 `glass`는 의도적으로 매끈하며 roughness 0.08의 좁은 반사와 실제 프레임의 광원·주변 사물 반사로 유리로 읽힌다. 패널 파티션 밖에 맵을 번지게 하지 않고 단색 검은 직사각형이면 실패다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
@@ -90,13 +94,15 @@
 @evidence settings/10-house.md#laundry-mudroom 흰 에나멜과 도기가 '세탁 겸 머드룸'(settings/10-house.md#laundry-mudroom)를 링크로 소비해 #F5F5F2 값과 결합 면의 근거로 삼았다.
 -->
 
-변기·세면기·욕조와 [앞문식 세탁기·건조기](../settings/10-house.md#laundry-mudroom)의 흰 몸체다. 구성은 유약 도기와 법랑 강판이며 두 구성을 한 외관으로 묶는다. 외관은 `#F5F5F2`(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0이다. 결합 면은 [공용 변기](../models/14-bathrooms.md#shared-toilet)의 `ceramic`·`toilet-seat`·`lid`, 세면장과 [욕조 겸 샤워](../models/14-bathrooms.md#bathtub)의 `ceramic`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `shower-tray`, 세탁기·건조기의 `appliance-body`·`leaf`, 가전의 `appliance-interior`다. 세탁기 `door-ring`은 [스테인리스](#stainless-steel), `glass`는 [투명 유리](01-exterior.md#glass-clear), `drum`은 스테인리스를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지를 관찰한다.
+변기·세면기·욕조와 [앞문식 세탁기·건조기](../settings/10-house.md#laundry-mudroom)의 흰 몸체다. 구성은 유약 도기와 법랑 강판이며 두 구성을 한 외관으로 묶는다. 외관은 `#F5F5F2`(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0이다. 결합 면은 [공용 변기](../models/14-bathrooms.md#shared-toilet)의 `ceramic`·`toilet-seat`·`lid`, [세면장](../models/14-bathrooms.md#vanity-basin)과 [욕조 겸 샤워](../models/14-bathrooms.md#bathtub)의 `ceramic`, [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `shower-tray`, [세탁기·건조기](../models/12-service-rooms.md#laundry-machine)의 `appliance-body`·`leaf`, [레인지 오븐](../models/10-kitchen-dining.md#kitchen-range)·[식기세척기](../models/10-kitchen-dining.md#kitchen-dishwasher)의 `appliance-interior`다. 세탁기 `door-ring`은 [스테인리스](#stainless-steel), `glass`는 [투명 유리](01-exterior.md#glass-clear), `drum`은 스테인리스를 받는다. source owner는 `src/materials/furnishings/fixtures.ts`이고, 리뷰는 05 욕실 view에서 도기가 벽 타일보다 좁은 하이라이트로 구별되는지를 관찰한다.
 
-샤워 세면대의 세 `accessory`, 도기 화분과 병의 `container`, 과일 `bowl`, 협탁등의 `lamp-base`에도 같은 흰 법랑 값을 배정한다. 용기 둘레 U·높이 V의 미터 UV를 각각의 열린 입술에서 끊는다.
+샤워 세면대의 세 `accessory`, 도기 화분과 병의 `container`, [주방 과일 그릇](../models/18-house-props.md#kitchen-food-utensils)의 `bowl`, 협탁등의 `lamp-base`에도 같은 흰 법랑 값을 배정한다. 용기 둘레 U·높이 V의 미터 UV를 각각의 열린 입술에서 끊는다.
 
 표면 결속 계획: 흰 도기·에나멜은 의도적으로 매끈한 유약 면이다. roughness 0.25의 넓은 하이라이트와 실제 곡면 법선·그림자로 부피를 읽히게 하며 금속·벽 타일 파티션과의 접합에서 끝난다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
 [협탁등](../models/13-bedrooms.md#nightstand-lamp)의 `lamp-base`도 이 흰 도기 값에 결합한다.
+
+[세면대 소품](../models/14-bathrooms.md#vanity-basin)의 `accessory`와 [현관 화분](../models/18-house-props.md#porch-mat-planter)의 `container`도 이 흰 도기 값을 받는다.
 
 ## 꿀빛 가구 목재 {#furniture-wood}
 <!--
@@ -117,11 +123,11 @@
 
 [낮은 목재 테이블](../models/11-living.md#low-table)의 `top`·`leg`, [작은 책상](../models/13-bedrooms.md#child-desk)의 `top`·`leg`·`shelf`, [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `headboard`·`bed-frame`, [협탁](../models/13-bedrooms.md#nightstand-lamp)의 `carcass`·`drawer-front`, [낮은 서랍장](../models/13-bedrooms.md#low-dresser)의 `carcass`·`drawer-front`·`leg`, 소파·[안락의자](../models/11-living.md#reading-armchair)의 `leg`, [팬트리 L형 선반](../models/12-service-rooms.md#pantry-l-shelf)의 `shelf`·`cleat`, [머드룸 신발 벤치](../models/12-service-rooms.md#mudroom-bench)의 `seat`·`carcass`·`shelf`, [공구 작업대](../models/12-service-rooms.md#garage-workbench)의 `top`·`leg`·`drawer-front`, [테라스 식탁](../models/15-outdoor.md#terrace-table)·[테라스 의자](../models/15-outdoor.md#terrace-chair)의 목재 면도 같은 재료를 받는다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 03과 05 view에서 가구와 마루가 같은 계열이되 구별되는지를 관찰한다.
 
-탁자·벤치의 `base`·`plinth`, 공구판의 `board`·`tool-grip`, 거실 `tray`, 주방 `cutting-board`, 벽난로 `mantel`, 선반 `basket`, [원목 식료품 상자](../models/12-service-rooms.md#pantry-containers)의 `box`, 책상 `pencil`의 목재 부피도 이 재료를 받는다. 상자 결은 각 상자의 밑면 한 모서리에서 U를 길이, V를 높이로 투영하고 판 끝에서 새로 시작한다. 다른 부재도 길이 U·폭 V를 새로 시작한다.
+[차고 공구판](../models/12-service-rooms.md#garage-tool-board)의 `board`·`tool-grip`, [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props)의 `tray`, [주방 조리 소품](../models/18-house-props.md#kitchen-food-utensils)의 `cutting-board`, [벽난로 선반](../models/11-living.md#fireplace-insert-mantel)의 `mantel`, [팬트리 용기](../models/12-service-rooms.md#pantry-containers)와 [옷방 바구니](../models/13-bedrooms.md#wardrobe-shelves)의 `basket`, [원목 식료품 상자](../models/12-service-rooms.md#pantry-containers)의 `box`, [자녀 책상](../models/13-bedrooms.md#child-desk)의 `pencil` 목재 부피도 이 재료를 받는다. 상자 결은 각 상자의 밑면 한 모서리에서 U를 길이, V를 높이로 투영하고 판 끝에서 새로 시작한다. 다른 부재도 길이 U·폭 V를 새로 시작한다.
 
 표면 결속 계획: 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
-추가 부재의 결합 owner는 `plinth`가 [주방 하부장](../models/10-kitchen-dining.md#kitchen-base-run)과 [책장](../models/11-living.md#dark-bookcase), `board`·`tool-grip`이 [차고 공구판](../models/12-service-rooms.md#garage-tool-board), `cutting-board`가 [주방 소품](../models/18-house-props.md#kitchen-food-utensils), `tray`가 [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props), `basket`이 [팬트리 용기](../models/12-service-rooms.md#pantry-containers)와 [옷방 선반](../models/13-bedrooms.md#wardrobe-shelves), `box`가 [팬트리 원목 상자](../models/12-service-rooms.md#pantry-containers)다. 이 링크는 같은 목재 재료를 받는 서로 다른 닫힌 부재를 뜻한다.
+주방 하부장의 `plinth`는 [회갈색 패널 수납장](#greige-cabinet), 책장의 `plinth`는 [짙은 책장 목재](#dark-bookcase-wood)가 받는다. 소파와 안락의자의 `base`는 [회베이지 천갈이](#grey-beige-upholstery)가 받는다. 이 H2의 목재 결합에는 두 `plinth`와 좌석 `base`를 넣지 않는다.
 
 ## 짙은 책장 목재 {#dark-bookcase-wood}
 <!--
@@ -159,7 +165,7 @@
 
 [회색/미색 패브릭 소파](../settings/10-house.md#living)와 안락의자다. 구성은 폼 위 직조 폴리 직물이다. 외관은 `#B7AFA3`(선형 0.474, 0.429, 0.366), roughness 0.92, metallic 0.0, transmission 0.0이며 직조 결은 0.01 m 색·법선 맵으로 표현한다. 결합 면은 [패브릭 소파](../models/11-living.md#fabric-sofa)와 [독서 안락의자](../models/11-living.md#reading-armchair)의 `base`·`seat-cushion`·`back`·`arm`이다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 04와 03 view에서 소파가 벽보다 어둡고 광택 없이 읽히는지를 관찰한다.
 
-거실 소파의 보조 `pillow`와 세 방 옷장 `clothes`의 회베이지 변형도 이 직물 값을 받는다. 다른 색 옷은 인스턴스별 올리브·청회색 직물로 분기한다.
+[소파 보조 쿠션](../models/19-room-accents.md#sofa-throws)의 `pillow`와 [옷방 옷](../models/13-bedrooms.md#wardrobe-hanging)의 `clothes` 회베이지 변형도 이 직물 값을 받는다. 다른 색 옷은 인스턴스별 올리브·청회색 직물로 분기한다.
 
 표면 결속 계획: 소파·안락의자의 직조 천은 0.01 m 날실/씨실 반복의 색·법선 결이다. 쿠션 파티션의 국소 가로 U·세로 V와 봉제선 원점을 쓰고 쿠션 이음에서 잘라 부피를 보존한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -216,7 +222,7 @@
 @evidence settings/10-house.md#bedroom-three 청회색 침구가 '청회색 침구의 작은 침실'(settings/10-house.md#bedroom-three)를 링크로 소비해 #6E7F8C 값과 결합 면의 근거로 삼았다.
 -->
 
-[청회색 침구의 작은 침실](../settings/10-house.md#bedroom-three)의 식별색이다. 구성은 면 직물 이불이다. 외관은 `#6E7F8C`(선형 0.156, 0.212, 0.262), roughness 0.92, metallic 0.0, transmission 0.0이며 올리브와 명도가 비슷하되 색상이 반대편이어서 두 방이 침구로 구별된다. 결합 면은 bedroom-three에 놓인 머리판 있는 침대 instance의 `bedding`이다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 두 작은 침실 view를 나란히 놓아 따뜻한 실내등 아래에서도 침구색이 구별되는지를 관찰한다.
+[청회색 침구의 작은 침실](../settings/10-house.md#bedroom-three)의 식별색이다. 구성은 면 직물 이불이다. 외관은 `#6E7F8C`(선형 0.156, 0.212, 0.262), roughness 0.92, metallic 0.0, transmission 0.0이며 올리브와 명도가 비슷하되 색상이 반대편이어서 두 방이 침구로 구별된다. 결합 면은 bedroom-three에 놓인 [머리판 침대 원형](../models/13-bedrooms.md#headboard-bed)의 `bedding`이다. source owner는 `src/materials/furnishings/textiles.ts`이고, 리뷰는 두 작은 침실 view를 나란히 놓아 따뜻한 실내등 아래에서도 침구색이 구별되는지를 관찰한다.
 
 책장의 `book` 표지 및 옷방 `clothes`의 청회색 변형에도 이 색 직물 결을 재사용한다. 침구 `bedding`과는 서로 다른 부품 경계에서 끊는다.
 

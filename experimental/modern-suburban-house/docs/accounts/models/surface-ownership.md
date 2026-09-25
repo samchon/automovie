@@ -129,7 +129,7 @@
 | [stainless-steel](../../materials/03-furnishings.md#stainless-steel) | `appliance-body`·`faucet`·`basin`·`rail`·`rod`·`post`·`shelf`·`tool-steel`·`utensil`·`door-ring`·`drum` |
 | [black-glass-panel](../../materials/03-furnishings.md#black-glass-panel) | `control-panel`·`appliance-glass`·`cooktop`·`burner` |
 | [white-enamel](../../materials/03-furnishings.md#white-enamel) | `ceramic`·`toilet-seat`·`shower-tray`·`appliance-interior`·`lid`·`container`·`accessory`·`bowl`·`lamp-base` |
-| [furniture-wood](../../materials/03-furnishings.md#furniture-wood) | `top`·`apron`·`leg`·`footrest`·`seat`·`base`·`back`·`carcass`·`shelf`·`plinth`·`cleat`·`board`·`tool-grip`·`tray`·`cutting-board`·`mantel`·`basket`·`box`·`pencil`·`headboard`·`bed-frame` |
+| [furniture-wood](../../materials/03-furnishings.md#furniture-wood) | `top`·`apron`·`leg`·`footrest`·`seat`·`back`·`carcass`·`shelf`·`cleat`·`board`·`tool-grip`·`tray`·`cutting-board`·`mantel`·`basket`·`box`·`pencil`·`headboard`·`bed-frame` |
 | [dark-bookcase-wood](../../materials/03-furnishings.md#dark-bookcase-wood) | `carcass`·`plinth`·`shelf`·`art-frame` |
 | [grey-beige-upholstery](../../materials/03-furnishings.md#grey-beige-upholstery) | `arm`·`back`·`seat-cushion`·`clothes`·`pillow` |
 | [primary-bedding](../../materials/03-furnishings.md#primary-bedding) | `bedding`·`pillow`·`mattress` |
