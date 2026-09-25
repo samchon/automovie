@@ -1039,8 +1039,12 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       }
     case "props":
       if(pending.size===1&&pending.has("folded")) {
-        for(let layer=0;layer<2;layer++)
-          b.box("folded",[-w/2,layer*h/2,0],[w/2,(layer+1)*h/2,d]);
+        const seam=Math.min(h/12,0.01);
+        const fold=Math.min(w,d)*0.08;
+        b.box("folded",[-w/2,0,0],[w/2,h/2-seam/2,d]);
+        b.box("folded",[-w/2+fold,h/2-seam/2,fold],
+          [w/2-fold,h/2+seam/2,d-fold]);
+        b.box("folded",[-w/2,h/2+seam/2,0],[w/2,h,d]);
         pending.delete("folded");
         break;
       }

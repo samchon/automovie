@@ -193,7 +193,7 @@ test("separate room objects keep each reviewed face once", () => {
   const extraBinding=parents.map((p)=>p.id==="porch-mat-planter"?{...p,bindings:[...p.bindings,{...p.bindings[0]!,surface:"orphan-face"}]}:p);
   assert.throws(()=>buildHouseObjects(extraBinding),/unassigned object face/);
   const towels=objects.find((p)=>p.id==="linen-folded-towels")!;
-  assert.equal(towels.model.parts.length,2);
+  assert.equal(towels.model.parts.length,3);
   const towelYs=towels.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions.filter((_,i)=>i%3===1):[]);
   assert.equal(Math.min(...towelYs),0);
   assert.equal(Math.max(...towelYs),0.12);
