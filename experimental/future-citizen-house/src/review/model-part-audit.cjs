@@ -1010,6 +1010,12 @@ if (process.argv.includes("--fixture")) {
   catch { plantCaught = true; }
   if (!plantCaught) throw Error("plant prose/table divergence passed");
   results.push({ label: "potted plant prose height changed", caught: true });
+  if (!plantSource.includes("흙 표면은 0.34H")) throw Error("plant soil prose mutation source absent");
+  plantCaught = false;
+  try { plantProducer.check(plantSource.replace("흙 표면은 0.34H", "흙 표면은 0.30H")); }
+  catch { plantCaught = true; }
+  if (!plantCaught) throw Error("plant soil prose/table divergence passed");
+  results.push({ label: "potted plant prose soil height changed", caught: true });
   let measuredParts = 0;
   let mutationChecks = 0;
   for (const [anchor, lines] of sections()) {
