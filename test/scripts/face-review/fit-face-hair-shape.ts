@@ -42,7 +42,9 @@
  * model does not have, a photograph without the landmarks; so does
  * one its control cannot reach within its tolerance inside its range (short
  * hair whose end the hairline or curl sets, a style whose front roots comb
- * back). A document without hair and a subject without a photograph keep
+ * back), or whose every step toward the photograph leaves the hair's domain
+ * (a lock shortened below its emergence clearance, which the builder
+ * refuses). A document without hair and a subject without a photograph keep
  * theirs. OUTPUT is a new study directory with the rewritten documents and
  * `hair-shape.json`, the record.
  */
@@ -300,14 +302,34 @@ const derived = documents.map((original) => {
     }
     const value = (factor: number) =>
       observe(scaled(document, control.apply, factor))[name]!;
+    // A factor the builder refuses (a lock shortened below its emergence
+    // clearance) lies outside the hair's domain: the step is halved back
+    // toward the last buildable factor, and a step that never builds ends
+    // the search there.
+    const trial = (from: number, to: number): [number, number] | null => {
+      let step = to;
+      for (let k = 0; k < 6; ++k) {
+        try {
+          return [step, value(step) - goal];
+        } catch (error) {
+          if (!(error instanceof Error) || !/Hair length/u.test(error.message))
+            throw error;
+          step = (from + step) / 2;
+        }
+      }
+      return null;
+    };
     let a = 1;
     let fa = start[name]! - goal;
     // The first step moves the index toward the photograph.
-    let b = fa > 0 === control.grows ? 0.8 : 1.25;
-    let fb = value(b) - goal;
+    const first = trial(1, fa > 0 === control.grows ? 0.8 : 1.25);
+    let [b, fb] = first ?? [a, fa];
     for (
       let k = 0;
-      k < 6 && Math.abs(fb) > control.reached / 5 && fb !== fa;
+      first !== null &&
+      k < 6 &&
+      Math.abs(fb) > control.reached / 5 &&
+      fb !== fa;
       ++k
     ) {
       const next = Math.min(
@@ -315,9 +337,10 @@ const derived = documents.map((original) => {
         Math.max(control.range[0], b - (fb * (b - a)) / (fb - fa)),
       );
       if (next === b) break;
+      const step = trial(b, next);
+      if (step === null) break;
       [a, fa] = [b, fb];
-      b = next;
-      fb = value(b) - goal;
+      [b, fb] = step;
     }
     const [factor, residual] = Math.abs(fb) <= Math.abs(fa) ? [b, fb] : [a, fa];
     const row = {
