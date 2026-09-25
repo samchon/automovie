@@ -6,6 +6,11 @@ import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieMa
 
 export type Point = readonly [number, number, number];
 export type Size = readonly [number, number, number];
+export type FinishRole = "furniture-wood" | "upholstery";
+const finishRoles: Record<FinishRole,{ fallback:number; scale:readonly [number,number]; roughness:number }> = {
+  "furniture-wood": {fallback:0xa87a4e,scale:[1,1],roughness:0.50},
+  upholstery: {fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92},
+};
 export interface SurfaceBinding {
   /** Stable material face id from docs/models/00-model-frame.md. */
   surface: string;
@@ -265,7 +270,7 @@ const scale = (surface: string): readonly [number,number] =>
 export class PrototypeBuilder {
   private readonly parts: IAutoMovieModelPart[] = [];
   private readonly surfaceKinds = new Map<string, SurfaceBinding["uv"]>();
-  constructor(readonly id: string, readonly owner: string) {}
+  constructor(readonly id: string, readonly owner: string, readonly finishes:Readonly<Record<string,FinishRole>>={}) {}
   box(surface: string, min: Point, max: Point): this {
     return this.add(surface, metricBox(min,max), "box-metric");
   }
@@ -299,10 +304,13 @@ export class PrototypeBuilder {
   }
   finish(): HousePrototype {
     if (!this.parts.length) throw Error(`${this.id}: empty prototype`);
-    const bindings=[...this.surfaceKinds].map(([surface,uv]):SurfaceBinding=>({surface,uv,scale:scale(surface),fallback:fallback(surface)}));
+    const bindings=[...this.surfaceKinds].map(([surface,uv]):SurfaceBinding=>({surface,uv,
+      scale:this.finishes[surface]?finishRoles[this.finishes[surface]].scale:scale(surface),
+      fallback:this.finishes[surface]?finishRoles[this.finishes[surface]].fallback:fallback(surface)}));
     const materials:IAutoMovieMaterial[]=bindings.map((binding)=>({
       id:binding.surface,name:binding.surface,baseColor:rgb(binding.fallback),metallic:!(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
-      roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,emissive:null,opacity:/glass/.test(binding.surface)?0.38:1,baseColorTexture:null,
+      roughness:this.finishes[binding.surface]?finishRoles[this.finishes[binding.surface]].roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,
+      emissive:null,opacity:/glass/.test(binding.surface)?0.38:1,baseColorTexture:null,
     }));
     return { id:this.id, owner:this.owner, bindings, model:{id:this.id,name:this.id,origin:"generated",parts:this.parts,skeleton:null,body:null,materials,asset:null} };
   }

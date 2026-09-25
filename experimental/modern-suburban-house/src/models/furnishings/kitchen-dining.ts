@@ -1,6 +1,7 @@
 /** Reviewed dimensional prototypes owned by this model design file. */
 import { fromReservation, group } from "../specs";
 import type { PrototypeSpec } from "../templates";
+import { woodenChairFinishes, woodenStoolFinishes } from "./finishes";
 
 export const kitchenDiningSpecs: readonly PrototypeSpec[] = [
   ...group("10-kitchen-dining.md", "src/models/furnishings/kitchen-dining.ts", [
@@ -11,8 +12,8 @@ export const kitchenDiningSpecs: readonly PrototypeSpec[] = [
     ["kitchen-microwave","appliance",fromReservation("common-microwave","z"),"appliance-body leaf appliance-glass control-panel"],
     ["kitchen-island","cabinet",fromReservation("common-island","z"),"plinth carcass leaf drawer-front handle countertop basin faucet"],
     ["kitchen-dishwasher","appliance",fromReservation("common-dishwasher"),"appliance-body leaf control-panel handle appliance-interior"],
-    ["kitchen-island-stool","chair",[0.40,0.64,0.40],"seat leg footrest"],
+    ["kitchen-island-stool","chair",[0.40,0.64,0.40],"seat leg footrest",{finishes:woodenStoolFinishes}],
     ["dining-table","table",fromReservation("common-dining-table"),"top apron leg"],
-    ["dining-chair","chair",[0.45,0.85,0.50],"seat leg back"],
+    ["dining-chair","chair",[0.45,0.85,0.50],"seat leg back",{finishes:woodenChairFinishes}],
   ]),
 ];

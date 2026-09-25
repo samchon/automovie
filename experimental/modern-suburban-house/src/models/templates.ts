@@ -1,7 +1,7 @@
 /** Shared dimensional prototypes. A template is selected by physical role;
  * individual rooms supply only dimensions and the declared surface vocabulary.
  * All dimensions are local metres; world positions belong to instances. */
-import { PrototypeBuilder, type HousePrototype, type Size } from "./parts";
+import { PrototypeBuilder, type FinishRole, type HousePrototype, type Size } from "./parts";
 
 export type PrototypeKind =
   | "cabinet" | "appliance" | "table" | "chair" | "sofa" | "shelf"
@@ -13,6 +13,8 @@ export interface PrototypeSpec {
   kind: PrototypeKind;
   size: Size;
   faces: readonly string[];
+  /** A face whose visible fallback and UV scale depend on this object's finish. */
+  finishes?: Readonly<Record<string,FinishRole>>;
   /** Worktop height when the full model height includes an accessory. */
   bodyTop?: number;
   /** Top of a mattress beneath its separate bedding layer. */
@@ -30,7 +32,9 @@ export interface PrototypeSpec {
 export function buildPrototype(spec: PrototypeSpec): HousePrototype {
   const [w,h,d]=spec.size;
   if (!(w>0&&h>0&&d>0)) throw Error(`${spec.id}: invalid dimensions`);
-  const b=new PrototypeBuilder(spec.id,spec.owner);
+  if(spec.finishes && Object.keys(spec.finishes).some((face)=>!spec.faces.includes(face)))
+    throw Error(`${spec.id}: finish names an unmade face`);
+  const b=new PrototypeBuilder(spec.id,spec.owner,spec.finishes);
   const pending=new Set(spec.faces);
   const box=(face:string,x0:number,y0:number,z0:number,x1:number,y1:number,z1:number) => {
     if (!pending.has(face)) return;
@@ -61,6 +65,24 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
     case "cabinet":
       {
       const island=pending.has("basin"), vanity=pending.has("ceramic");
+      if(pending.has("carcass")&&pending.has("leaf")&&!pending.has("countertop")&&!vanity) {
+        const bodyFront=d-0.04,doorFront=d-0.02,t=0.025;
+        for(const x of [-w/2,w/2-t]) b.box("carcass",[x,0,0],[x+t,h,bodyFront]);
+        b.box("carcass",[-w/2+t,0,0],[w/2-t,h,t]);
+        for(const y of [0,h-t]) b.box("carcass",[-w/2+t,y,t],[w/2-t,y+t,bodyFront]);
+        const slots=Math.max(1,Math.round(w/0.60));
+        for(let i=0;i<slots;i++) {
+          const left=-w/2+w*i/slots+0.0025,right=-w/2+w*(i+1)/slots-0.0025;
+          b.box("leaf",[left,0,bodyFront],[right,h,doorFront]);
+          if(pending.has("handle")) {
+            const x=i%2===0?right-0.04:left+0.04;
+            b.box("handle",[x-0.006,0.04,doorFront],[x+0.006,0.16,d-0.012]);
+            b.box("handle",[x-0.006,0.04,d-0.012],[x+0.006,0.16,d]);
+          }
+        }
+        for(const surface of ["carcass","leaf","handle"]) pending.delete(surface);
+        break;
+      }
       if(pending.has("countertop")&&pending.has("drawer-front")&&pending.has("leaf")&&!island) {
         const front=d-0.05,face=front+0.02,plinthFront=d-0.10;
         b.box("plinth",[-w/2+0.015,0,0.015],[w/2-0.015,0.10,plinthFront]);

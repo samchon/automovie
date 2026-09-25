@@ -9,7 +9,7 @@ export const serviceRoomSpecs: readonly PrototypeSpec[] = [
     ["laundry-machine","appliance",fromReservation("laundry-washer","z"),"appliance-body leaf door-ring glass handle control-panel appliance-interior drum"],
     ["laundry-folding-top","table",fromReservation("laundry-folding-top","z"),"top cleat"],
     ["laundry-upper-storage","cabinet",fromReservation("laundry-upper-storage","z"),"carcass leaf"],
-    ["mudroom-bench","shelf",fromReservation("laundry-shoe-bench","z"),"seat carcass shelf shoe"],
+    ["mudroom-bench","shelf",fromReservation("laundry-shoe-bench","z"),"seat carcass shelf shoe",{finishes:{seat:"furniture-wood"}}],
     ["mudroom-coat-hooks","props",fromReservation("laundry-coat-hooks","z"),"board hook clothes"],
     ["pantry-l-shelf","shelf",pantryPlan.size,"shelf cleat",{lShelf:pantryPlan.lShelf}],
     ["pantry-containers","props",[0.80,0.30,0.25],"container lid box basket"],

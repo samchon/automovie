@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { buildHouseObjects, buildHousePrototypes } from "../models/catalogue";
+import { buildHouseObjects, buildHousePrototypes, housePrototypeSpecs } from "../models/catalogue";
 import { metricBeam, metricBox, metricCup, metricEllipsoid, metricFrustum, metricInvertedCup, metricOvalCup, metricRingZ } from "../models/parts";
 import { buildPrototype } from "../models/templates";
 import { auditPrototypePopulation, runRandomMutations } from "./prototype-audit";
@@ -86,6 +86,19 @@ test("separate room objects keep each reviewed face once", () => {
   }
 });
 
+test("ceiling pendant lives below its origin and rejects an upward escape", () => {
+  const models=buildHousePrototypes();
+  const pendant=models.find((p)=>p.id==="pendant-fixtures")!;
+  const positions=pendant.model.parts.flatMap((part)=>part.geometry.type==="mesh"?part.geometry.mesh.positions:[]);
+  const ys=positions.filter((_,i)=>i%3===1);
+  assert.equal(Math.min(...ys),-1.20);
+  assert.equal(Math.max(...ys),0);
+  const geometry=pendant.model.parts.find((part)=>part.material==="fixture-shade")!.geometry;
+  if(geometry.type!=="mesh") throw Error("expected shade mesh");
+  for(let i=1;i<geometry.mesh.positions.length;i+=3) geometry.mesh.positions[i]+=2;
+  assert.ok(auditPrototypePopulation(models).failures.some((line)=>line.includes("pendant-fixtures")&&line.includes("outside declared model envelope")));
+});
+
 test("every design H2 has one generated prototype, source owner and face bindings", () => {
   const report=auditPrototypePopulation(buildHousePrototypes());
   assert.ok(report.designed>0);
@@ -94,6 +107,27 @@ test("every design H2 has one generated prototype, source owner and face binding
   assert.ok(report.measuredParts>300);
   assert.equal(report.failures.length,0,report.failures.join("\n"));
   assert.ok(!buildHousePrototypes().some((p)=>/car|automobile|vehicle/.test(p.id)));
+});
+
+test("every declared furniture finish binds its own fallback, scale, and roughness", () => {
+  const models=new Map(buildHousePrototypes().map((p)=>[p.id,p]));
+  const expected={
+    "furniture-wood":{fallback:0xa87a4e,scale:[1,1],roughness:0.50},
+    upholstery:{fallback:0xb7afa3,scale:[0.01,0.01],roughness:0.92},
+  } as const;
+  let checked=0;
+  for(const spec of housePrototypeSpecs) for(const [surface,role] of Object.entries(spec.finishes??{})) {
+    const model=models.get(spec.id)!;
+    const binding=model.bindings.find((b)=>b.surface===surface);
+    const material=model.model.materials.find((m)=>m.id===surface);
+    assert.ok(binding,`${spec.id}/${surface}: missing binding`);
+    assert.ok(material,`${spec.id}/${surface}: missing material`);
+    assert.equal(binding.fallback,expected[role].fallback);
+    assert.deepEqual(binding.scale,expected[role].scale);
+    assert.equal(material.roughness,expected[role].roughness);
+    checked++;
+  }
+  assert.ok(checked>0);
 });
 
 test("face and metric UV defects are rejected across the whole population", () => {
