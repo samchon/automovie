@@ -37,7 +37,7 @@ export function buildGatePrototype(id:string,width:number,height:number):HousePr
     [-width/2,level-p.battenHeight/2,-p.depth/2-p.battenDepth],
     [width/2,level+p.battenHeight/2,-p.depth/2]);
   for(const level of p.hingeLevels)
-    b.frustum("hinge",[width/2,level-p.hingeHeight/2,-p.depth/2],
+    b.frustum("hinge",[width/2-p.hingeRadius,level-p.hingeHeight/2,-p.depth/2],
       p.hingeRadius,p.hingeRadius,p.hingeHeight,12);
   b.frustum("handle",[-width/2+0.06,p.handleLevel-0.004,-p.depth/2-0.01],
     0.03,0.03,0.008,12);

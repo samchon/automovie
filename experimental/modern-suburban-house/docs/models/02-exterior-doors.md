@@ -85,7 +85,7 @@
 ## 옆마당 목재 대문 {#side-yard-gate}
 <!--
 @evidence principles/core/common.md#scope-preservation 옆마당 대문 문짝 1.18 m, 경첩, 열림, 회전 반경과 하드웨어 점유를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 문짝을 S 위 0.05~1.70 m, 두께 0.04 m로 두고 90° 순폭 1.20-0.04-0.05=1.11 m가 목표 1.05 m보다 크다고 산출한다 닫힌 판재 Z=[−0.32,−0.28] m와 정원 쪽 경첩축 X=13.49·Z=−0.32 m도 정한다.
+@evidence principles/core/common.md#substantive-completion 문짝을 S 위 0.05~1.70 m, 두께 0.04 m로 두고 90° 순폭 1.20-0.04-0.05=1.11 m가 목표 1.05 m보다 크다고 산출한다 닫힌 판재 Z=[−0.32,−0.28] m와 정원 쪽 경첩축 X=13.4775·Z=−0.32 m도 정한다.
 @evidence principles/core/common.md#declared-basis 문기둥 구간·경첩·열림·한도는 spaces/site/side-walk.md#side-gate-interface에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation side-gate-interface의 통과 폭 1.05 m와 점유 0.10 m 한도를 문짝 폭과 순폭 산술로 바꾼다.
 @evidence principles/design/models.md#representation-contract hinge-pivot 아래 leaf-panel 세로 판재와 가로 띠장 계층을 정하고 문기둥·헤더를 두지 않는다.
@@ -106,7 +106,7 @@
 `side-yard-gate`는 [옆길 owner](../spaces/site/side-walk.md#side-gate-interface)의 문기둥 안쪽 구간을 채우며 문기둥과 상부 헤더는 두지 않는다. 문짝은 보행면 S 위 0.05–1.70 m, 두께 0.04 m, 폭은 문기둥 안쪽 구간인 세로 보행면 폭 1.20 m에서 0.02 m를 뺀 1.18 m이고 세로 판재 `leaf-panel`과 가로 띠장으로 나눈다. 세로 판재는 폭 0.14 m 여덟 장과 폭 0.008 m 틈 일곱, 양끝 0.002 m 여백으로 8 × 0.14 + 7 × 0.008 + 2 × 0.002 = 1.18 m를 채운다. 높이 0.10 m·깊이 0.025 m 가로 띠장 둘은 문짝 하단 위 0.35·1.30 m 중심에 놓이며 표면 id `gate-batten`을 받는다. 경첩은 하단 위 0.25·1.40 m 중심의 지름 0.025 m·높이 0.10 m 두 원통이고, latch는 자유단에서 0.06 m 안쪽·지표 S 위 0.95 m의 지름 0.06 m 원판과 돌출 0.04 m의 길이 0.08 m 레버로 정한다. 판재 양면·절단면은 `leaf-panel`, 띠장은 `gate-batten`, 경첩은 `hinge`, latch는 `handle`이다. 경첩은 +X 쪽, 열림은 정원 쪽 -Z이며 motion 인터페이스는 경첩 축 회전 0–π/2 rad, 기준 상태는 닫힘이다. 90°에서 경첩·문짝의 +X 경계 점유는 0.05 m 이내, 손잡이 포함 회전 반경은 1.20 m 이내로 owner의 한도를 지킨다. 90° 순폭은 1.20 - 0.04 - 0.05 = 1.11 m로 owner의 통과 폭 목표 1.05 m보다 크다. 소스 owner는 `src/models/gate.ts`이며 옆길 view로 검사한다.
 
 두 `gate-batten`은 세로 판재의 정원 쪽 면에서 깊이 0.025 m를 차지하고, 문짝 가로 중심 기준 국소 X=[−0.59,0.59] m 전폭으로 이어진다. 각 띠장의 연직 범위는 문짝 하단 기준 각각 [0.30,0.40]·[1.25,1.35] m다. 여덟 판재와 만나는 뒷면은 접합면으로 처리해 중복 노출 면을 만들지 않으며 띠장 양끝 절단면도 `gate-batten`이다.
-옆마당 문짝은 울타리 중심면 F=−0.30 m를 기준으로 닫힐 때 세계 Z=[−0.32,−0.28] m, X=[12.31,13.49] m를 차지한다. 여덟 판재의 깊이는 이 0.04 m 전부이고 틈 0.008 m는 실제 열린 간격이다. +X 경첩축은 X=13.49 m·Z=−0.32 m인 정원 쪽 모서리의 수직선이며 두 knuckle의 중심은 이 축에 둔다. 정원 쪽 −Z로 90° 열면 문짝 두께가 개구부 안쪽 −X로 돌아 +X 문기둥 X≥13.50 m를 관통하지 않는다. 띠장은 판재 정원 쪽 면 Z=−0.32 m에서 더 −Z로 0.025 m 돌출하고, 이 돌출을 포함한 열린 점유는 옆길 owner의 0.05 m 경첩 끝 상한 안에서 대조한다.
+옆마당 문짝은 울타리 중심면 F=−0.30 m를 기준으로 닫힐 때 세계 Z=[−0.32,−0.28] m, X=[12.31,13.49] m를 차지한다. 여덟 판재의 깊이는 이 0.04 m 전부이고 틈 0.008 m는 실제 열린 간격이다. +X 경첩축은 문짝 오른쪽 끝 X=13.49 m에서 경첩 반지름 0.0125 m만큼 안쪽인 X=13.4775 m·Z=−0.32 m의 수직선이며 두 knuckle의 중심은 이 축에 둔다. 경첩 바깥 끝은 X=13.49 m로 문기둥 시작 X=13.50 m보다 0.01 m 안쪽이다. 정원 쪽 −Z로 90° 열면 문짝 두께가 개구부 안쪽 −X로 돌아 +X 문기둥 X≥13.50 m를 관통하지 않는다. 띠장은 판재 정원 쪽 면 Z=−0.32 m에서 더 −Z로 0.025 m 돌출하고, 이 돌출을 포함한 열린 점유는 옆길 owner의 0.05 m 경첩 끝 상한 안에서 대조한다.
 
 ## 외부 문의 표면 파티션 {#exterior-door-surfaces}
 <!--

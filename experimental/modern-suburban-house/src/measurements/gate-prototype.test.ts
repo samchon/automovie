@@ -4,7 +4,8 @@ import { validateModel } from "@automovie/engine";
 import { buildGatePrototype, gateProfile } from "../models/gate";
 
 test("gate plank gaps stay open and the model owns no post", () => {
-  const model=buildGatePrototype("side-yard-gate",1.18,1.65);
+  const width=1.18;
+  const model=buildGatePrototype("side-yard-gate",width,1.65);
   const result=validateModel({model:model.model});
   assert.equal(result.success,true,result.success?"":JSON.stringify(result.violations));
   const planks=model.model.parts.filter((part)=>part.material==="leaf-panel");
@@ -21,10 +22,12 @@ test("gate plank gaps stay open and the model owns no post", () => {
   assert.ok(!model.model.parts.some((part)=>/post|header/.test(part.id)));
   for(const hinge of model.model.parts.filter((part)=>part.material==="hinge")) {
     if(hinge.geometry.type!=="mesh") throw Error("hinge mesh missing");
-    const axis=(n:number)=>hinge.geometry.mesh.positions.filter((_,index)=>index%3===n);
+    const mesh=hinge.geometry.mesh;
+    const axis=(n:number)=>mesh.positions.filter((_,index)=>index%3===n);
     const span=(n:number)=>Math.max(...axis(n))-Math.min(...axis(n));
     assert.ok(Math.abs(span(0)-2*gateProfile.hingeRadius)<1e-9);
     assert.ok(Math.abs(span(1)-gateProfile.hingeHeight)<1e-9);
+    assert.ok(Math.max(...axis(0))<=width/2+1e-9);
   }
 });
 
