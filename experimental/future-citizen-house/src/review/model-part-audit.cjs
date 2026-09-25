@@ -52,6 +52,12 @@ function parse(lines, anchor) {
   const inventory = new Map();
   /** @type {Map<string,{anchor:string,state:string,offset:[number,number,number]}>} */
   const compositions = new Map();
+  /** @type {Map<string,{anchor:string,state:string,part:string,offset:[number,number,number]}>} */
+  const supportBindings = new Map();
+  /** @type {Map<string,string>} */
+  const pinFaces = new Map();
+  /** @type {Map<string,string>} */
+  const emitterFaces = new Map();
   /** @type {Set<string>} */
   const miterJoints = new Set();
   /** @type {Map<string, {x:[number,number],y:[number,number],z:[number,number]}[]>} */
@@ -64,7 +70,7 @@ function parse(lines, anchor) {
   const radialZ = new Map();
   /** @type {Map<string,{radius:number,y:[number,number]}>} */
   const bores = new Map();
-  /** @type {Map<string,{innerX:number,innerZ:number,outerX:number,outerZ:number}>} */
+  /** @type {Map<string,{innerX:number,innerZ:number,outerX:number,outerZ:number,centerX:number,centerZ:number}>} */
   const ellipses = new Map();
   /** @type {Map<string,{host:string,guest:string,radius:number,halfWidth:number}>} */
   const tangents = new Map();
@@ -75,6 +81,26 @@ function parse(lines, anchor) {
   /** @type {Map<string,{prefix:string,cols:number,rows:number,pitchX:number,pitchZ:number,width:number,depth:number,y:[number,number],contact:string}>} */
   const grids = new Map();
   for (const line of lines) {
+    const support = /^@support\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+)$/.exec(line);
+    if (support) {
+      const state = support[1].trim();
+      if (supportBindings.has(state)) throw Error(`${anchor}/${state}: duplicate support binding`);
+      const offset = /** @type {[number,number,number]} */ (support.slice(5, 8).map((value) => Number(value.replace("−", "-"))));
+      if (!offset.every(Number.isFinite)) throw Error(`${anchor}/${state}: invalid support offset`);
+      supportBindings.set(state, { anchor: support[2].trim(), state: support[3].trim(), part: support[4].trim(), offset });
+    }
+    const pin = /^@pin-face\s+([^:]+):\s*([^,]+),\s*([^,]+)$/.exec(line);
+    if (pin) {
+      const key = `${pin[1].trim()}/${pin[2].trim()}`;
+      if (pinFaces.has(key)) throw Error(`${anchor}/${key}: duplicate pin face`);
+      pinFaces.set(key, pin[3].trim());
+    }
+    const emitter = /^@emitter-face\s+([^:]+):\s*([^,]+),\s*(-Y)$/.exec(line);
+    if (emitter) {
+      const state = emitter[1].trim();
+      if (emitterFaces.has(state)) throw Error(`${anchor}/${state}: duplicate emitter face`);
+      emitterFaces.set(state, emitter[2].trim());
+    }
     const composed = /^@compose\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+)$/.exec(line);
     if (composed) {
       const state = composed[1].trim();
@@ -140,9 +166,10 @@ function parse(lines, anchor) {
     const bore = /^@bore\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*(.+)$/.exec(line);
     if (bore) bores.set(`${bore[1].trim()}/${bore[2].trim()}`, {
       radius: Number(bore[3]), y: interval(bore[4], `${anchor}/bore-y`) });
-    const ellipse = /^@ellipse\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
+    const ellipse = /^@ellipse\s+([^:]+):\s*([^,]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([−-]?[\d.]+),\s*([−-]?[\d.]+))?$/.exec(line);
     if (ellipse) ellipses.set(`${ellipse[1].trim()}/${ellipse[2].trim()}`, {
-      innerX: Number(ellipse[3]), innerZ: Number(ellipse[4]), outerX: Number(ellipse[5]), outerZ: Number(ellipse[6]) });
+      innerX: Number(ellipse[3]), innerZ: Number(ellipse[4]), outerX: Number(ellipse[5]), outerZ: Number(ellipse[6]),
+      centerX: Number((ellipse[7] || "0").replace("−", "-")), centerZ: Number((ellipse[8] || "0").replace("−", "-")) });
     const tangent = /^@tangent\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
     if (tangent) {
       const state = tangent[1].trim(), host = tangent[2].trim(), guest = tangent[3].trim();
@@ -209,7 +236,60 @@ function parse(lines, anchor) {
     if (parts.has(`${state}/${id}`)) throw Error(`${anchor}: grid part duplicate ${state}/${id}`);
     parts.set(`${state}/${id}`, entry);
   }
-  return { envelopes, parts, inventory, compositions, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids };
+  return { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids };
+}
+
+/** @param {Part} emitter @param {Part[]} blockers @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {string} state */
+function visibleEmitterFraction(emitter, blockers, radial, state) {
+  const radius = radial.get(`${state}/${emitter.id}`);
+  if (!radius) return 0;
+  let areaSamples = 0, visibleSamples = 0;
+  const steps = 80;
+  for (let ix = 0; ix < steps; ix++) for (let iz = 0; iz < steps; iz++) {
+    const x = emitter.x[0] + (ix + 0.5) * (emitter.x[1] - emitter.x[0]) / steps;
+    const z = emitter.z[0] + (iz + 0.5) * (emitter.z[1] - emitter.z[0]) / steps;
+    const distance = Math.hypot(x - radius.centerX, z - radius.centerZ);
+    if (distance < radius.inner || distance > radius.outer) continue;
+    areaSamples++;
+    const blocked = blockers.some((part) => {
+      if (part.id === emitter.id || part.y[0] >= emitter.y[0] - epsilon ||
+        x < part.x[0] || x > part.x[1] || z < part.z[0] || z > part.z[1]) return false;
+      const ring = radial.get(`${state}/${part.id}`);
+      if (!ring) return true;
+      const d = Math.hypot(x - ring.centerX, z - ring.centerZ);
+      return d >= ring.inner && d <= ring.outer;
+    });
+    if (!blocked) visibleSamples++;
+  }
+  return areaSamples ? visibleSamples / areaSamples : 0;
+}
+
+// Area of an X-axis pin's circular end cap inside a rectangular target face.
+// AABB contact alone accepts a tangent line; a positive disk/face intersection
+// is required. Midpoint quadrature is deterministic and its 2048 slices are
+// much finer than the authored 1 mm coordinate precision.
+/** @param {Part} pin @param {Part} target */
+function pinFaceArea(pin, target) {
+  const endMeetsFace = Math.abs(pin.x[1] - target.x[0]) <= epsilon ||
+    Math.abs(pin.x[0] - target.x[1]) <= epsilon;
+  const radiusY = (pin.y[1] - pin.y[0]) / 2;
+  const radiusZ = (pin.z[1] - pin.z[0]) / 2;
+  if (!endMeetsFace || Math.abs(radiusY - radiusZ) > epsilon) return 0;
+  const centerY = (pin.y[0] + pin.y[1]) / 2;
+  const centerZ = (pin.z[0] + pin.z[1]) / 2;
+  const z0 = Math.max(pin.z[0], target.z[0]);
+  const z1 = Math.min(pin.z[1], target.z[1]);
+  if (z1 <= z0) return 0;
+  const slices = 2048;
+  const dz = (z1 - z0) / slices;
+  let area = 0;
+  for (let i = 0; i < slices; i++) {
+    const z = z0 + (i + 0.5) * dz;
+    const reach = Math.sqrt(Math.max(0, radiusY ** 2 - (z - centerZ) ** 2));
+    area += Math.max(0, Math.min(target.y[1], centerY + reach) -
+      Math.max(target.y[0], centerY - reach)) * dz;
+  }
+  return area;
 }
 
 /** @param {Bounds} a @param {Bounds} b */
@@ -484,7 +564,7 @@ function bookFormula(lines, envelopes, parts) {
   return errors;
 }
 
-/** @param {string[]} lines @param {Map<string,Part>} envelopes @param {Map<string,{radius:number,y:[number,number]}>} bores @param {Map<string,{innerX:number,innerZ:number,outerX:number,outerZ:number}>} ellipses @param {Map<string,{host:string,guest:string,radius:number,halfWidth:number}>} tangents */
+/** @param {string[]} lines @param {Map<string,Part>} envelopes @param {Map<string,{radius:number,y:[number,number]}>} bores @param {Map<string,{innerX:number,innerZ:number,outerX:number,outerZ:number,centerX:number,centerZ:number}>} ellipses @param {Map<string,{host:string,guest:string,radius:number,halfWidth:number}>} tangents */
 function propFormula(lines, envelopes, bores, ellipses, tangents) {
   const prose = lines.join("\n");
   const bowl = /`decor-bowl`은 외경 ([\d.]+), 높이 ([\d.]+)m, 벽 두께 ([\d.]+)m/.exec(prose);
@@ -628,7 +708,7 @@ function audit(allSections, mutate, onlyState) {
   for (const [anchor, lines] of allSections) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
-    const { envelopes, parts, inventory, compositions, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids } = parsed;
+    const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, pieces, radial, radialZ, bores, ellipses, tangents, curveLayers, linearCurves, grids } = parsed;
     const provedMiterJoints = new Set();
     const provedTangents = new Set();
     const provedCurves = new Set();
@@ -651,6 +731,34 @@ function audit(allSections, mutate, onlyState) {
       const stateParts = [...parts.values()].filter((part) => part.state === state);
       if (!stateParts.length) errors.push(`${anchor}/${state}: no @part rows`);
       const composition = compositions.get(state);
+      const supported = stateParts.filter((part) => part.contact.some((target) => /^support@[\d.]+$/.test(target)));
+      const binding = supportBindings.get(state);
+      if (supported.length && !binding && !composition)
+        errors.push(`${anchor}/${state}: support@N has no child binding`);
+      if (binding) {
+        const childLines = allSections.get(binding.anchor);
+        const child = childLines && parse(childLines, binding.anchor);
+        const childPart = child?.parts.get(`${binding.state}/${binding.part}`);
+        if (!childPart) errors.push(`${anchor}/${state}: support child part absent`);
+        else for (const part of supported) {
+          const declared = Number(part.contact.find((target) => /^support@[\d.]+$/.test(target))?.slice(8));
+          const sharedX = Math.min(part.x[1], childPart.x[1] + binding.offset[0]) -
+            Math.max(part.x[0], childPart.x[0] + binding.offset[0]);
+          const sharedZ = Math.min(part.z[1], childPart.z[1] + binding.offset[2]) -
+            Math.max(part.z[0], childPart.z[0] + binding.offset[2]);
+          const childVoids = child?.voids.get(`${binding.state}/${binding.part}`) || [];
+          const cavityFloor = childVoids.find((voidBox) =>
+            Math.abs(voidBox.y[1] - childPart.y[1]) <= epsilon &&
+            part.x[0] >= voidBox.x[0] + binding.offset[0] - epsilon &&
+            part.x[1] <= voidBox.x[1] + binding.offset[0] + epsilon &&
+            part.z[0] >= voidBox.z[0] + binding.offset[2] - epsilon &&
+            part.z[1] <= voidBox.z[1] + binding.offset[2] + epsilon);
+          const top = (cavityFloor?.y[0] ?? childPart.y[1]) + binding.offset[1];
+          if (Math.abs(declared - top) > epsilon || Math.abs(part.y[0] - top) > epsilon ||
+            sharedX <= epsilon || sharedZ <= epsilon)
+            errors.push(`${anchor}/${state}/${part.id}: support face differs from ${binding.anchor}/${binding.state}/${binding.part}`);
+        }
+      }
       if (composition) {
         const childLines = allSections.get(composition.anchor);
         const child = childLines && parse(childLines, composition.anchor);
@@ -678,6 +786,26 @@ function audit(allSections, mutate, onlyState) {
         }
       }
       const byId = new Map(stateParts.map((part) => [part.id, part]));
+      if (anchor === "recessed-light" && !emitterFaces.has(state))
+        errors.push(`${anchor}/${state}: emitter face declaration absent`);
+      const luminousId = emitterFaces.get(state);
+      if (luminousId) {
+        const luminous = byId.get(luminousId);
+        if (!luminous || visibleEmitterFraction(luminous, stateParts, radial, state) < 0.95)
+          errors.push(`${anchor}/${state}: emissive face is occluded from the room`);
+      }
+      for (const part of stateParts) if (part.shape === "cylinder" && /^hinge-/.test(part.id) &&
+        part.contact.some((target) => target === "closed-panel" || target === "bed-frame") &&
+        !pinFaces.has(`${state}/${part.id}`))
+        errors.push(`${anchor}/${state}/${part.id}: missing pin-face declaration`);
+      for (const [key, targetId] of pinFaces) {
+        if (!key.startsWith(`${state}/`)) continue;
+        const pin = byId.get(key.slice(state.length + 1));
+        const target = byId.get(targetId);
+        if (!pin || !target || pin.shape !== "cylinder" || !pin.contact.includes(targetId) ||
+          pinFaceArea(pin, target) <= 1e-8)
+          errors.push(`${anchor}/${key}: pin end cap has no finite contact face with ${targetId}`);
+      }
       for (const [key, cavities] of voids) {
         if (!key.startsWith(`${state}/`)) continue;
         const host = byId.get(key.slice(state.length + 1));
@@ -745,8 +873,10 @@ function audit(allSections, mutate, onlyState) {
         const host = byId.get(key.slice(state.length + 1));
         if (!host || host.shape !== "hollow" || ellipse.innerX <= 0 || ellipse.innerZ <= 0 ||
           ellipse.innerX >= ellipse.outerX || ellipse.innerZ >= ellipse.outerZ ||
-          Math.abs(host.x[0] + ellipse.outerX) > epsilon || Math.abs(host.x[1] - ellipse.outerX) > epsilon ||
-          Math.abs(host.z[0] + ellipse.outerZ) > epsilon || Math.abs(host.z[1] - ellipse.outerZ) > epsilon)
+          Math.abs(host.x[0] - (ellipse.centerX - ellipse.outerX)) > epsilon ||
+          Math.abs(host.x[1] - (ellipse.centerX + ellipse.outerX)) > epsilon ||
+          Math.abs(host.z[0] - (ellipse.centerZ - ellipse.outerZ)) > epsilon ||
+          Math.abs(host.z[1] - (ellipse.centerZ + ellipse.outerZ)) > epsilon)
           errors.push(`${anchor}/${key}: elliptic ring differs from part bounds`);
       }
       for (const [key, tangent] of tangents) {
@@ -884,7 +1014,9 @@ function audit(allSections, mutate, onlyState) {
   return { prototypes: allSections.size, measuredPrototypes, parts: examined, errors };
 }
 
-if (process.argv.includes("--fixture")) {
+if (require.main !== module) {
+  module.exports = { audit, sections, parse };
+} else if (process.argv.includes("--fixture")) {
   const original = sections().get("dining-table");
   if (!original) throw Error("dining-table H2 absent");
   /** @param {string[]} lines */
@@ -1059,6 +1191,26 @@ if (process.argv.includes("--fixture")) {
       throw Error(`entry-bench ${label}: expected ${expected}, got ${errors}`);
     results.push({ label: `entry-bench ${label}`, caught: true });
   }
+  /** @type {Array<[string,string,(parsed:ReturnType<typeof parse>)=>void,string]>} */
+  const curvedMutations = [
+    ["murphy-bed", "guest", (parsed) => { const part = parsed.parts.get("guest/bed-frame"); if (!part) throw Error("guest frame absent"); part.z[0] = 0.23; }, "pin end cap has no finite contact face"],
+    ["recessed-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
+    ["murphy-bed", "guest", (parsed) => { parsed.pinFaces.delete("guest/hinge-right"); }, "missing pin-face declaration"],
+    ["toilet", "lid-open", (parsed) => { const ring = parsed.ellipses.get("lid-open/seat"); if (!ring) throw Error("seat ring absent"); ring.centerZ = 0.10; }, "elliptic ring differs"],
+    ["cooking-appliances", "oven", (parsed) => { const binding = parsed.supportBindings.get("oven"); if (!binding) throw Error("oven support absent"); binding.state = "unknown"; }, "support child part absent"]
+  ];
+  for (const [anchor, state, mutate, expected] of curvedMutations) {
+    const lines = sections().get(anchor);
+    if (!lines) throw Error(`${anchor}: curved-contact fixture absent`);
+    const cabinetLines = sections().get("cabinet-and-shelf");
+    if (anchor === "cooking-appliances" && !cabinetLines) throw Error("cabinet fixture child absent");
+    const sample = new Map([[anchor, lines]]);
+    if (anchor === "cooking-appliances" && cabinetLines) sample.set("cabinet-and-shelf", cabinetLines);
+    const errors = audit(sample, (owner, parsed) => { if (owner === anchor) mutate(parsed); }, state).errors;
+    if (!errors.some((error) => error.includes(expected)))
+      throw Error(`${anchor}/${state}: mutation did not reach ${expected}: ${errors}`);
+    results.push({ label: `${anchor}/${state} ${expected}`, caught: true });
+  }
   const plantSource = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
   if (!plantSource.includes("0.18, 0.28, 0.60, 0.80, 1.10m")) throw Error("plant prose mutation source absent");
   let plantCaught = false;
@@ -1078,11 +1230,25 @@ if (process.argv.includes("--fixture")) {
   for (const [anchor, lines] of completeSections) {
     const { envelopes, parts } = parse(lines, anchor);
     if (!envelopes.size) continue;
-    const cabinetForBench = completeSections.get("cabinet-and-shelf");
-    if (anchor === "entry-bench" && !cabinetForBench) throw Error("entry-bench fixture cabinet absent");
-    const fixtureSections = () => anchor === "entry-bench"
-      ? new Map([[anchor, lines], ["cabinet-and-shelf", /** @type {string[]} */ (cabinetForBench)]])
-      : new Map([[anchor, lines]]);
+    const fixtureSections = () => {
+      const selected = new Map([[anchor, lines]]);
+      const pending = [anchor];
+      while (pending.length) {
+        const current = pending.pop();
+        if (!current) throw Error(`${anchor}: empty fixture dependency`);
+        const source = selected.get(current);
+        if (!source) throw Error(`${anchor}: missing fixture dependency ${current}`);
+        const parsed = parse(source, current);
+        for (const child of [...parsed.compositions.values(), ...parsed.supportBindings.values()]) {
+          if (selected.has(child.anchor)) continue;
+          const childLines = completeSections.get(child.anchor);
+          if (!childLines) throw Error(`${anchor}: fixture child ${child.anchor} absent`);
+          selected.set(child.anchor, childLines);
+          pending.push(child.anchor);
+        }
+      }
+      return selected;
+    };
     const ownBaseline = audit(fixtureSections());
     if (ownBaseline.errors.length) throw Error(`${anchor}: fixture baseline failed: ${ownBaseline.errors}`);
     for (const part of parts.values()) {

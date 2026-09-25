@@ -121,7 +121,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 | @envelope | default | * | bounds | -0.24..0.24 | 0..0.84 | -0.29..0.26 | - |
 | @part | default | seat-frame | box | -0.24..0.24 | 0.38..0.415 | -0.26..0.26 | leg-0,leg-2,seat-pad |
 | @part | default | seat-pad | box | -0.22..0.22 | 0.415..0.45 | -0.24..0.24 | seat-frame |
-| @part | default | back | curved | -0.23..0.23 | 0.49..0.84 | -0.22521..-0.125 | leg-2,leg-3 |
+| @part | default | back | curved | -0.23..0.23 | 0.49..0.84 | -0.237709..-0.1375 | leg-2,leg-3 |
 | @part | default | leg-0 | box | -0.205..-0.175 | 0..0.38 | 0.175..0.205 | ground,seat-frame |
 | @part | default | leg-1 | box | 0.175..0.205 | 0..0.38 | 0.175..0.205 | ground,seat-frame |
 | @part | default | leg-2 | curved | -0.205..-0.175 | 0..0.49 | -0.29..-0.135 | ground,seat-frame,back |
@@ -231,7 +231,7 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 
 @inventory default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
 @curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035
-@piece default: upholstery, -0.24..0.24, 0.415..0.45, -0.074..0.26
+@piece default: upholstery, -0.24..0.24, 0.415..0.45, -0.0945..0.26
 @piece default: upholstery, -0.24..0.24, 0.45..0.83, -0.245..-0.06
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |

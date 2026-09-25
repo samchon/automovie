@@ -269,7 +269,9 @@ function checkRemainingPrototypes() {
   const recessedTrimBottom = numeric("recessed-light", /trim은.*?y=([-−\d.]+)\.\.0/);
   const recessedHousingBottom = numeric("recessed-light", /housing-body는.*?y=([−\d.]+)\.\.−0\.028/);
   const recessedFlangeTop = numeric("recessed-light", /housing-flange는.*?y=−0\.028\.\.([−\d.]+)/);
-  equalLength(-recessedHousingBottom, 0.04, "surface light total depth");
+  const recessedDiffuserBottom = numeric("recessed-light", /확산면[^\n]*?y=([−-][\d.]+)\.\./);
+  equalLength(-recessedDiffuserBottom, 0.04, "surface light total depth");
+  equalLength(recessedHousingBottom, recessedDiffuserBottom + 0.003, "surface light luminous face meets housing underside");
   equalLength(recessedTrimBottom, recessedFlangeTop, "surface light trim meets flange");
   const pendantShadeBottom = numeric("dining-pendant", /shade는 y=([-−\d.]+)\.\.−0\.62/);
   equalLength(-pendantShadeBottom, 1.00, "pendant downward length");

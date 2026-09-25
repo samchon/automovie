@@ -3,6 +3,7 @@
 // Run from the production root: node src/review/model-child-audit.cjs
 const fs = require("node:fs");
 const path = require("node:path");
+const { inventory } = require("./model-inventory.cjs");
 require("tsx/cjs/api").register();
 const { buildHouse } = require("../house/build.ts");
 
@@ -10,6 +11,7 @@ const { buildHouse } = require("../house/build.ts");
 /** @typedef {{ id: string, part?: string, retired?: string }} Correspondence */
 
 const root = path.resolve(__dirname, "../..");
+const modelInventory = inventory(root);
 const account = fs.readFileSync(path.join(root, "docs/accounts/models/legacy-fitout.md"), "utf8");
 const rootBlock = account.split("## Item root 대응")[1]?.split("## 직접 primitive와 방 lining")[0];
 if (!rootBlock) throw Error("legacy root account is missing");
@@ -75,6 +77,9 @@ for (const filename of ["001-seating-and-work", "002-storage-and-sleep", "003-se
 const specialAnchor = { "work-display": "work-equipment", "work-keyboard": "work-equipment", cabinet: "cabinet-and-shelf",
   "wall-worktop": "cooking-appliances", cooktop: "cooking-appliances", oven: "cooking-appliances",
   "laundry-washer": "laundry-appliances", "laundry-dryer": "laundry-appliances" };
+const routedState = { "work-display": "display", "work-keyboard": "keyboard",
+  "wall-worktop": "wall-worktop", cooktop: "cooktop", oven: "oven",
+  "laundry-washer": "washer", "laundry-dryer": "dryer" };
 /** @param {string} value */
 function escapePattern(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 /** @param {string} body @param {string} part */
@@ -94,7 +99,13 @@ function addressExists(address) {
   const body = modelH2.get(anchor);
   if (!body) return false;
   const part = pieces[0] === "cabinet" && pieces[1] === "island-base" ? pieces[2] : pieces[1];
-  if (!part || !hasPart(body, part)) return false;
+  const states = modelInventory.get(anchor);
+  const state = /** @type {Record<string,string>} */ (routedState)[pieces[0]];
+  const matchingStates = state ? [...(states || new Map())].filter(([key]) => key === state)
+    : pieces[0] === "cabinet" && pieces[1] === "island-base"
+      ? [...(states || new Map())].filter(([key]) => key.startsWith("island-base/"))
+      : [...(states || new Map())];
+  if (!part || !matchingStates.some(([, members]) => members.has(part)) || !hasPart(body, part)) return false;
   if (pieces.length <= (pieces[0] === "cabinet" && pieces[1] === "island-base" ? 3 : 2)) return true;
   const face = pieces.at(-1);
   return [...body.matchAll(/`([^`]+)`/g)].some((match) => match[1].startsWith(part + "/") && match[1].split("/").includes(face || ""));
@@ -164,12 +175,12 @@ function route(item, child, owner) {
   }
   if (id === "bath-shower") {
     /** @type {Record<string, string>} */
-    const names = { tray: "tray", drain: "drain", "fixed-screen": "screen", "screen-rail": "screen-rail", riser: "riser", head: "head" };
+    const names = { tray: "tray", drain: "tray/drain-inner", "fixed-screen": "screen", "screen-rail": "screen-rail", riser: "riser", head: "head" };
     if (names[child]) return mapped(`shower/${names[child]}`);
   }
   if (id === "upper-laundry") {
     const match = /^(machine|drum|window|controls)-([01])$/.exec(child);
-    if (match) return mapped(`${match[2] === "0" ? "laundry-washer" : "laundry-dryer"}/${({ machine: "body", drum: "drum", window: "drum/window-front", controls: "controls-panel" })[match[1]]}`);
+    if (match) return mapped(`${match[2] === "0" ? "laundry-washer" : "laundry-dryer"}/${({ machine: "body", drum: "drum-rim", window: "window/front", controls: "controls-panel" })[match[1]]}`);
   }
   if (owner.includes("refrigerator") && id === "kitchen-fridge-pantry") {
     if (child === "back") return mapped("refrigerator/body/back");
@@ -245,7 +256,7 @@ function route(item, child, owner) {
   }
   if (id === "kitchen-wall-bank") {
     /** @type {Record<string, string>} */
-    const names = { worktop: "wall-worktop/worktop", hob: "cooktop/cooktop", oven: "oven/oven-body", "oven-handle": "oven/oven-handle" };
+    const names = { worktop: "wall-worktop/top", hob: "cooktop/body", oven: "oven/body", "oven-handle": "oven/handle" };
     if (names[child]) return mapped(names[child]);
     const ring = /^hob-ring-(-?0\.17)-(-?0\.12)$/.exec(child);
     if (ring) return mapped(`cooktop/zone-${(Number(ring[1]) > 0 ? 2 : 0) + (Number(ring[2]) > 0 ? 1 : 0)}`);
@@ -309,6 +320,9 @@ function census() {
 const result = census();
 const negativeErrors = checkCoverage(result.expected, result.entries.slice(1));
 if (negativeErrors.length !== 1) result.errors.push("removed-child negative control did not fail");
+for (const wrongState of ["cooktop/handle", "oven/zone-0", "work-display/key-0", "work-keyboard/screen"]) {
+  if (addressExists(wrongState)) result.errors.push(`${wrongState}: cross-state address was accepted`);
+}
 const details = process.argv.includes("--details");
 console.log(JSON.stringify({ roots: result.roots, children: result.children, retired: result.retired, errors: result.errors, negativeControlErrors: negativeErrors, ...(details ? { entries: result.entries } : {}) }, null, 2));
 if (result.errors.length) process.exitCode = 1;

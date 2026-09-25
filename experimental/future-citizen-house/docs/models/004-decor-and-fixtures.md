@@ -6,7 +6,7 @@
 
 화분의 바닥과 벽은 한 닫힌 원뿔대 껍질이다. 바닥 두께는 벽 두께 t=max(0.006,0.018H)와 같고, 흙은 y=t..0.34H에서 그 내벽 반경을 채운다. 줄기 반경은 0.014H, 가지 반경은 0.006H다. 가지 중심선은 줄기 표면과 접하도록 중심에서 0.020H 떨어져 시작해 0.200H에서 끝나므로 길이가 0.18H다. 잎 세 장은 가지 끝 표면의 0.206H에서 시작하고, 두께 0.003H의 삼각형 잎몸은 시작점에서 0으로 좁아져 −25°·0°·+25° 방향으로 벌어진다. 각 잎은 중간에서 최대 폭 0.055H에 이른다. 인접 잎의 시작점은 공통 접합 경계지만 부피는 공유하지 않고, 다섯 가지는 72° 간격으로 분리한다. H2 아래 수치 표는 이 값과 기존 높이 다섯 개에서 `model-plant-producer.cjs`가 결정론적으로 재생성한다.
 
-@plant-spec: {"heights":[180,280,600,800,1100],"potHeight":0.34,"potTopRadius":0.19,"potBottomRadius":0.15,"wallMinimum":0.006,"wallFactor":0.018,"soilSurface":0.34,"stemRadius":0.014,"stemTop":0.84,"branchStart":0.48,"branchPitch":0.09,"branchLength":0.18,"branchRadius":0.006,"leafLength":0.16,"leafWidth":0.055,"leafThickness":0.003,"leafFanDegrees":25}
+@plant-spec: {"heights":[180,280,600,800,1100],"potHeight":0.34,"potTopRadius":0.19,"potBottomRadius":0.15,"wallMinimum":0.006,"wallFactor":0.018,"soilSurface":0.34,"stemRadius":0.014,"stemTop":0.84,"crownDiameterLimit":0.60,"branchStart":0.48,"branchPitch":0.09,"branchLength":0.18,"branchRadius":0.006,"leafLength":0.16,"leafWidth":0.055,"leafThickness":0.003,"leafFanDegrees":25}
 
 선언 점유는 0.60H 수관 상한을 사방으로 남겨 둔 상자가 아니라, 고정된 다섯 방위에서 실제 pot·soil·stem·branch·leaf 부품 AABB의 축별 최솟값과 최댓값이다. 생산자는 이 합집합을 높이 변종마다 계산한다.
 
@@ -245,7 +245,7 @@
 
 ## 현관 충전 물체 {#entry-charger}
 
-`entry-charger`는 폭 0.07, 깊이 0.12, 높이 0.015m다. [벽걸이 선반](002-storage-and-sleep.md#entry-charging-shelf)에 닿는 아래면 중심이 원점, +Z가 조작면이다. 본체 위쪽 x=±0.026,z=±0.0375,y=0.013..0.015m를 절삭해 0.052×0.075×0.002m 인터페이스를 flush로 끼운다. 앞쪽 edge z=+0.05..+0.06,x=±0.006,y=0.0045..0.0105m에는 폭 0.012·높이 0.006·깊이 0.010m 단자 구멍을 실제로 절삭한다. `body/front/back/top/edge/sole`, `interface/front/back/edge`, `port/inner/edge`가 안정 주소다. 정면·상부·측면과 현관 리뷰 거리 관찰에서 과장된 두꺼운 판으로 보이지 않는지 확인한다. ref02의 현관 충전 기능을 settings의 평벽 선반에 연결한다. ref01·03·04·05의 창·작업 기기를 충전기 형상으로 삼지 않는다. 실제 충전 과정은 systems 결정 전까지 `unverified`다.
+`entry-charger`는 폭 0.07, 깊이 0.12, 높이 0.015m다. [벽걸이 선반](002-storage-and-sleep.md#entry-charging-shelf)에 닿는 아래면 중심이 원점, +Z가 조작면이다. 본체 위쪽 x=±0.026,z=±0.0375,y=0.013..0.015m를 절삭해 0.052×0.075×0.002m 인터페이스를 flush로 끼운다. 앞쪽 edge z=+0.05..+0.06,x=±0.006,y=0.0045..0.0105m에는 폭 0.012·높이 0.006·깊이 0.010m 단자 구멍을 실제로 절삭한다. `body/front/back/top/edge/sole/port-inner/port-edge`, `interface/front/back/edge`가 안정 주소다. 정면·상부·측면과 현관 리뷰 거리 관찰에서 과장된 두꺼운 판으로 보이지 않는지 확인한다. ref02의 현관 충전 기능을 settings의 평벽 선반에 연결한다. ref01·03·04·05의 창·작업 기기를 충전기 형상으로 삼지 않는다. 실제 충전 과정은 systems 결정 전까지 `unverified`다.
 
 `port`는 빈 구멍의 내면 주소이며 별도 고체 부품이 아니다. 아래 두 `@void`는 body의 정확한 직육면체 절삭 체적이다. 첫 절삭에 interface가 측면·바닥으로 접하고 두 번째는 빈 단자 구멍이다. 이 표의 `support`는 모델 원점 y=0에서 선반 상면과 닿는 접촉 평면이다.
 
@@ -354,11 +354,12 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 ## 천장 매입등 {#recessed-light}
 
-`recessed-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing-body는 외경 0.085m, y=−0.040..−0.028다. housing-flange는 별도 닫힌 원판으로 외경 0.10m,y=−0.028..−0.025이며 housing-body 상면과 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.015..−0.012에 후퇴하고 그 바깥 원통면은 trim의 내벽에 유한 면으로 닿는다. `housing-body/outer/sole/top`, `housing-flange/top/edge/underside`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
+`recessed-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing-body는 외경 0.085m, y=−0.037..−0.028다. housing-flange는 별도 닫힌 원판으로 외경 0.10m,y=−0.028..−0.025이며 housing-body 상면과 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.040..−0.037에 놓여 housing-body의 아래면과 반지름 0..0.0425m의 원판 면으로 닿는다. 방 쪽 −Y에서 수직으로 보면 발광면의 지름 0.095m 전체가 앞을 향하고, 비발광 몸체·flange·trim은 그 면을 가리지 않는다. `housing-body/outer/sole/top`, `housing-flange/top/edge/underside`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
 
-`@radial`은 동심 Y축 부품의 실제 내·외 반지름이며 `ceiling`은 y=0 접촉 평면이다. housing-flange가 몸체의 윗면과 맞대고 trim의 고리 아래면에서 유한 환형 접촉면을 만든다.
+`@radial`은 동심 Y축 부품의 실제 내·외 반지름이며 `ceiling`은 y=0 접촉 평면이다. housing-flange가 몸체의 윗면과 맞대고 trim의 고리 아래면에서 유한 환형 접촉면을 만든다. diffuser의 −Y face가 네 부품 중 가장 방 쪽이며 그 원판의 투영은 다른 부품에 가려지지 않는다.
 
 @inventory default: housing-body, housing-flange, trim, diffuser
+@emitter-face default: diffuser, -Y
 @radial default: housing-body, 0, 0.0425
 @radial default: housing-flange, 0, 0.05
 @radial default: trim, 0.0475, 0.06
@@ -367,10 +368,10 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | @envelope | default | * | bounds | -0.06..0.06 | -0.04..0 | -0.06..0.06 | - |
-| @part | default | housing-body | cylinder | -0.0425..0.0425 | -0.04..-0.028 | -0.0425..0.0425 | housing-flange |
+| @part | default | housing-body | cylinder | -0.0425..0.0425 | -0.037..-0.028 | -0.0425..0.0425 | housing-flange,diffuser |
 | @part | default | housing-flange | cylinder | -0.05..0.05 | -0.028..-0.025 | -0.05..0.05 | housing-body,trim |
-| @part | default | trim | hollow | -0.06..0.06 | -0.025..0 | -0.06..0.06 | ceiling,housing-flange,diffuser |
-| @part | default | diffuser | cylinder | -0.0475..0.0475 | -0.015..-0.012 | -0.0475..0.0475 | trim |
+| @part | default | trim | hollow | -0.06..0.06 | -0.025..0 | -0.06..0.06 | ceiling,housing-flange |
+| @part | default | diffuser | cylinder | -0.0475..0.0475 | -0.04..-0.037 | -0.0475..0.0475 | housing-body |
 
 ## 가는 원통 식탁 펜던트 {#dining-pendant}
 
@@ -427,4 +428,4 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | @part | desk-task | task-head | hollow | -0.045..0.045 | 0.36..0.42 | 0..0.14 | stem-upper,diffuser |
 | @part | desk-task | diffuser | curved | -0.045..0.045 | 0.36..0.364 | 0.045..0.135 | task-head |
 
-`portable-lamp/reading`의 전체 점유는 폭·깊이 0.25, 높이 1.24m이고 바닥 받침 지름 0.25m로, 지름 0.018m stem이 y=0.025..1.10, 0.20m 지름의 원통 shade가 y=1.03..1.24다. `portable-lamp/bedside-globe`의 전체 점유는 폭·깊이 0.22, 높이 0.29m이며 상판 받침 지름 0.12·높이 0.015m, 짧은 stem 높이 0.055m, 구형 diffuser 지름 0.22m, 총 높이 0.29m다. `portable-lamp/desk-task`의 전체 점유는 x=±0.065,y=0..0.42,z=−0.065..+0.14m이며 받침 지름 0.13m, 총 높이 0.42m다. 이 변종은 0.015m 지름의 고정 두 구간 stem이 y=0.02..0.25와 y=0.25..0.36, 길이 0.14m 헤드가 +Z 방향으로 뻗어 아래쪽 diffuser 지름 0.09m를 드러낸다. 세 변종 모두 받침 아래면 중심이 원점, +Z가 빛을 향하는 방향이다. `base/upper/edge/sole`은 공통 주소다. reading은 y=0.025..1.10의 `stem-lower/outer/top/contact`, `shade/outer/inner/edge`, 아래쪽 y=1.03..1.034의 `diffuser/front/back/edge`를 낸다. shade의 외경은 0.20m, 벽 두께는 0.005m이고 내부 mounting bridge는 y=1.10..1.12에서 stem 상면에 닿도록 shade와 한 부품으로 연결한다. diffuser는 외경 0.19m·중앙 통과 구멍 지름 0.020m인 얇은 환형 판으로 그 외곽이 shade 내벽에 닿는다. 지름 0.018m stem은 0.001m 반경 여유를 두고 diffuser 구멍을 통과하므로 발광판을 관통하지 않는다. bedside-globe는 y=0.015..0.070의 `stem-short/outer/top/contact`와 중심 y=0.18인 `globe/outer/inner`만 내며 globe 외면이 확산면이다. desk-task는 `stem-lower/outer/top/contact`, `stem-upper/outer/top/contact`, y=0.36..0.42·z=0..0.14의 `task-head/outer/inner/edge`, 헤드 아래 중심 z=+0.09,y=0.36..0.364의 `diffuser/front/back/edge`를 낸다. 변종에 없는 stem·shade·globe·head·diffuser의 주소를 빈 부품으로 만들지 않는다. reading·desk-task의 diffuser와 bedside-globe의 globe 외면은 각각 별도 system emitter가 필요하다. 정면·측면·45°에서 바닥형/탁상형의 크기 차이, 구체와 두 구간 작업등을 판별한다. ref03의 거실 독서등, ref04의 구형 탁상등과 작업등을 각각 채택하고 ref02 협탁의 낮은 조명을 크기 관계로 받는다. ref01·05의 외피 빛 반사를 램프 형상으로 가져오지 않는다. 전기 안전·조도는 `unverified`다.
+`portable-lamp/reading`의 전체 점유는 폭·깊이 0.25, 높이 1.24m이고 바닥 받침 지름 0.25m로, 지름 0.018m stem이 y=0.025..1.10, 0.20m 지름의 원통 shade가 y=1.03..1.24다. `portable-lamp/bedside-globe`의 전체 점유는 폭·깊이 0.22, 높이 0.29m이며 상판 받침 지름 0.12·높이 0.015m, 짧은 stem 높이 0.055m, 구형 diffuser 지름 0.22m, 총 높이 0.29m다. `portable-lamp/desk-task`의 전체 점유는 x=±0.065,y=0..0.42,z=−0.065..+0.14m이며 받침 지름 0.13m, 총 높이 0.42m다. 이 변종은 0.015m 지름의 고정 두 구간 stem이 y=0.02..0.25와 y=0.25..0.36, 길이 0.14m 헤드가 +Z 방향으로 뻗어 아래쪽 diffuser 지름 0.09m를 드러낸다. 세 변종 모두 받침 아래면 중심이 원점, +Z가 빛을 향하는 방향이다. `base/upper/edge/sole`은 공통 주소다. reading은 y=0.025..1.10의 `stem-lower/outer/top/contact`, `shade/outer/inner/edge`, `shade-bridge/upper/edge/underside`, 아래쪽 y=1.03..1.034의 `diffuser/front/back/edge`를 낸다. shade의 외경은 0.20m, 벽 두께는 0.005m이고 독립 `shade-bridge` 부품은 y=1.10..1.12에서 stem 상면과 shade 내벽에 각각 유한 면으로 닿는다. diffuser는 외경 0.19m·중앙 통과 구멍 지름 0.020m인 얇은 환형 판으로 그 외곽이 shade 내벽에 닿는다. 지름 0.018m stem은 0.001m 반경 여유를 두고 diffuser 구멍을 통과하므로 발광판을 관통하지 않는다. bedside-globe는 y=0.015..0.070의 `stem-short/outer/top/contact`와 중심 y=0.18인 `globe/outer/inner`만 내며 globe 외면이 확산면이다. desk-task는 `stem-lower/outer/top/contact`, `stem-upper/outer/top/contact`, y=0.36..0.42·z=0..0.14의 `task-head/outer/inner/edge`, 헤드 아래 중심 z=+0.09,y=0.36..0.364의 `diffuser/front/back/edge`를 낸다. 변종에 없는 stem·shade·globe·head·diffuser의 주소를 빈 부품으로 만들지 않는다. reading·desk-task의 diffuser와 bedside-globe의 globe 외면은 각각 별도 system emitter가 필요하다. 정면·측면·45°에서 바닥형/탁상형의 크기 차이, 구체와 두 구간 작업등을 판별한다. ref03의 거실 독서등, ref04의 구형 탁상등과 작업등을 각각 채택하고 ref02 협탁의 낮은 조명을 크기 관계로 받는다. ref01·05의 외피 빛 반사를 램프 형상으로 가져오지 않는다. 전기 안전·조도는 `unverified`다.

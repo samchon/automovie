@@ -22,6 +22,8 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 다른 prototype을 재사용하는 wrapper는 `@compose state: 원형-H2, 상태-ID, dx, dy, dz`로 하나의 child와 국소 m 평행이동을 명시한다. wrapper의 `@inventory`는 새로 만드는 부품만 열거하고 `@envelope`은 그 부품과 child의 실제 점유 합집합이어야 한다. child의 안정 part/face 주소를 wrapper에 복제하지 않으며 child가 없거나 접촉면이 비면 검사 실패다.
 
+별도 instance로 배치할 원형이 받침인 경우 `@support state: 원형-H2, 상태-ID, 받침-part, dx, dy, dz`로 자식의 정확한 part 상면 또는 그 상면을 절삭한 cavity 바닥과 자기 `support@N` 면을 결합한다. 이때 자기 `@envelope`은 자기 부품만 선언하고 원형을 중복 생성하지 않는다. 한 상태에 `support@N`이 있으면 `@compose` 또는 `@support`가 반드시 있어야 하며 자식의 유한 면적 접촉, 높이 N, 실제 상태 ID를 기계로 대조한다.
+
 문·보조판·수납 침대·세탁기 문의 네 경첩 계열은 같은 경계 규칙을 따른다. 각 축의 반경과 길이로 핀 점유를 먼저 계산하고, 회전 부품 및 고정 부품에서 그 점유와 실제 겹치는 구간을 절삭하거나 핀을 부품 밖으로 옮긴다. 절삭한 면 또는 명시한 접합판이 핀과 유한 면적으로 만나야 하며 점·선 접촉, 숨은 핀의 전면 돌출, 고정 부품과의 빈 틈은 실패다. 닫힘과 검사 열림 상태를 각각 잰다. 경첩 계열의 개별 축·절삭·접합판 좌표는 각 prototype H2가 결정한다.
 
 ## 중립 관찰과 재현 한계 {#model-neutral-observation}

@@ -6,7 +6,7 @@ const { resolve } = require("node:path");
 const documentPath = resolve(__dirname, "../../docs/models/004-decor-and-fixtures.md");
 const startMarker = "<!-- @generated-plant-parts:start -->";
 const endMarker = "<!-- @generated-plant-parts:end -->";
-/** @typedef {{heights:number[],potHeight:number,potTopRadius:number,potBottomRadius:number,wallMinimum:number,wallFactor:number,soilSurface:number,stemRadius:number,stemTop:number,branchStart:number,branchPitch:number,branchLength:number,branchRadius:number,leafLength:number,leafWidth:number,leafThickness:number,leafFanDegrees:number}} PlantSpec */
+/** @typedef {{heights:number[],potHeight:number,potTopRadius:number,potBottomRadius:number,wallMinimum:number,wallFactor:number,soilSurface:number,stemRadius:number,stemTop:number,crownDiameterLimit:number,branchStart:number,branchPitch:number,branchLength:number,branchRadius:number,leafLength:number,leafWidth:number,leafThickness:number,leafFanDegrees:number}} PlantSpec */
 
 /** @param {number} value */
 function round(value) { return Number(value.toFixed(6)); }
@@ -22,7 +22,7 @@ function specification(source) {
   const input = /** @type {PlantSpec} */ (JSON.parse(match[1]));
   /** @type {(keyof PlantSpec)[]} */
   const required = ["potHeight", "potTopRadius", "potBottomRadius", "wallMinimum", "wallFactor",
-    "soilSurface", "stemRadius", "stemTop", "branchStart", "branchPitch", "branchLength",
+    "soilSurface", "stemRadius", "stemTop", "crownDiameterLimit", "branchStart", "branchPitch", "branchLength",
     "branchRadius", "leafLength", "leafWidth", "leafThickness", "leafFanDegrees"];
   if (!Array.isArray(input.heights) || input.heights.length !== 5 ||
     !required.every((key) => typeof input[key] === "number" && Number.isFinite(input[key])))
@@ -84,9 +84,12 @@ function partsFor(input, millimetres) {
   }
   if (parts.length !== 23 || Math.max(...parts.map((part) => part.y[1])) > H + 0.000001)
     throw Error("potted-plant: part count or top exceeds declared height");
-  const radialLimit = (leafBase / H) + input.leafLength * Math.sin(input.leafFanDegrees * Math.PI / 180) +
-    input.leafWidth / 2 + input.leafThickness / 2;
-  if (radialLimit > 0.31) throw Error("potted-plant: leaf reach exits declared 0.31H half width");
+  // The blade width is tangential to its radial spine. Adding it to radial
+  // reach would count two perpendicular dimensions along the same axis.
+  const radialTip = leafBase / H + input.leafLength * Math.sin(input.leafFanDegrees * Math.PI / 180);
+  const radialLimit = Math.hypot(radialTip + input.leafThickness / 2, input.leafWidth / 2);
+  if (radialLimit > input.crownDiameterLimit / 2)
+    throw Error("potted-plant: leaf reach exits declared crown diameter limit");
   /** @param {"x"|"y"|"z"} axis */
   const occupied = (axis) => bounds(Math.min(...parts.map((part) => part[axis][0])),
     Math.max(...parts.map((part) => part[axis][1])));
@@ -125,6 +128,10 @@ function check(source) {
     throw Error(`potted-plant: prose does not declare ${token}`);
   if (!section.includes(`흙 표면은 ${input.soilSurface.toFixed(2)}H`))
     throw Error("potted-plant: prose soil surface differs from measured input");
+  if (!section.includes(`줄기는 흙에서 ${input.stemTop.toFixed(2)}H까지`))
+    throw Error("potted-plant: prose stem top differs from measured input");
+  if (!section.includes(`수관의 외경 상한은 ${input.crownDiameterLimit.toFixed(2)}H`))
+    throw Error("potted-plant: prose crown diameter differs from measured input");
   return input;
 }
 

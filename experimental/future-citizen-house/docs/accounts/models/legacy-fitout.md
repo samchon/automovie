@@ -4,7 +4,7 @@
 
 ## Item root 대응 {#legacy-root-correspondence}
 
-현재 `src/house/rooms/*.ts`와 `interior.ts`가 생성하는 임시 메시의 작성 지점을 보존한다. 한 행은 하나의 정적 작성 지점이며 반복의 실제 ID는 표기한 유한 범위를 전개한다. 임시 메시를 승인된 modelSource라고 부르지 않는다. `new Item(` 작성 지점은 46개이며 상태·반복을 전개한 root ID는 54개다. 각 root의 null-model parent는 새 instance identity에 대응하고, 자식 solid는 아래 부품 변환 규칙의 안정 주소에 대응한다. 서로 다른 legacy ID를 같은 후속 `instance/part/face` 주소로 합치지 않는다. 배치 좌표·방 membership은 instances가, 발광은 systems가, finish 결합은 materials가 소유한다. `flex-guest-bed`와 `flex-murphy-frame`은 같은 murphy prototype을 소비하지만 `bed-frame`과 `case-*`의 서로 다른 후속 part 주소로 구별한다.
+현재 `src/house/rooms/*.ts`와 `interior.ts`가 생성하는 임시 메시의 작성 지점을 보존한다. 한 행은 하나의 정적 작성 지점이며 반복의 실제 ID는 표기한 유한 범위를 전개한다. 임시 메시를 승인된 modelSource라고 부르지 않는다. `new Item(` 작성 지점은 46개이며 상태·반복을 전개한 root ID는 54개다. 각 root의 null-model parent는 새 instance identity에 대응하고, 자식 solid는 아래 부품 변환 규칙의 안정 주소에 대응한다. 서로 다른 legacy ID를 같은 후속 `instance/part/face` 주소로 합치지 않는다. 배치 좌표·방 membership은 instances가, 발광은 systems가, finish 결합은 materials가 소유한다. `flex-guest-bed`와 `flex-murphy-frame`은 같은 murphy prototype을 소비하지만 `bed-frame`과 `case-*`의 서로 다른 후속 part 주소로 구별한다. 표의 `+`는 prototype들이 한 legacy root에 대응한다는 뜻이며 실제 합성 방식은 각 모델 H2의 `@compose` 또는 `@support`가 정한다. `entry-bench`만 `@compose` wrapper가 bench-base를 한 번 포함하므로 외함을 별도 instance로 다시 배치하지 않는다. 섬·세면대·벽 조리대·쿡탑·오븐의 `@support`는 별도 cabinet instance의 명명된 part 상면과 유한 접촉 범위를 기계로 대조하며, 지지 부품을 장식 물체 안에 중복 생성하지 않는다.
 
 | Source | Legacy Item root ID (전개 수) | 후속 prototype/part owner |
 | --- | --- | --- |

@@ -46,7 +46,7 @@
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.ts",
-    "self-check": "node src/review/model-design-audit.cjs && node src/review/model-child-audit.cjs && node src/review/model-owner-audit.cjs && node src/review/model-part-audit.cjs"
+    "self-check": "node src/review/self-check.cjs"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
