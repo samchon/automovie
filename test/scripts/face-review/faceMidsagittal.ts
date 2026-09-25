@@ -281,11 +281,14 @@ export function faceProfileLandmarks(props: {
   let least = Infinity;
   for (let i = 1; i < upper.length; ++i) {
     const n = upper[i]!;
-    // Heights descend, so the forehead above n is the stretch before it.
+    // Heights descend, so the forehead above n is the stretch before it,
+    // every point higher than n: the most forward line is the steepest
+    // gain of depth per height.
     let tangent = upper[0]!;
     let lean = -Infinity;
-    for (const q of upper.slice(0, i)) {
-      const forward = Math.atan2(q[1] - n[1], q[0] - n[0]);
+    for (let j = 0; j < i; ++j) {
+      const q = upper[j]!;
+      const forward = (q[1] - n[1]) / (q[0] - n[0]);
       if (forward > lean) [lean, tangent] = [forward, q];
     }
     const [ay, az] = [tangent[0] - n[0], tangent[1] - n[1]];

@@ -105,15 +105,11 @@ export function faceAuricleLength(
   let longest = 0;
   for (let i = 0; i < vertices.length; ++i)
     for (let j = i + 1; j < vertices.length; ++j) {
-      const [a, b] = [vertices[i]!, vertices[j]!];
-      longest = Math.max(
-        longest,
-        Math.hypot(
-          positions[3 * a]! - positions[3 * b]!,
-          positions[3 * a + 1]! - positions[3 * b + 1]!,
-          positions[3 * a + 2]! - positions[3 * b + 2]!,
-        ),
-      );
+      const [a, b] = [3 * vertices[i]!, 3 * vertices[j]!];
+      const dx = positions[a]! - positions[b]!;
+      const dy = positions[a + 1]! - positions[b + 1]!;
+      const dz = positions[a + 2]! - positions[b + 2]!;
+      longest = Math.max(longest, dx * dx + dy * dy + dz * dz);
     }
-  return longest;
+  return Math.sqrt(longest);
 }
