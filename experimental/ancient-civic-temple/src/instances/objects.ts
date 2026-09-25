@@ -135,11 +135,29 @@ export class TempleObjectInstances {
     put(a,"document-chest","chest",8.75,0,8.60,0,0.55);
     putOn(a,"portable-lamp","portable-lamp",7.95,7.28,"desk","top","highest",0,0.8);
     putOn(a,"textile","textile",8.65,6.42,"wall-shelf","board",1,0,0.55);
-    // Records: scrolls occupy a shelf bay, with an independent reading station.
+    // Records: reused scrolls occupy the shelf bays, with an independent reading station.
     put(r,"scroll-shelf","scroll-shelf",7.80,0,2.05);
     put(r,"reading-desk","reading-desk",7.55,0,4.25);
     put(r,"stool","stool",7.55,0,5.08);
-    putOn(r,"stored-scroll","scroll",7.20,2.30,"scroll-shelf","board",1);
+    const shelf = list.find((item) => item.space === r && item.role === "scroll-shelf")!;
+    const shelfModel = byPrototype.get(`object.${shelf.prototype}`)!;
+    const board = shelfModel.parts.find((part) => part.id === "board")!;
+    const divider = shelfModel.parts.find((part) => part.id === "divider")!;
+    if (board.geometry.type !== "mesh" || divider.geometry.type !== "mesh")
+      throw new Error("기록실 선반의 칸 mesh 없음");
+    const boardX = board.geometry.mesh.positions.filter((_, i) => i % 3 === 0);
+    const boardZ = board.geometry.mesh.positions.filter((_, i) => i % 3 === 2);
+    const dividerFaces = [...new Set(divider.geometry.mesh.positions.filter((_, i) => i % 3 === 0))]
+      .sort((a, b) => a - b);
+    const bayEdges = [Math.min(...boardX), ...dividerFaces, Math.max(...boardX)];
+    const shelfDepth = (Math.min(...boardZ) + Math.max(...boardZ)) / 2;
+    for (let level = 0; level < 5; level++) for (let bay = 0; bay < bayEdges.length / 2; bay++) {
+      if ((level + bay) % 4 === 0) continue;
+      const x = shelf.x + (bayEdges[2 * bay]! + bayEdges[2 * bay + 1]!) / 2;
+      const role = level === 0 && bay === 1 ? "stored-scroll" : `stored-scroll-${level}-${bay}`;
+      putOn(r,role,"scroll",x,shelf.z + shelfDepth,
+        "scroll-shelf","board",level);
+    }
     put(r,"chest","chest",9.05,0,4.30);
     put(r,"document-chest","chest",8.90,0,3.30,0,0.55);
     put(r,"rope-coil","rope-coil",6.80,0,3.25);
@@ -171,7 +189,7 @@ export class TempleObjectInstances {
     put(site,"path-bucket","bucket",2.10,templeSiteGrade(13),13);
     put(site,"path-handcart","handcart",-7.00,templeSiteGrade(15),15);
     put(site,"path-basket","basket",-5.20,templeSiteGrade(13.5),13.5);
-    if (list.length !== 78) throw new Error(`사물 역할 ${list.length}/78`);
+    if (list.length !== 92) throw new Error(`사물 역할 ${list.length}/92`);
     return list;
   }
 
