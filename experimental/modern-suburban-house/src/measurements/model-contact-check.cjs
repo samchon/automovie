@@ -93,6 +93,40 @@ function floorContact(sentence) {
   return spans.some((span) => Math.abs(numeric(span[1])) < 1e-8);
 }
 
+/** Check measurable relationships that can be contradicted without changing
+ * the part names or the number of contact sentences.
+ * @param {string} body @param {string} label */
+function relationshipFailures(body, label) {
+  const failures = [];
+  const depth = /몸통 깊이는\s*(\d+(?:\.\d+)?)\s*m이고/;
+  const front = /전면에서\s*(\d+(?:\.\d+)?)\s*m 안에/;
+  const envelope = /외곽 깊이\s*(\d+(?:\.\d+)?)\s*m/;
+  const casing = /좌우 세로 판은[^\n]*?Y=\[\s*([+−-]?\d+(?:\.\d+)?)/;
+  const partialRecess = /Z=\[\s*([+−-]?\d+(?:\.\d+)?)\s*,\s*([+−-]?\d+(?:\.\d+)?)\s*\]\s*m만[^\n]*?홈/;
+  const fullRecess = /전체 깊이 Z=\[\s*([+−-]?\d+(?:\.\d+)?)\s*,\s*([+−-]?\d+(?:\.\d+)?)\s*\]\s*m를[^\n]*?홈/;
+  for (const line of body.split(/\n+/)) {
+    const bodyDepth = depth.exec(line);
+    const frontDepth = front.exec(line);
+    const outerDepth = envelope.exec(line);
+    if (bodyDepth && frontDepth && outerDepth &&
+      numeric(bodyDepth[1]) + numeric(frontDepth[1]) > numeric(outerDepth[1]) + 1e-8)
+      failures.push(`${label}: body and front hardware exceed the declared depth envelope`);
+
+    const legs = casing.exec(line);
+    if (legs && line.includes("문턱판은 개구부 폭 안에서만") && Math.abs(numeric(legs[1])) > 1e-8)
+      failures.push(`${label}: casing legs outside the threshold footprint do not reach the finished floor`);
+
+    const only = partialRecess.exec(line);
+    const whole = fullRecess.exec(line);
+    if (only && whole && (Math.abs(numeric(only[1]) - numeric(whole[1])) > 1e-8 ||
+      Math.abs(numeric(only[2]) - numeric(whole[2])) > 1e-8))
+      failures.push(`${label}: an only-partial recess also claims the full depth`);
+  }
+  if (/경사 측판/.test(body) && /이 원형이 만든다/.test(body) && !/Y=[^\n]*?\b[ZX]\b/.test(body))
+    failures.push(`${label}: owned sloped plate has no coordinate slope equation`);
+  return failures;
+}
+
 /** @param {Array<{ name:string;source:string }>} files */
 function audit(files) {
   const result = { files: files.length, h2: 0, contactSentences: 0, checkedContactSentences: 0,
@@ -103,6 +137,7 @@ function audit(files) {
     result.h2++;
     const label = `${file.name}#${section.anchor}`;
     const body = section.body;
+    result.failures.push(...relationshipFailures(body, label));
     const sentences = body.split(/(?<=다\.)\s+|\n+/).filter(Boolean);
     for (const [index, sentence] of sentences.entries()) {
       if (!contact.test(sentence)) continue;
@@ -204,4 +239,4 @@ if (require.main === module) {
   );
   if (result.failures.length) process.exitCode = 1;
 }
-module.exports = { arithmetic, sections, floorContact, audit };
+module.exports = { arithmetic, sections, floorContact, relationshipFailures, audit };

@@ -2,7 +2,7 @@
  * arithmetic and a negative twin; no test rewrites production source. */
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { arithmetic, sections, floorContact, audit } = require(
+const { arithmetic, sections, floorContact, relationshipFailures, audit } = require(
   "./model-contact-check.cjs",
 );
 
@@ -93,4 +93,32 @@ void test("the lexical census reports what is still outside the measured grammar
   );
   assert.ok(report.failures.some((line) => line.includes("outside the numeric interval grammar")));
   assert.equal(audit(file("[문 예약 X=[0,1]](door.md#door) 안의 숫자 구간이다.")).unparsedBracketPairs, 0);
+});
+
+void test("body depth and front hardware must fit their shared envelope", () => {
+  const good = "몸통 깊이는 0.72 m이고 문은 그 전면에서 0.03 m 안에 들어가 외곽 깊이 0.75 m를 채운다.";
+  const bad = good.replace("0.72 m", "0.80 m");
+  assert.deepEqual(relationshipFailures(good, "part"), []);
+  assert.ok(relationshipFailures(bad, "part").some((line) => line.includes("depth envelope")));
+});
+
+void test("casing legs beside a threshold still reach the finished floor", () => {
+  const good = "`casing-a`·`casing-b` 좌우 세로 판은 X=[−0.07,0]·[W,W+0.07] m, Y=[0,2.20] m이고 문턱판은 개구부 폭 안에서만 만든다.";
+  const bad = good.replace("Y=[0,2.20]", "Y=[0.02,2.20]");
+  assert.deepEqual(relationshipFailures(good, "door"), []);
+  assert.ok(relationshipFailures(bad, "door").some((line) => line.includes("finished floor")));
+});
+
+void test("a recess limited to part of a depth cannot also claim the whole depth", () => {
+  const good = "전체 깊이 Z=[0,0.75] m를 옆 홈으로 비운다.";
+  const bad = "앞쪽 깊이 Z=[0.40,0.75] m만 옆 홈으로 비우고 뒤쪽은 남겨 전체 깊이 Z=[0,0.75] m를 옆 홈으로 비운다.";
+  assert.deepEqual(relationshipFailures(good, "dryer"), []);
+  assert.ok(relationshipFailures(bad, "dryer").some((line) => line.includes("only-partial")));
+});
+
+void test("an owned sloped plate carries its slope equation", () => {
+  const good = "흰 경사 측판은 이 원형이 만든다. 아래 모서리는 Y=1.36+0.17×(X+0.65)/0.28 m다.";
+  const bad = "흰 경사 측판은 이 원형이 만든다. 계단을 따른다.";
+  assert.deepEqual(relationshipFailures(good, "skirt"), []);
+  assert.ok(relationshipFailures(bad, "skirt").some((line) => line.includes("slope equation")));
 });

@@ -129,7 +129,7 @@
 @evidence principles/design/spaces.md#space-verification-address 문 레일/수납과의 간섭, 안팎 reveal, 채광과 차고 내부 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 문 레일/수납 간섭·안팎 reveal·채광·차고 내부 읽힘 unverified 목록이 garage-right-window의 위치 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#garage 선반·공구 수납이 있는 빈 차고 내부에 측면 채광창을 두고 후벽 선반/작업대가 그 창 전체를 막지 않게 한다.
-@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 선반·공구 수납과 빈 차고 완성 요구를 본문의 garage-right-window와 후벽 선반/작업대 예약이 창 전체를 막지 않는 조건에 대조해 채광창과 수납이 공존함을 확인했다.
+@evidenceReview settings/10-house.md#garage #261be15 설정 garage의 선반·공구 수납과 빈 차고 요구를 garage-right-window의 좌표와 후벽 선반/작업대가 창 전체를 막지 않아야 한다는 본문 조건에 대조했다. 실제 레일·수납 간섭과 내부 읽힘은 이 H2에서 unverified로 남겼다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work garage의 문 레일/상부 구조·선반 수납과 폭 5.8–6.4 m 외곽을 대조했고 창이 레일 뒤 벽에 들어가 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage-front-opening의 상부 예약 Z = [-3.40, -0.55] m를 garage-right-window의 Z = [-5.85, -4.25] m와 대조해 설정 garage의 문 레일·선반과 외곽 폭 범위가 부모 수정 없이 창 자리를 남김을 확인했다.
 -->

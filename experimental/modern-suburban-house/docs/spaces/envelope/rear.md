@@ -151,7 +151,7 @@
 @evidence principles/design/spaces.md#space-verification-address 양방향 통행, 문짝/식탁 충돌, 프라이버시·채광, 03의 프레임을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임 unverified 목록이 garden-door 대기와 유효 폭 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#common-room 식탁을 후면 정원 출입 가까이 두는 관계에서 식탁·의자가 안쪽 대기를 막지 않게 한다.
-@evidenceReview settings/10-house.md#common-room #eb2f09d 설정 common-room의 식탁 위치를 본문의 '식탁·의자는 안쪽 대기를 막지 않고'와 garden-door 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25] m에 대조해 식탁이 출입을 막지 않음을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정 common-room의 정원 출입 가까운 식탁 위치를 garden-door 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25] m와 식탁·의자가 이를 막지 않아야 한다는 본문 조건에 대조했다. 실제 의자와 문짝의 간섭은 이 H2에서 unverified로 남겼다.
 @evidence settings/10-house.md#site-identity 공용부에서 닿는 작은 포장 테라스로 나가는 문과 바깥 대기를 정한다.
 @evidenceReview settings/10-house.md#site-identity #452f15e 설정 site-identity의 '공용부에서 닿는 작은 포장 테라스'를 본문의 garden-door 바깥 대기 Z = [-12.50, -10.70] m와 테라스 포함 관계에 대조해 공용부에서 테라스로 직접 나감을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation 공용부와 정원 사이의 표현된 출입구에 안팎 대기와 주 문 유효폭을 배정해 문과 동선 그래프가 일치하게 한다.
