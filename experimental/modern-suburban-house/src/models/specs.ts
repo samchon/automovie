@@ -3,7 +3,7 @@ import type { Size } from "./parts";
 import type { PrototypeKind, PrototypeSpec } from "./templates";
 import { buildHouse } from "../spaces/house";
 
-export type PrototypeRow = readonly [string, PrototypeKind, Size, string, { bodyTop?: number; mattressTop?: number; wallBar?: boolean; lShelf?: { backDepth:number; rightWidth:number } }?];
+export type PrototypeRow = readonly [string, PrototypeKind, Size, string, { bodyTop?: number; mattressTop?: number; rimHeight?: number; wallBar?: boolean; lShelf?: { backDepth:number; rightWidth:number } }?];
 export const group = (design: string, owner: string, rows: readonly PrototypeRow[]): PrototypeSpec[] =>
   rows.map(([id,kind,size,faces,details])=>({id,design,owner,kind,size,faces:faces.split(" "),...details}));
 

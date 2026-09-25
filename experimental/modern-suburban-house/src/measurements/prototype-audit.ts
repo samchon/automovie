@@ -8,7 +8,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 import { validateModel } from "@automovie/engine";
-import { buildHousePrototypes, housePrototypeSpecs } from "../models/catalogue";
+import { buildHouseObjects, buildHousePrototypes, housePrototypeSpecs } from "../models/catalogue";
 import type { HousePrototype } from "../models/parts";
 
 const root=join(dirname(fileURLToPath(import.meta.url)),"../..");
@@ -134,6 +134,10 @@ export function auditPrototypePopulation(population:readonly HousePrototype[], r
         const area=Math.hypot(...cross);
         if(area<1e-12||cross.reduce((sum,n,k)=>sum+n*normal[k]!,0)<area*0.5)
           failures.push(`${p.id}/${part.id}: degenerate or inverted triangle ${i/3}`);
+        const ta=ia*2,tb=ib*2,tc=ic*2;
+        const uvArea=Math.abs((mesh.uvs[tb]!-mesh.uvs[ta]!)*(mesh.uvs[tc+1]!-mesh.uvs[ta+1]!)
+          -(mesh.uvs[tb+1]!-mesh.uvs[ta+1]!)*(mesh.uvs[tc]!-mesh.uvs[ta]!));
+        if(uvArea<1e-12) failures.push(`${p.id}/${part.id}: collapsed metric UV triangle ${i/3}`);
       }
       const old=refParts.get(part.id);
       if(reference && old) {
@@ -196,9 +200,15 @@ export function runRandomMutations(trials:number):{trials:number;red:number;type
 }
 
 if(process.argv[1] && fileURLToPath(import.meta.url)===process.argv[1]) {
-  const audit=auditPrototypePopulation(buildHousePrototypes());
+  const prototypes=buildHousePrototypes();
+  const audit=auditPrototypePopulation(prototypes);
+  const selectable=buildHouseObjects(prototypes);
+  const checked=selectable.map((object)=>({id:object.id,result:validateModel({model:object.model})}));
+  const objectFailures=checked.flatMap(({id,result})=>result.success?[]:result.violations.map((v)=>`${id}: engine ${v.path} ${v.expected}`));
   const trials=Number(process.argv[2]??0);
   const mutations=trials>0?runRandomMutations(trials):null;
-  console.log(JSON.stringify({...audit,failures:audit.failures.slice(0,30),failureCount:audit.failures.length,mutations}));
-  if(audit.failures.length||mutations&&mutations.red!==mutations.trials) process.exitCode=1;
+  const failures=[...audit.failures,...objectFailures];
+  console.log(JSON.stringify({...audit,selectableObjects:selectable.length,selectableEngineValidated:checked.filter(({result})=>result.success).length,
+    failures:failures.slice(0,30),failureCount:failures.length,mutations}));
+  if(failures.length||mutations&&mutations.red!==mutations.trials) process.exitCode=1;
 }

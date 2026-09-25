@@ -160,21 +160,26 @@ export function metricRingZ(center:Point,inside:number,outside:number,depth:numb
     throw Error("invalid annular panel");
   const positions:number[]=[],normals:number[]=[],uvs:number[]=[],indices:number[]=[];
   const point=(r:number,a:number,z:number):Point=>[center[0]+r*Math.cos(a),center[1]+r*Math.sin(a),center[2]+z];
-  const quad=(p:readonly Point[],u:number,v:number)=>{
+  const quad=(p:readonly Point[],uv:readonly (readonly [number,number])[])=>{
     const a=p[0]!,b=p[1]!,c=p[2]!;
     const x=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],y=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];
     const n=[x[1]*y[2]-x[2]*y[1],x[2]*y[0]-x[0]*y[2],x[0]*y[1]-x[1]*y[0]];
     const length=Math.hypot(...n),start=positions.length/3;
     for(const vertex of p) { positions.push(...vertex); normals.push(...n.map((k)=>k/length)); }
-    uvs.push(u,0,u+v,0,u+v,depth,u,depth);
+    for(const coordinate of uv) uvs.push(...coordinate);
     indices.push(start,start+1,start+2,start,start+2,start+3);
   };
   for(let i=0;i<sides;i++) {
-    const a=2*Math.PI*i/sides,b=2*Math.PI*(i+1)/sides,u=2*Math.PI*outside*i/sides;
-    quad([point(inside,a,depth),point(outside,a,depth),point(outside,b,depth),point(inside,b,depth)],u,outside-inside);
-    quad([point(inside,b,0),point(outside,b,0),point(outside,a,0),point(inside,a,0)],u,outside-inside);
-    quad([point(outside,a,0),point(outside,b,0),point(outside,b,depth),point(outside,a,depth)],u,2*Math.PI*outside/sides);
-    quad([point(inside,a,0),point(inside,a,depth),point(inside,b,depth),point(inside,b,0)],u,2*Math.PI*inside/sides);
+    const a=2*Math.PI*i/sides,b=2*Math.PI*(i+1)/sides;
+    const inner0=inside*a,inner1=inside*b,outer0=outside*a,outer1=outside*b,thickness=outside-inside;
+    quad([point(inside,a,depth),point(outside,a,depth),point(outside,b,depth),point(inside,b,depth)],
+      [[0,inner0],[thickness,outer0],[thickness,outer1],[0,inner1]]);
+    quad([point(inside,b,0),point(outside,b,0),point(outside,a,0),point(inside,a,0)],
+      [[0,inner1],[thickness,outer1],[thickness,outer0],[0,inner0]]);
+    quad([point(outside,a,0),point(outside,b,0),point(outside,b,depth),point(outside,a,depth)],
+      [[outer0,0],[outer1,0],[outer1,depth],[outer0,depth]]);
+    quad([point(inside,a,0),point(inside,a,depth),point(inside,b,depth),point(inside,b,0)],
+      [[0,inner0],[depth,inner0],[depth,inner1],[0,inner1]]);
   }
   return {positions,normals,uvs,indices,skin:null};
 }
@@ -231,11 +236,13 @@ export function metricOvalCup(center:Point,radiusX:number,radiusZ:number,height:
 
 const fallback = (surface: string): number => {
   if (/countertop|ceramic|basin/.test(surface)) return 0xe9e6df;
+  if (/fixture-shade/.test(surface)) return 0xd9cdb8;
+  if (/diffuser|fixture-glass/.test(surface)) return 0xe4e1d4;
   if (/appliance-body|control-panel/.test(surface)) return 0xa9aaa8;
   if (/glass|mirror|firebox|appliance-interior/.test(surface)) return 0x30383b;
   if (/steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(surface)) return 0x55585a;
   if (/foliage|fruit/.test(surface)) return 0x657c43;
-  if (/bark|wood|top|leg|headboard|bed-frame|shelf|carcass|leaf|mantel|board|book/.test(surface)) return 0x967251;
+  if (/bark|wood|top|leg|headboard|bed-frame|shelf|carcass|mantel|board|book/.test(surface)) return 0x967251;
   if (/field|curtain|towel|folded|bedding|pillow|seat|back|arm/.test(surface)) return 0xc7bdb0;
   return 0xe4e0d7;
 };
@@ -279,7 +286,7 @@ export class PrototypeBuilder {
     if (!this.parts.length) throw Error(`${this.id}: empty prototype`);
     const bindings=[...this.surfaceKinds].map(([surface,uv]):SurfaceBinding=>({surface,uv,scale:scale(surface),fallback:fallback(surface)}));
     const materials:IAutoMovieMaterial[]=bindings.map((binding)=>({
-      id:binding.surface,name:binding.surface,baseColor:rgb(binding.fallback),metallic:/steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
+      id:binding.surface,name:binding.surface,baseColor:rgb(binding.fallback),metallic:!(/diffuser|glass|shade/.test(binding.surface)) && /steel|metal|handle|rail|rod|hinge|bracket|fixture|faucet|appliance/.test(binding.surface)?0.65:0,
       roughness:/glass|mirror/.test(binding.surface)?0.14:0.72,emissive:null,opacity:/glass/.test(binding.surface)?0.38:1,baseColorTexture:null,
     }));
     return { id:this.id, owner:this.owner, bindings, model:{id:this.id,name:this.id,origin:"generated",parts:this.parts,skeleton:null,body:null,materials,asset:null} };

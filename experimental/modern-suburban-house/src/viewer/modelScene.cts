@@ -3,7 +3,7 @@
  * Materials use their authored bitmap-free fallback while the binding carries
  * metric UV and scale for the later texture asset lane. */
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { buildHousePrototypes } from "../models/catalogue";
+import { buildHouseObjects, buildHousePrototypes } from "../models/catalogue";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
 const extent=(mesh:IAutoMovieMesh) => {
@@ -17,7 +17,8 @@ const extent=(mesh:IAutoMovieMesh) => {
 
 /** Return one actual prototype at its local origin with fit-derived views. */
 export function buildModelScene(sourceDigest:string,id:string):IViewerScene {
-  const prototype=buildHousePrototypes().find((p)=>p.id===id);
+  const parents=buildHousePrototypes();
+  const prototype=[...parents,...buildHouseObjects(parents)].find((p)=>p.id===id);
   if(!prototype) throw Error(`unknown model prototype ${id}`);
   const bounds=prototype.model.parts.map((part)=>{
     if(part.geometry.type!=="mesh") throw Error(`${id}/${part.id}: non-mesh part`);

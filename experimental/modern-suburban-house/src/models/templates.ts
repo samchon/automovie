@@ -17,6 +17,7 @@ export interface PrototypeSpec {
   bodyTop?: number;
   /** Top of a mattress beneath its separate bedding layer. */
   mattressTop?: number;
+  rimHeight?: number;
   /** A short horizontal fixture mounted on a vertical wall. */
   wallBar?: boolean;
   lShelf?: { backDepth:number; rightWidth:number };
@@ -60,12 +61,20 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       const island=pending.has("basin"), vanity=pending.has("ceramic");
       const bodyTop=spec.bodyTop??h;
       const rear=island?Math.min(0.30,d*0.29):0;
-      box("plinth",-w/2,0,rear,w/2,0.10,d-0.07);
+      const frontRuns=island
+        ? [[-w/2,-w/2+0.65],[-w/2+1.25,w/2]]
+        : [[-w/2,w/2]];
+      if(island&&pending.has("plinth")) {
+        for(const [left,right] of frontRuns) b.box("plinth",[left,0,rear],[right,0.10,d-0.07]);
+        pending.delete("plinth");
+      } else box("plinth",-w/2,0,rear,w/2,0.10,d-0.07);
       if (spec.bodyTop && pending.has("carcass"))
         b.box("carcass",[-w/2+0.025,0,d-0.025],[w/2-0.025,bodyTop-0.20,d]);
       if (spec.bodyTop && pending.has("carcass"))
         b.box("carcass",[-w/2,bodyTop-0.025,0],[w/2,bodyTop,d]);
       side("carcass",rear,bodyTop);
+      if(island) for(const x of [-w/2+0.65,-w/2+1.25])
+        b.box("carcass",[x-0.012,0.10,rear],[x+0.012,h-0.03,d-0.025]);
       if(island||vanity) {
         const cavityWidth=island?Math.min(0.50,w-0.20):Math.min(0.38,w*0.60);
         const cavityDepth=island?Math.min(0.50,d-0.20):Math.min(0.28,d*0.52);
@@ -99,9 +108,11 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
         box("top",-w/2,h-0.04,0,w/2,h,d);
       }
       const dresser=pending.has("leg")&&pending.has("drawer-front");
-      const slots=dresser?2:Math.max(1,Math.round(w/0.60));
+      const runs=dresser?[[-w/2,w/2]]:frontRuns;
+      for(const [runLeft,runRight] of runs) {
+      const slots=dresser?2:Math.max(1,Math.round((runRight-runLeft)/0.60));
       for(let i=0;i<slots;i++) {
-        const left=-w/2+i*w/slots+0.02,right=-w/2+(i+1)*w/slots-0.02;
+        const left=runLeft+i*(runRight-runLeft)/slots+0.02,right=runLeft+(i+1)*(runRight-runLeft)/slots-0.02;
         if(pending.has("leaf")) b.box("leaf",[left,0.11,d-0.025],[right,Math.max(0.12,bodyTop-0.20),d]);
         if(pending.has("drawer-front")) {
           const count=dresser?3:1;
@@ -121,6 +132,7 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
           b.box("handle",[x-0.06,Math.max(0.14,bodyTop-0.13),d],[x+0.06,Math.max(0.16,bodyTop-0.112),d+0.012]);
         }
       }
+      }
       pending.delete("leaf"); pending.delete("drawer-front"); pending.delete("handle");
       cylinder("accessory",w*0.3,h,d*0.15,0.028,0.028,0.10);
       legs("leg",Math.min(0.08,h*0.18));
@@ -133,6 +145,21 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
       break;
       }
     case "appliance":
+      if(pending.has("drawer-front")&&!pending.has("control-panel")) {
+        side("appliance-body");
+        box("appliance-interior",-w/2+0.025,0.04,0.03,w/2-0.025,h-0.03,d*0.15);
+        if(pending.has("leaf")) {
+          b.box("leaf",[-w/2+0.015,h*0.26,d-0.035],[-0.005,h-0.03,d-0.012]);
+          b.box("leaf",[0.005,h*0.26,d-0.035],[w/2-0.015,h-0.03,d-0.012]);
+          pending.delete("leaf");
+        }
+        box("drawer-front",-w/2+0.015,0.03,d-0.035,w/2-0.015,h*0.26,d-0.012);
+        if(pending.has("handle")) {
+          for(const x of [-0.05,0.05]) b.box("handle",[x-0.012,h*0.42,d-0.012],[x+0.012,h*0.72,d+0.015]);
+          pending.delete("handle");
+        }
+        break;
+      }
       if(pending.has("door-ring")) {
         const cy=Math.min(0.42,h*0.48),front=d-0.03;
         const body=pending.has("appliance-body");
@@ -191,19 +218,41 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
     case "table":
       box("top",-w/2,h-0.04,0,w/2,h,d);
       box("countertop",-w/2,h-0.04,0,w/2,h,d);
-      box("apron",-w/2+0.06,h-0.15,0.06,w/2-0.06,h-0.04,d-0.06);
+      if(pending.has("apron")) {
+        const inset=0.02,thickness=0.025,low=h-0.115,high=h-0.035;
+        for(const z of [inset,d-inset-thickness])
+          b.box("apron",[-w/2+inset,low,z],[w/2-inset,high,z+thickness]);
+        for(const x of [-w/2+inset,w/2-inset-thickness])
+          b.box("apron",[x+thickness,low,inset+thickness],[x+2*thickness,high,d-inset-thickness]);
+        pending.delete("apron");
+      }
       legs("leg",h-0.04);
       if (pending.has("cleat")) {
         b.box("cleat",[-w/2,h-0.13,0],[-w/2+0.035,h-0.04,d]);
         b.box("cleat",[w/2-0.035,h-0.13,0],[w/2,h-0.04,d]);
         pending.delete("cleat");
       }
-      box("drawer-front",-w*0.30,h-0.19,d-0.015,w*0.30,h-0.05,d);
-      box("handle",-0.06,h-0.14,d,0.06,h-0.12,d+0.012);
-      box("shelf",-w*0.35,h*0.35,0.04,w*0.35,h*0.35+0.025,d-0.04);
-      box("book",-w*0.22,h+0.003,d*0.28,w*0.22,h+0.025,d*0.65);
+      if(pending.has("drawer-front")) {
+        for(const x of [-w*0.43,w*0.02]) b.box("drawer-front",[x,h-0.19,d-0.015],[x+w*0.41,h-0.05,d]);
+        pending.delete("drawer-front");
+      }
+      if(pending.has("handle")) {
+        for(const x of [-w*0.23,w*0.22]) b.box("handle",[x-0.06,h-0.14,d-0.012],[x+0.06,h-0.115,d]);
+        pending.delete("handle");
+      }
+      box("shelf",-w*0.35,h-0.13,0.04,w*0.35,h-0.105,d*0.18);
+      if(pending.has("book")) {
+        for(let i=0;i<3;i++) b.box("book",[-w*0.30,h+0.025*i,d*0.09],[-w*0.30+0.20,h+0.025*(i+1),d*0.09+0.14]);
+        pending.delete("book");
+      }
       cylinder("container",w*0.28,h,d*0.40,0.035,0.035,0.09);
-      cylinder("pencil",w*0.28,h+0.09,d*0.40,0.004,0.004,0.10);
+      if(pending.has("pencil")) {
+        for(let i=0;i<4;i++) {
+          const x=w*0.28+(i-1.5)*0.012;
+          b.frustum("pencil",[x,h+0.07,d*0.40],0.003,0.003,0.18,8);
+        }
+        pending.delete("pencil");
+      }
       break;
     case "chair":
       {
@@ -588,17 +637,29 @@ export function buildPrototype(spec: PrototypeSpec): HousePrototype {
     case "tub":
       // Five walls and bottom leave the cavity visibly open. The front apron
       // meets the rim while the inner floor stays 0.15 m above ground.
+      {
+      const rimHeight=spec.rimHeight??h;
       if (pending.has("ceramic")) {
         const rim=0.06;
         b.box("ceramic",[-w/2,0,0],[w/2,0.15,d]);
-        b.box("ceramic",[-w/2,0.15,0],[-w/2+rim,h,d]);
-        b.box("ceramic",[w/2-rim,0.15,0],[w/2,h,d]);
-        b.box("ceramic",[-w/2+rim,0.15,0],[w/2-rim,h,rim]);
-        b.box("ceramic",[-w/2+rim,0.15,d-rim],[w/2-rim,h,d]);
+        b.box("ceramic",[-w/2,0.15,0],[-w/2+rim,rimHeight,d]);
+        b.box("ceramic",[w/2-rim,0.15,0],[w/2,rimHeight,d]);
+        b.box("ceramic",[-w/2+rim,0.15,0],[w/2-rim,rimHeight,rim]);
+        b.box("ceramic",[-w/2+rim,0.15,d-rim],[w/2-rim,rimHeight,d]);
         pending.delete("ceramic");
       }
-      cylinder("faucet",-w*0.40,h,d*0.5,0.016,0.016,0.18);
+      if(pending.has("faucet")) {
+        const x=-w/2+0.03,z=d/2;
+        b.frustum("faucet",[x,rimHeight,z],0.0125,0.0125,0.14);
+        b.frustum("faucet",[x,0.69,z],0.04,0.04,0.02);
+        b.beam("faucet",[x,0.70,z],[x+0.12,0.70,z],0.0125,0.0125);
+        b.frustum("faucet",[x,0.70,z],0.0125,0.0125,1.175);
+        b.beam("faucet",[x,1.875,z],[x+0.18,1.875,z],0.0125,0.0125);
+        b.frustum("faucet",[x+0.18,1.875,z],0.07,0.07,0.025);
+        pending.delete("faucet");
+      }
       break;
+      }
     case "fixture":
       if(spec.wallBar) {
         b.box("fixture-housing",[-w/2,0,0],[w/2,h,0.015]);
