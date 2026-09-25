@@ -8,7 +8,6 @@ export const datum = {
   maxZ: 6,
   innerX: 5.26,
   innerZ: 5.76,
-  outerWall: 0.24,
   wall: 0.18,
   floors: [0, 3.2],
   ceilings: [2.9, 6.1],

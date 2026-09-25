@@ -29,7 +29,7 @@ export const standardWindowHeight = (level: 0 | 1) => ({
   sill: datum.floors[level] + 0.12,
   head: datum.ceilings[level] - 0.1,
 });
-/** Exterior frame centres derive from the outline and the one wall depth. */
+/** Exterior frame centres and depths derive from the outer and clear edges. */
 export function exteriorFrame(
   face: "front" | "rear" | "left" | "right",
 ): Frame {
@@ -43,7 +43,15 @@ export function exteriorFrame(
         : face === "left"
           ? datum.maxX
           : datum.minX;
-  const plane = edge - (normal * datum.outerWall) / 2;
+  const clear =
+    face === "front"
+      ? -datum.innerZ
+      : face === "rear"
+        ? datum.innerZ
+        : face === "left"
+          ? datum.innerX
+          : -datum.innerX;
+  const plane = (edge + clear) / 2;
   const span = along === "x" ? datum.innerX : datum.innerZ;
   return {
     id: face + "-face",
@@ -54,7 +62,7 @@ export function exteriorFrame(
     b: span,
     floor: datum.floors[0],
     top: datum.ceilings[1],
-    depth: datum.outerWall,
+    depth: Math.abs(edge - clear),
     spaces: ["house"],
   };
 }

@@ -31,10 +31,10 @@ export const slabTop = (level: 0 | 1): number =>
  * its edge stays buried in the facade body instead of repeating the outer face
  * that the facade owner already closes (settings/003#surface-decomposition). */
 export const bearing: Rect = [
-  -(datum.innerX + datum.outerWall / 2),
-  datum.innerX + datum.outerWall / 2,
-  -(datum.innerZ + datum.outerWall / 2),
-  datum.innerZ + datum.outerWall / 2,
+  (datum.minX - datum.innerX) / 2,
+  (datum.maxX + datum.innerX) / 2,
+  (datum.minZ - datum.innerZ) / 2,
+  (datum.maxZ + datum.innerZ) / 2,
 ];
 export function horizontal(
   a: Assembly,
