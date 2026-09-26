@@ -7,7 +7,7 @@ const { resolve } = require("node:path");
 const documentPath = resolve(__dirname, "../../docs/models/002-storage-and-sleep.md");
 const startMarker = "<!-- @generated-cabinet-parts:start -->";
 const endMarker = "<!-- @generated-cabinet-parts:end -->";
-/** @typedef {{panel:number,back:number,toe:number,frontInset:number,doorThickness:number,seam:number,leafMaximum:number,hingeRadius:number,hingeDepth:number,hingeY:number,handleWidth:number,handleHeight:number,handleDepth:number,drawerWall:number,shelfPitch:number,islandSeam:number}} CabinetSpec */
+/** @typedef {{panel:number,back:number,toe:number,frontInset:number,doorThickness:number,seam:number,leafMaximum:number,hingeHalfWidth:number,hingeDepth:number,hingeY:number,handleWidth:number,handleHeight:number,handleDepth:number,drawerWall:number,shelfPitch:number,islandSeam:number}} CabinetSpec */
 /** @typedef {{id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string}} Part */
 /** @typedef {{state:string,envelope:{x:[number,number],y:[number,number],z:[number,number]},parts:Part[],voids:{host:string,x:[number,number],y:[number,number],z:[number,number]}[],pieces:{host:string,x:[number,number],y:[number,number],z:[number,number]}[]}} Assembly */
 
@@ -33,7 +33,7 @@ function specification(source) {
     throw Error("cabinet variant inventory incomplete or duplicated");
   const required = /** @type {(keyof CabinetSpec)[]} */ ([
     "panel", "back", "toe", "frontInset", "doorThickness", "seam", "leafMaximum",
-    "hingeRadius", "hingeDepth", "hingeY", "handleWidth", "handleHeight", "handleDepth",
+    "hingeHalfWidth", "hingeDepth", "hingeY", "handleWidth", "handleHeight", "handleDepth",
     "drawerWall", "shelfPitch", "islandSeam"
   ]);
   if (!required.every((key) => typeof spec[key] === "number" && Number.isFinite(spec[key]) && spec[key] > 0))
@@ -50,7 +50,7 @@ function specification(source) {
     "상판은 y=H−0.018..H,z=−D/2..D/2−0.023",
     "뒤판은 x=±W/2,y=0.08..H−0.018",
     "0.005m 깊이 연결편은 z=D/2−0.023..D/2−0.018",
-    "x=축±0.008,y=축±0.020,z=D/2−0.018..D/2−0.001",
+    "x=중심±0.008,y=중심±0.020,z=D/2−0.018..D/2−0.001",
     "서랍의 가로 손잡이는 폭 0.16×높이 0.012×깊이 0.016m",
     "상자 Y 점유는 각 전면 Y 하한+0.015..상한−0.010m",
     "oven-sill`(x=±0.32,y=0.098..0.15,z=−D/2+0.012..D/2−0.023)",
@@ -141,18 +141,18 @@ function assemble(p, id, opened) {
         : { x, z };
       for (let j = 0; j < 2; j++) {
         const cy = j ? 0.71 : 0.16, hingeId = `service-hinge-${2*i+j}`;
-        const recess = rotate(span(-halfW + 0.005, -halfW + p.doorThickness), span(hz - p.hingeRadius, hz + p.hingeRadius));
+        const recess = rotate(span(-halfW + 0.005, -halfW + p.doorThickness), span(hz - p.hingeHalfWidth, hz + p.hingeHalfWidth));
         voids.push({ host: `service-door-${i}`, x: recess.x,
           y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: recess.z });
         if (opened) voids.push({ host: `service-door-${i}`, x: span(Math.max(doorX[0], -halfW - 0.02), doorX[1]),
           y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: doorZ });
-        add(parts, hingeId, "curved", span(-halfW + 0.005, -halfW + 0.022),
-          span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), span(hz - p.hingeRadius, hz + p.hingeRadius),
+        add(parts, hingeId, "box", span(-halfW + 0.005, -halfW + 0.022),
+          span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), span(hz - p.hingeHalfWidth, hz + p.hingeHalfWidth),
           `service-door-${i},${i ? `service-stile-${i}` : "end-negative"}`);
         pieces.push({ host: hingeId, x: span(-halfW + 0.005, -halfW + p.doorThickness),
-          y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(hz - p.hingeRadius, hz + p.hingeRadius) });
+          y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(hz - p.hingeHalfWidth, hz + p.hingeHalfWidth) });
         pieces.push({ host: hingeId, x: span(-halfW + p.doorThickness, -halfW + 0.022),
-          y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(hz - p.hingeRadius, hz + p.hingeRadius) });
+          y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(hz - p.hingeHalfWidth, hz + p.hingeHalfWidth) });
       }
       const handleZ = z1 - 0.055, hy = p.toe + p.seam + 0.55 * (H - 0.086);
       const handle = rotate(span(-halfW, -halfW + p.handleDepth),
@@ -230,18 +230,18 @@ function assemble(p, id, opened) {
           };
           for (let j = 0; j < 2; j++) {
             const cy = j ? H - p.hingeY : p.hingeY;
-            const recess = rotate(span(hx - p.hingeRadius, hx + p.hingeRadius), span(halfD - p.doorThickness, halfD - 0.001));
+            const recess = rotate(span(hx - p.hingeHalfWidth, hx + p.hingeHalfWidth), span(halfD - p.doorThickness, halfD - 0.001));
             voids.push({ host: `door-${i}`, x: recess.x,
               y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: recess.z });
             if (opened) voids.push({ host: `door-${i}`, x: doorX,
               y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2),
               z: span(doorZ[0], Math.min(doorZ[1], halfD - 0.001)) });
-            add(parts, `hinge-${2*i+j}`, "curved", span(hx - p.hingeRadius, hx + p.hingeRadius),
+            add(parts, `hinge-${2*i+j}`, "box", span(hx - p.hingeHalfWidth, hx + p.hingeHalfWidth),
               span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2),
               span(halfD - 0.023, halfD - 0.001), `door-${i},${i % 2 === 0 ? (i === 0 ? "side-left" : `stile-${i}`) : (i === count - 1 ? "side-right" : `stile-${i+1}`)}`);
-            pieces.push({ host: `hinge-${2*i+j}`, x: span(hx - p.hingeRadius, hx + p.hingeRadius),
+            pieces.push({ host: `hinge-${2*i+j}`, x: span(hx - p.hingeHalfWidth, hx + p.hingeHalfWidth),
               y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(halfD - 0.023, halfD - p.doorThickness) });
-            pieces.push({ host: `hinge-${2*i+j}`, x: span(hx - p.hingeRadius, hx + p.hingeRadius),
+            pieces.push({ host: `hinge-${2*i+j}`, x: span(hx - p.hingeHalfWidth, hx + p.hingeHalfWidth),
               y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(halfD - p.doorThickness, halfD - 0.001) });
           }
           const handleX = i % 2 ? x0 + 0.055 : x1 - 0.055;

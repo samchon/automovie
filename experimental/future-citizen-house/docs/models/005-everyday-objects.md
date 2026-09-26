@@ -4,15 +4,14 @@
 
 ## 직물과 출입 매트 {#household-textiles}
 
-`household-textiles`는 벤치 쿠션, 소파 쿠션, 베개, 담요, 여분 침구 세트, 접힌 시트, 식탁 매트, 행주, 욕실 매트와 실내외 출입 매트를 직물과 고무의 치수·표면 상태 변종으로 만든다. 각 상태는 하나의 닫힌 몸체이며 침대 매트리스나 소파 본체에 합치지 않는다. 표의 원점은 놓이는 면의 중심이고 +Z는 물체를 보는 앞이다. 테두리 봉제선은 `body/edge`, 노출 윗면은 `body/upper`, 받침면은 `body/sole`로 나누며 얇은 매트는 뒷면도 별도 `body/underside`다. 접힌 직물은 위아래 층의 실루엣을 한 부품 안에서 접힌 자국으로 표현하되 풀림 동작은 만들지 않는다.
+`household-textiles`는 소파 쿠션, 베개, 담요, 여분 침구 세트, 접힌 시트, 식탁 매트, 행주, 욕실 매트와 실내외 출입 매트를 직물과 고무의 치수·표면 상태 변종으로 만든다. 각 상태는 하나의 닫힌 몸체이며 침대 매트리스나 소파 본체에 합치지 않는다. 표의 원점은 놓이는 면의 중심이고 +Z는 물체를 보는 앞이다. 테두리 봉제선은 `body/edge`, 노출 윗면은 `body/upper`, 받침면은 `body/sole`로 나누며 얇은 매트는 뒷면도 별도 `body/underside`다. 접힌 직물은 위아래 층의 실루엣을 한 부품 안에서 접힌 자국으로 표현하되 풀림 동작은 만들지 않는다.
 
-직물 상태의 W×H×D는 표의 `body` 구간 길이다. `curved` 상태는 반경 min(H/2,W/12,D/12)로 XZ 평면의 네 모서리를 각각 여섯 호 구간으로 둥글리고, Y 단면은 바닥 y=0과 평평한 중앙 상면 y=H를 유지한다. `bench-cushion`, `sofa-cushion`, `pillow`, `dishcloth`에는 별도 crown을 만들지 않는다. `blanket`, `bedding-set`, `folded-sheet`은 상면에서 X 방향으로 뻗는 중앙 z=0의 V형 접힘 홈 하나를 낸다. 홈의 양쪽 경계는 z=±D/24, 바닥은 y=H−H/8, 단면은 두 직선이며 홈 바닥 아래 몸체는 연속 고체다. `bedding-set`의 지정 수납칸은 상층 수납실의 `cabinet-and-shelf/open-shelf/1100x2600x500/open` shelf-3의 윗면과 shelf-4의 아랫면 사이 칸이며 여분 침구의 0.55×0.16×0.42m 점유를 그 안에서 instances가 대조한다. `box` 상태는 표 AABB를 채운 평평한 판이다. `outdoor-mat`만 상면에 X·Z 양 방향 격자 홈을 낸다. X축에서 W/8, Z축에서 D/8 간격의 홈 중심을 반복하고 폭은 D/100, 깊이는 H/7이며 가장자리에서 한 홈 폭 안쪽은 절삭하지 않는다. 홈 바닥과 몸체 밑면 사이의 양수 두께를 유지한다. 네 중립 관찰에서 접힘 홈·봉제 edge·빈 주변 면을 판독한다.
+직물 상태의 W×H×D는 표의 `body` 구간 길이다. `curved` 상태는 반경 min(H/2,W/12,D/12)로 XZ 평면의 네 모서리를 각각 여섯 호 구간으로 둥글리고, Y 단면은 바닥 y=0과 평평한 중앙 상면 y=H를 유지한다. `sofa-cushion`, `pillow`, `dishcloth`에는 별도 crown을 만들지 않는다. `blanket`, `bedding-set`, `folded-sheet`은 상면에서 X 방향으로 뻗는 중앙 z=0의 V형 접힘 홈 하나를 낸다. 홈의 양쪽 경계는 z=±D/24, 바닥은 y=H−H/8, 단면은 두 직선이며 홈 바닥 아래 몸체는 연속 고체다. `bedding-set`의 지정 수납칸은 상층 수납실의 `cabinet-and-shelf/open-shelf/1100x2600x500/open` shelf-3의 윗면과 shelf-4의 아랫면 사이 칸이며 여분 침구의 0.55×0.16×0.42m 점유를 그 안에서 instances가 대조한다. `box` 상태는 표 AABB를 채운 평평한 판이다. `outdoor-mat`만 상면에 X·Z 양 방향 격자 홈을 낸다. X축에서 W/8, Z축에서 D/8 간격의 홈 중심을 반복하고 폭은 D/100, 깊이는 H/7이며 가장자리에서 한 홈 폭 안쪽은 절삭하지 않는다. 홈 바닥과 몸체 밑면 사이의 양수 두께를 유지한다. 네 중립 관찰에서 접힘 홈·봉제 edge·빈 주변 면을 판독한다.
 
 각 상태의 정확한 점유는 아래 표가 소유한다. `body`의 윗면·둘레·밑면은 모두 face 주소를 가지며 접촉하는 밑면도 geometry에서 빠지지 않는다.
 
 ref02의 침실 직물과 ref03의 소파·식탁 밀도, ref04의 손님 침구 가능성을 기준으로 정면·상부·45°에서 개별 직물의 두께와 독립된 경계가 읽혀야 한다. ref01·05는 이 직물의 세부를 주지 않는다. 섬유 물성·세탁 성능은 `unverified`다.
 
-@flat-contact bench-cushion: body, support, -Y, 0, -0.45..0.45, -0.18..0.18
 @flat-contact sofa-cushion: body, support, -Y, 0, -0.20..0.20, -0.17..0.17
 @flat-contact pillow: body, support, -Y, 0, -0.28..0.28, -0.17..0.17
 @flat-contact blanket: body, support, -Y, 0, -0.60..0.60, -0.80..0.80
@@ -20,7 +19,6 @@ ref02의 침실 직물과 ref03의 소파·식탁 밀도, ref04의 손님 침구
 @flat-contact folded-sheet: body, support, -Y, 0, -0.17..0.17, -0.13..0.13
 @flat-contact dishcloth: body, support, -Y, 0, -0.13..0.13, -0.10..0.10
 
-@inventory bench-cushion: body
 @inventory sofa-cushion: body
 @inventory pillow: body
 @inventory blanket: body
@@ -34,8 +32,6 @@ ref02의 침실 직물과 ref03의 소파·식탁 밀도, ref04의 손님 침구
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| @envelope | bench-cushion | * | bounds | -0.54..0.54 | 0..0.055 | -0.23..0.23 | - |
-| @part | bench-cushion | body | curved | -0.54..0.54 | 0..0.055 | -0.23..0.23 | support |
 | @envelope | sofa-cushion | * | bounds | -0.24..0.24 | 0..0.16 | -0.21..0.21 | - |
 | @part | sofa-cushion | body | curved | -0.24..0.24 | 0..0.16 | -0.21..0.21 | support |
 | @envelope | pillow | * | bounds | -0.34..0.34 | 0..0.14 | -0.215..0.215 | - |
@@ -58,7 +54,6 @@ ref02의 침실 직물과 ref03의 소파·식탁 밀도, ref04의 손님 침구
 | @part | outdoor-mat | body | box | -0.45..0.45 | 0..0.014 | -0.275..0.275 | support |
 
 <!-- @authored-address-state:start -->
-@address-state bench-cushion: body
 @address-state sofa-cushion: body
 @address-state pillow: body
 @address-state blanket: body
@@ -195,7 +190,7 @@ ref02와 ref03의 여섯 자리 식탁에 여섯 세트가 서로 독립해 놓�
 
 ## 조리 도구와 소형 기기 {#kitchen-smallwares}
 
-`kitchen-smallwares`는 냄비, 팬, 도마, 칼 블록, 조리 도구통, 조리 도구, 주전자, 토스터, 커피 기구, 식기 건조대와 유리 보관병을 같은 주방 소형 물체 모집단으로 둔다. 원점은 조리대 접촉 중심이고 +Z가 손잡이 또는 조작 면이다. 팬과 냄비는 독립 `body/inner/outer/base/rim`, 보관병·주전자·커피 기구는 `body/outer/inner/neck/sole`, 도마와 토스터는 `body/top/side/underside`를 쓴다. 손잡이나 투입구는 본체 실루엣의 일부로 형성하되 part 주소를 중복하지 않는다.
+`kitchen-smallwares`는 냄비, 팬, 도마, 칼 블록, 조리 도구통, 조리 도구, 주전자, 토스터, 커피 기구, 식기 건조대와 유리 보관병을 같은 주방 소형 물체 모집단으로 둔다. 원점은 조리대 접촉 중심이고 +Z가 손잡이 또는 조작 면이다. 팬과 냄비는 독립 `body/inner/outer/base/rim`, 보관병·주전자·커피 기구는 `body/outer/inner/neck/sole`, 도마와 토스터는 `body/top/side/underside`를 쓴다. 손잡이나 투입구는 본체 실루엣의 일부로 형성하되 part 주소를 중복하지 않는다. `kettle`·`coffee-brewer`의 주둥이는 `body/spout-outer/spout-inner/spout-rim`, 손잡이 구멍은 `body/grip-outer/grip-inner/grip-edge`로 분할한다. `knife-block`은 `body/top/slot-wall/slot-floor/side/sole`, `utensil`은 `body/grip/head/edge/sole`, `drying-rack`은 `body/base-upper/rib-side/rib-top/slot-floor/sole`이다. `glass-jar`의 열린 목에는 `body/rim`을 추가한다.
 
 `pan`, `utensil-crock`, `glass-jar`의 몸통은 X 폭 W의 24각 Y축 회전체이고 `pot`의 원통 몸통은 지름 D의 24각 Y축 회전체이며 열린 입구·바닥은 각 `@bore`의 반지름과 Y 구간을 따른다. `pot` 몸통 중심은 z=0, 바깥 반지름 D/2이고 양쪽 귀는 x=−W/2..−W/2+W/8 및 +W/2−W/8..+W/2, y=H/2..H/2+H/12, z=±D/8의 닫힌 직육면체를 몸통에 합친다. 두 귀의 안쪽 끝 x=±(W/2−W/8)은 몸통 원통 안에 들어가므로 귀와 몸통은 양수 부피로 이어진다. `pan` 몸통 중심 Z는 0이고 바깥 반지름 W/2다. +Z 손잡이는 z=7W/16..표의 +Z 경계, x=±W/18, y=H/2..3H/4의 닫힌 직육면체로서 몸통과 양수 부피로 겹친다. `kettle`과 `coffee-brewer`는 `@cavity-profile`의 몸통·어깨·목을 24각 단면으로 잇는다. 주둥이는 몸통 중심 Z에서 +Z 경계까지 +Z축 원통으로 붙이며 중심 높이·통로·외벽 두께는 `@vessel-attachments`와 profile에서 계산한다. 원통을 몸통과 합친 뒤 통로를 공동까지 절삭하고 출구 둘레를 rim으로 닫는다. 손잡이 고리는 profile의 높이별 바깥 반지름 R(y)의 +X쪽에서 x=R(y)−벽 두께/2..R, y=gripY×H, z=몸통 중심 Z±gripZ×W인 판을 합친 뒤 지정 holeX·holeY 사각형을 Z 관통 절삭한다. `cutting-board`는 표의 XZ 판 전폭, y=0..H를 채우고 중심 z=3D/8의 X 폭 W/4·Z 길이 D/8 구멍을 전 두께 절삭한다. `knife-block`은 표의 닫힌 상자 윗면에 X 중심을 −W/3,0,+W/3으로 둔 세 슬롯을 낸다. 각 슬롯의 X 폭은 W/10, 중심 z=0인 Z 길이는 D/2, 깊이는 상면에서 H/8이며 상자 바닥은 그대로 닫힌다. `toaster`는 같은 방법으로 X 중심 ±W/4의 슬롯 둘을 폭 W/8, 중심 z=0인 Z 길이 D/2, 깊이는 상면에서 H/6으로 낸다. `utensil`은 z=−D/2..D/4의 X 폭 W/3·Y 두께 H/2 막대와 z=D/4..D/2의 X 전폭·Y 전높이 머리를 합친 닫힌 단일 고체다. `drying-rack`은 XZ 전폭의 y=0..H/8 받침과 X 중심 x=(j−5/2)W/7, j=0..5의 여섯 세로 rib를 합친다. 각 rib는 X 폭 W/40, y=H/8..H, Z 전깊이여서 사이에 같은 간격의 다섯 빈 슬롯이 생긴다. 절삭 안쪽 벽과 아래면도 face로 발행한다.
 
@@ -267,11 +262,11 @@ ref03의 주방 조리대·섬 위에서 작은 도구가 가전과 겹쳐 보�
 
 ## 욕실 위생 소품 {#bath-accessories}
 
-`bath-accessories`는 비누 용기, 휴지 걸이, 휴지 한 롤과 묶음, 칫솔 컵, 칫솔, 샴푸 병, 세제 병, 욕실 휴지통, 빨래 바구니를 공통 욕실·세탁 소품의 치수 상태로 둔다. 바닥·선반 물체의 원점은 놓이는 면 중심이고 휴지 걸이의 원점은 벽 접촉면의 아래 중심이다. +Z는 사용자가 바라보는 전면이다. 걸이는 벽 접촉 `body/back/arm`, 컵·바구니는 `body/outer/inner/rim/sole`, 막힌 병은 `body/outer/inner/rim/sole/cap-top/cap-side`와 비누 용기만의 `body/pump-top`, 소모품은 `body/outer/end/sole`을 사용한다. 실제 충전물·배관·배출은 별도 system과 instance가 결정한다.
+`bath-accessories`는 비누 용기, 휴지 걸이, 휴지 한 롤과 묶음, 칫솔 컵, 칫솔, 샴푸 병, 세제 병, 욕실 휴지통, 빨래 바구니를 공통 욕실·세탁 소품의 치수 상태로 둔다. 바닥·선반 물체의 원점은 놓이는 면 중심이고 휴지 걸이의 원점은 벽 접촉면의 아래 중심이다. +Z는 사용자가 바라보는 전면이다. 걸이는 벽 접촉 `body/back/arm`, 컵·바구니는 `body/outer/inner/rim/sole`, 막힌 병은 `body/outer/inner/rim/sole/cap-top/cap-side`와 비누 용기만의 `body/pump-top`, 소모품은 `body/outer/end/sole`을 사용한다. 실제 충전물·배관·배출은 별도 system과 instance가 결정한다. `toothbrush`는 `body/handle/head/side/sole`, `waste-bin`은 `body/outer/inner/rim/sole`을 상태별 고정 face 집합으로 쓴다.
 
 `toothbrush-cup`과 `waste-bin`은 24각 원형 외벽, `laundry-basket`은 네모 외벽이다. 각각의 내벽·바닥 높이는 바로 아래 `@bore` 또는 `@void`가 단독으로 정한다. 병 세 상태는 `@cavity-profile`의 몸통·어깨·목과 `@vessel-closure`의 캡으로 닫는다. 비누 용기의 펌프는 캡 상면의 중심 XZ 폭을 각각 몸통 W/4·D/4로 나눈 `body/pump-top` face이며 추가 돌출 체적은 없다. 휴지 롤은 `@radial`의 바깥·안쪽 반지름과 `@bore`의 Y 범위를 쓰는 24각 Y축 고리다. `tissue-pack`은 Z축 원통 넷을 한 닫힌 외곽으로 합친다. 각 원통의 반지름은 min(W,H)/4, Z 길이는 D, 중심은 x=±(W/2−min(W,H)/4)와 y=H/4,3H/4의 네 조합이며 끝면은 네 개의 구별된 face다. `tissue-holder`는 x=±W/2, y=0..H, z=0..D/6인 벽판과 중심 x=±(W/2−W/8), y=3H/4의 두 팔을 합친다. 팔은 X/Y 단면 지름 H/8의 24각 봉으로 z=D/6..D까지 이어지고, 두 팔 사이 X축 축은 y=3H/4,z=3D/4, 반지름 H/16으로 면 접합한다. `toothbrush`는 x=±W/4, z=±D/4, y=0..3H/4의 손잡이 판과 X/Z 전폭, y=3H/4..H의 짧은 머리를 한 고체로 합친다. 롤을 걸이에 끼우는 회전은 instances가 소유하며 실제 위생·급수 성능은 `unverified`다.
 
-`tissue-pack`의 아래 두 원통 밑에는 X/Z 전폭·y=0..H/20인 얇은 받침판을 같은 `body`로 합친다. 받침판은 두 원통과 양수 부피를 공유하고 밑면은 선반에 평평한 유한 면으로 닿는다. 각 상태의 정확한 점유는 아래 표가 소유한다. 용기 안팎·림·바닥, 걸이 뒷판·팔, 휴지 롤의 관통 구멍은 각각 실제 형상에 있는 face 집합으로만 발행한다.
+`tissue-pack`의 아래 두 원통 밑에는 X/Z 전폭·y=0..H/20인 얇은 받침판을 같은 `body`로 합친다. 받침판은 두 원통과 양수 부피를 공유하고 밑면은 선반에 평평한 유한 면으로 닿는다. 각 상태의 정확한 점유는 아래 표가 소유한다. 용기 안팎·림·바닥, 걸이 뒷판·팔, 휴지 롤의 관통 구멍은 `body/inner`, 노출 끝은 `body/end`, 절삭 둘레는 `body/rim`으로 실제 형상에 있는 face 집합만 발행한다.
 
 ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분되는 크기를 정면·상부·45°에서 본다. ref01·03·04·05의 보이지 않는 상표와 내용물은 재현하지 않는다. 위생·세척 성능은 `unverified`다.
 
@@ -345,7 +340,7 @@ ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분
 
 `file-box`, `toy-box`, `recycling-box`의 열린 공동은 바로 아래 각 `@void`가 정하는 X/Y/Z 구간을 표의 닫힌 박스에서 절삭한다. 따로 적은 벽·바닥 비율은 없으며 절삭 뒤 남는 두께가 실제 설계값이다. `storage-box`와 `parcel-locker`는 표 AABB를 채운 닫힌 단일 고체 proxy다. 상면의 y=H−H/12..H 띠를 `body/lid-seam` face로, 전면 z=D/2에서 x=±W/10,y=5H/12..7H/12의 직사각형을 `body/handle` face로 구분한다. 뚜껑과 손잡이는 표면 구획이고 공동·돌출·힌지·잠금장치는 만들지 않는다. 상자 다섯 상태의 독립 외곽과 열린 세 상태의 빈 내부를 네 view에서 확인한다.
 
-각 상태의 정확한 점유는 아래 표가 소유한다. 열린 상자는 안팎·림·바닥, 닫힌 상자는 외벽·이음·손잡이·밑면으로 나누고 독립하지 않는 면을 억지로 발행하지 않는다.
+각 상태의 정확한 점유는 아래 표가 소유한다. 열린 상자는 `body/outer/inner/rim/sole`, 닫힌 `storage-box`·`parcel-locker`는 `body/outer/lid-seam/handle/sole`로 나누고 독립하지 않는 면을 억지로 발행하지 않는다.
 
 ref02의 여러 수납실과 ref04의 책장 옆에서 선반과 독립 상자를 혼동하지 않도록 정면·상부·45°에서 본다. ref01·03·05는 상자 내용물을 제공하지 않는다. 잠금·적재 하중은 `unverified`다.
 
@@ -384,9 +379,9 @@ ref02의 여러 수납실과 ref04의 책장 옆에서 선반과 독립 상자�
 
 @material-face spare-light: body/diffuser
 
-`household-tools`는 공구 상자, 청소기, 접이식 사다리, 청소 도구, 여분 등기구, 기계 외함, 정원 도구와 호스 릴의 상태별 고정 형상이다. 원점은 바닥 또는 선반 접촉 중심이고 +Z가 취급 방향이다. 사다리는 접힌 검사 상태, 호스는 릴에 감긴 검사 상태만 제공한다. `body/front/back/edge/sole`와 필요할 때 `body/handle/contact`를 안정 face로 둔다. 실제 회전·가동·전기 연결은 이 모델 단계에 포함하지 않는다.
+`household-tools`는 공구 상자, 청소기, 접이식 사다리, 청소 도구, 여분 등기구, 정원 도구와 호스 릴의 상태별 고정 형상이다. 원점은 바닥 또는 선반 접촉 중심이고 +Z가 취급 방향이다. 사다리는 접힌 검사 상태, 호스는 릴에 감긴 검사 상태만 제공한다. `body/front/back/edge/sole`와 필요할 때 `body/handle/contact`를 안정 face로 둔다. 실제 회전·가동·전기 연결은 이 모델 단계에 포함하지 않는다.
 
-`tool-box`와 `machine-case`는 표 AABB를 채운 단일 박스 proxy이며 전면 z=D/2의 중앙 x=±W/10,y=9H/20..11H/20만 손잡이·점검 face로 구획한다. `vacuum`은 y=0..H/4의 X/Z 전폭 몸통과 중심 x=z=0, 반지름 min(W,D)/12, y=H/4..H의 24각 수직 손잡이를 합친다. `cleaning-tool`과 `garden-tool`은 y=0..H/10의 X/Z 전폭 머리와 중심 x=z=0, 반지름 min(W,D)/8, y=H/10..H의 24각 수직 손잡이를 합친다. `folded-ladder`는 X 양쪽에 중심 x=±(W/2−W/20), X 폭 W/10·Z 전깊이 D·Y 전높이 H의 닫힌 레일 둘을 두고, y=jH/6, j=1..5의 X 가로대 다섯 개를 합친다. 가로대 Y 두께 W/12, Z 깊이 D/3이고 X 끝은 두 레일의 안쪽 면과 접한다. 양쪽 레일의 바닥은 양수 면적의 평평한 접지다. `spare-light`는 반지름 W/2, 높이 H의 막힌 24각 Y축 원통으로 상단을 `body/diffuser` face로 나눈다. `hose-reel`은 y=0..3H/49의 X 전폭·Z 전깊이 받침판, 중심 y=26H/49인 반지름 W/2의 원형 측판 두 장, 두 측판 사이의 반지름 W/4 중심 통을 하나의 고체로 합친다. 각 측판의 아래에는 X 구간 −W/12..W/12, Y 구간 3H/49..5H/49, 각 측판과 같은 Z 구간의 직사각 받침 하나씩을 합친다. 받침 윗부분은 측판의 원형 고체와 양수 부피로 겹치고 아랫면은 지면 받침판 윗면과 유한 면으로 닿는다. 측판의 Z 두께는 D/15이고 중심은 z=±(D/2−D/30)이며 중심 통은 그 사이를 잇는다. 통 둘레에는 중심 y=26H/49, z=−D/2+D/15..D/2−D/15, 안팎 반지름 W/4..5W/12의 환형 감긴 호스를 둔다. 호스 안쪽 원통면은 중심 통의 바깥면과 접하고 양끝은 측판의 안쪽 원판과 접한다. 받침판은 측판의 직사각 받침 아래와 유한 접촉면을 이루고 지면과 XZ 전면적에서 닿으며, 측판 바깥의 공기와 받침 위쪽의 빈 공간은 닫지 않는다.
+`tool-box`는 표 AABB를 채운 단일 박스 proxy이며 전면 z=D/2의 중앙 x=±W/10,y=9H/20..11H/20만 손잡이 face로 구획한다. `vacuum`은 y=0..H/4의 X/Z 전폭 몸통과 중심 x=z=0, 반지름 min(W,D)/12, y=H/4..H의 24각 수직 손잡이를 합친다. `cleaning-tool`과 `garden-tool`은 y=0..H/10의 X/Z 전폭 머리와 중심 x=z=0, 반지름 min(W,D)/8, y=H/10..H의 24각 수직 손잡이를 합친다. `folded-ladder`는 X 양쪽에 중심 x=±(W/2−W/20), X 폭 W/10·Z 전깊이 D·Y 전높이 H의 닫힌 레일 둘을 두고, y=jH/6, j=1..5의 X 가로대 다섯 개를 합친다. 가로대 Y 두께 W/12, Z 깊이 D/3이고 X 끝은 두 레일의 안쪽 면과 접한다. 양쪽 레일의 바닥은 양수 면적의 평평한 접지다. `spare-light`는 반지름 W/2, 높이 H의 막힌 24각 Y축 원통으로 상단을 `body/diffuser` face로 나눈다. `hose-reel`은 y=0..3H/49의 X 전폭·Z 전깊이 받침판, 중심 y=26H/49인 반지름 W/2의 원형 측판 두 장, 두 측판 사이의 반지름 W/4 중심 통을 하나의 고체로 합친다. 각 측판의 아래에는 X 구간 −W/12..W/12, Y 구간 3H/49..5H/49, 각 측판과 같은 Z 구간의 직사각 받침 하나씩을 합친다. 받침 윗부분은 측판의 원형 고체와 양수 부피로 겹치고 아랫면은 지면 받침판 윗면과 유한 면으로 닿는다. 측판의 Z 두께는 D/15이고 중심은 z=±(D/2−D/30)이며 중심 통은 그 사이를 잇는다. 통 둘레에는 중심 y=26H/49, z=−D/2+D/15..D/2−D/15, 안팎 반지름 W/4..5W/12의 환형 감긴 호스를 둔다. 호스 안쪽 원통면은 중심 통의 바깥면과 접하고 양끝은 측판의 안쪽 원판과 접한다. 받침판은 측판의 직사각 받침 아래와 유한 접촉면을 이루고 지면과 XZ 전면적에서 닿으며, 측판 바깥의 공기와 받침 위쪽의 빈 공간은 닫지 않는다.
 
 각 상태의 정확한 점유는 아래 표가 소유한다. 도구의 손잡이·기능 면·접지 면은 상태별 실제 표면에 따라 나누며 사다리와 호스 릴의 빈 공간을 덮는 허구의 face는 만들지 않는다.
 
@@ -402,7 +397,6 @@ ref02의 저장실·서비스실과 ref01의 정원에서 빈 창고가 되지 �
 @inventory folded-ladder: body
 @inventory cleaning-tool: body
 @inventory spare-light: body
-@inventory machine-case: body
 @inventory garden-tool: body
 @inventory hose-reel: body
 
@@ -418,8 +412,6 @@ ref02의 저장실·서비스실과 ref01의 정원에서 빈 창고가 되지 �
 | @part | cleaning-tool | body | curved | -0.09..0.09 | 0..1.23 | -0.075..0.075 | support |
 | @envelope | spare-light | * | bounds | -0.06..0.06 | 0..0.08 | -0.06..0.06 | - |
 | @part | spare-light | body | cylinder | -0.06..0.06 | 0..0.08 | -0.06..0.06 | support |
-| @envelope | machine-case | * | bounds | -0.34..0.34 | 0..1.42 | -0.235..0.235 | - |
-| @part | machine-case | body | box | -0.34..0.34 | 0..1.42 | -0.235..0.235 | support |
 | @envelope | garden-tool | * | bounds | -0.095..0.095 | 0..1.14 | -0.075..0.075 | - |
 | @part | garden-tool | body | curved | -0.095..0.095 | 0..1.14 | -0.075..0.075 | support |
 | @envelope | hose-reel | * | bounds | -0.23..0.23 | 0..0.49 | -0.15..0.15 | - |
@@ -431,7 +423,6 @@ ref02의 저장실·서비스실과 ref01의 정원에서 빈 창고가 되지 �
 @address-state folded-ladder: body
 @address-state cleaning-tool: body
 @address-state spare-light: body
-@address-state machine-case: body
 @address-state garden-tool: body
 @address-state hose-reel: body
 <!-- @authored-address-state:end -->
@@ -548,33 +539,27 @@ ref01의 현관 온광과 ref05의 복도 실용 조명 규모를 참고해 정�
 
 ## 작업실 소형 장치 {#desk-controls}
 
-@material-face personal-device: body/screen
+정면·측면·상부·45°의 중립 관찰에서 포인팅 기기의 둥근 윗면과 평평한 접촉 밑면이 판별되어야 한다.
 
-정면·측면·상부·45°의 중립 관찰에서 포인팅 기기의 둥근 윗면과 개인용 기기의 얇은 화면판이 판별되어야 한다.
+`desk-controls`는 화면·키보드와 별개인 포인팅 기기를 소유한다. 상판 접촉 중심이 원점이고 +Z가 사용자를 향한다. 닫힌 손바닥형 본체의 `body/upper/side/sole`과 좌우 클릭 면을 독립 주소로 둔다. 입력 동작은 형상에 새 part를 만들지 않는다.
 
-`desk-controls`는 화면·키보드와 별개인 포인팅 기기와 개인용 소형 기기를 한 작업대에서 재사용하는 두 고정 변종이다. 상판 접촉 중심이 원점이고 +Z가 사용자를 향한다. 포인팅 기기는 닫힌 손바닥형 `body/upper/side/sole`, 개인용 기기는 얇은 닫힌 판의 `body/screen/edge/back`을 독립 주소로 둔다. 충전 상태·입력 동작은 형상에 새 part를 만들지 않는다.
+포인팅 기기는 (2x/W)²+(2z/D)²≤1인 타원 밑면과 그 위의 y=H√(1−(2x/W)²−(2z/D)²)인 반타원 윗면을 24개 둘레와 12개 높이 구간으로 닫는다. 밑면은 y=0의 평평한 접촉 타원이고 +Z 앞쪽 z=D/6..D/2의 윗면을 x=0에서 좌우 두 클릭 face로 나눈다. 문자·버튼 신호는 구현하지 않는다.
 
-포인팅 기기는 (2x/W)²+(2z/D)²≤1인 타원 밑면과 그 위의 y=H√(1−(2x/W)²−(2z/D)²)인 반타원 윗면을 24개 둘레와 12개 높이 구간으로 닫는다. 밑면은 y=0의 평평한 접촉 타원이고 +Z 앞쪽 z=D/6..D/2의 윗면을 x=0에서 좌우 두 클릭 face로 나눈다. 개인용 기기는 두께 H의 닫힌 XZ 직사각 판에서 바깥 폭 W/20의 bezel을 남기고 y=H의 안쪽 직사각형을 screen face로 구분한다. 두 기기 모두 화면 내용·문자·버튼 신호는 구현하지 않는다.
+정확한 점유는 아래 표가 소유한다. 포인팅 기기는 윗면·클릭 면·옆면·밑면을 분할한다.
 
-두 상태의 정확한 점유는 아래 표가 소유한다. 포인팅 기기는 윗면·클릭 면·옆면·밑면을, 개인용 기기는 화면·베젤·뒷면·노출 모서리를 분할한다.
-
-ref04의 책상 앞 소형 기기 밀도를 따르고 ref02의 개인 침실 책상에도 같은 prototype을 쓴다. ref01·03·05에서 보이지 않는 제조사 표시는 만들지 않는다. 전자 입력·충전 성능은 `unverified`다.
+ref04의 책상 앞 포인팅 기기 밀도를 따르고 ref02의 개인 침실 책상에도 같은 prototype을 쓴다. ref01·03·05에서 보이지 않는 제조사 표시는 만들지 않는다. 전자 입력·충전 성능은 `unverified`다.
 
 @flat-contact pointing-device: body, support, -Y, 0, -0.015..0.015, -0.03..0.03
 
 @inventory pointing-device: body
-@inventory personal-device: body
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | @envelope | pointing-device | * | bounds | -0.0325..0.0325 | 0..0.035 | -0.055..0.055 | - |
 | @part | pointing-device | body | curved | -0.0325..0.0325 | 0..0.035 | -0.055..0.055 | support |
-| @envelope | personal-device | * | bounds | -0.08..0.08 | 0..0.012 | -0.0375..0.0375 | - |
-| @part | personal-device | body | box | -0.08..0.08 | 0..0.012 | -0.0375..0.0375 | support |
 
 <!-- @authored-address-state:start -->
 @address-state pointing-device: body
-@address-state personal-device: body
 <!-- @authored-address-state:end -->
 
 ## 주방 상부장 밑면 선형등 {#under-cabinet-light}

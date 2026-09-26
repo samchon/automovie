@@ -69,7 +69,7 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 
 | prototype | states | surface | finish/response | tile U×V (m) | primary UV | texture 실패 시 fallback | model host |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| household-textiles | bench-cushion,sofa-cushion,pillow,blanket,bedding-set,folded-sheet,placemat,dishcloth,bath-mat,entry-mat | body/* | textile-linen/green/blue/white: 해당 방의 [직물 색](005-soft-finishes.md#textiles) | [직물 반복](005-soft-finishes.md#textiles) | 모델 face의 surface-metres; 곡면 뒤쪽 −Z 이음 | texture 자원 누락은 주소 Error | [host](../models/005-everyday-objects.md#household-textiles) |
+| household-textiles | sofa-cushion,pillow,blanket,bedding-set,folded-sheet,placemat,dishcloth,bath-mat,entry-mat | body/* | textile-linen/green/blue/white: 해당 방의 [직물 색](005-soft-finishes.md#textiles) | [직물 반복](005-soft-finishes.md#textiles) | 모델 face의 surface-metres; 곡면 뒤쪽 −Z 이음 | texture 자원 누락은 주소 Error | [host](../models/005-everyday-objects.md#household-textiles) |
 | household-textiles | outdoor-mat | body/* | prop-rubber: #343735, roughness .90, metallic 0 | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#household-textiles) |
 | personal-articles | shoe,coat,garment,umbrella | body/* | prop-fabric: #6b735c, roughness .88, metallic 0 | [직물 반복](005-soft-finishes.md#textiles) woven-grain | surface-metres, 물체 local +Y를 V | texture 자원 누락은 주소 Error | [host](../models/005-everyday-objects.md#personal-articles) |
 | personal-articles | shoe | body/sole | prop-rubber | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#personal-articles) |
@@ -89,7 +89,7 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | bath-accessories | tissue-roll,tissue-pack | body/* | prop-paper: #e4e2db, roughness .92, metallic 0 | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#bath-accessories) |
 | household-boxes | file-box,toy-box,storage-box,recycling-box | body/* | prop-paper | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#household-boxes) |
 | household-boxes | parcel-locker | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#household-boxes) |
-| household-tools | tool-box,vacuum,folded-ladder,cleaning-tool,spare-light,machine-case,garden-tool,hose-reel | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#household-tools) |
+| household-tools | tool-box,vacuum,folded-ladder,cleaning-tool,spare-light,garden-tool,hose-reel | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#household-tools) |
 | household-tools | spare-light | body/diffuser | prop-diffuser: #e7e6df, roughness .65, metallic 0, transmission .25 | 없음 | face normal만 사용 | solid baseColor·transmission | [host](../models/005-everyday-objects.md#household-tools) |
 | exterior-furnishings | mailbox,outdoor-bench,outdoor-chair,outdoor-table,garden-light,rain-barrel,bike-rack,bicycle | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#exterior-furnishings) |
 | exterior-furnishings | garden-light | body/diffuser | prop-diffuser | 없음 | face normal만 사용 | solid baseColor·transmission | [host](../models/005-everyday-objects.md#exterior-furnishings) |
@@ -100,8 +100,7 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | wall-accessories | wall-sconce | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#wall-accessories) |
 | wall-accessories | wall-sconce | body/diffuser | prop-diffuser | 없음 | face normal만 사용 | solid baseColor·transmission | [host](../models/005-everyday-objects.md#wall-accessories) |
 | wall-accessories | coat-hook | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#wall-accessories) |
-| desk-controls | pointing-device,personal-device | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#desk-controls) |
-| desk-controls | personal-device | body/screen | prop-screen: #253139, roughness .18, metallic 0, emissive #182329 | 없음 | face normal만 사용 | solid baseColor·emissive | [host](../models/005-everyday-objects.md#desk-controls) |
+| desk-controls | pointing-device | body/* | prop-appliance | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#desk-controls) |
 | under-cabinet-light | default | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#under-cabinet-light) |
 | under-cabinet-light | default | body/diffuser | prop-diffuser | 없음 | face normal만 사용 | solid baseColor·transmission | [host](../models/005-everyday-objects.md#under-cabinet-light) |
 | kitchen-extractor | default | body/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#kitchen-extractor) |

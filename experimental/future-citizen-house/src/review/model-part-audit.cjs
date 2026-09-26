@@ -416,6 +416,29 @@ function occupiedBoxes(part, voids, pieces = new Map()) {
   return boxes;
 }
 
+/** Count positive-face-connected closed solids after declared rectangular cuts.
+ * @param {Bounds[]} boxes */
+function connectedBoxCount(boxes) {
+  const seen = new Set();
+  let count = 0;
+  for (let start = 0; start < boxes.length; start++) {
+    if (seen.has(start)) continue;
+    count++;
+    const pending = [start];
+    seen.add(start);
+    while (pending.length) {
+      const current = /** @type {number} */ (pending.pop());
+      for (let next = 0; next < boxes.length; next++) {
+        if (!seen.has(next) && surfaceContact(boxes[current], boxes[next])) {
+          seen.add(next);
+          pending.push(next);
+        }
+      }
+    }
+  }
+  return count;
+}
+
 /** A rectangular hollow is exact only when its subtraction is explicitly declared.
  * @param {Part} part
  * @param {Map<string, Bounds[]>} voids
@@ -1171,9 +1194,18 @@ function audit(allSections, mutate, onlyState) {
       for (const part of stateParts) if (part.shape === "hollow") {
         hollowParts++;
         const key = `${state}/${part.id}`;
-        if (voids.has(key) || bores.has(key) || cavityProfiles.has(key) || boresZ.has(key) || ellipses.has(key) || radial.has(key) || radialZ.has(key) || lines.some((line) => line.startsWith("@plant-spec:")))
+        if (voids.has(key) || bores.has(key) || boresX.has(key) || cavityProfiles.has(key) || boresZ.has(key) || ellipses.has(key) || radial.has(key) || radialZ.has(key) || lines.some((line) => line.startsWith("@plant-spec:")))
           provedHollowParts++;
         else errors.push(`${anchor}/${key}: hollow part has no authored cavity`);
+      }
+      for (const row of lines.filter((line) => line.startsWith(`@component-count ${state}:`))) {
+        const declaration = /^@component-count ([^:]+): ([a-z][a-z0-9-]*), (\d+)$/.exec(row);
+        if (!declaration) { errors.push(`${anchor}/${state}: malformed component count`); continue; }
+        const part = parts.get(`${state}/${declaration[2]}`);
+        if (!part) { errors.push(`${anchor}/${state}/${declaration[2]}: component host absent`); continue; }
+        const actual = connectedBoxCount(occupiedBoxes(part, voids, pieces));
+        if (actual !== Number(declaration[3]))
+          errors.push(`${anchor}/${state}/${part.id}: ${actual} occupied components contradict declared ${declaration[3]}`);
       }
       const composition = compositions.get(state);
       const supported = stateParts.filter((part) => part.contact.some((target) => /^support@[\d.]+$/.test(target)));
@@ -1328,14 +1360,9 @@ function audit(allSections, mutate, onlyState) {
         const host = byId.get(key.slice(state.length + 1));
         const cylinder = stateParts.filter((part) => part.contact.includes(host?.id || "") &&
           part.shape === "cylinder" && host?.contact.includes(part.id));
-        const voidRegion = (voids.get(key) || []).some((hole) =>
-          Math.abs(hole.x[0] - bore.x[0]) <= epsilon &&
-          Math.abs(hole.x[1] - bore.x[1]) <= epsilon &&
-          Math.abs(hole.y[0] - (bore.centerY - bore.radius)) <= epsilon &&
-          Math.abs(hole.y[1] - (bore.centerY + bore.radius)) <= epsilon &&
-          Math.abs(hole.z[0] - (bore.centerZ - bore.radius)) <= epsilon &&
-          Math.abs(hole.z[1] - (bore.centerZ + bore.radius)) <= epsilon);
-        if (!host || cylinder.length !== 1 || !voidRegion || bore.radius <= epsilon ||
+        if (!host || cylinder.length !== 1 || bore.radius <= epsilon ||
+          bore.centerY - bore.radius < host.y[0] - epsilon || bore.centerY + bore.radius > host.y[1] + epsilon ||
+          bore.centerZ - bore.radius < host.z[0] - epsilon || bore.centerZ + bore.radius > host.z[1] + epsilon ||
           bore.x[0] < host.x[0] - epsilon || bore.x[1] > host.x[1] + epsilon ||
           Math.abs((cylinder[0].y[0] + cylinder[0].y[1]) / 2 - bore.centerY) > epsilon ||
           Math.abs((cylinder[0].z[0] + cylinder[0].z[1]) / 2 - bore.centerZ) > epsilon ||
@@ -2037,7 +2064,11 @@ if (require.main !== module) {
   }
   /** @type {Array<[string,string,(parsed:ReturnType<typeof parse>)=>void,string]>} */
   const curvedMutations = [
+    ["fixed-bed", "1800", (parsed) => { const rail = parsed.parts.get("1800/frame-head"); if (!rail) throw Error("head rail absent"); rail.z[1] = -1.06; }, "leg-0: no face contact with frame-head"],
     ["murphy-bed", "guest", (parsed) => { const part = parsed.parts.get("guest/bed-frame"); if (!part) throw Error("guest frame absent"); part.z[0] = 0.23; }, "pin end cap has no finite contact face"],
+    ["murphy-bed", "guest", (parsed) => { parsed.boresX.delete("guest/case-side-left"); }, "hollow part has no authored cavity"],
+    ["murphy-bed", "guest", (parsed) => { const bore = parsed.boresX.get("guest/case-side-left"); if (!bore) throw Error("side bore absent"); bore.radius = 0.03; }, "axial bore lacks a fitted cylinder contact"],
+    ["murphy-bed", "guest", (parsed) => { parsed.flatContacts.delete("guest/pillow/mattress"); }, "murphy-bed/guest/mattress/pillow"],
     ["ceiling-surface-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
     ["dining-pendant", "default", (parsed) => { parsed.emitterFaces.delete("default"); }, "emitter face declaration absent"],
     ["portable-lamps", "reading", (parsed) => { parsed.emitterFaces.delete("reading"); }, "emitter face declaration absent"],
@@ -2056,11 +2087,22 @@ if (require.main !== module) {
     if ((anchor === "cooking-appliances" || anchor === "kitchen-island") && !cabinetLines) throw Error("cabinet fixture child absent");
     const sample = new Map([[anchor, lines]]);
     if ((anchor === "cooking-appliances" || anchor === "kitchen-island") && cabinetLines) sample.set("cabinet-and-shelf", cabinetLines);
-    const errors = audit(sample, (owner, parsed) => { if (owner === anchor) mutate(parsed); }, state).errors;
-    if (!errors.some((error) => error.includes(expected)))
-      throw Error(`${anchor}/${state}: mutation did not reach ${expected}: ${errors}`);
+    const check = audit(sample, (owner, parsed) => { if (owner === anchor) mutate(parsed); }, state);
+    const findings = [...check.errors, ...check.unprovedCurvedContacts];
+    if (!findings.some((error) => error.includes(expected)))
+      throw Error(`${anchor}/${state}: mutation did not reach ${expected}: ${findings}`);
     results.push({ label: `${anchor}/${state} ${expected}`, caught: true });
   }
+  const cabinetComponentLines = sections().get("cabinet-and-shelf");
+  if (!cabinetComponentLines) throw Error("cabinet component fixture absent");
+  const changedComponents = cabinetComponentLines.map((line) => line ===
+    "@component-count media/2000x440x350/closed: fixed-front, 3"
+    ? "@component-count media/2000x440x350/closed: fixed-front, 2" : line);
+  if (changedComponents.every((line, index) => line === cabinetComponentLines[index]) ||
+    !audit(new Map([["cabinet-and-shelf", changedComponents]]), undefined,
+      "media/2000x440x350/closed").errors.some((error) => error.includes("occupied components contradict declared")))
+    throw Error("cabinet disconnected-front component count mutation escaped");
+  results.push({ label: "cabinet disconnected-front component count", caught: true });
   const laundryBoreLines = sections().get("laundry-appliances");
   if (!laundryBoreLines) throw Error("laundry circular bore fixture absent");
   const laundryBoreSource = laundryBoreLines.join("\n");

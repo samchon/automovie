@@ -7,7 +7,6 @@ import { observations } from "../house/observations";
 import { auditHouse } from "../house/audit";
 import type { auditCanopy } from "../house/canopy-audit";
 import { pvCellTexture } from "../house/canopy-finish";
-import { makeTextureAssets } from "../materials/generate-textures.mjs";
 
 type ViewerPlacement = {
   node: string; model: string; position: IAutoMovieVector3;
@@ -61,7 +60,7 @@ export function createViewerPayload(state: State = initialState) {
       throw new Error(placement.node + ": unresolved model " + placement.model);
   const clearance = passageClearance({ environment, models, placements });
   return {
-    environment, models, placements, audit, canopyAudit, state, clearance, textures: [pvCellTexture(), ...makeTextureAssets()],
+    environment, models, placements, audit, canopyAudit, state, clearance, textures: [pvCellTexture()],
     census: builtEnvironmentBuildingCensus(environment),
     stations: observations(environment, canopyAudit),
     // This is renderer transport, not a clearance report or persisted project.
