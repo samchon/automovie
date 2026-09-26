@@ -113,12 +113,17 @@ import {
   solveFaceAnthropometry,
   solveFaceNorms,
 } from "./faceAnthropometrySolve";
-import { faceValidScale } from "./faceDocumentValidity";
+import {
+  faceExpressionYield,
+  faceFaultClusters,
+  faceValidScale,
+} from "./faceDocumentValidity";
 import { faceSupportFaultTriangles, faceSupportFaults } from "./faceEnvelope";
 import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
   faceExpressionObservable,
+  faceExpressionPartner,
   faceExpressionRestNoise,
   transferFaceExpression,
 } from "./faceExpressionTransfer";
@@ -152,6 +157,7 @@ import {
   faceShapeFitAnchorPoint,
   faceShapeFitSurfacePositions,
 } from "./faceShapeFitSurface";
+import { type IFaceSides, faceSmileOrbital } from "./faceSmileOrbital";
 import {
   FACE_UNSEEN_INDICES,
   faceMidlineTriangles,
@@ -350,6 +356,25 @@ if (command === "identity") {
             path.join(expressionStudy, "subjects.json"),
           ).map((one) => [one.id, one]),
         );
+  // Each unit's status in the expression study, where a transfer judged it
+  // (`derivation.json`): "unobservable" marks a unit no calibration reads.
+  const statuses =
+    expressionStudy === undefined ||
+    !fs.existsSync(path.join(expressionStudy, "derivation.json"))
+      ? {}
+      : json<Record<string, unknown>>(
+          path.join(expressionStudy, "derivation.json"),
+        );
+  const unobservable = (subject: string, unit: string): boolean => {
+    const rows = statuses[subject];
+    return (
+      Array.isArray(rows) &&
+      rows.some(
+        (one: { channel?: string; status?: string }) =>
+          one.channel === unit && one.status === "unobservable",
+      )
+    );
+  };
   const facts = json<{ subjects: Record<string, IFacePopulationFacts> }>(
     factsFile!,
   ).subjects;
@@ -455,6 +480,89 @@ if (command === "identity") {
     }
     const camera = faceShapeFitView(pose, 900, pose.fov);
     const list = anchoredLandmarks(view.anchors, human, dentition, incisal);
+    // The smile's orbital part where the photograph's instrument cannot
+    // read it: each side's cheek raiser by the posed-smile norm
+    // (`faceSmileOrbital`), from rates read on this face's anchored points
+    // (the mouth's corners 61 and 291, each eye's lid margins over its
+    // pupil, 159 and 145, 386 and 374) with the photograph's expression. It
+    // joins the expression before the identity is solved, so the eyes'
+    // indices read the photograph's narrowed fissure as the raiser's and
+    // not as a narrower eye; set by a norm, it yields first where the
+    // expression folds the skin.
+    const orbitalPriors = new Set<string>();
+    let orbital: IFaceSides | null = null;
+    if (
+      unobservable(subject, "cheekSquintLeft") &&
+      unobservable(subject, "cheekSquintRight") &&
+      ((start.expression.mouthSmileLeft ?? 0) > 0 ||
+        (start.expression.mouthSmileRight ?? 0) > 0)
+    ) {
+      const smiling = build({ ...start, hair: undefined });
+      const skin = new Map(
+        [human, dentition].map((surface) => [
+          surface,
+          faceShapeFitSurfacePositions(basis, smiling, surface.id),
+        ]),
+      );
+      const point = (landmark: number, channel: string | null) => {
+        const one = list.find((item) => item.landmark === landmark);
+        if (one === undefined) return null;
+        const at = faceShapeFitAnchorPoint(skin.get(one.surface)!, one.anchor);
+        const name = channel === null ? null : channels.get(channel)?.positive;
+        if (name === null || name === undefined) return at;
+        const flat = one.surface.targets[name] ?? [];
+        const rows = new Map<number, number[]>();
+        for (let i = 0; i < flat.length; i += 4)
+          rows.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+        return at.map((value, axis) =>
+          one.anchor.vertices.reduce(
+            (sum, vertex, k) =>
+              sum + one.anchor.weights[k]! * (rows.get(vertex)?.[axis] ?? 0),
+            value,
+          ),
+        );
+      };
+      const change = (channel: string, a: number, b: number): number => {
+        const [p, q, pp, qq] = [
+          point(a, null),
+          point(b, null),
+          point(a, channel),
+          point(b, channel),
+        ];
+        if (p === null || q === null || pp === null || qq === null) return 0;
+        return (
+          Math.hypot(...[0, 1, 2].map((k) => pp[k]! - qq[k]!)) -
+          Math.hypot(...[0, 1, 2].map((k) => p[k]! - q[k]!))
+        );
+      };
+      orbital = faceSmileOrbital({
+        smile: {
+          left: start.expression.mouthSmileLeft ?? 0,
+          right: start.expression.mouthSmileRight ?? 0,
+        },
+        labial: {
+          left: change("mouthSmileLeft", 61, 291),
+          right: change("mouthSmileRight", 61, 291),
+        },
+        fissure: {
+          left: change("mouthSmileLeft", 386, 374),
+          right: change("mouthSmileRight", 159, 145),
+        },
+        raiser: {
+          left: change("cheekSquintLeft", 386, 374),
+          right: change("cheekSquintRight", 159, 145),
+        },
+        maximum: 1,
+      });
+      for (const [unit, weight] of [
+        ["cheekSquintLeft", orbital.left],
+        ["cheekSquintRight", orbital.right],
+      ] as const)
+        if (weight > 0) {
+          start.expression = { ...start.expression, [unit]: weight };
+          orbitalPriors.add(unit);
+        }
+    }
     const model = build({ ...start, hair: undefined });
     const built = new Map(
       [human, dentition].map((surface) => [
@@ -911,6 +1019,83 @@ if (command === "identity") {
       .flatMap((one, k) => (implicated[k] ? [one.id] : []));
     const achieved = frontal(values);
     const { shape, posed } = compose(values);
+    // The face as it is shown passes no tissue through tissue either: its
+    // expression, over the triangles it moves from the document's own face
+    // at rest, may add no fault (the lips' overlap stays their contact).
+    // Each fold's units yield toward rest by the largest share the skin
+    // stays whole at (`faceExpressionYield`); the others keep their weights.
+    const own = faceShapeFitSurfacePositions(
+      basis,
+      build({ ...start, shape, hair: undefined, expression: {} }),
+      human.id,
+    );
+    const shown = (expression: Record<string, number>) => {
+      const positions = faceShapeFitSurfacePositions(
+        basis,
+        build({ ...start, shape, hair: undefined, expression }),
+        human.id,
+      );
+      const triangles: number[] = [];
+      for (let t = 0; t < human.indices.length; t += 3)
+        if (
+          [0, 1, 2].some((e) => {
+            const v = human.indices[t + e]!;
+            return [0, 1, 2].some(
+              (k) => Math.abs(positions[3 * v + k]! - own[3 * v + k]!) > 1e-7,
+            );
+          })
+        )
+          triangles.push(t);
+      return { positions, triangles };
+    };
+    const yieldedFace = faceExpressionYield({
+      expression: posed,
+      faults: (expression) => {
+        const { positions, triangles } = shown(expression);
+        return faceSupportFaults({
+          source: own,
+          positions,
+          indices: human.indices,
+          triangles,
+          contact,
+        });
+      },
+      clusters: (expression) => {
+        const { positions, triangles } = shown(expression);
+        return faceFaultClusters(
+          human.indices,
+          faceSupportFaultTriangles({
+            source: own,
+            positions,
+            indices: human.indices,
+            triangles,
+            contact,
+          }),
+        );
+      },
+      // How far a unit at its weight moves a fold's skin: its vertices
+      // with the unit at rest against as shown.
+      contribution: (unit, expression, fold) => {
+        const { positions } = shown(expression);
+        const { positions: without } = shown({ ...expression, [unit]: 0 });
+        let by = 0;
+        for (const v of fold)
+          by += Math.hypot(
+            positions[3 * v]! - without[3 * v]!,
+            positions[3 * v + 1]! - without[3 * v + 1]!,
+            positions[3 * v + 2]! - without[3 * v + 2]!,
+          );
+        return by;
+      },
+      priors: orbitalPriors,
+      partner: (unit) =>
+        faceExpressionPartner(
+          unit,
+          basis.channels.map((one) => one.id),
+        ),
+      steps: 6,
+      rounds: 3,
+    });
     report[subject] = {
       population,
       anthropometry: Object.fromEntries(
@@ -944,9 +1129,14 @@ if (command === "identity") {
         yielded,
         priors: priorShare,
         faults: remaining,
+        expression: {
+          orbital,
+          shares: yieldedFace.shares,
+          faults: yieldedFace.faults,
+        },
       },
     };
-    return { ...start, shape, expression: posed };
+    return { ...start, shape, expression: yieldedFace.expression };
   });
   write(output, study!, derived, report);
 } else if (command === "instrument-study") {
