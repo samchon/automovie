@@ -9,9 +9,19 @@
  */
 import { PALETTE } from "../palette";
 import { part } from "../solids";
-import { STOREYS } from "../storeys";
+import { STOREYS, floorOf } from "../storeys";
 import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
 import { blindRecessWall } from "./recess";
+/** Shared void owned by this room and consumed at its floor and adjacent finish.
+ * @evidence spaces/rooms/shower-bath.md The hall-shower-door void follows the partition assigned to shower-bath.
+ * @evidence principles/core/source-units.md#source-scope-preservation The hall-shower-door interval remains with shower-bath while its adjacent room receives the span.
+ * @evidence principles/core/source-units.md#source-substantive-completion The hall-shower-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-shower-door width and position are fixed by the shower-bath design.
+ */
+export const DOOR_HALL_SHOWER_DOOR = door("hall-shower-door", "upper-storey", 1.05, 2.05);
+
+
+const FLOOR = floorOf("upper-storey");
 
 const SHOWER_BATH: IRoomSpace = {
   id: "shower-bathroom",
@@ -22,19 +32,21 @@ const SHOWER_BATH: IRoomSpace = {
   // shower-bath.md#shower-fixture-use; heights above the upper floor (+3.06).
   reservations: [
     // X from the left inner face (0.90) to 2.15, Z from the rear inner face (-8.80) to -7.70; glass top 2.10.
-    { id: "shower-bathroom-booth", kind: "fixture", x: [0.9, 2.15], z: [-8.8, -7.7], y: [3.06, 5.16] },
+    { id: "shower-bathroom-booth", kind: "fixture", x: [0.9, 2.15], z: [-8.8, -7.7], y: [FLOOR, FLOOR + 2.1] },
+    { id: "shower-bathroom-faucet", kind: "fixture", x: [1, 1.3], z: [-8.8, -8.7], y: [FLOOR + 1.05, FLOOR + 1.05] },
+    { id: "shower-bathroom-head", kind: "fixture", x: [1, 1.3], z: [-8.8, -8.6], y: [FLOOR + 2.05, FLOOR + 2.05] },
     { id: "shower-bathroom-booth-wait", kind: "use", x: [0.95, 1.85], z: [-7.65, -7.05] },
     // Z from the rear inner face (-8.80) to -8.05; top 0.82.
-    { id: "shower-bathroom-toilet", kind: "fixture", x: [2.32, 2.97], z: [-8.8, -8.05], y: [3.06, 3.88] },
+    { id: "shower-bathroom-toilet", kind: "fixture", x: [2.32, 2.97], z: [-8.8, -8.05], y: [FLOOR, FLOOR + 0.82] },
     { id: "shower-bathroom-toilet-use", kind: "use", x: [2.27, 3.02], z: [-8.05, -7.45] },
     // X from 2.52 to the right inner face (3.07); counter 0.85.
-    { id: "shower-bathroom-vanity", kind: "fixture", x: [2.52, 3.07], z: [-6.8, -6.1], y: [3.06, 3.91] },
+    { id: "shower-bathroom-vanity", kind: "fixture", x: [2.52, 3.07], z: [-6.8, -6.1], y: [FLOOR, FLOOR + 0.85] },
     { id: "shower-bathroom-vanity-use", kind: "use", x: [1.92, 2.52], z: [-6.8, -6.2] },
     // Front wall (Z = -6.06), projection at most 0.08, height 1.10-1.50.
-    { id: "shower-bathroom-towel", kind: "fixture", x: [2.2, 2.45], z: [-6.14, -6.06], y: [4.16, 4.56] },
+    { id: "shower-bathroom-towel", kind: "fixture", x: [2.2, 2.45], z: [-6.14, -6.06], y: [FLOOR + 1.1, FLOOR + 1.5] },
     // shower-fixture-use: the mirror hangs on the vanity's own right wall (inner face X = 3.07)
     // over the vanity width, 1.10-1.90 m above the upper floor, projecting at most 0.04 m.
-    { id: "shower-bathroom-mirror", kind: "fixture", x: [3.03, 3.07], z: [-6.8, -6.1], y: [4.16, 4.96] },
+    { id: "shower-bathroom-mirror", kind: "fixture", x: [3.03, 3.07], z: [-6.8, -6.1], y: [FLOOR + 1.1, FLOOR + 1.9] },
   ],
 };
 
@@ -52,7 +64,7 @@ export const buildShowerBath = (): IRoomBuild => ({
   parts: [
     roomFloor(SHOWER_BATH),
     roomCeiling(SHOWER_BATH),
-    doorFloor(SHOWER_BATH, "hall-shower-door", [1.05, 2.05], [-6.06, -5.985]),
+    doorFloor(SHOWER_BATH, "hall-shower-door", [DOOR_HALL_SHOWER_DOOR.from, DOOR_HALL_SHOWER_DOOR.to], [-6.06, -5.985]),
     partition({
       id: "shower-hall-partition",
       owner: SHOWER_BATH.owner,
@@ -60,7 +72,7 @@ export const buildShowerBath = (): IRoomBuild => ({
       axis: "x",
       across: [-6.06, -5.91],
       along: [0.9, 3.22],
-      holes: [door("hall-shower-door", "upper-storey", 1.05, 2.05)],
+      holes: [DOOR_HALL_SHOWER_DOOR],
     }),
     part("shower-primary-partition", SHOWER_BATH.owner, "partition", PALETTE.interiorWall, blindRecessWall({
       wallX: [0.75, 0.9],

@@ -81,6 +81,17 @@ export const buildRight = (): IHousePart[] => {
       { u: garageFront, y: under(garageFront) },
     ],
   });
+  const garageSharedUpper = wallPanel({
+    axis: "z", across: ACROSS,
+    outline: [
+      { u: garageBack, y: garageRoof(garageBack) },
+      { u: GARAGE_RIDGE_Z, y: garageRoof(GARAGE_RIDGE_Z) },
+      { u: garageFront, y: garageRoof(garageFront) },
+      { u: garageFront, y: under(garageFront) },
+      { u: MAIN_RIDGE_Z, y: under(MAIN_RIDGE_Z) },
+      { u: garageBack, y: under(garageBack) },
+    ],
+  });
   const step = (id: string, z0: number, z1: number): IHousePart =>
     part(id, OWNER, "wall", PALETTE.siding, wallPanel({ axis: "z", across: [SPLIT_X - 0.15, SPLIT_X], outline: stepRun(z0, z1) }));
   const garageUnder = (z: number): number => garageRoof(z) - ROOF_THICKNESS;
@@ -99,6 +110,7 @@ export const buildRight = (): IHousePart[] => {
   return [
     part("right-main-wall-back", OWNER, "wall", PALETTE.siding, backPanel),
     part("right-main-wall-front", OWNER, "wall", PALETTE.siding, sliver),
+    part("right-garage-shared-upper-wall", OWNER, "wall", PALETTE.siding, garageSharedUpper),
     step("right-step-wall", MAIN.inner.z[0], MAIN.inner.z[1]),
     step("right-step-wall-front-eave", MAIN.outer.z[1], FRONT_EAVE_Z),
     step("right-step-wall-back-eave", BACK_EAVE_Z, MAIN.outer.z[0]),

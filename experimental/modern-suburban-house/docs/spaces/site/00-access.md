@@ -66,6 +66,8 @@
 
 maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리길의 전체 외곽·식재 제외 여유와 아래 [지표 접합 입력](#map-handoff-inputs)이다. 높은 테라스 상면과 낮은 아래 대기를 모두 잔디에 수평 접속하는 것으로 취급하지 않는다. 이는 필지 형상이나 울타리 선을 대신 확정하는 값이 아니다. [전체 표면 인계](../03-surface-owners.md#exterior-surface-handoff)는 관리길과 목재 울타리의 파일 책임을 미리 배정하고 실제 세계 경계·지표·식재 census는 미완료로 둔다.
 
+외부 보행 zone의 논리 체적은 각 보행면 상면에서 2.00 m 높이까지 임시로 펼쳐 `map-ground-pending`으로 표시한다. 이 값은 현재 구역 선택·관찰을 위한 표현 높이이며 [계단 머리 여유](../02-stair.md#stair-clearance)나 실제 머리 위 장애물 통과 인증이 아니다. maps 지표와 후속 점유가 들어오면 각 경로의 실측 유효 높이를 다시 검사한다.
+
 각 경로는 [사용 점유체](../../settings/00-production.md#use-profile)와 바구니 폭을 소비한다. 보행면의 단면과 위에서 돌아 내려오는 시야, 문짝 개방 및 후속 가구/식재 점유를 포함한 양방향 통행을 [전체 관찰](../04-observations.md#spatial-observation-derivation)에 추가한다. 외부 구역도 threshold·각 코너·중심 방향의 질문을 부담하고 T자 보행길의 오목한 접점에는 질문을 더한다. 설계 경로는 compiled topology나 관찰 수를 대신하지 않으며 실제 통행·표면 연결은 unverified다.
 
 ## 지도에서 받아야 할 경계와 지표 입력 {#map-handoff-inputs}

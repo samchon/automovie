@@ -11,6 +11,11 @@
  * floor to 2.20 m; the closet is closed above its 2.20 m interior. Shelves,
  * sliding leaves and their rails are later fit-out and are not emitted.
  */
+import { DOOR_HALL_TUB_DOOR } from "./tub-bath";
+import { DOOR_HALL_BEDROOM_THREE_DOOR } from "./bedroom-three";
+import { DOOR_HALL_BEDROOM_TWO_DOOR } from "./bedroom-two";
+import { DOOR_HALL_PRIMARY_DOOR } from "./primary";
+import { DOOR_HALL_SHOWER_DOOR } from "./shower-bath";
 import { PALETTE } from "../palette";
 import { block, part } from "../solids";
 import { STOREYS } from "../storeys";
@@ -53,11 +58,11 @@ export const buildUpperHall = (): IRoomBuild => {
     parts: [
       roomFloor(UPPER_HALL),
       roomCeiling(UPPER_HALL),
-      doorFloor(UPPER_HALL, "hall-bedroom-two-door", [-3.1, -2.1], [-4.71, -4.635]),
-      doorFloor(UPPER_HALL, "hall-bedroom-three-door", [3.07, 3.145], [-4.46, -3.51]),
-      doorFloor(UPPER_HALL, "hall-primary-door", [-2.7, -1.7], [-5.985, -5.91]),
-      doorFloor(UPPER_HALL, "hall-shower-door", [1.05, 2.05], [-5.985, -5.91]),
-      doorFloor(UPPER_HALL, "hall-tub-door", [3.07, 3.145], [-5.86, -4.86]),
+      doorFloor(UPPER_HALL, "hall-bedroom-two-door", [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to], [-4.71, -4.635]),
+      doorFloor(UPPER_HALL, "hall-bedroom-three-door", [3.07, 3.145], [DOOR_HALL_BEDROOM_THREE_DOOR.from, DOOR_HALL_BEDROOM_THREE_DOOR.to]),
+      doorFloor(UPPER_HALL, "hall-primary-door", [DOOR_HALL_PRIMARY_DOOR.from, DOOR_HALL_PRIMARY_DOOR.to], [-5.985, -5.91]),
+      doorFloor(UPPER_HALL, "hall-shower-door", [DOOR_HALL_SHOWER_DOOR.from, DOOR_HALL_SHOWER_DOOR.to], [-5.985, -5.91]),
+      doorFloor(UPPER_HALL, "hall-tub-door", [3.07, 3.145], [DOOR_HALL_TUB_DOOR.from, DOOR_HALL_TUB_DOOR.to]),
       partition({
         id: "upper-linen-front",
         owner,

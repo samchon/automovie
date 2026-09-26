@@ -22,11 +22,21 @@ import { EXTERIOR_WALL_BOTTOM, MAIN } from "../building";
 import { PALETTE } from "../palette";
 import { CHIMNEY_PLAN, MAIN_RIDGE_Z, ROOF_THICKNESS, mainRoof } from "../roof/junctions";
 import { type IHousePart, block, part, wallPanel } from "../solids";
+import { STOREYS } from "../storeys";
 
 const OWNER = "envelope/left.ts";
 const B = EXTERIOR_WALL_BOTTOM;
 const ACROSS = [MAIN.outer.x[0], MAIN.inner.x[0]] as const;
 const under = (z: number): number => mainRoof(z) - ROOF_THICKNESS;
+/** Rough opening owned by the left elevation and consumed by bedroom reservations. */
+/**
+ * @evidence spaces/envelope/left.md PRIMARY_LEFT_WINDOW is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/envelope/left.md#primary-left-window Its bounds or datum follow this source owner's reviewed plan.
+ * @evidence principles/core/source-units.md#source-scope-preservation PRIMARY_LEFT_WINDOW shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import PRIMARY_LEFT_WINDOW for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed PRIMARY_LEFT_WINDOW owner fixes this measurement; its consumers add no independent value.
+ */
+export const PRIMARY_LEFT_WINDOW = { id: "primary-left-window", from: -8.9, to: -7.3, bottom: 3.91, top: 5.31 } as const;
 
 /** Emit the left gable wall panels and the chimney. */
 /**
@@ -66,13 +76,13 @@ export const buildLeft = (): IHousePart[] => {
     ],
     holes: [
       { id: "living-left-window", from: -5.5, to: -4.3, bottom: 0.75, top: 2.3 },
-      { id: "primary-left-window", from: -8.9, to: -7.3, bottom: 3.91, top: 5.31 },
+      PRIMARY_LEFT_WINDOW,
     ],
   });
   return [
     part("left-wall-front", OWNER, "wall", PALETTE.siding, frontPanel),
     part("left-wall-back", OWNER, "wall", PALETTE.siding, backPanel),
-    part("chimney-body", OWNER, "chimney", PALETTE.brick, block([CHIMNEY_PLAN.x[0], -0.45, chimneyBack], [CHIMNEY_PLAN.x[1], 8.9, chimneyFront])),
+    part("chimney-body", OWNER, "chimney", PALETTE.brick, block([CHIMNEY_PLAN.x[0], STOREYS.frontWalk, chimneyBack], [CHIMNEY_PLAN.x[1], 8.9, chimneyFront])),
     part("chimney-cap", OWNER, "chimney", PALETTE.railing, block([CHIMNEY_PLAN.x[0] - 0.1, 8.9, chimneyBack - 0.1], [CHIMNEY_PLAN.x[1] + 0.1, 9.1, chimneyFront + 0.1])),
     part("fireplace-hearth", OWNER, "chimney", PALETTE.brick, block([-5.5, 0, -3.0], [-4.95, 0.23, -1.4])),
     part("fireplace-left", OWNER, "chimney", PALETTE.brick, block([-5.5, 0.23, -3.0], [-4.95, 1.3, -2.72])),

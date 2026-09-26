@@ -41,6 +41,14 @@ import type { IPlanPoint } from "./solids";
  */
 export interface IObservationPose {
   /**
+   * @evidence spaces/04-observations.md A corrected camera pose retains an explicit reason for its new standing height.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation A moved station records why its authored eye differs from the engine's initial station.
+   * @evidence principles/core/source-units.md#source-scope-preservation The explanation records a derived camera correction and leaves the place unchanged.
+   * @evidence principles/core/source-units.md#source-substantive-completion Review can trace every moved eye to its standing floor and the required 1.60 m offset.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation parent already fixes eye height and asks for inspectable poses.
+   */
+  reason?: string;
+  /**
    * @evidence spaces/04-observations.md The observation camera records a world-space eye.
    * @evidence spaces/04-observations.md#spatial-observation-derivation The eye remains at a position in its subject space.
    * @evidence principles/core/source-units.md#source-scope-preservation This point is a derived camera station, not a new room point.
@@ -285,8 +293,54 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   const observations: IHouseObservation[] = [];
   const failures: { id: string; cause: string }[] = [];
   const spaces = new Map(environment.spaces.map((s) => [s.id, s]));
+  const roomFloors = new Map(house.spaces.map((s) => [s.id, roomLevels(s)[0]]));
+  const storageFloors = new Map(house.storages.map((s) => [s.storage.id, s.storage.y[0]]));
+  const stairRoute = environment.connectors.find((c) => c.id === "main-stair-connection")?.route ?? [];
+  const patchFloor = (patch: { anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null }, x: number, z: number): number => {
+    if (patch.rampTo === null) return patch.anchor.y;
+    const dx = patch.rampTo.x - patch.anchor.x;
+    const dz = patch.rampTo.z - patch.anchor.z;
+    const t = ((x - patch.anchor.x) * dx + (z - patch.anchor.z) * dz) / (dx * dx + dz * dz);
+    return patch.anchor.y + Math.max(0, Math.min(1, t)) * (patch.rampTo.y - patch.anchor.y);
+  };
+  const standingFloor = (id: string, x: number, z: number): number => {
+    const room = roomFloors.get(id);
+    if (room !== undefined) return room;
+    const storage = storageFloors.get(id);
+    if (storage !== undefined) return storage;
+    const zone = house.zones.find((s) => s.id === id);
+    if (zone !== undefined) {
+      const patches = zone.patches ?? [zone];
+      const patch = patches.find((p) => {
+        const xs = p.outline.map((q) => q.x);
+        const zs = p.outline.map((q) => q.z);
+        return Math.min(...xs) - 1e-6 <= x && x <= Math.max(...xs) + 1e-6 && Math.min(...zs) - 1e-6 <= z && z <= Math.max(...zs) + 1e-6;
+      }) ?? patches[0]!;
+      return patchFloor(patch, x, z);
+    }
+    if (id === "main-stair" && stairRoute.length > 0) {
+      let nearest = { distance: Infinity, y: stairRoute[0]!.y };
+      for (let i = 1; i < stairRoute.length; ++i) {
+        const a = stairRoute[i - 1]!;
+        const b = stairRoute[i]!;
+        const dx = b.x - a.x;
+        const dz = b.z - a.z;
+        const t = dx * dx + dz * dz === 0 ? 0 : Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz)));
+        const distance = Math.hypot(x - a.x - t * dx, z - a.z - t * dz);
+        if (distance < nearest.distance) nearest = { distance, y: a.y + t * (b.y - a.y) };
+      }
+      return nearest.y;
+    }
+    throw new Error(`observation ${id}: no standing floor`);
+  };
   const accept = (o: IHouseObservation): void => {
     const space = o.space === null ? undefined : spaces.get(o.space);
+    if (o.pose !== null && o.space !== null) {
+      const floor = standingFloor(o.space, o.pose.position.x, o.pose.position.z);
+      const expected = floor + EYE;
+      const delta = expected - o.pose.position.y;
+      if (Math.abs(delta) > 1e-6) o.pose = { position: { ...o.pose.position, y: expected }, target: { ...o.pose.target, y: o.pose.target.y + delta }, reason: `Standing floor ${floor.toFixed(3)} m plus authored 1.60 m eye; engine station moved ${delta.toFixed(3)} m.` };
+    }
     if (o.pose === null) failures.push({ id: o.id, cause: "no pose inside its space" });
     else if (space === undefined || !builtSpaceContainsPoint(space, o.pose.position)) failures.push({ id: o.id, cause: `pose leaves space "${o.space}"` });
     else {
@@ -312,7 +366,7 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   // Engine stations of every inhabited or walkable space. Where the engine finds no
   // threshold pose (an opening at an L-shaped room's notch), the same threshold rule
   // is applied on the space's side before the station counts as failed.
-  const floorOf = new Map(house.spaces.map((s) => [s.id, roomLevels(s)[0]]));
+  const floorOf = roomFloors;
   for (const space of environment.spaces) {
     if (!["room", "stair", "storage", "exterior"].includes(space.kind)) continue;
     for (const station of builtSpaceObservationStations(environment, space.id)) {

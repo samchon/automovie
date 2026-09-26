@@ -17,11 +17,19 @@ import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 import { DRIVEWAY, driveTop } from "./driveway";
 import { WALK_DEPTH, blendedRun } from "./paving";
+import { PORCH_STEP_CENTRE_X, PORCH_STEP_FRONT_Z } from "../porch";
 
 const OWNER = "site/front-walk.ts";
 
 /** Front walk extent, metres. */
-const FRONT_WALK = { x: [0.15, 1.65] as const, z: [2.8, 6.5] as const };
+/**
+ * @evidence spaces/site/front-walk.md FRONT_WALK is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/site/front-walk.md#front-walk-plan Its bounds or datum follow this source owner's reviewed plan.
+ * @evidence principles/core/source-units.md#source-scope-preservation FRONT_WALK shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import FRONT_WALK for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed FRONT_WALK owner fixes this measurement; its consumers add no independent value.
+ */
+export const FRONT_WALK = { x: [PORCH_STEP_CENTRE_X - 0.75, PORCH_STEP_CENTRE_X + 0.75] as const, z: [PORCH_STEP_FRONT_Z, 6.5] as const, connectorZ: [4.25, 5.45] as const };
 
 /** Emit the walk and its sloped cross connector. */
 /**
@@ -37,9 +45,18 @@ export const buildFrontWalk = (): ISiteBuild => {
   const zone: IExteriorZone = {
     id: "front-walk",
     owner: OWNER,
-    outline: rect(FRONT_WALK.x, FRONT_WALK.z),
+    outline: [
+      { x: FRONT_WALK.x[0], z: FRONT_WALK.z[0] }, { x: FRONT_WALK.x[1], z: FRONT_WALK.z[0] },
+      { x: FRONT_WALK.x[1], z: FRONT_WALK.connectorZ[0] }, { x: DRIVEWAY.x[0], z: FRONT_WALK.connectorZ[0] },
+      { x: DRIVEWAY.x[0], z: FRONT_WALK.connectorZ[1] }, { x: FRONT_WALK.x[1], z: FRONT_WALK.connectorZ[1] },
+      { x: FRONT_WALK.x[1], z: FRONT_WALK.z[1] }, { x: FRONT_WALK.x[0], z: FRONT_WALK.z[1] },
+    ],
     anchor: { x: (FRONT_WALK.x[0] + FRONT_WALK.x[1]) / 2, y: walkY, z: FRONT_WALK.z[0] },
     rampTo: null,
+    patches: [
+      { outline: rect(FRONT_WALK.x, FRONT_WALK.z), anchor: { x: FRONT_WALK.x[0], y: walkY, z: FRONT_WALK.z[0] }, rampTo: null },
+      { outline: rect([left, right], FRONT_WALK.connectorZ), anchor: { x: left, y: walkY, z: FRONT_WALK.connectorZ[0] }, rampTo: { x: right, y: driveTop(FRONT_WALK.connectorZ[0]), z: FRONT_WALK.connectorZ[0] } },
+    ],
   };
   const parts: IHousePart[] = [
     part("front-walk", OWNER, "paving", PALETTE.paving, slab({ outline: rect(FRONT_WALK.x, FRONT_WALK.z), bottom: walkY - WALK_DEPTH, top: walkY })),
@@ -48,7 +65,7 @@ export const buildFrontWalk = (): ISiteBuild => {
       owner: OWNER,
       color: PALETTE.paving,
       x: [left, right],
-      z: [4.25, 5.45],
+      z: FRONT_WALK.connectorZ,
       height: (x, z) => {
         const t = (x - left) / (right - left);
         return (1 - t) * walkY + t * driveTop(z);

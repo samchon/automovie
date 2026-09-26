@@ -18,10 +18,43 @@
 import { PALETTE } from "./palette";
 import { type IHousePart, block, part, rect, slopedSlab } from "./solids";
 import { STOREYS } from "./storeys";
+import { FRONT_DOOR } from "./rooms/entry";
 import type { IExteriorZone, ISiteBuild } from "./site/zone";
 
 const OWNER = "porch.ts";
 const PLATFORM_BOTTOM = STOREYS.frontWalk - 0.12;
+/**
+ * @evidence spaces/porch.md PORCH_STEP_CENTRE_X is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/porch.md#porch-platform-access The PORCH_STEP_CENTRE_X measurement follows the reviewed porch step geometry.
+ * @evidence principles/core/source-units.md#source-scope-preservation PORCH_STEP_CENTRE_X shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import PORCH_STEP_CENTRE_X for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed PORCH_STEP_CENTRE_X owner fixes this measurement; its consumers add no independent value.
+ */
+export const PORCH_STEP_CENTRE_X = (FRONT_DOOR.from + FRONT_DOOR.to) / 2;
+/**
+ * @evidence spaces/porch.md PORCH_STEP_RISE is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/porch.md#porch-platform-access The PORCH_STEP_RISE measurement follows the reviewed porch step geometry.
+ * @evidence principles/core/source-units.md#source-scope-preservation PORCH_STEP_RISE shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import PORCH_STEP_RISE for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed PORCH_STEP_RISE owner fixes this measurement; its consumers add no independent value.
+ */
+export const PORCH_STEP_RISE = (STOREYS.porchFloor - STOREYS.frontWalk) / 3;
+/**
+ * @evidence spaces/porch.md PORCH_STEP_BACK_Z is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/porch.md#porch-platform-access The PORCH_STEP_BACK_Z measurement follows the reviewed porch step geometry.
+ * @evidence principles/core/source-units.md#source-scope-preservation PORCH_STEP_BACK_Z shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import PORCH_STEP_BACK_Z for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed PORCH_STEP_BACK_Z owner fixes this measurement; its consumers add no independent value.
+ */
+export const PORCH_STEP_BACK_Z = 2.2;
+/**
+ * @evidence spaces/porch.md PORCH_STEP_FRONT_Z is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/porch.md#porch-platform-access The PORCH_STEP_FRONT_Z measurement follows the reviewed porch step geometry.
+ * @evidence principles/core/source-units.md#source-scope-preservation PORCH_STEP_FRONT_Z shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import PORCH_STEP_FRONT_Z for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed PORCH_STEP_FRONT_Z owner fixes this measurement; its consumers add no independent value.
+ */
+export const PORCH_STEP_FRONT_Z = PORCH_STEP_BACK_Z + 2 * 0.3;
 const porchRoof = (z: number): number => 3.5 - z / 4;
 
 /** Emit the porch platform, steps, columns, beam, packer and roof. */
@@ -38,10 +71,10 @@ export const buildPorch = (): ISiteBuild => {
     part("porch-platform", OWNER, "porch", PALETTE.porchFloor, block([-5.75, PLATFORM_BOTTOM, 0], [2.2, STOREYS.porchFloor, 2.2])),
   ];
   // Steps: tread k (k = 1, 2) lies k × 0.30 m in front of the porch edge at k risers below it.
-  const [sx0, sx1] = [0.9 - 0.75, 0.9 + 0.75];
+  const [sx0, sx1] = [PORCH_STEP_CENTRE_X - 0.75, PORCH_STEP_CENTRE_X + 0.75];
   for (let k = 1; k <= 2; ++k) {
-    const edge = 2.2 + 0.3 * (k - 1);
-    parts.push(part(`porch-step-${k}`, OWNER, "porch", PALETTE.porchFloor, block([sx0, PLATFORM_BOTTOM, edge], [sx1, STOREYS.porchFloor - 0.15 * k, edge + 0.3])));
+    const edge = PORCH_STEP_BACK_Z + 0.3 * (k - 1);
+    parts.push(part(`porch-step-${k}`, OWNER, "porch", PALETTE.porchFloor, block([sx0, PLATFORM_BOTTOM, edge], [sx1, STOREYS.porchFloor - PORCH_STEP_RISE * k, edge + 0.3])));
   }
   for (let c = 0; c < 3; ++c) {
     const x = -5.4 + 3.65 * c;
@@ -62,7 +95,7 @@ export const buildPorch = (): ISiteBuild => {
     id: "front-porch",
     owner: OWNER,
     outline: rect([-5.75, 2.2], [0, 2.2]),
-    anchor: { x: 0.9, y: STOREYS.porchFloor, z: 1.1 },
+    anchor: { x: PORCH_STEP_CENTRE_X, y: STOREYS.porchFloor, z: 1.1 },
     rampTo: null,
   };
   return { zones: [zone], parts };

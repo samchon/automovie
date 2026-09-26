@@ -8,8 +8,23 @@
  * (X = [-3.35, -3.20] and Z = [-6.06, -5.91], the latter carrying
  * `hall-primary-door` X = [-2.70, -1.70], Y = [3.06, 5.26] m).
  */
+import { DOOR_PRIMARY_WARDROBE_DOOR } from "./wardrobe";
 import { PALETTE } from "../palette";
+import { PRIMARY_REAR_WINDOW } from "../envelope/rear";
+import { PRIMARY_LEFT_WINDOW } from "../envelope/left";
+import { MAIN } from "../building";
 import { type IRoomBuild, type IRoomSpace, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import { floorOf } from "../storeys";
+/** Shared void owned by this room and consumed at its floor and adjacent finish.
+ * @evidence spaces/rooms/primary.md The hall-primary-door void follows the partition assigned to primary.
+ * @evidence principles/core/source-units.md#source-scope-preservation The hall-primary-door interval remains with primary while its adjacent room receives the span.
+ * @evidence principles/core/source-units.md#source-substantive-completion The hall-primary-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-primary-door width and position are fixed by the primary design.
+ */
+export const DOOR_HALL_PRIMARY_DOOR = door("hall-primary-door", "upper-storey", -2.7, -1.7);
+
+
+const FLOOR = floorOf("upper-storey");
 
 const PRIMARY: IRoomSpace = {
   id: "primary-bedroom",
@@ -26,11 +41,13 @@ const PRIMARY: IRoomSpace = {
   floor: PALETTE.carpet,
   // primary.md#primary-furniture-use; heights are above the upper floor (+3.06).
   reservations: [
-    { id: "primary-bedroom-bed", kind: "furniture", x: [-1.5, 0.65], z: [-8.65, -7.05], y: [3.06, 4.06] },
-    { id: "primary-bedroom-rear-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-9.15, -8.65], y: [3.06, 4.16] },
-    { id: "primary-bedroom-front-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-7.05, -6.55], y: [3.06, 4.16] },
+    { id: "primary-bedroom-bed", kind: "furniture", x: [-1.5, 0.65], z: [-8.65, -7.05], y: [FLOOR, FLOOR + 1] },
+    { id: "primary-bedroom-rear-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-9.15, -8.65], y: [FLOOR, FLOOR + 1.1] },
+    { id: "primary-bedroom-front-nightstand", kind: "furniture", x: [0.15, 0.65], z: [-7.05, -6.55], y: [FLOOR, FLOOR + 1.1] },
     // X from the left inner face (-5.50) to -5.00.
-    { id: "primary-bedroom-dresser", kind: "furniture", x: [-5.5, -5.0], z: [-6.5, -5.1], y: [3.06, 3.86] },
+    { id: "primary-bedroom-dresser", kind: "furniture", x: [-5.5, -5.0], z: [-6.5, -5.1], y: [FLOOR, FLOOR + 0.8] },
+    { id: "primary-rear-curtain", kind: "fixture", x: [PRIMARY_REAR_WINDOW.from - 0.1, PRIMARY_REAR_WINDOW.to + 0.1], z: [MAIN.inner.z[0], MAIN.inner.z[0] + 0.12], y: [PRIMARY_REAR_WINDOW.bottom - 0.75, PRIMARY_REAR_WINDOW.top + 0.12] },
+    { id: "primary-left-curtain", kind: "fixture", x: [MAIN.inner.x[0], MAIN.inner.x[0] + 0.12], z: [PRIMARY_LEFT_WINDOW.from - 0.1, PRIMARY_LEFT_WINDOW.to + 0.1], y: [PRIMARY_LEFT_WINDOW.bottom - 0.75, PRIMARY_LEFT_WINDOW.top + 0.12] },
     // Drawers pull +X at most 0.40 from the dresser front -5.00.
     { id: "primary-bedroom-dresser-drawers", kind: "swing", x: [-5.0, -4.6], z: [-6.5, -5.1] },
     { id: "primary-bedroom-dresser-use", kind: "use", x: [-4.6, -4.0], z: [-6.5, -5.1] },
@@ -53,8 +70,8 @@ export const buildPrimary = (): IRoomBuild => ({
   parts: [
     roomFloor(PRIMARY),
     roomCeiling(PRIMARY),
-    doorFloor(PRIMARY, "hall-primary-door", [-2.7, -1.7], [-6.06, -5.985]),
-    doorFloor(PRIMARY, "primary-wardrobe-door", [0.75, 0.825], [-10.2, -9.2]),
+    doorFloor(PRIMARY, "hall-primary-door", [DOOR_HALL_PRIMARY_DOOR.from, DOOR_HALL_PRIMARY_DOOR.to], [-6.06, -5.985]),
+    doorFloor(PRIMARY, "primary-wardrobe-door", [0.75, 0.825], [DOOR_PRIMARY_WARDROBE_DOOR.from, DOOR_PRIMARY_WARDROBE_DOOR.to]),
     partition({ id: "primary-bedroom-two-partition", owner: PRIMARY.owner, storey: "upper-storey", axis: "x", across: [-4.71, -4.56], along: [-5.5, -3.35] }),
     partition({ id: "primary-hall-side-partition", owner: PRIMARY.owner, storey: "upper-storey", axis: "z", across: [-3.35, -3.2], along: [-5.91, -4.71] }),
     partition({
@@ -64,7 +81,7 @@ export const buildPrimary = (): IRoomBuild => ({
       axis: "x",
       across: [-6.06, -5.91],
       along: [-3.35, 0.9],
-      holes: [door("hall-primary-door", "upper-storey", -2.7, -1.7)],
+      holes: [DOOR_HALL_PRIMARY_DOOR],
     }),
   ],
 });

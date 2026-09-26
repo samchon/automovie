@@ -11,6 +11,7 @@
  * Consumers: envelope, roof, floors, rooms and site owners. This module owns
  * coordinates only and emits no surface.
  */
+import { STOREYS } from "./storeys";
 
 /** Outer wall faces of the main building, world metres. */
 /**
@@ -63,4 +64,4 @@ export const GARAGE = {
  * @evidence principles/core/source-units.md#source-substantive-completion The numeric bound lets exterior wall solids close to the known paving level in the current build.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground-support parent distinguishes provisional wall closure from future map support; this bound needed no new support design.
  */
-export const EXTERIOR_WALL_BOTTOM = -0.45;
+export const EXTERIOR_WALL_BOTTOM = STOREYS.frontWalk;

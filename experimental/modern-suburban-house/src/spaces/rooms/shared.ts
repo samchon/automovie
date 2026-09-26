@@ -182,7 +182,7 @@ export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
   const bodies = placed.filter((p) => p.r.kind === "furniture" || p.r.kind === "fixture" || p.r.kind === "storage");
   for (const route of placed.filter((p) => p.r.kind === "route"))
     for (const body of bodies)
-      if (route.space === body.space && route.r.x[0] < body.r.x[1] - 1e-9 && body.r.x[0] < route.r.x[1] - 1e-9 && route.r.z[0] < body.r.z[1] - 1e-9 && body.r.z[0] < route.r.z[1] - 1e-9)
+      if (route.space === body.space && (body.r.y === undefined || body.r.y[0] < roomLevels(rooms.find((room) => room.id === route.space)!)[0] + 2.0) && route.r.x[0] < body.r.x[1] - 1e-9 && body.r.x[0] < route.r.x[1] - 1e-9 && route.r.z[0] < body.r.z[1] - 1e-9 && body.r.z[0] < route.r.z[1] - 1e-9)
         throw new Error(`${route.room.owner}: route "${route.r.id}" crosses "${body.r.id}" (${body.room.owner})`);
 };
 

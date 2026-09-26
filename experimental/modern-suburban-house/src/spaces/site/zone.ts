@@ -64,6 +64,14 @@ export interface IExteriorZone {
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent fixes its two end heights; flat zones have one anchor, so no third ramp datum arose.
    */
   rampTo: IAutoMovieVector3 | null;
+  /**
+   * @evidence spaces/site/00-access.md Joined exterior walks can expose their actual standing bands as one zone.
+   * @evidence spaces/site/00-access.md#site-local-routes Each patch retains its paving owner's grade while the zone stays continuous.
+   * @evidence principles/core/source-units.md#source-scope-preservation Patches describe emitted paving, not extra slabs or off-site ground.
+   * @evidence principles/core/source-units.md#source-substantive-completion Each patch supplies an outline and height points for separate cells and surfaces.
+   * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The T and side-path designs required a piecewise standing surface missing from the initial source shape.
+   */
+  patches?: readonly { outline: readonly IPlanPoint[]; anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null }[];
 }
 
 /**
@@ -72,11 +80,11 @@ export interface IExteriorZone {
  * clear height the spaces design fixes for people on foot.
  */
 /**
- * @evidence spaces/02-stair.md ZONE_HEAD_CLEARANCE carries the 2.00 m clear height for pedestrian zone volumes.
- * @evidence spaces/02-stair.md#stair-clearance The vertical 2.00 m reservation matches the passable head space required along the stair route.
+ * @evidence spaces/site/00-access.md ZONE_HEAD_CLEARANCE carries the temporary 2.00 m logical exterior zone volume.
+ * @evidence spaces/site/00-access.md#site-local-routes The volume is a display datum pending map ground input, not a stair clearance certificate.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a logical clearance, not a ceiling slab height or a terrain top.
  * @evidence principles/core/source-units.md#source-substantive-completion Environment space cells and exterior connectors receive the same numeric clear height.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair-clearance parent states the pedestrian height; the zone record did not introduce a larger occupant.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The source exposed a missing exterior zone height; the site access design now declares its temporary value and map-ground pending status.
  */
 export const ZONE_HEAD_CLEARANCE = 2.0;
 

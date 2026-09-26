@@ -25,11 +25,12 @@ import { MAIN } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slab } from "../solids";
 import { CEILING_FINISH, CEILING_RESERVATION, INTERSTOREY_FLOOR_FINISH, STOREYS } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 
 const OWNER = "floors/upper.ts";
 
 /** Stair-owned edge finish the structure recedes from at the opening (08 interstorey-edge-junctions), metres. */
-const OPENING_EDGE = 0.015;
+const OPENING_EDGE = CEILING_FINISH;
 
 /** Emit the 0.270 m interstorey structure between the two finish layers, with the receded stair notch. */
 /**
@@ -48,12 +49,12 @@ export const buildInterstorey = (): IHousePart[] => {
     { x: x0, z: z0 },
     { x: x1, z: z0 },
     { x: x1, z: z1 },
-    { x: -0.65 + e, z: z1 },
-    { x: -0.65 + e, z: -3.41 + e },
-    { x: 1.87 + e, z: -3.41 + e },
-    { x: 1.87 + e, z: -4.56 - e },
-    { x: -1.8 - e, z: -4.56 - e },
-    { x: -1.8 - e, z: z1 },
+    { x: STAIR_OPENING.turnX + e, z: z1 },
+    { x: STAIR_OPENING.turnX + e, z: STAIR_OPENING.turnZ + e },
+    { x: STAIR_OPENING.east + e, z: STAIR_OPENING.turnZ + e },
+    { x: STAIR_OPENING.east + e, z: STAIR_OPENING.back - e },
+    { x: STAIR_OPENING.west - e, z: STAIR_OPENING.back - e },
+    { x: STAIR_OPENING.west - e, z: z1 },
     { x: x0, z: z1 },
   ];
   const bottom = STOREYS.groundCeiling + CEILING_FINISH;

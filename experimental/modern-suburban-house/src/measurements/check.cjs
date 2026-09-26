@@ -10,6 +10,15 @@ const { failureCount: docsReviewFailures } = require("./docs-review-host.cjs");
 // Executing it through Node avoids cmd.exe and shell-dependent command chains.
 const npmCli = process.env.npm_execpath;
 if (!npmCli) throw new Error("Run this aggregate through npm run check");
+const layer = process.argv.find((arg) => arg.startsWith("--layer="))?.slice("--layer=".length) ?? "all";
+if (!["all", "spaces", "models", "settings"].includes(layer)) throw new Error(`Unknown check layer ${layer}`);
+/** @type {Record<string, Set<string> | null>} */
+const layerTasks = {
+  all: null,
+  spaces: new Set(["door casing versus spaces", "geometry", "lint"]),
+  models: new Set(["model accounts", "reverse handoffs", "material hosts", "material bindings", "model face review candidates", "reviewed referents", "model contacts"]),
+  settings: new Set(["settings review hosts"]),
+};
 /** @type {Array<[string, string, string[], "exit" | "accounts" | "handoffs" | "material-hosts" | "material-bindings" | "face-witnesses" | "referents" | "model-contacts" | "docs-review"]>} */
 const tasks = [
   ["model accounts", process.execPath, [audit, "accounts"], "accounts"],
@@ -62,6 +71,7 @@ const tasks = [
 ];
 let failed = 0;
 for (const [name, command, args, kind] of tasks) {
+  if (layerTasks[layer] !== null && !layerTasks[layer].has(name)) continue;
   const result = spawnSync(command, args, {
     cwd: root,
     encoding: "utf8",
@@ -113,5 +123,5 @@ for (const [name, command, args, kind] of tasks) {
   );
   failed += errors;
 }
-console.log(`production check failures=${failed}`);
+console.log(`production check layer=${layer} failures=${failed}`);
 if (failed > 0) process.exitCode = 1;

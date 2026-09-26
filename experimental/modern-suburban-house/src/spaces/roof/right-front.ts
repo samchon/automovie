@@ -19,5 +19,5 @@ import { FRONT_EAVE_Z, MAIN_RIDGE_Z, RIGHT_EAVE_X, ROOF_THICKNESS, SPLIT_X, rFro
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-front parent gives the front eave, split, ridge, and lower pitch; those coordinates build the plane without an added edge decision.
  */
 export const buildRightFrontRoof = (): IHousePart[] => [
-  part("roof-right-front", "roof/right-front.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([SPLIT_X, RIGHT_EAVE_X], [MAIN_RIDGE_Z, FRONT_EAVE_Z]), top: (_x, z) => rFront(z), thickness: ROOF_THICKNESS })),
+  part("roof-right-front", "roof/right-front.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([SPLIT_X, RIGHT_EAVE_X], [MAIN_RIDGE_Z, FRONT_EAVE_Z]), top: (_x, z) => rFront(z), thickness: ROOF_THICKNESS, freeEdge: (a, b) => (a.x === RIGHT_EAVE_X && b.x === RIGHT_EAVE_X) || (a.z === FRONT_EAVE_Z && b.z === FRONT_EAVE_Z) })),
 ];

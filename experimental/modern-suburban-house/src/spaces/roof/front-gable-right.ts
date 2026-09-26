@@ -9,7 +9,7 @@
  */
 import { PALETTE } from "../palette";
 import { type IHousePart, part, slopedSlab } from "../solids";
-import { GABLE_CORNERS, ROOF_THICKNESS, gable } from "./junctions";
+import { FRONT_EAVE_Z, GABLE_CORNERS, ROOF_THICKNESS, gable } from "./junctions";
 
 /**
  * Emit the gable's east face.
@@ -22,6 +22,6 @@ import { GABLE_CORNERS, ROOF_THICKNESS, gable } from "./junctions";
 export const buildFrontGableRightRoof = (): IHousePart[] => {
   const { rightFoot, apex, ridgeFront } = GABLE_CORNERS;
   return [
-    part("roof-front-gable-right", "roof/front-gable-right.ts", "roof", PALETTE.roof, slopedSlab({ plan: [apex, rightFoot, ridgeFront], top: (x) => gable(x), thickness: ROOF_THICKNESS })),
+    part("roof-front-gable-right", "roof/front-gable-right.ts", "roof", PALETTE.roof, slopedSlab({ plan: [apex, rightFoot, ridgeFront], top: (x) => gable(x), thickness: ROOF_THICKNESS, freeEdge: (a, b) => a.z === FRONT_EAVE_Z && b.z === FRONT_EAVE_Z })),
   ];
 };

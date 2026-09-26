@@ -10,6 +10,17 @@
  */
 import { PALETTE } from "../palette";
 import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import { floorOf } from "../storeys";
+/** Shared void owned by this room and consumed at its floor and adjacent finish.
+ * @evidence spaces/rooms/bedroom-two.md The hall-bedroom-two-door void follows the partition assigned to bedroom-two.
+ * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-two-door interval remains with bedroom-two while its adjacent room receives the span.
+ * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-two-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-bedroom-two-door width and position are fixed by the bedroom-two design.
+ */
+export const DOOR_HALL_BEDROOM_TWO_DOOR = door("hall-bedroom-two-door", "upper-storey", -3.1, -2.1);
+
+
+const FLOOR = floorOf("upper-storey");
 
 const BEDROOM_TWO: IRoomSpace = {
   id: "bedroom-two",
@@ -19,12 +30,12 @@ const BEDROOM_TWO: IRoomSpace = {
   floor: PALETTE.carpet,
   // bedroom-two.md#bedroom-two-furniture-use; heights above the upper floor (+3.06).
   reservations: [
-    { id: "bedroom-two-bed", kind: "furniture", x: [-5.25, -4.1], z: [-4.5, -2.35], y: [3.06, 4.01] },
-    { id: "bedroom-two-nightstand", kind: "furniture", x: [-3.95, -3.5], z: [-4.5, -4.05], y: [3.06, 4.11] },
+    { id: "bedroom-two-bed", kind: "furniture", x: [-5.25, -4.1], z: [-4.5, -2.35], y: [FLOOR, FLOOR + 0.95] },
+    { id: "bedroom-two-nightstand", kind: "furniture", x: [-3.95, -3.5], z: [-4.5, -4.05], y: [FLOOR, FLOOR + 1.05] },
     // X from the left inner face (-5.50) to -4.90.
-    { id: "bedroom-two-desk", kind: "furniture", x: [-5.5, -4.9], z: [-1.6, -0.4], y: [3.06, 3.81] },
+    { id: "bedroom-two-desk", kind: "furniture", x: [-5.5, -4.9], z: [-1.6, -0.4], y: [FLOOR, FLOOR + 0.75] },
     // X from -2.55 to the right inner face (-1.95).
-    { id: "bedroom-two-closet", kind: "storage", x: [-2.55, -1.95], z: [-2.95, -1.45], y: [3.06, 5.26] },
+    { id: "bedroom-two-closet", kind: "storage", x: [-2.55, -1.95], z: [-2.95, -1.45], y: [FLOOR, FLOOR + 2.2] },
     { id: "bedroom-two-desk-chair-use", kind: "use", x: [-4.9, -4.15], z: [-1.45, -0.7] },
     { id: "bedroom-two-closet-use", kind: "use", x: [-3.15, -2.55], z: [-2.95, -1.45] },
   ],
@@ -44,7 +55,7 @@ export const buildBedroomTwo = (): IRoomBuild => ({
   parts: [
     roomFloor(BEDROOM_TWO),
     roomCeiling(BEDROOM_TWO),
-    doorFloor(BEDROOM_TWO, "hall-bedroom-two-door", [-3.1, -2.1], [-4.635, -4.56]),
+    doorFloor(BEDROOM_TWO, "hall-bedroom-two-door", [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to], [-4.635, -4.56]),
     partition({
       id: "bedroom-two-hall-partition",
       owner: BEDROOM_TWO.owner,
@@ -52,7 +63,7 @@ export const buildBedroomTwo = (): IRoomBuild => ({
       axis: "x",
       across: [-4.71, -4.56],
       along: [-3.35, -1.95],
-      holes: [door("hall-bedroom-two-door", "upper-storey", -3.1, -2.1)],
+      holes: [DOOR_HALL_BEDROOM_TWO_DOOR],
     }),
   ],
 });

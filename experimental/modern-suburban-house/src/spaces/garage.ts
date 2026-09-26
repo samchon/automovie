@@ -21,8 +21,10 @@
  */
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "./building";
 import { PALETTE } from "./palette";
-import { MAIN_RIDGE_Z, rightRoof, ROOF_THICKNESS } from "./roof/junctions";
+import { GARAGE_RIDGE_Z, garageRoof } from "./roof/junctions";
 import { part, rect, slab, wallPanel, type IHousePart } from "./solids";
+import { LAUNDRY_GARAGE_DOOR } from "./rooms/laundry";
+import { GARAGE_FRONT_DOOR } from "./envelope/front";
 import {
   CEILING_FINISH,
   CEILING_RESERVATION,
@@ -42,7 +44,7 @@ const OWNER = "garage.ts";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The surface handoff assigns the shared body and door void here; the imported bounds and roof function sufficed without a second wall owner.
  */
 export const buildGarageSharedWall = (): IHousePart[] => {
-  const under = (z: number): number => rightRoof(z) - ROOF_THICKNESS;
+  const under = (z: number): number => garageRoof(z);
   const back = GARAGE.outer.z[0];
   const front = GARAGE.outer.z[1];
   const shared = wallPanel({
@@ -52,18 +54,10 @@ export const buildGarageSharedWall = (): IHousePart[] => {
       { u: back, y: EXTERIOR_WALL_BOTTOM },
       { u: front, y: EXTERIOR_WALL_BOTTOM },
       { u: front, y: under(front) },
-      { u: MAIN_RIDGE_Z, y: under(MAIN_RIDGE_Z) },
+      { u: GARAGE_RIDGE_Z, y: under(GARAGE_RIDGE_Z) },
       { u: back, y: under(back) },
     ],
-    holes: [
-      {
-        id: "laundry-garage-door",
-        from: -4.4,
-        to: -3.35,
-        bottom: STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base,
-        top: 2.2,
-      },
-    ],
+    holes: [LAUNDRY_GARAGE_DOOR],
   });
   return [
     part("garage-shared-wall", OWNER, "wall", PALETTE.interiorWall, shared),
@@ -89,10 +83,10 @@ export const buildGarageFloorBase = (): IHousePart[] => [
         { x: GARAGE.inner.x[0], z: GARAGE.inner.z[0] },
         { x: GARAGE.inner.x[1], z: GARAGE.inner.z[0] },
         { x: GARAGE.inner.x[1], z: GARAGE.inner.z[1] },
-        { x: 11.1, z: GARAGE.inner.z[1] },
-        { x: 11.1, z: GARAGE.outer.z[1] },
-        { x: 6.1, z: GARAGE.outer.z[1] },
-        { x: 6.1, z: GARAGE.inner.z[1] },
+        { x: GARAGE_FRONT_DOOR.to, z: GARAGE.inner.z[1] },
+        { x: GARAGE_FRONT_DOOR.to, z: GARAGE.outer.z[1] },
+        { x: GARAGE_FRONT_DOOR.from, z: GARAGE.outer.z[1] },
+        { x: GARAGE_FRONT_DOOR.from, z: GARAGE.inner.z[1] },
         { x: GARAGE.inner.x[0], z: GARAGE.inner.z[1] },
       ],
       bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase,

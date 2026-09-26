@@ -26,14 +26,23 @@ import { PALETTE } from "../palette";
 import { GABLE, ROOF_THICKNESS, SPLIT_X, gFront, gable, mFront, rFront } from "../roof/junctions";
 import { type IHousePart, block, part, wallPanel, slopedSlab } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
+import { FRONT_DOOR } from "../rooms/entry";
 import { wallHead } from "./wall-head";
 
 const OWNER = "envelope/front.ts";
 const B = EXTERIOR_WALL_BOTTOM;
 const FRONT = MAIN.outer.z[1];
 const INNER = FRONT - MAIN.wall;
+/** Rough garage opening; room fit-out reserves the guide from this host. */
+/**
+ * @evidence spaces/envelope/front.md GARAGE_FRONT_DOOR is the single authored measurement record consumed by neighboring owners.
+ * @evidence spaces/envelope/front.md#garage-front-opening Its bounds or datum follow this source owner's reviewed plan.
+ * @evidence principles/core/source-units.md#source-scope-preservation GARAGE_FRONT_DOOR shares a host value without creating a second part or place.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers import GARAGE_FRONT_DOOR for matching boundaries and reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed GARAGE_FRONT_DOOR owner fixes this measurement; its consumers add no independent value.
+ */
+export const GARAGE_FRONT_DOOR = { id: "garage-front-door", from: 6.1, to: 11.1, bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase, top: 2.15 } as const;
 /** Bottom of the ground base reservation the wall leaves under the front door (10). */
-const SILL = STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base;
 
 /** Emit the front elevation walls. */
 /**
@@ -72,7 +81,7 @@ export const buildFront = (): IHousePart[] => {
       { id: "bedroom-two-front-window", from: -4.8, to: -2.7, bottom: 3.91, top: 5.31 },
       { id: "stair-front-window", from: -1.62, to: -0.84, bottom: 4.11, top: 5.21 },
       { id: "bedroom-three-front-window", from: 2.65, to: 4.75, bottom: 3.91, top: 5.31 },
-      { id: "front-door", from: 0.4, to: 1.4, bottom: SILL, top: 2.2 },
+      FRONT_DOOR,
     ],
   });
   const garageTop = gFront(GARAGE.outer.z[1]) - ROOF_THICKNESS;
@@ -85,7 +94,7 @@ export const buildFront = (): IHousePart[] => {
       { u: GARAGE.outer.x[1], y: garageTop },
       { u: GARAGE.inner.x[0], y: garageTop },
     ],
-    holes: [{ id: "garage-front-door", from: 6.1, to: 11.1, bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase, top: 2.15 }],
+    holes: [GARAGE_FRONT_DOOR],
   });
   // Over the gable ends the valley Z = -(9/8)·min(X - a, b - X) crosses the wall
   // thickness: between it and the inner face the main front roof is the higher
@@ -107,7 +116,7 @@ export const buildFront = (): IHousePart[] => {
       OWNER,
       "floor",
       PALETTE.structure,
-      block([0.4, STOREYS.groundFloor - GROUND_LAYERS.finish, INNER], [1.4, STOREYS.groundFloor + 0.02, FRONT]),
+      block([FRONT_DOOR.from, STOREYS.groundFloor - GROUND_LAYERS.finish, INNER], [FRONT_DOOR.to, STOREYS.groundFloor + 0.02, FRONT]),
     ),
     part("front-garage-wall", OWNER, "wall", PALETTE.siding, garage),
     wallHead({ id: "front-garage-wall-head", owner: OWNER, x: [GARAGE.inner.x[0], GARAGE.outer.x[1]], z: [-0.55, GARAGE.outer.z[1]], roof: gFront, outerZ: GARAGE.outer.z[1] }),

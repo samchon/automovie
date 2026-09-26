@@ -11,6 +11,17 @@
  */
 import { PALETTE } from "../palette";
 import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import { floorOf } from "../storeys";
+/** Shared void owned by this room and consumed at its floor and adjacent finish.
+ * @evidence spaces/rooms/wardrobe.md The primary-wardrobe-door void follows the partition assigned to wardrobe.
+ * @evidence principles/core/source-units.md#source-scope-preservation The primary-wardrobe-door interval remains with wardrobe while its adjacent room receives the span.
+ * @evidence principles/core/source-units.md#source-substantive-completion The primary-wardrobe-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The primary-wardrobe-door width and position are fixed by the wardrobe design.
+ */
+export const DOOR_PRIMARY_WARDROBE_DOOR = door("primary-wardrobe-door", "upper-storey", -10.2, -9.2);
+
+
+const FLOOR = floorOf("upper-storey");
 
 const WARDROBE: IRoomSpace = {
   id: "primary-wardrobe",
@@ -21,7 +32,7 @@ const WARDROBE: IRoomSpace = {
   // wardrobe.md#primary-wardrobe-plan and #wardrobe-storage-use; heights above the upper floor (+3.06).
   reservations: [
     // Hanging from the storage's left end (2.10) to 4.25; top shelf surface 2.05.
-    { id: "primary-wardrobe-hanging", kind: "storage", x: [2.1, 4.25], z: [-10.45, -9.9], y: [3.06, 5.11] },
+    { id: "primary-wardrobe-hanging", kind: "storage", x: [2.1, 4.25], z: [-10.45, -9.9], y: [FLOOR, FLOOR + 2.05] },
     // Shelves from 4.40 to the right end (5.50) of the 0.55-deep rear reservation.
     { id: "primary-wardrobe-shelves", kind: "storage", x: [4.4, 5.5], z: [-10.45, -9.9] },
     // Turning floor kept free of shelves inside the door, X = [0.90, 2.10], full room depth.
@@ -45,7 +56,7 @@ export const buildWardrobe = (): IRoomBuild => ({
   parts: [
     roomFloor(WARDROBE),
     roomCeiling(WARDROBE),
-    doorFloor(WARDROBE, "primary-wardrobe-door", [0.825, 0.9], [-10.2, -9.2]),
+    doorFloor(WARDROBE, "primary-wardrobe-door", [0.825, 0.9], [DOOR_PRIMARY_WARDROBE_DOOR.from, DOOR_PRIMARY_WARDROBE_DOOR.to]),
     partition({
       id: "wardrobe-primary-partition",
       owner: WARDROBE.owner,
@@ -53,7 +64,7 @@ export const buildWardrobe = (): IRoomBuild => ({
       axis: "z",
       across: [0.75, 0.9],
       along: [-10.45, -8.95],
-      holes: [door("primary-wardrobe-door", "upper-storey", -10.2, -9.2)],
+      holes: [DOOR_PRIMARY_WARDROBE_DOOR],
     }),
     partition({ id: "wardrobe-bath-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [0.9, 3.07] }),
     partition({ id: "wardrobe-tub-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [3.22, 5.5] }),

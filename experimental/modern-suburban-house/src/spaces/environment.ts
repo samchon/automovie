@@ -42,8 +42,13 @@ import { clipOutline, segmentsOf } from "./boundaries";
 import { type IHouse, buildHouse } from "./house";
 import { roomLevels } from "./rooms/shared";
 import { checkRouteNetwork } from "./routes";
-import { driveTop } from "./site/driveway";
-import { ZONE_HEAD_CLEARANCE } from "./site/zone";
+import { driveTop, DRIVEWAY } from "./site/driveway";
+import { FRONT_WALK } from "./site/front-walk";
+import { SIDE_WALK } from "./site/side-walk";
+import { LOWER_LANDING } from "./site/terrace";
+import { PORCH_STEP_BACK_Z, PORCH_STEP_CENTRE_X } from "./porch";
+import { STAIR_OPENING } from "./stair";
+import { ZONE_HEAD_CLEARANCE, type IExteriorZone } from "./site/zone";
 import type { IHousePart, IPlanPoint } from "./solids";
 import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
 
@@ -192,8 +197,8 @@ const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
   { x: -1.225, y: 1.36, z: -3.41 },
   { x: -1.225, y: 1.36, z: -3.985 },
   { x: -0.65, y: 1.36, z: -3.985 },
-  { x: 1.87, y: STOREYS.upperFloor, z: -3.985 },
-  { x: 2.47, y: STOREYS.upperFloor, z: -3.985 },
+  { x: STAIR_OPENING.east, y: STOREYS.upperFloor, z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2 },
+  { x: STAIR_OPENING.east + 0.6, y: STOREYS.upperFloor, z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2 },
 ];
 const STAIR_LANDING_STATION = 3;
 
@@ -215,6 +220,16 @@ const length = (route: readonly IAutoMovieVector3[], upTo: number): number => {
  * the two space-owned gate posts. The later model leaf is tested separately.
  */
 const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
+  const zone = (id: string): IExteriorZone => {
+    const found = house.zones.find((z) => z.id === id);
+    if (found === undefined) throw new Error(`connector zone ${id} is absent`);
+    return found;
+  };
+  const walk = zone("front-walk");
+  const porch = zone("front-porch");
+  const side = zone("side-front-access");
+  const sideRear = zone("side-rear-access");
+  const garden = zone("garden-lower-landing");
   const ids = (owner: string, prefix: string): string[] => house.parts.filter((p) => p.owner === owner && p.id.startsWith(prefix)).map((p) => p.id);
   const passage = (id: string, from: string, to: string, route: IAutoMovieVector3[], elements: string[], kind: "passage" | "stair" = "passage", width = kind === "stair" ? 1.5 : 1.2): IAutoMovieBuiltConnector => ({
     id,
@@ -228,12 +243,12 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
     elements,
   });
   return [
-    passage("porch-steps", "front-walk", "front-porch", [{ x: 0.9, y: -0.45, z: 3.2 }, { x: 0.9, y: -0.45, z: 2.8 }, { x: 0.9, y: 0, z: 2.2 }, { x: 0.9, y: 0, z: 1.6 }], ids("porch.ts", "porch-step-"), "stair"),
-    passage("front-walk-connector", "driveway", "front-walk", [{ x: 6.5, y: driveTop(4.85), z: 4.85 }, { x: 1.65, y: -0.45, z: 4.85 }, { x: 1.2, y: -0.45, z: 4.85 }], ids("site/front-walk.ts", "front-walk-connector")),
-    passage("garden-steps", "garden-terrace", "garden-lower-landing", [{ x: 0, y: 0, z: -13.9 }, { x: 0, y: 0, z: -14.4 }, { x: 0, y: -0.45, z: -15 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/terrace.ts", "garden-step-"), "stair"),
-    passage("side-front-path", "driveway", "side-front-access", [{ x: 10.8, y: driveTop(5.7), z: 5.7 }, { x: 12.9, y: -0.45, z: 5.7 }, { x: 12.9, y: -0.45, z: 0.55 }], ids("site/side-walk.ts", "side-walk")),
-    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: 12.9, y: -0.45, z: 0.55 }, { x: 12.9, y: -0.45, z: -0.3 }, { x: 12.9, y: -0.45, z: -2.35 }], ids("site/fence.ts", "gate-post-"), "passage", 1.05),
-    passage("side-rear-path", "side-rear-access", "garden-lower-landing", [{ x: 12.9, y: -0.45, z: -2.35 }, { x: 12.9, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -16.8 }, { x: 0, y: -0.45, z: -15.6 }], ids("site/side-walk.ts", "side-walk")),
+    passage("porch-steps", "front-walk", "front-porch", [{ x: PORCH_STEP_CENTRE_X, y: walk.anchor.y, z: FRONT_WALK.z[0] + 0.4 }, { x: PORCH_STEP_CENTRE_X, y: walk.anchor.y, z: FRONT_WALK.z[0] }, { x: PORCH_STEP_CENTRE_X, y: porch.anchor.y, z: PORCH_STEP_BACK_Z }, { x: PORCH_STEP_CENTRE_X, y: porch.anchor.y, z: porch.anchor.z }], ids("porch.ts", "porch-step-"), "stair"),
+    passage("front-walk-connector", "driveway", "front-walk", [{ x: DRIVEWAY.x[0] + 0.6, y: driveTop((FRONT_WALK.connectorZ[0] + FRONT_WALK.connectorZ[1]) / 2), z: (FRONT_WALK.connectorZ[0] + FRONT_WALK.connectorZ[1]) / 2 }, { x: FRONT_WALK.x[1], y: walk.anchor.y, z: (FRONT_WALK.connectorZ[0] + FRONT_WALK.connectorZ[1]) / 2 }, { x: walk.anchor.x, y: walk.anchor.y, z: (FRONT_WALK.connectorZ[0] + FRONT_WALK.connectorZ[1]) / 2 }], ids("site/front-walk.ts", "front-walk-connector")),
+    passage("garden-steps", "garden-terrace", "garden-lower-landing", [{ x: garden.anchor.x, y: zone("garden-terrace").anchor.y, z: -13.9 }, { x: garden.anchor.x, y: zone("garden-terrace").anchor.y, z: -14.4 }, { x: garden.anchor.x, y: garden.anchor.y, z: LOWER_LANDING.z[1] }, { x: garden.anchor.x, y: garden.anchor.y, z: garden.anchor.z }], ids("site/terrace.ts", "garden-step-"), "stair"),
+    passage("side-front-path", "driveway", "side-front-access", [{ x: DRIVEWAY.x[1] - 0.5, y: driveTop((SIDE_WALK.frontBand[0] + SIDE_WALK.frontBand[1]) / 2), z: (SIDE_WALK.frontBand[0] + SIDE_WALK.frontBand[1]) / 2 }, { x: side.anchor.x, y: SIDE_WALK.top, z: (SIDE_WALK.frontBand[0] + SIDE_WALK.frontBand[1]) / 2 }, { x: side.anchor.x, y: side.anchor.y, z: side.anchor.z }], ids("site/side-walk.ts", "side-walk")),
+    passage("side-yard-gate-passage", "side-front-access", "side-rear-access", [{ x: side.anchor.x, y: side.anchor.y, z: side.anchor.z }, { x: side.anchor.x, y: side.anchor.y, z: GARAGE.outer.z[1] }, { x: sideRear.anchor.x, y: sideRear.anchor.y, z: sideRear.anchor.z }], ids("site/fence.ts", "gate-post-"), "passage", 1.05),
+    passage("side-rear-path", "side-rear-access", "garden-lower-landing", [{ x: sideRear.anchor.x, y: sideRear.anchor.y, z: sideRear.anchor.z }, { x: sideRear.anchor.x, y: sideRear.anchor.y, z: SIDE_WALK.backBand[0] }, { x: garden.anchor.x, y: garden.anchor.y, z: SIDE_WALK.backBand[0] }, { x: garden.anchor.x, y: garden.anchor.y, z: LOWER_LANDING.z[1] }], ids("site/side-walk.ts", "side-walk")),
   ];
 };
 
@@ -360,13 +375,13 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
       kind: "stair",
       parent: "ground-storey",
       cells: [
-        cell("main-stair/lower-flight", { x: [-1.8, -0.65], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [-4.56, -1.45] }),
+        cell("main-stair/lower-flight", { x: [STAIR_OPENING.west, STAIR_OPENING.turnX], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [STAIR_OPENING.back, -1.45] }),
         // Under treads 7-9 the entry coat closet (entry-coat-storage) takes the volume up to its top.
-        cell("main-stair/upper-flight", { x: [-0.65, 1.03], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [-4.56, -3.41] }),
-        cell("main-stair/upper-flight-over-closet", { x: [1.03, 1.87], y: [2.15, STOREYS.upperCeiling], z: [-4.56, -3.41] }),
+        cell("main-stair/upper-flight", { x: [STAIR_OPENING.turnX, 1.03], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_OPENING.turnZ] }),
+        cell("main-stair/upper-flight-over-closet", { x: [1.03, STAIR_OPENING.east], y: [2.15, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_OPENING.turnZ] }),
         // The floor opening runs on to the front wall (02 stair-floor-opening): above the
         // entry ceiling the void X = [-1.80, -0.65], Z = [-1.45, -0.25] is stair space too.
-        cell("main-stair/front-void", { x: [-1.8, -0.65], y: [STOREYS.groundCeiling, STOREYS.upperCeiling], z: [-1.45, -0.25] }),
+        cell("main-stair/front-void", { x: [STAIR_OPENING.west, STAIR_OPENING.turnX], y: [STOREYS.groundCeiling, STOREYS.upperCeiling], z: [-1.45, STAIR_OPENING.front] }),
       ],
     },
   ];
@@ -374,25 +389,28 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     spaces.push({ id: storage.id, kind: "storage", parent: room.storey, cells: [cell(`${storage.id}/0`, storage)] });
   const surfaces: IAutoMovieBuiltSurface[] = [];
   for (const zone of house.zones) {
-    const ys = zone.rampTo === null ? [zone.anchor.y] : [zone.anchor.y, zone.rampTo.y];
-    const y: [number, number] = [Math.min(...ys), Math.max(...ys) + ZONE_HEAD_CLEARANCE];
+    const patches = zone.patches ?? [{ outline: zone.outline, anchor: zone.anchor, rampTo: zone.rampTo }];
     spaces.push({
       id: zone.id,
       kind: "exterior",
       // Every exterior zone of the route table sits on the ground storey (05, site-access-interface).
       parent: "ground-storey",
-      cells: rectangles(zone.owner, zone.outline).map((r, i) => cell(`${zone.id}/${i}`, { x: r.x, y, z: r.z })),
+      cells: patches.flatMap((patch, j) => {
+        const heights = patch.rampTo === null ? [patch.anchor.y] : [patch.anchor.y, patch.rampTo.y];
+        const y: [number, number] = [Math.min(...heights), Math.max(...heights) + ZONE_HEAD_CLEARANCE];
+        return rectangles(zone.owner, patch.outline).map((r, i) => cell(`${zone.id}/${j}/${i}`, { x: r.x, y, z: r.z }));
+      }),
     });
-    surfaces.push({
+    patches.forEach((patch, j) => surfaces.push({
       space: zone.id,
       surface: {
-        id: `${zone.id}-ground-surface`,
-        kind: zone.rampTo === null ? "platform" : "ramp",
-        polygon: zone.outline.map((q) => ({ x: q.x, y: 0, z: q.z })),
-        anchor: zone.anchor,
-        rampTo: zone.rampTo,
+        id: patches.length === 1 ? `${zone.id}-ground-surface` : `${zone.id}-ground-surface-${j}`,
+        kind: patch.rampTo === null ? "platform" : "ramp",
+        polygon: patch.outline.map((q) => ({ x: q.x, y: 0, z: q.z })),
+        anchor: patch.anchor,
+        rampTo: patch.rampTo,
       },
-    });
+    }));
   }
   for (const room of house.spaces) {
     const [floor, ceiling] = roomLevels(room);
@@ -432,7 +450,9 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     segments.forEach((seg, k) => {
       boundaries.push({
         id: idOf(k),
-        kind: p.role,
+        kind: p.role === "partition" && seg.sides.includes("house-site")
+          ? p.id.startsWith("upper-linen-") ? "storage-enclosure" : "partition-junction"
+          : p.role,
         spaces: seg.sides.filter((s) => s !== "house-site"),
         elements: [p.id],
         face: {

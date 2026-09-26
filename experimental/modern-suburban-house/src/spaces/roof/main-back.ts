@@ -18,5 +18,5 @@ import { BACK_EAVE_Z, LEFT_EAVE_X, MAIN_RIDGE_Z, ROOF_THICKNESS, SPLIT_X, mBack 
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-back parent states the ridge, split, rear eave, pitch, and underside depth; its bounds produced this rectangular plane directly.
  */
 export const buildMainBackRoof = (): IHousePart[] => [
-  part("roof-main-back", "roof/main-back.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([LEFT_EAVE_X, SPLIT_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]), top: (_x, z) => mBack(z), thickness: ROOF_THICKNESS })),
+  part("roof-main-back", "roof/main-back.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([LEFT_EAVE_X, SPLIT_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]), top: (_x, z) => mBack(z), thickness: ROOF_THICKNESS, freeEdge: (a, b) => (a.x === LEFT_EAVE_X && b.x === LEFT_EAVE_X) || (a.z === BACK_EAVE_Z && b.z === BACK_EAVE_Z) })),
 ];

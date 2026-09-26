@@ -11,7 +11,7 @@
  * valley corners of `GABLE_CORNERS` exactly.
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, part, slopedSlab } from "../solids";
+import { type IHousePart, part, slopedPlate } from "../solids";
 import { CHIMNEY_PLAN, FRONT_EAVE_Z, GABLE, GABLE_CORNERS, LEFT_EAVE_X, MAIN_RIDGE_Z, ROOF_THICKNESS, SPLIT_X, mFront } from "./junctions";
 
 const OWNER = "roof/main-front.ts";
@@ -19,17 +19,17 @@ const OWNER = "roof/main-front.ts";
 /**
  * Emit the main front face pieces.
  * @evidence spaces/roof/main-front.md This export builds the front main-roof remainder around the exposed gable and chimney notch.
- * @evidence spaces/roof/main-front.md#main-front-roof Four convex plans use the shared gable valley points and CHIMNEY_PLAN bounds, then mFront supplies one pitch to their sloped slabs.
+ * @evidence spaces/roof/main-front.md#main-front-roof Convex coplanar tiles form one roof part around the shared gable valley and chimney notch without internal side faces.
  * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its own roof pieces; it imports junction values instead of claiming their faces.
- * @evidence principles/core/source-units.md#source-substantive-completion The four plans become deterministic solid parts roof-main-front-0 through -3, closing the concave remainder without an empty placeholder.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-front parent defines both valley exclusion and chimney notch; splitting its concave remainder into convex mesh pieces needed no new exposed boundary.
+ * @evidence principles/core/source-units.md#source-substantive-completion Four top/bottom tiles in one mesh preserve the cut plan and give thickness only to the free eave edges.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-front parent defines the valley, notch, and free eaves consumed by this mesh.
  */
 export const buildMainFrontRoof = (): IHousePart[] => {
   const { apex, leftFoot, rightFoot } = GABLE_CORNERS;
   const [notchBack, notchFront] = CHIMNEY_PLAN.z;
   const notchRight = CHIMNEY_PLAN.x[1];
   // Where the left valley crosses the notch's front edge Z = -1.65.
-  const valleyAtNotch = { x: GABLE.a - (8 / 9) * notchFront, z: notchFront };
+  const valleyAtNotch = { x: leftFoot.x + (apex.x - leftFoot.x) * (notchFront - leftFoot.z) / (apex.z - leftFoot.z), z: notchFront };
   const top = (_x: number, z: number): number => mFront(z);
   const pieces = [
     // East of the gable ridge line: the ridge to the right valley and the front eave.
@@ -58,7 +58,8 @@ export const buildMainFrontRoof = (): IHousePart[] => {
     // West, in front of the notch, to the left valley foot on the eave.
     [{ x: LEFT_EAVE_X, z: notchFront }, valleyAtNotch, leftFoot, { x: LEFT_EAVE_X, z: FRONT_EAVE_Z }],
   ];
-  return pieces.map((plan, i) =>
-    part(`roof-main-front-${i}`, OWNER, "roof", PALETTE.roof, slopedSlab({ plan, top, thickness: ROOF_THICKNESS })),
-  );
+  const freeEdge = (a: { x: number; z: number }, b: { x: number; z: number }): boolean =>
+    (a.z === FRONT_EAVE_Z && b.z === FRONT_EAVE_Z) ||
+    (a.x === LEFT_EAVE_X && b.x === LEFT_EAVE_X);
+  return [part("roof-main-front", OWNER, "roof", PALETTE.roof, slopedPlate({ plans: pieces, top, thickness: ROOF_THICKNESS, freeEdge }))];
 };

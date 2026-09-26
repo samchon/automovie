@@ -15,10 +15,16 @@
  * complement. Both use the same corner values below so no face rounds the
  * valley independently.
  *
- * Consumers: the eight roof plane owners, the envelope owners for wall heads,
- * and ceilings. This module emits no surface.
+ * Consumers: the eight roof plane owners and the envelope owners for wall heads.
+ * This module emits no surface.
  */
 import { GARAGE, MAIN } from "../building";
+const MAIN_PITCH = 8 / 12;
+const GABLE_PITCH = 9 / 12;
+const RIGHT_PITCH = 7 / 12;
+const GARAGE_PITCH = 5 / 12;
+const GABLE_TO_MAIN_SLOPE = GABLE_PITCH / MAIN_PITCH;
+const MAIN_TO_GABLE_SLOPE = MAIN_PITCH / GABLE_PITCH;
 
 /** Vertical underside reservation of every roof, metres (roof-profile-datums). */
 /**
@@ -86,7 +92,7 @@ export const GARAGE_RIDGE_Z = (GARAGE.outer.z[1] + GARAGE.outer.z[0]) / 2;
  * @evidence principles/core/source-units.md#source-substantive-completion Its arithmetic yields a deterministic Y for every front plane vertex and wall-head query.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The profile parent supplies the 6.30 datum and 8/12 slope; no extra front pitch was chosen.
  */
-export const mFront = (z: number): number => 6.3 - (8 / 12) * z;
+export const mFront = (z: number): number => 6.3 - MAIN_PITCH * (z - MAIN.outer.z[1]);
 /** Main roof back face. */
 /**
  * @evidence spaces/roof/00-junctions.md mBack gives the high main roof's rear weather height.
@@ -94,7 +100,7 @@ export const mFront = (z: number): number => 6.3 - (8 / 12) * z;
  * @evidence principles/core/source-units.md#source-substantive-completion The 8/12 expression returns a numeric Y used by rear roof and envelope builders.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The profile parent writes the rear main equation; translating it into arithmetic uncovered no absent ridge rule.
  */
-export const mBack = (z: number): number => 6.3 + (8 / 12) * (z + 10.7);
+export const mBack = (z: number): number => 6.3 + MAIN_PITCH * (z - MAIN.outer.z[0]);
 /** Right low roof front face (same walls and ridge, 5.95 at the wall line, 7/12). */
 /**
  * @evidence spaces/roof/00-junctions.md rFront gives the lower right roof's front height, separate from mFront.
@@ -102,7 +108,7 @@ export const mBack = (z: number): number => 6.3 + (8 / 12) * (z + 10.7);
  * @evidence principles/core/source-units.md#source-substantive-completion Right-front roof and wall-head consumers receive a numeric Y for each Z.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The profile parent fixes the lower right front datum and pitch, so no step height was invented.
  */
-export const rFront = (z: number): number => 5.95 - (7 / 12) * z;
+export const rFront = (z: number): number => 5.95 - RIGHT_PITCH * (z - MAIN.outer.z[1]);
 /** Right low roof back face. */
 /**
  * @evidence spaces/roof/00-junctions.md rBack returns the lower right roof's rear Y at the queried Z.
@@ -110,7 +116,7 @@ export const rFront = (z: number): number => 5.95 - (7 / 12) * z;
  * @evidence principles/core/source-units.md#source-substantive-completion The formula supplies deterministic heights to the rear-right slab and sloping wall closure.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The profile parent provides Rback at the main rear wall; the formula needed no new slope.
  */
-export const rBack = (z: number): number => 5.95 + (7 / 12) * (z + 10.7);
+export const rBack = (z: number): number => 5.95 + RIGHT_PITCH * (z - MAIN.outer.z[0]);
 /** Front gable faces: F(X) = 6.30 + (9/12) × min(X - a, b - X). */
 /**
  * @evidence spaces/roof/00-junctions.md gable returns the front-gable weather height from distance to its nearer side wall.
@@ -118,7 +124,7 @@ export const rBack = (z: number): number => 5.95 + (7 / 12) * (z + 10.7);
  * @evidence principles/core/source-units.md#source-substantive-completion Math.min produces the two symmetric rising slopes that both gable plane builders consume.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The gable profile parent specifies F(X) with the nearer-end minimum; no additional apex height was chosen.
  */
-export const gable = (x: number): number => 6.3 + (9 / 12) * Math.min(x - GABLE.a, GABLE.b - x);
+export const gable = (x: number): number => 6.3 + GABLE_PITCH * Math.min(x - GABLE.a, GABLE.b - x);
 /** Garage front face. */
 /**
  * @evidence spaces/roof/00-junctions.md gFront gives the low garage roof's front weather height.
@@ -126,7 +132,7 @@ export const gable = (x: number): number => 6.3 + (9 / 12) * Math.min(x - GABLE.
  * @evidence principles/core/source-units.md#source-substantive-completion The 5/12 descent gives garage-front slab and front wall closure a concrete Y.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage profile parent specifies the front-wall 2.95 m height and 5/12 pitch.
  */
-export const gFront = (z: number): number => 2.95 - (5 / 12) * (z + 0.3);
+export const gFront = (z: number): number => 2.95 - GARAGE_PITCH * (z - GARAGE.outer.z[1]);
 /** Garage back face. */
 /**
  * @evidence spaces/roof/00-junctions.md gBack gives the garage rear roof height from the -6.70 wall line.
@@ -134,7 +140,7 @@ export const gFront = (z: number): number => 2.95 - (5 / 12) * (z + 0.3);
  * @evidence principles/core/source-units.md#source-substantive-completion Garage-back slab and rear closure can evaluate one exact Y for any Z in their region.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage profile parent fixes the rear-wall equation; no extra garage ridge height was required.
  */
-export const gBack = (z: number): number => 2.95 + (5 / 12) * (z + 6.7);
+export const gBack = (z: number): number => 2.95 + GARAGE_PITCH * (z - GARAGE.outer.z[0]);
 
 /** Main roof weather surface at any Z (front or back of the ridge). */
 /**
@@ -195,7 +201,7 @@ export const LEFT_EAVE_X = MAIN.outer.x[0] - OVERHANG.main;
 export const RIGHT_EAVE_X = MAIN.outer.x[1] + OVERHANG.right;
 
 /** Valley Z at a gable X: where F(X) equals Mfront(Z). */
-const valleyZ = (x: number): number => -(9 / 8) * Math.min(x - GABLE.a, GABLE.b - x);
+const valleyZ = (x: number): number => MAIN.outer.z[1] - GABLE_TO_MAIN_SLOPE * Math.min(x - GABLE.a, GABLE.b - x);
 
 /**
  * Corners of the exposed front gable, shared by the gable planes and the main
@@ -211,7 +217,7 @@ const valleyZ = (x: number): number => -(9 / 8) * Math.min(x - GABLE.a, GABLE.b 
  */
 export const GABLE_CORNERS = (() => {
   // valleyZ(x) = FRONT_EAVE_Z  ⇒  min(x - a, b - x) = -(8/9) × FRONT_EAVE_Z
-  const reach = -(8 / 9) * FRONT_EAVE_Z;
+  const reach = MAIN_TO_GABLE_SLOPE * (MAIN.outer.z[1] - FRONT_EAVE_Z);
   return {
     leftFoot: { x: GABLE.a + reach, z: FRONT_EAVE_Z },
     rightFoot: { x: GABLE.b - reach, z: FRONT_EAVE_Z },

@@ -9,6 +9,10 @@
  * common owners (07), so this owner emits only its floor and ceiling finishes
  * and its halves of the floor finish under the door voids it faces.
  */
+import { DOOR_SERVICE_PANTRY_DOOR } from "./pantry";
+import { DOOR_SERVICE_LAUNDRY_DOOR } from "./laundry";
+import { DOOR_SERVICE_POWDER_DOOR } from "./powder";
+import { DOOR_SERVICE_COMMON_OPENING } from "./common";
 import { PALETTE } from "../palette";
 import { type IRoomBuild, type IRoomSpace, doorFloor, roomCeiling, roomFloor } from "./shared";
 
@@ -40,9 +44,9 @@ export const buildService = (): IRoomBuild => ({
   parts: [
     roomFloor(SERVICE),
     roomCeiling(SERVICE),
-    doorFloor(SERVICE, "service-powder-door", [3.07, 3.145], [-1.65, -0.7]),
-    doorFloor(SERVICE, "service-laundry-door", [3.07, 3.145], [-4.4, -3.35]),
-    doorFloor(SERVICE, "service-pantry-door", [3.07, 3.145], [-5.75, -4.8]),
-    doorFloor(SERVICE, "service-common-opening", [-1.35, 3.07], [-6.125, -6.05]),
+    doorFloor(SERVICE, "service-powder-door", [3.07, 3.145], [DOOR_SERVICE_POWDER_DOOR.from, DOOR_SERVICE_POWDER_DOOR.to]),
+    doorFloor(SERVICE, "service-laundry-door", [3.07, 3.145], [DOOR_SERVICE_LAUNDRY_DOOR.from, DOOR_SERVICE_LAUNDRY_DOOR.to]),
+    doorFloor(SERVICE, "service-pantry-door", [3.07, 3.145], [DOOR_SERVICE_PANTRY_DOOR.from, DOOR_SERVICE_PANTRY_DOOR.to]),
+    doorFloor(SERVICE, "service-common-opening", [DOOR_SERVICE_COMMON_OPENING.from, DOOR_SERVICE_COMMON_OPENING.to], [-6.125, -6.05]),
   ],
 });

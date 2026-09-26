@@ -50,6 +50,9 @@
     "test": "node --test src/measurements/*.test.cjs",
     "docs-review-host": "node src/measurements/docs-review-host.cjs",
     "check": "node src/measurements/check.cjs",
+    "check:spaces": "node src/measurements/check.cjs --layer=spaces",
+    "check:models": "node src/measurements/check.cjs --layer=models",
+    "check:settings": "node src/measurements/check.cjs --layer=settings",
     "review-check": "node src/measurements/review-check.cjs"
   },
   "dependencies": {

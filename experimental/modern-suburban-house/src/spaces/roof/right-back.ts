@@ -18,5 +18,5 @@ import { BACK_EAVE_Z, MAIN_RIDGE_Z, RIGHT_EAVE_X, ROOF_THICKNESS, SPLIT_X, rBack
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-back parent fixes the step, rear eave, ridge, and pitch; the rectangular solid required no new wall-head location.
  */
 export const buildRightBackRoof = (): IHousePart[] => [
-  part("roof-right-back", "roof/right-back.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([SPLIT_X, RIGHT_EAVE_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]), top: (_x, z) => rBack(z), thickness: ROOF_THICKNESS })),
+  part("roof-right-back", "roof/right-back.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([SPLIT_X, RIGHT_EAVE_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]), top: (_x, z) => rBack(z), thickness: ROOF_THICKNESS, freeEdge: (a, b) => (a.x === RIGHT_EAVE_X && b.x === RIGHT_EAVE_X) || (a.z === BACK_EAVE_Z && b.z === BACK_EAVE_Z) })),
 ];

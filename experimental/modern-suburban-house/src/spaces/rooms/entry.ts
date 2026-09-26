@@ -19,10 +19,29 @@
  *
  * Output: the room record, its wood floor finish and the closet walls.
  */
+import { DOOR_ENTRY_LIVING_DOOR } from "./living";
 import { PALETTE } from "../palette";
 import { block, part } from "../solids";
-import { GROUND_LAYERS, STOREYS } from "../storeys";
+import { GROUND_LAYERS, STOREYS, floorOf } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 import { type IRoomBuild, type IRoomSpace, doorFloor, roomCeiling, roomFloor } from "./shared";
+
+const FLOOR = floorOf("ground-storey");
+/** The entry plan owns the front threshold span consumed by wall, base and porch. */
+/**
+ * @evidence spaces/rooms/entry.md The front entrance has one room-owned rough door span.
+ * @evidence spaces/rooms/entry.md#entry-plan The same span and floor-derived sill feed its wall, base, and porch.
+ * @evidence principles/core/source-units.md#source-scope-preservation This value declares no second doorway or door leaf.
+ * @evidence principles/core/source-units.md#source-substantive-completion Consumers use one export for rough opening and threshold alignment.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The entry parent already specifies the doorway span and sill.
+ */
+export const FRONT_DOOR = {
+  id: "front-door",
+  from: 0.4,
+  to: 1.4,
+  bottom: STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base,
+  top: 2.2,
+} as const;
 
 const ENTRY: IRoomSpace = {
   id: "front-entry",
@@ -39,11 +58,11 @@ const ENTRY: IRoomSpace = {
   floor: PALETTE.woodFloor,
   reservations: [
     // entry-plan: the stair's lower waiting area kept on this room's floor.
-    { id: "entry-stair-waiting", kind: "use", x: [-1.8, -0.65], z: [-1.45, -0.25] },
+    { id: "entry-stair-waiting", kind: "use", x: [STAIR_OPENING.west, STAIR_OPENING.turnX], z: [-1.45, STAIR_OPENING.front] },
     // entry-use-routes: the shallow mat behind the opened front door.
     // entry-coat-storage decides the closet's front use, facing -X on the service band floor.
     { id: "entry-coat-front-use", kind: "use", space: "service-access", x: [2.1, 2.7], z: [-4.4, -3.65] },
-    { id: "entry-mat", kind: "covering", x: [0.45, 1.35], z: [-1.95, -1.3], y: [0, 0.006] },
+    { id: "entry-mat", kind: "covering", x: [0.45, 1.35], z: [-1.95, -1.3], y: [FLOOR, FLOOR + 0.006] },
     // entry-coat-storage's body Z = [-4.56, -3.51] and its front use
     // X = [2.10, 2.70] lie outside this outline (the body is `storages`).
   ],
@@ -73,14 +92,14 @@ export const buildEntry = (): IRoomBuild => ({
     // Over X = [-1.80, -0.65], Z = [-1.45, -0.25] the stair opening runs on to the
     // front wall (02 stair-floor-opening): the entry ceiling stops at its edge.
     roomCeiling(ENTRY, [
-      { x: -0.65, z: -0.25 },
+      { x: STAIR_OPENING.turnX, z: STAIR_OPENING.front },
       { x: 2.02, z: -0.25 },
       { x: 2.02, z: -3.41 },
       { x: -0.5, z: -3.41 },
       { x: -0.5, z: -1.45 },
-      { x: -0.65, z: -1.45 },
+      { x: STAIR_OPENING.turnX, z: -1.45 },
     ]),
-    doorFloor(ENTRY, "entry-living-door", [-1.875, -1.8], [-1.35, -0.35]),
+    doorFloor(ENTRY, "entry-living-door", [-1.875, -1.8], [DOOR_ENTRY_LIVING_DOOR.from, DOOR_ENTRY_LIVING_DOOR.to]),
     part("entry-coat-back", ENTRY.owner, "partition", PALETTE.interiorWall, block([1.03, BASE, -4.56], [1.1, COAT_TOP, -3.41])),
     part("entry-coat-side", ENTRY.owner, "partition", PALETTE.interiorWall, block([1.1, BASE, -3.51], [1.87, COAT_TOP, -3.41])),
   ],

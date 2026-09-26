@@ -16,9 +16,9 @@
  */
 import { buildGroundFloor } from "./floors/ground";
 import { buildInterstorey, buildUpperCeiling } from "./floors/upper";
-import { buildFront } from "./envelope/front";
+import { buildFront, GARAGE_FRONT_DOOR } from "./envelope/front";
 import { buildLeft } from "./envelope/left";
-import { buildRear } from "./envelope/rear";
+import { buildRear, GARDEN_DOOR } from "./envelope/rear";
 import { buildRight } from "./envelope/right";
 import { buildGarageCeiling, buildGarageFloorBase, buildGarageSharedWall } from "./garage";
 import { buildPorch } from "./porch";
@@ -30,26 +30,28 @@ import { buildMainBackRoof } from "./roof/main-back";
 import { buildMainFrontRoof } from "./roof/main-front";
 import { buildRightBackRoof } from "./roof/right-back";
 import { buildRightFrontRoof } from "./roof/right-front";
-import { buildBedroomThree } from "./rooms/bedroom-three";
-import { buildBedroomTwo } from "./rooms/bedroom-two";
-import { buildCommon } from "./rooms/common";
-import { buildEntry } from "./rooms/entry";
+import { buildBedroomThree, DOOR_HALL_BEDROOM_THREE_DOOR } from "./rooms/bedroom-three";
+import { buildBedroomTwo, DOOR_HALL_BEDROOM_TWO_DOOR } from "./rooms/bedroom-two";
+import { buildCommon, DOOR_SERVICE_COMMON_OPENING, DOOR_LIVING_COMMON_OPENING } from "./rooms/common";
+import { buildEntry, FRONT_DOOR } from "./rooms/entry";
 import { buildGarageInterior } from "./rooms/garage-interior";
-import { buildLaundry } from "./rooms/laundry";
-import { buildLiving } from "./rooms/living";
-import { buildPantry } from "./rooms/pantry";
-import { buildPowder } from "./rooms/powder";
-import { buildPrimary } from "./rooms/primary";
+import { buildLaundry, DOOR_SERVICE_LAUNDRY_DOOR, LAUNDRY_GARAGE_DOOR } from "./rooms/laundry";
+import { buildLiving, DOOR_ENTRY_LIVING_DOOR } from "./rooms/living";
+import { buildPantry, DOOR_SERVICE_PANTRY_DOOR } from "./rooms/pantry";
+import { buildPowder, DOOR_SERVICE_POWDER_DOOR } from "./rooms/powder";
+import { buildPrimary, DOOR_HALL_PRIMARY_DOOR } from "./rooms/primary";
 import { buildService } from "./rooms/service";
-import { buildShowerBath } from "./rooms/shower-bath";
-import { buildTubBath } from "./rooms/tub-bath";
+import { buildShowerBath, DOOR_HALL_SHOWER_DOOR } from "./rooms/shower-bath";
+import { buildTubBath, DOOR_HALL_TUB_DOOR } from "./rooms/tub-bath";
 import { buildUpperHall } from "./rooms/upper-hall";
-import { buildWardrobe } from "./rooms/wardrobe";
+import { buildWardrobe, DOOR_PRIMARY_WARDROBE_DOOR } from "./rooms/wardrobe";
 import { buildSite } from "./site";
 import { type IRoomSpace, type IStorageSpace, checkReservations } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
 import type { IHousePart } from "./solids";
-import { buildStair } from "./stair";
+import { CEILING_FINISH } from "./storeys";
+import { buildStair, STAIR_OPENING } from "./stair";
+
 
 /** The house as the viewer, measurements and delivery consume it. */
 /**
@@ -152,6 +154,24 @@ export const buildHouse = (): IHouse => {
     if (seen.has(p.id)) throw new Error(`duplicate house part id "${p.id}" from ${p.owner}`);
     seen.add(p.id);
   }
+  const expectedDoors = [DOOR_SERVICE_COMMON_OPENING, DOOR_LIVING_COMMON_OPENING, DOOR_HALL_BEDROOM_THREE_DOOR, DOOR_HALL_BEDROOM_TWO_DOOR, FRONT_DOOR, DOOR_SERVICE_LAUNDRY_DOOR, LAUNDRY_GARAGE_DOOR, DOOR_ENTRY_LIVING_DOOR, DOOR_SERVICE_PANTRY_DOOR, DOOR_SERVICE_POWDER_DOOR, DOOR_HALL_PRIMARY_DOOR, DOOR_HALL_SHOWER_DOOR, DOOR_HALL_TUB_DOOR, DOOR_PRIMARY_WARDROBE_DOOR, GARAGE_FRONT_DOOR, GARDEN_DOOR];
+  const actualDoors = parts.flatMap((p) => p.wall?.holes ?? []).filter((h) => expectedDoors.some((d) => d.id === h.id));
+  for (const expected of expectedDoors) {
+    const matches = actualDoors.filter((hole) => hole.id === expected.id);
+    if (matches.length !== 1 || ["from", "to", "bottom", "top"].some((key) => Math.abs(Number(matches[0]?.[key as keyof typeof expected]) - Number(expected[key as keyof typeof expected])) > 1e-6))
+      throw new Error(`door void ${expected.id} differs from its design owner`);
+  }
+  const hasVertex = (id: string, x: number, z: number): boolean => {
+    const mesh = parts.find((part) => part.id === id)?.mesh;
+    if (mesh === undefined) throw new Error(`shared opening part ${id} is absent`);
+    for (let i = 0; i < mesh.positions.length; i += 3)
+      if (Math.abs(mesh.positions[i]! - x) < 1e-6 && Math.abs(mesh.positions[i + 2]! - z) < 1e-6) return true;
+    return false;
+  };
+  if (!hasVertex("interstorey-structure", STAIR_OPENING.east + CEILING_FINISH, STAIR_OPENING.back - CEILING_FINISH)
+      || !hasVertex("interstorey-structure", STAIR_OPENING.turnX + CEILING_FINISH, STAIR_OPENING.turnZ + CEILING_FINISH)
+      || !hasVertex("front-entry-ceiling", STAIR_OPENING.turnX, STAIR_OPENING.front))
+    throw new Error("stair opening differs among stair, interstorey, and entry ceiling owners");
   const spaces = rooms.map((room) => room.space);
   checkReservations(spaces);
   const spaceIds = new Set<string>();

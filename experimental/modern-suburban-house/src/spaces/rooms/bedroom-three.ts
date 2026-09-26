@@ -11,6 +11,17 @@
  */
 import { PALETTE } from "../palette";
 import { type IRoomBuild, type IRoomSpace, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import { floorOf } from "../storeys";
+/** Shared void owned by this room and consumed at its floor and adjacent finish.
+ * @evidence spaces/rooms/bedroom-three.md The hall-bedroom-three-door void follows the partition assigned to bedroom-three.
+ * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-three-door interval remains with bedroom-three while its adjacent room receives the span.
+ * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-three-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-bedroom-three-door width and position are fixed by the bedroom-three design.
+ */
+export const DOOR_HALL_BEDROOM_THREE_DOOR = door("hall-bedroom-three-door", "upper-storey", -4.46, -3.51);
+
+
+const FLOOR = floorOf("upper-storey");
 
 const BEDROOM_THREE: IRoomSpace = {
   id: "bedroom-three",
@@ -29,12 +40,12 @@ const BEDROOM_THREE: IRoomSpace = {
   floor: PALETTE.carpet,
   // bedroom-three.md#bedroom-three-furniture-use; heights above the upper floor (+3.06).
   reservations: [
-    { id: "bedroom-three-bed", kind: "furniture", x: [-0.25, 0.9], z: [-3.1, -0.95], y: [3.06, 4.01] },
-    { id: "bedroom-three-nightstand", kind: "furniture", x: [1.05, 1.5], z: [-3.1, -2.65], y: [3.06, 4.11] },
+    { id: "bedroom-three-bed", kind: "furniture", x: [-0.25, 0.9], z: [-3.1, -0.95], y: [FLOOR, FLOOR + 0.95] },
+    { id: "bedroom-three-nightstand", kind: "furniture", x: [1.05, 1.5], z: [-3.1, -2.65], y: [FLOOR, FLOOR + 1.05] },
     // Z from -0.85 to the front inner face (-0.25).
-    { id: "bedroom-three-desk", kind: "furniture", x: [1.4, 2.55], z: [-0.85, -0.25], y: [3.06, 3.81] },
+    { id: "bedroom-three-desk", kind: "furniture", x: [1.4, 2.55], z: [-0.85, -0.25], y: [FLOOR, FLOOR + 0.75] },
     // X from 4.90 to the right inner face (5.50).
-    { id: "bedroom-three-closet", kind: "storage", x: [4.9, 5.5], z: [-2.8, -1.3], y: [3.06, 5.26] },
+    { id: "bedroom-three-closet", kind: "storage", x: [4.9, 5.5], z: [-2.8, -1.3], y: [FLOOR, FLOOR + 2.2] },
     { id: "bedroom-three-desk-chair-use", kind: "use", x: [1.5, 2.25], z: [-1.6, -0.85] },
     { id: "bedroom-three-closet-use", kind: "use", x: [4.3, 4.9], z: [-2.8, -1.3] },
     { id: "bedroom-three-entry-band", kind: "route", x: [3.3, 4.2], z: [-4.3, -1.6] },
@@ -56,7 +67,7 @@ export const buildBedroomThree = (): IRoomBuild => ({
   parts: [
     roomFloor(BEDROOM_THREE),
     roomCeiling(BEDROOM_THREE),
-    doorFloor(BEDROOM_THREE, "hall-bedroom-three-door", [3.145, 3.22], [-4.46, -3.51]),
+    doorFloor(BEDROOM_THREE, "hall-bedroom-three-door", [3.145, 3.22], [DOOR_HALL_BEDROOM_THREE_DOOR.from, DOOR_HALL_BEDROOM_THREE_DOOR.to]),
     partition({
       id: "bedroom-three-arrival-partition",
       owner: BEDROOM_THREE.owner,
@@ -64,7 +75,7 @@ export const buildBedroomThree = (): IRoomBuild => ({
       axis: "z",
       across: [3.07, 3.22],
       along: [-4.71, -3.41],
-      holes: [door("hall-bedroom-three-door", "upper-storey", -4.46, -3.51)],
+      holes: [DOOR_HALL_BEDROOM_THREE_DOOR],
     }),
   ],
 });

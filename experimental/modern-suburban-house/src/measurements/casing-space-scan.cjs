@@ -22,15 +22,18 @@ const vertical = [...verticalLine.matchAll(/Y=\[([^\]]+)\]/g)].map((m) => m[1].s
 const [[casingBottom, casingShoulder] = [], [headBase, headTop] = []] = vertical;
 if (![casingWidth, projection, casingBottom, casingShoulder, headBase, headTop].every(Number.isFinite))
   throw new Error("Casing dimensions are not parseable");
-const floorSource = fs.readFileSync(path.join(root, "src/spaces/storeys.ts"), "utf8");
-const upperFloor = Number(/upperFloor:\s*(\d+(?:\.\d+)?)/.exec(floorSource)?.[1]);
-if (!Number.isFinite(upperFloor)) throw new Error("Upper storey datum is not parseable");
-/** @typedef {[number, number]} Span */
+// Read the executed spaces values. Text matching cannot follow imported voids,
+// derived floor datums or formatting changes in the source files.
+require(require.resolve("tsx/cjs"));
+const { buildHouse } = require("../spaces/house.ts");
+const { floorOf } = require("../spaces/storeys.ts");
+const house = buildHouse();
+/** @typedef {readonly [number, number]} Span */
 /** @param {string} s @returns {Span} */
 const pair = (s) => {
-  const parts = s.split(",").map((v) => Number(v.trim().replace("−", "-")));
+  const parts = s.split(",").map((v) => Number(v.trim().replace(/\u2212/g, "-")));
   if (parts.length !== 2 || !parts.every(Number.isFinite)) throw new Error(`Invalid interval ${s}`);
-  return /** @type {Span} */ (parts);
+  return /** @type {Span} */ (/** @type {unknown} */ (parts));
 };
 /** @param {Span} a @param {Span} b */
 const overlap = (a, b) => Math.min(a[1], b[1]) - Math.max(a[0], b[0]);
@@ -41,40 +44,26 @@ const isPositive = (v) => v > 1e-8;
 /** @typedef {{id:string,kind:string,file:string,x:Span,z:Span,y:Span|null}} Reservation */
 /** @typedef {{id:string,file:string,axis:string,across:Span,along:Span,floor:number}} Wall */
 /** @type {Reservation[]} */
-const boxes = [];
+const boxes = house.spaces.flatMap((room) => (room.reservations ?? []).map((box) => ({
+  id: box.id, kind: box.kind, file: path.basename(room.owner), x: box.x, z: box.z, y: box.y ?? null,
+})));
 /** @type {Wall[]} */
 const partitions = [];
 /** @type {{id:string,wall:Wall,from:number,to:number}[]} */
 const doors = [];
-for (const { file, text } of sources) {
-  for (const m of text.matchAll(/\{ id: "([^"]+)", kind: "([^"]+)",(?: space: "[^"]+",)? x: \[([^\]]+)\], z: \[([^\]]+)\](?:, y: \[([^\]]+)\])?/g))
-    boxes.push({ id: m[1], kind: m[2], file, x: pair(m[3]), z: pair(m[4]), y: m[5] ? pair(m[5]) : null });
-  for (const m of text.matchAll(/partition\(\{([\s\S]*?)\}\)/g)) {
-    const part = m[1];
-    const id = /id:\s*"([^"]+)"/.exec(part)?.[1];
-    const axis = /axis:\s*"([xz])"/.exec(part)?.[1];
-    const across = /across:\s*\[([^\]]+)\]/.exec(part)?.[1];
-    const along = /along:\s*\[([^\]]+)\]/.exec(part)?.[1];
-    if (!id || !axis || !across || !along) throw new Error(`Unparsed partition in ${file}`);
-    const floor = /storey:\s*"upper-storey"/.test(part) || /storey:\s*"upper-storey"/.test(text.slice(0, text.indexOf("reservations:"))) ? upperFloor : 0;
-    const wall = { id, file, axis, across: pair(across), along: pair(along), floor };
-    partitions.push(wall);
-    for (const hole of part.matchAll(/door\("([^"]+)",\s*(?:"[^"]+"|storey),\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/g))
-      if (!hole[1].endsWith("-opening")) doors.push({ id: hole[1], wall, from: Number(hole[2]), to: Number(hole[3]) });
-  }
+for (const part of house.parts) {
+  if (!part.wall || !(part.role === "partition" || part.id === "garage-shared-wall")) continue;
+  const room = house.spaces.find((space) => space.owner === part.owner);
+  const wall = {
+    id: part.id, file: path.basename(part.owner), axis: part.wall.axis,
+    across: part.wall.across,
+    along: /** @type {Span} */ ([Math.min(...part.wall.outline.map((v) => v.u)), Math.max(...part.wall.outline.map((v) => v.u))]),
+    floor: room ? (room.levels?.[0] ?? floorOf(room.storey)) : floorOf("ground-storey"),
+  };
+  partitions.push(wall);
+  for (const hole of part.wall.holes) if (hole.id.endsWith("-door"))
+    doors.push({ id: hole.id, wall, from: hole.from, to: hole.to });
 }
-// The attached garage's shared wall is outside rooms/*.ts, but its door is
-// governed by the same interior-door model section.
-const garage = fs.readFileSync(path.join(root, "src/spaces/garage.ts"), "utf8");
-const shared = /across:\s*\[MAIN\.inner\.x\[1\], MAIN\.outer\.x\[1\]\][\s\S]*?holes:\s*\[\{ id: "([^"]+)", from: ([^,]+), to: ([^,]+)/.exec(garage);
-const building = fs.readFileSync(path.join(root, "src/spaces/building.ts"), "utf8");
-const wallX = /inner:\s*\{[^}]*x:\s*\[([^\]]+)\]/.exec(building);
-const outerX = /outer:\s*\{[^}]*x:\s*\[([^\]]+)\]/.exec(building);
-if (!shared || !wallX || !outerX) throw new Error("Garage shared wall door source is not parseable");
-/** @type {Wall} */
-const garageWall = { id: "garage-shared-wall", file: "garage.ts", axis: "z", across: [pair(wallX[1])[1], pair(outerX[1])[1]], along: [-6.7, -0.3], floor: 0 };
-partitions.push(garageWall);
-doors.push({ id: shared[1], wall: garageWall, from: Number(shared[2]), to: Number(shared[3]) });
 if (doors.length !== 11) throw new Error(`Expected eleven authored interior doors; found ${doors.length}: ${doors.map((d) => d.id).join(", ")}`);
 if (process.argv.includes("--inventory")) console.log(JSON.stringify({ doors }, null, 2));
 
@@ -199,8 +188,8 @@ for (const door of doors) {
   const open = row.sign > 0 ? [face, face + leafWidth] : [face - leafWidth, face];
   const side = row.end === "low" ? [pivot - row.handle, pivot + leafThickness] :
     [pivot - leafThickness, pivot + row.handle];
-  const x = /** @type {Span} */ (openAxis === "x" ? open : side);
-  const z = /** @type {Span} */ (openAxis === "z" ? open : side);
+  const x = /** @type {Span} */ (/** @type {unknown} */ (openAxis === "x" ? open : side));
+  const z = /** @type {Span} */ (/** @type {unknown} */ (openAxis === "z" ? open : side));
   const roomText = sources.find((source) => source.file === row.roomFile)?.text;
   if (!roomText) failures.push(`${door.id}: no measured room source at ${row.roomFile}`);
   else if (!insideRoom(x, z, roomText))

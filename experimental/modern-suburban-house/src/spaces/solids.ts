@@ -460,6 +460,8 @@ export const slopedSlab = (props: {
   thickness?: number;
   /** An underside instead: a level (a beam packer) or a planar height function (a wall-head wedge). */
   floor?: number | ((x: number, z: number) => number);
+  /** Free outline edges alone receive visible vertical thickness. */
+  freeEdge?: (a: IPlanPoint, b: IPlanPoint) => boolean;
 }): IAutoMovieMesh => {
   if (props.plan.length < 3) throw new Error("sloped slab needs at least three plan corners");
   if (props.floor === undefined && !(props.thickness! > 0)) throw new Error("sloped slab needs a positive thickness or a floor");
@@ -473,10 +475,44 @@ export const slopedSlab = (props: {
     Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9 && Math.abs(a.z - b.z) < 1e-9;
   for (let i = 0; i < top.length; ++i) {
     const j = (i + 1) % top.length;
+    if (props.freeEdge !== undefined && !props.freeEdge(top[i]!, top[j]!)) continue;
     // A wedge meets its floor along an edge: drop the coincident corners so the
     // side under that edge is a triangle, and skip a side with no height at all.
     const side = [top[i]!, bottom[i]!, bottom[j]!, top[j]!].filter((p, k, all) => !same(p, all[(k + all.length - 1) % all.length]!));
     if (side.length >= 3) faces.push(side);
+  }
+  return buildAutoMoviePolyhedron(faces);
+};
+
+/**
+ * One pitched roof part with a concave plan decomposed only on its weather
+ * and underside faces. The caller supplies convex coplanar tiles and a free
+ * outline predicate; shared tile seams receive no vertical face.
+ * @evidence spaces/roof/main-front.md A single roof part retains the concave weather face without internal vertical seams.
+ * @evidence spaces/roof/main-front.md#main-front-roof This keeps the cut main front weather face and underside in one part.
+ * @evidence principles/core/source-units.md#source-scope-preservation Roof owners identify their free outline; this helper never selects a roof junction.
+ * @evidence principles/core/source-units.md#source-substantive-completion Each planar tile has an underside and only selected free sides close its thickness.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof design already distinguishes free perimeter from shared valley and ridge.
+ */
+export const slopedPlate = (props: {
+  plans: readonly (readonly IPlanPoint[])[];
+  top: (x: number, z: number) => number;
+  thickness: number;
+  freeEdge: (a: IPlanPoint, b: IPlanPoint) => boolean;
+}): IAutoMovieMesh => {
+  if (props.plans.length === 0 || !(props.thickness > 0)) throw new Error("sloped plate needs tiles and positive thickness");
+  const faces: IAutoMovieVector3[][] = [];
+  for (const plan of props.plans) {
+    if (plan.length < 3) throw new Error("sloped plate tile needs three corners");
+    const up = plan.map((p) => ({ x: p.x, y: props.top(p.x, p.z), z: p.z }));
+    const normal = cross(sub(up[1]!, up[0]!), sub(up[2]!, up[0]!));
+    const top = normal.y > 0 ? up : [...up].reverse();
+    const bottom = top.map((p) => ({ x: p.x, y: p.y - props.thickness, z: p.z }));
+    faces.push(top, [...bottom].reverse());
+    for (let i = 0; i < top.length; i++) {
+      const j = (i + 1) % top.length;
+      if (props.freeEdge(top[i]!, top[j]!)) faces.push([top[i]!, bottom[i]!, bottom[j]!, top[j]!]);
+    }
   }
   return buildAutoMoviePolyhedron(faces);
 };
