@@ -109,6 +109,19 @@
  * width, and the lower face's contour at the gonial level follows
  * `cheekFullness`, so that is the lower-face width's control.
  *
+ * The indices must be independent measurements, or the square solve pairs a
+ * control with an index the photograph has already fixed through the
+ * others and leaves that control to drift. The chin's height, stomion to
+ * soft-tissue menton over n-me', is not one: read on the same points as
+ * nasal height, the upper lip over the lower face, the lips' gap, mouth
+ * width and face height, it equals (1 - noseHeight) (1 - upperLip) -
+ * lipParting mouthWidth / (2 faceHeight), on the photographs and on the
+ * model alike. Paired with the mental height control on round j13, it sat
+ * that control at -1.5 to -2 on documents whose every index fit, and where
+ * the lips could not part as far as the photograph's it shortened the chin
+ * 10 mm to make up the gap. The chin's height is what those indices make
+ * it, and the mental height control is the editor's, unpaired.
+ *
  * Pure: reads caller-owned points and returns new values.
  */
 
@@ -225,13 +238,13 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     id: "upperVermilion",
     definition:
       "ls-stoms height (labrale superius from the midline's colour, 475, to 13) over mouth width",
-    channels: ["upperLipHeight"],
+    channels: ["upperVermilionHeight"],
   },
   {
     id: "lowerVermilion",
     definition:
       "stomi-li height (14 to labrale inferius from the midline's colour, 476) over mouth width",
-    channels: ["lowerLipHeight"],
+    channels: ["lowerVermilionHeight"],
   },
   {
     id: "upperLip",
@@ -283,14 +296,8 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "chinWidth",
     definition:
-      "the jaw outline's width three quarters of the way from the mouth line to menton (473, 474) over face width",
+      "the jaw outline's width half the eyes' height below stomion (473, 474) over face width",
     channels: ["chinWidth"],
-  },
-  {
-    id: "chinHeight",
-    definition:
-      "stomion (midpoint of 13 and 14) to the jaw outline's menton (470) over n-me' height",
-    channels: ["mentalHeight"],
   },
   {
     id: "browHeight",
@@ -484,12 +491,6 @@ export function measureFaceAnthropometry(
     })(),
     lowerFaceWidth: ratio(W(471, 472), fw),
     chinWidth: ratio(W(473, 474), fw),
-    chinHeight: ((): number | null => {
-      const [u, l, me] = [13, 14, 470].map(at);
-      return u && l && me && fh !== null && fh > 0
-        ? Math.abs(me[1] - (u[1] + l[1]) / 2) / fh
-        : null;
-    })(),
     browHeight: ratio(mean(H(105, 159), H(334, 386)), fl),
     eyeLevel: ((): number | null => {
       const eye = [33, 133, 263, 362].map(at);

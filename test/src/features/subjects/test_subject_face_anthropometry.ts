@@ -123,7 +123,6 @@ export const test_subject_face_anthropometry = (): void => {
     mouthShift: 0,
     lowerFaceWidth: 90 / 120,
     chinWidth: 40 / 120,
-    chinHeight: 44 / 100,
     browHeight: 20 / 30,
     eyeLevel: 35 / 100,
     medialAperture: 8 / 30,
@@ -288,7 +287,7 @@ export const test_subject_face_anthropometry = (): void => {
   const chinless = measureFaceAnthropometry(jawless);
   TestValidator.predicate(
     "missing outline menton",
-    ["faceHeight", "noseHeight", "upperLip", "chinHeight", "eyeLevel"].every(
+    ["faceHeight", "noseHeight", "upperLip", "eyeLevel"].every(
       (id) => chinless[id] === null,
     ) &&
       chinless.chinWidth !== null &&

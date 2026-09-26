@@ -224,7 +224,7 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     id: "lowerVermilion",
     norm: "lowerVermilion",
     definition: "sto-li over ch-ch at rest",
-    channels: ["lowerLipHeight"],
+    channels: ["lowerVermilionHeight"],
     resolution: 1e-4,
     spread: 0.036,
     photographed: "lowerVermilion",
