@@ -39,7 +39,7 @@
 <!-- @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale texture 좌표, 축척과 sampling 의미를 제어할 수 있어야 한다. -->
 <!-- @evidence requirements/asset-authoring/materials-and-textures.md#asset-user-authored-texture 사용자가 저작한 image와 texture를 독립 자원으로 결합할 수 있어야 한다. -->
 
-재료는 표면이 빛과 합성에 응답하는 의미 및 입력 channel의 조합이고, texture는 좌표에 따라 표본화되는 독립 자원이다. 결합 기록은 재료 영역, texture revision, 좌표 집합, 좌표 변환, 실제 축척, 반복·clamp 정책, filtering, seam 처리, color space와 channel 의미를 명시하며 어느 image도 재료 의미를 암묵적으로 결정하지 않는다.
+재료는 표면이 빛과 합성에 응답하는 의미 및 입력 channel의 조합이고, texture는 좌표에 따라 표본화되는 독립 자원이다. 결합 기록은 재료 영역, texture revision, 좌표 집합, 좌표 변환, 실제 축척, 반복·clamp 정책, filtering, seam 처리, color space와 channel 의미를 명시하며 어느 image도 재료 의미를 암묵적으로 결정하지 않는다. 반투명 조직의 재료는 선택적 피하 산란 반경(`subsurfaceRadius`, 원색별 확산 평균 자유 경로, m, 0 이상의 유한값)을 가질 수 있으며, 이는 빛이 표면 아래로 들어가 다시 나오기까지 가는 거리로 renderer가 확산 응답을 흐리는 폭이다. glTF에는 비준된 대응 확장이 없어 내보낸 자산은 이 값을 생략한다.
 
 ### 표면 좌표 규약 {#asset-spec-surface-coordinate-convention}
 
