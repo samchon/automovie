@@ -384,6 +384,7 @@ ref03의 섬 뒤쪽 조리대에 보이는 별도 수전을 `rear-counter-sink/d
 @inventory default: bowl, rim, tap-base, tap-riser, tap-arm, tap-outlet
 @support default: cooking-appliances, wall-worktop, top, 0, 0, 0
 @void default: bowl, 0.915..1.285, 0.82..0.925, -0.065..0.205
+@cavity-min default: bowl, 1/16, 1/20
 @void default: rim, 0.915..1.285, 0.925..0.94, -0.065..0.205
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |

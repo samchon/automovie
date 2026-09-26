@@ -52,13 +52,17 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 `@vessel-closure state[,state]: part, capHeight`는 열린 `@cavity-profile` 입구를 같은 part의 닫힌 캡으로 막는 상태를 정한다. capHeight는 H의 양의 분수다. 캡의 바닥은 y=H−capHeight×H, 상단은 part의 Y 최댓값이다. 캡은 그 전 높이에서 profile 바깥 반지름 R_out(y)까지 채운 닫힌 회전체로, 바닥 원판도 y=H−capHeight×H의 R_out까지 채운다. 바닥의 profile 안반지름 R_in보다 R_out이 크므로 첫 단면부터 빈 목을 막고, 그 위에서는 profile 벽과 유한 부피로 합쳐 최종 형상에 열린 통로가 남지 않는다. 캡은 선언 AABB를 넘지 않아야 하고 그 아래 몸통 공동은 그대로 비어 있어야 한다.
 
-`@part`의 `suspension` 접촉은 물체 local y=0의 상부 걸림점이 옷장 봉이나 다른 독립 물체의 걸림 면에 매달리는 상태다. 이때 부품 최고 y가 0이어야 하며 아래쪽 본체를 바닥에 붙여 계산하지 않는다. 모델은 걸림점의 형상과 주소만 소유하고 실제 옷장 봉·옷걸이와 맞추는 변환 및 접촉은 instances가 검증한다.
+`@part`의 `suspension` 접촉은 물체의 상부 걸림 부위에 있는 아래를 보는 면이 독립 물체의 위를 보는 면에 매달리는 상태다. local y=0은 배치 기준인 최고점이지만 그 위쪽 면 자체를 하중 접촉으로 세지 않는다. 옷걸이에서는 갈고리 안쪽 24각 면, 코트에서는 탭의 관통 구멍 안쪽 24각 면을 걸림면으로 삼는다. 본체를 바닥에 붙여 계산하지 않으며 실제 봉·걸이와의 변환 및 유한 면 접촉은 instances가 검증한다.
 
 `@part`의 `underside` 접촉은 상부장 같은 독립 물체의 밑면을 local y=0 접합 평면으로 삼는다. 이때 부품 최고 y가 0이어야 하고 접합할 상부장과의 실제 면적·배치 일치는 instances가 검증한다.
 
 `@material-face state: part/face`는 같은 부품의 일반 가시 면과 구분되는 재료 응답을 필요로 하는 실제 면을 표시한다. 이 주소는 model의 표면 분할 결정이며 finish·texture 규모·UV 결합은 materials가 소유한다. `model-owner-audit.cjs`의 표면 결합 검사는 선언된 state/part/face의 별도 결합과 그 밖의 부품의 기본 결합을 센다.
 
 `@pin-face state: pin, receiver`는 원통 핀의 끝 원판이 receiver의 닫힌 접합면에 유한 면적으로 닿음을 선언한다. `@emitter-face state: part, -Y`는 방에서 아래로 보이는 발광 face를 지정하며 다른 부품이 그 면을 가리면 실패다. `@tangent state: host, guest, hostRadius, guestHalfWidth`는 원통 host의 바깥 반지름과 guest의 X 반폭으로 접선을 검증한다. host와 guest의 AABB를 고체 접합 증명으로 대신하지 않는다. `@bore-z state: part, centerX, centerY, radius, Zmin..Zmax`는 Z축 원형 절삭이며 부품 가장자리를 가로지를 때에도 실제 원호 벽과 남은 고체가 모두 양수 면적이어야 한다. `@bore-x state: part, Xmin..Xmax, centerY, centerZ, radius`는 X축 원형 구멍이다. 절삭 구간의 양 끝과 안쪽 벽은 열린 면이 아니라 두께 있는 고체의 노출 face다.
+
+`@sole-grid state: part, X폭제수, Z깊이제수, X중심여유제수, Z중심여유제수`는 네 모서리 다리의 지면 발바닥을 W×D의 `@part` 점유에서 계산한다. 각 발바닥은 폭 W/X폭제수, 깊이 D/Z깊이제수이고 중심은 x=±(W/2−W/X중심여유제수), z=±(D/2−D/Z중심여유제수)다. 네 발바닥은 part의 실제 지면 단면이며 `@flat-contact` 직사각형은 그중 하나에 전부 포함되어야 한다.
+
+`@cavity-min state: part, 바닥높이비, 측벽두께비`는 위로 열린 직사각 공동을 가진 닫힌 용기의 구조 최소 두께다. 바닥높이비는 host 높이 H에, 측벽두께비는 min(host X 폭, host Z 깊이)에 곱한다. `@void`의 위 끝은 host 위 끝에 닿아야 하며 바닥 아래와 X/Z 양쪽 측벽에 각각 이 최소 두께 이상의 고체가 남아야 한다. 이 비율은 형상의 별도 치수가 아니라 허용 하한이고, 실제 공동 경계는 `@void` 한 곳에서만 정한다.
 
 `@radial state: part, inner, outer`는 원점 XZ 중심을 가진 Y축 원판 또는 환형 단면, `@radial-at state: part, centerX, centerZ, inner, outer`는 평행 이동한 같은 단면, `@radial-z state: part, centerX, centerY, inner, outer`는 Z축 원판 또는 환형 단면을 정한다. inner=0이면 중심까지 채우고, 양수이면 그 안은 비운다. `@ellipse state: part, innerX, innerZ, outerX, outerZ[, centerX, centerZ]`는 Y축 타원 고리의 두 반축과 중심을 정하며 생략한 중심은 원점이다. 이 행의 반축과 위치는 `@part`의 AABB와 별도로 서로 대조한다. `@grid state: prefix, columns, rows, pitchX, pitchZ, width, depth, Ymin..Ymax, contact`는 X/Z 격자의 `prefix-0..` 부품을 행 우선 순서로 배치하고 각 부품을 선언 폭·깊이·높이의 닫힌 상자로 만든다.
 
