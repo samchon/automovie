@@ -20,7 +20,7 @@
 import type { HousePartRole } from "../spaces/solids";
 
 /** Which subject a scene draws: the calibration shape or the house. */
-export type ViewerSceneSubject = "calibration" | "house" | "model";
+export type ViewerSceneSubject = "calibration" | "house";
 
 /** One triangle mesh placed in world space by translation only. */
 export interface IViewerSceneItem {
@@ -28,7 +28,7 @@ export interface IViewerSceneItem {
   id: string;
 
   /** What the item is: a calibration role or a spaces part role. */
-  role: "ground" | "axis" | "tick" | "reference" | "model" | HousePartRole;
+  role: "ground" | "axis" | "tick" | "reference" | HousePartRole;
 
   /** Source owner under `src/spaces`, when the item is a house part. */
   owner?: string;
@@ -36,7 +36,7 @@ export interface IViewerSceneItem {
   /** Base color as an sRGB hex integer, for example 0xd94a3a. */
   color: number;
 
-  /** Model material response for isolated prototype views. */
+  /** Material response, when an active source branch supplies it. */
   opacity?: number;
   roughness?: number;
   metalness?: number;

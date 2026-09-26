@@ -38,7 +38,6 @@ import { parseArgs } from "node:util";
 
 import { buildCalibrationScene } from "./calibration.cjs";
 import { buildHouseScene } from "./houseScene.cjs";
-import { buildModelScene } from "./modelScene.cjs";
 
 /** Production root: this file lives at `src/viewer/server.cts`. */
 const ROOT = resolve(__dirname, "..", "..");
@@ -86,7 +85,6 @@ const STATIC_FILES: Record<string, { file: string; type: string }> = {
 
 /** Browser modules may only be flat `.mjs` files in this directory. */
 const BROWSER_MODULE = /^\/src\/viewer\/([a-zA-Z0-9-]+\.mjs)$/;
-const TEXTURE_FILE = /^\/textures\/([a-z0-9-]+\.png)$/;
 
 /** Write one response without caching, so a reload always asks again. */
 const send = (
@@ -123,10 +121,10 @@ const handle = (
       "text/javascript; charset=utf-8",
       readFileSync(join(ROOT, "src", "viewer", module[1]!)),
     );
-  const texture = TEXTURE_FILE.exec(path);
-  if (texture !== null)
-    return send(response, 200, "image/png", readFileSync(join(ROOT, "public", "textures", texture[1]!)));
   if (path === "/scene") {
+    const subject = url.searchParams.get("subject");
+    if (subject !== null && subject !== "calibration")
+      return send(response, 404, "text/plain; charset=utf-8", `unknown subject: ${subject}`);
     const current = digestSource();
     if (current !== startDigest)
       return send(
@@ -143,11 +141,9 @@ const handle = (
       response,
       200,
       "application/json; charset=utf-8",
-      JSON.stringify(url.searchParams.get("subject") === "calibration"
+      JSON.stringify(subject === "calibration"
         ? buildCalibrationScene(current)
-        : url.searchParams.has("subject")
-          ? buildModelScene(current,url.searchParams.get("subject")!)
-          : buildHouseScene(current)),
+        : buildHouseScene(current)),
     );
   }
   if (path === "/favicon.ico") return send(response, 204, "text/plain", "");

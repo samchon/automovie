@@ -33,9 +33,7 @@ Use the commands declared in `package.json`:
 | `npm run format` | Format source with the configured compiler formatter. |
 | `npm run check` | Run model accounts, reverse handoffs, material bindings, reviewed referents, settings review host checks, tests, geometry, and lint; report every failure. |
 | `npm run review-check -- D:/AutoMovieBench/probes` | Run the seven external review probe types and `npm run check`, preserving each full log under `.wiki/stage3-review-check` and summing their exit codes. The reason probe checks `docs` and `src` separately to exclude ignored snapshots. Pass the local probe directory as the argument. |
-| `npm run viewer` | Start the current source viewer from this directory on port 4173. `?subject=<model-id>` isolates a generated prototype. |
-| `npm run prototype-audit` | Count and inspect all design-model prototypes, parts, surfaces, mesh attributes, and random geometry mutations. |
-| `npm run prototype-test` | Run the generated-model geometry and audit tests. |
+| `npm run viewer` | Start the current source viewer from this directory on port 4173. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 
@@ -45,7 +43,7 @@ The installed `automovie` CLI separately provides Markdown TOC maintenance, exte
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
-The viewer opens at `http://127.0.0.1:4173/`. The default view renders `buildHouseEnvironment(buildHouse())`, so it shows the space structure with bound colours, response values, and authored texture tiles, but without furnished instances. `?subject=<model-id>` renders one current-source `src/models` prototype with its generated parts, surface ids, metre UVs, repeat scale, fallback materials, and a woven map on applicable textile faces; `?textures=off` shows the same camera with hex fallbacks for comparison. `buildHouseObjects()` exposes the separately movable objects and host-derived variants, including beds, trees, washer/dryer, porch mat/planter, wall art/plant, pantry container/box/basket, kitchen preparation/dining fruit, living tabletop, sofa textile, nightstand/lamp, and island/dining pendants; their ids work with the same viewer query. `npm run prototype-audit` reports the current object and measured-part counts. This isolated view can show whether a model reads in front, side, top, and three-quarter observations. It does not place objects in rooms or verify the later instance bindings.
+The viewer opens at `http://127.0.0.1:4173/`. The current view renders `buildHouseEnvironment(buildHouse())`: the space structure and its base colours, without model prototypes, material textures, or furnished instances. `?subject=calibration` shows the scale reference. The model and material source implementations were retired from the active tree while their design layers await independent review; the authored source remains recoverable from Git history at `5c35b711`. Reopen each matching source branch only after its design reaches `review`.
 
 ## Ownership
 

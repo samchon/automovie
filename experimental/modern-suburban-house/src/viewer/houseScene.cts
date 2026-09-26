@@ -21,7 +21,6 @@
  */
 import { lowerBuiltEnvironment, tessellateToMesh, transformAutoMovieMesh } from "@automovie/engine";
 
-import { houseFinish, houseTextureUvs } from "../materials/bindings";
 import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
 import { deriveHouseObservations } from "../spaces/observations";
@@ -43,8 +42,6 @@ const referenceGround = (): IViewerSceneItem => {
     indices: mesh.indices,
     castShadow: false,
     receiveShadow: true,
-    texture: "/textures/grass.png",
-    uvs: Array.from({ length: mesh.positions.length / 3 }, (_, i) => [mesh.positions[i * 3]! / 0.75, mesh.positions[i * 3 + 2]! / 0.75]).flat(),
   };
 };
 
@@ -62,7 +59,6 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
     if (part === undefined || model === undefined || model.parts.length === 0)
       throw new Error(`set piece ${piece.node} has no emitted part or model`);
     for (const member of model.parts) {
-      const finish = houseFinish(part.role, part.color);
       const sourceMesh = member.geometry.type === "mesh"
         ? member.geometry.mesh
         : tessellateToMesh(member.geometry.shape);
@@ -82,11 +78,7 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
         id: model.parts.length === 1 ? part.id : `${part.id}/${member.id}`,
         role: part.role,
         owner: part.owner,
-        color: finish.color,
-        roughness: finish.roughness,
-        metalness: finish.metalness,
-        texture: finish.texture === undefined ? undefined : `/textures/${finish.texture.file}`,
-        uvs: houseTextureUvs(mesh.positions, mesh.normals, finish),
+        color: part.color,
         position: [0, 0, 0],
         positions: mesh.positions,
         normals: mesh.normals,

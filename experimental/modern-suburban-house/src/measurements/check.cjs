@@ -43,8 +43,6 @@ const tasks = [
     [path.join(__dirname, "model-contact-check.cjs")],
     "model-contacts",
   ],
-  ["generated prototypes", process.execPath, [npmCli, "run", "prototype-audit"], "exit"],
-  ["prototype tests", process.execPath, [npmCli, "run", "prototype-test"], "exit"],
   [
     "door casing versus spaces",
     process.execPath,
