@@ -17,8 +17,12 @@
  *
  * `identity` writes shape, and of expression only the controls an index
  * reads as a state of the face (`lipParting`). The population controls come from the facts
- * (`facePopulationControls`), or with `--fine` stay at the source's
- * midpoint so the document is its fine controls alone; every other shape
+ * (`facePopulationControls`); with `--fine` the ancestry stays at the
+ * source's midpoint (the fine tier has no racial traits: they are its fine
+ * controls') while the recorded age and sex, which no frontal index reads,
+ * still set the face's ageing and dimorphism (without them the fine
+ * documents of rounds ff5 to j14 rendered 65- to 80-year-olds as young
+ * adults and the women as more masculine than their photographs); every other shape
  * channel starts at zero; the anthropometric controls
  * (`FACE_ANTHROPOMETRY_INDICES`) are then solved one per index so the model
  * under the photograph's camera has the photograph's proportions
@@ -409,9 +413,12 @@ if (command === "identity") {
       sex: null,
       ancestry: null,
     };
-    const population = fine
-      ? { shape: {}, ageHeld: false }
-      : facePopulationControls(recorded);
+    // The fine tier has no ancestry (its traits are the fine controls'),
+    // but a recorded age and sex, which no frontal index reads, still set
+    // the face's ageing and dimorphism.
+    const population = facePopulationControls(
+      fine ? { ...recorded, ancestry: null } : recorded,
+    );
     const norm = faceUnseenNorm(recorded);
     const expression = expressions.get(document.id)?.expression ?? {};
     const start: IAutoMovieHumanFaceBasisDocument = {
