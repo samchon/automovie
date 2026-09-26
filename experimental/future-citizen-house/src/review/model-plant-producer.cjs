@@ -125,17 +125,6 @@ function check(source) {
   const actual = source.slice(start + startMarker.length, end).trim();
   const expected = render(input);
   if (actual !== expected) throw Error("potted-plant: part table differs from deterministic H2 formula");
-  const section = source.slice(source.indexOf("{#potted-plant}"), source.indexOf("## ", source.indexOf("{#potted-plant}")));
-  const expectedProse = ["0.18, 0.28, 0.60, 0.80, 1.10m", "0.34H", "0.38H",
-    "max(0.006,0.018H)", "0.028H", "0.48+0.09i", "0.18H", "0.16H", "0.055H"];
-  for (const token of expectedProse) if (!section.includes(token))
-    throw Error(`potted-plant: prose does not declare ${token}`);
-  if (!section.includes(`흙 표면은 ${input.soilSurface.toFixed(2)}H`))
-    throw Error("potted-plant: prose soil surface differs from measured input");
-  if (!section.includes(`줄기는 흙에서 ${input.stemTop.toFixed(2)}H까지`))
-    throw Error("potted-plant: prose stem top differs from measured input");
-  if (!section.includes(`수관의 외경 상한은 ${input.crownDiameterLimit.toFixed(2)}H`))
-    throw Error("potted-plant: prose crown diameter differs from measured input");
   return input;
 }
 

@@ -4,11 +4,11 @@
 
 ## 낮은·높은 실내 화분 {#potted-plant}
 
-화분의 바닥과 벽은 한 닫힌 원뿔대 껍질이다. 바닥 두께는 벽 두께 t=max(0.006,0.018H)와 같고, 흙은 y=t..0.34H에서 그 내벽 반경을 채운다. 줄기 반경은 0.014H, 가지 끝 반경은 0.006H다. 가지 중심선은 줄기 축에서 0.020H 떨어져 시작해 0.200H에서 끝나므로 길이가 0.18H다. 잎 세 장의 단일 시작점은 가지 끝 구의 바깥 방사면 0.206H에 있다. 각 잎은 이 점을 꼭짓점으로 하고 길이 0.16H의 끝면에서 최대 접선 폭 0.055H, 바깥 방사방향 두께 0.003H를 갖는 닫힌 다섯 꼭짓점 쐐기다. 끝면 중심은 가지의 방사축 0.206H를 유지하고 접선 방향으로 −25°·0°·+25°의 길이 성분만큼 벌어지며 Y 상승은 해당 각도의 코사인 성분이다. 잎 두께는 시작점에서 0이고 끝면에서 0.003H이며 가지 구의 안쪽으로 대칭 확장하지 않는다. 그러므로 세 잎은 가지 끝 구와 각각 정확한 시작점 하나에서 접하고 서로 그 점만 공유한다. 다섯 가지는 72° 간격이다. `model-plant-producer.cjs`는 이 식과 다섯 높이에서 표를 재생성하고 `plantProof`는 상태마다 가지 끝 구와 잎 시작점 거리를 계산한다.
+화분의 바닥과 벽은 한 닫힌 원뿔대 껍질이다. 아래 기호는 같은 H2의 `@plant-spec` 필드를 뜻한다. 바닥 두께는 벽 두께 t=max(wallMinimum,wallFactor×H)와 같고, 흙은 y=t..soilSurface×H에서 그 내벽 반경을 채운다. 줄기 반경은 stemRadius×H, 가지 끝 반경은 branchRadius×H다. 가지 중심선은 줄기 축에서 (stemRadius+branchRadius)H 떨어져 시작해 거기서 branchLength×H만큼 뻗는다. 잎 세 장의 단일 시작점은 가지 끝 구의 바깥 방사면 (stemRadius+branchRadius+branchLength+branchRadius)H에 있다. 각 잎은 이 점을 꼭짓점으로 하고 끝면에서 최대 접선 폭 leafWidth×H, 길이 leafLength×H, 바깥 방사방향 두께 leafThickness×H를 갖는 닫힌 다섯 꼭짓점 쐐기다. 끝면 중심은 가지의 방사축을 유지하고 접선 방향으로 −leafFanDegrees°·0°·+leafFanDegrees°의 길이 성분만큼 벌어지며 Y 상승은 해당 각도의 코사인 성분이다. 잎 두께는 시작점에서 0이고 끝면에서 leafThickness×H이며 가지 구의 안쪽으로 대칭 확장하지 않는다. 세 잎은 가지 끝 구와 각각 정확한 시작점 하나에서 접하고 서로 그 점만 공유한다. 다섯 가지는 360°/5 간격이다. `model-plant-producer.cjs`는 이 식과 `heights`의 다섯 상태에서 표를 재생성하고 `plantProof`는 상태마다 가지 끝 구와 잎 시작점 거리를 계산한다.
 
 @plant-spec: {"heights":[180,280,600,800,1100],"potHeight":0.34,"potTopRadius":0.19,"potBottomRadius":0.15,"wallMinimum":0.006,"wallFactor":0.018,"soilSurface":0.34,"stemRadius":0.014,"stemTop":0.84,"crownDiameterLimit":0.60,"branchStart":0.48,"branchPitch":0.09,"branchLength":0.18,"branchRadius":0.006,"leafLength":0.16,"leafWidth":0.055,"leafThickness":0.003,"leafFanDegrees":25}
 
-선언 점유는 0.60H 수관 상한을 사방으로 남겨 둔 상자가 아니라, 고정된 다섯 방위에서 실제 pot·soil·stem·branch·leaf 부품 AABB의 축별 최솟값과 최댓값이다. 생산자는 이 합집합을 높이 변종마다 계산한다.
+선언 점유는 `@plant-spec.crownDiameterLimit`×H 수관 상한을 사방으로 남겨 둔 상자가 아니라, 고정된 다섯 방위에서 실제 pot·soil·stem·branch·leaf 부품 AABB의 축별 최솟값과 최댓값이다. 생산자는 이 합집합을 높이 변종마다 계산한다.
 
 @cap-contact 180: soil, stem, Y, +
 @cap-contact 280: soil, stem, Y, +
@@ -16,10 +16,6 @@
 @cap-contact 800: soil, stem, Y, +
 @cap-contact 1100: soil, stem, Y, +
 
-@scalar-control branch-base-radius: 0.020
-@scalar-control leaf-base-radius: 0.206
-@scalar-control pot-diameter-ratio: 0.38
-@scalar-control stem-diameter-ratio: 0.028
 
 <!-- @generated-plant-parts:start -->
 @inventory 180: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
@@ -168,9 +164,9 @@
 | @part | 1100 | leaf-14 | curved | 0.070023..0.170553 | 0.924..1.08351 | -0.215509..-0.183177 | branch-4 |
 <!-- @generated-plant-parts:end -->
 
-`potted-plant/<높이-mm>`의 허용 높이는 0.18, 0.28, 0.60, 0.80, 1.10m다. 화분 바닥 중심이 원점, +Y가 위, +Z는 관찰을 위한 앞이다. 각 H에서 화분 높이는 0.34H, 외경은 0.38H, 흙 표면은 0.34H, 줄기는 흙에서 0.84H까지, 수관의 외경 상한은 0.60H다. pot 벽 두께는 max(0.006,0.018H)m이고 열린 윗면의 inner wall과 바깥 wall은 둥근 rim에서 연결된다. 줄기 지름은 0.028H이고 가지 다섯은 y=(0.48+0.09i)H에서 시작해 방위 72i°, 길이 0.18H로 뻗는다(i=0..4). 각 끝에 길이 0.16H, 폭 0.055H의 닫힌 잎 세 개를 위쪽 Y축에 대해 −25°,0°,+25°로 놓아 총 15개가 된다. 맨 위 가지(i=4)의 중앙 잎 끝은 y=H라 선언 높이와 실제 AABB가 같다. 같은 H에서 반복 순서와 변종 외형은 고정이다.
+`potted-plant/<높이-mm>`의 허용 높이는 `@plant-spec.heights`의 mm 값을 m로 환산한 다섯 상태다. 화분 바닥 중심이 원점, +Y가 위, +Z는 관찰을 위한 앞이다. 각 H에서 화분 높이는 potHeight×H, 외경은 2potTopRadius×H, 흙 표면은 soilSurface×H, 줄기는 흙에서 stemTop×H까지, 수관의 외경 상한은 crownDiameterLimit×H다. pot 벽 두께는 max(wallMinimum,wallFactor×H)이고 열린 윗면의 inner wall과 바깥 wall은 둥근 rim에서 연결된다. 줄기 지름은 2stemRadius×H이고 가지 다섯은 y=(branchStart+branchPitch×i)H에서 시작해 방위 360i°/5, 길이 branchLength×H로 뻗는다(i=0..4). 각 끝에 길이 leafLength×H, 폭 leafWidth×H의 닫힌 잎 세 개를 위쪽 Y축에 대해 −leafFanDegrees°·0°·+leafFanDegrees°로 놓아 총 15개가 된다. 맨 위 가지(i=4)의 중앙 잎 끝은 y=H라 선언 높이와 실제 AABB가 같다. 같은 H에서 반복 순서와 변종 외형은 고정이다.
 
-`pot/outer/inner/rim/sole`, `soil/upper/edge/underside`, `stem/outer/contact`, `branch-0..4/outer/contact`, `leaf-0..14/front/back/edge`가 안정 주소다. 잎은 앞·뒤가 각각 winding과 normal을 가진 닫힌 얇은 부피이고 UV가 각 면의 길이 축을 따른다. 45°·상부·방 거리 view에서 pot 개구, 연결된 가지와 잎 사이 빈 공간이 드러나야 한다. ref03 조리대 작은 화분, ref04 책장 식물은 0.18/0.28m 변종으로 채택하고 ref02의 바닥 화분은 0.60..1.10m 변종으로 채택한다. ref01의 외부 수목·생울타리는 spaces의 대지 owner이므로 이 prototype으로 옮기지 않는다. ref05 창 밖 식물도 이 실내 화분의 배치 증거로 쓰지 않는다. 실제 종의 특정과 성장·바람 응답은 이 형상에서 `unverified`다.
+`pot/outer/inner/rim/sole`, `soil/upper/edge/underside`, `stem/outer/contact`, `branch-0..4/outer/contact`, `leaf-0..14/front/back/edge`가 안정 주소다. 잎은 앞·뒤가 각각 winding과 normal을 가진 닫힌 얇은 부피이고 UV가 각 면의 길이 축을 따른다. 45°·상부·방 거리 view에서 pot 개구, 연결된 가지와 잎 사이 빈 공간이 드러나야 한다. ref03 조리대 작은 화분, ref04 책장 식물은 180/280mm 변종으로 채택하고 ref02의 바닥 화분은 600..1100mm 변종으로 채택한다. ref01의 외부 수목·생울타리는 spaces의 대지 owner이므로 이 prototype으로 옮기지 않는다. ref05 창 밖 식물도 이 실내 화분의 배치 증거로 쓰지 않는다. 실제 종의 특정과 성장·바람 응답은 이 형상에서 `unverified`다.
 
 <!-- @authored-address-state:start -->
 @address-state 180: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
@@ -182,7 +178,10 @@
 
 ## 개별 책 {#books}
 
-`book/<높이-mm>x<두께-mm>x<깊이-mm>`는 높이·두께(X)·깊이(Z)의 세 값을 모두 ID에 넣는다. 허용 조합은 `180x30x120`, `240x35x160`, `300x50x200` 세 가지다. 선반 접촉 중심이 원점, +Z가 책등이 보이는 앞이다. 표지 두 장은 두께 0.004m로 각각 x=−T/2..−T/2+0.004와 x=T/2−0.004..T/2, y=0..H,z=−D/2..D/2−0.006이다. 종이 블록은 x=−T/2+0.004..T/2−0.004, y=0.004..H−0.004,z=−D/2..D/2−0.006이며 책등은 양 표지의 +Z 끝을 잇는 z=D/2−0.006..D/2의 별도 판이다. 책등의 앞 모서리 반경 0.004m는 이 판의 폐합 범위 안에서 깎고 뒤쪽 접합면은 두 표지와 종이에 면 접촉한다. `cover-left/right/outer/inner/top/bottom/fore-edge/spine-edge`, `spine/outer/inner/top/bottom`, `pages/front/left/right/top/bottom/back`의 실제 면을 분리한다. 각각 닫힌 부피이며 표지 접합선은 책등의 안쪽에서 끝난다. 정면·상부·45°에서 책등과 개별 폭이 읽혀야 한다. ref04 벽 책장과 ref02 작은 침실 책상·선반의 개별 책을 채택하되 ref03의 장식 그릇을 책으로 바꾸지 않는다. ref01·05에는 책 치수 근거가 없다. 책의 수·회전은 instances가, 제목·인쇄는 미정 설정이 정하기 전까지 `unverified`다.
+@prose-dim 표지 두 장은: cover-*
+@prose-dim 책등은: spine
+
+`book/<높이-mm>x<두께-mm>x<깊이-mm>`는 높이·두께(X)·깊이(Z)의 세 값을 모두 ID에 넣는다. 허용 조합은 `180x30x120`, `240x35x160`, `300x50x200` 세 가지다. 선반 접촉 중심이 원점, +Z가 책등이 보이는 앞이다. 책등은 Z 깊이 0.006m(S)의 판이고 표지 두 장은 X 두께 0.004m(C)로 각각 x=−T/2..−T/2+C와 x=T/2−C..T/2, y=0..H,z=−D/2..D/2−S이다. 종이 블록은 x=−T/2+C..T/2−C, y=C..H−C,z=−D/2..D/2−S이며 책등은 양 표지의 +Z 끝을 잇는 z=D/2−S..D/2의 별도 판이다. 책등의 앞 모서리 반경 C는 이 판의 폐합 범위 안에서 깎고 뒤쪽 접합면은 두 표지와 종이에 면 접촉한다. `cover-left/right/outer/inner/top/bottom/fore-edge/spine-edge`, `spine/outer/inner/top/bottom`, `pages/front/left/right/top/bottom/back`의 실제 면을 분리한다. 각각 닫힌 부피이며 표지 접합선은 책등의 안쪽에서 끝난다. 정면·상부·45°에서 책등과 개별 폭이 읽혀야 한다. ref04 벽 책장과 ref02 작은 침실 책상·선반의 개별 책을 채택하되 ref03의 장식 그릇을 책으로 바꾸지 않는다. ref01·05에는 책 치수 근거가 없다. 책의 수·회전은 instances가, 제목·인쇄는 미정 설정이 정하기 전까지 `unverified`다.
 
 아래 세 상태의 `support`는 선반 상면 y=0이며, `H/T/D`를 위 ID의 mm 값에서 m로 변환해 식대로 전개했다. 연속 범위 안의 임의 네 번째 크기는 이 설계에 없으므로 새 prototype ID로 만들지 않는다.
 
@@ -216,11 +215,10 @@
 
 ## 접힌 수건 {#folded-towels}
 
-`folded-towel/<높이-mm>`의 허용 전체 높이는 0.08, 0.12, 0.16m이고 폭 0.38, 접힌 깊이 0.60m다. 선반 접촉 중심 원점, +Z가 접힌 앞이다. 세 겹의 부피는 각각 높이 h=(H−0.008)/3이고 앞쪽 모서리 반경 0.02m다. 아래에서 위로 `layer-0`은 y=0..h, `layer-1`은 y=h+0.004..2h+0.004, `layer-2`는 y=2h+0.008..H에 놓는다. 두 0.004m 음영 틈의 뒤쪽 z=−0.30..−0.27에는 `fold-0`이 y=h..h+0.004로, 앞쪽 z=+0.27..+0.30에는 `fold-1`이 y=2h+0.004..2h+0.008로 놓여 아래·위 겹의 대면적 접촉면에 각각 닿는다. 각 fold의 X 폭은 0.38m이며 세 겹과 두 접힘은 한 연속 접촉 그래프를 만든다. `layer-0..2/upper/fold-front/fold-back/fold-side/underside`와 `fold-0..1/front/back/top/sole/side`가 각 부품의 전 표면을 덮고 layer 번호는 아래에서 위로 증가한다. 정면·측면·45°에서 겹수가 읽혀야 한다. ref02 욕실·linen 수납의 쌓인 수건을 채택한다. ref01·03·04·05에는 접힌 수건을 판독할 근거가 없다. 섬유 유연성과 실제 습기 응답은 `unverified`다.
+`folded-towel/<높이-mm>`의 허용 전체 높이는 0.08, 0.12, 0.16m이고 폭 0.38, 접힌 깊이 0.60m다. 선반 접촉 중심 원점, +Z가 접힌 앞이다. 세 겹의 부피는 각각 높이 h=(H−2g)/3이고 앞쪽 모서리 반경 0.02m다. 아래에서 위로 `layer-0`은 y=0..h, `layer-1`은 y=h+g..2h+g, `layer-2`는 y=2h+2g..H에 놓는다. 두 0.004m 음영 틈의 각각 폭을 g라 한다. 뒤쪽 z=−0.30..−0.27에는 `fold-0`이 y=h..h+g로, 앞쪽 z=+0.27..+0.30에는 `fold-1`이 y=2h+g..2h+2g로 놓여 아래·위 겹의 대면적 접촉면에 각각 닿는다. 각 fold의 X 폭은 0.38m이며 세 겹과 두 접힘은 한 연속 접촉 그래프를 만든다. `layer-0..2/upper/fold-front/fold-back/fold-side/underside`와 `fold-0..1/front/back/top/sole/side`가 각 부품의 전 표면을 덮고 layer 번호는 아래에서 위로 증가한다. 정면·측면·45°에서 겹수가 읽혀야 한다. ref02 욕실·linen 수납의 쌓인 수건을 채택한다. ref01·03·04·05에는 접힌 수건을 판독할 근거가 없다. 섬유 유연성과 실제 습기 응답은 `unverified`다.
 
-다음 세 상태는 높이 토큰 80·120·160mm를 각각 전개한다. `h=(H−0.008)/3`의 무한소수 경계는 표에서 0.0000001m 이내로 바깥 반올림했고, 실제 접촉면은 같은 원래 식을 공유한다.
+다음 세 상태는 높이 토큰 80·120·160mm를 각각 전개한다. `h=(H−2g)/3`의 무한소수 경계는 표에서 0.0000001m 이내로 바깥 반올림했고, 실제 접촉면은 같은 원래 식을 공유한다.
 
-@scalar-control fold-gap-total: 0.008
 @scalar-control fold-rounding-tolerance: 0.0000001
 @prose-gap *: layer-1, layer-0, Y, 음영 틈
 @scalar-control fold-corner-radius: 0.02
@@ -258,6 +256,8 @@
 
 ## 손잡이 있는 빈 바구니 {#storage-basket}
 
+@prose-part 각 손잡이의 외곽: handle-*
+
 @axis-control default: wall, X, 0.195, handle recess center
 
 `storage-basket`은 폭 0.40, 깊이 0.65, 높이 0.28m다. 선반 접촉 중심 원점, +Z가 꺼내는 앞이다. 바닥 두께 0.012m, 네 벽 두께 0.010m, 상단 rim 폭 0.018m이며 내부는 열린 빈 공간이다. 양쪽 손잡이는 x=±0.195m 측벽의 z=−0.06..+0.06,y=0.208..0.243m인 0.12×0.035m 관통 구멍을 감싼 두께 0.012m 띠다. 보강 띠는 벽의 안쪽 x=±(0.188..0.200)에 매립되어 전체 폭을 늘리지 않는다. 그 바깥 경계는 z=±0.072,y=0.196..0.255m이며 위 rim과 0.007m 떨어진다. `wall/outer/inner/edge`, `rim/upper/edge/underside`, `bottom/upper/edge/underside`, `handle-left/right/outer/inner/cut-edge/contact`가 안정 주소다. 상부·정면·45°에서 내부와 구멍 둘을 확인한다. ref02의 1층 수납과 상층 linen의 바구니 역할을 채택하고 ref04의 책을 바구니 안 내용물로 자동 생성하지 않는다. ref01·03·05는 바구니 형상 근거가 없다. 내용물·개수는 instances가 결정하고 손잡이 하중은 `unverified`다.
@@ -290,11 +290,12 @@
 
 ## 현관 충전 물체 {#entry-charger}
 
-`entry-charger`는 폭 0.07, 깊이 0.12, 높이 0.015m다. [벽걸이 선반](002-storage-and-sleep.md#entry-charging-shelf)에 닿는 아래면 중심이 원점, +Z가 조작면이다. 본체 위쪽 x=±0.026,z=±0.0375,y=0.013..0.015m를 절삭해 0.052×0.075×0.002m 인터페이스를 flush로 끼운다. 앞쪽 edge z=+0.05..+0.06,x=±0.006,y=0.0045..0.0105m에는 폭 0.012·높이 0.006·깊이 0.010m 단자 구멍을 실제로 절삭한다. `body/front/back/top/edge/sole/port-inner/port-edge`, `interface/front/back/edge`가 안정 주소다. 정면·상부·측면과 현관 리뷰 거리 관찰에서 과장된 두꺼운 판으로 보이지 않는지 확인한다. ref02의 현관 충전 기능을 settings의 평벽 선반에 연결한다. ref01·03·04·05의 창·작업 기기를 충전기 형상으로 삼지 않는다. 실제 충전 과정은 systems 결정 전까지 `unverified`다.
+`entry-charger`는 폭 0.07, 깊이 0.12, 높이 0.015m다. [벽걸이 선반](002-storage-and-sleep.md#entry-charging-shelf)에 닿는 아래면 중심이 원점, +Z가 조작면이다. 본체 위쪽 x=±0.026,z=±0.0375,y=0.013..0.015m를 절삭한다. interface는 X 폭 0.052m·Z 깊이 0.075m·Y 높이 0.002m로 만들고 절삭면에 flush로 끼운다. 앞쪽 edge z=+0.05..+0.06,x=±0.006,y=0.0045..0.0105m에는 폭 0.012·높이 0.006·깊이 0.010m 단자 구멍을 실제로 절삭한다. `body/front/back/top/edge/sole/port-inner/port-edge`, `interface/front/back/edge`가 안정 주소다. 정면·상부·측면과 현관 리뷰 거리 관찰에서 과장된 두꺼운 판으로 보이지 않는지 확인한다. ref02의 현관 충전 기능을 settings의 평벽 선반에 연결한다. ref01·03·04·05의 창·작업 기기를 충전기 형상으로 삼지 않는다. 실제 충전 과정은 systems 결정 전까지 `unverified`다.
 
 `port`는 빈 구멍의 내면 주소이며 별도 고체 부품이 아니다. 아래 두 `@void`는 body의 정확한 직육면체 절삭 체적이다. 첫 절삭에 interface가 측면·바닥으로 접하고 두 번째는 빈 단자 구멍이다. 이 표의 `support`는 모델 원점 y=0에서 선반 상면과 닿는 접촉 평면이다.
 
 @prose-part 본체 위쪽: body!void
+@prose-dim interface는: interface
 @prose-part 앞쪽 edge: body!void
 @inventory default: body, interface
 @void default: body, -0.026..0.026, 0.013..0.015, -0.0375..0.0375
@@ -313,6 +314,8 @@
 ## 거실·침실 러그 {#rugs}
 
 @prose-dim base: base
+@prose-envelope living-rug: living
+@prose-envelope bedroom-rug/1600x2200: bedroom1600x2200
 
 `living-rug`는 폭 2.80, 깊이 3.65, 높이 0.016m, `bedroom-rug/1600x2200`은 폭 1.60, 깊이 2.20, 높이 0.012m다. 바닥 접촉 중심이 원점, +Z가 긴 축이다. `living` base의 Y 높이 0.013m·`bedroom1600x2200` base의 Y 높이 0.009m, pile 높이는 두 변종 모두 0.003m다. 상면 pile 부피와 0.025m 폭의 직조 둘레 띠를 별도 주소 `pile/upper/edge/underside`, `bound-edge/upper/inner/outer/underside`, `base/upper/edge/contact`로 나누고 바닥판에 녹이지 않는다. 상면 UV는 장축 Z를 따른다. 위·낮은 측면·실내 거리 view에서 둘레와 소파 발 또는 침대 곁의 접촉이 보여야 한다. ref02 침실 러그와 거실 러그, ref03 소파 앞 직물 경계를 채택한다. ref01·04·05에는 러그 상세가 없어 문턱 재료를 직물로 치환하지 않는다. 실제 pile 섬유 개별 형상과 미끄럼은 `unverified`다.
 
@@ -354,7 +357,7 @@
 
 ## 벽 액자 {#wall-art}
 
-`wall-art/600x420`은 폭 0.60, 높이 0.42, 전체 깊이 0.035m다. 벽 접합 뒷면 중심이 원점, +Z가 보는 앞이다. 폭 0.025m 프레임 띠, z=0..0.012의 뒤판, z=0.012..0.013의 중앙 이미지 수신용 빈 종이 면, z=0.013..0.021의 0.008m 매트, z=0.031..0.035의 0.004m 전면 cover를 가진다. z=0.021..0.031은 0.010m 빈 공기층이고 프레임은 외곽에서 z=0.012..0.035를 연결한다. `frame/front/edge/back`, `mat/front/back/edge`, `artwork/front/back/edge`, `cover/front/back/edge`, `back/outer/contact`가 안정 주소다. 실제 그림 내용·색은 model이 결정하지 않고 materials의 결합 전까지 중립 면이다. 정면·측면·45°와 침실 거리에서 사진 billboard가 아닌 실제 두께·frame이 보여야 한다. ref02 작은 침실 벽의 액자 한 점을 채택한다. ref01·03·04·05의 창 너머 장면을 액자 이미지로 붙이지 않는다. 특정 가족 사진·직업 단서는 설정에 없으므로 표현하지 않으며 실제 그림 내용은 `unverified`다.
+`wall-art/600x420`은 폭 0.60, 높이 0.42, 전체 깊이 0.035m다. 벽 접합 뒷면 중심이 원점, +Z가 보는 앞이다. 프레임 띠의 폭은 0.025m다. 뒤판은 z=0..0.012, 중앙 이미지 수신용 빈 종이 면은 z=0.012..0.013이다. 매트는 z=0.013..0.021이고 두께 0.008m다. 전면 cover는 z=0.031..0.035이고 두께 0.004m다. z=0.021..0.031은 0.010m 빈 공기층이고 프레임은 외곽에서 z=0.012..0.035를 연결한다. `frame/front/edge/back`, `mat/front/back/edge`, `artwork/front/back/edge`, `cover/front/back/edge`, `back/outer/contact`가 안정 주소다. 실제 그림 내용·색은 model이 결정하지 않고 materials의 결합 전까지 중립 면이다. 정면·측면·45°와 침실 거리에서 사진 billboard가 아닌 실제 두께·frame이 보여야 한다. ref02 작은 침실 벽의 액자 한 점을 채택한다. ref01·03·04·05의 창 너머 장면을 액자 이미지로 붙이지 않는다. 특정 가족 사진·직업 단서는 설정에 없으므로 표현하지 않으며 실제 그림 내용은 `unverified`다.
 
 프레임의 안쪽 경계는 x=±0.275,y=±0.185이고 이 개구를 z=0.012..0.035에 관통 절삭한다. 매트는 그 개구를 채우는 테두리로서 중앙 x=±0.230,y=±0.140을 z=0.013..0.021에 절삭한다. 종이 artwork는 그 중앙 x=±0.230,y=±0.140을 채우고 뒤판에 붙으며, 투명 cover는 프레임 개구 전체 x=±0.275,y=±0.185에서 z=0.031..0.035로 프레임 안쪽 네 면에 닿는다. 빈 공기층에는 감춘 지지대나 중복 평판이 없다.
 
@@ -362,6 +365,9 @@
 @prose-gap default: cover, mat, Z, 빈 공기층
 
 @prose-part 매트는: mat
+@prose-part 뒤판은: back
+@prose-part 중앙 이미지 수신용 빈 종이 면은: artwork
+@prose-part 전면 cover는: cover
 @prose-part 프레임은: frame
 @inventory default: back, frame, mat, artwork, cover
 @void default: frame, -0.275..0.275, -0.185..0.185, 0.012..0.035
@@ -388,14 +394,13 @@
 @axis-control cup: handle, Y, 0.063, upper joining pad start
 @axis-control cup: handle, Y, 0.069, upper joining pad edge
 
-`decor-bowl`은 외경 0.22, 높이 0.07m, 벽 두께 0.008m이고 아래면 중심 원점, +Y 위다. 상단 개구 내경 0.204m, 안쪽 바닥 y=0.014이며 `shell/outer/inner/rim/sole`로 나눈다. `decor-tray`는 전체 폭 0.36·깊이 0.24·높이 0.032m이며 y=0..0.018m의 타원형 바닥과 y=0.018..0.032m의 높이 0.014m·두께 0.006m 둘레 턱을 가진 낮은 판이고 `base/upper/underside/edge`, `rim/inner/outer/top/underside`이다. `decor-cup`은 몸체 외경 0.085, 높이 0.095, 벽 두께 0.006m의 빈 원통과 외경 0.04m 손잡이를 가진다. 손잡이는 YZ 평면의 외경 0.04m인 닫힌 고리로 튜브 지름 0.006m, 중심 y=0.050,z=+0.0625에 둔다. 고리의 뒤쪽 끝 z=+0.0425는 몸체 외벽에 닿고 앞쪽 끝은 z=+0.0825다. 한 handle 부품 안의 위·아래 접합 pad는 각각 y=0.034..0.042와 0.063..0.069, x=±0.006m이며 뒷면은 컵의 반지름 0.0425m인 원통 바깥면을 따라 굽는다. 두 pad는 몸체 외벽의 유한 곡면에 접하고 빈 내벽 반지름 0.0365m 안으로 들어가지 않는다. pad의 앞면은 고리 몸체에 연속 접합한다. 바닥 접촉 중심 기준 전체 AABB는 x=±0.0425,y=0..0.095,z=−0.0425..+0.0825m다. 주소는 `body/outer/inner/rim/sole`, `handle/outer/inner/contact`다. 세 물체는 모두 놓이는 아래면 중심이 원점이고 +Z는 손잡이가 향한 앞이다. 위·측면·45°와 식탁 거리에서 빈 내부와 서로 다른 높이가 읽혀야 한다. ref03 낮은 탁자의 그릇과 조리대의 작은 소품, ref02 식탁의 그릇을 채택한다. ref01·04·05의 식사 장면은 없으므로 음식·브랜드·문구는 만들지 않는다. 각 소품의 개수와 놓이는 상판은 instances가 맡고 식품 접촉 성능은 `unverified`다.
+`decor-bowl`은 외경 0.22, 높이 0.07m, 벽 두께 0.008m이고 아래면 중심 원점, +Y 위다. 상단 개구 내경 0.204m, 안쪽 바닥 y=0.014이며 `shell/outer/inner/rim/sole`로 나눈다. `decor-tray`는 전체 폭 0.36·깊이 0.24·높이 0.032m이며 y=0..0.018m의 타원형 바닥과 y=0.018..0.032m의 높이 0.014m·두께 0.006m 둘레 턱을 가진 낮은 판이고 `base/upper/underside/edge`, `rim/inner/outer/top/underside`이다. `decor-cup`은 몸체 외경 0.085, 높이 0.095, 벽 두께 0.006m의 빈 원통과 외경 0.04m 손잡이를 가진다. 손잡이는 YZ 평면의 외경 0.04m인 닫힌 고리로 튜브 지름 0.006m, 중심 Y는 `@axis-control`의 ring center이고 중심 Z는 Cz=R+고리 외반지름으로 둔다. 여기서 R은 `@tangent cup`의 몸체 바깥 반지름이고 고리 외반지름은 손잡이 외경의 절반이다. 고리 뒤쪽 끝은 z=R에서 몸체 외벽에 닿고 앞쪽 끝은 z=Cz+고리 외반지름이다. 한 handle 부품 안의 위·아래 접합 pad의 Y 경계는 `@axis-control`의 upper/lower joining pad start/edge이고, x=±0.006m이며 뒷면은 컵의 반지름 0.0425m인 원통 바깥면을 따라 굽는다. 두 pad는 몸체 외벽의 유한 곡면에 접하고 빈 내벽 반지름 0.0365m 안으로 들어가지 않는다. pad의 앞면은 고리 몸체에 연속 접합한다. 바닥 접촉 중심 기준 전체 AABB는 x=±0.0425,y=0..0.095,z=−0.0425..+0.0825m다. 주소는 `body/outer/inner/rim/sole`, `handle/outer/inner/contact`다. 세 물체는 모두 놓이는 아래면 중심이 원점이고 +Z는 손잡이가 향한 앞이다. 위·측면·45°와 식탁 거리에서 빈 내부와 서로 다른 높이가 읽혀야 한다. ref03 낮은 탁자의 그릇과 조리대의 작은 소품, ref02 식탁의 그릇을 채택한다. ref01·04·05의 식사 장면은 없으므로 음식·브랜드·문구는 만들지 않는다. 각 소품의 개수와 놓이는 상판은 instances가 맡고 식품 접촉 성능은 `unverified`다.
 
-컵 pad 뒷면은 `z_back(x)=sqrt(R²−x²)`로서 R=0.0425m이고 |x|≤0.006m다. 앞면은 각 pad의 높이에서 `z_front(y)=0.0625−sqrt(0.02²−(y−0.050)²)+0.001`이며, 몸체 쪽 X 폭 0.012m를 고리 쪽 X 폭 0.006m로 선형으로 좁힌 닫힌 입체다. 위 pad는 y=0.063..0.069, 아래 pad는 y=0.034..0.042를 채운다. 앞면의 0.001m는 같은 handle 고리 외벽 속으로 들어가는 결합 여유이므로 내부가 연속한다. 뒷면만 몸체 외면과 공유하고 pad 내부는 몸체 바깥쪽에 있다. 따라서 handle의 Z 최소값은 sqrt(0.0425²−0.006²)=0.042074m(바깥쪽 반올림)이고, 단순 AABB의 0.000426m 겹침은 고체 관통이 아니다. `@bore`는 Y축 원통 내부의 위쪽 열린 구멍, `@ellipse`는 타원형 rim의 안쪽·바깥쪽 반축을 적는다. `support`는 탁자 상면의 y=0 접촉이다.
+여기서 Cy는 `@axis-control`의 ring center Y, r은 손잡이 외경의 절반, δ는 `@scalar-control cup-handle-insertion`의 길이다. 컵 pad 뒷면은 `z_back(x)=sqrt(R²−x²)`로서 R=0.0425m이고 |x|≤0.006m다. 앞면은 각 pad의 높이에서 `z_front(y)=Cz−sqrt(r²−(y−Cy)²)+δ`이며, 몸체 쪽 X 폭 0.012m를 고리 쪽 X 폭 0.006m로 선형으로 좁힌 닫힌 입체다. 위·아래 pad는 각각 `@axis-control`의 upper/lower joining pad start/edge 사이를 채운다. 앞면의 0.001m는 같은 handle 고리 외벽 속으로 들어가는 결합 여유이므로 내부가 연속한다. 뒷면만 몸체 외면과 공유하고 pad 내부는 몸체 바깥쪽에 있다. 따라서 handle의 Z 최소값은 sqrt(0.0425²−0.006²)=0.042074m(바깥쪽 반올림)이고, 단순 AABB의 0.000426m 겹침은 고체 관통이 아니다. `@bore`는 Y축 원통 내부의 위쪽 열린 구멍, `@ellipse`는 타원형 rim의 안쪽·바깥쪽 반축을 적는다. `support`는 탁자 상면의 y=0 접촉이다.
 
 @scalar-control bowl-wall-thickness: 0.008
 @scalar-control bowl-inner-diameter: 0.204
 @scalar-control cup-handle-diameter: 0.04
-@scalar-control cup-upper-pad-start: 0.063
 @scalar-control cup-aabb-contact-overlap: 0.000426
 @scalar-control cup-handle-insertion: 0.001
 

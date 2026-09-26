@@ -616,9 +616,10 @@ function actualOverlap(a, b, radial, radialZ, boresZ, voids, pieces, provedTange
 function towelFormula(lines, envelopes, parts) {
   const prose = lines.join("\n");
   const heights = /허용 전체 높이는 ([\d.]+), ([\d.]+), ([\d.]+)m/.exec(prose);
-  const rule = /h=\(H−([\d.]+)\)\/([\d.]+)/.exec(prose);
+  const rule = /h=\(H−2g\)\/([\d.]+)/.exec(prose);
+  const gap = /두 ([\d.]+)m 음영 틈/.exec(prose);
   const footprint = /폭 ([\d.]+), 접힌 깊이 ([\d.]+)m/.exec(prose);
-  if (!heights || !rule || !footprint) return ["folded-towels: prose formula or variant list absent"];
+  if (!heights || !rule || !gap || !footprint) return ["folded-towels: prose formula or variant list absent"];
   const errors = [];
   const expectedStates = heights.slice(1).map((value) => String(Math.round(Number(value) * 1000)));
   if (expectedStates.join(",") !== [...envelopes.keys()].join(","))
@@ -628,9 +629,10 @@ function towelFormula(lines, envelopes, parts) {
     if (Math.abs(observed - expected) > 0.0000001)
       errors.push(`folded-towels/${state}/${id}/${axis}: table ${observed} differs from prose formula ${expected}`);
   };
+  const g = Number(gap[1]);
   for (const state of expectedStates) {
     const H = Number(state) / 1000;
-    const h = (H - Number(rule[1])) / Number(rule[2]);
+    const h = (H - 2 * g) / Number(rule[1]);
     const envelope = envelopes.get(state);
     if (!envelope) continue;
     near(state, "*", "x-min", envelope.x[0], -Number(footprint[1]) / 2);
@@ -640,9 +642,9 @@ function towelFormula(lines, envelopes, parts) {
     near(state, "*", "y-max", envelope.y[1], H);
     /** @type {[string,number,number][]} */
     const bounds = [
-      ["layer-0", 0, h], ["layer-1", h + 0.004, 2 * h + 0.004],
-      ["layer-2", 2 * h + 0.008, H], ["fold-0", h, h + 0.004],
-      ["fold-1", 2 * h + 0.004, 2 * h + 0.008]
+      ["layer-0", 0, h], ["layer-1", h + g, 2 * h + g],
+      ["layer-2", 2 * h + 2 * g, H], ["fold-0", h, h + g],
+      ["fold-1", 2 * h + g, 2 * h + 2 * g]
     ];
     for (const [id, lower, upper] of bounds) {
       const part = parts.get(`${state}/${id}`);
@@ -684,7 +686,7 @@ function chargerFormula(lines, envelopes, voids) {
 function rugFormula(lines, envelopes, parts, voids, radial) {
   const prose = lines.join("\n");
   const dimensions = /폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m, `bedroom-rug\/1600x2200`은 폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/.exec(prose);
-  const bases = /base 높이는 living ([\d.]+)m·bedroom ([\d.]+)m, pile 높이는 두 변종 모두 ([\d.]+)m/.exec(prose);
+  const bases = /`living` base의 Y 높이 ([\d.]+)m·`bedroom1600x2200` base의 Y 높이 ([\d.]+)m, pile 높이는 두 변종 모두 ([\d.]+)m/.exec(prose);
   const round = /지름 ([\d.]+)m·높이 ([\d.]+)m 변종/.exec(prose);
   const edge = /안쪽으로 ([\d.]+)m 폭의 bound-edge/.exec(prose);
   if (!dimensions || !bases || !round || !edge) return ["rugs: prose dimensions absent"];
@@ -728,7 +730,7 @@ function simpleProseEnvelope(anchor, lines, envelopes) {
     "dining-chair": { pattern: /`dining-chair`는 폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/, order: ["x", "z", "y"] },
     "storage-basket": { pattern: /폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/, order: ["x", "z", "y"] },
     "wall-art": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), 전체 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
-    "living-display": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
+    "living-display": { pattern: /폭 ([\d.]+), 높이 ([\d.]+), Z 깊이 ([\d.]+)m/, order: ["x", "y", "z"] },
   };
   const rule = rules[anchor];
   if (!rule) return [];
@@ -767,8 +769,8 @@ function pendantFormula(lines, envelopes, radial) {
 function bookFormula(lines, envelopes, parts) {
   const prose = lines.join("\n");
   const allowed = /허용 조합은 ([^.]+) 세 가지다/.exec(prose);
-  const cover = /표지 두 장은 두께 ([\d.]+)m/.exec(prose);
-  const spine = /z=D\/2−([\d.]+)\.\.D\/2의 별도 판/.exec(prose);
+  const cover = /표지 두 장은 X 두께 ([\d.]+)m\(C\)/.exec(prose);
+  const spine = /책등은 Z 깊이 ([\d.]+)m\(S\)/.exec(prose);
   if (!allowed || !cover || !spine) return ["books: prose variant/formula absent"];
   const C = Number(cover[1]), S = Number(spine[1]);
   const states = [...allowed[1].matchAll(/`(\d+x\d+x\d+)`/g)].map((match) => match[1]);
@@ -851,7 +853,7 @@ function equipmentFormula(lines, envelopes, parts, grids) {
   const prose = lines.join("\n");
   const display = /전체 화면판은 폭 ([\d.]+), 높이 ([\d.]+), 깊이 ([\d.]+)m/.exec(prose);
   const keyboard = /`work-keyboard`는 폭 ([\d.]+), 깊이 ([\d.]+), 높이 ([\d.]+)m/.exec(prose);
-  const keys = /(\d+)열×(\d+)행의 낮은 key cap은 각각 ([\d.]+)×([\d.]+)×([\d.]+)m로 y=([\d.]+)\.\.([\d.]+)/.exec(prose);
+  const keys = /(\d+)열×(\d+)행의 낮은 key cap은 각각 X 폭 ([\d.]+)m·Z 깊이 ([\d.]+)m·Y 높이 ([\d.]+)m로 y=([\d.]+)\.\.([\d.]+)/.exec(prose);
   const pitchX = /x=\(c−5\.5\)×([\d.]+)m/.exec(prose);
   const pitchZ = /z=\(r−1\.5\)×([\d.]+)m/.exec(prose);
   if (!display || !keyboard || !keys || !pitchX || !pitchZ) return ["work-equipment: prose grid or dimensions absent"];
@@ -1886,7 +1888,7 @@ if (require.main !== module) {
   const towel = sections().get("folded-towels");
   if (!towel) throw Error("folded-towels H2 absent");
   const towelSource = towel.join("\n");
-  const changedFormula = towelSource.replace("h=(H−0.008)/3", "h=(H−0.010)/3");
+  const changedFormula = towelSource.replace("두 0.004m 음영 틈", "두 0.005m 음영 틈");
   if (changedFormula === towelSource || !audit(new Map([["folded-towels", changedFormula.split("\n")]])).errors.some((error) => error.includes("differs from prose formula")))
     throw Error("folded towel prose formula mutation did not fail");
   results.push({ label: "towel prose formula changed", caught: true });
@@ -2108,18 +2110,18 @@ if (require.main !== module) {
     results.push({ label: `${anchor} shear-z endpoint mutation`, caught: true });
   }
   const plantSource = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
-  if (!plantSource.includes("0.18, 0.28, 0.60, 0.80, 1.10m")) throw Error("plant prose mutation source absent");
-  let plantCaught = false;
-  try { plantProducer.check(plantSource.replace("0.18, 0.28, 0.60, 0.80, 1.10m", "0.18, 0.28, 0.61, 0.80, 1.10m")); }
-  catch { plantCaught = true; }
-  if (!plantCaught) throw Error("plant prose/table divergence passed");
-  results.push({ label: "potted plant prose height changed", caught: true });
-  if (!plantSource.includes("흙 표면은 0.34H")) throw Error("plant soil prose mutation source absent");
-  plantCaught = false;
-  try { plantProducer.check(plantSource.replace("흙 표면은 0.34H", "흙 표면은 0.30H")); }
-  catch { plantCaught = true; }
-  if (!plantCaught) throw Error("plant soil prose/table divergence passed");
-  results.push({ label: "potted plant prose soil height changed", caught: true });
+  const plantMutations = [
+    ["height array changed", '"heights":[180,280,600,800,1100]', '"heights":[180,280,610,800,1100]'],
+    ["soil surface changed", '"soilSurface":0.34', '"soilSurface":0.30']
+  ];
+  for (const [label, before, after] of plantMutations) {
+    if (!plantSource.includes(before)) throw Error(`plant ${label} mutation source absent`);
+    let caught = false;
+    try { plantProducer.check(plantSource.replace(before, after)); }
+    catch { caught = true; }
+    if (!caught) throw Error(`plant ${label} changed without table divergence`);
+    results.push({ label: `potted plant ${label}`, caught: true });
+  }
   let measuredParts = 0;
   let mutationChecks = 0;
   const completeSections = sections();

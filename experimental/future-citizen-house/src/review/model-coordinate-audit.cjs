@@ -185,6 +185,20 @@ function boundCoordinates(lines, owner) {
       const axes = feature.slice(4).map((cell) => cell.replaceAll("−", "-").split("..").map(Number));
       rows.push({ state: feature[2].trim(), part: feature[3].trim(), kind: feature[1], x: axes[0], y: axes[1], z: axes[2] });
     }
+    const grid = /^@grid\s+([^:]+):\s*([^,]+),\s*(\d+),\s*(\d+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([^,]+),\s*[^,]+$/.exec(line);
+    if (grid) {
+      const columns = Number(grid[3]), count = Number(grid[4]);
+      const pitchX = Number(grid[5]), pitchZ = Number(grid[6]);
+      const width = Number(grid[7]), depth = Number(grid[8]);
+      const y = grid[9].split("..").map(Number);
+      for (let row = 0; row < count; row++) for (let column = 0; column < columns; column++) {
+        const xCenter = (column - (columns - 1) / 2) * pitchX;
+        const zCenter = (row - (count - 1) / 2) * pitchZ;
+        rows.push({ state: grid[1], part: `${grid[2]}-${row * columns + column}`,
+          kind: "box", x: [xCenter - width / 2, xCenter + width / 2], y,
+          z: [zCenter - depth / 2, zCenter + depth / 2] });
+      }
+    }
   }
   /** @type {string[]} */ const errors = [];
   let bound = 0, unbound = 0, boundDimensions = 0;
@@ -200,10 +214,18 @@ function boundCoordinates(lines, owner) {
     return declaration ? [{ state: declaration[1], host: declaration[2], guest: declaration[3],
       hostDepth: Number(declaration[8]), gap: Number(declaration[9]), guestDepth: Number(declaration[10]) }] : [];
   });
+  const radialMeasures = lines.flatMap((line) => {
+    const declaration = /^@radial\s+([^:]+):\s*([^,]+),\s*[\d.]+,\s*([\d.]+)$/.exec(line);
+    return declaration ? [{ state: declaration[1], part: declaration[2], diameter: 2 * Number(declaration[3]) }] : [];
+  });
   const dimensionAliases = [...aliases, ...lines.flatMap((line) => {
     const declaration = /^@prose-dim\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)$/.exec(line);
     return declaration ? [{ word: declaration[1].trim(), part: declaration[2], kind: "part" }] : [];
   })];
+  const envelopeAliases = lines.flatMap((line) => {
+    const declaration = /^@prose-envelope\s+([^:]+):\s*([a-z][a-z0-9-]*)$/.exec(line);
+    return declaration ? [{ word: declaration[1].trim(), state: declaration[2] }] : [];
+  });
   for (const line of lines.filter((row) => row.startsWith("@prose-gap "))) {
     const declaration = /^@prose-gap\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([XYZ]),\s*(.+)$/.exec(line);
     if (!declaration) { errors.push(`${owner}: malformed prose gap ${line}`); continue; }
@@ -235,11 +257,39 @@ function boundCoordinates(lines, owner) {
       errors.push(`${owner}: prose alias ${alias.word} is unused`);
   }
   const envelopes = rows.filter((row) => row.part === "*");
+  for (const alias of envelopeAliases) {
+    if (!envelopes.some((row) => row.state === alias.state))
+      errors.push(`${owner}: prose envelope ${alias.word} names missing state ${alias.state}`);
+    if (!lines.some((line) => /^(?:은|는)/.test(line.split(`\`${alias.word}\``)[1] ?? "")))
+      errors.push(`${owner}: prose envelope ${alias.word} is unused`);
+  }
   let envelopeDimensions = 0, envelopeTriples = 0;
   /** @type {Map<string,Set<number>>} */
   const wildcardMinima = new Map();
   for (const [index, line] of lines.entries()) {
     if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
+    for (const alias of envelopeAliases) {
+      const marker = `\`${alias.word}\``;
+      const at = line.indexOf(marker);
+      if (at < 0) continue;
+      const suffix = line.slice(at + marker.length);
+      if (!/^(?:은|는)/.test(suffix)) continue;
+      const after = suffix.slice(1);
+      const end = after.search(/다\.\s/);
+      const sentence = after.slice(0, end < 0 ? 160 : end);
+      const envelope = envelopes.find((row) => row.state === alias.state);
+      if (!envelope) continue;
+      for (const [axis, label] of /** @type {const} */ ([
+        ["x", "폭"], ["y", "높이"], ["z", "깊이"],
+      ])) {
+        const claim = new RegExp(`${label}\\s*(\\d+\\.\\d+)`).exec(sentence);
+        if (!claim) continue;
+        envelopeDimensions++;
+        const span = envelope[axis][1] - envelope[axis][0];
+        if (Math.abs(Number(claim[1]) - span) > 0.000001)
+          errors.push(`${owner}: prose line ${index + 1} ${alias.state} ${axis} span ${claim[1]} contradicts envelope ${span}`);
+      }
+    }
     for (const gap of line.matchAll(/보다\s+(\d+\.\d+)m\s+앞쪽/g)) {
       const before = line.slice(Math.max(0, gap.index - 160), gap.index);
       const mentioned = aliases.flatMap((alias) => {
@@ -283,6 +333,13 @@ function boundCoordinates(lines, owner) {
           errors.push(`${owner}: prose line ${index + 1} ${state} envelope ${axis} span ${value} contradicts measured part`);
       }
     }
+    for (const length of line.matchAll(/전체\s+하향\s+길이\s+(\d+\.\d+)m/g)) {
+      const spans = [...new Set(envelopes.map((row) => row.y[1] - row.y[0]))];
+      if (spans.length !== 1) continue;
+      envelopeDimensions++;
+      if (Math.abs(Number(length[1]) - spans[0]) > 0.000001)
+        errors.push(`${owner}: prose line ${index + 1} downward length ${length[1]} contradicts measured envelope ${spans[0]}`);
+    }
     for (const measure of line.matchAll(/(?:X\s*)?폭\s*(\d+\.\d+)|(?:Y\s*)?높이\s*(\d+\.\d+)|(?:Z\s*)?깊이\s*(\d+\.\d+)|두께\s*(\d+\.\d+)|(?<!반)지름\s*(\d+\.\d+)/g)) {
       const axis = /** @type {"x"|"y"|"z"|null} */ (measure[1] ? "x" : measure[2] ? "y" : measure[3] ? "z" : null);
       const value = Number(measure[1] || measure[2] || measure[3] || measure[4] || measure[5]);
@@ -297,8 +354,7 @@ function boundCoordinates(lines, owner) {
         return at < 0 ? [] : [{ part: alias.part, kind: alias.kind, at }];
       }).sort((a, b) => b.at - a.at)[0];
       if (!mentioned) continue;
-      if (measure[5] && (before.length - mentioned.at > 32 ||
-        !rows.some((row) => row.part === mentioned.part && row.kind === "cylinder"))) continue;
+      if (measure[5] && before.length - mentioned.at > 32) continue;
       const stateNames = [...before.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
       const declaredState = stateNames.reverse().find((name) => rows.some((row) =>
         row.state === name || row.state.startsWith(`${name}/`)));
@@ -307,12 +363,26 @@ function boundCoordinates(lines, owner) {
           row.state === token || row.state.startsWith(token)));
       const state = plainState ?? declaredState;
       const prefix = mentioned.part.endsWith("*") ? mentioned.part.slice(0, -1) : null;
-      const opening = mentioned.kind === "void" || /(?:개구|구멍|절삭|edge)/.test(before);
+      const opening = mentioned.kind === "void" ||
+        /(?:개구|구멍|절삭|edge)/.test(before.slice(mentioned.at));
       const eligible = rows.filter((row) => (prefix ? row.part.startsWith(prefix) : row.part === mentioned.part) &&
         (!state || row.state === state || row.state.startsWith(`${state}/`) ||
           row.state.startsWith(state)) &&
         (opening ? row.kind === "void" : row.kind !== "void"));
       if (!eligible.length) continue;
+      if (measure[5]) {
+        const diameters = radialMeasures.filter((radial) =>
+          (prefix ? radial.part.startsWith(prefix) : radial.part === mentioned.part) &&
+          (!state || radial.state === state || radial.state.startsWith(`${state}/`) ||
+            radial.state.startsWith(state))).map((radial) => radial.diameter);
+        if (diameters.length) {
+          boundDimensions++;
+          if (diameters.some((diameter) => Math.abs(diameter - value) > 0.000001))
+            errors.push(`${owner}: prose line ${index + 1} ${mentioned.part} diameter ${value} contradicts radial section`);
+          continue;
+        }
+        if (!eligible.some((row) => row.kind === "cylinder")) continue;
+      }
       if (measure[4]) {
         const measured = curves.filter((curve) => prefix ? curve.host.startsWith(prefix) :
           curve.host === mentioned.part).map((curve) => curve.hostDepth);
