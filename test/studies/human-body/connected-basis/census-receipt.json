@@ -4559,7 +4559,7 @@
     },
     "bodies": {
       "states": 288,
-      "clean": 263,
+      "clean": 265,
       "withFindings": 1,
       "refused": [
         {
@@ -4600,27 +4600,19 @@
         },
         {
           "name": "sex-1-age25-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 48.619 to 146.762."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.885 to 143.734."
         },
         {
           "name": "sex-1-age25-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.225 to 174.521."
-        },
-        {
-          "name": "sex-1-age60-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.260 to 136.154."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 59.172 to 171.014."
         },
         {
           "name": "sex-1-age60-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 59.092 to 161.643."
-        },
-        {
-          "name": "sex-1-age90-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.334 to 128.930."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.068 to 158.286."
         },
         {
           "name": "sex-1-age90-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.540 to 152.692."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 55.549 to 149.455."
         },
         {
           "name": "sex1-age25-bmi15-muscle1-h1.6",
@@ -4771,13 +4763,13 @@
     },
     "bodyposes": {
       "states": 224,
-      "clean": 107,
-      "withFindings": 117,
+      "clean": 108,
+      "withFindings": 116,
       "refused": [],
       "pairsByFrequency": [
         {
           "pair": "leftUpperLeg x leftUpperLeg",
-          "states": 51
+          "states": 52
         },
         {
           "pair": "hips x hips",
@@ -4789,7 +4781,7 @@
         },
         {
           "pair": "upperChest x leftUpperArm",
-          "states": 33
+          "states": 32
         },
         {
           "pair": "leftUpperLeg x leftLowerLeg",
@@ -4801,7 +4793,7 @@
         },
         {
           "pair": "hips x leftUpperLeg",
-          "states": 22
+          "states": 23
         },
         {
           "pair": "spine x spine",
@@ -4809,7 +4801,7 @@
         },
         {
           "pair": "upperChest x upperChest",
-          "states": 14
+          "states": 15
         },
         {
           "pair": "spine x leftUpperLeg",
@@ -4817,7 +4809,7 @@
         },
         {
           "pair": "hips x rightUpperLeg",
-          "states": 9
+          "states": 10
         },
         {
           "pair": "rightUpperLeg x rightUpperLeg",
@@ -4947,18 +4939,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -4998,15 +4990,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6306406746788213
+              "macroWeight": -1.3732676151222973
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 23,
-              "otherTriangles": 23
+              "triangles": 21,
+              "otherTriangles": 21
             }
           ],
           "grown": []
@@ -5026,18 +5018,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -5077,27 +5069,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.4417189950100431
+              "macroWeight": 0.521331401941834
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 100,
-              "otherTriangles": 100
+              "triangles": 101,
+              "otherTriangles": 101
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 63,
-              "otherTriangles": 53
+              "triangles": 43,
+              "otherTriangles": 32
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 21,
+              "otherTriangles": 21
             }
           ],
           "grown": []
@@ -5299,18 +5291,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -5350,21 +5342,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6561143590338314
+              "macroWeight": 1.9680776257748354
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 79,
-              "otherTriangles": 88
+              "triangles": 80,
+              "otherTriangles": 86
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 31,
-              "otherTriangles": 31
+              "triangles": 25,
+              "otherTriangles": 25
             }
           ],
           "grown": []
@@ -5584,18 +5576,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -5635,7 +5627,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8465106902232686
+              "macroWeight": 4.148948620657821
             }
           },
           "fresh": [
@@ -5648,8 +5640,8 @@
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 2,
-              "otherTriangles": 2
+              "triangles": 13,
+              "otherTriangles": 13
             }
           ],
           "grown": []
@@ -5669,18 +5661,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -5720,21 +5712,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8465106902232686
+              "macroWeight": 4.148948620657821
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 36
+              "triangles": 26,
+              "otherTriangles": 40
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 21
+              "triangles": 22,
+              "otherTriangles": 22
+            },
+            {
+              "part": "leftUpperLeg",
+              "other": "leftUpperLeg",
+              "triangles": 7,
+              "otherTriangles": 7
             }
           ],
           "grown": []
@@ -5754,18 +5752,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.10999999999999999,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -5805,27 +5803,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.418882874314402
+              "macroWeight": -1.157428936066449
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 78,
-              "otherTriangles": 78
+              "triangles": 62,
+              "otherTriangles": 62
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 27,
-              "otherTriangles": 21
+              "triangles": 16,
+              "otherTriangles": 14
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 18,
+              "otherTriangles": 18
             }
           ],
           "grown": []
@@ -6033,18 +6031,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.3999999999999999,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -6084,10 +6082,16 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.6436581077716608
+              "macroWeight": 2.9528692368501117
             }
           },
           "fresh": [
+            {
+              "part": "hips",
+              "other": "leftUpperLeg",
+              "triangles": 2,
+              "otherTriangles": 2
+            },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
@@ -6288,18 +6292,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.45999999999999996,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -6339,21 +6343,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.670635122769064
+              "macroWeight": 4.972717806674084
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 9,
-              "otherTriangles": 11
+              "triangles": 8,
+              "otherTriangles": 10
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 6,
-              "otherTriangles": 6
+              "triangles": 7,
+              "otherTriangles": 7
             }
           ],
           "grown": []
@@ -6373,18 +6377,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.45999999999999996,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -6424,33 +6428,33 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.670635122769064
+              "macroWeight": 4.972717806674084
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 27,
-              "otherTriangles": 27
+              "triangles": 35,
+              "otherTriangles": 35
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 72,
-              "otherTriangles": 72
+              "triangles": 69,
+              "otherTriangles": 69
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 111,
-              "otherTriangles": 84
+              "otherTriangles": 82
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 34,
-              "otherTriangles": 34
+              "triangles": 47,
+              "otherTriangles": 47
             }
           ],
           "grown": []
@@ -8371,18 +8375,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -8422,15 +8426,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6306406746788213
+              "macroWeight": -1.3732676151222973
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 79,
-              "otherTriangles": 79
+              "triangles": 75,
+              "otherTriangles": 75
             },
             {
               "part": "leftUpperLeg",
@@ -8441,8 +8445,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 10,
-              "otherTriangles": 10
+              "triangles": 14,
+              "otherTriangles": 14
             }
           ],
           "grown": []
@@ -8546,85 +8550,6 @@
               "other": "leftUpperLeg",
               "triangles": 21,
               "otherTriangles": 21
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex-1-age25-bmi25-muscle1:reach",
-          "document": {
-            "shoulders": [
-              {
-                "bone": "leftUpperArm",
-                "plane": 90,
-                "elevation": 90,
-                "axialRotation": 0
-              }
-            ],
-            "shape": {
-              "macroGender": -1,
-              "macroAge": 0,
-              "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
-              "buttocksPtosis": -0.4,
-              "buttocksVolume": 0.5,
-              "pelvisTone": 0.5,
-              "stomachOverhang": 2.3447910280083307e-16,
-              "flankFat": 0.14400000000000018,
-              "outerThighFatLeft": 0.3000000000000003,
-              "outerThighFatRight": 0.3000000000000003,
-              "absDefinition": 0.23099999999999987,
-              "deltoidDefinitionLeft": 0.7312499999999997,
-              "deltoidDefinitionRight": 0.7312499999999997,
-              "scapularDefinition": 0.7312499999999997,
-              "breastTransDownUp": -0.08074999999999975,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.11250000000000013,
-              "stomachTone": 0.4999999999999999,
-              "stomachNavelDownUp": -9.947598300641402e-17,
-              "neckDouble": 2.0301221021717148e-16,
-              "upperarmFatLeft": 0.13500000000000015,
-              "upperlegFatLeft": 0.1845000000000001,
-              "upperarmFatRight": 0.13500000000000015,
-              "upperlegFatRight": 0.1845000000000001,
-              "torsoVshape": 0.3,
-              "musculatureDefinition": 0.28874999999999984,
-              "chestDefinition": 0.043312499999999976,
-              "skeletalProminence": 0.046249999999999944,
-              "hipScaleHoriz": -0.2862500000000002,
-              "hipScaleDepth": 0.051000000000000066,
-              "lowerlegFatLeft": 0.14100000000000004,
-              "lowerlegFatRight": 0.14100000000000004,
-              "hipScaleVert": -0.1445,
-              "measureWristCirc": 0.43149999999999994,
-              "measureAnkleCirc": 0.5250000000000001,
-              "torsoScaleHoriz": -0.3280000000000002,
-              "torsoScaleDepth": 0.21100000000000002,
-              "measureUpperlegHeight": 0,
-              "measureLowerlegHeight": 0,
-              "macroFirmness": 0,
-              "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.4417189950100431
-            }
-          },
-          "fresh": [
-            {
-              "part": "upperChest",
-              "other": "leftUpperArm",
-              "triangles": 18,
-              "otherTriangles": 22
             }
           ],
           "grown": []
@@ -8838,18 +8763,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -8889,15 +8814,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6561143590338314
+              "macroWeight": 1.9680776257748354
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 5,
-              "otherTriangles": 5
+              "triangles": 4,
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -9099,18 +9024,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -9150,7 +9075,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8465106902232686
+              "macroWeight": 4.148948620657821
             }
           },
           "fresh": [
@@ -9164,13 +9089,13 @@
               "part": "upperChest",
               "other": "leftUpperArm",
               "triangles": 8,
-              "otherTriangles": 6
+              "otherTriangles": 10
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 2,
-              "otherTriangles": 2
+              "triangles": 7,
+              "otherTriangles": 7
             }
           ],
           "grown": []
@@ -9190,18 +9115,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -9241,15 +9166,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8465106902232686
+              "macroWeight": 4.148948620657821
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 22,
-              "otherTriangles": 22
+              "triangles": 24,
+              "otherTriangles": 24
             },
             {
               "part": "leftUpperLeg",
@@ -9260,14 +9185,14 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 104,
-              "otherTriangles": 93
+              "triangles": 112,
+              "otherTriangles": 103
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 34,
+              "otherTriangles": 34
             }
           ],
           "grown": []
@@ -9463,18 +9388,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.3999999999999999,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -9514,7 +9439,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.6436581077716608
+              "macroWeight": 2.9528692368501117
             }
           },
           "fresh": [
@@ -9522,7 +9447,7 @@
               "part": "upperChest",
               "other": "leftUpperArm",
               "triangles": 2,
-              "otherTriangles": 6
+              "otherTriangles": 2
             },
             {
               "part": "leftUpperArm",
@@ -9548,18 +9473,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.3999999999999999,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -9599,27 +9524,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.6436581077716608
+              "macroWeight": 2.9528692368501117
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 80,
-              "otherTriangles": 80
+              "triangles": 73,
+              "otherTriangles": 73
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 113,
-              "otherTriangles": 79
+              "triangles": 102,
+              "otherTriangles": 85
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 33,
+              "otherTriangles": 33
             }
           ],
           "grown": []
@@ -9821,18 +9746,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.45999999999999996,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -9872,21 +9797,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.670635122769064
+              "macroWeight": 4.972717806674084
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 55,
-              "otherTriangles": 57
+              "triangles": 46,
+              "otherTriangles": 48
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 28,
-              "otherTriangles": 28
+              "triangles": 18,
+              "otherTriangles": 18
             }
           ],
           "grown": []
@@ -9906,18 +9831,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.45999999999999996,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -9957,15 +9882,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.670635122769064
+              "macroWeight": 4.972717806674084
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 12,
-              "otherTriangles": 12
+              "triangles": 37,
+              "otherTriangles": 37
+            },
+            {
+              "part": "hips",
+              "other": "rightUpperLeg",
+              "triangles": 2,
+              "otherTriangles": 1
             }
           ],
           "grown": []
@@ -11882,18 +11813,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -11933,7 +11864,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6306406746788213
+              "macroWeight": -1.3732676151222973
             }
           },
           "fresh": [
@@ -12052,18 +11983,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -12103,7 +12034,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.4417189950100431
+              "macroWeight": 0.521331401941834
             }
           },
           "fresh": [
@@ -12216,18 +12147,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -12267,21 +12198,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6561143590338314
+              "macroWeight": 1.9680776257748354
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 4,
-              "otherTriangles": 6
+              "triangles": 3,
+              "otherTriangles": 5
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 3,
-              "otherTriangles": 3
+              "triangles": 5,
+              "otherTriangles": 5
             }
           ],
           "grown": []
@@ -12301,18 +12232,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -12352,27 +12283,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6561143590338314
+              "macroWeight": 1.9680776257748354
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 113,
-              "otherTriangles": 113
+              "triangles": 105,
+              "otherTriangles": 105
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 110,
-              "otherTriangles": 98
+              "triangles": 96,
+              "otherTriangles": 89
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 16,
-              "otherTriangles": 16
+              "triangles": 23,
+              "otherTriangles": 23
             }
           ],
           "grown": []
@@ -12574,18 +12505,18 @@
               "macroGender": -1,
               "macroAge": 0,
               "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": -0.4,
               "buttocksVolume": 0.5,
               "pelvisTone": 0.5,
@@ -12625,15 +12556,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8465106902232686
+              "macroWeight": 4.148948620657821
             }
           },
           "fresh": [
             {
               "part": "upperChest",
+              "other": "upperChest",
+              "triangles": 2,
+              "otherTriangles": 2
+            },
+            {
+              "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 80,
-              "otherTriangles": 92
+              "triangles": 84,
+              "otherTriangles": 97
             },
             {
               "part": "leftUpperArm",
@@ -12750,18 +12687,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.10999999999999999,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -12801,7 +12738,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.418882874314402
+              "macroWeight": -1.157428936066449
             }
           },
           "fresh": [
@@ -12829,18 +12766,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.2600000000000001,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -12880,27 +12817,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17889583842975781,
-              "macroWeight": 0.5901575663291262
+              "macroWeight": 0.6977633644399296
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 76,
-              "otherTriangles": 76
+              "triangles": 71,
+              "otherTriangles": 71
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 88,
-              "otherTriangles": 72
+              "triangles": 79,
+              "otherTriangles": 60
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 21,
+              "otherTriangles": 21
             }
           ],
           "grown": []
@@ -13017,18 +12954,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.3999999999999999,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -13068,21 +13005,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.6436581077716608
+              "macroWeight": 2.9528692368501117
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 63,
-              "otherTriangles": 79
+              "triangles": 66,
+              "otherTriangles": 78
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 23,
-              "otherTriangles": 23
+              "triangles": 25,
+              "otherTriangles": 25
             }
           ],
           "grown": []
@@ -13302,18 +13239,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.45999999999999996,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -13353,7 +13290,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.670635122769064
+              "macroWeight": 4.972717806674084
             }
           },
           "fresh": [
@@ -13366,14 +13303,14 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 8,
-              "otherTriangles": 9
+              "triangles": 9,
+              "otherTriangles": 12
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 24,
+              "otherTriangles": 24
             }
           ],
           "grown": []
@@ -13393,18 +13330,18 @@
               "macroGender": -1,
               "macroAge": 0.5384615384615384,
               "macroMuscle": 0.8200000000000001,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
+              "upperarmMuscleLeft": 0.42,
+              "upperarmMuscleRight": 0.42,
+              "upperarmShoulderMuscleLeft": 0.42,
+              "upperarmShoulderMuscleRight": 0.42,
+              "lowerarmMuscleLeft": 0.42,
+              "lowerarmMuscleRight": 0.42,
+              "upperlegMuscleLeft": 0.469,
+              "upperlegMuscleRight": 0.469,
+              "lowerlegMuscleLeft": 0.469,
+              "lowerlegMuscleRight": 0.469,
+              "torsoMusclePectoral": 0.42,
+              "torsoMuscleDorsi": 0.42,
               "buttocksPtosis": 0.45999999999999996,
               "buttocksVolume": 0.31999999999999995,
               "pelvisTone": 0.2,
@@ -13444,27 +13381,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.670635122769064
+              "macroWeight": 4.972717806674084
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 27,
-              "otherTriangles": 35
+              "triangles": 30,
+              "otherTriangles": 41
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 26,
-              "otherTriangles": 25
+              "triangles": 28,
+              "otherTriangles": 27
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 33,
-              "otherTriangles": 33
+              "triangles": 42,
+              "otherTriangles": 42
             }
           ],
           "grown": []
@@ -15384,7 +15321,7 @@
         },
         {
           "pair": "hips x spine",
-          "states": 30
+          "states": 31
         },
         {
           "pair": "leftUpperLeg x leftUpperLeg",
@@ -15954,18 +15891,18 @@
               "macroGender": -1,
               "macroAge": 0.046153846153846156,
               "macroMuscle": 0.30000000000000004,
-              "upperarmMuscleLeft": 0.21000000000000002,
-              "upperarmMuscleRight": 0.21000000000000002,
-              "upperarmShoulderMuscleLeft": 0.21000000000000002,
-              "upperarmShoulderMuscleRight": 0.21000000000000002,
-              "lowerarmMuscleLeft": 0.21000000000000002,
-              "lowerarmMuscleRight": 0.21000000000000002,
-              "upperlegMuscleLeft": 0.21000000000000002,
-              "upperlegMuscleRight": 0.21000000000000002,
-              "lowerlegMuscleLeft": 0.21000000000000002,
-              "lowerlegMuscleRight": 0.21000000000000002,
-              "torsoMusclePectoral": 0.21000000000000002,
-              "torsoMuscleDorsi": 0.21000000000000002,
+              "upperarmMuscleLeft": 0.126,
+              "upperarmMuscleRight": 0.126,
+              "upperarmShoulderMuscleLeft": 0.126,
+              "upperarmShoulderMuscleRight": 0.126,
+              "lowerarmMuscleLeft": 0.126,
+              "lowerarmMuscleRight": 0.126,
+              "upperlegMuscleLeft": 0.14070000000000002,
+              "upperlegMuscleRight": 0.14070000000000002,
+              "lowerlegMuscleLeft": 0.14070000000000002,
+              "lowerlegMuscleRight": 0.14070000000000002,
+              "torsoMusclePectoral": 0.126,
+              "torsoMuscleDorsi": 0.126,
               "buttocksPtosis": -0.0972852043851449,
               "buttocksVolume": 0.15000000000000002,
               "pelvisTone": 0.15000000000000002,
@@ -16005,9 +15942,9 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.6036064226342622,
-              "measureBustCirc": -0.23316991065591672,
-              "macroWeight": -0.6247899788243607
+              "measureHipsCirc": 0.5895011911458488,
+              "measureBustCirc": -0.17332937803825352,
+              "macroWeight": -0.578625767726703
             }
           },
           "fresh": [
@@ -16026,8 +15963,8 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 79,
-              "otherTriangles": 79
+              "triangles": 82,
+              "otherTriangles": 82
             },
             {
               "part": "spine",
@@ -16044,38 +15981,38 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 127,
-              "otherTriangles": 127
+              "triangles": 129,
+              "otherTriangles": 129
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 26
+              "triangles": 26,
+              "otherTriangles": 28
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 25
+              "triangles": 24,
+              "otherTriangles": 24
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 125,
-              "otherTriangles": 125
+              "triangles": 126,
+              "otherTriangles": 126
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 20,
+              "triangles": 17,
               "otherTriangles": 24
             },
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 25,
-              "otherTriangles": 25
+              "triangles": 27,
+              "otherTriangles": 27
             }
           ],
           "grown": []
@@ -16113,18 +16050,18 @@
               "macroGender": -1,
               "macroAge": -0.2142857142857143,
               "macroMuscle": -0.30000000000000016,
-              "upperarmMuscleLeft": -0.21000000000000002,
-              "upperarmMuscleRight": -0.21000000000000002,
-              "upperarmShoulderMuscleLeft": -0.21000000000000002,
-              "upperarmShoulderMuscleRight": -0.21000000000000002,
-              "lowerarmMuscleLeft": -0.21000000000000002,
-              "lowerarmMuscleRight": -0.21000000000000002,
-              "upperlegMuscleLeft": -0.21000000000000002,
-              "upperlegMuscleRight": -0.21000000000000002,
-              "lowerlegMuscleLeft": -0.21000000000000002,
-              "lowerlegMuscleRight": -0.21000000000000002,
-              "torsoMusclePectoral": -0.21000000000000002,
-              "torsoMuscleDorsi": -0.21000000000000002,
+              "upperarmMuscleLeft": -0.126,
+              "upperarmMuscleRight": -0.126,
+              "upperarmShoulderMuscleLeft": -0.126,
+              "upperarmShoulderMuscleRight": -0.126,
+              "lowerarmMuscleLeft": -0.126,
+              "lowerarmMuscleRight": -0.126,
+              "upperlegMuscleLeft": -0.14070000000000002,
+              "upperlegMuscleRight": -0.14070000000000002,
+              "lowerlegMuscleLeft": -0.14070000000000002,
+              "lowerlegMuscleRight": -0.14070000000000002,
+              "torsoMusclePectoral": -0.126,
+              "torsoMuscleDorsi": -0.126,
               "buttocksPtosis": 0,
               "buttocksVolume": -0.15000000000000002,
               "pelvisTone": -0.15000000000000002,
@@ -16164,11 +16101,17 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.26211290480405763,
-              "macroWeight": -0.8739843407662238
+              "measureHipsCirc": -0.22690970216124287,
+              "macroWeight": -0.9006446250120997
             }
           },
           "fresh": [
+            {
+              "part": "hips",
+              "other": "spine",
+              "triangles": 3,
+              "otherTriangles": 1
+            },
             {
               "part": "spine",
               "other": "spine",
@@ -16190,8 +16133,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 10,
-              "otherTriangles": 10
+              "triangles": 13,
+              "otherTriangles": 13
             },
             {
               "part": "rightUpperLeg",
@@ -16202,7 +16145,7 @@
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 26,
+              "triangles": 24,
               "otherTriangles": 21
             },
             {
@@ -16804,18 +16747,18 @@
               "macroGender": -1,
               "macroAge": 0.35384615384615387,
               "macroMuscle": -0.608,
-              "upperarmMuscleLeft": -0.35,
-              "upperarmMuscleRight": -0.35,
-              "upperarmShoulderMuscleLeft": -0.35,
-              "upperarmShoulderMuscleRight": -0.35,
-              "lowerarmMuscleLeft": -0.35,
-              "lowerarmMuscleRight": -0.35,
-              "upperlegMuscleLeft": -0.35,
-              "upperlegMuscleRight": -0.35,
-              "lowerlegMuscleLeft": -0.35,
-              "lowerlegMuscleRight": -0.35,
-              "torsoMusclePectoral": -0.35,
-              "torsoMuscleDorsi": -0.35,
+              "upperarmMuscleLeft": -0.21,
+              "upperarmMuscleRight": -0.21,
+              "upperarmShoulderMuscleLeft": -0.21,
+              "upperarmShoulderMuscleRight": -0.21,
+              "lowerarmMuscleLeft": -0.21,
+              "lowerarmMuscleRight": -0.21,
+              "upperlegMuscleLeft": -0.2345,
+              "upperlegMuscleRight": -0.2345,
+              "lowerlegMuscleLeft": -0.2345,
+              "lowerlegMuscleRight": -0.2345,
+              "torsoMusclePectoral": -0.21,
+              "torsoMuscleDorsi": -0.21,
               "buttocksPtosis": 0.40599999999999997,
               "buttocksVolume": -0.358,
               "pelvisTone": -0.43,
@@ -16855,7 +16798,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 3.432480620957987
+              "macroWeight": 3.3596264869332386
             }
           },
           "fresh": [
@@ -16869,13 +16812,13 @@
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 35,
-              "otherTriangles": 34
+              "otherTriangles": 35
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
               "triangles": 36,
-              "otherTriangles": 33
+              "otherTriangles": 34
             },
             {
               "part": "spine",
@@ -16886,7 +16829,7 @@
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 39,
+              "triangles": 40,
               "otherTriangles": 46
             },
             {
@@ -16898,14 +16841,14 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 76,
-              "otherTriangles": 76
+              "triangles": 75,
+              "otherTriangles": 75
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 46,
-              "otherTriangles": 41
+              "triangles": 55,
+              "otherTriangles": 40
             },
             {
               "part": "leftUpperLeg",
@@ -16916,26 +16859,26 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 12,
-              "otherTriangles": 12
+              "triangles": 13,
+              "otherTriangles": 13
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 76,
-              "otherTriangles": 76
+              "triangles": 78,
+              "otherTriangles": 78
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 39,
-              "otherTriangles": 31
+              "triangles": 42,
+              "otherTriangles": 34
             },
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 12,
-              "otherTriangles": 12
+              "triangles": 14,
+              "otherTriangles": 14
             }
           ],
           "grown": []
@@ -16985,18 +16928,18 @@
               "macroGender": -1,
               "macroAge": 0.8769230769230769,
               "macroMuscle": -1,
-              "upperarmMuscleLeft": -0.48999999999999994,
-              "upperarmMuscleRight": -0.48999999999999994,
-              "upperarmShoulderMuscleLeft": -0.48999999999999994,
-              "upperarmShoulderMuscleRight": -0.48999999999999994,
-              "lowerarmMuscleLeft": -0.48999999999999994,
-              "lowerarmMuscleRight": -0.48999999999999994,
-              "upperlegMuscleLeft": -0.48999999999999994,
-              "upperlegMuscleRight": -0.48999999999999994,
-              "lowerlegMuscleLeft": -0.48999999999999994,
-              "lowerlegMuscleRight": -0.48999999999999994,
-              "torsoMusclePectoral": -0.48999999999999994,
-              "torsoMuscleDorsi": -0.48999999999999994,
+              "upperarmMuscleLeft": -0.29399999999999993,
+              "upperarmMuscleRight": -0.29399999999999993,
+              "upperarmShoulderMuscleLeft": -0.29399999999999993,
+              "upperarmShoulderMuscleRight": -0.29399999999999993,
+              "lowerarmMuscleLeft": -0.29399999999999993,
+              "lowerarmMuscleRight": -0.29399999999999993,
+              "upperlegMuscleLeft": -0.3283,
+              "upperlegMuscleRight": -0.3283,
+              "lowerlegMuscleLeft": -0.3283,
+              "lowerlegMuscleRight": -0.3283,
+              "torsoMusclePectoral": -0.29399999999999993,
+              "torsoMuscleDorsi": -0.29399999999999993,
               "buttocksPtosis": 0.8558330035615354,
               "buttocksVolume": -0.6913333333333334,
               "pelvisTone": -0.87,
@@ -17036,7 +16979,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.30884868783883346
+              "macroWeight": 0.2875059106488468
             }
           },
           "fresh": [
@@ -17055,14 +16998,14 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 69,
-              "otherTriangles": 69
+              "triangles": 68,
+              "otherTriangles": 68
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 129,
-              "otherTriangles": 129
+              "triangles": 127,
+              "otherTriangles": 127
             },
             {
               "part": "leftUpperLeg",
@@ -17073,20 +17016,20 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 18,
-              "otherTriangles": 18
+              "triangles": 17,
+              "otherTriangles": 17
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 126,
-              "otherTriangles": 126
+              "triangles": 124,
+              "otherTriangles": 124
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
               "triangles": 20,
-              "otherTriangles": 26
+              "otherTriangles": 24
             },
             {
               "part": "rightLowerLeg",
@@ -17743,18 +17686,18 @@
               "macroGender": -1,
               "macroAge": -0.0714285714285714,
               "macroMuscle": 0.10000000000000009,
-              "upperarmMuscleLeft": 0.07000000000000006,
-              "upperarmMuscleRight": 0.07000000000000006,
-              "upperarmShoulderMuscleLeft": 0.07000000000000006,
-              "upperarmShoulderMuscleRight": 0.07000000000000006,
-              "lowerarmMuscleLeft": 0.07000000000000006,
-              "lowerarmMuscleRight": 0.07000000000000006,
-              "upperlegMuscleLeft": 0.07000000000000006,
-              "upperlegMuscleRight": 0.07000000000000006,
-              "lowerlegMuscleLeft": 0.07000000000000006,
-              "lowerlegMuscleRight": 0.07000000000000006,
-              "torsoMusclePectoral": 0.07000000000000006,
-              "torsoMuscleDorsi": 0.07000000000000006,
+              "upperarmMuscleLeft": 0.04200000000000004,
+              "upperarmMuscleRight": 0.04200000000000004,
+              "upperarmShoulderMuscleLeft": 0.04200000000000004,
+              "upperarmShoulderMuscleRight": 0.04200000000000004,
+              "lowerarmMuscleLeft": 0.04200000000000004,
+              "lowerarmMuscleRight": 0.04200000000000004,
+              "upperlegMuscleLeft": 0.046900000000000046,
+              "upperlegMuscleRight": 0.046900000000000046,
+              "lowerlegMuscleLeft": 0.046900000000000046,
+              "lowerlegMuscleRight": 0.046900000000000046,
+              "torsoMusclePectoral": 0.04200000000000004,
+              "torsoMuscleDorsi": 0.04200000000000004,
               "buttocksPtosis": -0.04000000000000001,
               "buttocksVolume": 0.050000000000000044,
               "pelvisTone": 0.050000000000000044,
@@ -17794,7 +17737,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.021852622021551
+              "macroWeight": -0.9981882350219462
             }
           },
           "fresh": [
@@ -17837,8 +17780,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 32,
-              "otherTriangles": 36
+              "triangles": 34,
+              "otherTriangles": 40
             },
             {
               "part": "leftLowerLeg",
@@ -17849,13 +17792,13 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 136,
-              "otherTriangles": 136
+              "triangles": 133,
+              "otherTriangles": 133
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 29,
+              "triangles": 30,
               "otherTriangles": 36
             },
             {
@@ -17900,18 +17843,18 @@
               "macroGender": -1,
               "macroAge": 0.046153846153846156,
               "macroMuscle": 0.30000000000000004,
-              "upperarmMuscleLeft": 0.21000000000000002,
-              "upperarmMuscleRight": 0.21000000000000002,
-              "upperarmShoulderMuscleLeft": 0.21000000000000002,
-              "upperarmShoulderMuscleRight": 0.21000000000000002,
-              "lowerarmMuscleLeft": 0.21000000000000002,
-              "lowerarmMuscleRight": 0.21000000000000002,
-              "upperlegMuscleLeft": 0.21000000000000002,
-              "upperlegMuscleRight": 0.21000000000000002,
-              "lowerlegMuscleLeft": 0.21000000000000002,
-              "lowerlegMuscleRight": 0.21000000000000002,
-              "torsoMusclePectoral": 0.21000000000000002,
-              "torsoMuscleDorsi": 0.21000000000000002,
+              "upperarmMuscleLeft": 0.126,
+              "upperarmMuscleRight": 0.126,
+              "upperarmShoulderMuscleLeft": 0.126,
+              "upperarmShoulderMuscleRight": 0.126,
+              "lowerarmMuscleLeft": 0.126,
+              "lowerarmMuscleRight": 0.126,
+              "upperlegMuscleLeft": 0.14070000000000002,
+              "upperlegMuscleRight": 0.14070000000000002,
+              "lowerlegMuscleLeft": 0.14070000000000002,
+              "lowerlegMuscleRight": 0.14070000000000002,
+              "torsoMusclePectoral": 0.126,
+              "torsoMuscleDorsi": 0.126,
               "buttocksPtosis": -0.0972852043851449,
               "buttocksVolume": 0.15000000000000002,
               "pelvisTone": 0.15000000000000002,
@@ -17951,9 +17894,9 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.6036064226342622,
-              "measureBustCirc": -0.23316991065591672,
-              "macroWeight": -0.6247899788243607
+              "measureHipsCirc": 0.5895011911458488,
+              "measureBustCirc": -0.17332937803825352,
+              "macroWeight": -0.578625767726703
             }
           },
           "fresh": [
@@ -17972,8 +17915,8 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 10,
-              "otherTriangles": 10
+              "triangles": 17,
+              "otherTriangles": 17
             },
             {
               "part": "spine",
@@ -17990,38 +17933,38 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 80,
-              "otherTriangles": 80
+              "triangles": 77,
+              "otherTriangles": 77
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 21,
-              "otherTriangles": 17
+              "triangles": 25,
+              "otherTriangles": 18
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 10,
-              "otherTriangles": 10
+              "triangles": 11,
+              "otherTriangles": 11
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 78,
-              "otherTriangles": 78
+              "triangles": 79,
+              "otherTriangles": 79
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 20,
+              "triangles": 17,
               "otherTriangles": 16
             },
             {
               "part": "rightLowerLeg",
               "other": "rightLowerLeg",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -18797,18 +18740,18 @@
               "macroGender": -1,
               "macroAge": 0.8769230769230769,
               "macroMuscle": -1,
-              "upperarmMuscleLeft": -0.48999999999999994,
-              "upperarmMuscleRight": -0.48999999999999994,
-              "upperarmShoulderMuscleLeft": -0.48999999999999994,
-              "upperarmShoulderMuscleRight": -0.48999999999999994,
-              "lowerarmMuscleLeft": -0.48999999999999994,
-              "lowerarmMuscleRight": -0.48999999999999994,
-              "upperlegMuscleLeft": -0.48999999999999994,
-              "upperlegMuscleRight": -0.48999999999999994,
-              "lowerlegMuscleLeft": -0.48999999999999994,
-              "lowerlegMuscleRight": -0.48999999999999994,
-              "torsoMusclePectoral": -0.48999999999999994,
-              "torsoMuscleDorsi": -0.48999999999999994,
+              "upperarmMuscleLeft": -0.29399999999999993,
+              "upperarmMuscleRight": -0.29399999999999993,
+              "upperarmShoulderMuscleLeft": -0.29399999999999993,
+              "upperarmShoulderMuscleRight": -0.29399999999999993,
+              "lowerarmMuscleLeft": -0.29399999999999993,
+              "lowerarmMuscleRight": -0.29399999999999993,
+              "upperlegMuscleLeft": -0.3283,
+              "upperlegMuscleRight": -0.3283,
+              "lowerlegMuscleLeft": -0.3283,
+              "lowerlegMuscleRight": -0.3283,
+              "torsoMusclePectoral": -0.29399999999999993,
+              "torsoMuscleDorsi": -0.29399999999999993,
               "buttocksPtosis": 0.8558330035615354,
               "buttocksVolume": -0.6913333333333334,
               "pelvisTone": -0.87,
@@ -18848,7 +18791,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.30884868783883346
+              "macroWeight": 0.2875059106488468
             }
           },
           "fresh": [
@@ -18861,14 +18804,14 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 47,
-              "otherTriangles": 47
+              "triangles": 54,
+              "otherTriangles": 54
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 9,
-              "otherTriangles": 10
+              "otherTriangles": 11
             },
             {
               "part": "leftLowerLeg",
@@ -18879,8 +18822,8 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 54,
-              "otherTriangles": 54
+              "triangles": 59,
+              "otherTriangles": 59
             },
             {
               "part": "rightUpperLeg",
@@ -19534,18 +19477,18 @@
               "macroGender": -1,
               "macroAge": -0.0714285714285714,
               "macroMuscle": 0.10000000000000009,
-              "upperarmMuscleLeft": 0.07000000000000006,
-              "upperarmMuscleRight": 0.07000000000000006,
-              "upperarmShoulderMuscleLeft": 0.07000000000000006,
-              "upperarmShoulderMuscleRight": 0.07000000000000006,
-              "lowerarmMuscleLeft": 0.07000000000000006,
-              "lowerarmMuscleRight": 0.07000000000000006,
-              "upperlegMuscleLeft": 0.07000000000000006,
-              "upperlegMuscleRight": 0.07000000000000006,
-              "lowerlegMuscleLeft": 0.07000000000000006,
-              "lowerlegMuscleRight": 0.07000000000000006,
-              "torsoMusclePectoral": 0.07000000000000006,
-              "torsoMuscleDorsi": 0.07000000000000006,
+              "upperarmMuscleLeft": 0.04200000000000004,
+              "upperarmMuscleRight": 0.04200000000000004,
+              "upperarmShoulderMuscleLeft": 0.04200000000000004,
+              "upperarmShoulderMuscleRight": 0.04200000000000004,
+              "lowerarmMuscleLeft": 0.04200000000000004,
+              "lowerarmMuscleRight": 0.04200000000000004,
+              "upperlegMuscleLeft": 0.046900000000000046,
+              "upperlegMuscleRight": 0.046900000000000046,
+              "lowerlegMuscleLeft": 0.046900000000000046,
+              "lowerlegMuscleRight": 0.046900000000000046,
+              "torsoMusclePectoral": 0.04200000000000004,
+              "torsoMuscleDorsi": 0.04200000000000004,
               "buttocksPtosis": -0.04000000000000001,
               "buttocksVolume": 0.050000000000000044,
               "pelvisTone": 0.050000000000000044,
@@ -19585,7 +19528,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.021852622021551
+              "macroWeight": -0.9981882350219462
             }
           },
           "fresh": [
@@ -19616,7 +19559,7 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 23,
+              "triangles": 22,
               "otherTriangles": 18
             },
             {
@@ -19691,18 +19634,18 @@
               "macroGender": -1,
               "macroAge": -0.2142857142857143,
               "macroMuscle": -0.30000000000000016,
-              "upperarmMuscleLeft": -0.21000000000000002,
-              "upperarmMuscleRight": -0.21000000000000002,
-              "upperarmShoulderMuscleLeft": -0.21000000000000002,
-              "upperarmShoulderMuscleRight": -0.21000000000000002,
-              "lowerarmMuscleLeft": -0.21000000000000002,
-              "lowerarmMuscleRight": -0.21000000000000002,
-              "upperlegMuscleLeft": -0.21000000000000002,
-              "upperlegMuscleRight": -0.21000000000000002,
-              "lowerlegMuscleLeft": -0.21000000000000002,
-              "lowerlegMuscleRight": -0.21000000000000002,
-              "torsoMusclePectoral": -0.21000000000000002,
-              "torsoMuscleDorsi": -0.21000000000000002,
+              "upperarmMuscleLeft": -0.126,
+              "upperarmMuscleRight": -0.126,
+              "upperarmShoulderMuscleLeft": -0.126,
+              "upperarmShoulderMuscleRight": -0.126,
+              "lowerarmMuscleLeft": -0.126,
+              "lowerarmMuscleRight": -0.126,
+              "upperlegMuscleLeft": -0.14070000000000002,
+              "upperlegMuscleRight": -0.14070000000000002,
+              "lowerlegMuscleLeft": -0.14070000000000002,
+              "lowerlegMuscleRight": -0.14070000000000002,
+              "torsoMusclePectoral": -0.126,
+              "torsoMuscleDorsi": -0.126,
               "buttocksPtosis": 0,
               "buttocksVolume": -0.15000000000000002,
               "pelvisTone": -0.15000000000000002,
@@ -19742,8 +19685,8 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.26211290480405763,
-              "macroWeight": -0.8739843407662238
+              "measureHipsCirc": -0.22690970216124287,
+              "macroWeight": -0.9006446250120997
             }
           },
           "fresh": [
@@ -19780,8 +19723,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 29,
-              "otherTriangles": 29
+              "triangles": 31,
+              "otherTriangles": 31
             },
             {
               "part": "rightUpperLeg",
@@ -19792,7 +19735,7 @@
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 26,
+              "triangles": 25,
               "otherTriangles": 29
             },
             {
@@ -20260,18 +20203,18 @@
               "macroGender": -1,
               "macroAge": 0.35384615384615387,
               "macroMuscle": -0.608,
-              "upperarmMuscleLeft": -0.35,
-              "upperarmMuscleRight": -0.35,
-              "upperarmShoulderMuscleLeft": -0.35,
-              "upperarmShoulderMuscleRight": -0.35,
-              "lowerarmMuscleLeft": -0.35,
-              "lowerarmMuscleRight": -0.35,
-              "upperlegMuscleLeft": -0.35,
-              "upperlegMuscleRight": -0.35,
-              "lowerlegMuscleLeft": -0.35,
-              "lowerlegMuscleRight": -0.35,
-              "torsoMusclePectoral": -0.35,
-              "torsoMuscleDorsi": -0.35,
+              "upperarmMuscleLeft": -0.21,
+              "upperarmMuscleRight": -0.21,
+              "upperarmShoulderMuscleLeft": -0.21,
+              "upperarmShoulderMuscleRight": -0.21,
+              "lowerarmMuscleLeft": -0.21,
+              "lowerarmMuscleRight": -0.21,
+              "upperlegMuscleLeft": -0.2345,
+              "upperlegMuscleRight": -0.2345,
+              "lowerlegMuscleLeft": -0.2345,
+              "lowerlegMuscleRight": -0.2345,
+              "torsoMusclePectoral": -0.21,
+              "torsoMuscleDorsi": -0.21,
               "buttocksPtosis": 0.40599999999999997,
               "buttocksVolume": -0.358,
               "pelvisTone": -0.43,
@@ -20311,7 +20254,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 3.432480620957987
+              "macroWeight": 3.3596264869332386
             }
           },
           "fresh": [
@@ -20331,67 +20274,67 @@
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 19,
-              "otherTriangles": 24
+              "otherTriangles": 23
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
               "triangles": 19,
-              "otherTriangles": 24
+              "otherTriangles": 22
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 91,
-              "otherTriangles": 91
+              "triangles": 92,
+              "otherTriangles": 92
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 34,
-              "otherTriangles": 33
+              "triangles": 30,
+              "otherTriangles": 34
             },
             {
               "part": "spine",
               "other": "rightUpperLeg",
-              "triangles": 32,
-              "otherTriangles": 36
+              "triangles": 30,
+              "otherTriangles": 35
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 122,
-              "otherTriangles": 122
+              "triangles": 121,
+              "otherTriangles": 121
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 39,
-              "otherTriangles": 44
+              "triangles": 40,
+              "otherTriangles": 42
             },
             {
               "part": "leftUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 74,
-              "otherTriangles": 74
+              "triangles": 76,
+              "otherTriangles": 76
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 44,
-              "otherTriangles": 44
+              "triangles": 43,
+              "otherTriangles": 43
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 109,
-              "otherTriangles": 109
+              "triangles": 105,
+              "otherTriangles": 105
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 20,
-              "otherTriangles": 27
+              "triangles": 23,
+              "otherTriangles": 28
             },
             {
               "part": "rightLowerLeg",
