@@ -154,6 +154,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @prose-part 등판은: back
 @prose-part 뒤쪽 두 다리는: leg-*
 @prose-part 다리 단면은: leg-*
+@prose-part 위 끝면: leg-*
 @inventory default: seat-frame, seat-pad, back, leg-0, leg-1, leg-2, leg-3
 @piece default: leg-0, -0.205..-0.175, 0..0.45, -0.29..-0.26
 @piece default: leg-0, -0.205..-0.175, 0.45..0.49, -0.29..-0.135
@@ -319,6 +320,8 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @prose-part 천 좌면은: upholstery
 @prose-part 등 셸은: shell-back
 @prose-part 좌면 아래 네 다리는: leg-*
+@prose-part 좌면 셸의: shell-seat
+@prose-dim 앞쪽 천층은: upholstery
 @inventory default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
 @curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035, 0.001
 @cap-contact default: leg-0, shell-seat, Y, +

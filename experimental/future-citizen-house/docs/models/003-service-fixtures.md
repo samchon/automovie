@@ -111,7 +111,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 @prose-part screen rail은: screen-rail
 @prose-part riser는: riser
-@prose-part tray의 중앙은: tray
+@prose-part tray의 중앙은: tray!void
 @inventory default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
 @cap-contact default: head, riser, Y, -
 @flat-contact default: head, riser, -Y, 2.20, -0.858..-0.842, -0.713..-0.697
@@ -189,7 +189,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @scalar-control island-spout-inner-radius: 0.006
 
 @prose-part 상판은: counter
-@prose-part sink 개구는: counter
+@prose-part sink 개구는: counter!void
 @prose-part tap 기둥은: tap-body
 @inventory default: counter, sink, tap-body, tap-spout
 @support default: cabinet-and-shelf, island-base/880x870x2650/closed, top, -0.04, 0, 0

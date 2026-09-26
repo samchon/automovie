@@ -292,8 +292,8 @@
 
 `port`는 빈 구멍의 내면 주소이며 별도 고체 부품이 아니다. 아래 두 `@void`는 body의 정확한 직육면체 절삭 체적이다. 첫 절삭에 interface가 측면·바닥으로 접하고 두 번째는 빈 단자 구멍이다. 이 표의 `support`는 모델 원점 y=0에서 선반 상면과 닿는 접촉 평면이다.
 
-@prose-part 본체 위쪽: body
-@prose-part 앞쪽 edge: body
+@prose-part 본체 위쪽: body!void
+@prose-part 앞쪽 edge: body!void
 @inventory default: body, interface
 @void default: body, -0.026..0.026, 0.013..0.015, -0.0375..0.0375
 @void default: body, -0.006..0.006, 0.0045..0.0105, 0.05..0.06
@@ -431,7 +431,7 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 @scalar-control housing-plus-bezel-depth: 0.027
 
-@prose-part bezel의 중앙 개구는: bezel
+@prose-part bezel의 중앙 개구는: bezel!void
 @prose-part 뒤판 housing은: housing
 @prose-part screen은: screen
 @prose-part bezel 전면: bezel

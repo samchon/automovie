@@ -1769,6 +1769,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @prose-part 판: board
 @prose-part 브래킷: bracket-*
 @prose-part cleat: cleat
+@prose-part 지지 브래킷 둘은: bracket-*
 @inventory default: board, cleat, bracket-left, bracket-right
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -1804,6 +1805,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @prose-part 이불은: duvet
 @prose-part support-deck: support-deck
 @prose-part 네 다리는: leg-*
+@prose-part 머리판은: headboard
 @inventory 1800: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0, pillow-1
 @inventory 1000: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0
 

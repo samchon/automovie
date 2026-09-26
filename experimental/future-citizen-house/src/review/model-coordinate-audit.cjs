@@ -187,14 +187,18 @@ function boundCoordinates(lines, owner) {
     }
   }
   /** @type {string[]} */ const errors = [];
-  let bound = 0, unbound = 0;
+  let bound = 0, unbound = 0, boundDimensions = 0;
   const unresolved = [];
   const derivedScalars = [];
   const parts = [...new Set(rows.map((row) => row.part))];
   const aliases = lines.flatMap((line) => {
-    const declaration = /^@prose-part\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)$/.exec(line);
-    return declaration ? [{ word: declaration[1].trim(), part: declaration[2] }] : [];
+    const declaration = /^@prose-part\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)(!void)?$/.exec(line);
+    return declaration ? [{ word: declaration[1].trim(), part: declaration[2], kind: declaration[3] ? "void" : "part" }] : [];
   });
+  const dimensionAliases = [...aliases, ...lines.flatMap((line) => {
+    const declaration = /^@prose-dim\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)$/.exec(line);
+    return declaration ? [{ word: declaration[1].trim(), part: declaration[2], kind: "part" }] : [];
+  })];
   for (const line of lines.filter((row) => row.startsWith("@prose-gap "))) {
     const declaration = /^@prose-gap\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([XYZ]),\s*(.+)$/.exec(line);
     if (!declaration) { errors.push(`${owner}: malformed prose gap ${line}`); continue; }
@@ -212,19 +216,70 @@ function boundCoordinates(lines, owner) {
     if (!(measured > 0) || Math.abs(Number(mentions[0][1]) - measured) > 0.000001)
       errors.push(`${owner}: prose gap ${phrase} ${mentions[0][1]} contradicts ${first}.${axis}.min - ${second}.${axis}.max = ${measured}`);
   }
-  for (const alias of aliases) {
+  for (const alias of dimensionAliases) {
     const prefix = alias.part.endsWith("*") ? alias.part.slice(0, -1) : null;
-    if (!rows.some((row) => prefix ? row.part.startsWith(prefix) : row.part === alias.part))
+    if (!rows.some((row) => (prefix ? row.part.startsWith(prefix) : row.part === alias.part) &&
+      (alias.kind !== "void" || row.kind === "void")))
       errors.push(`${owner}: prose alias ${alias.word} names no measured part ${alias.part}`);
     if (!lines.some((line) => !/^\||^@|^<!--/.test(line) && line.includes(alias.word)))
       errors.push(`${owner}: prose alias ${alias.word} is unused`);
   }
   const envelopes = rows.filter((row) => row.part === "*");
-  let envelopeDimensions = 0;
+  let envelopeDimensions = 0, envelopeTriples = 0;
   /** @type {Map<string,Set<number>>} */
   const wildcardMinima = new Map();
   for (const [index, line] of lines.entries()) {
     if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
+    for (const triple of line.matchAll(/(\d+\.\d+)×(\d+\.\d+)×(\d+\.\d+)m\s+점유/g)) {
+      const preceding = line.slice(0, triple.index);
+      const stateNames = [...preceding.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
+      const state = stateNames.reverse().find((name) => envelopes.some((row) => row.state === name));
+      const envelope = envelopes.find((row) => row.state === state);
+      if (!envelope) continue;
+      envelopeTriples++;
+      for (const [i, axis] of /** @type {const} */ (["x", "y", "z"]).entries()) {
+        const value = Number(triple[i + 1]);
+        if (Math.abs(envelope[axis][1] - envelope[axis][0] - value) > 0.000001)
+          errors.push(`${owner}: prose line ${index + 1} ${state} envelope ${axis} span ${value} contradicts measured part`);
+      }
+    }
+    for (const measure of line.matchAll(/(?:X\s*)?폭\s*(\d+\.\d+)|(?:Y\s*)?높이\s*(\d+\.\d+)|(?:Z\s*)?깊이\s*(\d+\.\d+)|두께\s*(\d+\.\d+)/g)) {
+      const axis = /** @type {"x"|"y"|"z"|null} */ (measure[1] ? "x" : measure[2] ? "y" : measure[3] ? "z" : null);
+      const value = Number(measure[1] || measure[2] || measure[3] || measure[4]);
+      const before = line.slice(Math.max(0, measure.index - 70), measure.index);
+      const following = line.slice(measure.index + measure[0].length,
+        measure.index + measure[0].length + 28);
+      const nextAlias = dimensionAliases.find((alias) =>
+        new RegExp(`^(?:m|의|\\s)*${alias.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`)
+          .test(following));
+      const mentioned = nextAlias ? { part: nextAlias.part, kind: nextAlias.kind, at: 0 } : dimensionAliases.flatMap((alias) => {
+        const at = before.lastIndexOf(alias.word);
+        return at < 0 ? [] : [{ part: alias.part, kind: alias.kind, at }];
+      }).sort((a, b) => b.at - a.at)[0];
+      if (!mentioned) continue;
+      const stateNames = [...before.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
+      const state = stateNames.reverse().find((name) => rows.some((row) =>
+        row.state === name || row.state.startsWith(`${name}/`)));
+      const prefix = mentioned.part.endsWith("*") ? mentioned.part.slice(0, -1) : null;
+      const opening = mentioned.kind === "void" || /(?:개구|구멍|절삭|edge)/.test(before);
+      const eligible = rows.filter((row) => (prefix ? row.part.startsWith(prefix) : row.part === mentioned.part) &&
+        (!state || row.state === state || row.state.startsWith(`${state}/`)) &&
+        (opening ? row.kind === "void" : row.kind !== "void"));
+      if (!eligible.length) continue;
+      if ((axis === "z" || axis === null) && eligible.every((row) => row.kind === "curved")) continue;
+      boundDimensions++;
+      const spans = /** @param {typeof eligible[number]} row */ (row) =>
+        axis ? [row[axis][1] - row[axis][0]] :
+          [Math.min(row.x[1] - row.x[0], row.y[1] - row.y[0], row.z[1] - row.z[0])];
+      const groups = [...new Set(eligible.map((row) => row.state))].flatMap((key) => {
+        const members = eligible.filter((row) => row.state === key);
+        return axis ? [Math.max(...members.map((row) => row[axis][1])) -
+          Math.min(...members.map((row) => row[axis][0]))] : [];
+      });
+      if (![...eligible.flatMap(spans), ...groups]
+        .some((span) => Math.abs(span - value) < 0.000001))
+        errors.push(`${owner}: prose line ${index + 1} ${mentioned.part} ${axis ?? "thickness"} span ${value} contradicts measured part`);
+    }
     // A leading prototype description gives dimensions of the complete
     // measured envelope. Only use a state whose own token is named, or a
     // single-state prototype; a child part's dimensions are not an envelope.
@@ -283,7 +338,8 @@ function boundCoordinates(lines, owner) {
     }
     for (const claim of line.matchAll(/([xyzXYZ])\s*=\s*([±+−-]?\d+\.\d+)(?:\.\.([+−-]?\d+\.\d+))?(?![WH])/g)) {
       const axis = /** @type {"x"|"y"|"z"} */ (claim[1].toLowerCase());
-      const start = line.lastIndexOf(". ", claim.index) + 2;
+      const boundary = line.lastIndexOf(". ", claim.index);
+      const start = boundary < 0 ? 0 : boundary + 2;
       const clause = line.slice(start, claim.index);
       const names = [...clause.matchAll(/`([^`]+)`/g)]
         .filter((token) => parts.includes(token[1]) || (token[1].endsWith("-j") &&
@@ -294,14 +350,28 @@ function boundCoordinates(lines, owner) {
         : null;
       const lexical = aliases.flatMap((alias) => {
         const index = clause.lastIndexOf(alias.word);
-        return index < 0 ? [] : [{ 1: alias.part, index }];
+        return index < 0 ? [] : [{ 1: alias.part, index, kind: alias.kind }];
+      }).sort((a, b) => b.index - a.index)[0];
+      const englishSubject = parts.flatMap((part) => {
+        if (part === "*") return [];
+        const expression = new RegExp(`(?<![a-z0-9-])${part}(?:은|는|이|가)`, "g");
+        const matches = [...clause.matchAll(expression)];
+        const index = matches.at(-1)?.index;
+        return index !== undefined && clause.length - index <= 35
+          ? [{ 1: part, index }] : [];
       }).sort((a, b) => b.index - a.index)[0];
       const after = line.slice(claim.index + claim[0].length);
       const following = /^(?:m|의|에는|에|인|\s|,)*\s*`([^`]+)`/.exec(after);
-      const preceding = [directNamed, names.at(-1), lexical].filter(Boolean)
+      const followingWord = /^(?:m|\s)*([a-z][a-z0-9-]*)(?:와|과|은|는|의)/.exec(after);
+      const followingPart = followingWord && (parts.includes(followingWord[1])
+        ? followingWord[1]
+        : parts.some((part) => part.startsWith(`${followingWord[1]}-`))
+          ? `${followingWord[1]}-*` : null);
+      const preceding = [directNamed, names.at(-1), lexical, englishSubject].filter(Boolean)
         .sort((a, b) => (b?.index ?? -1) - (a?.index ?? -1))[0];
       const named = following && parts.includes(following[1])
-        ? { 1: following[1], index: claim.index - start } : preceding;
+        ? { 1: following[1], index: claim.index - start }
+        : followingPart ? { 1: followingPart, index: claim.index - start } : preceding;
       if (!named || claim.index - start - named.index > 80) {
         unbound++;
         unresolved.push({ line: index + 1, claim: claim[0], clause: clause.slice(-90), reason: "part" });
@@ -315,7 +385,7 @@ function boundCoordinates(lines, owner) {
       const nextMeasure = line.slice(claim.index + claim[0].length).search(/[,;]|[xyzXYZ]\s*=/);
       const tail = line.slice(claim.index + claim[0].length,
         nextMeasure < 0 ? claim.index + claim[0].length + 60 : claim.index + claim[0].length + nextMeasure);
-      const opening = (/(?:열린|개구|절삭|빈 )/.test(clause.slice(named.index)) && !/와\s*$/.test(clause)) ||
+      const opening = ("kind" in named && named.kind === "void") || (/(?:열린|개구|절삭|빈 )/.test(clause.slice(named.index)) && !/와\s*$/.test(clause)) ||
         /(?:열린\s+bay|개구)/.test(tail);
       const surfaceRegion = /(?:표면 영역|face|고정띠)/.test(line.slice(claim.index, claim.index + 100));
       const eligible = rows.filter((row) => (prefix ? row.part.startsWith(prefix) : row.part === named[1]) &&
@@ -345,6 +415,8 @@ function boundCoordinates(lines, owner) {
       });
       const valid = [...eligible, ...(prefix ? groups : [])].some((row) => {
         const [lo, hi] = row[axis];
+        if (symmetric && specified.length === 1 && /중심/.test(clause.slice(named.index)))
+          return Math.abs(Math.abs((lo + hi) / 2) - specified[0]) < 0.000001;
         if (symmetric && specified.length === 1)
           return [lo, hi, (lo + hi) / 2, (hi - lo) / 2]
             .some((candidate) => Math.abs(Math.abs(candidate) - specified[0]) < 0.000001);
@@ -369,7 +441,7 @@ function boundCoordinates(lines, owner) {
     for (const value of expected) if (!seen.has(value))
       errors.push(`${owner}: ${key} variant minimum ${value} has no part-bound prose claim`);
   }
-  return { errors, bound, unbound, envelopeDimensions, unresolved, derivedScalars };
+  return { errors, bound, unbound, boundDimensions, envelopeDimensions, envelopeTriples, unresolved, derivedScalars };
 }
 
 /** @param {Map<string,string>} [overrides] */
@@ -382,7 +454,8 @@ function audit(overrides = new Map()) {
   const unresolved = [];
   let h2 = 0, claims = 0, values = 0, witnessed = 0, proseDecimals = 0,
     scalarValues = 0, scalarWitnessed = 0, scalarControls = 0,
-    partBoundClaims = 0, unboundPartClaims = 0, envelopeDimensionClaims = 0;
+    partBoundClaims = 0, unboundPartClaims = 0, partBoundDimensions = 0,
+    envelopeDimensionClaims = 0, envelopeTripleClaims = 0;
   for (const name of names) {
     const source = overrides.get(name) ?? fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
     let anchor = "";
@@ -399,8 +472,10 @@ function audit(overrides = new Map()) {
         unresolved.push(...binding.unresolved.map((claim) => ({ owner, ...claim })));
       errors.push(...binding.errors);
       partBoundClaims += binding.bound;
+      partBoundDimensions += binding.boundDimensions;
       unboundPartClaims += binding.unbound;
       envelopeDimensionClaims += binding.envelopeDimensions;
+      envelopeTripleClaims += binding.envelopeTriples;
       const declaredControls = new Set();
       const proseNumbers = new Set(body.filter((line) =>
         line.trim() && !/^\||^@|^<!--/.test(line)).flatMap((line) =>
@@ -495,8 +570,10 @@ function audit(overrides = new Map()) {
     witnessedScalarValues: scalarWitnessed,
     scalarControls,
     partBoundCoordinateClaims: partBoundClaims,
+    partBoundDimensionClaims: partBoundDimensions,
     unboundPartCoordinateClaims: unboundPartClaims,
     envelopeDimensionClaims,
+    envelopeTripleClaims,
     ...(process.env.MODEL_COORDINATE_TRACE ? { unresolved } : {}),
     coverage,
     errors,
