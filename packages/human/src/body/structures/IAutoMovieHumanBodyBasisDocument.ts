@@ -61,6 +61,16 @@ export interface IAutoMovieHumanBodyBasisDocument {
    */
   skinDetail?: { strength: number };
 
+  /**
+   * Optional uneven tone of the skin: the skin material takes a tiled
+   * base-colour map of its two chromophores, melanin and haemoglobin,
+   * varying about the site colour (`HUMAN_BODY_SKIN_TONE`) at `strength` in
+   * [0,1], less even with the document's age; the base colour is compensated
+   * so the skin's mean colour stays the site albedo. Omission keeps the tone
+   * even.
+   */
+  skinTone?: { strength: number };
+
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,

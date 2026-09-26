@@ -298,6 +298,24 @@ So the tile carries two primary families 0.8 mm apart and 40 µm deep, and their
 
 The tile is 10 mm square. It repeats over the body's own UV layout at that layout's median scale, 1.84 m of neutral skin per UV unit, from 1.18 to 2.66 m between the 5th and 95th percentile of triangles. The relief's strength rises with age by the forearm roughness Ra, 16.9 µm at 20 to 29 years and 28.5 µm at 60 to 74 ([Li et al. 2006](https://doi.org/10.1007/s00403-005-0628-y)). The elderly skin's loss of one line orientation ([Corcuff et al. 1991](https://doi.org/10.1093/geronj/46.6.m223)) is not modelled.
 
+## Skin tone
+
+A document may turn on the skin's uneven tone (`skinTone.strength`). The skin material then takes a tileable base-colour map, `HUMAN_BODY_SKIN_TONE`. glTF multiplies it with the vertex colours of the site albedo (Skin colour by site, above).
+
+Skin colour comes from two chromophores: melanin in the epidermis and haemoglobin in the dermal blood. Image analysis separates a skin's unevenness into maps of the two (Tsumura et al. 2003).
+
+- **Fields.** On the tile, each chromophore varies about the site's mean as a periodic sum of sinusoids. Melanin spans 2 to 40 mm and haemoglobin 3 to 25 mm, with amplitude falling as one over the frequency.
+- **Absorbance.** At the dominant wavelengths of the sRGB primaries (611, 549 and 464 nm), relative to green:
+  - melanin absorbs as λ^-3.5 ([Jacques 2013](https://doi.org/10.1088/0031-9155/58/11/R37)): 0.69, 1 and 1.8;
+  - oxygenated haemoglobin absorbs 0.033, 1 and 0.91 (Prahl's tabulation).
+
+  More melanin darkens and yellows the skin; more blood reddens it.
+- **Map.** A texel's albedo factor is exp(−optical density). The material's base colour is divided by the map's mean, so the site albedo stays the skin's mean colour.
+- **Spread and age.** The spread is authored, not measured: 1.5 % optical density for melanin and 2 % for haemoglobin at green, about one CIE L* unit, the evenness of a young adult. It grows with age ([Kikuchi et al. 2015](https://doi.org/10.1111/srt.12174)); the factor of 2 by 67 years is authored.
+- **Tile.** It is 160 mm square at 384 texels, repeated at the micro-relief's scale. Rendered on four adults, it reads as a faint mottle in youth and uneven blotches in age, with no seam at the UV islands' edges at full-body distance.
+
+The face does not carry the map, so at the collar the two skins meet in the same mean colour, the body's slightly mottled.
+
 ## Neutral repair
 
 The source neutral lays neighbouring toes into each other: each toe segment crosses itself on 13 triangles before any channel or pose. The repair is in the neutral, not in a corrective every document would wear: the rest skin is measured segment against itself, each crossing's two sheets are parted by the pose correctives' contact rule inside the toes' 10 mm budget, and the displacement is added to the neutral positions (472 vertices, at most 4.1 mm, bilateral residual 0.03 µm). Endpoints are differences from the neutral and keep their meaning. [`neutral-receipt.json`](neutral-receipt.json) records it. The neck and head joints carry the neck below the collar, and the face the editor seats on the head bone follows the head rigidly, so a turned head opens a crack at the collar loop until the combination stage skins the face with the same weights.
