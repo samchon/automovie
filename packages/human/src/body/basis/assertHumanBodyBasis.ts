@@ -218,6 +218,18 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
             surface.id,
         );
     }
+    if (
+      surface.relief !== undefined &&
+      (!surface.relief.texture.startsWith("data:image/png;base64,") ||
+        !surface.regions.some(
+          (region) =>
+            region.material === surface.relief!.material && region.uvs !== null,
+        ))
+    )
+      throw new Error(
+        "Body surface relief needs a PNG data URI over a textured region of its material: " +
+          surface.id,
+      );
     const solid = humanBodyCappedSurface(surface.positions, surface.indices);
     solid.assertValid();
     solids.push(solid);
