@@ -750,15 +750,21 @@ if (command === "identity") {
     for (let t = 0; t < human.indices.length; t += 3)
       if (lipTriangles.has(human.indices.slice(t, t + 3).join()))
         contact.add(t);
+    // A document the editor refuses (its hair's contact opening folded by
+    // the shape, as the jaw's taper beside a full lower face did on three
+    // documents of round j15) is no face at all: the worst fault.
+    const refused = Number.MAX_SAFE_INTEGER;
     const faultsOf = (own: readonly number[]): number => {
+      const shape = compose(own).shape;
+      if (start.hair !== undefined)
+        try {
+          build({ ...start, shape, expression: {} });
+        } catch {
+          return refused;
+        }
       const positions = faceShapeFitSurfacePositions(
         basis,
-        build({
-          ...start,
-          shape: compose(own).shape,
-          hair: undefined,
-          expression: {},
-        }),
+        build({ ...start, shape, hair: undefined, expression: {} }),
         human.id,
       );
       const triangles: number[] = [];
@@ -802,7 +808,34 @@ if (command === "identity") {
       });
       values = [...seen.values, ...fixed];
     }
-    const remaining = validity.scale < 1 ? faultsOf(values) : validity.faults;
+    let remaining = validity.scale < 1 ? faultsOf(values) : validity.faults;
+    // A face that passes through itself matches no photograph: where the
+    // measured controls fault by themselves, their departure yields until
+    // the skin is whole, and then the priors' beside them.
+    let measuredShare = 1;
+    let priorShare = validity.scale;
+    if (remaining > 0) {
+      const toward =
+        (from: readonly number[], to: readonly number[]) => (scale: number) =>
+          from.map((v, k) => v + scale * (to[k]! - v));
+      const measured = toward(initial.slice(0, split), values.slice(0, split));
+      const startPriors = initial.slice(split);
+      const kept = faceValidScale({
+        faults: (scale) => faultsOf([...measured(scale), ...startPriors]),
+        steps: 6,
+      });
+      measuredShare = kept.scale;
+      const front = measured(kept.scale);
+      const prior = toward(startPriors, values.slice(split));
+      const beside = faceValidScale({
+        faults: (scale) => faultsOf([...front, ...prior(scale)]),
+        steps: 6,
+      });
+      priorShare *= beside.scale;
+      values = [...front, ...prior(beside.scale)];
+      remaining = faultsOf(values);
+    }
+    const achieved = frontal(values);
     const { shape, posed } = compose(values);
     report[subject] = {
       population,
@@ -813,7 +846,7 @@ if (command === "identity") {
             photograph: photographed[id],
             observed: observed(subject, id),
             correction: correction[id],
-            model: seen.achieved[k],
+            model: achieved[k] ?? null,
             control: seen.values[k],
             held: seen.held.includes(k),
           },
@@ -832,7 +865,11 @@ if (command === "identity") {
         ]),
       ),
       iterations: sweeps,
-      validity: { priors: validity.scale, faults: remaining },
+      validity: {
+        measured: measuredShare,
+        priors: priorShare,
+        faults: remaining,
+      },
     };
     return { ...start, shape, expression: posed };
   });
