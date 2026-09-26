@@ -141,5 +141,54 @@
       ]
     }
   ],
-  "instrument": "field_quality.py: the displacement between two built skins diffused by heat (cotangent Laplacian, lumped mass); the mean curvature change it makes, less its 4 cm diffusion, as RMS over the footprint"
+  "instrument": "field_quality.py: the displacement between two built skins diffused by heat (cotangent Laplacian, lumped mass); the mean curvature change it makes, less its 4 cm diffusion, as RMS over the footprint",
+  "r13": {
+    "revision": "mpfb-connected-body-2026-09-27-anatomy-r13",
+    "source": "mpfb-connected-body-2026-09-27-anatomy-r12",
+    "regenerated": [
+      {
+        "endpoint": "torso/flank-fat-incr",
+        "change": "gate from |normal X| 0.2 to 0.8 over a 6-sweep smoothed waist mask, then diffused 60 sweeps and rescaled to reach one",
+        "curvatureBand": {
+          "before": 3.2,
+          "after": 1.42
+        },
+        "moveMillimetres": [
+          17.4,
+          16.9
+        ]
+      },
+      {
+        "endpoint": "legs/l-outer-thigh-fat-incr",
+        "change": "gate from normal X 0.2 to 0.8 over a 6-sweep smoothed upper-leg fat mask, then diffused 60 sweeps and rescaled to reach one; the right side mirrored",
+        "curvatureBand": {
+          "before": 2.71,
+          "after": 0.46
+        },
+        "moveMillimetres": [
+          12.7,
+          10.3
+        ]
+      }
+    ],
+    "diffused": [
+      {
+        "endpoint": "buttocks/buttocks-volume-incr",
+        "sigmaMetres": 0.025,
+        "curvatureBand": {
+          "before": 1.79,
+          "after": 1.72
+        },
+        "moveMillimetres": [
+          19.1,
+          17.0
+        ],
+        "note": "in the render the diagonal ridge's sharp edge across the upper-outer buttock softens into a broad crest along the gluteus maximus's upper border; what the band keeps lies where the added volume meets the gluteal fold and cleft, and a 4 cm diffusion leaves it at 1.66 while taking 2 mm more of the volume"
+      },
+      {
+        "endpoint": "buttocks/buttocks-volume-decr",
+        "sigmaMetres": 0.025
+      }
+    ]
+  }
 }

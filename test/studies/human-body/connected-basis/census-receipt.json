@@ -1,5 +1,5 @@
 {
-  "basis": "mpfb-connected-body-2026-09-27-anatomy-r12",
+  "basis": "mpfb-connected-body-2026-09-27-anatomy-r13",
   "restPairs": [],
   "sets": {
     "channels": {
@@ -4559,8 +4559,8 @@
     },
     "bodies": {
       "states": 288,
-      "clean": 262,
-      "withFindings": 2,
+      "clean": 263,
+      "withFindings": 1,
       "refused": [
         {
           "name": "sex-1-age25-bmi15-muscle0-h1.9",
@@ -4580,90 +4580,86 @@
         },
         {
           "name": "sex1-age60-bmi15-muscle0-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 39.973 to 109.127."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 39.973 to 109.130."
         },
         {
           "name": "sex1-age60-bmi15-muscle0",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 49.430 to 129.987."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 49.430 to 129.989."
         },
         {
           "name": "sex1-age60-bmi15-muscle0-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.485 to 154.734."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.485 to 154.737."
         },
         {
           "name": "sex1-age90-bmi15-muscle0",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.207 to 132.048."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.208 to 132.055."
         },
         {
           "name": "sex1-age90-bmi15-muscle0-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 58.382 to 156.247."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 58.383 to 156.254."
         },
         {
           "name": "sex-1-age25-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 48.654 to 146.846."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 48.619 to 146.762."
         },
         {
           "name": "sex-1-age25-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.265 to 174.611."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.225 to 174.521."
         },
         {
           "name": "sex-1-age60-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.280 to 136.205."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.260 to 136.154."
         },
         {
           "name": "sex-1-age60-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 59.116 to 161.697."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 59.092 to 161.643."
         },
         {
           "name": "sex-1-age90-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.341 to 128.946."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.334 to 128.930."
         },
         {
           "name": "sex-1-age90-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.547 to 152.709."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.540 to 152.692."
         },
         {
           "name": "sex1-age25-bmi15-muscle1-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 47.124 to 131.592."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 47.096 to 131.527."
         },
         {
           "name": "sex1-age25-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 57.827 to 155.472."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 57.793 to 155.400."
         },
         {
           "name": "sex1-age25-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 71.896 to 184.741."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 71.858 to 184.661."
         },
         {
           "name": "sex1-age60-bmi15-muscle1-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 46.288 to 122.711."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 46.271 to 122.673."
         },
         {
           "name": "sex1-age60-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 56.831 to 145.384."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 56.811 to 145.340."
         },
         {
           "name": "sex1-age60-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 70.127 to 172.347."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 70.105 to 172.300."
         },
         {
           "name": "sex1-age90-bmi15-muscle1-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 45.759 to 116.544."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 45.754 to 116.532."
         },
         {
           "name": "sex1-age90-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 56.120 to 138.229."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 56.114 to 138.216."
         },
         {
           "name": "sex1-age90-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 68.775 to 163.425."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 68.769 to 163.411."
         }
       ],
       "pairsByFrequency": [
-        {
-          "pair": "hips x hips",
-          "states": 1
-        },
         {
           "pair": "hips x leftUpperLeg",
           "states": 1
@@ -4682,77 +4678,6 @@
         }
       ],
       "findings": [
-        {
-          "name": "sex1-age90-bmi45-muscle-1-h1.6",
-          "document": {
-            "shape": {
-              "macroGender": 1,
-              "macroAge": 1,
-              "macroMuscle": -1,
-              "upperarmMuscleLeft": -0.7,
-              "upperarmMuscleRight": -0.7,
-              "upperarmShoulderMuscleLeft": -0.7,
-              "upperarmShoulderMuscleRight": -0.7,
-              "lowerarmMuscleLeft": -0.7,
-              "lowerarmMuscleRight": -0.7,
-              "upperlegMuscleLeft": -0.7,
-              "upperlegMuscleRight": -0.7,
-              "lowerlegMuscleLeft": -0.7,
-              "lowerlegMuscleRight": -0.7,
-              "torsoMusclePectoral": -0.7,
-              "torsoMuscleDorsi": -0.7,
-              "buttocksPtosis": 1,
-              "buttocksVolume": -0.9,
-              "pelvisTone": -1,
-              "stomachOverhang": 1,
-              "flankFat": 1,
-              "outerThighFatLeft": 0.18000000000000002,
-              "outerThighFatRight": 0.18000000000000002,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": 0,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.4,
-              "stomachTone": -1,
-              "stomachNavelDownUp": -0.3999999999999999,
-              "neckDouble": 1,
-              "upperarmFatLeft": 0.24,
-              "upperlegFatLeft": 0.15000000000000002,
-              "upperarmFatRight": 0.24,
-              "upperlegFatRight": 0.15000000000000002,
-              "torsoVshape": 0,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "hipScaleHoriz": 0,
-              "hipScaleDepth": 0,
-              "lowerlegFatLeft": 0,
-              "lowerlegFatRight": 0,
-              "hipScaleVert": 0,
-              "measureWristCirc": -2.220446049250313e-16,
-              "measureAnkleCirc": 2.7755575615628914e-16,
-              "torsoScaleHoriz": 0,
-              "torsoScaleDepth": 0,
-              "measureUpperlegHeight": 0,
-              "measureLowerlegHeight": 0,
-              "macroFirmness": -0.30000000000000004,
-              "macroHeight": -0.26629463141788334,
-              "macroWeight": 3.8006861954440905
-            }
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
-              "triangles": 4,
-              "otherTriangles": 4
-            }
-          ],
-          "grown": []
-        },
         {
           "name": "sex1-age90-bmi45-muscle1",
           "document": {
@@ -4811,7 +4736,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": 0.1043647851315416,
-              "macroWeight": 6.481362664001898
+              "macroWeight": 6.446098770549969
             }
           },
           "fresh": [
@@ -4819,25 +4744,25 @@
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 1,
-              "otherTriangles": 3
+              "otherTriangles": 2
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
               "triangles": 1,
-              "otherTriangles": 3
+              "otherTriangles": 2
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 2,
-              "otherTriangles": 2
+              "triangles": 3,
+              "otherTriangles": 3
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 2,
-              "otherTriangles": 2
+              "triangles": 3,
+              "otherTriangles": 3
             }
           ],
           "grown": []
@@ -4846,21 +4771,21 @@
     },
     "bodyposes": {
       "states": 224,
-      "clean": 102,
-      "withFindings": 122,
+      "clean": 107,
+      "withFindings": 117,
       "refused": [],
       "pairsByFrequency": [
-        {
-          "pair": "hips x hips",
-          "states": 52
-        },
         {
           "pair": "leftUpperLeg x leftUpperLeg",
           "states": 51
         },
         {
+          "pair": "hips x hips",
+          "states": 46
+        },
+        {
           "pair": "leftUpperArm x leftUpperArm",
-          "states": 39
+          "states": 38
         },
         {
           "pair": "upperChest x leftUpperArm",
@@ -4900,7 +4825,7 @@
         },
         {
           "pair": "leftUpperArm x leftLowerArm",
-          "states": 7
+          "states": 6
         },
         {
           "pair": "neck x neck",
@@ -5073,7 +4998,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6360809244772943
+              "macroWeight": -1.6306406746788213
             }
           },
           "fresh": [
@@ -5152,7 +5077,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.44228864923074956
+              "macroWeight": 0.4417189950100431
             }
           },
           "fresh": [
@@ -5243,7 +5168,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 4.413589363419564
+              "macroWeight": 4.382235028443033
             }
           },
           "fresh": [
@@ -5328,7 +5253,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 4.413589363419564
+              "macroWeight": 4.382235028443033
             }
           },
           "fresh": [
@@ -5341,14 +5266,14 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 27,
-              "otherTriangles": 27
+              "triangles": 28,
+              "otherTriangles": 28
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 36,
-              "otherTriangles": 41
+              "triangles": 35,
+              "otherTriangles": 37
             },
             {
               "part": "leftUpperLeg",
@@ -5425,7 +5350,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770392883009058
+              "macroWeight": 1.6561143590338314
             }
           },
           "fresh": [
@@ -5510,7 +5435,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.518932182490782
+              "macroWeight": 6.479999475110206
             }
           },
           "fresh": [
@@ -5595,15 +5520,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.518932182490782
+              "macroWeight": 6.479999475110206
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 89,
-              "otherTriangles": 89
+              "triangles": 88,
+              "otherTriangles": 88
             },
             {
               "part": "hips",
@@ -5620,13 +5545,13 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 69,
-              "otherTriangles": 69
+              "triangles": 70,
+              "otherTriangles": 70
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 32,
+              "triangles": 31,
               "otherTriangles": 34
             },
             {
@@ -5710,7 +5635,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.875932570047875
+              "macroWeight": 3.8465106902232686
             }
           },
           "fresh": [
@@ -5795,7 +5720,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.875932570047875
+              "macroWeight": 3.8465106902232686
             }
           },
           "fresh": [
@@ -5880,7 +5805,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.4224824870004602
+              "macroWeight": -1.418882874314402
             }
           },
           "fresh": [
@@ -5971,14 +5896,14 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": 1.4519527604987497
+              "macroWeight": 1.4408506050184355
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 2,
+              "triangles": 6,
               "otherTriangles": 2
             },
             {
@@ -6056,7 +5981,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 4.067856995068127
+              "macroWeight": 4.039269430220639
             }
           },
           "fresh": [
@@ -6075,13 +6000,13 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 47,
-              "otherTriangles": 47
+              "triangles": 48,
+              "otherTriangles": 48
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 26,
+              "triangles": 27,
               "otherTriangles": 23
             },
             {
@@ -6159,7 +6084,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.664408133735101
+              "macroWeight": 2.6436581077716608
             }
           },
           "fresh": [
@@ -6238,20 +6163,20 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051641163224635
+              "macroWeight": 6.016033189560365
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "upperChest",
-              "triangles": 13,
-              "otherTriangles": 13
+              "triangles": 14,
+              "otherTriangles": 14
             },
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 64,
+              "triangles": 60,
               "otherTriangles": 60
             },
             {
@@ -6329,15 +6254,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051641163224635
+              "macroWeight": 6.016033189560365
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 46,
-              "otherTriangles": 46
+              "triangles": 42,
+              "otherTriangles": 42
             },
             {
               "part": "hips",
@@ -6414,7 +6339,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.698816390727093
+              "macroWeight": 4.670635122769064
             }
           },
           "fresh": [
@@ -6499,15 +6424,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.698816390727093
+              "macroWeight": 4.670635122769064
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 28,
-              "otherTriangles": 28
+              "triangles": 27,
+              "otherTriangles": 27
             },
             {
               "part": "leftUpperLeg",
@@ -6681,7 +6606,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -6766,7 +6691,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -6845,7 +6770,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.01797559720924241,
-              "macroWeight": 1.0025351005389942
+              "macroWeight": 0.9919379711945671
             }
           },
           "fresh": [
@@ -6936,7 +6861,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.018683818366774182,
-              "macroWeight": 0.14077346969351945
+              "macroWeight": 0.1396691821797459
             }
           },
           "fresh": [
@@ -7027,7 +6952,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.0889718385688871,
-              "macroWeight": 2.469078444309792
+              "macroWeight": 2.4414895447307243
             }
           },
           "fresh": [
@@ -7040,184 +6965,6 @@
             {
               "part": "leftUpperArm",
               "other": "leftLowerArm",
-              "triangles": 10,
-              "otherTriangles": 10
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex1-age25-bmi32-muscle1:t",
-          "document": {
-            "shoulders": [
-              {
-                "bone": "leftUpperArm",
-                "plane": 0,
-                "elevation": 90,
-                "axialRotation": 0
-              },
-              {
-                "bone": "rightUpperArm",
-                "plane": 0,
-                "elevation": 90,
-                "axialRotation": 0
-              }
-            ],
-            "pose": [
-              {
-                "bone": "leftLowerArm",
-                "flexion": 0,
-                "abduction": null,
-                "twist": null
-              },
-              {
-                "bone": "rightLowerArm",
-                "flexion": 0,
-                "abduction": null,
-                "twist": null
-              }
-            ],
-            "shape": {
-              "macroGender": 1,
-              "macroAge": 0,
-              "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
-              "buttocksPtosis": -0.4,
-              "buttocksVolume": 0.5,
-              "pelvisTone": 0.5,
-              "stomachOverhang": 0.4620000000000001,
-              "flankFat": 0.65,
-              "outerThighFatLeft": 0.24857142857142858,
-              "outerThighFatRight": 0.24857142857142858,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": 0,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.096,
-              "stomachTone": 0.26,
-              "stomachNavelDownUp": -0.19599999999999998,
-              "neckDouble": 0.4,
-              "upperarmFatLeft": 0.16319999999999998,
-              "upperlegFatLeft": 0.10200000000000001,
-              "upperarmFatRight": 0.16319999999999998,
-              "upperlegFatRight": 0.10200000000000001,
-              "torsoVshape": 0.6,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "hipScaleHoriz": 0,
-              "hipScaleDepth": 0,
-              "lowerlegFatLeft": 0,
-              "lowerlegFatRight": 0,
-              "hipScaleVert": 0.1026,
-              "measureWristCirc": -0.188,
-              "measureAnkleCirc": 0.254,
-              "torsoScaleHoriz": 0.40580000000000005,
-              "torsoScaleDepth": 0.3304,
-              "measureUpperlegHeight": -0.5172,
-              "measureLowerlegHeight": -0.5172,
-              "macroFirmness": 0,
-              "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
-            }
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
-              "triangles": 10,
-              "otherTriangles": 10
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex1-age25-bmi32-muscle1:overheadSide",
-          "document": {
-            "shoulders": [
-              {
-                "bone": "leftUpperArm",
-                "plane": 0,
-                "elevation": 170,
-                "axialRotation": 0
-              }
-            ],
-            "shape": {
-              "macroGender": 1,
-              "macroAge": 0,
-              "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
-              "buttocksPtosis": -0.4,
-              "buttocksVolume": 0.5,
-              "pelvisTone": 0.5,
-              "stomachOverhang": 0.4620000000000001,
-              "flankFat": 0.65,
-              "outerThighFatLeft": 0.24857142857142858,
-              "outerThighFatRight": 0.24857142857142858,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": 0,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.096,
-              "stomachTone": 0.26,
-              "stomachNavelDownUp": -0.19599999999999998,
-              "neckDouble": 0.4,
-              "upperarmFatLeft": 0.16319999999999998,
-              "upperlegFatLeft": 0.10200000000000001,
-              "upperarmFatRight": 0.16319999999999998,
-              "upperlegFatRight": 0.10200000000000001,
-              "torsoVshape": 0.6,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "hipScaleHoriz": 0,
-              "hipScaleDepth": 0,
-              "lowerlegFatLeft": 0,
-              "lowerlegFatRight": 0,
-              "hipScaleVert": 0.1026,
-              "measureWristCirc": -0.188,
-              "measureAnkleCirc": 0.254,
-              "torsoScaleHoriz": 0.40580000000000005,
-              "torsoScaleDepth": 0.3304,
-              "measureUpperlegHeight": -0.5172,
-              "measureLowerlegHeight": -0.5172,
-              "macroFirmness": 0,
-              "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
-            }
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
               "triangles": 10,
               "otherTriangles": 10
             }
@@ -7290,16 +7037,10 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
+              "macroWeight": 0.6497482831329588
             }
           },
           "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
-              "triangles": 10,
-              "otherTriangles": 10
-            },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
@@ -7309,7 +7050,7 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 67,
+              "triangles": 68,
               "otherTriangles": 61
             },
             {
@@ -7387,7 +7128,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -7478,7 +7219,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -7492,7 +7233,7 @@
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 39,
-              "otherTriangles": 34
+              "otherTriangles": 33
             },
             {
               "part": "spine",
@@ -7575,33 +7316,33 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 26,
-              "otherTriangles": 26
+              "triangles": 20,
+              "otherTriangles": 20
             },
             {
               "part": "upperChest",
               "other": "upperChest",
-              "triangles": 19,
-              "otherTriangles": 19
+              "triangles": 17,
+              "otherTriangles": 17
             },
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 27,
+              "triangles": 26,
               "otherTriangles": 27
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 10,
-              "otherTriangles": 10
+              "triangles": 9,
+              "otherTriangles": 9
             }
           ],
           "grown": []
@@ -7672,7 +7413,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
@@ -7685,13 +7426,13 @@
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 8,
-              "otherTriangles": 8
+              "triangles": 9,
+              "otherTriangles": 9
             },
             {
               "part": "leftUpperArm",
               "other": "leftLowerArm",
-              "triangles": 47,
+              "triangles": 48,
               "otherTriangles": 45
             }
           ],
@@ -7763,7 +7504,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": -0.2,
               "macroHeight": -0.04942179693829313,
-              "macroWeight": -0.9617449828680625
+              "macroWeight": -0.9619214450530091
             }
           },
           "fresh": [
@@ -7842,7 +7583,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": -0.2,
               "macroHeight": -0.050421782090853906,
-              "macroWeight": -2.037310698168418
+              "macroWeight": -2.034166415228859
             }
           },
           "fresh": [
@@ -7933,7 +7674,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": -0.2,
               "macroHeight": 0.04190930536844417,
-              "macroWeight": 0.287472201936747
+              "macroWeight": 0.28557993444667024
             }
           },
           "fresh": [
@@ -7946,8 +7687,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 12,
-              "otherTriangles": 4
+              "triangles": 8,
+              "otherTriangles": 2
             },
             {
               "part": "leftLowerLeg",
@@ -8024,15 +7765,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8992928980251047
+              "macroWeight": 1.867190851975983
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 8,
+              "otherTriangles": 8
             }
           ],
           "grown": []
@@ -8103,7 +7844,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1144523132933283,
-              "macroWeight": 0.7239195359594317
+              "macroWeight": 0.7159124268775575
             }
           },
           "fresh": [
@@ -8208,7 +7949,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
@@ -8287,7 +8028,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
@@ -8378,7 +8119,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
@@ -8493,7 +8234,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
@@ -8590,7 +8331,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
@@ -8598,13 +8339,13 @@
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 50,
-              "otherTriangles": 51
+              "otherTriangles": 52
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
               "triangles": 41,
-              "otherTriangles": 56
+              "otherTriangles": 55
             },
             {
               "part": "leftUpperLeg",
@@ -8681,7 +8422,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6360809244772943
+              "macroWeight": -1.6306406746788213
             }
           },
           "fresh": [
@@ -8772,7 +8513,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16645306105688948,
-              "macroWeight": 1.8667532201972696
+              "macroWeight": 1.85479576353417
             }
           },
           "fresh": [
@@ -8785,19 +8526,19 @@
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 20,
-              "otherTriangles": 29
+              "triangles": 19,
+              "otherTriangles": 28
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 22,
-              "otherTriangles": 22
+              "triangles": 23,
+              "otherTriangles": 23
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 5,
+              "triangles": 6,
               "otherTriangles": 9
             },
             {
@@ -8875,7 +8616,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.44228864923074956
+              "macroWeight": 0.4417189950100431
             }
           },
           "fresh": [
@@ -8954,7 +8695,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 4.413589363419564
+              "macroWeight": 4.382235028443033
             }
           },
           "fresh": [
@@ -9039,7 +8780,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 4.413589363419564
+              "macroWeight": 4.382235028443033
             }
           },
           "fresh": [
@@ -9076,8 +8817,8 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 5,
-              "otherTriangles": 5
+              "triangles": 4,
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -9148,7 +8889,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770392883009058
+              "macroWeight": 1.6561143590338314
             }
           },
           "fresh": [
@@ -9227,7 +8968,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.518932182490782
+              "macroWeight": 6.479999475110206
             }
           },
           "fresh": [
@@ -9240,8 +8981,8 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 70,
-              "otherTriangles": 80
+              "triangles": 69,
+              "otherTriangles": 78
             },
             {
               "part": "neck",
@@ -9252,8 +8993,8 @@
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 8,
+              "otherTriangles": 8
             }
           ],
           "grown": []
@@ -9324,7 +9065,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.518932182490782
+              "macroWeight": 6.479999475110206
             }
           },
           "fresh": [
@@ -9409,7 +9150,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.875932570047875
+              "macroWeight": 3.8465106902232686
             }
           },
           "fresh": [
@@ -9500,27 +9241,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.875932570047875
+              "macroWeight": 3.8465106902232686
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 20,
-              "otherTriangles": 20
+              "triangles": 22,
+              "otherTriangles": 22
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 100,
-              "otherTriangles": 100
+              "triangles": 102,
+              "otherTriangles": 102
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 104,
-              "otherTriangles": 92
+              "otherTriangles": 93
             },
             {
               "part": "leftLowerLeg",
@@ -9597,7 +9338,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": 1.4519527604987497
+              "macroWeight": 1.4408506050184355
             }
           },
           "fresh": [
@@ -9688,7 +9429,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 4.067856995068127
+              "macroWeight": 4.039269430220639
             }
           },
           "fresh": [
@@ -9701,8 +9442,8 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 47,
-              "otherTriangles": 45
+              "triangles": 45,
+              "otherTriangles": 44
             }
           ],
           "grown": []
@@ -9773,7 +9514,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.664408133735101
+              "macroWeight": 2.6436581077716608
             }
           },
           "fresh": [
@@ -9858,7 +9599,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.664408133735101
+              "macroWeight": 2.6436581077716608
             }
           },
           "fresh": [
@@ -9871,7 +9612,7 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 111,
+              "triangles": 113,
               "otherTriangles": 79
             },
             {
@@ -9949,7 +9690,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051641163224635
+              "macroWeight": 6.016033189560365
             }
           },
           "fresh": [
@@ -10034,33 +9775,33 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051641163224635
+              "macroWeight": 6.016033189560365
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 46,
-              "otherTriangles": 45
+              "triangles": 44,
+              "otherTriangles": 46
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 11,
-              "otherTriangles": 11
+              "triangles": 12,
+              "otherTriangles": 12
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
               "triangles": 46,
-              "otherTriangles": 55
+              "otherTriangles": 54
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 33,
-              "otherTriangles": 33
+              "triangles": 36,
+              "otherTriangles": 36
             }
           ],
           "grown": []
@@ -10131,21 +9872,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.698816390727093
+              "macroWeight": 4.670635122769064
             }
           },
           "fresh": [
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 59,
+              "triangles": 55,
               "otherTriangles": 57
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 27,
-              "otherTriangles": 27
+              "triangles": 28,
+              "otherTriangles": 28
             }
           ],
           "grown": []
@@ -10216,15 +9957,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.698816390727093
+              "macroWeight": 4.670635122769064
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 13,
-              "otherTriangles": 13
+              "triangles": 12,
+              "otherTriangles": 12
             }
           ],
           "grown": []
@@ -10374,7 +10115,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -10453,7 +10194,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -10532,21 +10273,15 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.01797559720924241,
-              "macroWeight": 1.0025351005389942
+              "macroWeight": 0.9919379711945671
             }
           },
           "fresh": [
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 7,
-              "otherTriangles": 7
-            },
-            {
-              "part": "leftUpperArm",
-              "other": "leftLowerArm",
-              "triangles": 1,
-              "otherTriangles": 1
+              "triangles": 6,
+              "otherTriangles": 6
             }
           ],
           "grown": []
@@ -10617,7 +10352,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.018683818366774182,
-              "macroWeight": 0.14077346969351945
+              "macroWeight": 0.1396691821797459
             }
           },
           "fresh": [
@@ -10708,106 +10443,27 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.0889718385688871,
-              "macroWeight": 2.469078444309792
+              "macroWeight": 2.4414895447307243
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 30,
-              "otherTriangles": 44
+              "triangles": 31,
+              "otherTriangles": 45
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
               "triangles": 14,
-              "otherTriangles": 16
+              "otherTriangles": 20
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 46,
-              "otherTriangles": 46
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex1-age25-bmi32-muscle1:reach",
-          "document": {
-            "shoulders": [
-              {
-                "bone": "leftUpperArm",
-                "plane": 90,
-                "elevation": 90,
-                "axialRotation": 0
-              }
-            ],
-            "shape": {
-              "macroGender": 1,
-              "macroAge": 0,
-              "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
-              "buttocksPtosis": -0.4,
-              "buttocksVolume": 0.5,
-              "pelvisTone": 0.5,
-              "stomachOverhang": 0.4620000000000001,
-              "flankFat": 0.65,
-              "outerThighFatLeft": 0.24857142857142858,
-              "outerThighFatRight": 0.24857142857142858,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": 0,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.096,
-              "stomachTone": 0.26,
-              "stomachNavelDownUp": -0.19599999999999998,
-              "neckDouble": 0.4,
-              "upperarmFatLeft": 0.16319999999999998,
-              "upperlegFatLeft": 0.10200000000000001,
-              "upperarmFatRight": 0.16319999999999998,
-              "upperlegFatRight": 0.10200000000000001,
-              "torsoVshape": 0.6,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "hipScaleHoriz": 0,
-              "hipScaleDepth": 0,
-              "lowerlegFatLeft": 0,
-              "lowerlegFatRight": 0,
-              "hipScaleVert": 0.1026,
-              "measureWristCirc": -0.188,
-              "measureAnkleCirc": 0.254,
-              "torsoScaleHoriz": 0.40580000000000005,
-              "torsoScaleDepth": 0.3304,
-              "measureUpperlegHeight": -0.5172,
-              "measureLowerlegHeight": -0.5172,
-              "macroFirmness": 0,
-              "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
-            }
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
-              "triangles": 10,
-              "otherTriangles": 10
+              "triangles": 44,
+              "otherTriangles": 44
             }
           ],
           "grown": []
@@ -10878,16 +10534,10 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
+              "macroWeight": 0.6497482831329588
             }
           },
           "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
-              "triangles": 10,
-              "otherTriangles": 10
-            },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
@@ -10989,7 +10639,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -11068,7 +10718,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -11159,7 +10809,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -11184,8 +10834,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 46,
-              "otherTriangles": 46
+              "triangles": 47,
+              "otherTriangles": 47
             },
             {
               "part": "leftUpperLeg",
@@ -11274,15 +10924,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 26,
-              "otherTriangles": 26
+              "triangles": 20,
+              "otherTriangles": 20
             },
             {
               "part": "upperChest",
@@ -11371,39 +11021,39 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 15,
-              "otherTriangles": 15
+              "triangles": 18,
+              "otherTriangles": 18
             },
             {
               "part": "hips",
               "other": "spine",
-              "triangles": 7,
+              "triangles": 6,
               "otherTriangles": 4
             },
             {
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 44,
-              "otherTriangles": 52
+              "otherTriangles": 50
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 42,
-              "otherTriangles": 47
+              "triangles": 46,
+              "otherTriangles": 45
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 24,
-              "otherTriangles": 24
+              "triangles": 23,
+              "otherTriangles": 23
             }
           ],
           "grown": []
@@ -11474,7 +11124,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": -0.2,
               "macroHeight": -0.050421782090853906,
-              "macroWeight": -2.037310698168418
+              "macroWeight": -2.034166415228859
             }
           },
           "fresh": [
@@ -11553,7 +11203,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8992928980251047
+              "macroWeight": 1.867190851975983
             }
           },
           "fresh": [
@@ -11650,7 +11300,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1144523132933283,
-              "macroWeight": 0.7239195359594317
+              "macroWeight": 0.7159124268775575
             }
           },
           "fresh": [
@@ -11729,7 +11379,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
@@ -11742,14 +11392,14 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 48,
+              "triangles": 49,
               "otherTriangles": 54
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 44,
-              "otherTriangles": 44
+              "triangles": 42,
+              "otherTriangles": 42
             }
           ],
           "grown": []
@@ -11820,21 +11470,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 46,
-              "otherTriangles": 46
+              "triangles": 47,
+              "otherTriangles": 47
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 18,
-              "otherTriangles": 18
+              "triangles": 19,
+              "otherTriangles": 19
             }
           ],
           "grown": []
@@ -11925,7 +11575,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
@@ -12004,7 +11654,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
@@ -12101,15 +11751,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 48,
-              "otherTriangles": 48
+              "triangles": 49,
+              "otherTriangles": 49
             },
             {
               "part": "hips",
@@ -12283,7 +11933,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6360809244772943
+              "macroWeight": -1.6306406746788213
             }
           },
           "fresh": [
@@ -12362,7 +12012,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16645306105688948,
-              "macroWeight": 1.8667532201972696
+              "macroWeight": 1.85479576353417
             }
           },
           "fresh": [
@@ -12453,7 +12103,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.44228864923074956
+              "macroWeight": 0.4417189950100431
             }
           },
           "fresh": [
@@ -12532,7 +12182,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16756313350586372,
-              "macroWeight": 4.413589363419564
+              "macroWeight": 4.382235028443033
             }
           },
           "fresh": [
@@ -12617,7 +12267,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770392883009058
+              "macroWeight": 1.6561143590338314
             }
           },
           "fresh": [
@@ -12702,21 +12352,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770392883009058
+              "macroWeight": 1.6561143590338314
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 112,
-              "otherTriangles": 112
+              "triangles": 113,
+              "otherTriangles": 113
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 110,
-              "otherTriangles": 96
+              "otherTriangles": 98
             },
             {
               "part": "leftLowerLeg",
@@ -12793,7 +12443,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.518932182490782
+              "macroWeight": 6.479999475110206
             }
           },
           "fresh": [
@@ -12878,7 +12528,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1686732059548374,
-              "macroWeight": 6.518932182490782
+              "macroWeight": 6.479999475110206
             }
           },
           "fresh": [
@@ -12891,8 +12541,8 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 22,
-              "otherTriangles": 22
+              "triangles": 21,
+              "otherTriangles": 21
             },
             {
               "part": "spine",
@@ -12975,7 +12625,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.875932570047875
+              "macroWeight": 3.8465106902232686
             }
           },
           "fresh": [
@@ -13060,7 +12710,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": -0.5415038771096603
+              "macroWeight": -0.5417708843968811
             }
           },
           "fresh": [
@@ -13151,7 +12801,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.4224824870004602
+              "macroWeight": -1.418882874314402
             }
           },
           "fresh": [
@@ -13230,7 +12880,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17889583842975781,
-              "macroWeight": 0.5917666085880633
+              "macroWeight": 0.5901575663291262
             }
           },
           "fresh": [
@@ -13321,26 +12971,26 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 4.067856995068127
+              "macroWeight": 4.039269430220639
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 67,
-              "otherTriangles": 62
+              "triangles": 66,
+              "otherTriangles": 60
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 13,
-              "otherTriangles": 13
+              "triangles": 12,
+              "otherTriangles": 12
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 35,
+              "triangles": 37,
               "otherTriangles": 38
             },
             {
@@ -13418,7 +13068,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.18003043738680247,
-              "macroWeight": 2.664408133735101
+              "macroWeight": 2.6436581077716608
             }
           },
           "fresh": [
@@ -13503,7 +13153,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051641163224635
+              "macroWeight": 6.016033189560365
             }
           },
           "fresh": [
@@ -13588,7 +13238,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051641163224635
+              "macroWeight": 6.016033189560365
             }
           },
           "fresh": [
@@ -13703,7 +13353,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.698816390727093
+              "macroWeight": 4.670635122769064
             }
           },
           "fresh": [
@@ -13794,21 +13444,21 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.1811650363438473,
-              "macroWeight": 4.698816390727093
+              "macroWeight": 4.670635122769064
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 28,
-              "otherTriangles": 37
+              "triangles": 27,
+              "otherTriangles": 35
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 24,
-              "otherTriangles": 24
+              "triangles": 26,
+              "otherTriangles": 25
             },
             {
               "part": "leftUpperLeg",
@@ -13984,7 +13634,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -14063,7 +13713,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -14142,7 +13792,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1885454018897352
+              "macroWeight": -2.183383699290715
             }
           },
           "fresh": [
@@ -14227,7 +13877,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.01797559720924241,
-              "macroWeight": 1.0025351005389942
+              "macroWeight": 0.9919379711945671
             }
           },
           "fresh": [
@@ -14312,7 +13962,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.0889718385688871,
-              "macroWeight": 2.469078444309792
+              "macroWeight": 2.4414895447307243
             }
           },
           "fresh": [
@@ -14337,85 +13987,6 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 10,
-              "otherTriangles": 10
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex1-age25-bmi32-muscle1:overheadFront",
-          "document": {
-            "shoulders": [
-              {
-                "bone": "leftUpperArm",
-                "plane": 90,
-                "elevation": 170,
-                "axialRotation": 0
-              }
-            ],
-            "shape": {
-              "macroGender": 1,
-              "macroAge": 0,
-              "macroMuscle": 1,
-              "upperarmMuscleLeft": 0.7,
-              "upperarmMuscleRight": 0.7,
-              "upperarmShoulderMuscleLeft": 0.7,
-              "upperarmShoulderMuscleRight": 0.7,
-              "lowerarmMuscleLeft": 0.7,
-              "lowerarmMuscleRight": 0.7,
-              "upperlegMuscleLeft": 0.7,
-              "upperlegMuscleRight": 0.7,
-              "lowerlegMuscleLeft": 0.7,
-              "lowerlegMuscleRight": 0.7,
-              "torsoMusclePectoral": 0.7,
-              "torsoMuscleDorsi": 0.7,
-              "buttocksPtosis": -0.4,
-              "buttocksVolume": 0.5,
-              "pelvisTone": 0.5,
-              "stomachOverhang": 0.4620000000000001,
-              "flankFat": 0.65,
-              "outerThighFatLeft": 0.24857142857142858,
-              "outerThighFatRight": 0.24857142857142858,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": 0,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.096,
-              "stomachTone": 0.26,
-              "stomachNavelDownUp": -0.19599999999999998,
-              "neckDouble": 0.4,
-              "upperarmFatLeft": 0.16319999999999998,
-              "upperlegFatLeft": 0.10200000000000001,
-              "upperarmFatRight": 0.16319999999999998,
-              "upperlegFatRight": 0.10200000000000001,
-              "torsoVshape": 0.6,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "hipScaleHoriz": 0,
-              "hipScaleDepth": 0,
-              "lowerlegFatLeft": 0,
-              "lowerlegFatRight": 0,
-              "hipScaleVert": 0.1026,
-              "measureWristCirc": -0.188,
-              "measureAnkleCirc": 0.254,
-              "torsoScaleHoriz": 0.40580000000000005,
-              "torsoScaleDepth": 0.3304,
-              "measureUpperlegHeight": -0.5172,
-              "measureLowerlegHeight": -0.5172,
-              "macroFirmness": 0,
-              "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
-            }
-          },
-          "fresh": [
-            {
-              "part": "hips",
-              "other": "hips",
               "triangles": 10,
               "otherTriangles": 10
             }
@@ -14488,15 +14059,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6507150349912482
+              "macroWeight": 0.6497482831329588
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 16,
-              "otherTriangles": 16
+              "triangles": 15,
+              "otherTriangles": 15
             },
             {
               "part": "hips",
@@ -14507,8 +14078,8 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 22,
-              "otherTriangles": 22
+              "triangles": 26,
+              "otherTriangles": 26
             },
             {
               "part": "leftUpperLeg",
@@ -14585,7 +14156,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -14676,7 +14247,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.036191447572137325,
-              "macroWeight": 6.307286738807867
+              "macroWeight": 6.272984813476221
             }
           },
           "fresh": [
@@ -14793,15 +14364,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 26,
-              "otherTriangles": 26
+              "triangles": 20,
+              "otherTriangles": 20
             }
           ],
           "grown": []
@@ -14872,15 +14443,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 26,
-              "otherTriangles": 26
+              "triangles": 20,
+              "otherTriangles": 20
             },
             {
               "part": "upperChest",
@@ -14969,7 +14540,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.411444232893497
+              "macroWeight": 3.3877559676242135
             }
           },
           "fresh": [
@@ -14982,14 +14553,14 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 74,
-              "otherTriangles": 74
+              "triangles": 75,
+              "otherTriangles": 75
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 82,
-              "otherTriangles": 79
+              "triangles": 83,
+              "otherTriangles": 78
             },
             {
               "part": "leftLowerLeg",
@@ -15066,7 +14637,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": -0.2,
               "macroHeight": -0.050421782090853906,
-              "macroWeight": -2.037310698168418
+              "macroWeight": -2.034166415228859
             }
           },
           "fresh": [
@@ -15145,7 +14716,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": -0.2,
               "macroHeight": 0.0413324901725383,
-              "macroWeight": 0.5992772735430444
+              "macroWeight": 0.5917147810473803
             }
           },
           "fresh": [
@@ -15236,7 +14807,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": -0.2,
               "macroHeight": 0.04190930536844417,
-              "macroWeight": 0.287472201936747
+              "macroWeight": 0.28557993444667024
             }
           },
           "fresh": [
@@ -15315,86 +14886,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8992928980251047
-            }
-          },
-          "fresh": [
-            {
-              "part": "leftUpperArm",
-              "other": "leftUpperArm",
-              "triangles": 4,
-              "otherTriangles": 4
-            }
-          ],
-          "grown": []
-        },
-        {
-          "name": "sex1-age60-bmi32-muscle0:elbow",
-          "document": {
-            "pose": [
-              {
-                "bone": "leftLowerArm",
-                "flexion": 120,
-                "abduction": null,
-                "twist": null
-              }
-            ],
-            "shape": {
-              "macroGender": 1,
-              "macroAge": 0.5384615384615384,
-              "macroMuscle": -0.18,
-              "upperarmMuscleLeft": 0,
-              "upperarmMuscleRight": 0,
-              "upperarmShoulderMuscleLeft": 0,
-              "upperarmShoulderMuscleRight": 0,
-              "lowerarmMuscleLeft": 0,
-              "lowerarmMuscleRight": 0,
-              "upperlegMuscleLeft": 0,
-              "upperlegMuscleRight": 0,
-              "lowerlegMuscleLeft": 0,
-              "lowerlegMuscleRight": 0,
-              "torsoMusclePectoral": 0,
-              "torsoMuscleDorsi": 0,
-              "buttocksPtosis": 0.6399999999999999,
-              "buttocksVolume": -0.18000000000000002,
-              "pelvisTone": -0.3,
-              "stomachOverhang": 0.56,
-              "flankFat": 0.7921874999999999,
-              "outerThighFatLeft": 0.17123809523809524,
-              "outerThighFatRight": 0.17123809523809524,
-              "absDefinition": 0,
-              "deltoidDefinitionLeft": 0,
-              "deltoidDefinitionRight": 0,
-              "scapularDefinition": 0,
-              "breastTransDownUp": 0,
-              "breastVolumeVertDownUp": 0,
-              "breastPoint": 0,
-              "macroCupsize": 0.24,
-              "stomachTone": -0.54,
-              "stomachNavelDownUp": -0.19599999999999998,
-              "neckDouble": 0.55,
-              "upperarmFatLeft": 0.16319999999999998,
-              "upperlegFatLeft": 0.10200000000000001,
-              "upperarmFatRight": 0.16319999999999998,
-              "upperlegFatRight": 0.10200000000000001,
-              "torsoVshape": 0,
-              "musculatureDefinition": 0,
-              "chestDefinition": 0,
-              "skeletalProminence": 0,
-              "hipScaleHoriz": 0,
-              "hipScaleDepth": 0,
-              "lowerlegFatLeft": 0,
-              "lowerlegFatRight": 0,
-              "hipScaleVert": 0.1026,
-              "measureWristCirc": -0.188,
-              "measureAnkleCirc": 0.254,
-              "torsoScaleHoriz": 0.40580000000000005,
-              "torsoScaleDepth": 0.3304,
-              "measureUpperlegHeight": -0.5172,
-              "measureLowerlegHeight": -0.5172,
-              "macroFirmness": -0.2,
-              "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8992928980251047
+              "macroWeight": 1.867190851975983
             }
           },
           "fresh": [
@@ -15473,7 +14965,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1144523132933283,
-              "macroWeight": 0.7239195359594317
+              "macroWeight": 0.7159124268775575
             }
           },
           "fresh": [
@@ -15487,7 +14979,7 @@
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 70,
-              "otherTriangles": 62
+              "otherTriangles": 61
             },
             {
               "part": "leftLowerLeg",
@@ -15564,7 +15056,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
@@ -15583,7 +15075,7 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 14,
+              "triangles": 12,
               "otherTriangles": 10
             },
             {
@@ -15661,27 +15153,27 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.80629903049498
+              "macroWeight": 5.766488375527876
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 42,
-              "otherTriangles": 63
+              "triangles": 41,
+              "otherTriangles": 60
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 44,
-              "otherTriangles": 58
+              "triangles": 46,
+              "otherTriangles": 57
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 76,
-              "otherTriangles": 76
+              "triangles": 77,
+              "otherTriangles": 77
             }
           ],
           "grown": []
@@ -15752,7 +15244,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
@@ -15771,14 +15263,14 @@
             {
               "part": "upperChest",
               "other": "leftUpperArm",
-              "triangles": 83,
-              "otherTriangles": 67
+              "triangles": 85,
+              "otherTriangles": 72
             },
             {
               "part": "leftUpperArm",
               "other": "leftUpperArm",
-              "triangles": 47,
-              "otherTriangles": 47
+              "triangles": 48,
+              "otherTriangles": 48
             }
           ],
           "grown": []
@@ -15849,15 +15341,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.004441759138130184,
-              "macroWeight": 4.3268829061756335
+              "macroWeight": 4.296121649315396
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 40,
-              "otherTriangles": 40
+              "triangles": 43,
+              "otherTriangles": 43
             },
             {
               "part": "leftUpperArm",
@@ -15920,7 +15412,7 @@
         },
         {
           "pair": "chest x chest",
-          "states": 21
+          "states": 22
         },
         {
           "pair": "spine x chest",
@@ -16513,9 +16005,9 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.5990281221012266,
-              "measureBustCirc": -0.23340478116215288,
-              "macroWeight": -0.6238354090244698
+              "measureHipsCirc": 0.6036064226342622,
+              "measureBustCirc": -0.23316991065591672,
+              "macroWeight": -0.6247899788243607
             }
           },
           "fresh": [
@@ -16559,7 +16051,7 @@
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 25,
-              "otherTriangles": 28
+              "otherTriangles": 26
             },
             {
               "part": "leftLowerLeg",
@@ -16570,8 +16062,8 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 126,
-              "otherTriangles": 126
+              "triangles": 125,
+              "otherTriangles": 125
             },
             {
               "part": "rightUpperLeg",
@@ -16672,8 +16164,8 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.2575239940184973,
-              "macroWeight": -0.874587655262028
+              "measureHipsCirc": -0.26211290480405763,
+              "macroWeight": -0.8739843407662238
             }
           },
           "fresh": [
@@ -16818,7 +16310,7 @@
               "measureLowerlegHeight": -0.0745681581685742,
               "macroFirmness": -0.012000000000000002,
               "macroHeight": 0.2509527866830934,
-              "macroWeight": -0.8709737388507633
+              "macroWeight": -0.8677073238159871
             }
           },
           "fresh": [
@@ -16969,7 +16461,7 @@
               "measureLowerlegHeight": -0.47108641975308635,
               "macroFirmness": -0.04200000000000001,
               "macroHeight": 0.24606252323260924,
-              "macroWeight": 0.5697394123835278
+              "macroWeight": 0.566118465007351
             }
           },
           "fresh": [
@@ -16988,8 +16480,8 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 55,
-              "otherTriangles": 55
+              "triangles": 58,
+              "otherTriangles": 58
             },
             {
               "part": "leftUpperLeg",
@@ -17090,7 +16582,7 @@
               "measureLowerlegHeight": -0.5592889747615023,
               "macroFirmness": -0.12000000000000002,
               "macroHeight": 0.3050098639788506,
-              "macroWeight": 1.4498318219379387
+              "macroWeight": 1.4205273016068234
             }
           },
           "fresh": [
@@ -17205,8 +16697,8 @@
               "measureLowerlegHeight": -0.06392103839913475,
               "macroFirmness": -0.15000000000000002,
               "macroHeight": 0.04166792228012355,
-              "measureWaistCirc": 2.3491660824517004,
-              "macroWeight": -0.49915760698610345
+              "measureWaistCirc": 2.348885838951341,
+              "macroWeight": -0.49973271047095486
             }
           },
           "fresh": [
@@ -17225,8 +16717,8 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 75,
-              "otherTriangles": 75
+              "triangles": 78,
+              "otherTriangles": 78
             },
             {
               "part": "spine",
@@ -17363,15 +16855,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 3.4694981864504837
+              "macroWeight": 3.432480620957987
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 170,
-              "otherTriangles": 170
+              "triangles": 168,
+              "otherTriangles": 168
             },
             {
               "part": "hips",
@@ -17388,14 +16880,14 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 41,
-              "otherTriangles": 41
+              "triangles": 43,
+              "otherTriangles": 43
             },
             {
               "part": "spine",
               "other": "leftUpperLeg",
               "triangles": 39,
-              "otherTriangles": 45
+              "otherTriangles": 46
             },
             {
               "part": "spine",
@@ -17406,8 +16898,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 75,
-              "otherTriangles": 75
+              "triangles": 76,
+              "otherTriangles": 76
             },
             {
               "part": "leftUpperLeg",
@@ -17424,20 +16916,20 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 11,
-              "otherTriangles": 11
+              "triangles": 12,
+              "otherTriangles": 12
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 75,
-              "otherTriangles": 75
+              "triangles": 76,
+              "otherTriangles": 76
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
               "triangles": 39,
-              "otherTriangles": 33
+              "otherTriangles": 31
             },
             {
               "part": "rightLowerLeg",
@@ -17544,7 +17036,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.31048121524311995
+              "macroWeight": 0.30884868783883346
             }
           },
           "fresh": [
@@ -17581,8 +17073,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 17,
-              "otherTriangles": 17
+              "triangles": 18,
+              "otherTriangles": 18
             },
             {
               "part": "rightUpperLeg",
@@ -17689,7 +17181,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.1183041289076825,
-              "macroWeight": -0.02413194855642127
+              "macroWeight": -0.025180504612190464
             }
           },
           "fresh": [
@@ -18302,7 +17794,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.0224031779160867
+              "macroWeight": -1.021852622021551
             }
           },
           "fresh": [
@@ -18459,9 +17951,9 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.5990281221012266,
-              "measureBustCirc": -0.23340478116215288,
-              "macroWeight": -0.6238354090244698
+              "measureHipsCirc": 0.6036064226342622,
+              "measureBustCirc": -0.23316991065591672,
+              "macroWeight": -0.6247899788243607
             }
           },
           "fresh": [
@@ -18630,7 +18122,7 @@
               "measureLowerlegHeight": 0.02446618692925975,
               "macroFirmness": -0.06000000000000001,
               "macroHeight": 0.10683446629232518,
-              "macroWeight": -1.5101551157658517
+              "macroWeight": -1.5104897888408189
             }
           },
           "fresh": [
@@ -18787,7 +18279,7 @@
               "measureLowerlegHeight": -0.0745681581685742,
               "macroFirmness": -0.012000000000000002,
               "macroHeight": 0.2509527866830934,
-              "macroWeight": -0.8709737388507633
+              "macroWeight": -0.8677073238159871
             }
           },
           "fresh": [
@@ -18914,7 +18406,7 @@
               "measureLowerlegHeight": -0.5592889747615023,
               "macroFirmness": -0.12000000000000002,
               "macroHeight": 0.3050098639788506,
-              "macroWeight": 1.4498318219379387
+              "macroWeight": 1.4205273016068234
             }
           },
           "fresh": [
@@ -18945,20 +18437,20 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 95,
-              "otherTriangles": 95
+              "triangles": 104,
+              "otherTriangles": 104
             },
             {
               "part": "spine",
               "other": "chest",
-              "triangles": 4,
-              "otherTriangles": 1
+              "triangles": 5,
+              "otherTriangles": 5
             },
             {
               "part": "chest",
               "other": "chest",
-              "triangles": 15,
-              "otherTriangles": 15
+              "triangles": 18,
+              "otherTriangles": 18
             },
             {
               "part": "leftUpperLeg",
@@ -18975,8 +18467,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 42,
-              "otherTriangles": 42
+              "triangles": 44,
+              "otherTriangles": 44
             },
             {
               "part": "rightUpperLeg",
@@ -18988,7 +18480,7 @@
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
               "triangles": 25,
-              "otherTriangles": 26
+              "otherTriangles": 27
             },
             {
               "part": "rightLowerLeg",
@@ -19083,8 +18575,8 @@
               "measureLowerlegHeight": -0.06392103839913475,
               "macroFirmness": -0.15000000000000002,
               "macroHeight": 0.04166792228012355,
-              "measureWaistCirc": 2.3491660824517004,
-              "macroWeight": -0.49915760698610345
+              "measureWaistCirc": 2.348885838951341,
+              "macroWeight": -0.49973271047095486
             }
           },
           "fresh": [
@@ -19193,7 +18685,7 @@
               "measureLowerlegHeight": -0.4081281878629743,
               "macroFirmness": -0.030000000000000006,
               "macroHeight": 0.8330623850245917,
-              "macroWeight": 0.14533697817649102
+              "macroWeight": 0.13677562699230109
             }
           },
           "fresh": [
@@ -19224,8 +18716,14 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 77,
-              "otherTriangles": 77
+              "triangles": 88,
+              "otherTriangles": 88
+            },
+            {
+              "part": "chest",
+              "other": "chest",
+              "triangles": 9,
+              "otherTriangles": 9
             },
             {
               "part": "leftUpperLeg",
@@ -19254,7 +18752,7 @@
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 14,
+              "triangles": 13,
               "otherTriangles": 22
             },
             {
@@ -19350,7 +18848,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.31048121524311995
+              "macroWeight": 0.30884868783883346
             }
           },
           "fresh": [
@@ -20087,7 +19585,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.0224031779160867
+              "macroWeight": -1.021852622021551
             }
           },
           "fresh": [
@@ -20244,8 +19742,8 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.2575239940184973,
-              "macroWeight": -0.874587655262028
+              "measureHipsCirc": -0.26211290480405763,
+              "macroWeight": -0.8739843407662238
             }
           },
           "fresh": [
@@ -20390,7 +19888,7 @@
               "measureLowerlegHeight": 0.02446618692925975,
               "macroFirmness": -0.06000000000000001,
               "macroHeight": 0.10683446629232518,
-              "macroWeight": -1.5101551157658517
+              "macroWeight": -1.5104897888408189
             }
           },
           "fresh": [
@@ -20499,7 +19997,7 @@
               "measureLowerlegHeight": -0.47108641975308635,
               "macroFirmness": -0.04200000000000001,
               "macroHeight": 0.24606252323260924,
-              "macroWeight": 0.5697394123835278
+              "macroWeight": 0.566118465007351
             }
           },
           "fresh": [
@@ -20530,20 +20028,20 @@
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 109,
-              "otherTriangles": 109
+              "triangles": 119,
+              "otherTriangles": 119
             },
             {
               "part": "spine",
               "other": "chest",
-              "triangles": 4,
-              "otherTriangles": 1
+              "triangles": 6,
+              "otherTriangles": 5
             },
             {
               "part": "chest",
               "other": "chest",
-              "triangles": 17,
-              "otherTriangles": 17
+              "triangles": 19,
+              "otherTriangles": 19
             },
             {
               "part": "leftUpperLeg",
@@ -20668,21 +20166,21 @@
               "measureLowerlegHeight": -0.5592889747615023,
               "macroFirmness": -0.12000000000000002,
               "macroHeight": 0.3050098639788506,
-              "macroWeight": 1.4498318219379387
+              "macroWeight": 1.4205273016068234
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 16,
-              "otherTriangles": 16
+              "triangles": 10,
+              "otherTriangles": 10
             },
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 44,
-              "otherTriangles": 44
+              "triangles": 45,
+              "otherTriangles": 45
             },
             {
               "part": "leftUpperLeg",
@@ -20694,13 +20192,13 @@
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
               "triangles": 19,
-              "otherTriangles": 19
+              "otherTriangles": 18
             },
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 5,
-              "otherTriangles": 5
+              "triangles": 4,
+              "otherTriangles": 4
             },
             {
               "part": "rightUpperLeg",
@@ -20712,7 +20210,7 @@
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
               "triangles": 12,
-              "otherTriangles": 11
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -20813,7 +20311,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 3.4694981864504837
+              "macroWeight": 3.432480620957987
             }
           },
           "fresh": [
@@ -20833,13 +20331,13 @@
               "part": "hips",
               "other": "leftUpperLeg",
               "triangles": 19,
-              "otherTriangles": 26
+              "otherTriangles": 24
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
               "triangles": 19,
-              "otherTriangles": 26
+              "otherTriangles": 24
             },
             {
               "part": "spine",
@@ -20850,25 +20348,25 @@
             {
               "part": "spine",
               "other": "leftUpperLeg",
-              "triangles": 31,
-              "otherTriangles": 31
+              "triangles": 34,
+              "otherTriangles": 33
             },
             {
               "part": "spine",
               "other": "rightUpperLeg",
-              "triangles": 31,
-              "otherTriangles": 33
+              "triangles": 32,
+              "otherTriangles": 36
             },
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 124,
-              "otherTriangles": 124
+              "triangles": 122,
+              "otherTriangles": 122
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 40,
+              "triangles": 39,
               "otherTriangles": 44
             },
             {
@@ -20880,14 +20378,14 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 43,
-              "otherTriangles": 43
+              "triangles": 44,
+              "otherTriangles": 44
             },
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 111,
-              "otherTriangles": 111
+              "triangles": 109,
+              "otherTriangles": 109
             },
             {
               "part": "rightUpperLeg",
@@ -20988,15 +20486,15 @@
               "measureLowerlegHeight": -0.4081281878629743,
               "macroFirmness": -0.030000000000000006,
               "macroHeight": 0.8330623850245917,
-              "macroWeight": 0.14533697817649102
+              "macroWeight": 0.13677562699230109
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 37,
-              "otherTriangles": 37
+              "triangles": 35,
+              "otherTriangles": 35
             }
           ],
           "grown": []
@@ -21097,7 +20595,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.1183041289076825,
-              "macroWeight": -0.02413194855642127
+              "macroWeight": -0.025180504612190464
             }
           },
           "fresh": [
