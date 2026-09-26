@@ -181,7 +181,8 @@ export const FACE_ANTHROPOMETRY_LOWER_EDGE = 469;
 export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "faceHeight",
-    definition: "n-me height (168, 152) over face width at zygion (234, 454)",
+    definition:
+      "n-me' height (168 to the jaw outline's menton, 470) over face width at zygion (234, 454)",
     channels: ["headHeight"],
   },
   {
@@ -222,17 +223,20 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   },
   {
     id: "upperVermilion",
-    definition: "ls-stoms height (0, 13) over mouth width",
+    definition:
+      "ls-stoms height (labrale superius from the midline's colour, 475, to 13) over mouth width",
     channels: ["upperLipHeight"],
   },
   {
     id: "lowerVermilion",
-    definition: "stomi-li height (14, 17) over mouth width",
+    definition:
+      "stomi-li height (14 to labrale inferius from the midline's colour, 476) over mouth width",
     channels: ["lowerLipHeight"],
   },
   {
     id: "upperLip",
-    definition: "sn-stoms height (2, 13) over sn-me height (2, 152)",
+    definition:
+      "sn-stoms height (2, 13) over sn-me' height (2 to the jaw outline's menton, 470)",
     channels: ["mouthElevation"],
   },
   {
@@ -273,17 +277,19 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "lowerFaceWidth",
     definition:
-      "face contour width at the gonial level (136, 365) over face width",
+      "the jaw outline's width at the mouth line (471, 472) over face width",
     channels: ["cheekFullness"],
   },
   {
     id: "chinWidth",
-    definition: "chin contour width (176, 400) over face width",
+    definition:
+      "the jaw outline's width three quarters of the way from the mouth line to menton (473, 474) over face width",
     channels: ["chinWidth"],
   },
   {
     id: "chinHeight",
-    definition: "li-me height (17, 152) over n-me height",
+    definition:
+      "stomion (midpoint of 13 and 14) to the jaw outline's menton (470) over n-me' height",
     channels: ["chinHeight"],
   },
   {
@@ -419,7 +425,9 @@ export function measureFaceAnthropometry(
   const ratio = (a: number | null, b: number | null) =>
     a === null || b === null || !(b > 0) ? null : a / b;
   const fw = W(234, 454);
-  const fh = H(168, 152);
+  // Soft-tissue menton is the jaw outline's (`faceLikenessJawOutline`): the
+  // detector's own menton (152) holds its place as the chin lengthens.
+  const fh = H(168, 470);
   const fl = mean(D(33, 133), D(263, 362));
   const mw = W(61, 291);
   return {
@@ -440,9 +448,12 @@ export function measureFaceAnthropometry(
     noseWidth: ratio(W(129, 358), fw),
     noseHeight: ratio(H(168, 2), fh),
     mouthWidth: ratio(mw, fw),
-    upperVermilion: ratio(H(0, 13), mw),
-    lowerVermilion: ratio(H(14, 17), mw),
-    upperLip: ratio(H(2, 13), H(2, 152)),
+    // The vermilion's borders are read from the midline's colour
+    // (`faceLikenessVermilion`): the detector's own 0 and 17 are placed
+    // from the rest of the face.
+    upperVermilion: ratio(H(475, 13), mw),
+    lowerVermilion: ratio(H(14, 476), mw),
+    upperLip: ratio(H(2, 13), H(2, 470)),
     lipParting: ratio(H(13, 14), mw),
     incisalGap: ((): number | null => {
       const [upper, lower] = [
@@ -471,9 +482,14 @@ export function measureFaceAnthropometry(
         ? ((u[0] + l[0]) / 2 - sn[0]) / mw
         : null;
     })(),
-    lowerFaceWidth: ratio(W(136, 365), fw),
-    chinWidth: ratio(W(176, 400), fw),
-    chinHeight: ratio(H(17, 152), fh),
+    lowerFaceWidth: ratio(W(471, 472), fw),
+    chinWidth: ratio(W(473, 474), fw),
+    chinHeight: ((): number | null => {
+      const [u, l, me] = [13, 14, 470].map(at);
+      return u && l && me && fh !== null && fh > 0
+        ? Math.abs(me[1] - (u[1] + l[1]) / 2) / fh
+        : null;
+    })(),
     browHeight: ratio(mean(H(105, 159), H(334, 386)), fl),
     eyeLevel: ((): number | null => {
       const eye = [33, 133, 263, 362].map(at);

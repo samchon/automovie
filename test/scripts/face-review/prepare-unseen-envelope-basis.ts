@@ -63,7 +63,8 @@ const prepared = prepareUnseenEnvelopeBasis({
   controls: controls.json as IAutoMovieHumanFaceControlMap,
   revision,
   surface: "Human",
-  indices: FACE_UNSEEN_INDICES,
+  // A stand-in for a photograph's index keeps the photograph's envelope.
+  indices: FACE_UNSEEN_INDICES.filter((one) => one.photographed === undefined),
   intervals,
   measure: (positions) =>
     measureFaceUnseen({

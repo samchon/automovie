@@ -29,11 +29,20 @@
  * other. Otherwise the photograph taken from that camera cannot measure the
  * control (the detector holds its place, reads the change reversed, or reads
  * a change the anchored geometry does not make), and the control is not
- * fitted to it.
+ * fitted to it. Nor is a control whose whole envelope changes the
+ * detector's reading by less than twice the reading's own deviation under
+ * half a pixel of error in every point (`resolution`,
+ * `faceInstrumentResolution`): that change is below what the image
+ * resolves, and its gain is a ratio of two changes too small to read (the
+ * epicanthal fold moves the medial lower lid's slope, a rise over a run of a
+ * few pixels, by less than the jitter does). A control too short to reach
+ * every photograph is still observed: it reaches as far as it goes, and a
+ * bound it is held at is recorded.
  *
  * Pure: reads caller-owned values and returns new ones.
  */
 import {
+  type FaceAnthropometryPoint,
   type IFaceAnthropometryIndex,
   faceAnthropometryWeights,
 } from "./faceAnthropometry";
@@ -111,6 +120,11 @@ export interface IFaceInstrumentReading {
   model: readonly [number | null, number | null];
   /** The detector's index on the render at each value, null when unread. */
   detector: readonly [number | null, number | null];
+  /**
+   * The detector's reading's deviation under half a pixel of point error
+   * (`faceInstrumentResolution`), absent when not known.
+   */
+  resolution?: number | null;
 }
 
 /** One index's gain and observation under each calibration camera. */
@@ -125,8 +139,9 @@ export interface IFaceInstrumentIndex {
 /**
  * Each index's gain under every camera and whether a photograph from that
  * camera observes it. `cameras` lists, per calibration camera, one reading
- * per index; an index missing from a camera, unread there or whose anchored
- * reading does not change is not observed there.
+ * per index; an index missing from a camera, unread there, whose anchored
+ * reading does not change, or whose detector reading changes by less than
+ * twice its `resolution` is not observed there.
  */
 export function faceInstrumentGains(
   cameras: readonly (readonly IFaceInstrumentReading[])[],
@@ -138,8 +153,10 @@ export function faceInstrumentGains(
     ...new Set(cameras.flatMap((one) => one.map((reading) => reading.index))),
   ];
   return indices.map((index) => {
-    const gains = cameras.map((camera) => {
-      const reading = camera.find((one) => one.index === index);
+    const readings = cameras.map((camera) =>
+      camera.find((one) => one.index === index),
+    );
+    const gains = readings.map((reading) => {
       if (reading === undefined) return null;
       const [m0, m1] = reading.model;
       const [d0, d1] = reading.detector;
@@ -150,8 +167,69 @@ export function faceInstrumentGains(
       index,
       gains,
       observed: gains.map(
-        (gain) => gain !== null && gain >= bound && gain <= 1 / bound,
+        (gain, k) =>
+          gain !== null &&
+          gain >= bound &&
+          gain <= 1 / bound &&
+          Math.abs(readings[k]!.detector[1]! - readings[k]!.detector[0]!) >=
+            2 * (readings[k]!.resolution ?? 0),
       ),
     };
   });
+}
+
+/**
+ * Each index's standard deviation under a jitter of every point by an
+ * independent normal error of `sigma` pixels on each axis, over `draws`
+ * draws from a generator seeded with `seed` (mulberry32, Box-Muller): the
+ * least change the detector's reading of that index resolves. Null for an
+ * index the points do not read.
+ */
+export function faceInstrumentResolution(
+  points: readonly FaceAnthropometryPoint[],
+  measure: (
+    points: readonly FaceAnthropometryPoint[],
+  ) => Record<string, number | null>,
+  props: { sigma: number; draws: number; seed: number },
+): Record<string, number | null> {
+  if (!(props.draws >= 2)) throw new Error("A deviation needs two draws.");
+  let state = props.seed >>> 0;
+  const uniform = (): number => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return (((t ^ (t >>> 14)) >>> 0) + 0.5) / 4294967296;
+  };
+  const normal = (): number =>
+    Math.sqrt(-2 * Math.log(uniform())) * Math.cos(2 * Math.PI * uniform());
+  const readings = [...new Array(props.draws).keys()].map(() =>
+    measure(
+      points.map((point) =>
+        point === undefined
+          ? undefined
+          : ([
+              point[0] + props.sigma * normal(),
+              point[1] + props.sigma * normal(),
+            ] as const),
+      ),
+    ),
+  );
+  const base = measure(points);
+  return Object.fromEntries(
+    Object.keys(base).map((id) => {
+      const values = readings.flatMap((one) =>
+        one[id] === null || one[id] === undefined ? [] : [one[id]!],
+      );
+      if (values.length < 2) return [id, null];
+      const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+      return [
+        id,
+        Math.sqrt(
+          values.reduce((sum, v) => sum + (v - mean) ** 2, 0) /
+            (values.length - 1),
+        ),
+      ];
+    }),
+  );
 }

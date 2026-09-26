@@ -28,7 +28,15 @@
  * - each ear's protrusion over its length: the ear's most lateral point
  *   less the head behind it (ANSUR II: from the mastoid to the ear's most
  *   lateral edge, horizontally), the head being the most lateral skin within
- *   5 mm of that point's height and 2 cm behind the auricle.
+ *   5 mm of that point's height and 2 cm behind the auricle;
+ * - the lower vermilion's height over the mouth's width, sto-li over ch-ch,
+ *   read as the lip envelope revision reads it (`faceVermilionRatios`).
+ *   The photograph shows the lower lip, and its border is read from the
+ *   midline's colour (`faceLikenessVermilion`); this reading stands in for
+ *   the photograph's `lowerVermilion` index only where the photograph does
+ *   not measure it (`photographed`): unobserved under the subject's camera
+ *   (README "Instrument") or unread (a greyscale print, a lip no redder
+ *   than its skin).
  *
  * The profile's landmarks are `faceProfileLandmarks`'s. Each reading is
  * paired with the one control that means it (`FACE_UNSEEN_INDICES`) and
@@ -61,6 +69,7 @@ import {
   faceProfileLandmarks,
 } from "./faceMidsagittal";
 import type { IFacePopulationFacts } from "./facePopulationFacts";
+import { faceVermilionRatios } from "./prepareLipEnvelopeBasis";
 
 type FacePopulationAncestry = NonNullable<IFacePopulationFacts["ancestry"]>;
 
@@ -78,6 +87,7 @@ export interface IFaceUnseenNorm {
   cephalicIndex: number;
   earLength: number;
   earProtrusion: number;
+  lowerVermilion: number;
 }
 
 /** One reading of the unseen form on the model. */
@@ -96,6 +106,11 @@ export interface IFaceUnseenIndex extends IFaceAnthropometryIndex {
   resolution: number;
   /** The population's standard deviation of the reading, same units. */
   spread: number;
+  /**
+   * The photograph's index this reading stands in for: it holds only where
+   * the photograph does not measure that index.
+   */
+  photographed?: string;
 }
 
 /**
@@ -112,7 +127,9 @@ export interface IFaceUnseenIndex extends IFaceAnthropometryIndex {
  * (Legan and Burstone 1980), 7 of the nasofrontal angle (Farkas 1994,
  * North American White), 0.02 of the nasal tip protrusion index (Zaidi
  * 2017, individual data), 0.03 of the cephalic index and 0.04 of the ear's
- * ratio, and 0.045 of the ear's protrusion over its length (ANSUR II).
+ * ratio, and 0.045 of the ear's protrusion over its length (ANSUR II),
+ * and 0.036 of the lower vermilion over the mouth's width (the root mean
+ * square of the samples' ratio deviations below, by the delta method).
  */
 export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
   {
@@ -203,6 +220,15 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
     resolution: 1e-4,
     spread: 0.045,
   },
+  {
+    id: "lowerVermilion",
+    norm: "lowerVermilion",
+    definition: "sto-li over ch-ch at rest",
+    channels: ["lowerLipHeight"],
+    resolution: 1e-4,
+    spread: 0.036,
+    photographed: "lowerVermilion",
+  },
 ];
 
 /**
@@ -243,6 +269,19 @@ export const FACE_UNSEEN_INDICES: readonly IFaceUnseenIndex[] = [
  * Ear length over face height (sellion to menton) and ear protrusion over
  * ear length: the means of the individual ratios in ANSUR II, soldiers 18 to 35, White, Black, and those
  * of Chinese, Korean or Japanese ethnicity (47 men and 27 women).
+ *
+ * Lower vermilion over mouth width (sto-li over ch-ch, the ratio of the
+ * means), the samples of the lip envelope revision: European, 3D Facial
+ * Norms at 19 to 25 years (9.2 over 50.4 mm, men; 9.1 over 47.7, women);
+ * African, Nairobi university students 18 to 30 (Virdi, Wertheim and Naini,
+ * Maxillofac Plast Reconstr Surg 2019;41:9: 13.8 over 55.9 and 13.6 over
+ * 52.0); East Asian, Hong Kong Chinese 18 to 35 by 3dMD (Jayaratne et al.:
+ * 10.98 over 49.7 for men) and, for women, the mean of theirs (9.79 over
+ * 45.18) and Korean women's 20 to 39 (Kwon et al., Ann Dermatol
+ * 2021;33:52-60: 9.58 over 44.45). These are adults under 40; the lips thin
+ * with age and no longitudinal sample gives how far, so an older subject's
+ * stand-in is the young adults' (an assumption, as the E-line's ageing is
+ * one sample's).
  */
 export const FACE_UNSEEN_NORMS: Record<
   FacePopulationAncestry,
@@ -259,6 +298,7 @@ export const FACE_UNSEEN_NORMS: Record<
       cephalicIndex: 0.7708,
       earLength: 0.5225,
       earProtrusion: 0.368,
+      lowerVermilion: 0.1825,
     },
     female: {
       eLineUpper: -0.00497,
@@ -270,6 +310,7 @@ export const FACE_UNSEEN_NORMS: Record<
       cephalicIndex: 0.778,
       earLength: 0.5282,
       earProtrusion: 0.3525,
+      lowerVermilion: 0.1908,
     },
   },
   african: {
@@ -283,6 +324,7 @@ export const FACE_UNSEEN_NORMS: Record<
       cephalicIndex: 0.7671,
       earLength: 0.4976,
       earProtrusion: 0.362,
+      lowerVermilion: 0.2469,
     },
     female: {
       eLineUpper: 0.00188,
@@ -294,6 +336,7 @@ export const FACE_UNSEEN_NORMS: Record<
       cephalicIndex: 0.7651,
       earLength: 0.5127,
       earProtrusion: 0.3378,
+      lowerVermilion: 0.2615,
     },
   },
   asian: {
@@ -307,6 +350,7 @@ export const FACE_UNSEEN_NORMS: Record<
       cephalicIndex: 0.8484,
       earLength: 0.5214,
       earProtrusion: 0.3695,
+      lowerVermilion: 0.2209,
     },
     female: {
       eLineUpper: -0.00008,
@@ -318,6 +362,7 @@ export const FACE_UNSEEN_NORMS: Record<
       cephalicIndex: 0.8553,
       earLength: 0.5256,
       earProtrusion: 0.3569,
+      lowerVermilion: 0.2161,
     },
   },
 };
@@ -510,6 +555,12 @@ export function measureFaceUnseen(props: {
   auricles: { left: readonly number[]; right: readonly number[] };
   mastoids: { left: readonly number[]; right: readonly number[] };
   step: number;
+  /** The lips' region triangles, the skin's vertices and the contact pair. */
+  lips?: {
+    indices: readonly number[];
+    skin: ReadonlySet<number>;
+    contact: { upper: number; lower: number };
+  };
 }): Record<FaceUnseenReading, number | null> {
   const none = {
     eLineUpper: null,
@@ -523,6 +574,7 @@ export function measureFaceUnseen(props: {
     earLengthRight: null,
     earProtrusionLeft: null,
     earProtrusionRight: null,
+    lowerVermilion: null,
   };
   let base: ReturnType<typeof faceMidsagittalLandmarks>;
   try {
@@ -673,5 +725,19 @@ export function measureFaceUnseen(props: {
     earLengthRight: ear(props.auricles.right),
     earProtrusionLeft: protrusion(props.auricles.left, props.mastoids.left),
     earProtrusionRight: protrusion(props.auricles.right, props.mastoids.right),
+    lowerVermilion: ((): number | null => {
+      if (props.lips === undefined) return null;
+      try {
+        return faceVermilionRatios({
+          positions: props.positions,
+          lips: props.lips.indices,
+          skin: props.lips.skin,
+          contact: props.lips.contact,
+          depth: 0.004,
+        }).lower;
+      } catch {
+        return null;
+      }
+    })(),
   };
 }

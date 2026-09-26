@@ -1,9 +1,13 @@
 import { TestValidator } from "@nestia/e2e";
 
-import type { IFaceAnthropometryIndex } from "../../../scripts/face-review/faceAnthropometry";
+import type {
+  FaceAnthropometryPoint,
+  IFaceAnthropometryIndex,
+} from "../../../scripts/face-review/faceAnthropometry";
 import {
   faceInstrumentDocuments,
   faceInstrumentGains,
+  faceInstrumentResolution,
 } from "../../../scripts/face-review/faceInstrumentGain";
 import { throwsError } from "../internal/predicates";
 
@@ -17,8 +21,12 @@ import { throwsError } from "../internal/predicates";
  *    below the bound (the detector holds its place), reversed, above
  *    1 / bound (the anchored reading hardly moves), unread, or with an
  *    anchored reading that does not change is not; an index one camera
- *    lacks is unread there.
- * 3. An empty envelope and a bound outside (0, 1) refuse.
+ *    lacks is unread there. An index whose detector change is under twice
+ *    its resolution is not observed; one without a known resolution is.
+ * 3. The resolution is an index's deviation under half a pixel of jitter:
+ *    a width of two points reads 0.5 sqrt(2), the same seed the same.
+ * 4. An empty envelope, a bound outside (0, 1) and fewer than two draws
+ *    refuse.
  */
 export const test_subject_face_instrument_gain = (): void => {
   const indices: IFaceAnthropometryIndex[] = [
@@ -98,6 +106,55 @@ export const test_subject_face_instrument_gain = (): void => {
         (id) => row(id).observed.join() === "false,false",
       ),
   );
+  const resolved = (
+    index: string,
+    detector: [number, number],
+    resolution: number | null,
+  ) => ({ ...reading(index, [0.2, 0.3], detector), resolution });
+  const resolving = faceInstrumentGains(
+    [
+      [
+        resolved("fine", [0.2, 0.25], 0.02),
+        resolved("coarse", [0.2, 0.25], 0.03),
+        resolved("unknown", [0.2, 0.25], null),
+      ],
+    ],
+    0.25,
+  );
+  TestValidator.predicate(
+    "resolution",
+    resolving.map((one) => one.observed[0]).join() === "true,false,true",
+  );
+  // A width of two points 10 px apart: under half a pixel on each axis its
+  // deviation is 0.5 * sqrt(2); the same seed draws the same.
+  const width = (points: readonly FaceAnthropometryPoint[]) => ({
+    width: Math.abs(points[1]![0] - points[0]![0]),
+    unread: null,
+  });
+  const jittered = faceInstrumentResolution(
+    [
+      [0, 0],
+      [10, 0],
+    ],
+    width,
+    { sigma: 0.5, draws: 400, seed: 7 },
+  );
+  TestValidator.predicate(
+    "jitter",
+    Math.abs(jittered.width! - 0.5 * Math.SQRT2) < 0.1 &&
+      jittered.unread === null &&
+      JSON.stringify(jittered) ===
+        JSON.stringify(
+          faceInstrumentResolution(
+            [
+              [0, 0],
+              [10, 0],
+            ],
+            width,
+            { sigma: 0.5, draws: 400, seed: 7 },
+          ),
+        ),
+  );
   TestValidator.predicate(
     "refusals",
     throwsError(
@@ -111,6 +168,15 @@ export const test_subject_face_instrument_gain = (): void => {
       "envelope of width is empty",
     ) &&
       throwsError(() => faceInstrumentGains([], 0), "between zero and one") &&
-      throwsError(() => faceInstrumentGains([], 1), "between zero and one"),
+      throwsError(() => faceInstrumentGains([], 1), "between zero and one") &&
+      throwsError(
+        () =>
+          faceInstrumentResolution([], width, {
+            sigma: 1,
+            draws: 1,
+            seed: 1,
+          }),
+        "two draws",
+      ),
   );
 };

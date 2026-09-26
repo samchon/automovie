@@ -9,9 +9,7 @@
  * render), so the two instruments differ. That gap belongs to the detector
  * between renders and photographs, not to a person, so it is taken once per
  * index: the median over the subjects that have both readings of the
- * anchored value (with a calibrated instrument, what the detector is
- * expected to read from it) less the render's, zero for an index no subject
- * has.
+ * anchored value less the render's, zero for an index no subject has.
  * Correcting each subject by its own gap would repay one render's quirks
  * one person at a time. Pure.
  */

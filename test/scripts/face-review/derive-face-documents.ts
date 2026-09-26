@@ -50,13 +50,13 @@
  * With `--instrument` only the indices the photograph's instrument observes
  * under the subject's camera (`faceInstrumentGains`) are photograph targets;
  * any other index's control keeps its start, since a detector that does not
- * see a control reports its own expectation there, not the subject. An
- * observed index's target is the start's anchored reading plus the
- * photograph's departure from it over the gain: the detector reads a
- * fraction of a change, so a photograph whose reading departs by that
- * fraction shows a face departing whole. The render correction then
- * compares the render with what the calibrated detector would read on it
- * (the start plus the gain times the anchored departure).
+ * see a control reports its own expectation there, not the subject. The
+ * gain admits an index; it is not applied to the target. Read through its
+ * gain (the photograph's departure from the start over the gain), a target
+ * carries the photograph-vs-render offset that no render calibration
+ * identifies, multiplied: on the seventeen photographs twice as many
+ * controls ended at a bound (134 against 64), the upper vermilion's on
+ * every subject.
  *
  * `instrument-study` writes the instrument's calibration documents
  * (`faceInstrumentDocuments`: every index's control at its envelope's two
@@ -66,7 +66,9 @@
  * (`instrument-model.json`). `instrument` reads the detector on their
  * product renders (ids `inst:<document>`; the incisal edges from each
  * render's mouth profile, as on a photograph) and writes each index's gains
- * and whether it is observed at BOUND.
+ * and whether it is observed at BOUND, each reading's resolution being its
+ * deviation under half a pixel of error in every point of the lower end's
+ * render (`faceInstrumentResolution`).
  *
  * `calibration-study` writes the reference head's calibration documents
  * (`faceExpressionCalibrationDocuments`) beside STUDY's basis, with a pose
@@ -96,6 +98,7 @@ import {
   FACE_ANTHROPOMETRY_INDICES,
   FACE_ANTHROPOMETRY_LOWER_EDGE,
   FACE_ANTHROPOMETRY_UPPER_EDGE,
+  type FaceAnthropometryPoint,
   type IFaceAnthropometryIndex,
   faceAnthropometryWeights,
   measureFaceAnthropometry,
@@ -117,9 +120,18 @@ import {
   type IFaceInstrumentReading,
   faceInstrumentDocuments,
   faceInstrumentGains,
+  faceInstrumentResolution,
 } from "./faceInstrumentGain";
-import { readFaceLikenessImage } from "./faceLikenessIo";
+import { readFaceLikenessImage, readFaceLikenessMask } from "./faceLikenessIo";
+import {
+  faceLikenessJawLandmarks,
+  measureFaceLikenessJawOutline,
+} from "./faceLikenessJawOutline";
 import { measureFaceLikenessTeeth } from "./faceLikenessTeeth";
+import {
+  FACE_LIKENESS_VERMILION_LANDMARKS,
+  measureFaceLikenessVermilion,
+} from "./faceLikenessVermilion";
 import {
   type IFacePopulationFacts,
   facePopulationControls,
@@ -150,7 +162,8 @@ const json = <T>(file: string): T =>
 interface IDetection {
   id: string;
   path?: string;
-  rgb?: string;
+  rgb?: string | null;
+  faceSkinMask?: string | null;
   face: {
     landmarks: [number, number][];
     blendshapes: Record<string, number>;
@@ -162,6 +175,48 @@ const detections = (file: string) =>
   );
 const subjectOf = (document: IAutoMovieHumanFaceBasisDocument) =>
   document.id.replace(/-connected$/u, "");
+// A detection's points as the indices read them: the detector's 468 mesh
+// landmarks, the incisal edges where the image's mouth profile reads the
+// edge itself (`measureFaceLikenessTeeth`), the jaw's outline where its
+// face-skin mask shows one (`measureFaceLikenessJawOutline`) and the
+// vermilion's borders where the midline's colour shows them
+// (`measureFaceLikenessVermilion`), files beside the detection file.
+const observedPoints = (
+  one: IDetection,
+  directory: string,
+): FaceAnthropometryPoint[] => {
+  const landmarks = one.face!.landmarks;
+  const file =
+    one.rgb !== undefined && one.rgb !== null
+      ? path.join(directory, one.rgb)
+      : one.path;
+  const image = file === undefined ? null : readFaceLikenessImage(file);
+  const teeth =
+    image === null ? null : measureFaceLikenessTeeth(image, landmarks);
+  const points: FaceAnthropometryPoint[] = [
+    ...landmarks.slice(0, 468),
+    teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
+    teeth?.lower?.relation === "at" ? teeth.lower.point : undefined,
+  ];
+  const outline =
+    one.faceSkinMask === undefined || one.faceSkinMask === null
+      ? null
+      : measureFaceLikenessJawOutline(
+          readFaceLikenessMask(path.join(directory, one.faceSkinMask)),
+          landmarks,
+        );
+  if (outline !== null)
+    for (const [landmark, point] of faceLikenessJawLandmarks(outline))
+      points[landmark] = point;
+  const vermilion =
+    image === null ? null : measureFaceLikenessVermilion(image, landmarks);
+  for (const [landmark, point] of [
+    [FACE_LIKENESS_VERMILION_LANDMARKS.superius, vermilion?.superius],
+    [FACE_LIKENESS_VERMILION_LANDMARKS.inferius, vermilion?.inferius],
+  ] as const)
+    if (point !== null && point !== undefined) points[landmark] = point;
+  return points;
+};
 // The anchored landmarks of one camera on the skin, and the incisal edges on
 // the dentition, each read on its own surface.
 const anchoredLandmarks = (
@@ -242,14 +297,7 @@ if (command === "identity") {
       : json<
           Record<
             string,
-            {
-              anthropometry:
-                | Record<
-                    string,
-                    { model: number | null; start?: number | null }
-                  >
-                | string;
-            }
+            { anthropometry: Record<string, { model: number | null }> | string }
           >
         >(path.join(previousStudy, "derivation.json"));
   const renders =
@@ -285,13 +333,6 @@ if (command === "identity") {
       (one) => one.index === id && one.observed[camera] === true,
     );
   };
-  // An observed index's gain under the subject's camera, one without a
-  // receipt (the detector taken to read the anchored change whole).
-  const gainOf = (subject: string, id: string): number => {
-    if (instrument === undefined || !observed(subject, id)) return 1;
-    const camera = instrument.cameras.indexOf(subject);
-    return instrument.indices.find((one) => one.index === id)!.gains[camera]!;
-  };
   const expressions =
     expressionStudy === undefined
       ? new Map<string, IAutoMovieHumanFaceBasisDocument>()
@@ -324,34 +365,35 @@ if (command === "identity") {
   })[] = [...FACE_ANTHROPOMETRY_INDICES, ...FACE_UNSEEN_INDICES];
   const lips = basis.contact?.lips ?? null;
   const { auricles, mastoids, scalp } = faceUnseenParts(basis, human);
+  // The lip and skin regions the lower vermilion's reading takes.
+  const lipRegion = human.regions.find((one) => one.id === "Human/lips");
+  const skinRegion = human.regions.find((one) => one.id === "Human/skin");
+  const vermilion =
+    lipRegion === undefined || skinRegion === undefined || lips === null
+      ? undefined
+      : {
+          indices: lipRegion.indices,
+          skin: new Set(skinRegion.indices),
+          contact: lips,
+        };
   // The render correction, one per index for every subject
-  // (`faceRenderCorrection`).
+  // (`faceRenderCorrection`), over every subject PREVIOUS_STUDY derived, so
+  // a STUDY holding some of them (a derivation split across processes)
+  // takes the same correction.
   const correction = faceRenderCorrection(
     ids,
-    documents.flatMap((document) => {
-      const subject = subjectOf(document);
+    Object.keys(previous ?? {}).flatMap((subject) => {
       const before = previous?.[subject]?.anthropometry;
-      const render = renders?.get(`portrait:${subject}__reference-yaw`)?.face;
-      if (typeof before !== "object" || render === undefined || render === null)
-        return [];
-      // What the detector would read on the previous render were it the
-      // calibrated instrument: the start's reading plus the gain times the
-      // anchored model's departure from it (the anchored reading itself at
-      // a gain of one or without a recorded start).
+      const render = renders?.get(`portrait:${subject}__reference-yaw`);
+      if (typeof before !== "object" || !render?.face) return [];
       return [
         {
           model: Object.fromEntries(
-            ids.map((id) => {
-              const one = before[id];
-              if (one?.model === null || one?.model === undefined)
-                return [id, null];
-              const gain = gainOf(subject, id);
-              if (one.start === null || one.start === undefined || gain === 1)
-                return [id, one.model];
-              return [id, one.start + gain * (one.model - one.start)];
-            }),
+            ids.map((id) => [id, before[id]?.model ?? null]),
           ),
-          rendered: measureFaceAnthropometry(render.landmarks.slice(0, 468)),
+          rendered: measureFaceAnthropometry(
+            observedPoints(render, path.dirname(renderDetectionFile!)),
+          ),
         },
       ];
     }),
@@ -475,6 +517,7 @@ if (command === "identity") {
     const midline = faceMidlineTriangles(rest, human.indices);
     const near = new Set<number>([
       ...(lips === null ? [] : [lips.upper, lips.lower]),
+      ...(vermilion?.indices ?? []),
       ...scalp,
       ...auricles.left,
       ...auricles.right,
@@ -532,6 +575,7 @@ if (command === "identity") {
         auricles,
         mastoids,
         step: 0.0001,
+        lips: vermilion,
       });
       return FACE_UNSEEN_INDICES.map((one) => read[one.id]);
     };
@@ -574,41 +618,17 @@ if (command === "identity") {
       const measured = measureFaceAnthropometry(points);
       return ids.map((id) => measured[id]!);
     };
-    // The photograph's upper incisal edge where its mouth profile reads the
-    // edge itself, not a bound.
-    const rgb = photos.get(`photo:${subject}`)?.rgb;
-    const teeth =
-      rgb === undefined
-        ? null
-        : measureFaceLikenessTeeth(
-            readFaceLikenessImage(path.join(path.dirname(detectionFile!), rgb)),
-            photo.landmarks,
-          );
-    const photographed = measureFaceAnthropometry([
-      ...photo.landmarks.slice(0, 468),
-      teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
-      teeth?.lower?.relation === "at" ? teeth.lower.point : undefined,
-    ]);
-    // Each index's target: the photograph's departure from the start, as the
-    // detector reads it (with the render correction), over the gain the
-    // detector reads a change with under this camera (`faceInstrumentGains`),
-    // so the anchored model departs as far as the detector says the subject
-    // does. The anchors were placed where the detector reads the reference
-    // head, so at the start the two instruments agree.
-    const reference = frontal(initial);
+    const photographed = measureFaceAnthropometry(
+      observedPoints(
+        photos.get(`photo:${subject}`)!,
+        path.dirname(detectionFile!),
+      ),
+    );
     const target = Object.fromEntries(
-      ids.map((id, k) => {
-        if (photographed[id] === null) return [id, null];
-        const read = photographed[id]! + correction[id]!;
-        const start = reference[k];
-        const gain = gainOf(subject, id);
-        return [
-          id,
-          start === null || start === undefined || gain === 1
-            ? read
-            : start + (read - start) / gain,
-        ];
-      }),
+      ids.map((id) => [
+        id,
+        photographed[id] === null ? null : photographed[id]! + correction[id]!,
+      ]),
     );
     const controls = indices.map((one, k) => ({
       id: one.id,
@@ -629,14 +649,24 @@ if (command === "identity") {
         ? null
         : target[one.id]!,
     );
-    const unseenTargets = FACE_UNSEEN_INDICES.map(
-      (one) => norm?.[one.norm] ?? null,
+    // A reading standing in for a photograph's index holds only where the
+    // photograph does not measure that index: unobserved under its camera,
+    // or unread on it.
+    const unseenTargets = FACE_UNSEEN_INDICES.map((one) =>
+      one.photographed !== undefined &&
+      observed(subject, one.photographed) &&
+      photographed[one.photographed] !== null
+        ? null
+        : (norm?.[one.norm] ?? null),
     );
+    const active = unseenTargets.filter((one) => one !== null).length;
     // The two blocks are solved in turn (block Gauss-Seidel): the
     // photograph's indices exactly with the unseen controls where they
     // stand, then the most probable unseen form under the norms with the
     // photograph's controls where they stand (`solveFaceNorms`), until a
-    // sweep leaves the unseen block where it was. The photograph's
+    // sweep leaves the unseen block where it was to the precision a document
+    // records (five decimals: a change under half of one cannot change the
+    // document). The photograph's
     // measurements are met; the norms, a prior, fill what it does not show.
     // The blocks meet only through the depth a frontal camera hardly sees;
     // there is at most one sweep per unseen control.
@@ -665,13 +695,23 @@ if (command === "identity") {
         spreads: FACE_UNSEEN_INDICES.map((one) => one.spread),
         evaluate: (own) => unseen([...front, ...own]),
       });
-      moved = unseenSolution.values.some((v, j) => v !== standing[j]);
+      moved = unseenSolution.values.some(
+        (v, j) => Math.abs(v - standing[j]!) >= 5e-6,
+      );
       values = [...seen.values, ...unseenSolution.values];
       sweeps.push([seen.iterations, unseenSolution.iterations]);
-    } while (moved && sweeps.length < FACE_UNSEEN_INDICES.length);
+    } while (moved && sweeps.length < active);
     const shape = { ...start.shape };
     const posed = { ...start.expression };
     indices.forEach((one, k) => {
+      // A stand-in reading that did not hold leaves its channel to the
+      // photograph's index.
+      if (
+        k >= split &&
+        FACE_UNSEEN_INDICES[k - split]!.photographed !== undefined &&
+        unseenTargets[k - split] === null
+      )
+        return;
       for (const [channel, weight] of faceAnthropometryWeights(
         one,
         values[k]!,
@@ -690,8 +730,6 @@ if (command === "identity") {
           {
             photograph: photographed[id],
             observed: observed(subject, id),
-            start: reference[k] ?? null,
-            gain: gainOf(subject, id),
             correction: correction[id],
             model: seen.achieved[k],
             control: seen.values[k],
@@ -704,6 +742,7 @@ if (command === "identity") {
           one.id,
           {
             norm: norm?.[one.norm] ?? null,
+            target: unseenTargets[j],
             model: unseenSolution.achieved[j],
             control: unseenSolution.values[j],
             held: unseenSolution.held.includes(j),
@@ -810,23 +849,11 @@ if (command === "identity") {
     model: Record<string, number | null>;
   }>(path.join(study!, "instrument-model.json"));
   const renders = detections(detectionFile!);
-  // The detector's indices of each render, the incisal edges read from the
-  // render's own mouth profile as a photograph's are.
-  const detector = (id: string): Record<string, number | null> | null => {
+  // The points of each render as a photograph's are read (the incisal
+  // edges, the jaw's outline and the vermilion's borders included).
+  const pointsOf = (id: string) => {
     const one = renders.get(`inst:${id}`);
-    if (one?.face === undefined || one.face === null) return null;
-    const teeth =
-      one.path === undefined
-        ? null
-        : measureFaceLikenessTeeth(
-            readFaceLikenessImage(one.path),
-            one.face.landmarks,
-          );
-    return measureFaceAnthropometry([
-      ...one.face.landmarks.slice(0, 468),
-      teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
-      teeth?.lower?.relation === "at" ? teeth.lower.point : undefined,
-    ]);
+    return one?.face ? observedPoints(one, path.dirname(detectionFile!)) : null;
   };
   const readings = cameras.map((camera) => {
     const own = probes.filter((one) => one.camera === camera);
@@ -835,12 +862,26 @@ if (command === "identity") {
         const [lower, upper] = own
           .filter((one) => one.index === index)
           .sort((a, b) => a.value - b.value);
-        const read = [detector(lower!.id), detector(upper!.id)];
+        const points = [pointsOf(lower!.id), pointsOf(upper!.id)];
+        const read = points.map((one) =>
+          one === null ? null : measureFaceAnthropometry(one),
+        );
+        // What half a pixel of error in every point does to the reading, on
+        // the lower end's render.
+        const resolution =
+          points[0] === null
+            ? null
+            : (faceInstrumentResolution(points[0], measureFaceAnthropometry, {
+                sigma: 0.5,
+                draws: 64,
+                seed: 1,
+              })[index] ?? null);
         return {
           index,
           values: [lower!.value, upper!.value],
           model: [model[lower!.id] ?? null, model[upper!.id] ?? null],
           detector: [read[0]?.[index] ?? null, read[1]?.[index] ?? null],
+          resolution,
         };
       },
     );

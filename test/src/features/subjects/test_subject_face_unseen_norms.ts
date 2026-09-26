@@ -233,6 +233,7 @@ export const test_subject_face_unseen_norms = (): void => {
     earLengthRight: null,
     earProtrusionLeft: null,
     earProtrusionRight: null,
+    lowerVermilion: null,
   };
   TestValidator.equals(
     "unreadable",
@@ -257,6 +258,36 @@ export const test_subject_face_unseen_norms = (): void => {
       },
       { ...measured, cephalicIndex: null },
     ],
+  );
+  // The lips the strip's rows from the upper lip's swell (row 10, -20 mm)
+  // to labrale inferius (row 12, -36 mm), their contact pair row 11's two
+  // vertices (the seam at -30), the skin their border rows: 6 mm of lower
+  // vermilion over a mouth 2 mm wide.
+  const lipped = measureFaceUnseen({
+    positions,
+    indices,
+    ...options,
+    lips: {
+      indices: indices.slice(6 * 10, 6 * 12),
+      skin: new Set([20, 21, 24, 25]),
+      contact: { upper: 22, lower: 23 },
+    },
+  });
+  const unlipped = measureFaceUnseen({
+    positions,
+    indices,
+    ...options,
+    lips: {
+      indices: indices.slice(6 * 10, 6 * 12),
+      skin: new Set<number>(),
+      contact: { upper: 22, lower: 23 },
+    },
+  });
+  TestValidator.predicate(
+    "lower vermilion",
+    nclose(lipped.lowerVermilion!, 3, 1e-9) &&
+      measured.lowerVermilion === null &&
+      unlipped.lowerVermilion === null,
   );
   const cut = measureFaceUnseen({ ...strip(PROFILE.slice(5)), ...options });
   TestValidator.predicate(
