@@ -49,7 +49,7 @@
 @evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 이 공간 소유 지도는 settings 파일 소유 목록 자체를 다시 완성하는 host가 아니며, 각 공간은 설정 목록이 가리킨 실제 그래프·외피·실내·대지·관찰 target을 소비한다.
 @evidenceExcludeReview settings/40-environment.md#daylight #eac4028 창·roof·대지 표면의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 조명 수치는 systems에 남는다.
 @evidenceExcludeReview settings/35-objects.md#bench #4731814 벤치의 좌면과 받침을 주랑 바닥 표면으로 세지 않는 소유 경계를 확인했다
-@evidenceExcludeReview settings/35-objects.md#portable-lamp#2f26356 소형 등잔의 접촉 위치는 배치가 정하며 공간 표면 지도에 등잔 part를 더하지 않는다
+@evidenceExcludeReview settings/35-objects.md#portable-lamp #2f26356 소형 등잔의 접촉 위치는 배치가 정하며 공간 표면 지도에 등잔 part를 더하지 않는다
 @evidenceExcludeReview settings/35-objects.md#jar-rack #433211e 받침 홈과 다리는 모델에 남고 보관실 바닥은 독립 표면으로 남는다
 @evidenceExcludeReview settings/35-objects.md#carrying-yoke #7226d89 멜대의 걸침·하중을 공간 표면 지도에서 주장하지 않는다
 @evidenceExcludeReview settings/35-objects.md#handcart #58fa819 정지 손수레의 실제 놓임과 포장 접촉은 후속 배치에서 검증한다
