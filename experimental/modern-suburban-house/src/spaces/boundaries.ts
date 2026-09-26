@@ -8,7 +8,7 @@
  *
  * Inputs are a wall outline and holes in local (u, world-Y) metres, an axis
  * and thickness across world X or Z, and compiled convex space cells. Probe
- * points lie 0.05 m beyond either wall face. Segments split at each cell and
+ * points lie 1 mm beyond either wall face. Segments split at each cell and
  * void edge, then merge only while their two side IDs remain equal. A segment
  * with equal IDs on both sides is not a separating boundary. Consumers must
  * rebuild after any room cell, wall outline, or void changes.
@@ -29,11 +29,11 @@ const facePoint = (face: IWallFace, u: number, y: number, offset: number): IAuto
 
 /**
  * The logical spaces on the two sides of a wall face at (u, y): the room or
- * stair space containing a point 0.05 m beyond each face, or the site when a
+ * stair space containing a point 1 mm beyond each face, or the site when a
  * side lies in no room or stair.
  */
 const sidesAt = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace, u: number, y: number): readonly [string, string] => {
-  const half = (face.across[1] - face.across[0]) / 2 + 0.05;
+  const half = (face.across[1] - face.across[0]) / 2 + 0.001;
   const at = (offset: number): string => inner.find((s) => builtSpaceContainsPoint(s, facePoint(face, u, y, offset)))?.id ?? "house-site";
   return [at(-half), at(half)];
 };

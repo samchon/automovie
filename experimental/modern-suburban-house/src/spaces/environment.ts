@@ -632,7 +632,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
         const u = (seg.u[0] + seg.u[1]) / 2;
         const y = (seg.y[0] + seg.y[1]) / 2;
         const outward = seg.sides[0] === "house-site" ? -1 : 1;
-        const across = (face.across[0] + face.across[1]) / 2 + outward * ((face.across[1] - face.across[0]) / 2 + 0.05);
+        const across = (face.across[0] + face.across[1]) / 2 + outward * ((face.across[1] - face.across[0]) / 2 + 0.001);
         const witness = face.axis === "x" ? { x: u, y, z: across } : { x: across, y, z: u };
         const other = junctionBodies.find(({ part, box }) => part.id !== p.id &&
           (part.role === "partition" || (p.id.startsWith("stair-") && part.role === "floor" &&

@@ -161,7 +161,7 @@ export const mainRoof = (z: number): number => (z >= MAIN_RIDGE_Z
 /**
  * @evidence spaces/roof/00-junctions.md rightRoof resolves the lower right weather height on either side of the common ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses the rFront/rBack pair and cannot silently switch to the 8/12 main profile.
- * @evidence principles/core/source-units.md#source-substantive-completion The selected numeric height closes the stepped right wall and the garage shared-wall head.
+ * @evidence principles/core/source-units.md#source-substantive-completion The selected numeric height closes the low right wall; the garage shared-wall head follows garageRoof instead.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-roof parent fixes its two 7/12 halves and ridge, leaving no profile branch to invent.
  */
 export const rightRoof = (z: number): number => (z >= MAIN_RIDGE_Z

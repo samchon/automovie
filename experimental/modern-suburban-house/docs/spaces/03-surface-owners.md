@@ -4,8 +4,8 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 네 입면, 공유 벽, 지붕 경사면, 포치, 본채/차고 바닥·층간·천장 바탕, 계단, 포장과 울타리 패널·문기둥의 완결 면을 spaces source에 배정하고 별도 대문 문짝은 models에 넘기며 계산 파일의 역할을 구분한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 네 입면·공유 벽체·여덟 지붕 경사면·포치·1층/층간/차고 바탕·계단·네 포장·울타리 패널과 문기둥을 spaces 파일에 배정함을 대조했다. 대문 문짝·철물은 models/02에 별도 배정하고 building·junctions·openings·boundaries·site는 계산 역할로 구분한다.
-@evidence principles/core/common.md#substantive-completion 완결 면 또는 공유 경계마다 한 source 파일을 표로 정하고 building·roof/junctions·openings·boundaries·site 파일은 계산과 조립만 하게 한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 ‘완결 면 또는 공유 경계’마다 `src/spaces/...` 파일 하나를 적고 `building.ts`는 외곽·공유 좌표 조립, `roof/junctions.ts`는 교차 경계 산출로 한정해 source가 면 소유를 새로 정할 필요가 없음을 확인했다.
+@evidence principles/core/common.md#substantive-completion 완결 면마다 source owner를 정하고 본채/차고 공유 벽은 지붕 높이에 따라 garage와 right 두 파일에 배정하며 building·roof/junctions·openings·boundaries·site 파일은 계산과 조립만 하게 한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 완결 면의 source owner를 적고 공유 벽 행은 차고 지붕을 경계로 `garage.ts`와 `envelope/right.ts` 두 몸체를 적는지 대조했다. `building.ts`는 외곽·공유 좌표 조립, `roof/junctions.ts`는 교차 경계 산출로 한정한다.
 @evidence principles/core/common.md#declared-basis 배정 근거는 whole-surface-owner 계약이고 spaces source의 건물 골격은 실재하지만 model 충전 부재는 후속 분기라 표가 그 두 시점의 owner 경계임을 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표면 분해 인계와 완결 표면 계약 링크, 현재 spaces source의 골격과 아직 없는 model 충전 부재라는 두 시점을 본문에서 다시 대조했다. 충전 부재 면 census 완료로 확대하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 사전 분해 요구를 입면별·지붕 경사면별·포장별 파일로 나누고 종전의 포장 전체 한 파일 예약을 소스 저작 전에 보행면·차도·테라스로 쪼갠다.
@@ -32,7 +32,7 @@
 | 후면 전체 입면 | `src/spaces/envelope/rear.ts` | [본채 지붕 단차·차고 뒤 처마 아래의 후벽](envelope/rear.md#rear-roof-closures), 공용부 정원 출입과 상층 창의 벽 void·reveal. 닫힌 정원문·창호는 models가 만들며 테라스 때문에 벽을 숨기지 않는다. |
 | 왼쪽 전체 입면 | `src/spaces/envelope/left.ts` | [주 지붕 삼각 벽](envelope/left.md#left-roof-closure)과 [벽난로/굴뚝 접면](envelope/left.md#chimney-roof-interface), 창 둘레. |
 | 오른쪽 노출 입면 전체 | `src/spaces/envelope/right.ts` | [본채 지붕 단차·오른쪽 박공·차고 박공과 벽 접합](envelope/right.md#right-roof-closures). 가려진 공유 벽과 노출 면을 구별한다. |
-| 본채/차고 공유 벽체 | `src/spaces/garage.ts` · `src/spaces/envelope/right.ts` | 한 X/Z 구조 기준에서 차고 지붕 아래의 문 있는 벽체는 garage가, 지붕 위의 바깥 사이딩 벽체는 right가 맡는다. 두 몸체는 차고 지붕 아래면에서 만나며 그 높이에 노출 도장 면이나 틈을 남기지 않는다. 두 실 안쪽 면의 owner는 각 실이다. |
+| 본채/차고 공유 벽체 | `src/spaces/garage.ts` · `src/spaces/envelope/right.ts` | 한 X/Z 구조 기준에서 차고 지붕 윗면의 날씨선까지 문 있는 벽체는 garage가, 그 위의 바깥 사이딩 벽체는 right가 맡는다. 두 몸체는 그 날씨선에서 만나며 노출 도장 면이나 틈을 남기지 않는다. 두 실 안쪽 면의 owner는 각 실이다. |
 | 주 지붕 전방 경사면과 하부 | `src/spaces/roof/main-front.ts` | 전면 박공과 합류하는 골짜기 경계를 공유 지붕 교차 계산에서 받는다. |
 | 주 지붕 후방 경사면과 하부 | `src/spaces/roof/main-back.ts` | 주 용마루·후면 처마와 마감 경계를 소유한다. |
 | 전면 왼쪽 박공의 왼쪽 경사면·하부 | `src/spaces/roof/front-gable-left.ts` | 삼각 전면 벽과 왼쪽 처마·주 지붕 합류선. |

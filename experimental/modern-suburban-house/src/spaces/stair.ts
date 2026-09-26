@@ -84,7 +84,7 @@ export const STAIR_OPENING = {
  * @evidence spaces/02-stair.md One rise and run locate treads, connector stations, and the upper flight's coat split.
  * @evidence principles/core/source-units.md#source-scope-preservation These are stair coordinates, while entry owns the closet body.
  * @evidence principles/core/source-units.md#source-substantive-completion All stair consumers receive the same tread and landing arithmetic.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair design fixes 18 risers, 0.28 m run, and the seventh upper tread over the closet.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair design fixes 18 risers and 0.28 m run; the tread over the closet follows from those stations and the entry-owned body span.
  */
 export const STAIR_STEPS = {
   rise: STOREYS.upperFloor / 18,

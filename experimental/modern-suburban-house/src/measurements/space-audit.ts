@@ -12,6 +12,7 @@ import { deriveHouseObservations } from "../spaces/observations";
 import { verifyBoundarySegments } from "./boundary-audit";
 import { verifyBlindRecessFixtures } from "./recess-audit";
 import { auditHouseRoofOverlaps } from "./roof-overlap";
+import { verifyHouseSpaceDesign } from "./space-design";
 
 export interface IPartMeasure {
   id: string;
@@ -92,6 +93,7 @@ export const auditHouseGeometry = () => {
   verifyBlindRecessFixtures();
   const house = buildHouse();
   const environment = buildHouseEnvironment(house);
+  verifyHouseSpaceDesign(house, environment);
   const exteriorSupportSamples = verifyExteriorSupport(house, environment);
   const observations = deriveHouseObservations(environment, house);
   const parts = house.parts.map(measurePart);

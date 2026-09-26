@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 /**
- * Compare complete #1952 scene dumps from before and after the space-source repair.
+ * Compare complete #1952 scene dumps from before and after the v-136 repair.
  * The source-linked scene driver captures every part, room/reservation, environment
  * space/boundary/opening/connector, and observation. This gate rejects a deleted
- * element or any change outside the reviewed repair surface.
+ * element or any change outside that one reviewed repair surface. This frozen
+ * comparison is not a standing design invariant and is deliberately excluded
+ * from check:spaces. Run npm run regression:1952-repair only when replaying
+ * that repair against its committed pre-repair fixture; do not regenerate the
+ * fixture or widen the id list for a later design change.
  *
  * With no arguments the committed before scene is compared with a fresh build.
  * Two file arguments permit mutation probes against saved scene dumps.

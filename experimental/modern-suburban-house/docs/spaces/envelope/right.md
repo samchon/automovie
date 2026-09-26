@@ -28,7 +28,7 @@
 
 [단차 벽과 앞뒤 외벽의 공통 몸체](../07-boundary-assembly.md#exterior-boundary-junctions)는 높이별 점유로 나누고 이 파일이 그 몸체를 다시 만들지 않는다. 남은 단차 구간의 위아래 경계와 본채/차고 박공 벽의 [두께 전체 상단](../roof/00-junctions.md#roof-wall-head-junctions)을 함께 소비한다. 본채 공유 벽 위의 노출 면도 차고 지붕 때문에 생략하지 않는다.
 
-본채 오른쪽 외벽의 박공 삼각 벽은 [낮은 지붕의 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)에 맞춰 닫는다. 차고 오른쪽 외벽도 자기 Gfront/Gback 아래면에서 별도 삼각 벽을 만든다. 각 삼각 벽은 기존 외벽 두께 안에 있고 겹친 삼각 장식판으로 대체하지 않는다. 본채/차고 공유 벽체는 [차고 외곽](../00-building.md#attached-garage-extent)의 X = [5.50, 5.75] m 한 기준을 쓴다. 차고 지붕 아래의 문 있는 몸체는 `src/spaces/garage.ts`, 지붕 위의 노출 사이딩 몸체는 `src/spaces/envelope/right.ts`가 맡고 두 몸체는 지붕 아래면에서 맞닿는다.
+본채 오른쪽 외벽의 박공 삼각 벽은 [낮은 지붕의 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)에 맞춰 닫는다. 차고 오른쪽 외벽도 자기 Gfront/Gback 아래면에서 별도 삼각 벽을 만든다. 각 삼각 벽은 기존 외벽 두께 안에 있고 겹친 삼각 장식판으로 대체하지 않는다. 본채/차고 공유 벽체는 [차고 외곽](../00-building.md#attached-garage-extent)의 X = [5.50, 5.75] m 한 기준을 쓴다. 차고 지붕 윗면의 날씨선까지 문 있는 몸체는 `src/spaces/garage.ts`, 그 위의 노출 사이딩 몸체는 `src/spaces/envelope/right.ts`가 맡고 두 몸체는 그 날씨선에서 맞닿는다.
 
 차고 지붕의 왼쪽은 본채 공유 벽 바깥에 붙는다. 그 접촉 높이는 Gfront/Gback과 같으며, 후레싱이 벽을 따라 오르는 높이는 공간 예약 0.15 m로 택한다. 이 후레싱까지 포함한 접합 띠에는 창틀이나 환기구를 겹치지 않는다. 이 값은 방수 성능의 인증이 아니라 시각·기하 접합의 예약이다. [청회색 침실](../rooms/bedroom-three.md#bedroom-three-plan)의 요구 창은 전면에 있고 차고 위 측면에 창을 억지로 더할 필요는 없다. [욕조 욕실의 측면 창](#tub-right-window)은 차고 후면 돌출보다 뒤에 배정한다.
 

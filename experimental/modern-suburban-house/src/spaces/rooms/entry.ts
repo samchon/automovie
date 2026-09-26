@@ -77,7 +77,7 @@ const entrySpace = (): IRoomSpace => ({
 
 /**
  * @evidence spaces/rooms/entry.md The entry owns the coat body and opening consumed by the upper flight.
- * @evidence principles/core/source-units.md#source-scope-preservation This source fixes the closet, while stair-plan owns the overlying tread coordinates.
+ * @evidence principles/core/source-units.md#source-scope-preservation Entry fixes the closet top and opening but derives its body X from the stair's seventh upper tread station.
  * @evidence principles/core/source-units.md#source-substantive-completion The storage, wall shell, stair underside and cut opening share one top and span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The entry storage design already fixes its top and body extents.
  */
@@ -95,7 +95,7 @@ const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
  * @evidence spaces/rooms/entry.md This builder owns the L-shaped front-entry floor, its interrupted ceiling, and the under-stair coat closet.
  * @evidence spaces/rooms/entry.md#entry-plan ENTRY retains the six-corner outline and the stair waiting strip without creating a front-wall door body.
  * @evidence spaces/rooms/entry.md#entry-use-routes The entry mat, lower stair waiting, and floor under entry-living-door remain in the entry's own use area.
- * @evidence spaces/rooms/entry.md#entry-coat-storage A hollow storage record and two closet walls end under the upper flight at COAT_TOP.
+ * @evidence spaces/rooms/entry.md#entry-coat-storage A hollow storage record and two closet walls end under the upper flight at COAT_STORAGE.top.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair builder retains its flight and closet closure; this room emits only its allocated floor, ceiling, and two closet walls.
  * @evidence principles/core/source-units.md#source-substantive-completion The return includes a logical room, storage volume, and real finish/partition parts with stable identities.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The entry parent fixes its L outline, open stair ceiling, and closet contact; the builder needed no new exit or storage position.

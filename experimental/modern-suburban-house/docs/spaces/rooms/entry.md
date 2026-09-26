@@ -68,8 +68,8 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 외투장 몸통, entry-coat-opening, 겹쳐 미는 두 장, 1.65 m 봉과 2.00 m 선반, 앞쪽 사용 예약, 디딤 높이·구조 아래면 단면 확인이 각각 적혀 외투장 범위에 누락이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 몸통 X = [1.10, 1.75], Z = [-4.56, -3.51], Y = [0, 2.15] m, entry-coat-opening, 바닥 위 1.65 m 봉과 2.00 m 선반, 통로 쪽 돌출 X = 2.07 m 한계를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 몸통 X = [1.10, 1.75]·Z = [-4.56, -3.51]·Y = [0, 2.15], 개구부 Z = [-4.51, -3.56], 봉 +X 0.325 m·1.65 m, 선반 2.00 m, 돌출 X = 2.07 m 한계가 정해져 부재층이 장을 새로 정할 필요가 없음을 확인했다.
-@evidence principles/core/common.md#declared-basis 장 위치는 stair-reservation의 위 flight, 앞 사용은 use-profile에서 받고 계단 아래면의 권위는 계단 owner에 있다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 장 위치를 stair-reservation 위 flight 아래 높은 끝, 앞 사용을 use-profile 링크에서 받고 계단 아래면의 권위를 계단 owner에 둔다고 밝혀 각 치수의 근거를 가리킬 수 있음을 확인했다.
+@evidence principles/core/common.md#declared-basis 장의 X 위치는 stair-reservation의 일곱째 위쪽 디딤 시작점에서 파생하고 상단 Y = 2.15 m는 이 몸통 owner가 정한다. 앞 사용은 use-profile에서 받는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 장의 X는 stair-reservation 위 flight의 디딤에서 파생하고 상단 Y = 2.15 m는 이 H2가 정하며 앞 사용은 use-profile 링크에서 받는다는 본문을 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "현관 가까운 외투 수납은 닫힌 문 안"을 계단 아래 높은 끝의 깊이 0.65 m 장과 서비스 통로 쪽 겹쳐 미는 문으로 만든다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry의 '외투 수납은 닫힌 문 안'에 대해 위 flight 아래 X = [1.10, 1.75]의 깊이 0.65 m 몸통과 X = 2.02 m 면의 겹쳐 미는 두 장이라는 위치·문 방식 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 장은 현관에서 서비스 접근을 따라 닿고 서비스 통로 쪽 X = 2.02 m 면에 문을 두며 관통 바닥이나 뒤쪽 문이 없는 수납이다.
@@ -86,10 +86,10 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 storage의 직접 닿는 외투장과 entry의 닫힌 문 안 수납을 위 flight 아래 몸통과 서비스 띠 교대 사용 예약에 대조해 계단 owner 권위를 건드리지 않고 성립하여 부모 수정이 필요 없음을 확인했다.
 -->
 
-[현관](#entry-plan)에서 연결된 서비스 접근을 따라 닿는 [현관 가까운 외투 수납](../../settings/10-house.md#entry)인 외투장을 [위 flight](../02-stair.md#stair-reservation) 아래의 높은 끝에 둔다. 수납 몸통 예약은 X = [1.10, 1.75], Z = [-4.56, -3.51], Y = [0, 2.15] m다. 그 앞 X = [1.75, 2.02]는 장과 서비스 통로 사이의 열린 reveal로 잇는다. `entry-coat-opening`은 계단 아래 +X 끝의 X = [1.87, 2.02] 경계에 Z = [-4.51, -3.56], Y = [0, 2.15] m의 개구부를 만든다. 문 앞에 막힌 패널을 남겨 수납을 가리지 않는다.
+[현관](#entry-plan)에서 연결된 서비스 접근을 따라 닿는 [현관 가까운 외투 수납](../../settings/10-house.md#entry)인 외투장을 [위 flight](../02-stair.md#stair-reservation) 아래의 높은 끝에 둔다. 수납 몸통 예약은 X = [1.10, 1.75], Z = [-4.56, -3.51], Y = [0, 2.15] m다. X 시작점은 위 flight의 일곱째 디딤 시작점에서 0.07 m 안쪽으로, 몸통 끝은 거기서 0.65 m 뒤로 산출한다. 상단 Y = 2.15 m는 이 몸통의 owner 값으로 정하고 그 위 디딤 7–9의 구조 아래면이 이 값을 소비한다. 그 앞 X = [1.75, 2.02]는 장과 서비스 통로 사이의 열린 reveal로 잇는다. `entry-coat-opening`은 계단 아래 +X 끝의 X = [1.87, 2.02] 경계에 Z = [-4.51, -3.56], Y = [0, 2.15] m의 개구부를 만든다. 문 앞에 막힌 패널을 남겨 수납을 가리지 않는다.
 
 문은 서비스 통로에 맞춘 X = 2.02 m 면의 겹쳐 미는 두 장으로 택한다. 사람이 통과하는 방 문이 아니라 부분 개방으로 옷을 꺼내는 수납문이며, 깊이 0.65 m의 몸통에는 옷걸이·선반을 둔다. 옷을 뺀 빈 상자를 사람이 들어가는 방으로 사용하지 않는다. 관통 바닥이나 뒤쪽 문은 없다.
 
 봉은 몸통 뒤쪽 X 끝에서 +X로 0.325 m, 바닥 위 1.65 m에 두고 Z 방향으로 건다. 위 선반 상면은 2.00 m이며 옷/옷걸이를 포함한 점유는 기존 몸통 안에 둔다. 문/손잡이의 통로 쪽 최대 돌출은 X = 2.07 m까지다. 앞쪽 사용 예약은 X = [2.10, 2.70], Z = [-4.40, -3.65] m에서 -X를 향하며 몸 깊이는 X·폭은 Z에 적용한다. 장에서 옷을 꺼낼 때는 [서비스 띠](service.md#service-access-plan)의 일부를 쓰므로 다른 사람과 교대로 통과한다. 사용자가 물러난 뒤에는 닫힌/열린 미닫이 하드웨어와 맞은편 문선 뒤에도 [주 통로의 순폭 목표](../../settings/00-production.md#use-profile)가 남아야 한다. 실제 옷 깊이·두 문 겹침·계단 아래 단면·옷을 꺼내고 현관으로 돌아오는 경로는 unverified다.
 
-해당 위치의 계단 디딤 높이와 구조 아래면이 장 상단보다 높은지는 부재 단면으로 확인한다. 디딤 위치만으로 장이 들어간다고 확정하지 않는다. 장의 벽과 개구부 경계의 source 책임은 `src/spaces/rooms/entry.ts`, 문짝·봉·선반 원형은 [수납 부재](../../models/05-closet-fittings.md#coat-closet-doors), 계단 아래면의 권위는 계단 owner다. 현재 수납과 계단 구조 간섭 및 문 앞 사용 공간은 unverified다.
+해당 위치의 계단 디딤 높이와 구조 아래면이 장 상단보다 높은지는 부재 단면으로 확인한다. 디딤 위치만으로 장이 들어간다고 확정하지 않는다. 장의 벽·개구부·상단 높이의 source 책임은 `src/spaces/rooms/entry.ts`, 문짝·봉·선반 원형은 [수납 부재](../../models/05-closet-fittings.md#coat-closet-doors), 계단 디딤의 위치와 아래면 형상의 소유는 계단 owner다. 디딤 7–9의 아래면 높이는 이 장 상단 값을 소비한다. 현재 수납과 계단 구조 간섭 및 문 앞 사용 공간은 unverified다.

@@ -198,6 +198,34 @@ const overlapAt = (a: ISolid, b: ISolid, x: number, z: number): number => {
     : Math.max(0, Math.min(ay[1], by[1]) - Math.max(ay[0], by[0]));
 };
 
+/** A vertical closure is internal when its outward 1 cm probe enters another roof slab. */
+export const verifyRoofInternalFaces = (parts: readonly Pick<IHousePart, "id" | "mesh">[]): void => {
+  const shapes = parts.map((part) => solid(part.id, part.mesh));
+  const buried: string[] = [];
+  for (const shape of shapes) for (const face of shape.triangles) {
+    const { a, b, c } = face;
+    const nx = (b.y - a.y) * (c.z - a.z) - (b.z - a.z) * (c.y - a.y);
+    const ny = (b.z - a.z) * (c.x - a.x) - (b.x - a.x) * (c.z - a.z);
+    const nz = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    const magnitude = Math.hypot(nx, ny, nz);
+    if (magnitude < 1e-12 || Math.abs(ny / magnitude) > 1e-6) continue;
+    const centre = { x: (a.x + b.x + c.x) / 3, y: (a.y + b.y + c.y) / 3, z: (a.z + b.z + c.z) / 3 };
+    for (const direction of [-1, 1]) {
+      const x = centre.x + direction * 0.01 * nx / magnitude;
+      const z = centre.z + direction * 0.01 * nz / magnitude;
+      const own = occupied(shape, x, z);
+      if (own !== null && centre.y >= own[0] - 1e-6 && centre.y <= own[1] + 1e-6) continue;
+      for (const other of shapes) {
+        if (other === shape || x < other.x[0] || x > other.x[1] || z < other.z[0] || z > other.z[1]) continue;
+        const interval = occupied(other, x, z);
+        if (interval !== null && centre.y > interval[0] + 1e-6 && centre.y < interval[1] - 1e-6)
+          buried.push(`${shape.id} inside ${other.id} at ${JSON.stringify(centre)}`);
+      }
+    }
+  }
+  if (buried.length) throw new Error(`internal roof closure faces (${buried.length}):\n${buried.join("\n")}`);
+};
+
 /** Inspect each unordered pair on a cell-centred metric grid. */
 export const scanRoofOverlaps = (
   parts: readonly Pick<IHousePart, "id" | "mesh" | "openSharedEdges">[],
@@ -265,7 +293,9 @@ export const scanRoofOverlaps = (
 export const auditHouseRoofOverlaps = (): IRoofOverlapScan => {
   verifyRoofOverlapScanner();
   const house = buildHouse();
-  return scanRoofOverlaps(house.parts.filter((part) => part.role === "roof"));
+  const roof = house.parts.filter((part) => part.role === "roof");
+  verifyRoofInternalFaces(roof);
+  return scanRoofOverlaps(roof);
 };
 
 /** Pure fixtures run by every production roof audit, not an orphaned test file. */
@@ -290,6 +320,14 @@ export const verifyRoofOverlapScanner = (): void => {
     throw new Error(
       "roof overlap fixture: a shared face was counted as volume",
     );
+  let rejectedInternalFace = false;
+  try {
+    verifyRoofInternalFaces([a, touching]);
+  } catch (error) {
+    if (!String(error).includes("internal roof closure faces")) throw error;
+    rejectedInternalFace = true;
+  }
+  if (!rejectedInternalFace) throw new Error("roof internal-face fixture accepted a buried closure");
   if (scanRoofOverlaps([a, separate], 0.1).overlaps.length !== 0)
     throw new Error(
       "roof overlap fixture: separate boxes were counted as touching",

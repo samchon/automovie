@@ -51,6 +51,7 @@
     "docs-review-host": "node src/measurements/docs-review-host.cjs",
     "check": "node src/measurements/check.cjs",
     "check:spaces": "node src/measurements/check.cjs --layer=spaces",
+    "regression:1952-repair": "node src/measurements/scene-regression.cjs",
     "check:models": "node src/measurements/check.cjs --layer=models",
     "check:settings": "node src/measurements/check.cjs --layer=settings",
     "review-check": "node src/measurements/review-check.cjs"

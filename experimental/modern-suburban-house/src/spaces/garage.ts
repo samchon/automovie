@@ -9,7 +9,7 @@
  * floor base), `10-ground-floor.md#garage-ground-floor-base` (0.15 m below the
  * finished floor Y = -0.15) and `09-ceiling-assembly.md#garage-ceiling-closure`
  * (ceiling Y = 2.55 m plus the 0.18 m reservation). The shared wall stops at
- * the garage roof underside; the exposed siding above belongs to right.ts.
+ * the garage roof upper weather line; the exposed siding above belongs to right.ts.
  * This lower body carries the `laundry-garage-door` void
  * Z = [-4.40, -3.35], Y = [-0.175, 2.20] m owned by the laundry plan (the main
  * ground base and the laundry threshold fill it below Y = 0, 10). The garage
@@ -39,12 +39,12 @@ const OWNER = "garage.ts";
 /**
  * @evidence spaces/03-surface-owners.md The garage source emits the shared lower wall body and leaves the exposed upper siding to the right elevation.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall carries the laundry-garage-door void below the garage roof.
- * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and garageRoof underside; its returned part does not duplicate upper siding.
+ * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and the garageRoof upper weather line; its returned part does not duplicate upper siding.
  * @evidence principles/core/source-units.md#source-substantive-completion wallPanel constructs the sloped top and door hole, and part returns the wall with an interior finish palette.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed surface handoff splits the wall at the garage roof: garage retains the door body and right owns exposed siding.
  */
 export const buildGarageSharedWall = (): IHousePart[] => {
-  const under = (z: number): number => garageRoof(z);
+  const weatherLine = (z: number): number => garageRoof(z);
   const back = GARAGE.outer.z[0];
   const front = GARAGE.outer.z[1];
   const shared = wallPanel({
@@ -53,9 +53,9 @@ export const buildGarageSharedWall = (): IHousePart[] => {
     outline: [
       { u: back, y: EXTERIOR_WALL_BOTTOM },
       { u: front, y: EXTERIOR_WALL_BOTTOM },
-      { u: front, y: under(front) },
-      { u: GARAGE_RIDGE_Z, y: under(GARAGE_RIDGE_Z) },
-      { u: back, y: under(back) },
+      { u: front, y: weatherLine(front) },
+      { u: GARAGE_RIDGE_Z, y: weatherLine(GARAGE_RIDGE_Z) },
+      { u: back, y: weatherLine(back) },
     ],
     holes: [LAUNDRY_GARAGE_DOOR],
   });
