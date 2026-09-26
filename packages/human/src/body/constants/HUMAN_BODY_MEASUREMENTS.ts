@@ -74,11 +74,14 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
     pick: "max",
     horizontal: true,
   },
+  // from the midpoint, where ISO 8559-1 and ANSUR take the upper arm girth:
+  // nearer the shoulder, the plane across a heavy or muscular arm at rest
+  // runs into the armpit and cuts the arm and the trunk as one loop
   measureUpperarmCirc: {
     kind: "girth",
     from: "joint-l-shoulder",
     to: "joint-l-elbow",
-    range: [0.25, 0.75],
+    range: [0.5, 0.75],
     steps: 11,
     pick: "max",
     horizontal: false,

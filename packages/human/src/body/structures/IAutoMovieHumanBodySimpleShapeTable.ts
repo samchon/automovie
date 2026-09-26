@@ -28,6 +28,9 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     hipsMetres: [number, number];
     bustMetres: [number, number];
     shoulderMetres: [number, number];
+    thighMetres: [number, number];
+    upperArmMetres: [number, number];
+    calfMetres: [number, number];
   };
 
   /**
@@ -61,7 +64,14 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
 
   /** Optional tape measurements: the channel each is solved on, whose rule in `HUMAN_BODY_MEASUREMENTS` reads it. */
   measurements: {
-    parameter: "waistMetres" | "hipsMetres" | "bustMetres" | "shoulderMetres";
+    parameter:
+      | "waistMetres"
+      | "hipsMetres"
+      | "bustMetres"
+      | "shoulderMetres"
+      | "thighMetres"
+      | "upperArmMetres"
+      | "calfMetres";
     channel: string;
   }[];
 
