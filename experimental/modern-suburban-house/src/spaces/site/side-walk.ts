@@ -16,11 +16,12 @@ import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
 import { part, rect, slab, type IHousePart } from "../solids";
 import { driveTop, DRIVEWAY } from "./driveway";
-import { blendedRun, pavingHeightfield, WALK_DEPTH } from "./paving";
+import { blendedRun, pavingHeightfield, seamRect, WALK_DEPTH } from "./paving";
 import { LOWER_LANDING } from "./terrace";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 
 const OWNER = "site/side-walk.ts";
+const PATH_WIDTH = 1.2;
 
 /** Side path geometry, metres. */
 /**
@@ -30,9 +31,9 @@ const OWNER = "site/side-walk.ts";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The side-walk parent supplies width and cross-band reaches; LOWER_LANDING fixes the rear contact.
  */
 export const SIDE_WALK = {
-  x: [12.3, 13.5] as const,
-  frontBand: [5.1, 6.3] as const,
-  backBand: [LOWER_LANDING.z[0] - 1.2, LOWER_LANDING.z[0]] as const,
+  x: [GARAGE.outer.x[1] + 0.6, GARAGE.outer.x[1] + 0.6 + PATH_WIDTH] as const,
+  frontBand: [DRIVEWAY.z[1] - 1.4, DRIVEWAY.z[1] - 0.2] as const,
+  backBand: [LOWER_LANDING.z[0] - PATH_WIDTH, LOWER_LANDING.z[0]] as const,
   top: LOWER_LANDING.top,
 };
 
@@ -42,7 +43,7 @@ export const SIDE_WALK = {
  * @evidence spaces/site/side-walk.md#side-walk-plan Two flat slabs hold the lower landing height; the front connector blends from the driveway grade into that height.
  * @evidence spaces/site/side-walk.md#side-gate-interface Two named waiting zones straddle the gate plane taken from imported GARAGE bounds.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder returns paving and standing zones while the fence owner creates the gate posts and model owner the leaf.
- * @evidence principles/core/source-units.md#source-substantive-completion The three solid bands and two zone records are emitted with stable ids and shared end coordinates.
+ * @evidence principles/core/source-units.md#source-substantive-completion Three solid bands and three zone records (continuous walk and two gate waits) share their end coordinates.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk and gate parent units fix the three bands and waiting spans; source added no extra exterior path.
  */
 export const buildSideWalk = (): ISiteBuild => {
@@ -95,10 +96,11 @@ export const buildSideWalk = (): ISiteBuild => {
         : connectorHeight(x, z),
     patches: [
       {
-        outline: rect(SIDE_WALK.x, [
-          SIDE_WALK.backBand[0],
-          SIDE_WALK.frontBand[1],
-        ]),
+        outline: seamRect(
+          SIDE_WALK.x,
+          [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]],
+          [SIDE_WALK.frontBand],
+        ),
         anchor: { x: SIDE_WALK.x[0], y: s, z: SIDE_WALK.backBand[0] },
         rampTo: null,
       },
@@ -115,7 +117,11 @@ export const buildSideWalk = (): ISiteBuild => {
           z: SIDE_WALK.frontBand[0],
         },
         rampTo: { x: right, y: s, z: SIDE_WALK.frontBand[0] },
-        height: pavingHeightfield([left, right], SIDE_WALK.frontBand, connectorHeight),
+        height: pavingHeightfield(
+          [left, right],
+          SIDE_WALK.frontBand,
+          connectorHeight,
+        ),
       },
     ],
   };
@@ -125,7 +131,7 @@ export const buildSideWalk = (): ISiteBuild => {
     zone("side-rear-access", [gate - 2.8, gate - 1.3]),
   ];
   const parts: IHousePart[] = [
-    flat("side-walk-long", SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]]),
+    part("side-walk-long", OWNER, "paving", PALETTE.paving, slab({ outline: seamRect(SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]], [SIDE_WALK.frontBand]), bottom: s - WALK_DEPTH, top: s })),
     flat("side-walk-back", [LOWER_LANDING.x[0], SIDE_WALK.x[0]], SIDE_WALK.backBand),
     ...blendedRun({
       id: "side-walk-front-connector",

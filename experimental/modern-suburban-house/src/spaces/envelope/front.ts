@@ -72,7 +72,7 @@ export const GARAGE_FRONT_DOOR = {
  * @evidence spaces/envelope/front.md#garage-front-opening One wide garage-front-door void and the base beneath it leave room for the later single moving panel door.
  * @evidence principles/core/source-units.md#source-scope-preservation This source builds wall/reveal void geometry and threshold only; window frames, door leaves, and rails remain model work.
  * @evidence principles/core/source-units.md#source-substantive-completion The result includes main and garage wall solids, roof-contact wedges, six real voids, and a solid front threshold.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front parent specifies all wall heights, void extents, and threshold datum; no extra facade opening was needed.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-openings and garage-front-opening fix the facade void spans; 10-ground-floor.md#ground-threshold-junctions supplies their base bottoms and provisional wall bottom, so this builder needed no further opening.
  */
 export const buildFront = (): IHousePart[] => {
   const mainTop = mFront(FRONT) - ROOF_THICKNESS;

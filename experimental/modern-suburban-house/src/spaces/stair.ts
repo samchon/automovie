@@ -68,7 +68,9 @@ export const STAIR_OPENING = {
   back: -4.56,
   turnZ: -3.41,
   front: -0.25,
-  get guardBack() { return this.back - MAIN.partition; },
+  get guardBack() {
+    return this.back - MAIN.partition;
+  },
   get outline() {
     return [
       { x: this.west, z: this.back },
@@ -84,16 +86,22 @@ export const STAIR_OPENING = {
  * @evidence spaces/02-stair.md One rise and run locate the treads and upper flight's coat split; the rise also fixes the connector landing height.
  * @evidence principles/core/source-units.md#source-scope-preservation These are stair coordinates, while entry owns the closet body.
  * @evidence principles/core/source-units.md#source-substantive-completion Treads, landing, connector, and coat-start consumers read the relevant values from this record.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair design fixes 18 risers and 0.28 m run; the tread over the closet follows from those stations and the entry-owned body span.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work STAIR_STEPS exposed the reversed closet dependency; a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights so tread seven sets closet X and the undersides of treads 7-9 consume its Y=2.15 top.
  */
 export const STAIR_STEPS = {
   rise: STOREYS.upperFloor / 18,
   run: 0.28,
   lowerStartZ: -1.45,
   approachZ: -0.85,
-  get landingTop() { return this.rise * 8; },
-  upperTreadStart(number: number) { return STAIR_OPENING.turnX + this.run * (number - 1); },
-  get upperClosetStartX() { return this.upperTreadStart(7); },
+  get landingTop() {
+    return this.rise * 8;
+  },
+  upperTreadStart(number: number) {
+    return STAIR_OPENING.turnX + this.run * (number - 1);
+  },
+  get upperClosetStartX() {
+    return this.upperTreadStart(7);
+  },
 } as const;
 const RISE = STAIR_STEPS.rise;
 const RUN = STAIR_STEPS.run;
@@ -113,18 +121,46 @@ const HALL_GUARD = 1.05;
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair connector design already requires the landing centre and physical riser height.
  */
 export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
-  { x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2, y: STOREYS.groundFloor, z: STAIR_STEPS.approachZ },
-  { x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2, y: STOREYS.groundFloor, z: STAIR_STEPS.lowerStartZ },
-  { x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2, y: STAIR_STEPS.landingTop, z: STAIR_OPENING.turnZ },
-  { x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2, y: STAIR_STEPS.landingTop, z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2 },
-  { x: STAIR_OPENING.turnX, y: STAIR_STEPS.landingTop, z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2 },
-  { x: STAIR_OPENING.east, y: STOREYS.upperFloor, z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2 },
-  { x: STAIR_OPENING.east + 0.6, y: STOREYS.upperFloor, z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2 },
+  {
+    x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2,
+    y: STOREYS.groundFloor,
+    z: STAIR_STEPS.approachZ,
+  },
+  {
+    x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2,
+    y: STOREYS.groundFloor,
+    z: STAIR_STEPS.lowerStartZ,
+  },
+  {
+    x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2,
+    y: STAIR_STEPS.landingTop,
+    z: STAIR_OPENING.turnZ,
+  },
+  {
+    x: (STAIR_OPENING.west + STAIR_OPENING.turnX) / 2,
+    y: STAIR_STEPS.landingTop,
+    z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2,
+  },
+  {
+    x: STAIR_OPENING.turnX,
+    y: STAIR_STEPS.landingTop,
+    z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2,
+  },
+  {
+    x: STAIR_OPENING.east,
+    y: STOREYS.upperFloor,
+    z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2,
+  },
+  {
+    x: STAIR_OPENING.east + 0.6,
+    y: STOREYS.upperFloor,
+    z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2,
+  },
 ];
 /**
  * @evidence spaces/02-stair.md The landing station indexes the derived route's landing-centre point.
  * @evidence principles/core/source-units.md#source-scope-preservation The index refers to the stair-owned route without defining another landing.
- * @evidence principles/core/source-units.md#source-substantive-completion Observation and connector consumers read the same landing station.
+ * @evidence principles/core/source-units.md#source-substantive-completion The environment connector reads this route station to calculate landing.at on the main stair.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair design already specifies the landing as a route station.
  */
 export const STAIR_LANDING_STATION = 3;
@@ -139,7 +175,7 @@ export const STAIR_LANDING_STATION = 3;
  * @evidence spaces/02-stair.md#stair-boundary-heights Lower open guards, upper closed walls, closet opening, and 1.05 m hall guard are distinct height cases.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair owns flights, guards, and its edge finish, leaving the hollow coat storage interior and room floors to entry/upper-hall.
  * @evidence principles/core/source-units.md#source-substantive-completion Deterministic tread loops, walls, posts, rails, edge strips, and hall ceiling produce actual named solids.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair parent fixes flight counts, landing, closet passage, opening, and guards; no new connection or rise was chosen.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work buildStair's overCloset branch exposed a reversed vertical owner: a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights to make treads 7-9 consume the entry-owned Y=2.15 closet top.
  */
 export const buildStair = (): IHousePart[] => {
   const parts: IHousePart[] = [];
@@ -394,7 +430,11 @@ export const buildStair = (): IHousePart[] => {
       "guard",
       PALETTE.railing,
       block(
-        [STAIR_OPENING.turnX - RESERVE, landingTop, STAIR_OPENING.turnZ - RESERVE],
+        [
+          STAIR_OPENING.turnX - RESERVE,
+          landingTop,
+          STAIR_OPENING.turnZ - RESERVE,
+        ],
         [STAIR_OPENING.turnX, landingTop + HANDRAIL, STAIR_OPENING.turnZ],
       ),
     ),
@@ -461,7 +501,9 @@ export const buildStair = (): IHousePart[] => {
       const values = guard.mesh.positions.filter((_, i) => i % 3 === axis);
       const width = Math.max(...values) - Math.min(...values);
       if (width < 0.2 && Math.abs(width - RESERVE) > 1e-6)
-        throw new Error(`${guard.id}: guard section ${width.toFixed(4)} differs from the stair clearance reservation ${RESERVE.toFixed(4)}`);
+        throw new Error(
+          `${guard.id}: guard section ${width.toFixed(4)} differs from the stair clearance reservation ${RESERVE.toFixed(4)}`,
+        );
     }
   }
   return parts;

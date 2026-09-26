@@ -49,13 +49,23 @@ import { checkRouteNetwork } from "./routes";
 import { driveTop, DRIVEWAY } from "./site/driveway";
 import { FRONT_WALK } from "./site/front-walk";
 import { SIDE_WALK } from "./site/side-walk";
-import { LOWER_LANDING } from "./site/terrace";
+import { LOWER_LANDING, TERRACE_EDGE_Z } from "./site/terrace";
 import { PORCH_STEP_BACK_Z, PORCH_STEP_CENTRE_X } from "./porch";
-import { STAIR_LANDING_STATION, STAIR_OPENING, STAIR_ROUTE, STAIR_STEPS } from "./stair";
+import {
+  STAIR_LANDING_STATION,
+  STAIR_OPENING,
+  STAIR_ROUTE,
+  STAIR_STEPS,
+} from "./stair";
 import { COAT_STORAGE } from "./rooms/entry";
 import { ZONE_HEAD_CLEARANCE, type IExteriorZone } from "./site/zone";
 import type { IHousePart, IPlanPoint } from "./solids";
-import { CEILING_RESERVATION, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
+import {
+  CEILING_RESERVATION,
+  GROUND_LAYERS,
+  INTERSTOREY_FLOOR_FINISH,
+  STOREYS,
+} from "./storeys";
 
 /** Axis-aligned box, world metres. */
 interface IBox {
@@ -216,7 +226,11 @@ const containsMeshPoint = (part: IHousePart, point: IAutoMovieVector3): boolean 
   for (let i = 0; i < mesh.indices.length; i += 3) {
     const v = [0, 1, 2].map((k) => {
       const at = 3 * mesh.indices![i + k]!;
-      return { x: mesh.positions[at]!, y: mesh.positions[at + 1]!, z: mesh.positions[at + 2]! };
+      return {
+        x: mesh.positions[at]!,
+        y: mesh.positions[at + 1]!,
+        z: mesh.positions[at + 2]!,
+      };
     });
     const [a, b, c] = v as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
     const d = (b.z - c.z) * (a.x - c.x) + (c.x - b.x) * (a.z - c.z);
@@ -225,7 +239,9 @@ const containsMeshPoint = (part: IHousePart, point: IAutoMovieVector3): boolean 
     const w = ((c.z - a.z) * (point.x - c.x) + (a.x - c.x) * (point.z - c.z)) / d;
     if (u < -1e-7 || w < -1e-7 || u + w > 1 + 1e-7) continue;
     const y = u * a.y + w * b.y + (1 - u - w) * c.y;
-    if (y > point.y + 1e-7 && !hits.some((old) => Math.abs(old - y) < 1e-6)) hits.push(y);
+    if (y > point.y + 1e-7 && !hits.some((old) => Math.abs(old - y) < 1e-6)) hits.push(
+      y,
+    );
   }
   return hits.length % 2 === 1;
 };
@@ -327,8 +343,16 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
       "garden-terrace",
       "garden-lower-landing",
       [
-        { x: garden.anchor.x, y: zone("garden-terrace").anchor.y, z: -13.9 },
-        { x: garden.anchor.x, y: zone("garden-terrace").anchor.y, z: -14.4 },
+        {
+          x: garden.anchor.x,
+          y: zone("garden-terrace").anchor.y,
+          z: TERRACE_EDGE_Z + 0.5,
+        },
+        {
+          x: garden.anchor.x,
+          y: zone("garden-terrace").anchor.y,
+          z: TERRACE_EDGE_Z,
+        },
         { x: garden.anchor.x, y: garden.anchor.y, z: LOWER_LANDING.z[1] },
         { x: garden.anchor.x, y: garden.anchor.y, z: garden.anchor.z },
       ],
@@ -389,11 +413,11 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
  * Throws when the opening, its host face or its void is missing.
  */
 /**
- * @evidence spaces/06-openings.md openingAxis resolves an authored wall void to a world-space centre, outward normal, and beyond-face reach.
+ * @evidence spaces/06-openings.md openingAxis resolves an authored wall void to a world-space centre, local face normal, and beyond-face reach.
  * @evidence spaces/06-openings.md#external-opening-interface The reach includes half the host wall thickness plus 0.05 m for checking an exterior zone beyond the void.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads the existing opening profile and boundary face, without assigning a new door or window frame.
  * @evidence principles/core/source-units.md#source-substantive-completion Missing opening, face, or profile throws; otherwise quaternion rotation and origin yield world coordinates.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The opening parent supplies host, void, and sided exterior test; no extra opening location was inferred.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The external-opening-interface parent supplies the host wall and through-thickness void; this helper's bidirectional beyond-face probe adds no opening coordinate.
  */
 export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: string): { centre: IAutoMovieVector3; normal: IAutoMovieVector3; reach: number } => {
   const opening = environment.openings.find((o) => o.id === openingId);
@@ -487,7 +511,7 @@ export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void =
  * @evidence principles/core/source-units.md#source-scope-preservation It uses the imported house producer and geometry records, leaving new surfaces or material fills outside this assembly.
  * @evidence principles/core/source-units.md#source-substantive-completion It builds cells, surfaces, boundaries, openings, and connectors, then validates the record and route network before return.
  * @evidence obligations/design/space-sources.md#space-source-invalid-topology Unmapped part owners, invalid outlines, disconnected openings, or engine validation failures throw with concrete paths.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The handoff parent specifies the house/site/storey tree and geometric observations; assembly did not need a new room or route.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site-access-interface parent places exterior zones under ground-storey and the stair connector parent joins entry to upper hall; assembling those records exposed no missing space or passage.
  */
 export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment & {
   pendingMapGround: { parts: string[]; zones: string[] };
@@ -732,8 +756,12 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     surfaces,
     walkable: surfaces.map((s) => s.surface.id),
     pendingMapGround: {
-      parts: house.parts.filter((p) => p.pendingMapGround === "map-ground-pending").map((p) => p.id),
-      zones: house.zones.filter((z) => z.pendingMapGround === "map-ground-pending").map((z) => z.id),
+      parts: house.parts.filter((p) => p.pendingMapGround === "map-ground-pending").map(
+        (p) => p.id,
+      ),
+      zones: house.zones.filter((z) => z.pendingMapGround === "map-ground-pending").map(
+        (z) => z.id,
+      ),
     },
   };
   const validation = validateBuiltEnvironment({ environment });

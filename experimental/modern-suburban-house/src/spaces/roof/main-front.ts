@@ -83,7 +83,10 @@ export const buildMainFrontRoof = (): IHousePart[] => {
   const freeEdge = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean => {
     const x = (a.x + b.x) / 2;
     const z = (a.z + b.z) / 2;
-    const coincidentTiles = pieces.reduce((count, plan) => count + Number(plan.some((p, i) => onPlanEdge(x, z, p, plan[(i + 1) % plan.length]!))), 0);
+    const coincidentTiles = pieces.reduce(
+      (count, plan) => count + Number(plan.some((p, i) => onPlanEdge(x, z, p, plan[(i + 1) % plan.length]!))),
+      0,
+    );
     return coincidentTiles === 1 && roofFreeEdge(a, b);
   };
   return [
@@ -93,7 +96,6 @@ export const buildMainFrontRoof = (): IHousePart[] => {
       "roof",
       PALETTE.roof,
       slopedPlate({ plans: pieces, top, thickness: ROOF_THICKNESS, freeEdge }),
-      true,
     ),
   ];
 };

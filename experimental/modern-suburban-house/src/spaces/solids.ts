@@ -41,7 +41,7 @@ import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Interior roles distinguish room finishes, partitions, stair and guards.
  * @evidence principles/core/source-units.md#source-scope-preservation This role labels an assigned part without claiming its surface for the helper.
  * @evidence principles/core/source-units.md#source-substantive-completion The viewer can group every emitted structural or finish family.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already allocates these surface families; the label revises none.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff allocates walls, roofs, porch, paving and fence while interior-surface-handoff allocates room floors, ceilings and partitions; this role union labels their parts.
  */
 export type HousePartRole =
   | "wall"
@@ -64,58 +64,51 @@ export type HousePartRole =
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room parts keep their own floor, ceiling and partition ownership.
  * @evidence principles/core/source-units.md#source-scope-preservation The record carries an owner's geometry without making this helper the surface owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Identity, owner, role, colour, mesh and optional wall face reach consumers together.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The surface allocation already exists in the design documents.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns envelope and site bodies by source file and interior-surface-handoff assigns each room's finishes; IHousePart retains those owner ids with the meshes.
  */
 export interface IHousePart {
   /**
    * @evidence spaces/03-surface-owners.md Each part has a stable address for inspection.
    * @evidence principles/core/source-units.md#source-scope-preservation The id names an emitted part rather than a second owner.
    * @evidence principles/core/source-units.md#source-substantive-completion A unique id supports mesh and boundary census.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stable part addresses implement existing verification needs.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff requires each completed body to have one source owner, and the geometry census addresses garage-shared-wall and room floors by part id; this field keeps those emitted addresses.
    */
   id: string;
   /**
    * @evidence spaces/03-surface-owners.md The source path identifies the part's assigned surface author.
    * @evidence principles/core/source-units.md#source-scope-preservation The helper retains the caller's ownership rather than assigning itself.
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can trace every part to a source owner.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Owner allocation was settled in the design; this field records it.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns the lower garage shared wall to garage.ts and the upper siding to envelope/right.ts; owner preserves that split for each part.
    */
   owner: string;
   /**
    * @evidence spaces/03-surface-owners.md The role groups a surface part by its spatial function.
    * @evidence principles/core/source-units.md#source-scope-preservation Classification does not transfer ownership between room and envelope authors.
    * @evidence principles/core/source-units.md#source-substantive-completion Viewer and review census can separate walls, floors, roof and site parts.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The role set reflects the existing surface allocation.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff separates room finish from partition and exterior-surface-handoff separates roof from wall; role carries those distinctions into the viewer census.
    */
   role: HousePartRole;
   /**
    * @evidence spaces/03-surface-owners.md The surface owner supplies a blocking base colour with its part.
    * @evidence principles/core/source-units.md#source-scope-preservation The field is a flat source colour, leaving texture and optics to materials.
    * @evidence principles/core/source-units.md#source-substantive-completion The mesh has a reproducible visible colour for inspection.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Base-colour handoff follows the existing material boundary.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff keeps visible room finish with its room source while material optics belong to later material work; color supplies only the blocking palette value.
    */
   color: number;
   /**
    * @evidence spaces/03-surface-owners.md The assigned owner emits a world-space body for its surface.
    * @evidence principles/core/source-units.md#source-scope-preservation This field carries the caller's mesh rather than synthesizing another surface owner.
    * @evidence principles/core/source-units.md#source-substantive-completion Triangles, normals and indices reach the deterministic viewer.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already requires realized space bodies.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff requires actual envelope, roof and site bodies from their owners, and interior-surface-handoff requires room finish bodies; mesh transports each resulting geometry.
    */
   mesh: IAutoMovieMesh;
   /**
    * @evidence spaces/03-surface-owners.md A wall part may expose its opening-bearing boundary alongside the mesh.
    * @evidence principles/core/source-units.md#source-scope-preservation Only an emitted wall or partition supplies this face.
    * @evidence principles/core/source-units.md#source-substantive-completion Openings can be hosted on the same wall body that was cut.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Wall-face handoff implements the existing opening ownership split.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface places a rough door/window void in the boundary wall and leaves its fill to models; wall carries that cut face beside the emitting wall mesh.
    */
   wall?: IWallFace;
-  /**
-   * @evidence spaces/roof/main-front.md The completed front roof retains thickness at free outlines while shared ridge and valley seams omit internal closure faces.
-   * @evidence principles/core/source-units.md#source-scope-preservation The flag records a roof owner's junction choice and does not open other solids.
-   * @evidence principles/core/source-units.md#source-substantive-completion The flag records roof seam intent, while geometry audit independently checks every exposed boundary edge and rejects a missing free-edge face.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof junction design already disallows side faces on shared edges.
-   */
-  openSharedEdges?: boolean;
   /**
    * @evidence spaces/10-ground-floor.md Exposed wall closure and fence display may await actual map ground.
    * @evidence spaces/10-ground-floor.md#ground-support-handoff The marker distinguishes a temporary wall display bottom from structural support.
@@ -135,35 +128,35 @@ export interface IHousePart {
  * @evidence spaces/07-boundary-assembly.md#exterior-boundary-junctions Exterior junctions reuse the cut wall's face rather than a duplicate corner body.
  * @evidence principles/core/source-units.md#source-scope-preservation This record describes the caller's wall and does not own the room or facade.
  * @evidence principles/core/source-units.md#source-substantive-completion Axis, thickness, outline and void list define the inspection boundary.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Single-body boundary ownership was already specified by the parent design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership pairs each partition body with its void host, while exterior-boundary-junctions allows the garage/main wall's lower and upper bodies to carry separate faces.
  */
 export interface IWallFace {
   /**
    * @evidence spaces/07-boundary-assembly.md A wall boundary runs along one world horizontal axis.
    * @evidence principles/core/source-units.md#source-scope-preservation The axis describes the assigned wall's local frame only.
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can orient holes and boundary checks in that frame.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Axis convention follows the existing wall plan.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions gives each straight partition a horizontal run and exterior-boundary-junctions gives each facade a wall line; axis records whether that run is world X or Z.
    */
   axis: "x" | "z";
   /**
    * @evidence spaces/07-boundary-assembly.md The wall records its thickness across the running axis.
    * @evidence principles/core/source-units.md#source-scope-preservation This range is the caller's wall thickness, not a second boundary.
    * @evidence principles/core/source-units.md#source-substantive-completion It locates both faces of the one emitted wall body.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Wall thickness is already assigned in the boundary design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent reserves 0.25 m exterior walls and interior-boundary-junctions uses the assigned partition band; across carries both physical faces of the selected wall.
    */
   across: readonly [number, number];
   /**
    * @evidence spaces/07-boundary-assembly.md The outer panel trace remains available after cutting openings.
    * @evidence principles/core/source-units.md#source-scope-preservation The trace belongs to the existing emitted wall.
    * @evidence principles/core/source-units.md#source-substantive-completion It allows void and junction validation against full wall bounds.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The full wall boundary was already required for the planned openings.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership requires a partition body around its door void and front-openings requires complete facade around its windows; outline retains the pre-cut wall perimeter for both.
    */
   outline: readonly IWallPoint[];
   /**
    * @evidence spaces/07-boundary-assembly.md Door and window voids remain hosted by their cut wall.
    * @evidence principles/core/source-units.md#source-scope-preservation The list records cuts without creating door or window fills.
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can verify every actual opening against the wall mesh.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Opening host ownership is settled by the existing boundary contract.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface keeps each rough window or door void in its wall host, and interior-boundary-ownership keeps partition doors in their one body; holes records those cuts.
    */
   holes: readonly IWallHole[];
 }
@@ -174,21 +167,21 @@ export interface IWallFace {
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership Room partitions pair their physical body with the opening host.
  * @evidence principles/core/source-units.md#source-scope-preservation The pair stays under the caller's assigned wall owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry and opening-bearing face travel together.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already requires a single wall body at shared boundaries.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership requires one body per interior partition; exterior-boundary-junctions instead divide the main/garage contact into lower garage and upper siding bodies, which this interface can carry separately.
  */
 export interface IWallSolid {
   /**
    * @evidence spaces/07-boundary-assembly.md The wall's emitted body realizes the assigned boundary.
    * @evidence principles/core/source-units.md#source-scope-preservation The mesh belongs to the caller's wall owner.
    * @evidence principles/core/source-units.md#source-substantive-completion The boundary is actual geometry rather than a plan-only line.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The body follows the existing wall allocation.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership assigns each cut partition one emitted body and exterior-boundary-junctions divides the garage/main contact by height; mesh carries the body for one such assignment.
    */
   mesh: IAutoMovieMesh;
   /**
    * @evidence spaces/07-boundary-assembly.md The same emitted wall carries the face and its voids.
    * @evidence principles/core/source-units.md#source-scope-preservation The face does not assign a second wall author.
    * @evidence principles/core/source-units.md#source-substantive-completion Openings and junction checks can inspect the cut body's source face.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The host relationship was already specified for space boundaries.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface requires a rough void through its own host wall, and interior-boundary-ownership keeps a door void on its partition; face preserves that host relation beside mesh.
    */
   face: IWallFace;
 }
@@ -206,14 +199,14 @@ export interface IPlanPoint {
    * @evidence spaces/00-building.md World X places a plan point across the site.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the caller's authored X value.
    * @evidence principles/core/source-units.md#source-substantive-completion A horizontal coordinate is available to polygon builders.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The X frame follows the existing building design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes outer X=-5.75..5.75 and attached-garage-extent reaches X=11.70; this point field carries caller-supplied positions in that world X frame.
    */
   x: number;
   /**
    * @evidence spaces/00-building.md World Z places a plan point toward or away from the street.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the caller's authored Z value.
    * @evidence principles/core/source-units.md#source-substantive-completion A depth coordinate is available to polygon builders.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The Z frame follows the existing building design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes the rear/front Z=-10.70..0 wall lines while attached-garage-extent has its own front Z=-0.30; this field keeps the caller's world depth.
    */
   z: number;
 }
@@ -224,21 +217,21 @@ export interface IPlanPoint {
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions The trace supports continuous room corners and door heads.
  * @evidence principles/core/source-units.md#source-scope-preservation Coordinates describe the caller's wall only.
  * @evidence principles/core/source-units.md#source-substantive-completion Both running distance and height locate each outline vertex.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The wall outline realizes existing boundary geometry.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires a full height trace around each partition door and exterior-boundary-junctions requires sloped wall heads; IWallPoint carries their run/height vertices.
  */
 export interface IWallPoint {
   /**
    * @evidence spaces/07-boundary-assembly.md This point locates a vertex along the wall run.
    * @evidence principles/core/source-units.md#source-scope-preservation The value uses the assigned wall's local running axis.
    * @evidence principles/core/source-units.md#source-substantive-completion The outline can order corners and door notches.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The wall run is already fixed in the parent plan.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-openings locates door/window spans along X and left-openings locates them along Z; u carries the selected host wall's running coordinate.
    */
   u: number;
   /**
    * @evidence spaces/07-boundary-assembly.md This point locates a vertex at world height.
    * @evidence principles/core/source-units.md#source-scope-preservation The height follows the assigned wall datum.
    * @evidence principles/core/source-units.md#source-substantive-completion Head, sill and top vertices are explicit.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey and opening heights are already in the design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes floor/ceiling levels and front-openings fixes its window heads; y carries each authored wall vertex in world height.
    */
   y: number;
 }
@@ -249,42 +242,42 @@ export interface IWallPoint {
  * @evidence spaces/06-openings.md#external-opening-interface Exterior openings keep their structural host distinct from door/window models.
  * @evidence principles/core/source-units.md#source-scope-preservation This record cuts the assigned wall only and does not supply a model leaf.
  * @evidence principles/core/source-units.md#source-substantive-completion Id and four bounds locate a real rectangular cut.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already allocates opening voids to spaces sources.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface assigns the rough door/window cut to its wall source and leaves frames/leaves to models; IWallHole carries only that four-bound wall cut.
  */
 export interface IWallHole {
   /**
    * @evidence spaces/06-openings.md The opening retains a stable host-relative id.
    * @evidence principles/core/source-units.md#source-scope-preservation This names a void, not its later model fill.
    * @evidence principles/core/source-units.md#source-substantive-completion The environment can connect a compiled opening to its cut.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stable opening names serve the existing design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-openings names front-door and garage-front-opening names garage-front-door; id preserves the authored opening address through wall and environment assembly.
    */
   id: string;
   /**
    * @evidence spaces/06-openings.md The void starts at a position along its host wall.
    * @evidence principles/core/source-units.md#source-scope-preservation The start lies in the existing wall coordinate frame.
    * @evidence principles/core/source-units.md#source-substantive-completion The left edge participates in a measurable opening width.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The planned opening width and location already have a host.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes the garage door's left X=6.10 and front-openings fixes the entry door's left jamb; from carries whichever host's first running coordinate applies.
    */
   from: number;
   /**
    * @evidence spaces/06-openings.md The void ends at a position along its host wall.
    * @evidence principles/core/source-units.md#source-scope-preservation The end remains within the assigned wall run.
    * @evidence principles/core/source-units.md#source-substantive-completion Together with from, it fixes the cut width.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The planned opening span already exists in the design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes its right jamb X=11.10 and front-openings fixes the entry right jamb; to carries that host-owned end of the rough cut.
    */
   to: number;
   /**
    * @evidence spaces/06-openings.md The opening has a sill or threshold height.
    * @evidence principles/core/source-units.md#source-scope-preservation The lower edge describes a wall cut, not a separate threshold object.
    * @evidence principles/core/source-units.md#source-substantive-completion A floor-reaching opening can become a true bottom notch.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The threshold/sill relation was already specified for openings.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-threshold-junctions extends floor-reaching door voids into their base while living-front-window fixes its own sill above the floor; bottom carries that opening-specific lower edge.
    */
   bottom: number;
   /**
    * @evidence spaces/06-openings.md The opening has an explicit head height.
    * @evidence principles/core/source-units.md#source-scope-preservation The top edge belongs to the host wall cut.
    * @evidence principles/core/source-units.md#source-substantive-completion Header clearance can be checked against the wall top.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Head height follows the existing opening design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes its door head Y=2.15 and living-front-window fixes its window head; top carries each host's upper cut limit.
    */
   top: number;
 }
@@ -295,7 +288,7 @@ export interface IWallHole {
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
  * @evidence principles/core/source-units.md#source-substantive-completion It rejects nonpositive extents and returns a transformed closed box mesh.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Geometry conversion adds no new surface allocation to the parent.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns chimney and porch parts to their respective builders; block extrudes their supplied world corners without allocating another face owner.
  */
 export const block = (
   min: readonly [number, number, number],
@@ -386,11 +379,11 @@ export const wallPanel = (props: {
  * stands on the finished floor) cannot be a hole: it is cut as a notch of the
  * outline, so the panel stays one closed body on each side of the door. A void
  * that leaves the panel's length range or sits below its bottom is refused.
- * @evidence spaces/07-boundary-assembly.md Straight partitions and envelope runs retain their full face despite cut door voids.
+ * @evidence spaces/07-boundary-assembly.md Straight interior partitions retain their full face despite cut door voids.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions A floor-reaching door becomes a bottom notch while its face lists the same void.
  * @evidence principles/core/source-units.md#source-scope-preservation Callers set wall axis, span and holes; this helper changes no room allocation.
  * @evidence principles/core/source-units.md#source-substantive-completion It validates hole bounds, forms notches, and returns the wall mesh plus full boundary.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The construction implements already planned partitions and doors.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires floor-reaching partition doors to be real bottom notches and interior-boundary-ownership keeps one wall body; straightWall produces that cut body.
  */
 export const straightWall = (props: {
   axis: "x" | "z";
@@ -449,11 +442,11 @@ export const straightWall = (props: {
 /**
  * A horizontal slab: a plan polygon with optional plan holes between two heights.
  * @evidence spaces/08-floor-assembly.md Floor layers are extruded from owner-supplied plan outlines and heights.
- * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Structural and finish slabs share a plan but have distinct vertical intervals.
- * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions Optional holes leave the stair opening out of the same floor body.
+ * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Structural slabs use the notched MAIN.inner outline while finish slabs consume each room outline at their own vertical interval.
+ * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The stair opening reaches the front boundary and is cut as an outer-ring notch, not a closed interior hole.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller owns the polygon, cutouts and layer interval.
  * @evidence principles/core/source-units.md#source-substantive-completion Region extrusion creates a horizontal closed mesh with real plan holes.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Existing floor design assigns these layers and openings.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interstorey-floor-boundary assigns structural thickness below the upper floor and room finish to each room outline; interstorey-edge-junctions cuts the stair as an outer notch in the structural caller plan.
  */
 export const slab = (props: {
   outline: readonly IPlanPoint[];
@@ -482,7 +475,7 @@ export const slab = (props: {
  * @evidence spaces/00-building.md#main-building-extent This helper turns a given extent into a four-corner ring.
  * @evidence principles/core/source-units.md#source-scope-preservation It adds no width or location beyond the caller's values.
  * @evidence principles/core/source-units.md#source-substantive-completion Four ordered corners form a reusable rectangular plan outline.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent building extent is unchanged by ring construction.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes X=-5.75..5.75 and Z=-10.70..0 for its outer line; rect only orders whichever two axis intervals the caller supplies.
  */
 export const rect = (x: readonly [number, number], z: readonly [number, number]): IPlanPoint[] => [
   { x: x[0], z: z[0] },
@@ -685,9 +678,9 @@ export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish and partition parts keep the room's owner id.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper preserves caller identity, colour and geometry rather than selecting them.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns a complete part and carries a wall face when the solid has one.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Source-owner allocation is already defined in the design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff gives garage-shared-wall to garage.ts and the upper siding to envelope/right.ts; part carries each caller's id, owner, colour and geometry without reassigning it.
  */
-export const part = (id: string, owner: string, role: HousePartRole, color: number, solid: IAutoMovieMesh | IWallSolid, openSharedEdges = false): IHousePart =>
+export const part = (id: string, owner: string, role: HousePartRole, color: number, solid: IAutoMovieMesh | IWallSolid): IHousePart =>
   "face" in solid
     ? {
         id,
@@ -696,6 +689,5 @@ export const part = (id: string, owner: string, role: HousePartRole, color: numb
         color,
         mesh: solid.mesh,
         wall: solid.face,
-        openSharedEdges,
       }
-    : { id, owner, role, color, mesh: solid, openSharedEdges };
+    : { id, owner, role, color, mesh: solid };

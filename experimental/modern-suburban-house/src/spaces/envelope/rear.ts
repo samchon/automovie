@@ -66,11 +66,17 @@ export const PRIMARY_REAR_WINDOW = {
 
 /**
  * @evidence spaces/envelope/rear.md The family room rear window owns one rough opening.
- * @evidence principles/core/source-units.md#source-scope-preservation The room consumes this void only for its inward curtain reservation.
+ * @evidence principles/core/source-units.md#source-scope-preservation The common room uses this window span for its curtain and to stop the garden-door approach before the curtain; the wall cut remains here.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall cut and curtain derive from the same horizontal and vertical span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The rear facade already fixes this window.
  */
-export const FAMILY_REAR_WINDOW = { id: "family-rear-window", from: 2.75, to: 4.75, bottom: 0.75, top: 2.3 } as const;
+export const FAMILY_REAR_WINDOW = {
+  id: "family-rear-window",
+  from: 2.75,
+  to: 4.75,
+  bottom: 0.75,
+  top: 2.3,
+} as const;
 
 /** Emit the rear elevation walls. */
 /**

@@ -20,13 +20,15 @@
  * not complete and is reported as such.
  */
 import { GARAGE, MAIN } from "../building";
+import { CHIMNEY_CAP_OVERHANG } from "../envelope/left";
 import { PALETTE } from "../palette";
+import { CHIMNEY_PLAN } from "../roof/junctions";
 import { block, part, type IHousePart } from "../solids";
 import { SIDE_WALK } from "./side-walk";
 
 const OWNER = "site/fence.ts";
 const F = GARAGE.outer.z[1];
-const L = -7.0;
+const L = Math.min(CHIMNEY_PLAN.x[0] - CHIMNEY_CAP_OVERHANG, MAIN.outer.x[0]) - 0.6;
 const R = SIDE_WALK.x[1] + 0.35;
 const B = SIDE_WALK.backBand[0] - 0.35;
 const S = SIDE_WALK.top;

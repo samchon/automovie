@@ -38,6 +38,5 @@ export const buildRightFrontRoof = (): IHousePart[] => [
       thickness: ROOF_THICKNESS,
       freeEdge: roofFreeEdge,
     }),
-    true,
   ),
 ];

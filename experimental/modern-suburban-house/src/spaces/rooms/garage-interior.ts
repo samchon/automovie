@@ -22,7 +22,7 @@ const GARAGE_INTERIOR: IRoomSpace = {
   id: "garage",
   owner: "rooms/garage-interior.ts",
   storey: "ground-storey",
-  outline: box([5.75, 11.45], [-6.45, -0.55]),
+  outline: box(GARAGE.inner.x, GARAGE.inner.z),
   floor: PALETTE.concrete,
   levels: [STOREYS.garageFloor, STOREYS.garageCeiling],
   reservations: [

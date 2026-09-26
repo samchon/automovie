@@ -11,8 +11,8 @@
 
 import { buildDriveway } from "./site/driveway";
 import { buildFence } from "./site/fence";
-import { buildFrontWalk } from "./site/front-walk";
-import { buildSideWalk } from "./site/side-walk";
+import { buildFrontWalk, FRONT_WALK } from "./site/front-walk";
+import { buildSideWalk, SIDE_WALK } from "./site/side-walk";
 import { buildTerrace } from "./site/terrace";
 import type { ISiteBuild } from "./site/zone";
 
@@ -22,12 +22,12 @@ import type { ISiteBuild } from "./site/zone";
  * @evidence spaces/site/00-access.md#site-access-interface It gathers front walk, driveway, side walk, terrace, and fence without creating a terrain or outside street node.
  * @evidence principles/core/source-units.md#source-scope-preservation The assembly imports each owner as a value and retains its zones and parts instead of drawing a second paving surface.
  * @evidence principles/core/source-units.md#source-substantive-completion A fixed call and concatenation order makes the built site zones and solids deterministic on each build.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site-access parent allocates these five owners and leaves ground/network to maps; the assembly required no new parcel boundary.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface makes site.ts the assembly owner and 03-surface-owners.md#exterior-surface-handoff assigns the five paving/fence builders; their returned parts and zones required no new parcel boundary.
  */
 export const buildSite = (): ISiteBuild => {
   const builds = [
     buildFrontWalk(),
-    buildDriveway(),
+    buildDriveway(FRONT_WALK.connectorZ, SIDE_WALK.frontBand),
     buildSideWalk(),
     buildTerrace(),
   ];

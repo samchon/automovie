@@ -37,6 +37,5 @@ export const buildMainBackRoof = (): IHousePart[] => [
       thickness: ROOF_THICKNESS,
       freeEdge: roofFreeEdge,
     }),
-    true,
   ),
 ];

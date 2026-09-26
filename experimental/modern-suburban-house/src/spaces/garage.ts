@@ -68,7 +68,7 @@ export const buildGarageSharedWall = (): IHousePart[] => {
 /**
  * @evidence spaces/10-ground-floor.md This export builds the separate lower garage base under its finished floor.
  * @evidence spaces/10-ground-floor.md#garage-ground-floor-base Its slab extends beneath the front-door threshold while ending at the garage inner-wall limits elsewhere.
- * @evidence principles/core/source-units.md#source-scope-preservation The base stops at STOREYS.garageFloor; garage-interior owns the visible concrete finish above it.
+ * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor with a visible concrete top; garage-interior records the same floor level and emits the ceiling finish.
  * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and 0.15 m depth produce a closed garage-floor-base solid.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-floor parent fixes the lower datum, base depth, and front-door support; no extra slab edge was required.
  */

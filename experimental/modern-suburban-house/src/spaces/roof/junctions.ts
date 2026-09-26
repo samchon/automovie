@@ -69,7 +69,11 @@ export const SPLIT_X = 1.6;
  * @evidence principles/core/source-units.md#source-substantive-completion The endpoints and computed center give gable and valley calculations repeatable X coordinates.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The mass parent defines both wall ends and their centerline; this record required no additional gable width.
  */
-export const GABLE = { a: -5.75, b: -1.8, center: (-5.75 + -1.8) / 2 } as const;
+export const GABLE = (() => {
+  const a = -5.75;
+  const b = -1.8;
+  return { a, b, center: (a + b) / 2 } as const;
+})();
 
 /** Mid-plane of the main front and rear walls, where the main and right ridges run (roof-mass-allocation). */
 /**
@@ -129,7 +133,7 @@ export const rBack = (z: number): number => 5.95 + RIGHT_PITCH * (z - MAIN.outer
  * @evidence principles/core/source-units.md#source-substantive-completion Math.min produces the two symmetric rising slopes that both gable plane builders consume.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The gable profile parent specifies F(X) with the nearer-end minimum; no additional apex height was chosen.
  */
-export const gable = (x: number): number => 6.3 + GABLE_PITCH * Math.min(x - GABLE.a, GABLE.b - x);
+export const gable = (x: number): number => mFront(MAIN.outer.z[1]) + GABLE_PITCH * Math.min(x - GABLE.a, GABLE.b - x);
 /** Garage front face. */
 /**
  * @evidence spaces/roof/00-junctions.md gFront gives the low garage roof's front weather height.
@@ -186,6 +190,15 @@ export const garageRoof = (z: number): number => (z >= GARAGE_RIDGE_Z
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The profile parent fixes the front wall and 0.40 m reach; no new eave line was selected.
  */
 export const FRONT_EAVE_Z = MAIN.outer.z[1] + OVERHANG.main;
+/** Front edge of the gable candidate region, measured from its own overhang. */
+/**
+ * @evidence spaces/roof/00-junctions.md#roof-profile-datums The front gable candidate extends by its gable overhang from the front wall.
+ * @evidence spaces/roof/00-junctions.md The junction owner supplies the gable candidate's free front edge.
+ * @evidence principles/core/source-units.md#source-scope-preservation This edge belongs to the gable while FRONT_EAVE_Z remains the main roof edge.
+ * @evidence principles/core/source-units.md#source-substantive-completion The gable valley corners consume the gable reach instead of a duplicate main reach.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof-profile-datums parent defines the gable eave reach as 0.40 m.
+ */
+export const GABLE_EAVE_Z = MAIN.outer.z[1] + OVERHANG.gable;
 /** Back edge of the main and right roofs. */
 /**
  * @evidence spaces/roof/00-junctions.md BACK_EAVE_Z places the rear main/right eave behind the imported rear wall.
@@ -228,19 +241,19 @@ const valleyZ = (x: number): number => MAIN.outer.z[1] - GABLE_TO_MAIN_SLOPE * M
  */
 export const GABLE_CORNERS = (() => {
   // valleyZ(x) = FRONT_EAVE_Z  ⇒  min(x - a, b - x) = -(8/9) × FRONT_EAVE_Z
-  const reach = MAIN_TO_GABLE_SLOPE * (MAIN.outer.z[1] - FRONT_EAVE_Z);
+  const reach = MAIN_TO_GABLE_SLOPE * (MAIN.outer.z[1] - GABLE_EAVE_Z);
   return {
-    leftFoot: { x: GABLE.a + reach, z: FRONT_EAVE_Z },
-    rightFoot: { x: GABLE.b - reach, z: FRONT_EAVE_Z },
+    leftFoot: { x: GABLE.a + reach, z: GABLE_EAVE_Z },
+    rightFoot: { x: GABLE.b - reach, z: GABLE_EAVE_Z },
     apex: { x: GABLE.center, z: valleyZ(GABLE.center) },
-    ridgeFront: { x: GABLE.center, z: FRONT_EAVE_Z },
+    ridgeFront: { x: GABLE.center, z: GABLE_EAVE_Z },
   };
 })();
 
 /** Chimney body plan, cut from the main front face (envelope/left chimney-roof-interface). */
 /**
  * @evidence spaces/roof/00-junctions.md CHIMNEY_PLAN gives the main-front roof builder one rectangular notch to omit around the chimney.
- * @evidence principles/core/source-units.md#source-scope-preservation These X/Z ranges describe a roof cutout, not chimney masonry or a second roof slab.
+ * @evidence principles/core/source-units.md#source-scope-preservation The X/Z ranges place the chimney masonry and the matching main-roof cutout; they add no second roof slab.
  * @evidence principles/core/source-units.md#source-substantive-completion The two fixed intervals are consumed by main-front's four convex remainder plans.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The chimney interface parent specifies this cutout footprint, so the record needed no invented clearance.
  */

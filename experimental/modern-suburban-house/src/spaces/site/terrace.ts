@@ -12,6 +12,8 @@
  * waiting base −0.45 − 0.12 m (01-paving-support raised-platform-support).
  */
 import { PALETTE } from "../palette";
+import { MAIN } from "../building";
+import { GARDEN_DOOR } from "../envelope/rear";
 import { block, part, rect, type IHousePart } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
@@ -19,9 +21,22 @@ import { WALK_DEPTH } from "./paving";
 
 const OWNER = "site/terrace.ts";
 const TOP = STOREYS.groundFloor;
-const LOW = TOP - 3 * 0.15;
+const RISERS = 3;
+const RISE = 0.15;
+const TREAD = 0.3;
+const LOW = TOP - RISERS * RISE;
 const BOTTOM = LOW - WALK_DEPTH;
-const EDGE = -14.4;
+/** Rear edge of the raised terrace, shared with the step connector. */
+/**
+ * @evidence spaces/site/terrace.md#garden-terrace-plan The rear edge ends the raised terrace before the three descending risers.
+ * @evidence spaces/site/terrace.md The terrace owner locates the step departure at its raised rear edge.
+ * @evidence principles/core/source-units.md#source-scope-preservation The edge controls the terrace and its stair without adding another garden extent.
+ * @evidence principles/core/source-units.md#source-substantive-completion Step solids, lower landing, and connector consume one edge coordinate.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garden-terrace-plan parent fixes the rear edge at Z=-14.40 m.
+ */
+export const TERRACE_EDGE_Z = -14.4;
+const STEP_CENTRE_X = (GARDEN_DOOR.from + GARDEN_DOOR.to) / 2;
+const STEP_X = [STEP_CENTRE_X - 0.75, STEP_CENTRE_X + 0.75] as const;
 
 /** Lower landing extent, metres. */
 /**
@@ -32,8 +47,8 @@ const EDGE = -14.4;
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The landing parent fixes step count, tread reach, and wait depth; no extra lower platform was chosen.
  */
 export const LOWER_LANDING = {
-  x: [-0.75, 0.75] as const,
-  z: [EDGE - 0.6 - 1.2, EDGE - 0.6] as const,
+  x: STEP_X,
+  z: [TERRACE_EDGE_Z - (RISERS - 1) * TREAD - 1.2, TERRACE_EDGE_Z - (RISERS - 1) * TREAD] as const,
   top: LOW,
 };
 
@@ -54,18 +69,21 @@ export const buildTerrace = (): ISiteBuild => {
       OWNER,
       "paving",
       PALETTE.paving,
-      block([-1.8, BOTTOM, EDGE], [4.5, TOP, -10.7]),
+      block([-1.8, BOTTOM, TERRACE_EDGE_Z], [4.5, TOP, MAIN.outer.z[0]]),
     ),
   ];
-  for (let k = 1; k <= 2; ++k) {
-    const edge = EDGE - 0.3 * (k - 1);
+  for (let k = 1; k < RISERS; ++k) {
+    const edge = TERRACE_EDGE_Z - TREAD * (k - 1);
     parts.push(
       part(
         `garden-step-${k}`,
         OWNER,
         "paving",
         PALETTE.paving,
-        block([-0.75, BOTTOM, edge - 0.3], [0.75, TOP - 0.15 * k, edge]),
+        block(
+          [STEP_X[0], BOTTOM, edge - TREAD],
+          [STEP_X[1], TOP - RISE * k, edge],
+        ),
       ),
     );
   }
@@ -85,15 +103,23 @@ export const buildTerrace = (): ISiteBuild => {
     {
       id: "garden-terrace",
       owner: OWNER,
-      outline: rect([-1.8, 4.5], [EDGE, -10.7]),
-      anchor: { x: 0, y: TOP, z: -12 },
+      outline: rect([-1.8, 4.5], [TERRACE_EDGE_Z, MAIN.outer.z[0]]),
+      anchor: {
+        x: STEP_CENTRE_X,
+        y: TOP,
+        z: (TERRACE_EDGE_Z + MAIN.outer.z[0]) / 2,
+      },
       rampTo: null,
     },
     {
       id: "garden-lower-landing",
       owner: OWNER,
       outline: rect(LOWER_LANDING.x, LOWER_LANDING.z),
-      anchor: { x: 0, y: LOW, z: (LOWER_LANDING.z[0] + LOWER_LANDING.z[1]) / 2 },
+      anchor: {
+        x: STEP_CENTRE_X,
+        y: LOW,
+        z: (LOWER_LANDING.z[0] + LOWER_LANDING.z[1]) / 2,
+      },
       rampTo: null,
     },
   ];

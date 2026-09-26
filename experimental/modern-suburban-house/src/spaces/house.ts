@@ -124,7 +124,7 @@ export interface IHouse {
  * @evidence principles/core/source-units.md#source-substantive-completion It assembles four arrays, checks reservations, and throws on duplicate part or space ids before return.
  * @evidence obligations/design/space-sources.md#space-source-design-ownership Each emitted room, surface and zone comes from a value-imported reviewed owner; this assembler adds no new place, boundary or dimension.
  * @evidence obligations/design/space-sources.md#space-source-stable-identities Ordered builder calls and duplicate-id refusal preserve stable part, room, storage, and zone identities.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed owner and room units supplied their outputs; assembly exposed no missing house-space identity.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface places the main house, garage, porch, and exterior zones in one site, while room-route-network names the room nodes; buildHouse collects those owner outputs without adding a space identity.
  */
 export const buildHouse = (): IHouse => {
   const rooms = [
@@ -205,14 +205,22 @@ export const buildHouse = (): IHouse => {
     if (matches.length !== 1 || ["from", "to", "bottom", "top"].some((key) => Math.abs(Number(matches[0]?.[key as keyof typeof expected]) - Number(expected[key as keyof typeof expected])) > 1e-6))
       throw new Error(`door void ${expected.id} differs from its design owner`);
     if (expected.id === GARAGE_FRONT_DOOR.id) continue;
-    const host = parts.find((p) => p.wall?.holes.some((hole) => hole.id === expected.id));
-    const strips = parts.filter((p) => p.role === "floor" && p.id.includes(expected.id));
-    if (host?.wall === undefined || strips.length === 0) throw new Error(`door ${expected.id} has no wall or floor handoff`);
+    const host = parts.find((p) =>
+      p.wall?.holes.some((hole) => hole.id === expected.id),
+    );
+    const strips = parts.filter(
+      (p) => p.role === "floor" && p.id.includes(expected.id),
+    );
+    if (host?.wall === undefined || strips.length === 0) throw new Error(
+      `door ${expected.id} has no wall or floor handoff`,
+    );
     const ordinate = host.wall.axis === "x" ? 0 : 2;
     for (const strip of strips) {
       const values = strip.mesh.positions.filter((_, i) => i % 3 === ordinate);
       if (Math.abs(Math.min(...values) - expected.from) > 1e-6 || Math.abs(Math.max(...values) - expected.to) > 1e-6)
-        throw new Error(`door floor ${strip.id} differs from ${expected.id} void`);
+        throw new Error(
+          `door floor ${strip.id} differs from ${expected.id} void`,
+        );
     }
   }
   const hasVertex = (id: string, x: number, z: number): boolean => {
@@ -225,7 +233,10 @@ export const buildHouse = (): IHouse => {
     return false;
   };
   if (![GARAGE_FRONT_DOOR.from, GARAGE_FRONT_DOOR.to].every((x) =>
-    [GARAGE.inner.z[1], GARAGE.outer.z[1]].every((z) => hasVertex("garage-floor-base", x, z))))
+    [GARAGE.inner.z[1], GARAGE.outer.z[1]].every((z) =>
+      hasVertex("garage-floor-base", x, z),
+    ),
+  ))
     throw new Error("garage front floor does not follow its door void");
   const spaces = rooms.map((room) => room.space);
   checkReservations(spaces);

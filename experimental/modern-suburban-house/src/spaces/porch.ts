@@ -16,13 +16,26 @@
  * is derived from their gap so the roof does not float on the beam.
  */
 import { PALETTE } from "./palette";
+import { MAIN } from "./building";
 import { block, part, rect, slopedSlab, type IHousePart } from "./solids";
 import { STOREYS } from "./storeys";
 import { FRONT_DOOR } from "./rooms/entry";
 import type { IExteriorZone, ISiteBuild } from "./site/zone";
+import { WALK_DEPTH } from "./site/paving";
 
 const OWNER = "porch.ts";
-const PLATFORM_BOTTOM = STOREYS.frontWalk - 0.12;
+const PLATFORM_X = [-5.75, 2.2] as const;
+const PLATFORM_BOTTOM = STOREYS.frontWalk - WALK_DEPTH;
+const STEP_TREAD = 0.3;
+/** Half the 1.50 m stair width consumed by the front walk. */
+/**
+ * @evidence spaces/porch.md The porch's central access stair has an authored 1.50 m width.
+ * @evidence spaces/porch.md#porch-platform-access Its two tread sides stay 0.75 m from the front-door axis.
+ * @evidence principles/core/source-units.md#source-scope-preservation This width belongs to the porch stair, while the front walk imports it for alignment.
+ * @evidence principles/core/source-units.md#source-substantive-completion Steps and the continuous front-walk use one shared half-width.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access fixes the stair width at 1.50 m and front-walk-plan consumes it without a second path width.
+ */
+export const PORCH_STEP_HALF_WIDTH = 0.75;
 /**
  * @evidence spaces/porch.md The porch steps take their centre from the entry doorway rather than a second X coordinate.
  * @evidence spaces/porch.md#porch-platform-access Averaging FRONT_DOOR's two jambs keeps all three steps on the door axis.
@@ -54,7 +67,7 @@ export const PORCH_STEP_BACK_Z = 2.2;
  * @evidence principles/core/source-units.md#source-substantive-completion The derived Z bounds the first walk slab and its logical zone.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch and front-walk plans already specify the step depth and shared contact.
  */
-export const PORCH_STEP_FRONT_Z = PORCH_STEP_BACK_Z + 2 * 0.3;
+export const PORCH_STEP_FRONT_Z = PORCH_STEP_BACK_Z + 2 * STEP_TREAD;
 const porchRoof = (z: number): number => 3.5 - z / 4;
 
 /** Emit the porch platform, steps, columns, beam, packer and roof. */
@@ -73,13 +86,19 @@ export const buildPorch = (): ISiteBuild => {
       OWNER,
       "porch",
       PALETTE.porchFloor,
-      block([-5.75, PLATFORM_BOTTOM, 0], [2.2, STOREYS.porchFloor, 2.2]),
+      block(
+        [PLATFORM_X[0], PLATFORM_BOTTOM, MAIN.outer.z[1]],
+        [PLATFORM_X[1], STOREYS.porchFloor, PORCH_STEP_BACK_Z],
+      ),
     ),
   ];
   // Steps: tread k (k = 1, 2) lies k × 0.30 m in front of the porch edge at k risers below it.
-  const [sx0, sx1] = [PORCH_STEP_CENTRE_X - 0.75, PORCH_STEP_CENTRE_X + 0.75];
+  const [sx0, sx1] = [
+    PORCH_STEP_CENTRE_X - PORCH_STEP_HALF_WIDTH,
+    PORCH_STEP_CENTRE_X + PORCH_STEP_HALF_WIDTH,
+  ];
   for (let k = 1; k <= 2; ++k) {
-    const edge = PORCH_STEP_BACK_Z + 0.3 * (k - 1);
+    const edge = PORCH_STEP_BACK_Z + STEP_TREAD * (k - 1);
     parts.push(
       part(
         `porch-step-${k}`,
@@ -88,14 +107,14 @@ export const buildPorch = (): ISiteBuild => {
         PALETTE.porchFloor,
         block(
           [sx0, PLATFORM_BOTTOM, edge],
-          [sx1, STOREYS.porchFloor - PORCH_STEP_RISE * k, edge + 0.3],
+          [sx1, STOREYS.porchFloor - PORCH_STEP_RISE * k, edge + STEP_TREAD],
         ),
       ),
     );
   }
   for (let c = 0; c < 3; ++c) {
     const x = -5.4 + 3.65 * c;
-    const z = 1.975;
+    const z = 1.8 + 0.35 / 2;
     parts.push(
       part(
         `porch-column-${c}-base`,
@@ -126,7 +145,7 @@ export const buildPorch = (): ISiteBuild => {
       OWNER,
       "porch",
       PALETTE.trim,
-      block([-5.75, 2.45, 1.85], [2.2, 2.7, 2.1]),
+      block([PLATFORM_X[0], 2.45, 1.85], [PLATFORM_X[1], 2.7, 2.1]),
     ),
     part(
       "porch-beam-packer",
@@ -134,7 +153,7 @@ export const buildPorch = (): ISiteBuild => {
       "porch",
       PALETTE.trim,
       slopedSlab({
-        plan: rect([-5.75, 2.2], [1.85, 2.1]),
+        plan: rect(PLATFORM_X, [1.85, 2.1]),
         top: (_x, z) => porchRoof(z) - 0.22,
         floor: 2.7,
       }),
@@ -155,8 +174,12 @@ export const buildPorch = (): ISiteBuild => {
   const zone: IExteriorZone = {
     id: "front-porch",
     owner: OWNER,
-    outline: rect([-5.75, 2.2], [0, 2.2]),
-    anchor: { x: PORCH_STEP_CENTRE_X, y: STOREYS.porchFloor, z: 1.1 },
+    outline: rect(PLATFORM_X, [MAIN.outer.z[1], PORCH_STEP_BACK_Z]),
+    anchor: {
+      x: PORCH_STEP_CENTRE_X,
+      y: STOREYS.porchFloor,
+      z: PORCH_STEP_BACK_Z / 2,
+    },
     rampTo: null,
   };
   return { zones: [zone], parts };

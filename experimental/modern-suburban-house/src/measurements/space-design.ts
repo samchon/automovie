@@ -6,13 +6,23 @@
  */
 import { MAIN } from "../spaces/building";
 import { FRONT_WINDOWS } from "../spaces/envelope/front-windows";
-import { LIVING_LEFT_WINDOW } from "../spaces/envelope/left";
-import { FAMILY_REAR_WINDOW } from "../spaces/envelope/rear";
+import {
+  LIVING_LEFT_WINDOW,
+  PRIMARY_LEFT_WINDOW,
+} from "../spaces/envelope/left";
+import {
+  FAMILY_REAR_WINDOW,
+  PRIMARY_REAR_WINDOW,
+} from "../spaces/envelope/rear";
 import { FAMILY_RIGHT_WINDOW } from "../spaces/envelope/right";
-import type { buildHouseEnvironment } from "../spaces/environment";
+import { openingAxis, type buildHouseEnvironment } from "../spaces/environment";
 import type { buildHouse } from "../spaces/house";
-import { STAIR_OPENING, STAIR_STEPS } from "../spaces/stair";
-import { floorOf } from "../spaces/storeys";
+import {
+  STAIR_LANDING_STATION,
+  STAIR_OPENING,
+  STAIR_STEPS,
+} from "../spaces/stair";
+import { ceilingOf, floorOf } from "../spaces/storeys";
 
 type Range = readonly [number, number];
 export type Box = { x: Range; y?: Range; z: Range };
@@ -22,22 +32,28 @@ const same = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
 const sameRange = (a: Range | undefined, b: Range): boolean =>
   a !== undefined && same(a[0], b[0]) && same(a[1], b[1]);
 
-/** The route's turn must sit at the physical landing centre and eighth rise. */
+/** The approach, turn, departure, and upper arrival follow one landing station. */
 export const verifyStairLanding = (
   route: readonly { x: number; y: number; z: number }[],
-  opening: { west: number; turnX: number; back: number; turnZ: number },
+  opening: { west: number; turnX: number; east: number; back: number; turnZ: number },
   rise: number,
+  station: number,
 ): void => {
-  const turn = route[3];
-  if (
-    turn === undefined ||
-    !same(turn.x, (opening.west + opening.turnX) / 2) ||
-    !same(turn.y, rise * 8) ||
-    !same(turn.z, (opening.back + opening.turnZ) / 2)
-  )
-    throw new Error(
-      "stair connector turn differs from landing centre and eighth rise",
-    );
+  const x = (opening.west + opening.turnX) / 2;
+  const z = (opening.back + opening.turnZ) / 2;
+  const expected = [
+    { x, y: rise * 8, z: opening.turnZ },
+    { x, y: rise * 8, z },
+    { x: opening.turnX, y: rise * 8, z },
+    { x: opening.east, y: rise * 18, z },
+  ];
+  for (const [offset, point] of expected.entries()) {
+    const actual = route[station - 1 + offset];
+    if (actual === undefined || !same(actual.x, point.x) || !same(actual.y, point.y) || !same(actual.z, point.z))
+      throw new Error(
+        `stair connector station ${station - 1 + offset} differs from landing or upper arrival`,
+      );
+  }
 };
 
 /** Six room strips use the same void margin, head/floor margin and inner-face depth. */
@@ -45,7 +61,7 @@ export const verifyCurtainStrip = (
   id: string,
   actual: Box | undefined,
   window: Window,
-  floor: number,
+  bottom: number,
   axis: "x" | "z",
   innerFace: number,
   inward: -1 | 1,
@@ -59,14 +75,14 @@ export const verifyCurtainStrip = (
     actual === undefined ||
     !sameRange(actual[axis], span) ||
     !sameRange(actual[axis === "x" ? "z" : "x"], depth) ||
-    !sameRange(actual.y, [floor + 0.1, window.top + 0.12])
+    !sameRange(actual.y, [bottom, window.top + 0.12])
   )
     throw new Error(
       `${id}: curtain strip differs from its window void or floor`,
     );
 };
 
-/** Check all current-source consumers; new curtain reservations must join this census. */
+/** Check every window-backed curtain fixture in the current house census. */
 export const verifyHouseSpaceDesign = (
   house: ReturnType<typeof buildHouse>,
   environment: ReturnType<typeof buildHouseEnvironment>,
@@ -75,70 +91,61 @@ export const verifyHouseSpaceDesign = (
     (connector) => connector.id === "main-stair-connection",
   );
   if (stair === undefined) throw new Error("main stair connector is absent");
-  verifyStairLanding(stair.route, STAIR_OPENING, STAIR_STEPS.rise);
-  const strips = [
-    [
-      "living-front-curtain",
-      FRONT_WINDOWS.living,
-      "ground-storey",
-      "x",
-      MAIN.inner.z[1],
-      -1,
-    ],
-    [
-      "living-left-curtain",
-      LIVING_LEFT_WINDOW,
-      "ground-storey",
-      "z",
-      MAIN.inner.x[0],
-      1,
-    ],
-    [
-      "family-rear-curtain",
-      FAMILY_REAR_WINDOW,
-      "ground-storey",
-      "x",
-      MAIN.inner.z[0],
-      1,
-    ],
-    [
-      "family-right-curtain",
-      FAMILY_RIGHT_WINDOW,
-      "ground-storey",
-      "z",
-      MAIN.inner.x[1],
-      -1,
-    ],
-    [
-      "bedroom-two-front-curtain",
-      FRONT_WINDOWS.bedroomTwo,
-      "upper-storey",
-      "x",
-      MAIN.inner.z[1],
-      -1,
-    ],
-    [
-      "bedroom-three-front-curtain",
-      FRONT_WINDOWS.bedroomThree,
-      "upper-storey",
-      "x",
-      MAIN.inner.z[1],
-      -1,
-    ],
-  ] as const;
-  for (const [id, window, storey, axis, face, inward] of strips) {
-    const room = house.spaces.find((space) =>
-      space.reservations?.some((reservation) => reservation.id === id),
-    );
-    const reservation = room?.reservations?.find((item) => item.id === id);
-    verifyCurtainStrip(
-      id,
-      reservation,
-      window,
-      floorOf(storey),
-      axis,
-      face,
-      inward,
-    );
+  verifyStairLanding(
+    stair.route,
+    STAIR_OPENING,
+    STAIR_STEPS.rise,
+    STAIR_LANDING_STATION,
+  );
+  const windows = [
+    ...Object.values(FRONT_WINDOWS),
+    LIVING_LEFT_WINDOW,
+    PRIMARY_LEFT_WINDOW,
+    FAMILY_REAR_WINDOW,
+    PRIMARY_REAR_WINDOW,
+    FAMILY_RIGHT_WINDOW,
+  ];
+  for (const room of house.spaces) for (const reservation of room.reservations ?? []) {
+    if (reservation.id.endsWith("-curtain")) {
+      if (reservation.kind !== "fixture") throw new Error(
+        `${reservation.id}: curtain must reserve a fixture`,
+      );
+      const openingId = reservation.id.replace(/-curtain$/, "-window");
+      const window = windows.find((candidate) => candidate.id === openingId);
+      if (window === undefined) throw new Error(
+        `${reservation.id}: no window export`,
+      );
+      const { centre, normal } = openingAxis(environment, openingId);
+      const axis = Math.abs(normal.z) > Math.abs(normal.x) ? "x" : "z";
+      const frontOrRight = axis === "x"
+        ? centre.z > (MAIN.outer.z[0] + MAIN.outer.z[1]) / 2
+        : centre.x > (MAIN.outer.x[0] + MAIN.outer.x[1]) / 2;
+      const face = axis === "x"
+        ? frontOrRight
+          ? MAIN.inner.z[1]
+          : MAIN.inner.z[0]
+        : frontOrRight
+          ? MAIN.inner.x[1]
+          : MAIN.inner.x[0];
+      const inward: -1 | 1 = frontOrRight ? -1 : 1;
+      const bottom = room.id === "primary-bedroom"
+        ? window.bottom - 0.75
+        : floorOf(room.storey) + 0.1;
+      verifyCurtainStrip(
+        reservation.id,
+        reservation,
+        window,
+        bottom,
+        axis,
+        face,
+        inward,
+      );
+    }
+    if (reservation.id.endsWith("-curtain-rail")) {
+      if (reservation.kind !== "fixture" || !sameRange(reservation.y, [floorOf(room.storey) + 0.6, ceilingOf(room.storey)]))
+        throw new Error(
+          `${reservation.id}: bathroom curtain rail differs from its floor and ceiling`,
+        );
+    }
   }
 };

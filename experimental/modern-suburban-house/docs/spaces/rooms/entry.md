@@ -74,8 +74,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry의 '외투 수납은 닫힌 문 안'에 대해 위 flight 아래 X = [1.10, 1.75]의 깊이 0.65 m 몸통과 X = 2.02 m 면의 겹쳐 미는 두 장이라는 위치·문 방식 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 장은 현관에서 서비스 접근을 따라 닿고 서비스 통로 쪽 X = 2.02 m 면에 문을 두며 관통 바닥이나 뒤쪽 문이 없는 수납이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 외투장이 현관에서 이어진 서비스 접근을 따라 닿고 X = [1.75, 2.02] reveal과 X = 2.02 m 면의 문으로만 열리며 관통 바닥·뒤쪽 문이 없는 막힌 수납이라는 연결 관계를 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 계단 아래면은 계단 owner, 외투장 벽·개구부는 src/spaces/rooms/entry.ts, 미닫이 문짝·봉·선반은 models/05-closet-fittings.md에 배정한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 entry.ts의 실제 부재가 외투장 벽 두 개와 바닥·천장뿐이고 문짝·봉·선반이 없음을 대조했다. 계단 아래면의 구조 높이는 여전히 unverified다.
+@evidence principles/design/spaces.md#space-boundary-authority 외투장 상단 Y = 2.15 m와 벽·개구부는 src/spaces/rooms/entry.ts, 디딤 7–9의 위치·아래면 형상은 계단 owner에 둔다. 계단 아래면 높이는 외투장 상단을 소비하고 미닫이 문짝·봉·선반은 models/05-closet-fittings.md에 배정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 entry.ts의 외투장 벽·바닥·천장과 stair.ts의 디딤 7–9 아래면이 entry의 상단 Y = 2.15 m를 소비하는 방향을 대조했다. 문짝·봉·선반은 entry.ts에 없고 실제 수납과 계단 구조의 간섭은 여전히 unverified다.
 @evidence principles/design/spaces.md#space-verification-address 실제 옷 깊이, 두 문 겹침, 계단 아래 단면, 옷을 꺼내고 현관으로 돌아오는 경로를 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 실제 옷 깊이, 두 문 겹침, 계단 아래 단면, 옷을 꺼내고 현관으로 돌아오는 경로를 외투장 예약의 반증 관찰로 열거하고 수납·계단 간섭을 unverified로 둔 것을 확인했다.
 @evidence settings/10-house.md#storage 현관 외투장을 쓰는 공간에서 직접 닿고 숨은 통로가 되지 않는 수납으로 만든다.
@@ -83,7 +83,7 @@
 @evidence settings/00-production.md#use-profile 앞쪽 사용 예약 X = [2.10, 2.70], Z = [-4.40, -3.65] m에서 사람 깊이를 X·폭을 Z에 적용하고 사용자가 물러난 뒤 주 통로 순폭을 요구한다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe 앞 사용 X = [2.10, 2.70]의 0.60 m를 점유체 깊이 0.45 m에, Z = [-4.40, -3.65]의 0.75 m를 폭 0.60 m에 대조하고 물러난 뒤 하드웨어·문선 사이 주 통로 순폭을 요구함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 쓰는 공간에서 직접 닿는 외투장과 entry의 닫힌 문 안 외투 수납을 대조했고 서비스 통로 쪽 겹쳐 미는 두 문과 깊이 0.65 m 몸통으로 성립해 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 storage의 직접 닿는 외투장과 entry의 닫힌 문 안 수납을 위 flight 아래 몸통과 서비스 띠 교대 사용 예약에 대조해 계단 owner 권위를 건드리지 않고 성립하여 부모 수정이 필요 없음을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 storage의 직접 닿는 닫힌 외투 수납을 위 flight 아래 몸통·서비스 띠의 교대 사용 예약에 대조했다. 디딤 7–9가 외투장 상단 높이를 소비하도록 한 설계 개정은 rooms/entry.md#entry-coat-storage와 02-stair.md#stair-boundary-heights에 기록되어 있으며 설정 storage의 수정은 필요 없었다.
 -->
 
 [현관](#entry-plan)에서 연결된 서비스 접근을 따라 닿는 [현관 가까운 외투 수납](../../settings/10-house.md#entry)인 외투장을 [위 flight](../02-stair.md#stair-reservation) 아래의 높은 끝에 둔다. 수납 몸통 예약은 X = [1.10, 1.75], Z = [-4.56, -3.51], Y = [0, 2.15] m다. X 시작점은 위 flight의 일곱째 디딤 시작점에서 0.07 m 안쪽으로, 몸통 끝은 거기서 0.65 m 뒤로 산출한다. 상단 Y = 2.15 m는 이 몸통의 owner 값으로 정하고 그 위 디딤 7–9의 구조 아래면이 이 값을 소비한다. 그 앞 X = [1.75, 2.02]는 장과 서비스 통로 사이의 열린 reveal로 잇는다. `entry-coat-opening`은 계단 아래 +X 끝의 X = [1.87, 2.02] 경계에 Z = [-4.51, -3.56], Y = [0, 2.15] m의 개구부를 만든다. 문 앞에 막힌 패널을 남겨 수납을 가리지 않는다.

@@ -12,7 +12,10 @@
  * logical space under `house-site` from the ground up to
  * `ZONE_HEAD_CLEARANCE`, and into a standable surface.
  */
-import type { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieHeightRule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { IHousePart, IPlanPoint } from "../solids";
 
 /** One outdoor zone of the site. */
@@ -36,7 +39,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md `owner` carries the source path of the paving that supplies this standing area.
    * @evidence principles/core/source-units.md#source-scope-preservation The field points to an existing site or porch author and does not transfer surface authorship.
    * @evidence principles/core/source-units.md#source-substantive-completion A required owner string lets buildHouseEnvironment report and place each zone deterministically.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The access parent allocates each paving owner; this field needed no new surface assignment.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 03-surface-owners.md#exterior-surface-handoff assigns front-walk, driveway, side-walk, and terrace their own paving; this owner field preserves those returned names.
    */
   owner: string;
   /** Plan outline, world X/Z metres, axis-aligned edges. */
@@ -121,7 +124,7 @@ export interface ISiteBuild {
    * @evidence spaces/site/00-access.md `parts` carries actual paving or fence solids from the site owner.
    * @evidence principles/core/source-units.md#source-scope-preservation The array retains each part's owner id instead of reconstructing a merged site mesh.
    * @evidence principles/core/source-units.md#source-substantive-completion A required IHousePart list gives house assembly concrete geometry to lower.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site parent allocates each surface to a source owner; the array preserves those parts.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns the front walk, drive, side walk, and terrace their own paving bodies; parts collects those emitted IHousePart records without claiming their faces.
    */
   parts: IHousePart[];
 }

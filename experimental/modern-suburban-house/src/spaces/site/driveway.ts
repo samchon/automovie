@@ -10,9 +10,11 @@
  * No vehicle is authored.
  */
 import { PALETTE } from "../palette";
+import { GARAGE_FRONT_DOOR } from "../envelope/front";
+import { GARAGE } from "../building";
 import { part, rect, slopedSlab } from "../solids";
 import { STOREYS } from "../storeys";
-import { DRIVE_DEPTH } from "./paving";
+import { DRIVE_DEPTH, seamRect } from "./paving";
 import type { ISiteBuild } from "./zone";
 
 /** Driveway extent, metres. */
@@ -22,7 +24,10 @@ import type { ISiteBuild } from "./zone";
  * @evidence principles/core/source-units.md#source-substantive-completion Fixed X/Z tuples give driveTop and the slab one repeatable plan.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent specifies the widened opening and Z end, so the plan needed no additional road edge.
  */
-export const DRIVEWAY = { x: [5.9, 11.3] as const, z: [-0.3, 6.5] as const };
+export const DRIVEWAY = {
+  x: [GARAGE_FRONT_DOOR.from - 0.2, GARAGE_FRONT_DOOR.to + 0.2] as const,
+  z: [GARAGE.outer.z[1], 6.5] as const,
+};
 
 /** Driveway top at Z. */
 /**
@@ -44,7 +49,7 @@ export const driveTop = (z: number): number => {
  * @evidence principles/core/source-units.md#source-substantive-completion One stable paving part and ramped zone are returned in a fixed structure.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent fixes width, gradient endpoints, and base depth; this builder needed no new site contact.
  */
-export const buildDriveway = (): ISiteBuild => ({
+export const buildDriveway = (frontConnectorZ: readonly [number, number], sideConnectorZ: readonly [number, number]): ISiteBuild => ({
   zones: [
     {
       id: "driveway",
@@ -69,7 +74,12 @@ export const buildDriveway = (): ISiteBuild => ({
       "paving",
       PALETTE.concrete,
       slopedSlab({
-        plan: rect(DRIVEWAY.x, DRIVEWAY.z),
+        plan: seamRect(
+          DRIVEWAY.x,
+          DRIVEWAY.z,
+          [frontConnectorZ],
+          [sideConnectorZ],
+        ),
         top: (_x, z) => driveTop(z),
         thickness: DRIVE_DEPTH,
       }),

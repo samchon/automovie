@@ -40,15 +40,22 @@ export const MAIN = {
  * @evidence spaces/00-building.md GARAGE stores the attached garage's shared-wall and free-wall coordinates.
  * @evidence spaces/00-building.md#attached-garage-extent Its outer X begins at 5.50 and inner X at 5.75, preserving the one wall shared with the main body.
  * @evidence principles/core/source-units.md#source-scope-preservation GARAGE supplies only garage bounds and its wall reserve; it does not create a second main-building wall.
- * @evidence principles/core/source-units.md#source-substantive-completion The outer/inner coordinate tuples and 0.25 m reserve are consumed by garage and roof builders.
+ * @evidence principles/core/source-units.md#source-substantive-completion The shared-wall inner face follows MAIN while the three free inner faces derive from the garage outer bounds and 0.25 m reserve.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The attached-garage parent specifies the shared edge and three outer walls, so the record needed no new contact rule.
  */
-export const GARAGE = {
-  outer: { x: [5.5, 11.7] as const, z: [-6.7, -0.3] as const },
-  inner: { x: [5.75, 11.45] as const, z: [-6.45, -0.55] as const },
-  /** Exterior wall reservation of the three garage-only walls. */
-  wall: 0.25,
-} as const;
+export const GARAGE = (() => {
+  const wall = 0.25;
+  const outer = { x: [MAIN.inner.x[1], 11.7] as const, z: [-6.7, -0.3] as const };
+  return {
+    outer,
+    inner: {
+      x: [MAIN.outer.x[1], outer.x[1] - wall] as const,
+      z: [outer.z[0] + wall, outer.z[1] - wall] as const,
+    },
+    /** Exterior wall reservation of the three garage-only walls. */
+    wall,
+  } as const;
+})();
 
 /**
  * Provisional bottom of exterior wall faces: the front walk datum −0.45 m, the

@@ -102,7 +102,9 @@ interface IBoundaryEdge {
 }
 
 const edgeKey = (a: IPoint, b: IPoint): string => {
-  const key = (p: IPoint): string => [p.x, p.y, p.z].map((n) => Math.round(n * 1e6)).join(",");
+  const key = (p: IPoint): string => [p.x, p.y, p.z].map((n) => Math.round(n * 1e6)).join(
+    ",",
+  );
   return [key(a), key(b)].sort((x, y) => x.localeCompare(y)).join("|");
 };
 
@@ -110,10 +112,16 @@ const roofBoundaryEdges = (parts: readonly Pick<IHousePart, "id" | "mesh">[]): I
   const result: IBoundaryEdge[] = [];
   for (const part of parts) {
     const { mesh } = part;
-    if (mesh.indices === null) throw new Error(`${part.id}: roof has no triangle indices`);
+    if (mesh.indices === null) throw new Error(
+      `${part.id}: roof has no triangle indices`,
+    );
     const edges = new Map<string, { count: number; a: IPoint; b: IPoint }>();
     for (let i = 0; i < mesh.indices.length; i += 3) {
-      const triangle = [mesh.indices[i]!, mesh.indices[i + 1]!, mesh.indices[i + 2]!];
+      const triangle = [
+        mesh.indices[i]!,
+        mesh.indices[i + 1]!,
+        mesh.indices[i + 2]!,
+      ];
       for (let j = 0; j < 3; j++) {
         const a = point(mesh, triangle[j]!);
         const b = point(mesh, triangle[(j + 1) % 3]!);
@@ -125,14 +133,22 @@ const roofBoundaryEdges = (parts: readonly Pick<IHousePart, "id" | "mesh">[]): I
     }
     for (const edge of edges.values()) {
       if (edge.count > 2) throw new Error(`${part.id}: non-manifold roof edge`);
-      if (edge.count === 1) result.push({ owner: part.id, a: edge.a, b: edge.b });
+      if (edge.count === 1) result.push({
+        owner: part.id,
+        a: edge.a,
+        b: edge.b,
+      });
     }
   }
   return result;
 };
 
 const dot = (a: IPoint, b: IPoint): number => a.x * b.x + a.y * b.y + a.z * b.z;
-const sub = (a: IPoint, b: IPoint): IPoint => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+const sub = (a: IPoint, b: IPoint): IPoint => ({
+  x: a.x - b.x,
+  y: a.y - b.y,
+  z: a.z - b.z,
+});
 const length = (p: IPoint): number => Math.hypot(p.x, p.y, p.z);
 
 /** Refuse every exposed roof edge that has no coincident tile or neighbouring roof plane. */
@@ -166,7 +182,9 @@ export const verifyRoofBoundaryPairs = (parts: readonly Pick<IHousePart, "id" | 
       `${edge.owner}: ${JSON.stringify(edge.a)} to ${JSON.stringify(edge.b)}`,
     );
   }
-  if (unpaired.length) throw new Error(`unpaired roof boundaries (${unpaired.length}):\n${unpaired.join("\n")}`);
+  if (unpaired.length) throw new Error(
+    `unpaired roof boundaries (${unpaired.length}):\n${unpaired.join("\n")}`,
+  );
 };
 
 /** Return the height between upper and lower roof faces under a vertical probe. */
@@ -209,7 +227,11 @@ export const verifyRoofInternalFaces = (parts: readonly Pick<IHousePart, "id" | 
     const nz = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
     const magnitude = Math.hypot(nx, ny, nz);
     if (magnitude < 1e-12 || Math.abs(ny / magnitude) > 1e-6) continue;
-    const centre = { x: (a.x + b.x + c.x) / 3, y: (a.y + b.y + c.y) / 3, z: (a.z + b.z + c.z) / 3 };
+    const centre = {
+      x: (a.x + b.x + c.x) / 3,
+      y: (a.y + b.y + c.y) / 3,
+      z: (a.z + b.z + c.z) / 3,
+    };
     for (const direction of [-1, 1]) {
       const x = centre.x + direction * 0.01 * nx / magnitude;
       const z = centre.z + direction * 0.01 * nz / magnitude;
@@ -219,16 +241,20 @@ export const verifyRoofInternalFaces = (parts: readonly Pick<IHousePart, "id" | 
         if (other === shape || x < other.x[0] || x > other.x[1] || z < other.z[0] || z > other.z[1]) continue;
         const interval = occupied(other, x, z);
         if (interval !== null && centre.y > interval[0] + 1e-6 && centre.y < interval[1] - 1e-6)
-          buried.push(`${shape.id} inside ${other.id} at ${JSON.stringify(centre)}`);
+          buried.push(
+            `${shape.id} inside ${other.id} at ${JSON.stringify(centre)}`,
+          );
       }
     }
   }
-  if (buried.length) throw new Error(`internal roof closure faces (${buried.length}):\n${buried.join("\n")}`);
+  if (buried.length) throw new Error(
+    `internal roof closure faces (${buried.length}):\n${buried.join("\n")}`,
+  );
 };
 
 /** Inspect each unordered pair on a cell-centred metric grid. */
 export const scanRoofOverlaps = (
-  parts: readonly Pick<IHousePart, "id" | "mesh" | "openSharedEdges">[],
+  parts: readonly Pick<IHousePart, "id" | "mesh">[],
   step = 0.01,
 ): IRoofOverlapScan => {
   if (!(Number.isFinite(step) && step > 0)) throw new Error(
@@ -327,7 +353,9 @@ export const verifyRoofOverlapScanner = (): void => {
     if (!String(error).includes("internal roof closure faces")) throw error;
     rejectedInternalFace = true;
   }
-  if (!rejectedInternalFace) throw new Error("roof internal-face fixture accepted a buried closure");
+  if (!rejectedInternalFace) throw new Error(
+    "roof internal-face fixture accepted a buried closure",
+  );
   if (scanRoofOverlaps([a, separate], 0.1).overlaps.length !== 0)
     throw new Error(
       "roof overlap fixture: separate boxes were counted as touching",
@@ -358,9 +386,15 @@ export const verifyRoofOverlapScanner = (): void => {
     if (!String(error).includes("unpaired roof boundaries")) throw error;
     rejectedStepMutant = true;
   }
-  if (withoutStepClosure.every((part) => part.mesh.indices!.length === roof.find((old) => old.id === part.id)!.mesh.indices!.length))
-    throw new Error("roof boundary fixture did not remove the roof step closure");
-  if (!rejectedStepMutant) throw new Error("roof boundary fixture accepted the missing step closure");
+  if (withoutStepClosure.every(
+    (part) => part.mesh.indices!.length === roof.find((old) => old.id === part.id)!.mesh.indices!.length,
+  ))
+    throw new Error(
+      "roof boundary fixture did not remove the roof step closure",
+    );
+  if (!rejectedStepMutant) throw new Error(
+    "roof boundary fixture accepted the missing step closure",
+  );
   try {
     scanRoofOverlaps([{ id: "open", mesh: open }], 0.1);
   } catch (error) {

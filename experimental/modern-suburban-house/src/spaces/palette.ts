@@ -16,7 +16,7 @@
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners can distinguish floor, ceiling, partition and stair base colours.
  * @evidence principles/core/source-units.md#source-scope-preservation This palette supplies flat source colours; materials owns images, optical values and repetition.
  * @evidence principles/core/source-units.md#source-substantive-completion The emitted parts have named base colours for all surface families in this blocking pass.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already allocates surface ownership; these colours do not revise a boundary or room.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns siding and brick to envelope owners and interior-surface-handoff assigns room finishes to room owners; this colour table changes neither assignment nor boundary.
  */
 export const PALETTE = {
   siding: 0xebe5d8,

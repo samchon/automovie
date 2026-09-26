@@ -30,6 +30,15 @@ import { block, part, wallPanel, type IHousePart } from "../solids";
 import { STOREYS } from "../storeys";
 
 const OWNER = "envelope/left.ts";
+/** Chimney cap projection beyond each side of the masonry body (chimney-roof-interface). */
+/**
+ * @evidence spaces/envelope/left.md#chimney-roof-interface The cap projects 0.10 m beyond the chimney body on each side.
+ * @evidence spaces/envelope/left.md The left elevation owns the projecting chimney cap that bounds the fence setback.
+ * @evidence principles/core/source-units.md#source-scope-preservation The cap projection belongs to the left elevation and is consumed by the fence setback.
+ * @evidence principles/core/source-units.md#source-substantive-completion A shared offset places both cap faces and the fence outside the farthest masonry.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The chimney-roof-interface parent fixes the 0.10 m cap projection that this exported value shares.
+ */
+export const CHIMNEY_CAP_OVERHANG = 0.1;
 const B = EXTERIOR_WALL_BOTTOM;
 const ACROSS = [MAIN.outer.x[0], MAIN.inner.x[0]] as const;
 const under = (z: number): number => mainRoof(z) - ROOF_THICKNESS;
@@ -55,7 +64,13 @@ export const PRIMARY_LEFT_WINDOW = {
  * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and curtain share the same host span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left elevation already fixes this window.
  */
-export const LIVING_LEFT_WINDOW = { id: "living-left-window", from: -5.5, to: -4.3, bottom: 0.75, top: 2.3 } as const;
+export const LIVING_LEFT_WINDOW = {
+  id: "living-left-window",
+  from: -5.5,
+  to: -4.3,
+  bottom: 0.75,
+  top: 2.3,
+} as const;
 
 /** Emit the left gable wall panels and the chimney. */
 /**
@@ -93,10 +108,7 @@ export const buildLeft = (): IHousePart[] => {
       { u: MAIN_RIDGE_Z, y: under(MAIN_RIDGE_Z) },
       { u: back, y: under(back) },
     ],
-    holes: [
-      LIVING_LEFT_WINDOW,
-      PRIMARY_LEFT_WINDOW,
-    ],
+    holes: [LIVING_LEFT_WINDOW, PRIMARY_LEFT_WINDOW],
   });
   return [
     part("left-wall-front", OWNER, "wall", PALETTE.siding, frontPanel),
@@ -117,8 +129,16 @@ export const buildLeft = (): IHousePart[] => {
       "chimney",
       PALETTE.railing,
       block(
-        [CHIMNEY_PLAN.x[0] - 0.1, 8.9, chimneyBack - 0.1],
-        [CHIMNEY_PLAN.x[1] + 0.1, 9.1, chimneyFront + 0.1],
+        [
+          CHIMNEY_PLAN.x[0] - CHIMNEY_CAP_OVERHANG,
+          8.9,
+          chimneyBack - CHIMNEY_CAP_OVERHANG,
+        ],
+        [
+          CHIMNEY_PLAN.x[1] + CHIMNEY_CAP_OVERHANG,
+          9.1,
+          chimneyFront + CHIMNEY_CAP_OVERHANG,
+        ],
       ),
     ),
     part(

@@ -16,8 +16,12 @@ import { part, rect, slab, type IHousePart } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 import { driveTop, DRIVEWAY } from "./driveway";
-import { blendedRun, pavingHeightfield, WALK_DEPTH } from "./paving";
-import { PORCH_STEP_CENTRE_X, PORCH_STEP_FRONT_Z } from "../porch";
+import { blendedRun, pavingHeightfield, seamRect, WALK_DEPTH } from "./paving";
+import {
+  PORCH_STEP_CENTRE_X,
+  PORCH_STEP_FRONT_Z,
+  PORCH_STEP_HALF_WIDTH,
+} from "../porch";
 
 const OWNER = "site/front-walk.ts";
 
@@ -30,8 +34,8 @@ const OWNER = "site/front-walk.ts";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front-walk plan fixes the far end and T band while the porch supplies the near contact.
  */
 export const FRONT_WALK = {
-  x: [PORCH_STEP_CENTRE_X - 0.75, PORCH_STEP_CENTRE_X + 0.75] as const,
-  z: [PORCH_STEP_FRONT_Z, 6.5] as const,
+  x: [PORCH_STEP_CENTRE_X - PORCH_STEP_HALF_WIDTH, PORCH_STEP_CENTRE_X + PORCH_STEP_HALF_WIDTH] as const,
+  z: [PORCH_STEP_FRONT_Z, DRIVEWAY.z[1]] as const,
   connectorZ: [4.25, 5.45] as const,
 };
 
@@ -69,13 +73,15 @@ export const buildFrontWalk = (): ISiteBuild => {
       z: FRONT_WALK.z[0],
     },
     rampTo: null,
-    groundAt: (x, z) =>
-      x <= left
-        ? walkY
-        : connectorHeight(x, z),
+    groundAt: (x, z) => x <= left ? walkY : connectorHeight(x, z),
     patches: [
       {
-        outline: rect(FRONT_WALK.x, FRONT_WALK.z),
+        outline: seamRect(
+          FRONT_WALK.x,
+          FRONT_WALK.z,
+          [],
+          [FRONT_WALK.connectorZ],
+        ),
         anchor: { x: FRONT_WALK.x[0], y: walkY, z: FRONT_WALK.z[0] },
         rampTo: null,
       },
@@ -87,12 +93,16 @@ export const buildFrontWalk = (): ISiteBuild => {
           y: driveTop(FRONT_WALK.connectorZ[0]),
           z: FRONT_WALK.connectorZ[0],
         },
-        height: pavingHeightfield([left, right], FRONT_WALK.connectorZ, connectorHeight),
+        height: pavingHeightfield(
+          [left, right],
+          FRONT_WALK.connectorZ,
+          connectorHeight,
+        ),
       },
     ],
   };
   const parts: IHousePart[] = [
-    part("front-walk", OWNER, "paving", PALETTE.paving, slab({ outline: rect(FRONT_WALK.x, FRONT_WALK.z), bottom: walkY - WALK_DEPTH, top: walkY })),
+    part("front-walk", OWNER, "paving", PALETTE.paving, slab({ outline: seamRect(FRONT_WALK.x, FRONT_WALK.z, [], [FRONT_WALK.connectorZ]), bottom: walkY - WALK_DEPTH, top: walkY })),
     ...blendedRun({
       id: "front-walk-connector",
       owner: OWNER,

@@ -10,11 +10,7 @@
 import { PALETTE } from "../palette";
 import { part, slopedSlab, type IHousePart } from "../solids";
 import { roofFreeEdge } from "./edges";
-import {
-  gable,
-  GABLE_CORNERS,
-  ROOF_THICKNESS,
-} from "./junctions";
+import { gable, GABLE_CORNERS, ROOF_THICKNESS } from "./junctions";
 
 /**
  * Emit the gable's east face.
@@ -38,7 +34,6 @@ export const buildFrontGableRightRoof = (): IHousePart[] => {
         thickness: ROOF_THICKNESS,
         freeEdge: roofFreeEdge,
       }),
-      true,
     ),
   ];
 };

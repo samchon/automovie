@@ -9,7 +9,7 @@
  * stays under about 0.00083 m, and every cell is two triangles whose corners
  * are shared with their neighbours. This helper emits no surface of its own.
  */
-import { part, slopedSlab, type IHousePart } from "../solids";
+import { part, slopedSlab, type IHousePart, type IPlanPoint } from "../solids";
 import type { IAutoMovieHeightRule } from "@automovie/interface";
 
 /** Base depth below a walking surface, metres. */
@@ -30,6 +30,30 @@ export const WALK_DEPTH = 0.12;
  */
 export const DRIVE_DEPTH = 0.15;
 
+/** Add the connector's four segment endpoints to a neighbouring slab edge. */
+/**
+ * @evidence spaces/site/01-paving-support.md#paving-depth-reservation A connector end line and the adjacent flat paving carry identical split vertices.
+ * @evidence spaces/site/01-paving-support.md The shared paving support design transfers connector segmentation to neighbouring slabs.
+ * @evidence principles/core/source-units.md#source-scope-preservation The helper only subdivides caller supplied bounds; it changes neither grade nor paving ownership.
+ * @evidence principles/core/source-units.md#source-substantive-completion Collinear edge stations prevent a connector triangle from ending halfway along an unsplit slab edge.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving-depth-reservation parent requires shared edge subdivision and specifies at least four connector cells.
+ */
+export const seamRect = (
+  x: readonly [number, number],
+  z: readonly [number, number],
+  west: readonly (readonly [number, number])[] = [],
+  east: readonly (readonly [number, number])[] = [],
+): IPlanPoint[] => {
+  const stations = (runs: readonly (readonly [number, number])[]): number[] =>
+    [...new Set([z[0], z[1], ...runs.flatMap(([a, b]) =>
+      Array.from({ length: 5 }, (_, i) => a + ((b - a) * i) / 4),
+    )])].sort((a, b) => a - b);
+  return [
+    ...stations(east).map((value) => ({ x: x[1], z: value })),
+    ...stations(west).reverse().map((value) => ({ x: x[0], z: value })),
+  ];
+};
+
 /** The bilinear rule sampled from the same height callback as the paving mesh.
  * @evidence spaces/site/01-paving-support.md The connector's standable rule samples the same X/Z function as its opaque paving.
  * @evidence principles/core/source-units.md#source-scope-preservation The rule records the caller's paving height without a second level decision.
@@ -48,7 +72,12 @@ export const pavingHeightfield = (
   spacingZ: z[1] - z[0],
   columns: 2,
   rows: 2,
-  samples: [height(x[0], z[0]), height(x[1], z[0]), height(x[0], z[1]), height(x[1], z[1])],
+  samples: [
+    height(x[0], z[0]),
+    height(x[1], z[0]),
+    height(x[0], z[1]),
+    height(x[1], z[1]),
+  ],
 });
 
 /**

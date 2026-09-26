@@ -54,7 +54,7 @@ export interface IObservationPose {
    * @evidence spaces/04-observations.md#spatial-observation-derivation A moved station records why its authored eye differs from the engine's initial station.
    * @evidence principles/core/source-units.md#source-scope-preservation The explanation records a derived camera correction and leaves the place unchanged.
    * @evidence principles/core/source-units.md#source-substantive-completion Review can trace every moved eye to its standing floor and the required 1.60 m offset.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation parent already fixes eye height and asks for inspectable poses.
+    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires reasons for inward station moves, while settings/20-verification.md#frame-condition supplies the 1.60 m eye; this field carries both corrections without changing either parent.
    */
   reason?: string;
   /**
@@ -89,7 +89,7 @@ export interface IHouseObservation {
    * @evidence spaces/04-observations.md#spatial-observation-derivation Stable station or building-census address.
    * @evidence principles/core/source-units.md#source-scope-preservation The address names an observation, not another geometry owner.
    * @evidence principles/core/source-units.md#source-substantive-completion It lets failures and references identify the same question.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Existing observation derivation already requires identifiable questions.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires an address for each centre, corner, and threshold question; id retains the compiled station identity used in the failure census.
    */
   id: string;
   /**
@@ -97,7 +97,7 @@ export interface IHouseObservation {
    * @evidence spaces/04-observations.md#spatial-observation-derivation Centre, corner, threshold and building roles identify the question.
    * @evidence principles/core/source-units.md#source-scope-preservation These roles classify derived observations only.
    * @evidence principles/core/source-units.md#source-substantive-completion The explicit union prevents an unclassified question from entering the result.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already calls for these station and building census families.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation calls for centre, inset corner, and opening threshold views, plus whole-building exterior questions; role distinguishes those named observation families.
    */
   role: "center" | "corner" | "threshold" | "reflex-corner" | "facade" | "roof" | "underside" | "envelope-corner" | "entrance";
   /**
@@ -113,7 +113,7 @@ export interface IHouseObservation {
    * @evidence spaces/04-observations.md#spatial-observation-derivation Opening, boundary or corner under inspection, when applicable.
    * @evidence principles/core/source-units.md#source-scope-preservation This is an existing subject id rather than a created feature.
    * @evidence principles/core/source-units.md#source-substantive-completion The subject connects a threshold or building question to its boundary.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Feature-targeted observations are already in the parent design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation ties threshold questions to their opening and building questions to their exterior element; subject retains the compiled id being inspected.
    */
   subject: string | null;
   /**
@@ -121,7 +121,7 @@ export interface IHouseObservation {
    * @evidence spaces/04-observations.md#engine-render-handoff Interior questions carry a pose; settings supplies the exterior census camera.
    * @evidence principles/core/source-units.md#source-scope-preservation A null exterior pose leaves camera selection to settings.
    * @evidence principles/core/source-units.md#source-substantive-completion The camera handoff can distinguish self-space and exterior questions.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already separates these camera authorities.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation accepts a pose inside each inhabited space and leaves exterior camera selection to frame-condition; pose is nullable when that engine station has no valid self-space eye.
    */
   pose: IObservationPose | null;
 }
@@ -148,7 +148,7 @@ export interface IReferenceComparison {
    * @evidence spaces/04-observations.md#reference-spatial-comparisons The comparison reads these accepted observation ids.
    * @evidence principles/core/source-units.md#source-scope-preservation These ids refer to accepted questions rather than cloned views.
    * @evidence principles/core/source-units.md#source-substantive-completion The selector lists each observation it needs.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already requires comparisons to reuse derived observations.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation names five additional reference questions; this id list selects their current station addresses without changing those questions.
    */
   observations: string[];
   /**
@@ -167,7 +167,7 @@ export interface IReferenceComparison {
  * @evidence spaces/04-observations.md#spatial-observation-derivation Failed poses remain visible and are not counted as observations.
  * @evidence principles/core/source-units.md#source-scope-preservation The result is computed from the built house record.
  * @evidence principles/core/source-units.md#source-substantive-completion Both the accepted census and rejected stations reach the caller.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work This result realizes the existing observation duty without revising its parent.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires a complete station census with explicit failures and five reference comparisons; IObservationDerivation returns those three populations from one environment.
  */
 export interface IObservationDerivation {
   /**
@@ -175,7 +175,7 @@ export interface IObservationDerivation {
    * @evidence spaces/04-observations.md#spatial-observation-derivation Accepted stations and building questions.
    * @evidence principles/core/source-units.md#source-scope-preservation Entries derive from the compiled house rather than new source geometry.
    * @evidence principles/core/source-units.md#source-substantive-completion The caller can inspect every accepted question.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already demands a derived census.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation adds centre, corner, threshold, and building questions to the compiled station denominator; observations carries the accepted entries of that census.
    */
   observations: IHouseObservation[];
   /**
@@ -183,7 +183,7 @@ export interface IObservationDerivation {
    * @evidence spaces/04-observations.md#spatial-observation-derivation Invalid or coincident stations retain an id and cause.
    * @evidence principles/core/source-units.md#source-scope-preservation Failed questions do not create substitute rooms or cameras.
    * @evidence principles/core/source-units.md#source-substantive-completion Every rejected station has a reason for review.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already calls for honest observation failure reporting.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires unresolved self-space stations to stay visible as failures; this list records their id and concrete cause instead of inventing a replacement pose.
    */
   failures: { id: string; cause: string }[];
   /**
@@ -273,6 +273,7 @@ const insetCorner = (
     .sort((a, b) => distance(a, position) - distance(b, position))[0];
   return {
     position,
+    reason: `Boundary corner station moved ${Math.hypot(position.x - wanted.x, position.z - wanted.z).toFixed(3)} m inside ${space.id}.`,
     target: center === undefined
       ? {
           x: (Math.min(...xs) + Math.max(...xs)) / 2,
@@ -382,7 +383,7 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
       );
       const expected = floor + EYE;
       const delta = expected - o.pose.position.y;
-      if (Math.abs(delta) > 1e-6) o.pose = { position: { ...o.pose.position, y: expected }, target: { ...o.pose.target, y: o.pose.target.y + delta }, reason: `Standing floor ${floor.toFixed(3)} m plus authored 1.60 m eye; engine station moved ${delta.toFixed(3)} m.` };
+      if (Math.abs(delta) > 1e-6) o.pose = { position: { ...o.pose.position, y: expected }, target: { ...o.pose.target, y: o.pose.target.y + delta }, reason: [o.pose.reason, `Standing floor ${floor.toFixed(3)} m plus authored 1.60 m eye; engine station moved ${delta.toFixed(3)} m.`].filter(Boolean).join(" ") };
     }
     if (o.pose === null) failures.push({
       id: o.id,
@@ -419,6 +420,7 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
       })) return {
         position,
         target: centre,
+        reason: `Boundary threshold station moved ${(reach + HALF_PERSON).toFixed(3)} m from opening ${openingId} into ${spaceId}.`,
       };
     }
     return null;
