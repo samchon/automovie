@@ -10,6 +10,7 @@ import type {
   IAutoMovieModel,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieTextureReference,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import typia from "typia";
@@ -291,7 +292,7 @@ export function createHumanBodyBasisBuilder(
           (HUMAN_BODY_SKIN_DETAIL.tileMillimetres / 1000),
       };
       const material = materialMap.get(skin)!;
-      material.normalTexture = {
+      const tile: IAutoMovieTextureReference = {
         asset: relief.texture,
         texCoord: 0,
         coordinateSource: "source-uv",
@@ -308,12 +309,35 @@ export function createHumanBodyBasisBuilder(
           magFilter: "linear",
         },
       };
-      material.normalScale =
-        detail.strength *
-        humanBodySimpleShapeMath.curve(
-          HUMAN_BODY_SKIN_DETAIL.age,
-          document.shape.macroAge ?? 0,
-        );
+      const deepening = humanBodySimpleShapeMath.curve(
+        HUMAN_BODY_SKIN_DETAIL.age,
+        document.shape.macroAge ?? 0,
+      );
+      // the surface's anatomical relief, where the basis has one, carries the
+      // creases under the tiled micro-relief, which becomes its detail
+      const anatomical = basis.surfaces.find(
+        (surface) => surface.relief?.material === skin,
+      )?.relief;
+      if (anatomical !== undefined) {
+        material.normalTexture = {
+          asset: anatomical.texture,
+          texCoord: 0,
+          coordinateSource: "source-uv",
+          colorSpace: "linear",
+          sampler: {
+            wrapS: "clamp",
+            wrapT: "clamp",
+            minFilter: "linearMipmapLinear",
+            magFilter: "linear",
+          },
+        };
+        material.normalScale = detail.strength * deepening;
+        material.detailNormalTexture = tile;
+        material.detailNormalScale = detail.strength * deepening;
+      } else {
+        material.normalTexture = tile;
+        material.normalScale = detail.strength * deepening;
+      }
     }
     // the skin's uneven tone as a tiled base-colour map, the two chromophores
     // varying about the site colour, less even with age; the strength is
