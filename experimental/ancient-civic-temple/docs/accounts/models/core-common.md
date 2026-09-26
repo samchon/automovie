@@ -150,7 +150,7 @@
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 694 | `0995d8ddbeb44ab18432e5fe5ffebce1c400e970762a52a8909b2b2520013e66` |
-| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 10879 | `1e820e837c4a11cb044a60755acb044b8ae790766f02b8ae6c81354465958673` |
+| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 10881 | `1c226383c8c2ae3dadae4998168ee9b282343c9ee068c64ba14e2f20847ca69c` |
 | [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 628 | `135c99baf4ca72d99c21f0af68feaf505e2210cf35f15a14cb9dd87535f7896c` |
 | [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 529 | `8a4bcbd14c45e5247319a65707925b942fd32188c8a89adcf54724b8c2441889` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 1031 | `61118931e6e78ca36b1e80ae2ec7dfdb37be4c4adbfa9797feee7a855e5a66e0` |

@@ -8,6 +8,7 @@ const probes = [
   ["src-literal-duplication.cjs", []],
   ["src-review-host.mjs", ["src/spaces"]],
   ["docs-review-host.mjs", ["docs/models"]],
+  ["docs-review-host.mjs", ["docs/spaces"]],
   ["doc-review-numbers.mjs", []],
   ["doc-anchor-graph.cjs", []],
   ["face-binding-owner.cjs", []],
