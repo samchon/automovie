@@ -126,6 +126,15 @@ const cases = [
     [["guardReserve: 0.075,", "guardReserve: 0.1,"]],
     ["stairGuardPostWidth", "stairConnectorWidth"],
   ],
+  [
+    "stair-closet-tread",
+    "src/spaces/stair.ts",
+    [[
+      "STAIR_OPENING.turnX + STAIR_RUN * (n - 1);",
+      "STAIR_OPENING.turnX + STAIR_RUN * (n - 1) + 0.02;",
+    ]],
+    ["upperSeventhTreadX", "coatStorageX", "coatBackWallX", "coatSideWallX"],
+  ],
 ];
 
 if (process.argv[2] === "--sample") {
@@ -304,6 +313,10 @@ if (process.argv[2] === "--sample") {
     gardenConnectorWidth: connector("garden-steps")?.width,
     stairGuardPostWidth: house && range(part(house.parts, "stair-guard-post-west"), "x")[1] - range(part(house.parts, "stair-guard-post-west"), "x")[0],
     stairConnectorWidth: connector("main-stair-connection")?.width,
+    upperSeventhTreadX: house && range(part(house.parts, "stair-upper-tread-7"), "x")[0],
+    coatStorageX: house?.storages.find((s) => s.storage.id === "entry-coat-storage")?.storage.x[0],
+    coatBackWallX: house && range(part(house.parts, "entry-coat-back"), "x")[0],
+    coatSideWallX: house && range(part(house.parts, "entry-coat-side"), "x")[0],
     seam,
     assemblyError,
   };
@@ -335,6 +348,13 @@ if (process.argv[2] === "--sample") {
       const changed = sample(name);
       if (name === "stair-guard-reserve" && (Math.abs(base.stairConnectorWidth - 1) > 1e-6 || Math.abs(changed.stairConnectorWidth - 0.95) > 1e-6)) throw new Error(
         `${name}: connector width must follow the two side reservations from 1.00 to 0.95 m`,
+      );
+      if (name === "stair-closet-tread" && ![base, changed].every((scene) =>
+        Number.isFinite(scene.coatStorageX) &&
+        Number.isFinite(scene.upperSeventhTreadX) &&
+        Math.abs(scene.coatStorageX - scene.upperSeventhTreadX - 0.07) < 1e-6
+      )) throw new Error(
+        `${name}: coat storage must start 0.07 m beyond the seventh upper tread`,
       );
       const stuck = fields.filter(
         (field) => changed[field] === undefined || JSON.stringify(changed[field]) === JSON.stringify(base[field]),

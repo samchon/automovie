@@ -48,7 +48,7 @@ import {
   DOOR_LIVING_COMMON_OPENING,
   DOOR_SERVICE_COMMON_OPENING,
 } from "./rooms/common";
-import { buildEntry, FRONT_DOOR } from "./rooms/entry";
+import { buildEntry, COAT_STORAGE, FRONT_DOOR } from "./rooms/entry";
 import { buildGarageInterior } from "./rooms/garage-interior";
 import {
   buildLaundry,
@@ -72,7 +72,7 @@ import {
 } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
 import type { IHousePart } from "./solid-records";
-import { buildStair } from "./stair-build";
+import { buildStair } from "./stair";
 
 /** The house as the viewer, measurements and delivery consume it. */
 /**
@@ -166,7 +166,7 @@ export const buildHouse = (): IHouse => {
     ...buildGarageFrontRoof(),
     ...buildGarageBackRoof(),
     ...rooms.flatMap((room) => room.parts),
-    ...buildStair(),
+    ...buildStair(COAT_STORAGE),
     ...porch.parts,
     ...site.parts,
   ];
