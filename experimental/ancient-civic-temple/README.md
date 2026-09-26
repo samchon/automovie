@@ -35,7 +35,23 @@ Use the commands declared in `package.json`:
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 
-The model contact census uses exact approved phrases as a change detector (문구 고정(변경 감지)); a harmless rewording can require a renewed review. Its PASS links are not independent measurements. `model-prose-consistency.mjs` measures recoverable part bounds, named part faces, wall gaps, and polygonal tube clearance directly from model prose.
+The model contact census uses exact approved phrases for the eight older model files as a change detector (문구 고정(변경 감지)); a harmless rewording can require a renewed review. Its 91 legacy PASS links are not independent measurements. The `portable` and `ritual` files instead enter a generated census: 14 sentences have measured part contact, eight have derived geometric relations, and 52 are classified as descriptions, review instructions, or instance-owned contacts. At this revision, `model-prose-consistency.mjs` reports 579 part-bound and union rows across 44 occupancy-box H2s, 21 part-contact rows, five wall-contact rows, 16 shape-relation rows, and two polygonal tube rows. An unparsed axis or box fails visibly.
+
+Polygonal tube-to-host clearance is measured only for `portable#bucket`. The following curved parts have recovered occupancy axes, but their swept-path clearance against a host is outside that checker. Their host geometry or assembly state needs a separate sweep grammar before a clearance claim can be made.
+
+| H2 | Part | Unmeasured relation axis | Reason |
+| --- | --- | --- | --- |
+| `fixtures#fountain` | `ripple` | curve ↔ water/nozzle | A water-surface ring and nozzle need separate radial hosts. |
+| `openings#double-door-leaf` | `ring` | curve ↔ plate/pin | The ring sits on both leaf faces and joins pins. |
+| `openings#single-door-leaf` | `ring` | curve ↔ board/pin | The ring and pin move with the leaf. |
+| `portable#carrying-yoke` | `hook` | curve ↔ beam | The YZ hook joins a straight crossbar. |
+| `portable#rope-coil` | `rope` | concentric curves ↔ tie | Three coiled rings share a transverse tie. |
+| `ritual#jar-stand` | `ring` | annulus ↔ post | The annular contact band surrounds an open centre. |
+| `wares#storage-jar` | `handle` | curve ↔ vessel profile | The vessel shoulder is a revolved shell. |
+| `wares#carry-jar` | `handle` | curve ↔ vessel profile | Two attachment ends meet the revolved shoulder. |
+| `wares#small-vessel` | `handle` | curve ↔ vessel profile | The small handle meets a tapered shell. |
+| `wares#basket` | `rim` | curve ↔ woven wall | A toroidal rim caps a woven shell. |
+| `wares#scroll` | `tie` | curve ↔ rolled paper | Three variants have distinct cylinders and wrap paths. |
 
 The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
 

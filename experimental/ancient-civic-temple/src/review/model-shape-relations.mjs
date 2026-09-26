@@ -84,5 +84,35 @@ export const shapeRelationRows = (id, body) => {
       }
     }
   }
+  const surfaceSentence = source.split(/(?<=다\.)\s+/).find((sentence) => sentence.includes("두께 없는 면"));
+  const thinSurface = parts.find(({ key }) => surfaceSentence?.includes(`\`${key}\`은`));
+  const recess = source.match(/원형 홈은[^\n]*?깊이 ([\d.]+)m/);
+  const host = parts.find(({ noun }) => noun === "상판");
+  if (thinSurface && host) {
+    const surfaceY = bounds[thinSurface.key].Y, hostY = bounds[host.key].Y;
+    if (surfaceY.length >= 2 && hostY.length >= 2) {
+      const y = Math.min(...surfaceY), lower = Math.min(...hostY), upper = Math.max(...hostY);
+      rows.push({ id, kind: "zero-volume inset face", parts: `${host.key}/${thinSurface.key}`,
+        measured: Math.max(...surfaceY) - y, pass: Math.abs(Math.max(...surfaceY) - y) < 1e-9 &&
+          y >= lower && y <= upper });
+      if (recess) rows.push({ id, kind: "recess retained floor", parts: `${host.key}/${thinSurface.key}`,
+        measured: y - lower, pass: y > lower && Math.abs(upper - y - Number(recess[1])) < 1e-6 });
+    }
+  }
+  const boardTopSentence = source.split(/(?<=다\.)\s+/).find((sentence) =>
+    /아래면 Y=/.test(sentence) && /윗면 Y=/.test(sentence));
+  const boardTop = boardTopSentence?.match(/윗면 Y=([\d.]+)m/);
+  const inset = parts.find(({ noun }) => noun.includes("쓰기 면"));
+  const frame = parts.find(({ noun }) => noun === "틀");
+  if (boardTop && inset && frame) {
+    const face = bounds[inset.key], rim = bounds[frame.key], top = Number(boardTop[1]);
+    const separated = face.Y.length >= 2 && Math.abs(Math.min(...face.Y) - top) < 1e-6 &&
+      /** @type {("X"|"Z")[]} */ (["X", "Z"]).every((axis) => face[axis].length >= 2 && rim[axis].length >= 2 &&
+        Math.min(...face[axis]) > Math.min(...rim[axis]) &&
+        Math.max(...face[axis]) < Math.max(...rim[axis]));
+    rows.push({ id, kind: "inset face/solid separation", parts: `${frame.key}/${inset.key}`,
+      terms: [boardTopSentence?.split("은")[0].trim() ?? "", inset.noun],
+      measured: face.Y.length >= 2 ? Math.min(...face.Y) - top : NaN, pass: separated });
+  }
   return rows;
 };

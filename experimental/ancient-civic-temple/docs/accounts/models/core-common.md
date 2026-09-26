@@ -112,9 +112,9 @@
 | [openings/window-frame](../../models/openings.md#window-frame) | `surround` | 724 | `b2c292e3a11ffd3ceb0fc6e65e0383e561b0727351a5115e5978c12654675ae7` |
 | [portable/bench](../../models/portable.md#bench) | `seat` | 759 | `5ea6b45bdf45ca2a89271f1c90d96dbc456f27054bba0d74f0624834e4714103` |
 | [portable/bench](../../models/portable.md#bench) | `pier` | 759 | `5ea6b45bdf45ca2a89271f1c90d96dbc456f27054bba0d74f0624834e4714103` |
-| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `foot` | 813 | `034e35ad16e5a66c138e64521fe56cd7babfc0caaaa26efbb23f8fed32c9bc09` |
-| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `stem` | 813 | `034e35ad16e5a66c138e64521fe56cd7babfc0caaaa26efbb23f8fed32c9bc09` |
-| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `dish` | 813 | `034e35ad16e5a66c138e64521fe56cd7babfc0caaaa26efbb23f8fed32c9bc09` |
+| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `foot` | 959 | `f66f700616c0f9cc29ea5e25bf405d7cd46ab567d093f254623c7dec4a50b218` |
+| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `stem` | 959 | `f66f700616c0f9cc29ea5e25bf405d7cd46ab567d093f254623c7dec4a50b218` |
+| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `dish` | 959 | `f66f700616c0f9cc29ea5e25bf405d7cd46ab567d093f254623c7dec4a50b218` |
 | [portable/jar-rack](../../models/portable.md#jar-rack) | `top` | 1144 | `ac0842b7057e108b5176b2a45bb6e4a4fbebd49cab759145457dc1b4ad9ae7c8` |
 | [portable/jar-rack](../../models/portable.md#jar-rack) | `leg` | 1144 | `ac0842b7057e108b5176b2a45bb6e4a4fbebd49cab759145457dc1b4ad9ae7c8` |
 | [portable/jar-rack](../../models/portable.md#jar-rack) | `well` | 1144 | `ac0842b7057e108b5176b2a45bb6e4a4fbebd49cab759145457dc1b4ad9ae7c8` |
@@ -136,8 +136,8 @@
 | [portable/textile](../../models/portable.md#textile) | `cloth` | 1005 | `37931eb28839bd0a254c05d1022adbae09711d050b10b93b408bc89db15f89cb` |
 | [portable/stylus](../../models/portable.md#stylus) | `shaft` | 638 | `48a087507006bda9cd46b0fef79a9212b251254c463d9124eb692acd0772e520` |
 | [portable/stylus](../../models/portable.md#stylus) | `tip` | 638 | `48a087507006bda9cd46b0fef79a9212b251254c463d9124eb692acd0772e520` |
-| [portable/writing-tablet](../../models/portable.md#writing-tablet) | `frame` | 742 | `5bc496b39edaa1fec2f167bb2afe0bc1bddb7247b0e3011f59bdba8f362ad45d` |
-| [portable/writing-tablet](../../models/portable.md#writing-tablet) | `writing-face` | 742 | `5bc496b39edaa1fec2f167bb2afe0bc1bddb7247b0e3011f59bdba8f362ad45d` |
+| [portable/writing-tablet](../../models/portable.md#writing-tablet) | `frame` | 796 | `b3e12f495c82344fe919dcb27d5c85cbdf62c62b6aa1f0f400741afc4d2fe45d` |
+| [portable/writing-tablet](../../models/portable.md#writing-tablet) | `writing-face` | 796 | `b3e12f495c82344fe919dcb27d5c85cbdf62c62b6aa1f0f400741afc4d2fe45d` |
 | [portable/rope-coil](../../models/portable.md#rope-coil) | `rope` | 792 | `21b13bb276144f3c8263ae62d5c40f4a593b7b0e1c6bfeef665f356b761b8006` |
 | [portable/rope-coil](../../models/portable.md#rope-coil) | `tie` | 792 | `21b13bb276144f3c8263ae62d5c40f4a593b7b0e1c6bfeef665f356b761b8006` |
 | [ritual/censer](../../models/ritual.md#censer) | `foot` | 910 | `72d360ae38a668f73a9c46b9f6fae9bf79893699bdd9a2f3ea9a89a1b8eee76f` |
@@ -196,11 +196,11 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | fixtures.md | 10 | 8599 |
 | landscape.md | 4 | 3562 |
 | openings.md | 4 | 4426 |
-| portable.md | 13 | 10033 |
+| portable.md | 13 | 10219 |
 | ritual.md | 3 | 2227 |
 | scale.md | 3 | 6790 |
 | wares.md | 6 | 4785 |
-| 합계 | 52 | 51422 |
+| 합계 | 52 | 51608 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

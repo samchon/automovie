@@ -20,18 +20,25 @@ export const partContactRows = (id, body) => {
     const distinct = parts.filter((part) => part.noun !== noun && part.noun.includes(noun))
       .reduce((text, part) => text.replaceAll(part.noun, ""), sentence);
     const escaped = noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?=$|[.,;:()·\\s]|은|는|이|가|을|를|의|와|과|에서|으로|로)`, "u").test(
+    return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?=$|[.,;:()·\\s]|은|는|이|가|을|를|의|와|과|에|에서|으로|로)`, "u").test(
       distinct,
     );
   };
+  let previousSubject = "";
   for (const sentence of construction.split(/(?<=다\.)\s+|\n+/)) {
-    if (!/닿|접촉|접하|접한|접한다|받친|받치|잇는다|겹쳐|맞댄다/.test(sentence) ||
+    const subject = parts.find(({ noun }) => new RegExp(
+      `(?<![\\p{L}\\p{N}])${noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:은|는)`, "u",
+    ).test(sentence));
+    if (subject) previousSubject = subject.key;
+    if (!/닿|접촉|접하|접한|접한다|받친|받치|잇는다|이어지|겹쳐|맞댄다/.test(sentence) ||
       /닿지 않|접촉 판단|검토 판|실패|뒷면 Z=|쪽 [가-힣]+는 Z=|(?:지면|바닥)에 접하고/.test(sentence)) continue;
-    const named = parts.filter(({ key }) => aliases[key].some((noun) => mentions(sentence, noun)));
+    const named = parts.filter(({ key }) => aliases[key].some((noun) => mentions(sentence, noun)) ||
+      key === previousSubject && /^(?:시작면|끝면)/.test(sentence));
     if (named.length < 2) continue;
-    const axis = /끝면/.test(sentence) && !/윗면|아랫면/.test(sentence)
-      ? "X"
-      : "Y";
+    const axis = (/(?:뒤쪽|앞쪽|시작면)[^\n]*?Z=/.test(sentence) ||
+      /시작면[^\n]*?뒤쪽 단면/.test(sentence)) && !/윗면|아랫면/.test(sentence)
+      ? "Z"
+      : /끝면/.test(sentence) && !/윗면|아랫면/.test(sentence) ? "X" : "Y";
     const intervals = named.map(({ key }) => ({ key, points: bounds[key][axis] }))
       .filter(({ points }) => points.length >= 2)
       .map(({ key, points }) => ({ key, lo: Math.min(...points), hi: Math.max(...points), points }));

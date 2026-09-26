@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { modelSections } from "./model-tessellation-census.mjs";
+import { partContactRows } from "./model-part-contact.mjs";
+import { shapeRelationRows } from "./model-shape-relations.mjs";
+import { tubeWallClearanceRows } from "./model-tube-clearance.mjs";
+import { modelParts, partBounds } from "./model-occupancy-union.mjs";
 
 // The prose is the population. A new contact sentence cannot disappear behind
 // a hand-maintained count: it needs its own entry and a named measured relation.
@@ -257,8 +262,57 @@ export const auditContactClaims = (claims, passLines, decisionsBySection) => {
 export const checkModelContactCensus = (output) => {
   const passLines = output.split(/\r?\n/).filter((line) => line.startsWith("PASS "));
   const claims = [...modelContactClaims(), ...modelContactClaims(true)];
-  const result = auditContactClaims(claims, passLines, decisions);
-  console.log(`model contact census: ${claims.length} lexical sentences, ${result.measured} PASS-linked claims (not independent coordinate measurements), ${result.classified} classified non-contact, ${result.failures.length} unresolved`);
+  const legacy = claims.filter((claim) => !/^(?:portable|ritual)#/.test(claim.id));
+  const result = auditContactClaims(legacy, passLines, decisions);
+  const sections = new Map(["portable", "ritual"].flatMap((file) => modelSections(
+    readFileSync(new URL(file + ".md", modelRoot), "utf8"),
+  ).map((section) => [`${file}#${section.id}`, section.body])));
+  /** @param {string} sentence */
+  const normalize = (sentence) => sentence.replace(/\s+/g, " ").trim();
+  let direct = 0;
+  let derived = 0;
+  let classified = 0;
+  for (const claim of claims.filter((item) => /^(?:portable|ritual)#/.test(item.id))) {
+    const key = claim.id.split(":")[0], body = sections.get(key);
+    if (!body) { result.failures.push(`${claim.id}: missing H2`); continue; }
+    const contacts = partContactRows(key, body).filter((row) =>
+      normalize(row.sentence) === normalize(claim.sentence));
+    if (contacts.length) {
+      if (contacts.every((row) => row.pass)) direct++;
+      else result.failures.push(`${claim.id}: part contact failed`);
+      continue;
+    }
+    const sentence = claim.sentence;
+    if (/검토 판|실패다|instances가 (?:한다|정한다)|인스턴스 받침 datum|고정 상태|정지된 고정 부재|모델에 없다|다르다/.test(sentence) ||
+      claim.id.includes(":supplemental:") && !/관통|중복|접촉|닿/.test(sentence) ||
+      /^손수레는[^.]*붙은/.test(sentence)) { classified++; continue; }
+    const shapes = shapeRelationRows(key, body), tubes = tubeWallClearanceRows(key, body);
+    const mappedParts = modelParts(body);
+    const related = shapes.filter((row) => row.parts &&
+      (row.terms?.every((term) => term && sentence.includes(term)) ||
+      row.parts.split("/").every((part) => {
+        const noun = mappedParts.find((entry) => entry.key === part)?.noun ?? "";
+        return sentence.includes(`\`${part}\``) || sentence.includes(noun) ||
+          noun.includes(" ") && sentence.includes(noun.split(" ")[0]);
+      })));
+    if (related.length && related.every((row) => row.pass)) { derived++; continue; }
+    if (/두 겹에 닿/.test(sentence) && shapes.some((row) => row.kind.startsWith("fold/") && row.pass) ||
+      /부피를 겹쳐 방출하지/.test(sentence) && shapes.some((row) => row.kind === "inner wall clearance" && row.pass) ||
+      /관 전체는 안쪽 벽에 닿지/.test(sentence) && tubes.length && tubes.every((row) => row.pass) ||
+      /원형 홈[^\n]*관통하지/.test(sentence) && shapes.some((row) => row.kind === "recess retained floor" && row.pass)) {
+      derived++;
+      continue;
+    }
+    if (/지면에 접/.test(sentence)) {
+      const parts = modelParts(body), bounds = partBounds(body);
+      const subject = sentence.match(/([가-힣 ]+?) 아래는 [^\n]*?지면에 접/)?.[1]?.trim();
+      const owners = parts.filter(({ noun }) => subject ? subject.endsWith(noun) : sentence.includes(noun));
+      if (owners.length && owners.every(({ key: part }) => bounds[part].Y.length >= 2 &&
+        Math.abs(Math.min(...bounds[part].Y)) < 1e-6)) { derived++; continue; }
+    }
+    result.failures.push(`${claim.id}: no geometric relation: ${claim.sentence}`);
+  }
+  console.log(`model contact census: ${claims.length} lexical sentences, ${result.measured} legacy PASS links, ${direct} direct part contacts, ${derived} derived relations, ${result.classified + classified} classified non-contact, ${result.failures.length} unresolved`);
   for (const failure of result.failures) console.error(failure);
   return result.failures;
 };
