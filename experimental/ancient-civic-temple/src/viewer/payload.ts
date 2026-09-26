@@ -7,7 +7,6 @@
 import { builtEnvironmentBuildingCensus, lowerBuiltEnvironment, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieHeightRule, IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { templeViewerLens } from "../geometry/observation-datum";
-import { bindTempleMaterials } from "../materials/bindings";
 import { createTempleEnvironment } from "../spaces/environment";
 import { templeObservations, templeSpaceNames } from "../spaces/observations";
 
@@ -27,7 +26,7 @@ export interface ViewerPlacement {
 
 export const createViewerPayload = () => {
   const built = createTempleEnvironment();
-  const environment = bindTempleMaterials(built.environment);
+  const environment = built.environment;
   const lowered = lowerBuiltEnvironment(environment);
   const models = environment.models.map((model) => ({
     id: model.id,
@@ -77,7 +76,7 @@ export const createViewerPayload = () => {
       models: models.length, triangles,
     },
     notices: [
-      "재료 초안: 기존 표면에 석재·포장·회벽·목재·기와·금속·직물·흙 등의 재료를 결합했습니다. 이미지가 없으면 같은 재료의 기본색으로 표시합니다.",
+      "재료 source 보류: 기존 표면의 재료·텍스처 결속은 materials 설계 판정 뒤 materialSources draft에서 재개합니다. 현재는 중성 검토 클레이로 표시합니다.",
       "이웃·수목 없음: 배치 구역은 있으나 이웃 외피와 식생 개체는 아직 배치되지 않았습니다. 외벽 하단 " + built.wallBottom.toFixed(2) + "m는 대지 지면의 최저 접촉에서 유도했습니다.",
       "모델 source 보류: 독립 기둥·문짝·문틀·기와와 사물 prototype은 models 설계 판정 뒤 modelSources draft에서 재개합니다.",
       "조명 미결정: systems 층 미개시. 뷰어는 설정 주광의 방향·고도(정면 좌측 위 45°)만 따르고 강도·노출은 검토용 기본값입니다.",
