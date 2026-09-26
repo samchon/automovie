@@ -36,7 +36,8 @@ import {
   ROOF_THICKNESS,
   SPLIT_X,
 } from "../roof/junctions";
-import { part, wallPanel, type IHousePart, type IWallPoint } from "../solids";
+import { part, type IHousePart, type IWallPoint } from "../solid-records";
+import { wallPanel } from "../solids";
 
 /**
  * @evidence spaces/envelope/right.md The family room side window owns its rough wall cut.

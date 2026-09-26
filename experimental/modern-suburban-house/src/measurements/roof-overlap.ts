@@ -11,7 +11,8 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { buildHouse } from "../spaces/house";
 import { SPLIT_X } from "../spaces/roof/junctions";
-import { block, type IHousePart } from "../spaces/solids";
+import { block } from "../spaces/solids";
+import type { IHousePart } from "../spaces/solid-records";
 
 interface IPoint {
   x: number;

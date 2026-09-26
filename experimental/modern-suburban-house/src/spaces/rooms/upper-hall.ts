@@ -18,7 +18,8 @@ import { DOOR_HALL_PRIMARY_DOOR } from "./primary";
 import { DOOR_HALL_SHOWER_DOOR } from "./shower-bath";
 import { PALETTE } from "../palette";
 import { MAIN } from "../building";
-import { block, part } from "../solids";
+import { block } from "../solids";
+import { part } from "../solid-records";
 import { STOREYS } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 import {

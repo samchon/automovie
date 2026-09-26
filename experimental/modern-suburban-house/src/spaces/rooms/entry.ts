@@ -22,7 +22,8 @@
  */
 import { DOOR_ENTRY_LIVING_DOOR } from "./living";
 import { PALETTE } from "../palette";
-import { block, part } from "../solids";
+import { block } from "../solids";
+import { part } from "../solid-records";
 import { floorOf, GROUND_LAYERS, STOREYS } from "../storeys";
 import { STAIR_OPENING, STAIR_STEPS } from "../stair";
 import {
@@ -82,15 +83,11 @@ const entrySpace = (): IRoomSpace => ({
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work COAT_STORAGE exposed reversed derivation of closet X and upper treads: a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights so the seventh tread sets X and treads 7-9 consume the closet top Y=2.15.
  */
 export const COAT_STORAGE = {
-  get x() {
-    return [STAIR_STEPS.upperClosetStartX + 0.07, STAIR_STEPS.upperClosetStartX + 0.72] as const;
-  },
+  x: [STAIR_STEPS.upperClosetStartX + 0.07, STAIR_STEPS.upperClosetStartX + 0.72] as const,
   frontZ: -3.51,
   top: 2.15,
   opening: { from: -4.51, to: -3.56 },
-  get backWallX() {
-    return STAIR_STEPS.upperClosetStartX;
-  },
+  backWallX: STAIR_STEPS.upperClosetStartX,
 } as const;
 const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 

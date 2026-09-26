@@ -14,7 +14,8 @@
  */
 import { MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { part, rect, slab, type IHousePart } from "../solids";
+import { part, type IHousePart } from "../solid-records";
+import { rect, slab } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { FRONT_DOOR } from "../rooms/entry";
 import { GARDEN_DOOR } from "../envelope/rear";

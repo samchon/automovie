@@ -24,7 +24,8 @@ import {
   ROOF_THICKNESS,
   SPLIT_X,
 } from "../roof/junctions";
-import { block, part, wallPanel, type IHousePart } from "../solids";
+import { block, wallPanel } from "../solids";
+import { part, type IHousePart } from "../solid-records";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { wallHead } from "./wall-head";
 

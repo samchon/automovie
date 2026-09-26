@@ -17,7 +17,7 @@
  * management.
  */
 
-import type { HousePartRole } from "../spaces/solids";
+import type { HousePartRole } from "../spaces/solid-records";
 
 /** Which subject a scene draws: the calibration shape or the house. */
 export type ViewerSceneSubject = "calibration" | "house";

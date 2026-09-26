@@ -16,14 +16,13 @@
  * Consumers: the fifteen `rooms/*.ts` owners. This helper owns no surface.
  */
 import { PALETTE } from "../palette";
+import { slab, straightWall } from "../solids";
 import {
   part,
-  slab,
-  straightWall,
   type IHousePart,
   type IPlanPoint,
   type IWallHole,
-} from "../solids";
+} from "../solid-records";
 import {
   CEILING_FINISH,
   ceilingOf,
@@ -65,7 +64,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md A reserved zone occupies an explicit plan width.
    * @evidence principles/core/source-units.md#source-scope-preservation The range comes from the room's authored layout.
    * @evidence principles/core/source-units.md#source-substantive-completion The horizontal bounds support room containment and route overlap checks.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes supplies the four common-room passage bands' X intervals, and living-through-route supplies the living room band; x transports the authored reservation width without selecting a new corridor.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes supplies the four common-room passage bands' X intervals, and living-through-route supplies the three living room bands; x transports each authored reservation width without selecting a new corridor.
    */
   x: readonly [number, number];
   /**
@@ -79,7 +78,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md A body may need a vertical envelope above its plan area.
    * @evidence principles/core/source-units.md#source-scope-preservation The range reserves height but builds no object.
    * @evidence principles/core/source-units.md#source-substantive-completion Body and wall-hung zones can be checked separately from clear floor areas.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network limits a clear route to 2.00 m above finished floor and garage-front-opening fixes the overhead guide Y=[2.15, 2.50]; optional y retains the height of either actual reservation.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network fixes the 2.00 m clear band that checkReservations applies to every route through routeClearHeight, and garage-front-opening fixes the overhead guide Y=[2.15, 2.50]; current routes have no y, while optional y records the height of a body, wall-hung or overhead reservation when one is specified.
    */
   y?: readonly [number, number];
   /**
@@ -434,7 +433,7 @@ export const partition = (props: {
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions The void keeps its id, width and head on the assigned partition.
  * @evidence principles/core/source-units.md#source-scope-preservation This returns a cut specification and does not build a door leaf.
  * @evidence principles/core/source-units.md#source-substantive-completion Bottom and top derive from the selected storey datum and head height.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan owns entry-living-door at Z=[-1.35, -0.35] and laundry-plan owns service-laundry-door at Z=[-4.40, -3.35]; door passes the caller's authored span and head into either interior cut.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan owns entry-living-door at Z=[-1.35, -0.35] and laundry-plan owns service-laundry-door at Z=[-4.40, -3.35]; door passes each caller's authored span and head into its interior cut.
  */
 export const door = (id: string, storey: StoreyId, from: number, to: number, head = 2.2): IWallHole => ({
   id,

@@ -9,7 +9,8 @@ import { FRONT_WINDOWS } from "../spaces/envelope/front-windows";
 import * as LEFT_ENVELOPE from "../spaces/envelope/left";
 import * as REAR_ENVELOPE from "../spaces/envelope/rear";
 import * as RIGHT_ENVELOPE from "../spaces/envelope/right";
-import { openingAxis, type buildHouseEnvironment } from "../spaces/environment";
+import { openingAxis } from "../spaces/observation-records";
+import type { buildHouseEnvironment } from "../spaces/environment";
 import type { buildHouse } from "../spaces/house";
 import {
   STAIR_LANDING_STATION,

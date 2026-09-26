@@ -9,7 +9,8 @@
  * stays under about 0.00083 m, and every cell is two triangles whose corners
  * are shared with their neighbours. This helper emits no surface of its own.
  */
-import { part, slopedSlab, type IHousePart, type IPlanPoint } from "../solids";
+import { slopedSlab } from "../solids";
+import { part, type IHousePart, type IPlanPoint } from "../solid-records";
 import type {
   IAutoMovieHeightRule,
   IAutoMovieVector3,
@@ -20,7 +21,7 @@ const edgeAt = (a: number, b: number, value: number): boolean =>
   Math.abs(a - value) < 1e-8 && Math.abs(b - value) < 1e-8;
 
 /** Keep only the outside sides of a paving rectangle; omit a caller-owned joined edge.
- * @evidence spaces/site/01-paving-support.md This helper keeps the three pedestrian paving bands free of sides inside their union.
+ * @evidence spaces/site/01-paving-support.md This helper keeps the T-walk and three side-walk bands free of sides inside each union.
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation The T-walk and three side-walk bands have no vertical side inside their union.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller's X/Z bounds and joined-edge predicate decide the perimeter; this helper assigns no new paving area.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned predicate closes outer slab edges while rejecting cell seams and joined flat-band sides.

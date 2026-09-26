@@ -8,7 +8,8 @@
  * F(X) = 6.30 + (9/12)(X − a), underside 0.24 m lower (roof/00).
  */
 import { PALETTE } from "../palette";
-import { part, slopedSlab, type IHousePart } from "../solids";
+import { part, type IHousePart } from "../solid-records";
+import { slopedSlab } from "../solids";
 import { roofFreeEdge } from "./edges";
 import { gable, GABLE_CORNERS, ROOF_THICKNESS } from "./junctions";
 

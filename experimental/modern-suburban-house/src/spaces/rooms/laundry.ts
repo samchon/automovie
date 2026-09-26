@@ -11,7 +11,8 @@
  * below it is the one riser from the garage floor Y = -0.15 to Y = 0 (10).
  */
 import { PALETTE } from "../palette";
-import { block, part } from "../solids";
+import { block } from "../solids";
+import { part } from "../solid-records";
 import {
   box,
   door,

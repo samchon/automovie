@@ -23,7 +23,8 @@ import { GARAGE, MAIN } from "../building";
 import { CHIMNEY_CAP_OVERHANG } from "../envelope/left";
 import { PALETTE } from "../palette";
 import { CHIMNEY_PLAN } from "../roof/junctions";
-import { block, part, type IHousePart } from "../solids";
+import { block } from "../solids";
+import { part, type IHousePart } from "../solid-records";
 import { SIDE_WALK } from "./side-walk";
 
 const OWNER = "site/fence.ts";

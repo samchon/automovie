@@ -8,7 +8,7 @@
  * 02-interior-shell.md. This diagnostic preview does not fulfill the disabled
  * materialSources layer; its final source and measured UV bindings remain due.
  */
-import type { HousePartRole } from "../spaces/solids";
+import type { HousePartRole } from "../spaces/solid-records";
 import { PALETTE } from "../spaces/palette";
 
 export interface HouseFinish {

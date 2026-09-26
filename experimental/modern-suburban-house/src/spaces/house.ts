@@ -71,8 +71,8 @@ import {
   type IStorageSpace,
 } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
-import type { IHousePart } from "./solids";
-import { buildStair } from "./stair";
+import type { IHousePart } from "./solid-records";
+import { buildStair } from "./stair-build";
 
 /** The house as the viewer, measurements and delivery consume it. */
 /**

@@ -120,6 +120,12 @@ const cases = [
     ],
     ["gardenStepWidth", "gardenConnectorWidth"],
   ],
+  [
+    "stair-guard-reserve",
+    "src/spaces/stair.ts",
+    [["guardReserve: 0.075,", "guardReserve: 0.1,"]],
+    ["stairGuardPostWidth", "stairConnectorWidth"],
+  ],
 ];
 
 if (process.argv[2] === "--sample") {
@@ -296,6 +302,8 @@ if (process.argv[2] === "--sample") {
     porchConnectorWidth: connector("porch-steps")?.width,
     gardenStepWidth: LOWER_LANDING.x[1] - LOWER_LANDING.x[0],
     gardenConnectorWidth: connector("garden-steps")?.width,
+    stairGuardPostWidth: house && range(part(house.parts, "stair-guard-post-west"), "x")[1] - range(part(house.parts, "stair-guard-post-west"), "x")[0],
+    stairConnectorWidth: connector("main-stair-connection")?.width,
     seam,
     assemblyError,
   };
@@ -325,6 +333,9 @@ if (process.argv[2] === "--sample") {
   for (const [name, , , fields] of cases) {
     try {
       const changed = sample(name);
+      if (name === "stair-guard-reserve" && (Math.abs(base.stairConnectorWidth - 1) > 1e-6 || Math.abs(changed.stairConnectorWidth - 0.95) > 1e-6)) throw new Error(
+        `${name}: connector width must follow the two side reservations from 1.00 to 0.95 m`,
+      );
       const stuck = fields.filter(
         (field) => changed[field] === undefined || JSON.stringify(changed[field]) === JSON.stringify(base[field]),
       );

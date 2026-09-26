@@ -19,7 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IWallFace, IWallPoint } from "./solids";
+import type { IWallFace, IWallPoint } from "./solid-records";
 
 /** World point at (u, y) of a face, pushed `offset` along the face normal. */
 const facePoint = (face: IWallFace, u: number, y: number, offset: number): IAutoMovieVector3 => {

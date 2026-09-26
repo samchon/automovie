@@ -22,7 +22,8 @@
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "./building";
 import { PALETTE } from "./palette";
 import { GARAGE_RIDGE_Z, garageRoof } from "./roof/junctions";
-import { part, rect, slab, wallPanel, type IHousePart } from "./solids";
+import { part, type IHousePart } from "./solid-records";
+import { rect, slab, wallPanel } from "./solids";
 import { LAUNDRY_GARAGE_DOOR } from "./rooms/laundry";
 import { GARAGE_FRONT_DOOR } from "./envelope/front";
 import {

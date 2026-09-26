@@ -16,6 +16,7 @@ if (!["all", "spaces", "models", "settings"].includes(layer)) throw new Error(`U
 const layerTasks = {
   all: null,
   spaces: new Set([
+    "tests",
     "door casing versus spaces",
     "geometry",
     "space relations",

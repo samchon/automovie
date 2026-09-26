@@ -2,7 +2,7 @@
 import * as engineNamespace from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieSurface, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
 import type { IHouse } from "../spaces/house";
-import type { IHousePart } from "../spaces/solids";
+import type { IHousePart } from "../spaces/solid-records";
 
 const { worldSurfaceHeight } = (engineNamespace as typeof engineNamespace & { default?: typeof engineNamespace }).default ?? engineNamespace;
 const standingHeight = (surface: IAutoMovieSurface, x: number, z: number): number =>

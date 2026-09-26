@@ -14,7 +14,8 @@
 import { PALETTE } from "../palette";
 import { MAIN } from "../building";
 import { GARDEN_DOOR } from "../envelope/rear";
-import { block, part, rect, type IHousePart } from "../solids";
+import { block, rect } from "../solids";
+import { part, type IHousePart } from "../solid-records";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 import { WALK_DEPTH } from "./paving";

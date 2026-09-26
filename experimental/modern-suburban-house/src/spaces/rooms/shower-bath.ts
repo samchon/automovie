@@ -8,7 +8,7 @@
  * (X = [0.75, 0.90]). Fixtures are later models.
  */
 import { PALETTE } from "../palette";
-import { part } from "../solids";
+import { part } from "../solid-records";
 import { floorOf, STOREYS } from "../storeys";
 import {
   box,

@@ -12,7 +12,8 @@
 import { PALETTE } from "../palette";
 import { GARAGE_FRONT_DOOR } from "../envelope/front";
 import { GARAGE } from "../building";
-import { part, rect, slopedSlab } from "../solids";
+import { part } from "../solid-records";
+import { rect, slopedSlab } from "../solids";
 import { STOREYS } from "../storeys";
 import { DRIVE_DEPTH, seamRect } from "./paving";
 import type { ISiteBuild } from "./zone";

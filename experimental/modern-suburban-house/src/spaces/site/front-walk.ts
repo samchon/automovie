@@ -12,7 +12,8 @@
  * 0.12 m (01-paving-support).
  */
 import { PALETTE } from "../palette";
-import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import { part, type IHousePart } from "../solid-records";
+import { rect, slopedSlab } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 import { driveTop, DRIVEWAY } from "./driveway";

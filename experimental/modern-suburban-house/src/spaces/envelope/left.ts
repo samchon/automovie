@@ -26,7 +26,8 @@ import {
   mainRoof,
   ROOF_THICKNESS,
 } from "../roof/junctions";
-import { block, part, wallPanel, type IHousePart } from "../solids";
+import { block, wallPanel } from "../solids";
+import { part, type IHousePart } from "../solid-records";
 import { STOREYS } from "../storeys";
 
 const OWNER = "envelope/left.ts";

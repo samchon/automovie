@@ -8,7 +8,8 @@
  */
 import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
-import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import { part, type IHousePart } from "../solid-records";
+import { rect, slopedSlab } from "../solids";
 import { roofFreeEdge } from "./edges";
 import { GARAGE_RIDGE_Z, gFront, OVERHANG, ROOF_THICKNESS } from "./junctions";
 

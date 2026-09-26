@@ -23,7 +23,7 @@
 import { builtSpaceContainsPoint } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
-import { openingAxis } from "./environment";
+import { openingAxis } from "./observation-records";
 
 /** One route edge: two spaces and the passage that joins them. */
 /**

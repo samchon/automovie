@@ -22,7 +22,7 @@ import { floorOf } from "../storeys";
  * @evidence spaces/rooms/pantry.md The service-pantry-door void follows the partition assigned to pantry.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-pantry-door interval remains with pantry while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-pantry-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes service-pantry-door in the west partition at Z=[-5.75, -4.80], Y=[0, 2.20] so the rear and right L shelves remain usable; this export carries that cut.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes service-pantry-door in the west partition at Z=[-5.75, -4.80], Y=[0, 2.20]; this export carries that cut.
  */
 export const DOOR_SERVICE_PANTRY_DOOR = door(
   "service-pantry-door",

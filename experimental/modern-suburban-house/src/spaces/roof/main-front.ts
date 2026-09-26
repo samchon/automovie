@@ -12,7 +12,8 @@
  */
 import { PALETTE } from "../palette";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { part, slopedPlate, type IHousePart } from "../solids";
+import { part, type IHousePart } from "../solid-records";
+import { slopedPlate } from "../solids";
 import { roofFreeEdge } from "./edges";
 import {
   CHIMNEY_PLAN,

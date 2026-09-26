@@ -7,7 +7,8 @@
  * added at the split plane; the step wall closes it (envelope/right).
  */
 import { PALETTE } from "../palette";
-import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import { part, type IHousePart } from "../solid-records";
+import { rect, slopedSlab } from "../solids";
 import { roofFreeEdge } from "./edges";
 import {
   MAIN_RIDGE_Z,
