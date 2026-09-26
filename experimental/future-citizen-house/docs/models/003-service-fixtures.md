@@ -100,6 +100,8 @@
 
 ## 고정 스크린 샤워 {#shower}
 
+@prose-part 유리 screen은: screen
+
 `shower`는 X 폭 2.05, Z 깊이 1.45, Y 높이 2.25m다. tray 바닥 중심이 원점, +Z가 출입 쪽이다. tray는 y=0..0.07m의 두께와 안쪽으로 0.015m 내려간 중앙면, 0.045m 폭의 둘레 curb를 가진다. drain 중심은 tray 바닥 상면의 (0,0.055,0)이고 지름 0.12m다. 출입 전면에서 유리 screen은 x=−1.025..+0.075의 길이 1.10m, z=+0.713..+0.725의 두께 0.012m, y=0.07..2.225다. +X 쪽 x=+0.075..+1.025의 0.95m는 문 없는 열린 출입구다. screen rail은 같은 길이의 닫힌 사각 단면 상부 부재로 z=+0.700..+0.725, y=2.225..2.25이며 screen의 윗면과 0.012m 깊이의 유한 면으로 닿는다. riser는 x=−0.85,z=−0.705,y=0.40..2.20의 지름 0.025m이며 벽에 붙은 세 bracket의 원형 보어가 지지한다. 고정 bracket은 y=0.55,1.45,2.10에 각각 중심 x=−0.85,z=−0.705, 바깥 반지름 0.020m, 안쪽 반지름 0.0125m, y=중심±0.015m인 세 닫힌 고리다. 각 고리와 한 부품으로 합친 뒤쪽 고정 패드는 x=−0.87..−0.83, z=−0.725..−0.7175, y=고리의 전체 높이이며 z=−0.725 평면 전체가 방 벽면에 유한 면적으로 닿는다. 패드는 보어의 뒤쪽 z>−0.7175를 침범하지 않고 고리의 외벽과 닫힌 합집합을 이루며 안쪽 원통면이 riser 외면과 맞는다. `head`는 riser 축을 중심으로 반지름 0.0125m인 수직 원통 목을 y=2.20..2.215에 두고, 같은 반지름의 수평 24각 관을 중심 (x=−0.85,y=2.2125), 중심선 z=−0.705..−0.515에 이어 닫힌 합집합으로 만든다. 앞쪽 중심선 끝 −0.515에는 공통 관 끝 규칙의 반구를 붙이므로 실제 관 앞 경계는 z=−0.5025다. 분사판은 중심 (x=−0.85,z=−0.515), X 반경 0.15m·Z 반경 0.03m인 24각 타원 판이며 y=2.215..2.225를 채운다. 관과 판은 z=−0.545..−0.5025에서 부피를 공유해 한 부품을 이루고, 목의 y=2.20 원판 전체는 riser의 y=2.20 상면 원판 전체와 면 접촉한다. 분사판의 y=2.215 아래 노출 평면에서 관과 합쳐 제거된 내부 면을 제외한 부분은 `head/face`이고, 판 아래로 드러난 관의 아래 반원통과 앞 반구·목의 외면은 `head/edge`다. 판의 윗면과 뒤 노출면은 `head/back`이다. 이 부품은 외피 벽을 생성하지 않고, 실제 벽면과의 world 접합은 instances가 검증한다.
 
 주소는 `tray/floor/curb/outside/underside/drain-inner/drain-edge`, `screen/front/back/edge/top`, `screen-rail/outer/contact`, `riser/outer/contact`, `riser-bracket-0..2/front/back/edge/contact`, `head/face/back/edge`다. 두께 있는 유리의 앞뒤·잘린 edge는 별도 face이며 tray의 물이 빠지는 경사라는 외관과 실제 방수 능력을 구별한다. 위·출입구·측면 관찰에서 0.95m 열린 부분과 음각 배수구가 보여야 한다. ref02의 뒤쪽 샤워와 투명 경계를 채택한다. ref01·03·04·05의 커튼월을 욕실 screen 상세로 차용하지 않는다. 물 흐름·방수는 `unverified`다.
@@ -226,6 +228,22 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 ## 벽 조리대·쿡탑·오븐 {#cooking-appliances}
 
+@prose-part 벽 조리대는: top
+@prose-part 상판을: top
+@prose-part cooktop 본체는: body
+@prose-part 가장자리 rim만: rim
+@prose-part 네 원형 zone은: zone-*
+@prose-part oven은: body
+@prose-part front-frame의 앞면: front-frame
+@prose-part 오븐 몸체 깊이는: body
+@prose-part 전면 프레임은: front-frame
+@prose-part 유리창은: window
+@prose-part 상부 조절판은: controls
+@prose-part 유리 상단의: window
+@prose-part 둥근 knob 둘은: knob-*
+@prose-part 오븐 손잡이는: handle
+@prose-part 프레임은 cabinet 전면: front-frame
+
 @prose-dim wall-worktop: top
 @prose-part 쿡탑 절삭은: top!void
 
@@ -234,7 +252,6 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @scalar-control cooktop-support-depth: 0.043
 @scalar-control zone-center-pitch: 0.24
 @scalar-control zone-clearance: 0.02
-@scalar-control oven-bay-width: 0.64
 
 @inventory wall-worktop: top
 @support wall-worktop: cabinet-and-shelf, kitchen-base/2900x870x620/closed, top, 0, 0, 0
@@ -271,7 +288,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | oven | knob-1 | cylinder | 0.2025..0.2375 | 0.6725..0.7075 | 0.31..0.328 | controls |
 | @part | oven | handle | box | -0.18..0.18 | 0.6675..0.6925 | 0.31..0.338 | controls |
 
-벽 조리대는 `wall-worktop`(상면 y=0.925m, X 폭 3.00, Z 깊이 0.67), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 같은 상판 오른쪽은 [뒤 조리대 싱크·수전](#rear-counter-sink)의 외벽이 통과하도록 `@void wall-worktop: top` 두 번째 행의 전 두께를 절삭한다. sink의 외벽은 cabinet 상판의 대응 개구를 지나가고 서랍 윗면보다 위에서 끝난다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. oven은 cabinet 중앙 폭 0.64m 개방 bay에 x=0,y=0.15..0.74,z=+0.022에 넣어 전면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
+벽 조리대는 `wall-worktop`(상면 y=0.925m, X 폭 3.00, Z 깊이 0.67), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 같은 상판 오른쪽은 [뒤 조리대 싱크·수전](#rear-counter-sink)의 외벽이 통과하도록 `@void wall-worktop: top` 두 번째 행의 전 두께를 절삭한다. sink의 외벽은 cabinet 상판의 대응 개구를 지나가고 서랍 윗면보다 위에서 끝난다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. cabinet 중앙 개방 bay에 oven은 x=0,y=0.15..0.74,z=+0.022에 넣어 front-frame의 앞면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
 
 주소는 `top/upper/edge/underside`(wall-worktop), `body/top/edge/underside`, `rim/upper/edge/underside`, `zone-0..3/upper/edge`(cooktop), `body/front/back/side-left/side-right/top/sole`, `front-frame/front/back/edge`, `window/front/back/edge`, `handle/outer/contact`, `controls/front/edge`, `knob-0..1/outer/contact`(oven)다. 정면·상부·45°에서 네 zone, oven 빈 bay, 서랍과 가전의 분리를 확인한다. ref03의 초록 서랍 하부장·밝은 상판·검은 매립 조리면을 채택한다. ref02는 공용부 위치 근거이며 ref01·04·05에서는 조리대 치수를 읽지 않는다. 가열·후드 환기 성능은 `unverified`다.
 
@@ -283,9 +300,15 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 ## 두 문 냉장고 {#refrigerator}
 
+@prose-part 상·하 문은: door-*
+@prose-part 하부 문: door-lower
+@prose-part 상부 문: door-upper
+@prose-part toe는: toe
+@prose-part 문 앞면: door-*
+
 @axis-control default: body, Y, 1.05, door seam
 
-`refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 x=±0.45,y=0.08..2.65,z=−0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 y=1.05에 0.006m seam이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 x=±0.45,y=0..0.08,z=−0.38..+0.33으로 문 앞면 z=+0.38보다 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
+`refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 x=±0.45,y=0.08..2.65,z=−0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 `@axis-control`의 seam 중심에 0.006m 틈이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 x=±0.45,y=0..0.08,z=−0.38..+0.33으로 문 앞면 z=+0.38보다 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
 
 @scalar-control door-seam: 0.006
 @scalar-control toe-front-recess: 0.05

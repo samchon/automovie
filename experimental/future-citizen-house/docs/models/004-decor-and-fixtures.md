@@ -413,13 +413,15 @@
 
 ## 거실·침실 러그 {#rugs}
 
+@prose-part pile은: pile
+
 @prose-dim base: base
 @prose-envelope living-rug: living
 @prose-envelope bedroom-rug/1600x2200: bedroom1600x2200
 
 `living-rug`는 폭 2.80, 깊이 3.65, 높이 0.016m, `bedroom-rug/1600x2200`은 폭 1.60, 깊이 2.20, 높이 0.012m다. 바닥 접촉 중심이 원점, +Z가 긴 축이다. `living` base의 Y 높이 0.013m·`bedroom1600x2200` base의 Y 높이 0.009m, pile 높이는 두 변종 모두 0.003m다. 상면 pile 부피와 0.025m 폭의 직조 둘레 띠를 별도 주소 `pile/upper/edge/underside`, `bound-edge/upper/inner/outer/underside`, `base/upper/edge/contact`로 나누고 바닥판에 녹이지 않는다. 상면 UV는 장축 Z를 따른다. 위·낮은 측면·실내 거리 view에서 둘레와 소파 발 또는 침대 곁의 접촉이 보여야 한다. ref02 침실 러그와 거실 러그, ref03 소파 앞 직물 경계를 채택한다. ref01·04·05에는 러그 상세가 없어 문턱 재료를 직물로 치환하지 않는다. 실제 pile 섬유 개별 형상과 미끄럼은 `unverified`다.
 
-`round-rug/1200`은 ref02의 작은 침실에서 보이는 원형 러그를 채택한 지름 1.20m·높이 0.012m 변종이다. 접지 중심이 원점이고 장식 회전은 둘레가 균등하므로 +Z가 방 입구를 향한다. y=0..0.009의 닫힌 원판 base, y=0.009..0.012의 pile, 바깥 반경 0.60m에서 안쪽으로 0.025m 폭의 bound-edge를 갖는다. 원형 둘레는 [공통 곡면 분할](000-representation.md#model-uv-and-topology)의 24구간을 사용하고 `pile/upper/edge/underside`, `bound-edge/upper/inner/outer/underside`, `base/upper/edge/contact`를 직사각 변종과 같이 낸다. 실제 작은 침실의 문 호와 침대 발 사이 통행을 침범하는지는 instances의 배치 검증 전까지 `unverified`다.
+`round-rug/1200`은 ref02의 작은 침실에서 보이는 원형 러그를 채택한 지름 1.20m·높이 0.012m 변종이다. 접지 중심이 원점이고 장식 회전은 둘레가 균등하므로 +Z가 방 입구를 향한다. y=0..0.009의 닫힌 원판 base와 pile은 y=0.009..0.012의 층이며, 바깥 반경 0.60m에서 안쪽으로 0.025m 폭의 bound-edge를 갖는다. 원형 둘레는 [공통 곡면 분할](000-representation.md#model-uv-and-topology)의 24구간을 사용하고 `pile/upper/edge/underside`, `bound-edge/upper/inner/outer/underside`, `base/upper/edge/contact`를 직사각 변종과 같이 낸다. 실제 작은 침실의 문 호와 침대 발 사이 통행을 침범하는지는 instances의 배치 검증 전까지 `unverified`다.
 
 다음 표에서 직사각형 `bound-edge`의 `@void`는 전체 높이를 관통하는 안쪽 직사각형이며 그 자리에 `pile`이 정확히 맞닿는다. `round1200`의 `@radial`은 Y축 동심 원판·환형 띠의 실제 반지름 구간이다. `support`는 바닥과 만나는 y=0 평면이다. 세 상태 모두 base·pile·bound-edge를 빠짐없이 낸다.
 
@@ -457,7 +459,10 @@
 
 ## 벽 액자 {#wall-art}
 
-`wall-art/600x420`은 폭 0.60, 높이 0.42, 전체 깊이 0.035m다. 벽 접합 뒷면 중심이 원점, +Z가 보는 앞이다. 프레임 띠의 폭은 0.025m다. 뒤판은 z=0..0.012, 중앙 이미지 수신용 빈 종이 면은 z=0.012..0.013이다. 매트는 z=0.013..0.021이고 두께 0.008m다. 전면 cover는 z=0.031..0.035이고 두께 0.004m다. z=0.021..0.031은 0.010m 빈 공기층이고 프레임은 외곽에서 z=0.012..0.035를 연결한다. `frame/front/edge/back`, `mat/front/back/edge`, `artwork/front/back/edge`, `cover/front/back/edge`, `back/outer/contact`가 안정 주소다. 실제 그림 내용·색은 model이 결정하지 않고 materials의 결합 전까지 중립 면이다. 정면·측면·45°와 침실 거리에서 사진 billboard가 아닌 실제 두께·frame이 보여야 한다. ref02 작은 침실 벽의 액자 한 점을 채택한다. ref01·03·04·05의 창 너머 장면을 액자 이미지로 붙이지 않는다. 특정 가족 사진·직업 단서는 설정에 없으므로 표현하지 않으며 실제 그림 내용은 `unverified`다.
+@prose-part 프레임의 안쪽 경계는: frame!void
+@prose-part 투명 cover는: cover
+
+`wall-art/600x420`은 폭 0.60, 높이 0.42, 전체 깊이 0.035m다. 벽 접합 뒷면 중심이 원점, +Z가 보는 앞이다. 프레임 띠의 폭은 0.025m다. 뒤판은 z=0..0.012, 중앙 이미지 수신용 빈 종이 면은 z=0.012..0.013이다. 매트는 z=0.013..0.021이고 두께 0.008m다. 전면 cover는 z=0.031..0.035이고 두께 0.004m다. 매트 앞면과 cover 뒷면 사이의 0.010m 빈 공기층이 있으며 프레임은 외곽에서 z=0.012..0.035를 연결한다. `frame/front/edge/back`, `mat/front/back/edge`, `artwork/front/back/edge`, `cover/front/back/edge`, `back/outer/contact`가 안정 주소다. 실제 그림 내용·색은 model이 결정하지 않고 materials의 결합 전까지 중립 면이다. 정면·측면·45°와 침실 거리에서 사진 billboard가 아닌 실제 두께·frame이 보여야 한다. ref02 작은 침실 벽의 액자 한 점을 채택한다. ref01·03·04·05의 창 너머 장면을 액자 이미지로 붙이지 않는다. 특정 가족 사진·직업 단서는 설정에 없으므로 표현하지 않으며 실제 그림 내용은 `unverified`다.
 
 프레임의 안쪽 경계는 x=±0.275,y=±0.185이고 이 개구를 z=0.012..0.035에 관통 절삭한다. 매트는 그 개구를 채우는 테두리로서 중앙 x=±0.230,y=±0.140을 z=0.013..0.021에 절삭한다. 종이 artwork는 그 중앙 x=±0.230,y=±0.140을 채우고 뒤판에 붙으며, 투명 cover는 프레임 개구 전체 x=±0.275,y=±0.185에서 z=0.031..0.035로 프레임 안쪽 네 면에 닿는다. 빈 공기층에는 감춘 지지대나 중복 평판이 없다.
 
@@ -534,6 +539,8 @@
 <!-- @authored-address-state:end -->
 
 ## 거실 화면 {#living-display}
+
+@prose-part screen 뒷면은: screen
 
 `living-display`는 폭 1.43, 높이 0.80, Z 깊이 0.045m다. 벽 mount 접합면 중심이 원점, +Z가 시청자 쪽이다. mount는 폭 0.18·높이 0.12·깊이 0.018m로 z=0..0.018이다. 뒤판 housing은 폭 1.43·높이 0.80·깊이 0.021m로 z=0.018..0.039이고 bezel의 0.006m 깊이를 합치면 display 외함의 전체 깊이가 0.027m다. bezel은 바깥 가장자리에서 폭 0.018m를 차지하며 중앙 screen을 위한 전면 개구를 실제로 절삭한다. screen은 z=0.039..0.042m의 두께 0.003m 판이고 bezel 전면 z=0.045보다 0.003m 물린다. `screen/front/back/edge`, `bezel/front/back/edge`, `housing/front/back/edge`, `mount/outer/contact`가 안정 주소다. 정면·측면·45°에서 bezel와 벽 이격을 확인한다. ref02와 ref03 거실의 미디어 장치를 채택하며 ref01·04·05의 유리 벽을 화면으로 오인하지 않는다. 영상 내용과 전력 상태는 이 형상에서 `unverified`다.
 

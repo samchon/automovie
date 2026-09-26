@@ -356,7 +356,7 @@ function boundCoordinates(lines, owner) {
       if (Math.abs(Number(length[1]) - spans[0]) > 0.000001)
         errors.push(`${owner}: prose line ${index + 1} downward length ${length[1]} contradicts measured envelope ${spans[0]}`);
     }
-    for (const measure of line.matchAll(/(?:X\s*)?폭\s*(\d+\.\d+)|(?:Y\s*)?높이\s*(\d+\.\d+)|(?:Z\s*)?깊이\s*(\d+\.\d+)|두께\s*(\d+\.\d+)|(?<!반)지름\s*(\d+\.\d+)/g)) {
+    for (const measure of line.matchAll(/(?<!반)(?:X\s*)?폭\s*(\d+\.\d+)|(?:Y\s*)?높이\s*(\d+\.\d+)|(?:Z\s*)?깊이\s*(\d+\.\d+)|두께\s*(\d+\.\d+)|(?<!반)지름\s*(\d+\.\d+)/g)) {
       const axis = /** @type {"x"|"y"|"z"|null} */ (measure[1] ? "x" : measure[2] ? "y" : measure[3] ? "z" : null);
       const value = Number(measure[1] || measure[2] || measure[3] || measure[4] || measure[5]);
       const before = line.slice(Math.max(0, measure.index - 70), measure.index);
@@ -480,7 +480,7 @@ function boundCoordinates(lines, owner) {
       if (measured.length && measured.some((gap) => Math.abs(gap - asserted) > 0.000001))
         errors.push(`${owner}: prose line ${index + 1} drawer side clear ${asserted} contradicts measured gaps ${measured.join(",")}`);
     }
-    for (const claim of line.matchAll(/([xyzXYZ])\s*=\s*([±+−-]?\d+\.\d+)(?:\.\.([+−-]?\d+\.\d+))?(?![WH])/g)) {
+    for (const claim of line.matchAll(/([xyzXYZ])\s*=\s*([±+−-]?\d+\.\d+)(?:\.\.([+−-]?\d+\.\d+))?(?![\d.WHDwhd+−*/])/g)) {
       const axis = /** @type {"x"|"y"|"z"} */ (claim[1].toLowerCase());
       const boundary = line.lastIndexOf(". ", claim.index);
       const start = boundary < 0 ? 0 : boundary + 2;
@@ -751,9 +751,27 @@ function audit(overrides = new Map()) {
   };
 }
 
+function lexicalFixture() {
+  const rows = [
+    "| @envelope | default | * | bounds | -0.008..0.008 | 0..1 | -0.02..0.02 | - |",
+    "| @part | default | leg | box | -0.008..0.008 | 0..1 | -0.02..0.02 | ground |",
+    "@prose-part leg는: leg",
+  ];
+  const formula = boundCoordinates([...rows, "leg는 x=−0.20W+0.009, y=0.04+jH/6이고 X 반폭 0.008m다."], "lexical");
+  if (formula.errors.length || formula.unbound)
+    throw Error(`formula prefix became a literal coordinate or half-width: ${formula.errors}`);
+  const literal = boundCoordinates([...rows, "leg는 x=−0.008..0.008이고 폭 0.016m다."], "lexical");
+  if (literal.errors.length || literal.bound !== 1 || literal.boundDimensions !== 1)
+    throw Error(`literal coordinate or full width lost its part binding: ${literal.errors}`);
+  const wrong = boundCoordinates([...rows, "leg는 x=−0.008..0.008이고 폭 0.008m다."], "lexical");
+  if (!wrong.errors.some((error) => error.includes("span")))
+    throw Error("incorrect full width escaped lexical binding");
+}
+
 // Every prototype with a measured axis supplies one document-only mutation.
 // This fixture does not claim that a matching number proves part identity.
 function fixture() {
+  lexicalFixture();
   /** @type {Map<string,string>} */
   const overrides = new Map();
   /** @type {string[]} */

@@ -10,6 +10,16 @@
 @prose-part 상단 고정띠는: service-strip-top
 @prose-part sink 절삭의: top!void
 @prose-part 열린 bay: fixed-front!void
+@prose-part 섬 문은: service-door-*
+@prose-part 하판은: bottom
+@prose-part 섬 서비스 문에서는 같은 깊이: service-handle-*
+@prose-part 장축 Z의 끝판 둘은: end-*
+@prose-part 상·하판도: top
+@prose-part +X 긴 면의 이음 없는 판은: dining-side
+@prose-part 문의 이음마다: service-stile-*
+@prose-part 섬 서비스 문 수는: service-door-*
+@prose-part 각 service hinge는: service-hinge-*
+@prose-part 일반형 힌지의 중심: hinge-*
 
 `cabinet/<형상형>/<폭-mm>x<높이-mm>x<깊이-mm>/<closed|open>`이 prototype ID다. mm 토큰은 [공통 규칙](000-representation.md#model-address-and-scale)대로 검증한다. 일반형은 폭 0.50..2.90m, 높이 0.44..2.65m, 깊이 0.25..0.76m이며 예외 `island-base/880x870x2650`은 Z 장축 2.65m를 깊이 토큰에 명시한다. 다른 일반형을 이 예외로 확대하지 않는다. 원점은 바닥 접촉 중심, 일반형 +Z는 문·열린 선반 앞, 섬 하부장만 +X가 스툴이 붙는 긴 외측, −X가 서비스 문 쪽이며 장축은 Z다. `open-shelf`만 `open`이고 나머지 형상형은 `closed`가 납품 상태다. `tall`, `service`, `wall`, `bench-base`, `island-base`는 별도의 `open` 검사 상태를 가지며 고정 외함은 같다. 일반형 문은 폭에서 산출한 모든 leaf를 왼쪽부터 `door-0..n-1`로 정렬하고, 짝수 leaf는 왼쪽 edge에서 0.013m 안쪽, 홀수 leaf는 오른쪽 edge에서 0.013m 안쪽의 x와 z=D/2−0.009에 Y 경첩 축을 둔다. 문은 z=D/2−0.018..D/2에 닿고 뒤판은 z=−D/2..−D/2+0.012, 측판은 그 두 면 사이에 있으므로 손잡이까지 포함한 닫힌 일반형의 전후 AABB는 깊이 D이며, 뒤 cleat가 있는 `wall` cleat의 Z 깊이 c이며 닫힌 외함의 전체 깊이는 D에 이 깊이를 더한다. 최소 두 문인 좁은 변종도 같은 짝수 leaf 규칙을 쓴다. 섬 문은 x=−0.44..−0.422이고 회전축의 x는 섬 폭 W에서 −W/2+0.013m로 계산하며 각 leaf의 −Z 끝을 따른다. 힌지 부품의 X 중심은 이 회전축을 대신하지 않는다. 열린 검사 상태는 닫힌 문의 각도를 바깥쪽 90°로 놓되 힌지 연결편의 절삭이 상태별로 달라 같은 강체 문 메시를 회전한 결과가 아니다. 두 상태의 문은 각각 별도 확정 형상이고 중간 운동과 충돌 회피는 제공하지 않는다.
 
@@ -1756,6 +1766,8 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 ## 현관 벤치와 신발장 {#entry-bench}
 
+@prose-part 방석을 얹어 상면: cushion
+
 이 wrapper의 단독 부품은 방석 하나다. `support@0.44`는 별도 cabinet/bench-base의 상단 접촉면이며 cabinet 판을 이 부품 표에 복제하지 않는다.
 
 @compose default: cabinet-and-shelf, bench-base/1150x440x480/closed, 0, 0, 0
@@ -1797,6 +1809,9 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 <!-- @authored-address-state:end -->
 
 ## 고정 침대와 침구 {#fixed-bed}
+
+@prose-part 매트리스 아래면: mattress
+@prose-part 베개는: pillow-*
 
 @axis-control 1800: duvet, Z, 0.99, foot fold start
 @axis-control 1000: duvet, Z, 0.99, foot fold start
@@ -1860,6 +1875,24 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 ## 작업실 수납 침대 {#murphy-bed}
 
+@prose-part 외함 뒤판의 상단은: case-back
+@prose-part guest 베개는: pillow
+@prose-part 외함은: case-*
+@prose-part 뒤판은: case-back
+@prose-part 측판은: case-side-*
+@prose-part 상판은: case-top
+@prose-part pivot은: hinge-*
+@prose-part 각 힌지의 X축 끝 원판: hinge-*
+@prose-part 손님 프레임은: bed-frame
+@prose-part 원판 중심: hinge-*
+@prose-part 작업 상태의 세로 panel은: closed-panel
+@prose-part 손님 상태의 수평 프레임은: bed-frame
+@prose-part 매트리스는: mattress
+@prose-part 접지 지지 다리 두 개는: support-*
+@prose-part 프레임 아래면: bed-frame
+@prose-part 이불을: duvet
+@prose-part 베개 하나는: pillow
+
 @prose-dim 손잡이: pull
 
 외함 뒤판의 상단은 y=2.32m에서 끝나 상판 아랫면과 접한다. 힌지 축의 원통형 recess는 아래 `@bore-x`의 X 구간·YZ 중심·반지름만 절삭한다. 힌지 AABB를 감싸는 직사각형은 절삭하지 않으며 원통 밖 모서리에는 측판 재료가 남는다. guest 베개는 중심 y=0.655m라 아래면이 매트리스 y=0.60m에 닿는다. XZ 네 모서리는 반지름 min(H/2,W/12,D/12)의 여섯 호 구간으로 둥글리고 y=0.60의 중앙 밑면과 y=0.71의 중앙 윗면은 평평하게 닫는다. 아래 `@flat-contact`의 XZ 직사각형은 둥근 모서리에서 안쪽으로 떨어져 매트리스와 유한 면으로 접한다.
@@ -1909,7 +1942,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | guest | duvet | box | -0.54..0.54 | 0.60..0.655 | 0.72..2.02 | mattress |
 | @part | guest | pillow | curved | -0.36..0.36 | 0.60..0.71 | 0.33..0.67 | mattress |
 
-`murphy-bed`는 명시 상태 `work` 또는 `guest`를 받는다. 바닥 외함 중심 원점, +Z가 방 안쪽이다. 외함은 폭 1.30, 높이 2.36, 깊이 0.46m로 x=±0.65, z=±0.23이며 두 상태에서 같다. 뒤판 두께 0.025m는 z=-0.23..-0.205, 측판 두께 0.045m는 x=−0.65..−0.605와 +0.605..+0.65, y=0..2.32,z=−0.205..+0.23이고 상판 두께 0.04m는 y=2.32..2.36,z=−0.23..+0.23이다. pivot은 양쪽 x=±0.625, y=0.32, z=0.205의 동일 X축 한 줄이며 각 힌지는 지름 0.05m, X축 길이 0.05m의 닫힌 부품이다. 측판에는 각 힌지의 x=±(0.60..0.65), y=0.295..0.345, z=0.18..0.23 점유를 따라 닫힌 원통형 recess를 빼고 접촉 edge를 남긴다. 각 힌지의 X축 끝 원판 x=±0.60은 세로 panel 측면과 손님 프레임의 옆면에 닿는다. 손님 프레임은 z=0.22부터 시작하므로 원판 중심 z=0.205·반경 0.025와 y≥0.32,z≥0.22인 프레임 옆면의 교집합이 양의 면적이다. z=0.23의 접선만으로 지지하지 않는다. 작업 상태의 세로 panel은 폭 1.20, 높이 2.28, 두께 0.035m로 x=±0.60,y=0.04..2.32,z=0.21..0.245에 닫힌다. 손잡이 0.32×0.025×0.025m는 아래 `@part work pull` 행의 X·Y·Z 범위에 보이며 작업·손님 상태의 전체 AABB는 각각 아래 `@envelope work`와 `@envelope guest` 행이 소유한다. 손님 상태의 수평 프레임은 pivot에서 +Z로 뻗어 외함 전면 근처 z=0.22부터 발치 z=2.18까지, 폭 1.20m·두께 0.12m로 y=0.32..0.44에 놓인다. 매트리스는 폭 1.10, 길이 1.82, 두께 0.16m로 z=0.27..2.09,y=0.44..0.60이다. 접지 지지 다리 두 개는 단면 0.045×0.045m, 중심 x=±0.52, z=2.08, y=0..0.32에 세워 프레임 아래면 y=0.32에서 끝내며 프레임 부피를 관통하지 않는다. 손님 침대에는 폭 1.08·길이 1.30·두께 0.055m의 이불을 y=0.60..0.655, z=0.72..2.02에, 폭 0.72·깊이 0.34·높이 0.11m의 베개 하나를 중심 z=0.50, y=0.655에 둔다. 별도 머리판은 외함의 내부 뒤판이 대신한다. 닫힌 panel과 펼친 frame·매트리스·침구는 동시에 나타나지 않는다. 실제 중간 회전 경로·잠금·하중은 `unverified`다.
+`murphy-bed`는 명시 상태 `work` 또는 `guest`를 받는다. 바닥 외함 중심 원점, +Z가 방 안쪽이다. 외함은 폭 1.30, 높이 2.36, 깊이 0.46m로 x=±0.65, z=±0.23이며 두 상태에서 같다. 뒤판은 두께 0.025m로 z=-0.23..-0.205, 측판은 두께 0.045m로 x=−0.65..−0.605와 +0.605..+0.65, y=0..2.32,z=−0.205..+0.23이고 상판은 두께 0.04m로 y=2.32..2.36,z=−0.23..+0.23이다. pivot은 양쪽 x=±0.625, y=0.32, z=0.205의 동일 X축 한 줄이며 각 힌지는 지름 0.05m, X축 길이 0.05m의 닫힌 부품이다. 측판에는 각 힌지의 x=±(0.60..0.65), y=0.295..0.345, z=0.18..0.23 점유를 따라 닫힌 원통형 recess를 빼고 접촉 edge를 남긴다. 각 힌지의 X축 끝 원판 x=±0.60은 세로 panel 측면과 손님 프레임의 옆면에 닿는다. 손님 프레임은 z=0.22부터 시작하므로 원판 중심 z=0.205·반경 0.025와 y≥0.32,z≥0.22인 프레임 옆면의 교집합이 양의 면적이다. z=0.23의 접선만으로 지지하지 않는다. 작업 상태의 세로 panel은 폭 1.20, 높이 2.28, 두께 0.035m로 x=±0.60,y=0.04..2.32,z=0.21..0.245에 닫힌다. 손잡이 0.32×0.025×0.025m는 아래 `@part work pull` 행의 X·Y·Z 범위에 보이며 작업·손님 상태의 전체 AABB는 각각 아래 `@envelope work`와 `@envelope guest` 행이 소유한다. 손님 상태의 수평 프레임은 pivot에서 +Z로 뻗어 외함 전면 근처 z=0.22부터 발치 z=2.18까지, 폭 1.20m·두께 0.12m로 y=0.32..0.44에 놓인다. 매트리스는 폭 1.10, 길이 1.82, 두께 0.16m로 z=0.27..2.09,y=0.44..0.60이다. 접지 지지 다리 두 개는 단면 0.045×0.045m, 중심 x=±0.52, z=2.08, y=0..0.32에 세워 프레임 아래면 y=0.32에서 끝내며 프레임 부피를 관통하지 않는다. 손님 침대에는 이불을 폭 1.08·길이 1.30·두께 0.055m로 만들고 y=0.60..0.655, z=0.72..2.02에 둔다. 베개 하나는 폭 0.72·깊이 0.34·높이 0.11m이고 중심 z=0.50, y=0.655에 둔다. 별도 머리판은 외함의 내부 뒤판이 대신한다. 닫힌 panel과 펼친 frame·매트리스·침구는 동시에 나타나지 않는다. 실제 중간 회전 경로·잠금·하중은 `unverified`다.
 
 공유 주소는 `case-back/front/back/edge`, `case-side-left/right/outer/inner/front-edge/back-edge/top/sole`, `case-top/upper/underside/edge`, `hinge-left/right/outer/contact`다. 작업만 `closed-panel/front/back/edge`, `pull/outer/contact`, 손님만 `bed-frame/upper/edge/underside`, `mattress/upper/side/underside`, `support-left/right/shaft/top/sole`, `duvet/upper/side/underside`, `pillow/upper/side/underside`를 낸다. 두 상태 모두 뒤판 앞면이 외함 내부에서 관찰될 수 있어 뒷면과 분리한다. 같은 45°·측면 중립 카메라와 작업실 출입 뷰에서 외함 점유의 동일함과 상태별 part 분리를 확인한다. ref04의 평평한 접이식 전면과 책상·계단으로 이어지는 열린 작업실을 채택하고, ref02의 작업실 정지 상태는 평면 관계 확인에 쓴다. ref01·03·05의 고정 방을 침대 동작 근거로 쓰지 않는다. 출입 원통 성립은 instances의 배치 검증 대상이다.
 

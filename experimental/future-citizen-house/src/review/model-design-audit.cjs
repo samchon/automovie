@@ -71,27 +71,34 @@ function audit(overrides = new Map()) {
         if (!doorStates.length || doorStates.some(([, names]) => !names.has("fixed-front-bottom")))
           errors.push(`${anchor}: prose leaf-bottom frame contradicts variant parts`);
       }
-      if (/(?:네|4)\s*(?:다리|발)\s*중심.{0,80}원점/.test(chunk)) {
-        const legRows = chunk.split(/\r?\n/).filter((line) => /^\| @part \|/.test(line))
-          .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()))
-          .filter((cells) => /^leg-[0-3]$/.test(cells[2]));
-        /** @type {Map<string,number[][]>} */ const grouped = new Map();
-        for (const cells of legRows) {
-          const bounds = [cells[4], cells[6]].map((cell) => cell.replaceAll("−", "-").split("..").map(Number));
-          const center = bounds.map(([lo, hi]) => (lo + hi) / 2);
-          const existing = grouped.get(cells[1]) ?? [];
-          existing.push(center);
-          grouped.set(cells[1], existing);
-        }
-        if (![...grouped.values()].some((centers) => centers.length === 4 &&
-          centers.every(([x, z]) => Number.isFinite(x) && Number.isFinite(z)) &&
-          Math.abs(centers.reduce((sum, [x]) => sum + x, 0)) < 0.000001 &&
-          Math.abs(centers.reduce((sum, [, z]) => sum + z, 0)) < 0.000001))
-          errors.push(`${anchor}: prose leg-centre origin contradicts measured leg centres`);
-      }
       const ordinalLegs = chunk.split(/\r?\n/).filter((line) => /^\| @part \|/.test(line))
         .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()))
         .filter((cells) => /^leg-[0-3]$/.test(cells[2]));
+      const legGroups = [...new Set(ordinalLegs.map((cells) => cells[1]))].map((state) =>
+        ordinalLegs.filter((cells) => cells[1] === state).map((cells) => {
+          const [x, z] = [cells[4], cells[6]].map((cell) => {
+            const [lo, hi] = cell.replaceAll("−", "-").split("..").map(Number);
+            return (lo + hi) / 2;
+          });
+          return { x, z };
+        })).filter((legs) => legs.length === 4 && legs.every((leg) =>
+          Number.isFinite(leg.x) && Number.isFinite(leg.z)));
+      const prose = chunk.split(/\r?\n/).filter((line) => line && !/^\||^@|^<!--/.test(line)).join(" ");
+      if (/(?<![가-힣])(?:다리|발)(?=\s|는|은|의|가|을).{0,80}중심.{0,80}원점/.test(prose) &&
+        !legGroups.some((legs) => Math.abs(legs.reduce((sum, leg) => sum + leg.x, 0)) < 0.000001 &&
+          Math.abs(legs.reduce((sum, leg) => sum + leg.z, 0)) < 0.000001))
+        errors.push(`${anchor}: prose leg-centre origin contradicts measured leg centres`);
+      if (/(?<![가-힣])(?:다리|발)(?=\s|는|은|의|가|을).{0,80}(?:모두|전부).{0,30}앞쪽/.test(prose) &&
+        !legGroups.some((legs) => legs.every((leg) => leg.z > 0)))
+        errors.push(`${anchor}: prose leg placement contradicts measured front/back centres`);
+      if (/(?<![가-힣])(?:다리|발)(?=\s|는|은|의|가|을).{0,80}(?:모두|전부).{0,30}뒤쪽/.test(prose) &&
+        !legGroups.some((legs) => legs.every((leg) => leg.z < 0)))
+        errors.push(`${anchor}: prose leg placement contradicts measured front/back centres`);
+      if (/(?<![가-힣])(?:다리|발)(?=\s|는|은|의|가|을).{0,80}(?:좌우|양쪽).{0,20}앞뒤/.test(prose) &&
+        !legGroups.some((legs) => new Set(legs.map((leg) => leg.x)).size === 2 &&
+          new Set(legs.map((leg) => leg.z)).size === 2 &&
+          legs.filter((leg) => leg.z > 0).length === 2 && legs.filter((leg) => leg.z < 0).length === 2))
+        errors.push(`${anchor}: prose leg grid contradicts measured front/back centres`);
       for (const state of new Set(ordinalLegs.map((cells) => cells[1]))) {
         const legs = ordinalLegs.filter((cells) => cells[1] === state).map((cells) => {
           const center = [cells[4], cells[6]].map((cell) => {
@@ -115,6 +122,13 @@ const result = audit();
 console.log(JSON.stringify(result, null, 2));
 if (result.errors.length) process.exitCode = 1;
 if (process.argv.includes("--fixture")) {
+  const chairFile = "001-seating-and-work.md";
+  const chairSource = fs.readFileSync(path.join(root, "docs/models", chairFile), "utf8");
+  const claim = "넷의 다리는 좌우·앞뒤 두 위치씩이며";
+  if (!chairSource.includes(claim)) throw Error("accent-chair leg claim fixture absent");
+  const frontOnly = audit(new Map([[chairFile, chairSource.replace(claim, "다리는 모두 앞쪽 두 위치이며")]]));
+  if (!frontOnly.errors.some((error) => error.includes("accent-chair: prose leg placement")))
+    throw Error(`accent-chair front-only prose escaped: ${frontOnly.errors}`);
   const candidates = files.flatMap((file) => {
     const source = fs.readFileSync(path.join(root, "docs/models", file), "utf8");
     return [...source.matchAll(/^@inventory\s+[^:]+:\s*.+$/gm)].map((match) => ({ file, source, row: match[0] }));
