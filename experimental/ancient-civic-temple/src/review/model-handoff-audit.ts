@@ -124,22 +124,39 @@ export const modelIdentityOwnerFailures = (
           !model.body.includes(`../settings/35-objects.md#${id}`))
         failures.push(`${model.key}: missing direct settings identity ${ref}`);
       const bands = [...parent.body.matchAll(/(폭|깊이|높이|지름|길이|두께)\s+([\d.]+)~([\d.]+)m/g)];
-      const box = model.body.match(/점유 상자는\s*(?:약\s*)?([\d.]+)×([\d.]+)×([\d.]+)m/)
-        ?? model.body.match(/기본형 점유 상자는\s*([\d.]+)×([\d.]+)×([\d.]+)m/);
-      if (bands.length && !box) {
+      const boxes = [...model.body.matchAll(/점유 상자는[^\d\n]*?([\d.]+)×([\d.]+)×([\d.]+)m/g)];
+      if (bands.length && !boxes.length) {
         failures.push(`${model.key}: no occupancy box for settings dimensions`);
         continue;
       }
-      if (!box) continue;
-      const [width, height, depth] = box.slice(1).map(Number);
-      const values: Record<string, number> = {
-        폭: width!, 깊이: depth!, 높이: height!, 지름: Math.max(width!, depth!),
-        길이: Math.max(width!, depth!), 두께: Math.min(width!, height!, depth!),
+      if (!boxes.length) continue;
+      const values: Record<string, number[]> = {
+        폭: [], 깊이: [], 높이: [], 지름: [], 길이: [], 두께: [],
       };
+      for (const box of boxes) {
+        const [width, height, depth] = box.slice(1).map(Number);
+        values.폭!.push(width!);
+        values.깊이!.push(depth!);
+        values.높이!.push(height!);
+        values.지름!.push(Math.max(width!, depth!));
+        values.길이!.push(Math.max(width!, depth!));
+        values.두께!.push(Math.min(width!, height!, depth!));
+      }
+      for (const match of model.body.matchAll(/\b([WDT])=([\d.]+)m/g)) {
+        const label = { W: "폭", D: "깊이", T: "두께" }[match[1] as "W" | "D" | "T"];
+        values[label]!.push(Number(match[2]));
+      }
       for (const [, label, low, high] of bands) {
-        const value = values[label!]!;
-        if (value < Number(low) - 1e-8 || value > Number(high) + 1e-8)
-          failures.push(`${model.key}: ${label} ${value}m outside ${ref} ${low}~${high}m`);
+        for (const value of values[label!]!) {
+          if (value < Number(low) - 1e-8 || value > Number(high) + 1e-8)
+            failures.push(`${model.key}: ${label} ${value}m outside ${ref} ${low}~${high}m`);
+        }
+        // A named primary slab or floor may exceed the declared object range
+        // even while a stale occupancy sentence remains within it.
+        const partWidths = [...model.body.matchAll(/(?:바닥|상판|판)은?[^.\n]{0,30}?폭 ([\d.]+)m/g)]
+          .map((match) => Number(match[1]));
+        if (label === "폭" && partWidths.some((value) => value > Number(high) + 1e-8))
+          failures.push(`${model.key}: primary part width exceeds ${ref} ${low}~${high}m`);
       }
     }
   }

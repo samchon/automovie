@@ -55,3 +55,14 @@ void test("all six settings size bands are compared with the model envelope", ()
   assert.deepEqual(modelIdentityOwnerFailures(settings, [{ path: "columns.md", source: "## 기둥 {#column}\n모델." }]), []);
   assert.match(modelIdentityOwnerFailures(settings, [{ path: "future-objects.md", source: "## 새 물체 {#new-object}\n점유 상자는 0.3×0.2×0.3m다." }]).join(" "), /missing settings identity/);
 });
+
+void test("variant parameters and a primary floor cannot hide behind the base box", () => {
+  const settings = { path: "settings/35-objects.md",
+    source: "## 천 {#textile}\n폭 0.4~0.6m, 깊이 0.2~0.4m, 두께 0.02~0.06m다.\n## 쟁반 {#tray}\n폭 0.4~0.6m다." };
+  const source = "## 천 {#textile}\n<!--\n@evidence settings/35-objects.md#textile 천.\n-->\n[천](../settings/35-objects.md#textile) W=0.55m·D=0.40m·T=0.045m이고 작은 변형은 W=0.42m·D=0.36m·T=0.03m다. 점유 상자는 0.55×0.045×0.40m다.\n## 쟁반 {#tray}\n<!--\n@evidence settings/35-objects.md#tray 쟁반.\n-->\n[쟁반](../settings/35-objects.md#tray) 바닥은 폭 0.52m·깊이 0.34m다. 점유 상자는 0.52×0.05×0.34m다.";
+  const portable = { path: "portable.md", source };
+  assert.deepEqual(modelIdentityOwnerFailures(settings, [portable]), []);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("T=0.03m", "T=0.08m") }]).join(" "), /두께 0.08m outside/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("W=0.42m", "W=0.80m") }]).join(" "), /폭 0.8m outside/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("바닥은 폭 0.52m", "바닥은 폭 0.70m") }]).join(" "), /primary part width exceeds/);
+});

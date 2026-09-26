@@ -8,7 +8,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const root = new URL("../../docs/models/", import.meta.url);
-const curved = /원판|원통|원환|원뿔대|타원체|베지어|반원통|반타원|곡면|파문/;
+const curved = /원판|원통|원환|원뿔대|타원체|베지어|반원통|반타원|곡면|파문|원형 홈|원형 구멍/;
 const segments = /\d+(?:×\d+)?분할|\d+정점|\d+등분|\d+개 삼각형/;
 
 /** Circular rows are specified by count, pitch and a first centre. The face
@@ -128,8 +128,13 @@ export const curvedPartFailures = (id, body) => {
   for (const [part, noun] of labels) {
     if (!noun) continue;
     const geometry = sentences.filter((sentence) => namesCurve(sentence, noun) && /반지름|지름|원형|원주|단면/.test(sentence));
+    const family = noun.includes("고리") ? /원환/ : noun.includes("홈") ? /원형 (?:홈|구멍)/ : null;
+    if (!geometry.length && family && family.test(body) && /반지름/.test(body))
+      geometry.push(body);
     if (!geometry.length) continue;
-    const explicit = sentences.some((sentence) => mentions(sentence, noun) && segments.test(sentence));
+    const explicit = sentences.some((sentence) =>
+      (mentions(sentence, noun) || (family && family.test(sentence)) ||
+        (noun.includes("홈") && /홈 원주/.test(sentence))) && segments.test(sentence));
     const global = sentences.some((sentence) => /(?:원형 부재|원형 면|타원체|각 회전체|세 회전체)는?[^.\n]*\d+(?:×\d+)?분할/.test(sentence));
     if (!explicit && !global) failures.push(`${id}: curved part ${part} (${noun}) has no own division`);
   }

@@ -43,13 +43,13 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·04의 얕은 접시와 어두운 금속 실루엣을 소형으로 변주한다.
 @evidence principles/design/models.md#model-scale-layer-completion 큰 등잔대와 소형 등잔의 규모 차이와 표면 경계가 정해져 방별 비품이 같은 원형을 쓴다.
 @evidence settings/30-interiors.md#services 꺼진 등잔 상태를 소형 비품에도 적용한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 35-objects#lampstands의 높은 등잔대와 구별할 소형 이동식 비품 owner가 없어 35-objects#portable-lamp를 새로 만들고 30-interiors#offering-room의 방 목록에 넣었다. 등잔대와 별도 정체성을 먼저 정한 뒤 형상 산문을 썼다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 35-objects#lampstands의 높은 등잔대와 구별할 소형 이동식 비품 owner가 없어 35-objects#portable-lamp를 새로 만들고 30-interiors의 정문·중정·봉헌실·관리실 방 목록에 넣었다. 등잔대와 별도 정체성을 먼저 정한 뒤 형상 산문을 썼다.
 @evidence settings/35-objects.md#portable-lamp 높은 제실 등잔대와 별개인 이동식 비품의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
 -->
 
 [사물 정체성](../settings/35-objects.md#portable-lamp)과 [사용 공간](../settings/30-interiors.md#offering-room)이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
 
-이 등잔은 [높은 금속 등잔대](fixtures.md#lampstand)와 별도인 이동식 비품이며 기름·심지·불꽃의 작동은 표시하지 않는다. 로컬 원점은 발 바닥 중심이다. 발은 반지름 0.10m·높이 0.035m의 16분할 원판, 줄기는 반지름 0.012m·Y=0.035~0.23m 원통, 접시는 바깥 반지름 0.12m·Y=0.23~0.28m의 열린 평바닥 컵이다. 접시 안쪽 반지름 0.105m, 바닥 두께 0.008m이며 윗면 고리 두께는 0.015m다. 줄기는 발 윗면과 접시 아랫면에 각각 닿는다. 점유 상자는 0.24×0.28×0.24m다.
+이 등잔은 [높은 금속 등잔대](fixtures.md#lampstand)와 별도인 이동식 비품이며 기름·심지·불꽃의 작동은 표시하지 않는다. 정문·중정·봉헌실·관리실의 같은 비품이며 실제 위치와 수량은 instances가 정한다. 로컬 원점은 발 바닥 중심이다. 발은 반지름 0.10m·높이 0.035m의 16분할 원판, 줄기는 반지름 0.012m·Y=0.035~0.23m 원통, 접시는 바깥 반지름 0.12m·Y=0.23~0.28m의 열린 평바닥 컵이다. 접시 안쪽 반지름 0.105m, 바닥 두께 0.008m이며 윗면 고리 두께는 0.015m다. 줄기는 발 윗면과 접시 아랫면에 각각 닿는다. 점유 상자는 0.24×0.28×0.24m다.
 
 실제 위치와 수량은 instances가 정한다.
 
@@ -76,7 +76,7 @@ part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이
 
 [사물 정체성](../settings/35-objects.md#jar-rack)과 [사용 공간](../settings/30-interiors.md#storage)이 이 prototype의 부모다. [레퍼런스 이미지 02·05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
 
-받침대는 항아리 둘의 prototype이 아니라 그 밑의 독립된 낮은 목재 가구다. 로컬 원점은 바닥 중심이며 긴 변은 X, 앞은 +Z다. 상판은 폭 1.18m·깊이 0.58m·두께 0.06m로 Y=0.22~0.28m에 있다. 네 다리는 정방 0.07m이고 중심 (X,Z)=(±0.52,±0.22)m에 놓여 Y=0~0.22m에서 상판에 닿는다. 상판의 두 원형 홈은 중심 X=±0.29m·Z=0, 반지름 0.16m, 깊이 0.012m이며 위로 열리고 판을 관통하지 않는다. `top`은 Y=0.22~0.268m의 온전한 하부 판과 Y=0.268~0.28m의 두 원형 구멍 바깥쪽 판·구멍 벽을 소유한다. `well`은 두 구멍 각각의 Y=0.268m 바닥면만 소유하며 두께 없는 면이므로 `top`과 부피를 겹치지 않는다. 홈 바닥은 항아리의 인스턴스 받침 datum이며 실제 접촉 판단은 instances가 한다. 점유 상자는 1.18×0.28×0.58m다.
+받침대는 항아리 둘의 prototype이 아니라 그 밑의 독립된 낮은 목재 가구다. 실제 위치와 수량은 instances가 정한다. 로컬 원점은 바닥 중심이며 긴 변은 X, 앞은 +Z다. 상판은 폭 1.18m·깊이 0.58m·두께 0.06m로 Y=0.22~0.28m에 있다. 네 다리는 정방 0.07m이고 중심 (X,Z)=(±0.52,±0.22)m에 놓여 Y=0~0.22m에서 상판에 닿는다. 상판의 두 원형 홈은 중심 X=±0.29m·Z=0, 반지름 0.16m, 깊이 0.012m이며 위로 열리고 판을 관통하지 않는다. `top`은 Y=0.22~0.268m의 온전한 하부 판과 Y=0.268~0.28m의 두 원형 구멍 바깥쪽 판·구멍 벽을 소유한다. `well`은 두 구멍 각각의 Y=0.268m 바닥면만 소유하며 두께 없는 면이므로 `top`과 부피를 겹치지 않는다. 홈 바닥은 항아리의 인스턴스 받침 datum이며 실제 접촉 판단은 instances가 한다. 점유 상자는 1.18×0.28×0.58m다.
 
 홈의 둥근 옆벽은 `top`의 구멍 안쪽 면이고 `well`은 Y=0.268m의 홈 바닥만 소유한다. 홈 반지름 0.16m는 [저장 항아리](wares.md#storage-jar)의 바닥 반지름 0.10m와 [운반 항아리](wares.md#carry-jar)의 바닥 반지름 0.07m보다 크다. `well` 바닥 아래의 상판 실체는 `top`에 이어지며 두 part가 같은 부피를 중복 방출하지 않는다.
 
@@ -93,7 +93,7 @@ part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검�
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#carrying-yoke의 서비스 마당에 내려놓는 운반 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidence principles/design/models.md#representation-contract beam·hook의 분리와 고리 구멍을 정하고 줄·하중은 포함하지 않는다.
 @evidence principles/design/models.md#spatial-convention 막대 중심 원점, +X 장축, 1.16×0.17×0.12m 점유를 정한다.
-@evidence principles/design/models.md#reviewable-structure 평면에서 가는 가로대와 두 고리 안쪽의 빈 공간을 본다.
+@evidence principles/design/models.md#reviewable-structure ±X 끝 입면에서 가는 가로대 양끝과 두 고리 안쪽의 빈 공간을 본다.
 @evidence principles/design/models.md#model-observable-style-basis 마당의 손운반 규모를 단순한 목재 직선과 금속 고리의 구성으로 읽힌다.
 @evidence principles/design/models.md#model-scale-layer-completion 양끝 고리의 범위와 배치 후 들기 동작 제외를 확정한다.
 @evidence settings/30-interiors.md#service-yard 열린 작업 마당의 소수 운반물에 속한다.
@@ -109,7 +109,7 @@ part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검�
 
 부재 대응: `beam`=가로대; `hook`=고리.
 
-part와 표면은 `beam`, `hook`이다. 두 고리는 같은 형상의 반복이며 첫 중심은 −X 쪽이다. 검토 판에서 고리 두 구멍과 나무·금속 부재의 분리를 본다. 실제 적재 강도나 운반 동작은 주장하지 않는다.
+part와 표면은 `beam`, `hook`이다. 두 고리는 같은 형상의 반복이며 첫 중심은 −X 쪽이다. 검토 판의 ±X 끝 입면에서 고리 두 구멍과 나무·금속 부재의 분리를 본다. 실제 적재 강도나 운반 동작은 주장하지 않는다.
 
 ## 작은 손수레 {#handcart}
 
@@ -149,7 +149,7 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#bucket와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#bucket의 열린 입과 손잡이가 있는 마당 용기를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidence principles/design/models.md#representation-contract body·handle, 열린 입, 실제 안쪽 바닥과 손잡이 아래 빈 공간을 정한다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 손잡이 관을 포함한 0.31×0.45×0.30m 점유를 정한다.
+@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 손잡이 관을 포함한 0.315×0.45×0.30m 점유를 정한다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 손잡이 고리와 안쪽 깊이가 도기 항아리와 구별되는지 본다.
 @evidence principles/design/models.md#model-observable-style-basis 물을 나르는 낮은 도구의 벌어진 입과 단일 고리 실루엣을 채택한다.
 @evidence principles/design/models.md#model-scale-layer-completion 수반보다 작은 크기와 열린 경계, 방별 반복 소유를 정해 물동이 역할을 닫는다.
@@ -162,7 +162,7 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 
 물동이는 고정된 빈 용기이고 물 표면·실제 담기는 양은 모델에 없다. 로컬 원점은 바닥 중심이다. 몸체 바깥은 Y=0에서 반지름 0.11m, Y=0.28m에서 반지름 0.15m로 벌어지는 16분할 원뿔대다. 바닥 두께 0.02m이며 안쪽은 Y=0.02m에서 반지름 0.095m부터 입 아래 반지름 0.135m까지 열려 있다. 손잡이는 XY 평면의 반타원 중심선을 따르는 관이고 관 반지름 0.01m·둘레 8분할이다. 손잡이 가운데 아래는 빈 공간이다.
 
-손잡이 중심선은 반타원으로 정한다. t=0..π를 12등분하고 각 점을 (X,Y,Z)=(0.145 cos t,0.27+0.17 sin t,0)m에 놓아 양끝 (±0.145,0.27)m과 꼭대기 (0,0.44)m를 정확히 지난다. 관의 바깥 X는 ±0.155m, 꼭대기 Y는 0.45m이며 접점은 몸체 바깥면에 약 0.0036m 들어가되 안쪽 벽에는 닿지 않는다. 닫힌 전체 점유 상자는 0.31×0.45×0.30m다.
+손잡이 중심선은 반타원으로 정한다. t=0..π를 12등분하고 각 점을 (X,Y,Z)=(0.1475 cos t,0.27+0.17 sin t,0)m에 놓아 양끝 (±0.1475,0.27)m과 꼭대기 (0,0.44)m를 정확히 지난다. 관의 바깥 X는 ±0.1575m, 꼭대기 Y는 0.45m이며 접점 중심은 몸체 바깥면에 약 0.0011m 들어가되 12구간의 8각 관 전체는 안쪽 벽에 닿지 않는다. 닫힌 전체 점유 상자는 0.315×0.45×0.30m다.
 
 이 물동이는 [중정 분수](fixtures.md#fountain)보다 작은 별도 빈 용기다. 중정과 서비스 마당의 손운반 비품이라는 배치 역할은 instances가 받으며 실제 운반 동작은 없다.
 
