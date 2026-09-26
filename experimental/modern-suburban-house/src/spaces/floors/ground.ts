@@ -27,7 +27,7 @@ import { LAUNDRY_GARAGE_DOOR } from "../rooms/laundry";
  * @evidence spaces/10-ground-floor.md#ground-threshold-junctions Separate base strips pass beneath front, garden, and laundry-garage wall voids.
  * @evidence principles/core/source-units.md#source-scope-preservation Room owners retain visible finishes; this builder emits only support and does not claim actual maps-ground contact.
  * @evidence principles/core/source-units.md#source-substantive-completion Four slabs share the same calculated bottom/top and stable ids, so no threshold floats over an empty base.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground-floor parent fixes base depth and three door crossings; implementation needed no second ground slab.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-ground-floor-base keeps one 0.15 m support beneath MAIN.inner without a stair hole, and ground-threshold-junctions extends it under front, garden, and laundry-garage doors.
  */
 export const buildGroundFloor = (): IHousePart[] => {
   const top = STOREYS.groundFloor - GROUND_LAYERS.finish;

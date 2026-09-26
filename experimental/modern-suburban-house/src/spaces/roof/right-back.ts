@@ -23,7 +23,7 @@ import {
  * @evidence spaces/roof/right-back.md#right-back-roof SPLIT_X and RIGHT_EAVE_X close its east-west width while BACK_EAVE_Z and MAIN_RIDGE_Z bound the rear rBack slope.
  * @evidence principles/core/source-units.md#source-scope-preservation The part stops at the step plane and imports the common ridge/eave bounds, leaving the wall step and front slope to other owners.
  * @evidence principles/core/source-units.md#source-substantive-completion rect and slopedSlab emit a pitched roof-right-back mesh with the shared 0.24 m depth.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-back parent fixes the step, rear eave, ridge, and pitch; the rectangular solid required no new wall-head location.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Right-back-roof starts at the X=SPLIT_X step and spans BACK_EAVE_Z to MAIN_RIDGE_Z under the 7/12 lower weather profile.
  */
 export const buildRightBackRoof = (): IHousePart[] => [
   part(

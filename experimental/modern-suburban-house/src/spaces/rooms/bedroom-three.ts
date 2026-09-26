@@ -76,7 +76,7 @@ const BEDROOM_THREE: IRoomSpace = {
  * @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Bed, desk, closet, chair use, and two passage bands stay within the irregular room record.
  * @evidence principles/core/source-units.md#source-scope-preservation Its hall wall ends at the assigned T corner; it does not fill the notch or author furniture meshes.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, carpet/ceiling, under-door floor share, and door-cut partition return as concrete parts.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent fixes all notch corners and the hall door, so source needed no rectangular hull shortcut.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-three-plan gives the inward notch and one hall-bedroom-three-door; this builder keeps the L outline instead of filling its rectangular hull.
  */
 export const buildBedroomThree = (): IRoomBuild => ({
   space: BEDROOM_THREE,

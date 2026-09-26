@@ -54,7 +54,7 @@ const insideOutline = (outline: readonly IWallPoint[], u: number, y: number): bo
  * @evidence spaces/07-boundary-assembly.md clipOutline restricts one existing wall face to a smaller u/Y boundary rectangle.
  * @evidence principles/core/source-units.md#source-scope-preservation It returns clipped points only; it does not create another wall or assign a room finish.
  * @evidence principles/core/source-units.md#source-substantive-completion Four successive half-plane clips and duplicate-corner removal produce an actual polygon for the segment.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The boundary parent requires one continuous face across junctions; its existing outline and cut limits suffice for this calculation.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions keeps one wall face across room and opening contacts; clipOutline restricts that supplied face to a u/Y segment without another wall body.
  */
 export const clipOutline = (outline: readonly IWallPoint[], u: readonly [number, number], y: readonly [number, number]): IWallPoint[] => {
   const sides: ((p: IWallPoint) => number)[] = [
@@ -104,7 +104,7 @@ interface ISegment {
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions It cuts at cell and void edges, then merges adjacent rectangles only when both space ids agree.
  * @evidence principles/core/source-units.md#source-scope-preservation The function reads built cells and the given face; it emits boundary records without a second wall mesh.
  * @evidence principles/core/source-units.md#source-substantive-completion It drops exterior-to-exterior or same-side cells and returns deterministic u/Y segments for environment boundaries.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The junction parent calls for one wall with sided segments; the existing face and room cells supply each split.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires a single partition body and sided records at room/void changes; segmentsOf splits the existing face at those cell and opening edges.
  */
 export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace): ISegment[] => {
   const axis = face.axis;

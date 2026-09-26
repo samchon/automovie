@@ -31,7 +31,7 @@ const OWNER = "site/front-walk.ts";
  * @evidence spaces/site/front-walk.md#front-walk-plan X follows the porch-step centre, the inner Z follows its front riser, and the cross band keeps its reviewed Z limits.
  * @evidence principles/core/source-units.md#source-scope-preservation The path consumes PORCH_STEP_CENTRE_X and PORCH_STEP_FRONT_Z rather than owning a second entry axis.
  * @evidence principles/core/source-units.md#source-substantive-completion The slab, joined zone patches, and exterior connector read the same path bounds.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front-walk plan fixes the far end and T band while the porch supplies the near contact.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan places the T connector at the driveway side and consumes porch-platform-access for the 1.50 m stair-width near contact; this record shares those bounds.
  */
 export const FRONT_WALK = {
   x: [PORCH_STEP_CENTRE_X - PORCH_STEP_HALF_WIDTH, PORCH_STEP_CENTRE_X + PORCH_STEP_HALF_WIDTH] as const,
@@ -45,7 +45,7 @@ export const FRONT_WALK = {
  * @evidence spaces/site/front-walk.md#front-walk-plan The level walk reaches from the porch steps to Z=6.50; its connector blends the walk height to driveTop.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses DRIVEWAY and driveTop value imports and creates no second driveway or porch landing.
  * @evidence principles/core/source-units.md#source-substantive-completion A flat slab, triangulated connector parts, and a named walk zone return together.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front-walk parent fixes width, waiting, and cross-connector limits; source needed no other pedestrian crossing.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan fixes the porch-axis walk, lower waiting pad, and T band to the driveway; buildFrontWalk emits those surfaces and standing zones without another crossing.
  */
 export const buildFrontWalk = (): ISiteBuild => {
   const walkY = STOREYS.frontWalk;

@@ -2,29 +2,79 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { GARAGE } from "../building";
 import {
+  gable,
   GABLE_CORNERS,
   GARAGE_RIDGE_Z,
+  gBack,
   LEFT_EAVE_X,
   MAIN_RIDGE_Z,
+  mFront,
   OVERHANG,
+  rFront,
   RIGHT_EAVE_X,
   SPLIT_X,
-  gBack,
-  gable,
-  mFront,
-  rFront,
 } from "./junctions";
 
 type Edge = readonly [IAutoMovieVector3, IAutoMovieVector3];
-const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+  x,
+  y,
+  z,
+});
 const segment = (a: IAutoMovieVector3, b: IAutoMovieVector3): Edge => [a, b];
 const shared: Edge[] = [
-  segment(point(LEFT_EAVE_X, mFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z), point(SPLIT_X, mFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z)),
-  segment(point(SPLIT_X, rFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z), point(RIGHT_EAVE_X, rFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z)),
-  segment(point(GARAGE.inner.x[0], gBack(GARAGE_RIDGE_Z), GARAGE_RIDGE_Z), point(GARAGE.outer.x[1] + OVERHANG.garage, gBack(GARAGE_RIDGE_Z), GARAGE_RIDGE_Z)),
-  segment(point(GABLE_CORNERS.apex.x, gable(GABLE_CORNERS.apex.x), GABLE_CORNERS.apex.z), point(GABLE_CORNERS.ridgeFront.x, gable(GABLE_CORNERS.ridgeFront.x), GABLE_CORNERS.ridgeFront.z)),
-  segment(point(GABLE_CORNERS.leftFoot.x, mFront(GABLE_CORNERS.leftFoot.z), GABLE_CORNERS.leftFoot.z), point(GABLE_CORNERS.apex.x, mFront(GABLE_CORNERS.apex.z), GABLE_CORNERS.apex.z)),
-  segment(point(GABLE_CORNERS.apex.x, mFront(GABLE_CORNERS.apex.z), GABLE_CORNERS.apex.z), point(GABLE_CORNERS.rightFoot.x, mFront(GABLE_CORNERS.rightFoot.z), GABLE_CORNERS.rightFoot.z)),
+  segment(
+    point(LEFT_EAVE_X, mFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z),
+    point(SPLIT_X, mFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z),
+  ),
+  segment(
+    point(SPLIT_X, rFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z),
+    point(RIGHT_EAVE_X, rFront(MAIN_RIDGE_Z), MAIN_RIDGE_Z),
+  ),
+  segment(
+    point(GARAGE.inner.x[0], gBack(GARAGE_RIDGE_Z), GARAGE_RIDGE_Z),
+    point(
+      GARAGE.outer.x[1] + OVERHANG.garage,
+      gBack(GARAGE_RIDGE_Z),
+      GARAGE_RIDGE_Z,
+    ),
+  ),
+  segment(
+    point(
+      GABLE_CORNERS.apex.x,
+      gable(GABLE_CORNERS.apex.x),
+      GABLE_CORNERS.apex.z,
+    ),
+    point(
+      GABLE_CORNERS.ridgeFront.x,
+      gable(GABLE_CORNERS.ridgeFront.x),
+      GABLE_CORNERS.ridgeFront.z,
+    ),
+  ),
+  segment(
+    point(
+      GABLE_CORNERS.leftFoot.x,
+      mFront(GABLE_CORNERS.leftFoot.z),
+      GABLE_CORNERS.leftFoot.z,
+    ),
+    point(
+      GABLE_CORNERS.apex.x,
+      mFront(GABLE_CORNERS.apex.z),
+      GABLE_CORNERS.apex.z,
+    ),
+  ),
+  segment(
+    point(
+      GABLE_CORNERS.apex.x,
+      mFront(GABLE_CORNERS.apex.z),
+      GABLE_CORNERS.apex.z,
+    ),
+    point(
+      GABLE_CORNERS.rightFoot.x,
+      mFront(GABLE_CORNERS.rightFoot.z),
+      GABLE_CORNERS.rightFoot.z,
+    ),
+  ),
 ];
 
 const onSegment = (p: IAutoMovieVector3, [a, b]: Edge): boolean => {
@@ -40,7 +90,7 @@ const onSegment = (p: IAutoMovieVector3, [a, b]: Edge): boolean => {
  * @evidence spaces/roof/00-junctions.md This classification follows the roof parts' shared ridge and valley coordinates.
  * @evidence principles/core/source-units.md#source-scope-preservation The rule selects closure of authored edges without changing roof mass.
  * @evidence principles/core/source-units.md#source-substantive-completion A free step or chimney edge receives a thickness face, while paired weather edges remain open.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The shared roof design already distinguishes coincident ridge and valley edges from free outline.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-shared-edges requires coincident ridge and valley segments to stay open internally while free roof perimeter closes; roofFreeEdge tests those supplied segments.
  */
 export const roofFreeEdge = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
   !shared.some((edge) => onSegment(a, edge) && onSegment(b, edge));

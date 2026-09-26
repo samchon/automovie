@@ -85,9 +85,15 @@ const COMMON: IRoomSpace = {
     { id: "common-dishwasher", kind: "fixture", x: [-3.65, -3.05], z: [-8.05, -7.45], y: [FLOOR, FLOOR + 0.91] },
     { id: "common-dishwasher-swing", kind: "swing", x: [-4.25, -3.65], z: [-8.05, -7.45] },
     { id: "common-dishwasher-use", kind: "use", x: [-4.85, -4.25], z: [-8.1, -7.4] },
-    { id: "common-island-stool-1-use", kind: "use", x: [-2.6, -1.65], z: [-8.625, -7.975] },
-    { id: "common-island-stool-2-use", kind: "use", x: [-2.6, -1.65], z: [-7.925, -7.275] },
-    { id: "common-island-stool-3-use", kind: "use", x: [-2.6, -1.65], z: [-7.225, -6.575] },
+    ...Array.from({ length: 3 }, (_, i) => {
+      const centre = -8.3 + 0.7 * i;
+      return {
+        id: `common-island-stool-${i + 1}-use`,
+        kind: "use" as const,
+        x: [-2.6, -1.65] as const,
+        z: [Number((centre - 0.325).toFixed(3)), Number((centre + 0.325).toFixed(3))] as const,
+      };
+    }),
     // common-dining-reservation.
     { id: "common-dining-table", kind: "furniture", x: [-0.35, 1.35], z: [-8.4, -7.5], y: [FLOOR, FLOOR + 0.75] },
     { id: "common-dining-seat-back-1-use", kind: "use", x: [-0.325, 0.325], z: [-9.15, -8.4] },

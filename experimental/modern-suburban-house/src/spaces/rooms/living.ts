@@ -79,7 +79,7 @@ const LIVING: IRoomSpace = {
  * @evidence spaces/rooms/living.md#living-through-route Front, main, and bookcase-cross route bands occupy the authored floor around the furniture boxes.
  * @evidence principles/core/source-units.md#source-scope-preservation It leaves furniture meshes to models and the stair's intervening wall to the stair owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Floor, ceiling, both threshold halves, and the door-cut entry partition are returned with the room record.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The living parent fixes room limits, two exits, furniture reservations, and passage bands; implementation added no hidden shortcut.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan fixes entry-living-door and living-common-opening, living-furniture-use assigns seats by the fireplace, and living-through-route keeps the front-to-back passage inside the one living-room.
  */
 export const buildLiving = (): IRoomBuild => ({
   space: LIVING,

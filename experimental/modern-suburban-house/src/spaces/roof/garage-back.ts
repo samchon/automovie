@@ -17,7 +17,7 @@ import { GARAGE_RIDGE_Z, gBack, OVERHANG, ROOF_THICKNESS } from "./junctions";
  * @evidence spaces/roof/garage-back.md#garage-back-roof The plan spans the garage shared-wall line to its outer overhang and the back eave to GARAGE_RIDGE_Z; gBack gives the rear pitch.
  * @evidence principles/core/source-units.md#source-scope-preservation GARAGE, OVERHANG, and GARAGE_RIDGE_Z bound only the rear garage plane; the function does not author a second garage footprint.
  * @evidence principles/core/source-units.md#source-substantive-completion rect and slopedSlab construct a pitched solid with ROOF_THICKNESS and a stable roof-garage-back part identity.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-back parent gives the shared-wall start, back overhang, ridge, and pitch; those boundaries were sufficient for this rectangular mesh.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-back-roof runs from the main/garage shared-wall line to the garage right eave and from GARAGE_RIDGE_Z to the rear overhang, using the 5/12 profile and 0.24 m underside reservation.
  */
 export const buildGarageBackRoof = (): IHousePart[] => [
   part(

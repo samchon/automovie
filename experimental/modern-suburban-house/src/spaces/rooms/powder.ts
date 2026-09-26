@@ -64,7 +64,7 @@ const POWDER: IRoomSpace = {
  * @evidence spaces/rooms/powder.md#powder-fixture-use Toilet, basin, mirror, towel, and the separate approach/waiting rectangles remain reservations for later fills.
  * @evidence principles/core/source-units.md#source-scope-preservation It creates room surfaces and partition voids, not a toilet, basin, mirror, or towel mesh.
  * @evidence principles/core/source-units.md#source-substantive-completion The room record, tile floor, ceiling, under-door strip, and two walls form an executable builder result.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The powder parent fixes room bounds, its single door, and fixture-use positions; no additional access was needed.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Powder-plan has one service-powder-door from service access, and powder-fixture-use assigns basin and toilet bodies and their use boxes; buildPowder emits that one-room boundary.
  */
 export const buildPowder = (): IRoomBuild => ({
   space: POWDER,

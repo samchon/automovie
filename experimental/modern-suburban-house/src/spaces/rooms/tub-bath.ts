@@ -68,7 +68,7 @@ const TUB_BATH: IRoomSpace = {
  * @evidence spaces/rooms/tub-bath.md#tub-fixture-use Vanity, toilet, tub, towel, mirror, and their use/route areas remain separately reserved.
  * @evidence principles/core/source-units.md#source-scope-preservation The function emits tile finish and three walls without authoring sanitary fixtures or stealing adjacent T corners.
  * @evidence principles/core/source-units.md#source-substantive-completion The return contains the room, floor/ceiling, door strip, and three concrete partition parts.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The tub parent fixes its single hall entry and fixture/route bands; source added no second bathroom entrance.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Tub-bath-plan gives one hall-tub-door, and tub-fixture-use places the long left route beside basin, toilet, bath, and curtain-rail reservations.
  */
 export const buildTubBath = (): IRoomBuild => ({
   space: TUB_BATH,

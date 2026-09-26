@@ -19,7 +19,7 @@ import { STOREYS } from "./storeys";
  * @evidence spaces/00-building.md#main-building-extent The outer X/Z pairs and 0.25 m wall inset give consumers one 11.50 by 10.70 m envelope.
  * @evidence principles/core/source-units.md#source-scope-preservation MAIN holds building bounds and wall reservations, leaving room divisions and garage geometry to their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The fixed tuples and wall/partition widths are usable coordinates for envelope, roof, floor, and room builders.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-building parent fixes outer and inner bounds and wall widths; recording them exposed no missing footprint decision.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes outer X=[-5.75, 5.75]/Z=[-10.70, 0] m and 0.25 m outer walls, with finished inner limits stated there; MAIN carries those authored coordinates.
  */
 export const MAIN = {
   outer: { x: [-5.75, 5.75] as const, z: [-10.7, 0] as const },
@@ -41,7 +41,7 @@ export const MAIN = {
  * @evidence spaces/00-building.md#attached-garage-extent Its outer X begins at 5.50 and inner X at 5.75, preserving the one wall shared with the main body.
  * @evidence principles/core/source-units.md#source-scope-preservation GARAGE supplies only garage bounds and its wall reserve; it does not create a second main-building wall.
  * @evidence principles/core/source-units.md#source-substantive-completion The shared-wall inner face follows MAIN while the three free inner faces derive from the garage outer bounds and 0.25 m reserve.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The attached-garage parent specifies the shared edge and three outer walls, so the record needed no new contact rule.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Attached-garage-extent shares MAIN's east wall and sets free outer faces at X=11.70, Z=-6.70/-0.30 m; GARAGE derives its three free inner faces with the 0.25 m reserve.
  */
 export const GARAGE = (() => {
   const wall = 0.25;

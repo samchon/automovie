@@ -34,7 +34,7 @@ const OWNER = "roof/main-front.ts";
  * @evidence spaces/roof/main-front.md#main-front-roof Convex coplanar tiles form one roof part around the shared gable valley and chimney notch without internal side faces.
  * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its one roof mesh; it imports junction values instead of claiming their faces.
  * @evidence principles/core/source-units.md#source-substantive-completion Four top/bottom tiles in one mesh preserve the cut plan and close every free edge, including the step and chimney notch.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-front parent defines the valley, notch, and free eaves consumed by this mesh.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-front-roof omits the GABLE_CORNERS valley triangle and CHIMNEY_PLAN notch while retaining its left and front free eaves; the convex remainder tiles follow those shared boundaries.
  */
 export const buildMainFrontRoof = (): IHousePart[] => {
   const { apex, leftFoot, rightFoot } = GABLE_CORNERS;

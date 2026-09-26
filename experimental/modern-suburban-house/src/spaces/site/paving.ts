@@ -12,6 +12,8 @@
 import { part, slopedSlab, type IHousePart, type IPlanPoint } from "../solids";
 import type { IAutoMovieHeightRule } from "@automovie/interface";
 
+const CONNECTOR_CELLS = 4;
+
 /** Base depth below a walking surface, metres. */
 /**
  * @evidence spaces/site/01-paving-support.md WALK_DEPTH is the reserved base under the three pedestrian paving surfaces.
@@ -26,7 +28,7 @@ export const WALK_DEPTH = 0.12;
  * @evidence spaces/site/01-paving-support.md DRIVE_DEPTH reserves a thicker base below the sloping driveway.
  * @evidence principles/core/source-units.md#source-scope-preservation This 0.15 m offset changes only the driveway underside, leaving pedestrian paving at WALK_DEPTH.
  * @evidence principles/core/source-units.md#source-substantive-completion buildDriveway receives a concrete vertical slab thickness at every ramp point.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent distinguishes drive depth from walk depth; this constant reflects that allocation.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation gives the driveway a 0.15 m base below its sloped top, separately from the pedestrian 0.12 m base; DRIVE_DEPTH carries that authored depth.
  */
 export const DRIVE_DEPTH = 0.15;
 
@@ -46,7 +48,7 @@ export const seamRect = (
 ): IPlanPoint[] => {
   const stations = (runs: readonly (readonly [number, number])[]): number[] =>
     [...new Set([z[0], z[1], ...runs.flatMap(([a, b]) =>
-      Array.from({ length: 5 }, (_, i) => a + ((b - a) * i) / 4),
+      Array.from({ length: CONNECTOR_CELLS + 1 }, (_, i) => a + ((b - a) * i) / CONNECTOR_CELLS),
     )])].sort((a, b) => a - b);
   return [
     ...stations(east).map((value) => ({ x: x[1], z: value })),
@@ -58,7 +60,7 @@ export const seamRect = (
  * @evidence spaces/site/01-paving-support.md The connector's standable rule samples the same X/Z function as its opaque paving.
  * @evidence principles/core/source-units.md#source-scope-preservation The rule records the caller's paving height without a second level decision.
  * @evidence principles/core/source-units.md#source-substantive-completion Four samples reproduce the bilinear connector at every surface query.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving support design already requires one shared height formula.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires each connector's standable surface to sample the same bilinear X/Z height used by its visible triangles; this rule records that function's four corners.
  */
 export const pavingHeightfield = (
   x: readonly [number, number],
@@ -88,7 +90,7 @@ export const pavingHeightfield = (
  * @evidence spaces/site/01-paving-support.md blendedRun constructs sloped paving between different edge heights without a nonplanar quad.
  * @evidence principles/core/source-units.md#source-scope-preservation It receives its bounds and height callback from the calling walk owner and emits no independent path.
  * @evidence principles/core/source-units.md#source-substantive-completion The four-by-four default grid yields paired triangular prisms with shared sampled corners and stable ids.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent requires a subdivided bilinear connector; this helper needed no new surface endpoint.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires at least four divisions on each connector axis and two triangles per cell; blendedRun applies the caller's X/Z bounds and height at those shared corners.
  */
 export const blendedRun = (props: {
   id: string;
@@ -98,9 +100,8 @@ export const blendedRun = (props: {
   z: readonly [number, number];
   height: (x: number, z: number) => number;
   depth: number;
-  cells?: number;
 }): IHousePart[] => {
-  const n = props.cells ?? 4;
+  const n = CONNECTOR_CELLS;
   const xs = Array.from(
     { length: n + 1 },
     (_, i) => props.x[0] + ((props.x[1] - props.x[0]) * i) / n,

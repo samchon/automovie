@@ -88,6 +88,16 @@ void test("every current window curtain and bathroom rail is checked", () => {
   const house = buildHouse();
   const environment = buildHouseEnvironment(house);
   assert.doesNotThrow(() => verifyHouseSpaceDesign(house, environment));
+  assert.throws(
+    () =>
+      verifyHouseSpaceDesign(house, {
+        ...environment,
+        connectors: environment.connectors.filter(
+          (connector) => connector.id !== "main-stair-connection",
+        ),
+      }),
+    /main stair connector is absent/,
+  );
   const primary = house.spaces.find((space) => space.id === "primary-bedroom");
   assert.ok(primary?.reservations);
   const curtain = primary.reservations.find(
@@ -101,6 +111,20 @@ void test("every current window curtain and bathroom rail is checked", () => {
     /primary-rear-curtain/,
   );
   curtain.y = original;
+  const originalKind = curtain.kind;
+  curtain.kind = "use";
+  assert.throws(
+    () => verifyHouseSpaceDesign(house, environment),
+    /curtain must reserve a fixture/,
+  );
+  curtain.kind = originalKind;
+  const originalReservations = primary.reservations;
+  primary.reservations = [...originalReservations, { ...curtain, id: "unbacked-curtain" }];
+  assert.throws(
+    () => verifyHouseSpaceDesign(house, environment),
+    /no window export/,
+  );
+  primary.reservations = originalReservations;
   const tub = house.spaces.find((space) => space.id === "tub-bathroom");
   assert.ok(tub?.reservations);
   const rail = tub.reservations.find(
@@ -114,6 +138,13 @@ void test("every current window curtain and bathroom rail is checked", () => {
     /bathroom curtain rail/,
   );
   rail.y = railOriginal;
+  const railKind = rail.kind;
+  rail.kind = "use";
+  assert.throws(
+    () => verifyHouseSpaceDesign(house, environment),
+    /bathroom curtain rail/,
+  );
+  rail.kind = railKind;
 });
 
 void test("inward corner and threshold replacements retain their displacement reasons", () => {

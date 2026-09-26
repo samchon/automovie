@@ -59,7 +59,7 @@ const OWNER = "stair.ts";
  * @evidence spaces/02-stair.md The stair owns the L opening used by its structural consumers.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair retains the opening while adjacent rooms receive its edges.
  * @evidence principles/core/source-units.md#source-substantive-completion Named corners and an ordered outline allow consumers to derive their cuts and checks.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The L outline is specified by the stair design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-floor-opening fixes the west leg, turn at X=-0.65/Z=-3.41, and east return at X=1.87; STAIR_OPENING shares that L ring with floor and ceiling owners.
  */
 export const STAIR_OPENING = {
   west: -1.8,
@@ -118,7 +118,7 @@ const HALL_GUARD = 1.05;
  * @evidence spaces/02-stair.md The connector follows the lower flight, landing centre and upper flight, with approach and arrival points in their named rooms.
  * @evidence principles/core/source-units.md#source-scope-preservation This route uses the stair opening and tread datums; it adds no second stair geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion An upper-floor datum edit changes landing Y through STAIR_STEPS.rise and arrival Y through STOREYS.upperFloor; landing plan coordinates come from STAIR_OPENING.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair connector design already requires the landing centre and physical riser height.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-connector-handoff requires one route through lower flight, the eight-rise landing, and upper flight; STAIR_ROUTE takes each landing point from STAIR_OPENING and STAIR_STEPS.
  */
 export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
   {
@@ -161,7 +161,7 @@ export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
  * @evidence spaces/02-stair.md The landing station indexes the derived route's landing-centre point.
  * @evidence principles/core/source-units.md#source-scope-preservation The index refers to the stair-owned route without defining another landing.
  * @evidence principles/core/source-units.md#source-substantive-completion The environment connector reads this route station to calculate landing.at on the main stair.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair design already specifies the landing as a route station.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-connector-handoff places the landing stop at the centre of the turn after eight rises; station 3 is that point in STAIR_ROUTE.
  */
 export const STAIR_LANDING_STATION = 3;
 

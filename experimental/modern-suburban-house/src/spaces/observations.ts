@@ -46,7 +46,7 @@ import type { IPlanPoint } from "./solids";
  * @evidence spaces/04-observations.md#spatial-observation-derivation Position and look target are recorded together for each accepted station.
  * @evidence principles/core/source-units.md#source-scope-preservation This type describes derived camera data and does not make a new room or opening.
  * @evidence principles/core/source-units.md#source-substantive-completion Both vectors needed to inspect a station are present.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation parent already requires inspectable self-space poses; this shape revises no space design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires each room's centre, inset corners, and thresholds to keep a pose inside that room; the paired eye and target carry those existing stations.
  */
 export interface IObservationPose {
   /**
@@ -54,7 +54,7 @@ export interface IObservationPose {
    * @evidence spaces/04-observations.md#spatial-observation-derivation A moved station records why its authored eye differs from the engine's initial station.
    * @evidence principles/core/source-units.md#source-scope-preservation The explanation records a derived camera correction and leaves the place unchanged.
    * @evidence principles/core/source-units.md#source-substantive-completion Review can trace every moved eye to its standing floor and the required 1.60 m offset.
-    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires reasons for inward station moves, while settings/20-verification.md#frame-condition supplies the 1.60 m eye; this field carries both corrections without changing either parent.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires reasons for inward station moves, while settings/20-verification.md#frame-condition supplies the 1.60 m eye; this field carries both corrections without changing either parent.
    */
   reason?: string;
   /**
@@ -62,7 +62,7 @@ export interface IObservationPose {
    * @evidence spaces/04-observations.md#spatial-observation-derivation The eye remains at a position in its subject space.
    * @evidence principles/core/source-units.md#source-scope-preservation This point is a derived camera station, not a new room point.
    * @evidence principles/core/source-units.md#source-substantive-completion A concrete position makes station containment testable.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Self-space station containment was already required by the observation design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation keeps every centre, corner, and threshold eye inside its subject room; position records the tested world point.
    */
   position: IAutoMovieVector3;
   /**
@@ -70,7 +70,7 @@ export interface IObservationPose {
    * @evidence spaces/04-observations.md#spatial-observation-derivation The station looks toward its observed boundary or room interior.
    * @evidence principles/core/source-units.md#source-scope-preservation The aim describes inspection and does not move a space boundary.
    * @evidence principles/core/source-units.md#source-substantive-completion A concrete target makes the station view reproducible.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation parent already defines self-space views.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires four centre directions and inward corner or threshold looks within each room; target stores that existing aim.
    */
   target: IAutoMovieVector3;
 }
@@ -81,7 +81,7 @@ export interface IObservationPose {
  * @evidence spaces/04-observations.md#spatial-observation-derivation Interior stations and exterior census questions share a stable record shape.
  * @evidence principles/core/source-units.md#source-scope-preservation A question observes authored geometry instead of adding geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion The record exposes station identity, role, subject and camera ownership.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation contract already separates interior poses from exterior census questions.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation adds room centre, corner, and threshold poses alongside exposed facade, roof, and entrance questions; this record carries both populations.
  */
 export interface IHouseObservation {
   /**
@@ -105,7 +105,7 @@ export interface IHouseObservation {
    * @evidence spaces/04-observations.md#spatial-observation-derivation The pose stands in this space; exterior census questions have none.
    * @evidence principles/core/source-units.md#source-scope-preservation The string refers to an existing built space.
    * @evidence principles/core/source-units.md#source-substantive-completion The derivation can check pose containment against this id.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work This self-space relationship was fixed in the observation design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation places each interior eye in its own room, while whole-building facade and roof questions have no room id; space records that distinction.
    */
   space: string | null;
   /**
@@ -132,7 +132,7 @@ export interface IHouseObservation {
  * @evidence spaces/04-observations.md#reference-spatial-comparisons Each comparison names the questions it uses.
  * @evidence principles/core/source-units.md#source-scope-preservation The comparison selects existing observations without authoring a second house.
  * @evidence principles/core/source-units.md#source-substantive-completion Reference identity, station ids and record ids are explicit.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already enumerates five reference comparisons; this type adds no new reference.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons enumerates 01 exterior, 02 cutaway, 03 common room, 04 entry/living, and 05 upper hall; this type carries those five addresses.
  */
 export interface IReferenceComparison {
   /**
@@ -140,7 +140,7 @@ export interface IReferenceComparison {
    * @evidence spaces/04-observations.md#reference-spatial-comparisons The key identifies one of the five given reference views.
    * @evidence principles/core/source-units.md#source-scope-preservation The union does not introduce a sixth reference.
    * @evidence principles/core/source-units.md#source-substantive-completion Each comparison has a known reference identity.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The five-reference set is already fixed by the parent.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons fixes the 01–05 set; this union refuses a sixth reference key.
    */
   reference: "01" | "02" | "03" | "04" | "05";
   /**
@@ -156,7 +156,7 @@ export interface IReferenceComparison {
    * @evidence spaces/04-observations.md#reference-spatial-comparisons The cutaway can read storey records without inventing a camera pose.
    * @evidence principles/core/source-units.md#source-scope-preservation These names select existing records, not new geometry.
    * @evidence principles/core/source-units.md#source-substantive-completion The comparison records non-camera inputs explicitly.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The cutaway record handoff is in the existing comparison design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons assigns 02 to a two-storey cutaway and allows it to read compiled storey records without inventing an interior camera.
    */
   records: string[];
 }
@@ -191,7 +191,7 @@ export interface IObservationDerivation {
    * @evidence spaces/04-observations.md#reference-spatial-comparisons Five selections reference observations and records.
    * @evidence principles/core/source-units.md#source-scope-preservation Selectors reuse the derived census.
    * @evidence principles/core/source-units.md#source-substantive-completion All five views have an explicit comparison route.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The five comparisons were already designated by the parent.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons requires separate selections for 01 exterior, 02 cutaway, 03 common room, 04 entry/living, and 05 upper hall; this list retains all five.
    */
   references: IReferenceComparison[];
 }
@@ -316,7 +316,7 @@ const unit = (from: IPlanPoint, to: IPlanPoint): IPlanPoint => {
  * @evidence spaces/04-observations.md#engine-render-handoff The returned poses are inspection data for later rendering, not camera geometry in the house.
  * @evidence principles/core/source-units.md#source-scope-preservation The function derives from the one compiled environment and house record without duplicating their geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns the station list, explicit failures and all five reference selections.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The existing observation parent specifies this census and comparison handoff; no new space rule was needed.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires every built room's centre, corners, and thresholds plus exterior questions; reference-spatial-comparisons adds the five reference selectors to that census.
  */
 export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment, house: IHouse): IObservationDerivation => {
   const observations: IHouseObservation[] = [];

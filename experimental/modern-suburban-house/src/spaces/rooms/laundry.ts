@@ -37,13 +37,18 @@ export const DOOR_SERVICE_LAUNDRY_DOOR = door(
 );
 
 const FLOOR = floorOf("ground-storey");
+const MACHINE_BACK_Z = -3.35;
+const MACHINE_WIDTH_Z = 0.65;
+const WASHER_Z = [MACHINE_BACK_Z, MACHINE_BACK_Z + MACHINE_WIDTH_Z] as const;
+const DRYER_Z = [WASHER_Z[1], WASHER_Z[1] + MACHINE_WIDTH_Z] as const;
+const MACHINE_BAND_Z = [WASHER_Z[0], DRYER_Z[1]] as const;
 /** Laundry owns the passage through the main/garage shared wall. */
 /**
  * @evidence spaces/rooms/laundry.md The mudroom owns the only interior passage into the attached garage.
  * @evidence spaces/rooms/laundry.md#laundry-plan The -4.40..-3.35 m Z void spans the shared wall and preserves the garage's lower floor step.
  * @evidence principles/core/source-units.md#source-scope-preservation The garage wall receives this cut from laundry rather than declaring another door.
  * @evidence principles/core/source-units.md#source-substantive-completion The shared wall hole, ground base tongue, and laundry threshold use this interval.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-band plan already places the garage access directly in the mudroom.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan places laundry-garage-door through the shared wall at Z=-4.40..-3.35 m and preserves the garage's lower floor step; this export carries that one mudroom passage.
  */
 export const LAUNDRY_GARAGE_DOOR = {
   id: "laundry-garage-door",
@@ -61,15 +66,15 @@ const LAUNDRY: IRoomSpace = {
   floor: PALETTE.utility,
   reservations: [
     // laundry-equipment-use: machine band X = [4.75, 5.50], Z = [-3.35, -2.05]; two 0.65 x 0.75 x 0.88
-    // machines centred at Z = -3.025 (washer, rear) and -2.375 (dryer, front), fronts facing -X.
-    { id: "laundry-washer", kind: "fixture", x: [4.75, 5.5], z: [-3.35, -2.7], y: [FLOOR, FLOOR + 0.88] },
-    { id: "laundry-dryer", kind: "fixture", x: [4.75, 5.5], z: [-2.7, -2.05], y: [FLOOR, FLOOR + 0.88] },
+    // machine centres derive from the rear edge, half-width, and one-width spacing; fronts face -X.
+    { id: "laundry-washer", kind: "fixture", x: [4.75, 5.5], z: WASHER_Z, y: [FLOOR, FLOOR + 0.88] },
+    { id: "laundry-dryer", kind: "fixture", x: [4.75, 5.5], z: DRYER_Z, y: [FLOOR, FLOOR + 0.88] },
     // Folding top at 0.94 over the same band; its underside cannot go below the 0.88 machine limit.
-    { id: "laundry-folding-top", kind: "fixture", x: [4.75, 5.5], z: [-3.35, -2.05], y: [FLOOR + 0.88, FLOOR + 0.94] },
-    { id: "laundry-upper-storage", kind: "storage", x: [5.2, 5.5], z: [-3.35, -2.05], y: [FLOOR + 1.5, FLOOR + 2.3] },
+    { id: "laundry-folding-top", kind: "fixture", x: [4.75, 5.5], z: MACHINE_BAND_Z, y: [FLOOR + 0.88, FLOOR + 0.94] },
+    { id: "laundry-upper-storage", kind: "storage", x: [5.2, 5.5], z: MACHINE_BAND_Z, y: [FLOOR + 1.5, FLOOR + 2.3] },
     // Round doors open at most 0.50 m -X from the front X = 4.75, within each machine's width.
-    { id: "laundry-washer-door", kind: "swing", x: [4.25, 4.75], z: [-3.35, -2.7] },
-    { id: "laundry-dryer-door", kind: "swing", x: [4.25, 4.75], z: [-2.7, -2.05] },
+    { id: "laundry-washer-door", kind: "swing", x: [4.25, 4.75], z: WASHER_Z },
+    { id: "laundry-dryer-door", kind: "swing", x: [4.25, 4.75], z: DRYER_Z },
     { id: "laundry-washer-work", kind: "use", x: [3.8, 4.25], z: [-3.35, -2.6] },
     { id: "laundry-dryer-work", kind: "use", x: [3.8, 4.25], z: [-2.8, -2.05] },
     // Shoe bench from the left inner face to X = 3.62, Z = -2.85 to the front inner face; hooks over it.
@@ -92,7 +97,7 @@ const LAUNDRY: IRoomSpace = {
  * @evidence spaces/rooms/laundry.md#laundry-through-route The upper waiting, lower garage-side waiting, and through-route retain the 0.15 m level change.
  * @evidence principles/core/source-units.md#source-scope-preservation The shared-wall void stays with garage.ts; this builder owns its room finish and higher threshold only.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, floor, ceiling, door strip, two walls, and solid garage threshold are returned with stable ids.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The laundry parent supplies both doors, machine use, and the garage step; source required no invented third route.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan fixes service-laundry-door and laundry-garage-door, laundry-equipment-use assigns two machine bands, and laundry-through-route keeps the 0.15 m step to garage; buildLaundry returns those owners.
  */
 export const buildLaundry = (): IRoomBuild => ({
   space: LAUNDRY,

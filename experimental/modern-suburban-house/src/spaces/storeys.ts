@@ -21,7 +21,7 @@
  * @evidence spaces/01-storeys.md#ground-threshold-datums Garage floor -0.15, porch 0, and front walk -0.45 fix their distinct entry datums.
  * @evidence principles/core/source-units.md#source-scope-preservation This record supplies height datums; stair openings, floor buildup, and roof clearance stay with their builders.
  * @evidence principles/core/source-units.md#source-substantive-completion Literal numbers make each floor and ceiling position repeatable for consuming rooms and envelope functions.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The storey and threshold parent units fix these elevations; the record needed no additional level or connector.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes ground/upper floors at 0/3.06 m and ceilings at 2.75/5.66 m; ground-threshold-datums fixes garage floor -0.15 m, garage ceiling 2.55 m, and porch/front-walk levels.
  */
 export const STOREYS = {
   /** ground-storey finished floor (01 storey-datums). */
@@ -49,7 +49,7 @@ export const STOREYS = {
  * @evidence spaces/10-ground-floor.md#garage-ground-floor-base garageBase reserves 0.15 m below the lower garage finished floor.
  * @evidence principles/core/source-units.md#source-scope-preservation The value fixes floor buildup depths without moving level datums held by STOREYS.
  * @evidence principles/core/source-units.md#source-substantive-completion Three numeric layer depths can be used directly by ground and garage floor solids.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Both ground-floor parent units give their finish and base allocations, so no thickness was invented here.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-ground-floor-base assigns 0.025 m finish over 0.15 m base and garage-ground-floor-base assigns its own 0.15 m base below garage finish; this record carries those three depths.
  */
 export const GROUND_LAYERS = {
   /** Finish bundle below the main finished floor. */
@@ -71,7 +71,7 @@ export const GROUND_LAYERS = {
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The 0.025 m value sits above shared structure between ground ceiling and upper finished floor.
  * @evidence principles/core/source-units.md#source-scope-preservation It describes only upper floor finish and does not thicken the structural band.
  * @evidence principles/core/source-units.md#source-substantive-completion A concrete 0.025 m reservation lets upper-room builders form finish slabs.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The interstorey parent allocates finish, structure, and ceiling depths; this constant exposes no missing layer.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interstorey-floor-boundary allocates 0.025 m to upper room finish, 0.270 m to common structure, and 0.015 m to ground ceiling finish; this constant carries only the first depth.
  */
 export const INTERSTOREY_FLOOR_FINISH = 0.025;
 
@@ -97,7 +97,7 @@ export const CEILING_FINISH = 0.015;
  * @evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure The same depth closes the lower garage ceiling above its finished datum.
  * @evidence principles/core/source-units.md#source-scope-preservation The reservation is ceiling buildup, not a change to roof pitch or storey height.
  * @evidence principles/core/source-units.md#source-substantive-completion The concrete 0.18 m value is applied by upper and garage ceiling builders.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling parent defines both closure locations and depth, so no extra headroom decision was needed.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-ceiling-closure and garage-ceiling-closure each reserve a 0.18 m finish-plus-support band above their finished ceiling datums; this value is shared by both builders.
  */
 export const CEILING_RESERVATION = 0.18;
 
@@ -106,7 +106,7 @@ export const CEILING_RESERVATION = 0.18;
  * @evidence spaces/01-storeys.md StoreyId limits room records to the two authored main-building levels.
  * @evidence principles/core/source-units.md#source-scope-preservation The union excludes garage and porch as additional storeys while allowing their distinct datums elsewhere.
  * @evidence principles/core/source-units.md#source-substantive-completion The literal union gives consumers a checked identity boundary for floorOf and ceilingOf.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The storey parent declares ground and upper only; the union required no third level.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums names ground-storey and upper-storey as the two main levels, with garage and porch levels as threshold differences rather than third storeys.
  */
 export type StoreyId = "ground-storey" | "upper-storey";
 
@@ -115,7 +115,7 @@ export type StoreyId = "ground-storey" | "upper-storey";
  * @evidence spaces/01-storeys.md floorOf resolves a declared main storey to its finished floor Y.
  * @evidence principles/core/source-units.md#source-scope-preservation It chooses the two STOREYS main-floor values and never treats garageFloor as another storey.
  * @evidence principles/core/source-units.md#source-substantive-completion Either StoreyId returns a deterministic floor coordinate without a caller-computed offset.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground/upper datums in the storey parent suffice for this two-case lookup.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums assigns ground-storey floor Y=0 and upper-storey floor Y=3.06 m; floorOf selects exactly those two finished levels.
  */
 export const floorOf = (storey: StoreyId): number => (storey === "ground-storey"
   ? STOREYS.groundFloor
@@ -126,7 +126,7 @@ export const floorOf = (storey: StoreyId): number => (storey === "ground-storey"
  * @evidence spaces/01-storeys.md ceilingOf resolves each authored main storey to its finished ceiling Y.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads groundCeiling or upperCeiling from STOREYS, leaving garage's lower ceiling separate.
  * @evidence principles/core/source-units.md#source-substantive-completion Both StoreyId inputs yield the declared height directly, giving rooms a stable ceiling coordinate.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The storey parent supplies both finished ceiling levels; no room-specific elevation was added.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums assigns ground-storey ceiling Y=2.75 and upper-storey ceiling Y=5.66 m; ceilingOf selects exactly those two finished levels.
  */
 export const ceilingOf = (storey: StoreyId): number => (storey === "ground-storey"
   ? STOREYS.groundCeiling

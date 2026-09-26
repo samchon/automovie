@@ -23,7 +23,7 @@ import type { IHousePart, IPlanPoint } from "../solids";
  * @evidence spaces/site/00-access.md IExteriorZone records one standable exterior use area tied to an owner's paving.
  * @evidence principles/core/source-units.md#source-scope-preservation The record is a logical zone and does not duplicate a paving slab or map terrain.
  * @evidence principles/core/source-units.md#source-substantive-completion Id, owner, outline, anchor, and optional ramp end give environment assembly a usable bounded place.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site-access parent distinguishes walking zones from paving solids; this type needed no extra exterior place.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface places named exterior standing zones below house-site while exterior-surface-handoff assigns their paving bodies to site and porch owners; this type carries that existing pair.
  */
 export interface IExteriorZone {
   /** Zone id used by the route network (05). */
@@ -31,7 +31,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md This id is the route-table name of the exterior standing area.
    * @evidence principles/core/source-units.md#source-scope-preservation It identifies a zone, not a new part or off-site network node.
    * @evidence principles/core/source-units.md#source-substantive-completion A required string lets built spaces and route edges share a stable key.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site parent names current exterior zones; no extra id was synthesized by this field.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-local-routes names front-walk, driveway, side access, garden terrace, and lower landing as route places; id preserves each emitted zone name.
    */
   id: string;
   /** Source owner path under `src/spaces`. */
@@ -47,7 +47,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md The outline bounds the logical walking zone over its owner's paving.
    * @evidence principles/core/source-units.md#source-scope-preservation It is a plan record and does not extrude another visible slab.
    * @evidence principles/core/source-units.md#source-substantive-completion Ordered world X/Z points can be decomposed into engine space cells.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site parent supplies each zone's paved limits; this field preserves them without a parcel guess.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-local-routes limits front-walk, driveway, side access, and garden terrace to the owner's paving; outline records each emitted boundary without adding parcel terrain.
    */
   outline: readonly IPlanPoint[];
   /** A point of the standable ground. */
@@ -55,7 +55,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md `anchor` records a point on the zone's standable top in world coordinates.
    * @evidence principles/core/source-units.md#source-scope-preservation It references paving height and cannot author an independent terrain elevation.
    * @evidence principles/core/source-units.md#source-substantive-completion The required vector makes the zone's floor surface queryable by the engine.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving owners define each standable height; this field needed no extra datum.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-contact-handoff keeps a zone's standing height on its visible paving top; anchor transports a point on that owner surface.
    */
   anchor: IAutoMovieVector3;
   /** The second ground point of a single-slope zone; null when flat. */
@@ -63,7 +63,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md `rampTo` records the second height point for a sloped walking zone or null for level zones.
    * @evidence principles/core/source-units.md#source-scope-preservation It classifies the existing driveway grade rather than drawing a new connector.
    * @evidence principles/core/source-units.md#source-substantive-completion The vector/null union lets environment assembly emit a ramp or platform with no guessed slope.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent fixes its two end heights; flat zones have one anchor, so no third ramp datum arose.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Driveway-plan interpolates between garage floor and front-walk height, so rampTo stores its second datum while flat porch and terrace zones use null.
    */
   rampTo: IAutoMovieVector3 | null;
   /**
@@ -71,7 +71,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md#site-local-routes Each patch retains its paving owner's grade while the zone stays continuous.
    * @evidence principles/core/source-units.md#source-scope-preservation Patches describe emitted paving, not extra slabs or off-site ground.
    * @evidence principles/core/source-units.md#source-substantive-completion Each patch supplies an outline and height points for separate cells and surfaces.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The T and side paths were already in the site design; patches correct their source representation without changing that design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan has a T connector and side-walk-plan has front and rear cross bands; patches retain those distinct paving heights under each continuous walking zone.
    */
   patches?: readonly { outline: readonly IPlanPoint[]; anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null; height?: IAutoMovieHeightRule }[];
   /**
@@ -87,7 +87,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Bilinear connector samples need the source owner's X/Z height, not a single ramp interpolation.
    * @evidence principles/core/source-units.md#source-scope-preservation This callback reads the existing paving profile and adds no ground datum.
    * @evidence principles/core/source-units.md#source-substantive-completion Observation eyes can be placed over the actual sampled connector top.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving support plan already specifies the connector's bilinear surface.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires the connector top to follow its sampled bilinear height, and groundAt returns that same height at each X/Z point.
    */
   groundAt?: (x: number, z: number) => number;
 }
@@ -110,14 +110,14 @@ export const ZONE_HEAD_CLEARANCE = 2.0;
  * @evidence spaces/site/00-access.md ISiteBuild carries each site owner's logical standing areas and actual solids together.
  * @evidence principles/core/source-units.md#source-scope-preservation The pair keeps zone membership with source-owned paving parts without merging their authorship.
  * @evidence principles/core/source-units.md#source-substantive-completion Both required arrays give buildSite a usable assembly boundary.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site-access parent separates zones from surfaces; the result type needed no extra site layer.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface supplies named exterior standing zones and exterior-surface-handoff assigns visible paving to each source owner; ISiteBuild returns those two outputs together.
  */
 export interface ISiteBuild {
   /**
    * @evidence spaces/site/00-access.md `zones` lists the named exterior places an owner contributes to route queries.
    * @evidence principles/core/source-units.md#source-scope-preservation The array contains standing records, not duplicate slabs.
    * @evidence principles/core/source-units.md#source-substantive-completion A required typed list lets buildSite concatenate all site zones in fixed order.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The access parent names the current walking zones; this list introduces none.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-local-routes uses front-walk, driveway, side access, terrace, and lower landing as existing walking places; zones collects their emitted records.
    */
   zones: IExteriorZone[];
   /**

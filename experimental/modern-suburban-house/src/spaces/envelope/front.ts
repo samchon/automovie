@@ -48,7 +48,7 @@ const INNER = FRONT - MAIN.wall;
  * @evidence spaces/envelope/front.md#garage-front-opening The 6.10..11.10 m jambs, garage-base sill, and 2.15 m head form one rough void.
  * @evidence principles/core/source-units.md#source-scope-preservation This host leaves the moving panel and guides to later models and garage reservations.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall cut, floor base tongue, and interior guide reservations consume its span.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front opening paragraph fixes these jambs and the single-panel role.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes garage-front-door jambs X=6.10..11.10 m and a 2.15 m head; this host keeps that one rough void while panel movement remains a model duty.
  */
 export const GARAGE_FRONT_DOOR = {
   id: "garage-front-door",

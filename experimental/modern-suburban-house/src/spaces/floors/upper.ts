@@ -44,7 +44,7 @@ const OPENING_EDGE = CEILING_FINISH;
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions A receded L notch leaves a 0.015 m edge band for the stair's continuous opening finish.
  * @evidence principles/core/source-units.md#source-scope-preservation The opening reaches the front wall as a notch, while room finishes and stair edge trim remain with their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The ten-point outline extrudes one solid slab with deterministic top and bottom datums.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The interstorey parent fixes the finish split and stair opening; no duplicate upper floor was introduced.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interstorey-floor-boundary allocates one 0.270 m common structure between 0.015 m ceiling and 0.025 m upper room finish, while interstorey-edge-junctions reserves the L stair notch.
  */
 export const buildInterstorey = (): IHousePart[] => {
   const [x0, x1] = MAIN.inner.x;
@@ -85,7 +85,7 @@ export const buildInterstorey = (): IHousePart[] => {
  * @evidence spaces/09-ceiling-assembly.md#ceiling-roof-clearance The single upper base sits below the reserved roof underside rather than raising the roof profile.
  * @evidence principles/core/source-units.md#source-scope-preservation Rooms and stair retain visible ceiling finishes; this slab is structural ceiling support only.
  * @evidence principles/core/source-units.md#source-substantive-completion A full-plan solid spans MAIN.inner at the computed bottom and reservation top.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling parent states full-plan closure and the finish/support split; source needed no new stair opening.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-ceiling-closure covers the full MAIN.inner plan including the stairwell with 0.015 m room finish below 0.165 m support; this builder emits only the support.
  */
 export const buildUpperCeiling = (): IHousePart[] => {
   const bottom = STOREYS.upperCeiling + CEILING_FINISH;

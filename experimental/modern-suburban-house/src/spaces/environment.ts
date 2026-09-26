@@ -466,7 +466,7 @@ export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: 
  * @evidence principles/core/source-units.md#source-scope-preservation The verifier reads connector records and space cells; it does not move a failed route into a convenient room.
  * @evidence principles/core/source-units.md#source-substantive-completion It interpolates landing.at along the 3D route and throws owner-labelled failures for outside endpoints or landing.
  * @evidence obligations/design/space-sources.md#space-source-invalid-topology A connector with a route outside its declared endpoint or landing space is explicitly refused.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The route parent fixes connector spaces and landings; validation needed no replacement passage.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-connector-handoff names entry, landing, and upper-hall stops while room-route-network names exterior connector endpoints; checkConnectors tests those authored spaces without moving a route.
  */
 export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void => {
   const spaces = new Map(environment.spaces.map((s) => [s.id, s]));

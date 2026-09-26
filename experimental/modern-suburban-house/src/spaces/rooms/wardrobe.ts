@@ -62,7 +62,7 @@ const WARDROBE: IRoomSpace = {
  * @evidence spaces/rooms/wardrobe.md#wardrobe-storage-use Hanging and shelf bands leave the front aisle and left turning area free as reservations.
  * @evidence principles/core/source-units.md#source-scope-preservation The room owns its carpet, door strip, and three partition runs while later models own racks and shelves.
  * @evidence principles/core/source-units.md#source-substantive-completion The return has one room record and six concrete finish/partition parts with the door void present.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The wardrobe parent specifies its bathroom boundary, door, storage, and aisle; the builder needed no invented opening.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-wardrobe-plan fixes the primary-bedroom door and closed shower-bath boundary, while wardrobe-storage-use assigns hanger/folded-storage bands and their aisle inside that room.
  */
 export const buildWardrobe = (): IRoomBuild => ({
   space: WARDROBE,

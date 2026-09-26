@@ -44,7 +44,7 @@ const STEP_X = [STEP_CENTRE_X - 0.75, STEP_CENTRE_X + 0.75] as const;
  * @evidence spaces/site/terrace.md#garden-lower-landing-plan The 1.50 m width, 1.20 m depth, and LOW top place the wait after the two 0.30 m treads.
  * @evidence principles/core/source-units.md#source-scope-preservation This record gives the landing bounds without authoring map terrain or another terrace slab.
  * @evidence principles/core/source-units.md#source-substantive-completion Its computed Z and Y are consumed by the terrace and side-walk builders as one contact.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The landing parent fixes step count, tread reach, and wait depth; no extra lower platform was chosen.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garden-steps-plan sets three 0.15 m rises and two 0.30 m treads; garden-lower-landing-plan sets the 1.20 m wait beyond them, which LOWER_LANDING derives.
  */
 export const LOWER_LANDING = {
   x: STEP_X,
@@ -60,7 +60,7 @@ export const LOWER_LANDING = {
  * @evidence spaces/site/terrace.md#garden-lower-landing-plan A lower slab and zone finish the path at LOW for the side-walk handoff.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder uses STOREYS and WALK_DEPTH values but creates no terrain or garden planting.
  * @evidence principles/core/source-units.md#source-substantive-completion Raised platform, two step parts, landing, and both zone records return deterministically.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The terrace parent fixes raised support, step geometry, and lower wait; no ground contour was fabricated.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garden-terrace-plan fixes a raised rear platform, garden-steps-plan gives three descents, and garden-lower-landing-plan ends at the lower wait; this builder emits their solids and zones without terrain.
  */
 export const buildTerrace = (): ISiteBuild => {
   const parts: IHousePart[] = [

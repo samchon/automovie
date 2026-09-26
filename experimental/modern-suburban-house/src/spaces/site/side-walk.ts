@@ -28,7 +28,7 @@ const PATH_WIDTH = 1.2;
  * @evidence spaces/site/side-walk.md SIDE_WALK records the side path X band, both cross bands, and lower-landing top.
  * @evidence principles/core/source-units.md#source-scope-preservation Its back band derives from imported LOWER_LANDING and does not extend beyond the authored waiting area.
  * @evidence principles/core/source-units.md#source-substantive-completion The typed intervals and elevation let the side-walk builder close three paving bands consistently.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The side-walk parent supplies width and cross-band reaches; LOWER_LANDING fixes the rear contact.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan puts the path 0.60 m east of GARAGE's right outer wall and takes its rear junction from garden-lower-landing-plan; SIDE_WALK derives those contacts.
  */
 export const SIDE_WALK = {
   x: [GARAGE.outer.x[1] + 0.6, GARAGE.outer.x[1] + 0.6 + PATH_WIDTH] as const,
@@ -44,7 +44,7 @@ export const SIDE_WALK = {
  * @evidence spaces/site/side-walk.md#side-gate-interface Two named waiting zones straddle the gate plane taken from imported GARAGE bounds.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder returns paving and standing zones while the fence owner creates the gate posts and model owner the leaf.
  * @evidence principles/core/source-units.md#source-substantive-completion Three solid bands and three zone records (continuous walk and two gate waits) share their end coordinates.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk and gate parent units fix the three bands and waiting spans; source added no extra exterior path.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan gives the long path plus front and rear cross bands, and side-gate-interface sets waiting on both sides of the gate; buildSideWalk returns those three access zones.
  */
 export const buildSideWalk = (): ISiteBuild => {
   const s = SIDE_WALK.top;

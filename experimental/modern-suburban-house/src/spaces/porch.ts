@@ -41,7 +41,7 @@ export const PORCH_STEP_HALF_WIDTH = 0.75;
  * @evidence spaces/porch.md#porch-platform-access Averaging FRONT_DOOR's two jambs keeps all three steps on the door axis.
  * @evidence principles/core/source-units.md#source-scope-preservation The calculation reads the entry owner's void without changing it.
  * @evidence principles/core/source-units.md#source-substantive-completion The step blocks and front-walk interval consume this centre on every build.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The porch plan already requires the entry-door axis; no second alignment datum is needed.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access centres its 1.50 m stair on the front-door axis; this midpoint reads both FRONT_DOOR jambs.
  */
 export const PORCH_STEP_CENTRE_X = (FRONT_DOOR.from + FRONT_DOOR.to) / 2;
 /**
@@ -49,7 +49,7 @@ export const PORCH_STEP_CENTRE_X = (FRONT_DOOR.from + FRONT_DOOR.to) / 2;
  * @evidence spaces/porch.md#porch-platform-access Dividing the imported elevation difference by three preserves the step sequence when either datum moves.
  * @evidence principles/core/source-units.md#source-scope-preservation This is the porch's stair relation, not a new level alongside STOREYS.
  * @evidence principles/core/source-units.md#source-substantive-completion Each tread top uses k times this derived rise beneath porchFloor.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The porch design already specifies three equal risers between these datums.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access divides the 0.45 m difference between front walk and porch floor into three equal rises; this value reads both STOREYS datums.
  */
 export const PORCH_STEP_RISE = (STOREYS.porchFloor - STOREYS.frontWalk) / 3;
 /**
@@ -57,7 +57,7 @@ export const PORCH_STEP_RISE = (STOREYS.porchFloor - STOREYS.frontWalk) / 3;
  * @evidence spaces/porch.md#porch-platform-access The Z=2.20 m edge locates the first tread and connector transition once.
  * @evidence principles/core/source-units.md#source-scope-preservation The coordinate belongs to the porch platform, leaving the lower walk's extent to its owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Both tread placement and the connector route read the same back edge.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The platform-access paragraph fixes the platform's front Z edge.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access fixes the platform front edge at Z=2.20 m and derives both treads backward from it; the platform, steps, zone, and connector share this export.
  */
 export const PORCH_STEP_BACK_Z = 2.2;
 /**
@@ -65,7 +65,7 @@ export const PORCH_STEP_BACK_Z = 2.2;
  * @evidence spaces/porch.md#porch-platform-access The front step edge is derived from the platform edge plus both tread depths.
  * @evidence principles/core/source-units.md#source-scope-preservation The front walk imports this edge instead of inventing where its flat waiting begins.
  * @evidence principles/core/source-units.md#source-substantive-completion The derived Z bounds the first walk slab and its logical zone.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch and front-walk plans already specify the step depth and shared contact.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access specifies two 0.30 m treads from its Z=2.20 m edge and front-walk-plan begins its lower waiting at their outer edge; this expression shares that contact.
  */
 export const PORCH_STEP_FRONT_Z = PORCH_STEP_BACK_Z + 2 * STEP_TREAD;
 const porchRoof = (z: number): number => 3.5 - z / 4;
@@ -77,7 +77,7 @@ const porchRoof = (z: number): number => 3.5 - z / 4;
  * @evidence spaces/porch.md#porch-roof-columns Three repeated column stacks carry a front beam and a sloped roof whose packer closes the beam-to-underside gap.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder leaves the lower waiting pad to front-walk and uses the imported STOREYS datums for platform height.
  * @evidence principles/core/source-units.md#source-substantive-completion Blocks, a sloped roof mesh, and the zone record are emitted in a fixed loop and part order.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Both porch parent units give step, column, beam, roof, and waiting-pad bounds; their geometry needed no additional access decision.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access fixes the platform, three rises, and stair width, while porch-roof-columns fixes three columns, their beam, and pitched roof; the builder emits those assigned parts and one front-porch zone.
  */
 export const buildPorch = (): ISiteBuild => {
   const parts: IHousePart[] = [
@@ -178,7 +178,7 @@ export const buildPorch = (): ISiteBuild => {
     anchor: {
       x: PORCH_STEP_CENTRE_X,
       y: STOREYS.porchFloor,
-      z: PORCH_STEP_BACK_Z / 2,
+      z: (MAIN.outer.z[1] + PORCH_STEP_BACK_Z) / 2,
     },
     rampTo: null,
   };

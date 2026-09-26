@@ -40,9 +40,15 @@ import { part, wallPanel, type IHousePart, type IWallPoint } from "../solids";
  * @evidence spaces/envelope/right.md The family room side window owns its rough wall cut.
  * @evidence principles/core/source-units.md#source-scope-preservation The common room consumes only the cut's inward curtain extent.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and fit-out reservation move from one coordinate.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right elevation already fixes this window.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Family-right-window fixes the ground side opening Z=-9.95..-8.25 m at a 0.75 m sill; the common-room curtain consumes this host span.
  */
-export const FAMILY_RIGHT_WINDOW = { id: "family-right-window", from: -9.95, to: -8.25, bottom: 0.75, top: 2.3 } as const;
+export const FAMILY_RIGHT_WINDOW = {
+  id: "family-right-window",
+  from: -9.95,
+  to: -8.25,
+  bottom: 0.75,
+  top: 2.3,
+} as const;
 
 const OWNER = "envelope/right.ts";
 const B = EXTERIOR_WALL_BOTTOM;

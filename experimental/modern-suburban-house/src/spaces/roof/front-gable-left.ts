@@ -18,7 +18,7 @@ import { gable, GABLE_CORNERS, ROOF_THICKNESS } from "./junctions";
  * @evidence spaces/roof/front-gable-left.md#front-gable-left-roof Its triangular plan joins leftFoot, apex, and ridgeFront; gable(x) raises the weather face over that plan.
  * @evidence principles/core/source-units.md#source-scope-preservation The returned part has only the left gable face and takes its corners and thickness from junctions instead of inventing another roof edge.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab turns the three plan vertices, gable height, and roof thickness into an actual mesh part with a stable id.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left-gable parent fixes the triangular valley boundary and thickness; this construction used those coordinates without an additional junction decision.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-gable-left-roof uses GABLE_CORNERS' left foot, ridge front, and apex to follow the authored valley triangle at ROOF_THICKNESS below its weather face.
  */
 export const buildFrontGableLeftRoof = (): IHousePart[] => {
   const { leftFoot, apex, ridgeFront } = GABLE_CORNERS;

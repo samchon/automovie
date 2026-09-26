@@ -76,7 +76,7 @@ const PRIMARY: IRoomSpace = {
  * @evidence spaces/rooms/primary.md#primary-furniture-use Bed, two nightstands, dresser/drawer use, and wardrobe-door waiting occupy separate reservations.
  * @evidence principles/core/source-units.md#source-scope-preservation The function emits its carpet finishes and three walls, not the bed or wardrobe storage meshes.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns the room record, two finish planes, two door-floor shares, and the three partition runs.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The primary parent fixes its L outline and both door contacts, so source added no bedroom shortcut or furniture location.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-plan fixes the L outline, hall-primary-door, and primary-wardrobe-door, while primary-furniture-use assigns the bed and two window curtains inside that one room.
  */
 export const buildPrimary = (): IRoomBuild => ({
   space: PRIMARY,

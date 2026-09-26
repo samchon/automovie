@@ -39,7 +39,7 @@ const SILL = STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base;
  * @evidence spaces/envelope/rear.md#garden-door Its -1.20..1.20 m jambs meet the terrace while the sill follows the ground base layers.
  * @evidence principles/core/source-units.md#source-scope-preservation The host defines the rough wall cut and leaves glazed leaves and hardware to models.
  * @evidence principles/core/source-units.md#source-substantive-completion Rear wall, rear threshold, and ground slab tongue take their X bounds from this object.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The rear exit and level terrace relation are already settled in its design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garden-door fixes X=-1.20..1.20 m and a finished threshold level with the raised terrace; this export gives the wall, floor tongue, and terrace one opening axis.
  */
 export const GARDEN_DOOR = {
   id: "garden-door",
@@ -54,7 +54,7 @@ export const GARDEN_DOOR = {
  * @evidence spaces/envelope/rear.md#primary-rear-window The -3.85..-1.45 m span and 3.91..5.31 m heights avoid the wardrobe bay.
  * @evidence principles/core/source-units.md#source-scope-preservation The bedroom imports this void only to reserve its inward curtain strip.
  * @evidence principles/core/source-units.md#source-substantive-completion The rear wall cut and the bedroom curtain share one sill, head, and horizontal host.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The rear window paragraph fixes its position before curtain fit-out.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-rear-window fixes the X=-3.85..-1.45 m upper opening and Y=3.91..5.31 m sill/head, which the bedroom curtain consumes.
  */
 export const PRIMARY_REAR_WINDOW = {
   id: "primary-rear-window",
@@ -68,7 +68,7 @@ export const PRIMARY_REAR_WINDOW = {
  * @evidence spaces/envelope/rear.md The family room rear window owns one rough opening.
  * @evidence principles/core/source-units.md#source-scope-preservation The common room uses this window span for its curtain and to stop the garden-door approach before the curtain; the wall cut remains here.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall cut and curtain derive from the same horizontal and vertical span.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The rear facade already fixes this window.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Family-rear-window fixes the ground opening X=2.75..4.75 m above its 0.75 m sill; the wall host exports that span to common-room fit-out and route clearance.
  */
 export const FAMILY_REAR_WINDOW = {
   id: "family-rear-window",
@@ -89,7 +89,7 @@ export const FAMILY_REAR_WINDOW = {
  * @evidence spaces/envelope/rear.md#garden-door The central X=-1.20..1.20 void and finished threshold reach the level terrace side.
  * @evidence principles/core/source-units.md#source-scope-preservation Door leaves and window frames remain model fills; this source owns wall, openings, roof wedges, and threshold.
  * @evidence principles/core/source-units.md#source-substantive-completion The return has two closed wall solids, four real voids, three head wedges, and garden threshold support.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Rear parent units fix the step, four voids, and level garden exit; no new rear opening was needed.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Rear-roof-closures fixes the high/low rear step, rear-openings fixes the kitchen, family, primary, and garden-door voids, and garden-door meets the level terrace; buildRear emits those hosts.
  */
 export const buildRear = (): IHousePart[] => {
   const mainTop = mBack(BACK) - ROOF_THICKNESS;

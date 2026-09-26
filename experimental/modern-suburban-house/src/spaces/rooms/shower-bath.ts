@@ -70,7 +70,7 @@ const SHOWER_BATH: IRoomSpace = {
  * @evidence spaces/rooms/shower-bath.md#shower-fixture-use Booth, toilet, vanity, mirror, towel, and their access areas stay as typed room reservations.
  * @evidence principles/core/source-units.md#source-scope-preservation The function builds tile finishes and two allocated walls while leaving glass and plumbing fixtures to models.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns room surfaces, under-door finish, the cut hall wall, and the recessed primary wall solid.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The shower parent fixes direct hall access, recess limits, and fixture zones; no bedroom-through route was added.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-bath-plan gives one hall-shower-door with no primary-bedroom door, and shower-fixture-use fixes a blind niche plus booth, basin, and toilet use areas inside the bathroom.
  */
 export const buildShowerBath = (): IRoomBuild => ({
   space: SHOWER_BATH,

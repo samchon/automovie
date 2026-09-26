@@ -24,7 +24,7 @@ import {
  * @evidence spaces/roof/right-front.md#right-front-roof Its plan reaches from SPLIT_X to RIGHT_EAVE_X and from MAIN_RIDGE_Z to FRONT_EAVE_Z, with rFront setting the descending weather surface.
  * @evidence principles/core/source-units.md#source-scope-preservation It ends at the split plane without an invented overhang there; the step-wall and rear-slope owners retain their separate faces.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab turns the bounded front rectangle into roof-right-front with a deterministic mesh and shared underside thickness.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-front parent gives the front eave, split, ridge, and lower pitch; those coordinates build the plane without an added edge decision.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Right-front-roof spans X=SPLIT_X to RIGHT_EAVE_X and MAIN_RIDGE_Z to FRONT_EAVE_Z with the 7/12 lower weather profile.
  */
 export const buildRightFrontRoof = (): IHousePart[] => [
   part(

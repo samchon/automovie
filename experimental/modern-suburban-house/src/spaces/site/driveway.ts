@@ -22,7 +22,7 @@ import type { ISiteBuild } from "./zone";
  * @evidence spaces/site/driveway.md DRIVEWAY fixes the widened garage-door strip and its front paving end.
  * @evidence principles/core/source-units.md#source-scope-preservation The intervals reserve concrete paving only and contain no vehicle or off-site street geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion Fixed X/Z tuples give driveTop and the slab one repeatable plan.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent specifies the widened opening and Z end, so the plan needed no additional road edge.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Driveway-plan widens garage-front-door by 0.20 m on each X side and runs from the garage outer front wall to the front paving end; DRIVEWAY imports the opening and wall.
  */
 export const DRIVEWAY = {
   x: [GARAGE_FRONT_DOOR.from - 0.2, GARAGE_FRONT_DOOR.to + 0.2] as const,
@@ -34,7 +34,7 @@ export const DRIVEWAY = {
  * @evidence spaces/site/driveway.md driveTop interpolates the drive's single longitudinal ramp between garage and front-walk heights.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads STOREYS as a value import and changes no cross-slope or garage datum.
  * @evidence principles/core/source-units.md#source-substantive-completion The affine expression gives a deterministic top Y for every Z along the drive.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent supplies both end heights and ramp length; no extra grade was selected.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Driveway-plan interpolates the garage finished floor to the front-walk height over its authored Z reach and forbids a lateral grade; driveTop applies that one formula.
  */
 export const driveTop = (z: number): number => {
   const u = (z - DRIVEWAY.z[0]) / (DRIVEWAY.z[1] - DRIVEWAY.z[0]);
@@ -47,7 +47,7 @@ export const driveTop = (z: number): number => {
  * @evidence spaces/site/driveway.md#driveway-plan The slab follows driveTop from garage threshold to paving end, while anchors record both ramp endpoints.
  * @evidence principles/core/source-units.md#source-scope-preservation It leaves cars absent and uses the shared DRIVE_DEPTH rather than inventing a concrete base.
  * @evidence principles/core/source-units.md#source-substantive-completion One stable paving part and ramped zone are returned in a fixed structure.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The driveway parent fixes width, gradient endpoints, and base depth; this builder needed no new site contact.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Driveway-plan fixes the door-centred width and two height endpoints, while paving-depth-reservation assigns a 0.15 m base; buildDriveway emits that sloped slab and its matching zone.
  */
 export const buildDriveway = (frontConnectorZ: readonly [number, number], sideConnectorZ: readonly [number, number]): ISiteBuild => ({
   zones: [

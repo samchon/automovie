@@ -44,7 +44,7 @@ const SERVICE: IRoomSpace = {
  * @evidence spaces/rooms/service.md#service-access-plan The six-corner L outline keeps the front-entry connection wall-less and serves powder, laundry, pantry, and common openings.
  * @evidence principles/core/source-units.md#source-scope-preservation Its neighbours own all partition bodies; this builder emits only its floor, ceiling, and shares under four voids.
  * @evidence principles/core/source-units.md#source-substantive-completion The return has a continuous floor/ceiling and four named doorFloor strips for actual passage bottoms.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service parent fixes the two joined bands and all door contacts; the builder added no sixth door or barrier.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Service-access-plan joins the right/front and stair-back bands without a wall and assigns the common, powder, laundry, and pantry door contacts; buildService keeps that one open service space.
  */
 export const buildService = (): IRoomBuild => ({
   space: SERVICE,

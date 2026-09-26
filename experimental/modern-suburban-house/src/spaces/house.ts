@@ -79,7 +79,7 @@ import { buildStair } from "./stair";
  * @evidence spaces/04-observations.md IHouse groups the emitted solids and logical places consumed by environment construction and inspection.
  * @evidence principles/core/source-units.md#source-scope-preservation The record references authored parts, rooms, storage, and site zones without creating furniture or material assets.
  * @evidence principles/core/source-units.md#source-substantive-completion Its four required arrays give consumers typed access to geometry and spatial identity in one build result.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation handoff needs these four populations; their existing builders supplied each without a new authored place.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Engine-render-handoff consumes visible part meshes and room records, site-access-interface names exterior standing zones, and entry-coat-storage/upper-linen-storage assign the two closed storage volumes; these builders supply the four arrays.
  */
 export interface IHouse {
   /** Every emitted solid, in fixed owner order. */
@@ -87,7 +87,7 @@ export interface IHouse {
    * @evidence spaces/04-observations.md `parts` is the ordered set of solids that observation and environment assembly inspect.
    * @evidence principles/core/source-units.md#source-scope-preservation Each entry remains an IHousePart of its source owner, not a replacement mesh authored here.
    * @evidence principles/core/source-units.md#source-substantive-completion A required array exposes all emitted geometry to viewer and topology assembly.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The handoff parent calls for assembled solids; it did not require another part role.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Engine-render-handoff requires model-bearing elements for visible walls, floors, and roofs; parts collects the solids emitted by those surface owners.
    */
   parts: IHousePart[];
   /** The fifteen room space records, in fixed owner order. */
@@ -95,7 +95,7 @@ export interface IHouse {
    * @evidence spaces/04-observations.md `spaces` exposes each authored room record for later spatial queries.
    * @evidence principles/core/source-units.md#source-scope-preservation This array carries the room owners' records unchanged; it does not infer adjacency from mesh overlap.
    * @evidence principles/core/source-units.md#source-substantive-completion A required IRoomSpace list supports deterministic room and reservation checks.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The handoff parent already enumerates room observation inputs, so no new space was inferred.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation derives centre, corner, and threshold questions from built rooms; spaces keeps the room owners' records for that census.
    */
   spaces: IRoomSpace[];
   /** Storage volumes with the room that owns each, in fixed owner order. */
@@ -103,7 +103,7 @@ export interface IHouse {
    * @evidence spaces/04-observations.md `storages` retains each closed storage volume with its owning room.
    * @evidence principles/core/source-units.md#source-scope-preservation Its room link preserves closet ownership without turning storage into a circulation node.
    * @evidence principles/core/source-units.md#source-substantive-completion The typed pair gives environment construction a stable parent for every storage cell.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The source parents already attach closets to rooms; retaining the pair added no storage location.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage puts the shallow coat volume beneath the upper flight and upper-linen-storage puts the linen volume in the hall; storages pairs each with its owning room.
    */
   storages: { room: IRoomSpace; storage: IStorageSpace }[];
   /** Exterior zones of the porch and site, in fixed owner order. */
@@ -111,7 +111,7 @@ export interface IHouse {
    * @evidence spaces/04-observations.md `zones` supplies the named exterior standing places to the spatial record.
    * @evidence principles/core/source-units.md#source-scope-preservation It carries porch and site zones from their owners rather than inventing a parcel or street space.
    * @evidence principles/core/source-units.md#source-substantive-completion A required IExteriorZone array lets environment assembly create bounded exterior cells.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site/porch parents supply all current exterior zones; no off-site node was needed.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface places porch, driveway, side path, and rear terrace standing zones under the ground storey; zones carries the named outputs of those owners.
    */
   zones: IExteriorZone[];
 }

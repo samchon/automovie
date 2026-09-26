@@ -70,7 +70,7 @@ export const buildGarageSharedWall = (): IHousePart[] => {
  * @evidence spaces/10-ground-floor.md#garage-ground-floor-base Its slab extends beneath the front-door threshold while ending at the garage inner-wall limits elsewhere.
  * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor with a visible concrete top; garage-interior records the same floor level and emits the ceiling finish.
  * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and 0.15 m depth produce a closed garage-floor-base solid.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-floor parent fixes the lower datum, base depth, and front-door support; no extra slab edge was required.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ground-floor-base sets the top at garage finished floor -0.15 m and the base 0.15 m below, with a tongue under garage-front-door; this slab uses those bounds.
  */
 export const buildGarageFloorBase = (): IHousePart[] => [
   part(
@@ -101,7 +101,7 @@ export const buildGarageFloorBase = (): IHousePart[] => [
  * @evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure The slab spans GARAGE.inner and fills Y from garageCeiling plus finish to garageCeiling plus reservation.
  * @evidence principles/core/source-units.md#source-scope-preservation It omits the visible ceiling finish assigned to garage-interior and does not raise the roof or garage datum.
  * @evidence principles/core/source-units.md#source-substantive-completion rect and slab return a closed, stable garage-ceiling-base part with its support depth.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling parent supplies inner bounds and finish/support split; the builder needed no new ceiling footprint.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ceiling-closure puts support above the 2.55 m finished ceiling inside GARAGE.inner while garage-interior owns the finish; this builder emits that support footprint only.
  */
 export const buildGarageCeiling = (): IHousePart[] => [
   part(

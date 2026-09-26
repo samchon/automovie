@@ -192,7 +192,7 @@ export interface IWallSolid {
  * @evidence spaces/00-building.md#main-building-extent Main-body outlines use fixed X/Z coordinates.
  * @evidence principles/core/source-units.md#source-scope-preservation The point is supplied by a design owner, not chosen by this helper.
  * @evidence principles/core/source-units.md#source-substantive-completion Both plan axes are present for closed surface rings.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The coordinate frame was settled in settings and building design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes outer X=[-5.75, 5.75] and Z=[-10.70, 0] in world metres; IPlanPoint passes a caller's two coordinates in that frame.
  */
 export interface IPlanPoint {
   /**
@@ -331,7 +331,7 @@ const TO_PLAN = { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
  * @evidence spaces/07-boundary-assembly.md#exterior-boundary-junctions Orientation and thickness preserve the single exterior wall body.
  * @evidence principles/core/source-units.md#source-scope-preservation Axis, outline and cuts are supplied by the caller; this helper owns no wall run.
  * @evidence principles/core/source-units.md#source-substantive-completion Region extrusion produces a mesh and its matching face record.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The one-body and opening-host rules already belong to boundary design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership gives each partition one body and its door void, while external-opening-interface cuts a rough opening through its host wall; wallPanel emits that body and matching face record.
  */
 export const wallPanel = (props: {
   axis: "x" | "z";
@@ -507,7 +507,7 @@ const cross = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
  * @evidence spaces/roof/00-junctions.md#roof-wall-head-junctions A caller can close a wall-head wedge against its own level floor.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the plan, slope and underside; it creates no new roof mass.
  * @evidence principles/core/source-units.md#source-substantive-completion It validates the input and emits outward top, bottom and side faces.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof planes and wall-head ownership are already set by the roof design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums fixes a vertical 0.24 m reservation for main and garage planes, porch-roof-columns fixes its own roof underside, and roof-wall-head-junctions consumes the slope across wall thickness; slopedSlab applies only the caller's assigned plan and height.
  */
 export const slopedSlab = (props: {
   plan: readonly IPlanPoint[];
@@ -566,7 +566,7 @@ export const slopedSlab = (props: {
  * @evidence spaces/roof/main-front.md#main-front-roof This keeps the cut main front weather face and underside in one part.
  * @evidence principles/core/source-units.md#source-scope-preservation Roof owners identify their free outline; this helper never selects a roof junction.
  * @evidence principles/core/source-units.md#source-substantive-completion Each planar tile has an underside and only selected free sides close its thickness.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof design already distinguishes free perimeter from shared valley and ridge.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-shared-edges requires one coincident valley/ridge seam without internal closing faces; slopedPlate closes only caller-marked free perimeter edges of its roof tiles.
  */
 export const slopedPlate = (props: {
   plans: readonly (readonly IPlanPoint[])[];
@@ -608,7 +608,7 @@ export const slopedPlate = (props: {
  * @evidence spaces/02-stair.md#stair-boundary-heights Its sloped endpoints can track a flight without losing a closed guard body.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper adds no rail location; the stair author supplies both ends and size.
  * @evidence principles/core/source-units.md#source-substantive-completion It builds outward square-section faces and handles a vertical segment.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Existing stair design assigns the guard path and height.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-boundary-heights assigns open lower-flight guard and handrail rises, while stair-clearance keeps the route beside them; bar connects only the two supplied rail endpoints at their supplied section size.
  */
 export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number): IAutoMovieMesh => {
   const dir = sub(to, from);

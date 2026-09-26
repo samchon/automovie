@@ -57,7 +57,7 @@ const LINEN_HEIGHT = 2.2;
  * @evidence spaces/rooms/upper-hall.md#upper-linen-storage Four closet walls, a door opening, and an upper head enclose the 2.20 m storage volume.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall does not create bedroom or bathroom partition bodies, and leaves linen shelves/leaves to models.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, storage record, finish planes, five strips, and closed closet shell are built in a fixed order.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall parent fixes both corridor bands, five door contacts, and linen height; source introduced no extra room route.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-hall-plan joins its two corridor bands to five room doors, while upper-linen-storage sets the hall closet top; buildUpperHall keeps those contacts in one hall space.
  */
 export const buildUpperHall = (): IRoomBuild => {
   const owner = UPPER_HALL.owner;

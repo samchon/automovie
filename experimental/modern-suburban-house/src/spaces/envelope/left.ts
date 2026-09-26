@@ -48,7 +48,7 @@ const under = (z: number): number => mainRoof(z) - ROOF_THICKNESS;
  * @evidence spaces/envelope/left.md#primary-left-window Its -8.90..-7.30 m opening lies clear of the chimney and above the upper floor.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a wall void, while the bedroom only reserves a curtain from its bounds.
  * @evidence principles/core/source-units.md#source-substantive-completion The back panel cut and the left curtain strip use this same interval and sill/head.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left opening plan already fixes the side window's wall location.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-left-window fixes the rear left-wall opening Z=-8.90..-7.30 m above the upper floor; this span stays on the envelope host before bedroom curtain use.
  */
 export const PRIMARY_LEFT_WINDOW = {
   id: "primary-left-window",
@@ -62,7 +62,7 @@ export const PRIMARY_LEFT_WINDOW = {
  * @evidence spaces/envelope/left.md The living room side window owns one rough opening.
  * @evidence principles/core/source-units.md#source-scope-preservation The room reserves fit-out without moving this facade cut.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and curtain share the same host span.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left elevation already fixes this window.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-left-window fixes Z=-5.50..-4.30 m behind the fireplace while leaving that masonry body closed; this export carries its rough void.
  */
 export const LIVING_LEFT_WINDOW = {
   id: "living-left-window",
@@ -82,7 +82,7 @@ export const LIVING_LEFT_WINDOW = {
  * @evidence spaces/envelope/left.md#chimney-roof-interface One chimney body and cap cross the roof notch; hearth, cheeks, and head surround a real firebox gap.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder omits flue/fire behavior, window fills, and mantel while retaining the exterior chimney and wall contact.
  * @evidence principles/core/source-units.md#source-substantive-completion Two cut wall meshes plus body, cap, and fireplace brick solids give a tangible left elevation.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left parent fixes chimney footprint, fireplace void, two windows, and roof closure; no additional wall bay was invented.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Left-roof-closure supplies the two roof-contact panels, left-openings fixes living and primary holes, and chimney-roof-interface fixes masonry and its firebox gap; buildLeft emits those assigned bodies.
  */
 export const buildLeft = (): IHousePart[] => {
   const front = MAIN.inner.z[1];

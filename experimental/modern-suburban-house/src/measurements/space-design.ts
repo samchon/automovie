@@ -6,15 +6,9 @@
  */
 import { MAIN } from "../spaces/building";
 import { FRONT_WINDOWS } from "../spaces/envelope/front-windows";
-import {
-  LIVING_LEFT_WINDOW,
-  PRIMARY_LEFT_WINDOW,
-} from "../spaces/envelope/left";
-import {
-  FAMILY_REAR_WINDOW,
-  PRIMARY_REAR_WINDOW,
-} from "../spaces/envelope/rear";
-import { FAMILY_RIGHT_WINDOW } from "../spaces/envelope/right";
+import * as LEFT_ENVELOPE from "../spaces/envelope/left";
+import * as REAR_ENVELOPE from "../spaces/envelope/rear";
+import * as RIGHT_ENVELOPE from "../spaces/envelope/right";
 import { openingAxis, type buildHouseEnvironment } from "../spaces/environment";
 import type { buildHouse } from "../spaces/house";
 import {
@@ -27,6 +21,15 @@ import { ceilingOf, floorOf } from "../spaces/storeys";
 type Range = readonly [number, number];
 export type Box = { x: Range; y?: Range; z: Range };
 type Window = { from: number; to: number; top: number };
+type ExportedWindow = Window & { id: string; bottom: number };
+
+const isWindow = (value: unknown): value is ExportedWindow =>
+  typeof value === "object" && value !== null &&
+  "id" in value && typeof value.id === "string" && value.id.endsWith("-window") &&
+  "from" in value && typeof value.from === "number" &&
+  "to" in value && typeof value.to === "number" &&
+  "bottom" in value && typeof value.bottom === "number" &&
+  "top" in value && typeof value.top === "number";
 
 const same = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
 const sameRange = (a: Range | undefined, b: Range): boolean =>
@@ -56,7 +59,7 @@ export const verifyStairLanding = (
   }
 };
 
-/** Six room strips use the same void margin, head/floor margin and inner-face depth. */
+/** Each window-backed strip uses its host span, authored bottom, head margin, and inward depth. */
 export const verifyCurtainStrip = (
   id: string,
   actual: Box | undefined,
@@ -97,14 +100,13 @@ export const verifyHouseSpaceDesign = (
     STAIR_STEPS.rise,
     STAIR_LANDING_STATION,
   );
-  const windows = [
+  const exportedValues: unknown[] = [
     ...Object.values(FRONT_WINDOWS),
-    LIVING_LEFT_WINDOW,
-    PRIMARY_LEFT_WINDOW,
-    FAMILY_REAR_WINDOW,
-    PRIMARY_REAR_WINDOW,
-    FAMILY_RIGHT_WINDOW,
+    ...Object.values(LEFT_ENVELOPE),
+    ...Object.values(REAR_ENVELOPE),
+    ...Object.values(RIGHT_ENVELOPE),
   ];
+  const windows = exportedValues.filter(isWindow);
   for (const room of house.spaces) for (const reservation of room.reservations ?? []) {
     if (reservation.id.endsWith("-curtain")) {
       if (reservation.kind !== "fixture") throw new Error(

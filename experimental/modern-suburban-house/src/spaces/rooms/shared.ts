@@ -44,7 +44,7 @@ import {
  * @evidence spaces/05-route-network.md#room-route-network Route clearance depends on distinct body, swing and use reservations.
  * @evidence principles/core/source-units.md#source-scope-preservation This zone reserves space for later instances but creates no furniture or fixture.
  * @evidence principles/core/source-units.md#source-substantive-completion Identity, kind and metric bounds allow containment and collision checks.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The room-route parent already requires clear routes beside assigned use zones.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network requires each room's passage bands to remain distinguishable from use reservations; this type carries their separate ids and extents.
  */
 export interface IRoomReservation {
   /**
@@ -58,7 +58,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md Body, use, route and swing zones have different clearance behavior.
    * @evidence principles/core/source-units.md#source-scope-preservation The kind classifies a reserved area without constructing its object.
    * @evidence principles/core/source-units.md#source-substantive-completion A route is checked against body kinds while coverings and sweeps may overlap it.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The route design already distinguishes passage from placed bodies.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network distinguishes a clear passage from fixture, furniture, use, and door swing reservations; kind retains the caller's class for clearance checks.
    */
   kind: "furniture" | "fixture" | "storage" | "covering" | "use" | "route" | "swing";
   /**
@@ -145,7 +145,7 @@ export interface IRoomSpace {
    * @evidence spaces/03-surface-owners.md Garage finish levels may differ from ordinary room datums.
    * @evidence principles/core/source-units.md#source-scope-preservation The override stays within the room's assigned storey.
    * @evidence principles/core/source-units.md#source-substantive-completion A nonstandard room can give its actual floor and ceiling heights.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage threshold exception already exists in storey design.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-threshold-datums puts the garage finished floor at -0.15 m below the ordinary ground-room finish; this field preserves that authored floor difference.
    */
   levels?: readonly [number, number];
   /**
