@@ -233,6 +233,20 @@ export const validateModel = (props: {
       collector,
     );
     validateTextureBinding(
+      m.detailNormalTexture,
+      `${mp}.detailNormalTexture`,
+      "linear",
+      collector,
+    );
+    if (m.detailNormalScale !== undefined)
+      finiteMinimum(
+        m.detailNormalScale,
+        0,
+        `${mp}.detailNormalScale`,
+        "detail normal scale",
+        collector,
+      );
+    validateTextureBinding(
       m.occlusionTexture,
       `${mp}.occlusionTexture`,
       "linear",

@@ -15,6 +15,7 @@ export const texturesOf = (material: IAutoMovieMaterial): string[] => {
   bind(material.baseColorTexture);
   bind(material.metallicRoughnessTexture);
   bind(material.normalTexture);
+  bind(material.detailNormalTexture);
   bind(material.occlusionTexture);
   bind(material.emissiveTexture);
   return [...assets].sort(compareAutoMovieRenderIds);

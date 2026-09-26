@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+import { addMaterialShaderPatch } from "./materialShaderPatches";
+
 /** Texels of the pre-integrated table along the cosine and along the blur. */
 const COSINES = 64;
 const BLURS = 32;
@@ -97,12 +99,14 @@ export const applySubsurfaceShading = (
   };
   const tableUniform = { value: subsurfaceTexture() };
   material.userData.subsurfaceRadius = { ...radius };
-  material.onBeforeCompile = (shader) => {
-    shader.uniforms.subsurfaceRadius = radiusUniform;
-    shader.uniforms.subsurfaceTable = tableUniform;
-    shader.fragmentShader = subsurfaceFragment(shader.fragmentShader);
-  };
-  material.customProgramCacheKey = () => "automovie-subsurface";
+  addMaterialShaderPatch(material, {
+    key: "automovie-subsurface",
+    apply: (shader) => {
+      shader.uniforms.subsurfaceRadius = radiusUniform;
+      shader.uniforms.subsurfaceTable = tableUniform;
+      shader.fragmentShader = subsurfaceFragment(shader.fragmentShader);
+    },
+  });
 };
 
 /** The physical fragment shader with the subsurface diffuse spliced in. */
