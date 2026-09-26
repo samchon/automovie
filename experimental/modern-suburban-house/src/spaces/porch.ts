@@ -27,7 +27,6 @@ const OWNER = "porch.ts";
 const PLATFORM_X = [-5.75, 2.2] as const;
 const PLATFORM_BOTTOM = STOREYS.frontWalk - WALK_DEPTH;
 const STEP_TREAD = 0.3;
-/** Half the 1.50 m stair width consumed by the front walk. */
 /**
  * @evidence spaces/porch.md The porch's central access stair has an authored 1.50 m width.
  * @evidence spaces/porch.md#porch-platform-access Its two tread sides stay 0.75 m from the front-door axis.
@@ -57,7 +56,7 @@ export const PORCH_STEP_RISE = (STOREYS.porchFloor - STOREYS.frontWalk) / 3;
  * @evidence spaces/porch.md#porch-platform-access The Z=2.20 m edge locates the first tread and connector transition once.
  * @evidence principles/core/source-units.md#source-scope-preservation The coordinate belongs to the porch platform, leaving the lower walk's extent to its owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Both tread placement and the connector route read the same back edge.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access fixes the platform front edge at Z=2.20 m and derives both treads backward from it; the platform, steps, zone, and connector share this export.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Porch-platform-access fixes the platform front edge at Z=2.20 m and derives both treads toward +Z from it; the platform, steps, zone, and connector share this export.
  */
 export const PORCH_STEP_BACK_Z = 2.2;
 /**

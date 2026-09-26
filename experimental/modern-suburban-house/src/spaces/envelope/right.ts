@@ -134,13 +134,13 @@ export const buildRight = (): IHousePart[] => {
   const garageUnder = (z: number): number => garageRoof(z) - ROOF_THICKNESS;
   const garageWall = wallPanel({
     axis: "z",
-    across: [11.45, GARAGE.outer.x[1]],
+    across: [GARAGE.inner.x[1], GARAGE.outer.x[1]],
     outline: [
-      { u: -6.45, y: B },
-      { u: -0.55, y: B },
-      { u: -0.55, y: garageUnder(-0.55) },
+      { u: GARAGE.inner.z[0], y: B },
+      { u: GARAGE.inner.z[1], y: B },
+      { u: GARAGE.inner.z[1], y: garageUnder(GARAGE.inner.z[1]) },
       { u: GARAGE_RIDGE_Z, y: garageUnder(GARAGE_RIDGE_Z) },
-      { u: -6.45, y: garageUnder(-6.45) },
+      { u: GARAGE.inner.z[0], y: garageUnder(GARAGE.inner.z[0]) },
     ],
     holes: [
       {

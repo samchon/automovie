@@ -121,7 +121,7 @@ export const buildRear = (): IHousePart[] => {
   const garageTop = gBack(GARAGE.outer.z[0]) - ROOF_THICKNESS;
   const garage = wallPanel({
     axis: "x",
-    across: [GARAGE.outer.z[0], -6.45],
+    across: [GARAGE.outer.z[0], GARAGE.inner.z[0]],
     outline: [
       { u: GARAGE.inner.x[0], y: B },
       { u: GARAGE.outer.x[1], y: B },
@@ -162,7 +162,7 @@ export const buildRear = (): IHousePart[] => {
       id: "rear-garage-wall-head",
       owner: OWNER,
       x: [GARAGE.inner.x[0], GARAGE.outer.x[1]],
-      z: [GARAGE.outer.z[0], -6.45],
+      z: [GARAGE.outer.z[0], GARAGE.inner.z[0]],
       roof: gBack,
       outerZ: GARAGE.outer.z[0],
     }),

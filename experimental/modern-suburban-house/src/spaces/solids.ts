@@ -188,25 +188,25 @@ export interface IWallSolid {
 
 /**
  * A point of a plan polygon in world X/Z metres.
- * @evidence spaces/00-building.md The house design uses one world plan frame for its extents.
- * @evidence spaces/00-building.md#main-building-extent Main-body outlines use fixed X/Z coordinates.
+ * @evidence spaces/site/00-access.md House and site use one world plan frame for their extents.
+ * @evidence spaces/site/00-access.md#site-access-interface The site assembles the house and exterior zones in the inherited coordinate frame.
  * @evidence principles/core/source-units.md#source-scope-preservation The point is supplied by a design owner, not chosen by this helper.
  * @evidence principles/core/source-units.md#source-substantive-completion Both plan axes are present for closed surface rings.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes outer X=[-5.75, 5.75] and Z=[-10.70, 0] in world metres; IPlanPoint passes a caller's two coordinates in that frame.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface keeps house and exterior-zone coordinates in the common frame from settings/00-production.md#coordinate-units; IPlanPoint passes caller-supplied world X/Z metres without borrowing one building's bounds.
  */
 export interface IPlanPoint {
   /**
-   * @evidence spaces/00-building.md World X places a plan point across the site.
+   * @evidence spaces/site/00-access.md World X places a plan point across the site.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the caller's authored X value.
    * @evidence principles/core/source-units.md#source-substantive-completion A horizontal coordinate is available to polygon builders.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes outer X=-5.75..5.75 and attached-garage-extent reaches X=11.70; this point field carries caller-supplied positions in that world X frame.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface assembles house and exterior zones in the common world frame, whose +X points toward the garage in coordinate-units; x retains the caller's value on that axis.
    */
   x: number;
   /**
-   * @evidence spaces/00-building.md World Z places a plan point toward or away from the street.
+   * @evidence spaces/site/00-access.md World Z places a plan point toward or away from the street.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the caller's authored Z value.
    * @evidence principles/core/source-units.md#source-substantive-completion A depth coordinate is available to polygon builders.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes the rear/front Z=-10.70..0 wall lines while attached-garage-extent has its own front Z=-0.30; this field keeps the caller's world depth.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface uses the common world frame for building and paving, whose +Z points to the front walk and -Z to the garden in coordinate-units; z retains the caller's depth on that axis.
    */
   z: number;
 }
@@ -471,11 +471,11 @@ export const slab = (props: {
 
 /**
  * Plan rectangle helper for caller-supplied X and Z extents.
- * @evidence spaces/00-building.md Building and garage owners express plan extents in one world frame.
- * @evidence spaces/00-building.md#main-building-extent This helper turns a given extent into a four-corner ring.
+ * @evidence spaces/site/00-access.md Building and exterior-zone owners express plan extents in one world frame.
+ * @evidence spaces/site/00-access.md#site-access-interface This helper preserves the caller's X/Z frame while forming a four-corner ring.
  * @evidence principles/core/source-units.md#source-scope-preservation It adds no width or location beyond the caller's values.
  * @evidence principles/core/source-units.md#source-substantive-completion Four ordered corners form a reusable rectangular plan outline.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent fixes X=-5.75..5.75 and Z=-10.70..0 for its outer line; rect only orders whichever two axis intervals the caller supplies.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface assembles main house, garage, and exterior zones in the common X/Z frame from coordinate-units; rect only orders the two intervals supplied by each actual owner.
  */
 export const rect = (x: readonly [number, number], z: readonly [number, number]): IPlanPoint[] => [
   { x: x[0], z: z[0] },
