@@ -81,7 +81,7 @@ The fit was linear, so 26 women were rebuilt through the published table and its
 | Crotch height | -26 to -14 mm |
 | Bust point height | -6 to 0 mm |
 
-Men have no rows (Limits).
+Men have none of these rows (Limits).
 
 **The bust at the nipple's height.** The people above were built with the bust rule of that revision, which read the largest chest girth up to three fifths of the span from the mid to the upper thoracic landmark. A lean man's nipple stands at 0.87 to 0.92 of that span, so a man's chest circumference was met 5 to 11 cm below his nipple, and his chest at the nipple stood that much larger than the person's. The rule now reads the girth at the nipple's height (the nipple-areola fill's centre), where ISO 8559-1 takes the bust and ANSUR the chest. A woman's reading moves by about 1 cm. Rebuilt with it, a subset of 24 surveyed men and 26 women shows:
 
@@ -93,6 +93,28 @@ Men have no rows (Limits).
 | Thigh girth | -32.1 to -28.8 mm | -1.2 to -0.5 mm |
 
 Read at the nipple itself, the nipple's height now stands 1.4 mm above the survey's chest height in both sexes (24 men and 28 women, sd 19 mm). The men's waist now stands 16 mm wide and 6 mm shallow, a section of the right girth but the wrong shape. Their buttock and pelvis are unchanged (Limits).
+
+**Wrists and ankles.** All 300 surveyed people were rebuilt on this revision, with the bust read at the nipple (254 within the reach). Their wrist and ankle girths, the smallest across each segment, departed from the survey's (the fitted residual at the knots):
+
+| Girth | Women, body mass index 18 to 35 | Men, body mass index 18 to 35 |
+| --- | --- | --- |
+| Wrist | -30 to -5 mm | -34 to +17 mm |
+| Ankle | -14 to -45 mm | +13 to -19 mm |
+
+- **The source's limbs.** A woman's wrist is slender when she is lean and her ankle does not thicken with mass at all. A man's wrist thickens with mass faster than the survey's.
+- **Rows.** The table sets the wrist and ankle girth channels by sex over the same knots:
+  - the residual is fitted as a piecewise-linear function of the body mass index, smoothed by its second difference;
+  - it is divided by the channel's girth per unit, 52 mm at the wrist and 56 and 54 mm at a woman's and a man's ankle, measured on simple-tier bodies;
+  - the rows fade like the others.
+- **What the rows cost.** The mass they add is taken back over the whole body by the mass solve.
+
+On the subset of 28 women and 24 men:
+
+| Measure | Women, before to after | Men, before to after |
+| --- | --- | --- |
+| Wrist | -20.9 to +0.7 mm | -5.3 to +2.9 mm (sd 13.9 to 8.5) |
+| Ankle | -28.3 to +0.6 mm | -2.7 to +0.1 mm |
+| Waist girth at the omphalion | -17.7 to -25.3 mm | -3.1 to -4.5 mm |
 
 ## Breast shape
 
@@ -258,13 +280,13 @@ The rest pose crosses on no pair, so every finding is absolute. Each set, with i
 - `between` (the same grid offset by half a step in plane and elevation, where no kernel is centred): the interpolation between nodes. 134 states, 86 clean, 48 with a crossing the rest does not have, 0 refused by the builder.
 - `pairs` (every two macros at their far ends together, at rest): 112 states, 112 clean, 0 with a crossing the rest does not have, 0 refused by the builder.
 - `bodies` (the simple tier's matrix: both sexes, ages 11, 25, 60 and 90, adults at 1.60, 1.75 and 1.90 m, body mass indices 15, 22, 30, 40 and 45 and muscle -1, 0 and 1, at rest; a body the tier cannot reach is a refusal with the reach): 288 states, 261 clean, 0 with a crossing the rest does not have, 27 refused by the builder.
-- `bodyposes` (simple-tier bodies of both sexes at 25 and 60 years, body mass indices 18, 25, 32 and 40 and muscle 0 and 1, each in the T, a forward reach, the arm overhead to the front and to the side, a bent elbow, a lifted thigh and a bent knee): where several shapes' correctives meet on one body in the poses an author reaches for first. No corrective is solved on these bodies: they are a held-out population. 210 states, 93 clean, 117 with a crossing the rest does not have, 0 refused by the builder.
+- `bodyposes` (simple-tier bodies of both sexes at 25 and 60 years, body mass indices 18, 25, 32 and 40 and muscle 0 and 1, each in the T, a forward reach, the arm overhead to the front and to the side, a bent elbow, a lifted thigh and a bent knee): where several shapes' correctives meet on one body in the poses an author reaches for first. No corrective is solved on these bodies: they are a held-out population. 210 states, 94 clean, 116 with a crossing the rest does not have, 0 refused by the builder.
 - `presets` (the editor's own buttons: every shape preset, the ten macro presets and the simple tier's archetypes expanded as the editor expands them, in every pose preset, Arms down solved on that body as the editor solves it): what an author gets by clicking, held out like `bodyposes` except that a preset shape reading one channel (the macro presets) is an example of that channel. 176 states, 134 clean, 42 with a crossing the rest does not have, 0 refused by the builder.
 - `combos` (the arm raised straight up at 90, 135 and 180 of flexion, every parent-child flexion pair and the shoulder and hip abduction against the elbow and knee at their extremes): 136 states, 134 clean, 2 with a crossing the rest does not have, 0 refused by the builder.
 - `shapes` (every published pose corrective's full angle and every shoulder node on each macro extreme and on every channel end past the source's unit node): 1568 states, 1416 clean, 152 with a crossing the rest does not have, 0 refused by the builder.
 - `traits` (every individuality channel at each extreme on each of those shapes, and the review combinations, at rest): 537 states, 537 clean, 0 with a crossing the rest does not have, 0 refused by the builder.
 
-Of the 407 findings across the sets, 96 are limb contact (a hand, forearm, digit, shank or foot against a segment outside its own limb), 189 are root folds (the upper arm, thigh, girdle or trunk against itself or each other), 2 are digit folds, 120 are other folds; `classify-census` in the tooling names every one, and the receipt lists every state and pair.
+Of the 406 findings across the sets, 96 are limb contact (a hand, forearm, digit, shank or foot against a segment outside its own limb), 188 are root folds (the upper arm, thigh, girdle or trunk against itself or each other), 2 are digit folds, 120 are other folds; `classify-census` in the tooling names every one, and the receipt lists every state and pair.
 
 ## Rounds
 
@@ -280,7 +302,7 @@ The publication is iterated: census every set, solve the findings, merge, make t
 7. The anatomy layers: the two musculature definition channels (`musculatureDefinition`, `chestDefinition`; [`definition-receipt.json`](definition-receipt.json)) and the simple tier's soft-tissue and body-composition rows. Their first census crossed 20 bodies of the matrix at rest, which r5 had read clean: the heaviest bodies' inner thighs, gluteal fold and pelvis, an old heavy woman's inframammary fold, and muscular 11-year-olds at the pelvis and the upper arms. The rest shapes were re-solved on one shard in order of generality (12 correctives). The children's crossings were traced to rows calibrated on adult training (the gluteal mass and tone, the musculature relief at 0.865 on a thin 11-year-old girl), which now read the developed muscle through the maturity ramp.
 8. The rest re-solve and the sag. The thin 11-year-old boy's gluteal fold (8 triangles at rest) was solved as a rest shape on the finished stack (one corrective, mirrored), and the basis declares the soft-tissue sag (above). The sag moves no vertex at the rest pose, so the rest sets read as the rest shapes left them; in a pose it moves heavy tissue with gravity's turn. The overhead goals of the heavier women's everyday bodies (body mass index 32 and 40) now bring the upper arm onto the upper chest on 1 to 4 triangles, and the heaviest arm (the weight macro at 9) folds on itself on 35 triangles at the humeral node (90, 120, 0); a bent elbow and a reach on three heavier bodies, and the thigh at 125 degrees with the knee at 140, no longer cross.
 
-On the published revision the neutral body's sets (every channel, the gluteal projection's two ends and the breast shape's end among them, and every joint axis at four samples and every 5 degrees) and the two-macro pairs and traits (every individuality trait at each extreme on every extreme shape, 537 states with the gluteal projection and the breast shape) read clean, and the body matrix reads clean on every body the simple tier reaches (261; the other 27 are refused with the reach). The shoulder grid crosses in 42 of 186 states and between its nodes in 48 of 134, the forearm or hand against the trunk (contact, not pushed) and the horizontal-adduction folds (Limits); the combinations in 2 of 136, the two sides of one state: the little finger curled to its ends (the distal segment folding on itself, 117 triangles); the extreme shapes in 152 of 1,568, two of them new with the nipple-areola refill: the underbust girth at twice its node with either arm raised forward at 90 degrees folds the upper chest on itself on 5 triangles, where the refill moved that endpoint's breast by up to 8 mm; and the held-out populations, the everyday bodies in 117 of 210 states and the presets in 42 of 176, almost all a thick limb folded deep (Limits). The ANSUR II people rows fill a heavier woman's hips: five everyday women of muscle 1 now cross where r9 did not (the lifted thigh at a body mass index of 32 folds the groin onto the pelvis on 4 to 15 triangles; a reach and a bent elbow touch on 4 to 7) and one no longer does.
+On the published revision the neutral body's sets (every channel, the gluteal projection's two ends and the breast shape's end among them, and every joint axis at four samples and every 5 degrees) and the two-macro pairs and traits (every individuality trait at each extreme on every extreme shape, 537 states with the gluteal projection and the breast shape) read clean, and the body matrix reads clean on every body the simple tier reaches (261; the other 27 are refused with the reach). The shoulder grid crosses in 42 of 186 states and between its nodes in 48 of 134, the forearm or hand against the trunk (contact, not pushed) and the horizontal-adduction folds (Limits); the combinations in 2 of 136, the two sides of one state: the little finger curled to its ends (the distal segment folding on itself, 117 triangles); the extreme shapes in 152 of 1,568, two of them new with the nipple-areola refill: the underbust girth at twice its node with either arm raised forward at 90 degrees folds the upper chest on itself on 5 triangles, where the refill moved that endpoint's breast by up to 8 mm; and the held-out populations, the everyday bodies in 116 of 210 states and the presets in 42 of 176, almost all a thick limb folded deep (Limits). The ANSUR II people rows fill a heavier woman's hips: five everyday women of muscle 1 now cross where r9 did not (the lifted thigh at a body mass index of 32 folds the groin onto the pelvis on 4 to 15 triangles; a reach and a bent elbow touch on 4 to 7) and one no longer does. With the wrist and ankle rows, one more no longer crosses (a woman of 25 at a body mass index of 25 reaching forward), and none newly does.
 
 ## Limits
 
