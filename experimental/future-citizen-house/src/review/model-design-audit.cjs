@@ -63,12 +63,25 @@ function audit(overrides = new Map()) {
         if (!possible.some((pair) => pair.other === count(claim[1]) && pair.legs === count(claim[2])))
           errors.push(`${anchor}: prose variant addition ${claim[0]} contradicts part-state delta`);
       }
-      for (const claim of chunk.matchAll(/각 leaf(?:는|의).{0,130}하단.{0,100}(?:고정 프레임|fixed-front-bottom)/g)) {
-        const prefix = chunk.slice(Math.max(0, claim.index - 20), claim.index);
-        const qualified = /`([a-z][a-z0-9-]*)`의\s*$/.exec(prefix)?.[1];
-        const doorStates = [...members].filter(([state, names]) =>
-          (!qualified || state.startsWith(qualified)) && [...names].some((part) => part.startsWith("door-")));
-        if (!doorStates.length || doorStates.some(([, names]) => !names.has("fixed-front-bottom")))
+      const prose = chunk.split(/\r?\n/).filter((line) => line && !/^\||^@|^<!--/.test(line)).join(" ");
+      const doors = [...members].filter(([, names]) => [...names].some((part) => part.startsWith("door-")));
+      const partCells = chunk.split(/\r?\n/).filter((line) => line.startsWith("| @part |"))
+        .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+      for (const [state, names] of doors) if (names.has("fixed-front-bottom")) {
+        const frame = partCells.find((row) => row[1] === state && row[2] === "fixed-front-bottom");
+        if (!frame) { errors.push(`${anchor}/${state}: fixed front frame row absent`); continue; }
+        const frameTop = Number(frame[5].replaceAll("−", "-").split("..")[1]);
+        const leafRows = partCells.filter((row) => row[1] === state && /^door-\d+$/.test(row[2]));
+        if (!leafRows.length || leafRows.some((row) =>
+          Math.abs(Number(row[5].replaceAll("−", "-").split("..")[0]) - frameTop) > 0.000001))
+          errors.push(`${anchor}/${state}: leaf bottoms differ from measured fixed front frame`);
+      }
+      for (const sentence of prose.split(/(?<=다\.)\s+/)) {
+        if (!/(?:leaf|문)/.test(sentence) || !/(?:고정 프레임|fixed-front-bottom)/.test(sentence) ||
+          !/(?:하단|아래|맞닿|접촉)/.test(sentence) || /(?:없으므로|없다|없는)/.test(sentence)) continue;
+        const wallOnly = /`wall`/.test(sentence);
+        const applicable = doors.filter(([state]) => !wallOnly || state.startsWith("wall/"));
+        if (!applicable.length || applicable.some(([, names]) => !names.has("fixed-front-bottom")))
           errors.push(`${anchor}: prose leaf-bottom frame contradicts variant parts`);
       }
       const ordinalLegs = chunk.split(/\r?\n/).filter((line) => /^\| @part \|/.test(line))
@@ -83,7 +96,6 @@ function audit(overrides = new Map()) {
           return { x, z };
         })).filter((legs) => legs.length === 4 && legs.every((leg) =>
           Number.isFinite(leg.x) && Number.isFinite(leg.z)));
-      const prose = chunk.split(/\r?\n/).filter((line) => line && !/^\||^@|^<!--/.test(line)).join(" ");
       if (/(?<![가-힣])(?:다리|발)(?=\s|는|은|의|가|을).{0,80}중심.{0,80}원점/.test(prose) &&
         !legGroups.some((legs) => Math.abs(legs.reduce((sum, leg) => sum + leg.x, 0)) < 0.000001 &&
           Math.abs(legs.reduce((sum, leg) => sum + leg.z, 0)) < 0.000001))

@@ -31,6 +31,8 @@
 @bore 1000: bowl, 0.0225, 0.71..0.725
 @flat-contact 800: tap-spout, tap-body, -Y, 1.10, 0.152..0.168, -0.17..-0.16
 @flat-contact 1000: tap-spout, tap-body, -Y, 1.10, 0.152..0.168, -0.17..-0.16
+@axis-control 800: tap-spout, Y, 1.104, support-to-tube-seam
+@axis-control 1000: tap-spout, Y, 1.104, support-to-tube-seam
 @flat-contact 800: mirror-frame, wall, -Z, -0.27, -0.30..0.30, 1.17..1.188
 @flat-contact 1000: mirror-frame, wall, -Z, -0.27, -0.40..0.40, 1.17..1.188
 @void 800: mirror-frame, -0.342..0.342, 1.188..1.852, -0.27..-0.252
@@ -53,7 +55,7 @@
 | @part | 1000 | mirror-frame | hollow | -0.46..0.46 | 1.17..1.87 | -0.27..-0.252 | wall,mirror-glass |
 | @part | 1000 | mirror-glass | box | -0.442..0.442 | 1.188..1.852 | -0.27..-0.256 | mirror-frame |
 
-실제 `powder.ts` 호출을 받는 `basin/800`은 폭 0.80m이고 상층의 `basin/1000`은 폭 1.00m다. 0.65m 함수 기본값은 현재 호출의 값이 아니므로 채택하지 않는다. 두 변종 모두 바닥 하부장 중심이 원점, +Z가 사용자 쪽이고 basin 본체 깊이 0.50m, 뒤 벽거울까지 합친 전체 깊이 0.52m, rim 상단 y=0.85m다. [vanity 수납 외함](002-storage-and-sleep.md#cabinet-and-shelf)은 폭 W, 높이 0.80, 깊이 0.48m의 독립 부품 주소로 조합한다. rim은 y=0.80..0.85의 두께 0.05m이고 안쪽 개구는 폭 0.68W×깊이 0.30m, 중심 z=0.025다. bowl은 rim에서 y=0.71까지 0.14m 내려가는 닫힌 외벽·내벽·바닥을 가진다. 지름 0.045m 배수구는 bowl 바닥 중앙에서 열린 물길의 시각 단서지만 실제 관로는 없다. 수전 기둥은 0.028m 지름, y=0.85..1.10, x=0.16, z=-0.17이다. spout는 외경 0.022m, 중심 y=1.111, z=-0.17..-0.04의 0.13m 길이다. spout의 뒤쪽 z=-0.17..-0.16에는 x=0.152..0.168, y=1.10..1.104의 평평한 일체형 받침을 만들고 관의 아래쪽 원호를 y=1.104에서 절단해 받침 상면과 잇는다. 이 받침의 y=1.10 아래면은 기둥 상면 원판 안쪽의 0.016×0.010m 직사각형 유한 면으로 닿는다. 거울은 폭 W−0.08, 높이 0.70, 두께 0.018m, 하단 y=1.17이며 basin 뒤쪽 z=−0.27..−0.252에 별도 벽부착 물체로 선다. 둘레 프레임 폭은 0.018m이고 유리 앞면은 프레임 앞면보다 0.004m 물려 z=−0.256이며 유리의 폭·높이는 각각 바깥 폭−0.036m와 0.664m다. 벽 안으로 들어가는 형상은 없다.
+실제 `powder.ts` 호출을 받는 `basin/800`은 폭 0.80m이고 상층의 `basin/1000`은 폭 1.00m다. 0.65m 함수 기본값은 현재 호출의 값이 아니므로 채택하지 않는다. 두 변종 모두 바닥 하부장 중심이 원점, +Z가 사용자 쪽이고 basin 본체 깊이 0.50m, 뒤 벽거울까지 합친 전체 깊이 0.52m, rim 상단은 `@part rim`의 Y 윗면이다. [vanity 수납 외함](002-storage-and-sleep.md#cabinet-and-shelf)은 폭 W, 높이 0.80, 깊이 0.48m의 독립 부품 주소로 조합한다. rim은 y=0.80..0.85의 두께 0.05m이고 안쪽 개구는 폭 0.68W×깊이 0.30m, 중심 Z는 `@void rim`의 앞뒤 중점이다. bowl은 rim에서 y=0.71까지 0.14m 내려가는 닫힌 외벽·내벽·바닥을 가진다. 지름 0.045m 배수구는 bowl 바닥 중앙에서 열린 물길의 시각 단서지만 실제 관로는 없다. 수전 기둥은 0.028m 지름, y=0.85..1.10, x=0.16, z=-0.17이다. spout는 외경 0.022m이며 중심 높이·Z 길이와 양 끝은 `@part tap-spout`의 Y 중점과 Z 범위가 정한다. spout의 뒤쪽에는 `@flat-contact tap-spout`의 X/Z 직사각형과 접촉 Y 평면에서 support-to-tube-seam `@axis-control`까지 평평한 일체형 받침을 만들고 관의 아래쪽 원호를 받침 상면에서 절단해 잇는다. 이 받침의 `@flat-contact` 아래면은 기둥 상면 원판 안쪽의 0.016×0.010m 직사각형 유한 면으로 닿는다. 거울은 폭 W−0.08, 높이 0.70, 두께 0.018m, 하단 y=1.17이며 basin 뒤쪽 z=−0.27..−0.252에 별도 벽부착 물체로 선다. 둘레 프레임 폭은 0.018m이고 유리 앞면은 프레임 앞면보다 0.004m 물려 `@part mirror-glass`의 Z 앞면에 있고 유리의 폭·높이는 각각 바깥 폭−0.036m와 0.664m다. 벽 안으로 들어가는 형상은 없다.
 
 주소는 `rim/upper/edge/underside`, `bowl/inner/outer/bottom/rim/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`, `mirror-glass/front/back/edge`, `mirror-frame/front/back/edge`이며 vanity의 각 판 주소는 cabinet 쪽에서 유지한다. 내부와 외부 normal이 반대이고 bowl의 rim은 두 벽을 잇는 닫힌 두께다. 정면·상부·45°에서 실제 음각과 mirror/frame·tap을 확인한다. ref02의 1층/2층 위생기구 위치 역할을 채택하고 ref03·04·05의 거실/작업/복도 유리를 욕실 거울로 복제하지 않는다. ref01에는 basin 세부가 없다. 거울 광학 응답·급배수·실제 사용성은 `unverified`다.
 
@@ -66,12 +68,17 @@
 
 @prose-dim cistern은: cistern
 
-@axis-control lid-open: bowl, Y, 0.29, interior floor
-@axis-control lid-open: seat, Z, -0.125, rear ring edge
+@axis-control lid-open: bowl, Y, 0.29, interior-floor
+@axis-control lid-open: seat, Z, -0.125, rear-ring-edge
+@prose-part pedestal은: pedestal
+@prose-part bowl 외곽은: bowl
+@prose-part cistern은: cistern
+@prose-part seat 뒤 edge: seat
+@prose-part flush 버튼은: flush
 
-`toilet`은 바닥 점유 0.42×0.72m, seat 상단 0.465m, cistern 상단 0.82m, 버튼을 포함한 최고점 0.828m다. 바닥 접촉 중심이 원점, +Z가 앉는 앞이다. pedestal은 x폭 0.31, z깊이 0.47, y=0..0.27; bowl 외곽은 0.41×0.59m, y=0.27..0.43이며 아래면이 pedestal 상면에 닿는다. bowl의 상단 안쪽 구멍은 0.27×0.40m 타원과 깊이 0.14m의 음각(바닥 y=0.29)이다. seat는 x=±0.21,z=−0.21..+0.36,y=0.43..0.465의 두께 0.035m 고리로 bowl 상면에 닿고, lid는 뒤쪽 힌지 x=0,y=0.465,z=−0.20에서 위로 선 검사 상태 하나로 두며 폭·높이·두께와 Y·Z 경계는 아래 `@part lid` 행이 소유한다. 이는 bowl을 보이게 하는 열린 상태이며 닫힘 상태를 동시에 내지 않는다. cistern은 X 폭 0.40m·Z 깊이 0.145m·Y 높이 0.39m로 z=−0.36..−0.215, y=0.43..0.82이며 bowl 뒤쪽 상면과 y=0.43에서 닿는다. seat 뒤 edge z=−0.21과 cistern 앞면 사이에는 0.005m의 열린 틈이 있고 seat는 bowl 고리의 유한 면으로 지지된다. flush 버튼은 0.05×0.035×0.008m로 중심 x=0,y=0.824,z=−0.285로 아래면 y=0.82가 cistern 상면에 면 접촉한다. `pedestal/outer/sole`, `bowl/inner/outer/rim`, `seat/upper/edge/underside`, `lid/front/back/edge`, `cistern/front/back/side/top/sole`, `flush/outer/contact`가 안정 주소다. bowl 내부는 바닥으로 이어지는 닫힌 곡면이며 상단 개구와 중앙 빈 공간만 열린 공간이다. 상부·정면·측면에서 bowl 구멍, seat와 tank 경계가 읽혀야 한다. ref02의 두 화장실 도기 형상을 채택하지만 사진의 화면 면적에서 폭을 추정하지 않는다. ref01·03·04·05에는 변기 판별 세부가 없고 수세 성능은 `unverified`다.
+`toilet`은 바닥 점유 0.42×0.72m, seat 상단 0.465m, cistern 상단 0.82m, 버튼을 포함한 최고점 0.828m다. 바닥 접촉 중심이 원점, +Z가 앉는 앞이다. pedestal은 x폭 0.31, z깊이 0.47, y=0..0.27; bowl 외곽은 0.41×0.59m, y=0.27..0.43이며 아래면이 pedestal 상면에 닿는다. bowl의 상단 안쪽 구멍은 0.27×0.40m 타원과 깊이 0.14m의 음각이며 바닥 Y는 interior-floor `@axis-control`이 정한다. seat는 x=±0.21,z=−0.21..+0.36,y=0.43..0.465의 두께 0.035m 고리로 bowl 상면에 닿고, lid는 뒤쪽 힌지 x=0,y=0.465,z=−0.20에서 위로 선 검사 상태 하나로 두며 폭·높이·두께와 Y·Z 경계는 아래 `@part lid` 행이 소유한다. 이는 bowl을 보이게 하는 열린 상태이며 닫힘 상태를 동시에 내지 않는다. cistern은 X 폭 0.40m·Z 깊이 0.145m·Y 높이 0.39m로 z=−0.36..−0.215, y=0.43..0.82이며 bowl 뒤쪽 상면과 `@part`가 공유하는 Y 평면에서 닿는다. seat 뒤 edge z=−0.21과 cistern 앞면 사이에는 0.005m의 열린 틈이 있고 seat는 bowl 고리의 유한 면으로 지지된다. flush 버튼은 X 폭 0.05m·Z 깊이 0.035m·Y 두께 0.008m로 중심 x=0,y=0.824,z=−0.285로 아래면 y=0.82가 cistern 상면에 면 접촉한다. `pedestal/outer/sole`, `bowl/inner/outer/rim`, `seat/upper/edge/underside`, `lid/front/back/edge`, `cistern/front/back/side/top/sole`, `flush/outer/contact`가 안정 주소다. bowl 내부는 바닥으로 이어지는 닫힌 곡면이며 상단 개구와 중앙 빈 공간만 열린 공간이다. 상부·정면·측면에서 bowl 구멍, seat와 tank 경계가 읽혀야 한다. ref02의 두 화장실 도기 형상을 채택하지만 사진의 화면 면적에서 폭을 추정하지 않는다. ref01·03·04·05에는 변기 판별 세부가 없고 수세 성능은 `unverified`다.
 
-타원형 bowl 구멍의 X 반축은 0.135m, Z 반축은 0.20m이고 중심은 (x=0,z=0)이다. seat의 타원형 구멍은 같은 반축을 가지되 외곽 좌표에 맞춰 중심 (x=0,z=+0.075)로 옮긴다. 두 열린 영역의 교집합이 bowl 내부를 드러내며 seat 뒤쪽 z=−0.21..−0.125m의 고리 상면에 lid 하단 z=−0.20..−0.182m가 유한 면으로 닿는다. `@ellipse`의 마지막 두 값은 호스트 외곽 타원의 X/Z 중심이고, bowl의 안쪽 면은 바닥 y=0.29에서 닫히고, seat는 `@ellipse`가 정한 X/Z 타원 개구가 두께 전체를 관통하는 고리다. seat의 열린 개구에는 바닥 원판을 만들지 않는다.
+타원형 bowl 구멍의 X 반축은 0.135m, Z 반축은 0.20m이고 중심은 (x=0,z=0)이다. seat의 타원형 구멍은 같은 반축을 가지되 외곽 좌표에 맞춰 중심은 `@ellipse seat`의 X/Z 중심으로 옮긴다. 두 열린 영역의 교집합이 bowl 내부를 드러내며 seat 뒤쪽의 `@part seat` Z 하한부터 rear-ring-edge `@axis-control`까지인 고리 상면에 `@part lid` 하단 Z 범위가 유한 면으로 닿는다. `@ellipse`의 마지막 두 값은 호스트 외곽 타원의 X/Z 중심이고, bowl의 안쪽 면은 interior-floor `@axis-control`에서 닫히고, seat는 `@ellipse`가 정한 X/Z 타원 개구가 두께 전체를 관통하는 고리다. seat의 열린 개구에는 바닥 원판을 만들지 않는다.
 
 @ellipse lid-open: bowl, 0.135, 0.20, 0.205, 0.295, 0, 0
 @ellipse lid-open: seat, 0.135, 0.20, 0.21, 0.285, 0, 0.075
@@ -102,19 +109,20 @@
 
 @prose-part 유리 screen은: screen
 
-`shower`는 X 폭 2.05, Z 깊이 1.45, Y 높이 2.25m다. tray 바닥 중심이 원점, +Z가 출입 쪽이다. tray는 y=0..0.07m의 두께와 안쪽으로 0.015m 내려간 중앙면, 0.045m 폭의 둘레 curb를 가진다. drain 중심은 tray 바닥 상면의 (0,0.055,0)이고 지름 0.12m다. 출입 전면에서 유리 screen은 x=−1.025..+0.075의 길이 1.10m, z=+0.713..+0.725의 두께 0.012m, y=0.07..2.225다. +X 쪽 x=+0.075..+1.025의 0.95m는 문 없는 열린 출입구다. screen rail은 같은 길이의 닫힌 사각 단면 상부 부재로 z=+0.700..+0.725, y=2.225..2.25이며 screen의 윗면과 0.012m 깊이의 유한 면으로 닿는다. riser는 x=−0.85,z=−0.705,y=0.40..2.20의 지름 0.025m이며 벽에 붙은 세 bracket의 원형 보어가 지지한다. 고정 bracket은 y=0.55,1.45,2.10에 각각 중심 x=−0.85,z=−0.705, 바깥 반지름 0.020m, 안쪽 반지름 0.0125m, y=중심±0.015m인 세 닫힌 고리다. 각 고리와 한 부품으로 합친 뒤쪽 고정 패드는 x=−0.87..−0.83, z=−0.725..−0.7175, y=고리의 전체 높이이며 z=−0.725 평면 전체가 방 벽면에 유한 면적으로 닿는다. 패드는 보어의 뒤쪽 z>−0.7175를 침범하지 않고 고리의 외벽과 닫힌 합집합을 이루며 안쪽 원통면이 riser 외면과 맞는다. `head`는 riser 축을 중심으로 반지름 0.0125m인 수직 원통 목을 y=2.20..2.215에 두고, 같은 반지름의 수평 24각 관을 중심 (x=−0.85,y=2.2125), 중심선 z=−0.705..−0.515에 이어 닫힌 합집합으로 만든다. 앞쪽 중심선 끝 −0.515에는 공통 관 끝 규칙의 반구를 붙이므로 실제 관 앞 경계는 z=−0.5025다. 분사판은 중심 (x=−0.85,z=−0.515), X 반경 0.15m·Z 반경 0.03m인 24각 타원 판이며 y=2.215..2.225를 채운다. 관과 판은 z=−0.545..−0.5025에서 부피를 공유해 한 부품을 이루고, 목의 y=2.20 원판 전체는 riser의 y=2.20 상면 원판 전체와 면 접촉한다. 분사판의 y=2.215 아래 노출 평면에서 관과 합쳐 제거된 내부 면을 제외한 부분은 `head/face`이고, 판 아래로 드러난 관의 아래 반원통과 앞 반구·목의 외면은 `head/edge`다. 판의 윗면과 뒤 노출면은 `head/back`이다. 이 부품은 외피 벽을 생성하지 않고, 실제 벽면과의 world 접합은 instances가 검증한다.
+`shower`는 X 폭 2.05, Z 깊이 1.45, Y 높이 2.25m다. tray 바닥 중심이 원점, +Z가 출입 쪽이다. tray는 y=0..0.07m의 두께와 안쪽으로 0.015m 내려간 중앙면, 0.045m 폭의 둘레 curb를 가진다. drain 중심은 tray 바닥 상면의 (0,0.055,0)이고 지름 0.12m다. 출입 전면에서 유리 screen은 x=−1.025..+0.075의 길이 1.10m, z=+0.713..+0.725의 두께 0.012m, y=0.07..2.225다. +X 쪽은 screen의 끝 X와 `@envelope`의 +X 경계 사이의 0.95m가 문 없는 열린 출입구다. screen rail은 같은 길이의 닫힌 사각 단면 상부 부재로 z=+0.700..+0.725, y=2.225..2.25이며 screen의 윗면과 0.012m 깊이의 유한 면으로 닿는다. riser는 x=−0.85,z=−0.705,y=0.40..2.20의 지름 0.025m이며 벽에 붙은 세 bracket의 원형 보어가 지지한다. 세 고정 bracket의 중심·Y 범위와 안팎 반지름은 아래 `@part riser-bracket-*` 및 `@radial-at` 행이 정한 닫힌 고리다. 각 고리와 한 부품으로 합친 뒤쪽 고정 패드는 해당 `@part`의 X/Y 전폭에서 벽 접촉 `@flat-contact` 평면부터 `@radial-at` 안반지름의 뒤쪽 접선까지 Z로 뻗는다. 패드의 벽쪽 평면은 방 벽면에 유한 면적으로 닿는다. 패드는 보어의 뒤쪽 z>−0.7175를 침범하지 않고 고리의 외벽과 닫힌 합집합을 이루며 안쪽 원통면이 riser 외면과 맞는다. `head`는 riser 축을 중심으로 반지름 0.0125m인 수직 원통 목을 riser 상면부터 아래 neck-top `@axis-control`까지 두고, 같은 반지름의 수평 24각 관을 riser X/Z 축에서 pipe-center `@axis-control`의 높이로 이어 spray-plate center `@axis-control`의 Z 중심선 끝까지 닫힌 합집합으로 만든다. 앞쪽 중심선 끝에는 공통 관 끝 규칙의 반구를 붙이며 실제 관 앞 경계는 rounded-pipe-front `@axis-control`이 정한다. 분사판은 riser의 X 중심과 spray-plate center `@axis-control`의 Z 중심, X 반경 0.15m·Z 반경 0.03m인 24각 타원 판이며 neck-top `@axis-control`부터 `@part head`의 Y 윗면까지 채운다. 관과 판은 spray-plate rear와 rounded-pipe-front 두 `@axis-control` 사이에서 부피를 공유해 한 부품을 이루고, 목의 아래 원판 전체는 riser의 상면 원판 전체와 면 접촉한다. 분사판의 neck-top `@axis-control` 아래 노출 평면에서 관과 합쳐 제거된 내부 면을 제외한 부분은 `head/face`이고, 판 아래로 드러난 관의 아래 반원통과 앞 반구·목의 외면은 `head/edge`다. 판의 윗면과 뒤 노출면은 `head/back`이다. 이 부품은 외피 벽을 생성하지 않고, 실제 벽면과의 world 접합은 instances가 검증한다.
 
 주소는 `tray/floor/curb/outside/underside/drain-inner/drain-edge`, `screen/front/back/edge/top`, `screen-rail/outer/contact`, `riser/outer/contact`, `riser-bracket-0..2/front/back/edge/contact`, `head/face/back/edge`다. 두께 있는 유리의 앞뒤·잘린 edge는 별도 face이며 tray의 물이 빠지는 경사라는 외관과 실제 방수 능력을 구별한다. 위·출입구·측면 관찰에서 0.95m 열린 부분과 음각 배수구가 보여야 한다. ref02의 뒤쪽 샤워와 투명 경계를 채택한다. ref01·03·04·05의 커튼월을 욕실 screen 상세로 차용하지 않는다. 물 흐름·방수는 `unverified`다.
 
-tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 절삭하여 0.045m curb를 만든다. drain은 중심 x/z=0, 반지름 0.060m로 tray 바닥 y=0..0.055를 뚫는 빈 구멍의 `tray/drain-inner`·`tray/drain-edge` 면 주소다. bracket의 고리는 `@radial-at`에 적은 공통 중심과 반지름으로 닫히며 임의의 C자 단면을 코드에서 고르지 않는다. `ground`는 tray y=0, `wall`은 후면 z=−0.725의 외부 접합 평면이며 각 bracket 패드의 접촉 넓이는 0.04×0.03m다.
+tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 절삭하여 0.045m curb를 만든다. drain은 중심 x/z=0, 반지름 0.060m로 tray 바닥 y=0..0.055를 뚫는 빈 구멍의 `tray/drain-inner`·`tray/drain-edge` 면 주소다. bracket의 고리는 `@radial-at`에 적은 공통 중심과 반지름으로 닫히며 임의의 C자 단면을 코드에서 고르지 않는다. `ground`는 tray 아래면, `wall`은 `@envelope` 뒤 경계의 외부 접합 평면이며 각 bracket 패드의 접촉 넓이는 0.04×0.03m다.
 
 @scalar-control tray-curb-width: 0.045
 @scalar-control drain-diameter: 0.12
 @scalar-control open-entry-width: 0.95
 @axis-control default: head, Y, 2.215, neck top and spray-plate underside
+@axis-control default: head, Y, 2.2125, pipe-center height
 @axis-control default: head, Z, -0.515, spray-plate center and pipe centerline end
 @axis-control default: head, Z, -0.545, spray-plate rear
-@axis-control default: head, Z, -0.5025, rounded pipe front
+@axis-control default: head, Z, -0.5025, rounded-pipe-front
 
 @prose-part screen rail은: screen-rail
 @prose-part riser는: riser
@@ -154,13 +162,13 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @prose-part 외함의 내벽 간 치수는: shell!void
 @prose-part rim 안쪽의 실제 위쪽 개구는: rim!void
 
-@axis-control default: floor, Z, 0.50, drain center
-@axis-control default: floor, Y, 0.185, drain low point
-@axis-control default: shell, Y, 0.43, overflow center
+@axis-control default: floor, Z, 0.50, drain-center
+@axis-control default: floor, Y, 0.185, drain-low-point
+@axis-control default: shell, Y, 0.43, overflow-center
 
-`bathtub`은 바닥 점유 1.62×0.76m, rim 높이 0.58m, 내부 바닥판의 아래면 y=0.12m다. 바닥 접촉 중심이 원점이고 +Z가 긴 축이며 어느 방 벽에 붙일지는 instances가 정한다. 외함의 끝벽 두께는 `@part shell`의 Z 외곽에서 `@void shell`의 Z 개구 경계를 뺀 값이고, 긴 측벽 두께는 두 X 경계의 차다. 상단 rim의 X/Z 폭은 각 축의 `@part rim` 외곽 경계에서 `@void rim` 개구 경계를 뺀 값이며 네 외벽이 y=0..0.58에서 바닥에 닿는다. 내부 바닥판 아래 y=0..0.12는 외벽 안에서 비운다. 외함의 내벽 간 치수는 길이 1.53×폭 0.68m, rim 안쪽의 실제 위쪽 개구는 1.51×0.65m, 중심 (x=0,z=0)의 안쪽 바닥은 식에 따라 y≈0.191m이며, 내부 경계에서 y≤0.20m이고 +Z 끝벽 중앙에서는 식에 따라 y≈0.188m다. 배수구 중심은 (x=0,z=+0.50)이고 지름은 0.05m다. 욕조 바닥의 아래면은 y=0.12, 안쪽 면은 배수구에서 y=0.185이고 둘 사이에 닫힌 두께를 둔다. 바닥은 내부 x=±0.34,z=±0.765에서 y=0.20을 상한으로 두고 r=min(1,sqrt((x/0.34)^2+((z−0.50)/1.265)^2))에 따라 y=0.185+0.015r로 배수구 중심까지 내려간다. overflow는 발치 반대쪽 내벽 z=−0.765의 x=0,y=0.43에 지름 0.04m의 관통 음각으로 둔다. `shell/outer/inner/end/underside/overflow-inner/overflow-edge`, `rim/upper/inner/outer/underside`, `floor/inner/underside/drain-inner/drain-edge`가 안정 주소다. 두께 있는 rim에서 외·내벽이 연결되며 물이 담길 빈 공간을 위에서 확인할 수 있다. 상부·측면·45°에서 개구와 길이 방향 벽이 샤워 tray와 구별돼야 한다. ref02 욕실의 낮은 욕조를 채택해 누락된 생활 기능을 복구한다. ref01·03·04·05는 욕조 세부를 주지 않으므로 그 이미지의 다른 유리 면을 욕조 외함으로 읽지 않는다. 욕조와 샤워의 같은 방 안 배치·통행은 instances의 별도 검증이며 실제 급배수와 하중은 `unverified`다.
+`bathtub`은 바닥 점유 1.62×0.76m, rim 높이 0.58m, 내부 바닥판의 아래면은 `@part floor`의 Y 하한이다. 바닥 접촉 중심이 원점이고 +Z가 긴 축이며 어느 방 벽에 붙일지는 instances가 정한다. 외함의 끝벽 두께는 `@part shell`의 Z 외곽에서 `@void shell`의 Z 개구 경계를 뺀 값이고, 긴 측벽 두께는 두 X 경계의 차다. 상단 rim의 X/Z 폭은 각 축의 `@part rim` 외곽 경계에서 `@void rim` 개구 경계를 뺀 값이며 네 외벽이 y=0..0.58에서 바닥에 닿는다. 내부 바닥판 아래 y=0..0.12는 외벽 안에서 비운다. 외함의 내벽 간 치수는 길이 1.53×폭 0.68m, rim 안쪽의 실제 위쪽 개구는 1.51×0.65m, 중심 (x=0,z=0)의 안쪽 바닥은 식에 따라 y≈0.191m이며, 내부 경계에서 y≤0.20m이고 +Z 끝벽 중앙에서는 식에 따라 y≈0.188m다. 배수구 중심의 X는 원점이고 Z는 drain-center `@axis-control`이 정하며 지름은 0.05m다. 욕조 바닥의 아래면은 `@part floor`의 Y 하한, 안쪽 면은 배수구에서 drain-low-point `@axis-control`이며 둘 사이에 닫힌 두께를 둔다. 바닥은 내부 x=±0.34,z=±0.765에서 y=0.20을 상한으로 두고 r=min(1,sqrt((x/0.34)^2+((z−0.50)/1.265)^2))에 따라 y=0.185+0.015r로 배수구 중심까지 내려간다. overflow는 발치 반대쪽 `@void shell` 내벽의 −Z 면에서 X 원점·overflow-center `@axis-control` 높이에 지름 0.04m의 관통 음각으로 둔다. `shell/outer/inner/end/underside/overflow-inner/overflow-edge`, `rim/upper/inner/outer/underside`, `floor/inner/underside/drain-inner/drain-edge`가 안정 주소다. 두께 있는 rim에서 외·내벽이 연결되며 물이 담길 빈 공간을 위에서 확인할 수 있다. 상부·측면·45°에서 개구와 길이 방향 벽이 샤워 tray와 구별돼야 한다. ref02 욕실의 낮은 욕조를 채택해 누락된 생활 기능을 복구한다. ref01·03·04·05는 욕조 세부를 주지 않으므로 그 이미지의 다른 유리 면을 욕조 외함으로 읽지 않는다. 욕조와 샤워의 같은 방 안 배치·통행은 instances의 별도 검증이며 실제 급배수와 하중은 `unverified`다.
 
-네 외벽의 독립 부품 `shell`은 y=0..0.525이고 `rim`은 y=0.525..0.58에서 맞대므로 두 부품의 합이 위의 y=0..0.58 외벽이다. shell 내부는 x=±0.34,z=±0.765를 바닥부터 위까지 비우고, 그 안에 y=0.12..0.20의 곡면 floor를 측면에 맞댄다. rim의 안쪽 개구는 x=±0.325,z=±0.755다. `floor/drain-inner`·`floor/drain-edge`는 floor에서, `shell/overflow-inner`·`shell/overflow-edge`는 shell의 −Z 끝벽에서 잘라 낸 구멍의 면 주소이며 별도 고체 부품이 아니다. 다음 표의 `@void`는 두 직사각형 내부 공백을 재고, 원형 drain·overflow는 위 식과 중심·지름으로 결정한다.
+네 외벽의 독립 부품 `shell`은 y=0..0.525이고 `rim`은 y=0.525..0.58에서 맞대므로 두 부품의 합이 위의 y=0..0.58 외벽이다. shell 내부는 `@void shell`의 X/Z 경계까지 비우고, 그 안에 `@part floor` Y 범위의 곡면 바닥을 측면에 맞댄다. rim의 안쪽 개구는 `@void rim`의 X/Z 경계가 정한다. `floor/drain-inner`·`floor/drain-edge`는 floor에서, `shell/overflow-inner`·`shell/overflow-edge`는 shell의 −Z 끝벽에서 잘라 낸 구멍의 면 주소이며 별도 고체 부품이 아니다. 다음 표의 `@void`는 두 직사각형 내부 공백을 재고, 원형 drain·overflow는 위 식과 중심·지름으로 결정한다.
 
 @scalar-control basin-center-height-rounded: 0.191
 @scalar-control basin-boundary-height: 0.20
@@ -187,8 +195,10 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 ## 주방 섬·싱크 {#kitchen-island}
 
 @axis-control default: tap-spout, X, -0.13, spout endpoint
-@axis-control default: tap-spout, Z, 0.709, spout outlet plane
+@axis-control default: tap-spout, X, -0.38, sealed-centerline-start
+@axis-control default: tap-spout, Z, 0.709, spout-outlet-plane
 @axis-control default: tap-spout, Y, 1.273, support-to-tube seam
+@axis-control default: tap-spout, Y, 1.28, horizontal-pipe-center
 
 섬 하부장은 별도 cabinet prototype이다. 이 부품 표의 `support@0.87`은 그 상단 접촉면이다. sink 안쪽 바닥은 `@part sink`의 Y 하한과 `@bore sink`의 Y 상한 사이를 닫는다. 바깥 lip은 `@part sink` 외곽과 `@void counter` 개구의 X/Z 경계 차만큼 넓어 counter 아래면에 닿는다. 배수구는 sink 바닥의 면 주소로 둔다.
 
@@ -218,9 +228,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | default | tap-body | cylinder | -0.391..-0.369 | 0.93..1.269 | 0.889..0.911 | counter,tap-spout |
 | @part | default | tap-spout | curved | -0.391..-0.119 | 1.269..1.291 | 0.709..0.911 | tap-body |
 
-`kitchen-island`의 X 폭 1.20, Z 길이 2.82, 상면 y=0.93m다. 바닥 원점은 상판 중심이고 +X가 스툴이 붙는 긴 면, +Z가 길이의 뒤쪽이다. `cabinet/island-base/880x870x2650/closed`는 중심 x=-0.04m, z=0이고, X 점유 -0.48..+0.40·Z 점유 ±1.325m다. 상판은 X ±0.60·Z ±1.41m, 두께 0.06m로 y=0.87..0.93이다. 따라서 +X 스툴 쪽 overhang은 0.20m, -X 쪽은 0.12m이며 양 끝은 0.085m다. +X 긴 변에는 문을 두지 않고 서비스 문 다섯 장은 -X 긴 변에만 둔다. 상판 sink 개구는 X 폭 0.48, Z 길이 0.36m, 중심 (x=-0.12,z=+0.65)이며 bowl은 y=0.93에서 0.18m 아래로 내려간다. tap 기둥은 x=−0.38,z=+0.90,y=0.93..1.269이다. 지름 0.022m spout는 중심 높이 y=1.28에서 (x=−0.38,z=+0.90)부터 출구 X보다 0.02m 뒤의 X 접선점까지 수평으로 뻗는다. 중심선은 X/Z 평면에서 반지름 0.02m의 90° 원호를 여섯 구간으로 돌아 출구 X에서 시작 Z보다 0.02m 앞의 Z 접선점에 이르고, 이어 z=+0.709의 출구 평면까지 −Z 방향으로 간다. 관은 24각 외반지름 0.011m, 안반지름 0.006m의 속 빈 단면을 이 중심선을 따라 일정하게 쓸며 굽힘 내벽의 자체 관통을 허용하지 않는다. 끝은 z=+0.709에서 안팎 반지름을 가진 평평한 환형 출구 face이고 뒤쪽 중심선 시작 x=−0.38은 공통 관 끝 규칙의 닫힌 반구로 봉인해 실제 X 하한 −0.391을 만든다. 안쪽 통로도 이 마개에서 막고 전방 출구만 평평한 열린 환형 끝으로 남긴다. spout의 뒤쪽 x=−0.387..−0.373,z=0.893..0.907에는 y=1.269..1.273의 평평한 일체형 받침이 있고 관 아래 원호는 y=1.273에서 끝나 받침 상면과 잇는다. 받침의 y=1.269 아래면은 기둥 상면 원판 안쪽의 0.014×0.014m 유한 면으로 닿는다. outlet 중심 X는 −0.13이고 출구의 Z 평면은 z=+0.709로서 둘 다 sink 개구 x=−0.36..+0.12,z=+0.47..+0.83 안에 있다. 별도 평판 `sink-basin`으로 구멍을 막지 않는다.
+`kitchen-island`의 X 폭 1.20, Z 길이 2.82이고 상면은 `@part counter`의 Y 윗면이다. 바닥 원점은 상판 중심이고 +X가 스툴이 붙는 긴 면, +Z가 길이의 뒤쪽이다. `cabinet/island-base/880x870x2650/closed`는 아래 `@support`의 국소 이동량에 놓이고, X 점유 -0.48..+0.40·Z 점유 ±1.325m다. 상판은 X ±0.60·Z ±1.41m, 두께 0.06m로 y=0.87..0.93이다. 따라서 +X 스툴 쪽 overhang은 0.20m, -X 쪽은 0.12m이며 양 끝은 0.085m다. +X 긴 변에는 문을 두지 않고 서비스 문 다섯 장은 -X 긴 변에만 둔다. 상판 sink 개구는 X 폭 0.48, Z 길이 0.36m, 중심 (x=-0.12,z=+0.65)이며 bowl은 y=0.93에서 0.18m 아래로 내려간다. tap 기둥은 x=−0.38,z=+0.90,y=0.93..1.269이다. 지름 0.022m spout는 horizontal-pipe-center `@axis-control`의 Y 높이에서 tap 기둥의 X/Z 중심부터 출구 X보다 0.02m 뒤의 X 접선점까지 수평으로 뻗는다. 중심선은 X/Z 평면에서 반지름 0.02m의 90° 원호를 여섯 구간으로 돌아 출구 X에서 시작 Z보다 0.02m 앞의 Z 접선점에 이르고, 이어 spout-outlet-plane `@axis-control`의 Z 출구 평면까지 −Z 방향으로 간다. 관은 24각 외반지름 0.011m, 안반지름 0.006m의 속 빈 단면을 이 중심선을 따라 일정하게 쓸며 굽힘 내벽의 자체 관통을 허용하지 않는다. 끝은 spout-outlet-plane `@axis-control`에서 안팎 반지름을 가진 평평한 환형 출구 face이고 뒤쪽 중심선 시작은 sealed-centerline-start `@axis-control`에 공통 관 끝 규칙의 닫힌 반구를 붙여 `@part tap-spout`의 실제 X 하한을 만든다. 안쪽 통로도 이 마개에서 막고 전방 출구만 평평한 열린 환형 끝으로 남긴다. spout 뒤쪽에는 `@flat-contact tap-spout`의 X/Z 직사각형과 접촉 Y 평면에서 support-to-tube-seam `@axis-control`까지 평평한 일체형 받침이 있고 관 아래 원호는 그 받침 상면에서 끝난다. 받침의 `@flat-contact` 아래면은 기둥 상면 원판 안쪽의 0.014×0.014m 유한 면으로 닿는다. outlet 중심 X와 출구의 Z 평면은 각각 해당 `@axis-control`이 정하며 둘 다 `@void counter`가 정한 sink 개구 안에 있다. 별도 평판 `sink-basin`으로 구멍을 막지 않는다.
 
-안정 주소는 `counter/upper/edge/underside`, `sink/rim/inner/outer/bottom/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`이며 base의 panel·door·edge 주소는 cabinet H2가 낸다. 배수 개구는 sink 바닥 두께 0.02m를 중심 (x=−0.12,z=+0.65)에서 지름 0.045m로 관통 절삭한 면이며 독립 고체 part가 아니다. 상부·+X 식사 쪽·-X 서비스 쪽·45°에서 긴 측면의 문 유무, 0.20m overhang, bowl 깊이와 스툴 접근을 확인한다. ref03의 긴 섬·싱크·세 스툴 관계를 채택하고 ref02의 조감으로 kitchen과 식탁의 한 공간 관계를 확인한다. ref01·04·05의 다른 유리나 책상을 조리대 세부로 차용하지 않는다. 실제 급배수와 앉는 무릎 안전은 `unverified`다.
+안정 주소는 `counter/upper/edge/underside`, `sink/rim/inner/outer/bottom/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`이며 base의 panel·door·edge 주소는 cabinet H2가 낸다. 배수 개구는 sink 바닥 두께 0.02m를 `@part sink`의 X/Z 중심에서 지름 0.045m로 관통 절삭한 면이며 독립 고체 part가 아니다. 상부·+X 식사 쪽·-X 서비스 쪽·45°에서 긴 측면의 문 유무, 0.20m overhang, bowl 깊이와 스툴 접근을 확인한다. ref03의 긴 섬·싱크·세 스툴 관계를 채택하고 ref02의 조감으로 kitchen과 식탁의 한 공간 관계를 확인한다. ref01·04·05의 다른 유리나 책상을 조리대 세부로 차용하지 않는다. 실제 급배수와 앉는 무릎 안전은 `unverified`다.
 
 <!-- @authored-address-state:start -->
 @address-state default: counter, sink, tap-body, tap-spout
@@ -334,11 +344,10 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 ## 세탁기와 건조기 {#laundry-appliances}
 
 @prose-part 본체는: body
-@prose-part 창은: window
 @prose-part 직사각 tongue는: hinge-tongue
 @prose-part controls 판은: controls-panel
 
-원형 드럼은 Z축을 바라보는 동심원으로 잰다. `@radial-z`는 중심 (x=0,y=0.38), 안팎 반경의 실제 원판 또는 고리를 뜻하며 사각 AABB 내부를 모두 고체로 세지 않는다. 기존 하나였던 `door-hinge` 주소는 서로 면으로 잇는 `hinge-barrel`·`hinge-tongue`로 나눈다. tongue만 고리의 직사각 recess에 들어가고 나머지 고리는 원형이다.
+원형 드럼은 Z축을 바라보는 동심원으로 잰다. `@radial-z`는 행에 적은 중심·안팎 반경의 실제 원판 또는 고리를 뜻하며 사각 AABB 내부를 모두 고체로 세지 않는다. 기존 하나였던 `door-hinge` 주소는 서로 면으로 잇는 `hinge-barrel`·`hinge-tongue`로 나눈다. tongue만 고리의 직사각 recess에 들어가고 나머지 고리는 원형이다.
 
 @scalar-control excluded-stacked-height: 1.68
 
@@ -397,7 +406,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | dryer | hinge-barrel | curved | -0.25..-0.23 | 0.34..0.42 | 0.30..0.32 | body,hinge-tongue |
 | @part | dryer | hinge-tongue | box | -0.23..-0.21 | 0.35..0.41 | 0.305..0.315 | hinge-barrel,drum-rim |
 
-`laundry-washer`와 `laundry-dryer`는 각각 폭·깊이 0.66, 높이 0.84m다. 각 장치의 바닥 중심이 원점, +Z가 전면이다. 본체는 z=-0.33..+0.30, 전면 드럼 문은 z=+0.30..+0.33이다. drum 중심은 x=0,y=0.38이고 rim 외경 0.46, 투명 창 외경 0.35m다. 창은 z=0.326..0.330이다. 그 뒤 몸체에는 중심 (x=0,y=0.38), 반지름 0.19m의 보어를 z=0.246..0.30에 뚫는다. `drum-inner`의 채운 원판은 z=0.246..0.26에서 그 보어의 뒤를 닫는다. 이어지는 rim의 z=0.30..0.326 개구 안반지름은 0.175m이고 바깥 반지름은 0.23m다. 따라서 창 뒤 z=0.26..0.326에는 0.066m의 실제 빈 깊이가 있고 두 구간의 반지름을 같다고 취급하지 않는다. 몸체 앞면에 네모난 개구 모서리를 남기지 않는다. 문 힌지는 y=0.34..0.42의 `hinge-barrel`과 y=0.35..0.41의 `hinge-tongue` 두 닫힌 부품이다. 바깥 D형 barrel은 x=−0.25..−0.23,z=0.30..0.32에 있고 XZ 단면은 `@part hinge-barrel`의 X 전폭·Z 하한부터 Z 중심까지의 직사각형과, 그 X/Z 중심에서 X 반폭을 반지름으로 하는 +Z 반원의 합집합이다. 뒤쪽 평면 z=0.30에서 몸체 전면과 0.02×0.08m 면으로 접한다. 별도 부품인 직사각 tongue는 x=−0.23..−0.21,y=0.35..0.41,z=0.305..0.315이며 드럼 rim의 이 점유만 원래 닫힌 부피에서 절삭한 recess에 들어가 유한 면으로 접한다. barrel과 tongue는 x=−0.23, y=0.35..0.41, z=0.305..0.31의 0.06×0.005m 직사각형 면으로 이어지고 몸체·rim의 남은 고체를 관통하지 않는다. 두 부품은 고정 도어의 조립 이음이며 열림 검사 상태나 작동 궤적을 주장하지 않는다. controls 판은 0.25×0.055×0.014m로 중심 x=+0.10,y=0.74,z=0.307이다. washer는 x=0.015 다이얼 하나와 x=0.12,0.17 버튼 둘, dryer는 x=0.19 다이얼 하나와 x=0.015,0.07,0.12 버튼 셋을 고정 형상으로 둔다. 각 다이얼은 지름 0.035, 버튼은 지름 0.014m이며 모두 판 앞 z=0.314..0.329에 머문다. `body/front/side-left/side-right/back/top/sole/drum-bore-inner/drum-bore-back`, `drum-inner/inner/outer/edge`, `drum-rim/front/back/inner/outer`, `window/front/back/edge`, `controls-panel/front/back/edge`, `controls-dial/outer/contact`, washer의 `controls-button-0..1/outer/contact` 또는 dryer의 `controls-button-0..2/outer/contact`, `hinge-barrel/outer/contact`, `hinge-tongue/outer/contact`가 안정 주소다. 위아래 적층 transform은 instances가 정하고 모델 내부에 1.68m 탑을 미리 만들지 않는다. 정면·측면·45°에서 두 controls 배열과 창 깊이를 확인한다. ref02 우측 서비스 코어의 세탁기 목적지 관계를 채택한다. ref01·03·04·05에서는 세탁기 형상을 특정할 자료가 없으며 세척·건조·진동은 `unverified`다.
+`laundry-washer`와 `laundry-dryer`는 각각 폭·깊이 0.66, 높이 0.84m다. 각 장치의 바닥 중심이 원점, +Z가 전면이다. 본체는 z=-0.33..+0.30, 전면 드럼 문은 z=+0.30..+0.33이다. drum 중심은 x=0,y=0.38이고 rim 외경 0.46, 투명 창 외경 0.35m다. 창의 Z 범위는 `@part window` 행이 정한다. 그 뒤 몸체에는 `@bore-z`가 정한 중심·반지름·Z 범위로 원형 보어를 뚫는다. `drum-inner`의 채운 원판은 `@part drum-inner`의 Z 범위에서 그 보어의 뒤를 닫는다. 이어지는 rim 개구의 Z 범위는 `@part drum-rim`과 `@part window`의 앞뒤 경계가, 안팎 반지름은 `@radial-z drum-rim`이 정한다. 따라서 `drum-inner` 앞면부터 `window` 뒤면까지 0.066m의 실제 빈 깊이가 있고 두 구간의 반지름을 같다고 취급하지 않는다. 몸체 앞면에 네모난 개구 모서리를 남기지 않는다. 문 힌지는 y=0.34..0.42의 `hinge-barrel`과 y=0.35..0.41의 `hinge-tongue` 두 닫힌 부품이다. 바깥 D형 barrel은 x=−0.25..−0.23,z=0.30..0.32에 있고 XZ 단면은 `@part hinge-barrel`의 X 전폭·Z 하한부터 Z 중심까지의 직사각형과, 그 X/Z 중심에서 X 반폭을 반지름으로 하는 +Z 반원의 합집합이다. 뒤쪽 평면은 `@part body`의 전면과 0.02×0.08m 면으로 접한다. 별도 부품인 직사각 tongue는 x=−0.23..−0.21,y=0.35..0.41,z=0.305..0.315이며 드럼 rim의 이 점유만 원래 닫힌 부피에서 절삭한 recess에 들어가 유한 면으로 접한다. barrel은 X 최대 경계에서 뒤쪽 직사각형 절반만 노출하므로 `@part hinge-barrel`의 Z 하한부터 Z 중앙까지와 `@part hinge-tongue`의 Z 범위가 교차하는 0.06×0.005m 직사각형 면으로 이어지고 몸체·rim의 남은 고체를 관통하지 않는다. 두 부품은 고정 도어의 조립 이음이며 열림 검사 상태나 작동 궤적을 주장하지 않는다. controls 판은 0.25×0.055×0.014m로 중심 x=+0.10,y=0.74,z=0.307이다. washer는 아래 `@part washer`의 다이얼 하나와 버튼 둘, dryer는 `@part dryer`의 다이얼 하나와 버튼 셋을 각 행의 X 중심에 고정한다. 각 다이얼은 지름 0.035, 버튼은 지름 0.014m이며 모두 판 앞의 해당 `@part` Z 범위에 머문다. `body/front/side-left/side-right/back/top/sole/drum-bore-inner/drum-bore-back`, `drum-inner/inner/outer/edge`, `drum-rim/front/back/inner/outer`, `window/front/back/edge`, `controls-panel/front/back/edge`, `controls-dial/outer/contact`, washer의 `controls-button-0..1/outer/contact` 또는 dryer의 `controls-button-0..2/outer/contact`, `hinge-barrel/outer/contact`, `hinge-tongue/outer/contact`가 안정 주소다. 위아래 적층 transform은 instances가 정하고 모델 내부에 1.68m 탑을 미리 만들지 않는다. 정면·측면·45°에서 두 controls 배열과 창 깊이를 확인한다. ref02 우측 서비스 코어의 세탁기 목적지 관계를 채택한다. ref01·03·04·05에서는 세탁기 형상을 특정할 자료가 없으며 세척·건조·진동은 `unverified`다.
 
 <!-- @authored-address-state:start -->
 @address-state washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue

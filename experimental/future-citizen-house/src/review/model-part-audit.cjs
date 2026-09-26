@@ -957,17 +957,18 @@ function tubFormula(lines, envelopes, parts, voids) {
   const prose = lines.join("\n");
   const outer = /바닥 점유 ([\d.]+)×([\d.]+)m, rim 높이 ([\d.]+)m/.exec(prose);
   const inner = /내벽 간 치수는 길이 ([\d.]+)×폭 ([\d.]+)m, rim 안쪽의 실제 위쪽 개구는 ([\d.]+)×([\d.]+)m/.exec(prose);
-  const underside = /내부 바닥판의 아래면 y=([\d.]+)m/.exec(prose);
-  if (!outer || !inner || !underside) return ["bathtub: prose dimensional source absent"];
+  if (!outer || !inner) return ["bathtub: prose dimensional source absent"];
   const shell = voids.get("default/shell")?.[0], rim = voids.get("default/rim")?.[0];
   const box = envelopes.get("default"), floor = parts.get("default/floor");
   if (!shell || !rim || !box || !floor) return ["bathtub: table source absent"];
   const pairs = [[box.z[1] - box.z[0], Number(outer[1])], [box.x[1] - box.x[0], Number(outer[2])],
     [box.y[1], Number(outer[3])], [shell.z[1] - shell.z[0], Number(inner[1])],
     [shell.x[1] - shell.x[0], Number(inner[2])], [rim.z[1] - rim.z[0], Number(inner[3])],
-    [rim.x[1] - rim.x[0], Number(inner[4])], [floor.y[0], Number(underside[1])]];
-  return pairs.flatMap(([actual, expected], i) => Math.abs(actual - expected) > epsilon
-    ? [`bathtub: prose/table dimension ${i} differs`] : []);
+    [rim.x[1] - rim.x[0], Number(inner[4])]];
+  return [...pairs.flatMap(([actual, expected], i) => Math.abs(actual - expected) > epsilon
+    ? [`bathtub: prose/table dimension ${i} differs`] : []),
+  ...(!(floor.y[0] > 0 && floor.y[0] < floor.y[1] && floor.y[1] < rim.y[0])
+    ? ["bathtub: floor height leaves no solid bottom or rim clearance"] : [])];
 }
 
 /** @param {string[]} lines @param {Map<string,Part>} envelopes @param {Map<string,Part>} parts @param {Map<string,{prefix:string,cols:number,rows:number,pitchX:number,pitchZ:number,width:number,depth:number,y:[number,number],contact:string}>} grids */
