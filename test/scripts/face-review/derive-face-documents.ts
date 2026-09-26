@@ -60,15 +60,17 @@
  *
  * `instrument-study` writes the instrument's calibration documents
  * (`faceInstrumentDocuments`: every index's control at its envelope's two
- * ends on the reference head) under each of CAMERAS (comma-separated
- * subjects of POSES and ANCHORS), beside STUDY's basis with their poses, and
- * the anchored model's reading of every document under its camera
- * (`instrument-model.json`). `instrument` reads the detector on their
- * product renders (ids `inst:<document>`; the incisal edges from each
- * render's mouth profile, as on a photograph) and writes each index's gains
- * and whether it is observed at BOUND, each reading's resolution being its
- * deviation under half a pixel of error in every point of the lower end's
- * render (`faceInstrumentResolution`).
+ * ends on the reference head, a state of the face at five steps of it)
+ * under each of CAMERAS (comma-separated subjects of POSES and ANCHORS),
+ * beside STUDY's basis with their poses, and the anchored model's reading of
+ * every document under its camera (`instrument-model.json`). `instrument`
+ * reads the detector on their product renders (ids `inst:<document>`; the
+ * incisal edges from each render's mouth profile, as on a photograph), takes
+ * each index's widest pair of steps both instruments read
+ * (`faceInstrumentPair`), and writes each index's gains and whether it is
+ * observed at BOUND, each reading's resolution being its deviation under
+ * half a pixel of error in every point of the pair's lower render
+ * (`faceInstrumentResolution`).
  *
  * `calibration-study` writes the reference head's calibration documents
  * (`faceExpressionCalibrationDocuments`) beside STUDY's basis, with a pose
@@ -121,6 +123,7 @@ import {
   faceInstrumentDocuments,
   faceInstrumentGains,
   faceInstrumentResolution,
+  faceInstrumentState,
 } from "./faceInstrumentGain";
 import { readFaceLikenessImage, readFaceLikenessMask } from "./faceLikenessIo";
 import {
@@ -775,6 +778,8 @@ if (command === "identity") {
     if (poses[camera] === undefined || anchors.views[camera] === undefined)
       throw new Error(`No camera or anchors for ${camera}.`);
   const channels = new Map(basis.channels.map((one) => [one.id, one]));
+  // A state of the face is stepped over five values of its envelope: the
+  // incisal edges read only where the lips part over the teeth.
   const { documents, probes } = faceInstrumentDocuments({
     basis: basis.id,
     indices: FACE_ANTHROPOMETRY_INDICES,
@@ -785,6 +790,7 @@ if (command === "identity") {
       channels.get(index.channels[0]!)!.maximum,
     ],
     cameras,
+    steps: (index) => (index.expression === true ? 5 : 2),
   });
   const human = basis.surfaces.find((one) => one.id === "Human")!;
   const incisal = faceIncisalEdges(basis);
@@ -845,7 +851,13 @@ if (command === "identity") {
   const { basis, cameras, probes, model } = json<{
     basis: string;
     cameras: string[];
-    probes: { id: string; camera: string; index: string; value: number }[];
+    probes: {
+      id: string;
+      camera: string;
+      index: string;
+      value: number;
+      uncovered?: number;
+    }[];
     model: Record<string, number | null>;
   }>(path.join(study!, "instrument-model.json"));
   const renders = detections(detectionFile!);
@@ -859,28 +871,55 @@ if (command === "identity") {
     const own = probes.filter((one) => one.camera === camera);
     return [...new Set(own.map((one) => one.index))].map(
       (index): IFaceInstrumentReading => {
-        const [lower, upper] = own
-          .filter((one) => one.index === index)
-          .sort((a, b) => a.value - b.value);
-        const points = [pointsOf(lower!.id), pointsOf(upper!.id)];
-        const read = points.map((one) =>
-          one === null ? null : measureFaceAnthropometry(one),
-        );
+        // Each state of the uncovering control (one, rest, for most
+        // indices), its steps in ascending order.
+        const states = [
+          ...new Set(
+            own
+              .filter((one) => one.index === index)
+              .map((one) => one.uncovered ?? 0),
+          ),
+        ]
+          .sort((a, b) => a - b)
+          .map((state) => {
+            const steps = own
+              .filter(
+                (one) => one.index === index && (one.uncovered ?? 0) === state,
+              )
+              .sort((a, b) => a.value - b.value);
+            const points = steps.map((one) => pointsOf(one.id));
+            return {
+              steps,
+              points,
+              values: steps.map((one) => one.value),
+              model: steps.map((one) => model[one.id] ?? null),
+              detector: points.map((one) =>
+                one === null
+                  ? null
+                  : (measureFaceAnthropometry(one)[index] ?? null),
+              ),
+            };
+          });
+        // The most closed state with a pair both instruments read, and its
+        // widest pair.
+        const { state, pair } = faceInstrumentState(states);
+        const { steps, points, model: anchored, detector } = states[state]!;
+        const [a, b] = pair;
         // What half a pixel of error in every point does to the reading, on
-        // the lower end's render.
+        // the pair's lower render.
         const resolution =
-          points[0] === null
+          points[a] === null
             ? null
-            : (faceInstrumentResolution(points[0], measureFaceAnthropometry, {
+            : (faceInstrumentResolution(points[a]!, measureFaceAnthropometry, {
                 sigma: 0.5,
                 draws: 64,
                 seed: 1,
               })[index] ?? null);
         return {
           index,
-          values: [lower!.value, upper!.value],
-          model: [model[lower!.id] ?? null, model[upper!.id] ?? null],
-          detector: [read[0]?.[index] ?? null, read[1]?.[index] ?? null],
+          values: [steps[a]!.value, steps[b]!.value],
+          model: [anchored[a]!, anchored[b]!],
+          detector: [detector[a]!, detector[b]!],
           resolution,
         };
       },

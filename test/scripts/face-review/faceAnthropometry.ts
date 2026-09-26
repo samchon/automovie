@@ -146,6 +146,12 @@ export interface IFaceAnthropometryIndex {
    */
   expression?: true;
   /**
+   * The index whose control uncovers what this one reads: the upper incisal
+   * edge shows below the lip only with the teeth apart, so the upper lip
+   * raiser's index is read, and calibrated, with the jaw open.
+   */
+  uncoveredBy?: string;
+  /**
    * Channels a negative control writes, at its magnitude: a signed index
    * whose two directions are two units (the mouth moved to either side).
    * `channels` then take the positive values only.
@@ -271,6 +277,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
       "upper incisal edge (FACE_ANTHROPOMETRY_UPPER_EDGE) below stomion superius (13) over mouth width, signed",
     channels: ["mouthUpperUpLeft", "mouthUpperUpRight"],
     expression: true,
+    uncoveredBy: "incisalGap",
   },
   {
     id: "incisalGap",

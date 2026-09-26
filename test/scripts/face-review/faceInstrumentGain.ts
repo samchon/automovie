@@ -39,6 +39,18 @@
  * every photograph is still observed: it reaches as far as it goes, and a
  * bound it is held at is recorded.
  *
+ * A state of the face is calibrated where it reads: the incisal edges read
+ * only where the lips part over the teeth, which the reference head at rest
+ * does not show (with the upper lip raised the upper edge rests on the lower
+ * teeth), so at its envelope's two ends the jaw's index read at the open end
+ * alone and was unobserved under every camera. The states' controls are
+ * stepped over their envelope (`steps`), and the gain is taken between the
+ * widest pair of steps both instruments read (`faceInstrumentPair`). The
+ * upper incisal edge rests on the lower teeth with the jaw closed and never
+ * reads there, so the upper lip raiser's index is stepped again with the jaw
+ * at each of its steps (`uncoveredBy`) and read at the most closed that
+ * shows it (`faceInstrumentState`).
+ *
  * Pure: reads caller-owned values and returns new ones.
  */
 import {
@@ -47,25 +59,37 @@ import {
   faceAnthropometryWeights,
 } from "./faceAnthropometry";
 
-/** One calibration render: an index's control at one end under one camera. */
+/** One calibration render: an index's control at one value under one camera. */
 export interface IFaceInstrumentProbe {
-  /** Document id, `inst-<camera>-<index>-<lower|upper>`. */
+  /**
+   * Document id, `inst-<camera>-<index>-<step>`, the step `lower` and
+   * `upper` at the envelope's ends and its position between them.
+   */
   id: string;
   camera: string;
   index: string;
   value: number;
+  /**
+   * The uncovering index's control value (`uncoveredBy`), its step the
+   * id's `at<step>`; absent for an index nothing uncovers.
+   */
+  uncovered?: number;
 }
 
 /**
  * The calibration documents: under each camera, every index's control at
- * its envelope's two ends (`envelope`), the reference head otherwise at
- * rest, a state of the face (`expression`) written as expression.
+ * `steps` values spread evenly over its envelope (`envelope`; two, its
+ * ends, by default), the reference head otherwise at rest, a state of the
+ * face (`expression`) written as expression. An index another uncovers
+ * (`uncoveredBy`) is stepped again with that index's control at each of its
+ * own steps.
  */
 export function faceInstrumentDocuments(props: {
   basis: string;
   indices: readonly IFaceAnthropometryIndex[];
   envelope: (index: IFaceAnthropometryIndex) => readonly [number, number];
   cameras: readonly string[];
+  steps?: (index: IFaceAnthropometryIndex) => number;
 }): {
   documents: {
     id: string;
@@ -76,29 +100,52 @@ export function faceInstrumentDocuments(props: {
   }[];
   probes: IFaceInstrumentProbe[];
 } {
+  const byId = new Map(props.indices.map((one) => [one.id, one]));
+  const values = (index: IFaceAnthropometryIndex): number[] => {
+    const [lower, upper] = props.envelope(index);
+    if (!(lower < upper))
+      throw new Error(`The envelope of ${index.id} is empty.`);
+    const steps = props.steps?.(index) ?? 2;
+    if (!(Number.isInteger(steps) && steps >= 2))
+      throw new Error(`${index.id} needs two steps or more.`);
+    return [...new Array(steps).keys()].map((k) =>
+      k === steps - 1 ? upper : lower + ((upper - lower) * k) / (steps - 1),
+    );
+  };
+  const name = (k: number, count: number) =>
+    k === 0 ? "lower" : k === count - 1 ? "upper" : `${k}`;
   const probes = props.cameras.flatMap((camera) =>
-    props.indices.flatMap((index) => {
-      const [lower, upper] = props.envelope(index);
-      if (!(lower < upper))
-        throw new Error(`The envelope of ${index.id} is empty.`);
-      return (
-        [
-          ["lower", lower],
-          ["upper", upper],
-        ] as const
-      ).map(([end, value]) => ({
-        id: `inst-${camera}-${index.id}-${end}`,
-        camera,
-        index: index.id,
-        value,
-      }));
+    props.indices.flatMap((index): IFaceInstrumentProbe[] => {
+      const own = values(index);
+      const at = (value: number, k: number) =>
+        own
+          .map((one, j) => ({ one, j }))
+          .map(({ one, j }) => ({
+            id: `inst-${camera}-${index.id}-${k === -1 ? "" : `at${k}-`}${name(j, own.length)}`,
+            camera,
+            index: index.id,
+            value: one,
+            ...(k === -1 ? {} : { uncovered: value }),
+          }));
+      if (index.uncoveredBy === undefined) return at(0, -1);
+      const uncovering = byId.get(index.uncoveredBy);
+      if (uncovering === undefined)
+        throw new Error(`No index ${index.uncoveredBy} uncovers ${index.id}.`);
+      return values(uncovering).flatMap((value, k) => at(value, k));
     }),
   );
-  const byId = new Map(props.indices.map((one) => [one.id, one]));
   const documents = probes.map((probe) => {
     const index = byId.get(probe.index)!;
     const weights = Object.fromEntries(
-      faceAnthropometryWeights(index, probe.value).filter(([, w]) => w !== 0),
+      [
+        ...(probe.uncovered === undefined
+          ? []
+          : faceAnthropometryWeights(
+              byId.get(index.uncoveredBy!)!,
+              probe.uncovered,
+            )),
+        ...faceAnthropometryWeights(index, probe.value),
+      ].filter(([, w]) => w !== 0),
     );
     return {
       id: probe.id,
@@ -109,6 +156,57 @@ export function faceInstrumentDocuments(props: {
     };
   });
   return { documents, probes };
+}
+
+/**
+ * The widest pair of an index's calibration values at which both the
+ * anchored model and the detector read it, as positions in `values`
+ * (ascending), the lower pair on a tie; null when no pair reads. An index
+ * that reads only where the lips part over the teeth (the incisal edges) is
+ * calibrated where it reads.
+ */
+export function faceInstrumentPair(
+  values: readonly number[],
+  model: readonly (number | null)[],
+  detector: readonly (number | null)[],
+): [number, number] | null {
+  const reads = values.flatMap((_, k) =>
+    model[k] === null || detector[k] === null ? [] : [k],
+  );
+  let best: [number, number] | null = null;
+  let span = -Infinity;
+  for (let a = 0; a < reads.length; ++a)
+    for (let b = a + 1; b < reads.length; ++b) {
+      const width = values[reads[b]!]! - values[reads[a]!]!;
+      if (width > span) {
+        span = width;
+        best = [reads[a]!, reads[b]!];
+      }
+    }
+  return best;
+}
+
+/**
+ * Which of an index's calibration states to read, and its pair of steps:
+ * the first state (the uncovering control nearest rest) with a pair both
+ * instruments read (`faceInstrumentPair`), else the first state's ends.
+ */
+export function faceInstrumentState(
+  states: readonly {
+    values: readonly number[];
+    model: readonly (number | null)[];
+    detector: readonly (number | null)[];
+  }[],
+): { state: number; pair: [number, number] } {
+  for (let k = 0; k < states.length; ++k) {
+    const pair = faceInstrumentPair(
+      states[k]!.values,
+      states[k]!.model,
+      states[k]!.detector,
+    );
+    if (pair !== null) return { state: k, pair };
+  }
+  return { state: 0, pair: [0, states[0]!.values.length - 1] };
 }
 
 /** One index's control at two values under one camera. */
