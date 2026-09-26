@@ -68,7 +68,7 @@ export interface IExteriorZone {
    * @evidence spaces/site/00-access.md#site-local-routes Each patch retains its paving owner's grade while the zone stays continuous.
    * @evidence principles/core/source-units.md#source-scope-preservation Patches describe emitted paving, not extra slabs or off-site ground.
    * @evidence principles/core/source-units.md#source-substantive-completion Each patch supplies an outline and height points for separate cells and surfaces.
-   * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The T and side-path designs required a piecewise standing surface missing from the initial source shape.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The T and side paths were already in the site design; patches correct their source representation without changing that design.
    */
   patches?: readonly { outline: readonly IPlanPoint[]; anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null; height?: IAutoMovieHeightRule }[];
   /**

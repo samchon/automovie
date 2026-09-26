@@ -110,7 +110,7 @@ export interface IHousePart {
    */
   wall?: IWallFace;
   /**
-   * @evidence spaces/roof/00-junctions.md Shared roof planes meet along upper and lower edges without duplicate interior thickness faces; free outlines retain their side faces.
+   * @evidence spaces/roof/main-front.md The completed front roof retains thickness at free outlines while shared ridge and valley seams omit internal closure faces.
    * @evidence principles/core/source-units.md#source-scope-preservation The flag records a roof owner's junction choice and does not open other solids.
    * @evidence principles/core/source-units.md#source-substantive-completion The flag records roof seam intent, while geometry audit independently checks every exposed boundary edge and rejects a missing free-edge face.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof junction design already disallows side faces on shared edges.

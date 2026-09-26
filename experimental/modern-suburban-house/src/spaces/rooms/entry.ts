@@ -10,7 +10,8 @@
  *
  * The coat closet body X = [1.10, 1.75], Z = [-4.56, -3.51], Y = [0, 2.15]
  * stays hollow under the upper flight, whose underside above it and whose
- * X = [1.87, 2.02] closure with `entry-coat-opening` belong to `stair.ts`. This
+ * X = [1.87, 2.02] closure geometry belongs to `stair.ts`; this room exports
+ * the closet body, top, and opening span that the closure consumes. This
  * owner emits the closet's own walls inside the stair plan: the back end
  * X = [1.03, 1.10] closing it against the solid under-stair at the upper
  * flight's seventh tread, and the side Z = [-3.51, -3.41] at the flight's front

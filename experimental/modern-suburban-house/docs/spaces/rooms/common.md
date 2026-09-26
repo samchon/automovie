@@ -177,7 +177,7 @@
 @evidence principles/design/spaces.md#space-verification-address 닫힌/열린 기구·의자 사용 점유를 함께 놓은 평면, 섬과 벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입의 왕복 시야를 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌/열린 기구·의자 점유 평면, 섬·벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입 왕복 시야를 반증 관찰로 들고 좌표 산술을 도달성 판정으로 바꾸지 않음을 확인했다.
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
-@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 커튼 앞 뒤쪽 띠 Z = [-10.33, -9.25]의 거친 폭 1.08 m에서 걸레받이 돌출 0.015 m를 최대 양쪽까지 빼도 보수적 순폭 0.94 m·1.05 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 정원문 쪽 짧은 연결은 X 폭 4.15 m 안에서 방향을 바꾸며, 양방향 이동은 실제 관찰 항목으로 남긴다.
+@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 커튼 앞 뒤쪽 띠 Z = [-10.33, -9.25]의 거친 폭 1.08 m에서 걸레받이 돌출 0.015 m를 빼면 순폭 0.955 m·1.05 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 정원문 쪽 짧은 연결은 X 폭 4.15 m 안에서 방향을 바꾸며, 양방향 이동은 실제 관찰 항목으로 남긴다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
 @evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.

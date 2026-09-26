@@ -55,7 +55,7 @@ import { STAIR_LANDING_STATION, STAIR_OPENING, STAIR_ROUTE, STAIR_STEPS } from "
 import { COAT_STORAGE } from "./rooms/entry";
 import { ZONE_HEAD_CLEARANCE, type IExteriorZone } from "./site/zone";
 import type { IHousePart, IPlanPoint } from "./solids";
-import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
+import { CEILING_RESERVATION, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 
 /** Axis-aligned box, world metres. */
 interface IBox {
@@ -635,6 +635,8 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
         const across = (face.across[0] + face.across[1]) / 2 + outward * ((face.across[1] - face.across[0]) / 2 + 0.05);
         const witness = face.axis === "x" ? { x: u, y, z: across } : { x: across, y, z: u };
         const other = junctionBodies.find(({ part, box }) => part.id !== p.id &&
+          (part.role === "partition" || (p.id.startsWith("stair-") && part.role === "floor" &&
+            witness.y >= STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH - 1e-6 && witness.y <= STOREYS.upperFloor + 1e-6)) &&
           ["x", "y", "z"].every((axis) => {
             const range = box[axis as keyof IBox];
             const value = witness[axis as keyof typeof witness];

@@ -46,8 +46,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 garage 설정이 폭·깊이 범위와 오른쪽 부속 볼륨만 정한 데 비해 이 H2는 정면 0.30 m 후퇴, 본채 후면 비초과, 두 외곽의 겹침을 공유 벽 하나로 읽는 규칙을 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 차고는 본채 오른쪽의 단층 볼륨이고 정면 개구부는 정면 벽, 머드룸 문은 공유 벽의 실제 void이며 서비스 통로를 머드룸이라고 이름만 바꾸는 연결을 금한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본채 오른쪽 단층 볼륨, 정면 개구부는 정면 벽·머드룸 문은 공유 벽의 실제 void, 서비스 통로에 머드룸 이름만 붙이는 연결 금지를 대조해 차고의 접근·인접 관계가 형상 전에 정해짐을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 src/spaces/garage.ts가 같은 경계 id로 소비하고 차고 정면 면은 front.ts의 전체 전면에 속하며 머드룸 문 좌표는 laundry-plan에서 받는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 공유 벽의 동일 경계 id를 `src/spaces/garage.ts`가 소비하고 차고 정면은 `src/spaces/envelope/front.ts`의 전면에 속하며 머드룸 문 좌표·대기는 laundry-plan에서 받는다는 문장으로 이중 소유가 없음을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 같은 X/Z 경계를 공유하되 차고 지붕 아래 문 있는 몸체는 garage.ts, 그 위 노출 사이딩 몸체는 right.ts가 맡고 차고 정면은 front.ts, 머드룸 문 좌표는 laundry-plan에서 받는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 X = [5.50, 5.75] m의 한 벽 경계에서 지붕 아래 garage 문 몸체와 위 right 사이딩 몸체가 높이별로 만나고, 차고 정면은 front, 문 좌표는 laundry가 정한다는 본문과 03의 배분을 대조해 몸체 중복이 없음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 공유 벽의 이중 두께, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문을 제거해야만 가능한 내부 관찰을 실패 조건으로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 셋째 문단이 공유 벽 이중 두께, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문 제거가 필요한 내부 관찰을 실패로 지목해 공유 벽·머드룸 접면 주장을 반증할 주소를 둠을 확인했다.
 @evidence settings/10-house.md#garage 두 대용 외곽 범위에서 빈 바닥을 예약하고 차량이나 주차 성능을 주장하지 않는다.
@@ -56,8 +56,8 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 garage의 5.8–6.4 m·6.0–6.6 m·차량 금지와 service-band의 차고 출입문–머드룸 직접 접면을 6.20 × 6.40 m 외곽과 공유 벽 void의 머드룸 문에 대조해 settings 수정 없이 성립함을 확인했다.
 -->
 
-[빈 차고](../settings/10-house.md#garage)는 본채 오른쪽에 하나의 단층 볼륨으로 붙는다. 외곽은 X = [5.50, 11.70] m, Z = [-6.70, -0.30] m로 택한다. 폭 6.20 m·깊이 6.40 m는 차고 외곽 범위 안이다. 본채보다 정면을 0.30 m 뒤로 물리고 본채 후면을 넘지 않는다. 본채와 차고가 공유하는 벽은 X = [5.50, 5.75] m 안의 하나의 0.25 m 벽체다. 두 외곽의 겹침은 두 벽을 겹쳐 그리는 지시가 아니라 하나의 공유 벽을 양쪽 면적 경계가 참조한다는 뜻이다.
+[빈 차고](../settings/10-house.md#garage)는 본채 오른쪽에 하나의 단층 볼륨으로 붙는다. 외곽은 X = [5.50, 11.70] m, Z = [-6.70, -0.30] m로 택한다. 폭 6.20 m·깊이 6.40 m는 차고 외곽 범위 안이다. 본채보다 정면을 0.30 m 뒤로 물리고 본채 후면을 넘지 않는다. 본채와 차고가 공유하는 벽은 X = [5.50, 5.75] m 안의 한 0.25 m 구조 기준이다. 두 외곽의 겹침은 두 벽을 겹쳐 그리는 지시가 아니라 한 공유 벽 경계를 양쪽 면적 경계가 참조한다는 뜻이다. [표면 배정](03-surface-owners.md#exterior-surface-handoff)에 따라 차고 지붕 아래의 문 있는 몸체는 `garage.ts`, 지붕 위 노출 사이딩 몸체는 `envelope/right.ts`가 같은 X/Z 기준에서 높이별로 맞닿는다.
 
 나머지 차고 외벽도 0.25 m 예약을 사용한다. 마감 안쪽 X = [5.75, 11.45] m, Z = [-6.45, -0.55] m로부터 얻는 5.70 m × 5.90 m는 가구와 문 레일을 넣기 전의 예약 순내부다. 수납 설치 후 여유나 두 대 차량의 주차 성능을 측정한 값으로 쓰지 않는다. 차량은 저작하지 않는다. 차고의 정면 개구부·머드룸 문은 각각 정면 면과 공유 벽의 실제 void로 저작해야 한다. 머드룸 문의 좌표·대기는 [세탁·머드룸](rooms/laundry.md#laundry-plan)의 결정을 받는다. [서비스 띠](../settings/10-house.md#service-band)가 요구한 차고 출입문과 머드룸의 직접 접면을 임의의 서비스 통로에 머드룸이라는 이름만 붙여 지불하지 않는다.
 
-검증할 실패는 공유 벽의 이중 두께, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문을 제거해야만 가능한 내부 관찰이다. 차고 바닥·천장·레일·수납은 후속 단계의 완성 범위이며 현재 이 외곽 선언은 그 구현을 주장하지 않는다. `src/spaces/garage.ts`가 공유 벽의 동일 경계 id를 소비하고 `src/spaces/envelope/front.ts`가 차고 정면을 포함한 전체 전면을 소유하도록 배정한다.
+검증할 실패는 공유 벽의 이중 두께나 지붕 높이의 틈, 머드룸 밖으로 연결된 차고문, 별동 차고, 닫힌 정면문을 제거해야만 가능한 내부 관찰이다. 차고 바닥·천장·레일·수납은 후속 단계의 완성 범위이며 현재 이 외곽 선언은 그 구현을 주장하지 않는다. 공유 벽은 지붕 아래 `src/spaces/garage.ts`와 위 `src/spaces/envelope/right.ts`가 한 경계를 높이별로 소비하고, `src/spaces/envelope/front.ts`가 차고 정면을 포함한 전체 전면을 소유한다.

@@ -5,14 +5,20 @@
  * space/boundary/opening/connector, and observation. This gate rejects a deleted
  * element or any change outside the reviewed repair surface.
  *
- * Usage: node src/measurements/scene-regression.cjs before.json after.json
+ * With no arguments the committed before scene is compared with a fresh build.
+ * Two file arguments permit mutation probes against saved scene dumps.
  */
 const fs = require("node:fs");
+const path = require("node:path");
 
-const [beforeFile, afterFile] = process.argv.slice(2);
-if (!beforeFile || !afterFile) throw new Error("usage: scene-regression.cjs before.json after.json");
+const [beforeArg, afterFile] = process.argv.slice(2);
+if (beforeArg && !afterFile) throw new Error("usage: scene-regression.cjs [before.json after.json]");
+const beforeFile = beforeArg ?? path.join(__dirname, "fixtures/1952-before-scene.json");
 const before = JSON.parse(fs.readFileSync(beforeFile, "utf8"));
-const after = JSON.parse(fs.readFileSync(afterFile, "utf8"));
+if (!afterFile) require(require.resolve("tsx/cjs"));
+const after = afterFile
+  ? JSON.parse(fs.readFileSync(afterFile, "utf8"))
+  : require("./scene-snapshot.ts").sceneSnapshot();
 if (before.threw || after.threw || before.obsThrew || after.obsThrew)
   throw new Error(`scene build failed: ${before.threw || after.threw || before.obsThrew || after.obsThrew}`);
 
@@ -76,6 +82,7 @@ const result = {
   parts: compare("parts", before.parts, after.parts, expected.parts),
   rooms: compare("rooms", before.rooms, after.rooms, expected.rooms, expected.rooms.filter((id) => id.startsWith("res:") && id !== "res:common-main-route-back")),
   environment: compare("environment", before.env, after.env, expected.env),
+  elementRecords: compare("elementRecords", before.elementRecords, after.elementRecords, []),
   observations: compare("observations", observations(before), observations(after), expected.observations),
 };
 console.log(JSON.stringify(result));
