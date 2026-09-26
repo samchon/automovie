@@ -86,3 +86,12 @@ void test("arched cover feet meet both tile ledges without filling the arch", ()
     "두 발의 X는 시작에서 0.105/0.285m",
   )).some((row) => row.parts === "tegula/imbrex" && !row.pass));
 });
+
+void test("a one-axis contact does not authorize a solid intersection", () => {
+  const lamp = section("fixtures", "lampstand");
+  const sentence = "두 마디 원통은 줄기 원통과 동축으로 겹쳐 고정한다.";
+  assert.ok(partOverlapRows("lamp", lamp).some((row) =>
+    row.parts === "stem/knop" && row.pass));
+  assert.ok(partOverlapRows("lamp", lamp.replace(sentence, "")).some((row) =>
+    row.parts === "stem/knop" && !row.pass));
+});

@@ -1,5 +1,4 @@
 import { modelParts, partBounds } from "./model-occupancy-union.mjs";
-import { partContactRows } from "./model-part-contact.mjs";
 import { shapeRelationRows } from "./model-shape-relations.mjs";
 
 /** A centred rotational primitive can disprove a misleading AABB overlap. */
@@ -203,7 +202,7 @@ export const partOverlapRows = (id, body) => {
   const cavityRadius = cavity ? Number(cavity[1]) / 2 - Number(cavity[2]) : null;
   const bands = Object.fromEntries(parts.map((part) =>
     [part.key, radialBand(part, construction, cavityRadius)]));
-  const contacts = partContactRows(id, body), shapes = shapeRelationRows(id, body);
+  const shapes = shapeRelationRows(id, body);
   const cutBeams = cutBeamTangencies(construction);
   const sentences = construction.split(/(?<=다\.)\s+|\n+/).filter((sentence) =>
     /겹쳐|들어가|끼워|관통한다|중심(?: 사이)?(?:을|를|의)?.*잇/.test(sentence) &&
@@ -244,7 +243,6 @@ export const partOverlapRows = (id, body) => {
     const clearances = shapes.filter((row) => samePair(row) &&
       /clearance|separation|zero-volume/.test(row.kind));
     if (clearances.length && clearances.every((row) => row.pass)) continue;
-    if (contacts.some((row) => samePair(row) && row.pass)) continue;
     const relationSentence = sentences.find((sentence) => named(sentence, a) && named(sentence, b));
     const depthClaim = relationSentence?.match(/([\d.]+)m (?:안으로 )?들어가/);
     const depthAxis = relationSentence && /X 방향으로/.test(relationSentence) ? 0 :
