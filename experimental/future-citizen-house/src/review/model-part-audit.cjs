@@ -1492,6 +1492,13 @@ function audit(allSections, mutate, onlyState) {
       for (const [key, bore] of boresX) {
         if (!key.startsWith(`${state}/`)) continue;
         const host = byId.get(key.slice(state.length + 1));
+        if (host && [
+          bore.centerY - bore.radius - host.y[0],
+          host.y[1] - bore.centerY - bore.radius,
+          bore.centerZ - bore.radius - host.z[0],
+          host.z[1] - bore.centerZ - bore.radius,
+        ].some((ligament) => ligament <= epsilon))
+          errors.push(`${anchor}/${key}: axial bore leaves no positive host ligament`);
         const cylinder = stateParts.filter((part) => part.contact.includes(host?.id || "") &&
           part.shape === "cylinder" && host?.contact.includes(part.id));
         if (!host || cylinder.length !== 1 || bore.radius <= epsilon ||
@@ -2269,6 +2276,7 @@ if (require.main !== module) {
     ["fixed-bed", "1800", (parsed) => { const rail = parsed.parts.get("1800/frame-head"); if (!rail) throw Error("head rail absent"); rail.z[1] = -1.06; }, "leg-0: no face contact with frame-head"],
     ["murphy-bed", "guest", (parsed) => { const part = parsed.parts.get("guest/bed-frame"); if (!part) throw Error("guest frame absent"); part.z[0] = 0.23; }, "pin end cap has no finite contact face"],
     ["murphy-bed", "guest", (parsed) => { parsed.boresX.delete("guest/case-side-left"); }, "hollow part has no authored cavity"],
+    ["murphy-bed", "guest", (parsed) => { const bore = parsed.boresX.get("guest/case-side-left"); if (!bore) throw Error("side bore absent"); bore.centerZ = 0.205; }, "axial bore leaves no positive host ligament"],
     ["murphy-bed", "guest", (parsed) => { const bore = parsed.boresX.get("guest/case-side-left"); if (!bore) throw Error("side bore absent"); bore.radius = 0.03; }, "axial bore lacks a fitted cylinder contact"],
     ["murphy-bed", "guest", (parsed) => { parsed.flatContacts.delete("guest/pillow/mattress"); }, "murphy-bed/guest/mattress/pillow"],
     ["ceiling-surface-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
