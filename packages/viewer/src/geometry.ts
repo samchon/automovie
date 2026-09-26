@@ -8,6 +8,7 @@ import {
 import * as THREE from "three";
 
 import { applyDetailNormal } from "./detailNormalShading";
+import { applyMaterialOverlays } from "./materialOverlayShading";
 import { applySubsurfaceShading } from "./subsurfaceShading";
 
 /**
@@ -90,7 +91,8 @@ export const textureBindingAsset = (
 ): string => (typeof binding === "string" ? binding : binding.asset);
 
 /**
- * Every texture binding one material declares, in slot order, nulls dropped.
+ * Every texture binding one material declares, in slot order and then each
+ * overlay's colour and normal map, nulls dropped.
  *
  * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
@@ -105,6 +107,10 @@ export const materialTextureBindings = (
     material.detailNormalTexture,
     material.occlusionTexture,
     material.emissiveTexture,
+    ...(material.overlays ?? []).flatMap((overlay) => [
+      overlay.baseColorTexture,
+      overlay.normalTexture,
+    ]),
   ].filter(
     (value): value is AutoMovieTextureBinding =>
       value !== null && value !== undefined,
@@ -322,6 +328,31 @@ export const buildMaterial = (
       std.normalScale.setScalar(material.detailNormalScale ?? 1);
     }
   }
+  const overlays = (material.overlays ?? []).map((overlay) => ({
+    color: resolveMaterialTexture(
+      overlay.baseColorTexture,
+      "srgb",
+      resolveTexture,
+    ),
+    blend: overlay.blend,
+    roughness: overlay.roughness ?? null,
+    normal: resolveMaterialTexture(
+      overlay.normalTexture,
+      "linear",
+      resolveTexture,
+    ),
+    normalScale: overlay.normalScale ?? 1,
+    strength: overlay.strength,
+  }));
+  // an overlay shows only through its colour image; without a resolver there
+  // is none, and the material shows alone
+  applyMaterialOverlays(
+    std,
+    overlays.filter(
+      (overlay): overlay is typeof overlay & { color: THREE.Texture } =>
+        overlay.color !== null,
+    ),
+  );
   std.aoMap = resolveMaterialTexture(
     material.occlusionTexture,
     "linear",
