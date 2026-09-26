@@ -475,6 +475,8 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 @scalar-control excluded-plate-shade-diameter: 0.38
 
+@emitter-face default: diffuser, -Y
+
 @inventory default: canopy, cord, shade-wall, shade-cap, diffuser
 @radial default: canopy, 0.003, 0.04
 @radial default: cord, 0, 0.003
@@ -503,6 +505,9 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 @scalar-control reading-shade-wall: 0.005
 @scalar-control reading-diffuser-stem-clearance: 0.001
+
+@emitter-face reading: diffuser, -Y
+@emitter-face desk-task: diffuser, -Y
 
 @inventory reading: base, stem-lower, shade, shade-bridge, diffuser
 @cap-contact bedside-globe: base, stem-short, Y, +

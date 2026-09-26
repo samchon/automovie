@@ -1785,7 +1785,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @axis-control 1800: duvet, Z, 0.99, foot fold start
 @axis-control 1000: duvet, Z, 0.99, foot fold start
 
-`fixed-bed/1800`은 1.80m 매트리스와 베개 둘, `fixed-bed/1000`은 1.00m 매트리스와 베개 하나다. 매트리스 길이 2.02m, 프레임 외곽은 폭 W+0.08·깊이 2.18·최고 1.01m다. 바닥 중심 원점, +Z는 발치다. 네 다리는 단면 0.045×0.045m이고 중심 x=±(W/2+0.0175), z=±1.00, y=0..0.08이다. 프레임의 측면 rail은 x=±(W/2+0.015..W/2+0.04), z=−1.03..+1.03, y=0.08..0.28이고, 머리·발치 rail은 x=±(W/2+0.04), z=−1.09..−1.03과 +1.03..+1.09, y=0.08..0.28이다. 이 네 rail은 겹치는 모서리 부피 없이 면으로 만나며 다리 상면과 면 접촉한다. `support-deck`은 x=±(W/2+0.015), z=−1.03..+1.03, y=0.26..0.28인 두께 0.02m의 닫힌 지지판이다. 네 rail의 안쪽 수직 면에 접하고 매트리스 아래면 y=0.28을 받는다. 지지판은 외곽 rail 아래 0.18m 틈의 윗부분에만 있으며 다리 사이의 바닥을 막지 않는다. 매트리스는 x=±W/2,z=−1.01..+1.01,y=0.28..0.50, 이불은 x=±(W/2−0.03),y=0.50..0.56에서 z=−0.40..+1.02를 덮는다. 머리판은 x=±(W/2+0.04),z=−1.09..−1.03,y=0.28..1.01로 머리 rail의 상면에 접하고 발치의 0.03m 접힘 표시는 단일 `duvet` 부품의 상부 앞쪽 z=0.99..1.02m인 `duvet/fold-edge` 표면 영역으로 나타내며 별도 고체 부품을 만들지 않는다. 베개는 각각 폭 (W−0.18)/개수, 깊이 0.38, 높이 0.12m로 중심 z=−0.76, y=0.56(상면 0.62)에 놓인다. 두 베개 변종의 중심 x는 ±((W−0.18)/4+0.02)라 사이 틈이 0.04m이고, 한 베개 변종의 중심 x는 0이다.
+`fixed-bed/1800`은 1.80m 매트리스와 베개 둘, `fixed-bed/1000`은 1.00m 매트리스와 베개 하나다. 매트리스 길이 2.02m, 프레임 외곽은 폭 W+0.08·깊이 2.18·최고 1.01m다. 바닥 중심 원점, +Z는 발치다. 네 다리는 단면 0.045×0.045m이고 중심 x=±(W/2+0.0175), z=±1.03, y=0..0.08이다. 각 다리 상면은 측면 rail과 머리 또는 발치 rail의 아래면을 각각 0.0225m Z 길이의 유한 면으로 받친다. 프레임의 측면 rail은 x=±(W/2+0.015..W/2+0.04), z=−1.03..+1.03, y=0.08..0.28이고, 머리·발치 rail은 x=±(W/2+0.04), z=−1.09..−1.03과 +1.03..+1.09, y=0.08..0.28이다. 이 네 rail은 겹치는 모서리 부피 없이 면으로 만나며 다리 상면과 면 접촉한다. `support-deck`은 x=±(W/2+0.015), z=−1.03..+1.03, y=0.26..0.28인 두께 0.02m의 닫힌 지지판이다. 네 rail의 안쪽 수직 면에 접하고 매트리스 아래면 y=0.28을 받는다. 지지판은 외곽 rail 아래 0.18m 틈의 윗부분에만 있으며 다리 사이의 바닥을 막지 않는다. 매트리스는 x=±W/2,z=−1.01..+1.01,y=0.28..0.50, 이불은 x=±(W/2−0.03),y=0.50..0.56에서 z=−0.40..+1.02를 덮는다. 머리판은 x=±(W/2+0.04),z=−1.09..−1.03,y=0.28..1.01로 머리 rail의 상면에 접하고 발치의 0.03m 접힘 표시는 단일 `duvet` 부품의 상부 앞쪽 z=0.99..1.02m인 `duvet/fold-edge` 표면 영역으로 나타내며 별도 고체 부품을 만들지 않는다. 베개는 각각 폭 (W−0.18)/개수, 깊이 0.38, 높이 0.12m로 중심 z=−0.76, y=0.56(상면 0.62)에 놓인다. 두 베개 변종의 중심 x는 ±((W−0.18)/4+0.02)라 사이 틈이 0.04m이고, 한 베개 변종의 중심 x는 0이다.
 
 안정 주소는 `frame-side-left/right/outer/inner/edge`, `frame-head/foot/outer/inner/edge`, `support-deck/upper/underside/edge`, `leg-0..3/shaft/top/sole`, `mattress/upper/side/underside`, `duvet/upper/fold-edge/edge/underside`, `headboard/front/back/edge`, `pillow-0..1/upper/edge/underside`다. 각 베개의 사용 여부는 ID 폭 변종으로 고정하고 소스의 blanket 색 문자열은 재료 ID가 아니다. 상부·발치·측면·45°에서 침대 폭, 머리판, 바닥 틈, 베개 수와 접힌 이불 끝을 확인한다. ref02의 세 침실 침대·침구와 ref05의 문 뒤 사적 구역 관계를 채택하며 ref05 복도 사진에서 침대 치수를 역산하지 않는다. ref01·03·04는 고정 침대 형상 근거가 아니다. 인체 누운 자세와 섬유 변형은 `unverified`다.
 
@@ -1806,10 +1806,10 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | 1800 | frame-head | box | -0.94..0.94 | 0.08..0.28 | -1.09..-1.03 | frame-side-left,headboard |
 | @part | 1800 | frame-foot | box | -0.94..0.94 | 0.08..0.28 | 1.03..1.09 | frame-side-right,support-deck |
 | @part | 1800 | support-deck | box | -0.915..0.915 | 0.26..0.28 | -1.03..1.03 | frame-side-left,frame-side-right,mattress |
-| @part | 1800 | leg-0 | box | -0.94..-0.895 | 0..0.08 | -1.0225..-0.9775 | ground,frame-side-left |
-| @part | 1800 | leg-1 | box | -0.94..-0.895 | 0..0.08 | 0.9775..1.0225 | ground,frame-side-left |
-| @part | 1800 | leg-2 | box | 0.895..0.94 | 0..0.08 | -1.0225..-0.9775 | ground,frame-side-right |
-| @part | 1800 | leg-3 | box | 0.895..0.94 | 0..0.08 | 0.9775..1.0225 | ground,frame-side-right |
+| @part | 1800 | leg-0 | box | -0.94..-0.895 | 0..0.08 | -1.0525..-1.0075 | ground,frame-side-left,frame-head |
+| @part | 1800 | leg-1 | box | -0.94..-0.895 | 0..0.08 | 1.0075..1.0525 | ground,frame-side-left,frame-foot |
+| @part | 1800 | leg-2 | box | 0.895..0.94 | 0..0.08 | -1.0525..-1.0075 | ground,frame-side-right,frame-head |
+| @part | 1800 | leg-3 | box | 0.895..0.94 | 0..0.08 | 1.0075..1.0525 | ground,frame-side-right,frame-foot |
 | @part | 1800 | mattress | box | -0.90..0.90 | 0.28..0.50 | -1.01..1.01 | support-deck,duvet,pillow-0,pillow-1 |
 | @part | 1800 | duvet | box | -0.87..0.87 | 0.50..0.56 | -0.40..1.02 | mattress |
 | @part | 1800 | headboard | box | -0.94..0.94 | 0.28..1.01 | -1.09..-1.03 | frame-head |
@@ -1821,10 +1821,10 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 | @part | 1000 | frame-head | box | -0.54..0.54 | 0.08..0.28 | -1.09..-1.03 | frame-side-left,headboard |
 | @part | 1000 | frame-foot | box | -0.54..0.54 | 0.08..0.28 | 1.03..1.09 | frame-side-right,support-deck |
 | @part | 1000 | support-deck | box | -0.515..0.515 | 0.26..0.28 | -1.03..1.03 | frame-side-left,frame-side-right,mattress |
-| @part | 1000 | leg-0 | box | -0.54..-0.495 | 0..0.08 | -1.0225..-0.9775 | ground,frame-side-left |
-| @part | 1000 | leg-1 | box | -0.54..-0.495 | 0..0.08 | 0.9775..1.0225 | ground,frame-side-left |
-| @part | 1000 | leg-2 | box | 0.495..0.54 | 0..0.08 | -1.0225..-0.9775 | ground,frame-side-right |
-| @part | 1000 | leg-3 | box | 0.495..0.54 | 0..0.08 | 0.9775..1.0225 | ground,frame-side-right |
+| @part | 1000 | leg-0 | box | -0.54..-0.495 | 0..0.08 | -1.0525..-1.0075 | ground,frame-side-left,frame-head |
+| @part | 1000 | leg-1 | box | -0.54..-0.495 | 0..0.08 | 1.0075..1.0525 | ground,frame-side-left,frame-foot |
+| @part | 1000 | leg-2 | box | 0.495..0.54 | 0..0.08 | -1.0525..-1.0075 | ground,frame-side-right,frame-head |
+| @part | 1000 | leg-3 | box | 0.495..0.54 | 0..0.08 | 1.0075..1.0525 | ground,frame-side-right,frame-foot |
 | @part | 1000 | mattress | box | -0.50..0.50 | 0.28..0.50 | -1.01..1.01 | support-deck,duvet,pillow-0 |
 | @part | 1000 | duvet | box | -0.47..0.47 | 0.50..0.56 | -0.40..1.02 | mattress |
 | @part | 1000 | headboard | box | -0.54..0.54 | 0.28..1.01 | -1.09..-1.03 | frame-head |

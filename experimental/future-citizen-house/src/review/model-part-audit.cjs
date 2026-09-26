@@ -314,17 +314,21 @@ function parse(lines, anchor) {
 /** @param {Part} emitter @param {Part[]} blockers @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {string} state */
 function visibleEmitterFraction(emitter, blockers, radial, state) {
   const radius = radial.get(`${state}/${emitter.id}`);
-  if (!radius) return 0;
   let areaSamples = 0, visibleSamples = 0;
   const steps = 80;
   for (let ix = 0; ix < steps; ix++) for (let iz = 0; iz < steps; iz++) {
     const x = emitter.x[0] + (ix + 0.5) * (emitter.x[1] - emitter.x[0]) / steps;
     const z = emitter.z[0] + (iz + 0.5) * (emitter.z[1] - emitter.z[0]) / steps;
-    const distance = Math.hypot(x - radius.centerX, z - radius.centerZ);
-    if (distance < radius.inner || distance > radius.outer) continue;
+    if (radius) {
+      const distance = Math.hypot(x - radius.centerX, z - radius.centerZ);
+      if (distance < radius.inner || distance > radius.outer) continue;
+    }
     areaSamples++;
     const blocked = blockers.some((part) => {
+      // Measure the local exit cone immediately below the emitter. A floor
+      // lamp's base a metre below its diffuser is not a covering face.
       if (part.id === emitter.id || part.y[0] >= emitter.y[0] - epsilon ||
+        part.y[1] < emitter.y[0] - 0.1 ||
         x < part.x[0] || x > part.x[1] || z < part.z[0] || z > part.z[1]) return false;
       const ring = radial.get(`${state}/${part.id}`);
       if (!ring) return true;
@@ -1334,7 +1338,9 @@ function audit(allSections, mutate, onlyState) {
           errors.push(`${anchor}/${key}: axial bore lacks a fitted cylinder contact`);
         else provedCurves.add(`${state}/${[host.id, cylinder[0].id].sort((a, b) => a.localeCompare(b)).join("/")}`);
       }
-      if (anchor === "recessed-light" && !emitterFaces.has(state))
+      if ((anchor === "recessed-light" || anchor === "dining-pendant" ||
+        (anchor === "portable-lamps" && state !== "bedside-globe")) &&
+        !emitterFaces.has(state))
         errors.push(`${anchor}/${state}: emitter face declaration absent`);
       const luminousId = emitterFaces.get(state);
       if (luminousId) {
@@ -1567,8 +1573,10 @@ function audit(allSections, mutate, onlyState) {
             const miter = miterJoints.has(key) && a.shape === "mitered-box" && b.shape === "mitered-box" &&
               Math.abs(extent[0] - 0.009) <= epsilon && Math.abs(extent[1] - 0.018) <= epsilon &&
               Math.abs(extent[2] - 0.009) <= epsilon &&
-              (a.x[1] - a.x[0] > 0.20) !== (b.x[1] - b.x[0] > 0.20) &&
-              (a.z[1] - a.z[0] > 0.20) !== (b.z[1] - b.z[0] > 0.20);
+              (a.x[1] - a.x[0] > 2 * (a.z[1] - a.z[0])) !==
+                (b.x[1] - b.x[0] > 2 * (b.z[1] - b.z[0])) &&
+              (a.z[1] - a.z[0] > 2 * (a.x[1] - a.x[0])) !==
+                (b.z[1] - b.z[0] > 2 * (b.x[1] - b.x[0]));
             if (miter) provedMiterJoints.add(key);
             else errors.push(`${anchor}/${state}: ${a.id} / ${b.id} needs shape intersection proof (${a.shape}/${b.shape})`);
           }
@@ -1853,7 +1861,7 @@ if (require.main !== module) {
   if (!stool) throw Error("island-stool H2 absent");
   const stoolBaseline = audit(new Map([["island-stool", stool]]));
   if (stoolBaseline.errors.length) throw Error(`island-stool baseline failed: ${stoolBaseline.errors}`);
-  const movedMiter = stool.join("\n").replace("-0.1265..-0.1085 | leg-0,leg-2", "-0.1265..-0.1075 | leg-0,leg-2");
+  const movedMiter = stool.join("\n").replace("-0.1065..-0.0885 | leg-0,leg-2", "-0.1065..-0.0875 | leg-0,leg-2");
   if (movedMiter === stool.join("\n")) throw Error("island-stool miter mutation source absent");
   const miterErrors = audit(new Map([["island-stool", movedMiter.split("\n")]])).errors;
   if (!miterErrors.some((error) => error.includes("needs shape intersection proof")))
@@ -2023,6 +2031,11 @@ if (require.main !== module) {
   const curvedMutations = [
     ["murphy-bed", "guest", (parsed) => { const part = parsed.parts.get("guest/bed-frame"); if (!part) throw Error("guest frame absent"); part.z[0] = 0.23; }, "pin end cap has no finite contact face"],
     ["recessed-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
+    ["dining-pendant", "default", (parsed) => { parsed.emitterFaces.delete("default"); }, "emitter face declaration absent"],
+    ["portable-lamps", "reading", (parsed) => { parsed.emitterFaces.delete("reading"); }, "emitter face declaration absent"],
+    ["portable-lamps", "desk-task", (parsed) => { parsed.emitterFaces.delete("desk-task"); }, "emitter face declaration absent"],
+    ["portable-lamps", "reading", (parsed) => { const part = parsed.parts.get("reading/diffuser"); if (!part) throw Error("reading diffuser absent"); part.y = [1.13, 1.134]; }, "emissive face is occluded"],
+    ["portable-lamps", "desk-task", (parsed) => { const part = parsed.parts.get("desk-task/diffuser"); if (!part) throw Error("task diffuser absent"); part.y = [0.38, 0.384]; }, "emissive face is occluded"],
     ["murphy-bed", "guest", (parsed) => { parsed.pinFaces.delete("guest/hinge-right"); }, "missing pin-face declaration"],
     ["toilet", "lid-open", (parsed) => { const ring = parsed.ellipses.get("lid-open/seat"); if (!ring) throw Error("seat ring absent"); ring.centerZ = 0.10; }, "elliptic ring differs"],
     ["cooking-appliances", "oven", (parsed) => { const binding = parsed.supportBindings.get("oven"); if (!binding) throw Error("oven support absent"); binding.state = "unknown"; }, "support child part absent"],
