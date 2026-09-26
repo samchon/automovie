@@ -2,13 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { modelSurfaceBindingCensus, runtimeSurfaceBindingCensus } from "../model-surface-binding.mjs";
-import { TempleFixtureModels } from "../../models/fixtures";
-import { TemplePortableModels } from "../../models/portable";
-import { TempleRitualModels } from "../../models/ritual";
-import { TempleWareModels } from "../../models/wares";
-import { bindTempleMaterials } from "../../materials/bindings";
-import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import { modelSurfaceBindingCensus } from "../model-surface-binding.mjs";
 
 const modelRoot = join(__dirname, "../../../docs/models");
 const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
@@ -16,55 +10,6 @@ const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
 const scale = documents.find(
   (document) => document.path === "scale.md",
 )!.source;
-
-const objectModels = () => [
-  ...TempleFixtureModels.build(), ...TemplePortableModels.build(),
-  ...TempleRitualModels.build(), ...TempleWareModels.build(),
-];
-const boundObjects = () => bindTempleMaterials({ models: objectModels() } as IAutoMovieBuiltEnvironment).models;
-
-void test("every emitted object part receives the finish declared by its surface row", () => {
-  const result = runtimeSurfaceBindingCensus(boundObjects(), scale);
-  assert.equal(result.prototypes, objectModels().length);
-  assert.equal(result.parts, objectModels().reduce((sum, model) => sum + model.parts.length, 0));
-  assert.deepEqual(result.failures, []);
-});
-
-void test("ten selected finish mutations are rejected by the same full-population census", () => {
-  const models = boundObjects();
-  const addresses = models.flatMap((model, mi) => model.parts.map((part, pi) => ({ mi, pi, part })));
-  let rejected = 0;
-  for (let i = 0; i < 10; i++) {
-    const { mi, pi, part } = addresses[(i * 37 + 11) % addresses.length]!;
-    const changed = models.map((model, index) => index === mi
-      ? { ...model, parts: model.parts.map((entry, partIndex) => partIndex === pi
-        ? { ...entry, material: part.material === "temple.stone" ? "temple.bronze" : "temple.stone" }
-        : entry) }
-      : model);
-    if (runtimeSurfaceBindingCensus(changed, scale).failures.length > 0) rejected++;
-  }
-  assert.equal(rejected, 10);
-});
-
-void test("a changed authored repeat or emitted UV scale is rejected", () => {
-  const models = boundObjects();
-  const alteredDesign = scale.replace("| `limestone` | 0.45·0.45", "| `limestone` | 0.46·0.45");
-  assert.match(runtimeSurfaceBindingCensus(models, alteredDesign).failures.join("\n"), /texture repeat/);
-  const original = models[0]!;
-  const first = original.materials[0]!;
-  const texture = first.baseColorTexture;
-  if (!texture || typeof texture === "string" || !texture.transform) throw new Error("object texture absent");
-  const transform = texture.transform;
-  const changed = models.map((model) => model === original ? {
-    ...model,
-    materials: model.materials.map((entry) => entry === first ? { ...entry,
-      baseColorTexture: { ...texture,
-        transform: { ...transform, scale: { ...transform.scale, x: transform.scale.x + 0.01 } },
-      },
-    } : entry),
-  } : model);
-  assert.match(runtimeSurfaceBindingCensus(changed, scale).failures.join("\n"), /texture repeat/);
-});
 
 void test("surface grammar covers every authored prototype and every part", () => {
   const result = modelSurfaceBindingCensus(documents, scale);

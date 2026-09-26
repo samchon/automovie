@@ -41,6 +41,8 @@ The installed `automovie` CLI separately provides Markdown TOC maintenance, exte
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
+The current viewer renders the structural space source with its authored material bindings. Model source resumes only after `models` passes independent review and `modelSources` enters `draft`. The retired model prototypes, dependent object assembly and placements, and their source-only tests are recoverable from commit `ac4b6cb4`. The texture assets and material draft remain in the active tree.
+
 ## Ownership
 
 - All source code belongs under `src`, including command entry points, viewer code, review declarations, and any test source. The typed production declaration is the one exception: `lint.config.ts` sits at the project root, where the compiler plugin and the production resolver both read it. Source location does not make tooling a production design owner; the typed evidence declaration selects the authored populations.
