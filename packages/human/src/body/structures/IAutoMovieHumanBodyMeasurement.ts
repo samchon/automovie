@@ -32,8 +32,12 @@ export type IAutoMovieHumanBodyMeasurement =
       /** Fractions of the segment, inclusive, sampled at `steps` evenly spaced planes. */
       range: [number, number];
       steps: number;
-      /** Take the largest or the smallest value over the sampled planes. */
-      pick: "max" | "min";
+      /**
+       * Take the largest or the smallest value over the sampled planes, or
+       * the value on the plane whose loop reaches furthest back (the least
+       * Z; the body faces +Z), where ANSUR takes the buttock circumference.
+       */
+      pick: "max" | "min" | "rearmost";
       /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
       horizontal: boolean;
     }

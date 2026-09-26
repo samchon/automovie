@@ -8,8 +8,8 @@ import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHum
  * approximates. Trunk girths are horizontal sections between midline
  * landmarks: the bust at the nipple's height, and otherwise searched for
  * their ISO 7250-1 extremum, the underbust the smallest girth just below it, the waist the smallest girth between the
- * lumbar and mid-chest landmarks, the hip the largest girth over the
- * buttocks. Limb girths cut perpendicular to the segment between two joints
+ * lumbar and mid-chest landmarks, the hip the girth where the
+ * buttocks stand furthest back. Limb girths cut perpendicular to the segment between two joints
  * and take the maximum of a muscle belly or the minimum of a joint. The bands
  * were placed by measuring the neutral basis while the body study was
  * extracted, not by reading the source's own rulers, which are code the
@@ -69,13 +69,17 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
     pick: "min",
     horizontal: true,
   },
+  // where the buttocks stand furthest back, where ANSUR takes the buttock
+  // circumference: in the rest pose the thighs stand apart, so the largest
+  // girth stood 4 cm lower on a woman, around the tops of both thighs, and
+  // left her buttock 4.6 cm short of the person it reproduced
   measureHipsCirc: {
     kind: "girth",
     from: "joint-pelvis",
     to: "joint-spine-4",
     range: [-1.2, 0.4],
     steps: 17,
-    pick: "max",
+    pick: "rearmost",
     horizontal: true,
   },
   // from the midpoint, where ISO 8559-1 and ANSUR take the upper arm girth:
