@@ -35,7 +35,9 @@ import { nclose } from "../internal/predicates";
  * 3. The two Deurenberg regressions at ages 11, 15, 16 and adult, for both
  *    sexes, and their authored fractional-age bridge are checked against
  *    hand arithmetic. Jensen's pediatric head-and-neck share and its bridge
- *    to the adult approximation are also checked by hand, and so is the abs
+ *    to the adult approximation, less the neck the skin keeps below the
+ *    clip ring (2.35 % at a body mass index of 24, inversely with the
+ *    index), are also checked by hand, and so is the abs
  *    definition at 11, 15 and 16 through each sex's maturity ramp. Term rows
  *    by hand: a 25-year-old man at BMI 22 with muscle 0.5 gets
  *    gender 1, age 0, muscle 0.5, ptosis -0.2 (the lift row only), abs
@@ -163,21 +165,28 @@ export const test_human_body_simple_shape = (): void => {
         sample.definition,
       ),
     );
-  for (const [ageYears, fraction] of [
-    [11, 0.11047128],
-    [15, 0.081158],
-    [15.5, 0.081079],
-    [16, 0.081],
-    [30, 0.081],
+  // the segment's share less the neck kept below the ring, 2.35 % at a body
+  // mass index of 24 and inversely with it
+  for (const [ageYears, bodyMassIndex, fraction] of [
+    [11, 24, 0.11047128 - 0.0235],
+    [15, 24, 0.081158 - 0.0235],
+    [15.5, 24, 0.081079 - 0.0235],
+    [16, 24, 0.081 - 0.0235],
+    [30, 24, 0.081 - 0.0235],
+    [30, 12, 0.081 - 0.047],
+    [30, 48, 0.081 - 0.01175],
   ]) {
     TestValidator.predicate(
-      `head and neck ${ageYears}`,
-      nclose(humanBodySimpleShapeMath.headAndNeckFraction(ageYears), fraction),
+      `head and neck ${ageYears} at ${bodyMassIndex}`,
+      nclose(
+        humanBodySimpleShapeMath.headAndNeckFraction(ageYears, bodyMassIndex),
+        fraction,
+      ),
     );
     TestValidator.predicate(
-      `mass share ${ageYears}`,
+      `mass share ${ageYears} at ${bodyMassIndex}`,
       nclose(
-        measureHumanBodySimpleShape.mass(0.1, 1, ageYears),
+        measureHumanBodySimpleShape.mass(0.1, 1, ageYears, bodyMassIndex),
         100 / (1 - fraction),
       ),
     );
@@ -292,6 +301,7 @@ export const test_human_body_simple_shape = (): void => {
       measureHumanBodySimpleShape.volume(basis, shape),
       density,
       simple.ageYears,
+      bodyMassIndex,
     );
   };
   const reach = [-1, 1].map((weight) =>
