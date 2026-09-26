@@ -3,11 +3,11 @@ import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHum
 /**
  * Measurement rules by body channel id.
  *
- * A rule names the landmarks of the shipped basis (MPFB joint cubes) and the
- * public measurement definition it approximates. Trunk girths are horizontal
- * sections between midline landmarks, searched for their ISO 7250-1 extremum:
- * the bust is the largest chest girth above the lower ribs, the underbust the
- * smallest girth just below it, the waist the smallest girth between the
+ * A rule names the landmarks of the shipped basis (MPFB joint cubes, and for
+ * the bust a vertex of its skin) and the public measurement definition it
+ * approximates. Trunk girths are horizontal sections between midline
+ * landmarks: the bust at the nipple's height, and otherwise searched for
+ * their ISO 7250-1 extremum, the underbust the smallest girth just below it, the waist the smallest girth between the
  * lumbar and mid-chest landmarks, the hip the largest girth over the
  * buttocks. Limb girths cut perpendicular to the segment between two joints
  * and take the maximum of a muscle belly or the minimum of a joint. The bands
@@ -29,13 +29,17 @@ export const HUMAN_BODY_MEASUREMENTS: Record<
   string,
   IAutoMovieHumanBodyMeasurement
 > = {
+  // at the nipple's height, where ISO 8559-1 takes the bust girth and ANSUR
+  // the chest circumference: the left nipple-areola fill's centre. The
+  // largest girth up to three fifths of the way to the upper thoracic
+  // landmark read a man's chest 5 to 11 cm small, his nipple standing at
+  // 0.87 to 0.92 of that span, and higher up a heavy body's arms meet the
+  // trunk in the section
   measureBustCirc: {
     kind: "girth",
     from: "joint-spine-2",
     to: "joint-spine-1",
-    range: [0, 0.6],
-    steps: 13,
-    pick: "max",
+    level: { surface: 0, vertex: 21898 },
     horizontal: true,
   },
   measureFrontchestDist: {
