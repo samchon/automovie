@@ -101,23 +101,23 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 ## 중립 모델 검토 판 {#model-review-board}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 검토 판의 장면 구성(중립 회색 바닥, +X 0.8m 보행 포락), 조명, 카메라, 네 필수 시점, 문짝 두 상태, 반복 모듈 3×3 표본, 비교 기준을 모두 정한다.
-@evidence principles/core/common.md#substantive-completion 시점마다 모델 높이가 화면의 약 70%가 되도록 거리를 정하는 규칙까지 있어 검토 판을 다시 설계하지 않고 모든 prototype을 같은 조건으로 볼 수 있다.
+@evidence principles/core/common.md#scope-preservation 검토 판의 장면 구성(중립 회색 바닥, +X 0.8m 보행 포락), 조명, 카메라, 여섯 실루엣 시점과 부재별 근접 시점, 모든 명명 상태·치수 변형, 반복 모듈 3×3 표본, 비교 기준을 모두 정한다.
+@evidence principles/core/common.md#substantive-completion 전체 시점마다 피사체의 긴 축이 화면의 약 70%를 채우도록 거리를 정하고 근접 시점은 접합 부재와 빈 공간을 함께 넣어 모든 prototype을 같은 조건으로 다시 볼 수 있다.
 @evidence principles/core/common.md#declared-basis 1600×1000·수직 시야각 50°는 00-delivery#review-condition, 고정 광원 방향은 40-environment#daylight에서 받고 건물 안 배치·접촉은 spaces 관찰로 넘긴다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 건물 관찰 조건을 건물과 분리된 prototype 판의 배경·포락 비교·반복 표본이라는 모델 검토 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 재료가 결속되지 않은 part를 같은 중립 클레이로 보이게 해 표면 분할과 부재 분리만으로 형상을 판단하게 한다.
 @evidence principles/design/models.md#spatial-convention 각 prototype을 Y=0 바닥에 원점으로 세우고 보행 포락 상자를 +X 0.8m에 두는 배치 규칙을 정한다.
-@evidence principles/design/models.md#reviewable-structure 정면(+Z에서 −Z)·우측면·평면·3/4 조감(고도 30°) 네 시점과 문짝 두 상태, 반복 모듈의 한 단위·3×3 배열을 필수 관찰로 둔다.
+@evidence principles/design/models.md#reviewable-structure 정면·우측면·배면·평면·반대편 대각 둘과 각 H2의 접합·관통·얇은 부재·개구 근접 뷰를 필수 관찰로 두고 문짝·두루마리 등 명명 상태마다 반복한다.
 @evidence principles/design/models.md#model-observable-style-basis 셰이딩·연출이 아닌 구성 판단용 판이라고 선언해 양식 판정을 실루엣·부재 분리·빈 공간에 묶고 조명 연출이 양식 증거로 쓰이지 않게 한다.
 @evidence principles/design/models.md#model-scale-layer-completion 포락 비교·시점·상태·반복 표본을 함께 정해 각 모델 H2의 관찰 층이 한 판 위에서 완결된다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work review-condition의 프레임과 daylight의 광원 방향을 건물과 분리된 판에 적용할 수 있었고 두 조건이 prototype 판정에 충분해 부모를 고치지 않았다.
 @evidence settings/00-delivery.md#review-condition 기본 비교 프레임 1600×1000과 수직 시야각 50°를 검토 판 카메라로 그대로 쓴다.
 @evidence settings/40-environment.md#daylight 정면 좌측 위 고정 햇빛과 하늘 보조광을 검토 판의 광원 하나와 보조광으로 쓴다.
 @evidence spaces/observations.md#geometry-observations 건물 안 배치·접촉 판정은 spaces 관찰 전집합이 맡는다고 경계를 긋고 각 모델 H2의 건물 관찰 문장이 그 station을 가리키게 한다.
-@evidence obligations/design/models.md#model-review-set 중립 배경·보행 포락 비교·네 시점·두 상태·3×3 표본으로 된 유한 검토 판을 정의한다.
+@evidence obligations/design/models.md#model-review-set 중립 배경·보행 포락 비교·여섯 실루엣 시점·부재별 근접 시점·모든 명명 상태와 치수 변형·3×3 표본으로 된 유한 검토 판을 정의한다.
 @evidenceExclude settings/00-delivery.md#accessibility 한국어 설명·키보드 조작은 viewer의 접근성 산출물이며 검토 판의 시점·배경이나 prototype 형상이 지는 의무가 아니다.
 @evidenceExclude settings/00-delivery.md#governing-aim 다섯 이미지 대조는 건물 관찰 위치에서 판정되며 이 검토 판은 건물과 분리된 구성 판단이라 지배 목표의 대조를 직접 수행하지 않는다.
-@evidenceExclude settings/00-delivery.md#operator-access 궤도·확대·시점 선택은 건물 viewer 운영 조작이며 검토 판은 고정된 네 시점과 두 상태만 쓰므로 이 조작을 소비하지 않는다.
+@evidenceExclude settings/00-delivery.md#operator-access 궤도·확대·시점 선택은 건물 viewer 운영 조작이며 검토 판은 정해진 전체 여섯 시점과 H2별 근접·상태 시점만 쓰므로 이 조작을 소비하지 않는다.
 @evidenceExclude settings/50-production.md#acceptance 판정 권한과 완료 조건은 제작 절차의 규칙이며 검토 판은 reviewer가 볼 구성 시점만 정하고 판정 권한을 정하지 않는다.
 @evidenceExclude settings/50-production.md#author-commits 커밋·푸시 절차는 저작 기록 규칙이며 검토 판을 포함한 어떤 모델 결정의 입력도 아니다.
 @evidenceExclude settings/50-production.md#gpu-observation GPU 캡처 경로는 프레임을 관찰로 세는 수단 규칙이며 검토 판의 시점·배경·비교 기준은 그 경로와 무관하게 정해지고 캡처는 modelSources 이후에 온다.
@@ -126,4 +126,4 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 
 모델 검토 판은 건물과 분리된 한 장면이다. 각 prototype을 Y=0의 중립 회색 바닥 위에 하나씩 세우고 오른쪽(+X) 0.8m에 보행 포락 상자(0.6×0.4×1.9m)를 둔다. 조명은 건물 뷰어의 검토용 주광 방향과 같은 고정 광원 하나와 하늘 보조광이며 재료가 결속되지 않은 part는 같은 중립 클레이로 보인다. 카메라는 수직 시야각 50°, 1600×1000 비율이다. [검토 조건](../settings/00-delivery.md#review-condition)의 프레임과 시야각, [낮 주광](../settings/40-environment.md#daylight)의 방향을 받는다.
 
-필수 시점은 정면(+Z 쪽에서 −Z를 봄), 우측면(+X 쪽), 평면(위에서), 3/4 조감(+X·+Y·+Z 방향 고도 30°)이며 각 시점은 모델 높이가 화면 높이의 약 70%가 되도록 거리를 정한다. 문짝은 `closed`와 `open` 두 상태를 각각 본다. 기와처럼 반복되는 모듈은 한 단위와 3×3 배열 표본을 함께 본다. 비교 기준은 각 모델 H2가 적은 실루엣 단면, 부재 분리, 빈 공간, 점유 상자와 보행 포락의 비례다. 이 판은 셰이딩이나 연출이 아닌 구성 판단용이며 건물 안 배치나 접촉은 instances와 spaces 관찰이 따로 본다.
+필수 전체 시점은 정면(+Z에서 −Z), 우측면(+X에서 −X), 배면(−Z에서 +Z), 평면(+Y에서 −Y), 첫 대각(+X·+Y·+Z 방향 고도 30°), 반대 대각(−X·+Y·−Z 방향 고도 30°)의 여섯 가지다. 각 시점은 화면에서 긴 축을 약 70% 채우도록 같은 피사체 경계로 거리를 정한다. 각 모델 H2에서 이름 붙인 접합·관통 경계, 얇은 부재, 개구마다 해당 두 부재와 빈 공간을 한 화면에 넣는 근접 뷰를 추가하고, 반대쪽이나 가려진 면이 있으면 그쪽에서도 본다. `closed`·`open` 문짝과 두루마리의 말린 한 개·세 개 묶음·펼친 한 장 등 이름 붙인 상태를 각각 여섯 전체 시점과 해당 근접 시점에서 본다. 치수 변형도 각 변형을 별도로 본다. 기와처럼 반복되는 모듈은 한 단위와 3×3 배열 표본을 함께 본다. 비교 기준은 각 모델 H2가 적은 실루엣 단면, 부재 분리, 실제 빈 공간, 접합면의 뜸·관통, 점유 상자와 보행 포락의 비례다. 이 판은 셰이딩이나 연출이 아닌 구성 판단용이며 건물 안 배치나 접촉은 instances와 spaces 관찰이 따로 본다.

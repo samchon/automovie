@@ -153,7 +153,7 @@
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
 | [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 7005 | `c4e51a31290be01808c0a37f5e7b0f2b9b7445b2066c67088d02692991188948` |
 | [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 686 | `805969903c14fe60a81940d2ae99d4b8dc9eca3fac9efbf7a223c7a04c595f02` |
-| [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 650 | `9f2b80d52e6a83f214267f593b814d7fc7021548f107b0717a8fc627946a379f` |
+| [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 896 | `995bfdd7308e863ebb479292931290457380b2aa906e601a2a77b15039ec29e1` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 854 | `fc0a7eb94134aa72e2f979e57f35dbcacdb2767a80bb57d2c601fd245c143af5` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `handle` | 854 | `fc0a7eb94134aa72e2f979e57f35dbcacdb2767a80bb57d2c601fd245c143af5` |
 | [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 751 | `5295550b42416d2c87a45c1d316175492ea33d74cb3c58f142c5a33cec9797c9` |
@@ -198,9 +198,9 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | openings.md | 4 | 4426 |
 | portable.md | 13 | 10301 |
 | ritual.md | 3 | 2227 |
-| scale.md | 3 | 6790 |
+| scale.md | 3 | 6974 |
 | wares.md | 6 | 4916 |
-| 합계 | 52 | 52032 |
+| 합계 | 52 | 52216 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

@@ -44,7 +44,11 @@ const decisions = {
     ["원형 반복은", "non-contact: phase and datum design requirement"],
     ["시작 접선에", "non-contact: UV seam construction"],
   ],
-  "scale#model-review-board": [["이 판은", "non-contact: review-board responsibility"]],
+  "scale#model-review-board": [
+    ["각 모델 H2에서 이름 붙인", "non-contact: feature viewing requirement"],
+    ["`closed`·`open` 문짝과", "non-contact: state viewing requirement"],
+    ["이 판은", "non-contact: review-board responsibility"],
+  ],
   "columns#colonnade-column": [
     ["전체 높이 h는", "colonnade capital supports beam underside"],
     ["source는 반올림한", "non-contact: instruction to consume the exact formula"],
@@ -173,7 +177,10 @@ const decisions = {
     ["`portable#handcart`", "non-contact: UV projection for the support part rather than an assembly claim"],
   ],
   "scale#articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
-  "scale#model-review-board:supplemental": [["조명은 건물", "non-contact: review-board light setting"]],
+  "scale#model-review-board:supplemental": [
+    ["조명은 건물", "non-contact: review-board light setting"],
+    ["비교 기준은", "non-contact: review-board comparison criterion"],
+  ],
   "entablature#colonnade-beam:supplemental": [["중간 원주 위의 아랫면은", "east beam corner notch removes the capital penetration"]],
   "entablature#rafter:supplemental": [
     ["제실 양쪽의", "sanctuary rafter pair stops at both faces of the side wall"],
