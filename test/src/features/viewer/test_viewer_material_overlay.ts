@@ -61,8 +61,9 @@ const NAILS: IAutoMovieMaterialOverlay = {
  *    one-texel normal map; without a texture resolver no overlay is applied.
  * 3. The vertex shader passes each image's transformed UV. The fragment
  *    shader tints or replaces the colour after the vertex colours, moves the
- *    roughness after the roughness map, and adds the slopes before the frame
- *    turns the normal, after the detail blend when that patch ran first.
+ *    roughness after the roughness map, and, before the frame turns the
+ *    normal and after the detail blend when that patch ran first, adds a
+ *    tint's slopes and replaces the normal by a replacing layer's coverage.
  * 4. Validation refuses a list that is not one or holds more than four, an
  *    entry that is not a record, a missing colour image, an unknown blend, a
  *    strength or roughness outside [0, 1], a negative normal scale, an sRGB
@@ -133,6 +134,7 @@ export const test_viewer_material_overlay = (): void => {
   const shapes = [
     { blend: "multiply", roughness: false, normal: true },
     { blend: "replace", roughness: true, normal: false },
+    { blend: "replace", roughness: false, normal: true },
   ] as const;
   const vertex = materialOverlayVertex(
     THREE.ShaderLib.physical.vertexShader,
@@ -181,6 +183,17 @@ export const test_viewer_material_overlay = (): void => {
           ),
       ],
       [
+        "replacedNormal",
+        () =>
+          after(
+            "mapN = normalize( mix( mapN, normalize( overlayN2 ), overlayCover2 ) );",
+            "mapN = normalize( vec3( mapN.xy + overlayN0.xy",
+          ) &&
+          !fragment.includes(
+            "overlayN2.xy *= overlayNormalScale2 * overlayStrength2",
+          ),
+      ],
+      [
         "slopesAfterDetail",
         () =>
           after(
@@ -196,6 +209,7 @@ export const test_viewer_material_overlay = (): void => {
       tint: true,
       replace: true,
       roughness: true,
+      replacedNormal: true,
       slopesAfterDetail: true,
     },
   );

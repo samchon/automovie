@@ -9,9 +9,11 @@ import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
  * Its colour image carries the layer's colour and, in alpha, its coverage.
  * Where it covers, the layer multiplies the material's base colour (a tint,
  * such as the absorption over a vein) or replaces it (another tissue, such as
- * a nail plate), sets its own roughness if it names one, and adds its normal
- * map's slopes to the material's. `strength` scales the coverage and the
- * slopes together, so one image serves every intensity. glTF has no ratified
+ * a nail plate), and sets its own roughness if it names one. A tint's normal
+ * map adds its slopes to the material's; a replacing layer's replaces the
+ * material's normal, so the tissue under it does not show through.
+ * `strength` scales the coverage and a tint's slopes together, so one image
+ * serves every intensity. glTF has no ratified
  * extension for it, so an exported asset omits its overlays.
  *
  * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `IAutoMovieMaterialOverlay` as the portable data boundary for the asset material composition requirement.
@@ -49,9 +51,11 @@ export interface IAutoMovieMaterialOverlay {
   roughness?: number;
 
   /**
-   * Optional tangent-space normal map, whose slopes add to the material's
-   * (whiteout blending) scaled by `normalScale` and `strength`; on a material
-   * without a normal map they bend the surface's own normal.
+   * Optional tangent-space normal map, scaled by `normalScale`. A `multiply`
+   * layer's slopes, times `strength` too, add to the material's (whiteout
+   * blending); a `replace` layer's normal replaces the material's by its
+   * coverage. On a material without a normal map it bends the surface's own
+   * normal.
    *
    * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `normalTexture` as the portable data boundary for the asset material composition requirement.
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `normalTexture` for the asset spec material texture relations system contract.
@@ -68,8 +72,8 @@ export interface IAutoMovieMaterialOverlay {
   normalScale?: number;
 
   /**
-   * How much of the layer shows, `[0, 1]`: its coverage and its slopes are
-   * scaled by it, and at 0 the material is as if it had no overlay.
+   * How much of the layer shows, `[0, 1]`: its coverage and a tint's slopes
+   * are scaled by it, and at 0 the material is as if it had no overlay.
    *
    * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `strength` as the portable data boundary for the asset material composition requirement.
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `strength` for the asset spec material texture relations system contract.

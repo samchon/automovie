@@ -34,8 +34,11 @@ const flatNormal = (): THREE.DataTexture => {
  * colour image covers: its coverage is the image's alpha times its strength,
  * over which the base colour is multiplied by the image's colour (`multiply`)
  * or replaced by it (`replace`), the roughness moves to the overlay's own
- * when it names one, and its normal map's slopes, scaled by its normal scale
- * and strength, add to the material's by whiteout blending. An overlay with a
+ * when it names one, and its normal map, scaled by its normal scale, bends
+ * the tangent-space normal: a tint's slopes, times its strength too, add to
+ * the material's by whiteout blending, and a replacing layer's normal
+ * replaces the material's by its coverage, as another tissue's surface
+ * does. An overlay with a
  * normal map on a material without one gives the material a flat normal map,
  * so the tangent frame it bends exists.
  *
@@ -174,8 +177,16 @@ export const materialOverlayFragment = (
       );
       normals.push(
         `vec3 overlayN${i} = texture2D( overlayNormalMap${i}, vOverlayNormalUv${i} ).xyz * 2.0 - 1.0;`,
-        `overlayN${i}.xy *= overlayNormalScale${i} * overlayStrength${i};`,
-        `mapN = normalize( vec3( mapN.xy + overlayN${i}.xy, mapN.z * overlayN${i}.z ) );`,
+        ...(shape.blend === "multiply"
+          ? [
+              `overlayN${i}.xy *= overlayNormalScale${i} * overlayStrength${i};`,
+              `mapN = normalize( vec3( mapN.xy + overlayN${i}.xy, mapN.z * overlayN${i}.z ) );`,
+            ]
+          : [
+              // another tissue: its own surface replaces the material's
+              `overlayN${i}.xy *= overlayNormalScale${i};`,
+              `mapN = normalize( mix( mapN, normalize( overlayN${i} ), overlayCover${i} ) );`,
+            ]),
       );
     }
   });
