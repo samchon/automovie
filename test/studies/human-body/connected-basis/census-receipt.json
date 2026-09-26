@@ -1,10 +1,10 @@
 {
-  "basis": "mpfb-connected-body-2026-09-26-anatomy-r10",
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r11",
   "restPairs": [],
   "sets": {
     "channels": {
-      "states": 283,
-      "clean": 283,
+      "states": 284,
+      "clean": 284,
       "withFindings": 0,
       "refused": [],
       "pairsByFrequency": [],
@@ -25582,8 +25582,8 @@
       ]
     },
     "traits": {
-      "states": 508,
-      "clean": 508,
+      "states": 537,
+      "clean": 537,
       "withFindings": 0,
       "refused": [],
       "pairsByFrequency": [],
