@@ -37,7 +37,7 @@ export const STOREYS = {
   /** garage finished ceiling (01 ground-threshold-datums). */
   garageCeiling: 2.55,
   /** porch floor, equal to the entry floor (01 ground-threshold-datums). */
-  porchFloor: 0,
+  get porchFloor() { return this.groundFloor; },
   /** front walk datum below the three porch risers (01 ground-threshold-datums). */
   frontWalk: -0.45,
 } as const;
