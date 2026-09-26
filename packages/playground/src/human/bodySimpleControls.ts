@@ -85,6 +85,30 @@ const FIELDS: {
     step: 0.5,
     optional: true,
   },
+  {
+    key: "thighMetres",
+    label: "Thigh girth",
+    unit: "cm",
+    scale: 100,
+    step: 0.5,
+    optional: true,
+  },
+  {
+    key: "upperArmMetres",
+    label: "Upper arm girth",
+    unit: "cm",
+    scale: 100,
+    step: 0.5,
+    optional: true,
+  },
+  {
+    key: "calfMetres",
+    label: "Calf girth",
+    unit: "cm",
+    scale: 100,
+    step: 0.5,
+    optional: true,
+  },
 ];
 
 /**

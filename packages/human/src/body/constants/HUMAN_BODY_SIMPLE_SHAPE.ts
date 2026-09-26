@@ -46,6 +46,9 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
     hipsMetres: [0.5, 2],
     bustMetres: [0.5, 2],
     shoulderMetres: [0.2, 0.7],
+    thighMetres: [0.2, 1.2],
+    upperArmMetres: [0.12, 0.7],
+    calfMetres: [0.15, 0.8],
   },
   identity: { sex: "macroGender", ageYears: "macroAge", muscle: "macroMuscle" },
   solved: {
@@ -63,6 +66,9 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
     { parameter: "hipsMetres", channel: "measureHipsCirc" },
     { parameter: "bustMetres", channel: "measureBustCirc" },
     { parameter: "shoulderMetres", channel: "measureShoulderDist" },
+    { parameter: "thighMetres", channel: "measureThighCirc" },
+    { parameter: "upperArmMetres", channel: "measureUpperarmCirc" },
+    { parameter: "calfMetres", channel: "measureCalfCirc" },
   ],
   /**
    * Stature is the basis's height rule (its clip ring above the ground) plus
