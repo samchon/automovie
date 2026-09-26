@@ -18,9 +18,11 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  * landmark-to-landmark length; a `girth` or `breadth` walks the rule's
  * stations, cuts every surface at each and selects the closed loop nearest
  * the station seed before keeping the largest or smallest value, a girth read as a tape reads it (the
- * section's convex hull perimeter, `measureHumanBodySection`). A landmark
- * the basis lacks, or a station set on which no closed loop exists, answers
- * null. This is the instrument the channel measurement report and the simple
+ * section's convex hull perimeter, `measureHumanBodySection`). A girth at a
+ * skin landmark has one station, where the plane through that shaped vertex
+ * meets the segment. A landmark the basis lacks, a skin landmark outside its
+ * surface, a plane parallel to the segment, or a station set on which no
+ * closed loop exists, answers null. This is the instrument the channel measurement report and the simple
  * tier's inversions share.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Computes a rule's value on the shaped surface, the number the editor prints and the simple tier solves against.
@@ -58,13 +60,37 @@ export function evaluateHumanBodyMeasurement(
   const normal = rule.horizontal
     ? Vector3.create(0, 1, 0)
     : Vector3.normalize(axis);
+  let fractions: number[];
+  if ("level" in rule) {
+    const positions = shaped.surfaces[rule.level.surface];
+    if (
+      positions === undefined ||
+      !Number.isInteger(rule.level.vertex) ||
+      rule.level.vertex < 0 ||
+      rule.level.vertex * 3 + 2 >= positions.length
+    )
+      return null;
+    const vertex = Vector3.create(
+      positions[rule.level.vertex * 3],
+      positions[rule.level.vertex * 3 + 1],
+      positions[rule.level.vertex * 3 + 2],
+    );
+    // the one plane through the vertex meets the segment at this fraction
+    const across = Vector3.dot(axis, normal);
+    if (Math.abs(across) < 1e-9) return null;
+    fractions = [Vector3.dot(Vector3.subtract(vertex, from), normal) / across];
+  } else
+    fractions = Array.from(
+      { length: rule.steps },
+      (_, step) =>
+        rule.range[0] +
+        (rule.steps === 1
+          ? 0
+          : (step * (rule.range[1] - rule.range[0])) / (rule.steps - 1)),
+    );
+  const pick = "level" in rule ? "max" : rule.pick;
   let chosen: number | null = null;
-  for (let step = 0; step < rule.steps; step++) {
-    const fraction =
-      rule.range[0] +
-      (rule.steps === 1
-        ? 0
-        : (step * (rule.range[1] - rule.range[0])) / (rule.steps - 1));
+  for (const fraction of fractions) {
     const point = Vector3.add(from, Vector3.scale(axis, fraction));
     const section = shaped.surfaces
       .map((positions, index) =>
@@ -83,10 +109,7 @@ export function evaluateHumanBodyMeasurement(
       )[0];
     if (section === undefined) continue;
     const value = rule.kind === "breadth" ? section.breadth : section.girth;
-    if (
-      chosen === null ||
-      (rule.pick === "max" ? value > chosen : value < chosen)
-    )
+    if (chosen === null || (pick === "max" ? value > chosen : value < chosen))
       chosen = value;
   }
   return chosen;

@@ -9,7 +9,10 @@
  * section loop nearest the segment point, and reports the largest or smallest
  * tape girth found: the perimeter of the loop's convex hull, which bridges
  * the concavities a tape bridges (the gluteal cleft, the inframammary fold)
- * as ISO 8559-1 and ANSUR girths are taken. A `distance` is the straight distance between two
+ * as ISO 8559-1 and ANSUR girths are taken. A girth placed at a skin
+ * landmark instead (`level`, a vertex of the basis surface such as the
+ * nipple for the bust) has the one plane through that vertex, so the girth
+ * follows the landmark wherever the shape moves it. A `distance` is the straight distance between two
  * landmarks. A `height` is the vertical distance from the surface's lowest
  * point to the mean of its clip-ring vertices, the body's stand-in for stature
  * while the head belongs to another basis. A `breadth` is the X extent of the
@@ -31,6 +34,16 @@ export type IAutoMovieHumanBodyMeasurement =
       steps: number;
       /** Take the largest or the smallest value over the sampled planes. */
       pick: "max" | "min";
+      /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
+      horizontal: boolean;
+    }
+  | {
+      kind: "girth" | "breadth";
+      /** Landmark ids of the segment; the loop nearest its point on the plane is kept. */
+      from: string;
+      to: string;
+      /** The skin landmark the one plane passes through: a vertex of one basis surface. */
+      level: { surface: number; vertex: number };
       /** Cut horizontally (trunk girths) instead of perpendicular to the segment. */
       horizontal: boolean;
     }
