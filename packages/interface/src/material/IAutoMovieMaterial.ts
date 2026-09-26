@@ -1,5 +1,6 @@
 import { IAutoMovieColor } from "../color/IAutoMovieColor";
 import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
+import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 
 /**
  * A physically-based (PBR) surface material: the "what it's made of and how it
@@ -233,4 +234,16 @@ export interface IAutoMovieMaterial {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalScale` for the asset spec material texture relations system contract.
    */
   detailNormalScale?: number;
+
+  /**
+   * Surface layers composited over this material in order, each where its
+   * own image covers (veins under a skin, the nail plates at its
+   * fingertips), at most four: a renderer samples up to two images for each
+   * on top of the material's own. glTF has no ratified extension for them, so
+   * an exported asset omits them. Omitted or empty, the material shows alone.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `overlays` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `overlays` for the asset spec material texture relations system contract.
+   */
+  overlays?: IAutoMovieMaterialOverlay[];
 }
