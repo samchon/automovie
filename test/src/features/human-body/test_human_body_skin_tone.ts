@@ -1,4 +1,5 @@
 import {
+  HUMAN_BODY_SKIN_SCATTERING,
   HUMAN_BODY_SKIN_TONE,
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySkinTone,
@@ -61,6 +62,8 @@ const linear = (byte: number): number => {
  *    a zero strength leaves the base colour untextured.
  * 7. A strength outside [0,1] and a skin region without UVs are refused; a
  *    nonfinite strength is refused at admission and a finite one admitted.
+ * 8. Every build's skin material carries the measured scattering distance
+ *    as its subsurface radius, with or without a tone.
  */
 export const test_human_body_skin_tone = (): void => {
   const sample = createHumanBodySkinToneTexture(SMALL, 1);
@@ -230,5 +233,15 @@ export const test_human_body_skin_tone = (): void => {
           skinTone: { strength: 0.3 },
         }),
       ),
+  );
+  TestValidator.predicate(
+    "the skin carries the measured scattering distance",
+    [bare, detailed].every(
+      (one) =>
+        one.subsurfaceRadius !== undefined &&
+        one.subsurfaceRadius.r === HUMAN_BODY_SKIN_SCATTERING.r &&
+        one.subsurfaceRadius.g === HUMAN_BODY_SKIN_SCATTERING.g &&
+        one.subsurfaceRadius.b === HUMAN_BODY_SKIN_SCATTERING.b,
+    ),
   );
 };

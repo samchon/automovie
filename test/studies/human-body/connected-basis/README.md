@@ -316,6 +316,18 @@ Skin colour comes from two chromophores: melanin in the epidermis and haemoglobi
 
 The face does not carry the map, so at the collar the two skins meet in the same mean colour, the body's slightly mottled.
 
+## Skin scattering
+
+Skin is translucent: light enters it, scatters and leaves again millimetres away. Jensen et al. 2001 ([A Practical Model for Subsurface Light Transport](https://graphics.stanford.edu/papers/bssrdf/)) measured the diffuse mean free path of skin as 3.67 mm in red, 1.37 in green and 0.68 in blue. The body's skin material carries it as its subsurface radius (`HUMAN_BODY_SKIN_SCATTERING`) on every build.
+
+**How the renderer uses it.** The renderer (`applySubsurfaceShading` in `@automovie/viewer`) changes only the direct diffuse term, from the clamped cosine to its pre-integrated form (Penner and Borshukov 2011, with a Gaussian standing in for the diffusion profile):
+
+- **Curvature.** Each fragment estimates it from the screen-space change of the normal over that of the position.
+- **Blur.** Light that travels σ under a surface of curvature κ reaches σκ radians around it. Each primary reads a table of the clamped cosine averaged over the circle with that Gaussian, which keeps the Lambertian mean.
+- **Effect.** Flat skin renders as before. On four adults the flat chest and thigh read within 0.1 of an 8-bit level, and 0.2 % of pixels change by more than 6. Where the body curves within a few millimetres (the web of the thumb, fingertips, folds), the lit side bleeds soft and red past the terminator.
+
+glTF has no ratified subsurface extension, so an exported body omits the radius. The face's material does not carry one yet.
+
 ## Neutral repair
 
 The source neutral lays neighbouring toes into each other: each toe segment crosses itself on 13 triangles before any channel or pose. The repair is in the neutral, not in a corrective every document would wear: the rest skin is measured segment against itself, each crossing's two sheets are parted by the pose correctives' contact rule inside the toes' 10 mm budget, and the displacement is added to the neutral positions (472 vertices, at most 4.1 mm, bilateral residual 0.03 µm). Endpoints are differences from the neutral and keep their meaning. [`neutral-receipt.json`](neutral-receipt.json) records it. The neck and head joints carry the neck below the collar, and the face the editor seats on the head bone follows the head rigidly, so a turned head opens a crack at the collar loop until the combination stage skins the face with the same weights.

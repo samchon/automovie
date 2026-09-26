@@ -13,21 +13,21 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateExtents } from "./validateExtents";
-import { validateMesh } from "./validateMesh";
+import { ViolationCollector } from "./ViolationCollector";
+import { collectNonEmptyId } from "./collectNonEmptyId";
 import { finiteMinimum } from "./finiteMinimum";
 import { finiteNumber } from "./finiteNumber";
-import { validateColor } from "./validateColor";
-import { validateTextureBinding } from "./validateTextureBinding";
 import { validateAffordance } from "./validateAffordance";
 import { validateBody } from "./validateBody";
-import { collectNonEmptyId } from "./collectNonEmptyId";
-import { validateUniqueValues } from "./validateUniqueValues";
+import { validateColor } from "./validateColor";
+import { validateExtents } from "./validateExtents";
 import { validateJointConstraint } from "./validateJointConstraint";
-import { validateSkeletonGraph } from "./validateSkeletonGraph";
+import { validateMesh } from "./validateMesh";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
+import { validateSkeletonGraph } from "./validateSkeletonGraph";
+import { validateTextureBinding } from "./validateTextureBinding";
 import { validateTransformScalars } from "./validateTransformScalars";
-import { ViolationCollector } from "./ViolationCollector";
+import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
  * Validate an {@link IAutoMovieModel}: Tier-1 structural/range checks over its
@@ -276,6 +276,15 @@ export const validateModel = (props: {
       finiteMinimum(m.thickness, 0, `${mp}.thickness`, "thickness", collector);
     if (m.clearcoat !== undefined)
       collector.range(`${mp}.clearcoat`, m.clearcoat, 0, 1, "clearcoat");
+    if (m.subsurfaceRadius !== undefined)
+      for (const channel of ["r", "g", "b"] as const)
+        finiteMinimum(
+          m.subsurfaceRadius[channel],
+          0,
+          `${mp}.subsurfaceRadius.${channel}`,
+          "subsurface radius",
+          collector,
+        );
     if (m.doubleSided !== undefined && typeof m.doubleSided !== "boolean")
       collector.push(
         "type",

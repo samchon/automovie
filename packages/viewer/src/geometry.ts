@@ -7,6 +7,8 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { applySubsurfaceShading } from "./subsurfaceShading";
+
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
  * parametric primitive (via the engine) or uploading raw mesh arrays.
@@ -283,6 +285,8 @@ export const buildMaterial = (
     thickness: material.thickness ?? 0,
     clearcoat: material.clearcoat ?? 0,
   });
+  if (material.subsurfaceRadius !== undefined)
+    applySubsurfaceShading(std, material.subsurfaceRadius);
   std.map = resolveMaterialTexture(
     material.baseColorTexture,
     "srgb",
