@@ -158,7 +158,9 @@ export const checkModelProseConsistency = () => {
     ...equations.filter((row) => !row.pass).map((row) => `${row.id}: ${row.expression} ${row.relation} ${row.stated}m calculates ${row.calculated}m`),
     ...ranges.filter((row) => !row.pass).map((row) => `${row.id}: ${row.axis} range ${row.from}..${row.to} has no finite extent`),
     ...bounds.filter((row) => !row.pass).map((row) => `${row.id}: ${row.kind} ${row.dimensions} exceeds occupancy box ${row.box}`),
-    ...unions.filter((row) => !row.pass).map((row) => `${row.id}: ${row.axis} ${row.union}m differs from occupancy box ${row.box}m`),
+    ...unions.filter((row) => !row.pass).map((row) => row.kind.startsWith("unresolved")
+      ? `${row.id}: ${row.kind}: ${row.part} ${row.axis}`
+      : `${row.id}: ${row.axis} ${row.union}m differs from occupancy box ${row.box}m`),
     ...wallContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.part} back Z=${row.back}m misses the wall datum`),
     ...tubeContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.kind} measured ${row.measured}m contradicts prose`),
     ...partContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.parts} do not touch on ${row.axis}`),
