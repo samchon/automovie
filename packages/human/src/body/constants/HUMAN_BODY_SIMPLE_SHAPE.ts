@@ -229,22 +229,29 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         },
       ],
     },
-    ...[
-      "upperarmMuscleLeft",
-      "upperarmMuscleRight",
-      "upperarmShoulderMuscleLeft",
-      "upperarmShoulderMuscleRight",
-      "lowerarmMuscleLeft",
-      "lowerarmMuscleRight",
-      "upperlegMuscleLeft",
-      "upperlegMuscleRight",
-      "lowerlegMuscleLeft",
-      "lowerlegMuscleRight",
-      "torsoMusclePectoral",
-      "torsoMuscleDorsi",
-    ].map(
-      // the regional muscle the macro does not carry to a bodybuilder's bulk
-      (channel): Term => ({
+    ...(
+      [
+        ["upperarmMuscleLeft", 0.6],
+        ["upperarmMuscleRight", 0.6],
+        ["upperarmShoulderMuscleLeft", 0.6],
+        ["upperarmShoulderMuscleRight", 0.6],
+        ["lowerarmMuscleLeft", 0.6],
+        ["lowerarmMuscleRight", 0.6],
+        ["upperlegMuscleLeft", 0.67],
+        ["upperlegMuscleRight", 0.67],
+        ["lowerlegMuscleLeft", 0.67],
+        ["lowerlegMuscleRight", 0.67],
+        ["torsoMusclePectoral", 0.6],
+        ["torsoMuscleDorsi", 0.6],
+      ] as const
+    ).map(
+      // the regional muscle the macro does not carry to a bodybuilder's bulk,
+      // gained in proportion to the muscle there: training grows both sexes'
+      // muscle by a similar share (Roberts et al. 2020, a meta-analysis of
+      // matched programmes), and a woman carries 40 percent less muscle than
+      // a man in the upper body (arms and trunk) and 33 percent less in the
+      // lower (Janssen et al. 2000, whole-body MRI of 468 adults)
+      ([channel, woman]): Term => ({
         channel,
         gain: 0.7,
         curves: [
@@ -254,6 +261,13 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
               [-1, -1],
               [1, 1],
               [2, 1.43],
+            ],
+          },
+          {
+            parameter: "sex",
+            points: [
+              [-1, woman],
+              [1, 1],
             ],
           },
         ],
