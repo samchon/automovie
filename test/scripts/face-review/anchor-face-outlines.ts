@@ -1,8 +1,9 @@
 /**
- * Anchor the jaw's outline on the shared neutral basis surface, once per
- * camera view, beside the detector's anchors. Run from the test package:
+ * Anchor the outlines the detector does not follow, the jaw's and the
+ * vermilion's, on the shared neutral basis surface, once per camera view,
+ * beside the detector's anchors. Run from the test package:
  *
- *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/anchor-face-jaw.ts STUDY ANCHORS DETECTIONS CAPTURES OUTPUT.json
+ *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/anchor-face-outlines.ts STUDY ANCHORS DETECTIONS CAPTURES OUTPUT.json
  *
  * STUDY holds `basis.json.gz`; ANCHORS is an `anchor-face-landmarks.ts`
  * output on a basis of the same surface (its id is kept, the jaw's basis
@@ -11,14 +12,17 @@
  * subject's camera (the same renders the instrument and the render
  * correction read), and DETECTIONS one `detect-face-likeness.py` run over
  * them with the skin segmenter, image ids `neutral:<file stem>`. Each view's
- * outline (`measureFaceLikenessJawOutline`: soft-tissue menton and the two
- * points of each level) is cast along its capture ray onto the built
- * neutral `Human` surface, the nearest hit being the face's rim where the
- * mask ends; a ray that passes outside the face by the mask's own error
- * takes the surface vertex nearest its line. The anchors are added to the
- * view's as landmarks 470 to 474 (`FACE_LIKENESS_JAW_LANDMARKS`); a view
- * whose outline cannot be read keeps its detector anchors only, and a view
- * of ANCHORS without a render is refused.
+ * jaw outline (`measureFaceLikenessJawOutline`: soft-tissue menton and the
+ * two points of each level) and vermilion borders
+ * (`measureFaceLikenessVermilion`: labrale superius and inferius on the
+ * render's midline colour) are cast along their capture rays onto the built
+ * neutral `Human` surface, the nearest hit being the rim or the border; a
+ * ray that passes outside the face by the mask's own error takes the
+ * surface vertex nearest its line. The anchors are added to the view's as
+ * landmarks 470 to 474 (`FACE_LIKENESS_JAW_LANDMARKS`) and 475 and 476
+ * (`FACE_LIKENESS_VERMILION_LANDMARKS`); an outline or border a view cannot
+ * read is left out of it, and a view of ANCHORS without a render is
+ * refused.
  */
 import {
   type IAutoMovieHumanFaceBasis,
@@ -32,6 +36,7 @@ import {
   type IFaceLikenessCaptures,
   type IFaceLikenessDetections,
   indexFaceLikenessDetections,
+  readFaceLikenessImage,
   readFaceLikenessJson,
   readFaceLikenessMask,
 } from "./faceLikenessIo";
@@ -39,6 +44,10 @@ import {
   faceLikenessJawLandmarks,
   measureFaceLikenessJawOutline,
 } from "./faceLikenessJawOutline";
+import {
+  FACE_LIKENESS_VERMILION_LANDMARKS,
+  measureFaceLikenessVermilion,
+} from "./faceLikenessVermilion";
 import { faceShapeFitRay, faceShapeFitView } from "./faceShapeFitCamera";
 import {
   type IFaceShapeFitAnchor,
@@ -104,13 +113,30 @@ for (const [subject, view] of Object.entries(anchors.views)) {
         )
       : null;
   const own = view.anchors.filter((one) => one.landmark < 470);
-  if (outline === null || !detection) {
-    console.log(subject, "outline unread");
+  if (!detection?.face) {
+    console.log(subject, "neutral render undetected");
     views[subject] = { ...view, anchors: own };
     continue;
   }
+  const vermilion = measureFaceLikenessVermilion(
+    readFaceLikenessImage(path.join(path.dirname(captureFile!), capture.file)),
+    detection.face.landmarks,
+  );
+  const pixels: [number, readonly [number, number]][] = [
+    ...(outline === null ? [] : faceLikenessJawLandmarks(outline)),
+    ...(
+      [
+        [FACE_LIKENESS_VERMILION_LANDMARKS.superius, vermilion.superius],
+        [FACE_LIKENESS_VERMILION_LANDMARKS.inferius, vermilion.inferius],
+      ] as const
+    ).flatMap(([landmark, pixel]) =>
+      pixel === null
+        ? []
+        : [[landmark, pixel] as [number, readonly [number, number]]],
+    ),
+  ];
   const camera = faceShapeFitView(capture.camera, detection.width);
-  const jaw = faceLikenessJawLandmarks(outline).map(([landmark, pixel]) => ({
+  const added = pixels.map(([landmark, pixel]) => ({
     landmark,
     anchor: anchorFaceShapeFitRay({
       positions,
@@ -123,15 +149,16 @@ for (const [subject, view] of Object.entries(anchors.views)) {
   }));
   views[subject] = {
     ...view,
-    jawRenderSha256: detection.sha256,
-    anchors: [...own, ...jaw],
+    outlineRenderSha256: detection.sha256,
+    anchors: [...own, ...added],
   };
   console.log(
     subject,
-    "jaw anchored",
-    jaw.filter((one) => one.anchor !== null).length,
-    "of",
-    jaw.length,
+    "outlines anchored",
+    added
+      .filter((one) => one.anchor !== null)
+      .map((one) => one.landmark)
+      .join(","),
   );
 }
 fs.writeFileSync(
@@ -139,8 +166,8 @@ fs.writeFileSync(
   JSON.stringify(
     {
       ...anchors,
-      jawBasis: basis.id,
-      jawDetector: detections.instrument,
+      outlineBasis: basis.id,
+      outlineDetector: detections.instrument,
       views,
     },
     null,
