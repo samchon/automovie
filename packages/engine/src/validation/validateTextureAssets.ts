@@ -1,16 +1,10 @@
-import {
-  IAutoMovieAssetProvenance,
-  IAutoMovieMaterial,
-  IAutoMovieTextureReference,
-  IAutoMovieValidation,
-} from "@automovie/interface";
-
+import { IAutoMovieAssetProvenance, IAutoMovieMaterial, IAutoMovieTextureReference, IAutoMovieValidation } from "@automovie/interface";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { ViolationCollector } from "./ViolationCollector";
+import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
 import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
-import { ViolationCollector } from "./ViolationCollector";
-import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 
 /** Media types a material's PBR slot may bind. */
 const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([

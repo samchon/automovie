@@ -1,9 +1,5 @@
-import {
-  AutoMovieTextureBinding,
-  IAutoMovieMaterial,
-} from "@automovie/interface";
-
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { AutoMovieTextureBinding, IAutoMovieMaterial } from "@automovie/interface";
 
 /**
  * Every distinct texture asset one material binds, ascending.
