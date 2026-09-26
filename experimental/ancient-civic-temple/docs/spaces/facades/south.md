@@ -27,7 +27,7 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 정체성에 파라펫 사이 후퇴부와 코핑 높이, 지면을 따른 기단 한계를 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 회벽/기단·포치 부재·코핑 범위를 후퇴 파라펫 외피에 배정할 수 있어 이 입면으로 부모를 고칠 필요가 없었다.
 @evidenceReview settings/20-envelope.md#walls #35026c5 회벽과 밝은 기단이 파라펫과 중앙 반환부에서도 같은 외피 범위로 이어진다.
-@evidenceReview settings/20-envelope.md#entrance-porch #a164498 문 구멍만으로 완료하지 않고 파라펫 사이 원주·보·삼각 막음을 실제 부재와 벽으로 요구한다.
+@evidenceReview settings/20-envelope.md#entrance-porch 문 구멍만으로 완료하지 않고 파라펫 사이 원주·보·삼각 막음을 실제 부재와 벽으로 요구한다.
 @evidenceReview settings/20-envelope.md#material-language #25e6ffa 코핑과 기단을 포함한 완결 면을 정하고 재료 수치는 materials로 보낸다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 정면이 코핑 파라펫으로 올라 뒤의 외쪽 지붕과 동측 박공 끝을 가려 부모의 파라펫 정면을 이룬다.
 -->

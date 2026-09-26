@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 후퇴벽 위 뒤끝과 반환벽 만남을 관찰에 넣어 보와 roof 사이 받침 공백이나 옆 틈을 찾도록 했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 정체성에 4.00m 지지와 파라펫 사이 폭, 후퇴벽 위 뒤끝이라는 단면 결정을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 포치를 파라펫 사이에 물리는 공간 결정으로 코핑 아래 박공을 얻어 부모를 더 고치지 않았다.
-@evidenceReview settings/20-envelope.md#entrance-porch #a164498 원주 위 보의 윗면 3.50m와 포치 하부 사이를 남측 입면의 삼각 막음이 채우고 박공은 두 파라펫 사이에 놓인다.
+@evidenceReview settings/20-envelope.md#entrance-porch 원주 위 보의 윗면 3.50m와 포치 하부 사이를 남측 입면의 삼각 막음이 채우고 박공은 두 파라펫 사이에 놓인다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 포치 박공이 공통 지붕 입력의 경사를 쓰고 코핑 아래에 물려 부모가 적은 파라펫 사이의 작은 박공이 된다.
 -->
 

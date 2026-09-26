@@ -25,7 +25,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남쪽 한 단 threshold와 수반 둘레 보행 여백을 관찰 대상으로 두고 원 밖 물판·높은 잔형을 수반 owner의 실패로 구분했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 낮은 분수 정체성을 중정 산술 중심과 테두리 대비 물높이라는 공간 결정에 묶었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 수반과 단일 물줄기는 새 수조실 없이 들어가고 상한을 처마 높이로 옮겨도 부모의 열린 하늘을 유지해 settings를 고칠 이유가 없었다.
-@evidenceReview settings/30-interiors.md#fountain #3812cb0 외경 2.0m·테두리 0.52m 수반이 경계 중점에 고정돼 다른 물체에 맞춰 옮겨지지 않는다.
+@evidenceReview settings/30-interiors.md#fountain 외경 2.0m·테두리 0.52m 수반이 경계 중점에 고정돼 다른 물체에 맞춰 옮겨지지 않는다.
 @evidenceReview settings/30-interiors.md#services #731a6e0 물면·물줄기 높이를 후속 소비 입력으로만 적어 수리시설이 작동한다는 결과로 읽히지 않는다.
 @evidenceReview settings/20-envelope.md#stone-floors #784828d Y=-0.12m 바닥과 주랑 사이 연속 석재 턱을 실제 단면으로 남겨 한 평면 포장으로 줄이지 않는다.
 -->

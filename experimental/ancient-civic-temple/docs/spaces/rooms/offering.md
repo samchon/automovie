@@ -25,7 +25,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 장축 양끝 보조 관찰을 더해 중앙 시점으로 숨길 수 있는 긴 방 끝을 드러낸다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 공동 봉헌 약속에 긴 탁자 방향과 문 축의 빈 접근을 구체적으로 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 낮고 긴 탁자의 양측 사용은 한 방에서 계획돼 새 의례 무대나 뒷방을 요구하지 않는다.
-@evidenceReview settings/30-interiors.md#offering-room #b6eb2a9 벽 진열과 탁자 사이에 주랑 문 축의 통과를 남기는 문장이 공동 이용을 지탱한다.
+@evidenceReview settings/30-interiors.md#offering-room 벽 진열과 탁자 사이에 주랑 문 축의 통과를 남기는 문장이 공동 이용을 지탱한다.
 @evidenceReview settings/35-objects.md#offering-table #a0460a4 탁자의 Z 장축 배치와 양측 사용 조건을 부모의 낮고 긴 물체 정체성에 대조했다.
 @evidenceReview settings/35-objects.md#shelves #d686d25 진열 우선 벽이 북·서쪽으로 정해져 문 앞을 선반으로 채우는 해석을 허용하지 않는다.
 -->
