@@ -6,8 +6,9 @@
  * chimney and fireplace, honey to mid-brown wood, grey-beige textiles, dark
  * asphalt shingles, ground-floor wood, upper-floor carpet, bath tile and
  * garage concrete. Only a flat base colour per part is chosen here; optical
- * values, texture scale, UV and texture images belong to the materials branch
- * and arrive later. No colour here is sampled from a reference image.
+ * values, texture scale and texture images belong to the materials branch.
+ * The surface owner supplies metric UV coordinates. No colour here is sampled
+ * from a reference image.
  *
  * Consumers: every spaces owner when it emits a part.
  */

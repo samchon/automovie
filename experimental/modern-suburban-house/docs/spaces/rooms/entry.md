@@ -19,7 +19,7 @@
 @evidence settings/10-house.md#entry 거실은 자기 출입구로 직접 연결하고 계단 첫 단을 같은 현관에 노출해 현관에서 거실·계단·서비스로 가는 길이 다른 방을 통과하지 않게 한다.
 @evidenceReview settings/10-house.md#entry #c8a53ad 설정 entry의 거실·계단 직접 연결과 파우더룸 비통로 조건을 living-plan 자기 출입구, 같은 현관에 노출된 계단 첫 단, 다른 방을 통과하지 않는 세 방향 길에 대조해 성립함을 확인했다.
 @evidence settings/00-production.md#coverage-map 설계 branch가 정할 결정으로 남겨진 문 여닫힘 위치를 +X 문설주 경첩과 실내 -Z 열림으로 정한다.
-@evidenceReview settings/00-production.md#coverage-map #015f33a coverage-map이 설계 branch에 남긴 문 여닫힘 위치를 front-door의 +X 문설주 경첩·실내 -Z 열림·닫힘 기준 상태로 이 H2가 명시해 묵시 기본값으로 넘기지 않음을 확인했다.
+@evidenceReview settings/00-production.md#coverage-map #3e7fd58 coverage-map이 설계 branch에 남긴 문 여닫힘 위치를 front-door의 +X 문설주 경첩·실내 -Z 열림·닫힘 기준 상태로 이 H2가 명시해 묵시 기본값으로 넘기지 않음을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation 표현된 주 출입구 front-door에 유효 폭 0.90 m 이상을 남기는 문틀과 열린 상태에서도 계단 대기까지 비운 바닥을 배정하고 거실 출입구·계단 첫 단·서비스 접근을 현관에 직접 연결한다.
 @evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 표현된 주 출입구 front-door의 Y = [0, 2.20]·유효 폭 0.90 m 이상, 열림에도 비운 계단 대기 바닥, 거실·계단 첫 단·서비스 직접 연결을 출입구·연결·경로 요구에 대조해 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work entry의 직접 분배·파우더룸 비통로 조건과 stair의 중앙 단일 계단, use-profile의 문 0.80 m 목표를 L형 평면에 적용했고 유효 폭 0.90 m 이상의 문과 두 직접 연결이 성립해 부모 수정이 없었다.

@@ -9,6 +9,7 @@
  * materialSources layer; its final source and measured UV bindings remain due.
  */
 import type { HousePartRole } from "../spaces/solids";
+import { PALETTE } from "../spaces/palette";
 
 export interface HouseFinish {
   id: string;
@@ -26,6 +27,12 @@ const finishes: Readonly<Record<string, HouseFinish>> = {
     roughness: 0.55,
     metalness: 0,
     texture: { file: "siding.png", metres: [1, 0.15], projection: "wall" },
+  },
+  "wall/f0ebe1": {
+    id: "interior-painted-wall",
+    color: 0xf0ebe1,
+    roughness: 0.72,
+    metalness: 0,
   },
   "roof/3d3f43": {
     id: "roof-shingle",
@@ -166,6 +173,51 @@ export function houseFinish(role: HousePartRole, color: number): HouseFinish {
   const finish = finishes[key];
   if (finish === undefined) throw new Error(`unbound house surface ${key}`);
   return finish;
+}
+
+/**
+ * The current wall solid includes both the weather face and its room face.
+ * Keep its triangles and part id, but give each face the finish belonging to
+ * its side of the reviewed boundary. A shared garage wall has two room faces.
+ * Reveal and thickness faces use the neutral interior paint until their
+ * separate model trim exists. The exterior tile stays on the outward plane.
+ */
+export function houseWallFinishGroups(
+  part: { id: string; owner: string; role: HousePartRole; color: number },
+  normals: readonly number[],
+  indices: readonly number[],
+): { suffix: string; finish: HouseFinish; indices: number[] }[] {
+  const base = houseFinish(part.role, part.color);
+  if (part.role !== "wall" || part.color !== PALETTE.siding)
+    return [{ suffix: "", finish: base, indices: [...indices] }];
+  const outward: readonly [number, number, number] | undefined =
+    part.owner === "envelope/front.ts"
+      ? [0, 0, 1]
+      : part.owner === "envelope/rear.ts"
+        ? [0, 0, -1]
+        : part.owner === "envelope/left.ts"
+          ? [-1, 0, 0]
+          : part.owner === "envelope/right.ts"
+            ? [1, 0, 0]
+            : undefined;
+  if (outward === undefined) throw new Error(
+    `siding wall ${part.id} has no exterior direction`,
+  );
+  const outside: number[] = [];
+  const inside: number[] = [];
+  for (let i = 0; i < indices.length; i += 3) {
+    const vertex = indices[i]! * 3;
+    const dot = normals[vertex]! * outward[0] + normals[vertex + 1]! * outward[1] + normals[vertex + 2]! * outward[2];
+    (dot > 0.9 ? outside : inside).push(
+      indices[i]!,
+      indices[i + 1]!,
+      indices[i + 2]!,
+    );
+  }
+  return [
+    ...(outside.length ? [{ suffix: "/exterior", finish: base, indices: outside }] : []),
+    ...(inside.length ? [{ suffix: "/interior", finish: houseFinish("wall", PALETTE.interiorWall), indices: inside }] : []),
+  ];
 }
 
 /**

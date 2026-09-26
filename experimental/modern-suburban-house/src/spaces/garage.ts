@@ -21,9 +21,14 @@
  */
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "./building";
 import { PALETTE } from "./palette";
-import { MAIN_RIDGE_Z, ROOF_THICKNESS, rightRoof } from "./roof/junctions";
-import { type IHousePart, part, rect, slab, wallPanel } from "./solids";
-import { CEILING_FINISH, CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
+import { MAIN_RIDGE_Z, rightRoof, ROOF_THICKNESS } from "./roof/junctions";
+import { part, rect, slab, wallPanel, type IHousePart } from "./solids";
+import {
+  CEILING_FINISH,
+  CEILING_RESERVATION,
+  GROUND_LAYERS,
+  STOREYS,
+} from "./storeys";
 
 const OWNER = "garage.ts";
 /** Ceiling finish zone inside the 0.18 m reservation, owned by the garage interior (09). */
@@ -43,9 +48,19 @@ export const buildGarageSharedWall = (): IHousePart[] => {
       { u: MAIN_RIDGE_Z, y: under(MAIN_RIDGE_Z) },
       { u: back, y: under(back) },
     ],
-    holes: [{ id: "laundry-garage-door", from: -4.4, to: -3.35, bottom: STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base, top: 2.2 }],
+    holes: [
+      {
+        id: "laundry-garage-door",
+        from: -4.4,
+        to: -3.35,
+        bottom: STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base,
+        top: 2.2,
+      },
+    ],
   });
-  return [part("garage-shared-wall", OWNER, "wall", PALETTE.siding, shared)];
+  return [
+    part("garage-shared-wall", OWNER, "wall", PALETTE.interiorWall, shared),
+  ];
 };
 
 /** Emit the independent garage floor base under the garage finished floor. */
@@ -79,6 +94,10 @@ export const buildGarageCeiling = (): IHousePart[] => [
     OWNER,
     "ceiling",
     PALETTE.ceiling,
-    slab({ outline: rect(GARAGE.inner.x, GARAGE.inner.z), bottom: STOREYS.garageCeiling + CEILING_FINISH, top: STOREYS.garageCeiling + CEILING_RESERVATION }),
+    slab({
+      outline: rect(GARAGE.inner.x, GARAGE.inner.z),
+      bottom: STOREYS.garageCeiling + CEILING_FINISH,
+      top: STOREYS.garageCeiling + CEILING_RESERVATION,
+    }),
   ),
 ];

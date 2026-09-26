@@ -123,7 +123,7 @@
 @evidence settings/10-house.md#living 꺼진 벽난로의 화구·벽돌 앞면·선반 예약을 거실 문 앞 대기와 떨어진 왼쪽 벽에 두고 굴뚝 몸통과 하나의 chimney 접면을 공유하게 한다.
 @evidenceReview settings/10-house.md#living #a70aad2 living의 꺼진 벽난로 화구·벽돌 앞면·선반과 굴뚝 연속을 본문의 앞면 예약 X = [-5.50, -4.95], Z = [-3.00, -1.40] m, 문 앞 대기와 떨어진 배치, 공유 chimney 접면에 대조해 성립함을 확인했다.
 @evidence settings/20-verification.md#visual-grammar 벽난로에서 지붕 위로 솟는 벽돌 몸체와 마감 cap을 몸통 높이와 덮개 내밈으로 공간에 예약한다.
-@evidenceReview settings/20-verification.md#visual-grammar #66c790e visual-grammar의 '지붕 위로 솟는 벽돌 몸체와 마감 cap'을 본문의 Y = 8.90 m까지의 벽돌 몸통, Y = [8.90, 9.10] m 검은 금속 덮개와 0.10 m 내밈 예약에 대조해 공간 예약을 확인했다.
+@evidenceReview settings/20-verification.md#visual-grammar #5b47467 visual-grammar의 '지붕 위로 솟는 벽돌 몸체와 마감 cap'을 본문의 Y = 8.90 m까지의 벽돌 몸통, Y = [8.90, 9.10] m 검은 금속 덮개와 0.10 m 내밈 예약에 대조해 공간 예약을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 벽난로-굴뚝 연속, visual-grammar의 벽돌 몸체·cap, main-mass의 처마 범위를 대조했고 몸통이 주 지붕 왼쪽 돌출 끝을 넘어 있어 notch로 해결돼 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 living의 벽난로-굴뚝 연속, visual-grammar의 벽돌 몸체·cap, main-mass 처마를 본문에 대조했고 몸통 X = [-6.30, -5.50] m가 주 지붕 왼쪽 돌출 끝을 넘어 notch로 풀려 부모 수정이 불필요함을 확인했다.
 -->

@@ -142,7 +142,7 @@
 @evidence principles/core/common.md#substantive-completion 미터 모듈·투영 축·원점·회전·이음·실패 fallback과 validateTextureScale의 실제 모집단을 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 부재 읽힘 위에 각 표면의 물리 scale을 가진 결정론적 텍스처와 매끈한 광학 예외를 더한다.
 @evidence principles/design/materials.md#material-construction-appearance course·줄눈·shingle 형상과 색·거칠기·법선 결, 유리의 투과를 서로 다른 책임으로 나눈다.
-@evidence principles/design/materials.md#material-binding-interface 표면 id와 UV의 미터 단위 축·원점·이음, host 경계 및 validateTextureScale 결속을 정한다.
+@evidence principles/design/materials.md#material-binding-interface 표면 id와 host가 정한 UV의 미터 단위 축·원점·이음을 소비해 재료 반복 길이와 validateTextureScale 결속을 정한다.
 @evidence principles/design/materials.md#material-verification-address 1 m·2 m 근접과 리뷰 거리에서 실제 결·광학 응답·타일 모듈을 반증하고 빠진 map은 fallback으로만 기록한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work settings fidelity와 visual-grammar의 불규칙 색 패치 금지를 적힌 그대로 소비했고 부모 결함은 없었다.
 @evidence contracts/texture-readability.md#material-texture-readability 반복 표면의 실제 결·물리 scale·UV·이음과 매끈한 표면의 광학 응답, 실패 fallback을 이 H2가 공통으로 정한다.
@@ -150,7 +150,7 @@
 @evidence settings/20-verification.md#fidelity 표현 수준이 요구한 실제 마감 읽힘을 생성식·UV 결속·광학 응답으로 구현할 규칙을 정한다.
 -->
 
-사용자가 같은 날 비트맵 보류를 철회했으므로 [표현 수준](../settings/20-verification.md#fidelity)의 실제 재료 읽힘을 텍스처와 광학 응답까지 구현한다. siding course·shingle 겹침처럼 두께와 접합을 설명하는 부재는 models/instances가 만든다. 벽돌·타일 줄눈은 기존 면 UV의 결정론적 색·거칠기·법선 마스크로 materials가 만들고, 독립 줄눈 geometry를 요구하지 않는다. 유리·거울·유약은 무늬를 억지로 칠하지 않고 투과·반사·곡면 하이라이트로 읽힌다. 발광은 systems 조명에 남긴다. 제공 레퍼런스를 표면에 붙이지 않으며 맵 픽셀은 검토 가능한 TypeScript 생성식과 명명된 물리 파라미터에서 나온다. 각 H2는 결합 파티션, 반복 모듈의 미터 치수, U/V 축·원점·회전, 부재·코너·void에서의 이음, 기준색 fallback을 정한다. 세계 벽면은 벽 길이 U·높이 V, 바닥은 X/Z, 지붕은 처마 평행 U·경사 위쪽 V를 기본으로 하고 모델 부재는 선언된 국소 축을 쓴다. 실제 binding의 `coordinateSource`와 UV를 `validateTextureScale`에 넣어 검사하며 빈 모집단의 성공은 거부한다. 맵이 없거나 로드에 실패하면 각 H2의 기준색·roughness가 진단 fallback이지만 그것을 최종 시각 합격으로 세지 않는다. source owner는 `src/materials/frame.ts`이고 실제 맵·결속·GPU 판정은 아직 unverified다.
+사용자가 같은 날 비트맵 보류를 철회했으므로 [표현 수준](../settings/20-verification.md#fidelity)의 실제 재료 읽힘을 텍스처와 광학 응답까지 구현한다. siding course·shingle 겹침처럼 두께와 접합을 설명하는 부재는 models/instances가 만든다. 벽돌·타일 줄눈은 기존 면 UV의 결정론적 색·거칠기·법선 마스크로 materials가 만들고, 독립 줄눈 geometry를 요구하지 않는다. 유리·거울·유약은 무늬를 억지로 칠하지 않고 투과·반사·곡면 하이라이트로 읽힌다. 발광은 systems 조명에 남긴다. 제공 레퍼런스를 표면에 붙이지 않으며 맵 픽셀은 검토 가능한 TypeScript 생성식과 명명된 물리 파라미터에서 나온다. 각 H2는 결합 파티션, 반복 모듈의 미터 치수, host가 정한 U/V 축·원점·회전·이음에 대한 결합, 기준색 fallback을 정한다. 세계 벽면은 벽 길이 U·높이 V, 바닥은 X/Z, 지붕은 처마 평행 U·경사 위쪽 V를 기본으로 하고 모델 부재는 선언된 국소 축을 쓴다. 실제 binding의 `coordinateSource`와 UV를 `validateTextureScale`에 넣어 검사하며 빈 모집단의 성공은 거부한다. 맵이 없거나 로드에 실패하면 각 H2의 기준색·roughness가 진단 fallback이지만 그것을 최종 시각 합격으로 세지 않는다. source owner는 `src/materials/frame.ts`이고 실제 맵·결속·GPU 판정은 아직 unverified다.
 
 ## 거칠기·금속성 관례 {#material-response-conventions}
 <!--
@@ -189,7 +189,7 @@
 @evidence settings/00-production.md#build-allocation 제작 배분이 표면 표현을 materials에 두었으므로 이 규칙은 표현만 결합하고 부재·원형은 models, 반복 개체는 instances에 남긴다.
 -->
 
-재료는 [완결 시각 표면의 소유 분해](../spaces/03-surface-owners.md#exterior-surface-handoff)와 [방 내부의 완결 면 소유](../spaces/03-surface-owners.md#interior-surface-handoff)가 정한 owner의 면에 결합하고, 면의 경계·두께·개수는 바꾸지 않는다. 한 면에는 정확히 한 최종 재료 인스턴스가 붙고 서로 다른 최종 재료가 만나는 선은 host owner가 이미 가진 부재 경계(trim 돌출, 문턱, 걸레받이, 기단 윗선)와 일치해야 한다. 벽돌·타일의 줄눈은 해당 최종 재료 내부의 UV 색·거칠기·normal 마스크이며 같은 면에 두 번째 재료를 결합하는 것이 아니다. 같은 면을 삼각형 단위로 나눠 다른 재료를 칠하는 방식으로 경계를 새로 만들지 않는다. 맵 좌표도 같은 part id에 결속하고 U/V의 축·원점·회전·반복 모듈을 그 part에 기록하며 이음은 실제 host 부재 끝에서만 바뀐다. 바깥면 법선은 host owner가 정한 바깥 방향이며 재료는 단면(single-sided) 기본값을 쓰고 유리·얇은 커튼만 양면이다. source owner는 `src/materials/bindings.ts`이고, 리뷰는 컴파일된 산출물에서 재료 없는 면·두 재료를 받은 면의 수가 0인지와 경계선이 host 부재 끝선과 일치하는지를 검사 모드 view로 관찰한다.
+재료는 [완결 시각 표면의 소유 분해](../spaces/03-surface-owners.md#exterior-surface-handoff)와 [방 내부의 완결 면 소유](../spaces/03-surface-owners.md#interior-surface-handoff)가 정한 owner의 면에 결합하고, 면의 경계·두께·개수는 바꾸지 않는다. 한 면에는 정확히 한 최종 재료 인스턴스가 붙고 서로 다른 최종 재료가 만나는 선은 host owner가 이미 가진 부재 경계(trim 돌출, 문턱, 걸레받이, 기단 윗선)와 일치해야 한다. 벽돌·타일의 줄눈은 해당 최종 재료 내부의 UV 색·거칠기·normal 마스크이며 같은 면에 두 번째 재료를 결합하는 것이 아니다. 같은 면을 삼각형 단위로 나눠 다른 재료를 칠하는 방식으로 경계를 새로 만들지 않는다. 맵 좌표도 같은 part id에 결속하고 host가 정한 U/V 축·원점·회전·이음을 소비하며 재료 반복 모듈을 그 part에 기록한다. 바깥면 법선은 host owner가 정한 바깥 방향이며 재료는 단면(single-sided) 기본값을 쓰고 유리·얇은 커튼만 양면이다. source owner는 `src/materials/bindings.ts`이고, 리뷰는 컴파일된 산출물에서 재료 없는 면·두 재료를 받은 면의 수가 0인지와 경계선이 host 부재 끝선과 일치하는지를 검사 모드 view로 관찰한다.
 
 ## 재료 리뷰 견본 {#material-review-set}
 <!--

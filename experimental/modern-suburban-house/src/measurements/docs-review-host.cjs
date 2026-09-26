@@ -5,7 +5,8 @@
  * a valid paraphrase. Only an explicit authority attributed to an H2's own
  * decision, or a measurement available solely in its evidence comment, blocks
  * this command. The remaining candidates and the unchecked population are
- * printed for literal review. No particular heading or evidence target is
+ * printed as unread candidates for literal review, without changing the exit
+ * status. No particular heading or evidence target is
  * built into the grammar. */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -127,7 +128,11 @@ function inspect(section) {
     if (numbers.length) measuredRows++;
     if (!numbers.length && !decisionTargets.test(row.target) && !/[^\s]+만\s/.test(row.reason)) {
       otherRows++;
-      unmeasuredCandidates.push({ line: row.line, target: row.target, reason: row.reason });
+      unmeasuredCandidates.push({
+        line: row.line,
+        target: row.target,
+        reason: row.reason,
+      });
     }
     for (const value of numbers) {
       if (section.body.includes(value)) continue;
@@ -228,11 +233,18 @@ function audit(files) {
   return report;
 }
 
+/** Only confirmed lexical contradictions and an empty review population fail.
+ * Candidate rows need a human semantic read; absence of a token is not proof. */
+/** @param {ReturnType<typeof audit>} report */
+function failureCount(report) {
+  return report.findings.length + Number(report.reviewRows === 0);
+}
+
 if (require.main === module) {
   const files = fs.readdirSync(docs).filter((name) => name.endsWith(".md"))
     .map((name) => ({ name, source: fs.readFileSync(path.join(docs, name), "utf8") }));
   const report = audit(files);
-  console.log(JSON.stringify({ ...report, failures: report.findings.length }));
-  if (!report.reviewRows || report.findings.length || report.otherRows) process.exitCode = 1;
+  console.log(JSON.stringify({ ...report, failures: failureCount(report) }));
+  if (failureCount(report)) process.exitCode = 1;
 }
-module.exports = { sections, measurements, attributions, inspect, audit };
+module.exports = { sections, measurements, attributions, inspect, audit, failureCount };

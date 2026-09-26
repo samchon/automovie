@@ -30,8 +30,8 @@
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 외피·굴뚝·trim과 실내 바닥 종류까지 맡아 임의 색 패치만의 재료 배분으로 범위를 줄이지 않는다.
 @evidence principles/core/common.md#substantive-completion 색 이름뿐 아니라 siding course·벽돌 줄눈·shingle 중첩·trim 음영의 관계를 정해 공통 외피 언어를 완성한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 siding course와 brick 적용 구역·창문 제외를 정해 palette 목록을 실제 표면 사용 규칙으로 완결했다.
-@evidence principles/core/common.md#declared-basis 레퍼런스의 palette를 채택하고 정확한 광학값·UV는 materials, 면 경계는 spaces/models에 배분한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb palette는 레퍼런스에서 채택한 인상이며 정확한 광학값·UV는 materials의 후속 결정으로 배분했다.
+@evidence principles/core/common.md#declared-basis 레퍼런스의 palette를 채택하고 면 경계와 UV 좌표는 spaces/models, 반복 길이·광학값은 materials에 배분한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb palette는 레퍼런스에서 채택한 인상이며 면을 만드는 쪽의 UV 좌표와 materials의 반복 길이·광학값을 나누었다.
 @evidence principles/core/settings.md#fact-status 따뜻한 백색과 charcoal의 조합은 채택한 canon이며 광학 수치가 실측되었다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 아직 선택하지 않은 광학 수치와 텍스처 scale을 사진에서 측정한 값처럼 서술하지 않는다.
 @evidence principles/core/settings.md#source-support 제공 이미지에서 읽은 색과 재료 관계를 사용하고 특정 제조사 마감재의 물성표로 확대하지 않는다.
@@ -46,7 +46,7 @@
 @evidenceReview obligations/core/settings.md#production-visual-grammar #d867c56 siding course·brick 구역·charcoal 창과 문·흰 trim을 층별 바닥 마감과 함께 읽었다. 불규칙 패치 금지와 창·문 비침범이 공통 palette를 실제 표면의 연속성 조건으로 만든다.
 -->
 
-레퍼런스에서 채택한 palette는 따뜻한 백색 수평 lap siding, 창틀과 차고문의 짙은 charcoal, 흰 trim, 붉은갈색 벽돌 기단과 굴뚝, 꿀빛/중간갈색 목재, 회베이지 실내 직물이다. 지붕은 작고 규칙적인 어두운 asphalt shingle의 중첩 결로 읽힌다. siding은 벽면 전체를 일관된 course로 덮고 brick은 기단·굴뚝·벽난로에만 연속적인 줄눈을 가지며 창·문을 가리지 않는다. 굴뚝은 왼쪽 벽난로에서 지붕 위로 솟는 벽돌 몸체와 마감 cap을 갖춘다. trim은 벽과 창·문·처마의 접합을 실제 돌출과 음영으로 설명한다. 불규칙한 색 패치로 재료를 대신하지 않는다. 실내 1층 마루, 상층 침실/복도 카펫, 욕실 타일, 차고 콘크리트의 경계는 방의 사용과 맞는다. 정확한 광학값·텍스처 scale·UV는 materials가, 각 면의 경계는 spaces/models가 소유한다.
+레퍼런스에서 채택한 palette는 따뜻한 백색 수평 lap siding, 창틀과 차고문의 짙은 charcoal, 흰 trim, 붉은갈색 벽돌 기단과 굴뚝, 꿀빛/중간갈색 목재, 회베이지 실내 직물이다. 지붕은 작고 규칙적인 어두운 asphalt shingle의 중첩 결로 읽힌다. siding은 외벽면 전체를 일관된 course로 덮고 brick은 기단·굴뚝·벽난로에만 연속적인 줄눈을 가지며 창·문을 가리지 않는다. 굴뚝은 왼쪽 벽난로에서 지붕 위로 솟는 벽돌 몸체와 마감 cap을 갖춘다. trim은 벽과 창·문·처마의 접합을 실제 돌출과 음영으로 설명한다. 불규칙한 색 패치로 재료를 대신하지 않는다. 실내 1층 마루, 상층 침실/복도 카펫, 욕실 타일, 차고 콘크리트의 경계는 방의 사용과 맞는다. 각 면의 경계와 UV 좌표(축·원점·이음)는 그 면을 만드는 spaces/models가 소유하고, 재료 반복 길이·광학값·텍스처는 materials가 소유한다.
 
 ## 표현 수준 {#fidelity}
 <!--
@@ -322,7 +322,7 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 검증 명령의 통과와 프레임 읽힘은 data-authority로 구별되어 콘솔 성공이 건물의 시각 정체성을 증명하지 않는다.
 -->
 
-사용자가 지정한 정규 evidence 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다. 별도의 npm run check는 문서 review 본문 대조·모델 계정과 결합·접촉·기하·테스트를 끝까지 실행하고 lint도 함께 호출해 실패 수와 종료 코드를 합친다. check는 lint의 판정 의미를 대체하지 않는다. 정규 lint에 추가 플래그, binary 직접 호출과 우회 설정을 사용하지 않는다. 보고에는 실제 실행한 두 명령과 각 종료 코드를 함께 적고, 실행되지 않은 명령이나 결과를 수령하지 못한 명령을 통과 또는 실패로 꾸미지 않는다. 측정 수단의 부재와 프레임의 책임은 data-authority에 따른다.
+사용자가 지정한 정규 evidence 검증 명령은 이 production 디렉터리에서 README가 소유하는 npm run lint 그대로다. 별도의 npm run check는 settings 문서 review 행의 어휘 대조·모델 계정과 결합·접촉·기하·테스트를 끝까지 실행하고 lint도 함께 호출해 확인된 실패 수와 종료 코드를 합친다. check는 lint의 판정 의미를 대체하지 않는다. 정규 lint에 추가 플래그, binary 직접 호출과 우회 설정을 사용하지 않는다. 보고에는 실제 실행한 두 명령과 각 종료 코드를 함께 적고, 실행되지 않은 명령이나 결과를 수령하지 못한 명령을 통과 또는 실패로 꾸미지 않는다. 측정 수단의 부재와 프레임의 책임은 data-authority에 따른다.
 
 ## 커밋과 푸시 {#submission-boundary}
 <!--

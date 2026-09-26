@@ -33,7 +33,7 @@
 @evidenceExclude settings/20-verification.md#viewer-handoff spaces 47개 문서 어디에도 뷰어의 시작 명령·실행 디렉터리·포트·경로를 정하거나 소비하는 공간 결정이 없다. 이 H2가 넘기는 것은 관찰 질문과 자기 공간 내부 pose의 파생 규칙이며 포트와 기동 조건은 settings의 viewer-handoff가 소유한다.
 @evidenceExcludeReview settings/20-verification.md#viewer-handoff #b2569d3 viewer-handoff의 시작 명령·실행 디렉터리·포트 4173·`--port`·tsx 실행기를 이 H2 본문과 대조해, 마지막 문단이 뷰어의 실행·포트 조건을 settings에 남길 뿐 어떤 값도 쓰지 않음을 확인했다.
 @evidenceExclude settings/20-verification.md#validation-boundary spaces 47개 문서 어디에도 lint나 검증 명령을 입력으로 쓰는 공간 결정이 없다. 이 H2의 unverified 표기는 data-authority의 계측 부재 규칙을 따르며 npm run lint 실행은 저작 turn의 검증 절차이지 경계·경로·관찰의 입력이 아니다.
-@evidenceExcludeReview settings/20-verification.md#validation-boundary #3933e8d validation-boundary의 npm run lint·대체 명령 금지·종료 코드 보고를 이 H2와 대조해, 본문의 unverified 표기가 data-authority 링크에서 오고 검증 명령을 관찰 파생의 입력으로 쓰지 않음을 확인했다.
+@evidenceExcludeReview settings/20-verification.md#validation-boundary #49cff26 validation-boundary의 npm run lint·대체 명령 금지·종료 코드 보고를 이 H2와 대조해, 본문의 unverified 표기가 data-authority 링크에서 오고 검증 명령을 관찰 파생의 입력으로 쓰지 않음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work observation-allocation의 공간-소스 배분, data-authority의 산출물 판독, frame-condition의 초기 pose 조건을 공간 관찰 파생에 적용했고 settings가 관찰 수를 상수로 정하지 않아 파생 규칙과 충돌하지 않아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 관찰 배분의 ‘관찰 수를 상수로 정하지 않는다’, data-authority의 산출물 판독, frame-condition의 초기 pose를 이 H2의 파생 규칙에 적용해 settings를 고치지 않고 방별 질문과 pose 기록이 성립함을 확인했다.
 -->

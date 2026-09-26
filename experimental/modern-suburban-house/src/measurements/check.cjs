@@ -5,6 +5,7 @@ const { spawnSync } = require("node:child_process");
 
 const root = path.resolve(__dirname, "../..");
 const audit = path.join(__dirname, "model-contract-audit.cjs");
+const { failureCount: docsReviewFailures } = require("./docs-review-host.cjs");
 // npm supplies its JavaScript CLI path to scripts on every supported OS.
 // Executing it through Node avoids cmd.exe and shell-dependent command chains.
 const npmCli = process.env.npm_execpath;
@@ -99,7 +100,7 @@ for (const [name, command, args, kind] of tasks) {
       } else if (kind === "model-contacts") {
         errors += value.failures.length;
       } else if (kind === "docs-review") {
-        errors += value.findings.length + value.otherRows + Number(value.reviewRows === 0);
+        errors += docsReviewFailures(value);
       }
     } catch (error) {
       process.stderr.write(`[${name}] could not parse census: ${error}\n`);

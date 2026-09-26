@@ -19,9 +19,13 @@
  * maps input that is not authored (maps disabled); this plane is viewer
  * context so shadows and contact read, and it is not a spaces or maps result.
  */
-import { lowerBuiltEnvironment, tessellateToMesh, transformAutoMovieMesh } from "@automovie/engine";
+import {
+  lowerBuiltEnvironment,
+  tessellateToMesh,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
 
-import { houseFinish, houseTextureUvs } from "./materialPreview";
+import { houseTextureUvs, houseWallFinishGroups } from "./materialPreview";
 import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
 import { deriveHouseObservations } from "../spaces/observations";
@@ -29,10 +33,15 @@ import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
 /** Neutral reference ground, viewer-owned. */
 const referenceGround = (): IViewerSceneItem => {
-  const mesh = transformAutoMovieMesh(tessellateToMesh({ type: "box", width: 40, height: 0.02, depth: 44 }), {
-    translation: { x: 3, y: -0.47, z: -5 },
-  });
-  if (mesh.normals === null || mesh.indices === null) throw new Error("reference ground mesh lacks normals or indices");
+  const mesh = transformAutoMovieMesh(
+    tessellateToMesh({ type: "box", width: 40, height: 0.02, depth: 44 }),
+    {
+      translation: { x: 3, y: -0.47, z: -5 },
+    },
+  );
+  if (mesh.normals === null || mesh.indices === null) throw new Error(
+    "reference ground mesh lacks normals or indices",
+  );
   return {
     id: "viewer-reference-ground",
     role: "reference",
@@ -62,7 +71,6 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
     if (part === undefined || model === undefined || model.parts.length === 0)
       throw new Error(`set piece ${piece.node} has no emitted part or model`);
     for (const member of model.parts) {
-      const finish = houseFinish(part.role, part.color);
       const sourceMesh = member.geometry.type === "mesh"
         ? member.geometry.mesh
         : tessellateToMesh(member.geometry.shape);
@@ -77,23 +85,34 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
           : piece.scale,
       });
       if (mesh.normals === null || mesh.indices === null)
-        throw new Error(`house part ${part.id}/${member.id} (${part.owner}) lacks normals or indices`);
-      items.push({
-        id: model.parts.length === 1 ? part.id : `${part.id}/${member.id}`,
-        role: part.role,
-        owner: part.owner,
-        color: finish.color,
-        roughness: finish.roughness,
-        metalness: finish.metalness,
-        texture: finish.texture === undefined ? undefined : `/textures/${finish.texture.file}`,
-        uvs: houseTextureUvs(mesh.positions, mesh.normals, finish),
-        position: [0, 0, 0],
-        positions: mesh.positions,
-        normals: mesh.normals,
-        indices: mesh.indices,
-        castShadow: true,
-        receiveShadow: true,
-      });
+        throw new Error(
+          `house part ${part.id}/${member.id} (${part.owner}) lacks normals or indices`,
+        );
+      for (const group of houseWallFinishGroups(
+        part,
+        mesh.normals,
+        mesh.indices,
+      )) {
+        const finish = group.finish;
+        items.push({
+          id: `${model.parts.length === 1 ? part.id : `${part.id}/${member.id}`}${group.suffix}`,
+          role: part.role,
+          owner: part.owner,
+          color: finish.color,
+          roughness: finish.roughness,
+          metalness: finish.metalness,
+          texture: finish.texture === undefined
+            ? undefined
+            : `/textures/${finish.texture.file}`,
+          uvs: houseTextureUvs(mesh.positions, mesh.normals, finish),
+          position: [0, 0, 0],
+          positions: mesh.positions,
+          normals: mesh.normals,
+          indices: group.indices,
+          castShadow: true,
+          receiveShadow: true,
+        });
+      }
     }
   }
   return {
@@ -101,7 +120,13 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
     inspection: false,
     sourceDigest,
     raster: { width: 1536, height: 1024, pixelRatio: 1 },
-    camera: { position: [10, 1.6, 20], target: [2.5, 3.2, -4], fovDeg: 45, near: 0.1, far: 300 },
+    camera: {
+      position: [10, 1.6, 20],
+      target: [2.5, 3.2, -4],
+      fovDeg: 45,
+      near: 0.1,
+      far: 300,
+    },
     lighting: {
       keyFrom: [-4, 6, 5],
       keyTarget: [3, 0, -5],
@@ -113,10 +138,21 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
       shadowHalfExtent: 24,
     },
     items,
-    observations: deriveHouseObservations(environment, house).observations.flatMap((o) =>
-      o.pose === null
-        ? []
-        : [{ id: o.id, position: [o.pose.position.x, o.pose.position.y, o.pose.position.z], target: [o.pose.target.x, o.pose.target.y, o.pose.target.z] }],
+    observations: deriveHouseObservations(environment, house).observations.flatMap(
+      (o) =>
+        o.pose === null
+          ? []
+          : [
+              {
+                id: o.id,
+                position: [
+                  o.pose.position.x,
+                  o.pose.position.y,
+                  o.pose.position.z,
+                ],
+                target: [o.pose.target.x, o.pose.target.y, o.pose.target.z],
+              },
+            ],
     ),
   };
 }

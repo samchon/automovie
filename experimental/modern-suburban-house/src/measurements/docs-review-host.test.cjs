@@ -3,7 +3,7 @@
  * green structural graph cannot masquerade as a semantic review. */
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { sections, measurements, attributions, audit } = require(
+const { sections, measurements, attributions, audit, failureCount } = require(
   "./docs-review-host.cjs",
 );
 
@@ -95,4 +95,18 @@ void test("acronyms and exclusive lists remain explicit reading candidates", () 
   assert.equal(report.findings.length, 0);
   assert.equal(report.exclusiveRows, 1);
   assert.equal(report.codeCandidates[0].value, "UV");
+});
+
+void test("unread review candidates are reported without failing the census", () => {
+  const report = audit([{ name: "other.md", source: source("방의 물건이 있다.", "방에 물건이 있다.").replace("#declared-basis", "#scope-preservation") }]);
+  assert.equal(report.reviewRows, 1);
+  assert.equal(report.otherRows, 1);
+  assert.equal(failureCount(report), 0);
+  assert.equal(failureCount(audit([{ name: "empty.md", source: "## Empty {#empty}\n본문이다.\n" }])), 1);
+});
+
+void test("confirmed missing measurements fail the census", () => {
+  const report = inspect("높이는 2.65 m다.", "높이는 설계가 정한다.");
+  assert.equal(report.findings[0].kind, "measurement-outside-host");
+  assert.equal(failureCount(report), 1);
 });

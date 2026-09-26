@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address hall-shower-door와 샤워문의 동시 열림, 예약 순내부 2.17 × 2.74 m 안의 세 기능과 좁은 구석 시야를 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 방 문과 샤워문의 동시 열림, 2.17 × 2.74 m 안의 세 기능, 좁은 구석 시야를 이 H2의 예약 충분성 주장을 반증할 관찰로 두고 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#shower-bathroom 상층 복도에서 직접 들어가는 첫 욕실로 두고 주침실 전용 욕실로 바꾸지 않는다.
-@evidenceReview settings/10-house.md#shower-bathroom #731d0c1 설정의 '상층 복도에서 직접 들어가는 첫 욕실'과 '주침실을 통과해야 접근하는 전용 욕실로 바꾸지 않는다'를 복도 벽의 hall-shower-door와 주침실 쪽 문 금지에 대조했다.
+@evidenceReview settings/10-house.md#shower-bathroom #0f152e4 설정의 '상층 복도에서 직접 들어가는 첫 욕실'과 '주침실을 통과해야 접근하는 전용 욕실로 바꾸지 않는다'를 복도 벽의 hall-shower-door와 주침실 쪽 문 금지에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work shower-bathroom의 "상층 복도에서 직접 들어가는 첫 욕실"과 주침실 비경유 조건을 대조했고 복도 쪽 hall-shower-door와 네 내부 경계 실로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 shower-bathroom의 복도 직접 출입·주침실 비경유 조건을 앞쪽 Z = [-6.06, -5.91] 벽의 문과 주침실 공유 벽 X = [0.75, 0.90]에 문이 없는 배치에 대조해 설정 수정 없이 성립함을 확인했다.
 -->
@@ -45,7 +45,7 @@
 @evidence principles/design/spaces.md#space-verification-address 문 두 개의 개방, 부스 진입, 세면장/변기 사용, 05의 재료 구분과 모든 구석을 전체 관찰에 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문 두 개의 개방, 부스 진입, 세면장/변기 사용, 05 재료 구분, 자기 공간 모든 구석과 수전/헤드·수건 간섭의 전신 단면 재검을 spatial-observation-derivation에 넘기고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#shower-bathroom 유리 샤워부스·세면대·변기·거울·수건을 두고 샤워문과 실 출입문이 기구 사용을 동시에 막지 않게 한다.
-@evidenceReview settings/10-house.md#shower-bathroom #731d0c1 설정의 유리 샤워부스·세면대·변기·거울·수건을 부스·세면장·변기 예약과 1.10–1.90 m 거울·수건 예약으로 대응시키고, 문 비충돌 조건을 미닫이와 실문 회전 밖 대기로 대조했다.
+@evidenceReview settings/10-house.md#shower-bathroom #0f152e4 설정의 유리 샤워부스·세면대·변기·거울·수건을 부스·세면장·변기 예약과 1.10–1.90 m 거울·수건 예약으로 대응시키고, 문 비충돌 조건을 미닫이와 실문 회전 밖 대기로 대조했다.
 @evidence settings/00-production.md#use-profile 실문·유리/레일·손잡이·거울/수건을 넣은 뒤 같은 사용체로 진입 순서와 문 조작 대기를 다시 검사한다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe use-profile의 문 유효폭 0.80 m를 미닫이 왼쪽 통과 폭 0.80 m 이상과, 점유체를 X = [0.95, 1.85]·Z = [-7.65, -7.05] 대기와 대조하고 실제 부재 투입 뒤 같은 사용체로 재검사함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work shower-bathroom의 기구 목록·문 비충돌과 use-profile을 부스·변기·세면장 배치에 적용했고 세 겹 미닫이 부스와 실문 회전 밖의 부스 앞 대기로 성립해 부모 수정이 없었다.
