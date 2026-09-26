@@ -1,4 +1,6 @@
 import {
+  type IAutoMovieHumanBodyMeasurement,
+  evaluateHumanBodyMeasurement,
   measureHumanBodyBasisChannels,
   measureHumanBodySection,
 } from "@automovie/human";
@@ -29,6 +31,13 @@ import { nclose } from "../internal/predicates";
  *    3.8 + 2 * hypot(0.1, 0.5) and the tape girth 4 (the square's), cut
  *    across a vertical prism and across one lying along X, so both plane
  *    frames are exercised; on the convex box the girth equals the perimeter.
+ * 7. A girth at a skin landmark follows it. On a column whose middle ring
+ *    (0.4 by 0.4, at 1 m) is wider than its ends (0.2 by 0.4), a rule at a
+ *    middle-ring vertex reads 1.6 at rest and still 1.6 with the ring lifted
+ *    to 1.5 m, where a rule at half the segment reads the taper below the
+ *    ring, 2 (2 (0.1 + 0.1 / 1.5) + 0.4) = 1.4667. A vertex outside its surface,
+ *    a surface the basis lacks and a horizontal plane along a horizontal
+ *    segment answer null.
  */
 export const test_human_body_measurement = (): void => {
   const { basis } = humanBodyBasisFixture();
@@ -213,4 +222,104 @@ export const test_human_body_measurement = (): void => {
         nclose(section.girth, 4),
     );
   }
+
+  // a column of three rings, the middle one wider, which `lift` raises
+  const ring = (y: number, halfWidth: number) => [
+    [-halfWidth, y, -0.2],
+    [halfWidth, y, -0.2],
+    [halfWidth, y, 0.2],
+    [-halfWidth, y, 0.2],
+  ];
+  const column = [...ring(0, 0.1), ...ring(1, 0.2), ...ring(2, 0.1)].flat();
+  const sides = (a: number, b: number) =>
+    [0, 1, 2, 3].flatMap((i) => {
+      const j = (i + 1) % 4;
+      return [a + i, b + j, a + j, a + i, b + i, b + j];
+    });
+  const columnBasis = {
+    ...basis,
+    channels: [
+      ...basis.channels,
+      {
+        id: "lift",
+        kind: "shape" as const,
+        group: "torso",
+        mirror: null,
+        minimum: 0,
+        maximum: 1,
+        positive: "lifted",
+        negative: null,
+      },
+    ],
+    landmarks: {
+      ids: ["joint-pelvis", "joint-spine-2", "joint-side"],
+      positions: [0, 0, 0, 0, 2, 0, 1, 0, 0],
+      targets: {},
+    },
+    surfaces: [
+      {
+        ...surface,
+        positions: column,
+        indices: [
+          ...sides(0, 4),
+          ...sides(4, 8),
+          ...[8, 10, 9, 8, 11, 10, 0, 2, 3, 0, 1, 2],
+        ],
+        targets: { lifted: [4, 5, 6, 7].flatMap((v) => [v, 0, 0.5, 0]) },
+      },
+    ],
+  };
+  const leveled = (
+    vertex: number,
+    surfaceIndex = 0,
+    to = "joint-spine-2",
+  ): IAutoMovieHumanBodyMeasurement => ({
+    kind: "girth",
+    from: "joint-pelvis",
+    to,
+    level: { surface: surfaceIndex, vertex },
+    horizontal: true,
+  });
+  const half: IAutoMovieHumanBodyMeasurement = {
+    kind: "girth",
+    from: "joint-pelvis",
+    to: "joint-spine-2",
+    range: [0.5, 0.5],
+    steps: 1,
+    pick: "max",
+    horizontal: true,
+  };
+  TestValidator.predicate(
+    "a girth at the middle ring's vertex",
+    nclose(evaluateHumanBodyMeasurement(columnBasis, {}, leveled(5))!, 1.6),
+  );
+  TestValidator.predicate(
+    "the landmark girth follows the lifted ring",
+    nclose(
+      evaluateHumanBodyMeasurement(columnBasis, { lift: 1 }, leveled(5))!,
+      1.6,
+    ),
+  );
+  TestValidator.predicate(
+    "a fixed fraction reads the taper below it",
+    nclose(
+      evaluateHumanBodyMeasurement(columnBasis, { lift: 1 }, half)!,
+      2 * (2 * (0.1 + 0.1 / 1.5) + 0.4),
+    ),
+  );
+  TestValidator.equals(
+    "a vertex outside its surface",
+    evaluateHumanBodyMeasurement(columnBasis, {}, leveled(12)),
+    null,
+  );
+  TestValidator.equals(
+    "a surface the basis lacks",
+    evaluateHumanBodyMeasurement(columnBasis, {}, leveled(5, 1)),
+    null,
+  );
+  TestValidator.equals(
+    "a horizontal plane along a horizontal segment",
+    evaluateHumanBodyMeasurement(columnBasis, {}, leveled(5, 0, "joint-side")),
+    null,
+  );
 };
