@@ -142,7 +142,12 @@ export function expandHumanBodySimpleShape(
       direction.mass(basis, parameters),
       simple.massKilograms,
       (trial) =>
-        measure.mass(measure.volume(basis, trial), density, simple.ageYears),
+        measure.mass(
+          measure.volume(basis, trial),
+          density,
+          simple.ageYears,
+          parameters.bodyMassIndex,
+        ),
       "mass",
       saturate,
     );

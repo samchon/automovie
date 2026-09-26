@@ -101,6 +101,15 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       },
       adultFraction: 0.081,
       transitionAgeYears: [15, 16],
+      // Both segments end at the suprasternal notch and C7, but this basis's
+      // clip ring stands 9 to 11 cm above the sternoclavicular joint, so the
+      // skin keeps that neck. Measured on 24 simple-tier bodies (both sexes,
+      // 11 to 70 years, body mass index 18 to 32) it is 1.7 to 3.0 % of the
+      // volume, 2.35 % at an index of 24 and inversely with the index, with
+      // little dependence on age or sex; the volume share stands for the
+      // mass share (the difference, about a tenth of a point, is the neck's
+      // density against the body's and the head outside the volume)
+      keptNeck: { fraction: 0.0235, bodyMassIndex: 24 },
     },
     /** The fat fraction the density model is trusted over. */
     fatFraction: [0.05, 0.5],
@@ -921,42 +930,18 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       ],
     },
     // The ANSUR II people rows (below): reproduced from their own sex, age,
-    // stature, mass and chest and buttock girths, the survey's women read
-    // flatter buttocks, wider waists at the omphalion (more so at a higher
-    // body mass index), bust points and crotches out of place. These rows are
-    // the channel weights over the body mass index that minimize those
-    // unpinned residuals, fitted with the tape pins and the mass re-solved,
-    // and fade to zero at 15 and 45 (40 for the breast), past the survey's
-    // support, where they crossed the census's extreme bodies. The men's
-    // fitted rows closed a muscular man's gluteal cleft at 30 and, held to
-    // what stayed clean, narrowed the hips' reach and helped nothing, so men
-    // keep the source's buttock, waist and thigh (the study README's Limits).
-    {
-      // ANSUR II people: glutealProjection, women
-      channel: "glutealProjection",
-      gain: 1,
-      curves: [
-        {
-          parameter: "sex",
-          points: [
-            [-1, 1],
-            [0, 0],
-          ],
-        },
-        {
-          parameter: "bodyMassIndex",
-          points: [
-            [15, 0],
-            [18, -0.051],
-            [22, -0.013],
-            [26, 0.023],
-            [30, 0.053],
-            [35, 0.08],
-            [45, 0],
-          ],
-        },
-      ],
-    },
+    // stature, mass and chest and buttock girths, the survey's people read
+    // buttocks, waists at the omphalion, thighs, crotches and (men's) hip
+    // joints out of place. These rows are the channel weights over the body
+    // mass index that minimize those unpinned residuals, fitted on all 300
+    // surveyed people with the stature, the tape pins and the mass re-solved.
+    // Each channel also pays for the ridge its field raises (its 1 to 4 cm
+    // heat-diffusion band above a plain scale field's), since a fit that
+    // matches tapes cannot see its surface: without that cost the women's
+    // buttocks stood as pointed pads, and with it neither sex keeps a gluteal
+    // projection or belly row. The rows fade to zero past the survey's
+    // support, over the body mass index and over age, where they crossed the
+    // census's extreme bodies (the study README).
     {
       // ANSUR II people: hipScaleHoriz, women
       channel: "hipScaleHoriz",
@@ -973,12 +958,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, -0.026],
-            [22, -0.104],
-            [26, -0.175],
-            [30, -0.22],
-            [35, -0.256],
+            [18, 0.143],
+            [22, -0.119],
+            [26, -0.342],
+            [30, -0.544],
+            [35, -0.789],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -999,12 +993,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.068],
-            [22, 0.143],
-            [26, 0.211],
-            [30, 0.255],
-            [35, 0.286],
+            [18, -0.053],
+            [22, 0.0],
+            [26, 0.068],
+            [30, 0.168],
+            [35, 0.268],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1025,12 +1028,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.241],
-            [22, 0.242],
-            [26, 0.233],
-            [30, 0.202],
-            [35, 0.165],
+            [18, 0.023],
+            [22, 0.084],
+            [26, 0.068],
+            [30, 0.015],
+            [35, 0.036],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1051,12 +1063,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.241],
-            [22, 0.242],
-            [26, 0.233],
-            [30, 0.202],
-            [35, 0.165],
+            [18, 0.023],
+            [22, 0.084],
+            [26, 0.068],
+            [30, 0.015],
+            [35, 0.036],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1077,12 +1098,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.229],
-            [22, 0.246],
-            [26, 0.253],
-            [30, 0.237],
-            [35, 0.213],
+            [18, 0.006],
+            [22, 0.099],
+            [26, 0.155],
+            [30, 0.119],
+            [35, 0.052],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1103,12 +1133,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.229],
-            [22, 0.246],
-            [26, 0.253],
-            [30, 0.237],
-            [35, 0.213],
+            [18, 0.006],
+            [22, 0.099],
+            [26, 0.155],
+            [30, 0.119],
+            [35, 0.052],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1140,13 +1179,11 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
     },
     {
       // ANSUR II people: hipScaleVert, women. The reproduced women's crotch
-      // stood 23 mm below theirs at every body mass index (men's 8 mm
-      // above) and their buttock's greatest protrusion stood high; a shorter
-      // pelvis raises the crotch by 20 mm and lowers that protrusion by 6 mm
-      // per unit with stature, girths and mass re-solved. -0.6 is the largest
-      // that still builds every surveyed woman: past it the hips' smallest
-      // reachable girth passes ordinary women's. It fades as the other rows
-      // do past the survey's support (a thin woman of 90 folded her thigh)
+      // stood below theirs; a shorter pelvis raises the crotch by 20 mm per
+      // unit with stature, girths and mass re-solved, but also lowers the
+      // buttock and points it, so under the fit's surface cost it stays
+      // small. It fades as the other rows do past the survey's support (a
+      // thin woman of 90 folded her thigh)
       channel: "hipScaleVert",
       gain: 1,
       curves: [
@@ -1161,9 +1198,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, -0.6],
-            [35, -0.6],
+            [18, -0.102],
+            [22, -0.143],
+            [26, -0.145],
+            [30, -0.1],
+            [35, -0.037],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1288,6 +1337,266 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
             [30, 0.184],
             [35, 0.359],
             [45, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleHoriz, women. The waist section stood too
+      // wide and too flat; fitted with the other rows.
+      channel: "torsoScaleHoriz",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.023],
+            [22, -0.181],
+            [26, -0.377],
+            [30, -0.544],
+            [35, -0.702],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleDepth, women. The waist section stood too
+      // wide and too flat; fitted with the other rows.
+      channel: "torsoScaleDepth",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.137],
+            [22, 0.202],
+            [26, 0.214],
+            [30, 0.166],
+            [35, 0.112],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: measureUpperlegHeight, men. The reproduced men's hip
+      // joint stood 51 mm above the survey's trochanterion and their knee 29 mm
+      // high: the legs about 5 cm long for their stature, the pelvis and buttock
+      // high with them. Both leg segments shorten together with the stature re-
+      // solved; the survey's people are 17 and older, so the row rises from
+      // nothing at 11 to its full value at 17.
+      channel: "measureUpperlegHeight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.094],
+            [22, -0.05],
+            [26, -0.23],
+            [30, -0.436],
+            [35, -0.639],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: measureLowerlegHeight, men. The reproduced men's hip
+      // joint stood 51 mm above the survey's trochanterion and their knee 29 mm
+      // high: the legs about 5 cm long for their stature, the pelvis and buttock
+      // high with them. Both leg segments shorten together with the stature re-
+      // solved; the survey's people are 17 and older, so the row rises from
+      // nothing at 11 to its full value at 17.
+      channel: "measureLowerlegHeight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.094],
+            [22, -0.05],
+            [26, -0.23],
+            [30, -0.436],
+            [35, -0.639],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleHoriz, men. The waist section stood too wide
+      // and too flat; fitted with the other rows.
+      channel: "torsoScaleHoriz",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.377],
+            [22, -0.179],
+            [26, 0.045],
+            [30, 0.309],
+            [35, 0.551],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleDepth, men. The waist section stood too wide
+      // and too flat; fitted with the other rows.
+      channel: "torsoScaleDepth",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.46],
+            [22, -0.327],
+            [26, -0.105],
+            [30, 0.224],
+            [35, 0.49],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: hipScaleVert, men. A taller pelvis lowers the
+      // reproduced men's crotch, fitted with the other rows.
+      channel: "hipScaleVert",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.088],
+            [22, 0.088],
+            [26, 0.082],
+            [30, 0.111],
+            [35, 0.09],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],

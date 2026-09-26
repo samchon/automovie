@@ -38,6 +38,11 @@ import { nclose } from "../internal/predicates";
  *    ring, 2 (2 (0.1 + 0.1 / 1.5) + 0.4) = 1.4667. A vertex outside its surface,
  *    a surface the basis lacks and a horizontal plane along a horizontal
  *    segment answer null.
+ * 8. A girth taken where the section reaches furthest back: on a column whose
+ *    widest ring (0.5 by 0.4, at 0.6 m) is not the one standing furthest
+ *    back (0.2 wide, from 0.35 behind to 0.2 in front, at 1.4 m), the
+ *    largest girth reads the wide ring's 1.8 and the rearmost the back
+ *    ring's 1.5.
  */
 export const test_human_body_measurement = (): void => {
   const { basis } = humanBodyBasisFixture();
@@ -321,5 +326,55 @@ export const test_human_body_measurement = (): void => {
     "a horizontal plane along a horizontal segment",
     evaluateHumanBodyMeasurement(columnBasis, {}, leveled(5, 0, "joint-side")),
     null,
+  );
+
+  // a column whose widest ring and rearmost ring stand at different heights
+  const box = (y: number, x: number, back: number, front: number) => [
+    [-x, y, back],
+    [x, y, back],
+    [x, y, front],
+    [-x, y, front],
+  ];
+  const humped = [
+    ...box(0, 0.1, -0.2, 0.2),
+    ...box(0.6, 0.25, -0.2, 0.2),
+    ...box(1.4, 0.1, -0.35, 0.2),
+    ...box(2, 0.1, -0.2, 0.2),
+  ].flat();
+  const humpedBasis = {
+    ...columnBasis,
+    surfaces: [
+      {
+        ...columnBasis.surfaces[0],
+        positions: humped,
+        indices: [
+          ...sides(0, 4),
+          ...sides(4, 8),
+          ...sides(8, 12),
+          ...[12, 14, 13, 12, 15, 14, 0, 2, 3, 0, 1, 2],
+        ],
+        targets: {},
+      },
+    ],
+  };
+  const band = (pick: "max" | "rearmost"): IAutoMovieHumanBodyMeasurement => ({
+    kind: "girth",
+    from: "joint-pelvis",
+    to: "joint-spine-2",
+    range: [0, 1],
+    steps: 11,
+    pick,
+    horizontal: true,
+  });
+  TestValidator.predicate(
+    "the largest girth is the wide ring's",
+    nclose(evaluateHumanBodyMeasurement(humpedBasis, {}, band("max"))!, 1.8),
+  );
+  TestValidator.predicate(
+    "the rearmost girth is the back ring's",
+    nclose(
+      evaluateHumanBodyMeasurement(humpedBasis, {}, band("rearmost"))!,
+      1.5,
+    ),
   );
 };

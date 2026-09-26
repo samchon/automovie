@@ -126,20 +126,27 @@ export const humanBodySimpleShapeMath = {
     return Math.max(1, excess - (100 * added) / bodyMassIndex);
   },
 
-  /** Fraction of total mass above the body clip ring, with a stated study-domain bridge. */
-  headAndNeckFraction(ageYears: number): number {
+  /**
+   * Fraction of total mass above the body clip ring: the head-and-neck
+   * segment's share, with a stated study-domain bridge, less the neck the
+   * skin keeps below the ring, which the segment counts.
+   */
+  headAndNeckFraction(ageYears: number, bodyMassIndex: number): number {
     const table = HUMAN_BODY_SIMPLE_SHAPE.mass.headAndNeck;
+    const kept =
+      (table.keptNeck.fraction * table.keptNeck.bodyMassIndex) / bodyMassIndex;
     const pediatric = (age: number): number =>
       table.pediatric.intercept +
       table.pediatric.ageYearsCoefficient * age +
       table.pediatric.ageYearsSquaredCoefficient * age * age;
     const [childEnd, adultStart] = table.transitionAgeYears;
-    if (ageYears <= childEnd) return pediatric(ageYears);
-    if (ageYears >= adultStart) return table.adultFraction;
+    if (ageYears <= childEnd) return pediatric(ageYears) - kept;
+    if (ageYears >= adultStart) return table.adultFraction - kept;
     return (
       pediatric(childEnd) +
       ((ageYears - childEnd) / (adultStart - childEnd)) *
-        (table.adultFraction - pediatric(childEnd))
+        (table.adultFraction - pediatric(childEnd)) -
+      kept
     );
   },
 
