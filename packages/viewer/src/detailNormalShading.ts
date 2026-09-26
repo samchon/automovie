@@ -51,25 +51,42 @@ export const detailNormalVertex = (vertexShader: string): string =>
     );
 
 /** The fragment shader blending the detail map into the tangent-space normal. */
-export const detailNormalFragment = (fragmentShader: string): string => {
-  const chunk = THREE.ShaderChunk.normal_fragment_maps;
-  if (!chunk.includes(DETAIL_NORMAL_TARGET))
-    throw new Error(
-      "The normal-map chunk no longer has the tangent-space line the detail normal blends into.",
-    );
-  return fragmentShader
-    .replace(
+export const detailNormalFragment = (fragmentShader: string): string =>
+  spliceTangentNormal(
+    fragmentShader.replace(
       "#include <common>",
       "#include <common>\nuniform sampler2D detailNormalMap;\nuniform float detailNormalScale;\nvarying vec2 vDetailNormalUv;",
-    )
-    .replace(
-      "#include <normal_fragment_maps>",
-      chunk.replace(
-        DETAIL_NORMAL_TARGET,
-        `vec3 detailN = texture2D( detailNormalMap, vDetailNormalUv ).xyz * 2.0 - 1.0;
+    ),
+    `vec3 detailN = texture2D( detailNormalMap, vDetailNormalUv ).xyz * 2.0 - 1.0;
 	detailN.xy *= detailNormalScale;
-	mapN = normalize( vec3( mapN.xy + detailN.xy, mapN.z * detailN.z ) );
-	${DETAIL_NORMAL_TARGET}`,
-      ),
+	mapN = normalize( vec3( mapN.xy + detailN.xy, mapN.z * detailN.z ) );`,
+  );
+
+/**
+ * Insert code into the tangent-space branch of three's normal-map chunk,
+ * just before the frame turns `mapN` into the normal, expanding the chunk
+ * first unless an earlier patch already did, so patches that bend the
+ * tangent-space normal compose in the order they run.
+ *
+ * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Composes the declared material's tangent-space normal changes into one program.
+ * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the ordered composition of normal blends at the render boundary.
+ */
+export const spliceTangentNormal = (
+  fragmentShader: string,
+  code: string,
+): string => {
+  const expanded = fragmentShader.includes("#include <normal_fragment_maps>")
+    ? fragmentShader.replace(
+        "#include <normal_fragment_maps>",
+        THREE.ShaderChunk.normal_fragment_maps,
+      )
+    : fragmentShader;
+  if (!expanded.includes(DETAIL_NORMAL_TARGET))
+    throw new Error(
+      "The normal-map chunk no longer has the tangent-space line normal blends splice into.",
     );
+  return expanded.replace(
+    DETAIL_NORMAL_TARGET,
+    `${code}\n\t${DETAIL_NORMAL_TARGET}`,
+  );
 };

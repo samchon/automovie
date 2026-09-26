@@ -7,6 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
+import { materialTextureSlots } from "./materialTextureSlots";
 
 /**
  * Relative slack allowed before a measured UV span is called wrong.
@@ -19,16 +20,6 @@ import { ViolationCollector } from "./ViolationCollector";
  * the compared magnitude rather than an absolute metre figure.
  */
 const SCALE_EPSILON = 1e-9;
-
-/** The PBR slots that bind an image and can therefore imply a tile size. */
-const TEXTURE_SLOTS = [
-  "baseColorTexture",
-  "metallicRoughnessTexture",
-  "normalTexture",
-  "detailNormalTexture",
-  "occlusionTexture",
-  "emissiveTexture",
-] as const;
 
 /**
  * Measure whether a surface and the material bound to it agree about scale.
@@ -89,13 +80,11 @@ export const validateTextureScale = (props: {
       if (part.material === null) return;
       const material = materials.get(part.material);
       if (material === undefined) return;
-      for (const slot of TEXTURE_SLOTS) {
-        const binding = material[slot];
-        if (binding === null || binding === undefined) continue;
+      for (const { path: slot, binding } of materialTextureSlots(material)) {
         if (typeof binding === "string") continue;
         checkBinding({
           binding,
-          slot,
+          slot: slot.slice(1),
           span,
           part,
           material,
@@ -144,7 +133,8 @@ const surfaceSpan = (
 /** Both axes of one structured binding against one measured surface. */
 const checkBinding = (props: {
   binding: IAutoMovieTextureReference;
-  slot: (typeof TEXTURE_SLOTS)[number];
+  /** The slot's path under the material, such as `overlays[0].baseColorTexture`. */
+  slot: string;
   span: { u: number; v: number };
   part: IAutoMovieModelPart;
   material: IAutoMovieMaterial;
