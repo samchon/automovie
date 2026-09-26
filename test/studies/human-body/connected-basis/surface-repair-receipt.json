@@ -1,0 +1,145 @@
+{
+  "source": "mpfb-connected-body-2026-09-26-anatomy-r11",
+  "revision": "mpfb-connected-body-2026-09-27-anatomy-r12",
+  "regenerated": [
+    {
+      "endpoint": "buttocks/gluteal-projection-incr",
+      "rows": [
+        1241,
+        3163
+      ],
+      "largestMillimetres": [
+        25.0,
+        22.36
+      ],
+      "curvatureBand": {
+        "before": 4.08,
+        "after": 0.68,
+        "unit": "1/m, the 1 to 4 cm heat band of the mean curvature change at unit weight on a woman of 30 at a body mass index of 24"
+      },
+      "moveMillimetres": [
+        24.5,
+        21.9
+      ]
+    },
+    {
+      "endpoint": "buttocks/gluteal-projection-decr",
+      "rows": [
+        1234,
+        3131
+      ],
+      "largestMillimetres": [
+        20.0,
+        17.89
+      ]
+    }
+  ],
+  "diffused": [
+    {
+      "endpoint": "buttocks/buttocks-ptosis-decr",
+      "sigmaMetres": 0.025,
+      "rows": [
+        896,
+        3297
+      ],
+      "largestMillimetres": [
+        15.58,
+        14.22
+      ],
+      "curvatureBand": {
+        "before": 3.08,
+        "after": 1.0,
+        "unit": "1/m, the 1 to 4 cm heat band of the mean curvature change at unit weight on a woman of 30 at a body mass index of 24"
+      },
+      "moveMillimetres": [
+        15.2,
+        14.0
+      ]
+    },
+    {
+      "endpoint": "pelvis/pelvis-tone-decr",
+      "sigmaMetres": 0.025,
+      "rows": [
+        1287,
+        3319
+      ],
+      "largestMillimetres": [
+        37.05,
+        35.62
+      ],
+      "curvatureBand": {
+        "before": 2.54,
+        "after": 0.93,
+        "unit": "1/m, the 1 to 4 cm heat band of the mean curvature change at unit weight on a woman of 30 at a body mass index of 24"
+      },
+      "moveMillimetres": [
+        36.9,
+        35.4
+      ]
+    },
+    {
+      "endpoint": "breast/breast-dist-incr",
+      "sigmaMetres": 0.025,
+      "rows": [
+        1489,
+        3592
+      ],
+      "largestMillimetres": [
+        22.9,
+        17.97
+      ],
+      "curvatureBand": {
+        "before": 3.56,
+        "after": 1.17,
+        "unit": "1/m, the 1 to 4 cm heat band of the mean curvature change at unit weight on a woman of 30 at a body mass index of 24"
+      },
+      "moveMillimetres": [
+        22.3,
+        17.5
+      ]
+    },
+    {
+      "endpoint": "breast/breast-dist-decr",
+      "sigmaMetres": 0.025,
+      "rows": [
+        1479,
+        4053
+      ],
+      "largestMillimetres": [
+        33.5,
+        29.32
+      ],
+      "curvatureBand": {
+        "before": 4.29,
+        "after": 1.83,
+        "unit": "1/m, the 1 to 4 cm heat band of the mean curvature change at unit weight on a woman of 30 at a body mass index of 24"
+      },
+      "moveMillimetres": [
+        33.4,
+        28.9
+      ]
+    },
+    {
+      "endpoint": "breast/breast-point-incr",
+      "sigmaMetres": 0.012,
+      "rows": [
+        976,
+        1532
+      ],
+      "largestMillimetres": [
+        20.86,
+        16.81
+      ],
+      "curvatureBand": {
+        "before": 5.59,
+        "after": 3.47,
+        "unit": "1/m, the 1 to 4 cm heat band of the mean curvature change at unit weight on a woman of 30 at a body mass index of 24"
+      },
+      "moveMillimetres": [
+        18.7,
+        15.1
+      ]
+    }
+  ],
+  "instrument": "field_quality.py: the displacement between two built skins diffused by heat (cotangent Laplacian, lumped mass); the mean curvature change it makes, less its 4 cm diffusion, as RMS over the footprint"
+}

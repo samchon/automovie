@@ -1,0 +1,1007 @@
+{
+  "size": 4096,
+  "texelMillimetres": 0.4493,
+  "metresPerUv": 1.8404,
+  "pngBytes": 179805,
+  "creases": [
+    {
+      "name": "left Index distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index palmodigital crease",
+      "offsetMillimetres": 13.49,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Index dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle palmodigital crease",
+      "offsetMillimetres": 15.82,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Middle dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring palmodigital crease",
+      "offsetMillimetres": 13.97,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Ring dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Little distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little palmodigital crease",
+      "offsetMillimetres": 10.28,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "left Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left Little dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "left thumb interphalangeal crease",
+      "offsetMillimetres": -0.8,
+      "depthMillimetres": 0.5,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left thumb metacarpophalangeal crease",
+      "offsetMillimetres": 0.5,
+      "depthMillimetres": 0.45,
+      "widthMillimetres": 0.7,
+      "side": "flexion",
+      "reachMillimetres": 11.5
+    },
+    {
+      "name": "left thumb dorsal wrinkle",
+      "offsetMillimetres": -2.2,
+      "depthMillimetres": 0.14,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left thumb dorsal wrinkle",
+      "offsetMillimetres": -0.6,
+      "depthMillimetres": 0.14,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left thumb dorsal wrinkle",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.14,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "left distal wrist crease",
+      "offsetMillimetres": 2.0,
+      "depthMillimetres": 0.28,
+      "widthMillimetres": 1.0,
+      "side": "flexion face only",
+      "reachMillimetres": 32.0
+    },
+    {
+      "name": "left proximal wrist crease",
+      "offsetMillimetres": -13.0,
+      "depthMillimetres": 0.18,
+      "widthMillimetres": 1.0,
+      "side": "flexion face only",
+      "reachMillimetres": 34.0
+    },
+    {
+      "name": "left antecubital crease",
+      "offsetMillimetres": -6.0,
+      "depthMillimetres": 0.32,
+      "widthMillimetres": 1.4,
+      "side": "flexion face only",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "left olecranon wrinkle",
+      "offsetMillimetres": -9.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "left olecranon wrinkle",
+      "offsetMillimetres": -4.5,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "left olecranon wrinkle",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "left olecranon wrinkle",
+      "offsetMillimetres": 4.5,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "left popliteal crease",
+      "offsetMillimetres": 2.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 1.6,
+      "side": "flexion face only",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "left suprapatellar wrinkle",
+      "offsetMillimetres": -34.0,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "left suprapatellar wrinkle",
+      "offsetMillimetres": -29.0,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "left suprapatellar wrinkle",
+      "offsetMillimetres": -24.0,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "right Index distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index palmodigital crease",
+      "offsetMillimetres": 13.49,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Index dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle palmodigital crease",
+      "offsetMillimetres": 15.82,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Middle dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring palmodigital crease",
+      "offsetMillimetres": 13.97,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Ring dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Little distal interphalangeal crease",
+      "offsetMillimetres": -1.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little proximal interphalangeal crease, proximal",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.36,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little proximal interphalangeal crease, distal",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.55,
+      "side": "flexion",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little palmodigital crease",
+      "offsetMillimetres": 10.28,
+      "depthMillimetres": 0.4,
+      "widthMillimetres": 0.75,
+      "side": "flexion",
+      "reachMillimetres": 9.0
+    },
+    {
+      "name": "right Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -3.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.2,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.6,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.4,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right Little dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 1.6,
+      "depthMillimetres": 0.11,
+      "widthMillimetres": 0.35,
+      "side": "extension",
+      "reachMillimetres": 7.5
+    },
+    {
+      "name": "right thumb interphalangeal crease",
+      "offsetMillimetres": -0.8,
+      "depthMillimetres": 0.5,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right thumb metacarpophalangeal crease",
+      "offsetMillimetres": 0.5,
+      "depthMillimetres": 0.45,
+      "widthMillimetres": 0.7,
+      "side": "flexion",
+      "reachMillimetres": 11.5
+    },
+    {
+      "name": "right thumb dorsal wrinkle",
+      "offsetMillimetres": -2.2,
+      "depthMillimetres": 0.14,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right thumb dorsal wrinkle",
+      "offsetMillimetres": -0.6,
+      "depthMillimetres": 0.14,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right thumb dorsal wrinkle",
+      "offsetMillimetres": 1.0,
+      "depthMillimetres": 0.14,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 10.5
+    },
+    {
+      "name": "right distal wrist crease",
+      "offsetMillimetres": 2.0,
+      "depthMillimetres": 0.28,
+      "widthMillimetres": 1.0,
+      "side": "flexion face only",
+      "reachMillimetres": 32.0
+    },
+    {
+      "name": "right proximal wrist crease",
+      "offsetMillimetres": -13.0,
+      "depthMillimetres": 0.18,
+      "widthMillimetres": 1.0,
+      "side": "flexion face only",
+      "reachMillimetres": 34.0
+    },
+    {
+      "name": "right antecubital crease",
+      "offsetMillimetres": -6.0,
+      "depthMillimetres": 0.32,
+      "widthMillimetres": 1.4,
+      "side": "flexion face only",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "right olecranon wrinkle",
+      "offsetMillimetres": -9.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "right olecranon wrinkle",
+      "offsetMillimetres": -4.5,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "right olecranon wrinkle",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "right olecranon wrinkle",
+      "offsetMillimetres": 4.5,
+      "depthMillimetres": 0.16,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 48.0
+    },
+    {
+      "name": "right popliteal crease",
+      "offsetMillimetres": 2.0,
+      "depthMillimetres": 0.34,
+      "widthMillimetres": 1.6,
+      "side": "flexion face only",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "right suprapatellar wrinkle",
+      "offsetMillimetres": -34.0,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "right suprapatellar wrinkle",
+      "offsetMillimetres": -29.0,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 70.0
+    },
+    {
+      "name": "right suprapatellar wrinkle",
+      "offsetMillimetres": -24.0,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.9,
+      "side": "extension",
+      "reachMillimetres": 70.0
+    }
+  ],
+  "palmLines": [
+    {
+      "name": "left distal transverse palmar crease",
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.85,
+      "samples": 97
+    },
+    {
+      "name": "left proximal transverse palmar crease",
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.85,
+      "samples": 73
+    },
+    {
+      "name": "left thenar crease",
+      "depthMillimetres": 0.25,
+      "widthMillimetres": 0.85,
+      "samples": 73
+    },
+    {
+      "name": "right distal transverse palmar crease",
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.85,
+      "samples": 97
+    },
+    {
+      "name": "right proximal transverse palmar crease",
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.85,
+      "samples": 73
+    },
+    {
+      "name": "right thenar crease",
+      "depthMillimetres": 0.25,
+      "widthMillimetres": 0.85,
+      "samples": 73
+    }
+  ],
+  "irregularity": "each crease's line wanders around its bone by three seeded sinusoids of 2 to 6 turns and 0.3 to 0.9 of its width, and its depth swells between 0.1 and 1 of itself"
+}
