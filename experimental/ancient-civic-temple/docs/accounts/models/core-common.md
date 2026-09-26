@@ -3,7 +3,7 @@
 ## 파일 역할과 모델 납품 {#file-roles}
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 아홉 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 방별 사물 역할 중 벤치·수레·직물·작성 도구 등의 형상 주소가 사라지고, fixtures·wares가 없으면 그 비품이 놓일 제단·선반·도기 원형이 비며, scale이 없으면 그 모두의 UV0·결속·검토 기준이 갈라진다. 구조와 경관 파일의 별도 결손은 아래 본문에 적었다.
+@evidence obligations/core/common.md#purpose-fit 열 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 방별 사물 역할 중 벤치·수레·직물·작성 도구 등의 형상 주소가 사라지고, fixtures·wares가 없으면 그 비품이 놓일 제단·선반·도기 원형이 비며, scale이 없으면 그 모두의 공통 UV0 투영·이음과 검토 기준이 갈라진다. 구조와 경관 파일의 별도 결손은 아래 본문에 적었다.
 -->
 
 이 population은 한 단층 시민 신전과 그 대지가 소비할 독립 부재의 blocking prototype을 설계한다. [scale](../../models/scale.md)은 공유 축척 기준과 표현 상한, 관절 인터페이스, 중립 검토 판이라는 모든 모델의 공통 기준을 소유한다. 이 파일이 없으면 각 모델이 보행 포락 대신 제각각의 크기 기준과 fidelity 주장을 쓰고 문짝의 hinge 이름과 검토 시점이 모델마다 달라진다.
@@ -17,10 +17,10 @@
 ## 모델과 다른 제작 분기의 경계 {#layer-routing}
 
 <!--
-@evidence obligations/core/common.md#layer-boundary 52개 H2 중 공통 기준 셋은 축척·UV0·물리 반복 길이·fallback·관절·검토 규칙을, 원형 49개는 형상·part 표면 ID·점유와 배치 기준점을 정한다. 실제 비트맵과 광학 반응은 materials, 복제와 접촉은 instances, 물의 흐름과 빛은 systems, 외피·지면은 spaces가 맡는다고 아래 본문이 구분한다.
+@evidence obligations/core/common.md#layer-boundary 52개 H2 중 공통 기준 셋은 축척·UV0 투영과 이음·prototype 내부 반복 기준·관절·검토 규칙을, 원형 49개는 형상·part 표면 ID·점유와 배치 기준점을 정한다. 재료 결속·텍스처 반복 길이·fallback·비트맵과 광학 반응은 materials, 방 안 prototype 배치·복제·실제 접촉은 instances, 물의 흐름과 빛은 systems, 외피·지면은 spaces가 맡는다고 아래 본문이 구분한다.
 -->
 
-원형을 정의하는 49개 H2는 각각 자기 prototype의 형상, part와 표면 ID, [공통 UV0·결속 규칙](../../models/scale.md#reference-scale), 가려진 접촉면과 빈 공간, 점유 범위와 배치 기준점을 결정한다. 나머지 scale의 세 H2는 공통 축척·UV0·텍스처 반복 길이·fallback·관절·검토 판 규칙을 정한다. 반복 부재의 배치 수·간격·잘림은 instances가 판정된 공간과 합성 지붕에서 유도한다. 이 모델 문서의 fallback 색과 반복 길이는 텍스처 입력 계약이고, 실제 비트맵 선택·색과 거칠기의 최종 반응은 materials가 소유한다.
+원형을 정의하는 49개 H2는 각각 자기 prototype의 형상, part와 표면 ID, [공통 UV0 투영·이음](../../models/scale.md#reference-scale), 가려진 접촉면과 빈 공간, 점유 범위와 배치 기준점을 결정한다. 나머지 scale의 세 H2는 공통 축척·UV0 투영과 이음·prototype 내부 반복 기준·관절·검토 판 규칙을 정한다. prototype 안에서 반복되는 부재의 개수·간격·첫 위치나 위상은 해당 모델 H2가 정하고, 실제 건물 안의 prototype 복제 수와 공간 경계에 따른 잘림은 instances가 판정된 공간과 합성 지붕에서 유도한다. 방 안 prototype의 배치와 다른 물체와의 실제 접촉도 instances가 정한다. 재료 결속·텍스처 반복 길이·fallback 색은 [재료 결속](../../materials/10-model-bindings.md#binding-map)이 소유하고, 비트맵 선택·색과 거칠기의 최종 반응도 materials가 소유한다.
 
 분수의 흐름·빛 반사와 등잔의 상태 변화는 systems·motions의 후속 결정이며 모델은 정지 형상만 낸다. 외벽 기단과 코핑, 문턱 바닥, 대지 지면과 먼 능선은 spaces가 이미 소유한 실체라 모델 population에 다시 들이지 않는다. 문틀이 문턱 바닥을, 이웃 외피가 포장 구획을, 창틀이 벽 void 위치를 새로 만들지 않는 것이 각 H2에서 이 경계를 지키는 방식이다.
 
@@ -59,11 +59,11 @@
 | [fixtures/altar](../../models/fixtures.md#altar) | `step` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `top` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `support` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `plinth` | 1146 | `492379945e71cccf6474009c61747c6d7292b00c2f2dad5fe1f5ad578e9b0c0b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `body` | 1146 | `492379945e71cccf6474009c61747c6d7292b00c2f2dad5fe1f5ad578e9b0c0b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `recess-frame` | 1146 | `492379945e71cccf6474009c61747c6d7292b00c2f2dad5fe1f5ad578e9b0c0b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `recess` | 1146 | `492379945e71cccf6474009c61747c6d7292b00c2f2dad5fe1f5ad578e9b0c0b` |
-| [fixtures/niche](../../models/fixtures.md#niche) | `cap` | 1146 | `492379945e71cccf6474009c61747c6d7292b00c2f2dad5fe1f5ad578e9b0c0b` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `plinth` | 1276 | `9e8f9cab3fb1b60c843a85990782504205f57d56ff635bb149409d41e2bb9a1e` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `body` | 1276 | `9e8f9cab3fb1b60c843a85990782504205f57d56ff635bb149409d41e2bb9a1e` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `recess-frame` | 1276 | `9e8f9cab3fb1b60c843a85990782504205f57d56ff635bb149409d41e2bb9a1e` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `recess` | 1276 | `9e8f9cab3fb1b60c843a85990782504205f57d56ff635bb149409d41e2bb9a1e` |
+| [fixtures/niche](../../models/fixtures.md#niche) | `cap` | 1276 | `9e8f9cab3fb1b60c843a85990782504205f57d56ff635bb149409d41e2bb9a1e` |
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `foot` | 851 | `bb0d762e778862c11e1c86f0b6fe862a07b77fe7590726e890b73632dea9cac7` |
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `stem` | 851 | `bb0d762e778862c11e1c86f0b6fe862a07b77fe7590726e890b73632dea9cac7` |
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `knop` | 851 | `bb0d762e778862c11e1c86f0b6fe862a07b77fe7590726e890b73632dea9cac7` |
@@ -112,27 +112,27 @@
 | [openings/window-frame](../../models/openings.md#window-frame) | `surround` | 724 | `b2c292e3a11ffd3ceb0fc6e65e0383e561b0727351a5115e5978c12654675ae7` |
 | [portable/bench](../../models/portable.md#bench) | `seat` | 759 | `5ea6b45bdf45ca2a89271f1c90d96dbc456f27054bba0d74f0624834e4714103` |
 | [portable/bench](../../models/portable.md#bench) | `pier` | 759 | `5ea6b45bdf45ca2a89271f1c90d96dbc456f27054bba0d74f0624834e4714103` |
-| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `foot` | 755 | `e90a202119bc70317653a8a122b2a1f9034446101e84a9ccbce1a8cedf8f5b4d` |
-| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `stem` | 755 | `e90a202119bc70317653a8a122b2a1f9034446101e84a9ccbce1a8cedf8f5b4d` |
-| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `dish` | 755 | `e90a202119bc70317653a8a122b2a1f9034446101e84a9ccbce1a8cedf8f5b4d` |
+| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `foot` | 786 | `875604c762f93d4057f2890c5db63a7f2159c9781a9dc373f5d0471fce017682` |
+| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `stem` | 786 | `875604c762f93d4057f2890c5db63a7f2159c9781a9dc373f5d0471fce017682` |
+| [portable/portable-lamp](../../models/portable.md#portable-lamp) | `dish` | 786 | `875604c762f93d4057f2890c5db63a7f2159c9781a9dc373f5d0471fce017682` |
 | [portable/jar-rack](../../models/portable.md#jar-rack) | `top` | 1117 | `42e0e5ce959d02e06f932566735503fb223b51609f66ba338097ee18520b3cb6` |
 | [portable/jar-rack](../../models/portable.md#jar-rack) | `leg` | 1117 | `42e0e5ce959d02e06f932566735503fb223b51609f66ba338097ee18520b3cb6` |
 | [portable/jar-rack](../../models/portable.md#jar-rack) | `well` | 1117 | `42e0e5ce959d02e06f932566735503fb223b51609f66ba338097ee18520b3cb6` |
-| [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `beam` | 673 | `beebd4e20b5cadc79dd095031c24c486333c0fbb215b46f57f8c09522457cd99` |
-| [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `hook` | 673 | `beebd4e20b5cadc79dd095031c24c486333c0fbb215b46f57f8c09522457cd99` |
-| [portable/handcart](../../models/portable.md#handcart) | `deck` | 1243 | `d181254156918710b779c93ea0e60a66d011398f1873646f36390e2522a669cf` |
-| [portable/handcart](../../models/portable.md#handcart) | `axle` | 1243 | `d181254156918710b779c93ea0e60a66d011398f1873646f36390e2522a669cf` |
-| [portable/handcart](../../models/portable.md#handcart) | `wheel` | 1243 | `d181254156918710b779c93ea0e60a66d011398f1873646f36390e2522a669cf` |
-| [portable/handcart](../../models/portable.md#handcart) | `handle` | 1243 | `d181254156918710b779c93ea0e60a66d011398f1873646f36390e2522a669cf` |
-| [portable/handcart](../../models/portable.md#handcart) | `support` | 1243 | `d181254156918710b779c93ea0e60a66d011398f1873646f36390e2522a669cf` |
-| [portable/bucket](../../models/portable.md#bucket) | `body` | 991 | `e4a8f127725769b1b084c9e15d9677df1c4423af2193ccf7316308cb265f527d` |
-| [portable/bucket](../../models/portable.md#bucket) | `handle` | 991 | `e4a8f127725769b1b084c9e15d9677df1c4423af2193ccf7316308cb265f527d` |
-| [portable/planter](../../models/portable.md#planter) | `pot` | 887 | `bf10ecb6bcd1f97bbb32d2b505788e13807c7083f932eb65fac39c14397151c2` |
-| [portable/planter](../../models/portable.md#planter) | `soil` | 887 | `bf10ecb6bcd1f97bbb32d2b505788e13807c7083f932eb65fac39c14397151c2` |
-| [portable/votive-plaque](../../models/portable.md#votive-plaque) | `base` | 602 | `92dbdf97cdbada8cccb501ad31591f392cf13f153bc2c17feb0bbe862168fb28` |
-| [portable/votive-plaque](../../models/portable.md#votive-plaque) | `slab` | 602 | `92dbdf97cdbada8cccb501ad31591f392cf13f153bc2c17feb0bbe862168fb28` |
-| [portable/offering-tray](../../models/portable.md#offering-tray) | `floor` | 856 | `e97ccd2a61e521e0f7be228c3ac26733c29688150577f95669645cdc3ed773ce` |
-| [portable/offering-tray](../../models/portable.md#offering-tray) | `rim` | 856 | `e97ccd2a61e521e0f7be228c3ac26733c29688150577f95669645cdc3ed773ce` |
+| [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `beam` | 700 | `add98e9b2bdfd3e53c9a3d7e77d6e35c3a34ed5ebaa8e7aff7b8fbc59c702b9f` |
+| [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `hook` | 700 | `add98e9b2bdfd3e53c9a3d7e77d6e35c3a34ed5ebaa8e7aff7b8fbc59c702b9f` |
+| [portable/handcart](../../models/portable.md#handcart) | `deck` | 1297 | `a5bfe369af4b0e0db5c964b591fab3353559595c4749b19efe600878c9b66340` |
+| [portable/handcart](../../models/portable.md#handcart) | `axle` | 1297 | `a5bfe369af4b0e0db5c964b591fab3353559595c4749b19efe600878c9b66340` |
+| [portable/handcart](../../models/portable.md#handcart) | `wheel` | 1297 | `a5bfe369af4b0e0db5c964b591fab3353559595c4749b19efe600878c9b66340` |
+| [portable/handcart](../../models/portable.md#handcart) | `handle` | 1297 | `a5bfe369af4b0e0db5c964b591fab3353559595c4749b19efe600878c9b66340` |
+| [portable/handcart](../../models/portable.md#handcart) | `support` | 1297 | `a5bfe369af4b0e0db5c964b591fab3353559595c4749b19efe600878c9b66340` |
+| [portable/bucket](../../models/portable.md#bucket) | `body` | 1009 | `a5aa9b0c2d2350481c8a823995e980f2042c1d22d1c1c1209164c2aafb66ed39` |
+| [portable/bucket](../../models/portable.md#bucket) | `handle` | 1009 | `a5aa9b0c2d2350481c8a823995e980f2042c1d22d1c1c1209164c2aafb66ed39` |
+| [portable/planter](../../models/portable.md#planter) | `pot` | 976 | `3acdb3f36ee5e3ce6f68463de4cfc7cb4dcb2d18bfa33860ad0bb534aa76ffd8` |
+| [portable/planter](../../models/portable.md#planter) | `soil` | 976 | `3acdb3f36ee5e3ce6f68463de4cfc7cb4dcb2d18bfa33860ad0bb534aa76ffd8` |
+| [portable/votive-plaque](../../models/portable.md#votive-plaque) | `base` | 629 | `624279fc63415c1726c9ae121f51478637086f4d8a2d1cc1797f74fe1c0c6fcb` |
+| [portable/votive-plaque](../../models/portable.md#votive-plaque) | `slab` | 629 | `624279fc63415c1726c9ae121f51478637086f4d8a2d1cc1797f74fe1c0c6fcb` |
+| [portable/offering-tray](../../models/portable.md#offering-tray) | `floor` | 919 | `87f26892f878338459b2f584007f0d41b422a4b3ea36591004e93251b4c83172` |
+| [portable/offering-tray](../../models/portable.md#offering-tray) | `rim` | 919 | `87f26892f878338459b2f584007f0d41b422a4b3ea36591004e93251b4c83172` |
 | [portable/textile](../../models/portable.md#textile) | `cloth` | 1005 | `37931eb28839bd0a254c05d1022adbae09711d050b10b93b408bc89db15f89cb` |
 | [portable/stylus](../../models/portable.md#stylus) | `shaft` | 638 | `48a087507006bda9cd46b0fef79a9212b251254c463d9124eb692acd0772e520` |
 | [portable/stylus](../../models/portable.md#stylus) | `tip` | 638 | `48a087507006bda9cd46b0fef79a9212b251254c463d9124eb692acd0772e520` |
@@ -140,18 +140,18 @@
 | [portable/writing-tablet](../../models/portable.md#writing-tablet) | `writing-face` | 742 | `5bc496b39edaa1fec2f167bb2afe0bc1bddb7247b0e3011f59bdba8f362ad45d` |
 | [portable/rope-coil](../../models/portable.md#rope-coil) | `rope` | 792 | `21b13bb276144f3c8263ae62d5c40f4a593b7b0e1c6bfeef665f356b761b8006` |
 | [portable/rope-coil](../../models/portable.md#rope-coil) | `tie` | 792 | `21b13bb276144f3c8263ae62d5c40f4a593b7b0e1c6bfeef665f356b761b8006` |
-| [ritual/censer](../../models/ritual.md#censer) | `foot` | 883 | `2ab58f226491dd86ddb96812747af6f566e35ddce2aa253f22ba0d47c8f42580` |
-| [ritual/censer](../../models/ritual.md#censer) | `stem` | 883 | `2ab58f226491dd86ddb96812747af6f566e35ddce2aa253f22ba0d47c8f42580` |
-| [ritual/censer](../../models/ritual.md#censer) | `cup` | 883 | `2ab58f226491dd86ddb96812747af6f566e35ddce2aa253f22ba0d47c8f42580` |
-| [ritual/censer](../../models/ritual.md#censer) | `ash` | 883 | `2ab58f226491dd86ddb96812747af6f566e35ddce2aa253f22ba0d47c8f42580` |
-| [ritual/censer](../../models/ritual.md#censer) | `incense` | 883 | `2ab58f226491dd86ddb96812747af6f566e35ddce2aa253f22ba0d47c8f42580` |
-| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `base` | 750 | `f913edf335e800ce0b5f393c69e9e8e7a0544c319f78d0931c0fe14e5a025db9` |
-| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `pad` | 750 | `f913edf335e800ce0b5f393c69e9e8e7a0544c319f78d0931c0fe14e5a025db9` |
-| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `fold` | 750 | `f913edf335e800ce0b5f393c69e9e8e7a0544c319f78d0931c0fe14e5a025db9` |
-| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 720 | `885259e5bf715bc03f2afea5a23eb26667a63a546f87a8e9e328ddb4be366028` |
-| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 720 | `885259e5bf715bc03f2afea5a23eb26667a63a546f87a8e9e328ddb4be366028` |
-| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 720 | `885259e5bf715bc03f2afea5a23eb26667a63a546f87a8e9e328ddb4be366028` |
-| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 6941 | `b4503bf8605e19bf0b70209cd9e513587f43ffef735870bc77997d3897efe6d2` |
+| [ritual/censer](../../models/ritual.md#censer) | `foot` | 910 | `72d360ae38a668f73a9c46b9f6fae9bf79893699bdd9a2f3ea9a89a1b8eee76f` |
+| [ritual/censer](../../models/ritual.md#censer) | `stem` | 910 | `72d360ae38a668f73a9c46b9f6fae9bf79893699bdd9a2f3ea9a89a1b8eee76f` |
+| [ritual/censer](../../models/ritual.md#censer) | `cup` | 910 | `72d360ae38a668f73a9c46b9f6fae9bf79893699bdd9a2f3ea9a89a1b8eee76f` |
+| [ritual/censer](../../models/ritual.md#censer) | `ash` | 910 | `72d360ae38a668f73a9c46b9f6fae9bf79893699bdd9a2f3ea9a89a1b8eee76f` |
+| [ritual/censer](../../models/ritual.md#censer) | `incense` | 910 | `72d360ae38a668f73a9c46b9f6fae9bf79893699bdd9a2f3ea9a89a1b8eee76f` |
+| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `base` | 777 | `72e7d0d84151dc632ea6244a2a1c78b8c0d8d98135942562eb48604646858a06` |
+| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `pad` | 777 | `72e7d0d84151dc632ea6244a2a1c78b8c0d8d98135942562eb48604646858a06` |
+| [ritual/floor-cushion](../../models/ritual.md#floor-cushion) | `fold` | 777 | `72e7d0d84151dc632ea6244a2a1c78b8c0d8d98135942562eb48604646858a06` |
+| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 747 | `735655994627a8ac9ab68fa6ad7c0f048af9cbb67b0e96624223ba8e3e8152d0` |
+| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 747 | `735655994627a8ac9ab68fa6ad7c0f048af9cbb67b0e96624223ba8e3e8152d0` |
+| [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 747 | `735655994627a8ac9ab68fa6ad7c0f048af9cbb67b0e96624223ba8e3e8152d0` |
+| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 7005 | `c4e51a31290be01808c0a37f5e7b0f2b9b7445b2066c67088d02692991188948` |
 | [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 686 | `805969903c14fe60a81940d2ae99d4b8dc9eca3fac9efbf7a223c7a04c595f02` |
 | [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 650 | `9f2b80d52e6a83f214267f593b814d7fc7021548f107b0717a8fc627946a379f` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 790 | `9b0d464ee686b38f618c048c6871081bd315eb654d984e21e259a92b1197fd07` |
@@ -193,14 +193,14 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | cladding.md | 2 | 3310 |
 | columns.md | 2 | 2082 |
 | entablature.md | 5 | 5608 |
-| fixtures.md | 10 | 8496 |
+| fixtures.md | 10 | 8599 |
 | landscape.md | 4 | 3562 |
 | openings.md | 4 | 4426 |
-| portable.md | 13 | 9703 |
-| ritual.md | 3 | 2158 |
-| scale.md | 3 | 6738 |
+| portable.md | 13 | 9963 |
+| ritual.md | 3 | 2224 |
+| scale.md | 3 | 6790 |
 | wares.md | 6 | 4785 |
-| 합계 | 52 | 50868 |
+| 합계 | 52 | 51349 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
