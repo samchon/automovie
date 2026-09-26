@@ -49,13 +49,13 @@
 | [entablature/sanctuary-truss](../../models/entablature.md#sanctuary-truss) | `king-post` | 1492 | `9f544396adf91c20e49e1e6b033a23cd66e76632f79301478c80ed9b5fdef4f2` |
 | [entablature/sanctuary-truss](../../models/entablature.md#sanctuary-truss) | `strut` | 1492 | `9f544396adf91c20e49e1e6b033a23cd66e76632f79301478c80ed9b5fdef4f2` |
 | [entablature/ceiling-joist](../../models/entablature.md#ceiling-joist) | `timber` | 656 | `7749437b60ea5c4b708351b8780f3090d7581110d271b9893783493d7d53c79c` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `step` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `rim` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `basin-inner` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `water` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `ripple` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `nozzle` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
-| [fixtures/fountain](../../models/fixtures.md#fountain) | `jet` | 1647 | `8e8f3ac4c12f3f84a9a05bee0c5d846c601b24636a8558d8856a50268d342683` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `step` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `rim` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `basin-inner` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `water` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `ripple` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `nozzle` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
+| [fixtures/fountain](../../models/fixtures.md#fountain) | `jet` | 1697 | `afc8e56d1f1dce1a36e297bbb38589ce94fe04c88e10014093decbc82b67e9f4` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `step` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `top` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
 | [fixtures/altar](../../models/fixtures.md#altar) | `support` | 1036 | `847ffcbc227b67317d8d8e4168948bbbcc9c08c175e6bc347f64fe01df41077b` |
@@ -193,14 +193,14 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | cladding.md | 2 | 3310 |
 | columns.md | 2 | 2082 |
 | entablature.md | 5 | 5608 |
-| fixtures.md | 10 | 8599 |
+| fixtures.md | 10 | 8637 |
 | landscape.md | 4 | 3562 |
 | openings.md | 4 | 4426 |
 | portable.md | 13 | 10219 |
 | ritual.md | 3 | 2227 |
 | scale.md | 3 | 6790 |
 | wares.md | 6 | 4785 |
-| 합계 | 52 | 51608 |
+| 합계 | 52 | 51646 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
