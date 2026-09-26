@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const { taskPlan, execute } = require("./review-check.cjs");
 
-test("review plan includes all seven probe types, both review populations and the production check", () => {
+void test("review plan includes all seven probe types, both review populations and the production check", () => {
   const plan = taskPlan("C:/probes", "C:/npm/cli.js");
   assert.equal(plan.length, 9);
   assert.deepEqual(
@@ -26,7 +26,7 @@ test("review plan includes all seven probe types, both review populations and th
   assert.deepEqual(plan[8][2].slice(-2), ["run", "check"]);
 });
 
-test("every check runs and nonzero or failed spawn statuses accumulate", () => {
+void test("every check runs and nonzero or failed spawn statuses accumulate", () => {
   /** @type {Array<[string, string, string[]]>} */
   const tasks = [
     ["a", "node", []],
@@ -47,7 +47,7 @@ test("every check runs and nonzero or failed spawn statuses accumulate", () => {
   );
 });
 
-test("a zero-population probe is counted as unverified even when it exits zero", () => {
+void test("a zero-population probe is counted as unverified even when it exits zero", () => {
   /** @type {Array<[string, string, string[]]>} */
   const tasks = [
     ["a", "node", []],

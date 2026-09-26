@@ -43,7 +43,7 @@ The installed `automovie` CLI separately provides Markdown TOC maintenance, exte
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
-The viewer opens at `http://127.0.0.1:4173/`. The current view renders `buildHouseEnvironment(buildHouse())`: the space structure and its base colours, without model prototypes, material textures, or furnished instances. `?subject=calibration` shows the scale reference. The model and material source implementations were retired from the active tree while their design layers await independent review; the authored source remains recoverable from Git history at `5c35b711`. Reopen each matching source branch only after its design reaches `review`.
+The viewer opens at `http://127.0.0.1:4173/`. The current view renders `buildHouseEnvironment(buildHouse())`: the space structure with viewer-owned material colours, response values, and procedural texture tiles for inspection, without model prototypes or furnished instances. `?subject=calibration` shows the scale reference. `node src/viewer/generate-preview-textures.mjs` regenerates the committed texture tiles. The model prototype source was retired while its design layer awaits independent review; its earlier authored source remains recoverable from Git history at `5c35b711`. The texture preview does not claim that the separate material source layer is complete.
 
 ## Ownership
 
