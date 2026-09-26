@@ -2,6 +2,7 @@ export * from "./analysisOverlay";
 export * from "./geometry";
 export * from "./subsurfaceShading";
 export * from "./detailNormalShading";
+export * from "./materialOverlayShading";
 export * from "./materialShaderPatches";
 export * from "./materialLibrary";
 export * from "./buildModel";
