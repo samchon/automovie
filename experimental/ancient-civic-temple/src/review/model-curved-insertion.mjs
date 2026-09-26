@@ -148,6 +148,8 @@ export const curvedVesselInsertionMargins = (body) => {
   const model = vesselHandle(body);
   if (!model) return null;
   const { outer, inner, floor, points, radius, pathSegments, tubeSides, bodySides } = model;
+  if (radius <= 0 || pathSegments < 1 || tubeSides < 3 || bodySides < 3) return null;
+  const samplesPerEdge = 4;
   const triangles = vesselTriangles(outer, inner, bodySides);
   /** @param {number} x @param {number} y @param {number} z */
   const clayMargin = (x, y, z) => {
@@ -204,8 +206,8 @@ export const curvedVesselInsertionMargins = (body) => {
         const next = (side + 1) % tubeSides;
         const a = vertex(segment, side), b = vertex(segment, next);
         const c = vertex(segment + 1, side), d = vertex(segment + 1, next);
-        for (let u = 0; u <= 5; u++) for (let v = 0; v <= 5; v++) {
-          const s = u / 5, t = v / 5;
+        for (let u = 0; u <= samplesPerEdge; u++) for (let v = 0; v <= samplesPerEdge; v++) {
+          const s = u / samplesPerEdge, t = v / samplesPerEdge;
           const p = a.map((value, i) => value * (1 - s) * (1 - t) +
             b[i] * (1 - s) * t + c[i] * s * (1 - t) + d[i] * s * t);
           maximum = Math.max(maximum, depth(p));
@@ -213,8 +215,8 @@ export const curvedVesselInsertionMargins = (body) => {
       }
     for (let side = 0; side < tubeSides; side++) {
       const a = vertex(endIndex, side), b = vertex(endIndex, (side + 1) % tubeSides);
-      for (let u = 0; u <= 5; u++) for (let v = 0; v <= 5 - u; v++) {
-        const s = u / 5, t = v / 5;
+      for (let u = 0; u <= samplesPerEdge; u++) for (let v = 0; v <= samplesPerEdge - u; v++) {
+        const s = u / samplesPerEdge, t = v / samplesPerEdge;
         maximum = Math.max(maximum, depth(a.map((value, i) =>
           (i === 2 ? 0 : points[end ? 3 : 0][i]) * (1 - s - t) + value * s + b[i] * t)));
       }

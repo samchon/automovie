@@ -120,3 +120,25 @@ void test("a declared curved insertion depth must agree with the section", () =>
   assert.equal(partOverlapRows("false-depth", falseDepth).find((item) =>
     item.parts === "body/handle")?.pass, false);
 });
+
+void test("an insertion sentence cannot use only a shared part box as permission", () => {
+  for (const [file, anchor, pair] of [
+    ["fixtures", "lampstand", "stem/knop"],
+    ["landscape", "cypress", "trunk/crown"],
+    ["landscape", "broad-tree", "trunk/branch"],
+    ["landscape", "broad-tree", "branch/crown"],
+    ["portable", "handcart", "axle/wheel"],
+    ["portable", "bucket", "body/handle"],
+    ["wares", "storage-jar", "body/handle"],
+  ]) {
+    const row = partOverlapRows(anchor, section(file, anchor)).find((item) => item.parts === pair);
+    assert.ok(row?.insertionMargins?.every((margin: number) => margin > 0), `${anchor} ${pair}`);
+  }
+  const bucket = section("portable", "bucket");
+  const moved = bucket.replace("(0.1475 cos t,0.27+0.17 sin t,0)m",
+    "(0.1700 cos t,0.27+0.17 sin t,0)m");
+  const row = partOverlapRows("bucket", moved).find((item) => item.parts === "body/handle");
+  assert.ok(row);
+  assert.ok(row?.insertionMargins?.some((margin: number) => margin <= 0));
+  assert.equal(row.pass, false);
+});
