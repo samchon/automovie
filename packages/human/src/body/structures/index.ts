@@ -9,3 +9,4 @@ export * from "./IAutoMovieHumanBodySimpleShape";
 export * from "./IAutoMovieHumanBodySimpleShapeTable";
 export * from "./IAutoMovieHumanBodySkinSites";
 export * from "./IAutoMovieHumanBodySkinDetail";
+export * from "./IAutoMovieHumanBodySkinTone";
