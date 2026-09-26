@@ -8,8 +8,9 @@
  * house, and fixes no view count in advance:
  * - every room, stair, storage and exterior zone gets the engine's stations
  *   (`builtSpaceObservationStations`): four centre directions, four corners
- *   moved inside, and one threshold per opening on its boundaries, at 1.6 m
- *   above the space's floor (settings `frame-condition`);
+ *   moved inside, and one threshold per opening on its boundaries. Each
+ *   accepted eye is then placed 1.6 m above that station's standing floor;
+ *   a moved engine pose records the reason (settings `frame-condition`);
  * - every reflex corner of a room or zone outline, which the four bounding-box
  *   corners cannot see behind, adds a station standing one person half-width
  *   (0.30 m of the settings `use-profile` 0.60 m person) diagonally inside the
@@ -23,8 +24,16 @@
  * an earlier pose of the same space is not an observation: it is reported in
  * `failures` with its cause and never counted.
  */
-import { builtEnvironmentBuildingCensus, builtSpaceContainsPoint, builtSpaceObservationStations } from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  builtEnvironmentBuildingCensus,
+  builtSpaceContainsPoint,
+  builtSpaceObservationStations,
+} from "@automovie/engine";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { openingAxis } from "./environment";
 import type { IHouse } from "./house";
@@ -194,7 +203,11 @@ const HALF_PERSON = 0.3;
 /** Two poses closer than this in the same space count as one place. */
 const SAME_PLACE = 0.05;
 
-const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(
+  a.x - b.x,
+  a.y - b.y,
+  a.z - b.z,
+);
 
 /** Bounds of one axis-aligned cell in the current compiled space record. */
 const cellRange = (cell: IAutoMovieBuiltSpace["cells"][number], axis: "x" | "y" | "z"): readonly [number, number] => {
@@ -233,7 +246,11 @@ const insetCorner = (
   const cellCandidates = cells.flatMap((cell) => {
     const y = floor === undefined ? cell.y[0] + EYE : floor + EYE;
     if (y > cell.y[1] - 0.01) return [];
-    const position = { x: clampInside(wanted.x, cell.x), y, z: clampInside(wanted.z, cell.z) };
+    const position = {
+      x: clampInside(wanted.x, cell.x),
+      y,
+      z: clampInside(wanted.z, cell.z),
+    };
     if (!builtSpaceContainsPoint(space, position)) return [];
     return [position];
   });
@@ -242,7 +259,9 @@ const insetCorner = (
   const routeCandidates = stairRoute
     .map((foot) => ({ x: foot.x, y: foot.y + EYE, z: foot.z }))
     .filter((position) => builtSpaceContainsPoint(space, position));
-  const candidates = space.kind === "stair" && routeCandidates.length > 0 ? routeCandidates : cellCandidates;
+  const candidates = space.kind === "stair" && routeCandidates.length > 0
+    ? routeCandidates
+    : cellCandidates;
   candidates.sort((a, b) =>
     Math.hypot(a.x - wanted.x, a.z - wanted.z) - Math.hypot(b.x - wanted.x, b.z - wanted.z) || a.y - b.y,
   );
@@ -252,7 +271,16 @@ const insetCorner = (
     .filter((observation) => observation.space === space.id && observation.role === "center" && observation.pose !== null)
     .map((observation) => observation.pose!.position)
     .sort((a, b) => distance(a, position) - distance(b, position))[0];
-  return { position, target: center === undefined ? { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: position.y, z: (Math.min(...zs) + Math.max(...zs)) / 2 } : { x: center.x, y: position.y, z: center.z } };
+  return {
+    position,
+    target: center === undefined
+      ? {
+          x: (Math.min(...xs) + Math.max(...xs)) / 2,
+          y: position.y,
+          z: (Math.min(...zs) + Math.max(...zs)) / 2,
+        }
+      : { x: center.x, y: position.y, z: center.z },
+  };
 };
 
 /** Reflex (interior 270°) corners of a counter-clockwise or clockwise rectilinear outline. */
@@ -294,7 +322,9 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   const failures: { id: string; cause: string }[] = [];
   const spaces = new Map(environment.spaces.map((s) => [s.id, s]));
   const roomFloors = new Map(house.spaces.map((s) => [s.id, roomLevels(s)[0]]));
-  const storageFloors = new Map(house.storages.map((s) => [s.storage.id, s.storage.y[0]]));
+  const storageFloors = new Map(
+    house.storages.map((s) => [s.storage.id, s.storage.y[0]]),
+  );
   const stairRoute = environment.connectors.find((c) => c.id === "main-stair-connection")?.route ?? [];
   const patchFloor = (patch: { anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null }, x: number, z: number): number => {
     if (patch.rampTo === null) return patch.anchor.y;
@@ -310,6 +340,7 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
     if (storage !== undefined) return storage;
     const zone = house.zones.find((s) => s.id === id);
     if (zone !== undefined) {
+      if (zone.groundAt !== undefined) return zone.groundAt(x, z);
       const patches = zone.patches ?? [zone];
       const patch = patches.find((p) => {
         const xs = p.outline.map((q) => q.x);
@@ -325,7 +356,15 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
         const b = stairRoute[i]!;
         const dx = b.x - a.x;
         const dz = b.z - a.z;
-        const t = dx * dx + dz * dz === 0 ? 0 : Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz)));
+        const t = dx * dx + dz * dz === 0
+          ? 0
+          : Math.max(
+              0,
+              Math.min(
+                1,
+                ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz),
+              ),
+            );
         const distance = Math.hypot(x - a.x - t * dx, z - a.z - t * dz);
         if (distance < nearest.distance) nearest = { distance, y: a.y + t * (b.y - a.y) };
       }
@@ -336,16 +375,30 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   const accept = (o: IHouseObservation): void => {
     const space = o.space === null ? undefined : spaces.get(o.space);
     if (o.pose !== null && o.space !== null) {
-      const floor = standingFloor(o.space, o.pose.position.x, o.pose.position.z);
+      const floor = standingFloor(
+        o.space,
+        o.pose.position.x,
+        o.pose.position.z,
+      );
       const expected = floor + EYE;
       const delta = expected - o.pose.position.y;
       if (Math.abs(delta) > 1e-6) o.pose = { position: { ...o.pose.position, y: expected }, target: { ...o.pose.target, y: o.pose.target.y + delta }, reason: `Standing floor ${floor.toFixed(3)} m plus authored 1.60 m eye; engine station moved ${delta.toFixed(3)} m.` };
     }
-    if (o.pose === null) failures.push({ id: o.id, cause: "no pose inside its space" });
-    else if (space === undefined || !builtSpaceContainsPoint(space, o.pose.position)) failures.push({ id: o.id, cause: `pose leaves space "${o.space}"` });
+    if (o.pose === null) failures.push({
+      id: o.id,
+      cause: "no pose inside its space",
+    });
+    else if (space === undefined || !builtSpaceContainsPoint(space, o.pose.position)) failures.push(
+      { id: o.id, cause: `pose leaves space "${o.space}"` },
+    );
     else {
-      const twin = observations.find((p) => p.space === o.space && p.pose !== null && distance(p.pose.position, o.pose!.position) < SAME_PLACE && distance(p.pose.target, o.pose!.target) < SAME_PLACE);
-      if (twin !== undefined) failures.push({ id: o.id, cause: `coincides with "${twin.id}"` });
+      const twin = observations.find(
+        (p) => p.space === o.space && p.pose !== null && distance(p.pose.position, o.pose!.position) < SAME_PLACE && distance(p.pose.target, o.pose!.target) < SAME_PLACE,
+      );
+      if (twin !== undefined) failures.push({
+        id: o.id,
+        cause: `coincides with "${twin.id}"`,
+      });
       else observations.push(o);
     }
   };
@@ -359,7 +412,14 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
       const x = centre.x + normal.x * (reach + HALF_PERSON) * s;
       const z = centre.z + normal.z * (reach + HALF_PERSON) * s;
       const position = { x, y: floor(x, z) + EYE, z };
-      if (builtSpaceContainsPoint(space, { x, y: floor(x, z) + 0.01, z })) return { position, target: centre };
+      if (builtSpaceContainsPoint(space, {
+        x,
+        y: floor(x, z) + 0.01,
+        z,
+      })) return {
+        position,
+        target: centre,
+      };
     }
     return null;
   };
@@ -368,16 +428,33 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   // is applied on the space's side before the station counts as failed.
   const floorOf = roomFloors;
   for (const space of environment.spaces) {
-    if (!["room", "stair", "storage", "exterior"].includes(space.kind)) continue;
-    for (const station of builtSpaceObservationStations(environment, space.id)) {
+    if (!["room", "stair", "storage", "exterior"].includes(
+      space.kind,
+    )) continue;
+    for (const station of builtSpaceObservationStations(
+      environment,
+      space.id,
+    )) {
       const floor = floorOf.get(space.id);
       if (station.role === "corner" && station.pose === null) {
         const stairRoute = environment.connectors.find((connector) => connector.landings?.some((landing) => landing.space === space.id))?.route ?? [];
-        accept({ id: `${space.id}/${station.id}`, role: "corner", space: space.id, subject: station.opening, pose: insetCorner(space, station.id, floor, observations, stairRoute) });
+        accept({
+          id: `${space.id}/${station.id}`,
+          role: "corner",
+          space: space.id,
+          subject: station.opening,
+          pose: insetCorner(space, station.id, floor, observations, stairRoute),
+        });
         continue;
       }
       if (station.role === "threshold" && station.pose === null && station.opening !== null && floor !== undefined) {
-        accept({ id: `${space.id}/threshold-${station.opening}`, role: "threshold", space: space.id, subject: station.opening, pose: threshold(space.id, station.opening, () => floor) });
+        accept({
+          id: `${space.id}/threshold-${station.opening}`,
+          role: "threshold",
+          space: space.id,
+          subject: station.opening,
+          pose: threshold(space.id, station.opening, () => floor),
+        });
         continue;
       }
       accept({
@@ -385,7 +462,9 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
         role: station.role,
         space: space.id,
         subject: station.opening,
-        pose: station.pose === null ? null : { position: station.pose.position, target: station.pose.target },
+        pose: station.pose === null
+          ? null
+          : { position: station.pose.position, target: station.pose.target },
       });
     }
   }
@@ -396,7 +475,9 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   ];
   for (const { id, outline, floor } of outlines) {
     const space = spaces.get(id);
-    if (space === undefined) throw new Error(`observation outline "${id}" has no space in the record`);
+    if (space === undefined) throw new Error(
+      `observation outline "${id}" has no space in the record`,
+    );
     reflexCorners(outline).forEach(({ at, toPrev, toNext }, k) => {
       const a = unit(at, toPrev);
       const b = unit(at, toNext);
@@ -420,20 +501,37 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   for (const zone of house.zones) {
     const ground = (x: number, z: number): number => {
       if (zone.rampTo === null) return zone.anchor.y;
-      const d = { x: zone.rampTo.x - zone.anchor.x, z: zone.rampTo.z - zone.anchor.z };
+      const d = {
+        x: zone.rampTo.x - zone.anchor.x,
+        z: zone.rampTo.z - zone.anchor.z,
+      };
       const s = ((x - zone.anchor.x) * d.x + (z - zone.anchor.z) * d.z) / (d.x * d.x + d.z * d.z);
       return zone.anchor.y + Math.min(1, Math.max(0, s)) * (zone.rampTo.y - zone.anchor.y);
     };
     for (const opening of environment.openings) {
-      const host = environment.boundaries.find((b) => b.id === opening.boundary);
+      const host = environment.boundaries.find(
+        (b) => b.id === opening.boundary,
+      );
       if (host === undefined || host.spaces.length !== 1) continue;
       const pose = threshold(zone.id, opening.id, ground);
-      if (pose !== null) accept({ id: `${zone.id}/threshold-${opening.id}`, role: "threshold", space: zone.id, subject: opening.id, pose });
+      if (pose !== null) accept({
+        id: `${zone.id}/threshold-${opening.id}`,
+        role: "threshold",
+        space: zone.id,
+        subject: opening.id,
+        pose,
+      });
     }
   }
   // Building census questions: exterior camera conditions belong to settings.
   for (const census of builtEnvironmentBuildingCensus(environment)) {
-    const question = (role: IHouseObservation["role"], subject: string): IHouseObservation => ({ id: `building/${role}/${subject}`, role, space: null, subject, pose: null });
+    const question = (role: IHouseObservation["role"], subject: string): IHouseObservation => ({
+      id: `building/${role}/${subject}`,
+      role,
+      space: null,
+      subject,
+      pose: null,
+    });
     observations.push(
       ...census.facades.map((f) => question("facade", f.boundary)),
       ...census.roofs.map((f) => question("roof", f.boundary)),
@@ -445,20 +543,44 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   // Roof faces and their undersides are emitted solids, not boundaries: one question each.
   for (const part of house.parts.filter((p) => p.role === "roof"))
     observations.push(
-      { id: `building/roof/${part.id}`, role: "roof", space: null, subject: part.id, pose: null },
-      { id: `building/underside/${part.id}`, role: "underside", space: null, subject: part.id, pose: null },
+      {
+        id: `building/roof/${part.id}`,
+        role: "roof",
+        space: null,
+        subject: part.id,
+        pose: null,
+      },
+      {
+        id: `building/underside/${part.id}`,
+        role: "underside",
+        space: null,
+        subject: part.id,
+        pose: null,
+      },
     );
   // Reference comparisons (04 reference-spatial-comparisons): which derived questions each reads.
   const ids = new Set(observations.map((o) => o.id));
-  const pick = (...wanted: string[]): string[] => wanted.filter((w) => ids.has(w));
-  const ofSpace = (space: string, role?: IHouseObservation["role"]): string[] => observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map((o) => o.id);
+  const pick = (...wanted: string[]): string[] => wanted.filter((w) =>
+    ids.has(w),
+  );
+  const ofSpace = (space: string, role?: IHouseObservation["role"]): string[] => observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map(
+    (o) => o.id,
+  );
   const references: IReferenceComparison[] = [
     {
       reference: "01",
-      observations: [...observations.filter((o) => o.role === "facade" || o.role === "envelope-corner" || o.role === "entrance").map((o) => o.id), ...ofSpace("front-porch"), ...ofSpace("front-walk")],
+      observations: [
+        ...observations.filter((o) => o.role === "facade" || o.role === "envelope-corner" || o.role === "entrance").map((o) => o.id),
+        ...ofSpace("front-porch"),
+        ...ofSpace("front-walk"),
+      ],
       records: ["house", "house-site"],
     },
-    { reference: "02", observations: [], records: ["ground-storey", "upper-storey", "main-stair-connection"] },
+    {
+      reference: "02",
+      observations: [],
+      records: ["ground-storey", "upper-storey", "main-stair-connection"],
+    },
     {
       reference: "03",
       observations: pick(
@@ -472,15 +594,24 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
     },
     {
       reference: "04",
-      observations: [...ofSpace("front-entry"), ...ofSpace("living-room", "center")],
+      observations: [
+        ...ofSpace("front-entry"),
+        ...ofSpace("living-room", "center"),
+      ],
       records: ["front-entry", "living-room", "main-stair"],
     },
     {
       reference: "05",
-      observations: [...ofSpace("upper-hall"), ...ofSpace("main-stair", "threshold"), ...pick("upper-linen-storage/threshold-upper-linen-opening")],
+      observations: [
+        ...ofSpace("upper-hall"),
+        ...ofSpace("main-stair", "threshold"),
+        ...pick("upper-linen-storage/threshold-upper-linen-opening"),
+      ],
       records: ["upper-hall", "upper-linen-storage"],
     },
   ];
-  for (const r of references) if (r.observations.length === 0 && r.reference !== "02") throw new Error(`reference ${r.reference} reads no derived observation`);
+  for (const r of references) if (r.observations.length === 0 && r.reference !== "02") throw new Error(
+    `reference ${r.reference} reads no derived observation`,
+  );
   return { observations, failures, references };
 };

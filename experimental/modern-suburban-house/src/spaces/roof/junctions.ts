@@ -44,7 +44,12 @@ export const ROOF_THICKNESS = 0.24;
  * @evidence principles/core/source-units.md#source-substantive-completion The typed object gives roof-plane builders concrete offsets for their weather-surface outlines.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The profile parent distinguishes the garage and main reaches, so no eave depth was chosen in source.
  */
-export const OVERHANG = { main: 0.4, gable: 0.4, right: 0.4, garage: 0.35 } as const;
+export const OVERHANG = {
+  main: 0.4,
+  gable: 0.4,
+  right: 0.4,
+  garage: 0.35,
+} as const;
 
 /** X of the plane between the main roof and the right low roof (roof-mass-allocation). */
 /**
@@ -149,7 +154,9 @@ export const gBack = (z: number): number => 2.95 + GARAGE_PITCH * (z - GARAGE.ou
  * @evidence principles/core/source-units.md#source-substantive-completion Every Z receives one numeric roof height for wall-head and roof junction calculations.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main roof parent supplies both profiles and their shared ridge; selection needed no new seam.
  */
-export const mainRoof = (z: number): number => (z >= MAIN_RIDGE_Z ? mFront(z) : mBack(z));
+export const mainRoof = (z: number): number => (z >= MAIN_RIDGE_Z
+  ? mFront(z)
+  : mBack(z));
 /** Right low roof weather surface at any Z. */
 /**
  * @evidence spaces/roof/00-junctions.md rightRoof resolves the lower right weather height on either side of the common ridge.
@@ -157,7 +164,9 @@ export const mainRoof = (z: number): number => (z >= MAIN_RIDGE_Z ? mFront(z) : 
  * @evidence principles/core/source-units.md#source-substantive-completion The selected numeric height closes the stepped right wall and the garage shared-wall head.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-roof parent fixes its two 7/12 halves and ridge, leaving no profile branch to invent.
  */
-export const rightRoof = (z: number): number => (z >= MAIN_RIDGE_Z ? rFront(z) : rBack(z));
+export const rightRoof = (z: number): number => (z >= MAIN_RIDGE_Z
+  ? rFront(z)
+  : rBack(z));
 /** Garage roof weather surface at any Z. */
 /**
  * @evidence spaces/roof/00-junctions.md garageRoof switches between the two garage 5/12 faces at GARAGE_RIDGE_Z.
@@ -165,7 +174,9 @@ export const rightRoof = (z: number): number => (z >= MAIN_RIDGE_Z ? rFront(z) :
  * @evidence principles/core/source-units.md#source-substantive-completion Garage envelope walls receive a deterministic weather height across front and rear halves.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage mass/profile parent defines both faces and centered ridge; selection added no roof edge.
  */
-export const garageRoof = (z: number): number => (z >= GARAGE_RIDGE_Z ? gFront(z) : gBack(z));
+export const garageRoof = (z: number): number => (z >= GARAGE_RIDGE_Z
+  ? gFront(z)
+  : gBack(z));
 
 /** Front edge of the main and gable roofs: the front wall plus the free overhang. */
 /**
@@ -233,4 +244,7 @@ export const GABLE_CORNERS = (() => {
  * @evidence principles/core/source-units.md#source-substantive-completion The two fixed intervals are consumed by main-front's four convex remainder plans.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The chimney interface parent specifies this cutout footprint, so the record needed no invented clearance.
  */
-export const CHIMNEY_PLAN = { x: [-6.3, -5.5] as const, z: [-2.75, -1.65] as const };
+export const CHIMNEY_PLAN = {
+  x: [-6.3, -5.5] as const,
+  z: [-2.75, -1.65] as const,
+};

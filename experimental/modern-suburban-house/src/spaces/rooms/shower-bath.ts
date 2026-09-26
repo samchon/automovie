@@ -9,8 +9,17 @@
  */
 import { PALETTE } from "../palette";
 import { part } from "../solids";
-import { STOREYS, floorOf } from "../storeys";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import { floorOf, STOREYS } from "../storeys";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { blindRecessWall } from "./recess";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/shower-bath.md The hall-shower-door void follows the partition assigned to shower-bath.
@@ -18,8 +27,12 @@ import { blindRecessWall } from "./recess";
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-shower-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-shower-door width and position are fixed by the shower-bath design.
  */
-export const DOOR_HALL_SHOWER_DOOR = door("hall-shower-door", "upper-storey", 1.05, 2.05);
-
+export const DOOR_HALL_SHOWER_DOOR = door(
+  "hall-shower-door",
+  "upper-storey",
+  1.05,
+  2.05,
+);
 
 const FLOOR = floorOf("upper-storey");
 
@@ -64,7 +77,12 @@ export const buildShowerBath = (): IRoomBuild => ({
   parts: [
     roomFloor(SHOWER_BATH),
     roomCeiling(SHOWER_BATH),
-    doorFloor(SHOWER_BATH, "hall-shower-door", [DOOR_HALL_SHOWER_DOOR.from, DOOR_HALL_SHOWER_DOOR.to], [-6.06, -5.985]),
+    doorFloor(
+      SHOWER_BATH,
+      "hall-shower-door",
+      [DOOR_HALL_SHOWER_DOOR.from, DOOR_HALL_SHOWER_DOOR.to],
+      [-6.06, -5.985],
+    ),
     partition({
       id: "shower-hall-partition",
       owner: SHOWER_BATH.owner,
@@ -74,13 +92,19 @@ export const buildShowerBath = (): IRoomBuild => ({
       along: [0.9, 3.22],
       holes: [DOOR_HALL_SHOWER_DOOR],
     }),
-    part("shower-primary-partition", SHOWER_BATH.owner, "partition", PALETTE.interiorWall, blindRecessWall({
-      wallX: [0.75, 0.9],
-      wallY: [STOREYS.upperFloor, STOREYS.upperCeiling],
-      wallZ: [-8.95, -6.06],
-      openingY: [STOREYS.upperFloor + 1.10, STOREYS.upperFloor + 1.50],
-      openingZ: [-8.55, -8.15],
-      depth: 0.08,
-    })),
+    part(
+      "shower-primary-partition",
+      SHOWER_BATH.owner,
+      "partition",
+      PALETTE.interiorWall,
+      blindRecessWall({
+        wallX: [0.75, 0.9],
+        wallY: [STOREYS.upperFloor, STOREYS.upperCeiling],
+        wallZ: [-8.95, -6.06],
+        openingY: [STOREYS.upperFloor + 1.10, STOREYS.upperFloor + 1.50],
+        openingZ: [-8.55, -8.15],
+        depth: 0.08,
+      }),
+    ),
   ],
 });

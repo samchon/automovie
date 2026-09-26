@@ -12,7 +12,16 @@
  * later models.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { ceilingOf, floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/tub-bath.md The hall-tub-door void follows the partition assigned to tub-bath.
@@ -20,8 +29,12 @@ import { ceilingOf, floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-tub-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-tub-door width and position are fixed by the tub-bath design.
  */
-export const DOOR_HALL_TUB_DOOR = door("hall-tub-door", "upper-storey", -5.86, -4.86);
-
+export const DOOR_HALL_TUB_DOOR = door(
+  "hall-tub-door",
+  "upper-storey",
+  -5.86,
+  -4.86,
+);
 
 const FLOOR = floorOf("upper-storey");
 
@@ -61,7 +74,12 @@ export const buildTubBath = (): IRoomBuild => ({
   parts: [
     roomFloor(TUB_BATH),
     roomCeiling(TUB_BATH),
-    doorFloor(TUB_BATH, "hall-tub-door", [3.145, 3.22], [DOOR_HALL_TUB_DOOR.from, DOOR_HALL_TUB_DOOR.to]),
+    doorFloor(
+      TUB_BATH,
+      "hall-tub-door",
+      [3.145, 3.22],
+      [DOOR_HALL_TUB_DOOR.from, DOOR_HALL_TUB_DOOR.to],
+    ),
     partition({
       id: "tub-hall-partition",
       owner: TUB_BATH.owner,
@@ -71,7 +89,21 @@ export const buildTubBath = (): IRoomBuild => ({
       along: [-5.91, -4.71],
       holes: [DOOR_HALL_TUB_DOOR],
     }),
-    partition({ id: "tub-shower-partition", owner: TUB_BATH.owner, storey: "upper-storey", axis: "z", across: [3.07, 3.22], along: [-8.95, -6.06] }),
-    partition({ id: "tub-bedroom-three-partition", owner: TUB_BATH.owner, storey: "upper-storey", axis: "x", across: [-4.71, -4.56], along: [3.22, 5.5] }),
+    partition({
+      id: "tub-shower-partition",
+      owner: TUB_BATH.owner,
+      storey: "upper-storey",
+      axis: "z",
+      across: [3.07, 3.22],
+      along: [-8.95, -6.06],
+    }),
+    partition({
+      id: "tub-bedroom-three-partition",
+      owner: TUB_BATH.owner,
+      storey: "upper-storey",
+      axis: "x",
+      across: [-4.71, -4.56],
+      along: [3.22, 5.5],
+    }),
   ],
 });

@@ -17,8 +17,14 @@
  */
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { ROOF_THICKNESS, SPLIT_X, gBack, mBack, rBack } from "../roof/junctions";
-import { type IHousePart, block, part, wallPanel } from "../solids";
+import {
+  gBack,
+  mBack,
+  rBack,
+  ROOF_THICKNESS,
+  SPLIT_X,
+} from "../roof/junctions";
+import { block, part, wallPanel, type IHousePart } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { wallHead } from "./wall-head";
 
@@ -29,22 +35,34 @@ const INNER = BACK + MAIN.wall;
 /** Bottom of the ground base reservation the wall leaves under the garden door (10). */
 const SILL = STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base;
 /**
- * @evidence spaces/envelope/rear.md GARDEN_DOOR is the single authored measurement record consumed by neighboring owners.
- * @evidence spaces/envelope/rear.md#garden-door Its bounds or datum follow this source owner's reviewed plan.
- * @evidence principles/core/source-units.md#source-scope-preservation GARDEN_DOOR shares a host value without creating a second part or place.
- * @evidence principles/core/source-units.md#source-substantive-completion Consumers import GARDEN_DOOR for matching boundaries and reservations.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed GARDEN_DOOR owner fixes this measurement; its consumers add no independent value.
+ * @evidence spaces/envelope/rear.md The central rear exit has one opening span for wall, threshold, and floor support.
+ * @evidence spaces/envelope/rear.md#garden-door Its -1.20..1.20 m jambs meet the terrace while the sill follows the ground base layers.
+ * @evidence principles/core/source-units.md#source-scope-preservation The host defines the rough wall cut and leaves glazed leaves and hardware to models.
+ * @evidence principles/core/source-units.md#source-substantive-completion Rear wall, rear threshold, and ground slab tongue take their X bounds from this object.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The rear exit and level terrace relation are already settled in its design.
  */
-export const GARDEN_DOOR = { id: "garden-door", from: -1.2, to: 1.2, bottom: SILL, top: 2.25 } as const;
+export const GARDEN_DOOR = {
+  id: "garden-door",
+  from: -1.2,
+  to: 1.2,
+  bottom: SILL,
+  top: 2.25,
+} as const;
 /** Rough opening owned by the rear elevation and consumed by bedroom reservations. */
 /**
- * @evidence spaces/envelope/rear.md PRIMARY_REAR_WINDOW is the single authored measurement record consumed by neighboring owners.
- * @evidence spaces/envelope/rear.md#primary-rear-window Its bounds or datum follow this source owner's reviewed plan.
- * @evidence principles/core/source-units.md#source-scope-preservation PRIMARY_REAR_WINDOW shares a host value without creating a second part or place.
- * @evidence principles/core/source-units.md#source-substantive-completion Consumers import PRIMARY_REAR_WINDOW for matching boundaries and reservations.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed PRIMARY_REAR_WINDOW owner fixes this measurement; its consumers add no independent value.
+ * @evidence spaces/envelope/rear.md The upper rear opening in the primary bedroom remains a wall-hosted void.
+ * @evidence spaces/envelope/rear.md#primary-rear-window The -3.85..-1.45 m span and 3.91..5.31 m heights avoid the wardrobe bay.
+ * @evidence principles/core/source-units.md#source-scope-preservation The bedroom imports this void only to reserve its inward curtain strip.
+ * @evidence principles/core/source-units.md#source-substantive-completion The rear wall cut and the bedroom curtain share one sill, head, and horizontal host.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The rear window paragraph fixes its position before curtain fit-out.
  */
-export const PRIMARY_REAR_WINDOW = { id: "primary-rear-window", from: -3.85, to: -1.45, bottom: 3.91, top: 5.31 } as const;
+export const PRIMARY_REAR_WINDOW = {
+  id: "primary-rear-window",
+  from: -3.85,
+  to: -1.45,
+  bottom: 3.91,
+  top: 5.31,
+} as const;
 
 /** Emit the rear elevation walls. */
 /**
@@ -74,7 +92,13 @@ export const buildRear = (): IHousePart[] => {
       { u: MAIN.outer.x[0], y: mainTop },
     ],
     holes: [
-      { id: "kitchen-rear-window", from: -4.5, to: -3.3, bottom: 1.15, top: 2.3 },
+      {
+        id: "kitchen-rear-window",
+        from: -4.5,
+        to: -3.3,
+        bottom: 1.15,
+        top: 2.3,
+      },
       { id: "family-rear-window", from: 2.75, to: 4.75, bottom: 0.75, top: 2.3 },
       PRIMARY_REAR_WINDOW,
       GARDEN_DOOR,
@@ -93,16 +117,40 @@ export const buildRear = (): IHousePart[] => {
   });
   return [
     part("rear-main-wall", OWNER, "wall", PALETTE.siding, main),
-    wallHead({ id: "rear-main-wall-head", owner: OWNER, x: [MAIN.outer.x[0], SPLIT_X], z: [BACK, INNER], roof: mBack, outerZ: BACK }),
-    wallHead({ id: "rear-right-wall-head", owner: OWNER, x: [SPLIT_X, MAIN.outer.x[1]], z: [BACK, INNER], roof: rBack, outerZ: BACK }),
+    wallHead({
+      id: "rear-main-wall-head",
+      owner: OWNER,
+      x: [MAIN.outer.x[0], SPLIT_X],
+      z: [BACK, INNER],
+      roof: mBack,
+      outerZ: BACK,
+    }),
+    wallHead({
+      id: "rear-right-wall-head",
+      owner: OWNER,
+      x: [SPLIT_X, MAIN.outer.x[1]],
+      z: [BACK, INNER],
+      roof: rBack,
+      outerZ: BACK,
+    }),
     part(
       "garden-door-threshold",
       OWNER,
       "floor",
       PALETTE.structure,
-      block([GARDEN_DOOR.from, STOREYS.groundFloor - GROUND_LAYERS.finish, BACK], [GARDEN_DOOR.to, STOREYS.groundFloor + 0.02, INNER]),
+      block(
+        [GARDEN_DOOR.from, STOREYS.groundFloor - GROUND_LAYERS.finish, BACK],
+        [GARDEN_DOOR.to, STOREYS.groundFloor + 0.02, INNER],
+      ),
     ),
     part("rear-garage-wall", OWNER, "wall", PALETTE.siding, garage),
-    wallHead({ id: "rear-garage-wall-head", owner: OWNER, x: [GARAGE.inner.x[0], GARAGE.outer.x[1]], z: [GARAGE.outer.z[0], -6.45], roof: gBack, outerZ: GARAGE.outer.z[0] }),
+    wallHead({
+      id: "rear-garage-wall-head",
+      owner: OWNER,
+      x: [GARAGE.inner.x[0], GARAGE.outer.x[1]],
+      z: [GARAGE.outer.z[0], -6.45],
+      roof: gBack,
+      outerZ: GARAGE.outer.z[0],
+    }),
   ];
 };

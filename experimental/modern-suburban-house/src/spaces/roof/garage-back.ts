@@ -7,8 +7,8 @@
  */
 import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slopedSlab } from "../solids";
-import { GARAGE_RIDGE_Z, OVERHANG, ROOF_THICKNESS, gBack } from "./junctions";
+import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import { GARAGE_RIDGE_Z, gBack, OVERHANG, ROOF_THICKNESS } from "./junctions";
 
 /**
  * Emit the garage back face.
@@ -25,7 +25,10 @@ export const buildGarageBackRoof = (): IHousePart[] => [
     "roof",
     PALETTE.roof,
     slopedSlab({
-      plan: rect([GARAGE.inner.x[0], GARAGE.outer.x[1] + OVERHANG.garage], [GARAGE.outer.z[0] - OVERHANG.garage, GARAGE_RIDGE_Z]),
+      plan: rect(
+        [GARAGE.inner.x[0], GARAGE.outer.x[1] + OVERHANG.garage],
+        [GARAGE.outer.z[0] - OVERHANG.garage, GARAGE_RIDGE_Z],
+      ),
       top: (_x, z) => gBack(z),
       thickness: ROOF_THICKNESS,
     }),

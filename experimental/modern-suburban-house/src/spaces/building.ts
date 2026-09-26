@@ -62,6 +62,6 @@ export const GARAGE = {
  * @evidence spaces/10-ground-floor.md#ground-support-handoff The -0.45 m temporary wall bottom matches the front walk while actual buried support awaits map ground input.
  * @evidence principles/core/source-units.md#source-scope-preservation EXTERIOR_WALL_BOTTOM is elevation closure, not foundation depth or a map-ground substitute.
  * @evidence principles/core/source-units.md#source-substantive-completion The numeric bound lets exterior wall solids close to the known paving level in the current build.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground-support parent distinguishes provisional wall closure from future map support; this bound needed no new support design.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The source exposed an undecided wall bottom; ground-support-handoff now authorizes only a marked temporary display cut.
  */
 export const EXTERIOR_WALL_BOTTOM = STOREYS.frontWalk;

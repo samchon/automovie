@@ -10,7 +10,15 @@
  * Z = [-4.46, -3.51], Y = [3.06, 5.26] m.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-three.md The hall-bedroom-three-door void follows the partition assigned to bedroom-three.
@@ -18,8 +26,12 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-three-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-bedroom-three-door width and position are fixed by the bedroom-three design.
  */
-export const DOOR_HALL_BEDROOM_THREE_DOOR = door("hall-bedroom-three-door", "upper-storey", -4.46, -3.51);
-
+export const DOOR_HALL_BEDROOM_THREE_DOOR = door(
+  "hall-bedroom-three-door",
+  "upper-storey",
+  -4.46,
+  -3.51,
+);
 
 const FLOOR = floorOf("upper-storey");
 
@@ -67,7 +79,12 @@ export const buildBedroomThree = (): IRoomBuild => ({
   parts: [
     roomFloor(BEDROOM_THREE),
     roomCeiling(BEDROOM_THREE),
-    doorFloor(BEDROOM_THREE, "hall-bedroom-three-door", [3.145, 3.22], [DOOR_HALL_BEDROOM_THREE_DOOR.from, DOOR_HALL_BEDROOM_THREE_DOOR.to]),
+    doorFloor(
+      BEDROOM_THREE,
+      "hall-bedroom-three-door",
+      [3.145, 3.22],
+      [DOOR_HALL_BEDROOM_THREE_DOOR.from, DOOR_HALL_BEDROOM_THREE_DOOR.to],
+    ),
     partition({
       id: "bedroom-three-arrival-partition",
       owner: BEDROOM_THREE.owner,

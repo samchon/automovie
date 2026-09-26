@@ -6,8 +6,15 @@
  * Rback(Z) = 5.95 + (7/12)(Z + 10.70), underside 0.24 m lower (roof/00).
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slopedSlab } from "../solids";
-import { BACK_EAVE_Z, MAIN_RIDGE_Z, RIGHT_EAVE_X, ROOF_THICKNESS, SPLIT_X, rBack } from "./junctions";
+import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import {
+  BACK_EAVE_Z,
+  MAIN_RIDGE_Z,
+  rBack,
+  RIGHT_EAVE_X,
+  ROOF_THICKNESS,
+  SPLIT_X,
+} from "./junctions";
 
 /**
  * Emit the right low roof back face.
@@ -18,5 +25,17 @@ import { BACK_EAVE_Z, MAIN_RIDGE_Z, RIGHT_EAVE_X, ROOF_THICKNESS, SPLIT_X, rBack
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-back parent fixes the step, rear eave, ridge, and pitch; the rectangular solid required no new wall-head location.
  */
 export const buildRightBackRoof = (): IHousePart[] => [
-  part("roof-right-back", "roof/right-back.ts", "roof", PALETTE.roof, slopedSlab({ plan: rect([SPLIT_X, RIGHT_EAVE_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]), top: (_x, z) => rBack(z), thickness: ROOF_THICKNESS, freeEdge: (a, b) => (a.x === RIGHT_EAVE_X && b.x === RIGHT_EAVE_X) || (a.z === BACK_EAVE_Z && b.z === BACK_EAVE_Z) })),
+  part(
+    "roof-right-back",
+    "roof/right-back.ts",
+    "roof",
+    PALETTE.roof,
+    slopedSlab({
+      plan: rect([SPLIT_X, RIGHT_EAVE_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]),
+      top: (_x, z) => rBack(z),
+      thickness: ROOF_THICKNESS,
+      freeEdge: (a, b) => (a.x === RIGHT_EAVE_X && b.x === RIGHT_EAVE_X) || (a.z === BACK_EAVE_Z && b.z === BACK_EAVE_Z),
+    }),
+    true,
+  ),
 ];

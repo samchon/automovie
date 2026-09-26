@@ -22,9 +22,15 @@
 import { DOOR_ENTRY_LIVING_DOOR } from "./living";
 import { PALETTE } from "../palette";
 import { block, part } from "../solids";
-import { GROUND_LAYERS, STOREYS, floorOf } from "../storeys";
+import { floorOf, GROUND_LAYERS, STOREYS } from "../storeys";
 import { STAIR_OPENING } from "../stair";
-import { type IRoomBuild, type IRoomSpace, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  doorFloor,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 
 const FLOOR = floorOf("ground-storey");
 /** The entry plan owns the front threshold span consumed by wall, base and porch. */

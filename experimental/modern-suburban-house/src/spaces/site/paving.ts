@@ -9,7 +9,7 @@
  * stays under about 0.00083 m, and every cell is two triangles whose corners
  * are shared with their neighbours. This helper emits no surface of its own.
  */
-import { type IHousePart, part, slopedSlab } from "../solids";
+import { part, slopedSlab, type IHousePart } from "../solids";
 
 /** Base depth below a walking surface, metres. */
 /**
@@ -50,8 +50,14 @@ export const blendedRun = (props: {
   cells?: number;
 }): IHousePart[] => {
   const n = props.cells ?? 4;
-  const xs = Array.from({ length: n + 1 }, (_, i) => props.x[0] + ((props.x[1] - props.x[0]) * i) / n);
-  const zs = Array.from({ length: n + 1 }, (_, i) => props.z[0] + ((props.z[1] - props.z[0]) * i) / n);
+  const xs = Array.from(
+    { length: n + 1 },
+    (_, i) => props.x[0] + ((props.x[1] - props.x[0]) * i) / n,
+  );
+  const zs = Array.from(
+    { length: n + 1 },
+    (_, i) => props.z[0] + ((props.z[1] - props.z[0]) * i) / n,
+  );
   const parts: IHousePart[] = [];
   for (let i = 0; i < n; ++i)
     for (let j = 0; j < n; ++j) {
@@ -63,7 +69,13 @@ export const blendedRun = (props: {
       // bilinear height sampled at them defines its top exactly.
       for (const [k, tri] of [[p00, p10, p11], [p00, p11, p01]].entries())
         parts.push(
-          part(`${props.id}-${i}-${j}-${k}`, props.owner, "paving", props.color, slopedSlab({ plan: tri, top: props.height, thickness: props.depth })),
+          part(
+            `${props.id}-${i}-${j}-${k}`,
+            props.owner,
+            "paving",
+            props.color,
+            slopedSlab({ plan: tri, top: props.height, thickness: props.depth }),
+          ),
         );
     }
   return parts;

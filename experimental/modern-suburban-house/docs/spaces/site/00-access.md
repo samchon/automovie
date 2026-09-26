@@ -39,7 +39,7 @@
 @evidence principles/core/common.md#substantive-completion front-walk → front-porch의 아래 대기 → 외부 세 단 → 포치 → front-door → front-entry, kitchen-dining-family → garden-door → garden-terrace → garden-lower-landing의 순서 경로를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 front-walk → 아래 대기 → 외부 세 단 → 포치 → front-door → front-entry와 kitchen-dining-family → garden-door → 테라스 → garden-lower-landing 순서를 대조해 경로 순서가 이 H2에서 확정됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 각 경로 구간은 링크한 front-walk·driveway·porch·entry·laundry·garden-door·terrace·side-walk·fence owner에서 받고 사용체는 use-profile에서 받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 각 경로 구간이 front-walk·driveway·porch·entry·laundry·rear·terrace·side-walk·fence 링크를, 점유체가 use-profile 링크를 가리키는지 본문과 대조해 구간마다 근거가 추적됨을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb front-walk·driveway·porch·entry·laundry·rear·terrace·side-walk·fence 링크와 use-profile을 경로 근거로 대조하고, 새 2.00 m 외부 zone 체적은 실제 머리 여유가 아닌 map-ground-pending 표현 높이로 이 H2가 한정함을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "외부 보행자는 앞 보도에서 포치와 현관으로 직접 접근"과 테라스 설정을 구간 순서가 있는 내부 경로 그래프로 만든다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry의 직접 접근 한 문장과 site-identity 테라스 조건에 없는 구간 순서, driveway→front-walk 가로 연결로, 아래 대기→관리길 연결을 본문이 더하는지 대조해 분화를 확인했다.
 @evidence principles/design/spaces.md#space-topology 차고 외부문은 기본 닫힘이고 차고 실내 진입은 머드룸이며 관리길 앞뒤 구역과 울타리 문은 외부 node를 늘리지 않는 내부 연결이다.

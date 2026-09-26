@@ -23,8 +23,16 @@
  */
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { GABLE, ROOF_THICKNESS, SPLIT_X, gFront, gable, mFront, rFront } from "../roof/junctions";
-import { type IHousePart, block, part, wallPanel, slopedSlab } from "../solids";
+import {
+  GABLE,
+  gable,
+  gFront,
+  mFront,
+  rFront,
+  ROOF_THICKNESS,
+  SPLIT_X,
+} from "../roof/junctions";
+import { block, part, slopedSlab, wallPanel, type IHousePart } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { FRONT_DOOR } from "../rooms/entry";
 import { wallHead } from "./wall-head";
@@ -35,13 +43,19 @@ const FRONT = MAIN.outer.z[1];
 const INNER = FRONT - MAIN.wall;
 /** Rough garage opening; room fit-out reserves the guide from this host. */
 /**
- * @evidence spaces/envelope/front.md GARAGE_FRONT_DOOR is the single authored measurement record consumed by neighboring owners.
- * @evidence spaces/envelope/front.md#garage-front-opening Its bounds or datum follow this source owner's reviewed plan.
- * @evidence principles/core/source-units.md#source-scope-preservation GARAGE_FRONT_DOOR shares a host value without creating a second part or place.
- * @evidence principles/core/source-units.md#source-substantive-completion Consumers import GARAGE_FRONT_DOOR for matching boundaries and reservations.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed GARAGE_FRONT_DOOR owner fixes this measurement; its consumers add no independent value.
+ * @evidence spaces/envelope/front.md The garage's one broad opening is measured at its front elevation.
+ * @evidence spaces/envelope/front.md#garage-front-opening The 6.10..11.10 m jambs, garage-base sill, and 2.15 m head form one rough void.
+ * @evidence principles/core/source-units.md#source-scope-preservation This host leaves the moving panel and guides to later models and garage reservations.
+ * @evidence principles/core/source-units.md#source-substantive-completion The wall cut, floor base tongue, and interior guide reservations consume its span.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front opening paragraph fixes these jambs and the single-panel role.
  */
-export const GARAGE_FRONT_DOOR = { id: "garage-front-door", from: 6.1, to: 11.1, bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase, top: 2.15 } as const;
+export const GARAGE_FRONT_DOOR = {
+  id: "garage-front-door",
+  from: 6.1,
+  to: 11.1,
+  bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase,
+  top: 2.15,
+} as const;
 /** Bottom of the ground base reservation the wall leaves under the front door (10). */
 
 /** Emit the front elevation walls. */
@@ -78,9 +92,27 @@ export const buildFront = (): IHousePart[] => {
     ],
     holes: [
       { id: "living-front-window", from: -5.1, to: -2.3, bottom: 0.7, top: 2.3 },
-      { id: "bedroom-two-front-window", from: -4.8, to: -2.7, bottom: 3.91, top: 5.31 },
-      { id: "stair-front-window", from: -1.62, to: -0.84, bottom: 4.11, top: 5.21 },
-      { id: "bedroom-three-front-window", from: 2.65, to: 4.75, bottom: 3.91, top: 5.31 },
+      {
+        id: "bedroom-two-front-window",
+        from: -4.8,
+        to: -2.7,
+        bottom: 3.91,
+        top: 5.31,
+      },
+      {
+        id: "stair-front-window",
+        from: -1.62,
+        to: -0.84,
+        bottom: 4.11,
+        top: 5.21,
+      },
+      {
+        id: "bedroom-three-front-window",
+        from: 2.65,
+        to: 4.75,
+        bottom: 3.91,
+        top: 5.31,
+      },
       FRONT_DOOR,
     ],
   });
@@ -104,21 +136,63 @@ export const buildFront = (): IHousePart[] => {
   const slope = (gable(GABLE.center) - gable(GABLE.a)) / (GABLE.center - GABLE.a);
   const reach = (mFront(INNER) - gable(GABLE.a)) / slope;
   const valleyHead = (id: string, plan: { x: number; z: number }[]): IHousePart =>
-    part(id, OWNER, "wall", PALETTE.siding, slopedSlab({ plan, top: (_x, z) => mFront(z) - ROOF_THICKNESS, floor: (x) => gable(x) - ROOF_THICKNESS }));
+    part(
+      id,
+      OWNER,
+      "wall",
+      PALETTE.siding,
+      slopedSlab({
+        plan,
+        top: (_x, z) => mFront(z) - ROOF_THICKNESS,
+        floor: (x) => gable(x) - ROOF_THICKNESS,
+      }),
+    );
   return [
     part("front-main-wall", OWNER, "wall", PALETTE.siding, main),
-    valleyHead("front-gable-left-valley-head", [{ x: GABLE.a, z: FRONT }, { x: GABLE.a, z: INNER }, { x: GABLE.a + reach, z: INNER }]),
-    valleyHead("front-gable-right-valley-head", [{ x: GABLE.b, z: FRONT }, { x: GABLE.b - reach, z: INNER }, { x: GABLE.b, z: INNER }]),
-    wallHead({ id: "front-main-wall-head", owner: OWNER, x: [GABLE.b, SPLIT_X], z: [INNER, FRONT], roof: mFront, outerZ: FRONT }),
-    wallHead({ id: "front-right-wall-head", owner: OWNER, x: [SPLIT_X, MAIN.outer.x[1]], z: [INNER, FRONT], roof: rFront, outerZ: FRONT }),
+    valleyHead("front-gable-left-valley-head", [
+      { x: GABLE.a, z: FRONT },
+      { x: GABLE.a, z: INNER },
+      { x: GABLE.a + reach, z: INNER },
+    ]),
+    valleyHead("front-gable-right-valley-head", [
+      { x: GABLE.b, z: FRONT },
+      { x: GABLE.b - reach, z: INNER },
+      { x: GABLE.b, z: INNER },
+    ]),
+    wallHead({
+      id: "front-main-wall-head",
+      owner: OWNER,
+      x: [GABLE.b, SPLIT_X],
+      z: [INNER, FRONT],
+      roof: mFront,
+      outerZ: FRONT,
+    }),
+    wallHead({
+      id: "front-right-wall-head",
+      owner: OWNER,
+      x: [SPLIT_X, MAIN.outer.x[1]],
+      z: [INNER, FRONT],
+      roof: rFront,
+      outerZ: FRONT,
+    }),
     part(
       "front-door-threshold",
       OWNER,
       "floor",
       PALETTE.structure,
-      block([FRONT_DOOR.from, STOREYS.groundFloor - GROUND_LAYERS.finish, INNER], [FRONT_DOOR.to, STOREYS.groundFloor + 0.02, FRONT]),
+      block(
+        [FRONT_DOOR.from, STOREYS.groundFloor - GROUND_LAYERS.finish, INNER],
+        [FRONT_DOOR.to, STOREYS.groundFloor + 0.02, FRONT],
+      ),
     ),
     part("front-garage-wall", OWNER, "wall", PALETTE.siding, garage),
-    wallHead({ id: "front-garage-wall-head", owner: OWNER, x: [GARAGE.inner.x[0], GARAGE.outer.x[1]], z: [-0.55, GARAGE.outer.z[1]], roof: gFront, outerZ: GARAGE.outer.z[1] }),
+    wallHead({
+      id: "front-garage-wall-head",
+      owner: OWNER,
+      x: [GARAGE.inner.x[0], GARAGE.outer.x[1]],
+      z: [-0.55, GARAGE.outer.z[1]],
+      roof: gFront,
+      outerZ: GARAGE.outer.z[1],
+    }),
   ];
 };

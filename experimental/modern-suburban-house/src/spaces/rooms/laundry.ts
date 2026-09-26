@@ -12,7 +12,16 @@
  */
 import { PALETTE } from "../palette";
 import { block, part } from "../solids";
-import { type IRoomBuild, type IRoomSpace, box, door, doorFloor, partition, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf, GROUND_LAYERS } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/laundry.md The service-laundry-door void follows the partition assigned to laundry.
@@ -20,19 +29,29 @@ import { floorOf, GROUND_LAYERS } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The service-laundry-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-laundry-door width and position are fixed by the laundry design.
  */
-export const DOOR_SERVICE_LAUNDRY_DOOR = door("service-laundry-door", "ground-storey", -4.4, -3.35);
-
+export const DOOR_SERVICE_LAUNDRY_DOOR = door(
+  "service-laundry-door",
+  "ground-storey",
+  -4.4,
+  -3.35,
+);
 
 const FLOOR = floorOf("ground-storey");
 /** Laundry owns the passage through the main/garage shared wall. */
 /**
- * @evidence spaces/rooms/laundry.md LAUNDRY_GARAGE_DOOR is the single authored measurement record consumed by neighboring owners.
- * @evidence spaces/rooms/laundry.md#laundry-plan Its bounds or datum follow this source owner's reviewed plan.
- * @evidence principles/core/source-units.md#source-scope-preservation LAUNDRY_GARAGE_DOOR shares a host value without creating a second part or place.
- * @evidence principles/core/source-units.md#source-substantive-completion Consumers import LAUNDRY_GARAGE_DOOR for matching boundaries and reservations.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed LAUNDRY_GARAGE_DOOR owner fixes this measurement; its consumers add no independent value.
+ * @evidence spaces/rooms/laundry.md The mudroom owns the only interior passage into the attached garage.
+ * @evidence spaces/rooms/laundry.md#laundry-plan The -4.40..-3.35 m Z void spans the shared wall and preserves the garage's lower floor step.
+ * @evidence principles/core/source-units.md#source-scope-preservation The garage wall receives this cut from laundry rather than declaring another door.
+ * @evidence principles/core/source-units.md#source-substantive-completion The shared wall hole, ground base tongue, and laundry threshold use this interval.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-band plan already places the garage access directly in the mudroom.
  */
-export const LAUNDRY_GARAGE_DOOR = { id: "laundry-garage-door", from: -4.4, to: -3.35, bottom: FLOOR - GROUND_LAYERS.finish - GROUND_LAYERS.base, top: FLOOR + 2.2 } as const;
+export const LAUNDRY_GARAGE_DOOR = {
+  id: "laundry-garage-door",
+  from: -4.4,
+  to: -3.35,
+  bottom: FLOOR - GROUND_LAYERS.finish - GROUND_LAYERS.base,
+  top: FLOOR + 2.2,
+} as const;
 
 const LAUNDRY: IRoomSpace = {
   id: "laundry-mudroom",
@@ -80,7 +99,12 @@ export const buildLaundry = (): IRoomBuild => ({
   parts: [
     roomFloor(LAUNDRY),
     roomCeiling(LAUNDRY),
-    doorFloor(LAUNDRY, "service-laundry-door", [3.145, 3.22], [DOOR_SERVICE_LAUNDRY_DOOR.from, DOOR_SERVICE_LAUNDRY_DOOR.to]),
+    doorFloor(
+      LAUNDRY,
+      "service-laundry-door",
+      [3.145, 3.22],
+      [DOOR_SERVICE_LAUNDRY_DOOR.from, DOOR_SERVICE_LAUNDRY_DOOR.to],
+    ),
     partition({
       id: "laundry-service-partition",
       owner: LAUNDRY.owner,
@@ -90,7 +114,16 @@ export const buildLaundry = (): IRoomBuild => ({
       along: [-4.7, -1.9],
       holes: [DOOR_SERVICE_LAUNDRY_DOOR],
     }),
-    part("laundry-garage-threshold", LAUNDRY.owner, "floor", PALETTE.utility, block([5.5, FLOOR - 0.025, LAUNDRY_GARAGE_DOOR.from], [5.75, FLOOR, LAUNDRY_GARAGE_DOOR.to])),
+    part(
+      "laundry-garage-threshold",
+      LAUNDRY.owner,
+      "floor",
+      PALETTE.utility,
+      block(
+        [5.5, FLOOR - 0.025, LAUNDRY_GARAGE_DOOR.from],
+        [5.75, FLOOR, LAUNDRY_GARAGE_DOOR.to],
+      ),
+    ),
     partition({
       id: "laundry-pantry-partition",
       owner: LAUNDRY.owner,

@@ -16,7 +16,15 @@ if (!["all", "spaces", "models", "settings"].includes(layer)) throw new Error(`U
 const layerTasks = {
   all: null,
   spaces: new Set(["door casing versus spaces", "geometry", "lint"]),
-  models: new Set(["model accounts", "reverse handoffs", "material hosts", "material bindings", "model face review candidates", "reviewed referents", "model contacts"]),
+  models: new Set([
+    "model accounts",
+    "reverse handoffs",
+    "material hosts",
+    "material bindings",
+    "model face review candidates",
+    "reviewed referents",
+    "model contacts",
+  ]),
   settings: new Set(["settings review hosts"]),
 };
 /** @type {Array<[string, string, string[], "exit" | "accounts" | "handoffs" | "material-hosts" | "material-bindings" | "face-witnesses" | "referents" | "model-contacts" | "docs-review"]>} */

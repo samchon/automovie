@@ -10,7 +10,16 @@
  * Fixtures are models and are not emitted.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/powder.md The service-powder-door void follows the partition assigned to powder.
@@ -18,8 +27,12 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The service-powder-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-powder-door width and position are fixed by the powder design.
  */
-export const DOOR_SERVICE_POWDER_DOOR = door("service-powder-door", "ground-storey", -1.65, -0.7);
-
+export const DOOR_SERVICE_POWDER_DOOR = door(
+  "service-powder-door",
+  "ground-storey",
+  -1.65,
+  -0.7,
+);
 
 const FLOOR = floorOf("ground-storey");
 
@@ -58,7 +71,12 @@ export const buildPowder = (): IRoomBuild => ({
   parts: [
     roomFloor(POWDER),
     roomCeiling(POWDER),
-    doorFloor(POWDER, "service-powder-door", [3.145, 3.22], [DOOR_SERVICE_POWDER_DOOR.from, DOOR_SERVICE_POWDER_DOOR.to]),
+    doorFloor(
+      POWDER,
+      "service-powder-door",
+      [3.145, 3.22],
+      [DOOR_SERVICE_POWDER_DOOR.from, DOOR_SERVICE_POWDER_DOOR.to],
+    ),
     partition({
       id: "powder-service-partition",
       owner: POWDER.owner,

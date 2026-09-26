@@ -9,7 +9,16 @@
  * junction (07 interior-boundary-junctions).
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-two.md The hall-bedroom-two-door void follows the partition assigned to bedroom-two.
@@ -17,8 +26,12 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-two-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-bedroom-two-door width and position are fixed by the bedroom-two design.
  */
-export const DOOR_HALL_BEDROOM_TWO_DOOR = door("hall-bedroom-two-door", "upper-storey", -3.1, -2.1);
-
+export const DOOR_HALL_BEDROOM_TWO_DOOR = door(
+  "hall-bedroom-two-door",
+  "upper-storey",
+  -3.1,
+  -2.1,
+);
 
 const FLOOR = floorOf("upper-storey");
 
@@ -55,7 +68,12 @@ export const buildBedroomTwo = (): IRoomBuild => ({
   parts: [
     roomFloor(BEDROOM_TWO),
     roomCeiling(BEDROOM_TWO),
-    doorFloor(BEDROOM_TWO, "hall-bedroom-two-door", [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to], [-4.635, -4.56]),
+    doorFloor(
+      BEDROOM_TWO,
+      "hall-bedroom-two-door",
+      [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to],
+      [-4.635, -4.56],
+    ),
     partition({
       id: "bedroom-two-hall-partition",
       owner: BEDROOM_TWO.owner,

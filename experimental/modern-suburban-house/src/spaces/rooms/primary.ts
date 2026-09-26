@@ -13,7 +13,15 @@ import { PALETTE } from "../palette";
 import { PRIMARY_REAR_WINDOW } from "../envelope/rear";
 import { PRIMARY_LEFT_WINDOW } from "../envelope/left";
 import { MAIN } from "../building";
-import { type IRoomBuild, type IRoomSpace, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/primary.md The hall-primary-door void follows the partition assigned to primary.
@@ -21,8 +29,12 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-primary-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-primary-door width and position are fixed by the primary design.
  */
-export const DOOR_HALL_PRIMARY_DOOR = door("hall-primary-door", "upper-storey", -2.7, -1.7);
-
+export const DOOR_HALL_PRIMARY_DOOR = door(
+  "hall-primary-door",
+  "upper-storey",
+  -2.7,
+  -1.7,
+);
 
 const FLOOR = floorOf("upper-storey");
 
@@ -70,10 +82,34 @@ export const buildPrimary = (): IRoomBuild => ({
   parts: [
     roomFloor(PRIMARY),
     roomCeiling(PRIMARY),
-    doorFloor(PRIMARY, "hall-primary-door", [DOOR_HALL_PRIMARY_DOOR.from, DOOR_HALL_PRIMARY_DOOR.to], [-6.06, -5.985]),
-    doorFloor(PRIMARY, "primary-wardrobe-door", [0.75, 0.825], [DOOR_PRIMARY_WARDROBE_DOOR.from, DOOR_PRIMARY_WARDROBE_DOOR.to]),
-    partition({ id: "primary-bedroom-two-partition", owner: PRIMARY.owner, storey: "upper-storey", axis: "x", across: [-4.71, -4.56], along: [-5.5, -3.35] }),
-    partition({ id: "primary-hall-side-partition", owner: PRIMARY.owner, storey: "upper-storey", axis: "z", across: [-3.35, -3.2], along: [-5.91, -4.71] }),
+    doorFloor(
+      PRIMARY,
+      "hall-primary-door",
+      [DOOR_HALL_PRIMARY_DOOR.from, DOOR_HALL_PRIMARY_DOOR.to],
+      [-6.06, -5.985],
+    ),
+    doorFloor(
+      PRIMARY,
+      "primary-wardrobe-door",
+      [0.75, 0.825],
+      [DOOR_PRIMARY_WARDROBE_DOOR.from, DOOR_PRIMARY_WARDROBE_DOOR.to],
+    ),
+    partition({
+      id: "primary-bedroom-two-partition",
+      owner: PRIMARY.owner,
+      storey: "upper-storey",
+      axis: "x",
+      across: [-4.71, -4.56],
+      along: [-5.5, -3.35],
+    }),
+    partition({
+      id: "primary-hall-side-partition",
+      owner: PRIMARY.owner,
+      storey: "upper-storey",
+      axis: "z",
+      across: [-3.35, -3.2],
+      along: [-5.91, -4.71],
+    }),
     partition({
       id: "primary-hall-partition",
       owner: PRIMARY.owner,

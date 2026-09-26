@@ -72,7 +72,11 @@ export interface IBlindRecess {
   depth: number;
 }
 
-const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+  x,
+  y,
+  z,
+});
 
 /**
  * Build closed concave wall geometry from metric intervals, with no Boolean mesh subtraction.
@@ -93,7 +97,9 @@ export const blindRecessWall = (input: IBlindRecess): IWallSolid => {
   if (![x0, x1, x2, y0, y1, y2, y3, z0, z1, z2, z3].every(Number.isFinite))
     throw new Error("blind recess needs finite coordinates");
   if (!(x0 < x1 && x1 < x2 && y0 < y1 && y1 < y2 && y2 < y3 && z0 < z1 && z1 < z2 && z2 < z3))
-    throw new Error("blind recess must keep a positive back and a closed margin on every side");
+    throw new Error(
+      "blind recess must keep a positive back and a closed margin on every side",
+    );
 
   const xs = [x0, x1, x2];
   const ys = [y0, y1, y2, y3];
@@ -108,19 +114,54 @@ export const blindRecessWall = (input: IBlindRecess): IWallSolid => {
     const [za, zb] = [zs[iz]!, zs[iz + 1]!];
     // +X winding is +Y then +Z; -Y winding is +X then +Z;
     // -Z winding is +Y then +X. Reverse those rings for the other sides.
-    if (!occupied(ix - 1, iy, iz)) faces.push([point(xa, ya, za), point(xa, ya, zb), point(xa, yb, zb), point(xa, yb, za)]);
-    if (!occupied(ix + 1, iy, iz)) faces.push([point(xb, ya, za), point(xb, yb, za), point(xb, yb, zb), point(xb, ya, zb)]);
-    if (!occupied(ix, iy - 1, iz)) faces.push([point(xa, ya, za), point(xb, ya, za), point(xb, ya, zb), point(xa, ya, zb)]);
-    if (!occupied(ix, iy + 1, iz)) faces.push([point(xa, yb, za), point(xa, yb, zb), point(xb, yb, zb), point(xb, yb, za)]);
-    if (!occupied(ix, iy, iz - 1)) faces.push([point(xa, ya, za), point(xa, yb, za), point(xb, yb, za), point(xb, ya, za)]);
-    if (!occupied(ix, iy, iz + 1)) faces.push([point(xa, ya, zb), point(xb, ya, zb), point(xb, yb, zb), point(xa, yb, zb)]);
+    if (!occupied(ix - 1, iy, iz)) faces.push([
+      point(xa, ya, za),
+      point(xa, ya, zb),
+      point(xa, yb, zb),
+      point(xa, yb, za),
+    ]);
+    if (!occupied(ix + 1, iy, iz)) faces.push([
+      point(xb, ya, za),
+      point(xb, yb, za),
+      point(xb, yb, zb),
+      point(xb, ya, zb),
+    ]);
+    if (!occupied(ix, iy - 1, iz)) faces.push([
+      point(xa, ya, za),
+      point(xb, ya, za),
+      point(xb, ya, zb),
+      point(xa, ya, zb),
+    ]);
+    if (!occupied(ix, iy + 1, iz)) faces.push([
+      point(xa, yb, za),
+      point(xa, yb, zb),
+      point(xb, yb, zb),
+      point(xb, yb, za),
+    ]);
+    if (!occupied(ix, iy, iz - 1)) faces.push([
+      point(xa, ya, za),
+      point(xa, yb, za),
+      point(xb, yb, za),
+      point(xb, ya, za),
+    ]);
+    if (!occupied(ix, iy, iz + 1)) faces.push([
+      point(xa, ya, zb),
+      point(xb, ya, zb),
+      point(xb, yb, zb),
+      point(xa, yb, zb),
+    ]);
   }
   return {
     mesh: buildAutoMoviePolyhedron(faces),
     face: {
       axis: "z",
       across: input.wallX,
-      outline: [{ u: z0, y: y0 }, { u: z3, y: y0 }, { u: z3, y: y3 }, { u: z0, y: y3 }],
+      outline: [
+        { u: z0, y: y0 },
+        { u: z3, y: y0 },
+        { u: z3, y: y3 },
+        { u: z0, y: y3 },
+      ],
       holes: [],
     },
   };

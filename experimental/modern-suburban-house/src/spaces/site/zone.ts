@@ -13,7 +13,6 @@
  * `ZONE_HEAD_CLEARANCE`, and into a standable surface.
  */
 import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import type { IHousePart, IPlanPoint } from "../solids";
 
 /** One outdoor zone of the site. */
@@ -72,6 +71,22 @@ export interface IExteriorZone {
    * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The T and side-path designs required a piecewise standing surface missing from the initial source shape.
    */
   patches?: readonly { outline: readonly IPlanPoint[]; anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null }[];
+  /**
+   * @evidence spaces/site/00-access.md Exterior standing volumes remain provisional until map ground and obstacles arrive.
+   * @evidence spaces/site/00-access.md#site-local-routes The temporary 2.00 m logical volume carries this marker in output.
+   * @evidence principles/core/source-units.md#source-scope-preservation The status reports map dependency without asserting ground or headroom certification.
+   * @evidence principles/core/source-units.md#source-substantive-completion Consumers can find every exterior zone requiring later map validation.
+   * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Source construction exposed the missing temporary volume rule; site access now owns it.
+   */
+  pendingMapGround?: "map-ground-pending";
+  /**
+   * @evidence spaces/site/01-paving-support.md A joined connector retains the same height calculation as its emitted paving.
+   * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Bilinear connector samples need the source owner's X/Z height, not a single ramp interpolation.
+   * @evidence principles/core/source-units.md#source-scope-preservation This callback reads the existing paving profile and adds no ground datum.
+   * @evidence principles/core/source-units.md#source-substantive-completion Observation eyes can be placed over the actual sampled connector top.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving support plan already specifies the connector's bilinear surface.
+   */
+  groundAt?: (x: number, z: number) => number;
 }
 
 /**

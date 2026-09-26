@@ -23,8 +23,13 @@
  */
 import { MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slab } from "../solids";
-import { CEILING_FINISH, CEILING_RESERVATION, INTERSTOREY_FLOOR_FINISH, STOREYS } from "../storeys";
+import { part, rect, slab, type IHousePart } from "../solids";
+import {
+  CEILING_FINISH,
+  CEILING_RESERVATION,
+  INTERSTOREY_FLOOR_FINISH,
+  STOREYS,
+} from "../storeys";
 import { STAIR_OPENING } from "../stair";
 
 const OWNER = "floors/upper.ts";
@@ -58,7 +63,19 @@ export const buildInterstorey = (): IHousePart[] => {
     { x: x0, z: z1 },
   ];
   const bottom = STOREYS.groundCeiling + CEILING_FINISH;
-  return [part("interstorey-structure", OWNER, "floor", PALETTE.structure, slab({ outline, bottom, top: STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH }))];
+  return [
+    part(
+      "interstorey-structure",
+      OWNER,
+      "floor",
+      PALETTE.structure,
+      slab({
+        outline,
+        bottom,
+        top: STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH,
+      }),
+    ),
+  ];
 };
 
 /** Emit the 0.165 m upper ceiling base over the whole main inner plan, stair hall included, above the room finishes. */
@@ -72,5 +89,17 @@ export const buildInterstorey = (): IHousePart[] => {
  */
 export const buildUpperCeiling = (): IHousePart[] => {
   const bottom = STOREYS.upperCeiling + CEILING_FINISH;
-  return [part("upper-ceiling-base", OWNER, "ceiling", PALETTE.ceiling, slab({ outline: rect(MAIN.inner.x, MAIN.inner.z), bottom, top: STOREYS.upperCeiling + CEILING_RESERVATION }))];
+  return [
+    part(
+      "upper-ceiling-base",
+      OWNER,
+      "ceiling",
+      PALETTE.ceiling,
+      slab({
+        outline: rect(MAIN.inner.x, MAIN.inner.z),
+        bottom,
+        top: STOREYS.upperCeiling + CEILING_RESERVATION,
+      }),
+    ),
+  ];
 };

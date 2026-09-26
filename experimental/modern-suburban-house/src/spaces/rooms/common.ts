@@ -11,7 +11,16 @@
  * Output: the room record, its wood floor finish and the front partition.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/common.md The service-common-opening void follows the partition assigned to common.
@@ -19,7 +28,13 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The service-common-opening span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-common-opening width and position are fixed by the common design.
  */
-export const DOOR_SERVICE_COMMON_OPENING = door("service-common-opening", "ground-storey", -1.35, 3.07, 2.4);
+export const DOOR_SERVICE_COMMON_OPENING = door(
+  "service-common-opening",
+  "ground-storey",
+  -1.35,
+  3.07,
+  2.4,
+);
 
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/common.md The living-common-opening void follows the partition assigned to common.
@@ -27,8 +42,13 @@ export const DOOR_SERVICE_COMMON_OPENING = door("service-common-opening", "groun
  * @evidence principles/core/source-units.md#source-substantive-completion The living-common-opening span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The living-common-opening width and position are fixed by the common design.
  */
-export const DOOR_LIVING_COMMON_OPENING = door("living-common-opening", "ground-storey", -5.0, -2.15, 2.4);
-
+export const DOOR_LIVING_COMMON_OPENING = door(
+  "living-common-opening",
+  "ground-storey",
+  -5.0,
+  -2.15,
+  2.4,
+);
 
 const FLOOR = floorOf("ground-storey");
 
@@ -100,8 +120,18 @@ export const buildCommon = (): IRoomBuild => ({
   parts: [
     roomFloor(COMMON),
     roomCeiling(COMMON),
-    doorFloor(COMMON, "living-common-opening", [DOOR_LIVING_COMMON_OPENING.from, DOOR_LIVING_COMMON_OPENING.to], [-6.2, -6.125]),
-    doorFloor(COMMON, "service-common-opening", [DOOR_SERVICE_COMMON_OPENING.from, DOOR_SERVICE_COMMON_OPENING.to], [-6.2, -6.125]),
+    doorFloor(
+      COMMON,
+      "living-common-opening",
+      [DOOR_LIVING_COMMON_OPENING.from, DOOR_LIVING_COMMON_OPENING.to],
+      [-6.2, -6.125],
+    ),
+    doorFloor(
+      COMMON,
+      "service-common-opening",
+      [DOOR_SERVICE_COMMON_OPENING.from, DOOR_SERVICE_COMMON_OPENING.to],
+      [-6.2, -6.125],
+    ),
     partition({
       id: "common-front-partition",
       owner: COMMON.owner,
@@ -109,10 +139,7 @@ export const buildCommon = (): IRoomBuild => ({
       axis: "x",
       across: [-6.2, -6.05],
       along: [-5.5, 5.5],
-      holes: [
-        DOOR_LIVING_COMMON_OPENING,
-        DOOR_SERVICE_COMMON_OPENING,
-      ],
+      holes: [DOOR_LIVING_COMMON_OPENING, DOOR_SERVICE_COMMON_OPENING],
     }),
   ],
 });

@@ -14,9 +14,9 @@
  */
 import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slab } from "../solids";
-import { DRIVEWAY, driveTop } from "./driveway";
-import { WALK_DEPTH, blendedRun } from "./paving";
+import { part, rect, slab, type IHousePart } from "../solids";
+import { driveTop, DRIVEWAY } from "./driveway";
+import { blendedRun, WALK_DEPTH } from "./paving";
 import { LOWER_LANDING } from "./terrace";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 
@@ -49,7 +49,13 @@ export const buildSideWalk = (): ISiteBuild => {
   const s = SIDE_WALK.top;
   const [left, right] = [DRIVEWAY.x[1], SIDE_WALK.x[0]];
   const flat = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
-    part(id, OWNER, "paving", PALETTE.paving, slab({ outline: rect(x, z), bottom: s - WALK_DEPTH, top: s }));
+    part(
+      id,
+      OWNER,
+      "paving",
+      PALETTE.paving,
+      slab({ outline: rect(x, z), bottom: s - WALK_DEPTH, top: s }),
+    );
   // The two gate waiting zones (side-gate-interface): +Z 0.10-1.60 m and -Z 1.30-2.80 m from the
   // gate plane, the garage front outer face, over the full path width.
   const gate = GARAGE.outer.z[1];
@@ -57,25 +63,62 @@ export const buildSideWalk = (): ISiteBuild => {
     id,
     owner: OWNER,
     outline: rect(SIDE_WALK.x, z),
-    anchor: { x: (SIDE_WALK.x[0] + SIDE_WALK.x[1]) / 2, y: s, z: (z[0] + z[1]) / 2 },
+    anchor: {
+      x: (SIDE_WALK.x[0] + SIDE_WALK.x[1]) / 2,
+      y: s,
+      z: (z[0] + z[1]) / 2,
+    },
     rampTo: null,
   });
   const continuous: IExteriorZone = {
-    id: "side-walk", owner: OWNER,
+    id: "side-walk",
+    owner: OWNER,
     outline: [
-      { x: LOWER_LANDING.x[0], z: SIDE_WALK.backBand[0] }, { x: SIDE_WALK.x[1], z: SIDE_WALK.backBand[0] },
-      { x: SIDE_WALK.x[1], z: SIDE_WALK.frontBand[1] }, { x: DRIVEWAY.x[1], z: SIDE_WALK.frontBand[1] },
-      { x: DRIVEWAY.x[1], z: SIDE_WALK.frontBand[0] }, { x: SIDE_WALK.x[0], z: SIDE_WALK.frontBand[0] },
-      { x: SIDE_WALK.x[0], z: SIDE_WALK.backBand[1] }, { x: LOWER_LANDING.x[0], z: SIDE_WALK.backBand[1] },
+      { x: LOWER_LANDING.x[0], z: SIDE_WALK.backBand[0] },
+      { x: SIDE_WALK.x[1], z: SIDE_WALK.backBand[0] },
+      { x: SIDE_WALK.x[1], z: SIDE_WALK.frontBand[1] },
+      { x: DRIVEWAY.x[1], z: SIDE_WALK.frontBand[1] },
+      { x: DRIVEWAY.x[1], z: SIDE_WALK.frontBand[0] },
+      { x: SIDE_WALK.x[0], z: SIDE_WALK.frontBand[0] },
+      { x: SIDE_WALK.x[0], z: SIDE_WALK.backBand[1] },
+      { x: LOWER_LANDING.x[0], z: SIDE_WALK.backBand[1] },
     ],
-    anchor: { x: SIDE_WALK.x[0], y: s, z: SIDE_WALK.frontBand[0] }, rampTo: null,
+    anchor: { x: SIDE_WALK.x[0], y: s, z: SIDE_WALK.frontBand[0] },
+    rampTo: null,
+    groundAt: (x, z) =>
+      x >= SIDE_WALK.x[0] || z < SIDE_WALK.frontBand[0]
+        ? s
+        : (1 - (x - left) / (right - left)) * driveTop(z) + ((x - left) / (right - left)) * s,
     patches: [
-      { outline: rect(SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]]), anchor: { x: SIDE_WALK.x[0], y: s, z: SIDE_WALK.backBand[0] }, rampTo: null },
-      { outline: rect([LOWER_LANDING.x[0], SIDE_WALK.x[0]], SIDE_WALK.backBand), anchor: { x: LOWER_LANDING.x[0], y: s, z: SIDE_WALK.backBand[0] }, rampTo: null },
-      { outline: rect([left, right], SIDE_WALK.frontBand), anchor: { x: left, y: driveTop(SIDE_WALK.frontBand[0]), z: SIDE_WALK.frontBand[0] }, rampTo: { x: right, y: s, z: SIDE_WALK.frontBand[0] } },
+      {
+        outline: rect(SIDE_WALK.x, [
+          SIDE_WALK.backBand[0],
+          SIDE_WALK.frontBand[1],
+        ]),
+        anchor: { x: SIDE_WALK.x[0], y: s, z: SIDE_WALK.backBand[0] },
+        rampTo: null,
+      },
+      {
+        outline: rect([LOWER_LANDING.x[0], SIDE_WALK.x[0]], SIDE_WALK.backBand),
+        anchor: { x: LOWER_LANDING.x[0], y: s, z: SIDE_WALK.backBand[0] },
+        rampTo: null,
+      },
+      {
+        outline: rect([left, right], SIDE_WALK.frontBand),
+        anchor: {
+          x: left,
+          y: driveTop(SIDE_WALK.frontBand[0]),
+          z: SIDE_WALK.frontBand[0],
+        },
+        rampTo: { x: right, y: s, z: SIDE_WALK.frontBand[0] },
+      },
     ],
   };
-  const zones = [continuous, zone("side-front-access", [gate + 0.1, gate + 1.6]), zone("side-rear-access", [gate - 2.8, gate - 1.3])];
+  const zones = [
+    continuous,
+    zone("side-front-access", [gate + 0.1, gate + 1.6]),
+    zone("side-rear-access", [gate - 2.8, gate - 1.3]),
+  ];
   const parts: IHousePart[] = [
     flat("side-walk-long", SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]]),
     flat("side-walk-back", [LOWER_LANDING.x[0], SIDE_WALK.x[0]], SIDE_WALK.backBand),

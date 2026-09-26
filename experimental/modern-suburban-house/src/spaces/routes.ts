@@ -94,9 +94,20 @@ export const ROUTE_NETWORK: readonly IRouteEdge[] = [
 ];
 
 /** Rooms a route to the common room, garage or a bath must not pass through (05). */
-const NOT_THROUGH = ["pantry", "powder-room", "bedroom-two", "bedroom-three", "primary-bedroom"];
+const NOT_THROUGH = [
+  "pantry",
+  "powder-room",
+  "bedroom-two",
+  "bedroom-three",
+  "primary-bedroom",
+];
 /** Destinations that must be reached without passing a `NOT_THROUGH` room. */
-const DIRECT = ["kitchen-dining-family", "garage", "shower-bathroom", "tub-bathroom"];
+const DIRECT = [
+  "kitchen-dining-family",
+  "garage",
+  "shower-bathroom",
+  "tub-bathroom",
+];
 
 const order = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 const same = (a: readonly string[], b: readonly string[]): boolean => a.length === b.length && [...a].sort(order).join("|") === [...b].sort(order).join("|");
@@ -140,50 +151,82 @@ export const checkRouteNetwork = (environment: IAutoMovieBuiltEnvironment): void
       const id = e.via.id;
       used.add(id);
       const opening = environment.openings.find((o) => o.id === id);
-      const host = opening === undefined ? undefined : boundaries.get(opening.boundary);
-      const outside = [e.from, e.to].find((s) => spaces.get(s)?.kind === "exterior");
-      if (opening === undefined || host === undefined) failures.push(`${label}: opening "${id}" is missing`);
+      const host = opening === undefined
+        ? undefined
+        : boundaries.get(opening.boundary);
+      const outside = [e.from, e.to].find(
+        (s) => spaces.get(s)?.kind === "exterior",
+      );
+      if (opening === undefined || host === undefined) failures.push(
+        `${label}: opening "${id}" is missing`,
+      );
       else if (outside === undefined) {
-        if (!same(host.spaces, [e.from, e.to])) failures.push(`${label}: opening "${id}" joins ${host.spaces.join(" and ")}`);
+        if (!same(host.spaces, [e.from, e.to])) failures.push(
+          `${label}: opening "${id}" joins ${host.spaces.join(" and ")}`,
+        );
       } else {
         // An envelope opening: its boundary encloses the inside space alone, and the
         // point 0.05 m beyond the wall at the void centre stands in the outside zone.
         const inside = outside === e.from ? e.to : e.from;
         const zone = spaces.get(outside)!;
-        if (!same(host.spaces, [inside])) failures.push(`${label}: envelope opening "${id}" encloses ${host.spaces.join(" and ")}, not ${inside}`);
+        if (!same(host.spaces, [inside])) failures.push(
+          `${label}: envelope opening "${id}" encloses ${host.spaces.join(" and ")}, not ${inside}`,
+        );
         else {
           const { centre, normal, reach } = openingAxis(environment, id);
-          const beyond = (s: number) => ({ x: centre.x + normal.x * reach * s, y: centre.y + normal.y * reach * s, z: centre.z + normal.z * reach * s });
+          const beyond = (s: number) => ({
+            x: centre.x + normal.x * reach * s,
+            y: centre.y + normal.y * reach * s,
+            z: centre.z + normal.z * reach * s,
+          });
           if (!builtSpaceContainsPoint(zone, beyond(1)) && !builtSpaceContainsPoint(zone, beyond(-1)))
-            failures.push(`${label}: envelope opening "${id}" does not open on to "${outside}"`);
+            failures.push(
+              `${label}: envelope opening "${id}" does not open on to "${outside}"`,
+            );
         }
       }
     } else if (e.via.kind === "connector") {
       const id = e.via.id;
       const c = environment.connectors.find((k) => k.id === id);
-      if (c === undefined) failures.push(`${label}: connector "${id}" is missing`);
-      else if (!same([c.from, c.to], [e.from, e.to])) failures.push(`${label}: connector "${id}" joins ${c.from} and ${c.to}`);
+      if (c === undefined) failures.push(
+        `${label}: connector "${id}" is missing`,
+      );
+      else if (!same([c.from, c.to], [e.from, e.to])) failures.push(
+        `${label}: connector "${id}" joins ${c.from} and ${c.to}`,
+      );
     } else {
       const { at, normal } = e.via;
-      const wall = environment.boundaries.find((b) => same(b.spaces, [e.from, e.to]));
-      if (wall !== undefined) failures.push(`${label}: open connection has boundary "${wall.id}" between its spaces`);
-      const step = (d: number) => (normal === "x" ? { ...at, x: at.x + d } : { ...at, z: at.z + d });
+      const wall = environment.boundaries.find((b) =>
+        same(b.spaces, [e.from, e.to]),
+      );
+      if (wall !== undefined) failures.push(
+        `${label}: open connection has boundary "${wall.id}" between its spaces`,
+      );
+      const step = (d: number) => (normal === "x"
+        ? { ...at, x: at.x + d }
+        : { ...at, z: at.z + d });
       const a = spaces.get(e.from);
       const b = spaces.get(e.to);
       const sides = [step(-0.05), step(0.05)];
       const joins = a !== undefined && b !== undefined && ((builtSpaceContainsPoint(a, sides[0]!) && builtSpaceContainsPoint(b, sides[1]!)) || (builtSpaceContainsPoint(a, sides[1]!) && builtSpaceContainsPoint(b, sides[0]!)));
-      if (!joins) failures.push(`${label}: the open connection at (${at.x}, ${at.y}, ${at.z}) does not lie between the two spaces`);
+      if (!joins) failures.push(
+        `${label}: the open connection at (${at.x}, ${at.y}, ${at.z}) does not lie between the two spaces`,
+      );
     }
   }
   for (const o of environment.openings) {
     if (o.kind === "window" || used.has(o.id)) continue;
     const host = boundaries.get(o.boundary);
     if (host !== undefined && host.spaces.some((s) => spaces.get(s)?.kind === "storage")) continue;
-    failures.push(`opening "${o.id}" (${o.kind}) is a passage no route edge uses`);
+    failures.push(
+      `opening "${o.id}" (${o.kind}) is a passage no route edge uses`,
+    );
   }
   const all = reach("front-entry", []);
   for (const e of ROUTE_NETWORK) for (const id of [e.from, e.to]) if (!all.has(id)) failures.push(`"${id}" is not reached from front-entry`);
   const direct = reach("front-entry", NOT_THROUGH);
   for (const id of DIRECT) if (!direct.has(id)) failures.push(`"${id}" is reached only through ${NOT_THROUGH.join(", ")}`);
-  if (failures.length > 0) throw new Error(`route network (05) fails:\n  ${failures.join("\n  ")}`);
+  if (failures.length > 0) throw new Error(
+    `route network (05) fails:\n  ${failures.join("\n  ")}`,
+  );
 };

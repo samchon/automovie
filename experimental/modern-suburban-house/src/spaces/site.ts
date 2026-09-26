@@ -25,6 +25,14 @@ import type { ISiteBuild } from "./site/zone";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The site-access parent allocates these five owners and leaves ground/network to maps; the assembly required no new parcel boundary.
  */
 export const buildSite = (): ISiteBuild => {
-  const builds = [buildFrontWalk(), buildDriveway(), buildSideWalk(), buildTerrace()];
-  return { zones: builds.flatMap((b) => b.zones), parts: [...builds.flatMap((b) => b.parts), ...buildFence()] };
+  const builds = [
+    buildFrontWalk(),
+    buildDriveway(),
+    buildSideWalk(),
+    buildTerrace(),
+  ];
+  return {
+    zones: builds.flatMap((b) => b.zones),
+    parts: [...builds.flatMap((b) => b.parts), ...buildFence()],
+  };
 };

@@ -109,6 +109,22 @@ export interface IHousePart {
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Wall-face handoff implements the existing opening ownership split.
    */
   wall?: IWallFace;
+  /**
+   * @evidence spaces/roof/00-junctions.md A roof part may leave its shared ridge and valley perimeter open while keeping its free eave sides.
+   * @evidence spaces/roof/00-junctions.md#roof-shared-edges Shared roof edges have no internal vertical closure face.
+   * @evidence principles/core/source-units.md#source-scope-preservation The flag records a roof owner's junction choice and does not open other solids.
+   * @evidence principles/core/source-units.md#source-substantive-completion Geometry audit can distinguish an intentional shared roof seam from a missing wall face.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof junction design already disallows side faces on shared edges.
+   */
+  openSharedEdges?: boolean;
+  /**
+   * @evidence spaces/10-ground-floor.md Exposed wall closure and fence display may await actual map ground.
+   * @evidence spaces/10-ground-floor.md#ground-support-handoff The marker distinguishes a temporary wall display bottom from structural support.
+   * @evidence principles/core/source-units.md#source-scope-preservation This is a review status on an emitted part, never a terrain datum.
+   * @evidence principles/core/source-units.md#source-substantive-completion Downstream inspection can identify provisional ground contacts by part id.
+   * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The source exposed the absent wall bottom rule; the reviewed design now declares this marker.
+   */
+  pendingMapGround?: "map-ground-pending";
 }
 
 /**
@@ -286,12 +302,25 @@ export const block = (
   min: readonly [number, number, number],
   max: readonly [number, number, number],
 ): IAutoMovieMesh => {
-  const [width, height, depth] = [max[0] - min[0], max[1] - min[1], max[2] - min[2]];
+  const [width, height, depth] = [
+    max[0] - min[0],
+    max[1] - min[1],
+    max[2] - min[2],
+  ];
   if (!(width > 0 && height > 0 && depth > 0))
-    throw new Error(`block needs positive extents, got ${width} × ${height} × ${depth}`);
-  return transformAutoMovieMesh(tessellateToMesh({ type: "box", width, height, depth }), {
-    translation: { x: (min[0] + max[0]) / 2, y: (min[1] + max[1]) / 2, z: (min[2] + max[2]) / 2 },
-  });
+    throw new Error(
+      `block needs positive extents, got ${width} × ${height} × ${depth}`,
+    );
+  return transformAutoMovieMesh(
+    tessellateToMesh({ type: "box", width, height, depth }),
+    {
+      translation: {
+        x: (min[0] + max[0]) / 2,
+        y: (min[1] + max[1]) / 2,
+        z: (min[2] + max[2]) / 2,
+      },
+    },
+  );
 };
 
 /** Quarter turn about world Y: local +X becomes world +Z, local +Z becomes world -X. */
@@ -328,11 +357,27 @@ export const wallPanel = (props: {
     { x: h.from, y: h.top },
   ]);
   const local = extrudeAutoMovieRegion({ outer, holes, depth });
-  const face: IWallFace = { axis: props.axis, across: props.across, outline: props.outline, holes: props.holes ?? [] };
+  const face: IWallFace = {
+    axis: props.axis,
+    across: props.across,
+    outline: props.outline,
+    holes: props.holes ?? [],
+  };
   // Along X the region already lies in world X/Y; only its depth moves to Z.
-  if (props.axis === "x") return { mesh: transformAutoMovieMesh(local, { translation: { x: 0, y: 0, z: center } }), face };
+  if (props.axis === "x") return {
+    mesh: transformAutoMovieMesh(local, {
+      translation: { x: 0, y: 0, z: center },
+    }),
+    face,
+  };
   // Along Z: local X turns into world +Z and the depth axis into world -X.
-  return { mesh: transformAutoMovieMesh(local, { rotation: TO_Z_AXIS, translation: { x: center, y: 0, z: 0 } }), face };
+  return {
+    mesh: transformAutoMovieMesh(local, {
+      rotation: TO_Z_AXIS,
+      translation: { x: center, y: 0, z: 0 },
+    }),
+    face,
+  };
 };
 
 /**
@@ -360,12 +405,25 @@ export const straightWall = (props: {
   const holes = props.holes ?? [];
   for (const h of holes)
     if (h.from <= props.along[0] + eps || h.to >= props.along[1] - eps || h.bottom < props.bottom - eps || h.top >= props.top - eps)
-      throw new Error(`void "${h.id}" [${h.from}, ${h.to}] × [${h.bottom}, ${h.top}] leaves wall [${props.along[0]}, ${props.along[1]}] × [${props.bottom}, ${props.top}]`);
-  const notches = holes.filter((h) => h.bottom <= props.bottom + eps).sort((x, y) => x.from - y.from);
+      throw new Error(
+        `void "${h.id}" [${h.from}, ${h.to}] × [${h.bottom}, ${h.top}] leaves wall [${props.along[0]}, ${props.along[1]}] × [${props.bottom}, ${props.top}]`,
+      );
+  const notches = holes.filter((h) => h.bottom <= props.bottom + eps).sort(
+    (x, y) => x.from - y.from,
+  );
   const outline: IWallPoint[] = [{ u: props.along[0], y: props.bottom }];
   for (const n of notches)
-    outline.push({ u: n.from, y: props.bottom }, { u: n.from, y: n.top }, { u: n.to, y: n.top }, { u: n.to, y: props.bottom });
-  outline.push({ u: props.along[1], y: props.bottom }, { u: props.along[1], y: props.top }, { u: props.along[0], y: props.top });
+    outline.push(
+      { u: n.from, y: props.bottom },
+      { u: n.from, y: n.top },
+      { u: n.to, y: n.top },
+      { u: n.to, y: props.bottom },
+    );
+  outline.push(
+    { u: props.along[1], y: props.bottom },
+    { u: props.along[1], y: props.top },
+    { u: props.along[0], y: props.top },
+  );
   const solid = wallPanel({
     axis: props.axis,
     across: props.across,
@@ -408,7 +466,9 @@ export const slab = (props: {
   // world -Y, so the centred extrusion is moved to the slab's mid height.
   const local = extrudeAutoMovieRegion({
     outer: props.outline.map((p) => ({ x: p.x, y: p.z })),
-    holes: (props.holes ?? []).map((ring) => ring.map((p) => ({ x: p.x, y: p.z }))),
+    holes: (props.holes ?? []).map((ring) =>
+      ring.map((p) => ({ x: p.x, y: p.z })),
+    ),
     depth: props.top - props.bottom,
   });
   return transformAutoMovieMesh(local, {
@@ -432,7 +492,11 @@ export const rect = (x: readonly [number, number], z: readonly [number, number])
   { x: x[0], z: z[1] },
 ];
 
-const sub = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+const sub = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 => ({
+  x: a.x - b.x,
+  y: a.y - b.y,
+  z: a.z - b.z,
+});
 const cross = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 => ({
   x: a.y * b.z - a.z * b.y,
   y: a.z * b.x - a.x * b.z,
@@ -463,13 +527,29 @@ export const slopedSlab = (props: {
   /** Free outline edges alone receive visible vertical thickness. */
   freeEdge?: (a: IPlanPoint, b: IPlanPoint) => boolean;
 }): IAutoMovieMesh => {
-  if (props.plan.length < 3) throw new Error("sloped slab needs at least three plan corners");
-  if (props.floor === undefined && !(props.thickness! > 0)) throw new Error("sloped slab needs a positive thickness or a floor");
-  const up = props.plan.map((p) => ({ x: p.x, y: props.top(p.x, p.z), z: p.z }));
+  if (props.plan.length < 3) throw new Error(
+    "sloped slab needs at least three plan corners",
+  );
+  if (props.floor === undefined && !(props.thickness! > 0)) throw new Error(
+    "sloped slab needs a positive thickness or a floor",
+  );
+  const up = props.plan.map((p) => ({
+    x: p.x,
+    y: props.top(p.x, p.z),
+    z: p.z,
+  }));
   const normal = cross(sub(up[1]!, up[0]!), sub(up[2]!, up[0]!));
   const top = normal.y > 0 ? up : [...up].reverse();
   const floor = props.floor;
-  const bottom = top.map((p) => ({ x: p.x, y: floor === undefined ? p.y - props.thickness! : typeof floor === "number" ? floor : floor(p.x, p.z), z: p.z }));
+  const bottom = top.map((p) => ({
+    x: p.x,
+    y: floor === undefined
+      ? p.y - props.thickness!
+      : typeof floor === "number"
+        ? floor
+        : floor(p.x, p.z),
+    z: p.z,
+  }));
   const faces: IAutoMovieVector3[][] = [top, [...bottom].reverse()];
   const same = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
     Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9 && Math.abs(a.z - b.z) < 1e-9;
@@ -478,7 +558,9 @@ export const slopedSlab = (props: {
     if (props.freeEdge !== undefined && !props.freeEdge(top[i]!, top[j]!)) continue;
     // A wedge meets its floor along an edge: drop the coincident corners so the
     // side under that edge is a triangle, and skip a side with no height at all.
-    const side = [top[i]!, bottom[i]!, bottom[j]!, top[j]!].filter((p, k, all) => !same(p, all[(k + all.length - 1) % all.length]!));
+    const side = [top[i]!, bottom[i]!, bottom[j]!, top[j]!].filter(
+      (p, k, all) => !same(p, all[(k + all.length - 1) % all.length]!),
+    );
     if (side.length >= 3) faces.push(side);
   }
   return buildAutoMoviePolyhedron(faces);
@@ -500,14 +582,22 @@ export const slopedPlate = (props: {
   thickness: number;
   freeEdge: (a: IPlanPoint, b: IPlanPoint) => boolean;
 }): IAutoMovieMesh => {
-  if (props.plans.length === 0 || !(props.thickness > 0)) throw new Error("sloped plate needs tiles and positive thickness");
+  if (props.plans.length === 0 || !(props.thickness > 0)) throw new Error(
+    "sloped plate needs tiles and positive thickness",
+  );
   const faces: IAutoMovieVector3[][] = [];
   for (const plan of props.plans) {
-    if (plan.length < 3) throw new Error("sloped plate tile needs three corners");
+    if (plan.length < 3) throw new Error(
+      "sloped plate tile needs three corners",
+    );
     const up = plan.map((p) => ({ x: p.x, y: props.top(p.x, p.z), z: p.z }));
     const normal = cross(sub(up[1]!, up[0]!), sub(up[2]!, up[0]!));
     const top = normal.y > 0 ? up : [...up].reverse();
-    const bottom = top.map((p) => ({ x: p.x, y: p.y - props.thickness, z: p.z }));
+    const bottom = top.map((p) => ({
+      x: p.x,
+      y: p.y - props.thickness,
+      z: p.z,
+    }));
     faces.push(top, [...bottom].reverse());
     for (let i = 0; i < top.length; i++) {
       const j = (i + 1) % top.length;
@@ -531,16 +621,33 @@ export const slopedPlate = (props: {
 export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number): IAutoMovieMesh => {
   const dir = sub(to, from);
   const horizontal = Math.hypot(dir.x, dir.z);
-  if (horizontal === 0) return block([from.x - size / 2, Math.min(from.y, to.y), from.z - size / 2], [from.x + size / 2, Math.max(from.y, to.y), from.z + size / 2]);
-  const side = { x: (-dir.z / horizontal) * (size / 2), y: 0, z: (dir.x / horizontal) * (size / 2) };
+  if (horizontal === 0) return block(
+    [from.x - size / 2, Math.min(from.y, to.y), from.z - size / 2],
+    [from.x + size / 2, Math.max(from.y, to.y), from.z + size / 2],
+  );
+  const side = {
+    x: (-dir.z / horizontal) * (size / 2),
+    y: 0,
+    z: (dir.x / horizontal) * (size / 2),
+  };
   const lift = { x: 0, y: size / 2, z: 0 };
   const corner = (p: IAutoMovieVector3, s: number, l: number): IAutoMovieVector3 => ({
     x: p.x + side.x * s + lift.x * l,
     y: p.y + side.y * s + lift.y * l,
     z: p.z + side.z * s + lift.z * l,
   });
-  const a = [corner(from, -1, -1), corner(from, 1, -1), corner(from, 1, 1), corner(from, -1, 1)];
-  const b = [corner(to, -1, -1), corner(to, 1, -1), corner(to, 1, 1), corner(to, -1, 1)];
+  const a = [
+    corner(from, -1, -1),
+    corner(from, 1, -1),
+    corner(from, 1, 1),
+    corner(from, -1, 1),
+  ];
+  const b = [
+    corner(to, -1, -1),
+    corner(to, 1, -1),
+    corner(to, 1, 1),
+    corner(to, -1, 1),
+  ];
   const faces: IAutoMovieVector3[][] = [
     [a[0]!, a[3]!, a[2]!, a[1]!],
     [b[0]!, b[1]!, b[2]!, b[3]!],
@@ -550,11 +657,22 @@ export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number
     faces.push([a[i]!, a[j]!, b[j]!, b[i]!]);
   }
   // Keep every face outward: a face whose normal points toward the bar axis is reversed.
-  const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2, z: (from.z + to.z) / 2 };
+  const mid = {
+    x: (from.x + to.x) / 2,
+    y: (from.y + to.y) / 2,
+    z: (from.z + to.z) / 2,
+  };
   return buildAutoMoviePolyhedron(
     faces.map((f) => {
       const n = cross(sub(f[1]!, f[0]!), sub(f[2]!, f[0]!));
-      const c = f.reduce((s, p) => ({ x: s.x + p.x / f.length, y: s.y + p.y / f.length, z: s.z + p.z / f.length }), { x: 0, y: 0, z: 0 });
+      const c = f.reduce(
+        (s, p) => ({
+          x: s.x + p.x / f.length,
+          y: s.y + p.y / f.length,
+          z: s.z + p.z / f.length,
+        }),
+        { x: 0, y: 0, z: 0 },
+      );
       const out = sub(c, mid);
       return n.x * out.x + n.y * out.y + n.z * out.z >= 0 ? f : [...f].reverse();
     }),
@@ -570,5 +688,15 @@ export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number
  * @evidence principles/core/source-units.md#source-substantive-completion It returns a complete part and carries a wall face when the solid has one.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Source-owner allocation is already defined in the design.
  */
-export const part = (id: string, owner: string, role: HousePartRole, color: number, solid: IAutoMovieMesh | IWallSolid): IHousePart =>
-  "face" in solid ? { id, owner, role, color, mesh: solid.mesh, wall: solid.face } : { id, owner, role, color, mesh: solid };
+export const part = (id: string, owner: string, role: HousePartRole, color: number, solid: IAutoMovieMesh | IWallSolid, openSharedEdges = false): IHousePart =>
+  "face" in solid
+    ? {
+        id,
+        owner,
+        role,
+        color,
+        mesh: solid.mesh,
+        wall: solid.face,
+        openSharedEdges,
+      }
+    : { id, owner, role, color, mesh: solid, openSharedEdges };

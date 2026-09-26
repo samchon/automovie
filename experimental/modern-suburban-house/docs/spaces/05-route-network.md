@@ -74,3 +74,5 @@
 상층의 내부 사용 경로는 [주침실](rooms/primary.md#primary-furniture-use)·[올리브 침실](rooms/bedroom-two.md#bedroom-two-furniture-use)·[청회색 침실](rooms/bedroom-three.md#bedroom-three-furniture-use)·[샤워 욕실](rooms/shower-bath.md#shower-fixture-use)·[욕조 욕실](rooms/tub-bath.md#tub-fixture-use)이 자기 문에서 가구/기구까지 소유한다. 옷방은 계속 주침실에만 연결되며 두 욕실은 [복도에서 직접 접근한다](../settings/10-house.md#upper-hall). 의자·열린 수납·문 조작을 생략해서 위 방 연결 표의 통행을 합격으로 바꾸지 않는다.
 
 표면 source 분배는 [완결 표면 소유](03-surface-owners.md#interior-surface-handoff)를 소비하고, 방이 실제로 만들어지면 [전체 관찰 파생](04-observations.md#spatial-observation-derivation)에 모두 들어간다. L형 현관·서비스·복도·주침실과 린넨에 의해 파인 청회색 침실의 숨는 코너는 기본 네 모서리 외에 질문을 더한다. 표를 고정 관찰 개수나 대표 view 선택표로 사용하지 않는다.
+
+실내의 비운 보행 띠는 각 방의 완성 바닥 위 2.00 m까지 통행 점유로 검사한다. 그 위에 놓인 차고문 상부 가이드처럼 바닥 경로와 평면으로만 겹치는 예약은 충돌로 세지 않고, 이 높이 아래의 가구·기구·수납 몸체는 통행을 막는다. 이 검사는 현재 spaces 예약의 단면 판정이며 후속 모델의 실제 머리 여유를 인증하지 않는다.

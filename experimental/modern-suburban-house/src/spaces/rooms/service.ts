@@ -14,7 +14,13 @@ import { DOOR_SERVICE_LAUNDRY_DOOR } from "./laundry";
 import { DOOR_SERVICE_POWDER_DOOR } from "./powder";
 import { DOOR_SERVICE_COMMON_OPENING } from "./common";
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  doorFloor,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 
 const SERVICE: IRoomSpace = {
   id: "service-access",
@@ -44,9 +50,29 @@ export const buildService = (): IRoomBuild => ({
   parts: [
     roomFloor(SERVICE),
     roomCeiling(SERVICE),
-    doorFloor(SERVICE, "service-powder-door", [3.07, 3.145], [DOOR_SERVICE_POWDER_DOOR.from, DOOR_SERVICE_POWDER_DOOR.to]),
-    doorFloor(SERVICE, "service-laundry-door", [3.07, 3.145], [DOOR_SERVICE_LAUNDRY_DOOR.from, DOOR_SERVICE_LAUNDRY_DOOR.to]),
-    doorFloor(SERVICE, "service-pantry-door", [3.07, 3.145], [DOOR_SERVICE_PANTRY_DOOR.from, DOOR_SERVICE_PANTRY_DOOR.to]),
-    doorFloor(SERVICE, "service-common-opening", [DOOR_SERVICE_COMMON_OPENING.from, DOOR_SERVICE_COMMON_OPENING.to], [-6.125, -6.05]),
+    doorFloor(
+      SERVICE,
+      "service-powder-door",
+      [3.07, 3.145],
+      [DOOR_SERVICE_POWDER_DOOR.from, DOOR_SERVICE_POWDER_DOOR.to],
+    ),
+    doorFloor(
+      SERVICE,
+      "service-laundry-door",
+      [3.07, 3.145],
+      [DOOR_SERVICE_LAUNDRY_DOOR.from, DOOR_SERVICE_LAUNDRY_DOOR.to],
+    ),
+    doorFloor(
+      SERVICE,
+      "service-pantry-door",
+      [3.07, 3.145],
+      [DOOR_SERVICE_PANTRY_DOOR.from, DOOR_SERVICE_PANTRY_DOOR.to],
+    ),
+    doorFloor(
+      SERVICE,
+      "service-common-opening",
+      [DOOR_SERVICE_COMMON_OPENING.from, DOOR_SERVICE_COMMON_OPENING.to],
+      [-6.125, -6.05],
+    ),
   ],
 });

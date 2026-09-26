@@ -12,24 +12,28 @@
  * 0.12 m (01-paving-support).
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slab } from "../solids";
+import { part, rect, slab, type IHousePart } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
-import { DRIVEWAY, driveTop } from "./driveway";
-import { WALK_DEPTH, blendedRun } from "./paving";
+import { driveTop, DRIVEWAY } from "./driveway";
+import { blendedRun, WALK_DEPTH } from "./paving";
 import { PORCH_STEP_CENTRE_X, PORCH_STEP_FRONT_Z } from "../porch";
 
 const OWNER = "site/front-walk.ts";
 
 /** Front walk extent, metres. */
 /**
- * @evidence spaces/site/front-walk.md FRONT_WALK is the single authored measurement record consumed by neighboring owners.
- * @evidence spaces/site/front-walk.md#front-walk-plan Its bounds or datum follow this source owner's reviewed plan.
- * @evidence principles/core/source-units.md#source-scope-preservation FRONT_WALK shares a host value without creating a second part or place.
- * @evidence principles/core/source-units.md#source-substantive-completion Consumers import FRONT_WALK for matching boundaries and reservations.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed FRONT_WALK owner fixes this measurement; its consumers add no independent value.
+ * @evidence spaces/site/front-walk.md The porch-axis path and its cross band have one plan record for slab, zone, and connector.
+ * @evidence spaces/site/front-walk.md#front-walk-plan X follows the porch-step centre, the inner Z follows its front riser, and the cross band keeps its reviewed Z limits.
+ * @evidence principles/core/source-units.md#source-scope-preservation The path consumes PORCH_STEP_CENTRE_X and PORCH_STEP_FRONT_Z rather than owning a second entry axis.
+ * @evidence principles/core/source-units.md#source-substantive-completion The slab, joined zone patches, and exterior connector read the same path bounds.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front-walk plan fixes the far end and T band while the porch supplies the near contact.
  */
-export const FRONT_WALK = { x: [PORCH_STEP_CENTRE_X - 0.75, PORCH_STEP_CENTRE_X + 0.75] as const, z: [PORCH_STEP_FRONT_Z, 6.5] as const, connectorZ: [4.25, 5.45] as const };
+export const FRONT_WALK = {
+  x: [PORCH_STEP_CENTRE_X - 0.75, PORCH_STEP_CENTRE_X + 0.75] as const,
+  z: [PORCH_STEP_FRONT_Z, 6.5] as const,
+  connectorZ: [4.25, 5.45] as const,
+};
 
 /** Emit the walk and its sloped cross connector. */
 /**
@@ -46,16 +50,40 @@ export const buildFrontWalk = (): ISiteBuild => {
     id: "front-walk",
     owner: OWNER,
     outline: [
-      { x: FRONT_WALK.x[0], z: FRONT_WALK.z[0] }, { x: FRONT_WALK.x[1], z: FRONT_WALK.z[0] },
-      { x: FRONT_WALK.x[1], z: FRONT_WALK.connectorZ[0] }, { x: DRIVEWAY.x[0], z: FRONT_WALK.connectorZ[0] },
-      { x: DRIVEWAY.x[0], z: FRONT_WALK.connectorZ[1] }, { x: FRONT_WALK.x[1], z: FRONT_WALK.connectorZ[1] },
-      { x: FRONT_WALK.x[1], z: FRONT_WALK.z[1] }, { x: FRONT_WALK.x[0], z: FRONT_WALK.z[1] },
+      { x: FRONT_WALK.x[0], z: FRONT_WALK.z[0] },
+      { x: FRONT_WALK.x[1], z: FRONT_WALK.z[0] },
+      { x: FRONT_WALK.x[1], z: FRONT_WALK.connectorZ[0] },
+      { x: DRIVEWAY.x[0], z: FRONT_WALK.connectorZ[0] },
+      { x: DRIVEWAY.x[0], z: FRONT_WALK.connectorZ[1] },
+      { x: FRONT_WALK.x[1], z: FRONT_WALK.connectorZ[1] },
+      { x: FRONT_WALK.x[1], z: FRONT_WALK.z[1] },
+      { x: FRONT_WALK.x[0], z: FRONT_WALK.z[1] },
     ],
-    anchor: { x: (FRONT_WALK.x[0] + FRONT_WALK.x[1]) / 2, y: walkY, z: FRONT_WALK.z[0] },
+    anchor: {
+      x: (FRONT_WALK.x[0] + FRONT_WALK.x[1]) / 2,
+      y: walkY,
+      z: FRONT_WALK.z[0],
+    },
     rampTo: null,
+    groundAt: (x, z) =>
+      x <= right
+        ? walkY
+        : (1 - (x - left) / (right - left)) * walkY + ((x - left) / (right - left)) * driveTop(z),
     patches: [
-      { outline: rect(FRONT_WALK.x, FRONT_WALK.z), anchor: { x: FRONT_WALK.x[0], y: walkY, z: FRONT_WALK.z[0] }, rampTo: null },
-      { outline: rect([left, right], FRONT_WALK.connectorZ), anchor: { x: left, y: walkY, z: FRONT_WALK.connectorZ[0] }, rampTo: { x: right, y: driveTop(FRONT_WALK.connectorZ[0]), z: FRONT_WALK.connectorZ[0] } },
+      {
+        outline: rect(FRONT_WALK.x, FRONT_WALK.z),
+        anchor: { x: FRONT_WALK.x[0], y: walkY, z: FRONT_WALK.z[0] },
+        rampTo: null,
+      },
+      {
+        outline: rect([left, right], FRONT_WALK.connectorZ),
+        anchor: { x: left, y: walkY, z: FRONT_WALK.connectorZ[0] },
+        rampTo: {
+          x: right,
+          y: driveTop(FRONT_WALK.connectorZ[0]),
+          z: FRONT_WALK.connectorZ[0],
+        },
+      },
     ],
   };
   const parts: IHousePart[] = [

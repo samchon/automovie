@@ -9,7 +9,9 @@
  * from a reference image.
  *
  * Consumers: floors, rooms, stair, porch, garage, envelope and site owners.
- * Changing a datum moves every consumer's geometry on the next build.
+ * A datum change propagates through imports to the matching floor, wall,
+ * stair, reservation and site measurements on the next build; independent
+ * roof profiles and authored opening heights retain their own datums.
  */
 
 /** Finished floor and ceiling heights, world Y metres. */
@@ -115,7 +117,9 @@ export type StoreyId = "ground-storey" | "upper-storey";
  * @evidence principles/core/source-units.md#source-substantive-completion Either StoreyId returns a deterministic floor coordinate without a caller-computed offset.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground/upper datums in the storey parent suffice for this two-case lookup.
  */
-export const floorOf = (storey: StoreyId): number => (storey === "ground-storey" ? STOREYS.groundFloor : STOREYS.upperFloor);
+export const floorOf = (storey: StoreyId): number => (storey === "ground-storey"
+  ? STOREYS.groundFloor
+  : STOREYS.upperFloor);
 
 /** Finished ceiling height of a storey. */
 /**
@@ -124,4 +128,6 @@ export const floorOf = (storey: StoreyId): number => (storey === "ground-storey"
  * @evidence principles/core/source-units.md#source-substantive-completion Both StoreyId inputs yield the declared height directly, giving rooms a stable ceiling coordinate.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The storey parent supplies both finished ceiling levels; no room-specific elevation was added.
  */
-export const ceilingOf = (storey: StoreyId): number => (storey === "ground-storey" ? STOREYS.groundCeiling : STOREYS.upperCeiling);
+export const ceilingOf = (storey: StoreyId): number => (storey === "ground-storey"
+  ? STOREYS.groundCeiling
+  : STOREYS.upperCeiling);

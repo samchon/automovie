@@ -35,8 +35,20 @@
  */
 import { PALETTE } from "./palette";
 import { MAIN } from "./building";
-import { type IHousePart, bar, block, part, slab, straightWall } from "./solids";
-import { CEILING_FINISH, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
+import {
+  bar,
+  block,
+  part,
+  slab,
+  straightWall,
+  type IHousePart,
+} from "./solids";
+import {
+  CEILING_FINISH,
+  GROUND_LAYERS,
+  INTERSTOREY_FLOOR_FINISH,
+  STOREYS,
+} from "./storeys";
 
 const OWNER = "stair.ts";
 /** The finished L void and its back guard band are the stair owner's shared plan. */
@@ -54,12 +66,19 @@ export const STAIR_OPENING = {
   back: -4.56,
   turnZ: -3.41,
   front: -0.25,
-  get guardBack() { return this.back - MAIN.partition; },
-  get outline() { return [
-    { x: this.west, z: this.back }, { x: this.east, z: this.back },
-    { x: this.east, z: this.turnZ }, { x: this.turnX, z: this.turnZ },
-    { x: this.turnX, z: this.front }, { x: this.west, z: this.front },
-  ]; },
+  get guardBack() {
+    return this.back - MAIN.partition;
+  },
+  get outline() {
+    return [
+      { x: this.west, z: this.back },
+      { x: this.east, z: this.back },
+      { x: this.east, z: this.turnZ },
+      { x: this.turnX, z: this.turnZ },
+      { x: this.turnX, z: this.front },
+      { x: this.west, z: this.front },
+    ];
+  },
 } as const;
 const RISE = STOREYS.upperFloor / 18;
 const RUN = 0.28;
@@ -91,24 +110,84 @@ export const buildStair = (): IHousePart[] => {
   // Lower flight: tread i (1..7) sits at i risers, stepping -Z from Z = -1.45.
   for (let i = 1; i <= 7; ++i) {
     const front = -1.45 - RUN * (i - 1);
-    parts.push(part(`stair-lower-tread-${i}`, OWNER, "stair", PALETTE.stairWood, block([STAIR_OPENING.west, BASE, front - RUN], [STAIR_OPENING.turnX, RISE * i, front])));
+    parts.push(
+      part(
+        `stair-lower-tread-${i}`,
+        OWNER,
+        "stair",
+        PALETTE.stairWood,
+        block(
+          [STAIR_OPENING.west, BASE, front - RUN],
+          [STAIR_OPENING.turnX, RISE * i, front],
+        ),
+      ),
+    );
   }
   // The eighth riser reaches the landing at 8 risers = 1.36 m.
-  parts.push(part("stair-landing", OWNER, "stair", PALETTE.stairWood, block([STAIR_OPENING.west, BASE, STAIR_OPENING.back], [STAIR_OPENING.turnX, RISE * 8, STAIR_OPENING.turnZ])));
+  parts.push(
+    part(
+      "stair-landing",
+      OWNER,
+      "stair",
+      PALETTE.stairWood,
+      block(
+        [STAIR_OPENING.west, BASE, STAIR_OPENING.back],
+        [STAIR_OPENING.turnX, RISE * 8, STAIR_OPENING.turnZ],
+      ),
+    ),
+  );
   // Upper flight: tread j (1..9) sits at 8 + j risers, stepping +X from X = -0.65.
   // A tread over the coat closet body keeps its underside at the closet top.
   for (let j = 1; j <= 9; ++j) {
     const start = STAIR_OPENING.turnX + RUN * (j - 1);
     const overCloset = start + RUN > COAT.x[0] && start < COAT.x[1];
     const underside = overCloset ? COAT.top : BASE;
-    parts.push(part(`stair-upper-tread-${j}`, OWNER, "stair", PALETTE.stairWood, block([start, underside, STAIR_OPENING.back], [start + RUN, RISE * (8 + j), STAIR_OPENING.turnZ])));
+    parts.push(
+      part(
+        `stair-upper-tread-${j}`,
+        OWNER,
+        "stair",
+        PALETTE.stairWood,
+        block(
+          [start, underside, STAIR_OPENING.back],
+          [start + RUN, RISE * (8 + j), STAIR_OPENING.turnZ],
+        ),
+      ),
+    );
   }
   const wall = (id: string, axis: "x" | "z", across: readonly [number, number], along: readonly [number, number], bottom: number, top: number): IHousePart =>
-    part(id, OWNER, "partition", PALETTE.interiorWall, straightWall({ axis, across, along, bottom, top }));
+    part(
+      id,
+      OWNER,
+      "partition",
+      PALETTE.interiorWall,
+      straightWall({ axis, across, along, bottom, top }),
+    );
   parts.push(
-    wall("stair-left-ground", "z", [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west], [STAIR_OPENING.back, -1.45], BASE, STOREYS.groundCeiling),
-    wall("stair-left-upper", "z", [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west], [STAIR_OPENING.back, STAIR_OPENING.front], UPPER_BASE, STOREYS.upperCeiling),
-    wall("stair-back-ground", "x", [STAIR_OPENING.guardBack, STAIR_OPENING.back], [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.east], BASE, STOREYS.groundCeiling),
+    wall(
+      "stair-left-ground",
+      "z",
+      [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west],
+      [STAIR_OPENING.back, -1.45],
+      BASE,
+      STOREYS.groundCeiling,
+    ),
+    wall(
+      "stair-left-upper",
+      "z",
+      [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west],
+      [STAIR_OPENING.back, STAIR_OPENING.front],
+      UPPER_BASE,
+      STOREYS.upperCeiling,
+    ),
+    wall(
+      "stair-back-ground",
+      "x",
+      [STAIR_OPENING.guardBack, STAIR_OPENING.back],
+      [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.east],
+      BASE,
+      STOREYS.groundCeiling,
+    ),
     part(
       "stair-arrival-closure",
       OWNER,
@@ -120,21 +199,116 @@ export const buildStair = (): IHousePart[] => {
         along: [STAIR_OPENING.guardBack, STAIR_OPENING.turnZ],
         bottom: BASE,
         top: STOREYS.groundCeiling,
-        holes: [{ id: "entry-coat-opening", from: -4.51, to: -3.56, bottom: STOREYS.groundFloor, top: COAT.top }],
+        holes: [
+          {
+            id: "entry-coat-opening",
+            from: -4.51,
+            to: -3.56,
+            bottom: STOREYS.groundFloor,
+            top: COAT.top,
+          },
+        ],
       }),
     ),
-    wall("stair-bedroom-side-upper", "z", [STAIR_OPENING.turnX, STAIR_OPENING.turnX + MAIN.partition], [STAIR_OPENING.turnZ, STAIR_OPENING.front], UPPER_BASE, STOREYS.upperCeiling),
-    wall("stair-bedroom-front-upper", "x", [STAIR_OPENING.turnZ, STAIR_OPENING.turnZ + MAIN.partition], [STAIR_OPENING.turnX + MAIN.partition, STAIR_OPENING.east - MAIN.partition], UPPER_BASE, STOREYS.upperCeiling),
+    wall(
+      "stair-bedroom-side-upper",
+      "z",
+      [STAIR_OPENING.turnX, STAIR_OPENING.turnX + MAIN.partition],
+      [STAIR_OPENING.turnZ, STAIR_OPENING.front],
+      UPPER_BASE,
+      STOREYS.upperCeiling,
+    ),
+    wall(
+      "stair-bedroom-front-upper",
+      "x",
+      [STAIR_OPENING.turnZ, STAIR_OPENING.turnZ + MAIN.partition],
+      [
+        STAIR_OPENING.turnX + MAIN.partition,
+        STAIR_OPENING.east - MAIN.partition,
+      ],
+      UPPER_BASE,
+      STOREYS.upperCeiling,
+    ),
   );
   // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: two end posts and the top rail.
   const guardTop = STOREYS.upperFloor + HALL_GUARD;
   const z = (STAIR_OPENING.guardBack + STAIR_OPENING.back) / 2;
   parts.push(
-    part("stair-guard-band-floor", OWNER, "floor", PALETTE.woodFloor, block([STAIR_OPENING.west, STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH, STAIR_OPENING.guardBack], [STAIR_OPENING.east, STOREYS.upperFloor, STAIR_OPENING.back - CEILING_FINISH])),
-    part("stair-guard-post-west", OWNER, "guard", PALETTE.railing, block([STAIR_OPENING.west, STOREYS.upperFloor, z - RESERVE / 2], [STAIR_OPENING.west + RESERVE, guardTop, z + RESERVE / 2])),
-    part("stair-guard-post-east", OWNER, "guard", PALETTE.railing, block([STAIR_OPENING.east - RESERVE, STOREYS.upperFloor, z - RESERVE / 2], [STAIR_OPENING.east, guardTop, z + RESERVE / 2])),
-    part("stair-guard-top-rail", OWNER, "guard", PALETTE.stairWood, bar({ x: STAIR_OPENING.west, y: guardTop - RESERVE / 2, z }, { x: STAIR_OPENING.east, y: guardTop - RESERVE / 2, z }, RESERVE)),
-    wall("stair-west-back-corner", "z", [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west], [STAIR_OPENING.guardBack, STAIR_OPENING.back], UPPER_BASE, STOREYS.upperCeiling),
+    part(
+      "stair-guard-band-floor",
+      OWNER,
+      "floor",
+      PALETTE.woodFloor,
+      block(
+        [
+          STAIR_OPENING.west,
+          STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH,
+          STAIR_OPENING.guardBack,
+        ],
+        [
+          STAIR_OPENING.east,
+          STOREYS.upperFloor,
+          STAIR_OPENING.back - CEILING_FINISH,
+        ],
+      ),
+    ),
+    part(
+      "stair-guard-post-west",
+      OWNER,
+      "guard",
+      PALETTE.railing,
+      block(
+        [STAIR_OPENING.west, STOREYS.upperFloor, z - RESERVE / 2],
+        [STAIR_OPENING.west + RESERVE, guardTop, z + RESERVE / 2],
+      ),
+    ),
+    part(
+      "stair-guard-post-east",
+      OWNER,
+      "guard",
+      PALETTE.railing,
+      block(
+        [STAIR_OPENING.east - RESERVE, STOREYS.upperFloor, z - RESERVE / 2],
+        [STAIR_OPENING.east, guardTop, z + RESERVE / 2],
+      ),
+    ),
+    part(
+      "stair-guard-top-rail",
+      OWNER,
+      "guard",
+      PALETTE.stairWood,
+      bar(
+        { x: STAIR_OPENING.west, y: guardTop - RESERVE / 2, z },
+        { x: STAIR_OPENING.east, y: guardTop - RESERVE / 2, z },
+        RESERVE,
+      ),
+    ),
+    wall(
+      "stair-west-back-corner",
+      "z",
+      [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west],
+      [STAIR_OPENING.guardBack, STAIR_OPENING.back],
+      UPPER_BASE,
+      STOREYS.upperCeiling,
+    ),
+    part(
+      "stair-west-back-corner-ceiling",
+      OWNER,
+      "ceiling",
+      PALETTE.ceiling,
+      block(
+        [
+          STAIR_OPENING.west - MAIN.partition,
+          STOREYS.upperCeiling,
+          STAIR_OPENING.guardBack,
+        ],
+        [
+          STAIR_OPENING.west,
+          STOREYS.upperCeiling + CEILING_FINISH,
+          STAIR_OPENING.back,
+        ],
+      ),
+    ),
   );
   // Sloped handrails inside the 0.075 m reservation: the lower flight's open
   // side X = [-0.725, -0.65] and the upper flight's front side Z = [-3.485, -3.41].
@@ -144,10 +318,48 @@ export const buildStair = (): IHousePart[] => {
   const railTop = (nosing: number): number => nosing + HANDRAIL - RESERVE / 2;
   const landingTop = RISE * 8;
   parts.push(
-    part("stair-handrail-lower", OWNER, "guard", PALETTE.stairWood, bar({ x, y: railTop(RISE), z: -1.45 }, { x, y: railTop(landingTop), z: STAIR_OPENING.turnZ }, RESERVE)),
-    part("stair-handrail-upper", OWNER, "guard", PALETTE.stairWood, bar({ x: STAIR_OPENING.turnX, y: railTop(landingTop), z: zFront }, { x: STAIR_OPENING.east, y: railTop(STOREYS.upperFloor), z: zFront }, RESERVE)),
-    part("stair-post-lower-start", OWNER, "guard", PALETTE.railing, block([-0.65 - RESERVE, RISE, -1.45 - RESERVE], [-0.65, RISE + HANDRAIL, -1.45])),
-    part("stair-post-landing-corner", OWNER, "guard", PALETTE.railing, block([-0.65 - RESERVE, landingTop, -3.41 - RESERVE], [-0.65, landingTop + HANDRAIL, -3.41])),
+    part(
+      "stair-handrail-lower",
+      OWNER,
+      "guard",
+      PALETTE.stairWood,
+      bar(
+        { x, y: railTop(RISE), z: -1.45 },
+        { x, y: railTop(landingTop), z: STAIR_OPENING.turnZ },
+        RESERVE,
+      ),
+    ),
+    part(
+      "stair-handrail-upper",
+      OWNER,
+      "guard",
+      PALETTE.stairWood,
+      bar(
+        { x: STAIR_OPENING.turnX, y: railTop(landingTop), z: zFront },
+        { x: STAIR_OPENING.east, y: railTop(STOREYS.upperFloor), z: zFront },
+        RESERVE,
+      ),
+    ),
+    part(
+      "stair-post-lower-start",
+      OWNER,
+      "guard",
+      PALETTE.railing,
+      block(
+        [-0.65 - RESERVE, RISE, -1.45 - RESERVE],
+        [-0.65, RISE + HANDRAIL, -1.45],
+      ),
+    ),
+    part(
+      "stair-post-landing-corner",
+      OWNER,
+      "guard",
+      PALETTE.railing,
+      block(
+        [-0.65 - RESERVE, landingTop, -3.41 - RESERVE],
+        [-0.65, landingTop + HANDRAIL, -3.41],
+      ),
+    ),
   );
   // stair-floor-opening, 08 interstorey-edge-junctions: the interstorey structure stops
   // 0.015 m short of the finished opening; this owner closes that band with the
@@ -158,20 +370,49 @@ export const buildStair = (): IHousePart[] => {
   const edgeTop = STOREYS.upperFloor;
   const e = CEILING_FINISH;
   const edge = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
-    part(id, OWNER, "floor", PALETTE.interiorWall, block([x[0], edgeBottom, z[0]], [x[1], edgeTop, z[1]]));
+    part(
+      id,
+      OWNER,
+      "floor",
+      PALETTE.interiorWall,
+      block([x[0], edgeBottom, z[0]], [x[1], edgeTop, z[1]]),
+    );
   parts.push(
-    edge("stair-opening-edge-east", [STAIR_OPENING.turnX, STAIR_OPENING.turnX + e], [STAIR_OPENING.turnZ + e, STAIR_OPENING.front]),
-    edge("stair-opening-edge-front", [STAIR_OPENING.turnX, STAIR_OPENING.east + e], [STAIR_OPENING.turnZ, STAIR_OPENING.turnZ + e]),
-    edge("stair-opening-edge-arrival", [STAIR_OPENING.east, STAIR_OPENING.east + e], [STAIR_OPENING.back - e, STAIR_OPENING.turnZ]),
-    edge("stair-opening-edge-back", [STAIR_OPENING.west - e, STAIR_OPENING.east], [STAIR_OPENING.back - e, STAIR_OPENING.back]),
-    edge("stair-opening-edge-west", [STAIR_OPENING.west - e, STAIR_OPENING.west], [STAIR_OPENING.back, STAIR_OPENING.front]),
+    edge(
+      "stair-opening-edge-east",
+      [STAIR_OPENING.turnX, STAIR_OPENING.turnX + e],
+      [STAIR_OPENING.turnZ + e, STAIR_OPENING.front],
+    ),
+    edge(
+      "stair-opening-edge-front",
+      [STAIR_OPENING.turnX, STAIR_OPENING.east + e],
+      [STAIR_OPENING.turnZ, STAIR_OPENING.turnZ + e],
+    ),
+    edge(
+      "stair-opening-edge-arrival",
+      [STAIR_OPENING.east, STAIR_OPENING.east + e],
+      [STAIR_OPENING.back - e, STAIR_OPENING.turnZ],
+    ),
+    edge(
+      "stair-opening-edge-back",
+      [STAIR_OPENING.west - e, STAIR_OPENING.east],
+      [STAIR_OPENING.back - e, STAIR_OPENING.back],
+    ),
+    edge(
+      "stair-opening-edge-west",
+      [STAIR_OPENING.west - e, STAIR_OPENING.west],
+      [STAIR_OPENING.back, STAIR_OPENING.front],
+    ),
     part(
       "stair-hall-ceiling",
       OWNER,
       "ceiling",
       PALETTE.ceiling,
       slab({
-        outline: STAIR_OPENING.outline.map((p) => ({ x: p.x, z: p.z === STAIR_OPENING.back ? STAIR_OPENING.guardBack : p.z })),
+        outline: STAIR_OPENING.outline.map((p) => ({
+          x: p.x,
+          z: p.z === STAIR_OPENING.back ? STAIR_OPENING.guardBack : p.z,
+        })),
         bottom: STOREYS.upperCeiling,
         top: STOREYS.upperCeiling + CEILING_FINISH,
       }),

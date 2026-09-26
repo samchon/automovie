@@ -77,7 +77,7 @@
 @evidence principles/core/common.md#substantive-completion 패널 상단을 관리문 문짝 상단과 같은 world 높이로, 아래끝을 g + 0.05 m로 두고 일반 기둥은 0.12 m 정방형, 패널·연결 부재의 두께 점유는 중심선 양쪽 각각 0.05 m 안으로, 받침/기초의 최대 평면 점유는 0.24 m 정방형으로 예약한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 패널 상단·g + 0.05 m·기둥 0.12 m·패널 ±0.05 m·기초 0.24 m 수치를 대조하고, 기초 반폭 0.12 m가 R·B 0.35 m 오프셋 안에서 관리길 0.20 m 여유와 겹치지 않음을 계산해 점유 결정이 완결됨을 확인했다.
 @evidence principles/core/common.md#declared-basis g는 maps의 실제 지표 높이로 아직 없으며 일정 높이로 꾸며 넣지 않는다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb g를 maps의 실제 지표 높이로 정의하고 '지표가 아직 없으므로 g를 일정 높이로 꾸며 넣거나 완료했다고 보고하지 않는다'는 본문을 대조해 아래끝 규칙의 미해결 입력이 명시됨을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb g는 maps의 실제 지표로 남겨 두고, 새 S + 0.05 m 수평 패널 하단은 차단 뷰 전용이며 map-ground-pending으로 표시한다는 두 문단을 대조해 실제 지표와 임시 표현을 혼동하지 않음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 목재 울타리를 지표를 따라가는 아래끝과 관리길 제외 여유를 침범하지 않는 기초 점유로 만든다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity 목재 울타리 서술에 없는 g + 0.05 m 지표 추종 아래끝과 관리길 제외 여유를 침범하지 않는 0.24 m 기초 점유를 본문이 더하는지 대조해 부모 반복이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology 문 앞뒤의 보행면과 문기둥 접촉을 관리길 상면 S와 맞추고 일반 기초는 포장에 침투하지 않는다.

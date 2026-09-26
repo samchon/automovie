@@ -19,7 +19,16 @@ import { DOOR_HALL_SHOWER_DOOR } from "./shower-bath";
 import { PALETTE } from "../palette";
 import { block, part } from "../solids";
 import { STOREYS } from "../storeys";
-import { type IRoomBuild, type IRoomSpace, door, doorFloor, partition, partitionSpan, roomCeiling, roomFloor } from "./shared";
+import {
+  door,
+  doorFloor,
+  partition,
+  partitionSpan,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 
 const UPPER_HALL: IRoomSpace = {
   id: "upper-hall",
@@ -54,15 +63,47 @@ export const buildUpperHall = (): IRoomBuild => {
   const [, top] = partitionSpan(storey);
   return {
     space: UPPER_HALL,
-    storages: [{ id: "upper-linen-storage", x: [1.87, 3.07], y: [STOREYS.upperFloor, STOREYS.upperFloor + LINEN_HEIGHT], z: [-3.26, -2.66] }],
+    storages: [
+      {
+        id: "upper-linen-storage",
+        x: [1.87, 3.07],
+        y: [STOREYS.upperFloor, STOREYS.upperFloor + LINEN_HEIGHT],
+        z: [-3.26, -2.66],
+      },
+    ],
     parts: [
       roomFloor(UPPER_HALL),
       roomCeiling(UPPER_HALL),
-      doorFloor(UPPER_HALL, "hall-bedroom-two-door", [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to], [-4.71, -4.635]),
-      doorFloor(UPPER_HALL, "hall-bedroom-three-door", [3.07, 3.145], [DOOR_HALL_BEDROOM_THREE_DOOR.from, DOOR_HALL_BEDROOM_THREE_DOOR.to]),
-      doorFloor(UPPER_HALL, "hall-primary-door", [DOOR_HALL_PRIMARY_DOOR.from, DOOR_HALL_PRIMARY_DOOR.to], [-5.985, -5.91]),
-      doorFloor(UPPER_HALL, "hall-shower-door", [DOOR_HALL_SHOWER_DOOR.from, DOOR_HALL_SHOWER_DOOR.to], [-5.985, -5.91]),
-      doorFloor(UPPER_HALL, "hall-tub-door", [3.07, 3.145], [DOOR_HALL_TUB_DOOR.from, DOOR_HALL_TUB_DOOR.to]),
+      doorFloor(
+        UPPER_HALL,
+        "hall-bedroom-two-door",
+        [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to],
+        [-4.71, -4.635],
+      ),
+      doorFloor(
+        UPPER_HALL,
+        "hall-bedroom-three-door",
+        [3.07, 3.145],
+        [DOOR_HALL_BEDROOM_THREE_DOOR.from, DOOR_HALL_BEDROOM_THREE_DOOR.to],
+      ),
+      doorFloor(
+        UPPER_HALL,
+        "hall-primary-door",
+        [DOOR_HALL_PRIMARY_DOOR.from, DOOR_HALL_PRIMARY_DOOR.to],
+        [-5.985, -5.91],
+      ),
+      doorFloor(
+        UPPER_HALL,
+        "hall-shower-door",
+        [DOOR_HALL_SHOWER_DOOR.from, DOOR_HALL_SHOWER_DOOR.to],
+        [-5.985, -5.91],
+      ),
+      doorFloor(
+        UPPER_HALL,
+        "hall-tub-door",
+        [3.07, 3.145],
+        [DOOR_HALL_TUB_DOOR.from, DOOR_HALL_TUB_DOOR.to],
+      ),
       partition({
         id: "upper-linen-front",
         owner,
@@ -72,10 +113,40 @@ export const buildUpperHall = (): IRoomBuild => {
         along: [1.72, 3.22],
         holes: [door("upper-linen-opening", storey, 1.97, 2.97, LINEN_HEIGHT)],
       }),
-      partition({ id: "upper-linen-side-west", owner, storey, axis: "z", across: [1.72, 1.87], along: [-3.26, -2.51] }),
-      partition({ id: "upper-linen-side-east", owner, storey, axis: "z", across: [3.07, 3.22], along: [-3.26, -2.51] }),
-      partition({ id: "upper-linen-back", owner, storey, axis: "x", across: [-2.66, -2.51], along: [1.87, 3.07] }),
-      part("upper-linen-head", owner, "partition", PALETTE.interiorWall, block([1.87, STOREYS.upperFloor + LINEN_HEIGHT, -3.26], [3.07, top, -2.66])),
+      partition({
+        id: "upper-linen-side-west",
+        owner,
+        storey,
+        axis: "z",
+        across: [1.72, 1.87],
+        along: [-3.26, -2.51],
+      }),
+      partition({
+        id: "upper-linen-side-east",
+        owner,
+        storey,
+        axis: "z",
+        across: [3.07, 3.22],
+        along: [-3.26, -2.51],
+      }),
+      partition({
+        id: "upper-linen-back",
+        owner,
+        storey,
+        axis: "x",
+        across: [-2.66, -2.51],
+        along: [1.87, 3.07],
+      }),
+      part(
+        "upper-linen-head",
+        owner,
+        "partition",
+        PALETTE.interiorWall,
+        block(
+          [1.87, STOREYS.upperFloor + LINEN_HEIGHT, -3.26],
+          [3.07, top, -2.66],
+        ),
+      ),
     ],
   };
 };

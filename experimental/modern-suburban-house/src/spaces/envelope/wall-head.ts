@@ -13,7 +13,7 @@
  * elevation owns the emitted body.
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slopedSlab } from "../solids";
+import { part, rect, slopedSlab, type IHousePart } from "../solids";
 import { ROOF_THICKNESS } from "../roof/junctions";
 
 /** One wedge over X = `x`, across Z = `z`, under the roof function `roof`. */

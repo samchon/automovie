@@ -50,11 +50,29 @@ export const buildDriveway = (): ISiteBuild => ({
       id: "driveway",
       owner: "site/driveway.ts",
       outline: rect(DRIVEWAY.x, DRIVEWAY.z),
-      anchor: { x: (DRIVEWAY.x[0] + DRIVEWAY.x[1]) / 2, y: driveTop(DRIVEWAY.z[0]), z: DRIVEWAY.z[0] },
-      rampTo: { x: (DRIVEWAY.x[0] + DRIVEWAY.x[1]) / 2, y: driveTop(DRIVEWAY.z[1]), z: DRIVEWAY.z[1] },
+      anchor: {
+        x: (DRIVEWAY.x[0] + DRIVEWAY.x[1]) / 2,
+        y: driveTop(DRIVEWAY.z[0]),
+        z: DRIVEWAY.z[0],
+      },
+      rampTo: {
+        x: (DRIVEWAY.x[0] + DRIVEWAY.x[1]) / 2,
+        y: driveTop(DRIVEWAY.z[1]),
+        z: DRIVEWAY.z[1],
+      },
     },
   ],
   parts: [
-  part("driveway", "site/driveway.ts", "paving", PALETTE.concrete, slopedSlab({ plan: rect(DRIVEWAY.x, DRIVEWAY.z), top: (_x, z) => driveTop(z), thickness: DRIVE_DEPTH })),
-],
+    part(
+      "driveway",
+      "site/driveway.ts",
+      "paving",
+      PALETTE.concrete,
+      slopedSlab({
+        plan: rect(DRIVEWAY.x, DRIVEWAY.z),
+        top: (_x, z) => driveTop(z),
+        thickness: DRIVE_DEPTH,
+      }),
+    ),
+  ],
 });

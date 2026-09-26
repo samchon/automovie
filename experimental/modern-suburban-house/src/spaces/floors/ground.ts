@@ -14,7 +14,7 @@
  */
 import { MAIN } from "../building";
 import { PALETTE } from "../palette";
-import { type IHousePart, part, rect, slab } from "../solids";
+import { part, rect, slab, type IHousePart } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { FRONT_DOOR } from "../rooms/entry";
 import { GARDEN_DOOR } from "../envelope/rear";
@@ -33,11 +33,29 @@ export const buildGroundFloor = (): IHousePart[] => {
   const top = STOREYS.groundFloor - GROUND_LAYERS.finish;
   const bottom = top - GROUND_LAYERS.base;
   const base = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
-    part(id, "floors/ground.ts", "floor", PALETTE.structure, slab({ outline: rect(x, z), bottom, top }));
+    part(
+      id,
+      "floors/ground.ts",
+      "floor",
+      PALETTE.structure,
+      slab({ outline: rect(x, z), bottom, top }),
+    );
   return [
     base("main-ground-floor-base", MAIN.inner.x, MAIN.inner.z),
-    base("front-door-base", [FRONT_DOOR.from, FRONT_DOOR.to], [MAIN.inner.z[1], MAIN.outer.z[1]]),
-    base("garden-door-base", [GARDEN_DOOR.from, GARDEN_DOOR.to], [MAIN.outer.z[0], MAIN.inner.z[0]]),
-    base("laundry-garage-door-base", [MAIN.inner.x[1], MAIN.outer.x[1]], [LAUNDRY_GARAGE_DOOR.from, LAUNDRY_GARAGE_DOOR.to]),
+    base(
+      "front-door-base",
+      [FRONT_DOOR.from, FRONT_DOOR.to],
+      [MAIN.inner.z[1], MAIN.outer.z[1]],
+    ),
+    base(
+      "garden-door-base",
+      [GARDEN_DOOR.from, GARDEN_DOOR.to],
+      [MAIN.outer.z[0], MAIN.inner.z[0]],
+    ),
+    base(
+      "laundry-garage-door-base",
+      [MAIN.inner.x[1], MAIN.outer.x[1]],
+      [LAUNDRY_GARAGE_DOOR.from, LAUNDRY_GARAGE_DOOR.to],
+    ),
   ];
 };

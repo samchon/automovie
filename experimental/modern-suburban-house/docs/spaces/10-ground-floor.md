@@ -100,7 +100,7 @@
 @evidence principles/core/common.md#substantive-completion 바탕 아래 지지 구역을 ground/garage owner, 외벽/공유 벽 기단을 벽 구조 owner, 노출 수직 마감을 입면 owner로 나눈다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 바탕 아래 지지 구역을 ground/garage owner, 외벽/공유 벽 두께 구역 기단을 기존 벽 구조 owner, 지표에 드러나는 수직 마감을 입면 owner로 나눈 문단을 대조해 지표 전 가능한 배정이 끝났음을 확인했다.
 @evidence principles/core/common.md#declared-basis 채움 하단과 기단/기초의 깊이·폭은 maps 지표가 없어 미결이며 외부 완성 지표를 지지면이나 기초 하단으로 가정하지 않는다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 채움 하단·기단/기초 깊이·폭을 site/00-access map 지표 입력 부재로 미결이라 적고 외부 완성 지표를 지지면이나 기초 하단과 같다고 가정하지 않는 문장을 대조해 미결 입력이 드러남을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 채움 하단·기단/기초 깊이·폭을 map 지표 입력 부재로 미결이라 적고, 새 -0.45 m 외벽 절단선은 지지면이 아니라 map-ground-pending 표시 전용이라고 구별한 문장을 대조해 미결 입력과 임시 표현의 근거가 각각 드러남을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 대지와 집의 접촉을 지표를 받은 뒤 바탕 아래면·외벽/문턱·지표를 함께 놓고 결정하는 인계 순서로 정한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings site-identity의 지표 경사 maps 소유에, 지표를 받은 뒤 건물 owner가 바탕 아래면·외벽/문턱·지표를 함께 놓고 지지 하단을 정하며 불가능하면 원래 입력을 고치는 순서가 더해졌음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 바탕 아래 빈 공중층을 두지 않고 본채 바탕을 포치·테라스·차도 아래로 넓히지 않으며 지표로 완성 바닥을 덮지 않는다.

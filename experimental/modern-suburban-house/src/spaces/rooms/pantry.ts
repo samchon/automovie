@@ -7,7 +7,16 @@
  * Z = [-5.75, -4.80], Y = [0, 2.20] m. Shelves are later models.
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/pantry.md The service-pantry-door void follows the partition assigned to pantry.
@@ -15,8 +24,12 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The service-pantry-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-pantry-door width and position are fixed by the pantry design.
  */
-export const DOOR_SERVICE_PANTRY_DOOR = door("service-pantry-door", "ground-storey", -5.75, -4.8);
-
+export const DOOR_SERVICE_PANTRY_DOOR = door(
+  "service-pantry-door",
+  "ground-storey",
+  -5.75,
+  -4.8,
+);
 
 const FLOOR = floorOf("ground-storey");
 
@@ -57,7 +70,12 @@ export const buildPantry = (): IRoomBuild => ({
   parts: [
     roomFloor(PANTRY),
     roomCeiling(PANTRY),
-    doorFloor(PANTRY, "service-pantry-door", [3.145, 3.22], [DOOR_SERVICE_PANTRY_DOOR.from, DOOR_SERVICE_PANTRY_DOOR.to]),
+    doorFloor(
+      PANTRY,
+      "service-pantry-door",
+      [3.145, 3.22],
+      [DOOR_SERVICE_PANTRY_DOOR.from, DOOR_SERVICE_PANTRY_DOOR.to],
+    ),
     partition({
       id: "pantry-service-partition",
       owner: PANTRY.owner,

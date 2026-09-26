@@ -16,8 +16,22 @@
  * Consumers: the fifteen `rooms/*.ts` owners. This helper owns no surface.
  */
 import { PALETTE } from "../palette";
-import { type IHousePart, type IPlanPoint, type IWallHole, part, slab, straightWall } from "../solids";
-import { CEILING_FINISH, GROUND_LAYERS, INTERSTOREY_FLOOR_FINISH, type StoreyId, ceilingOf, floorOf } from "../storeys";
+import {
+  part,
+  slab,
+  straightWall,
+  type IHousePart,
+  type IPlanPoint,
+  type IWallHole,
+} from "../solids";
+import {
+  CEILING_FINISH,
+  ceilingOf,
+  floorOf,
+  GROUND_LAYERS,
+  INTERSTOREY_FLOOR_FINISH,
+  type StoreyId,
+} from "../storeys";
 
 /**
  * A plan zone a room reserves for one use, world metres: furniture or a
@@ -170,20 +184,46 @@ const inOutline = (outline: readonly IPlanPoint[], x: number, z: number): boolea
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The route-clearance requirement already exists in the room network design.
  */
 export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
+  const routeClearHeight = 2.0;
   const outline = new Map(rooms.map((r) => [r.id, r.outline]));
-  const placed = rooms.flatMap((room) => (room.reservations ?? []).map((r) => ({ room, r, space: r.space ?? room.id })));
+  const placed = rooms.flatMap((room) =>
+    (room.reservations ?? []).map((r) => ({
+      room,
+      r,
+      space: r.space ?? room.id,
+    })),
+  );
   for (const { room, r, space } of placed) {
-    if (!(r.x[0] < r.x[1] && r.z[0] < r.z[1])) throw new Error(`${room.owner}: reservation "${r.id}" has an empty plan`);
+    if (!(r.x[0] < r.x[1] && r.z[0] < r.z[1])) throw new Error(
+      `${room.owner}: reservation "${r.id}" has an empty plan`,
+    );
     const shape = outline.get(space);
-    if (shape === undefined) throw new Error(`${room.owner}: reservation "${r.id}" lies in unknown space "${space}"`);
-    const samples = [r.x[0], (r.x[0] + r.x[1]) / 2, r.x[1]].flatMap((x) => [r.z[0], (r.z[0] + r.z[1]) / 2, r.z[1]].map((z) => [x, z] as const));
-    if (samples.some(([x, z]) => !inOutline(shape, x, z))) throw new Error(`${room.owner}: reservation "${r.id}" leaves space "${space}"`);
+    if (shape === undefined) throw new Error(
+      `${room.owner}: reservation "${r.id}" lies in unknown space "${space}"`,
+    );
+    const samples = [r.x[0], (r.x[0] + r.x[1]) / 2, r.x[1]].flatMap((x) =>
+      [r.z[0], (r.z[0] + r.z[1]) / 2, r.z[1]].map((z) => [x, z] as const),
+    );
+    if (samples.some(([x, z]) => !inOutline(shape, x, z))) throw new Error(
+      `${room.owner}: reservation "${r.id}" leaves space "${space}"`,
+    );
   }
-  const bodies = placed.filter((p) => p.r.kind === "furniture" || p.r.kind === "fixture" || p.r.kind === "storage");
-  for (const route of placed.filter((p) => p.r.kind === "route"))
-    for (const body of bodies)
-      if (route.space === body.space && (body.r.y === undefined || body.r.y[0] < roomLevels(rooms.find((room) => room.id === route.space)!)[0] + 2.0) && route.r.x[0] < body.r.x[1] - 1e-9 && body.r.x[0] < route.r.x[1] - 1e-9 && route.r.z[0] < body.r.z[1] - 1e-9 && body.r.z[0] < route.r.z[1] - 1e-9)
-        throw new Error(`${route.room.owner}: route "${route.r.id}" crosses "${body.r.id}" (${body.room.owner})`);
+  const bodies = placed.filter(
+    (p) => p.r.kind === "furniture" || p.r.kind === "fixture" || p.r.kind === "storage",
+  );
+  for (const route of placed.filter((p) => p.r.kind === "route")) {
+    const routeRoom = rooms.find((room) => room.id === route.space);
+    if (routeRoom === undefined) throw new Error(
+      `${route.room.owner}: route "${route.r.id}" has no room floor`,
+    );
+    const head = roomLevels(routeRoom)[0] + routeClearHeight;
+    for (const body of bodies) {
+      if (route.space === body.space && (body.r.y === undefined || body.r.y[0] < head - 1e-9) && route.r.x[0] < body.r.x[1] - 1e-9 && body.r.x[0] < route.r.x[1] - 1e-9 && route.r.z[0] < body.r.z[1] - 1e-9 && body.r.z[0] < route.r.z[1] - 1e-9)
+        throw new Error(
+          `${route.room.owner}: route "${route.r.id}" crosses "${body.r.id}" (${body.room.owner})`,
+        );
+    }
+  }
 };
 
 /**
@@ -270,7 +310,9 @@ export interface IRoomBuild {
 }
 
 /** Depth of the floor finish bundle below a storey's finished floor. */
-const finishDepth = (storey: StoreyId): number => (storey === "ground-storey" ? GROUND_LAYERS.finish : INTERSTOREY_FLOOR_FINISH);
+const finishDepth = (storey: StoreyId): number => (storey === "ground-storey"
+  ? GROUND_LAYERS.finish
+  : INTERSTOREY_FLOOR_FINISH);
 
 /**
  * Floor finish of one room: its outline over the top finish layer.
@@ -282,7 +324,13 @@ const finishDepth = (storey: StoreyId): number => (storey === "ground-storey" ? 
  */
 export const roomFloor = (room: IRoomSpace): IHousePart => {
   const top = floorOf(room.storey);
-  return part(`${room.id}-floor`, room.owner, "floor", room.floor, slab({ outline: room.outline, bottom: top - finishDepth(room.storey), top }));
+  return part(
+    `${room.id}-floor`,
+    room.owner,
+    "floor",
+    room.floor,
+    slab({ outline: room.outline, bottom: top - finishDepth(room.storey), top }),
+  );
 };
 
 /**
@@ -297,7 +345,13 @@ export const roomFloor = (room: IRoomSpace): IHousePart => {
  */
 export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number, number], z: readonly [number, number]): IHousePart => {
   const top = floorOf(room.storey);
-  return part(`${room.id}-${doorId}-floor`, room.owner, "floor", room.floor, slab({ outline: box(x, z), bottom: top - finishDepth(room.storey), top }));
+  return part(
+    `${room.id}-${doorId}-floor`,
+    room.owner,
+    "floor",
+    room.floor,
+    slab({ outline: box(x, z), bottom: top - finishDepth(room.storey), top }),
+  );
 };
 
 /**
@@ -312,7 +366,13 @@ export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number,
  */
 export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = room.outline): IHousePart => {
   const [, bottom] = roomLevels(room);
-  return part(`${room.id}-ceiling`, room.owner, "ceiling", PALETTE.ceiling, slab({ outline, bottom, top: bottom + CEILING_FINISH }));
+  return part(
+    `${room.id}-ceiling`,
+    room.owner,
+    "ceiling",
+    PALETTE.ceiling,
+    slab({ outline, bottom, top: bottom + CEILING_FINISH }),
+  );
 };
 
 /**
@@ -323,7 +383,10 @@ export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = r
  * @evidence principles/core/source-units.md#source-substantive-completion Partition construction receives an explicit bottom and top.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The partition height relationship is already fixed in boundary design.
  */
-export const partitionSpan = (storey: StoreyId): readonly [number, number] => [floorOf(storey), ceilingOf(storey)];
+export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
+  floorOf(storey),
+  ceilingOf(storey),
+];
 
 /**
  * A straight 0.15 m interior partition with its door voids.
@@ -353,7 +416,14 @@ export const partition = (props: {
     props.owner,
     "partition",
     PALETTE.interiorWall,
-    straightWall({ axis: props.axis, across: props.across, along: props.along, bottom, top, holes: props.holes }),
+    straightWall({
+      axis: props.axis,
+      across: props.across,
+      along: props.along,
+      bottom,
+      top,
+      holes: props.holes,
+    }),
   );
 };
 

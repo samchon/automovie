@@ -10,7 +10,16 @@
  * tub-bath owners under 07 interior-boundary-junctions).
  */
 import { PALETTE } from "../palette";
-import { type IRoomBuild, type IRoomSpace, box, door, partition, doorFloor, roomCeiling, roomFloor } from "./shared";
+import {
+  box,
+  door,
+  doorFloor,
+  partition,
+  roomCeiling,
+  roomFloor,
+  type IRoomBuild,
+  type IRoomSpace,
+} from "./shared";
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/wardrobe.md The primary-wardrobe-door void follows the partition assigned to wardrobe.
@@ -18,8 +27,12 @@ import { floorOf } from "../storeys";
  * @evidence principles/core/source-units.md#source-substantive-completion The primary-wardrobe-door span cuts its wall and sets floor finish limits on both sides.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The primary-wardrobe-door width and position are fixed by the wardrobe design.
  */
-export const DOOR_PRIMARY_WARDROBE_DOOR = door("primary-wardrobe-door", "upper-storey", -10.2, -9.2);
-
+export const DOOR_PRIMARY_WARDROBE_DOOR = door(
+  "primary-wardrobe-door",
+  "upper-storey",
+  -10.2,
+  -9.2,
+);
 
 const FLOOR = floorOf("upper-storey");
 
@@ -56,7 +69,12 @@ export const buildWardrobe = (): IRoomBuild => ({
   parts: [
     roomFloor(WARDROBE),
     roomCeiling(WARDROBE),
-    doorFloor(WARDROBE, "primary-wardrobe-door", [0.825, 0.9], [DOOR_PRIMARY_WARDROBE_DOOR.from, DOOR_PRIMARY_WARDROBE_DOOR.to]),
+    doorFloor(
+      WARDROBE,
+      "primary-wardrobe-door",
+      [0.825, 0.9],
+      [DOOR_PRIMARY_WARDROBE_DOOR.from, DOOR_PRIMARY_WARDROBE_DOOR.to],
+    ),
     partition({
       id: "wardrobe-primary-partition",
       owner: WARDROBE.owner,
@@ -66,7 +84,21 @@ export const buildWardrobe = (): IRoomBuild => ({
       along: [-10.45, -8.95],
       holes: [DOOR_PRIMARY_WARDROBE_DOOR],
     }),
-    partition({ id: "wardrobe-bath-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [0.9, 3.07] }),
-    partition({ id: "wardrobe-tub-partition", owner: WARDROBE.owner, storey: "upper-storey", axis: "x", across: [-8.95, -8.8], along: [3.22, 5.5] }),
+    partition({
+      id: "wardrobe-bath-partition",
+      owner: WARDROBE.owner,
+      storey: "upper-storey",
+      axis: "x",
+      across: [-8.95, -8.8],
+      along: [0.9, 3.07],
+    }),
+    partition({
+      id: "wardrobe-tub-partition",
+      owner: WARDROBE.owner,
+      storey: "upper-storey",
+      axis: "x",
+      across: [-8.95, -8.8],
+      along: [3.22, 5.5],
+    }),
   ],
 });

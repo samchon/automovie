@@ -55,11 +55,15 @@ const point = (mesh: IAutoMovieMesh, index: number): IPoint => ({
   z: mesh.positions[3 * index + 2]!,
 });
 
-const solid = (id: string, mesh: IAutoMovieMesh): ISolid => {
-  if (mesh.indices === null) throw new Error(`${id}: mesh has no triangle indices`);
+const solid = (id: string, mesh: IAutoMovieMesh, openSharedEdges = false): ISolid => {
+  if (mesh.indices === null) throw new Error(
+    `${id}: mesh has no triangle indices`,
+  );
   const topology = inspectAutoMovieMeshTopology(mesh);
-  if (!topology.watertight || topology.degenerate > 0 || topology.nonFinite > 0)
-    throw new Error(`${id}: vertical occupancy needs a closed nondegenerate mesh`);
+  if ((!topology.watertight && !openSharedEdges) || topology.nonManifoldEdges > 0 || topology.degenerate > 0 || topology.nonFinite > 0)
+    throw new Error(
+      `${id}: vertical occupancy needs a closed nondegenerate mesh or declared shared roof edges`,
+    );
   const triangles: ITriangle[] = [];
   const x: [number, number] = [Infinity, -Infinity];
   const y: [number, number] = [Infinity, -Infinity];
@@ -114,16 +118,22 @@ const overlapAt = (a: ISolid, b: ISolid, x: number, z: number): number => {
   const ay = occupied(a, x, z);
   if (ay === null) return 0;
   const by = occupied(b, x, z);
-  return by === null ? 0 : Math.max(0, Math.min(ay[1], by[1]) - Math.max(ay[0], by[0]));
+  return by === null
+    ? 0
+    : Math.max(0, Math.min(ay[1], by[1]) - Math.max(ay[0], by[0]));
 };
 
 /** Inspect each unordered pair on a cell-centred metric grid. */
 export const scanRoofOverlaps = (
-  parts: readonly Pick<IHousePart, "id" | "mesh">[],
+  parts: readonly Pick<IHousePart, "id" | "mesh" | "openSharedEdges">[],
   step = 0.01,
 ): IRoofOverlapScan => {
-  if (!(Number.isFinite(step) && step > 0)) throw new Error("roof scan step must be positive and finite");
-  const shapes = parts.map((part) => solid(part.id, part.mesh));
+  if (!(Number.isFinite(step) && step > 0)) throw new Error(
+    "roof scan step must be positive and finite",
+  );
+  const shapes = parts.map((part) =>
+    solid(part.id, part.mesh, part.openSharedEdges),
+  );
   const overlaps: IRoofOverlap[] = [];
   let pairsChecked = 0;
   let samplesChecked = 0;
@@ -164,7 +174,13 @@ export const scanRoofOverlaps = (
           }
         }
       }
-      if (sampledCells > 0) overlaps.push({ first: a.id, second: b.id, sampledCells, maximumDepth, at });
+      if (sampledCells > 0) overlaps.push({
+        first: a.id,
+        second: b.id,
+        sampledCells,
+        maximumDepth,
+        at,
+      });
     }
   }
   overlaps.sort((a, b) => b.maximumDepth - a.maximumDepth);
@@ -181,20 +197,35 @@ export const auditHouseRoofOverlaps = (): IRoofOverlapScan => {
 /** Pure fixtures run by every production roof audit, not an orphaned test file. */
 export const verifyRoofOverlapScanner = (): void => {
   const a = { id: "a", mesh: block([0, 0, 0], [1, 1, 1]) };
-  const overlap = { id: "overlap", mesh: block([0.5, 0.5, 0.5], [1.5, 1.5, 1.5]) };
+  const overlap = {
+    id: "overlap",
+    mesh: block([0.5, 0.5, 0.5], [1.5, 1.5, 1.5]),
+  };
   const touching = { id: "touching", mesh: block([1, 0, 0], [2, 1, 1]) };
   const separate = { id: "separate", mesh: block([1.01, 0, 0], [2.01, 1, 1]) };
-  const thin = { id: "thin", mesh: block([0.5, 0.995, 0.5], [1.5, 1.005, 1.5]) };
+  const thin = {
+    id: "thin",
+    mesh: block([0.5, 0.995, 0.5], [1.5, 1.005, 1.5]),
+  };
   const found = scanRoofOverlaps([a, overlap], 0.1).overlaps;
   if (found.length !== 1 || Math.abs(found[0]!.maximumDepth - 0.5) > 1e-9)
-    throw new Error("roof overlap fixture: intersecting boxes were not measured at 0.5 m");
+    throw new Error(
+      "roof overlap fixture: intersecting boxes were not measured at 0.5 m",
+    );
   if (scanRoofOverlaps([a, touching], 0.1).overlaps.length !== 0)
-    throw new Error("roof overlap fixture: a shared face was counted as volume");
+    throw new Error(
+      "roof overlap fixture: a shared face was counted as volume",
+    );
   if (scanRoofOverlaps([a, separate], 0.1).overlaps.length !== 0)
-    throw new Error("roof overlap fixture: separate boxes were counted as touching");
+    throw new Error(
+      "roof overlap fixture: separate boxes were counted as touching",
+    );
   if (scanRoofOverlaps([a, thin], 0.1).overlaps.length !== 1)
     throw new Error("roof overlap fixture: a 5 mm vertical overlap was missed");
-  const open: IAutoMovieMesh = { ...a.mesh, indices: a.mesh.indices!.slice(0, -3) };
+  const open: IAutoMovieMesh = {
+    ...a.mesh,
+    indices: a.mesh.indices!.slice(0, -3),
+  };
   try {
     scanRoofOverlaps([{ id: "open", mesh: open }], 0.1);
   } catch (error) {

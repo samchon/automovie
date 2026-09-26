@@ -14,7 +14,7 @@ import { PALETTE } from "../palette";
 import { STOREYS } from "../storeys";
 import { GARAGE_FRONT_DOOR } from "../envelope/front";
 import { GARAGE } from "../building";
-import { type IRoomBuild, type IRoomSpace, box, roomCeiling } from "./shared";
+import { box, roomCeiling, type IRoomBuild, type IRoomSpace } from "./shared";
 
 const FLOOR = STOREYS.garageFloor;
 

@@ -14,7 +14,10 @@
  * rebuild after any room cell, wall outline, or void changes.
  */
 import { builtSpaceContainsPoint } from "@automovie/engine";
-import type { IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltSpace,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IWallFace, IWallPoint } from "./solids";
 
@@ -54,7 +57,12 @@ const insideOutline = (outline: readonly IWallPoint[], u: number, y: number): bo
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The boundary parent requires one continuous face across junctions; its existing outline and cut limits suffice for this calculation.
  */
 export const clipOutline = (outline: readonly IWallPoint[], u: readonly [number, number], y: readonly [number, number]): IWallPoint[] => {
-  const sides: ((p: IWallPoint) => number)[] = [(p) => p.u - u[0], (p) => u[1] - p.u, (p) => p.y - y[0], (p) => y[1] - p.y];
+  const sides: ((p: IWallPoint) => number)[] = [
+    (p) => p.u - u[0],
+    (p) => u[1] - p.u,
+    (p) => p.y - y[0],
+    (p) => y[1] - p.y,
+  ];
   let poly: IWallPoint[] = [...outline];
   for (const d of sides) {
     const next: IWallPoint[] = [];
@@ -117,8 +125,12 @@ export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFa
   const uMax = Math.max(...face.outline.map((q) => q.u));
   const yMin = Math.min(...face.outline.map((q) => q.y));
   const yMax = Math.max(...face.outline.map((q) => q.y));
-  const uCuts = [...us].filter((v) => v >= uMin && v <= uMax).sort((a, b) => a - b);
-  const yCuts = [...ys].filter((v) => v >= yMin && v <= yMax).sort((a, b) => a - b);
+  const uCuts = [...us].filter((v) => v >= uMin && v <= uMax).sort(
+    (a, b) => a - b,
+  );
+  const yCuts = [...ys].filter((v) => v >= yMin && v <= yMax).sort(
+    (a, b) => a - b,
+  );
   const merged: ISegment[] = [];
   for (let j = 0; j + 1 < yCuts.length; ++j) {
     const row: ISegment[] = [];
@@ -136,7 +148,9 @@ export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFa
       else row.push({ u, y, sides });
     }
     for (const seg of row) {
-      const below = merged.find((m) => m.y[1] === seg.y[0] && m.u[0] === seg.u[0] && m.u[1] === seg.u[1] && m.sides[0] === seg.sides[0] && m.sides[1] === seg.sides[1]);
+      const below = merged.find(
+        (m) => m.y[1] === seg.y[0] && m.u[0] === seg.u[0] && m.u[1] === seg.u[1] && m.sides[0] === seg.sides[0] && m.sides[1] === seg.sides[1],
+      );
       if (below !== undefined) below.y[1] = seg.y[1];
       else merged.push(seg);
     }
