@@ -18,6 +18,7 @@ import { createHumanFaceBasisRegion } from "../../face/basis/createHumanFaceBasi
 import { humanFaceBasisRegion } from "../../face/basis/humanFaceBasisRegion";
 import { portraitNormals } from "../../face/mesh/portraitNormals";
 import { HUMAN_BODY_SKIN_DETAIL } from "../constants/HUMAN_BODY_SKIN_DETAIL";
+import { HUMAN_BODY_SKIN_SCATTERING } from "../constants/HUMAN_BODY_SKIN_SCATTERING";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import { HUMAN_BODY_SKIN_TONE } from "../constants/HUMAN_BODY_SKIN_TONE";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
@@ -234,6 +235,12 @@ export function createHumanBodyBasisBuilder(
     // the skin's colour by site, from the cheek the face wears: the material
     // takes the largest albedo and its regions the multipliers of it
     const skin = HUMAN_BODY_SKIN_SITES.material;
+    // skin is translucent: its material carries the measured scattering
+    // distance, which a renderer blurs the diffuse response over
+    if (materialMap.has(skin))
+      materialMap.get(skin)!.subsurfaceRadius = {
+        ...HUMAN_BODY_SKIN_SCATTERING,
+      };
     const cheek = document.skinColour?.cheek;
     if (
       cheek !== undefined &&
