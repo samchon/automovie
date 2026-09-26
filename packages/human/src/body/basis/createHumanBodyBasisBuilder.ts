@@ -7,6 +7,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMaterialOverlay,
   IAutoMovieModel,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -127,6 +128,20 @@ export function createHumanBodyBasisBuilder(
         );
     }
     const shaped = evaluateHumanBodyShape(basis, state);
+    // whether the document leaves the rest pose the basis was authored in,
+    // and its shape at that rest pose
+    const posed =
+      (document.pose ?? []).length > 0 || (document.shoulders ?? []).length > 0;
+    const atRest = (shape: Record<string, number>) =>
+      evaluateHumanBodyShape(
+        basis,
+        humanBodyBasisWeights(basis, {
+          ...document,
+          shape,
+          pose: undefined,
+          shoulders: undefined,
+        }),
+      );
     const { skeleton, rest, frames } = resolveHumanBodySkeleton(
       basis,
       shaped.landmarks,
@@ -270,6 +285,11 @@ export function createHumanBodyBasisBuilder(
         hex: null,
       };
     }
+    if (
+      document.skinVeins !== undefined &&
+      !(document.skinVeins.strength >= 0 && document.skinVeins.strength <= 1)
+    )
+      throw new Error("Body skin veins need a strength in [0,1].");
     // the skin's micro-relief as a tiled normal map, deepening with age
     const detail = document.skinDetail;
     if (detail !== undefined) {
@@ -352,20 +372,64 @@ export function createHumanBodyBasisBuilder(
           magFilter: "linear" as const,
         },
       });
-      const overlays = basis.surfaces
-        .flatMap((surface) => surface.overlays ?? [])
-        .filter((overlay) => overlay.material === skin);
-      if (overlays.length > 0)
-        material.overlays = overlays.map((overlay) => ({
-          baseColorTexture: once(overlay.color, "srgb"),
-          blend: "replace",
-          roughness: overlay.roughness,
-          normalTexture:
-            overlay.normal === undefined
-              ? null
-              : once(overlay.normal, "linear"),
-          strength: 1,
-        }));
+      // the veins show over the lean body the surface's sag declares, and
+      // the tissue the body carries over its lean self hides them as a
+      // deeper vein takes less of the light
+      const veinsShow = (
+        index: number,
+        overlay: { vertices: number[]; attenuation: number },
+        strength: number,
+      ): number => {
+        const surface = basis.surfaces[index];
+        const rest = posed
+          ? atRest(document.shape).surfaces[index]
+          : shaped.surfaces[index];
+        const lean = atRest({ ...document.shape, ...surface.sag!.lean })
+          .surfaces[index];
+        const normals = portraitNormals(rest, surface.indices);
+        let tissue = 0;
+        for (const v of overlay.vertices) {
+          let along = 0;
+          for (let k = 0; k < 3; k++)
+            along += (rest[v * 3 + k] - lean[v * 3 + k]) * normals[v * 3 + k];
+          tissue += Math.max(0, along);
+        }
+        return (
+          strength *
+          Math.exp((-overlay.attenuation * tissue) / overlay.vertices.length)
+        );
+      };
+      const overlays = basis.surfaces.flatMap((surface, index) =>
+        (surface.overlays ?? [])
+          .filter((overlay) => overlay.material === skin)
+          .flatMap((overlay): IAutoMovieMaterialOverlay[] => {
+            const normalTexture =
+              overlay.normal === undefined
+                ? null
+                : once(overlay.normal, "linear");
+            if (overlay.kind === "nails")
+              return [
+                {
+                  baseColorTexture: once(overlay.color, "srgb"),
+                  blend: "replace",
+                  roughness: overlay.roughness,
+                  normalTexture,
+                  strength: 1,
+                },
+              ];
+            const veins = document.skinVeins;
+            if (veins === undefined) return [];
+            return [
+              {
+                baseColorTexture: once(overlay.color, "srgb"),
+                blend: "multiply",
+                normalTexture,
+                strength: veinsShow(index, overlay, veins.strength),
+              },
+            ];
+          }),
+      );
+      if (overlays.length > 0) material.overlays = overlays;
     }
     // the skin's uneven tone as a tiled base-colour map, the two chromophores
     // varying about the site colour, less even with age; the strength is
@@ -435,18 +499,6 @@ export function createHumanBodyBasisBuilder(
     }
     // gravity's change in the skin's frame moves the soft tissue; a document
     // at the rest pose the basis was authored in hangs as authored
-    const posed =
-      (document.pose ?? []).length > 0 || (document.shoulders ?? []).length > 0;
-    const atRest = (shape: Record<string, number>) =>
-      evaluateHumanBodyShape(
-        basis,
-        humanBodyBasisWeights(basis, {
-          ...document,
-          shape,
-          pose: undefined,
-          shoulders: undefined,
-        }),
-      );
     const restShape =
       posed && sags.some((sag) => sag !== null) ? atRest(document.shape) : null;
     const parts = basis.surfaces.flatMap((surface, index) => {

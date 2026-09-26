@@ -237,16 +237,29 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
       const key = `${overlay.kind}:${overlay.material}`;
       if (
         kinds.has(key) ||
+        (overlay.kind === "veins" &&
+          (surface.sag === undefined ||
+            !(
+              overlay.attenuation > 0 && Number.isFinite(overlay.attenuation)
+            ) ||
+            overlay.vertices.length === 0 ||
+            !overlay.vertices.every(
+              (v) =>
+                Number.isInteger(v) &&
+                v >= 0 &&
+                v < surface.positions.length / 3,
+            ))) ||
         !png(overlay.color) ||
         (overlay.normal !== undefined && !png(overlay.normal)) ||
-        !(overlay.roughness >= 0 && overlay.roughness <= 1) ||
+        (overlay.kind === "nails" &&
+          !(overlay.roughness >= 0 && overlay.roughness <= 1)) ||
         !surface.regions.some(
           (region) =>
             region.material === overlay.material && region.uvs !== null,
         )
       )
         throw new Error(
-          "Body surface overlays need one of each kind per material, PNG data URIs over a textured region of their material and a roughness in [0,1]: " +
+          "Body surface overlays need one of each kind per material, PNG data URIs over a textured region of their material, a nails roughness in [0,1], and veins over existing vertices of a surface with a declared lean body at a finite positive attenuation: " +
             surface.id,
         );
       kinds.add(key);

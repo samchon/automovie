@@ -34,6 +34,8 @@ export function admitHumanBodyBasisDocument(
   if (document.skinDetail !== undefined)
     values.push(document.skinDetail.strength);
   if (document.skinTone !== undefined) values.push(document.skinTone.strength);
+  if (document.skinVeins !== undefined)
+    values.push(document.skinVeins.strength);
   for (const material of Object.values(document.materials ?? {})) {
     values.push(...Object.values(material.color ?? {}));
     if (material.roughness !== undefined) values.push(material.roughness);
