@@ -30,6 +30,18 @@ const INNER = BACK + MAIN.wall;
 const SILL = STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base;
 
 /** Emit the rear elevation walls. */
+/**
+ * @evidence spaces/envelope/rear.md This builder creates the rear main and garage walls with room-specific voids.
+ * @evidence spaces/envelope/rear.md#rear-roof-closures The main top steps under high and low rear roofs and the garage rear wall remains separate.
+ * @evidence spaces/envelope/rear.md#rear-openings Four named rough voids in the main rear wall bind kitchen, family, primary bedroom, and garden access.
+ * @evidence spaces/envelope/rear.md#kitchen-rear-window The narrow kitchen hole begins at Y=1.15 over the counter reservation.
+ * @evidence spaces/envelope/rear.md#family-rear-window The right ground window hole remains in the common room's family side.
+ * @evidence spaces/envelope/rear.md#primary-rear-window The upper rear hole stops in the primary bedroom span, leaving wardrobe storage wall closed.
+ * @evidence spaces/envelope/rear.md#garden-door The central X=-1.20..1.20 void and finished threshold reach the level terrace side.
+ * @evidence principles/core/source-units.md#source-scope-preservation Door leaves and window frames remain model fills; this source owns wall, openings, roof wedges, and threshold.
+ * @evidence principles/core/source-units.md#source-substantive-completion The return has two closed wall solids, four real voids, three head wedges, and garden threshold support.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Rear parent units fix the step, four voids, and level garden exit; no new rear opening was needed.
+ */
 export const buildRear = (): IHousePart[] => {
   const mainTop = mBack(BACK) - ROOF_THICKNESS;
   const rightTop = rBack(BACK) - ROOF_THICKNESS;

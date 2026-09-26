@@ -16,7 +16,14 @@ import { CHIMNEY_PLAN, FRONT_EAVE_Z, GABLE, GABLE_CORNERS, LEFT_EAVE_X, MAIN_RID
 
 const OWNER = "roof/main-front.ts";
 
-/** Emit the main front face pieces. */
+/**
+ * Emit the main front face pieces.
+ * @evidence spaces/roof/main-front.md This export builds the front main-roof remainder around the exposed gable and chimney notch.
+ * @evidence spaces/roof/main-front.md#main-front-roof Four convex plans use the shared gable valley points and CHIMNEY_PLAN bounds, then mFront supplies one pitch to their sloped slabs.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its own roof pieces; it imports junction values instead of claiming their faces.
+ * @evidence principles/core/source-units.md#source-substantive-completion The four plans become deterministic solid parts roof-main-front-0 through -3, closing the concave remainder without an empty placeholder.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-front parent defines both valley exclusion and chimney notch; splitting its concave remainder into convex mesh pieces needed no new exposed boundary.
+ */
 export const buildMainFrontRoof = (): IHousePart[] => {
   const { apex, leftFoot, rightFoot } = GABLE_CORNERS;
   const [notchBack, notchFront] = CHIMNEY_PLAN.z;

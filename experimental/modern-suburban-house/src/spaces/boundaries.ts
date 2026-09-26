@@ -47,6 +47,12 @@ const insideOutline = (outline: readonly IWallPoint[], u: number, y: number): bo
 };
 
 /** Clip a face outline to a (u, y) rectangle, one rectangle side at a time. */
+/**
+ * @evidence spaces/07-boundary-assembly.md clipOutline restricts one existing wall face to a smaller u/Y boundary rectangle.
+ * @evidence principles/core/source-units.md#source-scope-preservation It returns clipped points only; it does not create another wall or assign a room finish.
+ * @evidence principles/core/source-units.md#source-substantive-completion Four successive half-plane clips and duplicate-corner removal produce an actual polygon for the segment.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The boundary parent requires one continuous face across junctions; its existing outline and cut limits suffice for this calculation.
+ */
 export const clipOutline = (outline: readonly IWallPoint[], u: readonly [number, number], y: readonly [number, number]): IWallPoint[] => {
   const sides: ((p: IWallPoint) => number)[] = [(p) => p.u - u[0], (p) => u[1] - p.u, (p) => p.y - y[0], (p) => y[1] - p.y];
   let poly: IWallPoint[] = [...outline];
@@ -84,6 +90,13 @@ interface ISegment {
  * height, and at every void edge; a cell whose two sides are the same space,
  * or whose centre lies outside the wall outline, bounds nothing and is
  * dropped. Equal-pair cells merge along the wall, then equal runs merge upward.
+ */
+/**
+ * @evidence spaces/07-boundary-assembly.md segmentsOf assigns the two logical sides of each part of an existing wall face.
+ * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions It cuts at cell and void edges, then merges adjacent rectangles only when both space ids agree.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function reads built cells and the given face; it emits boundary records without a second wall mesh.
+ * @evidence principles/core/source-units.md#source-substantive-completion It drops exterior-to-exterior or same-side cells and returns deterministic u/Y segments for environment boundaries.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The junction parent calls for one wall with sided segments; the existing face and room cells supply each split.
  */
 export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace): ISegment[] => {
   const axis = face.axis;

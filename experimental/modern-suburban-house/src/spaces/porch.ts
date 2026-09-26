@@ -25,6 +25,14 @@ const PLATFORM_BOTTOM = STOREYS.frontWalk - 0.12;
 const porchRoof = (z: number): number => 3.5 - z / 4;
 
 /** Emit the porch platform, steps, columns, beam, packer and roof. */
+/**
+ * @evidence spaces/porch.md This builder owns the complete raised entry porch, its access steps, columns, beam, packer, roof, and zone.
+ * @evidence spaces/porch.md#porch-platform-access The platform at Y=0 joins three 0.15 m risers to the front-walk level and names the front-porch standing zone.
+ * @evidence spaces/porch.md#porch-roof-columns Three repeated column stacks carry a front beam and a sloped roof whose packer closes the beam-to-underside gap.
+ * @evidence principles/core/source-units.md#source-scope-preservation The builder leaves the lower waiting pad to front-walk and uses the imported STOREYS datums for platform height.
+ * @evidence principles/core/source-units.md#source-substantive-completion Blocks, a sloped roof mesh, and the zone record are emitted in a fixed loop and part order.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Both porch parent units give step, column, beam, roof, and waiting-pad bounds; their geometry needed no additional access decision.
+ */
 export const buildPorch = (): ISiteBuild => {
   const parts: IHousePart[] = [
     part("porch-platform", OWNER, "porch", PALETTE.porchFloor, block([-5.75, PLATFORM_BOTTOM, 0], [2.2, STOREYS.porchFloor, 2.2])),

@@ -28,6 +28,13 @@ const SERVICE: IRoomSpace = {
 };
 
 /** Emit the service passage floor and ceiling finishes and its shares of the floor under its door voids. */
+/**
+ * @evidence spaces/rooms/service.md This export supplies the joined right-and-rear service passage as a room record and finish surfaces.
+ * @evidence spaces/rooms/service.md#service-access-plan The six-corner L outline keeps the front-entry connection wall-less and serves powder, laundry, pantry, and common openings.
+ * @evidence principles/core/source-units.md#source-scope-preservation Its neighbours own all partition bodies; this builder emits only its floor, ceiling, and shares under four voids.
+ * @evidence principles/core/source-units.md#source-substantive-completion The return has a continuous floor/ceiling and four named doorFloor strips for actual passage bottoms.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service parent fixes the two joined bands and all door contacts; the builder added no sixth door or barrier.
+ */
 export const buildService = (): IRoomBuild => ({
   space: SERVICE,
   parts: [

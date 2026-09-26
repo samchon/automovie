@@ -36,7 +36,14 @@ const TUB_BATH: IRoomSpace = {
   ],
 };
 
-/** Emit the tub bathroom floor and its two partitions. */
+/**
+ * @evidence spaces/rooms/tub-bath.md This builder owns the long upper tub bathroom at the hall end.
+ * @evidence spaces/rooms/tub-bath.md#tub-bath-plan It cuts one hall door and closes the shower-side and bedroom-three-side runs at their assigned corners.
+ * @evidence spaces/rooms/tub-bath.md#tub-fixture-use Vanity, toilet, tub, towel, mirror, and their use/route areas remain separately reserved.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function emits tile finish and three walls without authoring sanitary fixtures or stealing adjacent T corners.
+ * @evidence principles/core/source-units.md#source-substantive-completion The return contains the room, floor/ceiling, door strip, and three concrete partition parts.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The tub parent fixes its single hall entry and fixture/route bands; source added no second bathroom entrance.
+ */
 export const buildTubBath = (): IRoomBuild => ({
   space: TUB_BATH,
   parts: [

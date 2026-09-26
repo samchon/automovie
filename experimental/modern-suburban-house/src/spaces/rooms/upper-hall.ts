@@ -35,6 +35,14 @@ const UPPER_HALL: IRoomSpace = {
 const LINEN_HEIGHT = 2.2;
 
 /** Emit the hall finishes, its shares under the five room doors and the linen closet boundaries around its hollow interior. */
+/**
+ * @evidence spaces/rooms/upper-hall.md This builder forms one L-shaped upper corridor and its hollow linen storage.
+ * @evidence spaces/rooms/upper-hall.md#upper-hall-plan The joined arrival and cross bands retain floor shares below five direct room doors.
+ * @evidence spaces/rooms/upper-hall.md#upper-linen-storage Four closet walls, a door opening, and an upper head enclose the 2.20 m storage volume.
+ * @evidence principles/core/source-units.md#source-scope-preservation The hall does not create bedroom or bathroom partition bodies, and leaves linen shelves/leaves to models.
+ * @evidence principles/core/source-units.md#source-substantive-completion The room, storage record, finish planes, five strips, and closed closet shell are built in a fixed order.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall parent fixes both corridor bands, five door contacts, and linen height; source introduced no extra room route.
+ */
 export const buildUpperHall = (): IRoomBuild => {
   const owner = UPPER_HALL.owner;
   const storey = UPPER_HALL.storey;

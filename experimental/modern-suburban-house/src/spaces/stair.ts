@@ -52,6 +52,17 @@ const HALL_GUARD = 1.05;
 const COAT = { x: [1.1, 1.75], top: 2.15 } as const;
 
 /** Emit the stair treads, landing, closed sides and guards. */
+/**
+ * @evidence spaces/02-stair.md This builder owns the one L-shaped two-flight stair, its closed boundaries, opening edge finish, and guards.
+ * @evidence spaces/02-stair.md#stair-reservation Seven lower and nine upper treads derive from 18 risers and reach the 1.36 m landing and 3.06 m upper floor.
+ * @evidence spaces/02-stair.md#stair-connector-handoff The returned flight/landing parts provide the route's one physical stair rather than a second shortcut.
+ * @evidence spaces/02-stair.md#stair-floor-opening Five narrow edge solids close the receded interstorey notch, while the front opening remains clear.
+ * @evidence spaces/02-stair.md#stair-clearance Sloped handrails and the upper fall-edge rail stay in their 0.075 m side reservations.
+ * @evidence spaces/02-stair.md#stair-boundary-heights Lower open guards, upper closed walls, closet opening, and 1.05 m hall guard are distinct height cases.
+ * @evidence principles/core/source-units.md#source-scope-preservation The stair owns flights, guards, and its edge finish, leaving the hollow coat storage interior and room floors to entry/upper-hall.
+ * @evidence principles/core/source-units.md#source-substantive-completion Deterministic tread loops, walls, posts, rails, edge strips, and hall ceiling produce actual named solids.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair parent fixes flight counts, landing, closet passage, opening, and guards; no new connection or rise was chosen.
+ */
 export const buildStair = (): IHousePart[] => {
   const parts: IHousePart[] = [];
   // Lower flight: tread i (1..7) sits at i risers, stepping -Z from Z = -1.45.

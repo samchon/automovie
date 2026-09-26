@@ -11,7 +11,14 @@ import { PALETTE } from "../palette";
 import { type IHousePart, part, rect, slopedSlab } from "../solids";
 import { GARAGE_RIDGE_Z, OVERHANG, ROOF_THICKNESS, gFront } from "./junctions";
 
-/** Emit the garage front face. */
+/**
+ * Emit the garage front face.
+ * @evidence spaces/roof/garage-front.md This export builds the driveway-facing half of the low garage roof.
+ * @evidence spaces/roof/garage-front.md#garage-front-roof Its rectangle starts at the shared wall and GARAGE_RIDGE_Z, reaches the garage front overhang, and follows gFront toward the eave.
+ * @evidence principles/core/source-units.md#source-scope-preservation The west edge uses GARAGE.inner.x[0] with no added overhang; the function leaves the rear slope to its separate owner.
+ * @evidence principles/core/source-units.md#source-substantive-completion The front rectangle becomes a slopedSlab of ROOF_THICKNESS and a named roof-garage-front mesh part.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-front parent fixes the shared-wall contact, ridge, pitch, and eave; construction did not require a new garage interface.
+ */
 export const buildGarageFrontRoof = (): IHousePart[] => [
   part(
     "roof-garage-front",

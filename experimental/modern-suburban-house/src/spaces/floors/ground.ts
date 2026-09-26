@@ -18,6 +18,14 @@ import { type IHousePart, part, rect, slab } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 
 /** Emit the main ground support base. */
+/**
+ * @evidence spaces/10-ground-floor.md This builder emits the main-building ground support as one continuous slab plus door-base extensions.
+ * @evidence spaces/10-ground-floor.md#main-ground-floor-base MAIN.inner bounds hold the base under all ground rooms and the stair without a stair hole.
+ * @evidence spaces/10-ground-floor.md#ground-threshold-junctions Separate base strips pass beneath front, garden, and laundry-garage wall voids.
+ * @evidence principles/core/source-units.md#source-scope-preservation Room owners retain visible finishes; this builder emits only support and does not claim actual maps-ground contact.
+ * @evidence principles/core/source-units.md#source-substantive-completion Four slabs share the same calculated bottom/top and stable ids, so no threshold floats over an empty base.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground-floor parent fixes base depth and three door crossings; implementation needed no second ground slab.
+ */
 export const buildGroundFloor = (): IHousePart[] => {
   const top = STOREYS.groundFloor - GROUND_LAYERS.finish;
   const bottom = top - GROUND_LAYERS.base;

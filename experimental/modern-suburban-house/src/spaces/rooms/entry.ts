@@ -54,6 +54,15 @@ const COAT_TOP = 2.15;
 const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 
 /** Emit the entry floor and ceiling finishes, its share under entry-living-door and the coat closet walls. */
+/**
+ * @evidence spaces/rooms/entry.md This builder owns the L-shaped front-entry floor, its interrupted ceiling, and the under-stair coat closet.
+ * @evidence spaces/rooms/entry.md#entry-plan ENTRY retains the six-corner outline and the stair waiting strip without creating a front-wall door body.
+ * @evidence spaces/rooms/entry.md#entry-use-routes The entry mat, lower stair waiting, and floor under entry-living-door remain in the entry's own use area.
+ * @evidence spaces/rooms/entry.md#entry-coat-storage A hollow storage record and two closet walls end under the upper flight at COAT_TOP.
+ * @evidence principles/core/source-units.md#source-scope-preservation The stair builder retains its flight and closet closure; this room emits only its allocated floor, ceiling, and two closet walls.
+ * @evidence principles/core/source-units.md#source-substantive-completion The return includes a logical room, storage volume, and real finish/partition parts with stable identities.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The entry parent fixes its L outline, open stair ceiling, and closet contact; the builder needed no new exit or storage position.
+ */
 export const buildEntry = (): IRoomBuild => ({
   space: ENTRY,
   // The coat closet interior: body X = [1.10, 1.75] plus the open reveal to the

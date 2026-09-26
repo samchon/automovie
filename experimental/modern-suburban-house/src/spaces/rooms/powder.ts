@@ -34,6 +34,14 @@ const POWDER: IRoomSpace = {
 };
 
 /** Emit the powder room floor and its two partitions. */
+/**
+ * @evidence spaces/rooms/powder.md This builder returns the front service-band powder room and its two partition bodies.
+ * @evidence spaces/rooms/powder.md#powder-plan The service-side wall holds service-powder-door while the rear wall closes against laundry.
+ * @evidence spaces/rooms/powder.md#powder-fixture-use Toilet, basin, mirror, towel, and the separate approach/waiting rectangles remain reservations for later fills.
+ * @evidence principles/core/source-units.md#source-scope-preservation It creates room surfaces and partition voids, not a toilet, basin, mirror, or towel mesh.
+ * @evidence principles/core/source-units.md#source-substantive-completion The room record, tile floor, ceiling, under-door strip, and two walls form an executable builder result.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The powder parent fixes room bounds, its single door, and fixture-use positions; no additional access was needed.
+ */
 export const buildPowder = (): IRoomBuild => ({
   space: POWDER,
   parts: [

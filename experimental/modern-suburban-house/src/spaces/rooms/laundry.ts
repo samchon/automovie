@@ -46,6 +46,15 @@ const LAUNDRY: IRoomSpace = {
 };
 
 /** Emit the laundry finishes, its share under service-laundry-door, the garage threshold and its two partitions. */
+/**
+ * @evidence spaces/rooms/laundry.md This export builds the laundry-mudroom between service access and the lower garage.
+ * @evidence spaces/rooms/laundry.md#laundry-plan It emits service/pantry partitions and a finish threshold across the garage shared-wall void.
+ * @evidence spaces/rooms/laundry.md#laundry-equipment-use Two machine boxes, folding top, upper storage, shoe bench, hooks, and their work areas remain separately reserved.
+ * @evidence spaces/rooms/laundry.md#laundry-through-route The upper waiting, lower garage-side waiting, and through-route retain the 0.15 m level change.
+ * @evidence principles/core/source-units.md#source-scope-preservation The shared-wall void stays with garage.ts; this builder owns its room finish and higher threshold only.
+ * @evidence principles/core/source-units.md#source-substantive-completion The room, floor, ceiling, door strip, two walls, and solid garage threshold are returned with stable ids.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The laundry parent supplies both doors, machine use, and the garage step; source required no invented third route.
+ */
 export const buildLaundry = (): IRoomBuild => ({
   space: LAUNDRY,
   parts: [

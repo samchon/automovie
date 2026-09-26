@@ -12,13 +12,32 @@
 import { type IHousePart, part, slopedSlab } from "../solids";
 
 /** Base depth below a walking surface, metres. */
+/**
+ * @evidence spaces/site/01-paving-support.md WALK_DEPTH is the reserved base under the three pedestrian paving surfaces.
+ * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Its 0.12 m depth differs from the driveway base while remaining shared by walk and terrace builders.
+ * @evidence principles/core/source-units.md#source-scope-preservation This is a support depth, not a visible walking level or terrain foundation.
+ * @evidence principles/core/source-units.md#source-substantive-completion The numeric value gives each walking slab a definite lower face.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent fixes the pedestrian 0.12 m band; no new support thickness was added.
+ */
 export const WALK_DEPTH = 0.12;
 /** Base depth below the driveway surface, metres. */
+/**
+ * @evidence spaces/site/01-paving-support.md DRIVE_DEPTH reserves a thicker base below the sloping driveway.
+ * @evidence principles/core/source-units.md#source-scope-preservation This 0.15 m offset changes only the driveway underside, leaving pedestrian paving at WALK_DEPTH.
+ * @evidence principles/core/source-units.md#source-substantive-completion buildDriveway receives a concrete vertical slab thickness at every ramp point.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent distinguishes drive depth from walk depth; this constant reflects that allocation.
+ */
 export const DRIVE_DEPTH = 0.15;
 
 /**
  * A sloped run over X = `x`, Z = `z` whose top is `height(x, z)`, emitted as
  * `cells × cells` quads split into triangles, each a prism of `depth`.
+ */
+/**
+ * @evidence spaces/site/01-paving-support.md blendedRun constructs sloped paving between different edge heights without a nonplanar quad.
+ * @evidence principles/core/source-units.md#source-scope-preservation It receives its bounds and height callback from the calling walk owner and emits no independent path.
+ * @evidence principles/core/source-units.md#source-substantive-completion The four-by-four default grid yields paired triangular prisms with shared sampled corners and stable ids.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent requires a subdivided bilinear connector; this helper needed no new surface endpoint.
  */
 export const blendedRun = (props: {
   id: string;

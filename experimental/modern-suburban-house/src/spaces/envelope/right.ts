@@ -41,6 +41,17 @@ const stepRun = (z0: number, z1: number): IWallPoint[] => {
 };
 
 /** Emit the right elevation parts. */
+/**
+ * @evidence spaces/envelope/right.md This builder forms the exposed main-right, stepped roof, and garage-right wall segments.
+ * @evidence spaces/envelope/right.md#right-roof-closures Main-right panels stop around the garage-owned shared wall; separate step runs close only exposed high-to-low roof spans.
+ * @evidence spaces/envelope/right.md#right-openings Two house windows and one garage window puncture exposed walls, never the main/garage shared contact.
+ * @evidence spaces/envelope/right.md#family-right-window The ground family hole lies behind the garage rear wall under the low right roof.
+ * @evidence spaces/envelope/right.md#tub-right-window The high upper-bath hole lies above the family window span with its own Y=4.56 sill.
+ * @evidence spaces/envelope/right.md#garage-right-window The garage-side void sits under its own gable between the front and rear garage walls.
+ * @evidence principles/core/source-units.md#source-scope-preservation Shared-wall body belongs to garage.ts and window leaves to models; this builder emits only exposed wall sections.
+ * @evidence principles/core/source-units.md#source-substantive-completion Back/sliver main panels, three step runs, and the garage gable form concrete meshes with three named holes.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right parent fixes exposed segments, step thickness, and window positions; no duplicate shared wall was required.
+ */
 export const buildRight = (): IHousePart[] => {
   const back = MAIN.inner.z[0];
   const garageBack = GARAGE.outer.z[0];

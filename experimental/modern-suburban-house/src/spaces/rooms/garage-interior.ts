@@ -41,6 +41,15 @@ const GARAGE_INTERIOR: IRoomSpace = {
 };
 
 /** Emit the garage record and its ceiling finish (09 garage-ceiling-closure). */
+/**
+ * @evidence spaces/rooms/garage-interior.md This builder records the empty garage room and its visible ceiling finish.
+ * @evidence spaces/rooms/garage-interior.md#garage-interior-plan Its -0.15 m floor and 2.55 m ceiling come from STOREYS while garage.ts owns structural base and shared wall.
+ * @evidence spaces/rooms/garage-interior.md#garage-storage-use Shelf, workbench, drawer, and tool-board occupancy are reserved at the rear wall, without vehicle geometry.
+ * @evidence spaces/rooms/garage-interior.md#garage-use-routes West, cross, and window routes remain as clear floor reservations around those storage boxes.
+ * @evidence principles/core/source-units.md#source-scope-preservation It emits no car, shelf, or garage base; only its logical interior and ceiling finish leave this builder.
+ * @evidence principles/core/source-units.md#source-substantive-completion The room record has explicit levels, reservations, and a real ceiling finish part.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-interior parent fixes empty-floor, storage, and access roles; source needed no vehicle placement.
+ */
 export const buildGarageInterior = (): IRoomBuild => ({
   space: GARAGE_INTERIOR,
   parts: [roomCeiling(GARAGE_INTERIOR)],

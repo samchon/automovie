@@ -32,6 +32,15 @@ const PANTRY: IRoomSpace = {
 };
 
 /** Emit the pantry floor and its partition to the service band. */
+/**
+ * @evidence spaces/rooms/pantry.md This builder forms the narrow rear service-band pantry behind its one door.
+ * @evidence spaces/rooms/pantry.md#pantry-plan PANTRY retains the 3.22..5.50 by -6.05..-4.70 interior and service-facing partition.
+ * @evidence spaces/rooms/pantry.md#pantry-storage-use Separate back and right shelf reserves share their L corner once and rise to 2.10 m.
+ * @evidence spaces/rooms/pantry.md#pantry-use-route A clear route and turning box remain between the open door and shelves.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function leaves shelves and food to models and emits only floor/ceiling finish and its door-cut wall.
+ * @evidence principles/core/source-units.md#source-substantive-completion The room record and four solids include the floor under the service-pantry-door void.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The pantry parent fixes L-shelf bands, turn area, and door opening; construction found no missing access dimension.
+ */
 export const buildPantry = (): IRoomBuild => ({
   space: PANTRY,
   parts: [

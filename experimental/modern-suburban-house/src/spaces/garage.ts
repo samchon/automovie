@@ -34,6 +34,13 @@ const OWNER = "garage.ts";
 /** Ceiling finish zone inside the 0.18 m reservation, owned by the garage interior (09). */
 
 /** Emit the main/garage shared wall with the laundry-garage door void. */
+/**
+ * @evidence spaces/03-surface-owners.md The garage source emits the one shared wall body and leaves each room's inward face to its room owner.
+ * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall has one structural id and the laundry-garage-door void in that body.
+ * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and rightRoof underside; its returned part does not duplicate a garage facade.
+ * @evidence principles/core/source-units.md#source-substantive-completion wallPanel constructs the sloped top and door hole, and part returns the wall with an interior finish palette.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The surface handoff assigns the shared body and door void here; the imported bounds and roof function sufficed without a second wall owner.
+ */
 export const buildGarageSharedWall = (): IHousePart[] => {
   const under = (z: number): number => rightRoof(z) - ROOF_THICKNESS;
   const back = GARAGE.outer.z[0];
@@ -64,6 +71,13 @@ export const buildGarageSharedWall = (): IHousePart[] => {
 };
 
 /** Emit the independent garage floor base under the garage finished floor. */
+/**
+ * @evidence spaces/10-ground-floor.md This export builds the separate lower garage base under its finished floor.
+ * @evidence spaces/10-ground-floor.md#garage-ground-floor-base Its slab extends beneath the front-door threshold while ending at the garage inner-wall limits elsewhere.
+ * @evidence principles/core/source-units.md#source-scope-preservation The base stops at STOREYS.garageFloor; garage-interior owns the visible concrete finish above it.
+ * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and 0.15 m depth produce a closed garage-floor-base solid.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-floor parent fixes the lower datum, base depth, and front-door support; no extra slab edge was required.
+ */
 export const buildGarageFloorBase = (): IHousePart[] => [
   part(
     "garage-floor-base",
@@ -88,6 +102,13 @@ export const buildGarageFloorBase = (): IHousePart[] => [
 ];
 
 /** Emit the garage ceiling base above the garage finished ceiling. */
+/**
+ * @evidence spaces/09-ceiling-assembly.md This export builds garage ceiling support over the finished garage height.
+ * @evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure The slab spans GARAGE.inner and fills Y from garageCeiling plus finish to garageCeiling plus reservation.
+ * @evidence principles/core/source-units.md#source-scope-preservation It omits the visible ceiling finish assigned to garage-interior and does not raise the roof or garage datum.
+ * @evidence principles/core/source-units.md#source-substantive-completion rect and slab return a closed, stable garage-ceiling-base part with its support depth.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling parent supplies inner bounds and finish/support split; the builder needed no new ceiling footprint.
+ */
 export const buildGarageCeiling = (): IHousePart[] => [
   part(
     "garage-ceiling-base",

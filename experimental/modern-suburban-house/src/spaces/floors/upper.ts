@@ -32,6 +32,14 @@ const OWNER = "floors/upper.ts";
 const OPENING_EDGE = 0.015;
 
 /** Emit the 0.270 m interstorey structure between the two finish layers, with the receded stair notch. */
+/**
+ * @evidence spaces/08-floor-assembly.md This builder emits one interstorey structure between ground ceiling and upper room finishes.
+ * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Its Y band excludes 0.015 m ground ceiling and 0.025 m upper floor finishes.
+ * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions A receded L notch leaves a 0.015 m edge band for the stair's continuous opening finish.
+ * @evidence principles/core/source-units.md#source-scope-preservation The opening reaches the front wall as a notch, while room finishes and stair edge trim remain with their owners.
+ * @evidence principles/core/source-units.md#source-substantive-completion The ten-point outline extrudes one solid slab with deterministic top and bottom datums.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The interstorey parent fixes the finish split and stair opening; no duplicate upper floor was introduced.
+ */
 export const buildInterstorey = (): IHousePart[] => {
   const [x0, x1] = MAIN.inner.x;
   const [z0, z1] = MAIN.inner.z;
@@ -53,6 +61,14 @@ export const buildInterstorey = (): IHousePart[] => {
 };
 
 /** Emit the 0.165 m upper ceiling base over the whole main inner plan, stair hall included, above the room finishes. */
+/**
+ * @evidence spaces/09-ceiling-assembly.md This builder closes the full main inner plan above the upper finished ceiling.
+ * @evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure The 0.165 m base starts above the 0.015 m room finish and does not copy the stair floor hole.
+ * @evidence spaces/09-ceiling-assembly.md#ceiling-roof-clearance The single upper base sits below the reserved roof underside rather than raising the roof profile.
+ * @evidence principles/core/source-units.md#source-scope-preservation Rooms and stair retain visible ceiling finishes; this slab is structural ceiling support only.
+ * @evidence principles/core/source-units.md#source-substantive-completion A full-plan solid spans MAIN.inner at the computed bottom and reservation top.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling parent states full-plan closure and the finish/support split; source needed no new stair opening.
+ */
 export const buildUpperCeiling = (): IHousePart[] => {
   const bottom = STOREYS.upperCeiling + CEILING_FINISH;
   return [part("upper-ceiling-base", OWNER, "ceiling", PALETTE.ceiling, slab({ outline: rect(MAIN.inner.x, MAIN.inner.z), bottom, top: STOREYS.upperCeiling + CEILING_RESERVATION }))];

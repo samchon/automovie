@@ -31,7 +31,15 @@ const WARDROBE: IRoomSpace = {
   ],
 };
 
-/** Emit the wardrobe floor and its two partitions. */
+/** Emit the wardrobe floor and its three partition runs. */
+/**
+ * @evidence spaces/rooms/wardrobe.md This builder creates the separate walk-in wardrobe behind the bathrooms.
+ * @evidence spaces/rooms/wardrobe.md#primary-wardrobe-plan The primary-bedroom door is cut in its west wall while bathroom-facing runs stay closed.
+ * @evidence spaces/rooms/wardrobe.md#wardrobe-storage-use Hanging and shelf bands leave the front aisle and left turning area free as reservations.
+ * @evidence principles/core/source-units.md#source-scope-preservation The room owns its carpet, door strip, and three partition runs while later models own racks and shelves.
+ * @evidence principles/core/source-units.md#source-substantive-completion The return has one room record and six concrete finish/partition parts with the door void present.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The wardrobe parent specifies its bathroom boundary, door, storage, and aisle; the builder needed no invented opening.
+ */
 export const buildWardrobe = (): IRoomBuild => ({
   space: WARDROBE,
   parts: [

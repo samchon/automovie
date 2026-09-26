@@ -43,6 +43,14 @@ const BEDROOM_THREE: IRoomSpace = {
 };
 
 /** Emit the bedroom floor and its door partition to the arrival. */
+/**
+ * @evidence spaces/rooms/bedroom-three.md This builder forms the blue-grey bedroom's notched upper-front outline.
+ * @evidence spaces/rooms/bedroom-three.md#bedroom-three-plan Eight corners preserve the arrival notch and its hall door in one partition run.
+ * @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Bed, desk, closet, chair use, and two passage bands stay within the irregular room record.
+ * @evidence principles/core/source-units.md#source-scope-preservation Its hall wall ends at the assigned T corner; it does not fill the notch or author furniture meshes.
+ * @evidence principles/core/source-units.md#source-substantive-completion The room, carpet/ceiling, under-door floor share, and door-cut partition return as concrete parts.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent fixes all notch corners and the hall door, so source needed no rectangular hull shortcut.
+ */
 export const buildBedroomThree = (): IRoomBuild => ({
   space: BEDROOM_THREE,
   parts: [

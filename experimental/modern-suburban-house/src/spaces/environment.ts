@@ -243,6 +243,13 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
  * observations read which outside zone an envelope opening opens on to.
  * Throws when the opening, its host face or its void is missing.
  */
+/**
+ * @evidence spaces/06-openings.md openingAxis resolves an authored wall void to a world-space centre, outward normal, and beyond-face reach.
+ * @evidence spaces/06-openings.md#external-opening-interface The reach includes half the host wall thickness plus 0.05 m for checking an exterior zone beyond the void.
+ * @evidence principles/core/source-units.md#source-scope-preservation It reads the existing opening profile and boundary face, without assigning a new door or window frame.
+ * @evidence principles/core/source-units.md#source-substantive-completion Missing opening, face, or profile throws; otherwise quaternion rotation and origin yield world coordinates.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The opening parent supplies host, void, and sided exterior test; no extra opening location was inferred.
+ */
 export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: string): { centre: IAutoMovieVector3; normal: IAutoMovieVector3; reach: number } => {
   const opening = environment.openings.find((o) => o.id === openingId);
   const face = opening === undefined ? undefined : environment.boundaries.find((b) => b.id === opening.boundary)?.face;
@@ -268,6 +275,13 @@ export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: 
  * its `to` space, or whose landing point, read at `at` along the 3D route,
  * lies outside the landing space: the public validation checks landing ids and
  * ranges but not that the point stands on the landing (04 engine-render-handoff).
+ */
+/**
+ * @evidence spaces/05-route-network.md checkConnectors verifies built route endpoints and stair landing positions inside their named spaces.
+ * @evidence principles/core/source-units.md#source-scope-preservation The verifier reads connector records and space cells; it does not move a failed route into a convenient room.
+ * @evidence principles/core/source-units.md#source-substantive-completion It interpolates landing.at along the 3D route and throws owner-labelled failures for outside endpoints or landing.
+ * @evidence obligations/design/space-sources.md#space-source-invalid-topology A connector with a route outside its declared endpoint or landing space is explicitly refused.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The route parent fixes connector spaces and landings; validation needed no replacement passage.
  */
 export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void => {
   const spaces = new Map(environment.spaces.map((s) => [s.id, s]));
@@ -302,6 +316,14 @@ export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void =
 };
 
 /** Build the house's built-environment record; throws on invalid topology. */
+/**
+ * @evidence spaces/04-observations.md buildHouseEnvironment translates authored solids and rooms into one engine-facing built-environment record.
+ * @evidence spaces/04-observations.md#engine-render-handoff Every IHousePart becomes a generated single-part model and element under house-root, with stable logical space membership.
+ * @evidence principles/core/source-units.md#source-scope-preservation It uses the imported house producer and geometry records, leaving new surfaces or material fills outside this assembly.
+ * @evidence principles/core/source-units.md#source-substantive-completion It builds cells, surfaces, boundaries, openings, and connectors, then validates the record and route network before return.
+ * @evidence obligations/design/space-sources.md#space-source-invalid-topology Unmapped part owners, invalid outlines, disconnected openings, or engine validation failures throw with concrete paths.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The handoff parent specifies the house/site/storey tree and geometric observations; assembly did not need a new room or route.
+ */
 export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment => {
   const site = boundsOf(house.parts);
   const top = boundsOf(house.parts.filter((p) => OWNER_SPACE[p.owner] === "house")).y[1];

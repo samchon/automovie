@@ -63,6 +63,18 @@ const COMMON: IRoomSpace = {
 };
 
 /** Emit the common room floor and its front partition with two open voids. */
+/**
+ * @evidence spaces/rooms/common.md This export builds one continuous kitchen-dining-family room with a front wall cut for two open passages.
+ * @evidence spaces/rooms/common.md#common-room-plan COMMON uses the full rear X/Z outline and one partition with living and service opening ids.
+ * @evidence spaces/rooms/common.md#common-kitchen-wall-reservation Back/left cabinet bands and fridge, range, oven, and microwave boxes retain distinct work/swing areas.
+ * @evidence spaces/rooms/common.md#common-island-reservation The sink/dishwasher island and three stool use boxes are recorded without furniture geometry.
+ * @evidence spaces/rooms/common.md#common-dining-reservation Six separate seat-use rectangles surround one dining table reserve.
+ * @evidence spaces/rooms/common.md#common-family-reservation The right-side sofa and table have their own reserved footprints toward the family zone.
+ * @evidence spaces/rooms/common.md#common-clear-routes Three clear route bands pass right and behind the dining/kitchen work boxes.
+ * @evidence principles/core/source-units.md#source-scope-preservation The builder emits room finishes and its front partition, leaving cabinet/appliance and seating bodies to models.
+ * @evidence principles/core/source-units.md#source-substantive-completion A floor, ceiling, two threshold strips, and one wall with real doorless voids are returned with the reservations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The common-room parent states its two openings and separate kitchen, island, dining, family, and through-route reserves; source needed no new passage.
+ */
 export const buildCommon = (): IRoomBuild => ({
   space: COMMON,
   parts: [

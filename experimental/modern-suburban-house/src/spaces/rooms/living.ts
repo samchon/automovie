@@ -41,6 +41,15 @@ const LIVING: IRoomSpace = {
 };
 
 /** Emit the living floor and the partitions 07 gives this owner. */
+/**
+ * @evidence spaces/rooms/living.md This export builds the front-left living room and its two assigned partition runs.
+ * @evidence spaces/rooms/living.md#living-plan The room box and entry-door void align with the partition on X=[-1.95,-1.80].
+ * @evidence spaces/rooms/living.md#living-furniture-use Sofa, table, reading chair, bookcase, rug, and their use rectangles are reserved in LIVING.
+ * @evidence spaces/rooms/living.md#living-through-route Front, main, and bookcase-cross route bands occupy the authored floor around the furniture boxes.
+ * @evidence principles/core/source-units.md#source-scope-preservation It leaves furniture meshes to models and the stair's intervening wall to the stair owner.
+ * @evidence principles/core/source-units.md#source-substantive-completion Floor, ceiling, both threshold halves, and the door-cut entry partition are returned with the room record.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The living parent fixes room limits, two exits, furniture reservations, and passage bands; implementation added no hidden shortcut.
+ */
 export const buildLiving = (): IRoomBuild => ({
   space: LIVING,
   parts: [

@@ -31,6 +31,14 @@ const BEDROOM_TWO: IRoomSpace = {
 };
 
 /** Emit the bedroom floor and its partition to the hall. */
+/**
+ * @evidence spaces/rooms/bedroom-two.md This builder owns the olive-bedroom shell and hall-facing door partition.
+ * @evidence spaces/rooms/bedroom-two.md#bedroom-two-plan Its room box and door-cut hall run stop before the stair-owned corner.
+ * @evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Bed, nightstand, desk, closet, and their use boxes are reserved inside the room.
+ * @evidence principles/core/source-units.md#source-scope-preservation It emits finish and wall geometry only; bed, desk, and closet remain later model fills.
+ * @evidence principles/core/source-units.md#source-substantive-completion The return provides carpet floor, ceiling, under-door finish, and a partition with the named door void.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The bedroom-two parent fixes hall door and furniture/closet ranges; implementation added no room edge.
+ */
 export const buildBedroomTwo = (): IRoomBuild => ({
   space: BEDROOM_TWO,
   parts: [

@@ -11,6 +11,12 @@
  * from a reference image.
  *
  * Consumers: every spaces owner when it emits a part.
+ * @evidence spaces/03-surface-owners.md Each allocated surface owner applies the blocking palette to its own part.
+ * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior siding, trim, roof, brick, paving and fence colours are available to their assigned owners.
+ * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners can distinguish floor, ceiling, partition and stair base colours.
+ * @evidence principles/core/source-units.md#source-scope-preservation This palette supplies flat source colours; materials owns images, optical values and repetition.
+ * @evidence principles/core/source-units.md#source-substantive-completion The emitted parts have named base colours for all surface families in this blocking pass.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already allocates surface ownership; these colours do not revise a boundary or room.
  */
 export const PALETTE = {
   siding: 0xebe5d8,

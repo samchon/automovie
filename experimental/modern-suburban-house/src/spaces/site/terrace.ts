@@ -24,9 +24,25 @@ const BOTTOM = LOW - WALK_DEPTH;
 const EDGE = -14.4;
 
 /** Lower landing extent, metres. */
+/**
+ * @evidence spaces/site/terrace.md LOWER_LANDING fixes the ground-level wait beyond the three terrace risers.
+ * @evidence spaces/site/terrace.md#garden-lower-landing-plan The 1.50 m width, 1.20 m depth, and LOW top place the wait after the two 0.30 m treads.
+ * @evidence principles/core/source-units.md#source-scope-preservation This record gives the landing bounds without authoring map terrain or another terrace slab.
+ * @evidence principles/core/source-units.md#source-substantive-completion Its computed Z and Y are consumed by the terrace and side-walk builders as one contact.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The landing parent fixes step count, tread reach, and wait depth; no extra lower platform was chosen.
+ */
 export const LOWER_LANDING = { x: [-0.75, 0.75] as const, z: [EDGE - 0.6 - 1.2, EDGE - 0.6] as const, top: LOW };
 
 /** Emit the terrace, steps and lower landing. */
+/**
+ * @evidence spaces/site/terrace.md This builder owns the raised garden terrace, descending steps, and lower waiting area.
+ * @evidence spaces/site/terrace.md#garden-terrace-plan The raised slab begins at the rear wall and leaves a garden-door standing zone at Y=0.
+ * @evidence spaces/site/terrace.md#garden-steps-plan Two tread blocks descend in 0.15 m increments across the 1.50 m central stair width.
+ * @evidence spaces/site/terrace.md#garden-lower-landing-plan A lower slab and zone finish the path at LOW for the side-walk handoff.
+ * @evidence principles/core/source-units.md#source-scope-preservation The builder uses STOREYS and WALK_DEPTH values but creates no terrain or garden planting.
+ * @evidence principles/core/source-units.md#source-substantive-completion Raised platform, two step parts, landing, and both zone records return deterministically.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The terrace parent fixes raised support, step geometry, and lower wait; no ground contour was fabricated.
+ */
 export const buildTerrace = (): ISiteBuild => {
   const parts: IHousePart[] = [part("garden-terrace", OWNER, "paving", PALETTE.paving, block([-1.8, BOTTOM, EDGE], [4.5, TOP, -10.7]))];
   for (let k = 1; k <= 2; ++k) {

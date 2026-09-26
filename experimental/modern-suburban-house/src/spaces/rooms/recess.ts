@@ -13,18 +13,40 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type IWallSolid } from "../solids";
 
+/**
+ * Metric envelope and cavity intervals for the shower's blind wall niche.
+ * @evidence spaces/rooms/shower-bath.md The shower room reserves a niche in its own partition.
+ * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The cavity is closed behind and does not create a route to the next room.
+ * @evidence principles/core/source-units.md#source-scope-preservation This input describes the shower wall's own recess and no sanitary fixture.
+ * @evidence principles/core/source-units.md#source-substantive-completion Wall, opening and depth intervals fully determine the solid.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The shower design already calls for a blind niche; these intervals do not alter that design.
+ */
 export interface IBlindRecess {
+  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall's thickness retains material behind the niche. */
   wallX: readonly [number, number];
+  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall spans the shower's full vertical boundary. */
   wallY: readonly [number, number];
+  /** @evidence spaces/rooms/shower-bath.md#shower-bath-plan The wall follows the shower-side plan interval. */
   wallZ: readonly [number, number];
+  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall height. */
   openingY: readonly [number, number];
+  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall length. */
   openingZ: readonly [number, number];
+  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The blind cavity stops before the opposite wall face. */
   depth: number;
 }
 
 const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
 
-/** Build closed concave wall geometry from metric intervals, with no Boolean mesh subtraction. */
+/**
+ * Build closed concave wall geometry from metric intervals, with no Boolean mesh subtraction.
+ * @evidence spaces/rooms/shower-bath.md The shower owner uses this solid for its blind partition niche.
+ * @evidence spaces/rooms/shower-bath.md#shower-bath-plan Its face remains one partition boundary, with no through opening.
+ * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The occupied grid leaves a recessed cavity with material at its back and margins.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function builds only the assigned partition solid and no shelf or fixture model.
+ * @evidence principles/core/source-units.md#source-substantive-completion It checks finite ordered intervals and emits a closed polyhedron plus the full wall-face record.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already specifies the blind niche; this realization changes no room adjacency.
+ */
 export const blindRecessWall = (input: IBlindRecess): IWallSolid => {
   const [x0, x2] = input.wallX;
   const [y0, y3] = input.wallY;

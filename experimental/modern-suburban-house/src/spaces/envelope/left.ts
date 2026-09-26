@@ -29,6 +29,17 @@ const ACROSS = [MAIN.outer.x[0], MAIN.inner.x[0]] as const;
 const under = (z: number): number => mainRoof(z) - ROOF_THICKNESS;
 
 /** Emit the left gable wall panels and the chimney. */
+/**
+ * @evidence spaces/envelope/left.md This builder emits the left main-wall panels and the single exterior/interior chimney contact.
+ * @evidence spaces/envelope/left.md#left-roof-closure Front and back wall panels meet the main roof underside without a second gable slab.
+ * @evidence spaces/envelope/left.md#left-openings Only the living and primary window holes puncture the back panel behind the chimney.
+ * @evidence spaces/envelope/left.md#living-left-window The living-side void spans Z=-5.50..-4.30 outside the fireplace body.
+ * @evidence spaces/envelope/left.md#primary-left-window The primary bedroom's upper void spans Z=-8.90..-7.30 in the rear panel.
+ * @evidence spaces/envelope/left.md#chimney-roof-interface One chimney body and cap cross the roof notch; hearth, cheeks, and head surround a real firebox gap.
+ * @evidence principles/core/source-units.md#source-scope-preservation The builder omits flue/fire behavior, window fills, and mantel while retaining the exterior chimney and wall contact.
+ * @evidence principles/core/source-units.md#source-substantive-completion Two cut wall meshes plus body, cap, and fireplace brick solids give a tangible left elevation.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left parent fixes chimney footprint, fireplace void, two windows, and roof closure; no additional wall bay was invented.
+ */
 export const buildLeft = (): IHousePart[] => {
   const front = MAIN.inner.z[1];
   const back = MAIN.inner.z[0];

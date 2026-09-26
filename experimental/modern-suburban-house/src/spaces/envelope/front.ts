@@ -36,6 +36,20 @@ const INNER = FRONT - MAIN.wall;
 const SILL = STOREYS.groundFloor - GROUND_LAYERS.finish - GROUND_LAYERS.base;
 
 /** Emit the front elevation walls. */
+/**
+ * @evidence spaces/envelope/front.md This builder emits the complete front wall bodies with their authored rough voids and threshold support.
+ * @evidence spaces/envelope/front.md#front-roof-closures One wall outline rises under the high gable, main plane, and low right roof, with thickness wedges at those contacts.
+ * @evidence spaces/envelope/front.md#front-openings Five named front voids remain in the shared wall face; service and powder receive no invented front window.
+ * @evidence spaces/envelope/front.md#living-front-window The ground living void spans X=-5.10..-2.30 below the porch roof.
+ * @evidence spaces/envelope/front.md#bedroom-two-front-window The left upper bedroom void spans X=-4.80..-2.70 beneath the gable.
+ * @evidence spaces/envelope/front.md#stair-front-window The narrow upper-height void stays in the stair's front-wall span.
+ * @evidence spaces/envelope/front.md#bedroom-three-front-window The right upper bedroom void lies on the lower-roof portion, not the garage face.
+ * @evidence spaces/envelope/front.md#front-entry-filling The front-door rough void and finish threshold give the later wood/glass leaf its authored host and porch contact.
+ * @evidence spaces/envelope/front.md#garage-front-opening One wide garage-front-door void and the base beneath it leave room for the later single moving panel door.
+ * @evidence principles/core/source-units.md#source-scope-preservation This source builds wall/reveal void geometry and threshold only; window frames, door leaves, and rails remain model work.
+ * @evidence principles/core/source-units.md#source-substantive-completion The result includes main and garage wall solids, roof-contact wedges, six real voids, and a solid front threshold.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The front parent specifies all wall heights, void extents, and threshold datum; no extra facade opening was needed.
+ */
 export const buildFront = (): IHousePart[] => {
   const mainTop = mFront(FRONT) - ROOF_THICKNESS;
   const rightTop = rFront(FRONT) - ROOF_THICKNESS;

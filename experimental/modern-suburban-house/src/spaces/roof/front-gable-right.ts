@@ -11,7 +11,14 @@ import { PALETTE } from "../palette";
 import { type IHousePart, part, slopedSlab } from "../solids";
 import { GABLE_CORNERS, ROOF_THICKNESS, gable } from "./junctions";
 
-/** Emit the gable's east face. */
+/**
+ * Emit the gable's east face.
+ * @evidence spaces/roof/front-gable-right.md This export constructs the stair-window side of the front gable.
+ * @evidence spaces/roof/front-gable-right.md#front-gable-right-roof Its plan runs from apex through rightFoot to ridgeFront, so the eastern valley shares the computed apex with the western face.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function emits the right gable face alone, taking valley corners and thickness from junctions without moving the shared ridge.
+ * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab materializes the triangular roof mesh under gable(x), and part assigns its stable right-face identity.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The right-gable parent supplies the valley-to-eave triangle and roof depth; the mesh needed no extra stair-window or roof-edge decision.
+ */
 export const buildFrontGableRightRoof = (): IHousePart[] => {
   const { rightFoot, apex, ridgeFront } = GABLE_CORNERS;
   return [

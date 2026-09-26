@@ -19,15 +19,16 @@
  * in place of g so the fence stands in the blocking view; the ground contact is
  * not complete and is reported as such.
  */
+import { GARAGE, MAIN } from "../building";
 import { PALETTE } from "../palette";
 import { type IHousePart, block, part } from "../solids";
 import { SIDE_WALK } from "./side-walk";
 
 const OWNER = "site/fence.ts";
-const F = -0.3;
+const F = GARAGE.outer.z[1];
 const L = -7.0;
-const R = 13.85;
-const B = -17.75;
+const R = SIDE_WALK.x[1] + 0.35;
+const B = SIDE_WALK.backBand[0] - 0.35;
 const S = SIDE_WALK.top;
 const TOP = S + 1.7;
 const BOTTOM = S + 0.05;
@@ -35,6 +36,15 @@ const POST = 0.06;
 const HALF = 0.05;
 
 /** Emit the fence runs and gate posts while leaving the model leaf opening clear. */
+/**
+ * @evidence spaces/site/fence.md This builder emits the fixed garden fence and gate posts while leaving the movable leaf empty.
+ * @evidence spaces/site/fence.md#fence-enclosure-plan The left, back, right, and front runs meet at shared posts; end posts terminate at MAIN and GARAGE outer faces.
+ * @evidence spaces/site/fence.md#fence-gate-junction Two posts flank SIDE_WALK.x and the front panel omits that gate interval.
+ * @evidence spaces/site/fence.md#fence-ground-profile Panel tops follow the side-walk datum plus 1.70 m; bottoms use its provisional ground proxy plus 0.05 m.
+ * @evidence principles/core/source-units.md#source-scope-preservation Value imports keep building/path contacts aligned, and no gate leaf or map-ground foundation is emitted.
+ * @evidence principles/core/source-units.md#source-substantive-completion Stable post and run ids yield a continuous fixed enclosure except for the authored gate gap.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The fence parent fixes the line, posts, gate gap, and provisional bottom; implementation needed no invented parcel contour.
+ */
 export const buildFence = (): IHousePart[] => {
   const post = (id: string, x: number, z: number): IHousePart =>
     part(id, OWNER, "fence", PALETTE.fenceWood, block([x - POST, S, z - POST], [x + POST, TOP, z + POST]));
@@ -44,8 +54,8 @@ export const buildFence = (): IHousePart[] => {
     part(id, OWNER, "fence", PALETTE.fenceWood, block([x - HALF, BOTTOM, z0], [x + HALF, TOP, z1]));
   const [gate0, gate1] = SIDE_WALK.x;
   return [
-    part("fence-end-post-left", OWNER, "fence", PALETTE.fenceWood, block([-5.75 - 2 * POST, S, F - POST], [-5.75, TOP, F + POST])),
-    runX("fence-left-front", L + POST, -5.75 - 2 * POST, F),
+    part("fence-end-post-left", OWNER, "fence", PALETTE.fenceWood, block([MAIN.outer.x[0] - 2 * POST, S, F - POST], [MAIN.outer.x[0], TOP, F + POST])),
+    runX("fence-left-front", L + POST, MAIN.outer.x[0] - 2 * POST, F),
     post("fence-post-left-front", L, F),
     runZ("fence-left", B + POST, F - POST, L),
     post("fence-post-left-back", L, B),
@@ -56,7 +66,7 @@ export const buildFence = (): IHousePart[] => {
     runX("fence-right-front-outer", gate1 + 2 * POST, R - POST, F),
     part("gate-post-east", OWNER, "fence", PALETTE.fenceWood, block([gate1, S, F - POST], [gate1 + 2 * POST, TOP, F + POST])),
     part("gate-post-west", OWNER, "fence", PALETTE.fenceWood, block([gate0 - 2 * POST, S, F - POST], [gate0, TOP, F + POST])),
-    runX("fence-right-front-inner", 11.7 + 2 * POST, gate0 - 2 * POST, F),
-    part("fence-end-post-right", OWNER, "fence", PALETTE.fenceWood, block([11.7, S, F - POST], [11.7 + 2 * POST, TOP, F + POST])),
+    runX("fence-right-front-inner", GARAGE.outer.x[1] + 2 * POST, gate0 - 2 * POST, F),
+    part("fence-end-post-right", OWNER, "fence", PALETTE.fenceWood, block([GARAGE.outer.x[1], S, F - POST], [GARAGE.outer.x[1] + 2 * POST, TOP, F + POST])),
   ];
 };
