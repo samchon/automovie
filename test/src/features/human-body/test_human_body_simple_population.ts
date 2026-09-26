@@ -17,21 +17,23 @@ const POPULATION = [
   "lowerlegFatRight",
   "breastTransDownUp",
   "hipScaleVert",
+  "measureWristCirc",
+  "measureAnkleCirc",
 ];
 
 /**
  * The ANSUR II people rows set a woman's gluteal projection, hip breadth and
- * depth, calf fat, breast position and pelvis height over the body mass
- * index.
+ * depth, calf fat, breast position and pelvis height, and both sexes' wrist
+ * and ankle girths, over the body mass index.
  *
- * The analytic box of the simple fixture gains the seven channels on an
+ * The analytic box of the simple fixture gains the nine channels on an
  * endpoint that moves nothing, so the solved stature, girths and mass are the
  * fixture's and each weight is the row's own value. At 25 years:
  * 1. A woman at BMI 22 gets gluteal projection -0.013, hip breadth -0.104,
  *    hip depth 0.143 and calf fat 0.246 on both sides; at BMI 30, 0.053,
  *    -0.22, 0.255 and 0.237.
- * 2. A man gets none of them: his fitted rows crossed the census, so a
- *    man at BMI 22 and 30 reads zero on every channel here.
+ * 2. A man gets none of the woman's buttock, hip and calf rows: his fitted
+ *    rows crossed the census, so a man at BMI 22 and 30 reads zero on them.
  * 3. Between knots the weight is linear: a woman at BMI 24 gets the
  *    projection halfway between -0.013 and 0.023; below the survey's
  *    support the rows fade, to zero at BMI 15 and halfway at 16.5.
@@ -44,6 +46,11 @@ const POPULATION = [
  * 6. A woman's pelvis is shortened by 0.6 from BMI 18 to 35, which raises
  *    her crotch, and fades with the other rows (zero at 15); a man's is
  *    untouched.
+ * 7. Wrists and ankles: a woman's wrist girth channel is 0.517 at BMI 22
+ *    and 0.256 at 30 and her ankle's 0.423 and 0.68; a man's wrist 0.413
+ *    and -0.098 and his ankle -0.104 and 0.184. They fade like the others:
+ *    zero at BMI 15, half the BMI 18 knot (a man's wrist 0.645, ankle
+ *    -0.249) at 16.5.
  */
 export const test_human_body_simple_population = (): void => {
   const { wide, narrow } = humanBodySimpleFixture.weights;
@@ -122,6 +129,28 @@ export const test_human_body_simple_population = (): void => {
     "fading below the survey's support",
     nclose(body(-1, 15).glutealProjection, 0, 1e-9) &&
       nclose(body(-1, 16.5).glutealProjection, -0.051 / 2, 1e-9),
+  );
+  const distal = (
+    title: string,
+    shape: Record<string, number>,
+    wrist: number,
+    ankle: number,
+  ): void =>
+    TestValidator.predicate(
+      title,
+      nclose(shape.measureWristCirc ?? 0, wrist, 1e-9) &&
+        nclose(shape.measureAnkleCirc ?? 0, ankle, 1e-9),
+    );
+  distal("a woman's wrist and ankle at BMI 22", woman22, 0.517, 0.423);
+  distal("a woman's wrist and ankle at BMI 30", woman30, 0.256, 0.68);
+  distal("a man's wrist and ankle at BMI 22", man22, 0.413, -0.104);
+  distal("a man's wrist and ankle at BMI 30", man30, -0.098, 0.184);
+  distal("wrist and ankle faded at BMI 15", body(1, 15), 0, 0);
+  distal(
+    "wrist and ankle half faded at BMI 16.5",
+    body(1, 16.5),
+    0.645 / 2,
+    -0.249 / 2,
   );
   TestValidator.predicate(
     "a woman's projection grows and hip breadth narrows with the body mass index",

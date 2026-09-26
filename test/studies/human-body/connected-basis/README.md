@@ -81,7 +81,7 @@ The fit was linear, so 26 women were rebuilt through the published table and its
 | Crotch height | -26 to -14 mm |
 | Bust point height | -6 to 0 mm |
 
-Men have no rows (Limits).
+Men have none of these rows (Limits).
 
 **The bust at the nipple's height.** The people above were built with the bust rule of that revision, which read the largest chest girth up to three fifths of the span from the mid to the upper thoracic landmark. A lean man's nipple stands at 0.87 to 0.92 of that span, so a man's chest circumference was met 5 to 11 cm below his nipple, and his chest at the nipple stood that much larger than the person's. The rule now reads the girth at the nipple's height (the nipple-areola fill's centre), where ISO 8559-1 takes the bust and ANSUR the chest. A woman's reading moves by about 1 cm. Rebuilt with it, a subset of 24 surveyed men and 26 women shows:
 
@@ -93,6 +93,28 @@ Men have no rows (Limits).
 | Thigh girth | -32.1 to -28.8 mm | -1.2 to -0.5 mm |
 
 Read at the nipple itself, the nipple's height now stands 1.4 mm above the survey's chest height in both sexes (24 men and 28 women, sd 19 mm). The men's waist now stands 16 mm wide and 6 mm shallow, a section of the right girth but the wrong shape. Their buttock and pelvis are unchanged (Limits).
+
+**Wrists and ankles.** All 300 surveyed people were rebuilt on this revision, with the bust read at the nipple (254 within the reach). Their wrist and ankle girths, the smallest across each segment, departed from the survey's (the fitted residual at the knots):
+
+| Girth | Women, body mass index 18 to 35 | Men, body mass index 18 to 35 |
+| --- | --- | --- |
+| Wrist | -30 to -5 mm | -34 to +17 mm |
+| Ankle | -14 to -45 mm | +13 to -19 mm |
+
+- **The source's limbs.** A woman's wrist is slender when she is lean and her ankle does not thicken with mass at all. A man's wrist thickens with mass faster than the survey's.
+- **Rows.** The table sets the wrist and ankle girth channels by sex over the same knots:
+  - the residual is fitted as a piecewise-linear function of the body mass index, smoothed by its second difference;
+  - it is divided by the channel's girth per unit, 52 mm at the wrist and 56 and 54 mm at a woman's and a man's ankle, measured on simple-tier bodies;
+  - the rows fade like the others.
+- **What the rows cost.** The mass they add is taken back over the whole body by the mass solve.
+
+On the subset of 28 women and 24 men:
+
+| Measure | Women, before to after | Men, before to after |
+| --- | --- | --- |
+| Wrist | -20.9 to +0.7 mm | -5.3 to +2.9 mm (sd 13.9 to 8.5) |
+| Ankle | -28.3 to +0.6 mm | -2.7 to +0.1 mm |
+| Waist girth at the omphalion | -17.7 to -25.3 mm | -3.1 to -4.5 mm |
 
 ## Breast shape
 
