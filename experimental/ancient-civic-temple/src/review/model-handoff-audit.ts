@@ -96,6 +96,11 @@ export const modelHandoffRows = (
 };
 
 /** Object model units require their own settings identity and obey every declared size band. */
+const inheritedDesignFiles = new Set([
+  "scale.md", "columns.md", "entablature.md", "openings.md", "cladding.md",
+  "fixtures.md", "wares.md", "landscape.md",
+]);
+
 export const modelIdentityOwnerFailures = (
   settings: HandoffDocument, models: readonly HandoffDocument[],
 ): string[] => {
@@ -103,7 +108,9 @@ export const modelIdentityOwnerFailures = (
   const failures: string[] = [];
   for (const document of models) {
     const units = sections(document);
-    const objectFile = /^(portable|ritual)\.md$/.test(document.path);
+    // Earlier mixed design files have established parent routes; every new file
+    // of authored objects defaults to direct, same-id settings ownership.
+    const objectFile = !inheritedDesignFiles.has(document.path);
     if (!objectFile) continue;
     for (const model of units) {
       const id = model.key.split("#")[1]!;

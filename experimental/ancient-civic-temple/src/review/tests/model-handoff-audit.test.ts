@@ -53,4 +53,5 @@ void test("all six settings size bands are compared with the model envelope", ()
     assert.match(modelIdentityOwnerFailures(narrow, [portable]).join(" "), new RegExp(label));
   }
   assert.deepEqual(modelIdentityOwnerFailures(settings, [{ path: "columns.md", source: "## 기둥 {#column}\n모델." }]), []);
+  assert.match(modelIdentityOwnerFailures(settings, [{ path: "future-objects.md", source: "## 새 물체 {#new-object}\n점유 상자는 0.3×0.2×0.3m다." }]).join(" "), /missing settings identity/);
 });
