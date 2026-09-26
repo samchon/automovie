@@ -12,14 +12,14 @@
  * This owner does not certify plant growth, drainage capacity or vehicle loads.
  */
 import {
-  Quaternion,
   extrudeAutoMovieRegion,
+  Quaternion,
   transformAutoMovieMesh,
 } from "@automovie/engine";
 
 import { Assembly, rectangle, v, yaw } from "../assembly";
 import { circle, heightRegion, putMesh } from "../metric-solid";
-import { type Rect, datum, entryApproach } from "../plan";
+import { datum, entryApproach, type Rect } from "../plan";
 import { subtract } from "../storeys/floors";
 
 /** Soil bottom is the catch-pit floor plate underside (grade -0.45, pit 0.40, plate 0.002). */
@@ -99,7 +99,10 @@ export function garden(a: Assembly): void {
   // Every piece above grade is solid down to the grade at y=-0.45.
   const [ax0, ax1] = entryApproach,
     ax = (ax0 + ax1) / 2,
-    aw = ax1 - ax0;
+    aw = ax1 - ax0,
+    landingDepth = 0.8,
+    landingCenterZ = datum.minZ - landingDepth / 2,
+    treadDepth = 0.32;
   for (let i = 0; i < 2; i++) {
     const top = -0.45 + ((i + 1) * (datum.floors[0] + 0.45)) / 3;
     a.box(
@@ -108,10 +111,10 @@ export function garden(a: Assembly): void {
       "paving",
       ax,
       (top - 0.45) / 2,
-      -7.28 + i * 0.32,
+      landingCenterZ - landingDepth / 2 - (2 - i - 0.5) * treadDepth,
       aw,
       top + 0.45,
-      0.32,
+      treadDepth,
     );
   }
   a.box(
@@ -120,10 +123,10 @@ export function garden(a: Assembly): void {
     "paving",
     ax,
     (datum.floors[0] - 0.45) / 2,
-    datum.minZ - 0.4,
+    landingCenterZ,
     aw,
     datum.floors[0] + 0.45,
-    0.8,
+    landingDepth,
   );
   a.box("rear-paving", r, "paving", 0, -0.245, 6.65, 11.6, 0.41, 1.3);
   // The walkable ground is the site minus the house outline, as four strips.
@@ -148,8 +151,8 @@ export function garden(a: Assembly): void {
       id: "entry-approach-landing",
       kind: "floor",
       polygon: [
-        v(ax0, 0, datum.minZ - 0.8),
-        v(ax1, 0, datum.minZ - 0.8),
+        v(ax0, 0, datum.minZ - landingDepth),
+        v(ax1, 0, datum.minZ - landingDepth),
         v(ax1, 0, datum.minZ),
         v(ax0, 0, datum.minZ),
       ],

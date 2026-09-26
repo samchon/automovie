@@ -6,7 +6,7 @@ import { topology } from "../house/topology";
 
 /** Realize the clear cells, shared boundaries, floors and one stair together.
  * @evidence spaces/002-spatial-graph.md 이 함수는 topology·두 storey·단일 stair를 조립하여 002의 매스, 방 경계, 문과 계단을 실물과 native graph로 함께 반환한다.
- * @evidenceReview spaces/002-spatial-graph.md #76e568f structure()는 topology()·ground()·upper()·stair()를 호출해 datum에서 유도한 매스·방·벽·문턱·slab과 단일 계단을 조립한다. stair()의 양옆 stringer는 tread 밖에 놓고 참·난간을 유지한다. 건축 source와 과거 GPU 관찰은 전체 production의 시각 판정을 대신하지 않으며 현관 선반과 욕실 기구는 별도 임시 room source에 남는다.
+ * @evidenceReview spaces/002-spatial-graph.md #ea4e3db structure()는 topology()·ground()·upper()·stair()를 호출해 datum에서 유도한 매스·방·벽·문턱·slab과 단일 계단을 조립한다. 상부 flight는 구멍 안쪽으로 들어가며 양옆 stringer가 tread 밖에 놓이고 slab·ceiling·landing·벽의 box 점유를 관통하지 않는다. 참·난간과 room graph는 유지한다. 건축 source와 과거 GPU 관찰은 전체 production의 시각 판정을 대신하지 않으며 현관 선반과 욕실 기구는 별도 임시 room source에 남는다.
  * @evidence principles/core/source-units.md#source-scope-preservation plan의 clear cell과 datum으로만 shared wall을 도출하고 002가 금지한 별도 복도·계단·보이드를 추가하지 않는다. 바닥·천장·partition은 각 층의 파일이 소유한다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 structure()는 topology·ground·upper·stair만 호출해 clear cell, 공유 벽, 두 층의 바닥·천장과 단일 계단을 조립한다. 외피와 방의 임시 fit-out은 별도 호출 경로에 있으며 이 함수가 물체 형상이나 배치를 소유하지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion topology는 실제 convex cells, partitions는 공개 wall kernel로 절삭한 solid와 opening operation, stair는 18개 tread 및 참을 만든다. 위임 대상은 모두 현재 호출되는 구체 함수이며 빈 source wrapper가 아니다.
@@ -45,8 +45,8 @@ import { topology } from "../house/topology";
  * @evidenceReview spaces/002-spatial-graph.md#entry-powder #f50ad3b powder 안쪽으로 열리는 z=-3.20 방문이 현관에서 위생실로 직접 닿고 entry 보행 띠를 차지하지 않는다.
  * @evidence spaces/002-spatial-graph.md#common-storage x=-4.14,폭0.90의 수납 진입을 shared wall에 만든다. leaf는 수납 안쪽으로 열리고 공용부 endpoint와 직접 연결된다.
  * @evidenceReview spaces/002-spatial-graph.md#common-storage #c0661ec common-storage 문을 x=-4.14의 공용부 경계에 내어 수납 접근이 폐쇄된 현관 측 벽을 관통하지 않는다.
- * @evidence spaces/002-spatial-graph.md#single-stair datum.floors[1]-floors[0]의 층차를 18 riser로 나누고 0.28 going으로 9+9 tread를 만든다. 참 높이는 9×rise이며 route는 tread 상단과 참을 소비한다. 양 flight의 stringer 중심은 tread 반폭+반지름+0.015m 바깥에 둔다.
- * @evidenceReview spaces/002-spatial-graph.md#single-stair #c2ea2a2 stair()는 datum.floors의 층차에서 rise·참 높이·상층 도착을 유도하고 9+9 tread와 하나의 landing을 만든다. stringerX는 treadWidth/2+stringerRadius+0.015로 양쪽 측면 밖에 있으며 축이 tread·riser를 관통하지 않는다. headroom과 실제 통행 성능은 형상 존재만으로 검증되지 않는다.
+ * @evidence spaces/002-spatial-graph.md#single-stair datum.floors[1]-floors[0]의 층차를 18 riser로 나누고 0.28 going으로 9+9 tread를 만든다. 참 높이는 9×rise이며 route는 tread 상단과 참을 소비한다. 상부 flight 중심을 구멍 안쪽 -0.48에 두고 양쪽 stringer 중심을 tread 반폭+반지름+0.015m 바깥에 둔다. 양 끝은 바닥·참·상층 trimmer에 접근한다.
+ * @evidenceReview spaces/002-spatial-graph.md#single-stair #12e7657 stair()는 datum.floors의 층차에서 rise·참 높이·상층 도착을 유도하고 9+9 tread와 하나의 landing을 만든다. 상부 flight의 서측 stringer x=-1.16과 외주 -1.225가 stairHole 서측 -1.24 안에 있고, 모든 stringer는 tread·riser 및 slab·ceiling·landing·벽 box 표본과 체적 관통 0점이다. 하부 시작은 바닥, 하부 끝과 상부 시작은 참, 상부 끝은 slab trimmer의 z 경계 0.001m 안에 도달한다. headroom과 실제 통행 성능은 형상 존재만으로 검증되지 않는다.
  * @evidence spaces/002-spatial-graph.md#stair-opening slab과 하층 ceiling에서 x=-1.24..1.58,z=-5.64..-1.80의 같은 hole을 실제로 뺀다. upper floor finish는 room clear cells에만 놓여 이 구멍을 덮지 않는다.
  * @evidenceReview spaces/002-spatial-graph.md#stair-opening #e8f2534 상층 slab에서 명시된 stair-opening만 빼므로 계단 구멍을 거실 복층 보이드로 확대하지 않는다.
  * @evidence spaces/002-spatial-graph.md#upper-partition upper-corridor의 짧은 cell 하나에서 여섯 방문이 직접 뻗고 계단 route가 그 앞에 닿는다. L자 room의 cell union 내부에는 벽을 만들지 않는다.

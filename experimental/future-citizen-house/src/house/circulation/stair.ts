@@ -37,16 +37,18 @@ export function stair(a: Assembly): void {
     treadWidth = 1.2;
   const landingDepth = 0.12,
     guardHeight = 0.95,
-    stringerRadius = 0.065;
+    stringerRadius = 0.065,
+    stringerEndExtension = 0.107;
   const ids: string[] = [];
+  const upperFlightX = -0.48;
   const route = [v(0.86, datum.floors[0], -1.65)];
   for (let flight = 0; flight < 2; flight++) {
-    const x = flight === 0 ? 0.86 : -0.58,
+    const x = flight === 0 ? 0.86 : upperFlightX,
       direction = flight === 0 ? -1 : 1;
     const zStart = flight === 0 ? -1.8 : -4.32,
       yStart = datum.floors[0] + flight * halfRise;
     if (flight === 1)
-      route.push(v(0.86, yStart, -4.92), v(-0.58, yStart, -4.92));
+      route.push(v(0.86, yStart, -4.92), v(upperFlightX, yStart, -4.92));
     for (let i = 0; i < stepsPerFlight; i++) {
       const z = zStart + direction * (i + 0.5) * going,
         top = yStart + (i + 1) * rise;
@@ -109,6 +111,8 @@ export function stair(a: Assembly): void {
     }
     for (const side of [-1, 1]) {
       const railX = x + side * (treadWidth / 2 - 0.03);
+      // The upper flight is inset so both 0.065m stringers remain outside
+      // their treads and inside the authored slab and ceiling opening.
       const stringerX = x + side * (treadWidth / 2 + stringerRadius + 0.015);
       ids.push(
         a.rod(
@@ -133,11 +137,15 @@ export function stair(a: Assembly): void {
           "stair-" + flight + "-stringer-" + side,
           "entry",
           "steel",
-          v(stringerX, yStart + rise - 0.12, zStart + (direction * going) / 2),
+          v(
+            stringerX,
+            yStart + rise - 0.12,
+            zStart + direction * (going / 2 - stringerEndExtension),
+          ),
           v(
             stringerX,
             yStart + halfRise - 0.12,
-            zStart + direction * (stepsPerFlight - 0.5) * going,
+            zStart + direction * ((stepsPerFlight - 0.5) * going + stringerEndExtension),
           ),
           stringerRadius,
         ),
@@ -197,7 +205,7 @@ export function stair(a: Assembly): void {
       ),
       0.012,
     );
-  route.push(v(-0.58, datum.floors[1], -1.65));
+  route.push(v(upperFlightX, datum.floors[1], -1.65));
   a.environment.connectors.push({
     id: "single-stair",
     kind: "stair",

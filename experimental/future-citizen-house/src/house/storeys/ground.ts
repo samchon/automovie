@@ -3,7 +3,7 @@ import type { Assembly } from "../assembly";
 import { exteriorWallZone, portals, type Rect } from "../plan";
 /** Grade is y=-0.45 (spaces/001#site-access); the foundation is buried 0.15m
  * below it so the plinth face -0.45..0 meets the ground on the outline. */
-const foundationBottom = -0.60;
+export const foundationBottom = -0.60;
 import { ceiling, finishDepth, floorFinish, horizontal, slabTop, subtract } from "./floors";
 import { partitions } from "./partitions";
 export function ground(a: Assembly): void {

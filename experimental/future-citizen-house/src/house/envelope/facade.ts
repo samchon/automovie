@@ -128,7 +128,7 @@ export function facade(
     }
   a.repeat(f.id + "-stone-panels", "house", "stone", panels);
   for (const w of windows) glazing(a, f, w);
-  spandrel(a, f, windows);
+  spandrel(a, f, windows, standardWindowHeight(0).head, standardWindowHeight(1).sill);
   // The wall is cut at its centre C, but the exterior boundary face stands on
   // the outer plane O = C + (d/2)N so the native exposed normal points outward.
   const boundary = a.environment.boundaries.find((b) => b.id === f.id)!;

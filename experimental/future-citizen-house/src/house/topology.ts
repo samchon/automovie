@@ -1,8 +1,9 @@
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 
 import { Assembly, v } from "./assembly";
-import { B, P, R, canopy } from "./envelope/roof";
-import { type Rect, datum, rooms } from "./plan";
+import { B, canopy, P, R } from "./envelope/roof";
+import { datum, rooms, type Rect } from "./plan";
+import { foundationBottom } from "./storeys/ground";
 
 const cell = (id: string, r: Rect, y0: number, y1: number) => ({
   id,
@@ -20,7 +21,7 @@ export function topology(a: Assembly): void {
   // the native exposed-soffit normal. These two cells describe the building
   // body and canopy depth; they add no room, storey or access connector.
   const outline: Rect = [datum.minX, datum.maxX, datum.minZ, datum.maxZ];
-  const body = cell("house-body", outline, -0.6, R(0));
+  const body = cell("house-body", outline, foundationBottom, R(0));
   const scale = Math.hypot(1, 0.01);
   body.planes[2] = {
     normal: v(-0.01 / scale, 1 / scale, 0),
@@ -57,7 +58,7 @@ export function topology(a: Assembly): void {
       id: "ground-storey",
       kind: "storey",
       parent: "house",
-      cells: [cell("ground-cell", outline, -0.6, datum.floors[1])],
+      cells: [cell("ground-cell", outline, foundationBottom, datum.floors[1])],
     },
     {
       id: "upper-storey",

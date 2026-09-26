@@ -507,13 +507,13 @@ jamb·head·문짝을 제외한 유효 치수가 이 값이다. structural cut�
 @evidenceReview settings/003-spatial-basis.md#ground-graph #38b01ba 현관 중앙 단일 계단이라는 ground-graph를 보행 띠가 남는 두 flight로 실현한다.
 -->
 
-entry 안에 두 flight와 하나의 중간 참으로 구성된 단일 계단을 둔다. 하부 flight는 x=0.26..1.46에서 전면(-Z)을 향해 상승하고, 참에서 방향을 바꾼 상부 flight는 x=-1.18..0.02에서 후면(+Z)을 향해 상승한다. 두 flight의 수평 범위는 z=-4.32..-1.80, 중간 참은 x=-1.18..1.46, z=-5.52..-4.32이다. 참은 두 flight 전폭에 실제로 닿는다.
+entry 안에 두 flight와 하나의 중간 참으로 구성된 단일 계단을 둔다. 하부 flight는 x=0.26..1.46에서 전면(-Z)을 향해 상승하고, 참에서 방향을 바꾼 상부 flight는 x=-1.08..0.12에서 후면(+Z)을 향해 상승한다. 두 flight의 수평 범위는 z=-4.32..-1.80, 중간 참은 x=-1.18..1.46, z=-5.52..-4.32이다. 참은 두 flight 전폭에 실제로 닿는다. 상부 flight는 개구 안쪽으로 0.10m 들여 서측 stringer 외주 x=-1.225가 구멍의 서측 끝 x=-1.24보다 0.015m 안쪽에 머문다.
 
 [매스와 층 datum](#mass-and-storeys)의 두 floor 높이 차이를 18개 riser로 나누므로 현재 rise=(3.20-0)/18m다. 각 flight는 9개 riser이며 명목 진행 간격 0.28m로 2.52m의 진행 범위를 가진다. 참의 y는 ground floor 높이에 9×rise를 더한 값이고 상부 도착은 upper floor 높이와 같다. 각 flight는 tread도 9개다. 각 tread는 0.28m 길이이며 상승 방향의 가까운 edge마다 riser를 하나 두고, n번째 tread 상단은 출발 높이+n×rise다. 따라서 하부 9번째 tread는 참과, 상부 9번째 tread는 upper floor와 같은 높이로 만나며 그 뒤에 추가 riser를 만들지 않는다. 첫 riser는 flight 출발선이고 마지막 tread의 먼 edge는 참/도착 경계에 닿는다. route는 이 실제 tread 상단과 참의 중심을 소비한다. 이 문서는 아직 staircase clearance를 검증하지 않았다.
 
 [필수 바닥 개구](#stair-opening)가 upper slab과 상부 도착의 관계를 소유한다.
 
-guard와 handrail은 실제 tread pitch와 참을 따른다. 각 flight의 강재 원형 stringer는 tread 폭 1.20m의 양옆 바깥에 반지름 0.065m 단면으로 놓고 중심축을 tread 측면에서 0.080m 밖에 둔다. 따라서 stringer 외주와 tread 측면 사이에는 0.015m가 남으며 축은 tread·riser 내부를 관통하지 않는다. stringer 축의 높이는 해당 tread 상면보다 0.12m 아래에서 각 riser 상승량을 따라간다. 계단 전체를 막는 불투명 판은 사용하지 않는다. 상부 opening edge의 유리 guard는 독립된 복층 보이드를 뜻하지 않으므로 선택 가능하다. 계단 owner가 프레임 형상과 안정 면 주소를 소유하며 현재 `src/house/circulation/stair.ts`에 참·난간·handrail·stringer가 구현돼 있다. 그 면의 finish 결합은 materials가 결정하고 현재 source의 material 문자열은 이관 전 임시 값이다. headroom, return clearance와 실제 통행 성능은 새 산출물의 별도 측정이 없어 unverified다.
+guard와 handrail은 실제 tread pitch와 참을 따른다. 각 flight의 강재 원형 stringer는 tread 폭 1.20m의 양옆 바깥에 반지름 0.065m 단면으로 놓고 중심축을 tread 측면에서 0.080m 밖에 둔다. 따라서 stringer 외주와 tread 측면 사이에는 0.015m가 남으며 축은 tread·riser 내부를 관통하지 않는다. stringer 축의 높이는 해당 tread 상면보다 0.12m 아래에서 각 riser 상승량을 따라간다. 축은 첫·마지막 tread 중심에서 지지 경계 쪽으로 각각 0.107m 연장한다. 하부 flight의 양 끝 지지 대상은 1층 바닥과 중간 참이며, 상부 flight의 양 끝은 중간 참과 상층 slab trimmer다. 원형 외주 끝은 각 경계의 z면에서 0.001m 이내이고 시작부는 바닥·참의 윗면에서 0.002m 이내다. 이는 저작 형상의 접속 목표이며 체결 강도 인증이 아니다. 상부 서측 stringer는 구멍 안쪽에 두고 slab·천장·landing·벽을 포함한 compiled box 부재와의 체적 관통을 전수 표본 검사한다. 계단 전체를 막는 불투명 판은 사용하지 않는다. 상부 opening edge의 유리 guard는 독립된 복층 보이드를 뜻하지 않으므로 선택 가능하다. 계단 owner가 프레임 형상과 안정 면 주소를 소유하며 현재 `src/house/circulation/stair.ts`에 참·난간·handrail·stringer가 구현돼 있다. 그 면의 finish 결합은 materials가 결정하고 현재 source의 material 문자열은 이관 전 임시 값이다. headroom, return clearance와 실제 통행 성능은 새 산출물의 별도 측정이 없어 unverified다.
 
 ## 계단의 필수 바닥 개구 {#stair-opening}
 
