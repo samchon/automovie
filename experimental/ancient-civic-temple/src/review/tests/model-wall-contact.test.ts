@@ -5,6 +5,7 @@ import test from "node:test";
 import { modelSections } from "../model-tessellation-census.mjs";
 import { implicitWallContactRows } from "../model-wall-contact.mjs";
 import { tubeWallClearanceRows } from "../model-tube-clearance.mjs";
+import { partContactRows } from "../model-part-contact.mjs";
 
 const section = (file: string, id: string): string => {
   const source = readFileSync(join(__dirname, "../../../docs/models", file + ".md"), "utf8");
@@ -34,10 +35,24 @@ void test("whole 12-segment polygonal handle clears the inner wall", () => {
   assert.equal(rows.length, 2);
   assert.ok(rows.every((row: { pass: boolean }) => row.pass));
   const clearance = rows.find((row: { kind: string }) => row.kind === "inner-wall clearance");
+  assert.ok(clearance);
   assert.ok(clearance.measured > 0.0012);
   const original = source.replaceAll("0.1475", "0.145").replaceAll("0.1575", "0.155")
     .replace("약 0.0011m", "약 0.0036m");
   const measured = tubeWallClearanceRows("original", original);
   assert.ok(measured.some((row: { kind: string, pass: boolean, measured: number }) =>
     row.kind === "inner-wall clearance" && !row.pass && row.measured < -0.001));
+});
+
+void test("named object faces remain tangent after their source dimensions change", () => {
+  const source = section("portable", "portable-lamp");
+  const rows = partContactRows("lamp", source);
+  assert.deepEqual(rows.map((row: { parts: string }) => row.parts), ["foot/stem", "stem/dish"]);
+  assert.ok(rows.every((row: { pass: boolean }) => row.pass));
+  const detached = source.replace("Y=0.035~0.23m 원통", "Y=0.035~0.22m 원통");
+  assert.ok(partContactRows("lamp", detached).some((row: { parts: string, pass: boolean }) =>
+    row.parts === "stem/dish" && !row.pass));
+  const stylus = section("portable", "stylus");
+  assert.ok(partContactRows("stylus", stylus).some((row: { axis: string, pass: boolean }) =>
+    row.axis === "X" && row.pass));
 });

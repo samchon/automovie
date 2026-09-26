@@ -1,16 +1,24 @@
 /** Recover measurable bounds from the authored part construction, not summaries. */
+/** @typedef {"X"|"Y"|"Z"} Axis */
+/** @typedef {Record<Axis, number[]> & {summary: Record<Axis, number[][]>}} PartBound */
 const number = "[+−-]?\\d+(?:\\.\\d+)?";
+/** @param {string} s */
 const scalar = (s) => Number(s.replace("−", "-"));
+/** @param {number} a @param {number} b */
 const near = (a, b) => Math.abs(a - b) < 1e-6;
+/** @param {string} s */
 const escape = (s) => s.replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&");
+/** @type {Axis[]} */
 const axes = ["X", "Y", "Z"];
 
 /** @param {string} body */
 export const modelParts = (body) => [...(body.match(/^부재 대응: (.+)$/m)?.[1] ?? "")
   .matchAll(/`([^`]+)`=([^;.]+)/g)].map(([, key, noun]) => ({ key, noun: noun.trim() }));
+/** @param {string} sentence @param {string} noun */
 const mentions = (sentence, noun) => new RegExp(
   "(?<![\\p{L}\\p{N}])" + escape(noun) + "(?=$|[.,;:()·\\s]|은|는|이|가|을|를|의|와|과|에서|으로|로)", "u",
 ).test(sentence);
+/** @param {string} source @param {number} width */
 const expression = (source, width) => {
   const match = source.replaceAll("−", "-").match(/^W\/2([+-]\d+(?:\.\d+)?)?$/);
   return match ? width / 2 + Number(match[1] ?? 0) : NaN;
@@ -19,21 +27,25 @@ const expression = (source, width) => {
 /** @param {string} body @param {number} [width] */
 export const partBounds = (body, width = NaN) => {
   const parts = modelParts(body);
-  /** @type {Record<string, {X:number[],Y:number[],Z:number[],summary:{X:number[][],Y:number[][],Z:number[][]}}>} */
+  /** @type {Record<string, PartBound>} */
   const result = Object.fromEntries(parts.map(({ key }) => [key, {
     X: [], Y: [], Z: [], summary: { X: [], Y: [], Z: [] },
   }]));
   const construction = body.split(/^부재 대응:/m)[0].replace(/\[[^\]]+\]\([^)]*\)/g, "");
+  const names = parts.map(({ noun }) => escape(noun)).sort((a, b) => b.length - a.length).join("|");
+  const partClause = names ? new RegExp("(?:, |이고 )(?=(?:두 |네 )?(?:" + names + ")(?: [가-힣]+)?(?:은|는|의|가|이) )", "g") : null;
   const sentences = construction.replace(/이고, (?=[가-힣]+(?:은|는) Z=)/g, "다. ")
+    .replace(partClause ?? /(?!) /g, "\n")
     .split(/(?<=다\.)\s+|\n+/).filter(Boolean);
   const ground = /원점[^.\n]*(?:바닥|지면|아래면)/.test(construction);
   const backOrigin = /원점[^.\n]*뒷변/.test(construction) && /앞은[^.\n]*\+Z/.test(construction);
+  /** @param {string} part @param {Axis} axis @param {number} a @param {number} b */
   const add = (part, axis, a, b) => {
     if (part && Number.isFinite(a) && Number.isFinite(b)) result[part][axis].push(a, b);
   };
   let previous = "";
   for (const sentence of sentences) {
-    const firstGeometry = sentence.search(/(?:[XYZ]=|반지름|폭 |깊이 |높이 |두께 |중심선)/);
+    const firstGeometry = sentence.search(/(?:[XYZ]=|반지름|폭 |깊이 |높이 |두께 |중심)/);
     const prefix = firstGeometry < 0 ? sentence : sentence.slice(0, firstGeometry);
     const named = parts.filter(({ key, noun }) =>
       mentions(prefix, noun) || mentions(prefix, noun.split(" ")[0]) || prefix.includes("`" + key + "`"));
@@ -42,29 +54,35 @@ export const partBounds = (body, width = NaN) => {
     const later = /^(?:[XYZ]=|반지름 |t=)/.test(sentence) ?
       parts.map((p) => ({ ...p, at: sentence.indexOf(p.noun) }))
         .filter((p) => p.at >= 0).sort((a, b) => a.at - b.at) : [];
-    const subject = located?.key ?? (named.length === 1 ? named[0].key :
-      later.length ? later[0].key : "");
-    if (subject) previous = subject;
+    const explicit = parts.map((part) => ({ ...part,
+      at: Math.max(prefix.lastIndexOf(part.noun + "은"), prefix.lastIndexOf(part.noun + "는")),
+    })).filter(({ at }) => at >= 0).sort((a, b) => b.at - a.at)[0];
+    const firstNamed = named.sort((a, b) => prefix.indexOf(a.noun) - prefix.indexOf(b.noun))[0];
+    const subject = /끝의 점유 높이/.test(prefix) && previous ? previous :
+      located?.key ?? explicit?.key ?? firstNamed?.key ?? later[0]?.key ?? "";
+    if (subject && firstGeometry >= 0) previous = subject;
     const part = subject || (/^중심선|^관의 바깥|^t=/.test(sentence) ? previous : "");
     if (!part) continue;
     const bounds = result[part];
     for (const match of sentence.matchAll(new RegExp("([XYZ])=(" + number + ")~(" + number + ")m", "g"))) {
-      const axis = match[1], a = scalar(match[2]), b = scalar(match[3]);
-      if (/^(?:두 )?[^.]+는 [XYZ]=/.test(sentence) && bounds[axis].length)
+      const axis = /** @type {Axis} */ (match[1]), a = scalar(match[2]), b = scalar(match[3]);
+      const noun = parts.find(({ key }) => key === part)?.noun ?? "";
+      if (new RegExp("^(?:두 )?" + escape(noun) + "(?:은|는) " + axis + "=" + number + "~" + number + "m다\\.$").test(sentence) &&
+        bounds[axis].length && !near(Math.min(...bounds[axis]), Math.max(...bounds[axis])))
         bounds.summary[axis].push([Math.min(a, b), Math.max(a, b)]);
       else add(part, axis, a, b);
     }
     for (const match of sentence.matchAll(new RegExp("([XYZ]) 범위는 (" + number + ")~(" + number + ")m", "g")))
-      add(part, match[1], scalar(match[2]), scalar(match[3]));
+      add(part, /** @type {Axis} */ (match[1]), scalar(match[2]), scalar(match[3]));
     for (const match of sentence.matchAll(new RegExp("([XYZ])=(" + number + ")m", "g")))
       if (!new RegExp(match[1] + "=" + match[2] + "~").test(sentence))
-        add(part, match[1], scalar(match[2]), scalar(match[2]));
+        add(part, /** @type {Axis} */ (match[1]), scalar(match[2]), scalar(match[2]));
     const widths = Object.fromEntries([...sentence.matchAll(new RegExp(
       "(폭|깊이|높이|두께|연직 두께) (" + number + ")m", "g",
     ))].reverse().map((match) => [match[1], scalar(match[2])]));
     const center = sentence.match(/중심(?:은|\s*)\s*\((X,Y,Z|X,Z)\)=\(([^)]+)\)m/);
     if (center) {
-      const labels = center[1].split(","), entries = center[2].split(",");
+      const labels = /** @type {Axis[]} */ (center[1].split(",")), entries = center[2].split(",");
       if (labels.length === entries.length) labels.forEach((axis, i) => {
         const entry = entries[i], v = scalar(entry.replace("±", ""));
         add(part, axis, entry.startsWith("±") ? -v : v, v);
@@ -130,7 +148,7 @@ export const partBounds = (body, width = NaN) => {
       const radius = Math.max(...radii);
       const alongX = /X축|YZ 평면/.test(sentence) ||
         (/X=/.test(sentence) && /원통/.test(sentence) && !/Y=.{0,8}~/.test(sentence));
-      for (const axis of alongX ? ["Y", "Z"] : ["X", "Z"]) {
+      for (const axis of /** @type {Axis[]} */ (alongX ? ["Y", "Z"] : ["X", "Z"])) {
         const centers = bounds[axis].length ? [...bounds[axis]] : [0];
         add(part, axis, Math.min(...centers) - radius, Math.max(...centers) + radius);
       }
@@ -153,7 +171,7 @@ export const partBounds = (body, width = NaN) => {
         Number(centerTriple[1]) + Number(tube[1]));
     }
     const section = sentence.match(new RegExp("X·Z 각 (" + number + ")m 단면"));
-    if (section) for (const axis of ["X", "Z"]) {
+    if (section) for (const axis of /** @type {Axis[]} */ (["X", "Z"])) {
       const centers = [...bounds[axis]], half = scalar(section[1]) / 2;
       if (centers.length) add(part, axis, Math.min(...centers) - half, Math.max(...centers) + half);
     }
@@ -164,6 +182,7 @@ export const partBounds = (body, width = NaN) => {
 /** Each recoverable part must fit; if all parts resolve, their union must fill. */
 /** @param {string} id @param {string} body */
 export const occupancyUnionRows = (id, body) => {
+  if (/(?:점유 상자는|점유 상자(?:는)?)[^\n]*?\bA [\d.]+×[\d.]+×[\d.]+m, B /.test(body)) return [];
   const match = body.match(/(?:기본형 |닫힌 전체 )?점유 상자는[^\d\n]*?([\d.]+)×([\d.]+)×([\d.]+)m/);
   if (!match) return [];
   const box = match.slice(1).map(Number);
@@ -176,7 +195,7 @@ export const occupancyUnionRows = (id, body) => {
   for (const [part, bounds] of Object.entries(parts)) for (let i = 0; i < 3; i++) {
     const axis = axes[i], points = bounds[axis];
     if (!points.length) continue;
-    const lo = Math.min(...points), hi = Math.max(...points), half = box[i] / 2;
+    const lo = Math.min(...points), hi = Math.max(...points);
     rows.push({ id, part, axis, kind: "containment", box: box[i], union: hi - lo,
       pass: axis === "Y" && ground ? lo >= -1e-6 && hi <= box[i] + 1e-6 :
         axis === "Z" && backOrigin ? lo >= -1e-6 && hi <= box[i] + 1e-6 :

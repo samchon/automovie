@@ -1,4 +1,5 @@
 /** Sweep an authored polygonal tube along its straight-segment centreline. */
+/** @param {number} low @param {number} high @param {number} yLow @param {number} yHigh @param {number} y */
 const radial = (low, high, yLow, yHigh, y) => low + (high - low) * (y - yLow) / (yHigh - yLow);
 
 /** @param {string} id @param {string} body */
@@ -28,11 +29,19 @@ export const tubeWallClearanceRows = (id, body) => {
       for (let j = 0; j < sides; j++) {
         const angle = phase + 2 * Math.PI * j / sides;
         const offset = tubeRadius * Math.cos(angle), z = tubeRadius * Math.sin(angle);
-        for (let sample = 0; sample <= 1000; sample++) {
-          const f = sample / 1000;
-          const x = a[0] + dx * f + inward[0] * offset;
-          const y = a[1] + dy * f + inward[1] * offset;
-          if (y < innerY0 || y > outerY1) continue;
+        const x0 = a[0] + inward[0] * offset, y0 = a[1] + inward[1] * offset;
+        const slope = (innerR1 - innerR0) / (outerY1 - innerY0);
+        const critical = [0, 1, (innerY0 - y0) / dy, (outerY1 - y0) / dy];
+        if (dx !== 0) {
+          critical.push(-x0 / dx);
+          const ratio = slope * dy / dx;
+          if (Math.abs(ratio) < 1 && Math.abs(z) > 0)
+            critical.push((ratio * Math.abs(z) / Math.sqrt(1 - ratio * ratio) - x0) / dx);
+        }
+        for (const f of critical) {
+          if (f < 0 || f > 1) continue;
+          const x = x0 + dx * f, y = y0 + dy * f;
+          if (y < innerY0 - 1e-12 || y > outerY1 + 1e-12) continue;
           clearance = Math.min(clearance, Math.hypot(x, z) -
             radial(innerR0, innerR1, innerY0, outerY1, y));
         }

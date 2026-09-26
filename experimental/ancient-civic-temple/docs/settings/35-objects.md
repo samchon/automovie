@@ -281,7 +281,7 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 이동식 소형 등잔: 이미지 02·04을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 이동식 소형 등잔의 제외 경계를 본문에서 확인했다: 불꽃·연료·빛 방출은 없으며 놓이는 위치와 개수는 instances가 정한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 이동식 소형 등잔: 정문·중정·봉헌실·관리실 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 이동식 소형 등잔: 높은 등잔대와 구별되는 짧은 줄기와 접시이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 이동식 소형 등잔: 높은 등잔대와 구별되는 짧은 줄기와 접시가 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 정문·중정·봉헌실·[관리실](30-interiors.md#administration)에서 사용한다. 낮은 발·짧은 줄기·얕은 금속 접시가 이어지는 탁상 또는 바닥 비품이다. 높이 0.24~0.35m이고 [제실의 높은 등잔대](#lampstands)와 다른 치수군이다. 불꽃·연료·빛 방출은 없으며 놓이는 위치와 개수는 instances가 정한다.

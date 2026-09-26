@@ -35,6 +35,8 @@ Use the commands declared in `package.json`:
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
 
+The model contact census uses exact approved phrases as change detection; a harmless rewording can require a renewed review. Its PASS links are not independent measurements. `model-prose-consistency.mjs` measures recoverable part bounds, named part faces, wall gaps, and polygonal tube clearance directly from model prose.
+
 The installed `automovie` CLI separately provides Markdown TOC maintenance, external-asset inspection, and capability routes. Read its local help before invoking a command. These operations do not authorize a project state store.
 
 ## Visual work

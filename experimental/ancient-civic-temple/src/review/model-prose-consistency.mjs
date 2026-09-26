@@ -4,6 +4,7 @@ import { occupancyUnionRows } from "./model-occupancy-union.mjs";
 import { modelSections } from "./model-tessellation-census.mjs";
 import { implicitWallContactRows } from "./model-wall-contact.mjs";
 import { tubeWallClearanceRows } from "./model-tube-clearance.mjs";
+import { partContactRows } from "./model-part-contact.mjs";
 
 const root = new URL("../../docs/models/", import.meta.url);
 
@@ -136,7 +137,7 @@ export const declaredBoundRows = (id, body) => {
 };
 
 export const checkModelProseConsistency = () => {
-  const equations = [], ranges = [], bounds = [], unions = [], wallContacts = [], tubeContacts = [];
+  const equations = [], ranges = [], bounds = [], unions = [], wallContacts = [], tubeContacts = [], partContacts = [];
   const files = readdirSync(root).filter((file) => file.endsWith(".md")).sort((a, b) => a.localeCompare(b));
   for (const file of files) {
     const source = readFileSync(new URL(file, root), "utf8");
@@ -148,6 +149,7 @@ export const checkModelProseConsistency = () => {
       unions.push(...occupancyUnionRows(id, section.body));
       wallContacts.push(...implicitWallContactRows(id, section.body));
       tubeContacts.push(...tubeWallClearanceRows(id, section.body));
+      partContacts.push(...partContactRows(id, section.body));
     }
   }
   const failures = [
@@ -157,10 +159,11 @@ export const checkModelProseConsistency = () => {
     ...unions.filter((row) => !row.pass).map((row) => `${row.id}: ${row.axis} ${row.union}m differs from occupancy box ${row.box}m`),
     ...wallContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.part} back Z=${row.back}m misses the wall datum`),
     ...tubeContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.kind} measured ${row.measured}m contradicts prose`),
+    ...partContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.parts} do not touch on ${row.axis}`),
   ];
-  console.log(`model prose consistency: ${equations.length} dimensional equations, ${ranges.length} explicit axis ranges, ${bounds.length} dimension/box relations, ${unions.length} part bounds/union rows, ${wallContacts.length} wall contacts, ${tubeContacts.length} tube contacts, ${failures.length} failures`);
+  console.log(`model prose consistency: ${equations.length} dimensional equations, ${ranges.length} explicit axis ranges, ${bounds.length} dimension/box relations, ${unions.length} part bounds/union rows, ${wallContacts.length} wall contacts, ${tubeContacts.length} tube contacts, ${partContacts.length} part contacts, ${failures.length} failures`);
   for (const failure of failures) console.error(failure);
-  return { equations, ranges, bounds, unions, wallContacts, tubeContacts, failures };
+  return { equations, ranges, bounds, unions, wallContacts, tubeContacts, partContacts, failures };
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1])

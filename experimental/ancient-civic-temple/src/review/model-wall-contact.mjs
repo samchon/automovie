@@ -12,7 +12,7 @@ export const implicitWallContactRows = (id, body) => {
   for (const clause of clauses) {
     const face = clause.match(/(.+?)의 뒷면(?:\(Z=([\d.]+)\))?[^\n]*?벽과 (닿|([\d.]+)m 떨어)/);
     if (!face) continue;
-    const group = face[1].split(/[.]/).at(-1);
+    const group = face[1].split(/[.]/).at(-1) ?? "";
     const isTouch = face[3] === "닿";
     const expected = isTouch ? 0 : Number(face[4]);
     let named = parts.filter(({ key, noun }) => {
