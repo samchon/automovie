@@ -11,6 +11,9 @@
  * Output: the room record, its wood floor finish and the front partition.
  */
 import { PALETTE } from "../palette";
+import { FAMILY_REAR_WINDOW } from "../envelope/rear";
+import { FAMILY_RIGHT_WINDOW } from "../envelope/right";
+import { MAIN } from "../building";
 import {
   box,
   door,
@@ -59,6 +62,8 @@ const COMMON: IRoomSpace = {
   outline: box([-5.5, 5.5], [-10.45, -6.2]),
   floor: PALETTE.woodFloor,
   reservations: [
+    { id: "family-rear-curtain", kind: "fixture", x: [FAMILY_REAR_WINDOW.from - 0.1, FAMILY_REAR_WINDOW.to + 0.1], z: [MAIN.inner.z[0], MAIN.inner.z[0] + 0.12], y: [FLOOR + 0.1, FAMILY_REAR_WINDOW.top + 0.12] },
+    { id: "family-right-curtain", kind: "fixture", x: [MAIN.inner.x[1] - 0.12, MAIN.inner.x[1]], z: [FAMILY_RIGHT_WINDOW.from - 0.1, FAMILY_RIGHT_WINDOW.to + 0.1], y: [FLOOR + 0.1, FAMILY_RIGHT_WINDOW.top + 0.12] },
     // common-kitchen-wall-reservation. The L corner X = [-5.50, -4.85],
     // Z = [-10.45, -9.80] is counted once, in the back band; the left band
     // excludes the range plan Z = [-9.50, -8.70].
@@ -97,7 +102,8 @@ const COMMON: IRoomSpace = {
     { id: "common-family-rug", kind: "covering", x: [3, 4.55], z: [-8.55, -6.85], y: [FLOOR, FLOOR + 0.008] },
     // common-clear-routes.
     { id: "common-main-route-right", kind: "route", x: [2.1, 3.07], z: [-9.25, -6.2] },
-    { id: "common-main-route-back", kind: "route", x: [-1.5, 3.07], z: [-10.45, -9.25] },
+    { id: "common-main-route-back", kind: "route", x: [-1.5, 3.07], z: [MAIN.inner.z[0] + 0.12, -9.25] },
+    { id: "common-garden-door-approach", kind: "route", x: [-1.5, FAMILY_REAR_WINDOW.from - 0.1], z: [MAIN.inner.z[0], MAIN.inner.z[0] + 0.12] },
     { id: "common-kitchen-route", kind: "route", x: [-4.85, -0.35], z: [-9.8, -8.7] },
   ],
 };

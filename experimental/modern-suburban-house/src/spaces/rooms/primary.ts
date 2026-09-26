@@ -23,6 +23,7 @@ import {
   type IRoomSpace,
 } from "./shared";
 import { floorOf } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/primary.md The hall-primary-door void follows the partition assigned to primary.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-primary-door interval remains with primary while its adjacent room receives the span.
@@ -43,8 +44,8 @@ const PRIMARY: IRoomSpace = {
   owner: "rooms/primary.ts",
   storey: "upper-storey",
   outline: [
-    { x: -5.5, z: -4.71 },
-    { x: -3.35, z: -4.71 },
+    { x: -5.5, z: STAIR_OPENING.guardBack },
+    { x: -3.35, z: STAIR_OPENING.guardBack },
     { x: -3.35, z: -6.06 },
     { x: 0.75, z: -6.06 },
     { x: 0.75, z: -10.45 },
@@ -99,7 +100,7 @@ export const buildPrimary = (): IRoomBuild => ({
       owner: PRIMARY.owner,
       storey: "upper-storey",
       axis: "x",
-      across: [-4.71, -4.56],
+      across: [STAIR_OPENING.guardBack, STAIR_OPENING.back],
       along: [-5.5, -3.35],
     }),
     partition({
@@ -108,7 +109,7 @@ export const buildPrimary = (): IRoomBuild => ({
       storey: "upper-storey",
       axis: "z",
       across: [-3.35, -3.2],
-      along: [-5.91, -4.71],
+      along: [-5.91, STAIR_OPENING.guardBack],
     }),
     partition({
       id: "primary-hall-partition",

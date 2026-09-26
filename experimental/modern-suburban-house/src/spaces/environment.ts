@@ -51,7 +51,8 @@ import { FRONT_WALK } from "./site/front-walk";
 import { SIDE_WALK } from "./site/side-walk";
 import { LOWER_LANDING } from "./site/terrace";
 import { PORCH_STEP_BACK_Z, PORCH_STEP_CENTRE_X } from "./porch";
-import { STAIR_OPENING } from "./stair";
+import { STAIR_LANDING_STATION, STAIR_OPENING, STAIR_ROUTE, STAIR_STEPS } from "./stair";
+import { COAT_STORAGE } from "./rooms/entry";
 import { ZONE_HEAD_CLEARANCE, type IExteriorZone } from "./site/zone";
 import type { IHousePart, IPlanPoint } from "./solids";
 import { CEILING_RESERVATION, GROUND_LAYERS, STOREYS } from "./storeys";
@@ -207,6 +208,28 @@ const boundsOf = (parts: readonly IHousePart[]): IBox => {
   return { x: [lo[0]!, hi[0]!], y: [lo[1]!, hi[1]!], z: [lo[2]!, hi[2]!] };
 };
 
+/** An actual solid-mesh witness, so a wall's bounding box cannot hide an opening. */
+const containsMeshPoint = (part: IHousePart, point: IAutoMovieVector3): boolean => {
+  const mesh = part.mesh;
+  if (mesh.indices === null) return false;
+  const hits: number[] = [];
+  for (let i = 0; i < mesh.indices.length; i += 3) {
+    const v = [0, 1, 2].map((k) => {
+      const at = 3 * mesh.indices![i + k]!;
+      return { x: mesh.positions[at]!, y: mesh.positions[at + 1]!, z: mesh.positions[at + 2]! };
+    });
+    const [a, b, c] = v as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
+    const d = (b.z - c.z) * (a.x - c.x) + (c.x - b.x) * (a.z - c.z);
+    if (Math.abs(d) < 1e-10) continue;
+    const u = ((b.z - c.z) * (point.x - c.x) + (c.x - b.x) * (point.z - c.z)) / d;
+    const w = ((c.z - a.z) * (point.x - c.x) + (a.x - c.x) * (point.z - c.z)) / d;
+    if (u < -1e-7 || w < -1e-7 || u + w > 1 + 1e-7) continue;
+    const y = u * a.y + w * b.y + (1 - u - w) * c.y;
+    if (y > point.y + 1e-7 && !hits.some((old) => Math.abs(old - y) < 1e-6)) hits.push(y);
+  }
+  return hits.length % 2 === 1;
+};
+
 /** Quarter turn about world Y taking a face's local +X to world +Z (walls along Z). */
 const TO_Z_AXIS = { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
 
@@ -217,26 +240,6 @@ const openingKind = (owner: string, id: string): "door" | "window" | "opening" =
   if (id.endsWith("-opening")) return "opening";
   throw new Error(`${owner}: void "${id}" names no door, window or opening`);
 };
-
-/** Route of the one stair connector (02 stair-reservation, stair-connector-handoff). */
-const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
-  { x: -1.225, y: STOREYS.groundFloor, z: -0.85 },
-  { x: -1.225, y: STOREYS.groundFloor, z: -1.45 },
-  { x: -1.225, y: 1.36, z: -3.41 },
-  { x: -1.225, y: 1.36, z: -3.985 },
-  { x: -0.65, y: 1.36, z: -3.985 },
-  {
-    x: STAIR_OPENING.east,
-    y: STOREYS.upperFloor,
-    z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2,
-  },
-  {
-    x: STAIR_OPENING.east + 0.6,
-    y: STOREYS.upperFloor,
-    z: (STAIR_OPENING.back + STAIR_OPENING.turnZ) / 2,
-  },
-];
-const STAIR_LANDING_STATION = 3;
 
 const length = (route: readonly IAutoMovieVector3[], upTo: number): number => {
   let sum = 0;
@@ -486,7 +489,9 @@ export const checkConnectors = (environment: IAutoMovieBuiltEnvironment): void =
  * @evidence obligations/design/space-sources.md#space-source-invalid-topology Unmapped part owners, invalid outlines, disconnected openings, or engine validation failures throw with concrete paths.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The handoff parent specifies the house/site/storey tree and geometric observations; assembly did not need a new room or route.
  */
-export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment => {
+export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieBuiltEnvironment & {
+  pendingMapGround: { parts: string[]; zones: string[] };
+} => {
   const site = boundsOf(house.parts);
   const top = boundsOf(
     house.parts.filter((p) => OWNER_SPACE[p.owner] === "house"),
@@ -524,13 +529,13 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
       kind: "stair",
       parent: "ground-storey",
       cells: [
-        cell("main-stair/lower-flight", { x: [STAIR_OPENING.west, STAIR_OPENING.turnX], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [STAIR_OPENING.back, -1.45] }),
+        cell("main-stair/lower-flight", { x: [STAIR_OPENING.west, STAIR_OPENING.turnX], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_STEPS.lowerStartZ] }),
         // Under treads 7-9 the entry coat closet (entry-coat-storage) takes the volume up to its top.
-        cell("main-stair/upper-flight", { x: [STAIR_OPENING.turnX, 1.03], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_OPENING.turnZ] }),
-        cell("main-stair/upper-flight-over-closet", { x: [1.03, STAIR_OPENING.east], y: [2.15, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_OPENING.turnZ] }),
+        cell("main-stair/upper-flight", { x: [STAIR_OPENING.turnX, COAT_STORAGE.backWallX], y: [STOREYS.groundFloor, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_OPENING.turnZ] }),
+        cell("main-stair/upper-flight-over-closet", { x: [COAT_STORAGE.backWallX, STAIR_OPENING.east], y: [COAT_STORAGE.top, STOREYS.upperCeiling], z: [STAIR_OPENING.back, STAIR_OPENING.turnZ] }),
         // The floor opening runs on to the front wall (02 stair-floor-opening): above the
         // entry ceiling the void X = [-1.80, -0.65], Z = [-1.45, -0.25] is stair space too.
-        cell("main-stair/front-void", { x: [STAIR_OPENING.west, STAIR_OPENING.turnX], y: [STOREYS.groundCeiling, STOREYS.upperCeiling], z: [-1.45, STAIR_OPENING.front] }),
+        cell("main-stair/front-void", { x: [STAIR_OPENING.west, STAIR_OPENING.turnX], y: [STOREYS.groundCeiling, STOREYS.upperCeiling], z: [STAIR_STEPS.lowerStartZ, STAIR_OPENING.front] }),
       ],
     },
   ];
@@ -543,14 +548,16 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     });
   const surfaces: IAutoMovieBuiltSurface[] = [];
   for (const zone of house.zones) {
-    const patches = zone.patches ?? [{ outline: zone.outline, anchor: zone.anchor, rampTo: zone.rampTo }];
+    const patches: NonNullable<IExteriorZone["patches"]> = zone.patches ?? [{ outline: zone.outline, anchor: zone.anchor, rampTo: zone.rampTo }];
     spaces.push({
       id: zone.id,
       kind: "exterior",
       // Every exterior zone of the route table sits on the ground storey (05, site-access-interface).
       parent: "ground-storey",
       cells: patches.flatMap((patch, j) => {
-        const heights = patch.rampTo === null ? [patch.anchor.y] : [patch.anchor.y, patch.rampTo.y];
+        const heights = patch.height?.kind === "heightfield"
+          ? patch.height.samples
+          : patch.rampTo === null ? [patch.anchor.y] : [patch.anchor.y, patch.rampTo.y];
         const y: [number, number] = [Math.min(...heights), Math.max(...heights) + ZONE_HEAD_CLEARANCE];
         return rectangles(zone.owner, patch.outline).map((r, i) => cell(`${zone.id}/${j}/${i}`, { x: r.x, y, z: r.z }));
       }),
@@ -564,8 +571,9 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
             : `${zone.id}-ground-surface-${j}`,
           kind: patch.rampTo === null ? "platform" : "ramp",
           polygon: patch.outline.map((q) => ({ x: q.x, y: 0, z: q.z })),
-          anchor: patch.anchor,
-          rampTo: patch.rampTo,
+          ...(patch.height === undefined
+            ? { anchor: patch.anchor, rampTo: patch.rampTo }
+            : { height: patch.height }),
         },
       }),
     );
@@ -610,6 +618,8 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
   const inner = spaces.filter(
     (s) => s.kind === "room" || s.kind === "stair" || s.kind === "storage",
   );
+  const junctionBodies = house.parts.filter((p) => p.role === "partition" || p.role === "floor")
+    .map((p) => ({ part: p, box: boundsOf([p]) }));
   for (const p of house.parts) {
     const face = p.wall;
     if (face === undefined) continue;
@@ -617,13 +627,26 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     const segments = segmentsOf(inner, face);
     const idOf = (k: number): string => `${p.id}/${segments[k]!.sides.join("|")}/${k}`;
     segments.forEach((seg, k) => {
+      let kind: string = p.role;
+      if (p.role === "partition" && seg.sides.includes("house-site")) {
+        const u = (seg.u[0] + seg.u[1]) / 2;
+        const y = (seg.y[0] + seg.y[1]) / 2;
+        const outward = seg.sides[0] === "house-site" ? -1 : 1;
+        const across = (face.across[0] + face.across[1]) / 2 + outward * ((face.across[1] - face.across[0]) / 2 + 0.05);
+        const witness = face.axis === "x" ? { x: u, y, z: across } : { x: across, y, z: u };
+        const other = junctionBodies.find(({ part, box }) => part.id !== p.id &&
+          ["x", "y", "z"].every((axis) => {
+            const range = box[axis as keyof IBox];
+            const value = witness[axis as keyof typeof witness];
+            return value >= range[0] - 1e-6 && value <= range[1] + 1e-6;
+          }) && containsMeshPoint(part, witness));
+        if (other === undefined) throw new Error(`${p.id}: unowned interior partition gap at ${JSON.stringify(witness)}`);
+        kind = other.part.role === "floor" ? "floor-junction" :
+          p.id.startsWith("upper-linen-") || other.part.id.startsWith("upper-linen-") ? "storage-enclosure" : "partition-junction";
+      }
       boundaries.push({
         id: idOf(k),
-        kind: p.role === "partition" && seg.sides.includes("house-site")
-          ? p.id.startsWith("upper-linen-")
-            ? "storage-enclosure"
-            : "partition-junction"
-          : p.role,
+        kind,
         spaces: seg.sides.filter((s) => s !== "house-site"),
         elements: [p.id],
         face: {
@@ -692,7 +715,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     clearHeight: 2.0,
     elements: house.parts.filter((p) => p.owner === "stair.ts").map((p) => p.id),
   };
-  const environment: IAutoMovieBuiltEnvironment = {
+  const environment: IAutoMovieBuiltEnvironment & { pendingMapGround: { parts: string[]; zones: string[] } } = {
     version: 1,
     id: "modern-suburban-house",
     units: "meter",
@@ -706,6 +729,10 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
     connectors: [stair, ...exteriorConnectors(house)],
     surfaces,
     walkable: surfaces.map((s) => s.surface.id),
+    pendingMapGround: {
+      parts: house.parts.filter((p) => p.pendingMapGround === "map-ground-pending").map((p) => p.id),
+      zones: house.zones.filter((z) => z.pendingMapGround === "map-ground-pending").map((z) => z.id),
+    },
   };
   const validation = validateBuiltEnvironment({ environment });
   if (validation.success === false)

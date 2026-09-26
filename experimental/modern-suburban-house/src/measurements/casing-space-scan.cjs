@@ -8,12 +8,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "../..");
-const roomPath = path.join(root, "src/spaces/rooms");
-const rooms = fs.readdirSync(roomPath).filter((f) => f.endsWith(".ts"));
-const sources = rooms.map((file) => ({
-  file,
-  text: fs.readFileSync(path.join(roomPath, file), "utf8"),
-}));
 const modelSource = fs.readFileSync(
   path.join(root, "docs/models/03-interior-doors.md"),
   "utf8",
@@ -208,16 +202,9 @@ const leafThickness = Number(/문짝 두께를\s*(0\.\d+) m/.exec(modelBody)?.[1
 if (![jambInset, leafThickness].every(Number.isFinite)) throw new Error("Cannot read shared door jamb and leaf thickness");
 /** @type {{ id:string;x:Span;z:Span;routeHits:string[];obstructionHits:string[] }[]} */
 const openLeaves = [];
-/** @param {Span} x @param {Span} z @param {string} source */
-function insideRoom(x, z, source) {
-  const boxMatch = /outline:\s*box\(\[([^\]]+)\],\s*\[([^\]]+)\]\)/.exec(
-    source,
-  );
-  if (boxMatch) return subset(x, pair(boxMatch[1])) && subset(z, pair(boxMatch[2]));
-  const poly = /outline:\s*\[([\s\S]*?)\],\s*floor:/.exec(source)?.[1];
-  if (!poly) return false;
-  const points = [...poly.matchAll(/\{\s*x:\s*(-?\d+(?:\.\d+)?),\s*z:\s*(-?\d+(?:\.\d+)?)\s*\}/g)]
-    .map((m) => [Number(m[1]), Number(m[2])]);
+/** @param {Span} x @param {Span} z @param {readonly {x:number;z:number}[]} outline */
+function insideRoom(x, z, outline) {
+  const points = outline.map((point) => [point.x, point.z]);
   if (points.length < 3) return false;
   const xs = [...new Set([x[0], x[1], ...points.map((p) => p[0]).filter((v) => v > x[0] && v < x[1])])].sort(
     (a, b) => a - b,
@@ -261,11 +248,11 @@ for (const door of doors) {
   const z = /** @type {Span} */ (/** @type {unknown} */ (openAxis === "z"
     ? open
     : side));
-  const roomText = sources.find((source) => source.file === row.roomFile)?.text;
-  if (!roomText) failures.push(
+  const room = house.spaces.find((space) => path.basename(space.owner) === row.roomFile);
+  if (!room) failures.push(
     `${door.id}: no measured room source at ${row.roomFile}`,
   );
-  else if (!insideRoom(x, z, roomText))
+  else if (!insideRoom(x, z, room.outline))
     failures.push(
       `${door.id}: open leaf outside its reviewed room outline x=${x} z=${z}`,
     );

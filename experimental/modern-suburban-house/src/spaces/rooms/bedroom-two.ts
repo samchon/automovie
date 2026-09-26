@@ -9,6 +9,8 @@
  * junction (07 interior-boundary-junctions).
  */
 import { PALETTE } from "../palette";
+import { FRONT_WINDOWS } from "../envelope/front-windows";
+import { MAIN } from "../building";
 import {
   box,
   door,
@@ -20,6 +22,7 @@ import {
   type IRoomSpace,
 } from "./shared";
 import { floorOf } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-two.md The hall-bedroom-two-door void follows the partition assigned to bedroom-two.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-two-door interval remains with bedroom-two while its adjacent room receives the span.
@@ -39,10 +42,11 @@ const BEDROOM_TWO: IRoomSpace = {
   id: "bedroom-two",
   owner: "rooms/bedroom-two.ts",
   storey: "upper-storey",
-  outline: box([-5.5, -1.95], [-4.56, -0.25]),
+  outline: box([-5.5, -1.95], [STAIR_OPENING.back, -0.25]),
   floor: PALETTE.carpet,
   // bedroom-two.md#bedroom-two-furniture-use; heights above the upper floor (+3.06).
   reservations: [
+    { id: "bedroom-two-front-curtain", kind: "fixture", x: [FRONT_WINDOWS.bedroomTwo.from - 0.1, FRONT_WINDOWS.bedroomTwo.to + 0.1], z: [MAIN.inner.z[1] - 0.12, MAIN.inner.z[1]], y: [FLOOR + 0.1, FRONT_WINDOWS.bedroomTwo.top + 0.12] },
     { id: "bedroom-two-bed", kind: "furniture", x: [-5.25, -4.1], z: [-4.5, -2.35], y: [FLOOR, FLOOR + 0.95] },
     { id: "bedroom-two-nightstand", kind: "furniture", x: [-3.95, -3.5], z: [-4.5, -4.05], y: [FLOOR, FLOOR + 1.05] },
     // X from the left inner face (-5.50) to -4.90.
@@ -72,14 +76,14 @@ export const buildBedroomTwo = (): IRoomBuild => ({
       BEDROOM_TWO,
       "hall-bedroom-two-door",
       [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to],
-      [-4.635, -4.56],
+      [STAIR_OPENING.back - 0.075, STAIR_OPENING.back],
     ),
     partition({
       id: "bedroom-two-hall-partition",
       owner: BEDROOM_TWO.owner,
       storey: "upper-storey",
       axis: "x",
-      across: [-4.71, -4.56],
+      across: [STAIR_OPENING.guardBack, STAIR_OPENING.back],
       along: [-3.35, -1.95],
       holes: [DOOR_HALL_BEDROOM_TWO_DOOR],
     }),

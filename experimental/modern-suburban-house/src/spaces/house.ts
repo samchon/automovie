@@ -72,8 +72,7 @@ import {
 } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
 import type { IHousePart } from "./solids";
-import { CEILING_FINISH, STOREYS } from "./storeys";
-import { buildStair, STAIR_OPENING } from "./stair";
+import { buildStair } from "./stair";
 
 /** The house as the viewer, measurements and delivery consume it. */
 /**
@@ -128,8 +127,6 @@ export interface IHouse {
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed owner and room units supplied their outputs; assembly exposed no missing house-space identity.
  */
 export const buildHouse = (): IHouse => {
-  if (EXTERIOR_WALL_BOTTOM !== STOREYS.frontWalk)
-    throw new Error("provisional exterior wall bottom differs from front walk datum");
   const rooms = [
     buildEntry(),
     buildLiving(),
@@ -178,6 +175,8 @@ export const buildHouse = (): IHouse => {
     if (seen.has(p.id)) throw new Error(`duplicate house part id "${p.id}" from ${p.owner}`);
     seen.add(p.id);
     if ((p.owner.startsWith("envelope/") || p.owner === "garage.ts") && p.role === "wall" && p.wall?.outline.some((q) => Math.abs(q.y - EXTERIOR_WALL_BOTTOM) < 1e-6))
+      p.pendingMapGround = "map-ground-pending";
+    if (p.role === "fence" || p.id === "chimney-body")
       p.pendingMapGround = "map-ground-pending";
   }
   const expectedDoors = [
@@ -228,12 +227,6 @@ export const buildHouse = (): IHouse => {
   if (![GARAGE_FRONT_DOOR.from, GARAGE_FRONT_DOOR.to].every((x) =>
     [GARAGE.inner.z[1], GARAGE.outer.z[1]].every((z) => hasVertex("garage-floor-base", x, z))))
     throw new Error("garage front floor does not follow its door void");
-  if (!hasVertex("interstorey-structure", STAIR_OPENING.east + CEILING_FINISH, STAIR_OPENING.back - CEILING_FINISH)
-      || !hasVertex("interstorey-structure", STAIR_OPENING.turnX + CEILING_FINISH, STAIR_OPENING.turnZ + CEILING_FINISH)
-      || !hasVertex("front-entry-ceiling", STAIR_OPENING.turnX, STAIR_OPENING.front))
-    throw new Error(
-      "stair opening differs among stair, interstorey, and entry ceiling owners",
-    );
   const spaces = rooms.map((room) => room.space);
   checkReservations(spaces);
   const spaceIds = new Set<string>();

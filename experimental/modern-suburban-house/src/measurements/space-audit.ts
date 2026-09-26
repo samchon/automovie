@@ -6,6 +6,7 @@ import { inspectAutoMovieMeshTopology } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { buildHouseEnvironment } from "../spaces/environment";
+import { verifyExteriorSupport } from "./exterior-support";
 import { buildHouse } from "../spaces/house";
 import { deriveHouseObservations } from "../spaces/observations";
 import { verifyBoundarySegments } from "./boundary-audit";
@@ -91,6 +92,7 @@ export const auditHouseGeometry = () => {
   verifyBlindRecessFixtures();
   const house = buildHouse();
   const environment = buildHouseEnvironment(house);
+  const exteriorSupportSamples = verifyExteriorSupport(house, environment);
   const observations = deriveHouseObservations(environment, house);
   const parts = house.parts.map(measurePart);
   return {
@@ -103,6 +105,7 @@ export const auditHouseGeometry = () => {
     connectorCount: environment.connectors.length,
     observationCount: observations.observations.length,
     observationFailures: observations.failures,
+    exteriorSupportSamples,
     roofOverlap: auditHouseRoofOverlaps(),
   };
 };

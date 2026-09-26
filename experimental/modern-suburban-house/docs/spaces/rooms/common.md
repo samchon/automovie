@@ -164,10 +164,10 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 서비스 개구부에서 정원문까지의 주 경로 두 띠, 가족실 분기, 거실에서 주방을 거쳐 합류하는 후면 띠와 필요한 관찰을 맡는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 service-common-opening에서 garden-door 대기로 꺾이는 오른쪽·뒤쪽 띠, 오른쪽 띠의 가족실 분기, living-common-opening에서 합류하는 후면 띠와 관찰 목록이 각각 적혀 누락이 없음을 확인했다.
-@evidence principles/core/common.md#substantive-completion 오른쪽 띠 X = 2.10 m부터, 뒤쪽 띠 X = -1.50 m부터, 주방 후면 띠 X = [-4.85, -0.35], Z = [-9.80, -8.70] m를 정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 오른쪽 띠 X = 2.10 m~개구부 끝·Z = -9.25 m~앞 안쪽 면, 뒤쪽 띠 X = -1.50 m~같은 끝·후벽~Z = -9.25 m, 후면 띠 X = [-4.85, -0.35]·Z = [-9.80, -8.70]이 정해져 경로를 발명하지 않아도 됨을 확인했다.
-@evidence principles/core/common.md#declared-basis 띠의 끝은 service-common-opening과 garden-door 안쪽 대기, 공용부 벽 안쪽 면에서 받고 0.90 m 목표는 use-profile에서 받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 띠 끝을 #common-room-plan의 개구부 오른쪽 끝·앞/후벽 안쪽 면과 rear.md#garden-door 대기에서, 0.90 m 목표를 use-profile 링크에서 받아 각 경계값의 출처를 지목할 수 있음을 확인했다.
+@evidence principles/core/common.md#substantive-completion 오른쪽 띠 X = 2.10 m부터, 뒤쪽 띠 X = -1.50 m부터, 창 커튼 앞의 뒤쪽 띠를 Z = -10.33 m에서 나누고 정원문 접근을 X = 2.65 m에서 끝내며, 주방 후면 띠 X = [-4.85, -0.35], Z = [-9.80, -8.70] m를 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 오른쪽 띠, 뒤쪽 띠와 정원문 접근 띠, 주방 후면 띠의 좌표를 본문에서 다시 대조했고 가족실 후면 커튼 X = 2.65 m부터의 점유와 후벽 접촉 구간이 겹치지 않음을 확인했다.
+@evidence principles/core/common.md#declared-basis 띠의 끝은 service-common-opening과 garden-door 안쪽 대기, 공용부 벽 안쪽 면에서 받고 커튼 앞 절단선은 selected-window-curtain-strips에서, 0.90 m 목표는 use-profile에서 받는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 경로의 개구부·벽·정원문 기준과 0.90 m 사용 목표를 원래 링크에서 받으며, 후벽에 닿는 부분의 X = 2.65 m는 family-rear-window 커튼 띠의 왼쪽 경계에서 받음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게"를 service-common-opening에서 garden-door 안쪽 대기로 꺾이는 오른쪽·뒤쪽 두 띠와 living-common-opening에서 벽 기구와 섬 사이로 들어가 후면 띠로 합류하는 별도 주방 경로로 만든다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 유일 통로 금지에 대해 garden-door로 꺾이는 두 띠와 living-common-opening에서 벽 기구·섬 사이로 들어 X = [-4.85, -0.35] 후면 띠로 합류하는 별도 주방 경로라는 경로 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 같은 kitchen-dining-family 안의 경로이며 벽/문/새 복도를 추가하지 않고 두 띠가 꺾여 정원문 대기에 닿는다.
@@ -177,7 +177,7 @@
 @evidence principles/design/spaces.md#space-verification-address 닫힌/열린 기구·의자 사용 점유를 함께 놓은 평면, 섬과 벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입의 왕복 시야를 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌/열린 기구·의자 점유 평면, 섬·벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입 왕복 시야를 반증 관찰로 들고 좌표 산술을 도달성 판정으로 바꾸지 않음을 확인했다.
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
-@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 뒤쪽 띠 후벽~Z = -9.25의 거친 폭 1.20 m에서 벽 걸레받이 돌출 0.015 m를 최대 양쪽까지 빼도 보수적 순폭 0.94 m·1.17 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 양방향 이동은 실제 관찰 항목으로 남긴다.
+@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 커튼 앞 뒤쪽 띠 Z = [-10.33, -9.25]의 거친 폭 1.08 m에서 걸레받이 돌출 0.015 m를 최대 양쪽까지 빼도 보수적 순폭 0.94 m·1.05 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 정원문 쪽 짧은 연결은 X 폭 4.15 m 안에서 방향을 바꾸며, 양방향 이동은 실제 관찰 항목으로 남긴다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
 @evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.
@@ -186,8 +186,8 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room의 유일 통로 금지와 use-profile 바구니 점유체를 대조해 식탁 끝 좌석 바깥 끝과 맞닿는 X = 2.10 띠와 뒤쪽 좌석 뒤 Z = -9.25 띠가 가구 예약 밖에 놓여 부모 수정이 필요 없음을 확인했다.
 -->
 
-같은 kitchen-dining-family 내부의 경로이며 벽/문/새 복도를 추가하지 않는다. [service-common-opening](#common-room-plan)에서 정원으로 가는 주 경로의 오른쪽 띠는 X = 2.10 m부터 그 개구부의 오른쪽 끝까지, Z = -9.25 m부터 공용부 앞쪽 안쪽 면까지다. 뒤쪽 띠는 X = -1.50 m부터 같은 개구부 오른쪽 끝까지, Z는 공용부 후벽 안쪽 면부터 -9.25 m까지다. 두 띠가 꺾여 [garden-door 안쪽 대기](../envelope/rear.md#garden-door)에 닿는다. 대기를 이 경로 위에 별도 바닥으로 겹치지 않는다. 오른쪽 띠에서 가족실 좌석으로 분기한다. 창·문·가구의 손잡이나 사용 점유로 이 띠를 줄이지 않는다.
+같은 kitchen-dining-family 내부의 경로이며 벽/문/새 복도를 추가하지 않는다. [service-common-opening](#common-room-plan)에서 정원으로 가는 주 경로의 오른쪽 띠는 X = 2.10 m부터 그 개구부의 오른쪽 끝까지, Z = -9.25 m부터 공용부 앞쪽 안쪽 면까지다. 뒤쪽 띠는 X = -1.50 m부터 같은 개구부 오른쪽 끝까지, Z = [-10.33, -9.25] m다. 정원문 접근 띠는 X = [-1.50, 2.65], Z = [-10.45, -10.33] m로 후벽에 닿는다. X = 2.65 m는 [family-rear-window 커튼 점유](../06-openings.md#selected-window-curtain-strips)의 왼쪽 경계이므로 두 점유가 겹치지 않는다. 오른쪽 띠와 뒤쪽 띠의 꺾임은 기존 0.97 m 폭을 유지하고 뒤쪽 띠와 정원문 접근 띠가 이어져 [garden-door 안쪽 대기](../envelope/rear.md#garden-door)에 닿는다. 대기를 이 경로 위에 별도 바닥으로 겹치지 않는다. 오른쪽 띠에서 가족실 좌석으로 분기한다. 창·문·가구의 손잡이나 사용 점유로 통과 폭을 줄이지 않는다.
 
 거실에서 주방으로는 [living-common-opening](#common-room-plan) 중 벽 기구와 섬 사이로 들어간다. 기기를 닫은 기준 상태에서 작업면 사이를 따라 후면의 X = [-4.85, -0.35], Z = [-9.80, -8.70] m 띠로 돌아 위 뒤쪽 주 경로에 합류한다. 냉장고가 다른 하부장보다 돌출한 구간은 그 몸체 외곽에서 순폭을 읽는다. 이 후면 띠는 식탁의 긴 변 좌석과 끝 좌석 사이 빈 모서리를 지나며 실제 좌석별 점유를 대조한다. 열린 기기 앞 작업 공간을 다른 사람의 통과 폭으로 중복 계상하지 않는다.
 
-주 경로에서는 [바구니 포함 사용 점유체](../../settings/00-production.md#use-profile)의 양방향 이동과 0.90 m 이상 통로 목표를 확인한다. 오른쪽 띠의 거친 0.97 m에서 벽 쪽 걸레받이 0.015 m를 빼면 최소 0.955 m이고, 뒤쪽 띠의 거친 1.20 m에서 후벽 걸레받이 0.015 m를 빼면 최소 1.185 m다. 다른 쪽에도 노출 걸레받이가 생기는 구간은 다시 0.015 m를 빼며 두 경우 모두 0.90 m보다 크다. 주방의 열린 기기 작업은 해당 H2의 별도 사용 자세로 검사한다. 필요한 관찰은 바닥 평면에 닫힌/열린 기구·의자 사용 점유를 함께 놓은 대조, 섬과 벽 주방의 단면, 정원문/의자/후면 띠 단면, 두 진입에서 각 기능과 정원으로 갔다 돌아오는 시야다. 외곽 좌표의 산술을 실제 충돌·도달성 판정으로 바꾸지 않는다. 전체 방의 threshold·코너·중심 방향과 03의 추가 질문은 [관찰 owner](../04-observations.md#spatial-observation-derivation)가 유지하며 모든 실제 순폭·경로·프레임은 unverified다.
+주 경로에서는 [바구니 포함 사용 점유체](../../settings/00-production.md#use-profile)의 양방향 이동과 0.90 m 이상 통로 목표를 확인한다. 오른쪽 띠의 거친 0.97 m에서 벽 쪽 걸레받이 0.015 m를 빼면 최소 0.955 m이고, 커튼 앞 뒤쪽 띠의 거친 1.08 m에서 노출 걸레받이 0.015 m를 양쪽에 빼면 최소 1.05 m다. 정원문으로 꺾이는 짧은 띠는 이동 방향에 수직인 X 폭이 4.15 m이며 커튼 점유의 왼쪽에서 끝난다. 주방의 열린 기기 작업은 해당 H2의 별도 사용 자세로 검사한다. 필요한 관찰은 바닥 평면에 닫힌/열린 기구·의자 사용 점유를 함께 놓은 대조, 섬과 벽 주방의 단면, 정원문/의자/후면 띠 단면, 두 진입에서 각 기능과 정원으로 갔다 돌아오는 시야다. 외곽 좌표의 산술을 실제 충돌·도달성 판정으로 바꾸지 않는다. 전체 방의 threshold·코너·중심 방향과 03의 추가 질문은 [관찰 owner](../04-observations.md#spatial-observation-derivation)가 유지하며 모든 실제 순폭·경로·프레임은 unverified다.

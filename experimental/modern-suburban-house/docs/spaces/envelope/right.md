@@ -12,8 +12,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 main-mass의 '더 낮은 지붕과 우측을 향하는 박공'을 본문이 단차 벽·본채/차고 두 삼각 벽·차고 지붕 접합 띠로 나눈 것을 대조해 부모에 없는 오른쪽 폐합 분해가 추가됨을 확인했다.
 @evidence principles/design/spaces.md#space-topology 차고 지붕 왼쪽이 본채 공유 벽 바깥에 붙고 청회색 침실은 전면 창을, 욕조 욕실은 차고 후면 돌출 뒤의 측면 창을 쓰는 관계를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 차고 지붕 왼쪽이 공유 벽 바깥에 붙는 접촉, bedroom-three-plan의 전면 창, tub-right-window의 차고 후면 돌출 뒤 배정을 대조해 오른쪽 지붕 주변 인접·접근 관계가 형상 전에 정해짐을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 본채/차고 공유 벽체는 exterior-surface-handoff가 배정한 garage.ts가 소유하고 단차 벽과 앞뒤 외벽의 공통 몸체는 07의 높이별 점유 배정을 따르며 이 파일은 둘 다 다시 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문이 공유 벽체를 exterior-surface-handoff의 garage.ts 소유로, 단차 벽과 앞뒤 외벽 공통 몸체를 exterior-boundary-junctions 높이별 점유로 넘기고 다시 만들지 않는다고 적어 이중 저작이 없음을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 본채/차고 공유 벽은 exterior-surface-handoff의 한 구조 기준을 쓰되 차고 지붕 아래는 garage.ts, 지붕 위 노출 사이딩은 right.ts가 소유하며 단차 벽과 앞뒤 외벽은 07의 높이별 점유를 따른다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 공유 벽의 X = [5.50, 5.75] m 한 기준에서 지붕 아래 몸체와 위 노출 사이딩 몸체의 소유가 갈리고, 맞닿는 높이에서 중복·틈이 없는지 본문과 표를 다시 대조했다.
 @evidence principles/design/spaces.md#space-verification-address 단차의 앞/뒤 끝과 용마루 지점, 두 오른쪽 삼각 벽, 차고 지붕/본채 벽 접촉선 전체를 반증 주소로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 단차 앞/뒤 끝과 용마루 지점, 두 오른쪽 삼각 벽, 차고 지붕/본채 벽 접촉선 전체 검사 주소가 단차 벽·후레싱 주장마다 반증 위치를 주는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#main-mass 본채 오른쪽 끝의 더 낮은 지붕과 우측 박공을 단차 벽과 삼각 벽으로 닫는다.
@@ -28,7 +28,7 @@
 
 [단차 벽과 앞뒤 외벽의 공통 몸체](../07-boundary-assembly.md#exterior-boundary-junctions)는 높이별 점유로 나누고 이 파일이 그 몸체를 다시 만들지 않는다. 남은 단차 구간의 위아래 경계와 본채/차고 박공 벽의 [두께 전체 상단](../roof/00-junctions.md#roof-wall-head-junctions)을 함께 소비한다. 본채 공유 벽 위의 노출 면도 차고 지붕 때문에 생략하지 않는다.
 
-본채 오른쪽 외벽의 박공 삼각 벽은 [낮은 지붕의 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)에 맞춰 닫는다. 차고 오른쪽 외벽도 자기 Gfront/Gback 아래면에서 별도 삼각 벽을 만든다. 각 삼각 벽은 기존 외벽 두께 안에 있고 겹친 삼각 장식판으로 대체하지 않는다. 본채/차고 공유 벽체는 [차고 외곽](../00-building.md#attached-garage-extent)의 X = [5.50, 5.75] m 벽이며 [표면 배정](../03-surface-owners.md#exterior-surface-handoff)대로 `src/spaces/garage.ts`가 소유하고 이 파일이 다시 만들지 않는다.
+본채 오른쪽 외벽의 박공 삼각 벽은 [낮은 지붕의 앞/뒤 아래면](../roof/00-junctions.md#roof-profile-datums)에 맞춰 닫는다. 차고 오른쪽 외벽도 자기 Gfront/Gback 아래면에서 별도 삼각 벽을 만든다. 각 삼각 벽은 기존 외벽 두께 안에 있고 겹친 삼각 장식판으로 대체하지 않는다. 본채/차고 공유 벽체는 [차고 외곽](../00-building.md#attached-garage-extent)의 X = [5.50, 5.75] m 한 기준을 쓴다. 차고 지붕 아래의 문 있는 몸체는 `src/spaces/garage.ts`, 지붕 위의 노출 사이딩 몸체는 `src/spaces/envelope/right.ts`가 맡고 두 몸체는 지붕 아래면에서 맞닿는다.
 
 차고 지붕의 왼쪽은 본채 공유 벽 바깥에 붙는다. 그 접촉 높이는 Gfront/Gback과 같으며, 후레싱이 벽을 따라 오르는 높이는 공간 예약 0.15 m로 택한다. 이 후레싱까지 포함한 접합 띠에는 창틀이나 환기구를 겹치지 않는다. 이 값은 방수 성능의 인증이 아니라 시각·기하 접합의 예약이다. [청회색 침실](../rooms/bedroom-three.md#bedroom-three-plan)의 요구 창은 전면에 있고 차고 위 측면에 창을 억지로 더할 필요는 없다. [욕조 욕실의 측면 창](#tub-right-window)은 차고 후면 돌출보다 뒤에 배정한다.
 
@@ -46,8 +46,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 service-band와 openings가 정하지 않은 방별 창 유무를 본문이 서비스실 무창, 청회색 침실 전면 창, 가족실·욕실·차고 측면 창으로 정한 것을 대조해 부모에 없는 결정임을 확인했다.
 @evidence principles/design/spaces.md#space-topology 공유 벽을 통과하는 가짜 외부 창을 금지하고 오른쪽 창을 실제 외기에 닿는 벽에만 둔다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 '그 구간을 통과하는 가짜 외부 창은 없다'와 차고 뒤 노출 구간·차고 오른쪽 벽에만 둔 세 창 바인딩을 대조해 오른쪽 창의 안팎 연결 관계가 복원됨을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 본채 X = [5.50, 5.75] m와 차고 X = [11.45, 11.70] m 외벽 구간을 각 외곽에서 받고 두 외곽이 공유하는 벽체는 exterior-surface-handoff가 garage.ts에 배정한 것이라 그 구간에 창을 두지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문이 X = [5.50, 5.75] m·X = [11.45, 11.70] m를 각 외곽 링크로 받고 공유 벽체를 exterior-surface-handoff의 garage.ts 몫으로 인용해 오른쪽 창이 재측정 없이 한 owner 값을 소비함을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 본채 X = [5.50, 5.75] m와 차고 X = [11.45, 11.70] m 외벽 구간을 각 외곽에서 받고 공유 벽은 exterior-surface-handoff의 높이별 garage/right owner를 소비하며 그 구간에 창을 두지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문이 두 X 외곽을 링크로 받고 공유 벽의 차고 지붕 아래 garage 몸체와 지붕 위 right 사이딩을 구별해, 오른쪽 창이 어느 높이에도 공유 벽을 관통하지 않음을 대조했다.
 @evidence principles/design/spaces.md#space-verification-address 외벽/방 binding과 지붕/창/모서리 전체의 내외부 프레임을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문의 '실제 외벽/방 binding과 지붕/창/모서리 전체의 내외부 프레임은 unverified' 문장이 세 오른쪽 창의 벽 배정 주장을 반증할 관찰을 지정하는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#openings 창을 배정한 방과 그 창을 품은 외벽이 같아야 한다는 조건으로 공유 벽 뒤 서비스실의 창을 배제한다.
@@ -58,7 +58,7 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 openings의 방-외벽 일치와 service-band의 우측 서비스 띠를 본문의 서비스실 무창 결정에 대입해 service-band가 측면 창을 요구하지 않아 부모 수정 없이 성립함을 확인했다.
 -->
 
-[공통 개구부 인계](../06-openings.md#external-opening-interface)에 따라 본채 오른쪽 창은 [본채 외곽](../00-building.md#main-building-extent)의 외벽 X = [5.50, 5.75] m, 차고 오른쪽 창은 [차고 외곽](../00-building.md#attached-garage-extent)의 외벽 X = [11.45, 11.70] m에 바인딩한다. 두 외곽이 공유하는 벽체는 [표면 배정](../03-surface-owners.md#exterior-surface-handoff)대로 `src/spaces/garage.ts`의 것이므로 그 구간을 통과하는 가짜 외부 창은 없다. 본채 오른쪽 벽의 차고 뒤 노출 구간에는 ground-storey [kitchen-dining-family](../rooms/common.md#common-room-plan)의 [family-right-window](#family-right-window)와 upper-storey [tub-bathroom](../rooms/tub-bath.md#tub-bath-plan)의 [tub-right-window](#tub-right-window)를, 차고 오른쪽 벽에는 ground-storey [garage](../rooms/garage-interior.md#garage-interior-plan)의 [garage-right-window](#garage-right-window)를 바인딩한다.
+[공통 개구부 인계](../06-openings.md#external-opening-interface)에 따라 본채 오른쪽 창은 [본채 외곽](../00-building.md#main-building-extent)의 외벽 X = [5.50, 5.75] m, 차고 오른쪽 창은 [차고 외곽](../00-building.md#attached-garage-extent)의 외벽 X = [11.45, 11.70] m에 바인딩한다. 두 외곽이 공유하는 벽체는 [표면 배정](../03-surface-owners.md#exterior-surface-handoff)대로 차고 지붕 아래는 `src/spaces/garage.ts`, 지붕 위는 `src/spaces/envelope/right.ts`의 것이며 어느 높이에도 그 구간을 통과하는 가짜 외부 창은 없다. 본채 오른쪽 벽의 차고 뒤 노출 구간에는 ground-storey [kitchen-dining-family](../rooms/common.md#common-room-plan)의 [family-right-window](#family-right-window)와 upper-storey [tub-bathroom](../rooms/tub-bath.md#tub-bath-plan)의 [tub-right-window](#tub-right-window)를, 차고 오른쪽 벽에는 ground-storey [garage](../rooms/garage-interior.md#garage-interior-plan)의 [garage-right-window](#garage-right-window)를 바인딩한다.
 
 [본채 우측 서비스 띠](../../settings/10-house.md#service-band)의 서비스실은 공유 벽 때문에 측면 창을 두지 않고 청회색 침실은 자기 전면 창을 사용한다. 실제 외벽/방 binding과 지붕/창/모서리 전체의 내외부 프레임은 unverified다.
 

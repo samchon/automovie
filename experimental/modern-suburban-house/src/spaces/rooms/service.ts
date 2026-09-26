@@ -14,6 +14,7 @@ import { DOOR_SERVICE_LAUNDRY_DOOR } from "./laundry";
 import { DOOR_SERVICE_POWDER_DOOR } from "./powder";
 import { DOOR_SERVICE_COMMON_OPENING } from "./common";
 import { PALETTE } from "../palette";
+import { STAIR_OPENING } from "../stair";
 import {
   doorFloor,
   roomCeiling,
@@ -31,8 +32,8 @@ const SERVICE: IRoomSpace = {
     { x: 3.07, z: -0.25 },
     { x: 3.07, z: -6.05 },
     { x: -1.8, z: -6.05 },
-    { x: -1.8, z: -4.71 },
-    { x: 2.02, z: -4.71 },
+    { x: -1.8, z: STAIR_OPENING.guardBack },
+    { x: 2.02, z: STAIR_OPENING.guardBack },
   ],
   floor: PALETTE.woodFloor,
 };

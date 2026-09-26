@@ -110,10 +110,9 @@ export interface IHousePart {
    */
   wall?: IWallFace;
   /**
-   * @evidence spaces/roof/00-junctions.md A roof part may leave its shared ridge and valley perimeter open while keeping its free eave sides.
-   * @evidence spaces/roof/00-junctions.md Shared roof planes meet along their upper and lower edges without duplicate interior thickness faces.
+   * @evidence spaces/roof/00-junctions.md Shared roof planes meet along upper and lower edges without duplicate interior thickness faces; free outlines retain their side faces.
    * @evidence principles/core/source-units.md#source-scope-preservation The flag records a roof owner's junction choice and does not open other solids.
-   * @evidence principles/core/source-units.md#source-substantive-completion Geometry audit pairs every exposed boundary edge with a coincident roof edge and rejects a missing free-edge face.
+   * @evidence principles/core/source-units.md#source-substantive-completion The flag records roof seam intent, while geometry audit independently checks every exposed boundary edge and rejects a missing free-edge face.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof junction design already disallows side faces on shared edges.
    */
   openSharedEdges?: boolean;

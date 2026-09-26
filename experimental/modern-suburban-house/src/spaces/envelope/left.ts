@@ -49,6 +49,14 @@ export const PRIMARY_LEFT_WINDOW = {
   top: 5.31,
 } as const;
 
+/**
+ * @evidence spaces/envelope/left.md The living room side window owns one rough opening.
+ * @evidence principles/core/source-units.md#source-scope-preservation The room reserves fit-out without moving this facade cut.
+ * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and curtain share the same host span.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The left elevation already fixes this window.
+ */
+export const LIVING_LEFT_WINDOW = { id: "living-left-window", from: -5.5, to: -4.3, bottom: 0.75, top: 2.3 } as const;
+
 /** Emit the left gable wall panels and the chimney. */
 /**
  * @evidence spaces/envelope/left.md This builder emits the left main-wall panels and the single exterior/interior chimney contact.
@@ -86,7 +94,7 @@ export const buildLeft = (): IHousePart[] => {
       { u: back, y: under(back) },
     ],
     holes: [
-      { id: "living-left-window", from: -5.5, to: -4.3, bottom: 0.75, top: 2.3 },
+      LIVING_LEFT_WINDOW,
       PRIMARY_LEFT_WINDOW,
     ],
   });

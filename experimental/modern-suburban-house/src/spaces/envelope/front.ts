@@ -36,6 +36,7 @@ import { block, part, slopedSlab, wallPanel, type IHousePart } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { FRONT_DOOR } from "../rooms/entry";
 import { wallHead } from "./wall-head";
+import { FRONT_WINDOWS } from "./front-windows";
 
 const OWNER = "envelope/front.ts";
 const B = EXTERIOR_WALL_BOTTOM;
@@ -91,14 +92,8 @@ export const buildFront = (): IHousePart[] => {
       { u: GABLE.a, y: mainTop },
     ],
     holes: [
-      { id: "living-front-window", from: -5.1, to: -2.3, bottom: 0.7, top: 2.3 },
-      {
-        id: "bedroom-two-front-window",
-        from: -4.8,
-        to: -2.7,
-        bottom: 3.91,
-        top: 5.31,
-      },
+      FRONT_WINDOWS.living,
+      FRONT_WINDOWS.bedroomTwo,
       {
         id: "stair-front-window",
         from: -1.62,
@@ -106,13 +101,7 @@ export const buildFront = (): IHousePart[] => {
         bottom: 4.11,
         top: 5.21,
       },
-      {
-        id: "bedroom-three-front-window",
-        from: 2.65,
-        to: 4.75,
-        bottom: 3.91,
-        top: 5.31,
-      },
+      FRONT_WINDOWS.bedroomThree,
       FRONT_DOOR,
     ],
   });

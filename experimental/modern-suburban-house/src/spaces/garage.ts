@@ -5,12 +5,12 @@
  * Design owners: `docs/spaces/00-building.md#attached-garage-extent` (outline
  * X = [5.50, 11.70], Z = [-6.70, -0.30] m; one 0.25 m shared wall
  * X = [5.50, 5.75]; inner limit X = [5.75, 11.45], Z = [-6.45, -0.55]),
- * `03-surface-owners.md` (this file owns the shared wall body and the garage
+ * `03-surface-owners.md` (this file owns the shared wall below the garage roof and the garage
  * floor base), `10-ground-floor.md#garage-ground-floor-base` (0.15 m below the
  * finished floor Y = -0.15) and `09-ceiling-assembly.md#garage-ceiling-closure`
- * (ceiling Y = 2.55 m plus the 0.18 m reservation). The shared wall rises to
- * the main building's right low roof underside (07: its upper part continues
- * to the main roof) and carries the `laundry-garage-door` void
+ * (ceiling Y = 2.55 m plus the 0.18 m reservation). The shared wall stops at
+ * the garage roof underside; the exposed siding above belongs to right.ts.
+ * This lower body carries the `laundry-garage-door` void
  * Z = [-4.40, -3.35], Y = [-0.175, 2.20] m owned by the laundry plan (the main
  * ground base and the laundry threshold fill it below Y = 0, 10). The garage
  * floor base also runs through the garage front wall under `garage-front-door`,
@@ -37,11 +37,11 @@ const OWNER = "garage.ts";
 
 /** Emit the main/garage shared wall with the laundry-garage door void. */
 /**
- * @evidence spaces/03-surface-owners.md The garage source emits the one shared wall body and leaves each room's inward face to its room owner.
- * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall has one structural id and the laundry-garage-door void in that body.
- * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and rightRoof underside; its returned part does not duplicate a garage facade.
+ * @evidence spaces/03-surface-owners.md The garage source emits the shared lower wall body and leaves the exposed upper siding to the right elevation.
+ * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall carries the laundry-garage-door void below the garage roof.
+ * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and garageRoof underside; its returned part does not duplicate upper siding.
  * @evidence principles/core/source-units.md#source-substantive-completion wallPanel constructs the sloped top and door hole, and part returns the wall with an interior finish palette.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The surface handoff assigns the shared body and door void here; the imported bounds and roof function sufficed without a second wall owner.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed surface handoff splits the wall at the garage roof: garage retains the door body and right owns exposed siding.
  */
 export const buildGarageSharedWall = (): IHousePart[] => {
   const under = (z: number): number => garageRoof(z);

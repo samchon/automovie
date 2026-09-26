@@ -12,7 +12,7 @@
  * logical space under `house-site` from the ground up to
  * `ZONE_HEAD_CLEARANCE`, and into a standable surface.
  */
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
 import type { IHousePart, IPlanPoint } from "../solids";
 
 /** One outdoor zone of the site. */
@@ -70,7 +70,7 @@ export interface IExteriorZone {
    * @evidence principles/core/source-units.md#source-substantive-completion Each patch supplies an outline and height points for separate cells and surfaces.
    * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The T and side-path designs required a piecewise standing surface missing from the initial source shape.
    */
-  patches?: readonly { outline: readonly IPlanPoint[]; anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null }[];
+  patches?: readonly { outline: readonly IPlanPoint[]; anchor: IAutoMovieVector3; rampTo: IAutoMovieVector3 | null; height?: IAutoMovieHeightRule }[];
   /**
    * @evidence spaces/site/00-access.md Exterior standing volumes remain provisional until map ground and obstacles arrive.
    * @evidence spaces/site/00-access.md#site-local-routes The temporary 2.00 m logical volume carries this marker in output.

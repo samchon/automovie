@@ -12,14 +12,14 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings surface-allocation은 방 내부 완결 면과 접합 owner 선언만 요구하나 본문은 공유 칸막이 몸체를 실 쌍별 source 하나에 두고 안쪽 마감은 03-surface-owners에 남기는 분리를 더했음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 현관과 서비스의 열린 접속과 계단 끝의 복도 도착은 벽 없이 두고 거실/서비스와 공용부 사이는 상인방 아래 void 외의 전면 칸막이를 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 현관-서비스 열린 접속과 upper-hall 계단 도착을 벽 없는 연결로, 거실/서비스-공용부를 상인방 아래 void 외 닫힌 칸막이로 둔 문단을 대조해 연결 edge와 막힌 경계가 메쉬 없이 구별됨을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 garage.ts, 계단 보호/분리는 stair.ts, 외투장·린넨장의 고정 몸체와 void는 entry·upper-hall, 닫힌 문짝·레일은 models/05가 맡는다. boundaries.ts는 경계 계산만 하며 벽 geometry를 소유하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본채/차고 공유 벽·계단 경계·수납 고정 몸체가 00-building·02-stair·rooms/entry·rooms/upper-hall에 남고 닫힌 수납문은 models/05에 있는 본문을 대조했다. boundaries.ts는 벽 geometry를 갖지 않아 같은 몸체를 복제하지 않는다.
+@evidence principles/design/spaces.md#space-boundary-authority 공유 벽의 차고 지붕 아래는 garage.ts, 지붕 위 사이딩은 right.ts, 계단 보호/분리는 stair.ts, 외투장·린넨장의 고정 몸체와 void는 entry·upper-hall, 닫힌 문짝·레일은 models/05가 맡는다. boundaries.ts는 경계 계산만 하며 벽 geometry를 소유하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본채/차고 공유 벽의 높이별 두 owner, 계단 경계, 수납 고정 몸체와 닫힌 수납문의 배정을 00-building·02-stair·rooms/entry·rooms/upper-hall·models/05와 대조했다. boundaries.ts는 벽 geometry를 갖지 않아 같은 몸체를 복제하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면, 두 구조 owner가 같은 접면을 만든 상태를 층 평면·높이 단면·공유 면 census에서 찾는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 상대가 하나뿐인 벽·설명 없는 겹친 방·owner 없는 접면·이중 구조 owner를 실패로 정하고 층 평면·높이 단면·공유 면 census를 검사 주소로 둔 문단을 대조해 칸막이 배정이 반증 가능함을 확인했다.
 @evidence settings/20-verification.md#surface-allocation 한 공유 구조와 양쪽 완결 마감을 따로 배정해 같은 벽을 두 번 생성하지 않는다.
 @evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 표의 구조 바탕 owner와 03-surface-owners의 방별 안쪽 마감을 나누고 마감 위치의 두 번째 불투명 판을 금지한 문장을 surface-allocation의 단일 기준 요구에 대조해 성립함을 확인했다.
-@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "외부 입면, 각 방 내부의 완결 면"과 공유 벽 기준 하나를 실제 방 쌍 표에 적용했고 모든 쌍이 생성 owner 하나로 정해져 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 방 내부 완결 면과 단일 기준 요구를 ground·upper 11개 표 행에 대조해 각 행이 source owner 하나로 끝나고 부모 수정 없이 성립함을 확인했다.
+@evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work 차고 지붕 높이의 공유 벽 몸체 배분은 이 생산의 surface owner 결정이다. 상위 settings의 단일 구조 기준과 방별 완결 면은 그대로 따른다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 차고 지붕 아래 garage 몸체와 위 right 몸체가 한 X/Z 구조 기준에서 맞닿고, 각 방의 안쪽 완결 면은 별도 owner가 유지함을 본문과 03-surface-owners의 배분에 대조했다.
 -->
 
 이 설계는 [두 storey](01-storeys.md#storey-datums) 안에서 기존 방 사이의 칸막이를 한 번만 생성하기 위한 공간 인계다. 방의 마감 안쪽 윤곽, 칸막이 예약 두께, 문 위치는 [방 연결](05-route-network.md#room-route-network)이 가리키는 원래 owner를 소비한다. 여기서 방 좌표를 다시 정하거나 두 room의 중간선을 평균하여 서로 다른 입력을 숨기지 않는다. 같은 storey에서 맞닿는 두 실의 안쪽 경계와 그 사이 벽 예약이 일치하지 않으면 조립을 멈추고 원래 평면을 고친다.
@@ -42,7 +42,7 @@
 
 각 행은 방 사이에 실제로 존재하는 구간에만 적용한다. 표의 슬래시로 묶인 상대끼리 새 벽을 만들지 않는다. [현관과 서비스의 열린 접속](rooms/service.md#service-access-plan)과 [계단 끝의 복도 도착](rooms/upper-hall.md#upper-hall-plan)은 벽 없는 연결로 유지한다. 거실/서비스와 공용부 사이에는 기존 상인방 아래의 큰 void가 있고, 나머지 전면 칸막이는 닫힌다. 연결 edge라는 이유로 벽 전체를 삭제하지 않는다.
 
-[본채/차고 공유 벽](00-building.md#attached-garage-extent)은 기존 `src/spaces/garage.ts`, [계단과 보호/분리 경계](02-stair.md#stair-floor-opening)는 기존 `src/spaces/stair.ts`의 구조 책임을 유지한다. 계단 owner의 통행 구멍을 소비하는 층간 몸체와 벽/층판 접합은 [단일 층간 조립](08-floor-assembly.md#interstorey-edge-junctions)이 배정한다. 현관 외투장과 상층 린넨장의 고정 몸체·개구부·둘레는 각각 [entry](rooms/entry.md#entry-coat-storage), [upper-hall](rooms/upper-hall.md#upper-linen-storage)이 소유하고, 그 개구부의 닫힌 문짝·레일·철물은 [수납 원형](../models/05-closet-fittings.md#closet-fitting-surfaces)이 소유한다. 계단 구조는 다시 만들지 않는다. 계단 주변은 [높이별 닫힌 벽/열린 보호 경계](02-stair.md#stair-boundary-heights)를 소비하며 평면 예약을 두 층 높이의 막힌 벽으로 일괄 압출하지 않는다. 일반 실내 칸막이의 높이는 해당 storey의 완성 바닥에서 천장까지이며, 계단/수납의 별도 높이를 덮어쓰지 않는다.
+[본채/차고 공유 벽](00-building.md#attached-garage-extent)은 차고 지붕 아래의 `src/spaces/garage.ts`와 지붕 위 노출 사이딩의 `src/spaces/envelope/right.ts`가 같은 평면 기준에서 높이별로 맞닿고, [계단과 보호/분리 경계](02-stair.md#stair-floor-opening)는 기존 `src/spaces/stair.ts`의 구조 책임을 유지한다. 계단 owner의 통행 구멍을 소비하는 층간 몸체와 벽/층판 접합은 [단일 층간 조립](08-floor-assembly.md#interstorey-edge-junctions)이 배정한다. 현관 외투장과 상층 린넨장의 고정 몸체·개구부·둘레는 각각 [entry](rooms/entry.md#entry-coat-storage), [upper-hall](rooms/upper-hall.md#upper-linen-storage)이 소유하고, 그 개구부의 닫힌 문짝·레일·철물은 [수납 원형](../models/05-closet-fittings.md#closet-fitting-surfaces)이 소유한다. 계단 구조는 다시 만들지 않는다. 계단 주변은 [높이별 닫힌 벽/열린 보호 경계](02-stair.md#stair-boundary-heights)를 소비하며 평면 예약을 두 층 높이의 막힌 벽으로 일괄 압출하지 않는다. 일반 실내 칸막이의 높이는 해당 storey의 완성 바닥에서 천장까지이며, 계단/수납의 별도 높이를 덮어쓰지 않는다.
 
 `src/spaces/boundaries.ts`는 방·벽·개구부의 동일 경계 인계와 아래 접합 계산을 맡을 예정이며, 벽 geometry나 입면/방 마감을 소유하지 않는다. 조립은 각 경계의 두 상대 공간, storey, 구간, 높이 역할, 구조 바탕 owner, 양쪽 마감 owner를 함께 전달한다. 상대가 하나뿐인 실내 벽, 설명 없는 겹친 방, owner 없는 접면 또는 두 구조 owner가 같은 접면을 생성한 상태는 실패다. 실내의 한쪽이 계단 아래 비통행 영역인 경우 그 역할을 명시하며 새로운 방이나 숨은 통로로 세지 않는다. 전체 층 평면·해당 높이 단면·공유 면 census가 검사 주소이고 실제 조립은 unverified다.
 
@@ -96,8 +96,8 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 외곽을 00-building 두 H2, 벽 상단을 roof-wall-head-junctions에서 받고 지붕 높이 평균을 금지하며, 다음 문단이 실제로 겹치는 높이 구간만 공유한다고 적은 것을 대조해 근거를 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 본채·차고 외벽 모서리, 차고 앞뒤 벽의 왼쪽 끝, 단차 벽 교차마다 단일 우선 owner를 두는 표로 구체화하고 몸체 배정이 옆면의 연속 마감 소유를 바꾸지 않게 한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 단일 기준 금지를 모서리·차고 왼쪽 끝·단차 교차별 우선 owner 표로 구체화하고, 몸체 배정이 left/right 옆면 마감을 쪼개지 않는다는 문장이 부모에 없는 결정임을 확인했다.
-@evidence principles/design/spaces.md#space-topology 본채/차고 공유 벽의 상부를 본채 지붕 아래까지 이어 차고 지붕/천장에서 본채 경계를 자르지 않고 굴뚝 중복 구역에서 거실 화구 접면을 막지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 공유 벽 상부를 본채 지붕 아래까지 이어 차고 지붕/천장이 본채 경계를 자르지 않고 굴뚝 중복 구역에서 거실 화구 접면을 막지 않는다는 문장을 대조해 본채와 차고의 안팎 관계가 유지됨을 확인했다.
+@evidence principles/design/spaces.md#space-topology 본채/차고 공유 벽은 차고 지붕 아래와 위의 맞닿는 두 몸체로 본채 지붕 아래까지 이어지고 굴뚝 중복 구역에서 거실 화구 접면을 막지 않는다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 차고 지붕 아래 garage 몸체와 지붕 위 right 몸체가 한 X/Z 기준에서 맞닿아 본채 지붕까지 경계를 잇는지, 굴뚝 접점이 독립적으로 유지되는지 다시 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority front가 받는 모서리 몸체의 옆면 마감은 left/right 입면 owner의 연속 면으로 남고 boundaries.ts는 구역과 높이만 계산한다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 boundaries.ts의 구역·높이 전달, front/rear/garage 모서리 구조 몸체, left/right의 연속 날씨 면과 models/15의 별도 닫힌 trim을 본문에서 분리해 대조했다. 구조 벽의 옆면과 돌출 판의 닫힌 면을 한 owner가 중복 저작하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 모든 외벽 모서리·공유 벽 두 끝·단차 교차·굴뚝 접점의 높이별 평면과 상단 단면에서 몸체 합집합·교집합과 void 재폐쇄를 읽게 한다.
@@ -120,7 +120,7 @@
 | 차고 앞/뒤 벽의 왼쪽 끝 | 기존 garage 공유 벽 owner를 우선한다. 두 차고 벽은 공유 벽의 차고 쪽 면에서 끝나며 본채 벽 두께 안에 겹친 끝기둥을 만들지 않는다. |
 | [본채 지붕 단차](../settings/10-house.md#main-mass) 벽의 앞/뒤 외벽 접합 | 실제로 겹치는 앞/뒤 외벽 두께 안의 몸체는 각각 front/rear owner가 받는다. right owner의 단차 벽은 그 구역을 제외하고, 외벽 바깥 처마 구간과 외벽 안쪽 지붕 구간의 나머지를 잇는다. |
 
-이 배정은 평면의 모서리 사각형을 모든 높이에 일괄 복제하는 규칙이 아니다. 각 몸체의 아래/위 경계가 실제로 겹치는 높이 구간만 공유하고 문·창 void도 동일하게 제외한다. 본채/차고 공유 벽의 상부는 본채 지붕 아래까지 이어지며 차고 지붕/천장에서 본채 경계를 잘라 버리지 않는다. 차고 지붕 위에서 바깥에 드러나는 면은 기존 right 입면 owner가 유지한다. 왼쪽 굴뚝과 본채 벽의 중복 구역도 기존 left owner 안에서 한 몸체 경계로 통합하며 거실의 화구 접면을 다시 막지 않는다.
+이 배정은 평면의 모서리 사각형을 모든 높이에 일괄 복제하는 규칙이 아니다. 각 몸체의 아래/위 경계가 실제로 겹치는 높이 구간만 공유하고 문·창 void도 동일하게 제외한다. 본채/차고 공유 벽은 한 X/Z 구조 기준에서 차고 지붕 아래의 garage 몸체와 그 위의 right 사이딩 몸체로 나뉜다. 두 몸체는 차고 지붕 아래면에서 만나고 위쪽은 본채 지붕 아래까지 이어져 경계에 틈을 남기지 않는다. 왼쪽 굴뚝과 본채 벽의 중복 구역도 기존 left owner 안에서 한 몸체 경계로 통합하며 거실의 화구 접면을 다시 막지 않는다.
 
 `src/spaces/boundaries.ts`는 같은 만남의 구역과 높이 경계를 계산해 전달하고 geometry를 추가하지 않는다. 표가 배정한 구조 바탕과 [완결 시각 표면](03-surface-owners.md#exterior-surface-handoff)은 구별한다. 예를 들어 front가 받는 모서리 몸체의 옆면 마감은 계속 left/right 입면 owner의 연속 면이다. 그 두 날씨 면의 외측 교선은 [닫힌 모서리 trim 원형](../models/15-outdoor.md#exterior-corner-trim)에 한 번 넘기고 spaces의 입면·경계 source는 그 판을 만들지 않는다. 모서리 trim이나 한쪽 방 마감을 몸체 배정 때문에 쪼개지 않는다. 담당 저작자는 기존과 같이 이 production의 단일 저작자다.
 

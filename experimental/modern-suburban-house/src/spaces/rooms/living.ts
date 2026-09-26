@@ -10,6 +10,9 @@
  * Output: the room record, its wood floor finish and its two partition runs.
  */
 import { DOOR_LIVING_COMMON_OPENING } from "./common";
+import { FRONT_WINDOWS } from "../envelope/front-windows";
+import { LIVING_LEFT_WINDOW } from "../envelope/left";
+import { MAIN } from "../building";
 import { PALETTE } from "../palette";
 import {
   box,
@@ -22,6 +25,7 @@ import {
   type IRoomSpace,
 } from "./shared";
 import { floorOf } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/living.md The entry-living-door void follows the partition assigned to living.
  * @evidence principles/core/source-units.md#source-scope-preservation The entry-living-door interval remains with living while its adjacent room receives the span.
@@ -44,6 +48,8 @@ const LIVING: IRoomSpace = {
   outline: box([-5.5, -1.95], [-6.05, -0.25]),
   floor: PALETTE.woodFloor,
   reservations: [
+    { id: "living-front-curtain", kind: "fixture", x: [FRONT_WINDOWS.living.from - 0.1, FRONT_WINDOWS.living.to + 0.1], z: [MAIN.inner.z[1] - 0.12, MAIN.inner.z[1]], y: [FLOOR + 0.1, FRONT_WINDOWS.living.top + 0.12] },
+    { id: "living-left-curtain", kind: "fixture", x: [MAIN.inner.x[0], MAIN.inner.x[0] + 0.12], z: [LIVING_LEFT_WINDOW.from - 0.1, LIVING_LEFT_WINDOW.to + 0.1], y: [FLOOR + 0.1, LIVING_LEFT_WINDOW.top + 0.12] },
     // living-plan: no furniture on the floor in front of entry-living-door.
     { id: "living-door-swing", kind: "swing", x: [-2.89, -1.95], z: [-1.4, -0.35] },
     // living-furniture-use.
@@ -107,7 +113,7 @@ export const buildLiving = (): IRoomBuild => ({
       storey: "ground-storey",
       axis: "z",
       across: [-1.95, -1.8],
-      along: [-6.05, -4.71],
+      along: [-6.05, STAIR_OPENING.guardBack],
     }),
   ],
 });

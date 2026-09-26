@@ -16,7 +16,7 @@ import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
 import { part, rect, slab, type IHousePart } from "../solids";
 import { driveTop, DRIVEWAY } from "./driveway";
-import { blendedRun, WALK_DEPTH } from "./paving";
+import { blendedRun, pavingHeightfield, WALK_DEPTH } from "./paving";
 import { LOWER_LANDING } from "./terrace";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 
@@ -48,6 +48,10 @@ export const SIDE_WALK = {
 export const buildSideWalk = (): ISiteBuild => {
   const s = SIDE_WALK.top;
   const [left, right] = [DRIVEWAY.x[1], SIDE_WALK.x[0]];
+  const connectorHeight = (x: number, z: number): number => {
+    const t = (x - left) / (right - left);
+    return (1 - t) * driveTop(z) + t * s;
+  };
   const flat = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
     part(
       id,
@@ -88,7 +92,7 @@ export const buildSideWalk = (): ISiteBuild => {
     groundAt: (x, z) =>
       x >= SIDE_WALK.x[0] || z < SIDE_WALK.frontBand[0]
         ? s
-        : (1 - (x - left) / (right - left)) * driveTop(z) + ((x - left) / (right - left)) * s,
+        : connectorHeight(x, z),
     patches: [
       {
         outline: rect(SIDE_WALK.x, [
@@ -111,6 +115,7 @@ export const buildSideWalk = (): ISiteBuild => {
           z: SIDE_WALK.frontBand[0],
         },
         rampTo: { x: right, y: s, z: SIDE_WALK.frontBand[0] },
+        height: pavingHeightfield([left, right], SIDE_WALK.frontBand, connectorHeight),
       },
     ],
   };
@@ -128,10 +133,7 @@ export const buildSideWalk = (): ISiteBuild => {
       color: PALETTE.paving,
       x: [left, right],
       z: SIDE_WALK.frontBand,
-      height: (x, z) => {
-        const t = (x - left) / (right - left);
-        return (1 - t) * driveTop(z) + t * s;
-      },
+      height: connectorHeight,
       depth: WALK_DEPTH,
     }),
   ];

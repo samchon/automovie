@@ -16,7 +16,7 @@ import { part, rect, slab, type IHousePart } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 import { driveTop, DRIVEWAY } from "./driveway";
-import { blendedRun, WALK_DEPTH } from "./paving";
+import { blendedRun, pavingHeightfield, WALK_DEPTH } from "./paving";
 import { PORCH_STEP_CENTRE_X, PORCH_STEP_FRONT_Z } from "../porch";
 
 const OWNER = "site/front-walk.ts";
@@ -46,6 +46,10 @@ export const FRONT_WALK = {
 export const buildFrontWalk = (): ISiteBuild => {
   const walkY = STOREYS.frontWalk;
   const [left, right] = [FRONT_WALK.x[1], DRIVEWAY.x[0]];
+  const connectorHeight = (x: number, z: number): number => {
+    const t = (x - left) / (right - left);
+    return (1 - t) * walkY + t * driveTop(z);
+  };
   const zone: IExteriorZone = {
     id: "front-walk",
     owner: OWNER,
@@ -66,9 +70,9 @@ export const buildFrontWalk = (): ISiteBuild => {
     },
     rampTo: null,
     groundAt: (x, z) =>
-      x <= right
+      x <= left
         ? walkY
-        : (1 - (x - left) / (right - left)) * walkY + ((x - left) / (right - left)) * driveTop(z),
+        : connectorHeight(x, z),
     patches: [
       {
         outline: rect(FRONT_WALK.x, FRONT_WALK.z),
@@ -83,6 +87,7 @@ export const buildFrontWalk = (): ISiteBuild => {
           y: driveTop(FRONT_WALK.connectorZ[0]),
           z: FRONT_WALK.connectorZ[0],
         },
+        height: pavingHeightfield([left, right], FRONT_WALK.connectorZ, connectorHeight),
       },
     ],
   };
@@ -94,10 +99,7 @@ export const buildFrontWalk = (): ISiteBuild => {
       color: PALETTE.paving,
       x: [left, right],
       z: FRONT_WALK.connectorZ,
-      height: (x, z) => {
-        const t = (x - left) / (right - left);
-        return (1 - t) * walkY + t * driveTop(z);
-      },
+      height: connectorHeight,
       depth: WALK_DEPTH,
     }),
   ];

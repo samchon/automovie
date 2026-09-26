@@ -17,8 +17,10 @@ import { DOOR_HALL_BEDROOM_TWO_DOOR } from "./bedroom-two";
 import { DOOR_HALL_PRIMARY_DOOR } from "./primary";
 import { DOOR_HALL_SHOWER_DOOR } from "./shower-bath";
 import { PALETTE } from "../palette";
+import { MAIN } from "../building";
 import { block, part } from "../solids";
 import { STOREYS } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 import {
   door,
   doorFloor,
@@ -35,12 +37,12 @@ const UPPER_HALL: IRoomSpace = {
   owner: "rooms/upper-hall.ts",
   storey: "upper-storey",
   outline: [
-    { x: 1.87, z: -3.41 },
-    { x: 3.07, z: -3.41 },
+    { x: STAIR_OPENING.east, z: STAIR_OPENING.turnZ },
+    { x: 3.07, z: STAIR_OPENING.turnZ },
     { x: 3.07, z: -5.91 },
     { x: -3.2, z: -5.91 },
-    { x: -3.2, z: -4.71 },
-    { x: 1.87, z: -4.71 },
+    { x: -3.2, z: STAIR_OPENING.guardBack },
+    { x: STAIR_OPENING.east, z: STAIR_OPENING.guardBack },
   ],
   floor: PALETTE.carpet,
 };
@@ -66,7 +68,7 @@ export const buildUpperHall = (): IRoomBuild => {
     storages: [
       {
         id: "upper-linen-storage",
-        x: [1.87, 3.07],
+        x: [STAIR_OPENING.east, 3.07],
         y: [STOREYS.upperFloor, STOREYS.upperFloor + LINEN_HEIGHT],
         z: [-3.26, -2.66],
       },
@@ -78,7 +80,7 @@ export const buildUpperHall = (): IRoomBuild => {
         UPPER_HALL,
         "hall-bedroom-two-door",
         [DOOR_HALL_BEDROOM_TWO_DOOR.from, DOOR_HALL_BEDROOM_TWO_DOOR.to],
-        [-4.71, -4.635],
+        [STAIR_OPENING.guardBack, -4.635],
       ),
       doorFloor(
         UPPER_HALL,
@@ -109,8 +111,8 @@ export const buildUpperHall = (): IRoomBuild => {
         owner,
         storey,
         axis: "x",
-        across: [-3.41, -3.26],
-        along: [1.72, 3.22],
+        across: [STAIR_OPENING.turnZ, -3.26],
+        along: [STAIR_OPENING.east - MAIN.partition, 3.22],
         holes: [door("upper-linen-opening", storey, 1.97, 2.97, LINEN_HEIGHT)],
       }),
       partition({
@@ -118,7 +120,7 @@ export const buildUpperHall = (): IRoomBuild => {
         owner,
         storey,
         axis: "z",
-        across: [1.72, 1.87],
+        across: [STAIR_OPENING.east - MAIN.partition, STAIR_OPENING.east],
         along: [-3.26, -2.51],
       }),
       partition({
@@ -135,7 +137,7 @@ export const buildUpperHall = (): IRoomBuild => {
         storey,
         axis: "x",
         across: [-2.66, -2.51],
-        along: [1.87, 3.07],
+        along: [STAIR_OPENING.east, 3.07],
       }),
       part(
         "upper-linen-head",
@@ -143,7 +145,7 @@ export const buildUpperHall = (): IRoomBuild => {
         "partition",
         PALETTE.interiorWall,
         block(
-          [1.87, STOREYS.upperFloor + LINEN_HEIGHT, -3.26],
+          [STAIR_OPENING.east, STOREYS.upperFloor + LINEN_HEIGHT, -3.26],
           [3.07, top, -2.66],
         ),
       ),

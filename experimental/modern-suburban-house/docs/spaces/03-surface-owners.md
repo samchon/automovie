@@ -32,7 +32,7 @@
 | 후면 전체 입면 | `src/spaces/envelope/rear.ts` | [본채 지붕 단차·차고 뒤 처마 아래의 후벽](envelope/rear.md#rear-roof-closures), 공용부 정원 출입과 상층 창의 벽 void·reveal. 닫힌 정원문·창호는 models가 만들며 테라스 때문에 벽을 숨기지 않는다. |
 | 왼쪽 전체 입면 | `src/spaces/envelope/left.ts` | [주 지붕 삼각 벽](envelope/left.md#left-roof-closure)과 [벽난로/굴뚝 접면](envelope/left.md#chimney-roof-interface), 창 둘레. |
 | 오른쪽 노출 입면 전체 | `src/spaces/envelope/right.ts` | [본채 지붕 단차·오른쪽 박공·차고 박공과 벽 접합](envelope/right.md#right-roof-closures). 가려진 공유 벽과 노출 면을 구별한다. |
-| 본채/차고 공유 벽체 | `src/spaces/garage.ts` | 구조 기준 한 개와 머드룸 문 void. 두 실 안쪽 면의 owner는 각 실이다. |
+| 본채/차고 공유 벽체 | `src/spaces/garage.ts` · `src/spaces/envelope/right.ts` | 한 X/Z 구조 기준에서 차고 지붕 아래의 문 있는 벽체는 garage가, 지붕 위의 바깥 사이딩 벽체는 right가 맡는다. 두 몸체는 차고 지붕 아래면에서 만나며 그 높이에 노출 도장 면이나 틈을 남기지 않는다. 두 실 안쪽 면의 owner는 각 실이다. |
 | 주 지붕 전방 경사면과 하부 | `src/spaces/roof/main-front.ts` | 전면 박공과 합류하는 골짜기 경계를 공유 지붕 교차 계산에서 받는다. |
 | 주 지붕 후방 경사면과 하부 | `src/spaces/roof/main-back.ts` | 주 용마루·후면 처마와 마감 경계를 소유한다. |
 | 전면 왼쪽 박공의 왼쪽 경사면·하부 | `src/spaces/roof/front-gable-left.ts` | 삼각 전면 벽과 왼쪽 처마·주 지붕 합류선. |
@@ -57,7 +57,7 @@
 
 `src/spaces/openings.ts`의 [공통 개구부 인계](06-openings.md#external-opening-interface)는 좌표 형식과 부재 예약을 공유하는 계산 경계이며 창/문 geometry의 별도 소유자가 아니다. 각 입면 owner는 벽 몸체·자기 void·벽 절단면을 소유하고 방 안쪽 owner는 동일 void의 실내 reveal/마감을 맡는다. 별도 닫힌 부재인 바깥 trim·창틀·창대·문틀·문짝·유리는 [모델 충전 원형](../models/00-model-frame.md#model-representation-ceiling)이 소유하고 modelSources가 열린 뒤 생성한다. 같은 절단면을 trim으로 다시 덮거나 같은 trim을 입면과 model이 동시에 짓지 않는다. 문짝 유리·창 내부 분할까지 실제 관찰에서 숨기지 않는다.
 
-일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽과 계단 구조의 기존 소유는 그대로다.
+일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽은 위 표의 높이별 두 owner를, 계단 구조는 기존 stair owner를 따른다.
 
 [외벽 모서리와 지붕 단차 접합](07-boundary-assembly.md#exterior-boundary-junctions)은 앞뒤 입면/공유 벽이 받는 단일 구조 몸체와 각 완결 입면의 마감을 구별한다. [벽 상단의 지붕 접촉](roof/00-junctions.md#roof-wall-head-junctions)은 지붕 교차 계산에서 받아 벽 두께 전체에 적용한다. 공유 계산이나 공통 몸체를 이유로 위 표의 입면·지붕·방 표면 소유를 바꾸지 않는다.
 

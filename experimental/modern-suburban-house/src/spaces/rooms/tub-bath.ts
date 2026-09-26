@@ -23,6 +23,7 @@ import {
   type IRoomSpace,
 } from "./shared";
 import { ceilingOf, floorOf } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/tub-bath.md The hall-tub-door void follows the partition assigned to tub-bath.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-tub-door interval remains with tub-bath while its adjacent room receives the span.
@@ -42,7 +43,7 @@ const TUB_BATH: IRoomSpace = {
   id: "tub-bathroom",
   owner: "rooms/tub-bath.ts",
   storey: "upper-storey",
-  outline: box([3.22, 5.5], [-8.8, -4.71]),
+  outline: box([3.22, 5.5], [-8.8, STAIR_OPENING.guardBack]),
   floor: PALETTE.tile,
   // tub-bath.md#tub-fixture-use; right ends are the inner face X = 5.50, heights above the upper floor (+3.06).
   reservations: [
@@ -86,7 +87,7 @@ export const buildTubBath = (): IRoomBuild => ({
       storey: "upper-storey",
       axis: "z",
       across: [3.07, 3.22],
-      along: [-5.91, -4.71],
+      along: [-5.91, STAIR_OPENING.guardBack],
       holes: [DOOR_HALL_TUB_DOOR],
     }),
     partition({
@@ -102,7 +103,7 @@ export const buildTubBath = (): IRoomBuild => ({
       owner: TUB_BATH.owner,
       storey: "upper-storey",
       axis: "x",
-      across: [-4.71, -4.56],
+      across: [STAIR_OPENING.guardBack, STAIR_OPENING.back],
       along: [3.22, 5.5],
     }),
   ],

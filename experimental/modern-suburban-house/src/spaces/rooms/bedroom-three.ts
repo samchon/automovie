@@ -10,6 +10,8 @@
  * Z = [-4.46, -3.51], Y = [3.06, 5.26] m.
  */
 import { PALETTE } from "../palette";
+import { FRONT_WINDOWS } from "../envelope/front-windows";
+import { MAIN } from "../building";
 import {
   door,
   doorFloor,
@@ -20,6 +22,7 @@ import {
   type IRoomSpace,
 } from "./shared";
 import { floorOf } from "../storeys";
+import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-three.md The hall-bedroom-three-door void follows the partition assigned to bedroom-three.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-three-door interval remains with bedroom-three while its adjacent room receives the span.
@@ -42,8 +45,8 @@ const BEDROOM_THREE: IRoomSpace = {
   outline: [
     { x: -0.5, z: -0.25 },
     { x: 5.5, z: -0.25 },
-    { x: 5.5, z: -4.56 },
-    { x: 3.22, z: -4.56 },
+    { x: 5.5, z: STAIR_OPENING.back },
+    { x: 3.22, z: STAIR_OPENING.back },
     { x: 3.22, z: -2.51 },
     { x: 1.72, z: -2.51 },
     { x: 1.72, z: -3.26 },
@@ -52,6 +55,7 @@ const BEDROOM_THREE: IRoomSpace = {
   floor: PALETTE.carpet,
   // bedroom-three.md#bedroom-three-furniture-use; heights above the upper floor (+3.06).
   reservations: [
+    { id: "bedroom-three-front-curtain", kind: "fixture", x: [FRONT_WINDOWS.bedroomThree.from - 0.1, FRONT_WINDOWS.bedroomThree.to + 0.1], z: [MAIN.inner.z[1] - 0.12, MAIN.inner.z[1]], y: [FLOOR + 0.1, FRONT_WINDOWS.bedroomThree.top + 0.12] },
     { id: "bedroom-three-bed", kind: "furniture", x: [-0.25, 0.9], z: [-3.1, -0.95], y: [FLOOR, FLOOR + 0.95] },
     { id: "bedroom-three-nightstand", kind: "furniture", x: [1.05, 1.5], z: [-3.1, -2.65], y: [FLOOR, FLOOR + 1.05] },
     // Z from -0.85 to the front inner face (-0.25).
@@ -91,7 +95,7 @@ export const buildBedroomThree = (): IRoomBuild => ({
       storey: "upper-storey",
       axis: "z",
       across: [3.07, 3.22],
-      along: [-4.71, -3.41],
+      along: [STAIR_OPENING.guardBack, STAIR_OPENING.turnZ],
       holes: [DOOR_HALL_BEDROOM_THREE_DOOR],
     }),
   ],

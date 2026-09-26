@@ -10,6 +10,7 @@
  * are shared with their neighbours. This helper emits no surface of its own.
  */
 import { part, slopedSlab, type IHousePart } from "../solids";
+import type { IAutoMovieHeightRule } from "@automovie/interface";
 
 /** Base depth below a walking surface, metres. */
 /**
@@ -28,6 +29,27 @@ export const WALK_DEPTH = 0.12;
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent distinguishes drive depth from walk depth; this constant reflects that allocation.
  */
 export const DRIVE_DEPTH = 0.15;
+
+/** The bilinear rule sampled from the same height callback as the paving mesh.
+ * @evidence spaces/site/01-paving-support.md The connector's standable rule samples the same X/Z function as its opaque paving.
+ * @evidence principles/core/source-units.md#source-scope-preservation The rule records the caller's paving height without a second level decision.
+ * @evidence principles/core/source-units.md#source-substantive-completion Four samples reproduce the bilinear connector at every surface query.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving support design already requires one shared height formula.
+ */
+export const pavingHeightfield = (
+  x: readonly [number, number],
+  z: readonly [number, number],
+  height: (x: number, z: number) => number,
+): IAutoMovieHeightRule => ({
+  kind: "heightfield",
+  originX: x[0],
+  originZ: z[0],
+  spacingX: x[1] - x[0],
+  spacingZ: z[1] - z[0],
+  columns: 2,
+  rows: 2,
+  samples: [height(x[0], z[0]), height(x[1], z[0]), height(x[0], z[1]), height(x[1], z[1])],
+});
 
 /**
  * A sloped run over X = `x`, Z = `z` whose top is `height(x, z)`, emitted as
