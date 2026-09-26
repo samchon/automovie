@@ -1,10 +1,16 @@
-import { IAutoMovieAssetProvenance, IAutoMovieMaterial, IAutoMovieTextureReference, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieAssetProvenance,
+  IAutoMovieMaterial,
+  IAutoMovieTextureReference,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { ViolationCollector } from "./ViolationCollector";
-import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
 import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
+import { ViolationCollector } from "./ViolationCollector";
+import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 
 /** Media types a material's PBR slot may bind. */
 const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
@@ -195,7 +201,7 @@ const environmentIntent = (
  *
  * A legacy bare-id binding declares no intent, so the slot's own requirement is
  * what it means: base colour and emissive are radiometric colours stored in
- * sRGB, and the three data maps are measurements that must not be gamma
+ * sRGB, and the data maps are measurements that must not be gamma
  * decoded.
  */
 const MATERIAL_SLOTS: ReadonlyArray<{
@@ -204,6 +210,7 @@ const MATERIAL_SLOTS: ReadonlyArray<{
       | "baseColorTexture"
       | "metallicRoughnessTexture"
       | "normalTexture"
+      | "detailNormalTexture"
       | "occlusionTexture"
       | "emissiveTexture"
     );
@@ -212,6 +219,7 @@ const MATERIAL_SLOTS: ReadonlyArray<{
   { field: "baseColorTexture", colorSpace: "srgb" },
   { field: "metallicRoughnessTexture", colorSpace: "linear" },
   { field: "normalTexture", colorSpace: "linear" },
+  { field: "detailNormalTexture", colorSpace: "linear" },
   { field: "occlusionTexture", colorSpace: "linear" },
   { field: "emissiveTexture", colorSpace: "srgb" },
 ];
