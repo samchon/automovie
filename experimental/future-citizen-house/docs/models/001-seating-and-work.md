@@ -4,26 +4,8 @@
 
 ## 거실 직선·L자 소파 {#living-sofa}
 
-등 프레임·등 쿠션·베개는 아래 `@curve-linear`의 같은 기울기 곡선을 따른다. 첫 인터페이스의 gap은 0이고 둘째의 gap은 0.002m여서 베개는 등 쿠션에서 떨어진 채 좌판에만 지지된다. 긴 의자 변종은 공통 본체 부품을 같은 좌표로 재사용하고 앞쪽 연장 프레임·좌판 두 부품과 다리 둘을 추가한다.
+등 프레임·등 쿠션·베개는 아래 `@curve-linear`의 같은 기울기 곡선을 따른다. 첫 인터페이스는 맞닿고 둘째는 해당 행이 정한 양수 간격을 두므로 베개는 등 쿠션에서 떨어진 채 좌판에만 지지된다. 긴 의자 변종은 공통 본체 부품을 같은 좌표로 재사용하고 앞쪽 연장 프레임·좌판 두 부품과 다리 둘을 추가한다.
 
-@scalar-control seat-seam: 0.025
-@scalar-control arm-seat-clearance: 0.018
-@scalar-control pillow-front-base: 0.19
-@scalar-control chaise-front-leg-offset: 0.32
-
-@prose-part 프레임은: frame
-@prose-part 네 노출 다리는: leg-*
-@prose-part 양팔은: arm-*
-@prose-part 좌판 세 개의: seat-*
-@prose-part 각 좌판은: seat-*
-@prose-part 등 쿠션의: back-cushion-*
-@prose-part 등받이는: back-frame
-@prose-part 등 쿠션 셋은: back-cushion-*
-@prose-dim 등받이는: back-frame
-@prose-part 각 베개 뒷면은: pillow-*
-@prose-part 베개 셋은: pillow-*
-@prose-part 베개 셋의 아래면: pillow-*
-@prose-part 앞다리 둘은: chaise-front-leg-*
 @prose-part 연장 좌판은: chaise-seat
 @inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
 @inventory chaise-right: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2, chaise-frame, chaise-seat, chaise-front-leg-0, chaise-front-leg-1
@@ -91,7 +73,9 @@
 | @part | chaise-right | chaise-front-leg-0 | box | 0.439667..0.499667 | 0..0.10 | 1.17..1.23 | ground,chaise-frame |
 | @part | chaise-right | chaise-front-leg-1 | box | 1.079667..1.139667 | 0..0.10 | 1.17..1.23 | ground,chaise-frame |
 
-`living-sofa/straight`는 폭 2.70, 높이 0.88, 깊이 0.96m의 세 좌석이다. `living-sofa/chaise-right`는 오른쪽 좌석 앞에 길이 0.82m의 연장 쿠션을 더하여 전체 깊이 1.78m로 만든다. 원점은 바닥의 외곽 폭 중심과 본체 깊이 중심, +Z가 착석 앞이고 +X가 오른쪽이다. 공통 본체의 X/Z 외곽은 직선 상태의 `@envelope`과 부품 합집합이 정한다. 네 노출 다리는 단면 0.06×0.06m, 중심 x=±1.21,z=±0.34, y=0..0.10이다. 프레임은 x=±1.19,z=±0.48,y=0.10..0.31이고 양팔은 x=±(1.19..1.35), z=±0.48, y=0.10..0.64다. 좌판 세 개의 각 폭은 (2.70−2×0.16−2×0.025−2×0.018)/3m, 중심 x=−0.789666..,0,+0.789666.., z=−0.30..+0.48이다. 각 좌판은 y=0.31..0.45다. 두 좌판 사이 0.025m, 팔과 좌판 사이 0.018m 빈 틈을 남긴다. 등받이는 y=0.31..0.88에서 두께 0.09m이고 뒷면 하단·상단 Z와 앞면의 선형 기울기는 아래 `@curve-linear` 행이 단독으로 정하며, 폭 0.764666..m의 등 쿠션 셋은 각 좌판 중심 x에 y=0.46..0.82, 깊이 0.12m로 독립한다. 각 등 쿠션의 뒷면은 등 프레임 앞면 z(y)=−0.31−0.08(y−0.31)/0.57에 접하고 앞면은 그 값에서 +0.12m이며, 접합 내부 삼각형은 노출 면으로 세지 않는다. 베개 셋은 같은 x 중심, 폭 0.48·높이 0.22·깊이 0.16m로 y=0.45..0.67에 놓인다. 각 베개 뒷면은 등 쿠션 앞면 z(y)=−0.19−0.08(y−0.31)/0.57보다 0.002m 앞쪽에 평행하고 앞면은 그 값에서 +0.16m이며, 베개 셋의 아래면 y=0.45가 좌판 상면과 면 접촉한다. 베개의 정확한 Z 점유는 각 `@part pillow-*` 행이 정하며 등 쿠션과 부피가 겹치지 않는다. 긴 의자 변종의 `chaise-frame`은 오른쪽 좌판과 같은 x 폭·중심으로 z=0.48..1.30,y=0.10..0.31을 차지한다. 연장 좌판은 같은 X/Z 범위에서 y=0.31..0.45를 차지한다. 앞다리 둘은 중심 x=0.789666..±0.32,z=1.20, 단면 0.06×0.06m,y=0..0.10이다. 접합선은 공통 좌판의 앞면과 연장 프레임의 뒷면이 맞닿는 평면 하나에만 있고 발치·프레임 아래는 빈다.
+`living-sofa/straight`는 독립된 좌석 셋과 등받이·양팔·베개 셋을 가진다. `chaise-right`는 오른쪽 좌석의 앞에 같은 폭의 연장 프레임·좌판과 앞다리 둘을 더한다. 두 상태의 외곽과 각 부품의 폭·높이·깊이·중심은 아래 `@envelope`·`@part`가 소유한다. 원점은 바닥 외곽 폭 중심과 본체 깊이 중심이며 +Z가 착석 앞, +X가 오른쪽이다. 좌판 사이 및 팔과 좌판 사이에는 각 행의 X 경계가 정한 빈 틈을 남긴다.
+
+등 프레임 앞면과 등 쿠션 뒤·앞면은 `@curve-linear`의 같은 기울기 층으로 만들고 접합 내부 삼각형을 노출 면으로 세지 않는다. 베개 셋도 해당 곡선을 따라가되 등 쿠션과 떨어져 있고 아래면만 좌판 상면에 접한다. 연장 프레임은 공통 좌판의 앞면에 유한 면적으로 닿고 연장 좌판은 그 위에 놓이며 발치와 프레임 아래는 비운다. 각 다리의 접지면·프레임 접합면은 해당 `@part`의 경계와 `@flat-contact`가 정한다.
 
 안정 part는 `frame`, `leg-0..3`, `seat-0..2`, `back-frame`, `back-cushion-0..2`, `arm-left/right`, `pillow-0..2`, L자 상태의 `chaise-frame/seat/front-leg-0..1`이다. 프레임과 긴 의자 프레임은 `upper/side/underside/contact`, 다리는 `shaft/top/sole`, 좌판·등 쿠션·팔·베개·긴 의자 좌판은 `upper/side/underside/seam`, 등 프레임은 `front/back/edge`, 긴 의자 앞다리는 `shaft/top/sole`로 분리한다. 각 부품의 face는 [공통 완결 규칙](000-representation.md#model-address-and-scale)에 따라 전체를 덮는다. 등판 내부 구조와 주름은 blocking 범위 밖이고 실제 착석 하중은 `unverified`다. 정면·측면·상부·45°와 낮은 하부 관찰에서 세 좌석, 바닥 틈, L자 발치가 구별돼야 한다. ref02의 L자 소파는 `chaise-right`의 발치와 개방 동선 관계로 채택하고 ref03의 직선 소파는 `straight`의 낮은 직물 질량으로 채택한다. ref01·04·05에서 보이지 않는 소파 치수는 가져오지 않으며 ref02의 카메라 투시를 길이 비율로 복제하지 않는다.
 
