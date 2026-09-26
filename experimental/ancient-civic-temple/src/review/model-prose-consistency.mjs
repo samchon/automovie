@@ -6,6 +6,7 @@ import { implicitWallContactRows } from "./model-wall-contact.mjs";
 import { tubeWallClearanceRows } from "./model-tube-clearance.mjs";
 import { partContactRows } from "./model-part-contact.mjs";
 import { shapeRelationRows } from "./model-shape-relations.mjs";
+import { partOverlapRows } from "./model-part-overlap.mjs";
 
 const root = new URL("../../docs/models/", import.meta.url);
 
@@ -138,7 +139,7 @@ export const declaredBoundRows = (id, body) => {
 };
 
 export const checkModelProseConsistency = () => {
-  const equations = [], ranges = [], bounds = [], unions = [], wallContacts = [], tubeContacts = [], partContacts = [], shapeRelations = [];
+  const equations = [], ranges = [], bounds = [], unions = [], wallContacts = [], tubeContacts = [], partContacts = [], shapeRelations = [], overlaps = [];
   const files = readdirSync(root).filter((file) => file.endsWith(".md")).sort((a, b) => a.localeCompare(b));
   for (const file of files) {
     const source = readFileSync(new URL(file, root), "utf8");
@@ -152,6 +153,7 @@ export const checkModelProseConsistency = () => {
       tubeContacts.push(...tubeWallClearanceRows(id, section.body));
       partContacts.push(...partContactRows(id, section.body));
       shapeRelations.push(...shapeRelationRows(id, section.body));
+      overlaps.push(...partOverlapRows(id, section.body));
     }
   }
   const failures = [
@@ -165,10 +167,11 @@ export const checkModelProseConsistency = () => {
     ...tubeContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.kind} measured ${row.measured}m contradicts prose`),
     ...partContacts.filter((row) => !row.pass).map((row) => `${row.id}: ${row.parts} do not touch on ${row.axis}`),
     ...shapeRelations.filter((row) => !row.pass).map((row) => `${row.id}: ${row.kind} ${row.parts ?? ""} measured ${row.measured}m contradicts construction`),
+    ...overlaps.filter((row) => !row.pass).map((row) => `${row.id}: ${row.parts} boxes overlap by ${row.depths.join("×")}m without a declared part relation`),
   ];
-  console.log(`model prose consistency: ${equations.length} dimensional equations, ${ranges.length} explicit axis ranges, ${bounds.length} dimension/box relations, ${unions.length} part bounds/union rows, ${wallContacts.length} wall contacts, ${tubeContacts.length} tube contacts, ${partContacts.length} part contacts, ${shapeRelations.length} shape relations, ${failures.length} failures`);
+  console.log(`model prose consistency: ${equations.length} dimensional equations, ${ranges.length} explicit axis ranges, ${bounds.length} dimension/box relations, ${unions.length} part bounds/union rows, ${wallContacts.length} wall contacts, ${tubeContacts.length} tube contacts, ${partContacts.length} part contacts, ${shapeRelations.length} shape relations, ${overlaps.length} AABB overlaps, ${failures.length} failures`);
   for (const failure of failures) console.error(failure);
-  return { equations, ranges, bounds, unions, wallContacts, tubeContacts, partContacts, shapeRelations, failures };
+  return { equations, ranges, bounds, unions, wallContacts, tubeContacts, partContacts, shapeRelations, overlaps, failures };
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1])

@@ -48,6 +48,13 @@ export const partContactRows = (id, body) => {
     for (let i = 0; i < intervals.length - 1; i++) {
       const a = intervals[i], b = intervals[i + 1];
       const tangent = Math.abs(a.hi - b.lo) < 1e-6 || Math.abs(b.hi - a.lo) < 1e-6;
+      const joinedInside = /겹쳐|들어가|끼워|관통/.test(sentence) &&
+        /** @type {("X"|"Y"|"Z")[]} */ (["X", "Y", "Z"]).every((face) => {
+          const ap = bounds[a.key][face], bp = bounds[b.key][face];
+          return ap.length >= 2 && bp.length >= 2 &&
+            Math.min(Math.max(...ap), Math.max(...bp)) -
+            Math.max(Math.min(...ap), Math.min(...bp)) > 1e-6;
+        });
       const sharedDatum = Number.isFinite(datum) &&
         a.points.some((p) => Math.abs(p - datum) < 1e-6) &&
         b.points.some((p) => Math.abs(p - datum) < 1e-6);
@@ -56,7 +63,7 @@ export const partContactRows = (id, body) => {
         parts: `${a.key}/${b.key}`,
         axis,
         sentence,
-        pass: tangent || sharedDatum,
+        pass: tangent || sharedDatum || joinedInside,
       });
     }
   }

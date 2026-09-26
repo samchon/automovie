@@ -7,6 +7,7 @@ import { partContactRows } from "./model-part-contact.mjs";
 import { shapeRelationRows } from "./model-shape-relations.mjs";
 import { tubeWallClearanceRows } from "./model-tube-clearance.mjs";
 import { modelParts, partBounds } from "./model-occupancy-union.mjs";
+import { partOverlapRows } from "./model-part-overlap.mjs";
 
 // The prose is the population. A new contact sentence cannot disappear behind
 // a hand-maintained count: it needs its own entry and a named measured relation.
@@ -262,19 +263,40 @@ export const auditContactClaims = (claims, passLines, decisionsBySection) => {
 export const checkModelContactCensus = (output) => {
   const passLines = output.split(/\r?\n/).filter((line) => line.startsWith("PASS "));
   const claims = [...modelContactClaims(), ...modelContactClaims(true)];
-  const legacy = claims.filter((claim) => !/^(?:portable|ritual)#/.test(claim.id));
-  const result = auditContactClaims(legacy, passLines, decisions);
-  const sections = new Map(["portable", "ritual"].flatMap((file) => modelSections(
+  const sections = new Map(files.flatMap((file) => modelSections(
     readFileSync(new URL(file + ".md", modelRoot), "utf8"),
   ).map((section) => [`${file}#${section.id}`, section.body])));
   /** @param {string} sentence */
   const normalize = (sentence) => sentence.replace(/\s+/g, " ").trim();
+  const legacy = claims.filter((claim) => !/^(?:portable|ritual)#/.test(claim.id));
+  const indexed = legacy.filter((claim) => {
+    const split = claim.id.lastIndexOf(":");
+    return Boolean(decisions[claim.id.slice(0, split)]?.[Number(claim.id.slice(split + 1)) - 1]);
+  });
+  const result = auditContactClaims(indexed, passLines, decisions);
+  for (const claim of legacy.filter((item) => !indexed.includes(item))) {
+    const key = claim.id.split(":")[0], body = sections.get(key);
+    const contacts = body ? partContactRows(key, body).filter((row) =>
+      normalize(row.sentence) === normalize(claim.sentence)) : [];
+    const related = body ? partOverlapRows(key, body).filter((row) =>
+      normalize(row.relationSentence) === normalize(claim.sentence)) : [];
+    if (contacts.length && contacts.every((row) => row.pass) ||
+      related.length && related.every((row) => row.pass)) result.measured++;
+    else result.failures.push(`${claim.id}: no geometric overlap relation: ${claim.sentence}`);
+  }
   let direct = 0;
   let derived = 0;
   let classified = 0;
   for (const claim of claims.filter((item) => /^(?:portable|ritual)#/.test(item.id))) {
     const key = claim.id.split(":")[0], body = sections.get(key);
     if (!body) { result.failures.push(`${claim.id}: missing H2`); continue; }
+    const overlaps = partOverlapRows(key, body).filter((row) =>
+      normalize(row.relationSentence) === normalize(claim.sentence));
+    if (overlaps.length) {
+      if (overlaps.every((row) => row.pass)) derived++;
+      else result.failures.push(`${claim.id}: part overlap failed`);
+      continue;
+    }
     const contacts = partContactRows(key, body).filter((row) =>
       normalize(row.sentence) === normalize(claim.sentence));
     if (contacts.length) {
