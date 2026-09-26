@@ -39,15 +39,20 @@ export interface IFaceVermilionLip {
  * each vermilion vertex is moved vertically toward its column's margin by
  * `unit` of its distance from it per unit, and toward the commissures, where
  * the margin joins the other lip, the vermilion follows as the skin does.
- * The skin around follows as a membrane (each vertex's displacement the
- * mean of its neighbours', the least bending between the lip and the still
- * skin): the outer skin reached from the vermilion without crossing the
- * lips' surface, between the lip and `reach` (subnasale above the upper lip,
- * the labiomental fold below the lower) and within `margin` beyond the
- * vermilion's widest point on either side (the modiolus, where the lip's
- * muscles meet a centimetre lateral of the corner of the mouth); the
- * lining, the other lip and the skin outside stay. Negative is thinner,
- * positive fuller, and each channel spans its side's `envelope`. Pure.
+ * The lips are two bodies only where the slit parts them: past its end (the
+ * nearest the lip comes to the midline beside the other lip) the vermilion
+ * outline runs on to the commissure's tip, one tissue, and the other lip's
+ * vermilion there follows too; held, it left the tip hooked below a thinned
+ * lower lip. The skin around follows as a membrane (each vertex's
+ * displacement the mean of its neighbours', the least bending between the
+ * lip and the still skin): the outer skin reached from the vermilion
+ * without crossing the lips' surface, between the lip and `reach`
+ * (subnasale above the upper lip, the labiomental fold below the lower) and
+ * within `margin` beyond the vermilion's widest point on either side (the
+ * modiolus, where the lip's muscles meet a centimetre lateral of the corner
+ * of the mouth); the linings, the other lip within the slit and the skin
+ * outside stay. Negative is thinner, positive fuller, and each channel spans
+ * its side's `envelope`. Pure.
  */
 export function prepareVermilionHeightBasis(input: {
   basis: IAutoMovieHumanFaceBasis;
@@ -119,6 +124,35 @@ export function prepareVermilionHeightBasis(input: {
   // than the other's along the surface: the lips part at the mouth's slit
   // and join only at the commissures.
   const owner = faceLipOwners(P, neighbours, lipVertices, contact);
+  // Each lip's vermilion: its surface joined to its most prominent point
+  // without the lining, which past the free margin faces the mouth (back and
+  // toward the other lip).
+  const vermilions = new Map(
+    (["upper", "lower"] as const).map((name) => {
+      const lip = new Set(
+        [...lipVertices].filter((v) => owner.get(v) === name),
+      );
+      const front = [...lip].reduce((best, v) =>
+        P[3 * v + 2]! > P[3 * best + 2]! ? v : best,
+      );
+      const vermilion = new Set<number>([front]);
+      const stack = [front];
+      while (stack.length !== 0)
+        for (const n of neighbours.get(stack.pop()!)!)
+          if (
+            lip.has(n) &&
+            !vermilion.has(n) &&
+            (normal[3 * n + 2]! > 0 ||
+              (name === "upper"
+                ? normal[3 * n + 1]! > 0
+                : normal[3 * n + 1]! < 0))
+          ) {
+            vermilion.add(n);
+            stack.push(n);
+          }
+      return [name, { lip, vermilion }];
+    }),
+  );
   const sides = input.sides.map((side) => {
     if (basis.channels.some((one) => one.id === side.channel))
       throw new Error(`The basis already has a channel ${side.channel}.`);
@@ -127,28 +161,8 @@ export function prepareVermilionHeightBasis(input: {
     if (side.envelope[0] * input.unit <= -1)
       throw new Error(`${side.channel}'s envelope would close the vermilion.`);
     const upper = side.lip === "upper";
-    const lip = new Set(
-      [...lipVertices].filter((v) => owner.get(v) === side.lip),
-    );
-    // The vermilion: the lip's surface joined to its most prominent point
-    // without the lining, which past the free margin faces the mouth (back
-    // and toward the other lip).
-    const front = [...lip].reduce((best, v) =>
-      P[3 * v + 2]! > P[3 * best + 2]! ? v : best,
-    );
-    const vermilion = new Set<number>([front]);
-    const stack = [front];
-    while (stack.length !== 0)
-      for (const n of neighbours.get(stack.pop()!)!)
-        if (
-          lip.has(n) &&
-          !vermilion.has(n) &&
-          (normal[3 * n + 2]! > 0 ||
-            (upper ? normal[3 * n + 1]! > 0 : normal[3 * n + 1]! < 0))
-        ) {
-          vermilion.add(n);
-          stack.push(n);
-        }
+    const { lip, vermilion } = vermilions.get(side.lip)!;
+    const other = vermilions.get(upper ? "lower" : "upper")!.vermilion;
     // The free margin in a vertex's column: the vermilion's point nearest
     // the other lip within `column` across.
     const margin = (x: number): number => {
@@ -183,6 +197,12 @@ export function prepareVermilionHeightBasis(input: {
     }
     if (held.size === 0)
       throw new Error(`The ${side.lip} lip has no free margin.`);
+    // The lips are two bodies only where the slit parts them: past its end,
+    // the nearest the lip comes to the midline beside the other lip, they
+    // are one tissue, and the other lip's part there follows as skin does.
+    const slit = Math.min(
+      ...[...lip].filter(joined).map((v) => Math.abs(P[3 * v]!)),
+    );
     const half =
       Math.max(...[...vermilion].map((v) => Math.abs(P[3 * v]!))) +
       input.margin;
@@ -192,14 +212,18 @@ export function prepareVermilionHeightBasis(input: {
       : [side.reach, Math.max(...ys)];
     if (!(low < high)) throw new Error(`${side.channel} reaches nowhere.`);
     // The skin that follows: the outer skin reached from the vermilion
-    // without crossing the lips' surface, within the reach and the margin.
-    stack.push(...vermilion);
+    // without crossing the lips' surface, within the reach and the margin,
+    // and past the slit's end the other lip's vermilion.
+    const stack = [...vermilion];
     while (stack.length !== 0) {
       const v = stack.pop()!;
       for (const n of neighbours.get(v)!) {
-        if (field.has(n) || lipVertices.has(n)) continue;
-        const y = P[3 * n + 1]!;
-        if (Math.abs(P[3 * n]!) < half && y > low && y < high) {
+        if (field.has(n)) continue;
+        const [x, y] = [P[3 * n]!, P[3 * n + 1]!];
+        if (
+          (other.has(n) && Math.abs(x) >= slit) ||
+          (!lipVertices.has(n) && Math.abs(x) < half && y > low && y < high)
+        ) {
           field.set(n, 0);
           stack.push(n);
         }

@@ -121,10 +121,11 @@ const fixture = (slit: boolean): IAutoMovieHumanFaceBasis => {
  *    Thinner moves each upper vermilion vertex over the slit toward its
  *    column's lowest vermilion point by the unit of its distance (the one
  *    5 mm above it by a fifth of that), the lower lip's toward its column's
- *    highest; the vermilion toward the joined commissures and the skin
- *    beyond each lip follow part of the way, less further out; the lining,
- *    the other lip, the skin beyond the margin across and past the reach
- *    have no row; fuller is thinner's negative.
+ *    highest; the vermilion toward the joined commissures, the other lip's
+ *    vermilion past the slit's end and the skin beyond each lip follow part
+ *    of the way, less further out; the lining, the other lip within the
+ *    slit, the skin beyond the margin across and past the reach have no
+ *    row; fuller is thinner's negative.
  * 2. Each channel spans its envelope with its description; the revision
  *    restamps documents and controls.
  * 3. A repeated revision, a unit outside (0, 1), an envelope missing a
@@ -189,6 +190,8 @@ export const test_subject_vermilion_height_basis_preparation = (): void => {
       higher > above &&
       above > upper.get(find(0, 0.00625))! &&
       !upper.has(find(0, -0.00625)) &&
+      upper.get(find(0.005, -0.00125))! < 0 &&
+      upper.get(find(0.01, -0.00375))! < 0 &&
       !upper.has(find(0.02, 0.00875)) &&
       !upper.has(find(0, 0.01625)) &&
       [...rows("upperV.fuller")].every(([v, d]) => d === -upper.get(v)!),

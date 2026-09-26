@@ -10,17 +10,16 @@
  * unseen readings take them. One unit moves a vermilion vertex 15 percent of
  * its height above (below) its column's free margin, the column 1.5 mm
  * across, and the skin that follows reaches a centimetre beyond the lip's
- * corner (the modiolus). At the midline the source's upper vermilion is
- * 11 mm: -4, 60 percent thinner, brings it to 4.4 mm, two standard
- * deviations below the thinnest norm the study cites (Korean women,
- * 7.0 +- 1.5 mm), and +3, 45 percent fuller, is its last end at which no
- * triangle turns over (at +4 the Cupid's bow's peaks do). The source's lower
- * vermilion is 13 mm with 4 mm of cutaneous lip above the labiomental fold:
- * -3, 45 percent thinner, is its last end free of turned triangles (at -4
- * the vermilion beside the commissures turns), and 30 percent fuller
- * presses its border against the fold, so its envelope stops at 1, the
- * border 2 mm down. Every end reads as a lip through the editor, front and
- * profile (`prepareVermilionHeightBasis`).
+ * corner (the modiolus).
+ *
+ * Each channel's envelope is the lip envelope revision's rule: it reaches
+ * the populations' reference interval of its vermilion height over mouth
+ * width, the union of each sampled population's mean plus and minus two
+ * standard deviations, as `lip-envelope-receipt.json` records it, read the
+ * same way (`faceVermilionRatios`). The channels move the vermilion only
+ * vertically, so the measure is linear in the channel and its ends are
+ * where the line through the neutral and one unit crosses the interval's
+ * edges, rounded outward to hundredths.
  * The revision is refused unless every document and each channel at its
  * ends build, and each end turns over or crosses none of the skin's
  * triangles it moves (`faceSupportFaults`).
@@ -45,6 +44,7 @@ import {
 } from "./faceMidsagittal";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
 import { faceMidlineTriangles } from "./faceUnseenNorms";
+import { faceVermilionRatios } from "./prepareLipEnvelopeBasis";
 import { prepareVermilionHeightBasis } from "./prepareVermilionHeightBasis";
 
 const [studyDirectory, revision, output] = process.argv.slice(2);
@@ -111,30 +111,75 @@ const fold = faceProfileLandmarks({
   root: 0.1,
 }).supramentale;
 if (fold === null) throw new Error("The neutral has no labiomental fold.");
-const prepared = prepareVermilionHeightBasis({
-  basis: source,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
-  revision,
-  skin: "Human",
-  lips: "Human/lips",
-  sides: [
-    {
-      channel: "upperVermilionHeight",
-      lip: "upper",
-      reach: base.subnasale[0],
-      envelope: [-4, 3],
-    },
-    {
-      channel: "lowerVermilionHeight",
-      lip: "lower",
-      reach: fold[0],
-      envelope: [-3, 1],
-    },
-  ],
-  unit: 0.15,
-  column: 0.0015,
-  margin: 0.01,
+// The populations' reference intervals, as the lip envelope revision
+// recorded them.
+const envelopeReceipt = read("lip-envelope-receipt.json");
+const intervals = new Map(
+  (
+    envelopeReceipt.json as {
+      envelopes: { measure: "upper" | "lower"; interval: [number, number] }[];
+    }
+  ).envelopes.map((one) => [one.measure, one.interval]),
+);
+const prepare = (envelopes: Record<"upper" | "lower", [number, number]>) =>
+  prepareVermilionHeightBasis({
+    basis: source,
+    documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
+    controls: controls.json as IAutoMovieHumanFaceControlMap,
+    revision,
+    skin: "Human",
+    lips: "Human/lips",
+    sides: [
+      {
+        channel: "upperVermilionHeight",
+        lip: "upper",
+        reach: base.subnasale[0],
+        envelope: envelopes.upper,
+      },
+      {
+        channel: "lowerVermilionHeight",
+        lip: "lower",
+        reach: fold[0],
+        envelope: envelopes.lower,
+      },
+    ],
+    unit: 0.15,
+    column: 0.0015,
+    margin: 0.01,
+  });
+const trial = prepare({ upper: [-1, 1], lower: [-1, 1] });
+const skin = trial.basis.surfaces.find((one) => one.id === "Human")!;
+const lipsRegion = skin.regions.find((one) => one.id === "Human/lips")!;
+const ratios = (positions: readonly number[]) =>
+  faceVermilionRatios({
+    positions,
+    lips: lipsRegion.indices,
+    skin: new Set(skin.regions.find((one) => one.id === "Human/skin")!.indices),
+    contact: source.contact!.lips,
+    depth: 0.004,
+  });
+const neutralRatios = ratios(skin.positions);
+const reach = (["upper", "lower"] as const).map((lip) => {
+  const interval = intervals.get(lip)!;
+  const rows = skin.targets[`${lip}VermilionHeight.fuller`]!;
+  const moved = [...skin.positions];
+  for (let i = 0; i < rows.length; i += 4)
+    for (let k = 0; k < 3; ++k) moved[3 * rows[i]! + k]! += rows[i + 1 + k]!;
+  const slope = ratios(moved)[lip] - neutralRatios[lip];
+  const ends = interval.map((edge) => (edge - neutralRatios[lip]) / slope);
+  const envelope: [number, number] = [
+    Math.floor(ends[0]! * 100) / 100,
+    Math.ceil(ends[1]! * 100) / 100,
+  ];
+  if (!(envelope[0] < 0 && envelope[1] > 0))
+    throw new Error(
+      `The neutral's ${lip} vermilion lies outside its interval.`,
+    );
+  return { lip, interval, neutral: neutralRatios[lip], slope, envelope };
+});
+const prepared = prepare({
+  upper: reach[0]!.envelope,
+  lower: reach[1]!.envelope,
 });
 const build = createHumanFaceBasisBuilder(prepared.basis);
 const ends = prepared.basis.channels
@@ -210,11 +255,16 @@ const digest = (bytes: Buffer): string =>
   createHash("sha256").update(bytes).digest("hex");
 const receipt = {
   ...prepared.receipt,
+  envelopes: reach,
   recorded: new Date().toISOString(),
   inputs: {
     basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
     subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
     controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
+    lipEnvelope: {
+      sha256: digest(envelopeReceipt.bytes),
+      bytes: envelopeReceipt.bytes.length,
+    },
   },
   outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
 };
