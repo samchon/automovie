@@ -90,7 +90,7 @@
 
 안정 part는 `frame`, `leg-0..3`, `seat-0..2`, `back-frame`, `back-cushion-0..2`, `arm-left/right`, `pillow-0..2`, L자 상태의 `chaise-frame/seat/front-leg-0..1`이다. 프레임과 긴 의자 프레임은 `upper/side/underside/contact`, 다리는 `shaft/top/sole`, 좌판·등 쿠션·팔·베개·긴 의자 좌판은 `upper/side/underside/seam`, 등 프레임은 `front/back/edge`, 긴 의자 앞다리는 `shaft/top/sole`로 분리한다. 각 부품의 face는 [공통 완결 규칙](000-representation.md#model-address-and-scale)에 따라 전체를 덮는다. 등판 내부 구조와 주름은 blocking 범위 밖이고 실제 착석 하중은 `unverified`다. 정면·측면·상부·45°와 낮은 하부 관찰에서 세 좌석, 바닥 틈, L자 발치가 구별돼야 한다. ref02의 L자 소파는 `chaise-right`의 발치와 개방 동선 관계로 채택하고 ref03의 직선 소파는 `straight`의 낮은 직물 질량으로 채택한다. ref01·04·05에서 보이지 않는 소파 치수는 가져오지 않으며 ref02의 카메라 투시를 길이 비율로 복제하지 않는다.
 
-ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 채택하지 않는다. ref04의 작업실은 접이식 침대 전면·책상·계단 출입 사이의 빈 바닥이 핵심이고, 안락의자 추가 배치가 그 통행을 침범하는지는 아직 검사되지 않았다. 이 모델 단계에서 안락의자를 놓았다고 주장하지 않으며 작업실 가구 밀도는 instances 관찰 전까지 `unverified`다.
+ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 만들지 않고 [별도 안락의자](#accent-chair)로 설계한다. ref04의 작업실은 접이식 침대 전면·책상·계단 출입 사이의 빈 바닥이 핵심이며, 안락의자 배치가 그 통행을 침범하는지는 instances 관찰 전까지 `unverified`다.
 
 <!-- @authored-address-state:start -->
 @address-state straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
@@ -389,3 +389,27 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @address-state display: stand-base, stand-shaft, housing, display-bezel, screen
 @address-state keyboard: keyboard-body, keys-0, keys-1, keys-2, keys-3, keys-4, keys-5, keys-6, keys-7, keys-8, keys-9, keys-10, keys-11, keys-12, keys-13, keys-14, keys-15, keys-16, keys-17, keys-18, keys-19, keys-20, keys-21, keys-22, keys-23, keys-24, keys-25, keys-26, keys-27, keys-28, keys-29, keys-30, keys-31, keys-32, keys-33, keys-34, keys-35, keys-36, keys-37, keys-38, keys-39, keys-40, keys-41, keys-42, keys-43, keys-44, keys-45, keys-46, keys-47
 <!-- @authored-address-state:end -->
+
+## 작업실 안락의자 {#accent-chair}
+
+ref02의 작업실 창가에 놓인 낮은 독립 안락의자를 `accent-chair/default`로 둔다. 바닥 중심이 원점이고 +Z가 앉는 사람의 앞이다. 아래 행의 닫힌 직육면체가 부품의 실제 점유다. 넷의 다리는 좌우·앞뒤 두 위치씩이며, 프레임 위에 좌판, 뒤 가장자리 위에 등판이 선다. 등 쿠션은 등판 앞면과, 좌판은 양팔의 안쪽 면과 각각 유한 면으로 접촉한다. 등 쿠션의 아래면과 좌판의 윗면은 같은 Y 평면에서 만난다. 모서리를 임의로 둥글리는 자유도나 숨은 내부 부재는 없다. 실제 인체 하중은 `unverified`이고 방 안의 통행 폭은 instances가 측정한다.
+
+@inventory default: frame, leg-0, leg-1, leg-2, leg-3, seat, back, back-cushion, arm-left, arm-right
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.43..0.43 | 0..0.82 | -0.35..0.35 | - |
+| @part | default | frame | box | -0.37..0.37 | 0.12..0.28 | -0.35..0.35 | leg-0,leg-1,leg-2,leg-3,seat,back,arm-left,arm-right |
+| @part | default | leg-0 | box | -0.37..-0.32 | 0..0.12 | -0.35..-0.30 | ground,frame |
+| @part | default | leg-1 | box | -0.37..-0.32 | 0..0.12 | 0.30..0.35 | ground,frame |
+| @part | default | leg-2 | box | 0.32..0.37 | 0..0.12 | -0.35..-0.30 | ground,frame |
+| @part | default | leg-3 | box | 0.32..0.37 | 0..0.12 | 0.30..0.35 | ground,frame |
+| @part | default | seat | box | -0.32..0.32 | 0.28..0.44 | -0.27..0.35 | frame,back-cushion,arm-left,arm-right |
+| @part | default | back | box | -0.32..0.32 | 0.28..0.82 | -0.35..-0.27 | frame,back-cushion,arm-left,arm-right |
+| @part | default | back-cushion | box | -0.30..0.30 | 0.44..0.75 | -0.27..-0.17 | back,seat |
+| @part | default | arm-left | box | -0.43..-0.32 | 0.28..0.62 | -0.35..0.35 | frame,back,seat |
+| @part | default | arm-right | box | 0.32..0.43 | 0.28..0.62 | -0.35..0.35 | frame,back,seat |
+
+안정 면 주소는 `frame/outer/underside`, `leg-0..3/shaft/top/sole`, `seat/upper/side/underside`, `back/front/back/edge`, `back-cushion/front/side/back`, `arm-left/right/top/inner/outer`다. ref02의 낮은 팔걸이와 창가 독립 좌석 역할을 채택한다. ref04의 접이식 작업면 앞 의자와는 다른 물체다. 정면·측면·45°에서 등판·좌판·양팔과 네 접지를 확인한다.
+
+@address-state default: frame, leg-0, leg-1, leg-2, leg-3, seat, back, back-cushion, arm-left, arm-right

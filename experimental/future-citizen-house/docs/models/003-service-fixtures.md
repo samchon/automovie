@@ -64,10 +64,12 @@
 
 ## 변기 {#toilet}
 
+@prose-dim cistern은: cistern
+
 @axis-control lid-open: bowl, Y, 0.29, interior floor
 @axis-control lid-open: seat, Z, -0.125, rear ring edge
 
-`toilet`은 바닥 점유 0.42×0.72m, seat 상단 0.465m, cistern 상단 0.82m, 버튼을 포함한 최고점 0.828m다. 바닥 접촉 중심이 원점, +Z가 앉는 앞이다. pedestal은 x폭 0.31, z깊이 0.47, y=0..0.27; bowl 외곽은 0.41×0.59m, y=0.27..0.43이며 아래면이 pedestal 상면에 닿는다. bowl의 상단 안쪽 구멍은 0.27×0.40m 타원과 깊이 0.14m의 음각(바닥 y=0.29)이다. seat는 x=±0.21,z=−0.21..+0.36,y=0.43..0.465의 두께 0.035m 고리로 bowl 상면에 닿고, lid는 뒤쪽 힌지 x=0,y=0.465,z=−0.20에서 위로 선 검사 상태 하나로 두며 폭 0.35, 높이 0.34, 두께 0.018m이고 y=0.465..0.805, z=−0.20..−0.182다. 이는 bowl을 보이게 하는 열린 상태이며 닫힘 상태를 동시에 내지 않는다. cistern은 0.40×0.145×0.39m로 z=−0.36..−0.215, y=0.43..0.82이며 bowl 뒤쪽 상면과 y=0.43에서 닿는다. seat 뒤 edge z=−0.21과 cistern 앞면 사이에는 0.005m의 열린 틈이 있고 seat는 bowl 고리의 유한 면으로 지지된다. flush 버튼은 0.05×0.035×0.008m로 중심 x=0,y=0.824,z=−0.285로 아래면 y=0.82가 cistern 상면에 면 접촉한다. `pedestal/outer/sole`, `bowl/inner/outer/rim`, `seat/upper/edge/underside`, `lid/front/back/edge`, `cistern/front/back/side/top/sole`, `flush/outer/contact`가 안정 주소다. bowl 내부는 바닥으로 이어지는 닫힌 곡면이며 상단 개구와 중앙 빈 공간만 열린 공간이다. 상부·정면·측면에서 bowl 구멍, seat와 tank 경계가 읽혀야 한다. ref02의 두 화장실 도기 형상을 채택하지만 사진의 화면 면적에서 폭을 추정하지 않는다. ref01·03·04·05에는 변기 판별 세부가 없고 수세 성능은 `unverified`다.
+`toilet`은 바닥 점유 0.42×0.72m, seat 상단 0.465m, cistern 상단 0.82m, 버튼을 포함한 최고점 0.828m다. 바닥 접촉 중심이 원점, +Z가 앉는 앞이다. pedestal은 x폭 0.31, z깊이 0.47, y=0..0.27; bowl 외곽은 0.41×0.59m, y=0.27..0.43이며 아래면이 pedestal 상면에 닿는다. bowl의 상단 안쪽 구멍은 0.27×0.40m 타원과 깊이 0.14m의 음각(바닥 y=0.29)이다. seat는 x=±0.21,z=−0.21..+0.36,y=0.43..0.465의 두께 0.035m 고리로 bowl 상면에 닿고, lid는 뒤쪽 힌지 x=0,y=0.465,z=−0.20에서 위로 선 검사 상태 하나로 두며 폭·높이·두께와 Y·Z 경계는 아래 `@part lid` 행이 소유한다. 이는 bowl을 보이게 하는 열린 상태이며 닫힘 상태를 동시에 내지 않는다. cistern은 X 폭 0.40m·Z 깊이 0.145m·Y 높이 0.39m로 z=−0.36..−0.215, y=0.43..0.82이며 bowl 뒤쪽 상면과 y=0.43에서 닿는다. seat 뒤 edge z=−0.21과 cistern 앞면 사이에는 0.005m의 열린 틈이 있고 seat는 bowl 고리의 유한 면으로 지지된다. flush 버튼은 0.05×0.035×0.008m로 중심 x=0,y=0.824,z=−0.285로 아래면 y=0.82가 cistern 상면에 면 접촉한다. `pedestal/outer/sole`, `bowl/inner/outer/rim`, `seat/upper/edge/underside`, `lid/front/back/edge`, `cistern/front/back/side/top/sole`, `flush/outer/contact`가 안정 주소다. bowl 내부는 바닥으로 이어지는 닫힌 곡면이며 상단 개구와 중앙 빈 공간만 열린 공간이다. 상부·정면·측면에서 bowl 구멍, seat와 tank 경계가 읽혀야 한다. ref02의 두 화장실 도기 형상을 채택하지만 사진의 화면 면적에서 폭을 추정하지 않는다. ref01·03·04·05에는 변기 판별 세부가 없고 수세 성능은 `unverified`다.
 
 타원형 bowl 구멍의 X 반축은 0.135m, Z 반축은 0.20m이고 중심은 (x=0,z=0)이다. seat의 타원형 구멍은 같은 반축을 가지되 외곽 좌표에 맞춰 중심 (x=0,z=+0.075)로 옮긴다. 두 열린 영역의 교집합이 bowl 내부를 드러내며 seat 뒤쪽 z=−0.21..−0.125m의 고리 상면에 lid 하단 z=−0.20..−0.182m가 유한 면으로 닿는다. `@ellipse`의 마지막 두 값은 호스트 외곽 타원의 X/Z 중심이고, bowl의 안쪽 면은 바닥 y=0.29에서 닫히고, seat는 `@ellipse`가 정한 X/Z 타원 개구가 두께 전체를 관통하는 고리다. seat의 열린 개구에는 바닥 원판을 만들지 않는다.
 
@@ -237,6 +239,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @inventory wall-worktop: top
 @support wall-worktop: cabinet-and-shelf, kitchen-base/2900x870x620/closed, top, 0, 0, 0
 @void wall-worktop: top, -0.325..0.325, 0.913..0.925, -0.25..0.25
+@void wall-worktop: top, 0.90..1.30, 0.87..0.925, -0.08..0.22
 @inventory cooktop: body, rim, zone-0, zone-1, zone-2, zone-3
 @support cooktop: cooking-appliances, wall-worktop, top, 0, 0, 0
 @void cooktop: rim, -0.31..0.31, 0.925..0.927, -0.235..0.235
@@ -268,7 +271,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | oven | knob-1 | cylinder | 0.2025..0.2375 | 0.6725..0.7075 | 0.31..0.328 | controls |
 | @part | oven | handle | box | -0.18..0.18 | 0.6675..0.6925 | 0.31..0.338 | controls |
 
-벽 조리대는 `wall-worktop`(상면 y=0.925m, X 폭 3.00, Z 깊이 0.67), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. oven은 cabinet 중앙 폭 0.64m 개방 bay에 x=0,y=0.15..0.74,z=+0.022에 넣어 전면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
+벽 조리대는 `wall-worktop`(상면 y=0.925m, X 폭 3.00, Z 깊이 0.67), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 같은 상판 오른쪽은 [뒤 조리대 싱크·수전](#rear-counter-sink)의 외벽이 통과하도록 `@void wall-worktop: top` 두 번째 행의 전 두께를 절삭한다. sink의 외벽은 cabinet 상판의 대응 개구를 지나가고 서랍 윗면보다 위에서 끝난다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. oven은 cabinet 중앙 폭 0.64m 개방 bay에 x=0,y=0.15..0.74,z=+0.022에 넣어 전면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
 
 주소는 `top/upper/edge/underside`(wall-worktop), `body/top/edge/underside`, `rim/upper/edge/underside`, `zone-0..3/upper/edge`(cooktop), `body/front/back/side-left/side-right/top/sole`, `front-frame/front/back/edge`, `window/front/back/edge`, `handle/outer/contact`, `controls/front/edge`, `knob-0..1/outer/contact`(oven)다. 정면·상부·45°에서 네 zone, oven 빈 bay, 서랍과 가전의 분리를 확인한다. ref03의 초록 서랍 하부장·밝은 상판·검은 매립 조리면을 채택한다. ref02는 공용부 위치 근거이며 ref01·04·05에서는 조리대 치수를 읽지 않는다. 가열·후드 환기 성능은 `unverified`다.
 
@@ -371,3 +374,27 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @address-state washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
 @address-state dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
 <!-- @authored-address-state:end -->
+
+## 뒤 조리대 싱크·수전 {#rear-counter-sink}
+
+
+ref03의 섬 뒤쪽 조리대에 보이는 별도 수전을 `rear-counter-sink/default`의 일체형 얕은 싱크·수전으로 설계한다. 원점은 `wall-worktop`과 같은 조리대 바닥 중심이고 +Z가 조리자 쪽이다. `bowl`과 `rim`의 닫힌 외벽에서 각 `@void` 내부를 실제로 빼며, 외벽은 조리대와 하부장 상판의 같은 X/Z 개구를 통과한다. 그릇 바닥은 `bowl` 외면의 Y 하한과 내부 `@void`의 Y 하한 사이의 닫힌 층이며 cabinet 서랍 윗면보다 위에 있다. rim은 조리대 상면에 사방의 유한 환형 면으로 놓이고 수전 받침도 이 평면에 닿는다. 네모 관의 세 직선 부재는 서로의 끝 평면에 유한 면으로 맞닿고, 출구는 아래를 향한다. 굽은 관·별도 손잡이·급배수 기능은 이 blocking 설계에 없다.
+
+@inventory default: bowl, rim, tap-base, tap-riser, tap-arm, tap-outlet
+@support default: cooking-appliances, wall-worktop, top, 0, 0, 0
+@void default: bowl, 0.915..1.285, 0.82..0.925, -0.065..0.205
+@void default: rim, 0.915..1.285, 0.925..0.94, -0.065..0.205
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | 0.88..1.32 | 0.80..1.28 | -0.22..0.24 | - |
+| @part | default | bowl | hollow | 0.90..1.30 | 0.80..0.925 | -0.08..0.22 | rim |
+| @part | default | rim | hollow | 0.88..1.32 | 0.925..0.94 | -0.10..0.24 | bowl,support@0.925 |
+| @part | default | tap-base | box | 1.06..1.14 | 0.925..0.945 | -0.22..-0.14 | support@0.925,tap-riser |
+| @part | default | tap-riser | box | 1.0875..1.1125 | 0.945..1.255 | -0.1925..-0.1675 | tap-base,tap-arm |
+| @part | default | tap-arm | box | 1.0875..1.1125 | 1.255..1.28 | -0.18..0.10 | tap-riser,tap-outlet |
+| @part | default | tap-outlet | box | 1.0875..1.1125 | 1.20..1.255 | 0.075..0.10 | tap-arm |
+
+안정 주소는 `bowl/inner/outer/bottom/rim`, `rim/upper/edge/underside`, `tap-base/outer/contact`, `tap-riser/shaft/top/sole`, `tap-arm/outer/end`, `tap-outlet/outer/end`다. 상부·정면·45°에서 오른쪽 조리대 개구가 쿡탑 개구와 분리됐는지, 싱크 바닥과 수전 출구의 관계를 확인한다. 참조 그림은 물길의 기능이나 실제 사용성의 근거가 아니며 이는 `unverified`다.
+
+@address-state default: bowl, rim, tap-base, tap-riser, tap-arm, tap-outlet

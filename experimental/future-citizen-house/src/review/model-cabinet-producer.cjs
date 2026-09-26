@@ -7,7 +7,7 @@ const { resolve } = require("node:path");
 const documentPath = resolve(__dirname, "../../docs/models/002-storage-and-sleep.md");
 const startMarker = "<!-- @generated-cabinet-parts:start -->";
 const endMarker = "<!-- @generated-cabinet-parts:end -->";
-/** @typedef {{panel:number,back:number,toe:number,frontInset:number,doorThickness:number,seam:number,leafMaximum:number,hingeHalfWidth:number,hingeDepth:number,hingeY:number,handleWidth:number,handleHeight:number,handleDepth:number,drawerWall:number,shelfPitch:number,islandSeam:number}} CabinetSpec */
+/** @typedef {{panel:number,back:number,toe:number,frontInset:number,cleatDepth:number,doorThickness:number,seam:number,leafMaximum:number,hingeHalfWidth:number,hingeDepth:number,hingeY:number,handleEdgeInset:number,handleWidth:number,handleHeight:number,handleDepth:number,drawerWall:number,shelfPitch:number,islandSeam:number}} CabinetSpec */
 /** @typedef {{id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string}} Part */
 /** @typedef {{state:string,envelope:{x:[number,number],y:[number,number],z:[number,number]},parts:Part[],voids:{host:string,x:[number,number],y:[number,number],z:[number,number]}[],pieces:{host:string,x:[number,number],y:[number,number],z:[number,number]}[]}} Assembly */
 
@@ -32,8 +32,8 @@ function specification(source) {
   if (new Set(variants).size !== variants.length || variants.length !== 22)
     throw Error("cabinet variant inventory incomplete or duplicated");
   const required = /** @type {(keyof CabinetSpec)[]} */ ([
-    "panel", "back", "toe", "frontInset", "doorThickness", "seam", "leafMaximum",
-    "hingeHalfWidth", "hingeDepth", "hingeY", "handleWidth", "handleHeight", "handleDepth",
+    "panel", "back", "toe", "frontInset", "cleatDepth", "doorThickness", "seam", "leafMaximum",
+    "hingeHalfWidth", "hingeDepth", "hingeY", "handleEdgeInset", "handleWidth", "handleHeight", "handleDepth",
     "drawerWall", "shelfPitch", "islandSeam"
   ]);
   if (!required.every((key) => typeof spec[key] === "number" && Number.isFinite(spec[key]) && spec[key] > 0))
@@ -55,10 +55,10 @@ function specification(source) {
     "상자 Y 점유는 각 전면 Y 하한+0.015..상한−0.010m",
     "oven-sill`(x=±0.32,y=0.098..0.15,z=−D/2+0.012..D/2−0.023)",
     "x=−0.418..+0.422,z=−1.307..+1.307",
-    "높이는 상·하판과 0.003m clear를 두어 y=0.101..0.849",
+    "높이는 상·하판과 t clear를 두어 y=0.101..0.849",
     "service-stile-j",
     "n=max(2,ceil((W−0.006)/0.60))",
-    "n=ceil((2.65−0.008)/0.60)=5"
+    "n=ceil((D−2s)/0.60)=5"
   ];
   for (const text of commitments) if (!prose.includes(text))
     throw Error(`cabinet prose/table commitment absent: ${text}`);
@@ -154,7 +154,7 @@ function assemble(p, id, opened) {
         pieces.push({ host: hingeId, x: span(-halfW + p.doorThickness, -halfW + 0.022),
           y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(hz - p.hingeHalfWidth, hz + p.hingeHalfWidth) });
       }
-      const handleZ = z1 - 0.055, hy = p.toe + p.seam + 0.55 * (H - 0.086);
+      const handleZ = z1 - p.handleEdgeInset, hy = p.toe + p.seam + 0.55 * (H - 0.086);
       const handle = rotate(span(-halfW, -halfW + p.handleDepth),
         span(handleZ - p.handleWidth / 2, handleZ + p.handleWidth / 2));
       voids.push({ host: `service-door-${i}`, x: handle.x,
@@ -170,11 +170,13 @@ function assemble(p, id, opened) {
     add(parts, "side-right", "box", span(halfW - p.panel, halfW), span(lower, upper), span(backInner, front), "back,bottom,top");
     if (!wall) add(parts, "toe", "box", span(-halfW, halfW), span(0, p.toe), span(-halfD, halfD - 0.05), "ground,back,bottom");
     if (wall) for (const [i, x] of [-(halfW - 0.12), halfW - 0.12].entries())
-      add(parts, `cleat-${i}`, "box", span(x - 0.04, x + 0.04), span(0.13, 0.19), span(-halfD - 0.025, -halfD), "back,wall");
+      add(parts, `cleat-${i}`, "box", span(x - 0.04, x + 0.04), span(0.13, 0.19), span(-halfD - p.cleatDepth, -halfD), "back,wall");
     if (wall) add(parts, "fixed-front-bottom", "box", span(-halfW, halfW),
       span(0, p.toe + p.seam), span(front, halfD), "side-left,side-right,bottom");
     if (kind === "vanity") voids.push({ host: "top", x: span(-(0.68 * W + 0.04) / 2, (0.68 * W + 0.04) / 2),
       y: span(upper, H), z: span(-0.145, 0.195) });
+    if (kind === "kitchen-base") voids.push({ host: "top", x: span(0.90, 1.30),
+      y: span(upper, H), z: span(-0.08, 0.22) });
     if (["open-shelf", "tall", "service", "wall", "bench-base"].includes(kind)) {
       const count = Math.max(1, Math.ceil((H - p.toe) / p.shelfPitch));
       const divided = kind === "tall" && W >= 1.30;
@@ -244,7 +246,7 @@ function assemble(p, id, opened) {
             pieces.push({ host: `hinge-${2*i+j}`, x: span(hx - p.hingeHalfWidth, hx + p.hingeHalfWidth),
               y: span(cy - p.hingeDepth / 2, cy + p.hingeDepth / 2), z: span(halfD - p.doorThickness, halfD - 0.001) });
           }
-          const handleX = i % 2 ? x0 + 0.055 : x1 - 0.055;
+          const handleX = i % 2 ? x0 + p.handleEdgeInset : x1 - p.handleEdgeInset;
           const hy = p.toe + p.seam + 0.55 * (H - 0.086);
           const inset = rotate(span(handleX - p.handleWidth / 2, handleX + p.handleWidth / 2), span(halfD - p.handleDepth, halfD));
           voids.push({ host: `door-${i}`, x: inset.x, y: span(hy - p.handleHeight / 2, hy + p.handleHeight / 2), z: inset.z });
@@ -327,7 +329,7 @@ function assemble(p, id, opened) {
       }
     }
   }
-  const zMin = wall ? -halfD - 0.025 : -halfD;
+  const zMin = wall ? -halfD - p.cleatDepth : -halfD;
   const zMax = opened && !island ? halfD + (W - (Math.max(2, Math.ceil((W-0.006)/p.leafMaximum)) + 1)*p.seam) /
     Math.max(2, Math.ceil((W-0.006)/p.leafMaximum)) - 0.022 : halfD;
   const envelope = island ? { x: span(opened ? -0.9432 : -halfW, halfW), y: span(0, H), z: span(-halfD, halfD) }

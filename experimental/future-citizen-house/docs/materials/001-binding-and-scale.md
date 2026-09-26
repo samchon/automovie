@@ -65,7 +65,7 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 
 검사는 [전체 바인딩 census](007-observation.md#binding-census)다. 기존 모델 ID의 증가 자체는 geometry 증가가 아니지만 모델별 부재 선택, 동일 world bounds, member 정체성, 모든 기존 topology 참조를 대조해야 한다. 하나의 완결 표면을 여러 사후 칠하기 owner가 나누어 갖는 구현은 이 설계와 맞지 않는다.
 
-새 [생활 사물 모델](../models/005-everyday-objects.md)의 `body`는 아래 상태별 역할에 결합한다. `states` 열의 쉼표는 같은 prototype 안의 각 명시 상태를 뜻한다. `body/*`는 해당 상태가 선언한 모든 가시 face이며, 닫힌 접촉면은 같은 재료 ID를 갖지만 렌더하지 않는다. 모델이 face를 더 만들면 같은 상태의 역할을 따라야 하고, 물체 형상·부품·배치는 이 표가 추가하지 않는다. 기존 33개 모델의 결합은 각 마감 H2가 소유한다. 아래의 `solid`는 baseColor만, `oak-grain`과 `woven-grain`은 이미 정한 절차형 색상 texture를 뜻한다. texture 비트맵 파일은 이 설계에 넣지 않는다.
+새 [생활 사물 모델](../models/005-everyday-objects.md)의 `body`는 아래 상태별 역할에 결합한다. `states` 열의 쉼표는 같은 prototype 안의 각 명시 상태를 뜻한다. `body/*`는 해당 상태가 선언한 모든 가시 face이며, 닫힌 접촉면은 같은 재료 ID를 갖지만 렌더하지 않는다. 모델이 face를 더 만들면 같은 상태의 역할을 따라야 하고, 물체 형상·부품·배치는 이 표가 추가하지 않는다. 기존 모델의 결합은 각 마감 H2가 소유하며, 이번에 추가한 작업실 안락의자와 뒤 조리대 싱크·수전은 아래 행에서 면 역할을 명시한다. 아래의 `solid`는 baseColor만, `oak-grain`과 `woven-grain`은 이미 정한 절차형 색상 texture를 뜻한다. texture 비트맵 파일은 이 설계에 넣지 않는다.
 
 | prototype | states | surface | finish/response | tile U×V (m) | primary UV | texture 실패 시 fallback | model host |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -108,6 +108,10 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | kitchen-extractor | default | filter-right/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/005-everyday-objects.md#kitchen-extractor) |
 | kitchen-extractor | default | filter-left/underside | prop-steel | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#kitchen-extractor) |
 | kitchen-extractor | default | filter-right/underside | prop-steel | 없음 | face normal만 사용 | solid baseColor | [host](../models/005-everyday-objects.md#kitchen-extractor) |
+| accent-chair | default | frame/*,leg-0..3/* | oak-furniture | [목재 반복](004-wood.md#furniture-wood) oak-grain | surface-metres, 긴 local 축을 V | texture 자원 누락은 주소 Error | [host](../models/001-seating-and-work.md#accent-chair) |
+| accent-chair | default | seat/*,back/*,back-cushion/*,arm-left/right/* | textile-linen/green | [직물 반복](005-soft-finishes.md#textiles) | 모델 face의 surface-metres | texture 자원 누락은 주소 Error | [host](../models/001-seating-and-work.md#accent-chair) |
+| rear-counter-sink | default | bowl/*,rim/* | prop-steel | 없음 | face normal만 사용 | solid baseColor | [host](../models/003-service-fixtures.md#rear-counter-sink) |
+| rear-counter-sink | default | tap-base/*,tap-riser/*,tap-arm/*,tap-outlet/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/003-service-fixtures.md#rear-counter-sink) |
 
 이 표의 새 `prop-*`는 색·roughness·metallic과 적힌 clearcoat·transmission·thickness·ior 외에는 [재료 기본값](#material-delivery)을 따른다. `prop-container-glass`의 thickness는 광학 응답값이며 용기의 실제 벽 두께는 models의 형상이 소유한다. `prop-container-glass`는 투명 용기 근사이고 `prop-mirror`는 환경 반사만 반영해 정확한 실내 거울상은 `unverified`다. 위의 결합은 제작 목표이며 현재 materialSources의 실제 바인딩이나 렌더 관찰을 뜻하지 않는다. 누락된 owner/state/part/face 또는 texture 자원은 같은 주소를 출력하고 실패한다. 단색 행의 fallback은 없는 texture를 찾는 경로가 아니라 명시된 baseColor 자체다. 비균일 크기 변종은 [metric 규칙](#metric-texture-coordinates)에 따라 실제 표면 m로 UV를 작성한다.
 
