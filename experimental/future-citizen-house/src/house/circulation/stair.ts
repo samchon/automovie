@@ -132,6 +132,9 @@ export function stair(a: Assembly): void {
           0.022,
         ),
       );
+      // Extend only the two horizontal endpoints toward their supports. The
+      // endpoint heights stay 0.12 m below the first and last tread tops;
+      // this makes the depth beneath intermediate treads vary along the axis.
       ids.push(
         a.rod(
           "stair-" + flight + "-stringer-" + side,
@@ -174,7 +177,8 @@ export function stair(a: Assembly): void {
       v(x, datum.floors[0] + halfRise + guardHeight, -4.46),
       0.022,
     );
-    for (let i = 0; i <= 10; i++)
+    // The front rail owns both corner posts at z=-5.48.
+    for (let i = 1; i <= 10; i++)
       a.rod(
         "landing-side-post-" + x + "-" + i,
         "entry",

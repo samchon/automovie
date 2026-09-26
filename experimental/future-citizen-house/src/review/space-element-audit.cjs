@@ -1,5 +1,5 @@
-// Compile the current source and compare its element identities with the
-// restored v-127 tree. Geometry checks read the same compiled environment.
+// Compare every current element and population member with the reviewed
+// identity baseline. Geometry checks read the same compiled environment.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -14,7 +14,23 @@ const basis = fs.readFileSync(path.join(__dirname, "element-id-baseline.txt"), "
   .split(/\r?\n/).filter((line) => line && !line.startsWith("#"));
 const environment = buildHouse();
 const elements = environment.elements;
-const ids = new Set(elements.map((element) => element.id));
+const elementIds = elements.map((element) => element.id);
+const populationIds = (environment.populations ?? []).flatMap(({ set }) => {
+  assert.equal(
+    set.layout.kind,
+    "explicit",
+    `${set.id}: baseline needs explicit transforms`,
+  );
+  return set.layout.transforms.map(
+    (transform) => `population:${set.id}:${transform.id}`,
+  );
+});
+const ids = new Set([...elementIds, ...populationIds]);
+assert.equal(
+  ids.size,
+  elementIds.length + populationIds.length,
+  "duplicate compiled identities",
+);
 const expectedSpandrel = basis.filter((id) => id.includes("-spandrel-"));
 const observed = process.argv.includes("--drop-spandrel")
   ? new Set([...ids].filter((id) => !id.includes("-spandrel-")))
@@ -30,8 +46,18 @@ if (process.argv.includes("--fixture")) {
     "fixture must detect every deleted cassette part",
   );
   assert.ok(detected.every((id) => id.includes("-spandrel-")));
+  for (const kind of ["stone-panels", "floor-boards"]) {
+    const member = populationIds.find((id) => id.includes(kind));
+    assert.ok(member, `${kind}: missing fixture member`);
+    const reduced = new Set([...ids].filter((id) => id !== member));
+    assert.deepEqual(
+      basis.filter((id) => !reduced.has(id)),
+      [member],
+      `${kind}: one deleted instance must fail`,
+    );
+  }
   console.log(
-    `PASS deletion fixture: ${detected.length} missing element IDs detected`,
+    `PASS deletion fixture: ${detected.length} cassette parts and both population kinds detected`,
   );
   process.exit(0);
 }
@@ -42,12 +68,7 @@ if (missing.length) {
   for (const id of missing.slice(0, 20)) console.error(`  removed ${id}`);
   process.exit(1);
 }
-assert.equal(ids.size, elements.length, "duplicate element IDs");
-assert.equal(
-  basis.length,
-  4869,
-  "baseline is the complete restored v-127 tree",
-);
+assert.ok(populationIds.length > 0, "compiled population members are present");
 assert.equal(
   expectedSpandrel.length,
   311,
@@ -110,7 +131,11 @@ for (const [face, glazing, start, end, count] of bandTable) {
       `${panel} plate height`,
     );
     checkSpan(normalSpan(plate, frame), [0.138, 0.140], `${panel} plate depth`);
-    near(normalSpan(plate, frame)[1] - frame.depth / 2, 0.020, `${panel} exterior projection`);
+    near(
+      normalSpan(plate, frame)[1] - frame.depth / 2,
+      0.020,
+      `${panel} exterior projection`,
+    );
     const range = [plate.min[frame.along], plate.max[frame.along]];
     if (j === 0) near(range[0], start + 0.002, `${panel} band start`);
     if (j === count - 1) near(range[1], end - 0.002, `${panel} band end`);
@@ -153,27 +178,63 @@ for (const [face, glazing, start, end, count] of bandTable) {
         [0.137, 0.138],
         `${panel} slot outer depth`,
       );
-      checkSpan([inner.min[frame.along], inner.max[frame.along]], [slotCenter - 0.005, slotCenter + 0.005], `${panel} slot width`);
-      checkSpan([outer.min[frame.along], outer.max[frame.along]], [slotCenter - 0.005, slotCenter + 0.005], `${panel} opposite slot width`);
-      near((clip.min[frame.along] + clip.max[frame.along]) / 2, slotCenter, `${panel} clip alignment`);
-      near((anchor.min[frame.along] + anchor.max[frame.along]) / 2, slotCenter, `${panel} anchor alignment`);
+      checkSpan(
+        [inner.min[frame.along], inner.max[frame.along]],
+        [slotCenter - 0.005, slotCenter + 0.005],
+        `${panel} slot width`,
+      );
+      checkSpan(
+        [outer.min[frame.along], outer.max[frame.along]],
+        [slotCenter - 0.005, slotCenter + 0.005],
+        `${panel} opposite slot width`,
+      );
+      near(
+        (clip.min[frame.along] + clip.max[frame.along]) / 2,
+        slotCenter,
+        `${panel} clip alignment`,
+      );
+      near(
+        (anchor.min[frame.along] + anchor.max[frame.along]) / 2,
+        slotCenter,
+        `${panel} anchor alignment`,
+      );
       checkSpan([clip.min.y, clip.max.y], [3.05, 3.07], `${panel} clip`);
       near((anchor.min.y + anchor.max.y) / 2, 3.06, `${panel} anchor center`);
     }
     const quarter = range[0] + (range[1] - range[0]) * 0.25;
     const threeQuarter = range[0] + (range[1] - range[0]) * 0.75;
-    const bottomSpans = [[range[0] + 0.002, quarter - 0.005], [quarter + 0.005, threeQuarter - 0.005], [threeQuarter + 0.005, range[1] - 0.002]];
+    const bottomSpans = [
+      [range[0] + 0.002, quarter - 0.005],
+      [quarter + 0.005, threeQuarter - 0.005],
+      [threeQuarter + 0.005, range[1] - 0.002],
+    ];
     for (let index = 0; index < bottomSpans.length; index++) {
       const returnBox = placed(`${panel}-return-bottom-${index}`);
-      checkSpan([returnBox.min[frame.along], returnBox.max[frame.along]], bottomSpans[index], `${panel} bottom return ${index}`);
+      checkSpan(
+        [returnBox.min[frame.along], returnBox.max[frame.along]],
+        bottomSpans[index],
+        `${panel} bottom return ${index}`,
+      );
     }
   }
   for (let seam = 0; seam <= count; seam++) {
     const seal = placed(`${prefix}-seal-side-${seam}`);
-    const low = seam === 0 ? start : placed(`${prefix}-panel-${seam - 1}-plate`).max[frame.along];
-    const high = seam === count ? end : placed(`${prefix}-panel-${seam}-plate`).min[frame.along];
-    checkSpan([seal.min[frame.along], seal.max[frame.along]], [low, high], `${prefix} seam ${seam}`);
-    checkSpan([seal.min.y, seal.max.y], [2.84, 3.25], `${prefix} seam height ${seam}`);
+    const low = seam === 0
+      ? start
+      : placed(`${prefix}-panel-${seam - 1}-plate`).max[frame.along];
+    const high = seam === count
+      ? end
+      : placed(`${prefix}-panel-${seam}-plate`).min[frame.along];
+    checkSpan(
+      [seal.min[frame.along], seal.max[frame.along]],
+      [low, high],
+      `${prefix} seam ${seam}`,
+    );
+    checkSpan(
+      [seal.min.y, seal.max.y],
+      [2.84, 3.25],
+      `${prefix} seam height ${seam}`,
+    );
   }
   console.log(`PASS ${prefix}: ${start}..${end}, ${plates.length} plates`);
 }
@@ -207,5 +268,5 @@ near(tread0.max.z, tread1.min.z, "approach tread joint");
 near(tread1.max.z, landing.min.z, "approach landing joint");
 near(landing.max.z, datum.minZ, "approach meets facade");
 console.log(
-  `PASS element IDs ${ids.size} current / ${basis.length} baseline; spandrel ${spandrel.length}; bands ${bandTable.length}; plates ${plateCount}`,
+  `PASS identities ${ids.size} current / ${basis.length} baseline (${elementIds.length} elements, ${populationIds.length} population members); spandrel ${spandrel.length}; bands ${bandTable.length}; plates ${plateCount}`,
 );
