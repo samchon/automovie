@@ -47,7 +47,7 @@ const FIELDS: {
   },
   {
     key: "muscle",
-    label: "Muscle (-1 … +1)",
+    label: "Muscle (-1 … +2)",
     unit: "",
     scale: 1,
     step: 0.05,
@@ -155,7 +155,11 @@ export const renderBodySimpleControls = (props: {
     HTMLInputElement
   >();
   for (const field of FIELDS) {
-    const [low, high] = HUMAN_BODY_SIMPLE_SHAPE.limits[field.key];
+    const [low, high] = HUMAN_BODY_SIMPLE_SHAPE.limits[field.key].map(
+      // in display units, without the binary residue of the scaling (2.2 m
+      // times 100 is 220.00000000000003 cm)
+      (limit) => Math.round(limit * field.scale * 1e6) / 1e6,
+    );
     const row = dom.createElement("div"),
       label = dom.createElement("label"),
       entry = dom.createElement("div"),
@@ -165,8 +169,8 @@ export const renderBodySimpleControls = (props: {
     label.textContent = field.label;
     number.id = "simple-" + field.key;
     number.type = "number";
-    number.min = String(low * field.scale);
-    number.max = String(high * field.scale);
+    number.min = String(low);
+    number.max = String(high);
     number.step = String(field.step);
     number.placeholder = field.optional ? "blank keeps the body's own" : "";
     label.htmlFor = number.id;
@@ -177,7 +181,7 @@ export const renderBodySimpleControls = (props: {
     number.addEventListener("input", touch);
     number.addEventListener("change", touch);
     note.textContent =
-      `${low * field.scale} to ${high * field.scale}${field.unit === "" ? "" : " " + field.unit}` +
+      `${low} to ${high}${field.unit === "" ? "" : " " + field.unit}` +
       (field.optional ? " · optional, measured on the current body" : "");
     entry.append(number);
     row.append(label, entry, note);
