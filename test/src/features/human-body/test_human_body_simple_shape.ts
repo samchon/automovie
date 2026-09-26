@@ -29,8 +29,8 @@ import { nclose } from "../internal/predicates";
  * 2. Every parameter outside its envelope, or not finite, is refused, a
  *    missing required one too; a basis without `macroHeight` or
  *    `macroWeight` is refused, and a tape measurement whose channel the
- *    basis lacks or whose rule the surface cannot answer (the bust rule
- *    reads a landmark the box lacks). The stature channel's rule is a
+ *    basis lacks (the hip and the three limb girths) or whose rule the
+ *    surface cannot answer (the bust rule reads a landmark the box lacks). The stature channel's rule is a
  *    height and every tape channel has a rule.
  * 3. The two Deurenberg regressions at ages 11, 15, 16 and adult, for both
  *    sexes, and their authored fractional-age bridge are checked against
@@ -227,6 +227,15 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.error("a tape measurement without its channel", () =>
     expandHumanBodySimpleShape(basis, { ...base, hipsMetres: 1 }),
   );
+  // the limb girths are solved on their own channels, which the box lacks
+  for (const [name, value] of [
+    ["thighMetres", 0.55],
+    ["upperArmMetres", 0.3],
+    ["calfMetres", 0.37],
+  ] as const)
+    TestValidator.error(`a ${name} without its channel`, () =>
+      expandHumanBodySimpleShape(basis, { ...base, [name]: value }),
+    );
   TestValidator.error("a tape measurement the surface cannot answer", () =>
     expandHumanBodySimpleShape(basis, { ...base, bustMetres: 0.9 }),
   );

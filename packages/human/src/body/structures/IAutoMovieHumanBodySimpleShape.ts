@@ -5,8 +5,9 @@
  *
  * The detailed tier is the canonical one; this is a generator over it and
  * a projection back from it. Five values are required, the ones on an
- * identity card: sex, age, stature, mass and a muscularity. Four tape
- * measurements are optional; when given they are solved against the basis's
+ * identity card: sex, age, stature, mass and a muscularity. Seven tape
+ * measurements are optional (the trunk and limb girths a tailor takes and
+ * the shoulder breadth); when given they are solved against the basis's
  * measurement rules so the built body actually measures them, and when
  * absent the body's sex, age and mass decide them. The expansion
  * (`expandHumanBodySimpleShape`) is a numeric table of terms per channel
@@ -52,4 +53,13 @@ export interface IAutoMovieHumanBodySimpleShape {
 
   /** Shoulder breadth in metres, between the shoulder joints, solved against its rule when given. */
   shoulderMetres?: number;
+
+  /** Thigh girth in metres, the largest girth of the thigh across its axis in its upper part, solved against its rule when given; both thighs move together. */
+  thighMetres?: number;
+
+  /** Upper arm girth in metres, the largest girth of the relaxed upper arm across its axis, solved against its rule when given; both arms move together. */
+  upperArmMetres?: number;
+
+  /** Calf girth in metres, the largest girth of the calf across its axis, solved against its rule when given; both calves move together. */
+  calfMetres?: number;
 }
