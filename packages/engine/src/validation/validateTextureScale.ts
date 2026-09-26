@@ -25,6 +25,7 @@ const TEXTURE_SLOTS = [
   "baseColorTexture",
   "metallicRoughnessTexture",
   "normalTexture",
+  "detailNormalTexture",
   "occlusionTexture",
   "emissiveTexture",
 ] as const;
