@@ -270,7 +270,7 @@ flex의 세 서랍 전면은 서랍장 전면 z=0.23에 두께 0.006m로 면 부
 | @part | bed-1250 | support-right | box | 0.5375..0.5825 | 0..0.70 | 0.2175..0.2625 | ground,top |
 | @part | bed-1250 | drawer-one | box | -0.405..-0.105 | 0.58..0.70 | -0.23..0.23 | top |
 
-prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, `work-desk/bed-1250` 네 개다. 숫자는 상판 X 폭 mm이며 모두 깊이 0.60, 기본 높이 0.74m다. 원점은 바닥에서 상판 폭·깊이의 중심, +Z가 앉는 자리다. flex 상판은 두께 0.04m로 y=0.70..0.74, 좌측 중심 x=-0.61,z=0에 폭 0.18·깊이 0.46·높이 0.70m(y=0..0.70)의 서랍장을, 우측 중심 x=+0.61,z=0에 외경 0.05m의 두 겹 사각 기둥을 둔다. 서랍장 전면의 얕은 세 줄은 y=0.16, 0.32, 0.48 중심의 높이 0.14m 서랍 face이며 손잡이 틈은 각 0.01m다. 벽측에는 길이 1.40m, 높이 0.12m의 고정 back rail을 상판 뒤 z=-0.30..-0.275에 두되 벽 구멍이나 방 lining을 생성하지 않는다. 조절을 읽히게 하는 기둥은 y=0..0.44의 외경 0.05m 하부 사각 sleeve와 y=0.39..0.70의 외경 0.038m 상부 사각 shaft다. 하부 sleeve는 벽 두께 0.006m이고 내경 0.038m의 속 빈 통이며 상부 shaft는 그 보어에 들어가 y=0.39..0.44에서 벽면에만 접한다. 폭 0.062m collar는 y=0.43..0.47, 내경 0.05m의 속 빈 고리로서 y=0.43..0.44에서는 하부 외벽에 접하고 y=0.44..0.47에서는 상부 shaft 둘레에 0.006m 간격을 남긴다. 세 닫힌 부품은 실제 부피를 공유하지 않는다. 기본 상태 하나만 표시하고 높이 이동이나 전동 성능은 주장하지 않는다. 책상 우측에 접힌 보조판은 0.30×0.42×0.025m, 경첩 축은 x=W/2=0.70, y=0.715, z=-0.10..+0.30이며 닫힌 판이 상판 아래에 수직으로 붙는다. 손잡이는 X 0.018×Y 0.08×Z 0.014m로 접힌 판 외측의 x=0.707..0.725,y=0.53..0.61,z=0.09..0.104에 매립하고 판의 해당 면을 절삭한다. flex의 필수 `folded` 상태 전체 메시 AABB는 x=−0.70..+0.725,y=0..0.86,z=−0.30..+0.32m이며 숫자 1400은 상판 폭이다. flex의 back rail은 폭 1.40·깊이 0.025·높이 0.12m로 z=-0.30..-0.275, y=0.74..0.86에 놓는다. flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다. 보조판의 `folded` 상태는 x=0.70..0.725,y=0.415..0.715,z=-0.10..+0.32이다. 지름 0.024m의 `aux-hinge`는 Z축 x=0.70,y=0.715,z=−0.10..+0.30을 따른다. 상판에는 이 축의 x=0.688..0.70,y=0.703..0.727 점유를, 보조판에는 접힌 상태 x=0.70..0.712,y=0.703..0.715 및 열린 상태 x=0.70..0.712,y=0.715..0.727의 점유를 같은 Z 구간에서 각각 원통형으로 절삭한다. 핀의 원통면은 절삭한 두 면에 닿고 어느 상태에서도 판의 닫힌 부피를 관통하지 않는다. `open` 상태는 이 Z축으로 바깥쪽 90° 회전한 판 x=0.70..1.00,y=0.715..0.740,z=-0.10..+0.32와 같은 판에 묻힌 손잡이를 내며 전체 메시 AABB는 x=−0.70..+1.00,y=0..0.86,z=−0.30..+0.32m다. 닫힌 판과 열린 판을 동시에 내지 않는다. 세 침실 변종의 전체 AABB는 각 폭 W, 높이 0.82, 깊이 0.60m다. 세 침실 변종은 같은 상판 두께, 앞쪽 z=+0.24·x=±(W/2−0.065)에 y=0..0.70인 단면 0.045m 고정 다리 둘, 뒤쪽 z=-0.30..-0.275·y=0.74..0.82의 폭 W back rail과 왼쪽 중심 x=−W/2+0.37, y=0.64, z=0인 폭 0.30·깊이 0.46·높이 0.12m 한 서랍을 사용하고 telescopic·collar·aux를 생성하지 않는다.
+prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, `work-desk/bed-1250` 네 개다. 숫자는 상판 X 폭 mm이며 모두 깊이 0.60, 기본 높이 0.74m다. 원점은 바닥에서 상판 폭·깊이의 중심, +Z가 앉는 자리다. flex 상판은 두께 0.04m로 y=0.70..0.74, 좌측 중심 x=-0.61,z=0에 폭 0.18·깊이 0.46·높이 0.70m(y=0..0.70)의 서랍장을, 우측 중심 x=+0.61,z=0에 외경 0.05m의 두 겹 사각 기둥을 둔다. 서랍장 전면의 얕은 세 줄은 y=0.16, 0.32, 0.48 중심의 높이 0.14m 서랍 face이며 서랍 face 사이의 수평 틈은 0.02m이고 손잡이 음각의 깊이만 0.01m다. 벽측에는 길이 1.40m, 높이 0.12m의 고정 back rail을 상판 뒤 z=-0.30..-0.275에 두되 벽 구멍이나 방 lining을 생성하지 않는다. 조절을 읽히게 하는 기둥은 y=0..0.44의 외경 0.05m 하부 사각 sleeve와 y=0.39..0.70의 외경 0.038m 상부 사각 shaft다. 하부 sleeve는 벽 두께 0.006m이고 내경 0.038m의 속 빈 통이며 상부 shaft는 그 보어에 들어가 y=0.39..0.44에서 벽면에만 접한다. 폭 0.062m collar는 y=0.43..0.47, 내경 0.05m의 속 빈 고리로서 y=0.43..0.44에서는 하부 외벽에 접하고 y=0.44..0.47에서는 상부 shaft 둘레에 0.006m 간격을 남긴다. 세 닫힌 부품은 실제 부피를 공유하지 않는다. 기본 상태 하나만 표시하고 높이 이동이나 전동 성능은 주장하지 않는다. 책상 우측에 접힌 보조판은 0.30×0.42×0.025m, 경첩 축은 x=W/2=0.70, y=0.715, z=-0.10..+0.30이며 닫힌 판이 상판 아래에 수직으로 붙는다. 손잡이는 X 0.018×Y 0.08×Z 0.014m로 접힌 판 외측의 x=0.707..0.725,y=0.53..0.61,z=0.09..0.104에 매립하고 판의 해당 면을 절삭한다. flex의 필수 `folded` 상태 전체 메시 AABB는 x=−0.70..+0.725,y=0..0.86,z=−0.30..+0.32m이며 숫자 1400은 상판 폭이다. flex의 back rail은 폭 1.40·깊이 0.025·높이 0.12m로 z=-0.30..-0.275, y=0.74..0.86에 놓는다. flex는 `folded`와 `open` 중 하나의 명시 상태를 반드시 받으며 상태 없는 호출을 거부한다. 보조판의 `folded` 상태는 x=0.70..0.725,y=0.415..0.715,z=-0.10..+0.32이다. 지름 0.024m의 `aux-hinge`는 Z축 x=0.70,y=0.715,z=−0.10..+0.30을 따른다. 상판에는 이 축의 x=0.688..0.70,y=0.703..0.727 점유를, 보조판에는 접힌 상태 x=0.70..0.712,y=0.703..0.715 및 열린 상태 x=0.70..0.712,y=0.715..0.727의 점유를 같은 Z 구간에서 각각 원통형으로 절삭한다. 핀의 원통면은 절삭한 두 면에 닿고 어느 상태에서도 판의 닫힌 부피를 관통하지 않는다. `open` 상태는 이 Z축으로 바깥쪽 90° 회전한 판 x=0.70..1.00,y=0.715..0.740,z=-0.10..+0.32와 같은 판에 묻힌 손잡이를 내며 전체 메시 AABB는 x=−0.70..+1.00,y=0..0.86,z=−0.30..+0.32m다. 닫힌 판과 열린 판을 동시에 내지 않는다. 세 침실 변종의 전체 AABB는 각 폭 W, 높이 0.82, 깊이 0.60m다. 세 침실 변종은 같은 상판 두께, 앞쪽 z=+0.24·x=±(W/2−0.065)에 y=0..0.70인 단면 0.045m 고정 다리 둘, 뒤쪽 z=-0.30..-0.275·y=0.74..0.82의 폭 W back rail과 왼쪽 중심 x=−W/2+0.37, y=0.64, z=0인 폭 0.30·깊이 0.46·높이 0.12m 한 서랍을 사용하고 telescopic·collar·aux를 생성하지 않는다.
 
 안정 part는 `top/upper/edge/underside`, `back-rail/front/back/top/underside/edge`; 침실에만 `support-left/right/shaft/top/sole`과 `drawer-one/front/back/side-left/side-right/top/underside/edge`; flex에만 `drawer-case/front/back/side-left/side-right/top/underside`, `drawer-0..2/front/back/side-left/side-right/top/underside/edge`, `telescopic-lower/outer/inner/top/sole`, `telescopic-upper/outer/top/contact`, `collar/outer/inner/contact`, `aux-panel/front/back/edge`, `aux-hinge/outer/contact`, `aux-pull/outer/contact`다. H2의 변종 키와 flex의 필수 `folded|open` 상태가 부품 집합·AABB를 고정한다. 정면·측면·상부·45°에서 무릎 공간과 벽 rail·서랍, flex의 기둥·접힌 판을 확인한다. ref04의 벽에 붙은 책상과 서랍선을 채택하되 사진의 숨은 지지 방식은 채택하지 않는다. settings의 조절식 단서를 보여야 하므로 ref04에 보이지 않는 기둥을 보이는 형태로 둔다. ref02의 침실 책상은 작은 고정 변종의 척도 관계로 채택하고 ref01·03·05에는 책상 세부가 없다. 실제 벽 앵커·높이 조절 작동·하중은 `unverified`다.
 
@@ -287,23 +287,22 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @axis-control default: upholstery, Z, -0.074, upholstery-to-back junction
 @axis-control default: upholstery, Z, -0.04, upholstery throat
 
-`@curve-layer`는 t=(y−0.415)/0.415에서 등 셸의 뒤 곡선 `−0.10−0.25t+0.08t²`, 셸 두께 0.025m, 천층 두께 0.035m를 뜻한다. 천층은 좌판과 등판이 한 부품이되 두 연결된 점유 조각을 가진다. 등판 두 층은 같은 다항 곡면의 앞뒤 면에서만 접하고 체적을 겹치지 않는다.
+`@curve-layer`는 t=(y−0.415)/0.415에서 등 셸의 뒤 곡선 `−0.10−0.25t+0.08t²`, 셸 두께 0.025m, 천층 두께 0.035m와 좌판 뒤 edge 간격 0.001m를 뜻한다. `upholstery`의 두 `@piece`는 실제 채운 상자가 아니라 그 곡면으로 잘린 좌판·등판 조각의 AABB다. 좌판 조각의 뒤 경계는 셸 앞면에서 0.001m 앞이고, 등판 조각은 셸 앞면부터 천층 두께만큼 앞에 있다. 두 천 조각은 y=0.45의 접합면에서 한 부품으로 용접하고 셸과 체적을 겹치지 않는다.
 
 @scalar-control shell-back-rake: 0.17
 @scalar-control shell-back-bow: 0.02
 @scalar-control seat-rear-offset: 0.026
-@scalar-control shell-upholstery-clearance: 0.001
 
 @inventory default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
-@curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035
+@curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035, 0.001
 @cap-contact default: leg-0, shell-seat, Y, +
 @cap-contact default: leg-1, shell-seat, Y, +
 @cap-contact default: leg-2, shell-seat, Y, +
 @cap-contact default: leg-3, shell-seat, Y, +
 @cap-contact default: shell-back, shell-seat, Y, -
 @cap-contact default: shell-seat, upholstery, Y, +
-@piece default: upholstery, -0.24..0.24, 0.415..0.45, -0.0945..0.26
-@piece default: upholstery, -0.24..0.24, 0.45..0.83, -0.245..-0.06
+@piece default: upholstery, -0.24..0.24, 0.415..0.45, -0.094515314..0.26
+@piece default: upholstery, -0.24..0.24, 0.45..0.83, -0.245..-0.060515314
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |

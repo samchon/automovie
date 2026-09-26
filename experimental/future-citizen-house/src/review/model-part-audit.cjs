@@ -93,7 +93,7 @@ function parse(lines, anchor) {
   const capContacts = new Map();
   /** @type {Map<string,{host:string,guest:string,axis:string}>} */
   const cavityContacts = new Map();
-  /** @type {Map<string,{shell:string,cover:string,c0:number,c1:number,c2:number,shellDepth:number,coverDepth:number}>} */
+  /** @type {Map<string,{shell:string,cover:string,c0:number,c1:number,c2:number,shellDepth:number,coverDepth:number,seatGap:number}>} */
   const curveLayers = new Map();
   /** @type {Map<string,{host:string,guest:string,originY:number,spanY:number,c0:number,c1:number,hostDepth:number,gap:number,guestDepth:number}>} */
   const linearCurves = new Map();
@@ -249,13 +249,13 @@ function parse(lines, anchor) {
       flatContacts.set(key, { guest, host, axis: flat[4], plane: Number(flat[5].replace("−", "-")),
         u: interval(flat[6], `${anchor}/${key}/flat-u`), v: interval(flat[7], `${anchor}/${key}/flat-v`) });
     }
-    const curve = /^@curve-layer\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
+    const curve = /^@curve-layer\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
     if (curve) {
       const [state, shell, cover] = curve.slice(1, 4).map((value) => value.trim());
       const key = `${state}/${[shell, cover].sort((a, b) => a.localeCompare(b)).join("/")}`;
       if (curveLayers.has(key)) throw Error(`${anchor}/${key}: duplicate curve layer`);
-      const [c0, c1, c2, shellDepth, coverDepth] = curve.slice(4).map((value) => Number(value.replace("−", "-")));
-      curveLayers.set(key, { shell, cover, c0, c1, c2, shellDepth, coverDepth });
+      const [c0, c1, c2, shellDepth, coverDepth, seatGap] = curve.slice(4).map((value) => Number(value.replace("−", "-")));
+      curveLayers.set(key, { shell, cover, c0, c1, c2, shellDepth, coverDepth, seatGap });
     }
     const linear = /^@curve-linear\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*([−-]?[\d.]+),\s*([−-]?[\d.]+),\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)$/.exec(line);
     if (linear) {
@@ -883,10 +883,12 @@ function plantProof(parsed) {
   catch (error) { return { errors: [`potted-plant: ${String(error)}`], contacts, nonOverlaps }; }
   const fan = input.leafFanDegrees * Math.PI / 180;
   const branchBase = input.stemRadius + input.branchRadius;
-  const minLeafRadius = branchBase + input.branchLength + input.branchRadius - input.leafLength * Math.sin(fan);
+  const leafBase = branchBase + input.branchLength + input.branchRadius;
+  const lateral = input.leafLength * Math.sin(fan);
+  const maxBladeAngle = Math.atan2(lateral + input.leafWidth / 2, leafBase);
   if (!(2 * branchBase * Math.sin(Math.PI / 5) > 2 * input.branchRadius &&
-    2 * minLeafRadius * Math.sin(Math.PI / 5) > input.leafWidth + input.leafThickness &&
-    Math.tan(fan) > input.leafThickness / (input.leafLength * Math.cos(fan))))
+    2 * maxBladeAngle < 2 * Math.PI / 5 &&
+    lateral > input.leafWidth && input.leafThickness > 0))
     errors.push("potted-plant: branch azimuths or leaf fan prisms collide");
   /** @param {string} state @param {string} left @param {string} right */
   const pair = (state, left, right) => `${state}/${[left, right].sort((a, b) => a.localeCompare(b)).join("/")}`;
@@ -917,8 +919,27 @@ function plantProof(parsed) {
     const attach = (left, right) => { const key = pair(state, left, right); contacts.add(key); nonOverlaps.add(key); };
     attach("pot", "soil");
     for (let i = 0; i < 5; i++) {
-      attach("stem", `branch-${i}`);
-      for (let j = 0; j < 3; j++) attach(`branch-${i}`, `leaf-${3 * i + j}`);
+      const angle = 2 * Math.PI * i / 5;
+      const ex = Math.cos(angle), ez = Math.sin(angle);
+      const stemSurface = input.stemRadius * expected.H;
+      const branchRadius = input.branchRadius * expected.H;
+      const branchCenter = [branchBase * expected.H * ex, branchBase * expected.H * ez];
+      if (Math.abs(Math.hypot(...branchCenter) - branchRadius - stemSurface) > epsilon)
+        errors.push(`potted-plant/${state}/branch-${i}: stem tangent distance differs`);
+      else attach("stem", `branch-${i}`);
+      const capCenter = [(branchBase + input.branchLength) * expected.H * ex,
+        (branchBase + input.branchLength) * expected.H * ez];
+      const apex = [leafBase * expected.H * ex, leafBase * expected.H * ez];
+      for (let j = 0; j < 3; j++) {
+        const leaf = actualById.get(`leaf-${3 * i + j}`);
+        const distance = Math.hypot(apex[0] - capCenter[0], apex[1] - capCenter[1]);
+        if (!leaf || Math.abs(distance - branchRadius) > epsilon ||
+          apex[0] < leaf.x[0] - epsilon || apex[0] > leaf.x[1] + epsilon ||
+          apex[1] < leaf.z[0] - epsilon || apex[1] > leaf.z[1] + epsilon ||
+          Math.abs(leaf.y[0] - (input.branchStart + i * input.branchPitch) * expected.H) > epsilon)
+          errors.push(`potted-plant/${state}/branch-${i}/leaf-${3 * i + j}: tangent point differs`);
+        else attach(`branch-${i}`, `leaf-${3 * i + j}`);
+      }
       for (let a = 0; a < 3; a++) for (let b = a + 1; b < 3; b++)
         nonOverlaps.add(pair(state, `leaf-${3 * i + a}`, `leaf-${3 * i + b}`));
     }
@@ -1445,7 +1466,26 @@ function audit(allSections, mutate, onlyState) {
         const shell = byId.get(curve.shell), cover = byId.get(curve.cover);
         const base = curve.c0, end = curve.c0 + curve.c1 + curve.c2;
         const monotone = curve.c1 < -epsilon && curve.c1 + 2 * curve.c2 < -epsilon;
+        const segments = [...(pieces.get(`${state}/${curve.cover}`) || [])]
+          .sort((a, b) => a.y[0] - b.y[0]);
+        /** @param {number} y */
+        const at = (y) => {
+          if (!shell) return NaN;
+          const t = (y - shell.y[0]) / (shell.y[1] - shell.y[0]);
+          return curve.c0 + curve.c1 * t + curve.c2 * t * t;
+        };
+        /** @param {number} a @param {number} b */
+        const matches = (a, b) => Math.abs(a - b) < 0.000001;
+        const shapedPieces = shell && cover && segments.length === 2 &&
+          segments.every((segment) => matches(segment.x[0], cover.x[0]) && matches(segment.x[1], cover.x[1])) &&
+          matches(segments[0].y[0], shell.y[0]) && matches(segments[0].y[1], segments[1].y[0]) &&
+          matches(segments[1].y[1], shell.y[1]) &&
+          matches(segments[0].z[0], at(segments[0].y[1]) + curve.shellDepth + curve.seatGap) &&
+          matches(segments[0].z[1], cover.z[1]) &&
+          matches(segments[1].z[0], at(shell.y[1]) + curve.shellDepth) &&
+          matches(segments[1].z[1], at(segments[1].y[0]) + curve.shellDepth + curve.coverDepth);
         if (!shell || !cover || !monotone || !(curve.shellDepth > 0 && curve.coverDepth > 0) ||
+          !(curve.seatGap >= 0) || !shapedPieces ||
           shell.shape !== "curved" || cover.shape !== "curved" ||
           Math.abs(shell.z[0] - end) > epsilon || Math.abs(shell.z[1] - (base + curve.shellDepth)) > epsilon ||
           Math.abs(cover.z[0] - (end + curve.shellDepth)) > epsilon ||

@@ -51,7 +51,7 @@ function partsFor(input, millimetres) {
   const branchTip = branchBase + input.branchLength * H;
   const leafBase = branchTip + branchR;
   const bladeHalfWidth = input.leafWidth * H / 2;
-  const bladeHalfThickness = input.leafThickness * H / 2;
+  const bladeThickness = input.leafThickness * H;
   /** @type {Array<{id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string}>} */
   const parts = [];
   /** @param {string} id @param {string} shape @param {[number,number]} x @param {[number,number]} y @param {[number,number]} z @param {string} contact */
@@ -71,23 +71,27 @@ function partsFor(input, millimetres) {
       `stem,leaf-${3 * i},leaf-${3 * i + 1},leaf-${3 * i + 2}`);
     for (let j = 0; j < 3; j++) {
       const angle = (j - 1) * input.leafFanDegrees * Math.PI / 180;
-      const radialTip = leafBase + input.leafLength * H * Math.sin(angle);
+      const lateral = input.leafLength * H * Math.sin(angle);
       const yTop = yi + input.leafLength * H * Math.cos(angle);
-      const spreadX = Math.abs(px) * bladeHalfWidth + Math.abs(ex) * bladeHalfThickness;
-      const spreadZ = Math.abs(pz) * bladeHalfWidth + Math.abs(ez) * bladeHalfThickness;
+      // Each blade is a five-vertex wedge. The branch cap touches its single
+      // apex; width and one-sided radial thickness grow toward the tip.
+      const xs = [leafBase * ex];
+      const zs = [leafBase * ez];
+      for (const side of [-1, 1]) for (const radial of [0, bladeThickness]) {
+        xs.push((leafBase + radial) * ex + (lateral + side * bladeHalfWidth) * px);
+        zs.push((leafBase + radial) * ez + (lateral + side * bladeHalfWidth) * pz);
+      }
       add(`leaf-${3 * i + j}`, "curved",
-        bounds(Math.min(leafBase * ex, radialTip * ex) - spreadX, Math.max(leafBase * ex, radialTip * ex) + spreadX),
+        bounds(Math.min(...xs), Math.max(...xs)),
         bounds(yi, yTop),
-        bounds(Math.min(leafBase * ez, radialTip * ez) - spreadZ, Math.max(leafBase * ez, radialTip * ez) + spreadZ),
+        bounds(Math.min(...zs), Math.max(...zs)),
         `branch-${i}`);
     }
   }
   if (parts.length !== 23 || Math.max(...parts.map((part) => part.y[1])) > H + 0.000001)
     throw Error("potted-plant: part count or top exceeds declared height");
-  // The blade width is tangential to its radial spine. Adding it to radial
-  // reach would count two perpendicular dimensions along the same axis.
-  const radialTip = leafBase / H + input.leafLength * Math.sin(input.leafFanDegrees * Math.PI / 180);
-  const radialLimit = Math.hypot(radialTip + input.leafThickness / 2, input.leafWidth / 2);
+  const lateralLimit = input.leafLength * Math.sin(input.leafFanDegrees * Math.PI / 180) + input.leafWidth / 2;
+  const radialLimit = Math.hypot(leafBase / H + input.leafThickness, lateralLimit);
   if (radialLimit > input.crownDiameterLimit / 2)
     throw Error("potted-plant: leaf reach exits declared crown diameter limit");
   /** @param {"x"|"y"|"z"} axis */

@@ -183,7 +183,7 @@ function assemble(p, id, opened) {
           span(backInner, halfD - p.panel), "bottom,top");
         const rodLength = 0.60 * W - p.panel, cx = -0.20 * W + 0.009;
         add(parts, "rod", "cylinder", span(cx - rodLength / 2, cx + rodLength / 2),
-          span(H - 0.35 - 0.0125, H - 0.35 + 0.0125), span(-0.0925, -0.0675), "side-left,divider");
+          span(H - 0.35 - 0.0125, H - 0.35 + 0.0125), span(-0.018, 0.007), "side-left,divider");
       }
       for (let j = 1; j < count; j++) {
         const center = wall ? j * H / count : p.toe / 2 + j * (H - p.toe) / count;

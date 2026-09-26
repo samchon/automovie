@@ -46,6 +46,12 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 `@material-face state: part/face`는 같은 부품의 일반 가시 면과 구분되는 재료 응답을 필요로 하는 실제 면을 표시한다. 이 주소는 model의 표면 분할 결정이며 finish·texture 규모·UV 결합은 materials가 소유한다. `model-owner-audit.cjs`의 표면 결합 검사는 선언된 state/part/face의 별도 결합과 그 밖의 부품의 기본 결합을 센다.
 
+## 곡면 조각의 점유 우선순위 {#model-curved-piece}
+
+일반 얇은 잎의 여덟 경계 vertex 규칙과 달리 [화분](004-decor-and-fixtures.md#potted-plant)의 부채 잎은 가지 끝 접점 하나와 끝면의 네 꼭짓점을 가진 다섯 vertex의 닫힌 쐐기다. 시작점에서 폭·두께가 함께 0으로 수렴하므로 퇴화 삼각형을 만들지 않고 네 측면 삼각형과 끝면 두 삼각형으로 닫는다. 끝면 두께는 가지에서 바깥 방사방향 한쪽으로만 생기며 접선 거리와 비관통 조건을 각 상태에서 다시 계산한다.
+
+`@curve-layer state: shell, cover, c0, c1, c2, shellDepth, coverDepth, seatGap`이 있으면 cover의 `@piece` 두 행은 채운 상자가 아니라 실제 곡면 점유의 AABB다. shell의 Y 구간에서 t=(y−Ymin)/(Ymax−Ymin), 뒤 곡선 z=c0+c1t+c2t²이다. 첫 cover 조각은 Ymin에서 이음 Y까지 z의 뒤 경계를 곡선+shellDepth+seatGap으로 잘라 좌면 앞 edge까지 채운다. 둘째 조각은 이음 Y부터 Ymax까지 곡선+shellDepth..곡선+shellDepth+coverDepth를 채운다. 두 조각의 X 구간은 같고 이음 Y 평면에서 하나의 닫힌 부품으로 합친다. 이 우선순위는 cover 두 조각에만 적용하며 다른 `@piece`는 계속 채운 상자다. 각 조각의 선언 AABB가 계산한 실제 곡면 극값과 맞지 않거나 seatGap이 음수이면 실패다.
+
 ## 중립 관찰과 재현 한계 {#model-neutral-observation}
 
 중립 모델 관찰은 18% 회색 배경, 0.50m 눈금, 한 방향 key light, 고정 노출, 색·라벨 off에서 정면(+Z), 우측(+X), 상부(+Y), 45°(+X/+Z) 직교 view다. H2가 정한 하부·안쪽·상태 view를 더하고 실제 방의 리뷰 거리 view를 별도로 비교한다. 이 관찰은 비례·틈·표면 주소·점유를 묻는다. 광학·하중·방수·전기·인체 안전·제품 인증은 입증하지 않으며 결과가 없으면 `unverified`다. ref02의 절개는 부품의 상·하 관계를 검사하는 자료로만 채택하고 전달 화면으로 채택하지 않는다. ref01은 건축 외피 자료여서 독립 물체의 척도 원본으로 쓰지 않는다. ref03·04·05는 각 방의 읽힘과 소품 밀도만 제약하며 픽셀에서 물체 치수를 역산하지 않는다.
