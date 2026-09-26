@@ -153,6 +153,7 @@ The connected editor selects whatever `basis.json.gz` reads as its `id`; every d
 | `mpfb-connected-head-2026-09-26-tongue` | valid-envelope | `prepare-tongue-basis.ts`: under every shape channel the tongue follows the mandibular arch's affine motion | [tongue-receipt.json](tongue-receipt.json) |
 | `mpfb-connected-head-2026-09-26-arch-width` | tongue | `prepare-arch-width-basis.ts`: the dentition widens with the mouth only by the dental arch's regression on the mouth among adults | [arch-width-receipt.json](arch-width-receipt.json) |
 | `mpfb-connected-head-2026-09-26-valid-envelope-2` | arch-width | `prepare-valid-envelope-basis.ts` (`eye-elevation`): the eye close-up pass of the render audit brings `EyeElevation`'s maximum in | [valid-envelope-eye-elevation-receipt.json](valid-envelope-eye-elevation-receipt.json) |
+| `mpfb-connected-head-2026-09-26-eye-depth` | valid-envelope-2 | `prepare-eye-depth-basis.ts`: a control per eye moving the globe along its orbit axis, the lids resting on it, a membrane to the orbital rim | [eye-depth-receipt.json](eye-depth-receipt.json) |
 
 ### Single channels first
 
@@ -459,6 +460,17 @@ The tongue's body rides the mandible, and the basis binds every tongue vertex to
 ## Arch width by regression
 
 The source's `mouthWidth` carried the whole dentition with the commissures and scaled it further than the mouth itself: the mouth 52.9 to 61.5 mm (+16.4 percent) at +1 and to 44.8 (-15.2) at -1, the arch 59.5 to 70.8 and 48.2 (plus and minus 19 percent), so a wide mouth had wide incisors and a narrow one thin ones. Teeth are not soft tissue: the intercanine distance follows the intercommissural width only weakly (409 adults, Wang, Li, Yang and Li, Heliyon 2024;10:e27642: intercanine distance 39.84 +- 2.08 mm, intercommissural width 49.31 +- 3.63 mm, r = 0.389). The arch's expected width given the mouth's is the regression line, a relative slope (elasticity) of 0.389 x 2.08 / 3.63 x 49.31 / 39.84 = 0.276. `prepareArchWidthBasis` ([arch-width-receipt.json](arch-width-receipt.json)) scales the dentition's and the tongue's rows under each `mouthWidth` endpoint so the arch widens by that expectation: 62.2 mm at +1 (+4.5 percent) and 57.0 at -1 (-4.2). No skin crosses the teeth at either end, before or after, and the 18 documents build. With the mouth open, a wide mouth now shows more buccal corridor around teeth of the same size, and a narrow one fills its opening with them.
+
+## Eye depth
+
+How deep-set an eye is, the corneal apex's distance ahead of the lateral orbital rim, differs by millimetres between adults (exophthalmometry: white men 16.5 and women 15.4 mm, black men 18.5 and women 17.8, Migliori and Gladstone 1984; Han Chinese adults 15.7, Sci Rep 2015), and the source has no target for it: its eye targets scale, raise, spread and fold the eye, and none moves the globe in its orbit. `prepareEyeDepthBasis` ([eye-depth-receipt.json](eye-depth-receipt.json)) adds `leftEyeDepth` and `rightEyeDepth`, one unit moving the globe 5 mm (two standard deviations of exophthalmometry) along its orbit axis, the eye's pivot to its aim, with the pivot and aim landmarks so gaze turns about the moved eye. Nothing else is authored by hand:
+
+- the lids are the skin the blink moves at least half as far as it moves any (the mobile lid); within the globe's silhouette about the axis they move with it whole;
+- toward the canthi, which the canthal tendons tie to the rim, the lids belong to a membrane (each vertex's displacement the mean of its neighbours'), except that none is left inside the globe: a lid the membrane would leave there is pushed out to the globe's normal displacement and held, and the membrane solved again (13 lid vertices per eye);
+- the membrane reaches the socket's lining back to the globe's rear and ends a centimetre outside the orbital aperture (40 by 35 mm), where the skin is anchored beyond the rim; with the end at the aperture itself, the change ran over the 5 mm between the lateral canthus and the rim, a hard dark slope lateral of the eye from 2.5 mm forward;
+- the lashes and brows move as the skin vertex nearest them.
+
+The first attempts are the evidence for each rule: all the mobile lid moved whole left that dark slope; only the lid within the silhouette left the globe through the lateral lower lid; the lid sliding along the globe bared the sclera all round. Rendered through the editor from the front, three-quarter, profile and close up, 5 mm back reads as a naturally deep-set eye with a hollowed upper sulcus, 3.75 mm forward as a prominent one, and 5 mm forward notches the skin lateral of the lateral canthus, so the envelope runs from -1 to 0.75. No triangle turns over and no new crossing appears at either end, and the 18 documents build. The control is not yet paired with a reading: the rim lies under the skin a few millimetres lateral of the canthus, and until it is located on the skin to the precision the norms need, the documents keep it at zero.
 
 ## Eighteen-subject acceptance
 
