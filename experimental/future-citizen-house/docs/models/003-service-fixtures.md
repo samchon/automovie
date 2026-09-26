@@ -31,6 +31,8 @@
 @bore 1000: bowl, 0.0225, 0.71..0.725
 @flat-contact 800: tap-spout, tap-body, -Y, 1.10, 0.152..0.168, -0.17..-0.16
 @flat-contact 1000: tap-spout, tap-body, -Y, 1.10, 0.152..0.168, -0.17..-0.16
+@flat-contact 800: mirror-frame, wall, -Z, -0.27, -0.30..0.30, 1.17..1.188
+@flat-contact 1000: mirror-frame, wall, -Z, -0.27, -0.40..0.40, 1.17..1.188
 @void 800: mirror-frame, -0.342..0.342, 1.188..1.852, -0.27..-0.252
 @void 1000: mirror-frame, -0.442..0.442, 1.188..1.852, -0.27..-0.252
 
@@ -188,6 +190,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 @scalar-control cabinet-half-length: 1.325
 @scalar-control end-overhang: 0.085
+@prose-bore-diameter default: sink, 배수 개구
 @scalar-control sink-drain-diameter: 0.045
 @scalar-control island-spout-bend-radius: 0.02
 @scalar-control island-spout-inner-radius: 0.006

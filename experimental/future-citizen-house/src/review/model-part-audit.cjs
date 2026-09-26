@@ -804,9 +804,8 @@ function propFormula(lines, envelopes, bores, ellipses, tangents) {
   const prose = lines.join("\n");
   const bowl = /`decor-bowl`은 외경 ([\d.]+), 높이 ([\d.]+)m, 벽 두께 ([\d.]+)m/.exec(prose);
   const tray = /`decor-tray`는 전체 폭 ([\d.]+)·깊이 ([\d.]+)·높이 ([\d.]+)m/.exec(prose);
-  const cup = /`decor-cup`은 몸체 외경 ([\d.]+), 높이 ([\d.]+), 벽 두께 ([\d.]+)m/.exec(prose);
-  const pad = /R=([\d.]+)m이고 \|x\|≤([\d.]+)m/.exec(prose);
-  if (!bowl || !tray || !cup || !pad) return ["tabletop-props: prose dimensions absent"];
+  const cup = /`decor-cup`은 몸체 외경 2R, 높이 ([\d.]+), 벽 두께 t인/.exec(prose);
+  if (!bowl || !tray || !cup) return ["tabletop-props: prose dimensions absent"];
   const errors = [];
   /** @param {string} state @param {number} width @param {number} height @param {number} depth */
   const check = (state, width, height, depth) => {
@@ -818,14 +817,15 @@ function propFormula(lines, envelopes, bores, ellipses, tangents) {
   };
   check("bowl", Number(bowl[1]), Number(bowl[2]), Number(bowl[1]));
   check("tray", Number(tray[1]), Number(tray[3]), Number(tray[2]));
-  check("cup", Number(cup[1]), Number(cup[2]), Number(cup[1]));
   const bowlBore = bores.get("bowl/shell"), cupBore = bores.get("cup/body"), ellipse = ellipses.get("tray/rim"), tangent = tangents.get("cup/body/handle");
+  const cupDiameter = tangent ? 2 * tangent.radius : NaN;
+  check("cup", cupDiameter, Number(cup[1]), cupDiameter);
   if (!bowlBore || Math.abs(bowlBore.radius - (Number(bowl[1]) / 2 - Number(bowl[3]))) > epsilon ||
-    !cupBore || Math.abs(cupBore.radius - (Number(cup[1]) / 2 - Number(cup[3]))) > epsilon ||
+    !cupBore || !(cupBore.radius > 0 && cupBore.radius < cupDiameter / 2) ||
     !ellipse || Math.abs(ellipse.outerX - Number(tray[1]) / 2) > epsilon ||
     Math.abs(ellipse.outerZ - Number(tray[2]) / 2) > epsilon ||
-    !tangent || Math.abs(tangent.radius - Number(pad[1])) > epsilon ||
-    Math.abs(tangent.halfWidth - Number(pad[2])) > epsilon)
+    !tangent || Math.abs(tangent.radius - cupDiameter / 2) > epsilon ||
+    !(tangent.halfWidth > 0 && tangent.halfWidth < tangent.radius))
     errors.push("tabletop-props: prose/table cavity or tangent differs");
   return errors;
 }
@@ -1563,7 +1563,7 @@ function audit(allSections, mutate, onlyState) {
           } else if (target === "wall") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.z[0] - envelope.z[0]) <= epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses wall datum`);
-            if (part.shape === "curved" && !provedExternal.has(`${part.id}/wall`))
+            if ((part.shape === "curved" || part.shape === "hollow") && !provedExternal.has(`${part.id}/wall`))
               errors.push(`${anchor}/${state}/${part.id}: curved wall lacks finite contact patch`);
           } else if (target === "ceiling" || target === "suspension" || target === "underside") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.y[1]) <= epsilon))

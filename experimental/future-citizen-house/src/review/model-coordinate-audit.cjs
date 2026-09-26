@@ -214,6 +214,22 @@ function boundCoordinates(lines, owner) {
     return declaration ? [{ state: declaration[1], host: declaration[2], guest: declaration[3],
       hostDepth: Number(declaration[8]), gap: Number(declaration[9]), guestDepth: Number(declaration[10]) }] : [];
   });
+  for (const line of lines.filter((row) => row.startsWith("@prose-bore-diameter "))) {
+    const declaration = /^@prose-bore-diameter ([^:]+): ([^,]+), (.+)$/.exec(line);
+    if (!declaration) { errors.push(`${owner}: malformed prose bore diameter ${line}`); continue; }
+    const [, state, part, phrase] = declaration;
+    const bore = lines.map((row) => /^@bore ([^:]+): ([^,]+), ([\d.]+),/.exec(row))
+      .find((match) => match && match[1] === state && match[2] === part);
+    if (!bore) { errors.push(`${owner}: prose bore diameter names missing @bore ${state}/${part}`); continue; }
+    const claim = lines.filter((row) => !/^\||^@|^<!--/.test(row) && row.includes(phrase))
+      .flatMap((row) => {
+        const rest = row.slice(row.indexOf(phrase) + phrase.length);
+        const match = /지름\s*(\d+\.\d+)m/.exec(rest);
+        return match ? [Number(match[1])] : [];
+      });
+    if (claim.length !== 1 || Math.abs(claim[0] - 2 * Number(bore[3])) > 0.000001)
+      errors.push(`${owner}: prose bore diameter ${state}/${part} differs from @bore`);
+  }
   const radialMeasures = lines.flatMap((line) => {
     const declaration = /^@radial\s+([^:]+):\s*([^,]+),\s*[\d.]+,\s*([\d.]+)$/.exec(line);
     return declaration ? [{ state: declaration[1], part: declaration[2], diameter: 2 * Number(declaration[3]) }] : [];
@@ -541,6 +557,16 @@ function boundCoordinates(lines, owner) {
           y: [Math.min(...members.map((row) => row.y[0])), Math.max(...members.map((row) => row.y[1]))],
           z: [Math.min(...members.map((row) => row.z[0])), Math.max(...members.map((row) => row.z[1]))] };
       });
+      if (prefix && symmetric && specified.length === 1 && /중심/.test(clause.slice(named.index))) {
+        const otherHorizontal = axis === "x" ? "z" : "x";
+        const relevant = eligible.filter((row) => axis === "y" ||
+          row[axis][1] - row[axis][0] <= row[otherHorizontal][1] - row[otherHorizontal][0] + 0.000001);
+        const mismatched = relevant.filter((row) =>
+          Math.abs(Math.abs((row[axis][0] + row[axis][1]) / 2) - specified[0]) > 0.000001);
+        if (mismatched.length)
+          errors.push(`${owner}: prose line ${index + 1} ${named[1]} ${axis} symmetric center ${specified[0]} contradicts ${mismatched.map((row) => `${row.state}/${row.part}`).join(",")}`);
+        continue;
+      }
       const valid = [...eligible, ...(prefix ? groups : [])].some((row) => {
         const [lo, hi] = row[axis];
         if (symmetric && specified.length === 1 && /중심/.test(clause.slice(named.index)))
@@ -633,7 +659,7 @@ function audit(overrides = new Map()) {
         if (declaredControls.has(control[1]))
           errors.push(`${owner}: duplicate scalar control ${control[1]}`);
         declaredControls.add(control[1]);
-        if (!proseNumbers.has(Math.round(Number(control[2]) * 100000)))
+        if (!proseNumbers.has(Math.round(Number(control[2]) * 100000)) && !body.some((row) => !row.startsWith("@") && row.includes(`@scalar-control ${control[1]}`)))
           errors.push(`${owner}: scalar control ${control[1]} is unused in prose`);
       }
       const before = {
