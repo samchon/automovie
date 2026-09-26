@@ -338,6 +338,34 @@ export function createHumanBodyBasisBuilder(
         material.normalTexture = tile;
         material.normalScale = detail.strength * deepening;
       }
+      // the surface layers the basis lays over the skin: the nail plates, a
+      // tissue of their own that replaces the skin where they cover
+      const once = (asset: string, colorSpace: "srgb" | "linear") => ({
+        asset,
+        texCoord: 0,
+        coordinateSource: "source-uv" as const,
+        colorSpace,
+        sampler: {
+          wrapS: "clamp" as const,
+          wrapT: "clamp" as const,
+          minFilter: "linearMipmapLinear" as const,
+          magFilter: "linear" as const,
+        },
+      });
+      const overlays = basis.surfaces
+        .flatMap((surface) => surface.overlays ?? [])
+        .filter((overlay) => overlay.material === skin);
+      if (overlays.length > 0)
+        material.overlays = overlays.map((overlay) => ({
+          baseColorTexture: once(overlay.color, "srgb"),
+          blend: "replace",
+          roughness: overlay.roughness,
+          normalTexture:
+            overlay.normal === undefined
+              ? null
+              : once(overlay.normal, "linear"),
+          strength: 1,
+        }));
     }
     // the skin's uneven tone as a tiled base-colour map, the two chromophores
     // varying about the site colour, less even with age; the strength is

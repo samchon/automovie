@@ -230,6 +230,27 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         "Body surface relief needs a PNG data URI over a textured region of its material: " +
           surface.id,
       );
+    const png = (uri: unknown): boolean =>
+      typeof uri === "string" && uri.startsWith("data:image/png;base64,");
+    const kinds = new Set<string>();
+    for (const overlay of surface.overlays ?? []) {
+      const key = `${overlay.kind}:${overlay.material}`;
+      if (
+        kinds.has(key) ||
+        !png(overlay.color) ||
+        (overlay.normal !== undefined && !png(overlay.normal)) ||
+        !(overlay.roughness >= 0 && overlay.roughness <= 1) ||
+        !surface.regions.some(
+          (region) =>
+            region.material === overlay.material && region.uvs !== null,
+        )
+      )
+        throw new Error(
+          "Body surface overlays need one of each kind per material, PNG data URIs over a textured region of their material and a roughness in [0,1]: " +
+            surface.id,
+        );
+      kinds.add(key);
+    }
     const solid = humanBodyCappedSurface(surface.positions, surface.indices);
     solid.assertValid();
     solids.push(solid);

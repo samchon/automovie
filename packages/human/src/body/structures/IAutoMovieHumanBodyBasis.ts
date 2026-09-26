@@ -449,6 +449,23 @@ export interface IAutoMovieHumanBodyBasis {
      * micro-relief.
      */
     relief?: { material: string; texture: string };
+
+    /**
+     * Surface layers over this surface's UV layout for the regions of
+     * `material`, or absent for none, which a document's skin detail binds
+     * as that material's overlays: images bound once over UV set 0, v down
+     * the image, as PNG data URIs, the colour in sRGB with its coverage in
+     * alpha and the normal map linear. A `nails` layer is the nail plates,
+     * another tissue that replaces the skin where it covers, with its own
+     * colour, surface and `roughness` in [0, 1], shown in full.
+     */
+    overlays?: {
+      kind: "nails";
+      material: string;
+      color: string;
+      normal?: string;
+      roughness: number;
+    }[];
   }[];
 
   /** Resident finishes; the static exporter owns texture admission. */
