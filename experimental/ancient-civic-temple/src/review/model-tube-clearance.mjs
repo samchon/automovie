@@ -4,15 +4,20 @@ const radial = (low, high, yLow, yHigh, y) => low + (high - low) * (y - yLow) / 
 
 /** @param {string} id @param {string} body */
 export const tubeWallClearanceRows = (id, body) => {
-  const outside = body.match(/바깥은 Y=([\d.]+)에서 반지름 ([\d.]+)m, Y=([\d.]+)m에서 반지름 ([\d.]+)m/);
-  const inside = body.match(/안쪽은 Y=([\d.]+)m에서 반지름 ([\d.]+)m부터 입 아래 반지름 ([\d.]+)m까지/);
-  const path = body.match(/t=0\.\.π를 (\d+)등분하고 각 점을 \(X,Y,Z\)=\(([\d.]+) cos t,([\d.]+)\+([\d.]+) sin t,0\)m/);
-  const tube = body.match(/관 반지름 ([\d.]+)m·둘레 (\d+)분할/);
-  if (!outside || !inside || !path || !tube) return [];
-  const [outerY0, outerR0, outerY1, outerR1] = outside.slice(1).map(Number);
-  const [innerY0, innerR0, innerR1] = inside.slice(1).map(Number);
-  const [segments, horizontal, baseY, rise] = path.slice(1).map(Number);
-  const [tubeRadius, sides] = tube.slice(1).map(Number);
+  const outsideText = body.match(/바깥은 ([^\n]*?)안쪽(?: 벽)?은/)?.[1] ?? "";
+  const outer = [...outsideText.matchAll(/Y=([\d.]+)(?:m)?에서 반지름 ([\d.]+)m/g)];
+  const insideText = body.match(/안쪽(?: 벽)?은 ([^\n]*?)손잡이는/)?.[1] ?? "";
+  const innerStart = insideText.match(/Y=([\d.]+)m(?:에서|의) 반지름 ([\d.]+)m/);
+  const innerTop = insideText.match(/입 아래 반지름 ([\d.]+)m/);
+  const divisions = body.match(/t=0\.\.π를 (\d+)등분/);
+  const curve = body.match(/\(X,Y,Z\)=\(([\d.]+) cos t,([\d.]+)\+([\d.]+) sin t,0\)m/);
+  const radius = body.match(/관 반지름(?:은)? ([\d.]+)m/);
+  const sidesText = body.match(/둘레(?:를)? (\d+)분할/);
+  if (outer.length < 2 || !innerStart || !innerTop || !divisions || !curve || !radius || !sidesText) return [];
+  const [outerY0, outerR0, outerY1, outerR1] = [...outer[0].slice(1), ...outer[1].slice(1)].map(Number);
+  const [innerY0, innerR0, innerR1] = [innerStart[1], innerStart[2], innerTop[1]].map(Number);
+  const [segments, horizontal, baseY, rise] = [divisions[1], ...curve.slice(1)].map(Number);
+  const [tubeRadius, sides] = [radius[1], sidesText[1]].map(Number);
   const points = Array.from({ length: segments + 1 }, (_, k) => {
     const t = k * Math.PI / segments;
     return [horizontal * Math.cos(t), baseY + rise * Math.sin(t)];
