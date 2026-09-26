@@ -4,7 +4,7 @@
 
 ## 낮은·높은 실내 화분 {#potted-plant}
 
-화분의 바닥과 벽은 한 닫힌 원뿔대 껍질이다. 아래 기호는 같은 H2의 `@plant-spec` 필드를 뜻한다. 바닥 두께는 벽 두께 t=max(wallMinimum,wallFactor×H)와 같고, 흙은 y=t..soilSurface×H에서 그 내벽 반경을 채운다. 줄기 반경은 stemRadius×H, 가지 끝 반경은 branchRadius×H다. 가지 중심선은 줄기 축에서 (stemRadius+branchRadius)H 떨어져 시작해 거기서 branchLength×H만큼 뻗는다. 잎 세 장의 단일 시작점은 가지 끝 구의 바깥 방사면 (stemRadius+branchRadius+branchLength+branchRadius)H에 있다. 각 잎은 이 점을 꼭짓점으로 하고 끝면에서 최대 접선 폭 leafWidth×H, 길이 leafLength×H, 바깥 방사방향 두께 leafThickness×H를 갖는 닫힌 다섯 꼭짓점 쐐기다. 끝면 중심은 가지의 방사축을 유지하고 접선 방향으로 −leafFanDegrees°·0°·+leafFanDegrees°의 길이 성분만큼 벌어지며 Y 상승은 해당 각도의 코사인 성분이다. 잎 두께는 시작점에서 0이고 끝면에서 leafThickness×H이며 가지 구의 안쪽으로 대칭 확장하지 않는다. 세 잎은 가지 끝 구와 각각 정확한 시작점 하나에서 접하고 서로 그 점만 공유한다. 다섯 가지는 360°/5 간격이다. `model-plant-producer.cjs`는 이 식과 `heights`의 다섯 상태에서 표를 재생성하고 `plantProof`는 상태마다 가지 끝 구와 잎 시작점 거리를 계산한다.
+화분의 바닥과 벽은 한 닫힌 원뿔대 껍질이다. 아래 기호는 같은 H2의 `@plant-spec` 필드를 뜻한다. 바닥 두께는 벽 두께 t=max(wallMinimum,wallFactor×H)와 같고, 흙은 y=t..soilSurface×H에서 그 내벽 반경을 채운다. 줄기 반경은 stemRadius×H, 가지 끝 반경은 branchRadius×H다. 가지 중심선은 줄기 축에서 (stemRadius+branchRadius)H 떨어져 시작해 거기서 branchLength×H만큼 뻗는다. 가지 밑동과 끝에는 공통 관 끝 규칙의 반구를 붙인다. 밑동 반구의 줄기 쪽 극점 하나는 줄기 원통 외벽의 같은 높이·방위 한 점에 정확히 접하며, 이 줄기–가지 접선은 비하중 식물 접점 예외의 선언된 접점이다. 잎 세 장의 단일 시작점은 가지 끝 구의 바깥 방사면 (stemRadius+branchRadius+branchLength+branchRadius)H에 있다. 각 잎은 이 점을 꼭짓점으로 하고 끝면에서 최대 접선 폭 leafWidth×H, 길이 leafLength×H, 바깥 방사방향 두께 leafThickness×H를 갖는 닫힌 다섯 꼭짓점 쐐기다. 끝면 중심은 가지의 방사축을 유지하고 접선 방향으로 −leafFanDegrees°·0°·+leafFanDegrees°의 길이 성분만큼 벌어지며 Y 상승은 해당 각도의 코사인 성분이다. 잎 두께는 시작점에서 0이고 끝면에서 leafThickness×H이며 가지 구의 안쪽으로 대칭 확장하지 않는다. 세 잎은 가지 끝 구와 각각 정확한 시작점 하나에서 접하고 서로 그 점만 공유한다. 다섯 가지는 360°/5 간격이다. `model-plant-producer.cjs`는 이 식과 `heights`의 다섯 상태에서 표를 재생성하고 `plantProof`는 상태마다 줄기–가지와 가지–잎의 접점 거리를 구조 행에서 계산한다.
 
 @plant-spec: {"heights":[180,280,600,800,1100],"potHeight":0.34,"potTopRadius":0.19,"potBottomRadius":0.15,"wallMinimum":0.006,"wallFactor":0.018,"soilSurface":0.34,"stemRadius":0.014,"stemTop":0.84,"crownDiameterLimit":0.60,"branchStart":0.48,"branchPitch":0.09,"branchLength":0.18,"branchRadius":0.006,"leafLength":0.16,"leafWidth":0.055,"leafThickness":0.003,"leafFanDegrees":25}
 
@@ -19,6 +19,26 @@
 
 <!-- @generated-plant-parts:start -->
 @inventory 180: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
+@plant-join 180: branch-0, 0.0036, 0.0864, 0, 0.036, 0.0864, 0, 0.00108
+@plant-apex 180: leaf-0, 0.03708, 0.0864, 0
+@plant-apex 180: leaf-1, 0.03708, 0.0864, 0
+@plant-apex 180: leaf-2, 0.03708, 0.0864, 0
+@plant-join 180: branch-1, 0.001112, 0.1026, 0.003424, 0.011125, 0.1026, 0.034238, 0.00108
+@plant-apex 180: leaf-3, 0.011458, 0.1026, 0.035265
+@plant-apex 180: leaf-4, 0.011458, 0.1026, 0.035265
+@plant-apex 180: leaf-5, 0.011458, 0.1026, 0.035265
+@plant-join 180: branch-2, -0.002912, 0.1188, 0.002116, -0.029125, 0.1188, 0.02116, 0.00108
+@plant-apex 180: leaf-6, -0.029998, 0.1188, 0.021795
+@plant-apex 180: leaf-7, -0.029998, 0.1188, 0.021795
+@plant-apex 180: leaf-8, -0.029998, 0.1188, 0.021795
+@plant-join 180: branch-3, -0.002912, 0.135, -0.002116, -0.029125, 0.135, -0.02116, 0.00108
+@plant-apex 180: leaf-9, -0.029998, 0.135, -0.021795
+@plant-apex 180: leaf-10, -0.029998, 0.135, -0.021795
+@plant-apex 180: leaf-11, -0.029998, 0.135, -0.021795
+@plant-join 180: branch-4, 0.001112, 0.1512, -0.003424, 0.011125, 0.1512, -0.034238, 0.00108
+@plant-apex 180: leaf-12, 0.011458, 0.1512, -0.035265
+@plant-apex 180: leaf-13, 0.011458, 0.1512, -0.035265
+@plant-apex 180: leaf-14, 0.011458, 0.1512, -0.035265
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -48,6 +68,26 @@
 | @part | 180 | leaf-14 | curved | 0.011458..0.027909 | 0.1512..0.177302 | -0.035265..-0.029974 | branch-4 |
 
 @inventory 280: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
+@plant-join 280: branch-0, 0.0056, 0.1344, 0, 0.056, 0.1344, 0, 0.00168
+@plant-apex 280: leaf-0, 0.05768, 0.1344, 0
+@plant-apex 280: leaf-1, 0.05768, 0.1344, 0
+@plant-apex 280: leaf-2, 0.05768, 0.1344, 0
+@plant-join 280: branch-1, 0.00173, 0.1596, 0.005326, 0.017305, 0.1596, 0.053259, 0.00168
+@plant-apex 280: leaf-3, 0.017824, 0.1596, 0.054857
+@plant-apex 280: leaf-4, 0.017824, 0.1596, 0.054857
+@plant-apex 280: leaf-5, 0.017824, 0.1596, 0.054857
+@plant-join 280: branch-2, -0.00453, 0.1848, 0.003292, -0.045305, 0.1848, 0.032916, 0.00168
+@plant-apex 280: leaf-6, -0.046664, 0.1848, 0.033903
+@plant-apex 280: leaf-7, -0.046664, 0.1848, 0.033903
+@plant-apex 280: leaf-8, -0.046664, 0.1848, 0.033903
+@plant-join 280: branch-3, -0.00453, 0.21, -0.003292, -0.045305, 0.21, -0.032916, 0.00168
+@plant-apex 280: leaf-9, -0.046664, 0.21, -0.033903
+@plant-apex 280: leaf-10, -0.046664, 0.21, -0.033903
+@plant-apex 280: leaf-11, -0.046664, 0.21, -0.033903
+@plant-join 280: branch-4, 0.00173, 0.2352, -0.005326, 0.017305, 0.2352, -0.053259, 0.00168
+@plant-apex 280: leaf-12, 0.017824, 0.2352, -0.054857
+@plant-apex 280: leaf-13, 0.017824, 0.2352, -0.054857
+@plant-apex 280: leaf-14, 0.017824, 0.2352, -0.054857
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -77,6 +117,26 @@
 | @part | 280 | leaf-14 | curved | 0.017824..0.043413 | 0.2352..0.275803 | -0.054857..-0.046627 | branch-4 |
 
 @inventory 600: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
+@plant-join 600: branch-0, 0.012, 0.288, 0, 0.12, 0.288, 0, 0.0036
+@plant-apex 600: leaf-0, 0.1236, 0.288, 0
+@plant-apex 600: leaf-1, 0.1236, 0.288, 0
+@plant-apex 600: leaf-2, 0.1236, 0.288, 0
+@plant-join 600: branch-1, 0.003708, 0.342, 0.011413, 0.037082, 0.342, 0.114127, 0.0036
+@plant-apex 600: leaf-3, 0.038195, 0.342, 0.117551
+@plant-apex 600: leaf-4, 0.038195, 0.342, 0.117551
+@plant-apex 600: leaf-5, 0.038195, 0.342, 0.117551
+@plant-join 600: branch-2, -0.009708, 0.396, 0.007053, -0.097082, 0.396, 0.070534, 0.0036
+@plant-apex 600: leaf-6, -0.099995, 0.396, 0.07265
+@plant-apex 600: leaf-7, -0.099995, 0.396, 0.07265
+@plant-apex 600: leaf-8, -0.099995, 0.396, 0.07265
+@plant-join 600: branch-3, -0.009708, 0.45, -0.007053, -0.097082, 0.45, -0.070534, 0.0036
+@plant-apex 600: leaf-9, -0.099995, 0.45, -0.07265
+@plant-apex 600: leaf-10, -0.099995, 0.45, -0.07265
+@plant-apex 600: leaf-11, -0.099995, 0.45, -0.07265
+@plant-join 600: branch-4, 0.003708, 0.504, -0.011413, 0.037082, 0.504, -0.114127, 0.0036
+@plant-apex 600: leaf-12, 0.038195, 0.504, -0.117551
+@plant-apex 600: leaf-13, 0.038195, 0.504, -0.117551
+@plant-apex 600: leaf-14, 0.038195, 0.504, -0.117551
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -106,6 +166,26 @@
 | @part | 600 | leaf-14 | curved | 0.038195..0.093029 | 0.504..0.591006 | -0.117551..-0.099915 | branch-4 |
 
 @inventory 800: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
+@plant-join 800: branch-0, 0.016, 0.384, 0, 0.16, 0.384, 0, 0.0048
+@plant-apex 800: leaf-0, 0.1648, 0.384, 0
+@plant-apex 800: leaf-1, 0.1648, 0.384, 0
+@plant-apex 800: leaf-2, 0.1648, 0.384, 0
+@plant-join 800: branch-1, 0.004944, 0.456, 0.015217, 0.049443, 0.456, 0.152169, 0.0048
+@plant-apex 800: leaf-3, 0.050926, 0.456, 0.156734
+@plant-apex 800: leaf-4, 0.050926, 0.456, 0.156734
+@plant-apex 800: leaf-5, 0.050926, 0.456, 0.156734
+@plant-join 800: branch-2, -0.012944, 0.528, 0.009405, -0.129443, 0.528, 0.094046, 0.0048
+@plant-apex 800: leaf-6, -0.133326, 0.528, 0.096867
+@plant-apex 800: leaf-7, -0.133326, 0.528, 0.096867
+@plant-apex 800: leaf-8, -0.133326, 0.528, 0.096867
+@plant-join 800: branch-3, -0.012944, 0.6, -0.009405, -0.129443, 0.6, -0.094046, 0.0048
+@plant-apex 800: leaf-9, -0.133326, 0.6, -0.096867
+@plant-apex 800: leaf-10, -0.133326, 0.6, -0.096867
+@plant-apex 800: leaf-11, -0.133326, 0.6, -0.096867
+@plant-join 800: branch-4, 0.004944, 0.672, -0.015217, 0.049443, 0.672, -0.152169, 0.0048
+@plant-apex 800: leaf-12, 0.050926, 0.672, -0.156734
+@plant-apex 800: leaf-13, 0.050926, 0.672, -0.156734
+@plant-apex 800: leaf-14, 0.050926, 0.672, -0.156734
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -135,6 +215,26 @@
 | @part | 800 | leaf-14 | curved | 0.050926..0.124038 | 0.672..0.788007 | -0.156734..-0.133219 | branch-4 |
 
 @inventory 1100: pot, soil, stem, branch-0, leaf-0, leaf-1, leaf-2, branch-1, leaf-3, leaf-4, leaf-5, branch-2, leaf-6, leaf-7, leaf-8, branch-3, leaf-9, leaf-10, leaf-11, branch-4, leaf-12, leaf-13, leaf-14
+@plant-join 1100: branch-0, 0.022, 0.528, 0, 0.22, 0.528, 0, 0.0066
+@plant-apex 1100: leaf-0, 0.2266, 0.528, 0
+@plant-apex 1100: leaf-1, 0.2266, 0.528, 0
+@plant-apex 1100: leaf-2, 0.2266, 0.528, 0
+@plant-join 1100: branch-1, 0.006798, 0.627, 0.020923, 0.067984, 0.627, 0.209232, 0.0066
+@plant-apex 1100: leaf-3, 0.070023, 0.627, 0.215509
+@plant-apex 1100: leaf-4, 0.070023, 0.627, 0.215509
+@plant-apex 1100: leaf-5, 0.070023, 0.627, 0.215509
+@plant-join 1100: branch-2, -0.017798, 0.726, 0.012931, -0.177984, 0.726, 0.129313, 0.0066
+@plant-apex 1100: leaf-6, -0.183323, 0.726, 0.133192
+@plant-apex 1100: leaf-7, -0.183323, 0.726, 0.133192
+@plant-apex 1100: leaf-8, -0.183323, 0.726, 0.133192
+@plant-join 1100: branch-3, -0.017798, 0.825, -0.012931, -0.177984, 0.825, -0.129313, 0.0066
+@plant-apex 1100: leaf-9, -0.183323, 0.825, -0.133192
+@plant-apex 1100: leaf-10, -0.183323, 0.825, -0.133192
+@plant-apex 1100: leaf-11, -0.183323, 0.825, -0.133192
+@plant-join 1100: branch-4, 0.006798, 0.924, -0.020923, 0.067984, 0.924, -0.209232, 0.0066
+@plant-apex 1100: leaf-12, 0.070023, 0.924, -0.215509
+@plant-apex 1100: leaf-13, 0.070023, 0.924, -0.215509
+@plant-apex 1100: leaf-14, 0.070023, 0.924, -0.215509
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -425,7 +525,7 @@
 | @part | tray | rim | hollow | -0.18..0.18 | 0.018..0.032 | -0.12..0.12 | base |
 | @envelope | cup | * | bounds | -0.0425..0.0425 | 0..0.095 | -0.0425..0.0825 | - |
 | @part | cup | body | hollow | -0.0425..0.0425 | 0..0.095 | -0.0425..0.0425 | support,handle |
-| @part | cup | handle | curved | -0.006..0.006 | 0.03..0.071 | 0.042074..0.0825 | body |
+| @part | cup | handle | curved | -0.006..0.006 | 0.03..0.070 | 0.042074..0.0825 | body |
 
 <!-- @authored-address-state:start -->
 @address-state bowl: shell

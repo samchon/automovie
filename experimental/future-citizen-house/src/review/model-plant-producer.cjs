@@ -107,7 +107,20 @@ function render(input) {
   for (const millimetres of input.heights) {
     const state = String(millimetres);
     const { parts, envelope } = partsFor(input, millimetres);
+    const H = millimetres / 1000;
+    const branchRadius = input.branchRadius * H;
+    const baseRadius = (input.stemRadius + input.branchRadius) * H;
+    const tipRadius = baseRadius + input.branchLength * H;
+    const apexRadius = tipRadius + branchRadius;
     output.push(`@inventory ${state}: ${parts.map((part) => part.id).join(", ")}`);
+    for (let i = 0; i < 5; i++) {
+      const angle = 2 * Math.PI * i / 5;
+      const ex = Math.cos(angle), ez = Math.sin(angle);
+      const y = (input.branchStart + input.branchPitch * i) * H;
+      output.push(`@plant-join ${state}: branch-${i}, ${round(baseRadius * ex)}, ${round(y)}, ${round(baseRadius * ez)}, ${round(tipRadius * ex)}, ${round(y)}, ${round(tipRadius * ez)}, ${round(branchRadius)}`);
+      for (let j = 0; j < 3; j++)
+        output.push(`@plant-apex ${state}: leaf-${3 * i + j}, ${round(apexRadius * ex)}, ${round(y)}, ${round(apexRadius * ez)}`);
+    }
     output.push("", "| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |",
       "| --- | --- | --- | --- | --- | --- | --- | --- |");
     output.push(`| @envelope | ${state} | * | bounds | ${extent(envelope.x)} | ${extent(envelope.y)} | ${extent(envelope.z)} | - |`);

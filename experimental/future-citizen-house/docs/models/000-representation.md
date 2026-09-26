@@ -16,6 +16,8 @@
 
 평평한 상·하면을 가진 둥근 직물 상자와 출입 매트는 위도 ring 대상이 아니다. 그 상·하면에는 ±Y 평면의 m 단위 X/Z 투영을 쓰고, 둥근 둘레에만 뒤쪽 −Z 이음에서 실제 호 길이 U와 높이 Y를 V로 쓴다. V형 접힘 홈의 두 경사면은 각각 자체 실제 표면 길이로 V를 이어 seam에서만 끊는다. 화분의 얇은 쐐기 잎은 시작점부터 끝면까지의 실제 길이를 V, 끝면의 접선 폭을 U로 쓰며 시작점 U=0을 공유한다.
 
+중심선을 따라 쓸어 만드는 원형 관·막대의 닫힌 자유 끝에는 바깥 반지름만큼 진행 방향으로 뻗는 반구를 붙인다. 반구는 적도에서 극까지 동일한 여섯 위도 구간, 둘레 24구간과 단일 극점으로 닫으며 내부에 평평한 끝 원판을 남기지 않는다. 열린 출구는 해당 H2가 지정한 평평한 환형 끝면으로 닫고, 다른 고체에 용접되는 끝은 내부 교차면을 제거한다. XY 평면에서 폭을 가진 선분을 Z 전깊이로 압출한 막대의 둥근 끝은 선분 끝에서 XY 반원 12구간을 바깥으로 붙여 같은 Z 깊이로 압출한다. 단면 24각의 첫 꼭짓점은 Y축 관이면 +X, X축 관이면 +Y, Z축 관이면 +X에 두어 각 축 방향 극값이 선언 AABB에 정확히 닿게 한다. 각 H2는 중심선 끝과 열린 출구 여부를 선언하고 이 규칙에서 실제 외곽·face를 계산한다. 점유 구간 자체로 선언한 원기둥은 중심선 스윕의 자유 끝이 없으므로 그 구간의 끝 평면으로 닫는다.
+
 ## 관절 상태와 변종 식별 {#model-articulation-ownership}
 
 같은 prototype ID와 같은 명시 상태는 동일한 형상·부품 집합·AABB를 낸다. 폭·높이·깊이·형상형이 결과를 바꾸면 해당 토큰을 ID 또는 H2의 유한 변종 키에 모두 넣고, m×1000이 정수 mm가 아니면 거부한다. `murphy-bed`의 작업/손님과 flex 책상의 `folded|open`은 하나의 정체성 아래 명시 상태가 선택하는 결과이며 상태 없는 호출은 거부한다. cabinet의 `closed|open`은 ID 토큰이다. 이 단계의 관절은 명시 상태에서 고정된 부품·pivot만 정의하고 쓰기 가능한 중간 운동이나 작동 시간축은 만들지 않는다. 변기 lid도 H2의 열린 검사 형상 하나만 낸다. `cabinet` 문과 서랍의 `closed|open`·`murphy-bed`의 접힘·`work-desk/flex`의 보조판·변기의 고정 열린 lid는 각각 자기 모델 H2가 정한 부품 집합이다. 배치 회전은 instances가, 발광 상태는 systems가 소유한다. ref04의 접이식 전면은 두 고정 상태로만 채택하고 ref02의 침대·수납도 중간 동작 근거로 삼지 않는다. 실제 작동 경로·시간·충돌 회피는 `unverified`다.
@@ -56,13 +58,15 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 `@material-face state: part/face`는 같은 부품의 일반 가시 면과 구분되는 재료 응답을 필요로 하는 실제 면을 표시한다. 이 주소는 model의 표면 분할 결정이며 finish·texture 규모·UV 결합은 materials가 소유한다. `model-owner-audit.cjs`의 표면 결합 검사는 선언된 state/part/face의 별도 결합과 그 밖의 부품의 기본 결합을 센다.
 
-`@pin-face state: pin, receiver`는 원통 핀의 끝 원판이 receiver의 닫힌 접합면에 유한 면적으로 닿음을 선언한다. `@emitter-face state: part, -Y`는 방에서 아래로 보이는 발광 face를 지정하며 다른 부품이 그 면을 가리면 실패다. `@tangent state: host, guest, hostRadius, guestHalfWidth`는 원통 host의 바깥 반지름과 guest의 X 반폭으로 접선을 검증한다. host와 guest의 AABB를 고체 접합 증명으로 대신하지 않는다. `@bore-z state: part, centerX, centerY, radius, Zmin..Zmax`는 Z축 원형 관통 구멍이고 `@bore-x state: part, Xmin..Xmax, centerY, centerZ, radius`는 X축 원형 구멍이다. 절삭 구간의 양 끝과 안쪽 벽은 열린 면이 아니라 두께 있는 고체의 노출 face다.
+`@pin-face state: pin, receiver`는 원통 핀의 끝 원판이 receiver의 닫힌 접합면에 유한 면적으로 닿음을 선언한다. `@emitter-face state: part, -Y`는 방에서 아래로 보이는 발광 face를 지정하며 다른 부품이 그 면을 가리면 실패다. `@tangent state: host, guest, hostRadius, guestHalfWidth`는 원통 host의 바깥 반지름과 guest의 X 반폭으로 접선을 검증한다. host와 guest의 AABB를 고체 접합 증명으로 대신하지 않는다. `@bore-z state: part, centerX, centerY, radius, Zmin..Zmax`는 Z축 원형 절삭이며 부품 가장자리를 가로지를 때에도 실제 원호 벽과 남은 고체가 모두 양수 면적이어야 한다. `@bore-x state: part, Xmin..Xmax, centerY, centerZ, radius`는 X축 원형 구멍이다. 절삭 구간의 양 끝과 안쪽 벽은 열린 면이 아니라 두께 있는 고체의 노출 face다.
 
 `@radial state: part, inner, outer`는 원점 XZ 중심을 가진 Y축 원판 또는 환형 단면, `@radial-at state: part, centerX, centerZ, inner, outer`는 평행 이동한 같은 단면, `@radial-z state: part, centerX, centerY, inner, outer`는 Z축 원판 또는 환형 단면을 정한다. inner=0이면 중심까지 채우고, 양수이면 그 안은 비운다. `@ellipse state: part, innerX, innerZ, outerX, outerZ[, centerX, centerZ]`는 Y축 타원 고리의 두 반축과 중심을 정하며 생략한 중심은 원점이다. 이 행의 반축과 위치는 `@part`의 AABB와 별도로 서로 대조한다. `@grid state: prefix, columns, rows, pitchX, pitchZ, width, depth, Ymin..Ymax, contact`는 X/Z 격자의 `prefix-0..` 부품을 행 우선 순서로 배치하고 각 부품을 선언 폭·깊이·높이의 닫힌 상자로 만든다.
 
 방사 행은 해당 부품의 원형 부분을 측정하며 별도 산문이 수치로 닫은 일체형 접합 패드를 금지하지 않는다. [샤워 bracket](003-service-fixtures.md#shower)은 원형 고리 뒤로 벽의 접촉 평면까지 뻗은 직사각 패드를 합쳐야 하므로 패드 모서리는 `@radial-at` 바깥 반지름 밖에 있다. 그 패드는 `@flat-contact`의 유한 벽 접촉을 만들며 전체 `@part` AABB 안에 남는다. 이런 추가 부피를 산문이나 별도 구조 행 없이 임의로 만들 수는 없다.
 
 `@curve-linear state: host, guest, originY, spanY, c0, c1, hostDepth, gap, guestDepth`는 t=(y−originY)/spanY에서 host의 뒤 경계 z=c0+c1t, 앞 경계 z+hostDepth, guest의 뒤 경계는 host 앞 경계+gap, 앞 경계는 다시 guestDepth를 더한 선형 층이다. `@curve-layer`의 다항식 우선순위는 아래 문단이 소유한다. `@plant-spec`은 [화분](004-decor-and-fixtures.md#potted-plant)의 JSON 입력으로, `heights`는 mm 상태 목록이고 나머지 이름 붙은 값은 최종 높이 H의 무차원 비율이다. `wallMinimum`만 m 단위 바닥 두께 하한이며 `leafFanDegrees`는 각도다. `model-plant-producer`가 상태별 `@part`·`@envelope`을 이 입력에서 생성한다. `@component-count state: part-ID, N`은 같은 상태의 그 부품을 `@void`로 절삭한 뒤 양수 면을 공유하는 닫힌 고체 연결 성분 수를 확정한다. 점·선 접촉은 연결로 세지 않는다. `@cabinet-spec`은 [수납 외함](002-storage-and-sleep.md#cabinet-and-shelf)의 m 단위 패널·틈·문·손잡이·선반 피치 JSON 입력이며 `hingeHalfWidth`는 숨은 사각 힌지의 국소 X 또는 Z 반폭이고 원형 반경이 아니다. `@cabinet-variants`는 호출 가능한 정확한 형상형/폭-mm×높이-mm×깊이-mm/상태 목록이다. `model-cabinet-producer`가 그 유한 목록의 행을 생성하며 입력·출력 불일치는 실패다.
+
+`@plant-join state: branch-ID, baseX, baseY, baseZ, tipX, tipY, tipZ, radius`는 화분 가지의 두 반구 중심과 반지름을 m로 적고 `@plant-apex state: leaf-ID, X, Y, Z`는 잎 쐐기의 단일 시작점을 m로 적는다. 두 행은 `@plant-spec`에서 생성된 계측 결과이며 독립 설계 입력이 아니다. 접선 검사는 줄기 `@part` 반경, 가지 `@plant-join`의 밑동 중심·반지름, 잎 `@plant-apex`와 가지 끝 중심·반지름을 대조하고, 가지 `@part` AABB가 이 중심·반지름의 외곽과 같은지도 재야 한다.
 
 일반 얇은 잎의 여덟 경계 vertex 규칙과 달리 [화분](004-decor-and-fixtures.md#potted-plant)의 부채 잎은 가지 끝 접점 하나와 끝면의 네 꼭짓점을 가진 다섯 vertex의 닫힌 쐐기다. 시작점에서 폭·두께가 함께 0으로 수렴하므로 퇴화 삼각형을 만들지 않고 네 측면 삼각형과 끝면 두 삼각형으로 닫는다. 끝면 두께는 가지에서 바깥 방사방향 한쪽으로만 생기며 접선 거리와 비관통 조건을 각 상태에서 다시 계산한다.
 

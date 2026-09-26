@@ -568,6 +568,72 @@ function capContactArea(first, second, axis, plane, radial, radialZ, bores, bore
   return count * (hiU - loU) * (hiV - loV) / (samples * samples);
 }
 
+/** A coaxial Z pin shares a finite arc with the material left by an edge bore.
+ * @param {Part} host @param {Part} pin
+ * @param {{centerX:number,centerY:number,radius:number,z:[number,number]}} bore */
+function boredPinContact(host, pin, bore) {
+  if (pin.shape !== "cylinder" || cylinderAxis(pin) !== "z") return undefined;
+  const centerX = (pin.x[0] + pin.x[1]) / 2;
+  const centerY = (pin.y[0] + pin.y[1]) / 2;
+  const radius = (pin.x[1] - pin.x[0]) / 2;
+  if (Math.abs(centerX - bore.centerX) > epsilon ||
+    Math.abs(centerY - bore.centerY) > epsilon ||
+    Math.abs((pin.y[1] - pin.y[0]) / 2 - radius) > epsilon ||
+    Math.min(bore.z[1], pin.z[1], host.z[1]) -
+      Math.max(bore.z[0], pin.z[0], host.z[0]) <= epsilon)
+    return undefined;
+  let arcFacets = 0;
+  for (let segment = 0; segment < 24; segment++) {
+    const angle = 2 * Math.PI * (segment + 0.5) / 24;
+    const x = centerX + bore.radius * Math.cos(angle);
+    const y = centerY + bore.radius * Math.sin(angle);
+    if (x > host.x[0] + epsilon && x < host.x[1] - epsilon &&
+      y > host.y[0] + epsilon && y < host.y[1] - epsilon) arcFacets++;
+  }
+  return { contact: arcFacets > 0 && Math.abs(radius - bore.radius) <= epsilon,
+    overlap: arcFacets > 0 && radius > bore.radius + epsilon };
+}
+
+/** Proves a planar contact patch remains after all Z bores in its two hosts.
+ * @param {Part} a @param {Part} b
+ * @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ
+ * @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces */
+function planarContactOutsideBores(a, b, boresZ, voids, pieces) {
+  if (![a, b].some((part) => boresZ.has(`${part.state}/${part.id}`)) ||
+    [a, b].some((part) => !["box", "hollow"].includes(part.shape))) return false;
+  for (const first of occupiedBoxes(a, voids, pieces))
+    for (const second of occupiedBoxes(b, voids, pieces)) {
+      if (!surfaceContact(first, second)) continue;
+      const normal = /** @type {const} */ (["x", "y", "z"]).find((axis) =>
+        Math.abs(Math.min(first[axis][1], second[axis][1]) -
+          Math.max(first[axis][0], second[axis][0])) <= epsilon);
+      if (!normal) continue;
+      const [u, v] = /** @type {const} */ (["x", "y", "z"]).filter((axis) => axis !== normal);
+      const plane = Math.max(first[normal][0], second[normal][0]);
+      const loU = Math.max(first[u][0], second[u][0]);
+      const hiU = Math.min(first[u][1], second[u][1]);
+      const loV = Math.max(first[v][0], second[v][0]);
+      const hiV = Math.min(first[v][1], second[v][1]);
+      const samples = 32;
+      let uncut = 0;
+      for (let i = 0; i < samples; i++) for (let j = 0; j < samples; j++) {
+        const point = { x: 0, y: 0, z: 0 };
+        point[normal] = plane;
+        point[u] = loU + (i + 0.5) * (hiU - loU) / samples;
+        point[v] = loV + (j + 0.5) * (hiV - loV) / samples;
+        const cut = [a, b].some((part) => {
+          const bore = boresZ.get(`${part.state}/${part.id}`);
+          return bore && point.z >= bore.z[0] - epsilon && point.z <= bore.z[1] + epsilon &&
+            Math.hypot(point.x - bore.centerX, point.y - bore.centerY) < bore.radius;
+        });
+        if (!cut) uncut++;
+      }
+      if (uncut * (hiU - loU) * (hiV - loV) / (samples * samples) > 1e-8)
+        return true;
+    }
+  return false;
+}
+
 /** @param {Part} a @param {Part} b @param {Map<string,{inner:number,outer:number,centerX:number,centerZ:number}>} radial @param {Map<string,{inner:number,outer:number,centerX:number,centerY:number}>} radialZ @param {Map<string,{centerX:number,centerY:number,radius:number,z:[number,number]}>} boresZ @param {Map<string,Bounds[]>} voids @param {Map<string,Bounds[]>} pieces @param {Map<string,{y:[number,number],z:[number,number],halfDepth:number}>} shearsZ @param {Set<string>} provedTangents @param {Set<string>} provedCurves @param {Map<string,boolean>} provedLinear @param {Set<string>} plantContacts @param {Set<string>} unprovedCurved @param {string} owner */
 function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, shearsZ, provedTangents, provedCurves, provedLinear, plantContacts, unprovedCurved, owner) {
   const key = `${a.state}/${[a.id, b.id].sort((left, right) => left.localeCompare(right)).join("/")}`;
@@ -576,6 +642,10 @@ function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, shearsZ, pr
   if (provedLinear.has(key)) return provedLinear.get(key);
   for (const [host, guest] of [[a, b], [b, a]]) {
     const bore = boresZ.get(`${host.state}/${host.id}`);
+    if (bore) {
+      const pin = boredPinContact(host, guest, bore);
+      if (pin) return pin.contact;
+    }
     const ring = radialZ.get(`${guest.state}/${guest.id}`);
     if (bore && ring && Math.abs(bore.centerX - ring.centerX) <= epsilon &&
       Math.abs(bore.centerY - ring.centerY) <= epsilon &&
@@ -606,7 +676,8 @@ function actualContact(a, b, radial, radialZ, boresZ, voids, pieces, shearsZ, pr
     (capB && exactA && occupiedBoxes(a, voids, pieces).some((box) =>
       cylinderCapArea(b, box, capB) > 1e-8));
   if (contact && [a.shape, b.shape].some((shape) => ["curved", "cylinder", "hollow"].includes(shape)) &&
-    !(exactA && exactB) && !finiteCap)
+    !(exactA && exactB) && !finiteCap &&
+    !planarContactOutsideBores(a, b, boresZ, voids, pieces))
     unprovedCurved.add(`${owner}/${key}`);
   return contact;
 }
@@ -618,6 +689,10 @@ function actualOverlap(a, b, radial, radialZ, boresZ, voids, pieces, provedTange
   if (provedTangents.has(key) || provedCurves.has(key) || provedLinear.has(key)) return false;
   for (const [host, guest] of [[a, b], [b, a]]) {
     const bore = boresZ.get(`${host.state}/${host.id}`);
+    if (bore) {
+      const pin = boredPinContact(host, guest, bore);
+      if (pin) return pin.overlap;
+    }
     const ring = radialZ.get(`${guest.state}/${guest.id}`);
     if (bore && ring && Math.abs(bore.centerX - ring.centerX) <= epsilon &&
       Math.abs(bore.centerY - ring.centerY) <= epsilon &&
@@ -910,6 +985,12 @@ function plantProof(parsed) {
   let input;
   try { input = plantProducer.check(source); }
   catch (error) { return { errors: [`potted-plant: ${String(error)}`], contacts, nonOverlaps }; }
+  const joins = new Map([...source.matchAll(/^@plant-join\s+(\d+):\s+(branch-\d+),\s+(.+)$/gm)]
+    .map((match) => [`${match[1]}/${match[2]}`, match[3].split(",").map(Number)]));
+  const apices = new Map([...source.matchAll(/^@plant-apex\s+(\d+):\s+(leaf-\d+),\s+(.+)$/gm)]
+    .map((match) => [`${match[1]}/${match[2]}`, match[3].split(",").map(Number)]));
+  if (joins.size !== input.heights.length * 5 || apices.size !== input.heights.length * 15)
+    errors.push("potted-plant: measured join population is incomplete");
   const fan = input.leafFanDegrees * Math.PI / 180;
   const branchBase = input.stemRadius + input.branchRadius;
   const leafBase = branchBase + input.branchLength + input.branchRadius;
@@ -948,24 +1029,37 @@ function plantProof(parsed) {
     const attach = (left, right) => { const key = pair(state, left, right); contacts.add(key); nonOverlaps.add(key); };
     attach("pot", "soil");
     for (let i = 0; i < 5; i++) {
-      const angle = 2 * Math.PI * i / 5;
-      const ex = Math.cos(angle), ez = Math.sin(angle);
-      const stemSurface = input.stemRadius * expected.H;
-      const branchRadius = input.branchRadius * expected.H;
-      const branchCenter = [branchBase * expected.H * ex, branchBase * expected.H * ez];
-      if (Math.abs(Math.hypot(...branchCenter) - branchRadius - stemSurface) > epsilon)
+      const stem = actualById.get("stem");
+      const branch = actualById.get(`branch-${i}`);
+      const join = joins.get(`${state}/branch-${i}`);
+      if (!stem || !branch || !join || join.length !== 7 ||
+        !join.every(Number.isFinite)) {
+        errors.push(`potted-plant/${state}/branch-${i}: measured join absent`);
+        continue;
+      }
+      const [baseX, baseY, baseZ, tipX, tipY, tipZ, branchRadius] = join;
+      const stemSurface = (stem.x[1] - stem.x[0]) / 2;
+      const branchBounds = {
+        x: [Math.min(baseX, tipX) - branchRadius, Math.max(baseX, tipX) + branchRadius],
+        y: [baseY - branchRadius, baseY + branchRadius],
+        z: [Math.min(baseZ, tipZ) - branchRadius, Math.max(baseZ, tipZ) + branchRadius],
+      };
+      if (Math.abs(baseY - tipY) > epsilon ||
+        /** @type {const} */ (["x", "y", "z"]).some((axis) =>
+          branch[axis].some((value, end) => Math.abs(value - branchBounds[axis][end]) > 2 * epsilon)))
+        errors.push(`potted-plant/${state}/branch-${i}: measured capsule differs from part bounds`);
+      if (Math.abs(Math.hypot(baseX, baseZ) - branchRadius - stemSurface) > 2 * epsilon)
         errors.push(`potted-plant/${state}/branch-${i}: stem tangent distance differs`);
       else attach("stem", `branch-${i}`);
-      const capCenter = [(branchBase + input.branchLength) * expected.H * ex,
-        (branchBase + input.branchLength) * expected.H * ez];
-      const apex = [leafBase * expected.H * ex, leafBase * expected.H * ez];
       for (let j = 0; j < 3; j++) {
         const leaf = actualById.get(`leaf-${3 * i + j}`);
-        const distance = Math.hypot(apex[0] - capCenter[0], apex[1] - capCenter[1]);
-        if (!leaf || Math.abs(distance - branchRadius) > epsilon ||
+        const apex = apices.get(`${state}/leaf-${3 * i + j}`);
+        const distance = apex ? Math.hypot(apex[0] - tipX, apex[2] - tipZ) : Infinity;
+        if (!leaf || !apex || apex.length !== 3 || !apex.every(Number.isFinite) ||
+          Math.abs(distance - branchRadius) > 2 * epsilon ||
           apex[0] < leaf.x[0] - epsilon || apex[0] > leaf.x[1] + epsilon ||
-          apex[1] < leaf.z[0] - epsilon || apex[1] > leaf.z[1] + epsilon ||
-          Math.abs(leaf.y[0] - (input.branchStart + i * input.branchPitch) * expected.H) > epsilon)
+          apex[2] < leaf.z[0] - epsilon || apex[2] > leaf.z[1] + epsilon ||
+          Math.abs(leaf.y[0] - apex[1]) > epsilon || Math.abs(apex[1] - tipY) > epsilon)
           errors.push(`potted-plant/${state}/branch-${i}/leaf-${3 * i + j}: tangent point differs`);
         else attach(`branch-${i}`, `leaf-${3 * i + j}`);
       }
@@ -1476,13 +1570,15 @@ function audit(allSections, mutate, onlyState) {
       for (const [key, bore] of boresZ) {
         if (!key.startsWith(`${state}/`)) continue;
         const host = byId.get(key.slice(state.length + 1));
+        const nearX = host ? Math.max(host.x[0] - bore.centerX, 0, bore.centerX - host.x[1]) : Infinity;
+        const nearY = host ? Math.max(host.y[0] - bore.centerY, 0, bore.centerY - host.y[1]) : Infinity;
+        const farX = host ? Math.max(Math.abs(host.x[0] - bore.centerX), Math.abs(host.x[1] - bore.centerX)) : 0;
+        const farY = host ? Math.max(Math.abs(host.y[0] - bore.centerY), Math.abs(host.y[1] - bore.centerY)) : 0;
         if (!host || host.shape !== "hollow" || bore.radius <= 0 ||
-          bore.centerX - bore.radius <= host.x[0] + epsilon ||
-          bore.centerX + bore.radius >= host.x[1] - epsilon ||
-          bore.centerY - bore.radius <= host.y[0] + epsilon ||
-          bore.centerY + bore.radius >= host.y[1] - epsilon ||
+          Math.hypot(nearX, nearY) >= bore.radius - epsilon ||
+          Math.hypot(farX, farY) <= bore.radius + epsilon ||
           bore.z[0] < host.z[0] - epsilon || bore.z[1] > host.z[1] + epsilon)
-          errors.push(`${anchor}/${key}: bore-z is not a contained circular cavity`);
+          errors.push(`${anchor}/${key}: bore-z cuts no circular face or consumes its host`);
       }
       for (const [key, ellipse] of ellipses) {
         if (!key.startsWith(`${state}/`)) continue;
