@@ -61,89 +61,16 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `wares#scroll` | `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie` | 말린 종이·끈은 X축 원통/YZ 원환 전개, 펼친 종이는 로컬 +Z 긴 방향을 U, +X를 V로 하는 평면 투영; 종이 끝과 끈 시접에서 이음. |
 | `landscape#cypress`, `#broad-tree`, `#grass-tuft` | 줄기·가지·잎·풀 | 줄기와 가지는 각 축의 원통 전개, 잎과 풀의 앞뒷면은 기본 평면 투영; 줄기·가지 +X 시접과 각 잎·풀의 외곽에서 이음. |
 | `landscape#neighbor-house` | `roof`, `wall`, `plinth`, `recess` | 지붕 가로 +X를 U, 변형 A는 처마→용마루 경사 방향, 변형 B는 앞 처마→높은 뒤 처마 방향을 V로 둔다. 벽·기단·문창 안쪽은 기본 평면 투영; 지붕 경사·건물 모서리·개구부에서 이음. |
+| `portable#bench`, `#votive-plaque`, `#offering-tray`, `#writing-tablet`, `ritual#floor-cushion` | 모든 평판·각재 part | 각 독립 평면에 기본 투영을 쓰고 판의 모서리와 part 경계에서 이음. |
+| `portable#portable-lamp`, `#bucket`, `#planter`, `#stylus`, `ritual#censer`, `#jar-stand` | 회전체 옆면·원판·관 | 회전체는 +X 시접에서 호길이 U, 모선 길이 V; 원판·평평한 흙·재 면은 기본 평면 투영. 손잡이 관은 아래 부착점에서 위 부착점까지 호길이 U. |
+| `portable#jar-rack` | `top`, `leg`, `well` | 상판·다리는 부재 장축 U; 둥근 홈의 벽은 회전체 호길이 U, 바닥은 기본 평면 투영. `top`은 홈 구멍의 벽만, `well`은 홈 바닥만 소유한다. |
+| `portable#carrying-yoke` | `beam`, `hook` | 막대 장축 +X를 U, 고리 YZ 원환은 중심선·관 둘레 호길이로 전개한다. |
+| `portable#handcart` | `deck`, `handle`, `axle`, `wheel` | 판·손잡이는 각각 장축 U, 축·바퀴는 X축 원통의 둘레 U와 축 길이 V로 전개한다. |
+| `portable#textile` | `cloth` | 두 겹의 윗면·아랫면과 접힌 띠의 평면을 각각 기본 투영하며 접힌 모서리에서 정점을 복제한다. |
+| `portable#rope-coil` | `rope`, `tie` | 고리는 XZ 원환의 중심선·관 둘레 호길이, 직사각 묶음 띠는 기본 평면 투영을 쓴다. |
 
-2026-09-25 사용자 지시에 따라 텍스처 비트맵은 절차 생성으로 저작하고, 결합 계약인 안정된 표면 ID·물리 반복 길이·UV0 방식·비트맵 부재 시 단색 fallback을 함께 검사한다. 아래 길이는 UV0가 1 단위=1m인 상태에서 텍스처 한 번 반복의 실제 길이이며 materials는 `UV0 / 길이`로 반복 좌표를 얻는다. fallback은 sRGB 색이며 비트맵 부재에만 쓰고 UV0가 없거나 유한하지 않은 오류를 숨기지 않는다. 길이와 fallback 수치는 이 표가 유일하게 소유하고, 각 모델 H2는 표면 ID와 형상 UV 이음만 소유한다.
+모델은 각 part의 안정된 표면 ID와 UV0 투영·이음만 소유한다. 재료 결속 키·반복 길이·fallback과 part별 배정은 [재료 결속](../materials/10-model-bindings.md#binding-map)이 소유한다.
 
-| 결속 키 | 반복 길이 U·V (m) | 비트맵 부재 시 단색 fallback |
-| --- | --- | --- |
-| `limestone` | 0.45·0.45 | `#b8aa91` |
-| `dark-metal` | 0.18·0.18 | `#51483c` |
-| `dark-wood` | 0.30·0.30 | `#684832` |
-| `terracotta` | 0.22·0.22 | `#a76a47` |
-| `wicker` | 0.11·0.11 | `#a88a5d` |
-| `parchment` | 0.16·0.16 | `#d2bd98` |
-| `linen` | 0.24·0.24 | `#b6a68e` |
-| `rope-fibre` | 0.10·0.10 | `#96805c` |
-| `soil` | 0.25·0.25 | `#6d553e` |
-| `water` | 0.60·0.60 | `#73969a` |
-| `foliage` | 0.28·0.28 | `#526448` |
-| `plaster` | 0.52·0.52 | `#bda887` |
-
-각 행의 part 목록은 그 H2의 전체 방출 표면 중 해당 결속 키가 받을 집합이다. 같은 part를 둘 이상의 키에 묵시적으로 배정하지 않는다. UV 방식 `평면`은 위의 법선별 기본 투영, `회전`은 축 회전체/원환의 호길이 전개, `장축`은 판·막대의 장축 U, `관`은 베지어 또는 원환의 중심선 호길이 U, `잎`은 양면을 갈라 평면 투영한다. 모든 방식은 part 경계에서 시접을 복제한다.
-
-| 모델 H2 | part 표면 | 결속 키 | UV0 방식 |
-| --- | --- | --- | --- |
-| `columns#colonnade-column`, `columns#porch-column` | `plinth`, `base`, `shaft`, `capital` | `limestone` | 평면·회전 |
-| `entablature#colonnade-beam`, `entablature#rafter`, `entablature#ceiling-joist` | `timber` | `dark-wood` | 장축 |
-| `entablature#porch-entablature` | `beam`, `cornice`, `raking-trim` | `limestone` | 평면 |
-| `entablature#sanctuary-truss` | `tie-beam`, `principal`, `king-post`, `strut` | `dark-wood` | 장축 |
-| `openings#door-frame`, `openings#window-frame` | `lining`, `surround` | `limestone` | 평면 |
-| `openings#double-door-leaf` | `frame`, `panel` | `dark-wood` | 장축 |
-| `openings#double-door-leaf` | `plate`, `pin`, `ring`, `hinge` | `dark-metal` | 평면·회전 |
-| `openings#single-door-leaf` | `board`, `batten` | `dark-wood` | 장축 |
-| `openings#single-door-leaf` | `strap`, `pin`, `ring` | `dark-metal` | 평면·회전 |
-| `cladding#roof-tile` | `tegula`, `imbrex` | `terracotta` | 회전·평면 |
-| `cladding#ridge-tile` | `ridge` | `terracotta` | 회전 |
-| `fixtures#fountain` | `step`, `rim`, `basin-inner`, `nozzle` | `limestone` | 평면·회전 |
-| `fixtures#fountain` | `water`, `ripple`, `jet` | `water` | 평면·회전 |
-| `fixtures#altar` | `step`, `top`, `support` | `limestone` | 평면 |
-| `fixtures#niche` | `plinth`, `body`, `recess-frame`, `recess`, `cap` | `limestone` | 평면 |
-| `fixtures#lampstand` | `foot`, `stem`, `knop`, `dish` | `dark-metal` | 회전 |
-| `fixtures#offering-table` | `top`, `trestle` | `limestone` | 평면 |
-| `fixtures#display-shelf` | `side`, `board` | `dark-wood` | 장축 |
-| `fixtures#desk` | `top`, `leg`, `stretcher` | `dark-wood` | 장축 |
-| `fixtures#stool` | `seat`, `leg`, `stretcher` | `dark-wood` | 장축 |
-| `fixtures#scroll-shelf` | `frame`, `board`, `divider` | `dark-wood` | 장축 |
-| `fixtures#chest` | `body`, `lid` | `dark-wood` | 장축 |
-| `fixtures#chest` | `hasp`, `strap` | `dark-metal` | 평면 |
-| `wares#storage-jar`, `wares#carry-jar`, `wares#small-vessel` | `body`, `handle` | `terracotta` | 회전·관 |
-| `wares#offering-bowl` | `bowl` | `dark-metal` | 회전 |
-| `wares#basket` | `wall`, `rim`, `floor` | `wicker` | 회전 |
-| `wares#scroll` | `sheet`, `sheet-1`, `sheet-2`, `sheet-3` | `parchment` | 회전·평면 |
-| `wares#scroll` | `tie` | `rope-fibre` | 관 |
-| `portable#bench` | `seat`, `pier` | `limestone` | 평면 |
-| `portable#portable-lamp` | `foot`, `stem`, `dish` | `dark-metal` | 회전 |
-| `portable#jar-rack` | `top`, `leg`, `well` | `dark-wood` | 장축·회전 |
-| `portable#carrying-yoke` | `beam` | `dark-wood` | 장축 |
-| `portable#carrying-yoke` | `hook` | `dark-metal` | 회전 |
-| `portable#handcart` | `deck`, `handle` | `dark-wood` | 장축 |
-| `portable#handcart` | `axle`, `wheel` | `dark-wood` | 회전 |
-| `portable#bucket` | `body`, `handle` | `terracotta` | 회전·관 |
-| `portable#planter` | `pot` | `terracotta` | 회전 |
-| `portable#planter` | `soil` | `soil` | 평면 |
-| `portable#votive-plaque` | `base`, `slab` | `limestone` | 평면 |
-| `portable#offering-tray` | `floor`, `rim` | `dark-metal` | 평면 |
-| `portable#textile` | `cloth` | `linen` | 평면 |
-| `portable#stylus` | `shaft`, `tip` | `dark-metal` | 회전 |
-| `portable#writing-tablet` | `frame` | `dark-wood` | 평면 |
-| `portable#writing-tablet` | `writing-face` | `parchment` | 평면 |
-| `portable#rope-coil` | `rope`, `tie` | `rope-fibre` | 관 |
-| `ritual#censer` | `foot`, `stem`, `cup` | `dark-metal` | 회전 |
-| `ritual#censer` | `ash`, `incense` | `soil` | 평면·회전 |
-| `ritual#floor-cushion` | `base`, `pad`, `fold` | `linen` | 평면 |
-| `ritual#jar-stand` | `foot`, `post`, `ring` | `limestone` | 회전 |
-| `landscape#cypress` | `trunk` | `dark-wood` | 회전 |
-| `landscape#cypress` | `crown` | `foliage` | 회전 |
-| `landscape#broad-tree` | `trunk`, `branch` | `dark-wood` | 회전 |
-| `landscape#broad-tree` | `crown` | `foliage` | 회전 |
-| `landscape#grass-tuft` | `blade` | `foliage` | 잎 |
-| `landscape#neighbor-house` | `wall`, `recess` | `plaster` | 평면 |
-| `landscape#neighbor-house` | `plinth` | `limestone` | 평면 |
-| `landscape#neighbor-house` | `roof` | `terracotta` | 평면 |
-
-봉헌 그릇의 도기 변형은 동일한 `bowl` 표면과 UV0를 유지하고 `dark-metal` 대신 `terracotta` 결속 키만 택한다. 궤의 작은 문서 상자 변형과 직물의 폭·깊이·두께 변형도 표면 ID와 UV0 미터 단위를 유지한다. 모델은 이미지 파일 경로나 색상 텍스처 픽셀을 갖지 않는다.
-
-반복 부재(원주·보·서까래·천장 보·기와)는 prototype 하나를 instances가 측정값과 반복 규칙으로 배치한다. 모델 H2는 배치 수와 간격을 정하지 않고 prototype의 점유 상자와 배치 기준점만 준다. 이 상한 아래에서 보이는 것은 형태의 읽힘이며 재료 표현이나 사진 같은 완성도가 아니다.
 
 ## 움직이는 부재와 고정 부재 {#articulation-map}
 

@@ -41,7 +41,7 @@ The installed `automovie` CLI separately provides Markdown TOC maintenance, exte
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
-The current viewer renders the structural space source in neutral review clay. Model source resumes only after `models` passes independent review and `modelSources` enters `draft`. The retired model prototypes, dependent object assembly and placements, and their source-only tests are recoverable from commit `ac4b6cb4`. Material bindings resume after `materials` passes independent review and `materialSources` enters `draft`; the binding source is recoverable from commit `ce41e8a0`. The texture assets, generator, and material design draft remain in the active tree.
+The current viewer renders the structural space source in neutral review clay. Model source resumes only after `models` passes independent review and `modelSources` enters `draft`. The retired model prototypes, dependent object assembly and placements, source-only tests, and `src/geometry/jar-rack-board.ts` are recoverable from commit `ac4b6cb4`. Restore the rack geometry inside its `src/models` class when that layer opens. Material bindings resume after `materials` passes independent review and `materialSources` enters `draft`; the binding source is recoverable from commit `ce41e8a0`. The texture assets, generator, and material design draft remain in the active tree.
 
 ## Ownership
 

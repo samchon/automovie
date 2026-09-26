@@ -10,63 +10,61 @@ const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
 const scale = documents.find(
   (document) => document.path === "scale.md",
 )!.source;
+const material = readFileSync(join(__dirname, "../../../docs/materials/10-model-bindings.md"), "utf8");
 
 void test("surface grammar covers every authored prototype and every part", () => {
-  const result = modelSurfaceBindingCensus(documents, scale);
+  const result = modelSurfaceBindingCensus(documents, material, scale);
   assert.equal(result.prototypes, 49);
-  assert.equal(result.parts, 137);
+  assert.equal(result.parts, 138);
   assert.equal(result.bindingRows, 57);
   assert.deepEqual(result.failures, []);
 });
 
 void test("omitted binding, unknown part and duplicate assignment fail on the same grammar", () => {
-  const omitted = scale.replace(
-    "| `portable#stylus` | `shaft`, `tip` | `dark-metal` | 회전 |",
+  const omitted = material.replace(
+    "| `portable#stylus` | `shaft`, `tip` | `dark-metal` |",
     "",
   );
   assert.match(
-    modelSurfaceBindingCensus(documents, omitted).failures.join("\n"),
+    modelSurfaceBindingCensus(documents, omitted, scale).failures.join("\n"),
     /portable#stylus\|shaft: no surface/,
   );
-  const unknown = scale.replace(
+  const unknown = material.replace(
     "| `portable#stylus` | `shaft`, `tip`",
     "| `portable#stylus` | `shaft`, `tip`, `ghost`",
   );
   assert.match(
-    modelSurfaceBindingCensus(documents, unknown).failures.join("\n"),
+    modelSurfaceBindingCensus(documents, unknown, scale).failures.join("\n"),
     /portable#stylus\|ghost: binding has no model part/,
   );
-  const duplicated = scale.replace(
-    "| `portable#stylus` | `shaft`, `tip` | `dark-metal` | 회전 |",
+  const duplicated = material.replace(
+    "| `portable#stylus` | `shaft`, `tip` | `dark-metal` |",
     (row) => `${row}\n${row}`,
   );
   assert.match(
-    modelSurfaceBindingCensus(documents, duplicated).failures.join("\n"),
+    modelSurfaceBindingCensus(documents, duplicated, scale).failures.join("\n"),
     /duplicate surface binding/,
   );
 });
 
-void test("repeat length, fallback, UV method and prototype declaration remain valid", () => {
-  const badRepeat = scale.replace(
-    "| `limestone` | 0.45·0.45",
-    "| `limestone` | 0·0.45",
+void test("repeat length, fallback, model UV design and prototype declaration remain valid", () => {
+  const badRepeat = material.replace(
+    "| `limestone` | 1.00·1.00",
+    "| `limestone` | 0·1.00",
   );
   assert.match(
-    modelSurfaceBindingCensus(documents, badRepeat).failures.join("\n"),
+    modelSurfaceBindingCensus(documents, badRepeat, scale).failures.join("\n"),
     /invalid or duplicate texture group/,
   );
-  const badFallback = scale.replace("`#b8aa91`", "`#oops`");
+  const badFallback = material.replace("`#c9c0ad`", "`#oops`");
   assert.match(
-    modelSurfaceBindingCensus(documents, badFallback).failures.join("\n"),
+    modelSurfaceBindingCensus(documents, badFallback, scale).failures.join("\n"),
     /invalid or duplicate texture group/,
   );
-  const badUv = scale.replace(
-    "| `portable#stylus` | `shaft`, `tip` | `dark-metal` | 회전 |",
-    "| `portable#stylus` | `shaft`, `tip` | `dark-metal` | 없음 |",
-  );
+  const badUv = scale.replace("| H2 | part·면 | UV0 투영과 이음 |", "| absent | absent | absent |");
   assert.match(
-    modelSurfaceBindingCensus(documents, badUv).failures.join("\n"),
-    /invalid surface binding row/,
+    modelSurfaceBindingCensus(documents, material, badUv).failures.join("\n"),
+    /no model UV0 design rows/,
   );
   const noPart = documents.map((document) =>
     document.path !== "portable.md"
@@ -80,22 +78,22 @@ void test("repeat length, fallback, UV method and prototype declaration remain v
         },
   );
   assert.match(
-    modelSurfaceBindingCensus(noPart, scale).failures.join("\n"),
+    modelSurfaceBindingCensus(noPart, material, scale).failures.join("\n"),
     /portable#stylus: no part declaration/,
   );
 });
 
 void test("empty populations cannot report success", () => {
   assert.match(
-    modelSurfaceBindingCensus([], "").failures.join("\n"),
+    modelSurfaceBindingCensus([], "", "").failures.join("\n"),
     /no model prototypes/,
   );
   assert.match(
-    modelSurfaceBindingCensus(documents, "").failures.join("\n"),
+    modelSurfaceBindingCensus(documents, "", scale).failures.join("\n"),
     /no texture binding groups/,
   );
   assert.match(
-    modelSurfaceBindingCensus(documents, "").failures.join("\n"),
+    modelSurfaceBindingCensus(documents, "", scale).failures.join("\n"),
     /no surface binding rows/,
   );
 });

@@ -17,29 +17,13 @@ void test("every geometry noun retains a part owner, including an omitted truss 
   assert.match(modelPartNounMismatches(changed).join("\n"), /sanctuary-truss: 버팀재 has no strut surface/);
 });
 
-void test("the same coordinate grammar rejects moved, lifted, removed and coincident parts", () => {
-  const source = readFileSync(join(__dirname, "../../../docs/models/portable.md"), "utf8");
-  const section = source.split(/(?=^## )/m).find((item) => item.includes("| part | X | Y | Z |"))!;
-  const rows = [...section.matchAll(/^\| `[^`]+` \| [^\n]+$/gm)].map((match) => match[0]);
-  assert.ok(rows.length >= 2);
-  const doc = (text: string) => [{ path: "object.md", source: text }];
-  assert.deepEqual(modelPartNounMismatches(doc(section)), []);
-  const moved = section.replace(rows[0]!, rows[0]!.replace(/X=([+−-]?\d+(?:\.\d+)?)/, "X=9"));
-  const lifted = section.replace(rows[1]!, rows[1]!.replace(/Y=0~/, "Y=0.01~"));
-  const removed = section.replace(`${rows[1]}\n`, "");
-  const firstCoordinates = rows[0]!.slice(rows[0]!.indexOf(" | ") + 3);
-  const secondPart = rows[1]!.match(/^\| `[^`]+`/)![0];
-  const coincident = section.replace(rows[1]!, `${secondPart} | ${firstCoordinates}`);
-  assert.ok(modelPartNounMismatches(doc(moved)).length > 0);
-  assert.ok(modelPartNounMismatches(doc(lifted)).length > 0);
-  assert.ok(modelPartNounMismatches(doc(removed)).length > 0);
-  assert.match(modelPartNounMismatches(doc(coincident)).join("\n"), /identical coordinate intervals/);
-});
-
-void test("a prototype-qualified coordinate table is not parsed as the single-prototype table", () => {
-  const source = readFileSync(join(__dirname, "../../../docs/models/ritual.md"), "utf8");
-  const section = source.split(/(?=^## )/m).find((item) => item.includes("| prototype | part | X | Y | Z |"))!;
-  assert.deepEqual(modelPartNounMismatches([{ path: "ritual.md", source: section }]), []);
+void test("authored model parts use prose without retired coordinate tables", () => {
+  const root = join(__dirname, "../../../docs/models");
+  for (const name of ["fixtures.md", "wares.md", "portable.md", "ritual.md"]) {
+    const source = readFileSync(join(root, name), "utf8");
+    assert.doesNotMatch(source, /^\| (?:prototype \| )?part \| X \| Y \| Z \|/m);
+    assert.match(source, /부재 대응:/);
+  }
 });
 
 void test("model measure excludes comments and whitespace while retaining headings", () => {

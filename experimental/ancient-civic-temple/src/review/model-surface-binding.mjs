@@ -1,5 +1,5 @@
 /**
- * Read the authored model population and the one scale-owned texture contract.
+ * Read the authored model population and the materials-owned texture contract.
  * This checks every prototype/part address against one binding row, a physical
  * repeat, a UV rule, and a fallback. It does not require bitmap files.
  */
@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { modelSections } from "./model-tessellation-census.mjs";
 
 const root = new URL("../../docs/models/", import.meta.url);
-const methods = new Set(["평면", "회전", "장축", "관", "잎"]);
+const materialRoot = new URL("../../docs/materials/", import.meta.url);
 
 /** @param {string} source @param {string} heading */
 const tableRows = (source, heading) => {
@@ -26,14 +26,15 @@ const tableRows = (source, heading) => {
 
 /**
  * @param {readonly { path:string;source:string }[]} documents
+ * @param {string} materialSource
  * @param {string} scaleSource
  */
-export const modelSurfaceBindingCensus = (documents, scaleSource) => {
+export const modelSurfaceBindingCensus = (documents, materialSource, scaleSource) => {
   /** @type {string[]} */
   const failures = [];
   const groups = new Map();
   for (const cells of tableRows(
-    scaleSource,
+    materialSource,
     "| 결속 키 | 반복 길이 U·V (m) | 비트맵 부재 시 단색 fallback |",
   )) {
     const key = cells[0]?.match(/^`([^`]+)`$/)?.[1];
@@ -52,8 +53,8 @@ export const modelSurfaceBindingCensus = (documents, scaleSource) => {
   const bindings = new Map();
   let bindingRows = 0;
   for (const cells of tableRows(
-    scaleSource,
-    "| 모델 H2 | part 표면 | 결속 키 | UV0 방식 |",
+    materialSource,
+    "| 모델 H2 | part 표면 | 결속 키 |",
   )) {
     bindingRows++;
     const ids = [...(cells[0] ?? "").matchAll(/`([^`]+)`/g)].map(
@@ -63,16 +64,17 @@ export const modelSurfaceBindingCensus = (documents, scaleSource) => {
       (match) => match[1],
     );
     const key = cells[2]?.match(/^`([^`]+)`$/)?.[1];
-    const uv = (cells[3] ?? "").split("·");
-    if (ids.length === 0 || parts.length === 0 || !groups.has(key) || uv.some((method) => !methods.has(method)))
+    if (ids.length === 0 || parts.length === 0 || !groups.has(key))
       failures.push(`invalid surface binding row: ${cells.join(" | ")}`);
     for (const id of ids) for (const part of parts) {
       const address = `${id}|${part}`;
       if (bindings.has(address)) failures.push(`duplicate surface binding ${address}`);
-      else bindings.set(address, { key, uv });
+      else bindings.set(address, { key });
     }
   }
   if (bindingRows === 0) failures.push("no surface binding rows");
+  if (tableRows(scaleSource, "| H2 | part·면 | UV0 투영과 이음 |").length === 0)
+    failures.push("no model UV0 design rows");
 
   const expected = new Set();
   let prototypes = 0;
@@ -111,9 +113,9 @@ export const modelSurfaceBindingCensus = (documents, scaleSource) => {
 /**
  * Compare every emitted object part with its document binding, including finish.
  * @param {readonly import('@automovie/interface').IAutoMovieModel[]} models
- * @param {string} scaleSource
+ * @param {string} materialSource
  */
-export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
+export const runtimeSurfaceBindingCensus = (models, materialSource) => {
   const finishForGroup = new Map([
     ["limestone", "stone"], ["dark-metal", "bronze"],
     ["dark-wood", "timber"], ["terracotta", "ceramic"],
@@ -124,12 +126,12 @@ export const runtimeSurfaceBindingCensus = (models, scaleSource) => {
   const bindings = new Map();
   const repeats = new Map();
   const failures = [];
-  for (const cells of tableRows(scaleSource, "| 결속 키 | 반복 길이 U·V (m) | 비트맵 부재 시 단색 fallback |")) {
+  for (const cells of tableRows(materialSource, "| 결속 키 | 반복 길이 U·V (m) | 비트맵 부재 시 단색 fallback |")) {
     const key = cells[0]?.match(/^`([^`]+)`$/)?.[1];
     const pair = cells[1]?.match(/^(\d+(?:\.\d+)?)·(\d+(?:\.\d+)?)$/);
     if (key && pair) repeats.set(key, [Number(pair[1]), Number(pair[2])]);
   }
-  for (const cells of tableRows(scaleSource, "| 모델 H2 | part 표면 | 결속 키 | UV0 방식 |")) {
+  for (const cells of tableRows(materialSource, "| 모델 H2 | part 표면 | 결속 키 |")) {
     const ids = [...(cells[0] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]);
     const parts = [...(cells[1] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]);
     const group = cells[2]?.match(/^`([^`]+)`$/)?.[1];
@@ -179,7 +181,8 @@ export const checkModelSurfaceBinding = () => {
     source: readFileSync(new URL(path, root), "utf8"),
   }));
   const scale = documents.find((document) => document.path === "scale.md")?.source ?? "";
-  const result = modelSurfaceBindingCensus(documents, scale);
+  const material = readFileSync(new URL("10-model-bindings.md", materialRoot), "utf8");
+  const result = modelSurfaceBindingCensus(documents, material, scale);
   console.log(
     `model surface binding: ${result.prototypes} prototypes, ${result.parts} parts, ${result.groups} texture groups, ${result.bindingRows} binding rows, ${result.failures.length} failures`,
   );

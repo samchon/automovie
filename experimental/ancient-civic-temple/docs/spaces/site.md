@@ -10,7 +10,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 범위·기준선은 extent.ts 한 곳, 건물 외곽은 building, 현관 후퇴부 바닥은 entrance가 소유하고 대지는 외곽 안에 표면을 두지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 대지 공간과 외곽의 겹침, 범위 밖 포장, site.root 아래 건물 element를 관찰 owner의 대지 항목에서 실패로 삼는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 25m 국소 setting과 대지 배정을 별도 소유 단위·뿌리 공간·네 cell의 공간 구조로 바꾼다.
-@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 대지를 공간으로 놓으려 하자 build-scope가 대지를 열 수 없는 maps에 배정했음이 드러났다. spaces가 이미 review라 maps를 활성화하면 builder가 거부하므로 00-delivery#build-scope의 대지 행을 spaces의 대지 owner로 고쳤다.
+@evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 대지를 공간으로 놓으려 하자 build-scope가 대지를 열 수 없는 maps에 배정했음이 드러나 00-delivery#build-scope를 spaces owner로 고쳤다. 대지 범위를 25m 직사각형으로 옮기려 하자 40-environment#site의 ‘외벽에서 최대 25m’가 모서리를 막아, 그 H2를 네 바깥면별 직사각형으로 고쳤다(a6e001e1).
 @evidence settings/40-environment.md#site 네 바깥면을 각각 수직 25m 옮긴 국소 setting을 대지 범위 X=-35.5~35.5, Z=-35.25~35.25로 옮기고 먼 배경을 범위 밖으로 나눈다.
 @evidence settings/00-delivery.md#build-scope 고친 배정대로 지면·경계석·먼 능선과 배치 구역을 이 파일이 소유하고 이웃·식생 개체는 models/instances에 남긴다.
 -->
@@ -23,7 +23,7 @@
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 외곽 좌표를 다시 정하지 않고 building 링크로 소비하며 현관 후퇴부 바닥을 entrance에 남겨 한 바닥을 두 owner가 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 대지 cell이 외곽과 겹치는 경우와 건물 element가 site.root 아래로 들어가는 경우가 각각 관찰 대지 항목의 실패로 적혀 있다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 네 바깥면별 25m 직사각형만 주었고 소유 단위 분리·뿌리 공간·네 볼록 cell은 이 공간 단위가 더한 결정이다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 드러난 결함은 build-scope의 maps 대지 배정이고, 그 원인인 stage 규칙과 수정한 00-delivery#build-scope 행이 함께 적혀 있다.
+@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 maps 대지 배정과 네 바깥면별 25m 직사각형을 막던 최대 거리 문구를 각각 부모에서 고친 이력을 읽었고, 현행 본문의 배정과 X/Z 범위가 두 수리를 소비한다.
 @evidenceReview settings/40-environment.md#site #44f3c09 설정의 네 바깥면별 수직 25m가 X=-35.5~35.5m, Z=-35.25~35.25m 직사각형 끝선이 되고 먼 지형은 범위 밖 H2로 분리됐다.
 @evidenceReview settings/00-delivery.md#build-scope #8d597f9 고친 표 첫 행의 지면·경계석·먼 능선·배치 구역을 이 H2가 떠맡고 이웃 외피 prototype과 배치는 models/instances 행에 남겼다.
 -->

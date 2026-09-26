@@ -120,6 +120,7 @@ const decisions = {
   ],
   "fixtures#fountain": [
     ["중심선에서", "ripple ends touch water plane"],
+    ["파문 `ripple`은 수면", "ripple ends touch water plane"],
     ["받침단 아랫면", "fountain step touches courtyard floor"],
   ],
   "fixtures#altar": [["받침 윗면", "altar support and step planes touch"]],

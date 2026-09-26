@@ -47,11 +47,15 @@ export function uploadTemple(payload, textures = new Map()) {
       if (part.material !== null) {
         const bound = model.materials.find((m) => m.id === part.material);
         if (bound === undefined) throw new Error(`${model.id}/${part.id}: 결속 재료 ${part.material}를 찾지 못했습니다.`);
+        if (bound.baseColorTexture !== null && (
+          !part.mesh.uvs || part.mesh.uvs.length !== part.mesh.positions.length / 3 * 2 ||
+          part.mesh.uvs.some((value) => !Number.isFinite(value))
+        )) throw new Error(`${model.id}/${part.id}: 텍스처 결속에 유한한 UV0가 필요합니다.`);
         material = new THREE.MeshStandardMaterial({
           name: bound.id, color: new THREE.Color(bound.baseColor.r, bound.baseColor.g, bound.baseColor.b),
           roughness: bound.roughness, metalness: bound.metallic, opacity: bound.opacity,
           transparent: bound.opacity < 1, side: bound.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
-          map: part.mesh.uvs ? textures.get(bound.id) ?? null : null,
+          map: textures.get(bound.id) ?? null,
         });
       }
       const mesh = new THREE.Mesh(geometry, material);
