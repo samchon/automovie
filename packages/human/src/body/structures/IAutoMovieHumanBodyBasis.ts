@@ -439,6 +439,16 @@ export interface IAutoMovieHumanBodyBasis {
         range: [number, number];
       };
     };
+
+    /**
+     * The skin's anatomical relief, or absent for none: a tangent-space
+     * normal map over this surface's UV layout (a PNG data URI, linear, UV
+     * set 0 bound once, v down the image) of the flexion creases and
+     * wrinkles its vertices are too coarse to carry, for the regions of
+     * `material`. A document's skin detail binds it under the tiled
+     * micro-relief.
+     */
+    relief?: { material: string; texture: string };
   }[];
 
   /** Resident finishes; the static exporter owns texture admission. */
