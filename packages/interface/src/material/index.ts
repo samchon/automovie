@@ -3,5 +3,6 @@ export * from "./IAutoMovieMaterialAssembly";
 export * from "./AutoMovieTextureBinding";
 export * from "./AutoMovieTextureCoordinateSource";
 export * from "./IAutoMovieMaterialLayer";
+export * from "./IAutoMovieMaterialOverlay";
 export * from "./IAutoMovieMaterialSubstance";
 export * from "./IAutoMovieTextureReference";
