@@ -92,6 +92,13 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
       adultFraction: number;
       /** Authored interpolation interval between the two study domains. */
       transitionAgeYears: [number, number];
+      /**
+       * The neck the skin keeps below its clip ring, which both head-and-neck
+       * segments above count: its share of body mass at a body mass index,
+       * taken out of theirs and falling inversely with the index, as the
+       * neck's volume holds while the body grows.
+       */
+      keptNeck: { fraction: number; bodyMassIndex: number };
     };
     fatFraction: [number, number];
   };

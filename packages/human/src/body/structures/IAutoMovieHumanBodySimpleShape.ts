@@ -45,7 +45,7 @@ export interface IAutoMovieHumanBodySimpleShape {
   /** Waist girth in metres, the smallest horizontal girth of the trunk, solved against its rule when given. */
   waistMetres?: number;
 
-  /** Hip girth in metres, the largest horizontal girth over the buttocks, solved against its rule when given. */
+  /** Hip girth in metres, the horizontal girth where the buttocks stand furthest back (ANSUR's buttock circumference), solved against its rule when given. */
   hipsMetres?: number;
 
   /** Bust girth in metres, the largest horizontal girth of the chest, solved against its rule when given. */

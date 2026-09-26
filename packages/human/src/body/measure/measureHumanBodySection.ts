@@ -2,7 +2,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Cut a triangle surface with a plane and return the closed section loop
- * nearest a seed point, with its perimeter, its tape girth and X extent.
+ * nearest a seed point, with its perimeter, its tape girth, X extent and
+ * rearmost Z (the body faces +Z).
  *
  * This is the instrument behind every girth the body reports, so it holds no
  * anatomy: the caller chooses the plane and the seed. Each triangle whose
@@ -37,6 +38,7 @@ export function measureHumanBodySection(
   perimeter: number;
   girth: number;
   breadth: number;
+  back: number;
   centroid: IAutoMovieVector3;
 } | null {
   const count = positions.length / 3;
@@ -90,6 +92,7 @@ export function measureHumanBodySection(
     perimeter: number;
     girth: number;
     breadth: number;
+    back: number;
     centroid: IAutoMovieVector3;
   } | null = null;
   let bestDistance = Infinity;
@@ -113,6 +116,7 @@ export function measureHumanBodySection(
     let perimeter = 0,
       minX = Infinity,
       maxX = -Infinity,
+      minZ = Infinity,
       cx = 0,
       cy = 0,
       cz = 0;
@@ -122,6 +126,7 @@ export function measureHumanBodySection(
       perimeter += Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
       minX = Math.min(minX, p[0]);
       maxX = Math.max(maxX, p[0]);
+      minZ = Math.min(minZ, p[2]);
       cx += p[0];
       cy += p[1];
       cz += p[2];
@@ -150,6 +155,7 @@ export function measureHumanBodySection(
           }),
         ),
         breadth: maxX - minX,
+        back: minZ,
         centroid,
       };
     }

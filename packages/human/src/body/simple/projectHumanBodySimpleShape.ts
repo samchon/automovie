@@ -54,18 +54,17 @@ export function projectHumanBodySimpleShape(
     volume,
     math.density(table.mass.fatFraction[0] * 100),
     ageYears,
+    table.mass.headAndNeck.keptNeck.bodyMassIndex,
   );
-  for (let step = 0; step < MASS_ITERATIONS; step++)
+  for (let step = 0; step < MASS_ITERATIONS; step++) {
+    const bodyMassIndex = massKilograms / (statureMetres * statureMetres);
     massKilograms = measure.mass(
       volume,
-      math.density(
-        math.fat(
-          { sex, ageYears },
-          massKilograms / (statureMetres * statureMetres),
-        ).percent,
-      ),
+      math.density(math.fat({ sex, ageYears }, bodyMassIndex).percent),
       ageYears,
+      bodyMassIndex,
     );
+  }
   // the muscle channel carries rows that are not the muscle itself
   const muscleRow = firstRow(table.identity.muscle);
   const muscleFree = math.parameters({
