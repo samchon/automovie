@@ -1,6 +1,6 @@
 /**
- * Roof height functions and shared roof edges, computed once for every roof
- * plane, wall head and ceiling owner.
+ * Roof height functions and shared roof edges, computed once for roof planes
+ * and envelope wall heads.
  *
  * Design owner: `docs/spaces/roof/00-junctions.md` (`roof-mass-allocation`,
  * `roof-profile-datums`, `roof-shared-edges`, `roof-wall-head-junctions`).

@@ -30,7 +30,7 @@ const OWNER = "roof/main-front.ts";
  * Emit the single main front roof part.
  * @evidence spaces/roof/main-front.md This export builds the front main-roof remainder around the exposed gable and chimney notch.
  * @evidence spaces/roof/main-front.md#main-front-roof Convex coplanar tiles form one roof part around the shared gable valley and chimney notch without internal side faces.
- * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its own roof pieces; it imports junction values instead of claiming their faces.
+ * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its one roof mesh; it imports junction values instead of claiming their faces.
  * @evidence principles/core/source-units.md#source-substantive-completion Four top/bottom tiles in one mesh preserve the cut plan and give thickness only to the free eave edges.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The main-front parent defines the valley, notch, and free eaves consumed by this mesh.
  */

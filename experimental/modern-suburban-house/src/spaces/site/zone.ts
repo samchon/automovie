@@ -90,9 +90,8 @@ export interface IExteriorZone {
 }
 
 /**
- * Clear height a zone's logical volume reserves above its ground: the 2.00 m
- * head clearance `02-stair.md#stair-clearance` keeps for a person, the one
- * clear height the spaces design fixes for people on foot.
+ * Temporary 2.00 m display height above an exterior zone's standing surface,
+ * pending map ground and obstacle inputs (`site/00-access.md#site-local-routes`).
  */
 /**
  * @evidence spaces/site/00-access.md ZONE_HEAD_CLEARANCE carries the temporary 2.00 m logical exterior zone volume.
