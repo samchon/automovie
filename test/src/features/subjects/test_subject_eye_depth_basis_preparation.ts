@@ -201,6 +201,8 @@ export const test_subject_eye_depth_basis_preparation = (): void => {
     prepared.basis.channels.some(
       (one) =>
         one.id === "depth" &&
+        one.description ===
+          "The globe back into its orbit (deep-set) to forward (prominent), 500 mm per unit along the orbit axis, the lids resting on it." &&
         one.minimum === -1 &&
         one.maximum === 0.75 &&
         one.positive === "depth.forward" &&

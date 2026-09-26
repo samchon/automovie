@@ -283,6 +283,7 @@ export function prepareEyeDepthBasis(input: {
     }
     basis.channels.push({
       id: side.channel,
+      description: `The globe back into its orbit (deep-set) to forward (prominent), ${Number((input.unit * 1000).toFixed(3))} mm per unit along the orbit axis, the lids resting on it.`,
       kind: "shape",
       minimum: input.envelope[0],
       maximum: input.envelope[1],
