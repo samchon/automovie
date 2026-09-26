@@ -8,6 +8,7 @@
 import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
 import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import { roofFreeEdge } from "./edges";
 import { GARAGE_RIDGE_Z, gBack, OVERHANG, ROOF_THICKNESS } from "./junctions";
 
 /**
@@ -31,6 +32,7 @@ export const buildGarageBackRoof = (): IHousePart[] => [
       ),
       top: (_x, z) => gBack(z),
       thickness: ROOF_THICKNESS,
+      freeEdge: roofFreeEdge,
     }),
   ),
 ];

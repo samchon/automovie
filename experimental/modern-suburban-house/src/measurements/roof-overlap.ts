@@ -10,6 +10,7 @@ import { inspectAutoMovieMeshTopology } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { buildHouse } from "../spaces/house";
+import { SPLIT_X } from "../spaces/roof/junctions";
 import { block, type IHousePart } from "../spaces/solids";
 
 interface IPoint {
@@ -55,14 +56,14 @@ const point = (mesh: IAutoMovieMesh, index: number): IPoint => ({
   z: mesh.positions[3 * index + 2]!,
 });
 
-const solid = (id: string, mesh: IAutoMovieMesh, openSharedEdges = false): ISolid => {
+const solid = (id: string, mesh: IAutoMovieMesh): ISolid => {
   if (mesh.indices === null) throw new Error(
     `${id}: mesh has no triangle indices`,
   );
   const topology = inspectAutoMovieMeshTopology(mesh);
-  if ((!topology.watertight && !openSharedEdges) || topology.nonManifoldEdges > 0 || topology.degenerate > 0 || topology.nonFinite > 0)
+  if (topology.nonManifoldEdges > 0 || topology.degenerate > 0 || topology.nonFinite > 0)
     throw new Error(
-      `${id}: vertical occupancy needs a closed nondegenerate mesh or declared shared roof edges`,
+      `${id}: vertical occupancy needs a nondegenerate roof mesh`,
     );
   const triangles: ITriangle[] = [];
   const x: [number, number] = [Infinity, -Infinity];
@@ -94,7 +95,81 @@ const solid = (id: string, mesh: IAutoMovieMesh, openSharedEdges = false): ISoli
   return { id, triangles, x, y, z };
 };
 
-/** Return the height occupied by this closed solid under a vertical probe. */
+interface IBoundaryEdge {
+  owner: string;
+  a: IPoint;
+  b: IPoint;
+}
+
+const edgeKey = (a: IPoint, b: IPoint): string => {
+  const key = (p: IPoint): string => [p.x, p.y, p.z].map((n) => Math.round(n * 1e6)).join(",");
+  return [key(a), key(b)].sort((x, y) => x.localeCompare(y)).join("|");
+};
+
+const roofBoundaryEdges = (parts: readonly Pick<IHousePart, "id" | "mesh">[]): IBoundaryEdge[] => {
+  const result: IBoundaryEdge[] = [];
+  for (const part of parts) {
+    const { mesh } = part;
+    if (mesh.indices === null) throw new Error(`${part.id}: roof has no triangle indices`);
+    const edges = new Map<string, { count: number; a: IPoint; b: IPoint }>();
+    for (let i = 0; i < mesh.indices.length; i += 3) {
+      const triangle = [mesh.indices[i]!, mesh.indices[i + 1]!, mesh.indices[i + 2]!];
+      for (let j = 0; j < 3; j++) {
+        const a = point(mesh, triangle[j]!);
+        const b = point(mesh, triangle[(j + 1) % 3]!);
+        const key = edgeKey(a, b);
+        const old = edges.get(key);
+        if (old) old.count++;
+        else edges.set(key, { count: 1, a, b });
+      }
+    }
+    for (const edge of edges.values()) {
+      if (edge.count > 2) throw new Error(`${part.id}: non-manifold roof edge`);
+      if (edge.count === 1) result.push({ owner: part.id, a: edge.a, b: edge.b });
+    }
+  }
+  return result;
+};
+
+const dot = (a: IPoint, b: IPoint): number => a.x * b.x + a.y * b.y + a.z * b.z;
+const sub = (a: IPoint, b: IPoint): IPoint => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+const length = (p: IPoint): number => Math.hypot(p.x, p.y, p.z);
+
+/** Refuse every exposed roof edge that has no coincident tile or neighbouring roof plane. */
+export const verifyRoofBoundaryPairs = (parts: readonly Pick<IHousePart, "id" | "mesh">[]): void => {
+  const edges = roofBoundaryEdges(parts);
+  const unpaired: string[] = [];
+  for (const edge of edges) {
+    const d = sub(edge.b, edge.a);
+    const size = dot(d, d);
+    const intervals: [number, number][] = [];
+    for (const other of edges) {
+      if (other === edge) continue;
+      const v = sub(other.a, edge.a);
+      const w = sub(other.b, edge.a);
+      const t0 = dot(v, d) / size;
+      const t1 = dot(w, d) / size;
+      const off0 = sub(v, { x: d.x * t0, y: d.y * t0, z: d.z * t0 });
+      const off1 = sub(w, { x: d.x * t1, y: d.y * t1, z: d.z * t1 });
+      if (length(off0) > 1e-5 || length(off1) > 1e-5) continue;
+      const start = Math.max(0, Math.min(t0, t1));
+      const end = Math.min(1, Math.max(t0, t1));
+      if (end - start > 1e-7) intervals.push([start, end]);
+    }
+    intervals.sort((a, b) => a[0] - b[0]);
+    let covered = 0;
+    for (const [start, end] of intervals) {
+      if (start > covered + 1e-5) break;
+      covered = Math.max(covered, end);
+    }
+    if (covered < 1 - 1e-5) unpaired.push(
+      `${edge.owner}: ${JSON.stringify(edge.a)} to ${JSON.stringify(edge.b)}`,
+    );
+  }
+  if (unpaired.length) throw new Error(`unpaired roof boundaries (${unpaired.length}):\n${unpaired.join("\n")}`);
+};
+
+/** Return the height between upper and lower roof faces under a vertical probe. */
 const occupied = (shape: ISolid, x: number, z: number): readonly [number, number] | null => {
   let low = Infinity;
   let high = -Infinity;
@@ -131,9 +206,8 @@ export const scanRoofOverlaps = (
   if (!(Number.isFinite(step) && step > 0)) throw new Error(
     "roof scan step must be positive and finite",
   );
-  const shapes = parts.map((part) =>
-    solid(part.id, part.mesh, part.openSharedEdges),
-  );
+  verifyRoofBoundaryPairs(parts);
+  const shapes = parts.map((part) => solid(part.id, part.mesh));
   const overlaps: IRoofOverlap[] = [];
   let pairsChecked = 0;
   let samplesChecked = 0;
@@ -226,10 +300,33 @@ export const verifyRoofOverlapScanner = (): void => {
     ...a.mesh,
     indices: a.mesh.indices!.slice(0, -3),
   };
+  const roof = buildHouse().parts.filter((part) => part.role === "roof");
+  const withoutStepClosure = roof.map((part) => {
+    if (part.id !== "roof-main-front" && part.id !== "roof-main-back") return part;
+    const indices = part.mesh.indices!;
+    const kept: number[] = [];
+    for (let i = 0; i < indices.length; i += 3) {
+      const vertices = [indices[i]!, indices[i + 1]!, indices[i + 2]!].map((index) => point(part.mesh, index));
+      const stepFace = vertices.every((vertex) => Math.abs(vertex.x - SPLIT_X) < 1e-6) &&
+        Math.max(...vertices.map((vertex) => vertex.y)) - Math.min(...vertices.map((vertex) => vertex.y)) > 1e-6;
+      if (!stepFace) kept.push(...indices.slice(i, i + 3));
+    }
+    return { ...part, mesh: { ...part.mesh, indices: kept } };
+  });
+  let rejectedStepMutant = false;
+  try {
+    verifyRoofBoundaryPairs(withoutStepClosure);
+  } catch (error) {
+    if (!String(error).includes("unpaired roof boundaries")) throw error;
+    rejectedStepMutant = true;
+  }
+  if (withoutStepClosure.every((part) => part.mesh.indices!.length === roof.find((old) => old.id === part.id)!.mesh.indices!.length))
+    throw new Error("roof boundary fixture did not remove the roof step closure");
+  if (!rejectedStepMutant) throw new Error("roof boundary fixture accepted the missing step closure");
   try {
     scanRoofOverlaps([{ id: "open", mesh: open }], 0.1);
   } catch (error) {
-    if (String(error).includes("needs a closed nondegenerate mesh")) return;
+    if (String(error).includes("unpaired roof boundaries")) return;
     throw error;
   }
   throw new Error("roof overlap fixture: an open boundary was accepted");

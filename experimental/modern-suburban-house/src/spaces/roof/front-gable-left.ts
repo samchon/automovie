@@ -9,8 +9,8 @@
  */
 import { PALETTE } from "../palette";
 import { part, slopedSlab, type IHousePart } from "../solids";
+import { roofFreeEdge } from "./edges";
 import {
-  FRONT_EAVE_Z,
   gable,
   GABLE_CORNERS,
   ROOF_THICKNESS,
@@ -36,7 +36,7 @@ export const buildFrontGableLeftRoof = (): IHousePart[] => {
         plan: [leftFoot, apex, ridgeFront],
         top: (x) => gable(x),
         thickness: ROOF_THICKNESS,
-        freeEdge: (a, b) => a.z === FRONT_EAVE_Z && b.z === FRONT_EAVE_Z,
+        freeEdge: roofFreeEdge,
       }),
       true,
     ),

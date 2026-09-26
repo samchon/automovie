@@ -111,9 +111,9 @@ export interface IHousePart {
   wall?: IWallFace;
   /**
    * @evidence spaces/roof/00-junctions.md A roof part may leave its shared ridge and valley perimeter open while keeping its free eave sides.
-   * @evidence spaces/roof/00-junctions.md#roof-shared-edges Shared roof edges have no internal vertical closure face.
+   * @evidence spaces/roof/00-junctions.md Shared roof planes meet along their upper and lower edges without duplicate interior thickness faces.
    * @evidence principles/core/source-units.md#source-scope-preservation The flag records a roof owner's junction choice and does not open other solids.
-   * @evidence principles/core/source-units.md#source-substantive-completion Geometry audit can distinguish an intentional shared roof seam from a missing wall face.
+   * @evidence principles/core/source-units.md#source-substantive-completion Geometry audit pairs every exposed boundary edge with a coincident roof edge and rejects a missing free-edge face.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The roof junction design already disallows side faces on shared edges.
    */
   openSharedEdges?: boolean;
@@ -525,7 +525,7 @@ export const slopedSlab = (props: {
   /** An underside instead: a level (a beam packer) or a planar height function (a wall-head wedge). */
   floor?: number | ((x: number, z: number) => number);
   /** Free outline edges alone receive visible vertical thickness. */
-  freeEdge?: (a: IPlanPoint, b: IPlanPoint) => boolean;
+  freeEdge?: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean;
 }): IAutoMovieMesh => {
   if (props.plan.length < 3) throw new Error(
     "sloped slab needs at least three plan corners",
@@ -580,7 +580,7 @@ export const slopedPlate = (props: {
   plans: readonly (readonly IPlanPoint[])[];
   top: (x: number, z: number) => number;
   thickness: number;
-  freeEdge: (a: IPlanPoint, b: IPlanPoint) => boolean;
+  freeEdge: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean;
 }): IAutoMovieMesh => {
   if (props.plans.length === 0 || !(props.thickness > 0)) throw new Error(
     "sloped plate needs tiles and positive thickness",

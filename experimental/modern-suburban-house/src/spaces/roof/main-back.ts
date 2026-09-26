@@ -7,6 +7,7 @@
  */
 import { PALETTE } from "../palette";
 import { part, rect, slopedSlab, type IHousePart } from "../solids";
+import { roofFreeEdge } from "./edges";
 import {
   BACK_EAVE_Z,
   LEFT_EAVE_X,
@@ -34,7 +35,7 @@ export const buildMainBackRoof = (): IHousePart[] => [
       plan: rect([LEFT_EAVE_X, SPLIT_X], [BACK_EAVE_Z, MAIN_RIDGE_Z]),
       top: (_x, z) => mBack(z),
       thickness: ROOF_THICKNESS,
-      freeEdge: (a, b) => (a.x === LEFT_EAVE_X && b.x === LEFT_EAVE_X) || (a.z === BACK_EAVE_Z && b.z === BACK_EAVE_Z),
+      freeEdge: roofFreeEdge,
     }),
     true,
   ),
