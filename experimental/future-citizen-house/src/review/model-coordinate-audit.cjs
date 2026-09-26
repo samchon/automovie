@@ -1,6 +1,6 @@
-// Scan every numeric local-axis coordinate in model H2 prose. A measured
-// coordinate needs a witness in the same H2's structured design rows. This is
-// a necessary condition, not yet a proof that the witness is the right part.
+// Scan local-axis coordinates and other model H2 prose numbers. Each needs a
+// witness in the same H2's structured design rows. This is a necessary
+// condition, not yet a proof that the witness is the right part or feature.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -48,7 +48,9 @@ function witnesses(lines) {
   }
   for (const line of lines) {
     if (/^(?:@(?!evidence|address-state|inventory)|\| @)/.test(line)) {
-      // Structured part and feature rows are the owned numeric design inputs.
+      // Structured part and feature rows provide direct inputs or checked
+      // results; scalar-control rows index prose without becoming a second
+      // source of the design value.
       // A prose dimension may name a row value or a centre, half-span or full
       // span derived from one measured interval in that same H2.
       for (const match of line.matchAll(/(?<![\w.])[+−-]?\d+\.\d+/g))
@@ -168,7 +170,7 @@ function audit(overrides = new Map()) {
   /** @type {Array<{ owner:string; proseDecimals:number; axisValues:number; unwitnessed:number; outsideGrammar:number; scalarValues:number; unwitnessedScalars:number }>} */
   const coverage = [];
   let h2 = 0, claims = 0, values = 0, witnessed = 0, proseDecimals = 0,
-    scalarValues = 0, scalarWitnessed = 0;
+    scalarValues = 0, scalarWitnessed = 0, scalarControls = 0;
   for (const name of names) {
     const source = overrides.get(name) ?? fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
     let anchor = "";
@@ -179,6 +181,21 @@ function audit(overrides = new Map()) {
       if (!owner) return;
       h2++;
       const sourceValues = witnesses(body);
+      const declaredControls = new Set();
+      const proseNumbers = new Set(body.filter((line) =>
+        line.trim() && !/^\||^@|^<!--/.test(line)).flatMap((line) =>
+          [...line.matchAll(proseDecimal)].map((match) =>
+            Math.round(Number(match[1]) * 100000))));
+      for (const line of body.filter((row) => row.startsWith("@scalar-control"))) {
+        const control = /^@scalar-control ([a-z][a-z0-9-]*): ([+-]?\d+\.\d+)$/.exec(line);
+        if (!control) { errors.push(`${owner}: malformed scalar control ${line}`); continue; }
+        scalarControls++;
+        if (declaredControls.has(control[1]))
+          errors.push(`${owner}: duplicate scalar control ${control[1]}`);
+        declaredControls.add(control[1]);
+        if (!proseNumbers.has(Math.round(Number(control[2]) * 100000)))
+          errors.push(`${owner}: scalar control ${control[1]} is unused in prose`);
+      }
       const before = {
         proseDecimals,
         values,
@@ -256,14 +273,14 @@ function audit(overrides = new Map()) {
     nonAxisDecimals,
     scalarValues,
     witnessedScalarValues: scalarWitnessed,
+    scalarControls,
     coverage,
     errors,
   };
 }
 
-// Every prototype, rather than a hand-picked sentence, supplies one measured
-// coordinate for a document-only mutation. This fixture does not claim that
-// non-axis dimensions or part identity have been reconciled.
+// Every prototype with a measured axis supplies one document-only mutation.
+// This fixture does not claim that a matching number proves part identity.
 function fixture() {
   /** @type {Map<string,string>} */
   const overrides = new Map();
@@ -343,12 +360,66 @@ function fixture() {
   };
 }
 
+// Mutate one scalar assertion in every H2 with a named scalar control. The
+// value must become unwitnessed even though all original design rows remain.
+function scalarFixture() {
+  /** @type {Map<string,string>} */
+  const overrides = new Map();
+  /** @type {string[]} */
+  const mutated = [];
+  for (const name of names) {
+    const original = fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
+    const lines = original.split(/\r?\n/);
+    let owner = "", start = 0;
+    /** @param {number} end */
+    const change = (end) => {
+      if (!owner) return;
+      const control = lines.slice(start, end).find((line) => line.startsWith("@scalar-control "));
+      if (!control) return;
+      const value = Number(/^@scalar-control [^:]+: (.+)$/.exec(control)?.[1]);
+      const known = witnesses(lines.slice(start, end));
+      for (let i = start; i < end; i++) {
+        const line = lines[i];
+        if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
+        const axisPositions = new Set();
+        for (const match of line.matchAll(coordinate)) {
+          const at = match.index + match[0].indexOf(match[2]);
+          for (const decimal of match[2].matchAll(decimals))
+            axisPositions.add(at + decimal.index);
+        }
+        for (const match of line.matchAll(proseDecimal)) {
+          if (axisPositions.has(match.index) || Math.abs(Number(match[1]) - value) > 0.000001)
+            continue;
+          let next = value + 0.0137;
+          while (known.scalar.has(Math.round(next * 100000))) next += 0.0137;
+          const replacement = next.toFixed(5);
+          lines[i] = line.slice(0, match.index) + replacement + line.slice(match.index + match[1].length);
+          mutated.push(`${owner}: prose line ${i - start + 1} scalar=${replacement}`);
+          return;
+        }
+      }
+      throw Error(`${owner}: scalar control lacks a non-axis prose assertion`);
+    };
+    for (let i = 0; i < lines.length; i++) {
+      const heading = /^## .*\{#([^}]+)\}/.exec(lines[i]);
+      if (heading) { change(i); owner = heading[1]; start = i + 1; }
+    }
+    change(lines.length);
+    overrides.set(name, lines.join(original.includes("\r\n") ? "\r\n" : "\n"));
+  }
+  const observed = audit(overrides);
+  const missed = mutated.filter((needle) => !observed.errors.some((error) => error.includes(needle)));
+  if (missed.length) throw Error(`scalar mutation escaped: ${missed.join(", ")}`);
+  return { controlledH2: mutated.length, mutations: mutated.length, red: mutated.length };
+}
+
 if (require.main === module) {
-  if (process.argv.includes("--fixture")) console.log(JSON.stringify(fixture(), null, 2));
+  if (process.argv.includes("--fixture-scalar")) console.log(JSON.stringify(scalarFixture(), null, 2));
+  else if (process.argv.includes("--fixture")) console.log(JSON.stringify(fixture(), null, 2));
   else {
     const result = audit();
     console.log(JSON.stringify(result, null, 2));
     if (result.errors.length) process.exitCode = 1;
   }
 }
-module.exports = { audit, fixture };
+module.exports = { audit, fixture, scalarFixture };

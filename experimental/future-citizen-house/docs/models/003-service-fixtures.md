@@ -9,6 +9,12 @@
 
 부품 표에서 `support@0.80`은 별도 [vanity 외함](../models/002-storage-and-sleep.md#cabinet-and-shelf)의 상단 접촉면이며 이 prototype 내부에 외함 판을 중복 생성하지 않는다. bowl의 안쪽과 rim의 개구는 서로 다른 경계이고, bowl 바깥쪽 입술이 rim 아랫면에 면으로 닿는다. 거울은 벽에 독립 부착한다. drain은 bowl 바닥의 지름 0.045m 열린 구멍 면 주소다.
 
+@scalar-control rejected-basin-default: 0.65
+@scalar-control vanity-depth: 0.48
+@scalar-control mirror-width-deduction: 0.08
+@scalar-control mirror-glass-recess: 0.004
+@scalar-control mirror-glass-width-deduction: 0.036
+
 @inventory 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
 @inventory 1000: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
 @support 800: cabinet-and-shelf, vanity/800x800x480/closed, top, 0, 0, 0
@@ -61,6 +67,9 @@
 
 @ellipse lid-open: bowl, 0.135, 0.20, 0.205, 0.295, 0, 0
 @ellipse lid-open: seat, 0.135, 0.20, 0.21, 0.285, 0, 0.075
+@scalar-control bowl-cavity-depth: 0.14
+@scalar-control seat-cistern-clearance: 0.005
+
 @inventory lid-open: pedestal, bowl, seat, lid, cistern, flush
 @cap-contact lid-open: bowl, pedestal, Y, -
 @cap-contact lid-open: bowl, seat, Y, +
@@ -88,6 +97,10 @@
 주소는 `tray/floor/curb/outside/underside/drain-inner/drain-edge`, `screen/front/back/edge/top`, `screen-rail/outer/contact`, `riser/outer/contact`, `riser-bracket-0..2/front/back/edge/contact`, `head/face/back/edge`다. 두께 있는 유리의 앞뒤·잘린 edge는 별도 face이며 tray의 물이 빠지는 경사라는 외관과 실제 방수 능력을 구별한다. 위·출입구·측면 관찰에서 0.95m 열린 부분과 음각 배수구가 보여야 한다. ref02의 뒤쪽 샤워와 투명 경계를 채택한다. ref01·03·04·05의 커튼월을 욕실 screen 상세로 차용하지 않는다. 물 흐름·방수는 `unverified`다.
 
 tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 절삭하여 0.045m curb를 만든다. drain은 중심 x/z=0, 반지름 0.060m로 tray 바닥 y=0..0.055를 뚫는 빈 구멍의 `tray/drain-inner`·`tray/drain-edge` 면 주소다. bracket의 고리는 `@radial-at`에 적은 공통 중심과 반지름으로 닫히며 임의의 C자 단면을 코드에서 고르지 않는다. `ground`는 tray y=0, `wall`은 후면 z=−0.725의 외부 접합 평면이며 각 bracket 패드의 접촉 넓이는 0.04×0.03m다.
+
+@scalar-control tray-curb-width: 0.045
+@scalar-control drain-diameter: 0.12
+@scalar-control open-entry-width: 0.95
 
 @inventory default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
 @cap-contact default: head, riser, Y, -
@@ -127,6 +140,13 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 네 외벽의 독립 부품 `shell`은 y=0..0.525이고 `rim`은 y=0.525..0.58에서 맞대므로 두 부품의 합이 위의 y=0..0.58 외벽이다. shell 내부는 x=±0.34,z=±0.765를 바닥부터 위까지 비우고, 그 안에 y=0.12..0.20의 곡면 floor를 측면에 맞댄다. rim의 안쪽 개구는 x=±0.325,z=±0.755다. `floor/drain-inner`·`floor/drain-edge`는 floor에서, `shell/overflow-inner`·`shell/overflow-edge`는 shell의 −Z 끝벽에서 잘라 낸 구멍의 면 주소이며 별도 고체 부품이 아니다. 다음 표의 `@void`는 두 직사각형 내부 공백을 재고, 원형 drain·overflow는 위 식과 중심·지름으로 결정한다.
 
+@scalar-control end-wall-thickness: 0.045
+@scalar-control basin-center-height-rounded: 0.191
+@scalar-control basin-boundary-height: 0.20
+@scalar-control basin-foot-height-rounded: 0.188
+@scalar-control drain-diameter: 0.05
+@scalar-control drain-slope-rise: 0.015
+
 @inventory default: shell, floor, rim
 @void default: shell, -0.34..0.34, 0..0.525, -0.765..0.765
 @cavity-contact default: shell, floor, X
@@ -150,6 +170,10 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @axis-control default: tap-spout, Y, 1.273, support-to-tube seam
 
 섬 하부장은 별도 cabinet prototype이다. 이 부품 표의 `support@0.87`은 그 상단 접촉면이다. sink 안쪽에는 0.02m 바닥을 남기며 바깥 lip이 counter 절삭보다 각 변에서 0.02m 넓어 아래면에 닿는다. 배수구는 sink 바닥의 면 주소로 둔다.
+
+@scalar-control cabinet-half-length: 1.325
+@scalar-control end-overhang: 0.085
+@scalar-control sink-drain-diameter: 0.045
 
 @inventory default: counter, sink, tap-body, tap-spout
 @support default: cabinet-and-shelf, island-base/880x870x2650/closed, top, -0.04, 0, 0
@@ -177,6 +201,11 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 ## 벽 조리대·쿡탑·오븐 {#cooking-appliances}
 
 벽 조리대의 쿡탑 절삭은 상단 0.012m에만 있고 아래쪽 0.043m가 flush 쿡탑의 받침면이다. 네 zone의 지름은 0.22m로 두 중심 피치 0.24m보다 작게 정하여 독립 원판 사이 0.02m를 남긴다. 오븐의 가로 handle은 0.36m여서 x=±0.22 knob와 체적이 겹치지 않는다. cabinet의 가전 bay는 별도 owner이고, `support@0.15`가 oven-sill의 상단이다.
+
+@scalar-control cooktop-support-depth: 0.043
+@scalar-control zone-center-pitch: 0.24
+@scalar-control zone-clearance: 0.02
+@scalar-control oven-bay-width: 0.64
 
 @inventory wall-worktop: top
 @support wall-worktop: cabinet-and-shelf, kitchen-base/2900x870x620/closed, top, 0, 0, 0
@@ -228,6 +257,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 `refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 x=±0.45,y=0.08..2.65,z=−0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 y=1.05에 0.006m seam이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 x=±0.45,y=0..0.08,z=−0.38..+0.33으로 문 앞면 z=+0.38보다 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
 
+@scalar-control door-seam: 0.006
+@scalar-control toe-front-recess: 0.05
+
 @inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -247,6 +279,8 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 ## 세탁기와 건조기 {#laundry-appliances}
 
 원형 드럼은 Z축을 바라보는 동심원으로 잰다. `@radial-z`는 중심 (x=0,y=0.38), 안팎 반경의 실제 원판 또는 고리를 뜻하며 사각 AABB 내부를 모두 고체로 세지 않는다. 기존 하나였던 `door-hinge` 주소는 서로 면으로 잇는 `hinge-barrel`·`hinge-tongue`로 나눈다. tongue만 고리의 직사각 recess에 들어가고 나머지 고리는 원형이다.
+
+@scalar-control excluded-stacked-height: 1.68
 
 @inventory washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
 @inventory dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue

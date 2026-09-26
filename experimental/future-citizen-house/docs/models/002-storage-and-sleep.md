@@ -23,6 +23,15 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @cabinet-spec: {"panel":0.018,"back":0.012,"toe":0.08,"frontInset":0.023,"doorThickness":0.018,"seam":0.003,"leafMaximum":0.6,"hingeRadius":0.008,"hingeDepth":0.04,"hingeY":0.16,"handleWidth":0.012,"handleHeight":0.16,"handleDepth":0.016,"drawerWall":0.012,"shelfPitch":0.34,"islandSeam":0.004}
 @cabinet-variants: bench-base/1150x440x480/closed, island-base/880x870x2650/closed, kitchen-base/2900x870x620/closed, media/2000x440x350/closed, nightstand/500x460x460/closed, open-shelf/1100x2600x500/open, open-shelf/1550x2500x500/open, open-shelf/600x1100x380/open, open-shelf/750x1200x400/open, open-shelf/850x2400x450/open, open-shelf/950x1350x250/open, service/1100x2400x560/closed, service/640x840x600/closed, tall/1300x2650x600/closed, tall/1400x2600x540/closed, tall/2720x2650x600/closed, tall/520x2250x520/closed, tall/600x2300x500/closed, tall/900x2650x600/closed, vanity/1000x800x480/closed, vanity/800x800x480/closed, wall/2900x980x360/closed
 
+@scalar-control door-handle-edge-inset: 0.055
+@scalar-control door-height-deduction: 0.086
+@scalar-control toe-front-inset: 0.05
+@scalar-control narrow-shelf-width-deduction: 0.036
+@scalar-control drawer-box-depth-deduction: 0.038
+@scalar-control drawer-box-bottom-inset: 0.015
+@scalar-control runner-upper-offset: 0.024
+@scalar-control kitchen-front-top-rail: 0.069
+
 <!-- @generated-cabinet-parts:start -->
 @inventory bench-base/1150x440x480/closed: back, bottom, top, side-left, side-right, toe, shelf-1, stile-1, door-0, hinge-0, hinge-1, handle-0, door-1, hinge-2, hinge-3, handle-1
 
@@ -1738,6 +1747,8 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 이 wrapper의 단독 부품은 방석 하나다. `support@0.44`는 별도 cabinet/bench-base의 상단 접촉면이며 cabinet 판을 이 부품 표에 복제하지 않는다.
 
 @compose default: cabinet-and-shelf, bench-base/1150x440x480/closed, 0, 0, 0
+@scalar-control cushion-front-projection: 0.01
+
 @inventory default: cushion
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -1779,6 +1790,10 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 안정 주소는 `frame-side-left/right/outer/inner/edge`, `frame-head/foot/outer/inner/edge`, `support-deck/upper/underside/edge`, `leg-0..3/shaft/top/sole`, `mattress/upper/side/underside`, `duvet/upper/fold-edge/edge/underside`, `headboard/front/back/edge`, `pillow-0..1/upper/edge/underside`다. 각 베개의 사용 여부는 ID 폭 변종으로 고정하고 소스의 blanket 색 문자열은 재료 ID가 아니다. 상부·발치·측면·45°에서 침대 폭, 머리판, 바닥 틈, 베개 수와 접힌 이불 끝을 확인한다. ref02의 세 침실 침대·침구와 ref05의 문 뒤 사적 구역 관계를 채택하며 ref05 복도 사진에서 침대 치수를 역산하지 않는다. ref01·03·04는 고정 침대 형상 근거가 아니다. 인체 누운 자세와 섬유 변형은 `unverified`다.
 
 침대 폭 변종별 닫힌 부품의 점유와 지지면은 다음 표가 고정한다. rail 네 장 사이의 `support-deck`은 매트리스가 공중에 뜨지 않게 한다. `fixed-bed/1800`과 `fixed-bed/1000`에서 베개 수만 다르고 rail·다리 접촉 규칙은 같다.
+
+@scalar-control leg-x-inset: 0.0175
+@scalar-control side-rail-x-inset: 0.015
+@scalar-control pillow-top: 0.62
 
 @inventory 1800: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0, pillow-1
 @inventory 1000: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0

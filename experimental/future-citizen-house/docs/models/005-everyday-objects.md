@@ -100,6 +100,8 @@ ref02 침실과 현관 수납 기능 및 ref04 작업실의 절제된 생활 밀
 
 @bore umbrella-stand: body, 0.115, 0.031..0.55
 
+@scalar-control garment-waist-width-ratio: 0.7
+
 @inventory shoe: body
 @inventory coat: body
 @inventory garment: body
@@ -425,6 +427,8 @@ ref01의 거리·진입 계단과 ref02의 작은 외부 정원에 비례하도�
 @void mailbox: body, -0.15..0.15, 0.45..0.48, -0.015..0.015
 @bore rain-barrel: body, 0.293, 0.051..0.91
 @bore outdoor-waste-bin: body, 0.18, 0.036..0.65
+
+@scalar-control outdoor-seat-height-ratio: 0.55
 
 @inventory mailbox: body
 @inventory outdoor-bench: body

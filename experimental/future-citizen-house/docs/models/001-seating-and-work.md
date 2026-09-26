@@ -6,6 +6,13 @@
 
 등 프레임·등 쿠션·베개는 아래 `@curve-linear`의 같은 기울기 곡선을 따른다. 첫 인터페이스의 gap은 0이고 둘째의 gap은 0.002m여서 베개는 등 쿠션에서 떨어진 채 좌판에만 지지된다. 긴 의자 변종은 공통 본체 부품을 같은 좌표로 재사용하고 앞쪽 연장 프레임·좌판 두 부품과 다리 둘을 추가한다.
 
+@scalar-control seat-seam: 0.025
+@scalar-control arm-seat-clearance: 0.018
+@scalar-control pillow-front-base: 0.19
+@scalar-control pillow-z-min-rounded: 0.2386
+@scalar-control pillow-z-max-rounded: 0.0476
+@scalar-control chaise-front-leg-offset: 0.32
+
 @inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
 @inventory chaise-right: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2, chaise-frame, chaise-seat, chaise-front-leg-0, chaise-front-leg-1
 @cap-contact straight: back-frame, frame, Y, -
@@ -89,6 +96,8 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 
 다음 수치 행은 바로 위 치수의 부품별 폐합 범위다. `@part`의 접촉 상대는 같은 상태의 주소이며 `ground`는 y=0 지면이다. 이 표는 상판과 네 발의 전체 부품 모집단을 이룬다.
 
+@scalar-control top-corner-radius: 0.025
+
 @inventory default: top, leg-0, leg-1, leg-2, leg-3
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -130,6 +139,8 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 ## 천 씌운 식탁 의자 {#dining-chair}
 
 뒷다리 하나의 아래 shaft와 위로 굽은 접합부는 같은 부품 주소의 서로 면으로 닿는 두 점유 조각이다. 위쪽 조각은 좌판 위 y=0.45..0.49에 있으므로 좌판 속을 관통하지 않는다. `@piece`는 부품 전체 AABB가 아닌 실제 연결된 점유를 검사한다.
+
+@scalar-control back-rake: 0.07
 
 @inventory default: seat-frame, seat-pad, back, leg-0, leg-1, leg-2, leg-3
 @piece default: leg-0, -0.205..-0.175, 0..0.45, -0.29..-0.26
@@ -192,6 +203,9 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 ## 벽 연결 작업 책상과 침실 변종 {#work-desk}
 
 flex의 세 서랍 전면은 서랍장 전면 z=0.23에 두께 0.006m로 면 부착한다. 기둥 sleeve와 collar는 각 내경을 실제 빈 점유로 절삭한다. 보조 경첩의 Z축은 상판 범위에 맞춰 z=−0.10..+0.30m에서 끝나며 보조판 앞의 추가 0.02m는 판 자체의 돌출이다. 접힌 손잡이는 판에 매립되고 열린 상태에서는 같은 판 회전으로 x=0.805..0.885,y=0.722..0.740에 옮겨진다.
+
+@scalar-control bed-leg-inset: 0.065
+@scalar-control bed-drawer-x-offset: 0.37
 
 @inventory folded: top, back-rail, drawer-case, drawer-0, drawer-1, drawer-2, telescopic-lower, telescopic-upper, collar, aux-panel, aux-hinge, aux-pull
 @inventory open: top, back-rail, drawer-case, drawer-0, drawer-1, drawer-2, telescopic-lower, telescopic-upper, collar, aux-panel, aux-hinge, aux-pull
@@ -275,6 +289,11 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 
 `@curve-layer`는 t=(y−0.415)/0.415에서 등 셸의 뒤 곡선 `−0.10−0.25t+0.08t²`, 셸 두께 0.025m, 천층 두께 0.035m를 뜻한다. 천층은 좌판과 등판이 한 부품이되 두 연결된 점유 조각을 가진다. 등판 두 층은 같은 다항 곡면의 앞뒤 면에서만 접하고 체적을 겹치지 않는다.
 
+@scalar-control shell-back-rake: 0.17
+@scalar-control shell-back-bow: 0.02
+@scalar-control seat-rear-offset: 0.026
+@scalar-control shell-upholstery-clearance: 0.001
+
 @inventory default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
 @curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035
 @cap-contact default: leg-0, shell-seat, Y, +
@@ -308,6 +327,10 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 `work-display`의 전체 화면판은 폭 0.50, 높이 0.30, 깊이 0.025m이고 놓이는 받침 아래면 중심이 원점, +Z가 사용자 쪽이다. 화면 하단은 y=0.12, 중앙 stand shaft는 높이 0.106m·0.04×0.04m로 y=0.014..0.12, 받침은 0.18×0.12×0.014m다. housing 뒤판은 x=±0.25,y=0.12..0.42,z=−0.0125..0.006이고 display-bezel은 같은 x/y 외곽에서 z=0.006..0.0125의 0.0065m 전면 띠다. bezel 안쪽은 x=±0.238,y=0.132..0.408을 관통 절삭한다. screen은 같은 안쪽 폭·높이에서 z=0.006..0.009에 놓여 housing에 닿고 bezel보다 0.0035m 물린다. `display-bezel/front/back/edge`, `screen/front/back/edge`, `housing/front/back/edge`, `stand-shaft/outer/top/sole`, `stand-base/upper/edge/sole`로 나눈다. `work-keyboard`는 폭 0.35, 깊이 0.12, 높이 0.015m이며 아래면 중심이 원점, +Z가 사용자 쪽이다. 본체는 y=0..0.012, 12열×4행의 낮은 key cap은 각각 0.018×0.013×0.003m로 y=0.012..0.015에 놓는다. cap 중심은 열 c=0..11에서 x=(c−5.5)×0.025m, 행 r=0..3에서 z=(r−1.5)×0.023m이고 key id는 12r+c다. 이 가로·세로 pitch를 명시하고 `keyboard-body/top/edge/underside`, `keys-0..47/top/edge/underside` 주소를 갖는다. 두 물체는 desk 상판을 생성하거나 material을 빌리지 않는다. 정면·측면·45°에서 stand의 접지와 독립 키 배열을 확인한다. ref04의 책상 위 작업 도구를 채택하지만 화면 UI나 글자는 만들지 않는다. ref02의 책상은 추가 배치의 근거이고 ref01·03·05는 장치 모델의 형상을 지정하지 않는다. 출력·전원은 `unverified`다.
 
 `@grid`는 키 48개의 부품 행을 위의 12열×4행 수식에서 전개한다. 수동으로 48행을 복제하지 않으며 각 키의 X/Z 점유와 body 상면 접촉을 개별 검사한다. `support`는 책상 상면에 놓이는 y=0 접촉이다.
+
+@scalar-control display-screen-recess: 0.0035
+@scalar-control key-column-midindex: 5.5
+@scalar-control key-row-midindex: 1.5
 
 @inventory display: stand-base, stand-shaft, housing, display-bezel, screen
 @inventory keyboard: keyboard-body, keys-0..47

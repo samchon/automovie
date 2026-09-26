@@ -24,6 +24,13 @@ if (process.argv.includes("--fixture-rod")) {
   rod.transform.translation = { ...stringers[0].transform.translation };
   fixtureIds.push(rod.id);
 }
+if (process.argv.includes("--fixture-sphere")) {
+  const sphere = environment.elements.find((element) =>
+    element.id === "hedge--1-0-0");
+  assert.ok(sphere, "fixture sphere exists");
+  sphere.transform.translation = { ...stringers[0].transform.translation };
+  fixtureIds.push(sphere.id);
+}
 if (process.argv.includes("--fixture-population")) {
   const population = environment.populations?.find(({ set }) =>
     set.id === "entry-floor-boards");
