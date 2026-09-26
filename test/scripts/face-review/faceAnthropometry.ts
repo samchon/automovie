@@ -114,16 +114,22 @@
  *
  * The indices must be independent measurements, or the square solve pairs a
  * control with an index the photograph has already fixed through the
- * others and leaves that control to drift. The chin's height, stomion to
- * soft-tissue menton over n-me', is not one: read on the same points as
- * nasal height, the upper lip over the lower face, the lips' gap, mouth
- * width and face height, it equals (1 - noseHeight) (1 - upperLip) -
- * lipParting mouthWidth / (2 faceHeight), on the photographs and on the
- * model alike. Paired with the mental height control on round j13, it sat
- * that control at -1.5 to -2 on documents whose every index fit, and where
- * the lips could not part as far as the photograph's it shortened the chin
- * 10 mm to make up the gap. The chin's height is what those indices make
- * it, and the mental height control is the editor's, unpaired.
+ * others and leaves that control to drift. The face's height is three
+ * segments, each its own structure with its own control: the nose, n-sn
+ * (`noseHeight`); the upper lip, sn-stoms (the mouth's elevation); the
+ * lower lip and chin, stomi-me' (the chin's height below the labiomental
+ * fold); the lips' gap lies between them (`lipParting`). Each is read over
+ * the face's width, like every width here, and the face's height, their
+ * sum, is not an index. Read as n-me' over the face's width and paired with
+ * the head's vertical scale, with the nose over n-me', the upper lip over
+ * sn-me' and the chin over n-me' besides, the vertical indices were one too
+ * many (the chin's equalled (1 - noseHeight) (1 - upperLip) - lipParting
+ * mouthWidth / (2 faceHeight) on every reading of round j13): the chin's
+ * height control sat at -1.5 to -2 where every index fit and shortened the
+ * chin to make up lips that could not part as far as the photograph's; with
+ * the chin dropped instead (round j14), the head's scale took up the face's
+ * height (-0.5 to -0.8 on 13 of 16 documents), shrinking the forehead no
+ * index reads, and the nose's length sat at its end on 9.
  *
  * Pure: reads caller-owned points and returns new values.
  */
@@ -202,12 +208,6 @@ export const FACE_ANTHROPOMETRY_LOWER_EDGE = 469;
 /** The indices, in solve order, with their paired controls. */
 export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
-    id: "faceHeight",
-    definition:
-      "n-me' height (168 to the jaw outline's menton, 470) over face width at zygion (234, 454)",
-    channels: ["headHeight"],
-  },
-  {
     id: "intercanthal",
     definition: "en-en width (133, 362) over face width",
     channels: ["leftEyeLateralPosition", "rightEyeLateralPosition"],
@@ -235,7 +235,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   },
   {
     id: "noseHeight",
-    definition: "n-sn height (168, 2) over n-me height",
+    definition: "n-sn height (168, 2) over face width at zygion (234, 454)",
     channels: ["noseHeight"],
   },
   {
@@ -257,9 +257,14 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   },
   {
     id: "upperLip",
-    definition:
-      "sn-stoms height (2, 13) over sn-me' height (2 to the jaw outline's menton, 470)",
+    definition: "sn-stoms height (2, 13) over face width",
     channels: ["mouthElevation"],
+  },
+  {
+    id: "chinHeight",
+    definition:
+      "stomi-me' height (14 to the jaw outline's menton, 470) over face width",
+    channels: ["mentalHeight"],
   },
   {
     id: "cornerLift",
@@ -318,7 +323,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "eyeLevel",
     definition:
-      "the canthi's mean height (33, 133, 263, 362) above subnasale (2) over n-me height",
+      "the canthi's mean height (33, 133, 263, 362) above subnasale (2) over face width",
     channels: ["leftEyeElevation", "rightEyeElevation"],
   },
   {
@@ -444,11 +449,9 @@ export function measureFaceAnthropometry(
   const fw = W(234, 454);
   // Soft-tissue menton is the jaw outline's (`faceLikenessJawOutline`): the
   // detector's own menton (152) holds its place as the chin lengthens.
-  const fh = H(168, 470);
   const fl = mean(D(33, 133), D(263, 362));
   const mw = W(61, 291);
   return {
-    faceHeight: ratio(fh, fw),
     intercanthal: ratio(W(133, 362), fw),
     fissureLength: ratio(fl, fw),
     fissureHeight: ratio(mean(H(159, 145), H(386, 374)), fl),
@@ -463,14 +466,15 @@ export function measureFaceAnthropometry(
       return mean(rise(133, 33), rise(362, 263));
     })(),
     noseWidth: ratio(W(129, 358), fw),
-    noseHeight: ratio(H(168, 2), fh),
+    noseHeight: ratio(H(168, 2), fw),
     mouthWidth: ratio(mw, fw),
     // The vermilion's borders are read from the midline's colour
     // (`faceLikenessVermilion`): the detector's own 0 and 17 are placed
     // from the rest of the face.
     upperVermilion: ratio(H(475, 13), mw),
     lowerVermilion: ratio(H(14, 476), mw),
-    upperLip: ratio(H(2, 13), H(2, 470)),
+    upperLip: ratio(H(2, 13), fw),
+    chinHeight: ratio(H(14, 470), fw),
     lipParting: ratio(H(13, 14), mw),
     incisalGap: ((): number | null => {
       const [upper, lower] = [
@@ -505,8 +509,8 @@ export function measureFaceAnthropometry(
     eyeLevel: ((): number | null => {
       const eye = [33, 133, 263, 362].map(at);
       const [sn] = [2].map(at);
-      return eye.every((p) => p !== undefined) && sn && fh !== null && fh > 0
-        ? (sn[1] - eye.reduce((sum, p) => sum + p![1], 0) / 4) / fh
+      return eye.every((p) => p !== undefined) && sn && fw !== null && fw > 0
+        ? (sn[1] - eye.reduce((sum, p) => sum + p![1], 0) / 4) / fw
         : null;
     })(),
     medialAperture: ratio(mean(H(157, 154), H(384, 381)), fl),

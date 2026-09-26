@@ -97,25 +97,25 @@ const face = (): FaceAnthropometryPoint[] => {
  *    of each eye at one point, there is no tilt.
  * 5. A missing landmark leaves only the indices that read it null (a
  *    bilateral one when either side is missing, subnasale's eye level,
- *    a bow peak's width and depth, a lid slope without its run, every
- *    height over n-me' without the jaw outline's menton); fewer than two
+ *    a bow peak's width and depth, a lid slope without its run, the chin's
+ *    height without the jaw outline's menton); fewer than two
  *    midline landmarks refuse.
  */
 export const test_subject_face_anthropometry = (): void => {
   const points = face();
   const m = measureFaceAnthropometry(points);
   const expected: Record<string, number> = {
-    faceHeight: 100 / 120,
     intercanthal: 30 / 120,
     fissureLength: 30 / 120,
     fissureHeight: 10 / 30,
     canthalTilt: 0,
     noseWidth: 36 / 120,
-    noseHeight: 40 / 100,
+    noseHeight: 40 / 120,
     mouthWidth: 50 / 120,
     upperVermilion: 5 / 50,
     lowerVermilion: 9 / 50,
-    upperLip: 15 / 60,
+    upperLip: 15 / 120,
+    chinHeight: 43 / 120,
     lipParting: 2 / 50,
     upperDisplay: 5 / 50,
     incisalGap: 4 / 50,
@@ -124,7 +124,7 @@ export const test_subject_face_anthropometry = (): void => {
     lowerFaceWidth: 90 / 120,
     chinWidth: 40 / 120,
     browHeight: 20 / 30,
-    eyeLevel: 35 / 100,
+    eyeLevel: 35 / 120,
     medialAperture: 8 / 30,
     lateralAperture: 6 / 30,
     browSlope: 4 / 30,
@@ -287,9 +287,10 @@ export const test_subject_face_anthropometry = (): void => {
   const chinless = measureFaceAnthropometry(jawless);
   TestValidator.predicate(
     "missing outline menton",
-    ["faceHeight", "noseHeight", "upperLip", "eyeLevel"].every(
-      (id) => chinless[id] === null,
-    ) &&
+    chinless.chinHeight === null &&
+      ["noseHeight", "upperLip", "eyeLevel"].every(
+        (id) => chinless[id] !== null,
+      ) &&
       chinless.chinWidth !== null &&
       chinless.mouthWidth !== null,
   );
