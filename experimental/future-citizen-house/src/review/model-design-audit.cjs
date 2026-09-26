@@ -1,6 +1,6 @@
-// First-version completeness checks for every authored model H2. The audit
-// derives its population from files and syntax, never from a list of IDs or
-// prose phrases chosen by the reviewer.
+// Structural-presence checks for every authored model H2. These checks count
+// states and rows but do not certify that a named component has enough
+// dimensions to construct it. The population comes from files and syntax.
 const fs = require("node:fs");
 const path = require("node:path");
 const { randomInt } = require("node:crypto");
@@ -46,7 +46,7 @@ function audit(overrides = new Map()) {
         errors.push(`${anchor}/${state}: envelope lacks inventory state`);
     }
   }
-  return { files: files.length, prototypes: h2, states, partRows, errors };
+  return { scope: "structural-presence", files: files.length, prototypes: h2, states, partRows, errors };
 }
 
 const result = audit();

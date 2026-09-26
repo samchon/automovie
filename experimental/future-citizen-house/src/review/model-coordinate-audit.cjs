@@ -1,6 +1,7 @@
 // Scan local-axis coordinates and other model H2 prose numbers. Each needs a
-// witness in the same H2's structured design rows. This is a necessary
-// condition, not yet a proof that the witness is the right part or feature.
+// structural witness. Explicitly named axis claims also bind to their part,
+// state and feature; remaining H2-wide witnesses are reported as unbound and
+// do not certify the prose/structure relationship.
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -163,6 +164,126 @@ function witnesses(lines) {
   return result;
 }
 
+/**
+ * Bind an explicit prose axis to the nearest named part in its sentence.
+ * The measured host is selected by state, part and axis before a number is
+ * compared. A matching number on another row cannot witness the claim.
+ * @param {string[]} lines
+ * @param {string} owner
+ */
+function boundCoordinates(lines, owner) {
+  /** @type {Array<{state:string;part:string;kind:string;x:number[];y:number[];z:number[]}>} */
+  const rows = [];
+  for (const line of lines) {
+    const cells = line.startsWith("| @") ? line.split("|").slice(1, -1).map((cell) => cell.trim()) : [];
+    if (cells.length === 8 && cells[0] === "@part") {
+      const axes = cells.slice(4, 7).map((cell) => cell.replaceAll("−", "-").split("..").map(Number));
+      rows.push({ state: cells[1], part: cells[2], kind: cells[3], x: axes[0], y: axes[1], z: axes[2] });
+    }
+    const feature = /^@(void|piece)\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+)$/.exec(line);
+    if (feature) {
+      const axes = feature.slice(4).map((cell) => cell.replaceAll("−", "-").split("..").map(Number));
+      rows.push({ state: feature[2].trim(), part: feature[3].trim(), kind: feature[1], x: axes[0], y: axes[1], z: axes[2] });
+    }
+  }
+  /** @type {string[]} */ const errors = [];
+  let bound = 0, unbound = 0;
+  const parts = [...new Set(rows.map((row) => row.part))];
+  /** @type {Map<string,Set<number>>} */
+  const wildcardMinima = new Map();
+  for (const [index, line] of lines.entries()) {
+    if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
+    for (const clear of line.matchAll(/(\d+\.\d+)m\s+clear/g)) {
+      const local = line.slice(Math.max(0, clear.index - 95), clear.index);
+      if (!/(?:서랍|drawer)/.test(local) || !/(?:측판|side|divider)/.test(local)) continue;
+      const nearby = line.slice(Math.max(0, clear.index - 250), clear.index);
+      const selected = [...nearby.matchAll(/`([^`]+)`/g)].map((token) => token[1])
+        .filter((name) => rows.some((row) => row.state.startsWith(`${name}/`) && row.part.startsWith("drawer-")));
+      const states = [...new Set(rows.filter((row) => row.kind === "piece" && row.part.startsWith("drawer-") &&
+        (!selected.length || selected.some((name) => row.state.startsWith(`${name}/`))))
+        .map((row) => row.state))];
+      const measured = [];
+      for (const state of states) {
+        const dividers = rows.filter((row) => row.state === state && row.kind !== "piece" &&
+          /^(?:side-(?:left|right)|bay-divider-(?:left|right))$/.test(row.part));
+        for (const part of new Set(rows.filter((row) => row.state === state && row.kind === "piece" &&
+          row.part.startsWith("drawer-")).map((row) => row.part))) {
+          const body = rows.filter((row) => row.state === state && row.part === part && row.kind === "piece" &&
+            row.z[0] < 0);
+          if (!body.length) continue;
+          const left = Math.min(...body.map((row) => row.x[0]));
+          const right = Math.max(...body.map((row) => row.x[1]));
+          const before = dividers.filter((row) => row.x[1] <= left + 0.000001)
+            .sort((a, b) => b.x[1] - a.x[1])[0];
+          const after = dividers.filter((row) => row.x[0] >= right - 0.000001)
+            .sort((a, b) => a.x[0] - b.x[0])[0];
+          if (before && after) measured.push(left - before.x[1], after.x[0] - right);
+        }
+      }
+      const asserted = Number(clear[1]);
+      if (measured.length && measured.some((gap) => Math.abs(gap - asserted) > 0.000001))
+        errors.push(`${owner}: prose line ${index + 1} drawer side clear ${asserted} contradicts measured gaps ${measured.join(",")}`);
+    }
+    for (const claim of line.matchAll(/([xyzXYZ])\s*=\s*([+−-]?\d+\.\d+)(?:\.\.([+−-]?\d+\.\d+))?/g)) {
+      const axis = /** @type {"x"|"y"|"z"} */ (claim[1].toLowerCase());
+      const start = line.lastIndexOf(". ", claim.index) + 2;
+      const clause = line.slice(start, claim.index);
+      const names = [...clause.matchAll(/`([^`]+)`/g)]
+        .filter((token) => parts.includes(token[1]) || (token[1].endsWith("-j") &&
+          parts.some((part) => part.startsWith(token[1].slice(0, -1)))));
+      const after = line.slice(claim.index + claim[0].length);
+      const following = /^(?:m|의|에는|에|인|\s|,)*\s*`([^`]+)`/.exec(after);
+      const named = following && parts.includes(following[1])
+        ? { 1: following[1], index: claim.index - start } : names.at(-1);
+      if (!named || claim.index - start - named.index > 80) { unbound++; continue; }
+      const prefix = named[1].endsWith("-j") ? named[1].slice(0, -1) : null;
+      const stateNames = [...clause.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
+      const state = stateNames.reverse().find((name) => rows.some((row) =>
+        row.state === name || row.state.startsWith(`${name}/`)));
+      const nextMeasure = line.slice(claim.index + claim[0].length).search(/[,;]|[xyzXYZ]\s*=/);
+      const tail = line.slice(claim.index + claim[0].length,
+        nextMeasure < 0 ? claim.index + claim[0].length + 60 : claim.index + claim[0].length + nextMeasure);
+      const opening = (/(?:열린|개구|절삭|빈 )/.test(clause.slice(named.index)) && !/와\s*$/.test(clause)) ||
+        /(?:열린\s+bay|개구)/.test(tail);
+      const surfaceRegion = /(?:표면 영역|face|고정띠)/.test(line.slice(claim.index, claim.index + 100));
+      const eligible = rows.filter((row) => (prefix ? row.part.startsWith(prefix) : row.part === named[1]) &&
+        (!state || row.state === state || row.state.startsWith(`${state}/`)) &&
+        (!opening || row.kind === "void"));
+      if (!eligible.length) { unbound++; continue; }
+      bound++;
+      const specified = [claim[2], claim[3]].filter(Boolean).map((token) => Number(token.replace("−", "-")));
+      if (prefix && (claim[3] || line.slice(claim.index + claim[0].length).startsWith(".."))) {
+        const key = `${named[1]}/${axis}`;
+        const seen = wildcardMinima.get(key) || new Set();
+        seen.add(specified[0]);
+        wildcardMinima.set(key, seen);
+      }
+      const valid = eligible.some((row) => {
+        const [lo, hi] = row[axis];
+        if (specified.length === 2) return (Math.abs(specified[0] - lo) < 0.000001 &&
+          Math.abs(specified[1] - hi) < 0.000001) ||
+          ((row.kind === "curved" || surfaceRegion) &&
+            specified[0] >= lo - 0.000001 && specified[1] <= hi + 0.000001);
+        const value = specified[0];
+        if (claim[0].includes("..")) return Math.abs(value - lo) < 0.000001;
+        return [lo, hi, (lo + hi) / 2, (hi - lo) / 2, hi - lo]
+          .some((candidate) => Math.abs(value - candidate) < 0.000001);
+      });
+      if (!valid) errors.push(`${owner}: prose line ${index + 1} ${named[1]} ${axis}=${specified.join("..")} contradicts its measured part`);
+    }
+  }
+  for (const [key, seen] of wildcardMinima) {
+    const slash = key.lastIndexOf("/");
+    const partPrefix = key.slice(0, slash).slice(0, -1);
+    const axis = /** @type {"x"|"y"|"z"} */ (key.slice(slash + 1));
+    const expected = new Set(rows.filter((row) => row.kind !== "void" && row.kind !== "piece" &&
+      row.part.startsWith(partPrefix)).map((row) => row[axis][0]));
+    for (const value of expected) if (!seen.has(value))
+      errors.push(`${owner}: ${key} variant minimum ${value} has no part-bound prose claim`);
+  }
+  return { errors, bound, unbound };
+}
+
 /** @param {Map<string,string>} [overrides] */
 function audit(overrides = new Map()) {
   /** @type {string[]} */
@@ -170,7 +291,8 @@ function audit(overrides = new Map()) {
   /** @type {Array<{ owner:string; proseDecimals:number; axisValues:number; unwitnessed:number; outsideGrammar:number; scalarValues:number; unwitnessedScalars:number }>} */
   const coverage = [];
   let h2 = 0, claims = 0, values = 0, witnessed = 0, proseDecimals = 0,
-    scalarValues = 0, scalarWitnessed = 0, scalarControls = 0;
+    scalarValues = 0, scalarWitnessed = 0, scalarControls = 0,
+    partBoundClaims = 0, unboundPartClaims = 0;
   for (const name of names) {
     const source = overrides.get(name) ?? fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
     let anchor = "";
@@ -181,6 +303,10 @@ function audit(overrides = new Map()) {
       if (!owner) return;
       h2++;
       const sourceValues = witnesses(body);
+      const binding = boundCoordinates(body, owner);
+      errors.push(...binding.errors);
+      partBoundClaims += binding.bound;
+      unboundPartClaims += binding.unbound;
       const declaredControls = new Set();
       const proseNumbers = new Set(body.filter((line) =>
         line.trim() && !/^\||^@|^<!--/.test(line)).flatMap((line) =>
@@ -274,6 +400,8 @@ function audit(overrides = new Map()) {
     scalarValues,
     witnessedScalarValues: scalarWitnessed,
     scalarControls,
+    partBoundCoordinateClaims: partBoundClaims,
+    unboundPartCoordinateClaims: unboundPartClaims,
     coverage,
     errors,
   };

@@ -1233,6 +1233,7 @@ function audit(allSections, mutate, onlyState) {
         }
       }
       const byId = new Map(stateParts.map((part) => [part.id, part]));
+      const provedExternal = new Set();
       for (const [key, patch] of flatContacts) {
         if (!key.startsWith(`${state}/`)) continue;
         const guest = byId.get(patch.guest), host = byId.get(patch.host);
@@ -1247,7 +1248,12 @@ function audit(allSections, mutate, onlyState) {
             Math.abs(box[axis][0] - patch.plane) <= epsilon &&
             inRange(patch.u, box.x) && inRange(patch.v, box[transverse])) &&
           patch.u[1] - patch.u[0] > epsilon && patch.v[1] - patch.v[0] > epsilon;
-        if (patch.host === "wall") valid &&= patch.axis === "-Z";
+        if (patch.host === "wall") valid &&= patch.axis === "-Z" &&
+          Math.abs(patch.plane - envelope.z[0]) <= epsilon;
+        else if (patch.host === "ground" || patch.host === "support" || /^support@[\d.]+$/.test(patch.host)) {
+          const height = patch.host.startsWith("support@") ? Number(patch.host.slice(8)) : 0;
+          valid &&= patch.axis === "-Y" && Math.abs(patch.plane - height) <= epsilon;
+        }
         else if (host) {
           valid &&= occupiedBoxes(host, voids, pieces).some((box) =>
             Math.abs(box[axis][1] - patch.plane) <= epsilon &&
@@ -1268,6 +1274,7 @@ function audit(allSections, mutate, onlyState) {
         } else valid = false;
         if (!valid) errors.push(`${anchor}/${key}: flat contact has no finite common patch`);
         else if (host) provedCurves.add(`${state}/${[patch.guest, patch.host].sort((a, b) => a.localeCompare(b)).join("/")}`);
+        else provedExternal.add(`${patch.guest}/${patch.host}`);
       }
       for (const [key, cap] of capContacts) {
         if (!key.startsWith(`${state}/`)) continue;
@@ -1533,11 +1540,17 @@ function audit(allSections, mutate, onlyState) {
               errors.push(`${anchor}/${state}/${part.id}: no face contact with ${target}`);
           } else if (target === "ground" || target === "support" || /^support@[\d.]+$/.test(target)) {
             const height = target.startsWith("support@") ? Number(target.slice(8)) : 0;
-            if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.y[0] - height) <= epsilon))
+            if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.y[0] - height) <= epsilon &&
+              box.x[1] - box.x[0] > epsilon && box.z[1] - box.z[0] > epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses ${target}`);
+            if (part.shape === "curved" && !shearsZ.has(`${state}/${part.id}`) &&
+              !provedExternal.has(`${part.id}/${target}`))
+              errors.push(`${anchor}/${state}/${part.id}: curved ${target} lacks finite contact patch`);
           } else if (target === "wall") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.z[0] - envelope.z[0]) <= epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses wall datum`);
+            if (part.shape === "curved" && !provedExternal.has(`${part.id}/wall`))
+              errors.push(`${anchor}/${state}/${part.id}: curved wall lacks finite contact patch`);
           } else if (target === "ceiling" || target === "suspension" || target === "underside") {
             if (!occupiedBoxes(part, voids, pieces).some((box) => Math.abs(box.y[1]) <= epsilon))
               errors.push(`${anchor}/${state}/${part.id}: misses ${target} datum`);

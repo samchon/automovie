@@ -391,6 +391,8 @@
 @scalar-control cup-aabb-contact-overlap: 0.000426
 @scalar-control cup-handle-insertion: 0.001
 
+@flat-contact tray: base, support, -Y, 0, -0.10..0.10, -0.06..0.06
+
 @inventory bowl: shell
 @inventory tray: base, rim
 @cap-contact tray: base, rim, Y, +

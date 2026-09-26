@@ -46,7 +46,11 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 `@material-face state: part/face`는 같은 부품의 일반 가시 면과 구분되는 재료 응답을 필요로 하는 실제 면을 표시한다. 이 주소는 model의 표면 분할 결정이며 finish·texture 규모·UV 결합은 materials가 소유한다. `model-owner-audit.cjs`의 표면 결합 검사는 선언된 state/part/face의 별도 결합과 그 밖의 부품의 기본 결합을 센다.
 
-## 곡면 조각의 점유 우선순위 {#model-curved-piece}
+`@pin-face state: pin, receiver`는 원통 핀의 끝 원판이 receiver의 닫힌 접합면에 유한 면적으로 닿음을 선언한다. `@emitter-face state: part, -Y`는 방에서 아래로 보이는 발광 face를 지정하며 다른 부품이 그 면을 가리면 실패다. `@tangent state: host, guest, hostRadius, guestHalfWidth`는 원통 host의 바깥 반지름과 guest의 X 반폭으로 접선을 검증한다. host와 guest의 AABB를 고체 접합 증명으로 대신하지 않는다. `@bore-z state: part, centerX, centerY, radius, Zmin..Zmax`는 Z축 원형 관통 구멍이고 `@bore-x state: part, Xmin..Xmax, centerY, centerZ, radius`는 X축 원형 구멍이다. 절삭 구간의 양 끝과 안쪽 벽은 열린 면이 아니라 두께 있는 고체의 노출 face다.
+
+`@radial state: part, inner, outer`는 원점 XZ 중심을 가진 Y축 원판 또는 환형 단면, `@radial-at state: part, centerX, centerZ, inner, outer`는 평행 이동한 같은 단면, `@radial-z state: part, centerX, centerY, inner, outer`는 Z축 원판 또는 환형 단면을 정한다. inner=0이면 중심까지 채우고, 양수이면 그 안은 비운다. `@ellipse state: part, innerX, innerZ, outerX, outerZ[, centerX, centerZ]`는 Y축 타원 고리의 두 반축과 중심을 정하며 생략한 중심은 원점이다. 이 행의 반축과 위치는 `@part`의 AABB와 별도로 서로 대조한다. `@grid state: prefix, columns, rows, pitchX, pitchZ, width, depth, Ymin..Ymax, contact`는 X/Z 격자의 `prefix-0..` 부품을 행 우선 순서로 배치하고 각 부품을 선언 폭·깊이·높이의 닫힌 상자로 만든다.
+
+`@curve-linear state: host, guest, originY, spanY, c0, c1, hostDepth, gap, guestDepth`는 t=(y−originY)/spanY에서 host의 뒤 경계 z=c0+c1t, 앞 경계 z+hostDepth, guest의 뒤 경계는 host 앞 경계+gap, 앞 경계는 다시 guestDepth를 더한 선형 층이다. `@curve-layer`의 다항식 우선순위는 아래 문단이 소유한다. `@plant-spec`은 [화분](004-decor-and-fixtures.md#potted-plant)의 JSON 입력으로, `heights`는 mm 상태 목록이고 나머지 이름 붙은 값은 최종 높이 H의 무차원 비율이다. `wallMinimum`만 m 단위 바닥 두께 하한이며 `leafFanDegrees`는 각도다. `model-plant-producer`가 상태별 `@part`·`@envelope`을 이 입력에서 생성한다. `@cabinet-spec`은 [수납 외함](002-storage-and-sleep.md#cabinet-and-shelf)의 m 단위 패널·틈·문·손잡이·선반 피치 JSON 입력이고, `@cabinet-variants`는 호출 가능한 정확한 형상형/폭-mm×높이-mm×깊이-mm/상태 목록이다. `model-cabinet-producer`가 그 유한 목록의 행을 생성하며 입력·출력 불일치는 실패다.
 
 일반 얇은 잎의 여덟 경계 vertex 규칙과 달리 [화분](004-decor-and-fixtures.md#potted-plant)의 부채 잎은 가지 끝 접점 하나와 끝면의 네 꼭짓점을 가진 다섯 vertex의 닫힌 쐐기다. 시작점에서 폭·두께가 함께 0으로 수렴하므로 퇴화 삼각형을 만들지 않고 네 측면 삼각형과 끝면 두 삼각형으로 닫는다. 끝면 두께는 가지에서 바깥 방사방향 한쪽으로만 생기며 접선 거리와 비관통 조건을 각 상태에서 다시 계산한다.
 

@@ -9,7 +9,7 @@
 
 부품 표에서 `support@0.80`은 별도 [vanity 외함](../models/002-storage-and-sleep.md#cabinet-and-shelf)의 상단 접촉면이며 이 prototype 내부에 외함 판을 중복 생성하지 않는다. bowl의 안쪽과 rim의 개구는 서로 다른 경계이고, bowl 바깥쪽 입술이 rim 아랫면에 면으로 닿는다. 거울은 벽에 독립 부착한다. drain은 bowl 바닥의 지름 0.045m 열린 구멍 면 주소다.
 
-@scalar-control rejected-basin-default: 0.65
+@scalar-control excluded-basin-default: 0.65
 @scalar-control vanity-depth: 0.48
 @scalar-control mirror-width-deduction: 0.08
 @scalar-control mirror-glass-recess: 0.004
@@ -108,6 +108,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 @inventory default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
 @cap-contact default: head, riser, Y, -
+@flat-contact default: head, riser, -Y, 2.20, -0.858..-0.842, -0.713..-0.697
 @void default: tray, -0.98..0.98, 0.055..0.07, -0.68..0.68
 @bore default: tray, 0.06, 0..0.055
 @radial-at default: riser, -0.85, -0.705, 0, 0.0125
