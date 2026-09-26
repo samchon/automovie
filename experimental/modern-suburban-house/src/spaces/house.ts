@@ -15,7 +15,7 @@
  * are not emitted.
  */
 import { buildGroundFloor } from "./floors/ground";
-import { GARAGE } from "./building";
+import { EXTERIOR_WALL_BOTTOM, GARAGE } from "./building";
 import { buildInterstorey, buildUpperCeiling } from "./floors/upper";
 import { buildFront, GARAGE_FRONT_DOOR } from "./envelope/front";
 import { buildLeft } from "./envelope/left";
@@ -72,8 +72,7 @@ import {
 } from "./rooms/shared";
 import type { IExteriorZone } from "./site/zone";
 import type { IHousePart } from "./solids";
-import { CEILING_FINISH } from "./storeys";
-import { EXTERIOR_WALL_BOTTOM } from "./building";
+import { CEILING_FINISH, STOREYS } from "./storeys";
 import { buildStair, STAIR_OPENING } from "./stair";
 
 /** The house as the viewer, measurements and delivery consume it. */
@@ -129,6 +128,8 @@ export interface IHouse {
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed owner and room units supplied their outputs; assembly exposed no missing house-space identity.
  */
 export const buildHouse = (): IHouse => {
+  if (EXTERIOR_WALL_BOTTOM !== STOREYS.frontWalk)
+    throw new Error("provisional exterior wall bottom differs from front walk datum");
   const rooms = [
     buildEntry(),
     buildLiving(),
