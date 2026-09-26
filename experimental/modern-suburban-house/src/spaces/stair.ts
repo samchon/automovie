@@ -81,9 +81,9 @@ export const STAIR_OPENING = {
   },
 } as const;
 /**
- * @evidence spaces/02-stair.md One rise and run locate treads, connector stations, and the upper flight's coat split.
+ * @evidence spaces/02-stair.md One rise and run locate the treads and upper flight's coat split; the rise also fixes the connector landing height.
  * @evidence principles/core/source-units.md#source-scope-preservation These are stair coordinates, while entry owns the closet body.
- * @evidence principles/core/source-units.md#source-substantive-completion All stair consumers receive the same tread and landing arithmetic.
+ * @evidence principles/core/source-units.md#source-substantive-completion Treads, landing, connector, and coat-start consumers read the relevant values from this record.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair design fixes 18 risers and 0.28 m run; the tread over the closet follows from those stations and the entry-owned body span.
  */
 export const STAIR_STEPS = {
@@ -107,9 +107,9 @@ const HANDRAIL = 0.9;
 const HALL_GUARD = 1.05;
 
 /**
- * @evidence spaces/02-stair.md The connector follows the lower flight, landing centre and upper flight without independent station coordinates.
+ * @evidence spaces/02-stair.md The connector follows the lower flight, landing centre and upper flight, with approach and arrival points in their named rooms.
  * @evidence principles/core/source-units.md#source-scope-preservation This route uses the stair opening and tread datums; it adds no second stair geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion A datum edit moves every station, including the landing and upper arrival.
+ * @evidence principles/core/source-units.md#source-substantive-completion An upper-floor datum edit changes landing Y through STAIR_STEPS.rise and arrival Y through STOREYS.upperFloor; landing plan coordinates come from STAIR_OPENING.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The stair connector design already requires the landing centre and physical riser height.
  */
 export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [

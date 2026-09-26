@@ -78,7 +78,7 @@ const entrySpace = (): IRoomSpace => ({
 /**
  * @evidence spaces/rooms/entry.md The entry owns the coat body and opening consumed by the upper flight.
  * @evidence principles/core/source-units.md#source-scope-preservation Entry fixes the closet top and opening but derives its body X from the stair's seventh upper tread station.
- * @evidence principles/core/source-units.md#source-substantive-completion The storage, wall shell, stair underside and cut opening share one top and span.
+ * @evidence principles/core/source-units.md#source-substantive-completion The storage, closet walls, stair underside, and cut opening read one top; the closure reads this export's opening Z span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The entry storage design already fixes its top and body extents.
  */
 export const COAT_STORAGE = {

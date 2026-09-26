@@ -39,7 +39,7 @@ export const SIDE_WALK = {
 /** Emit the three bands of the side path. */
 /**
  * @evidence spaces/site/side-walk.md This builder links the drive to the garden landing in three joined surface bands.
- * @evidence spaces/site/side-walk.md#side-walk-plan Two flat slabs and a blended front connector keep one continuous walking surface at the lower landing height.
+ * @evidence spaces/site/side-walk.md#side-walk-plan Two flat slabs hold the lower landing height; the front connector blends from the driveway grade into that height.
  * @evidence spaces/site/side-walk.md#side-gate-interface Two named waiting zones straddle the gate plane taken from imported GARAGE bounds.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder returns paving and standing zones while the fence owner creates the gate posts and model owner the leaf.
  * @evidence principles/core/source-units.md#source-substantive-completion The three solid bands and two zone records are emitted with stable ids and shared end coordinates.
