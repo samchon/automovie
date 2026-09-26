@@ -10,13 +10,17 @@
  * unseen readings take them. One unit moves a vermilion vertex 15 percent of
  * its height above (below) its column's free margin, the column 1.5 mm
  * across, and the skin that follows reaches a centimetre beyond the lip's
- * corner (the modiolus). Rendered through the editor, 45 percent thinner
- * reads as a thin lip with its border smooth on both lips and 30 percent
- * fuller as a full upper lip, so the upper envelope runs from -3 to 2. The
- * source's lower vermilion is already 13 mm at the midline with 4 mm of
- * cutaneous lip left above the labiomental fold, and 30 percent fuller
- * brings its border against the fold, overhanging it; its envelope stops at
- * 1, the border 2 mm down (`prepareVermilionHeightBasis`).
+ * corner (the modiolus). At the midline the source's upper vermilion is
+ * 11 mm: -4, 60 percent thinner, brings it to 4.4 mm, two standard
+ * deviations below the thinnest norm the study cites (Korean women,
+ * 7.0 +- 1.5 mm), and +3, 45 percent fuller, is its last end at which no
+ * triangle turns over (at +4 the Cupid's bow's peaks do). The source's lower
+ * vermilion is 13 mm with 4 mm of cutaneous lip above the labiomental fold:
+ * -3, 45 percent thinner, is its last end free of turned triangles (at -4
+ * the vermilion beside the commissures turns), and 30 percent fuller
+ * presses its border against the fold, so its envelope stops at 1, the
+ * border 2 mm down. Every end reads as a lip through the editor, front and
+ * profile (`prepareVermilionHeightBasis`).
  * The revision is refused unless every document and each channel at its
  * ends build, and each end turns over or crosses none of the skin's
  * triangles it moves (`faceSupportFaults`).
@@ -119,7 +123,7 @@ const prepared = prepareVermilionHeightBasis({
       channel: "upperVermilionHeight",
       lip: "upper",
       reach: base.subnasale[0],
-      envelope: [-3, 2],
+      envelope: [-4, 3],
     },
     {
       channel: "lowerVermilionHeight",
