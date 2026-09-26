@@ -60,6 +60,8 @@ export function faceValidScale(props: {
  * `steps` halvings, at which the skin has no more faults than with that
  * unit at rest (`faceValidScale`). A unit that does not make the fold keeps
  * its weight, and a fold one unit makes costs no other unit anything; a
+ * fold that no single unit makes (each at rest alone leaves it) takes one
+ * shared share of all the units moving it; a
  * yield can move a fold elsewhere, which the next round gathers, over at
  * most `rounds` rounds. A unit and its partner on the other side
  * (`partner`: a smile's two corners, a gaze's two eyes) move and yield as
@@ -115,7 +117,7 @@ export function faceExpressionYield(props: {
         }))
         .filter((one) => one.by > 0)
         .sort((a, b) => Number(b.prior) - Number(a.prior) || b.by - a.by);
-      for (const { units } of moved) {
+      const yieldTogether = (units: readonly string[]) => {
         const current = expression;
         const scaled = (scale: number) => ({
           ...current,
@@ -128,7 +130,13 @@ export function faceExpressionYield(props: {
           steps: props.steps,
         });
         expression = scaled(kept.scale);
-      }
+      };
+      const before = props.faults(expression);
+      for (const { units } of moved) yieldTogether(units);
+      // A fold no one of its units makes alone (each alone at rest leaves
+      // it) yields all of them together.
+      if (props.faults(expression) >= before)
+        yieldTogether(moved.flatMap(({ units }) => units));
       faults = props.faults(expression);
     }
   const shares = Object.fromEntries(

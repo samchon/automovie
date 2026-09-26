@@ -30,7 +30,9 @@ import { throwsError } from "../internal/predicates";
  *    nothing is dropped; a fold no unit moves is left and reported.
  * 8. A unit and its partner yield as one (both corners to half) where alone
  *    the corner moving the fold most would go to rest and leave the other.
- * 9. Fewer than one round refuses, and the faulting triangles gather into
+ * 9. A fold any two of three units make (each at rest alone leaves it)
+ *    yields all three together, to half.
+ * 10. Fewer than one round refuses, and the faulting triangles gather into
  *    clusters through shared vertices, in the order of their lowest
  *    triangle.
  */
@@ -239,6 +241,25 @@ export const test_subject_face_document_validity = (): void => {
       ).expression,
     ) === JSON.stringify({ smileLeft: 0.5, smileRight: 0.5 }) &&
       JSON.stringify(pair().expression) === JSON.stringify({ smileLeft: 1 }),
+  );
+  const two = (e: Record<string, number>) =>
+    ["a", "b", "c"].filter((unit) => (e[unit] ?? 0) > 0.5).length >= 2;
+  const shared = faceExpressionYield({
+    expression: { a: 1, b: 1, c: 1 },
+    faults: (e) => (two(e) ? 3 : 0),
+    clusters: (e) => (two(e) ? [new Set([1])] : []),
+    contribution: (unit, e) => Math.abs(e[unit] ?? 0),
+    steps: 6,
+    rounds: 3,
+  });
+  TestValidator.predicate(
+    "a fold no one unit makes takes a shared share",
+    JSON.stringify(shared) ===
+      JSON.stringify({
+        expression: { a: 0.5, b: 0.5, c: 0.5 },
+        shares: { a: 0.5, b: 0.5, c: 0.5 },
+        faults: 0,
+      }),
   );
   TestValidator.equals(
     "clusters",
