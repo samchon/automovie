@@ -113,6 +113,8 @@ import {
   solveFaceAnthropometry,
   solveFaceNorms,
 } from "./faceAnthropometrySolve";
+import { faceValidScale } from "./faceDocumentValidity";
+import { faceSupportFaults } from "./faceEnvelope";
 import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
@@ -711,27 +713,97 @@ if (command === "identity") {
       values = [...seen.values, ...unseenSolution.values];
       sweeps.push([seen.iterations, unseenSolution.iterations]);
     } while (moved && sweeps.length < active);
-    const shape = { ...start.shape };
-    const posed = { ...start.expression };
-    indices.forEach((one, k) => {
-      // A stand-in reading that did not hold leaves its channel to the
-      // photograph's index.
-      if (
-        k >= split &&
-        FACE_UNSEEN_INDICES[k - split]!.photographed !== undefined &&
-        unseenTargets[k - split] === null
-      )
-        return;
-      for (const [channel, weight] of faceAnthropometryWeights(
-        one,
-        values[k]!,
-      )) {
-        const value = Number(weight.toFixed(5));
-        if (!one.expression) shape[channel] = value;
-        else if (value !== 0) posed[channel] = value;
-        else delete posed[channel];
-      }
+    // The document's shape and expression from control values.
+    const compose = (own: readonly number[]) => {
+      const shape = { ...start.shape };
+      const posed = { ...start.expression };
+      indices.forEach((one, k) => {
+        // A stand-in reading that did not hold leaves its channel to the
+        // photograph's index.
+        if (
+          k >= split &&
+          FACE_UNSEEN_INDICES[k - split]!.photographed !== undefined &&
+          unseenTargets[k - split] === null
+        )
+          return;
+        for (const [channel, weight] of faceAnthropometryWeights(
+          one,
+          own[k]!,
+        )) {
+          const value = Number(weight.toFixed(5));
+          if (!one.expression) shape[channel] = value;
+          else if (value !== 0) posed[channel] = value;
+          else delete posed[channel];
+        }
+      });
+      return { shape, posed };
+    };
+    // Tissue does not pass through tissue: over the triangles the document
+    // moves, the priors' departure yields until it adds no fault its start
+    // lacks to those of the measured controls (`faceValidScale`), and the
+    // photograph's controls are then solved again beside them.
+    // The lips meet at rest: their overlap is their contact, not a fault.
+    const lipTriangles = new Set<string>();
+    for (let t = 0; t < (lipRegion?.indices.length ?? 0); t += 3)
+      lipTriangles.add(lipRegion!.indices.slice(t, t + 3).join());
+    const contact = new Set<number>();
+    for (let t = 0; t < human.indices.length; t += 3)
+      if (lipTriangles.has(human.indices.slice(t, t + 3).join()))
+        contact.add(t);
+    const faultsOf = (own: readonly number[]): number => {
+      const positions = faceShapeFitSurfacePositions(
+        basis,
+        build({
+          ...start,
+          shape: compose(own).shape,
+          hair: undefined,
+          expression: {},
+        }),
+        human.id,
+      );
+      const triangles: number[] = [];
+      for (let t = 0; t < human.indices.length; t += 3)
+        if (
+          [0, 1, 2].some((e) => {
+            const v = human.indices[t + e]!;
+            return [0, 1, 2].some(
+              (k) => Math.abs(positions[3 * v + k]! - rest[3 * v + k]!) > 1e-7,
+            );
+          })
+        )
+          triangles.push(t);
+      return faceSupportFaults({
+        source: rest,
+        positions,
+        indices: human.indices,
+        triangles,
+        contact,
+      });
+    };
+    const priors = values.slice(split);
+    const scaled = (scale: number) => [
+      ...values.slice(0, split),
+      ...priors.map(
+        (v, j) => initial[split + j]! + scale * (v - initial[split + j]!),
+      ),
+    ];
+    const validity = faceValidScale({
+      faults: (scale) => faultsOf(scaled(scale)),
+      steps: 6,
     });
+    if (validity.scale < 1) {
+      const fixed = scaled(validity.scale).slice(split);
+      seen = solveFaceAnthropometry({
+        controls: controls
+          .slice(0, split)
+          .map((one, k) => ({ ...one, start: values[k]! })),
+        targets: measuredTargets,
+        evaluate: (own) => frontal([...own, ...fixed]),
+      });
+      values = [...seen.values, ...fixed];
+    }
+    const remaining = validity.scale < 1 ? faultsOf(values) : validity.faults;
+    const { shape, posed } = compose(values);
     report[subject] = {
       population,
       anthropometry: Object.fromEntries(
@@ -760,6 +832,7 @@ if (command === "identity") {
         ]),
       ),
       iterations: sweeps,
+      validity: { priors: validity.scale, faults: remaining },
     };
     return { ...start, shape, expression: posed };
   });
