@@ -2,7 +2,7 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": 0.6153846153846154,
       "globalSexualDimorphism": 1,
@@ -61,6 +61,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.19037,
+          0.10106,
+          0.07757
+        ],
+        "density": 0.877
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.19037,
+          0.10106,
+          0.07757
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.19037,
           0.10106,
@@ -189,7 +204,7 @@
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -1,
       "globalSexualDimorphism": 1,
@@ -245,6 +260,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.03323,
+          0.01092,
+          0.00545
+        ],
+        "density": 1.152
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.03323,
+          0.01092,
+          0.00545
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.03323,
           0.01092,
@@ -444,7 +474,7 @@
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.08333333333333326,
       "globalSexualDimorphism": -1,
@@ -497,6 +527,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.02403,
+          0.00831,
+          0.00362
+        ],
+        "density": 1.57
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.02403,
+          0.00831,
+          0.00362
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.02403,
           0.00831,
@@ -625,7 +670,7 @@
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
@@ -682,6 +727,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.01354,
+          0.01031,
+          0.00974
+        ],
+        "density": 1.426
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.01354,
+          0.01031,
+          0.00974
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.01354,
           0.01031,
@@ -782,7 +842,7 @@
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": -1,
@@ -837,6 +897,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.0257,
+          0.01659,
+          0.01333
+        ],
+        "density": 1.373
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.0257,
+          0.01659,
+          0.01333
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.0257,
           0.01659,
@@ -965,7 +1040,7 @@
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
@@ -1023,6 +1098,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.02464,
+          0.01505,
+          0.0126
+        ],
+        "density": 1.045
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.02464,
+          0.01505,
+          0.0126
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.02464,
           0.01505,
@@ -1151,7 +1241,7 @@
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
@@ -1206,6 +1296,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.02628,
+          0.01284,
+          0.00963
+        ],
+        "density": 1.34
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.02628,
+          0.01284,
+          0.00963
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.02628,
           0.01284,
@@ -1334,7 +1439,7 @@
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": -1,
@@ -1389,6 +1494,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.06424,
+          0.03426,
+          0.02611
+        ],
+        "density": 1.332
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.06424,
+          0.03426,
+          0.02611
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.06424,
           0.03426,
@@ -1536,7 +1656,7 @@
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": 0.01538461538461533,
       "globalSexualDimorphism": -1,
@@ -1594,6 +1714,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.01183,
+          0.01605,
+          0.01677
+        ],
+        "density": 1.224
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.01183,
+          0.01605,
+          0.01677
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.01183,
           0.01605,
@@ -1765,7 +1900,7 @@
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": 0.09230769230769242,
       "globalSexualDimorphism": -1,
@@ -1826,6 +1961,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.02869,
+          0.0161,
+          0.01299
+        ],
+        "density": 1.296
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.02869,
+          0.0161,
+          0.01299
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.02869,
           0.0161,
@@ -1954,7 +2104,7 @@
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": 0.8461538461538463,
       "globalSexualDimorphism": -1,
@@ -2010,6 +2160,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.41294,
+          0.23822,
+          0.16256
+        ],
+        "density": 0
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.41294,
+          0.23822,
+          0.16256
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.41294,
           0.23822,
@@ -2138,7 +2303,7 @@
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": 0.7230769230769232,
       "globalSexualDimorphism": 1,
@@ -2197,6 +2362,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.03569,
+          0.03569,
+          0.03569
+        ],
+        "density": 1.138
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.03569,
+          0.03569,
+          0.03569
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.03569,
           0.03569,
@@ -2297,7 +2477,7 @@
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": 0.7076923076923078,
       "globalSexualDimorphism": -1,
@@ -2353,6 +2533,20 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.1625,
+          0.1077,
+          0.08686
+        ]
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.1625,
+          0.1077,
+          0.08686
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.1625,
           0.1077,
@@ -2524,7 +2718,7 @@
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.75,
       "globalSexualDimorphism": 1,
@@ -2774,7 +2968,7 @@
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.41666666666666674,
       "globalSexualDimorphism": -1,
@@ -2822,6 +3016,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.07728,
+          0.03517,
+          0.03081
+        ],
+        "density": 0.907
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.07728,
+          0.03517,
+          0.03081
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.07728,
           0.03517,
@@ -3021,7 +3230,7 @@
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": 1,
@@ -3073,6 +3282,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.1515,
+          0.07143,
+          0.04015
+        ],
+        "density": 0.743
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.1515,
+          0.07143,
+          0.04015
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.1515,
           0.07143,
@@ -3201,7 +3425,7 @@
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "globalAgeStructure": -0.25,
       "globalSexualDimorphism": 1,
@@ -3257,6 +3481,21 @@
         "roughness": 0.57
       },
       "Human.eyebrow001": {
+        "pigment": [
+          0.01516,
+          0.01221,
+          0.01266
+        ],
+        "density": 1.283
+      },
+      "Human.eyelashes01": {
+        "pigment": [
+          0.01516,
+          0.01221,
+          0.01266
+        ]
+      },
+      "Human.eyelashes01.lower": {
         "pigment": [
           0.01516,
           0.01221,
@@ -3456,7 +3695,7 @@
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-25-gingiva",
+    "basis": "mpfb-connected-head-2026-09-27-nasal-root",
     "shape": {
       "asianAncestry": 1
     },

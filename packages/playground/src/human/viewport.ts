@@ -4,6 +4,7 @@ import type { JSONDocument } from "@gltf-transform/core";
 import * as THREE from "three";
 
 import { createHumanPreviewBuilder } from "./previewBuilder";
+import { addHumanPreviewRig } from "./previewRig";
 import {
   createHumanPreviewCamera,
   disposeHumanPreview,
@@ -79,38 +80,15 @@ export function createHumanViewport<
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  const shadowLights: THREE.DirectionalLight[] = [];
   scene.background = new THREE.Color(0x1c252e);
-  scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
-  for (const [x, y, z, power, color] of [
-    [-0.3, 0.35, 0.45, 2.3, 0xffe9d8],
-    [0.35, 0.1, 0.3, 0.85, 0xdaeaff],
-    [0.1, 0.3, -0.25, 1.6, 0xffffff],
-  ]) {
-    const light = new THREE.DirectionalLight(color, power);
-    light.position.set(x * scale, y * scale, z * scale);
-    scene.add(light);
-    if (x < 0) {
-      shadowLights.push(light);
-      light.castShadow = true;
-      light.shadow.mapSize.set(4096, 4096);
-      Object.assign(light.shadow.camera, {
-        left: -0.2 * scale,
-        right: 0.2 * scale,
-        top: 0.2 * scale,
-        bottom: -0.2 * scale,
-        near: 0.01,
-        far: 2 * scale,
-      });
-      light.shadow.normalBias = 0.0008 * scale;
-      light.shadow.bias = -0.00005;
-      light.shadow.camera.updateProjectionMatrix();
-    }
-  }
+  const shadowLights = addHumanPreviewRig({
+    scene,
+    renderer,
+    scale: scale,
+  });
   const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 10 * scale);
   const orbit = props.orbit(camera);
   orbit.target.set(0, -0.015, 0);

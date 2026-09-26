@@ -1,6 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { fitFaceLikenessBrowPigment } from "../../../scripts/face-review/faceLikenessBrowFit";
+import {
+  faceLikenessBrowCoverage,
+  fitFaceLikenessBrowDensity,
+  fitFaceLikenessBrowPigment,
+} from "../../../scripts/face-review/faceLikenessBrowFit";
 import {
   FACE_LIKENESS_BROW_OUTLINES,
   type IFaceLikenessImage,
@@ -176,5 +180,74 @@ export const test_subject_face_likeness_brow = (): void => {
         }),
       "positive linear colour",
     ),
+  );
+};
+
+/** CIELAB of a grey of relative luminance `y`. */
+const grey = (y: number): [number, number, number] => [
+  y > 216 / 24389 ? 116 * Math.cbrt(y) - 16 : (24389 / 27) * y,
+  0,
+  0,
+];
+
+/** A side whose fibres cover `c` of the outline, cheek at `cheek`. */
+const side = (c: number, fibre = 0.2, cheek = 0.5) => ({
+  tone: grey(cheek * (c * fibre + (1 - c))),
+  fibre: grey(cheek * fibre),
+  cheek: grey(cheek),
+});
+
+/**
+ * Brow density from the coverage its outline shows.
+ * Scenarios:
+ * 1. An outline whose fibres (a fifth of the cheek's luminance) cover 0.4 of
+ *    it reads 0.4 at any exposure; a tone lighter than the cheek reads none
+ *    and one darker than the fibres all; fibres within a tenth of the skin's
+ *    luminance, and a black cheek, read nothing.
+ * 2. A photograph covered 0.4 against a render covered 0.8 at density 1.5
+ *    asks for 0.75; an unreadable side is left out of its mean; a
+ *    photograph or render that reads nothing, or a render with no coverage,
+ *    gives no density; the density is held to 4.
+ */
+export const test_subject_face_likeness_brow_density = (): void => {
+  TestValidator.predicate(
+    "coverage",
+    nclose(faceLikenessBrowCoverage(side(0.4))!, 0.4, 1e-9) &&
+      nclose(faceLikenessBrowCoverage(side(0.4, 0.2, 0.05))!, 0.4, 1e-9) &&
+      faceLikenessBrowCoverage({ ...side(0), tone: grey(0.6) }) === 0 &&
+      faceLikenessBrowCoverage({ ...side(1), tone: grey(0.05) }) === 1 &&
+      faceLikenessBrowCoverage(side(0.4, 0.95)) === null &&
+      faceLikenessBrowCoverage({ ...side(0.4), cheek: [0, 0, 0] }) === null,
+  );
+  const fit = fitFaceLikenessBrowDensity({
+    photograph: [side(0.4), side(0.4, 0.95)],
+    render: [side(0.8), side(0.8)],
+    density: 1.5,
+  })!;
+  TestValidator.predicate(
+    "density",
+    nclose(fit.density, 0.75, 1e-9) &&
+      nclose(fit.photograph, 0.4, 1e-9) &&
+      nclose(fit.render, 0.8, 1e-9) &&
+      fitFaceLikenessBrowDensity({
+        photograph: [side(0.4, 0.95)],
+        render: [side(0.8)],
+        density: 1,
+      }) === null &&
+      fitFaceLikenessBrowDensity({
+        photograph: [side(0.4)],
+        render: [],
+        density: 1,
+      }) === null &&
+      fitFaceLikenessBrowDensity({
+        photograph: [side(0.4)],
+        render: [side(0)],
+        density: 1,
+      }) === null &&
+      fitFaceLikenessBrowDensity({
+        photograph: [side(0.9)],
+        render: [side(0.1)],
+        density: 1,
+      })!.density === 4,
   );
 };

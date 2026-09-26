@@ -10,7 +10,8 @@ import { nclose } from "../internal/predicates";
  *
  * Scenarios:
  * 1. Finishing immediately after either clay toggle applies it before drawing.
- * 2. Animation frames use the same order, and only the key light casts shadows.
+ * 2. Animation frames use the same order, and only the key softbox's eight
+ *    samples cast shadows, each with the same colour and share of its power.
  * 3. Resize updates the camera; renderer reporting uses debug and basic enums.
  * 4. Pixel ratios above the sampling cap clamp, while a smaller ratio survives.
  * 5. Shadow isolation preserves light direction, power and the scene population.
@@ -54,9 +55,17 @@ export const test_subject_human_viewport_frame = (): void => {
   const lights = f.frames[0].scene.children.filter(
     (object) => (object as THREE.Light).isLight === true,
   ) as THREE.Light[];
+  const casters = lights.filter((light) => light.castShadow);
   TestValidator.predicate(
     "fill and rim do not cast key shadows",
-    lights.filter((light) => light.castShadow).length === 1 &&
+    casters.length === 8 &&
+      casters.every(
+        (light) =>
+          light.intensity === casters[0]!.intensity &&
+          light.color.equals(casters[0]!.color),
+      ) &&
+      new Set(casters.map((light) => light.position.toArray().join())).size ===
+        8 &&
       lights.some((light) => !light.castShadow),
   );
   const key = lights.find(

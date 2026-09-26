@@ -90,10 +90,11 @@ ${OFFSETS.map(
 `;
 
 /**
- * The depth material a hair-card mesh casts its shadow with: a fibre stops
- * light in proportion to `hairFibreShadowOpacity` of its own texel colour
- * (the card texture's shade times `color`, the finish's base colour), so the
- * cards' binary shadow map keeps each covered texel with that probability,
+ * The depth material a fibre-card mesh casts its shadow with: a texel stops
+ * light in proportion to the share of it the fibres cover (the texture's
+ * alpha) times `hairFibreShadowOpacity` of its own colour (the card texture's
+ * shade times `color`, the finish's base colour), so the cards' binary shadow
+ * map keeps each texel with that probability,
  * against interleaved gradient noise on the map's texel grid (Jimenez,
  * "Next Generation Post Processing in Call of Duty: Advanced Warfare",
  * SIGGRAPH 2014), whose thresholds spread evenly over any small neighbourhood
@@ -125,7 +126,7 @@ export function createHairCardShadowMaterial(
         `#include <alphatest_fragment>
   // Interleaved gradient noise on the shadow map's own texel grid.
   float hairThreshold = fract( 52.9829189 * fract( dot( gl_FragCoord.xy, vec2( 0.06711056, 0.00583715 ) ) ) );
-  if ( hairFibreShadowOpacity( diffuseColor.rgb * hairPigment ) <= hairThreshold ) discard;`,
+  if ( diffuseColor.a * hairFibreShadowOpacity( diffuseColor.rgb * hairPigment ) <= hairThreshold ) discard;`,
       );
   };
   material.customProgramCacheKey = () => "hair-card-shadow";

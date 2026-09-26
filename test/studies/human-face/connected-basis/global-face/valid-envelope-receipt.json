@@ -1,0 +1,243 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-unseen-envelope",
+  "revision": "mpfb-connected-head-2026-09-26-valid-envelope",
+  "limits": [
+    {
+      "channel": "leftEyeFoldHeight",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.6,
+      "faults": 34,
+      "evidence": "faults"
+    },
+    {
+      "channel": "rightEyeFoldHeight",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.6,
+      "faults": 34,
+      "evidence": "faults"
+    },
+    {
+      "channel": "leftEpicanthalFold",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.25,
+      "faults": 87,
+      "evidence": "faults"
+    },
+    {
+      "channel": "rightEpicanthalFold",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.25,
+      "faults": 88,
+      "evidence": "faults"
+    },
+    {
+      "channel": "leftEarWing",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.9,
+      "faults": 102,
+      "evidence": "faults"
+    },
+    {
+      "channel": "rightEarWing",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.9,
+      "faults": 102,
+      "evidence": "faults"
+    },
+    {
+      "channel": "leftEyelidFoldConvexity",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.3,
+      "faults": 16,
+      "evidence": "-0.4 overhangs the lid with a lit ridge; -1 folds back on itself"
+    },
+    {
+      "channel": "rightEyelidFoldConvexity",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.3,
+      "faults": 16,
+      "evidence": "-0.4 overhangs the lid with a lit ridge; -1 folds back on itself"
+    },
+    {
+      "channel": "leftEpicanthalFold",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.5,
+      "faults": 0,
+      "evidence": "-0.75 opens a dark notch at the medial canthus; -1 a dark hollow"
+    },
+    {
+      "channel": "rightEpicanthalFold",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.5,
+      "faults": 0,
+      "evidence": "-0.75 opens a dark notch at the medial canthus; -1 a dark hollow"
+    },
+    {
+      "channel": "leftEarAngularOutline",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.2,
+      "faults": 0,
+      "evidence": "-0.3 points the helix; -1 is a pointed, non-human ear"
+    },
+    {
+      "channel": "rightEarAngularOutline",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.2,
+      "faults": 0,
+      "evidence": "-0.3 points the helix; -1 is a pointed, non-human ear"
+    },
+    {
+      "channel": "leftEarAngularOutline",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.5,
+      "faults": 3,
+      "evidence": "0.75 squares the helix with a hard inner line"
+    },
+    {
+      "channel": "rightEarAngularOutline",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.5,
+      "faults": 3,
+      "evidence": "0.75 squares the helix with a hard inner line"
+    },
+    {
+      "channel": "leftEarLobe",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.75,
+      "faults": 0,
+      "evidence": "1 draws the lobule into a point"
+    },
+    {
+      "channel": "rightEarLobe",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.75,
+      "faults": 0,
+      "evidence": "1 draws the lobule into a point"
+    },
+    {
+      "channel": "leftEarHeight",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.75,
+      "faults": 0,
+      "evidence": "-1 crushes the auricle flat"
+    },
+    {
+      "channel": "rightEarHeight",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.75,
+      "faults": 0,
+      "evidence": "-1 crushes the auricle flat"
+    },
+    {
+      "channel": "noseFlaring",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.5,
+      "faults": 0,
+      "evidence": "0.75 thins the alar rim into a slit"
+    },
+    {
+      "channel": "nostrilAngle",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.5,
+      "faults": 0,
+      "evidence": "-0.75 notches the alar rim"
+    },
+    {
+      "channel": "noseTipElevation",
+      "side": "minimum",
+      "from": -1,
+      "to": -0.75,
+      "faults": 0,
+      "evidence": "-1 hangs the tip over the upper lip"
+    },
+    {
+      "channel": "browProjection",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.5,
+      "faults": 0,
+      "evidence": "0.75 turns the brow into a shelf"
+    },
+    {
+      "channel": "noseSeptumAngle",
+      "side": "maximum",
+      "from": 2.5,
+      "to": 1.25,
+      "faults": 0,
+      "evidence": "1.5 swells the tip into a lump; 2.5 hooks the columella"
+    },
+    {
+      "channel": "noseDepth",
+      "side": "maximum",
+      "from": 1.94,
+      "to": 1.2,
+      "faults": 0,
+      "evidence": "1.4 flattens the nasal sidewall into a plane running to the cheek; 1.94 a caricature"
+    },
+    {
+      "channel": "upperLipHeight",
+      "side": "minimum",
+      "from": -2.05,
+      "to": -1.5,
+      "faults": 0,
+      "evidence": "-1.75 crumples the thinned upper lip's lower border"
+    },
+    {
+      "channel": "lowerLipHeight",
+      "side": "minimum",
+      "from": -2.23,
+      "to": -1.25,
+      "faults": 0,
+      "evidence": "-1.5 notches the lower lip at the midline"
+    },
+    {
+      "channel": "mouthForwardPosition",
+      "side": "minimum",
+      "from": -1.6,
+      "to": -1.4,
+      "faults": 0,
+      "evidence": "-1.6 bares the nostrils' underside above the retruded lip"
+    }
+  ],
+  "recorded": "2026-09-25T21:33:45.917Z",
+  "inputs": {
+    "basis": {
+      "sha256": "2861fad12fbf7c6184af8cfed7cbdbdb087606ec85d7dea1e7360848fb11c35f",
+      "bytes": 26324835
+    },
+    "subjects": {
+      "sha256": "b5bdc3d6ed279674fed45af222b209f2ed8dee560713fa1f2671ac46b8aa8349",
+      "bytes": 78822
+    },
+    "controls": {
+      "sha256": "0b67968b51ed818a0f77b1861327b8e7d5e9a282536ee7d4c52c417fae32cfb4",
+      "bytes": 7454
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "89877c3426bf9e0c914f36c7a3857bb91ed9e570d2b60a3b93116da546e50eff",
+      "bytes": 26324883
+    }
+  }
+}

@@ -13,17 +13,20 @@ import * as THREE from "three";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * Hair cards shadow what their fibres stop, not everything behind them.
+ * Fibre cards shadow what their fibres stop, not everything behind them.
  *
  * Scenarios:
  * 1. A white fibre stops only what its two keratin surfaces reflect,
  *    `1 - (1 - f)^2` with `f = ((1.55 - 1) / (1.55 + 1))^2`; a darker one stops
  *    more, monotonically, and a black one nearly all. Out-of-range colours
  *    clamp and a negative or non-finite one is refused.
- * 2. The shadow material thresholds the fibre opacity of its texel colour
- *    times the finish colour after the card's own alpha test.
- * 3. The preview gives a single `:hair-cards` finish that material, leaves
- *    other meshes to the renderer's own, and releases it with the preview.
+ * 2. The shadow material thresholds the texel's fibre coverage (its alpha)
+ *    times the fibre opacity of its colour times the finish colour, after
+ *    the card's own alpha test.
+ * 3. The preview gives a single `:hair-cards` finish, and a single blended
+ *    finish with a texture (the lash and brow cards), that material, leaves
+ *    other meshes (a blended finish without a texture among them) to the
+ *    renderer's own, and releases it with the preview.
  * 4. The viewer names a built material by its name or, unnamed, its id.
  */
 export const test_subject_human_preview_hair_shadow = (): void => {
@@ -70,7 +73,7 @@ export const test_subject_human_preview_hair_shadow = (): void => {
   );
   const test = shader.fragmentShader.indexOf("#include <alphatest_fragment>");
   const threshold = shader.fragmentShader.indexOf(
-    "hairFibreShadowOpacity( diffuseColor.rgb * hairPigment ) <= hairThreshold",
+    "diffuseColor.a * hairFibreShadowOpacity( diffuseColor.rgb * hairPigment ) <= hairThreshold",
   );
   TestValidator.predicate(
     "shadow thresholds the fibre opacity after the alpha test",
@@ -97,14 +100,24 @@ export const test_subject_human_preview_hair_shadow = (): void => {
     named("a:hair-cards"),
     named("skin"),
   ]);
+  const blended = (map: THREE.Texture | null) => {
+    const material = named("Human.eyelashes01");
+    material.transparent = true;
+    material.map = map;
+    return new THREE.Mesh(new THREE.BoxGeometry(), material);
+  };
+  const lash = blended(new THREE.Texture());
+  const film = blended(null);
   const group = new THREE.Group();
-  group.add(hair, skin, mixed);
+  group.add(hair, skin, mixed, lash, film);
   prepareHumanPreview(group);
   TestValidator.predicate(
-    "only a single hair-card finish casts through its fibres",
+    "only a single fibre-card finish casts through its fibres",
     hair.customDepthMaterial instanceof THREE.MeshDepthMaterial &&
+      lash.customDepthMaterial instanceof THREE.MeshDepthMaterial &&
       skin.customDepthMaterial === undefined &&
       mixed.customDepthMaterial === undefined &&
+      film.customDepthMaterial === undefined &&
       hair.castShadow,
   );
   const kept = hair.customDepthMaterial;

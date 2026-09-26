@@ -1,0 +1,55 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-tongue",
+  "revision": "mpfb-connected-head-2026-09-26-arch-width",
+  "elasticity": 0.2758811222852844,
+  "endpoints": [
+    {
+      "endpoint": "mouthWidth.positive",
+      "mouth": [
+        0.05286398530006409,
+        0.061508435755968094
+      ],
+      "arch": [
+        0.05953621491789818,
+        0.0708383172750473
+      ],
+      "scale": 0.23764104711090892,
+      "after": 0.06222205835660577
+    },
+    {
+      "endpoint": "mouthWidth.negative",
+      "mouth": [
+        0.05286398530006409,
+        0.044847315177321434
+      ],
+      "arch": [
+        0.05953621491789818,
+        0.04823411628603935
+      ],
+      "scale": 0.2203830677226884,
+      "after": 0.05704542374970473
+    }
+  ],
+  "recorded": "2026-09-25T22:21:24.501Z",
+  "citation": "Wang J, Li F-L, Yang H-X, Li L-M. Heliyon 2024;10:e27642 (Table 1 total sample, Table 3 total r).",
+  "inputs": {
+    "basis": {
+      "sha256": "bcc8e1d282c206b9877abbb36bdf1bf840e14e00633d5fca6f5d4e205dd79085",
+      "bytes": 26571671
+    },
+    "subjects": {
+      "sha256": "3a6e1c61ba831d3ddbc4e6954c022a1a66d6f5e9beb09953786978d4a18e6334",
+      "bytes": 78660
+    },
+    "controls": {
+      "sha256": "8df2024a6d0ca7ef8f37142d28beabe0369ae869203199f213302fac5b59c078",
+      "bytes": 7445
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "f61446ecb0f8eb74a17fd25f025cdf174844c6143e36c9fe0dba9f59d86a55d4",
+      "bytes": 26572450
+    }
+  }
+}

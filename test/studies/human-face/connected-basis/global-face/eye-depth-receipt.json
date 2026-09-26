@@ -1,0 +1,61 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-valid-envelope-2",
+  "revision": "mpfb-connected-head-2026-09-26-eye-depth",
+  "sides": [
+    {
+      "channel": "leftEyeDepth",
+      "axis": [
+        0.046388653092696026,
+        -0.07640938850290258,
+        0.9959968364472139
+      ],
+      "globe": 705,
+      "lids": 361,
+      "field": 2422,
+      "attached": {
+        "Human.eyelashes01": 125,
+        "Human.eyebrow001": 62
+      },
+      "sweeps": 4023,
+      "pushed": 13
+    },
+    {
+      "channel": "rightEyeDepth",
+      "axis": [
+        -0.046388653092696026,
+        -0.07640938850290258,
+        0.9959968364472139
+      ],
+      "globe": 705,
+      "lids": 362,
+      "field": 2422,
+      "attached": {
+        "Human.eyelashes01": 125,
+        "Human.eyebrow001": 62
+      },
+      "sweeps": 4022,
+      "pushed": 13
+    }
+  ],
+  "recorded": "2026-09-26T01:51:18.280Z",
+  "inputs": {
+    "basis": {
+      "sha256": "a05827cffa29f556b54501b5227990476f96f379e3d9c328967932ad9ba7fb41",
+      "bytes": 26572477
+    },
+    "subjects": {
+      "sha256": "72f59744739359503890316f1e3be5ba79a0035a06fc641ba8d35a85a18c9550",
+      "bytes": 78840
+    },
+    "controls": {
+      "sha256": "e24333344f0584a3cad9b1d5ca47f726cdd472b9cdae31fb651e55b94d36dac0",
+      "bytes": 7455
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "cdc63178adbb62eafa5df6750e4a913f4130bc421436b881d2d0af8666fb7888",
+      "bytes": 26884922
+    }
+  }
+}

@@ -12,17 +12,19 @@
  *   nasal tip the profile runs back along the columella (more depth lost than
  *   height) and then down the lip (less); sn is the first point below the
  *   columella where the profile turns from the one to the other, its slope
- *   passing back through 45 degrees;
+ *   passing back through 45 degrees, or, on a nose with no columella that
+ *   steep, the concavity's depth between tip and lip (the point deepest
+ *   behind their front hull);
  * - stomion (sto): the midpoint of the vermilion seam, given by the caller
  *   (the basis's lip contact pair), because the closed lips meet there;
  * - menton (me): the lowest point of the chin, where its outline turns under
- *   toward the neck. Going down from the lower lip's front-most point the
- *   profile falls back into the labiomental fold (more depth lost than
- *   height), runs down the chin's front (less) and turns under at the chin's
- *   lower edge (more again). From where that second steep run opens, the
- *   chin's underside is followed back (at most `chinDepth`) to the point
- *   where it runs level, its height changing by less than `level` of its
- *   depth: the chin's lowest point.
+ *   toward the neck. The lower lip and the chin's front stand on the front
+ *   hull of the profile below stomion (its least concave majorant, which
+ *   spans the labiomental fold, present or not); going down it, the chin
+ *   turns under where the hull first loses more depth than height. From
+ *   there the chin's underside is followed back (at most `chinDepth`) to
+ *   the point where it runs level, its height changing by less than `level`
+ *   of its depth: the chin's lowest point.
  *
  * Heights are along y (the face frame's vertical) in metres. Pure.
  */
@@ -64,17 +66,29 @@ export function faceMidsagittalProfile(
   bottom: number,
   step: number,
 ): FaceMidsagittalPoint[] {
-  const out: FaceMidsagittalPoint[] = [];
-  for (let k = 0; top - k * step >= bottom; ++k) {
-    const y = top - k * step;
-    let front: number | null = null;
-    for (const [[y0, z0], [y1, z1]] of segments) {
-      if ((y0 - y) * (y1 - y) > 0 || y0 === y1) continue;
+  let count = 0;
+  while (top - count * step >= bottom) ++count;
+  const front: (number | null)[] = new Array<number | null>(count).fill(null);
+  // Each segment updates only the heights it spans (one sample of margin
+  // either side against rounding, the span test deciding).
+  for (const [[y0, z0], [y1, z1]] of segments) {
+    if (y0 === y1) continue;
+    const first = Math.max(0, Math.ceil((top - Math.max(y0, y1)) / step) - 1);
+    const last = Math.min(
+      count - 1,
+      Math.floor((top - Math.min(y0, y1)) / step) + 1,
+    );
+    for (let k = first; k <= last; ++k) {
+      const y = top - k * step;
+      if ((y0 - y) * (y1 - y) > 0) continue;
       const z = z0 + ((y - y0) / (y1 - y0)) * (z1 - z0);
-      if (front === null || z > front) front = z;
+      if (front[k] === null || z > front[k]!) front[k] = z;
     }
-    if (front !== null) out.push([y, front]);
   }
+  const out: FaceMidsagittalPoint[] = [];
+  front.forEach((z, k) => {
+    if (z !== null) out.push([top - k * step, z]);
+  });
   return out;
 }
 
@@ -122,28 +136,26 @@ export function faceMidsagittalLandmarks(props: {
       break;
     }
   }
+  // A nose that barely stands off the lip has no columella steeper than 45
+  // degrees; its junction with the lip is then the depth of the concavity
+  // between tip and lip.
+  subnasale ??= faceProfileFold(below);
   if (subnasale === null)
     throw new Error("The profile never turns from the columella to the lip.");
   const chin = profile.filter(([y]) => y < props.stomion);
   if (chin.length === 0) throw new Error("No profile lies below the lips.");
-  // From the lower lip's front-most point down the chin, the chin's lower
-  // edge is where the profile starts losing more depth than height.
-  const lip = chin.reduce((a, b) => (b[1] > a[1] ? b : a));
-  const underLip = chin.filter(([y]) => y <= lip[0]);
-  // Below the lip's front the profile falls back into the labiomental fold
-  // (steep), runs down the chin's front (shallow), and turns under at the
-  // chin's lower edge (steep again): menton opens that second steep run.
+  // The lower lip and the chin's front stand on the lower face's front
+  // hull, which spans the labiomental fold whether or not the face has one
+  // and whichever of lip and chin stands further forward; down from
+  // stomion, menton opens the hull's first stretch that loses more depth
+  // than height, where the chin turns under.
+  const front = faceProfileHull(chin);
   let menton: FaceMidsagittalPoint | null = null;
-  // 0: the lower lip's own front, 1: the fold, 2: the chin's front.
-  let phase = 0;
-  for (let k = 1; k < underLip.length; ++k) {
-    const dy = underLip[k - 1]![0] - underLip[k]![0];
-    const dz = underLip[k - 1]![1] - underLip[k]![1];
-    const steep = dz > dy;
-    if (phase === 0 && steep) phase = 1;
-    else if (phase === 1 && !steep) phase = 2;
-    else if (phase === 2 && steep) {
-      menton = underLip[k - 1]!;
+  for (let k = front.length - 1; k > 0; --k) {
+    const dy = front[k]![0] - front[k - 1]![0];
+    const dz = front[k]![1] - front[k - 1]![1];
+    if (dz > dy) {
+      menton = front[k]!;
       break;
     }
   }
@@ -177,4 +189,166 @@ export function faceMidsagittalLandmarks(props: {
     upperLipHeight: subnasale[0] - props.stomion,
     lowerFaceHeight: subnasale[0] - menton[0],
   };
+}
+
+/**
+ * The profile's soft-tissue landmarks of lips, chin and nasal root (Farkas
+ * 1994), read on a profile (`faceMidsagittalProfile`, front-most z at each
+ * height, heights descending) around the landmarks
+ * `faceMidsagittalLandmarks` finds:
+ *
+ * - labrale superius (ls): the upper lip's front-most point between
+ *   subnasale and stomion;
+ * - supramentale (sm): the labiomental fold's depth, the point of the
+ *   profile below stomion inferius deepest behind its front hull;
+ * - labrale inferius (li): the lower lip's front-most point between stomion
+ *   inferius (below which the upper lip's overhang no longer shows) and
+ *   supramentale;
+ * - soft-tissue pogonion (pog'): the chin's most prominent point between
+ *   supramentale and menton, the one a line from pronasale touches
+ *   (Ricketts's E-line tangent);
+ * - soft-tissue nasion (n): the nasofrontal angle's vertex. Above
+ *   pronasale (within `root` of it) every point sees the forehead above it
+ *   along its most forward tangent and the nasal tip along a line; n is the
+ *   point where the two make their least angle, the depth of the
+ *   nasofrontal fold, which a flat brow, whose deepest point is no
+ *   landmark, still has. `forehead` is where that tangent touches, the
+ *   angle's upper arm;
+ * - glabella (g): the front-most point of the profile above n, within
+ *   `root` of it.
+ *
+ * Null where a landmark's stretch of profile is empty. Pure.
+ */
+export function faceProfileLandmarks(props: {
+  profile: readonly FaceMidsagittalPoint[];
+  pronasale: FaceMidsagittalPoint;
+  subnasale: FaceMidsagittalPoint;
+  stomion: number;
+  /** Stomion inferius's height: below it only the lower lip shows. */
+  inferius: number;
+  menton: FaceMidsagittalPoint;
+  root: number;
+}): {
+  labraleSuperius: FaceMidsagittalPoint | null;
+  supramentale: FaceMidsagittalPoint | null;
+  labraleInferius: FaceMidsagittalPoint | null;
+  pogonion: FaceMidsagittalPoint | null;
+  nasion: FaceMidsagittalPoint | null;
+  forehead: FaceMidsagittalPoint | null;
+  glabella: FaceMidsagittalPoint | null;
+} {
+  const { profile } = props;
+  const front = (points: readonly FaceMidsagittalPoint[]) =>
+    points.length === 0 ? null : points.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const labraleSuperius = front(
+    profile.filter(([y]) => y < props.subnasale[0] && y > props.stomion),
+  );
+  // Below stomion the lower lip swells forward, the profile falls back into
+  // the labiomental fold and swells again over the chin. Supramentale is
+  // the fold's depth; li and pog' are the front-most points above and below
+  // it.
+  const lower = profile.filter(
+    ([y]) => y < props.inferius && y > props.menton[0],
+  );
+  const fold = faceProfileFold(lower);
+  const labraleInferius =
+    fold === null ? null : front(lower.filter(([y]) => y > fold[0]));
+  // The chin's most prominent point is the one a line from pronasale
+  // touches (Ricketts's E-line tangent), which a receding chin still has.
+  const pogonion =
+    fold === null
+      ? null
+      : lower
+          .filter(([y]) => y < fold[0])
+          .reduce<FaceMidsagittalPoint | null>((best, point) => {
+            const slope = (q: FaceMidsagittalPoint) =>
+              (q[1] - props.pronasale[1]) / (props.pronasale[0] - q[0]);
+            return best === null || slope(point) > slope(best) ? point : best;
+          }, null);
+  const upper = profile.filter(
+    ([y]) => y > props.pronasale[0] && y <= props.pronasale[0] + props.root,
+  );
+  let nasion: FaceMidsagittalPoint | null = null;
+  let forehead: FaceMidsagittalPoint | null = null;
+  let least = Infinity;
+  for (let i = 1; i < upper.length; ++i) {
+    const n = upper[i]!;
+    // Heights descend, so the forehead above n is the stretch before it,
+    // every point higher than n: the most forward line is the steepest
+    // gain of depth per height.
+    let tangent = upper[0]!;
+    let lean = -Infinity;
+    for (let j = 0; j < i; ++j) {
+      const q = upper[j]!;
+      const forward = (q[1] - n[1]) / (q[0] - n[0]);
+      if (forward > lean) [lean, tangent] = [forward, q];
+    }
+    const [ay, az] = [tangent[0] - n[0], tangent[1] - n[1]];
+    const [by, bz] = [props.pronasale[0] - n[0], props.pronasale[1] - n[1]];
+    const angle = Math.acos(
+      (ay * by + az * bz) / Math.hypot(ay, az) / Math.hypot(by, bz),
+    );
+    if (angle < least) [least, nasion, forehead] = [angle, n, tangent];
+  }
+  const vertex: FaceMidsagittalPoint | null = nasion;
+  const glabella =
+    vertex === null
+      ? null
+      : front(
+          profile.filter(([y]) => y > vertex[0] && y <= vertex[0] + props.root),
+        );
+  return {
+    labraleSuperius,
+    supramentale: fold,
+    labraleInferius,
+    pogonion,
+    nasion,
+    forehead,
+    glabella,
+  };
+}
+
+/**
+ * The front hull of a stretch of profile (heights descending): its least
+ * concave majorant in depth, the vertices from the lowest point up.
+ */
+function faceProfileHull(
+  points: readonly FaceMidsagittalPoint[],
+): FaceMidsagittalPoint[] {
+  const hull: FaceMidsagittalPoint[] = [];
+  for (const point of [...points].reverse()) {
+    while (hull.length >= 2) {
+      const [a, b] = [hull[hull.length - 2]!, hull[hull.length - 1]!];
+      // Keep the chain concave from below in z as y rises.
+      const cross =
+        (b[0] - a[0]) * (point[1] - a[1]) - (b[1] - a[1]) * (point[0] - a[0]);
+      if (cross >= 0) hull.pop();
+      else break;
+    }
+    hull.push(point);
+  }
+  return hull;
+}
+
+/**
+ * A fold's depth: the point of a stretch of profile (heights descending)
+ * deepest behind the stretch's front hull, which the swellings on either
+ * side span and which small ripples of the surface do not reach. Null for
+ * fewer than three points.
+ */
+function faceProfileFold(
+  points: readonly FaceMidsagittalPoint[],
+): FaceMidsagittalPoint | null {
+  if (points.length < 3) return null;
+  const hull = faceProfileHull(points);
+  // The hull runs up the face from the lowest point; every profile height
+  // lies within one of its segments, whose ends' heights differ.
+  const majorant = (y: number): number => {
+    const k = hull.findIndex((point) => point[0] >= y);
+    const [a, b] = [hull[Math.max(0, k - 1)]!, hull[k]!];
+    return a === b ? b[1] : a[1] + ((y - a[0]) / (b[0] - a[0])) * (b[1] - a[1]);
+  };
+  return points.reduce((a, b) =>
+    majorant(b[0]) - b[1] > majorant(a[0]) - a[1] ? b : a,
+  );
 }

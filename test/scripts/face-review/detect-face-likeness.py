@@ -18,15 +18,25 @@ Usage, from the repository root inside a Python 3.11 environment holding
 `mediapipe==0.10.35`, `numpy` and `Pillow`:
 
     python test/scripts/face-review/detect-face-likeness.py MANIFEST OUTPUT \
-        FACE_LANDMARKER_TASK HAIR_SEGMENTER_TFLITE
+        FACE_LANDMARKER_TASK HAIR_SEGMENTER_TFLITE [SKIN_SEGMENTER_TFLITE]
 
 MANIFEST is JSON `{"images": [{"id", "path", "photo": bool}]}`. OUTPUT must
 be a new directory; it receives `detections.json`, and for each photograph
 `<id>__hair.png` plus a lossless `<id>__rgb.png` of the decoded pixels.
-Both model files are hashed into the output so a later run can prove it
-used the same instrument. The models are Google's published
-`face_landmarker.task` and `hair_segmenter.tflite`; the operator downloads
-them, checks their model cards and licenses, and does not commit them.
+With SKIN_SEGMENTER_TFLITE (the multiclass selfie segmenter) every image
+with one detected face, photograph or render, also receives
+`<id>__faceskin.png`: the face-skin class, which ends at the jaw where the
+neck's body skin begins (`faceLikenessJawOutline.ts`); a monochrome image
+(its face crop's channels within two levels of each other on average) gets
+none, the segmenter telling skin by its colour (on a greyscale portrait it
+took white hair for face skin). The segmenter sees
+256 pixels square, so it is run on a square crop about the face (1.5 times
+the larger side of the landmarks' bounds, clipped to the image) and its
+mask placed back into the frame. Every model file is hashed into the output
+so a later run can prove it used the same instrument. The models are
+Google's published `face_landmarker.task`, `hair_segmenter.tflite` and
+`selfie_multiclass_256x256.tflite`; the operator downloads them, checks
+their model cards and licenses, and does not commit them.
 """
 from __future__ import annotations
 
@@ -40,12 +50,39 @@ import numpy as np
 from PIL import Image, ImageOps
 
 
+# A crop whose channels differ by under two levels on average is monochrome.
+MONOCHROME = 2.0
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def face_skin(segmenter, rgb: np.ndarray, landmarks: list[list[float]]) -> np.ndarray | None:
+    """The face-skin class over a square crop about the face, in the frame,
+    or None for a monochrome image, whose skin has no colour to be told by."""
+    points = np.asarray(landmarks)
+    low, high = points.min(axis=0), points.max(axis=0)
+    centre = (low + high) / 2
+    half = 0.75 * float(max(high - low))
+    height, width = rgb.shape[:2]
+    x0, y0 = int(max(0, centre[0] - half)), int(max(0, centre[1] - half))
+    x1, y1 = int(min(width, centre[0] + half)), int(min(height, centre[1] + half))
+    crop = np.ascontiguousarray(rgb[y0:y1, x0:x1])
+    if float(np.ptp(crop.astype(np.int16), axis=2).mean()) < MONOCHROME:
+        return None
+    classes = segmenter.segment(mp.Image(image_format=mp.ImageFormat.SRGB, data=crop)).category_mask.numpy_view().squeeze()
+    if classes.shape != crop.shape[:2]:
+        raise ValueError("Skin segmentation size does not match its crop")
+    mask = np.zeros((height, width), dtype=bool)
+    # Class 3 of the multiclass selfie segmenter is face skin.
+    mask[y0:y1, x0:x1] = classes == 3
+    return mask
+
+
 def main() -> None:
     manifest_path, output_path, face_model, hair_model = (Path(arg).resolve() for arg in sys.argv[1:5])
+    skin_model = Path(sys.argv[5]).resolve() if len(sys.argv) > 5 else None
     if output_path.exists():
         raise ValueError("Output directory must be new")
     output_path.mkdir(parents=True)
@@ -61,6 +98,11 @@ def main() -> None:
         output_category_mask=True,
         output_confidence_masks=False,
     )
+    skin = None if skin_model is None else mp.tasks.vision.ImageSegmenter.create_from_options(mp.tasks.vision.ImageSegmenterOptions(
+        base_options=mp.tasks.BaseOptions(model_asset_path=str(skin_model)),
+        output_category_mask=True,
+        output_confidence_masks=False,
+    ))
     records = []
     with mp.tasks.vision.FaceLandmarker.create_from_options(face_options) as landmarker, mp.tasks.vision.ImageSegmenter.create_from_options(hair_options) as segmenter:
         for entry in manifest["images"]:
@@ -90,6 +132,16 @@ def main() -> None:
                 "hairMask": None,
                 "rgb": None,
             }
+            if skin is not None:
+                record["faceSkinMask"] = None
+                if face is not None:
+                    # No colon in the file name: on NTFS "photo:x" names a
+                    # stream of the file "photo", which a copy can drop.
+                    name = f"{entry['id'].replace(':', '--')}__faceskin.png"
+                    mask = face_skin(skin, rgb, face["landmarks"])
+                    if mask is not None:
+                        Image.fromarray((mask * 255).astype(np.uint8)).save(output_path / name)
+                        record["faceSkinMask"] = name
             if entry["photo"]:
                 mask = segmenter.segment(image).category_mask.numpy_view().squeeze() == 1
                 if mask.shape != (image.height, image.width):
@@ -103,12 +155,17 @@ def main() -> None:
                 record["rgb"] = f"{entry['id']}__rgb.png"
             records.append(record)
             print(entry["id"], "faces", record["faces"], flush=True)
+    if skin is not None:
+        skin.close()
+    instrument = {
+        "faceLandmarkerSha256": sha256(face_model),
+        "hairSegmenterSha256": sha256(hair_model),
+        "mediapipeVersion": mp.__version__,
+    }
+    if skin_model is not None:
+        instrument["skinSegmenterSha256"] = sha256(skin_model)
     (output_path / "detections.json").write_text(json.dumps({
-        "instrument": {
-            "faceLandmarkerSha256": sha256(face_model),
-            "hairSegmenterSha256": sha256(hair_model),
-            "mediapipeVersion": mp.__version__,
-        },
+        "instrument": instrument,
         "images": records,
     }, indent=1) + "\n", encoding="utf8")
 
