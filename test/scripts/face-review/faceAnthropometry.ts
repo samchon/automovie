@@ -107,7 +107,10 @@
  * index by a smaller amount (the solve still accounts for those cross
  * effects through the measured Jacobian). `chinBoneWidth` moves no frontal
  * width, and the lower face's contour at the gonial level follows
- * `cheekFullness`, so that is the lower-face width's control.
+ * `cheekFullness`, so that is the lower-face width's control. The chin's
+ * width at its level is the mandible's outline converging below the
+ * mouth's line, `jawTaper`; the source's `chinWidth` shapes the chin's
+ * front and moved that outline by under one percent over its envelope.
  *
  * The indices must be independent measurements, or the square solve pairs a
  * control with an index the photograph has already fixed through the
@@ -304,7 +307,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     id: "chinWidth",
     definition:
       "the jaw outline's width half the eyes' height below stomion (473, 474) over face width",
-    channels: ["chinWidth"],
+    channels: ["jawTaper"],
   },
   {
     id: "browHeight",
