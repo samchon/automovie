@@ -19,7 +19,7 @@
 
 기존과 비교할 것은 house/storey/room/connector/opening 주소, 모든 실제 member ID·count·transform·world bounds·소유 관계다. 이 주소는 [시민 주택 공간](../spaces/001-citizen-house.md#citizen-house-space)의 citizen-site→house→storey→room 계층·house-root 가시 루트와 [1단계 검증](../spaces/002-spatial-graph.md#stage-one-verification)의 질문에서, 검사 입력은 공개 `@automovie/engine` API에서 받는다. 열거 항목과 실패 분류는 이 층의 선택이다. 새 model variant 수는 원래 prototype/finish/scale로 설명되어야 한다. member마다 instanceSlot이 반환한 prototype·modelRecipe를 적어, 없는 explicit prototype의 native Error를 기본 모델이나 빈 population으로 바꾼 경로가 드러나게 한다. native 모델 variant 수와 texture 자원 수·RGBA bytes를 함께 기록하고, viewer payload의 models·textures가 `buildHouse()`와 같은 native material·texture 레코드를 uploader에 넘기는지 대조한다. topology·캐노피 audit 오류와 유효하지 않은 texture binding을 숨기지 않는다. `sourceBasis`는 구현 단계에서 docs/materials와 새 material source도 현재 입력으로 포함해야 하며 구 버전 payload를 새 문서의 검증으로 인용하지 않는다.
 
-물리 층은 부재 소유 문서/geometry와 명목 표면층 선택을 구분하고 optical 값은 native material에서 읽는다. cassette·seal의 texture binding과 asset은 현재 존재하지만 완성된 materialSources census가 없어 전체 검사 결과는 unverified다. 구현 뒤에도 텍스트 census는 시각 합격이 아니며 아래 실제 프레임과 함께 읽는다.
+물리 층은 부재 소유 문서/geometry와 명목 표면층 선택을 구분하고 optical 값은 native material에서 읽는다. cassette·seal의 texture asset은 보존되어 있지만 현재 native binding은 없다. 완성된 materialSources census가 없어 전체 검사 결과는 unverified다. 구현 뒤에도 텍스트 census는 시각 합격이 아니며 아래 실제 프레임과 함께 읽는다.
 
 ## 크기와 접합 표본 {#scale-and-junction-samples}
 

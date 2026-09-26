@@ -57,7 +57,7 @@
 
 cassette의 외향 plate와 return은 명목 0.08mm 무광 도막, 색 #454d4a, roughness=.82, metallic=0으로 마감한다. `cassette-grain`은 256² 무채색 texture를 0.40×0.40m마다 반복한다. 실제 0.004m panel 이음과 slot은 geometry가 맡으므로 무늬에 가짜 이음이나 그림자를 넣지 않는다. 상·하·측 seal은 색 #252b29, roughness=.94의 별도 부재이며 `seal-grain` 256²를 0.16×0.16m마다 반복한다. 두 texture의 primary UV는 surface-metres이고 wrap은 repeat다. cassette의 clip은 기존 metal 마감, anchor는 steel 마감을 유지하며 cassette-grain을 받지 않는다. 이 수치는 재료의 저작 선택이며 방수·내화·체결 성능을 주장하지 않는다.
 
-금속 cassette는 기존 stone wall/panel과 slab를 삭제하거나 칠하지 않고 그 외측에 붙는다. 따라서 겹쳐 보이는 석재 panel도 limestone-honed를 유지하며, cassette가 가린 면을 금속 면으로 중복 배정하지 않는다. slab 외곽은 외벽 몸체 안에 머물러 금속판 바깥으로 나오지 않는다. [층간 접합 검사](007-observation.md#scale-and-junction-samples)는 다섯 band의 frame 바깥선·drip 접합·panel 이음·seal·slot, 석재와 금속의 깊이 분리, slab 노출을 반증하고 ref01은 어두운 띠의 색과 반사를 대조한다. 현재 texture 결합은 src/materials/bindings.ts와 생성 asset에 있으며 후속 materials 시각 review의 판정을 대신하지 않는다.
+금속 cassette는 기존 stone wall/panel과 slab를 삭제하거나 칠하지 않고 그 외측에 붙는다. 따라서 겹쳐 보이는 석재 panel도 limestone-honed를 유지하며, cassette가 가린 면을 금속 면으로 중복 배정하지 않는다. slab 외곽은 외벽 몸체 안에 머물러 금속판 바깥으로 나오지 않는다. [층간 접합 검사](007-observation.md#scale-and-junction-samples)는 다섯 band의 frame 바깥선·drip 접합·panel 이음·seal·slot, 석재와 금속의 깊이 분리, slab 노출을 반증하고 ref01은 어두운 띠의 색과 반사를 대조한다. cassette·seal의 생성 texture asset은 보존하되 현 단계의 native material에는 결합하지 않는다. materials review 뒤 materialSources에서 결합을 재개하며 그때 시각 판정을 따로 받는다.
 
 ## 도장 금속 {#coated-metal}
 

@@ -4,7 +4,6 @@
 import type { IAutoMovieBuiltEnvironment, IAutoMovieMesh, IAutoMovieMaterial, IAutoMovieVector3, IAutoMovieQuaternion, AutoMoviePrimitiveShape } from "@automovie/interface";
 import { srgbHexToLinearColor } from "@automovie/engine";
 import { pvTextureBinding } from "./canopy-finish";
-import { materialTexture } from "../materials/bindings";
 export type State = { privacy: "day" | "private" | "night"; flex: "work" | "guest" };
 export const initialState: State = { privacy: "day", flex: "work" };
 export const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
@@ -28,7 +27,7 @@ export class Assembly {
     if (!(id in palette)) throw new Error("Unknown material: " + id);
     return { id, name: id, baseColor: srgbHexToLinearColor(tint ? "#526c64" : palette[id]), metallic: id === "steel" ? 0.85 : id === "canopy-metal" ? 0.65 : 0,
       roughness: roughness[id],
-      opacity: 1, alphaMode: id === "pv" ? "blend" : "opaque", doubleSided: false, baseColorTexture: id === "pv" ? pvTextureBinding : materialTexture(id),
+      opacity: 1, alphaMode: id === "pv" ? "blend" : "opaque", doubleSided: false, baseColorTexture: id === "pv" ? pvTextureBinding : null,
       emissive: id === "glow" ? srgbHexToLinearColor("#ffcf82") : null,
       transmission: glass ? (id === "frosted" ? 0.28 : tint ? 0.38 : 0.94) : 0,
       ior: 1.5, thickness: id === "pv" ? 0.012 : glass ? 0.018 : 0, clearcoat: id === "pv" ? 0.25 : 0 };
