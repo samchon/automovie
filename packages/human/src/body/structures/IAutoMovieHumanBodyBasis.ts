@@ -467,7 +467,10 @@ export interface IAutoMovieHumanBodyBasis {
      *   tissue in metres the document's body carries over its lean self
      *   along the rest normal at the `vertices` the veins lie over, and
      *   `attenuation` (per metre) is how fast the light a vein takes falls
-     *   with its depth.
+     *   with its depth. A body's regions keep different tissue over their
+     *   veins, so a surface may carry a veins layer per region.
+     *
+     * A material takes one nails layer at most and four layers in all.
      */
     overlays?: (
       | {

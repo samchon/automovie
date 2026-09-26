@@ -54,9 +54,11 @@ function textured(surface: Surface): Surface {
  *    still shows them less. A posed document reads its rest shape.
  * 3. Without `skinVeins` the veins are not bound, and a strength outside
  *    [0, 1] is refused.
- * 4. Veins on a surface without a declared lean body, at a nonpositive or
- *    nonfinite attenuation, over no vertex or a vertex the surface lacks are
- *    refused.
+ * 4. Each region's veins layer shows by the tissue over its own vertices,
+ *    several veins layers and the nails composite in their listed order.
+ * 5. Veins on a surface without a declared lean body, at a nonpositive or
+ *    nonfinite attenuation, over no vertex or a vertex the surface lacks,
+ *    and a fifth layer on one material are refused.
  */
 export const test_human_body_skin_veins = (): void => {
   const { basis, document } = humanBodyBasisFixture();
@@ -160,6 +162,25 @@ export const test_human_body_skin_veins = (): void => {
       nclose(posed, wide, 1e-12),
   );
 
+  const regions = skinOf(
+    createHumanBodyBasisBuilder(
+      withOverlays([veins, { ...veins, vertices: [4, 5, 6, 7] }, nails]),
+    )({
+      ...document,
+      shape: { width: 0, tall: 1 },
+      skinDetail: { strength: 0.5 },
+      skinVeins: { strength: 0.8 },
+    }),
+  ).overlays!;
+  TestValidator.predicate(
+    "each region's veins show by the tissue over their own vertices",
+    regions.length === 3 &&
+      regions[0]!.blend === "multiply" &&
+      regions[1]!.blend === "multiply" &&
+      regions[2]!.blend === "replace" &&
+      regions[0]!.strength !== regions[1]!.strength,
+  );
+
   TestValidator.predicate(
     "without skinVeins no veins are bound, and a bad strength is refused",
     skinOf(at(0, { skinVeins: undefined })).overlays?.length === 1 &&
@@ -183,6 +204,7 @@ export const test_human_body_skin_veins = (): void => {
       ["empty", () => refused([{ ...veins, vertices: [] }])],
       ["missing", () => refused([{ ...veins, vertices: [0, 8] }])],
       ["fraction", () => refused([{ ...veins, vertices: [0.5] }])],
+      ["five", () => refused([veins, veins, veins, veins, nails])],
     ]),
     {
       noLean: true,
@@ -191,6 +213,7 @@ export const test_human_body_skin_veins = (): void => {
       empty: true,
       missing: true,
       fraction: true,
+      five: true,
     },
   );
 };
