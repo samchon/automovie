@@ -5,7 +5,7 @@ import { auditContactClaims, modelContactClaims, nonContactDecisionRows } from "
 void test("every current model contact sentence has its own reviewed decision", () => {
   const claims = modelContactClaims();
   assert.ok(claims.length >= 90);
-  assert.equal(modelContactClaims(true).length, 37);
+  assert.equal(modelContactClaims(true).length, 38);
   assert.equal(new Set(claims.map((claim) => claim.id)).size, claims.length);
   assert.ok(claims.some((claim) => claim.sentence.includes("연결 핀 두 개")));
   assert.ok(claims.some((claim) => claim.sentence.includes("둥근기와")));
@@ -33,6 +33,7 @@ void test("reviewed non-contact reasons cannot silently absorb a measured joint"
     "wares#basket:1|non-contact: tessellation and closed-floor construction",
     "landscape#cypress:1|non-contact: review-distance silhouette criterion",
     "scale#reference-scale:supplemental:1|non-contact: UV projection rule rather than an assembly claim",
+    "scale#reference-scale:supplemental:2|non-contact: UV projection for the support part rather than an assembly claim",
     "scale#articulation-map:supplemental:1|non-contact: temporal behavior and ownership boundary",
     "scale#model-review-board:supplemental:1|non-contact: review-board light setting",
     "entablature#rafter:supplemental:2|non-contact: stated failure conditions",

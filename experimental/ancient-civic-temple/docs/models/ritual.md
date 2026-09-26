@@ -8,7 +8,7 @@
 @evidence principles/core/common.md#scope-preservation 제단 위 꺼진 향로의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidence principles/core/common.md#substantive-completion 발·줄기·재를 담는 컵과 꺼진 향 세 개의 치수·표면·상태를 정한다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#censer와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#censer의 제단 위 꺼진 향로을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#censer의 제단 위 꺼진 향로를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidence principles/design/models.md#representation-contract foot·stem·cup·ash·incense의 부재와 열린 컵을 정한다.
 @evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.22×0.35×0.22m 점유를 정한다.
 @evidence principles/design/models.md#reviewable-structure 컵 속 재와 세 향 줄기가 제단 위에서 분리되어 보이는지 검사한다.
@@ -33,7 +33,7 @@ part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 �
 @evidence principles/core/common.md#scope-preservation 작업 스툴과 구별되는 제실 바닥 좌구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidence principles/core/common.md#substantive-completion 바닥층·두툼한 패드·뒤 접힘선의 치수와 접촉을 확정한다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#floor-cushion와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#floor-cushion의 작업 스툴과 구별되는 제실 바닥 좌구을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#floor-cushion의 작업 스툴과 구별되는 제실 바닥 좌구를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidence principles/design/models.md#representation-contract base·pad·fold 부재와 윗면을 정한다.
 @evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.46×0.158×0.38m 점유를 정한다.
 @evidence principles/design/models.md#reviewable-structure 펼친 평면과 두께가 접은 직물과 구별되는지 본다.
@@ -48,7 +48,7 @@ part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 �
 
 로컬 원점은 바닥 중심이다. 아래층 `base`는 폭 0.46m·깊이 0.38m·높이 0.04m이고 그 위 좌면 `pad`는 폭 0.42m·깊이 0.34m·높이 0.10m다. 뒤 접힘선 `fold`는 폭 0.42m·깊이 0.06m·높이 0.018m로 Y=0.14~0.158m, Z=−0.17~−0.11m에 놓인다. 세 부재가 위아래로 접해 전체 높이는 0.04+0.10+0.018=0.158m다. 점유 상자는 0.46×0.158×0.38m다.
 
-[접은 직물](portable.md#textile)은 덮개이고 이 좌구는 제실 바닥에서 앉는 면을 가진 독립 원형이다.
+로컬 앞은 +Z이고 접힘선이 있는 뒤쪽은 −Z다. [접은 직물](portable.md#textile)은 덮개이고 이 좌구는 제실 바닥에서 앉는 면을 가진 독립 원형이다.
 
 부재 대응: `base`=아래층; `pad`=좌면; `fold`=뒤 접힘선.
 

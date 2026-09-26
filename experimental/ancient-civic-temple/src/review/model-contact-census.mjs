@@ -162,7 +162,10 @@ const decisions = {
     ["줄기·가지 덩어리", "non-contact: review-distance silhouette criterion"],
     ["줄기는 반지름", "cypress masses overlap trunk and neighbors"],
   ],
-  "scale#reference-scale:supplemental": [["Z축 연결 핀은", "non-contact: UV projection rule rather than an assembly claim"]],
+  "scale#reference-scale:supplemental": [
+    ["Z축 연결 핀은", "non-contact: UV projection rule rather than an assembly claim"],
+    ["`portable#handcart`", "non-contact: UV projection for the support part rather than an assembly claim"],
+  ],
   "scale#articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
   "scale#model-review-board:supplemental": [["조명은 건물", "non-contact: review-board light setting"]],
   "entablature#colonnade-beam:supplemental": [["중간 원주 위의 아랫면은", "east beam corner notch removes the capital penetration"]],

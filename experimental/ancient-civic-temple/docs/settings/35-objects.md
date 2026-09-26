@@ -242,7 +242,7 @@
 @evidence principles/core/common.md#declared-basis 낮은 석재 벤치: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 01·03·05은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 낮은 석재 벤치: 낮은 석재 벤치은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 낮은 석재 벤치: 제공 이미지 01·03·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 낮은 석재 벤치의 범위에서 등받이와 팔걸이 없이 긴 석재 좌판을 두 받침 위에 올린 정지 비품이다.
+@evidence principles/core/settings.md#capability-boundary 앉는 인물과 통행 안전의 실측 성능을 주장하지 않고 통로 밖 배치는 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 낮은 석재 벤치: 낮은 석재 벤치의 허용 범위와 정문·중정·주랑의 가장자리 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 낮은 석재 벤치: 두 받침과 열린 하부라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -253,7 +253,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 낮은 석재 벤치: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 01·03·05과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 낮은 석재 벤치: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 낮은 석재 벤치: 이미지 01·03·05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 낮은 석재 벤치의 제외 경계를 본문에서 확인했다: 등받이와 팔걸이 없이 긴 석재 좌판을 두 받침 위에 올린 정지 비품이다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 벤치는 정지 비품이고 인물·실측 안전 성능은 제외하며 배치가 통로를 비워야 한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 낮은 석재 벤치: 정문·중정·주랑의 가장자리 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 낮은 석재 벤치: 두 받침과 열린 하부이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
@@ -398,7 +398,7 @@
 @evidence principles/core/common.md#declared-basis 흙을 담은 낮은 화분: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 01·03은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 흙을 담은 낮은 화분: 흙을 담은 낮은 화분은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 흙을 담은 낮은 화분: 제공 이미지 01·03의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 흙을 담은 낮은 화분의 범위에서 아래보다 넓은 열린 도기 입 안에 낮은 흙면이 보이는 정지 비품이다.
+@evidence principles/core/settings.md#capability-boundary 식물 자체는 별도 식생 prototype이며 흙면이 도기 벽과 통행면을 침범하지 않는 배치는 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 흙을 담은 낮은 화분: 흙을 담은 낮은 화분의 허용 범위와 정문·중정의 흙 가장자리 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 흙을 담은 낮은 화분: 넓은 도기 입 안쪽에 담긴 흙면라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -409,7 +409,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 흙을 담은 낮은 화분: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 01·03과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 흙을 담은 낮은 화분: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 흙을 담은 낮은 화분: 이미지 01·03을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 흙을 담은 낮은 화분의 제외 경계를 본문에서 확인했다: 아래보다 넓은 열린 도기 입 안에 낮은 흙면이 보이는 정지 비품이다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 화분은 흙면까지만 정하고 식물 geometry와 실제 방별 위치는 별도 소유로 남긴다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 흙을 담은 낮은 화분: 정문·중정의 흙 가장자리 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 흙을 담은 낮은 화분: 넓은 도기 입 안쪽에 담긴 흙면이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
@@ -424,7 +424,7 @@
 @evidence principles/core/common.md#declared-basis 글자 없는 봉헌판: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·04은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 글자 없는 봉헌판: 글자 없는 봉헌판은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 글자 없는 봉헌판: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 글자 없는 봉헌판의 범위에서 제실의 제단 중심을 가리지 않는 배치는 instances가 정한다.
+@evidence principles/core/settings.md#capability-boundary 글자·도상·가상 봉헌자 이름을 만들지 않으며 제단 중심을 가리지 않는 위치는 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 글자 없는 봉헌판: 글자 없는 봉헌판의 허용 범위와 제실·봉헌실·주랑 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 글자 없는 봉헌판: 받침 위의 얇은 직사각 판라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -435,7 +435,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 글자 없는 봉헌판: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 02·04과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 글자 없는 봉헌판: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 글자 없는 봉헌판: 이미지 02·04을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 글자 없는 봉헌판의 제외 경계를 본문에서 확인했다: 제실의 제단 중심을 가리지 않는 배치는 instances가 정한다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 봉헌판 본문은 판의 무문양 상태를 정하고 글자·도상·이름과 제단 앞 배치 결정은 제외한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 글자 없는 봉헌판: 제실·봉헌실·주랑 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 글자 없는 봉헌판: 받침 위의 얇은 직사각 판이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
@@ -476,7 +476,7 @@
 @evidence principles/core/common.md#declared-basis 접은 직물: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 04·05은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 접은 직물: 접은 직물은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 접은 직물: 제공 이미지 04·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 접은 직물의 범위에서 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹의 접힌 정지 비품이다.
+@evidence principles/core/settings.md#capability-boundary 실의 직조·봉합선을 형상으로 만들지 않으며 제실 바닥 좌구는 별도 prototype으로 둔다.
 @evidence principles/core/settings.md#constraint-sufficiency 접은 직물: 접은 직물의 허용 범위와 제실·봉헌실·관리실·기록실·보관실 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 접은 직물: 두 겹과 접힌 가장자리가 보이는 얇은 천라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -487,7 +487,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 접은 직물: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 04·05과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 접은 직물: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 접은 직물: 이미지 04·05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 접은 직물의 제외 경계를 본문에서 확인했다: 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹의 접힌 정지 비품이다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 직물은 접힘의 큰 윤곽만 남기고 미세 직조·봉합 및 바닥 좌구 역할을 제외한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 접은 직물: 제실·봉헌실·관리실·기록실·보관실 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 접은 직물: 두 겹과 접힌 가장자리가 보이는 얇은 천이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
@@ -502,7 +502,7 @@
 @evidence principles/core/common.md#declared-basis 필기용 첨필: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 05은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 필기용 첨필: 필기용 첨필은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 필기용 첨필: 제공 이미지 05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 필기용 첨필의 범위에서 짧은 금속 막대의 한 끝이 뾰족한 정지 필기 도구다.
+@evidence principles/core/settings.md#capability-boundary 문자 내용과 손의 필기 동작을 제외하고 책상 위 위치는 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 필기용 첨필: 필기용 첨필의 허용 범위와 관리실·기록실의 책상 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 필기용 첨필: 막대와 뾰족한 한 끝라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -513,7 +513,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 필기용 첨필: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 05과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 필기용 첨필: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 필기용 첨필: 이미지 05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 필기용 첨필의 제외 경계를 본문에서 확인했다: 짧은 금속 막대의 한 끝이 뾰족한 정지 필기 도구다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 첨필의 금속 실루엣은 남기되 문자 생성·손 동작은 범위 밖이다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 필기용 첨필: 관리실·기록실의 책상 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 필기용 첨필: 막대와 뾰족한 한 끝이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
@@ -528,7 +528,7 @@
 @evidence principles/core/common.md#declared-basis 글자 없는 필기판: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 05은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 글자 없는 필기판: 글자 없는 필기판은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 글자 없는 필기판: 제공 이미지 05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 글자 없는 필기판의 범위에서 얕은 직사각 틀 안에 평평한 쓰기 면이 들어간 정지 소품이다.
+@evidence principles/core/settings.md#capability-boundary 실제 글자와 가짜 비문을 제외하고 책상 위 위치·기록물 간격은 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 글자 없는 필기판: 글자 없는 필기판의 허용 범위와 관리실·기록실의 책상 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 글자 없는 필기판: 테두리보다 낮은 빈 필기면라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -539,7 +539,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 글자 없는 필기판: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 05과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 글자 없는 필기판: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 글자 없는 필기판: 이미지 05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 글자 없는 필기판의 제외 경계를 본문에서 확인했다: 얕은 직사각 틀 안에 평평한 쓰기 면이 들어간 정지 소품이다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 필기판의 빈 면은 유지하고 실제 글자·가짜 비문 및 책상 위 배치 판단을 제외한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 글자 없는 필기판: 관리실·기록실의 책상 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 글자 없는 필기판: 테두리보다 낮은 빈 필기면이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
@@ -606,7 +606,7 @@
 @evidence principles/core/common.md#declared-basis 제실 바닥 좌구: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 04은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 제실 바닥 좌구: 제실 바닥 좌구은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 제실 바닥 좌구: 제공 이미지 04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 제실 바닥 좌구의 범위에서 두꺼운 낮은 좌면과 아래층·뒤 접힘선으로 읽히는 정지 좌구다.
+@evidence principles/core/settings.md#capability-boundary 작업 스툴 역할과 인물의 앉기 동작을 제외하고 제단 접근을 남기는 배치는 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 제실 바닥 좌구: 제실 바닥 좌구의 허용 범위와 제실의 제단 앞쪽 바닥 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
 @evidence principles/core/settings.md#observable-identity 제실 바닥 좌구: 접은 덮개 천보다 두꺼운 낮은 좌면라는 구분 가능한 실루엣을 요구한다.
 -->
@@ -617,7 +617,7 @@
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 제실 바닥 좌구: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 04과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 제실 바닥 좌구: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 제실 바닥 좌구: 이미지 04을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
-@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 제실 바닥 좌구의 제외 경계를 본문에서 확인했다: 두꺼운 낮은 좌면과 아래층·뒤 접힘선으로 읽히는 정지 좌구다.
+@evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 좌구 본문은 작업 스툴과 인물 동작을 제외하고 제단 접근을 배치의 관찰로 남긴다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 제실 바닥 좌구: 제실의 제단 앞쪽 바닥 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 제실 바닥 좌구: 접은 덮개 천보다 두꺼운 낮은 좌면이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->

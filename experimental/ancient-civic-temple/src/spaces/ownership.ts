@@ -10,7 +10,7 @@ import { templeLevels as y } from "./storey";
 
 /**
  * @evidence spaces/ownership.md 주랑과 제실 벽 마감의 하부 띠 높이 0.60m와 대상 표면 이름을 둔다.
- * @evidenceReview spaces/ownership.md #32a7935 # templeInteriorDado는 height 0.6과 colonnade·sanctuary 벽의 두 대응만 선언해 주랑·제실 하부 띠 소유를 담는다.
+ * @evidenceReview spaces/ownership.md #e7ddaa1 # 소유 지도의 새 사물 제외 행까지 다시 읽었다. templeInteriorDado는 height 0.6과 colonnade·sanctuary 벽의 두 대응만 선언해 주랑·제실 하부 띠 소유를 담으며 사물 표면을 받지 않는다.
  * @evidence spaces/ownership.md#interior-dado 완성 바닥 위 0.60m 윗선과 surface.colonnade/sanctuary.wall→dado 대응을 설계 값 그대로 옮긴다.
  * @evidenceReview spaces/ownership.md#interior-dado #4b6731d # 0.60m 윗선과 두 wall→dado surface ID를 원 설계 행과 각각 대조했으며 다른 방의 하단 높이는 포함하지 않는다.
  * @evidence spaces/ownership.md#surface-map 띠가 주랑·제실 두 owner의 벽 마감 안의 분할이며 다른 방·입면 표면을 바꾸지 않는다는 소유 경계를 대응표로 제한한다.
@@ -34,7 +34,7 @@ export const templeInteriorDado = {
 /**
  * 대상 벽 마감 면만 띠 윗선에서 나누고 나머지 면은 그대로 둔다.
  * @evidence spaces/ownership.md 벽 마감 면을 하부 띠 윗선에서 나눠 아래를 dado 표면으로 준다.
- * @evidenceReview spaces/ownership.md #32a7935 # templeDadoFaces는 대상 wall face를 floor+height에서 나눠 낮은 면을 지정된 dado ID로 돌린다.
+ * @evidenceReview spaces/ownership.md #e7ddaa1 # 소유 지도의 새 사물 제외 행과 하부 띠 규칙을 다시 읽었다. templeDadoFaces는 대상 wall face만 floor+height에서 나눠 낮은 면을 지정된 dado ID로 돌리고 사물 표면은 분할하지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation 대상 두 표면만 나누고 나머지 면은 그대로 두며 벽 실체의 형상을 바꾸지 않는다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 대응표에 없는 면은 [face] 그대로 반환하고 splitAtLevel은 면 배열만 나누므로 벽의 체적은 변경되지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion splitAtLevel로 같은 평면의 두 볼록 면을 만들어 감김을 유지한 면 배열을 돌려준다.

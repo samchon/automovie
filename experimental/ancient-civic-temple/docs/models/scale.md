@@ -57,7 +57,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `cladding#roof-tile` | `tegula`, `imbrex`의 윗면·곡면 | 로컬 +Z 경사 오름을 V, +X 가로를 U로 둔다. 반원통은 처마 쪽 −X 가장자리에서 +X 쪽으로 호길이 U를 펼친다. 단위의 Z 양끝과 두 part 경계에서 이음. |
 | `cladding#ridge-tile` | `ridge` 반원통 | 로컬 +Z 용마루 길이를 V, −X 가장자리에서 +X로 도는 반원 호길이를 U로 펼친다. 각 단위의 Z 끝과 반지름 단차에서 이음. |
 | `fixtures#fountain`, `#lampstand` | 돌·금속 원형 옆면, 노즐, 물줄기, 파문, 접시 | Y축 회전체와 원환 전개; 물면·받침의 수평면은 기본 평면 투영. 각 원형 part의 +X 시접에서 이음. |
-| `fixtures#altar`, `#niche`, `#offering-table` | 석재 `step`, `top`, `support`, `plinth`, `body`, `recess`, `cap`, `trestle` | 기본 평면 투영; 각 독립 석판과 오목한 칸의 단단한 모서리에서 이음. |
+| `fixtures#altar`, `#niche`, `#offering-table` | 석재 `step`, `top`, `support`, `plinth`, `body`, `recess-frame`, `recess`, `cap`, `trestle` | 기본 평면 투영; 각 독립 석판과 오목한 칸의 단단한 모서리에서 이음. |
 | `fixtures#display-shelf`, `#desk`, `#stool`, `#scroll-shelf`, `#chest` | 목재 `top`, `board`, `frame`, `leg`, `stretcher`, `divider`, `side`, `seat`, `body`, `lid` 긴 면 | 각 판은 가장 긴 로컬 모서리를 U로, 정방 다리는 +Y를 U로 전개한다. 길이가 같으면 +X를 먼저 택한다. 금속 `strap`·걸쇠는 기본 투영. 각 독립 판·다리 끝에서 이음. |
 | `wares#storage-jar`, `#carry-jar`, `#small-vessel`, `#offering-bowl`, `#basket` | 항아리·그릇·바구니 원형 몸체와 손잡이 | Y축 회전체와 원환 전개; 손잡이 베지어 관은 아래 부착점에서 위 부착점까지 중심선 호길이 U와 관 둘레 호길이 V. 바구니 띠는 각 원형 띠의 호길이 U, 세로 살은 +Y를 U. +X 시접·각 손잡이 부착점에서 이음. |
 | `wares#scroll` | `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie` | 말린 종이·끈은 X축 원통/YZ 원환 전개, 펼친 종이는 로컬 +Z 긴 방향을 U, +X를 V로 하는 평면 투영; 종이 끝과 끈 시접에서 이음. |
@@ -67,7 +67,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `portable#portable-lamp`, `#bucket`, `#planter`, `#stylus`, `ritual#censer`, `#jar-stand` | 회전체 옆면·원판·관 | 회전체는 +X 시접에서 호길이 U, 모선 길이 V; 원판·평평한 흙·재 면은 기본 평면 투영. 손잡이 관은 아래 부착점에서 위 부착점까지 호길이 U. |
 | `portable#jar-rack` | `top`, `leg`, `well` | 상판·다리는 부재 장축 U; 둥근 홈의 벽은 회전체 호길이 U, 바닥은 기본 평면 투영. `top`은 홈 구멍의 벽만, `well`은 홈 바닥만 소유한다. |
 | `portable#carrying-yoke` | `beam`, `hook` | 막대 장축 +X를 U, 고리 YZ 원환은 중심선·관 둘레 호길이로 전개한다. |
-| `portable#handcart` | `deck`, `handle`, `axle`, `wheel` | 판·손잡이는 각각 장축 U, 축·바퀴는 X축 원통의 둘레 U와 축 길이 V로 전개한다. |
+| `portable#handcart` | `deck`, `handle`, `support`, `axle`, `wheel` | 판·손잡이·지지재는 각각 장축 U, 축·바퀴는 X축 원통의 둘레 U와 축 길이 V로 전개한다. |
 | `portable#textile` | `cloth` | 두 겹의 윗면·아랫면과 접힌 띠의 평면을 각각 기본 투영하며 접힌 모서리에서 정점을 복제한다. |
 | `portable#rope-coil` | `rope`, `tie` | 고리는 XZ 원환의 중심선·관 둘레 호길이, 직사각 묶음 띠는 기본 평면 투영을 쓴다. |
 
