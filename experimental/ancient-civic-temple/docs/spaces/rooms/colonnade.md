@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 중정 구멍과 반환벽 안의 반증점도 읽게 하므로 외접 상자만 선언한 구현은 실패한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 연속 주랑에 오목 영역과 기단 돌출 뒤의 여유 예산을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 명목 폭에서 돌출을 뺀 1.75m·1.60m는 배치 전 예산이며 부모 최소의 실제 충족을 발명하지 않았다.
-@evidenceReview settings/20-envelope.md#colonnade 기둥 열은 중정 경계 쪽이고 네 변의 바닥/노출 하부는 연결된 공간에 남는다.
+@evidenceReview settings/20-envelope.md#colonnade #29bfe45 기둥 열은 중정 경계 쪽이고 네 변의 바닥/노출 하부는 연결된 공간에 남는다.
 @evidenceReview settings/10-building.md#use-profile #ee92183 문짝·집기까지 놓은 후 유효폭을 다시 검사하도록 해 예산을 통과 측정으로 쓰지 않는다.
 -->
 

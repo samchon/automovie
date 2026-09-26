@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 제실 남처마와 북쪽 외쪽 지붕 사이의 틈, 남벽 채광구의 가림을 따로 확인하도록 적어 덮임만으로 통과시키지 않는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 연속 주랑 요구를 제실 남벽에서 끝나고 제실 처마 아래로 이어지는 외쪽 경사로 좁혔다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 수리된 외쪽 범위에서 남벽 앞 상면이 높은 창대보다 낮아 이 덮개 때문에 settings나 그래프를 더 고칠 필요가 없었다.
-@evidenceReview settings/20-envelope.md#colonnade 북동 모서리와 마당 접면까지 덮임이 이어져 한 주랑의 지붕 관계가 끊기지 않는다.
+@evidenceReview settings/20-envelope.md#colonnade #29bfe45 북동 모서리와 마당 접면까지 덮임이 이어져 한 주랑의 지붕 관계가 끊기지 않는다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 assembly에서 받은 주랑 처마 지지선에서 북쪽으로 12도 올라가는 안쪽 외쪽 경사가 부모의 날개 표현을 따른다.
 -->
 
@@ -58,8 +58,8 @@ source `src/spaces/roofs/colonnade.ts`가 북쪽 덮개의 상면과 외부 끝 
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 후퇴벽 뒤와 반환벽 바깥 접합을 관찰 대상으로 적어 정면 사진만으로 꼬리 구간의 틈을 통과시키지 않는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 낮은 주랑 덮개를 파라펫 뒤 외쪽 경사와 현관 제외 영역이라는 결정으로 좁혔다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 물린 포치와 연속 덮임이 현관 몸체 제외만으로 양립해 이 단위로 settings를 고칠 이유가 없었다.
-@evidenceReview settings/20-envelope.md#entrance-porch 덮개가 현관 몸체를 넘지 않아 파라펫 사이 포치 박공이 정면에서 온전히 보인다.
-@evidenceReview settings/20-envelope.md#colonnade 남쪽 주랑과 두 꼬리가 같은 덮개 아래 있어 포치와 무관하게 한 고리의 지붕이 이어진다.
+@evidenceReview settings/20-envelope.md#entrance-porch #e6180af 덮개가 현관 몸체를 넘지 않아 파라펫 사이 포치 박공이 정면에서 온전히 보인다.
+@evidenceReview settings/20-envelope.md#colonnade #29bfe45 남쪽 주랑과 두 꼬리가 같은 덮개 아래 있어 포치와 무관하게 한 고리의 지붕이 이어진다.
 -->
 
 남쪽 덮개는 외쪽 지붕이다. 지지선은 court-front이며 그 위치의 상면이 [공통 지지 높이](assembly.md#roof-junctions)의 주랑 처마 값이고, 상면은 남쪽으로 12도 올라가 [남측 파라펫](../facades/south.md#south-envelope)의 안쪽 면 south-inner에서 끝난다. 그 위치의 상면은 입력 산술상 약 3.95m다. 이전의 X 방향 용마루 박공과 포치 처마 폭 notch는 파라펫 뒤 외쪽 경사로 대체해 폐기했다.

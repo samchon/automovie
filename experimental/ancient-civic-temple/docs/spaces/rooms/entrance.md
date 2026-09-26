@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 기둥 받침을 지나는 평행 단면과 종단면을 적어 기둥이 첫 디딤 옆 받침 위에 서는지 확인하게 했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 포치 약속을 두 단의 수평 면, 받침 위 기둥 자리, 정면 쪽 보 위치로 구체화했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 기둥을 받침 앞끝으로 옮기는 것은 현관 안 배치 조정이며 단높이·디딤 제약과 외곽을 바꾸지 않아 부모 수정이 필요 없었다.
-@evidenceReview settings/20-envelope.md#entrance-porch 기둥 두 개가 같은 높이 받침에 서고 그 위 보가 삼각 막음과 포치를 받쳐 부모의 원주·보·박공 연결을 따른다.
+@evidenceReview settings/20-envelope.md#entrance-porch #e6180af 기둥 두 개가 같은 높이 받침에 서고 그 위 보가 삼각 막음과 포치를 받쳐 부모의 원주·보·박공 연결을 따른다.
 @evidenceReview settings/10-building.md#ground-access #be07d7d 첫 디딤과 둘째 디딤의 두 챌면만 두고 받침 위 기둥이 디딤 면을 점유하지 않아 실제 석단 접근이 유지된다.
 -->
 

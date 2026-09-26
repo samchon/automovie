@@ -127,7 +127,7 @@ const decisions = {
   "fixtures#niche": [
     ["벽에 붙는", "niche back face touches sanctuary wall"],
     ["꼭대기에는", "niche cap touches body"],
-    ["뒷면은", "niche back face touches sanctuary wall"],
+    ["받침과 머리판의 뒷면(Z=0)은", "niche back face touches sanctuary wall"],
   ],
   "fixtures#lampstand": [["줄기는 반지름", "lamp stem top supports dish bottom"]],
   "fixtures#offering-table": [

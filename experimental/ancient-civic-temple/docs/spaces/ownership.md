@@ -51,19 +51,19 @@
 @evidenceExcludeReview settings/35-objects.md#bench #4731814 벤치의 좌면과 받침을 주랑 바닥 표면으로 세지 않는 소유 경계를 확인했다
 @evidenceExcludeReview settings/35-objects.md#portable-lamp #8c83b45 소형 등잔의 접촉 위치는 배치가 정하며 공간 표면 지도에 등잔 part를 더하지 않는다
 @evidenceExcludeReview settings/35-objects.md#jar-rack #433211e 받침 홈과 다리는 모델에 남고 보관실 바닥은 독립 표면으로 남는다
-@evidenceExcludeReview settings/35-objects.md#carrying-yoke 멜대의 걸침·하중을 공간 표면 지도에서 주장하지 않는다
-@evidenceExcludeReview settings/35-objects.md#handcart 정지 손수레의 실제 놓임과 포장 접촉은 후속 배치에서 검증한다
-@evidenceExcludeReview settings/35-objects.md#bucket 물동이의 위치와 수량을 공간 완결 면의 일부로 중복 소유하지 않는다
+@evidenceExcludeReview settings/35-objects.md#carrying-yoke #7226d89 멜대의 걸침·하중을 공간 표면 지도에서 주장하지 않는다
+@evidenceExcludeReview settings/35-objects.md#handcart #58fa819 정지 손수레의 실제 놓임과 포장 접촉은 후속 배치에서 검증한다
+@evidenceExcludeReview settings/35-objects.md#bucket #97dc9fe 물동이의 위치와 수량을 공간 완결 면의 일부로 중복 소유하지 않는다
 @evidenceExcludeReview settings/35-objects.md#planter #5494e82 화분 내부 흙을 site 바닥 흙띠로 잘못 세지 않는 소유 경계를 확인했다
 @evidenceExcludeReview settings/35-objects.md#votive-plaque #564c5ab 봉헌판의 글자 없는 판을 방 벽의 고정 마감으로 오인하지 않는다
-@evidenceExcludeReview settings/35-objects.md#offering-tray 쟁반의 받침 접촉은 배치의 문제이고 공간 표면 지도는 탁자·제단 geometry를 복제하지 않는다
-@evidenceExcludeReview settings/35-objects.md#textile 직물의 덮개 역할을 모델에 남겨 실내 표면 소유를 바꾸지 않는다
+@evidenceExcludeReview settings/35-objects.md#offering-tray #00c29b0 쟁반의 받침 접촉은 배치의 문제이고 공간 표면 지도는 탁자·제단 geometry를 복제하지 않는다
+@evidenceExcludeReview settings/35-objects.md#textile #2f4977d 직물의 덮개 역할을 모델에 남겨 실내 표면 소유를 바꾸지 않는다
 @evidenceExcludeReview settings/35-objects.md#stylus #4491a6c 첨필 위치는 책상 배치가 정하고 공간 표면 지도에는 형상 행이 없다
-@evidenceExcludeReview settings/35-objects.md#writing-tablet 필기면의 물체 소유와 기록실 공간 표면 소유가 분리돼 있다
-@evidenceExcludeReview settings/35-objects.md#rope-coil 느슨한 끈 뭉치의 고리와 묶음 띠가 공간 벽·바닥 형상으로 중복 방출되지 않는다
-@evidenceExcludeReview settings/35-objects.md#censer 향로가 제단 위에 놓여도 제실 완결 표면 owner는 바뀌지 않는다
+@evidenceExcludeReview settings/35-objects.md#writing-tablet #0b07e18 필기면의 물체 소유와 기록실 공간 표면 소유가 분리돼 있다
+@evidenceExcludeReview settings/35-objects.md#rope-coil #96ce70c 느슨한 끈 뭉치의 고리와 묶음 띠가 공간 벽·바닥 형상으로 중복 방출되지 않는다
+@evidenceExcludeReview settings/35-objects.md#censer #fa63418 향로가 제단 위에 놓여도 제실 완결 표면 owner는 바뀌지 않는다
 @evidenceExcludeReview settings/35-objects.md#floor-cushion #6e384d3 좌구의 앉는 면과 제실 석재 바닥을 서로 다른 표면 소유로 유지한다
-@evidenceExcludeReview settings/35-objects.md#jar-stand 한 자리 받침의 고리·기둥을 보관실 완결 바닥 면에서 제외한다
+@evidenceExcludeReview settings/35-objects.md#jar-stand #5d59a6d 한 자리 받침의 고리·기둥을 보관실 완결 바닥 면에서 제외한다
 -->
 
 [추가 공간 의무](../contracts/obligations-spaces.md#surface-ownership)를 실제 평면 경계와 연결한다. 아래의 source 경로는 각 완결 표면의 단독 저작 owner다. 표가 있다는 사실은 compiled binding의 역검사 통과를 뜻하지 않는다. 저작자는 이번 production 세션 한 명이고 fan-out이 생겨도 하나의 행이 가진 완결 표면을 여러 사람에게 나누지 않는다. 내부벽의 물리 topology는 [boundaries](openings.md#boundary-ownership) 한 소유이며 마주 보는 두 마감은 각각의 방 소유다.

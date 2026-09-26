@@ -480,7 +480,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 접은 직물: 접은 직물의 정체성과 제실·봉헌실·관리실·기록실·보관실 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 접은 직물: 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹의 접힌 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
+@evidence principles/core/common.md#substantive-completion 접은 직물: 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹과 접힌 가장자리가 보이는 얇은 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
 @evidence principles/core/common.md#declared-basis 접은 직물: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 04·05은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 접은 직물: 접은 직물은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 접은 직물: 제공 이미지 04·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
@@ -491,7 +491,7 @@
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 접은 직물: 제실·봉헌실·관리실·기록실·보관실에서 쓰는 물체의 정체성과 배치 소유가 본문에 있어 다른 방의 소품으로 무제한 확장하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 접은 직물: 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹의 접힌 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 접은 직물: 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹과 접힌 가장자리가 보이는 얇은 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 접은 직물: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 04·05과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 접은 직물: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 접은 직물: 이미지 04·05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
@@ -500,7 +500,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 접은 직물: 두 겹과 접힌 가장자리가 보이는 얇은 천이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 04·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실·봉헌실·관리실·기록실·보관실에서 사용한다. 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹의 접힌 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
+2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 04·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실·봉헌실·관리실·기록실·보관실에서 사용한다. 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹과 접힌 가장자리가 보이는 얇은 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
 
 접은 직물의 실제 위치와 수량은 instances가 정한다.
 
@@ -534,7 +534,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 글자 없는 필기판: 글자 없는 필기판의 정체성과 관리실·기록실의 책상 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 글자 없는 필기판: 얕은 직사각 틀 안에 평평한 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
+@evidence principles/core/common.md#substantive-completion 글자 없는 필기판: 얕은 직사각 틀 안에 테두리보다 낮은 평평한 빈 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
 @evidence principles/core/common.md#declared-basis 글자 없는 필기판: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 05은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 글자 없는 필기판: 글자 없는 필기판은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 글자 없는 필기판: 제공 이미지 05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
@@ -545,7 +545,7 @@
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 글자 없는 필기판: 관리실·기록실의 책상에서 쓰는 물체의 정체성과 배치 소유가 본문에 있어 다른 방의 소품으로 무제한 확장하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 글자 없는 필기판: 얕은 직사각 틀 안에 평평한 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
+@evidenceReview principles/core/common.md#substantive-completion 글자 없는 필기판: 얕은 직사각 틀 안에 테두리보다 낮은 평평한 빈 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 글자 없는 필기판: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 05과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 글자 없는 필기판: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 글자 없는 필기판: 이미지 05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
@@ -554,7 +554,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 글자 없는 필기판: 테두리보다 낮은 빈 필기면이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 관리실·기록실의 책상에서 사용한다. 얕은 직사각 틀 안에 평평한 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
+2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 관리실·기록실의 책상에서 사용한다. 얕은 직사각 틀 안에 테두리보다 낮은 평평한 빈 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
 
 필기판의 틀은 어두운 목재, 쓰기 면은 양피지로 읽는다.
 
@@ -590,7 +590,7 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 낮은 향로: 낮은 향로의 정체성과 제실의 제단 위 사용, 후속 배치 소유를 함께 정한다.
-@evidence principles/core/common.md#substantive-completion 낮은 향로: 발·짧은 줄기·위로 열린 컵 안에 재와 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
+@evidence principles/core/common.md#substantive-completion 낮은 향로: 발·짧은 줄기·위로 열린 컵 안의 재 위로 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
 @evidence principles/core/common.md#declared-basis 낮은 향로: 2026-09-25 사용자의 모든 사물 제작 지시가 범위 권위이고 이미지 02·04은 시각 참조이며 형상 범위는 저작자 선택이다.
 @evidence principles/core/settings.md#fact-status 낮은 향로: 낮은 향로은 이 제작에서 채택한 정지 비품이며 유물 실측치나 실제 성능의 보고가 아니다.
 @evidence principles/core/settings.md#source-support 낮은 향로: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
@@ -601,7 +601,7 @@
 
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 낮은 향로: 제실의 제단 위에서 쓰는 물체의 정체성과 배치 소유가 본문에 있어 다른 방의 소품으로 무제한 확장하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 낮은 향로: 발·짧은 줄기·위로 열린 컵 안에 재와 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 낮은 향로: 발·짧은 줄기·위로 열린 컵 안의 재 위로 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 낮은 향로: 사용자 사물 제작 지시를 존재의 권위로 명시하고 이미지 02·04과 저작자 형상 선택을 구분했다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 낮은 향로: 본문의 치수는 저작 범위이며 실제 발굴품이나 하중·동작 실험 결과로 주장하지 않는다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 낮은 향로: 이미지 02·04을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
@@ -610,7 +610,7 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 낮은 향로: 열린 컵과 재 위의 꺼진 향이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
 -->
 
-2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실의 제단 위에서 사용한다. 발·짧은 줄기·위로 열린 컵 안에 재와 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
+2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실의 제단 위에서 사용한다. 발·짧은 줄기·위로 열린 컵 안의 재 위로 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
 
 향로의 발·줄기·컵은 어두운 금속이며 실제 위치와 수량은 instances가 정한다.
 
