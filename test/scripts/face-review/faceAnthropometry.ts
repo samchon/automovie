@@ -290,7 +290,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     id: "chinHeight",
     definition:
       "stomion (midpoint of 13 and 14) to the jaw outline's menton (470) over n-me' height",
-    channels: ["chinHeight"],
+    channels: ["mentalHeight"],
   },
   {
     id: "browHeight",
