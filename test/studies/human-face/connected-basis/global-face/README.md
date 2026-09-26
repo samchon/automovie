@@ -365,7 +365,7 @@ The source's lash texture is a cosmetic one: clumped strands three to six textur
 
 ## Exposure and white balance
 
-The editor's rig rendered a key-lit 18 percent grey card at L* 45.9 with a warm cast (sRGB 118, 107, 99), where a photograph is exposed and white balanced on the light falling on the subject. The rig is balanced as a photographer would: one von Kries gain per channel makes the key-lit grey card neutral at its own luminance, and the tone mapping exposure puts the card at CIE L* 50 through the renderer's ACES curve (ISO 2720, the incident-meter calibration). The rig's directions, relative powers and the key and fill colours' contrast stay as authored. Read back on the GPU the card is 119, 119, 119 (L* 50.0).
+The editor's rig rendered a key-lit 18 percent grey card at L* 45.9 with a warm cast (sRGB 118, 107, 99), where a photograph is exposed and white balanced on the light falling on the subject. The rig is balanced as a photographer would: one von Kries gain per channel makes the key-lit grey card neutral at its own luminance, and the tone mapping exposure puts the card at CIE L* 50 (ISO 2720, the incident-meter calibration), first through the renderer's ACES curve and now through a linear display: every colour rule here reads a photograph through the sRGB transfer function as proportional to its light, and the filmic curve's toe crushed the dark irises, brows and hair 3 to 4 stops under the card about twice as far as that decoding does (a dark iris read L* 1.4 on the render against 15.8 on the photograph). The rig's directions, relative powers and the key and fill colours' contrast stay as authored. Read back on the GPU the card is 119, 119, 119 (L* 50.0).
 
 ## Cameras by landmark reprojection
 

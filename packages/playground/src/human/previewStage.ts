@@ -46,7 +46,7 @@ export function createHumanPreviewStage(props: {
   const { renderer, canvas } = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = THREE.LinearToneMapping;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();

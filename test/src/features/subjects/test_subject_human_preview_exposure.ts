@@ -3,21 +3,16 @@ import {
   HUMAN_PREVIEW_MIDDLE_GREY,
   type HumanPreviewLight,
   balanceHumanPreviewRig,
-  humanPreviewAcesExposure,
   humanPreviewGreyCard,
+  humanPreviewLinearExposure,
 } from "@automovie/playground/src/human/previewExposure";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
 
-/** Three.js r186 ACES filmic on a grey, written out independently. */
-const aces = (value: number, exposure: number): number => {
-  const v = (value * exposure) / 0.6;
-  return (
-    (v * (v + 0.0245786) - 0.000090537) /
-    (v * (0.983729 * v + 0.432951) + 0.238081)
-  );
-};
+/** Three.js r186 linear tone mapping on a grey, written out independently. */
+const linear = (value: number, exposure: number): number =>
+  Math.min(1, Math.max(0, value * exposure));
 
 /**
  * The preview is exposed and white balanced on a key-lit grey card.
@@ -27,8 +22,8 @@ const aces = (value: number, exposure: number): number => {
  *    turned 60 degrees away it takes half, and facing away none. The
  *    hemisphere light gives its sky colour to a card facing up, its ground
  *    colour facing down and their mean on edge.
- * 2. The exposure solve lands a grey on the target through the ACES curve
- *    written out here, a target near white included, and refuses a
+ * 2. The exposure solve lands a grey on the target through the linear
+ *    display written out here, a target near white included, and refuses a
  *    non-positive radiance or a target of white or more.
  * 3. A warm rig balanced on its key turns the key-lit grey card neutral at
  *    its own luminance, keeps each light's direction and intensity, and
@@ -73,13 +68,13 @@ export const test_subject_human_preview_exposure = (): void => {
       ),
   );
 
-  const exposure = humanPreviewAcesExposure(0.05, 0.3);
+  const exposure = humanPreviewLinearExposure(0.05, 0.3);
   TestValidator.predicate(
     "exposure solve",
-    nclose(aces(0.05, exposure), 0.3, 1e-9) &&
-      throwsError(() => humanPreviewAcesExposure(0, 0.3), "positive") &&
-      throwsError(() => humanPreviewAcesExposure(0.05, 1), "positive") &&
-      nclose(aces(1e-3, humanPreviewAcesExposure(1e-3, 0.99)), 0.99, 1e-9),
+    nclose(linear(0.05, exposure), 0.3, 1e-9) &&
+      throwsError(() => humanPreviewLinearExposure(0, 0.3), "positive") &&
+      throwsError(() => humanPreviewLinearExposure(0.05, 1), "positive") &&
+      nclose(linear(1e-3, humanPreviewLinearExposure(1e-3, 0.99)), 0.99, 1e-9),
   );
 
   const key = [-0.3, 0.35, 0.45] as const;
@@ -117,7 +112,10 @@ export const test_subject_human_preview_exposure = (): void => {
   const L =
     116 *
       Math.cbrt(
-        aces((HUMAN_PREVIEW_GREY_CARD * Y(after)) / Math.PI, balanced.exposure),
+        linear(
+          (HUMAN_PREVIEW_GREY_CARD * Y(after)) / Math.PI,
+          balanced.exposure,
+        ),
       ) -
     16;
   TestValidator.predicate(

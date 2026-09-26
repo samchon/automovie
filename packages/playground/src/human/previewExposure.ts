@@ -14,8 +14,14 @@
  * gain per channel (von Kries 1902; the luminance over the card's channel,
  * so the card turns neutral at its own luminance) and solves the tone
  * mapping exposure at which the card's radiance, 0.18 of that irradiance
- * over pi, leaves the renderer's ACES filmic curve as CIE L* 50 (a relative
- * luminance of 0.1842). The rig's directions, relative powers and
+ * over pi, displays as CIE L* 50 (a relative luminance of 0.1842). The
+ * display is linear, radiance times exposure encoded as sRGB, highlights
+ * clipped as a camera's: every colour the editor is compared by, a
+ * photograph's included, is decoded by the sRGB transfer function and read
+ * as proportional to the light it records, and a filmic curve's toe breaks
+ * that proportion where it matters, crushing a dark iris or brow 3 to 4
+ * stops under the grey card about twice as far as the photograph's own
+ * decoding does. The rig's directions, relative powers and
  * colour contrast between key and fill stay as authored; only the
  * photograph's two global settings change. It never touches a face document,
  * its geometry, its textures or an export.
@@ -81,37 +87,20 @@ export function humanPreviewGreyCard(
   return out;
 }
 
-/** Three.js ACES filmic fit of the reference rendering transform. */
-const acesFit = (v: number): number =>
-  (v * (v + 0.0245786) - 0.000090537) /
-  (v * (0.983729 * v + 0.432951) + 0.238081);
-
 /**
  * The tone mapping exposure at which a grey of linear radiance `radiance`
- * leaves three.js's ACES filmic curve at relative luminance `target`. The
- * curve keeps a grey grey (its input and output matrices' rows each sum to
- * one), so one channel is solved; the curve rises monotonically, so
- * bisection finds it.
+ * displays at relative luminance `target` through the linear transform:
+ * their ratio.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Keeps the inspected face readable under a photographically exposed, white-balanced light rig.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Exposes and white balances the preview on a key-lit grey card without changing the saved anatomical document.
  */
-export function humanPreviewAcesExposure(
+export function humanPreviewLinearExposure(
   radiance: number,
   target: number,
 ): number {
   if (!(radiance > 0) || !(target > 0 && target < 1))
     throw new Error("Exposure needs a positive radiance and a target below 1.");
-  // The fit rises toward 1 / 0.983729 and passes 1 before 64, so every
-  // target below 1 lies inside the bracket.
-  let low = 0;
-  let high = 64;
-  for (let k = 0; k < 80; k++) {
-    const mid = (low + high) / 2;
-    if (acesFit(mid) < target) low = mid;
-    else high = mid;
-  }
-  // three.js scales the colour by exposure / 0.6 before the fit
-  return (0.6 * (low + high)) / 2 / radiance;
+  return target / radiance;
 }
 
 /** Middle grey: CIE L* 50 as relative luminance. */
@@ -149,7 +138,7 @@ export function balanceHumanPreviewRig(
         : { ...light, sky: scale(light.sky), ground: scale(light.ground) },
     ),
     gain,
-    exposure: humanPreviewAcesExposure(
+    exposure: humanPreviewLinearExposure(
       (HUMAN_PREVIEW_GREY_CARD * Y) / Math.PI,
       HUMAN_PREVIEW_MIDDLE_GREY,
     ),

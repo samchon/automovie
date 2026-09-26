@@ -9,8 +9,9 @@
  * `capture-articulation.mjs` draws exported meshes with its own lights and
  * materials, which is enough for geometry (landmarks, hair silhouettes) but
  * not for appearance: the editor shows the same builder output through its
- * own stage (ACES tone mapping, a key, fill and rim with soft shadows, a
- * hemisphere), transmissive optics and alpha-to-coverage cut-outs. This
+ * own stage (a linear display exposed on a grey card, a softbox key, a fill
+ * and rim with soft shadows, a hemisphere), transmissive optics and
+ * alpha-to-coverage cut-outs. This
  * runner shows each document the way an author does, by writing it into the
  * editor's document field and applying it, then places the display camera
  * with `window.__connectedFace.look` at the pose file's yaw, pitch, distance,
