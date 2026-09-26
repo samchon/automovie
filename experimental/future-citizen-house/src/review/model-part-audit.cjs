@@ -2058,7 +2058,7 @@ if (require.main !== module) {
     results.push({ label: `${anchor} sealed cavity floor`, caught: true });
   }
   for (const [anchor, before, after] of [
-    ["bath-accessories", "y=3H/10,7H/10의 네 조합", "y=3H/10,5H/8의 네 조합"],
+    ["bath-accessories", "y=5H/16,11H/16의 네 조합", "y=5H/16,5H/8의 네 조합"],
     ["exterior-furnishings", "y=sH..sH+H/12인 X/Z 전폭 좌판", "y=sH..sH+H/6인 X/Z 전폭 좌판"],
     ["household-tools", "중심 y=26H/49인 반지름 W/2의 원형 측판", "중심 y=27H/49인 반지름 W/2의 원형 측판"],
     ["exterior-furnishings", "body, Y, 0.34, wheel axle height", "body, Y, 0.30, wheel axle height"]
@@ -2070,6 +2070,19 @@ if (require.main !== module) {
       throw Error(`${anchor}: formula mutation escaped: ${measured.errors}`);
     results.push({ label: `${anchor} formula ${before}`, caught: true });
   }
+  const bathLines = sections().get("bath-accessories");
+  if (!bathLines) throw Error("bath accessories H2 absent");
+  const bathSource = bathLines.join("\n");
+  const holedPack = bathSource
+    .replace("r=5min(W,H)/16", "r=3min(W,H)/10")
+    .replace("y=5H/16,11H/16의 네 조합", "y=3H/10,7H/10의 네 조합")
+    .replace("@formula-cylinder-grid tissue-pack: body, 5/16, 5/16, 11/16",
+      "@formula-cylinder-grid tissue-pack: body, 3/10, 3/10, 7/10");
+  if (holedPack === bathSource ||
+    !audit(new Map([["bath-accessories", holedPack.split("\n")]])).errors.some((error) =>
+      error.includes("central axis unfilled")))
+    throw Error("tissue pack central-hole mutation escaped");
+  results.push({ label: "tissue pack central axis filled", caught: true });
   const exterior = sections().get("exterior-furnishings");
   const oldPatch = "@flat-contact outdoor-chair: body, support, -Y, 0, -0.28..-0.26, -0.28..-0.25";
   const movedPatch = "@flat-contact outdoor-chair: body, support, -Y, 0, -0.28..-0.25, -0.28..-0.25";
@@ -2220,7 +2233,9 @@ if (require.main !== module) {
   }
   const cabinetSource = fs.readFileSync(path.join(root, "docs/models/002-storage-and-sleep.md"), "utf8");
   for (const [label, before, after] of [
-    ["cabinet prose island door clearance changed", "y=0.101..0.849", "y=0.101..0.850"],
+    ["cabinet island door height changed",
+      "| @part | island-base/880x870x2650/closed | service-door-0 | box | -0.44..-0.422 | 0.101..0.849 |",
+      "| @part | island-base/880x870x2650/closed | service-door-0 | box | -0.44..-0.422 | 0.101..0.850 |"],
     ["cabinet measured part name changed",
       "| @part | bench-base/1150x440x480/closed | back |",
       "| @part | bench-base/1150x440x480/closed | back-damaged |"]

@@ -265,9 +265,9 @@ ref03의 주방 조리대·섬 위에서 작은 도구가 가전과 겹쳐 보�
 
 `bath-accessories`는 비누 용기, 휴지 걸이, 휴지 한 롤과 묶음, 칫솔 컵, 칫솔, 샴푸 병, 세제 병, 욕실 휴지통, 빨래 바구니를 공통 욕실·세탁 소품의 치수 상태로 둔다. 바닥·선반 물체의 원점은 놓이는 면 중심이고 휴지 걸이의 원점은 벽 접촉면의 아래 중심이다. +Z는 사용자가 바라보는 전면이다. 걸이는 벽 접촉 `body/back/arm`, 컵·바구니는 `body/outer/inner/rim/sole`, 막힌 병은 `body/outer/inner/rim/sole/cap-top/cap-side`와 비누 용기만의 `body/pump-top`, 소모품은 `body/outer/end/sole`을 사용한다. 실제 충전물·배관·배출은 별도 system과 instance가 결정한다. `toothbrush`는 `body/handle/head/side/sole`, `waste-bin`은 `body/outer/inner/rim/sole`을 상태별 고정 face 집합으로 쓴다.
 
-`toothbrush-cup`과 `waste-bin`은 24각 원형 외벽, `laundry-basket`은 네모 외벽이다. 각각의 내벽·바닥 높이는 바로 아래 `@bore` 또는 `@void`가 단독으로 정한다. 병 세 상태는 `@cavity-profile`의 몸통·어깨·목과 `@vessel-closure`의 캡으로 닫는다. 비누 용기의 펌프는 캡 상면의 중심 XZ 폭을 각각 몸통 W/4·D/4로 나눈 `body/pump-top` face이며 추가 돌출 체적은 없다. 휴지 롤은 `@radial`의 바깥·안쪽 반지름과 `@bore`의 Y 범위를 쓰는 24각 Y축 고리다. `tissue-pack`은 Z축 원통 넷을 양수 부피로 겹쳐 한 닫힌 외곽으로 합친다. 각 원통의 반지름 r=3min(W,H)/10, Z 길이는 D, 중심은 x=±(W/2−r)와 y=3H/10,7H/10의 네 조합이다. 같은 줄의 두 원통과 위아래 줄이 모두 겹치며 내부 교차면은 제거한다. 노출 Z 끝면은 연결된 외곽의 앞·뒤 face로 합친다. `tissue-holder`는 x=±W/2, y=0..H, z=0..D/6인 벽판과 중심 x=±(W/2−W/8), y=3H/4의 두 팔을 합친다. 팔은 X/Y 단면 지름 H/8의 24각 봉으로 z=D/6..D까지 이어지고, 두 팔 사이 X축 봉은 중심선 x=−(W/2−W/8)..+(W/2−W/8), y=3H/4,z=3D/4, 반지름 H/16이다. 봉은 팔 두 원통과 양수 부피로 교차하여 한 닫힌 고체로 합치고 내부 교차면은 제거한다. `toothbrush`는 x=±W/4, z=±D/4, y=0..3H/4의 손잡이 판과 X/Z 전폭, y=3H/4..H의 짧은 머리를 한 고체로 합친다. 롤을 걸이에 끼우는 회전은 instances가 소유하며 실제 위생·급수 성능은 `unverified`다.
+`toothbrush-cup`과 `waste-bin`은 24각 원형 외벽, `laundry-basket`은 네모 외벽이다. 각각의 내벽·바닥 높이는 바로 아래 `@bore` 또는 `@void`가 단독으로 정한다. 병 세 상태는 `@cavity-profile`의 몸통·어깨·목과 `@vessel-closure`의 캡으로 닫는다. 비누 용기의 펌프는 캡 상면의 중심 XZ 폭을 각각 몸통 W/4·D/4로 나눈 `body/pump-top` face이며 추가 돌출 체적은 없다. 휴지 롤은 `@radial`의 바깥·안쪽 반지름과 `@bore`의 Y 범위를 쓰는 24각 Y축 고리다. `tissue-pack`은 Z축 원통 넷을 양수 부피로 겹쳐 한 닫힌 외곽으로 합친다. 각 원통의 반지름 r=5min(W,H)/16, Z 길이는 D, 중심은 x=±(W/2−r)와 y=5H/16,11H/16의 네 조합이다. 네 중심 사이 중앙점 (0,H/2)도 각 원통 내부에 놓이므로 전후를 뚫는 중앙 틈이 없다. 같은 줄의 두 원통과 위아래 줄이 모두 겹치며 내부 교차면은 제거한다. 노출 Z 끝면은 연결된 외곽의 앞·뒤 face로 합친다. `tissue-holder`는 x=±W/2, y=0..H, z=0..D/6인 벽판과 중심 x=±(W/2−W/8), y=3H/4의 두 팔을 합친다. 팔은 X/Y 단면 지름 H/8의 24각 봉으로 z=D/6..D까지 이어지고, 두 팔 사이 X축 봉은 중심선 x=−(W/2−W/8)..+(W/2−W/8), y=3H/4,z=3D/4, 반지름 H/16이다. 봉은 팔 두 원통과 양수 부피로 교차하여 한 닫힌 고체로 합치고 내부 교차면은 제거한다. `toothbrush`는 x=±W/4, z=±D/4, y=0..3H/4의 손잡이 판과 X/Z 전폭, y=3H/4..H의 짧은 머리를 한 고체로 합친다. 롤을 걸이에 끼우는 회전은 instances가 소유하며 실제 위생·급수 성능은 `unverified`다.
 
-`tissue-pack`의 아래 두 원통 밑에는 X/Z 전폭·y=0..H/20인 얇은 받침판을 같은 `body`로 합친다. 받침판은 두 원통과 양수 부피를 공유하고 밑면은 선반에 평평한 유한 면으로 닿는다. 각 상태의 정확한 점유는 아래 표가 소유한다. 용기 안팎·림·바닥, 걸이 뒷판·팔, 휴지 롤의 관통 구멍은 `body/inner`, 노출 끝은 `body/end`, 절삭 둘레는 `body/rim`으로 실제 형상에 있는 face 집합만 발행한다.
+`tissue-pack`의 아래 두 원통 밑에는 X/Z 전폭·y=0..H/20인 얇은 받침판을 같은 `body`로 합친다. 네 원통의 XY 24각 디스크와 받침 직사각형의 합집합 외곽선을 Z=±D/2까지 한 번 압출하고, 교차 모서리에는 교점을 꼭짓점으로 삽입해 내부 경계와 겹친 Z 끝면을 삼각화하지 않는다. 받침판은 두 원통과 양수 부피를 공유하고 밑면은 선반에 평평한 유한 면으로 닿는다. 각 상태의 정확한 점유는 아래 표가 소유한다. 용기 안팎·림·바닥, 걸이 뒷판·팔, 휴지 롤의 관통 구멍은 `body/inner`, 노출 끝은 `body/end`, 절삭 둘레는 `body/rim`으로 실제 형상에 있는 face 집합만 발행한다.
 
 ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분되는 크기를 정면·상부·45°에서 본다. ref01·03·04·05의 보이지 않는 상표와 내용물은 재현하지 않는다. 위생·세척 성능은 `unverified`다.
 
@@ -285,7 +285,7 @@ ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분
 @bore waste-bin: body, 0.12, 0.029..0.34
 @void laundry-basket: body, -0.22..0.22, 0.033..0.4, -0.155..0.155
 @cavity-min laundry-basket: body, 1/16, 1/20
-@formula-cylinder-grid tissue-pack: body, 3/10, 3/10, 7/10
+@formula-cylinder-grid tissue-pack: body, 5/16, 5/16, 11/16
 
 @flat-contact tissue-pack: body, support, -Y, 0, -0.09..0.09, -0.09..0.09
 @flat-contact toothbrush: body, support, -Y, 0, -0.004..0.004, -0.005..0.005

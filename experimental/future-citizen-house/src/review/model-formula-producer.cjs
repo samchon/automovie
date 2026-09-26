@@ -45,6 +45,8 @@ function check(lines, parsed, anchor) {
           !equal(part.x[0], -xMax) || !equal(part.x[1], xMax) ||
           !equal(part.y[0], Math.min(0, yMin)) || !equal(part.y[1], yMax) ||
           !equal(part.z[0], -D / 2) || !equal(part.z[1], D / 2)) fail("cylinder union or part bounds differs");
+        if (Math.hypot(W / 2 - r, (upper - lower) / 2) >= r - epsilon)
+          fail("cylinder union leaves central axis unfilled");
       } else if (kind === "disc-pair") {
         const center = ratio(operands || "") * H;
         const claim = /중심 y=(\d+)H\/(\d+)인 반지름 W\/2의 원형 측판/.exec(prose);
