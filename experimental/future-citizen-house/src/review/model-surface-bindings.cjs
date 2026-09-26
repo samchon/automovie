@@ -60,7 +60,7 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
   for (const face of duplicateFaces) errors.push(`${face}: duplicate model face declaration`);
   const finishDefinitions = new Map(), finishReferences = [];
   let bindings = 0,
-    parts = 0;
+    parts = 0, faceBindingOwners = 0;
   for (const line of materialText.split(/\r?\n/)) {
     const cells = line.startsWith("| ")
       ? line
@@ -68,9 +68,15 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
           .slice(1, -1)
           .map((cell) => cell.trim())
       : [];
-    if (cells.length !== 7 || !owners.includes(cells[0])) continue;
+    if (cells.length !== 8 || !owners.includes(cells[0])) continue;
     bindings++;
-    const [owner, states, surface, finish, scale, uv, fallback] = cells;
+    const [owner, states, surface, finish, scale, uv, fallback, host] = cells;
+    const hostLink = /^\[host\]\(([^)#]+)#([^)]+)\)$/.exec(host);
+    if (!hostLink || hostLink[2] !== owner ||
+      path.resolve(root, "docs/materials", hostLink[1]) !==
+        path.resolve(root, "docs/models/005-everyday-objects.md"))
+      errors.push(`${owner}: face binding model H2 owner absent`);
+    else faceBindingOwners++;
     if (!finish || !uv || !fallback)
       errors.push(`${owner}: finish, UV, or fallback absent`);
     const finishMatch = /^([A-Za-z][A-Za-z0-9/-]*)(?::\s*(.+))?$/.exec(finish);
@@ -147,6 +153,7 @@ function objectSurfaceBindings(root, models, materialText, modelOverride) {
     ),
     parts,
     bindings,
+    faceBindingOwners,
     faceDeclarations: requiredFaces.size,
     provedFaceDeclarations: [...requiredFaces].filter((face) => overrides.has(face) &&
       proseFaces.has(proseKeyByFace.get(face))).length,

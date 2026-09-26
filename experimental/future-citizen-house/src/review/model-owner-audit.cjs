@@ -292,6 +292,7 @@ function audit(account, roomOverride) {
     objectSurfaceStates: surfaces.states,
     objectSurfaceParts: surfaces.parts,
     objectSurfaceBindings: surfaces.bindings,
+    faceBindingOwners: surfaces.faceBindingOwners,
     objectFaceDeclarations: surfaces.faceDeclarations,
     provedObjectFaceDeclarations: surfaces.provedFaceDeclarations,
     errors,
@@ -435,6 +436,13 @@ const surfaceNegative = objectSurfaceBindings(
 );
 if (!surfaceNegative.errors.length)
   result.errors.push("unselected surface binding deletion remained green");
+const selectedHostRow = surfaceRows[randomInt(surfaceRows.length)];
+const missingHostRow = selectedHostRow.replace(/\[host\]\([^)]+\)/, "missing");
+if (missingHostRow === selectedHostRow) throw Error("selected model host link unchanged");
+const hostFindings = objectSurfaceBindings(root, inventory(root),
+  materialText.replace(selectedHostRow, missingHostRow)).errors;
+const hostRed = hostFindings.some((error) => error.includes("face binding model H2 owner absent"));
+if (!hostRed) result.errors.push("unselected model host link deletion remained green");
 const remainingFinishes = [...surfaceRows], finishMutations = [];
 while (remainingFinishes.length && finishMutations.length < 10) {
   const selected = remainingFinishes.splice(randomInt(remainingFinishes.length), 1)[0];
@@ -482,6 +490,9 @@ console.log(
         red: surfaceNegative.errors.length ? 1 : 0,
         first: surfaceNegative.errors[0] || null,
       },
+      unselectedHostMutation: { population: surfaceRows.length, mutations: 1,
+        red: hostRed ? 1 : 0, first: hostFindings.find((error) =>
+          error.includes("face binding model H2 owner absent")) || null },
       unselectedFinishMutations: { population: surfaceRows.length,
         mutations: finishMutations.length, red: finishRed, results: finishMutations },
       unselectedFaceMutation: { population: faceRows.length, mutations: 1,
