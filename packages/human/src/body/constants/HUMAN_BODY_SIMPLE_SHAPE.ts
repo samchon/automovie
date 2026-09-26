@@ -101,6 +101,15 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       },
       adultFraction: 0.081,
       transitionAgeYears: [15, 16],
+      // Both segments end at the suprasternal notch and C7, but this basis's
+      // clip ring stands 9 to 11 cm above the sternoclavicular joint, so the
+      // skin keeps that neck. Measured on 24 simple-tier bodies (both sexes,
+      // 11 to 70 years, body mass index 18 to 32) it is 1.7 to 3.0 % of the
+      // volume, 2.35 % at an index of 24 and inversely with the index, with
+      // little dependence on age or sex; the volume share stands for the
+      // mass share (the difference, about a tenth of a point, is the neck's
+      // density against the body's and the head outside the volume)
+      keptNeck: { fraction: 0.0235, bodyMassIndex: 24 },
     },
     /** The fat fraction the density model is trusted over. */
     fatFraction: [0.05, 0.5],
@@ -947,12 +956,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, -0.051],
-            [22, -0.013],
-            [26, 0.023],
-            [30, 0.053],
-            [35, 0.08],
+            [18, 0.322],
+            [22, 0.473],
+            [26, 0.616],
+            [30, 0.751],
+            [35, 0.858],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -973,12 +991,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, -0.026],
-            [22, -0.104],
-            [26, -0.175],
-            [30, -0.22],
-            [35, -0.256],
+            [18, 0.567],
+            [22, 0.339],
+            [26, 0.105],
+            [30, -0.084],
+            [35, -0.277],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -999,12 +1026,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.068],
-            [22, 0.143],
-            [26, 0.211],
-            [30, 0.255],
-            [35, 0.286],
+            [18, -0.022],
+            [22, 0.145],
+            [26, 0.324],
+            [30, 0.489],
+            [35, 0.63],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1025,12 +1061,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.241],
-            [22, 0.242],
-            [26, 0.233],
-            [30, 0.202],
-            [35, 0.165],
+            [18, 0.235],
+            [22, 0.325],
+            [26, 0.406],
+            [30, 0.431],
+            [35, 0.483],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1051,12 +1096,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.241],
-            [22, 0.242],
-            [26, 0.233],
-            [30, 0.202],
-            [35, 0.165],
+            [18, 0.235],
+            [22, 0.325],
+            [26, 0.406],
+            [30, 0.431],
+            [35, 0.483],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1077,12 +1131,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.229],
-            [22, 0.246],
-            [26, 0.253],
-            [30, 0.237],
-            [35, 0.213],
+            [18, -0.044],
+            [22, 0.268],
+            [26, 0.578],
+            [30, 0.86],
+            [35, 1.0],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1103,12 +1166,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, 0.229],
-            [22, 0.246],
-            [26, 0.253],
-            [30, 0.237],
-            [35, 0.213],
+            [18, -0.044],
+            [22, 0.268],
+            [26, 0.578],
+            [30, 0.86],
+            [35, 1.0],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1161,9 +1233,21 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
           parameter: "bodyMassIndex",
           points: [
             [15, 0],
-            [18, -0.6],
-            [35, -0.6],
+            [18, -0.914],
+            [22, -0.989],
+            [26, -1.0],
+            [30, -1.0],
+            [35, -1.0],
             [45, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],
@@ -1288,6 +1372,304 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
             [30, 0.184],
             [35, 0.359],
             [45, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleHoriz, women. The waist section stood too
+      // wide and too flat; fitted with the other rows.
+      channel: "torsoScaleHoriz",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.377],
+            [22, 0.259],
+            [26, 0.146],
+            [30, 0.04],
+            [35, -0.073],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleDepth, women. The waist section stood too
+      // wide and too flat; fitted with the other rows.
+      channel: "torsoScaleDepth",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [-1, 1],
+            [0, 0],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.499],
+            [22, 0.651],
+            [26, 0.788],
+            [30, 0.898],
+            [35, 1.0],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: measureUpperlegHeight, men. The reproduced men's hip
+      // joint stood 51 mm above the survey's trochanterion and their knee 29 mm
+      // high: the legs about 5 cm long for their stature, the pelvis and buttock
+      // high with them. Both leg segments shorten together with the stature re-
+      // solved; the survey's people are 17 and older, so the row rises from
+      // nothing at 11 to its full value at 17.
+      channel: "measureUpperlegHeight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.049],
+            [22, -0.22],
+            [26, -0.392],
+            [30, -0.604],
+            [35, -0.852],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: measureLowerlegHeight, men. The reproduced men's hip
+      // joint stood 51 mm above the survey's trochanterion and their knee 29 mm
+      // high: the legs about 5 cm long for their stature, the pelvis and buttock
+      // high with them. Both leg segments shorten together with the stature re-
+      // solved; the survey's people are 17 and older, so the row rises from
+      // nothing at 11 to its full value at 17.
+      channel: "measureLowerlegHeight",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.049],
+            [22, -0.22],
+            [26, -0.392],
+            [30, -0.604],
+            [35, -0.852],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: glutealProjection, men. Fitted with the other rows to
+      // the survey's residuals under the rearmost hip rule and the kept-neck
+      // mass model.
+      channel: "glutealProjection",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.03],
+            [22, 0.042],
+            [26, 0.051],
+            [30, 0.056],
+            [35, 0.06],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleHoriz, men. The waist section stood too wide
+      // and too flat; fitted with the other rows.
+      channel: "torsoScaleHoriz",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.209],
+            [22, -0.131],
+            [26, -0.042],
+            [30, 0.066],
+            [35, 0.155],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: torsoScaleDepth, men. The waist section stood too wide
+      // and too flat; fitted with the other rows.
+      channel: "torsoScaleDepth",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, -0.409],
+            [22, -0.37],
+            [26, -0.292],
+            [30, -0.15],
+            [35, -0.048],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
+          ],
+        },
+      ],
+    },
+    {
+      // ANSUR II people: stomachPregnant, men. The belly carries the trunk's
+      // volume past de Leva's shares as the mass grows; fitted with the other
+      // rows.
+      channel: "stomachPregnant",
+      gain: 1,
+      curves: [
+        {
+          parameter: "sex",
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+        {
+          parameter: "bodyMassIndex",
+          points: [
+            [15, 0],
+            [18, 0.148],
+            [22, 0.198],
+            [26, 0.255],
+            [30, 0.314],
+            [35, 0.428],
+            [40, 0],
+          ],
+        },
+        {
+          parameter: "ageYears",
+          points: [
+            [11, 0],
+            [17, 1],
+            [60, 1],
+            [80, 0],
           ],
         },
       ],

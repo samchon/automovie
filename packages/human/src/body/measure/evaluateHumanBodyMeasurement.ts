@@ -17,7 +17,8 @@ import { measureHumanBodySection } from "./measureHumanBodySection";
  * surface point to the highest clip-ring mean across surfaces; a `distance` is the straight
  * landmark-to-landmark length; a `girth` or `breadth` walks the rule's
  * stations, cuts every surface at each and selects the closed loop nearest
- * the station seed before keeping the largest or smallest value, a girth read as a tape reads it (the
+ * the station seed before keeping the largest or smallest value, or the one
+ * whose loop reaches furthest back, a girth read as a tape reads it (the
  * section's convex hull perimeter, `measureHumanBodySection`). A girth at a
  * skin landmark has one station, where the plane through that shaped vertex
  * meets the segment. A landmark the basis lacks, a skin landmark outside its
@@ -90,6 +91,7 @@ export function evaluateHumanBodyMeasurement(
     );
   const pick = "level" in rule ? "max" : rule.pick;
   let chosen: number | null = null;
+  let rearmost = Infinity;
   for (const fraction of fractions) {
     const point = Vector3.add(from, Vector3.scale(axis, fraction));
     const section = shaped.surfaces
@@ -109,6 +111,13 @@ export function evaluateHumanBodyMeasurement(
       )[0];
     if (section === undefined) continue;
     const value = rule.kind === "breadth" ? section.breadth : section.girth;
+    if (pick === "rearmost") {
+      if (section.back < rearmost) {
+        rearmost = section.back;
+        chosen = value;
+      }
+      continue;
+    }
     if (chosen === null || (pick === "max" ? value > chosen : value < chosen))
       chosen = value;
   }
