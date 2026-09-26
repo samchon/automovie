@@ -21,9 +21,11 @@ import type {
  * the skin the mandible carries toward the midline by a fraction of its
  * distance from it that grows linearly from nothing at the mouth's line
  * (`top`, where the lower face's width is read, which it leaves alone) to
- * `unit` at soft-tissue menton (`menton`) and stays at `unit` below it,
- * each vertex weighted by `carry` (the mandible's share of it, 0 to 1), so
- * the neck's base, which the mandible does not carry, stays, and by how
+ * `unit` at soft-tissue menton (`menton`) and back to nothing at the neck's
+ * cut (`rim`), where the head meets the body (carried at the full unit down
+ * to the rim, the taper beside a full lower face folded the rim and the
+ * editor refused the hair's contact on three documents), each vertex
+ * weighted by `carry` (the mandible's share of it, 0 to 1), and by how
  * far its surface faces sideways (the unit normal's lateral component): it
  * is the mandible's body that converges, its outer face turned sideways,
  * while the chin's front, facing forward, keeps its own width (the
@@ -45,6 +47,11 @@ export function prepareJawTaperBasis(input: {
   top: number;
   /** Soft-tissue menton's height, metres. */
   menton: number;
+  /**
+   * The neck cut's height, where the head meets the body and the skin must
+   * stay (the rim of the opening the hair's contact closes), metres.
+   */
+  rim: number;
   /** Fraction of a vertex's distance from the midline per unit at menton. */
   unit: number;
   envelope: [number, number];
@@ -58,6 +65,7 @@ export function prepareJawTaperBasis(input: {
     channel: string;
     top: number;
     menton: number;
+    rim: number;
     unit: number;
     rows: number;
   };
@@ -73,6 +81,8 @@ export function prepareJawTaperBasis(input: {
     throw new Error("The envelope would close the jaw on the midline.");
   if (!(input.top > input.menton))
     throw new Error("The mouth's line lies above menton.");
+  if (!(input.rim < input.menton))
+    throw new Error("The neck's rim lies below menton.");
   if (basis.channels.some((one) => one.id === input.channel))
     throw new Error(`The basis already has a channel ${input.channel}.`);
   const skin = basis.surfaces.find((one) => one.id === input.skin);
@@ -109,7 +119,10 @@ export function prepareJawTaperBasis(input: {
       normal[3 * v + 2]!,
     );
     const side = length === 0 ? 0 : Math.abs(normal[3 * v]!) / length;
-    const depth = Math.min(1, (input.top - y) / (input.top - input.menton));
+    const depth =
+      y >= input.menton
+        ? (input.top - y) / (input.top - input.menton)
+        : Math.max(0, (y - input.rim) / (input.menton - input.rim));
     const dx = -carry * input.unit * depth * side * x;
     if (dx === 0) continue;
     narrower.push(v, dx, 0, 0);
@@ -147,6 +160,7 @@ export function prepareJawTaperBasis(input: {
       channel: input.channel,
       top: input.top,
       menton: input.menton,
+      rim: input.rim,
       unit: input.unit,
       rows: narrower.length / 4,
     },

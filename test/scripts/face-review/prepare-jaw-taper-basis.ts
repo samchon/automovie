@@ -10,7 +10,8 @@
  * cheilia's mean height, the lip region's outermost vertices it shares with
  * the skin (where `faceVermilionRatios` reads the mouth's width), and
  * menton soft-tissue menton on the neutral's midsagittal profile
- * (`faceMidsagittalLandmarks`). One unit narrows the carried skin at menton
+ * (`faceMidsagittalLandmarks`), and the neck's rim the highest vertex of the
+ * skin's open border below menton. One unit narrows the carried skin at menton
  * by a tenth of its distance from the midline (`prepareJawTaperBasis`).
  * The revision is refused unless every document and the channel at both
  * ends build, and each end turns over or crosses none of the skin's
@@ -103,6 +104,23 @@ const side = (sign: number) =>
     sign * rest[3 * v]! > sign * rest[3 * best]! ? v : best,
   );
 const top = (rest[3 * side(1) + 1]! + rest[3 * side(-1) + 1]!) / 2;
+// The neck's rim: the highest vertex of the skin's open border below menton,
+// where the head meets the body.
+const edges = new Map<string, number>();
+for (let t = 0; t < human.indices.length; t += 3)
+  for (let e = 0; e < 3; ++e) {
+    const a = human.indices[t + e]!;
+    const b = human.indices[t + ((e + 1) % 3)]!;
+    const key = a < b ? `${a},${b}` : `${b},${a}`;
+    edges.set(key, (edges.get(key) ?? 0) + 1);
+  }
+const rim = Math.max(
+  ...[...edges]
+    .filter(([, count]) => count === 1)
+    .flatMap(([key]) => key.split(",").map(Number))
+    .map((v) => rest[3 * v + 1]!)
+    .filter((y) => y < base.menton[0]),
+);
 const envelope: [number, number] = [-4, 3];
 const prepared = prepareJawTaperBasis({
   basis: source,
@@ -114,6 +132,7 @@ const prepared = prepareJawTaperBasis({
   carry,
   top,
   menton: base.menton[0],
+  rim,
   unit: 0.1,
   envelope,
 });
