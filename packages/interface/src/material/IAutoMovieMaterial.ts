@@ -198,4 +198,18 @@ export interface IAutoMovieMaterial {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `clearcoat` for the asset spec material texture relations system contract.
    */
   clearcoat?: number;
+
+  /**
+   * Distance light travels under the surface before it leaves again, per
+   * primary, in metres: the diffuse mean free path of a translucent tissue
+   * such as skin (red farthest). A renderer blurs the diffuse response over
+   * the surface by it, so a lit side bleeds soft and red into the shadowed
+   * one where the surface curves within that distance and a flat surface
+   * stays Lambertian. glTF has no ratified extension for it, so an exported
+   * asset omits it. Omitted, the diffuse response is Lambertian.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `subsurfaceRadius` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `subsurfaceRadius` for the asset spec material texture relations system contract.
+   */
+  subsurfaceRadius?: { r: number; g: number; b: number };
 }
