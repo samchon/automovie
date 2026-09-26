@@ -73,7 +73,7 @@ part와 표면은 `step`, `top`, `support`다. 상판 윗면은 [얕은 봉헌 �
 @evidence principles/core/common.md#substantive-completion 받침 1.20×0.40×0.60m, 몸체 1.10×0.36×1.20m, 칸 0.60×0.80×0.22m와 열림 높이, 머리판 치수가 있어 source가 감실을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 형태는 이미지 02의 후면 감실, 신상 없음은 30-interiors#sanctuary, 벽 위치는 rooms/sanctuary.md#sanctuary-volume의 북쪽 벽에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 제실의 위계 설정을 신상 없이 용기만 놓는 오목한 칸이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract plinth·body·recess·cap part와 칸 안쪽 세 면·바닥의 recess 표면, 뒷면의 벽 접촉을 정한다.
+@evidence principles/design/models.md#representation-contract plinth·body·recess-frame·recess·cap 다섯 part를 정한다. 칸의 양옆은 body, 위아래는 recess-frame, 뒷면은 recess가 소유하고 뒤쪽 석판은 벽과 닿는다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 뒷변 중심, 앞을 로컬 +Z로 두고 점유 상자 1.24×1.94×0.42m를 적는다.
 @evidence principles/design/models.md#reviewable-structure 정면의 칸 깊이와 머리판 돌출, 제실 문 축에서 제단 뒤 중심을 보고 칸 없는 판·벽 구멍·인물 형상을 실패로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02의 후면 감실 구조를 형태 근거로 하되 인체 신상은 두지 않는다.
@@ -105,9 +105,9 @@ part와 표면은 `plinth`, `body`, `recess-frame`, `recess`, `cap`이다. 칸�
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 등잔대 설정을 넓은 발·마디 둘·얕은 접시의 위계와 불꽃 없는 정지 형상이라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract foot·stem·knop·dish part와 접시 안쪽 오목 공간, 16분할을 정한다.
 @evidence principles/design/models.md#spatial-convention 원점을 발 바닥 중심에 두고 점유 상자 0.26×1.15×0.26m를 적는다.
-@evidence principles/design/models.md#reviewable-structure 정면 실루엣의 발·마디·접시 위계와 포락 대비 약 0.6배 높이를 보고 제단보다 높은 등잔·발 없는 줄기를 실패로 둔다.
+@evidence principles/design/models.md#reviewable-structure 정면 실루엣의 발·마디·접시 위계와 포락 대비 약 0.6배 높이를 보고 제단 윗면보다 0.3m 넘게 높은 등잔·발 없는 줄기를 실패로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·04의 넓은 발·가는 줄기·얕은 원형 접시를 근거로 하고 불꽃은 두지 않는다.
-@evidence principles/design/models.md#model-scale-layer-completion 높이 1.15m가 제단 0.95m·보행 포락과 대조돼 축척과 층이 함께 닫힌다.
+@evidence principles/design/models.md#model-scale-layer-completion 높이 1.15m가 석단을 포함한 제단 윗면 1.10m·보행 포락과 대조돼 축척과 층이 함께 닫힌다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work lampstands의 형태 범위와 services의 꺼진 등잔, sanctuary의 좌우 배치를 등잔대에 대조했고 정지 형상으로 충분해 부모를 고치지 않았다.
 @evidence settings/35-objects.md#lampstands 어두운 금속 자립 등잔대의 구성을 발·줄기·마디·접시로 받는다.
 @evidence settings/30-interiors.md#services 등잔이 꺼져 있다는 표시 상태를 불꽃 없는 접시로 받는다.
@@ -253,7 +253,7 @@ part와 표면은 `seat`, `leg`, `stretcher`다. 좌판 아래는 비어 있다.
 @evidence principles/core/common.md#substantive-completion 1.80×0.40×1.70m, 측판 0.04m·칸막이 0.03m, 가로 (1.80−2×0.04−3×0.03)/4≈0.41m·세로 (1.70−2×0.04−4×0.03)/5=0.30m의 칸이 있어 source가 격자를 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 작은 칸 여러 단은 35-objects#shelves, 방 역할은 30-interiors#records, 두루마리가 눕혀진 칸은 이미지 02·05에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 선반 설정을 봉헌실 진열대와 구별되는 스무 칸 격자라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract frame·divider part와 스무 칸의 빈 공간, 판 윗면의 두루마리 면을 정한다.
+@evidence principles/design/models.md#representation-contract frame·board·divider 세 part와 스무 칸의 빈 공간, 가로판 윗면의 두루마리 놓임을 정한다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 뒷변 중심, 앞을 +Z로 두고 점유 상자 1.80×1.70×0.40m를 적는다.
 @evidence principles/design/models.md#reviewable-structure 정면의 4×5 격자와 칸 깊이를 보고 격자 없는 상자·넓은 칸 진열대를 실패로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 두루마리가 눕혀진 칸을 근거로 한다.
@@ -268,6 +268,8 @@ part와 표면은 `seat`, `leg`, `stretcher`다. 좌판 아래는 비어 있다.
 [기록실](../settings/30-interiors.md#records)의 두루마리 칸 선반이다. [선반](../settings/35-objects.md#shelves)의 작은 칸 여러 단과 이미지 02·05의 두루마리가 눕혀진 칸이 근거다.
 
 로컬 원점은 바닥면의 뒷변 중심, 앞은 +Z다. 폭 1.80m·깊이 0.40m·높이 1.70m이며 측판·위판·아래판 두께 0.04m, 칸막이와 선반 판 두께 0.03m로 가로 4칸·세로 5단의 칸을 만든다. 칸 하나는 (1.80−2×0.04−3×0.03)/4≈0.41m 폭·(1.70−2×0.04−4×0.03)/5=0.30m 높이이고 앞뒤로 열려 있으며 뒤판은 없다. 점유 상자는 1.80×1.70×0.40m다. 측판 두 장은 Y=0~1.70m, X=−0.90~−0.86m와 +0.86~+0.90m를 차지한다. 아래판은 Y=0~0.04m, 위판은 Y=1.66~1.70m이고 두 판 모두 측판 안쪽 X=−0.86~+0.86m에 끼운다. 네 중간 가로판은 Y=0.34~0.37m, 0.67~0.70m, 1.00~1.03m, 1.33~1.36m에 놓는다. 세 세로 칸막이의 중심 X는 −0.4375m, 0m, +0.4375m이고 각 두께는 0.03m다. 칸막이는 다섯 열린 높이 구간 Y=0.04~0.34m, 0.37~0.67m, 0.70~1.00m, 1.03~1.33m, 1.36~1.66m마다 별도 닫힌 판으로 끊어 가로판과 부피를 중복하지 않는다.
+
+칸 폭 약 0.41m는 [두루마리](wares.md#scroll)의 말린 기본형 길이 0.28m보다 넓다. 어느 칸에 몇 개를 놓는지는 instances가 정한다.
 
 부재 대응: `frame`=측판; `board`=가로판; `divider`=칸막이.
 

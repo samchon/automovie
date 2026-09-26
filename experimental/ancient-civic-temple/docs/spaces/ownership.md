@@ -16,6 +16,22 @@
 @evidence contracts/obligations-spaces.md#surface-ownership 입면/방/층/roof/대지 전체 소유 표에 문턱·박공·외부 처마 하부·내부 경계벽 reveal까지 귀속시키고 실제 면에서 역검사할 누락 조건을 정한다.
 @evidenceExclude settings/00-delivery.md#coverage-map spaces의 전체 H2를 읽었을 때 설정 파일의 사실 소유 목록을 재작성하는 단위는 없다. 각 공간은 목록이 가리킨 실제 그래프·외피·실내·대지·관찰 target을 직접 소비하며 설정 목록 자체의 완전성은 settings account에 남는다.
 @evidenceExclude settings/40-environment.md#daylight spaces는 개구부와 가림 geometry 및 그 관찰을 정하지만 태양 고도·광원 방향·노출 값을 정하는 host는 없다. viewer-path도 원래 source를 전달할 경계이며 실제 조명값은 systems의 후속 책임이다.
+@evidenceExclude settings/35-objects.md#bench 벤치의 좌면·받침은 독립 물체이고 중정 포장·문턱 표면을 다시 나누지 않는다
+@evidenceExclude settings/35-objects.md#portable-lamp 소형 등잔의 금속 접시·줄기는 모델 부재이고 방 벽·바닥의 완결 면이 아니다
+@evidenceExclude settings/35-objects.md#jar-rack 두 자리 항아리 받침은 보관실의 이동 가구로서 바닥 판의 표면 owner를 바꾸지 않는다
+@evidenceExclude settings/35-objects.md#carrying-yoke 멜대와 고리는 마당에 내려놓는 prototype이며 마당 포장 형상이 아니다
+@evidenceExclude settings/35-objects.md#handcart 정지 손수레의 바퀴·판은 독립 외부 소품이고 마당 길이나 문턱 통과의 공간 형상을 결정하지 않는다
+@evidenceExclude settings/35-objects.md#bucket 빈 물동이의 몸체·손잡이는 옮길 수 있는 용기이며 중정·마당 바닥 면이 아니다
+@evidenceExclude settings/35-objects.md#planter 화분과 흙면은 중정 가장자리 비품이고 대지 흙띠나 중정 포장의 분할이 아니다
+@evidenceExclude settings/35-objects.md#votive-plaque 봉헌판의 빈 앞면은 물체 표면이고 제실·봉헌실 벽면 장식이 아니다
+@evidenceExclude settings/35-objects.md#offering-tray 얕은 쟁반의 판·테는 독립 소품이며 제단이나 봉헌 탁자의 바닥 표면을 새로 소유하지 않는다
+@evidenceExclude settings/35-objects.md#textile 접은 천은 놓이는 비품이고 방 천장·벽·바닥 표면의 재료 띠가 아니다
+@evidenceExclude settings/35-objects.md#stylus 첨필의 짧은 막대는 책상 소품이며 관리실·기록실 벽이나 바닥 완결 면이 아니다
+@evidenceExclude settings/35-objects.md#writing-tablet 글자 없는 필기판은 책상 소품이며 기록실의 벽 마감이나 바닥 판이 아니다
+@evidenceExclude settings/35-objects.md#rope-coil 느슨한 끈의 고리·묶음 띠는 이동 소품이며 보관실이나 마당 포장과 합치지 않는다
+@evidenceExclude settings/35-objects.md#censer 꺼진 향로의 컵·재·향은 제단 위 독립 비품이고 제실 벽·바닥의 소유가 아니다
+@evidenceExclude settings/35-objects.md#floor-cushion 낮은 좌구의 천 면은 제실 바닥 위 독립 물체이며 바닥의 dado나 포장을 분할하지 않는다
+@evidenceExclude settings/35-objects.md#jar-stand 한 자리 원형 받침은 보관실의 독립 가구이고 바닥 구조체나 고정 문턱이 아니다
 -->
 
 <!--
@@ -32,6 +48,22 @@
 @evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 방 바닥의 벽 두께 문턱, roof 하부·박공, 대지 표면, 내부 경계벽 reveal까지 표에서 귀속시켜 최초 분해를 지급한다.
 @evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 이 공간 소유 지도는 settings 파일 소유 목록 자체를 다시 완성하는 host가 아니며, 각 공간은 설정 목록이 가리킨 실제 그래프·외피·실내·대지·관찰 target을 소비한다.
 @evidenceExcludeReview settings/40-environment.md#daylight #eac4028 창·roof·대지 표면의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 조명 수치는 systems에 남는다.
+@evidenceExcludeReview settings/35-objects.md#bench #4731814 벤치의 좌면과 받침을 주랑 바닥 표면으로 세지 않는 소유 경계를 확인했다
+@evidenceExcludeReview settings/35-objects.md#portable-lamp #8c83b45 소형 등잔의 접촉 위치는 배치가 정하며 공간 표면 지도에 등잔 part를 더하지 않는다
+@evidenceExcludeReview settings/35-objects.md#jar-rack #433211e 받침 홈과 다리는 모델에 남고 보관실 바닥은 독립 표면으로 남는다
+@evidenceExcludeReview settings/35-objects.md#carrying-yoke #96f2b07 멜대의 걸침·하중을 공간 표면 지도에서 주장하지 않는다
+@evidenceExcludeReview settings/35-objects.md#handcart #6687f32 정지 손수레의 실제 놓임과 포장 접촉은 후속 배치에서 검증한다
+@evidenceExcludeReview settings/35-objects.md#bucket #afa0f22 물동이의 위치와 수량을 공간 완결 면의 일부로 중복 소유하지 않는다
+@evidenceExcludeReview settings/35-objects.md#planter #5494e82 화분 내부 흙을 site 바닥 흙띠로 잘못 세지 않는 소유 경계를 확인했다
+@evidenceExcludeReview settings/35-objects.md#votive-plaque #564c5ab 봉헌판의 글자 없는 판을 방 벽의 고정 마감으로 오인하지 않는다
+@evidenceExcludeReview settings/35-objects.md#offering-tray #59c6686 쟁반의 받침 접촉은 배치의 문제이고 공간 표면 지도는 탁자·제단 geometry를 복제하지 않는다
+@evidenceExcludeReview settings/35-objects.md#textile #d9105f6 직물의 덮개 역할을 모델에 남겨 실내 표면 소유를 바꾸지 않는다
+@evidenceExcludeReview settings/35-objects.md#stylus #4491a6c 첨필 위치는 책상 배치가 정하고 공간 표면 지도에는 형상 행이 없다
+@evidenceExcludeReview settings/35-objects.md#writing-tablet #eeff48e 필기면의 물체 소유와 기록실 공간 표면 소유가 분리돼 있다
+@evidenceExcludeReview settings/35-objects.md#rope-coil #c57b0fb 끈의 세 고리가 공간 벽·바닥 형상으로 중복 방출되지 않는다
+@evidenceExcludeReview settings/35-objects.md#censer #d45a952 향로가 제단 위에 놓여도 제실 완결 표면 owner는 바뀌지 않는다
+@evidenceExcludeReview settings/35-objects.md#floor-cushion #6e384d3 좌구의 앉는 면과 제실 석재 바닥을 서로 다른 표면 소유로 유지한다
+@evidenceExcludeReview settings/35-objects.md#jar-stand #87bb280 한 자리 받침의 고리·기둥을 보관실 완결 바닥 면에서 제외한다
 -->
 
 [추가 공간 의무](../contracts/obligations-spaces.md#surface-ownership)를 실제 평면 경계와 연결한다. 아래의 source 경로는 각 완결 표면의 단독 저작 owner다. 표가 있다는 사실은 compiled binding의 역검사 통과를 뜻하지 않는다. 저작자는 이번 production 세션 한 명이고 fan-out이 생겨도 하나의 행이 가진 완결 표면을 여러 사람에게 나누지 않는다. 내부벽의 물리 topology는 [boundaries](openings.md#boundary-ownership) 한 소유이며 마주 보는 두 마감은 각각의 방 소유다.
@@ -60,6 +92,8 @@
 | 포치 지붕과 외부 처마 전체 | [포치 지붕](roofs/porch.md#porch-roof) | src/spaces/roofs/porch.ts | `roof-porch` |
 | 대지 흙띠·경계석·포장·이웃 바닥 | [흙띠·경계석·포장](site.md#site-paving) | src/spaces/site/ground.ts | `site` |
 | 먼 능선과 기슭 | [먼 능선과 기슭](site.md#distant-ridge) | src/spaces/site/ridge.ts | `site-distant` |
+
+2026-09-25 사물 제작 지시로 추가한 낮은 벤치·소형 등잔·항아리 받침대·멜대·정지 손수레·물동이·화분·봉헌판·쟁반·접은 천·첨필·필기판·끈 뭉치·향로·좌구·한 자리 받침은 모두 독립 물체 prototype이다. 각 방에서 물체가 닿는 위치와 수량은 instances의 후속 검토 대상이며, 이 공간 표면 지도는 그 물체의 part나 부피를 방 바닥·벽·대지 포장에 흡수하지 않는다.
 
 surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary/element의 면 범위에 결속한다. [벽 접합](junctions.md#wall-junctions)의 공통 내부 접면은 노출 마감이 아니며 모서리 절단이 외측 면의 소유를 바꾸지 않는다. [박공 폐쇄](junctions.md#gable-closures)의 노출 면도 위의 입면·방·지붕 소유에 속한다. junctions는 접합 계산의 소유이고 완결 시각 표면의 새 공동 소유자가 아니다. 마감의 수치값은 materials가 이 host를 소비하며 면을 다른 owner로 쪼개지 않는다. 기둥·문틀·문짝·수반·제단 같은 독립 물체의 전체 표면은 해당 model prototype 한 소유이고 방 파일은 배치와 접촉을 소비한다. 반복 instance마다 표면 정의를 복제하지 않는다.
 
@@ -95,7 +129,7 @@ surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 세 설정 조건이 기존 벽 마감의 한 수평 분할로 함께 성립해 부모의 색 관계나 방별 용도를 고칠 결함이 없었다.
 @evidenceReview settings/20-envelope.md#material-language #25e6ffa 부모의 중정·제실 띠와 밝은 업무방이 대상 두 표면과 제외 목록으로 그대로 옮겨졌다.
 @evidenceReview settings/20-envelope.md#walls #35026c5 띠 경계가 바닥 위 일정 높이의 수평선이라 부모의 높이 경계를 따르는 재료 경계 원칙에 맞는다.
-@evidenceReview settings/30-interiors.md#sanctuary #f53612f 제실 네 벽 하부의 sanctuary.dado가 이미지 04의 낮은 붉은 띠를 받는다.
+@evidenceReview settings/30-interiors.md#sanctuary #224fd8d 제실 네 벽 하부의 sanctuary.dado가 이미지 04의 낮은 붉은 띠를 받는다.
 @evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 두 dado 표면이 각 방 owner의 완결 표면으로 귀속되고 한 면이 두 표면에 겹치면 실패로 명시돼 단독 소유가 유지된다.
 -->
 

@@ -14,7 +14,7 @@ import { templeLevels as y } from "./storey";
  * @evidence spaces/ownership.md#interior-dado 완성 바닥 위 0.60m 윗선과 surface.colonnade/sanctuary.wall→dado 대응을 설계 값 그대로 옮긴다.
  * @evidenceReview spaces/ownership.md#interior-dado #4b6731d # 0.60m 윗선과 두 wall→dado surface ID를 원 설계 행과 각각 대조했으며 다른 방의 하단 높이는 포함하지 않는다.
  * @evidence spaces/ownership.md#surface-map 띠가 주랑·제실 두 owner의 벽 마감 안의 분할이며 다른 방·입면 표면을 바꾸지 않는다는 소유 경계를 대응표로 제한한다.
- * @evidenceReview spaces/ownership.md#surface-map #7b7b5a8 # surfaces 키가 두 실내 owner 벽뿐이라 외부 facade와 봉헌·업무방 벽이 dado로 잘못 재소유되지 않는다.
+ * @evidenceReview spaces/ownership.md#surface-map #87dc34b # surfaces 키가 두 실내 owner 벽뿐이라 외부 facade와 봉헌·업무방 벽이 dado로 잘못 재소유되지 않는다.
  * @evidence principles/core/source-units.md#source-scope-preservation 두 표면만 대상으로 하고 높이는 층 완성면 위 값으로만 둔다.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 이 상수는 floor 자체를 바꾸지 않고 두 wall ID의 분할 높이만 주어 전체 벽 실체를 다시 만들지 않는다.
  * @evidence principles/core/source-units.md#source-substantive-completion 높이와 대응표를 함께 가진 값으로 templeDadoFaces가 그대로 소비한다.

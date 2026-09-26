@@ -12,7 +12,7 @@
 @evidence principles/design/models.md#reviewable-structure 점유 상자와 보행 포락을 나란히 대조하는 규칙이 각 H2 검토 판의 공통 반증 기준이 된다.
 @evidence principles/design/models.md#model-observable-style-basis 고대 지중해라는 표지를 부재 분리와 빈 공간으로만 읽히게 하고 세로 홈·조각·특정 오더 비례는 주장하지 않으며 색·거칠기는 materials 몫이라고 경계를 긋는다.
 @evidence principles/design/models.md#model-scale-layer-completion 축척 기준·표현 상한·prototype 점유 상자·배치 기준점의 층을 함께 정해 반복 부재 H2가 배치 수 없이도 완결되게 한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work use-profile의 보행 포락, coordinates의 Y-up m, fidelity의 입체 부재 요구, build-scope의 prototype/instances 분담을 모든 모델 치수에 대조했고 모순이나 빠진 권위가 없어 부모를 고치지 않았다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 사물 16개의 존재·범위가 settings에 빠져 있어 35-objects와 30-interiors의 정체성·방별 목록을 먼저 수리했다. user 지시는 존재 범위를 승인했고 치수·접합은 각 모델 H2의 저작 결정이다.
 @evidence settings/00-delivery.md#coordinates 오른손 Y-up, 길이 m 규약을 모델 좌표로 그대로 쓴다.
 @evidence settings/10-building.md#use-profile 성인 보행 포락 0.6×0.4×1.9m를 모든 모델의 공유 축척 기준으로 지명한다.
 @evidence settings/50-production.md#fidelity 입체 부재가 리뷰 거리에서 읽히되 사진 같은 열화 복제는 증명하지 않는다는 요구를 blocking geometry 상한과 허용·금지 주장으로 옮긴다.
@@ -21,19 +21,21 @@
 @evidence obligations/design/models.md#representation-ceiling population의 표현 상한과 모델이 주장할 수 없는 시각 추론(조각·세로 홈·풍화·기와 한 장씩의 불규칙·정확한 고대 비례)을 이 H2가 정한다.
 @evidence obligations/design/models.md#reference-scale 공유 축척 기준을 보행 포락으로 지명하고 점유 상자를 settings 범위·포락과 대조하는 도출·검사 규칙을 정한다.
 @evidenceExclude settings/00-delivery.md#coverage-map 설정 소유 지도는 settings 파일 사이의 색인이며 모델 H2는 지도가 가리키는 외피·실내·물체·환경 owner를 직접 인용하므로 지도 자체가 주는 모델 결정은 없다.
-@evidenceExclude settings/00-delivery.md#delivery-scope 납품 범위의 공간 목록과 뷰어 약속은 spaces와 viewer가 받고, 모델 population은 build-scope가 models에 배정한 prototype 목록으로만 범위를 받는다.
+@evidenceExclude settings/00-delivery.md#delivery-scope 납품 범위의 공간 목록과 뷰어 약속은 spaces와 viewer가 받고, 모델 사물 범위는 사용자 사물 지시를 반영해 수리된 35-objects와 30-interiors의 개별 owner에서 받는다.
 @evidenceExclude settings/00-delivery.md#operative-subjects 주체 표의 물체·분수·주민 항목은 35-objects·30-interiors#fountain·10-building#use-profile로 이미 직접 소비되고 표 자체는 새 형상 결정을 주지 않는다.
 @evidenceExclude settings/00-delivery.md#working-language 작업 언어는 모델 형상의 입력이 아니라 문서 표기 규칙이어서 accounts/models/core-common.md의 production-language 설명이 population 단위로 맡는다.
 @evidenceExclude settings/10-building.md#fixed-graph 방 순서·문·주랑 루프는 spaces가 실현했고 모델은 그 결과를 방 volume과 문 표로만 받아 그래프를 직접 소비하는 prototype이 없다.
 @evidenceExclude settings/10-building.md#scale 410~450㎡ 외곽과 장단변비는 spaces footprint가 소비했고 모델 치수는 보행 포락과 판정된 방 순치수에서 유도해 건물 면적을 쓰지 않는다.
-@evidenceExclude settings/50-production.md#measurement-truth 모델 문서의 치수는 settings 범위와 판정된 spaces 값에서 유도한 입력이며 compiled 측정과 실패 기록은 modelSources가 생긴 뒤 그 source 관찰이 진다.
+@evidenceExclude settings/50-production.md#measurement-truth 모델 문서의 치수는 settings 허용 범위와 판정된 spaces 값을 받아 저작한 입력이다. 은퇴한 source의 방출 mesh를 잰 좌표표를 설계값으로 보존하지 않으며 compiled 측정과 실패 기록은 modelSources가 생긴 뒤 그 source 관찰이 진다.
 @evidenceExclude settings/50-production.md#runtime-boundary CJS producer와 뷰어 전달 경계는 source 전달 방식이며 prototype의 형상·표면·관절 결정 어느 것도 이 경계에서 오지 않는다.
 @evidenceExclude spaces/building.md#containment 공간 부모 위계는 공간 identity 관계이고 모델 prototype은 공간 부모를 갖지 않으며 배치된 element의 부모는 instances가 정한다.
 @evidenceExclude spaces/building.md#footprint 외곽 치수 선택은 건물 매스의 결정이며 모델은 그 외곽 대신 방·주랑·지붕 순치수와 기준선만 소비한다.
 @evidenceExclude spaces/ownership.md#surface-map 표면 소유 지도는 spaces가 내는 벽·바닥·지붕 표면만 다루며 모델 표면 ID는 각 H2의 part 목록이 자기 prototype 안에서 정한다.
 -->
 
-모든 신전 모델은 오른손 Y-up, 길이 m의 [좌표 규약](../settings/00-delivery.md#coordinates)을 따르고 별도의 앞·위 축을 두지 않는다. 공유 축척 기준은 [이용 조건](../settings/10-building.md#use-profile)의 성인 보행 포락 폭 0.6m·깊이 0.4m·높이 1.9m다. 각 모델의 치수는 해당 settings 범위([물체](../settings/35-objects.md), [외피](../settings/20-envelope.md), [실내](../settings/30-interiors.md))와 판정된 spaces의 순치수(문 유효 폭·높이, 주랑 기둥 예산, 지붕 하부 높이)에서 유도하며 primitive 기본 크기를 치수로 쓰지 않는다. 비교 규칙은 모델의 점유 상자를 그 settings 범위와 보행 포락에 함께 대조하는 것이다. 범위를 벗어나거나 보행 포락보다 큰 집기가 방 통로를 막으면 그 모델 H2가 실패다.
+2026-09-25 사용자 사물 제작 지시가 존재 범위를 넓혔을 때 settings의 35-objects와 30-interiors에 16개 물체의 정체성·방별 자리가 없었다. 두 부모 문서를 먼저 수리했고 각 물체의 구체 치수·접합은 해당 모델 H2가 맡는다.
+
+모든 신전 모델은 오른손 Y-up, 길이 m의 [좌표 규약](../settings/00-delivery.md#coordinates)을 따르고 별도의 앞·위 축을 두지 않는다. 공유 축척 기준은 [이용 조건](../settings/10-building.md#use-profile)의 성인 보행 포락 폭 0.6m·깊이 0.4m·높이 1.9m다. 각 모델의 치수는 해당 settings 범위([물체](../settings/35-objects.md), [외피](../settings/20-envelope.md), [실내](../settings/30-interiors.md))와 판정된 spaces의 순치수(문 유효 폭·높이, 주랑 기둥 예산, 지붕 하부 높이)에서 유도하며 primitive 기본 크기를 치수로 쓰지 않는다. 비교 규칙은 모델의 점유 상자를 그 settings 범위와 보행 포락에 함께 대조하는 것이다. 범위를 벗어나거나 보행 포락보다 큰 집기가 방 통로를 막으면 그 모델 H2가 실패다. [표현 상한](../settings/50-production.md#fidelity)은 입체 부재가 리뷰 거리에서 읽힐 것을 요구하고, [표면 언어](../settings/20-envelope.md#material-language)는 재료 수치의 소유를 materials에 둔다. [제작 분담](../settings/00-delivery.md#build-scope)에 따라 모델은 prototype, instances는 배치와 복제를 맡는다.
 
 표현 상한은 결정론적 blocking geometry다. 허용하는 시각 주장은 리뷰 거리(눈높이 1.6m, 대상까지 약 2~25m)의 실루엣, 부재 분리(기단·몸통·주두, 문틀·문짝의 선대·가로대·판, 테두리·몸통·목), 실제 빈 공간(문 개구, 수반 안쪽, 선반 칸, 궤 뚜껑의 틈), 실제 두께다. 조각 장식, 세로 홈, 공구 자국, 기하로 새긴 나뭇결과 기와 한 장씩의 불규칙, 기하로 새긴 풍화, 끈과 짜임의 미세 형상, 특정 고대 양식의 정확한 비례는 주장하지 않는다. 곡면은 각 H2가 정한 분할 수의 다면체이며 부드러운 법선은 그 H2가 요구한 곳에만 쓴다. 재료의 색·거칠기·결과 무늬는 materials가 정한다. 모델은 안정된 표면 ID와 다음 UV0 물리 좌표를 모두 낸다.
 
@@ -94,7 +96,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 
 관절을 가진 모델은 [문짝](openings.md#double-door-leaf)과 [외개 문짝](openings.md#single-door-leaf)뿐이다. 각 문짝 판은 `hinge.<판 ID>` 이름의 변환 node 하나를 motion과 공개 opening operation이 쓸 수 있는 안정 인터페이스로 가진다. 회전축은 연직이며 양개문은 판 원점에서 X=+0.021m·Z=0, 외개문은 X=0·Z=+0.031m에 있다. 범위는 닫힘 0°부터 열림 90°까지이고 판의 국소 개방 변환은 이 축 주위 `R_y(−θ)`다. instances가 판 전체를 각 방의 스윙 방향으로 향하게 설치하므로 모델은 방별 회전 부호를 새로 고르지 않는다. 상태 이름은 `closed`와 `open`이며 기본 상태는 [개구부 소유](../spaces/openings.md#doors)가 정한 열림이다. 여는 방향은 spaces의 스윙 예약을 따르고 모델은 방향을 새로 정하지 않는다.
 
-그 밖의 모든 모델은 강체다. 궤 뚜껑은 닫힌 고정 부재이고 분수 물줄기는 정지 형상이며 시간에 따른 변화는 systems·motions의 후속 결정이다. 문짝의 손잡이·경첩·판은 판 node의 자식으로 함께 돌고 따로 움직이는 인터페이스가 아니다.
+그 밖의 모든 모델은 강체다. 궤 뚜껑은 닫힌 고정 부재이고 분수 물줄기는 [서비스 상태](../settings/30-interiors.md#services)의 고정 수위를 따른 정지 형상이며 시간에 따른 변화는 systems·motions의 후속 결정이다. 문짝의 손잡이·경첩·판은 판 node의 자식으로 함께 돌고 따로 움직이는 인터페이스가 아니다.
 
 ## 중립 모델 검토 판 {#model-review-board}
 
@@ -122,6 +124,6 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 @evidenceExclude spaces/observations.md#viewer-path viewer-path는 건물 source를 그리는 전달 경로이고 검토 판은 건물과 분리된 별도 장면이라 그 경로의 모드·단면을 쓰지 않는다.
 -->
 
-모델 검토 판은 건물과 분리된 한 장면이다. 각 prototype을 Y=0의 중립 회색 바닥 위에 하나씩 세우고 오른쪽(+X) 0.8m에 보행 포락 상자(0.6×0.4×1.9m)를 둔다. 조명은 건물 뷰어의 검토용 주광 방향과 같은 고정 광원 하나와 하늘 보조광이며 재료가 결속되지 않은 part는 같은 중립 클레이로 보인다. 카메라는 수직 시야각 50°, 1600×1000 비율이다.
+모델 검토 판은 건물과 분리된 한 장면이다. 각 prototype을 Y=0의 중립 회색 바닥 위에 하나씩 세우고 오른쪽(+X) 0.8m에 보행 포락 상자(0.6×0.4×1.9m)를 둔다. 조명은 건물 뷰어의 검토용 주광 방향과 같은 고정 광원 하나와 하늘 보조광이며 재료가 결속되지 않은 part는 같은 중립 클레이로 보인다. 카메라는 수직 시야각 50°, 1600×1000 비율이다. [검토 조건](../settings/00-delivery.md#review-condition)의 프레임과 시야각, [낮 주광](../settings/40-environment.md#daylight)의 방향을 받는다.
 
 필수 시점은 정면(+Z 쪽에서 −Z를 봄), 우측면(+X 쪽), 평면(위에서), 3/4 조감(+X·+Y·+Z 방향 고도 30°)이며 각 시점은 모델 높이가 화면 높이의 약 70%가 되도록 거리를 정한다. 문짝은 `closed`와 `open` 두 상태를 각각 본다. 기와처럼 반복되는 모듈은 한 단위와 3×3 배열 표본을 함께 본다. 비교 기준은 각 모델 H2가 적은 실루엣 단면, 부재 분리, 빈 공간, 점유 상자와 보행 포락의 비례다. 이 판은 셰이딩이나 연출이 아닌 구성 판단용이며 건물 안 배치나 접촉은 instances와 spaces 관찰이 따로 본다.

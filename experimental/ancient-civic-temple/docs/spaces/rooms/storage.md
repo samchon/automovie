@@ -25,7 +25,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 마당에서 양방향 반입을 검사해 큰 항아리가 문을 가린 배치도 실패로 삼는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 저장 용도에 벽 쪽 물품 영역과 서쪽 빈 반입 축을 구체적으로 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 봉헌물 운반을 동고의 주랑 경로에 배정해 새 북벽 문이나 계단을 요구하지 않았다.
-@evidenceReview settings/30-interiors.md#storage #c1137b6 중앙을 비운 벽 쪽 저장이 기록실과 다른 용기/상자/바구니 사용을 지킨다.
+@evidenceReview settings/30-interiors.md#storage #7be97cb 중앙을 비운 벽 쪽 저장이 기록실과 다른 용기/상자/바구니 사용을 지킨다.
 @evidenceReview settings/35-objects.md#vessels #33b80a7 큰 항아리로 문이 가려지면 물체만이 아니라 빈 진입 예약도 함께 수리한다.
 @evidenceReview settings/35-objects.md#baskets #a70a8f6 바구니가 들어갈 벽 쪽 영역과 비워 둘 운반 통로를 함께 읽었다.
 -->

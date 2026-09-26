@@ -20,7 +20,7 @@ import { createReviewPayload } from "./review-payload";
 import { modelAccountMismatches, modelAccountRows, modelDocumentBodyLength, modelSectionMeasures, modelInputHeader, modelSourceInputRows, modelSourceInputMismatches, modelPartNounMismatches } from "./model-account";
 import { spaceAccountMismatches, spaceAccountRows, spaceDocumentBodyLength } from "./space-account";
 import { replaceMeasuredTable } from "./account-sync";
-import { handoffOtherOwners, modelHandoffRows } from "./model-handoff-audit";
+import { handoffOtherOwners, modelHandoffRows, modelIdentityOwnerFailures } from "./model-handoff-audit";
 import { addressCoverageCensus } from "./address-coverage";
 import { ownFacadeFailures, ownFacadeViews } from "./own-facade-view";
 import { createTempleEnvironment } from "../spaces/environment";
@@ -230,7 +230,10 @@ const handoffModels = models.map((file) => ({ path: relative(join(docs, "models"
 const handoffs = modelHandoffRows(handoffParents, handoffModels, vocabulary);
 const reverseOnly = modelHandoffRows(handoffParents, handoffModels, vocabulary, {});
 const ownerless = handoffs.filter((row) => row.owners.length === 0);
+const identityFailures = modelIdentityOwnerFailures(handoffParents.find((row) => row.path === "settings/35-objects.md")!, handoffModels);
 console.log(`model handoff reverse audit: ${vocabulary.length} vocabulary terms, ${handoffs.length} parent H2 rows, ${ownerless.length} ownerless`);
+console.log(`model identity owner audit: ${identityFailures.length} unresolved`);
+for (const failure of identityFailures) console.error(failure);
 console.log(`handoff routing provenance: ${Object.keys(handoffOtherOwners).length} explicit parent routes; ${reverseOnly.filter((row) => row.owners.length === 0).length} rows depend on those labels rather than a reverse model citation (semantic fit requires prose review)`);
 if (values.handoffs) {
   for (const row of handoffs) console.log(`  ${row.parent} | ${row.terms.join(", ")} | ${row.owners.join(", ") || "OWNERLESS"}`);
@@ -249,6 +252,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + surfaceBinding.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + identityFailures.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + surfaceBinding.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
 console.log(`self-check failures: ${failureCount}`);
 process.exitCode = failureCount > 0 ? 1 : 0;

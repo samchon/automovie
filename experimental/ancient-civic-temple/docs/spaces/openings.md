@@ -74,7 +74,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문짝 두께·손잡이가 남긴 열린 통과 영역도 읽게 해 문틀 안 폭만으로 통과시킬 수 없다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 최소 폭 요구에 각 방의 다른 중심·높이·열림 방향과 상태 binding을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 좁은 마당 접면에도 틀 포함 void와 양끝 벽 여유가 남아 부모 폭을 줄이지 않았다.
-@evidenceReview settings/10-building.md#use-profile #00a6851 설정의 통과 최소는 열린 문짝/철물 뒤 실제 영역에도 유지해야 한다고 명시했다.
+@evidenceReview settings/10-building.md#use-profile #ee92183 설정의 통과 최소는 열린 문짝/철물 뒤 실제 영역에도 유지해야 한다고 명시했다.
 @evidenceReview settings/20-envelope.md#openings #4053d90 opening.fill의 실제 panel과 closed/open 상태가 같은 lowering 경로를 써서 브라우저의 별도 회전이 개구부를 대신하지 않는다.
 -->
 
@@ -119,7 +119,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 마지막 문단이 창별 연직 단면·지붕/마당 위 외부 관찰·제실 내부 `opening-facing` pose를 나누고, 도착 threshold가 창을 등진다고 명시한다. 네 꼭짓점 절두체 검사도 요구한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 상부 채광 요구에 박공 네 곳·측벽 네 곳의 좌표·틀 여유·관통 깊이를 더한다. 해당 창의 내부 판독은 창 중심 높이에서 자기 ID를 향하는 pose로 구체화한다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 제실 측벽 틀 3.94~4.46m가 서측 지붕 3.71m 위·제실 하부 5.10~5.22m 아래이며 동쪽 마당 상한 3.20m 위다. threshold를 창 관찰에서 빼도 별도 pose로 직접 읽으므로 부모의 채광·지붕 설정을 바꾸지 않는다.
-@evidenceReview settings/30-interiors.md#sanctuary #f53612f 북·남 박공과 측벽의 여덟 창은 제실 상부에 남는다. 본문은 각 창의 방 쪽 관찰을 threshold가 아니라 profile 중심 높이에서 자기 창을 향하는 `opening-facing` pose로 정한다.
+@evidenceReview settings/30-interiors.md#sanctuary #224fd8d 북·남 박공과 측벽의 여덟 창은 제실 상부에 남는다. 본문은 각 창의 방 쪽 관찰을 threshold가 아니라 profile 중심 높이에서 자기 창을 향하는 `opening-facing` pose로 정한다.
 @evidenceReview settings/20-envelope.md#openings #4053d90 북·남 박공과 서·동 spine을 관통하는 0.4×0.4m 유효 void와 0.06m 석재 틀, 유리 없음이 첫 문단에 분리된다. 마지막 문단은 reveal을 방 쪽 창 pose와 외부 단면에서 실제로 읽게 한다.
 -->
 

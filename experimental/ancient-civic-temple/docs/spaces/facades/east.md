@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문 안/밖과 처마 벽→낮은 벽, 남동 모서리의 파라펫 만남을 함께 보아 부유한 서비스 문과 모서리 틈을 찾는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 외부 반입 요구를 북쪽 마당의 실제 외벽 문턱과 업무 날개 끝, 남동 모서리 칸에 결속했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 깊은 문설주와 외부 반입을 마당 외벽에 배정할 수 있어 업무방의 새 외부 문이 필요하지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 업무 roof를 마당 위에 연장하지 않는 문장이 서비스 마당의 열린 하늘을 지킨다.
+@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 업무 roof를 마당 위에 연장하지 않는 문장이 서비스 마당의 열린 하늘을 지킨다.
 @evidenceReview settings/20-envelope.md#openings #4053d90 깊은 문설주·인방·목재 문짝이 동일 void를 소비하도록 해 외벽 구멍만 남기지 않는다.
 -->
 

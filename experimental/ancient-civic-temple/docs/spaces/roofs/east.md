@@ -23,7 +23,7 @@
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 남쪽 끝과 코핑의 만남은 gable-closures 표를 따른다고 적어 이 H2가 코핑이나 용마루 덮개의 규칙을 두 번 정하지 않는다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 남측 파라펫 뒤 끝이 관찰 목록에 있고, 이전 경사에서 그 자리의 용마루가 코핑을 뚫었다는 사실이 19도 수정으로 이어졌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 업무 날개 박공에 북단 공유벽·남단 파라펫 멈춤과 동측 지지 높이, 동측 전용 경사를 더했다.
-@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 마당 쪽은 0.35m 돌출 처마까지만 나가 서비스 마당의 열린 하늘을 지킨다.
+@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 마당 쪽은 0.35m 돌출 처마까지만 나가 서비스 마당의 열린 하늘을 지킨다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 본문의 19도는 인용 설정의 박공 허용 범위 안이고 가운데 용마루와 동측 외벽 쪽 바깥 처마가 유지된다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 19도와 3.55m 지지로 널판 천장 여유와 코핑 아래 용마루가 함께 성립해 부모의 박공 범위나 마당 조건을 고칠 결함이 없었다.
 -->

@@ -25,9 +25,9 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문턱은 제단 위계, 단면은 깊이/박공, 모서리는 누광/누락을 묻게 구분했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 후면 제실 약속에 북쪽 제단 축과 앞뒤 활동 깊이, 중정으로 열린 시선을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 감실/용기와 원래 제단 크기로 접근을 예약하며 인체 신상이나 축소 제단이 필요하다고 결론내리지 않았다.
-@evidenceReview settings/30-interiors.md#sanctuary #f53612f 후면 무문양 감실과 열린 문에서 수반을 보는 축이 중심 위계를 유지한다.
+@evidenceReview settings/30-interiors.md#sanctuary #224fd8d 후면 무문양 감실과 열린 문에서 수반을 보는 축이 중심 위계를 유지한다.
 @evidenceReview settings/35-objects.md#altar #53d6be8 제단 크기 예산을 줄이지 않은 채 앞뒤 여백을 배정한 본문을 확인했다.
-@evidenceReview settings/35-objects.md#lampstands #5522e15 좌우 등잔은 중심 위계의 자리만 정하고 형상은 후속 집기 소유에 남긴다.
+@evidenceReview settings/35-objects.md#lampstands #b6f9a7b 좌우 등잔은 중심 위계의 자리만 정하고 형상은 후속 집기 소유에 남긴다.
 -->
 
 공간 ID `sanctuary`의 본체 경계는 [공유 기준선](../building.md#plan-datums) west-ring~east-ring, north-inner~sanctuary-front다. 남쪽 중앙의 실제 문 하나가 북쪽 주랑에 직접 닿고 다른 방을 통과하지 않는다. 북쪽은 후면 외벽, 서쪽은 봉헌실 경계, 동쪽은 서비스 마당 경계다. 위쪽은 [제실 박공](../roofs/sanctuary.md#sanctuary-roof)의 내부 단면까지이며 평평한 천장으로 지붕 부피를 잘라 숨기지 않는다.

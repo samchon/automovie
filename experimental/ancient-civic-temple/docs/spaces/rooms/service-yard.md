@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 두 threshold와 외부→주랑 경로가 네 모서리·네 방위와 함께 적혀 마당 중앙 한 장으로 단절을 숨길 수 없다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 서비스 마당 용도를 직접 문 접면, 북동 물품 자리, 같은 높이의 두 문턱으로 구체화했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 두 출입과 0.02m 문턱 한계가 제실 관통 없이 성립하고 상한 변경도 부모 조건과 무관해 그래프나 운반 조건을 고치지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 항아리·바구니를 북동 모서리로 보내 두 문 사이 반입 통로가 비어 있다.
+@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 항아리·바구니를 북동 모서리로 보내 두 문 사이 반입 통로가 비어 있다.
 @evidenceReview settings/10-building.md#ground-access #be07d7d Y=0 바닥과 0.02m 이하 문턱이 함께 적혀 외부 문이 층 바닥과 끊긴 채 떠 있지 않다.
 -->
 

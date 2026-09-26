@@ -25,7 +25,7 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 연속 주랑에 오목 영역과 기단 돌출 뒤의 여유 예산을 더했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 명목 폭에서 돌출을 뺀 1.75m·1.60m는 배치 전 예산이며 부모 최소의 실제 충족을 발명하지 않았다.
 @evidenceReview settings/20-envelope.md#colonnade #486e66f 기둥 열은 중정 경계 쪽이고 네 변의 바닥/노출 하부는 연결된 공간에 남는다.
-@evidenceReview settings/10-building.md#use-profile #00a6851 문짝·집기까지 놓은 후 유효폭을 다시 검사하도록 해 예산을 통과 측정으로 쓰지 않는다.
+@evidenceReview settings/10-building.md#use-profile #ee92183 문짝·집기까지 놓은 후 유효폭을 다시 검사하도록 해 예산을 통과 측정으로 쓰지 않는다.
 -->
 
 공간 ID `colonnade`는 [지상층](../storey.md#ground-storey)의 내부/반외부 연결 공간이다. 평면은 [공유 기준선](../building.md#plan-datums)의 west-ring~east-ring, north-ring~south-inner 사각 영역에서 중정과 현관 후퇴부를 뺀 하나의 연결 영역이다. 중정 구멍을 포함하는 외접 상자 전체를 실내로 선언하지 않는다.

@@ -94,3 +94,28 @@ export const modelHandoffRows = (
   }
   return rows.sort((a, b) => a.parent.localeCompare(b.parent));
 };
+
+/** Matched settings identities must be cited by their model H2 and obey a declared height band. */
+export const modelIdentityOwnerFailures = (
+  settings: HandoffDocument, models: readonly HandoffDocument[],
+): string[] => {
+  const identities = new Map(sections(settings).map((section) => [section.key.split("#")[1]!, section]));
+  const failures: string[] = [];
+  for (const model of models.flatMap(sections)) {
+    const id = model.key.split("#")[1]!;
+    const parent = identities.get(id);
+    if (!parent || !parent.body.includes("2026-09-25")) continue;
+    const ref = `settings/35-objects.md#${id}`;
+    if (!model.source.includes(`@evidence ${ref} `) ||
+        !model.body.includes(`../settings/35-objects.md#${id}`))
+      failures.push(`${model.key}: missing direct settings identity ${ref}`);
+    const band = parent.body.match(/높이\s+([\d.]+)~([\d.]+)m/);
+    const box = model.body.match(/점유 상자는\s*(?:약\s*)?[\d.]+×([\d.]+)×[\d.]+m/);
+    if (band && box) {
+      const height = Number(box[1]);
+      if (height < Number(band[1]) - 1e-8 || height > Number(band[2]) + 1e-8)
+        failures.push(`${model.key}: height ${height}m outside ${ref} ${band[1]}~${band[2]}m`);
+    }
+  }
+  return failures;
+};

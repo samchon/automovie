@@ -85,8 +85,10 @@ export const tessellationFailures = (id, body) => {
   if (has((sentence) => /바닥.*원판/.test(sentence)) &&
     !has((sentence) => /두 원판은 각각 둘레 \d+분할/.test(sentence)) &&
     !(has((sentence) => /두 원판은 각각 \d+개 삼각형/.test(sentence)) && /둘레 \d+분할/.test(body)) &&
-    !has((sentence) => /바닥.*원판.*둘레 \d+분할/.test(sentence) && !/두 원판/.test(body)))
+    !has((sentence) => /바닥.*원판.*둘레 \d+분할/.test(sentence) && !/두 원판/.test(body)) &&
+    !/바닥.*원판[^\n]*각각의 원주는 \d+분할/.test(body))
     failures.push(`${id}: circular floor has no own circumference division`);
+  failures.push(...curvedPartFailures(id, body));
   if (/원통 껍질/.test(body)) {
     if (/가로 띠/.test(body) && !has((sentence) => /가로 띠.*분할/.test(sentence)))
       failures.push(`${id}: curved horizontal bands have no circumference division`);
@@ -95,6 +97,28 @@ export const tessellationFailures = (id, body) => {
   }
   failures.push(...circularRepetitionFailures(body).map((failure) => `${id}: ${failure}`));
   failures.push(...polygonPhaseFailures(body).map((failure) => `${id}: ${failure}`));
+  return failures;
+};
+
+/** A division on one curved part cannot supply another curved part in the same H2.
+ * Part aliases come from the authored part mapping; no fixed list of objects is used.
+ * @param {string} id @param {string} body @returns {string[]}
+ */
+export const curvedPartFailures = (id, body) => {
+  /** @type {string[]} */
+  const failures = [];
+  const mapping = body.match(/^부재 대응: (.+)$/m)?.[1];
+  if (!mapping) return failures;
+  const sentences = body.split(/(?<=다\.)\s+|\n+/);
+  for (const [, part, label] of mapping.matchAll(/`([^`]+)`=([^;.]+)/g)) {
+    const noun = label.trim();
+    if (!noun || noun.includes(" ")) continue;
+    const geometry = sentences.filter((sentence) => sentence.includes(noun) && /원판|원통|원환|원뿔대|타원체|반타원|곡면|파문/.test(sentence) && /반지름|지름|원형|원주|단면/.test(sentence));
+    if (!geometry.length) continue;
+    const explicit = sentences.some((sentence) => sentence.includes(noun) && segments.test(sentence));
+    const global = sentences.some((sentence) => /(?:원형 부재|원형 면|타원체|각 회전체|세 회전체)는?[^.\n]*\d+(?:×\d+)?분할/.test(sentence));
+    if (!explicit && !global) failures.push(`${id}: curved part ${part} (${noun}) has no own division`);
+  }
   return failures;
 };
 

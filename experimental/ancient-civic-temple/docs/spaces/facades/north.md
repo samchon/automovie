@@ -24,7 +24,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 북서/북동 모서리와 파라펫 뒤, 높은 창 양면을 보므로 뒤쪽을 보이지 않는 면으로 면제하지 않는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 세 공간 차이를 같은 후면에서 파라펫·박공·낮은 석재 벽으로 구체화했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 일직선 외곽 안의 세 높이로 공간 조건이 양립하여 후면 증축이나 숨은 문이 필요하지 않았다.
-@evidenceReview settings/30-interiors.md#service-yard #bc0ce16 마당 후면은 제실·파라펫 높이를 복사하지 않는 낮은 석재 면으로 정해져 있다.
+@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 마당 후면은 제실·파라펫 높이를 복사하지 않는 낮은 석재 면으로 정해져 있다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 봉헌실 위 파라펫과 그보다 높은 제실 박공이 부모의 후면 실루엣 관계를 따른다.
 -->
 

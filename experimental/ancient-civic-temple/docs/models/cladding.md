@@ -17,8 +17,8 @@
 @evidence spaces/junctions.md#plinth-coping 코핑 아랫면 4.69m를 기와 줄 끝이 들어가야 할 높이 상한으로 쓴다.
 @evidence spaces/roofs/assembly.md#roof-junctions 합성 지붕 조각의 경계와 골선을 instances가 단위를 자를 기준으로 넘긴다.
 @evidence spaces/roofs/west.md#west-roof 서측 외쪽 지붕 높은 끝 약 4.56m를 코핑 대조의 한 끝으로 쓴다.
-@evidence spaces/roofs/colonnade.md#south-canopy 남쪽 주랑 외쪽 지붕 높은 끝 slab 상면 약 3.95m를 코핑 대조의 한 끝으로 쓴다.
-@evidence spaces/roofs/east.md#east-roof 19도 동측 박공의 남쪽 용마루 부근 약 4.53m를 코핑 대조의 한 끝으로 쓴다.
+@evidence spaces/roofs/colonnade.md#south-canopy 남쪽 주랑 덮개의 실제 slab 상면을 받아 각 지붕 조각의 코핑 직전 정지 계산에 쓴다.
+@evidence spaces/roofs/east.md#east-roof 19도 동측 지붕 조각의 실제 slab 상면을 코핑 아래 기와 줄의 정지 계산에 쓴다.
 @evidence settings/50-production.md#references 이미지 01·03의 경사를 따라 내려오는 반원 덮개 줄과 처마 끝 반원 단면을 근거로 쓴다.
 -->
 
@@ -37,7 +37,7 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 <!--
 @evidence principles/core/common.md#scope-preservation 세 박공 용마루의 반원 덮개 단위를 치수·겹침·접촉·배치 소유와 동측 박공 남쪽 끝의 정지 규칙까지 정하고 골 기와를 만들지 않는 한계를 밝힌다.
 @evidence principles/core/common.md#substantive-completion 뒤쪽 반지름 0.13m·앞쪽 코 0.15m, 0.45m 길이·12분할·0.40m 피치와 경사별 Y 기준식·발 절삭식 및 마지막 0.16m 평기와 받침을 정해 source가 접촉 높이를 다시 고르지 않는다.
-@evidence principles/core/common.md#declared-basis 세 용마루 높이는 roofs/sanctuary(약 7.67m)·east(약 4.53m)·porch(약 4.67m), 정지 규칙은 junctions#gable-closures, 코핑 4.69/4.85m는 #plinth-coping에서 온다고 밝힌다.
+@evidence principles/core/common.md#declared-basis 세 용마루 높이는 roofs/sanctuary(약 7.67m)·east(약 4.53m)·porch(약 4.67m), 정지 규칙은 junctions#gable-closures, 코핑 아랫면 4.69m는 #plinth-coping에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 용마루 기와 줄이라는 설정을 쓰이는 세 용마루와 쓰이지 않는 네 골선·외쪽 높은 끝, 코핑 앞 정지라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract ridge part 하나와 아랫 가장자리의 가려진 접촉면을 정하고 골선은 slab 접힘과 잘린 기와 끝으로만 읽힌다는 표현 한계를 적는다.
 @evidence principles/design/models.md#spatial-convention 원점을 slab 용마루 선에 두고 +Z 용마루 방향, +Y 연직 위로 정한다. 높이는 경사각에 따른 Y0=0.02/cos(경사각)−0.13tan(경사각)에서 시작하고 X 폭 0.30m·Z 길이 0.45m다.
@@ -49,7 +49,7 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 @evidence spaces/roofs/east.md#east-roof 수리된 19° 동측 박공의 용마루 약 4.53m를 덮개 높이 대조에 쓴다.
 @evidence spaces/roofs/assembly.md#roof-junctions 수리된 동측 경사와 네 골선을 용마루 기와가 쓰이는 곳과 쓰이지 않는 곳의 경계로 쓴다.
 @evidence spaces/junctions.md#gable-closures SE 모서리의 용마루가 코핑 아래에서 멈추는 폐쇄 행을 덮개 정지 위치로 소비한다.
-@evidence spaces/junctions.md#plinth-coping 코핑 아랫면 4.69m와 윗면 4.85m를 덮개 최대 높이 0.15m를 더한 실제 용마루 높이의 정지 기준으로 쓴다.
+@evidence spaces/junctions.md#plinth-coping 코핑 아랫면 4.69m를 덮개 최대 높이 0.15m를 더한 실제 용마루 높이의 정지 기준으로 쓴다.
 @evidence spaces/roofs/sanctuary.md#sanctuary-roof 제실 용마루 약 7.67m를 막는 부재가 없는 용마루로 쓴다.
 @evidence spaces/roofs/porch.md#porch-roof 두 반환벽 코핑 사이 포치 용마루 약 4.67m를 막는 부재가 없는 용마루로 쓴다.
 @evidence settings/50-production.md#references 이미지 01의 제실·동측 날개 용마루 기와 줄을 근거로 쓴다.

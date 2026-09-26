@@ -25,7 +25,7 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 선반 전면과 궤 앞을 추가 관찰해 닫힌 궤 표시 뒤의 접근 누락도 찾도록 했다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 문서 보관 용도에서 선반의 북벽 방향과 전면 깊이를 새로 결정했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 건조 보관과 궤의 사용을 같은 높이 바닥에서 예약했으며 물길이나 추가 방으로 해결하지 않았다.
-@evidenceReview settings/30-interiors.md#records #9a95707 분수 물길을 연결하지 않는 본문이 기록실의 건조 조건과 일치한다.
+@evidenceReview settings/30-interiors.md#records #e7df752 분수 물길을 연결하지 않는 본문이 기록실의 건조 조건과 일치한다.
 @evidenceReview settings/35-objects.md#scrolls #eba3a8f 두루마리 칸 선반은 북벽에 실제 역할이 있고 수량만 후속 결정으로 남는다.
 @evidenceReview settings/35-objects.md#chests #7077398 궤가 닫힌 표시 상태여도 앞의 여백 검사는 면제되지 않는다고 명시했다.
 -->

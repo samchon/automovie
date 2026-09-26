@@ -24,8 +24,8 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 책상에서 문으로 돌아오는 관찰은 정면 문턱 시점만으로 가려지는 스툴 방해를 묻는다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 관리 업무라는 부모 용도에 동벽 책상과 서쪽 인출 방향을 추가했다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 책상과 좌석 인출을 한 방 안에 배정했고 가구 종류 변경이나 기록실 관통이 필요하지 않았다.
-@evidenceReview settings/30-interiors.md#administration #8260ef7 작성 도구/소량 용기의 밀도가 이웃 기록실과 구별되는 조건으로 본문에 있다.
-@evidenceReview settings/35-objects.md#workstation #496e768 문 스윙을 남벽 쪽으로 받아 서쪽 인출과 책상 진입을 함께 비워야 한다.
+@evidenceReview settings/30-interiors.md#administration #9a40923 작성 도구/소량 용기의 밀도가 이웃 기록실과 구별되는 조건으로 본문에 있다.
+@evidenceReview settings/35-objects.md#workstation #67623f4 문 스윙을 남벽 쪽으로 받아 서쪽 인출과 책상 진입을 함께 비워야 한다.
 -->
 
 공간 ID `administration`의 본체는 [기준선](../building.md#plan-datums) east-room~east-inner, office-back~south-inner에 있다. 북쪽은 기록실, 동·남쪽은 외벽, 서쪽은 주랑이다. 서쪽의 직접 문만이 실내 접근이며 기록실을 통과하는 숨은 연결문은 없다.

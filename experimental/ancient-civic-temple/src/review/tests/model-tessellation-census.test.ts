@@ -32,6 +32,15 @@ void test("a newly authored curved H2 without a division is red", () => {
   assert.deepEqual(tessellationFailures("rectangular", "폭 0.2m인 직육면체를 만든다."), []);
 });
 
+void test("a curved part cannot borrow another part's segment count", () => {
+  const cart = model("portable", "handcart");
+  const censer = model("ritual", "censer");
+  assert.deepEqual(tessellationFailures("cart", cart), []);
+  assert.deepEqual(tessellationFailures("censer", censer), []);
+  assert.match(tessellationFailures("cart", cart.replace("X축 회전 원통 16분할이다", "X축 회전 원통이다")).join(" "), /curved part wheel/);
+  assert.match(tessellationFailures("censer", censer.replace("발·줄기·컵은 회전체 20분할, 향은 팔각기둥이다.", "")).join(" "), /curved part foot/);
+});
+
 void test("circular repeats require a first centre, compatible pitch and face-based offset", () => {
   const basket = model("wares", "basket");
   assert.deepEqual(tessellationFailures("basket", basket), []);
