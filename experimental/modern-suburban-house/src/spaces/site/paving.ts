@@ -10,9 +10,31 @@
  * are shared with their neighbours. This helper emits no surface of its own.
  */
 import { part, slopedSlab, type IHousePart, type IPlanPoint } from "../solids";
-import type { IAutoMovieHeightRule } from "@automovie/interface";
+import type {
+  IAutoMovieHeightRule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 const CONNECTOR_CELLS = 4;
+const edgeAt = (a: number, b: number, value: number): boolean =>
+  Math.abs(a - value) < 1e-8 && Math.abs(b - value) < 1e-8;
+
+/** Keep only the outside sides of a paving rectangle; omit a caller-owned joined edge.
+ * @evidence spaces/site/01-paving-support.md This helper keeps the three pedestrian paving bands free of sides inside their union.
+ * @evidence spaces/site/01-paving-support.md#paving-depth-reservation The T-walk and three side-walk bands have no vertical side inside their union.
+ * @evidence principles/core/source-units.md#source-scope-preservation The caller's X/Z bounds and joined-edge predicate decide the perimeter; this helper assigns no new paving area.
+ * @evidence principles/core/source-units.md#source-substantive-completion The returned predicate closes outer slab edges while rejecting cell seams and joined flat-band sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation forbids fake union-internal side faces; pavingFreeEdge classifies only the caller's rectangle perimeter and removes its declared same-union contact.
+ */
+export const pavingFreeEdge = (
+  x: readonly [number, number],
+  z: readonly [number, number],
+  joined: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = () => false,
+): ((a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean) =>
+  (a, b) => (
+    edgeAt(a.x, b.x, x[0]) || edgeAt(a.x, b.x, x[1]) ||
+    edgeAt(a.z, b.z, z[0]) || edgeAt(a.z, b.z, z[1])
+  ) && !joined(a, b);
 
 /** Base depth below a walking surface, metres. */
 /**
@@ -100,6 +122,8 @@ export const blendedRun = (props: {
   z: readonly [number, number];
   height: (x: number, z: number) => number;
   depth: number;
+  /** Edge joined to another part of the same paving union. */
+  joined?: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean;
 }): IHousePart[] => {
   const n = CONNECTOR_CELLS;
   const xs = Array.from(
@@ -126,7 +150,12 @@ export const blendedRun = (props: {
             props.owner,
             "paving",
             props.color,
-            slopedSlab({ plan: tri, top: props.height, thickness: props.depth }),
+            slopedSlab({
+              plan: tri,
+              top: props.height,
+              thickness: props.depth,
+              freeEdge: pavingFreeEdge(props.x, props.z, props.joined),
+            }),
           ),
         );
     }

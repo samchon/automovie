@@ -12,11 +12,17 @@
  * 0.12 m (01-paving-support).
  */
 import { PALETTE } from "../palette";
-import { part, rect, slab, type IHousePart } from "../solids";
+import { part, rect, slopedSlab, type IHousePart } from "../solids";
 import { STOREYS } from "../storeys";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 import { driveTop, DRIVEWAY } from "./driveway";
-import { blendedRun, pavingHeightfield, seamRect, WALK_DEPTH } from "./paving";
+import {
+  blendedRun,
+  pavingFreeEdge,
+  pavingHeightfield,
+  seamRect,
+  WALK_DEPTH,
+} from "./paving";
 import {
   PORCH_STEP_CENTRE_X,
   PORCH_STEP_FRONT_Z,
@@ -102,7 +108,15 @@ export const buildFrontWalk = (): ISiteBuild => {
     ],
   };
   const parts: IHousePart[] = [
-    part("front-walk", OWNER, "paving", PALETTE.paving, slab({ outline: seamRect(FRONT_WALK.x, FRONT_WALK.z, [], [FRONT_WALK.connectorZ]), bottom: walkY - WALK_DEPTH, top: walkY })),
+    part("front-walk", OWNER, "paving", PALETTE.paving, slopedSlab({
+      plan: seamRect(FRONT_WALK.x, FRONT_WALK.z, [], [FRONT_WALK.connectorZ]),
+      top: () => walkY,
+      thickness: WALK_DEPTH,
+      freeEdge: pavingFreeEdge(FRONT_WALK.x, FRONT_WALK.z, (a, b) =>
+        Math.abs(a.x - left) < 1e-8 && Math.abs(b.x - left) < 1e-8 &&
+        Math.min(a.z, b.z) >= FRONT_WALK.connectorZ[0] - 1e-8 &&
+        Math.max(a.z, b.z) <= FRONT_WALK.connectorZ[1] + 1e-8),
+    })),
     ...blendedRun({
       id: "front-walk-connector",
       owner: OWNER,
@@ -111,6 +125,7 @@ export const buildFrontWalk = (): ISiteBuild => {
       z: FRONT_WALK.connectorZ,
       height: connectorHeight,
       depth: WALK_DEPTH,
+      joined: (a, b) => Math.abs(a.x - left) < 1e-8 && Math.abs(b.x - left) < 1e-8,
     }),
   ];
   return { zones: [zone], parts };

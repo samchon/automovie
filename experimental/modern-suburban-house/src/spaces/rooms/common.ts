@@ -29,7 +29,7 @@ import { floorOf } from "../storeys";
  * @evidence spaces/rooms/common.md The service-common-opening void follows the partition assigned to common.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-common-opening interval remains with common while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-common-opening span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-common-opening width and position are fixed by the common design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes service-common-opening at X=[-1.35, 3.07], Y=[0, 2.40] without a door leaf; this export supplies that opening span to the front partition.
  */
 export const DOOR_SERVICE_COMMON_OPENING = door(
   "service-common-opening",
@@ -43,7 +43,7 @@ export const DOOR_SERVICE_COMMON_OPENING = door(
  * @evidence spaces/rooms/common.md The living-common-opening void follows the partition assigned to common.
  * @evidence principles/core/source-units.md#source-scope-preservation The living-common-opening interval remains with common while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The living-common-opening span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The living-common-opening width and position are fixed by the common design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes living-common-opening at X=[-5.00, -2.15], Y=[0, 2.40] without a leaf; this separate export supplies the left front-partition cut.
  */
 export const DOOR_LIVING_COMMON_OPENING = door(
   "living-common-opening",

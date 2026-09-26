@@ -14,9 +14,15 @@
  */
 import { GARAGE } from "../building";
 import { PALETTE } from "../palette";
-import { part, rect, slab, type IHousePart } from "../solids";
+import { part, rect, slopedSlab, type IHousePart } from "../solids";
 import { driveTop, DRIVEWAY } from "./driveway";
-import { blendedRun, pavingHeightfield, seamRect, WALK_DEPTH } from "./paving";
+import {
+  blendedRun,
+  pavingFreeEdge,
+  pavingHeightfield,
+  seamRect,
+  WALK_DEPTH,
+} from "./paving";
 import { LOWER_LANDING } from "./terrace";
 import type { IExteriorZone, ISiteBuild } from "./zone";
 
@@ -59,7 +65,11 @@ export const buildSideWalk = (): ISiteBuild => {
       OWNER,
       "paving",
       PALETTE.paving,
-      slab({ outline: rect(x, z), bottom: s - WALK_DEPTH, top: s }),
+      slopedSlab({
+        plan: rect(x, z), top: () => s, thickness: WALK_DEPTH,
+        freeEdge: pavingFreeEdge(x, z, (a, b) =>
+          Math.abs(a.x - SIDE_WALK.x[0]) < 1e-8 && Math.abs(b.x - SIDE_WALK.x[0]) < 1e-8),
+      }),
     );
   // The two gate waiting zones (side-gate-interface): +Z 0.10-1.60 m and -Z 1.30-2.80 m from the
   // gate plane, the garage front outer face, over the full path width.
@@ -131,7 +141,15 @@ export const buildSideWalk = (): ISiteBuild => {
     zone("side-rear-access", [gate - 2.8, gate - 1.3]),
   ];
   const parts: IHousePart[] = [
-    part("side-walk-long", OWNER, "paving", PALETTE.paving, slab({ outline: seamRect(SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]], [SIDE_WALK.frontBand]), bottom: s - WALK_DEPTH, top: s })),
+    part("side-walk-long", OWNER, "paving", PALETTE.paving, slopedSlab({
+      plan: seamRect(SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]], [SIDE_WALK.frontBand]),
+      top: () => s,
+      thickness: WALK_DEPTH,
+      freeEdge: pavingFreeEdge(SIDE_WALK.x, [SIDE_WALK.backBand[0], SIDE_WALK.frontBand[1]], (a, b) =>
+        Math.abs(a.x - SIDE_WALK.x[0]) < 1e-8 && Math.abs(b.x - SIDE_WALK.x[0]) < 1e-8 &&
+        ((Math.min(a.z, b.z) >= SIDE_WALK.frontBand[0] - 1e-8 && Math.max(a.z, b.z) <= SIDE_WALK.frontBand[1] + 1e-8) ||
+         (Math.min(a.z, b.z) >= SIDE_WALK.backBand[0] - 1e-8 && Math.max(a.z, b.z) <= SIDE_WALK.backBand[1] + 1e-8))),
+    })),
     flat("side-walk-back", [LOWER_LANDING.x[0], SIDE_WALK.x[0]], SIDE_WALK.backBand),
     ...blendedRun({
       id: "side-walk-front-connector",
@@ -141,6 +159,7 @@ export const buildSideWalk = (): ISiteBuild => {
       z: SIDE_WALK.frontBand,
       height: connectorHeight,
       depth: WALK_DEPTH,
+      joined: (a, b) => Math.abs(a.x - right) < 1e-8 && Math.abs(b.x - right) < 1e-8,
     }),
   ];
   return { zones, parts };

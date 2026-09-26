@@ -25,7 +25,7 @@ import { floorOf } from "../storeys";
  * @evidence spaces/rooms/wardrobe.md The primary-wardrobe-door void follows the partition assigned to wardrobe.
  * @evidence principles/core/source-units.md#source-scope-preservation The primary-wardrobe-door interval remains with wardrobe while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The primary-wardrobe-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The primary-wardrobe-door width and position are fixed by the wardrobe design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-wardrobe-plan fixes the door in the shared bedroom wall at Z=[-10.20, -9.20], Y=[3.06, 5.26], with no bathroom passage; this export carries its Z span.
  */
 export const DOOR_PRIMARY_WARDROBE_DOOR = door(
   "primary-wardrobe-door",

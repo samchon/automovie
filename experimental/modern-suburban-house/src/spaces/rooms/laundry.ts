@@ -27,7 +27,7 @@ import { floorOf, GROUND_LAYERS } from "../storeys";
  * @evidence spaces/rooms/laundry.md The service-laundry-door void follows the partition assigned to laundry.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-laundry-door interval remains with laundry while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-laundry-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-laundry-door width and position are fixed by the laundry design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan gives service-laundry-door the west partition's Z=[-4.40, -3.35], Y=[0, 2.20] cut, distinct from the east garage door; this export carries the west span.
  */
 export const DOOR_SERVICE_LAUNDRY_DOOR = door(
   "service-laundry-door",

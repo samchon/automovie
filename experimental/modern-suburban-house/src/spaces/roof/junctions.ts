@@ -185,14 +185,23 @@ export const garageRoof = (z: number): number => (z >= GARAGE_RIDGE_Z
   ? gFront(z)
   : gBack(z));
 
-/** Front edge of the main and right roofs: the front wall plus their free overhang. */
+/** Front edge of the high main roof: the front wall plus its free overhang. */
 /**
  * @evidence spaces/roof/00-junctions.md FRONT_EAVE_Z extends the main front wall by the authored free eave reach.
  * @evidence principles/core/source-units.md#source-scope-preservation It derives from MAIN and OVERHANG values instead of independently setting a porch or garage edge.
- * @evidence principles/core/source-units.md#source-substantive-completion The expression yields the main and right front roof edge while GABLE_EAVE_Z supplies the gable valley endpoints.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums gives the main and right front free eave a 0.40 m reach from MAIN's front outer wall; this line sums those inputs.
+ * @evidence principles/core/source-units.md#source-substantive-completion The expression yields the high main front edge while GABLE_EAVE_Z and RIGHT_FRONT_EAVE_Z retain their own reaches.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums gives the high main front roof a 0.40 m free reach from MAIN's front outer wall; this line reads OVERHANG.main.
  */
 export const FRONT_EAVE_Z = MAIN.outer.z[1] + OVERHANG.main;
+/** Front free edge of the lower right roof, independently set by its own reach. */
+/**
+ * @evidence spaces/roof/00-junctions.md The lower right roof's front edge uses its separate free overhang.
+ * @evidence spaces/roof/00-junctions.md#roof-profile-datums The lower right roof has its own 0.40 m front free reach.
+ * @evidence principles/core/source-units.md#source-scope-preservation The edge consumes MAIN's front outer wall and OVERHANG.right, independent of the high roof's reach.
+ * @evidence principles/core/source-units.md#source-substantive-completion Both lower right front roof and its eave closure consume this coordinate.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums sets the lower right free reach to 0.40 m; RIGHT_FRONT_EAVE_Z adds that reach to MAIN.outer.z[1].
+ */
+export const RIGHT_FRONT_EAVE_Z = MAIN.outer.z[1] + OVERHANG.right;
 /** Front edge of the gable candidate region, measured from its own overhang. */
 /**
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums The front gable candidate extends by its gable overhang from the front wall.
@@ -202,14 +211,23 @@ export const FRONT_EAVE_Z = MAIN.outer.z[1] + OVERHANG.main;
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums gives the front gable's finite candidate region its own 0.40 m free reach from MAIN's front wall; this edge uses OVERHANG.gable.
  */
 export const GABLE_EAVE_Z = MAIN.outer.z[1] + OVERHANG.gable;
-/** Back edge of the main and right roofs. */
+/** Back edge of the high main roof. */
 /**
- * @evidence spaces/roof/00-junctions.md BACK_EAVE_Z places the rear main/right eave behind the imported rear wall.
+ * @evidence spaces/roof/00-junctions.md BACK_EAVE_Z places the high main rear eave behind the imported rear wall.
  * @evidence principles/core/source-units.md#source-scope-preservation It subtracts only the main free reach and does not apply the garage's shorter overhang.
- * @evidence principles/core/source-units.md#source-substantive-completion The shared expression provides one rear eave coordinate to both rear roof-plane owners.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums extends the main/right rear free eave 0.40 m beyond MAIN's rear outer wall; this line subtracts that reach.
+ * @evidence principles/core/source-units.md#source-substantive-completion The expression provides the high main rear eave; RIGHT_BACK_EAVE_Z serves the lower right plane.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums extends the high main rear free eave 0.40 m beyond MAIN's rear outer wall; this line reads OVERHANG.main.
  */
 export const BACK_EAVE_Z = MAIN.outer.z[0] - OVERHANG.main;
+/** Rear free edge of the lower right roof, independently set by its own reach. */
+/**
+ * @evidence spaces/roof/00-junctions.md The lower right roof's rear edge uses its separate free overhang.
+ * @evidence spaces/roof/00-junctions.md#roof-profile-datums The lower right roof has its own 0.40 m rear free reach.
+ * @evidence principles/core/source-units.md#source-scope-preservation The edge consumes MAIN's rear outer wall and OVERHANG.right, independent of the high roof's reach.
+ * @evidence principles/core/source-units.md#source-substantive-completion Both lower right rear roof and its eave closure consume this coordinate.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums sets the lower right free reach to 0.40 m; RIGHT_BACK_EAVE_Z subtracts that reach from MAIN.outer.z[0].
+ */
+export const RIGHT_BACK_EAVE_Z = MAIN.outer.z[0] - OVERHANG.right;
 /** Left edge of the main roof. */
 /**
  * @evidence spaces/roof/00-junctions.md LEFT_EAVE_X extends the high roof past the imported west outer wall.

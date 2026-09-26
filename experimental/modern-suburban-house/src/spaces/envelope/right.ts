@@ -30,6 +30,8 @@ import {
   garageRoof,
   MAIN_RIDGE_Z,
   mainRoof,
+  RIGHT_BACK_EAVE_Z,
+  RIGHT_FRONT_EAVE_Z,
   rightRoof,
   ROOF_THICKNESS,
   SPLIT_X,
@@ -163,8 +165,16 @@ export const buildRight = (): IHousePart[] => {
       garageSharedUpper,
     ),
     step("right-step-wall", MAIN.inner.z[0], MAIN.inner.z[1]),
-    step("right-step-wall-front-eave", MAIN.outer.z[1], FRONT_EAVE_Z),
-    step("right-step-wall-back-eave", BACK_EAVE_Z, MAIN.outer.z[0]),
+    step(
+      "right-step-wall-front-eave",
+      MAIN.outer.z[1],
+      Math.min(FRONT_EAVE_Z, RIGHT_FRONT_EAVE_Z),
+    ),
+    step(
+      "right-step-wall-back-eave",
+      Math.max(BACK_EAVE_Z, RIGHT_BACK_EAVE_Z),
+      MAIN.outer.z[0],
+    ),
     part("right-garage-wall", OWNER, "wall", PALETTE.siding, garageWall),
   ];
 };

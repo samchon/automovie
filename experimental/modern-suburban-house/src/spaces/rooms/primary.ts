@@ -28,7 +28,7 @@ import { STAIR_OPENING } from "../stair";
  * @evidence spaces/rooms/primary.md The hall-primary-door void follows the partition assigned to primary.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-primary-door interval remains with primary while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-primary-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-primary-door width and position are fixed by the primary design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-plan fixes hall-primary-door in the corridor wall at X=[-2.70, -1.70], Y=[3.06, 5.26], allowing direct bedroom access; this export carries that interval.
  */
 export const DOOR_HALL_PRIMARY_DOOR = door(
   "hall-primary-door",
@@ -76,7 +76,7 @@ const PRIMARY: IRoomSpace = {
  * @evidence spaces/rooms/primary.md#primary-furniture-use Bed, two nightstands, dresser/drawer use, and wardrobe-door waiting occupy separate reservations.
  * @evidence principles/core/source-units.md#source-scope-preservation The function emits its carpet finishes and three walls, not the bed or wardrobe storage meshes.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns the room record, two finish planes, two door-floor shares, and the three partition runs.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-plan fixes the L outline, hall-primary-door, and primary-wardrobe-door, while primary-furniture-use assigns the bed and two window curtains inside that one room.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Primary-plan fixes the L outline and hall-primary-door X=[-2.70, -1.70], primary-wardrobe-plan owns the wardrobe door Z=[-10.20, -9.20], and primary-furniture-use assigns the bed and two curtains; buildPrimary consumes those separate owners.
  */
 export const buildPrimary = (): IRoomBuild => ({
   space: PRIMARY,

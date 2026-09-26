@@ -10,10 +10,10 @@ import { PALETTE } from "../palette";
 import { part, rect, slopedSlab, type IHousePart } from "../solids";
 import { roofFreeEdge } from "./edges";
 import {
-  FRONT_EAVE_Z,
   MAIN_RIDGE_Z,
   rFront,
   RIGHT_EAVE_X,
+  RIGHT_FRONT_EAVE_Z,
   ROOF_THICKNESS,
   SPLIT_X,
 } from "./junctions";
@@ -21,10 +21,10 @@ import {
 /**
  * Emit the right low roof front face.
  * @evidence spaces/roof/right-front.md This export builds the front slope of the lower right roof.
- * @evidence spaces/roof/right-front.md#right-front-roof Its plan reaches from SPLIT_X to RIGHT_EAVE_X and from MAIN_RIDGE_Z to FRONT_EAVE_Z, with rFront setting the descending weather surface.
+ * @evidence spaces/roof/right-front.md#right-front-roof Its plan reaches from SPLIT_X to RIGHT_EAVE_X and from MAIN_RIDGE_Z to RIGHT_FRONT_EAVE_Z, with rFront setting the descending weather surface.
  * @evidence principles/core/source-units.md#source-scope-preservation It ends at the split plane without an invented overhang there; the step-wall and rear-slope owners retain their separate faces.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab turns the bounded front rectangle into roof-right-front with a deterministic mesh and shared underside thickness.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Right-front-roof spans X=SPLIT_X to RIGHT_EAVE_X and MAIN_RIDGE_Z to FRONT_EAVE_Z with the 7/12 lower weather profile.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Right-front-roof consumes the lower roof's own 0.40 m front free reach from roof-profile-datums; its 7/12 slope runs from MAIN_RIDGE_Z to RIGHT_FRONT_EAVE_Z.
  */
 export const buildRightFrontRoof = (): IHousePart[] => [
   part(
@@ -33,7 +33,7 @@ export const buildRightFrontRoof = (): IHousePart[] => [
     "roof",
     PALETTE.roof,
     slopedSlab({
-      plan: rect([SPLIT_X, RIGHT_EAVE_X], [MAIN_RIDGE_Z, FRONT_EAVE_Z]),
+      plan: rect([SPLIT_X, RIGHT_EAVE_X], [MAIN_RIDGE_Z, RIGHT_FRONT_EAVE_Z]),
       top: (_x, z) => rFront(z),
       thickness: ROOF_THICKNESS,
       freeEdge: roofFreeEdge,

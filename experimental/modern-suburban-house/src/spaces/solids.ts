@@ -256,14 +256,14 @@ export interface IWallHole {
    * @evidence spaces/06-openings.md The void starts at a position along its host wall.
    * @evidence principles/core/source-units.md#source-scope-preservation The start lies in the existing wall coordinate frame.
    * @evidence principles/core/source-units.md#source-substantive-completion The left edge participates in a measurable opening width.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes the garage door's left X=6.10 and front-openings fixes the entry door's left jamb; from carries whichever host's first running coordinate applies.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes the garage door's left X=6.10 and entry-plan fixes the entry door's left X=0.40; from carries the first running coordinate of either host cut.
    */
   from: number;
   /**
    * @evidence spaces/06-openings.md The void ends at a position along its host wall.
    * @evidence principles/core/source-units.md#source-scope-preservation The end remains within the assigned wall run.
    * @evidence principles/core/source-units.md#source-substantive-completion Together with from, it fixes the cut width.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes its right jamb X=11.10 and front-openings fixes the entry right jamb; to carries that host-owned end of the rough cut.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes the garage door's right X=11.10 and entry-plan fixes the entry door's right X=1.40; to carries the second running coordinate of either host cut.
    */
   to: number;
   /**

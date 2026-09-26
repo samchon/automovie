@@ -25,7 +25,7 @@ import { floorOf } from "../storeys";
  * @evidence spaces/rooms/powder.md The service-powder-door void follows the partition assigned to powder.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-powder-door interval remains with powder while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-powder-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The service-powder-door width and position are fixed by the powder design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Powder-plan fixes service-powder-door in the west partition at Z=[-1.65, -0.70], Y=[0, 2.20], clear of the washbasin reservation; this export carries the rough span.
  */
 export const DOOR_SERVICE_POWDER_DOOR = door(
   "service-powder-door",

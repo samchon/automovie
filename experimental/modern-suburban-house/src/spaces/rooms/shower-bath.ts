@@ -25,7 +25,7 @@ import { blindRecessWall } from "./recess";
  * @evidence spaces/rooms/shower-bath.md The hall-shower-door void follows the partition assigned to shower-bath.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-shower-door interval remains with shower-bath while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-shower-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-shower-door width and position are fixed by the shower-bath design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-bath-plan locates hall-shower-door on the front corridor wall at X=[1.05, 2.05], Y=[3.06, 5.26]; this export preserves that opening without adding a bedroom door.
  */
 export const DOOR_HALL_SHOWER_DOOR = door(
   "hall-shower-door",

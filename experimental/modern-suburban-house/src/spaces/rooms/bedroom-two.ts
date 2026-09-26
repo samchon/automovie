@@ -27,7 +27,7 @@ import { STAIR_OPENING } from "../stair";
  * @evidence spaces/rooms/bedroom-two.md The hall-bedroom-two-door void follows the partition assigned to bedroom-two.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-two-door interval remains with bedroom-two while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-two-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-bedroom-two-door width and position are fixed by the bedroom-two design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-two-plan sets hall-bedroom-two-door in its rear wall at X=[-3.10, -2.10] with a 0.90 m clear-width target; this export preserves the rough X interval.
  */
 export const DOOR_HALL_BEDROOM_TWO_DOOR = door(
   "hall-bedroom-two-door",

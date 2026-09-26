@@ -50,7 +50,11 @@ import { driveTop, DRIVEWAY } from "./site/driveway";
 import { FRONT_WALK } from "./site/front-walk";
 import { SIDE_WALK } from "./site/side-walk";
 import { LOWER_LANDING, TERRACE_EDGE_Z } from "./site/terrace";
-import { PORCH_STEP_BACK_Z, PORCH_STEP_CENTRE_X } from "./porch";
+import {
+  PORCH_STEP_BACK_Z,
+  PORCH_STEP_CENTRE_X,
+  PORCH_STEP_HALF_WIDTH,
+} from "./porch";
 import {
   STAIR_LANDING_STATION,
   STAIR_OPENING,
@@ -314,6 +318,7 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
       ],
       ids("porch.ts", "porch-step-"),
       "stair",
+      2 * PORCH_STEP_HALF_WIDTH,
     ),
     passage(
       "front-walk-connector",
@@ -358,6 +363,7 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
       ],
       ids("site/terrace.ts", "garden-step-"),
       "stair",
+      LOWER_LANDING.x[1] - LOWER_LANDING.x[0],
     ),
     passage(
       "side-front-path",
@@ -737,7 +743,7 @@ export const buildHouseEnvironment = (house: IHouse = buildHouse()): IAutoMovieB
       },
     ],
     route: [...STAIR_ROUTE],
-    width: 1.0,
+    width: STAIR_OPENING.turnX - STAIR_OPENING.west - MAIN.partition,
     clearHeight: 2.0,
     elements: house.parts.filter((p) => p.owner === "stair.ts").map((p) => p.id),
   };

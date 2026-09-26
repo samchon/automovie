@@ -28,7 +28,7 @@ import { STAIR_OPENING } from "../stair";
  * @evidence spaces/rooms/tub-bath.md The hall-tub-door void follows the partition assigned to tub-bath.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-tub-door interval remains with tub-bath while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-tub-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-tub-door width and position are fixed by the tub-bath design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Tub-bath-plan places hall-tub-door in the left corridor wall at Z=[-5.86, -4.86], Y=[3.06, 5.26], apart from the shower room; this export carries its Z cut.
  */
 export const DOOR_HALL_TUB_DOOR = door(
   "hall-tub-door",

@@ -51,7 +51,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md Each reserved zone has a stable identifier.
    * @evidence principles/core/source-units.md#source-scope-preservation This names a zone, not a new route node or model.
    * @evidence principles/core/source-units.md#source-substantive-completion A failed clearance check can name the exact reservation.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network names front-entry, service-access, and upper-hall connections, while common-clear-routes names its four bands; reservation ids keep those authored paths separately diagnosable.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes fixes the right and rear passage bands, laundry-through-route fixes the Z=[-4.32, -3.42] crossing, and garage-use-routes fixes the cross band Z=[-4.75, -3.85]; id distinguishes the emitted reservation for each tested band.
    */
   id: string;
   /**
@@ -65,7 +65,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md A reserved zone occupies an explicit plan width.
    * @evidence principles/core/source-units.md#source-scope-preservation The range comes from the room's authored layout.
    * @evidence principles/core/source-units.md#source-substantive-completion The horizontal bounds support room containment and route overlap checks.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes supplies the four room bands' X spans and entry-use-routes supplies the entry passage width; this field transports each owner's span without choosing another width.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes supplies the four common-room passage bands' X intervals, and living-through-route supplies the living room band; x transports the authored reservation width without selecting a new corridor.
    */
   x: readonly [number, number];
   /**
@@ -79,7 +79,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md A body may need a vertical envelope above its plan area.
    * @evidence principles/core/source-units.md#source-scope-preservation The range reserves height but builds no object.
    * @evidence principles/core/source-units.md#source-substantive-completion Body and wall-hung zones can be checked separately from clear floor areas.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network limits a clear route to 2.00 m above finished floor and garage-storage-use gives overhead guide heights; optional Y lets those distinct reservations coexist without changing either height.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network limits a clear route to 2.00 m above finished floor and garage-front-opening fixes the overhead guide Y=[2.15, 2.50]; optional y retains the height of either actual reservation.
    */
   y?: readonly [number, number];
   /**
@@ -89,7 +89,7 @@ export interface IRoomReservation {
    * @evidence spaces/05-route-network.md Some room-owned uses occur across a door in the adjacent space.
    * @evidence principles/core/source-units.md#source-scope-preservation The override locates a reservation without transferring its author.
    * @evidence principles/core/source-units.md#source-substantive-completion Containment checks use the actual neighboring space outline.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-through-route reserves garage-side waiting across laundry-garage-door and entry-coat-storage reserves use in front-entry; space points each reservation at the floor it occupies while its room author stays fixed.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan puts the garage-side wait across laundry-garage-door, while entry-coat-storage puts the coat-use clearance in service-access; space names the neighbouring floor for each room-authored reservation.
    */
   space?: string;
 }
@@ -100,7 +100,7 @@ export interface IRoomReservation {
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The room record keeps its owner, outline, finish and reserved uses together.
  * @evidence principles/core/source-units.md#source-scope-preservation The shared type describes each room author's values without picking a plan for it.
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry, storey, and finish reach environment assembly; reservations reach checkReservations and the measurement tools.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns each room its inner walls, floor, ceiling, and reveal; this record carries those four outputs together without reallocating a face.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns each room its finished outline and visible surfaces; IRoomSpace retains id, owner, storey, outline, floor colour, levels and reservations, while IRoomBuild.parts carries the emitted walls, ceiling and reveal.
  */
 export interface IRoomSpace {
   /**
@@ -273,7 +273,7 @@ export interface IStorageSpace {
    * @evidence spaces/05-route-network.md The usable storage volume has a plan depth.
    * @evidence principles/core/source-units.md#source-scope-preservation This interval remains the author's closet reservation.
    * @evidence principles/core/source-units.md#source-substantive-completion The storage cell can be bounded in world Z.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage reserves depth beside the stair and upper-linen-storage reserves its hall recess; this Z interval retains those different authored depths.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage places the coat volume below the upper flight with X depth 0.65 m and a separate Z width, while upper-linen-storage fixes its hall recess; z retains each volume's authored Z span.
    */
   z: readonly [number, number];
 }
@@ -342,7 +342,7 @@ export const roomFloor = (room: IRoomSpace): IHousePart => {
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff This part extends the room finish to the partition centre without claiming the other room's floor.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller supplies the door interval; the helper preserves its room owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The door-width finish becomes a closed slab in the same layer as the room floor.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-threshold-junctions requires the finished floor to meet each door void through the wall depth; doorFloor fills only that caller-supplied threshold strip.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires each room's finish to reach its interior door void's wall centreline; doorFloor fills the caller-supplied half of that threshold at the room's finish level.
  */
 export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number, number], z: readonly [number, number]): IHousePart => {
   const top = floorOf(room.storey);
@@ -434,7 +434,7 @@ export const partition = (props: {
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions The void keeps its id, width and head on the assigned partition.
  * @evidence principles/core/source-units.md#source-scope-preservation This returns a cut specification and does not build a door leaf.
  * @evidence principles/core/source-units.md#source-substantive-completion Bottom and top derive from the selected storey datum and head height.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-plan assigns entry-living-door to the entry partition and laundry-plan assigns service-laundry-door to its host; door passes each supplied span and head into the cut.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan owns entry-living-door at Z=[-1.35, -0.35] and laundry-plan owns service-laundry-door at Z=[-4.40, -3.35]; door passes the caller's authored span and head into either interior cut.
  */
 export const door = (id: string, storey: StoreyId, from: number, to: number, head = 2.2): IWallHole => ({
   id,
@@ -450,7 +450,7 @@ export const door = (id: string, storey: StoreyId, from: number, to: number, hea
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Given X/Z bounds become four ordered corners for that room.
  * @evidence principles/core/source-units.md#source-scope-preservation This helper adds no dimensions or new room to the caller's plan.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ring can form floor and ceiling finish slabs.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan and upper-hall-plan each state their own rectangular room limits; box turns those X/Z pairs into a ring without choosing a third extent.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes X=[-5.50, 5.50], Z=[-10.45, -6.20], while bedroom-two-plan fixes X=[-5.50, -1.95] and its front/back limits; box orders such caller-supplied rectangular intervals without changing them.
  */
 export const box = (x: readonly [number, number], z: readonly [number, number]): IPlanPoint[] => [
   { x: x[0], z: z[0] },

@@ -15,7 +15,13 @@ if (!["all", "spaces", "models", "settings"].includes(layer)) throw new Error(`U
 /** @type {Record<string, Set<string> | null>} */
 const layerTasks = {
   all: null,
-  spaces: new Set(["door casing versus spaces", "geometry", "lint"]),
+  spaces: new Set([
+    "door casing versus spaces",
+    "geometry",
+    "space relations",
+    "paving union",
+    "lint",
+  ]),
   models: new Set([
     "model accounts",
     "reverse handoffs",
@@ -75,6 +81,18 @@ const tasks = [
   ],
   ["tests", process.execPath, [npmCli, "run", "test"], "exit"],
   ["geometry", process.execPath, [npmCli, "run", "geometry-audit"], "exit"],
+  [
+    "space relations",
+    process.execPath,
+    [path.join(__dirname, "space-relations.cjs")],
+    "exit",
+  ],
+  [
+    "paving union",
+    process.execPath,
+    [path.join(__dirname, "paving-union-check.cjs")],
+    "exit",
+  ],
   ["lint", process.execPath, [npmCli, "run", "lint"], "exit"],
 ];
 let failed = 0;

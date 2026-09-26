@@ -27,7 +27,7 @@ import { STAIR_OPENING } from "../stair";
  * @evidence spaces/rooms/bedroom-three.md The hall-bedroom-three-door void follows the partition assigned to bedroom-three.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-three-door interval remains with bedroom-three while its adjacent room receives the span.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-three-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The hall-bedroom-three-door width and position are fixed by the bedroom-three design.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-three-plan places hall-bedroom-three-door on the arrival/bedroom wall at Z=[-4.46, -3.51], Y=[3.06, 5.26]; this export passes that Z span to the cut.
  */
 export const DOOR_HALL_BEDROOM_THREE_DOOR = door(
   "hall-bedroom-three-door",
