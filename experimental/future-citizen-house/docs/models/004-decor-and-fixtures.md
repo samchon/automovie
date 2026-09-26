@@ -292,6 +292,8 @@
 
 `port`는 빈 구멍의 내면 주소이며 별도 고체 부품이 아니다. 아래 두 `@void`는 body의 정확한 직육면체 절삭 체적이다. 첫 절삭에 interface가 측면·바닥으로 접하고 두 번째는 빈 단자 구멍이다. 이 표의 `support`는 모델 원점 y=0에서 선반 상면과 닿는 접촉 평면이다.
 
+@prose-part 본체 위쪽: body
+@prose-part 앞쪽 edge: body
 @inventory default: body, interface
 @void default: body, -0.026..0.026, 0.013..0.015, -0.0375..0.0375
 @void default: body, -0.006..0.006, 0.0045..0.0105, 0.05..0.06
@@ -353,8 +355,10 @@
 프레임의 안쪽 경계는 x=±0.275,y=±0.185이고 이 개구를 z=0.012..0.035에 관통 절삭한다. 매트는 그 개구를 채우는 테두리로서 중앙 x=±0.230,y=±0.140을 z=0.013..0.021에 절삭한다. 종이 artwork는 그 중앙 x=±0.230,y=±0.140을 채우고 뒤판에 붙으며, 투명 cover는 프레임 개구 전체 x=±0.275,y=±0.185에서 z=0.031..0.035로 프레임 안쪽 네 면에 닿는다. 빈 공기층에는 감춘 지지대나 중복 평판이 없다.
 
 @scalar-control frame-border-width: 0.025
-@scalar-control cover-air-gap: 0.010
+@prose-gap default: cover, mat, Z, 빈 공기층
 
+@prose-part 매트는: mat
+@prose-part 프레임은: frame
 @inventory default: back, frame, mat, artwork, cover
 @void default: frame, -0.275..0.275, -0.185..0.185, 0.012..0.035
 @void default: mat, -0.23..0.23, -0.14..0.14, 0.013..0.021
@@ -427,6 +431,10 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 @scalar-control housing-plus-bezel-depth: 0.027
 
+@prose-part bezel의 중앙 개구는: bezel
+@prose-part 뒤판 housing은: housing
+@prose-part screen은: screen
+@prose-part bezel 전면: bezel
 @inventory default: mount, housing, bezel, screen
 @void default: bezel, -0.697..0.697, -0.382..0.382, 0.039..0.045
 
@@ -442,16 +450,23 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 @address-state default: mount, housing, bezel, screen
 <!-- @authored-address-state:end -->
 
-## 천장 매입등 {#recessed-light}
+## 천장 표면 부착등 {#ceiling-surface-light}
 
-`recessed-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing-body는 외경 0.085m, y=−0.037..−0.028다. housing-flange는 별도 닫힌 원판으로 외경 0.10m,y=−0.028..−0.025이며 housing-body 상면과 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.040..−0.037에 놓여 housing-body의 아래면과 반지름 0..0.0425m의 원판 면으로 닿는다. 방 쪽 −Y에서 수직으로 보면 발광면의 지름 0.095m 전체가 앞을 향하고, 비발광 몸체·flange·trim은 그 면을 가리지 않는다. `housing-body/outer/sole/top`, `housing-flange/top/edge/underside`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
+`ceiling-surface-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing-body는 외경 0.085m, y=−0.037..−0.028다. housing-flange는 별도 닫힌 원판으로 외경 0.10m,y=−0.028..−0.025이며 housing-body 상면과 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. housing-core는 반지름 0.0475m의 닫힌 원통으로 y=−0.025..0에서 trim 안쪽을 채우고 아래면은 flange 윗면에, 윗면은 천장에 유한 면으로 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.040..−0.037에 놓여 housing-body의 아래면과 반지름 0..0.0425m의 원판 면으로 닿는다. 방 쪽 −Y에서 수직으로 보면 발광면의 지름 0.095m 전체가 앞을 향하고, 비발광 몸체·flange·trim은 그 면을 가리지 않는다. `housing-body/outer/sole/top`, `housing-flange/top/edge/underside`, `housing-core/top/edge/underside`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
 
-`@radial`은 동심 Y축 부품의 실제 내·외 반지름이며 `ceiling`은 y=0 접촉 평면이다. housing-flange가 몸체의 윗면과 맞대고 trim의 고리 아래면에서 유한 환형 접촉면을 만든다. diffuser의 −Y face가 네 부품 중 가장 방 쪽이며 그 원판의 투영은 다른 부품에 가려지지 않는다.
+`@radial`은 동심 Y축 부품의 실제 내·외 반지름이며 `ceiling`은 y=0 접촉 평면이다. housing-flange가 몸체의 윗면과 맞대고 trim의 고리 아래면에서 유한 환형 접촉면을 만든다. diffuser의 −Y face가 다섯 부품 중 가장 방 쪽이며 그 원판의 투영은 다른 부품에 가려지지 않는다.
 
-@inventory default: housing-body, housing-flange, trim, diffuser
+@prose-part trim: trim
+@prose-part housing-body: housing-body
+@prose-part housing-flange: housing-flange
+@prose-part housing-core: housing-core
+@prose-part 확산면: diffuser
+@inventory default: housing-body, housing-flange, housing-core, trim, diffuser
+@cap-contact default: housing-core, housing-flange, Y, -
 @emitter-face default: diffuser, -Y
 @radial default: housing-body, 0, 0.0425
 @radial default: housing-flange, 0, 0.05
+@radial default: housing-core, 0, 0.0475
 @radial default: trim, 0.0475, 0.06
 @radial default: diffuser, 0, 0.0475
 
@@ -459,12 +474,13 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | @envelope | default | * | bounds | -0.06..0.06 | -0.04..0 | -0.06..0.06 | - |
 | @part | default | housing-body | cylinder | -0.0425..0.0425 | -0.037..-0.028 | -0.0425..0.0425 | housing-flange,diffuser |
-| @part | default | housing-flange | cylinder | -0.05..0.05 | -0.028..-0.025 | -0.05..0.05 | housing-body,trim |
+| @part | default | housing-flange | cylinder | -0.05..0.05 | -0.028..-0.025 | -0.05..0.05 | housing-body,trim,housing-core |
+| @part | default | housing-core | cylinder | -0.0475..0.0475 | -0.025..0 | -0.0475..0.0475 | housing-flange,ceiling |
 | @part | default | trim | hollow | -0.06..0.06 | -0.025..0 | -0.06..0.06 | ceiling,housing-flange |
 | @part | default | diffuser | cylinder | -0.0475..0.0475 | -0.04..-0.037 | -0.0475..0.0475 | housing-body |
 
 <!-- @authored-address-state:start -->
-@address-state default: housing-body, housing-flange, trim, diffuser
+@address-state default: housing-body, housing-flange, housing-core, trim, diffuser
 <!-- @authored-address-state:end -->
 
 ## 가는 원통 식탁 펜던트 {#dining-pendant}
@@ -477,6 +493,10 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 
 @emitter-face default: diffuser, -Y
 
+@prose-part cord: cord
+@prose-part shade: shade-*
+@prose-part diffuser: diffuser
+@prose-part canopy: canopy
 @inventory default: canopy, cord, shade-wall, shade-cap, diffuser
 @radial default: canopy, 0.003, 0.04
 @radial default: cord, 0, 0.003

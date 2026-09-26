@@ -1766,6 +1766,9 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 
 `entry-charging-shelf`는 폭 0.32, 깊이 0.15, 몸판 두께 0.045m의 벽걸이 물체다. 원점은 평벽 마감면의 선반 아래 중앙(z=0)이며 +Z가 벽에서 실내로 나오는 방향, +Y가 위다. 판은 x=±0.16, y=0..0.045, z=0..0.15이고 뒤쪽 숨은 cleat는 0.22×0.030×0.025m로 x=±0.11,y=-0.030..0,z=0..0.025에 놓여 벽면과 판 아래면에 닿는다. 양 끝 아래의 지지 브래킷 둘은 두께 0.012m, 깊이 0.12m, 높이 0.08m이며 x=±0.125 중심,y=-0.08..0,z=0..0.12다. 각 브래킷은 z=0에서 평벽, y=0에서 판 아래면에 닿고 cleat와 x에서 겹치지 않는다. 우편을 올리는 상면은 평평하고 충전기 자리는 후속 배치다. `board/upper/underside/front-edge/side-left/side-right/back-contact`, `cleat/outer/contact`, `bracket-left/right/outer/contact`가 안정 주소다. 실제 건축 구멍이나 lining을 만들지 않는다. 정면·측면·상부에서 판 깊이와 평벽 접합이 읽혀야 한다. ref02의 현관 수납 기능과 settings의 건축 구멍 없는 선반 결정을 채택한다. ref01·03·04·05의 벽 장면을 충전 niche의 증거로 쓰지 않는다. 실제 앵커 하중은 `unverified`다.
 
+@prose-part 판: board
+@prose-part 브래킷: bracket-*
+@prose-part cleat: cleat
 @inventory default: board, cleat, bracket-left, bracket-right
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -1795,6 +1798,12 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @scalar-control side-rail-x-inset: 0.015
 @scalar-control pillow-top: 0.62
 
+@prose-part 측면 rail은: frame-side-*
+@prose-part 머리·발치 rail은: frame-*
+@prose-part 매트리스는: mattress
+@prose-part 이불은: duvet
+@prose-part support-deck: support-deck
+@prose-part 네 다리는: leg-*
 @inventory 1800: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0, pillow-1
 @inventory 1000: frame-side-left, frame-side-right, frame-head, frame-foot, support-deck, leg-0, leg-1, leg-2, leg-3, mattress, duvet, headboard, pillow-0
 

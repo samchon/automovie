@@ -13,6 +13,11 @@
 @scalar-control pillow-z-max-rounded: 0.0476
 @scalar-control chaise-front-leg-offset: 0.32
 
+@prose-part 프레임은: frame
+@prose-part 양팔은: arm-*
+@prose-part 좌판 세 개의: seat-*
+@prose-part 등 쿠션의: back-cushion-*
+@prose-part 베개 셋은: pillow-*
 @inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
 @inventory chaise-right: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2, chaise-frame, chaise-seat, chaise-front-leg-0, chaise-front-leg-1
 @cap-contact straight: back-frame, frame, Y, -
@@ -119,6 +124,8 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 
 `coffee-table`은 X 폭 0.90, Z 깊이 1.25, 높이 0.36m다. 바닥의 네 발 중심이 원점이고 +Z가 긴 축이다. 상판은 두께 0.04m로 y=0.32..0.36, 모서리 반경 0.02m이며 다리 0.04×0.04m 네 개의 중심은 x=±0.39, z=±0.55, y=0..0.32다. `top/upper/edge/underside`와 `leg-0..3/shaft/top/sole`은 식탁과 별도 prototype 주소다. 상면 UV 장축은 Z, edge 이음은 underside로 이어지는 접합선에서 끝난다. 정면·상부·45°와 하부에서 낮은 높이와 상판 아래 빈 공간이 드러나야 한다. ref03 전경의 낮은 탁자와 ref02의 거실 탁자 위치 역할을 채택하지만 ref03 사진의 그릇을 탁자 메시로 합치지 않는다. ref01·04·05에는 이 탁자를 판독할 근거가 없다. 그릇·쟁반 prototype은 [식탁 소품](004-decor-and-fixtures.md#tabletop-props)이, 위 배치는 instances가 맡는다. 실제 탁자 하중은 `unverified`다.
 
+@prose-part 다리: leg-*
+@prose-part 상판: top
 @inventory default: top, leg-0, leg-1, leg-2, leg-3
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -142,6 +149,11 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 
 @scalar-control back-rake: 0.07
 
+@prose-part 목재 좌판 구조는: seat-frame
+@prose-part 천 좌판은: seat-pad
+@prose-part 등판은: back
+@prose-part 뒤쪽 두 다리는: leg-*
+@prose-part 다리 단면은: leg-*
 @inventory default: seat-frame, seat-pad, back, leg-0, leg-1, leg-2, leg-3
 @piece default: leg-0, -0.205..-0.175, 0..0.45, -0.29..-0.26
 @piece default: leg-0, -0.205..-0.175, 0.45..0.49, -0.29..-0.135
@@ -177,6 +189,9 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 
 발받침은 45° 맞댄 단면이므로 다음 표의 `mitered-box` AABB가 모서리에서 겹치더라도 닫힌 부피는 겹치지 않는다. 각 맞댐의 X/Z 겹침 정사각은 0.009×0.009m이고 높이 0.018m다. 그 정사각에서 모서리 접점 `(x_c,z_c)`로부터 안쪽으로 잰 거리 `u=|x−x_c|`, `v=|z−z_c|`에 대해 X 막대는 `u≥v`, Z 막대는 `v≥u`의 닫힌 반평면만 남긴다. `u=v`의 45° 유한 면 하나에서 만나고 양쪽의 열린 내부는 겹치지 않는다. 접촉은 각 막대 끝의 단면과 다리의 내측 면으로 판정한다.
 
+@prose-part 다리 네 개는: leg-*
+@prose-part 발받침은: footrest-*
+@prose-part 두 막대는: footrest-*
 @inventory default: seat, leg-0, leg-1, leg-2, leg-3, footrest-0, footrest-1, footrest-2, footrest-3
 @joint default: footrest-0, footrest-2, miter45-xz
 @joint default: footrest-0, footrest-3, miter45-xz
@@ -300,6 +315,10 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @scalar-control shell-back-bow: 0.02
 @scalar-control seat-rear-offset: 0.026
 
+@prose-part 좌면 셸은: shell-seat
+@prose-part 천 좌면은: upholstery
+@prose-part 등 셸은: shell-back
+@prose-part 좌면 아래 네 다리는: leg-*
 @inventory default: shell-seat, shell-back, upholstery, leg-0, leg-1, leg-2, leg-3
 @curve-layer default: shell-back, upholstery, -0.10, -0.25, 0.08, 0.025, 0.035, 0.001
 @cap-contact default: leg-0, shell-seat, Y, +
@@ -338,6 +357,11 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @scalar-control key-column-midindex: 5.5
 @scalar-control key-row-midindex: 1.5
 
+@prose-part housing 뒤판은: housing
+@prose-part display-bezel은: display-bezel
+@prose-part bezel 안쪽은: display-bezel
+@prose-part screen은: screen
+@prose-part stand shaft는: stand-shaft
 @inventory display: stand-base, stand-shaft, housing, display-bezel, screen
 @inventory keyboard: keyboard-body, keys-0..47
 @void display: display-bezel, -0.238..0.238, 0.132..0.408, 0.006..0.0125

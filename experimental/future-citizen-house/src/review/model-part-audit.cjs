@@ -1086,10 +1086,16 @@ function vesselClosureProof(lines, anchor, design) {
       const W = part.x[1] - part.x[0], H = part.y[1] - part.y[0], D = part.z[1] - part.z[0];
       const wall = Math.min(W, D) / profile.wallDivisor;
       const shoulder = profile.shoulderNumerator / profile.shoulderDenominator;
-      const capRadius = profile.mouthRadius + 2 * wall;
+      const bodyRadius = Math.min(W, D) / 2;
+      const neckOuter = profile.mouthRadius + wall;
+      const bottomBlend = (1 - capHeight - shoulder) / (1 - shoulder);
+      const bottomInner = (bodyRadius - wall) +
+        (profile.mouthRadius - (bodyRadius - wall)) * bottomBlend;
+      const bottomOuter = bodyRadius + (neckOuter - bodyRadius) * bottomBlend;
       if (!(W > 0 && H > 0 && D > 0 && wall > 0 && shoulder > 0 && shoulder < 1 &&
         profile.mouthRadius > 0 && capHeight > 0 && capHeight < 1 - shoulder &&
-        capRadius > profile.mouthRadius + wall && capRadius < Math.min(W, D) / 2))
+        bottomOuter > bottomInner && bottomOuter <= bodyRadius &&
+        neckOuter > profile.mouthRadius && neckOuter < bodyRadius))
         errors.push(`${anchor}/${key}: cap cannot close the neck within measured bounds`);
       else proved++;
     }
@@ -1338,7 +1344,7 @@ function audit(allSections, mutate, onlyState) {
           errors.push(`${anchor}/${key}: axial bore lacks a fitted cylinder contact`);
         else provedCurves.add(`${state}/${[host.id, cylinder[0].id].sort((a, b) => a.localeCompare(b)).join("/")}`);
       }
-      if ((anchor === "recessed-light" || anchor === "dining-pendant" ||
+      if ((anchor === "ceiling-surface-light" || anchor === "dining-pendant" ||
         (anchor === "portable-lamps" && state !== "bedside-globe")) &&
         !emitterFaces.has(state))
         errors.push(`${anchor}/${state}: emitter face declaration absent`);
@@ -2030,7 +2036,7 @@ if (require.main !== module) {
   /** @type {Array<[string,string,(parsed:ReturnType<typeof parse>)=>void,string]>} */
   const curvedMutations = [
     ["murphy-bed", "guest", (parsed) => { const part = parsed.parts.get("guest/bed-frame"); if (!part) throw Error("guest frame absent"); part.z[0] = 0.23; }, "pin end cap has no finite contact face"],
-    ["recessed-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
+    ["ceiling-surface-light", "default", (parsed) => { const part = parsed.parts.get("default/diffuser"); if (!part) throw Error("diffuser absent"); part.y = [-0.015, -0.012]; }, "emissive face is occluded"],
     ["dining-pendant", "default", (parsed) => { parsed.emitterFaces.delete("default"); }, "emitter face declaration absent"],
     ["portable-lamps", "reading", (parsed) => { parsed.emitterFaces.delete("reading"); }, "emitter face declaration absent"],
     ["portable-lamps", "desk-task", (parsed) => { parsed.emitterFaces.delete("desk-task"); }, "emitter face declaration absent"],

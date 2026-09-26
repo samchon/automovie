@@ -188,7 +188,37 @@ function boundCoordinates(lines, owner) {
   }
   /** @type {string[]} */ const errors = [];
   let bound = 0, unbound = 0;
+  const unresolved = [];
+  const derivedScalars = [];
   const parts = [...new Set(rows.map((row) => row.part))];
+  const aliases = lines.flatMap((line) => {
+    const declaration = /^@prose-part\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)$/.exec(line);
+    return declaration ? [{ word: declaration[1].trim(), part: declaration[2] }] : [];
+  });
+  for (const line of lines.filter((row) => row.startsWith("@prose-gap "))) {
+    const declaration = /^@prose-gap\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([XYZ]),\s*(.+)$/.exec(line);
+    if (!declaration) { errors.push(`${owner}: malformed prose gap ${line}`); continue; }
+    const [, state, first, second, axisText, phrase] = declaration;
+    const axis = /** @type {"x"|"y"|"z"} */ (axisText.toLowerCase());
+    const a = rows.find((row) => row.state === state && row.part === first && row.kind !== "piece");
+    const b = rows.find((row) => row.state === state && row.part === second && row.kind !== "piece");
+    if (!a || !b) { errors.push(`${owner}: prose gap names missing measured parts ${first}/${second}`); continue; }
+    const phrasePattern = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const mentions = lines.filter((row) => !/^\||^@|^<!--/.test(row))
+      .flatMap((row) => [...row.matchAll(new RegExp(`(\\d+\\.\\d+)m\\s*(?:의\\s*)?${phrasePattern}`, "g"))]);
+    if (mentions.length !== 1) { errors.push(`${owner}: prose gap ${phrase} must have one numeric prose claim`); continue; }
+    const measured = a[axis][0] - b[axis][1];
+    derivedScalars.push(measured);
+    if (!(measured > 0) || Math.abs(Number(mentions[0][1]) - measured) > 0.000001)
+      errors.push(`${owner}: prose gap ${phrase} ${mentions[0][1]} contradicts ${first}.${axis}.min - ${second}.${axis}.max = ${measured}`);
+  }
+  for (const alias of aliases) {
+    const prefix = alias.part.endsWith("*") ? alias.part.slice(0, -1) : null;
+    if (!rows.some((row) => prefix ? row.part.startsWith(prefix) : row.part === alias.part))
+      errors.push(`${owner}: prose alias ${alias.word} names no measured part ${alias.part}`);
+    if (!lines.some((line) => !/^\||^@|^<!--/.test(line) && line.includes(alias.word)))
+      errors.push(`${owner}: prose alias ${alias.word} is unused`);
+  }
   const envelopes = rows.filter((row) => row.part === "*");
   let envelopeDimensions = 0;
   /** @type {Map<string,Set<number>>} */
@@ -251,7 +281,7 @@ function boundCoordinates(lines, owner) {
       if (measured.length && measured.some((gap) => Math.abs(gap - asserted) > 0.000001))
         errors.push(`${owner}: prose line ${index + 1} drawer side clear ${asserted} contradicts measured gaps ${measured.join(",")}`);
     }
-    for (const claim of line.matchAll(/([xyzXYZ])\s*=\s*([+−-]?\d+\.\d+)(?:\.\.([+−-]?\d+\.\d+))?/g)) {
+    for (const claim of line.matchAll(/([xyzXYZ])\s*=\s*([±+−-]?\d+\.\d+)(?:\.\.([+−-]?\d+\.\d+))?(?![WH])/g)) {
       const axis = /** @type {"x"|"y"|"z"} */ (claim[1].toLowerCase());
       const start = line.lastIndexOf(". ", claim.index) + 2;
       const clause = line.slice(start, claim.index);
@@ -262,12 +292,23 @@ function boundCoordinates(lines, owner) {
       const directNamed = directSubject && parts.includes(directSubject[1])
         ? { 1: directSubject[1], index: clause.length - directSubject[0].length }
         : null;
+      const lexical = aliases.flatMap((alias) => {
+        const index = clause.lastIndexOf(alias.word);
+        return index < 0 ? [] : [{ 1: alias.part, index }];
+      }).sort((a, b) => b.index - a.index)[0];
       const after = line.slice(claim.index + claim[0].length);
       const following = /^(?:m|의|에는|에|인|\s|,)*\s*`([^`]+)`/.exec(after);
+      const preceding = [directNamed, names.at(-1), lexical].filter(Boolean)
+        .sort((a, b) => (b?.index ?? -1) - (a?.index ?? -1))[0];
       const named = following && parts.includes(following[1])
-        ? { 1: following[1], index: claim.index - start } : directNamed ?? names.at(-1);
-      if (!named || claim.index - start - named.index > 80) { unbound++; continue; }
-      const prefix = named[1].endsWith("-j") ? named[1].slice(0, -1) : null;
+        ? { 1: following[1], index: claim.index - start } : preceding;
+      if (!named || claim.index - start - named.index > 80) {
+        unbound++;
+        unresolved.push({ line: index + 1, claim: claim[0], clause: clause.slice(-90), reason: "part" });
+        continue;
+      }
+      const prefix = named[1].endsWith("-j") || named[1].endsWith("*")
+        ? named[1].slice(0, -1) : null;
       const stateNames = [...clause.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
       const state = stateNames.reverse().find((name) => rows.some((row) =>
         row.state === name || row.state.startsWith(`${name}/`)));
@@ -280,17 +321,33 @@ function boundCoordinates(lines, owner) {
       const eligible = rows.filter((row) => (prefix ? row.part.startsWith(prefix) : row.part === named[1]) &&
         (!state || row.state === state || row.state.startsWith(`${state}/`)) &&
         (!opening || row.kind === "void"));
-      if (!eligible.length) { unbound++; continue; }
+      if (!eligible.length) {
+        unbound++;
+        unresolved.push({ line: index + 1, claim: claim[0], clause: clause.slice(-90), reason: "state" });
+        continue;
+      }
       bound++;
-      const specified = [claim[2], claim[3]].filter(Boolean).map((token) => Number(token.replace("−", "-")));
-      if (prefix && (claim[3] || line.slice(claim.index + claim[0].length).startsWith(".."))) {
+      const symmetric = claim[2].startsWith("±");
+      const specified = [claim[2], claim[3]].filter(Boolean)
+        .map((token) => Number(token.replace("−", "-").replace("±", "")));
+      if (named[1].endsWith("-j") && (claim[3] || line.slice(claim.index + claim[0].length).startsWith(".."))) {
         const key = `${named[1]}/${axis}`;
         const seen = wildcardMinima.get(key) || new Set();
         seen.add(specified[0]);
         wildcardMinima.set(key, seen);
       }
-      const valid = eligible.some((row) => {
+      const groups = [...new Set(eligible.map((row) => row.state))].map((state) => {
+        const members = eligible.filter((row) => row.state === state);
+        return { state, part: named[1], kind: "union",
+          x: [Math.min(...members.map((row) => row.x[0])), Math.max(...members.map((row) => row.x[1]))],
+          y: [Math.min(...members.map((row) => row.y[0])), Math.max(...members.map((row) => row.y[1]))],
+          z: [Math.min(...members.map((row) => row.z[0])), Math.max(...members.map((row) => row.z[1]))] };
+      });
+      const valid = [...eligible, ...(prefix ? groups : [])].some((row) => {
         const [lo, hi] = row[axis];
+        if (symmetric && specified.length === 1)
+          return [lo, hi, (lo + hi) / 2, (hi - lo) / 2]
+            .some((candidate) => Math.abs(Math.abs(candidate) - specified[0]) < 0.000001);
         if (specified.length === 2) return (Math.abs(specified[0] - lo) < 0.000001 &&
           Math.abs(specified[1] - hi) < 0.000001) ||
           ((row.kind === "curved" || surfaceRegion) &&
@@ -312,7 +369,7 @@ function boundCoordinates(lines, owner) {
     for (const value of expected) if (!seen.has(value))
       errors.push(`${owner}: ${key} variant minimum ${value} has no part-bound prose claim`);
   }
-  return { errors, bound, unbound, envelopeDimensions };
+  return { errors, bound, unbound, envelopeDimensions, unresolved, derivedScalars };
 }
 
 /** @param {Map<string,string>} [overrides] */
@@ -321,6 +378,8 @@ function audit(overrides = new Map()) {
   const errors = [];
   /** @type {Array<{ owner:string; proseDecimals:number; axisValues:number; unwitnessed:number; outsideGrammar:number; scalarValues:number; unwitnessedScalars:number }>} */
   const coverage = [];
+  /** @type {Array<{owner:string,line:number,claim:string,clause:string,reason:string}>} */
+  const unresolved = [];
   let h2 = 0, claims = 0, values = 0, witnessed = 0, proseDecimals = 0,
     scalarValues = 0, scalarWitnessed = 0, scalarControls = 0,
     partBoundClaims = 0, unboundPartClaims = 0, envelopeDimensionClaims = 0;
@@ -335,6 +394,9 @@ function audit(overrides = new Map()) {
       h2++;
       const sourceValues = witnesses(body);
       const binding = boundCoordinates(body, owner);
+      for (const value of binding.derivedScalars) add(sourceValues.scalar, value);
+      if (process.env.MODEL_COORDINATE_TRACE)
+        unresolved.push(...binding.unresolved.map((claim) => ({ owner, ...claim })));
       errors.push(...binding.errors);
       partBoundClaims += binding.bound;
       unboundPartClaims += binding.unbound;
@@ -435,6 +497,7 @@ function audit(overrides = new Map()) {
     partBoundCoordinateClaims: partBoundClaims,
     unboundPartCoordinateClaims: unboundPartClaims,
     envelopeDimensionClaims,
+    ...(process.env.MODEL_COORDINATE_TRACE ? { unresolved } : {}),
     coverage,
     errors,
   };
@@ -574,8 +637,34 @@ function scalarFixture() {
   return { controlledH2: mutated.length, mutations: mutated.length, red: mutated.length };
 }
 
+function gapFixture() {
+  let population = 0;
+  for (const name of names) {
+    const original = fs.readFileSync(path.join(root, "docs/models", `${name}.md`), "utf8");
+    for (const section of original.split(/^## /m).slice(1)) {
+      const owner = /\{#([^}]+)\}/.exec(section)?.[1];
+      if (!owner) continue;
+      for (const declaration of section.matchAll(/^@prose-gap\s+[^:]+:\s*[^,]+,\s*[^,]+,\s*[XYZ],\s*(.+)$/gm)) {
+        population++;
+        const phrase = declaration[1];
+        const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const claim = new RegExp(`(\\d+\\.\\d+)(m\\s*(?:의\\s*)?${escaped})`);
+        const match = claim.exec(section);
+        if (!match) throw Error(`${owner}: prose gap fixture lacks ${phrase}`);
+        const replacement = (Number(match[1]) + 0.001).toFixed(match[1].split(".")[1].length);
+        const changed = original.replace(section, section.replace(claim, `${replacement}$2`));
+        const observed = audit(new Map([[name, changed]]));
+        if (!observed.errors.some((error) => error.includes(`${owner}: prose gap ${phrase}`)))
+          throw Error(`${owner}: prose gap mutation escaped`);
+      }
+    }
+  }
+  return { population, mutations: population, red: population };
+}
+
 if (require.main === module) {
   if (process.argv.includes("--fixture-scalar")) console.log(JSON.stringify(scalarFixture(), null, 2));
+  else if (process.argv.includes("--fixture-gap")) console.log(JSON.stringify(gapFixture(), null, 2));
   else if (process.argv.includes("--fixture")) console.log(JSON.stringify(fixture(), null, 2));
   else {
     const result = audit();
@@ -583,4 +672,4 @@ if (require.main === module) {
     if (result.errors.length) process.exitCode = 1;
   }
 }
-module.exports = { audit, fixture, scalarFixture };
+module.exports = { audit, fixture, scalarFixture, gapFixture };

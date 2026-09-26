@@ -15,6 +15,9 @@
 @scalar-control mirror-glass-recess: 0.004
 @scalar-control mirror-glass-width-deduction: 0.036
 
+@prose-part 수전 기둥은: tap-body
+@prose-part 거울은: mirror-*
+@prose-part bowl은: bowl
 @inventory 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
 @inventory 1000: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
 @support 800: cabinet-and-shelf, vanity/800x800x480/closed, top, 0, 0, 0
@@ -68,7 +71,7 @@
 @ellipse lid-open: bowl, 0.135, 0.20, 0.205, 0.295, 0, 0
 @ellipse lid-open: seat, 0.135, 0.20, 0.21, 0.285, 0, 0.075
 @scalar-control bowl-cavity-depth: 0.14
-@scalar-control seat-cistern-clearance: 0.005
+@prose-gap lid-open: seat, cistern, Z, 열린 틈
 
 @inventory lid-open: pedestal, bowl, seat, lid, cistern, flush
 @cap-contact lid-open: bowl, pedestal, Y, -
@@ -106,6 +109,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @axis-control default: head, Z, -0.545, spray-plate rear
 @axis-control default: head, Z, -0.5025, pipe front
 
+@prose-part screen rail은: screen-rail
+@prose-part riser는: riser
+@prose-part tray의 중앙은: tray
 @inventory default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
 @cap-contact default: head, riser, Y, -
 @flat-contact default: head, riser, -Y, 2.20, -0.858..-0.842, -0.713..-0.697
@@ -182,6 +188,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @scalar-control island-spout-bend-radius: 0.02
 @scalar-control island-spout-inner-radius: 0.006
 
+@prose-part 상판은: counter
+@prose-part sink 개구는: counter
+@prose-part tap 기둥은: tap-body
 @inventory default: counter, sink, tap-body, tap-spout
 @support default: cabinet-and-shelf, island-base/880x870x2650/closed, top, -0.04, 0, 0
 @void default: counter, -0.36..0.12, 0.87..0.93, 0.47..0.83
@@ -267,6 +276,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @scalar-control door-seam: 0.006
 @scalar-control toe-front-recess: 0.05
 
+@prose-part 손잡이는: handle-*
 @inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -289,6 +299,8 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 @scalar-control excluded-stacked-height: 1.68
 
+@prose-part 전면 드럼 문은: drum-rim
+@prose-part drum 중심은: drum-inner
 @inventory washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
 @inventory dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
 @cap-contact washer: body, drum-rim, Z, +
