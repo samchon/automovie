@@ -15388,17 +15388,17 @@
               "hipScaleVert": -0.6,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.38939768388908774,
-              "measureBustCirc": -0.13947322978827867,
-              "macroWeight": -0.700460304741041
+              "measureHipsCirc": 0.39125646398080594,
+              "measureBustCirc": -0.12937288228268412,
+              "macroWeight": -0.7053293091816638
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 23,
-              "otherTriangles": 23
+              "triangles": 22,
+              "otherTriangles": 22
             },
             {
               "part": "hips",
@@ -17302,9 +17302,9 @@
               "hipScaleVert": -0.6,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.38939768388908774,
-              "measureBustCirc": -0.13947322978827867,
-              "macroWeight": -0.700460304741041
+              "measureHipsCirc": 0.39125646398080594,
+              "measureBustCirc": -0.12937288228268412,
+              "macroWeight": -0.7053293091816638
             }
           },
           "fresh": [
