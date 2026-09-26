@@ -16,6 +16,7 @@
 @scalar-control mirror-glass-width-deduction: 0.036
 
 @prose-part 수전 기둥은: tap-body
+@prose-part 이 받침의: tap-spout
 @prose-part 거울은: mirror-*
 @prose-part bowl은: bowl
 @inventory 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
@@ -143,6 +144,8 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 ## 욕조 {#bathtub}
 
+@prose-part 바닥은 내부: floor
+
 @axis-control default: floor, Z, 0.50, drain center
 @axis-control default: floor, Y, 0.185, drain low point
 @axis-control default: shell, Y, 0.43, overflow center
@@ -216,7 +219,10 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 ## 벽 조리대·쿡탑·오븐 {#cooking-appliances}
 
-벽 조리대의 쿡탑 절삭은 상단 0.012m에만 있고 아래쪽 0.043m가 flush 쿡탑의 받침면이다. 네 zone의 지름은 0.22m로 두 중심 피치 0.24m보다 작게 정하여 독립 원판 사이 0.02m를 남긴다. 오븐의 가로 handle은 0.36m여서 x=±0.22 knob와 체적이 겹치지 않는다. cabinet의 가전 bay는 별도 owner이고, `support@0.15`가 oven-sill의 상단이다.
+@prose-dim wall-worktop: top
+@prose-part 쿡탑 절삭은: top!void
+
+벽 조리대의 쿡탑 절삭은 Y 높이 0.012m에만 있고 아래쪽 0.043m가 flush 쿡탑의 받침면이다. 네 zone의 지름은 0.22m로 두 중심 피치 0.24m보다 작게 정하여 독립 원판 사이 0.02m를 남긴다. 오븐의 가로 handle은 0.36m여서 x=±0.22 knob와 체적이 겹치지 않는다. cabinet의 가전 bay는 별도 owner이고, `support@0.15`가 oven-sill의 상단이다.
 
 @scalar-control cooktop-support-depth: 0.043
 @scalar-control zone-center-pitch: 0.24
@@ -257,7 +263,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 | @part | oven | knob-1 | cylinder | 0.2025..0.2375 | 0.6725..0.7075 | 0.31..0.328 | controls |
 | @part | oven | handle | box | -0.18..0.18 | 0.6675..0.6925 | 0.31..0.338 | controls |
 
-벽 조리대는 `wall-worktop`(X 폭 3.00, Z 깊이 0.67, 상면 y=0.925m), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. oven은 cabinet 중앙 폭 0.64m 개방 bay에 x=0,y=0.15..0.74,z=+0.022에 넣어 전면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
+벽 조리대는 `wall-worktop`(상면 y=0.925m, X 폭 3.00, Z 깊이 0.67), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. oven은 cabinet 중앙 폭 0.64m 개방 bay에 x=0,y=0.15..0.74,z=+0.022에 넣어 전면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
 
 주소는 `top/upper/edge/underside`(wall-worktop), `body/top/edge/underside`, `rim/upper/edge/underside`, `zone-0..3/upper/edge`(cooktop), `body/front/back/side-left/side-right/top/sole`, `front-frame/front/back/edge`, `window/front/back/edge`, `handle/outer/contact`, `controls/front/edge`, `knob-0..1/outer/contact`(oven)다. 정면·상부·45°에서 네 zone, oven 빈 bay, 서랍과 가전의 분리를 확인한다. ref03의 초록 서랍 하부장·밝은 상판·검은 매립 조리면을 채택한다. ref02는 공용부 위치 근거이며 ref01·04·05에서는 조리대 치수를 읽지 않는다. 가열·후드 환기 성능은 `unverified`다.
 
@@ -277,6 +283,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @scalar-control toe-front-recess: 0.05
 
 @prose-part 손잡이는: handle-*
+@prose-part 중심 높이: handle-*
 @inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
@@ -301,6 +308,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 
 @prose-part 전면 드럼 문은: drum-rim
 @prose-part drum 중심은: drum-inner
+@prose-part 바깥 D형 barrel은: hinge-barrel
+@prose-dim 각 다이얼은: controls-dial
+@prose-dim 버튼은: controls-button-*
 @inventory washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
 @inventory dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
 @cap-contact washer: body, drum-rim, Z, +

@@ -17,6 +17,8 @@
 @prose-part 양팔은: arm-*
 @prose-part 좌판 세 개의: seat-*
 @prose-part 등 쿠션의: back-cushion-*
+@prose-dim 등받이는: back-frame
+@prose-part 각 베개 뒷면은: pillow-*
 @prose-part 베개 셋은: pillow-*
 @inventory straight: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2
 @inventory chaise-right: frame, leg-0, leg-1, leg-2, leg-3, seat-0, seat-1, seat-2, back-frame, back-cushion-0, back-cushion-1, back-cushion-2, arm-left, arm-right, pillow-0, pillow-1, pillow-2, chaise-frame, chaise-seat, chaise-front-leg-0, chaise-front-leg-1

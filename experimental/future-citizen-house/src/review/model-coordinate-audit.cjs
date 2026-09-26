@@ -195,6 +195,11 @@ function boundCoordinates(lines, owner) {
     const declaration = /^@prose-part\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)(!void)?$/.exec(line);
     return declaration ? [{ word: declaration[1].trim(), part: declaration[2], kind: declaration[3] ? "void" : "part" }] : [];
   });
+  const curves = lines.flatMap((line) => {
+    const declaration = /^@curve-linear\s+([^:]+):\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^,]+)$/.exec(line);
+    return declaration ? [{ state: declaration[1], host: declaration[2], guest: declaration[3],
+      hostDepth: Number(declaration[8]), gap: Number(declaration[9]), guestDepth: Number(declaration[10]) }] : [];
+  });
   const dimensionAliases = [...aliases, ...lines.flatMap((line) => {
     const declaration = /^@prose-dim\s+([^:]+):\s*([a-z][a-z0-9-]*\*?)$/.exec(line);
     return declaration ? [{ word: declaration[1].trim(), part: declaration[2], kind: "part" }] : [];
@@ -204,17 +209,22 @@ function boundCoordinates(lines, owner) {
     if (!declaration) { errors.push(`${owner}: malformed prose gap ${line}`); continue; }
     const [, state, first, second, axisText, phrase] = declaration;
     const axis = /** @type {"x"|"y"|"z"} */ (axisText.toLowerCase());
-    const a = rows.find((row) => row.state === state && row.part === first && row.kind !== "piece");
-    const b = rows.find((row) => row.state === state && row.part === second && row.kind !== "piece");
-    if (!a || !b) { errors.push(`${owner}: prose gap names missing measured parts ${first}/${second}`); continue; }
+    const states = state === "*" ? [...new Set(rows.filter((row) => row.part === first &&
+      row.kind !== "piece").map((row) => row.state))] : [state];
+    if (!states.length) { errors.push(`${owner}: prose gap names missing measured part ${first}`); continue; }
     const phrasePattern = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const mentions = lines.filter((row) => !/^\||^@|^<!--/.test(row))
       .flatMap((row) => [...row.matchAll(new RegExp(`(\\d+\\.\\d+)m\\s*(?:의\\s*)?${phrasePattern}`, "g"))]);
     if (mentions.length !== 1) { errors.push(`${owner}: prose gap ${phrase} must have one numeric prose claim`); continue; }
-    const measured = a[axis][0] - b[axis][1];
-    derivedScalars.push(measured);
-    if (!(measured > 0) || Math.abs(Number(mentions[0][1]) - measured) > 0.000001)
-      errors.push(`${owner}: prose gap ${phrase} ${mentions[0][1]} contradicts ${first}.${axis}.min - ${second}.${axis}.max = ${measured}`);
+    for (const selected of states) {
+      const a = rows.find((row) => row.state === selected && row.part === first && row.kind !== "piece");
+      const b = rows.find((row) => row.state === selected && row.part === second && row.kind !== "piece");
+      if (!a || !b) { errors.push(`${owner}: prose gap ${selected} names missing measured parts ${first}/${second}`); continue; }
+      const measured = a[axis][0] - b[axis][1];
+      derivedScalars.push(measured);
+      if (!(measured > 0) || Math.abs(Number(mentions[0][1]) - measured) > 0.000001)
+        errors.push(`${owner}: prose gap ${phrase} ${mentions[0][1]} contradicts ${selected}/${first}.${axis}.min - ${second}.${axis}.max = ${measured}`);
+    }
   }
   for (const alias of dimensionAliases) {
     const prefix = alias.part.endsWith("*") ? alias.part.slice(0, -1) : null;
@@ -230,6 +240,36 @@ function boundCoordinates(lines, owner) {
   const wildcardMinima = new Map();
   for (const [index, line] of lines.entries()) {
     if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
+    for (const gap of line.matchAll(/보다\s+(\d+\.\d+)m\s+앞쪽/g)) {
+      const before = line.slice(Math.max(0, gap.index - 160), gap.index);
+      const mentioned = aliases.flatMap((alias) => {
+        const at = before.lastIndexOf(alias.word);
+        return at < 0 ? [] : [{ ...alias, at }];
+      }).sort((a, b) => b.at - a.at)[0];
+      if (!mentioned) continue;
+      const prefix = mentioned.part.endsWith("*") ? mentioned.part.slice(0, -1) : null;
+      const measured = curves.filter((curve) => prefix ? curve.guest.startsWith(prefix) :
+        curve.guest === mentioned.part).map((curve) => curve.gap);
+      if (measured.length && measured.some((value) => Math.abs(value - Number(gap[1])) > 0.000001))
+        errors.push(`${owner}: prose line ${index + 1} ${mentioned.part} curve gap ${gap[1]} contradicts measured curve`);
+    }
+    for (const triple of line.matchAll(/(\d+\.\d+)×(\d+\.\d+)×(\d+\.\d+)m/g)) {
+      const before = line.slice(Math.max(0, triple.index - 60), triple.index);
+      const named = dimensionAliases.flatMap((alias) => {
+        const at = before.lastIndexOf(alias.word);
+        return at < 0 ? [] : [{ ...alias, at }];
+      }).sort((a, b) => b.at - a.at)[0];
+      if (!named || before.length - named.at - named.word.length > 25) continue;
+      const prefix = named.part.endsWith("*") ? named.part.slice(0, -1) : null;
+      const eligible = rows.filter((row) =>
+        (prefix ? row.part.startsWith(prefix) : row.part === named.part) && row.kind !== "void");
+      if (!eligible.length) continue;
+      for (const [i, axis] of /** @type {const} */ (["x", "y", "z"]).entries()) {
+        const claimed = Number(triple[i + 1]);
+        if (!eligible.some((row) => Math.abs(row[axis][1] - row[axis][0] - claimed) < 0.000001))
+          errors.push(`${owner}: prose line ${index + 1} ${named.part} ${axis} span ${claimed} contradicts measured part`);
+      }
+    }
     for (const triple of line.matchAll(/(\d+\.\d+)×(\d+\.\d+)×(\d+\.\d+)m\s+점유/g)) {
       const preceding = line.slice(0, triple.index);
       const stateNames = [...preceding.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
@@ -243,9 +283,9 @@ function boundCoordinates(lines, owner) {
           errors.push(`${owner}: prose line ${index + 1} ${state} envelope ${axis} span ${value} contradicts measured part`);
       }
     }
-    for (const measure of line.matchAll(/(?:X\s*)?폭\s*(\d+\.\d+)|(?:Y\s*)?높이\s*(\d+\.\d+)|(?:Z\s*)?깊이\s*(\d+\.\d+)|두께\s*(\d+\.\d+)/g)) {
+    for (const measure of line.matchAll(/(?:X\s*)?폭\s*(\d+\.\d+)|(?:Y\s*)?높이\s*(\d+\.\d+)|(?:Z\s*)?깊이\s*(\d+\.\d+)|두께\s*(\d+\.\d+)|(?<!반)지름\s*(\d+\.\d+)/g)) {
       const axis = /** @type {"x"|"y"|"z"|null} */ (measure[1] ? "x" : measure[2] ? "y" : measure[3] ? "z" : null);
-      const value = Number(measure[1] || measure[2] || measure[3] || measure[4]);
+      const value = Number(measure[1] || measure[2] || measure[3] || measure[4] || measure[5]);
       const before = line.slice(Math.max(0, measure.index - 70), measure.index);
       const following = line.slice(measure.index + measure[0].length,
         measure.index + measure[0].length + 28);
@@ -257,19 +297,37 @@ function boundCoordinates(lines, owner) {
         return at < 0 ? [] : [{ part: alias.part, kind: alias.kind, at }];
       }).sort((a, b) => b.at - a.at)[0];
       if (!mentioned) continue;
+      if (measure[5] && (before.length - mentioned.at > 32 ||
+        !rows.some((row) => row.part === mentioned.part && row.kind === "cylinder"))) continue;
       const stateNames = [...before.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
-      const state = stateNames.reverse().find((name) => rows.some((row) =>
+      const declaredState = stateNames.reverse().find((name) => rows.some((row) =>
         row.state === name || row.state.startsWith(`${name}/`)));
+      const plainState = [...before.matchAll(/(?:^|[·,\s])([a-z][a-z0-9-]*)(?=[·,\s]|$)/g)]
+        .map((match) => match[1]).reverse().find((token) => rows.some((row) =>
+          row.state === token || row.state.startsWith(token)));
+      const state = plainState ?? declaredState;
       const prefix = mentioned.part.endsWith("*") ? mentioned.part.slice(0, -1) : null;
       const opening = mentioned.kind === "void" || /(?:개구|구멍|절삭|edge)/.test(before);
       const eligible = rows.filter((row) => (prefix ? row.part.startsWith(prefix) : row.part === mentioned.part) &&
-        (!state || row.state === state || row.state.startsWith(`${state}/`)) &&
+        (!state || row.state === state || row.state.startsWith(`${state}/`) ||
+          row.state.startsWith(state)) &&
         (opening ? row.kind === "void" : row.kind !== "void"));
       if (!eligible.length) continue;
+      if (measure[4]) {
+        const measured = curves.filter((curve) => prefix ? curve.host.startsWith(prefix) :
+          curve.host === mentioned.part).map((curve) => curve.hostDepth);
+        if (measured.length) {
+          boundDimensions++;
+          if (measured.some((depth) => Math.abs(depth - value) > 0.000001))
+            errors.push(`${owner}: prose line ${index + 1} ${mentioned.part} curve thickness ${value} contradicts measured curve`);
+          continue;
+        }
+      }
       if ((axis === "z" || axis === null) && eligible.every((row) => row.kind === "curved")) continue;
       boundDimensions++;
       const spans = /** @param {typeof eligible[number]} row */ (row) =>
-        axis ? [row[axis][1] - row[axis][0]] :
+        axis ? [row[axis][1] - row[axis][0]] : measure[5]
+          ? [row.x[1] - row.x[0], row.z[1] - row.z[0]] :
           [Math.min(row.x[1] - row.x[0], row.y[1] - row.y[0], row.z[1] - row.z[0])];
       const groups = [...new Set(eligible.map((row) => row.state))].flatMap((key) => {
         const members = eligible.filter((row) => row.state === key);
@@ -422,10 +480,27 @@ function boundCoordinates(lines, owner) {
             .some((candidate) => Math.abs(Math.abs(candidate) - specified[0]) < 0.000001);
         if (specified.length === 2) return (Math.abs(specified[0] - lo) < 0.000001 &&
           Math.abs(specified[1] - hi) < 0.000001) ||
-          ((row.kind === "curved" || surfaceRegion) &&
+          ((surfaceRegion || (row.kind === "curved" &&
+            (!/(?:외곽|바깥|AABB)/.test(clause.slice(named.index)) ||
+              /(?:단면|직사각형)/.test(clause.slice(named.index))))) &&
             specified[0] >= lo - 0.000001 && specified[1] <= hi + 0.000001);
         const value = specified[0];
         if (claim[0].includes("..")) return Math.abs(value - lo) < 0.000001;
+        const face = clause.slice(named.index).trim();
+        if (/(?:중심|center)(?:\s+높이)?\s*$/.test(face))
+          return Math.abs(value - (lo + hi) / 2) < 0.000001;
+        if (axis === "y" && (/(?:아래면|밑면|바닥면)\s*$/.test(face) ||
+          /^\s*(?:m\s*)?(?:아래면|밑면|바닥면)/.test(tail)))
+          return Math.abs(value - lo) < 0.000001;
+        if (axis === "y" && (/(?:상면|윗면|윗부분)\s*$/.test(face) ||
+          /^\s*(?:m\s*)?(?:상면|윗면|윗부분)/.test(tail)))
+          return Math.abs(value - hi) < 0.000001;
+        if (axis === "z" && (/(?:전면|앞면)\s*$/.test(face) ||
+          /^\s*(?:m\s*)?(?:전면|앞면)/.test(tail)))
+          return Math.abs(value - hi) < 0.000001;
+        if (axis === "z" && (/(?:뒷면|후면)\s*$/.test(face) ||
+          /^\s*(?:m\s*)?(?:뒷면|후면)/.test(tail)))
+          return Math.abs(value - lo) < 0.000001;
         return [lo, hi, (lo + hi) / 2, (hi - lo) / 2, hi - lo]
           .some((candidate) => Math.abs(value - candidate) < 0.000001);
       });
