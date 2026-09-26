@@ -5,17 +5,45 @@
     {
       "channel": "upperVermilionHeight",
       "vermilion": 425,
-      "field": 659,
-      "sweeps": 272
+      "field": 685,
+      "sweeps": 276
     },
     {
       "channel": "lowerVermilionHeight",
       "vermilion": 305,
-      "field": 204,
-      "sweeps": 110
+      "field": 454,
+      "sweeps": 227
     }
   ],
-  "recorded": "2026-09-26T09:48:37.824Z",
+  "envelopes": [
+    {
+      "lip": "upper",
+      "interval": [
+        0.08150830320940519,
+        0.310322608196997
+      ],
+      "neutral": 0.20970887143305417,
+      "slope": 0.030557931158294915,
+      "envelope": [
+        -4.2,
+        3.3
+      ]
+    },
+    {
+      "lip": "lower",
+      "interval": [
+        0.09100150364539394,
+        0.3172006648052967
+      ],
+      "neutral": 0.25575266504147026,
+      "slope": 0.037139608341810626,
+      "envelope": [
+        -4.44,
+        1.66
+      ]
+    }
+  ],
+  "recorded": "2026-09-26T10:10:22.938Z",
   "inputs": {
     "basis": {
       "sha256": "b8e9bbf5d7f24baefe187ba3489e70071253d8ddbc0311cba67c3d8de264a949",
@@ -28,12 +56,16 @@
     "controls": {
       "sha256": "9ff5aaef9b38b18dedf79e746a26581d40553f523bf8bfd3d569578f4b5f979c",
       "bytes": 7452
+    },
+    "lipEnvelope": {
+      "sha256": "1fb3544fcb53b3383464e6a0b3f81ead10191fbaaba04e4467887a73b54fb160",
+      "bytes": 4360
     }
   },
   "outputs": {
     "basis": {
-      "sha256": "f56664a7dd949ca15bd4d49459b578a2efb2b2f94024d395ab206d678b1379ea",
-      "bytes": 26945049
+      "sha256": "d0033ef36bb6e9877135b8d05bfdd45bf6ead4b9bff1b8ca5356f6359d879152",
+      "bytes": 26949511
     }
   }
 }
