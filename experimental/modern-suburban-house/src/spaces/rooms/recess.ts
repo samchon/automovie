@@ -22,17 +22,53 @@ import { type IWallSolid } from "../solids";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The shower design already calls for a blind niche; these intervals do not alter that design.
  */
 export interface IBlindRecess {
-  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall's thickness retains material behind the niche. */
+  /**
+   * @evidence spaces/rooms/shower-bath.md The shower's partition owns the niche.
+   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall's thickness retains material behind the niche.
+   * @evidence principles/core/source-units.md#source-scope-preservation This interval remains inside the assigned shower partition.
+   * @evidence principles/core/source-units.md#source-substantive-completion Both wall faces are available for the back-depth check.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The partition extent comes from the existing shower plan.
+   */
   wallX: readonly [number, number];
-  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall spans the shower's full vertical boundary. */
+  /**
+   * @evidence spaces/rooms/shower-bath.md The niche lies in the shower's wall.
+   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The wall spans the shower's full vertical boundary.
+   * @evidence principles/core/source-units.md#source-scope-preservation Heights describe the existing wall rather than a fixture.
+   * @evidence principles/core/source-units.md#source-substantive-completion The vertical margins can be checked against the full wall.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower wall height follows the already selected storey datums.
+   */
   wallY: readonly [number, number];
-  /** @evidence spaces/rooms/shower-bath.md#shower-bath-plan The wall follows the shower-side plan interval. */
+  /**
+   * @evidence spaces/rooms/shower-bath.md The room plan assigns this partition run.
+   * @evidence spaces/rooms/shower-bath.md#shower-bath-plan The wall follows the shower-side plan interval.
+   * @evidence principles/core/source-units.md#source-scope-preservation The interval does not extend into bedroom or hall ownership.
+   * @evidence principles/core/source-units.md#source-substantive-completion The recess can be bounded along the full wall length.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work This run is already specified in the shower plan.
+   */
   wallZ: readonly [number, number];
-  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall height. */
+  /**
+   * @evidence spaces/rooms/shower-bath.md The shower partition has a blind recess.
+   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall height.
+   * @evidence principles/core/source-units.md#source-scope-preservation This opening is a wall cavity, not another room entrance.
+   * @evidence principles/core/source-units.md#source-substantive-completion Its upper and lower margins are checked before mesh construction.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already reserves a blind niche, without a through opening.
+   */
   openingY: readonly [number, number];
-  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall length. */
+  /**
+   * @evidence spaces/rooms/shower-bath.md The shower partition has a local niche.
+   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The niche opening stays within the wall length.
+   * @evidence principles/core/source-units.md#source-scope-preservation The recess does not cut the partition's ends.
+   * @evidence principles/core/source-units.md#source-substantive-completion Its two side margins are checked before mesh construction.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The existing shower plan bounds this wall-side use.
+   */
   openingZ: readonly [number, number];
-  /** @evidence spaces/rooms/shower-bath.md#shower-fixture-use The blind cavity stops before the opposite wall face. */
+  /**
+   * @evidence spaces/rooms/shower-bath.md The shower niche remains a blind recess.
+   * @evidence spaces/rooms/shower-bath.md#shower-fixture-use The blind cavity stops before the opposite wall face.
+   * @evidence principles/core/source-units.md#source-scope-preservation Depth does not convert the niche into an opening between rooms.
+   * @evidence principles/core/source-units.md#source-substantive-completion The positive remaining back is checked in the solid builder.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already requires a blind rather than through cavity.
+   */
   depth: number;
 }
 

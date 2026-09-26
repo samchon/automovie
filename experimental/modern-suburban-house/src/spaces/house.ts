@@ -99,6 +99,7 @@ export interface IHouse {
  * @evidence spaces/04-observations.md#spatial-observation-derivation The fixed owner call order makes one stable source population for later topology and observation checks.
  * @evidence principles/core/source-units.md#source-scope-preservation It calls actual value imports for each builder once, leaving object fills and external ground to other branches.
  * @evidence principles/core/source-units.md#source-substantive-completion It assembles four arrays, checks reservations, and throws on duplicate part or space ids before return.
+ * @evidence obligations/design/space-sources.md#space-source-design-ownership Each emitted room, surface and zone comes from a value-imported reviewed owner; this assembler adds no new place, boundary or dimension.
  * @evidence obligations/design/space-sources.md#space-source-stable-identities Ordered builder calls and duplicate-id refusal preserve stable part, room, storage, and zone identities.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed owner and room units supplied their outputs; assembly exposed no missing house-space identity.
  */

@@ -40,9 +40,21 @@ import type { IPlanPoint } from "./solids";
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation parent already requires inspectable self-space poses; this shape revises no space design.
  */
 export interface IObservationPose {
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation The eye remains at a position in its subject space. */
+  /**
+   * @evidence spaces/04-observations.md The observation camera records a world-space eye.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation The eye remains at a position in its subject space.
+   * @evidence principles/core/source-units.md#source-scope-preservation This point is a derived camera station, not a new room point.
+   * @evidence principles/core/source-units.md#source-substantive-completion A concrete position makes station containment testable.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Self-space station containment was already required by the observation design.
+   */
   position: IAutoMovieVector3;
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation The station looks toward its observed boundary or room interior. */
+  /**
+   * @evidence spaces/04-observations.md The observation camera records its aim.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation The station looks toward its observed boundary or room interior.
+   * @evidence principles/core/source-units.md#source-scope-preservation The aim describes inspection and does not move a space boundary.
+   * @evidence principles/core/source-units.md#source-substantive-completion A concrete target makes the station view reproducible.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation parent already defines self-space views.
+   */
   target: IAutoMovieVector3;
 }
 
@@ -55,15 +67,45 @@ export interface IObservationPose {
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The observation contract already separates interior poses from exterior census questions.
  */
 export interface IHouseObservation {
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation Stable station or building-census address. */
+  /**
+   * @evidence spaces/04-observations.md Questions need stable addresses for reference comparison.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation Stable station or building-census address.
+   * @evidence principles/core/source-units.md#source-scope-preservation The address names an observation, not another geometry owner.
+   * @evidence principles/core/source-units.md#source-substantive-completion It lets failures and references identify the same question.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Existing observation derivation already requires identifiable questions.
+   */
   id: string;
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation Centre, corner, threshold and building roles identify the question. */
+  /**
+   * @evidence spaces/04-observations.md The inspection census distinguishes station and building questions.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation Centre, corner, threshold and building roles identify the question.
+   * @evidence principles/core/source-units.md#source-scope-preservation These roles classify derived observations only.
+   * @evidence principles/core/source-units.md#source-substantive-completion The explicit union prevents an unclassified question from entering the result.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already calls for these station and building census families.
+   */
   role: "center" | "corner" | "threshold" | "reflex-corner" | "facade" | "roof" | "underside" | "envelope-corner" | "entrance";
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation The pose stands in this space; exterior census questions have none. */
+  /**
+   * @evidence spaces/04-observations.md Interior station ownership is by subject space.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation The pose stands in this space; exterior census questions have none.
+   * @evidence principles/core/source-units.md#source-scope-preservation The string refers to an existing built space.
+   * @evidence principles/core/source-units.md#source-substantive-completion The derivation can check pose containment against this id.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work This self-space relationship was fixed in the observation design.
+   */
   space: string | null;
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation Opening, boundary or corner under inspection, when applicable. */
+  /**
+   * @evidence spaces/04-observations.md Questions identify the feature under inspection.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation Opening, boundary or corner under inspection, when applicable.
+   * @evidence principles/core/source-units.md#source-scope-preservation This is an existing subject id rather than a created feature.
+   * @evidence principles/core/source-units.md#source-substantive-completion The subject connects a threshold or building question to its boundary.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Feature-targeted observations are already in the parent design.
+   */
   subject: string | null;
-  /** @evidence spaces/04-observations.md#engine-render-handoff Interior questions carry a pose; settings supplies the exterior census camera. */
+  /**
+   * @evidence spaces/04-observations.md Interior inspection stations carry a camera pose.
+   * @evidence spaces/04-observations.md#engine-render-handoff Interior questions carry a pose; settings supplies the exterior census camera.
+   * @evidence principles/core/source-units.md#source-scope-preservation A null exterior pose leaves camera selection to settings.
+   * @evidence principles/core/source-units.md#source-substantive-completion The camera handoff can distinguish self-space and exterior questions.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already separates these camera authorities.
+   */
   pose: IObservationPose | null;
 }
 
@@ -76,11 +118,29 @@ export interface IHouseObservation {
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already enumerates five reference comparisons; this type adds no new reference.
  */
 export interface IReferenceComparison {
-  /** @evidence spaces/04-observations.md#reference-spatial-comparisons The key identifies one of the five given reference views. */
+  /**
+   * @evidence spaces/04-observations.md Five source references drive the comparison map.
+   * @evidence spaces/04-observations.md#reference-spatial-comparisons The key identifies one of the five given reference views.
+   * @evidence principles/core/source-units.md#source-scope-preservation The union does not introduce a sixth reference.
+   * @evidence principles/core/source-units.md#source-substantive-completion Each comparison has a known reference identity.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The five-reference set is already fixed by the parent.
+   */
   reference: "01" | "02" | "03" | "04" | "05";
-  /** @evidence spaces/04-observations.md#reference-spatial-comparisons The comparison reads these accepted observation ids. */
+  /**
+   * @evidence spaces/04-observations.md Comparisons use the derived station census.
+   * @evidence spaces/04-observations.md#reference-spatial-comparisons The comparison reads these accepted observation ids.
+   * @evidence principles/core/source-units.md#source-scope-preservation These ids refer to accepted questions rather than cloned views.
+   * @evidence principles/core/source-units.md#source-substantive-completion The selector lists each observation it needs.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The design already requires comparisons to reuse derived observations.
+   */
   observations: string[];
-  /** @evidence spaces/04-observations.md#reference-spatial-comparisons The cutaway can read storey records without inventing a camera pose. */
+  /**
+   * @evidence spaces/04-observations.md The cutaway may compare compiled records directly.
+   * @evidence spaces/04-observations.md#reference-spatial-comparisons The cutaway can read storey records without inventing a camera pose.
+   * @evidence principles/core/source-units.md#source-scope-preservation These names select existing records, not new geometry.
+   * @evidence principles/core/source-units.md#source-substantive-completion The comparison records non-camera inputs explicitly.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The cutaway record handoff is in the existing comparison design.
+   */
   records: string[];
 }
 
@@ -93,11 +153,29 @@ export interface IReferenceComparison {
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work This result realizes the existing observation duty without revising its parent.
  */
 export interface IObservationDerivation {
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation Accepted stations and building questions. */
+  /**
+   * @evidence spaces/04-observations.md The result exposes its observation census.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation Accepted stations and building questions.
+   * @evidence principles/core/source-units.md#source-scope-preservation Entries derive from the compiled house rather than new source geometry.
+   * @evidence principles/core/source-units.md#source-substantive-completion The caller can inspect every accepted question.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already demands a derived census.
+   */
   observations: IHouseObservation[];
-  /** @evidence spaces/04-observations.md#spatial-observation-derivation Invalid or coincident stations retain an id and cause. */
+  /**
+   * @evidence spaces/04-observations.md Failed stations remain audit data.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation Invalid or coincident stations retain an id and cause.
+   * @evidence principles/core/source-units.md#source-scope-preservation Failed questions do not create substitute rooms or cameras.
+   * @evidence principles/core/source-units.md#source-substantive-completion Every rejected station has a reason for review.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The parent already calls for honest observation failure reporting.
+   */
   failures: { id: string; cause: string }[];
-  /** @evidence spaces/04-observations.md#reference-spatial-comparisons Five selections reference observations and records. */
+  /**
+   * @evidence spaces/04-observations.md The result carries the comparison selectors.
+   * @evidence spaces/04-observations.md#reference-spatial-comparisons Five selections reference observations and records.
+   * @evidence principles/core/source-units.md#source-scope-preservation Selectors reuse the derived census.
+   * @evidence principles/core/source-units.md#source-substantive-completion All five views have an explicit comparison route.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The five comparisons were already designated by the parent.
+   */
   references: IReferenceComparison[];
 }
 
