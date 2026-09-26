@@ -174,14 +174,14 @@ const inOutline = (outline: readonly IPlanPoint[], x: number, z: number): boolea
 /**
  * Refuse any reservation that leaves the space it lies in (its `space`, else
  * its owning room), and any clear route that crosses a furniture, fixture or
- * storage body lying in the same space, whichever room owns either. Door and
+ * storage body below 2.00 m above the room floor, whichever room owns either. Door and
  * appliance sweeps and coverings may cross routes: operating a door and walking
  * through are separate states (05), and a rug is walked on.
  * @evidence spaces/05-route-network.md The route must remain in its space and clear of reserved bodies.
- * @evidence spaces/05-route-network.md#room-route-network It checks reservation bounds, unknown spaces and route/body intersections while allowing sweeps and coverings.
+ * @evidence spaces/05-route-network.md#room-route-network It checks reservation bounds, unknown spaces and route/body intersections within the designed 2.00 m walking volume while allowing sweeps and coverings.
  * @evidence principles/core/source-units.md#source-scope-preservation Validation reads room-authored zones without moving or generating them.
  * @evidence principles/core/source-units.md#source-substantive-completion Failures name the offending room, zone and crossing body.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The route-clearance requirement already exists in the room network design.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The overhead garage guide exposed an unspecified vertical route test; room-route-network now fixes the 2.00 m body band this validator uses.
  */
 export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
   const routeClearHeight = 2.0;

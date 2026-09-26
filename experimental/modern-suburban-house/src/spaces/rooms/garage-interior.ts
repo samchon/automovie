@@ -55,7 +55,7 @@ const GARAGE_INTERIOR: IRoomSpace = {
  * @evidence spaces/rooms/garage-interior.md#garage-use-routes West, cross, and window routes remain as clear floor reservations around those storage boxes.
  * @evidence principles/core/source-units.md#source-scope-preservation It emits no car, shelf, or garage base; only its logical interior and ceiling finish leave this builder.
  * @evidence principles/core/source-units.md#source-substantive-completion The room record has explicit levels, reservations, and a real ceiling finish part.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The garage-interior parent fixes empty-floor, storage, and access roles; source needed no vehicle placement.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Adding the designed overhead guide revealed that a planar route test rejected a walkable garage; room-route-network now declares its 2.00 m vertical test band.
  */
 export const buildGarageInterior = (): IRoomBuild => ({
   space: GARAGE_INTERIOR,

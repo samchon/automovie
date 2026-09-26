@@ -33,13 +33,13 @@ export const STOREYS = {
   /** upper-storey finished ceiling (01 storey-datums). */
   upperCeiling: 5.66,
   /** garage finished floor (01 ground-threshold-datums). */
-  garageFloor: -0.15,
+  get garageFloor() { return this.groundFloor - 0.15; },
   /** garage finished ceiling (01 ground-threshold-datums). */
   garageCeiling: 2.55,
   /** porch floor, equal to the entry floor (01 ground-threshold-datums). */
   get porchFloor() { return this.groundFloor; },
   /** front walk datum below the three porch risers (01 ground-threshold-datums). */
-  frontWalk: -0.45,
+  get frontWalk() { return this.porchFloor - 0.45; },
 } as const;
 
 /** Ground floor layers (10 main-ground-floor-base, garage-ground-floor-base), metres. */
