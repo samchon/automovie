@@ -61,6 +61,17 @@ function audit(overrides = new Map()) {
       const named = new Set();
       const addressStates = new Map();
       let localAddressLines = 0;
+      /** @param {string} line */
+      const stableAddress = (line) => /안정(?: 면)? 주소|주소는/.test(line);
+      /** @type {Map<string,Set<string>>} */ const stableFaces = new Map();
+      for (const line of lines.filter(stableAddress))
+        for (const match of line.matchAll(/`([a-z][a-z0-9.\-/]+)`/g)) {
+          const [part, ...faces] = match[1].split("/");
+          if (!all.has(part) || !faces.length) continue;
+          const declared = stableFaces.get(part) ?? new Set();
+          for (const face of faces) declared.add(face);
+          stableFaces.set(part, declared);
+        }
       for (const line of lines) {
         const stateLine = /^@address-state\s+([^:]+):\s*(.+)$/.exec(line);
         if (stateLine) {
@@ -75,6 +86,10 @@ function audit(overrides = new Map()) {
         let matchedLine = false;
         for (const match of line.matchAll(/`([a-z][a-z0-9.\-/]+)`/g)) {
           const token = match[1];
+          const segments = token.split("/");
+          if (!stableAddress(line) && segments.length === 2 && all.has(segments[0]) &&
+            stableFaces.has(segments[0]) && !stableFaces.get(segments[0])?.has(segments[1]))
+            errors.push(`${owner}: ${token} prose face absent from stable address`);
           // A model ID's first slash selects a prototype; it is not a local
           // part/face path. Its destination is checked by the child audit.
           if (/^(cabinet|fixed-bed|murphy-bed|work-desk|living-sofa|portable-lamp|potted-plant|laundry-washer|laundry-dryer|book|folded-towel|bedroom-rug|round-rug|wall-art)\//.test(token)) continue;

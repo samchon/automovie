@@ -113,6 +113,23 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | rear-counter-sink | default | bowl/*,rim/* | prop-steel | 없음 | face normal만 사용 | solid baseColor | [host](../models/003-service-fixtures.md#rear-counter-sink) |
 | rear-counter-sink | default | tap-base/*,tap-riser/*,tap-arm/*,tap-outlet/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/003-service-fixtures.md#rear-counter-sink) |
 
+위 결합 행의 model host와 face 이름을 역방향 대조할 때 다음 색인을 사용한다. 마감 선택과 상태별 범위는 위 표가 소유한다.
+
+[생활 직물](../models/005-everyday-objects.md#household-textiles)의 `body`는 직물·고무면 결합 대상이다.
+[개인 소품](../models/005-everyday-objects.md#personal-articles)의 `body`·`sole`은 옷감·밑창 결합 대상이다.
+[식기](../models/005-everyday-objects.md#dining-wares)의 `body`는 도기·유리·금속 결합 대상이다.
+[주방 소품](../models/005-everyday-objects.md#kitchen-smallwares)의 `body`는 상태별 금속·목재·도기·유리 결합 대상이다.
+[욕실 소품](../models/005-everyday-objects.md#bath-accessories)의 `body`·`cap-side`·`pump-top`은 플라스틱·금속·종이 결합 대상이다.
+[가정용 상자](../models/005-everyday-objects.md#household-boxes)의 `body`는 종이·금속 결합 대상이다.
+[가정용 도구](../models/005-everyday-objects.md#household-tools)의 `body`·`diffuser`는 기기 외피·확산면 결합 대상이다.
+[외부 비품](../models/005-everyday-objects.md#exterior-furnishings)의 `body`·`diffuser`·`wheel`은 외부 도장·고무·확산면 결합 대상이다.
+[벽 부속](../models/005-everyday-objects.md#wall-accessories)의 `body`·`front`·`diffuser`는 프레임·거울·확산면 결합 대상이다.
+[책상 조작기](../models/005-everyday-objects.md#desk-controls)의 `body`는 기기 외피 결합 대상이다.
+[하부장 광띠](../models/005-everyday-objects.md#under-cabinet-light)의 `body`·`diffuser`는 주택 조명 외피·확산면 결합 대상이다.
+[배기 후드](../models/005-everyday-objects.md#kitchen-extractor)의 `body`·`filter-left`·`filter-right`·`underside`는 후드 외피·필터 결합 대상이다.
+[작업실 안락의자](../models/001-seating-and-work.md#accent-chair)의 `frame`·`leg-0`·`seat`·`back`·`back-cushion`·`arm-left`는 목재와 직물 결합 대상이다.
+[뒤 조리대 싱크·수전](../models/003-service-fixtures.md#rear-counter-sink)의 `bowl`·`rim`·`tap-base`·`tap-riser`·`tap-arm`·`tap-outlet`은 금속 결합 대상이다.
+
 이 표의 새 `prop-*`는 색·roughness·metallic과 적힌 clearcoat·transmission·thickness·ior 외에는 [재료 기본값](#material-delivery)을 따른다. `prop-container-glass`의 thickness는 광학 응답값이며 용기의 실제 벽 두께는 models의 형상이 소유한다. `prop-container-glass`는 투명 용기 근사이고 `prop-mirror`는 환경 반사만 반영해 정확한 실내 거울상은 `unverified`다. 위의 결합은 제작 목표이며 현재 materialSources의 실제 바인딩이나 렌더 관찰을 뜻하지 않는다. 누락된 owner/state/part/face 또는 texture 자원은 같은 주소를 출력하고 실패한다. 단색 행의 fallback은 없는 texture를 찾는 경로가 아니라 명시된 baseColor 자체다. 비균일 크기 변종은 [metric 규칙](#metric-texture-coordinates)에 따라 실제 표면 m로 UV를 작성한다.
 
 ## 미터 좌표와 반복 {#metric-texture-coordinates}

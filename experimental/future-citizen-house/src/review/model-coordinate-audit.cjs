@@ -846,31 +846,38 @@ function scalarFixture() {
     /** @param {number} end */
     const change = (end) => {
       if (!owner) return;
-      const control = lines.slice(start, end).find((line) => line.startsWith("@scalar-control "));
-      if (!control) return;
-      const value = Number(/^@scalar-control [^:]+: (.+)$/.exec(control)?.[1]);
+      const controls = lines.slice(start, end).filter((line) => line.startsWith("@scalar-control "));
+      if (!controls.length) return;
       const known = witnesses(lines.slice(start, end));
-      for (let i = start; i < end; i++) {
-        const line = lines[i];
-        if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
-        const axisPositions = new Set();
-        for (const match of line.matchAll(coordinate)) {
-          const at = match.index + match[0].indexOf(match[2]);
-          for (const decimal of match[2].matchAll(decimals))
-            axisPositions.add(at + decimal.index);
-        }
-        for (const match of line.matchAll(proseDecimal)) {
-          if (axisPositions.has(match.index) || Math.abs(Number(match[1]) - value) > 0.000001)
-            continue;
-          let next = value + 0.0137;
-          while (known.scalar.has(Math.round(next * 100000))) next += 0.0137;
-          const replacement = next.toFixed(5);
-          lines[i] = line.slice(0, match.index) + replacement + line.slice(match.index + match[1].length);
-          mutated.push(`${owner}: prose line ${i - start + 1} scalar=${replacement}`);
-          return;
+      for (const control of controls) {
+        const value = Number(/^@scalar-control [^:]+: (.+)$/.exec(control)?.[1]);
+        for (let i = start; i < end; i++) {
+          const line = lines[i];
+          if (!line.trim() || /^\||^@|^<!--/.test(line)) continue;
+          const axisPositions = new Set();
+          for (const match of line.matchAll(coordinate)) {
+            const at = match.index + match[0].indexOf(match[2]);
+            for (const decimal of match[2].matchAll(decimals))
+              axisPositions.add(at + decimal.index);
+          }
+          for (const match of line.matchAll(proseDecimal)) {
+            if (axisPositions.has(match.index) || Math.abs(Number(match[1]) - value) > 0.000001)
+              continue;
+            let next = value + 0.0137;
+            while (known.scalar.has(Math.round(next * 100000))) next += 0.0137;
+            const replacement = next.toFixed(5);
+            lines[i] = line.slice(0, match.index) + replacement + line.slice(match.index + match[1].length);
+            mutated.push(`${owner}: prose line ${i - start + 1} scalar=${replacement}`);
+            return;
+          }
         }
       }
-      throw Error(`${owner}: scalar control lacks a non-axis prose assertion`);
+      const symbolic = controls.every((control) => {
+        const name = /^@scalar-control ([^:]+):/.exec(control)?.[1];
+        return name && lines.slice(start, end).some((line) => !/^\||^@|^<!--/.test(line) &&
+          line.includes(`@scalar-control ${name}`));
+      });
+      if (!symbolic) throw Error(`${owner}: scalar control lacks a non-axis prose assertion or symbolic reference`);
     };
     for (let i = 0; i < lines.length; i++) {
       const heading = /^## .*\{#([^}]+)\}/.exec(lines[i]);
