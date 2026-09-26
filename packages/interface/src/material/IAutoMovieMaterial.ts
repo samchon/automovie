@@ -212,4 +212,25 @@ export interface IAutoMovieMaterial {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `subsurfaceRadius` for the asset spec material texture relations system contract.
    */
   subsurfaceRadius?: { r: number; g: number; b: number };
+
+  /**
+   * Optional second tangent-space normal map, blended over `normalTexture`
+   * (whiteout: the two maps' slopes add), usually a fine relief tiled with its
+   * own transform over a coarser map bound once across the surface. glTF has
+   * one normal slot, so an exported asset keeps `normalTexture` and omits this
+   * one. Without a `normalTexture` it stands in as the normal map.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `detailNormalTexture` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalTexture` for the asset spec material texture relations system contract.
+   */
+  detailNormalTexture?: AutoMovieTextureBinding | null;
+
+  /**
+   * Strength of `detailNormalTexture`'s slopes, a nonnegative finite factor;
+   * omitted, one.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `detailNormalScale` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalScale` for the asset spec material texture relations system contract.
+   */
+  detailNormalScale?: number;
 }

@@ -7,6 +7,7 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { applyDetailNormal } from "./detailNormalShading";
 import { applySubsurfaceShading } from "./subsurfaceShading";
 
 /**
@@ -101,6 +102,7 @@ export const materialTextureBindings = (
     material.baseColorTexture,
     material.metallicRoughnessTexture,
     material.normalTexture,
+    material.detailNormalTexture,
     material.occlusionTexture,
     material.emissiveTexture,
   ].filter(
@@ -306,6 +308,20 @@ export const buildMaterial = (
   );
   if (material.normalScale !== undefined)
     std.normalScale.setScalar(material.normalScale);
+  const detailNormal = resolveMaterialTexture(
+    material.detailNormalTexture,
+    "linear",
+    resolveTexture,
+  );
+  if (detailNormal !== null) {
+    if (std.normalMap !== null)
+      applyDetailNormal(std, detailNormal, material.detailNormalScale ?? 1);
+    else {
+      // a detail map alone stands in as the normal map
+      std.normalMap = detailNormal;
+      std.normalScale.setScalar(material.detailNormalScale ?? 1);
+    }
+  }
   std.aoMap = resolveMaterialTexture(
     material.occlusionTexture,
     "linear",

@@ -195,7 +195,7 @@ const environmentIntent = (
  *
  * A legacy bare-id binding declares no intent, so the slot's own requirement is
  * what it means: base colour and emissive are radiometric colours stored in
- * sRGB, and the three data maps are measurements that must not be gamma
+ * sRGB, and the data maps are measurements that must not be gamma
  * decoded.
  */
 const MATERIAL_SLOTS: ReadonlyArray<{
@@ -204,6 +204,7 @@ const MATERIAL_SLOTS: ReadonlyArray<{
       | "baseColorTexture"
       | "metallicRoughnessTexture"
       | "normalTexture"
+      | "detailNormalTexture"
       | "occlusionTexture"
       | "emissiveTexture"
     );
@@ -212,6 +213,7 @@ const MATERIAL_SLOTS: ReadonlyArray<{
   { field: "baseColorTexture", colorSpace: "srgb" },
   { field: "metallicRoughnessTexture", colorSpace: "linear" },
   { field: "normalTexture", colorSpace: "linear" },
+  { field: "detailNormalTexture", colorSpace: "linear" },
   { field: "occlusionTexture", colorSpace: "linear" },
   { field: "emissiveTexture", colorSpace: "srgb" },
 ];
