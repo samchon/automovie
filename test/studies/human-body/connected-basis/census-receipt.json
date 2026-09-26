@@ -1,5 +1,5 @@
 {
-  "basis": "mpfb-connected-body-2026-09-26-anatomy-r11",
+  "basis": "mpfb-connected-body-2026-09-27-anatomy-r12",
   "restPairs": [],
   "sets": {
     "channels": {
@@ -4580,31 +4580,31 @@
         },
         {
           "name": "sex1-age60-bmi15-muscle0-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 39.973 to 109.131."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 39.973 to 109.127."
         },
         {
           "name": "sex1-age60-bmi15-muscle0",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 49.430 to 129.991."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 49.430 to 129.987."
         },
         {
           "name": "sex1-age60-bmi15-muscle0-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.485 to 154.739."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.485 to 154.734."
         },
         {
           "name": "sex1-age90-bmi15-muscle0",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.206 to 132.057."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 47.207 to 132.048."
         },
         {
           "name": "sex1-age90-bmi15-muscle0-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 58.381 to 156.257."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 58.382 to 156.247."
         },
         {
           "name": "sex-1-age25-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 48.652 to 146.852."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 48.654 to 146.846."
         },
         {
           "name": "sex-1-age25-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.262 to 174.618."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 61.265 to 174.611."
         },
         {
           "name": "sex-1-age60-bmi15-muscle1",
@@ -4616,23 +4616,23 @@
         },
         {
           "name": "sex-1-age90-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.341 to 128.948."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.341 to 128.946."
         },
         {
           "name": "sex-1-age90-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.548 to 152.712."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.547 to 152.709."
         },
         {
           "name": "sex1-age25-bmi15-muscle1-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 47.127 to 131.602."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 47.124 to 131.592."
         },
         {
           "name": "sex1-age25-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 57.829 to 155.484."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 57.827 to 155.472."
         },
         {
           "name": "sex1-age25-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 71.899 to 184.753."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 71.896 to 184.741."
         },
         {
           "name": "sex1-age60-bmi15-muscle1-h1.6",
@@ -4648,15 +4648,15 @@
         },
         {
           "name": "sex1-age90-bmi15-muscle1-h1.6",
-          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 45.758 to 116.544."
+          "reason": "A mass of 38.400000000000006 is beyond this basis, which reaches 45.759 to 116.544."
         },
         {
           "name": "sex1-age90-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 56.119 to 138.229."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 56.120 to 138.229."
         },
         {
           "name": "sex1-age90-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 68.775 to 163.426."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 68.775 to 163.425."
         }
       ],
       "pairsByFrequency": [
@@ -4740,15 +4740,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.26629463141788334,
-              "macroWeight": 3.7966887327928984
+              "macroWeight": 3.8006861954440905
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 12,
-              "otherTriangles": 12
+              "triangles": 4,
+              "otherTriangles": 4
             }
           ],
           "grown": []
@@ -4811,7 +4811,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": 0.1043647851315416,
-              "macroWeight": 6.48132831850724
+              "macroWeight": 6.481362664001898
             }
           },
           "fresh": [
@@ -5073,7 +5073,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6357344957373292
+              "macroWeight": -1.6360809244772943
             }
           },
           "fresh": [
@@ -5152,7 +5152,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.4423273937994023
+              "macroWeight": 0.44228864923074956
             }
           },
           "fresh": [
@@ -5425,7 +5425,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770046945715038
+              "macroWeight": 1.6770392883009058
             }
           },
           "fresh": [
@@ -5710,7 +5710,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8755864261748125
+              "macroWeight": 3.875932570047875
             }
           },
           "fresh": [
@@ -5795,7 +5795,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8755864261748125
+              "macroWeight": 3.875932570047875
             }
           },
           "fresh": [
@@ -5971,7 +5971,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": 1.4508219590679188
+              "macroWeight": 1.4519527604987497
             }
           },
           "fresh": [
@@ -6056,7 +6056,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 4.066973268789867
+              "macroWeight": 4.067856995068127
             }
           },
           "fresh": [
@@ -6238,7 +6238,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051020387682271
+              "macroWeight": 6.051641163224635
             }
           },
           "fresh": [
@@ -6329,20 +6329,20 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051020387682271
+              "macroWeight": 6.051641163224635
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 41,
-              "otherTriangles": 41
+              "triangles": 46,
+              "otherTriangles": 46
             },
             {
               "part": "hips",
               "other": "rightUpperLeg",
-              "triangles": 2,
+              "triangles": 3,
               "otherTriangles": 1
             }
           ],
@@ -6681,7 +6681,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -6766,7 +6766,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -6936,7 +6936,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.018683818366774182,
-              "macroWeight": 0.1404131672560437
+              "macroWeight": 0.14077346969351945
             }
           },
           "fresh": [
@@ -7132,15 +7132,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -7211,15 +7211,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -7290,15 +7290,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             },
             {
               "part": "leftUpperLeg",
@@ -7575,7 +7575,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -7672,7 +7672,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -7763,7 +7763,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": -0.2,
               "macroHeight": -0.04942179693829313,
-              "macroWeight": -0.9621178672243809
+              "macroWeight": -0.9617449828680625
             }
           },
           "fresh": [
@@ -8024,7 +8024,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8987808596090776
+              "macroWeight": 1.8992928980251047
             }
           },
           "fresh": [
@@ -8208,7 +8208,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
@@ -8287,7 +8287,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
@@ -8378,7 +8378,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
@@ -8681,7 +8681,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6357344957373292
+              "macroWeight": -1.6360809244772943
             }
           },
           "fresh": [
@@ -8875,7 +8875,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.4423273937994023
+              "macroWeight": 0.44228864923074956
             }
           },
           "fresh": [
@@ -9148,7 +9148,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770046945715038
+              "macroWeight": 1.6770392883009058
             }
           },
           "fresh": [
@@ -9409,7 +9409,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8755864261748125
+              "macroWeight": 3.875932570047875
             }
           },
           "fresh": [
@@ -9500,7 +9500,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8755864261748125
+              "macroWeight": 3.875932570047875
             }
           },
           "fresh": [
@@ -9597,7 +9597,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": 1.4508219590679188
+              "macroWeight": 1.4519527604987497
             }
           },
           "fresh": [
@@ -9688,7 +9688,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 4.066973268789867
+              "macroWeight": 4.067856995068127
             }
           },
           "fresh": [
@@ -9949,7 +9949,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051020387682271
+              "macroWeight": 6.051641163224635
             }
           },
           "fresh": [
@@ -10034,7 +10034,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051020387682271
+              "macroWeight": 6.051641163224635
             }
           },
           "fresh": [
@@ -10374,7 +10374,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -10453,7 +10453,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -10617,7 +10617,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": 0,
               "macroHeight": 0.018683818366774182,
-              "macroWeight": 0.1404131672560437
+              "macroWeight": 0.14077346969351945
             }
           },
           "fresh": [
@@ -10799,15 +10799,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -10878,15 +10878,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             },
             {
               "part": "leftUpperArm",
@@ -11274,7 +11274,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -11371,7 +11371,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -11553,7 +11553,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8987808596090776
+              "macroWeight": 1.8992928980251047
             }
           },
           "fresh": [
@@ -11729,7 +11729,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
@@ -11820,15 +11820,15 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 43,
-              "otherTriangles": 43
+              "triangles": 46,
+              "otherTriangles": 46
             },
             {
               "part": "rightUpperLeg",
@@ -12283,7 +12283,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.6357344957373292
+              "macroWeight": -1.6360809244772943
             }
           },
           "fresh": [
@@ -12453,7 +12453,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.4423273937994023
+              "macroWeight": 0.44228864923074956
             }
           },
           "fresh": [
@@ -12617,7 +12617,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770046945715038
+              "macroWeight": 1.6770392883009058
             }
           },
           "fresh": [
@@ -12702,7 +12702,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17044937438999025,
-              "macroWeight": 1.6770046945715038
+              "macroWeight": 1.6770392883009058
             }
           },
           "fresh": [
@@ -12975,7 +12975,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.17158185778496476,
-              "macroWeight": 3.8755864261748125
+              "macroWeight": 3.875932570047875
             }
           },
           "fresh": [
@@ -13060,7 +13060,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17691556252539836,
-              "macroWeight": -0.5420283002013363
+              "macroWeight": -0.5415038771096603
             }
           },
           "fresh": [
@@ -13073,7 +13073,7 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 27,
+              "triangles": 28,
               "otherTriangles": 25
             },
             {
@@ -13321,7 +13321,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17803566188565015,
-              "macroWeight": 4.066973268789867
+              "macroWeight": 4.067856995068127
             }
           },
           "fresh": [
@@ -13503,7 +13503,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051020387682271
+              "macroWeight": 6.051641163224635
             }
           },
           "fresh": [
@@ -13588,7 +13588,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
               "macroHeight": 0.17915576124590216,
-              "macroWeight": 6.051020387682271
+              "macroWeight": 6.051641163224635
             }
           },
           "fresh": [
@@ -13984,7 +13984,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -14063,7 +14063,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -14142,7 +14142,7 @@
               "measureLowerlegHeight": 0.09400000000000001,
               "macroFirmness": 0,
               "macroHeight": -0.09459031082063574,
-              "macroWeight": -2.1888733934247115
+              "macroWeight": -2.1885454018897352
             }
           },
           "fresh": [
@@ -14409,15 +14409,15 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "hips",
-              "triangles": 9,
-              "otherTriangles": 9
+              "triangles": 10,
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -14488,7 +14488,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": 0,
               "macroHeight": 0.09126670492720564,
-              "macroWeight": 0.6506884450263973
+              "macroWeight": 0.6507150349912482
             }
           },
           "fresh": [
@@ -14793,7 +14793,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -14872,7 +14872,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -14969,7 +14969,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": -0.03595951294825539,
-              "macroWeight": 3.4106020780574138
+              "macroWeight": 3.411444232893497
             }
           },
           "fresh": [
@@ -15145,7 +15145,7 @@
               "measureLowerlegHeight": -0.18500000000000016,
               "macroFirmness": -0.2,
               "macroHeight": 0.0413324901725383,
-              "macroWeight": 0.5988593802131227
+              "macroWeight": 0.5992772735430444
             }
           },
           "fresh": [
@@ -15315,7 +15315,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8987808596090776
+              "macroWeight": 1.8992928980251047
             }
           },
           "fresh": [
@@ -15394,7 +15394,7 @@
               "measureLowerlegHeight": -0.5172,
               "macroFirmness": -0.2,
               "macroHeight": 0.1129278893716078,
-              "macroWeight": 1.8987808596090776
+              "macroWeight": 1.8992928980251047
             }
           },
           "fresh": [
@@ -15564,7 +15564,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
@@ -15661,14 +15661,14 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.2,
               "macroHeight": 0.00432324101217048,
-              "macroWeight": 5.8060647790234015
+              "macroWeight": 5.80629903049498
             }
           },
           "fresh": [
             {
               "part": "hips",
               "other": "leftUpperLeg",
-              "triangles": 43,
+              "triangles": 42,
               "otherTriangles": 63
             },
             {
@@ -16513,9 +16513,9 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.5981235122291603,
-              "measureBustCirc": -0.2335403916543065,
-              "macroWeight": -0.6232842652640509
+              "measureHipsCirc": 0.5990281221012266,
+              "measureBustCirc": -0.23340478116215288,
+              "macroWeight": -0.6238354090244698
             }
           },
           "fresh": [
@@ -16672,8 +16672,8 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.2594663753240604,
-              "macroWeight": -0.8744478796673372
+              "measureHipsCirc": -0.2575239940184973,
+              "macroWeight": -0.874587655262028
             }
           },
           "fresh": [
@@ -16818,7 +16818,7 @@
               "measureLowerlegHeight": -0.0745681581685742,
               "macroFirmness": -0.012000000000000002,
               "macroHeight": 0.2509527866830934,
-              "macroWeight": -0.8714370023478586
+              "macroWeight": -0.8709737388507633
             }
           },
           "fresh": [
@@ -16969,7 +16969,7 @@
               "measureLowerlegHeight": -0.47108641975308635,
               "macroFirmness": -0.04200000000000001,
               "macroHeight": 0.24606252323260924,
-              "macroWeight": 0.5696251244172044
+              "macroWeight": 0.5697394123835278
             }
           },
           "fresh": [
@@ -17205,8 +17205,8 @@
               "measureLowerlegHeight": -0.06392103839913475,
               "macroFirmness": -0.15000000000000002,
               "macroHeight": 0.04166792228012355,
-              "measureWaistCirc": 2.3496661167530695,
-              "macroWeight": -0.49956835924208975
+              "measureWaistCirc": 2.3491660824517004,
+              "macroWeight": -0.49915760698610345
             }
           },
           "fresh": [
@@ -17363,7 +17363,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 3.4678489922335394
+              "macroWeight": 3.4694981864504837
             }
           },
           "fresh": [
@@ -17544,7 +17544,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.3102020675238364
+              "macroWeight": 0.31048121524311995
             }
           },
           "fresh": [
@@ -17689,7 +17689,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.1183041289076825,
-              "macroWeight": -0.024385220393298893
+              "macroWeight": -0.02413194855642127
             }
           },
           "fresh": [
@@ -18302,7 +18302,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.0224007181891437
+              "macroWeight": -1.0224031779160867
             }
           },
           "fresh": [
@@ -18459,9 +18459,9 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
               "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.5981235122291603,
-              "measureBustCirc": -0.2335403916543065,
-              "macroWeight": -0.6232842652640509
+              "measureHipsCirc": 0.5990281221012266,
+              "measureBustCirc": -0.23340478116215288,
+              "macroWeight": -0.6238354090244698
             }
           },
           "fresh": [
@@ -18630,7 +18630,7 @@
               "measureLowerlegHeight": 0.02446618692925975,
               "macroFirmness": -0.06000000000000001,
               "macroHeight": 0.10683446629232518,
-              "macroWeight": -1.5105962174110164
+              "macroWeight": -1.5101551157658517
             }
           },
           "fresh": [
@@ -18787,7 +18787,7 @@
               "measureLowerlegHeight": -0.0745681581685742,
               "macroFirmness": -0.012000000000000002,
               "macroHeight": 0.2509527866830934,
-              "macroWeight": -0.8714370023478586
+              "macroWeight": -0.8709737388507633
             }
           },
           "fresh": [
@@ -19083,8 +19083,8 @@
               "measureLowerlegHeight": -0.06392103839913475,
               "macroFirmness": -0.15000000000000002,
               "macroHeight": 0.04166792228012355,
-              "measureWaistCirc": 2.3496661167530695,
-              "macroWeight": -0.49956835924208975
+              "measureWaistCirc": 2.3491660824517004,
+              "macroWeight": -0.49915760698610345
             }
           },
           "fresh": [
@@ -19193,7 +19193,7 @@
               "measureLowerlegHeight": -0.4081281878629743,
               "macroFirmness": -0.030000000000000006,
               "macroHeight": 0.8330623850245917,
-              "macroWeight": 0.14520010364256597
+              "macroWeight": 0.14533697817649102
             }
           },
           "fresh": [
@@ -19350,7 +19350,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -1,
               "macroHeight": -0.2054096330748672,
-              "macroWeight": 0.3102020675238364
+              "macroWeight": 0.31048121524311995
             }
           },
           "fresh": [
@@ -20087,7 +20087,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.13943589576935728,
-              "macroWeight": -1.0224007181891437
+              "macroWeight": -1.0224031779160867
             }
           },
           "fresh": [
@@ -20244,8 +20244,8 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
               "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.2594663753240604,
-              "macroWeight": -0.8744478796673372
+              "measureHipsCirc": -0.2575239940184973,
+              "macroWeight": -0.874587655262028
             }
           },
           "fresh": [
@@ -20390,7 +20390,7 @@
               "measureLowerlegHeight": 0.02446618692925975,
               "macroFirmness": -0.06000000000000001,
               "macroHeight": 0.10683446629232518,
-              "macroWeight": -1.5105962174110164
+              "macroWeight": -1.5101551157658517
             }
           },
           "fresh": [
@@ -20499,7 +20499,7 @@
               "measureLowerlegHeight": -0.47108641975308635,
               "macroFirmness": -0.04200000000000001,
               "macroHeight": 0.24606252323260924,
-              "macroWeight": 0.5696251244172044
+              "macroWeight": 0.5697394123835278
             }
           },
           "fresh": [
@@ -20813,7 +20813,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.46,
               "macroHeight": 0.04897153328504429,
-              "macroWeight": 3.4678489922335394
+              "macroWeight": 3.4694981864504837
             }
           },
           "fresh": [
@@ -20988,7 +20988,7 @@
               "measureLowerlegHeight": -0.4081281878629743,
               "macroFirmness": -0.030000000000000006,
               "macroHeight": 0.8330623850245917,
-              "macroWeight": 0.14520010364256597
+              "macroWeight": 0.14533697817649102
             }
           },
           "fresh": [
@@ -21097,7 +21097,7 @@
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.30000000000000004,
               "macroHeight": -0.1183041289076825,
-              "macroWeight": -0.024385220393298893
+              "macroWeight": -0.02413194855642127
             }
           },
           "fresh": [
