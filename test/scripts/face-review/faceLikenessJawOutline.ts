@@ -20,11 +20,17 @@
  * Soft-tissue menton is where that region ends on the midline, found from
  * below (the scan runs up from `REACH` below stomion to the first face
  * pixel), so the mouth's opening, which is not face skin, does not end it
- * early. At each of `FACE_LIKENESS_JAW_LEVELS`, fractions of the way from
- * the mouth line (the cheilia's midpoint, 61 and 291) to menton, the
- * outline's two points are found from outside in along the eye line's
- * direction. A mask without the nasal tip in the face, or a scan that finds
- * no face, yields null.
+ * early. The outline's two points are found from outside in along the eye
+ * line's direction at two levels: the mouth line (the cheilia's midpoint,
+ * 61 and 291) and the chin's, `FACE_LIKENESS_JAW_CHIN` of the eyes' height
+ * above stomion below it. The chin's level is fixed by the eyes and the
+ * mouth, not by menton: a level a fraction of the way to menton rises as the
+ * chin shortens, into a wider part of the jaw, and reads the chin wider for
+ * being shorter (a point the model's anchors, which stay on the surface,
+ * cannot follow). Half the eyes' height is where three quarters of the way
+ * from the mouth line to menton falls on the photographs (0.40 to 0.59,
+ * median 0.51). A mask without the nasal tip in the face, a scan that finds
+ * no face, or a chin level below the face yields null.
  *
  * Pure: the mask and points are read, never mutated.
  */
@@ -34,11 +40,8 @@ import {
 } from "./faceLikenessGeometry";
 import type { IFaceLikenessMask } from "./faceLikenessMasks";
 
-/**
- * Outline levels as fractions from the mouth line to menton: the lower
- * face's width at the mouth, the chin's three quarters of the way down.
- */
-export const FACE_LIKENESS_JAW_LEVELS = [0, 0.75] as const;
+/** The chin's level below stomion, a fraction of the eyes' height above it. */
+export const FACE_LIKENESS_JAW_CHIN = 0.5;
 
 /**
  * The landmark indices the outline is given past the detector's 478 and the
@@ -137,9 +140,11 @@ export function measureFaceLikenessJawOutline(
     ((corners[0] - stomion[0]) * down[0]! +
       (corners[1] - stomion[1]) * down[1]!) /
     iod;
+  const drop =
+    ((stomion[0] - eyes[0]) * down[0]! + (stomion[1] - eyes[1]) * down[1]!) /
+    iod;
   const levels: [FaceLikenessPoint, FaceLikenessPoint][] = [];
-  for (const fraction of FACE_LIKENESS_JAW_LEVELS) {
-    const t = mouth + fraction * (menton - mouth);
+  for (const t of [mouth, FACE_LIKENESS_JAW_CHIN * drop]) {
     const side = (direction: 1 | -1): FaceLikenessPoint | null => {
       for (let s = REACH; s > 0; s -= STEP)
         if (inside(point(t, direction * s))) return point(t, direction * s);

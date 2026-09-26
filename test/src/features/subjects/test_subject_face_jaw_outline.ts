@@ -53,10 +53,10 @@ const flipped = (): FaceLikenessPoint[] =>
  * The jaw's outline from a face-skin mask.
  * Scenarios:
  * 1. Menton is the face's lowest midline pixel (y 170), found from below
- *    past the open mouth; the outline at the mouth line (y 130) and three
- *    quarters of the way to menton (y 160) lies on the ellipse (half-widths
- *    52.0 and 29.0), the blob at the right edge being another region; the
- *    points take landmark indices 470 to 474.
+ *    past the open mouth; the outline at the mouth line (y 130) and at the
+ *    chin's level, half the eyes' height (60) below stomion (y 160), lies on
+ *    the ellipse (half-widths 52.0 and 29.0), the blob at the right edge
+ *    being another region; the points take landmark indices 470 to 474.
  * 2. Upside down the frame turns with the face: menton at y 29.
  * 3. A nasal tip outside the face, a face ending above stomion and one
  *    with no right side at a level read nothing; a missing landmark
