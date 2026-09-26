@@ -22,7 +22,7 @@ Use `disabled`, `controlled`, or `open` as the retrieval mode. A controlled or o
 
 Retain only observable trajectory material: user and assistant messages, visible tool calls and results, timestamps, and process outcomes. The trajectory manifest records the source, format version, byte length, digest, first and last timestamp, storage location, retention period, access boundary, redactions, and privacy disposition. Hidden reasoning is excluded. A copied or redacted trajectory gets a transfer receipt that binds source and destination digests and states every transformation.
 
-Run preflight against the exact launch paths and runtime. On Windows, record whether legacy `MAX_PATH` or long-path-aware behavior applies, the effective path limit, the longest resolved sandbox, temporary, artifact, and session path, and the remaining headroom; refuse launch when the harness cannot prove that every planned path fits. Also prove that the readable root excludes this repository and its history when experimental blindness depends on that isolation.
+Run preflight against the exact launch paths and runtime. On Windows, record whether legacy `MAX_PATH` or long-path-aware behavior applies, the effective path limit, the longest resolved sandbox, temporary, artifact, and session path, and the remaining headroom; refuse launch when the harness cannot prove that every planned path fits. Record the readable root and what it exposes rather than requiring it to exclude this repository: a sandbox lives under `experimental/`, so the repository and its history are readable by construction and blindness to being in an experiment is spent before the first turn.
 
 ## Declare The Causal Ceiling
 

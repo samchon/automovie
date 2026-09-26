@@ -1,0 +1,80 @@
+{
+  "name": "modern-suburban-house",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "An AutoMovie coding-agent production repository.",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "newLine": "lf",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "rootDir": ".",
+    "noEmitOnError": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ],
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": [
+    "lint.config.ts",
+    "src"
+  ],
+  "scripts": {
+    "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
+    "viewer": "tsx src/viewer/server.cts",
+    "geometry-audit": "tsx src/measurements/geometry-check.ts",
+    "test": "node --test src/measurements/*.test.cjs",
+    "docs-review-host": "node src/measurements/docs-review-host.cjs",
+    "check": "node src/measurements/check.cjs",
+    "check:spaces": "node src/measurements/check.cjs --layer=spaces",
+    "regression:1952-repair": "node src/measurements/scene-regression.cjs",
+    "check:models": "node src/measurements/check.cjs --layer=models",
+    "check:settings": "node src/measurements/check.cjs --layer=settings",
+    "review-check": "node src/measurements/review-check.cjs"
+  },
+  "dependencies": {
+    "@automovie/archetypes": "workspace:^",
+    "automovie": "workspace:^",
+    "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
+    "@automovie/ingest": "workspace:^",
+    "@automovie/interface": "workspace:^",
+    "@automovie/production": "workspace:^",
+    "@automovie/render": "workspace:^",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@automovie/evidence": "workspace:^",
+    "@automovie/template": "workspace:^",
+    "@ttsc/lint": "^0.29.0",
+    "@types/node": "^22.19.17",
+    "ttsc": "^0.29.0",
+    "typescript": "^7.0.2",
+    "@types/three": "^0.186.0",
+    "tsx": "^4.23.15"
+  }
+}

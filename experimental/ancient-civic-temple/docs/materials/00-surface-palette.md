@@ -1,0 +1,35 @@
+# 신전 표면 재료
+
+이 초안은 기존 model part의 안정 ID에 결합하는 외관을 정한다. 길이는 월드 미터이고, [모델 결속 표](10-model-bindings.md#binding-map)의 sRGB 색은 source에서 선형 광량으로 변환한다. 결속 표 하나가 model part 배정·반복 길이·fallback 색을 소유하고 이 파일의 각 H2는 표면 반응과 공간별 대조를 정한다. 2026-09-25 사용자 지시에 따라 코드로 만든 반복 비트맵은 3D 표면 입력으로 사용하며 완성 프레임을 repaint하지 않는다. 비트맵을 읽지 못하면 같은 재료의 기본색·거칠기·금속도만 적용한다. UV0가 없거나 유한하지 않은 part의 텍스처 결속은 실패하며 단색으로 조용히 넘어가지 않는다. 재료는 형상과 두께를 새로 만들지 않는다.
+
+## 석재와 포장 {#stone}
+
+기단·코핑·문설주·기둥·제단·분수 가장자리·실내 바닥·현관 및 마당 포장은 [석재 결속](10-model-bindings.md#binding-map)의 밝은 회백색 석회석 계열이다. `surface.*.footing`, `surface.*.plinth`, `surface.*.coping`, `surface.*.reveal`, `surface.site.curb`와 제단·분수의 석재 part에 결합한다. 거칠기 0.86, 금속도 0이다. `surface.*.floor`와 `surface.site.paving`은 같은 석재색의 포장 변형을 써서 2m 이미지 안에 0.5m 줄눈 네 칸을 둔다. 포장 거칠기는 0.9이다. 비트맵이 없으면 줄눈 없이 석재 기본색을 사용한다. 육안 검토는 전체 조감과 마당 동일 카메라에서 포장과 벽을 분리해서 본다.
+
+## 회벽과 붉은 하부 띠 {#plaster}
+
+외벽 `surface.facade-*.outer`, 안뜰 및 실내 `surface.*.wall`, 벽의 bearing·parapet·joint·gable·pediment, 실내 천장 표면에는 [회벽 결속](10-model-bindings.md#binding-map)의 따뜻한 크림색을 결합한다. 거칠기 0.96, 금속도 0이다. `surface.*.dado`는 낮은 채도의 흙빛 붉은 띠 `#866350`으로 분리한다. 노출된 넓은 벽은 기존 월드 축 투영 UV를 쓰며 반복 길이는 결속 표를 따른다. 비트맵이 없으면 같은 색의 평면 재료를 유지한다. 마당과 제실 캡처에서 포장·목재와 대비되는지 본다.
+
+## 목재 {#timber}
+
+지붕 하부의 보·서까래를 나타내는 `surface.roof-*.soffit`, `surface.*.ceiling-back`, 목제 문짝 및 가구의 top·leg·frame·board 등은 [목재 결속](10-model-bindings.md#binding-map)의 중간 갈색을 쓴다. 거칠기 0.78, 금속도 0이다. `portable#bench`의 seat·pier와 `fixtures#offering-table`의 top·trestle은 석재 결속이다. 문짝·구조 보의 결은 부재 장축을 따르고 반복 길이는 결속 표를 따른다. 범용 목제 part는 기존 미터 UV를 따르며 비트맵이 없으면 기본색을 쓴다. 제실 안쪽과 기록실에서 어두운 목재가 회벽과 구별되는지 검토한다.
+
+## 기와 {#roof-tile}
+
+`tegula`, `imbrex`, 지붕의 노출 윗면 `surface.roof-*.upper`는 [기와 결속](10-model-bindings.md#binding-map)의 어두운 적갈색을 쓴다. 거칠기 0.84, 금속도 0이며 빗면의 UV 반복은 결속 표를 따른다. 비트맵이 없으면 색만 적용한다. 지붕 모서리와 숨은 bearing은 석재 또는 회벽으로 남겨 구조와 기와를 구분한다. 조감 카메라에서 기와가 크림 벽에 묻히지 않는지 본다.
+
+## 금속 {#metal}
+
+등잔의 foot·stem·dish, 경첩·걸쇠·고리·금속 도구는 [금속 결속](10-model-bindings.md#binding-map)의 어두운 청동색을 쓴다. 거칠기 0.39, 금속도 0.82다. 크기가 작은 금속 part에는 별도 무늬보다 반사 차이가 우선이며 비트맵이 없으면 기본 물성은 유지한다. 제실과 기록실의 가까운 카메라에서 목재·도기와 분리되는지 본다.
+
+## 직물과 두루마리 {#textile}
+
+`object.textile/cloth`와 방석 pad는 [직물 결속](10-model-bindings.md#binding-map)의 채도 낮은 적갈색을 쓴다. 거칠기 0.98, 금속도 0이다. 두루마리 묶음 끈은 밧줄 섬유 결속이다. cloth의 직조 반복 길이와 두루마리 sheet·서판 필기면의 밝은 황갈색은 결속 표가 정한다. 비트맵이 없으면 단색으로 남긴다. 기록실 카메라에서 직물·종이·목재의 세 값을 확인한다.
+
+## 흙과 지면 {#earth}
+
+`surface.site.earth`, `surface.site.ground`, `surface.site-distant.ground`, 화분의 soil은 [흙 결속](10-model-bindings.md#binding-map)의 탁한 갈색을 쓴다. 거칠기 1, 금속도 0이다. 먼 능선은 같은 계열의 낮은 명암으로 두어 전경 포장보다 뒤로 물러나게 한다. 지면 UV는 월드 미터 투영과 1m 반복을 기준으로 하며 비트맵이 없으면 기본색이다. 조감에서 포장·외벽·흙길이 독립된 띠로 읽히는지 본다.
+
+## 도기·바구니·물 {#secondary}
+
+항아리·물동이·화분 몸체는 [도기 결속](10-model-bindings.md#binding-map)의 낮은 채도 붉은색을 쓰며 거칠기 0.72, 금속도 0이다. 봉헌 그릇과 낮은 봉헌 쟁반은 금속 결속이다. 바구니는 마른 식물 섬유, 밧줄과 두루마리 묶음 끈은 별도의 섬유 결속을 쓰며 둘 다 거칠기 0.96이다. 분수의 water·jet·ripple은 결속 표의 어두운 청회색을 쓰고 거칠기 0.2, 금속도 0으로 읽히게 한다. 이들은 각각 해당 object part ID에 결합하고 작은 반복 길이는 결속 표가 정한다. 마당 및 서비스실 관찰에서 석재 분수와 물, 도기와 목제 선반이 구별되어야 한다.

@@ -1,0 +1,81 @@
+# 물체 모델의 공통 재현 계약
+
+이 파일은 [생활 프로그램](../settings/002-household.md#household-program)과 [표면 분해](../settings/003-spatial-basis.md#surface-decomposition)를 물체의 주소·척도·중립 관찰 규칙으로 바꾼다. 개별 형상은 뒤의 모델 H2가 소유한다.
+
+## 단위·주소·표면 완결성 {#model-address-and-scale}
+
+모든 길이는 m이며 오른손 Y-up이다. 별도 명시가 없으면 바닥형 물체의 원점은 바닥 접촉 영역 중심이고 +Z는 사용하는 앞쪽이다. 천장형과 벽부착형은 자기 H2의 고정점과 전방을 따로 적는다. 저작 척도는 식탁 상면 y=0.74와 의자 좌면 y=0.45를 기준으로 한다. 각 H2가 최외곽 폭×높이×깊이와 부품 치수·오프셋을 확정하며 source는 primitive 기본값이나 남은 점유 공간으로 부품 치수를 발명하지 않는다. `prototype/part`가 안정 주소이고 부품의 가시 측면이 다른 downstream 응답을 필요로 하면 `prototype/part/face`다. 한 부품을 face로 나누면 face ID 집합은 그 부품의 모든 삼각형을 중복 없이 빠짐없이 덮는다. 두께 있는 판의 앞·뒤·노출 edge·위아래를, 접지 다리의 shaft·상단 접합·바닥 sole을 해당 H2가 이름으로 나눈다. 숨은 접촉면도 안정 주소를 갖되 시각 마감 약속으로 세지 않는다. 각 주소는 local frame, vertex AABB, winding·normal, UV 원점·축, 이음과 의도된 빈 공간을 운반한다. 모델은 재료 ID·색·방별 transform·개수·광량을 고르지 않는다. 얼굴·인체 모델은 이 library의 물체 모집단에 없다.
+
+네 발 물체에서 `leg-0..3`의 순서는 `0=(−X,−Z)`, `1=(−X,+Z)`, `2=(+X,−Z)`, `3=(+X,+Z)`이며 번호는 회전이나 방 배치에 따라 다시 매기지 않는다. ref01의 외피를 독립 물체 part로 옮기지 않고 ref02~05의 물체가 받는 안정 주소만 정의한다. 실제 모델 source의 face 완결 여부는 아직 `unverified`다.
+
+각 prototype의 `@address-state state:`는 해당 상태에서 face 주소를 받는 독립 part ID 집합이다. 같은 상태의 `@inventory`와 일대일로 맞아야 하고, H2 산문에 한 번도 등장하지 않는 part를 선언할 수 없다. `model-address-audit`는 산문 주소→part, inventory→산문 주소, 상태별 address↔inventory를 모두 검사한다. 주소 상태 선언은 모델 설계의 별도 저작값이며 검증은 이를 inventory에서 재생성하거나 고치지 않는다. 산문의 part/face 경로에서 `/`는 계층 구분이며 여러 part를 줄여 적은 표현은 `@address-state`의 개별 ID로 풀어 읽는다.
+
+## 메트릭 UV와 곡면 분할 {#model-uv-and-topology}
+
+평면 face의 primary UV는 0..1로 재정규화하지 않은 m 좌표다. 국소 법선 ±X면은 U=+Z·V=+Y, ±Z면은 U=+X·V=+Y, ±Y면은 U=+X·V=+Z이고 원점은 그 face AABB의 각 U/V 최소 접점이다. 반대쪽 법선 face는 winding만 뒤집고 UV의 물리 축은 유지한다. 둥근 외벽은 local −Z 뒤쪽을 U=0 이음으로 하여 둘레 실제 호 길이를 U, local 높이를 V로 쓰고 안쪽 벽은 반대 winding을 쓴다. 곡면 좌판·쿠션·잎은 뒤쪽 local −Z 이음에서 각 위도 ring의 실제 edge 길이를 U, 아래쪽 pole부터의 meridian 길이를 V로 쓴다. 원형·원통형 둘레는 24개 같은 각도 구간, 닫힌 타원·구형은 같은 24개 경도와 12개 위도 구간을 사용한다. 양 극은 단일 vertex와 각각 24개 삼각형 부채로 닫고 퇴화 ring을 내지 않는다. 90° 둥근 모서리는 6개 구간, 얇은 잎은 8개 경계 vertex와 앞뒤 한 장씩을 두께 edge로 연결한다. 이 정수 규칙이 각 ID·상태에서 vertex 순서와 UV ring을 고정한다. 두 면의 서로 다른 투영은 모델 face edge에서만 끊고 한 face 안에서 UV를 임의 회전하거나 크기를 정규화하지 않는다. 실제 마감의 반복 길이·grain 축·색은 materials가 이 metric 좌표를 소비해 결정한다. 각 닫힌 부품은 퇴화 삼각형·비다양체 모서리 없이 2-manifold여야 하며 의도적으로 열린 cavity는 rim에서 두께를 가진 내·외벽으로 닫는다. 산출 producer는 부품별 position/index·연결 성분·경계/비다양체 edge·normal·UV·점유와 face별 삼각형 중복/누락을 검사한다. ref02~04의 원통 등·도기·잎을 같은 수치 세분화로 저작하고 ref01·05의 원경에서 곡면 밀도를 역산하지 않는다. 실제 재료 텍스처의 UV 반복 결과는 `unverified`다.
+
+평평한 상·하면을 가진 둥근 직물 상자와 출입 매트는 위도 ring 대상이 아니다. 그 상·하면에는 ±Y 평면의 m 단위 X/Z 투영을 쓰고, 둥근 둘레에만 뒤쪽 −Z 이음에서 실제 호 길이 U와 높이 Y를 V로 쓴다. V형 접힘 홈의 두 경사면은 각각 자체 실제 표면 길이로 V를 이어 seam에서만 끊는다. 화분의 얇은 쐐기 잎은 시작점부터 끝면까지의 실제 길이를 V, 끝면의 접선 폭을 U로 쓰며 시작점 U=0을 공유한다.
+
+중심선을 따라 쓸어 만드는 원형 관·막대의 닫힌 자유 끝에는 바깥 반지름만큼 진행 방향으로 뻗는 반구를 붙인다. 반구는 적도에서 극까지 동일한 여섯 위도 구간, 둘레 24구간과 단일 극점으로 닫으며 내부에 평평한 끝 원판을 남기지 않는다. 열린 출구는 해당 H2가 지정한 평평한 환형 끝면으로 닫고, 다른 고체에 용접되는 끝은 내부 교차면을 제거한다. XY 평면에서 폭을 가진 선분을 Z 전깊이로 압출한 막대의 둥근 끝은 선분 끝에서 XY 반원 12구간을 바깥으로 붙여 같은 Z 깊이로 압출한다. 단면 24각의 첫 꼭짓점은 Y축 관이면 +X, X축 관이면 +Y, Z축 관이면 +X에 두어 각 축 방향 극값이 선언 AABB에 정확히 닿게 한다. 각 H2는 중심선 끝과 열린 출구 여부를 선언하고 이 규칙에서 실제 외곽·face를 계산한다. 점유 구간 자체로 선언한 원기둥은 중심선 스윕의 자유 끝이 없으므로 그 구간의 끝 평면으로 닫는다.
+
+## 관절 상태와 변종 식별 {#model-articulation-ownership}
+
+같은 prototype ID와 같은 명시 상태는 동일한 형상·부품 집합·AABB를 낸다. 폭·높이·깊이·형상형이 결과를 바꾸면 해당 토큰을 ID 또는 H2의 유한 변종 키에 모두 넣고, m×1000이 정수 mm가 아니면 거부한다. `murphy-bed`의 작업/손님과 flex 책상의 `folded|open`은 하나의 정체성 아래 명시 상태가 선택하는 결과이며 상태 없는 호출은 거부한다. cabinet의 `closed|open`은 ID 토큰이다. 이 단계의 관절은 명시 상태에서 고정된 부품·pivot만 정의하고 쓰기 가능한 중간 운동이나 작동 시간축은 만들지 않는다. 변기 lid도 H2의 열린 검사 형상 하나만 낸다. `cabinet` 문과 서랍의 `closed|open`·`murphy-bed`의 접힘·`work-desk/flex`의 보조판·변기의 고정 열린 lid는 각각 자기 모델 H2가 정한 부품 집합이다. 배치 회전은 instances가, 발광 상태는 systems가 소유한다. ref04의 접이식 전면은 두 고정 상태로만 채택하고 ref02의 침대·수납도 중간 동작 근거로 삼지 않는다. 실제 작동 경로·시간·충돌 회피는 `unverified`다.
+
+## 점유·접합 검사 {#model-bounds-and-states}
+
+source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언 점유를 넘기면 그 prototype을 실패시킨다. 각 독립 부품의 AABB가 선언 점유 안에 있어야 하고 부품마다 바닥·벽 또는 다른 부품과 닿는 경로가 있어야 한다. 하중을 지지하는 접합은 관통이나 점·선 접촉이 아니라 지정된 유한 면으로 대조한다. `@shear-z state: part, Ymin..Ymax, Zcenter-min..Zcenter-max, Z-half-depth`는 Y를 따라 중심 Z가 선형 이동하는 닫힌 사각 단면을 두 수평 끝면에서 자른다. `@flat-contact state: guest, host, -Y|-Z, plane, Umin..Umax, Vmin..Vmax`는 guest에 일체화한 평평한 받침과 host의 면이 공유하는 직사각형이다. -Y에서는 U=X·V=Z, -Z에서는 U=X·V=Y다. 두 범위의 곱이 양수이고 범위의 네 모서리가 host의 실점유 안에 있어야 한다. `wall` host는 지정 평면의 외부 건축 벽이며 room 배치에서 다시 대조한다. 비하중 장식 식물의 줄기–가지·가지–잎은 [화분 H2](004-decor-and-fixtures.md#potted-plant)가 선언한 정확한 접선 하나만 허용하고 생산자가 그 접점을 상태마다 대조한다. 이 예외를 등기구·위생기구·좌석 지지에 확대하지 않는다. 임의의 미정 소형 부품을 상위 AABB에 넣어 넘어가는 허용 규칙은 없다. 각 prototype H2의 `@inventory state:`는 그 상태의 독립 부품 ID 모집단을, `@envelope`은 전체 선언 점유를, `@part`는 각 부품의 닫힌 X/Y/Z 범위·기본 형상·접촉 상대를 적는다. 모든 허용 폭 변종과 상태를 전개하고 한 부품이라도 표에서 빠지면 검사 실패다. 비상자 AABB가 겹칠 때는 `@joint`의 절삭면과 형상 교차 증명 없이는 통과시키지 않는다. 표와 설명 문장의 수치가 다르면 둘 중 하나를 암묵적으로 우선하지 않고 설계를 실패시킨다. 이 표는 source 구현이 아니라 검증 가능한 설계 입력이다. ref02~04의 부품 접합은 그림에서 구조 안전을 판정하지 않고 이 수치 경계로만 검사하며 ref01·05의 원경은 물체 접합 값을 주지 않는다. 실제 기하 생성 전의 접촉·점유 결과는 `unverified`다.
+
+`@piece`로 분해한 부품은 각 행의 닫힌 직육면체를 실제 점유 고체로 삼고 그 합집합을 검사한다. 같은 부품에 `@shear-z`가 있으면 해당 구간은 직육면체가 아니라 선언한 경사 단면이 실제 점유다. `@cap-contact state: 첫 부품, 둘째 부품, X|Y|Z, +|-`는 첫 부품의 지정 최외곽 면과 둘째 부품의 반대 면이 겹치는 평면 영역을 실제 닫힌 접합면으로 선언한다. 이 선언은 두 점유의 일치 평면과 양수 면적을 검사하며, 원통 끝면은 원판과 상대 점유의 교집합을 잰다. `@cavity-contact state: 홈을 낸 부품, 삽입 부품, X|Y|Z`는 `@void`의 바깥 점유 안쪽 경계에 삽입 부품의 해당 면이 유한 면적으로 닿는다고 선언한다. 원통 홈은 `@bore-x state: host, X 범위, 중심 Y, 중심 Z, 반지름`으로 `@void`의 둘레 상자와 실제 원형 절삭을 구별하고 같은 축의 핀과 유한 원통면을 맞춘다. 뒤의 source도 이 접합 영역을 실제 부품 면으로 구현해야 한다. 구멍이나 경사 단면 때문에 그 영역이 실제 고체가 아니면 해당 형상 증명을 별도로 적는다. `@part`의 전체 AABB만으로 곡면의 접촉 면적을 증명하지 않는다.
+
+다른 prototype을 재사용하는 wrapper는 `@compose state: 원형-H2, 상태-ID, dx, dy, dz`로 하나의 child와 국소 m 평행이동을 명시한다. wrapper의 `@inventory`는 새로 만드는 부품만 열거하고 `@envelope`은 그 부품과 child의 실제 점유 합집합이어야 한다. child의 안정 part/face 주소를 wrapper에 복제하지 않으며 child가 없거나 접촉면이 비면 검사 실패다.
+
+별도 instance로 배치할 원형이 받침인 경우 `@support state: 원형-H2, 상태-ID, 받침-part, dx, dy, dz`로 자식의 정확한 part 상면 또는 그 상면을 절삭한 cavity 바닥과 자기 `support@N` 면을 결합한다. 이때 자기 `@envelope`은 자기 부품만 선언하고 원형을 중복 생성하지 않는다. 한 상태에 `support@N`이 있으면 `@compose` 또는 `@support`가 반드시 있어야 하며 자식의 유한 면적 접촉, 높이 N, 실제 상태 ID를 기계로 대조한다.
+
+문·보조판·수납 침대의 세 가동 경첩 계열은 같은 경계 규칙을 따른다. 각 축의 반경과 길이로 핀 점유를 먼저 계산하고, 회전 부품 및 고정 부품에서 그 점유와 실제 겹치는 구간을 절삭하거나 핀을 부품 밖으로 옮긴다. 절삭한 면 또는 명시한 접합판이 핀과 유한 면적으로 만나야 하며 점·선 접촉, 숨은 핀의 전면 돌출, 고정 부품과의 빈 틈은 실패다. 닫힘과 검사 열림 상태를 각각 잰다. 경첩 계열의 개별 축·절삭·접합판 좌표는 각 prototype H2가 결정한다. 세탁기·건조기의 드럼 도어는 ref02의 닫힌 서비스 장치 외관을 나타내는 고정 외피이며 이 단계에 가동 경첩 계열로 넣지 않는다. 보이는 barrel·tongue의 접합 형상은 [세탁기 H2](003-service-fixtures.md#laundry-appliances)가 정하고 실제 문 열림 동작은 `unverified`로 남긴다.
+
+`@prose-gap 상태: 앞쪽 부품, 뒤쪽 부품, X|Y|Z, 산문명`은 두 부품의 같은 축에서 앞쪽 최소 경계와 뒤쪽 최대 경계의 양의 차를 해당 산문명 앞의 m 단위 수치와 대조한다. 상태 `*`는 해당 두 부품이 함께 있는 모든 상태를 뜻한다. 이 행에는 차이 값을 다시 쓰지 않는다.
+
+`@prose-part 산문명: part-ID`는 산문의 부품 명칭을 같은 H2의 `@part` 또는 `@piece` ID에 묶는 어휘 행이다. ID 끝의 `*`는 같은 접두사의 실제 부품 집합을 뜻하며 그 집합의 축별 합집합 경계도 검사한다. ID 뒤의 `!void`는 그 명칭이 같은 부품의 `@void` 절삭 구간을 가리킨다는 뜻이며 다른 고체 경계로 대체할 수 없다. 파서는 수치 앞의 가장 가까운 명칭과 문장에 명시한 상태를 선택하고 그 부품·축의 행 경계, 중심, 반폭, 전폭과 대조한다. 이름 없는 다른 부품의 동일 수치는 증거가 아니다. `@prose-dim 산문명: part-ID`는 같은 어휘 연결을 폭·높이·깊이, 원통의 X/Z 지름 및 최단 축이 실제 두께인 부품의 두께 주장에만 적용한다. `@curve-linear`의 host 두께와 guest가 host보다 앞선 간격은 같은 부품 어휘와 곡면 행의 필드로 대조한다. 부품의 곡면 내부 좌표를 외곽 AABB와 혼동하지 않도록 이 별도 연결을 쓴다.
+
+`@axis-control state: part, X|Y|Z, 값, 의미`는 해당 부품 AABB 안의 절단선·이음·구멍 중심 같은 내부 기준 좌표를 명시한다. 좌표 감사는 이 행의 상태·부품 존재와 범위 포함을 확인하고 해당 H2 산문의 같은 축 수치에 대한 증인으로 삼는다. source는 이 기준을 해당 face 또는 절삭 형상으로 구현해야 하며 선언만으로 형상 구현을 주장하지 않는다.
+
+`@prose-bore-diameter state: part-ID, 산문명`은 산문명의 뒤에 붙은 지름 수치 하나를 같은 상태·부품의 `@bore` 반지름 두 배와 대조한다. 같은 수의 `@scalar-control`을 함께 고쳐도 보어 행과 다르면 실패한다.
+
+`@prose-envelope 산문명: state`는 H2 안에서 명명한 prototype 산문을 정확한 `@envelope` 상태에 결합한다. 산문의 폭·높이·깊이를 그 상태의 X/Y/Z 전폭과 대조하며 다른 상태의 같은 수치로 통과시키지 않는다.
+
+`@scalar-control 이름: 값`은 `@part`의 축 범위나 다른 구조 행에서 직접 읽거나 한 구간의 중심·반폭·전폭으로 계산할 수 없는 세부 치수·비율·반올림 경계를 검사하는 색인이다. 독립 선택의 소유자는 해당 H2 산문이고, 다른 구조 행이나 식에서 유도되는 값의 소유자는 그 입력 행이나 식이다. 이 색인은 어느 쪽에도 두 번째 설계 입력을 만들지 않는다. `excluded-` 이름은 산문이 명시적으로 채택하지 않은 과거 값이나 다른 owner의 값을 가리키며 현재 모델 source 입력이 아니다. 이름은 H2 안에서 유일하고 그 값이 설명 산문에도 실제 쓰여야 한다. 좌표 감사는 이 행과 구간에서 계산한 수치를 별도로 세며, 같은 값이라는 사실만으로 그 세부의 형상 구현을 증명하지 않는다. 새 숫자를 산문에 넣으면 기존 구조 행이나 식의 유도 여부를 먼저 확인하고, 단순 구간 계산으로는 감사가 닿지 못할 때만 이 검사 색인을 추가한다.
+
+`@cavity-profile state: part, round|ellipse, 바닥제수, 어깨분수, 벽제수, 목 안반지름`은 좁은 목을 가진 중공 용기의 단면을 정한다. `@part`의 폭 W·높이 H·깊이 D에서 `round` 몸통의 바깥 반지름은 min(W,D)/2이고 몸통 중심 Z는 part의 최소 Z에 그 반지름을 더한 곳이며 남는 +Z 점유는 주둥이 같은 돌출에 쓴다. `ellipse` 몸통의 바깥 X/Z 반경은 W/2와 D/2이며 중심은 part의 X/Z 중점이다. 벽 두께는 min(W,D)/벽제수, 닫힌 바닥의 높이는 H/바닥제수, 어깨 높이는 H×어깨분수다. 바닥 위에서 어깨까지 안쪽 반경은 몸통 바깥 반경에서 벽 두께를 뺀 값이다. 어깨에서 상단까지 바깥 반경은 몸통 바깥 반경에서 목 안반지름+벽 두께로, 안쪽 반경은 몸통 안쪽 반경에서 목 안반지름으로 선형 보간하고, 상단의 안팎 경계를 rim으로 닫는다. `ellipse`의 어깨 아래 단면은 타원이고 목은 원형이다. 두께·내부 반경·바닥·어깨가 모두 양수이고 목이 몸통보다 좁아야 하며, 별도 `@bore`를 같은 part에 겹쳐 적지 않는다. 이 행은 후속 source가 실제 내벽과 단면 축소를 만들게 하는 설계 입력이며 형상 구현의 검증 결과는 아니다.
+
+`@vessel-attachments state[,state]: part, spoutY, channel, gripY최소..최대, holeX최소..최대, holeY최소..최대, gripZ`는 같은 `round` cavity profile을 가진 용기의 주둥이와 관통 손잡이 비율을 소유한다. 값은 모두 양의 분수이며 spoutY·gripY·holeY는 H, channel은 목 안반지름, holeX는 몸통 반지름 R, gripZ는 W에 곱한다. 주둥이 내반경에 벽 두께를 더한 외반경이 local X·Y 점유를 넘지 않아야 하고 몸통 전면부터 +Z 경계까지 길이가 양수여야 한다. 손잡이 판은 y=gripY×H에서 x=R(y)−벽 두께/2..R, z=몸통 중심 Z±gripZ×W이고 holeX×R·holeY×H 사각형을 Z로 관통 절삭한다. 구멍은 몸통 외벽 밖이며 판 안에 양의 두께를 남기고 판의 안쪽 가장자리가 몸통 외벽과 겹쳐야 한다. 이 비율은 문서의 구조 행 한 곳에서만 정하고 후속 source가 소비한다.
+
+`@vessel-closure state[,state]: part, capHeight`는 열린 `@cavity-profile` 입구를 같은 part의 닫힌 캡으로 막는 상태를 정한다. capHeight는 H의 양의 분수다. 캡의 바닥은 y=H−capHeight×H, 상단은 part의 Y 최댓값이다. 캡은 그 전 높이에서 profile 바깥 반지름 R_out(y)까지 채운 닫힌 회전체로, 바닥 원판도 y=H−capHeight×H의 R_out까지 채운다. 바닥의 profile 안반지름 R_in보다 R_out이 크므로 첫 단면부터 빈 목을 막고, 그 위에서는 profile 벽과 유한 부피로 합쳐 최종 형상에 열린 통로가 남지 않는다. 캡은 선언 AABB를 넘지 않아야 하고 그 아래 몸통 공동은 그대로 비어 있어야 한다.
+
+`@part`의 `suspension` 접촉은 물체의 상부 걸림 부위에 있는 아래를 보는 면이 독립 물체의 위를 보는 면에 매달리는 상태다. local y=0은 배치 기준인 최고점이지만 그 위쪽 면 자체를 하중 접촉으로 세지 않는다. 옷걸이에서는 갈고리 안쪽 24각 면, 코트에서는 탭의 관통 구멍 안쪽 24각 면을 걸림면으로 삼는다. 본체를 바닥에 붙여 계산하지 않으며 실제 봉·걸이와의 변환 및 유한 면 접촉은 instances가 검증한다.
+
+`@part`의 `underside` 접촉은 상부장 같은 독립 물체의 밑면을 local y=0 접합 평면으로 삼는다. 이때 부품 최고 y가 0이어야 하고 접합할 상부장과의 실제 면적·배치 일치는 instances가 검증한다.
+
+`@material-face state: part/face`는 같은 부품의 일반 가시 면과 구분되는 재료 응답을 필요로 하는 실제 면을 표시한다. 이 주소는 model의 표면 분할 결정이며 finish·texture 규모·UV 결합은 materials가 소유한다. `model-owner-audit.cjs`의 표면 결합 검사는 선언된 state/part/face의 별도 결합과 그 밖의 부품의 기본 결합을 센다.
+
+`@pin-face state: pin, receiver`는 원통 핀의 끝 원판이 receiver의 닫힌 접합면에 유한 면적으로 닿음을 선언한다. `@emitter-face state: part, -Y`는 방에서 아래로 보이는 발광 face를 지정하며 다른 부품이 그 면을 가리면 실패다. `@tangent state: host, guest, hostRadius, guestHalfWidth`는 원통 host의 바깥 반지름과 guest의 X 반폭으로 접선을 검증한다. host와 guest의 AABB를 고체 접합 증명으로 대신하지 않는다. `@bore-z state: part, centerX, centerY, radius, Zmin..Zmax`는 Z축 원형 절삭이며 부품 가장자리를 가로지를 때에도 실제 원호 벽과 남은 고체가 모두 양수 면적이어야 한다. `@bore-x state: part, Xmin..Xmax, centerY, centerZ, radius`는 X축 원형 구멍이다. 절삭 구간의 양 끝과 안쪽 벽은 열린 면이 아니라 두께 있는 고체의 노출 face다.
+
+`@sole-grid state: part, X폭제수, Z깊이제수, X중심여유제수, Z중심여유제수`는 네 모서리 다리의 지면 발바닥을 W×D의 `@part` 점유에서 계산한다. 각 발바닥은 폭 W/X폭제수, 깊이 D/Z깊이제수이고 중심은 x=±(W/2−W/X중심여유제수), z=±(D/2−D/Z중심여유제수)다. 네 발바닥은 part의 실제 지면 단면이며 `@flat-contact` 직사각형은 그중 하나에 전부 포함되어야 한다.
+
+`@cavity-min state: part, 바닥높이비, 측벽두께비`는 위로 열린 직사각 공동을 가진 닫힌 용기의 구조 최소 두께다. 바닥높이비는 host 높이 H에, 측벽두께비는 min(host X 폭, host Z 깊이)에 곱한다. `@void`의 위 끝은 host 위 끝에 닿아야 하며 바닥 아래와 X/Z 양쪽 측벽에 각각 이 최소 두께 이상의 고체가 남아야 한다. 이 비율은 형상의 별도 치수가 아니라 허용 하한이고, 실제 공동 경계는 `@void` 한 곳에서만 정한다.
+
+`@radial state: part, inner, outer`는 원점 XZ 중심을 가진 Y축 원판 또는 환형 단면, `@radial-at state: part, centerX, centerZ, inner, outer`는 평행 이동한 같은 단면, `@radial-z state: part, centerX, centerY, inner, outer`는 Z축 원판 또는 환형 단면을 정한다. inner=0이면 중심까지 채우고, 양수이면 그 안은 비운다. `@ellipse state: part, innerX, innerZ, outerX, outerZ[, centerX, centerZ]`는 Y축 타원 고리의 두 반축과 중심을 정하며 생략한 중심은 원점이다. 이 행의 반축과 위치는 `@part`의 AABB와 별도로 서로 대조한다. `@grid state: prefix, columns, rows, pitchX, pitchZ, width, depth, Ymin..Ymax, contact`는 X/Z 격자의 `prefix-0..` 부품을 행 우선 순서로 배치하고 각 부품을 선언 폭·깊이·높이의 닫힌 상자로 만든다.
+
+방사 행은 해당 부품의 원형 부분을 측정하며 별도 산문이 수치로 닫은 일체형 접합 패드를 금지하지 않는다. [샤워 bracket](003-service-fixtures.md#shower)은 원형 고리 뒤로 벽의 접촉 평면까지 뻗은 직사각 패드를 합쳐야 하므로 패드 모서리는 `@radial-at` 바깥 반지름 밖에 있다. 그 패드는 `@flat-contact`의 유한 벽 접촉을 만들며 전체 `@part` AABB 안에 남는다. 이런 추가 부피를 산문이나 별도 구조 행 없이 임의로 만들 수는 없다.
+
+`@curve-linear state: host, guest, originY, spanY, c0, c1, hostDepth, gap, guestDepth`는 t=(y−originY)/spanY에서 host의 뒤 경계 z=c0+c1t, 앞 경계 z+hostDepth, guest의 뒤 경계는 host 앞 경계+gap, 앞 경계는 다시 guestDepth를 더한 선형 층이다. `@curve-layer`의 다항식 우선순위는 아래 문단이 소유한다. `@plant-spec`은 [화분](004-decor-and-fixtures.md#potted-plant)의 JSON 입력으로, `heights`는 mm 상태 목록이고 나머지 이름 붙은 값은 최종 높이 H의 무차원 비율이다. `wallMinimum`만 m 단위 바닥 두께 하한이며 `leafFanDegrees`는 각도다. `model-plant-producer`가 상태별 `@part`·`@envelope`을 이 입력에서 생성한다. `@component-count state: part-ID, N`은 같은 상태의 그 부품을 `@void`로 절삭한 뒤 양수 면을 공유하는 닫힌 고체 연결 성분 수를 확정한다. 점·선 접촉은 연결로 세지 않는다. `@cabinet-spec`은 [수납 외함](002-storage-and-sleep.md#cabinet-and-shelf)의 m 단위 패널·틈·문·손잡이·선반 피치 JSON 입력이며 `hingeHalfWidth`는 숨은 사각 힌지의 국소 X 또는 Z 반폭이고 원형 반경이 아니다. `@cabinet-variants`는 호출 가능한 정확한 형상형/폭-mm×높이-mm×깊이-mm/상태 목록이다. `model-cabinet-producer`가 그 유한 목록의 행을 생성하며 입력·출력 불일치는 실패다.
+
+`@plant-join state: branch-ID, baseX, baseY, baseZ, tipX, tipY, tipZ, radius`는 화분 가지의 두 반구 중심과 반지름을 m로 적고 `@plant-apex state: leaf-ID, X, Y, Z`는 잎 쐐기의 단일 시작점을 m로 적는다. 두 행은 `@plant-spec`에서 생성된 계측 결과이며 독립 설계 입력이 아니다. 접선 검사는 줄기 `@part` 반경, 가지 `@plant-join`의 밑동 중심·반지름, 잎 `@plant-apex`와 가지 끝 중심·반지름을 대조하고, 가지 `@part` AABB가 이 중심·반지름의 외곽과 같은지도 재야 한다.
+
+일반 얇은 잎의 여덟 경계 vertex 규칙과 달리 [화분](004-decor-and-fixtures.md#potted-plant)의 부채 잎은 가지 끝 접점 하나와 끝면의 네 꼭짓점을 가진 다섯 vertex의 닫힌 쐐기다. 시작점에서 폭·두께가 함께 0으로 수렴하므로 퇴화 삼각형을 만들지 않고 네 측면 삼각형과 끝면 두 삼각형으로 닫는다. 끝면 두께는 가지에서 바깥 방사방향 한쪽으로만 생기며 접선 거리와 비관통 조건을 각 상태에서 다시 계산한다.
+
+`@curve-layer state: shell, cover, c0, c1, c2, shellDepth, coverDepth, seatGap`이 있으면 cover의 `@piece` 두 행은 채운 상자가 아니라 실제 곡면 점유의 AABB다. shell의 Y 구간에서 t=(y−Ymin)/(Ymax−Ymin), 뒤 곡선 z=c0+c1t+c2t²이다. 첫 cover 조각은 Ymin에서 이음 Y까지 z의 뒤 경계를 곡선+shellDepth+seatGap으로 잘라 좌면 앞 edge까지 채운다. 둘째 조각은 이음 Y부터 Ymax까지 곡선+shellDepth..곡선+shellDepth+coverDepth를 채운다. 두 조각의 X 구간은 같고 이음 Y 평면에서 하나의 닫힌 부품으로 합친다. 이 우선순위는 cover 두 조각에만 적용하며 다른 `@piece`는 계속 채운 상자다. 각 조각의 선언 AABB가 계산한 실제 곡면 극값과 맞지 않거나 seatGap이 음수이면 실패다.
+
+## 중립 관찰과 재현 한계 {#model-neutral-observation}
+
+중립 모델 관찰은 18% 회색 배경, 0.50m 눈금, 한 방향 key light, 고정 노출, 색·라벨 off에서 정면(+Z), 우측(+X), 상부(+Y), 45°(+X/+Z) 직교 view다. H2가 정한 하부·안쪽·상태 view를 더하고 실제 방의 리뷰 거리 view를 별도로 비교한다. 이 관찰은 비례·틈·표면 주소·점유를 묻는다. 광학·하중·방수·전기·인체 안전·제품 인증은 입증하지 않으며 결과가 없으면 `unverified`다. ref02의 절개는 부품의 상·하 관계를 검사하는 자료로만 채택하고 전달 화면으로 채택하지 않는다. ref01은 건축 외피 자료여서 독립 물체의 척도 원본으로 쓰지 않는다. ref03·04·05는 각 방의 읽힘과 소품 밀도만 제약하며 픽셀에서 물체 치수를 역산하지 않는다.

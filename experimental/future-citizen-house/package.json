@@ -1,0 +1,73 @@
+{
+  "name": "future-citizen-house",
+  "private": true,
+  "type": "commonjs",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "An AutoMovie coding-agent production repository.",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "newLine": "lf",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "rootDir": ".",
+    "noEmitOnError": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "lint.config.ts"
+      }
+    ],
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": [
+    "lint.config.ts",
+    "src"
+  ],
+  "scripts": {
+    "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
+    "viewer": "tsx src/viewer/server.ts",
+    "self-check": "node src/review/self-check.cjs"
+  },
+  "dependencies": {
+    "@automovie/archetypes": "workspace:^",
+    "automovie": "workspace:^",
+    "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
+    "@automovie/ingest": "workspace:^",
+    "@automovie/interface": "workspace:^",
+    "@automovie/production": "workspace:^",
+    "@automovie/render": "workspace:^",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@automovie/evidence": "workspace:^",
+    "@automovie/template": "workspace:^",
+    "@ttsc/lint": "^0.29.0",
+    "@types/node": "^22.19.17",
+    "ttsc": "^0.29.0",
+    "typescript": "^7.0.2",
+    "vite": "catalog:vite",
+    "@types/three": "^0.186.0",
+    "tsx": "^4.23.15"
+  }
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>현대 미국 교외 주택 · 3D 뷰어</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/vendor/three.module.js",
+          "three/addons/controls/OrbitControls.js": "/vendor/OrbitControls.js"
+        }
+      }
+    </script>
+    <style>
+      html, body { margin: 0; background: #d9dde2; }
+      #viewport { display: block; }
+      #inspection {
+        position: fixed; left: 8px; bottom: 8px; max-width: 60%;
+        padding: 4px 8px; font: 12px/1.4 sans-serif;
+        color: #1c1c1c; background: rgba(255, 255, 255, 0.85);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="viewport" width="1536" height="1024"></canvas>
+    <div id="inspection" hidden></div>
+    <script type="module" src="/src/viewer/client.mjs"></script>
+  </body>
+</html>

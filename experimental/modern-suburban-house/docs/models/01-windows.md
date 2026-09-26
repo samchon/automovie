@@ -1,0 +1,200 @@
+# 외부 창의 충전 부재
+
+## 창 모델의 외곽과 벽 안 깊이 {#window-local-frame}
+<!--
+@evidence principles/core/common.md#scope-preservation 외부 창 12개가 각각 거친 개구부 하나를 채우고 외곽을 그 개구부와 같게 두며 벽 안 깊이 Z = -0.04 ~ -0.18 m를 쓰는 범위를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion frame 외곽=거친 개구부, shim 없음, 바깥 면 Z = -0.04 m, 안쪽 면 Z = -0.18 m를 수치로 정해 창의 벽 안 위치를 구현자가 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 물림 0.04 m·깊이 0.14 m는 spaces/06-openings.md#external-opening-interface, 좌표 관례는 00-model-frame.md#model-local-frame에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '창 frame 바깥 면을 0.04 m 물리고 깊이 0.14 m 안에 배치'라는 공간 예약을 frame 부재의 국소 Z 두 면이라는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract 창 원형의 점유 범위를 거친 개구부 외곽 × 0.14 m 깊이로 정한다.
+@evidence principles/design/models.md#spatial-convention 원점 면을 외벽 날씨 면으로 두고 frame 두 면을 국소 Z 값으로 적는다.
+@evidence principles/design/models.md#reviewable-structure 각 방 안쪽 reveal 단면에서 frame 깊이가 0.04 m 물림과 0.14 m를 지키는지 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 검은 창이 흰 외벽 안으로 들어간 깊이를 채택하고, 02의 절개 창은 개구부 위치 확인에만 쓴다. 스타일 라벨 없이 벽 안에 들어간 창틀 깊이라는 관찰 가능한 결정을 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 벽 두께 층 안의 창 위치를 정해 창이 벽면에 붙은 판으로 남는 층 누락을 막는다.
+@evidence spaces/06-openings.md#external-opening-interface 0.04 m 물림과 0.14 m 깊이 예약을 frame 바깥·안쪽 면 Z = -0.04·-0.18 m로 소비한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06의 0.04/0.14 m 예약과 네 입면 owner의 개구부를 적힌 그대로 소비했고 창 외곽을 정하는 데 부모 결함이 없었다.
+-->
+
+레퍼런스 01의 검은 창이 흰 외벽 안으로 들어간 깊이를 채택하고, 02의 절개 창은 개구부 위치 확인에만 쓴다. 깊이 수치는 사진에서 재지 않고 벽 예약을 따른다.
+
+모든 외부 창은 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰고 원점 면은 외벽 날씨 면이다. 창 모델 하나는 [공통 개구부 인계](../spaces/06-openings.md#external-opening-interface)의 거친 직사각 개구부 하나를 채우고 좌표와 칸 수는 네 입면 owner에서 받는다. frame 외곽의 폭과 높이는 거친 개구부와 같고, blocking 수준의 틈새 shim은 [표현 상한](00-model-frame.md#model-representation-ceiling)에서 만들지 않는 부재로 본다. frame 바깥 면은 국소 Z = -0.04 m, 안쪽 면은 Z = -0.18 m로 06의 0.04 m 물림과 0.14 m 깊이를 그대로 소비한다. 소스 owner는 `src/models/windows.ts`이며 각 방 안쪽 reveal 단면으로 검사한다.
+
+## 창틀·sash·mullion·살대의 부재 치수 {#window-member-sizes}
+<!--
+@evidence principles/core/common.md#scope-preservation frame 0.06·sash 0.05·mullion 0.08·살대 0.025 m 부재 폭과 칸 폭 산출식, 깊이 배분, 유리 법선·UV를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다. 고정·경첩 sash Z=[−0.13,−0.08] m와 유리 Z=[−0.113,−0.107] m, 상하 미닫이의 별도 앞뒤 트랙을 구분한다.
+@evidence principles/core/common.md#declared-basis 부재 폭 근거를 settings/20-verification.md#visual-grammar의 charcoal 창틀과 #frame-condition의 외부 기본 view, 계단 창 폭 0.78 m에서 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '두께 있는 frame·sash·유리·살대'를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
+@evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선)로 정하고, 금속 프레임은 부재 길이를 U로 한 미터 UV를 낸다.
+@evidence principles/design/models.md#spatial-convention 부재 폭을 정면 입면 방향, 깊이를 국소 Z로 적어 방향 관례를 분명히 한다.
+@evidence principles/design/models.md#reviewable-structure 정면 직교 뷰에서 부재 폭을 재고 칸 폭 0.30 m 미만을 실패로 본다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 넓은 전면 창과 좁은 계단 창에 공통인 검은 테를 채택한다. charcoal 창틀이 흰 trim 안에서 선으로 읽혀야 한다는 visual-grammar 요구를 0.06/0.05 m 폭으로 구체화한다.
+@evidence principles/design/models.md#model-scale-layer-completion 가장 작은 창에서도 유리 층이 남는 척도 관계를 산출해 부재가 유리를 덮는 경우를 막는다.
+@evidence settings/20-verification.md#visual-grammar 짙은 charcoal 창틀과 흰 trim이 구별돼야 한다는 조건을 frame 0.06·sash 0.05 m 부재 폭의 근거로 소비한다.
+@evidence spaces/envelope/front.md#stair-front-window 폭 0.78 m 계단 창을 최소 창으로 삼아 유리 폭 0.56 m를 산출한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work visual-grammar·frame-condition과 입면 owner의 칸 수를 그대로 소비했고 부재 폭이 부모 값과 충돌하지 않았다.
+-->
+
+레퍼런스 01의 넓은 전면 창과 좁은 계단 창에 공통인 검은 테를 채택한다. 서로 다른 창폭에 맞는 유리 순폭은 예약별 산술로 정한다.
+
+spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 두께 0.006 m 판 하나다. 유리는 앞뒤 면이 각각 바깥 법선을 갖는 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
+고정창과 욕조 경첩창의 `sash`는 날씨 면을 국소 Z=0으로 두었을 때 Z=[−0.13,−0.08] m이고, 그 안의 유리는 Z=[−0.113,−0.107] m다. 상하 미닫이의 두 sash는 별도 트랙을 써서 바깥 upper가 Z=[−0.17,−0.12] m, 안쪽 lower가 Z=[−0.10,−0.05] m다. 각 트랙의 유리는 자기 sash 뒷면에서 0.017 m 안쪽의 0.006 m 판이므로 upper Z=[−0.153,−0.147] m, lower Z=[−0.083,−0.077] m다. 유리가 점유하는 사각형은 sash 안쪽의 유리 순폭·순높이이며 그 자리의 sash 면은 실제 구멍으로 비운다. 욕조 경첩창의 `awning-sash` 위쪽 회전축은 날씨 쪽 윗모서리 Z=−0.08 m다.
+
+## 살대 격자 {#window-muntin-grid}
+<!--
+@evidence principles/core/common.md#scope-preservation 투명 유리 sash 전부의 2열×2행 살대 격자와 흐린 욕실 창의 살대 없음, 살대의 유리 양면 부착을 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 세로·가로 살대 하나씩, 깊이 0.01 m 막대를 유리 양면에 붙이고 유리를 관통하지 않는다고 정해 격자를 구현자가 고르지 않는다.
+@evidence principles/core/common.md#declared-basis 살대 요구는 settings/10-house.md#openings, 위계는 spaces/envelope/front.md#front-openings에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '살대'를 sash마다 같은 2×2 격자라는 모델 결정으로 바꾸고 위계는 칸 수와 창 크기로만 읽게 한다.
+@evidence principles/design/models.md#representation-contract 살대를 유리 양면의 별도 막대 부재로 정해 유리에 구멍이 생기지 않는 연결을 명시한다.
+@evidence principles/design/models.md#spatial-convention 살대 위치를 sash 가운데 세로·가로선으로 정한다.
+@evidence principles/design/models.md#reviewable-structure 입면 정면에서 모든 투명 sash가 같은 2×2 격자인지와 욕실 창에 살대가 없는지로 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01·04의 검은 가로세로 살대가 나눈 투명 칸을 채택한다. 살대 무늬로 창 위계를 바꾸지 않는다는 관찰 가능한 결정을 정하고 색은 materials에 둔다.
+@evidence principles/design/models.md#model-scale-layer-completion 살대 층이 유리 층 위에 있는지를 정해 층 누락을 막는다.
+@evidence settings/10-house.md#openings 외부 창의 실제 살대 요구를 투명 sash마다 2열×2행 살대로 소비한다.
+@evidence spaces/envelope/front.md#front-openings 넓은 거실창·침실 창·작은 계단 창의 위계를 살대가 아니라 칸 수와 창 크기로 읽게 한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings openings와 front-openings의 위계를 그대로 소비했고 격자 결정이 부모와 충돌하지 않았다.
+-->
+
+레퍼런스 01·04의 검은 가로세로 살대가 나눈 투명 칸을 채택한다. 사진의 작은 반사 무늬는 살대나 유리 질감으로 옮기지 않는다.
+
+[settings 개구부](../settings/10-house.md#openings)가 살대를 요구하므로 투명 유리를 가진 모든 sash는 가운데 세로 살대 하나와 가로 살대 하나로 2열 × 2행 유리 칸을 만든다. 한 sash 안의 격자는 입면 전체에서 같은 비례로 반복되어 [전면 입면](../spaces/envelope/front.md#front-openings)의 넓은 창·침실 창·작은 계단 창의 위계를 칸 수와 창 크기로만 읽게 하고 살대 무늬로 위계를 바꾸지 않는다. 흐린 유리의 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window)은 살대를 두지 않는다. 살대는 유리 양면에 붙는 0.01 m 깊이 막대로 만들고 유리를 관통하는 구멍을 만들지 않는다. 소스 owner는 `src/models/windows.ts`다.
+
+## 상하 미닫이 창의 계층과 기준 상태 {#double-hung-window}
+<!--
+@evidence principles/core/common.md#scope-preservation 거실·침실·주방·가족실의 상하 미닫이 창 9개의 계층(frame→unit-n→upper/lower-sash), 트랙 간격, 관절과 기준 상태를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 두 sash가 칸 높이를 반씩 나누고 트랙 간격 0.02 m와 깊이 0.12 m가 0.14 m 안에 앞뒤 0.01 m 여유를 남기며 lower-sash만 0~sash 높이 절반 이동한다고 적는다.
+@evidence principles/core/common.md#declared-basis 작동 종류는 spaces/06-openings.md#external-opening-interface, 대상 창 좌표는 네 입면 H2, 닫힌 기준 상태는 settings/10-house.md#openings에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '상하 미닫이 sash'를 upper 고정·lower 평행 이동이라는 모델 관절로 바꾼다.
+@evidence principles/design/models.md#representation-contract 칸마다 unit 노드 아래 두 sash를 두는 계층과 upper rigid·lower 이동을 정한다.
+@evidence principles/design/models.md#spatial-convention lower-sash 이동 축을 국소 +Y, 범위를 sash 높이 절반으로 적는다.
+@evidence principles/design/models.md#reviewable-structure 닫힘과 최대 열림 사선 투시로 sash가 frame 밖으로 나가는지 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 위아래로 나뉜 전면 창을 채택한다. 상하 미닫이라는 라벨을 두 sash의 앞뒤 트랙과 반높이 분할이라는 관찰 가능한 구성으로 바꾼다.
+@evidence principles/design/models.md#model-scale-layer-completion 칸·sash 두 층과 이동 인터페이스를 정해 층이나 관절이 빠진 창이 통과하지 않게 한다.
+@evidence obligations/design/models.md#articulation-ownership lower-sash의 국소 +Y 평행 이동을 motion 인터페이스로, upper-sash를 rigid로 정한다.
+@evidence spaces/envelope/front.md#living-front-window X = [-5.10, -2.30] m 세 칸 거실창을 상하 미닫이 세 unit으로 채운다.
+@evidence spaces/envelope/front.md#bedroom-two-front-window 올리브 침실의 두 칸 창을 상하 미닫이 두 unit으로 채운다.
+@evidence spaces/envelope/front.md#bedroom-three-front-window 청회색 침실의 두 칸 창을 상하 미닫이 두 unit으로 채운다.
+@evidence spaces/envelope/rear.md#kitchen-rear-window 주방 한 칸 창을 상하 미닫이 한 unit으로 채운다.
+@evidence spaces/envelope/rear.md#family-rear-window 가족실 후면 두 칸 창을 상하 미닫이 두 unit으로 채운다.
+@evidence spaces/envelope/rear.md#primary-rear-window 주침실 후면 두 칸 창을 상하 미닫이 두 unit으로 채운다.
+@evidence spaces/envelope/left.md#living-left-window 거실 왼쪽 한 칸 창을 상하 미닫이 한 unit으로 채운다.
+@evidence spaces/envelope/left.md#primary-left-window 주침실 왼쪽 두 칸 창을 상하 미닫이 두 unit으로 채운다.
+@evidence spaces/envelope/right.md#family-right-window 가족실 오른쪽 두 칸 창을 상하 미닫이 두 unit으로 채운다.
+@evidence settings/10-house.md#openings 외부 창이 기준 상태에서 닫힌다는 조건을 lower-sash 이동 0의 기준 상태로 소비한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06의 작동 배정과 입면 좌표를 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
+-->
+
+레퍼런스 01의 위아래로 나뉜 전면 창을 채택한다. 실제 개폐 위치는 사진에서 알 수 없으므로 기준 상태를 닫힘으로 둔다.
+
+거실·침실·주방·가족실의 창은 [06의 작동 배정](../spaces/06-openings.md#external-opening-interface)대로 상하 미닫이다. 대상은 [거실 전면 세 칸](../spaces/envelope/front.md#living-front-window), [올리브 침실](../spaces/envelope/front.md#bedroom-two-front-window)·[청회색 침실](../spaces/envelope/front.md#bedroom-three-front-window) 두 칸, [주방 한 칸](../spaces/envelope/rear.md#kitchen-rear-window), [가족실 후면 두 칸](../spaces/envelope/rear.md#family-rear-window), [주침실 후면 두 칸](../spaces/envelope/rear.md#primary-rear-window), [거실 왼쪽 한 칸](../spaces/envelope/left.md#living-left-window), [주침실 왼쪽 두 칸](../spaces/envelope/left.md#primary-left-window), [가족실 오른쪽 두 칸](../spaces/envelope/right.md#family-right-window)이다. 계층은 `frame` 아래 칸마다 `unit-<n>`, 그 아래 `upper-sash`와 `lower-sash`이며 두 sash는 칸 유효 높이를 같은 두 부분으로 나눈다. 바깥 트랙의 upper와 안쪽 트랙의 lower 사이는 0.02 m이며 두 sash 깊이 0.10 m와 합한 0.12 m가 0.14 m frame 깊이 안에 앞뒤 0.01 m씩 여유를 남기도록 정했다.
+
+motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이며 범위는 0부터 sash 높이의 절반까지다. `upper-sash`는 rigid 고정이다. 기준 상태는 [06](../spaces/06-openings.md#external-opening-interface)과 [settings 개구부](../settings/10-house.md#openings)대로 모두 닫힌 이동 0이다. 소스 owner는 `src/models/windows.ts`이며 닫힘과 최대 열림의 사선 투시로 검사한다.
+
+각 거친 창폭 W·높이 H·칸 수 n은 [창 부재 치수](#window-member-sizes)를 그대로 매개화한다. `mullion`은 인접 칸 사이마다 0.08 m 폭·0.14 m 깊이의 닫힌 기둥이고, 칸 폭은 c=(W−2×0.06−(n−1)×0.08)/n m다. 한 칸의 upper/lower `sash`는 각각 외곽 폭 c·높이 (H−2×0.06)/2 m, 테두리 0.05 m·깊이 0.05 m이며 안팎 트랙 간격은 위에서 정한 0.02 m다. 각 sash의 `muntin`은 중앙 세로 한 줄과 가로 한 줄의 폭 0.025 m·깊이 0.01 m 띠이고, 각 칸의 `glass`는 두께 0.006 m, 투명 사각 영역의 열 폭 (c−2×0.05−0.025)/2 m·행 높이 ((H−2×0.06)/2−2×0.05−0.025)/2 m인 네 닫힌 판이다. 문턱이나 창선은 이 창짝 원형에 중복하지 않는다.
+
+## 고정창의 계층 {#fixed-window}
+<!--
+@evidence principles/core/common.md#scope-preservation 계단 창 한 칸과 차고 측면 창 두 칸의 고정창 계층(frame→unit-n→fixed-sash)을 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion sash를 frame 깊이 가운데 두고 관절 없이 모든 부재를 rigid로 정한다.
+@evidence principles/core/common.md#declared-basis 고정창 배정은 spaces/06-openings.md#external-opening-interface, 좌표는 front.md#stair-front-window와 right.md#garage-right-window에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '작은 계단 창과 차고 측면은 고정창'을 관절 없는 fixed-sash 하나의 계층으로 바꾼다.
+@evidence principles/design/models.md#representation-contract 고정창의 계층과 rigid 상태를 정한다.
+@evidence principles/design/models.md#spatial-convention fixed-sash의 깊이 위치를 frame 깊이 가운데로 적는다.
+@evidence principles/design/models.md#reviewable-structure 계단참과 차고 내부 reveal 단면에서 sash 위치를 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 고정창이라는 라벨을 움직이는 노드가 없는 계층이라는 관찰 가능한 결정으로 바꾼다.
+@evidence principles/design/models.md#model-scale-layer-completion 고정창에도 frame·sash·유리 층이 모두 있음을 정해 사각 구멍 대체를 막는다.
+@evidence spaces/envelope/front.md#stair-front-window X = [-1.62, -0.84], Y = [4.11, 5.21] m 계단 창을 고정창 한 unit으로 채운다.
+@evidence spaces/envelope/right.md#garage-right-window 차고 측면 두 칸 창을 고정창 두 unit으로 채운다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06과 두 입면 H2를 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
+@evidence spaces/02-stair.md#stair-floor-opening 계단 창이 실제 계단 공간으로 열리고 창호는 후속 부재가 구현한다는 인계를 고정창 한 unit으로 소비한다.
+-->
+
+레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 유리 반사 속 나무 모양은 표면 형상으로 복제하지 않는다.
+
+[계단 창](../spaces/envelope/front.md#stair-front-window)의 한 칸과 [차고 측면 창](../spaces/envelope/right.md#garage-right-window)의 두 칸은 고정창이다. 계층은 `frame` 아래 칸마다 `unit-<n>`과 `fixed-sash` 하나이며 sash는 frame 깊이의 가운데에 둔다. 관절 인터페이스는 없고 모든 부재가 rigid다. 소스 owner는 `src/models/windows.ts`이며 계단참과 차고 내부 reveal 단면으로 검사한다.
+
+고정창도 거친 폭 W·높이 H·칸 수 n을 입력받아 [창 부재 치수](#window-member-sizes)의 `frame` 둘레 0.06 m·깊이 0.14 m와 칸 사이 `mullion` 폭 0.08 m를 그대로 쓴다. 칸 폭 c=(W−2×0.06−(n−1)×0.08)/n m의 `sash`는 한 칸에 한 장이며 테두리 0.05 m·깊이 0.05 m다. `muntin`은 그 안의 세로·가로 중앙 폭 0.025 m·깊이 0.01 m이고 `glass`는 한 칸당 네 장, 각각 열 폭 (c−2×0.05−0.025)/2 m·행 높이 (H−2×0.06−2×0.05−0.025)/2 m·두께 0.006 m다. 계단 창 n=1에는 `mullion`이 0개이고 차고 두 칸 사이에는 1개다.
+
+## 욕조 욕실의 상부 경첩창 {#awning-window}
+<!--
+@evidence principles/core/common.md#scope-preservation 욕조 욕실 창 한 칸의 상부 경첩창 계층, 경첩 축, 열림 범위, 흐린 유리 표면을 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 경첩 축을 sash 위 변 바깥 모서리의 국소 X 평행선으로, 범위를 0~π/8 rad로 정하고 sash 높이 0.63 m에서 바깥 돌출 0.2411 m를 산출해 부모 0.25 m 예약과 비교한다 닫힌 경첩창 sash Z=[−0.13,−0.08] m와 날씨 쪽 위 모서리의 회전축도 고정한다.
+@evidence principles/core/common.md#declared-basis 개구부와 흐린 유리 배정은 spaces/envelope/right.md#tub-right-window와 spaces/06-openings.md#external-opening-interface에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '높은 욕실 창은 흐린 유리의 상부 경첩창'을 위 변 축 회전과 부모의 바깥 점유 0.25 m를 지키는 π/8 상한이라는 모델 관절로 바꾼다.
+@evidence principles/design/models.md#representation-contract frame 아래 awning-sash 하나와 obscured-glass 표면을 정한다.
+@evidence principles/design/models.md#spatial-convention 경첩 축 위치와 회전 방향(바깥)을 국소 좌표로 적는다.
+@evidence principles/design/models.md#reviewable-structure 욕실 안쪽 단면과 최대 열림 사선 투시로 돌출을 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 05의 욕실 옆 상부 창은 채광하는 작은 창으로 읽는다. 흐림 정도는 materials에 넘기고 모델은 흐린 유리 표면 경계만 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 경첩 인터페이스와 열림 상한을 정해 관절 없는 욕실 창이 통과하지 않게 한다.
+@evidence obligations/design/models.md#articulation-ownership awning-sash의 위 변 축 회전을 0~π/8 rad motion 인터페이스로 정한다.
+@evidence spaces/envelope/right.md#tub-right-window Z = [-8.40, -7.50], Y = [4.56, 5.31] m 욕실 창을 상부 경첩창 한 칸으로 채운다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work right.md와 06의 욕실 창 배정을 그대로 소비했고 수정할 부모 결함이 없었다.
+-->
+
+레퍼런스 05의 욕실 옆 상부 창은 채광하는 작은 창으로 읽는다. 경첩 방향은 사진에서 단정하지 않고 부모 예약에 맞춘 상부 힌지로 결정한다.
+
+[욕조 욕실 창](../spaces/envelope/right.md#tub-right-window) Z = [−8.40,−7.50], Y = [4.56,5.31] m은 한 칸의 상부 경첩창이다. 계층은 `frame` 아래 `awning-sash` 하나이며 경첩 축은 sash 위 변 바깥 모서리를 지나는 국소 X 평행선이다. motion 인터페이스는 이 축의 바깥쪽 회전 하나이고 범위는 0–π/8 rad다. 높이 0.75 m 개구부에서 frame을 뺀 sash 높이 0.63 m의 아래 변 바깥 돌출은 `0.63×sin(π/8)=0.2411` m이므로 [오른쪽 입면의 0.25 m 예약](../spaces/envelope/right.md#tub-right-window) 안에 0.0089 m 남는다. frame 들임을 유리하게 빼지 않은 상한이다. 기준 상태는 닫힌 0 rad이다. 흐림은 `obscured-glass` 표면으로 넘기고 정도는 materials가 정한다. 소스 owner는 `src/models/windows.ts`다.
+
+## 창대와 외부 trim {#window-sill-trim}
+<!--
+@evidence principles/core/common.md#scope-preservation 외부 trim·안쪽 창대·안쪽 흰 문선의 폭·돌출·두께와 frame 형제 노드 배치를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 바깥 trim을 0.10 m 폭·구조 날씨 면에서 0.035 m 두께, 창대를 W+0.14 m 길이·0.13 m 깊이·0.03 m 두께, 안쪽 세 문선은 폭 0.07 m·돌출 0.015 m로 수치화한다.
+@evidence principles/core/common.md#declared-basis 0.10 m·0.06 m 한도는 spaces/06-openings.md#external-opening-interface, 돌출 근거는 settings/20-verification.md#visual-grammar에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 trim 0.10 m 이내·돌출 0.06 m 이내 예약을 실제 부재 치수로 바꾼다.
+@evidence principles/design/models.md#representation-contract exterior-trim과 interior-sill을 frame의 형제 노드로 두는 계층을 정한다.
+@evidence principles/design/models.md#spatial-convention trim은 날씨 면 기준, 창대는 frame 안쪽 면과 실내 마감 면 두 기준에서 돌출을 산출한다.
+@evidence principles/design/models.md#reviewable-structure 입면 정면과 측면 단면에서 trim 폭과 창대 돌출을 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. 구조 날씨 면 기준 0.035 m trim은 최대 0.030 m siding 절단부 앞에 0.005 m 서서 접합 음영을 만든다.
+@evidence principles/design/models.md#model-scale-layer-completion trim과 창대 층을 창 원형에 포함시켜 층 누락을 막는다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 바깥 trim을 입면 owner에 남겨 이 창대·문선 원형과 같은 닫힌 면의 owner가 겹쳤다. 그 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 외부 trim·창대는 models로 고쳤다. spaces/06-openings.md#external-opening-interface의 0.10 m 폭·0.06 m 돌출 예약과 settings/20-verification.md#visual-grammar는 유지했다.
+@evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면의 벽 절단면은 spaces에 남기고 창 둘레 닫힌 trim과 창대를 이 원형이 한 번 만든다.
+-->
+
+레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. 창대가 실내 마감보다 실제로 0.06 m 나오는지를 단면 산술로 확인한다.
+
+외부 `exterior-trim`은 [06의 예약](../spaces/06-openings.md#external-opening-interface)대로 거친 개구부 폭 W, 아래 y0, 위 y1의 좌우·위·아래에 폭 0.10 m의 닫힌 판 네 개를 둔다. 좌우 판은 개구부 양끝의 바깥 0.10 m에서 Y=[y0,y1]을 차지하고, 아래 판은 X=[왼끝−0.10,오른끝+0.10]·Y=[y0−0.10,y0], 머리 판은 같은 X·Y=[y1,y1+0.10] m다. 판 뒷면은 구조 외벽의 평평한 날씨 면, 앞면은 그 면에서 바깥으로 0.035 m다. 사이딩 절단부 최대 0.030 m보다 0.005 m 앞서 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim 음영을 만들며 문·모서리 trim과 같은 기준면이다. 아래·위 판은 세로 판 끝면에 맞대고 한 부피를 복제하지 않는다. 안쪽 `interior-sill`은 frame 안쪽 면 −0.18 m에서 실내 마감 면 −0.25 m를 지나 방 쪽 끝 −0.31 m까지 깊이 0.13 m, 두께 0.03 m인 판이다. 개구부 안의 몸판은 X=[개구부 왼끝,오른끝]·깊이 [−0.25,−0.18] m이고 실내 마감 면 앞의 귀 달린 판은 X=[개구부 왼끝−0.07,오른끝+0.07]·깊이 [−0.31,−0.25] m다. 두 판은 깊이 −0.25 m에서 면으로만 만나며 둘 다 Y=[y0,y0+0.03] m다. 따라서 창 아래벽 고체 Y<y0와 개구부 옆벽 고체 X가 개구부 밖·깊이≥−0.25 m인 곳에 창대가 들어가지 않는다. 실내 마감 면 기준 방 쪽 돌출은 0.06 m로 06의 한도를 지키고 전체 길이는 W+0.14 m다. `exterior-trim`과 `interior-sill`은 `frame`의 형제 노드다. 소스 owner는 `src/models/windows.ts`이며 입면 정면과 측면 단면으로 검사한다.
+
+창 안쪽 흰 문선 `interior-casing`은 창대 위의 좌우 세로 판과 머리 판 세 개다. 거친 개구부 폭 W·높이 H와 창대 상면을 입력으로 하여 세로 판은 개구부 좌우 바깥으로 각각 0.07 m, 창대 상면부터 개구부 머리까지 이어지고 머리 판은 좌우 끝을 각 0.07 m 넘겨 개구부 머리에서 위로 0.07 m를 덮는다. 세 판 모두 실내 완성 벽면에서 방으로 0.015 m 돌출하며 두께 면과 절단 끝을 포함해 닫는다. 세로 판 아랫면은 창대 상면과 접하고 창대 안으로 관통하지 않는다. 머리 판은 세로 판 위끝에 직각으로 접하고 같은 부피를 복제하지 않는다. 실내 문선의 반복 수는 창 거친 개구부 12개에서 산출하고 욕실 타일 벽에서는 타일 종료선과 맞대어 별도 타일을 만들지 않는다. 이 부재의 모든 면은 `interior-casing` 하나의 face id를 받는다.
+
+창 `exterior-trim`의 네 판은 각각 왼쪽 아래 끝을 UV 원점으로 삼고 판 길이 방향 U·폭 방향 V를 1 UV/m로 둔다. `interior-sill`의 상·하면은 왼쪽 벽 접점을 원점으로 창 폭 방향 U·방 쪽 돌출 방향 V를 쓰며, 끝면·두께 면은 독립 면 시작점에서 길이 U·두께 V로 다시 투영한다. `interior-casing`은 세 판의 아래 또는 왼쪽 끝에서 길이 U·폭 V를 1 UV/m로 투영하고 뒷면과 끝면도 같은 척도로 판마다 새로 시작한다. 이음은 trim 판의 맞댐, 창대 끝과 frame 접선, 실내 문선과 창대 접선에서 끊는다. 세 부재의 뒷면에도 UV를 준다.
+
+세로 `mullion`은 각 부재 아래끝의 뒷면 모서리에서 높이 방향 U·폭 방향 V를 1 UV/m로 두고, 위아래 절단 끝은 해당 끝의 왼쪽 모서리에서 독립 투영한다. 이는 넓은 창틀 판의 기본 XY 투영보다 우선해 세로 부재의 결을 그 길이로 보낸다.
+
+## 창의 표면 파티션 {#window-surface-partitions}
+<!--
+@evidence principles/core/common.md#scope-preservation 창의 표면 id 9개(frame·sash·mullion·muntin·glass·obscured-glass·exterior-trim·interior-sill·interior-casing)를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion frame·sash·mullion·muntin을 교체 경로 때문에 분리한다고 적어 표면 경계를 구현자가 합치지 않게 한다.
+@evidence principles/core/common.md#declared-basis id 규칙은 00-model-frame.md#model-surface-partition-naming, 유리 조건은 settings/10-house.md#openings에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '유리는 불투명 검은 판이 아니다'를 glass/obscured-glass 별도 표면으로 바꾼다.
+@evidence principles/design/models.md#representation-contract 창의 안정 표면 소유를 부재별로 정한다.
+@evidence principles/design/models.md#spatial-convention 표면 id는 01의 부재 노드에 붙고 새 좌표를 정하지 않는다.
+@evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 부재 경계와 id 경계가 일치하는지로 반증한다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01·05의 검은 창호와 흰 안팎 문선을 서로 다른 면으로 채택한다. charcoal 계열 색은 materials에 남기고 모델은 표면 경계만 정한다.
+@evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 창 부재에 정해 빈 표면이 없게 한다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 입면 owner와 이 원형에 바깥 trim을 중복 배정해 부모 H2에서 닫힌 trim·창틀·유리의 owner를 models로 바로잡았다. settings/10-house.md#openings와 models/00의 id 이름 규칙은 유지했다.
+@evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면 owner의 벽 몸체·void·절단면과 모델 원형의 닫힌 창틀·문선·유리 면을 분리한다.
+-->
+
+레퍼런스 01·05의 검은 창호와 흰 안팎 문선을 서로 다른 면으로 채택한다. 유리 반사 색은 여기서 정하지 않는다.
+
+[이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 창의 안정 표면 id는 `frame`, `sash`, `mullion`, `muntin`, `glass`, `obscured-glass`, `exterior-trim`, `interior-sill`, `interior-casing`이다. `frame`·`sash`·`mullion`·`muntin`은 같은 charcoal 계열로 쓰일 예정이지만 교체 경로가 달라 분리한다. 유리를 불투명 검은 판으로 대신하지 않는다는 [settings](../settings/10-house.md#openings) 조건은 materials가 소비한다. 소스 owner는 `src/models/windows.ts`다.
+
+## 창의 표현 한계 {#window-fidelity}
+<!--
+@evidence principles/core/common.md#scope-preservation 창 부재가 모두 두께 있는 별도 부재로 읽혀야 하는 범위와 웨더스트립·잠금쇠·방충망·이중 유리·물끊기 홈을 만들지 않는 범위를 이 H2가 맡는다.
+@evidence principles/core/common.md#substantive-completion 검사자가 단열·방수·개폐 하중을 추론하지 않는다고 명시한다.
+@evidence principles/core/common.md#declared-basis 상한은 00-model-frame.md#model-representation-ceiling과 settings/20-verification.md#fidelity에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 '창호가 캡처에서 읽혀야 한다'를 창 부재 목록과 제외 기구 목록으로 바꾼다.
+@evidence principles/design/models.md#representation-contract 창 proxy가 지지하는 관찰과 지지하지 않는 관찰을 정한다.
+@evidence principles/design/models.md#spatial-convention 새 좌표를 정하지 않고 01의 관례를 쓴다.
+@evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰와 전체 관찰에서 사각 구멍이나 평면 대체가 있으면 반증된다.
+@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 창틀 깊이와 05의 실내 빛받이만 표현 목표로 채택한다. 스타일 대신 두께 있는 부재라는 관찰 가능한 구성을 요구한다.
+@evidence principles/design/models.md#model-scale-layer-completion 만들지 않는 층을 명시해 누락과 의도된 생략을 구별한다.
+@evidence obligations/design/models.md#representation-ceiling 창 계열의 표현 한계로 웨더스트립·잠금쇠·방충망·이중 유리·물끊기 홈 제외와 단열·방수 추론 금지를 적는다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work fidelity를 적힌 그대로 소비했고 부모 수정이 필요하지 않았다.
+-->
+
+레퍼런스 01의 창틀 깊이와 05의 실내 빛받이만 표현 목표로 채택한다. 방충망·하드웨어 미세 형상은 보이지 않아 이 원형에서 제외한다.
+
+[표현 상한](00-model-frame.md#model-representation-ceiling)에 따라 frame·sash·mullion·살대·유리·trim·창대는 모두 두께 있는 별도 부재로 읽혀야 하며 사각 구멍이나 평면 한 장으로 대신하지 않는다. 웨더스트립·잠금쇠·방충망·이중 유리 공기층·물끊기 홈은 만들지 않고, 검사자는 이 모델에서 단열·방수·개폐 하중을 추론하지 않는다. 검사 주소는 [모델 리뷰 뷰 목록](00-model-frame.md#model-review-set)과 [전체 관찰](../spaces/04-observations.md#spatial-observation-derivation)이며 실제 렌더는 unverified다.
