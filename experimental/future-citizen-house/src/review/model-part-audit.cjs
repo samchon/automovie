@@ -6,6 +6,7 @@ const path = require("node:path");
 const { randomInt } = require("node:crypto");
 const plantProducer = require("./model-plant-producer.cjs");
 const cabinetProducer = require("./model-cabinet-producer.cjs");
+const formulaProducer = require("./model-formula-producer.cjs");
 
 const root = path.resolve(__dirname, "../..");
 const names = fs.readdirSync(path.join(root, "docs/models"))
@@ -1268,6 +1269,7 @@ function audit(allSections, mutate, onlyState) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
     const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, cavityMinima, soleGrids, pieces, shearsZ, radial, radialZ, bores, cavityProfiles, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids } = parsed;
+    errors.push(...formulaProducer.check(lines, parsed, anchor).errors);
     const vessel = vesselAttachmentProof(lines, anchor, parsed);
     vesselRows += vessel.rows;
     vesselStates += vessel.states;
@@ -2053,6 +2055,19 @@ if (require.main !== module) {
     if (!measured.errors.some((error) => error.includes("sealed cavity floor or wall below declared minimum")))
       throw Error(`${anchor}: cavity floor mutation escaped: ${measured.errors}`);
     results.push({ label: `${anchor} sealed cavity floor`, caught: true });
+  }
+  for (const [anchor, before, after] of [
+    ["bath-accessories", "y=3H/10,7H/10의 네 조합", "y=3H/10,5H/8의 네 조합"],
+    ["exterior-furnishings", "y=sH..sH+H/12인 X/Z 전폭 좌판", "y=sH..sH+H/6인 X/Z 전폭 좌판"],
+    ["household-tools", "중심 y=26H/49인 반지름 W/2의 원형 측판", "중심 y=27H/49인 반지름 W/2의 원형 측판"],
+    ["exterior-furnishings", "body, Y, 0.34, wheel axle height", "body, Y, 0.30, wheel axle height"]
+  ]) {
+    const lines = sections().get(anchor);
+    if (!lines || !lines.join("\n").includes(before)) throw Error(`${anchor}: formula fixture source absent`);
+    const measured = audit(new Map([[anchor, lines.join("\n").replace(before, after).split("\n")]]));
+    if (!measured.errors.some((error) => error.includes("formula")))
+      throw Error(`${anchor}: formula mutation escaped: ${measured.errors}`);
+    results.push({ label: `${anchor} formula ${before}`, caught: true });
   }
   const exterior = sections().get("exterior-furnishings");
   const oldPatch = "@flat-contact outdoor-chair: body, support, -Y, 0, -0.28..-0.26, -0.28..-0.25";

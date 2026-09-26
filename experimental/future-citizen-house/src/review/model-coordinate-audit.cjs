@@ -336,6 +336,23 @@ function boundCoordinates(lines, owner) {
           errors.push(`${owner}: prose line ${index + 1} ${named.part} ${axis} span ${claimed} contradicts measured part`);
       }
     }
+    for (const square of line.matchAll(/(\d+\.\d+)m\s+정사각\s+단면/g)) {
+      const before = line.slice(Math.max(0, square.index - 80), square.index);
+      const named = dimensionAliases.flatMap((alias) => {
+        const at = before.lastIndexOf(alias.word);
+        return at < 0 ? [] : [{ ...alias, at }];
+      }).sort((a, b) => b.at - a.at)[0];
+      if (!named || before.length - named.at - named.word.length > 60) continue;
+      const prefix = named.part.endsWith("*") ? named.part.slice(0, -1) : null;
+      const eligible = rows.filter((row) =>
+        (prefix ? row.part.startsWith(prefix) : row.part === named.part) && row.kind !== "void");
+      if (!eligible.length) continue;
+      const value = Number(square[1]);
+      boundDimensions++;
+      if (eligible.some((row) => Math.abs(row.x[1] - row.x[0] - value) > 0.000001 ||
+        Math.abs(row.z[1] - row.z[0] - value) > 0.000001))
+        errors.push(`${owner}: prose line ${index + 1} ${named.part} square section ${value} contradicts measured parts`);
+    }
     for (const triple of line.matchAll(/(\d+\.\d+)×(\d+\.\d+)×(\d+\.\d+)m\s+점유/g)) {
       const preceding = line.slice(0, triple.index);
       const stateNames = [...preceding.matchAll(/`([^`]+)`/g)].map((token) => token[1]);
@@ -766,6 +783,15 @@ function lexicalFixture() {
   const wrong = boundCoordinates([...rows, "leg는 x=−0.008..0.008이고 폭 0.008m다."], "lexical");
   if (!wrong.errors.some((error) => error.includes("span")))
     throw Error("incorrect full width escaped lexical binding");
+  const squareRows = [
+    "| @envelope | default | * | bounds | -0.02..0.02 | 0..1 | -0.02..0.02 | - |",
+    "| @part | default | leg | box | -0.02..0.02 | 0..1 | -0.02..0.02 | ground |",
+    "@prose-part leg는: leg",
+  ];
+  const square = boundCoordinates([...squareRows, "leg는 0.04m 정사각 단면이다."], "lexical");
+  const narrow = boundCoordinates([...squareRows, "leg는 0.025m 정사각 단면이다."], "lexical");
+  if (square.errors.length || !narrow.errors.some((error) => error.includes("square section")))
+    throw Error("square-section prose was not measured against X/Z part spans");
 }
 
 // Every prototype with a measured axis supplies one document-only mutation.

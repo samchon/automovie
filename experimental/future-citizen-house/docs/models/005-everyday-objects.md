@@ -285,6 +285,7 @@ ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분
 @bore waste-bin: body, 0.12, 0.029..0.34
 @void laundry-basket: body, -0.22..0.22, 0.033..0.4, -0.155..0.155
 @cavity-min laundry-basket: body, 1/16, 1/20
+@formula-cylinder-grid tissue-pack: body, 3/10, 3/10, 7/10
 
 @flat-contact tissue-pack: body, support, -Y, 0, -0.09..0.09, -0.09..0.09
 @flat-contact toothbrush: body, support, -Y, 0, -0.004..0.004, -0.005..0.005
@@ -401,6 +402,7 @@ ref02의 저장실·서비스실과 ref01의 정원에서 빈 창고가 되지 �
 @inventory spare-light: body
 @inventory garden-tool: body
 @inventory hose-reel: body
+@formula-disc-pair hose-reel: body, 26/49
 
 | kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -448,6 +450,8 @@ ref01의 거리·진입 계단과 ref02의 작은 외부 정원에 비례하도�
 @bore outdoor-waste-bin: body, 0.18, 0.036..0.65
 
 @scalar-control outdoor-seat-height-ratio: 0.55
+@formula-seat-slab outdoor-bench,outdoor-chair: body, 12
+@formula-wheel-pair bicycle: body
 @axis-control bicycle: body, Y, 0.70, frame node B height
 @axis-control bicycle: body, Y, 0.40, frame node D height
 
@@ -514,7 +518,7 @@ ref01의 거리·진입 계단과 ref02의 작은 외부 정원에 비례하도�
 
 `wall-accessories`는 독립 벽거울·벽등·현관 코트 걸이를 고정점 기준 상태로 둔다. 거울은 판 두께와 둘레 프레임을 하나의 닫힌 `body/front/back/edge/frame`으로 구분한다. 벽등은 벽쪽 받침, 팔, 발광 갓의 서로 다른 `body/back/arm/diffuser` face를 가진다. 코트 걸이는 `body/back/arm/tip`으로 나누고 두 벌의 독립 의복이 걸리는 두 끝을 가진다. 원점은 뒤쪽 벽 접촉면의 X 중심·Y 하단이고 +Z가 실내 방향이므로 모든 상태에서 뒤쪽 평면이 벽 datum이다.
 
-원점의 Y는 물체 아래선이고 X는 폭 중심이다. `entry-mirror`는 표의 닫힌 판에서 X/Y 바깥 둘레 W/30을 `body/frame`으로, 나머지 z=D의 평평한 앞면 중앙을 `body/front` 반사면으로 나눈다. 음각이나 별도 단차 벽은 만들지 않는다. `wall-sconce`는 z=0..D/8, 중심 (x=0,y=H/2), X 반지름 W/2·Y 반지름 H/2인 24각 타원 벽 접촉판과 y=H/2+W/16을 중심으로 z=D/8..5D/8로 향하는 반지름 W/16의 24각 팔을 합친다. 팔의 가장 낮은 선은 갓 아래면 y=H/2에 접할 뿐이고 팔의 윗부분은 갓 안으로 양수 부피가 겹친다. 확산 갓은 중심 x=0,z=3D/4, X 반지름 W/2·Z 반지름 D/4인 Y축 24각 타원통을 y=H/2..H에 두어 팔 끝과 유한 면으로 합친다. 팔과 갓의 내부 교차면은 제거한다. 팔은 갓 아래 평면에서 면적을 차지하지 않으므로 갓의 y=H/2 아래 타원 원판 전체가 `body/diffuser` face다. 노출된 팔의 원통·마개는 `body/arm`이다. `coat-hook`의 벽판은 x=±W/2,y=0..H/2,z=0..D/8을 채운다. 두 팔은 x=±(W/2−W/10), y=H/2, z=D/8..D−W/32의 24각 봉이고 단면 반지름 W/32다. 끝은 같은 반지름의 수직 봉 중심선을 z=D−W/32, y=H/2..H−W/32로 올려 윗면을 y=H에서 평평하게 막고 두 걸림 홈을 형성한다. 두 팔의 X 중심 간격은 4W/5이며 `personal-articles/coat` 둘의 독립 실루엣은 각 중심에서 서로 겹치지 않는다. 세 상태의 z=0 벽 접촉면은 양수 면적이다. 광량·실제 의복 하중은 `unverified`다.
+원점의 Y는 물체 아래선이고 X는 폭 중심이다. `entry-mirror`는 표의 닫힌 판에서 X/Y 바깥 둘레 W/30을 `body/frame`으로, 나머지 z=D의 평평한 앞면 중앙을 `body/front` 반사면으로 나눈다. 음각이나 별도 단차 벽은 만들지 않는다. `wall-sconce`는 z=0..D/8, 중심 (x=0,y=H/2), X 반지름 W/2·Y 반지름 H/2인 24각 타원 벽 접촉판과 y=H/2+W/16을 중심으로 z=D/8..5D/8로 향하는 반지름 W/16의 24각 팔을 합친다. 팔의 가장 낮은 선은 갓 아래면 y=H/2에 접할 뿐이고 팔의 윗부분은 갓 안으로 양수 부피가 겹친다. 확산 갓은 중심 x=0,z=3D/4, X 반지름 W/2·Z 반지름 D/4인 Y축 24각 타원통을 y=H/2..H에 두어 팔 끝과 유한 면으로 합친다. 팔과 갓의 내부 교차면은 제거한다. 팔은 갓 아래 평면에서 면적을 차지하지 않으므로 갓의 y=H/2 아래 타원 원판 전체가 `body/diffuser` face다. 노출된 팔의 원통·마개는 `body/arm`이다. `coat-hook`의 벽판은 x=±W/2,y=0..H/2,z=0..D/8을 채운다. 두 팔은 x=±(W/2−W/10), y=H/2, z=D/8..D−W/32의 24각 봉이고 단면 반지름 W/32다. 끝은 같은 반지름의 수직 봉 중심선을 z=D−W/32, y=H/2..H−W/32로 올린다. 위쪽 자유 끝에는 공통 관 끝 규칙의 반구를 붙여 외곽 y=H에 닿게 하고 두 걸림 홈을 형성한다. 두 팔의 X 중심 간격은 4W/5이며 `personal-articles/coat` 둘의 독립 실루엣은 각 중심에서 서로 겹치지 않는다. 세 상태의 z=0 벽 접촉면은 양수 면적이다. 광량·실제 의복 하중은 `unverified`다.
 
 각 상태의 정확한 점유는 아래 표가 소유한다. 거울에는 프레임·반사판·뒷판·노출 모서리를, 벽등에는 뒷판·팔·확산 갓을, 걸이에는 뒷판·두 팔·걸림 끝을 나누고 벽 접촉면도 주소를 유지한다.
 
