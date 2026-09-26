@@ -95,3 +95,28 @@ void test("a one-axis contact does not authorize a solid intersection", () => {
   assert.ok(partOverlapRows("lamp", lamp.replace(sentence, "")).some((row) =>
     row.parts === "stem/knop" && !row.pass));
 });
+
+for (const anchor of ["small-vessel", "carry-jar"]) {
+  void test(`${anchor} handle insertion is measured at each capped Bézier end`, () => {
+    const body = section("wares", anchor);
+    const row = partOverlapRows(anchor, body).find((item) => item.parts === "body/handle");
+    assert.ok(row?.pass);
+    assert.ok(row.insertionMargins?.every((depth: number) => depth > 0));
+  });
+}
+
+void test("a declared penetration fails when one curved end leaves the solid profile", () => {
+  const body = section("wares", "small-vessel");
+  const shifted = body.replace("아래 부착점 (0.07,0.10,0)m", "아래 부착점 (0.095,0.10,0)m");
+  const row = partOverlapRows("shifted", shifted).find((item) => item.parts === "body/handle");
+  assert.ok(row);
+  assert.ok(row.insertionMargins && row.insertionMargins[0] <= 0);
+  assert.equal(row.pass, false);
+});
+
+void test("a declared curved insertion depth must agree with the section", () => {
+  const body = section("wares", "small-vessel");
+  const falseDepth = body.replace("최대 약 0.0085m·0.0065m", "최대 약 0.0190m·0.0065m");
+  assert.equal(partOverlapRows("false-depth", falseDepth).find((item) =>
+    item.parts === "body/handle")?.pass, false);
+});

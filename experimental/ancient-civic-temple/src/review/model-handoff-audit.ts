@@ -100,6 +100,7 @@ const inheritedDesignFiles = new Set([
   "scale.md", "columns.md", "entablature.md", "openings.md", "cladding.md",
   "fixtures.md", "wares.md", "landscape.md",
 ]);
+const directlyOwnedObjectFiles = new Set(["portable.md", "ritual.md", "wares.md"]);
 
 export const modelIdentityOwnerFailures = (
   settings: HandoffDocument, models: readonly HandoffDocument[],
@@ -111,6 +112,16 @@ export const modelIdentityOwnerFailures = (
     // Earlier mixed design files have established parent routes; every new file
     // of authored objects defaults to direct, same-id settings ownership.
     const objectFile = !inheritedDesignFiles.has(document.path);
+    if (!objectFile && directlyOwnedObjectFiles.has(document.path)) {
+      for (const model of units) {
+        const refs = [...model.source.matchAll(/@evidence settings\/35-objects\.md#([a-z0-9-]+) /g)]
+          .map((match) => match[1]!);
+        if (!refs.length) failures.push(`${model.key}: missing settings identity`);
+        else if (!refs.some((id) => identities.has(id) &&
+          model.body.includes(`../settings/35-objects.md#${id}`)))
+          failures.push(`${model.key}: missing direct settings identity`);
+      }
+    }
     if (!objectFile) continue;
     for (const model of units) {
       const id = model.key.split("#")[1]!;

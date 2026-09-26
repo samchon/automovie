@@ -47,7 +47,11 @@ void test("numeric boxes across the corpus reject an independently changed axis"
       if (!box) continue;
       for (let axis = 1; axis <= 3; axis++) {
         const changed = [...box];
-        changed[axis] = String(Number(box[axis]) + 0.037);
+        const union = occupancyUnionRows("basis", section.body).find((row: { part: string; axis: string; kind: string }) =>
+          row.part === "all" && row.axis === ["X", "Y", "Z"][axis - 1] && row.kind === "union");
+        assert.ok(union);
+        changed[axis] = String(/여유 있게 감싸는/.test(section.body)
+          ? Math.max(0.001, union.union - 0.037) : Number(box[axis]) + 0.037);
         const source = section.body.replace(box[0], `점유 상자는 ${changed.slice(1).join("×")}m`);
         assert.ok(failed(source).some((row: { kind: string; axis: string }) =>
           row.kind === "union" && row.axis === ["X", "Y", "Z"][axis - 1]),

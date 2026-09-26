@@ -43,6 +43,7 @@ const decisions = {
     ["하나의 prototype 안에서", "non-contact: repetition design requirement"],
     ["원형 반복은", "non-contact: phase and datum design requirement"],
     ["시작 접선에", "non-contact: UV seam construction"],
+    ["첫 끝 링은", "non-contact: tube cap and mitre construction"],
   ],
   "scale#model-review-board": [
     ["각 모델 H2에서 이름 붙인", "non-contact: feature viewing requirement"],
@@ -179,6 +180,7 @@ const decisions = {
   "scale#articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
   "scale#model-review-board:supplemental": [
     ["조명은 건물", "non-contact: review-board light setting"],
+    ["근접 뷰 배경도", "non-contact: repeatable close-view background"],
     ["비교 기준은", "non-contact: review-board comparison criterion"],
   ],
   "entablature#colonnade-beam:supplemental": [["중간 원주 위의 아랫면은", "east beam corner notch removes the capital penetration"]],

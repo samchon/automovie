@@ -58,3 +58,10 @@ void test("a pinned polygon plate requires its pin-facing vertex and valid phase
   assert.match(tessellationFailures("plate", plate.replace("0번 꼭짓점이 +X이고 4번 꼭짓점이 +Y", "위상은 미정")).join(" "), /polygon phase/);
   assert.match(tessellationFailures("plate", plate.replace("4번 꼭짓점이 +Y", "3번 꼭짓점이 +Y")).join(" "), /polygon phase/);
 });
+
+void test("a mapped ring keeps both circumferential and tube divisions", () => {
+  const ring = "세 고리는 관 반지름 0.008m인 원환이며 주환 20분할·관 8분할이다. 바닥은 직육면체다.\n부재 대응: `rope`=세 고리; `floor`=바닥.";
+  assert.deepEqual(tessellationFailures("ring", ring), []);
+  assert.match(tessellationFailures("ring", ring.replace("주환 20분할·관 8분할", "원주를 나눈다")).join(" "),
+    /ring part has no main and tube divisions/);
+});

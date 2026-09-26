@@ -89,6 +89,11 @@ export const tessellationFailures = (id, body) => {
     !/바닥.*원판[^\n]*각각의 원주는 \d+분할/.test(body))
     failures.push(`${id}: circular floor has no own circumference division`);
   failures.push(...curvedPartFailures(id, body));
+  const mapping = body.match(/^부재 대응: (.+)$/m)?.[1] ?? "";
+  if ([...mapping.matchAll(/`[^`]+`=([^;.]+)/g)].some((match) => /고리|원환/.test(match[1])) &&
+      /원환/.test(body) && /관 반지름|외반지름/.test(body) &&
+      !/(?:\d+×\d+분할 원환|원환[^.\n]*?주환 \d+분할·관 \d+분할|주환 \d+·관 \d+분할)/.test(body))
+    failures.push(`${id}: ring part has no main and tube divisions`);
   if (/원통 껍질/.test(body)) {
     if (/가로 띠/.test(body) && !has((sentence) => /가로 띠.*분할/.test(sentence)))
       failures.push(`${id}: curved horizontal bands have no circumference division`);

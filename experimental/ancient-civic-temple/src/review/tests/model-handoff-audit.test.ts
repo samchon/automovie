@@ -56,6 +56,15 @@ void test("all six settings size bands are compared with the model envelope", ()
   assert.match(modelIdentityOwnerFailures(settings, [{ path: "future-objects.md", source: "## 새 물체 {#new-object}\n점유 상자는 0.3×0.2×0.3m다." }]).join(" "), /missing settings identity/);
 });
 
+void test("an existing grouped-object document requires an identity for every added H2", () => {
+  const settings = { path: "settings/35-objects.md", source: "## 도기 {#vessels}\n작은 용기들이다." };
+  const source = "## 용기 {#cup}\n<!--\n@evidence settings/35-objects.md#vessels 도기다.\n-->\n[도기](../settings/35-objects.md#vessels)다.";
+  const document = { path: "wares.md", source };
+  assert.deepEqual(modelIdentityOwnerFailures(settings, [document]), []);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...document,
+    source: `${source}\n## 새 용기 {#new-cup}\n점유 상자는 0.1×0.1×0.1m다.` }]).join(" "), /missing settings identity/);
+});
+
 void test("variant parameters and a primary floor cannot hide behind the base box", () => {
   const settings = { path: "settings/35-objects.md",
     source: "## 천 {#textile}\n폭 0.4~0.6m, 깊이 0.2~0.4m, 두께 0.02~0.06m다.\n## 쟁반 {#tray}\n폭 0.4~0.6m다." };

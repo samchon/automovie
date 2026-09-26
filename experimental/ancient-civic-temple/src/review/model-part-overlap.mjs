@@ -1,5 +1,6 @@
 import { modelParts, partBounds } from "./model-occupancy-union.mjs";
 import { shapeRelationRows } from "./model-shape-relations.mjs";
+import { curvedVesselInsertionMargins } from "./model-curved-insertion.mjs";
 
 /** A centred rotational primitive can disprove a misleading AABB overlap. */
 /** @param {{key:string;noun:string}} part @param {string} source @param {number | null} cavityRadius */
@@ -250,8 +251,17 @@ export const partOverlapRows = (id, body) => {
         relationSentence && /Z 방향으로/.test(relationSentence) ? 2 : null;
     const claimedDepthMatches = !depthClaim || depthAxis === null ||
       intersections.every((set) => Math.abs(set[depthAxis] - Number(depthClaim[1])) < 1e-6);
+    const vesselInsertion = [a.key, b.key].includes("body") &&
+      [a.key, b.key].includes("handle") && /들어가|겹쳐|끼워/.test(relationSentence ?? "") &&
+      /베지어/.test(construction)
+      ? curvedVesselInsertionMargins(construction) : undefined;
+    const vesselDepthClaim = relationSentence?.match(/각각 최대 약 ([\d.]+)m·([\d.]+)m 들어가/);
     rows.push({ id, parts: `${a.key}/${b.key}`, depths,
-      relationSentence: relationSentence ?? "", pass: Boolean(relationSentence) && claimedDepthMatches });
+      relationSentence: relationSentence ?? "", insertionMargins: vesselInsertion,
+      pass: Boolean(relationSentence) && claimedDepthMatches &&
+        (vesselInsertion === undefined || vesselInsertion !== null &&
+          vesselInsertion.every((margin, index) => margin > 1e-4 &&
+            (!vesselDepthClaim || Math.abs(margin - Number(vesselDepthClaim[index + 1])) < 5e-4))) });
   }
   return rows;
 };
