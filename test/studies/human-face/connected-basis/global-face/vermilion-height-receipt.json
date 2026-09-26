@@ -1,0 +1,39 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-mental-height",
+  "revision": "mpfb-connected-head-2026-09-26-vermilion-height",
+  "sides": [
+    {
+      "channel": "upperVermilionHeight",
+      "vermilion": 425,
+      "field": 659,
+      "sweeps": 272
+    },
+    {
+      "channel": "lowerVermilionHeight",
+      "vermilion": 305,
+      "field": 204,
+      "sweeps": 110
+    }
+  ],
+  "recorded": "2026-09-26T09:48:37.824Z",
+  "inputs": {
+    "basis": {
+      "sha256": "b8e9bbf5d7f24baefe187ba3489e70071253d8ddbc0311cba67c3d8de264a949",
+      "bytes": 26913024
+    },
+    "subjects": {
+      "sha256": "90ff0eb0967eece1fb387e4c9688d0c66dcf2ad53038a97311b074505e869d82",
+      "bytes": 78786
+    },
+    "controls": {
+      "sha256": "9ff5aaef9b38b18dedf79e746a26581d40553f523bf8bfd3d569578f4b5f979c",
+      "bytes": 7452
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "f56664a7dd949ca15bd4d49459b578a2efb2b2f94024d395ab206d678b1379ea",
+      "bytes": 26945049
+    }
+  }
+}
