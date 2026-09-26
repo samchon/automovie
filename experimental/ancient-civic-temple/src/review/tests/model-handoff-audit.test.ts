@@ -1,7 +1,5 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { modelHandoffRows, modelIdentityOwnerFailures } from "../model-handoff-audit";
 
 const parent = { path: "settings/room.md", source: "## 방 {#room}\n가구와 수반을 둔다.\n## 벽 {#wall}\n벽만 만든다." };
@@ -31,11 +29,28 @@ void test("duplicate vocabulary and unanchored H2 fail rather than shrinking the
   assert.throws(() => modelHandoffRows([{ path: "settings/bad.md", source: "## no anchor\n가구" }], [model], ["가구"], {}), /no anchor/);
 });
 
-void test("matching model identities cite settings and stay inside its height band", () => {
-  const settings = { path: "settings/35-objects.md", source: readFileSync(join(__dirname, "../../../docs/settings/35-objects.md"), "utf8") };
-  const source = readFileSync(join(__dirname, "../../../docs/models/portable.md"), "utf8");
+void test("every object H2 requires its direct owner even when settings has no date", () => {
+  const settings = { path: "settings/35-objects.md", source: "## 쟁반 {#tray}\n폭 0.4~0.6m, 깊이 0.2~0.4m다." };
+  const source = "## 쟁반 {#tray}\n<!--\n@evidence settings/35-objects.md#tray 소유.\n-->\n[사물](../settings/35-objects.md#tray). 점유 상자는 0.52×0.05×0.34m다.";
   const portable = { path: "portable.md", source };
   assert.deepEqual(modelIdentityOwnerFailures(settings, [portable]), []);
-  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("@evidence settings/35-objects.md#bench ", "@evidence settings/35-objects.md#absent ") }]).join(" "), /missing direct settings identity/);
-  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("점유 상자는 0.24×0.28×0.24m다.", "점유 상자는 0.24×1.85×0.24m다.") }]).join(" "), /portable-lamp: height/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source + "\n## 새 사물 {#new-object}\n점유 상자는 0.3×0.2×0.3m다." }]).join(" "), /missing settings identity/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("@evidence settings/35-objects.md#tray ", "@evidence settings/35-objects.md#absent ") }]).join(" "), /missing direct settings identity/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("../settings/35-objects.md#tray", "../settings/35-objects.md#absent") }]).join(" "), /missing direct settings identity/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("0.52×", "0.70×") }]).join(" "), /폭 0.7m outside/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("×0.34m", "×0.45m") }]).join(" "), /깊이 0.45m outside/);
+  assert.match(modelIdentityOwnerFailures(settings, [{ ...portable, source: source.replace("점유 상자는 0.52×0.05×0.34m다.", "") }]).join(" "), /no occupancy box/);
+});
+
+void test("all six settings size bands are compared with the model envelope", () => {
+  const settings = { path: "settings/35-objects.md", source: "## 대상 {#thing}\n폭 0.4~0.6m, 깊이 0.2~0.4m, 높이 0.1~0.3m, 지름 0.4~0.6m, 길이 0.4~0.6m, 두께 0.1~0.3m다." };
+  const source = "## 대상 {#thing}\n<!--\n@evidence settings/35-objects.md#thing 소유.\n-->\n[사물](../settings/35-objects.md#thing). 점유 상자는 0.50×0.20×0.30m다.";
+  const portable = { path: "ritual.md", source };
+  assert.deepEqual(modelIdentityOwnerFailures(settings, [portable]), []);
+  const expected = ["폭", "깊이", "높이", "지름", "길이", "두께"];
+  for (const label of expected) {
+    const narrow = { ...settings, source: settings.source.replace(new RegExp(`${label} [\\d.]+~[\\d.]+m`), `${label} 0.01~0.02m`) };
+    assert.match(modelIdentityOwnerFailures(narrow, [portable]).join(" "), new RegExp(label));
+  }
+  assert.deepEqual(modelIdentityOwnerFailures(settings, [{ path: "columns.md", source: "## 기둥 {#column}\n모델." }]), []);
 });

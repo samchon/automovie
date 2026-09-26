@@ -60,7 +60,7 @@
 @evidenceExcludeReview settings/35-objects.md#textile #d9105f6 직물의 덮개 역할을 모델에 남겨 실내 표면 소유를 바꾸지 않는다
 @evidenceExcludeReview settings/35-objects.md#stylus #4491a6c 첨필 위치는 책상 배치가 정하고 공간 표면 지도에는 형상 행이 없다
 @evidenceExcludeReview settings/35-objects.md#writing-tablet #eeff48e 필기면의 물체 소유와 기록실 공간 표면 소유가 분리돼 있다
-@evidenceExcludeReview settings/35-objects.md#rope-coil #c57b0fb 끈의 세 고리가 공간 벽·바닥 형상으로 중복 방출되지 않는다
+@evidenceExcludeReview settings/35-objects.md#rope-coil #c57b0fb 느슨한 끈 뭉치의 고리와 묶음 띠가 공간 벽·바닥 형상으로 중복 방출되지 않는다
 @evidenceExcludeReview settings/35-objects.md#censer #d45a952 향로가 제단 위에 놓여도 제실 완결 표면 owner는 바뀌지 않는다
 @evidenceExcludeReview settings/35-objects.md#floor-cushion #6e384d3 좌구의 앉는 면과 제실 석재 바닥을 서로 다른 표면 소유로 유지한다
 @evidenceExcludeReview settings/35-objects.md#jar-stand #87bb280 한 자리 받침의 고리·기둥을 보관실 완결 바닥 면에서 제외한다

@@ -11,7 +11,7 @@
 @evidence principles/design/models.md#spatial-convention 오른손 Y-up·m 단위를 쓰고 별도 앞·위 축을 두지 않으며 primitive 기본 크기를 치수로 쓰지 않는다는 좌표 규칙을 모든 모델에 건다.
 @evidence principles/design/models.md#reviewable-structure 점유 상자와 보행 포락을 나란히 대조하는 규칙이 각 H2 검토 판의 공통 반증 기준이 된다.
 @evidence principles/design/models.md#model-observable-style-basis 고대 지중해라는 표지를 부재 분리와 빈 공간으로만 읽히게 하고 세로 홈·조각·특정 오더 비례는 주장하지 않으며 색·거칠기는 materials 몫이라고 경계를 긋는다.
-@evidence principles/design/models.md#model-scale-layer-completion 축척 기준·표현 상한·prototype 점유 상자·배치 기준점의 층을 함께 정해 반복 부재 H2가 배치 수 없이도 완결되게 한다.
+@evidence principles/design/models.md#model-scale-layer-completion 축척 기준·표현 상한·prototype 점유 상자·로컬 원점의 배치 기준을 함께 정해 반복 부재 H2가 배치 수 없이도 완결되게 한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 사물 16개의 존재·범위가 settings에 빠져 있어 35-objects와 30-interiors의 정체성·방별 목록을 먼저 수리했다. user 지시는 존재 범위를 승인했고 치수·접합은 각 모델 H2의 저작 결정이다.
 @evidence settings/00-delivery.md#coordinates 오른손 Y-up, 길이 m 규약을 모델 좌표로 그대로 쓴다.
 @evidence settings/10-building.md#use-profile 성인 보행 포락 0.6×0.4×1.9m를 모든 모델의 공유 축척 기준으로 지명한다.
@@ -22,7 +22,7 @@
 @evidence obligations/design/models.md#reference-scale 공유 축척 기준을 보행 포락으로 지명하고 점유 상자를 settings 범위·포락과 대조하는 도출·검사 규칙을 정한다.
 @evidenceExclude settings/00-delivery.md#coverage-map 설정 소유 지도는 settings 파일 사이의 색인이며 모델 H2는 지도가 가리키는 외피·실내·물체·환경 owner를 직접 인용하므로 지도 자체가 주는 모델 결정은 없다.
 @evidenceExclude settings/00-delivery.md#delivery-scope 납품 범위의 공간 목록과 뷰어 약속은 spaces와 viewer가 받고, 모델 사물 범위는 사용자 사물 지시를 반영해 수리된 35-objects와 30-interiors의 개별 owner에서 받는다.
-@evidenceExclude settings/00-delivery.md#operative-subjects 주체 표의 물체·분수·주민 항목은 35-objects·30-interiors#fountain·10-building#use-profile로 이미 직접 소비되고 표 자체는 새 형상 결정을 주지 않는다.
+@evidenceExclude settings/00-delivery.md#operative-subjects 주체 표는 봉헌물·등잔·문서·용기·가구를 35-objects로, 물을 30-interiors#fountain으로, 지역 이용 공동체를 10-building#use-profile로 라우팅한다. 모델은 각 owner를 직접 소비하므로 이 분류표를 별도 형상 근거로 재소비하지 않는다.
 @evidenceExclude settings/00-delivery.md#working-language 작업 언어는 모델 형상의 입력이 아니라 문서 표기 규칙이어서 accounts/models/core-common.md의 production-language 설명이 population 단위로 맡는다.
 @evidenceExclude settings/10-building.md#fixed-graph 방 순서·문·주랑 루프는 spaces가 실현했고 모델은 그 결과를 방 volume과 문 표로만 받아 그래프를 직접 소비하는 prototype이 없다.
 @evidenceExclude settings/10-building.md#scale 410~450㎡ 외곽과 장단변비는 spaces footprint가 소비했고 모델 치수는 보행 포락과 판정된 방 순치수에서 유도해 건물 면적을 쓰지 않는다.
@@ -39,7 +39,7 @@
 
 표현 상한은 결정론적 blocking geometry다. 허용하는 시각 주장은 리뷰 거리(눈높이 1.6m, 대상까지 약 2~25m)의 실루엣, 부재 분리(기단·몸통·주두, 문틀·문짝의 선대·가로대·판, 테두리·몸통·목), 실제 빈 공간(문 개구, 수반 안쪽, 선반 칸, 궤 뚜껑의 틈), 실제 두께다. 조각 장식, 세로 홈, 공구 자국, 기하로 새긴 나뭇결과 기와 한 장씩의 불규칙, 기하로 새긴 풍화, 끈과 짜임의 미세 형상, 특정 고대 양식의 정확한 비례는 주장하지 않는다. 곡면은 각 H2가 정한 분할 수의 다면체이며 부드러운 법선은 그 H2가 요구한 곳에만 쓴다. 재료의 색·거칠기·결과 무늬는 materials가 정한다. 모델은 안정된 표면 ID와 다음 UV0 물리 좌표를 모두 낸다.
 
-하나의 prototype 안에서 이산 부재를 반복하면 해당 H2가 개수·간격·첫 부재의 위치 또는 각 위상·기준 부재의 어느 면에 붙는지까지 정한다. 원형 반복은 첫 부재의 중심각과 진행 방향을 적고, 다각형 면에 붙는 부재의 돌출은 꼭짓점 외접원이 아니라 그 면의 바깥 법선에서 잰다. 일렬 반복은 첫 중심 또는 첫 모서리와 진행 축을 적는다. 이 규칙은 instances가 정하는 건물 내 prototype 배치 횟수를 대신 정하지 않는다.
+하나의 prototype 안에서 이산 부재를 반복하면 해당 H2가 개수·간격·첫 부재의 위치 또는 각 위상·기준 부재의 어느 면에 붙는지까지 정한다. 원형 반복은 첫 부재의 중심각과 진행 방향을 적고, 다각형 면에 붙는 부재의 돌출은 꼭짓점 외접원이 아니라 그 면의 바깥 법선에서 잰다. 일렬 반복은 첫 중심 또는 첫 모서리와 진행 축을 적는다. 이 규칙은 instances가 정하는 건물 내 prototype 배치 횟수를 대신 정하지 않는다. 각 H2의 로컬 원점은 그 prototype의 배치 기준점이며 실제 위치·방향·수량은 instances가 정한다.
 
 모든 방출 part는 position마다 유한한 UV0 한 쌍을 가진다. 로컬 원점에서 1 UV 단위는 1m다. 기본 평면 투영은 각 삼각형의 주법선 축으로 정한다. 법선 +X에는 (U,V)=(−Z,Y), −X에는 (Z,Y), +Y에는 (X,−Z), −Y에는 (X,Z), +Z에는 (X,Y), −Z에는 (−X,Y)를 쓴다. 각 경우 U×V는 해당 바깥법선을 향하므로 양면의 무늬가 거울상으로 뒤집히지 않는다. 면이 바뀌는 단단한 모서리와 서로 다른 part·표면 ID에서는 정점을 복제해 이음을 끊는다. 삼각형 하나 안에서 투영 축을 바꾸지 않는다. 잘린 끝면은 새 면 법선으로 다시 투영하고, 같은 면 안의 반복 부재는 각 prototype의 로컬 원점을 유지하므로 배치가 UV 원점을 새로 고르지 않는다. materials는 이 미터 좌표에서 반복 빈도·색·거칠기·텍스처 이미지를 결정한다. UV0가 없는 part에 texture를 결속하려 하면 source/viewer 검증이 실패해야 하며 단색으로 조용히 건너뛰지 않는다.
 

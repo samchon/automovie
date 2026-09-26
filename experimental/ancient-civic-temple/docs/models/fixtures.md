@@ -73,7 +73,7 @@ part와 표면은 `step`, `top`, `support`다. 상판 윗면은 [얕은 봉헌 �
 @evidence principles/core/common.md#substantive-completion 받침 1.20×0.40×0.60m, 몸체 1.10×0.36×1.20m, 칸 0.60×0.80×0.22m와 열림 높이, 머리판 치수가 있어 source가 감실을 다시 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 형태는 이미지 02의 후면 감실, 신상 없음은 30-interiors#sanctuary, 벽 위치는 rooms/sanctuary.md#sanctuary-volume의 북쪽 벽에서 온다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 제실의 위계 설정을 신상 없이 용기만 놓는 오목한 칸이라는 모델 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract plinth·body·recess-frame·recess·cap 다섯 part를 정한다. 칸의 양옆은 body, 위아래는 recess-frame, 뒷면은 recess가 소유하고 뒤쪽 석판은 벽과 닿는다.
+@evidence principles/design/models.md#representation-contract plinth·body·recess-frame·recess·cap 다섯 part를 정한다. 칸의 양옆은 body, 위아래는 recess-frame, 뒷면은 recess가 소유한다. 벽 접촉은 Z=0의 받침과 머리판이 맡는다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 뒷변 중심, 앞을 로컬 +Z로 두고 점유 상자 1.24×1.94×0.42m를 적는다.
 @evidence principles/design/models.md#reviewable-structure 정면의 칸 깊이와 머리판 돌출, 제실 문 축에서 제단 뒤 중심을 보고 칸 없는 판·벽 구멍·인물 형상을 실패로 둔다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02의 후면 감실 구조를 형태 근거로 하되 인체 신상은 두지 않는다.
@@ -92,7 +92,7 @@ part와 표면은 `step`, `top`, `support`다. 상판 윗면은 [얕은 봉헌 �
 
 부재 대응: `plinth`=받침; `body`=몸체 양측; `recess-frame`=오목한 칸 위아래 판; `recess`=오목한 칸 뒷면; `cap`=머리판.
 
-part와 표면은 `plinth`, `body`, `recess-frame`, `recess`, `cap`이다. 칸의 양옆은 `body`, 위아래는 `recess-frame`, 뒷면은 `recess`다. 뒷면은 제실 북쪽 벽과 닿는 가려진 접촉면이다. 칸 안의 용기와 배치 위치는 instances가 정한다.
+part와 표면은 `plinth`, `body`, `recess-frame`, `recess`, `cap`이다. 칸의 양옆은 `body`, 위아래는 `recess-frame`, 칸 뒷면은 `recess`다. 받침과 머리판의 뒷면(Z=0)은 제실 북쪽 벽과 닿는 가려진 접촉면이고, 몸체·위아래 판·뒤판의 뒷면(Z=0.02)은 벽과 0.02m 떨어진 면이다. 받침과 머리판 사이의 양옆에서는 이 틈이 보인다. 칸 안의 용기와 배치 위치는 instances가 정한다.
 
 검토 판에서 정면으로 칸의 깊이와 머리판 돌출을, 건물 관찰에서 제실 문 축에서 제단 뒤로 감실이 중심을 잡는지 본다. 칸 없는 판, 벽을 뚫은 구멍, 인물 형상은 실패다.
 

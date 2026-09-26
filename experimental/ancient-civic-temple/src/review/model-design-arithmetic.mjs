@@ -427,8 +427,10 @@ const nicheCap = n(niche, /높이 ([\d.]+)m의 머리판이 얹힌다/);
 near("niche cap touches body", nichePlinth + nicheBody + nicheCap, n(niche, /점유 상자는 [\d.]+×([\d.]+)×/));
 pass("niche back face touches sanctuary wall",
   /로컬 원점은 바닥면의 뒷변 중심/.test(niche) &&
-  /뒷면은 제실 북쪽 벽과 닿는/.test(niche) && nicheCap >= 0,
-  "back plane is local Z=0; north-wall instance datum remains to be checked in instances");
+  n(niche, /머리판은 Z=([\d.]+)~/) === 0 &&
+  n(niche, /몸체는 앞뒤 Z=([\d.]+)~/) > 0 &&
+  /받침과 머리판의 뒷면\(Z=0\)은 제실 북쪽 벽과 닿는/.test(niche) && nicheCap >= 0,
+  "plinth and cap reach local Z=0 while the body stands back; north-wall instance datum remains to be checked in instances");
 near("lamp stem top supports dish bottom",
   n(lamp, /윗끝 Y=([\d.]+)m에 접시 바닥/),
   n(lamp, /바닥 Y=([\d.]+)m·바닥 두께/));

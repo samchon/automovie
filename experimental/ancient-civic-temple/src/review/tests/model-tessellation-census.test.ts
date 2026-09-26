@@ -38,7 +38,9 @@ void test("a curved part cannot borrow another part's segment count", () => {
   assert.deepEqual(tessellationFailures("cart", cart), []);
   assert.deepEqual(tessellationFailures("censer", censer), []);
   assert.match(tessellationFailures("cart", cart.replace("X축 회전 원통 16분할이다", "X축 회전 원통이다")).join(" "), /curved part wheel/);
+  assert.match(tessellationFailures("cart", cart.replace("축 원통은 둘레 16분할이다. ", "")).join(" "), /curved part axle/);
   assert.match(tessellationFailures("censer", censer.replace("발·줄기·컵은 회전체 20분할, 향은 팔각기둥이다.", "")).join(" "), /curved part foot/);
+  assert.match(tessellationFailures("multiword", "연결 핀은 반지름 0.02m 원통이다. 바퀴는 둘레 16분할 원판이다.\n부재 대응: `pin`=연결 핀; `wheel`=바퀴.").join(" "), /curved part pin/);
 });
 
 void test("circular repeats require a first centre, compatible pitch and face-based offset", () => {

@@ -58,7 +58,7 @@
 @evidence principles/core/common.md#scope-preservation 발·줄기·접시·금속 마모와 제단 양측 배치의 후속 소유를 다룬다.
 @evidence principles/core/common.md#substantive-completion 높이 0.9~1.3m와 발/접시 지름 0.18~0.3m, 불꽃 없는 상태를 정한다.
 @evidence principles/core/common.md#declared-basis 이미지 02·04의 금속 등잔대를 바탕으로 저작자가 크기를 제한한다.
-@evidence principles/core/settings.md#fact-status 작은 자립 등잔대는 채택 물체이며 유물 치수나 실제 연소 성능의 결과가 아니다.
+@evidence principles/core/settings.md#fact-status 높은 자립 등잔대는 채택 물체이며 유물 치수나 실제 연소 성능의 결과가 아니다.
 @evidence principles/core/settings.md#source-support 어두운 세로 등잔대와 상부 접시의 자료를 두 reference로 특정한다.
 @evidence principles/core/settings.md#capability-boundary 등잔은 불꽃을 내지 않으며 배치 수·접지·기울지 않는 위치는 instances에서 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 발과 접시를 작은 지름으로 제한해 제단보다 과대한 부재가 되지 않게 한다.
@@ -68,7 +68,7 @@
 <!--
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 발·줄기·접시뿐 아니라 접지와 제실 배치의 소유까지 있어 세로 막대만 세우고 끝내지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 높이와 발/접시 지름, 불꽃 없는 상태를 함께 정해 크기와 작동 상태를 결정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 02·04의 어두운 등잔대와 저작자의 작은 물체 범위가 각각 근거로 적혀 있다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 02·04의 어두운 등잔대와 저작자가 정한 높은 자립형의 치수 범위가 각각 근거로 적혀 있다.
 @evidenceReview principles/core/settings.md#fact-status #93a284a 자립 부재의 외형을 정했을 뿐 전도나 연소 시험을 끝냈다는 결과는 없다.
 @evidenceReview principles/core/settings.md#source-support #430bca9 세로 줄기 위 얕은 접시를 이미지에서 확인할 수 있으며 금속 성분이나 유물 치수를 추정하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 불꽃이 없다는 본문은 어두운 실내를 등잔 광원으로 채우는 변경을 허용하지 않는다.
@@ -296,7 +296,7 @@
 @evidence principles/core/settings.md#source-support 항아리 두 자리 받침대: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 항아리 두 자리 받침대의 범위에서 항아리의 개수·실제 접촉과 통로 여백은 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 항아리 두 자리 받침대: 항아리 두 자리 받침대의 허용 범위와 보관실 벽가 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 항아리 두 자리 받침대: 두 얕은 홈과 열린 다리 사이라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/settings.md#observable-identity 항아리 두 자리 받침대: 두 얕은 홈이 있는 낮은 목재 상판과 네 다리라는 구분 가능한 실루엣을 요구한다.
 -->
 
 <!--
@@ -307,7 +307,7 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 항아리 두 자리 받침대: 이미지 02·05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 항아리 두 자리 받침대의 제외 경계를 본문에서 확인했다: 항아리의 개수·실제 접촉과 통로 여백은 instances가 정한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 항아리 두 자리 받침대: 보관실 벽가 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 항아리 두 자리 받침대: 두 얕은 홈과 열린 다리 사이이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 항아리 두 자리 받침대: 두 얕은 홈이 있는 낮은 목재 상판과 네 다리가 본문에 있어 용기·좌석과 구별된다.
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 보관실 벽가에서 사용한다. 두 원형의 얕은 홈을 가진 낮은 목재 상판과 네 다리다. 높이 0.20~0.35m, 폭 1.0~1.3m이고 두 항아리를 받는 홈 바닥은 판을 관통하지 않는다. 항아리의 개수·실제 접촉과 통로 여백은 instances가 정한다.
@@ -338,6 +338,8 @@
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 서비스 마당에서 사용한다. 긴 목재 가로대 양끝에 금속 고리 둘이 달린 내려놓은 비품이다. 폭 1.0~1.3m 안에서 고르며 고리의 구멍과 목재 막대가 분리된다. 실제 운반 동작·하중·고대 운반 방식의 복원은 주장하지 않는다.
 
+운반 멜대의 실제 위치와 수량은 instances가 정한다.
+
 ## 정지된 작은 손수레 {#handcart}
 
 <!--
@@ -348,7 +350,7 @@
 @evidence principles/core/settings.md#source-support 정지된 작은 손수레: 제공 이미지 01·02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 정지된 작은 손수레의 범위에서 폭 0.65~0.85m, 길이 1.5~2.0m의 작은 정지 소품으로 두고 바퀴 굴림이나 문 통과 성능을 납품하지 않는다.
 @evidence principles/core/settings.md#constraint-sufficiency 정지된 작은 손수레: 정지된 작은 손수레의 허용 범위와 서비스 마당 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 정지된 작은 손수레: 판 아래 빈 공간과 지면에 닿은 두 바퀴라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/settings.md#observable-identity 정지된 작은 손수레: 판·두 바퀴·축·뒤 손잡이가 구별되는 빈 운반대라는 실루엣을 요구한다.
 -->
 
 <!--
@@ -359,10 +361,12 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 정지된 작은 손수레: 이미지 01·02·05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 정지된 작은 손수레의 제외 경계를 본문에서 확인했다: 폭 0.65~0.85m, 길이 1.5~2.0m의 작은 정지 소품으로 두고 바퀴 굴림이나 문 통과 성능을 납품하지 않는다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 정지된 작은 손수레: 서비스 마당 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 정지된 작은 손수레: 판 아래 빈 공간과 지면에 닿은 두 바퀴이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 정지된 작은 손수레: 본문은 판·두 바퀴·축·뒤 손잡이를 빈 운반대의 구별되는 부재로 정한다. 지면 접촉은 서비스 마당과 모델에서 정한다.
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 01·02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 서비스 마당에서 사용한다. 판·두 바퀴·축·뒤 손잡이가 구별되는 빈 운반대다. 폭 0.65~0.85m, 길이 1.5~2.0m의 작은 정지 소품으로 두고 바퀴 굴림이나 문 통과 성능을 납품하지 않는다. 외부 반입문 옆에서 통로를 남기는 위치는 instances가 정한다.
+
+판·손잡이·축·바퀴는 어두운 목재로 읽는다.
 
 ## 손잡이 있는 물동이 {#bucket}
 
@@ -389,6 +393,8 @@
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 중정·서비스 마당에서 사용한다. 위로 벌어진 열린 도기 몸체와 하나의 높은 고리 손잡이를 가진 작은 빈 용기다. 높이 0.35~0.5m 안에서 고르며 [부푼 배와 좁은 목의 저장 용기](#vessels)와 다른 정체성이다. 물 표면·무게·흐름·운반 동작은 납품하지 않는다.
+
+물동이의 실제 위치와 수량은 instances가 정한다.
 
 ## 흙을 담은 낮은 화분 {#planter}
 
@@ -426,7 +432,7 @@
 @evidence principles/core/settings.md#source-support 글자 없는 봉헌판: 제공 이미지 02·04의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 글자·도상·가상 봉헌자 이름을 만들지 않으며 제단 중심을 가리지 않는 위치는 instances가 정한다.
 @evidence principles/core/settings.md#constraint-sufficiency 글자 없는 봉헌판: 글자 없는 봉헌판의 허용 범위와 제실·봉헌실·주랑 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 글자 없는 봉헌판: 받침 위의 얇은 직사각 판라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/settings.md#observable-identity 글자 없는 봉헌판: 낮은 받침 위에 세운 작은 직사각 석판이라는 구분 가능한 실루엣을 요구한다.
 -->
 
 <!--
@@ -437,7 +443,7 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 글자 없는 봉헌판: 이미지 02·04을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 봉헌판 본문은 판의 무문양 상태를 정하고 글자·도상·이름과 제단 앞 배치 결정은 제외한다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 글자 없는 봉헌판: 제실·봉헌실·주랑 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 글자 없는 봉헌판: 받침 위의 얇은 직사각 판이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 글자 없는 봉헌판: 낮은 받침 위에 세운 작은 직사각 석판이 본문에 있어 다른 집기와 구별된다.
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실·봉헌실·주랑에서 사용한다. 낮은 받침 위에 세운 작은 직사각 석판이며 한 사람이 옮길 수 있는 규모다. 폭 0.25~0.40m, 높이 0.35~0.50m이고 글자·도상·가상 봉헌자 이름은 새기지 않는다. 제실의 제단 중심을 가리지 않는 배치는 instances가 정한다.
@@ -468,6 +474,8 @@
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 봉헌실·제실에서 사용한다. 작은 그릇을 모아 놓는 납작한 바닥과 네 낮은 테두리의 별도 비품이다. 폭 0.4~0.6m, 깊이 0.25~0.4m이며 중앙은 위로 열려 있다. 제단 또는 탁자의 상판 위에 놓이고 안의 그릇 수와 위치는 instances가 정한다.
 
+쟁반의 바닥과 네 림은 어두운 금속으로 읽는다.
+
 ## 접은 직물 {#textile}
 
 <!--
@@ -493,6 +501,8 @@
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 04·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실·봉헌실·관리실·기록실·보관실에서 사용한다. 제단 위 천, 작업용 천 또는 용기 덮개로 놓이는 두 겹의 접힌 정지 비품이다. 폭 0.4~0.6m, 깊이 0.3~0.5m, 두께 0.02~0.06m 안에서 고르고 실의 직조·봉합선은 형상이 아니다. [제실 바닥 좌구](#floor-cushion)는 이 덮개 변형에 포함하지 않는다.
+
+접은 직물의 실제 위치와 수량은 instances가 정한다.
 
 ## 필기용 첨필 {#stylus}
 
@@ -546,6 +556,8 @@
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 관리실·기록실의 책상에서 사용한다. 얕은 직사각 틀 안에 평평한 쓰기 면이 들어간 정지 소품이다. 폭 0.24~0.35m, 깊이 0.18~0.28m이며 실제 글자·가짜 비문은 없다. 책상 위 위치와 다른 기록물과의 간격은 instances가 정한다.
 
+필기판의 틀은 어두운 목재, 쓰기 면은 양피지로 읽는다.
+
 ## 느슨한 끈 뭉치 {#rope-coil}
 
 <!--
@@ -556,7 +568,7 @@
 @evidence principles/core/settings.md#source-support 느슨한 끈 뭉치: 제공 이미지 02·05의 규모·재료·공간 관계를 참고하며 이미지 픽셀에서 치수를 재거나 역사적 실물을 복원하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 느슨한 끈 뭉치의 범위에서 실제 결속 장력과 운반 동작은 납품하지 않는다.
 @evidence principles/core/settings.md#constraint-sufficiency 느슨한 끈 뭉치: 느슨한 끈 뭉치의 허용 범위와 기록실·보관실·서비스 마당 사용 조건으로 모델과 배치가 선택할 한계를 둔다.
-@evidence principles/core/settings.md#observable-identity 느슨한 끈 뭉치: 서로 떨어진 고리와 가로 묶음 띠라는 구분 가능한 실루엣을 요구한다.
+@evidence principles/core/settings.md#observable-identity 느슨한 끈 뭉치: 가운데와 고리 사이가 빈 여러 섬유 고리와 작은 묶음 띠라는 실루엣을 요구한다.
 -->
 
 <!--
@@ -567,10 +579,12 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 느슨한 끈 뭉치: 이미지 02·05을 시각 참조로 한정해 사진의 수치를 측정했다고 주장하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 느슨한 끈 뭉치의 제외 경계를 본문에서 확인했다: 실제 결속 장력과 운반 동작은 납품하지 않는다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 느슨한 끈 뭉치: 기록실·보관실·서비스 마당 및 본문 치수·제외 조건을 함께 읽으면 모델이 독립 물체를 다시 정의하지 않아도 된다.
-@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 느슨한 끈 뭉치: 서로 떨어진 고리와 가로 묶음 띠이 본문에 있어 유사한 기존 용기·좌석·집기와 구별된다.
+@evidenceReview principles/core/settings.md#observable-identity #4ccb62e 느슨한 끈 뭉치: 본문의 여러 섬유 고리와 작은 묶음 띠는 가운데와 고리 사이를 비워 단일 끈과 구별된다.
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 기록실·보관실·서비스 마당에서 사용한다. 문서에 묶인 끈과 별개로 내려놓은 여러 섬유 고리와 작은 묶음 띠다. 지름 0.18~0.30m이며 가운데와 고리 사이는 빈다. 실제 결속 장력과 운반 동작은 납품하지 않는다.
+
+끈 뭉치의 실제 위치와 수량은 instances가 정한다.
 
 ## 낮은 향로 {#censer}
 
@@ -597,6 +611,8 @@
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·04의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 제실의 제단 위에서 사용한다. 발·짧은 줄기·위로 열린 컵 안에 재와 꺼진 향이 보이는 작은 의례 비품이다. 높이 0.25~0.40m이고 제단이나 봉헌 그릇의 실루엣을 대신하지 않는다. 연기·불꽃·냄새·의례 수행은 납품하지 않는다.
+
+향로의 발·줄기·컵은 어두운 금속이며 실제 위치와 수량은 instances가 정한다.
 
 ## 제실 바닥 좌구 {#floor-cushion}
 
@@ -649,3 +665,5 @@
 -->
 
 2026-09-25 사용자 지시 “남은 3시간동안 모든 사물들을 다 만들어야한다”에 따라 이 사물의 존재를 범위에 포함한다. 이미지 02·05의 공간·비품 관계를 시각 근거로 참고하며, 개별 물체의 채택과 아래 치수 범위는 저작자 결정이다. 보관실 벽가에서 사용한다. 원형 발·좁은 기둥·위의 한 자리 받침 고리로 된 낮은 독립 비품이다. 높이 0.28~0.40m, 바깥 지름 0.5~0.7m이며 [두 자리 목재 받침대](#jar-rack)와 역할과 실루엣이 다르다. 항아리의 실제 접촉과 방 통로는 instances가 정한다.
+
+받침의 발·기둥·고리는 석재로 읽는다.

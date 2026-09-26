@@ -95,26 +95,45 @@ export const modelHandoffRows = (
   return rows.sort((a, b) => a.parent.localeCompare(b.parent));
 };
 
-/** Matched settings identities must be cited by their model H2 and obey a declared height band. */
+/** Object model units require their own settings identity and obey every declared size band. */
 export const modelIdentityOwnerFailures = (
   settings: HandoffDocument, models: readonly HandoffDocument[],
 ): string[] => {
   const identities = new Map(sections(settings).map((section) => [section.key.split("#")[1]!, section]));
   const failures: string[] = [];
-  for (const model of models.flatMap(sections)) {
-    const id = model.key.split("#")[1]!;
-    const parent = identities.get(id);
-    if (!parent || !parent.body.includes("2026-09-25")) continue;
-    const ref = `settings/35-objects.md#${id}`;
-    if (!model.source.includes(`@evidence ${ref} `) ||
-        !model.body.includes(`../settings/35-objects.md#${id}`))
-      failures.push(`${model.key}: missing direct settings identity ${ref}`);
-    const band = parent.body.match(/높이\s+([\d.]+)~([\d.]+)m/);
-    const box = model.body.match(/점유 상자는\s*(?:약\s*)?[\d.]+×([\d.]+)×[\d.]+m/);
-    if (band && box) {
-      const height = Number(box[1]);
-      if (height < Number(band[1]) - 1e-8 || height > Number(band[2]) + 1e-8)
-        failures.push(`${model.key}: height ${height}m outside ${ref} ${band[1]}~${band[2]}m`);
+  for (const document of models) {
+    const units = sections(document);
+    const objectFile = /^(portable|ritual)\.md$/.test(document.path);
+    if (!objectFile) continue;
+    for (const model of units) {
+      const id = model.key.split("#")[1]!;
+      const parent = identities.get(id);
+      const ref = `settings/35-objects.md#${id}`;
+      if (!parent) {
+        failures.push(`${model.key}: missing settings identity ${ref}`);
+        continue;
+      }
+      if (!model.source.includes(`@evidence ${ref} `) ||
+          !model.body.includes(`../settings/35-objects.md#${id}`))
+        failures.push(`${model.key}: missing direct settings identity ${ref}`);
+      const bands = [...parent.body.matchAll(/(폭|깊이|높이|지름|길이|두께)\s+([\d.]+)~([\d.]+)m/g)];
+      const box = model.body.match(/점유 상자는\s*(?:약\s*)?([\d.]+)×([\d.]+)×([\d.]+)m/)
+        ?? model.body.match(/기본형 점유 상자는\s*([\d.]+)×([\d.]+)×([\d.]+)m/);
+      if (bands.length && !box) {
+        failures.push(`${model.key}: no occupancy box for settings dimensions`);
+        continue;
+      }
+      if (!box) continue;
+      const [width, height, depth] = box.slice(1).map(Number);
+      const values: Record<string, number> = {
+        폭: width!, 깊이: depth!, 높이: height!, 지름: Math.max(width!, depth!),
+        길이: Math.max(width!, depth!), 두께: Math.min(width!, height!, depth!),
+      };
+      for (const [, label, low, high] of bands) {
+        const value = values[label!]!;
+        if (value < Number(low) - 1e-8 || value > Number(high) + 1e-8)
+          failures.push(`${model.key}: ${label} ${value}m outside ${ref} ${low}~${high}m`);
+      }
     }
   }
   return failures;

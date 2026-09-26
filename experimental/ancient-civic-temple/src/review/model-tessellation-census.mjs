@@ -110,12 +110,26 @@ export const curvedPartFailures = (id, body) => {
   const mapping = body.match(/^부재 대응: (.+)$/m)?.[1];
   if (!mapping) return failures;
   const sentences = body.split(/(?<=다\.)\s+|\n+/);
-  for (const [, part, label] of mapping.matchAll(/`([^`]+)`=([^;.]+)/g)) {
-    const noun = label.trim();
-    if (!noun || noun.includes(" ")) continue;
-    const geometry = sentences.filter((sentence) => sentence.includes(noun) && /원판|원통|원환|원뿔대|타원체|반타원|곡면|파문/.test(sentence) && /반지름|지름|원형|원주|단면/.test(sentence));
+  const labels = [...mapping.matchAll(/`([^`]+)`=([^;.]+)/g)].map(([, part, label]) => [part, label.trim()]);
+  /** @param {string} sentence @param {string} noun */
+  const mentions = (sentence, noun) => {
+    const escaped = noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const distinct = labels.filter(([, label]) => label !== noun && label.includes(noun))
+      .reduce((text, [, label]) => text.replaceAll(label, ""), sentence);
+    return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?=$|[.,;:()·\\s]|은|는|이|가|을|를|의|와|과|에서|으로|로)`, "u").test(distinct);
+  };
+  /** @param {string} sentence @param {string} noun */
+  const namesCurve = (sentence, noun) => {
+    const escaped = noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const distinct = labels.filter(([, label]) => label !== noun && label.includes(noun))
+      .reduce((text, [, label]) => text.replaceAll(label, ""), sentence);
+    return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}[^\\n]{0,120}?(?:원판|원통|원환|원뿔대|타원체|반타원|곡면|파문)|(?:원판|원통|원환|원뿔대|타원체|반타원|곡면|파문)\\s+${escaped}(?=$|[.,;:()·\\s]|은|는|이|가|을|를|의)`, "u").test(distinct);
+  };
+  for (const [part, noun] of labels) {
+    if (!noun) continue;
+    const geometry = sentences.filter((sentence) => namesCurve(sentence, noun) && /반지름|지름|원형|원주|단면/.test(sentence));
     if (!geometry.length) continue;
-    const explicit = sentences.some((sentence) => sentence.includes(noun) && segments.test(sentence));
+    const explicit = sentences.some((sentence) => mentions(sentence, noun) && segments.test(sentence));
     const global = sentences.some((sentence) => /(?:원형 부재|원형 면|타원체|각 회전체|세 회전체)는?[^.\n]*\d+(?:×\d+)?분할/.test(sentence));
     if (!explicit && !global) failures.push(`${id}: curved part ${part} (${noun}) has no own division`);
   }
