@@ -158,6 +158,9 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
   const solids: ReturnType<typeof humanBodyCappedSurface>[] = [];
   if (basis.surfaces.length === 0)
     throw new Error("A body basis needs resident surfaces.");
+  // a material's layers across every surface: one nail layer, and at most
+  // four in all, the most a material composites
+  const layers = new Map<string, { nails: number; all: number }>();
   for (const surface of basis.surfaces) {
     // The topology checker assumes structurally valid buffers and leaves
     // malformed-buffer reporting to its caller, so establish that premise first.
@@ -230,6 +233,42 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         "Body surface relief needs a PNG data URI over a textured region of its material: " +
           surface.id,
       );
+    const png = (uri: unknown): boolean =>
+      typeof uri === "string" && uri.startsWith("data:image/png;base64,");
+    for (const overlay of surface.overlays ?? []) {
+      const count = layers.get(overlay.material) ?? { nails: 0, all: 0 };
+      count.all += 1;
+      if (overlay.kind === "nails") count.nails += 1;
+      layers.set(overlay.material, count);
+      if (
+        count.nails > 1 ||
+        count.all > 4 ||
+        (overlay.kind === "veins" &&
+          (surface.sag === undefined ||
+            !(
+              overlay.attenuation > 0 && Number.isFinite(overlay.attenuation)
+            ) ||
+            overlay.vertices.length === 0 ||
+            !overlay.vertices.every(
+              (v) =>
+                Number.isInteger(v) &&
+                v >= 0 &&
+                v < surface.positions.length / 3,
+            ))) ||
+        !png(overlay.color) ||
+        (overlay.normal !== undefined && !png(overlay.normal)) ||
+        (overlay.kind === "nails" &&
+          !(overlay.roughness >= 0 && overlay.roughness <= 1)) ||
+        !surface.regions.some(
+          (region) =>
+            region.material === overlay.material && region.uvs !== null,
+        )
+      )
+        throw new Error(
+          "Body surface overlays need at most one nail layer and four layers per material, PNG data URIs over a textured region of their material, a nails roughness in [0,1], and veins over existing vertices of a surface with a declared lean body at a finite positive attenuation: " +
+            surface.id,
+        );
+    }
     const solid = humanBodyCappedSurface(surface.positions, surface.indices);
     solid.assertValid();
     solids.push(solid);

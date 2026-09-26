@@ -449,6 +449,46 @@ export interface IAutoMovieHumanBodyBasis {
      * micro-relief.
      */
     relief?: { material: string; texture: string };
+
+    /**
+     * Surface layers over this surface's UV layout for the regions of
+     * `material`, or absent for none, which a document's skin detail binds
+     * as that material's overlays: images bound once over UV set 0, v down
+     * the image, as PNG data URIs, the colour in sRGB with its coverage in
+     * alpha and the normal map linear.
+     *
+     * - A `nails` layer is the nail plates, another tissue that replaces the
+     *   skin where it covers, with its own colour, surface and `roughness`
+     *   in [0, 1], shown in full.
+     * - A `veins` layer is the superficial veins, a tint of the skin over
+     *   them and their raised relief, drawn as they show over the lean body
+     *   this surface's `sag` declares. A document's `skinVeins` shows them
+     *   at its strength times `exp(-attenuation · t)`, where `t` is the mean
+     *   tissue in metres the document's body carries over its lean self
+     *   along the rest normal at the `vertices` the veins lie over, and
+     *   `attenuation` (per metre) is how fast the light a vein takes falls
+     *   with its depth. A body's regions keep different tissue over their
+     *   veins, so a surface may carry a veins layer per region.
+     *
+     * A material takes one nails layer at most and four layers in all.
+     */
+    overlays?: (
+      | {
+          kind: "nails";
+          material: string;
+          color: string;
+          normal?: string;
+          roughness: number;
+        }
+      | {
+          kind: "veins";
+          material: string;
+          color: string;
+          normal?: string;
+          vertices: number[];
+          attenuation: number;
+        }
+    )[];
   }[];
 
   /** Resident finishes; the static exporter owns texture admission. */
