@@ -111,6 +111,7 @@ export const curvedPartFailures = (id, body) => {
   if (!mapping) return failures;
   const sentences = body.split(/(?<=다\.)\s+|\n+/);
   const labels = [...mapping.matchAll(/`([^`]+)`=([^;.]+)/g)].map(([, part, label]) => [part, label.trim()]);
+  const curvedWords = /원판|원통|원환|원뿔대|타원체|반타원|곡면|파문|원형 (?:홈|구멍)|원주/;
   /** @param {string} sentence @param {string} noun */
   const mentions = (sentence, noun) => {
     const escaped = noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -127,14 +128,16 @@ export const curvedPartFailures = (id, body) => {
   };
   for (const [part, noun] of labels) {
     if (!noun) continue;
-    const geometry = sentences.filter((sentence) => namesCurve(sentence, noun) && /반지름|지름|원형|원주|단면/.test(sentence));
-    const family = noun.includes("고리") ? /원환/ : noun.includes("홈") ? /원형 (?:홈|구멍)/ : null;
-    if (!geometry.length && family && family.test(body) && /반지름/.test(body))
-      geometry.push(body);
+    const words = noun.split(/[^\p{L}]+/u).filter((word) => word.length >= 2);
+    /** @param {string} sentence */
+    const named = (sentence) => mentions(sentence, noun) ||
+      words.some((word) => mentions(sentence, word));
+    const geometry = sentences.filter((sentence) =>
+      (namesCurve(sentence, noun) || (named(sentence) && curvedWords.test(sentence))) &&
+      /반지름|지름|원형|원주|단면/.test(sentence));
     if (!geometry.length) continue;
     const explicit = sentences.some((sentence) =>
-      (mentions(sentence, noun) || (family && family.test(sentence)) ||
-        (noun.includes("홈") && /홈 원주/.test(sentence))) && segments.test(sentence));
+      named(sentence) && segments.test(sentence));
     const global = sentences.some((sentence) => /(?:원형 부재|원형 면|타원체|각 회전체|세 회전체)는?[^.\n]*\d+(?:×\d+)?분할/.test(sentence));
     if (!explicit && !global) failures.push(`${id}: curved part ${part} (${noun}) has no own division`);
   }

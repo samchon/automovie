@@ -35,7 +35,7 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 <!--
 @evidence principles/core/common.md#scope-preservation 높은 제실 등잔대와 별개인 이동식 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidence principles/core/common.md#substantive-completion 발·줄기·오목한 접시의 범위와 연결 높이, 16분할 원형 면을 정한다.
-@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#portable-lamp와 30-interiors#offering-room이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
+@evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#portable-lamp와 20-envelope#entrance-porch·30-interiors#fountain·#offering-room·#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#portable-lamp의 높은 제실 등잔대와 별개인 이동식 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidence principles/design/models.md#representation-contract foot·stem·dish와 위로 열린 접시, 불꽃 없는 proxy를 정한다.
 @evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 0.24×0.28×0.24m 점유 상자를 정한다.
@@ -43,11 +43,11 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·04의 얕은 접시와 어두운 금속 실루엣을 소형으로 변주한다.
 @evidence principles/design/models.md#model-scale-layer-completion 큰 등잔대와 소형 등잔의 규모 차이와 표면 경계가 정해져 방별 비품이 같은 원형을 쓴다.
 @evidence settings/30-interiors.md#services 꺼진 등잔 상태를 소형 비품에도 적용한다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 35-objects#lampstands의 높은 등잔대와 구별할 소형 이동식 비품 owner가 없어 35-objects#portable-lamp를 새로 만들고 30-interiors의 정문·중정·봉헌실·관리실 방 목록에 넣었다. 등잔대와 별도 정체성을 먼저 정한 뒤 형상 산문을 썼다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work 35-objects#lampstands의 높은 등잔대와 구별할 소형 이동식 비품 owner가 없어 35-objects#portable-lamp를 새로 만들고 20-envelope#entrance-porch의 정문 목록과 30-interiors의 중정·봉헌실·관리실 방 목록에 넣었다. 등잔대와 별도 정체성을 먼저 정한 뒤 형상 산문을 썼다.
 @evidence settings/35-objects.md#portable-lamp 높은 제실 등잔대와 별개인 이동식 비품의 존재·형태 범위·상태를 받아 독립 prototype의 치수와 part로 도출한다.
 -->
 
-[사물 정체성](../settings/35-objects.md#portable-lamp)과 [사용 공간](../settings/30-interiors.md#offering-room)이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
+[사물 정체성](../settings/35-objects.md#portable-lamp)과 [정문](../settings/20-envelope.md#entrance-porch)·[중정](../settings/30-interiors.md#fountain)·[봉헌실](../settings/30-interiors.md#offering-room)·[관리실](../settings/30-interiors.md#administration)의 사용 공간이 이 prototype의 부모다. [레퍼런스 이미지 02·04](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
 
 이 등잔은 [높은 금속 등잔대](fixtures.md#lampstand)와 별도인 이동식 비품이며 기름·심지·불꽃의 작동은 표시하지 않는다. 정문·중정·봉헌실·관리실에서 같은 비품을 쓴다. 로컬 원점은 발 바닥 중심이다. 발은 반지름 0.10m·높이 0.035m의 16분할 원판, 줄기는 반지름 0.012m·Y=0.035~0.23m 원통, 접시는 바깥 반지름 0.12m·Y=0.23~0.28m의 열린 평바닥 컵이다. 접시 안쪽 반지름 0.105m, 바닥 두께 0.008m이며 윗면 고리 두께는 0.015m다. 줄기는 발 윗면과 접시 아랫면에 각각 닿는다. 점유 상자는 0.24×0.28×0.24m다.
 

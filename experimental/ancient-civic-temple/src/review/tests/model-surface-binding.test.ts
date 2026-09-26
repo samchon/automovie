@@ -3,6 +3,8 @@ import test from "node:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { modelSurfaceBindingCensus } from "../model-surface-binding.mjs";
+import { modelSections } from "../model-tessellation-census.mjs";
+import { modelParts } from "../model-occupancy-union.mjs";
 
 const modelRoot = join(__dirname, "../../../docs/models");
 const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
@@ -14,9 +16,12 @@ const material = readFileSync(join(__dirname, "../../../docs/materials/10-model-
 
 void test("surface grammar covers every authored prototype and every part", () => {
   const result = modelSurfaceBindingCensus(documents, material, scale);
-  assert.equal(result.prototypes, 49);
-  assert.equal(result.parts, 138);
-  assert.equal(result.bindingRows, 57);
+  const sections = documents.filter((document) => document.path !== "scale.md")
+    .flatMap((document) => modelSections(document.source));
+  const bindingTable = material.split("| 모델 H2 | part 표면 | 결속 키 |")[1]?.split(/\n\s*\n/)[0] ?? "";
+  assert.equal(result.prototypes, sections.length);
+  assert.equal(result.parts, sections.reduce((count, section) => count + modelParts(section.body).length, 0));
+  assert.equal(result.bindingRows, bindingTable.split("\n").filter((line) => /^\| `[^|]+` \|/.test(line)).length);
   assert.deepEqual(result.failures, []);
 });
 
