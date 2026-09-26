@@ -756,12 +756,273 @@ export const partBounds = (body, width = NaN) => {
     result[blade.key].Y = [0, Math.max(...ys)];
     result[blade.key].Z = [Math.min(...zs), Math.max(...zs)];
   }
+  // A pitched truss is a set of cut prisms. Resolve the named endpoints and
+  // section sizes before considering the overall box: the box is only a claim.
+  const tie = parts.find(({ noun }) => noun === "평보");
+  const principal = parts.find(({ noun }) => noun === "경사재");
+  const king = parts.find(({ noun }) => noun === "가운데 기둥");
+  const strut = parts.find(({ noun }) => noun === "버팀재");
+  if (tie && principal && king && strut) {
+    const tieSize = construction.match(/평보는 길이 ([\d.]+)m[^\n]*?단면 ([\d.]+)×([\d.]+)m이며 아랫면 Y=([\d.]+)m, 윗면 ([\d.]+)m/);
+    const pitch = construction.match(/두 경사재는 단면 ([\d.]+)×([\d.]+)m[^\n]*?X=±([\d.]+)m/);
+    const kingSize = construction.match(/가운데 기둥\(([\d.]+)×([\d.]+)m\)/);
+    const strutSize = construction.match(/두 버팀재\(([\d.]+)×([\d.]+)m\)/);
+    const strutEnd = construction.match(/X=±([\d.]+)m·Y=([\d.]+)m이며[^\n]*?X=±([\d.]+)m[^\n]*?Y≈([\d.]+)m/);
+    const roofFormula = construction.match(/Yprincipal\(\|X\|\)=([\d.]+)\+\(([\d.]+)−\|X\|\)tan\(([\d.]+)°\)−([\d.]+)\/cos\(([\d.]+)°\)/);
+    const crownHeight = roofFormula ? Number(roofFormula[1]) + Number(roofFormula[2]) *
+      Math.tan(Number(roofFormula[3]) * Math.PI / 180) - Number(roofFormula[4]) /
+      Math.cos(Number(roofFormula[5]) * Math.PI / 180) - Number(pitch?.[2] ?? 0) /
+      Math.cos(Number(roofFormula[3]) * Math.PI / 180) : NaN;
+    if (tieSize) {
+      const [length, gauge, height, bottom, top] = tieSize.slice(1).map(Number);
+      result[tie.key] = { X: [-length / 2, length / 2], Y: [bottom, top], Z: [-gauge / 2, gauge / 2], summary: result[tie.key].summary };
+      if (!near(top - bottom, height)) result[tie.key].Y.push(bottom + height);
+    }
+    if (pitch && tieSize && Number.isFinite(crownHeight) && roofFormula) {
+      const [gauge, depth, endX] = pitch.slice(1).map(Number);
+      const base = Number(tieSize[5]), apex = crownHeight;
+      result[principal.key] = { X: [-endX, endX], Y: [base, apex + depth / Math.cos(Number(roofFormula[3]) * Math.PI / 180)],
+        Z: [-gauge / 2, gauge / 2], summary: result[principal.key].summary };
+    }
+    if (kingSize && tieSize && Number.isFinite(crownHeight)) {
+      const [gauge, depth] = kingSize.slice(1).map(Number);
+      result[king.key] = { X: [-gauge / 2, gauge / 2], Y: [Number(tieSize[5]), crownHeight],
+        Z: [-depth / 2, depth / 2], summary: result[king.key].summary };
+    }
+    if (strutSize && strutEnd) {
+      const [gauge, depth] = strutSize.slice(1).map(Number);
+      const [inner, bottom, outer, top] = strutEnd.slice(1).map(Number);
+      result[strut.key] = { X: [-outer - gauge / 2, outer + gauge / 2], Y: [bottom - gauge / 2, top + gauge / 2],
+        Z: [-depth / 2, depth / 2], summary: result[strut.key].summary };
+      if (inner <= 0) result[strut.key].X = [];
+    }
+  }
+  const houseWall = parts.find(({ noun }) => noun === "벽");
+  const housePlinth = parts.find(({ noun }) => noun === "기단 띠");
+  const houseRoof = parts.find(({ noun }) => noun === "지붕");
+  const houseRecess = parts.find(({ noun }) => noun === "문·창 자리");
+  if (houseWall && housePlinth && houseRoof && houseRecess) {
+    const footprint = construction.match(/벽 바닥(?:은|이) X=±([\d.]+)m·Z=±([\d.]+)m/);
+    const lip = construction.match(/(?:벽 밖으로|네 변에) ([\d.]+)m (?:나오며|처마)/);
+    const plinthHeight = construction.match(/바닥에서 ([\d.]+)m 높이의 기단 띠/);
+    const slab = construction.match(/(?:slab 두께는 연직|연직) ([\d.]+)m/);
+    const roofTop = construction.match(/중심에서[^\n]*?=([\d.]+)m|뒤 처마 끝 Z=[^\n]*?는 ([\d.]+)m/);
+    const eave = construction.match(/(?:처마 끝 Z=±[\d.]+m에서 Y=|앞 처마 끝 Z=\+[\d.]+m는 )([\d.]+)m/);
+    const wallTop = construction.match(/중심 높이[^=]*=([\d.]+)m|뒤벽은 Y=([\d.]+)m/);
+    const windows = construction.match(/(?:두 창은|네 창은) X=±([\d.]+)m[^\n]*?하단 Y=([\d.]+)m[^\n]*?각 ([\d.]+)×([\d.]+)m/);
+    const depth = construction.match(/앞면에서 안쪽으로 ([\d.]+)m/);
+    if (footprint && lip && plinthHeight && slab && roofTop && eave) {
+      const [hx, hz, overhang, plinthH, thickness, top, bottom] =
+        [footprint[1], footprint[2], lip[1], plinthHeight[1], slab[1], roofTop[1] ?? roofTop[2], eave[1]].map(Number);
+      result[houseWall.key].X = [-hx, hx];
+      result[houseWall.key].Y = [0, Number(wallTop?.[1] ?? wallTop?.[2])];
+      result[houseWall.key].Z = [-hz, hz];
+      result[housePlinth.key].X = [-hx, hx];
+      result[housePlinth.key].Y = [0, plinthH];
+      result[housePlinth.key].Z = [-hz, hz];
+      result[houseRoof.key].X = [-hx - overhang, hx + overhang];
+      result[houseRoof.key].Y = [bottom - thickness, top];
+      result[houseRoof.key].Z = [-hz - overhang, hz + overhang];
+      if (windows && depth) {
+        const [cx, sill, w, h, inset] = [windows[1], windows[2], windows[3], windows[4], depth[1]].map(Number);
+        const extraSill = construction.match(/하단 Y=[\d.]+m·([\d.]+)m의 모든 조합/);
+        result[houseRecess.key].X = [-cx - w / 2, cx + w / 2];
+        result[houseRecess.key].Y = [0, Math.max(sill, Number(extraSill?.[1] ?? sill)) + h];
+        result[houseRecess.key].Z = [hz - inset, hz];
+      }
+    }
+  }
   return result;
+};
+
+/**
+ * Every resolved part participates in the same axis/union comparison,
+ * including alternate shapes of a multi-variant prototype.
+ * @param {string} id
+ * @param {Record<string, PartBound>} parts
+ * @param {number[]} box
+ * @param {number[]} tolerance
+ * @param {{ground?:boolean;backOrigin?:boolean;conservative?:boolean;zeroSurfaces?:Set<string>}} [options]
+ */
+const compareBounds = (id, parts, box, tolerance, options = {}) => {
+  const { ground = false, backOrigin = false, conservative = false,
+    zeroSurfaces = new Set() } = options;
+  /** @param {string} part @param {number[]} points */
+  const zeroSurface = (part, points) => zeroSurfaces.has(part) && points.length >= 2 &&
+    near(Math.min(...points), Math.max(...points));
+  /** @type {{ id:string;part:string;axis:string;kind:string;box:number;union:number;pass:boolean }[]} */
+  const rows = [];
+  for (const [part, bounds] of Object.entries(parts)) for (let i = 0; i < 3; i++) {
+    const axis = axes[i], points = bounds[axis];
+    if ((points.length < 2 || near(Math.min(...points), Math.max(...points))) && !zeroSurface(part, points)) {
+      rows.push({ id, part, axis, kind: "unresolved part axis", box: box[i], union: NaN, pass: false });
+      continue;
+    }
+    const lo = Math.min(...points), hi = Math.max(...points);
+    rows.push({
+      id, part, axis, kind: "containment", box: box[i], union: hi - lo,
+      pass: axis === "Y" && ground ? lo >= -tolerance[i] && hi <= box[i] + tolerance[i]
+        : axis === "Z" && backOrigin ? lo >= -tolerance[i] && hi <= box[i] + tolerance[i]
+          : hi - lo <= box[i] + tolerance[i],
+    });
+    for (const [a, b] of bounds.summary[axis]) rows.push({
+      id, part, axis, kind: "summary", box: box[i], union: b - a,
+      pass: near(lo, a) && near(hi, b),
+    });
+  }
+  for (let i = 0; i < 3; i++) {
+    const axis = axes[i], all = Object.entries(parts);
+    if (!all.length || all.some(([key, part]) => part[axis].length < 2 ||
+      (near(Math.max(...part[axis]), Math.min(...part[axis])) && !zeroSurface(key, part[axis])))) continue;
+    const points = all.flatMap(([, part]) => part[axis]);
+    const extent = Math.max(...points) - Math.min(...points);
+    rows.push({
+      id, part: "all", axis, kind: "union", box: box[i], union: extent,
+      pass: conservative ? extent <= box[i] + tolerance[i] :
+        Math.abs(extent - box[i]) <= tolerance[i],
+    });
+  }
+  return rows;
+};
+
+/** @param {number[]} x @param {number[]} y @param {number[]} z @returns {PartBound} */
+const prism = (x, y, z) => ({ X: x, Y: y, Z: z, summary: { X: [], Y: [], Z: [] } });
+
+/** Resolve the single, bundled, and open variants of rolled sheet geometry. */
+/** @param {string} id @param {string} body */
+const rolledSheetRows = (id, body) => {
+  const mapping = modelParts(body);
+  if (!/말린 한 개, 세 개 묶음, 펼친 한 장/.test(body) ||
+    !mapping.some(({ noun }) => noun === "종이") || !mapping.some(({ noun }) => noun === "끈")) return null;
+  const fail = () => [{ id, part: "all", axis: "XYZ", kind: "unresolved rolled variants",
+    box: NaN, union: NaN, pass: false }];
+  const cylinder = body.match(/반지름 ([\d.]+)m·길이 ([\d.]+)m 원통의 양끝 면에 반지름 [\d.]+m의 말림 심이 ([\d.]+)m씩/);
+  const ring = body.match(/중심선 반지름 ([\d.]+)m·관 반지름 ([\d.]+)m인 원환/);
+  const triangle = body.match(/YZ 중심을 \(0,−([\d.]+)\),\(0,\+([\d.]+)\),\(([\d.]+)√3,0\)m/);
+  const flat = body.match(/로컬 X 폭 ([\d.]+)m·Z 길이 ([\d.]+)m·두께 ([\d.]+)m 판으로 Y=([\d.]+)~([\d.]+)m/);
+  const endRoll = body.match(/X축 반지름 ([\d.]+)m·길이 ([\d.]+)m 원통이며 그 중심은 `\(Y,Z\)=\(([\d.]+),±\(([\d.]+)\+√\(([\d.]+)²−([\d.]+)²\)\)\)m`/);
+  const singleBox = body.match(/말린 것 ([\d.]+)×([\d.]+)×([\d.]+)m/);
+  const bundleBox = body.match(/묶음 ([\d.]+)×\(([\d.]+)√3\+([\d.]+)\)×([\d.]+)m/);
+  const flatBox = body.match(/펼친 것 `([\d.]+)×([\d.]+)×\(2×\(([\d.]+)\+√\(([\d.]+)²−([\d.]+)²\)\+([\d.]+)\)\)m`/);
+  if (!cylinder || !ring || !triangle || !flat || !endRoll || !singleBox || !bundleBox || !flatBox) return fail();
+  const [radius, length, core] = cylinder.slice(1).map(Number);
+  const [major, tube] = ring.slice(1).map(Number);
+  const [sideLo, sideHi, peak] = triangle.slice(1).map(Number);
+  const [sheetWidth, sheetLength, thickness, y0, y1] = flat.slice(1).map(Number);
+  const [rollRadius, rollLength, rollY, z0, rootA, rootB] = endRoll.slice(1).map(Number);
+  const ringRadius = major + tube;
+  const bundlePeak = peak * Math.sqrt(3);
+  const endOffset = z0 + Math.sqrt(rootA ** 2 - rootB ** 2);
+  const sheet = mapping.find(({ noun }) => noun === "종이")?.key;
+  const tie = mapping.find(({ noun }) => noun === "끈")?.key;
+  const bundle = mapping.filter(({ noun }) => /종이 원통/.test(noun)).map(({ key }) => key);
+  if (!sheet || !tie || bundle.length !== 3 || ![radius, length, core, major, tube,
+    sideLo, sideHi, peak, sheetWidth, sheetLength, thickness, y0, y1, rollRadius,
+    rollLength, rollY, endOffset].every(Number.isFinite)) return fail();
+  const single = {
+    [sheet]: prism([-length / 2 - core, length / 2 + core], [-radius, radius], [-radius, radius]),
+    [tie]: prism([-tube, tube], [-ringRadius, ringRadius], [-ringRadius, ringRadius]),
+  };
+  const bundled = Object.fromEntries(bundle.map((key, i) => {
+    const [y, z] = i === 0 ? [0, -sideLo] : i === 1 ? [0, sideHi] : [bundlePeak, 0];
+    return [key, prism([-length / 2 - core, length / 2 + core], [y - radius, y + radius],
+      [z - radius, z + radius])];
+  }));
+  bundled[tie] = prism([-tube, tube], [-ringRadius, bundlePeak + ringRadius],
+    [-sideLo - ringRadius, sideHi + ringRadius]);
+  const open = {
+    [sheet]: prism([-Math.max(sheetWidth, rollLength) / 2, Math.max(sheetWidth, rollLength) / 2],
+      [Math.min(y0, rollY - rollRadius), Math.max(y1, rollY + rollRadius)],
+      [-Math.max(sheetLength / 2, endOffset + rollRadius),
+        Math.max(sheetLength / 2, endOffset + rollRadius)]),
+  };
+  const singleSize = singleBox.slice(1).map(Number);
+  const bundleSize = [Number(bundleBox[1]), Number(bundleBox[2]) * Math.sqrt(3) + Number(bundleBox[3]), Number(bundleBox[4])];
+  const openSize = [Number(flatBox[1]), Number(flatBox[2]), 2 * (Number(flatBox[3]) +
+    Math.sqrt(Number(flatBox[4]) ** 2 - Number(flatBox[5]) ** 2) + Number(flatBox[6]))];
+  return [
+    ...compareBounds(`${id}:single`, single, singleSize, [1e-6, 1e-6, 1e-6]),
+    ...compareBounds(`${id}:bundle`, bundled, bundleSize, [1e-6, 1e-6, 1e-6]),
+    ...compareBounds(`${id}:open`, open, openSize, [1e-6, 1e-6, 1e-6]),
+  ];
+};
+
+/** Resolve families whose occupancy dimensions are functions of placement inputs. */
+/** @param {string} id @param {string} body */
+const parameterFamilyRows = (id, body) => {
+  const line = body.match(/점유 상자는[^\n]*/)?.[0] ?? "";
+  if (!/[×]/.test(line) || !/(?:길이×|L\/cos|유효 폭|벽 두께)/.test(line)) return null;
+  const fail = () => [{ id, part: "all", axis: "XYZ", kind: "unresolved parameter family",
+    box: NaN, union: NaN, pass: false }];
+  const parts = modelParts(body);
+  if (/길이×/.test(line)) {
+    const section = body.match(/단면은 폭 ([\d.]+)m·깊이 ([\d.]+)m/);
+    const box = line.match(/길이×([\d.]+)×([\d.]+)m/);
+    const lengths = [...body.matchAll(/(?:약 |길이\()([\d.]+)m/g)].map((m) => Number(m[1]))
+      .filter((length) => length > 1);
+    if (!section || !box || !lengths.length || parts.length !== 1) return fail();
+    const [width, depth] = section.slice(1).map(Number);
+    return lengths.map((length, index) => compareBounds(`${id}:length-${index + 1}`,
+      { [parts[0].key]: prism([-length / 2, length / 2], [0, depth], [-width / 2, width / 2]) },
+      [length, Number(box[1]), Number(box[2])], [1e-6, 1e-6, 1e-6])).flat();
+  }
+  if (/L\/cos/.test(line)) {
+    const section = body.match(/단면은 폭 ([\d.]+)m·깊이 ([\d.]+)m/);
+    const box = line.match(/([\d.]+)×([\d.]+)×\(L\/cos\(α\)\+([\d.]+)tan\(α\)\)m/);
+    const angles = [...new Set([...body.matchAll(/(\d+)°/g)].map((m) => Number(m[1])))]
+      .filter((angle) => angle > 0 && angle < 90);
+    if (!section || !box || !angles.length || parts.length !== 1) return fail();
+    const [width, depth] = section.slice(1).map(Number);
+    return angles.flatMap((degrees) => [1, 2].flatMap((length) => {
+      const radians = degrees * Math.PI / 180;
+      const extent = length / Math.cos(radians) + depth * Math.tan(radians);
+      const claimed = length / Math.cos(radians) + Number(box[3]) * Math.tan(radians);
+      return compareBounds(`${id}:L${length}-a${degrees}`,
+        { [parts[0].key]: prism([-width / 2, width / 2], [0, depth], [0, extent]) },
+        [Number(box[1]), Number(box[2]), claimed], [1e-6, 1e-6, 1e-6]);
+    }));
+  }
+  if (/유효 폭|벽 두께/.test(line)) {
+    const aperture = body.match(/유효 ([\d.]+)×([\d.]+)m/);
+    const lining = body.match(/(?:각 가장자리|안감 네 조각은 폭) ([\d.]+)m/);
+    const surround = body.match(/(?:테\(폭 |외부 면에만 폭 )([\d.]+)m/);
+    const projection = body.match(/(?:벽면에서 |돌출 )([\d.]+)m 돌출|돌출 ([\d.]+)m의 테/);
+    const box = line.match(/(?:\(유효 폭\+([\d.]+)m\)|([\d.]+))×(?:\(유효 높이\+([\d.]+)m\)|([\d.]+))×\(벽 두께\+([\d.]+)m?\)/);
+    const liningPart = parts.find(({ noun }) => noun === "안감");
+    const rimPart = parts.find(({ noun }) => noun === "테");
+    const frameWidth = Number(lining?.[1]), rim = Number(surround?.[1]);
+    const project = Number(projection?.[1] ?? projection?.[2]);
+    if (!liningPart || !rimPart || !box || !Number.isFinite(frameWidth) || !Number.isFinite(rim) ||
+      !Number.isFinite(project)) return fail();
+    const samples = aperture ? [[Number(aperture[1]), Number(aperture[2]), .3],
+      [Number(aperture[1]), Number(aperture[2]), .6]] : [[1, 2.2, .3], [1.2, 2.3, .6]];
+    return samples.flatMap(([width, height, wall]) => {
+      const outerX = width / 2 + frameWidth + rim;
+      const aroundAll = /안감 네 조각/.test(body);
+      const outerY = height + (aroundAll ? 2 : 1) * (frameWidth + rim);
+      const bothSides = /벽 양면/.test(body);
+      const partsBounds = {
+        [liningPart.key]: prism([-width / 2 - frameWidth, width / 2 + frameWidth],
+          [0, height + (aroundAll ? 2 : 1) * frameWidth], [-wall / 2, wall / 2]),
+        [rimPart.key]: prism([-outerX, outerX], [0, outerY],
+          [-wall / 2 - (bothSides ? project : 0), wall / 2 + project]),
+      };
+      const claimed = [Number(box[1] ?? box[2]) + (box[1] ? width : 0),
+        Number(box[3] ?? box[4]) + (box[3] ? height : 0), wall + Number(box[5])];
+      return compareBounds(`${id}:w${width}-h${height}-d${wall}`, partsBounds, claimed,
+        [1e-6, 1e-6, 1e-6]);
+    });
+  }
+  return fail();
 };
 
 /** Each recoverable part must fit; if all parts resolve, their union must fill. */
 /** @param {string} id @param {string} body */
 export const occupancyUnionRows = (id, body) => {
+  const rolled = rolledSheetRows(id, body);
+  if (rolled) return rolled;
+  const parameterFamily = parameterFamilyRows(id, body);
+  if (parameterFamily) return parameterFamily;
   const prose = body.split(/^부재 대응:/m)[0].replace(/<!--[\s\S]*?-->/g, "");
   const hasBox = /점유 상자/.test(prose);
   if (!hasBox) return [];
@@ -803,67 +1064,27 @@ export const occupancyUnionRows = (id, body) => {
     const mapping = body.match(/^부재 대응:.*$/m)?.[0] ?? "";
     if (variant && mapping) construction = beforeBox.slice(0, variant.index) + "\n" + mapping;
   }
-  if (/\bA [\d.]+×/.test(boxLine) && /\bB [\d.]+×/.test(boxLine)) {
+  if (/\bA [\d.]+×/.test(boxLine) && /\bB [\d.]+×/.test(boxLine) && !/벽 바닥(?:은|이) X=±/.test(prose)) {
     const marker = prose.search(/변형 B는|\bB는/);
     const mapping = body.match(/^부재 대응:.*$/m)?.[0] ?? "";
     if (marker >= 0 && mapping) construction = prose.slice(0, marker) + "\n" + mapping;
   }
   const parts = partBounds(construction, width);
-  /** @param {string} part @param {number[]} points */
-  const zeroSurface = (part, points) => points.length >= 2 && near(Math.min(...points), Math.max(...points)) &&
-    new RegExp("`" + escape(part) + "`[^\\n]*두께 없는 면").test(construction);
-  /** @type {{ id:string;part:string;axis:string;kind:string;box:number;union:number;pass:boolean }[]} */
-  const rows = [];
-  for (const [part, bounds] of Object.entries(
-    parts,
-  )) for (let i = 0; i < 3; i++) {
-    const axis = axes[i], points = bounds[axis];
-    if ((points.length < 2 || near(Math.min(...points), Math.max(...points))) && !zeroSurface(part, points)) {
-      rows.push({ id, part, axis, kind: "unresolved part axis", box: box[i], union: NaN, pass: false });
-      continue;
+  const zeroSurfaces = new Set(Object.keys(parts).filter((part) =>
+    new RegExp("`" + escape(part) + "`[^\\n]*두께 없는 면").test(construction)));
+  const rows = compareBounds(id, parts, box, tolerance, {
+    ground, backOrigin, conservative: /여유 있게 감싸는/.test(boxLine), zeroSurfaces,
+  });
+  const second = boxLine.match(/\bB ([\d.]+×[\d.]+×[\d.]+m)/);
+  if (second && /벽 바닥(?:은|이) X=±/.test(prose)) {
+    const start = body.indexOf("변형 B는");
+    const end = body.indexOf("부재 대응:");
+    const mapping = body.slice(end).split("\n")[0];
+    if (start >= 0 && end > start) {
+      const source = body.slice(start, end).replace(/점유 상자는 A [^\n]+/,
+        `점유 상자는 ${second[1]}다.`);
+      rows.push(...occupancyUnionRows(`${id}:B`, `${source}\n${mapping}`));
     }
-    const lo = Math.min(...points), hi = Math.max(...points);
-    rows.push({
-      id,
-      part,
-      axis,
-      kind: "containment",
-      box: box[i],
-      union: hi - lo,
-      pass: axis === "Y" && ground
-        ? lo >= -tolerance[i] && hi <= box[i] + tolerance[i]
-        : axis === "Z" && backOrigin
-          ? lo >= -tolerance[i] && hi <= box[i] + tolerance[i]
-          : hi - lo <= box[i] + tolerance[i],
-    });
-    for (const [a, b] of bounds.summary[axis])
-      rows.push({
-        id,
-        part,
-        axis,
-        kind: "summary",
-        box: box[i],
-        union: b - a,
-        pass: near(lo, a) && near(hi, b),
-      });
-  }
-  for (let i = 0; i < 3; i++) {
-    const axis = axes[i], all = Object.entries(parts);
-    if (!all.length || all.some(([key, part]) => part[axis].length < 2 ||
-      (near(Math.max(...part[axis]), Math.min(...part[axis])) && !zeroSurface(key, part[axis])))) continue;
-    const points = all.flatMap(([, part]) => part[axis]);
-    const extent = Math.max(...points) - Math.min(...points);
-    rows.push({
-      id,
-      part: "all",
-      axis,
-      kind: "union",
-      box: box[i],
-      union: extent,
-      pass: /여유 있게 감싸는/.test(boxLine)
-        ? extent <= box[i] + tolerance[i]
-        : Math.abs(extent - box[i]) <= tolerance[i],
-    });
   }
   return rows;
 };

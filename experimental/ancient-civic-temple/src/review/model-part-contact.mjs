@@ -48,6 +48,7 @@ export const partContactRows = (id, body) => {
         id,
         parts: `${a.key}/${b.key}`,
         axis,
+        sentence,
         pass: tangent || sharedDatum,
       });
     }

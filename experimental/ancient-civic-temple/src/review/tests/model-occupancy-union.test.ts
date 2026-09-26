@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { occupancyUnionRows } from "../model-occupancy-union.mjs";
+import { modelParts, occupancyUnionRows } from "../model-occupancy-union.mjs";
 import { modelSections } from "../model-tessellation-census.mjs";
 
 const root = join(__dirname, "../../../docs/models");
@@ -22,29 +22,40 @@ void test("every recoverable authored part remains in its stated occupancy box",
       const checked = occupancyUnionRows(file + "#" + section.id, section.body);
       rows += checked.length;
       assert.deepEqual(checked.filter((row: { pass: boolean }) => !row.pass), []);
+      if (/점유 상자는/.test(section.body) && modelParts(section.body).length)
+        assert.ok(checked.length, `${file}#${section.id} skipped its occupancy box`);
+      if (checked.length) {
+        for (const { key } of modelParts(section.body)) for (const axis of ["X", "Y", "Z"])
+          assert.ok(checked.some((row: { part: string; axis: string; kind: string }) =>
+            row.part === key && row.axis === axis && row.kind === "containment"),
+          `${file}#${section.id} ${key} ${axis} is unmeasured`);
+        for (const axis of ["X", "Y", "Z"])
+          assert.ok(checked.some((row: { part: string; axis: string; kind: string }) =>
+            row.part === "all" && row.axis === axis && row.kind === "union"),
+          `${file}#${section.id} ${axis} union is unmeasured`);
+      }
     }
   }
   assert.ok(rows > 150);
 });
 
-void test("transplanted box and geometry defects fail by computed part bounds", () => {
-  const cases: Array<[string, string, string, string, string]> = [
-    ["portable", "bench", "X=±(W/2−0.17)m", "X=±(W/2−0.02)m", "pier"],
-    ["ritual", "jar-stand", "반지름 0.30→0.29m", "반지름 0.35→0.29m", "foot"],
-    ["portable", "votive-plaque", "0.36×0.42×0.14m", "0.36×0.44×0.14m", "all"],
-    ["ritual", "censer", "0.22×0.35×0.22m", "0.26×0.35×0.26m", "all"],
-    ["portable", "bucket", "0.315×0.45×0.30m", "0.30×0.45×0.30m", "handle"],
-    ["portable", "handcart", "0.76×0.72×1.80m다.", "0.80×0.72×1.80m다.", "all"],
-    ["portable", "handcart", "(0.70,−1.20)m까지", "(0.70,−1.30)m까지", "handle"],
-    ["portable", "handcart", "(±0.24,0.10)m, X·Z", "(±0.24,0.30)m, X·Z", "support"],
-    ["portable", "rope-coil", "0.226×0.024×0.226m", "0.25×0.024×0.25m", "all"],
-  ];
-  for (const [file, id, before, after, expectedPart] of cases) {
-    const source = body(file, id);
-    assert.ok(source.includes(before), id + ": mutation site");
-    assert.ok(failed(source.replace(before, after)).some((row: { part: string }) => row.part === expectedPart),
-      file + "#" + id + " " + expectedPart);
-  }
+void test("numeric boxes across the corpus reject an independently changed axis", () => {
+  let checked = 0;
+  for (const file of readdirSync(root).filter((name) => name.endsWith(".md")))
+    for (const section of modelSections(readFileSync(join(root, file), "utf8"))) {
+      const box = section.body.match(/점유 상자는 (\d+(?:\.\d+)?)×(\d+(?:\.\d+)?)×(\d+(?:\.\d+)?)m/);
+      if (!box) continue;
+      for (let axis = 1; axis <= 3; axis++) {
+        const changed = [...box];
+        changed[axis] = String(Number(box[axis]) + 0.037);
+        const source = section.body.replace(box[0], `점유 상자는 ${changed.slice(1).join("×")}m`);
+        assert.ok(failed(source).some((row: { kind: string; axis: string }) =>
+          row.kind === "union" && row.axis === ["X", "Y", "Z"][axis - 1]),
+        `${file}#${section.id} changed box axis ${axis} escaped`);
+        checked++;
+      }
+    }
+  assert.ok(checked > 0);
 });
 
 void test("cart Z union derives from its centreline without summary intervals", () => {

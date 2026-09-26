@@ -2,13 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { auditContactClaims, modelContactClaims, nonContactDecisionRows } from "../model-contact-census.mjs";
 
-void test("every current model contact sentence has its own reviewed decision", () => {
+void test("contact census includes the complete model file population", () => {
   const claims = modelContactClaims();
   assert.ok(claims.length >= 90);
   assert.ok(modelContactClaims(true).length > 0);
   assert.equal(new Set(claims.map((claim) => claim.id)).size, claims.length);
   assert.ok(claims.some((claim) => claim.sentence.includes("연결 핀 두 개")));
   assert.ok(claims.some((claim) => claim.sentence.includes("둥근기와")));
+  assert.ok(claims.some((claim) => claim.id.startsWith("portable#")));
+  assert.ok(claims.some((claim) => claim.id.startsWith("ritual#")));
   assert.ok(modelContactClaims(true).some((claim) => claim.sentence.includes("문·창 자리는 막힌")));
 });
 

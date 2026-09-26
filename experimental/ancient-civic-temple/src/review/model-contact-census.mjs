@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 // The prose is the population. A new contact sentence cannot disappear behind
 // a hand-maintained count: it needs its own entry and a named measured relation.
 const modelRoot = new URL("../../docs/models/", import.meta.url);
-const files = ["scale", "columns", "entablature", "openings", "cladding", "fixtures", "wares", "landscape"];
+const files = ["scale", "columns", "entablature", "openings", "cladding", "fixtures", "wares", "landscape", "portable", "ritual"];
 const contactWord = /닿|접한|접하|접촉|맞닿|얹|붙|받친|받치|겹쳐|겹친|잇는다|이어진다|이어지|만난|만나/;
 const supplementalWord = /지지|연결|관통|침범|뚫|고정|중복/;
 /** @typedef {{id: string, sentence: string}} Claim */
