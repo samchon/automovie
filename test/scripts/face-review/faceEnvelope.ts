@@ -172,6 +172,45 @@ export function faceSupportFaults(props: {
 }
 
 /**
+ * The triangles of a changed surface's faults within a support (those
+ * `faceSupportFaults` counts): each turned over against the source, and both
+ * of each crossing pair the source did not have.
+ */
+export function faceSupportFaultTriangles(props: {
+  source: readonly number[];
+  positions: readonly number[];
+  indices: readonly number[];
+  triangles: readonly number[];
+  contact?: ReadonlySet<number>;
+}): Set<number> {
+  const { indices: I, triangles } = props;
+  const normal = (P: readonly number[], t: number) => {
+    const [a, b, c] = [I[t]!, I[t + 1]!, I[t + 2]!];
+    const u = [0, 1, 2].map((k) => P[3 * b + k]! - P[3 * a + k]!);
+    const w = [0, 1, 2].map((k) => P[3 * c + k]! - P[3 * a + k]!);
+    return [
+      u[1]! * w[2]! - u[2]! * w[1]!,
+      u[2]! * w[0]! - u[0]! * w[2]!,
+      u[0]! * w[1]! - u[1]! * w[0]!,
+    ];
+  };
+  const out = new Set(
+    triangles.filter((t) => {
+      const [a, b] = [normal(props.source, t), normal(props.positions, t)];
+      return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]! < 0;
+    }),
+  );
+  const support = new Set(triangles);
+  const contact = props.contact ?? new Set<number>();
+  const before = new Set(
+    crossingPairs(props.source, I, support, contact).map((pair) => pair.join()),
+  );
+  for (const pair of crossingPairs(props.positions, I, support, contact))
+    if (!before.has(pair.join())) for (const t of pair) out.add(t);
+  return out;
+}
+
+/**
  * Pairs of the surface's triangles, one of them in the support, that cross,
  * found through a 4 mm grid over the support's cells.
  */
@@ -181,6 +220,16 @@ function crossings(
   support: ReadonlySet<number>,
   contact: ReadonlySet<number>,
 ): number {
+  return crossingPairs(P, I, support, contact).length;
+}
+
+/** The crossing pairs themselves, each ordered, lower triangle first. */
+function crossingPairs(
+  P: readonly number[],
+  I: readonly number[],
+  support: ReadonlySet<number>,
+  contact: ReadonlySet<number>,
+): [number, number][] {
   const corner = (t: number, e: number) =>
     [0, 1, 2].map((k) => P[3 * I[t + e]! + k]!);
   const cell = 0.004;
@@ -207,7 +256,7 @@ function crossings(
   for (let t = 0; t < I.length; t += 3)
     if (!support.has(t)) for (const key of cells(t)) grid.get(key)?.push(t);
   const seen = new Set<string>();
-  let count = 0;
+  const pairs: [number, number][] = [];
   for (const members of grid.values())
     for (let a = 0; a < members.length; ++a)
       for (let b = a + 1; b < members.length; ++b) {
@@ -225,9 +274,9 @@ function crossings(
           [0, 1, 2].some((e) => pierces(A[e]!, A[(e + 1) % 3]!, B)) ||
           [0, 1, 2].some((e) => pierces(B[e]!, B[(e + 1) % 3]!, A))
         )
-          ++count;
+          pairs.push(s < t ? [s, t] : [t, s]);
       }
-  return count;
+  return pairs;
 }
 
 /** Whether the open segment p0-p1 passes through triangle t. */

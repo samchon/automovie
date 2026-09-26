@@ -3,11 +3,12 @@
   "revision": "mpfb-connected-head-2026-09-26-jaw-taper-2",
   "channel": "jawTaper",
   "top": -0.03252929449081421,
+  "level": -0.0665879822369163,
   "menton": -0.08110915412917072,
-  "rim": -0.085,
+  "rim": -0.09667068054305919,
   "unit": 0.1,
-  "rows": 2314,
-  "recorded": "2026-09-26T13:41:44.882Z",
+  "rows": 2513,
+  "recorded": "2026-09-26T14:49:25.142Z",
   "inputs": {
     "basis": {
       "sha256": "d0033ef36bb6e9877135b8d05bfdd45bf6ead4b9bff1b8ca5356f6359d879152",
@@ -24,8 +25,8 @@
   },
   "outputs": {
     "basis": {
-      "sha256": "bd60eb79727afddb6bf6e0bb443aeb2710de220bb778df8e4156df503d3b0975",
-      "bytes": 27006574
+      "sha256": "f3a33ae93cb0aab0993a20ffe070cc0084e0dd7f013f11ac23f8f5d26c55e982",
+      "bytes": 27012196
     }
   }
 }

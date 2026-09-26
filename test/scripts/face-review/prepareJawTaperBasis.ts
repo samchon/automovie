@@ -21,16 +21,20 @@ import type {
  * the skin the mandible carries toward the midline by a fraction of its
  * distance from it that grows linearly from nothing at the mouth's line
  * (`top`, where the lower face's width is read, which it leaves alone) to
- * `unit` at soft-tissue menton (`menton`) and back to nothing at the neck's
- * cut (`rim`), where the head meets the body (carried at the full unit down
- * to the rim, the taper beside a full lower face folded the rim and the
- * editor refused the hair's contact on three documents), each vertex
- * weighted by `carry` (the mandible's share of it, 0 to 1), and by how
- * far its surface faces sideways (the unit normal's lateral component): it
- * is the mandible's body that converges, its outer face turned sideways,
- * while the chin's front, facing forward, keeps its own width (the
- * source's `chinWidth`); narrowed uniformly, the chin's front curved ever
- * tighter and folded into a ridge down the midline from -4. The negative
+ * `unit` at the chin's level (`level`, where the outline has converged and
+ * the photographs' chin width is read), holds it to soft-tissue menton
+ * (`menton`) and falls back to nothing at the neck's cut (`rim`), where the
+ * head meets the body. Each vertex is weighted by `carry` (the mandible's
+ * share of it, 0 to 1) and by how far its surface turns away from the
+ * frontal view (one less the unit normal's forward component): the
+ * mandible's body and the chin's underside form the outline and converge,
+ * the chin's front faces forward and keeps its width (the source's
+ * `chinWidth`). Three earlier forms failed: narrowed uniformly, the chin's
+ * front curved ever tighter and folded into a midline ridge from -4;
+ * weighted by the lateral component and deepest at menton, -4 narrowed the
+ * chin's level by only 15 percent (the outline there faces down as much as
+ * sideways), far from the photographs; carried at the full unit down to the
+ * neck's cut, it folded the rim the hair's contact closes. The negative
  * endpoint tapers the jaw (narrower toward the chin), the positive squares
  * it, and the channel spans `envelope`. Pure.
  */
@@ -45,6 +49,12 @@ export function prepareJawTaperBasis(input: {
   carry: readonly number[];
   /** The mouth's line, the mouth corners' height, metres. */
   top: number;
+  /**
+   * The chin's level, where the outline has converged (the mental
+   * tubercles), metres: half the eyes' height above stomion below it, where
+   * the photographs' chin width is read.
+   */
+  level: number;
   /** Soft-tissue menton's height, metres. */
   menton: number;
   /**
@@ -64,6 +74,7 @@ export function prepareJawTaperBasis(input: {
     revision: string;
     channel: string;
     top: number;
+    level: number;
     menton: number;
     rim: number;
     unit: number;
@@ -79,8 +90,10 @@ export function prepareJawTaperBasis(input: {
     throw new Error("The envelope must hold both directions.");
   if (input.envelope[0] * input.unit <= -1)
     throw new Error("The envelope would close the jaw on the midline.");
-  if (!(input.top > input.menton))
-    throw new Error("The mouth's line lies above menton.");
+  if (!(input.top > input.level && input.level >= input.menton))
+    throw new Error(
+      "The chin's level lies between the mouth's line and menton.",
+    );
   if (!(input.rim < input.menton))
     throw new Error("The neck's rim lies below menton.");
   if (basis.channels.some((one) => one.id === input.channel))
@@ -118,11 +131,15 @@ export function prepareJawTaperBasis(input: {
       normal[3 * v + 1]!,
       normal[3 * v + 2]!,
     );
-    const side = length === 0 ? 0 : Math.abs(normal[3 * v]!) / length;
+    // The outline's surface turns away from the view; the chin's front
+    // faces it.
+    const side = length === 0 ? 0 : 1 - Math.abs(normal[3 * v + 2]!) / length;
     const depth =
-      y >= input.menton
-        ? (input.top - y) / (input.top - input.menton)
-        : Math.max(0, (y - input.rim) / (input.menton - input.rim));
+      y >= input.level
+        ? (input.top - y) / (input.top - input.level)
+        : y >= input.menton
+          ? 1
+          : Math.max(0, (y - input.rim) / (input.menton - input.rim));
     const dx = -carry * input.unit * depth * side * x;
     if (dx === 0) continue;
     narrower.push(v, dx, 0, 0);
@@ -159,6 +176,7 @@ export function prepareJawTaperBasis(input: {
       revision: input.revision,
       channel: input.channel,
       top: input.top,
+      level: input.level,
       menton: input.menton,
       rim: input.rim,
       unit: input.unit,

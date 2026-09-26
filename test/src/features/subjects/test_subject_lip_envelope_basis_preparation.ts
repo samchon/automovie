@@ -4,7 +4,10 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import { faceSupportFaults } from "../../../scripts/face-review/faceEnvelope";
+import {
+  faceSupportFaultTriangles,
+  faceSupportFaults,
+} from "../../../scripts/face-review/faceEnvelope";
 import {
   faceVermilionRatios,
   prepareLipEnvelopeBasis,
@@ -264,6 +267,22 @@ export const test_subject_lip_envelope_basis_preparation = (): void => {
       }),
     ],
     [1, 1, 0, 1],
+  );
+  // The triangles of those faults: both of a new crossing pair, the one
+  // turned over, none where nothing changed.
+  TestValidator.equals(
+    "fault triangles",
+    [moved, flipped, source].map((positions) =>
+      [
+        ...faceSupportFaultTriangles({
+          source,
+          positions,
+          indices,
+          triangles: [0, 3],
+        }),
+      ].sort((a, b) => a - b),
+    ),
+    [[0, 3], [3], []],
   );
   TestValidator.predicate(
     "refusals",

@@ -58,15 +58,17 @@ const fixture = (): IAutoMovieHumanFaceBasis => {
  * Scenarios:
  * 1. Tapering moves the skin facing sideways toward the midline by its
  *    carry times the unit times its depth below the mouth's line over
- *    menton's: the side 10 mm below the line by a third of the unit's 4 mm,
- *    at menton by the unit's, halfway from menton to the neck's rim by half
- *    of it, half carried at -20 mm by a third; the line and above, an uncarried vertex, the skin
+ *    the chin's level's (20 mm down), then its full unit to menton (30 mm)
+ *    and back to nothing at the neck's rim: the side 10 mm below the line
+ *    by half of the unit's 4 mm, at the level and at menton by all of it,
+ *    halfway from menton to the rim by half, half carried at the level by
+ *    half; the line and above, an uncarried vertex, the skin
  *    facing forward and a vertex without a surface have no row; squaring is tapering's negative.
  * 2. The channel spans the envelope with its description; the revision
  *    restamps documents and controls.
  * 3. A repeated revision, a unit outside (0, 1), an envelope missing a
- *    direction or closing the jaw, a mouth's line not above menton, a neck's
- *    rim not below it, a
+ *    direction or closing the jaw, a chin's level not between the mouth's
+ *    line and menton (either way), a neck's rim not below menton, a
  *    channel the basis has, a missing surface, a carry of the wrong length
  *    and a carry moving nothing refuse.
  */
@@ -84,6 +86,7 @@ export const test_subject_jaw_taper_basis_preparation = (): void => {
     channel: "taper",
     carry,
     top: 0,
+    level: -0.02,
     menton: -0.03,
     rim: -0.05,
     unit: 0.1,
@@ -105,9 +108,9 @@ export const test_subject_jaw_taper_basis_preparation = (): void => {
     narrower.get(v)![2] === 0;
   TestValidator.predicate(
     "rows",
-    moved(2, -0.004 / 3) &&
-      moved(3, -0.004 / 3) &&
-      moved(4, (-0.5 * 0.004 * 2) / 3) &&
+    moved(2, -0.002) &&
+      moved(3, -0.002) &&
+      moved(4, -0.5 * 0.004) &&
       moved(6, -0.004) &&
       moved(8, -0.002) &&
       [0, 1, 9, 10, 11, 12, 13].every((v) => !narrower.has(v)) &&
@@ -152,8 +155,12 @@ export const test_subject_jaw_taper_basis_preparation = (): void => {
         "close the jaw",
       ) &&
       throwsError(
-        () => prepareJawTaperBasis({ ...input, top: -0.03 }),
-        "mouth's line lies above menton",
+        () => prepareJawTaperBasis({ ...input, top: -0.02 }),
+        "chin's level lies between",
+      ) &&
+      throwsError(
+        () => prepareJawTaperBasis({ ...input, level: -0.035 }),
+        "chin's level lies between",
       ) &&
       throwsError(
         () => prepareJawTaperBasis({ ...input, rim: -0.03 }),

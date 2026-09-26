@@ -10,8 +10,11 @@
  * cheilia's mean height, the lip region's outermost vertices it shares with
  * the skin (where `faceVermilionRatios` reads the mouth's width), and
  * menton soft-tissue menton on the neutral's midsagittal profile
- * (`faceMidsagittalLandmarks`), and the neck's rim the highest vertex of the
- * skin's open border below menton. One unit narrows the carried skin at menton
+ * (`faceMidsagittalLandmarks`), and the neck's rim the front of the skin's
+ * open border below menton (its frontmost vertex's height, under the chin),
+ * the border itself held (its carry nothing); taken at the border's highest
+ * point, 4 mm below menton, the taper fell off so steeply under the chin
+ * that it creased there. One unit narrows the carried skin at menton
  * by a tenth of its distance from the midline (`prepareJawTaperBasis`).
  * The revision is refused unless every document and the channel at both
  * ends build, and each end turns over or crosses none of the skin's
@@ -104,8 +107,9 @@ const side = (sign: number) =>
     sign * rest[3 * v]! > sign * rest[3 * best]! ? v : best,
   );
 const top = (rest[3 * side(1) + 1]! + rest[3 * side(-1) + 1]!) / 2;
-// The neck's rim: the highest vertex of the skin's open border below menton,
-// where the head meets the body.
+// The neck's rim: the skin's open border below menton, where the head meets
+// the body; the taper falls to nothing at its front (the frontmost border
+// vertex's height), under the chin, and the border itself stays.
 const edges = new Map<string, number>();
 for (let t = 0; t < human.indices.length; t += 3)
   for (let e = 0; e < 3; ++e) {
@@ -114,13 +118,25 @@ for (let t = 0; t < human.indices.length; t += 3)
     const key = a < b ? `${a},${b}` : `${b},${a}`;
     edges.set(key, (edges.get(key) ?? 0) + 1);
   }
-const rim = Math.max(
-  ...[...edges]
+const neckBorder = new Set(
+  [...edges]
     .filter(([, count]) => count === 1)
     .flatMap(([key]) => key.split(",").map(Number))
-    .map((v) => rest[3 * v + 1]!)
-    .filter((y) => y < base.menton[0]),
+    .filter((v) => rest[3 * v + 1]! < base.menton[0]),
 );
+const front = [...neckBorder].reduce((best, v) =>
+  rest[3 * v + 2]! > rest[3 * best + 2]! ? v : best,
+);
+const rim = rest[3 * front + 1]!;
+// The chin's level: half the eyes' height (the globes' mean height, the eye
+// surface's) above stomion below it, where the photographs' chin width is
+// read (`FACE_LIKENESS_JAW_CHIN`).
+const eyes = source.surfaces.find((one) => one.id === "Human.low-poly")!;
+const eyeLine =
+  eyes.positions.filter((_, k) => k % 3 === 1).reduce((a, b) => a + b, 0) /
+  (eyes.positions.length / 3);
+const stomionHeight = (rest[3 * upper + 1]! + rest[3 * lower + 1]!) / 2;
+const level = stomionHeight - 0.5 * (eyeLine - stomionHeight);
 const envelope: [number, number] = [-4, 3];
 const prepared = prepareJawTaperBasis({
   basis: source,
@@ -129,8 +145,9 @@ const prepared = prepareJawTaperBasis({
   revision,
   skin: "Human",
   channel: "jawTaper",
-  carry,
+  carry: carry.map((one, v) => (neckBorder.has(v) ? 0 : one)),
   top,
+  level,
   menton: base.menton[0],
   rim,
   unit: 0.1,

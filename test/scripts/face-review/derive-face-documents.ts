@@ -114,7 +114,7 @@ import {
   solveFaceNorms,
 } from "./faceAnthropometrySolve";
 import { faceValidScale } from "./faceDocumentValidity";
-import { faceSupportFaults } from "./faceEnvelope";
+import { faceSupportFaultTriangles, faceSupportFaults } from "./faceEnvelope";
 import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
@@ -407,6 +407,21 @@ if (command === "identity") {
       ];
     }),
   );
+  // The skin vertices each channel's endpoint rows move.
+  const movingCache = new Map<string, Set<number>>();
+  const moving = (id: string): Set<number> => {
+    if (!movingCache.has(id)) {
+      const channel = basis.channels.find((one) => one.id === id);
+      const skin = basis.surfaces.find((one) => one.id === "Human");
+      const out = new Set<number>();
+      for (const name of [channel?.positive, channel?.negative])
+        if (name !== null && name !== undefined)
+          for (let i = 0; i < (skin?.targets[name]?.length ?? 0); i += 4)
+            out.add(skin!.targets[name]![i]!);
+      movingCache.set(id, out);
+    }
+    return movingCache.get(id)!;
+  };
   const report: Record<string, unknown> = {};
   const derived = documents.map((document) => {
     const subject = subjectOf(document);
@@ -786,6 +801,41 @@ if (command === "identity") {
         contact,
       });
     };
+    // The skin's vertices in fault at control values: the triangles turned
+    // over or newly crossing, over those the document moves.
+    const faultVertices = (own: readonly number[]): Set<number> => {
+      const positions = faceShapeFitSurfacePositions(
+        basis,
+        build({
+          ...start,
+          shape: compose(own).shape,
+          hair: undefined,
+          expression: {},
+        }),
+        human.id,
+      );
+      const triangles: number[] = [];
+      for (let t = 0; t < human.indices.length; t += 3)
+        if (
+          [0, 1, 2].some((e) => {
+            const v = human.indices[t + e]!;
+            return [0, 1, 2].some(
+              (k) => Math.abs(positions[3 * v + k]! - rest[3 * v + k]!) > 1e-7,
+            );
+          })
+        )
+          triangles.push(t);
+      const out = new Set<number>();
+      for (const t of faceSupportFaultTriangles({
+        source: rest,
+        positions,
+        indices: human.indices,
+        triangles,
+        contact,
+      }))
+        for (let e = 0; e < 3; ++e) out.add(human.indices[t + e]!);
+      return out;
+    };
     const priors = values.slice(split);
     const scaled = (scale: number) => [
       ...values.slice(0, split),
@@ -813,20 +863,41 @@ if (command === "identity") {
     // measured controls fault by themselves, their departure yields until
     // the skin is whole, and then the priors' beside them.
     let measuredShare = 1;
+    let yielded: string[] = [];
     let priorShare = validity.scale;
-    if (remaining > 0) {
-      const toward =
-        (from: readonly number[], to: readonly number[]) => (scale: number) =>
-          from.map((v, k) => v + scale * (to[k]! - v));
-      const measured = toward(initial.slice(0, split), values.slice(0, split));
+    // Only the measured controls whose skin the faults lie in yield: a
+    // fault at the nasal base is no reason to move the canthi. An editor
+    // refusal names no triangle, and then every measured control yields.
+    // Yielding can move a fault elsewhere, so the controls of any fault
+    // left join them, over at most three rounds.
+    const implicated = indices.slice(0, split).map(() => false);
+    for (let round = 0; remaining > 0 && round < 3; ++round) {
+      const faulty = remaining === refused ? null : faultVertices(values);
+      indices.slice(0, split).forEach((one, k) => {
+        if (
+          faulty === null ||
+          faceAnthropometryWeights(one, 1)
+            .map(([channel]) => channel)
+            .concat(one.negative ?? [])
+            .some((channel) => [...moving(channel)].some((v) => faulty.has(v)))
+        )
+          implicated[k] = true;
+      });
+      const current = values.slice(0, split);
+      const measured = (scale: number) =>
+        current.map((v, k) =>
+          implicated[k] ? initial[k]! + scale * (v - initial[k]!) : v,
+        );
       const startPriors = initial.slice(split);
       const kept = faceValidScale({
         faults: (scale) => faultsOf([...measured(scale), ...startPriors]),
         steps: 6,
       });
-      measuredShare = kept.scale;
+      measuredShare *= kept.scale;
       const front = measured(kept.scale);
-      const prior = toward(startPriors, values.slice(split));
+      const standing = values.slice(split);
+      const prior = (scale: number) =>
+        startPriors.map((v, j) => v + scale * (standing[j]! - v));
       const beside = faceValidScale({
         faults: (scale) => faultsOf([...front, ...prior(scale)]),
         steps: 6,
@@ -835,6 +906,9 @@ if (command === "identity") {
       values = [...front, ...prior(beside.scale)];
       remaining = faultsOf(values);
     }
+    yielded = indices
+      .slice(0, split)
+      .flatMap((one, k) => (implicated[k] ? [one.id] : []));
     const achieved = frontal(values);
     const { shape, posed } = compose(values);
     report[subject] = {
@@ -867,6 +941,7 @@ if (command === "identity") {
       iterations: sweeps,
       validity: {
         measured: measuredShare,
+        yielded,
         priors: priorShare,
         faults: remaining,
       },
