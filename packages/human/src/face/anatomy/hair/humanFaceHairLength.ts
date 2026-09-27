@@ -8,7 +8,8 @@ import { humanFaceHairSequence } from "./humanFaceHairSequence";
  * The metre length one root grows to: the layer's six axial lengths combined
  * convexly by the absolute components of the neutral chart direction from
  * the domain origin to the root, times the seeded variation the root's own
- * sample identity fixes. Guides and interpolated strands share it, which is
+ * sample identity fixes, and by the layer's front scale in proportion to
+ * the root's frontal (+Z) weight. Guides and interpolated strands share it, which is
  * how a strand between two guides keeps its own regional length instead of
  * theirs. A root on the chart origin has no direction and refuses.
  *
@@ -16,7 +17,10 @@ import { humanFaceHairSequence } from "./humanFaceHairSequence";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Combines the six positive axial lengths by the absolute chart components and applies the seeded variation.
  */
 export function humanFaceHairLength(
-  layer: Pick<IAutoMovieHumanFaceHair.Layer, "lengthAxes" | "lengthVariation">,
+  layer: Pick<
+    IAutoMovieHumanFaceHair.Layer,
+    "lengthAxes" | "lengthVariation" | "frontScale"
+  >,
   origin: IAutoMovieVector3,
   reference: IAutoMovieVector3,
   sequence: number,
@@ -33,8 +37,10 @@ export function humanFaceHairLength(
         layer.lengthAxes[2 * axis + (value < 0 ? 1 : 0)],
     0,
   );
+  const front = Math.max(0, axes[2]) / sum;
   return (
     regional *
+    (1 + ((layer.frontScale ?? 1) - 1) * front) *
     (1 + layer.lengthVariation * (2 * humanFaceHairSequence(sequence, 7) - 1))
   );
 }

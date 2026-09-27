@@ -14,6 +14,7 @@
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation The pure production AST does not evaluate facial articulation or sparse attachments; the human package owns that order.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris The pure production AST carries a material texture binding but neither decodes nor repaints an eye texture; the human builder owns the iris rule.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre The pure production AST carries a material texture binding but neither decodes nor repaints a fibre texture; the human builder owns the fibre rule.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion The pure production AST types the occlusion texture binding but never computes one.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The interface package declares models and meshes, not the contact evaluation order the human builder runs.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
@@ -40,6 +41,7 @@
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Portable production schemas represent already-generated meshes and rig facts; they do not define named craniofacial components, cavities and attached tissues.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Production schemas carry resolved mesh and generic morph facts; the separate human authoring document defines rest-state facial skin and expression-driven wrinkle controls.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Production schemas carry generic vertex colours but not the separate anatomical pigmentation document or paired reference-skin assembly.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps The pure production AST carries an occlusion texture binding but computes no surface map.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Portable production schemas represent already-generated meshes and rig facts; they do not define anatomical detail overrides and side-specific part replacement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression Portable production schemas represent already-generated meshes and rig facts; they do not define observed-relative eyelid, oral, dental and gaze performance.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-editor Portable production schemas represent already-generated meshes and rig facts; they do not define the interactive face editor, camera and file controls.

@@ -16,8 +16,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    increment of 0.2, read back through the curve between its samples.
  * 2. A score under the rest reading is weight zero; one past the curve's
  *    end is held at one.
- * 3. A channel not observable is not transferred; a channel the photograph
- *    lacks is absent.
+ * 3. A channel not observable is not transferred, nor one this photograph
+ *    hides; a channel the photograph lacks is absent.
  * 4. A dip in the curve is flattened by the running maximum; an increment
  *    under twice the deviation of the population's rest readings of the
  *    unit (a unit read once has none) is indistinct and transfers nothing;
@@ -60,6 +60,19 @@ export const test_subject_face_expression_transfer = (): void => {
   );
   TestValidator.equals("unobservable", read.weak!.status, "unobservable");
   TestValidator.equals("absent", read.gone!.status, "absent");
+  const hidden = Object.fromEntries(
+    transferFaceExpression({
+      calibration,
+      observable,
+      photo: { smile: 0.3 },
+      rest: { smile: 0.1 },
+      hidden: ["smile"],
+    }).map((one) => [one.channel, one]),
+  );
+  TestValidator.predicate(
+    "hidden",
+    hidden.smile!.status === "unobservable" && hidden.smile!.weight === 0,
+  );
   // 0.5 on the flattened dip curve (0, .4, .4, .6) lies between 3/4 and 1.
   TestValidator.predicate(
     "running maximum",

@@ -38,6 +38,7 @@ export function createConnectedFacePreview(props: {
     build: async (
       document: IAutoMovieHumanFaceBasisDocument,
       measure = false,
+      occlusion = false,
     ) => {
       cancel();
       const ticket = generation;
@@ -45,6 +46,7 @@ export function createConnectedFacePreview(props: {
         operation: "preview",
         document: serializeHumanFaceBasisDocument(document),
         measure,
+        occlusion,
       });
       withdraw = request.cancel;
       const result = await request.result;
@@ -64,10 +66,14 @@ export function createConnectedFacePreview(props: {
         crossings: result.crossings,
       };
     },
-    export: async (document: IAutoMovieHumanFaceBasisDocument) => {
+    export: async (
+      document: IAutoMovieHumanFaceBasisDocument,
+      occlusion = false,
+    ) => {
       const result = await worker.request({
         operation: "export",
         document: serializeHumanFaceBasisDocument(document),
+        occlusion,
       }).result;
       if (result.operation !== "export")
         throw new Error("Expected an exported face file.");

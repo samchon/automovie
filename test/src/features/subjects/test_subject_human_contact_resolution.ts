@@ -20,6 +20,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *    collider whose reach is shorter than the penetration leaves it alone.
  * 4. With the crown left open, a corner whose nearest feature is the rim at
  *    rest or when posed is left alone.
+ * 5. A crown covered by 0.01 of tissue stops the pressed corner, which rested
+ *    farther out, 0.01 off its face; a cover beyond the corner's rest
+ *    clearance returns it to that clearance.
  */
 export const test_subject_human_contact_resolution = (): void => {
   const { basis, document } = humanFaceContactFixture();
@@ -146,5 +149,35 @@ export const test_subject_human_contact_resolution = (): void => {
   TestValidator.predicate(
     "a rim feature at rest is left alone",
     last!.resolved[0].vertices === 0 && nclose(restRim[17], 1.05),
+  );
+  // Distance to the pressed face's plane; the corner at rest, (0.5, -0.3,
+  // 1.4), is nearest the crown's edge between (0.2, -0.3, 1) and (0, -0.3,
+  // 1.2), at (0.15, -0.3, 1.05): its rest clearance is 0.35 * sqrt(2).
+  const distance = (p: number[]) => (l1(p, 15) - 0.2) / Math.sqrt(3);
+  const clearance = 0.35 * Math.SQRT2;
+  const coverWith = (coverMetres: number) => {
+    const covered = structuredClone(basis);
+    covered.contact!.colliders[0].coverMetres = coverMetres;
+    // The corner rests half a unit out: holding it there is a longer push.
+    covered.contact!.soft[0].budgetMetres = 1;
+    return articulatedPositions(
+      createHumanFaceBasisBuilder(covered, { observe })({
+        ...document,
+        expression: { press: 1 },
+      }),
+      "mouth/all",
+    );
+  };
+  const thin = coverWith(0.01);
+  TestValidator.predicate(
+    "a cover holds the corner off the face",
+    clearance > 0.01 &&
+      nclose(distance(thin), 0.01) &&
+      nclose(last!.resolved[0].maxDepthMetres, depth + 0.01),
+  );
+  const thick = coverWith(1);
+  TestValidator.predicate(
+    "a cover past the rest clearance keeps the rest clearance",
+    nclose(distance(thick), clearance),
   );
 };

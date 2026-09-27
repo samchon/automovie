@@ -72,12 +72,64 @@
  * their calibration is flattest, and their transfer made a skewed mouth of
  * a symmetric smile.
  *
+ * The eye's slant, `canthalTilt`, is the inclination of the palpebral
+ * fissure (Farkas 1994: the en-ex line against the horizontal), read as the
+ * exocanthion's rise above endocanthion over the fissure's length, the sine
+ * of the angle, signed and positive when the outer corner is higher. The
+ * lateral canthal tendon sets that corner, so the index pairs with the
+ * lateral canthus elevation pair; the medial corner is held by the medial
+ * tendon to the lacrimal crest and is the reference. On the basis a full
+ * unit of the pair turns the fissure about 0.065 (3.7 degrees) and moves no
+ * other index by more than 2.4 percent.
+ *
+ * Seventeen more indices carry the fine controls a frontal photograph shows
+ * beyond those: the eyes' height above subnasale (`eyeLevel`), the lid
+ * aperture at the fissure's medial and lateral thirds, the brow's slope
+ * from head to tail, the Cupid's bow's width and depth, the vermilion's
+ * height at its lateral thirds, the cheek contour below the zygoma, the
+ * nasal sidewalls at the upper and middle dorsum and the temples' width;
+ * the lower lid's slope into the medial canthus, which the epicanthal fold
+ * steepens, the upper lid's height to its fold, the lower lid's height to
+ * the infraorbital fold, and the nasal tip's and nostrils' heights above
+ * subnasale. Each moves its own paired control's index by 8 to 121 percent at full
+ * weight on the basis, more than any other of the new controls moves it but
+ * one: the upper lip's lateral elevation also raises the bow's peaks, and
+ * the nasal base's elevation lifts the tip too, cross effects the square
+ * solve carries. Controls a frontal photograph does not move (the nasal
+ * tip's width, the chin's triangularity and projection, the jaw's
+ * prognathism, the nose's depth and root) and pairs it cannot tell apart
+ * (the lower nose and nostril widths, both reading as alar width; the
+ * septum and nostril angles, which move the tip and nostrils together)
+ * have no index.
+ *
  * The pairing is anatomical and was checked on the basis: at full weight
  * every paired control moves its own index by 13 to 45 percent and each other
  * index by a smaller amount (the solve still accounts for those cross
  * effects through the measured Jacobian). `chinBoneWidth` moves no frontal
  * width, and the lower face's contour at the gonial level follows
- * `cheekFullness`, so that is the lower-face width's control.
+ * `cheekFullness`, so that is the lower-face width's control. The chin's
+ * width at its level is the mandible's outline converging below the
+ * mouth's line, `jawTaper`; the source's `chinWidth` shapes the chin's
+ * front and moved that outline by under one percent over its envelope.
+ *
+ * The indices must be independent measurements, or the square solve pairs a
+ * control with an index the photograph has already fixed through the
+ * others and leaves that control to drift. The face's height is three
+ * segments, each its own structure with its own control: the nose, n-sn
+ * (`noseHeight`); the upper lip, sn-stoms (the mouth's elevation); the
+ * lower lip and chin, stomi-me' (the chin's height below the labiomental
+ * fold); the lips' gap lies between them (`lipParting`). Each is read over
+ * the face's width, like every width here, and the face's height, their
+ * sum, is not an index. Read as n-me' over the face's width and paired with
+ * the head's vertical scale, with the nose over n-me', the upper lip over
+ * sn-me' and the chin over n-me' besides, the vertical indices were one too
+ * many (the chin's equalled (1 - noseHeight) (1 - upperLip) - lipParting
+ * mouthWidth / (2 faceHeight) on every reading of round j13): the chin's
+ * height control sat at -1.5 to -2 where every index fit and shortened the
+ * chin to make up lips that could not part as far as the photograph's; with
+ * the chin dropped instead (round j14), the head's scale took up the face's
+ * height (-0.5 to -0.8 on 13 of 16 documents), shrinking the forehead no
+ * index reads, and the nose's length sat at its end on 9.
  *
  * Pure: reads caller-owned points and returns new values.
  */
@@ -102,6 +154,12 @@ export interface IFaceAnthropometryIndex {
    * face, not its form, so the control is written as expression.
    */
   expression?: true;
+  /**
+   * The index whose control uncovers what this one reads: the upper incisal
+   * edge shows below the lip only with the teeth apart, so the upper lip
+   * raiser's index is read, and calibrated, with the jaw open.
+   */
+  uncoveredBy?: string;
   /**
    * Channels a negative control writes, at its magnitude: a signed index
    * whose two directions are two units (the mouth moved to either side).
@@ -150,11 +208,6 @@ export const FACE_ANTHROPOMETRY_LOWER_EDGE = 469;
 /** The indices, in solve order, with their paired controls. */
 export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
-    id: "faceHeight",
-    definition: "n-me height (168, 152) over face width at zygion (234, 454)",
-    channels: ["headHeight"],
-  },
-  {
     id: "intercanthal",
     definition: "en-en width (133, 362) over face width",
     channels: ["leftEyeLateralPosition", "rightEyeLateralPosition"],
@@ -170,13 +223,19 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     channels: ["leftEyeHeight", "rightEyeHeight"],
   },
   {
+    id: "canthalTilt",
+    definition:
+      "mean exocanthion rise above endocanthion (33 over 133, 263 over 362) over each fissure's length, signed, positive when the outer corner is higher",
+    channels: ["leftLateralCanthusElevation", "rightLateralCanthusElevation"],
+  },
+  {
     id: "noseWidth",
     definition: "al-al width (129, 358) over face width",
     channels: ["noseWidth"],
   },
   {
     id: "noseHeight",
-    definition: "n-sn height (168, 2) over n-me height",
+    definition: "n-sn height (168, 2) over face width at zygion (234, 454)",
     channels: ["noseHeight"],
   },
   {
@@ -186,18 +245,26 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   },
   {
     id: "upperVermilion",
-    definition: "ls-stoms height (0, 13) over mouth width",
-    channels: ["upperLipHeight"],
+    definition:
+      "ls-stoms height (labrale superius from the midline's colour, 475, to 13) over mouth width",
+    channels: ["upperVermilionHeight"],
   },
   {
     id: "lowerVermilion",
-    definition: "stomi-li height (14, 17) over mouth width",
-    channels: ["lowerLipHeight"],
+    definition:
+      "stomi-li height (14 to labrale inferius from the midline's colour, 476) over mouth width",
+    channels: ["lowerVermilionHeight"],
   },
   {
     id: "upperLip",
-    definition: "sn-stoms height (2, 13) over sn-me height (2, 152)",
+    definition: "sn-stoms height (2, 13) over face width",
     channels: ["mouthElevation"],
+  },
+  {
+    id: "chinHeight",
+    definition:
+      "stomi-me' height (14 to the jaw outline's menton, 470) over face width",
+    channels: ["mentalHeight"],
   },
   {
     id: "cornerLift",
@@ -218,6 +285,7 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
       "upper incisal edge (FACE_ANTHROPOMETRY_UPPER_EDGE) below stomion superius (13) over mouth width, signed",
     channels: ["mouthUpperUpLeft", "mouthUpperUpRight"],
     expression: true,
+    uncoveredBy: "incisalGap",
   },
   {
     id: "incisalGap",
@@ -237,24 +305,119 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
   {
     id: "lowerFaceWidth",
     definition:
-      "face contour width at the gonial level (136, 365) over face width",
+      "the jaw outline's width at the mouth line (471, 472) over face width",
     channels: ["cheekFullness"],
   },
   {
     id: "chinWidth",
-    definition: "chin contour width (176, 400) over face width",
-    channels: ["chinWidth"],
-  },
-  {
-    id: "chinHeight",
-    definition: "li-me height (17, 152) over n-me height",
-    channels: ["chinHeight"],
+    definition:
+      "the jaw outline's width half the eyes' height below stomion (473, 474) over face width",
+    channels: ["jawTaper"],
   },
   {
     id: "browHeight",
     definition:
       "mean brow apex to upper lid height (105-159, 334-386) over fissure length",
     channels: ["browElevation"],
+  },
+  {
+    id: "eyeLevel",
+    definition:
+      "the canthi's mean height (33, 133, 263, 362) above subnasale (2) over face width",
+    channels: ["leftEyeElevation", "rightEyeElevation"],
+  },
+  {
+    id: "medialAperture",
+    definition:
+      "mean lid-to-lid height at the fissure's medial third (157-154, 384-381) over fissure length",
+    channels: ["leftMedialEyeApertureHeight", "rightMedialEyeApertureHeight"],
+  },
+  {
+    id: "lateralAperture",
+    definition:
+      "mean lid-to-lid height at the fissure's lateral third (161-163, 388-390) over fissure length",
+    channels: ["leftLateralEyeApertureHeight", "rightLateralEyeApertureHeight"],
+  },
+  {
+    id: "browSlope",
+    definition:
+      "mean brow head above brow tail (107 over 70, 336 over 300) over fissure length, signed",
+    channels: ["browAngle"],
+  },
+  {
+    id: "cupidsBowWidth",
+    definition: "Cupid's bow peaks' width (37, 267) over mouth width",
+    channels: ["cupidsBowWidth"],
+  },
+  {
+    id: "cupidsBowDepth",
+    definition:
+      "Cupid's bow peaks (37, 267) above labrale superius (0) over mouth width, signed",
+    channels: ["cupidsBowDefinition"],
+  },
+  {
+    id: "upperLateralVermilion",
+    definition:
+      "mean upper vermilion height at its lateral third (39-81, 269-311) over mouth width",
+    channels: ["upperLipLateralElevation"],
+  },
+  {
+    id: "lowerLateralVermilion",
+    definition:
+      "mean lower vermilion height at its lateral third (178-181, 402-405) over mouth width",
+    channels: ["lowerLipLateralElevation"],
+  },
+  {
+    id: "cheekProminence",
+    definition:
+      "cheek contour width below the zygoma (123, 352) over face width",
+    channels: ["leftCheekBone", "rightCheekBone"],
+  },
+  {
+    id: "noseUpperWidth",
+    definition:
+      "nasal sidewall width at the upper dorsum (193, 417) over face width",
+    channels: ["noseUpperWidth"],
+  },
+  {
+    id: "noseMiddleWidth",
+    definition:
+      "nasal sidewall width at the middle dorsum (196, 419) over face width",
+    channels: ["noseMiddleWidth"],
+  },
+  {
+    id: "templeWidth",
+    definition: "temple contour width (21, 251) over face width",
+    channels: ["templeWidth"],
+  },
+  {
+    id: "medialLowerLidSlope",
+    definition:
+      "mean slope of the lower lid from endocanthion to its medial third (133-155, 362-382), rise over run",
+    channels: ["leftEpicanthalFold", "rightEpicanthalFold"],
+  },
+  {
+    id: "upperLidHeight",
+    definition:
+      "mean upper lid margin to the lid's upper landmark (159-27, 386-257) over fissure length",
+    channels: ["leftEyeFoldHeight", "rightEyeFoldHeight"],
+  },
+  {
+    id: "infraorbitalHeight",
+    definition:
+      "mean lower lid margin to the infraorbital landmark (145-230, 374-450) over fissure length",
+    channels: ["leftEyeBagHeight", "rightEyeBagHeight"],
+  },
+  {
+    id: "noseTipHeight",
+    definition: "nasal tip (1) above subnasale (2) over n-sn height",
+    channels: ["noseTipElevation"],
+  },
+  {
+    id: "nostrilHeight",
+    definition:
+      "mean nostril landmark (49, 279) above subnasale (2) over n-sn height",
+    channels: ["noseBaseElevation"],
   },
 ];
 
@@ -284,20 +447,34 @@ export function measureFaceAnthropometry(
   const ratio = (a: number | null, b: number | null) =>
     a === null || b === null || !(b > 0) ? null : a / b;
   const fw = W(234, 454);
-  const fh = H(168, 152);
+  // Soft-tissue menton is the jaw outline's (`faceLikenessJawOutline`): the
+  // detector's own menton (152) holds its place as the chin lengthens.
   const fl = mean(D(33, 133), D(263, 362));
   const mw = W(61, 291);
   return {
-    faceHeight: ratio(fh, fw),
     intercanthal: ratio(W(133, 362), fw),
     fissureLength: ratio(fl, fw),
     fissureHeight: ratio(mean(H(159, 145), H(386, 374)), fl),
+    canthalTilt: ((): number | null => {
+      const rise = (en: number, ex: number): number | null => {
+        const [p, q] = [at(en), at(ex)];
+        const length = D(en, ex);
+        return p && q && length !== null && length > 0
+          ? (p[1] - q[1]) / length
+          : null;
+      };
+      return mean(rise(133, 33), rise(362, 263));
+    })(),
     noseWidth: ratio(W(129, 358), fw),
-    noseHeight: ratio(H(168, 2), fh),
+    noseHeight: ratio(H(168, 2), fw),
     mouthWidth: ratio(mw, fw),
-    upperVermilion: ratio(H(0, 13), mw),
-    lowerVermilion: ratio(H(14, 17), mw),
-    upperLip: ratio(H(2, 13), H(2, 152)),
+    // The vermilion's borders are read from the midline's colour
+    // (`faceLikenessVermilion`): the detector's own 0 and 17 are placed
+    // from the rest of the face.
+    upperVermilion: ratio(H(475, 13), mw),
+    lowerVermilion: ratio(H(14, 476), mw),
+    upperLip: ratio(H(2, 13), fw),
+    chinHeight: ratio(H(14, 470), fw),
     lipParting: ratio(H(13, 14), mw),
     incisalGap: ((): number | null => {
       const [upper, lower] = [
@@ -326,10 +503,51 @@ export function measureFaceAnthropometry(
         ? ((u[0] + l[0]) / 2 - sn[0]) / mw
         : null;
     })(),
-    lowerFaceWidth: ratio(W(136, 365), fw),
-    chinWidth: ratio(W(176, 400), fw),
-    chinHeight: ratio(H(17, 152), fh),
+    lowerFaceWidth: ratio(W(471, 472), fw),
+    chinWidth: ratio(W(473, 474), fw),
     browHeight: ratio(mean(H(105, 159), H(334, 386)), fl),
+    eyeLevel: ((): number | null => {
+      const eye = [33, 133, 263, 362].map(at);
+      const [sn] = [2].map(at);
+      return eye.every((p) => p !== undefined) && sn && fw !== null && fw > 0
+        ? (sn[1] - eye.reduce((sum, p) => sum + p![1], 0) / 4) / fw
+        : null;
+    })(),
+    medialAperture: ratio(mean(H(157, 154), H(384, 381)), fl),
+    lateralAperture: ratio(mean(H(161, 163), H(388, 390)), fl),
+    browSlope: ((): number | null => {
+      const rise = (head: number, tail: number): number | null => {
+        const [p, q] = [at(head), at(tail)];
+        return p && q ? q[1] - p[1] : null;
+      };
+      return ratio(mean(rise(107, 70), rise(336, 300)), fl);
+    })(),
+    cupidsBowWidth: ratio(W(37, 267), mw),
+    cupidsBowDepth: ((): number | null => {
+      const [ls, r, l] = [0, 37, 267].map(at);
+      return ls && r && l && mw !== null && mw > 0
+        ? (ls[1] - (r[1] + l[1]) / 2) / mw
+        : null;
+    })(),
+    upperLateralVermilion: ratio(mean(H(39, 81), H(269, 311)), mw),
+    lowerLateralVermilion: ratio(mean(H(178, 181), H(402, 405)), mw),
+    cheekProminence: ratio(W(123, 352), fw),
+    noseUpperWidth: ratio(W(193, 417), fw),
+    noseMiddleWidth: ratio(W(196, 419), fw),
+    templeWidth: ratio(W(21, 251), fw),
+    medialLowerLidSlope: ((): number | null => {
+      const slope = (a: number, b: number): number | null => {
+        const [p, q] = [at(a), at(b)];
+        return p && q && p[0] !== q[0]
+          ? Math.abs(p[1] - q[1]) / Math.abs(p[0] - q[0])
+          : null;
+      };
+      return mean(slope(133, 155), slope(362, 382));
+    })(),
+    upperLidHeight: ratio(mean(H(159, 27), H(386, 257)), fl),
+    infraorbitalHeight: ratio(mean(H(145, 230), H(374, 450)), fl),
+    noseTipHeight: ratio(H(1, 2), H(168, 2)),
+    nostrilHeight: ratio(mean(H(49, 2), H(279, 2)), H(168, 2)),
   };
 }
 

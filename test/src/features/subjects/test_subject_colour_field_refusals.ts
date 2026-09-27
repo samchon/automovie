@@ -12,6 +12,7 @@ import { throwsError } from "../internal/predicates";
  * 1. Malformed centres/radii/gains/strengths and duplicate names refuse.
  * 2. The adjacent bounded field is admitted after every refusal.
  * 3. Opposite declaration orders evaluate identically; inputs remain owned.
+ * 4. A gain above one lightens: the centre reads the gain itself.
  */
 export const test_subject_colour_field_refusals = (): void => {
   const field: IPortraitColourField = {
@@ -29,7 +30,7 @@ export const test_subject_colour_field_refusals = (): void => {
     { radius: [-1, 1, 1] },
     { radius: [Infinity, 1, 1] },
     { gain: [-0.1, 0, 1] },
-    { gain: [0, 0, 1.1] },
+    { gain: [0, 0, Infinity] },
     { strength: NaN },
     { strength: -0.1 },
     { strength: 1.1 },
@@ -58,4 +59,11 @@ export const test_subject_colour_field_refusals = (): void => {
   const sample = createPortraitColourField([field]);
   field.center[0] = 9;
   TestValidator.equals("owned center", sample([0, 0, 0]), [0, 0.5, 1]);
+  TestValidator.equals(
+    "lightening field",
+    createPortraitColourField([
+      { ...other, center: [0, 0, 0], gain: [1.2, 1, 0.5] },
+    ])([0, 0, 0]),
+    [1.2, 1, 0.5],
+  );
 };

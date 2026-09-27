@@ -9,6 +9,12 @@ import {
 } from "@automovie/human";
 
 /**
+ * The ambient occlusion a preview or export bakes when asked: 32 rays a
+ * vertex, 1024 texels a side (about 0.3 mm of the face per texel).
+ */
+const FACE_OCCLUSION = { rays: 32, size: 1024 };
+
+/**
  * Prepare reusable numerical resources for one connected face worker.
  * Both preview and export evaluate the same compact document. Preview returns
  * the resident model directly; only an explicit export constructs a GLB.
@@ -16,27 +22,39 @@ import {
  * Both operations consume the same fields and shared basis correspondence. A
  * preview also states the joint motion the document asked for, read through
  * the same articulation the builder posed, so the editor prints degrees and
- * millimetres beside the optional crossing census.
+ * millimetres beside the optional crossing census. A request may ask for the
+ * face's ambient occlusion, baked from the evaluated geometry into its
+ * materials (`bakeHumanFaceOcclusion`).
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Preserves one admitted document's geometry across preview and export.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Separates numerical evaluation from file encoding in a resident worker.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion Asks the builder to bake the face's ambient occlusion when a preview or export requests it.
  */
 export function createConnectedFaceRuntime(props: {
   basis: IAutoMovieHumanFaceBasis;
 }) {
   let contact: IAutoMovieHumanFaceContactSummary | null = null;
-  const evaluate = createHumanFaceBasisBuilder(props.basis, {
-    observe: (summary) => {
-      contact = summary;
-    },
-  });
+  const observe = (summary: IAutoMovieHumanFaceContactSummary | null) => {
+    contact = summary;
+  };
+  const evaluate = createHumanFaceBasisBuilder(props.basis, { observe });
+  // The builder that also bakes the face's ambient occlusion, made on the
+  // first request that asks for it.
+  let occluded: ReturnType<typeof createHumanFaceBasisBuilder> | undefined;
   return async (request: {
     document: string;
     operation: "preview" | "export";
     measure?: boolean;
+    occlusion?: boolean;
   }) => {
     const document = parseHumanFaceBasisDocument(request.document);
-    const model = evaluate(document);
+    const model =
+      request.occlusion === true
+        ? (occluded ??= createHumanFaceBasisBuilder(props.basis, {
+            observe,
+            occlusion: FACE_OCCLUSION,
+          }))(document)
+        : evaluate(document);
     if (request.operation === "export") {
       const { glb } = await exportHumanFace(model);
       return { operation: "export" as const, glb };

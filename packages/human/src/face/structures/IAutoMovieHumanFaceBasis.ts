@@ -244,10 +244,14 @@ export interface IAutoMovieHumanFaceBasis {
    * `colliders` are rigid surfaces, the dental arches and the globes, with
    * `closure` triangles that seal each crown at its root ring or a globe at
    * its posterior pole and a `reachMetres` within which an open gum sheet's
-   * orientation still tells its sides apart. `soft` surfaces keep, at
-   * every vertex, the clearance they have in the shape-only rest state: a
-   * vertex pushed past that floor is moved back to it along the nearest
-   * feature, and a push beyond `budgetMetres` refuses the document. The
+   * orientation still tells its sides apart, and an optional `coverMetres`,
+   * the thinnest soft tissue that lies over that surface (a lid over a globe;
+   * zero, the default, where mucosa meets the surface itself, as lips on
+   * teeth). A `soft` vertex's floor is its clearance in the shape-only rest
+   * state, or the cover where it rested farther out, or its rest depth where
+   * the source authored it inside: a vertex pushed past that floor is moved
+   * back to it along the nearest feature, and a push beyond `budgetMetres`
+   * refuses the document. The
    * arches themselves are rigid and no channel brings them closer than rest;
    * occlusal overlap under laterotrusion is a crossing census fact, not a
    * refusal here. Omission keeps the articulated basis without contact
@@ -269,8 +273,13 @@ export interface IAutoMovieHumanFaceBasis {
     /** Tongue surface, its protrusion channel and the slab half-width about the incisal plane, in metres. */
     passage: { surface: string; channel: string; slabMetres: number };
 
-    /** Rigid colliders (dental arches, globes): closure triangles over resident vertices and the sheet reach in metres. */
-    colliders: { surface: string; closure: number[]; reachMetres: number }[];
+    /** Rigid colliders (dental arches, globes): closure triangles over resident vertices, the sheet reach and the covering tissue's least thickness, in metres. */
+    colliders: {
+      surface: string;
+      closure: number[];
+      reachMetres: number;
+      coverMetres?: number;
+    }[];
 
     /** Soft surfaces held outside the colliders, each with the metres it may be pushed before refusal. */
     soft: { surface: string; budgetMetres: number }[];

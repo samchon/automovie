@@ -5,10 +5,13 @@ import type { IPortraitColourField } from "./structures/IPortraitColourField";
  * samples these on its immutable source vertices; the procedural component
  * path resolves landmark-relative regions before calling the same owner.
  * All lengths use one caller-selected unit. The compact C2 kernel is
- * (1-r)^4(4r+1) inside the ellipsoid and zero outside; composing bounded
- * channel multipliers cannot introduce light or values outside [0,1].
+ * (1-r)^4(4r+1) inside the ellipsoid and zero outside. Gains are finite
+ * and nonnegative: below one a field darkens, above one it lightens, and a
+ * product past one is the consumer's to carry (the connected builder folds it
+ * into the material, `liftHumanFaceColours`; the procedural path admits
+ * gains up to one only, `createPortraitSkinColour`).
  * The kernel decreases from one to zero: its derivative is -20r(1-r)^3 on [0,1].
- * The final upper clamp removes floating-point overshoot near the centre.
+ * The kernel is held at one against floating-point overshoot near the centre.
  * Sampling resolution belongs to the consuming surface. A narrow field needs
  * enough surface samples; this function neither subdivides nor invents detail.
  *
@@ -28,13 +31,13 @@ export function createPortraitColourField(
         (values) => values.length !== 3 || !values.every(Number.isFinite),
       ) ||
       field.radius.some((value) => value <= 0) ||
-      field.gain.some((value) => value < 0 || value > 1) ||
+      field.gain.some((value) => value < 0) ||
       !Number.isFinite(field.strength) ||
       field.strength < 0 ||
       field.strength > 1
     )
       throw new Error(
-        "Skin colour needs named finite centres, positive radii and gains/strength in [0,1].",
+        "Skin colour needs named finite centres, positive radii, nonnegative gains and strength in [0,1].",
       );
   fields.sort((a, b) => (a.name < b.name ? -1 : 1));
   return (point) => {
