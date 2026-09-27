@@ -25,6 +25,26 @@
 @evidence settings/002-household.md#upper-program 주침실·작은 침실의 wardrobe, 욕실 towel storage, 상층 linen·청소 cabinet을 허용 외함 변종으로 소유한다.
 @evidence settings/002-household.md#ground-program 거실 media/storage wall, 주방 tall pantry·utility cabinet, 현관 신발 수납을 외함 형상형의 사용 근거로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 수납장·선반의 재사용 외함과 안정 face 주소를 models에서 정하고 방별 개수·위치는 instances에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation  legacy 대응표의 수납 root와 새 pantry·청소장으로 변종을 제한하고 `open-shelf`만 열린 납품 전면으로 둔다. 나머지 문의 90° 열림은 검사 상태여서 방 사용 상태를 무제한 늘리지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  `@cabinet-spec`과 유한 `@cabinet-variants`가 판 두께, 문의 개수와 틈, hinge·runner·shelf 및 섬의 다섯 서비스 문을 산출한다. 임의 폭을 받아 generic box를 늘리는 미완성 규칙이 아니다.
+@evidenceReview principles/core/common.md#declared-basis  ground·upper 프로그램의 수납 목록과 storage-1f·upper-storage 목적지는 기능과 방을 준다. leaf 폭 식, 0.018m 판과 보어·서랍 치수는 이 H2의 cabinet-spec이 소유한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  1층의 media·pantry·utility, 상층의 wardrobe·linen 요구를 tall·wall·bench-base·vanity 등 유한 외함 ID와 서로 다른 전면 구조로 바꾼다. 부모가 수납 기능을 정한 것과 이 문·선반 점유를 정한 것은 다른 일이다.
+@evidenceReview principles/design/models.md#representation-contract  문 경첩 부피를 leaf에서 절삭하고 서랍 뒤에 실제 빈 상자를 두며 열린 선반과 oven bay는 막지 않는다. 닫힌 두께의 판과 별도 face가 있어 전면 사진만 그린 얇은 판으로 대체할 수 없다.
+@evidenceReview principles/design/models.md#spatial-convention  일반형은 바닥 접촉 중심과 +Z 문 전면을 쓰지만 `island-base/880x870x2650`은 Z 장축, −X 서비스 문과 +X 식탁 면을 선언한다. 같은 2650 토큰을 일반 가로 폭으로 읽으면 섬 전면이 뒤집힌다.
+@evidenceReview principles/design/models.md#reviewable-structure  닫힌 전면과 90° 열린 검사 전면, open-shelf 내부 및 oven bay를 서로 다른 시점에서 보게 한다. 다섯 service-door의 hinge 틈이나 drawer 뒤가 고체로 막혀 있으면 외관 뷰만으로 승인할 수 없다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 침실·린넨 수납, ref04의 벽 책장, ref03의 하부 서랍과 긴 상부장 다섯 분할을 해당 전면 구조로 채택한다. 실제 경첩 강도와 사용자 도달은 `unverified`여서 사진의 생활 인상을 기계 성능으로 바꾸지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  허용된 각 형상형과 치수·상태 조합에 `@inventory`·`@part`·`@address-state`가 있고 섬 예외의 −X 문은 별도 주소다. 판만 있는 외함이나 상태마다 빠진 hinge는 이 유한 결과를 충족하지 않는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 media·pantry·utility, upper-program의 wardrobe·linen과 두 storage cell을 대조했다. 열린 책장과 닫힌 외함의 local 높이·판·문은 새 방 기능을 요구하지 않고 방별 벽 밀착·문 간섭은 instances가 판단한다.
+@evidenceReview spaces/002-spatial-graph.md#storage-1f  공용실에서 직접 문이 있는 1층 수납 cell에 `open-shelf/1550x2500x500/open`이 놓일 수 있다. shelf는 room 내부 물체이고 powder와의 닫힌 경계를 열지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#upper-storage  복도에서 직접 닿는 linen 수납을 위한 열린 선반·청소장 형상을 제공한다. 이 H2의 shelf 피치는 그 방의 문 좌표를 만들지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#common-storage  수납장 local AABB를 공용실↔1층 수납실의 문 통행 검사에 제공할 수 있다. x=-4.14m의 0.90m 문과 수납실 안쪽 열림은 opening owner가 정한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-common-storage  cabinet의 back 판은 물체 뒤판이다. common-room과 storage-1f의 shared wall 몸체 및 그 한 문은 공간 소유이므로 수납장 판으로 벽 두께를 대체하지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-storage  상층 열린 선반의 뒤판은 linen 방 안에만 존재한다. 복도와 수납실 사이의 유일한 corridor-storage 문을 새 선반 bay나 관통 통로로 늘리지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-service-storage  upper-service와 upper-storage 사이에는 opening이 없고 외함은 각 방에서 재사용되는 독립 부피다. cabinet을 공유벽으로 겸용하면 닫힌 경계와 별도 방 출입을 깨뜨린다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-storage-bath  linen 수납과 욕실 사이의 닫힌 벽은 층과 두 room이 소유한다. vanity나 선반의 side 판은 그 boundary의 구조 두께·양면 마감이 아니다.
+@evidenceReview settings/002-household.md#upper-program  침실 wardrobe, 욕실 towel storage, upper storage의 linen·cleaning cabinet을 변종 목록의 목적지로 받는다. 방별 개수를 이 cabinet spec이 정했다는 주장은 없다.
+@evidenceReview settings/002-household.md#ground-program  거실 media wall, 주방 tall pantry·utility cabinet 및 현관 수납의 외함 결과를 모델에서 준비한다. island와 oven은 별도 원형과의 절삭 접점만 이 수납 H2에 가진다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  문·서랍·선반·cleat와 내부 bay의 안정 부품·face를 모델이 노출한다. 같은 원형을 어느 room에 몇 개 놓을지와 재료 finish는 이 주소의 후속 소비자에게 남긴다.
 -->
 
 @prose-dim cleat의: cleat-*
@@ -1806,6 +1826,22 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidenceExclude spaces/002-spatial-graph.md#front-entry 외부 landing에서 현관으로 드는 목재 문·문턱판은 건축 owner다. 벤치의 점유는 출입 route와 instances에서 대조한다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-entry-storage 현관과 1층 수납실 사이 통과 금지벽은 spaces 소유다. 벤치·신발장 prototype은 벽 개구를 만들지 않는다.
 @evidenceExclude spaces/003-surface-ownership.md#front-stair-glazing 현관 계단실의 두 층 유리·spandrel은 전면 façade cut이다. 현관 벤치가 그 유리의 frame이나 shade를 생성하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation  wrapper는 `cushion` 하나만 새 부품으로 낸다. 신발장의 문·측판·뒤판은 `cabinet/bench-base/1150x440x480/closed`에서 받아 외함을 두 원형이 중복 소유하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  외함 상면 `support@0.44`에 0.08m 방석을 놓고 앞쪽 0.01m만 돌출시켜 전체 높이 0.52m로 닫는다. 방석의 접촉과 두 문 전면 읽힘이 함께 정해졌다.
+@evidenceReview principles/core/common.md#declared-basis  ground-program의 벤치·신발 수납과 entry의 계단 동측 보행대를 기능·장소로 받는다. 방석 두께와 벤치 외함의 `@compose` 결합은 이 모델 단위가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  현관의 착석·신발 기능과 room 보행대 조건 위에 닫힌 두 문 외함과 별도 방석의 0.44m 면 접촉을 더했다. 프로그램은 이 wrapper의 0.01m 앞 돌출을 이미 포함하지 않는다.
+@evidenceReview principles/design/models.md#representation-contract  `cushion/upper/side/underside`만 새로 발행하고 외함은 기존 cabinet face를 그대로 운반한다. 두 외함 판이 겹치는 합성 메시로 만들면 part ownership을 깨뜨린다.
+@evidenceReview principles/design/models.md#spatial-convention  외함 바닥 중심이 원점, +Z가 앉는 앞쪽이며 방석 y=0.44..0.52·앞끝 z=0.25다. 이 0.01m 돌출은 전체 envelope 깊이 0.49m에 포함된다.
+@evidenceReview principles/design/models.md#reviewable-structure  정면에서 두 leaf와 방석, 측면에서 앞 돌출이 문을 가리지 않는지를 보게 한다. 방석이 문 seam을 덮으면 현관 벤치의 단일 기능 화면이 반증한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 앉는 면과 신발 수납을 하나의 실내 벤치 관계로 채택한다. ref01 포치 계단은 외부 건축 형상이라 벤치 높이나 발판으로 옮기지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  1.15m 폭의 bench-base 위에 0.08m cushion만 더하는 두 층 구성이다. 외함을 wrapper 안에 복제하지 않으면서 y=0..0.52 외곽과 수납 전면을 모두 읽을 수 있다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 신발 수납·벤치와 entry의 계단 동측 보행대를 대조했다. 0.44m 외함과 방석의 접촉은 독립 물체 안에서 닫히고 동측 출입 clear는 배치가 검사하므로 새 벽 개구나 운영 상태가 필요하지 않다.
+@evidenceReview spaces/002-spatial-graph.md#entry  x=1.58..2.84 계단 동측 보행대를 남기는 현관 cell을 배치 경계로 받는다. 벤치의 local 1.15m 폭만으로 통행을 보증하지 않고 실제 놓임을 후속 검사한다.
+@evidenceReview settings/002-household.md#ground-program  현관에 명시된 벤치와 신발 수납을 두 문 외함 위 방석 조합으로 표현한다. 평벽 충전 선반은 이 벤치의 부품이 아니다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  방석 face와 재사용 cabinet 외함 face는 각 모델 owner의 주소다. 현관의 최종 transform과 재료 결합은 이 wrapper가 결정하지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#front-entry  외부 landing과 entry를 잇는 x=2.22m 목재 문·문턱판은 벤치 형상과 별개다. 방석 돌출이 route를 막는지는 instances에서 검사해야 하므로 출입구 폭을 이 원형에서 바꾸지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-entry-storage  entry와 storage-1f 사이 벽에는 통과 opening이 없다. 벤치·신발장 외함은 현관의 물체일 뿐 그 닫힌 shared wall의 구조나 출입을 대신하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#front-stair-glazing  두 층 계단실 유리와 spandrel은 전면 façade cut의 요소다. 현관 벤치의 좌석·문 외함은 그 sill·head·shade를 만들거나 방 유리 상태를 정하지 않는다.
 -->
 
 @prose-part 방석을 얹어 상면: cushion
@@ -1846,6 +1882,21 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidence settings/002-household.md#ground-program 현관의 건축 구멍 없는 우편·충전 선반을 벽 접촉판 원형으로 만들고 충전기·우편물의 배치는 별도 instance로 남긴다.
 @evidence spaces/002-spatial-graph.md#entry 평벽에 붙는 선반 형상은 현관 기능에 속하며 전면 문·계단 동측 보행대의 실제 clear cell을 바꾸지 않는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 평벽 충전 선반의 판·cleat·bracket과 face 주소를 models가 맡고 충전 물체의 배치는 instances에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation  우편·충전 선반의 board, 숨은 cleat와 아래 bracket 둘만 독립 물체로 설계한다. 충전기 놓임은 instances에 두고 현관 벽에는 건축 niche를 파지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  0.32m 판은 벽면 z=0과 cleat·두 bracket의 유한 면 접촉으로 지지된다. 판 아래 구조와 닫힌 각 부품 범위가 있어 벽의 빈 구멍을 선반이라고 부를 필요가 없다.
+@evidenceReview principles/core/common.md#declared-basis  ground-program과 surface-decomposition의 평벽 선반 소유, ref02의 현관 기능을 근거로 삼는다. 0.15m 판 깊이와 bracket의 -0.08m 하강 및 face 주소는 이 모델의 치수다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  부모가 요구한 건축 구멍 없는 충전 선반을 `board`·`cleat`·`bracket-left/right`의 벽 접촉 구조로 구현 가능하게 했다. 프로그램은 그 숨은 지지점까지 정하지 않는다.
+@evidenceReview principles/design/models.md#representation-contract  `board/upper/underside`와 `cleat/contact`, 두 `bracket/contact`가 다른 노출·부착 면이다. 벽을 파낸 lining을 추가하면 선언된 평벽 접촉 원형과 다르다.
+@evidenceReview principles/design/models.md#spatial-convention  벽 마감면 아래 중앙 z=0을 원점으로 하고 +Z를 실내, +Y를 위로 둔다. board z=0..0.15와 아래 bracket y=-0.08..0이 있어 방의 벽 어느 쪽에 고정할지 해석할 수 있다.
+@evidenceReview principles/design/models.md#reviewable-structure  정면·측면·상부 뷰가 얕은 판과 평벽에 닿는 cleat 및 양쪽의 분리된 아래 받침을 노출한다. 한 개 받침이 빠지거나 판이 벽에서 떠 있으면 이 면 관찰에서 실패한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 소형 현관 수납을 벽에서 0.15m만 나오는 얇은 판으로 읽는다. 다른 reference의 벽 그림을 충전 niche 절삭 근거로 사용하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  0.32m 폭 board, 0.22m cleat와 두 bracket이 같은 envelope 안에서 벽·판 양쪽에 닿는다. 단지 판 크기만 맞고 벽 지지 경로가 없는 원형은 이 사용에 불충분하다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 평벽 충전 선반, entry의 벽·동측 보행대와 surface-decomposition의 물체 형상 권한을 대조했다. 돌출형 부품의 z=0 접촉은 벽 절삭을 요구하지 않고 최종 위치·통행은 instances가 정하므로 부모를 수정하지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#entry-powder  powder 안쪽으로 열리는 z=-3.20m 문은 현관 선반의 부품이 아니다. 이 모델은 평벽 접촉 형상만 만들며 모든 모델 원형이 그 문짝이나 90° 회전 경로를 소유하는 것은 아니다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-entry-powder  entry와 powder 사이 벽의 중심면·두께는 두 room에서 도출된다. 충전 선반은 그 면에 닿을 수 있어도 구조 벽을 절삭하거나 그 유일한 문을 만드는 부품이 아니다.
+@evidenceReview settings/002-household.md#ground-program  현관의 우편·충전 선반을 건축 구멍 없는 벽걸이 물체로 낸다. 우편물과 충전기의 개별 위치는 이 평평한 상면 뒤에 남는 배치 질문이다.
+@evidenceReview spaces/002-spatial-graph.md#entry  전면 문·계단·작업실·공용실을 잇는 entry의 평벽이 이 선반의 배치 후보 면이다. local z=0 접촉만으로 x=1.58..2.84 보행대의 clear를 통과했다고 말하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  `board`, `cleat`, 두 bracket의 part/face를 모델 주소로 정하고 실제 충전 물체와 현관 벽 위치의 membership은 instances에 남긴다.
 -->
 
 `entry-charging-shelf`는 폭 0.32, 깊이 0.15, 몸판 두께 0.045m의 벽걸이 물체다. 원점은 평벽 마감면의 선반 아래 중앙(z=0)이며 +Z가 벽에서 실내로 나오는 방향, +Y가 위다. 판은 x=±0.16, y=0..0.045, z=0..0.15이고 뒤쪽 숨은 cleat는 0.22×0.030×0.025m로 x=±0.11,y=-0.030..0,z=0..0.025에 놓여 벽면과 판 아래면에 닿는다. 양 끝 아래의 지지 브래킷 둘은 두께 0.012m, 깊이 0.12m, 높이 0.08m이며 x=±0.125 중심,y=-0.08..0,z=0..0.12다. 각 브래킷은 z=0에서 평벽, y=0에서 판 아래면에 닿고 cleat와 x에서 겹치지 않는다. 우편을 올리는 상면은 평평하고 충전기 자리는 후속 배치다. `board/upper/underside/front-edge/side-left/side-right/back-contact`, `cleat/outer/contact`, `bracket-left/right/outer/contact`가 안정 주소다. 실제 건축 구멍이나 lining을 만들지 않는다. 정면·측면·상부에서 판 깊이와 평벽 접합이 읽혀야 한다. ref02의 현관 수납 기능과 settings의 건축 구멍 없는 선반 결정을 채택한다. ref01·03·04·05의 벽 장면을 충전 niche의 증거로 쓰지 않는다. 실제 앵커 하중은 `unverified`다.
@@ -1899,6 +1950,34 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidenceExclude spaces/002-spatial-graph.md#wall-corridor-child-one 첫 작은 침실의 복도 문 host 벽은 층 owner가 만든다. single 침대 외곽은 열린 leaf 충돌 검사의 입력이지 벽 geometry가 아니다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-corridor-child-two 둘째 작은 침실의 복도 문 host 벽은 건축 경계다. 침대의 재사용 형상으로 그 문 위치를 옮기지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-corridor-primary 복도와 주침실 사이 문·벽은 건축 owner다. double bed의 headboard는 이 boundary를 대신하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation  주침실 `1800`과 작은 침실의 `1000`을 같은 고정 침대 가족으로 두고 작업실 손님용 접이식 침대는 `murphy-bed`에 둔다. 두 수면 형상의 상태 책임이 섞이지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  네 rail·`support-deck`·다리 넷의 지지 위에 매트리스, duvet, 머리판과 폭별 베개를 둔다. 지지판이 y=0.28 매트리스 아래에 접해 떠 있는 침구를 허용하지 않는다.
+@evidenceReview principles/core/common.md#declared-basis  upper-program의 double/single과 ref02의 침실 침구를 수면 용도 근거로 받는다. W=1.80/1.00m, 베개 둘/하나 및 네 rail의 수치는 이 H2가 선택했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  상층 프로그램과 세 bedroom cell이 지정한 수면 역할을 2.18m 길이 frame, 폭별 베개와 rail 아래 열린 바닥으로 구체화한다. 방 부모는 침대 내부의 `support-deck`을 미리 정하지 않는다.
+@evidenceReview principles/design/models.md#representation-contract  rail 넷은 모서리에서 면으로 만나고 `support-deck`은 매트리스 아래를 받는다. 발치 접힘은 별도 고체가 아니라 `duvet/fold-edge` face이므로 침구 표면 소유가 중복되지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention  바닥 중심을 원점, +Z를 발치로 두고 프레임 z=±1.09·매트리스 y=0.28..0.50·머리판 y=1.01을 명시한다. 뒤쪽 머리판과 발치 방향을 교환하면 part 경계가 어긋난다.
+@evidenceReview principles/design/models.md#reviewable-structure  위에서 두 폭의 pillow 수와 duvet 접힘, 발치와 하부에서 네 다리 및 rail 밑 y=0..0.08 빈 바닥을 묻는다. 지지판이 아래 공간을 막거나 베개를 같은 수로 내면 변종 차이가 드러난다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02는 침대·침구의 질량 관계, ref05는 문 뒤 사적 수면 구역의 관계로만 쓴다. ref05 복도 사진의 픽셀로 1.80m 폭을 역산하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  `1800`과 `1000` 모두 rail→deck→mattress 접촉 경로를 공유하지만 베개 수와 X 외곽은 다르다. 크기만 바꾼 뒤 한 변종의 pillow를 빠뜨리면 상태별 inventory와 맞지 않는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  upper-program의 double/single과 primary-bedroom의 직사각형, child-bedroom-1의 L자 및 child-bedroom-2의 직사각형을 대조했다. 침대의 1.80/1.00×2.18m는 local 점유이며 실제 containment·door clearance는 instances가 재므로 방 외주나 상태 수리를 요구하지 않는다.
+@evidenceReview settings/002-household.md#upper-program  주침실의 double bed를 폭 1800, 두 작은 침실의 single bed를 폭 1000으로 대응한다. 같은 1000 원형을 쓰더라도 방별 instance는 둘이다.
+@evidenceReview spaces/002-spatial-graph.md#primary-bedroom  후면의 한 직사각형 주침실에 필요한 double 원형을 `fixed-bed/1800`으로 제공한다. 약 25.76㎡ cell 안의 실제 위치와 문 간섭은 모델 표만으로 정하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#child-bedroom-1  첫 작은 침실의 L자 cell에 놓을 single 원형은 `fixed-bed/1000`이다. 원형 외곽을 줄이기 위해 그 방의 복도 직결 연장부나 오목 모서리를 다시 설계하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#child-bedroom-2  둘째 작은 침실의 한 직사각형에도 같은 1000 원형을 재사용한다. 이 방은 다른 침실의 통과실이 아니므로 원형 재사용이 room 사이 route를 추가하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  rail·deck·침구·베개의 안정 part와 face는 모델에서 정한다. 세 bedroom에서 서로 다른 transform과 material finish를 붙이는 일은 이 재사용 원형의 출력 밖이다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-primary  x=-0.58의 0.90m 복도↔주침실 문과 방 안쪽 열린 leaf는 건축 opening이다. double bed의 AABB는 그 문과 배치 간섭을 검사할 입력이지 문틀 생성 지시가 아니다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-child-one  z=-0.95의 첫 작은 침실 직접 문은 복도·방의 통행 관계다. 1000 침대의 headboard는 그 90° leaf를 만들지 않고 실제 문 호와의 간섭은 후속 배치가 잰다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-child-two  둘째 작은 침실의 z=1.05 직접 opening은 첫 침실 문과 별개다. 동일 single 원형을 두 방에서 쓰더라도 두 문을 하나로 합치거나 옮길 근거가 없다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#front-bedroom-glazing  첫 작은 침실 전면 고정창의 하층 jamb 연동은 façade의 module 결정이다. 바닥 침대가 그 창의 sill·head나 spandrel을 생성하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#left-bedroom-glazing  첫 침실 +X 창은 하층 flex 유리의 z module과 맞춘다. single 침대의 길이 축과 그 façade 분할은 다른 좌표 결정이어서 원형을 창 프레임으로 확장하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#left-child-two-glazing  둘째 침실의 +X z=0.35..1.90m 고정창은 독립 opening이다. 같은 1000 침대 원형이 두 침실에 놓여도 두 방의 유리 span을 결합하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#rear-bedroom-glazing  주침실 후면 고정창은 욕실 공유벽 앞에서 끝나는 façade 면이다. double bed의 머리판은 실내 물체이고 frame·shade나 유리의 privacy 상태를 만들지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-child-one-two  첫째와 둘째 작은 침실 사이의 닫힌 shared wall을 single 침대가 절삭하지 않는다. 두 방의 1000 원형은 각자 바닥 물체이며 직접 통과는 여전히 금지된다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-child-two-primary  둘째 작은 침실과 주침실 사이에도 opening 없는 벽이 있다. single·double 폭의 차이를 이 내벽의 두께나 구조 body 변경으로 처리하지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-bath-primary  욕실과 주침실의 닫힌 측벽은 침대 headboard와 다른 건축 면이다. headboard가 벽에 가깝게 배치돼도 욕실의 출입구를 새로 만들지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-child-one  복도·첫 작은 침실의 공유벽은 해당 방문 하나를 포함한다. 침대 local AABB는 열린 leaf와의 충돌 후보지만 그 wall body 또는 방 안쪽 마감이 아니다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-child-two  복도·둘째 작은 침실 벽의 구조와 유일한 문은 공간 owner가 만든다. 같은 single 침대를 재사용하는 사실로 z=1.05 문 위치를 바꾸지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-primary  복도·주침실 벽과 문은 room clear face에서 도출된 건축 경계다. double bed의 폭 1.80m 또는 머리판을 그 경계의 몸체로 사용할 수 없다.
 -->
 
 @prose-part 매트리스 아래면: mattress
@@ -1984,6 +2063,23 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidence settings/002-household.md#ground-program 현관 직결 작업실의 hidden storage를 닫힌 침대 외함의 방 기능 배경으로 받고, 가변 가구의 두 정지 상태는 flex-states가 소유한다는 인계를 따른다.
 @evidence settings/002-household.md#flex-states 작업 모드의 세로 패널과 손님 모드의 바닥 평행 매트리스·접지 다리를 두 정지 원형의 직접 입력으로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 침대 panel·프레임·다리의 상태별 재사용 형상과 face 주소를 models가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation  이 H2는 work·guest 두 정지 원형과 공통 외함의 부품을 적고 실제 회전·잠금·통행 성립을 미검증으로 표시해 모델 범위를 넘겨 확정하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  @inventory work와 @inventory guest가 공유 case·hinge와 서로 다른 panel·침상 부품을 열거하며 각 @part 표가 상태별 치수를 닫는다.
+@evidenceReview principles/core/common.md#declared-basis  flex-states의 두 정지 상태와 flex-workroom의 방 폭을 입력으로 명명한 뒤 외함 1.30×2.36×0.46m 및 pivot 좌표를 로컬 결정으로 둔다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  flex-states가 정한 세로 닫힘과 수평 손님 침대에 공유 case, 배타적 panel·frame, guest 접지 다리라는 모델 부품을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  @bore-x는 측판의 원형 구멍만 파고 @pin-face와 본문은 힌지 끝 원판이 closed-panel 또는 bed-frame의 옆면에 유한 면적으로 닿게 한다.
+@evidenceReview principles/design/models.md#spatial-convention  본문은 바닥 중심 원점과 방 안쪽 +Z를 밝히고 양쪽 hinge 중심을 x=±0.625,y=0.32,z=0.20에 두어 같은 X축을 만든다.
+@evidenceReview principles/design/models.md#reviewable-structure  work·guest의 @envelope 및 @inventory를 나란히 제시하고 같은 45°·측면 관찰에서 외함 일치, 부품 배타성, 구멍 잔여 두께를 살피도록 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref04의 평평한 닫힌 전면과 펼친 손님 침대를 두 원형의 관찰 근거로 적되 사진으로 중간 회전이나 잠금 성능을 증명하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  case·hinge의 양 상태 좌표와 guest frame·mattress·support·침구의 독립 @part 및 전체 @envelope가 두 정지 형상을 수치로 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  flex-states의 두 자세와 flex-workroom의 2.24m clear 폭을 외함 및 펼친 침상 깊이에 대조했으며 통행 검증은 배치 단계에 남기므로 방·상태 설정을 수정하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#flex-workroom  작업실의 2.24m clear 폭과 work·guest 용도를 받아 하나의 외함에서 두 정지 인벤토리를 정의하고 방 cell 자체는 만들지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#entry-flex  entry-flex가 정한 현관 직결 1.20m pocket 문을 침대 부품에 포함하지 않으며 펼친 침대와 문 사이 통행은 별도 배치 검증에 남긴다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-entry-flex  wall-entry-flex의 실제 공유벽과 유일한 문 cut을 가구 case로 복제하지 않고 침대의 case-back을 독립 부품으로 둔다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-flex-common  opening 없는 flex-common 폐쇄 벽에 침대의 펼친 프레임이나 case가 새 출입을 요구하지 않으며 벽은 공간 owner에 남는다.
+@evidenceReview settings/002-household.md#ground-program  현관 직결 작업실의 숨은 수납 기능을 닫힌 case·panel 원형으로 받으며 가변 가구의 정지 상태는 flex-states에서 별도로 받는다.
+@evidenceReview settings/002-household.md#flex-states  작업의 세로 닫힌 panel과 손님의 수평 침상·접지 다리를 각각 @inventory work와 guest로 나눠 그 두 정지 상태를 구현 설계한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  재사용 침대 형상을 case·hinge·panel·frame 등의 안정 part와 front·back·sole 등의 face 주소로 모델 본문에 배정한다.
 -->
 
 @prose-part 외함 뒤판의 상단은: case-back

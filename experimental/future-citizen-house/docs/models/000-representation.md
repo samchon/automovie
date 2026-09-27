@@ -35,6 +35,36 @@
 @evidenceExclude spaces/002-spatial-graph.md#ground-partition 현관·작업실·공용실·powder·수납의 다섯 cell과 shared wall은 공간 분할이다. 모델 ID는 방 ID가 아니며 가구·설비만 정의한다.
 @evidenceExclude spaces/002-spatial-graph.md#upper-partition 복도 직결 여섯 목적지와 일곱 상층 cell은 spaces가 소유한다. 모델 원형은 각 방의 호출에서 재사용된다.
 @evidenceExclude spaces/003-surface-ownership.md#whole-surface-owners 전후좌우 입면과 지붕의 다섯 완결 건축 표면은 각 envelope owner가 형성한다. 모델 face 주소는 독립 물체 안에서만 닫힌다.
+@evidenceReview principles/core/common.md#scope-preservation  식탁 상면과 의자 좌면을 모든 원형의 척도로 놓고 물체 안의 part/face까지만 주소화한다. 집 외피와 방별 위치를 이 공통 원점 규칙이 생성하지 않아 납품 범위의 분기 경계가 유지된다.
+@evidenceReview principles/core/common.md#substantive-completion  네 발의 번호를 회전 뒤에도 재배정하지 않고 face마다 삼각형을 빠짐없이 한 번만 담는 조건과 상태별 address/inventory 일대일 조건을 적었다. 다음 원형 H2는 주소 구조를 새로 고를 필요가 없다.
+@evidenceReview principles/core/common.md#declared-basis  주택의 생활 물체 범위와 settings의 표면 분해를 근거로 삼고, y=0.74 식탁과 y=0.45 의자 및 국소 face 규칙은 이 절의 선택으로 제시한다. 참조 이미지에서 이 수치를 측량했다고 주장하지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  delivery-scope가 허용한 가구·소품과 surface-decomposition이 맡긴 물체 형상을 `leg-0..3` 순서 및 노출·접촉 face 주소로 구체화한다. 두 부모는 그 번호나 좌표축을 미리 정하지 않는다.
+@evidenceReview principles/design/models.md#representation-contract  `prototype/part/face`의 한 face가 부품 삼각형의 부분집합이고 전체 face가 중복 없이 부품을 덮도록 정했다. 숨은 접합도 주소로 남겨 외관만 보이는 원형에 빈 면 소유자가 생기는 경우를 막는다.
+@evidenceReview principles/design/models.md#spatial-convention  바닥 접촉 영역 중심의 원점과 +Z 사용 전면을 선언하고 네 발의 ±X·±Z 조합을 고정한다. 원형을 방에 회전 배치해도 번호가 바뀌지 않으므로 코드가 좌표 관례를 추측할 필요가 없다.
+@evidenceReview principles/design/models.md#reviewable-structure  `@address-state`와 `@inventory`의 part 집합을 맞대고 산문에 없는 part와 face 삼각형의 누락·중복을 실패 대상으로 삼는다. 예쁜 대각 실루엣만으로 주소 완결을 승인할 수 없다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref01의 건축 외피는 물체 part가 아니고 ref02~05의 물체만 차단 형상 주소로 받는다. 이 절의 ref 분류로 색·광원·인물 닮음을 모델 스타일 결정이라고 확장할 수 없다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  y=0.74와 y=0.45 기준 뒤에 각 원형의 실제 외곽·오프셋을 요구하고 숨은 sole과 접합면도 part 소유에 넣는다. 큰 bounding box만 있는 경우에는 이 공통 완료 조건을 통과하지 못한다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  delivery-scope의 물체 범위, coordinate-datum의 m·Y-up, surface-decomposition의 형상 소유를 대조했다. 접지 중심·+Z 전면·네 발 번호는 원형 내부 표현이며 새 방 경계나 운영 상태를 요구하지 않고 실제 방 접촉은 배치가 판단한다.
+@evidenceReview obligations/core/common.md#purpose-fit  이 파일은 뒤의 물체 원형들이 같은 원점·척도·face 주소로 구현되게 하는 공통 계약을 맡는다. 이 역할을 빼면 서로 다른 H2가 식탁 높이나 다리 번호를 따로 정하게 된다.
+@evidenceReview obligations/core/common.md#layer-boundary  본문은 geometry의 local frame, AABB와 표면 주소까지만 정하고 재료 ID·방별 transform·광량은 결정하지 않는다. 얼굴과 인체도 이 물체 설계 역할에 포함시키지 않는다.
+@evidenceReview obligations/core/common.md#production-language  본문은 한국어로 원점과 표면 규칙을 설명하면서 `prototype/part/face`, `AABB`, `winding`을 구현 주소로 병기한다. 이 영어 표기는 납품 설명의 언어를 대체하지 않는다.
+@evidenceReview obligations/design/models.md#addressable-model-decisions  주소와 척도는 이 H2에, UV는 뒤의 `model-uv-and-topology`에, 상태와 점유는 각각 별도 H2에 놓인다. face 결정이 개별 가구 표 안에만 흩어져 독립 수정 주소를 잃는 구조가 아니다.
+@evidenceReview obligations/design/models.md#reference-scale  식탁 상면 y=0.74와 의자 좌면 y=0.45를 m 단위의 공통 대조점으로 선언했다. 다른 원형의 높이가 이 기준과 어긋나면 같은 주택의 가구 척도라는 주장을 반증할 수 있다.
+@evidenceReview settings/001-production.md#delivery-scope  이 절의 대상은 주택 환경에 놓일 가구·설비·소품의 재사용 원형이다. 별도의 resident asset이나 시간축 장면을 모델 주소 체계에 넣지 않아 library의 정지 납품 경계를 따른다.
+@evidenceReview settings/001-production.md#delivery-fidelity  물체마다 실루엣만 그린 primitive 이름이 아니라 치수·part와 노출 face를 지정하도록 요구한다. 실제 source와 화면의 읽힘은 아직 검증 전이므로 주소 규칙 자체를 구현 성공으로 세지 않는다.
+@evidenceReview settings/001-production.md#build-or-adopt  물체의 재사용 형상과 part/face 주소를 이 모델군에 배정한다. 건축 면, 배치, 발광과 finish 결합을 이 좌표 계약이 대신 만들지 않아 제작 분기 책임을 유지한다.
+@evidenceReview settings/001-production.md#settings-coverage-map  prototype과 그 face ID는 모델 단계의 출력이고 방별 membership·transform은 instances의 입력으로 남는다. 마감 결합도 face 주소를 소비할 뿐 이 절의 값이 아니다.
+@evidenceExcludeReview settings/001-production.md#module-boundary  이 H2의 본문은 m·Y-up, 접지 원점과 part 주소를 정할 뿐 CJS·ESM 로더 또는 브라우저 import 경로를 선택하지 않는다. 모듈 경계 검사는 실행 source와 viewer의 관계라 모델 형상 모집단에서 이 항목을 구현했다고 할 수 없다.
+@evidenceReview settings/002-household.md#inherited-defaults  바닥형 물체의 sole을 지지면에 놓고 접촉 영역 중심을 원점으로 삼는 문장이 -Y 중력 기본값의 물체 쪽 표현이다. 직업·책 제목 같은 미정 생활 설정을 face 이름으로 구체화하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum  모든 길이를 m로 쓰고 +Y를 위로 고정했다. 건물의 전역 위치와 방별 회전은 이 local frame에 넣지 않아 같은 원형을 공간 좌표에 배치할 수 있다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  물체가 노출하는 face는 모델 주소로, 마감 ID와 방 안 위치는 다른 소유자로 구분한다. 건축 창호의 표면을 이 part 규칙으로 재소유하지 않는다.
+@evidenceExcludeReview spaces/001-citizen-house.md#citizen-house-space  이 절은 물체 국소 원점·part 주소만 정하고 `citizen-site` 아래 house와 두 storey의 포함 관계를 생성하지 않는다. 본채 조립을 고쳐야 할 물체 차원의 근거가 없다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#mass-and-storeys  식탁·의자의 y 기준과 바닥형 원점은 본채 11×12m 외곽, 층 datum 또는 벽 두께를 다시 정의하지 않는다. 그 수치는 건축 H2에 남겨 물체 척도가 매스 치수로 오인되지 않게 한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#ground-level  sole 주소는 지지면과의 접촉을 나타낼 뿐 1층 slab·plinth와 연속 천장을 만들지 않는다. 어느 방 바닥에 놓일지는 후속 배치로 정하므로 이 공통 H2가 ground-level의 표면을 수정할 이유가 없다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#upper-level  천장형·벽부착형 원형의 고정점은 각 물체가 정하고 2층 slab와 방 바닥·천장은 상층 공간이 만든다. 공통 좌표 관례에는 upper-level의 opening이나 datum을 바꿀 결론이 없다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#ground-partition  현관·작업실·공용부·powder·수납의 cell은 모델 ID로 표현하지 않는다. 이 절의 face 및 다리 번호는 그 다섯 방의 shared wall이나 문 연결을 다시 자르지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#upper-partition  모델의 local +Z와 sole은 복도에 연결된 상층 방들의 문 위치를 정하지 않는다. 재사용 원형의 room membership은 후속 단계가 주므로 상층 cell 수나 통행 그래프는 그대로이다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#whole-surface-owners  물체 안의 face 완결과 전후좌우 입면·지붕의 완결 표면은 서로 다른 owner다. 이 H2가 건축 외주 삼각형을 갖지 않으므로 envelope 다섯 면의 단독 저작을 재배정하지 않는다.
 -->
 
 바닥형 물체의 접촉은 설정의 -Y 중력 기본값을 따르며 원형의 sole가 그 지지면을 노출한다.
@@ -60,6 +90,18 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-datum의 m 단위와 surface-decomposition의 모델 표면 주소·materials 결합을 시험했다. 평면 face의 미터 UV, 곡면 이음, 자유 관 끝의 닫힘은 모델이 소유하는 표면 속성이고 새 공간 개구·가변 상태·부착 위치를 요구하지 않는다.
 @evidence settings/003-spatial-basis.md#coordinate-datum 전역 m 단위를 평면 UV의 실제 거리와 곡면 호 길이에 그대로 쓴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 물체가 노출하는 안정 face 주소에 미터 UV와 곡면 정점 속성을 붙이고 finish 선택은 materials에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation  평면, 둥근 벽, 얇은 잎과 열린 공동까지 UV와 닫힘을 규정한다. 실제 무늬의 반복과 grain은 이 m 좌표를 받을 재료 결정에 남겨 표면 설계의 약속을 넓히지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  법선별 평면 투영, 24×12 구의 두 극 부채, 관의 자유 끝 반구와 용접 끝 원판이 각각 별도 제작 규칙이다. source가 끝을 막을지 또는 UV를 0..1로 바꿀지 새로 고를 공백이 없다.
+@evidenceReview principles/core/common.md#declared-basis  coordinate-datum의 m를 UV의 실제 길이로 쓰고 surface-decomposition이 맡긴 물체 face에 속성을 붙인다. 24개 경도·12개 위도 및 −Z seam은 이 설계가 고른 분할값이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  coordinate-datum은 단위, surface-decomposition은 물체의 안정 면과 재료 소비 관계를 준다. 이 H2는 ±법선별 U/V축과 열린 cavity의 두께 있는 rim까지 결정하므로 부모 문장을 재진술한 단위가 아니다.
+@evidenceReview principles/design/models.md#representation-contract  자유 관 끝의 24×6 반구, 공동의 내벽·rim, 용접부의 내부 교차면 제거가 서로 다른 닫힌 결과를 지정한다. 단순 원통 기본 primitive 하나로 이 경계들을 대신할 수 없다.
+@evidenceReview principles/design/models.md#spatial-convention  ±X면 U=+Z·V=+Y, ±Z면 U=+X·V=+Y, ±Y면 U=+X·V=+Z로 기록하고 뒤쪽 −Z를 둥근 벽의 이음으로 삼는다. UV는 face AABB의 최소 접점에서 m로 시작한다.
+@evidenceReview principles/design/models.md#reviewable-structure  producer가 연결 성분·경계 edge·normal·UV 및 face별 삼각형 중복과 누락을 검사하도록 명시한다. 얇은 잎의 edge나 관의 끝에서 열린 모서리가 남으면 폐곡면 주장을 반증한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02~04의 등·도기·잎은 같은 정수 분할로 다루지만 ref01·05 원경 픽셀을 세분화 지시로 쓰지 않는다. 생활 물체의 차단 곡면 수준만 정하며 실제 마감의 광학 재현은 이 절의 스타일 근거가 아니다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  호 길이를 U로 남기는 외벽과 평면 m 투영, 열린 공동의 안팎 벽, 끝면이 있는 관의 조립이 한 단위에 결합되어 있다. UV만 있는 빈 껍질이나 닫혔지만 속성이 없는 부품이면 이 규칙에 맞지 않는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  coordinate-datum의 m·Y-up과 surface-decomposition의 물체 face 및 재료 결합 권한을 대조했다. 뒤쪽 seam, 24각 분할, 관 끝 폐합은 그 면 안의 국소 표현이고 새 방 개구·접촉 위치·운영 상태를 요구하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum  0..1 재정규화 대신 실제 m 거리와 둘레 호 길이를 UV에 운반하므로 전역 단위와 표면 속성이 일치한다. 곡면 ring 수는 단위 설정이 아니라 이 모델 H2가 정한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  모델은 face의 정점 속성과 UV seam을 노출하고 materials가 그 좌표에 실제 반복 길이와 색을 결합한다. `unverified`로 남긴 텍스처 결과를 이 표면 분할의 완료라고 주장하지 않는다.
 -->
 
 평면 face의 primary UV는 0..1로 재정규화하지 않은 m 좌표다. 국소 법선 ±X면은 U=+Z·V=+Y, ±Z면은 U=+X·V=+Y, ±Y면은 U=+X·V=+Z이고 원점은 그 face AABB의 각 U/V 최소 접점이다. 반대쪽 법선 face는 winding만 뒤집고 UV의 물리 축은 유지한다. 둥근 외벽은 local −Z 뒤쪽을 U=0 이음으로 하여 둘레 실제 호 길이를 U, local 높이를 V로 쓰고 안쪽 벽은 반대 winding을 쓴다. 곡면 좌판·쿠션·잎은 뒤쪽 local −Z 이음에서 각 위도 ring의 실제 edge 길이를 U, 아래쪽 pole부터의 meridian 길이를 V로 쓴다. 원형·원통형 둘레는 24개 같은 각도 구간, 닫힌 타원·구형은 같은 24개 경도와 12개 위도 구간을 사용한다. 양 극은 단일 vertex와 각각 24개 삼각형 부채로 닫고 퇴화 ring을 내지 않는다. 90° 둥근 모서리는 6개 구간, 얇은 잎은 8개 경계 vertex와 앞뒤 한 장씩을 두께 edge로 연결한다. 이 정수 규칙이 각 ID·상태에서 vertex 순서와 UV ring을 고정한다. 두 면의 서로 다른 투영은 모델 face edge에서만 끊고 한 face 안에서 UV를 임의 회전하거나 크기를 정규화하지 않는다. 실제 마감의 반복 길이·grain 축·색은 materials가 이 metric 좌표를 소비해 결정한다. 각 닫힌 부품은 퇴화 삼각형·비다양체 모서리 없이 2-manifold여야 하며 의도적으로 열린 cavity는 rim에서 두께를 가진 내·외벽으로 닫는다. 산출 producer는 부품별 position/index·연결 성분·경계/비다양체 edge·normal·UV·점유와 face별 삼각형 중복/누락을 검사한다. ref02~04의 원통 등·도기·잎을 같은 수치 세분화로 저작하고 ref01·05의 원경에서 곡면 밀도를 역산하지 않는다. 실제 재료 텍스처의 UV 반복 결과는 `unverified`다.
@@ -84,6 +126,19 @@
 @evidence obligations/design/models.md#articulation-ownership murphy·flex 책상·cabinet의 명명된 고정 상태와 변종 키를 명시하고 중간 운동·시간축은 motions 소유로 둔다.
 @evidence settings/002-household.md#flex-states murphy-bed 작업/손님과 flex 책상 folded/open을 명시 상태로 만들고 자동 변형이나 중간 동작은 내지 않는다.
 @evidenceExclude settings/001-production.md#runtime-and-restart 단계 재시작과 판정 권한은 제작 운영·lint 설정의 조건이다. 원형 모델의 명시 상태는 이 H2가 소유하지만 세션 재개는 모델 부품이 아니다.
+@evidenceReview principles/core/common.md#scope-preservation  `murphy-bed`의 작업/손님, `work-desk/flex`의 folded/open 및 cabinet의 문 상태를 고정된 원형 결과로 다룬다. 배치 회전·점등·시간 경로는 그 결과를 소비할 다른 분기의 일로 남아 있다.
+@evidenceReview principles/core/common.md#substantive-completion  동일 ID·상태에서 형상·part 집합·AABB가 같아야 하고 상태 없는 murphy 및 flex desk 호출과 비정수 mm 토큰은 거부한다. 각 결과의 정체성과 실패 조건이 빈 상태명보다 구체적이다.
+@evidenceReview principles/core/common.md#declared-basis  ref04의 접힌 전면과 ref02의 침대·수납을 두 정지 결과의 관찰 근거로 한정한다. ID에 mm와 유한 상태를 싣는 선택은 사진이 알려 준 동작이 아니라 이 단위의 저작값이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  flex-states가 허용한 작업과 손님 결과를 `murphy-bed`의 상태별 부품 집합으로 해석하고 flex 책상의 보조판도 같은 유한 선택으로 둔다. 부모의 방 사용 규칙에는 이 ID·AABB 불변식이 없다.
+@evidenceReview principles/design/models.md#representation-contract  cabinet의 문·서랍과 murphy 판을 자기 H2의 part 집합으로 지정하며 상태 키가 geometry와 AABB를 바꾸게 한다. 한 메시를 이름만 바꿔 두 결과라고 부르는 표현은 이 계약에 어긋난다.
+@evidenceReview principles/design/models.md#spatial-convention  결과를 바꾸는 폭·높이·깊이는 m×1000 정수 mm 토큰으로 식별한다. 같은 원형을 방에서 돌리는 transform은 이 토큰에 숨기지 않아 local 치수와 배치 회전을 분리한다.
+@evidenceReview principles/design/models.md#reviewable-structure  닫힌 cabinet과 열린 검사 상태, 접힌 작업 침대와 펼친 손님 침대의 부품·AABB를 각각 비교할 수 있게 했다. 열린 lid를 자동 애니메이션으로 가정하면 이 고정 형상 검사를 통과할 수 없다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref04의 접힘과 ref02의 수납은 정지한 두 실루엣으로만 받는다. 작동 속도와 실제 충돌 회피는 `unverified`여서 참조 이미지의 가구 형태가 운동 성능 주장으로 바뀌지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  cabinet의 형상형·세 치수·상태와 murphy 및 flex desk의 상태가 결과 키에 들어간다. 키를 빼먹어 서로 다른 외곽이 같은 ID로 합쳐지면 이 H2의 완결 조건을 깨뜨린다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  flex-states의 작업·손님 정지 상태와 고정 책상·선반 조건을 대조했다. murphy의 두 부품 결과와 desk 보조판의 folded/open은 새 시간 경로나 room cell을 만들지 않고 배치·동작은 후속 owner에 남으므로 부모 상태 목록을 고칠 필요가 없다.
+@evidenceReview obligations/design/models.md#articulation-ownership  쓰기 가능한 중간 운동을 제공하지 않고 cabinet 문·murphy 판·desk 보조판 및 변기 lid의 명명된 고정 결과만 각 원형에 맡긴다. motions가 바꿀 시간축 인터페이스를 이미 구현했다고 세지 않는다.
+@evidenceReview settings/002-household.md#flex-states  작업실의 침대 접힘/펼침과 책상 보조판 folded/open을 상태 없는 호출 거부와 상태별 부품 결과로 받는다. 방의 실제 배치 전환이나 진행 동작은 이 모델 키만으로 재현되지 않는다.
+@evidenceExcludeReview settings/001-production.md#runtime-and-restart  이 H2에서 거부하는 것은 prototype의 누락 상태나 비정수 mm 치수다. 제작 세션의 재개·판정 권한은 부품 집합과 관계없는 운영 조건이어서 모델 상태 선택으로 구현하거나 수정할 수 없다.
 -->
 
 같은 prototype ID와 같은 명시 상태는 동일한 형상·부품 집합·AABB를 낸다. 폭·높이·깊이·형상형이 결과를 바꾸면 해당 토큰을 ID 또는 H2의 유한 변종 키에 모두 넣고, m×1000이 정수 mm가 아니면 거부한다. `murphy-bed`의 작업/손님과 flex 책상의 `folded|open`은 하나의 정체성 아래 명시 상태가 선택하는 결과이며 상태 없는 호출은 거부한다. cabinet의 `closed|open`은 ID 토큰이다. 이 단계의 관절은 명시 상태에서 고정된 부품·pivot만 정의하고 쓰기 가능한 중간 운동이나 작동 시간축은 만들지 않는다. 변기 lid도 H2의 열린 검사 형상 하나만 낸다. `cabinet` 문과 서랍의 `closed|open`·`murphy-bed`의 접힘·`work-desk/flex`의 보조판·변기의 고정 열린 lid는 각각 자기 모델 H2가 정한 부품 집합이다. 배치 회전은 instances가, 발광 상태는 systems가 소유한다. ref04의 접이식 전면은 두 고정 상태로만 채택하고 ref02의 침대·수납도 중간 동작 근거로 삼지 않는다. 실제 작동 경로·시간·충돌 회피는 `unverified`다.
@@ -113,6 +168,28 @@
 @evidenceExclude spaces/002-spatial-graph.md#wall-junctions 내벽 T/L 접합을 층 owner가 한 번 닫는다. 물체 부품의 `@joint`는 자기 prototype 내부 접합에만 쓴다.
 @evidenceExclude spaces/002-spatial-graph.md#stair-opening 상층 slab의 x=-1.24..1.58 계단 구멍은 storey/stair owner가 절삭한다. 물체의 @void는 가구 내부 공동에만 적용한다.
 @evidenceExclude spaces/002-spatial-graph.md#stair-enclosure 계단과 상층 설비실·작은 침실을 막는 측벽은 공간 경계다. 모델 지지 접합 검사는 그 벽을 새 가구 판으로 대체하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation  모델 H2의 모든 상태에 `@envelope`·`@part`와 접촉 경로를 요구하고 바닥·벽·매달림·상부장 밑을 다른 경우로 판정한다. 작은 부품을 본체 AABB 안에 숨기는 축소가 허용되지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  실제 vertex 합집합, 유한 면 접촉, 절삭 공동과 핀 끝의 닫힌 단면을 서로 다른 구조 행에 결부했다. source가 단지 AABB가 겹친다는 이유로 고체가 맞닿았다고 결정할 수 없다.
+@evidenceReview principles/core/common.md#declared-basis  지지 상대와 부품 치수는 각 원형의 `@part`·`@flat-contact` 등에서 받는다. 식물 접선만 허용하는 예외와 실제 geometry를 재야 한다는 검증 경계는 이 공통 절의 결정이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  surface-decomposition이 정한 물체 소유와 coordinate-datum의 m 단위 위에, 모든 vertex의 실제 범위와 pin·bore·받침의 유한 접촉 판정을 추가한다. 부모는 이 검사식이나 구조 행을 포함하지 않는다.
+@evidenceReview principles/design/models.md#representation-contract  `@inventory`의 부품을 `@part` 점유와 실제 연결 성분으로 대조하고 `@void` 절삭 뒤에도 고체와 공동을 검사한다. 그 결과가 없으면 표에 적힌 외곽만으로 닫힌 모델을 주장할 수 없다.
+@evidenceReview principles/design/models.md#spatial-convention  `@flat-contact`의 -Y는 X/Z, -Z는 X/Y 직사각형이며 각 축 범위와 받침 translation을 m로 해석한다. 접촉 검사 좌표가 구현에서 숨은 다른 단위로 바뀌면 선언 범위와 맞지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure  실제 다리 sole 네 모서리의 포함 여부와 문·보조판·침대의 상태별 pin 틈을 실패 조건으로 둔다. 하나의 닫힌 상태만 찍어 열린 변종의 누락 부품을 지나칠 수 없다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02~04의 보이는 가구 접합은 유한 면과 빈 공간의 blocking 검사로만 바꾼다. `unverified`인 실제 하중이나 사람 안전은 참조 이미지의 인상으로 인증하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  `@envelope`와 각 part의 실제 외곽, 지지 경로 및 `@void`가 모두 서로 맞아야 한다. 식물의 접선 예외도 별도 식으로 제시되어 AABB가 맞는 끊긴 조립은 완료 모델이 되지 않는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  surface-decomposition의 형상·배치 분리와 coordinate-datum의 m 기준을 대조했다. 실제 vertex AABB와 핀·공동 접합은 국소 원형의 결정이고 최종 방 접촉·통행은 instances에서 재므로 settings의 방 그래프나 새 상태를 요구하지 않는다.
+@evidenceReview obligations/core/common.md#proportionate-development  공통 검사를 이 H2에 모아 `@flat-contact`, `@suspension-face`, `@cavity-min`의 뜻을 재사용하게 한다. 개별 원형의 상태별 `@part` 값은 각 물체 H2에 남아 큰 수납 가구의 결정을 한 문장으로 축약하지 않는다.
+@evidenceReview obligations/design/models.md#model-representation-completion  구조 행 대조는 문서의 선언을 검사할 수 있지만 실제 source mesh의 face와 GPU 결과는 별도 미검증이라고 적었다. 이 구분으로 형식상 닫힌 표를 표현의 의미 완료로 오인하지 않는다.
+@evidenceReview settings/002-household.md#design-subject-conditions  모든 vertex의 AABB를 후속 instances가 받을 값으로 정의한다. 0.60m 가상 보행 원통과 실물 가구의 간섭은 이 H2가 재지 않으므로 통행 인증을 원형 점유 검사에 귀속하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  models가 부품의 범위와 접합을 확정하고 방별 transform은 instances가 사용한다. 한 부품의 local 접촉 성공으로 실제 room floor와의 접촉을 승인하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#coordinate-datum  `@part`의 X/Y/Z 범위와 `@bore`·`@radial`의 수치는 동일한 m 좌표에서 해석한다. 건물 지면의 세계 좌표는 이 local 계측의 결과가 아니다.
+@evidenceExcludeReview settings/003-spatial-basis.md#ground-graph  이 H2는 원형의 실제 AABB와 지지 경로를 재지만 현관에서 공용실·작업실로 통하는 문이나 계단을 배치하지 않는다. 따라서 1층 연결 그래프를 수정할 근거는 원형 검사에서 나오지 않는다.
+@evidenceExcludeReview settings/003-spatial-basis.md#upper-graph  상층 복도에서 각 침실·욕실·수납으로 통하는 직접 문의 위치는 여기의 `@part` 좌표와 별개다. 점유를 제공하되 통행은 후속 배치가 묻기 때문에 상층 분기를 새로 정하지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#stage-one-verification  실제 prototype 범위를 제공하는 일과 모든 room·문·route에서 가구가 통행을 막지 않는지 검사하는 일은 구분된다. 이 H2의 구조 행이 전수 공간 검사의 완료 기록으로 쓰이지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#door-interface  모델의 `@joint`와 pin은 원형 내부 연결이다. jamb 0.06m, leaf 0.045m 및 0.016m 문턱판은 건축 개구에서 파생되므로 이 접합 검사로 문짝 geometry를 다시 만들지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-junctions  내벽 끝의 T/L solid는 층 owner가 boundary 끝으로부터 한 번 닫는다. 부품끼리의 `@flat-contact`가 그 wall junction의 좌표나 room cell을 소비하지 않아 별도 가구 연결로 대체할 수 없다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#stair-opening  `@void`는 물체 안 공동에 쓰이며 upper slab의 x=-1.24..1.58 계단 구멍을 절삭하지 않는다. 모델의 구멍 검사를 통과해도 층간 headroom은 별도 공간 검사가 남는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#stair-enclosure  계단 void 양쪽의 upper-service·child-bedroom-1 측벽은 방 clear edge와 slab을 잇는 건축 부재다. 이 H2의 지지 접합은 그 벽의 계단 쪽 마감면이나 16mm 구멍 가장자리를 만들지 않는다.
 -->
 
 이 H2가 재는 실제 AABB는 후속 instances의 가상 보행 envelope 검사에 제공한다. 이 모델 검사는 통행 가능성이나 사용성 인증을 판정하지 않는다.
@@ -199,6 +276,27 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 @evidence spaces/001-citizen-house.md#spatial-observation 모델은 방 리뷰 거리에 추가해 중립 정면·측면·상부·대각 뷰를 정하고 spatial observation의 전체 외관·방 관찰을 대체하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#single-stair 두 flight·중간 참과 층간 route는 건축 source 관찰 대상이다. 중립 모델 뷰는 계단을 재현하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#upper-corridor 일자 복도의 폭·길이와 여러 문 직접 연결은 spatial observation 대상이다. 모델의 여러 원형 뷰로 복도 도달성을 승인하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation  모든 명명 상태를 같은 배경·눈금·노출에서 되풀이하고 실제 방 거리 관찰을 따로 요구한다. 물체 실루엣 검사로 외관이나 안전의 미검증 부분을 납품 범위에서 지우지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  18% 회색, 0.50m 눈금, 고정 노출과 직교 fit의 기본 여섯 방향을 주고 필요하면 하부·좌측·근접/단면을 더한다. 상태가 바뀌면 같은 세트를 다시 찍는 구체적 절차다.
+@evidenceReview principles/core/common.md#declared-basis  ref02 절개는 부품 상하 관계, ref03~05는 방 거리의 읽힘을 위한 자료로 쓴다. 회색 배경과 눈금 및 여섯 view는 참조 사진의 계측 사실이 아니라 이 모델 모집단의 선택이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  delivery-review-condition의 compiled topology 분모와 review-apparatus의 GPU 프레임 조건을 유지하면서 물체 상태별 직교 실루엣·접합 근접 뷰를 추가한다. 부모의 방·외관 검사에는 이 중립 반복 집합이 없다.
+@evidenceReview principles/design/models.md#representation-contract  이 뷰가 물을 수 있는 것은 외곽 비례, 틈, 노출 face와 점유라고 본문이 제한한다. 실제 하중·방수·전기 인증은 결과가 없는 경우 `unverified`로 남아 proxy의 주장 범위를 넘지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention  +Z 정면, +X 우측, −Z 배면, +Y 상부, −Y 하부의 방향과 동일 직교 fit·0.50m 눈금을 둔다. 원형마다 임의 원근을 선택하면 이 상태 비교 조건에 맞지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure  기본 여섯 방향에서 보이지 않는 접합·관통·얇은 부재에는 하부 또는 해당 부품 근접/단면을 더한다. 한 대각 view가 베개 밑이나 구멍 안을 감추면 추가 관찰이 필요하다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref01은 독립 물체의 척도 원본에서 제외하고 ref03~05는 방 안 읽힘과 밀도에만 쓴다. 이 중립 셋의 key light는 참조 사진의 완성 조명이나 마감 복제가 아니다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  각 명명 상태를 같은 카메라·눈금으로 다시 보고 접합 상세까지 드러내게 한다. 상태 하나의 전체 실루엣만 있고 바뀐 접합의 근접 관찰이 없다면 이 관찰 설계가 덜 지급된다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  delivery-review-condition의 compiled topology 분모, review-apparatus의 GPU 조건, spatial-observation의 방·외관 범위, roles-and-accessibility의 별도 reviewer 및 verification-boundary의 실제 source 검증을 대조했다. 중립 형상 뷰는 물체 상태의 비교 입력일 뿐 그 분모나 판정 권한·장치를 바꾸지 않는다.
+@evidenceReview obligations/design/models.md#representation-ceiling  차단 형상의 비례·틈·표면은 관찰 대상으로 적고 광학, 하중, 방수, 전기, 인체 안전은 입증 대상에서 분리한다. 정밀해 보이는 뷰도 제품 인증을 뜻하지 않는다.
+@evidenceReview obligations/design/models.md#model-review-set  회색 배경과 0.50m 눈금 아래 여섯 기본 뷰를 모든 상태에 반복하고 하부·접합 뷰를 추가하는 유한 집합이다. 이전 버전과 같은 raster·노출을 써서 차이를 비교할 수 있다.
+@evidenceReview settings/001-production.md#delivery-review-condition  모델의 중립 비교는 compiled topology가 정하는 방·외관 전체 분모에 덧붙는 검사다. ref02 절개나 한 대표 화면으로 각 room threshold와 외피 경계를 대신하지 않는다.
+@evidenceReview settings/001-production.md#verification-boundary  실제 source mesh와 GPU 관찰이 없으면 결과를 `unverified`로 적는다. 산문의 18% 배경 규칙이나 문서 구조 검사만으로 현재 형상 구현을 통과시켰다고 기록하지 않는다.
+@evidenceReview settings/001-production.md#roles-and-accessibility  작성자가 한국어 H2에 ID·치수를 남기고 별도 reviewer가 중립 뷰를 판정하도록 역할을 구분한다. 물체 뷰의 합격은 운영자 UI 접근성이나 최종 방·외관의 독립 판정이 아니다.
+@evidenceReview settings/004-observation.md#review-apparatus  물체의 직교 비교 조건은 final 방/외관의 WebGL 1600×1000·FOV50° 원근 관찰을 변경하지 않는다. 실제 GPU의 source·URL·RENDERER 기록이 없으면 그 최종 프레임을 이 중립 계획으로 인증할 수 없다.
+@evidenceExcludeReview settings/004-observation.md#operator-access  이 H2는 고정 물체 뷰의 카메라·축척을 판독 조건으로 적고 사용자의 궤도 이동·상태 선택 UI를 구현하지 않는다. flex와 유리 선택 뒤의 표시·검사 무효화는 viewer·instances가 맡을 조작이다.
+@evidenceExcludeReview settings/004-observation.md#accessibility-products  안정 ID를 한국어로 설명하더라도 키보드 focus와 선택·회전·확대 대안 또는 텍스트 topology를 이 모델 뷰가 제공하지 않는다. viewer와 README의 접근성 납품을 face 주소 검사로 대체할 수 없다.
+@evidenceReview spaces/001-citizen-house.md#spatial-observation  방 리뷰 거리와 별도로 물체의 정면·측면·상부·대각을 반복하되 실제 room의 threshold·모서리·중심 네 방위는 남긴다. 물체만 찍은 뷰가 compiled 공간 관찰 id의 실패를 지우지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#single-stair  여섯 직교 원형 뷰는 모델 표면을 비교하며 두 flight·참·상층 도착의 계단 형상이나 route를 생성하지 않는다. 계단 headroom과 접합은 공간 owner의 별도 검사가 필요하다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#upper-corridor  물체의 각도별 촬영은 upper-corridor의 4.20m 일자 통로와 여섯 방문 연결을 계측하지 않는다. 개별 가구가 읽혀도 복도에서 방까지 도달성은 검증되지 않는다.
 -->
 
 작성자는 안정된 prototype ID와 치수를 한국어 모델 H2에 기록하고 별도 reviewer가 이 중립 뷰를 판정한다. viewer의 키보드 접근성은 이 형상 관찰의 통과 조건이 아니다.

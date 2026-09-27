@@ -18,6 +18,19 @@
 @evidenceExclude spaces/003-surface-ownership.md#roof-face 지붕·PV canopy·배수 접합은 건축 roof owner가 만든다. 이 H2의 낮은·높은 화분은 실내에 놓는 pot·stem 원형이며 외부 수목이나 지붕 표면을 형성하지 않는다.
 @evidence settings/002-household.md#household-program 방을 식별하는 생활 물품 범위 안에서 작은 실내 화분과 바닥 화분을 저작 선택으로 둔다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 실내 화분·식물의 재사용 pot·stem·leaf 형상과 face 주소를 models가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation  @plant-spec는 다섯 실내 높이와 pot·soil·stem·branch·leaf만 정하고 비하중 점 접촉과 종·성장 미검증을 명시한다.
+@evidenceReview principles/core/common.md#substantive-completion  다섯 @inventory에 각 pot·soil·stem·branch 다섯·leaf 열다섯이 있으며 @part와 @envelope가 높이별 생성 좌표를 닫는다.
+@evidenceReview principles/core/common.md#declared-basis  ref03·04의 작은 식물과 ref02의 바닥 화분을 받고 @plant-spec의 높이·방위·벽 두께 비율은 로컬 선택이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  household-program의 생활 물품과 surface-decomposition의 실내 식물 형상 권한에 다섯 크기의 pot·stem·잎 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  pot의 열린 inner wall과 닫힌 바닥, 흙, front·back normal을 가진 닫힌 얇은 leaf 쐐기를 따로 정의한다.
+@evidenceReview principles/design/models.md#spatial-convention  화분 접지 중심 원점, 위 +Y, 관찰 앞 +Z 및 +X부터 도는 다섯 branchAzimuthsDegrees를 본문이 지정한다.
+@evidenceReview principles/design/models.md#reviewable-structure  pot/inner, soil/upper, branch/outer와 leaf/front·back 주소가 45°·상부·방 거리에서 빈 공간과 크기 역할을 보여준다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  180·280mm는 ref03·04 작은 화분, 600..1100mm는 ref02 바닥 화분 역할로 사용하고 종은 정하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  생산된 다섯 @envelope는 고정 방위의 실제 부품 AABB 합집합이며 각 상태의 leaf-0..14가 빠지지 않는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  생활 물품과 실내 화분 모델 권한에 다섯 크기의 바닥 접촉·비하중 잎을 대조했으며 새 방 기능이나 지붕 접합을 요구하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#roof-face  실내 pot의 @inventory에 지붕·PV·외부 수목 부품이 없고 본문은 ref01 외부 식재를 대지 owner에 남긴다.
+@evidenceReview settings/002-household.md#household-program  방을 식별할 생활 소품 범위에서 작은 화분과 바닥 화분을 별도 높이 상태로 저작 선택한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  pot/inner·rim, stem/outer, leaf/front·back·edge와 길이 축 UV를 실내 식물 모델 주소로 정한다.
 -->
 
 화분의 바닥과 벽은 한 닫힌 원뿔대 껍질이다. 아래 기호는 같은 H2의 `@plant-spec` 필드를 뜻한다. 바닥 두께는 벽 두께 t=max(wallMinimum,wallFactor×H)와 같고, 흙은 y=t..soilSurface×H에서 그 내벽 반경을 채운다. 줄기 반경은 stemRadius×H, 가지 끝 반경은 branchRadius×H다. 가지 중심선은 줄기의 24각 단면 꼭짓점 방위에서 (stemRadius+branchRadius)H 떨어져 시작해 거기서 branchLength×H만큼 뻗는다. 가지 밑동과 끝에는 공통 관 끝 규칙의 반구를 붙인다. 밑동 반구의 줄기 쪽 극점 하나는 줄기 원통 외벽의 같은 높이·방위 한 점에 정확히 접하며, 이 줄기–가지 접선은 비하중 식물 접점 예외의 선언된 접점이다. 잎 세 장의 단일 시작점은 가지 끝 구의 바깥 방사면 (stemRadius+branchRadius+branchLength+branchRadius)H에 있다. 각 잎은 이 점을 꼭짓점으로 하고 끝면에서 최대 접선 폭 leafWidth×H, 길이 leafLength×H, 바깥 방사방향 두께 leafThickness×H를 갖는 닫힌 다섯 꼭짓점 쐐기다. 끝면 중심은 가지의 방사축을 유지하고 접선 방향으로 −leafFanDegrees°·0°·+leafFanDegrees°의 길이 성분만큼 벌어지며 Y 상승은 해당 각도의 코사인 성분이다. 잎 두께는 시작점에서 0이고 끝면에서 leafThickness×H이며 가지 구의 안쪽으로 대칭 확장하지 않는다. 세 잎은 가지 끝 구와 각각 정확한 시작점 하나에서 접하고 서로 그 점만 공유한다. 다섯 가지의 방위는 +X에서 +Z 방향으로 `branchAzimuthsDegrees`의 0°·75°·150°·225°·300°다. 다섯 방위 모두 줄기 24각의 꼭짓점이며 이웃 간격은 75°·75°·75°·75°·60°다. `model-plant-producer.cjs`는 이 식과 `heights`의 다섯 상태에서 표를 재생성하고 `plantProof`는 상태마다 생성 행을 읽고 줄기의 24각 변까지의 최단거리와 가지–잎 접점을 계산한다.
