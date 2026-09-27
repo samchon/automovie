@@ -31,6 +31,10 @@ const checks = [
   ["model-owner-audit.cjs"],
   ["model-part-audit.cjs"],
   ["model-part-audit.cjs", "--fixture"],
+  ["model-review-audit.cjs", "--duplicates"],
+  ["model-review-audit.cjs", "--faces"],
+  ["model-review-audit.cjs", "--fixture-duplicates"],
+  ["model-review-audit.cjs", "--fixture-faces"],
 ];
 let failures = 0;
 let total = checks.length;
