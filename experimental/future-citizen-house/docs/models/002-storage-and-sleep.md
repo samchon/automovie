@@ -19,7 +19,7 @@
 @evidence spaces/002-spatial-graph.md#upper-storage 복도 직결 linen 수납의 open-shelf 형상과 선반 칸을 내며 수납실 문이나 cell 경계는 만들지 않는다.
 @evidence spaces/002-spatial-graph.md#common-storage 공용실↔1층 수납실 문은 공간 경계로 남기고 선반·cabinet의 국소 AABB를 후속 배치 검사에 제공한다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-common-storage 공용실·수납실 공유벽과 그 유일한 문은 storey/boundary owner 소유다. cabinet의 back 판은 그 벽 몸체를 대신하지 않는다.
-@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-storage linen 수납과 복도의 shared wall에는 유일한 corridor-storage opening만 있다. 열린 선반의 back 판은 새 통로를 만들지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-storage linen 수납과 복도의 shared wall에는 두 방을 잇는 개구 하나만 있다. 열린 선반의 back 판은 새 통로를 만들지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-service-storage 설비실과 linen 수납 사이에는 통과 opening이 없다. 각 방의 cabinet 외함은 공유벽을 중복 생성하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-storage-bath linen 수납과 욕실 사이 벽은 닫힌 경계다. cabinet 판의 두께로 그 건축벽 두께를 대체하지 않는다.
 @evidence settings/002-household.md#upper-program 주침실·작은 침실의 wardrobe, 욕실 towel storage, 상층 linen·청소 cabinet을 허용 외함 변종으로 소유한다.
@@ -1981,7 +1981,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidenceExclude spaces/002-spatial-graph.md#entry-flex 현관 직결 미닫이문 pocket과 1.20m clear 개구는 spaces 소유다. 내려온 침대와 열린 문 사이 통행은 instances가 검증한다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-entry-flex 작업실·현관 공유벽과 pocket은 층/문 owner의 형상이다. murphy 외함은 별도 가구로만 서서 벽 몸체를 복제하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-flex-common 작업실 뒤쪽과 공용실 사이에는 통과 opening이 없다. murphy-bed의 가구 판은 공유벽을 뚫거나 문을 추가하지 않는다.
-@evidence settings/002-household.md#ground-program 현관 직결 작업실의 hidden storage와 접이식 작업면을 침대 외함이 쓰는 방 기능의 배경으로 받는다.
+@evidence settings/002-household.md#ground-program 현관 직결 작업실의 hidden storage를 닫힌 침대 외함의 방 기능 배경으로 받고, 가변 가구의 두 정지 상태는 flex-states가 소유한다는 인계를 따른다.
 @evidence settings/002-household.md#flex-states 작업 모드의 세로 패널과 손님 모드의 바닥 평행 매트리스·접지 다리를 두 정지 원형의 직접 입력으로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 침대 panel·프레임·다리의 상태별 재사용 형상과 face 주소를 models가 소유한다.
 -->

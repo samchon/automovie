@@ -181,13 +181,13 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 @evidence principles/core/common.md#scope-preservation 모든 명명 상태에 같은 중립 촬영 조건을 적용하고 실제 방 거리 비교를 별도로 남기며 광학·하중·방수·안전의 비검증 범위를 관찰 결과에 섞지 않는다.
 @evidence principles/core/common.md#substantive-completion 18% 회색 배경, 0.50m 눈금, 고정 노출과 직교 여섯 방향에 하부·필요한 측면·근접·단면을 더하는 유한 재촬영 절차를 정한다.
 @evidence principles/core/common.md#declared-basis ref02의 절개는 부품 상하 관계의 검사 자료, ref03~05는 방 읽힘과 밀도 기준으로 한정한다. 배경·축척·반복 view 집합은 이 모델 모집단의 저작 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation delivery-review-condition의 반복 관찰 분모와 delivery-fidelity의 blocking 표현에 모델별 고정 배경·눈금·직교 뷰 비교를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation delivery-review-condition의 컴파일된 topology 관찰 분모와 review-apparatus의 재현 가능한 GPU 프레임 조건에 모델 상태별 고정 배경·눈금·직교 뷰 비교를 더한다.
 @evidence principles/design/models.md#representation-contract 모델 proxy의 실루엣·틈·face 주소·점유만 이 view 집합에서 판정하고 물리 성능이나 사진 같은 마감을 geometry가 약속하지 않는다고 정한다.
 @evidence principles/design/models.md#spatial-convention 같은 직교 fit와 0.50m 눈금으로 상태별 크기를 비교하고 +Z 정면·+X 우측·−Z 배면·+Y 상부·−Y 하부의 방향을 고정한다.
 @evidence principles/design/models.md#reviewable-structure 기본 여섯 뷰와 하부, 가려진 접합·관통·얇은 부재의 근접/단면을 반복해 한 대각 뷰에서 숨은 틈을 보지 못하는 경우를 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis ref01은 건축 외피, ref03~05는 생활 물체의 방 거리 읽힘으로만 사용한다. 중립 view는 사진 같은 조명·마감을 재현하는 양식 근거가 아니다.
 @evidence principles/design/models.md#model-scale-layer-completion 모든 상태의 외곽 비례와 접합 상세를 같은 축척에서 비교하고 상태 변화 때 전체 뷰와 접합 근접 뷰를 모두 다시 찍도록 관찰 분모를 닫는다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work delivery-fidelity의 읽히는 blocking 형상과 delivery-review-condition의 전체 관찰 분모를 시험했다. 여섯 직교·대각 뷰와 필요한 접합 근접 뷰는 물체 형상만 비교하고 방 배치·광학 성능·새 상태를 판정하지 않으므로 부모 관찰 범위를 바꾸지 않는다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work delivery-review-condition의 컴파일된 topology 관찰 분모, review-apparatus의 GPU·카메라 조건, spatial-observation의 방·외관 관찰, roles-and-accessibility의 독립 reviewer, verification-boundary의 실제 source·frame 검증을 시험했다. 고정 축척의 모델 상태 뷰는 물체의 틈과 접합만 비교하고 방·외관 판정이나 구현 검증을 대신하지 않으므로 이 부모들의 관찰 범위를 바꾸지 않는다.
 @evidence obligations/design/models.md#representation-ceiling 반복 가능한 blocking 실루엣·틈·표면만 판단하고 광학·하중·방수·전기·인체 안전을 모델 외형에서 추론하지 않는다.
 @evidence obligations/design/models.md#model-review-set 18% 회색·0.50m 눈금·직교 camera와 여섯 기본 실루엣 뷰, 하부·접합 근접 뷰를 모든 상태에 반복한다.
 @evidence settings/001-production.md#delivery-review-condition 컴파일 점유·주소와 중립 형상 뷰를 분리하고 section이나 한 대표 장면으로 외관·모든 방의 최종 판정을 대체하지 않는다.

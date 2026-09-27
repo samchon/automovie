@@ -20,6 +20,8 @@ const checks = [
   ["space-stringer-audit.cjs", "--tsx", "--fixture-population"],
   ["model-design-audit.cjs"],
   ["model-design-audit.cjs", "--fixture"],
+  ["model-lineage-audit.cjs"],
+  ["model-lineage-audit.cjs", "--fixture"],
   ["model-child-audit.cjs"],
   ["model-address-audit.cjs"],
   ["model-address-audit.cjs", "--fixture"],

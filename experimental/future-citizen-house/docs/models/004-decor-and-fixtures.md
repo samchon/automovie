@@ -500,7 +500,7 @@
 @evidence principles/core/common.md#scope-preservation 거실 직사각·침실 직사각·작은 침실 원형의 세 러그만 내며 섬유별 pile과 미끄럼 성능은 주장하지 않는다.
 @evidence principles/core/common.md#substantive-completion 세 상태 모두 base·pile·bound-edge를 별도 닫힌 부피로 전개하고 둘레 띠 안쪽을 비운다.
 @evidence principles/core/common.md#declared-basis ref02의 침실·거실 러그와 ref03의 소파 앞 직물 경계를 받아 세 평면 크기는 모델에서 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation household-program의 생활 물품과 common-room·primary-bedroom·child-bedroom의 바닥 목적지에 세 평면 크기의 독립 러그를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation household-program의 인물 없이 가구·설비·수납으로 방을 식별하는 설정 아래 surface-decomposition의 소품 형상 소유와 common-room·primary-bedroom의 바닥, upper-program의 작은 침실 목적지에 세 평면 크기의 독립 러그를 더한다.
 @evidence principles/design/models.md#representation-contract 위 pile과 0.025m 둘레 띠는 바닥 base에 붙인 별도 주소이며 원형은 24분할 동심 띠다.
 @evidence principles/design/models.md#spatial-convention 바닥 접촉 중심 원점, 직사각의 긴 방향 +Z로 정하고 원형의 +Z는 입구 쪽 관찰 방향이다.
 @evidence principles/design/models.md#reviewable-structure 위에서 둘레, 낮은 측면에서 0.012·0.016m 높이, 실내 거리에서 가구 발과 만남을 점검한다.

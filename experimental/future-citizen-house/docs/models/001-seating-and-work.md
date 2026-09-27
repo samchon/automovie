@@ -314,7 +314,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 조절식 desk, flex-states의 고정 책상·보조판, upper-program의 침실 desk, flex-workroom의 2.24m 폭을 시험했다. 힌지·기둥·앞다리는 책상 원형의 접촉과 정지 상태를 정의하고 최종 출입 clear는 배치에 남으므로 방 경계를 고치지 않는다.
 @evidence settings/002-household.md#ground-program 작업실의 조절식 책상과 접이식 작업면을 벽측 책상 원형의 사용 기능으로 받는다.
 @evidence settings/002-household.md#flex-states 보조 상판은 실물 부재로 구별하되 작업·손님 상태 사이 자동 운동은 만들지 않는다.
-@evidence settings/002-household.md#upper-program 주침실과 작은 침실의 작은 책상 요구를 폭별 정지 원형으로 받는다.
+@evidence settings/002-household.md#upper-program 주침실의 작은 책상과 두 작은 침실의 책상 또는 선반 중 책상 선택을 폭별 정지 원형의 목적지로 받는다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 clear 폭 2.24m를 책상 배치의 공간 입력으로 받고 통행 검사는 instances에 남긴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 책상 상판·힌지·기둥·서랍의 형상 주소를 models에서 소유한다.
 @evidenceExclude spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면 고정창의 sill·head·privacy 층은 façade owner가 정한다. 책상 원형은 방 안의 벽 접촉과 보조 상판만 낸다.
@@ -438,7 +438,7 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @evidence principles/design/models.md#model-scale-layer-completion 0.52×0.55×0.83m 외곽과 셸·천층·네 다리의 실제 곡면 AABB를 맞춰 연결형 좌석이 빈 껍질 또는 겹친 상자로 남지 않게 한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 작업실 chair, upper-program의 침실 책상, flex-workroom의 출입 유지 조건을 시험했다. 연결 셸·패드·네 다리의 접지와 크기는 의자 원형 안에서 닫히며 착석 적합성이나 별도 상태를 주장하지 않고 통행은 배치가 재므로 부모 수정이 없다.
 @evidence settings/002-household.md#ground-program 작업실의 chair를 책상과 분리된 좌석 원형으로 받는다.
-@evidence settings/002-household.md#upper-program 침실의 작은 책상에 쓸 수 있는 좌석 원형을 받되 방별 수량은 배치가 정한다.
+@evidence settings/002-household.md#upper-program 주침실의 작은 책상과 두 작은 침실의 책상 또는 선반을 목적지 기능으로 받는다. 침실 의자는 ref02에 근거한 모델 저작 선택이며 방별 수량은 배치가 정한다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 출입 통로를 남겨야 하는 방 조건을 받아 의자의 실제 위치는 instances에 남긴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 의자의 셸·패드·다리와 face 주소를 models에서 정한다.
 -->
