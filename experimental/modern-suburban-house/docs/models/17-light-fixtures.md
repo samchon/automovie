@@ -12,15 +12,14 @@
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04 현관과 05 상층 복도의 얕은 천장등을 채택한다. 얇은 외장 링과 별도 확산판이 어두운 천장 구멍 대신 실제 기구로 읽히는 형상 근거다. 광학은 materials와 systems가 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 지름, 두께, 16각 세그먼트, 모든 면 id와 미터 UV, 원점, 단면 검사를 확정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 천장면과 조명 할당을 그대로 소비하며 기구 두께 때문에 천장이나 방 경계를 수정하지 않는다.
-@evidence settings/10-house.md#common-room 공용부와 각 방의 천장 조명 몸체를 구멍이 아닌 실제 부재로 제공한다.
-@evidence settings/10-house.md#garage 빈 차고에도 천장등 몸체를 두고 차고문 가이드와 분리한다.
+@evidence settings/10-house.md#garage 빈 차고에도 실제 내부 천장을 완성한다는 설정을 받아 차고 천장에 붙일 지름 0.40 m 기구 변형을 둔다. 기구의 할당은 systems 인계를 따른다.
 @evidence obligations/design/models.md#addressable-model-decisions 평판 천장등을 매달린 등과 별도 원형으로 두어 크기와 면을 독립 수정한다.
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45° 고정 뷰에서 판 두께와 확산면을 본다.
 -->
 
 레퍼런스 04 현관과 05 상층 복도의 얕은 천장등을 채택한다. 방별 광량은 기구 몸체가 아닌 systems가 결정한다.
 
-천장면에 붙는 평판 기구는 [실내 조명 할당](../systems/02-interior-fixtures.md#interior-ground-ceiling)이 넘긴 몸체 원형이다. 반복 수와 위치는 후속 배치가 맡고 빛의 색·강도는 systems가 맡는다. 일반 방은 지름 D = 0.24 m, 차고는 D = 0.40 m다. 국소 원점은 천장 접촉면 중앙이고 +Y가 천장 위쪽이며 기구 전체는 Y = [-0.05, 0] m 안에 든다. 천장 접합판은 지름 0.70D·두께 0.008 m로 Y = [-0.008, 0] m에 두고, 외장 16각 링은 외경 D·내경 D − 0.04 m·높이 0.030 m로 Y = [-0.05, -0.020] m에 둔다. 링 윗면에 외경 D·두께 0.005 m의 16각 연결판 아랫면 Y = -0.020 m를 맞대고 판 윗면을 Y = -0.015 m에 둔다. 연결판과 접합판 사이에는 지름 0.70D의 16각 목을 Y = [-0.015, -0.008] m에 이어 모든 부재가 면에서 닿고 겹친 닫힌 부피는 없다. 확산판은 내경에 맞는 16각 원판·두께 0.012 m이고 Y = [-0.05, -0.038] m라 링 아래면과 같은 높이다. 접합판·목·링의 닫힌 모든 면은 `fixture-housing`, 확산판은 `fixture-diffuser`를 부여한다. 위·아래 면 UV는 국소 X·Z, 세로 면은 둘레 거리 U·높이 V를 미터로 둔다. 광원은 기구 중심 안쪽에 systems가 배치하며 전선과 광학 복사는 이 메시의 주장이 아니다. 소스 owner는 `src/models/lighting-fixtures.ts`다. [고정 뷰](00-model-frame.md#model-review-set)의 측면과 실내 관찰에서 판이 천장과 만나는지 확인한다. 실제 렌더는 unverified다.
+천장면에 붙는 평판 기구는 [실내 조명 할당](../systems/02-interior-fixtures.md#interior-ground-ceiling)이 넘긴 원형이다. 반복 수와 위치는 후속 배치가 맡고 빛의 색·강도는 systems가 맡는다. 일반 방은 지름 D = 0.24 m, 차고는 D = 0.40 m다. 국소 원점은 천장 접촉면 중앙이고 +Y가 천장 위쪽이며 기구 전체는 Y = [-0.05, 0] m 안에 든다. 천장 접합판은 지름 0.70D·두께 0.008 m로 Y = [-0.008, 0] m에 두고, 외장 16각 링은 외경 D·내경 D − 0.04 m·높이 0.030 m로 Y = [-0.05, -0.020] m에 둔다. 링 윗면에 외경 D·두께 0.005 m의 16각 연결판 아랫면 Y = -0.020 m를 맞대고 판 윗면을 Y = -0.015 m에 둔다. 연결판과 접합판 사이에는 지름 0.70D의 16각 목을 Y = [-0.015, -0.008] m에 이어 모든 부재가 면에서 닿고 겹친 닫힌 부피는 없다. 확산판은 내경에 맞는 16각 원판·두께 0.012 m이고 Y = [-0.05, -0.038] m라 링 아래면과 같은 높이다. 접합판·목·링의 닫힌 모든 면은 `fixture-housing`, 확산판은 `fixture-diffuser`를 부여한다. 위·아래 면 UV는 국소 X·Z, 세로 면은 둘레 거리 U·높이 V를 미터로 둔다. 광원은 기구 중심 안쪽에 systems가 배치하며 전선과 광학 복사는 이 메시의 주장이 아니다. 소스 owner는 `src/models/lighting-fixtures.ts`다. [고정 뷰](00-model-frame.md#model-review-set)의 측면과 실내 관찰에서 판이 천장과 만나는지 확인한다. 실제 렌더는 unverified다.
 
 ## 섬과 식탁의 매단 등 {#pendant-fixtures}
 <!--
@@ -41,7 +40,7 @@
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°에서 갓 깊이와 줄 접속을 본다.
 -->
 
-[레퍼런스 03의 공용부](../settings/10-house.md#common-room)는 섬 위의 작은 등 둘과 식탁 위의 넓은 등 하나로 기능을 구분한다. 이 H2는 그 두 기구 형상만 소유한다. 원점은 천장 접점 중심, +Y는 위다. 섬 종형은 천장에서 갓 아래까지 0.80 m, 외경 0.28 m다. 식탁 원통형은 내림 1.20 m, 외경 0.48 m다. 두 변형의 천장 접합판은 지름 0.10 m·두께 0.025 m, 줄은 지름 0.012 m의 닫힌 원통이다. 섬 갓은 아래에서 위로 반지름 0.14, 0.12, 0.055 m의 세 16각 링을 각각 갓 아래·위로 0.10·0.22 m에 둔 종형 껍질이며 두께 0.008 m다. 식탁 갓은 반지름 0.24 m·높이 0.20 m의 16각 원통 껍질이고 아래에 두께 0.008 m의 확산 원판이 있다. 갓 윗면·아랫면·두께 면도 닫고 `fixture-shade`, 접합판은 `fixture-canopy`, 줄은 `fixture-stem`, 확산판은 `fixture-diffuser`다. 면 UV는 평면 X·Z 또는 둘레 U·높이 V를 미터로 둔다. 식탁 갓 아래면은 식탁 상판 위 0.80 m, 섬 갓 아래면은 섬 상판 위 1.04 m로 두어 앉은 사람의 머리 공간과 분리한다. 배치와 광원은 instances와 systems가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 점유와 조명 프레임은 unverified다.
+[후면 공용부 설정](../settings/10-house.md#common-room)은 주방과 식사 기능을 조명으로 구분한다. 레퍼런스 03에서 섬 위의 작은 등 둘과 식탁 위의 넓은 등 하나를 채택하며, 이 H2는 그 두 기구 형상만 소유한다. 원점은 천장 접점 중심, +Y는 위다. 섬 종형은 천장에서 갓 아래까지 0.80 m, 외경 0.28 m다. 식탁 원통형은 내림 1.20 m, 외경 0.48 m다. 두 변형의 천장 접합판은 지름 0.10 m·두께 0.025 m, 줄은 지름 0.012 m의 닫힌 원통이다. 섬 갓은 아래에서 위로 반지름 0.14, 0.12, 0.055 m의 세 16각 링을 각각 갓 아래·위로 0.10·0.22 m에 둔 종형 껍질이며 두께 0.008 m다. 식탁 갓은 반지름 0.24 m·높이 0.20 m의 16각 원통 껍질이고 아래에 두께 0.008 m의 확산 원판이 있다. 갓 윗면·아랫면·두께 면도 닫고 `fixture-shade`, 접합판은 `fixture-canopy`, 줄은 `fixture-stem`, 확산판은 `fixture-diffuser`다. 면 UV는 평면 X·Z 또는 둘레 U·높이 V를 미터로 둔다. 식탁 갓 아래면은 식탁 상판 위 0.80 m, 섬 갓 아래면은 섬 상판 위 1.04 m로 두어 앉은 사람의 머리 공간과 분리한다. 배치와 광원은 instances와 systems가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 실제 점유와 조명 프레임은 unverified다.
 섬 종형의 `fixture-diffuser`는 갓 아래 테 내경 0.264 m에 맞는 16각 원판으로 갓 아래 입술의 윗면에서 0.008 m 올라간 평면에 두고 두께 0.006 m를 갓 안쪽으로 둔다. 둘레 끝은 갓 안쪽 면과 면으로만 접하며 갓의 바닥 개구부를 남긴다. 식탁 변형의 확산 원판도 내경 0.464 m·두께 0.008 m로 갓 아래 테 안쪽에 맞댄다.
 
 접합판 아래면은 국소 Y=−0.025 m다. 섬 갓의 윗 테는 Y=−0.58 m, 식탁 갓의 윗 테는 Y=−1.00 m이므로 각 `fixture-stem`의 노출 축 구간은 Y=[−0.58,−0.025] m와 [−1.00,−0.025] m다. 줄 아래 끝은 갓 윗 테의 중앙 구멍에 면으로 맞대고, 갓 안쪽에서 별도의 줄 조각을 만들지 않는다. 갓 윗 테 안쪽의 지름 0.012 m 구멍 절단면은 `fixture-shade`가 덮는다.
