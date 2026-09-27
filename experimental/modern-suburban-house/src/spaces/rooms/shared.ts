@@ -37,70 +37,70 @@ import {
 /**
  * One interior space as its plan owner declares it.
  * @evidence spaces/03-surface-owners.md Each room owns its finished inner outline and visible floor/ceiling surfaces.
-  * @evidenceReview spaces/03-surface-owners.md `IRoomSpace` carries the room author's finished outline and floor colour into `roomFloor` and `roomCeiling`, which emit that owner's visible finish parts.
+  * @evidenceReview spaces/03-surface-owners.md #9596716 `IRoomSpace` carries the room author's finished outline and floor colour into `roomFloor` and `roomCeiling`, which emit that owner's visible finish parts.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The room record keeps its owner, outline, finish and reserved uses together.
-  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff The record keeps `owner`, `outline`, `floor`, optional `levels`, and reservations together, allowing each listed room file to integrate its own finish and use zones.
+  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f The record keeps `owner`, `outline`, `floor`, optional `levels`, and reservations together, allowing each listed room file to integrate its own finish and use zones.
  * @evidence principles/core/source-units.md#source-scope-preservation The shared type describes each room author's values without picking a plan for it.
-  * @evidenceReview principles/core/source-units.md#source-scope-preservation The interface defines fields for a room builder's values; it contains no default footprint, room id, or finish colour selected by this shared file.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The interface defines fields for a room builder's values; it contains no default footprint, room id, or finish colour selected by this shared file.
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry, storey, and finish reach environment assembly; reservations reach checkReservations and the measurement tools.
-  * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildHouseEnvironment` reads room identity, storey, outline, and levels; `buildHouse` passes reservations to `checkReservations`, so the record supplies its declared downstream boundaries.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `buildHouseEnvironment` reads room identity, storey, outline, and levels; `buildHouse` passes reservations to `checkReservations`, so the record supplies its declared downstream boundaries.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns each room its finished outline and visible surfaces; IRoomSpace retains id, owner, storey, outline, floor colour, levels and reservations, while IRoomBuild.parts carries the emitted walls, ceiling and reveal.
-  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns each room its visible inner finishes; this record transports that room's identity, storey, outline, colour, levels, and reservations while `IRoomBuild.parts` carries emitted surfaces.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `interior-surface-handoff` assigns each room its visible inner finishes; this record transports that room's identity, storey, outline, colour, levels, and reservations while `IRoomBuild.parts` carries emitted surfaces.
  */
 export interface IRoomSpace {
   /**
    * @evidence spaces/03-surface-owners.md The room's stable id ties its finish to its spatial record.
-    * @evidenceReview spaces/03-surface-owners.md `roomFloor` names its part from `room.id`, and environment assembly uses the same id for the room space and its floor surface.
+    * @evidenceReview spaces/03-surface-owners.md #9596716 `roomFloor` names its part from `room.id`, and environment assembly uses the same id for the room space and its floor surface.
    * @evidence principles/core/source-units.md#source-scope-preservation This id refers to the room owner's space, not a helper-owned room.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation Room builders set `id`; this required field carries their existing space name without creating a helper-owned room.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Room builders set `id`; this required field carries their existing space name without creating a helper-owned room.
    * @evidence principles/core/source-units.md#source-substantive-completion Routes and observations can address the same room.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `checkReservations` resolves zone spaces by room id, and `deriveHouseObservations` keys standing floors by the same id, giving both consumers one address.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `checkReservations` resolves zone spaces by room id, and `deriveHouseObservations` keys standing floors by the same id, giving both consumers one address.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network names front-entry and living-room as separate nodes joined by entry-living-door; id preserves those authored addresses in the environment.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` distinguishes `front-entry` from `living-room` across `entry-living-door`; the two room builders supply those ids and environment assembly preserves them.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `room-route-network` distinguishes `front-entry` from `living-room` across `entry-living-door`; the two room builders supply those ids and environment assembly preserves them.
    */
   id: string;
   /**
    * @evidence spaces/03-surface-owners.md The room record retains its specific source owner.
-    * @evidenceReview spaces/03-surface-owners.md The room builder sets `owner` to its assigned source file, such as `rooms/entry.ts`, and finish helpers pass that value into their returned parts.
+    * @evidenceReview spaces/03-surface-owners.md #9596716 The room builder sets `owner` to its assigned source file, such as `rooms/entry.ts`, and finish helpers pass that value into their returned parts.
    * @evidence principles/core/source-units.md#source-scope-preservation The shared helper never replaces the room's author.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation `roomFloor`, `doorFloor`, and `roomCeiling` retain `room.owner`; `partition` separately uses the supplying room's `props.owner`, never a shared-file owner.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `roomFloor`, `doorFloor`, and `roomCeiling` retain `room.owner`; `partition` separately uses the supplying room's `props.owner`, never a shared-file owner.
    * @evidence principles/core/source-units.md#source-substantive-completion Emitted parts can trace back to that source.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion The finish helpers pass this field to `part`, whose returned `IHousePart.owner` lets downstream part consumers trace the emitting room.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The finish helpers pass this field to `part`, whose returned `IHousePart.owner` lets downstream part consumers trace the emitting room.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns the entry, living room, and common room to their respective room files; owner retains the emitting file for each finish part.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns entry, living, and common finishes to separate room files; their `owner` field follows each emitted floor, doorway strip, and ceiling part.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `interior-surface-handoff` assigns entry, living, and common finishes to separate room files; their `owner` field follows each emitted floor, doorway strip, and ceiling part.
    */
   owner: string;
   /**
    * @evidence spaces/03-surface-owners.md A room finish belongs to one of the two storey surface populations.
-    * @evidenceReview spaces/03-surface-owners.md Each room's `storey` selects the ground or upper finish population, while the room file still owns the visible finish over its shared structural base.
+    * @evidenceReview spaces/03-surface-owners.md #9596716 Each room's `storey` selects the ground or upper finish population, while the room file still owns the visible finish over its shared structural base.
    * @evidence principles/core/source-units.md#source-scope-preservation The field selects the room's existing storey, not a new floor.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation `StoreyId` confines this field to the two authored storeys; it does not define a new elevation or extra floor.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `StoreyId` confines this field to the two authored storeys; it does not define a new elevation or extra floor.
    * @evidence principles/core/source-units.md#source-substantive-completion Floor and ceiling helpers can read the correct datums.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `roomFloor` calls `floorOf(room.storey)`, `roomCeiling` reads `roomLevels`, and partition helpers select `partitionSpan` from this value.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `roomFloor` calls `floorOf(room.storey)`, `roomCeiling` reads `roomLevels`, and partition helpers select `partitionSpan` from this value.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network places entry and common below the stair and upper-hall with five doors above it; storey records that plan's ground/upper assignment.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` places entry and common below the single stair and upper hall with five doors above; each room builder supplies that assignment through `storey` to datum and environment consumers.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `room-route-network` places entry and common below the single stair and upper hall with five doors above; each room builder supplies that assignment through `storey` to datum and environment consumers.
    */
   storey: StoreyId;
   /**
     * @evidence spaces/03-surface-owners.md The room owner retains its finished inner perimeter for its visible floor and ceiling surfaces.
-    * @evidenceReview spaces/03-surface-owners.md Each room builder supplies its own ordered `outline`; `roomFloor` and the default `roomCeiling` pass that ring to `slab` under the same room owner.
+    * @evidenceReview spaces/03-surface-owners.md #9596716 Each room builder supplies its own ordered `outline`; `roomFloor` and the default `roomCeiling` pass that ring to `slab` under the same room owner.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the author's inner finish boundary, not a cloned structural wall.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The readonly point list comes from the room builder; this field neither selects its coordinates nor duplicates a structural wall body.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The readonly point list comes from the room builder; this field neither selects its coordinates nor duplicates a structural wall body.
    * @evidence principles/core/source-units.md#source-substantive-completion Ordered points produce the room's floor and ceiling surfaces.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `roomFloor` meshes this ring, and `roomCeiling` defaults to it unless its caller supplies a specific ceiling outline.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `roomFloor` meshes this ring, and `roomCeiling` defaults to it unless its caller supplies a specific ceiling outline.
     * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns each room file its floor and ceiling finishes; each room-plan parent fixes its inner outline, which this field carries to the finish helpers without copying a structural wall plan.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Entry and common builders supply their room-plan rings, and the shared finish helpers mesh those supplied rings under the room file assigned by `interior-surface-handoff`; this field makes no new boundary decision.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Entry and common builders supply their room-plan rings, and the shared finish helpers mesh those supplied rings under the room file assigned by `interior-surface-handoff`; this field makes no new boundary decision.
    */
   outline: readonly IPlanPoint[];
   /**
    * @evidence spaces/03-surface-owners.md The room author selects its floor's blocking base colour.
-    * @evidenceReview spaces/03-surface-owners.md Room builders set `floor` from their blocking palette, and `roomFloor` sends that value into the visible floor part for the room's assigned finish zone.
+    * @evidenceReview spaces/03-surface-owners.md #9596716 Room builders set `floor` from their blocking palette, and `roomFloor` sends that value into the visible floor part for the room's assigned finish zone.
    * @evidence principles/core/source-units.md#source-scope-preservation This colour stays with the room finish, leaving material optics elsewhere.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation This numeric field carries the room's chosen base colour to `roomFloor`; it does not declare texture or material response in this shared record.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This numeric field carries the room's chosen base colour to `roomFloor`; it does not declare texture or material response in this shared record.
    * @evidence principles/core/source-units.md#source-substantive-completion Floor geometry carries an inspectable visual distinction.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `roomFloor` passes `room.floor` into `part`, and environment assembly uses the part's colour as its model base colour.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `roomFloor` passes `room.floor` into `part`, and environment assembly uses the part's colour as its model base colour.
     * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns the visible floor finish to each room source; this field carries that room's blocking base colour into its floor part.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The interior handoff assigns each room's floor finish zone; the producing room sets a palette value and `roomFloor` carries it into the floor part without choosing a second surface owner.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The interior handoff assigns each room's floor finish zone; the producing room sets a palette value and `roomFloor` carries it into the floor part without choosing a second surface owner.
    */
   floor: number;
   /**
@@ -108,26 +108,26 @@ export interface IRoomSpace {
    * datums (the garage, 01 ground-threshold-datums); absent for every room
    * that stands on its storey's finished floor.
    * @evidence spaces/03-surface-owners.md Garage finish levels may differ from ordinary room datums.
-    * @evidenceReview spaces/03-surface-owners.md The garage remains a ground-storey room with a lower finished floor; its builder supplies `levels` so its interior finish can use that exception under its own owner.
+    * @evidenceReview spaces/03-surface-owners.md #9596716 The garage remains a ground-storey room with a lower finished floor; its builder supplies `levels` so its interior finish can use that exception under its own owner.
    * @evidence principles/core/source-units.md#source-scope-preservation The override stays within the room's assigned storey.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation `levels` overrides a room's finished height pair while `storey` remains its authored ground or upper population; it does not create another storey.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `levels` overrides a room's finished height pair while `storey` remains its authored ground or upper population; it does not create another storey.
    * @evidence principles/core/source-units.md#source-substantive-completion A nonstandard room can give its actual floor and ceiling heights.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `roomLevels` returns this pair when present; ceiling, environment, observation, and reservation consumers can then use the garage's actual finished heights.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `roomLevels` returns this pair when present; ceiling, environment, observation, and reservation consumers can then use the garage's actual finished heights.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-threshold-datums puts the garage finished floor at -0.15 m below the ordinary ground-room finish; this field preserves that authored floor difference.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `ground-threshold-datums` fixes the garage floor below the ordinary ground room; `garage-interior.ts` supplies its floor and ceiling pair here for `roomLevels` without choosing another threshold.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `ground-threshold-datums` fixes the garage floor below the ordinary ground room; `garage-interior.ts` supplies its floor and ceiling pair here for `roomLevels` without choosing another threshold.
    */
   levels?: readonly [number, number];
   /**
    * @evidence spaces/05-route-network.md The room record carries route and use reservations beside its surface owner outputs.
-    * @evidenceReview spaces/05-route-network.md `IRoomSpace.reservations` keeps each room's passage, body, and use boxes alongside its identity and outline for the assembled route check.
+    * @evidenceReview spaces/05-route-network.md #60bf203 `IRoomSpace.reservations` keeps each room's passage, body, and use boxes alongside its identity and outline for the assembled route check.
    * @evidence spaces/05-route-network.md#room-route-network The reservation list supplies the room's internal occupancy bands to the route check.
-    * @evidenceReview spaces/05-route-network.md#room-route-network `buildHouse` gathers room builders before `checkReservations` reads this list and tests their route bands against low reserved bodies.
+    * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 `buildHouse` gathers room builders before `checkReservations` reads this list and tests their route bands against low reserved bodies.
    * @evidence principles/core/source-units.md#source-scope-preservation The list reserves later objects without building them.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The readonly list carries room-authored zones without constructing the later appliance, furniture, or person using them.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The readonly list carries room-authored zones without constructing the later appliance, furniture, or person using them.
    * @evidence principles/core/source-units.md#source-substantive-completion Route validation can inspect each room's reserved uses.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildHouse` passes the assembled room list to `checkReservations`, where each present reservation receives containment and applicable route/body validation.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `buildHouse` passes the assembled room list to `checkReservations`, where each present reservation receives containment and applicable route/body validation.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network requires each room's internal use and route bands alongside its connection; reservations carries those room-owned zones for the 2.00 m clearance check.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` sets internal passage and use-state roles plus the 2.00 m route band; this field carries each room's zones, including the garage overhead guide, into the shared check.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `room-route-network` sets internal passage and use-state roles plus the 2.00 m route band; this field carries each room's zones, including the garage overhead guide, into the shared check.
    */
   reservations?: readonly IRoomReservation[];
 }
