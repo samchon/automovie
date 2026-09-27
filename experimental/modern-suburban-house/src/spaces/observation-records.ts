@@ -150,54 +150,54 @@ export interface IHouseObservation {
 /**
  * What one reference comparison reads.
  * @evidence spaces/04-observations.md The five references select derived observations and records.
-  * @evidenceReview spaces/04-observations.md `IReferenceComparison` keeps each of the five reference keys beside derived question ids and compiled record ids, preserving the design's separate comparison assignments.
+  * @evidenceReview spaces/04-observations.md #696e544 `IReferenceComparison` keeps each of the five reference keys beside derived question ids and compiled record ids, preserving the design's separate comparison assignments.
  * @evidence spaces/04-observations.md#reference-spatial-comparisons Each comparison names the questions it uses.
-  * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons Each returned comparison names its reference and the observations or records it reads; 02 uses storey and stair records with no own observation id.
+  * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 Each returned comparison names its reference and the observations or records it reads; 02 uses storey and stair records with no own observation id.
  * @evidence principles/core/source-units.md#source-scope-preservation The comparison selects existing observations without authoring a second house.
-  * @evidenceReview principles/core/source-units.md#source-scope-preservation The type holds only identifiers for existing derived questions and house records; it creates no second room or imitation camera.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The type holds only identifiers for existing derived questions and house records; it creates no second room or imitation camera.
  * @evidence principles/core/source-units.md#source-substantive-completion Reference identity, station ids and record ids are explicit.
-  * @evidenceReview principles/core/source-units.md#source-substantive-completion Required `reference`, `observations`, and `records` fields make each comparison's source key and two input sets explicit to its consumer.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Required `reference`, `observations`, and `records` fields make each comparison's source key and two input sets explicit to its consumer.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons enumerates 01 exterior, 02 cutaway, 03 common room, 04 entry/living, and 05 upper hall; this type carries those five addresses.
-  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` assigns 01 to exterior, 02 to the cutaway, 03 to the common room, 04 to entry/living/stair, and 05 to upper hall; this type carries those five keyed selections.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `reference-spatial-comparisons` assigns 01 to exterior, 02 to the cutaway, 03 to the common room, 04 to entry/living/stair, and 05 to upper hall; this type carries those five keyed selections.
  */
 export interface IReferenceComparison {
   /**
    * @evidence spaces/04-observations.md Five source references drive the comparison map.
-    * @evidenceReview spaces/04-observations.md The `reference` literal union confines each comparison to the five supplied images in their authored order.
+    * @evidenceReview spaces/04-observations.md #696e544 The `reference` literal union confines each comparison to the five supplied images in their authored order.
    * @evidence spaces/04-observations.md#reference-spatial-comparisons The key identifies one of the five given reference views.
-    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons The five table rows 01 through 05 correspond exactly to this field's allowed keys, and the derivation returns one entry for each.
+    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 The five table rows 01 through 05 correspond exactly to this field's allowed keys, and the derivation returns one entry for each.
    * @evidence principles/core/source-units.md#source-scope-preservation The union does not introduce a sixth reference.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The union contains only `01` through `05`; it cannot assign a sixth source image or change the production's reference set.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The union contains only `01` through `05`; it cannot assign a sixth source image or change the production's reference set.
    * @evidence principles/core/source-units.md#source-substantive-completion Each comparison has a known reference identity.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion The key is required on every `IReferenceComparison`, so consumers can associate its observations and records with one known reference.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The key is required on every `IReferenceComparison`, so consumers can associate its observations and records with one known reference.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons fixes the 01–05 set; this union refuses a sixth reference key.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` contains exactly the five source references; this literal union preserves that set without adding another visual brief.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `reference-spatial-comparisons` contains exactly the five source references; this literal union preserves that set without adding another visual brief.
    */
   reference: "01" | "02" | "03" | "04" | "05";
   /**
    * @evidence spaces/04-observations.md Comparisons use the derived station census.
-    * @evidenceReview spaces/04-observations.md References 01, 03, 04, and 05 select derived question ids here, while the inspection-mode cutaway 02 uses records with an empty observation-id list.
+    * @evidenceReview spaces/04-observations.md #696e544 References 01, 03, 04, and 05 select derived question ids here, while the inspection-mode cutaway 02 uses records with an empty observation-id list.
     * @evidence spaces/04-observations.md#reference-spatial-comparisons References with spatial questions list their accepted observation ids; the cutaway may use compiled records instead.
-    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons `ofSpace`, role filters, and checked `pick` return ids already in the derived census; 02 intentionally has none and names both storeys and the stair connector in `records`.
+    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 `ofSpace`, role filters, and checked `pick` return ids already in the derived census; 02 intentionally has none and names both storeys and the stair connector in `records`.
    * @evidence principles/core/source-units.md#source-scope-preservation These ids refer to accepted questions rather than cloned views.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation This string list refers to accepted observation questions; it does not duplicate their camera poses or construct a second view.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This string list refers to accepted observation questions; it does not duplicate their camera poses or construct a second view.
    * @evidence principles/core/source-units.md#source-substantive-completion The selector lists each observation it needs.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `pick` now throws if a named required observation is absent; the other selectors reuse the current census, and only the cutaway's explicit record-only selection is empty.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `pick` now throws if a named required observation is absent; the other selectors reuse the current census, and only the cutaway's explicit record-only selection is empty.
     * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` assigns extra comparison questions for 01–05; this field selects existing derived observation ids where they apply, while the 02 cutaway reads compiled records without an invented pose.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The reference table assigns each comparison to its space and counterexample; four selections list actual census ids and 02 uses storey/stair records, preserving the separate reference questions without replacing the observation denominator.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The reference table assigns each comparison to its space and counterexample; four selections list actual census ids and 02 uses storey/stair records, preserving the separate reference questions without replacing the observation denominator.
    */
   observations: string[];
   /**
    * @evidence spaces/04-observations.md The cutaway may compare compiled records directly.
-    * @evidenceReview spaces/04-observations.md Reference 02 uses `ground-storey`, `upper-storey`, and `main-stair-connection` in `records` for its inspection-mode plan and cutaway; other references name their relevant house or room records.
+    * @evidenceReview spaces/04-observations.md #696e544 Reference 02 uses `ground-storey`, `upper-storey`, and `main-stair-connection` in `records` for its inspection-mode plan and cutaway; other references name their relevant house or room records.
    * @evidence spaces/04-observations.md#reference-spatial-comparisons The cutaway can read storey records without inventing a camera pose.
-    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons The cutaway's `observations` list is empty while this field selects both storeys and their stair connector, avoiding an invented interior reference-camera pose.
+    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 The cutaway's `observations` list is empty while this field selects both storeys and their stair connector, avoiding an invented interior reference-camera pose.
    * @evidence principles/core/source-units.md#source-scope-preservation These names select existing records, not new geometry.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The strings refer to assembled house, room, storage, storey, or connector records; this field does not duplicate their geometry.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The strings refer to assembled house, room, storage, storey, or connector records; this field does not duplicate their geometry.
    * @evidence principles/core/source-units.md#source-substantive-completion The comparison records non-camera inputs explicitly.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion This required list gives the comparison consumer explicit non-camera inputs, including the cutaway's storeys and stair connector.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f This required list gives the comparison consumer explicit non-camera inputs, including the cutaway's storeys and stair connector.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons assigns 02 to a two-storey cutaway and allows it to read compiled storey records without inventing an interior camera.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` assigns 02 to two storeys and a stair cutaway in inspection mode; its records name those compiled inputs without fabricating a room camera.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `reference-spatial-comparisons` assigns 02 to two storeys and a stair cutaway in inspection mode; its records name those compiled inputs without fabricating a room camera.
    */
   records: string[];
 }
@@ -205,54 +205,54 @@ export interface IReferenceComparison {
 /**
  * The derivation result.
  * @evidence spaces/04-observations.md It returns accepted questions, failed stations and reference selections.
-  * @evidenceReview spaces/04-observations.md `IObservationDerivation` returns the accepted question list, a separate station-failure list, and five reference selections from one built house.
+  * @evidenceReview spaces/04-observations.md #696e544 `IObservationDerivation` returns the accepted question list, a separate station-failure list, and five reference selections from one built house.
   * @evidence spaces/04-observations.md#engine-render-handoff Null, outside, or coincident stations remain failures instead of counting as successful observations.
-  * @evidenceReview spaces/04-observations.md#engine-render-handoff `accept` adds a null, outside-space, or duplicate pose to `failures`; only accepted stations enter `observations`, while exterior building questions are appended without an own-space pose.
+  * @evidenceReview spaces/04-observations.md#engine-render-handoff #330fc4a `accept` adds a null, outside-space, or duplicate pose to `failures`; only accepted stations enter `observations`, while exterior building questions are appended without an own-space pose.
  * @evidence principles/core/source-units.md#source-scope-preservation The result is computed from the built house record.
-  * @evidenceReview principles/core/source-units.md#source-scope-preservation The result is produced by `deriveHouseObservations(environment, house)` from compiled space and house records, without a second house geometry source.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The result is produced by `deriveHouseObservations(environment, house)` from compiled space and house records, without a second house geometry source.
  * @evidence principles/core/source-units.md#source-substantive-completion Both the accepted census and rejected stations reach the caller.
-  * @evidenceReview principles/core/source-units.md#source-substantive-completion All three required arrays are returned, preserving accepted observations, diagnosed failures, and reference inputs for the caller.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f All three required arrays are returned, preserving accepted observations, diagnosed failures, and reference inputs for the caller.
   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` supplies the compiled question census, `engine-render-handoff` separates invalid station poses, and `reference-spatial-comparisons` assigns five comparisons; this type returns those three populations.
-  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The derivation returns question, failure, and reference arrays from the same environment and house; the named parents supply census, failure handling, and comparison roles without an extra spatial decision.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The derivation returns question, failure, and reference arrays from the same environment and house; the named parents supply census, failure handling, and comparison roles without an extra spatial decision.
  */
 export interface IObservationDerivation {
   /**
    * @evidence spaces/04-observations.md The result exposes its observation census.
-    * @evidenceReview spaces/04-observations.md `observations` carries the accepted station census together with building census and emitted roof-part questions for later spatial inspection.
+    * @evidenceReview spaces/04-observations.md #696e544 `observations` carries the accepted station census together with building census and emitted roof-part questions for later spatial inspection.
    * @evidence spaces/04-observations.md#spatial-observation-derivation Accepted stations and building questions.
-    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation `accept` appends contained, distinct station poses, then the derivation adds exterior facade, roof, underside, corner, and entrance questions to this list.
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea `accept` appends contained, distinct station poses, then the derivation adds exterior facade, roof, underside, corner, and entrance questions to this list.
    * @evidence principles/core/source-units.md#source-scope-preservation Entries derive from the compiled house rather than new source geometry.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation Entries derive from compiled stations, building census, roof parts, and house outlines; the array does not instantiate new geometry.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Entries derive from compiled stations, building census, roof parts, and house outlines; the array does not instantiate new geometry.
    * @evidence principles/core/source-units.md#source-substantive-completion The caller can inspect every accepted question.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion The required array exposes all accepted questions and their ids to reference selection and later inspection consumers.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The required array exposes all accepted questions and their ids to reference selection and later inspection consumers.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation adds centre, corner, threshold, and building questions to the compiled station denominator; observations carries the accepted entries of that census.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` requires room and exterior questions from the built record; this array carries accepted stations and appended building questions without fixing a view count.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `spatial-observation-derivation` requires room and exterior questions from the built record; this array carries accepted stations and appended building questions without fixing a view count.
    */
   observations: IHouseObservation[];
   /**
    * @evidence spaces/04-observations.md Failed stations remain audit data.
-    * @evidenceReview spaces/04-observations.md `failures` keeps rejected station ids and causes separate from accepted questions so a null or repeated eye cannot inflate the inspection count.
+    * @evidenceReview spaces/04-observations.md #696e544 `failures` keeps rejected station ids and causes separate from accepted questions so a null or repeated eye cannot inflate the inspection count.
     * @evidence spaces/04-observations.md#engine-render-handoff Invalid or coincident stations retain an id and cause outside the accepted census.
-    * @evidenceReview spaces/04-observations.md#engine-render-handoff `accept` records no-pose, outside-space, and coincident causes in this list, following the handoff's rule against counting such stations as successful observations.
+    * @evidenceReview spaces/04-observations.md#engine-render-handoff #330fc4a `accept` records no-pose, outside-space, and coincident causes in this list, following the handoff's rule against counting such stations as successful observations.
    * @evidence principles/core/source-units.md#source-scope-preservation Failed questions do not create substitute rooms or cameras.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation Each failure has only id and cause; inward corner and threshold fallbacks are attempted before `accept`, and a rejected pose creates no substitute room or camera.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Each failure has only id and cause; inward corner and threshold fallbacks are attempted before `accept`, and a rejected pose creates no substitute room or camera.
    * @evidence principles/core/source-units.md#source-substantive-completion Every rejected station has a reason for review.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion Every pushed failure includes its station id and a concrete no-pose, outside-space, or coincident cause for review.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Every pushed failure includes its station id and a concrete no-pose, outside-space, or coincident cause for review.
     * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `engine-render-handoff` requires unresolved own-space stations to remain outside the successful census; this list records their id and cause after the inward fallbacks.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The derivation tries its corner and threshold fallbacks before `accept`; any remaining invalid pose gets an id/cause entry here instead of an invented successful camera or spatial boundary.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The derivation tries its corner and threshold fallbacks before `accept`; any remaining invalid pose gets an id/cause entry here instead of an invented successful camera or spatial boundary.
    */
   failures: { id: string; cause: string }[];
   /**
    * @evidence spaces/04-observations.md The result carries the comparison selectors.
-    * @evidenceReview spaces/04-observations.md `references` returns the five comparison selections beside the shared observation census and station failures.
+    * @evidenceReview spaces/04-observations.md #696e544 `references` returns the five comparison selections beside the shared observation census and station failures.
    * @evidence spaces/04-observations.md#reference-spatial-comparisons Five selections reference observations and records.
-    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons The derivation constructs entries 01 through 05 with explicit observation-id and record-id arrays, including the record-only cutaway 02.
+    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 The derivation constructs entries 01 through 05 with explicit observation-id and record-id arrays, including the record-only cutaway 02.
    * @evidence principles/core/source-units.md#source-scope-preservation Selectors reuse the derived census.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The selections use accepted observation ids through role filters, `ofSpace`, and checked `pick`; they do not create a new room or camera pose.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The selections use accepted observation ids through role filters, `ofSpace`, and checked `pick`; they do not create a new room or camera pose.
    * @evidence principles/core/source-units.md#source-substantive-completion All five views have an explicit comparison route.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion Five ordered entries are returned, and the derivation rejects an empty observation selection for any reference except the deliberately record-only 02.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Five ordered entries are returned, and the derivation rejects an empty observation selection for any reference except the deliberately record-only 02.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Reference-spatial-comparisons requires separate selections for 01 exterior, 02 cutaway, 03 common room, 04 entry/living, and 05 upper hall; this list retains all five.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The design's five reference rows assign exterior, cutaway, common, entry/living, and upper-hall comparisons; this array keeps all five ordered selections separate from the overall question list.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The design's five reference rows assign exterior, cutaway, common, entry/living, and upper-hall comparisons; this array keeps all five ordered selections separate from the overall question list.
    */
   references: IReferenceComparison[];
 }
@@ -265,15 +265,15 @@ export interface IObservationDerivation {
  */
 /**
  * @evidence spaces/06-openings.md openingAxis resolves an authored wall void to a world-space centre, local face normal, and beyond-face reach.
-  * @evidenceReview spaces/06-openings.md `openingAxis` resolves an existing profile and host face, rotating its local centre and +Z normal into world coordinates so route and threshold consumers can test either side of the authored wall void.
+  * @evidenceReview spaces/06-openings.md #bad6451 `openingAxis` resolves an existing profile and host face, rotating its local centre and +Z normal into world coordinates so route and threshold consumers can test either side of the authored wall void.
   * @evidence spaces/06-openings.md#external-opening-interface The helper reads the host face origin, rotation and wall thickness to locate an opening through its assigned boundary.
-  * @evidenceReview spaces/06-openings.md#external-opening-interface The profile vertex mean is rotated from the boundary's local frame and added to `face.origin`; its local +Z normal is rotated likewise, while a source-local half-thickness plus 0.05 m probe reaches beyond the face.
+  * @evidenceReview spaces/06-openings.md#external-opening-interface #457149c The profile vertex mean is rotated from the boundary's local frame and added to `face.origin`; its local +Z normal is rotated likewise, while a source-local half-thickness plus 0.05 m probe reaches beyond the face.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads the existing opening profile and boundary face, without assigning a new door or window frame.
-  * @evidenceReview principles/core/source-units.md#source-scope-preservation The function reads the compiled opening profile and its boundary face, returning centre, normal, and reach without constructing a door, window, or new opening coordinate.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The function reads the compiled opening profile and its boundary face, returning centre, normal, and reach without constructing a door, window, or new opening coordinate.
  * @evidence principles/core/source-units.md#source-substantive-completion Missing opening, face, or profile throws; otherwise quaternion rotation and origin yield world coordinates.
-  * @evidenceReview principles/core/source-units.md#source-substantive-completion Missing opening, host face, or profile throws; otherwise the quaternion rotation maps the profile mean and local +Z into world space and returns a symmetric probe distance.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Missing opening, host face, or profile throws; otherwise the quaternion rotation maps the profile mean and local +Z into world space and returns a symmetric probe distance.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The external-opening-interface parent supplies the host wall and through-thickness void; this helper's bidirectional beyond-face probe adds no opening coordinate.
-  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `external-opening-interface` assigns the through-wall rough void to its elevation owner; this helper computes centre and axis from that compiled profile and face, while route and threshold callers probe both signs without a new opening placement.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `external-opening-interface` assigns the through-wall rough void to its elevation owner; this helper computes centre and axis from that compiled profile and face, while route and threshold callers probe both signs without a new opening placement.
  */
 export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: string): { centre: IAutoMovieVector3; normal: IAutoMovieVector3; reach: number } => {
   const opening = environment.openings.find((o) => o.id === openingId);
