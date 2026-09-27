@@ -142,6 +142,23 @@ export function createHumanBodyBasisBuilder(
           shoulders: undefined,
         }),
       );
+    // each is evaluated once, on first use: the document at rest (the
+    // shaped body itself when it is not posed) and each surface's lean self
+    let restOnce: ReturnType<typeof atRest> | undefined;
+    const restAll = () =>
+      posed ? (restOnce ??= atRest(document.shape)) : shaped;
+    const leans = new Map<number, number[]>();
+    const leanOf = (index: number): number[] => {
+      let lean = leans.get(index);
+      if (lean === undefined) {
+        lean = atRest({
+          ...document.shape,
+          ...basis.surfaces[index].sag!.lean,
+        }).surfaces[index];
+        leans.set(index, lean);
+      }
+      return lean;
+    };
     const { skeleton, rest, frames } = resolveHumanBodySkeleton(
       basis,
       shaped.landmarks,
@@ -375,18 +392,20 @@ export function createHumanBodyBasisBuilder(
       // the veins show over the lean body the surface's sag declares, and
       // the tissue the body carries over its lean self hides them as a
       // deeper vein takes less of the light
+      const restNormals = new Map<number, number[]>();
       const veinsShow = (
         index: number,
         overlay: { vertices: number[]; attenuation: number },
         strength: number,
       ): number => {
         const surface = basis.surfaces[index];
-        const rest = posed
-          ? atRest(document.shape).surfaces[index]
-          : shaped.surfaces[index];
-        const lean = atRest({ ...document.shape, ...surface.sag!.lean })
-          .surfaces[index];
-        const normals = portraitNormals(rest, surface.indices);
+        const rest = restAll().surfaces[index];
+        const lean = leanOf(index);
+        let normals = restNormals.get(index);
+        if (normals === undefined) {
+          normals = portraitNormals(rest, surface.indices);
+          restNormals.set(index, normals);
+        }
         let tissue = 0;
         for (const v of overlay.vertices) {
           let along = 0;
@@ -500,7 +519,7 @@ export function createHumanBodyBasisBuilder(
     // gravity's change in the skin's frame moves the soft tissue; a document
     // at the rest pose the basis was authored in hangs as authored
     const restShape =
-      posed && sags.some((sag) => sag !== null) ? atRest(document.shape) : null;
+      posed && sags.some((sag) => sag !== null) ? restAll() : null;
     const parts = basis.surfaces.flatMap((surface, index) => {
       const skinned = skinHumanBodySurface(
         shaped.surfaces[index],
@@ -512,7 +531,7 @@ export function createHumanBodyBasisBuilder(
       const positions = (() => {
         if (sag === null || restShape === null) return skinned;
         const declared = surface.sag!;
-        const lean = atRest({ ...document.shape, ...declared.lean });
+        const lean = leanOf(index);
         // the skin's rest down after the pose: each vertex's transform is
         // rigid, so a point a centimetre below it lands a centimetre along it
         const below = skinHumanBodySurface(
@@ -535,7 +554,7 @@ export function createHumanBodyBasisBuilder(
         );
         return sag({
           rest: restShape.surfaces[index],
-          lean: lean.surfaces[index],
+          lean,
           skinned,
           hanging: below.map((value, i) => (value - skinned[i]) / 0.01),
           softness,
