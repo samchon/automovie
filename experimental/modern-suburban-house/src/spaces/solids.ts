@@ -45,15 +45,15 @@ import type {
 /**
  * Axis-aligned box between two world corners.
  * @evidence spaces/03-surface-owners.md Assigned owners use box solids for their own structural or finish details.
- * @evidenceReview spaces/03-surface-owners.md #9596716 block remains a geometry primitive used under caller owners: stair.ts calls stair-guards.ts for guard posts, while porch.ts, left.ts and entry.ts build their own assigned parts.
+ * @evidenceReview spaces/03-surface-owners.md `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 Exterior details via block under own owner (porch beam, chimney cap, thresholds front.ts:168, fence posts).
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 min/max from caller (L300-303); no constants.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The `min` and `max` world corners are both caller arguments; `block` calculates their differences and midpoint without choosing a location or material.
  * @evidence principles/core/source-units.md#source-substantive-completion It rejects nonpositive extents and returns a transformed closed box mesh.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L309-312 throws on nonpositive/NaN extents; L313-322 tessellated closed box translated.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `block` rejects any width, height, or depth that is not positive, tessellates a closed box of those extents, and translates it to the corners' midpoint.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns chimney and porch parts to their respective builders; block extrudes their supplied world corners without allocating another face owner.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:33 left elevation owns the chimney interface (left.ts:116-170 role 'chimney'); 03:44 porch.ts owns porch roof/columns/beam (porch.ts:88-147). block returns only a closed box mesh between two caller corners (solids.ts:293-316); the caller's part() sets owner.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `exterior-surface-handoff` assigns chimney parts to `left.ts` and porch parts to `porch.ts`; this primitive only meshes their supplied corners and leaves the source owner on each caller's `part` record.
  */
 export const block = (
   min: readonly [number, number, number],
@@ -92,17 +92,17 @@ const TO_PLAN = { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 };
  * wall thickness on the other horizontal axis. Holes are real voids through
  * the whole thickness. The outline must enclose every hole.
  * @evidence spaces/07-boundary-assembly.md A wall owner can emit one outlined panel with actual cut voids.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 outline + holes -> extrudeAutoMovieRegion (L351-358); 07-boundary-assembly.md:27.
+ * @evidenceReview spaces/07-boundary-assembly.md `wallPanel` converts one owner-supplied wall outline and its rectangular hole rings into an extruded mesh, retaining a matching face record for the shared boundary.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership A partition remains one body on its assigned run.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 v-141 straightWall (partitions) builds one wallPanel (L426-431).
+ * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership `straightWall` calls `wallPanel` once for a partition's notched outline and remaining interior holes, preserving one physical wall body for that assigned run.
  * @evidence spaces/07-boundary-assembly.md#exterior-boundary-junctions Orientation and thickness preserve the single exterior wall body.
- * @evidenceReview spaces/07-boundary-assembly.md#exterior-boundary-junctions #11dbbb5 v-141 axis/across place one extruded body (L365-379); 07-boundary-assembly.md:115-121 single wall body per zone.
+ * @evidenceReview spaces/07-boundary-assembly.md#exterior-boundary-junctions The caller's `axis` and `across` transform the one extruded panel into its X- or Z-running wall thickness, so a corner body is not generated again by this helper.
  * @evidence principles/core/source-units.md#source-scope-preservation Axis, outline and cuts are supplied by the caller; this helper owns no wall run.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 All geometry from props; helper holds no run.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `wallPanel` takes axis, thickness range, outline, and holes from `props`; it contributes the mesh and face representation but no independent wall location.
  * @evidence principles/core/source-units.md#source-substantive-completion Region extrusion produces a mesh and its matching face record.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L358 extrusion, L359-364 face, returned together L366-379.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `extrudeAutoMovieRegion` cuts the supplied hole rings, then the function returns the transformed mesh alongside a face with the same axis, range, outline, and holes.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership gives each partition one body and its door void, while external-opening-interface cuts a rough opening through its host wall; wallPanel emits that body and matching face record.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07:27 partition body and opening cut generated once; 06:27 rough opening passes through its elevation wall. wallPanel extrudes outline with holes and returns mesh + matching face (solids.ts:336-373); used by envelope/garage walls and, via straightWall (solids.ts:419), partitions.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-boundary-ownership` assigns one cut partition body and `external-opening-interface` assigns through-wall rough voids; this helper returns each caller's meshed body and matching face without a new boundary decision.
  */
 export const wallPanel = (props: {
   axis: "x" | "z";
@@ -151,15 +151,15 @@ export const wallPanel = (props: {
  * outline, so the panel stays one closed body on each side of the door. A void
  * that leaves the panel's length range or sits below its bottom is refused.
  * @evidence spaces/07-boundary-assembly.md Straight interior partitions retain their full face despite cut door voids.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 rooms/shared.ts partition and stair.ts wall call straightWall with partition roles; no envelope run calls it. Its face keeps the rectangle with voids including notched doors, preserving the boundary design's single body and opening cut.
- * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions A floor-reaching door becomes a bottom notch while its face lists the same void.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 v-141 A true (notch L410-420; face lists every hole L444). The notch rule is 06-openings.md:31 ('벽 바닥까지 닿는 문은 외곽선의 열린 패임'); 07-boundary-assembly.md:79 supplies only the same-cut-boundary half.
+ * @evidenceReview spaces/07-boundary-assembly.md Room partition and stair-wall callers use `straightWall` for their assigned runs; it returns one meshed body and one complete boundary face that records every opening.
+ * @evidence spaces/06-openings.md#external-opening-interface A floor-reaching door becomes a bottom notch in the extruded wall outline rather than an interior hole ring.
+ * @evidenceReview spaces/06-openings.md#external-opening-interface `straightWall` moves holes touching `props.bottom` into the outer outline as open notches and passes only fully enclosed holes to `wallPanel`, matching the opening-interface extrusion rule.
  * @evidence principles/core/source-units.md#source-scope-preservation Callers set wall axis, span and holes; this helper changes no room allocation.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 axis/along/holes from caller (L395-402).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The caller supplies the wall axis, across and along intervals, bottom/top, and hole records; the helper decides the mesh cut representation without reallocating the room boundary.
  * @evidence principles/core/source-units.md#source-substantive-completion It validates hole bounds, forms notches, and returns the wall mesh plus full boundary.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L405-409 refuse, L410-420 notches, L433-446 mesh + full rectangle face.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires floor-reaching partition doors to be real bottom notches and interior-boundary-ownership keeps one wall body; straightWall produces that cut body.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07:27 one common body per partition true; straightWall builds one notched outline (solids.ts:403-418). But the bottom-notch rule is stated at 06-openings.md:31 ('벽 바닥까지 닿는 문은 외곽선의 열린 패임'); interior-boundary-junctions only implies it through the floor finish meeting at the partition centre plane under doors (07:83).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The helper rejects out-of-run holes, builds notches for floor-touching ones, and returns the meshed wall with a full rectangular face listing all holes for downstream boundary checks.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-boundary-ownership` assigns one common partition body, `interior-boundary-junctions` keeps its cut and finishes aligned, and `external-opening-interface` states the open-notch extrusion rule that straightWall applies.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `straightWall` produces one notched partition mesh with a complete face and hole list; the three named parents separately supply single-body ownership, shared cut alignment, and the bottom-notch representation, so no new wall rule is needed.
  */
 export const straightWall = (props: {
   axis: "x" | "z";
@@ -218,17 +218,17 @@ export const straightWall = (props: {
 /**
  * A horizontal slab: a plan polygon with optional plan holes between two heights.
  * @evidence spaces/08-floor-assembly.md Floor layers are extruded from owner-supplied plan outlines and heights.
- * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f v-141 slab extrudes caller outline between bottom/top (L466-476); 08-floor-assembly.md:27 layer intervals.
- * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Structural slabs use the notched MAIN.inner outline while finish slabs consume each room outline at their own vertical interval.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 Upper-floor structural base uses MAIN.inner with a stair notch, while shared.ts roomFloor and roomCeiling consume individual room outlines. The evidence sentence's plural scope is too broad: ground and upper ceiling bases remain un-notched as the design requires.
- * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The stair opening reaches the front boundary and is cut as an outer-ring notch, not a closed interior hole.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #5618479 A holds: no slab caller passes holes; upper.ts:53-66 supplies the notched outer ring. But 'not a closed interior hole, one notched outer ring' is 08-floor-assembly.md:31 in #interstorey-floor-boundary (same-file sibling); #interstorey-edge-junctions (08:65) only recedes the structure 0.015 m and shares the front-wall end.
+ * @evidenceReview spaces/08-floor-assembly.md `slab` extrudes a caller's horizontal outline between its bottom and top, allowing the assigned floor or ceiling owner to provide its own vertical layer interval.
+ * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The interstorey structural caller supplies its front-reaching stair notch, while room finish callers supply their individual outlines.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary `buildInterstorey` passes a ten-corner ring with a stair recess to `slab`; `roomFloor` and `roomCeiling` pass their room outlines, so this primitive does not turn the stair opening into a closed inner hole.
+ * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The interstorey caller recedes its structural stair edge by the 0.015 m finish reservation before slab extrusion.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions `buildInterstorey` offsets the stair-opening turns by `OPENING_EDGE`, then passes that receded plan ring to `slab`; the stair owner can finish the exposed edge without this helper choosing the inset.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller owns the polygon, cutouts and layer interval.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Outline, holes and interval all from props (L458-463); the stair cutout is the caller's notch.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The outline, optional plan holes, and two heights all come from `props`; `slab` does not choose the stair cutout or claim the layer owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Region extrusion creates a horizontal closed mesh with real plan holes.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Hole path exists (L468-470) but no production caller passes holes; every emitted slab is hole-free (stair opening is a notch, upper.ts:43-56).
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interstorey-floor-boundary assigns structural thickness below the upper floor and room finish to each room outline; interstorey-edge-junctions cuts the stair as an outer notch in the structural caller plan.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 08:25-29 structure between the two finish layers and room finish per room outline true. The outer-notch/not-hole decision is 08:31 (#interstorey-floor-boundary), not edge-junctions (08:65 gives the 0.015 m recession). Code upper.ts:53-66.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `extrudeAutoMovieRegion` receives the outer ring and any optional hole rings, then the mesh is rotated into the world X/Z plan and translated to the supplied height interval; current stair geometry uses an outer notch.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interstorey-floor-boundary` assigns structure and room finishes plus the front-reaching stair notch; `interstorey-edge-junctions` assigns its 0.015 m structural recession, and the callers pass those plans to slab.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `buildInterstorey` supplies the notched outer ring and its inset, while room finish callers supply their own outlines and intervals; `slab` extrudes these reviewed choices without assigning a second floor boundary.
  */
 export const slab = (props: {
   outline: readonly IPlanPoint[];
@@ -254,15 +254,15 @@ export const slab = (props: {
 /**
  * Plan rectangle helper for caller-supplied X and Z extents.
  * @evidence spaces/site/00-access.md Building and exterior-zone owners express plan extents in one world frame.
- * @evidenceReview spaces/site/00-access.md #a8ac95c 00-access.md:29,101 building and zones in one common frame; rect callers: building ground.ts:41, garage.ts:113, upper.ts:99; exterior side-walk.ts:62, driveway.ts:57, terrace.ts:106, porch.ts:155,166.
+ * @evidenceReview spaces/site/00-access.md `rect` orders world X/Z intervals supplied by building, floor, porch, and site-zone callers, so their plan outlines remain in the same site frame without a local origin shift.
  * @evidence spaces/site/00-access.md#site-access-interface This helper preserves the caller's X/Z frame while forming a four-corner ring.
- * @evidenceReview spaces/site/00-access.md#site-access-interface #0ee9bff 00-access.md:29 common frame. rect returns four ordered corners from the caller's x and z intervals only (solids.ts:480-485).
+ * @evidenceReview spaces/site/00-access.md#site-access-interface The helper returns four corners in the supplied X/Z frame, consistent with the parent's house-site extent and ground-storey exterior zones.
  * @evidence principles/core/source-units.md#source-scope-preservation It adds no width or location beyond the caller's values.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Only x[0..1], z[0..1] used.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `rect` reads only the two input X values and two input Z values; no site width, offset, or placement is declared inside the helper.
  * @evidence principles/core/source-units.md#source-substantive-completion Four ordered corners form a reusable rectangular plan outline.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 (x0,z0)->(x1,z0)->(x1,z1)->(x0,z1) L488-491.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The returned plan ring orders `(x0,z0)`, `(x1,z0)`, `(x1,z1)`, `(x0,z1)`, giving callers a reusable rectangular outline.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface assembles main house, garage, and exterior zones in the common X/Z frame from coordinate-units; rect only orders the two intervals supplied by each actual owner.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 00-access.md:29 house-site contains main, garage, porch and exterior zones; coordinates use coordinate-units. rect only orders the two supplied intervals (solids.ts:480-485); callers are building and site owners.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `site-access-interface` keeps building and exterior zones in the common world frame; `rect` merely orders intervals supplied by those owners, so it exposes no missing site placement decision.
  */
 export const rect = (x: readonly [number, number], z: readonly [number, number]): IPlanPoint[] => [
   { x: x[0], z: z[0] },
@@ -290,17 +290,17 @@ const cross = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
  * The plan ring is reordered so the top face's normal points up; the bottom
  * face reverses it and each side is the vertical quad under one plan edge.
  * @evidence spaces/roof/00-junctions.md Roof and wall-head owners supply a planar top and assigned underside.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd v-141 Roof owners pass top=mFront/mBack/... and ROOF_THICKNESS (main-back.ts:34-39); wallHead passes underside top + level floor (wall-head.ts:42-45); roof/00-junctions.md:62-64,128.
- * @evidence spaces/roof/00-junctions.md#roof-profile-datums A vertical thickness or level underside closes each sloped roof face.
- * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 v-141 roof/00-junctions.md:64 fixes only a vertical 0.24 m underside for sloped roof faces; no level underside. All roof callers use thickness (roof/*.ts, porch roof porch.ts:147-151); the level floor is used only by porch-beam-packer and wallHead (porch.ts:136-139, wall-head.ts:44).
+ * @evidenceReview spaces/roof/00-junctions.md `slopedSlab` receives a planar top function and caller-supplied vertical thickness or lower face; roof builders use their profile functions while `wallHead` uses the same mesh primitive across wall thickness.
+ * @evidence spaces/roof/00-junctions.md#roof-profile-datums A caller-supplied vertical thickness closes each sloped roof face below its weather plane.
+ * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums Main and garage roof callers pass `ROOF_THICKNESS` with their profile top functions; `slopedSlab` subtracts that thickness in world Y for the underside specified by the roof datum.
  * @evidence spaces/roof/00-junctions.md#roof-wall-head-junctions A caller can close a wall-head wedge against its own level floor.
- * @evidenceReview spaces/roof/00-junctions.md#roof-wall-head-junctions #0de3b07 v-141 wall-head.ts:42-45 floor = roof(outerZ)-thickness (level) with top = underside function; roof/00-junctions.md:128 inner/outer top lines follow the underside.
+ * @evidenceReview spaces/roof/00-junctions.md#roof-wall-head-junctions `wallHead` passes the roof underside as `top` across its Z range and the outer wall-line underside as level `floor`; the resulting wedge fills the higher inner contact.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the plan, slope and underside; it creates no new roof mass.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 plan/top/thickness|floor from caller (L519-528); no roof constant.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The plan, top function, and thickness or floor all come from the caller; the helper contains no ridge, eave, or roof-mass coordinate of its own.
  * @evidence principles/core/source-units.md#source-substantive-completion It validates the input and emits outward top, bottom and side faces.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L529-534 validation; top ordered by normal.y (L540-541), bottom reversed (L552), sides (top_i,bottom_i,bottom_j,top_j) outward (L560-563).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The function rejects fewer than three corners or absent positive thickness/floor, orients the top upward, reverses the lower face, and closes selected free edges with side faces.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-profile-datums fixes a vertical 0.24 m reservation for main and garage planes, porch-roof-columns fixes its own roof underside, and roof-wall-head-junctions consumes the slope across wall thickness; slopedSlab applies only the caller's assigned plan and height.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 roof/00-junctions.md:57-60,64 0.24 m vertical underside for main, gable, low and garage roofs; porch.md:57 porch underside 0.22 m below P; 00-junctions.md:128 inner head higher by slope x wall thickness. slopedSlab uses caller plan, top function and thickness/floor only (solids.ts:512-559); callers roofs, porch.ts:154,165, wall-head.ts:42.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `roof-profile-datums` fixes main/garage vertical underside depth, `porch-roof-columns` fixes its separate depth, and `roof-wall-head-junctions` fixes the wall-thickness slope contact; their callers provide each plan, top, and lower face to this helper.
  */
 export const slopedSlab = (props: {
   plan: readonly IPlanPoint[];
@@ -356,15 +356,15 @@ export const slopedSlab = (props: {
  * and underside faces. The caller supplies convex coplanar tiles and a free
  * outline predicate; shared tile seams receive no vertical face.
  * @evidence spaces/roof/main-front.md A single roof part retains the concave weather face without internal vertical seams.
- * @evidenceReview spaces/roof/main-front.md #f3c7135 v-141 main-front.ts:49-95 four convex tiles in one slopedPlate; tile seams skip sides (coincidentTiles===1, main-front.ts:86); roof/main-front.md:27.
+ * @evidenceReview spaces/roof/main-front.md `buildMainFrontRoof` passes four convex remainder tiles to one `slopedPlate`; the caller's `freeEdge` excludes shared tile seams so the concave roof remains one visible part.
  * @evidence spaces/roof/main-front.md#main-front-roof This keeps the cut main front weather face and underside in one part.
- * @evidenceReview spaces/roof/main-front.md#main-front-roof #5f2d1fd v-141 One buildAutoMoviePolyhedron with all tiles' top and underside (L587-606); roof/main-front.md:27.
+ * @evidenceReview spaces/roof/main-front.md#main-front-roof `slopedPlate` collects top and reversed underside faces from every tile and makes one polyhedron, adding thickness sides only on the caller-marked free perimeter.
  * @evidence principles/core/source-units.md#source-scope-preservation Roof owners identify their free outline; this helper never selects a roof junction.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 freeEdge supplied by caller (L582, L603).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The caller supplies the tile plans, top function, vertical thickness, and `freeEdge` predicate; this primitive does not choose a valley or chimney notch.
  * @evidence principles/core/source-units.md#source-substantive-completion Each planar tile has an underside and only selected free sides close its thickness.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Each tile pushes top and reversed bottom; sides only where freeEdge (L595-604).
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-shared-edges requires one coincident valley/ridge seam without internal closing faces; slopedPlate closes only caller-marked free perimeter edges of its roof tiles.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 00-junctions.md:96,98 one coincident valley boundary consumed from junctions.ts, no overlapped plates, true. 'No internal closing faces' at valley/ridge is roof/main-front.md:27 ('내부 막음판을 남기지 않는다'), other file (author moved this cite there in df38963f). A holds: slopedPlate adds sides only where freeEdge is true (solids.ts:594-597); caller main-front.ts:98.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion Each tile contributes its weather face and vertical-offset underside; sides are added only when `freeEdge` returns true, and all faces form one returned mesh.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `roof-shared-edges` fixes coincident valley/ridge boundaries, while `main-front-roof` forbids internal closing faces; `slopedPlate` closes only caller-marked free perimeter edges of its roof tiles.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `buildMainFrontRoof` gives this helper its gable/chimney-cut tiles and a `freeEdge` predicate that rejects coincident tile seams and shared roof edges; the cited parents already define those boundaries and the one-part closure.
  */
 export const slopedPlate = (props: {
   plans: readonly (readonly IPlanPoint[])[];
@@ -402,17 +402,17 @@ export const slopedPlate = (props: {
  * sloped handrails. Its four long faces follow the bar direction; the section
  * is `size` wide and stays level across the bar.
  * @evidence spaces/02-stair.md The stair owner uses square-section members for its guard and handrail.
- * @evidenceReview spaces/02-stair.md #d17bdfd stair.ts calls stair-guards.ts, where bar forms the upper top rail and both sloped handrails while block forms square posts under the same stair owner; the stair design assigns those guard roles.
+ * @evidenceReview spaces/02-stair.md `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
  * @evidence spaces/02-stair.md#stair-clearance The member follows caller-supplied endpoints and width beside the route.
- * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a The called stair-guards.ts helper centres handrails at turnX minus half RESERVE with RESERVE=opening.guardReserve=0.075 m; bar receives that section width from the stair design.
+ * @evidenceReview spaces/02-stair.md#stair-clearance `buildStairGuards` sets each `bar` size from the 0.075 m `guardReserve` and centres lower/upper rails within their reserved side strips beside the stair route.
  * @evidence spaces/02-stair.md#stair-boundary-heights Its sloped endpoints can track a flight without losing a closed guard body.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f The stair-guards.ts railTop formula uses nosing + 0.90 m minus half the square rail section; bar then constructs one closed member between its passed endpoints.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights `railTop` places bar centres at nosing plus 0.90 m minus half their section, while the upper hall top rail centres at upper floor plus 1.05 m minus half its section.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper adds no rail location; the stair author supplies both ends and size.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 from/to/size all from caller (L620).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `bar` receives both world endpoints and its square width from its caller; it constructs no stair station or guard height itself.
  * @evidence principles/core/source-units.md#source-substantive-completion It builds outward square-section faces and handles a vertical segment.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Vertical -> block (L623-626); faces flipped outward by centroid test (L658-677).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion A vertical segment delegates to `block`; a sloped one forms two square caps and four long faces, reversing any face whose normal points toward the bar midpoint.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-boundary-heights assigns open lower-flight guard and handrail rises, while stair-clearance keeps the route beside them; bar connects only the two supplied rail endpoints at their supplied section size.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The reviewed stair design already assigns the open lower-flight guard, 0.90 m handrail rise and 0.075 m side reservation; this bar primitive supplies a square-section member to the buildStair-called stair-guards.ts helper without revising those parents.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `stair-boundary-heights` supplies the 0.90 m sloped and 1.05 m fall-edge rail tops, while `stair-clearance` supplies the side reserve; `buildStairGuards` passes those derived endpoints and section width to this primitive.
  */
 export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number): IAutoMovieMesh => {
   const dir = sub(to, from);
