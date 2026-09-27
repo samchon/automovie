@@ -7,6 +7,7 @@ export * from "./IAutoMovieHumanBodyChannelScale";
 export * from "./IAutoMovieHumanBodyMeasurement";
 export * from "./IAutoMovieHumanBodySimpleShape";
 export * from "./IAutoMovieHumanBodySimpleShapeTable";
+export * from "./IAutoMovieHumanBodySimplePosture";
 export * from "./IAutoMovieHumanBodySkinSites";
 export * from "./IAutoMovieHumanBodySkinDetail";
 export * from "./IAutoMovieHumanBodySkinTone";
