@@ -11,17 +11,17 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 /**
  * What a part is, so the viewer and later reviews can group it.
  * @evidence spaces/03-surface-owners.md Surface families are allocated to their emitting spaces owners.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 HousePartRole L46-57 names the 11 part families; owner travels separately via part() L690-701. 03-surface-owners.md:29-54 allocates elevations, roofs, porch, floor/ceiling bases, stair+guard, paving and fence to spaces source files.
+ * @evidenceReview spaces/03-surface-owners.md HousePartRole labels wall, roof, floor, stair and site parts; the owner field remains separate so each family in the surface-owner table can retain its emitting file.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior roles distinguish envelope, roof, porch, site and chimney parts.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 Roles wall/roof/porch/paving/fence/chimney used by envelope/*.ts, roof/*.ts, porch.ts:74, site/*, left.ts:104-148 (chimney). 03-surface-owners.md:31-44,50-54 exterior table incl. chimney interface :33.
- * @evidence spaces/03-surface-owners.md#interior-surface-handoff Interior roles distinguish room finishes, partitions, stair and guards.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f The role union includes floor, ceiling, partition, stair and guard; stair.ts calls stair-guards.ts for the guard role. The cited interior handoff covers room finish zones only, while the stair allocation sits in the surface-owner table and partitions are governed by boundary assembly.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff The union provides wall, roof, porch, paving, fence and chimney labels for the separately assigned exterior bodies in the owner table.
+ * @evidence spaces/03-surface-owners.md#interior-surface-handoff Floor and ceiling roles identify room finish parts made by their room owners.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff The floor and ceiling variants can label the finishes the interior handoff assigns to each room; partition and stair variants do not transfer structural ownership to a room.
  * @evidence principles/core/source-units.md#source-scope-preservation This role labels an assigned part without claiming its surface for the helper.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Type-only union L46-57; carries no owner or geometry; owner is the separate field L83.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation HousePartRole is a string union without an owner or mesh; IHousePart carries those separately, leaving the selected emitting file responsible for the surface.
  * @evidence principles/core/source-units.md#source-substantive-completion The viewer can group every emitted structural or finish family.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 role reaches every viewer item (houseScene.cts:99), finish bound per role/colour and unbound key throws (materialPreview.ts:171-175), payload type scenePayload.ts:31; all 11 roles are emitted.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff allocates walls, roofs, porch, paving and fence while interior-surface-handoff allocates room floors, ceilings and partitions; this role union labels their parts.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner table allocates exterior bodies, while the interior handoff allocates room finish zones and refers structural walls to boundary assembly. The role union carries those labels; rooms/shared.ts and stair.ts emit partitions under their respective owners, so this record exposes no missing parent assignment.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The role union is carried by each IHousePart into the environment element kind and the viewer finish lookup, so consumers can group emitted parts by their declared family.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The surface-owner table allocates exterior bodies and the interior handoff allocates room finishes; this role union labels those parts without assigning a new owner.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work HousePartRole supplies labels for the exterior and room-finish bodies allocated in the surface-owner document, while IHousePart.owner supplies the emitting file; the label type requires no change to those allocations.
  */
 export type HousePartRole =
   | "wall"
@@ -40,96 +40,98 @@ export type HousePartRole =
  * One emitted solid: a stable id, the source owner that authors it, its role,
  * its base colour, and its world-space mesh.
  * @evidence spaces/03-surface-owners.md Every surface part keeps the identity of its assigned emitting owner.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 part() copies the caller's owner into the record L690-701; 03-surface-owners.md:27-29 assigns each complete surface to one source owner.
+ * @evidenceReview spaces/03-surface-owners.md IHousePart requires an owner alongside each mesh; part() copies its caller's owner, matching the document's allocation of a complete surface to one source file.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior parts preserve one author for each emitted body.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 owner is a single string per emitted body L83; 03-surface-owners.md:27 hands one complete surface to one owner.
- * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room parts keep their own floor, ceiling and partition ownership.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f rooms/shared.ts roomFloor, roomCeiling and partition take their room or caller owner, carrying the interior handoff's separate floor, ceiling and inner partition finish roles.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff The record holds one owner string for each emitted exterior body; part() preserves the file supplied by the envelope, roof, porch or site emitter.
+ * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room parts retain the owner of their floor and ceiling finish.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff IHousePart.owner remains attached to roomFloor and roomCeiling parts from rooms/shared.ts, allowing the room named in the interior handoff to remain their finish owner.
  * @evidence principles/core/source-units.md#source-scope-preservation The record carries an owner's geometry without making this helper the surface owner.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Interface only; part() never substitutes solids.ts as owner (L690-701).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation IHousePart describes the emitted record and part() copies the caller's owner; this shared record does not select a surface file.
  * @evidence principles/core/source-units.md#source-substantive-completion Identity, owner, role, colour, mesh and optional wall face reach consumers together.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 part() returns one record with id/owner/role/color/mesh/wall (L691-701); environment.ts:611,624,725 and houseScene.cts:97-100 consume them from that one record.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The required id, owner, role, color and mesh fields plus optional wall face form one usable part record; part() constructs it and the environment adapter consumes its mesh, role and face.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns envelope and site bodies by source file and interior-surface-handoff assigns each room's finishes; IHousePart retains those owner ids with the meshes.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner table assigns envelope and site bodies to source files and each room's finishes to its room file; IHousePart carries owner and mesh, while part() copies the supplied owner unchanged for facade, garage and roomFloor parts.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The exterior table and interior handoff identify emitting files; IHousePart carries each emitted mesh with its supplied owner, so this record adds no competing allocation.
  */
 export interface IHousePart {
   /**
-   * @evidence spaces/03-surface-owners.md Each part has a stable address for inspection.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 Ids are deterministic and unique (house.ts:175 throws on duplicates). 03-surface-owners.md body only says surface-id census is not complete (:27) and part measurement exists (:27,:56); stable identity is obligations/design/space-sources.md:13 (cited at house.ts:126), not 03.
+   * @evidence spaces/03-surface-owners.md Each emitted body retains its own id beside the assigned surface owner.
+   * @evidenceReview spaces/03-surface-owners.md The id and owner fields coexist on each IHousePart; the surface-owner table assigns the body while house.ts rejects duplicate ids during assembly. This field does not claim that the later complete surface census is finished.
    * @evidence principles/core/source-units.md#source-scope-preservation The id names an emitted part rather than a second owner.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 id is a plain string on the part L76; owner is a separate field L83.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The id field addresses the emitted part while the separate owner field carries the source file, so an id cannot reassign its surface.
    * @evidence principles/core/source-units.md#source-substantive-completion A unique id supports mesh and boundary census.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:175 refuses duplicate part ids; environment boundary ids are built from p.id (environment.ts:627-628); space-audit.ts rows per part id.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion house.ts rejects duplicate part ids; the environment adapter uses each id for its element and pending-ground report, giving consumers a stable address for the emitted record.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff requires each completed body to have one source owner, and the geometry census addresses garage-shared-wall and room floors by part id; this field keeps those emitted addresses.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:27 hands each complete surface to one source owner (table 03:31-54). Part ids are the census addresses: space-audit.ts:71 measures every part by id (incl. garage-shared-wall, <room>-floor); house.ts:175 duplicate-id check; house.ts:211-212 finds door floor strips by id; casing-space-scan.cjs:76 selects garage-shared-wall by id.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The surface-owner table assigns complete bodies by file; this id field distinguishes their emitted records for the house duplicate check and part measurements without changing that allocation.
    */
   id: string;
   /**
    * @evidence spaces/03-surface-owners.md The source path identifies the part's assigned surface author.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 Owners are src/spaces-relative paths ('envelope/left.ts', 'rooms/entry.ts', 'garage.ts', ...) matching the file owners in 03-surface-owners.md:31-54,100-114.
+   * @evidenceReview spaces/03-surface-owners.md The owner string stores the emitting source path, such as an envelope or room file, which is the unit named by the exterior table and interior handoff.
    * @evidence principles/core/source-units.md#source-scope-preservation The helper retains the caller's ownership rather than assigning itself.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 part() takes owner from the caller L690 with no default.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation part() requires an owner argument and copies it into IHousePart; solid-records.ts cannot silently substitute itself as the source.
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can trace every part to a source owner.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Viewer items carry owner (houseScene.cts:100); duplicate/door errors cite owner (house.ts:175, environment.ts:677); materialPreview.ts:193-201 reads owner.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion The environment adapter and viewer receive the owner with each part, allowing an emitted body to be traced back to its source file.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns the lower garage shared wall to garage.ts and the upper siding to envelope/right.ts; owner preserves that split for each part.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:35: garage owns the door-bearing shared body up to the garage-roof weather line, right owns the siding above. Code garage.ts:63 part('garage-shared-wall','garage.ts'); right.ts:53,159 'right-garage-shared-upper-wall' owner 'envelope/right.ts'; part() keeps owner. Split text added fa601efa/a15c1dd1; exposure owned by positive rows garage.ts:44, right.ts:79, so not HIST for this field.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The surface-owner table divides the garage shared wall at the roof weather line; garage.ts and envelope/right.ts pass distinct owner strings for their respective bodies, and part() preserves them.
    */
   owner: string;
   /**
    * @evidence spaces/03-surface-owners.md The role groups a surface part by its spatial function.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 role classifies parts by function; 03-surface-owners.md:29-54,98-114 organise surfaces by the same families.
+   * @evidenceReview spaces/03-surface-owners.md The role field accepts HousePartRole while the owner field still names the source file; the exterior and room tables allocate files for those part families.
    * @evidence principles/core/source-units.md#source-scope-preservation Classification does not transfer ownership between room and envelope authors.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 role and owner are independent fields; environment.ts:630-647 only changes boundary kind, never owner.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation Role and owner are independent IHousePart fields, so classifying a part as a wall or floor does not change its author.
    * @evidence principles/core/source-units.md#source-substantive-completion Viewer and review census can separate walls, floors, roof and site parts.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roof-overlap.ts:296 filters role roof; exterior-support.ts:62 paving/porch; environment.ts:621 partition/floor; space-audit.ts:73 role column; viewer houseScene.cts:99.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion The environment element kind uses role, roof-overlap selects roof parts, and exterior-support selects paving and porch parts; this field gives those consumers a usable category.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff separates room finish from partition and exterior-surface-handoff separates roof from wall; role carries those distinctions into the viewer census.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner design separates room finish from structural walls and elevation walls from roof slopes; shared.ts emits partition, floor and ceiling roles, and viewer payload, material preview and space census consume those existing distinctions.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The source allocation distinguishes roof slopes, walls and room finishes; role carries that distinction on each emitted part while owner retains the file chosen by the allocation.
    */
   role: HousePartRole;
   /**
-   * @evidence spaces/03-surface-owners.md The surface owner supplies a blocking base colour with its part.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 Callers pass PALETTE colours (palette.ts:21-39). 03-surface-owners.md body contains no colour/base-colour handoff; the basis is settings/20-verification.md:49 visual-grammar (palette.ts:4).
+   * @evidence spaces/03-surface-owners.md The emitted part keeps its colour beside the source owner assigned to that surface.
+   * @evidenceReview spaces/03-surface-owners.md The colour number is a field on the same IHousePart as owner and mesh; callers supply it to part() without changing the emitting file assigned by the surface-owner table.
    * @evidence principles/core/source-units.md#source-scope-preservation The field is a flat source colour, leaving texture and optics to materials.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 color is a number only (L97); finishes/textures bound in viewer materialPreview.ts:171; settings/20-verification.md:49 gives repetition/optics/texture to materials.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The field is only a numeric base colour; it carries no texture image, repeat length or optical parameter reserved for materials by the visual-grammar setting.
    * @evidence principles/core/source-units.md#source-substantive-completion The mesh has a reproducible visible colour for inspection.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Fixed PALETTE constant per part; viewer finish keyed deterministically by role/colour (materialPreview.ts:171-175).
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff keeps visible room finish with its room source while material optics belong to later material work; color supplies only the blocking palette value.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:96 keeps visible room finish with the room file (true). The clause 'material optics belong to later material work' is not in interior-surface-handoff; it is stated in palette.ts:8-9 (flat colour only, optics to materials branch). A holds: color is a flat PALETTE number, used by materialPreview.ts:171-176 only as a lookup key with role.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion Each part carries a colour number consumed by environment.ts as its base colour and by materialPreview.ts with the role as a finish key.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The room source still owns its visible finish; color carries a blocking value on that owner's emitted part without changing the surface allocation.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The interior handoff assigns room finishes to room files; color accompanies each part while owner keeps that file, so the colour field introduces no new finish owner.
    */
   color: number;
   /**
    * @evidence spaces/03-surface-owners.md The assigned owner emits a world-space body for its surface.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 Helpers return world-space meshes (block L313-322, wallPanel L366-379); 03-surface-owners.md:29-54 owners emit complete surfaces.
+   * @evidenceReview spaces/03-surface-owners.md IHousePart.mesh holds the geometry emitted by the assigned envelope, roof, site or room source; the record does not generate a competing surface.
    * @evidence principles/core/source-units.md#source-scope-preservation This field carries the caller's mesh rather than synthesizing another surface owner.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 part() stores the caller solid's mesh (L697, L701); nothing synthesised.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation part() copies the caller solid's mesh into IHousePart while keeping the supplied owner; this field does not author another body.
    * @evidence principles/core/source-units.md#source-substantive-completion Triangles, normals and indices reach the deterministic viewer.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:193 model geometry = p.mesh; houseScene.cts:86-89 requires normals/indices and draws positions/normals/indices.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment.ts uses the supplied mesh as the part's model geometry, giving the viewer its triangle positions, normals and indices.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff requires actual envelope, roof and site bodies from their owners, and interior-surface-handoff requires room finish bodies; mesh transports each resulting geometry.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:27 hands each complete surface to one spaces source; table 03:31-54 names envelope, roof, site owners; 03:96 room-finish owners. mesh (solids.ts:104) is the caller's geometry copied by part() (solids.ts:690,693).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The exterior table and interior room handoff allocate emitted bodies to files; mesh transports each assigned file's result through part() without changing those owners.
    */
   mesh: IAutoMovieMesh;
   /**
    * @evidence spaces/03-surface-owners.md A wall part may expose its opening-bearing boundary alongside the mesh.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 03:58 each elevation owner owns wall body, own void and cut face. part() sets wall: solid.face whenever an IWallSolid is passed (solids.ts:684-691). The removed openSharedEdges field does not touch this.
+   * @evidenceReview spaces/03-surface-owners.md The exterior handoff gives the elevation owner its wall body, void and cut face; IHousePart.wall retains the face beside the owner's mesh when part() receives a wall solid.
    * @evidence principles/core/source-units.md#source-scope-preservation Only an emitted wall or partition supplies this face.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 IWallSolid producers are wallPanel, straightWall and blindRecessWall; their callers pass wall or partition roles, including shared.ts room partitions and stair.ts enclosed stair walls. Plain mesh callers have no wall face.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation IHousePart.wall is optional and part() fills it only for a solid with a face; a plain mesh receives no extra wall boundary.
    * @evidence principles/core/source-units.md#source-substantive-completion Openings can be hosted on the same wall body that was cut.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f environment.ts:691-713 turns each face.holes entry of a part into an opening on that same part's boundary segment; house.ts:209 finds a door's host by hole id on p.wall.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment-links.ts takes openings from the wall face of the same part that supplies the mesh; house.ts also locates a door host through part.wall.holes.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface places a rough door/window void in the boundary wall and leaves its fill to models; wall carries that cut face beside the emitting wall mesh.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 06-openings.md:27 elevation opening H2s give rough rectangular voids passing through the exterior wall; 06:29,33 frame/sash/glass are reserved later fill members (H2 '거친 개구부와 충전 부재의 경계'; models named at 03:58). wall carries the wallPanel face (solids.ts:352-356) beside the mesh via part().
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The opening interface assigns the rough void to its wall owner and the fill to later models; wall carries the cut face with that owner's mesh rather than allocating a second opening surface.
    */
   wall?: IWallFace;
   /**
-   * @evidence spaces/10-ground-floor.md Exposed wall closure and fence display may await actual map ground.
-   * @evidenceReview spaces/10-ground-floor.md #9f27f8e v-141 Marker set on exterior walls reaching EXTERIOR_WALL_BOTTOM, all fence parts and chimney-body (house.ts:177-180; fence.ts:60,65). 10-ground-floor.md:120 covers only the exterior-wall display bottom; the fence display bottom is site/fence.md:97.
+   * @evidence spaces/10-ground-floor.md Exterior walls at the temporary display bottom retain pending map-ground status.
+   * @evidenceReview spaces/10-ground-floor.md house.ts marks exterior walls whose outline reaches EXTERIOR_WALL_BOTTOM; pendingMapGround records the unresolved support that the ground-floor handoff separates from its display cut.
+   * @evidence spaces/site/fence.md#fence-ground-profile Fence parts retain pending map-ground status at their temporary display bottom.
+   * @evidenceReview spaces/site/fence.md#fence-ground-profile house.ts marks every fence part pending; the fence-ground profile reserves its displayed lower edge until maps supplies the actual ground at each centreline point.
    * @evidence spaces/10-ground-floor.md#ground-support-handoff The marker distinguishes a temporary wall display bottom from structural support.
-   * @evidenceReview spaces/10-ground-floor.md#ground-support-handoff #e70bb49 v-141 10-ground-floor.md:120 Y=-0.45 is a display cut, not support, marked map-ground-pending; house.ts:177-178 marks walls whose outline reaches EXTERIOR_WALL_BOTTOM.
+   * @evidenceReview spaces/10-ground-floor.md#ground-support-handoff The marker is a status string, not a height; house.ts applies it to exterior wall parts at the provisional EXTERIOR_WALL_BOTTOM, as the handoff requires.
    * @evidence principles/core/source-units.md#source-scope-preservation This is a review status on an emitted part, never a terrain datum.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Literal union 'map-ground-pending' L126; carries no height.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The optional literal records pending ground status without assigning a terrain height or changing the part's emitting owner.
    * @evidence principles/core/source-units.md#source-substantive-completion Downstream inspection can identify provisional ground contacts by part id.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:734-736 lists pending part ids and zone ids.
-   * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The source exposed the absent wall bottom rule; the reviewed design now declares this marker.
-   * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 Repair exists: 04df855f added 10-ground-floor.md:120 (EXTERIOR_WALL_BOTTOM in source since 2d75a76d; marker added 0fae5e8d). Row names no repaired target (10-ground-floor.md#ground-support-handoff) and omits site/fence.md:97, repaired in the same commit and served by the same field (house.ts:179).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment.ts filters pendingMapGround parts and exposes their ids in its pending-ground report, so the status is observable downstream.
+   * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The ground-support and fence-ground handoffs declare temporary display bottoms; this field exposes their pending status without resolving map contact.
+   * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work The ground-floor handoff marks wall display closure pending and the fence-ground profile marks fence display closure pending; house.ts applies the field to both part families, leaving actual ground contact for maps.
    */
   pendingMapGround?: "map-ground-pending";
 }
