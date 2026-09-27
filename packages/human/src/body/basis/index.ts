@@ -7,6 +7,7 @@ export * from "./createHumanBodySkinColour";
 export * from "./createHumanBodySurfaceSag";
 export * from "./evaluateHumanBodyShape";
 export * from "./humanBodyBasisWeights";
+export * from "./humanBodyReliefWeights";
 export * from "./humanBodyShoulderTtRotation";
 export * from "./humanBodyShoulderOrientationDistance";
 export * from "./humanBodyShoulderElevationLimit";
