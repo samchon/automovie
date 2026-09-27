@@ -7,6 +7,8 @@
 import { mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
+import { colonnadeBeamTop } from "../geometry/model-roof-datums";
+import { templeRoofRules } from "../spaces/roofs/assembly";
 
 const part = (id: string, mesh: IAutoMovieMesh) => ({
   id,
@@ -24,7 +26,8 @@ const box = (width: number, bottom: number, height: number, depth: number): IAut
   return geometry.mesh;
 };
 
-const round = (bottom: number, top: number, lower: number, upper: number): IAutoMovieMesh => {
+const round = (bottom: number, top: number, lower: number, upper: number,
+  vStart=0): IAutoMovieMesh => {
   const positions: number[] = [], normals: number[] = [], uvs: number[] = [], indices: number[] = [];
   const append = (x: number, y: number, z: number,
     nx: number, ny: number, nz: number, u: number, v: number): number => {
@@ -38,8 +41,17 @@ const round = (bottom: number, top: number, lower: number, upper: number): IAuto
   const slant = Math.hypot(rise,taper), ny = -taper/slant, nr = rise/slant;
   for (let i=0;i<=24;i++) {
     const angle=2*Math.PI*i/24, c=Math.cos(angle), s=Math.sin(angle);
-    const lo=append(lower*c,bottom,-lower*s,nr*c,ny,-nr*s,lower*angle,0);
-    const hi=append(upper*c,top,-upper*s,nr*c,ny,-nr*s,upper*angle,slant);
+    const lo=append(lower*c,bottom,-lower*s,nr*c,ny,-nr*s,lower*angle,vStart);
+    const hi=append(
+      upper*c,
+      top,
+      -upper*s,
+      nr*c,
+      ny,
+      -nr*s,
+      upper*angle,
+      vStart+slant,
+    );
     if (i<24) indices.push(lo,lo+2,hi,lo+2,hi+2,hi);
   }
   const bottomCenter=append(0,bottom,0,0,-1,0,0,0);
@@ -113,8 +125,12 @@ const model = (id: string, name: string, plinth: IAutoMovieMesh,
 export class TempleColumns {
   /** The roof/rafter tangent fixes the capital top; the shaft consumes the remainder. */
   colonnade(slopeDegrees: 12 | 19): IAutoMovieModel {
-    const radians = slopeDegrees * Math.PI / 180;
-    const beamTop = 3.20 + 0.045 * Math.tan(radians) - 0.30 / Math.cos(radians);
+    if (slopeDegrees !== 12 && slopeDegrees !== 19)
+      throw new Error(`${slopeDegrees}: unsupported colonnade slope`);
+    const slope = slopeDegrees === 12
+      ? templeRoofRules.leanSlope
+      : templeRoofRules.eastGableSlope;
+    const beamTop = colonnadeBeamTop(slope);
     const height = beamTop - 0.28;
     const shaftBottom = 0.08 + 0.10;
     const shaftTop = height - (0.03 + 0.10 + 0.07);
@@ -126,7 +142,7 @@ export class TempleColumns {
       round(shaftBottom, shaftTop, 0.135, 0.115),
       mergeAutoMovieMeshes([
         round(shaftTop, shaftTop + 0.03, 0.125, 0.125),
-        round(shaftTop + 0.03, height - 0.07, 0.125, 0.155),
+        round(shaftTop + 0.03, height - 0.07, 0.125, 0.155, 0.03),
         box(0.34, height - 0.07, 0.07, 0.34),
       ]),
     );
@@ -144,7 +160,7 @@ export class TempleColumns {
       round(shaftBottom, shaftTop, 0.18, 0.155),
       mergeAutoMovieMeshes([
         round(shaftTop, shaftTop + 0.04, 0.165, 0.165),
-        round(shaftTop + 0.04, 3.20 - 0.09, 0.165, 0.21),
+        round(shaftTop + 0.04, 3.20 - 0.09, 0.165, 0.21, 0.04),
         box(0.46, 3.20 - 0.09, 0.09, 0.46),
       ]),
     );

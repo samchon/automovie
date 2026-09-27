@@ -81,18 +81,54 @@ export const modelExtrudeXY = (builder: ObjectMesh, part: string,
   if (section.length < 3 || !(front > back)) throw new Error(
     `${part}: invalid XY section`,
   );
-  modelFace(
-    builder,
-    part,
-    section.map(([x,y])=> p(x, y, front)),
-    grain,
-  );
-  modelFace(
-    builder,
-    part,
-    [...section].reverse().map(([x,y])=> p(x, y, back)),
-    grain,
-  );
+  // Ear clipping preserves the cap of a concave section; a fan can put
+  // reversed triangles across a beam's underside notch.
+  const cross2=(a:readonly [number,number],b:readonly [number,number],
+    c:readonly [number,number])=>
+    (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const active=section.map((_,i)=>i).filter((i)=>
+    Math.abs(cross2(section[(i+section.length-1)%section.length]!,section[i]!,
+      section[(i+1)%section.length]!))>1e-12);
+  const triangles:number[][]=[];
+  while(active.length>3){
+    let cut=false;
+    for(let j=0;j<active.length;j++){
+      const ia=active[(j+active.length-1)%active.length]!,
+        ib=active[j]!,ic=active[(j+1)%active.length]!;
+      const a=section[ia]!,b=section[ib]!,c=section[ic]!;
+      if(cross2(a,b,c)<=1e-12)continue;
+      if(active.some((index)=>index!==ia&&index!==ib&&index!==ic&&
+        cross2(a,b,section[index]!)>=-1e-12&&
+        cross2(b,c,section[index]!)>=-1e-12&&
+        cross2(c,a,section[index]!)>=-1e-12))continue;
+      triangles.push([ia,ib,ic]);
+      active.splice(j,1);
+      cut=true;
+      break;
+    }
+    if(!cut)throw new Error(`${part}: section cannot be triangulated`);
+  }
+  triangles.push([...active]);
+  for(const triangle of triangles){
+    modelFace(
+      builder,
+      part,
+      triangle.map((i)=>{
+        const [x,y]=section[i]!;
+        return p(x, y, front);
+      }),
+      grain,
+    );
+    modelFace(
+      builder,
+      part,
+      [...triangle].reverse().map((i)=>{
+        const [x,y]=section[i]!;
+        return p(x, y, back);
+      }),
+      grain,
+    );
+  }
   for(let i=0;i<section.length;i++){
     const [x0,y0]=section[i]!, [x1,y1]=section[(i+1)%section.length]!;
     modelFace(
@@ -150,17 +186,23 @@ export const modelEllipsoid = (builder: ObjectMesh, part: string,
     throw new Error(`${part}: invalid ellipsoid dimensions`);
   const at=(level:number,side:number):Point=>{
     const polar=Math.PI*level/levels,angle=2*Math.PI*side/around;
-    return p(center.x+radii.x*Math.sin(polar)*Math.cos(angle),
+    return p(
+      center.x+radii.x*Math.sin(polar)*Math.cos(angle),
       center.y+radii.y*Math.cos(polar),
-      center.z-radii.z*Math.sin(polar)*Math.sin(angle));
+      center.z-radii.z*Math.sin(polar)*Math.sin(angle),
+    );
   };
   const top=p(center.x,center.y+radii.y,center.z);
   const bottom=p(center.x,center.y-radii.y,center.z);
   for(let side=0;side<around;side++){
     modelFace(builder,part,[top,at(1,side),at(1,side+1)]);
     for(let level=1;level<levels-1;level++)
-      modelFace(builder,part,[at(level,side),at(level+1,side),
-        at(level+1,side+1),at(level,side+1)]);
+      modelFace(builder, part, [
+        at(level, side),
+        at(level+1, side),
+        at(level+1, side+1),
+        at(level, side+1),
+      ]);
     modelFace(builder,part,[bottom,at(levels-1,side+1),at(levels-1,side)]);
   }
 };

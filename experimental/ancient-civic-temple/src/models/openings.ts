@@ -30,11 +30,52 @@ const mesh=(part:string, add:(builder:ObjectMesh)=>void):IAutoMovieMesh=>{
   return modelMesh(b,part);
 };
 const box=(b:ObjectMesh,id:string,x0:number,y0:number,z0:number,
-  x1:number,y1:number,z1:number)=>modelBox(b,id,p(x0,y0,z0),p(x1,y1,z1));
+  x1:number,y1:number,z1:number,
+  grain?:"x"|"y")=>modelBox(
+    b,
+    id,
+    p(x0, y0, z0),
+    p(x1, y1, z1),
+    grain===undefined
+      ? undefined
+      : {
+          origin:p(x0, y0, z0),
+          direction:grain==="x" ? p(1, 0, 0) : p(0, 1, 0),
+        },
+  );
+
+/** Z-axis pin: U is its +X-to-+Y rim arc and V rises with local +Z. */
+const pinZ=(b:ObjectMesh,id:string,x:number,y:number,z0:number,z1:number,
+  radius:number,segments:number):void=>{
+  const low=Math.min(z0,z1),high=Math.max(z0,z1);
+  const ring=(z:number)=>Array.from({ length:segments }, (_,i)=>{
+    const a=2*Math.PI*i/segments;
+    return p(x+radius*Math.cos(a), y+radius*Math.sin(a), z);
+  });
+  const a=ring(low),c=ring(high);
+  b.face(id,[...a].reverse());
+  b.face(id,c);
+  for(let i=0;i<segments;i++){
+    const next=(i+1)%segments;
+    const u0=2*Math.PI*radius*i/segments,u1=2*Math.PI*radius*(i+1)/segments;
+    b.face(
+      id,
+      [a[i]!, a[next]!, c[next]!, c[i]!],
+      [
+        [u0, low],
+        [u1, low],
+        [u1, high],
+        [u0, high],
+      ],
+    );
+  }
+};
 
 const posed=(model:IAutoMovieModel, pivot:{ x:number;z:number },state:"closed"|"open"):IAutoMovieModel=>{
   if(state==="closed") return model;
-  if(state!=="open") throw new Error(`${model.id}: unsupported door state ${state}`);
+  if(state!=="open") throw new Error(
+    `${model.id}: unsupported door state ${state}`,
+  );
   const q={ x:0,y:-Math.SQRT1_2,z:0,w:Math.SQRT1_2 };
   return {
     ...model,
@@ -78,8 +119,8 @@ export class TempleOpenings {
       height:door.height-0.01,
       motion:{
         kind:"revolute",
-        axis:p(0,1,0),
-        pivot:p(paired?0.021:0,0,paired?0:0.031),
+        axis:p(0, 1, 0),
+        pivot:p(paired ? 0.021 : 0, 0, paired ? 0 : 0.031),
         min:-Math.PI/2,
         max:0,
       },
@@ -87,8 +128,14 @@ export class TempleOpenings {
     return {
       panels,
       states:[
-        { id:"closed",panels:panels.map((panel)=>({ panel:panel.id,value:0 })) },
-        { id:"open",panels:panels.map((panel)=>({ panel:panel.id,value:-Math.PI/2 })) },
+        {
+          id:"closed",
+          panels:panels.map((panel)=>({ panel:panel.id, value:0 })),
+        },
+        {
+          id:"open",
+          panels:panels.map((panel)=>({ panel:panel.id, value:-Math.PI/2 })),
+        },
       ],
       state:"open",
       hardware:[],
@@ -132,7 +179,7 @@ export class TempleOpenings {
             z1,
           );
         }
-        box(b, "surround", -w/2-0.06, h+0.06, z0, w/2+0.06, h+0.22, z1);
+        box(b, "surround", -w/2-0.22, h+0.06, z0, w/2+0.22, h+0.22, z1);
       }
     });
     return reviewedModel(`frame.${id}`, `석재 문틀 ${id}`, [
@@ -148,13 +195,13 @@ export class TempleOpenings {
     const w=door.width/2,h=door.height;
     const frame=mesh("frame",(b)=>{
       for(const [a,c] of [[0,0.10],[w-0.10,w]])
-        box(b,"frame",a,0.01,-0.05,c,h,0);
+        box(b,"frame",a,0.01,-0.05,c,h,0,"y");
       for(const [a,c] of [[0.01,0.17],[1.00,1.10],[h-0.10,h]])
-        box(b,"frame",0.10,a,-0.05,w-0.10,c,0);
+        box(b,"frame",0.10,a,-0.05,w-0.10,c,0,"x");
     });
     const panel=mesh("panel", (b)=>{
-      box(b, "panel", 0.10, 0.17, -0.035, w-0.10, 1.00, -0.015);
-      box(b, "panel", 0.10, 1.10, -0.035, w-0.10, h-0.10, -0.015);
+      box(b, "panel", 0.10, 0.17, -0.035, w-0.10, 1.00, -0.015, "y");
+      box(b, "panel", 0.10, 1.10, -0.035, w-0.10, h-0.10, -0.015, "y");
     });
     const handleX=w-0.15;
     const plates=mesh("plate", (b)=>{
@@ -179,20 +226,8 @@ export class TempleOpenings {
       modelTorus(p(handleX, 1.05, -0.065), 0.054, 0.006, "xy", 16, 8),
     ]);
     const pin=mesh("pin", (b)=>{
-      b.rod(
-        "pin",
-        p(handleX, 1.104, 0.006),
-        p(handleX, 1.104, 0.015),
-        0.006,
-        12,
-      );
-      b.rod(
-        "pin",
-        p(handleX, 1.104, -0.056),
-        p(handleX, 1.104, -0.065),
-        0.006,
-        12,
-      );
+      pinZ(b, "pin", handleX, 1.104, 0.006, 0.015, 0.006, 12);
+      pinZ(b, "pin", handleX, 1.104, -0.056, -0.065, 0.006, 12);
     });
     const hinge=mesh("hinge",(b)=>{
       for(const y of [0.25,h-0.25])
@@ -220,24 +255,24 @@ export class TempleOpenings {
     if(door===undefined) throw new Error(`${id}: reviewed single door missing`);
     const w=door.width,h=door.height;
     const board=mesh("board",(b)=>{
-      box(b,"board",0,0.01,-0.046,w,h,0);
+      box(b,"board",0,0.01,-0.046,w,h,0,"y");
       for(let i=0;i<5;i++) box(b,"board",
         i*w/5+(i===0?0:0.005),0.01,-0.05,
-        (i+1)*w/5-(i===4?0:0.005),h,-0.046);
+        (i+1)*w/5-(i===4?0:0.005),h,-0.046,"y");
     });
     const batten=mesh("batten", (b)=>{
-      for(const y of [0.25,h-0.40]) box(b,"batten",0,y,0,w,y+0.12,0.025);
+      for(const y of [0.25,h-0.40]) box(b,"batten",0,y,0,w,y+0.12,0.025,"x");
     });
     const strap=mesh("strap", (b)=>{
-      for(const y of [0.31,h-0.34]) box(b,"strap",0,y-0.02,0.025,0.6*w,y+0.02,0.031);
+      for(const y of [0.31,h-0.34]) box(b,"strap",0,y-0.02,0.025,0.6*w,y+0.02,0.031,"x");
     });
     const ring=mergeAutoMovieMeshes([
       modelTorus(p(w-0.12, 1.05, 0.025), 0.045, 0.005, "xy", 16, 8),
       modelTorus(p(w-0.12, 1.05, -0.063), 0.045, 0.005, "xy", 16, 8),
     ]);
-    const pin=mesh("pin",(b)=>{
-      b.rod("pin",p(w-0.12,1.095,0),p(w-0.12,1.095,0.025),0.006,12);
-      b.rod("pin",p(w-0.12,1.095,-0.05),p(w-0.12,1.095,-0.063),0.006,12);
+    const pin=mesh("pin", (b)=>{
+      pinZ(b, "pin", w-0.12, 1.095, 0, 0.025, 0.006, 12);
+      pinZ(b, "pin", w-0.12, 1.095, -0.05, -0.063, 0.006, 12);
     });
     return posed(
       reviewedModel(`door.single.${id}`, `외개 문짝 ${id}`, [
@@ -254,40 +289,51 @@ export class TempleOpenings {
 
   /** Four-sided lining and an outer-only trim leave a real 0.4 m square void. */
   windowFrame(thickness:0.30|0.60):IAutoMovieModel{
-    if(!templeClerestories().some((entry)=>
-      Math.abs(entry.wallHigh-entry.wallLow-thickness)<1e-8))
+    const host=templeClerestories().find((entry)=>
+      Math.abs(entry.wallHigh-entry.wallLow-thickness)<1e-8);
+    if(host===undefined)
       throw new Error(`${thickness}: no reviewed clerestory host`);
     const t=thickness;
-    const lining=mesh("lining",(b)=>{
+    const frame=host.frame,half=host.clearWidth/2;
+    const openingTop=frame+host.clearHeight,voidTop=openingTop+frame;
+    const trim=0.10;
+    const lining=mesh("lining", (b)=>{
       for(const side of [-1,1]){
-        const a=side*0.20,c=side*0.26;
-        box(b,"lining",Math.min(a,c),-0.06,-t/2,
-          Math.max(a,c),0.46,t/2);
-        box(b,"lining",-0.20,side>0?0.40:-0.06,-t/2,
-          0.20,side>0?0.46:0,t/2);
+        const a=side*half,c=side*(half+frame);
+        box(b, "lining", Math.min(a, c), 0, -t/2, Math.max(a, c), voidTop, t/2);
+        box(
+          b,
+          "lining",
+          -half,
+          side>0 ? openingTop : 0,
+          -t/2,
+          half,
+          side>0 ? voidTop : frame,
+          t/2,
+        );
       }
     });
     const surround=mesh("surround", (b)=>{
       for(const side of [-1,1]){
-        const a=side*0.26,c=side*0.36;
+        const a=side*(half+frame),c=side*(half+frame+trim);
         box(
           b,
           "surround",
           Math.min(a, c),
-          -0.16,
+          -trim,
           t/2,
           Math.max(a, c),
-          0.56,
+          voidTop+trim,
           t/2+0.03,
         );
         box(
           b,
           "surround",
-          -0.26,
-          side>0 ? 0.46 : -0.16,
+          -half-frame,
+          side>0 ? voidTop : -trim,
           t/2,
-          0.26,
-          side>0 ? 0.56 : -0.06,
+          half+frame,
+          side>0 ? voidTop+trim : 0,
           t/2+0.03,
         );
       }

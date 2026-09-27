@@ -14,6 +14,8 @@ import {
   reviewedModel,
 } from "../geometry/model-source-shapes";
 import { templePlan as plan } from "../spaces/building";
+import { templeRoofRules } from "../spaces/roofs/assembly";
+import { colonnadeBeamTop } from "../geometry/model-roof-datums";
 
 const p = (x: number, y: number, z: number) => ({ x, y, z });
 const radians = (degrees: number) => degrees * Math.PI / 180;
@@ -29,8 +31,8 @@ export class TempleEntablature {
       ? across + 2 * 0.175 + 0.34
       : depth + 2 * 0.175 - 0.26;
     const notch = side === "east"
-      ? (3.20 + 0.045*Math.tan(radians(12)) - 0.30/Math.cos(radians(12)))
-        - (3.20 + 0.045*Math.tan(radians(19)) - 0.30/Math.cos(radians(19)))
+      ? colonnadeBeamTop(templeRoofRules.leanSlope)
+        - colonnadeBeamTop(templeRoofRules.eastGableSlope)
       : 0;
     const half=length/2, builder=new ObjectMesh();
     const section: Array<readonly [number,number]> = notch > 0
@@ -88,9 +90,12 @@ export class TempleEntablature {
 
   /** Wall thickness is absent: two independently closed sanctuary spans. */
   sanctuaryRafters(): readonly IAutoMovieModel[] {
+    const inner = plan.eastRing;
+    // The reviewed rafter stops inside the roof's 0.35 m eave projection.
+    const rafterTail = 0.20;
     return [
-      this.rafter(22, 6.10-5.90, "sanctuary-tail"),
-      this.rafter(22, 5.60, "sanctuary-interior"),
+      this.rafter(22, rafterTail, "sanctuary-tail"),
+      this.rafter(22, inner, "sanctuary-interior"),
     ];
   }
 
@@ -123,31 +128,50 @@ export class TempleEntablature {
 
   /** Four named part families retain the roof and wall contact planes. */
   sanctuaryTruss(): IAutoMovieModel {
-    const angle=radians(22);
-    const top=(x:number)=>5.35+(5.75-Math.abs(x))*Math.tan(angle)-0.18/Math.cos(angle);
-    const bottom=(x:number)=>Math.max(top(x)-0.20/Math.cos(angle),5.14);
+    const angle=templeRoofRules.gableSlope;
+    const support=(plan.eastRoom+plan.eastRing)/2;
+    const tieBottom=4.86,tieDepth=0.28,tieTop=tieBottom+tieDepth;
+    const principalDepth=0.20,outerHalf=plan.eastRing;
+    const top=(x:number)=>templeRoofRules.sanctuarySupport
+      +(support-Math.abs(x))*Math.tan(angle)
+      -templeRoofRules.normalThickness/Math.cos(angle);
+    const bottom=(x:number)=>Math.max(
+      top(x)-principalDepth/Math.cos(angle),
+      tieTop,
+    );
+    const kink=support-(tieTop-templeRoofRules.sanctuarySupport
+      +(templeRoofRules.normalThickness+principalDepth)/Math.cos(angle))
+      /Math.tan(angle);
     const t=new ObjectMesh(),pr=new ObjectMesh(),k=new ObjectMesh(),st=new ObjectMesh();
-    modelBox(t, "tie-beam", p(-5.60, 0, -0.11), p(5.60, 0.28, 0.11), {
-      origin:p(-5.60, 0, 0),
-      direction:p(1, 0, 0),
-    });
+    modelBox(
+      t,
+      "tie-beam",
+      p(-outerHalf, 0, -0.11),
+      p(outerHalf, tieDepth, 0.11),
+      {
+        origin:p(-outerHalf, 0, 0),
+        direction:p(1, 0, 0),
+      },
+    );
     for(const sign of [-1,1]){
-      const outer=sign*5.60, inner=0;
+      const outer=sign*outerHalf, inner=0;
       const s: Array<readonly [number,number]> = sign>0
         ? [
-            [inner, bottom(inner)-4.86],
-            [outer, bottom(outer)-4.86],
-            [outer, top(outer)-4.86],
-            [inner, top(inner)-4.86],
+            [inner, bottom(inner)-tieBottom],
+            [kink, tieTop-tieBottom],
+            [outer, bottom(outer)-tieBottom],
+            [outer, top(outer)-tieBottom],
+            [inner, top(inner)-tieBottom],
           ]
         : [
-            [outer, bottom(outer)-4.86],
-            [inner, bottom(inner)-4.86],
-            [inner, top(inner)-4.86],
-            [outer, top(outer)-4.86],
+            [outer, bottom(outer)-tieBottom],
+            [-kink, tieTop-tieBottom],
+            [inner, bottom(inner)-tieBottom],
+            [inner, top(inner)-tieBottom],
+            [outer, top(outer)-tieBottom],
           ];
       modelExtrudeXY(pr, "principal", s, -0.09, 0.09, {
-        origin:p(outer, bottom(outer)-4.86, 0),
+        origin:p(outer, bottom(outer)-tieBottom, 0),
         direction:p(-sign, Math.tan(angle), 0),
       });
     }
@@ -155,19 +179,19 @@ export class TempleEntablature {
       k,
       "king-post",
       [
-        [-0.09, 0.28],
-        [0.09, 0.28],
-        [0.09, bottom(0.09)-4.86],
-        [0, bottom(0)-4.86],
-        [-0.09, bottom(0.09)-4.86],
+        [-0.09, tieDepth],
+        [0.09, tieDepth],
+        [0.09, bottom(0.09)-tieBottom],
+        [0, bottom(0)-tieBottom],
+        [-0.09, bottom(0.09)-tieBottom],
       ],
       -0.09,
       0.09,
-      { origin:p(0, 0.28, 0), direction:p(0, 1, 0) },
+      { origin:p(0, tieDepth, 0), direction:p(0, 1, 0) },
     );
     for(const sign of [-1,1]){
-      const foot=p(sign*0.09,5.69-4.86,0);
-      const head=p(sign*2.80,bottom(2.80)-4.86,0);
+      const foot=p(sign*0.09,5.69-tieBottom,0);
+      const head=p(sign*outerHalf/2,bottom(outerHalf/2)-tieBottom,0);
       const dx=head.x-foot.x,dy=head.y-foot.y, L=Math.hypot(dx,dy);
       const normal=p(-dy/L*0.07,dx/L*0.07,0);
       const ends=[
@@ -185,8 +209,8 @@ export class TempleEntablature {
       const atHead=atFoot.map((q,i)=>
         i===1||i===2
           ? p(
-              q.x+(bottom(Math.abs(q.x))-4.86-q.y)/(dy/dx-roofSlope),
-              q.y+(bottom(Math.abs(q.x))-4.86-q.y)/(dy/dx-roofSlope)*dy/dx,
+              q.x+(bottom(Math.abs(q.x))-tieBottom-q.y)/(dy/dx-roofSlope),
+              q.y+(bottom(Math.abs(q.x))-tieBottom-q.y)/(dy/dx-roofSlope)*dy/dx,
               0,
             )
           : q,
