@@ -75,13 +75,13 @@ export const buildGarageSharedWall = (): IHousePart[] => {
 /** One garage floor solid supplies disjoint structural and visible faces. */
 /**
  * @evidence spaces/10-ground-floor.md#garage-ground-floor-base The shared slab recipe spans the garage inner plan and the front door tongue at the specified lower datum.
- * @evidenceReview spaces/10-ground-floor.md#garage-ground-floor-base `garageFloorMesh` uses `GARAGE.inner` and a front-door tongue, with its top at `STOREYS.garageFloor` and bottom one `GROUND_LAYERS.garageBase` lower; callers assign support and exposed face separately.
+ * @evidenceReview spaces/10-ground-floor.md#garage-ground-floor-base #c3227ca `garageFloorMesh` uses `GARAGE.inner` and a front-door tongue, with its top at `STOREYS.garageFloor` and bottom one `GROUND_LAYERS.garageBase` lower; callers assign support and exposed face separately.
  * @evidence principles/core/source-units.md#source-scope-preservation Both garage owners use this one footprint without creating a second floor body.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildGarageFloorBase` and `buildGarageInterior` both call this mesh recipe, then take opposite results of `partitionPlaneFace`; this export records bounds without assigning room finish ownership.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildGarageFloorBase` and `buildGarageInterior` both call this mesh recipe, then take opposite results of `partitionPlaneFace`; this export records bounds without assigning room finish ownership.
  * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and garage base depth provide the triangles partitioned by the two actual authors.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion The outline includes six inner/front vertices and the two outer-front tongue vertices; `slab` closes the specified 0.15 m interval before either caller selects disjoint triangle sets.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The outline includes six inner/front vertices and the two outer-front tongue vertices; `slab` closes the specified 0.15 m interval before either caller selects disjoint triangle sets.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed garage base and front crossing already fix the footprint and levels consumed here.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `garage-ground-floor-base` supplies the lower slab and `ground-threshold-junctions` extends it below `GARAGE_FRONT_DOOR`; the outline implements both without a changed parent datum.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `garage-ground-floor-base` supplies the lower slab and `ground-threshold-junctions` extends it below `GARAGE_FRONT_DOOR`; the outline implements both without a changed parent datum.
  */
 export const garageFloorMesh = (): IAutoMovieMesh => slab({
   outline: [
@@ -101,15 +101,15 @@ export const garageFloorMesh = (): IAutoMovieMesh => slab({
 /** Emit the garage floor support beneath its room-owned top face. */
 /**
  * @evidence spaces/10-ground-floor.md This export builds the separate lower garage base under its finished floor.
- * @evidenceReview spaces/10-ground-floor.md `buildGarageFloorBase` emits the garage support triangles from the independent slab between `garageFloor - garageBase` and the finished garage level; the visible upper face is authored by `buildGarageInterior`.
+ * @evidenceReview spaces/10-ground-floor.md #9f27f8e `buildGarageFloorBase` emits the garage support triangles from the independent slab between `garageFloor - garageBase` and the finished garage level; the visible upper face is authored by `buildGarageInterior`.
  * @evidence spaces/10-ground-floor.md#ground-threshold-junctions Its slab reaches the garage front wall's outer face only beneath garage-front-door and meets the inner wall limit elsewhere.
- * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions `garageFloorMesh` extends the `GARAGE_FRONT_DOOR` span from inner front Z to `GARAGE.outer.z[1]`; this builder retains its structural underside and sides under the front crossing.
+ * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions #4150be7 `garageFloorMesh` extends the `GARAGE_FRONT_DOOR` span from inner front Z to `GARAGE.outer.z[1]`; this builder retains its structural underside and sides under the front crossing.
  * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor; garage-interior authors the exposed upper face from the same mesh.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation The body result omits every triangle on the `STOREYS.garageFloor` plane, which `rooms/garage-interior.ts` emits as `garage-floor-finish`; the shared recipe adds no overlapping floor plate.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The body result omits every triangle on the `STOREYS.garageFloor` plane, which `rooms/garage-interior.ts` emits as `garage-floor-finish`; the shared recipe adds no overlapping floor plate.
  * @evidence principles/core/source-units.md#source-substantive-completion The eight-point slab's non-top triangles produce the garage-floor-base support with no overlapping visible face.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion `garageFloorMesh` creates the eight-point slab; `partitionPlaneFace` returns its non-top triangles and `part` gives that support the `garage-floor-base` identity and concrete palette.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `garageFloorMesh` creates the eight-point slab; `partitionPlaneFace` returns its non-top triangles and `part` gives that support the `garage-floor-base` identity and concrete palette.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ground-floor-base sets the independent slab 0.15 m below the finished floor; ground-threshold-junctions extends it beneath garage-front-door. This builder uses both bounds.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed garage floor parent assigns this file the base and the room file its exposed face; the front crossing parent supplies the door tongue, so splitting existing slab triangles requires no upstream boundary revision.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The reviewed garage floor parent assigns this file the base and the room file its exposed face; the front crossing parent supplies the door tongue, so splitting existing slab triangles requires no upstream boundary revision.
  */
 export const buildGarageFloorBase = (): IHousePart[] => [
   part(
