@@ -42,7 +42,8 @@ function commonTubeRuleErrors(source) {
   const required = [
     /닫힌 자유 끝에는 바깥 반지름만큼 진행 방향으로 뻗는 반구/,
     /반구는 적도에서 극까지 동일한 여섯 위도 구간, 둘레 24구간/,
-    /일부라도 용접되는 관 끝은 진행 방향에 수직인 평평한 원판/,
+    /일부라도 용접되는 관 끝은.*진행 방향에 수직인 평평한 원판/,
+    /해당 H2가 반구를 명시한 끝은 그 반구를 먼저 만든 뒤 합집합/,
     /중심선이 꺾이는 두 관은.*구 조인트/,
     /단면 24각의 첫 꼭짓점은 Y축 관이면 \+X, X축 관이면 \+Y, Z축 관이면 \+X/,
   ];
@@ -1012,14 +1013,9 @@ function equipmentFormula(lines, envelopes, parts, grids) {
 }
 
 /**
- * Certifies the generated plant table against its H2 formula. Conical pot and
- * soil share an inner-wall boundary; branch cylinders start tangent to the
- * stem; tapered leaf prisms start tangent to the branch caps. The five azimuths
- * and three vertical fan sectors are analytically disjoint away from those
- * prescribed contact boundaries.
- * @param {ReturnType<typeof parse>} parsed
+ * Distance from an XZ point to the actual straight edges of a 24-vertex stem ring.
+ * @param {number} x @param {number} z @param {number} radius
  */
-/** Distance from an XZ point to the actual straight edges of a 24-vertex stem ring. */
 function stemPolygonDistance(x, z, radius) {
   let closest = Infinity;
   for (let i = 0; i < 24; i++) {
@@ -1032,7 +1028,10 @@ function stemPolygonDistance(x, z, radius) {
   return closest;
 }
 
-/** Frontmost Z of the 24-gon at X, obtained from its edges rather than a circle equation. */
+/**
+ * Frontmost Z of the 24-gon at X, obtained from its edges rather than a circle equation.
+ * @param {number} x @param {number} radius
+ */
 function polygonFrontZ(x, radius) {
   let front = -Infinity;
   for (let i = 0; i < 24; i++) {
@@ -1045,6 +1044,14 @@ function polygonFrontZ(x, radius) {
   return front;
 }
 
+/**
+ * Certifies the generated plant table against its H2 formula. Conical pot and
+ * soil share an inner-wall boundary; branch cylinders start tangent to the
+ * stem; tapered leaf prisms start tangent to the branch caps. The five azimuths
+ * and three vertical fan sectors are analytically disjoint away from those
+ * prescribed contact boundaries.
+ * @param {ReturnType<typeof parse>} parsed
+ */
 function plantProof(parsed) {
   const errors = [];
   const contacts = new Set();
@@ -2521,6 +2528,18 @@ if (require.main !== module) {
     if (!audit(new Map([["personal-articles", damaged]]), undefined, "garment").errors.some((error) => error.includes("garment/body: suspension lacks")))
       throw Error("missing garment hanging face escaped");
     results.push({ label: "garment suspension face deletion", caught: true });
+    const duplicate = [...lines, "@suspension-face garment: body/loop-inner"];
+    if (!audit(new Map([["personal-articles", duplicate]]), undefined, "garment").errors.some((error) => error.includes("duplicate suspension face")))
+      throw Error("duplicate garment hanging face escaped");
+    results.push({ label: "garment suspension face duplication", caught: true });
+    const unbored = lines.filter((line) => !line.startsWith("@bore-z garment:"));
+    if (!audit(new Map([["personal-articles", unbored]]), undefined, "garment").errors.some((error) => error.includes("garment/body: suspension lacks")))
+      throw Error("unbored garment hanging face escaped");
+    results.push({ label: "garment loop without bore", caught: true });
+    const wrongPart = [...lines, "@suspension-face garment: ghost/loop-inner"];
+    if (!audit(new Map([["personal-articles", wrongPart]]), undefined, "garment").errors.some((error) => error.includes("suspension face has no part")))
+      throw Error("unknown garment hanging part escaped");
+    results.push({ label: "garment hanging face with unknown part", caught: true });
   }
   {
     const lines = sections().get("work-desk");
@@ -2537,9 +2556,20 @@ if (require.main !== module) {
   {
     const source = fs.readFileSync(commonRulePath, "utf8");
     if (!commonTubeRuleErrors(source.replace("일부라도 용접되는 관 끝", "완전히 용접되는 관 끝")).length ||
-      !commonTubeRuleErrors(source.replace("Y축 관이면 +X", "Y축 관이면 +Z")).length)
+      !commonTubeRuleErrors(source.replace("Y축 관이면 +X", "Y축 관이면 +Z")).length ||
+      !commonTubeRuleErrors(source.replace("해당 H2가 반구를 명시한 끝은 그 반구를 먼저 만든 뒤 합집합", "해당 H2가 반구를 명시한 끝은 평평하게 닫음")).length)
       throw Error("common tube rule mutation escaped");
     results.push({ label: "common tube end and phase text mutations", caught: true });
+  }
+  {
+    const source = fs.readFileSync(path.join(root, "docs/models/004-decor-and-fixtures.md"), "utf8");
+    const damaged = source.replace('"branchAzimuthsDegrees":[0,75,150,225,300]', '"branchAzimuthsDegrees":[0,72,150,225,300]');
+    if (damaged === source) throw Error("plant azimuth fixture absent");
+    try { plantProducer.check(damaged); throw Error("off-vertex plant azimuth escaped"); }
+    catch (error) {
+      if (!String(error).includes("incomplete spec")) throw error;
+    }
+    results.push({ label: "plant branch off 24-gon vertex", caught: true });
   }
   console.log(JSON.stringify({ baselineParts: baseline.parts, measuredParts, mutationChecks,
     mutations: results, unselected: randomFixture(), vesselAttachments: randomVesselFixture(),
