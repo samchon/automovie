@@ -3,7 +3,9 @@ import { TestValidator } from "@nestia/e2e";
 import { faceLikenessSrgbToLab } from "../../../scripts/face-review/faceLikenessColour";
 import {
   FACE_LIKENESS_IRIS_BASE_SHARE,
+  FACE_LIKENESS_IRIS_HUE,
   FACE_LIKENESS_IRIS_MEAN_BAND,
+  faceLikenessIrisHue,
   faceLikenessLabToLinear,
   faceLikenessReflectance,
   fitFaceLikenessIrisPigment,
@@ -37,6 +39,10 @@ const linearToLab = (rgb: readonly number[]): [number, number, number] => {
  *    colour photograph keeps the per-channel ratio and so the skin's hue;
  *    given a prior colour it takes that colour's chromaticity at the same
  *    luminance, and a prior without luminance leaves it neutral.
+ * 6. The iris hue by recorded ancestry: none without one; the East Asian
+ *    mean's linear colour, warm (red over green over blue); a greyscale
+ *    photograph's pigment then takes that hue at the luminance the neutral
+ *    fit gives, and a colour photograph ignores it.
  */
 export const test_subject_face_likeness_iris_fit = (): void => {
   const close = (a: readonly number[], b: readonly number[], eps = 1e-4) =>
@@ -157,5 +163,39 @@ export const test_subject_face_likeness_iris_fit = (): void => {
     ) &&
       nclose(Y(tinted), 0.1 * Y(tone), 1e-9) &&
       close(dark, grey),
+  );
+  const hue = faceLikenessIrisHue("asian")!;
+  const greyIris = {
+    iris: linearToLab([0.05, 0.05, 0.05]),
+    cheek: linearToLab([0.5, 0.5, 0.5]),
+    skin: tone,
+  };
+  const neutral = fitFaceLikenessIrisPigment(greyIris)!;
+  const warm = fitFaceLikenessIrisPigment({ ...greyIris, prior: hue })!;
+  const plain = fitFaceLikenessIrisPigment({
+    ...greyIris,
+    cheek: linearToLab([0.5, 0.3, 0.25]),
+  })!;
+  TestValidator.predicate(
+    "iris hue by ancestry",
+    faceLikenessIrisHue(null) === undefined &&
+      close(hue, faceLikenessLabToLinear(FACE_LIKENESS_IRIS_HUE.asian), 0) &&
+      hue[0] > hue[1] &&
+      hue[1] > hue[2] &&
+      nclose(Y(warm.mean), Y(neutral.mean), 1e-9) &&
+      close(
+        warm.mean,
+        hue.map((c) => (c * Y(neutral.mean)) / Y(hue)),
+        1e-9,
+      ) &&
+      close(
+        fitFaceLikenessIrisPigment({
+          ...greyIris,
+          cheek: linearToLab([0.5, 0.3, 0.25]),
+          prior: hue,
+        })!.mean,
+        plain.mean,
+        0,
+      ),
   );
 };

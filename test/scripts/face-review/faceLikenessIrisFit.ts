@@ -27,10 +27,14 @@
  *
  * Limits: the eye sits in the lids' shadow in the photograph and in the
  * render alike, so the ratio is biased dark on both sides rather than
- * corrected; a greyscale photograph yields a grey iris; specular highlights
- * and lashes are resisted only by the medians. Pure: returns new values.
+ * corrected; a greyscale photograph shows the iris's lightness only, so its
+ * hue is the recorded ancestry's (`faceLikenessIrisHue`), or grey without
+ * one; specular highlights and lashes are resisted only by the medians.
+ * Pure: returns new values.
  */
 import type { IPortraitIrisPigment } from "@automovie/human";
+
+import type { IFacePopulationFacts } from "./facePopulationFacts";
 
 /** Limbal base over mean stroma of the shared portrait iris palette. */
 export const FACE_LIKENESS_IRIS_BASE_SHARE = 0.27;
@@ -57,17 +61,59 @@ export function faceLikenessLabToLinear(
   ];
 }
 
+/**
+ * Mean photographed iris colour (CIELAB) of each recorded ancestry, from
+ * 1448 young adults photographed under one protocol in Toronto (Edwards M.
+ * The genetic architecture of iris colour and surface feature variation in
+ * populations of East Asian, European and South Asian ancestry. PhD thesis,
+ * University of Toronto 2016, Table 3-2), each group the sample-weighted
+ * mean over its regional rows and both camera bodies: European 620
+ * participants, East Asian 468. The thesis records no African sample and
+ * states that in most populations iris colour is limited to shades of
+ * brown, blue and green irises appearing with European and, less often,
+ * North African, Middle Eastern, Central and South Asian ancestry; its two
+ * brown-eyed samples, East and South Asian, agree in hue (a* 13.0 and 13.7,
+ * b* 7.4 and 8.2), so an African iris takes their pooled mean, 828
+ * participants. Only the chromaticity is used: the lightness is the
+ * photograph's.
+ */
+export const FACE_LIKENESS_IRIS_HUE = {
+  european: [39.864, 2.099, 2.328],
+  asian: [23.152, 13.006, 7.443],
+  african: [25.116, 13.322, 7.789],
+} as const satisfies Record<
+  NonNullable<IFacePopulationFacts["ancestry"]>,
+  readonly [number, number, number]
+>;
+
+/**
+ * The iris colour a photograph without chroma cannot show: the recorded
+ * ancestry's mean (`FACE_LIKENESS_IRIS_HUE`) as linear RGB, whose
+ * chromaticity `faceLikenessReflectance` takes as its prior; none without a
+ * recorded ancestry. Pure.
+ */
+export function faceLikenessIrisHue(
+  ancestry: IFacePopulationFacts["ancestry"],
+): [number, number, number] | undefined {
+  return ancestry === null
+    ? undefined
+    : faceLikenessLabToLinear(FACE_LIKENESS_IRIS_HUE[ancestry]);
+}
+
 /** One subject's fitted pigment, or null without both photograph samples. */
 export function fitFaceLikenessIrisPigment(props: {
   iris: readonly [number, number, number] | null;
   cheek: readonly [number, number, number] | null;
   skin: readonly [number, number, number];
+  /** The hue a greyscale photograph takes (`faceLikenessIrisHue`). */
+  prior?: readonly [number, number, number];
 }): { pigment: IPortraitIrisPigment; mean: number[]; scaled: boolean } | null {
   if (props.iris === null || props.cheek === null) return null;
   let mean: number[] = faceLikenessReflectance({
     sample: props.iris,
     cheek: props.cheek,
     skin: props.skin,
+    prior: props.prior,
   });
   const top =
     Math.max(...mean) *
