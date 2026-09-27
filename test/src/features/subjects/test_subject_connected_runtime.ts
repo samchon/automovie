@@ -13,6 +13,8 @@ import { numericalHairBasisFixture } from "../internal/numericalHairBasisFixture
  * 2. Requested contacts are supplied; explicit export returns actual GLB bytes.
  * 3. Numerical hair generates geometry locally against a closed analytic basis.
  * 4. Old skin/hair resource names refuse instead of loading personal assets.
+ * 5. A preview or export that asks for occlusion is built by the baking
+ *    builder, the same resident regions, made once and reused.
  */
 export const test_subject_connected_runtime = async (): Promise<void> => {
   const { basis, document } = humanFaceBasisFixture();
@@ -56,6 +58,19 @@ export const test_subject_connected_runtime = async (): Promise<void> => {
     Array.from(exported.glb.slice(0, 4)),
     [0x67, 0x6c, 0x54, 0x46],
   );
+  for (const operation of ["preview", "export", "preview"] as const) {
+    const occluded = await runtime({
+      operation,
+      document: JSON.stringify(document),
+      occlusion: true,
+    });
+    TestValidator.predicate(
+      "occluded builds",
+      occluded.operation === "preview"
+        ? occluded.model.parts.length === 3
+        : occluded.glb.length > 0,
+    );
+  }
   const numeric = numericalHairBasisFixture();
   const attached = await createConnectedFaceRuntime({ basis: numeric.basis })({
     operation: "preview",

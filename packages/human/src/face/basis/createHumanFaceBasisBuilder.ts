@@ -12,6 +12,7 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
+import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
@@ -65,8 +66,12 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * rule it states and the passage it refuses; the crossing census still
  * measures the rest. An `observe` callback receives each successful build's
  * contact summary, or null on a basis without contact, so a runtime can
- * report it without evaluating twice.
+ * report it without evaluating twice. With `occlusion`, each opaque material
+ * with UVs of the finished face (before any hair) takes the ambient
+ * occlusion baked from the evaluated geometry (`bakeHumanFaceOcclusion`) as
+ * its occlusion texture; without it no texture is baked.
  *
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-surface-maps Bakes the optional ambient occlusion of the evaluated face into its materials without changing geometry.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Same edits yield the same model; shape and expression are read from the same base under one evaluation order.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Evaluates rest, articulation and contact in the specified order and gates on the neutral once.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Applies one mandibular and two ocular transforms through shared attachments before any local expression is read.
@@ -78,6 +83,7 @@ export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
   options?: {
     observe?: (contact: IAutoMovieHumanFaceContactSummary | null) => void;
+    occlusion?: { rays: number; size: number };
   },
 ): (document: IAutoMovieHumanFaceBasisDocument) => IAutoMovieModel {
   const basis = structuredClone(
@@ -320,6 +326,9 @@ export function createHumanFaceBasisBuilder(
           createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
         );
     }
+    if (options?.occlusion !== undefined)
+      for (const [id, uri] of bakeHumanFaceOcclusion(model, options.occlusion))
+        materialMap.get(id)!.occlusionTexture = uri;
     if (document.hair !== undefined && document.hair !== null) {
       const hair = buildHair(document.hair, evaluated);
       if (
