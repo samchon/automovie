@@ -343,15 +343,15 @@ export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = r
 /**
  * Height range of a full-height partition on a storey: finished floor to finished ceiling.
  * @evidence spaces/07-boundary-assembly.md Room partitions run between the established finish datums.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 L386-389 [floorOf, ceilingOf]; 07-boundary-assembly.md:45 partitions run finished floor to finished ceiling.
+  * @evidenceReview spaces/07-boundary-assembly.md `partitionSpan` returns the selected storey's finished floor and ceiling, the vertical limits used by room-owned full-height partition bodies.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership The height pair makes one full wall between neighboring finishes.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 v-141 07-boundary-assembly.md:45 floor-to-ceiling height; :27 one common body per shared partition.
+  * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership `partition` consumes this pair once for its assigned straight wall, so the shared body reaches its storey's two finish datums.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads the selected storey instead of choosing a new boundary height.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Reads only floorOf/ceilingOf(storey).
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The helper only calls `floorOf` and `ceilingOf` for the caller-supplied storey; it chooses no new wall length or height datum.
  * @evidence principles/core/source-units.md#source-substantive-completion Partition construction receives an explicit bottom and top.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Returns [bottom, top] consumed at L413.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions joins room partitions from finished floor to the ceiling boundary; partitionSpan uses the selected storey's two datums for that height.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 partitionSpan returns finished floor and ceiling for a full-height room partition. The cited junction unit governs junction zones, while sibling interior-boundary-ownership states this floor-to-ceiling body height; the evidence sentence cites the wrong sibling.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion The explicit bottom/top pair is passed into `straightWall` by `partition`, making the wall's full vertical interval available at construction.
+  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-boundary-ownership` fixes the ordinary partition body from finished floor to ceiling; `partitionSpan` reads the selected storey's two datums for that assigned height.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The boundary owner already fixes an ordinary partition's full-height role; this helper returns the matching storey pair without revising its run or junction allocation.
  */
 export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
   floorOf(storey),
@@ -365,17 +365,17 @@ export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
  * `along` its length range. Door holes are given in the same `along`
  * coordinate with world heights.
  * @evidence spaces/07-boundary-assembly.md A room source emits only its assigned straight partition body.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 L404-428 emits one straightWall part per call; owners per the 07-boundary-assembly.md:29-41 table.
+  * @evidenceReview spaces/07-boundary-assembly.md One `partition` call emits one `straightWall` mesh and face record under the caller's owner and id, matching the assigned single wall body.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership The owner id and single wall body remain together.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 v-141 L414-418 part(props.id, props.owner, 'partition', ...) with one wall solid.
+  * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership The returned `part` retains `props.id` and `props.owner` with role `partition` around exactly one cut wall primitive.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions Door voids are cut into that body before its face is recorded.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 v-141 solids.ts straightWall cuts notches and holes into the mesh, then returns a face with every void; part() stores it as wall. 07-boundary-assembly.md:79.
+  * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions `partition` passes the caller's holes into `straightWall`, whose meshed wall is cut and whose returned full face lists those openings for boundary checks.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller provides the run, owner and holes; the helper assigns no adjacent wall.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 All geometry comes from props; no other wall is emitted.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation Run axis, thickness, length, owner, storey, and holes all come from `props`; the helper emits no adjacent wall outside that assigned run.
  * @evidence principles/core/source-units.md#source-substantive-completion It emits the full-height cut partition with its boundary record.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 partitionSpan floor to ceiling (L413); part() keeps solid.face as the wall boundary record.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership gives one room source the partition body and its door void; partition returns that one wallPanel under the caller's owner id.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Boundary assembly assigns one structural body and opening cut to the owner; partition returns part(id, props.owner, "partition", straightWall(...)). straightWall builds one wallPanel mesh but returns its own full-rectangle face, so the evidence sentence names an inner primitive rather than the returned face.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion The storey span and cut `straightWall` result enter one `part`, preserving its mesh and wall face for downstream geometry and boundary consumers.
+  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-boundary-ownership` gives one room source the partition body and door cut; `partition` returns one caller-owned `straightWall` part with its boundary face.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The assigned room supplies the run and holes, and this helper returns one meshed partition with its face under that owner; no second partition or opening rule is invented.
  */
 export const partition = (props: {
   id: string;
@@ -405,16 +405,16 @@ export const partition = (props: {
 
 /**
  * A door void of standard head 2.20 m above the storey floor.
- * @evidence spaces/07-boundary-assembly.md Interior doors are wall voids whose floor finish reaches the centreline.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 door() (L438-444) returns only id/from/to/bottom/top. The floor finish reaching the centreline is doorFloor (L346) with caller ranges, not this host. See notes.
+  * @evidence spaces/07-boundary-assembly.md Interior door openings are cut from their assigned wall body using a named void specification.
+  * @evidenceReview spaces/07-boundary-assembly.md `door` returns an `IWallHole` with id, width interval, and storey-relative vertical limits; the room's `partition` passes it to the assigned cut wall.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions The void keeps its id, width and head on the assigned partition.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 v-141 L438-444 keeps id, from/to (width) and top = floor+head; caller hosts it via partition holes; 07-boundary-assembly.md:79.
+  * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions The returned void keeps the caller's id and `from`/`to`, starts at `floorOf(storey)`, and ends at that floor plus the supplied head height for the wall cut.
  * @evidence principles/core/source-units.md#source-scope-preservation This returns a cut specification and does not build a door leaf.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Returns an IWallHole spec; no leaf (models/03).
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation This helper returns only a wall-hole record from caller identity and width; it builds no door leaf, frame, or independent boundary.
  * @evidence principles/core/source-units.md#source-substantive-completion Bottom and top derive from the selected storey datum and head height.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 bottom floorOf(storey), top floorOf(storey)+head (L442-443).
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion The returned bottom is the selected storey's finished floor and top adds the supplied head, defaulting to 2.20 m for ordinary interior doors.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan owns entry-living-door at Z=[-1.35, -0.35] and laundry-plan owns service-laundry-door at Z=[-4.40, -3.35]; door passes each caller's authored span and head into its interior cut.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 living.md:27, laundry.md:29; door() passes each caller span/head. v-144 F11 minor closed.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Living and laundry parents supply their respective door intervals; callers pass those spans and head heights to this helper, which returns only the specified cut for their wall owners.
  */
 export const door = (id: string, storey: StoreyId, from: number, to: number, head = 2.2): IWallHole => ({
   id,
@@ -427,15 +427,15 @@ export const door = (id: string, storey: StoreyId, from: number, to: number, hea
 /**
  * Plan rectangle helper for room outlines.
  * @evidence spaces/03-surface-owners.md Room finish surfaces use the owner's metric inner outline.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 box builds room outlines (living.ts:48, common.ts:62 ...) and doorFloor rectangles.
+  * @evidenceReview spaces/03-surface-owners.md Living and common room builders use `box` for their own finish rings, while `doorFloor` uses it for a room-owned strip under a door.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Given X/Z bounds become four ordered corners for that room.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 L454-459 four corners in order.
+  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff Given caller X/Z intervals, `box` returns four ordered corners used by that room's floor and ceiling helpers without reassigning its finish.
  * @evidence principles/core/source-units.md#source-scope-preservation This helper adds no dimensions or new room to the caller's plan.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Pure mapping of caller bounds.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The function reads only `x[0]`, `x[1]`, `z[0]`, and `z[1]`; it adds no room width, offset, or location.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ring can form floor and ceiling finish slabs.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Used in room outlines consumed by roomFloor/roomCeiling and in doorFloor L353.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion The returned ring follows `(x0,z0)`, `(x1,z0)`, `(x1,z1)`, `(x0,z1)`, suitable for room finish slabs and doorway strips.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes X=[-5.50, 5.50], Z=[-10.45, -6.20], while bedroom-two-plan fixes X=[-5.50, -1.95] and its front/back limits; box orders such caller-supplied rectangular intervals without changing them.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 common.md:25 X=[-5.50,5.50], Z=[-10.45,-6.20] (common.ts:62 box); bedroom-two.md:25 X=[-5.50,-1.95] (bedroom-two.ts:45 box). v-143 F12 closed.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Common and bedroom-two builders supply the rectangular X/Z extents fixed by their room plans; `box` orders those values into a ring without inventing another footprint.
  */
 export const box = (x: readonly [number, number], z: readonly [number, number]): IPlanPoint[] => [
   { x: x[0], z: z[0] },
