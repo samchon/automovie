@@ -6,13 +6,13 @@
 @evidence principles/core/common.md#scope-preservation 여덟 문의 벽 두께 안 안감 세 조각과 양면 테를 치수·변형·접촉·통과 영역까지 정하고 문턱 바닥은 방 소유로 남긴다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 여덟 문의 안감·양면 테와 빈 통과부를 읽고 문턱 바닥은 방에 남겨 중복하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 문설주 0.06m·상인방·벽 두께 깊이의 안감과 양면 테의 모서리 겹침을 정해 source가 테의 닫힘 방식을 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion 안감 세 조각과 윗띠가 옆띠 위를 덮는 닫힌 둘레를 본문의 치수·점유 상자에 대조했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 안감 세 조각과 윗띠가 옆띠 위를 덮는 닫힌 둘레를 본문의 치수·점유 상자에 대조했다.
 @evidence principles/core/common.md#declared-basis 유효 치수·틀 0.06m는 openings.md#doors와 #boundary-ownership, 벽 두께 0.30/0.60m는 판정된 경계, 돌 테의 존재는 20-envelope#walls의 석재 문 주변에서 온다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 문 표의 유효 치수와 틀 두께, 벽 깊이 및 석재 주변 설정이 안감·테의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 깊은 문설주와 문 주변 틀이라는 설정을 void를 채우는 안감과 벽면 위 테라는 두 표면 모델로 바꾼다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 깊은 문설주를 벽 두께 전체 안감과 벽면 돌출 테의 두 표면으로 구체화했는지 확인했다.
 @evidence principles/design/models.md#representation-contract lining·surround part와 테의 윗모서리 소유, 안감 바깥면·테 뒷면의 가려진 접촉면, 유효 통과 영역의 negative space를 정한다.
-@evidenceReview principles/design/models.md#representation-contract 윗띠의 양끝이 옆띠 외곽까지 이르는 테와 벽 접촉면을 확인하고 통과부의 빈 영역과 구분했다.
+@evidenceReview principles/design/models.md#representation-contract #41a7d98 윗띠의 양끝이 옆띠 외곽까지 이르는 테와 벽 접촉면을 확인하고 통과부의 빈 영역과 구분했다.
 @evidence principles/design/models.md#spatial-convention 원점을 void 바닥 가장자리 선의 중심(문턱 완성면 Y=0, 벽 중심면)에 두고 X 벽 길이·Z 벽 두께·+Y 위로 정한다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e void 바닥 선 원점·X 벽 길이·Z 깊이·+Y 위가 여덟 변형의 기준으로 일치하는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 1.0×2.2×0.3m 변형의 세 시점과 건물의 각 문 양면에서 틀이 void를 정확히 채우고 유효 폭을 줄이지 않는지를 본다.
