@@ -49,6 +49,38 @@
 @evidence settings/001-production.md#module-boundary CommonJS engine의 lowerBuiltEnvironment·materializeCompiledInstanceSet·instanceSlot을 서버 쪽 payload.ts에서만 호출하고 브라우저 client는 engine을 import하지 않은 채 server가 보낸 JSON payload를 소비하는 현재 경계를 variant 소비 경로로 그대로 쓰며, variant는 그 호출에 explicit prototype만 더한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 건축·물체 생성 owner는 안정된 양면 주소와 seam을 제공하고 materials가 주소별 finish 결합을 결정한다. 상대 owner는 자기 면의 요구만 넘긴다.
 @evidence spaces/003-surface-ownership.md#whole-surface-owners 입면 owner는 창호·shade와 노출 마감 면의 안정 주소를 제공하고 materials가 그 주소의 finish 결합을 결정한다. 입면이 자체 저작하는 건축 모듈 반복과 독립 물체의 instanceSources population은 구분한다.
+@evidence models/000-representation.md#model-address-and-scale 물체의 prototype/part/face 주소와 숨은 접촉면까지 닫는 규칙을 받아 finish 결합은 생성 owner의 면을 참조하고 새 부품을 만들지 않는다.
+@evidence models/000-representation.md#model-bounds-and-states material variant는 원형의 상태별 부품 집합과 AABB를 보존하고 instances의 prototype 선택만 달리하는 결합으로 한정한다.
+@evidence models/001-seating-and-work.md#accent-chair 표의 frame·leg에는 oak-furniture, seat·back·back-cushion·arm에는 textile-linen/green을 각각 배정한다.
+@evidence models/003-service-fixtures.md#rear-counter-sink 표의 bowl·rim은 prop-steel, tap-base·tap-riser·tap-arm·tap-outlet은 coated-metal을 받는다.
+@evidence models/005-everyday-objects.md#household-textiles 표의 직물 상태는 textile 계열을, outdoor-mat은 prop-rubber를 body 면에 배정한다.
+@evidence models/005-everyday-objects.md#personal-articles shoe·coat·garment·umbrella의 body와 sole, hanger·umbrella-stand의 body를 직물·고무·도장 금속 역할로 가른다.
+@evidence models/005-everyday-objects.md#dining-wares plate·vase·bottle·cutlery의 body를 도기·용기 유리·금속으로 상태별 배정한다.
+@evidence models/005-everyday-objects.md#kitchen-smallwares pot·pan·kettle 등의 금속, board·block의 목재, crock·jar·소형 기기의 별도 body 마감은 표의 상태별 결합이다.
+@evidence models/005-everyday-objects.md#bath-accessories body의 플라스틱·금속·종이와 cap-side·pump-top의 덧면을 상태별 역할에 결합한다.
+@evidence models/005-everyday-objects.md#household-boxes 상자 body의 종이와 parcel-locker body의 도장 금속을 다른 역할로 배정한다.
+@evidence models/005-everyday-objects.md#household-tools 도구 body의 기기 외피와 spare-light diffuser의 투과면을 구별한다.
+@evidence models/005-everyday-objects.md#exterior-furnishings 외부 비품 body·garden-light diffuser·bicycle wheel을 도장 금속·확산면·고무로 구분한다.
+@evidence models/005-everyday-objects.md#wall-accessories entry-mirror front와 wall-sconce diffuser를 각 body의 도장 금속에서 따로 결합한다.
+@evidence models/005-everyday-objects.md#desk-controls pointing-device body를 prop-appliance 응답으로 결합한다.
+@evidence models/005-everyday-objects.md#under-cabinet-light body의 도장 금속과 diffuser의 prop-diffuser를 나눈다.
+@evidence models/005-everyday-objects.md#kitchen-extractor body와 filter-left/right의 외면은 도장 금속, 두 필터 underside는 prop-steel로 결합한다.
+@evidence models/001-seating-and-work.md#island-stool seat·leg·footrest의 금속 외피를 coated-metal 역할로 받고 실제 접촉·형상은 모델에 남긴다.
+@evidence models/001-seating-and-work.md#work-equipment 화면 장치의 housing·bezel·keyboard-body와 화면·keys는 기기 외피와 표시 역할을 분리해 결합한다.
+@evidence models/003-service-fixtures.md#cooking-appliances wall-worktop top은 worktop-stone, cooktop과 oven의 몸체·조작면은 기기 외피·금속·유리 역할로 나눈다.
+@evidence models/003-service-fixtures.md#refrigerator body·door·toe와 handle을 기기 외피·도장 금속으로 배정하고 내부 선반을 마감 대상처럼 되살리지 않는다.
+@evidence models/003-service-fixtures.md#laundry-appliances washer·dryer의 body·controls와 drum·window를 기기 외피·금속·유리 역할로 분리한다.
+@evidence models/004-decor-and-fixtures.md#potted-plant pot의 도장 금속과 soil·stem·branch·leaf의 식재색 역할을 구분해 가구 목재 결이 잎에 번지지 않게 한다.
+@evidence models/004-decor-and-fixtures.md#books cover-left/right·spine과 pages를 책 표지·종이 역할로 결합한다.
+@evidence models/004-decor-and-fixtures.md#folded-towels layer-0..2·fold-0..1의 노출면을 같은 직물 조직으로 받되 모델의 접힌 틈을 texture로 채우지 않는다.
+@evidence models/004-decor-and-fixtures.md#storage-basket bottom·wall·rim·handle을 바구니의 직물 외피 역할로 결합한다.
+@evidence models/004-decor-and-fixtures.md#entry-charger body와 interface를 기기 외피·조작면으로 분리한다.
+@evidence models/004-decor-and-fixtures.md#wall-art back·frame·mat·artwork·cover를 목재 틀·종이 그림·투명 전면 역할로 가른다.
+@evidence models/004-decor-and-fixtures.md#tabletop-props bowl·tray·cup의 shell·base·rim·body·handle에 도기·목재 역할을 상태별 결합한다.
+@evidence models/004-decor-and-fixtures.md#living-display mount·housing·bezel·screen을 금속 지지와 기기 외피·표시 면으로 분리한다.
+@evidence models/004-decor-and-fixtures.md#ceiling-surface-light housing·trim과 diffuser를 금속 외피·확산면으로 나누며 발광은 systems에 둔다.
+@evidence models/004-decor-and-fixtures.md#dining-pendant canopy·cord·shade와 diffuser를 금속 외피·확산면으로 나눈다.
+@evidence models/004-decor-and-fixtures.md#portable-lamps 세 조명 상태의 base·stem·shade·task-head와 diffuser·globe를 외피·확산면으로 나눈다.
 -->
 
 건축과 물체의 안정 면 주소는 각각 [표면 분해](../settings/003-spatial-basis.md#surface-decomposition)의 공간 owner와 model owner가 제공한다. materials가 양면 주소에 대한 finish ID·결 축·재료 응답을 결정하고 생성 owner는 그 결합을 운반한다. `oak`나 `white` 문자열 전체를 일괄 교체하지 않는다. 침대 pillow의 흰색은 직물이고 세면대 rim의 흰색은 도기다. 나무 줄기의 oak는 가구 목재가 아니다. 이 역할은 생성 시점의 typed 입력이며 viewer가 이름을 추측해서 칠하지 않는다. 기존 plan·벽 cut·opening·connector는 spaces, 물체 부재는 models, 배치와 상태별 위치는 instances가 계속 생성한다. 이전 방 source의 `*-bed-pillow-*`와 `*-rim` 문자열은 이관 전 임시 주소이며 model part id의 확정은 models 재판정 뒤 반영한다.
@@ -113,6 +145,27 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 | rear-counter-sink | default | bowl/*,rim/* | prop-steel | 없음 | face normal만 사용 | solid baseColor | [host](../models/003-service-fixtures.md#rear-counter-sink) |
 | rear-counter-sink | default | tap-base/*,tap-riser/*,tap-arm/*,tap-outlet/* | coated-metal | 없음 | face normal만 사용 | solid 기준색 | [host](../models/003-service-fixtures.md#rear-counter-sink) |
 
+다음은 기존 마감 H2가 담당하던 원형과 새 소품의 면 역할을 같은 주소 규칙으로 묶은 색인이다. `prop-*` 응답은 위 표의 같은 ID를 재사용한다. 식재와 기기 표시 면의 `retained/<현재 material id>`는 기존 재료 역할을 보존하며, 이 색인이 새 geometry나 발광을 추가하지 않는다. 목재·직물의 UV는 [미터 좌표](#metric-texture-coordinates)를 따르고 단색 면은 texture UV를 요구하지 않는다.
+
+| model host | model part roles | finish role |
+| --- | --- | --- |
+| [섬 스툴](../models/001-seating-and-work.md#island-stool) | seat, leg-0..3, footrest-0..3 | coated-metal |
+| [작업 장치](../models/001-seating-and-work.md#work-equipment) | stand-base/shaft, housing, display-bezel, keyboard-body, keys-0..47; screen | prop-appliance·coated-metal; retained/metal |
+| [벽 조리 기기](../models/003-service-fixtures.md#cooking-appliances) | wall-worktop top; cooktop body/rim/zones, oven body/controls/handle/window | worktop-stone; prop-appliance·prop-steel·prop-container-glass |
+| [냉장고](../models/003-service-fixtures.md#refrigerator) | body, door-lower/upper, toe; handle-lower/upper | prop-appliance; coated-metal |
+| [세탁 기기](../models/003-service-fixtures.md#laundry-appliances) | washer/dryer body·controls; drum-inner/rim; window | prop-appliance; prop-steel; prop-container-glass |
+| [실내 화분](../models/004-decor-and-fixtures.md#potted-plant) | pot; soil; stem, branch; leaf | coated-metal; retained/soil; retained/bark; retained/leaf |
+| [책](../models/004-decor-and-fixtures.md#books) | cover-left/right, spine, pages | prop-paper |
+| [접힌 수건](../models/004-decor-and-fixtures.md#folded-towels) | layer-0..2, fold-0..1 | textile-linen |
+| [바구니](../models/004-decor-and-fixtures.md#storage-basket) | bottom, wall, rim, handle-left/right | prop-fabric |
+| [충전기](../models/004-decor-and-fixtures.md#entry-charger) | body, interface | prop-appliance; coated-metal |
+| [액자](../models/004-decor-and-fixtures.md#wall-art) | back, frame; mat, artwork; cover | oak-furniture; prop-paper; prop-container-glass |
+| [식탁 소품](../models/004-decor-and-fixtures.md#tabletop-props) | bowl shell; tray base/rim; cup body/handle | prop-ceramic; oak-furniture; prop-ceramic |
+| [거실 화면](../models/004-decor-and-fixtures.md#living-display) | mount; housing, bezel; screen | coated-metal; prop-appliance; retained/metal |
+| [천장등](../models/004-decor-and-fixtures.md#ceiling-surface-light) | housing-body/flange/core, trim; diffuser | coated-metal; prop-diffuser |
+| [펜던트](../models/004-decor-and-fixtures.md#dining-pendant) | canopy, cord, shade-wall/cap; diffuser | coated-metal; prop-diffuser |
+| [이동 조명](../models/004-decor-and-fixtures.md#portable-lamps) | base, stem, shade, task-head; diffuser, globe | coated-metal; prop-diffuser |
+
 위 결합 행의 model host와 face 이름을 역방향 대조할 때 다음 색인을 사용한다. 마감 선택과 상태별 범위는 위 표가 소유한다.
 
 [생활 직물](../models/005-everyday-objects.md#household-textiles)의 `body`는 직물·고무면 결합 대상이다.
@@ -145,6 +198,7 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work coordinate-datum의 m·+Y 위·+Z 후면, 기존 unit box primitive와 part transform·부모 scale 구조, tessellateToMesh의 정점 배열을 대조했다. 부모가 metric UV를 막는 좌표 결함은 없었고 unit UV 확대 방식의 폐기는 이 층 안의 결정이다.
 @evidence settings/003-spatial-basis.md#coordinate-datum m 단위를 surface-metres UV와 transform.scale=(1/tileU,1/tileV)의 단위로 써 모든 texture의 물리 반복 길이를 같은 미터로 잰다.
 @evidence settings/001-production.md#delivery-scope 다섯 reference 이미지를 texture로 삽입하지 않는다는 결정에 따라 모든 grain을 seed=2080의 typed source RGBA로 생성하고 사진·billboard·구운 조명을 쓰지 않는다.
+@evidence models/000-representation.md#model-uv-and-topology texture를 받는 모델 face의 UV와 닫힌 곡면 seam을 받아 실제 표면 m를 반복 길이로 환산하고 비균일 scale을 variant 주소에 포함한다.
 -->
 
 길이 단위 m와 +Y 위·+Z 후면의 축은 [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을, 다섯 reference 이미지를 texture로 쓰지 않는 결정은 [납품 범위](../settings/001-production.md#delivery-scope)를 따른다. 색상 texture는 typed source가 고정 seed=2080과 정수 texel 좌표로 만드는 tileable RGBA다. 사진·레퍼런스·billboard·구운 조명·구운 접합 그림자는 사용하지 않는다. 무채색 grain asset은 sRGB colorSpace로 결합되어 uploader가 선형 조명 공간으로 decode하며 alpha=255이고 평균 허용 오차는 선형값 ±.005다. texture마다 문서의 ID·해상도·물리 반복 길이를 그대로 자원에 담고, primary UV는 `coordinateSource: surface-metres`, transform.scale=(1/tileU,1/tileV), offset=(0,0), rotationDeg=0으로 전달한다. sampler는 wrapS/T=repeat, minFilter=linearMipmapLinear, magFilter=linear이다. binding 레코드에는 anisotropy 필드가 없으며 [uploader](../../src/viewer/scene.mjs)가 모든 texture에 anisotropy 8을 적용한다. PV의 기존 바인딩은 해당 owner가 명시한 예외다. [층간 금속 cassette와 seal](002-exterior-solids.md#opaque-floor-band)은 이 metric 반복 규칙을 따른다.

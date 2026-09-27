@@ -41,6 +41,7 @@
 @evidence upstream/design/materials.md#parent-revision-from-material-work common-room의 island counter·wall bank worktop과 sink·hob는 현재 분리된 메시지만 방 source의 임시 물체 주소다. settings/003#surface-decomposition에서 형상과 배치를 models·instances로 분리했고 최종 counter와 sink 접합 주소는 models 재판정 뒤 확인한다.
 @evidence settings/002-household.md#ground-program 주방 island와 cooktop이 놓인 조리대가 cabinet과 구분되는 밝은 석재로 읽히게 한다.
 @evidence spaces/002-spatial-graph.md#common-room 연속 공용부 주방이라는 목적에 놓이는 island counter와 wall bank worktop의 model part에 이 마감을 배정한다.
+@evidence models/003-service-fixtures.md#kitchen-island 섬 counter의 노출 top·edge에 밝은 worktop-stone을 결합하고 sink·tap의 금속면과 분리한다.
 -->
 
 `worktop-stone`은 kitchen-island counter와 kitchen-wall-bank worktop의 기존 판 면이다. 현재 판 두께와 sink/hob의 기하 관계를 유지한다. 연마된 밝은 합성 석재의 근사로 색 #dad7ce, roughness=.30, `worktop-grain` 512²·.50×.50m, 1..3mm 입자, 선형 평균 .985·범위 .96..1.00을 쓴다. 금속성·투과·clearcoat는 없다.
@@ -62,11 +63,17 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence settings/002-household.md#program-boundary 설비 작동을 검증하지 않는다는 경계를 도기 마감이 배관 작동을 해결하지 않는다는 한계로 옮긴다.
 @evidence spaces/002-spatial-graph.md#powder-utility powder의 세면기 rim·bowl과 toilet pedestal·bowl·cistern이 이 도기를 받는다.
 @evidence spaces/002-spatial-graph.md#upper-bathroom 욕실 vanity rim·bowl, toilet 세 부재와 shower tray가 이 도기를 받는다.
+@evidence models/003-service-fixtures.md#basin 세면기 rim·bowl의 실제 face는 벽 tile 대신 이 도기를 받고 tap과 거울은 별도 금속·반사 역할로 남긴다.
+@evidence models/003-service-fixtures.md#toilet pedestal·bowl·cistern에는 도기, 분리된 seat에는 sanitary-seat를 배정한다.
+@evidence models/003-service-fixtures.md#shower 고정 샤워의 tray 도기면을 유리 screen·금속 fixture와 구별한다.
+@evidence models/003-service-fixtures.md#bathtub 욕조 shell·rim·floor의 노출 도기면을 같은 도기 응답으로 결합하며 drain·overflow 개구는 모델의 실제 면 주소를 따른다.
 -->
 
 `sanitary-ceramic`은 basin rim/bowl, toilet pedestal/bowl/cistern, 샤워 트레이의 실제 면이다. 기구 목록은 [1층 프로그램](../settings/002-household.md#ground-program)과 [상층 프로그램](../settings/002-household.md#upper-program)에서, 최종 형상과 part/face는 models에서, 배관·작동 제외는 [프로그램 경계](../settings/002-household.md#program-boundary)에서 받는다. 현재 방 source의 white/tile 문자열은 이관 전 임시 이름이며 최종 역할 주소가 아니다. texture 없음, 색 #e7e6df, roughness=.19, metallic=0, clearcoat=.12다. 명목 .5mm 유약은 기하 안에 포함되며 벽 타일, 침구, 세탁기·keyboard 같은 가전 흰색에 적용하지 않는다.
 
 곡면은 최종 model mesh의 법선을 사용하고 부재 두께도 models가 정한다. 배관 작동은 납품하지 않는다. [습식 방 관찰](007-observation.md#reference-material-samples)에서 도기가 직물처럼 보이지 않는지, basin 내부가 바닥 tile과 같은 재료로 읽히지 않는지 확인한다. 기기의 단순한 형상이나 실제 배관 작동은 이 glossy 마감으로 해결했다고 하지 않는다.
+
+별도 [욕조 원형](../models/003-service-fixtures.md#bathtub)의 `shell`·`rim`·`floor` 노출면도 같은 도기 응답을 사용한다. 현재 room source의 샤워 트레이와 달리 욕조는 이관 후 독립 결합 대상이며, 배수·overflow의 열린 경계를 마감이 채우지 않는다.
 
 ## 변기 좌판 수지 {#sanitary-seat}
 
@@ -102,6 +109,7 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence settings/002-household.md#flex-states 작업 상태에서 닫혀 세로 패널로 읽히는 murphy panel을 joinery-light로 두고 손님 상태의 guest bed와 상태별 배치가 겹치지 않게 한다.
 @evidence spaces/002-spatial-graph.md#common-room 주방 wall bank·island와 overhead가 공용부에 놓인다는 목적을 받고 각 model part의 두 도장 결합을 정한다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 murphy closed-panel의 방 귀속을 받고 joinery-light를 model part에 결합한다.
+@evidence models/002-storage-and-sleep.md#murphy-bed 접힌 work 상태의 closed-panel만 joinery-light를 받고 guest의 bed-frame·mattress·duvet에는 가구 목재·직물 결합을 남긴다.
 -->
 
 `joinery-green`은 kitchen-island·kitchen-wall-bank cabinet의 green back·door·shelf·side 판에 색 #626b59·roughness=.44를 배정한다. `joinery-light`는 kitchen-overhead 및 flex murphy closed-panel의 밝은 판에 #c9c3b7·roughness=.48을 쓴다. 명목 .1mm 도막, texture 없음, metallic=0이다. murphy closed-panel은 작업 상태에만 있고 손님 상태에는 instance가 guest bed를 배치한다. 최종 문짝 분할·손잡이·틈의 주소는 models가 정하며 현재 방 source의 역할 이름은 임시 입력이다.

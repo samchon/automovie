@@ -90,6 +90,7 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 @evidence settings/001-production.md#delivery-review-condition 컴파일된 topology가 관찰 분모이고 다섯 reference는 추가 질문이라는 종료 조건을 재료 관찰에도 그대로 쓴다.
 @evidence settings/004-observation.md#review-apparatus Playwright channel chromium의 WebGL canvas와 실제 RENDERER·URL·관찰 id·source 기준 기록을 재료 표본의 GPU 조건으로 받는다.
 @evidence spaces/001-citizen-house.md#spatial-observation boundary.face·opening.profile·cell에서 도출한 외부·실내 관찰 id와 실패 id를 재료 관찰의 분모로 그대로 쓴다.
+@evidence models/000-representation.md#model-neutral-observation 모델이 정한 정면·측면·45°와 상태별 중립 관찰을 재료의 실제 compiled 표본에 겹쳐, 재료가 부품 형상 실패를 가리지 못하게 한다.
 -->
 
 현재 compiled topology에서 파생된 관찰 집합 전부를 유지한다. exterior setting 하나, 모든 노출 입면/모서리/지붕/하부와 개구·출입구, 모든 공간의 threshold·네 안쪽 모서리·중심에서 네 방위를 자기 공간 안에서 본다. failure/null 위치는 삭제하지 않는다. material이 바뀌지 않은 방도 반사·주변색의 영향을 받으므로 관찰 분모에서 빼지 않는다. 현재 canopy top/soffit·배수 접합 표본도 유지하고 셀 간격·frame·rail 리듬과 검은 연속판 회귀를 본다.
@@ -112,6 +113,7 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 @evidence settings/004-observation.md#operator-access 뷰어가 허용하는 privacy 세 상태와 flex 두 상태를 같은 producer의 명시 입력으로 조합한다.
 @evidence settings/003-spatial-basis.md#privacy-states 낮·사적·야간의 tint·고정 반투명 층·shade drop이 서로 다른 속성이라는 결정을 상태별 유리·screen 표본으로 나눠 본다.
 @evidence settings/002-household.md#flex-states 작업 상태의 닫힌 painted panel과 손님 상태의 내려온 침대 직물을 같은 작업실 관찰에서 대조한다.
+@evidence models/000-representation.md#model-articulation-ownership 모델이 안정 주소로 구별하는 정지 상태의 실제 부재에만 직물·도장 결합을 대조하며 재료 검사에서 새 운동 상태를 만들지 않는다.
 -->
 
 현재 명시 상태 privacy=day/private/night와 flex=work/guest의 6개 조합을 동일 source producer에 준다. 이 상태들이 만드는 실제 부재 및 바인딩 census를 비교하고 유리·screen·folding bed가 영향을 받는 모든 opening/room 관찰을 반복한다. 나머지 집 전체 관찰은 기본 day/work에서 완주하고, 다른 상태가 바꾼 부재·재료의 영향 면은 빠짐없이 추가한다. 동일한 두 상태도 동일하다는 사실을 기록한다.

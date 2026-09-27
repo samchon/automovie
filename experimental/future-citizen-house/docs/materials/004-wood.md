@@ -49,6 +49,9 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 @evidence spaces/002-spatial-graph.md#corridor-storage 상층 수납으로 여는 z=0.48 문짝과 틀이 이 마감을 받는다.
 @evidence spaces/002-spatial-graph.md#corridor-service 설비실로 여는 z=-0.95 문짝과 틀이 이 마감을 받는다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 murphy frame의 back·side·top 오크 판과 열린 벽 책장 flex-books의 back·측판·선반이 이 마감을 받는다.
+@evidence models/002-storage-and-sleep.md#cabinet-and-shelf 수납장과 열린 책장의 door·side·shelf·back 노출 판에 oak-grain을 부품 길이 축으로 결합하며 green·steel 외함에는 적용하지 않는다.
+@evidence models/002-storage-and-sleep.md#entry-bench 현관 벤치·신발장의 목재 외함 면은 oak-joinery로 받고 cushion은 직물 H2로 보낸다.
+@evidence models/002-storage-and-sleep.md#entry-charging-shelf 벽 연결 충전 선반의 노출 목재 판에 수평 결을 배정하고 충전 물체의 마감과 구별한다.
 @evidence settings/002-household.md#ground-program 건축 구멍 없는 평벽 부착 우편·충전 선반의 oak 면과 신발 수납·media wall·pantry·recycling cabinet의 oak 판이 이 마감을 받는다.
 -->
 
@@ -75,6 +78,12 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 @evidence spaces/002-spatial-graph.md#child-bedroom-2 작은 침실 2의 침대 base/head와 desk가 이 마감을 받는다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 desk의 top과 다리, 손님 상태에 내려오는 guest bed의 base/head가 이 마감을 받는다.
 @evidence settings/002-household.md#flex-states 손님 수면 상태에서만 나타나는 guest bed의 oak base/head도 세 침실 침대와 같은 가구 목재와 결 규칙을 받는다.
+@evidence models/001-seating-and-work.md#living-sofa 소파의 plinth 목재에 가구 오크를 배정하고 cushion·arm·back 직물은 별도 마감으로 남긴다.
+@evidence models/001-seating-and-work.md#dining-table 식탁 top의 긴 수평 축과 다리 길이 축에 oak-grain을 결합한다.
+@evidence models/001-seating-and-work.md#coffee-table 낮은 탁자 top의 긴 local+Z와 다리 길이 방향에 가구 오크 결을 준다.
+@evidence models/001-seating-and-work.md#dining-chair 식탁 의자의 seat-frame·back·leg-0..3은 가구 오크, 분리된 seat-pad는 직물로 배정한다.
+@evidence models/001-seating-and-work.md#work-desk 작업실·침실 desk의 top과 다리에 가구 오크를 배정하고 상태별 위치와 회전은 instances에 둔다.
+@evidence models/002-storage-and-sleep.md#fixed-bed 세 침실과 손님 침대의 base·head·다리는 가구 오크, mattress·duvet·pillow는 직물로 나눈다.
 -->
 
 `oak-furniture`는 공용부 식탁·coffee table과 네 desk(flex·primary·child-one·child-two)의 top·다리, 세 침실 침대와 손님 상태의 flex guest bed의 base/head·네 다리, 식탁 의자의 목재 부재, sofa plinth의 실제 면에 배정한다. 가구별 전체 형상과 최종 part/face 주소는 models가 소유하며 각 방의 배치는 instances가 소유한다. 현재 방 source의 element 이름은 이관 중 관찰 주소일 뿐 최종 바인딩이 아니다. 판류는 .6mm 베니어, 0.045m 각재 다리는 통목처럼 읽히는 마감의 근사이고 숨은 내부 구조는 미정 성능 주장으로 남기지 않는다. 색 #aa8760, roughness=.48, oak-grain을 쓰며 기준색 변화는 .98..1.02다.

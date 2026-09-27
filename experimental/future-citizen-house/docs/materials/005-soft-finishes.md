@@ -90,6 +90,8 @@ upper slab는 네 box piece를 면 단위 material part로 나눈다. 계단 구
 @evidence spaces/002-spatial-graph.md#child-bedroom-1 작은 침실 1의 green duvet·mattress·pillow와 의자 seat·back이 직물을 받는다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-2 작은 침실 2의 blue duvet·mattress·pillow와 의자 seat·back이 직물을 받는다.
 @evidence spaces/002-spatial-graph.md#entry 현관 bench cushion이 본문이 정한 textile-green을 받아 소파 가운데 pillow·의자와 같은 녹색 직물로 읽힌다.
+@evidence models/001-seating-and-work.md#desk-chair 책상 의자 seat·back의 천 피복을 textile-green으로 배정하고 구조 몸체의 형상은 모델에 남긴다.
+@evidence models/004-decor-and-fixtures.md#rugs 거실·침실 rug의 노출 직물 면을 textile-linen 계열로 받아 바닥 oak와 다른 조직·광택으로 읽게 한다.
 -->
 
 소파 cushion·arm·back·pillow, 의자 seat·back, 현관 bench cushion, bed mattress/duvet/pillow, rug의 실제 면은 최종 model part/face 주소에서 `textile-linen`, `textile-green`, `textile-blue`, `textile-white`로 배정한다. 색은 차례로 #c8c3b6, #6b735c, #657682, #e1dfd5이며 roughness는 .92, .94, .94, .92다. 배정은 현재 source의 색 역할을 임시 관찰 입력으로 삼지만 그 element 이름을 최종 주소로 승인하지 않는다. 소파 cushion·arm·back·양쪽 pillow, rug, 침대 mattress, 주침실 duvet는 textile-linen이다. 소파 가운데 pillow, 현관 bench cushion, 작업실·주침실·두 작은 침실 의자의 seat·back, 작은 침실 1과 guest bed의 duvet는 textile-green이다. 작은 침실 2 duvet는 textile-blue, 침대 pillow는 textile-white다. 명목 표면 직물 .001m는 외곽 안에 포함한다. toilet seat의 linen색은 직물 대상이 아니다.
