@@ -110,7 +110,8 @@ const posed=(model:IAutoMovieModel, pivot:{ x:number;z:number },state:"closed"|"
 export class TempleOpenings {
   /**
    * Building opening operation over closed rest meshes; instances name and orient leaves.
-   * @evidence models/scale.md#articulation-map The operation registers one or two Y-axis hinge panels, checks their distinct identities, and supplies closed/open revolute states at 0 and -π/2.
+   * @evidence models/openings.md#double-door-leaf The paired passage IDs produce two separately named Y-axis hinge panels, each with closed and 90-degree open states.
+   * @evidence models/openings.md#single-door-leaf Each single passage produces one Y-axis hinge panel with the reviewed closed and open limits.
    * @evidence principles/core/source-units.md#source-scope-preservation It takes the passage ID and caller-owned leaf elements, without choosing the door's world placement.
    * @evidence principles/core/source-units.md#source-substantive-completion It returns complete panel pivots, widths, heights, angular limits, and both operation states for the reviewed passage.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The paired passage IDs and articulation H2 already distinguish two hinges from one, so this method adds no new motion state.
