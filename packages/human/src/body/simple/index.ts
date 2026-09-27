@@ -1,5 +1,6 @@
 export * from "./expandHumanBodySimpleShape";
 export * from "./humanBodyClipRing";
+export * from "./humanBodySimplePosture";
 export * from "./humanBodySimpleShapeDirection";
 export * from "./humanBodySimpleShapeMath";
 export * from "./humanBodySurfaceBoundary";
