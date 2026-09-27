@@ -24,9 +24,12 @@ export type BodyPosePreset = {
 
 /**
  * Render the body editor's pose presets. A preset replaces the document's
- * whole joint list in one edit, as the specification states. A fixed preset
+ * whole joint list in one edit, as the specification states, but for the
+ * standing joints (`standing`, the trunk's joints the age posture bends),
+ * whose rows it keeps unless it names them: a pose does not straighten an
+ * old body's back. A fixed preset
  * applies at once. A solved preset (`armsDown`) asks the worker to solve it
- * on the current body with every joint at rest, the list it will replace,
+ * on the current body with every other joint at rest, the list it will replace,
  * and applies the answer only while it is still the latest intent: a slider
  * moved during the solve supersedes it, and a refusal leaves the committed
  * body as it was with the reason on the status line.
@@ -39,6 +42,8 @@ export function renderBodyPosePresets(props: {
   container: HTMLElement;
   presets: readonly BodyPosePreset[];
   current: () => IAutoMovieHumanBodyBasisDocument;
+  /** The joints whose rows a preset keeps unless it names them; absent is none. */
+  standing?: readonly string[];
   armsDown?: (
     document: IAutoMovieHumanBodyBasisDocument,
   ) => Promise<Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">>;
@@ -54,12 +59,21 @@ export function renderBodyPosePresets(props: {
     button.onclick = async () => {
       const ticket = props.reserve();
       const draft = structuredClone(props.current());
+      const kept = (named: readonly IAutoMovieJointPose[]) =>
+        (draft.pose ?? []).filter(
+          (row) =>
+            (props.standing ?? []).includes(row.bone) &&
+            !named.some((one) => one.bone === row.bone),
+        );
       try {
         if (preset.solve === undefined) {
           props.apply(
             {
               ...draft,
-              pose: structuredClone(preset.pose ?? []),
+              pose: [
+                ...kept(preset.pose ?? []),
+                ...structuredClone(preset.pose ?? []),
+              ],
               shoulders: structuredClone(preset.shoulders ?? []),
             },
             ticket,
@@ -73,14 +87,14 @@ export function renderBodyPosePresets(props: {
         props.busy("Solving " + preset.name + " on this body…");
         const solved = await props.armsDown({
           ...draft,
-          pose: [],
+          pose: kept([]),
           shoulders: [],
         });
         if (!props.isCurrent(ticket)) return;
         props.apply(
           {
             ...draft,
-            pose: solved.pose ?? [],
+            pose: [...kept(solved.pose ?? []), ...(solved.pose ?? [])],
             shoulders: solved.shoulders ?? [],
           },
           ticket,
