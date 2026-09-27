@@ -169,12 +169,12 @@ ref03의 조리면 위 상부장 하단에 얇은 금속 배기 후드를 둔다
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 1층 신발 수납과 상층 wardrobe에 바닥 신발·우산 및 매달린 의복·걸이의 별도 소품을 더한다.
 @evidenceReview principles/design/models.md#representation-contract #46718c6 @bore-z coat·garment는 실제 관통 loop를 내고 hanger의 두 shoulder와 hook은 한 연속 body로 잇는다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 세 원형은 접지 중심, 매달린 세 원형은 y=0 걸림점 원점이며 모두 전면 +Z라고 본문이 정한다.
-@evidenceReview principles/design/models.md#reviewable-structure #_______ 정면·측면·45°에서 신발·의복·우산 윤곽을 판별하고 상부 공통 뷰에서 `body/loop-inner`·`body/hook-inner`·꽂이 `body/inner`의 개구를 확인한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #_______ ref02의 침실·현관 수납과 ref04 작업실의 절제된 밀도를 신발·의복·우산 실루엣에 쓴다. ref01·03·05에서 보이지 않는 브랜드는 형상에 붙이지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #_______ 여섯 `@envelope`·`@part`가 각 W/H/D를 닫고 hanger의 7.5° hook facet, 신발·우산의 `@flat-contact`와 의복의 `@suspension-face`가 바닥·봉 지지 주소를 구분한다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면·측면·45°에서 신발·의복·우산 윤곽을 판별하고 상부 공통 뷰에서 `body/loop-inner`·`body/hook-inner`·꽂이 `body/inner`의 개구를 확인한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 침실·현관 수납과 ref04 작업실의 절제된 밀도를 신발·의복·우산 실루엣에 쓴다. ref01·03·05에서 보이지 않는 브랜드는 형상에 붙이지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 여섯 `@envelope`·`@part`가 각 W/H/D를 닫고 hanger의 7.5° hook facet, 신발·우산의 `@flat-contact`와 의복의 `@suspension-face`가 바닥·봉 지지 주소를 구분한다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 신발 수납·현관과 침실 wardrobe에 여섯 원형을 대조했고 짝·옷 수량과 실제 봉 배치는 instances에 남아 새 방이 없다.
 @evidenceReview settings/002-household.md#ground-program #c5026c0 현관 신발 수납을 shoe·umbrella·umbrella-stand의 가능한 목적지로 받는다.
-@evidenceReview settings/002-household.md#upper-program #_______ 상층 침실의 wardrobe가 garment·hanger의 보관 목적지다. 이 H2는 옷 한 벌의 원형과 여덟 instance의 반복을 적고, 실제 봉에 맞출 위치는 후속 instances에 남긴다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 상층 침실의 wardrobe가 garment·hanger의 보관 목적지다. 이 H2는 옷 한 벌의 원형과 여덟 instance의 반복을 적고, 실제 봉에 맞출 위치는 후속 instances에 남긴다.
 @evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 shoe/sole, coat·garment/loop-inner, hanger/hook-inner와 stand/inner를 안정 소품 face로 낸다.
 -->
 
@@ -253,11 +253,11 @@ ref02 침실과 현관 수납 기능 및 ref04 작업실의 절제된 생활 밀
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 기존 tabletop-props의 서빙 볼을 재사용하고 @inventory에는 접시·세 금속 식기·두 병만 추가한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 plate @bore, fork 세 관통 틈, spoon 음각, knife 날 단면과 두 병의 열린 목을 본문 식으로 정의한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02·03의 여섯 자리 규모를 받고 접시 0.004m 최소 벽과 식기 단면은 이 H2의 로컬 결정이다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #_______ operative-subjects와 ground-program이 정한 여섯 자리 식탁에 `plate`의 낮은 개구, `fork` 끝, 병 목을 각각 가진 원형을 더한다. 본문은 여섯 세트를 독립해 놓는 규모까지 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 operative-subjects와 ground-program이 정한 여섯 자리 식탁에 `plate`의 낮은 개구, `fork` 끝, 병 목을 각각 가진 원형을 더한다. 본문은 여섯 세트를 독립해 놓는 규모까지 정한다.
 @evidenceReview principles/design/models.md#representation-contract #46718c6 접시 0.11m 바닥 원판과 0.106m bore 사이 벽을 남기고 water-bottle·flower-vase는 닫힌 바닥과 열린 목을 낸다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 모든 식기의 식탁 접촉면 중심 원점·사용자 쪽 +Z를 정하고 fork·spoon·knife의 @flat-contact가 y=0에 있다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b plate body/rim, 병 body/inner 및 금속 body/grip·head가 상부·정면·45°에서 낮은 개구와 식기 끝을 분리한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #_______ ref02·03의 여섯 자리 식탁 규모가 독립 접시·식기 세트의 수를 제약한다. ref01·04·05는 식기 단면 근거로 쓰지 않으며 식품 안전과 급수는 미검증이다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02·03의 여섯 자리 식탁 규모가 독립 접시·식기 세트의 수를 제약한다. ref01·04·05는 식기 단면 근거로 쓰지 않으며 식품 안전과 급수는 미검증이다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 여섯 @envelope와 @part가 각 W/H/D, plate bore·병 목·식기 grip/head 점유를 닫는다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 여섯 자리 식탁에 선택 소품 여섯 종류를 대조했고 세트 반복과 상차림 위치는 배치가 결정한다.
 @evidenceReview settings/002-household.md#operative-subjects #64a96e8 가족 네 명과 방문자 두 명의 식사 규모를 식기 세트 반복의 배경으로 받고 원형 자체는 한 종류씩만 낸다.
@@ -440,7 +440,7 @@ ref03의 주방 조리대·섬 위에서 작은 도구가 가전과 겹쳐 보�
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02 욕실·서비스 코어의 생활 물품 크기를 근거로 받고 각 W/H/D와 걸이 접촉은 로컬로 고른다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 상층 욕실·세탁실 목적지에 컵·소모품·벽 걸이·바구니의 서로 다른 받침 원형을 더한다.
 @evidenceReview principles/design/models.md#representation-contract #46718c6 tissue-roll @bore는 관통하고 tissue-pack 네 원통·받침은 내부 교차면 없는 한 몸체이며 컵·bin은 열린다.
-@evidenceReview principles/design/models.md#spatial-convention #_______ 바닥·선반 소품의 놓이는 면 중심과 달리 `tissue-holder`는 z=0..D/6 벽판의 아래 접촉 중심을 원점으로 둔다. 두 배치 종류 모두 사용자 쪽 +Z를 전면으로 고정한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥·선반 소품의 놓이는 면 중심과 달리 `tissue-holder`는 z=0..D/6 벽판의 아래 접촉 중심을 원점으로 둔다. 두 배치 종류 모두 사용자 쪽 +Z를 전면으로 고정한다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b body/inner·rim, tissue body/end와 holder body/arm이 정면·상부·45°에서 작은 크기와 빈 중심을 보인다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02 위생실·세탁 공간의 생활 물품 역할을 받고 다른 사진의 상표나 충전 내용은 만들지 않는다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 열 개 @envelope와 @part에 병 @cavity-profile, bin @bore, basket @void 및 걸이 좌표가 각 상태를 닫는다.
@@ -551,7 +551,7 @@ ref02의 욕실과 서비스 코어에서 세면대·변기·세탁기와 구분
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02 수납실과 ref04 책장 옆의 독립 상자 역할을 받고 임의의 내용물은 채우지 않는다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 다섯 @envelope 및 세 @void가 외곽·벽 두께를 닫고 inner/rim은 열린 상태에만 발행한다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 1층·상층 storage 및 storage-1f에 선반 안팎 상자를 대조했고 내용물·반복은 배치에 남아 방 변경이 없다.
-@evidenceReview settings/002-household.md#ground-program #_______ 1층 storage는 상자의 가능한 방일 뿐 개별 상자 형상을 정하지 않는다. 이 H2는 열린 `file-box`·`toy-box`·`recycling-box`와 닫힌 두 상태를 분리하고 선반 자체와 혼동하지 않도록 한다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 1층 storage는 상자의 가능한 방일 뿐 개별 상자 형상을 정하지 않는다. 이 H2는 열린 `file-box`·`toy-box`·`recycling-box`와 닫힌 두 상태를 분리하고 선반 자체와 혼동하지 않도록 한다.
 @evidenceReview settings/002-household.md#upper-program #55473ad 상층 linen 수납도 같은 상자 변종의 가능한 보관 장소로 받는다.
 @evidenceReview spaces/002-spatial-graph.md#storage-1f #2360e96 공용실 직결 수납 cell을 상자의 가능한 배치 장소로 연결하고 실제 선반 칸은 정하지 않는다.
 @evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 열린 body/inner·rim과 닫힌 body/lid-seam·handle을 상태별 안정 face로 설계한다.
@@ -623,8 +623,8 @@ ref02의 여러 수납실과 ref04의 책장 옆에서 선반과 독립 상자�
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02 서비스 수납과 ref01 정원 용도를 쓰고 ref03·04·05에 없는 공구 상세는 더하지 않는다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 일곱 @envelope·@part에 필요한 handle·contact·diffuser face만 정하고 빈 공간을 막는 외함 면은 내지 않는다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 1층 storage·상층 청소 수납과 작은 대지에 고정 도구를 대조했고 기계 성능·수량·배치는 새 공간 요구가 아니다.
-@evidenceReview settings/002-household.md#ground-program #_______ ground-program은 1층 storage를 두지만 그 안의 청소 장비 종류를 열거하지 않는다. 이 H2의 `tool-box`·`vacuum`·`folded-ladder`는 그 방에 놓을 수 있는 별도 고정 원형이다.
-@evidenceReview settings/002-household.md#upper-program #_______ upper-program은 청소 cabinet과 설비 점검 영역을 두되 장비 종류는 열거하지 않는다. 이 H2의 `cleaning-tool`·`spare-light` 등은 그 수납에 넣을 수 있는 정지 원형이고 전기·기계 작동은 검증하지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 ground-program은 1층 storage를 두지만 그 안의 청소 장비 종류를 열거하지 않는다. 이 H2의 `tool-box`·`vacuum`·`folded-ladder`는 그 방에 놓을 수 있는 별도 고정 원형이다.
+@evidenceReview settings/002-household.md#upper-program #55473ad upper-program은 청소 cabinet과 설비 점검 영역을 두되 장비 종류는 열거하지 않는다. 이 H2의 `cleaning-tool`·`spare-light` 등은 그 수납에 넣을 수 있는 정지 원형이고 전기·기계 작동은 검증하지 않는다.
 @evidenceReview spaces/001-citizen-house.md#site-access #c02f28e 작은 대지를 garden-tool·hose-reel의 가능한 배치 목적지로 받고 지면 geometry는 만들지 않는다.
 @evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 body/handle·contact, spare-light diffuser와 호스의 보이는 외곽을 안정 소품 face로 나눈다.
 -->
@@ -707,7 +707,7 @@ ref02의 저장실·서비스실과 ref01의 정원에서 빈 창고가 되지 �
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 작은 대지·진입 방향에 독립 접지 우편함·좌석·정원등·자전거 원형을 추가한다.
 @evidenceReview principles/design/models.md#representation-contract #46718c6 bicycle body/wheel·front-frame·rear-frame·frame-junction이 노출 고체 면을 나누고 관 용접 내부 면은 발행하지 않는다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 지면 접촉 중심 원점·진입로 쪽 +Z와 가구 다리·자전거 접지 돌기의 y=0 면을 밝힌다.
-@evidenceReview principles/design/models.md#reviewable-structure #_______ 정면·측면·45°에서 자전거의 `body/wheel`·`body/front-frame`·`body/rear-frame`, 가구 아래 다리 사이와 두 통의 `@bore` 안쪽 개구를 분리해 확인한다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면·측면·45°에서 자전거의 `body/wheel`·`body/front-frame`·`body/rear-frame`, 가구 아래 다리 사이와 두 통의 `@bore` 안쪽 개구를 분리해 확인한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref01 진입·계단과 ref02 작은 외부 정원을 비품 역할로 받고 실내 가구를 외부 제품 상세로 복제하지 않는다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 아홉 @envelope에 mailbox @void, 통 @bore, 가구 @sole-grid 및 bicycle 절점·관 좌표를 결합한다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 site-access와 작은 앞마당에 접지 비품을 대조했고 계단·보도는 spaces가 소유하므로 대지 동선 수정이 없다.
@@ -942,7 +942,7 @@ ref04의 책상 앞 포인팅 기기 밀도를 따르고 ref02의 개인 침실 
 @evidenceReview principles/design/models.md#representation-contract #46718c6 body/diffuser를 아래 노출 면으로, housing·end를 다른 면으로 나누며 발광 작동 부품은 만들지 않는다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 상부장 밑 접합 중심 원점, 길이 +X·조리대 -Y·실내 +Z이고 @part 상면은 y=0이다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b body/diffuser·end와 underside 접촉을 밑면·45°에서 확인하도록 하고 후드 비겹침은 instances에 남긴다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #_______ ref03 상부장 밑의 광띠를 좌우 두 등기구의 낮은 직육면체로 해석한다. 본문은 `body/diffuser`와 `body/housing`을 나누고 후드 바깥 배치는 instances에 둔다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03 상부장 밑의 광띠를 좌우 두 등기구의 낮은 직육면체로 해석한다. 본문은 `body/diffuser`와 `body/housing`을 나누고 후드 바깥 배치는 instances에 둔다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope x=-0.4..0.4,y=-0.03..0,z=-0.025..0.025와 body의 전체 상면 접촉을 닫는다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 주방 cooktop·실내등·형상과 emitter 분리에 고정 광띠를 대조했고 후드 정렬·광량은 후속 owner에 남긴다.
 @evidenceReview settings/002-household.md#ground-program #c5026c0 induction cooktop을 상부장 밑 선형등의 가능한 작업면으로 받는다.
