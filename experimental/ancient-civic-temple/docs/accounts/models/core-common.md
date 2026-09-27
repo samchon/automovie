@@ -97,8 +97,8 @@
 | [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `plinth` | 1716 | `deacf763a3f77a7e4d5bb9409edd1ff971441e20f3af585fdfb208e882b3ae8b` |
 | [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `roof` | 1716 | `deacf763a3f77a7e4d5bb9409edd1ff971441e20f3af585fdfb208e882b3ae8b` |
 | [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `recess` | 1716 | `deacf763a3f77a7e4d5bb9409edd1ff971441e20f3af585fdfb208e882b3ae8b` |
-| [openings/door-frame](../../models/openings.md#door-frame) | `lining` | 1143 | `f68c1dcddc3c55bec8612e33c2c3329a8d7055f4fd906aff10c27a4346bc8a83` |
-| [openings/door-frame](../../models/openings.md#door-frame) | `surround` | 1143 | `f68c1dcddc3c55bec8612e33c2c3329a8d7055f4fd906aff10c27a4346bc8a83` |
+| [openings/door-frame](../../models/openings.md#door-frame) | `lining` | 1198 | `fe399b4a15734d515e33f202ad2f3b8a7420d5972423b22c828e07d861143106` |
+| [openings/door-frame](../../models/openings.md#door-frame) | `surround` | 1198 | `fe399b4a15734d515e33f202ad2f3b8a7420d5972423b22c828e07d861143106` |
 | [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `frame` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
 | [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `panel` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
 | [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `plate` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
@@ -199,12 +199,12 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | entablature.md | 5 | 5684 |
 | fixtures.md | 10 | 9010 |
 | landscape.md | 4 | 3867 |
-| openings.md | 4 | 4531 |
+| openings.md | 4 | 4571 |
 | portable.md | 13 | 10661 |
 | ritual.md | 3 | 2227 |
 | scale.md | 3 | 7518 |
 | wares.md | 6 | 5416 |
-| 합계 | 52 | 54661 |
+| 합계 | 52 | 54701 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
