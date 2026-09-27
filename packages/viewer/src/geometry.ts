@@ -340,6 +340,7 @@ export const buildMaterial = (
       resolveTexture,
     ),
     blend: overlay.blend,
+    colorFactor: overlay.colorFactor ?? { r: 1, g: 1, b: 1 },
     roughness: overlay.roughness ?? null,
     normal: resolveMaterialTexture(
       overlay.normalTexture,

@@ -9,6 +9,8 @@ export interface IMaterialOverlayShading {
   color: THREE.Texture;
   /** Whether the colour tints the base colour or replaces it. */
   blend: "multiply" | "replace";
+  /** Linear factors on the image's colour. */
+  colorFactor: { r: number; g: number; b: number };
   /** Roughness where it covers, or `null` to keep the material's. */
   roughness: number | null;
   /** Tangent-space normal map, or `null`. */
@@ -31,7 +33,8 @@ const flatNormal = (): THREE.DataTexture => {
 
 /**
  * Composite surface overlays over a material, in order, each where its own
- * colour image covers: its coverage is the image's alpha times its strength,
+ * colour image covers, its colour times its colour factor: its coverage is
+ * the image's alpha times its strength,
  * over which the base colour is multiplied by the image's colour (`multiply`)
  * or replaced by it (`replace`), the roughness moves to the overlay's own
  * when it names one, and its normal map, scaled by its normal scale, bends
@@ -60,6 +63,13 @@ export const applyMaterialOverlays = (
       value: overlay.color.matrix.clone(),
     };
     uniforms[`overlayStrength${i}`] = { value: overlay.strength };
+    uniforms[`overlayColorFactor${i}`] = {
+      value: new THREE.Vector3(
+        overlay.colorFactor.r,
+        overlay.colorFactor.g,
+        overlay.colorFactor.b,
+      ),
+    };
     if (overlay.roughness !== null)
       uniforms[`overlayRoughness${i}`] = { value: overlay.roughness };
     if (overlay.normal !== null) {
@@ -154,10 +164,12 @@ export const materialOverlayFragment = (
     declarations.push(
       `uniform sampler2D overlayColorMap${i};`,
       `uniform float overlayStrength${i};`,
+      `uniform vec3 overlayColorFactor${i};`,
       `varying vec2 vOverlayColorUv${i};`,
     );
     colours.push(
       `vec4 overlayColor${i} = texture2D( overlayColorMap${i}, vOverlayColorUv${i} );`,
+      `overlayColor${i}.rgb *= overlayColorFactor${i};`,
       `float overlayCover${i} = overlayColor${i}.a * overlayStrength${i};`,
       shape.blend === "multiply"
         ? `diffuseColor.rgb = mix( diffuseColor.rgb, diffuseColor.rgb * overlayColor${i}.rgb, overlayCover${i} );`
