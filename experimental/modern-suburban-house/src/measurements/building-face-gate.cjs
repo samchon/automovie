@@ -1,7 +1,16 @@
-/** Keep the exact building member population separate from approximate
- * furniture and props when gating missing measured face sentences. */
-/** @param {{file:string; candidate:boolean}} row */
+/** Exactness follows the authored member's building role, including fixed
+ * fittings and exterior cladding filed alongside furniture. */
+const fixedMembers = new Map([
+  ["10-kitchen-dining.md", new Set(["kitchen-base-run", "kitchen-wall-cabinet"])],
+  ["11-living.md", new Set(["fireplace-insert-mantel"])],
+  ["12-service-rooms.md", new Set(["laundry-upper-storage", "pantry-l-shelf"])],
+  ["13-bedrooms.md", new Set(["sliding-closet", "wardrobe-hanging", "wardrobe-shelves"])],
+  ["14-bathrooms.md", new Set(["vanity-basin", "sliding-shower-booth", "bathtub"])],
+  ["15-outdoor.md", new Set(["lap-siding-board", "exterior-corner-trim", "asphalt-shingle-strip", "eave-gutter-downspout"])],
+]);
+/** @param {{file:string; anchor?:string; candidate:boolean}} row */
 const isBuildingFaceMissing = (row) =>
-  !row.candidate && /^0[1-6]-/.test(row.file);
+  !row.candidate && (/^0[1-6]-/.test(row.file) ||
+    (row.anchor !== undefined && fixedMembers.get(row.file)?.has(row.anchor) === true));
 
 module.exports = { isBuildingFaceMissing };

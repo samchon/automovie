@@ -26,7 +26,7 @@
 | [window-surface-partitions](../../models/01-windows.md#window-surface-partitions) | — (규칙) | `frame`·`sash`·`mullion`·`muntin`·`glass`·`obscured-glass`·`exterior-trim`·`interior-sill`·`interior-casing` |
 | [window-fidelity](../../models/01-windows.md#window-fidelity) | — (규칙) | — (새 메시 없음) |
 | [front-entry-door](../../models/02-exterior-doors.md#front-entry-door) | `src/models/exterior-door.ts` | `jamb`·`exterior-trim`·`casing`·`leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel`·`muntin`·`glass`·`handle`·`hinge` |
-| [garage-sectional-door](../../models/02-exterior-doors.md#garage-sectional-door) | `src/models/garage-door.ts` | `jamb`·`rail`·`leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge`·`glass`·`sash` |
+| [garage-sectional-door](../../models/02-exterior-doors.md#garage-sectional-door) | `src/models/garage-door.ts` | `jamb`·`exterior-trim`·`rail`·`leaf-exterior`·`leaf-interior`·`leaf-panel`·`panel-edge`·`glass`·`sash` |
 | [garden-door-pair](../../models/02-exterior-doors.md#garden-door-pair) | `src/models/exterior-door.ts` | `jamb`·`exterior-trim`·`casing`·`leaf-exterior`·`leaf-interior`·`leaf-edge`·`sash`·`glass`·`handle`·`hinge` |
 | [side-yard-gate](../../models/02-exterior-doors.md#side-yard-gate) | `src/models/gate.ts` | `leaf-panel`·`gate-batten`·`hinge`·`handle` |
 | [exterior-door-surfaces](../../models/02-exterior-doors.md#exterior-door-surfaces) | — (규칙) | `jamb`·`exterior-trim`·`casing`·`leaf-exterior`·`leaf-interior`·`leaf-edge`·`leaf-panel`·`panel-edge`·`muntin`·`glass`·`sash`·`handle`·`hinge`·`rail`·`gate-batten` |

@@ -5,7 +5,7 @@
 @evidence principles/core/common.md#scope-preservation 외부 창 12개가 각각 거친 개구부 하나를 채우고 외곽을 그 개구부와 같게 두며 벽 안 깊이 Z = -0.04 ~ -0.18 m를 쓰는 범위를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion frame 외곽=거친 개구부, shim 없음, 바깥 면 Z = -0.04 m, 안쪽 면 Z = -0.18 m를 수치로 정해 창의 벽 안 위치를 구현자가 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 물림 0.04 m·깊이 0.14 m는 spaces/06-openings.md#external-opening-interface, 좌표 관례는 00-model-frame.md#model-local-frame에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '창 frame 바깥 면을 0.04 m 물리고 깊이 0.14 m 안에 배치'라는 공간 예약을 frame 부재의 국소 Z 두 면이라는 모델 결정으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 외부 개구부 공통 인계의 날씨 면 들임 0.04 m와 깊이 0.14 m를 창틀의 국소 Z=[−0.18,−0.04] m 양면으로 구체화한다.
 @evidence principles/design/models.md#representation-contract 창 원형의 점유 범위를 거친 개구부 외곽 × 0.14 m 깊이로 정한다.
 @evidence principles/design/models.md#spatial-convention 원점 면을 외벽 날씨 면으로 두고 frame 두 면을 국소 Z 값으로 적는다.
 @evidence principles/design/models.md#reviewable-structure 각 방 안쪽 reveal 단면에서 frame 깊이가 0.04 m 물림과 0.14 m를 지키는지 반증한다.
@@ -24,7 +24,7 @@
 @evidence principles/core/common.md#scope-preservation frame 0.06·sash 0.05·mullion 0.08·살대 0.025 m 부재 폭과 칸 폭 산출식, 깊이 배분, 유리 법선·UV를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다. 고정·경첩 sash Z=[−0.13,−0.08] m와 유리 Z=[−0.113,−0.107] m, 상하 미닫이의 별도 앞뒤 트랙과 각 유리칸의 별도 닫힌 판을 구분한다.
 @evidence principles/core/common.md#declared-basis 부재 폭 근거를 settings/20-verification.md#visual-grammar의 charcoal 창틀과 #frame-condition의 외부 기본 view, 계단 창 폭 0.78 m에서 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '두께 있는 frame·sash·유리·살대'를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 두께 있는 frame·sash·유리·살대를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선)로 정하고, 금속 프레임은 부재 길이를 U로 한 미터 UV를 낸다.
 @evidence principles/design/models.md#spatial-convention 부재 폭을 정면 입면 방향, 깊이를 국소 Z로 적어 방향 관례를 분명히 한다.
 @evidence principles/design/models.md#reviewable-structure 정면 직교 뷰에서 부재 폭을 재고 칸 폭 0.30 m 미만을 실패로 본다.
@@ -47,7 +47,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 @evidence principles/core/common.md#scope-preservation 투명 유리 sash 전부의 2열×2행 살대 격자와 흐린 욕실 창의 살대 없음, 살대의 유리 양면 부착을 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 세로·가로 살대 하나씩을 유리 양면의 0.01 m 깊이 층에 붙이고 교차부에서 가로 막대를 두 토막으로 잘라 공통 부피를 없앤다. 세 sash 깊이 구간과 유리 경계를 수치로 대조한다.
 @evidence principles/core/common.md#declared-basis 살대 요구는 settings/10-house.md#openings, 위계는 spaces/envelope/front.md#front-openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '살대'를 sash마다 같은 2×2 격자라는 모델 결정으로 바꾸고 위계는 칸 수와 창 크기로만 읽게 한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 살대를 sash마다 같은 2×2 격자라는 모델 결정으로 바꾸고 위계는 칸 수와 창 크기로만 읽게 한다.
 @evidence principles/design/models.md#representation-contract 살대를 유리 양면의 별도 막대 부재로 정해 유리에 구멍이 생기지 않는 연결을 명시한다.
 @evidence principles/design/models.md#spatial-convention 살대 위치를 sash 가운데 세로·가로선으로 정한다.
 @evidence principles/design/models.md#reviewable-structure 입면 정면에서 모든 투명 sash가 같은 2×2 격자인지와 욕실 창에 살대가 없는지로 반증한다.
@@ -69,7 +69,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 @evidence principles/core/common.md#scope-preservation 거실·침실·주방·가족실의 상하 미닫이 창 9개의 계층(frame→unit-n→upper/lower-sash), 트랙 간격, 관절과 기준 상태를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 두 sash가 칸 높이를 반씩 나누고 트랙 간격 0.02 m와 깊이 0.12 m가 0.14 m 안에 앞뒤 0.01 m 여유를 남기며 lower-sash만 0~sash 높이 절반 이동한다고 적는다.
 @evidence principles/core/common.md#declared-basis 작동 종류는 spaces/06-openings.md#external-opening-interface, 대상 창 좌표는 네 입면 H2, 닫힌 기준 상태는 settings/10-house.md#openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '상하 미닫이 sash'를 upper 고정·lower 평행 이동이라는 모델 관절로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 상하 미닫이 sash를 upper 고정·lower 평행 이동이라는 모델 관절로 바꾼다.
 @evidence principles/design/models.md#representation-contract 칸마다 unit 노드 아래 두 sash를 두는 계층과 upper rigid·lower 이동을 정한다.
 @evidence principles/design/models.md#spatial-convention lower-sash 이동 축을 국소 +Y, 범위를 sash 높이 절반으로 적는다.
 @evidence principles/design/models.md#reviewable-structure 닫힘과 최대 열림 사선 투시로 sash가 frame 밖으로 나가는지 반증한다.
@@ -86,7 +86,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 @evidence spaces/envelope/left.md#living-left-window 거실 왼쪽 한 칸 창을 상하 미닫이 한 unit으로 채운다.
 @evidence spaces/envelope/left.md#primary-left-window 주침실 왼쪽 두 칸 창을 상하 미닫이 두 unit으로 채운다.
 @evidence spaces/envelope/right.md#family-right-window 가족실 오른쪽 두 칸 창을 상하 미닫이 두 unit으로 채운다.
-@evidence settings/10-house.md#openings 외부 창이 기준 상태에서 닫힌다는 조건을 lower-sash 이동 0의 기준 상태로 소비한다.
+@evidence spaces/06-openings.md#external-opening-interface 공통 개구부 인계의 기본 닫힘을 lower-sash 이동 0인 기준 상태로 받는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06의 작동 배정과 입면 좌표를 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
 -->
 
@@ -102,8 +102,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 창 한 칸과 차고 측면 창 두 칸의 고정창 계층(frame→unit-n→fixed-sash)을 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion sash를 frame 깊이 가운데 두고 관절 없이 모든 부재를 rigid로 정한다.
-@evidence principles/core/common.md#declared-basis 고정창 배정은 spaces/06-openings.md#external-opening-interface, 좌표는 front.md#stair-front-window와 right.md#garage-right-window에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '작은 계단 창과 차고 측면은 고정창'을 관절 없는 fixed-sash 하나의 계층으로 바꾼다.
+@evidence principles/core/common.md#declared-basis 고정창 형식은 spaces/06-openings.md#external-opening-interface에서, 각 창의 위치와 칸 수는 front.md#stair-front-window와 right.md#garage-right-window에서 받는다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 인계의 계단·차고 고정창 형식을 관절 없는 fixed-sash와 각 칸의 유리 네 장으로 구현할 원형으로 구체화한다.
 @evidence principles/design/models.md#representation-contract 고정창의 계층과 rigid 상태를 정한다.
 @evidence principles/design/models.md#spatial-convention fixed-sash의 깊이 위치를 frame 깊이 가운데로 적는다.
 @evidence principles/design/models.md#reviewable-structure 계단참과 차고 내부 reveal 단면에서 sash 위치를 반증한다.
@@ -118,7 +118,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 유리 반사 속 나무 모양은 표면 형상으로 복제하지 않는다.
 
-[계단 창](../spaces/envelope/front.md#stair-front-window)의 한 칸과 [차고 측면 창](../spaces/envelope/right.md#garage-right-window)의 두 칸은 고정창이다. 계층은 `frame` 아래 칸마다 `unit-<n>`과 `fixed-sash` 하나이며 sash는 frame 깊이의 가운데에 둔다. 관절 인터페이스는 없고 모든 부재가 rigid다. 소스 owner는 `src/models/windows.ts`이며 계단참과 차고 내부 reveal 단면으로 검사한다.
+[공통 개구부 인계](../spaces/06-openings.md#external-opening-interface)에 따라 [계단 창](../spaces/envelope/front.md#stair-front-window)의 한 칸과 [차고 측면 창](../spaces/envelope/right.md#garage-right-window)의 두 칸은 고정창이다. 계층은 `frame` 아래 칸마다 `unit-<n>`과 `fixed-sash` 하나이며 sash는 [공통 깊이](#window-member-sizes)의 Z=[−0.13,−0.08] m에 두어 frame Z=[−0.18,−0.04] m 안에서 날씨 쪽 여백 0.05 m·실내 쪽 여백 0.04 m를 남긴다. 관절 인터페이스는 없고 모든 부재가 rigid다. 소스 owner는 `src/models/windows.ts`이며 계단참과 차고 내부 reveal 단면으로 검사한다.
 
 고정창도 거친 폭 W·높이 H·칸 수 n을 입력받아 [창 부재 치수](#window-member-sizes)의 `frame` 둘레 0.06 m·깊이 0.14 m와 칸 사이 `mullion` 폭 0.08 m를 그대로 쓴다. 칸 폭 c=(W−2×0.06−(n−1)×0.08)/n m의 `sash`는 한 칸에 한 장이며 테두리 0.05 m·깊이 0.05 m다. `muntin`은 그 안의 세로·가로 중앙 폭 0.025 m·깊이 0.01 m이고 `glass`는 한 칸당 네 장, 각각 열 폭 (c−2×0.05−0.025)/2 m·행 높이 (H−2×0.06−2×0.05−0.025)/2 m·두께 0.006 m다. 계단 창 n=1에는 `mullion`이 0개이고 차고 두 칸 사이에는 1개다.
 
@@ -127,7 +127,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/core/common.md#scope-preservation 욕조 욕실 창 한 칸의 상부 경첩창 계층, 경첩 축, 열림 범위, 흐린 유리 표면을 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 경첩 축을 sash 위 변 바깥 모서리의 국소 X 평행선으로, 범위를 0~π/8 rad로 정하고 sash 높이 0.63 m에서 바깥 돌출 0.2411 m를 산출해 부모 0.25 m 예약과 비교한다 닫힌 경첩창 sash Z=[−0.13,−0.08] m와 날씨 쪽 위 모서리의 회전축도 고정한다.
 @evidence principles/core/common.md#declared-basis 개구부와 흐린 유리 배정은 spaces/envelope/right.md#tub-right-window와 spaces/06-openings.md#external-opening-interface에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 '높은 욕실 창은 흐린 유리의 상부 경첩창'을 위 변 축 회전과 부모의 바깥 점유 0.25 m를 지키는 π/8 상한이라는 모델 관절로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 높은 욕실 창은 흐린 유리의 상부 경첩창을 위 변 축 회전과 부모의 바깥 점유 0.25 m를 지키는 π/8 상한이라는 모델 관절로 바꾼다.
 @evidence principles/design/models.md#representation-contract frame 아래 awning-sash 하나와 obscured-glass 표면을 정한다.
 @evidence principles/design/models.md#spatial-convention 경첩 축 위치와 회전 방향(바깥)을 국소 좌표로 적는다.
 @evidence principles/design/models.md#reviewable-structure 욕실 안쪽 단면과 최대 열림 사선 투시로 돌출을 반증한다.
@@ -144,6 +144,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window) Z = [−8.40,−7.50], Y = [4.56,5.31] m은 한 칸의 상부 경첩창이다. 계층은 `frame` 아래 `awning-sash` 하나이며 경첩 축은 sash 위 변 바깥 모서리를 지나는 국소 X 평행선이다. motion 인터페이스는 이 축의 바깥쪽 회전 하나이고 범위는 0–π/8 rad다. 높이 0.75 m 개구부에서 frame을 뺀 sash 높이 0.63 m의 아래 변 바깥 돌출은 `0.63×sin(π/8)=0.2411` m이므로 [오른쪽 입면의 0.25 m 예약](../spaces/envelope/right.md#tub-right-window) 안에 0.0089 m 남는다. frame 들임을 유리하게 빼지 않은 상한이다. 기준 상태는 닫힌 0 rad이다. 흐림은 `obscured-glass` 표면으로 넘기고 정도는 materials가 정한다. 소스 owner는 `src/models/windows.ts`다.
 
 이 `frame`은 위 거친 개구부의 네 변에서 폭 0.06 m·깊이 Z=[−0.18,−0.04] m로 닫는다. 안쪽 한 칸의 `sash`는 폭 0.90−0.12=0.78 m·높이 0.75−0.12=0.63 m, 테두리 0.05 m·깊이 Z=[−0.13,−0.08] m다. sash 안쪽의 `obscured-glass` 한 장은 투명 격자 대신 폭 0.78−0.10=0.68 m, 높이 0.63−0.10=0.53 m의 열린 중앙을 채우며 위아래 Y=[4.67,5.20] m·깊이 Z=[−0.113,−0.107] m에 닫힌 두께 0.006 m 판으로 둔다. 유리의 흐림은 이 면의 materials 응답이며 살대는 만들지 않는다.
+
+욕실 안쪽 reveal 단면에서 닫힌 sash와 frame·유리의 깊이 순서를 보고, 바깥 사선 투시에서 최대 π/8 열림의 아래끝 돌출과 0.25 m 예약 경계를 대조한다. 두 관찰은 실제 modelSources 메시가 생기기 전까지 unverified다.
 
 ## 창대와 외부 trim {#window-sill-trim}
 <!--
@@ -177,7 +179,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/core/common.md#scope-preservation 창의 표면 id 9개(frame·sash·mullion·muntin·glass·obscured-glass·exterior-trim·interior-sill·interior-casing)를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion frame·sash·mullion·muntin을 교체 경로 때문에 분리한다고 적어 표면 경계를 구현자가 합치지 않게 한다.
 @evidence principles/core/common.md#declared-basis id 규칙은 00-model-frame.md#model-surface-partition-naming, 유리 조건은 settings/10-house.md#openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '유리는 불투명 검은 판이 아니다'를 glass/obscured-glass 별도 표면으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 유리 투명도 구분을 `glass`와 `obscured-glass` 면으로 구분하고 실제 광학값은 materials에 둔다.
 @evidence principles/design/models.md#representation-contract 창의 안정 표면 소유를 부재별로 정한다.
 @evidence principles/design/models.md#spatial-convention 표면 id는 01의 부재 노드에 붙고 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 부재 경계와 id 경계가 일치하는지로 반증한다.
@@ -192,12 +194,14 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 [이름 규칙](00-model-frame.md#model-surface-partition-naming)에 따라 창의 안정 표면 id는 `frame`, `sash`, `mullion`, `muntin`, `glass`, `obscured-glass`, `exterior-trim`, `interior-sill`, `interior-casing`이다. `frame`·`sash`·`mullion`·`muntin`은 같은 charcoal 계열로 쓰일 예정이지만 교체 경로가 달라 분리한다. 유리를 불투명 검은 판으로 대신하지 않는다는 [settings](../settings/10-house.md#openings) 조건은 materials가 소비한다. 소스 owner는 `src/models/windows.ts`다.
 
+재료 결속 뷰는 창의 바깥·안쪽 사선에서 `frame`·`sash`·살대의 검은 면, 투명·흐린 유리판, 흰 외부 trim·실내 창대·문선의 경계를 각각 확인한다. 결속과 실제 GPU 결과는 modelSources 이전에 unverified다.
+
 ## 창의 표현 한계 {#window-fidelity}
 <!--
 @evidence principles/core/common.md#scope-preservation 창 부재가 모두 두께 있는 별도 부재로 읽혀야 하는 범위와 웨더스트립·잠금쇠·방충망·이중 유리·물끊기 홈을 만들지 않는 범위를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 검사자가 단열·방수·개폐 하중을 추론하지 않는다고 명시한다.
 @evidence principles/core/common.md#declared-basis 상한은 00-model-frame.md#model-representation-ceiling과 settings/20-verification.md#fidelity에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 '창호가 캡처에서 읽혀야 한다'를 창 부재 목록과 제외 기구 목록으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings fidelity의 캡처에서 창호가 읽힐 요구를 창틀·sash·유리·살대의 분리된 면과 생략 기구 목록으로 구체화한다.
 @evidence principles/design/models.md#representation-contract 창 proxy가 지지하는 관찰과 지지하지 않는 관찰을 정한다.
 @evidence principles/design/models.md#spatial-convention 새 좌표를 정하지 않고 01의 관례를 쓴다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰와 전체 관찰에서 사각 구멍이나 평면 대체가 있으면 반증된다.

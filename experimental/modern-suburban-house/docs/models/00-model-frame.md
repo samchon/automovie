@@ -2,10 +2,10 @@
 
 ## 국소 좌표와 배치 규칙 {#model-local-frame}
 <!--
-@evidence principles/core/common.md#scope-preservation 개구부 하나를 채우는 모든 충전 모델의 단위·축·원점 면·world 회전과 '외곽·칸 수·경첩 쪽·열림 방향은 spaces에서 받고 모델은 부재 배분만 정한다'는 경계를 이 H2가 맡아 01–05가 좌표 규칙을 따로 정하지 않는다.
+@evidence principles/core/common.md#scope-preservation 이 H2는 개구부 하나를 채우는 충전 모델의 공통 단위·축·배치 회전, 거친 외곽을 spaces에서 받고 부재 치수를 models에서 정하는 경계를 맡는다. 문 종류별 원점과 축의 명시적 변환은 각 원형 H2에 남긴다.
 @evidence principles/core/common.md#substantive-completion 원점을 거친 개구부 아래 변 가로 중앙, 외벽 창·외부 문은 날씨 면, 실내 문은 열림 쪽 벽면으로 정하고 회전을 Y축 0·π·±π/2 중 하나로 한정해 구현자가 배치 기준을 새로 고르지 않게 한다.
 @evidence principles/core/common.md#declared-basis 단위와 축은 settings/00-production.md#coordinate-units, 개구부 좌표 owner와 0.04·0.14 m 예약은 spaces/06-openings.md#external-opening-interface에서 받는다고 링크로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation coordinate-units의 '문·창 local transform은 world 기준으로 변환 가능해야 한다'를 개구부 아래 변 중앙 원점, 원점 면 선택, 네 가지 Y축 회전이라는 모델 층 결정으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 제작 좌표의 오른손 Y-up·m·rad를 개구부 충전의 아래 변 중앙 기준과 외벽 날씨 면·실내 문 열림 면 기준, Y축 네 배치 회전으로 구체화한다.
 @evidence principles/design/models.md#representation-contract 한 모델이 거친 개구부 하나를 채우는 원형이고 외곽 폭·높이가 그 개구부에서만 산출된다는 점유 범위를 정하며 세부 계층은 01–05 H2에 맡긴다.
 @evidence principles/design/models.md#spatial-convention 국소 원점, +Y=world +Y, +Z=원점 면 바깥 법선, +X=+Z 쪽에서 본 오른쪽, 배치 회전 네 값을 적어 코드에서 좌표 관례를 찾을 필요가 없다.
 @evidence principles/design/models.md#reviewable-structure 검사 주소를 spaces/04-observations.md의 각 개구부 정면과 벽 단면으로 적어 원점 면이나 회전이 틀리면 개구부와 부재가 어긋나는 것이 드러난다.
@@ -14,8 +14,8 @@
 @evidence settings/00-production.md#coordinate-units 오른손 Y-up·m·rad와 +Z=앞 보도 방향을 모든 충전 모델의 국소 축과 네 가지 Y축 회전으로 소비한다.
 @evidence spaces/06-openings.md#external-opening-interface 개구부 좌표를 네 입면 owner가 소유한다는 인계를 받아 모델이 world 좌표를 복제하지 않고 외곽을 거친 개구부에서만 산출한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units의 오른손 Y-up·m·rad와 06의 개구부 좌표 owner·0.04/0.14 m 예약을 적힌 그대로 소비했고 원점 면과 회전을 정하는 데 부모와 모순되거나 빠진 값이 없었다.
-@evidence obligations/core/common.md#layer-boundary 모델은 부재 배분만 정하고 개구부 좌표·칸 수·경첩 쪽은 spaces, 색·광학값은 materials, world 배치는 instances가 정한다고 이 H2가 층 경계를 적는다.
-@evidence settings/00-production.md#build-allocation '실제 부재·가구·수목 원형은 models'라는 배분을 이 국소 좌표 규칙의 적용 범위로 받는다. 각 부재 치수·형상은 뒤의 개별 H2가 정하고 소스가 없는 실제 표면은 unverified다.
+@evidence obligations/core/common.md#layer-boundary 이 H2는 void 외곽과 칸 수·경첩 쪽을 spaces에서 받고 부재 단면을 models에서 정하며 색·광학값은 materials, 개별 world 배치는 instances로 넘긴다.
+@evidence settings/00-production.md#build-allocation 실제 부재·가구·수목 원형은 models라는 배분을 이 국소 좌표 규칙의 적용 범위로 받는다. 각 부재 치수·형상은 뒤의 개별 H2가 정하고 소스가 없는 실제 표면은 unverified다.
 @evidence spaces/envelope/left.md#left-openings 왼쪽 벽의 개구부 좌표 owner를 창 원점 면(날씨 면) 배치의 입력으로 소비한다.
 @evidence spaces/envelope/rear.md#rear-openings 본채 후벽 Z = [-10.70, -10.45] m를 후면 창·정원문의 원점 면 위치로 소비한다.
 @evidence spaces/envelope/right.md#right-openings 오른쪽 벽의 개구부 좌표 owner를 창 원점 면 배치의 입력으로 소비한다.
@@ -28,7 +28,7 @@
 @evidenceExclude settings/00-production.md#working-language 이 상위 H2는 작업 언어를 정하며 모델 문서는 그 언어로 쓰였을 뿐 부재 결정에 값을 받지 않는다.
 @evidenceExclude settings/10-house.md#house-scale 이 상위 H2는 집 전체 규모를 정하며 모델은 그 규모를 좌표로 확정한 spaces 개구부 H2에서 치수를 받는다.
 @evidenceExclude settings/10-house.md#main-mass 이 상위 H2는 본채 매스와 지붕 형태를 정하며 모델은 지붕·벽 몸체를 만들지 않는다.
-@evidence settings/10-house.md#porch-entry 포치 구조와 기둥은 spaces, 현관문은 02, 발판과 화분은 18 H2가 소유한다. 이 국소 프레임 H2는 그 부재를 만들지 않고 각 원형에 좌표 규칙만 공급한다.
+@evidenceExclude settings/10-house.md#porch-entry 포치 기둥·지붕과 현관 소품의 형상은 이 개구부 공통 좌표 H2의 대상이 아니다. 현관문 충전은 02#front-entry-door가 별도 근거와 함께 받는다.
 @evidenceExclude settings/10-house.md#service-band 이 상위 H2는 우측 서비스 동선을 정하며 모델은 그 안의 문 값을 각 room plan H2에서 받는다.
 @evidenceExclude settings/20-verification.md#completion-boundary 이 상위 H2는 완료와 기록 조건을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#data-authority 이 상위 H2는 측정과 프레임의 책임을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
@@ -37,7 +37,7 @@
 @evidenceExclude settings/20-verification.md#lifecycle-boundary 이 상위 H2는 저작 순서를 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#lighting-state 이 상위 H2는 key light 방향·그림자·켜진 실내 광원의 빛 상태를 정하며 빛은 systems 소유이고 모델 리뷰 뷰는 중성 배경을 쓴다.
 @evidenceExclude settings/20-verification.md#observation-allocation 이 상위 H2는 관찰 배분을 정하며 모델 리뷰 뷰는 frame-condition에서 받고 집 전체 관찰은 spaces가 맡는다.
-@evidenceExclude settings/20-verification.md#reference-authority 이 상위 H2는 레퍼런스 권위를 정하며 모델은 그 레퍼런스를 해석한 visual-grammar와 openings를 인용한다.
+@evidenceExclude settings/20-verification.md#reference-authority 이 H2 본문은 참조 이미지를 치수 도면으로 쓰지 않는 한계에 직접 따른다. 배치 좌표와 치수는 settings 제작 좌표와 spaces 개구부에서 받아 이미지 픽셀을 역산하지 않는다.
 @evidenceExclude settings/20-verification.md#renderer-boundary 이 상위 H2는 실제 3D 렌더 경계를 정하는 source·viewer 조건이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#role-boundary 이 상위 H2는 저작·계측·판정 권한을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#submission-boundary 이 상위 H2는 커밋과 푸시 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
@@ -45,7 +45,7 @@
 @evidenceExclude settings/20-verification.md#viewer-handoff 이 상위 H2는 뷰어 실행 인계를 정하며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude spaces/01-storeys.md#storey-datums 이 상위 H2는 두 storey의 완성 바닥 높이를 정하며 모델 원형은 국소 원점에서 만들어지고 층 높이 배치는 instances가 한다.
 @evidenceExclude spaces/02-stair.md#stair-connector-handoff 이 상위 H2는 계단 connector 등록을 정하며 모델 난간살은 connector를 만들거나 바꾸지 않는다.
-@evidence spaces/02-stair.md#stair-reservation 이 상위 H2의 0.17 m 챌판·0.28 m run과 아래·위 flight 길이는 04의 흰 경사 측판 단면 입력으로 받는다. 난간살 값은 별도로 stair-boundary-heights와 stair-clearance에서 받는다.
+@evidenceExclude spaces/02-stair.md#stair-reservation 계단 flight의 run·rise와 열린 옆면은 이 개구부 충전 좌표 H2의 형상 입력이 아니다. 04#stair-side-skirt가 그 부모를 직접 소비한다.
 @evidenceExclude spaces/04-observations.md#engine-render-handoff 이 상위 H2는 공간 산출물의 렌더 인계를 정하며 모델 부재 값을 주지 않는다.
 @evidenceExclude spaces/04-observations.md#reference-spatial-comparisons 이 상위 H2는 참조 대비 공간 비교를 정하며 모델 리뷰 뷰는 frame-condition에서 받는다.
 @evidenceExclude spaces/05-route-network.md#room-route-network 이 상위 H2는 방 사이 동선을 정하며 모델은 문 값을 각 room plan H2에서 받는다.
@@ -56,7 +56,7 @@
 @evidenceExclude spaces/09-ceiling-assembly.md#upper-ceiling-closure 이 상위 H2는 상층과 계단실 천장을 정하며 모델은 천장을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base 이 상위 H2는 차고 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#ground-support-handoff 이 상위 H2는 바닥 아래 지지와 지표 인계를 정하며 모델 부재와 관계가 없다.
-@evidence spaces/10-ground-floor.md#ground-threshold-junctions 전면·후면 문턱판은 spaces가 단 한 번 만들며 +0.02 m 상면은 02 외부 문 원형이 받는다. 이 프레임 H2는 문턱이나 문짝 높이를 직접 정하지 않는다.
+@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions 이 공통 좌표 H2는 문턱판의 위치와 문짝 아래 끝을 정하지 않는다. 두 외부 문의 개별 H2가 문턱판 상면을 직접 받는다.
 @evidenceExclude spaces/10-ground-floor.md#main-ground-floor-base 이 상위 H2는 본채 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/envelope/front.md#front-roof-closures 이 상위 H2는 전면 박공 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/left.md#left-roof-closure 이 상위 H2는 왼쪽 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
@@ -98,7 +98,7 @@
 
 모든 개구부 충전 모델은 [제작 좌표](../settings/00-production.md#coordinate-units)의 오른손 Y-up, 길이 m, 각도 rad를 그대로 쓴다. 한 모델은 spaces가 좌표를 소유한 거친 개구부 하나를 채우며, 국소 원점은 그 개구부 아래 변의 가로 중앙에 두고 벽 두께 방향으로는 개구부를 소유한 벽의 한쪽 면 위에 둔다. 외벽의 창과 외부 문은 날씨 면, 내부 문은 문짝이 열리는 쪽 벽면을 원점 면으로 삼는다. 국소 +Y는 world +Y, 국소 +Z는 원점 면의 바깥 법선, 국소 +X는 +Z 쪽에서 보아 오른쪽이다. world 배치 회전은 벽 방향에 따라 Y축 0, π, ±π/2 중 하나이며 개구부를 소유한 spaces H2의 void 좌표에서 계산하고 모델 파일에 world 좌표를 복제하지 않는다.
 
-모델 외곽의 폭과 높이는 거친 개구부의 폭과 높이에서만 산출하고, 칸 수·경첩 쪽·열림 방향도 개구부 owner가 선언한 값을 받는다. [외부 개구부 공통 예약](../spaces/06-openings.md#external-opening-interface)의 창틀 날씨 면 들임 0.04 m와 frame 깊이 0.14 m는 창 부재 배분의 입력이며 이 H2에서 바꾸지 않는다. 모델이 정하는 것은 부재 폭·깊이·두께의 배분뿐이다. 소스 owner는 `src/models/frame.ts`이며 검사 주소는 [전체 관찰](../spaces/04-observations.md#spatial-observation-derivation)의 각 개구부 정면과 벽 단면이다.
+모델 외곽의 폭과 높이는 거친 개구부의 폭과 높이에서만 산출하고, 칸 수·경첩 쪽·열림 방향도 개구부 owner가 선언한 값을 받는다. [외부 개구부 공통 예약](../spaces/06-openings.md#external-opening-interface)의 창틀 날씨 면 들임 0.04 m와 frame 깊이 0.14 m는 창 부재 배분의 입력이며 이 H2에서 바꾸지 않는다. 모델은 부재 폭·깊이·두께를 정한다. 색·광학값은 materials, world의 개별 배치와 반복은 instances가 소유한다. 소스 owner는 `src/models/frame.ts`이며 검사 주소는 [전체 관찰](../spaces/04-observations.md#spatial-observation-derivation)의 각 개구부 정면과 벽 단면이다.
 
 ## 가구·설비 원형의 국소 좌표 {#model-furniture-local-frame}
 <!--
@@ -147,9 +147,9 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 창틀·sash·살대·유리·문짝·문설주·손잡이·경첩을 두께 있는 별도 부재로 만드는 범위, spaces가 이미 지은 전후면 문턱은 복제하지 않는 경계, 웨더스트립·잠금 내부·스프링·나사·이중 유리 공기층은 만들지 않는 범위를 함께 정한다.
 @evidence principles/core/common.md#substantive-completion 사각 구멍이나 평면 한 장 대체를 금지하고 검사자가 추론하지 말아야 할 단열·방수·기밀·하중·구조·법규를 열거해 각 모델 H2가 한계를 새로 정할 필요가 없다.
-@evidence principles/core/common.md#declared-basis 상한을 settings/20-verification.md#fidelity의 '단순 blocking이나 topology 통과로 낮추지 않는다'에서 받는다고 링크로 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation fidelity의 '창호·문짝이 실제 캡처에서 읽혀야 한다'를 부재별 두께 있는 형상 목록과 만들지 않는 기구 목록이라는 모델 층 결정으로 바꾼다.
-@evidence principles/design/models.md#representation-contract proxy 상태를 '두께 있는 별도 부재, 내부 기구 없음'으로 정하고 그 proxy가 지지하지 않는 관찰을 적는다.
+@evidence principles/core/common.md#declared-basis 상한을 settings/20-verification.md#fidelity의 단순 blocking이나 topology 통과로 낮추지 않는다에서 받는다고 링크로 밝힌다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings fidelity가 요구한 캡처에서 읽히는 창호·문짝을 frame·sash·유리·문짝·문설주 등 별도 두께 부재로 풀고 내부 잠금 기구 등 표현하지 않는 층을 정한다.
+@evidence principles/design/models.md#representation-contract proxy 상태를 두께 있는 별도 부재, 내부 기구 없음으로 정하고 그 proxy가 지지하지 않는 관찰을 적는다.
 @evidence principles/design/models.md#spatial-convention 이 H2는 좌표를 새로 정하지 않고 model-local-frame의 관례를 그대로 쓴다.
 @evidence principles/design/models.md#reviewable-structure 부재가 평면 한 장으로 대체되었는지는 model-review-set의 측면 직교 단면에서 반증된다.
 @evidence principles/design/models.md#model-observable-style-basis 스타일 대신 두께·분리 부재라는 관찰 가능한 구성 결정을 정하고 광학·조명 판정을 주장하지 않는다.
@@ -165,16 +165,16 @@
 
 ## 표면 파티션 이름 규칙 {#model-surface-partition-naming}
 <!--
-@evidence principles/core/common.md#scope-preservation 개구부와 가구·설비·외장 반복 부재의 역할별 id를 역할별로 한 목록에 두고 '한 id는 한 역할'과 -exterior/-interior 접미사 규칙을 이 H2가 맡는다.
+@evidence principles/core/common.md#scope-preservation 개구부와 가구·설비·외장 반복 부재의 역할별 id를 역할별로 한 목록에 두고 한 id는 한 역할과 -exterior/-interior 접미사 규칙을 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 창 안쪽 문선 `interior-casing`, 벽판 `wall-baseboard`, 계단 경사 측판 `stair-skirt`, 바깥 문선 `exterior-trim`, 실내 문선 `casing-a/b`와 나머지 부재의 면 역할을 본문에서 구별한다. 닫힌 부재의 절단 끝까지 모든 삼각형에 id 하나를 주고 관절 이름은 면 id에서 뺀다.
 @evidence principles/core/common.md#declared-basis 모델이 표면 id만 제공하고 색·광학값·텍스처 scale을 정하지 않는 분담을 settings/20-verification.md#surface-allocation에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 'models는 경계를 받아 두께 있는 부재를' 인계를 kebab-case 역할 id 목록과 안팎 접미사 규칙으로 바꾼다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings의 모델 형상·표면과 재료 결합 분담에 역할별 kebab-case id와 안팎을 나누는 접미사 규칙을 더한다.
 @evidence principles/design/models.md#representation-contract 인접 면이 다른 응답을 받을 때 -exterior/-interior로 별도 안정 표면을 준다는 규칙과 공통 id 목록을 정한다.
-@evidence principles/design/models.md#spatial-convention 이 H2는 좌표를 정하지 않으며 표면 id는 model-local-frame의 부재 노드에 붙는다.
+@evidence principles/design/models.md#spatial-convention 이 이름 규칙 H2는 새 위치를 주지 않는다. 각 원형의 닫힌 앞·뒤·절단 면에 역할별 id를 할당하는 방식만 정한다.
 @evidence principles/design/models.md#reviewable-structure 같은 역할이 다른 id를 쓰거나 한 id가 두 역할을 가지면 materials 바인딩 뷰에서 경계가 어긋나 반증된다.
 @evidence principles/design/models.md#model-observable-style-basis charcoal·흰 trim 같은 색은 materials 몫으로 남기고 모델은 부재 역할 경계만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 모든 모델이 공유하는 표면 인터페이스 이름을 정해 표면 층이 빠진 모델이 생기지 않게 한다.
-@evidence obligations/design/models.md#addressable-model-decisions 표면 파티션을 기하·관절·한계와 분리된 주소로 두는 규칙을 정하고 01–05가 각자 표면 H2를 따로 둔다.
+@evidence obligations/design/models.md#addressable-model-decisions 이 H2가 공통 면 이름을 주소로 두고 각 창·문·계단·수납 원형의 실제 표면 분할은 해당 원형의 표면 H2가 정하도록 분리한다.
 @evidence settings/20-verification.md#surface-allocation 모델이 경계를 받아 두께 있는 부재와 안정 표면 id를 내고 materials가 같은 binding으로 마감한다는 인계를 소비한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work surface-allocation을 적힌 그대로 소비했고 id 목록을 정하는 데 settings나 spaces의 수정이 필요하지 않았다.
 @evidence obligations/core/common.md#production-language id는 영어 kebab-case, 역할 설명과 본문은 한국어로 두고 id마다 괄호 안 한국어 역할을 붙여 독자가 용어를 추측하지 않게 한다.

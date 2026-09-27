@@ -66,11 +66,12 @@ const bindingProse = (body, currentAnchor) => {
   // names another finish in the following sentence ("X는 [다른 재료]를 받는다").
   // Reading the whole paragraph attributes X to both finishes.
   const sentences = body.replace(/\r\n/g, "\n").split(/(?<=다\.)\s+|\n\s*\n/);
-  const assignments = sentences.filter((sentence) => {
+  const assignments = sentences.map((sentence) => {
+    const contrast = sentence.search(/(?:이며|이고|,)\s*`[a-z][a-z0-9-]*`(?:·`[a-z][a-z0-9-]*`)*[은는]\s*\[[^\]]+\]\((?:[^)]*materials\/|(?:0[0-3]-[^)]*\.md#))/);
+    return contrast < 0 ? sentence : sentence.slice(0, contrast);
+  }).filter((sentence) => {
     if (!/`[a-z][a-z0-9-]*`/.test(sentence)) return false;
     if (/아니라|받지 않는다|결합하지 않는다|별도 재료|분리한다/.test(sentence)) return false;
-    // A sentence sending its named face to another material is not an
-    // assignment by this H2, even though it says that face "받는다".
     const otherFinish = [...sentence.matchAll(/\]\((?:(?:\.\.\/materials\/)?([0-3][0-9]-[^#)]+\.md))?#([^)]*)\)/g)]
       .some((match) => match[1] || match[2] !== currentAnchor);
     if (otherFinish) return false;

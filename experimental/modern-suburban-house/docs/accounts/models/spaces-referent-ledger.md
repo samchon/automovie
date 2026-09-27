@@ -55,7 +55,7 @@
 | 화구 | [settings/10-house.md#living](../../settings/10-house.md#living), [spaces/07-boundary-assembly.md#exterior-boundary-junctions](../../spaces/07-boundary-assembly.md#exterior-boundary-junctions), [spaces/envelope/left.md#living-left-window](../../spaces/envelope/left.md#living-left-window), [spaces/envelope/left.md#chimney-roof-interface](../../spaces/envelope/left.md#chimney-roof-interface), [spaces/rooms/living.md#living-furniture-use](../../spaces/rooms/living.md#living-furniture-use) | [models/11-living.md#fireplace-insert-mantel](../../models/11-living.md#fireplace-insert-mantel) |
 | 수건걸이 | [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation), [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions), [spaces/rooms/tub-bath.md#tub-fixture-use](../../spaces/rooms/tub-bath.md#tub-fixture-use) | [models/14-bathrooms.md#towel-bar](../../models/14-bathrooms.md#towel-bar) |
 | 난간살 | [settings/10-house.md#stair](../../settings/10-house.md#stair), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | [models/04-stair-members.md#stair-balusters](../../models/04-stair-members.md#stair-balusters) |
-| 챌판 | [settings/10-house.md#stair](../../settings/10-house.md#stair), [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums), [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation), [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation), [spaces/05-route-network.md#room-route-network](../../spaces/05-route-network.md#room-route-network), [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions), [spaces/10-ground-floor.md#main-ground-floor-base](../../spaces/10-ground-floor.md#main-ground-floor-base), [spaces/porch.md#porch-platform-access](../../spaces/porch.md#porch-platform-access), [spaces/site/00-access.md#map-handoff-inputs](../../spaces/site/00-access.md#map-handoff-inputs), [spaces/site/01-paving-support.md#raised-platform-support](../../spaces/site/01-paving-support.md#raised-platform-support), [spaces/site/front-walk.md#front-walk-plan](../../spaces/site/front-walk.md#front-walk-plan), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan), [spaces/site/terrace.md#garden-lower-landing-plan](../../spaces/site/terrace.md#garden-lower-landing-plan) | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan) |
+| 챌판 | [settings/10-house.md#stair](../../settings/10-house.md#stair), [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums), [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation), [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff), [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation), [spaces/05-route-network.md#room-route-network](../../spaces/05-route-network.md#room-route-network), [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions), [spaces/10-ground-floor.md#main-ground-floor-base](../../spaces/10-ground-floor.md#main-ground-floor-base), [spaces/porch.md#porch-platform-access](../../spaces/porch.md#porch-platform-access), [spaces/site/00-access.md#map-handoff-inputs](../../spaces/site/00-access.md#map-handoff-inputs), [spaces/site/01-paving-support.md#raised-platform-support](../../spaces/site/01-paving-support.md#raised-platform-support), [spaces/site/front-walk.md#front-walk-plan](../../spaces/site/front-walk.md#front-walk-plan), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan), [spaces/site/terrace.md#garden-lower-landing-plan](../../spaces/site/terrace.md#garden-lower-landing-plan) | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan) |
 | 디딤 | [settings/10-house.md#stair](../../settings/10-house.md#stair), [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums), [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation), [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff), [spaces/02-stair.md#stair-clearance](../../spaces/02-stair.md#stair-clearance), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff), [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation), [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions), [spaces/10-ground-floor.md#main-ground-floor-base](../../spaces/10-ground-floor.md#main-ground-floor-base), [spaces/10-ground-floor.md#ground-threshold-junctions](../../spaces/10-ground-floor.md#ground-threshold-junctions), [spaces/porch.md#porch-platform-access](../../spaces/porch.md#porch-platform-access), [spaces/rooms/entry.md#entry-coat-storage](../../spaces/rooms/entry.md#entry-coat-storage), [spaces/rooms/laundry.md#laundry-plan](../../spaces/rooms/laundry.md#laundry-plan), [spaces/site/01-paving-support.md#raised-platform-support](../../spaces/site/01-paving-support.md#raised-platform-support), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan) | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation), [spaces/porch.md#porch-platform-access](../../spaces/porch.md#porch-platform-access), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan) |
 | 난간 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry), [settings/10-house.md#stair](../../settings/10-house.md#stair), [settings/10-house.md#upper-hall](../../settings/10-house.md#upper-hall), [settings/20-verification.md#reference-authority](../../settings/20-verification.md#reference-authority), [settings/20-verification.md#fidelity](../../settings/20-verification.md#fidelity), [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff), [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening), [spaces/02-stair.md#stair-clearance](../../spaces/02-stair.md#stair-clearance), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff), [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff), [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation), [spaces/04-observations.md#reference-spatial-comparisons](../../spaces/04-observations.md#reference-spatial-comparisons), [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions), [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure), [spaces/porch.md#porch-platform-access](../../spaces/porch.md#porch-platform-access), [spaces/rooms/entry.md#entry-use-routes](../../spaces/rooms/entry.md#entry-use-routes), [spaces/site/01-paving-support.md#raised-platform-support](../../spaces/site/01-paving-support.md#raised-platform-support), [spaces/site/terrace.md#garden-steps-plan](../../spaces/site/terrace.md#garden-steps-plan) | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [models/04-stair-members.md#stair-balusters](../../models/04-stair-members.md#stair-balusters) |
 | 기둥 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry), [settings/10-house.md#stair](../../settings/10-house.md#stair), [settings/20-verification.md#fidelity](../../settings/20-verification.md#fidelity), [spaces/02-stair.md#stair-clearance](../../spaces/02-stair.md#stair-clearance), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights), [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff), [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff), [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation), [spaces/04-observations.md#reference-spatial-comparisons](../../spaces/04-observations.md#reference-spatial-comparisons), [spaces/07-boundary-assembly.md#exterior-boundary-junctions](../../spaces/07-boundary-assembly.md#exterior-boundary-junctions), [spaces/envelope/front.md#living-front-window](../../spaces/envelope/front.md#living-front-window), [spaces/envelope/front.md#garage-front-opening](../../spaces/envelope/front.md#garage-front-opening), [spaces/porch.md#porch-platform-access](../../spaces/porch.md#porch-platform-access), [spaces/porch.md#porch-roof-columns](../../spaces/porch.md#porch-roof-columns), [spaces/roof/00-junctions.md#roof-mass-allocation](../../spaces/roof/00-junctions.md#roof-mass-allocation), [spaces/rooms/common.md#common-island-reservation](../../spaces/rooms/common.md#common-island-reservation), [spaces/rooms/garage-interior.md#garage-storage-use](../../spaces/rooms/garage-interior.md#garage-storage-use), [spaces/rooms/garage-interior.md#garage-use-routes](../../spaces/rooms/garage-interior.md#garage-use-routes), [spaces/rooms/pantry.md#pantry-storage-use](../../spaces/rooms/pantry.md#pantry-storage-use), [spaces/site/00-access.md#map-handoff-inputs](../../spaces/site/00-access.md#map-handoff-inputs), [spaces/site/01-paving-support.md#raised-platform-support](../../spaces/site/01-paving-support.md#raised-platform-support), [spaces/site/01-paving-support.md#paving-contact-handoff](../../spaces/site/01-paving-support.md#paving-contact-handoff), [spaces/site/fence.md#fence-enclosure-plan](../../spaces/site/fence.md#fence-enclosure-plan), [spaces/site/fence.md#fence-gate-junction](../../spaces/site/fence.md#fence-gate-junction), [spaces/site/fence.md#fence-ground-profile](../../spaces/site/fence.md#fence-ground-profile), [spaces/site/side-walk.md#side-walk-plan](../../spaces/site/side-walk.md#side-walk-plan), [spaces/site/side-walk.md#side-gate-interface](../../spaces/site/side-walk.md#side-gate-interface) | [spaces/porch.md#porch-roof-columns](../../spaces/porch.md#porch-roof-columns), [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) |
@@ -100,7 +100,7 @@
 | 마우스 | 1 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
 | 키보드 | 1 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
 | 사용하 | 9 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
-| 방향 | 55 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
+| 방향 | 54 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
 | 검토자 | 2 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
 | 별도 | 4 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
 | 모드 | 2 | [settings/00-production.md#operator-access](../../settings/00-production.md#operator-access) | UNCLASSIFIED |
@@ -113,11 +113,11 @@
 | 정면 | 10 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
 | 나가 | 2 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
 | 북쪽이라 | 1 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
-| 원점 | 13 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
+| 원점 | 14 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
 | 중앙 | 9 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
 | 차이 | 11 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
 | 설계 | 9 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
-| 좌표 | 22 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
+| 좌표 | 23 | [settings/00-production.md#coordinate-units](../../settings/00-production.md#coordinate-units) | UNCLASSIFIED |
 | 사용자 | 18 | [settings/00-production.md#working-language](../../settings/00-production.md#working-language) | UNCLASSIFIED |
 | 명칭 | 1 | [settings/00-production.md#working-language](../../settings/00-production.md#working-language) | UNCLASSIFIED |
 | 한국어 | 1 | [settings/00-production.md#working-language](../../settings/00-production.md#working-language) | UNCLASSIFIED |
@@ -143,7 +143,7 @@
 | 소재 | 1 | [settings/00-production.md#coverage-map](../../settings/00-production.md#coverage-map) | UNCLASSIFIED |
 | 치수 | 10 | [settings/00-production.md#coverage-map](../../settings/00-production.md#coverage-map) | UNCLASSIFIED |
 | 사실 | 4 | [settings/00-production.md#coverage-map](../../settings/00-production.md#coverage-map) | UNCLASSIFIED |
-| 파일 | 9 | [settings/00-production.md#operative-subjects](../../settings/00-production.md#operative-subjects) | UNCLASSIFIED |
+| 파일 | 10 | [settings/00-production.md#operative-subjects](../../settings/00-production.md#operative-subjects) | UNCLASSIFIED |
 | 광원 | 1 | [settings/00-production.md#operative-subjects](../../settings/00-production.md#operative-subjects) | UNCLASSIFIED |
 | 조작 | 7 | [settings/00-production.md#operative-subjects](../../settings/00-production.md#operative-subjects) | UNCLASSIFIED |
 | 미치 | 1 | [settings/00-production.md#operative-subjects](../../settings/00-production.md#operative-subjects) | UNCLASSIFIED |
@@ -184,12 +184,12 @@
 | 증축 | 1 | [settings/10-house.md#house-scale](../../settings/10-house.md#house-scale) | UNCLASSIFIED |
 | 본채 | 17 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 우측 | 5 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
-| 왼쪽 | 27 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
+| 왼쪽 | 26 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 전방 | 1 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 향하 | 2 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 밑면 | 2 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 순높 | 1 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
-| 골짜기 | 5 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
+| 골짜기 | 9 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 합류부 | 1 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 지붕판 | 5 | [settings/10-house.md#main-mass](../../settings/10-house.md#main-mass) | UNCLASSIFIED |
 | 포치 | 21 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
@@ -200,7 +200,7 @@
 | 보행자 | 1 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
 | 보도 | 9 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
 | 유무 | 2 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
-| 형상 | 6 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
+| 형상 | 7 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
 | 현관에 | 1 | [settings/10-house.md#porch-entry](../../settings/10-house.md#porch-entry) | UNCLASSIFIED |
 | 들어 | 5 | [settings/10-house.md#entry](../../settings/10-house.md#entry) | UNCLASSIFIED |
 | 거실 | 19 | [settings/10-house.md#entry](../../settings/10-house.md#entry) | UNCLASSIFIED |
@@ -285,7 +285,7 @@
 | 침구색 | 1 | [settings/10-house.md#bedroom-three](../../settings/10-house.md#bedroom-three) | UNCLASSIFIED |
 | 방임 | 1 | [settings/10-house.md#bedroom-three](../../settings/10-house.md#bedroom-three) | UNCLASSIFIED |
 | 유리문 | 2 | [settings/10-house.md#shower-bathroom](../../settings/10-house.md#shower-bathroom) | UNCLASSIFIED |
-| 손잡 | 9 | [settings/10-house.md#shower-bathroom](../../settings/10-house.md#shower-bathroom) | UNCLASSIFIED |
+| 손잡 | 10 | [settings/10-house.md#shower-bathroom](../../settings/10-house.md#shower-bathroom) | UNCLASSIFIED |
 | 카펫 | 3 | [settings/10-house.md#shower-bathroom](../../settings/10-house.md#shower-bathroom) | UNCLASSIFIED |
 | 접근하 | 2 | [settings/10-house.md#shower-bathroom](../../settings/10-house.md#shower-bathroom) | UNCLASSIFIED |
 | 샤워문 | 1 | [settings/10-house.md#shower-bathroom](../../settings/10-house.md#shower-bathroom) | UNCLASSIFIED |
@@ -302,7 +302,7 @@
 | 수납실 | 2 | [settings/10-house.md#storage](../../settings/10-house.md#storage) | UNCLASSIFIED |
 | 붙박이장이라 | 1 | [settings/10-house.md#storage](../../settings/10-house.md#storage) | UNCLASSIFIED |
 | 이름 | 6 | [settings/10-house.md#storage](../../settings/10-house.md#storage) | UNCLASSIFIED |
-| 전면 | 27 | [settings/10-house.md#openings](../../settings/10-house.md#openings) | UNCLASSIFIED |
+| 전면 | 29 | [settings/10-house.md#openings](../../settings/10-house.md#openings) | UNCLASSIFIED |
 | 창들 | 3 | [settings/10-house.md#openings](../../settings/10-house.md#openings) | UNCLASSIFIED |
 | 평지 | 1 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
 | 잔디 | 3 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
@@ -313,7 +313,7 @@
 | 테라스 | 8 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
 | 대상 | 2 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
 | 가리 | 4 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
-| 보이 | 44 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
+| 보이 | 43 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
 | 경사 | 8 | [settings/10-house.md#site-identity](../../settings/10-house.md#site-identity) | UNCLASSIFIED |
 | 이미지 | 2 | [settings/20-verification.md#reference-authority](../../settings/20-verification.md#reference-authority) | UNCLASSIFIED |
 | 인상 | 2 | [settings/20-verification.md#reference-authority](../../settings/20-verification.md#reference-authority) | UNCLASSIFIED |
@@ -330,7 +330,7 @@
 | 돌출 | 23 | [settings/20-verification.md#visual-grammar](../../settings/20-verification.md#visual-grammar) | UNCLASSIFIED |
 | 음영 | 1 | [settings/20-verification.md#visual-grammar](../../settings/20-verification.md#visual-grammar) | UNCLASSIFIED |
 | 사용 | 21 | [settings/20-verification.md#visual-grammar](../../settings/20-verification.md#visual-grammar) | UNCLASSIFIED |
-| 만드 | 6 | [settings/20-verification.md#visual-grammar](../../settings/20-verification.md#visual-grammar) | UNCLASSIFIED |
+| 만드 | 5 | [settings/20-verification.md#visual-grammar](../../settings/20-verification.md#visual-grammar) | UNCLASSIFIED |
 | 매스 | 2 | [settings/20-verification.md#fidelity](../../settings/20-verification.md#fidelity) | UNCLASSIFIED |
 | 캡처 | 2 | [settings/20-verification.md#fidelity](../../settings/20-verification.md#fidelity) | UNCLASSIFIED |
 | 한다 | 1 | [settings/20-verification.md#fidelity](../../settings/20-verification.md#fidelity) | UNCLASSIFIED |
@@ -442,7 +442,7 @@
 | 공유하 | 5 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 겹침 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 참조한다 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
-| 아래 | 57 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
+| 아래 | 56 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 임의 | 2 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 머드룸이라 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 실패 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
@@ -479,10 +479,8 @@
 | 길이 | 13 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 직각 | 1 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 앞면 | 5 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
-| 상면 | 39 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
-| 둘레 | 6 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
-| 받더라 | 1 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
-| 서로 | 1 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
+| 상면 | 38 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
+| 둘레 | 5 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 계단실 | 6 | [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff) | UNCLASSIFIED |
 | 직선 | 2 | [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff) | UNCLASSIFIED |
 | 귀속 | 1 | [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff) | UNCLASSIFIED |
@@ -518,13 +516,15 @@
 | 막음 | 3 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 벽붙 | 1 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 중간참에서 | 1 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
+| 올라 | 2 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 이하 | 1 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 상한 | 4 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 개수 | 5 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 자리 | 3 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 차지하 | 2 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 시작점 | 4 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
-| 만나 | 18 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
+| 호출하 | 1 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
+| 만나 | 19 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 꺾임 | 8 | [spaces/02-stair.md#stair-boundary-heights](../../spaces/02-stair.md#stair-boundary-heights) | UNCLASSIFIED |
 | 전후면 | 1 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
 | 좌우면 | 1 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
@@ -561,8 +561,7 @@
 | 걸레받 | 4 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 담당 | 2 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 지나 | 8 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
-| 디딤판 | 3 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
-| 이음 | 6 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 이음 | 7 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 모델 | 3 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 문서만 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 비직사각형 | 1 | [spaces/04-observations.md#spatial-observation-derivation](../../spaces/04-observations.md#spatial-observation-derivation) | UNCLASSIFIED |
@@ -709,6 +708,7 @@
 | 삭제하 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 문단 | 3 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 테두리 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
+| 디딤판 | 2 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 엔진에서 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 별개 | 2 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
 | 올라가 | 2 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
@@ -807,7 +807,7 @@
 | 변화 | 1 | [spaces/porch.md#porch-roof-columns](../../spaces/porch.md#porch-roof-columns) | UNCLASSIFIED |
 | 각자 | 2 | [spaces/porch.md#porch-roof-columns](../../spaces/porch.md#porch-roof-columns) | UNCLASSIFIED |
 | 플랫폼 | 1 | [spaces/porch.md#porch-roof-columns](../../spaces/porch.md#porch-roof-columns) | UNCLASSIFIED |
-| 용마루 | 15 | [spaces/roof/00-junctions.md#roof-mass-allocation](../../spaces/roof/00-junctions.md#roof-mass-allocation) | UNCLASSIFIED |
+| 용마루 | 14 | [spaces/roof/00-junctions.md#roof-mass-allocation](../../spaces/roof/00-junctions.md#roof-mass-allocation) | UNCLASSIFIED |
 | 낮아지 | 1 | [spaces/roof/00-junctions.md#roof-mass-allocation](../../spaces/roof/00-junctions.md#roof-mass-allocation) | UNCLASSIFIED |
 | 가르 | 1 | [spaces/roof/00-junctions.md#roof-mass-allocation](../../spaces/roof/00-junctions.md#roof-mass-allocation) | UNCLASSIFIED |
 | 서쪽에서 | 1 | [spaces/roof/00-junctions.md#roof-mass-allocation](../../spaces/roof/00-junctions.md#roof-mass-allocation) | UNCLASSIFIED |
@@ -836,16 +836,18 @@
 | 합류 | 2 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
 | 가려지 | 2 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
 | 빠지 | 1 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
-| 하부 | 9 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
-| 사선 | 6 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
+| 사선 | 7 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
+| 용마루에 | 2 | [spaces/roof/front-gable-left.md#front-gable-left-roof](../../spaces/roof/front-gable-left.md#front-gable-left-roof) | UNCLASSIFIED |
 | 기울기 | 1 | [spaces/roof/front-gable-right.md#front-gable-right-roof](../../spaces/roof/front-gable-right.md#front-gable-right-roof) | UNCLASSIFIED |
 | 내려 | 1 | [spaces/roof/front-gable-right.md#front-gable-right-roof](../../spaces/roof/front-gable-right.md#front-gable-right-roof) | UNCLASSIFIED |
 | 겹치는지 | 1 | [spaces/roof/garage-back.md#garage-back-roof](../../spaces/roof/garage-back.md#garage-back-roof) | UNCLASSIFIED |
+| 하부 | 7 | [spaces/roof/garage-back.md#garage-back-roof](../../spaces/roof/garage-back.md#garage-back-roof) | UNCLASSIFIED |
 | 지붕과 | 2 | [spaces/roof/main-back.md#main-back-roof](../../spaces/roof/main-back.md#main-back-roof) | UNCLASSIFIED |
 | 따르다 | 1 | [spaces/roof/main-back.md#main-back-roof](../../spaces/roof/main-back.md#main-back-roof) | UNCLASSIFIED |
 | 종단 | 1 | [spaces/roof/main-back.md#main-back-roof](../../spaces/roof/main-back.md#main-back-roof) | UNCLASSIFIED |
 | 막음판 | 1 | [spaces/roof/main-front.md#main-front-roof](../../spaces/roof/main-front.md#main-front-roof) | UNCLASSIFIED |
 | 지붕재 | 1 | [spaces/roof/main-front.md#main-front-roof](../../spaces/roof/main-front.md#main-front-roof) | UNCLASSIFIED |
+| 두께면에 | 1 | [spaces/roof/main-front.md#main-front-roof](../../spaces/roof/main-front.md#main-front-roof) | UNCLASSIFIED |
 | 아래면까지 | 2 | [spaces/roof/main-front.md#main-front-roof](../../spaces/roof/main-front.md#main-front-roof) | UNCLASSIFIED |
 | 끝나 | 2 | [spaces/roof/right-back.md#right-back-roof](../../spaces/roof/right-back.md#right-back-roof) | UNCLASSIFIED |
 | 면에 | 2 | [spaces/roof/right-back.md#right-back-roof](../../spaces/roof/right-back.md#right-back-roof) | UNCLASSIFIED |
@@ -1030,7 +1032,6 @@
 | 붙이 | 1 | [spaces/site/fence.md#fence-gate-junction](../../spaces/site/fence.md#fence-gate-junction) | UNCLASSIFIED |
 | 문기둥 | 7 | [spaces/site/fence.md#fence-gate-junction](../../spaces/site/fence.md#fence-gate-junction) | UNCLASSIFIED |
 | 짧다 | 1 | [spaces/site/fence.md#fence-gate-junction](../../spaces/site/fence.md#fence-gate-junction) | UNCLASSIFIED |
-| 올라 | 1 | [spaces/site/fence.md#fence-ground-profile](../../spaces/site/fence.md#fence-ground-profile) | UNCLASSIFIED |
 | 상하 | 1 | [spaces/site/fence.md#fence-ground-profile](../../spaces/site/fence.md#fence-ground-profile) | UNCLASSIFIED |
 | 판재 | 2 | [spaces/site/fence.md#fence-ground-profile](../../spaces/site/fence.md#fence-ground-profile) | UNCLASSIFIED |
 | 뷰에서 | 1 | [spaces/site/fence.md#fence-ground-profile](../../spaces/site/fence.md#fence-ground-profile) | UNCLASSIFIED |
