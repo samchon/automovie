@@ -1,7 +1,11 @@
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import { prepareLidCreaseBasis } from "../../../scripts/face-review/prepareLidCreaseBasis";
+import {
+  faceLidCreaseDepth,
+  faceSkinNormals,
+  prepareLidCreaseBasis,
+} from "../../../scripts/face-review/prepareLidCreaseBasis";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
@@ -54,13 +58,15 @@ const fixture = (): IAutoMovieHumanFaceBasis =>
 /**
  * The upper lid's crease as its fold's concave side.
  * Scenarios:
- * 1. The skin's negative rows keep only their part along the normal (the
- *    slide dropped, inward and outward kept), the receipt gives the deepest
- *    inward depth and the largest part dropped, and the side reaches -1.
+ * 1. The skin's negative rows stay as drawn (the cleft slides up behind the
+ *    fold), the side's minimum becomes the given one, and the receipt gives
+ *    the deepest inward part along the normal (2 mm) and the largest part
+ *    along the skin (1 mm); the normals are the triangles' unit normal, and a
+ *    vertex no triangle uses has none.
  * 2. The positive endpoint and other surfaces' rows stay; the basis,
  *    documents and control map are restamped and the source is untouched.
- * 3. A stale revision, a missing surface, a channel without a negative and
- *    a negative not moving the skin refuse.
+ * 3. A stale revision, a minimum outside [-1, 0), a missing surface, a
+ *    channel without a negative and a negative not moving the skin refuse.
  */
 export const test_subject_lid_crease_basis_preparation = (): void => {
   const source = fixture();
@@ -74,26 +80,29 @@ export const test_subject_lid_crease_basis_preparation = (): void => {
     revision: "lid/2",
     skin: "skin",
     channels: ["fold"],
+    minimum: -0.72,
   };
   const prepared = prepareLidCreaseBasis(input);
   const skin = prepared.basis.surfaces[0]!;
   const rows = skin.targets["fold.decr"]!;
   const channel = prepared.basis.channels[0]!;
   const receipt = prepared.receipt.channels[0]!;
+  const normals = faceSkinNormals([...skin.positions, 0, 0, 0.2], skin.indices);
+  const alone = faceLidCreaseDepth([4, 0, 0, -0.003], normals);
   TestValidator.predicate(
-    "projected on the normal",
-    rows.length === 8 &&
-      rows[0] === 0 &&
-      nclose(rows[1]!, 0, 1e-12) &&
-      nclose(rows[2]!, 0, 1e-12) &&
-      nclose(rows[3]!, -0.002, 1e-12) &&
-      rows[4] === 1 &&
-      nclose(rows[7]!, 0.001, 1e-12) &&
+    "the cleft kept",
+    JSON.stringify(rows) ===
+      JSON.stringify(fixture().surfaces[0]!.targets["fold.decr"]) &&
       nclose(receipt.depth, 0.002, 1e-12) &&
-      nclose(receipt.dropped, 0.001, 1e-12) &&
+      nclose(receipt.slide, 0.001, 1e-12) &&
       receipt.rows === 2 &&
-      channel.minimum === -1 &&
-      channel.maximum === 1,
+      channel.minimum === -0.72 &&
+      channel.maximum === 1 &&
+      prepared.receipt.minimum === -0.72 &&
+      normals.slice(0, 3).join() === "0,0,1" &&
+      normals.slice(12).join() === "0,0,0" &&
+      alone.depth === 0 &&
+      alone.slide === 0.003,
   );
   TestValidator.predicate(
     "the rest stays",
@@ -114,6 +123,14 @@ export const test_subject_lid_crease_basis_preparation = (): void => {
       () => prepareLidCreaseBasis({ ...input, revision: "lid/1" }),
       "distinct revision",
     ) &&
+      throwsError(
+        () => prepareLidCreaseBasis({ ...input, minimum: 0 }),
+        "[-1, 0)",
+      ) &&
+      throwsError(
+        () => prepareLidCreaseBasis({ ...input, minimum: -1.1 }),
+        "[-1, 0)",
+      ) &&
       throwsError(
         () => prepareLidCreaseBasis({ ...input, skin: "none" }),
         "No surface",

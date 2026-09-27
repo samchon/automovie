@@ -48,12 +48,16 @@ export interface IFaceLikenessCreaseSide {
  * brightest samples within five steps either side, from the sixth sample to
  * the forty-fourth (the margin's lashes and the brow's own edge left out):
  * the orbital hollow's broad shading under the brow, which a render without
- * a crease shows too, does not make one. Null for a side whose points leave
- * the image. Pure.
+ * a crease shows too, does not make one. `blur`, for reading a render as a
+ * photograph resolves it, is a Gaussian's standard deviation as a fraction
+ * of the inter-ocular distance (the outer canthi, 33 and 263), applied to
+ * the luminance before sampling (0, the default, reads the image as it is).
+ * Null for a side whose points leave the image. Pure.
  */
 export function measureFaceLikenessCrease(
   image: IFaceLikenessImage,
   landmarks: readonly (readonly [number, number])[],
+  blur = 0,
 ): {
   right: IFaceLikenessCreaseSide | null;
   left: IFaceLikenessCreaseSide | null;
@@ -72,16 +76,75 @@ export function measureFaceLikenessCrease(
       0.0722 * decode(image.rgb[i + 2]!)
     );
   };
+  if (!(blur >= 0)) throw new Error("A blur is zero or more.");
+  const sigma =
+    blur *
+    Math.hypot(
+      landmarks[33]![0] - landmarks[263]![0],
+      landmarks[33]![1] - landmarks[263]![1],
+    );
+  // The luminance the lines read, over the box around every line's points,
+  // blurred by a separable Gaussian (edges held) where `sigma` is positive.
+  const points = [
+    ...FACE_LIKENESS_CREASE_LINES.right,
+    ...FACE_LIKENESS_CREASE_LINES.left,
+  ].flatMap(([a, b]) => [landmarks[a]!, landmarks[b]!]);
+  const pad = Math.ceil(3 * sigma) + 2;
+  const bx0 = Math.max(
+    0,
+    Math.floor(Math.min(...points.map(([x]) => x))) - pad,
+  );
+  const by0 = Math.max(
+    0,
+    Math.floor(Math.min(...points.map(([, y]) => y))) - pad,
+  );
+  const bx1 = Math.min(
+    image.width - 1,
+    Math.ceil(Math.max(...points.map(([x]) => x))) + pad,
+  );
+  const by1 = Math.min(
+    image.height - 1,
+    Math.ceil(Math.max(...points.map(([, y]) => y))) + pad,
+  );
+  const bw = Math.max(0, bx1 - bx0 + 1);
+  const bh = Math.max(0, by1 - by0 + 1);
+  let field = new Float64Array(bw * bh);
+  for (let y = 0; y < bh; ++y)
+    for (let x = 0; x < bw; ++x)
+      field[y * bw + x] = luminance(bx0 + x, by0 + y);
+  if (sigma > 0) {
+    const radius = Math.ceil(3 * sigma);
+    const kernel = Array.from({ length: 2 * radius + 1 }, (_, k) =>
+      Math.exp(-((k - radius) ** 2) / (2 * sigma * sigma)),
+    );
+    const total = kernel.reduce((a, b) => a + b, 0);
+    const pass = (source: Float64Array, horizontal: boolean) => {
+      const out = new Float64Array(source.length);
+      for (let y = 0; y < bh; ++y)
+        for (let x = 0; x < bw; ++x) {
+          let sum = 0;
+          for (let k = -radius; k <= radius; ++k) {
+            const xx = horizontal ? Math.min(bw - 1, Math.max(0, x + k)) : x;
+            const yy = horizontal ? y : Math.min(bh - 1, Math.max(0, y + k));
+            sum += kernel[k + radius]! * source[yy * bw + xx]!;
+          }
+          out[y * bw + x] = sum / total;
+        }
+      return out;
+    };
+    field = pass(pass(field, true), false);
+  }
+  const at = (x: number, y: number) => field[(y - by0) * bw + (x - bx0)]!;
   const sample = (x: number, y: number): number | null => {
     const [x0, y0] = [Math.floor(x), Math.floor(y)];
     if (x0 < 0 || y0 < 0 || x0 + 1 >= image.width || y0 + 1 >= image.height)
       return null;
     const [fx, fy] = [x - x0, y - y0];
     return (
-      luminance(x0, y0) * (1 - fx) * (1 - fy) +
-      luminance(x0 + 1, y0) * fx * (1 - fy) +
-      luminance(x0, y0 + 1) * (1 - fx) * fy +
-      luminance(x0 + 1, y0 + 1) * fx * fy
+      at(x0, y0) * (1 - fx) * (1 - fy) +
+      at(x0 + 1, y0) * fx * (1 - fy) +
+      at(x0, y0 + 1) * (1 - fx) * fy +
+      at(x0 + 1, y0 + 1) * fx * fy
     );
   };
   const STEPS = 64;
@@ -124,19 +187,24 @@ export function measureFaceLikenessCrease(
 }
 
 /**
- * The crease reading's calibration on the editor's own renders: the 17
- * published documents of round j18-b under their portrait cameras, each at
- * no crease and at the layer's depth (the lid crease revision, both lids
- * at -0.48), read by `measureFaceLikenessCrease`. The median of both lids'
- * readings is 0.1005 without a crease and 0.3015 with it; `threshold` is
- * their midpoint. `span` is the shortest middle line on which a render's
- * crease read above it (both lids' mean): 30 px, below which a lid spans
- * too few pixels for the fold's two-millimetre shadow. On those renders
- * the rule reads 13 of the 17 creases and 1 of the 17 lids without one
- * (hair across Miriam Margolyes's lid).
+ * The crease reading's calibration on the editor's own renders
+ * (`calibrate-face-crease.ts`, lid-crease-calibration-receipt.json): the 17
+ * published documents of round j18-b under their portrait cameras, each
+ * without a crease and with both lids at the layer's depth (the lid fold
+ * revision, -0.48), read through `blur` (0.0066 inter-ocular distances: the
+ * photographs resolve thin features more softly than the renders, and this
+ * is the median over 11 subjects of the blur at which a render's brow band
+ * reads its photograph's). The median of every lid's reading is 0.0761
+ * without a crease and 0.1314 with it; `threshold` is their midpoint.
+ * `span` is the shortest middle line on which a render's crease read at or
+ * above it (both lids' mean): 30 px, below which a lid spans too few
+ * pixels for the fold's shadow. On those renders the rule reads 12 of the
+ * 17 creases and 4 of the 17 lids without one; the photographs' creases
+ * read 0.3 to 0.8 at their own resolution, far clearer than the renders'.
  */
 export const FACE_LIKENESS_CREASE_CALIBRATION = {
-  threshold: 0.201,
+  blur: 0.0066,
+  threshold: 0.104,
   span: 30,
 } as const;
 

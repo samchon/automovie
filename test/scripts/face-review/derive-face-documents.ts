@@ -173,6 +173,7 @@ import {
   faceUnseenParts,
   measureFaceUnseen,
 } from "./faceUnseenNorms";
+import { faceLidCreaseDepth, faceSkinNormals } from "./prepareLidCreaseBasis";
 
 const [command, ...args] = process.argv.slice(2);
 const json = <T>(file: string): T =>
@@ -455,26 +456,26 @@ if (command === "identity") {
     }
     return movingCache.get(id)!;
   };
-  // The crease control's depth at its end: the deepest of its rows on the
-  // skin (each along the skin's normal, the lid crease revision), or null
-  // on a basis without both lids' control.
+  // The crease control's depth at its end: the deepest of its rows along
+  // the skin's normal at rest (`faceLidCreaseDepth`: the cleft also slides
+  // up behind the fold), or null on a basis without both lids' control.
   const creaseDepth = FACE_LID_CREASE_CHANNELS.every(
     (one) =>
       channels.get(one)?.negative !== undefined &&
       channels.get(one)?.negative !== null,
   )
-    ? Math.min(
-        ...FACE_LID_CREASE_CHANNELS.map((one) => {
-          const flat = human.targets[channels.get(one)!.negative!] ?? [];
-          let deepest = 0;
-          for (let i = 0; i < flat.length; i += 4)
-            deepest = Math.max(
-              deepest,
-              Math.hypot(flat[i + 1]!, flat[i + 2]!, flat[i + 3]!),
-            );
-          return deepest;
-        }),
-      )
+    ? (() => {
+        const normals = faceSkinNormals(human.positions, human.indices);
+        return Math.min(
+          ...FACE_LID_CREASE_CHANNELS.map(
+            (one) =>
+              faceLidCreaseDepth(
+                human.targets[channels.get(one)!.negative!] ?? [],
+                normals,
+              ).depth,
+          ),
+        );
+      })()
     : null;
   const creaseReading = (one: IDetection) => {
     const file =

@@ -4,13 +4,14 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-lid-crease-basis.ts STUDY REVISION OUTPUT
  *
- * Each upper lid's fold convexity keeps, on its concave side, only the
- * crease's depth along the skin (`prepareLidCreaseBasis`), and the side
- * returns to -1. The revision is checked for faults against the neutral at
- * both lids' -1 (`faceSupportFaults`), and the receipt gives the crease's
- * depth at -1 beside the upper lid's skin and orbicularis thickness (0.98
- * and 0.76 mm by high-frequency ultrasound, 48 adults aged 17 to 46: Rad
- * Proc 2021;26), the fold of one layer the crease draws.
+ * Each upper lid's fold convexity keeps the source's concave rows (the
+ * crease's cleft under the fold) and its concave side reaches the last
+ * weight, stepping down from zero by 0.02, before both lids add a fault to
+ * the neutral (`faceSupportFaults`; `prepareLidCreaseBasis`). The receipt gives
+ * the crease's depth along the skin's normal at -1 beside the upper lid's
+ * skin and orbicularis thickness (0.98 and 0.76 mm by high-frequency
+ * ultrasound, 48 adults aged 17 to 46: Rad Proc 2021;26), the fold of one
+ * layer the crease draws, and the faults at the minimum and one step past.
  */
 import {
   type IAutoMovieHumanFaceBasis,
@@ -51,22 +52,24 @@ const subjects = read("subjects.json");
 const controls = read("simple-controls.json");
 const source = basis.json as IAutoMovieHumanFaceBasis;
 const channels = ["leftEyelidFoldConvexity", "rightEyelidFoldConvexity"];
-const prepared = prepareLidCreaseBasis({
+const input = {
   basis: source,
   documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
   controls: controls.json as IAutoMovieHumanFaceControlMap,
   revision,
   skin: "Human",
   channels,
-});
-const human = prepared.basis.surfaces.find((one) => one.id === "Human")!;
+};
+// The rows' reach, read on the whole side before the minimum is known.
+const open = prepareLidCreaseBasis({ ...input, minimum: -1 });
+const human = open.basis.surfaces.find((one) => one.id === "Human")!;
 const skinAt = (weight: number) =>
   faceShapeFitSurfacePositions(
-    prepared.basis,
-    createHumanFaceBasisBuilder(prepared.basis)({
+    open.basis,
+    createHumanFaceBasisBuilder(open.basis)({
       id: "probe",
       name: "probe",
-      basis: prepared.basis.id,
+      basis: open.basis.id,
       shape: Object.fromEntries(channels.map((one) => [one, weight])),
       expression: {},
     }),
@@ -74,12 +77,25 @@ const skinAt = (weight: number) =>
   );
 const triangles: number[] = [];
 for (let t = 0; t < human.indices.length; t += 3) triangles.push(t);
-const faults = faceSupportFaults({
-  source: skinAt(0),
-  positions: skinAt(-1),
-  indices: human.indices,
-  triangles,
-});
+const rest = skinAt(0);
+const faultsAt = (weight: number) =>
+  faceSupportFaults({
+    source: rest,
+    positions: skinAt(weight),
+    indices: human.indices,
+    triangles,
+  });
+let minimum = -0.02;
+while (
+  minimum - 0.02 >= -1 - 1e-9 &&
+  faultsAt(Number((minimum - 0.02).toFixed(2))) === 0
+)
+  minimum = Number((minimum - 0.02).toFixed(2));
+const faults = {
+  atMinimum: faultsAt(minimum),
+  past: minimum > -1 ? faultsAt(Number((minimum - 0.02).toFixed(2))) : null,
+};
+const prepared = prepareLidCreaseBasis({ ...input, minimum });
 fs.mkdirSync(output, { recursive: true });
 const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
   level: 9,
@@ -101,10 +117,10 @@ const receipt = {
   channels: prepared.receipt.channels.map((one) => ({
     ...one,
     depth: mm(one.depth),
-    dropped: mm(one.dropped),
+    slide: mm(one.slide),
   })),
   layer: { skin: 0.98, orbicularis: 0.76, total: 1.74 },
-  faultsAtMinimum: faults,
+  faults,
   recorded: new Date().toISOString(),
   citations:
     "Upper eyelid skin with subcutaneous tissue 0.98 +- 0.17 mm, orbicularis oculi 0.76 +- 0.1 mm, high-frequency ultrasound, 48 healthy adults aged 17 to 46 (Rad Proc 2021;26).",

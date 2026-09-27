@@ -28,6 +28,9 @@ const scene = (rows: Record<number, number>) => {
     });
   place(FACE_LIKENESS_CREASE_LINES.right, 20);
   place(FACE_LIKENESS_CREASE_LINES.left, 70);
+  // The outer canthi, 50 px apart: the blur's unit.
+  landmarks[33] = [25, 85];
+  landmarks[263] = [75, 85];
   return { image: { width: 100, height: 100, rgb }, landmarks };
 };
 
@@ -38,7 +41,9 @@ const scene = (rows: Record<number, number>) => {
  *    reads as a valley there, as deep as its luminance's shortfall below
  *    the grey, on both lids; a uniform image reads none; a broad ramp
  *    darkening toward the brow (the orbital hollow's shading) reads none;
- *    lines leaving the image read null.
+ *    lines leaving the image read null; read through a blur of 0.02
+ *    inter-ocular distances (1 px) the same row reads shallower at the same
+ *    place, and a negative blur refuses.
  * 2. Both lids readable at or above the threshold carry the layer's depth
  *    (-layer / depth), below it none; a lid shorter than the calibration's
  *    span falls back to the population (European: the crease; East Asian
@@ -61,6 +66,17 @@ export const test_subject_face_lid_crease = (): void => {
       nclose(read.left.depth, expected, 1e-9) &&
       read.right.at === 0.25 &&
       nclose(read.right.span, 64, 1e-12),
+  );
+  const soft = measureFaceLikenessCrease(dark.image, dark.landmarks, 0.02);
+  TestValidator.predicate(
+    "a blurred crease line",
+    soft.right!.depth > 0 &&
+      soft.right!.depth < read.right!.depth &&
+      soft.right!.at === 0.25 &&
+      throwsError(
+        () => measureFaceLikenessCrease(dark.image, dark.landmarks, -1),
+        "zero or more",
+      ),
   );
   const flat = scene({});
   const ramp = scene(
