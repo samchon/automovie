@@ -19,8 +19,8 @@ void test("indexed face partition keeps positions and aligned attributes", () =>
   assert.deepEqual(face.normals, [0, -1, 0, 0, -1, 0, 0, -1, 0]);
   assert.deepEqual(body.uvs, [0, 0, 1, 1, 1, 0]);
   assert.deepEqual(face.colors, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
-  assert.equal(face.indices, null);
-  assert.equal(body.indices, null);
+  assert.deepEqual(face.indices, [0, 1, 2]);
+  assert.deepEqual(body.indices, [0, 1, 2]);
   assert.equal(face.skin, null);
   assert.deepEqual(mesh.indices, [0, 1, 2, 0, 3, 1]);
 });

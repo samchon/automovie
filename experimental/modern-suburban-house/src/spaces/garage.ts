@@ -74,6 +74,8 @@ export const buildGarageSharedWall = (): IHousePart[] => {
 
 /** One garage floor solid supplies disjoint structural and visible faces. */
 /**
+ * @evidence spaces/10-ground-floor.md This shared garage slab recipe carries the designed independent support and front opening tongue.
+ * @evidenceReview spaces/10-ground-floor.md `garageFloorMesh` uses the garage inner footprint, front-door span, and lower floor datum in that file; its callers assign the support and exposed face to separate actual authors.
  * @evidence spaces/10-ground-floor.md#garage-ground-floor-base The shared slab recipe spans the garage inner plan and the front door tongue at the specified lower datum.
  * @evidenceReview spaces/10-ground-floor.md#garage-ground-floor-base #c3227ca `garageFloorMesh` uses `GARAGE.inner` and a front-door tongue, with its top at `STOREYS.garageFloor` and bottom one `GROUND_LAYERS.garageBase` lower; callers assign support and exposed face separately.
  * @evidence principles/core/source-units.md#source-scope-preservation Both garage owners use this one footprint without creating a second floor body.

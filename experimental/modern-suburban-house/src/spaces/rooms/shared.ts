@@ -292,6 +292,8 @@ export const roomFloor = (room: IRoomSpace): IHousePart => {
  * The room's share of the floor finish under one interior door void: the
  * rectangle from the room's partition face to the partition mid-plane across
  * the door width, in the room's finish layer.
+  * @evidence spaces/03-surface-owners.md Each caller's room owner authors its own finished doorway strip beneath an interior door.
+  * @evidenceReview spaces/03-surface-owners.md `doorFloor` returns a named slab using `room.owner` and `room.floor`; the calling room supplies its half-door plan interval, so the helper does not claim the adjoining room's finish.
   * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions At a same-height interior door, each caller supplies its room-side floor finish through the wall thickness to the central transition plane.
   * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 `doorFloor` meshes only the X/Z interval supplied by the room builder; those callers end their strips at the rough partition's centre plane under the shared door void.
   * @evidence spaces/03-surface-owners.md#interior-surface-handoff The returned doorway finish part retains its room source and colour.
