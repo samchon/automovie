@@ -79,7 +79,6 @@ export const modelSurfaceBindingCensus = (documents, materialSource, scaleSource
   const expected = new Set();
   let prototypes = 0;
   for (const { path, source } of documents) {
-    if (path === "scale.md") continue;
     for (const section of modelSections(source)) {
       prototypes++;
       const id = `${path.replace(/\.md$/, "")}#${section.id}`;
@@ -180,7 +179,7 @@ export const checkModelSurfaceBinding = () => {
     path,
     source: readFileSync(new URL(path, root), "utf8"),
   }));
-  const scale = documents.find((document) => document.path === "scale.md")?.source ?? "";
+  const scale = readFileSync(new URL("../../docs/contracts/principles-models.md", import.meta.url), "utf8");
   const material = readFileSync(new URL("10-model-bindings.md", materialRoot), "utf8");
   const result = modelSurfaceBindingCensus(documents, material, scale);
   console.log(

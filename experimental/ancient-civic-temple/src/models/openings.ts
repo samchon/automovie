@@ -330,7 +330,7 @@ export class TempleOpenings {
    * @evidence models/openings.md#window-frame The clerestory host supplies 0.4 m clear dimensions and frame width; the builder surrounds that local void through the selected wall depth.
    * @evidence principles/core/source-units.md#source-scope-preservation It selects an existing 0.30 or 0.60 m host and leaves the window's world center and sill with spaces and instances.
    * @evidence principles/core/source-units.md#source-substantive-completion Four lining bars and four exterior surround bars form separate mesh parts with the center left open.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The window-frame H2 fixes the clear square, inner frame and outer trim, all of which use host data here.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The window-frame H2 fixes the clear square and 0.10 m outer trim with 0.03 m projection; the host supplies the clear dimensions and inner frame, so this builder exposes no missing parent choice.
    * @evidence obligations/design/model-sources.md#design-owned-construction The model derives its bounds from host.clearWidth, clearHeight and frame and does not create a pane or shutter.
    */
   windowFrame(thickness:0.30|0.60):IAutoMovieModel{

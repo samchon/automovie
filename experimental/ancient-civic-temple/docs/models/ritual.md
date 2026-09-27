@@ -5,6 +5,8 @@
 ## 낮은 향로 {#censer}
 
 <!--
+@evidenceExclude settings/50-production.md#acceptance 판정 권한과 완료 조건은 제작 절차이며 원형 판은 관찰할 형상과 시점만 제공하므로 모델 H2는 판정 권한을 정의하지 않는다.
+@evidenceExcludeReview settings/50-production.md#acceptance #2c49b7f 관찰 질문과 최종 판정 권한을 50-production의 서로 다른 항목으로 읽었다.
 @evidence principles/core/common.md#scope-preservation 제단 위 꺼진 향로의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 꺼진 향로의 발·줄기·컵·재·향 세 가닥을 읽어 제단 위 의례 소품의 분리된 실체를 확인했다.
 @evidence principles/core/common.md#substantive-completion 발·줄기·재를 담는 컵과 꺼진 향 세 개의 치수·표면·상태를 정한다.
@@ -44,6 +46,8 @@ part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 �
 ## 바닥 좌구 {#floor-cushion}
 
 <!--
+@evidenceExclude settings/50-production.md#author-commits 커밋·푸시는 저작 기록이며 어떤 원형의 치수·part·관절·UV0 결정도 그 절차에서 받지 않는다.
+@evidenceExcludeReview settings/50-production.md#author-commits #f2218c8 모델 입력과 커밋 절차의 경계를 전 원형 population에 대해 확인했다.
 @evidence principles/core/common.md#scope-preservation 작업 스툴과 구별되는 제실 바닥 좌구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 스툴과 접은 덮개 천과 구별되는 제실 바닥 좌면·뒤 접힘을 읽었다.
 @evidence principles/core/common.md#substantive-completion 바닥층·두툼한 패드·뒤 접힘선의 치수와 접촉을 확정한다.

@@ -1,6 +1,7 @@
 /** Open ceramic wares and unmarked scroll silhouettes from docs/models/wares.md. */
 import type { IAutoMovieModel } from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
+import { modelBox } from "../geometry/model-source-shapes";
 
 const p=(x:number,y:number,z:number)=>({x,y,z});
 const jar=(id:string,name:string,
@@ -75,7 +76,7 @@ export class TempleWares {
   }
 
   /**
-   * @evidence models/wares.md#basket An open tapered wall and floor carry ten alternating raised ring bands beneath a separate upper rim.
+   * @evidence models/wares.md#basket An open tapered wall and floor sit beneath ten alternating raised ring bands and a separate upper rim; the coarse bands remain distinct from the wall surface.
    * @evidence principles/core/source-units.md#source-scope-preservation This builder emits the basket's coarse circular body and ribbed band proxy, without choosing carried contents.
    * @evidence principles/core/source-units.md#source-substantive-completion The 24-sector wall, closed base, ten bands and rim make the vessel open at the top and divided into named parts.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The basket H2 supplies the widening wall, closed floor, raised band rhythm and upper rim for this approximate silhouette.
@@ -102,16 +103,17 @@ export class TempleWares {
   scroll(state:"rolled"|"bundle"|"open"):IAutoMovieModel {
     const m=new ObjectMesh();
     if(state==="open"){
-      m.box("sheet",0,0,0,0.25,0.002,0.35);
+      modelBox(m,"sheet",p(-0.125,0,-0.175),p(0.125,0.002,0.175),
+        {origin:p(-0.125,0,-0.175),direction:p(0,0,1)});
       for(const z of [-0.1837,0.1837])
-        m.rod("sheet",p(-0.125,0.02,z),p(0.125,0.02,z),0.02,16);
+        m.cylinder("sheet",p(-0.125,0.02,z),p(0.125,0.02,z),0.02,16,"x");
     }else{
       const centers=state==="rolled"?[[0,0]]:[[0,-0.03],[0,0.03],[0.03*Math.sqrt(3),0]];
       centers.forEach(([y,z],i)=>{
         const part=state==="rolled"?"sheet":`sheet-${i+1}`;
-        m.rod(part,p(-0.14,y!,z!),p(0.14,y!,z!),0.03,16);
+        m.cylinder(part,p(-0.14,y!,z!),p(0.14,y!,z!),0.03,16,"x");
         for(const x of [-0.144,0.14])
-          m.rod(part,p(x,y!,z!),p(x+0.004,y!,z!),0.012,16);
+          m.cylinder(part,p(x,y!,z!),p(x+0.004,y!,z!),0.012,16,"x");
       });
       m.loop("tie",0,0,0,state==="rolled"?0.0325:0.065,0.0025,"yz",16);
     }

@@ -1,10 +1,12 @@
 # 신전의 이동식 비품과 소품
 
-이 파일은 사물 단계의 재사용 prototype을 소유한다. 오른손 Y-up 미터 좌표와 [공통 축척](scale.md#reference-scale)을 쓰며 각 H2의 산문 치수와 식만 형상 설계의 입력이다. 점유 상자는 각 part 실체 범위의 합집합을 기준으로 하며 그 합집합을 여유 있게 감싸면 보수적 경계라고 명시한다. 방별 복제 수·회전·간격은 instances가 정한다. 표면 ID는 part 이름이며 별도 하위 표면이 필요한 경우에만 이름을 더한다. 모든 바닥 접촉형의 로컬 Y=0은 바닥면이고, 제조·하중·역사적 실물 복원을 주장하지 않는다.
+이 파일은 사물 단계의 재사용 prototype을 소유한다. 오른손 Y-up 미터 좌표와 [공통 축척](../contracts/principles-models.md#temple-reference-scale)을 쓰며 각 H2의 산문 치수와 식만 형상 설계의 입력이다. 점유 상자는 각 part 실체 범위의 합집합을 기준으로 하며 그 합집합을 여유 있게 감싸면 보수적 경계라고 명시한다. 방별 복제 수·회전·간격은 instances가 정한다. 표면 ID는 part 이름이며 별도 하위 표면이 필요한 경우에만 이름을 더한다. 모든 바닥 접촉형의 로컬 Y=0은 바닥면이고, 제조·하중·역사적 실물 복원을 주장하지 않는다.
 
 ## 대기와 작업용 석재 벤치 {#bench}
 
 <!--
+@evidenceExclude settings/00-delivery.md#coverage-map 설정 소유 지도는 settings의 색인이고 원형은 지도가 가리키는 외피·실내·물체·환경 H2를 직접 소비하므로 지도 자체에서 추가 형상을 받지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 모델 근거가 지도 항목이 아니라 실제 외피·실내·물체·환경 owner로 연결되는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 중정과 정문의 낮은 대기 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두 석재 받침과 열린 하부·두 폭 변형을 읽어 중정 대기 비품의 형태·배치 경계를 확인했다.
 @evidence principles/core/common.md#substantive-completion 상판과 두 받침의 치수·접촉면·폭 매개변수, 열린 하부와 점유 상자를 정한다.
@@ -46,6 +48,8 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 ## 들고 놓는 소형 등잔 {#portable-lamp}
 
 <!--
+@evidenceExclude settings/00-delivery.md#delivery-scope 납품 공간 목록과 뷰어 약속은 spaces와 viewer가 맡고 모델 원형의 사물 종류는 35-objects와 30-interiors의 개별 정체성에서 받는다.
+@evidenceExcludeReview settings/00-delivery.md#delivery-scope #142c909 방 납품과 물체 원형의 소유자를 00-delivery와 각 사물 설정에 대조했다.
 @evidence principles/core/common.md#scope-preservation 높은 제실 등잔대와 별개인 이동식 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 높은 제실 등잔대와 구분한 소형 발·줄기·접시 및 네 공간 사용을 확인했다.
 @evidence principles/core/common.md#substantive-completion 발·줄기·오목한 접시의 범위와 연결 높이, 16분할 원형 면을 정한다.
@@ -454,6 +458,8 @@ part와 표면은 `shaft`, `tip`이다. 검토 판에서 접합부에 틈이 없
 ## 글자 없는 필기판 {#writing-tablet}
 
 <!--
+@evidenceExclude settings/00-delivery.md#working-language 작업 언어는 형상 치수나 UV0 입력이 아니며 이 계정의 production-language H2가 모델 population의 한국어 표기를 맡는다.
+@evidenceExcludeReview settings/00-delivery.md#working-language #ba75eb7 한국어 표기 의무의 실제 계정과 원형의 숫자·part 식별자 소유를 확인했다.
 @evidence principles/core/common.md#scope-preservation 글자 없는 작성 판의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 글자 없는 틀과 낮은 중앙 쓰기 면을 읽어 빈 구멍이나 비문으로 바꾸지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 바깥 판·안쪽 면의 두께와 단차를 정해 상판 위에 놓을 수 있는 형상으로 닫는다.

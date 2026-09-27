@@ -8,6 +8,20 @@ import { gablePlanes, roofVerticalThickness, type RoofRules } from "../../geomet
 import { templePlan as p } from "../building";
 
 /**
+ * @evidence spaces/roofs/sanctuary.md This one coordinate is the high-side support of the sanctuary roof, shared with the timber models.
+ * @evidence spaces/roofs/sanctuary.md#sanctuary-roof The high-side support is the midpoint of the two east sanctuary wall faces; roof and model members consume this single datum.
+ * @evidence principles/core/source-units.md#source-scope-preservation This value supplies one roof contact coordinate, with no patch, wall, or model geometry of its own.
+ * @evidence principles/core/source-units.md#source-substantive-completion The numeric midpoint is available to the sanctuary roof and both dependent timber builders as one constant.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed wall faces and their midpoint already define the 5.75 m support; sharing it exposes no missing parent decision.
+ * @evidenceReview spaces/roofs/sanctuary.md #45d5623 # 제실 박공의 높은 쪽 지지선 값만 이 상수가 맡고 패치 형상은 아래 함수가 맡는지 확인했다.
+ * @evidenceReview spaces/roofs/sanctuary.md#sanctuary-roof #74ec06b # 제실 동측 벽의 두 면 중심이 상면의 5.75m 지지선이며 서까래와 트러스도 같은 값에서 접촉 위치를 받는지 확인했다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 # 한 숫자 datum만 공개하고 지붕 면이나 목재 형상을 여기서 만들지 않는지 확인했다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f # 박공과 두 목재 builder가 같은 5.75m 상수를 소비해 중복 유도식을 두지 않는지 확인했다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 # 동쪽 벽 양면 중심을 이미 판정한 부모 좌표에 대조했고 새 지지선 선택이 필요하지 않았다.
+ */
+export const templeSanctuarySupportHigh = (p.eastRoom + p.eastRing) / 2;
+
+/**
  * @evidence spaces/roofs/sanctuary.md 후면 제실 박공 후보 조각을 낸다.
  * @evidence spaces/roofs/sanctuary.md#sanctuary-roof 지지 5.35m, 22도, 네 끝 0.35m 처마로 용마루 약 7.67m의 박공을 만들고 처마는 아래 날개 지붕과 마당 위에 떠 있다.
  * @evidence principles/core/source-units.md#source-scope-preservation 날개 지붕과 합성하지 않는 별도 단위로 두며 아래 지붕을 지우지 않는다.
@@ -25,7 +39,7 @@ export const templeSanctuaryRoof = (rules: RoofRules) => gablePlanes({
     west: p.westRoom - rules.overhang, east: p.eastRoom + rules.overhang,
     north: p.northOuter - rules.overhang, south: p.northRing + rules.overhang,
   })],
-  supportLow: (p.westRoom + p.westRing) / 2, supportHigh: (p.eastRoom + p.eastRing) / 2,
+  supportLow: (p.westRoom + p.westRing) / 2, supportHigh: templeSanctuarySupportHigh,
   height: rules.sanctuarySupport, slope: rules.gableSlope,
   thickness: roofVerticalThickness(rules, rules.gableSlope),
 });

@@ -3,6 +3,10 @@
 ## 석재 문틀 {#door-frame}
 
 <!--
+@evidenceExclude settings/00-delivery.md#accessibility 한국어 UI와 키보드 조작은 viewer의 산출물이며 49개 원형의 점유·관절·UV0 중 어느 것도 그 조작을 형상 입력으로 쓰지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#accessibility #e5000b9 원형의 구성 검토와 viewer 조작·문자 접근성의 서로 다른 산출물을 대조했다.
+@evidenceExclude settings/10-building.md#fixed-graph 방 순서·문 연결·주랑 루프는 spaces의 설계이고 원형은 판정된 room volume과 문 치수만 받아 건물 그래프를 다시 만들지 않는다.
+@evidenceExcludeReview settings/10-building.md#fixed-graph #afadc4e 모델 원형의 입력이 공간 그래프 자체가 아닌 각 공간의 순치수와 문 표인지 확인했다.
 @evidence principles/core/common.md#scope-preservation 여덟 문의 벽 두께 안 안감 세 조각과 양면 테를 치수·변형·접촉·통과 영역까지 정하고 문턱 바닥은 방 소유로 남긴다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 여덟 문의 안감·양면 테와 빈 통과부를 읽고 문턱 바닥은 방에 남겨 중복하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 문설주 0.06m·상인방·벽 두께 깊이의 안감과 양면 테의 모서리 겹침을 정해 source가 테의 닫힘 방식을 고르지 않는다.
@@ -56,7 +60,7 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 정문·제실 두 치수의 양개 짝과 목재 판·철물·관절을 읽어 문짝 외의 문틀을 만들지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 선대·가로대·판 두께와 바닥 띄움, 손잡이 X·양면 Z·Y=1.104m 핀, 반지름 0.06m의 받침판 둘레 16분할·첫 꼭짓점 +X, 연결 핀 둘레 12분할, 원환 16×8분할과 경첩 12분할을 함께 정해 철물 접점을 고정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 손잡이 받침판 16각, 두 핀 Y=1.104m, 고리 16×8각과 경첩 12각의 접촉 좌표를 대조했다.
-@evidence principles/core/common.md#declared-basis 변형 치수는 openings.md#doors의 door-entry 1.8×2.5m·door-sanctuary 1.4×2.5m, 열림 판정 1.4m는 10-building#use-profile, 관절은 scale.md#articulation-map에서 온다고 밝힌다.
+@evidence principles/core/common.md#declared-basis 변형 치수는 openings.md#doors의 door-entry 1.8×2.5m·door-sanctuary 1.4×2.5m, 열림 판정 1.4m는 10-building#use-profile, 관절은 ../contracts/obligations-models.md#temple-articulation-map에서 온다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb door-entry/door-sanctuary 크기, 정문 1.4m 통과, articulation-map이 치수·통과·회전의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 어두운 목재 양개문이라는 설정을 테두리 판문 구조와 짝마다 hinge node를 가진 모델 결정으로 바꾼다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 어두운 양개문 약속을 선대·두 판과 각 짝 hinge node로 구체화했는지 확인했다.
@@ -90,18 +94,20 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 부재 대응: `frame`=선대; `panel`=판; `plate`=받침판; `pin`=연결 핀; `ring`=고리; `hinge`=경첩.
 
-관절 인터페이스는 [공통 관절 규칙](scale.md#articulation-map)의 `hinge.<짝 ID>`이며 범위 0°~90°, 기본 `open` 90°, 여는 방향은 spaces의 스윙 예약이다. 손잡이·경첩은 짝 node의 자식이다. part와 표면은 `frame`(선대·가로대), `panel`, `plate`, `pin`, `ring`, `hinge`로 나눠 목재와 금속의 각 표면을 구별한다.
+관절 인터페이스는 [공통 관절 규칙](../contracts/obligations-models.md#temple-articulation-map)의 `hinge.<짝 ID>`이며 범위 0°~90°, 기본 `open` 90°, 여는 방향은 spaces의 스윙 예약이다. 손잡이·경첩은 짝 node의 자식이다. part와 표면은 `frame`(선대·가로대), `panel`, `plate`, `pin`, `ring`, `hinge`로 나눠 목재와 금속의 각 표면을 구별한다.
 
 검토 판에서 닫힘·열림 두 상태의 정면·평면을 보고 판의 들어간 면과 테두리, 손잡이와 경첩이 분리돼 읽히는지 확인한다. 건물 관찰에서는 열린 짝이 벽에 닿기 전 90°에 멈추고 정문 유효폭 1.4m 이상을 남기는지 본다. 판 하나로 된 문, 문틀보다 큰 짝, 열림 상태에서 벽이나 기둥을 뚫는 짝은 실패다.
 
 ## 외개 목재 문짝 {#single-door-leaf}
 
 <!--
+@evidenceExclude settings/50-production.md#execution-authority 작업과 실행 권한은 저작 행위의 규칙이고 문짝 hinge 및 다른 원형의 형상 인터페이스를 고르는 근거가 아니다.
+@evidenceExcludeReview settings/50-production.md#execution-authority #cf13b03 실행 권한의 주체와 모델의 관절·기하 결정 주체를 구분했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실·세 업무방·마당 두 문의 외개 판문을 세 치수 변형으로 정하고 가로 띠·쇠 띠 경첩·이음 홈·손잡이·관절·표면까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실·업무방·마당 여섯 문의 세 크기와 한 면 띠·반대면 홈·철물·회전을 읽었다.
 @evidence principles/core/common.md#substantive-completion 가로 띠·쇠 띠·같은 너비의 널 다섯 장과 이음 홈 X=jw/5, 쇠 띠의 X 시작·Y 중심·앞면 Z에 손잡이 위치, 양면 연결 핀 둘레 12분할과 원환 16×8분할을 더해 source가 철물 접점을 새로 고르지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 널 다섯 장 이음 X=jw/5, 두 가로 띠·쇠 띠 좌표, 앞뒤 핀과 고리의 접점을 대조했다.
-@evidence principles/core/common.md#declared-basis 변형 치수와 여는 방향은 openings.md#doors의 여섯 문과 스윙, 열린 폭 0.9m 판정은 10-building#use-profile, 관절 규칙은 scale.md#articulation-map에서 온다고 밝힌다.
+@evidence principles/core/common.md#declared-basis 변형 치수와 여는 방향은 openings.md#doors의 여섯 문과 스윙, 열린 폭 0.9m 판정은 10-building#use-profile, 관절 규칙은 ../contracts/obligations-models.md#temple-articulation-map에서 온다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 여섯 문 표·스윙, 방 문 0.9m 통과와 공통 관절 규칙이 치수·방향·범위의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스·업무 문의 단순한 판문이라는 설정을 한 면에만 띠와 쇠 띠가 있는 비대칭 판과 hinge node라는 모델 결정으로 바꾼다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 단순 판문 설정에 비대칭 두 면과 한 hinge node를 더한 모델 결정을 확인했다.
@@ -146,6 +152,8 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 ## 채광구 석재 틀 {#window-frame}
 
 <!--
+@evidenceExclude spaces/observations.md#viewer-path viewer-path는 건물 source의 실제 표시 경로이고 중립 원형 검토 판은 별도 장면이라 그 모드·절개를 형상 기준으로 쓰지 않는다.
+@evidenceExcludeReview spaces/observations.md#viewer-path #037f6c0 건물 viewer와 모델 판의 장면·관찰 주소를 구분했다.
 @evidence principles/core/common.md#scope-preservation 제실 채광구의 깊은 석재 안감과 바깥 테를 두 벽 두께 변형으로 정하고 유리·창살·덧문이 없음을 밝힌다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 제실 여덟 채광구의 두 벽 두께 변형과 바깥 테·실내 reveal을 읽어 유리·창살을 추가하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 안감 폭 0.06m와 벽 두께 깊이, 외부 면 테 0.10m·돌출 0.03m, 점유 상자 0.72×0.72×(벽 두께+0.03)m가 있어 source가 창틀을 다시 고르지 않는다.

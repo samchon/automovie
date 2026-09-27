@@ -154,6 +154,55 @@ export class ObjectMesh {
     return this;
   }
 
+  /** A rigid cylinder with circumferential U and axial V. */
+  cylinder(name: string, from: Point, to: Point, radius: number,
+    segments = 16, seam: "x" | "projected-x" = "projected-x"): this {
+    const dx=to.x-from.x,dy=to.y-from.y,dz=to.z-from.z;
+    const length=Math.hypot(dx,dy,dz);
+    if(!(length>0&&radius>0&&segments>=3))
+      throw new Error(`${name}: 원통 입력 오류`);
+    const axis=point(dx/length,dy/length,dz/length);
+    if(seam==="x"&&!(dx>0&&Math.abs(dy)<1e-10&&Math.abs(dz)<1e-10))
+      throw new Error(`${name}: X축 원통은 +X로 놓아야 합니다.`);
+    const radial=seam==="x"?point(0,0,1):(()=>{
+      const projected=(seed:Point)=>{
+        const dot=seed.x*axis.x+seed.y*axis.y+seed.z*axis.z;
+        return point(seed.x-dot*axis.x,seed.y-dot*axis.y,seed.z-dot*axis.z);
+      };
+      const x=projected(point(1,0,0));
+      const vector=Math.hypot(x.x,x.y,x.z)>1e-10?x:projected(point(0,1,0));
+      const span=Math.hypot(vector.x,vector.y,vector.z);
+      return point(vector.x/span,vector.y/span,vector.z/span);
+    })();
+    const tangent=seam==="x"
+      ? point(radial.y*axis.z-radial.z*axis.y,
+        radial.z*axis.x-radial.x*axis.z,
+        radial.x*axis.y-radial.y*axis.x)
+      : point(axis.y*radial.z-axis.z*radial.y,
+        axis.z*radial.x-axis.x*radial.z,
+        axis.x*radial.y-axis.y*radial.x);
+    const ring=(center:Point):Point[]=>Array.from({length:segments},(_,i)=>{
+      const angle=2*Math.PI*i/segments;
+      return point(center.x+radius*(radial.x*Math.cos(angle)+tangent.x*Math.sin(angle)),
+        center.y+radius*(radial.y*Math.cos(angle)+tangent.y*Math.sin(angle)),
+        center.z+radius*(radial.z*Math.cos(angle)+tangent.z*Math.sin(angle)));
+    });
+    const a=ring(from),b=ring(to);
+    this.polygon(name,seam==="x"?a:[...a].reverse());
+    this.polygon(name,seam==="x"?[...b].reverse():b);
+    for(let i=0;i<segments;i++){
+      const next=(i+1)%segments;
+      const u0=radius*2*Math.PI*i/segments,u1=radius*2*Math.PI*(i+1)/segments;
+      if(seam==="x")
+        this.polygon(name,[a[i]!,b[i]!,b[next]!,a[next]!],
+          [[u0,0],[u0,length],[u1,length],[u1,0]]);
+      else
+        this.polygon(name,[a[i]!,a[next]!,b[next]!,b[i]!],
+          [[u0,0],[u1,0],[u1,length],[u0,length]]);
+    }
+    return this;
+  }
+
   loop(name: string, x: number, y: number, z: number, radius: number, thickness: number, plane: "xz" | "xy" | "yz" = "xz", segments = 16): this {
     const path = Array.from({ length: segments+1 }, (_, i) => {
       const angle = 2*Math.PI*i/segments;

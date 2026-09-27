@@ -3,6 +3,10 @@
 ## 둥근기와와 평기와 {#roof-tile}
 
 <!--
+@evidenceExclude settings/00-delivery.md#operator-access 궤도·확대·시점 선택은 건물 viewer 조작이고 모델 population의 판은 계약에 정한 여섯 방향과 접합 근접 시점을 사용한다.
+@evidenceExcludeReview settings/00-delivery.md#operator-access #e19a32a 건물 viewer의 사용자 조작과 중립 판의 고정 관찰 목록을 분리했다.
+@evidence settings/50-production.md#fidelity 평기와·둥근기와 H2는 겹침·빈 반원 단면을 읽히게 하지만 장마다 다른 풍화나 정확한 역사 기와 제작을 납품 범위로 약속하지 않는다.
+@evidenceReview settings/50-production.md#fidelity #bb89317 기와의 입체 겹침과 열화·개별 불규칙 제외가 blocking 표현 상한에 맞는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 평기와와 둥근기와 한 쌍을 한 단위로 삼아 치수·겹침·표면·빈 공간·배치 소유와 코핑과의 높이 관계까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 평기와 한 장과 이음 위 둥근기와의 폭·겹침·배치 책임을 본문 끝까지 대조해 지붕 표면을 무늬 판으로 축소하지 않았음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 평기와 0.40×0.52m의 0.08m 들린 겹침과 0.44m 피치, 이음 X=+0.20m에 중심을 둔 둥근기와 시작·끝 반지름 0.085/0.075m, 양쪽 0.10m 턱의 접촉 띠와 단위 점유 폭 0.485m를 함께 정한다.
@@ -54,6 +58,10 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 ## 용마루 기와 {#ridge-tile}
 
 <!--
+@evidenceExclude settings/00-delivery.md#review-condition 1600×1000·50° 카메라는 모델 population의 중립 검토 계약이 소유한다. 용마루 기와를 포함한 개별 원형 H2는 접합·실루엣 질문을 정하지만 공통 카메라 수치를 다시 결정하지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#review-condition #6daf6ae 용마루의 근접 질문과 공통 검토 계약의 카메라 숫자를 분리해 원형별 재정의가 없음을 확인했다.
+@evidenceExclude settings/50-production.md#gpu-observation GPU 캡처는 source 이후 실제 프레임의 관찰 경로이고 models의 원형 H2는 그 전 단계의 치수·시점 계획만 정한다.
+@evidenceExcludeReview settings/50-production.md#gpu-observation #b0ab4b5 모델 설계와 source 기반 GPU 캡처의 단계 경계를 확인했다.
 @evidence principles/core/common.md#scope-preservation 세 박공 용마루의 반원 덮개 단위를 치수·겹침·접촉·배치 소유와 동측 박공 남쪽 끝의 정지 규칙까지 정하고 골 기와를 만들지 않는 한계를 밝힌다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 세 용마루와 제외된 골선·외쪽 높은 끝, 코핑 전 정지까지 읽어 덮개가 쓰일 영역을 빠뜨리지 않았음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 뒤쪽 반지름 0.13m·앞쪽 코 0.15m, 0.45m 길이·12분할·0.40m 피치와 경사별 Y 기준식·발 절삭식 및 마지막 0.16m 평기와 받침을 정해 source가 접촉 높이를 다시 고르지 않는다.

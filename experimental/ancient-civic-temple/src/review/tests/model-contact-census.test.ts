@@ -11,20 +11,23 @@ void test("contact census includes the complete model file population", () => {
   assert.ok(claims.some((claim) => claim.sentence.includes("둥근기와")));
   assert.ok(claims.some((claim) => claim.id.startsWith("portable#")));
   assert.ok(claims.some((claim) => claim.id.startsWith("ritual#")));
+  assert.ok(claims.some((claim) => claim.id.startsWith("contracts/principles-models.md#temple-reference-scale:")));
+  assert.ok(claims.some((claim) => claim.id.startsWith("contracts/obligations-models.md#temple-model-review-board:")));
   assert.ok(modelContactClaims(true).some((claim) => claim.sentence.includes("문·창 자리는 막힌")));
 });
 
 void test("reviewed non-contact reasons cannot silently absorb a measured joint", () => {
   assert.deepEqual(nonContactDecisionRows(), [
-    "scale#reference-scale:1|non-contact: repetition design requirement",
-    "scale#reference-scale:2|non-contact: phase and datum design requirement",
-    "scale#reference-scale:3|non-contact: UV seam construction",
-    "scale#reference-scale:4|non-contact: tube cap and mitre construction",
-    "scale#model-review-board:1|non-contact: feature viewing requirement",
-    "scale#model-review-board:2|non-contact: state viewing requirement",
-    "scale#model-review-board:3|non-contact: review-board partial-cap interpretation",
-    "scale#model-review-board:4|non-contact: review-board floating-joint rejection criterion",
-    "scale#model-review-board:5|non-contact: review-board responsibility",
+    "contracts/principles-models.md#temple-reference-scale:1|non-contact: repetition design requirement",
+    "contracts/principles-models.md#temple-reference-scale:2|non-contact: phase and datum design requirement",
+    "contracts/principles-models.md#temple-reference-scale:3|non-contact: UV seam construction",
+    "contracts/principles-models.md#temple-reference-scale:4|non-contact: tube cap and mitre construction",
+    "contracts/obligations-models.md#temple-model-review-board:1|non-contact: review-board acceptance procedure",
+    "contracts/obligations-models.md#temple-model-review-board:2|non-contact: feature viewing requirement",
+    "contracts/obligations-models.md#temple-model-review-board:3|non-contact: state viewing requirement",
+    "contracts/obligations-models.md#temple-model-review-board:4|non-contact: review-board partial-cap interpretation",
+    "contracts/obligations-models.md#temple-model-review-board:5|non-contact: review-board floating-joint rejection criterion",
+    "contracts/obligations-models.md#temple-model-review-board:6|non-contact: review-board responsibility",
     "columns#colonnade-column:2|non-contact: instruction to consume the exact formula",
     "columns#colonnade-column:6|non-contact: stated failure condition, not a positive joint",
     "entablature#colonnade-beam:8|non-contact: future visual review question",
@@ -39,13 +42,13 @@ void test("reviewed non-contact reasons cannot silently absorb a measured joint"
     "wares#carry-jar:1|non-contact: reference observation",
     "wares#basket:1|non-contact: tessellation and closed-floor construction",
     "landscape#cypress:1|non-contact: review-distance silhouette criterion",
-    "scale#reference-scale:supplemental:1|non-contact: UV projection rule rather than an assembly claim",
-    "scale#reference-scale:supplemental:2|non-contact: UV projection for the support part rather than an assembly claim",
-    "scale#articulation-map:supplemental:1|non-contact: temporal behavior and ownership boundary",
-    "scale#model-review-board:supplemental:1|non-contact: review-board light setting",
-    "scale#model-review-board:supplemental:2|non-contact: repeatable close-view background",
-    "scale#model-review-board:supplemental:3|non-contact: review-board comparison criterion",
-    "scale#model-review-board:supplemental:4|non-contact: multiple-view interpretation rule for joint clearance",
+    "contracts/principles-models.md#temple-reference-scale:supplemental:1|non-contact: UV projection rule rather than an assembly claim",
+    "contracts/principles-models.md#temple-reference-scale:supplemental:2|non-contact: UV projection for the support part rather than an assembly claim",
+    "contracts/obligations-models.md#temple-articulation-map:supplemental:1|non-contact: temporal behavior and ownership boundary",
+    "contracts/obligations-models.md#temple-model-review-board:supplemental:1|non-contact: review-board light setting",
+    "contracts/obligations-models.md#temple-model-review-board:supplemental:2|non-contact: repeatable close-view background",
+    "contracts/obligations-models.md#temple-model-review-board:supplemental:3|non-contact: review-board comparison criterion",
+    "contracts/obligations-models.md#temple-model-review-board:supplemental:4|non-contact: multiple-view interpretation rule for joint clearance",
     "entablature#rafter:supplemental:1|non-contact: roof-support setback locates the exterior cut",
     "entablature#rafter:supplemental:3|non-contact: stated failure conditions",
     "entablature#sanctuary-truss:supplemental:4|non-contact: future visual review question",

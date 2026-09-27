@@ -21,6 +21,7 @@ export const handoffOtherOwners: Readonly<Record<string, readonly string[]>> = {
   "settings/00-delivery.md#accessibility": ["viewer"],
   "settings/00-delivery.md#operator-access": ["viewer"],
   "settings/00-delivery.md#working-language": ["settings"],
+  "settings/00-delivery.md#review-condition": ["contracts/obligations-models.md#temple-model-review-board"],
   "settings/00-delivery.md#coverage-map": ["settings"],
   "settings/00-delivery.md#operative-subjects": ["settings"],
   "settings/10-building.md#scale": ["spaces"],
@@ -29,6 +30,7 @@ export const handoffOtherOwners: Readonly<Record<string, readonly string[]>> = {
   "settings/50-production.md#acceptance": ["review"],
   "settings/50-production.md#runtime-boundary": ["viewer"],
   "settings/40-environment.md#distant-terrain": ["spaces/site.md#distant-ridge"],
+  "settings/40-environment.md#daylight": ["contracts/obligations-models.md#temple-model-review-board"],
   "settings/20-envelope.md#material-language": ["models/cladding.md#roof-tile"],
   "settings/30-interiors.md#administration": ["models/wares.md#scroll", "models/wares.md#small-vessel"],
   "settings/30-interiors.md#offering-room": ["models/wares.md#offering-bowl", "models/wares.md#small-vessel"],
@@ -67,13 +69,17 @@ export const modelHandoffRows = (
     throw new Error("handoff: vocabulary contains an empty or duplicate term");
   }
   const modelSections = models.flatMap(sections);
-  const modelKeys = new Set(modelSections.map((section) => `models/${section.key}`));
+  const ownerKey = (key: string) => key.startsWith("contracts/") ? key : `models/${key}`;
+  const modelKeys = new Set(modelSections.filter((section) => !section.key.startsWith("contracts/"))
+    .map((section) => ownerKey(section.key)));
+  const contractKeys = new Set(modelSections.filter((section) => section.key.startsWith("contracts/"))
+    .map((section) => ownerKey(section.key)));
   const reverse = new Map<string, Set<string>>();
   for (const section of modelSections) {
     for (const [, family, location] of section.source.matchAll(/@evidence (settings|spaces)\/([^\s]+)/g)) {
       const ref = `${family}/${location}`;
       const owners = reverse.get(ref) ?? new Set<string>();
-      owners.add(`models/${section.key}`);
+      owners.add(ownerKey(section.key));
       reverse.set(ref, owners);
     }
   }
@@ -84,6 +90,7 @@ export const modelHandoffRows = (
     for (const owner of extras) {
       if (owner === "models/*") continue;
       if (owner.startsWith("models/") && !modelKeys.has(owner)) throw new Error(`handoff: missing owner ${owner}`);
+      if (owner.startsWith("contracts/") && !contractKeys.has(owner)) throw new Error(`handoff: missing owner ${owner}`);
     }
     const expanded = extras.flatMap((owner) => owner === "models/*" ? [...modelKeys] : [owner]);
     return [{ parent: section.key, terms, owners: [...new Set([...(reverse.get(section.key) ?? []), ...expanded])].sort((a, b) => a.localeCompare(b)) }];
@@ -97,7 +104,7 @@ export const modelHandoffRows = (
 
 /** Object model units require their own settings identity and obey every declared size band. */
 const inheritedDesignFiles = new Set([
-  "scale.md", "columns.md", "entablature.md", "openings.md", "cladding.md",
+  "columns.md", "entablature.md", "openings.md", "cladding.md",
   "fixtures.md", "wares.md", "landscape.md",
 ]);
 const directlyOwnedObjectFiles = new Set(["portable.md", "ritual.md", "wares.md"]);

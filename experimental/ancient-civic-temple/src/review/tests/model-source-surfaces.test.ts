@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TempleColumns } from "../../models/columns";
+import { TempleCladding } from "../../models/cladding";
 import { TempleEntablature } from "../../models/entablature";
 import { TempleLandscape } from "../../models/landscape";
 import { TempleOpenings } from "../../models/openings";
@@ -192,8 +193,8 @@ void test("both faces of every door surround occupy the complete three-sided rin
     const top=door.height+door.frame;
     for(const z of [-t/2-0.03,t/2+0.03]){
       for(const side of [-1,1])
-        for(const fx of [0.1,0.5,0.9])
-          for(const fy of [0.1,0.5,0.9]){
+        for(const fx of [0.01,0.1,0.5,0.9,0.99])
+          for(const fy of [0.005,0.1,0.5,0.9,0.975,0.995]){
             const x=side*(inner+0.16*fx),y=top*fy;
             assert.ok(coverXY(mesh,x,y,z),`${door.id}: empty jamb at ${x},${y},${z}`);
           }
@@ -207,8 +208,54 @@ void test("both faces of every door surround occupy the complete three-sided rin
   }
 });
 
+void test("every lining spans its host wall depth and its specified jamb width",()=>{
+  const source=new TempleOpenings();
+  const bounds=(model:IAutoMovieModel)=>{
+    const positions=partMesh(model,"lining").positions;
+    const x:number[]=[],z:number[]=[];
+    for(let i=0;i<positions.length/3;i++){
+      x.push(positions[3*i]!);z.push(positions[3*i+2]!);
+    }
+    return {x,z};
+  };
+  for(const door of templeDoorPassages){
+    const {x,z}=bounds(source.doorFrame(door.id));
+    const half=door.width/2+door.frame;
+    close(Math.min(...x),-half);close(Math.max(...x),half);
+    close(Math.min(...z),-(door.wallHigh-door.wallLow)/2);
+    close(Math.max(...z),(door.wallHigh-door.wallLow)/2);
+  }
+  for(const host of templeClerestories()){
+    const thickness=(host.wallHigh-host.wallLow) as 0.30|0.60;
+    const {x,z}=bounds(source.windowFrame(thickness));
+    close(Math.min(...x),-host.clearWidth/2-host.frame);
+    close(Math.max(...x),host.clearWidth/2+host.frame);
+    close(Math.min(...z),-thickness/2);close(Math.max(...z),thickness/2);
+  }
+});
+
+void test("roof and ridge modules preserve their reviewed outer radii",()=>{
+  const source=new TempleCladding();
+  const imbrex=partMesh(source.roofTile(),"imbrex");
+  const roof=Array.from({length:imbrex.positions.length/3},(_,i)=>vertex(imbrex,i));
+  for(const [z,radius] of [[0.08,0.085],[0.52,0.075]] as const){
+    const crown=roof.filter((v)=>Math.abs(v.z-z)<1e-8&&Math.abs(v.x-0.20)<1e-8);
+    assert.ok(crown.length>0,`imbrex crown missing at ${z}`);
+    assert.ok(crown.some((v)=>Math.abs(v.y-0.04-radius)<1e-8));
+  }
+  for(const slope of [19,22] as const){
+    const ridge=partMesh(source.ridgeTile(slope),"ridge");
+    const points=Array.from({length:ridge.positions.length/3},(_,i)=>vertex(ridge,i));
+    const crown=(z:number,radius:number)=>points.some((v)=>
+      Math.abs(v.z-z)<1e-8&&Math.abs(v.x)<1e-8&&
+      Math.abs(v.y-(0.02/Math.cos(slope*Math.PI/180)-0.13*Math.tan(slope*Math.PI/180)+radius))<1e-8);
+    assert.ok(crown(0,0.15),`${slope}: front ridge crown`);
+    assert.ok(crown(0.45,0.13),`${slope}: rear ridge crown`);
+  }
+});
+
 void test("every door leaf member develops U along its measured long face axis",()=>{
-  const scale=readFileSync(join(__dirname,"../../../docs/models/scale.md"),"utf8");
+  const scale=readFileSync(join(__dirname,"../../../docs/contracts/principles-models.md"),"utf8");
   const row=scale.split(/\r?\n/u).find((line)=>
     line.startsWith("|")&&line.includes("`openings#double-door-leaf`"));
   assert.ok(row,"door leaf UV table row");
@@ -246,7 +293,7 @@ void test("every door leaf member develops U along its measured long face axis",
 });
 
 void test("the opening UV table's named parts all emit finite UV0 for every passage",()=>{
-  const scale=readFileSync(join(__dirname,"../../../docs/models/scale.md"),"utf8");
+  const scale=readFileSync(join(__dirname,"../../../docs/contracts/principles-models.md"),"utf8");
   const rows=scale.split(/\r?\n/u).filter((line)=>
     line.startsWith("|")&&line.includes("`openings#"));
   assert.equal(rows.length,2,"opening UV table rows");
@@ -279,7 +326,7 @@ void test("the opening UV table's named parts all emit finite UV0 for every pass
 });
 
 void test("every model UV table row reaches emitted prototype parts",()=>{
-  const scale=readFileSync(join(__dirname,"../../../docs/models/scale.md"),"utf8");
+  const scale=readFileSync(join(__dirname,"../../../docs/contracts/principles-models.md"),"utf8");
   const table=scale.split(/\r?\n/u).filter((line)=>
     line.startsWith("|")&&/`[a-z-]+#/u.test(line.split("|")[1]??""));
   const board=createModelBoardPayload().models;
@@ -354,6 +401,36 @@ void test("both pins of every door leaf follow face-facing rim and Z directions"
       close(a!.y,centerY);
       assert.ok(direction*(b!.y-a!.y)>0,
         `${door.id}: ${direction} pin U turns against its face`);
+    }
+  }
+});
+
+void test("both door rings remain centered on and intersect their fastening pins",()=>{
+  const source=new TempleOpenings();
+  const coordinates=(mesh:IAutoMovieMesh)=>Array.from(
+    {length:mesh.positions.length/3},(_,i)=>vertex(mesh,i));
+  for(const door of templeDoorPassages){
+    const paired=door.id==="door-entry"||door.id==="door-sanctuary";
+    const model=paired?source.doubleLeaf(door.id as "door-entry"|"door-sanctuary"):
+      source.singleLeaf(door.id as "door-offering");
+    const ring=coordinates(partMesh(model,"ring"));
+    const pin=coordinates(partMesh(model,"pin"));
+    for(const side of [-1,1]){
+      const r=ring.filter((v)=>Math.sign(v.z)===side);
+      const p=pin.filter((v)=>side>0?v.z>=0:v.z<0);
+      assert.ok(r.length>0&&p.length>0,`${door.id}: missing ring/pin face ${side}`);
+      const extent=(values:number[])=>[Math.min(...values),Math.max(...values)] as const;
+      const [rx0,rx1]=extent(r.map((v)=>v.x));
+      const [px0,px1]=extent(p.map((v)=>v.x));
+      const [ry0,ry1]=extent(r.map((v)=>v.y));
+      const [py0,py1]=extent(p.map((v)=>v.y));
+      const [rz0,rz1]=extent(r.map((v)=>v.z));
+      const [pz0,pz1]=extent(p.map((v)=>v.z));
+      close((rx0+rx1)/2,(px0+px1)/2);
+      const torusMajor=paired?0.054:0.045;
+      close((py0+py1)/2,(ry0+ry1)/2+torusMajor);
+      assert.ok(Math.min(rz1,pz1)-Math.max(rz0,pz0)>0.001,
+        `${door.id}: ring and pin do not overlap through ${side} face`);
     }
   }
 });

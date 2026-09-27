@@ -182,7 +182,7 @@ console.log(`models account table mismatches: ${modelMismatches.length}`);
 for (const row of modelMismatches) console.log(`  stale: ${row}`);
 console.log(`model source-input index: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} sections, ${modelInputs.length} part rows; ${parameterAuditMismatches.length} stale, missing or duplicate`);
 for (const row of parameterAuditMismatches) console.log(`  parameter audit: ${row}`);
-console.log(`model construction noun/part census: ${modelDocuments.filter((document) => document.path !== "scale.md").reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} geometry H2; ${partNounMismatches.length} missing nouns or part owners`);
+console.log(`model construction noun/part census: ${modelDocuments.reduce((sum, document) => sum + [...document.source.matchAll(/^## /gm)].length, 0)} geometry H2; ${partNounMismatches.length} missing nouns or part owners`);
 for (const row of partNounMismatches) console.log(`  part owner: ${row}`);
 let arithmeticFailures = 0;
 try {
@@ -227,8 +227,11 @@ const handoffParents = [...walk(join(docs, "settings")), ...spaces].map((file) =
     path: relative(docs, file).split("\\").join("/"), source: readFileSync(file, "utf8"),
   }));
 const handoffModels = models.map((file) => ({ path: relative(join(docs, "models"), file).split("\\").join("/"), source: readFileSync(file, "utf8") }));
-const handoffs = modelHandoffRows(handoffParents, handoffModels, vocabulary);
-const reverseOnly = modelHandoffRows(handoffParents, handoffModels, vocabulary, {});
+const modelContracts = ["principles-models.md", "obligations-models.md"].map((name) => ({
+  path: `contracts/${name}`, source: readFileSync(join(docs, "contracts", name), "utf8"),
+}));
+const handoffs = modelHandoffRows(handoffParents, [...handoffModels, ...modelContracts], vocabulary);
+const reverseOnly = modelHandoffRows(handoffParents, [...handoffModels, ...modelContracts], vocabulary, {});
 const ownerless = handoffs.filter((row) => row.owners.length === 0);
 const identityFailures = modelIdentityOwnerFailures(handoffParents.find((row) => row.path === "settings/35-objects.md")!, handoffModels);
 console.log(`model handoff reverse audit: ${vocabulary.length} vocabulary terms, ${handoffs.length} parent H2 rows, ${ownerless.length} ownerless`);

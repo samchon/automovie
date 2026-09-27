@@ -103,6 +103,8 @@ part와 표면은 `step`, `top`, `support`다. 상판 윗면은 [얕은 봉헌 �
 ## 무문양 감실 {#niche}
 
 <!--
+@evidenceExclude spaces/ownership.md#surface-map 표면 소유 지도는 spaces의 벽·바닥·지붕 실체를 나누고 모델의 part 표면 ID는 각 원형 H2가 독립 물체 안에서 정한다.
+@evidenceExcludeReview spaces/ownership.md#surface-map #87dc34b 건물 외피 표면과 독립 기둥·문틀·가구 part의 서로 다른 owner를 대조했다.
 @evidence principles/core/common.md#scope-preservation 제단 뒤의 무문양 감실을 받침·몸체·오목한 칸·머리판과 벽에 붙는 자립 조건까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 받침·몸체·오목 칸·머리판과 북벽에 붙는 자립 방식을 읽어 감실을 벽 구멍으로 바꾸지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 받침 1.20×0.40×0.60m, 몸체 1.10×0.36×1.20m, 칸 0.60×0.80×0.22m와 열림 높이, 머리판 치수가 있어 source가 감실을 다시 고르지 않는다.
@@ -236,6 +238,8 @@ part와 표면은 `top`, `trestle`이다. 상판 윗면은 instances가 그릇·
 ## 봉헌실 진열대와 관리실 벽 선반 {#display-shelf}
 
 <!--
+@evidenceExclude spaces/building.md#containment 공간 부모 위계는 spaces identity이며 prototype에는 부모 방이 없고 배치된 요소의 부모는 instances가 정한다.
+@evidenceExcludeReview spaces/building.md#containment #43621e3 원형 ID와 실제 배치 element의 공간 부모를 구분했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실 진열대와 관리실 벽 선반을 한 가족의 두 변형으로 치수·선반 높이·벽 이격까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실·관리실 두 변형의 판 수와 크기·벽 이격을 읽어 한 가족 안에서 역할을 구별했는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 진열대 1.60×0.40×1.40m와 선반 네 높이, 관리실 변형 1.00×0.30×1.20m와 두 칸, 측판·판 두께, 벽에서 0.02m 이격이 있어 source가 선반을 다시 고르지 않는다.
@@ -416,6 +420,8 @@ part와 표면은 `frame`, `board`, `divider`다. 스무 칸의 빈 공간과 �
 ## 보관 궤 {#chest}
 
 <!--
+@evidence settings/20-envelope.md#material-language 궤 H2는 body·lid·metal hardware의 안정된 part를 구별하고 UV0는 공통 원칙에 따르며 색·거칠기·비트맵 결속은 materials에 넘긴다.
+@evidenceReview settings/20-envelope.md#material-language #25e6ffa 궤의 목재와 금속 part 분리, 공통 UV 원칙, 후속 materials 결속 경계를 확인했다.
 @evidence principles/core/common.md#scope-preservation 보관 궤를 몸체·분리된 뚜껑·이음 선·걸쇠·경첩 띠·모서리 띠까지 닫힌 고정 상태로 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 닫힌 고정 궤의 몸체·뚜껑·걸쇠·금속 띠와 실제 이음 틈을 모두 읽었다.
 @evidence principles/core/common.md#substantive-completion 몸체·뚜껑·0.005m 이격, 몸체와 뚜껑 앞면을 잇는 걸쇠의 세 접촉 구간, 경첩 띠 X=±0.27m의 꺾인 접촉 경로와 네 모서리 L단면 띠를 확정해 source가 궤 철물 접점을 다시 고르지 않는다.

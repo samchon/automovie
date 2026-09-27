@@ -9,15 +9,12 @@ import { modelParts } from "../model-occupancy-union.mjs";
 const modelRoot = join(__dirname, "../../../docs/models");
 const documents = readdirSync(modelRoot).filter((file) => file.endsWith(".md"))
   .map((path) => ({ path, source: readFileSync(join(modelRoot, path), "utf8") }));
-const scale = documents.find(
-  (document) => document.path === "scale.md",
-)!.source;
+const scale = readFileSync(join(__dirname, "../../../docs/contracts/principles-models.md"), "utf8");
 const material = readFileSync(join(__dirname, "../../../docs/materials/10-model-bindings.md"), "utf8");
 
 void test("surface grammar covers every authored prototype and every part", () => {
   const result = modelSurfaceBindingCensus(documents, material, scale);
-  const sections = documents.filter((document) => document.path !== "scale.md")
-    .flatMap((document) => modelSections(document.source));
+  const sections = documents.flatMap((document) => modelSections(document.source));
   const bindingTable = material.split("| 모델 H2 | part 표면 | 결속 키 |")[1]?.split(/\n\s*\n/)[0] ?? "";
   assert.equal(result.prototypes, sections.length);
   assert.equal(result.parts, sections.reduce((count, section) => count + modelParts(section.body).length, 0));

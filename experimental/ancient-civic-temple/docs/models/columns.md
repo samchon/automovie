@@ -3,6 +3,10 @@
 ## 주랑 원주 {#colonnade-column}
 
 <!--
+@evidence settings/00-delivery.md#build-scope 주랑 원형 H2는 plinth·shaft·capital의 형상을 정하고 실제 주랑의 반복 수와 위치는 instances에 넘겨 제작 분담의 prototype 경계를 지킨다.
+@evidenceReview settings/00-delivery.md#build-scope #8d597f9 원주 부재와 주랑 반복 배치의 서로 다른 owner를 이 H2와 00-delivery의 제작 분담표에서 확인했다.
+@evidenceExclude settings/10-building.md#scale 410~450㎡ 외곽과 장단변비는 spaces footprint가 소비하고 원형은 보행 포락과 방·지붕의 판정된 순치수로 각자 크기를 정한다.
+@evidenceExcludeReview settings/10-building.md#scale #4d1f683 건물 면적과 원형 점유 상자의 서로 다른 척도를 모델 H2와 spaces footprint에서 확인했다.
 @evidence principles/core/common.md#scope-preservation 연속 주랑의 원형 석주 하나를 여섯 부재(기단·받침·몸통·목 띠·받침머리·주두 판)와 높이·점유 상자·part·접촉면까지 온전히 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 여섯 단 부재와 보 접촉, 폭·높이를 한 기둥에 남겨 주랑 원주의 필요한 면을 빠뜨리지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 부재별 치수, 경사별 보 윗면 접선 식에서 유도한 두 전체 높이 h=2.622862867/2.618208538m와 몸통 높이 h−0.38m, 24분할·법선·모서리 12°와 동측 중간 19° 배치 기준이 있어 source가 기둥 형상을 다시 고르지 않는다.
@@ -48,6 +52,8 @@ part와 표면은 `plinth`, `base`, `shaft`, `capital`(목 띠·받침머리·�
 ## 포치 원주 {#porch-column}
 
 <!--
+@evidence settings/00-delivery.md#coordinates 포치 원주의 기단 바닥 Y=0, 중심 Z=10.00m와 높이 치수는 오른손 Y-up의 미터 좌표로 해석한다.
+@evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 포치 기단 원점·Z 중심·Y 높이를 settings의 축과 단위 규약에 대조했다.
 @evidence principles/core/common.md#scope-preservation 정면 포치의 두 원형 기둥을 여섯 부재 치수, 전체 높이 3.20m, 두 번 배치되는 위치 출처까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두 번 쓰는 포치 원주가 여섯 단 크기, 3.20m 높이, 위치 출처를 모두 가지는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 부재별 반지름·높이와 주두 판 0.46m, 점유 상자 0.50×3.20×0.50m가 있어 source가 기둥 크기를 다시 고르지 않는다.

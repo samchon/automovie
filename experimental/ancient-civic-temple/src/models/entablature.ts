@@ -15,6 +15,7 @@ import {
 } from "../geometry/model-source-shapes";
 import { templePlan as plan } from "../spaces/building";
 import { templeRoofRules } from "../spaces/roofs/assembly";
+import { templeSanctuarySupportHigh } from "../spaces/roofs/sanctuary";
 import { colonnadeBeamTop } from "../geometry/model-roof-datums";
 
 const p = (x: number, y: number, z: number) => ({ x, y, z });
@@ -77,7 +78,7 @@ export class TempleEntablature {
   /**
    * A plumb-cut rafter; colonnade lengths come from the selected roof piece.
    * @evidence models/entablature.md#rafter The 0.08 by 0.12 m YZ section extends its upper eave corner by 0.12tan(slope), with occupancy L/cos(slope)+that shear.
-   * @evidence principles/core/source-units.md#source-scope-preservation Only a positive reviewed span and named variant yield a timber mesh; this method does not choose roof-piece repetition or a wall placement.
+   * @evidence principles/core/source-units.md#source-scope-preservation Only a positive horizontalLength and named variant yield a timber mesh; this method does not choose roof-piece repetition or a wall placement.
    * @evidence principles/core/source-units.md#source-substantive-completion Its two input guards refuse absent lengths and IDs, and the four-point extrusion returns the full plumb-cut positions, faces and UVs.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The rafter H2 fixes section, local origin, uphill axis, plumb cut and slope family; the extrusion tests those decisions without requiring a new end shape.
    */
@@ -112,15 +113,14 @@ export class TempleEntablature {
    * @evidence models/entablature.md#rafter The support midpoint plus roof overhang sets the 6.10 m outer cut inside the 6.25 m roof edge, and the east-ring face starts the separate 5.60 m inner member.
    * @evidence principles/core/source-units.md#source-scope-preservation It supplies only the H2's sanctuary tail and interior variant IDs to rafter, leaving the 0.30 m wall volume without an emitted timber span.
    * @evidence principles/core/source-units.md#source-substantive-completion Both returned prototypes have their own deterministic span, section, closed end faces and stable ID rather than one beam through the wall.
-   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The corrected rafter H2 places the cut 0.15 m inside the roof edge and names both wall faces; plan and roof rules yield those same two lengths without another parent repair.
-   * @evidence obligations/design/model-sources.md#deterministic-build The tail length is computed once from plan support, wall face and the shared roof overhang; neither output uses a camera, clock or random input.
+   * @evidence upstream/design/model-sources.md#design-revision-from-model-source-work Authoring this sanctuary rafter exposed that the former rafter H2 measured its tail from the support instead of the reviewed 6.25 m eave; the repaired H2 now locates the cut 0.15 m inside that eave, and this builder derives it from the space-owned support, plan wall face and roof rules.
+   * @evidence obligations/design/model-sources.md#deterministic-build The tail length consumes the space-owned support, plan wall face and shared roof overhang; neither output uses a camera, clock or random input.
    */
   sanctuaryRafters(): readonly IAutoMovieModel[] {
     const inner = plan.eastRing;
     // Match the roof-support setback inside the wall-based eave: the cut at
     // support + overhang stays inside the roof edge at wall + overhang.
-    const support = (plan.eastRoom + plan.eastRing) / 2;
-    const rafterTail = support + templeRoofRules.overhang - plan.eastRoom;
+    const rafterTail = templeSanctuarySupportHigh + templeRoofRules.overhang - plan.eastRoom;
     return [
       this.rafter(22, rafterTail, "sanctuary-tail"),
       this.rafter(22, inner, "sanctuary-interior"),
@@ -163,13 +163,13 @@ export class TempleEntablature {
   /**
    * Four named part families retain the roof and wall contact planes.
    * @evidence models/entablature.md#sanctuary-truss The tie spans the ±5.60 m inner faces, each principal is clipped above the 5.14 m tie, and the king-post and two struts end on those principal undersides.
-   * @evidence principles/core/source-units.md#source-scope-preservation Roof support, slope and thickness come from shared rules; the emitted tie-beam, principal, king-post and strut are exactly the H2's four parts.
+   * @evidence principles/core/source-units.md#source-scope-preservation Roof support, slope and thickness come from the space-owned support and shared rules; the emitted tie-beam, principal, king-post and strut are exactly the H2's four parts.
    * @evidence principles/core/source-units.md#source-substantive-completion Explicit clipped polygons and boxes produce all four meshes, including V-cut king-post head and strut-end contacts.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The sanctuary-truss H2 fixes its underside equation, flat tie clipping, V head and two strut endpoints; emitting those cuts required no extra joint decision.
    */
   sanctuaryTruss(): IAutoMovieModel {
     const angle=templeRoofRules.gableSlope;
-    const support=(plan.eastRoom+plan.eastRing)/2;
+    const support=templeSanctuarySupportHigh;
     const tieBottom=4.86,tieDepth=0.28,tieTop=tieBottom+tieDepth;
     const principalDepth=0.20,outerHalf=plan.eastRing;
     const top=(x:number)=>templeRoofRules.sanctuarySupport
@@ -279,16 +279,17 @@ export class TempleEntablature {
   }
 
   /**
-   * The four rooms share one 4.00 m joist; repetition belongs to instances.
-   * @evidence models/entablature.md#ceiling-joist The timber box spans X −2 to +2 m from the underside-center origin and rises 0.18 m with a 0.12 m Z width.
+   * The four rooms share one joist span; repetition belongs to instances.
+   * @evidence models/entablature.md#ceiling-joist The timber box takes its X span from the east inner and room plan lines (−2 to +2 m) and rises 0.18 m with a 0.12 m Z width.
    * @evidence principles/core/source-units.md#source-scope-preservation This method emits one room-joist prototype; room counts and the H2's suggested 0.60 m spacing are deferred to instances.
    * @evidence principles/core/source-units.md#source-substantive-completion The single timber mesh has both end planes and the upper boarding-contact plane, with a stable joist.room ID.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The ceiling-joist H2 provides the 4.00 by 0.18 by 0.12 m bounds and local origin, so a box completes the reviewed fixed proxy.
    */
   ceilingJoist(): IAutoMovieModel {
     const b=new ObjectMesh();
-    modelBox(b, "timber", p(-2, 0, -0.06), p(2, 0.18, 0.06), {
-      origin:p(-2, 0, 0),
+    const halfSpan=(plan.eastInner-plan.eastRoom)/2;
+    modelBox(b, "timber", p(-halfSpan, 0, -0.06), p(halfSpan, 0.18, 0.06), {
+      origin:p(-halfSpan, 0, 0),
       direction:p(1, 0, 0),
     });
     return reviewedModel("joist.room", "방 천장 보", [

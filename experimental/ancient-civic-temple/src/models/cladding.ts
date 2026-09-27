@@ -1,6 +1,7 @@
 /**
  * Reviewed roof modules from docs/models/cladding.md. Each prototype stays in
- * its roof-local metre frame: X across slope, +Z uphill, +Y normal. Instances
+ * its roof-local metre frame. roofTile uses +Z uphill and +Y roof normal;
+ * ridgeTile uses +Z along the ridge and +Y vertically. Instances
  * own pitches, clipping to roof pieces, coping clearance and placements.
  * Changes invalidate tile contact checks and every roof-module board view.
  */
@@ -16,7 +17,7 @@ const p=(x:number,y:number,z:number)=>({ x,y,z });
 
 /**
  * Two named tile surfaces preserve the actual overlaps and empty semicircle.
- * @evidence models/cladding.md The class exposes separate roof-pitch and ridge-pitch builders, each with a local uphill Z axis and stable tile part identity.
+ * @evidence models/cladding.md The roofTile builder uses +Z uphill and +Y roof normal, while ridgeTile uses +Z along the ridge and +Y vertically; both keep stable tile part identities.
  * @evidence principles/core/source-units.md#source-scope-preservation The two methods make only the reviewed roof and ridge modules; roof-piece clipping, pitch placement and coping clearance stay with instances.
  * @evidence principles/core/source-units.md#source-substantive-completion roofTile returns tegula and imbrex meshes, while ridgeTile returns a one-part raised shell for each selected gable slope.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work Both cladding H2s specify overlap pitches, radii, foot contacts and local axes; the emitted modules use those inputs without requiring a newly chosen tile silhouette.

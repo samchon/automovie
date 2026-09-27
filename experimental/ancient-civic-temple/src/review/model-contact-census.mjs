@@ -12,7 +12,12 @@ import { partOverlapRows } from "./model-part-overlap.mjs";
 // The prose is the population. A new contact sentence cannot disappear behind
 // a hand-maintained count: it needs its own entry and a named measured relation.
 const modelRoot = new URL("../../docs/models/", import.meta.url);
-const files = ["scale", "columns", "entablature", "openings", "cladding", "fixtures", "wares", "landscape", "portable", "ritual"];
+const files = ["contracts/principles-models.md", "contracts/obligations-models.md",
+  "columns", "entablature", "openings", "cladding", "fixtures", "wares", "landscape", "portable", "ritual"];
+/** @param {string} file */
+const modelDocument = (file) => file.startsWith("contracts/")
+  ? readFileSync(new URL(`../../docs/${file}`, import.meta.url), "utf8")
+  : readFileSync(new URL(file + ".md", modelRoot), "utf8");
 const contactWord = /닿|접한|접하|접촉|맞닿|얹|붙|받친|받치|겹쳐|겹친|잇는다|이어진다|이어지|만난|만나/;
 const supplementalWord = /지지|연결|관통|침범|뚫|고정|중복/;
 /** @typedef {{id: string, sentence: string}} Claim */
@@ -21,11 +26,14 @@ export const modelContactClaims = (supplemental = false) => {
   /** @type {Claim[]} */
   const claims = [];
   for (const file of files) {
-    const source = readFileSync(new URL(file + ".md", modelRoot), "utf8").replace(/\r\n/g, "\n");
+    const source = modelDocument(file).replace(/\r\n/g, "\n");
     for (const section of source.split(/^## /m).slice(1)) {
       const anchor = section.match(/\{#([^}]+)\}/)?.[1];
       assert.ok(anchor, `missing H2 anchor in ${file}`);
-      const body = section.replace(/<!--[\s\S]*?-->/g, "").replace(/^부재 대응: [^\n]*$/gm, "").split("\n").slice(1).join(" ");
+      const body = section.replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/^부재 대응: [^\n]*$/gm, "")
+        .replace(/^(?:Review question:|Sources:)[^\n]*$/gm, "")
+        .split("\n").slice(1).join(" ");
       const sentences = body.split(/(?<=다\.)\s+/).filter((sentence) => supplemental
         ? supplementalWord.test(sentence) && !contactWord.test(sentence) : contactWord.test(sentence));
       sentences.forEach((sentence, index) => claims.push({ id: `${file}#${anchor}${supplemental ? ":supplemental" : ""}:${index + 1}`, sentence }));
@@ -39,13 +47,14 @@ export const modelContactClaims = (supplemental = false) => {
 // PASS labels have executable assertions on parsed source numbers, not counts.
 /** @type {Record<string, [string, string][]>} */
 const decisions = {
-  "scale#reference-scale": [
+  "contracts/principles-models.md#temple-reference-scale": [
     ["하나의 prototype 안에서", "non-contact: repetition design requirement"],
     ["원형 반복은", "non-contact: phase and datum design requirement"],
     ["시작 접선에", "non-contact: UV seam construction"],
     ["첫 끝 링은", "non-contact: tube cap and mitre construction"],
   ],
-  "scale#model-review-board": [
+  "contracts/obligations-models.md#temple-model-review-board": [
+    ["모델 population의 판정 계획은", "non-contact: review-board acceptance procedure"],
     ["각 모델 H2에서 이름 붙인", "non-contact: feature viewing requirement"],
     ["`closed`·`open` 문짝과", "non-contact: state viewing requirement"],
     ["운반 항아리·물동이·작은 용기를", "non-contact: review-board partial-cap interpretation"],
@@ -175,12 +184,12 @@ const decisions = {
     ["줄기·가지 덩어리", "non-contact: review-distance silhouette criterion"],
     ["줄기는 반지름", "cypress masses overlap trunk and neighbors"],
   ],
-  "scale#reference-scale:supplemental": [
+  "contracts/principles-models.md#temple-reference-scale:supplemental": [
     ["Z축 연결 핀은", "non-contact: UV projection rule rather than an assembly claim"],
     ["`portable#handcart`", "non-contact: UV projection for the support part rather than an assembly claim"],
   ],
-  "scale#articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
-  "scale#model-review-board:supplemental": [
+  "contracts/obligations-models.md#temple-articulation-map:supplemental": [["궤 뚜껑은", "non-contact: temporal behavior and ownership boundary"]],
+  "contracts/obligations-models.md#temple-model-review-board:supplemental": [
     ["조명은 건물", "non-contact: review-board light setting"],
     ["근접 뷰 배경도", "non-contact: repeatable close-view background"],
     ["비교 기준은", "non-contact: review-board comparison criterion"],
@@ -281,7 +290,7 @@ export const checkModelContactCensus = (output) => {
   const passLines = output.split(/\r?\n/).filter((line) => line.startsWith("PASS "));
   const claims = [...modelContactClaims(), ...modelContactClaims(true)];
   const sections = new Map(files.flatMap((file) => modelSections(
-    readFileSync(new URL(file + ".md", modelRoot), "utf8"),
+    modelDocument(file),
   ).map((section) => [`${file}#${section.id}`, section.body])));
   /** @param {string} sentence */
   const normalize = (sentence) => sentence.replace(/\s+/g, " ").trim();

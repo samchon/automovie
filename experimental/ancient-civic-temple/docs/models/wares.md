@@ -3,6 +3,8 @@
 ## 큰 저장 항아리 {#storage-jar}
 
 <!--
+@evidenceExclude settings/00-delivery.md#operative-subjects 주체 표가 분류한 봉헌물·문서·용기·가구의 개별 정체성은 35-objects가, 분수 물은 30-interiors가 소유하므로 원형은 분류표를 형상 근거로 재사용하지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#operative-subjects #78af323 주체 분류표의 사물 주소와 실제 모델 H2가 인용하는 설정 원본을 비교했다.
 @evidence principles/core/common.md#scope-preservation 큰 저장 항아리를 회전체 윤곽 다섯 점·열린 입·어깨 손잡이 두 개까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 윤곽점·열린 입·양쪽 어깨 고리를 읽어 큰 저장 항아리의 필요 형상이 있는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이, ±X 어깨에 로컬 XY 평면으로 향하는 두 고리 손잡이의 중심·원환 치수, 몸체 16분할을 확정해 source가 항아리 손잡이 방향을 새로 고르지 않는다.

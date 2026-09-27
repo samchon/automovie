@@ -1,10 +1,16 @@
 /** Basic portable silhouettes from docs/models/portable.md; no finish or motion. */
 import type { IAutoMovieModel } from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
+import { modelBox } from "../geometry/model-source-shapes";
 
 const p=(x:number,y:number,z:number)=>({x,y,z});
 const box=(m:ObjectMesh,id:string,x:number,y:number,z:number,w:number,h:number,d:number)=>
   m.box(id,x,y,z,w,h,d);
+const woodBox=(m:ObjectMesh,id:string,x:number,y:number,z:number,w:number,h:number,d:number)=>{
+  const min=p(x-w/2,y,z-d/2),max=p(x+w/2,y+h,z+d/2);
+  const direction=w>=h&&w>=d?p(1,0,0):h>=d?p(0,1,0):p(0,0,1);
+  modelBox(m,id,min,max,{origin:min,direction});
+};
 
 /**
  * Portable fixed-form props without room placement or animated use.
@@ -50,9 +56,9 @@ export class TemplePortable {
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The jar-rack H2 gives the top footprint, four leg centers and paired jar-site centers used by this approximate proxy.
    */
   jarRack():IAutoMovieModel {
-    const m=new ObjectMesh();box(m,"top",0,0.22,0,1.18,0.06,0.58);
+    const m=new ObjectMesh();woodBox(m,"top",0,0.22,0,1.18,0.06,0.58);
     for(const x of [-0.52,0.52]) for(const z of [-0.22,0.22])
-      box(m,"leg",x,0,z,0.07,0.22,0.07);
+      woodBox(m,"leg",x,0,z,0.07,0.22,0.07);
     for(const x of [-0.29,0.29])m.loop("well",x,0.28,0,0.16,0.006,"xz",16);
     return m.model("portable.jar-rack","항아리 두 자리 받침대");
   }
@@ -77,11 +83,11 @@ export class TemplePortable {
    */
   handcart():IAutoMovieModel {
     const m=new ObjectMesh();
-    box(m,"deck",0,0.43,-0.025,0.60,0.06,1.25);
-    m.rod("axle",p(-0.34,0.23,0.10),p(0.34,0.23,0.10),0.018,16);
+    woodBox(m,"deck",0,0.43,-0.025,0.60,0.06,1.25);
+    m.cylinder("axle",p(-0.34,0.23,0.10),p(0.34,0.23,0.10),0.018,16,"x");
     for(const x of [-0.34,0.34]){
-      m.rod("wheel",p(x-0.04,0.23,0.10),p(x+0.04,0.23,0.10),0.23,16);
-      box(m,"support",x<0?-0.24:0.24,0.248,0.10,0.04,0.182,0.04);
+      m.cylinder("wheel",p(x-0.04,0.23,0.10),p(x+0.04,0.23,0.10),0.23,16,"x");
+      woodBox(m,"support",x<0?-0.24:0.24,0.248,0.10,0.04,0.182,0.04);
     }
     for(const x of [-0.24,0.24])
       m.rod("handle",p(x,0.45,-0.65),p(x,0.70,-1.20),0.02,8);
@@ -172,7 +178,7 @@ export class TemplePortable {
    */
   stylus():IAutoMovieModel {
     const m=new ObjectMesh();
-    m.rod("shaft",p(-0.11,0,0),p(0.09,0,0),0.006,8);
+    m.cylinder("shaft",p(-0.11,0,0),p(0.09,0,0),0.006,8,"x");
     for(let i=0;i<8;i++){
       const a=2*Math.PI*i/8,b=2*Math.PI*(i+1)/8;
       m.face("tip",[p(0.09,0.006*Math.cos(a),0.006*Math.sin(a)),

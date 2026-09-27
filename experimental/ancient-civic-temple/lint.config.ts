@@ -51,6 +51,22 @@ export const productionEvidence = {
   materials: "draft",
   claims: [
     createAutoMovieProductionObligationClaim({
+      name: "temple-model-scale-uv",
+      document: "contracts/principles-models.md",
+      account: "accounts/models/temple-principles.md",
+      layer: "models",
+      stage: "review",
+      populationScope: { mode: "complete-production" },
+    }),
+    createAutoMovieProductionObligationClaim({
+      name: "temple-model-obligations",
+      document: "contracts/obligations-models.md",
+      account: "accounts/models/temple-obligations.md",
+      layer: "models",
+      stage: "review",
+      populationScope: { mode: "complete-production" },
+    }),
+    createAutoMovieProductionObligationClaim({
       name: "temple-space-obligations",
       document: "contracts/obligations-spaces.md",
       account: "accounts/spaces/temple-obligations.md",

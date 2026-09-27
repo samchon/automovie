@@ -79,7 +79,6 @@ export const modelPartNounMismatches = (documents: readonly { path: string; sour
   )) {
     const anchor = section.match(/^## .+ \{#([^}]+)\}/)?.[1];
     if (!anchor) throw new Error(`모델 H2 anchor가 없습니다: ${path}`);
-    if (path === "scale.md") continue;
     const key = `${path.replace(/\.md$/, "")}#${anchor}`;
     const body = section.replace(/<!--[\s\S]*?-->/g, "");
     const mapping = body.match(/^부재 대응: ([^\n]+)$/m)?.[1];
@@ -179,11 +178,11 @@ export const modelSourceInputRows = (documents: readonly { path: string; source:
     const partLine = body.split("\n").find((line) => line.includes("part와 표면은"));
     const partClause = partLine?.split("part와 표면은")[1]?.split("다.")[0] ?? "";
     const parts = [...partClause.matchAll(/`([^`]+)`/g)].map((match) => match[1]!);
-    if (parts.length === 0 && path !== "scale.md") throw new Error(`모델 part 선언이 없습니다: ${path}#${anchor}`);
+    if (parts.length === 0) throw new Error(`모델 part 선언이 없습니다: ${path}#${anchor}`);
     const geometry = body.replace(/\s+/g, " ");
     if (geometry.length === 0) throw new Error(`모델 본문이 없습니다: ${path}#${anchor}`);
     const digest = createHash("sha256").update(geometry).digest("hex");
-    return (parts.length > 0 ? [...new Set(parts)] : ["공통 규칙"]).map((part) =>
+    return [...new Set(parts)].map((part) =>
       `| [${path.replace(/\.md$/, "")}/${anchor}](../../models/${path}#${anchor}) | \`${part}\` | ${[...geometry].length} | \`${digest}\` |`);
   }));
 

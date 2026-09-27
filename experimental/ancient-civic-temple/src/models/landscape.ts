@@ -1,5 +1,5 @@
 /** Site silhouettes from docs/models/landscape.md. Placement remains with instances. */
-import type { IAutoMovieModel } from "@automovie/interface";
+import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
 import { modelEllipsoid, modelExtrudeYZ } from "../geometry/model-source-shapes";
 
@@ -35,7 +35,7 @@ export class TempleLandscape {
   broadTree():IAutoMovieModel {
     const m=new ObjectMesh();m.frustum("trunk",0,0,0,1.6,0.18,0.13,12);
     for(const [x,y,z] of [[-1.05,2.6,-0.55],[1.05,2.6,-0.55],[0,2.6,1.10]])
-      m.rod("branch",p(0,1.5,0),p(x,y,z),0.07,8);
+      m.cylinder("branch",p(0,1.5,0),p(x,y,z),0.07,8);
     for(const [x,y,z,rx,ry,rz] of [
       [-1.05,3.25,-0.55,1.15,1.35,1.05],[1.05,3.25,-0.55,1.15,1.35,1.05],
       [0,3.55,0.85,1.20,1.65,1.20],[-1.15,3.45,0.95,0.90,1.30,1.10],
@@ -65,7 +65,7 @@ export class TempleLandscape {
   }
 
   /**
-   * @evidence models/landscape.md#neighbor-house The gable or shed branch emits roof slabs, sloped side walls, a 0.30 m wall shell, plinth band and closed 0.20 m door/window recesses.
+   * @evidence models/landscape.md#neighbor-house The gable or shed branch emits roof slabs with eave-to-high UV0, sloped side walls, a 0.30 m wall shell, plinth band and closed 0.20 m door/window recesses.
    * @evidence principles/core/source-units.md#source-scope-preservation This local exterior has no navigable room, tile modules, world transform or independent site floor.
    * @evidence principles/core/source-units.md#source-substantive-completion The emitted wall faces omit each front opening, recess faces bridge to a backing plane, and both roof profiles and plinth surfaces are separate parts.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The neighbor-house H2 fixes both footprints, roof slopes, opening arrays, wall thickness and recess depth; the source derives the two envelopes from them.
@@ -134,6 +134,18 @@ export class TempleLandscape {
     }else{
       modelExtrudeYZ(m,"roof",[[5.952,-3.8],[4.336,3.8],[4.176,3.8],[5.792,-3.8]],-3.3,3.3);
     }
-    return m.model(`landscape.neighbor-house.${kind}`,`이웃 회벽집 ${kind}`);
+    const model=m.model(`landscape.neighbor-house.${kind}`,`이웃 회벽집 ${kind}`);
+    const roof=model.parts.find((part)=>part.id==="roof")!.geometry as {type:"mesh";mesh:IAutoMovieMesh};
+    const { positions }=roof.mesh,normals=roof.mesh.normals!,uvs=roof.mesh.uvs!;
+    const edge=gable?3.3:3.8,halfRoofWidth=gable?4.3:3.3;
+    for(let i=0;i<positions.length/3;i++){
+      const ny=normals[3*i+1]!,nz=normals[3*i+2]!;
+      if(ny<0.8||Math.abs(nz)<0.1)continue;
+      const x=positions[3*i]!,z=positions[3*i+2]!;
+      const frontSlope=gable&&nz<0;
+      uvs[2*i]=frontSlope?halfRoofWidth-x:x+halfRoofWidth;
+      uvs[2*i+1]=(gable&&frontSlope?z+edge:edge-z)/Math.cos(slope);
+    }
+    return model;
   }
 }

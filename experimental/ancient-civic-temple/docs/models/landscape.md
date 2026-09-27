@@ -3,6 +3,8 @@
 ## 좁고 높은 상록수 {#cypress}
 
 <!--
+@evidenceExclude settings/40-environment.md#daylight 고정 주광과 하늘 보조광은 모델 population의 중립 검토 계약이 소유한다. 상록수 원형은 수관·가지 형상만 결정하고 조명을 새로 정하지 않는다.
+@evidenceExcludeReview settings/40-environment.md#daylight #eac4028 상록수 H2의 형상 질문과 공통 판의 조명 출처를 구별했다.
 @evidence principles/core/common.md#scope-preservation 좁고 높은 상록수를 줄기와 겹친 세 수관 덩어리, 높이·분할·법선, 덩어리 사이 빈틈까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 줄기와 겹친 세 수관·허리 빈틈을 읽어 좁은 나무를 단일 원뿔로 줄이지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 줄기 원뿔대의 둘레 12분할과 세 타원체의 반지름·높이·중심 XYZ·10×6분할을 확정해 source가 수관 축이나 줄기 단면을 다시 고르지 않는다.
@@ -151,6 +153,10 @@ part와 표면은 `blade` 하나다. 위치·수·크기 변형은 instances가 
 ## 이웃 회벽집 외피 {#neighbor-house}
 
 <!--
+@evidenceExclude settings/00-delivery.md#governing-aim 다섯 reference의 건물 전체 대조는 건물 관찰 위치가 맡고 원형 검토 판은 분리된 부재 형상·빈 공간만 판단한다.
+@evidenceExcludeReview settings/00-delivery.md#governing-aim #df3c7b2 신전 전체 이미지 비교와 분리된 원형 판의 관찰 분모를 구별했다.
+@evidenceExclude spaces/building.md#footprint 외곽 footprint는 건물 매스가 소유하고 모델은 방·주랑·지붕의 판정된 순치수와 기준선만 받아 독립 부재를 만든다.
+@evidenceExcludeReview spaces/building.md#footprint #d21e152 모델의 국소 점유가 건물 외곽 다각형을 재정의하지 않는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 이웃 회벽집 외피를 두 변형의 벽체·지붕·문창 자리·기단 띠와 외피 한정 조건까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 박공 A와 외쪽 경사 B의 벽·지붕·오목 문창·기단을 읽어 실내 없는 외피 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion A의 양 박공벽과 B의 경사 윗선을 포함한 두께 0.30m 벽·지붕 치수에 더해 앞면 좌표계의 문·창 중심·유효 크기·깊이 0.20m와 남는 뒷벽 0.10m를 두 변형 모두 확정한다.

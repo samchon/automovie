@@ -3,11 +3,11 @@
 ## 파일 역할과 모델 납품 {#file-roles}
 
 <!--
-@evidence obligations/core/common.md#purpose-fit 열 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 방별 사물 역할 중 벤치·수레·직물·작성 도구 등의 형상 주소가 사라지고, fixtures·wares가 없으면 그 비품이 놓일 제단·선반·도기 원형이 비며, scale이 없으면 그 모두의 공통 UV0 투영·이음과 검토 기준이 갈라진다. 구조와 경관 파일의 별도 결손은 아래 본문에 적었다.
-@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 열 모델 파일의 분담을 본문 링크와 대조해 portable·fixtures·wares·scale 중 어느 하나가 빠져도 비품 원형이나 공통 기준의 납품이 달라짐을 확인했다.
+@evidence obligations/core/common.md#purpose-fit 아홉 모델 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 벤치·수레·직물·작성 도구의 원형이, fixtures·wares가 없으면 제단·선반과 그 위 도기의 원형이 사라진다. 공통 축척·관절·검토 기준은 별도 생산 계약이 맡는다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 아홉 원형 파일 각각의 역할을 본문 링크로 확인하고 공통 기준 세 항목은 원형 파일 수가 아닌 계약 claim으로 세는지 대조했다.
 -->
 
-이 population은 한 단층 시민 신전과 그 대지가 소비할 독립 부재의 blocking prototype을 설계한다. [scale](../../models/scale.md)은 공유 축척 기준과 표현 상한, 관절 인터페이스, 중립 검토 판이라는 모든 모델의 공통 기준을 소유한다. 이 파일이 없으면 각 모델이 보행 포락 대신 제각각의 크기 기준과 fidelity 주장을 쓰고 문짝의 hinge 이름과 검토 시점이 모델마다 달라진다.
+이 population은 한 단층 시민 신전과 그 대지가 소비할 독립 부재의 blocking prototype을 설계한다. [모델 원칙](../../contracts/principles-models.md)은 공통 축척·UV0를 각 원형에 요구하며 [전체 원형 계정](temple-principles.md#model-scale-uv-allocation)이 그 적용을 결산한다. [모델 의무](../../contracts/obligations-models.md)는 관절 역할과 중립 검토 판을 맡는다. 원형 파일들은 각자 형상과 접합을 소유한다.
 
 [columns](../../models/columns.md)는 주랑과 포치의 원형 석주를, [entablature](../../models/entablature.md)는 그 위의 보·포치 박공 트림·서까래·제실 트러스·낮은 천장 보를 소유한다. 둘이 나뉘어 있어 기둥 높이와 보 윗면, 서까래 깊이, 지붕 하부가 한 산술 연쇄로 읽히고, 하나만 남으면 지붕이 기둥에서 뜨거나 주랑 천장이 slab 아랫면만 보인다. [openings](../../models/openings.md)는 판정된 여덟 문과 여덟 채광구의 void를 채우는 문틀·문짝·창틀을 소유하며 관절을 가진 유일한 모델이 여기 있다.
 
@@ -18,15 +18,15 @@
 ## 모델과 다른 제작 분기의 경계 {#layer-routing}
 
 <!--
-@evidence obligations/core/common.md#layer-boundary 52개 H2 중 공통 기준 셋은 축척·UV0 투영과 이음·prototype 내부 반복 기준·관절·검토 규칙을, 원형 49개는 형상·part 표면 ID·점유와 배치 기준점을 정한다. 재료 결속·텍스처 반복 길이·fallback·비트맵과 광학 반응은 materials, 방 안 prototype 배치·복제·실제 접촉은 instances, 물의 흐름과 빛은 systems, 외피·지면은 spaces가 맡는다고 아래 본문이 구분한다.
-@evidenceReview obligations/core/common.md#layer-boundary #5271f94 52개 H2에서 공통 규칙 셋과 원형 49개를 나누고 재료 반응·실제 복제와 접촉·흐름·외피를 각 후속 분기의 책임으로 남긴 경계를 확인했다.
+@evidence obligations/core/common.md#layer-boundary 모델의 49개 H2는 형상·part 표면 ID·점유와 배치 기준점을 정하고, 공통 축척·UV0·관절·검토 조건은 별도 생산 계약이 강제한다. 재료 반응은 materials, 방 안 복제·접촉은 instances, 물의 흐름과 빛은 systems, 외피·지면은 spaces가 맡는다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 모델 49개 H2와 두 생산 계약의 역할을 분리하고 재료·배치·시스템·공간 실체가 모델 설계에 중복되지 않는지 확인했다.
 -->
 
-원형을 정의하는 49개 H2는 각각 자기 prototype의 형상, part와 표면 ID, [공통 UV0 투영·이음](../../models/scale.md#reference-scale), 가려진 접촉면과 빈 공간, 점유 범위와 배치 기준점을 결정한다. 나머지 scale의 세 H2는 공통 축척·UV0 투영과 이음·prototype 내부 반복 기준·관절·검토 판 규칙을 정한다. prototype 안에서 반복되는 부재의 개수·간격·첫 위치나 위상은 해당 모델 H2가 정하고, 실제 건물 안의 prototype 복제 수와 공간 경계에 따른 잘림은 instances가 판정된 공간과 합성 지붕에서 유도한다. 방 안 prototype의 배치와 다른 물체와의 실제 접촉도 instances가 정한다. 재료 결속·텍스처 반복 길이·fallback 색은 [재료 결속](../../materials/10-model-bindings.md#binding-map)이 소유하고, 비트맵 선택·색과 거칠기의 최종 반응도 materials가 소유한다.
+원형을 정의하는 49개 H2는 각각 자기 prototype의 형상, part와 표면 ID, [공통 UV0 투영·이음](../../contracts/principles-models.md#temple-reference-scale), 가려진 접촉면과 빈 공간, 점유 범위와 배치 기준점을 결정한다. 축척·UV0·관절·검토 판의 공통 조건은 production 계약의 두 claim이 별도로 강제한다. prototype 안에서 반복되는 부재의 개수·간격·첫 위치나 위상은 해당 모델 H2가 정하고, 실제 건물 안의 prototype 복제 수와 공간 경계에 따른 잘림은 instances가 판정된 공간과 합성 지붕에서 유도한다. 방 안 prototype의 배치와 다른 물체와의 실제 접촉도 instances가 정한다. 재료 결속·텍스처 반복 길이·fallback 색은 [재료 결속](../../materials/10-model-bindings.md#binding-map)이 소유하고, 비트맵 선택·색과 거칠기의 최종 반응도 materials가 소유한다.
 
 분수의 흐름·빛 반사와 등잔의 상태 변화는 systems·motions의 후속 결정이며 모델은 정지 형상만 낸다. 외벽 기단과 코핑, 문턱 바닥, 대지 지면과 먼 능선은 spaces가 이미 소유한 실체라 모델 population에 다시 들이지 않는다. 문틀이 문턱 바닥을, 이웃 외피가 포장 구획을, 창틀이 벽 void 위치를 새로 만들지 않는 것이 각 H2에서 이 경계를 지키는 방식이다.
 
-아래 표는 열 문서의 원형 H2에서는 part마다, 공통 규칙인 scale의 세 H2에서는 `공통 규칙` 요약 행으로 만드는 source 입력 색인이다. `공통 규칙`은 방출 part 이름이 아니다. 각 행은 원본 H2 링크·본문 문자 수·SHA-256을 보존하고, 값이 바뀌면 `self-check --sync-accounts`에서 기계적으로 바뀐다. self-check는 원본 H2와 형상 part 주소 전체의 정확한 일치를 검사한다. 이 색인은 빠진 설계 결정을 `0`으로 인증하지 않는다. 리뷰어와 저작자는 링크된 원본 H2의 위치·크기·단면·분할·접합을 판정하고 구현 중 빠진 선택을 찾으면 해당 H2를 먼저 고친다.
+아래 표는 아홉 원형 문서의 각 H2를 part별로 펼친 source 입력 색인이다. 각 행은 원본 H2 링크·본문 문자 수·SHA-256을 보존하고, 값이 바뀌면 `self-check --sync-accounts`에서 기계적으로 바뀐다. self-check는 원본 H2와 형상 part 주소 전체의 정확한 일치를 검사한다. 이 색인은 빠진 설계 결정을 `0`으로 인증하지 않는다. 리뷰어와 저작자는 링크된 원본 H2의 위치·크기·단면·분할·접합을 판정하고 구현 중 빠진 선택을 찾으면 해당 H2를 먼저 고친다.
 
 | 모델 H2 | part | 본문 문자 수 | 본문 SHA-256 |
 | --- | --- | ---: | --- |
@@ -99,12 +99,12 @@
 | [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `recess` | 1716 | `deacf763a3f77a7e4d5bb9409edd1ff971441e20f3af585fdfb208e882b3ae8b` |
 | [openings/door-frame](../../models/openings.md#door-frame) | `lining` | 1198 | `fe399b4a15734d515e33f202ad2f3b8a7420d5972423b22c828e07d861143106` |
 | [openings/door-frame](../../models/openings.md#door-frame) | `surround` | 1198 | `fe399b4a15734d515e33f202ad2f3b8a7420d5972423b22c828e07d861143106` |
-| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `frame` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
-| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `panel` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
-| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `plate` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
-| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `pin` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
-| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `ring` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
-| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `hinge` | 2002 | `7af5c7dc0ec857137934f1d4e369523e9565687b136a9b9123a4cf37d19083b4` |
+| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `frame` | 2035 | `c395eb0e8c808a3a5f716885737660e871610bb7b94f7d110ed1fb0cc033e154` |
+| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `panel` | 2035 | `c395eb0e8c808a3a5f716885737660e871610bb7b94f7d110ed1fb0cc033e154` |
+| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `plate` | 2035 | `c395eb0e8c808a3a5f716885737660e871610bb7b94f7d110ed1fb0cc033e154` |
+| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `pin` | 2035 | `c395eb0e8c808a3a5f716885737660e871610bb7b94f7d110ed1fb0cc033e154` |
+| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `ring` | 2035 | `c395eb0e8c808a3a5f716885737660e871610bb7b94f7d110ed1fb0cc033e154` |
+| [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `hinge` | 2035 | `c395eb0e8c808a3a5f716885737660e871610bb7b94f7d110ed1fb0cc033e154` |
 | [openings/single-door-leaf](../../models/openings.md#single-door-leaf) | `board` | 1649 | `0c1af3dff899676937eab336365f765ca9b1d5671b8c068940601580a8abf152` |
 | [openings/single-door-leaf](../../models/openings.md#single-door-leaf) | `batten` | 1649 | `0c1af3dff899676937eab336365f765ca9b1d5671b8c068940601580a8abf152` |
 | [openings/single-door-leaf](../../models/openings.md#single-door-leaf) | `strap` | 1649 | `0c1af3dff899676937eab336365f765ca9b1d5671b8c068940601580a8abf152` |
@@ -153,9 +153,6 @@
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
-| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 7153 | `2bad5fdd293a402a59b70d10b7953b35206f39fcd684d528e17850c65a485faf` |
-| [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 788 | `78d5002b349fb4ffe638a2dce1794368f05a3bc786229b9af4ff8dc88ef5797e` |
-| [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 1389 | `1dff5260947e667ec577182cf8ab6cbd61a36e86419d5194d82b6cfca3cd978f` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 854 | `fc0a7eb94134aa72e2f979e57f35dbcacdb2767a80bb57d2c601fd245c143af5` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `handle` | 854 | `fc0a7eb94134aa72e2f979e57f35dbcacdb2767a80bb57d2c601fd245c143af5` |
 | [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 1033 | `751763ca9adea728bfcc970dd55cea16f646e0c4e548345cf8dca63f7c7a45fa` |
@@ -186,8 +183,8 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 ## 규모와 전개 분량의 비교 {#proportion}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 아래 열 파일·52 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 한 방 전용 복제 대신 다방 재사용을 맡는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
-@evidenceReview obligations/core/common.md#proportionate-development #78feb28 열 파일 52 H2의 본문 분량 표와 과거 17 H2의 비교 근거를 읽고 prototype 재사용과 별도 소비자를 가진 H2 분할을 규모 판단에 적용했는지 확인했다.
+@evidence obligations/core/common.md#proportionate-development 아래 아홉 원형 파일·49 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 다방 재사용을 맡는다. 공통 규칙 세 H2는 별도 계약에 있으며 원형 분량에 섞지 않는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 아홉 원형 파일 49 H2의 본문 분량 표와 과거 17 H2의 비교 근거를 읽고 별도 소비자를 가진 원형 분할과 공통 계약의 경계를 확인했다.
 -->
 
 현재 모델 population의 파일·H2·본문 분량은 아래 self-check 생성 표로 고정한다. 본문 문자는 HTML 주석과 공백을 빼고 제목은 포함한 유니코드 코드 포인트 수다. 표에 없는 파일, 중복 파일, 낡은 행은 self-check 실패로 처리한다.
@@ -199,13 +196,12 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | entablature.md | 5 | 5736 |
 | fixtures.md | 10 | 9010 |
 | landscape.md | 4 | 3867 |
-| openings.md | 4 | 4571 |
-| portable.md | 13 | 10661 |
+| openings.md | 4 | 4604 |
+| portable.md | 13 | 10693 |
 | ritual.md | 3 | 2227 |
-| scale.md | 3 | 7518 |
 | wares.md | 6 | 5416 |
-| 합계 | 52 | 54753 |
+| 합계 | 49 | 47300 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
-H2별 분량 순위는 self-check의 `model H2 ranks` 출력에서 매번 다시 읽는다. 수목·이웃집의 위치와 잎 규칙을 확정한 이번 설계에서도 한 번 적은 순위를 고정값처럼 재사용하지 않는다. [build-scope](../../settings/00-delivery.md#build-scope)가 models에 배정한 기둥·문짝·문틀·기와·수반·제단·가구·용기·식생·이웃 외피 prototype은 모두 한 H2 이상을 가진다. 설계와 source 사이의 분량은 비교하지 않으며 모든 H2가 modelSources에서 실현되는지는 그 분기가 열린 뒤 따로 센다.
+H2별 분량 순위는 self-check의 `model H2 ranks` 출력에서 매번 다시 읽는다. 수목·이웃집의 위치와 잎 규칙을 확정한 이번 설계에서도 한 번 적은 순위를 고정값처럼 재사용하지 않는다. [build-scope](../../settings/00-delivery.md#build-scope)가 models에 배정한 기둥·문짝·문틀·기와·수반·제단·가구·용기·식생·이웃 외피 prototype은 모두 한 H2 이상을 가진다. 설계와 source 사이의 분량은 비교하지 않으며 `modelSources` evidence 단계에서는 공개 class의 원형 파일·H2 대응을 별도로 검사한다.

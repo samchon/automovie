@@ -2,7 +2,7 @@
 
 ## 결속 키와 반복 길이 {#binding-map}
 
-2026-09-25 사용자의 절차 생성 텍스처 지시에 따라 각 모델 part를 한 재료 결속 키에 배정한다. 이 문서가 결속 키, UV0 미터 좌표에 적용할 반복 길이, 비트맵 부재 시 단색 fallback, part 배정을 소유한다. 색은 sRGB이며 비트맵을 읽지 못해도 geometry가 낸 유한한 UV0를 검증한다. 모델의 UV0 투영과 이음은 [축척 기준](../models/scale.md#reference-scale)이 소유한다.
+2026-09-25 사용자의 절차 생성 텍스처 지시에 따라 각 모델 part를 한 재료 결속 키에 배정한다. 이 문서가 결속 키, UV0 미터 좌표에 적용할 반복 길이, 비트맵 부재 시 단색 fallback, part 배정을 소유한다. 색은 sRGB이며 비트맵을 읽지 못해도 geometry가 낸 유한한 UV0를 검증한다. 모델의 UV0 투영과 이음은 [축척 기준](../contracts/principles-models.md#temple-reference-scale)이 소유한다.
 
 | 결속 키 | 반복 길이 U·V (m) | 비트맵 부재 시 단색 fallback |
 | --- | --- | --- |

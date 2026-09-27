@@ -156,7 +156,7 @@ export const checkModelTessellation = () => {
   const failures = [];
   let sections = 0;
   let curvedSections = 0;
-  const files = readdirSync(root).filter((file) => file.endsWith(".md") && file !== "scale.md")
+  const files = readdirSync(root).filter((file) => file.endsWith(".md"))
     .sort((a, b) => a.localeCompare(b));
   for (const file of files) {
     const source = readFileSync(new URL(file, root), "utf8");

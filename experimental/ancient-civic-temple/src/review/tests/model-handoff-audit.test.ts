@@ -10,6 +10,21 @@ void test("reverse handoff cites the model H2 and leaves unrelated H2 out", () =
   assert.deepEqual(rows, [{ parent: "settings/room.md#room", terms: ["가구", "수반"], owners: ["models/fixture.md#basin"] }]);
 });
 
+void test("a recurrent model contract owns a parent review setting without becoming a prototype", () => {
+  const contract = { path: "contracts/obligations-models.md",
+    source: "## 판 {#board}\n중립 검토 판이다." };
+  const rows = modelHandoffRows([parent], [model, contract], ["가구", "수반"], {
+    "settings/room.md#room": ["contracts/obligations-models.md#board"],
+  });
+  assert.deepEqual(rows[0]!.owners,
+    ["contracts/obligations-models.md#board", "models/fixture.md#basin"]);
+  const without = modelHandoffRows([parent], [model], ["가구", "수반"], {});
+  assert.ok(!without[0]!.owners.includes("contracts/obligations-models.md#board"));
+  assert.throws(()=>modelHandoffRows([parent], [model], ["가구", "수반"], {
+    "settings/room.md#room": ["contracts/obligations-models.md#board"],
+  }),/missing owner/);
+});
+
 void test("explicit owners are checked against real model anchors", () => {
   const rows = modelHandoffRows([parent], [model], ["가구"], {
     "settings/room.md#room": ["models/fixture.md#basin", "instances"],

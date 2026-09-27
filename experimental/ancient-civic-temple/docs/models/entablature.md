@@ -50,6 +50,8 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 ## 서까래 {#rafter}
 
 <!--
+@evidenceExclude settings/50-production.md#measurement-truth 모델 치수는 settings 허용 범위와 reviewed spaces에서 저작한 입력이며 과거 source 메시의 좌표 측정을 설계 원본으로 보존하지 않는다.
+@evidenceExcludeReview settings/50-production.md#measurement-truth #c6e89a8 설계 치수의 부모와 현재 source의 방출값이 서로 다른 증거인지 확인했다.
 @evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 제실 측벽 두께에서 끊는 두 부재와 지붕 하부 식, 만들지 않는 숨은 서까래까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑·동측·제실 변형과 제실 벽 두께 속 비방출 구간을 모두 읽어 숨은 서까래를 임의로 채우지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 폭 0.08·깊이 0.12m 단면과 지붕 조각에서 경사를 유도하는 규칙, 연직 절단을 포함한 L/cos(α)+0.12tan(α) 점유 길이와 주랑·동측 뒷벽 목록 및 제실 서·동의 처마 안쪽 절단→측벽 바깥면, 측벽 안쪽면→용마루 절단선이 있어 source가 벽 안의 숨은 겹침을 새로 고르지 않는다.
@@ -84,6 +86,8 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 @evidenceReview spaces/roofs/colonnade.md#south-canopy #698df98 남쪽 12도 덮개와 후퇴벽·파라펫을 남쪽 변형의 기울기·끝으로 썼는지 확인했다.
 @evidence spaces/building.md#plan-datums 제실 측벽의 west/east-room 바깥면과 west/east-ring 안쪽면을 제실 서까래의 두 절단면과 벽 두께 공백으로 소비한다.
 @evidenceReview spaces/building.md#plan-datums #a9e2a0d west/east-room와 west/east-ring 두 면 사이 0.30m를 서까래 비방출 벽 구간으로 읽었다.
+@evidence spaces/roofs/sanctuary.md#sanctuary-roof 제실 5.35m 지지 높이·22° 경사와 동쪽 5.75m 지지선을 처마 6.25m 안쪽 절단 및 지붕 하부 접촉의 부모 입력으로 쓴다.
+@evidenceReview spaces/roofs/sanctuary.md#sanctuary-roof #74ec06b 제실 roof owner의 동쪽 벽 중심 지지선과 처마 돌출을 읽고 서까래의 6.10m 절단이 처마 끝보다 0.15m 안쪽인지 대조했다.
 @evidence settings/50-production.md#references 이미지 03의 처마 아래 서까래 끝과 이미지 04의 제실 지붕 아래 서까래를 근거로 쓴다.
 @evidenceReview settings/50-production.md#references #eb34a79 이미지 03의 반복 끝과 04의 박공 아래 목재가 두 변형의 관찰 기준에 남는지 확인했다.
 -->
@@ -197,6 +201,8 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 ## 업무방·봉헌실 천장 보 {#ceiling-joist}
 
 <!--
+@evidenceExclude settings/50-production.md#runtime-boundary CJS producer와 뷰어 전달 경계는 실행 방법이고 prototype의 형상·표면·관절 선택을 정하지 않는다.
+@evidenceExcludeReview settings/50-production.md#runtime-boundary #3eb9810 모델 H2의 의미 결정이 전송·번들링 방법에 의존하지 않는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실과 동측 세 방의 낮은 목재 천장 보를 단면·길이·높이와 배치 소유 경계까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실과 세 업무방의 낮은 보가 한 길이 가족이며 단면·높이·배치 경계가 있는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 폭 0.12·깊이 0.18m, 길이 4.00m, 윗면 3.10m·아랫면 2.92m가 있어 source가 천장 보를 다시 고르지 않는다.
