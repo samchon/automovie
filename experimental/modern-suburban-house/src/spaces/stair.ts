@@ -62,10 +62,15 @@ const STAIR_PLAN = {
 /** The finished L void and its back guard band are the stair owner's shared plan. */
 /**
  * @evidence spaces/02-stair.md#stair-floor-opening This polygon is the one finished opening received by the floor and ceiling owners.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 r4-host-changed: getters -> STAIR_PLAN spread; outline/guardBack identical values. | STAIR_OPENING.outline (stair.ts:74-83) read by upper.ts:57-62 (structure), upper room outlines and stair hall ceiling (stair.ts:490); reformat only.
  * @evidence spaces/02-stair.md The stair owns the L opening and guard reservation used by its structural and route consumers.
+ * @evidenceReview spaces/02-stair.md #d17bdfd STAIR_OPENING.guardReserve 0.075 (02-stair.md#stair-clearance 양쪽 0.075 m) consumed by stair-build.ts RESERVE and environment.ts:420 connector width; judge mutation 0.1 -> guards 7 parts + connector 0.95 MOVED.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair retains the opening while adjacent rooms receive its edges.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 r4-host-changed: getters -> STAIR_PLAN spread; outline/guardBack identical values. | Rooms read its edges (upper-hall.ts:40-45, bedroom-three.ts:48-49, service.ts:35-36) without redefining it.
  * @evidence principles/core/source-units.md#source-substantive-completion Named corners, an ordered outline and the side reservation allow consumers to derive cuts and clear route width.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Named corners/outline (stair.ts:62-71) and guardReserve; environment.ts:420 derives clear width 1.15 - 2*0.075 = 1.00.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-floor-opening fixes the west leg, turn at X=-0.65/Z=-3.41, and east return at X=1.87; STAIR_OPENING shares that L ring with floor and ceiling owners.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 r4-host-changed: getters -> STAIR_PLAN spread; outline/guardBack identical values. | 02-stair.md:89 X=[-1.80,-0.65] Z=[-4.56,-0.25] + X=[-0.65,1.87] Z=[-4.56,-3.41] = stair.ts:65-70; read by upper.ts and stair ceiling.
  */
 export const STAIR_OPENING = {
   ...STAIR_PLAN,
@@ -85,9 +90,13 @@ const upperTreadStart = (n: number) => STAIR_OPENING.turnX + STAIR_RUN * (n - 1)
 
 /**
  * @evidence spaces/02-stair.md One rise and run locate the treads and upper flight's coat split; the rise also fixes the connector landing height.
+ * @evidenceReview spaces/02-stair.md #d17bdfd r4-host-changed: getters -> values; rise/run/landingTop/upperClosetStartX read the same module constants; upperClosetStartX re-types upperTreadStart(7) (m1). | rise/run (stair.ts:92-93); upperClosetStartX = tread 7 start (:102-104); landingTop = 8 rises used by STAIR_ROUTE (:136-147); 02-stair.md:27,:61,:160.
  * @evidence principles/core/source-units.md#source-scope-preservation These are stair coordinates, while entry owns the closet body.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 r4-host-changed: getters -> values; rise/run/landingTop/upperClosetStartX read the same module constants; upperClosetStartX re-types upperTreadStart(7) (m1). | STAIR_STEPS holds stair stations only; closet body/walls in entry.ts:84-92,:127-128.
  * @evidence principles/core/source-units.md#source-substantive-completion Treads, landing, connector, and coat-start consumers read the relevant values from this record.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f r4-host-changed: getters -> values; rise/run/landingTop/upperClosetStartX read the same module constants; upperClosetStartX re-types upperTreadStart(7) (m1). | Treads stair.ts:186,:216 (RISE/RUN), landing :209, connector :127-141, coat start entry.ts:86,:92.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work STAIR_STEPS exposed the reversed closet dependency; a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights so tread seven sets closet X and the undersides of treads 7-9 consume its Y=2.15 top.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 r4-host-changed: getters -> values; rise/run/landingTop/upperClosetStartX read the same module constants; upperClosetStartX re-types upperTreadStart(7) (m1). | a15c1dd1 revised entry.md:89 (#entry-coat-storage: X from 7th upper tread, top Y=2.15 owned by entry, treads 7-9 consume it) and 02-stair.md:160 (#stair-boundary-heights). log -S on the 7th-tread phrase -> a15c1dd1; upperClosetStartX (fa601efa) predates it. Other a15c1dd1 targets concern the garage split.
  */
 export const STAIR_STEPS = {
   rise: STAIR_RISE,
@@ -100,9 +109,13 @@ export const STAIR_STEPS = {
 } as const;
 /**
  * @evidence spaces/02-stair.md The connector follows the lower flight, landing centre and upper flight, with approach and arrival points in their named rooms.
+ * @evidenceReview spaces/02-stair.md #d17bdfd STAIR_ROUTE stair.ts:123-159: approach, lower start, landing edge, centre, exit, arrival edge, arrival point.
  * @evidence principles/core/source-units.md#source-scope-preservation This route uses the stair opening and tread datums; it adds no second stair geometry.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Only STAIR_OPENING/STAIR_STEPS/STOREYS reads; no parts created.
  * @evidence principles/core/source-units.md#source-substantive-completion An upper-floor datum edit changes landing Y through STAIR_STEPS.rise and arrival Y through STOREYS.upperFloor; landing plan coordinates come from STAIR_OPENING.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f landingTop = rise*8 with rise = upperFloor/18 (stair.ts:92,:96-98); arrival y STOREYS.upperFloor (:151,:156); landing x/z from STAIR_OPENING.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-connector-handoff requires one route through lower flight, the eight-rise landing, and upper flight; STAIR_ROUTE takes each landing point from STAIR_OPENING and STAIR_STEPS.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 02-stair.md:59 lower flight -> one turn at the landing -> upper flight; :27 eight risers to 1.36; landing stations stair.ts:134-148 read STAIR_OPENING and STAIR_STEPS.landingTop.
  */
 export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
   {
@@ -143,9 +156,13 @@ export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
 ];
 /**
  * @evidence spaces/02-stair.md The landing station indexes the derived route's landing-centre point.
+ * @evidenceReview spaces/02-stair.md #d17bdfd v-141 STAIR_ROUTE[3] is the landing centre (stair.ts:119,130); 02-stair.md:61.
  * @evidence principles/core/source-units.md#source-scope-preservation The index refers to the stair-owned route without defining another landing.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Index only (stair.ts:130); no landing geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion The environment connector reads this route station to calculate landing.at on the main stair.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f environment.ts:736 landings.at = length(STAIR_ROUTE, STAIR_LANDING_STATION)/total; row claims no exclusivity (space-design.ts:101 also reads it). v141 FALSE fixed.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-connector-handoff places the landing stop at the centre of the turn after eight rises; station 3 is that point in STAIR_ROUTE.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 02-stair.md:61 landing at the landing's X/Z centre and height, as a turn station; STAIR_ROUTE[3] (stair.ts:139-143) is that point.
  */
 export const STAIR_LANDING_STATION = 3;
 
@@ -161,14 +178,23 @@ const HALL_GUARD = 1.05;
 
 /**
  * @evidence spaces/02-stair.md This builder owns the one L-shaped two-flight stair, its closed boundaries, opening edge finish, and guards.
+ * @evidenceReview spaces/02-stair.md #d17bdfd r5-moved-back: A: buildStair (stair.ts:173) emits 7+9 treads, landing, 7 walls/closure, 5 edge strips, hall ceiling, guard posts/rails (39 parts; part-author probe: 39/39 constructed in stair.ts, called from house.ts:169). B: 02-stair.md:35 names src/spaces/stair.ts as the stair source owner; 03-surface-owners.md:49 same. v-146 B1 closed.
  * @evidence spaces/02-stair.md#stair-reservation Seven lower and nine upper treads derive from 18 risers and reach the 1.36 m landing and 3.06 m upper floor.
+ * @evidenceReview spaces/02-stair.md#stair-reservation #883409e r5: host buildStair now in stair.ts (code identical up to alias inlining); Loops i=1..7 and j=1..9 (stair.ts:185,:215) with RISE=upperFloor/18; landing RISE*8=1.36; last riser to 3.06; 02-stair.md:27.
  * @evidence spaces/02-stair.md#stair-connector-handoff The returned flight/landing parts provide the route's one physical stair rather than a second shortcut.
+ * @evidenceReview spaces/02-stair.md#stair-connector-handoff #37e39b2 r5: host buildStair now in stair.ts (code identical up to alias inlining); environment.ts connector elements = all stair.ts parts; route STAIR_ROUTE.
  * @evidence spaces/02-stair.md#stair-floor-opening Five narrow edge solids close the receded interstorey notch, while the front opening remains clear.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 r5: host buildStair now in stair.ts (code identical up to alias inlining); Five edge parts stair.ts:459-483 in the 0.015 m recession of upper.ts:57-62; no strip on the front-wall side.
  * @evidence spaces/02-stair.md#stair-clearance Sloped handrails and the upper fall-edge rail stay in their 0.075 m side reservations.
+ * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a r5: host buildStair now in stair.ts (code identical up to alias inlining); Unchanged: sloped handrails sit in the path-side 0.075 bands (stair.ts:390-416), but the upper fall-edge rail is centred in the 0.15 m back band at z=-4.635 (:309,:349-359), outside the 1.15 m path, not in a 0.075 m side reservation (02-stair.md:119).
  * @evidence spaces/02-stair.md#stair-boundary-heights Lower open guards, upper closed walls, closet opening, and 1.05 m hall guard are distinct height cases.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f r5: host buildStair now in stair.ts (code identical up to alias inlining); Open lower posts/rails, full-height upper walls, entry-coat-opening (stair.ts:276-284), HALL_GUARD 1.05 (:308); 02-stair.md:151-158.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair owns flights, guards, and its edge finish, leaving the hollow coat storage interior and room floors to entry/upper-hall.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 r5: host buildStair now in stair.ts (code identical up to alias inlining); No closet interior or room floor parts; closet walls in entry.ts:127-128; upper-hall outline ends at guardBack (upper-hall.ts:44-45).
  * @evidence principles/core/source-units.md#source-substantive-completion Deterministic tread loops, walls, posts, rails, edge strips, and hall ceiling produce actual named solids.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f r5: host buildStair now in stair.ts (code identical up to alias inlining); Deterministic loops and named parts stair.ts:185-498 plus guard-section check :499-508.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work buildStair's overCloset branch exposed a reversed vertical owner: a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights to make treads 7-9 consume the entry-owned Y=2.15 closet top.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 r5: host buildStair now in stair.ts (code identical up to alias inlining); overCloset (stair.ts:217-218) sets underside = COAT_STORAGE.top for treads 7-9; a15c1dd1 flipped entry.md:89 and 02-stair.md:160 from 'stair owns the underside' to 'treads 7-9 consume entry-owned Y=2.15'; overCloset existed since 4b23c12b.
  */
 export const buildStair = (coat: typeof COAT_STORAGE): IHousePart[] => {
   const parts: IHousePart[] = [];

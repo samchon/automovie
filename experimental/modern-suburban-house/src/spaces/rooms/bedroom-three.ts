@@ -25,9 +25,13 @@ import { floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-three.md The hall-bedroom-three-door void follows the partition assigned to bedroom-three.
+ * @evidenceReview spaces/rooms/bedroom-three.md #e409a4e v-141 Door declared in the 07-assigned partition owner's file: bedroom-three.ts:32-37 door(-4.46,-3.51) is the only hole of bedroom-three-arrival-partition (L92-100, across [3.07,3.22]); 07-boundary-assembly.md:36 gives bedroom-three<->upper-hall door run to bedroom-three.ts; bedroom-three.md:27 door on X=[3.07,3.22]. 'follows' = ownership, not value derivation (literal span).
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-three-door interval remains with bedroom-three while its adjacent room receives the span.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Declared once at bedroom-three.ts:32; upper-hall.ts:15 imports it and reads .from/.to for its doorFloor (upper-hall.ts:86-90); no re-typed span.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-three-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Cut: holes:[DOOR_HALL_BEDROOM_THREE_DOOR] bedroom-three.ts:99. Floor limits: bedroom-three doorFloor Z from .from/.to L86-91 (X [3.145,3.22]) and upper-hall.ts:86-90 (X [3.07,3.145]); both halves reach the partition mid-plane.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-three-plan places hall-bedroom-three-door on the arrival/bedroom wall at Z=[-4.46, -3.51], Y=[3.06, 5.26]; this export passes that Z span to the cut.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 bedroom-three.md:27 (#bedroom-three-plan) X=[3.07,3.22] arrival/bedroom wall, Z=[-4.46,-3.51], Y=[3.06,5.26]; door(...,-4.46,-3.51) head 2.2 on upper storey 3.06. v-143 B2 closed.
  */
 export const DOOR_HALL_BEDROOM_THREE_DOOR = door(
   "hall-bedroom-three-door",
@@ -72,11 +76,17 @@ const BEDROOM_THREE: IRoomSpace = {
 /** Emit the bedroom floor and its door partition to the arrival. */
 /**
  * @evidence spaces/rooms/bedroom-three.md This builder forms the blue-grey bedroom's notched upper-front outline.
+ * @evidenceReview spaces/rooms/bedroom-three.md #e409a4e v-141 bedroom-three.ts:41-54 eight-point notched outline on upper-storey, front face Z=-0.25; bedroom-three.md:25 front-right upper room, blue-grey bedding L29.
  * @evidence spaces/rooms/bedroom-three.md#bedroom-three-plan Eight corners preserve the arrival notch and its hall door in one partition run.
+ * @evidenceReview spaces/rooms/bedroom-three.md#bedroom-three-plan #fa9d881 v-141 8 outline points bedroom-three.ts:46-53 equal bedroom-three.md:25 corners; the door is a hole in the single partition bedroom-three-arrival-partition L92-100. 'arrival notch' is loose (body L25 calls the notch the linen reservation) but asserts no mechanism.
  * @evidence spaces/rooms/bedroom-three.md#bedroom-three-furniture-use Bed, desk, closet, chair use, and two passage bands stay within the irregular room record.
+ * @evidenceReview spaces/rooms/bedroom-three.md#bedroom-three-furniture-use #8a4f34a v-141 Reservations L59-68 equal bedroom-three.md:59-64 (bed, nightstand, desk, closet, chair use X[1.50,2.25], closet use X[4.30,4.90], entry band X[3.30,4.20] Z[-4.30,-1.60], cross band X[0.90,4.20] Z[-2.50,-1.60]); containment enforced by checkReservations shared.ts:196-210, called at house.ts:231.
  * @evidence principles/core/source-units.md#source-scope-preservation Its hall wall ends at the assigned T corner; it does not fill the notch or author furniture meshes.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Partition along [STAIR_OPENING.guardBack=-4.71, turnZ=-3.41] L98 includes the T corner Z[-4.71,-4.56] (tub-bath's tub-bedroom-three-partition runs X[3.22,5.5] only, tub-bath.ts:106-107); parts L84-100 have no notch fill and no furniture solid.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, carpet/ceiling, under-door floor share, and door-cut partition return as concrete parts.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 space BEDROOM_THREE, roomFloor (PALETTE.carpet L55), roomCeiling, doorFloor hall-bedroom-three-door, partition with hole: bedroom-three.ts:81-102.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-three-plan gives the inward notch and one hall-bedroom-three-door; this builder keeps the L outline instead of filling its rectangular hull.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Names bedroom-three-plan with real facts: linen notch (bedroom-three.md:25 '뒤쪽 파인 부분') and one hall-bedroom-three-door (:27); host keeps the non-rectangular ring (bedroom-three.ts:45-54) rather than a hull. But the plan is an 8-corner stepped outline (Z to -3.26, notch to -2.51, right leg to -4.56), not an 'L'; the doc never calls it L and the host's own row :75 says 'Eight corners'. Loose shape word, no false mechanism.
  */
 export const buildBedroomThree = (): IRoomBuild => ({
   space: BEDROOM_THREE,

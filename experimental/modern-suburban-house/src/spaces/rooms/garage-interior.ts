@@ -57,12 +57,19 @@ const GARAGE_INTERIOR: IRoomSpace = {
 /** Emit the garage record and its ceiling finish (09 garage-ceiling-closure). */
 /**
  * @evidence spaces/rooms/garage-interior.md This builder records the empty garage room and its visible ceiling finish.
+ * @evidenceReview spaces/rooms/garage-interior.md #f028c07 v-141 garage-interior.ts:60-63 returns space GARAGE_INTERIOR + roomCeiling only; no vehicle reservation; garage-interior.md:29,33.
  * @evidence spaces/rooms/garage-interior.md#garage-interior-plan Its -0.15 m floor and 2.55 m ceiling come from STOREYS while garage.ts owns structural base and shared wall.
+ * @evidenceReview spaces/rooms/garage-interior.md#garage-interior-plan #7615211 v-141 levels [STOREYS.garageFloor(-0.15), garageCeiling(2.55)] L27 (storeys.ts:36-38); garage.ts emits garage-shared-wall (L63) and garage-floor-base (L74-96); garage-interior.md:27,33,35.
  * @evidence spaces/rooms/garage-interior.md#garage-storage-use Shelf, workbench, drawer, and tool-board occupancy are reserved at the rear wall, without vehicle geometry.
+ * @evidenceReview spaces/rooms/garage-interior.md#garage-storage-use #052fc33 v-141 L34-41: shelf X[7.15,8.85] Z[-6.45,-5.85] h2.05, shelf use Z[-5.85,-4.80], workbench h0.90, drawers Z[-5.85,-5.40], use Z[-5.40,-4.80], tool board Z[-6.45,-6.30] h1.10-2.10 = garage-interior.md:59-61; no vehicle.
  * @evidence spaces/rooms/garage-interior.md#garage-use-routes West, cross, and window routes remain as clear floor reservations around those storage boxes.
+ * @evidenceReview spaces/rooms/garage-interior.md#garage-use-routes #1de060f v-141 west X[5.95,6.95] Z[-5.85,-0.95], cross X[5.95,11.39] Z[-4.75,-3.85], window X[10.35,11.39] Z[-5.85,-3.85] L44-46 = garage-interior.md:91 (11.39 = 11.45-0.06, 06-openings external-opening-interface); checkReservations bars route/storage overlap.
  * @evidence principles/core/source-units.md#source-scope-preservation It emits no car, shelf, or garage base; only its logical interior and ceiling finish leave this builder.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 parts only [roomCeiling] L62: no car, shelf or base. (Observation: garage-interior.md:35 says this owner finishes the floor; no floor part is emitted, see notes.)
  * @evidence principles/core/source-units.md#source-substantive-completion The room record has explicit levels, reservations, and a real ceiling finish part.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 levels L27, reservations L28-47, ceiling finish via roomCeiling (shared.ts:367-376, 0.015 m above 2.55).
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Adding the designed overhead guide revealed that a planar route test rejected a walkable garage; room-route-network now declares its 2.00 m vertical test band.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 git log -S'2.00 m' -- docs/spaces/05-route-network.md -> 0fae5e8d only; body 05-route-network.md:78 (sole H2 #room-route-network) declares the 2.00 m band and names the garage-door overhead guide; guide L29 y from 2.15 >= -0.15+2.0 overlaps west route in plan; shared.ts:187-221 applies 2.0.
  */
 export const buildGarageInterior = (): IRoomBuild => ({
   space: GARAGE_INTERIOR,

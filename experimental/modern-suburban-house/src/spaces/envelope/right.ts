@@ -41,9 +41,13 @@ import { wallPanel } from "../solids";
 
 /**
  * @evidence spaces/envelope/right.md The family room side window owns its rough wall cut.
+ * @evidenceReview spaces/envelope/right.md #a9e918c One record right.ts:45-51, hole right.ts:95; right.md:87.
  * @evidence principles/core/source-units.md#source-scope-preservation The common room consumes only the cut's inward curtain extent.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Only non-envelope reader common.ts:66 (curtain); right.ts:95 keeps the cut.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and fit-out reservation move from one coordinate.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f right.ts:95 hole and common.ts:66 curtain read FAMILY_RIGHT_WINDOW.from/to/top.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Family-right-window fixes the ground side opening Z=-9.95..-8.25 m at a 0.75 m sill; the common-room curtain consumes this host span.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 right.md:87 Z=[-9.95,-8.25] Y=[0.75,2.30] = right.ts:45-51; common.ts:66 consumes it.
  */
 export const FAMILY_RIGHT_WINDOW = {
   id: "family-right-window",
@@ -72,14 +76,23 @@ const stepRun = (z0: number, z1: number): IWallPoint[] => {
 /** Emit the right elevation parts. */
 /**
  * @evidence spaces/envelope/right.md This builder forms the exposed main-right, stepped roof, and garage-right wall segments.
+ * @evidenceReview spaces/envelope/right.md #a9e918c right.ts:155-169 back panel, sliver, shared-upper wall, three step runs, garage wall.
  * @evidence spaces/envelope/right.md#right-roof-closures Main-right panels include the exposed siding above the garage-owned lower wall; separate step runs close high-to-low roof spans.
+ * @evidenceReview spaces/envelope/right.md#right-roof-closures #6996e98 garageSharedUpper right.ts:110-121 spans garageRoof weather line to under(); step runs :165-167; right.md:27,:31.
  * @evidence spaces/envelope/right.md#right-openings Two house windows and one garage window puncture exposed walls, never the main/garage shared contact.
+ * @evidenceReview spaces/envelope/right.md#right-openings #42f4eb6 Holes on backPanel (right.ts:94-97) and garageWall (:145-153); sharedUpper has none; right.md:61.
  * @evidence spaces/envelope/right.md#family-right-window The ground family hole lies behind the garage rear wall under the low right roof.
+ * @evidenceReview spaces/envelope/right.md#family-right-window #b0e14b9 Z -9.95..-8.25 behind GARAGE.outer.z[0]=-6.70, top under rightRoof; right.md:87.
  * @evidence spaces/envelope/right.md#tub-right-window The high upper-bath hole lies above the family window span with its own Y=4.56 sill.
+ * @evidenceReview spaces/envelope/right.md#tub-right-window #23e3090 Unchanged: tub hole Z[-8.40,-7.50] Y[4.56,5.31] = right.md:111, but it overlaps the family Z span [-9.95,-8.25] by only 0.15 m and right.md:111-113 does not relate it to the family window.
  * @evidence spaces/envelope/right.md#garage-right-window The garage-side void sits under its own gable between the front and rear garage walls.
+ * @evidenceReview spaces/envelope/right.md#garage-right-window #eba71a3 garageWall between GARAGE.inner.z faces under garageUnder (right.ts:135-153, now reading GARAGE.inner instead of -0.55/-6.45/11.45); right.md:137.
  * @evidence principles/core/source-units.md#source-scope-preservation Garage owns the shared lower body and this builder owns siding above its roof; window leaves remain with models.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 No lower shared body in right.ts (garage.ts:46-65 owns it); sharedUpper starts at the weather line; no leaves.
  * @evidence principles/core/source-units.md#source-substantive-completion Back/sliver and above-garage panels, three step runs, and the garage gable form concrete meshes with three named holes.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f back, sliver, sharedUpper panels, 3 step parts, garage gable; 3 holes (family, tub, garage-right).
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed right parent assigns exposed above-garage siding here while garage retains the lower shared body.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Unchanged. Repair is real (fa601efa, a15c1dd1: right.md:31 split at the weather line) and body matches, but row names only 'the reviewed right parent' and the outcome; it omits the co-repaired 03-surface-owners/07-boundary-assembly and what buildRight exposed (upstream.md:22).
  */
 export const buildRight = (): IHousePart[] => {
   const back = MAIN.inner.z[0];

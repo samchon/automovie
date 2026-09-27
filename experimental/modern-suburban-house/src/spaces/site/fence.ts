@@ -41,12 +41,19 @@ const HALF = 0.05;
 /** Emit the fence runs and gate posts while leaving the model leaf opening clear. */
 /**
  * @evidence spaces/site/fence.md This builder emits the fixed garden fence and gate posts while leaving the movable leaf empty.
+ * @evidenceReview spaces/site/fence.md #c07d0c4 v-141 fence.ts:48-118 emits posts, runs and two gate posts; no part inside X [gate0,gate1]; fence.md:41 and side-walk.md:69 leave the leaf to the model owner.
  * @evidence spaces/site/fence.md#fence-enclosure-plan The left, back, right, and front runs meet at shared posts; end posts terminate at MAIN and GARAGE outer faces.
+ * @evidenceReview spaces/site/fence.md#fence-enclosure-plan #ee6f771 v-141 fence.ts:79-86 runs end +-POST at posts (L,F),(L,B),(R,B),(R,F); end posts :74-77 [MAIN.outer.x0-0.12, MAIN.outer.x0], :113-116 [GARAGE.outer.x1, +0.12]; fence.md:31-39 table, shared end points, ends at main left wall and garage right-front corner.
  * @evidence spaces/site/fence.md#fence-gate-junction Two posts flank SIDE_WALK.x and the front panel omits that gate interval.
+ * @evidenceReview spaces/site/fence.md#fence-gate-junction #ee70766 v-141 fence.ts:67 [gate0,gate1]=SIDE_WALK.x; gate-post-west [gate0-0.12,gate0] :100, gate-post-east [gate1,gate1+0.12] :93; inner run stops gate0-2POST :105, outer run starts gate1+2POST :87; fence.md:65-67.
  * @evidence spaces/site/fence.md#fence-ground-profile Panel tops follow the side-walk datum plus 1.70 m; bottoms use its provisional ground proxy plus 0.05 m.
+ * @evidenceReview spaces/site/fence.md#fence-ground-profile #9146a87 v-141 fence.ts:32-34 S=SIDE_WALK.top, TOP=S+1.7, BOTTOM=S+0.05; runs use BOTTOM..TOP :59,:64. fence.md:95 panel top = gate leaf top (side-walk.md:65 leaf S+0.05..1.70), fence.md:97 temporary bottom S+0.05.
  * @evidence principles/core/source-units.md#source-scope-preservation Value imports keep building/path contacts aligned, and no gate leaf or map-ground foundation is emitted.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 fence.ts:22-25 imports GARAGE, MAIN, SIDE_WALK feed F, end posts, gate interval, R, B, S (:28-32); no leaf and no foundation part. (L=-7.0 literal is a centre line, not a contact; see notes.)
  * @evidence principles/core/source-units.md#source-substantive-completion Stable post and run ids yield a continuous fixed enclosure except for the authored gate gap.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Fixed ids; plan chain checked: end post (MAIN) -> left-front run -> post(L,F) -> left run -> post(L,B) -> back -> post(R,B) -> right -> post(R,F) -> outer run -> gate-post-east, gap, gate-post-west -> inner run -> end post (GARAGE); only gap X [12.3,13.5].
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The initial source revealed a missing ground datum; the fence design now authorizes only a marked temporary display bottom.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 git log -S"임시로 S + 0.05 m" -- docs/spaces -> 04df855f added fence.md:97 (temporary S+0.05 bottom, not g, marked map-ground-pending); initial source 2d75a76d already had BOTTOM = S + 0.05 (git log -S). Host marks runs fence.ts:60,65; house.ts:179 marks all fence parts.
  */
 export const buildFence = (): IHousePart[] => {
   const post = (id: string, x: number, z: number): IHousePart =>

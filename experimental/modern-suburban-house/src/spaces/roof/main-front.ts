@@ -32,10 +32,15 @@ const OWNER = "roof/main-front.ts";
 /**
  * Emit the single main front roof part.
  * @evidence spaces/roof/main-front.md This export builds the front main-roof remainder around the exposed gable and chimney notch.
+ * @evidenceReview spaces/roof/main-front.md #f3c7135 buildMainFrontRoof main-front.ts:39-101 builds one part excluding the gable triangle and chimney notch; main-front.md:25.
  * @evidence spaces/roof/main-front.md#main-front-roof Convex coplanar tiles form one roof part around the shared gable valley and chimney notch without internal side faces.
+ * @evidenceReview spaces/roof/main-front.md#main-front-roof #5f2d1fd Four convex coplanar pieces :49-76 in one slopedPlate part :93-99; freeEdge :83-91 closes only edges on exactly one tile that are not on shared ridge/valley segments; main-front.md:25,27 (내부 막음판 없음).
  * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its one roof mesh; it imports junction values instead of claiming their faces.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 pieces omit the valley triangle (apex/feet) and the CHIMNEY_PLAN notch :40-76 before slopedPlate :98; all coordinates imported :17-27.
  * @evidence principles/core/source-units.md#source-substantive-completion Four top/bottom tiles in one mesh preserve the cut plan and close every free edge, including the step and chimney notch.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Four pieces :49-76; tile seams (2 coincident tiles) and ridge/valley segments get no side, while the X=SPLIT_X step :53-54, notch edges :63-75 and eaves are single-tile and unshared, so slopedPlate adds sides (solids.ts:596).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-front-roof omits the GABLE_CORNERS valley triangle and CHIMNEY_PLAN notch while retaining its left and front free eaves; the convex remainder tiles follow those shared boundaries.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 A: pieces exclude the apex/feet triangle and the notch and keep LEFT_EAVE_X/FRONT_EAVE_Z free edges :49-76. B: main-front-roof :25 takes the main front half with free overhang, excludes the gable dominance region and chimney cut; left=본채 측면, front=처마와 박공 합류.
  */
 export const buildMainFrontRoof = (): IHousePart[] => {
   const { apex, leftFoot, rightFoot } = GABLE_CORNERS;

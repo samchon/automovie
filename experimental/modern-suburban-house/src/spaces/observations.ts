@@ -161,12 +161,19 @@ const unit = (from: IPlanPoint, to: IPlanPoint): IPlanPoint => {
 /**
  * Derive every spatial question and self-space pose of the house.
  * @evidence spaces/04-observations.md The derivation consumes the built environment and house-owned outlines.
+ * @evidenceReview spaces/04-observations.md #696e544 Reads environment spaces/connectors/openings/boundaries and house spaces/storages/zones/parts outlines (observations.ts:324-329, :474-477, :503, :546).
  * @evidence spaces/04-observations.md#spatial-observation-derivation Engine stations, concave corners and building census generate questions; bad poses enter failures.
+ * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea 04:41: stations, extra non-rectangular questions and building questions hold. 'bad poses enter failures' is literal only in sibling 04:171 ('null...을 성공한 관찰로 세지 않는다'). Host: stations :432-472, reflex :474-500, census :529-562, failures :388-402.
  * @evidence spaces/04-observations.md#reference-spatial-comparisons The five reference selectors read the accepted station ids and storey records.
+ * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 Selectors also read building-census ids that never pass accept (01, observations.ts:575; pushed :537-562) and non-storey records (house, house-site, rooms, linen: :579, :595, :603, :612). 'storey records' fits 02 only (:584). Unchanged since v141.
  * @evidence spaces/04-observations.md#engine-render-handoff The returned poses are inspection data for later rendering, not camera geometry in the house.
+ * @evidenceReview spaces/04-observations.md#engine-render-handoff #330fc4a Poses are returned as data (observations.ts:618); no camera element is added to the environment. 04:169 viewer render and camera conditions are owned by settings.
  * @evidence principles/core/source-units.md#source-scope-preservation The function derives from the one compiled environment and house record without duplicating their geometry.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Reads compiled cells and openings plus house outlines and levels; copies no geometry (observations.ts:213-285, :325-375, :474-500).
  * @evidence principles/core/source-units.md#source-substantive-completion It returns the station list, explicit failures and all five reference selections.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Returns {observations, failures, references} with five references (observations.ts:571-618).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires every built room's centre, corners, and thresholds plus exterior questions; reference-spatial-comparisons adds the five reference selectors to that census.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41 census holds. 04:125 calls the comparisons '추가할 질문', with camera and id from compiled boundaries plus frame-condition; the body has no 'selectors'. The host returns references beside, not in, the census (observations.ts:571-618) and adds no question. The row puts the host's term in the parent's mouth; see 251.
  */
 export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment, house: IHouse): IObservationDerivation => {
   const observations: IHouseObservation[] = [];

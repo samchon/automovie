@@ -20,10 +20,15 @@ import { ROOF_THICKNESS } from "../roof/junctions";
 /** One wedge over X = `x`, across Z = `z`, under the roof function `roof`. */
 /**
  * @evidence spaces/roof/00-junctions.md wallHead forms a wedge under the roof across a front or rear wall's full thickness.
+ * @evidenceReview spaces/roof/00-junctions.md #864b6cd v-141 slopedSlab over rect(x,z) across the wall's Z thickness (wall-head.ts:37-46), called for front/rear walls (front.ts:151-185, rear.ts:128-162); roof/00-junctions.md:128.
  * @evidence spaces/roof/00-junctions.md#roof-wall-head-junctions Its top samples the roof underside at each Z while the floor stays at the panel's outer-line underside.
+ * @evidenceReview spaces/roof/00-junctions.md#roof-wall-head-junctions #0de3b07 v-141 top (_x,z)=>roof(z)-ROOF_THICKNESS, floor roof(outerZ)-ROOF_THICKNESS (wall-head.ts:44-45); 00-junctions.md:128 inner/outer/between consume the underside, outer height not extruded.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper returns the calling elevation's wall part and imports ROOF_THICKNESS; it does not claim the roof surface.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 part(props.id, props.owner, "wall", ...) (wall-head.ts:37-41); imports ROOF_THICKNESS (l.17); no roof role.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab closes the varying-height gap, giving the wall a solid roof contact instead of a floating top.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slopedSlab with planar floor builds the closed wedge (wall-head.ts:42-46; solids.ts slopedSlab).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The wall-head parent supplies slope-across-thickness and the outer reference line; no extra wall-height datum was introduced.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 00-junctions.md:128 gives slope x thickness (8/12, 7/12, 5/12) and the outer line; helper adds only caller roof function + outerZ.
  */
 export const wallHead = (props: {
   id: string;

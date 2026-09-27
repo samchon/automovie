@@ -54,11 +54,17 @@ const LINEN_HEIGHT = 2.2;
 /** Emit the hall finishes, its shares under the five room doors and the linen closet boundaries around its hollow interior. */
 /**
  * @evidence spaces/rooms/upper-hall.md This builder forms one L-shaped upper corridor and its hollow linen storage.
+ * @evidenceReview spaces/rooms/upper-hall.md #43dab97 v-141 L outline (upper-hall.ts:39-46) = upper-hall.md:27 arrival plus cross part. Storage upper-linen-storage and the linen shell parts (upper-hall.ts:68-151); the interior is left empty (upper-hall.md:57).
  * @evidence spaces/rooms/upper-hall.md#upper-hall-plan The joined arrival and cross bands retain floor shares below five direct room doors.
+ * @evidenceReview spaces/rooms/upper-hall.md#upper-hall-plan #d1275b5 v-141 Five doorFloors (upper-hall.ts:79-108) use DOOR_ constants imported from bedroom-two/three, primary, shower and tub (upper-hall.ts:14-18); upper-hall.md:27 bands, :29 five direct room doors.
  * @evidence spaces/rooms/upper-hall.md#upper-linen-storage Four closet walls, a door opening, and an upper head enclose the 2.20 m storage volume.
+ * @evidenceReview spaces/rooms/upper-hall.md#upper-linen-storage #4925048 v-141 upper-linen-front with upper-linen-opening X[1.97,2.97] up to 2.20, side-west, side-east, back, and upper-linen-head from +2.20 to the ceiling (upper-hall.ts:109-151); storage y upper+2.20 (upper-hall.ts:72); upper-hall.md:57,59.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall does not create bedroom or bathroom partition bodies, and leaves linen shelves/leaves to models.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Only the linen partitions and head are emitted (upper-hall.ts:109-151). The linen perimeter is hall-owned (07:45; upper-hall.md:59). No shelves or leaves are emitted.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, storage record, finish planes, five strips, and closed closet shell are built in a fixed order.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Returns space, storages[1], roomFloor, roomCeiling, 5 doorFloors, 4 linen partitions and the head in a fixed literal array (upper-hall.ts:66-153).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-hall-plan joins its two corridor bands to five room doors, while upper-linen-storage sets the hall closet top; buildUpperHall keeps those contacts in one hall space.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 upper-hall.md:27 arrival and cross parts joined as one L; :29 five room doors; :57 linen interior height 2.20 m. Host outline upper-hall.ts:39-46, five doorFloor shares :79-108, LINEN_HEIGHT 2.2 :51,72.
  */
 export const buildUpperHall = (): IRoomBuild => {
   const owner = UPPER_HALL.owner;

@@ -41,11 +41,17 @@ const OPENING_EDGE = CEILING_FINISH;
 /** Emit the 0.270 m interstorey structure between the two finish layers, with the receded stair notch. */
 /**
  * @evidence spaces/08-floor-assembly.md This builder emits one interstorey structure between ground ceiling and upper room finishes.
+ * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f v-141 Single interstorey-structure part (upper.ts:66-78); 08-floor-assembly.md:25.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Its Y band excludes 0.015 m ground ceiling and 0.025 m upper floor finishes.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 v-141 Bottom groundCeiling+CEILING_FINISH(0.015), top upperFloor-INTERSTOREY_FLOOR_FINISH(0.025) (upper.ts:65,75); 08-floor-assembly.md:27.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions A receded L notch leaves a 0.015 m edge band for the stair's continuous opening finish.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #5618479 v-141 Notch offset e=CEILING_FINISH=0.015 (upper.ts:38,52-62); stair edge strips stair.ts:407-443; 08-floor-assembly.md:65 structure recedes <=0.015 for the stair finish.
  * @evidence principles/core/source-units.md#source-scope-preservation The opening reaches the front wall as a notch, while room finishes and stair edge trim remain with their owners.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Outline reaches z1=MAIN.inner.z[1] at STAIR_OPENING west/turnX (upper.ts:57,62); finishes in rooms, edge strips in stair.ts.
  * @evidence principles/core/source-units.md#source-substantive-completion The ten-point outline extrudes one solid slab with deterministic top and bottom datums.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Outline has 10 points (upper.ts:53-64), one slab with computed bottom/top.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interstorey-floor-boundary allocates one 0.270 m common structure between 0.015 m ceiling and 0.025 m upper room finish, while interstorey-edge-junctions reserves the L stair notch.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 0.015/0.270/0.025 = 08-floor-assembly.md:27 and upper.ts:65,:75. But the L notch itself is set in interstorey-floor-boundary :29/:31 (and 02-stair#stair-floor-opening); interstorey-edge-junctions :65 only reserves the <=0.015 recession. Sibling H2.
  */
 export const buildInterstorey = (): IHousePart[] => {
   const [x0, x1] = MAIN.inner.x;
@@ -82,11 +88,17 @@ export const buildInterstorey = (): IHousePart[] => {
 /** Emit the 0.165 m upper ceiling base over the whole main inner plan, stair hall included, above the room finishes. */
 /**
  * @evidence spaces/09-ceiling-assembly.md This builder closes the full main inner plan above the upper finished ceiling.
+ * @evidenceReview spaces/09-ceiling-assembly.md #403d803 v-141 rect(MAIN.inner) slab (upper.ts:98-102); 09-ceiling-assembly.md:25.
  * @evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure The 0.165 m base starts above the 0.015 m room finish and does not copy the stair floor hole.
+ * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #a3b9afa v-141 Bottom upperCeiling+0.015, top +0.18 (upper.ts:91,101) = 0.165 base; no hole; 09-ceiling-assembly.md:25,27.
  * @evidence spaces/09-ceiling-assembly.md#ceiling-roof-clearance The single upper base sits below the reserved roof underside rather than raising the roof profile.
+ * @evidenceReview spaces/09-ceiling-assembly.md#ceiling-roof-clearance #40a15ca v-141 Top 5.84 < lowest right-roof underside 5.856 (09-ceiling-assembly.md:89 computes ~0.0158); host reads/changes no roof value.
  * @evidence principles/core/source-units.md#source-scope-preservation Rooms and stair retain visible ceiling finishes; this slab is structural ceiling support only.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Room ceilings via roomCeiling, stair-hall-ceiling stair.ts:444-457; this part is role ceiling base only.
  * @evidence principles/core/source-units.md#source-substantive-completion A full-plan solid spans MAIN.inner at the computed bottom and reservation top.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 rect(MAIN.inner.x, MAIN.inner.z), bottom computed, top CEILING_RESERVATION (upper.ts:90-104).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-ceiling-closure covers the full MAIN.inner plan including the stairwell with 0.015 m room finish below 0.165 m support; this builder emits only the support.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 09-ceiling-assembly.md:25 full MAIN inner plan, hole not copied; :27 0.18 = 0.015 finish + 0.165 base; upper.ts:91-101 emits only upper-ceiling-base.
  */
 export const buildUpperCeiling = (): IHousePart[] => {
   const bottom = STOREYS.upperCeiling + CEILING_FINISH;

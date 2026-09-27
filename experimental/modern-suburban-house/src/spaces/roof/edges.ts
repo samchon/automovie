@@ -38,9 +38,13 @@ const onSegment = (p: IAutoMovieVector3, [a, b]: Edge): boolean => {
 
 /** Only a coincident weather edge belonging to another roof plane stays open.
  * @evidence spaces/roof/00-junctions.md This classification follows the roof parts' shared ridge and valley coordinates.
+ * @evidenceReview spaces/roof/00-junctions.md #864b6cd v-141 edges.ts:21-28 shared[] = main ridge (mFront@MAIN_RIDGE_Z), right ridge (rFront), garage ridge (gBack@GARAGE_RIDGE_Z), gable ridge apex->ridgeFront, two valleys leftFoot->apex->rightFoot, all from junctions; docs/spaces/roof/00-junctions.md:98 keeps ridges/valleys as distinct shared roles consumed from junctions.ts.
  * @evidence principles/core/source-units.md#source-scope-preservation The rule selects closure of authored edges without changing roof mass.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 edges.ts:45-46 returns only a boolean; solids.ts:557 (slopedSlab) and :603 (slopedPlate) use it only to skip/add a side quad; plans and heights untouched.
  * @evidence principles/core/source-units.md#source-substantive-completion A free step or chimney edge receives a thickness face, while paired weather edges remain open.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 solids.ts:557/603 add a thickness side only when freeEdge is true; SPLIT_X step edges and chimney-notch edges lie on no shared[] segment -> faced; ridge/valley pairs on shared[] (edges.ts:21-28) -> left open.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-shared-edges requires coincident ridge and valley segments to stay open internally while free roof perimeter closes; roofFreeEdge tests those supplied segments.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Judge: roof-shared-edges fixes shared segments; open/closed thickness rule literal in main-front.md:27. Partial support; same attribution MINOR at solids.ts:569.
  */
 export const roofFreeEdge = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
   !shared.some((edge) => onSegment(a, edge) && onSegment(b, edge));

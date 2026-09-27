@@ -25,9 +25,13 @@ import { floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-two.md The hall-bedroom-two-door void follows the partition assigned to bedroom-two.
+ * @evidenceReview spaces/rooms/bedroom-two.md #72a3676 v-141 bedroom-two.ts:32-37 door(-3.10,-2.10) is the hole of bedroom-two-hall-partition L81-89; 07-boundary-assembly.md:34 gives bedroom-two<->upper-hall to bedroom-two.ts; bedroom-two.md:27.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-two-door interval remains with bedroom-two while its adjacent room receives the span.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 upper-hall.ts:16 imports; upper-hall.ts:79-84 doorFloor X from .from/.to; bedroom-two.ts:75-80 own half.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-two-door span cuts its wall and sets floor finish limits on both sides.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 holes bedroom-two.ts:88; doorFloor bedroom-two Z [back-0.075, back] L75-80 and upper-hall Z [guardBack,-4.635] upper-hall.ts:79-84, both X from the span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-two-plan sets hall-bedroom-two-door in its rear wall at X=[-3.10, -2.10] with a 0.90 m clear-width target; this export preserves the rough X interval.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 bedroom-two.md:27 rear shared wall X=[-3.10,-2.10], 0.90 target; code -3.1/-2.1.
  */
 export const DOOR_HALL_BEDROOM_TWO_DOOR = door(
   "hall-bedroom-two-door",
@@ -61,11 +65,17 @@ const BEDROOM_TWO: IRoomSpace = {
 /** Emit the bedroom floor and its partition to the hall. */
 /**
  * @evidence spaces/rooms/bedroom-two.md This builder owns the olive-bedroom shell and hall-facing door partition.
+ * @evidenceReview spaces/rooms/bedroom-two.md #72a3676 v-141 bedroom-two.ts:70-91 room record + floor/ceiling + hall partition with the door; olive room bedroom-two.md:29.
  * @evidence spaces/rooms/bedroom-two.md#bedroom-two-plan Its room box and door-cut hall run stop before the stair-owned corner.
+ * @evidenceReview spaces/rooms/bedroom-two.md#bedroom-two-plan #7f664d0 v-141 box X [-5.5,-1.95] L45 and partition along [-3.35,-1.95] L87 end at X=-1.95; corner X[-1.95,-1.80] Z[-4.71,-4.56] is stair.ts stair-west-back-corner; bedroom-two.md:25 right side = stair left boundary.
  * @evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Bed, nightstand, desk, closet, and their use boxes are reserved inside the room.
+ * @evidenceReview spaces/rooms/bedroom-two.md#bedroom-two-furniture-use #6b99abd v-141 Reservations L50-57 equal bedroom-two.md:59-64 (bed, nightstand, desk, closet, chair use X[-4.90,-4.15], closet use X[-3.15,-2.55]).
  * @evidence principles/core/source-units.md#source-scope-preservation It emits finish and wall geometry only; bed, desk, and closet remain later model fills.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 parts L73-89: roomFloor, roomCeiling, doorFloor, partition; no furniture solid.
  * @evidence principles/core/source-units.md#source-substantive-completion The return provides carpet floor, ceiling, under-door finish, and a partition with the named door void.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomFloor with PALETTE.carpet L46, roomCeiling, doorFloor L75-80, partition with DOOR_HALL_BEDROOM_TWO_DOOR hole L88.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-two-plan fixes hall-bedroom-two-door and bedroom-two-furniture-use places bed, desk, closet, and chair-use reservations; this builder retains those one-room bounds.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 bedroom-two.md:27 fixes hall-bedroom-two-door X=[-3.10,-2.10]; #bedroom-two-furniture-use :59-64 places bed, nightstand, desk, closet, chair and closet use. Host door bedroom-two.ts:32-37, reservations :50-57, one box outline :45, no other door.
  */
 export const buildBedroomTwo = (): IRoomBuild => ({
   space: BEDROOM_TWO,
