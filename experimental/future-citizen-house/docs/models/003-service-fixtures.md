@@ -136,7 +136,7 @@
 @evidenceReview principles/design/models.md#representation-contract #46718c6 @ellipse bowl·seat는 타원 구멍을 내고 interior-floor 축 규칙은 bowl 내부 바닥만 닫아 seat 안에 가짜 막을 두지 않는다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 접촉 원점, 앉는 방향 +Z와 seat 뒤 z=-0.21·cistern 앞 z=-0.215의 틈이 본문 좌표에 있다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b bowl/inner, seat/edge, cistern/front, flush/outer가 위·정면·측면에서 열린 구멍과 분리 경계를 관찰하게 한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 두 화장실 도기 형상을 bowl·seat·lid·cistern의 분할 근거로 삼고, 본문은 사진의 화면 면적에서 폭을 역산하지 않은 채 0.42×0.72m 점유를 별도로 정한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #_______ ref02의 두 화장실 도기 형상을 채택하되 사진 화면의 면적으로 폭을 역산하지 않는다. 0.42×0.72m 점유와 여섯 부품 분할은 이 H2의 국소 결정이다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope lid-open과 여섯 @part가 최고 0.828m, floor 접촉, seat·tank 사이 0.005m 틈을 수치로 닫는다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 두 프로그램과 두 욕실의 변기 용도에 같은 0.42×0.72m 고정 도기를 대조했고 방·문과 실제 접근 점유는 배치에 남는다.
 @evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-bathroom #c221644 corridor-bathroom 공유벽은 @inventory의 여섯 도기 부품에 없고 toilet은 독립 바닥 접촉만 선언한다.
