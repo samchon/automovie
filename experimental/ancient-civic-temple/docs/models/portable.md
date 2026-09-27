@@ -97,8 +97,8 @@ part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이
 ## 항아리 두 자리 받침대 {#jar-rack}
 
 <!--
-@evidence contracts/principles-models.md#temple-reference-scale 1.18×0.28×0.58m 두 자리 받침은 항아리 두 개의 접촉면을 남기고, 목재 `top`은 +X U·정방 `leg`는 +Y U, 둥근 `well` 벽은 원환 호길이 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 항아리 두 자리의 1.18m 길이와 두 홈 위치를 읽고 상판 X·다리 Y·홈 벽 둘레 UV가 분리됐는지 확인했다.
+@evidence contracts/principles-models.md#temple-reference-scale 1.18×0.28×0.58m 두 자리 받침의 목재 `top`은 +X U·정방 `leg`는 +Y U이고, 상판이 소유한 두 홈 벽은 Y축 둘레 U·모선 V, `well` 바닥은 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 항아리 두 자리의 1.18m 길이와 홈 중심 X=±0.29m를 읽고 홈 벽은 `top`, 바닥은 `well`이라는 소유에 맞춰 곡면·평면 UV를 구별했다.
 @evidence principles/core/common.md#scope-preservation 두 항아리를 받는 보관실 가구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두 항아리 홈과 네 다리·열린 아래를 읽어 받침대 자체를 도기와 혼동하지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 상판·두 홈·네 다리의 치수와 열린 아래, 저장 항아리 바닥 반지름 0.10m보다 큰 홈 반지름 0.16m를 정한다.
@@ -135,7 +135,7 @@ part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이
 
 part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검토 판의 상면에서 두 빈 홈, 측면에서 열린 하부를 확인한다. 홈이 관통하거나 홈 없이 도기와 겹치는 판은 실패다.
 
-두 자리 받침 `top`은 폭 +X, 네 `leg`는 바닥에서 위로 +Y를 UV0의 U로 둔다. 두 `well`의 열린 원형 벽은 둘레 호길이로 펴고 바닥은 평면 투영으로 별도 이음을 둔다.
+두 자리 받침 `top`의 긴 상판은 폭 +X, 네 `leg`는 바닥에서 위로 +Y를 UV0의 U로 둔다. `top`에 속한 두 원형 홈 벽은 +X 시접의 Y축 둘레 호길이 U·모선 V로 펴고 `well` 바닥은 수평 평면 투영으로 별도 이음을 둔다.
 
 ## 양손 운반 멜대 {#carrying-yoke}
 

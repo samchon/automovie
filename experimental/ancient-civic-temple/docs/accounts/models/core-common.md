@@ -117,9 +117,9 @@
 | [portable/portable-lamp](../../models/portable.md#portable-lamp) | `foot` | 1060 | `d0729636e7da99df4db9febee2fc3fd39c450eeebe4ecc3df2d6a07299ab59db` |
 | [portable/portable-lamp](../../models/portable.md#portable-lamp) | `stem` | 1060 | `d0729636e7da99df4db9febee2fc3fd39c450eeebe4ecc3df2d6a07299ab59db` |
 | [portable/portable-lamp](../../models/portable.md#portable-lamp) | `dish` | 1060 | `d0729636e7da99df4db9febee2fc3fd39c450eeebe4ecc3df2d6a07299ab59db` |
-| [portable/jar-rack](../../models/portable.md#jar-rack) | `top` | 1251 | `09ab7ddba6999b44dea23ac5c5a5cbe0da5b6564cf23343a709383ce3b19a714` |
-| [portable/jar-rack](../../models/portable.md#jar-rack) | `leg` | 1251 | `09ab7ddba6999b44dea23ac5c5a5cbe0da5b6564cf23343a709383ce3b19a714` |
-| [portable/jar-rack](../../models/portable.md#jar-rack) | `well` | 1251 | `09ab7ddba6999b44dea23ac5c5a5cbe0da5b6564cf23343a709383ce3b19a714` |
+| [portable/jar-rack](../../models/portable.md#jar-rack) | `top` | 1285 | `7a19235c42bd0b32363e4de206c386480a37926905c206609cb0d3b56615fddb` |
+| [portable/jar-rack](../../models/portable.md#jar-rack) | `leg` | 1285 | `7a19235c42bd0b32363e4de206c386480a37926905c206609cb0d3b56615fddb` |
+| [portable/jar-rack](../../models/portable.md#jar-rack) | `well` | 1285 | `7a19235c42bd0b32363e4de206c386480a37926905c206609cb0d3b56615fddb` |
 | [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `beam` | 817 | `4d47c53c24b2ece86d783651a36f242016fb123d6cf99a84e90df2d4583b1f3c` |
 | [portable/carrying-yoke](../../models/portable.md#carrying-yoke) | `hook` | 817 | `4d47c53c24b2ece86d783651a36f242016fb123d6cf99a84e90df2d4583b1f3c` |
 | [portable/handcart](../../models/portable.md#handcart) | `deck` | 1481 | `c40c1652d39b0b226c2d5a3ea1e093d8ecac7bdb01b1b8f0f38fbff8ce481f81` |
@@ -197,10 +197,10 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | fixtures.md | 10 | 10058 |
 | landscape.md | 4 | 4331 |
 | openings.md | 4 | 5026 |
-| portable.md | 13 | 11771 |
+| portable.md | 13 | 11795 |
 | ritual.md | 3 | 2582 |
 | wares.md | 6 | 5976 |
-| 합계 | 49 | 52136 |
+| 합계 | 49 | 52160 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 
