@@ -135,17 +135,17 @@ export interface IRoomSpace {
 /**
  * Finished floor and ceiling heights of a room.
  * @evidence spaces/01-storeys.md Normal rooms use storey datums; garage can supply its own finished levels.
- * @evidenceReview spaces/01-storeys.md #3d5a439 v-141 L238 levels ?? [floorOf, ceilingOf]; 01-storeys.md:29,31 storey datums; :63 garage levels.
+  * @evidenceReview spaces/01-storeys.md `roomLevels` uses a room's explicit finished pair when supplied and otherwise reads its assigned ground or upper floor and ceiling datums.
  * @evidence spaces/01-storeys.md#storey-datums The default pair comes from the assigned storey's floor and ceiling.
- * @evidenceReview spaces/01-storeys.md#storey-datums #9624dfb v-141 floorOf/ceilingOf (storeys.ts:120-133) read STOREYS ground 0/2.75 and upper 3.06/5.66 = 01-storeys.md:29,31.
+  * @evidenceReview spaces/01-storeys.md#storey-datums The default return calls `floorOf(room.storey)` and `ceilingOf(room.storey)`, preserving the two storeys' established finished heights.
  * @evidence spaces/01-storeys.md#ground-threshold-datums A room-level override preserves the garage threshold exception.
- * @evidenceReview spaces/01-storeys.md#ground-threshold-datums #b38ce8d v-141 garage-interior.ts:27 levels [garageFloor, garageCeiling] = 01-storeys.md:63 -0.15/2.55.
+  * @evidenceReview spaces/01-storeys.md#ground-threshold-datums `garage-interior.ts` supplies garage floor and ceiling as `room.levels`, so the override returns its lower ground annex pair instead of ordinary ground heights.
  * @evidence principles/core/source-units.md#source-scope-preservation The function reads established datums and does not choose a new floor.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Only reads room.levels or the STOREYS datums via floorOf/ceilingOf.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The function chooses only between the room's explicit pair and its storey lookup; no new datum or third storey is authored here.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns an explicit height pair for downstream ceiling and observation construction.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f roomCeiling, environment assembly, observations and reservations.ts checkReservations all read this finished floor/ceiling pair when the garage overrides ordinary storey datums.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion The returned pair feeds `roomCeiling`, environment room cells, observation standing floors, and reservation route head heights when a room overrides normal levels.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes ordinary room floors and ceilings, while ground-threshold-datums puts the garage floor at -0.15 m; roomLevels chooses that explicit override without a third level.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Storeys fixes floors 0/3.06 and ceilings 2.75/5.66, with garage floor -0.15; roomLevels returns either the room override or its storey floor/ceiling pair and creates no third level.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `storey-datums` fixes ordinary room heights and `ground-threshold-datums` fixes the lower garage pair; this function reads those authored values without adding a level.
  */
 export const roomLevels = (room: IRoomSpace): readonly [number, number] => room.levels ?? [floorOf(room.storey), ceilingOf(room.storey)];
 
@@ -267,15 +267,15 @@ const finishDepth = (storey: StoreyId): number => (storey === "ground-storey"
 /**
  * Floor finish of one room: its outline over the top finish layer.
  * @evidence spaces/03-surface-owners.md The room source owns the visible floor inside its finished perimeter.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 roomFloor L325-334 slab over room.outline; 03-surface-owners.md:96.
+  * @evidenceReview spaces/03-surface-owners.md `roomFloor` emits a slab over the room builder's own `outline` under `room.owner`, producing that room's visible floor finish.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The returned part keeps the room's id, owner, outline and floor colour.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 L328-332 id room.id-floor, owner room.owner, colour room.floor, outline room.outline.
+  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff The returned floor part uses `${room.id}-floor`, `room.owner`, `room.floor`, and the room outline, preserving one finish source and identity.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper reads the room's assigned plan and layer depth without choosing a new one.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 finishDepth L313-315 = GROUND_LAYERS.finish or INTERSTOREY_FLOOR_FINISH; top = floorOf(room.storey).
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The helper reads the selected storey's finished floor and existing ground or interstorey finish depth; it chooses no room geometry or new layer thickness.
  * @evidence principles/core/source-units.md#source-substantive-completion It emits a closed finish slab at the storey's finished floor.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slab top=floorOf, bottom=top-finishDepth (L326,332); solids.ts slab is a closed extrusion.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns visible floor finish to the room and main-ground-floor-base fixes its finish thickness; roomFloor extrudes that room outline to its floor datum.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 roomFloor slabs the room outline from finished floor minus finishDepth to finished floor. The cited ground-floor base fixes 0.025 m for ground rooms, but upper roomFloor also uses INTERSTOREY_FLOOR_FINISH from interstorey-floor-boundary; the evidence sentence omits that second parent.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion `slab` closes the room outline between `floorOf(room.storey)` and that height minus `finishDepth`, returning a mesh carrying the room's finish colour.
+  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns visible floor finish to each room, `main-ground-floor-base` fixes its ground depth, and `interstorey-floor-boundary` fixes the upper depth; `roomFloor` extrudes the supplied outline in the applicable layer.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Ground rooms use `GROUND_LAYERS.finish` and upper rooms `INTERSTOREY_FLOOR_FINISH`; both produce their assigned floor part from the room outline and datum without choosing a new slab allocation.
  */
 export const roomFloor = (room: IRoomSpace): IHousePart => {
   const top = floorOf(room.storey);
@@ -292,16 +292,16 @@ export const roomFloor = (room: IRoomSpace): IHousePart => {
  * The room's share of the floor finish under one interior door void: the
  * rectangle from the room's partition face to the partition mid-plane across
  * the door width, in the room's finish layer.
- * @evidence spaces/03-surface-owners.md Each adjacent room owns its half of the visible floor under an interior door.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 The half-and-half rule is 07-boundary-assembly.md:83 (each room's finish meets at the rough-partition centre plane). The cited 03 only says (03:45) that the same-height under-door floor transition belongs to '07's single room owner'. See notes.
- * @evidence spaces/03-surface-owners.md#interior-surface-handoff This part extends the room finish to the partition centre without claiming the other room's floor.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 03 #interior-surface-handoff body (03:96) has room finish ownership but no partition-centre rule, which is 07-boundary-assembly.md:83. The centre is a caller literal (e.g. living.ts:92 [-1.95,-1.875]), not derived here. See notes.
+  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions At a same-height interior door, each caller supplies its room-side floor finish through the wall thickness to the central transition plane.
+  * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions `doorFloor` meshes only the X/Z interval supplied by the room builder; those callers end their strips at the rough partition's centre plane under the shared door void.
+  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The returned doorway finish part retains its room source and colour.
+  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff `doorFloor` names the strip from `room.id` and `doorId`, sets `room.owner` and `room.floor`, and leaves the opposite room's finish to its own builder.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller supplies the door interval; the helper preserves its room owner.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 L346 caller supplies x/z; owner = room.owner (L350).
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The caller supplies door id and both plan intervals; the helper uses `room.owner` and does not decide where the partition centre lies.
  * @evidence principles/core/source-units.md#source-substantive-completion The door-width finish becomes a closed slab in the same layer as the room floor.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L347,353 same top and finishDepth as roomFloor.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion A closed `slab` under the supplied door interval uses the same storey floor top and `finishDepth` as the room's main floor finish.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires each room's finish to reach its interior door void's wall centreline; doorFloor fills the caller-supplied half of that threshold at the room's finish level.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07-boundary-assembly.md:83 (#interior-boundary-junctions) 마감 전환선은 거친 칸막이 두께의 중앙면; doorFloor fills the caller half. v-143 F10 closed.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-boundary-junctions` fixes the central finish transition under a same-height door; the caller supplies its side of that rectangle and this helper closes it in the room's existing finish layer.
  */
 export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number, number], z: readonly [number, number]): IHousePart => {
   const top = floorOf(room.storey);
@@ -319,15 +319,15 @@ export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number,
  * storey's finished ceiling, under the interstorey structure (ground) or the
  * upper ceiling base (upper).
  * @evidence spaces/03-surface-owners.md The room source owns its visible ceiling finish.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 roomCeiling L367-376 part per room; 03-surface-owners.md:96.
+  * @evidenceReview spaces/03-surface-owners.md `roomCeiling` returns the emitting room's visible ceiling finish part, leaving the shared structural base with the floor or garage owner.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The part follows the room's finished outline or caller-supplied ceiling cut.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 Default outline = room.outline (L367); entry.ts:114 passes a cut at the stair opening.
+  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff The default ceiling ring is `room.outline`; `buildEntry` supplies a cut outline at the front-reaching stair opening while retaining entry ownership.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper uses the room's ceiling datum and does not author a structural slab.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 bottom = roomLevels(room)[1] (L368); 0.015 CEILING_FINISH finish only.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The helper reads the resolved ceiling height through `roomLevels` and the fixed `CEILING_FINISH` reservation, adding no structural ceiling slab.
  * @evidence principles/core/source-units.md#source-substantive-completion It emits the thin ceiling finish at the resolved room height.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slab bottom..bottom+CEILING_FINISH at the resolved ceiling (garage 2.55 via levels).
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-ceiling-closure fixes the room ceiling finish below its structural reservation and interior-surface-handoff assigns the visible face to the room; roomCeiling consumes both.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Upper ceiling assembly puts the visible finish in the lower 0.015 m reservation, and roomCeiling slabs from finished ceiling to that datum plus CEILING_FINISH. This helper also serves ground rooms and garage, whose ceiling parents the evidence sentence omits.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion The returned `slab` occupies finished ceiling through finished ceiling plus 0.015 m; the garage override resolves its ceiling to its own lower datum.
+  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns room ceiling finishes; `interstorey-floor-boundary` fixes ground ceiling depth, `upper-ceiling-closure` fixes upper depth, and `garage-ceiling-closure` fixes the garage exception consumed by this helper.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The helper reads each room's finished ceiling and the 0.015 m finish depth, so ground, upper, and garage builders can emit their assigned ceiling parts without inventing another common base.
  */
 export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = room.outline): IHousePart => {
   const [, bottom] = roomLevels(room);
