@@ -59,6 +59,19 @@ export interface IAutoMovieMesh {
   colors?: number[];
 
   /**
+   * Optional factor on the slopes of the material's normal map, one per
+   * vertex, finite and nonnegative: a relief that deepens or flattens across
+   * the surface, such as the wrinkles over a joint that flatten as it bends
+   * and stretch the skin. It scales `normalTexture` alone, not the detail
+   * map or an overlay's. glTF has no ratified attribute for it, so an
+   * exported asset omits it. Omission means one, without a buffer.
+   *
+   * @evidence requirements/asset-authoring/geometry.md#asset-primitive-freeform-geometry Carries a per-vertex relief strength alongside the vertices of a freeform mesh.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-inputs Defines optional aligned nonnegative relief factors with an identity default.
+   */
+  reliefWeights?: number[];
+
+  /**
    * Triangle indices into the vertex arrays (every 3 form one triangle). `null`
    * for a non-indexed mesh (vertices taken in order).
    *
