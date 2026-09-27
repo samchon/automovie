@@ -7,6 +7,11 @@
  * capped independently. Repeated directed edges and branched or open chains
  * refuse instead of producing a misleading partial boundary.
  *
+ * The loops are read once per index array and shared: an admitted basis is
+ * immutable, and the simple tier reads the same neck ring at every sample of
+ * every inversion, where walking the topology again cost more than the
+ * shape it measures. Callers treat the result as read-only.
+ *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Finds the clip ring the height rule reads from the surface itself.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Realizes the boundary-edge definition of the ring the measurement rules refer to.
  */
@@ -19,6 +24,19 @@ export function humanBodySurfaceBoundary(
   indices: number[],
   orderedLoops?: true,
 ): number[] | number[][] {
+  let loops = cache.get(indices);
+  if (loops === undefined) {
+    loops = walk(indices);
+    cache.set(indices, loops);
+  }
+  return orderedLoops
+    ? loops
+    : [...new Set(loops.flat())].sort((x, y) => x - y);
+}
+
+const cache = new WeakMap<number[], number[][]>();
+
+function walk(indices: number[]): number[][] {
   const directed = new Set<string>();
   for (let t = 0; t + 2 < indices.length; t += 3)
     for (let k = 0; k < 3; k++) {
@@ -56,7 +74,5 @@ export function humanBodySurfaceBoundary(
       throw new Error("A body surface boundary must form separate loops.");
     loops.push(loop);
   }
-  return orderedLoops
-    ? loops
-    : [...new Set(loops.flat())].sort((x, y) => x - y);
+  return loops;
 }
