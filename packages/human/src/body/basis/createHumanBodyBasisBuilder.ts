@@ -428,16 +428,33 @@ export function createHumanBodyBasisBuilder(
               overlay.normal === undefined
                 ? null
                 : once(overlay.normal, "linear");
-            if (overlay.kind === "nails")
+            if (overlay.kind === "nails") {
+              // the nail bed follows the person's pigmentation as the palm,
+              // the skin's least pigmented site, does
+              const cheek = document.skinColour?.cheek;
+              const palm = (rgb: { r: number; g: number; b: number }) =>
+                HUMAN_BODY_SKIN_SITES.sites.palmar.map(
+                  ([a, b], k) => Math.exp(a) * [rgb.r, rgb.g, rgb.b][k] ** b,
+                );
+              const factor =
+                cheek === undefined || overlay.cheek === undefined
+                  ? undefined
+                  : ((own, drawn) => ({
+                      r: own[0] / drawn[0],
+                      g: own[1] / drawn[1],
+                      b: own[2] / drawn[2],
+                    }))(palm(cheek), palm(overlay.cheek));
               return [
                 {
                   baseColorTexture: once(overlay.color, "srgb"),
                   blend: "replace",
+                  ...(factor === undefined ? {} : { colorFactor: factor }),
                   roughness: overlay.roughness,
                   normalTexture,
                   strength: 1,
                 },
               ];
+            }
             const veins = document.skinVeins;
             if (veins === undefined) return [];
             return [

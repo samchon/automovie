@@ -459,7 +459,10 @@ export interface IAutoMovieHumanBodyBasis {
      *
      * - A `nails` layer is the nail plates, another tissue that replaces the
      *   skin where it covers, with its own colour, surface and `roughness`
-     *   in [0, 1], shown in full.
+     *   in [0, 1], shown in full. With the `cheek` albedo its colour was
+     *   drawn for, a document's own cheek tints it by the palm's albedo
+     *   against that cheek's (the palm is the skin's least pigmented site,
+     *   as a nail bed is), so the plates follow the person's pigmentation.
      * - A `veins` layer is the superficial veins, a tint of the skin over
      *   them and their raised relief, drawn as they show over the lean body
      *   this surface's `sag` declares. A document's `skinVeins` shows them
@@ -479,6 +482,7 @@ export interface IAutoMovieHumanBodyBasis {
           color: string;
           normal?: string;
           roughness: number;
+          cheek?: { r: number; g: number; b: number };
         }
       | {
           kind: "veins";

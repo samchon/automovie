@@ -43,6 +43,7 @@ const VEINS: IAutoMovieMaterialOverlay = {
 const NAILS: IAutoMovieMaterialOverlay = {
   baseColorTexture: reference("nails", "srgb"),
   blend: "replace",
+  colorFactor: { r: 0.5, g: 0.4, b: 0.3 },
   roughness: 0.25,
   strength: 1,
 };
@@ -64,7 +65,8 @@ const NAILS: IAutoMovieMaterialOverlay = {
  *    roughness after the roughness map, and, before the frame turns the
  *    normal and after the detail blend when that patch ran first, adds a
  *    tint's slopes and replaces the normal by a replacing layer's coverage.
- * 4. Validation refuses a list that is not one or holds more than four, an
+ * 4. Validation refuses a list that is not one or holds more than four, a
+ *    negative colour factor, an
  *    entry that is not a record, a missing colour image, an unknown blend, a
  *    strength or roughness outside [0, 1], a negative normal scale, an sRGB
  *    normal map and a linear colour image, and admits the two overlays.
@@ -100,6 +102,8 @@ export const test_viewer_material_overlay = (): void => {
       nails.color.name === "nails" &&
       nails.normal === null &&
       nails.roughness === 0.25 &&
+      nails.colorFactor.g === 0.4 &&
+      veins.colorFactor.r === 1 &&
       nails.blend === "replace",
   );
   TestValidator.equals(
@@ -168,6 +172,14 @@ export const test_viewer_material_overlay = (): void => {
           ),
       ],
       [
+        "colourFactor",
+        () =>
+          after(
+            "overlayColor1.rgb *= overlayColorFactor1;",
+            "vec4 overlayColor1 = texture2D(",
+          ),
+      ],
+      [
         "replace",
         () =>
           fragment.includes(
@@ -207,6 +219,7 @@ export const test_viewer_material_overlay = (): void => {
     {
       colourUv: true,
       tint: true,
+      colourFactor: true,
       replace: true,
       roughness: true,
       replacedNormal: true,
@@ -273,6 +286,15 @@ export const test_viewer_material_overlay = (): void => {
           ),
       ],
       [
+        "colourFactor",
+        () =>
+          hasViolation(
+            validate([{ ...NAILS, colorFactor: { r: 1, g: -1, b: 1 } }]),
+            "range",
+            ".overlays[0].colorFactor.g",
+          ),
+      ],
+      [
         "normalScale",
         () =>
           hasViolation(
@@ -313,6 +335,7 @@ export const test_viewer_material_overlay = (): void => {
       blend: true,
       strength: true,
       roughness: true,
+      colourFactor: true,
       normalScale: true,
       normalSpace: true,
       colourSpace: true,
