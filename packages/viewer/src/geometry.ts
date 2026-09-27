@@ -51,6 +51,11 @@ export const buildGeometry = (
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(mesh.uvs, 2));
   if (mesh.colors !== undefined)
     geo.setAttribute("color", new THREE.Float32BufferAttribute(mesh.colors, 3));
+  if (mesh.reliefWeights !== undefined)
+    geo.setAttribute(
+      "reliefWeight",
+      new THREE.Float32BufferAttribute(mesh.reliefWeights, 1),
+    );
   if (mesh.indices !== null) geo.setIndex(mesh.indices);
   if (mesh.skin !== null) {
     geo.setAttribute(
