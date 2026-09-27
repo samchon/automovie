@@ -20,15 +20,15 @@ import { ROOF_THICKNESS } from "../roof/junctions";
 /** One wedge over X = `x`, across Z = `z`, under the roof function `roof`. */
 /**
  * @evidence spaces/roof/00-junctions.md wallHead forms a wedge under the roof across a front or rear wall's full thickness.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd v-141 slopedSlab over rect(x,z) across the wall's Z thickness (wall-head.ts:37-46), called for front/rear walls (front.ts:151-185, rear.ts:128-162); roof/00-junctions.md:128.
+ * @evidenceReview spaces/roof/00-junctions.md wallHead spans the caller's X and Z wall-thickness rectangle and returns a sloped solid; front.ts and rear.ts call it for the front and rear wall-head contacts described by the roof junction design.
  * @evidence spaces/roof/00-junctions.md#roof-wall-head-junctions Its top samples the roof underside at each Z while the floor stays at the panel's outer-line underside.
- * @evidenceReview spaces/roof/00-junctions.md#roof-wall-head-junctions #0de3b07 v-141 top (_x,z)=>roof(z)-ROOF_THICKNESS, floor roof(outerZ)-ROOF_THICKNESS (wall-head.ts:44-45); 00-junctions.md:128 inner/outer/between consume the underside, outer height not extruded.
+ * @evidenceReview spaces/roof/00-junctions.md#roof-wall-head-junctions The slopedSlab top samples props.roof(z) minus ROOF_THICKNESS through the wall, while its floor stays at the same underside evaluated at outerZ; it closes the higher inner contact without raising the outer line.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper returns the calling elevation's wall part and imports ROOF_THICKNESS; it does not claim the roof surface.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 part(props.id, props.owner, "wall", ...) (wall-head.ts:37-41); imports ROOF_THICKNESS (l.17); no roof role.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation wallHead passes the caller's id and owner to a wall part and reads the shared ROOF_THICKNESS only for the contact top; it emits no second roof surface.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab closes the varying-height gap, giving the wall a solid roof contact instead of a floating top.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slopedSlab with planar floor builds the closed wedge (wall-head.ts:42-46; solids.ts slopedSlab).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion slopedSlab receives a complete plan, varying roof-underside top and fixed outer-line floor, so the helper returns actual wall geometry for the gap instead of a height-only record.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The wall-head parent supplies slope-across-thickness and the outer reference line; no extra wall-height datum was introduced.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 00-junctions.md:128 gives slope x thickness (8/12, 7/12, 5/12) and the outer line; helper adds only caller roof function + outerZ.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Roof-wall-head-junctions specifies the roof underside across wall thickness and the outer-line reference; wallHead evaluates the caller's roof function at that outer line and through Z without inventing another wall datum.
  */
 export const wallHead = (props: {
   id: string;

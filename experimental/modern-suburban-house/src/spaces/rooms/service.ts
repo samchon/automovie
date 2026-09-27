@@ -41,15 +41,15 @@ const SERVICE: IRoomSpace = {
 /** Emit the service passage floor and ceiling finishes and its shares of the floor under its door voids. */
 /**
  * @evidence spaces/rooms/service.md This export supplies the joined right-and-rear service passage as a room record and finish surfaces.
- * @evidenceReview spaces/rooms/service.md #38103b3 v-141 SERVICE room record plus roomFloor/roomCeiling and 4 doorFloors (service.ts:26-79); service.md:29: right band plus rear band behind the stair.
+ * @evidenceReview spaces/rooms/service.md SERVICE records the right passage band joined to the rear band behind the stair; buildService returns that room with floor, ceiling and four door-bottom finish shares as the service design requires.
  * @evidence spaces/rooms/service.md#service-access-plan The six-corner L outline keeps the front-entry connection wall-less and serves powder, laundry, pantry, and common openings.
- * @evidenceReview spaces/rooms/service.md#service-access-plan #de0716f v-141 6-point outline (service.ts:30-37) = service.md:29 bands. No partition emitted, so the X=2.02 connection stays wall-less (service.md:31). doorFloors for powder/laundry/pantry/common (service.ts:54-77) via door constants imported at service.ts:12-15.
+ * @evidenceReview spaces/rooms/service.md#service-access-plan SERVICE's six points trace the two authored L bands and buildService emits no wall at the entry connection; its four doorFloor calls use the powder, laundry, pantry and common opening spans.
  * @evidence principles/core/source-units.md#source-scope-preservation Its neighbours own all partition bodies; this builder emits only its floor, ceiling, and shares under four voids.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Parts are only roomFloor, roomCeiling and 4 doorFloor (service.ts:51-78); 07:33-35 plus the common/living rows assign the partitions to neighbours.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation buildService returns only roomFloor, roomCeiling and doorFloor parts; adjoining room owners retain the partition and opening bodies, so this builder adds no shared wall.
  * @evidence principles/core/source-units.md#source-substantive-completion The return has a continuous floor/ceiling and four named doorFloor strips for actual passage bottoms.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 One-outline floor and ceiling; four doorFloor ids service-powder/laundry/pantry-door and service-common-opening (service.ts:54-77).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The one SERVICE outline feeds complete floor and ceiling parts, and four named doorFloor strips cover the powder, laundry, pantry and common thresholds for the returned room.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Service-access-plan joins the right/front and stair-back bands without a wall and assigns the common, powder, laundry, and pantry door contacts; buildService keeps that one open service space.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 service.md:29 right band + stair-back band joined as one L; :31 entry connection without door or partition, powder/laundry/pantry doors in X=[3.07,3.22] owned by their rooms; :33 common open connection. Host outline service.ts:30-37, four doorFloor shares, no partition.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Service-access-plan fixes the two L bands, open entry boundary and powder, laundry, pantry and common contacts; SERVICE's outline and buildService's finish shares implement those inputs without a new service wall or route decision.
  */
 export const buildService = (): IRoomBuild => ({
   space: SERVICE,
