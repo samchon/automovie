@@ -29,6 +29,7 @@ import { envelopeSolids } from "./envelope-overlaps";
 import { checkModelTessellation } from "./model-tessellation-census.mjs";
 import { checkModelProseConsistency } from "./model-prose-consistency.mjs";
 import { checkModelSurfaceBinding } from "./model-surface-binding.mjs";
+import { materialSpaceBindingCensus } from "./material-space-binding.mjs";
 
 const { values } = parseArgs({ options: { grid: { type: "string", default: "0.01" }, retired: { type: "string", default: "" }, "sync-accounts": { type: "boolean", default: false }, handoffs: { type: "boolean", default: false } } });
 const grid = Number(values.grid);
@@ -207,6 +208,13 @@ try {
 const tessellation = checkModelTessellation();
 const proseConsistency = checkModelProseConsistency();
 const surfaceBinding = checkModelSurfaceBinding();
+const spaceBinding = materialSpaceBindingCensus(
+  addressControl.environment.models.flatMap((model) => model.parts.map((part) => part.id)).filter((id) => id.startsWith("surface.")),
+  readFileSync(join(docs, "materials", "20-space-bindings.md"), "utf8"),
+  readFileSync(join(docs, "materials", "10-model-bindings.md"), "utf8"),
+);
+console.log(`material space binding: ${spaceBinding.emitted} emitted surfaces, ${spaceBinding.assigned} assigned, ${spaceBinding.rows} rows, ${spaceBinding.failures.length} failures`);
+for (const failure of spaceBinding.failures) console.error(failure);
 const npmCli = [process.env.npm_execpath, join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")]
   .find((path) => path !== undefined && existsSync(path));
 const unit = npmCli
@@ -255,6 +263,6 @@ if (retired.length > 0) {
     console.log(`  ${value}: ${hits.length}${hits.length > 0 ? ` — ${hits.join(", ")}` : ""}`);
   }
 }
-const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + identityFailures.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + surfaceBinding.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
+const failureCount = review.failures + accountMismatches.length + modelMismatches.length + parameterAuditMismatches.length + partNounMismatches.length + ownerless.length + identityFailures.length + arithmeticFailures + geometryFailures + tessellation.failures.length + proseConsistency.failures.length + surfaceBinding.failures.length + spaceBinding.failures.length + unitFailure + Number(addressControlFailed) + Number(ownViewControlFailed);
 console.log(`self-check failures: ${failureCount}`);
 process.exitCode = failureCount > 0 ? 1 : 0;
