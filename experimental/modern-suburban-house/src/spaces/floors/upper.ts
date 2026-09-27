@@ -41,9 +41,9 @@ const OPENING_EDGE = CEILING_FINISH;
 /** Emit the 0.270 m interstorey structure between the two finish layers, with the receded stair notch. */
 /**
  * @evidence spaces/08-floor-assembly.md This builder emits one interstorey structure between ground ceiling and upper room finishes.
- * @evidenceReview spaces/08-floor-assembly.md #8098923 buildInterstorey returns one interstorey-structure slab within MAIN.inner rather than separate structural boxes for the rooms above and below it.
+ * @evidenceReview spaces/08-floor-assembly.md # buildInterstorey returns one interstorey-structure slab within MAIN.inner rather than separate structural boxes for the rooms above and below it.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Its Y band excludes 0.015 m ground ceiling and 0.025 m upper floor finishes.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #5f41197 Its bottom is groundCeiling plus the 0.015 m ceiling finish, and its top is upperFloor minus the 0.025 m floor finish, leaving the assigned 0.270 m structural interval.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary # Its bottom is groundCeiling plus the 0.015 m ceiling finish, and its top is upperFloor minus the 0.025 m floor finish, leaving the assigned 0.270 m structural interval.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions A receded L notch leaves a 0.015 m edge band for the stair's continuous opening finish.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #5618479 The outline offsets the stair opening by OPENING_EDGE, equal to the 0.015 m finish reservation; buildStair calls stair-guards.ts to emit the five edge strips in that band.
  * @evidence principles/core/source-units.md#source-scope-preservation The opening reaches the front wall as a notch, while room finishes and stair edge trim remain with their owners.

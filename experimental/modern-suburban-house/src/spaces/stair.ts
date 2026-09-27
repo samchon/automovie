@@ -21,7 +21,8 @@
  *   interstorey structure, which closes it on to the upper floor;
  * - the under-stair closure X = [1.87, 2.02] at the arrival end, below the
  *   interstorey structure, cut only by `entry-coat-opening`
- *   Z = [-4.51, -3.56], Y = [0, 2.15];
+ *   Z = [-4.51, -3.56], Y = [0, 2.15]; its bottom is the finished ground
+ *   floor so the room-owned opening strips occupy the finish layer below it;
  * - the upper bedroom-side partitions X = [-0.65, -0.50] and Z = [-3.41, -3.26].
  *
  * Guards (stair-clearance, stair-boundary-heights): every post and handrail
@@ -175,23 +176,23 @@ const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 const UPPER_BASE = STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH;
 /**
  * @evidence spaces/02-stair.md This builder owns the one L-shaped two-flight stair, its closed boundaries, opening edge finish, and guards.
- * @evidenceReview spaces/02-stair.md #ab366f6 buildStair emits lower and upper flights, one landing and enclosing partitions, then appends buildStairGuards output with the same stair.ts owner; buildHouse calls that one builder for main-stair.
+ * @evidenceReview spaces/02-stair.md # buildStair emits lower and upper flights, one landing and enclosing partitions, then appends buildStairGuards output with the same stair.ts owner; buildHouse calls that one builder for main-stair.
  * @evidence spaces/02-stair.md#stair-reservation Seven lower and nine upper treads derive from 18 risers and reach the 1.36 m landing and 3.06 m upper floor.
- * @evidenceReview spaces/02-stair.md#stair-reservation #7564c06 The lower loop emits seven named treads, the landing top uses eight rises, and the upper loop emits nine treads at rises nine through seventeen before the upper-floor arrival at rise eighteen.
+ * @evidenceReview spaces/02-stair.md#stair-reservation # The lower loop emits seven named treads, the landing top uses eight rises, and the upper loop emits nine treads at rises nine through seventeen before the upper-floor arrival at rise eighteen.
  * @evidence spaces/02-stair.md#stair-connector-handoff The returned flight/landing parts provide the route's one physical stair rather than a second shortcut.
- * @evidenceReview spaces/02-stair.md#stair-connector-handoff #37e39b2 buildStair returns its flights and landing with the called helper's guards in one part array; buildHouseEnvironment selects parts owned by stair.ts as elements of its single main-stair connector following STAIR_ROUTE.
+ * @evidenceReview spaces/02-stair.md#stair-connector-handoff # buildStair returns its flights and landing with the called helper's guards in one part array; buildHouseEnvironment selects parts owned by stair.ts as elements of its single main-stair connector following STAIR_ROUTE.
  * @evidence spaces/02-stair.md#stair-floor-opening Five narrow edge solids close the receded interstorey notch, while the front opening remains clear.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 buildStair passes STAIR_OPENING and its owner to buildStairGuards, which emits five named edge strips in the upper-floor finish recession while leaving the front entry to the opening clear.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening # buildStair passes STAIR_OPENING and its owner to buildStairGuards, which emits five named edge strips in the upper-floor finish recession while leaving the front entry to the opening clear.
  * @evidence spaces/02-stair.md#stair-clearance Sloped handrails stay in their 0.075 m path-side reservations, and the upper hall fall-edge guard sits in the back band outside the walking path.
- * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a buildStairGuards centres the lower and upper sloped rails inside their 0.075 m path-side bands and checks the guard sections; its upper-hall posts and top rail are centred in the separate back guard band.
+ * @evidenceReview spaces/02-stair.md#stair-clearance # buildStairGuards centres the lower and upper sloped rails inside their 0.075 m path-side bands and checks the guard sections; its upper-hall posts and top rail are centred in the separate back guard band.
  * @evidence spaces/02-stair.md#stair-boundary-heights Lower open guards, upper closed walls, closet opening, and 1.05 m hall guard are distinct height cases.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #011869c buildStair emits bedroom-side partitions and a ground arrival closure cut by entry-coat-opening. Its guard helper puts the lower rail above lower noses, starts the upper rail above the first upper nose on a taller corner post, and sets the separate hall top above upperFloor.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights # buildStair emits bedroom-side partitions and a ground arrival closure cut by entry-coat-opening. Its guard helper puts the lower rail above lower noses, starts the upper rail above the first upper nose on a taller corner post, and sets the separate hall top above upperFloor.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair owns flights, guards, and its edge finish, leaving the hollow coat storage interior and room floors to entry/upper-hall.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildStair and its guard helper return stair-owned flights, walls, guards and finishes; the coat volume is passed in from entry and the upper-hall floor remains with its room builder.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # buildStair and its guard helper return stair-owned flights, walls, guards and finishes; the coat volume is passed in from entry and the upper-hall floor remains with its room builder.
  * @evidence principles/core/source-units.md#source-substantive-completion Deterministic tread loops, walls, posts, rails, edge strips, and hall ceiling produce actual named solids.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The two fixed tread loops, landing and named walls are returned with guard helper posts, rails, edge strips and high ceiling; the helper checks each guard section before the assembled parts are returned.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # The two fixed tread loops, landing and named walls are returned with guard helper posts, rails, edge strips and high ceiling; the helper checks each guard section before the assembled parts are returned.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The overCloset branch corrected the parent ownership direction: rooms/entry.md#entry-coat-storage owns the Y = 2.15 m coat top and 02-stair.md#stair-boundary-heights makes treads 7–9 consume it.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The upper tread loop tests each block against the entry-owned coat X interval and uses coat.top as its underside when they overlap; the cited entry and stair parents give the coat top to entry and the tread body to stair.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work # The upper tread loop tests each block against the entry-owned coat X interval and uses coat.top as its underside when they overlap; the cited entry and stair parents give the coat top to entry and the tread body to stair.
  */
 export const buildStair = (coat: typeof COAT_STORAGE): IHousePart[] => {
   const parts: IHousePart[] = [];
@@ -285,7 +286,7 @@ export const buildStair = (coat: typeof COAT_STORAGE): IHousePart[] => {
         axis: "z",
         across: [STAIR_OPENING.east, STAIR_OPENING.east + MAIN.partition],
         along: [STAIR_OPENING.guardBack, STAIR_OPENING.turnZ],
-        bottom: BASE,
+        bottom: STOREYS.groundFloor,
         top: STOREYS.groundCeiling,
         holes: [
           {

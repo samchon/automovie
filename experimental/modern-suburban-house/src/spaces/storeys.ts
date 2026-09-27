@@ -82,9 +82,9 @@ export const GROUND_LAYERS = {
  */
 /**
  * @evidence spaces/08-floor-assembly.md This constant is the upper room's visible finish share of the interstorey band.
- * @evidenceReview spaces/08-floor-assembly.md #8098923 `INTERSTOREY_FLOOR_FINISH` supplies the 0.025 m finish selected by `roomFloor` for upper rooms, apart from the structure emitted by `buildInterstorey`.
+ * @evidenceReview spaces/08-floor-assembly.md # `INTERSTOREY_FLOOR_FINISH` supplies the 0.025 m finish selected by `roomFloor` for upper rooms, apart from the structure emitted by `buildInterstorey`.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The 0.025 m value sits above shared structure between ground ceiling and upper finished floor.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #5f41197 `buildInterstorey` stops the common structure at `STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH`, leaving this 0.025 m band for the upper rooms' finish.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary # `buildInterstorey` stops the common structure at `STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH`, leaving this 0.025 m band for the upper rooms' finish.
  * @evidence principles/core/source-units.md#source-scope-preservation It describes only upper floor finish and does not thicken the structural band.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The export is one 0.025 m finish depth; `buildInterstorey` uses it as a top boundary while the remaining structure depth is derived from both storey datums and `CEILING_FINISH`.
  * @evidence principles/core/source-units.md#source-substantive-completion A concrete 0.025 m reservation lets upper-room builders form finish slabs.
