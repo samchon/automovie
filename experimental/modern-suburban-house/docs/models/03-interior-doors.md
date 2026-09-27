@@ -3,7 +3,7 @@
 ## 실내 문의 부재 계층과 치수 {#interior-door-members}
 <!--
 @evidence principles/core/common.md#scope-preservation 실내 문 11개의 공유 원형, 문설주 0.03 m, 문짝 0.04 m, 문설주 깊이, casing, 패널, 손잡이, UV와 회전 반경을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 순폭 = 거친 폭-0.10으로 모든 목표와 같고, 문짝 높이 2.16 m, 회전 반경 0.89·0.94·0.99 m, 손잡이 0.95 m를 산출한다.
+@evidence principles/core/common.md#substantive-completion 순폭 = 거친 폭-0.10으로 모든 목표와 같고, 문짝 높이 2.16 m, 회전 반경 0.89·0.94·0.99 m, 손잡이 0.95 m를 산출한다. 닫힌 문짝 Z=[−0.04,0]·경첩축 Z=0과 좌우 거울 회전 부호를 정해 열린 문짝 두께가 문설주 안쪽에 남는다.
 @evidence principles/core/common.md#declared-basis 목표는 각 room plan H2, 칸막이 0.15 m와 차고 공유 벽 0.25 m는 room owner와 spaces/00-building.md#attached-garage-extent, 패널문은 settings/10-house.md#openings에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation room owner들의 유효 폭 목표를 공통 차이 0.10 m를 채우는 문설주·문짝 두께 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract door→jamb·casing·hinge-pivot→leaf·handle 계층을 정한다.
@@ -32,6 +32,8 @@
 hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이의 시작 Z=−5.91 m까지 0.05 m만 비어 있다. 따라서 그 문의 복도 쪽 `casing-b` −Z 세로 판은 세계 Z=[−5.91,−5.86]·X=[3.055,3.07] m, 상층 바닥 위 Y=[0,2.20] m로 만들고 머리 판도 −Z 끝을 −5.91 m에서 닫는다. 반대 +Z 판은 공통 폭 0.07 m를 유지한다. 두 판의 새 −Z 절단면은 `casing-b`가 덮으며 샤워 칸막이 세계 Z≤−5.91 m와 면으로만 접한다.
 
 팬트리 문 한 개는 [팬트리 작동 예약](../spaces/rooms/pantry.md#pantry-plan)의 문설주·문짝·손잡이 합계 0.08 m를 위해 돌출 손잡이 대신 문짝 양면에 파인 원형 잡이 홈을 쓴다. 지름 0.05 m·깊이 0.008 m의 홈 중심은 바닥 위 0.95 m이고 자유단에서 0.07 m 안쪽이다. 홈 안쪽과 둘레의 id는 `handle`이며 문짝의 외곽을 늘리지 않는다. 문설주 0.03 m + 문짝 두께 0.04 m = 0.07 m로 예약 안에 0.01 m가 남는다. [옷방 문](../spaces/rooms/wardrobe.md#primary-wardrobe-plan)의 둥근 손잡이 돌출은 0.030 m로 줄여 기준 열림의 문짝 넓은 면에서 손잡이 끝이 예약 끝 Z=−0.20 m를 넘지 않게 한다. service-laundry-door와 laundry-garage-door 두 개는 팬트리와 같은 지름 0.05 m·깊이 0.008 m의 파인 원형 잡이 홈을 사용해 기준 열림 때 손잡이가 [머드룸 횡단](../spaces/rooms/laundry.md#laundry-through-route) 안으로 나오지 않게 한다. 나머지 일곱 문은 0.055 m 돌출 둥근 손잡이를 쓴다. 열한 문의 높이·표면 id는 같다.
+
+닫힌 `leaf`의 깊이는 열림 쪽 A 완성 벽면을 국소 Z=0으로 두고 Z=[−0.04,0] m로 고정한다. 문짝 넓은 면은 벽 몸체 속이 아니라 거친 개구부 안에 있으며, 세로 경첩축은 경첩 쪽 문설주의 개구부 안쪽 X=0.03 또는 W−0.03 m와 Z=0의 교선이다. 낮은 X 경첩은 닫힌 문짝이 축에서 +X로 뻗으므로 국소 −π/2 회전으로 열고, 높은 X 경첩은 −X로 뻗으므로 +π/2 회전으로 연다. 두 거울 변형의 작동 스칼라는 모두 절댓값 0–π/2 rad다. 90° 열린 문짝은 경첩을 기준으로 개구부 안쪽 X 폭 0.04 m와 방 쪽 Z=[0,W−0.06] m만 차지하므로 반대쪽 문설주·벽판을 관통하지 않는다. `leaf-panel`의 오목 깊이 0.008 m는 이 문짝의 양쪽 넓은 면에서 안쪽으로 파며 바깥쪽으로 덧붙이지 않는다. 닫힌 문짝의 손잡이·패널과 열린 상태의 점유는 각 방 예약에 위 표대로 대조한다.
 
 ## 실내 문의 경첩 배정과 기준 상태 {#interior-door-hinges}
 <!--
