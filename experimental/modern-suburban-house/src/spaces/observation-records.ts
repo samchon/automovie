@@ -14,54 +14,54 @@ import type {
 /**
  * A camera pose inside its own space: where the eye is and what it looks at.
  * @evidence spaces/04-observations.md The spatial observation design locates a station inside its subject space.
-  * @evidenceReview spaces/04-observations.md `IObservationPose` pairs a world eye with a look target, and `deriveHouseObservations` accepts it only when the eye remains inside its named built space.
+  * @evidenceReview spaces/04-observations.md #696e544 `IObservationPose` pairs a world eye with a look target, and `deriveHouseObservations` accepts it only when the eye remains inside its named built space.
  * @evidence spaces/04-observations.md#spatial-observation-derivation Position and look target are recorded together for each accepted station.
-  * @evidenceReview spaces/04-observations.md#spatial-observation-derivation Required `position` and `target` keep a station's eye and aim together; the observation derivation records only accepted non-null station poses in its interior census.
+  * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea Required `position` and `target` keep a station's eye and aim together; the observation derivation records only accepted non-null station poses in its interior census.
  * @evidence principles/core/source-units.md#source-scope-preservation This type describes derived camera data and does not make a new room or opening.
-  * @evidenceReview principles/core/source-units.md#source-scope-preservation The type has two vectors and an optional explanation for a derived camera pose; it declares no room, opening, or building geometry.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The type has two vectors and an optional explanation for a derived camera pose; it declares no room, opening, or building geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion Both vectors needed to inspect a station are present.
-  * @evidenceReview principles/core/source-units.md#source-substantive-completion Both eye and aim are required world vectors, allowing the observation consumer to reproduce a station direction while `reason` records corrections when present.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Both eye and aim are required world vectors, allowing the observation consumer to reproduce a station direction while `reason` records corrections when present.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires each room's centre, inset corners, and thresholds to keep a pose inside that room; the paired eye and target carry those existing stations.
-  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` calls for room-centre, inward-corner, and threshold poses; this paired eye and aim record carries those derived stations without inventing another place.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `spatial-observation-derivation` calls for room-centre, inward-corner, and threshold poses; this paired eye and aim record carries those derived stations without inventing another place.
  */
 export interface IObservationPose {
   /**
     * @evidence spaces/04-observations.md A camera eye adjusted to an authored standing floor can retain its height-correction reason.
-    * @evidenceReview spaces/04-observations.md `accept` appends a reason when it raises or lowers a station to standing floor plus 1.60 m, preserving the earlier explanation if an inset or threshold fallback supplied one.
+    * @evidenceReview spaces/04-observations.md #696e544 `accept` appends a reason when it raises or lowers a station to standing floor plus 1.60 m, preserving the earlier explanation if an inset or threshold fallback supplied one.
     * @evidence spaces/04-observations.md#spatial-observation-derivation A derived inward move records its boundary reason alongside the pose.
-    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation `insetCorner` and threshold fallback create explicit inward-move reasons; an unchanged engine station is copied with no added explanation, while `accept` can append a floor-height reason.
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea `insetCorner` and threshold fallback create explicit inward-move reasons; an unchanged engine station is copied with no added explanation, while `accept` can append a floor-height reason.
    * @evidence principles/core/source-units.md#source-scope-preservation The explanation records a derived camera correction and leaves the place unchanged.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The optional string explains a derived camera correction; `accept` may replace the pose but does not modify the built space that it observes.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The optional string explains a derived camera correction; `accept` may replace the pose but does not modify the built space that it observes.
     * @evidence principles/core/source-units.md#source-substantive-completion A vertically corrected eye can report its standing floor and 1.60 m offset; inward fallbacks can report their displacement.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `accept` writes floor and eye height into `reason` for vertical corrections, while `insetCorner` and threshold fallback provide displacement text for their moved station poses.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `accept` writes floor and eye height into `reason` for vertical corrections, while `insetCorner` and threshold fallback provide displacement text for their moved station poses.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires reasons for inward station moves, while settings/20-verification.md#frame-condition supplies the 1.60 m eye; this field carries both corrections without changing either parent.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` requires the cause of inward pose moves, and `frame-condition` supplies 1.60 m eye height; this field carries explicit inward or standing-floor correction text from the derivation.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `spatial-observation-derivation` requires the cause of inward pose moves, and `frame-condition` supplies 1.60 m eye height; this field carries explicit inward or standing-floor correction text from the derivation.
    */
   reason?: string;
   /**
    * @evidence spaces/04-observations.md The observation camera records a world-space eye.
-    * @evidenceReview spaces/04-observations.md `position` is the world-space eye that each accepted room, stair, storage, or exterior station places inside its named built space.
+    * @evidenceReview spaces/04-observations.md #696e544 `position` is the world-space eye that each accepted room, stair, storage, or exterior station places inside its named built space.
    * @evidence spaces/04-observations.md#spatial-observation-derivation The eye remains at a position in its subject space.
-    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation `accept` tests this point with `builtSpaceContainsPoint` for its own space and records an outside-space failure rather than counting it.
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea `accept` tests this point with `builtSpaceContainsPoint` for its own space and records an outside-space failure rather than counting it.
    * @evidence principles/core/source-units.md#source-scope-preservation This point is a derived camera station, not a new room point.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation The field carries a camera station derived from compiled cells or an authored outline; environment space construction never reads it as a new room corner.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The field carries a camera station derived from compiled cells or an authored outline; environment space construction never reads it as a new room corner.
    * @evidence principles/core/source-units.md#source-substantive-completion A concrete position makes station containment testable.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion `accept` reads the concrete X/Y/Z point for self-space containment, eye-height correction, and duplicate-station checks.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `accept` reads the concrete X/Y/Z point for self-space containment, eye-height correction, and duplicate-station checks.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation keeps every centre, corner, and threshold eye inside its subject room; position records the tested world point.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` requires centre, corner, and threshold eyes inside their own space; the derivation tests this world point before accepting each such station.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `spatial-observation-derivation` requires centre, corner, and threshold eyes inside their own space; the derivation tests this world point before accepting each such station.
    */
   position: IAutoMovieVector3;
   /**
    * @evidence spaces/04-observations.md The observation camera records its aim.
-    * @evidenceReview spaces/04-observations.md `target` stores where a self-space station looks, keeping its inspection direction alongside the world eye instead of relying on a reference image camera.
+    * @evidenceReview spaces/04-observations.md #696e544 `target` stores where a self-space station looks, keeping its inspection direction alongside the world eye instead of relying on a reference image camera.
    * @evidence spaces/04-observations.md#spatial-observation-derivation The station looks toward its observed boundary or room interior.
-    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation Engine centre stations retain their four aims, threshold fallback aims at the opening centre, and reflex-corner stations aim along each incident wall through this field.
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea Engine centre stations retain their four aims, threshold fallback aims at the opening centre, and reflex-corner stations aim along each incident wall through this field.
    * @evidence principles/core/source-units.md#source-scope-preservation The aim describes inspection and does not move a space boundary.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation This aim vector changes only a derived inspection pose; it does not move a built cell, wall face, or opening profile.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This aim vector changes only a derived inspection pose; it does not move a built cell, wall face, or opening profile.
    * @evidence principles/core/source-units.md#source-substantive-completion A concrete target makes the station view reproducible.
-    * @evidenceReview principles/core/source-units.md#source-substantive-completion A required world target lets a consumer compute the station's viewing direction from its required position.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f A required world target lets a consumer compute the station's viewing direction from its required position.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires four centre directions and inward corner or threshold looks within each room; target stores that existing aim.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` assigns centre directions, inward corners, and threshold looks; this field holds their engine or fallback aim without creating a new boundary.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `spatial-observation-derivation` assigns centre directions, inward corners, and threshold looks; this field holds their engine or fallback aim without creating a new boundary.
    */
   target: IAutoMovieVector3;
 }
