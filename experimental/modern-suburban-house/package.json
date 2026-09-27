@@ -43,7 +43,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
+    "lint": "ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.cts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",

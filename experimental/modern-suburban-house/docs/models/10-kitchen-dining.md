@@ -143,7 +143,7 @@
 @evidence principles/core/common.md#scope-preservation 섬의 외곽·상판·수납 몸통·무릎 공간·싱크 절개와 볼·수전·식기세척기 빈 칸·재질 경계·세 관찰을 이 H2가 정하고, 식기세척기 기기는 별도 H2로 넘긴다.
 @evidence principles/core/common.md#substantive-completion 2.25 × 1.05 × 0.91 m, 몸통 0.71 m·전면 0.02 m·손잡이 0.02 m·무릎 공간 0.30 m, 0.50 × 0.50 m 싱크 절개와 몸통의 볼 칸 제거, 볼 깊이 0.20 m, 수전 0.35 m, 식기세척기 칸 0.65–1.25 m·깊이 0.60 m를 확정한다.
 @evidence principles/core/common.md#declared-basis 외곽·무릎 공간·싱크 위치는 섬 예약에서 받고, 수전 높이 상판 위 0.35 m는 예약 상한 1.31 m 아래에 두는 이 층의 선택이라고 적는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽에 yaw -π/2 방향 규약, 몸통/무릎 공간 0.75/0.30 m 분할, 싱크 볼·꺾인 토출구 수전 형상, 식기세척기 빈 칸 위치를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 예약 외곽에 yaw -π/2 방향 규약, 작업면 쪽 0.75 m 중 몸통 0.71 m·전면 판 0.02 m·손잡이 0.02 m와 좌석 쪽 무릎 공간 0.30 m의 분할, 싱크 볼·꺾인 토출구 수전 형상, 식기세척기 빈 칸 위치를 더한다.
 @evidence principles/design/models.md#representation-contract 걸레받이 0.10 m·몸통·상판·싱크 볼·수전 부품과 재질 경계 목록을 두고 싱크 볼을 0.20 m 깊이의 열린 상자, 식기세척기 칸을 빈 칸으로 적으며 섬 끝 기둥·벽이 없다고 밝힌다. 보이지 않는 한계는 본문의 "싱크 배수구·수전 손잡이 개별 형상·상판 가장자리 몰딩은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 뒤쪽 모서리 선을 좌석면 외곽, +Z를 작업면으로 두고 yaw -π/2에서 로컬 +Z가 world -X, 로컬 +X가 world +Z라고 명시하며 부품 위치를 뒤쪽 끝과 작업면에서 잰 거리로 준다.
 @evidence principles/design/models.md#reviewable-structure 좌석면 쪽 측면의 전 길이 0.30 m 무릎 공간, 위에서 본 싱크 절개와 식기세척기 칸의 0.05 m 간격, 수전 끝 1.26 m 한계를 리뷰 대상으로 둔다.

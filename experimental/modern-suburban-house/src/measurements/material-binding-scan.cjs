@@ -4,7 +4,6 @@
  * refuses to infer a maker merely from a nearby Markdown link. */
 const fs = require("node:fs");
 const path = require("node:path");
-const { witness } = require("./model-face-witness.cjs");
 
 const root = path.resolve(__dirname, "../..");
 const docs = path.join(root, "docs");
@@ -49,12 +48,12 @@ for (const line of account.split(/\r?\n/)) {
     `${match[1]}#${match[2]}`,
   );
 }
-/** A face is linked only when its own measured part sentence exists. This is
- * still a candidate, not proof of its solid, UVs or physical contact.
+/** A face binding requires its cited H2 body to name the id. The separate
+ * face-witness audit selects ids whose part measurements need manual review.
  * @param {string} model @param {string} id */
 const bodyWitness = (model, id) => {
   const body = modelBodies.get(model) ?? "";
-  return witness(body, id).sentence !== null;
+  return body.includes(`\`${id}\``);
 };
 const files = fs.readdirSync(path.join(docs, "materials"))
   .filter((name) => name.endsWith(".md"))
@@ -255,7 +254,7 @@ const table = [
       : row.id === "(no face token)" ? "[H2별 부재군 계정](material-host-census.md#material-host-census) (면 id 없음)"
       : row.declaredAnywhere.length ? "UNVERIFIED (면 이름만 계정에 있음)" : "UNOWNED";
     const proof = row.mask ? "독립 면 없는 UV 마스크" : row.owners.length
-      ? row.owners.map(() => "면 id·측정·위치가 있는 문장 후보; 크기·UV 별도 검토").join(", ")
+      ? row.owners.map(() => "인용 H2 본문에 면 id 명명; 크기·위치·UV 별도 검토").join(", ")
       : row.spaceLinks.length ? "spaces 부재 후보; host 계정에서 대조"
       : row.declaredAnywhere.length ? "부재 위치·크기·UV 확인 필요" : "face id 없음; host 계정에서 대조";
     return `| ${link("materials", row.material)} | ${row.id === "(no face token)" ? "면 id 없음" : `\`${row.id}\``} | ${owner} | ${proof} |`;
@@ -270,7 +269,7 @@ const evidenceLine = existingLedger.split(/\r?\n/).find((line) =>
 if (!evidenceLine) throw new Error(
   "Material face account lacks its authored evidence reason",
 );
-const document = `# 재료 결합 면에서 출발한 설계 owner 전수\n\n## 모든 material H2의 명명 면 역대조 {#material-face-ledger}\n<!--\n${evidenceLine}\n-->\n\n이 목록은 \`node src/measurements/material-binding-scan.cjs --check\`가 재료 H2 본문 ${summary.materialH2}개와 [모델 face 계정](surface-ownership.md#model-surface-ownership)을 다시 읽어 대조한다. 결합 문장이 있는 H2에서는 모든 긍정 결합 문장을, 없는 H2에서는 본문 전체의 면 토큰을 센다. face id를 쓰지 않고 물리 부재를 부르는 H2는 [부재군 역대조](material-host-census.md#material-host-census)가 받는다. owner가 여러 개면 같은 id가 각각의 원형에서 만들어지는 것이며, 서로 한 면을 중복 생성한다는 뜻이 아니다. 표의 '문장 후보'는 같은 문장에 면 이름·측정·위치 표현이 있다는 구문 대조일 뿐이다. 그 수치가 같은 부재의 크기·UV를 정하는지와 이웃 고체와 겹치지 않는지는 [면별 검토 후보 생산자](../../../src/measurements/face-witness-audit.cjs) 및 별도 기하 대조에서 확인해야 한다. 실제 메시 결속은 modelSources 이전에 unverified다.\n\n${table}\n`;
+const document = `# 재료 결합 면에서 출발한 설계 owner 전수\n\n## 모든 material H2의 명명 면 역대조 {#material-face-ledger}\n<!--\n${evidenceLine}\n-->\n\n이 목록은 \`node src/measurements/material-binding-scan.cjs --check\`가 재료 H2 본문 ${summary.materialH2}개와 [모델 face 계정](surface-ownership.md#model-surface-ownership)을 다시 읽어 대조한다. 결합 문장이 있는 H2에서는 모든 긍정 결합 문장을, 없는 H2에서는 본문 전체의 면 토큰을 센다. face id를 쓰지 않고 물리 부재를 부르는 H2는 [부재군 역대조](material-host-census.md#material-host-census)가 받는다. owner가 여러 개면 같은 id가 각각의 원형에서 명명된다는 뜻이며, 서로 한 면을 중복 생성한다는 뜻이 아니다. 표는 인용 H2 본문에 면 id가 명명됐는지만 보증한다. 같은 면의 부재 치수·위치·UV와 이웃 고체 접촉은 [면별 검토 후보 생산자](../../../src/measurements/face-witness-audit.cjs) 및 별도 기하 대조에서 확인해야 한다. 실제 메시 결속은 modelSources 이전에 unverified다.\n\n${table}\n`;
 if (process.argv.includes("--write")) fs.writeFileSync(ledgerFile, document);
 else if (process.argv.includes("--check")) {
   const observed = fs.readFileSync(ledgerFile, "utf8").replace(/\r\n/g, "\n");

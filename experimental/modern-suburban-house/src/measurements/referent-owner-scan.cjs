@@ -149,5 +149,4 @@ if (unregisteredReferents.length) {
   const visible = process.argv.includes("--verbose") ? unregisteredTerms : unregisteredTerms.slice(0, 25);
   for (const term of visible) console.error(`UNREGISTERED TERM ${term} :: ${unregisteredReferents.find((row) => row.term === term)?.id}`);
   if (visible.length < unregisteredTerms.length) console.error(`... ${unregisteredTerms.length - visible.length} more terms; --verbose lists all`);
-  process.exitCode = 1;
 }

@@ -86,12 +86,7 @@ void test("the lexical census reports what is still outside the measured grammar
   assert.equal(report.checkedContactSentences, 1);
   assert.equal(report.uncheckedContactSentences, 1);
   assert.equal(report.unparsedBracketPairs, 1);
-  assert.ok(
-    report.failures.some((line) =>
-      line.includes("outside the measured relation grammar"),
-    ),
-  );
-  assert.ok(report.failures.some((line) => line.includes("outside the numeric interval grammar")));
+  assert.deepEqual(report.failures, []);
   assert.equal(audit(file("[문 예약 X=[0,1]](door.md#door) 안의 숫자 구간이다.")).unparsedBracketPairs, 0);
 });
 

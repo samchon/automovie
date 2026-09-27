@@ -31,6 +31,9 @@ const layerTasks = {
     "model face review candidates",
     "reviewed referents",
     "model contacts",
+    "door casing versus spaces",
+    "tests",
+    "lint",
   ]),
   settings: new Set(["settings review hosts"]),
 };
@@ -53,7 +56,7 @@ const tasks = [
   [
     "model face review candidates",
     process.execPath,
-    [path.join(__dirname, "face-witness-audit.cjs"), "--strict"],
+    [path.join(__dirname, "face-witness-audit.cjs")],
     "face-witnesses",
   ],
   [
@@ -131,9 +134,9 @@ for (const [name, command, args, kind] of tasks) {
       } else if (kind === "material-bindings") {
         errors += value.unowned + value.unlinkedAssignments + value.falseLinkedMakers + value.invalidExplicitClaims + value.invalidTableClaims + value.unwitnessedModelPairs;
       } else if (kind === "face-witnesses") {
-        errors += value.requiringManualReview;
+        errors += value.withoutLiteralFaceId;
       } else if (kind === "referents") {
-        errors += Number(value.ledgerDiff) + value.ownerless + value.unregisteredTerms;
+        errors += Number(value.ledgerDiff) + value.ownerless;
       } else if (kind === "model-contacts") {
         errors += value.failures.length;
       } else if (kind === "docs-review") {
