@@ -78,7 +78,7 @@ function sections(source) {
   for (const chunk of source.split(/^## /m).slice(1)) {
     const anchor = /\{#([^}]+)\}/.exec(chunk.split("\n", 1)[0])?.[1];
     if (!anchor) throw Error("Model H2 lacks an anchor");
-    result.push({ anchor, body: chunk.replace(/<!--[\s\S]*?-->/g, "") });
+    result.push({ anchor, raw: chunk, body: chunk.replace(/<!--[\s\S]*?-->/g, "") });
   }
   return result;
 }
@@ -121,23 +121,124 @@ function relationshipFailures(body, label) {
     if (only && whole && (Math.abs(numeric(only[1]) - numeric(whole[1])) > 1e-8 ||
       Math.abs(numeric(only[2]) - numeric(whole[2])) > 1e-8))
       failures.push(`${label}: an only-partial recess also claims the full depth`);
+
+    // These checks compare a stated contact or clearance with the numbers in
+    // that same design sentence. They do not depend on a particular model id.
+    const floorGap = /Y=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\][^\n]*?바닥 Y=([+−-]?\d+(?:\.\d+)?) m에서 아랫면을 ([+−-]?\d+(?:\.\d+)?) m 띄운/.exec(line);
+    if (floorGap && Math.abs(numeric(floorGap[1]) - numeric(floorGap[3]) - numeric(floorGap[4])) > 1e-8)
+      failures.push(`${label}: lower face contradicts its floor clearance`);
+
+    const cylinderContact = /축은 X=([+−-]?\d+(?:\.\d+)?)[^\n]*?반지름 ([+−-]?\d+(?:\.\d+)?)[^\n]*?\+X 끝 X=([+−-]?\d+(?:\.\d+)?)/.exec(line);
+    if (cylinderContact && Math.abs(numeric(cylinderContact[1]) + numeric(cylinderContact[2]) - numeric(cylinderContact[3])) > 1e-8)
+      failures.push(`${label}: cylinder end does not touch its claimed +X plane`);
+
+    const floorStart = /세로 판[^\n]*?Y=\[([+−-]?\d+(?:\.\d+)?),[+−-]?\d+(?:\.\d+)?\][^\n]*?세로 판은[^\n]*?완성면(?: 위)? Y=([+−-]?\d+(?:\.\d+)?)에서 시작/.exec(line);
+    if (floorStart && Math.abs(numeric(floorStart[1]) - numeric(floorStart[2])) > 1e-8)
+      failures.push(`${label}: trim foot differs from its claimed finished-surface start`);
+
+    const inwardHinge = /날씨 면은 Z=([+−-]?\d+(?:\.\d+)?)(?: m)?, 실내 면은 Z=([+−-]?\d+(?:\.\d+)?)[^\n]*?경첩 축은[^\n]*?(?:실내|날씨) 면 Z=([+−-]?\d+(?:\.\d+)?)[^\n]*?안쪽으로 90°/.exec(line);
+    if (inwardHinge && Math.abs(numeric(inwardHinge[2]) - numeric(inwardHinge[3])) > 1e-8)
+      failures.push(`${label}: inward hinge axis is not on the interior leaf face`);
+
+    const guide = /수직 구간 중심 X=([+−-]?\d+(?:\.\d+)?)·([+−-]?\d+(?:\.\d+)?) m와 단면 폭 ([+−-]?\d+(?:\.\d+)?) m는 각각[^\n]*?X=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]·\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\] m 안에 있고, 닫힌 문짝 X=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\] m와 양쪽 모두 최소 ([+−-]?\d+(?:\.\d+)?) m/.exec(line);
+    if (guide) {
+      const [, left, right, width, bandL0, bandL1, bandR0, bandR1, panelL, panelR, clearance] = guide.map(numeric);
+      const half = width / 2;
+      if (left - half < bandL0 - 1e-8 || left + half > bandL1 + 1e-8 ||
+        right - half < bandR0 - 1e-8 || right + half > bandR1 + 1e-8 ||
+        panelL - (left + half) < clearance - 1e-8 ||
+        (right - half) - panelR < clearance - 1e-8)
+        failures.push(`${label}: guide sections violate their cited bands or panel clearance`);
+    }
+
+    const belowClaim = line.indexOf("고체 Y<");
+    const symbolicFloor = belowClaim < 0 ? undefined :
+      [...line.slice(0, belowClaim).matchAll(/Y=\[([A-Za-z]\w*)([+−-]\d+(?:\.\d+)?)?,\s*\1(?:[+−-]\d+(?:\.\d+)?)?\]/g)].at(-1);
+    if (symbolicFloor && line.includes(`고체 Y<${symbolicFloor[1]}`) &&
+      symbolicFloor[2] && numeric(symbolicFloor[2]) < -1e-8)
+      failures.push(`${label}: plate intrudes below its claimed opening bottom`);
   }
   if (/경사 측판/.test(body) && /이 원형이 만든다/.test(body) && !/Y=[^\n]*?\b[ZX]\b/.test(body))
     failures.push(`${label}: owned sloped plate has no coordinate slope equation`);
+
+  // A door casing and its leaves are siblings. Compare their measured closed
+  // boxes rather than accepting a prose assertion that the opening is clear.
+  const casingLine = body.split(/\n+/).find((line) => line.includes("`casing`") && line.includes("왼쪽·오른쪽 세로 판은"));
+  const leafLine = body.split(/\n+/).find((line) => line.includes("`leaf`") && line.includes("앞 문짝 X=") && line.includes("뒤 문짝 X="));
+  if (casingLine && leafLine) {
+    const casingX = /세로 판은 X=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]·\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]/.exec(casingLine);
+    const casingZ = /Z=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]/.exec(casingLine);
+    const casingY = /Y=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]/.exec(casingLine);
+    const leaves = [...leafLine.matchAll(/문짝 X=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]·Z=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]/g)];
+    const leafY = /Y=\[([+−-]?\d+(?:\.\d+)?),([+−-]?\d+(?:\.\d+)?)\]/.exec(leafLine);
+    if (casingX && casingZ && casingY && leaves.length === 2 && leafY) {
+      /** @param {string} a @param {string} b @param {string} c @param {string} d */
+      const positive = (a, b, c, d) => Math.min(numeric(b), numeric(d)) - Math.max(numeric(a), numeric(c)) > 1e-8;
+      for (const [x0, x1] of [[casingX[1], casingX[2]], [casingX[3], casingX[4]]])
+        for (const leaf of leaves)
+          if (positive(x0, x1, leaf[1], leaf[2]) &&
+            positive(casingZ[1], casingZ[2], leaf[3], leaf[4]) &&
+            positive(casingY[1], casingY[2], leafY[1], leafY[2]))
+            failures.push(`${label}: casing and closed leaf share positive volume`);
+    }
+  }
   return failures;
 }
 
-/** @param {Array<{ name:string;source:string }>} files */
-function audit(files) {
+/** @param {string} raw @param {string} body @param {(target:string)=>string|null} resolveParent @param {string} label */
+function linkedSideWallFailures(raw, body, resolveParent, label) {
+  const failures = [];
+  let assertions = 0;
+  const targets = [...raw.matchAll(/^@evidence spaces\/([^\s#]+)#([^\s]+)/gm)]
+    .map((m) => `spaces/${m[1]}#${m[2]}`);
+  const parents = targets.map(resolveParent).filter((value) => value !== null);
+  const parentSpans = parents.flatMap((parent) =>
+    [...parent.matchAll(/몸통 예약은[^\n]*?Z\s*=\s*\[\s*([+−-]?\d+(?:\.\d+)?)\s*,\s*([+−-]?\d+(?:\.\d+)?)\s*\]/g)]
+      .map((m) => [numeric(m[1]), numeric(m[2])]));
+  for (const line of body.split(/\n+/)) {
+    if (!/측벽의 안쪽 면[^\n]*?맞대/.test(line)) continue;
+    const spans = [...line.matchAll(/Z=\[\s*([+−-]?\d+(?:\.\d+)?)\s*,\s*([+−-]?\d+(?:\.\d+)?)\s*\]/g)]
+      .map((m) => [numeric(m[1]), numeric(m[2])]);
+    for (const span of spans) {
+      assertions++;
+      if (!parentSpans.some((parent) => Math.abs(span[0] - parent[0]) < 1e-8 && Math.abs(span[1] - parent[1]) < 1e-8))
+        failures.push(`${label}: a claimed side-wall end does not meet a cited body boundary Z=${span}`);
+    }
+  }
+  return { assertions, failures };
+}
+
+/** Evidence numbers cannot certify a decision that the host body never makes.
+ * This is a necessary literal support check, not a semantic review. */
+/** @param {string} raw @param {string} body @param {string} label */
+function evidenceNumberFailures(raw, body, label) {
+  const claims = [...raw.matchAll(/^@evidence (?:principles\/core\/common\.md#substantive-completion|principles\/design\/models\.md#spatial-convention)[^\n]*/gm)]
+    .flatMap((line) => [...line[0].matchAll(/(?<![A-Za-z0-9])\d+\.\d+/g)].map((m) => m[0]));
+  const missing = [...new Set(claims)].filter((value) => !body.includes(value));
+  return { claims: claims.length, failures: missing.map((value) =>
+    `${label}: evidence numeric claim ${value} is absent from its host body`) };
+}
+
+/** @param {Array<{ name:string;source:string }>} files @param {((target:string)=>string|null)|null} [resolveParent] */
+function audit(files, resolveParent = null) {
   const result = { files: files.length, h2: 0, contactSentences: 0, checkedContactSentences: 0,
     uncheckedContactSentences: 0, numericIntervals: 0, arithmeticEqualities: 0, angularEqualities: 0,
-    angularReservations: 0, clippedSlopes: 0,
+    angularReservations: 0, clippedSlopes: 0, linkedSideWallAssertions: 0,
+    evidenceNumericClaims: 0,
     directedIntervals: 0, unparsedBracketPairs: 0, failures: /** @type {string[]} */ ([]) };
   for (const file of files) for (const section of sections(file.source)) {
     result.h2++;
     const label = `${file.name}#${section.anchor}`;
     const body = section.body;
     result.failures.push(...relationshipFailures(body, label));
+    const numericSupport = evidenceNumberFailures(section.raw, body, label);
+    result.evidenceNumericClaims += numericSupport.claims;
+    result.failures.push(...numericSupport.failures);
+    if (resolveParent !== null) {
+      const linked = linkedSideWallFailures(section.raw, body, resolveParent, label);
+      result.linkedSideWallAssertions += linked.assertions;
+      result.failures.push(...linked.failures);
+    }
     const sentences = body.split(/(?<=다\.)\s+|\n+/).filter(Boolean);
     for (const [index, sentence] of sentences.entries()) {
       if (!contact.test(sentence)) continue;
@@ -229,12 +330,20 @@ function audit(files) {
 }
 
 if (require.main === module) {
+  const docs = path.resolve(models, "..");
+  /** @param {string} target */
+  const resolveParent = (target) => {
+    const [relative, anchor] = target.split("#");
+    const filename = path.resolve(docs, relative);
+    if (!filename.startsWith(path.join(docs, "spaces") + path.sep) || !fs.existsSync(filename)) return null;
+    return sections(fs.readFileSync(filename, "utf8")).find((section) => section.anchor === anchor)?.body ?? null;
+  };
   const files = fs.readdirSync(models).filter((name) => name.endsWith(".md"))
     .map((name) => ({ name, source: fs.readFileSync(path.join(models, name), "utf8") }));
-  const result = audit(files);
+  const result = audit(files, resolveParent);
   console.log(
     JSON.stringify({ ...result, failureCount: result.failures.length }),
   );
   if (result.failures.length) process.exitCode = 1;
 }
-module.exports = { arithmetic, sections, floorContact, relationshipFailures, audit };
+module.exports = { arithmetic, sections, floorContact, relationshipFailures, linkedSideWallFailures, evidenceNumberFailures, audit };

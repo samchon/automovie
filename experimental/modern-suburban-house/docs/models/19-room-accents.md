@@ -23,7 +23,7 @@
 ## 벽 액자와 상판 위 작은 식물 {#wall-art-indoor-plant}
 <!--
 @evidence principles/core/common.md#scope-preservation 기존 벽에 거는 액자와 이미 예약된 가구 상판 위 식물만 맡고 벽·가구 면을 만들지 않는다.
-@evidence principles/core/common.md#substantive-completion 액자 0.50 × 0.35/0.60 × 0.40 m, 화분 외경 0.18 m·전체 높이 0.55 m와 부품·면을 정한다 액자 인쇄 판의 두 폭·높이와 두께 0.002 m·뒤판 앞 깊이 0.018 m도 정한다.
+@evidence principles/core/common.md#substantive-completion 액자 두 외곽과 인쇄 판의 앞 깊이, 화분과 줄기·수관의 크기 및 표면 부품을 정한다.
 @evidence principles/core/common.md#declared-basis 레퍼런스 02–05의 액자와 04·05의 화분을 채택하고 방의 창·문·통행과 겹치지 않는 host 결속을 요구한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 벽 장식과 실내 식물의 새 면만 더하며 실내 공간 그래프와 예약 가구의 표면 소유는 유지한다.
 @evidence principles/design/models.md#representation-contract 액자는 `art-frame`·`art-print`, 화분은 `container`·`stem`·`foliage`로 모든 닫힌 면을 덮는다.

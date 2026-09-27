@@ -101,7 +101,7 @@
 ## 옆마당 목재 대문 {#side-yard-gate}
 <!--
 @evidence principles/core/common.md#scope-preservation 옆마당 대문 문짝 1.18 m, 경첩, 열림, 회전 반경과 하드웨어 점유를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 문짝을 S 위 0.05~1.70 m, 두께 0.04 m로 두고 90° 순폭 1.20-0.04-0.05=1.11 m가 목표 1.05 m보다 크다고 산출한다. 닫힌 판재 Z=[−0.32,−0.28] m, 정원 쪽 경첩축 X=13.4775·Z=−0.32 m, 경첩 반지름 0.0125 m 절개, 자유단 손잡이의 0.04 m 돌출을 본문에 정한다.
+@evidence principles/core/common.md#substantive-completion 문짝을 S 위 0.05~1.70 m, 두께 0.04 m로 두고 90° 순폭 1.20-0.04-0.05=1.11 m가 목표 1.05 m보다 크다고 산출한다. 닫힌 판재 Z=[−0.32,−0.28] m, 정원 쪽 경첩축 X=13.475·Z=−0.32 m, 경첩 반지름 0.025 m 절개와 자유단 손잡이의 원판·목·레버 치수를 본문에 정한다.
 @evidence principles/core/common.md#declared-basis 문기둥 구간·경첩·열림·한도는 spaces/site/side-walk.md#side-gate-interface에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation side-gate-interface의 통과 폭 1.05 m와 점유 0.10 m 한도를 문짝 폭과 순폭 산술로 바꾼다.
 @evidence principles/design/models.md#representation-contract hinge-pivot 아래 leaf-panel 세로 판재와 가로 띠장 계층을 정하고 문기둥·헤더를 두지 않는다.

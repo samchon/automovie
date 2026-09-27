@@ -100,7 +100,7 @@
 @evidence principles/core/common.md#declared-basis 용접부·볼트·받침판 생략의 상한은 00-model-frame.md#model-representation-ceiling에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 상한을 난간 부재의 생략 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 난간살 반복이 보호 성능·법규 적합을 증명하지 않는다는 proxy 한계를 정한다.
-@evidence principles/design/models.md#spatial-convention 난간살 0.02 m 단면과 bottom-rail 0.05 m 높이는 앞 H2에 두고 이 한계 H2는 좌표를 정하지 않는다.
+@evidence principles/design/models.md#spatial-convention 난간살 단면과 아래 레일 높이는 앞선 부재 H2가 정하고 이 표현 한계 H2는 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 측면 단면에서 난간살 끝의 받침판이 생기면 반증된다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04에서 읽히는 살대와 아래 띠는 채택하지만 나사·고정구는 사진에서도 보이지 않아 표현 범위에서 제외한다. 용접부·볼트가 보이지 않는다는 관찰 가능한 난간 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 난간 부재의 용접부·볼트·받침판을 만들지 않는 층으로 명시한다.

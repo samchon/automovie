@@ -119,7 +119,7 @@ hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이�
 @evidence principles/core/common.md#declared-basis 상한은 00-model-frame.md#model-representation-ceiling, 단차는 spaces/rooms/laundry.md#laundry-plan에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 상한을 실내 문의 기구 생략 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 실내 문 proxy가 지지하지 않는 관찰을 정한다.
-@evidence principles/design/models.md#spatial-convention knuckle 셋의 높이는 interior-door-members의 문짝 하단 위 0.20·1.05·1.90 m를 따르고 새 좌표를 정하지 않는다.
+@evidence principles/design/models.md#spatial-convention 경첩 knuckle의 높이는 링크한 interior-door-members의 치수를 따르고 이 표현 한계 H2는 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure threshold 관찰에서 문턱 유무와 경첩 표현을 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 기구 생략이라는 관찰 가능한 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 실내 문의 걸쇠·잠금·닫힘 장치와 문턱을 만들지 않는 층으로 명시한다.

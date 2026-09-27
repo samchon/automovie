@@ -121,7 +121,7 @@
 @evidence principles/core/common.md#declared-basis 롤러·브래킷·나사 생략과 내용물 제외의 상한은 00-model-frame.md#model-representation-ceiling에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 상한을 수납 부재 생략 목록으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 미닫이 문짝 이동이 롤러 마찰이나 하중을 증명하지 않는다는 proxy 한계를 정한다.
-@evidence principles/design/models.md#spatial-convention 앞 H2가 트랙을 개구부 뒤 경계 기준 국소 깊이 d=[0.07,0.14] m에 두고 선반 높이를 정한다. 이 표현 한계 H2는 새 좌표를 정하지 않는다.
+@evidence principles/design/models.md#spatial-convention 문짝 트랙과 선반 좌표는 앞선 수납 부재 H2가 정하며 이 표현 한계 H2는 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure 모델 리뷰 뷰의 장 단면에서 옷·수건이 이 원형에 포함되면 반증된다.
 @evidence principles/design/models.md#model-observable-style-basis 롤러와 브래킷이 보이지 않는다는 관찰 가능한 수납 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 롤러·선반 브래킷·나사와 옷·수건·용기를 만들지 않는 층으로 명시한다.
