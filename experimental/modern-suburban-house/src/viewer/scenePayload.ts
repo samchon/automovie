@@ -16,7 +16,6 @@
  * the client converts them to linear working color through three.js color
  * management.
  */
-
 import type { HousePartRole } from "../spaces/solid-records";
 
 /** Which subject a scene draws: the calibration shape or the house. */
@@ -28,10 +27,14 @@ export interface IViewerSceneItem {
   id: string;
 
   /** What the item is: a calibration role or a spaces part role. */
-  role: "ground" | "axis" | "tick" | "reference" | HousePartRole;
+  role: "ground" | "axis" | "tick" | "reference" | "model" | HousePartRole;
 
   /** Source owner under `src/spaces`, when the item is a house part. */
   owner?: string;
+
+  /** Model prototype and stable surface partition for an authored model part. */
+  modelId?: string;
+  faceId?: string;
 
   /** Base color as an sRGB hex integer, for example 0xd94a3a. */
   color: number;
@@ -137,5 +140,9 @@ export interface IViewerScene {
    * Self-space observation poses derived by `src/spaces/observations.ts`, for
    * the `observe=<id>` inspection query; absent for the calibration scene.
    */
-  observations?: { id: string; position: [number, number, number]; target: [number, number, number] }[];
+  observations?: {
+    id: string;
+    position: [number, number, number];
+    target: [number, number, number];
+  }[];
 }

@@ -25,10 +25,11 @@ import {
   transformAutoMovieMesh,
 } from "@automovie/engine";
 
-import { houseTextureUvs, houseWallFinishGroups } from "./materialPreview";
 import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
 import { deriveHouseObservations } from "../spaces/observations";
+import { houseTextureUvs, houseWallFinishGroups } from "./materialPreview";
+import { type IViewerModelInputs, lowerViewerModels } from "./modelScene.cjs";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
 /** Neutral reference ground, viewer-owned. */
@@ -39,9 +40,8 @@ const referenceGround = (): IViewerSceneItem => {
       translation: { x: 3, y: -0.47, z: -5 },
     },
   );
-  if (mesh.normals === null || mesh.indices === null) throw new Error(
-    "reference ground mesh lacks normals or indices",
-  );
+  if (mesh.normals === null || mesh.indices === null)
+    throw new Error("reference ground mesh lacks normals or indices");
   return {
     id: "viewer-reference-ground",
     role: "reference",
@@ -53,12 +53,18 @@ const referenceGround = (): IViewerSceneItem => {
     castShadow: false,
     receiveShadow: true,
     texture: "/textures/grass.png",
-    uvs: Array.from({ length: mesh.positions.length / 3 }, (_, i) => [mesh.positions[i * 3]! / 0.75, mesh.positions[i * 3 + 2]! / 0.75]).flat(),
+    uvs: Array.from({ length: mesh.positions.length / 3 }, (_, i) => [
+      mesh.positions[i * 3]! / 0.75,
+      mesh.positions[i * 3 + 2]! / 0.75,
+    ]).flat(),
   };
 };
 
 /** Build the house scene for one request. */
-export function buildHouseScene(sourceDigest: string): IViewerScene {
+export function buildHouseScene(
+  sourceDigest: string,
+  modelInputs?: IViewerModelInputs,
+): IViewerScene {
   const items: IViewerSceneItem[] = [referenceGround()];
   const house = buildHouse();
   const environment = buildHouseEnvironment(house);
@@ -71,18 +77,21 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
     if (part === undefined || model === undefined || model.parts.length === 0)
       throw new Error(`set piece ${piece.node} has no emitted part or model`);
     for (const member of model.parts) {
-      const sourceMesh = member.geometry.type === "mesh"
-        ? member.geometry.mesh
-        : tessellateToMesh(member.geometry.shape);
-      const localMesh = member.transform === null
-        ? sourceMesh
-        : transformAutoMovieMesh(sourceMesh, member.transform);
+      const sourceMesh =
+        member.geometry.type === "mesh"
+          ? member.geometry.mesh
+          : tessellateToMesh(member.geometry.shape);
+      const localMesh =
+        member.transform === null
+          ? sourceMesh
+          : transformAutoMovieMesh(sourceMesh, member.transform);
       const mesh = transformAutoMovieMesh(localMesh, {
         translation: piece.position,
         rotation: piece.rotation,
-        scale: typeof piece.scale === "number"
-          ? { x: piece.scale, y: piece.scale, z: piece.scale }
-          : piece.scale,
+        scale:
+          typeof piece.scale === "number"
+            ? { x: piece.scale, y: piece.scale, z: piece.scale }
+            : piece.scale,
       });
       if (mesh.normals === null || mesh.indices === null)
         throw new Error(
@@ -101,9 +110,10 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
           color: finish.color,
           roughness: finish.roughness,
           metalness: finish.metalness,
-          texture: finish.texture === undefined
-            ? undefined
-            : `/textures/${finish.texture.file}`,
+          texture:
+            finish.texture === undefined
+              ? undefined
+              : `/textures/${finish.texture.file}`,
           uvs: houseTextureUvs(mesh.positions, mesh.normals, finish, part.id),
           position: [0, 0, 0],
           positions: mesh.positions,
@@ -115,6 +125,7 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
       }
     }
   }
+  if (modelInputs !== undefined) items.push(...lowerViewerModels(modelInputs));
   return {
     subject: "house",
     inspection: false,
@@ -138,21 +149,23 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
       shadowHalfExtent: 24,
     },
     items,
-    observations: deriveHouseObservations(environment, house).observations.flatMap(
-      (o) =>
-        o.pose === null
-          ? []
-          : [
-              {
-                id: o.id,
-                position: [
-                  o.pose.position.x,
-                  o.pose.position.y,
-                  o.pose.position.z,
-                ],
-                target: [o.pose.target.x, o.pose.target.y, o.pose.target.z],
-              },
-            ],
+    observations: deriveHouseObservations(
+      environment,
+      house,
+    ).observations.flatMap((o) =>
+      o.pose === null
+        ? []
+        : [
+            {
+              id: o.id,
+              position: [
+                o.pose.position.x,
+                o.pose.position.y,
+                o.pose.position.z,
+              ],
+              target: [o.pose.target.x, o.pose.target.y, o.pose.target.z],
+            },
+          ],
     ),
   };
 }

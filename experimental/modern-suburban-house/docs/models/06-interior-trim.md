@@ -2,7 +2,7 @@
 
 ## 방 벽 걸레받이 원형 {#wall-baseboard}
 <!--
-@evidence principles/core/common.md#scope-preservation 1·2층 도장 벽과 차고 도장 석고보드의 노출 하단 걸레받이 한 원형, 문선·계단 첫 챌판·타일 경계에서의 종단, 열 벽붙임 원형 뒤에서의 연속, 닫힌 면 id와 후속 반복 인계를 맡는다. 흰 경사 측판은 models/04의 별도 원형이다.
+@evidence principles/core/common.md#scope-preservation 1·2층 도장 벽의 노출 하단 걸레받이 한 원형, 문선·계단 첫 챌판·타일 경계에서의 종단, 열 벽붙임 원형 뒤에서의 연속, 닫힌 면 id와 후속 반복 인계를 맡는다. 흰 경사 측판은 models/04의 별도 원형이다.
 @evidence principles/core/common.md#substantive-completion 높이 0.10 m·최대 돌출 0.015 m·윗면 0.01 m 사면의 닫힌 오각 단면, 실제 벽 구간에서 산출하는 길이 L, miter·끝 마개, `wall-baseboard` id와 UV를 정한다.
 @evidence principles/core/common.md#declared-basis 벽 위치·열린 개구부·방 마감 면은 spaces/03-surface-owners.md#interior-surface-handoff에서, 흰 부재와 레퍼런스 03·04·05의 읽힘은 settings/20-verification.md#visual-grammar에서 받으며 픽셀로 치수를 재지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방의 완결 벽 마감 owner와 구별되는 별도 닫힌 0.10 × 0.015 m 부재, 개구부와 계단에서의 종단, face id와 반복 입력을 더한다.
@@ -23,7 +23,7 @@
 
 국소 원점은 한 방의 완성 바닥 상면과 실내 벽 마감 면이 만나는 노출 run의 시작점이다. +X는 해당 벽을 따라, +Y는 위, +Z는 방 안쪽이다. 단면 YZ 꼭짓점은 `(0,0) → (0.10,0) → (0.10,0.005) → (0.09,0.015) → (0,0.015)` m이며, 첫 좌표가 Y이고 둘째가 Z다. 따라서 높이는 0.10 m, 최대 방 쪽 돌출은 0.015 m, 위쪽 0.01 m에는 사면이 생긴다. 단면을 실제 run 길이 L만큼 압출해 앞·뒤·윗면·아랫면·시작/끝을 닫는다. 모든 삼각형의 face id는 `wall-baseboard` 하나다. 구조 벽과 방 마감, 가구 하부의 `plinth`는 이 원형이 만들지 않는다.
 
-입력 L은 [방별 벽 마감](../spaces/03-surface-owners.md#interior-surface-handoff)의 실제 노출 직선 구간에서 받는다. 한 방의 벽에 붙은 판은 열린 문 개구부와 문선 바깥 끝, 문 없는 통로의 벽 끝에서 끊는다. 문턱 아래나 개구부를 가로질러 판을 잇지 않는다. 창대가 이 높이에 내려오지 않는 일반 창에서는 판을 연속한다. 내부/외부 방 모서리에서 이웃 run 둘은 각 45° miter 끝면으로 정확히 맞대고, 독립 노출 종단은 수직 끝 마개로 닫는다. 한 모서리의 판을 두 방에서 만들지 않으며 같은 방 안의 두 run은 모서리 공통 부피를 복제하지 않는다. 1층·2층의 도장 벽에는 공용부·침실·복도·현관·세탁실뿐 아니라 파우더룸과 두 욕실의 타일 바깥 도장 구간도 포함한다. 샤워·욕조 타일 벽과 타일 하단에는 만들지 않는다. 차고의 도장 석고보드 벽에도 같은 단면을 쓰되 실제 바닥–벽 접선을 원점으로 하고 차고 바닥 datum을 따른다. 욕실 세면장 plinth 앞에서는 그 부재의 뒤·옆 하단 홈을 따라 연속하고, 타일 시작점에서 끝낸다. 계단 아래 시작 run은 첫 챌판과 기존 계단 덩어리 옆면의 교선에서 끝내고, 위층 run은 도착 바닥의 새 경계에서 시작한다. [열린 계단의 흰 경사 측판](04-stair-members.md#stair-side-skirt)은 별도 모델 원형이며 수평 걸레받이를 경사판으로 늘이지 않는다. 두 원형의 접선과 레퍼런스 03·05의 실제 읽힘은 modelSources 이전이라 unverified다.
+입력 L은 [방별 벽 마감](../spaces/03-surface-owners.md#interior-surface-handoff)의 실제 노출 직선 구간에서 받는다. 한 방의 벽에 붙은 판은 열린 문 개구부와 문선 바깥 끝, 문 없는 통로의 벽 끝에서 끊는다. 문턱 아래나 개구부를 가로질러 판을 잇지 않는다. 창대가 이 높이에 내려오지 않는 일반 창에서는 판을 연속한다. 내부/외부 방 모서리에서 이웃 run 둘은 각 45° miter 끝면으로 정확히 맞대고, 독립 노출 종단은 수직 끝 마개로 닫는다. 한 모서리의 판을 두 방에서 만들지 않으며 같은 방 안의 두 run은 모서리 공통 부피를 복제하지 않는다. 1층·2층의 도장 벽에는 공용부·침실·복도·현관·세탁실뿐 아니라 파우더룸과 두 욕실의 타일 바깥 도장 구간도 포함한다. 샤워·욕조 타일 벽과 타일 하단 및 [방 면 owner가 배치하지 않는 차고](../spaces/03-surface-owners.md#interior-surface-handoff)에는 만들지 않는다. 욕실 세면장 plinth 앞에서는 그 부재의 뒤·옆 하단 홈을 따라 연속하고, 타일 시작점에서 끝낸다. 계단 아래 시작 run은 첫 챌판과 기존 계단 덩어리 옆면의 교선에서 끝내고, 위층 run은 도착 바닥의 새 경계에서 시작한다. [열린 계단의 흰 경사 측판](04-stair-members.md#stair-side-skirt)은 별도 모델 원형이며 수평 걸레받이를 경사판으로 늘이지 않는다. 두 원형의 접선과 레퍼런스 03·05의 실제 읽힘은 modelSources 이전이라 unverified다.
 
 UV는 run 시작 끝면의 완성 바닥·벽 접점을 원점으로 한다. 긴 앞/뒤 면은 U가 +X 방향 미터 길이, V가 Y 높이 미터 길이이고, 윗 사면과 끝 마개는 각 면의 실제 경계에서 같은 물리 척도로 새 투영을 시작한다. 코너 miter에서는 결 방향을 각 run의 +X로 다시 잡고, 문선·계단·타일 종단에서 텍스처를 잇지 않는다. 관절은 없다. 설계 source owner는 `src/models/interior/baseboard.ts`이고, 실제 벽 길이·개수와 배치 변환은 후속 instances가 컴파일된 방 경계로 산출한다. 현재 modelSources가 열리지 않아 메시·UV·재료 결속과 GPU 읽힘은 unverified다.
 

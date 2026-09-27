@@ -69,8 +69,8 @@
 | [mudroom-coat-hooks](../../models/12-service-rooms.md#mudroom-coat-hooks) | 두 외투 폭구간 [-0.40,-0.10]·[0.10,0.40], 간격 0.20 m; 벤치 위 하단 1.10−0.45 = 0.65 m. |
 | [pantry-l-shelf](../../models/12-service-rooms.md#pantry-l-shelf) | 뒤 깊이 0.25·옆 깊이 0.30 m, 코너는 합집합 1판×5단; 상면 0.20+0.40k (k=0…4). 각 판과 받침에서 문선과 겹치는 X=[3.22,3.235]·Z=[−5.82,−5.80] m를 빼고 남은 판은 부모 선반 예약 안이다. |
 | [pantry-containers](../../models/12-service-rooms.md#pantry-containers) | 용기 0.12×0.12×0.20, 상자 0.18×0.18×0.25, 바구니 0.30×0.20×0.15 m; 모두 높이 ≤0.30 m. |
-| [garage-shelving](../../models/12-service-rooms.md#garage-shelving) | 1.70×0.60×2.05 m; 상자 깊이 0.35 ≤ 0.60, 상자 위 0.28 < 다음 선반 간격 0.40 m. 뒤 기둥의 Z=[−6.45,−6.435]·Y=[−0.15,−0.05] m를 빼 차고 걸레받이와 교집합 0이다. |
-| [garage-workbench](../../models/12-service-rooms.md#garage-workbench) | 상면은 차고 바닥 위 0.90 m; 서랍 인출 0.45+오목 손잡이 돌출 0 = 작동 예약 0.45 m. 뒤 다리 Z 최후면 −6.430 m는 걸레받이 앞면 −6.435 m보다 0.005 m 앞에서 멈춘다. |
+| [garage-shelving](../../models/12-service-rooms.md#garage-shelving) | 1.70×0.60×2.05 m; 상자 깊이 0.35 ≤ 0.60, 상자 위 0.28 < 다음 선반 간격 0.40 m. 뒤 기둥 후면 Z=−6.45 m는 차고 뒤벽 마감과 면으로 접하며 차고 걸레받이는 배치하지 않는다. |
+| [garage-workbench](../../models/12-service-rooms.md#garage-workbench) | 상면은 차고 바닥 위 0.90 m; 서랍 인출 0.45+오목 손잡이 돌출 0 = 작동 예약 0.45 m. 뒤 다리 후면 Z=−6.430 m는 뒤벽 −6.45 m에서 0.020 m 떨어진다. |
 | [garage-tool-board](../../models/12-service-rooms.md#garage-tool-board) | 1.20×1.00×0.15 m; 공구 최대 전면 돌출 0.13+판 0.02 = 0.15 m. |
 | [headboard-bed](../../models/13-bedrooms.md#headboard-bed) | 주침실 L 2.15·W 1.60·H 0.60·B 1.00 m; 작은 방 둘 L 2.15·W 1.15·H 0.55·B 0.95. |
 | [nightstand-lamp](../../models/13-bedrooms.md#nightstand-lamp) | 주침실 S 0.50·T 0.55·U 1.10 m, 작은 방 S 0.45·T 0.50·U 1.05; 갓 지름 0.25 < S. |
@@ -85,7 +85,7 @@
 | [vanity-basin](../../models/14-bathrooms.md#vanity-basin) | W 0.60/0.70/0.85, D 0.45/0.55/0.55 m; 0.70=2×0.32+3×0.02, 0.85=2×0.395+3×0.02. |
 | [wall-mirror](../../models/14-bathrooms.md#wall-mirror) | 돌출 0.04 m, 아래 1.10−세면 상면 0.85 = 0.25 m; 폭은 각 세면장 W. |
 | [towel-bar](../../models/14-bathrooms.md#towel-bar) | 벽 앞면 0.04+봉반지름 0.01+수건 0.03 = 0.08 m; 폭은 각 방 0.25/0.50/0.75. |
-| [sliding-shower-booth](../../models/14-bathrooms.md#sliding-shower-booth) | 앞면 3×0.43−2×0.02 = 1.25 m, 열린 순폭 1.25−0.43−0.02 = 0.80 m. |
+| [sliding-shower-booth](../../models/14-bathrooms.md#sliding-shower-booth) | 앞면 세 유리의 합집합은 3×0.43−2×0.02 = 1.25 m이고 열린 순폭은 1.25−0.43−0.02 = 0.80 m다. 오른쪽 고정 유리는 X=[0.617,0.625]·Z=[−8.80,−7.79] m에서 닫고 앞 레일·이동 유리의 Z≥−7.79 m와 접면만 공유하므로 같은 X 끝의 전면 유리와 부피가 겹치지 않는다. |
 | [bathtub](../../models/14-bathrooms.md#bathtub) | 외곽 0.80×1.80×0.55 m; 가장자리 0.06, 바닥 위 내부 최저 0.15 m. |
 | [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | 레일 길이 1.80 m = reviewed 욕조 예약 Z=[−8.70,−6.90] m의 길이; 뒤쪽 0.10 m 벽 간격에는 부재가 없다. 커튼 펼침 1.80 m·걷힘 0.25 m, 법선 ±0.02 ⊂ 예약 폭 0.10 m. |
 | [bath-floor-mats](../../models/14-bathrooms.md#bath-floor-mats) | 샤워 매트 0.65×0.45 ⊂ 0.90×0.60 m; 욕조 매트 0.80×0.45 ⊂ 1.05×1.55 m. |
