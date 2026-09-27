@@ -163,3 +163,16 @@ void test("inward corner and threshold replacements retain their displacement re
     assert.match(observation.pose.reason, /\d+\.\d{3} m/);
   }
 });
+
+void test("a required reference observation cannot silently disappear", () => {
+  const house = buildHouse();
+  const environment = buildHouseEnvironment(house);
+  assert.doesNotThrow(() => deriveHouseObservations(environment, house));
+  assert.throws(
+    () => deriveHouseObservations({
+      ...environment,
+      openings: environment.openings.filter((opening) => opening.id !== "garden-door"),
+    }, house),
+    /reference observation "kitchen-dining-family\/threshold-garden-door" is absent/,
+  );
+});

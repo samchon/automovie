@@ -419,9 +419,10 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
     );
   // Reference comparisons (04 reference-spatial-comparisons): which derived questions each reads.
   const ids = new Set(observations.map((o) => o.id));
-  const pick = (...wanted: string[]): string[] => wanted.filter((w) =>
-    ids.has(w),
-  );
+  const pick = (...wanted: string[]): string[] => wanted.map((id) => {
+    if (!ids.has(id)) throw new Error(`reference observation "${id}" is absent`);
+    return id;
+  });
   const ofSpace = (space: string, role?: IHouseObservation["role"]): string[] => observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map(
     (o) => o.id,
   );
