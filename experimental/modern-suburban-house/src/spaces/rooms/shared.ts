@@ -153,59 +153,59 @@ export const roomLevels = (room: IRoomSpace): readonly [number, number] => room.
  * A closed storage volume a room owns and uses through a real opening (coat
  * closet, linen closet): a logical space of its own, never a route node.
  * @evidence spaces/05-route-network.md Closet and linen storage are accessible from rooms without becoming passage nodes.
- * @evidenceReview spaces/05-route-network.md #60bf203 v-141 05-route-network.md:58 linen and coat closet are storage with a real opening and depth, not route edges; environment.ts:542-548 makes them kind 'storage' spaces.
+  * @evidenceReview spaces/05-route-network.md `IStorageSpace` records a bounded coat or linen volume with its own id; environment assembly emits it as a storage space without adding a passage edge.
  * @evidence spaces/05-route-network.md#room-route-network Storage volume has its own id while the door remains on the room route.
- * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 v-141 IStorageSpace.id is separate from the room id (house.ts:237-245); 05-route-network.md:58,66 closet used from the room route, not an edge.
+  * @evidenceReview spaces/05-route-network.md#room-route-network Entry and upper-hall builders return storage records separate from their room records; the room route reaches each opening without making the volume another transit node.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a space reservation, not an authored storage model.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Interface of id and x/y/z only; no model or mesh.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The interface contains only an id and world X/Y/Z intervals; closet shelves, doors, and model meshes remain outside this logical storage record.
  * @evidence principles/core/source-units.md#source-substantive-completion Id and full world box let the environment expose the storage volume.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:544-547 uses storage.id and cell(storage) with x/y/z.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion Environment assembly reads the storage id and all three world intervals to create a bounded storage cell usable by observations.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network keeps the entry coat and upper linen volumes outside passage edges while their door openings remain reachable; this type records each storage cell separately.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05-route-network.md:58: coat and linen storage have real openings and depth and are not route edges. IStorageSpace records (entry.ts:113, upper-hall.ts:69-74) become separate storage spaces (environment.ts:566-571), not route nodes.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` keeps coat and linen behind their reachable openings without passage edges; this type carries their separately bounded volumes into environment storage cells.
  */
 export interface IStorageSpace {
   /**
    * @evidence spaces/05-route-network.md A storage volume has a stable address separate from the room route.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 id field; environment.ts:544 its own space id.
+    * @evidenceReview spaces/05-route-network.md Entry and upper-hall builders supply distinct coat and linen `id` values, which environment assembly uses for their storage spaces apart from the two room ids.
    * @evidence principles/core/source-units.md#source-scope-preservation The id names the closet volume, not a new route connection.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 id is only a space id; no connector is created.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation This string names a closet volume; it does not create an opening, connector, or route edge.
    * @evidence principles/core/source-units.md#source-substantive-completion Environment assembly can expose the exact storage space.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:542-548 adds one storage space per record.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion Environment assembly assigns `storage.id` to the emitted storage space so later observation lookup can address that exact volume.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage names coat-storage and upper-linen-storage names the hall linen volume; their ids remain distinct from front-entry and upper-hall.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 entry.md:65,89 define the coat closet and upper-hall.md:33,57 the linen closet. Producers emit ids "entry-coat-storage" (entry.ts:113) and "upper-linen-storage" (upper-hall.ts:70), pushed as their own storage spaces (environment.ts:566-571), distinct from front-entry and upper-hall.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `entry-coat-storage` and `upper-linen-storage` parents name separate closets; their builders supply those ids here, distinct from `front-entry` and `upper-hall`.
    */
   id: string;
   /**
    * @evidence spaces/05-route-network.md The usable storage volume has a horizontal width.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 05-route-network.md:58 storage with real opening and interior depth; x field L263.
+    * @evidenceReview spaces/05-route-network.md A storage volume needs depth behind its room-side opening; this X interval bounds the coat and linen cells independently of their route rooms.
    * @evidence principles/core/source-units.md#source-scope-preservation This interval stays inside the authored closet.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 entry.ts:109 x=[1.10,1.87] is the body plus reveal to the opening boundary (entry.md:89); upper-hall.ts:71 x=[1.87,3.07] = upper-hall.md:57.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation Entry supplies X from the coat body start to the stair closure face, while upper hall supplies its linen interior span; the field introduces neither dimension.
    * @evidence principles/core/source-units.md#source-substantive-completion The storage cell can be bounded in world X.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:547 cell x from storage.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion Environment assembly reads `storage.x` as the X bounds of the storage cell, preserving the chosen horizontal volume.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage derives its X start from tread seven plus 0.07 m, and upper-linen-storage fixes its own hall-side width; this interval carries each closet's owner value.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Entry's coat X start derives from STAIR_STEPS.upperClosetStartX plus 0.07 at upper tread seven; upper-hall's linen X=[1.87,3.07] begins at STAIR_OPENING.east. The coat's opposite X face includes its reveal, and both storage extents follow reviewed room designs.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The coat builder derives its X start from the seventh upper tread and extends the logical cell to the stair closure face; the linen builder supplies its hall-side X span from its own parent.
    */
   x: readonly [number, number];
   /**
    * @evidence spaces/05-route-network.md The usable storage volume has a vertical interval.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 y field L270; 05:58 storage volume.
+    * @evidenceReview spaces/05-route-network.md The storage `y` interval bounds a usable closet volume behind its opening instead of adding a floor-to-ceiling passage node.
    * @evidence principles/core/source-units.md#source-scope-preservation This is interior clearance, not a shelf model.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 A range field; no shelf is built (shelves are models/05).
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation The required height pair preserves the room builder's closet limit and does not construct a shelf or hanging rail.
    * @evidence principles/core/source-units.md#source-substantive-completion The storage cell can be bounded in world Y.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:547 cell y from storage.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion Environment assembly places `storage.y` directly on the storage cell, making its vertical occupancy queryable.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage fixes its body top at Y=2.15 and upper-linen-storage fixes the linen volume from upper floor through 2.20 m height; this range carries those closet-owned limits, not room ceiling height.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 entry.md:89 top Y=2.15 is the owner value; entry.ts:113 y=[groundFloor, COAT_STORAGE.top]. upper-hall.md:57 height 2.20 m; upper-hall.ts:72 [upperFloor, upperFloor+2.2]. Neither uses a room ceiling (2.75/5.66). v141 defect fixed.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Entry's coat parent fixes Y 2.15 m; the linen parent fixes 2.20 m above upper floor, and each builder supplies that height pair here instead of its room ceiling.
    */
   y: readonly [number, number];
   /**
    * @evidence spaces/05-route-network.md The usable storage volume has a plan depth.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 z field L277; 05:58 interior depth.
+    * @evidenceReview spaces/05-route-network.md This plan Z pair keeps each closet's bounded depth behind its opening while the room route remains outside the storage volume.
    * @evidence principles/core/source-units.md#source-scope-preservation This interval remains the author's closet reservation.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 entry z=[STAIR_OPENING.back -4.56, frontZ -3.51] = entry.md:89; linen z=[-3.26,-2.66] = upper-hall.md:57.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation Entry supplies the stair-back to coat-front Z span; upper hall supplies the linen interior Z span, both from their room designs.
    * @evidence principles/core/source-units.md#source-substantive-completion The storage cell can be bounded in world Z.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:547 cell z from storage.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion Environment assembly reads `storage.z` as the storage cell's world Z bounds, completing its three-axis volume.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage places the coat volume below the upper flight with X depth 0.65 m and a separate Z width, while upper-linen-storage fixes its hall recess; z retains each volume's authored Z span.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 entry.md:89 body below the upper flight, X depth from 7th tread +0.07 .. +0.72 (0.65), Z=[-4.56,-3.51]; storage z = [STAIR_OPENING.back, COAT_STORAGE.frontZ] = [-4.56,-3.51]; linen z [-3.26,-2.66]. v-143 F9 closed.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The coat parent fixes its Z span below the upper flight and the linen parent fixes its recess depth; the two builders pass those different intervals unchanged into this field.
    */
   z: readonly [number, number];
 }
