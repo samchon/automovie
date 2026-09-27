@@ -38,7 +38,7 @@ Sources: [glTF 2.0 skins and joint hierarchy](https://registry.khronos.org/glTF/
 
 ## Model review set {#model-review-set}
 
-The model designs define a finite neutral review set for every named model state: front, right, rear, and top silhouettes; two opposing diagonals; and targeted close views or sections for joints, penetrations, thin members, openings, and occluded surfaces. They state the background, scale reference, fixed orthographic framing, light, raster, and comparison conditions so the same views can reveal a regression after a revision, independently of dramatic shot composition.
+The model designs define a finite set of neutral views, backgrounds, and scale comparisons used to judge model construction independently of dramatic shot composition.
 
 Review question: which repeated views make regressions comparable across model revisions?
 

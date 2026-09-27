@@ -606,6 +606,10 @@ function boredPinContact(host, pin, bore) {
     Math.min(bore.z[1], pin.z[1], host.z[1]) -
       Math.max(bore.z[0], pin.z[0], host.z[0]) <= epsilon)
     return undefined;
+  // A matching cross section is not enough: a pin beyond either bore end
+  // enters the solid host even though their shared span still has facets.
+  if (pin.z[0] < bore.z[0] - epsilon || pin.z[1] > bore.z[1] + epsilon)
+    return { contact: false, overlap: true };
   let arcFacets = 0;
   for (let segment = 0; segment < 24; segment++) {
     const angle = 2 * Math.PI * (segment + 0.5) / 24;
@@ -1002,6 +1006,32 @@ function equipmentFormula(lines, envelopes, parts, grids) {
  * prescribed contact boundaries.
  * @param {ReturnType<typeof parse>} parsed
  */
+/** Distance from an XZ point to the actual straight edges of a 24-vertex stem ring. */
+function stemPolygonDistance(x, z, radius) {
+  let closest = Infinity;
+  for (let i = 0; i < 24; i++) {
+    const a = i * Math.PI / 12, b = (i + 1) * Math.PI / 12;
+    const ax = radius * Math.cos(a), az = radius * Math.sin(a);
+    const dx = radius * Math.cos(b) - ax, dz = radius * Math.sin(b) - az;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz)));
+    closest = Math.min(closest, Math.hypot(x - ax - t * dx, z - az - t * dz));
+  }
+  return closest;
+}
+
+/** Frontmost Z of the 24-gon at X, obtained from its edges rather than a circle equation. */
+function polygonFrontZ(x, radius) {
+  let front = -Infinity;
+  for (let i = 0; i < 24; i++) {
+    const a = i * Math.PI / 12, b = (i + 1) * Math.PI / 12;
+    const ax = radius * Math.cos(a), bx = radius * Math.cos(b);
+    if (x < Math.min(ax, bx) - epsilon || x > Math.max(ax, bx) + epsilon || Math.abs(bx - ax) <= epsilon) continue;
+    const z = radius * Math.sin(a) + (x - ax) * (Math.sin(b) - Math.sin(a)) / (Math.cos(b) - Math.cos(a));
+    front = Math.max(front, z);
+  }
+  return front;
+}
+
 function plantProof(parsed) {
   const errors = [];
   const contacts = new Set();
@@ -1021,8 +1051,11 @@ function plantProof(parsed) {
   const leafBase = branchBase + input.branchLength + input.branchRadius;
   const lateral = input.leafLength * Math.sin(fan);
   const maxBladeAngle = Math.atan2(lateral + input.leafWidth / 2, leafBase);
-  if (!(2 * branchBase * Math.sin(Math.PI / 5) > 2 * input.branchRadius &&
-    2 * maxBladeAngle < 2 * Math.PI / 5 &&
+  const azimuths = input.branchAzimuthsDegrees.map((angle) => angle * Math.PI / 180);
+  const separations = azimuths.map((angle, i) => (azimuths[(i + 1) % 5] + (i === 4 ? 2 * Math.PI : 0)) - angle);
+  const smallestSeparation = Math.min(...separations);
+  if (!(2 * branchBase * Math.sin(smallestSeparation / 2) > 2 * input.branchRadius &&
+    2 * maxBladeAngle < smallestSeparation &&
     lateral > input.leafWidth && input.leafThickness > 0))
     errors.push("potted-plant: branch azimuths or leaf fan prisms collide");
   /** @param {string} state @param {string} left @param {string} right */
@@ -1073,7 +1106,7 @@ function plantProof(parsed) {
         /** @type {const} */ (["x", "y", "z"]).some((axis) =>
           branch[axis].some((value, end) => Math.abs(value - branchBounds[axis][end]) > 2 * epsilon)))
         errors.push(`potted-plant/${state}/branch-${i}: measured capsule differs from part bounds`);
-      if (Math.abs(Math.hypot(baseX, baseZ) - branchRadius - stemSurface) > 2 * epsilon)
+      if (Math.abs(stemPolygonDistance(baseX, baseZ, stemSurface) - branchRadius) > 2 * epsilon)
         errors.push(`potted-plant/${state}/branch-${i}: stem tangent distance differs`);
       else attach("stem", `branch-${i}`);
       for (let j = 0; j < 3; j++) {
@@ -1270,6 +1303,25 @@ function audit(allSections, mutate, onlyState) {
     const parsed = parse(lines, anchor);
     mutate?.(anchor, parsed);
     const { envelopes, parts, inventory, compositions, supportBindings, pinFaces, emitterFaces, miterJoints, voids, cavityMinima, soleGrids, pieces, shearsZ, radial, radialZ, bores, cavityProfiles, boresZ, boresX, ellipses, tangents, flatContacts, capContacts, cavityContacts, curveLayers, linearCurves, grids } = parsed;
+    const suspensionFaces = new Map();
+    for (const line of lines) {
+      const match = /^@suspension-face\s+([^:]+):\s+([^/]+)\/(hook-inner|loop-inner)$/.exec(line);
+      if (!match) continue;
+      const key = `${match[1]}/${match[2]}`;
+      if (suspensionFaces.has(key)) errors.push(`${anchor}/${key}: duplicate suspension face`);
+      suspensionFaces.set(key, match[3]);
+    }
+    for (const [key, part] of parts) {
+      const face = suspensionFaces.get(key);
+      if (part.contact.includes("suspension") && (!face ||
+        (face === "loop-inner" && !boresZ.has(key)) ||
+        !lines.some((line) => !line.startsWith("@") && line.includes(`\`${part.id}/${face}\``))))
+        errors.push(`${anchor}/${key}: suspension lacks an authored downward hanging face`);
+      if (face && !part.contact.includes("suspension"))
+        errors.push(`${anchor}/${key}: suspension face has no suspension part`);
+    }
+    for (const key of suspensionFaces.keys())
+      if (!parts.has(key)) errors.push(`${anchor}/${key}: suspension face has no part`);
     errors.push(...formulaProducer.check(lines, parsed, anchor).errors);
     const vessel = vesselAttachmentProof(lines, anchor, parsed);
     vesselRows += vessel.rows;
@@ -1659,15 +1711,15 @@ function audit(allSections, mutate, onlyState) {
       for (const [key, tangent] of tangents) {
         if (!key.startsWith(`${state}/`)) continue;
         const host = byId.get(tangent.host), guest = byId.get(tangent.guest);
-        const zBack = Math.sqrt(tangent.radius ** 2 - tangent.halfWidth ** 2);
+        const zBack = polygonFrontZ(tangent.halfWidth, tangent.radius);
         if (!host || !guest || !(tangent.radius > tangent.halfWidth && tangent.halfWidth > 0) ||
           host.shape !== "hollow" || guest.shape !== "curved" ||
           Math.abs(host.x[0] + tangent.radius) > epsilon || Math.abs(host.x[1] - tangent.radius) > epsilon ||
           Math.abs(host.z[1] - tangent.radius) > epsilon ||
           Math.abs(guest.x[0] + tangent.halfWidth) > epsilon || Math.abs(guest.x[1] - tangent.halfWidth) > epsilon ||
           Math.abs(guest.z[0] - zBack) > epsilon || guest.y[0] < host.y[0] || guest.y[1] > host.y[1] ||
-          !lines.join("\n").includes("z_back(x)=sqrt(R²−x²)"))
-          errors.push(`${anchor}/${key}: cylindrical tangent proof invalid`);
+          !lines.join("\n").includes("z_back(x)=R−|x|tan7.5°"))
+          errors.push(`${anchor}/${key}: polygon tangent proof invalid`);
         else provedTangents.add(key);
       }
       for (const [key, curve] of curveLayers) {
@@ -2208,7 +2260,7 @@ if (require.main !== module) {
   const propsSource = sections().get("tabletop-props")?.join("\n");
   if (!propsSource) throw Error("tabletop-props fixture absent");
   for (const [label, before, after, expected] of [
-    ["cup pad moved into body", "0.042074..0.0825 | body", "0.040000..0.0825 | body", "tangent proof invalid"],
+    ["cup pad moved into body", "0.041710..0.0825 | body", "0.040000..0.0825 | body", "polygon tangent proof invalid"],
     ["cup bore widened", "@bore cup: body, 0.0365", "@bore cup: body, 0.0430", "bore is not a contained open cavity"],
     ["tray inner radius enlarged", "@ellipse tray: rim, 0.174", "@ellipse tray: rim, 0.181", "elliptic ring differs"],
     ["bowl prose diameter changed", "외경 0.22, 높이", "외경 0.23, 높이", "prose/table envelope differs"]

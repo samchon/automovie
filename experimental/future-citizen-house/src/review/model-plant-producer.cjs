@@ -6,12 +6,16 @@ const { resolve } = require("node:path");
 const documentPath = resolve(__dirname, "../../docs/models/004-decor-and-fixtures.md");
 const startMarker = "<!-- @generated-plant-parts:start -->";
 const endMarker = "<!-- @generated-plant-parts:end -->";
-/** @typedef {{heights:number[],potHeight:number,potTopRadius:number,potBottomRadius:number,wallMinimum:number,wallFactor:number,soilSurface:number,stemRadius:number,stemTop:number,crownDiameterLimit:number,branchStart:number,branchPitch:number,branchLength:number,branchRadius:number,leafLength:number,leafWidth:number,leafThickness:number,leafFanDegrees:number}} PlantSpec */
+/** @typedef {{heights:number[],potHeight:number,potTopRadius:number,potBottomRadius:number,wallMinimum:number,wallFactor:number,soilSurface:number,stemRadius:number,stemTop:number,crownDiameterLimit:number,branchStart:number,branchPitch:number,branchLength:number,branchRadius:number,branchAzimuthsDegrees:number[],leafLength:number,leafWidth:number,leafThickness:number,leafFanDegrees:number}} PlantSpec */
 
 /** @param {number} value */
 function round(value) { return Number(value.toFixed(6)); }
+/** @param {number} value */
+function lower(value) { return Math.floor(value * 1e6 + 1e-9) / 1e6; }
+/** @param {number} value */
+function upper(value) { return Math.ceil(value * 1e6 - 1e-9) / 1e6; }
 /** @param {number} lo @param {number} hi */
-function bounds(lo, hi) { return /** @type {[number,number]} */ ([round(lo), round(hi)]); }
+function bounds(lo, hi) { return /** @type {[number,number]} */ ([lower(lo), upper(hi)]); }
 /** @param {[number,number]} pair */
 function extent(pair) { return `${pair[0]}..${pair[1]}`; }
 
@@ -25,7 +29,10 @@ function specification(source) {
     "soilSurface", "stemRadius", "stemTop", "crownDiameterLimit", "branchStart", "branchPitch", "branchLength",
     "branchRadius", "leafLength", "leafWidth", "leafThickness", "leafFanDegrees"];
   if (!Array.isArray(input.heights) || input.heights.length !== 5 ||
-    !required.every((key) => typeof input[key] === "number" && Number.isFinite(input[key])))
+    !required.every((key) => typeof input[key] === "number" && Number.isFinite(input[key])) ||
+    !Array.isArray(input.branchAzimuthsDegrees) || input.branchAzimuthsDegrees.length !== 5 ||
+    input.branchAzimuthsDegrees.some((angle) => !Number.isFinite(angle) || angle < 0 || angle >= 360 || angle % 15 !== 0) ||
+    input.branchAzimuthsDegrees.some((angle, i) => i > 0 && angle <= input.branchAzimuthsDegrees[i - 1]))
     throw Error("potted-plant: incomplete spec");
   const fixedHeights = [180, 280, 600, 800, 1100];
   if (input.heights.some((value, i) => value !== fixedHeights[i]))
@@ -61,7 +68,7 @@ function partsFor(input, millimetres) {
   add("stem", "cylinder", bounds(-stemR, stemR), bounds(input.soilSurface * H, input.stemTop * H),
     bounds(-stemR, stemR), "soil,branch-0,branch-1,branch-2,branch-3,branch-4");
   for (let i = 0; i < 5; i++) {
-    const theta = 2 * Math.PI * i / 5;
+    const theta = input.branchAzimuthsDegrees[i] * Math.PI / 180;
     const ex = Math.cos(theta), ez = Math.sin(theta), px = -ez, pz = ex;
     const yi = (input.branchStart + input.branchPitch * i) * H;
     add(`branch-${i}`, "curved",
@@ -114,7 +121,7 @@ function render(input) {
     const apexRadius = tipRadius + branchRadius;
     output.push(`@inventory ${state}: ${parts.map((part) => part.id).join(", ")}`);
     for (let i = 0; i < 5; i++) {
-      const angle = 2 * Math.PI * i / 5;
+      const angle = input.branchAzimuthsDegrees[i] * Math.PI / 180;
       const ex = Math.cos(angle), ez = Math.sin(angle);
       const y = (input.branchStart + input.branchPitch * i) * H;
       output.push(`@plant-join ${state}: branch-${i}, ${round(baseRadius * ex)}, ${round(y)}, ${round(baseRadius * ez)}, ${round(tipRadius * ex)}, ${round(y)}, ${round(tipRadius * ez)}, ${round(branchRadius)}`);
