@@ -30,6 +30,20 @@ export interface IAutoMovieHumanBodySkinSites {
   /** The same for a foot vertex's normal against up: the back of the foot to the sole. */
   soleFacing: [number, number];
 
+  /**
+   * The skin over a joint's extension side, darker and redder than the skin
+   * around it where it lies wrinkled over the bone with the joint straight,
+   * and nearer the skin around it as flexion stretches it: the olecranon
+   * over the elbow and the patella over the knee. Each multiplies the site
+   * albedo there, per linear RGB channel, by its `extended` ratio with the
+   * joint at zero flexion, turning linearly to its `folded` ratio by
+   * `foldedAtDegrees` and held past it. The region is a Gaussian of the
+   * axial distance from the joint centre over `sigmaMetres`, within
+   * `reachMetres` of the bone's axis, on the side the extension faces,
+   * diffused with the site weights.
+   */
+  prominences: IAutoMovieHumanBodySkinSites.IProminence[];
+
   /** Sweeps over which the site weights diffuse, so sites meet softly. */
   sweeps: number;
 
@@ -39,4 +53,26 @@ export interface IAutoMovieHumanBodySkinSites {
    * sites', metres.
    */
   collarMetres: number;
+}
+export namespace IAutoMovieHumanBodySkinSites {
+  /** One joint's extension-side skin. */
+  export interface IProminence {
+    /** The distal bone of the joint without its side, on both sides: `LowerArm` is the elbow. */
+    bone: string;
+
+    /** Width along the bone, metres. */
+    sigmaMetres: number;
+
+    /** Distance from the bone's axis within which skin is the joint's, metres. */
+    reachMetres: number;
+
+    /** Linear RGB albedo ratio to the surrounding site with the joint straight. */
+    extended: [number, number, number];
+
+    /** The ratio with the joint folded. */
+    folded: [number, number, number];
+
+    /** Flexion at which the skin reads as folded, degrees. */
+    foldedAtDegrees: number;
+  }
 }

@@ -289,11 +289,12 @@ export function createHumanBodyBasisBuilder(
     const coloured =
       cheek === undefined
         ? null
-        : (siteColour ??= createHumanBodySkinColour(basis))([
-            cheek.r,
-            cheek.g,
-            cheek.b,
-          ]);
+        : (siteColour ??= createHumanBodySkinColour(basis))(
+            [cheek.r, cheek.g, cheek.b],
+            // the skin over a joint lightens as the coupled pose folds it
+            (bone) =>
+              state.pose.find((row) => row.bone === bone)?.flexion ?? null,
+          );
     if (coloured !== null) {
       const [r, g, b] = coloured.base;
       materialMap.get(skin)!.baseColor = {
