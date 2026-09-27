@@ -14,7 +14,24 @@
     "creases": 12,
     "falsely": 4
   },
-  "detections": "j18-b documents on mpfb-connected-head-2026-09-27-lid-fold, portrait cameras, no crease and both lids at -0.48",
-  "recorded": "2026-09-27T04:23:05.028Z",
+  "fold": {
+    "weights": [
+      -0.6,
+      0,
+      1
+    ],
+    "at": [
+      0.21875,
+      0.3671875,
+      0.4375
+    ],
+    "lids": [
+      34,
+      34,
+      33
+    ]
+  },
+  "detections": "j18-b documents on mpfb-connected-head-2026-09-27-lid-fold, portrait cameras: no crease and both lids at -0.48 (cc2); with the crease at fold heights -0.60 and +1.00 (fh)",
+  "recorded": "2026-09-27T04:53:04.361Z",
   "blurSource": "the per-subject blur at which a render's brow band reads the photograph's, median over 11 subjects"
 }

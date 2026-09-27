@@ -290,3 +290,79 @@ export function faceLidCreaseWeight(props: {
     source: "prior",
   };
 }
+
+/** The basis controls each upper lid's fold height is carried by. */
+export const FACE_LID_FOLD_CHANNELS = [
+  "leftEyeFoldHeight",
+  "rightEyeFoldHeight",
+] as const;
+
+/**
+ * The crease's place at each fold height on the editor's own renders
+ * (lid-crease-calibration-receipt.json, `fold`): the 17 documents of the
+ * crease calibration with both lids at -0.48 and the fold height control at
+ * -0.60, 0 and +1.00, read at the photographs' resolution; the median of
+ * every lid's `at`.
+ */
+export const FACE_LID_FOLD_CALIBRATION = {
+  weights: [-0.6, 0, 1],
+  at: [0.21875, 0.3671875, 0.4375],
+} as const;
+
+/**
+ * The fold's height over the brow's, both above the lid margin over the
+ * pupil in open eyes and primary gaze (FPD over EPD), by population and sex:
+ * Gao et al., Quant Imaging Med Surg 2025 (3D stereophotogrammetry, 147
+ * adults aged 18 to 30): Caucasian men 3.35 over 9.48 mm, women 3.39 over
+ * 10.93; Chinese men 1.54 over 10.45, women 2.97 over 10.86. No African
+ * sample measured both by one method: null.
+ */
+export const FACE_LID_FOLD_NORMS: Record<
+  NonNullable<IFacePopulationFacts["ancestry"]>,
+  Record<"male" | "female", number> | null
+> = {
+  european: { male: 3.35 / 9.48, female: 3.39 / 10.93 },
+  african: null,
+  asian: { male: 1.54 / 10.45, female: 2.97 / 10.86 },
+};
+
+/**
+ * Both lids' fold height, or null to keep the document's start.
+ *
+ * Where a lid has a crease, its fold's edge sits at the population's height
+ * over the brow's (`FACE_LID_FOLD_NORMS`), placed by the fold height control
+ * as `calibration` gives (the median place of the crease between margin and
+ * brow at each weight on renders, rising), linearly between the calibrated
+ * weights and held at their ends. The photograph's own place of the crease
+ * is not used: at portrait resolution the upper lashes, 7 to 8 mm long and
+ * curled upward, cover the band above the margin the fold lies in, and
+ * makeup draws its own lines there (of the 12 photographed creases the
+ * valley of Daniel Radcliffe's lids lies on the lash line, at 0.09, and
+ * Emma Watson's on her lid shadow's edge, at 0.45). Null for a lid without
+ * a crease (no fold to place), for a population without a ratio and without
+ * recorded facts. Pure.
+ */
+export function faceLidFoldHeightWeight(props: {
+  crease: { weight: number; source: "photographed" | "prior" } | null;
+  facts: Pick<IFacePopulationFacts, "ancestry" | "sex">;
+  calibration: { weights: readonly number[]; at: readonly number[] };
+}): number | null {
+  const { weights, at } = props.calibration;
+  if (
+    weights.length < 2 ||
+    weights.length !== at.length ||
+    weights.some((w, k) => k > 0 && !(w > weights[k - 1]!)) ||
+    at.some((a, k) => k > 0 && !(a > at[k - 1]!))
+  )
+    throw new Error("A fold height calibration rises with its weights.");
+  if (props.crease === null || props.crease.weight === 0) return null;
+  const { ancestry, sex } = props.facts;
+  if (ancestry === null || sex === null) return null;
+  const norm = FACE_LID_FOLD_NORMS[ancestry]?.[sex];
+  if (norm === undefined) return null;
+  if (norm <= at[0]!) return weights[0]!;
+  if (norm >= at[at.length - 1]!) return weights[weights.length - 1]!;
+  const k = at.findIndex((a) => a >= norm);
+  const t = (norm - at[k - 1]!) / (at[k]! - at[k - 1]!);
+  return weights[k - 1]! + t * (weights[k]! - weights[k - 1]!);
+}

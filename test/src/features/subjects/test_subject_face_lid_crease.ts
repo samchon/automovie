@@ -1,9 +1,11 @@
 import { TestValidator } from "@nestia/e2e";
 
 import {
+  FACE_LID_FOLD_NORMS,
   FACE_LIKENESS_CREASE_CALIBRATION,
   FACE_LIKENESS_CREASE_LINES,
   faceLidCreaseWeight,
+  faceLidFoldHeightWeight,
   measureFaceLikenessCrease,
 } from "../../../scripts/face-review/faceLikenessCrease";
 import { nclose, throwsError } from "../internal/predicates";
@@ -49,6 +51,11 @@ const scene = (rows: Record<number, number>) => {
  *    span falls back to the population (European: the crease; East Asian
  *    at their shares: both sexes above one half), and without recorded
  *    facts to the start (null); a control shallower than the layer refuses.
+ * 3. The fold height of a lid with a crease, photographed or not, is its
+ *    population's ratio inverted through the calibration linearly between
+ *    its weights and held at its ends (a Chinese man's 0.147 below the
+ *    first place); none for African or without facts; no crease keeps the
+ *    start; a calibration that does not rise refuses.
  */
 export const test_subject_face_lid_crease = (): void => {
   const lum = (v: number) => {
@@ -132,5 +139,37 @@ export const test_subject_face_lid_crease = (): void => {
           }),
         "layer's depth",
       ),
+  );
+  const calibration = { weights: [-0.6, 0, 1], at: [0.2, 0.4, 0.5] };
+  const photographed = { weight: -0.5, source: "photographed" as const };
+  const prior = { weight: -0.5, source: "prior" as const };
+  const foldOf = (
+    crease: typeof photographed | typeof prior | null,
+    facts: Parameters<typeof faceLidFoldHeightWeight>[0]["facts"],
+    at: number[] = calibration.at,
+  ) =>
+    faceLidFoldHeightWeight({
+      crease,
+      facts,
+      calibration: { weights: calibration.weights, at },
+    });
+  const europeanMan =
+    -0.6 + ((FACE_LID_FOLD_NORMS.european!.male - 0.2) / 0.2) * 0.6;
+  TestValidator.predicate(
+    "the fold height",
+    nclose(foldOf(photographed, european)!, europeanMan, 1e-12) &&
+      nclose(foldOf(prior, european)!, europeanMan, 1e-12) &&
+      foldOf(prior, { ancestry: "asian", sex: "male" }) === -0.6 &&
+      foldOf(prior, european, [0.1, 0.2, 0.3]) === 1 &&
+      nclose(
+        foldOf(prior, european, [0.2, 0.3, 0.4])!,
+        (FACE_LID_FOLD_NORMS.european!.male - 0.3) / 0.1,
+        1e-12,
+      ) &&
+      foldOf(prior, { ancestry: "african", sex: "male" }) === null &&
+      foldOf(prior, { ancestry: null, sex: null }) === null &&
+      foldOf(null, european) === null &&
+      foldOf({ weight: 0, source: "photographed" }, european) === null &&
+      throwsError(() => foldOf(prior, european, [0.4, 0.3, 0.5]), "rises"),
   );
 };

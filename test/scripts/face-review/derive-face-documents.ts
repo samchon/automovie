@@ -141,7 +141,10 @@ import {
 import {
   FACE_LID_CREASE_CHANNELS,
   FACE_LID_CREASE_LAYER,
+  FACE_LID_FOLD_CALIBRATION,
+  FACE_LID_FOLD_CHANNELS,
   faceLidCreaseWeight,
+  faceLidFoldHeightWeight,
   measureFaceLikenessCrease,
 } from "./faceLikenessCrease";
 import { readFaceLikenessImage, readFaceLikenessMask } from "./faceLikenessIo";
@@ -535,6 +538,24 @@ if (command === "identity") {
             layer: FACE_LID_CREASE_LAYER,
             depth: creaseDepth,
           });
+    // The fold's height where there is a crease: the population's ratio
+    // (`faceLidFoldHeightWeight`); the lid height index, which no
+    // photograph's landmarks read, then keeps it.
+    const fold = faceLidFoldHeightWeight({
+      crease,
+      facts: recorded,
+      calibration: FACE_LID_FOLD_CALIBRATION,
+    });
+    if (
+      fold !== null &&
+      FACE_LID_FOLD_CHANNELS.every((one) => channels.has(one))
+    )
+      start.shape = {
+        ...start.shape,
+        ...Object.fromEntries(
+          FACE_LID_FOLD_CHANNELS.map((one) => [one, Number(fold.toFixed(5))]),
+        ),
+      };
     if (crease !== null)
       start.shape = {
         ...start.shape,
@@ -1190,6 +1211,7 @@ if (command === "identity") {
       ),
       iterations: sweeps,
       crease,
+      fold,
       validity: {
         measured: measuredShare,
         yielded,
