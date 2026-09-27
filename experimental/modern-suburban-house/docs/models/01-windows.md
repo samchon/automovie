@@ -22,7 +22,7 @@
 ## 창틀·sash·mullion·살대의 부재 치수 {#window-member-sizes}
 <!--
 @evidence principles/core/common.md#scope-preservation frame 0.06·sash 0.05·mullion 0.08·살대 0.025 m 부재 폭과 칸 폭 산출식, 깊이 배분, 유리 법선·UV를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다. 고정·경첩 sash Z=[−0.13,−0.08] m와 유리 Z=[−0.113,−0.107] m, 상하 미닫이의 별도 앞뒤 트랙과 각 유리칸의 별도 닫힌 판을 구분한다.
+@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다. mullion의 칸 사이 X·frame 안 Y/Z 범위를 고정하고, 고정·경첩 sash Z=[−0.13,−0.08] m와 유리 Z=[−0.113,−0.107] m, 상하 미닫이의 별도 앞뒤 트랙과 각 유리칸의 별도 닫힌 판을 구분한다.
 @evidence principles/core/common.md#declared-basis 부재 폭 근거를 settings/20-verification.md#visual-grammar의 charcoal 창틀과 #frame-condition의 외부 기본 view, 계단 창 폭 0.78 m에서 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 두께 있는 frame·sash·유리·살대를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선)로 정하고, 금속 프레임은 부재 길이를 U로 한 미터 UV를 낸다.
@@ -41,6 +41,8 @@
 
 spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입면 폭 0.06 m, `sash` 둘레 0.05 m, 칸 사이 `mullion` 0.08 m, 중앙 `muntin` 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 `frame` 0.14 m 전부, `sash` 0.05 m, 투명 격자의 각 칸마다 `glass` 0.006 m인 별도의 닫힌 판이다. 각 유리판의 앞뒤 면은 각각 바깥 법선을 가져 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
 고정창과 욕조 경첩창의 `sash`는 날씨 면을 국소 Z=0으로 두었을 때 Z=[−0.13,−0.08] m이고, 그 안의 유리는 Z=[−0.113,−0.107] m다. 상하 미닫이의 두 sash는 별도 트랙을 써서 바깥 upper가 Z=[−0.10,−0.05] m, 안쪽 lower가 Z=[−0.17,−0.12] m다. 각 트랙의 유리는 자기 sash 뒷면에서 0.017 m 안쪽의 0.006 m 판이므로 upper Z=[−0.083,−0.077] m, lower Z=[−0.153,−0.147] m다. 유리가 점유하는 사각형은 sash 안쪽의 유리 순폭·순높이이며 그 자리의 sash 면은 실제 구멍으로 비운다. 욕조 경첩창의 `awning-sash` 위쪽 회전축은 날씨 쪽 윗모서리 Z=−0.08 m다.
+
+칸 수 n≥2일 때 k=1…n−1번째 세로 `mullion`은 거친 개구부 왼끝을 l, 아래끝을 y0, 높이를 H, 위의 칸 폭을 c라고 두고 X=[l+0.06+k·c+(k−1)·0.08, l+0.06+k·c+k·0.08] m, Y=[y0+0.06,y0+H−0.06] m, Z=[−0.18,−0.04] m의 닫힌 기둥으로 만든다. 양끝은 둘레 `frame`의 안쪽 끝면과 면으로만 맞대고, sash의 가로 구역과 0.08 m 두께를 공유하지 않는다. n=1이면 `mullion`은 0개다.
 
 ## 살대 격자 {#window-muntin-grid}
 <!--

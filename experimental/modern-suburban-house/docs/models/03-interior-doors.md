@@ -69,19 +69,19 @@ hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이�
 
 레퍼런스 05의 열린 방문은 여닫이 부재로 채택한다. 어느 각도에서 멈췄는지는 사진에서 측정하지 않고 방별 회전 예약을 따른다.
 
-`hinge-pivot`은 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면이 만나는 수직선이다. motion 인터페이스는 0–π/2 rad 회전 하나이고 [settings 개구부](../settings/10-house.md#openings)의 기준 상태는 π/2 rad 열림이다. 아래 표에서 low/high는 각 문의 개구부 좌표가 증가하는 축의 낮은/높은 끝이다. 열림 방향은 월드 평면축으로 적었으며 모두 [각 room owner](../spaces/05-route-network.md#room-route-network)가 정한 방향을 따른다. 열림 쪽 벽면을 국소 원점 면으로 두면 모델의 열림은 언제나 국소 +Z다.
+`hinge-pivot`은 경첩 쪽 문설주 안쪽 모서리와 열림 쪽 벽면이 만나는 수직선이다. [settings 개구부](../settings/10-house.md#openings)는 기준 상태에서 열린 문을 요구하고, 이 모델은 그 각도를 π/2 rad로 정한다. motion 인터페이스는 닫힘 0에서 기준 열림 π/2 rad까지의 회전 하나다. 아래 표에서 low/high는 각 문의 개구부 좌표가 증가하는 축의 낮은/높은 끝이다. 열림 방향은 월드 평면축으로 적었으며 모두 [각 room owner](../spaces/05-route-network.md#room-route-network)가 정한 방향을 따른다. 열림 쪽 벽면을 국소 원점 면으로 두면 모델의 열림은 언제나 국소 +Z다.
 
 | 문 id | 경첩 끝 | 월드 열림 | 열린 면 손잡이 돌출 (m) | 공간 owner |
 |---|---|---|---|---|
-| `hall-bedroom-three-door` | low Z | +X | 0.055 | [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-plan) |
-| `hall-bedroom-two-door` | high X | +Z | 0.055 | [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-plan) |
+| `hall-bedroom-three-door` | low Z | +X | 0.056 | [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-plan) |
+| `hall-bedroom-two-door` | high X | +Z | 0.056 | [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-plan) |
 | `service-laundry-door` | low Z | +X | 0 | [세탁실](../spaces/rooms/laundry.md#laundry-plan) |
-| `entry-living-door` | low Z | −X | 0.055 | [거실](../spaces/rooms/living.md#living-plan) |
+| `entry-living-door` | low Z | −X | 0.056 | [거실](../spaces/rooms/living.md#living-plan) |
 | `service-pantry-door` | high Z | +X | 0 | [팬트리](../spaces/rooms/pantry.md#pantry-plan) |
-| `service-powder-door` | low Z | +X | 0.055 | [파우더룸](../spaces/rooms/powder.md#powder-plan) |
-| `hall-primary-door` | low X | −Z | 0.055 | [주침실](../spaces/rooms/primary.md#primary-plan) |
-| `hall-shower-door` | low X | −Z | 0.055 | [샤워 욕실](../spaces/rooms/shower-bath.md#shower-bath-plan) |
-| `hall-tub-door` | high Z | +X | 0.055 | [욕조 욕실](../spaces/rooms/tub-bath.md#tub-bath-plan) |
+| `service-powder-door` | low Z | +X | 0.056 | [파우더룸](../spaces/rooms/powder.md#powder-plan) |
+| `hall-primary-door` | low X | −Z | 0.056 | [주침실](../spaces/rooms/primary.md#primary-plan) |
+| `hall-shower-door` | low X | −Z | 0.056 | [샤워 욕실](../spaces/rooms/shower-bath.md#shower-bath-plan) |
+| `hall-tub-door` | high Z | +X | 0.056 | [욕조 욕실](../spaces/rooms/tub-bath.md#tub-bath-plan) |
 | `primary-wardrobe-door` | low Z | −X | 0.030 | [열림 쪽 주침실](../spaces/rooms/primary.md#primary-plan) |
 | `laundry-garage-door` | low Z | −X | 0 | [세탁실](../spaces/rooms/laundry.md#laundry-plan) |
 

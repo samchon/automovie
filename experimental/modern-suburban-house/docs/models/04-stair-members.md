@@ -16,7 +16,7 @@
 @evidence settings/10-house.md#stair 검은 수직 철제 난간살을 0.02 m 정사각 단면으로 소비한다.
 @evidence contracts/reservation-fit.md#reservation-fit 난간살 점유 0.02 m가 0.075 m 예약 안이고 간격이 0.10 m 이하임을 산술로 보인다.
 @evidence obligations/design/models.md#articulation-ownership 난간살을 관절 없는 rigid 부재로 정한다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 816cd4b3에서 바뀐 02-stair의 위 손잡이 코 높이와 벽 시작 Y=2.75 m를 다시 읽어 위 flight 난간살의 윗끝을 제한했다. 이 모델 수정은 부모의 손잡이·벽 경계를 바꾸지 않는다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 02-stair의 위 손잡이 코 위 0.90 m와 벽 시작 Y=2.75 m를 받아 위 flight 난간살의 윗끝을 제한한다. 이 난간살 배치는 부모의 손잡이·벽 경계를 바꾸지 않는다.
 -->
 
 레퍼런스 03·04의 계단에서 일정 간격으로 이어지는 검은 난간살을 채택한다. 개수는 사진을 세지 않고 각 flight 길이로 산출한다.
