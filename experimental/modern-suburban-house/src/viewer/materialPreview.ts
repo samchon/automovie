@@ -165,6 +165,12 @@ const finishes: Readonly<Record<string, HouseFinish>> = {
     roughness: 0.4,
     metalness: 0,
   },
+  "guard/f4f2ec": {
+    id: "interior-trim-white",
+    color: 0xf4f2ec,
+    roughness: 0.35,
+    metalness: 0,
+  },
 };
 
 /** Resolve every emitted house face; missing keys are a contract failure. */
@@ -176,7 +182,7 @@ export function houseFinish(role: HousePartRole, color: number): HouseFinish {
 }
 
 /**
- * The current wall solid includes both the weather face and its room face.
+ * Current wall and roof solids contain more than one finish boundary.
  * Keep its triangles and part id, but give each face the finish belonging to
  * its side of the reviewed boundary. A shared garage wall has two room faces.
  * Reveal and thickness faces use the neutral interior paint until their
@@ -188,6 +194,30 @@ export function houseWallFinishGroups(
   indices: readonly number[],
 ): { suffix: string; finish: HouseFinish; indices: number[] }[] {
   const base = houseFinish(part.role, part.color);
+  if (part.role === "roof" && part.color === PALETTE.roof) {
+    const weather: number[] = [];
+    const trim: number[] = [];
+    for (let i = 0; i < indices.length; i += 3) {
+      const ny = normals[indices[i]! * 3 + 1]!;
+      (ny > 0.1 ? weather : trim).push(indices[i]!, indices[i + 1]!, indices[i + 2]!);
+    }
+    return [
+      ...(weather.length ? [{ suffix: "/weather", finish: base, indices: weather }] : []),
+      ...(trim.length ? [{ suffix: "/soffit-fascia", finish: houseFinish("porch", PALETTE.trim), indices: trim }] : []),
+    ];
+  }
+  if (part.role === "stair" && part.color === PALETTE.stairWood) {
+    const oak: number[] = [];
+    const painted: number[] = [];
+    for (let i = 0; i < indices.length; i += 3) {
+      const ny = normals[indices[i]! * 3 + 1]!;
+      (ny > 0.9 ? oak : painted).push(indices[i]!, indices[i + 1]!, indices[i + 2]!);
+    }
+    return [
+      ...(oak.length ? [{ suffix: "/top", finish: base, indices: oak }] : []),
+      ...(painted.length ? [{ suffix: "/riser-edge", finish: houseFinish("porch", PALETTE.trim), indices: painted }] : []),
+    ];
+  }
   if (part.role !== "wall" || part.color !== PALETTE.siding)
     return [{ suffix: "", finish: base, indices: [...indices] }];
   const outward: readonly [number, number, number] | undefined =
@@ -237,14 +267,17 @@ export function houseTextureUvs(
   if (texture === undefined) return undefined;
   const lowerTread = partId?.startsWith("stair-lower-tread-") ?? false;
   const upperTread = partId?.startsWith("stair-upper-tread-") ?? false;
+  const landing = partId === "stair-landing";
   const gradedConnector = partId?.startsWith("front-walk-connector-") ||
     partId?.startsWith("side-walk-front-connector-");
   let minX = Infinity;
   let maxZ = -Infinity;
-  if (lowerTread || upperTread)
+  let minZ = Infinity;
+  if (lowerTread || upperTread || landing)
     for (let i = 0; i < positions.length; i += 3) {
       minX = Math.min(minX, positions[i]!);
       maxZ = Math.max(maxZ, positions[i + 2]!);
+      minZ = Math.min(minZ, positions[i + 2]!);
     }
   const output: number[] = [];
   for (let i = 0; i < positions.length; i += 3) {
@@ -256,11 +289,11 @@ export function houseTextureUvs(
       v = y / Math.max(0.2, Math.hypot(nx, nz));
     } else if (texture.projection === "ground" &&
       (Math.abs(ny) > 0.9 || (gradedConnector && Math.abs(ny) > 0.5))) {
-      if (lowerTread) {
+      if (lowerTread || landing) {
         u = x - minX;
         v = maxZ - z;
       } else if (upperTread) {
-        u = maxZ - z;
+        u = z - minZ;
         v = x - minX;
       } else {
         u = x;

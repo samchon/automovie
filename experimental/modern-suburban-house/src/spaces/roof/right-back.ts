@@ -21,9 +21,9 @@ import {
 /**
  * Emit the right low roof back face.
  * @evidence spaces/roof/right-back.md This export builds the rear slope of the lower right roof.
- * @evidenceReview spaces/roof/right-back.md #bafc83e `buildRightBackRoof` emits the single `roof-right-back` slab for the rear half of the lower right mass, ending at its shared low ridge.
+ * @evidenceReview spaces/roof/right-back.md #8d63e43 `buildRightBackRoof` emits the single `roof-right-back` slab for the rear half of the lower right mass, ending at its shared low ridge.
  * @evidence spaces/roof/right-back.md#right-back-roof SPLIT_X and RIGHT_EAVE_X close its east-west width while RIGHT_BACK_EAVE_Z and MAIN_RIDGE_Z bound the rear rBack slope.
- * @evidenceReview spaces/roof/right-back.md#right-back-roof #a29bbc8 The `rect` plan spans `SPLIT_X` to `RIGHT_EAVE_X` and `RIGHT_BACK_EAVE_Z` to `MAIN_RIDGE_Z`; `rBack(z)` sets the rising rear weather face.
+ * @evidenceReview spaces/roof/right-back.md#right-back-roof #d71ef1a The `rect` plan spans `SPLIT_X` to `RIGHT_EAVE_X` and `RIGHT_BACK_EAVE_Z` to `MAIN_RIDGE_Z`; `rBack(z)` sets the rising rear weather face.
  * @evidence principles/core/source-units.md#source-scope-preservation The part stops at the step plane and uses its own rear eave and the main ridge, leaving the wall step and front slope to other owners.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This builder's left edge remains at `SPLIT_X` and its Z bounds are rear eave to ridge; the right envelope and `buildRightFrontRoof` retain the step wall and front face.
  * @evidence principles/core/source-units.md#source-substantive-completion rect and slopedSlab emit a pitched roof-right-back mesh with the shared 0.24 m depth.

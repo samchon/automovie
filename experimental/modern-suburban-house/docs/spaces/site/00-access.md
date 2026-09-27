@@ -41,7 +41,7 @@
 @evidence principles/core/common.md#declared-basis 각 경로 구간은 링크한 front-walk·driveway·porch·entry·laundry·garden-door·terrace·side-walk·fence owner에서 받고 사용체는 use-profile에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb front-walk·driveway·porch·entry·laundry·rear·terrace·side-walk·fence 링크와 use-profile을 경로 근거로 대조하고, 새 2.00 m 외부 zone 체적은 실제 머리 여유가 아닌 map-ground-pending 표현 높이로 이 H2가 한정함을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "외부 보행자는 앞 보도에서 포치와 현관으로 직접 접근"과 테라스 설정을 구간 순서가 있는 내부 경로 그래프로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry의 직접 접근 한 문장과 site-identity 테라스 조건에 없는 구간 순서, driveway→front-walk 가로 연결로, 아래 대기→관리길 연결을 본문이 더하는지 대조해 분화를 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry와 site-identity는 현관 접근과 후면 테라스를 요구하고 front-walk·side-walk·terrace는 가로 연결로와 아래 대기 접속을 이미 정한다. 이 H2는 그 접속들을 현관·차고·후면의 순서 있는 외부 보행 경로로 엮는다.
 @evidence principles/design/spaces.md#space-topology 차고 외부문은 기본 닫힘이고 차고 실내 진입은 머드룸이며 관리길 앞뒤 구역과 울타리 문은 외부 node를 늘리지 않는 내부 연결이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 차고 외부문 기본 닫힘, 머드룸 실내 진입, 관리길 앞뒤 구역·울타리 문의 내부 연결을 본문에서 대조해 접속·차단 관계가 외부 node 추가 없이 그래프로 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높은 테라스와 낮은 대기의 지표 접속, 필지·울타리 선은 각 owner와 maps로 넘기고 잔디 통과를 열린 연결로 대신하지 않는다.
@@ -79,7 +79,7 @@ maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리
 @evidence principles/core/common.md#declared-basis 좌표·높이의 원본을 링크한 spaces/settings owner에 두고 입력 표만으로 maps가 채택되거나 연결되지 않았다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 좌표·높이 원본을 링크한 spaces/settings owner에 두고 '아래 요구만으로 maps가 채택되거나 연결된 것은 아니다'라는 본문을 대조해 지도 값이 미해결 입력으로 표시됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 대지 설정의 "구체 경계·식재 위치·배수처럼 보이는 지표 경사는 maps의 저작 선택"을 spaces가 거부할 포함·포트·접지 불일치 목록으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity가 maps에 맡긴 구체 경계·지표 경사를 본문이 중심점 일치 불인정·지표로 챌판 삭제 금지·gate 대기 제외 같은 거부 조건으로 바꾸는지 대조해 부모에 없는 판정을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity는 지표·필지 답을 maps에 맡기고 terrace·01-paving-support·fence는 단 보존과 gate 대기 제외를 이미 정한다. 이 H2는 두 외부 포트의 전체 끝선이 맞아야 하며 중심점 일치만으로 연결을 승인하지 않는 입력 검사를 더한다.
 @evidence principles/design/spaces.md#space-topology 필지가 본채·차고·포치·굴뚝·처마·네 포장·울타리를 모두 포함하고 외부 보도가 두 포트 끝선 전체와 턱 없이 만나야 한다는 관계를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 닫힌 필지 행의 본채·차고·포치·굴뚝·처마·네 포장·울타리 포함과 node 행의 '두 끝선 전체와 턱 없이' 접속을 대조해 필지 포함·외부 접속 관계가 이 표에서 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 포장 두께와 지지체 형상을 이 인터페이스에서 새로 발명하지 않고 01-paving-support와 10-ground-floor owner에서 받는다.

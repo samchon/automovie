@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 뒤쪽 파인 부분은 upper-linen-storage의 벽 포함 예약, 왼쪽/뒤쪽 중앙은 계단실 경계에서 받는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 앞/오른쪽 변은 main-building-extent, 왼쪽/뒤쪽 중앙은 stair-floor-opening, 뒤쪽 파임은 upper-linen-storage 벽 포함 예약 링크로 이어져 윤곽의 각 변이 근거 owner를 지목함을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "bedroom-two의 좌표 복사로 대신하지 않는다"를 오른쪽 뒤 진입 부분과 린넨으로 파인 자기 윤곽으로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-three의 좌표 복사 금지에 대해 (3.22, -2.51)·(1.72, -3.26) 꼭짓점의 린넨 파임과 (3.22, -4.56)까지 내려가는 오른쪽 뒤 진입 바닥이 부모에 없는 윤곽 결정으로 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-three는 좌표 복사를 금지하고 복도 린넨장은 upper-hall#upper-linen-storage가 이미 빼도록 정한다. 이 방 본문은 그 파임을 소비하면서 오른쪽 뒤 진입 바닥을 (3.22, -4.56)까지 남기는 자기 윤곽을 정한다.
 @evidence principles/design/spaces.md#space-topology 문을 도착면/침실 경계에 두어 -Z 문설주 경첩·방 안 +X 열림으로 계단 상부참에 회전하지 않게 한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 앞/오른쪽 외벽·왼쪽/뒤쪽 계단실·뒤쪽 린넨 인접과 도착면/침실 경계 X = [3.07, 3.22]의 문, -Z 경첩·+X 열림을 대조해 상부참으로 회전하지 않는 연결 그래프가 메시 없이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 잘린 린넨 구역을 방 면적에 다시 넣지 않고 오른쪽 지붕과 차고 접합 조건은 right-roof-closures에서 소비한다.

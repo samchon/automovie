@@ -19,6 +19,9 @@ void test("every emitted house surface resolves to one authored finish", () => {
   assert.ok(finishes.some((finish) => finish.id === "roof-shingle"));
   assert.ok(finishes.some((finish) => finish.id === "brick-red-brown"));
   assert.ok(finishes.some((finish) => finish.id === "paving-concrete"));
+  const posts = house.parts.filter((part) => part.id.startsWith("stair-post-") || part.id.startsWith("stair-guard-post-"));
+  assert.equal(posts.length, 4);
+  assert.ok(posts.every((part) => houseFinish(part.role, part.color).id === "interior-trim-white"));
   assert.throws(() => houseFinish("wall", 0x123456), /unbound house surface/);
 });
 
@@ -52,7 +55,11 @@ void test("metric tiles project by actual face and retain fallbacks", () => {
   );
   assert.deepEqual(
     houseTextureUvs([-0.65, 1.53, -3.41, -0.37, 1.53, -3.54], [0, 1, 0, 0, 1, 0], tread, "stair-upper-tread-1")?.map((value) => Math.round(value * 1000) / 1000),
-    [0, 0, 1, 0.233],
+    [1, 0, 0, 0.233],
+  );
+  assert.deepEqual(
+    houseTextureUvs([-1.8, 1.36, -3.41, -0.65, 1.36, -4.56], [0, 1, 0, 0, 1, 0], tread, "stair-landing")?.map((value) => Math.round(value * 1000) / 1000),
+    [0, 0, 8.846, 0.958],
   );
   const shingle = houseFinish("roof", 0x3d3f43);
   const roofUvs = houseTextureUvs(
@@ -116,6 +123,20 @@ void test("siding binds only to outward wall faces", () => {
     houseWallFinishGroups(shared, shared.mesh.normals!, shared.mesh.indices!)[0]!.finish.id,
     "interior-painted-wall",
   );
+});
+
+void test("roof weather face alone receives shingles", () => {
+  const roof = buildHouse().parts.find((part) => part.role === "roof" && part.color === 0x3d3f43)!;
+  const groups = houseWallFinishGroups(roof, roof.mesh.normals!, roof.mesh.indices!);
+  assert.deepEqual(groups.map((group) => group.finish.id), ["roof-shingle", "trim-white"]);
+  assert.equal(groups.reduce((sum, group) => sum + group.indices.length, 0), roof.mesh.indices!.length);
+});
+
+void test("stair blocks bind oak tops and painted risers", () => {
+  const tread = buildHouse().parts.find((part) => part.id === "stair-upper-tread-1")!;
+  const groups = houseWallFinishGroups(tread, tread.mesh.normals!, tread.mesh.indices!);
+  assert.deepEqual(groups.map((group) => group.finish.id), ["stair-tread-wood", "trim-white"]);
+  assert.equal(groups.reduce((sum, group) => sum + group.indices.length, 0), tread.mesh.indices!.length);
 });
 
 void test("scene keeps exterior siding while painting the garage and family room faces", () => {

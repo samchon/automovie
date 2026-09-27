@@ -46,7 +46,7 @@ const INNER = FRONT - MAIN.wall;
 /** Rough garage opening; room fit-out reserves the guide from this host. */
 /**
  * @evidence spaces/envelope/front.md The garage's one broad opening is measured at its front elevation.
- * @evidenceReview spaces/envelope/front.md #9ea9268 `GARAGE_FRONT_DOOR` is one X [6.10, 11.10] rough opening record; `buildFront` passes it as the garage front wall's sole hole, preserving the single door in the parent.
+ * @evidenceReview spaces/envelope/front.md #144038d `GARAGE_FRONT_DOOR` is one X [6.10, 11.10] rough opening record; `buildFront` passes it as the garage front wall's sole hole, preserving the single door in the parent.
  * @evidence spaces/envelope/front.md#garage-front-opening The 6.10..11.10 m jambs and 2.15 m head form the garage opening; the wall-cut bottom extends below the garage floor through its support base.
  * @evidenceReview spaces/envelope/front.md#garage-front-opening #39516cd The jambs and head follow `garage-front-opening`; the record's lower wall-cut limit derives `STOREYS.garageFloor - GROUND_LAYERS.garageBase`, allowing the floor base to continue through the void below the parent's finished Y = -0.15 threshold.
  * @evidence principles/core/source-units.md#source-scope-preservation This host leaves the moving panel and guides to later models and garage reservations.
@@ -68,7 +68,7 @@ export const GARAGE_FRONT_DOOR = {
 /** Emit the front elevation walls. */
 /**
  * @evidence spaces/envelope/front.md This builder emits the complete front wall bodies with their authored rough voids and threshold support.
- * @evidenceReview spaces/envelope/front.md #9ea9268 `buildFront` returns main and garage front walls, five roof-contact wedge parts, and the front-door finish threshold with named rough wall holes.
+ * @evidenceReview spaces/envelope/front.md #144038d `buildFront` returns main and garage front walls, five roof-contact wedge parts, and the front-door finish threshold with named rough wall holes.
  * @evidence spaces/envelope/front.md#front-roof-closures One wall outline rises under the high gable, main plane, and low right roof, with thickness wedges at those contacts.
  * @evidenceReview spaces/envelope/front.md#front-roof-closures #3ba3591 The main wall outline climbs from low-right to main and gable undersides; two `valleyHead` slabs and `wallHead` runs fill its thickness to the adjacent roof undersides.
  * @evidence spaces/envelope/front.md#front-openings Five named front voids remain in the shared wall face; service and powder receive no invented front window.
@@ -82,7 +82,7 @@ export const GARAGE_FRONT_DOOR = {
  * @evidence spaces/envelope/front.md#bedroom-three-front-window The right upper bedroom void lies on the lower-roof portion, not the garage face.
  * @evidenceReview spaces/envelope/front.md#bedroom-three-front-window #5626597 `FRONT_WINDOWS.bedroomThree` cuts the main wall at X [2.65, 4.75] to the right of `SPLIT_X`, beneath the low-right roof and outside the garage wall panel.
  * @evidence spaces/envelope/front.md#front-entry-filling The front-door rough void and finish threshold give the later wood/glass leaf its authored host and porch contact.
- * @evidenceReview spaces/envelope/front.md#front-entry-filling #db962b2 The main wall consumes entry-owned `FRONT_DOOR`; `front-door-threshold` spans its jambs across the wall thickness from finish bottom to 0.02 m above the ground floor, leaving the leaf and glazing to models.
+ * @evidenceReview spaces/envelope/front.md#front-entry-filling #c9c0f8d The main wall consumes entry-owned `FRONT_DOOR`; `front-door-threshold` spans its jambs across the wall thickness from finish bottom to 0.02 m above the ground floor, leaving the leaf and glazing to models.
  * @evidence spaces/envelope/front.md#garage-front-opening One wide garage-front-door void and the base beneath it leave room for the later single moving panel door.
  * @evidenceReview spaces/envelope/front.md#garage-front-opening #39516cd The garage wall has one `GARAGE_FRONT_DOOR` hole through the support-base depth; `buildGarageFloorBase` carries a base tongue under those jambs, while the moving panel is deferred.
  * @evidence principles/core/source-units.md#source-scope-preservation This source builds wall/reveal void geometry and threshold only; window frames, door leaves, and rails remain model work.

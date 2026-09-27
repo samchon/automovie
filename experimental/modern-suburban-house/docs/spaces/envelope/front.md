@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 박공 삼각 벽 높이를 F의 아래면에서 읽고 정면에 삼각 판을 겹치지 않는다는 본문 규칙이 다음 층이 전면 박공 폐합 방식을 새로 정하지 않아도 될 만큼 결정적인지 확인했다.
 @evidence principles/core/common.md#declared-basis 외곽은 main-building-extent, 박공 배정과 F 아래면은 roof-mass-allocation·roof-profile-datums, 벽 두께 상단은 roof-wall-head-junctions에서 받는다고 링크로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문의 main-building-extent·roof-mass-allocation·roof-profile-datums·roof-wall-head-junctions 링크를 외곽·박공 배정·F 아래면·벽 두께 상단 진술에 하나씩 대응시켜 근거 추적이 끊기지 않음을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "각 박공은 실제 삼각 벽"이라는 설정을 전면 벽 두께 안의 폐합과 거실·올리브 침실·현관·계단 창·청회색 침실·서비스 띠의 구간 배정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass의 '각 박공은 실제 삼각 벽'에 대해 본문이 전면 벽 두께 안 폐합과 좌·중·우 구간의 방 배정이라는 spaces 층 결정을 더했는지 대조해 부모 재진술이 아님을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 실제 박공 삼각 벽과 00-junctions의 벽 두께 폐합을 받아, 전면 좌·중·우의 거실·두 침실·현관·계단 창·서비스 띠 바인딩을 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass는 실제 삼각 벽을, 00-junctions#roof-wall-head-junctions는 그 벽 두께 상단의 지붕 아래면 접촉을 이미 정한다. 이 H2는 같은 전면 벽을 왼쪽 거실·침실, 가운데 현관·계단, 오른쪽 침실·서비스 구간에 배정한다.
 @evidence principles/design/spaces.md#space-topology 전면 벽이 왼쪽 거실/올리브 침실, 가운데 현관문/계단 창, 오른쪽 청회색 침실/서비스 띠를 감싸고 차고문은 본채 방에 묶지 않는 포함 관계를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 왼쪽 거실/올리브 침실, 가운데 현관문/계단 창, 오른쪽 청회색 침실/서비스 띠 배정과 차고문 비바인딩을 대조해 전면 벽의 포함 관계가 메시 없이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 벽 두께·지붕 아래면·앞 모서리와 단차 벽의 단일 몸체를 모두 원래 owner에서 소비하고 다른 입면의 완결 마감을 전면 파일에서 복제하지 않는다.
@@ -64,8 +64,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 X = [-5.10, -2.30], Y = [0.70, 2.30] m 개구부와 공통 창틀 예약 안 수직 세 칸이 거실 묶음창의 위치·크기·분할을 다음 층이 새로 정할 필요 없이 확정함을 확인했다.
 @evidence principles/core/common.md#declared-basis 넓은 창 위계는 01에서, 창틀은 공통 창틀 예약에서, 벽 구간은 front-openings에서 받고 living-room 소속은 living-plan 링크로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb living-front-window의 넓은 창 위계(01), 공통 창틀 예약, 전면 벽 구간(front-openings), living-plan 소속 링크를 본문 문장마다 대응시켜 근거가 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation "01의 넓은 전면 창은 이 거실의 외벽에 실제로 속한다"를 living-room 소속의 좌표·칸 수로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 living은 넓은 전면 창을 이 거실의 외벽에 실제로 속하게 한다. 이 H2는 X = [-5.10, -2.30] m의 벽 개구부와 수직 세 칸 분할을 정하여 설정에 없는 배치 치수를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정 living의 전면 창 소속과 front-openings의 세 칸 분할을 받아, 거실 벽의 X=[-5.10,-2.30], Y=[0.70,2.30] m 개구부를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 living은 전면 창을 거실에 두고 같은 파일 front-openings는 세 칸 창을 정한다. 이 H2는 해당 벽 개구부 X=[-5.10,-2.30], Y=[0.70,2.30] m를 정해 두 부모가 주지 않은 위치를 채운다.
 @evidence principles/design/spaces.md#space-topology 창을 ground-storey의 living-room 전면 외벽에 속하게 하고 포치 지붕 아래에 놓는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'ground-storey의 living-room에 속한다'와 포치 지붕이 덮는 전면 벽 구간 진술을 대조해 X = [-5.10, -2.30] m 창의 소속과 포치 아래 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 벽 두께와 창틀 깊이는 front-openings·external-opening-interface에서, 창을 덮는 관계와 포치 보 높이는 porch-roof-columns에서 받는다.
@@ -114,8 +114,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 X = [-1.62, -0.84], Y = [4.11, 5.21] m 개구부와 작은 수직 고정창 한 칸이 계단 창의 위치·크기·형식을 확정해 다음 층이 새로 정할 결정이 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis main-stair 층간 공간의 소속은 stair-floor-opening에서, 작은 수직 고정창 형식은 공통 인계에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb stair-front-window의 소속을 stair-floor-opening 링크, 작은 수직 고정창 형식을 공통 인계 링크에서 받는다는 본문 문장을 대조해 두 근거가 구별됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 계단/복도용 더 작은 창을 복도가 아닌 ground-storey 소속 main-stair 층간 공간에 바인딩하는 결정을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 openings의 계단/복도용 작은 창에 대해 본문이 복도가 아닌 ground-storey 소속 main-stair 층간 공간에 X = [-1.62, -0.84] m 창을 바인딩한 결정을 더했는지 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation openings의 작은 창과 stair-floor-opening의 계단 공간 소속을 받아, 전면 벽의 X=[-1.62,-0.84], Y=[4.11,5.21] m 개구부를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 openings는 작은 계단 창을 요구하고 02-stair#stair-floor-opening은 창을 계단 공간에 묶는다. 이 H2는 그 창의 전면 개구부 X=[-1.62,-0.84], Y=[4.11,5.21] m를 추가로 지정한다.
 @evidence principles/design/spaces.md#space-topology 창을 main-stair의 층간 공간에 속하게 하고 별도 복도/침실 바인딩이나 존재하지 않는 2층 바닥의 추가를 금지한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'main-stair의 층간 공간에 속한다'와 별도 복도/침실 바인딩·없는 2층 바닥 추가 금지를 대조해 상층 높이 계단 창의 소속이 모호하지 않게 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 계단 구멍과 계단실 경계는 02-stair가 소유하고 이 H2는 창 void만 저작한다.
@@ -140,8 +140,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 X = [2.65, 4.75], Y = [3.91, 5.31] m 개구부와 공통 인계 수직 두 칸이 bedroom-three 창의 위치·크기·분할을 확정해 다음 층이 새로 정할 결정이 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 수직 창 형식은 공통 인계, 위 trim 한계는 낮은 본채 지붕 아래면, 벽 구간은 front-openings에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb bedroom-three-front-window의 수직 창 형식(공통 인계), 위 trim 한계(낮은 본채 지붕 아래면 링크), 벽 구간(front-openings 링크)을 본문에서 찾아 근거가 구별됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation bedroom-three의 자기 외벽 창을 전면에 두고 차고 위 측면 창으로 대신하지 않는 위치 결정을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-three는 upper-hall에서 닿는 자기 문과 외벽 창을 요구한다. 이 H2는 그 창을 전면 오른쪽 X = [2.65, 4.75] m에 배정하고 차고 위 측면 창으로 대신하지 않아 설정에 없는 위치를 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation bedroom-three의 자기 창과 right-roof-closures의 전면 창 배정을 받아, 전면 오른쪽 X=[2.65,4.75], Y=[3.91,5.31] m 개구부를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-three는 자기 외벽 창을 요구하고 right-roof-closures는 차고 위 측면 대신 전면 창을 택한다. 이 H2는 그 전면 벽에 X=[2.65,4.75], Y=[3.91,5.31] m의 두 칸 개구부를 놓는다.
 @evidence principles/design/spaces.md#space-topology 창을 upper-storey bedroom-three의 전면 외벽에 바인딩하고 차고 지붕 위 측면 벽으로 옮기지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'upper-storey의 bedroom-three에 속한다'와 차고 위 측면 창 배제를 대조해 X = [2.65, 4.75] m 창이 청회색 침실 전면 외벽에 속하는 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 낮은 본채 지붕 아래면은 roof-profile-datums에서 소비하고 창의 위 trim을 그 아래로 제한하는 결과를 이 H2에 둔다.

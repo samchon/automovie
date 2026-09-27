@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 폭과 중심 X는 포치의 진입 계단, 상면 Y는 앞 보행길 datum, 차도 상면은 driveway owner에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb front-walk의 폭·중심 X를 porch-platform-access 진입 계단, 상면 Y를 ground-threshold-datums, 연결로 오른쪽 높이를 driveway의 D(Z)에서 받는 본문 링크를 대조해 각 값의 근거를 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 포치에서 이어받은 첫 챌판 앞 대기의 단일 면을 포장 끝까지 정하고 폭 1.20 m의 차도 가로 연결로와 횡단 보간을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity의 현관 보행길과 porch의 포치 아래 대기·첫 챌판까지 한 완결 면으로 잇는 결정을 함께 대조했다. 이 H2가 더한 것은 포장 끝까지의 종방향 범위, 폭 1.20 m의 차도 쪽 가로 연결로와 두 면의 횡단 보간식이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity는 현관 보행길을, porch는 첫 챌판 앞 대기를, 00-access는 전면 포장 끝 Z=6.50 m를 이미 정한다. 이 H2는 그 사이에 폭 1.20 m의 차도 가로 연결로를 두고 보행길 높이와 차도 높이를 X 방향으로 보간하는 상면 식을 더한다.
 @evidence principles/design/spaces.md#space-topology front-walk가 포치와 전면 포장 끝을 잇고 차도와 T자로 합쳐지며 포치 아래 대기에 두 번째 바닥을 겹치지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-walk가 포치 첫 챌판과 전면 포장 끝을 잇고 driveway와 T자로 합쳐지며 포치 아래 대기를 한 면 안에 포함해 바닥을 겹치지 않는 본문을 대조해 인접·접속 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 바탕은 paving-depth-reservation과 paving-contact-handoff에서 받고 식재 여유 0.20 m를 보행면 폭으로 세지 않는다.

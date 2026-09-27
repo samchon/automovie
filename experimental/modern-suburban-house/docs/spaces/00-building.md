@@ -42,8 +42,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 외곽 X = [5.50, 11.70]·Z = [-6.70, -0.30], 공유 벽 X = [5.50, 5.75], 마감 안쪽 X = [5.75, 11.45]·Z = [-6.45, -0.55] m가 수치로 정해져 차고 실내 owner가 소비할 경계가 확정됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 폭 6.20 m·깊이 6.40 m는 차고 설정의 외곽 범위 안의 선택이고 5.70 m × 5.90 m는 가구와 문 레일을 넣기 전의 예약 순내부라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 폭 6.20 m·깊이 6.40 m를 ‘차고 외곽 범위 안’의 선택으로, 5.70 m × 5.90 m를 ‘가구와 문 레일을 넣기 전의 예약 순내부’로 밝히고 주차 성능 측정값으로 쓰지 않는다고 적어 근거와 한계가 드러남을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 붙박이 차고를 본채보다 정면을 0.30 m 물리고 본채 후면을 넘지 않는 위치에 두고 두 외곽의 겹침을 벽 하나로 읽는 규칙을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 garage 설정이 폭·깊이 범위와 오른쪽 부속 볼륨만 정한 데 비해 이 H2는 정면 0.30 m 후퇴, 본채 후면 비초과, 두 외곽의 겹침을 공유 벽 하나로 읽는 규칙을 더함을 대조했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation garage 설정의 오른쪽 부속 차고와 03-surface-owners의 한 공유 벽 기준을 받아, 차고 외곽을 정면 0.30 m 후퇴·본채 후면 비초과인 X=[5.50,11.70], Z=[-6.70,-0.30] m에 둔다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 garage 설정은 오른쪽 차고의 외곽 범위·문·레일·수납·머드룸 관찰을 정하고 03-surface-owners는 공유 벽의 한 구조 기준을 정한다. 이 H2는 그 기준을 소비해 차고를 정면에서 0.30 m 물리고 본채 후면 안의 X=[5.50,11.70], Z=[-6.70,-0.30] m에 놓는다.
 @evidence principles/design/spaces.md#space-topology 차고는 본채 오른쪽의 단층 볼륨이고 정면 개구부는 정면 벽, 머드룸 문은 공유 벽의 실제 void이며 서비스 통로를 머드룸이라고 이름만 바꾸는 연결을 금한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본채 오른쪽 단층 볼륨, 정면 개구부는 정면 벽·머드룸 문은 공유 벽의 실제 void, 서비스 통로에 머드룸 이름만 붙이는 연결 금지를 대조해 차고의 접근·인접 관계가 형상 전에 정해짐을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 공유 벽은 같은 X/Z 경계를 공유하되 차고 지붕 아래 문 있는 몸체는 garage.ts, 그 위 노출 사이딩 몸체는 right.ts가 맡고 차고 정면은 front.ts, 머드룸 문 좌표는 laundry-plan에서 받는다.

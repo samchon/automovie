@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 단차 벽 -X 0.15 m 두께, 주/낮은 지붕 아래면의 위아래 경계, 후레싱 상승 0.15 m를 대조해 다음 단계가 오른쪽 단차와 차고 지붕 접합 치수를 새로 발명할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 분할면과 두 지붕 아래면은 roof-mass-allocation·roof-profile-datums, 공유 벽은 attached-garage-extent에서 받고 0.15 m 값은 방수 인증이 아닌 공간 예약이라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문에서 분할면은 roof-mass-allocation, 아래면은 roof-profile-datums, 공유 벽은 attached-garage-extent 링크로 받고 후레싱 0.15 m는 방수 인증이 아닌 예약이라 밝혀 근거 종류가 분명함을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 본채 오른쪽 끝의 더 낮은 지붕과 우측을 향하는 박공을 단차 벽·두 개의 오른쪽 삼각 벽·차고 지붕 접합 띠로 분해한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 main-mass의 '더 낮은 지붕과 우측을 향하는 박공'을 본문이 단차 벽·본채/차고 두 삼각 벽·차고 지붕 접합 띠로 나눈 것을 대조해 부모에 없는 오른쪽 폐합 분해가 추가됨을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass의 본채 오른쪽 박공 삼각 벽을 받아, X=1.60 m 단차 벽·별도 차고 삼각 벽·0.15 m 차고 지붕 접합 띠의 점유를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass는 오른쪽 본채 박공을 실제 삼각 벽으로 닫으라고 정한다. 이 H2는 X=1.60 m 단차의 두께 0.15 m, 별도 차고 삼각 벽, 차고 지붕 후레싱 접합 높이 0.15 m를 배정한다.
 @evidence principles/design/spaces.md#space-topology 차고 지붕 왼쪽이 본채 공유 벽 바깥에 붙고 청회색 침실은 전면 창을, 욕조 욕실은 차고 후면 돌출 뒤의 측면 창을 쓰는 관계를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 차고 지붕 왼쪽이 공유 벽 바깥에 붙는 접촉, bedroom-three-plan의 전면 창, tub-right-window의 차고 후면 돌출 뒤 배정을 대조해 오른쪽 지붕 주변 인접·접근 관계가 형상 전에 정해짐을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 본채/차고 공유 벽은 exterior-surface-handoff의 한 구조 기준을 쓰되 차고 지붕 아래는 garage.ts, 지붕 위 노출 사이딩은 right.ts가 소유하며 단차 벽과 앞뒤 외벽은 07의 높이별 점유를 따른다.
@@ -94,8 +94,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 tub-right-window의 Z = [-8.40, -7.50], Y = [4.56, 5.31] m 개구부와 흐린 유리 상부 경첩창 한 칸이 본문에 확정돼 다음 단계가 욕실 창의 높이·유형을 새로 정할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 높은 sill과 흐린 유리는 프라이버시를 위한 설계 선택이라고 밝히고 지붕 돌출 끝은 roof-profile-datums에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문이 tub-right-window의 높은 sill·흐린 유리를 '프라이버시를 위한 설계 선택'으로, 차고 뒤 지붕 돌출은 roof-profile-datums 링크로 밝혀 선택과 인계가 진술마다 구분됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 욕조 욕실의 창을 프라이버시를 위한 높은 sill과 흐린 유리의 상부 경첩창 한 칸으로 두고 앞쪽 trim 한계 Z = -7.40 m를 차고 뒤 지붕 돌출 끝과 분리한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 tub-bathroom·openings가 욕실 창의 높이·유리·개폐를 정하지 않음을 본문의 tub-right-window Y = [4.56, 5.31] m 흐린 상부 경첩창과 trim 한계 Z = -7.40 m에 대조해 추가 결정임을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 욕실 창 요구와 06-openings의 흐린 상부 경첩창 종류를 받아, Y=[4.56,5.31] m 개구부와 차고 처마 뒤 trim 한계 Z=-7.40 m를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 tub-bathroom과 openings는 창 높이를 정하지 않고 06-openings#external-opening-interface는 높은 욕실 창을 흐린 상부 경첩창으로 정한다. 이 H2는 tub-right-window의 Y=[4.56,5.31] m와 앞쪽 trim 한계 Z=-7.40 m를 추가한다.
 @evidence principles/design/spaces.md#space-topology 창을 upper-storey tub-bathroom의 오른쪽 외벽 중 차고 뒤 지붕 돌출보다 뒤쪽 구간에 바인딩한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 tub-right-window가 upper-storey tub-bathroom에 속하고 Z = [-8.40, -7.50] m가 차고 뒤 지붕 돌출 끝과 분리된 본채 오른쪽 벽 구간에 있다는 본문 관계로 방·벽·지붕 인접이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 차고 뒤 지붕 돌출 끝은 roof-profile-datums에서 받고 이 H2는 그 끝과 분리한 앞쪽 trim 한계 Z = -7.40 m와 바깥 +X 0.25 m 이내 sash 점유를 둔다.

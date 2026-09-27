@@ -54,7 +54,8 @@
     "regression:1952-repair": "node src/measurements/scene-regression.cjs",
     "check:models": "node src/measurements/check.cjs --layer=models",
     "check:settings": "node src/measurements/check.cjs --layer=settings",
-    "review-check": "node src/measurements/review-check.cjs"
+    "review-check": "node src/measurements/review-check.cjs",
+    "review-check:spaces": "node src/measurements/review-check.cjs"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

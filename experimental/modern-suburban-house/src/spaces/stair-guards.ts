@@ -28,13 +28,13 @@ type StairWall = (
 
 /**
  * @evidence spaces/02-stair.md This called helper fills the stair's open guard edges, floor notch finish and high ceiling under the same stair owner.
- * @evidenceReview spaces/02-stair.md #d17bdfd `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
+ * @evidenceReview spaces/02-stair.md #0cdd903 `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
  * @evidence spaces/02-stair.md#stair-floor-opening Five edge strips finish the interstorey recession; the same outline closes the stair hall ceiling above the guard band.
  * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 Five `edge` parts occupy the recessed L opening sides from the ground ceiling to upper floor; `stair-hall-ceiling` uses the same opening outline with its back replaced by `guardBack` above the guard band.
  * @evidence spaces/02-stair.md#stair-clearance Posts and rails derive their section from the opening's guardReserve and are checked against it.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `RESERVE` comes from `opening.guardReserve`; both posts and bars use that width, and the final guard-section loop rejects any narrow X or Z span that differs from it.
  * @evidence spaces/02-stair.md#stair-boundary-heights Sloped handrails rise 0.90 m over the nosing, while the upper hall fall-edge rail rises 1.05 m over its floor.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f The lower and upper bars use `railTop` to put their top faces 0.90 m over nosing and landing heights; the upper-hall posts and top rail end 1.05 m over `STOREYS.upperFloor`.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights #6123dba The lower and upper bars use `railTop` to put their top faces 0.90 m over nosing and landing heights; the upper-hall posts and top rail end 1.05 m over `STOREYS.upperFloor`.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the stair owner and datums rather than declaring another stair or taking the entry-owned closet interior.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildStair` supplies owner, opening, steps, upper base, and wall constructor; this helper returns only stair-owned guards, edge finish, and ceiling, leaving the entry closet and room floor to their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ordered solids close the floor edge and ceiling while constructing and checking actual guard sections.
@@ -86,7 +86,7 @@ export const buildStairGuards = (props: {
       "stair-guard-post-west",
       OWNER,
       "guard",
-      PALETTE.railing,
+      PALETTE.trim,
       block(
         [STAIR_OPENING.west, STOREYS.upperFloor, z - RESERVE / 2],
         [STAIR_OPENING.west + RESERVE, guardTop, z + RESERVE / 2],
@@ -96,7 +96,7 @@ export const buildStairGuards = (props: {
       "stair-guard-post-east",
       OWNER,
       "guard",
-      PALETTE.railing,
+      PALETTE.trim,
       block(
         [STAIR_OPENING.east - RESERVE, STOREYS.upperFloor, z - RESERVE / 2],
         [STAIR_OPENING.east, guardTop, z + RESERVE / 2],
@@ -173,7 +173,7 @@ export const buildStairGuards = (props: {
       "stair-post-lower-start",
       OWNER,
       "guard",
-      PALETTE.railing,
+      PALETTE.trim,
       block(
         [STAIR_OPENING.turnX - RESERVE, STAIR_STEPS.rise, STAIR_STEPS.lowerStartZ - RESERVE],
         [STAIR_OPENING.turnX, STAIR_STEPS.rise + HANDRAIL, STAIR_STEPS.lowerStartZ],
@@ -183,7 +183,7 @@ export const buildStairGuards = (props: {
       "stair-post-landing-corner",
       OWNER,
       "guard",
-      PALETTE.railing,
+      PALETTE.trim,
       block(
         [
           STAIR_OPENING.turnX - RESERVE,

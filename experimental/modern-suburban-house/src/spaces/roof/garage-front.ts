@@ -16,9 +16,9 @@ import { GARAGE_RIDGE_Z, gFront, OVERHANG, ROOF_THICKNESS } from "./junctions";
 /**
  * Emit the garage front face.
  * @evidence spaces/roof/garage-front.md This export builds the driveway-facing half of the low garage roof.
- * @evidenceReview spaces/roof/garage-front.md #0772279 `buildGarageFrontRoof` returns `roof-garage-front`, the pitched garage slab between `GARAGE_RIDGE_Z` and the driveway-facing front eave.
+ * @evidenceReview spaces/roof/garage-front.md #83505a3 `buildGarageFrontRoof` returns `roof-garage-front`, the pitched garage slab between `GARAGE_RIDGE_Z` and the driveway-facing front eave.
  * @evidence spaces/roof/garage-front.md#garage-front-roof Its rectangle starts at the shared wall and GARAGE_RIDGE_Z, reaches the garage front overhang, and follows gFront toward the eave.
- * @evidenceReview spaces/roof/garage-front.md#garage-front-roof #b0f33f8 The plan begins at `GARAGE.inner.x[0]` on the shared wall and `GARAGE_RIDGE_Z`, extends by `OVERHANG.garage` at the free east and front edges, and takes `gFront(z)` as its top.
+ * @evidenceReview spaces/roof/garage-front.md#garage-front-roof #9ab7c22 The plan begins at `GARAGE.inner.x[0]` on the shared wall and `GARAGE_RIDGE_Z`, extends by `OVERHANG.garage` at the free east and front edges, and takes `gFront(z)` as its top.
  * @evidence principles/core/source-units.md#source-scope-preservation The west edge uses GARAGE.inner.x[0] with no added overhang; the function leaves the rear slope to its separate owner.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The west bound is `GARAGE.inner.x[0]` with no overhang term; this function uses `gFront` only, leaving the rear garage face to `buildGarageBackRoof`.
  * @evidence principles/core/source-units.md#source-substantive-completion The front rectangle becomes a slopedSlab of ROOF_THICKNESS and a named roof-garage-front mesh part.

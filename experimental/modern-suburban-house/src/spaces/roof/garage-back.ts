@@ -15,9 +15,9 @@ import { GARAGE_RIDGE_Z, gBack, OVERHANG, ROOF_THICKNESS } from "./junctions";
 /**
  * Emit the garage back face.
  * @evidence spaces/roof/garage-back.md This export owns the rear half of the low garage roof.
- * @evidenceReview spaces/roof/garage-back.md #74b6e24 `buildGarageBackRoof` returns `roof-garage-back`, the garage slab from its common ridge toward the rear wall and free back eave.
+ * @evidenceReview spaces/roof/garage-back.md #c811e03 `buildGarageBackRoof` returns `roof-garage-back`, the garage slab from its common ridge toward the rear wall and free back eave.
  * @evidence spaces/roof/garage-back.md#garage-back-roof The plan spans the garage shared-wall line to its outer overhang and the back eave to GARAGE_RIDGE_Z; gBack gives the rear pitch.
- * @evidenceReview spaces/roof/garage-back.md#garage-back-roof #b0eec87 The `rect` reaches from `GARAGE.inner.x[0]` to the free east edge and from `GARAGE.outer.z[0] - OVERHANG.garage` to `GARAGE_RIDGE_Z`; `gBack(z)` sets the rear slope.
+ * @evidenceReview spaces/roof/garage-back.md#garage-back-roof #208ef5c The `rect` reaches from `GARAGE.inner.x[0]` to the free east edge and from `GARAGE.outer.z[0] - OVERHANG.garage` to `GARAGE_RIDGE_Z`; `gBack(z)` sets the rear slope.
  * @evidence principles/core/source-units.md#source-scope-preservation GARAGE, OVERHANG, and GARAGE_RIDGE_Z bound only the rear garage plane; the function does not author a second garage footprint.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This builder takes its X/Z bounds from `GARAGE` and `GARAGE_RIDGE_Z`, with `OVERHANG.garage` only on free edges; it emits no separate building extent or front slope.
  * @evidence principles/core/source-units.md#source-substantive-completion rect and slopedSlab construct a pitched solid with ROOF_THICKNESS and a stable roof-garage-back part identity.

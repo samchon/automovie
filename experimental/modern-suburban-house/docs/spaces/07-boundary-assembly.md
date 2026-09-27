@@ -94,8 +94,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 모서리 몸체를 front/rear, 차고 벽 왼쪽 끝을 garage 공유 벽 owner에 주고 left/right·차고 right 직선 몸체의 끝을 앞뒤 벽 안쪽 면으로 정함을 대조해 외벽 몸체 경계가 완결됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 외곽은 00, 벽 상단은 roof-wall-head-junctions에서 받고 서로 다른 지붕 높이를 평균하지 않으며 실제로 겹치는 높이 구간만 공유한다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 외곽을 00-building 두 H2, 벽 상단을 roof-wall-head-junctions에서 받고 지붕 높이 평균을 금지하며, 다음 문단이 실제로 겹치는 높이 구간만 공유한다고 적은 것을 대조해 근거를 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 본채·차고 외벽 모서리, 차고 앞뒤 벽의 왼쪽 끝, 단차 벽 교차마다 단일 우선 owner를 두는 표로 구체화하고 몸체 배정이 옆면의 연속 마감 소유를 바꾸지 않게 한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 단일 기준 금지를 모서리·차고 왼쪽 끝·단차 교차별 우선 owner 표로 구체화하고, 몸체 배정이 left/right 옆면 마감을 쪼개지 않는다는 문장이 부모에 없는 결정임을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 독립 기준 금지와 03-surface-owners의 연속 입면 마감 소유를 받아, 외벽 모서리·차고 왼쪽 끝·단차 교차마다 공통 구조 몸체의 단일 우선 owner를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation은 여러 owner가 독립 구조 기준을 세우는 일을 금하고 03-surface-owners는 left/right의 연속 입면 마감을 유지한다. 이 H2는 본채·차고 모서리, 차고 벽의 왼쪽 끝, 단차의 앞뒤 교차마다 공통 몸체를 맡는 단일 owner를 표로 지정한다.
 @evidence principles/design/spaces.md#space-topology 본채/차고 공유 벽은 차고 지붕 아래와 위의 맞닿는 두 몸체로 본채 지붕 아래까지 이어지고 굴뚝 중복 구역에서 거실 화구 접면을 막지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 차고 지붕 아래 garage 몸체와 지붕 위 right 몸체가 한 X/Z 기준에서 맞닿아 본채 지붕까지 경계를 잇는지, 굴뚝 접점이 독립적으로 유지되는지 다시 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority front가 받는 모서리 몸체의 옆면 마감은 left/right 입면 owner의 연속 면으로 남고 boundaries.ts는 구역과 높이만 계산한다.

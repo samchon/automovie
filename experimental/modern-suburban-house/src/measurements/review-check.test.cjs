@@ -1,10 +1,10 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { taskPlan, execute, identifierStatus } = require("./review-check.cjs");
+const { taskPlan, execute, identifierStatus, numberReportStatus } = require("./review-check.cjs");
 
 void test("review plan includes source, model, and spaces review probes with the production check", () => {
   const plan = taskPlan("C:/probes", "C:/npm/cli.js");
-  assert.equal(plan.length, 14);
+  assert.equal(plan.length, 15);
   assert.deepEqual(
     plan.map(([name]) => name),
     [
@@ -15,6 +15,7 @@ void test("review plan includes source, model, and spaces review probes with the
       "docs-spaces-review-host",
       "docs-spaces-review-rows",
       "docs-spaces-review-quotes",
+      "docs-spaces-quote-owners",
       "doc-review-numbers",
       "docs-spaces-review-numbers",
       "doc-anchor-graph",
@@ -29,10 +30,17 @@ void test("review plan includes source, model, and spaces review probes with the
   assert.deepEqual(plan[3][2].slice(-1), ["docs/models"]);
   assert.deepEqual(plan[4][2].slice(-1), ["docs/spaces"]);
   assert.deepEqual(plan[5][2].slice(-5), ["spaces", "spaces/rooms", "spaces/envelope", "spaces/roof", "spaces/site"]);
-  assert.deepEqual(plan[8][2].slice(-1), ["docs/spaces"]);
-  assert.deepEqual(plan[11][2].slice(-1), ["docs"]);
-  assert.deepEqual(plan[12][2].slice(-1), ["src"]);
-  assert.deepEqual(plan[13][2].slice(-2), ["run", "check"]);
+  assert.deepEqual(plan[9][2].slice(-1), ["docs/spaces"]);
+  assert.deepEqual(plan[12][2].slice(-1), ["docs"]);
+  assert.deepEqual(plan[13][2].slice(-1), ["src"]);
+  assert.deepEqual(plan[14][2].slice(-2), ["run", "check"]);
+});
+
+void test("number reports remain visible without counting their advisory exit as failure", () => {
+  assert.equal(numberReportStatus("review rows                          1184", 1), 0);
+  assert.equal(numberReportStatus("review rows                          0", 1), 1);
+  assert.equal(numberReportStatus("malformed report", 1), 1);
+  assert.equal(numberReportStatus("review rows 1184", 2), 1);
 });
 
 void test("missing source identifiers fail while the observed verb exception passes", () => {

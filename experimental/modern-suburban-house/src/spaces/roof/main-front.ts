@@ -32,9 +32,9 @@ const OWNER = "roof/main-front.ts";
 /**
  * Emit the single main front roof part.
  * @evidence spaces/roof/main-front.md This export builds the front main-roof remainder around the exposed gable and chimney notch.
- * @evidenceReview spaces/roof/main-front.md #f3c7135 buildMainFrontRoof returns one roof-main-front part: its plans leave out the GABLE_CORNERS triangle and CHIMNEY_PLAN notch while mFront supplies the roof slope.
+ * @evidenceReview spaces/roof/main-front.md #ee0cf1d buildMainFrontRoof returns one roof-main-front part: its plans leave out the GABLE_CORNERS triangle and CHIMNEY_PLAN notch while mFront supplies the roof slope.
  * @evidence spaces/roof/main-front.md#main-front-roof Convex coplanar tiles form one roof part around the shared gable valley and chimney notch without internal side faces.
- * @evidenceReview spaces/roof/main-front.md#main-front-roof #5f2d1fd The four plans passed to one slopedPlate surround the gable and chimney cuts; freeEdge rejects coincident tile edges and roofFreeEdge rejects shared ridge and valley edges, leaving only exposed thickness walls.
+ * @evidenceReview spaces/roof/main-front.md#main-front-roof #bfb13f2 The four plans passed to one slopedPlate surround the gable and chimney cuts; freeEdge rejects coincident tile edges and roofFreeEdge rejects shared ridge and valley edges, leaving only exposed thickness walls.
  * @evidence principles/core/source-units.md#source-scope-preservation The function cuts out the gable and chimney footprints before creating its one roof mesh; it imports junction values instead of claiming their faces.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildMainFrontRoof obtains the ridge, eave, split, gable corners and chimney plan from junctions; its four plans cover the remaining front face and do not fill either shared cut.
  * @evidence principles/core/source-units.md#source-substantive-completion Four top/bottom tiles in one mesh preserve the cut plan and close every free edge, including the step and chimney notch.

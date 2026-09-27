@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본채 후벽을 주/낮은 뒤 지붕 아래면까지, 차고 후벽을 Gback 아래면까지 닫는 본문 결정을 대조해 다음 단계가 후면 벽 높이나 X 분할면 단차 벽의 소속을 새로 발명할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 후벽 평면은 main-building-extent와 attached-garage-extent, 아래면은 roof-profile-datums, 몸체 배정은 exterior-boundary-junctions에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문의 후벽 평면·지붕 아래면·모서리 몸체 진술을 main-building-extent·attached-garage-extent·roof-profile-datums·exterior-boundary-junctions 링크에 하나씩 대응시켜 근거 없는 후면 폐합 진술이 없음을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주 지붕과 더 낮은 오른쪽 지붕의 높이 차를 후벽 상단의 단차로 바꾸고 교차 박공 삼각 벽을 후면에 복제하지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 main-mass의 두 지붕 높이 관계에 본문이 더한 선택, 즉 X 분할면 단차를 후벽 상단이 소비하고 전면 교차 박공 삼각 벽을 후면에 복제하지 않는 결정이 부모에 없는 spaces 결정임을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass와 00-junctions의 후벽 단차·지붕 아래면 접촉을 받아, 후면의 공용부·주침실·옷방 바인딩과 본채/차고의 서로 다른 뒤 모서리 검사 주소를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass와 00-junctions가 높은 본채·낮은 오른쪽 지붕의 단차와 벽 상단 접촉을 이미 정한다. 이 H2는 후면 아래 공용부, 위 주침실·옷방의 소속과 본채/차고 각각의 뒤 모서리 관찰을 배정한다.
 @evidence principles/design/spaces.md#space-topology 본채 후면 아래는 연속 공용부, 위는 주침실과 별도 옷방에 바인딩되고 본채와 차고 후벽은 서로 다른 Z의 두 평면이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문이 후면 아래를 common-room-plan, 위를 primary-plan·primary-wardrobe-plan에 바인딩하고 서로 다른 Z의 두 후벽과 차고 뒤 숨은 통로 부재를 밝혀 형상 전에 후면 place graph가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority +X 단차 벽은 오른쪽 입면 owner, 뒤 처마 돌출은 지붕 owner가 소유하고 두 후벽 사이의 노출 측면은 오른쪽 입면 owner와 같은 모서리를 소비하며 이 H2는 같은 모서리에 두 번째 벽을 겹치지 않는다.

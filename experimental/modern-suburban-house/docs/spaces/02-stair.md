@@ -132,8 +132,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 손잡이 상단 디딤 코 위 0.90 m(참 위 0.90 m), 복도 보호 upper-storey 바닥 위 1.05 m, 난간살 빈 간격·맨 아래 빈 높이 0.10 m 이하가 수치로 정해져 후속 모듈이 높이를 새로 고를 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 높이와 간격 상한은 이 집의 저작 선택이며 안전 법규 적합성 인증이 아니고 반복 개수는 후속 모듈이 구간 길이에서 산출한다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.90 m·1.05 m·0.10 m를 ‘이 집의 저작 선택이며 안전 법규 적합성 인증은 아니다’로 밝히고 반복 개수는 후속 모듈이 구간 유효 길이와 간격 상한에서 산출한다고 적어 근거와 이관이 드러남을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 검은 수직 철제 난간살·목재 손잡이를 경계별로 닫힌 분리벽·열린 난간·벽붙이 손잡이·열린 도착으로 배정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 stair 설정의 검은 수직 철제 난간살·목재 손잡이를, 표가 왼쪽 닫힌 분리벽·아래 flight 열린 난간·위 flight 벽붙이 손잡이·+X 열린 도착 등 경계별 역할로 배정해 설정에 없는 결정을 더함을 대조했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 난간 재료와 통로를 가로막지 않는 열린 상부참을 받아, 왼쪽 분리벽·아래 flight 열린 난간·위 flight 벽붙이 손잡이의 경계별 높이 역할을 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 stair와 같은 파일 stair-floor-opening은 상부 도착을 통로로 열어 두도록 이미 정한다. 이 H2의 표는 왼쪽 완전 높이 분리벽, 아래 flight의 열린 난간, 위 flight의 벽붙이 손잡이를 각 경계에 배정한다.
 @evidence principles/design/spaces.md#space-topology 계단 뒤쪽은 두 층 바닥 사이를 분리벽으로 닫아 아래 서비스 통로와 위 복도를 같은 실로 잇지 않고 위 flight의 +X 도착 끝은 상층 바닥 높이부터 연다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 계단 뒤쪽을 ground-storey 바닥부터 upper-storey 바닥까지 분리벽으로 닫아 서비스 통로와 복도를 같은 실로 잇지 않고, 위 flight +X 끝을 상층 바닥 높이부터 연 도착으로 둔 표의 행을 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 바탕은 stair.ts, 인접 방 마감은 03의 완결 면 배정이 유지하고 벽이 있는 높이에 난간 패널을 중복 생성하지 않으며 모든 기둥·벽붙이 손잡이·난간살의 통행 쪽 점유를 stair-clearance의 양쪽 0.075 m 예약 안에 둔다.

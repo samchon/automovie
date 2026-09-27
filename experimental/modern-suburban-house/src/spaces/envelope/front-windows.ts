@@ -2,7 +2,7 @@
 
 /**
  * @evidence spaces/envelope/front.md Three selected front windows retain their facade-owned rough spans.
- * @evidenceReview spaces/envelope/front.md #9ea9268 `FRONT_WINDOWS` holds the living, bedroom-two and bedroom-three rough X/Y spans stated in their front-elevation H2s; `buildFront` places these same values in its wall holes.
+ * @evidenceReview spaces/envelope/front.md #144038d `FRONT_WINDOWS` holds the living, bedroom-two and bedroom-three rough X/Y spans stated in their front-elevation H2s; `buildFront` places these same values in its wall holes.
  * @evidence principles/core/source-units.md#source-scope-preservation Rooms consume these cuts without owning a second window coordinate.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `living.ts`, `bedroom-two.ts` and `bedroom-three.ts` derive their curtain X extents and top heights from their respective `FRONT_WINDOWS` entries, preserving facade ownership of the rough voids.
  * @evidence principles/core/source-units.md#source-substantive-completion Wall holes and curtain reservations move together when a front void changes.

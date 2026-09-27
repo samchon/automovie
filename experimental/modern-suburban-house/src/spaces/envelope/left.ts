@@ -34,9 +34,9 @@ const OWNER = "envelope/left.ts";
 /** Chimney cap projection beyond each side of the masonry body (chimney-roof-interface). */
 /**
  * @evidence spaces/envelope/left.md#chimney-roof-interface The cap projects 0.10 m beyond the chimney body on each side.
- * @evidenceReview spaces/envelope/left.md#chimney-roof-interface #bb50617 `CHIMNEY_CAP_OVERHANG` is 0.10 m and `buildLeft` subtracts or adds it on both X and Z sides of the cap beyond `CHIMNEY_PLAN`.
+ * @evidenceReview spaces/envelope/left.md#chimney-roof-interface #1f0db15 `CHIMNEY_CAP_OVERHANG` is 0.10 m and `buildLeft` subtracts or adds it on both X and Z sides of the cap beyond `CHIMNEY_PLAN`.
  * @evidence spaces/envelope/left.md The left elevation owns the chimney cap projection around the masonry body.
- * @evidenceReview spaces/envelope/left.md #24dc395 `buildLeft` constructs the cap around its chimney body using this exported projection, matching the left-elevation parent; the site fence consumes its farthest X face separately.
+ * @evidenceReview spaces/envelope/left.md #85cb611 `buildLeft` constructs the cap around its chimney body using this exported projection, matching the left-elevation parent; the site fence consumes its farthest X face separately.
  * @evidence principles/core/source-units.md#source-scope-preservation The cap projection belongs to the left elevation and is consumed by the fence setback.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The projection is declared with the left chimney; `buildLeft` uses it for the cap and `site/fence.ts` reads it to offset its own L line beyond that cap.
  * @evidence principles/core/source-units.md#source-substantive-completion A shared offset places both cap faces and the fence outside the farthest masonry.
@@ -51,7 +51,7 @@ const under = (z: number): number => mainRoof(z) - ROOF_THICKNESS;
 /** Rough opening owned by the left elevation and consumed by bedroom reservations. */
 /**
  * @evidence spaces/envelope/left.md The primary bedroom's side window has one Z and Y host in the rear left wall panel.
- * @evidenceReview spaces/envelope/left.md #24dc395 `PRIMARY_LEFT_WINDOW` is the sole upper-bedroom hole in `buildLeft`'s rear left-wall panel, kept behind the chimney gap and distinct from the living hole.
+ * @evidenceReview spaces/envelope/left.md #85cb611 `PRIMARY_LEFT_WINDOW` is the sole upper-bedroom hole in `buildLeft`'s rear left-wall panel, kept behind the chimney gap and distinct from the living hole.
  * @evidence spaces/envelope/left.md#primary-left-window Its -8.90..-7.30 m opening lies clear of the chimney and above the upper floor.
  * @evidenceReview spaces/envelope/left.md#primary-left-window #21e8960 Its Z [-8.90, -7.30] lies behind `CHIMNEY_PLAN.z` [-2.75, -1.65], and Y [3.91, 5.31] places the cut above the upper-storey floor in the primary bedroom.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a wall void, while the bedroom only reserves a curtain from its bounds.
@@ -71,7 +71,7 @@ export const PRIMARY_LEFT_WINDOW = {
 
 /**
  * @evidence spaces/envelope/left.md The living room side window owns one rough opening.
- * @evidenceReview spaces/envelope/left.md #24dc395 `LIVING_LEFT_WINDOW` is one ground living-side rough opening in the rear left-wall panel, exported for its inward curtain reservation.
+ * @evidenceReview spaces/envelope/left.md #85cb611 `LIVING_LEFT_WINDOW` is one ground living-side rough opening in the rear left-wall panel, exported for its inward curtain reservation.
  * @evidence principles/core/source-units.md#source-scope-preservation The room reserves fit-out without moving this facade cut.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `living.ts` reads this opening's jambs and head for `living-left-curtain`; only `buildLeft` cuts the facade wall.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and curtain share the same host span.
@@ -90,7 +90,7 @@ export const LIVING_LEFT_WINDOW = {
 /** Emit the left gable wall panels and the chimney. */
 /**
  * @evidence spaces/envelope/left.md This builder emits the left main-wall panels and the single exterior/interior chimney contact.
- * @evidenceReview spaces/envelope/left.md #24dc395 `buildLeft` returns front/back left-wall panels around one chimney body and cap, then four brick fireplace surround parts around the living-room firebox gap.
+ * @evidenceReview spaces/envelope/left.md #85cb611 `buildLeft` returns front/back left-wall panels around one chimney body and cap, then four brick fireplace surround parts around the living-room firebox gap.
  * @evidence spaces/envelope/left.md#left-roof-closure Front and back wall panels meet the main roof underside without a second gable slab.
  * @evidenceReview spaces/envelope/left.md#left-roof-closure #4810fd1 Both left-wall panels top out at `mainRoof(z) - ROOF_THICKNESS`, with a ridge vertex in the rear panel; no duplicate thin gable slab is added.
  * @evidence spaces/envelope/left.md#left-openings Only the living and primary window holes puncture the back panel behind the chimney.
@@ -100,7 +100,7 @@ export const LIVING_LEFT_WINDOW = {
  * @evidence spaces/envelope/left.md#primary-left-window The primary bedroom's upper void spans Z=-8.90..-7.30 in the rear panel.
  * @evidenceReview spaces/envelope/left.md#primary-left-window #21e8960 The back panel carries `PRIMARY_LEFT_WINDOW` at Z [-8.90, -7.30], Y [3.91, 5.31], separated from the chimney body toward the rear.
  * @evidence spaces/envelope/left.md#chimney-roof-interface One chimney body and cap cross the roof notch; hearth, cheeks, and head surround a real firebox gap.
- * @evidenceReview spaces/envelope/left.md#chimney-roof-interface #bb50617 `chimney-body` rises from `STOREYS.frontWalk` to Y 8.90 and its projected cap ends at 9.10; hearth, two cheeks, and head leave Z [-2.72, -1.68], Y [0.23, 0.87] open.
+ * @evidenceReview spaces/envelope/left.md#chimney-roof-interface #1f0db15 `chimney-body` rises from `STOREYS.frontWalk` to Y 8.90 and its projected cap ends at 9.10; hearth, two cheeks, and head leave Z [-2.72, -1.68], Y [0.23, 0.87] open.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder omits flue/fire behavior, window fills, and mantel while retaining the exterior chimney and wall contact.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The builder constructs the chimney masonry and rough window holes but no flue, flame, window fill, firebox liner, or wooden mantel, which the parent reserves for later roles.
  * @evidence principles/core/source-units.md#source-substantive-completion Two cut wall meshes plus body, cap, and fireplace brick solids give a tangible left elevation.

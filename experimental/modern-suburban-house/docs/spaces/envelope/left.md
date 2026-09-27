@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문은 왼쪽 외벽 평면에서 주 지붕 앞·뒤 아래면까지 삼각 벽을 닫는다. 다음 문장은 처마 돌출을 지붕 owner에 남겨 벽을 그 끝까지 부풀리지 않는다. 두 결정으로 왼쪽 벽의 지붕 폐합과 방 폭이 함께 고정된다.
 @evidence principles/core/common.md#declared-basis 왼쪽 외벽 평면은 main-building-extent, 삼각 벽의 주 지붕 앞/뒤 아래면은 roof-profile-datums, 앞뒤 모서리와 굴뚝 몸체 배정은 exterior-boundary-junctions에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문의 main-building-extent(왼쪽 외벽 평면), roof-profile-datums(주 지붕 앞/뒤 아래면), exterior-boundary-junctions(모서리·굴뚝 몸체 배정) 링크를 진술별로 대응시켜 근거가 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주 지붕 앞/뒤 아래면이 만나는 왼쪽 끝을 본채 왼쪽 외벽 평면의 삼각 벽으로 닫고 전면 박공은 왼쪽 모서리에서 같은 지붕군의 교차선을 소비한다는 폐합 방식을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass의 실제 삼각 벽 요구에 대해 본문이 왼쪽 끝을 외벽 평면 삼각 벽으로 닫고 전면 박공이 왼쪽 모서리에서 같은 지붕군 교차선을 소비한다는 폐합 결정을 더했는지 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass의 삼각 벽과 00-junctions의 지붕 아래면 접촉을 받아, 왼쪽 입면의 노출 마감과 거실·주방·주침실·자녀실의 방 경계 바인딩을 한 owner에 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass와 00-junctions는 삼각 벽·지붕 아래면 접촉을 이미 정한다. 이 H2는 그 왼쪽 입면 마감을 left.ts에 배정하고 거실·주방·주침실·자녀실의 실내외 경계와 굴뚝을 같은 입면 검사에 묶는다.
 @evidence principles/design/spaces.md#space-topology 왼쪽 벽이 거실·공용부 주방·주침실·올리브 침실의 외부 경계이며 굴뚝 접면을 품는 관계를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 왼쪽 벽 바인딩(1층 거실·공용부 주방, 2층 주침실·올리브 침실)과 굴뚝 접면 포함을 대조해 본채 왼쪽 외벽이 어느 방의 외부 경계인지 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 처마 돌출은 지붕 owner, 직선 벽 끝과 굴뚝 몸체의 공통 몸체 배정은 exterior-boundary-junctions가 소유하고 이 owner는 왼쪽 전체의 노출 마감을 연속해 닫는다.
@@ -36,8 +36,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 X = [-5.75, -5.50] m 왼쪽 외벽에 living-left-window·primary-left-window 두 창만 두고 굴뚝 몸통·벽난로 앞면 예약을 피한다는 배치가 왼쪽 창 수를 확정함을 확인했다.
 @evidence principles/core/common.md#declared-basis 창틀은 공통 개구부 인계, 주방 쪽 닫힘은 주방 후면 창 선택, 올리브 침실은 전면 창 선택을 근거로 든다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문이 창틀을 공통 개구부 인계, 주방 쪽 닫힘을 rear.md의 주방 후면 창, 올리브 침실 생략을 front.md의 전면 창 링크에 기대는지 대조해 결정별 근거가 구별됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation kitchen-equipment의 "창은 외벽과 조리 배치에 종속"과 bedroom-two의 "자기 외벽 창"을 왼쪽 벽의 주방 벽 닫힘과 올리브 침실 측면 창 생략으로 정하고 창은 living-room과 primary-bedroom에만 배정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 kitchen-equipment 창 종속과 bedroom-two 자기 외벽 창에 대해 본문이 주방 왼쪽 벽 닫힘, 올리브 침실 측면 창 생략, 창의 living-room·primary-bedroom 한정을 더했는지 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation kitchen-equipment·bedroom-two 창 조건과 common·front의 선행 창 위치를 받아, 왼쪽 벽 개구부를 living-room·primary-bedroom 두 개로 제한한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 kitchen-equipment와 bedroom-two의 외벽 창 조건, common의 조리 벽과 front의 bedroom-two 창 배치를 대조했다. 이 H2는 왼쪽 입면 창을 거실과 주침실 두 개로 한정하고 각각 굴뚝을 피하는 위치에 둔다.
 @evidence principles/design/spaces.md#space-topology 왼쪽 벽의 창을 living-room과 primary-bedroom에만 속하게 하고 kitchen-dining-family와 bedroom-two의 왼쪽 벽을 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 living-room·primary-bedroom 두 창 배정과 kitchen-dining-family 주방 쪽·bedroom-two 왼쪽 벽 닫힘을 대조해 X = [-5.75, -5.50] m 벽의 방별 개구부 유무가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 왼쪽 외벽 X = [-5.75, -5.50] m는 본채 외곽의 X = -5.75 m 바깥 면에서 나온 구간이고 굴뚝 몸통 예약은 chimney-roof-interface에서 받아 창 배치가 그 예약을 피하게 한다.

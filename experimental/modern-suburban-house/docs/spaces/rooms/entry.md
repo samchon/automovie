@@ -41,7 +41,7 @@
 @evidence principles/core/common.md#declared-basis 매트와 목재문은 entry 설정, 사람·바구니는 use-profile에서 받고 매트 위치는 문 끝과의 관계에서 선택했다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 목재 현관문·얕은 매트는 settings entry, 사람·바구니는 use-profile 링크에서 받고 매트 위치는 90° 열린 문 끝과의 관계에서 택했다고 밝혀 각 주장의 근거가 드러남을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "문 여닫힘과 보행 경로가 매트·수납에 막히지 않도록"을 매트 좌표와 벤치·콘솔·화분 배제로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry의 '문 여닫힘과 보행 경로가 매트·수납에 막히지 않도록'에 대해 문 끝 뒤 Z = -1.30부터의 매트 좌표와 벤치·콘솔·화분 배제, 외투의 계단 아래 이관이라는 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry는 문과 보행을 막지 않는 매트와 닫힌 외투 수납을 요구하고, 같은 파일의 entry-coat-storage가 계단 아래 외투장 위치를 정한다. 이 H2는 매트를 X=[0.45,1.35], Z=[-1.95,-1.30] m로 두고 벤치·콘솔·화분을 분배 바닥에서 제외한다.
 @evidence principles/design/spaces.md#space-topology 문을 연 사람이 왼쪽 계단 하부 대기와 거실문, 뒤쪽·오른쪽 서비스 접속으로 분기하는 방 안의 경로를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 문을 연 사람이 왼쪽 계단 하부 대기·거실문과 뒤쪽·오른쪽 서비스 접속으로 갈리고 문 조작자와 계단 하강자가 한 지점을 동시 점유하지 않는 방 안 경로 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 목재 현관문과 얕은 매트는 entry 설정에서 소비하고 매트를 문이 90° 열렸을 때의 끝 뒤에 두어 실제 문 하단/손잡이 작동 범위와 검사하며 외투는 entry-coat-storage로 보낸다.

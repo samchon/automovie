@@ -22,9 +22,9 @@ import {
 /**
  * Emit the right low roof front face.
  * @evidence spaces/roof/right-front.md This export builds the front slope of the lower right roof.
- * @evidenceReview spaces/roof/right-front.md #91b132f `buildRightFrontRoof` returns `roof-right-front`, one sloped slab for the lower right roof's front half under the high-roof step.
+ * @evidenceReview spaces/roof/right-front.md #0030e5d `buildRightFrontRoof` returns `roof-right-front`, one sloped slab for the lower right roof's front half under the high-roof step.
  * @evidence spaces/roof/right-front.md#right-front-roof Its plan reaches from SPLIT_X to RIGHT_EAVE_X and from MAIN_RIDGE_Z to RIGHT_FRONT_EAVE_Z, with rFront setting the descending weather surface.
- * @evidenceReview spaces/roof/right-front.md#right-front-roof #b4e92ff The `rect` plan starts at `SPLIT_X` and `MAIN_RIDGE_Z`, reaches `RIGHT_EAVE_X` and `RIGHT_FRONT_EAVE_Z`, and takes its weather height from `rFront(z)`.
+ * @evidenceReview spaces/roof/right-front.md#right-front-roof #f85e2d8 The `rect` plan starts at `SPLIT_X` and `MAIN_RIDGE_Z`, reaches `RIGHT_EAVE_X` and `RIGHT_FRONT_EAVE_Z`, and takes its weather height from `rFront(z)`.
  * @evidence principles/core/source-units.md#source-scope-preservation It ends at the split plane without an invented overhang there; the step-wall and rear-slope owners retain their separate faces.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The `rect` begins exactly at `SPLIT_X`; this builder emits only the front slab, while `buildRightBackRoof` and the right envelope own the back face and step wall.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab turns the bounded front rectangle into roof-right-front with a deterministic mesh and shared underside thickness.

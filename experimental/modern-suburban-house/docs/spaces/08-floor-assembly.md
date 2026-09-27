@@ -44,8 +44,8 @@ upper-storey의 실문 아래는 [문턱 중앙면의 마감 인계](07-boundary
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 계단실 연속 마감을 최대 0.015 m 층판 쪽으로 들이고 구조 바탕이 그만큼 물러나 02-stair 통행 구멍의 완성 경계를 좁히지 않는다는 문장을 대조해 다음 층이 구멍 단면 두께를 정할 일이 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 외벽 안쪽 면은 00, 칸막이 높이 역할은 07, 계단 경계 높이는 stair-boundary-heights에서 받는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외벽 안쪽 면을 00-building#main-building-extent, 칸막이 높이 역할을 07#interior-boundary-ownership, 분리벽·보호 벽 높이를 02-stair#stair-boundary-heights 링크로 받는지 대조해 가장자리 진술의 근거를 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 표면 분해 조건을 계단실 연속 수직 마감은 stair, 구조 가장자리는 upper, 도착 바닥은 upper-hall로 나누는 소유로 세분한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 계단 구멍·접합 owner 선언을 구멍 단면은 stair.ts 연속 마감·upper.ts 구조 가장자리, 도착 끝은 upper-hall 바닥·stair 챌판으로 나눈 결정이 부모에 없음을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 접합 owner 요구와 upper-hall·stair의 도착 바닥/챌판 배정을 받아, 계단 구멍의 구조 가장자리와 보이는 연속 수직 마감을 0.015 m 물림을 두고 나눈다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation은 계단 구멍 접합 owner를 요구하고 upper-hall과 02-stair는 도착 바닥·마지막 챌판을 이미 나눈다. 이 H2는 upper.ts 구조 가장자리를 0.015 m 물려 stair.ts가 보이는 단면 마감을 하나로 잇게 한다.
 @evidence principles/design/spaces.md#space-topology 층판을 외장 바깥까지 내밀어 띠를 노출하지 않고 마지막 챌판을 복도 도착 바닥 끝에 접하게 하며 보호 벽/난간을 열린 도착 끝까지 늘리지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 층판 가장자리를 사이딩·벽돌 사이로 내밀지 않고 마지막 챌판을 upper-hall 도착 바닥 끝에 접하며 보호 벽/난간을 열린 도착 끝까지 늘리지 않는 문장을 대조해 도착과 외피 관계가 메쉬 없이 읽힘을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 계단 뒤 분리벽과 층간 바탕이 겹치는 구역은 upper 층판 owner가 한 번 생성하고 그 벽 몸체에서 뺀다.

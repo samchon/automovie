@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 완결 면의 source owner를 적고 공유 벽 행은 차고 지붕을 경계로 `garage.ts`와 `envelope/right.ts` 두 몸체를 적는지 대조했다. `building.ts`는 외곽·공유 좌표 조립, `roof/junctions.ts`는 교차 경계 산출로 한정한다.
 @evidence principles/core/common.md#declared-basis 배정 근거는 whole-surface-owner 계약이고 spaces source의 건물 골격은 실재하지만 model 충전 부재는 후속 분기라 표가 그 두 시점의 owner 경계임을 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표면 분해 인계와 완결 표면 계약 링크, 현재 spaces source의 골격과 아직 없는 model 충전 부재라는 두 시점을 본문에서 다시 대조했다. 충전 부재 면 census 완료로 확대하지 않는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 사전 분해 요구를 입면별·지붕 경사면별·포장별 파일로 나누고 종전의 포장 전체 한 파일 예약을 소스 저작 전에 보행면·차도·테라스로 쪼갠다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 방 안쪽을 포함한 완결 면 owner·파일 경계와 동일 면의 독립 기준 금지를 대조했다. 이 H2는 지붕 경사면별 파일과 종전 포장 전체 한 파일 예약을 보행면·차도·테라스 파일로 나누는 구체 배정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 완결 면 owner 요구와 각 포장 파일의 선행 배정을 받아, 여덟 지붕 경사면의 별도 source 파일과 포장·외벽·방 면 전체의 단일 소유 표를 확정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation은 완결 면마다 하나의 owner를 요구하고 front-walk·driveway·terrace는 자기 포장 파일을 이미 정한다. 이 H2는 그 배정을 모아 여덟 경사면 각각의 source 파일과 외벽·방 면의 연결을 표로 확정한다.
 @evidence principles/design/spaces.md#space-topology 포치 아래 대기와 정원문 바깥 대기를 각 연속 포장 owner에 통째로 속하게 하고 관리길의 앞뒤 두 구역도 같은 면 owner를 유지한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-walk 행의 ‘포치 아래 대기를 포함’, terrace 행의 정원문 바깥 대기 포함, site.ts 문단의 관리길 앞뒤 두 구역 단일 owner를 대조해 대기 구역의 포함 관계가 포장 면 하나에 묶임을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 모서리·단차 몸체는 07, 벽 상단은 roof/00, 층간 가장자리는 08, 지상 지지는 10이 배정해도 이 표의 면 소유는 바뀌지 않는다.
@@ -81,8 +81,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 방마다 `src/spaces/rooms/<방>.ts` 하나를 완결 내부 owner로 정하고 주침실에서 들어가는 옷방을 `wardrobe.ts`로 분리해 source가 방 파일 경계를 다시 나눌 결정을 남기지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis 방별 경계·문·창·storey binding은 동선 인계의 방 owner와 대조한다. 방별 spaces 골격 source는 있으나 model 충전이 없어 방 전체 면 census는 unverified라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단의 동선·수납 링크, 현재 spaces 골격 source의 존재, 아직 없는 model 충전과 전체 면 census unverified를 대조했다. 표 행 수를 실제 방 면 개수로 쓰지 않는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation storage 설정의 "사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담한다"를 옷방은 방, 린넨장·외투장은 소비 방의 접면이라는 분류로 적용한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage 설정의 계단참 근처 린넨 수납, 사용실에서 직접 닿는 외투장·옷장, 사람이 들어가는 수납실의 전체 관찰 조건을 대조했다. 이 H2는 옷방을 자기 파일의 방으로, 린넨장은 upper-hall, 외투장은 entry의 접면으로 분류하는 결정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation storage의 수납실 관찰 조건과 wardrobe·entry의 선행 분류를 받아, 린넨장 면을 upper-hall의 소비 접면에 포함한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage는 걸어 들어가는 수납실의 전체 관찰을 요구하고 wardrobe와 entry는 옷방·외투장의 역할을 이미 정한다. 이 H2는 린넨장 접면을 upper-hall.ts에 배정해 세 수납 형태의 면 owner 표를 닫는다.
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner가 한 번 절단한다. 방 owner는 안쪽 벽·바닥·reveal 마감 면을 만들며 별도 닫힌 문짝·창호·벽 걸레받이는 models가 만들어 같은 접면에 맞춘다.

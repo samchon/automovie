@@ -24,6 +24,12 @@ function identifierStatus(output, processStatus) {
   }) ? 0 : 1;
 }
 
+/** Number reports are selectors for manual reading, not a failure count. */
+function numberReportStatus(output, processStatus) {
+  const rows = /^review rows\s+(\d+)$/m.exec(output);
+  return rows && Number(rows[1]) > 0 && (processStatus === 0 || processStatus === 1) ? 0 : 1;
+}
+
 /** @param {string} probes @param {string} npmCli
  * @returns {Array<[string, string, string[]]>} */
 function taskPlan(probes, npmCli) {
@@ -72,6 +78,15 @@ function taskPlan(probes, npmCli) {
         path.join(logs, "docs-spaces-rows.json"),
         "1",
         path.join(logs, "docs-spaces-quotes"),
+      ],
+    ],
+    [
+      "docs-spaces-quote-owners",
+      process.execPath,
+      [
+        path.join(__dirname, "docs-spaces-quote-owner.cjs"),
+        path.join(logs, "docs-spaces-rows.json"),
+        path.join(logs, "docs-spaces-quotes.tsv"),
       ],
     ],
     [
@@ -126,6 +141,8 @@ function execute(tasks, run) {
       (name === "docs-spaces-review-quotes" && Number(spanCount?.[1] ?? 0) === 0);
     const status = name === "src-review-missing-idents"
       ? identifierStatus(output, result.status)
+      : name === "doc-review-numbers" || name === "docs-spaces-review-numbers"
+      ? numberReportStatus(output, result.status)
       : Math.max(result.status ?? 1, unchecked || emptyPopulation || (name === "docs-spaces-review-quotes" && failedQuotes) ? 1 : 0);
     exitSum += status;
     results.push({
@@ -148,8 +165,12 @@ if (require.main === module) {
     process.exitCode = 2;
   } else {
     fs.mkdirSync(logs, { recursive: true });
+    const spacesOnly = process.argv[3] === "--spaces";
+    const tasks = taskPlan(path.resolve(probes), npmCli).filter(([name]) =>
+      !spacesOnly || (name !== "docs-review-host" && name !== "production-check"),
+    );
     const { exitSum, results } = execute(
-      taskPlan(path.resolve(probes), npmCli),
+      tasks,
       (command, args) =>
         spawnSync(command, args, {
           cwd: root,
@@ -169,4 +190,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { taskPlan, execute, identifierStatus };
+module.exports = { taskPlan, execute, identifierStatus, numberReportStatus };
