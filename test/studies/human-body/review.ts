@@ -197,7 +197,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.humanBodySimplePosture} Read the posture rows a body's age and sex give.
  * @evidenceReview {@link Human.humanBodySimplePosture} #08a0f1c Read the added kyphosis as the age curve times the old less the young degrees, no rows when none is added, each thoracic joint's flexion over its rest angle by its share, the neck's rest angle less the addition clamped at its range's minimum, and the refusal of a joint the basis lacks; ran the posture scenarios.
  * @evidence {@link Human.HUMAN_BODY_SKIN_RELIEF_POSE} Read the relief-pose table.
- * @evidenceReview {@link Human.HUMAN_BODY_SKIN_RELIEF_POSE} #c7a8db7 Read the finger, thumb, wrist, elbow and knee joints with their axial widths and reaches against the relief's own crease placement, the flattening to smooth at the end of the range and the authored deepening by half.
+ * @evidenceReview {@link Human.HUMAN_BODY_SKIN_RELIEF_POSE} #6837c43 Read the finger, thumb, wrist, elbow, knee and toe joints with their axial widths and reaches against the relief's own crease placement, the flattening to smooth at the end of the range and the authored deepening by half.
  * @evidence {@link Human.IAutoMovieHumanBodySkinReliefPose} Read the relief-pose table form.
  * @evidenceReview {@link Human.IAutoMovieHumanBodySkinReliefPose} #3686fbe Read the joints and the deepening and flattening shares.
  * @evidence {@link Human.IAutoMovieHumanBodySkinReliefPose.IJoint} Read one joint's reach.
