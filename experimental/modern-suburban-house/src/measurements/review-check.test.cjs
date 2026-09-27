@@ -47,6 +47,19 @@ void test("missing source identifiers fail while the observed verb exception pas
   assert.equal(identifierStatus("rows 1266 tokens-with-absent-part 0", 1), 1);
 });
 
+void test("the identifier task contributes its normalized status to the command", () => {
+  /** @type {Array<[string, string, string[]]>} */
+  const task = [["src-review-missing-idents", "python", []]];
+  const verb = "flat" + "Maps";
+  const good = execute(task, () => ({
+    status: 1,
+    stdout: `rows 1266 tokens-with-absent-part 1\nsrc/spaces/site/zone.ts:170\t@evidenceReview\t${verb}\tabsent=${verb}`,
+  }));
+  assert.equal(good.exitSum, 0);
+  const bad = execute(task, () => ({ status: 1, stdout: "unparseable scan" }));
+  assert.equal(bad.exitSum, 1);
+});
+
 void test("every check runs and nonzero or failed spawn statuses accumulate", () => {
   /** @type {Array<[string, string, string[]]>} */
   const tasks = [
