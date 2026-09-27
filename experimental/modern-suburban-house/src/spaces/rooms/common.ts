@@ -27,13 +27,13 @@ import {
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/common.md The service-common-opening void follows the partition assigned to common.
- * @evidenceReview spaces/rooms/common.md #5d94fdf v-141 common.ts:34-40 door(-1.35,3.07,head 2.4) is a hole of common-front-partition L141-149; 07-boundary-assembly.md:30 gives the front partition to common.ts; common.md:27.
+ * @evidenceReview spaces/rooms/common.md # `DOOR_SERVICE_COMMON_OPENING` fixes the service passage at X [-1.35, 3.07] with a 2.40 m head; `buildCommon` passes it to the front partition's holes, whose body belongs to this room under `07-boundary-assembly.md#interior-boundary-ownership`.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-common-opening interval remains with common while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 service.ts:15 imports; service.ts:72-77 doorFloor X from .from/.to; common.ts:135-140 own half.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # The service opening value stays in `common.ts`; `buildCommon` uses its span for the common threshold half and `service.ts` imports that same value for the adjacent half, without making a second opening owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-common-opening span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 holes common.ts:148; common doorFloor Z[-6.2,-6.125] L135-140; service doorFloor Z[-6.125,-6.05] service.ts:72-77.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # `buildCommon` puts `DOOR_SERVICE_COMMON_OPENING` in the partition holes and finishes Z [-6.20, -6.125]; `buildService` uses its exported span to finish the remaining Z [-6.125, -6.05].
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes service-common-opening at X=[-1.35, 3.07], Y=[0, 2.40] without a door leaf; this export supplies that opening span to the front partition.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 common.md:27 (#common-room-plan) X=[-1.35,3.07], Y=[0,2.40], 문짝은 없다; code head 2.4.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # `common.md#common-room-plan` already places the leafless service passage at X [-1.35, 3.07], Y [0, 2.40]; this export uses those limits and supplies the partition void, so that parent requires no opening revision.
  */
 export const DOOR_SERVICE_COMMON_OPENING = door(
   "service-common-opening",
@@ -45,13 +45,13 @@ export const DOOR_SERVICE_COMMON_OPENING = door(
 
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/common.md The living-common-opening void follows the partition assigned to common.
- * @evidenceReview spaces/rooms/common.md #5d94fdf common.ts:147-155 front partition holes include DOOR_LIVING_COMMON_OPENING; common.md:27 living-common-opening X=[-5.00,-2.15], Y=[0,2.40] in the Z=[-6.20,-6.05] front boundary whose partition 07 assigns to this room.
+ * @evidenceReview spaces/rooms/common.md # `DOOR_LIVING_COMMON_OPENING` has the plan's X [-5.00, -2.15] and 2.40 m head; `buildCommon` cuts that opening from its Z [-6.20, -6.05] front partition rather than adding a leaf.
  * @evidence principles/core/source-units.md#source-scope-preservation The living-common-opening interval remains with common while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Export common.ts:48-54 stays in common; living.ts:12 imports it and living.ts:95-100 reads from/to for the living doorFloor share.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # The living opening value is exported by `common.ts`, whose partition owns the cut; `living.ts` consumes its `from` and `to` only to finish the living-side threshold strip.
  * @evidence principles/core/source-units.md#source-substantive-completion The living-common-opening span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Partition hole common.ts:154; floor shares common Z=[-6.2,-6.125] common.ts:135-140 and living Z=[-6.125,-6.05] living.ts:95-100.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # `buildCommon` puts this value in the wall's holes and finishes the common-side Z [-6.20, -6.125]; `buildLiving` uses the same span for the living-side Z [-6.125, -6.05].
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-room-plan fixes living-common-opening at X=[-5.00, -2.15], Y=[0, 2.40] without a leaf; this separate export supplies the left front-partition cut.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 common.md:27 X=[-5.00,-2.15], Y=[0,2.40]; code -5.0/-2.15/2.4.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work # `common.md#common-room-plan` already assigns the leafless living passage X [-5.00, -2.15], Y [0, 2.40] to this partition; the separate exported value implements that exact cut without a parent change.
  */
 export const DOOR_LIVING_COMMON_OPENING = door(
   "living-common-opening",
@@ -62,6 +62,10 @@ export const DOOR_LIVING_COMMON_OPENING = door(
 );
 
 const FLOOR = floorOf("ground-storey");
+const DINING_TABLE_X = [-0.35, 1.35] as const;
+const DINING_TABLE_Z = [-8.4, -7.5] as const;
+const DINING_SEAT_HALF_WIDTH = 0.325;
+const DINING_SEAT_DEPTH = 0.75;
 
 const COMMON: IRoomSpace = {
   id: "kitchen-dining-family",
@@ -103,13 +107,25 @@ const COMMON: IRoomSpace = {
       };
     }),
     // common-dining-reservation.
-    { id: "common-dining-table", kind: "furniture", x: [-0.35, 1.35], z: [-8.4, -7.5], y: [FLOOR, FLOOR + 0.75] },
-    { id: "common-dining-seat-back-1-use", kind: "use", x: [-0.325, 0.325], z: [-9.15, -8.4] },
-    { id: "common-dining-seat-back-2-use", kind: "use", x: [0.675, 1.325], z: [-9.15, -8.4] },
-    { id: "common-dining-seat-front-1-use", kind: "use", x: [-0.325, 0.325], z: [-7.5, -6.75] },
-    { id: "common-dining-seat-front-2-use", kind: "use", x: [0.675, 1.325], z: [-7.5, -6.75] },
-    { id: "common-dining-seat-left-use", kind: "use", x: [-1.1, -0.35], z: [-8.275, -7.625] },
-    { id: "common-dining-seat-right-use", kind: "use", x: [1.35, 2.1], z: [-8.275, -7.625] },
+    { id: "common-dining-table", kind: "furniture", x: DINING_TABLE_X, z: DINING_TABLE_Z, y: [FLOOR, FLOOR + 0.75] },
+    ...Array.from({ length: 2 }, (_, i) => ({
+      id: `common-dining-seat-back-${i + 1}-use`, kind: "use" as const,
+      x: [i - DINING_SEAT_HALF_WIDTH, i + DINING_SEAT_HALF_WIDTH] as const,
+      z: [DINING_TABLE_Z[0] - DINING_SEAT_DEPTH, DINING_TABLE_Z[0]] as const,
+    })),
+    ...Array.from({ length: 2 }, (_, i) => ({
+      id: `common-dining-seat-front-${i + 1}-use`, kind: "use" as const,
+      x: [i - DINING_SEAT_HALF_WIDTH, i + DINING_SEAT_HALF_WIDTH] as const,
+      z: [DINING_TABLE_Z[1], DINING_TABLE_Z[1] + DINING_SEAT_DEPTH] as const,
+    })),
+    ...(["left", "right"] as const).map((side) => ({
+      id: `common-dining-seat-${side}-use`, kind: "use" as const,
+      x: side === "left"
+        ? [DINING_TABLE_X[0] - DINING_SEAT_DEPTH, DINING_TABLE_X[0]] as const
+        : [DINING_TABLE_X[1], DINING_TABLE_X[1] + DINING_SEAT_DEPTH] as const,
+      z: [(DINING_TABLE_Z[0] + DINING_TABLE_Z[1]) / 2 - DINING_SEAT_HALF_WIDTH,
+        (DINING_TABLE_Z[0] + DINING_TABLE_Z[1]) / 2 + DINING_SEAT_HALF_WIDTH] as const,
+    })),
     // common-family-reservation.
     { id: "common-family-sofa", kind: "furniture", x: [3.25, 5.35], z: [-7.15, -6.2], y: [FLOOR, FLOOR + 0.9] },
     { id: "common-family-table", kind: "furniture", x: [3.4, 4.5], z: [-8.35, -7.8], y: [FLOOR, FLOOR + 0.42] },
@@ -125,25 +141,25 @@ const COMMON: IRoomSpace = {
 /** Emit the common room floor and its front partition with two open voids. */
 /**
  * @evidence spaces/rooms/common.md This export builds one continuous kitchen-dining-family room with a front wall cut for two open passages.
- * @evidenceReview spaces/rooms/common.md #5d94fdf v-141 One room COMMON box L62 + one common-front-partition with two leafless holes L141-149; common.md:25-27.
+ * @evidenceReview spaces/rooms/common.md # `buildCommon` returns the single `kitchen-dining-family` space, its floor and ceiling, and one `common-front-partition` pierced by the living and service openings; the kitchen, dining, and family areas remain reservations in that room.
  * @evidence spaces/rooms/common.md#common-room-plan COMMON uses the full rear X/Z outline and one partition with living and service opening ids.
- * @evidenceReview spaces/rooms/common.md#common-room-plan #004bed1 v-141 box([-5.5,5.5],[-10.45,-6.2]) L62 = common.md:25; one partition across [-6.2,-6.05] with living/service ids L141-149 = L27.
+ * @evidenceReview spaces/rooms/common.md#common-room-plan # `COMMON.outline` uses X [-5.50, 5.50], Z [-10.45, -6.20], while its front partition spans Z [-6.20, -6.05] and takes the two opening values named in the plan; the rest stays wall.
  * @evidence spaces/rooms/common.md#common-kitchen-wall-reservation Back/left cabinet bands and fridge, range, oven, and microwave boxes retain distinct work/swing areas.
- * @evidenceReview spaces/rooms/common.md#common-kitchen-wall-reservation #3f3352e v-141 L70-81: back base, left base rear/front (range Z excluded), fridge + swing [-4.7,-4.15] + use [-4.15,-3.7], range (oven below) + oven swing + use, microwave, 2 wall cabinets; all equal common.md:59-69. 'oven box' = range box per table L62.
+ * @evidenceReview spaces/rooms/common.md#common-kitchen-wall-reservation # `COMMON.reservations` gives the L base a single back corner and separated left runs around the range; fridge and oven each have +X swing and use boxes, while microwave and the two upper cabinets retain distinct height ranges.
  * @evidence spaces/rooms/common.md#common-island-reservation The sink/dishwasher island and three stool use boxes are recorded without furniture geometry.
- * @evidenceReview spaces/rooms/common.md#common-island-reservation #c7d8452 v-141 island, sink, dishwasher + swing + use, three stool uses common.ts:83-90 = common.md:97-101; no geometry emitted. (Stool Z centres hand-typed though body says 산출; not claimed.)
+ * @evidenceReview spaces/rooms/common.md#common-island-reservation # The island, sink, dishwasher, its westward swing and work area are distinct reservations; `Array.from` derives three stool-use centres from -8.30 m at 0.70 m pitch and gives each a 0.325 m half-width, without emitting stools.
  * @evidence spaces/rooms/common.md#common-dining-reservation Six separate seat-use rectangles surround one dining table reserve.
- * @evidenceReview spaces/rooms/common.md#common-dining-reservation #3ca8e68 v-141 table L92 + six seat uses L93-98 (2+2 long sides, 2 ends) = common.md:129-131; count 6. Values hand-typed while body says the two repeat rules generate them; row claims no derivation.
+ * @evidenceReview spaces/rooms/common.md#common-dining-reservation # The table reserve supplies its X/Z edges; two loops place back and front use boxes at X centres 0 and 1 m with 0.325 m half-width, and the end-seat loop extends each X edge 0.75 m with Z centred on the table, giving six separate seats.
  * @evidence spaces/rooms/common.md#common-family-reservation The right-side sofa and table have their own reserved footprints toward the family zone.
- * @evidenceReview spaces/rooms/common.md#common-family-reservation #88e6c6c v-141 family sofa X[3.25,5.35] Z[-7.15,-6.2] h0.90 and table X[3.40,4.50] Z[-8.35,-7.80] h0.42 common.ts:100-101 = common.md:157.
+ * @evidenceReview spaces/rooms/common.md#common-family-reservation # The family sofa reserves X [3.25, 5.35] to the front inside face, its table X [3.40, 4.50] sits farther toward the rear, and a separate rug reserve X [3.00, 4.55] does not turn the right-side window approach into furniture geometry.
  * @evidence spaces/rooms/common.md#common-clear-routes Four clear route bands cover the right edge, rear, garden-door approach, and kitchen side of the work boxes.
- * @evidenceReview spaces/rooms/common.md#common-clear-routes #139bcdc Host emits exactly four route reservations common.ts:110-113 (main-route-right X=[2.1,3.07], main-route-back, garden-door-approach, kitchen-route X=[-4.85,-0.35] Z=[-9.8,-8.7]); common.md:189 right band, back band, 정원문 접근 띠, :191 kitchen rear band; right/back bands pass right of and behind the dining boxes (:133). v141 A10 count fixed.
+ * @evidenceReview spaces/rooms/common.md#common-clear-routes # Four `route` reservations keep the right band beyond the dining end seat, turn along the back from Z -9.25 to -10.33, approach the garden door left of the family curtain, and provide a separate X [-4.85, -0.35] kitchen-side band.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder emits room finishes and its front partition, leaving cabinet/appliance and seating bodies to models.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 parts L127-149: floor, ceiling, 2 doorFloors, partition; cabinets/appliances/seating only as reservations.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation # `buildCommon.parts` emits floor, ceiling, two threshold halves, and the one assigned partition; the kitchen fixtures and dining/family seats remain `COMMON.reservations`, leaving their physical bodies to the later model and instance owners.
  * @evidence principles/core/source-units.md#source-substantive-completion A floor, ceiling, two threshold strips, and one wall with real doorless voids are returned with the reservations.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomFloor, roomCeiling, two doorFloors L129-140, one partition with two leafless holes L141-149, reservations L64-108.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion # Calling `buildCommon` returns the complete room record and five parts: floor, ceiling, living and service threshold halves, and a front wall with both declared voids; consumers need no second room or wall builder for this scope.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Building this room exposed a collision between family-rear-curtain and common-main-route-back; rooms/common.md#common-clear-routes was revised in fa601efa to stop the rear band at Z=-10.33 and add common-garden-door-approach.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 git log -S'-10.33' -- docs/spaces/rooms/common.md = fa601efa only. fa601efa added family-rear-curtain (x from FAMILY_REAR_WINDOW.from-0.1=2.65, z [-10.45,-10.33]) to common.ts while old main-route-back was x[-1.5,3.07] z[-10.45,-9.25] (overlap). Body now common.md:189 back band Z=[-10.33,-9.25], approach X=[-1.50,2.65] Z=[-10.45,-10.33], 'X = 2.65 m는 ... 겹치지 않는다'; host common.ts:111-112. Target, commit, case named.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work # `common.md#common-clear-routes` separates the back route at Z -10.33 and ends the garden-door approach at the family-curtain start X 2.65; `COMMON.reservations` derives those edges from `MAIN.inner` and `FAMILY_REAR_WINDOW`, closing the curtain/route overlap that prompted the route revision.
  */
 export const buildCommon = (): IRoomBuild => ({
   space: COMMON,
