@@ -29,6 +29,14 @@ const freshPayload = (): { basis: string; payload: unknown } => {
   return { basis, payload: loaded.createViewerPayload() };
 };
 
+/** Isolated prototypes use the same current source-basis check as the building. */
+const freshModelBoard = (): { basis: string; payload: unknown } => {
+  clearSource();
+  const basis = (require("../review/source-basis") as typeof import("../review/source-basis")).sourceBasis();
+  const loaded = require("./model-board-payload") as typeof import("./model-board-payload");
+  return { basis, payload: loaded.createModelBoardPayload() };
+};
+
 /** 현재 source로 자가검사와 같은 측정 결과를 만든다. */
 const freshReview = (grid: string | null): unknown => {
   const value = grid === null ? 0.01 : Number(grid);
@@ -55,9 +63,11 @@ const main = async (): Promise<void> => {
   const threeBuild = dirname(require.resolve("three"));
   const files = new Map([
     ["/", resolve(productionRoot, "public/index.html")],
+    ["/model-board", resolve(productionRoot, "public/model-board.html")],
     ["/viewer.css", resolve(productionRoot, "public/viewer.css")],
     ["/src/viewer/client.mjs", resolve(productionRoot, "src/viewer/client.mjs")],
     ["/src/viewer/scene.mjs", resolve(productionRoot, "src/viewer/scene.mjs")],
+    ["/src/viewer/model-board.mjs", resolve(productionRoot, "src/viewer/model-board.mjs")],
     ["/vendor/three.module.js", resolve(threeBuild, "three.module.js")],
     ["/vendor/three.core.js", resolve(threeBuild, "three.core.js")],
     ["/vendor/OrbitControls.js", resolve(threeBuild, "../examples/jsm/controls/OrbitControls.js")],
@@ -72,6 +82,16 @@ const main = async (): Promise<void> => {
     }
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     const path = url.pathname;
+    if (path === "/model-board/scene") {
+      try {
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" })
+          .end(JSON.stringify(freshModelBoard()));
+      } catch (error) {
+        response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" })
+          .end(error instanceof Error ? error.stack ?? error.message : String(error));
+      }
+      return;
+    }
     if (path === "/section") {
       try {
         const section = freshSection(url.searchParams.get("axis"), url.searchParams.get("offset"));

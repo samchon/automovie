@@ -50,6 +50,14 @@ export class ObjectMesh {
     this.polygon(name, [...vertices].reverse(), coordinates === undefined ? undefined : [...coordinates].reverse());
   }
 
+  /** An explicitly bounded polygon whose ordered corners determine the outward face. */
+  face(name: string, vertices: readonly Point[], coordinates?: readonly (readonly [number, number])[]): this {
+    if (vertices.length < 3 || (coordinates !== undefined && coordinates.length !== vertices.length))
+      throw new Error(`${name}: 면의 꼭짓점과 UV 수가 일치해야 합니다.`);
+    this.polygon(name, vertices, coordinates);
+    return this;
+  }
+
   box(name: string, x: number, y: number, z: number, width: number, height: number, depth: number): this {
     if (!(width > 0 && height > 0 && depth > 0)) throw new Error(`${name}: 상자 치수는 양수여야 합니다.`);
     const a = x - width / 2, b = x + width / 2;
