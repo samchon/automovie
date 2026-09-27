@@ -100,6 +100,9 @@ export const transformAutoMovieMesh = (
     normals: mesh.normals === null ? null : normals,
     uvs: mesh.uvs === null ? null : [...mesh.uvs],
     ...(mesh.colors === undefined ? {} : { colors: [...mesh.colors] }),
+    ...(mesh.reliefWeights === undefined
+      ? {}
+      : { reliefWeights: [...mesh.reliefWeights] }),
     indices,
     skin: null,
   };

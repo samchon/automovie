@@ -34,7 +34,8 @@ export const inspectAutoMovieMeshTopology = (
     countNonFinite(mesh.positions) +
     countNonFinite(mesh.normals) +
     countNonFinite(mesh.uvs) +
-    countNonFinite(mesh.colors ?? null);
+    countNonFinite(mesh.colors ?? null) +
+    countNonFinite(mesh.reliefWeights ?? null);
   const indices = triangleIndicesOf(mesh, "mesh topology");
   const key = (at: number): string =>
     [0, 1, 2]

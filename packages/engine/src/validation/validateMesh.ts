@@ -69,6 +69,25 @@ export const validateMesh = (
     });
   }
 
+  if (mesh.reliefWeights !== undefined) {
+    validateBufferLength(
+      mesh.reliefWeights,
+      vertexCount,
+      `${path}.reliefWeights`,
+      "reliefWeights must contain one factor per position vertex",
+      collector,
+    );
+    mesh.reliefWeights.forEach((value, index) => {
+      if (!Number.isFinite(value) || value < 0)
+        collector.push(
+          "range",
+          `${path}.reliefWeights[${index}]`,
+          "relief weights must be finite and nonnegative",
+          value,
+        );
+    });
+  }
+
   if (mesh.indices !== null) {
     validateTupleBuffer(mesh.indices, 3, `${path}.indices`, collector);
     mesh.indices.forEach((index, i) => {

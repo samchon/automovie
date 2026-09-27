@@ -52,6 +52,8 @@ export const mergeAutoMovieMeshes = (
   const uvs: number[] = [];
   const keepColors = meshes.some((mesh) => mesh.colors !== undefined);
   const colors: number[] = [];
+  const keepRelief = meshes.some((mesh) => mesh.reliefWeights !== undefined);
+  const reliefWeights: number[] = [];
   for (const mesh of meshes) {
     const base = positions.length / 3;
     const count = mesh.positions.length / 3;
@@ -61,6 +63,11 @@ export const mergeAutoMovieMeshes = (
     if (keepColors)
       for (let index = 0; index < mesh.positions.length; ++index)
         colors.push(mesh.colors === undefined ? 1 : mesh.colors[index]!);
+    if (keepRelief)
+      for (let index = 0; index < count; ++index)
+        reliefWeights.push(
+          mesh.reliefWeights === undefined ? 1 : mesh.reliefWeights[index]!,
+        );
     if (mesh.indices === null)
       for (let index = 0; index < count; ++index) indices.push(index + base);
     else for (const index of mesh.indices) indices.push(index + base);
@@ -70,6 +77,7 @@ export const mergeAutoMovieMeshes = (
     normals: keepNormals ? normals : null,
     uvs: keepUvs ? uvs : null,
     ...(keepColors ? { colors } : {}),
+    ...(keepRelief ? { reliefWeights } : {}),
     indices,
     skin: null,
   };
