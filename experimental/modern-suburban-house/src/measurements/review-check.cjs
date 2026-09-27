@@ -25,6 +25,7 @@ function identifierStatus(output, processStatus) {
 }
 
 /** Number reports are selectors for manual reading, not a failure count. */
+/** @param {string} output @param {number|null} processStatus */
 function numberReportStatus(output, processStatus) {
   const rows = /^review rows\s+(\d+)$/m.exec(output);
   return rows && Number(rows[1]) > 0 && (processStatus === 0 || processStatus === 1) ? 0 : 1;

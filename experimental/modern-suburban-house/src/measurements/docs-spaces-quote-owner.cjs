@@ -1,6 +1,9 @@
 /** Check the owner named before a quoted phrase against its actual H2. */
 const fs = require("node:fs");
 
+/** @param {Array<{id:number,file:string,host:string,text:string}>} rows
+ * @param {string[][]} spans
+ * @param {Array<{file:string,anchor:string,body:string}>} hosts */
 function quoteOwnerFailures(rows, spans, hosts = []) {
   const byId = new Map(rows.map((row) => [`R${String(row.id).padStart(4, "0")}`, row]));
   const bodies = new Map(hosts.map((host) => [`${host.file}#${host.anchor}`, host.body]));
@@ -25,6 +28,7 @@ function quoteOwnerFailures(rows, spans, hosts = []) {
       /([A-Za-z][A-Za-z0-9-]*)\s+설정의\s*$/.exec(before)?.[1] ||
       /([A-Za-z][A-Za-z0-9-]*)가\s*$/.exec(before)?.[1];
     const named = namedRaw === "owner" ? undefined : namedRaw;
+    /** @param {string} source */
     const sourceMatches = (source) => {
       const [file, anchor] = source.split("#");
       if (!file || !anchor) return false;
