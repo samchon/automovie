@@ -136,6 +136,12 @@ import {
   faceInstrumentResolution,
   faceInstrumentState,
 } from "./faceInstrumentGain";
+import {
+  FACE_LID_CREASE_CHANNELS,
+  FACE_LID_CREASE_LAYER,
+  faceLidCreaseWeight,
+  measureFaceLikenessCrease,
+} from "./faceLikenessCrease";
 import { readFaceLikenessImage, readFaceLikenessMask } from "./faceLikenessIo";
 import {
   faceLikenessJawLandmarks,
@@ -447,6 +453,39 @@ if (command === "identity") {
     }
     return movingCache.get(id)!;
   };
+  // The crease control's depth at its end: the deepest of its rows on the
+  // skin (each along the skin's normal, the lid crease revision), or null
+  // on a basis without both lids' control.
+  const creaseDepth = FACE_LID_CREASE_CHANNELS.every(
+    (one) =>
+      channels.get(one)?.negative !== undefined &&
+      channels.get(one)?.negative !== null,
+  )
+    ? Math.min(
+        ...FACE_LID_CREASE_CHANNELS.map((one) => {
+          const flat = human.targets[channels.get(one)!.negative!] ?? [];
+          let deepest = 0;
+          for (let i = 0; i < flat.length; i += 4)
+            deepest = Math.max(
+              deepest,
+              Math.hypot(flat[i + 1]!, flat[i + 2]!, flat[i + 3]!),
+            );
+          return deepest;
+        }),
+      )
+    : null;
+  const creaseReading = (one: IDetection) => {
+    const file =
+      one.rgb !== undefined && one.rgb !== null
+        ? path.join(path.dirname(detectionFile!), one.rgb)
+        : one.path;
+    return file === undefined || one.face === null
+      ? null
+      : measureFaceLikenessCrease(
+          readFaceLikenessImage(file),
+          one.face.landmarks,
+        );
+  };
   const report: Record<string, unknown> = {};
   const derived = documents.map((document) => {
     const subject = subjectOf(document);
@@ -480,6 +519,29 @@ if (command === "identity") {
     }
     const camera = faceShapeFitView(pose, 900, pose.fov);
     const list = anchoredLandmarks(view.anchors, human, dentition, incisal);
+    // The upper lids' crease: where the photograph shows the lids, whether
+    // it draws the crease's line; where it cannot, the population's more
+    // probable state (`faceLidCreaseWeight`), both lids carrying one fold
+    // of their skin and orbicularis.
+    const crease =
+      creaseDepth === null
+        ? null
+        : faceLidCreaseWeight({
+            reading: creaseReading(photos.get(`photo:${subject}`)!),
+            facts: recorded,
+            layer: FACE_LID_CREASE_LAYER,
+            depth: creaseDepth,
+          });
+    if (crease !== null)
+      start.shape = {
+        ...start.shape,
+        ...Object.fromEntries(
+          FACE_LID_CREASE_CHANNELS.map((one) => [
+            one,
+            Number(crease.weight.toFixed(5)),
+          ]),
+        ),
+      };
     // The smile's orbital part where the photograph's instrument cannot
     // read it: each side's cheek raiser by the posed-smile norm
     // (`faceSmileOrbital`), from rates read on this face's anchored points
@@ -1124,6 +1186,7 @@ if (command === "identity") {
         ]),
       ),
       iterations: sweeps,
+      crease,
       validity: {
         measured: measuredShare,
         yielded,
