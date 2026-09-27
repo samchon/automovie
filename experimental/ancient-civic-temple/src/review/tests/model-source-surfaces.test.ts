@@ -207,40 +207,42 @@ void test("both faces of every door surround occupy the complete three-sided rin
   }
 });
 
-void test("front and back face U gradients follow the reviewed member axes",()=>{
-  const source=new TempleOpenings();
-  const cases=templeDoorPassages.flatMap((door)=>{
-    if(door.id==="door-entry"||door.id==="door-sanctuary"){
-      const model=source.doubleLeaf(door.id);
-      return [
-        { model,part:"panel",axis:"y" },
-        { model,part:"frame",axis:"y",region:(x:number)=>x<0.09 },
-        { model,part:"frame",axis:"x",region:(x:number,y:number)=>x>0.12&&y<0.16 },
-      ];
+void test("every door leaf member develops U along its measured long face axis",()=>{
+  const scale=readFileSync(join(__dirname,"../../../docs/models/scale.md"),"utf8");
+  const row=scale.split(/\r?\n/u).find((line)=>
+    line.startsWith("|")&&line.includes("`openings#double-door-leaf`"));
+  assert.ok(row,"door leaf UV table row");
+  const names=[...row.split("|")[2]!.matchAll(/`([a-z-]+)`/gu)]
+    .map((match)=>match[1]!);
+  const grainParts=names.slice(0,names.indexOf("plate"));
+  assert.ok(grainParts.length>=5,"door leaf grain parts");
+  const source=new TempleOpenings(),seen=new Set<string>();
+  for(const door of templeDoorPassages){
+    const model=door.id==="door-entry"||door.id==="door-sanctuary"
+      ? source.doubleLeaf(door.id)
+      : source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0]);
+    for(const part of model.parts.filter((item)=>grainParts.includes(item.id))){
+      let measured=0;
+      for(const [a,b,c] of triangles(partMesh(model,part.id))){
+        if(Math.max(Math.abs(a!.z-b!.z),Math.abs(a!.z-c!.z))>1e-9)
+          continue;
+        const xs=[a!.x,b!.x,c!.x],ys=[a!.y,b!.y,c!.y];
+        const xSpan=Math.max(...xs)-Math.min(...xs);
+        const ySpan=Math.max(...ys)-Math.min(...ys);
+        if(Math.max(xSpan,ySpan)<1.01*Math.min(xSpan,ySpan))continue;
+        const axis=xSpan>ySpan?"x":"y";
+        const edge=[b!,c!].find((v)=>Math.abs(v[axis]-a![axis])>1e-9);
+        if(edge===undefined)continue;
+        close((edge.u-a!.u)/(edge[axis]-a![axis]),1,1e-6);
+        measured++;
+      }
+      assert.ok(measured>=2,`${model.id}/${part.id}: long faces unmeasured`);
+      seen.add(part.id);
     }
-    const model=source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0]);
-    return [
-      { model,part:"board",axis:"y" },
-      { model,part:"batten",axis:"x" },
-      { model,part:"strap",axis:"x" },
-    ];
-  });
-  for(const item of cases){
-    let seen=0;
-    for(const [a,b,c] of triangles(partMesh(item.model,item.part))){
-      if(Math.abs(a!.z-b!.z)>1e-9||Math.abs(a!.z-c!.z)>1e-9)continue;
-      const x=(a!.x+b!.x+c!.x)/3,y=(a!.y+b!.y+c!.y)/3;
-      if(typeof item.region==="function"&&!item.region(x,y))continue;
-      const edge=item.axis==="y"
-        ? [a!,b!,c!].find((v)=>Math.abs(v.y-a!.y)>1e-9)
-        : [a!,b!,c!].find((v)=>Math.abs(v.x-a!.x)>1e-9);
-      if(edge===undefined)continue;
-      const run=item.axis==="y"?edge.y-a!.y:edge.x-a!.x;
-      close((edge.u-a!.u)/run,1,1e-6);
-      seen++;
-    }
-    assert.ok(seen>0,`${item.part}/${item.axis}: no measured face`);
   }
+  const compare=(a:string,b:string)=>a.localeCompare(b);
+  assert.deepEqual([...seen].sort(compare),grainParts.sort(compare),
+    "all documented grain parts measured");
 });
 
 void test("the opening UV table's named parts all emit finite UV0 for every passage",()=>{
