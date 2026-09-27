@@ -1,3 +1,5 @@
+import { FACE_SMILE_RETRACTION_UNITS } from "./splitSmileRetractionBasis";
+
 /**
  * The narrowing of the palpebral fissure a posed smile brings, per unit of
  * the width it adds to the mouth: 1.885 mm (the mean of the left eye's 1.81
@@ -55,4 +57,43 @@ export function faceSmileOrbital(props: {
     return Math.min(props.maximum, Math.max(0, (needed - own) / -raiser));
   };
   return { left: side("left"), right: side("right") };
+}
+
+/**
+ * The smile's norm-coupled units held to the smile the face finally shows.
+ *
+ * Each side's cheek raiser (`cheekSquint`) and lip retraction
+ * (`FACE_SMILE_RETRACTION_UNITS`) are set from its smile's photographed
+ * weight before the identity is solved; the expression validity may then
+ * yield the smile itself toward rest, and a coupled unit left at the
+ * photographed smile's value would show a smile's orbital part or
+ * retraction without the smile. So each side's raiser is held to at most
+ * `faceSmileOrbital` for its final smile over the same `rates` (none when
+ * `rates` is null, no raiser having been set), and each retraction to at
+ * most its smile's final weight. A unit already at or below its coupling
+ * keeps its weight; recoupling only lowers. Pure.
+ */
+export function faceSmileRecouple(props: {
+  expression: Readonly<Record<string, number>>;
+  rates: Omit<Parameters<typeof faceSmileOrbital>[0], "smile"> | null;
+}): Record<string, number> {
+  const expression = { ...props.expression };
+  const hold = (unit: string, most: number) => {
+    const weight = expression[unit];
+    if (weight !== undefined && weight > most) expression[unit] = most;
+  };
+  if (props.rates !== null) {
+    const raiser = faceSmileOrbital({
+      ...props.rates,
+      smile: {
+        left: expression.mouthSmileLeft ?? 0,
+        right: expression.mouthSmileRight ?? 0,
+      },
+    });
+    hold("cheekSquintLeft", raiser.left);
+    hold("cheekSquintRight", raiser.right);
+  }
+  for (const { smile, retraction } of FACE_SMILE_RETRACTION_UNITS)
+    hold(retraction, expression[smile] ?? 0);
+  return expression;
 }

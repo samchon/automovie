@@ -168,7 +168,11 @@ import {
   faceShapeFitAnchorPoint,
   faceShapeFitSurfacePositions,
 } from "./faceShapeFitSurface";
-import { type IFaceSides, faceSmileOrbital } from "./faceSmileOrbital";
+import {
+  type IFaceSides,
+  faceSmileOrbital,
+  faceSmileRecouple,
+} from "./faceSmileOrbital";
 import {
   FACE_UNSEEN_INDICES,
   faceMidlineTriangles,
@@ -578,6 +582,7 @@ if (command === "identity") {
     // expression folds the skin.
     const orbitalPriors = new Set<string>();
     let orbital: IFaceSides | null = null;
+    let orbitalRates: Parameters<typeof faceSmileRecouple>[0]["rates"] = null;
     if (
       unobservable(subject, "cheekSquintLeft") &&
       unobservable(subject, "cheekSquintRight") &&
@@ -622,11 +627,7 @@ if (command === "identity") {
           Math.hypot(...[0, 1, 2].map((k) => p[k]! - q[k]!))
         );
       };
-      orbital = faceSmileOrbital({
-        smile: {
-          left: start.expression.mouthSmileLeft ?? 0,
-          right: start.expression.mouthSmileRight ?? 0,
-        },
+      orbitalRates = {
         labial: {
           left: change("mouthSmileLeft", 61, 291),
           right: change("mouthSmileRight", 61, 291),
@@ -640,6 +641,13 @@ if (command === "identity") {
           right: change("cheekSquintRight", 159, 145),
         },
         maximum: 1,
+      };
+      orbital = faceSmileOrbital({
+        ...orbitalRates,
+        smile: {
+          left: start.expression.mouthSmileLeft ?? 0,
+          right: start.expression.mouthSmileRight ?? 0,
+        },
       });
       for (const [unit, weight] of [
         ["cheekSquintLeft", orbital.left],
@@ -1195,6 +1203,23 @@ if (command === "identity") {
       steps: 6,
       rounds: 3,
     });
+    // The smile's coupled units follow the smile the face shows: a smile
+    // that yielded takes its raiser and retraction down with it
+    // (`faceSmileRecouple`), unless that would fold the skin again.
+    const recoupled = faceSmileRecouple({
+      expression: yieldedFace.expression,
+      rates: orbitalRates,
+    });
+    const recouplingFaults = faceSupportFaults({
+      source: own,
+      ...shown(recoupled),
+      indices: human.indices,
+      contact,
+    });
+    const shownExpression =
+      recouplingFaults <= yieldedFace.faults
+        ? recoupled
+        : yieldedFace.expression;
     report[subject] = {
       population,
       anthropometry: Object.fromEntries(
@@ -1234,10 +1259,16 @@ if (command === "identity") {
           orbital,
           shares: yieldedFace.shares,
           faults: yieldedFace.faults,
+          recoupled: Object.fromEntries(
+            Object.entries(recoupled).filter(
+              ([unit, weight]) => weight !== yieldedFace.expression[unit],
+            ),
+          ),
+          recouplingFaults,
         },
       },
     };
-    return { ...start, shape, expression: yieldedFace.expression };
+    return { ...start, shape, expression: shownExpression };
   });
   write(output, study!, derived, report);
 } else if (command === "instrument-study") {
