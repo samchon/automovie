@@ -8,7 +8,12 @@ import {
   mergeAutoMovieMeshes,
   transformAutoMovieMesh,
 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieModel,
+  IAutoMovieMovablePanel,
+  IAutoMovieOpeningOperation,
+} from "@automovie/interface";
 import { ObjectMesh } from "../geometry/object-mesh";
 import {
   modelBox,
@@ -29,6 +34,7 @@ const box=(b:ObjectMesh,id:string,x0:number,y0:number,z0:number,
 
 const posed=(model:IAutoMovieModel, pivot:{ x:number;z:number },state:"closed"|"open"):IAutoMovieModel=>{
   if(state==="closed") return model;
+  if(state!=="open") throw new Error(`${model.id}: unsupported door state ${state}`);
   const q={ x:0,y:-Math.SQRT1_2,z:0,w:Math.SQRT1_2 };
   return {
     ...model,
@@ -53,6 +59,42 @@ const posed=(model:IAutoMovieModel, pivot:{ x:number;z:number },state:"closed"|"
 
 /** Four reviewed families preserve the clear opening and named moving leaf. */
 export class TempleOpenings {
+  /** Building opening operation over closed rest meshes; instances name and orient leaves. */
+  doorOperation(id:typeof templeDoorPassages[number]["id"],
+    leaves:readonly { leafId:string;element:string }[]):IAutoMovieOpeningOperation{
+    const door=templeDoorPassages.find((entry)=>entry.id===id);
+    if(door===undefined) throw new Error(`${id}: reviewed door missing`);
+    const paired=id==="door-entry"||id==="door-sanctuary";
+    if(leaves.length!==(paired?2:1))
+      throw new Error(`${id}: expected ${paired?2:1} leaf elements`);
+    if(new Set(leaves.map((leaf)=>leaf.leafId)).size!==leaves.length ||
+      new Set(leaves.map((leaf)=>leaf.element)).size!==leaves.length ||
+      leaves.some((leaf)=>!leaf.leafId||!leaf.element))
+      throw new Error(`${id}: leaves need distinct stable ids and elements`);
+    const panels:IAutoMovieMovablePanel[]=leaves.map((leaf)=>({
+      id:`hinge.${leaf.leafId}`,
+      element:leaf.element,
+      width:door.width/(paired?2:1),
+      height:door.height-0.01,
+      motion:{
+        kind:"revolute",
+        axis:p(0,1,0),
+        pivot:p(paired?0.021:0,0,paired?0:0.031),
+        min:-Math.PI/2,
+        max:0,
+      },
+    }));
+    return {
+      panels,
+      states:[
+        { id:"closed",panels:panels.map((panel)=>({ panel:panel.id,value:0 })) },
+        { id:"open",panels:panels.map((panel)=>({ panel:panel.id,value:-Math.PI/2 })) },
+      ],
+      state:"open",
+      hardware:[],
+    };
+  }
+
   /** Deep lining through the actual host thickness, plus two outer surrounds. */
   doorFrame(id:typeof templeDoorPassages[number]["id"]):IAutoMovieModel{
     const door=templeDoorPassages.find((entry)=>entry.id===id);
