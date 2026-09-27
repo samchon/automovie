@@ -104,7 +104,7 @@ export function buildHouseScene(sourceDigest: string): IViewerScene {
           texture: finish.texture === undefined
             ? undefined
             : `/textures/${finish.texture.file}`,
-          uvs: houseTextureUvs(mesh.positions, mesh.normals, finish),
+          uvs: houseTextureUvs(mesh.positions, mesh.normals, finish, part.id),
           position: [0, 0, 0],
           positions: mesh.positions,
           normals: mesh.normals,

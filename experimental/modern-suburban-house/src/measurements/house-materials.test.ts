@@ -33,6 +33,27 @@ void test("metric tiles project by actual face and retain fallbacks", () => {
     houseTextureUvs([0, 0, 0, 0.5, 0, 0.5], [0, 1, 0, 0, 1, 0], paving),
     [0, 0, 1, 1],
   );
+  assert.deepEqual(
+    houseTextureUvs([1, 0, -2, 1, 1, -2], [1, 0, 0, 1, 0, 0], paving, "garden-terrace"),
+    [-4, 0, -4, 2],
+  );
+  assert.deepEqual(
+    houseTextureUvs([1, 0, -2, 1.5, 0.4, -1.5], [0, 0.8, 0.6, 0, 0.8, 0.6], paving, "front-walk-connector-0-0-0"),
+    [2, -4, 3, -3],
+  );
+  assert.deepEqual(
+    houseTextureUvs([1, 0, -2, 1, 1, -2], [1, 0, 0, 1, 0, 0], paving, "front-walk-connector-0-0-0"),
+    [-4, 0, -4, 2],
+  );
+  const tread = houseFinish("stair", 0x9a6b43);
+  assert.deepEqual(
+    houseTextureUvs([-1.8, 0.17, -1.73, -1.67, 0.17, -1.45], [0, 1, 0, 0, 1, 0], tread, "stair-lower-tread-1")?.map((value) => Math.round(value * 1000) / 1000),
+    [0, 0.233, 1, 0],
+  );
+  assert.deepEqual(
+    houseTextureUvs([-0.65, 1.53, -3.41, -0.37, 1.53, -3.54], [0, 1, 0, 0, 1, 0], tread, "stair-upper-tread-1")?.map((value) => Math.round(value * 1000) / 1000),
+    [0, 0, 1, 0.233],
+  );
   const shingle = houseFinish("roof", 0x3d3f43);
   const roofUvs = houseTextureUvs(
     [0, 0, 0, 0, 0.14, 0.66],

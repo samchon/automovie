@@ -222,18 +222,30 @@ export function houseWallFinishGroups(
 
 /**
  * Project current world-space vertices into the binding's metric repeat grid.
- * Consume docs/spaces/03-surface-owners.md UV ownership: ground uses X/Z;
- * walls use their horizontal tangent/Y; a roof uses its eave tangent and slope
- * distance. Roof projection takes precedence even on a shallow roof. Geometry
- * is unchanged and the world origin keeps phase across split faces.
+ * Consume spaces UV ownership: paving tops and graded connectors use X/Z,
+ * exposed vertical sides use their horizontal tangent/Y, and stair tread tops
+ * start at each left nose. Roofs use their eave tangent and slope distance.
+ * Geometry is unchanged; world-based surfaces keep phase across split faces.
  */
 export function houseTextureUvs(
   positions: readonly number[],
   normals: readonly number[],
   finish: HouseFinish,
+  partId?: string,
 ): number[] | undefined {
   const texture = finish.texture;
   if (texture === undefined) return undefined;
+  const lowerTread = partId?.startsWith("stair-lower-tread-") ?? false;
+  const upperTread = partId?.startsWith("stair-upper-tread-") ?? false;
+  const gradedConnector = partId?.startsWith("front-walk-connector-") ||
+    partId?.startsWith("side-walk-front-connector-");
+  let minX = Infinity;
+  let maxZ = -Infinity;
+  if (lowerTread || upperTread)
+    for (let i = 0; i < positions.length; i += 3) {
+      minX = Math.min(minX, positions[i]!);
+      maxZ = Math.max(maxZ, positions[i + 2]!);
+    }
   const output: number[] = [];
   for (let i = 0; i < positions.length; i += 3) {
     const x = positions[i]!, y = positions[i + 1]!, z = positions[i + 2]!;
@@ -242,7 +254,19 @@ export function houseTextureUvs(
     if (texture.projection === "roof") {
       u = Math.abs(nx) > Math.abs(nz) ? z : x;
       v = y / Math.max(0.2, Math.hypot(nx, nz));
-    } else if (texture.projection === "ground" || Math.abs(ny) > 0.9) {
+    } else if (texture.projection === "ground" &&
+      (Math.abs(ny) > 0.9 || (gradedConnector && Math.abs(ny) > 0.5))) {
+      if (lowerTread) {
+        u = x - minX;
+        v = maxZ - z;
+      } else if (upperTread) {
+        u = maxZ - z;
+        v = x - minX;
+      } else {
+        u = x;
+        v = z;
+      }
+    } else if (Math.abs(ny) > 0.9) {
       u = x;
       v = z;
     } else {
