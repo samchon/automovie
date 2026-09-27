@@ -2,7 +2,7 @@
   "size": 4096,
   "texelMillimetres": 0.4493,
   "metresPerUv": 1.8404,
-  "pngBytes": 179805,
+  "pngBytes": 222998,
   "creases": [
     {
       "name": "left Index distal interphalangeal crease",
@@ -963,6 +963,902 @@
       "widthMillimetres": 0.9,
       "side": "extension",
       "reachMillimetres": 70.0
+    },
+    {
+      "name": "left toe 1 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 dorsal wrinkle over the interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 dorsal wrinkle over the interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 1 dorsal wrinkle over the interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "left toe 2 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 2 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 3 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 4 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "left toe 5 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 1 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 dorsal wrinkle over the interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 dorsal wrinkle over the interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 1 dorsal wrinkle over the interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 11.0
+    },
+    {
+      "name": "right toe 2 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 2 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 3 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 4 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 metatarsophalangeal plantar crease",
+      "offsetMillimetres": 3.0,
+      "depthMillimetres": 0.3,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the metatarsophalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 proximal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the proximal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 distal interphalangeal plantar crease",
+      "offsetMillimetres": 0.0,
+      "depthMillimetres": 0.22,
+      "widthMillimetres": 0.6,
+      "side": "flexion",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": -1.5,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 0.3,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
+    },
+    {
+      "name": "right toe 5 dorsal wrinkle over the distal interphalangeal joint",
+      "offsetMillimetres": 2.1,
+      "depthMillimetres": 0.12,
+      "widthMillimetres": 0.4,
+      "side": "extension",
+      "reachMillimetres": 7.0
     }
   ],
   "palmLines": [

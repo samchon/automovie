@@ -1,5 +1,5 @@
 {
-  "basis": "mpfb-connected-body-2026-09-27-anatomy-r14",
+  "basis": "mpfb-connected-body-2026-09-27-anatomy-r15",
   "tool": "overlay_maps.py (nails) and veins_map.py (veins) in the body-review tooling",
   "layout": {
     "size": 4096,
@@ -171,6 +171,12 @@
     "pngBytes": {
       "color": 87020,
       "normal": 74932
+    },
+    "cheek": {
+      "r": 0.463,
+      "g": 0.2714,
+      "b": 0.2091,
+      "note": "the cheek albedo the plate colour was drawn for, the review renders' light default; a document's cheek tints the plates by the palm's albedo against it"
     }
   },
   "veins": {
