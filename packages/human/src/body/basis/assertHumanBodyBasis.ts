@@ -258,14 +258,18 @@ export function assertHumanBodyBasis(basis: IAutoMovieHumanBodyBasis): void {
         !png(overlay.color) ||
         (overlay.normal !== undefined && !png(overlay.normal)) ||
         (overlay.kind === "nails" &&
-          !(overlay.roughness >= 0 && overlay.roughness <= 1)) ||
+          (!(overlay.roughness >= 0 && overlay.roughness <= 1) ||
+            (overlay.cheek !== undefined &&
+              !Object.values(overlay.cheek).every(
+                (value) => value > 0 && value <= 1,
+              )))) ||
         !surface.regions.some(
           (region) =>
             region.material === overlay.material && region.uvs !== null,
         )
       )
         throw new Error(
-          "Body surface overlays need at most one nail layer and four layers per material, PNG data URIs over a textured region of their material, a nails roughness in [0,1], and veins over existing vertices of a surface with a declared lean body at a finite positive attenuation: " +
+          "Body surface overlays need at most one nail layer and four layers per material, PNG data URIs over a textured region of their material, a nails roughness in [0,1] and reference cheek in (0,1], and veins over existing vertices of a surface with a declared lean body at a finite positive attenuation: " +
             surface.id,
         );
     }
