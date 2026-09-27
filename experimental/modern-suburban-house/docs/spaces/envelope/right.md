@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 단차의 앞/뒤 끝과 용마루 지점, 두 오른쪽 삼각 벽, 차고 지붕/본채 벽 접촉선 전체를 반증 주소로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 끝의 단차 앞/뒤 끝과 용마루 지점, 두 오른쪽 삼각 벽, 차고 지붕/본채 벽 접촉선 전체 검사 주소가 단차 벽·후레싱 주장마다 반증 위치를 주는지 대조해 성립함을 확인했다.
 @evidence settings/10-house.md#main-mass 본채 오른쪽 끝의 더 낮은 지붕과 우측 박공을 단차 벽과 삼각 벽으로 닫는다.
-@evidenceReview settings/10-house.md#main-mass #edcb5ab 설정 main-mass의 '각 박공은 실제 삼각 벽…으로 닫혀야 한다'를 본문의 낮은 지붕 앞/뒤 아래면에 맞춘 본채 오른쪽 삼각 벽과 분할면 단차 벽에 대조해 오른쪽 박공이 닫힘을 확인했다.
+@evidenceReview settings/10-house.md#main-mass #edcb5ab 설정 main-mass의 실제 삼각 벽과 양쪽 경사 지붕을 요구한 결정을 본문의 낮은 지붕 앞/뒤 아래면에 맞춘 본채 오른쪽 삼각 벽과 분할면 단차 벽에 대조해 오른쪽 박공이 닫힘을 확인했다.
 @evidence settings/10-house.md#garage 차고의 낮은 박공 지붕 오른쪽 삼각 벽을 차고 외벽 두께 안에서 별도로 닫는다.
 @evidenceReview settings/10-house.md#garage #261be15 설정 garage의 낮은 박공 지붕을 본문의 Gfront/Gback 아래면에 맞춘 차고 오른쪽 별도 삼각 벽과 대조해 기존 외벽 두께 안에서 겹친 장식판 없이 닫힘을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 오른쪽 낮은 지붕·우측 박공과 garage의 낮은 박공을 오른쪽 입면에 적용했고 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"를 단차 벽 배정으로 충족해 부모 수정이 없었다.

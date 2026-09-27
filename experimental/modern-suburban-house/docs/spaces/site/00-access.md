@@ -45,7 +45,7 @@
 @evidence principles/design/spaces.md#space-topology 차고 외부문은 기본 닫힘이고 차고 실내 진입은 머드룸이며 관리길 앞뒤 구역과 울타리 문은 외부 node를 늘리지 않는 내부 연결이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 차고 외부문 기본 닫힘, 머드룸 실내 진입, 관리길 앞뒤 구역·울타리 문의 내부 연결을 본문에서 대조해 접속·차단 관계가 외부 node 추가 없이 그래프로 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높은 테라스와 낮은 대기의 지표 접속, 필지·울타리 선은 각 owner와 maps로 넘기고 잔디 통과를 열린 연결로 대신하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 높은 테라스 상면·낮은 아래 대기의 지표 접속과 울타리 선의 필지 폐합을 maps 입력으로 넘기고 '잔디 통과'를 연결로 쓰지 않는 본문을 대조해 공유 경계를 재저작하지 않음을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 높은 테라스와 낮은 아래 대기의 지표 접속, 울타리 선의 필지 포함 여부는 maps 입력으로 남는다. 본문은 잔디를 지날 수 있다는 설명을 열린 연결의 대용으로 삼지 않아 spaces 경로가 maps의 실제 지표·경계 결정을 대신하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 보행면의 단면과 위에서 돌아 내려오는 시야, 문짝 개방과 식재/가구 점유를 포함한 양방향 통행, T자 보행길의 오목한 접점 질문을 추가한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 보행면 단면, 위에서 돌아 내려오는 시야, 문짝 개방·식재/가구 점유 포함 양방향 통행, T자 보행길 오목 접점 질문이 전체 관찰로 넘어가는지 대조해 경로 주장의 반증 주소를 확인했다.
 @evidence settings/10-house.md#porch-entry "외부 보행자는 앞 보도에서 포치와 현관으로 직접 접근한다"를 front-walk → 포치 아래 대기 → 외부 세 단 → 포치 → front-door의 구간 순서로 만든다.
@@ -87,7 +87,7 @@ maps에 넘기는 포장 접속은 기존 전면 두 포트 외에 측면 관리
 @evidence principles/design/spaces.md#space-verification-address 필지 포함 평면, 두 포트의 전체 단면, 차도 양옆과 두 경사 연결로의 접합, 테라스 상면·챌판·아래 대기·지표 단면을 추가한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 필지 포함 평면, 두 포트 전체 단면, 차도 양옆·두 경사 연결로 접합, 테라스 상면·챌판·아래 대기·지표 단면과 storey-datums 허용 오차를 대조해 인계 주장의 반증 경로를 확인했다.
 @evidence settings/00-production.md#coordinate-units 이 집이 공통 좌표에 직접 저작되므로 maps의 site 변환을 항등으로 요구한다.
-@evidenceReview settings/00-production.md#coordinate-units #2e3dcf8 coordinate-units의 원점·축·m 단위를 세계 좌표 행의 '원점·축·단위·높이 datum 일치, site 변환 항등' 조건과 node 행의 +Z 접속 방향에 대조해 공통 좌표가 그대로 소비됨을 확인했다.
+@evidenceReview settings/00-production.md#coordinate-units #2e3dcf8 coordinate-units의 본채 1층 완성 바닥 전면 중앙 원점, 오른손 Y-up·m 단위와 +Z 전면을 입력 표에 적용했다. 세계 좌표 행은 원점·축·단위·높이 datum이 일치하는 변환을 요구하고 이 집의 site 변환을 항등으로 두며, node 행은 전면 두 포트가 +Z로 접속하도록 정한다.
 @evidence settings/10-house.md#site-identity 필지·지표·식재의 저작을 maps에 두고 그 입력이 포장 여유와 gate 대기를 식재 제외 조건으로 받게 한다.
 @evidenceReview settings/10-house.md#site-identity #452f15e site-identity가 maps에 둔 경계·식재 위치·지표 경사를 식재/울타리 행의 포장 여유·gate 앞뒤 대기/회전 제외 조건에 대조해 식재 저작은 maps에 남고 제약만 넘어감을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work coordinate-units의 원점과 +Z 전면, site-identity의 maps 소유 지표를 대조했고 maps가 disabled라 map 부모 결함을 시험할 수 없으며 settings는 인계 조건을 정하기에 충분해 부모 수정이 없었다.

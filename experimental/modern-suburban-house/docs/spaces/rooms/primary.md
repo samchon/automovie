@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 외벽은 main-building-extent, 두 창은 입면 owner, 옷방 문은 wardrobe owner에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 뒤·왼쪽 외벽을 main-building-extent, 두 창을 primary-rear-window·primary-left-window, 옷방 문을 primary-wardrobe-plan 링크로 받는 근거가 본문에 있어 각 경계 주장의 출처가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "상층의 가장 큰 침실로 복도에서 직접 들어간다"를 두 직사각형 합집합과 -X 문설주 경첩·실내 -Z 열림으로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '가장 큰 침실, 복도에서 직접'에 본문이 뒤쪽 본체와 왼쪽 부분 두 직사각형의 합집합, -X 문설주 경첩·실내 -Z 열림이라는 부모에 없는 공간 결정을 더했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 최대 침실과 복도 직접 출입 조건에 본문이 뒤쪽 본체와 왼쪽 부분 두 직사각형의 합집합, -X 문설주 경첩·실내 -Z 열림이라는 부모에 없는 공간 결정을 더했음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 앞쪽 왼편 자녀 침실, 앞쪽 오른편 복도, 오른쪽 샤워 욕실/옷방과 인접하고 어느 욕실로 가는 길도 이 방을 거치지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 앞쪽 왼편 자녀 침실, 앞쪽 오른편 upper-hall-plan 복도, 오른쪽 샤워 욕실/옷방, 뒤·왼쪽 외벽 인접과 '어느 욕실로 갈 때도 이 두 문을 거치지 않는다'로 주침실 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 옷방 문은 wardrobe owner의 별도 개구부, 두 창은 rear·left 입면 owner의 void로 소비하고 이 H2는 hall-primary-door만 소유한다.
@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너, 면적 비교·문/창 binding·옷방 접근을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 왼쪽 부분까지 방 바닥이 이어지는지와 모든 내부 코너, 면적 비교·문/창 binding·침대 양옆 여유·옷방 접근을 L자 합집합과 직접 출입 주장을 반증할 검사로 두고 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#primary-bedroom 가장 큰 침실을 복도에서 직접 들어가게 하고 욕실을 통과하거나 방을 통과해 공용 욕실에 가는 길을 만들지 않는다.
-@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 설정의 '복도에서 직접'과 '욕실을 통과해 방에 들어가거나 방을 통과해 공용 욕실에 갈 수 없다'를 복도 벽의 hall-primary-door와 두 문을 거치지 않는 욕실 경로 서술에 대조했다.
+@evidenceReview settings/10-house.md#primary-bedroom #50cf2e5 설정은 주침실에 복도에서 직접 들어가며 욕실이나 침실을 필수 통과실로 삼지 말라고 한다. 이 H2의 hall-primary-door가 복도 벽에 있고 공용 욕실 길에 이 문과 옷방 문을 요구하지 않으므로 그 연결 조건을 지킨다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work primary-bedroom의 직접 출입·비통과·별도 옷 수납 조건을 대조했고 복도에서 여는 hall-primary-door, 별도 개구부인 옷방 문, 두 직사각형을 합친 upper-storey의 가장 큰 침실로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 primary-bedroom의 가장 큰 침실·직접 출입·별도 옷 수납 조건을 두 직사각형 합집합, 복도 벽 Z = [-6.06, -5.91]의 문, wardrobe owner의 별도 개구부에 대조해 설정 수정 없이 성립함을 확인했다.
 -->

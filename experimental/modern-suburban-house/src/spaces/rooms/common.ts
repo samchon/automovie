@@ -128,7 +128,7 @@ const COMMON: IRoomSpace = {
     })),
     // common-family-reservation.
     { id: "common-family-sofa", kind: "furniture", x: [3.25, 5.35], z: [-7.15, -6.2], y: [FLOOR, FLOOR + 0.9] },
-    { id: "common-family-table", kind: "furniture", x: [3.4, 4.5], z: [-8.35, -7.8], y: [FLOOR, FLOOR + 0.42] },
+    { id: "common-family-table", kind: "furniture", x: [3.4, 4.45], z: [-8.35, -7.8], y: [FLOOR, FLOOR + 0.42] },
     { id: "common-family-rug", kind: "covering", x: [3, 4.55], z: [-8.55, -6.85], y: [FLOOR, FLOOR + 0.008] },
     // common-clear-routes.
     { id: "common-main-route-right", kind: "route", x: [2.1, 3.07], z: [-9.25, -6.2] },
@@ -151,7 +151,7 @@ const COMMON: IRoomSpace = {
  * @evidence spaces/rooms/common.md#common-dining-reservation Six separate seat-use rectangles surround one dining table reserve.
  * @evidenceReview spaces/rooms/common.md#common-dining-reservation #3ca8e68 The table reserve supplies its X/Z edges; two loops place back and front use boxes at X centres 0 and 1 m with 0.325 m half-width, and the end-seat loop extends each X edge 0.75 m with Z centred on the table, giving six separate seats.
  * @evidence spaces/rooms/common.md#common-family-reservation The right-side sofa and table have their own reserved footprints toward the family zone.
- * @evidenceReview spaces/rooms/common.md#common-family-reservation #88e6c6c The family sofa reserves X [3.25, 5.35] to the front inside face, its table X [3.40, 4.50] sits farther toward the rear, and a separate rug reserve X [3.00, 4.55] does not turn the right-side window approach into furniture geometry.
+ * @evidenceReview spaces/rooms/common.md#common-family-reservation #5ef953f The family sofa reserves X [3.25, 5.35] to the front inside face, while the table stops at X 4.45. The remaining 1.05 m to the right interior face exceeds the curtain and baseboard projection by 0.915 m; the rug is a separate covering rather than a raised barrier on that route.
  * @evidence spaces/rooms/common.md#common-clear-routes Four clear route bands cover the right edge, rear, garden-door approach, and kitchen side of the work boxes.
  * @evidenceReview spaces/rooms/common.md#common-clear-routes #139bcdc Four `route` reservations keep the right band beyond the dining end seat, turn along the back from Z -9.25 to -10.33, approach the garden door left of the family curtain, and provide a separate X [-4.85, -0.35] kitchen-side band.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder emits room finishes and its front partition, leaving cabinet/appliance and seating bodies to models.

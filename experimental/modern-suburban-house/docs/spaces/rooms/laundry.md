@@ -77,7 +77,7 @@
 @evidence principles/core/common.md#declared-basis 문 유효폭 목표는 laundry-plan, 작업 구역은 laundry-equipment-use, 한 단의 높이는 문턱 datum에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 문 유효폭 목표는 #laundry-plan, 작업 구역은 #laundry-equipment-use, 0.90 m는 use-profile, 한 단 높이는 ground-threshold-datums 링크에서 받아 각 값의 근거를 지목할 수 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "세탁기 앞 바구니 작업 공간과 차고에서 집으로 들어오는 경로가 겹쳐 막히지 않게"를 앞쪽 작업 구역과 뒤쪽 횡단 띠의 분리로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '바구니 작업 공간과 차고에서 들어오는 경로가 겹쳐 막히지 않게'에 대해 기기 점유 Z = -3.35 m 앞쪽 작업 구역과 Z = [-4.32, -3.42] 뒤쪽 횡단 띠의 분리 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 laundry-mudroom은 세탁기 앞 바구니 작업 공간과 차고에서 집으로 들어오는 경로가 서로 막지 않도록 요구한다. 이 H2는 기기 전면 Z = -3.35 m 쪽 작업 점유와 Z = [-4.32, -3.42] 뒤쪽 횡단 띠를 분리해 그 조건을 치수로 만든다.
 @evidence principles/design/spaces.md#space-topology 머드룸 상부 대기에서 차고 하부 대기로 내려가 garage-use-routes로 이어지는 연결을 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 두 출입문과 양쪽 대기를 잇는 같은 방 안의 띠가 머드룸 상부 대기에서 한 단 내려 차고 하부 대기로, 다시 garage-use-routes로 이어지고 하부 대기를 보관 면적에 넣지 않는 연결을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 두 문을 90° 연 기준에서 문틀·문짝 두께·손잡이 뒤에도 laundry-plan의 문 유효폭 목표와 0.90 m 띠가 남게 하고 두 사용을 다른 색 표시로 대신하지 않는다.

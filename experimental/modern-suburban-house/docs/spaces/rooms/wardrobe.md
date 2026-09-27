@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 옷걸이 앞 깊이 0.95 m는 입력 산술이며 실제 옷·손잡이·문틀 뒤 순폭은 다시 읽는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 옷걸이 앞 0.95 m가 방 깊이 1.50 m에서 수납 0.55 m를 뺀 입력 산술임을 대조했고, 실제 옷·손잡이·문틀 뒤 순폭은 다시 읽는다고 밝혀 측정값으로 오인되지 않음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담"을 upper-storey 소속의 독립 공간과 자기 문으로 확정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage 설정의 '사람이 들어가는 수납실은 다른 방과 같은 전체 관찰을 부담'을 본문이 upper-storey 소속 실제 공간, 자기 문·경계, 얕은 붙박이장 분류 금지로 확정했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 storage는 수납실을 공간으로 저작하면 다른 방처럼 전체 관찰하도록 조건을 둔다. 이 H2는 옷방을 upper-storey의 자기 문과 경계가 있는 실제 공간으로 정하고 얕은 붙박이장 분류를 배제해 그 조건을 적용한다.
 @evidence principles/design/spaces.md#space-topology 옷방은 주침실에서만 들어가고 욕실 쪽에는 문이 없으며 같은 문으로 되돌아온다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 왼쪽 주침실 공유 벽의 단일 문으로만 들어오고, 앞쪽 두 욕실 칸막이에는 문이 없으며, 같은 문으로 되돌아오는 막다른 수납실이라는 연결·차단 관계를 본문에서 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 뒤/오른쪽은 본채 외벽, 후면 창 없음은 rear-openings에서 소비한다.

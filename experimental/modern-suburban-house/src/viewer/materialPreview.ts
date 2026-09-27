@@ -222,9 +222,10 @@ export function houseWallFinishGroups(
 
 /**
  * Project current world-space vertices into the binding's metric repeat grid.
- * Ground uses X/Z; walls use their horizontal tangent/Y; a roof uses its eave
- * tangent and slope distance. Geometry is unchanged and the world origin keeps
- * phase continuous across adjacent emitted solids. The map itself wraps.
+ * Consume docs/spaces/03-surface-owners.md UV ownership: ground uses X/Z;
+ * walls use their horizontal tangent/Y; a roof uses its eave tangent and slope
+ * distance. Roof projection takes precedence even on a shallow roof. Geometry
+ * is unchanged and the world origin keeps phase across split faces.
  */
 export function houseTextureUvs(
   positions: readonly number[],
@@ -238,12 +239,12 @@ export function houseTextureUvs(
     const x = positions[i]!, y = positions[i + 1]!, z = positions[i + 2]!;
     const nx = normals[i]!, ny = normals[i + 1]!, nz = normals[i + 2]!;
     let u: number, v: number;
-    if (texture.projection === "ground" || Math.abs(ny) > 0.9) {
-      u = x;
-      v = z;
-    } else if (texture.projection === "roof") {
+    if (texture.projection === "roof") {
       u = Math.abs(nx) > Math.abs(nz) ? z : x;
       v = y / Math.max(0.2, Math.hypot(nx, nz));
+    } else if (texture.projection === "ground" || Math.abs(ny) > 0.9) {
+      u = x;
+      v = z;
     } else {
       u = Math.abs(nx) > Math.abs(nz) ? z : x;
       v = y;

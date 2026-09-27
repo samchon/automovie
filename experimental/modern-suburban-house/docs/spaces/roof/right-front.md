@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문이 Rfront로 높이·아래면을 정하고 앞 정면 처마·뒤 낮은 용마루·오른쪽 박공 사선·왼쪽 단차 벽 접합까지 지정해 주 지붕보다 낮은 앞 면이 하위 발명 없이 완결됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 앞 절반 영역과 Rfront는 roof/00에서, 왼쪽 접합은 right-roof-closures의 단차 벽에서 받고 차고와의 높이 차이는 garage-front-roof와 비교해 읽는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문 링크(00-junctions의 오른쪽 영역·Rfront, right.md 단차 벽, garage-front.md#garage-front-roof)를 각 진술에 대응시켜 낮은 앞 면의 영역·높이·왼쪽 접합·차고 대비가 모두 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 본채 오른쪽의 낮은 지붕을 차고 지붕과 다른 높이의 앞 실루엣으로 정하고 상층 전면 창 위 벽 높이를 보존하는 위치로 둔다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00이 Rfront 식만 준 데 대해 이 H2가 차고 지붕과 다른 높이로 읽히는 앞 실루엣과 상층 전면 창 위 벽 높이 보존이라는 면 단위 결정을 더함을 대조했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 오른쪽 낮은 지붕의 앞 면과 상층 전면 창을 같은 단면에서 대조해 창 위 외벽 높이를 남긴다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 낮은 본채와 더 낮은 차고 지붕의 높이·영역을 이미 정한다. 이 H2는 Rfront 아래면과 상층 전면 창을 같은 단면에 놓아 창 위의 외벽 높이가 지붕에 잘리지 않도록 보존한다.
 @evidence principles/design/spaces.md#space-topology 앞은 본채 정면 처마, 뒤는 낮은 용마루, 오른쪽은 본채 측면의 박공 사선 모서리, 왼쪽은 주 지붕 단차이며 차고 위에 떠 있는 별도 상자가 아니다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 앞 본채 정면 처마·뒤 낮은 용마루·오른쪽 측면 박공 사선·왼쪽 단차 벽과 '차고 위에 떠 있는 별도 상자나 추가 바닥을 만들지 않는다'를 대조해 낮은 앞 면의 인접 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높이와 아래면은 Rfront를 소비하고 왼쪽 접합은 right-roof-closures의 단차 벽을 소비하므로 이 면은 단차 벽을 만들지 않고 완결 경사면과 아래면을 소유한다.

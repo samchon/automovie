@@ -47,7 +47,7 @@ import type {
  * @evidence spaces/03-surface-owners.md Assigned owners use box solids for their own structural or finish details.
  * @evidenceReview spaces/03-surface-owners.md #9596716 `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The `min` and `max` world corners are both caller arguments; `block` calculates their differences and midpoint without choosing a location or material.
  * @evidence principles/core/source-units.md#source-substantive-completion It rejects nonpositive extents and returns a transformed closed box mesh.
@@ -220,7 +220,7 @@ export const straightWall = (props: {
  * @evidence spaces/08-floor-assembly.md Floor layers are extruded from owner-supplied plan outlines and heights.
  * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f `slab` extrudes a caller's horizontal outline between its bottom and top, allowing the assigned floor or ceiling owner to provide its own vertical layer interval.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The interstorey structural caller supplies its front-reaching stair notch, while room finish callers supply their individual outlines.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 `buildInterstorey` passes a ten-corner ring with a stair recess to `slab`; `roomFloor` and `roomCeiling` pass their room outlines, so this primitive does not turn the stair opening into a closed inner hole.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #6c7c1c9 `buildInterstorey` passes a ten-corner ring with a stair recess to `slab`; `roomFloor` and `roomCeiling` pass their room outlines, so this primitive does not turn the stair opening into a closed inner hole.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The interstorey caller recedes its structural stair edge by the 0.015 m finish reservation before slab extrusion.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #5618479 `buildInterstorey` offsets the stair-opening turns by `OPENING_EDGE`, then passes that receded plan ring to `slab`; the stair owner can finish the exposed edge without this helper choosing the inset.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller owns the polygon, cutouts and layer interval.

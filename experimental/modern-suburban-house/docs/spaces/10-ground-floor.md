@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 완성 바닥 아래 마감/깔개 0.025 m와 지지 바탕 0.15 m, 바탕 아래면을 합계만큼 내린 높이, 마감 종류가 달라도 같은 묶음에서 바탕 높이를 맞추는 문장을 대조해 다음 층이 1층 적층을 정할 일이 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 완성 높이는 ground-storey datum에서 받고 예약값이 구조 용량·재료 성능 검증이 아니며 층간 구조의 적층을 1층에 복사하지 않는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 완성 높이를 01-storeys ground-storey datum에서 받고 0.025·0.15 m가 부재 용량·재료 성능 검증이 아니며 같은 숫자여도 08 층간 적층을 복사하지 않는다는 문장을 대조해 1층 예약의 근거 종류를 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 1층 바닥을 지하실·바닥 밑 통행 공간 없는 연속 지면 지지 방식으로 특정하고 계단 하부 대기를 기존 현관 바닥으로 둔다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings main-mass·stair에 없는 지하실·바닥 밑 통행 공간 없는 연속 지면 지지 방식 선택과, 첫 챌판 앞 하부 대기를 별도 디딤 없는 현관 바닥으로 둔 결정이 본문에 더해졌음을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 앞선 계단·층간 바닥의 챌판 앞 현관 바닥 결정을 이어받고 1층 바닥 전체를 지하실·바닥 밑 통행 공간 없는 연속 지면 지지 방식으로 특정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings main-mass·stair와 02-stair·08-floor-assembly의 챌판 앞 현관 바닥 결정을 함께 대조했다. 이 H2가 더한 것은 지하실·바닥 밑 통행 공간 없이 본채 1층 전체를 잇는 지면 지지 방식이다.
 @evidence principles/design/spaces.md#space-topology 층간 L형 구멍을 1층 바닥에서 빼지 않고 계단 아래 외투장 바닥을 사람의 통과 경로로 추가하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 02-stair L형 구멍을 1층 바닥에서 빼지 않고 계단 아래 외투 수납 바닥을 통과 경로로 추가하지 않으며 새 계단·바닥 밑 공간을 만들지 않는 문장을 대조해 1층의 포함·통행 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority ground.ts가 공통 바탕을 한 번 소유하고 각 방은 자기 안쪽 윤곽과 문턱 전환선을 소비하며 외투장 내부는 entry, 계단에 가려진 바탕은 ground owner다.

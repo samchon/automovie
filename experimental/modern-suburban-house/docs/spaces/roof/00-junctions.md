@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 X = 1.60 m 분할면, 박공 벽 기준 X = [-5.75, -1.80] m와 중심=양 끝 평균, 본채 용마루=전후 외벽 중간, 차고 용마루=차고 전후 외벽 평균이 값·산출 규칙으로 적혀 하위 면이 배치를 새로 정할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 박공 폭은 전면 거실/왼쪽 자녀실 위를 덮고 그 오른쪽 작은 계단 창을 별도 정면 구간에 두기 위한 선택이며 벽 좌표는 외곽 owner에서 받는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 박공 폭 X = [-5.75, -1.80] m가 전면 거실/왼쪽 자녀실을 덮고 작은 계단 창을 오른쪽 별도 정면 구간에 두려는 이 층의 선택으로 적혀 있고, 외벽 좌표는 00-building 두 외곽 링크로 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 "정면 왼쪽의 전방을 향한 큰 박공"과 "본채의 좌우 방향 주 용마루"를 Z 방향 박공 용마루와 X 방향 주/낮은 용마루, 분할면 좌표로 배치한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 main-mass는 전방 박공과 좌우 주 용마루의 존재만 정하므로, 본문이 더한 Z 방향 박공 용마루·X 방향 주/낮은 용마루와 X = 1.60 m 분할면이 부모에 없는 공간 층 결정임을 대조해 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 전방·우측 박공과 좌우 방향 용마루를 받아 본채 주 지붕과 낮은 지붕의 분할면 X = 1.60 m, 전면 박공 폭 X = [-5.75, -1.80] m를 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 main-mass가 박공의 향함과 주 용마루의 좌우 방향을 이미 정한다. 이 H2가 추가하는 공간 결정은 주 지붕과 낮은 지붕 사이 X = 1.60 m 분할면 및 전면 박공 벽의 X = [-5.75, -1.80] m 범위다.
 @evidence principles/design/spaces.md#space-topology 오른쪽 지붕은 본채 안에서 낮아지는 부분으로 독립 동·추가 층·바닥 돌출이 없고 차고는 자기 단층 외곽 위에서 공유 벽 바깥 면 X = 5.75 m에 접합한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 첫 문단의 오른쪽 지붕 '독립 동·추가 층·바닥 돌출' 배제와 셋째 문단 X = 5.75 m 접합을 00-building 공유 벽 X = [5.50, 5.75] m에 대조해 오른쪽·차고 지붕의 포함·인접 관계가 성립함을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 벽 좌표는 00의 외곽에서 받고 포치 지붕은 porch-roof-columns에 남기며 차고 지붕판을 본채 내부로 밀어 넣지 않는다.
@@ -88,7 +88,7 @@
 @evidence settings/10-house.md#main-mass 골짜기에서 빈틈이나 중첩 판을 남기지 않도록 우세 영역만 소유한다.
 @evidenceReview settings/10-house.md#main-mass #edcb5ab 설정의 '골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다'를 본문의 '같은 위치에 두 지붕판을 겹쳐 놓는 방법을 쓰지 않는다'와 박공 용마루 뒤 묻힌 판 제거에 대조해 이행을 확인했다.
 @evidence settings/00-production.md#build-allocation 일반 Boolean이나 메쉬 병합 성능을 전제하지 않고 명시적 면 구성이 공개 엔진 경로에서 표현되지 않으면 한계를 기록해 조정자에게 이관하도록 정한다.
-@evidenceReview settings/00-production.md#build-allocation #eda898f 설정 build-allocation의 '필요한 기능이 없으면 실제 제한을 기록해 조정자에게 올린다'를 본문의 Boolean·메쉬 병합 비전제와 명시적 면 구성 한계 이관 문장에 대조해 일치함을 확인했다.
+@evidenceReview settings/00-production.md#build-allocation #eda898f 설정 build-allocation에서 엔진에 필요한 기능이 없을 때 제한을 기록해 조정자에게 올리도록 한 결정을 본문의 Boolean·메쉬 병합 비전제와 명시적 면 구성 한계 이관 문장에 대조해 일치함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 "골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다"와 박공 9/12·주 지붕 8/12 기울기를 합류 경계에 대조했고 등고 경계 하나로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 main-mass의 합류부 무틈 조건을 박공 9/12와 주 지붕 8/12가 만나는 등고 경계 하나에 대조했고 두 기울기 모두 부모 경사 범위 안에서 한 경계로 닫혀 설정 수정이 필요 없음을 확인했다.
 -->
@@ -96,6 +96,8 @@
 [전면 박공](#roof-mass-allocation)은 주 지붕 앞쪽에 합류한다. 해당 외곽 영역에서 `F(X) > Mfront(Z)`인 부분만 박공 경사면이 드러나고, 나머지는 주 지붕 앞 면이다. 같은 위치에 두 지붕판을 겹쳐 놓는 방법을 쓰지 않는다. 높이가 같은 `Z = -(9/8) × min(X - a, b - X)`가 두 골짜기의 동일 경계다. 박공 용마루는 전면 돌출 끝에서 이 등고 경계의 중심점까지이고 그 뒤는 주 지붕에 묻힌 불필요한 판을 남기지 않는다.
 
 등호를 각 면에서 따로 반올림하지 않고 `src/spaces/roof/junctions.ts`의 같은 선분/꼭짓점을 소비한다. 주 용마루, 전면 박공 용마루, 두 골짜기, 자유 처마와 박공 사선 모서리, 본채 오른쪽 단차, 차고의 벽 접합을 서로 다른 경계 역할로 보존한다. 골짜기 배수 끝을 막는 수평 트림이나 박공 삼각 벽을 가로지르는 가짜 처마를 만들지 않는다.
+
+여덟 경사면 owner는 [외피 면의 UV 인계](../03-surface-owners.md#exterior-surface-handoff)를 각자의 실제 경사에 적용한다. X 방향 용마루와 평행한 면은 U=X, Z 방향 용마루와 평행한 면은 U=Z다. V는 그 경사면의 세계 원점 투영에서 위로 향하는 실제 경사 거리이며 면의 법선 수평 길이가 0이 아닌 한 `Y / sqrt(nx²+nz²)`로 얻는다. 같은 면의 조각과 절단 뒤 잔여 부분은 위상을 공유하고, 골짜기·용마루·벽 접합에서 서로 다른 면의 UV를 이어 붙이지 않는다. 처마는 각 경사면에서 동일 V 등고선이므로 재료의 course가 그 선에 평행해진다.
 
 X = 1.60 m에서는 주 지붕과 낮은 지붕의 높이가 다르므로 억지로 같은 경사면에 잇지 않는다. [오른쪽 입면 owner](../envelope/right.md#right-roof-closures)가 단차 벽을 소유한다. 이는 본채 외곽 안의 접합으로, 자유 처마처럼 주 지붕을 낮은 면 위에 중복 돌출시키지 않는다. 단차에서 주 지붕 아래면까지 닫히는 벽과 낮은 지붕의 벽 접합 후레싱을 구별한다. 옥상 통로나 세 번째 실은 없다.
 

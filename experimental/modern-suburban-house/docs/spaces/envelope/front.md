@@ -17,9 +17,9 @@
 @evidence principles/design/spaces.md#space-verification-address 정면 전체·두 전면 모서리·삼각 벽/처마 아래 단면에서 계단의 작은 창이 박공 골짜기나 포치 접합에 잘리는지를 반증 주소로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 정면 전체·두 전면 모서리·삼각 벽/처마 아래 단면과 모든 실제 개구부를 검사 주소로 두고 계단 창이 박공 골짜기·포치 접합에 잘리면 실패로 적었는지 확인했다.
 @evidence settings/10-house.md#main-mass 정면 왼쪽의 전방을 향한 큰 박공을 실제 삼각 벽으로 전면 벽 두께 안에서 닫고 판 하나로 대체하지 않는다.
-@evidenceReview settings/10-house.md#main-mass #edcb5ab main-mass의 '정면 왼쪽 전방 큰 박공은 실제 삼각 벽'을 본문의 F 아래면까지 오르는 박공 삼각 벽과 기존 외벽 예약 두께 사용에 대조해 판 하나로 대체하지 않음을 확인했다.
+@evidenceReview settings/10-house.md#main-mass #edcb5ab 설정 main-mass는 전방을 향한 큰 왼쪽 박공에 실제 삼각 벽과 경사 지붕·처마 아래면을 요구한다. 이 입면은 F의 아래면까지 삼각 벽을 세우고 기존 외벽 두께를 사용하여 박공을 별도 덧댄 판으로 만들지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 왼쪽 전방 박공·처마 0.35–0.50 m 범위와 house-scale의 "전면 박공의 얕은 돌출만 허용"을 전면 벽 폐합에 적용했고 삼각 벽을 기존 벽 두께 안에서 닫을 수 있어 부모를 고칠 필요가 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 main-mass의 왼쪽 전방 박공과 house-scale 외곽을 본문의 '같은 외곽에서 닫히는' 왼쪽 박공·기존 외벽 예약 두께에 대조해 전면 폐합이 부모 수정 없이 성립함을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 main-mass의 왼쪽 전방 박공과 house-scale 외곽을 본문에서 같은 외곽과 기존 외벽 예약 두께로 닫는 왼쪽 박공에 대조해 전면 폐합이 부모 수정 없이 성립함을 확인했다.
 -->
 
 전면 전체 입면 owner는 `src/spaces/envelope/front.ts`다. [본채 전면](../00-building.md#main-building-extent)의 벽과 [왼쪽 박공](../roof/00-junctions.md#roof-mass-allocation)은 [같은 외곽](../../settings/10-house.md#house-scale)에서 닫힌다. 박공 삼각 벽의 높이는 [F의 아래면](../roof/00-junctions.md#roof-profile-datums)에서 읽고, 나머지 전면은 주/낮은 지붕의 해당 외벽선 아래면까지 이어진다. 정면에 삼각 판을 별도로 겹쳐 박공처럼 보이게 하지 않는다. 정면 벽의 실제 두께는 기존 외벽 예약을 사용한다.
@@ -47,7 +47,7 @@
 @evidence principles/design/spaces.md#space-verification-address 입면과 방 내부 양쪽의 창 위계·밝기를 실제 프레임의 비교 대상으로 남긴다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 전면 창 위계·밝기를 입면/방 내부 양쪽 실제 프레임의 비교 대상으로 남기고 unverified로 표시했는지 확인해 거실·침실·계단 창 위계의 반증 관찰이 있음을 확인했다.
 @evidence settings/10-house.md#openings 전면 거실의 넓은 묶음창, 상층 침실 창들, 계단/복도용의 더 작은 창이라는 위계를 본채 전면 벽의 실제 방 바인딩으로 나눈다.
-@evidenceReview settings/10-house.md#openings #5663f6c openings의 '전면 거실 넓은 묶음창, 상층 침실 창들, 더 작은 계단/복도 창'을 본문의 거실 세 칸·두 침실 두 칸·작은 계단 창 바인딩에 대조해 위계가 방별로 나뉨을 확인했다.
+@evidenceReview settings/10-house.md#openings #5663f6c 설정 openings는 전면 거실의 넓은 묶음창, 상층 침실 창들, 그보다 작은 계단·복도용 창의 위계를 요구한다. 이 입면은 거실 세 칸, 두 침실의 각 두 칸과 작은 계단 창을 해당 방·계단에 바인딩한다.
 @evidence obligations/design/spaces.md#space-envelope-interface 본채 전면 벽의 창을 아래 창 H2마다 거실·상층 두 침실·계단 가운데 자기 방/계단 하나에 바인딩해 외부 창 위계와 방 배치가 서로 다른 집을 묘사하지 않게 한다.
 @evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 본문의 '아래 창들은 각각 자기 방/계단에 바인딩'과 거실·두 침실·계단 창 H2 링크를 대조해 전면 창 위계와 실내 방 배치가 같은 본채 전면 벽을 공유함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work openings의 "창을 배정한 방과 그 창을 품은 외벽이 같아야 한다"와 01의 전면 위계를 전면 방 배치에 대조했고 파우더룸 전면을 창 없이 닫아도 설정 요구와 충돌하지 않았다.
@@ -65,7 +65,7 @@
 @evidence principles/core/common.md#declared-basis 넓은 창 위계는 01에서, 창틀은 공통 창틀 예약에서, 벽 구간은 front-openings에서 받고 living-room 소속은 living-plan 링크로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb living-front-window의 넓은 창 위계(01), 공통 창틀 예약, 전면 벽 구간(front-openings), living-plan 소속 링크를 본문 문장마다 대응시켜 근거가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "01의 넓은 전면 창은 이 거실의 외벽에 실제로 속한다"를 living-room 소속의 좌표·칸 수로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 living의 '넓은 전면 창은 거실 외벽에 속한다'에 대해 본문이 X = [-5.10, -2.30] m 좌표와 세 칸 분할을 더했는지 대조해 설정 재진술을 넘는 spaces 결정을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 living은 넓은 전면 창을 이 거실의 외벽에 실제로 속하게 한다. 이 H2는 X = [-5.10, -2.30] m의 벽 개구부와 수직 세 칸 분할을 정하여 설정에 없는 배치 치수를 더한다.
 @evidence principles/design/spaces.md#space-topology 창을 ground-storey의 living-room 전면 외벽에 속하게 하고 포치 지붕 아래에 놓는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'ground-storey의 living-room에 속한다'와 포치 지붕이 덮는 전면 벽 구간 진술을 대조해 X = [-5.10, -2.30] m 창의 소속과 포치 아래 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 벽 두께와 창틀 깊이는 front-openings·external-opening-interface에서, 창을 덮는 관계와 포치 보 높이는 porch-roof-columns에서 받는다.
@@ -75,7 +75,7 @@
 @evidence settings/10-house.md#living 거실 외벽에 실제로 속하는 넓은 전면 창을 이 개구부 하나로 실현한다.
 @evidenceReview settings/10-house.md#living #a70aad2 living의 거실 외벽 넓은 전면 창 요구를 본문의 living-room 소속 X = [-5.10, -2.30], Y = [0.70, 2.30] m 세 칸 묶음창 하나에 대조해 요구가 이 void로 실현됨을 확인했다.
 @evidence settings/10-house.md#porch-entry 포치가 왼쪽 거실창을 덮는 관계 때문에 위 trim과 포치 보 높이를 함께 검사 대상으로 둔다.
-@evidenceReview settings/10-house.md#porch-entry #a9f9880 porch-entry의 '포치가 왼쪽 거실창을 덮는다'를 본문의 포치 지붕이 덮는 전면 벽 구간과 위 trim·포치 보 높이 근접 진술에 대조해 거실 묶음창이 함께 검사됨을 확인했다.
+@evidenceReview settings/10-house.md#porch-entry #a9f9880 설정 porch-entry는 전면 포치가 왼쪽 거실창과 현관문을 함께 덮고 차고 정면은 가리지 않도록 한다. 이 창은 포치 지붕이 덮는 전면 벽 구간에 있으며 창 위 trim과 보의 높이가 가까워 둘의 접합 검사를 요구한다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 넓은 전면창 소속과 porch-entry의 거실창·현관문을 함께 덮는 포치, 유효 깊이 1.6–2.0 m를 대조했고 창이 포치 아래 전면 벽에 들어가 부모 수정이 필요 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 living의 넓은 전면창 소속과 porch-entry의 거실창 덮개를 본문의 포치 아래 X = [-5.10, -2.30] m 세 칸 창에 대조해 두 설정이 함께 성립하고 부모 수정이 불필요함을 확인했다.
 -->
@@ -141,7 +141,7 @@
 @evidence principles/core/common.md#declared-basis 수직 창 형식은 공통 인계, 위 trim 한계는 낮은 본채 지붕 아래면, 벽 구간은 front-openings에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb bedroom-three-front-window의 수직 창 형식(공통 인계), 위 trim 한계(낮은 본채 지붕 아래면 링크), 벽 구간(front-openings 링크)을 본문에서 찾아 근거가 구별됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation bedroom-three의 자기 외벽 창을 전면에 두고 차고 위 측면 창으로 대신하지 않는 위치 결정을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 bedroom-three의 '자기 외벽 창'에 대해 본문이 X = [2.65, 4.75] m 전면 오른쪽에 두고 차고 위 측면 창으로 대신하지 않는 위치 결정을 더했는지 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-three는 upper-hall에서 닿는 자기 문과 외벽 창을 요구한다. 이 H2는 그 창을 전면 오른쪽 X = [2.65, 4.75] m에 배정하고 차고 위 측면 창으로 대신하지 않아 설정에 없는 위치를 정한다.
 @evidence principles/design/spaces.md#space-topology 창을 upper-storey bedroom-three의 전면 외벽에 바인딩하고 차고 지붕 위 측면 벽으로 옮기지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'upper-storey의 bedroom-three에 속한다'와 차고 위 측면 창 배제를 대조해 X = [2.65, 4.75] m 창이 청회색 침실 전면 외벽에 속하는 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 낮은 본채 지붕 아래면은 roof-profile-datums에서 소비하고 창의 위 trim을 그 아래로 제한하는 결과를 이 H2에 둔다.
@@ -149,7 +149,7 @@
 @evidence principles/design/spaces.md#space-verification-address 침실 안쪽 reveal, 낮은 처마와 창의 단면, 01 정면 위계를 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 침실 안쪽 reveal, 낮은 처마/창 단면, 01 정면 위계를 unverified 관찰로 적었는지 확인해 X = [2.65, 4.75] m 창 배치를 반증할 주소가 있음을 확인했다.
 @evidence settings/10-house.md#bedroom-three 두 번째 자녀 침실의 자기 외벽 창을 전면 오른쪽 두 칸 창으로 실현한다.
-@evidenceReview settings/10-house.md#bedroom-three #ed25b92 bedroom-three의 '자기 외벽 창'을 본문의 upper-storey bedroom-three 소속 X = [2.65, 4.75], Y = [3.91, 5.31] m 두 칸 창에 대조해 전면 오른쪽 방 창으로 실현됨을 확인했다.
+@evidenceReview settings/10-house.md#bedroom-three #ed25b92 설정 bedroom-three는 upper-hall에서 직접 닿는 자기 문과 외벽 창을 요구한다. 이 창은 upper-storey bedroom-three에 속하며 X = [2.65, 4.75], Y = [3.91, 5.31] m의 전면 오른쪽 두 칸으로 정해졌다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work bedroom-three의 자기 외벽 창과 main-mass의 본채 오른쪽 더 낮은 지붕을 대조했고 위 trim을 낮은 지붕 아래면 아래에 둘 수 있어 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 bedroom-three의 자기 외벽 창과 main-mass의 오른쪽 낮은 지붕을 본문의 낮은 본채 지붕 아래면보다 아래 둔 위 trim에 대조해 둘이 함께 성립해 부모 수정이 불필요함을 확인했다.
 -->

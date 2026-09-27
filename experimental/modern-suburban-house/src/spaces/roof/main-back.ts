@@ -23,7 +23,7 @@ import {
  * @evidence spaces/roof/main-back.md This export builds the rear main-roof surface west of the right-roof step.
  * @evidenceReview spaces/roof/main-back.md #83924ab `buildMainBackRoof` returns `roof-main-back`, the high roof's rear plane bounded on the right by `SPLIT_X` before the lower roof begins.
  * @evidence spaces/roof/main-back.md#main-back-roof The rectangle runs from LEFT_EAVE_X to SPLIT_X and BACK_EAVE_Z to MAIN_RIDGE_Z, with mBack setting its rising rear profile.
- * @evidenceReview spaces/roof/main-back.md#main-back-roof #7b226db The `rect` plan spans `LEFT_EAVE_X` to `SPLIT_X` and `BACK_EAVE_Z` to `MAIN_RIDGE_Z`; `mBack(z)` gives the rear face its upward rise toward that ridge.
+ * @evidenceReview spaces/roof/main-back.md#main-back-roof #a43fc34 The `rect` plan spans `LEFT_EAVE_X` to `SPLIT_X` and `BACK_EAVE_Z` to `MAIN_RIDGE_Z`; `mBack(z)` gives the rear face its upward rise toward that ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation The function takes the split and eave positions from junctions and leaves the lower right roof to its own source owner.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Every plan bound comes from `junctions.ts`, and the east edge stops at `SPLIT_X`; `buildRightBackRoof` owns the lower continuation without this builder duplicating it.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab constructs the rear pitched mesh with the shared roof thickness and a stable roof-main-back part id.

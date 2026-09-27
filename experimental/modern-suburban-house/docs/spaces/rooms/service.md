@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 꺾이는 두 지점과 모든 문턱에서 사람/바구니의 양방향 회전, L형 가려진 모서리의 추가 관찰을 반증 주소로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 꺾이는 두 지점과 모든 문턱의 사람/바구니 양방향 회전, L형 가려진 모서리 추가 관찰, 외투장 사용자가 비킨 뒤 남은 순폭 검사를 1.05 m 띠의 반증 주소로 두고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#service-band 서비스 접근 통로에서 각 실로 분기하고 본채 중앙 공용 동선과 이어져 현관으로 돌아갈 수 있게 한다.
-@evidenceReview settings/10-house.md#service-band #d262882 service-band의 '각 실로 분기', '중앙 공용 동선과 이어져 현관으로 돌아감', '차고는 머드룸과 직접'을 본문의 칸막이 세 문, 후면 공용부·X = 2.02 현관 연결, 머드룸 경유 차고 경로와 대조했다.
+@evidenceReview settings/10-house.md#service-band #d262882 설정 service-band는 통로에서 각 실로 분기하고 중앙 공용 동선 및 현관으로 돌아갈 수 있게 하며 차고 출입문을 머드룸에 직접 붙인다. 이 H2의 세 실문, 뒤쪽 공용부 연결, X = 2.02의 현관 연결과 머드룸 경유 차고 경로가 그 그래프를 실내 통로로 실현한다.
 @evidence settings/00-production.md#use-profile 좁은 1.05 m 띠를 trim·걸레받이까지 넣은 순폭 목표로 검사하고 외투장 사용자와 통과자를 동시 통행으로 더하지 않는다.
 @evidenceReview settings/00-production.md#use-profile #6ef5afe use-profile의 0.90 m 통로와 바구니 포함 폭을 1.05 m 오른쪽 띠에 trim·걸레받이 뒤 순폭으로 적용하고, 외투장 사용자와 통과자를 합산하지 않는 교대 상태로 검사한다는 본문을 대조했다.
 @evidence obligations/design/spaces.md#space-access-circulation 폭 1.05 m 띠를 trim·걸레받이 이후의 순폭으로 검사하고 외투장 사용자와 통과자를 동시 통행으로 더하지 않아 현관·공용부·세 서비스실·차고 연결이 이름만의 edge가 되지 않게 한다.

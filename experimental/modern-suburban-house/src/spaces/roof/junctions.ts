@@ -357,7 +357,7 @@ const valleyZ = (x: number): number => MAIN.outer.z[1] - GABLE_TO_MAIN_SLOPE * M
  * @evidence spaces/roof/00-junctions.md GABLE_CORNERS shares one computed valley triangle between the gable and main-front plane builders.
  * @evidenceReview spaces/roof/00-junctions.md #864b6cd GABLE_CORNERS derives one set of valley feet, apex and forward ridge point that front-gable-left, front-gable-right and main-front share at their junction.
  * @evidence spaces/roof/00-junctions.md#roof-shared-edges leftFoot/rightFoot meet the front eave where F equals Mfront; apex joins their valleys on the gable ridge.
- * @evidenceReview spaces/roof/00-junctions.md#roof-shared-edges #349aef6 GABLE_CORNERS solves the F(X)=Mfront(Z) valley at GABLE_EAVE_Z for both feet and calls valleyZ at GABLE.center for the apex; ridgeFront stays at the same X on the gable eave.
+ * @evidenceReview spaces/roof/00-junctions.md#roof-shared-edges #413f7e2 GABLE_CORNERS solves the F(X)=Mfront(Z) valley at GABLE_EAVE_Z for both feet and calls valleyZ at GABLE.center for the apex; ridgeFront stays at the same X on the gable eave.
  * @evidence principles/core/source-units.md#source-scope-preservation The four points describe shared boundaries only; they emit no competing roof mesh.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 GABLE_CORNERS returns four X/Z points for the common boundary and does not create a roof part or another valley mesh.
  * @evidence principles/core/source-units.md#source-substantive-completion The closure computes feet, apex, and ridgeFront once from GABLE and GABLE_EAVE_Z.

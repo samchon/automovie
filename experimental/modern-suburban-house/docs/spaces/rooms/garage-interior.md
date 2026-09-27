@@ -71,7 +71,7 @@
 @evidence principles/core/common.md#declared-basis 경로 끝은 후벽 수납 전면, 차고 오른쪽 안쪽 면, 실내 창호 돌출 한계에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 경로 끝을 #garage-storage-use 수납 전면, attached-garage-extent 오른쪽 안쪽 면, external-opening-interface 실내 창호 돌출 한계 링크에서 받아 수치 없는 끝점에도 근거가 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 문을 닫은 상태에서도 머드룸 차고 쪽 하부 대기를 기점으로 선반·작업대·측면 창·닫힌 전면문 안쪽에 닿는 경로를 배정하고 기둥/수직 레일을 관통하는 경로를 만들지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 garage의 두 문 상태 머드룸 입출입 요구에 대해 차고 쪽 하부 대기를 기점으로 한 세 경로와 기둥/수직 레일을 피해 정면 유효 폭 안으로 도는 출구 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 garage는 닫힌 차고문을 기준 상태로 두고 머드룸 연결을 통해 내부를 관찰하도록 정한다. 이 H2는 닫힌 문과 열린 문의 두 상태를 모두 검사하며, 머드룸 하부 대기에서 선반·작업대·측면 창과 전면문에 이르는 세 띠와 기둥·레일을 피한 정면 유효 폭 안 출구를 추가로 배정한다.
 @evidence principles/design/spaces.md#space-topology 서쪽 세로·가운데 가로 두 경로와 문 앞 대기의 겹침을 연결로 넘기고 새 room이나 숨은 통로를 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 두 경로와 문 앞 대기의 겹침을 연결로 넘기고 새 room·숨은 통로 없이 같은 garage 안에서 선반/서랍 앞 작업이 가로 경로 뒤에 놓이는 인접 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 문 레일 점유는 전면문 owner가 정한 값으로 경로에서 제외한다.

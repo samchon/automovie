@@ -5,7 +5,7 @@
 @evidence principles/core/common.md#scope-preservation 왼쪽 완결 입면 전체와 주 지붕 끝 삼각 벽, 굴뚝·거실·공용부 주방·주침실·올리브 침실의 벽 바인딩을 맡는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 본문이 left.ts의 왼쪽 완결 입면, 주 지붕 끝 삼각 벽, 굴뚝 접면·거실·공용부 주방·주침실·올리브 침실 경계 바인딩을 모두 적었는지 대조해 왼쪽 폐합 범위에 빈 owner가 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 본채 왼쪽 외벽 평면에서 주 지붕 앞/뒤 아래면까지 삼각 벽으로 닫고 처마 돌출까지 벽을 부풀리지 않는 폐합을 정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 '왼쪽 외벽 평면에서 주 지붕 앞/뒤 아래면까지 삼각 벽으로 닫고 처마 돌출까지 벽을 부풀리지 않는다'가 왼쪽 폐합을 확정해 다음 층이 새로 정할 결정이 없음을 확인했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문은 왼쪽 외벽 평면에서 주 지붕 앞·뒤 아래면까지 삼각 벽을 닫는다. 다음 문장은 처마 돌출을 지붕 owner에 남겨 벽을 그 끝까지 부풀리지 않는다. 두 결정으로 왼쪽 벽의 지붕 폐합과 방 폭이 함께 고정된다.
 @evidence principles/core/common.md#declared-basis 왼쪽 외벽 평면은 main-building-extent, 삼각 벽의 주 지붕 앞/뒤 아래면은 roof-profile-datums, 앞뒤 모서리와 굴뚝 몸체 배정은 exterior-boundary-junctions에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문의 main-building-extent(왼쪽 외벽 평면), roof-profile-datums(주 지붕 앞/뒤 아래면), exterior-boundary-junctions(모서리·굴뚝 몸체 배정) 링크를 진술별로 대응시켜 근거가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 주 지붕 앞/뒤 아래면이 만나는 왼쪽 끝을 본채 왼쪽 외벽 평면의 삼각 벽으로 닫고 전면 박공은 왼쪽 모서리에서 같은 지붕군의 교차선을 소비한다는 폐합 방식을 더한다.
@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 왼쪽 전체 입면·두 모서리·삼각 벽과 지붕 아래면 접촉·각 방 창의 실내외 일치를 반증 주소로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 왼쪽 전체 입면과 두 모서리, 삼각 벽과 지붕 아래면의 접촉, 각 방 창의 실내외 일치를 검사 주소로 적고 면·창 census를 unverified로 남겼는지 확인했다.
 @evidence settings/10-house.md#main-mass 본채 왼쪽 외벽을 주 지붕 앞/뒤 아래면까지 오르는 실제 삼각 벽으로 닫고 처마 돌출은 지붕 owner에 남겨 벽을 부풀리지 않는다.
-@evidenceReview settings/10-house.md#main-mass #edcb5ab main-mass의 '각 박공은 실제 삼각 벽·처마 밑면으로 닫힌다'를 본문의 왼쪽 외벽 평면에서 주 지붕 앞/뒤 아래면까지의 삼각 벽과 처마 돌출의 지붕 owner 배정에 대조해 확인했다.
+@evidenceReview settings/10-house.md#main-mass #edcb5ab 설정 main-mass는 각 박공을 실제 삼각 벽과 양쪽 경사 지붕·처마 밑면으로 닫도록 한다. 이 왼쪽 입면은 외벽 평면에서 주 지붕 앞·뒤 아래면까지 삼각 벽을 세우고 처마 돌출은 지붕 owner에 남긴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work main-mass의 좌우 방향 주 용마루·경사 30–38°·처마 0.35–0.50 m를 왼쪽 벽 폐합에 적용했고 삼각 벽이 기존 외벽 두께 안에 들어가 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 main-mass의 좌우 방향 주 용마루와 처마 돌출 범위를 본문의 주 지붕 앞/뒤 아래면 삼각 벽과 벽을 부풀리지 않는 처마 배정에 대조해 기존 외벽 평면 안에서 부모 수정 없이 성립함을 확인했다.
 -->
@@ -73,7 +73,7 @@
 @evidence principles/design/spaces.md#space-verification-address 거실 가구 뒤 접근, 창/굴뚝 단면, 왼쪽 시야의 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 거실 가구 뒤 접근, 창/굴뚝 단면, 왼쪽 시야의 실제 읽힘을 unverified 관찰로 적었는지 확인해 Z = [-5.50, -4.30] m 창 배치를 반증할 주소가 있음을 확인했다.
 @evidence settings/10-house.md#living 왼쪽 외벽의 벽난로/굴뚝 예약보다 뒤에 living-room 창을 두어 같은 벽의 화구와 겹치지 않게 한다.
-@evidenceReview settings/10-house.md#living #a70aad2 living의 '벽난로는 왼쪽 외벽의 굴뚝과 이어진다'를 본문의 living-room 창이 같은 벽 벽난로/굴뚝 예약보다 뒤 Z = [-5.50, -4.30] m에 놓인 배치에 대조해 화구와 겹치지 않음을 확인했다.
+@evidenceReview settings/10-house.md#living #a70aad2 설정 living은 벽난로와 왼쪽 외벽 굴뚝이 단면에서 이어지게 한다. 이 입면의 거실 창은 같은 벽의 벽난로·굴뚝 예약보다 뒤인 Z = [-5.50, -4.30] m에 두어 화구 접면을 침범하지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work living의 벽난로 위치 조건과 openings의 방-외벽 일치 조건을 대조했고 창을 화구 뒤 Z = [-5.50, -4.30] m에 두어 둘 다 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 living의 벽난로 위치와 openings의 방-외벽 일치를 본문의 living-room 소속 Z = [-5.50, -4.30] m 창에 대조해 화구 뒤 배치로 두 조건이 함께 성립하고 부모 수정이 불필요함을 확인했다.
 -->
@@ -113,7 +113,7 @@
 @evidence principles/core/common.md#declared-basis 굴뚝 위치는 거실 설정의 왼쪽 외벽 벽난로, 몸통 주위의 지붕 높이는 Mfront에서 읽고 높이 선택이 연소 규정·구조 안전 주장이 아님을 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문이 굴뚝 위치를 living 설정의 왼쪽 외벽 벽난로, 몸통 주위 지붕 높이를 Mfront(roof-profile-datums)에서 받고 높이가 연소 규정·구조 안전 주장이 아님을 밝히는지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "벽난로는 왼쪽 외벽의 굴뚝과 단면상 이어지는 위치"를 하나의 chimney 접면을 공유하는 몸통과 실내 앞면의 좌표, 지붕 경계 notch로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 living의 '벽난로는 왼쪽 외벽 굴뚝과 단면상 이어진다'에 대해 본문이 몸통·실내 앞면 좌표와 하나의 chimney 접면, 왼쪽 경계 notch를 더했는지 대조해 새 결정을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 living에서 요구한 벽난로와 왼쪽 외벽 굴뚝의 단면 연결에 대해 본문이 몸통·실내 앞면 좌표와 하나의 chimney 접면, 왼쪽 경계 notch를 더했는지 대조해 새 결정을 확인했다.
 @evidence principles/design/spaces.md#space-topology 몸통은 외부, 앞면은 living-room 안에 있고 외벽을 사이에 둔 하나의 접면을 공유하며 주 지붕 왼쪽 경계에 닿는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 외부 몸통 X = [-6.30, -5.50] m와 living-room 안 앞면 X = [-5.50, -4.95] m가 X = -5.50 m에서 하나의 chimney 접면을 공유하고 주 지붕 왼쪽 경계 notch에 닿는 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 실내 완결 면은 living owner, 외부와 구조 기준은 이 왼쪽 입면 owner로 나누고 지붕 윤곽은 main-front-roof에서 소비한다.

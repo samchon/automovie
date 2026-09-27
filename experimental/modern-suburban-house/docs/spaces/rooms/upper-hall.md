@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 FOV로 통로를 넓혀 보이게 하는 대신 계단 끝 회전·다섯 출입문·두 팔 끝 귀환을 반증 검사로 두고, 두 팔의 순폭·가려진 코너 관찰은 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#upper-hall 순폭 1.20 m의 L형 복도 하나를 숨은 우회로 없이 세 침실·두 욕실의 실제 문과 린넨 접면에 직접 닿게 한다.
-@evidenceReview settings/10-house.md#upper-hall #9d73c9d 설정의 '짧은 복도 하나가 세 침실·두 욕실·수납에 직접'과 '숨은 길 금지', '계단 도착 여유'를 다섯 방 문, 린넨 접면 소유, 도착하는 +X 끝을 막지 않는 보호 경계와 대조했다.
+@evidenceReview settings/10-house.md#upper-hall #9d73c9d 설정 upper-hall은 계단 상부참에서 세 침실·두 욕실·수납에 직접 닿는 짧은 복도 하나를 요구하며 우회 통로를 두지 않는다. 이 H2는 다섯 방 문과 린넨 접면을 같은 L형 복도에 배정하고 도착하는 +X 끝을 비워 계단 도착 여유도 지킨다.
 @evidence obligations/design/spaces.md#space-access-circulation 순폭 1.20 m의 두 부분에 계단 끝의 회전, 다섯 출입문, 두 팔 끝에서 되돌아오는 길을 같은 사용 프로필로 배정한다.
 @evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 계단 도착·다섯 출입문·두 팔 끝 귀환이라는 과제를 1.20 m 도착·가로 두 부분에 같은 사용 프로필로 배정하고 문짝이 복도 바닥으로 돌출하지 않게 한 본문을 경로 요건과 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work upper-hall의 직접 접근·짧은 복도 조건을 대조했고 위 계단 끝에서 들어오는 순폭 1.20 m L형 복도에서 다섯 방의 실제 문이 열려 부모 수정이 없었다.
@@ -39,7 +39,7 @@
 @evidence principles/core/common.md#declared-basis 복도 수납의 정체성은 storage 설정, 도착면은 upper-hall-plan에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 린넨장 정체성을 storage 설정 링크, 위치를 #upper-hall-plan 도착면에서 받고 선반·접힌 수건·안쪽 깊이 구현은 후속 fit-out 몫으로 밝혀 각 값의 근거와 미정 부분이 구분됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "계단참에 가까운 복도 수납에는 린넨 선반과 접힌 수건"을 도착면 앞의 깊이 0.60 m 선반장과 회전하지 않는 미닫이로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '계단참에 가까운 복도 수납에 린넨 선반과 접힌 수건'에 본문이 도착면 앞 Z 폭 0.60 m 선반장과 계단 도착 바닥으로 회전하지 않는 미닫이라는 공간 결정을 더했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 계단참 근처 복도 린넨 수납 조건에 본문이 도착면 앞 Z 폭 0.60 m 선반장과 계단 도착 바닥으로 회전하지 않는 미닫이라는 공간 결정을 더했음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 린넨장은 사람이 들어가는 방이 아닌 upper-hall의 접면이며 칸막이 포함 예약을 청회색 침실 바닥에서 뺀다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 린넨장이 사람이 들어가는 방이 아닌 깊이 0.60 m 선반장이고, X = [1.72, 3.22] 예약을 bedroom-three-plan 바닥에서 빼는 포함/제외 관계를 본문에서 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 양 옆/뒤 0.15 m 칸막이까지 포함한 X = [1.72, 3.22]·Z = [-3.26, -2.51] m 예약을 이 H2에서 두어 청회색 침실 바닥에서 빼고 두 미닫이 문짝을 그 경계 예약 안에서 움직이게 한다.

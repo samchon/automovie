@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 본채 안쪽 한계·층 기준·포치 높이는 각각 main-building-extent·storey-datums·ground-threshold-datums에서 받고 단일 계단의 하부 대기 X = [-1.80, -0.65]·Z = [-1.45, -0.25]를 이 방 바닥에 포함한다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본채 안쪽 한계·층 기준·포치 높이를 main-building-extent·storey-datums·ground-threshold-datums 링크에서 받고 하부 대기 X = [-1.80, -0.65]를 stair-reservation 링크로 포함해 근거가 드러남을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "거실과 중앙 단일 꺾임계단에 각각 직접 이어지는 분배 공간"을 계단 아래 구간과 오른쪽 보호벽을 뺀 L형 바닥과 +X 경첩·실내 -Z 열림의 문으로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry의 '거실과 계단에 각각 직접 이어지는 분배 공간'에 대해 계단 아래 구간·오른쪽 보호벽을 뺀 L형과 (-0.50, -1.45) 꺾임점, +X 경첩·-Z 열림 문이라는 공간층 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 entry는 포치에서 거실과 계단으로 각각 직접 이어지는 분배 공간을 요구한다. 이 H2는 계단 아래 구간과 오른쪽 보호벽을 제외한 L형 꼭짓점 (-0.50, -1.45), +X 경첩·-Z 열림의 현관문 예약을 추가한다.
 @evidence principles/design/spaces.md#space-topology front-entry를 ground-storey에 두고 포치→front-door→현관, 현관→거실·계단·서비스가 다른 방을 거치지 않는 연결 그래프를 명시한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-entry/ground-storey 포함과 포치→front-door→현관, 현관→living-plan 출입구·계단 첫 단·오른쪽 service-access-plan이 다른 방을 거치지 않는 연결 그래프가 메시 없이 읽힘을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 계단 아래 구간과 오른쪽 보호벽을 방 바닥에서 제외하고 단일 계단의 하부 대기를 이 방 바닥에 포함하며 거실·서비스 쪽 경계는 living-plan·service-access-plan으로 링크한다.

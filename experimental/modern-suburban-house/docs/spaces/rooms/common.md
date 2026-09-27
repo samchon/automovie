@@ -77,7 +77,7 @@
 @evidence principles/core/common.md#declared-basis 상판 높이는 벽 주방에서 받고 수치는 배관/전기 연결이나 기기 성능의 검증이 아니라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 섬 상판 높이를 #common-kitchen-wall-reservation 링크에서 받고 싱크·식기세척기 예약이 배관/전기 연결이나 작동 성능 검증이 아니라고 밝혀 근거 범위가 드러남을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "섬의 설거지/준비 면과 좌석 면을 구분"을 서쪽 작업면·동쪽 좌석면과 동쪽 끝 0.30 m 무릎 공간으로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '설거지/준비 면과 좌석 면 구분'에 대해 서쪽 -X 작업면·동쪽 +X 좌석면과 수납 몸체를 동쪽 끝에서 0.30 m 물린 무릎 공간이라는 공간층 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정에서 나눈 섬의 작업면과 좌석면에 대해 서쪽 -X 작업면·동쪽 +X 좌석면과 수납 몸체를 동쪽 끝에서 0.30 m 물린 무릎 공간이라는 공간층 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 섬을 공용부 안에 두고 거실에서 들어오는 개구부를 막는 벽이나 섬 끝 기둥을 세우지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 섬을 같은 공용부 X = [-3.65, -2.60]에 두고 거실 쪽 개구부를 막는 벽이나 섬 끝 기둥 없이 서쪽 작업 통로·뒤쪽 회전을 경로 예약과 잇는 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 식기세척기 작업 Z를 벽 주방 오븐 작동 구간과 겹치지 않게 배치하고 좌석 뒤 여유를 주 동선 폭에 더하지 않는다.
@@ -135,13 +135,13 @@
 ## 오른쪽 가족실의 좌석과 창 접근 {#common-family-reservation}
 <!--
 @evidence principles/core/common.md#scope-preservation 가족실 소파·낮은 테이블·러그, 두 창의 하부 접근, 측면 통로, 후속 조명과 소품의 책임을 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 소파 X = [3.25, 5.35], 테이블 X = [3.40, 4.50], 러그 X = [3.00, 4.55] 예약과 두 창 접근·측면 통로·후속 원형 배정이 본문에 각각 있는지 다시 대조했다.
-@evidence principles/core/common.md#substantive-completion 소파 최대 점유 X = [3.25, 5.35] m·Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 X = [3.40, 4.50], Z = [-8.35, -7.80] m·높이 0.42 m, 러그 X = [3.00, 4.55], Z = [-8.55, -6.85] m를 정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소파·테이블·러그의 세 예약과 러그 오른쪽 5.50−4.55 = 0.95 m 잔여 폭을 본문 값으로 다시 대조했다. 모델은 러그의 크기와 두께만 이 범위에서 받는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 소파 X = [3.25, 5.35], 테이블 X = [3.40, 4.45], 러그 X = [3.00, 4.55] 예약과 두 창 접근·측면 통로·후속 원형 배정이 본문에 각각 있다.
+@evidence principles/core/common.md#substantive-completion 소파 최대 점유 X = [3.25, 5.35] m·Z = -7.15 m부터 앞쪽 안쪽 면·높이 0.90 m, 테이블 X = [3.40, 4.45], Z = [-8.35, -7.80] m·높이 0.42 m, 러그 X = [3.00, 4.55], Z = [-8.55, -6.85] m를 정한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 소파·테이블·러그의 세 예약과 러그 오른쪽 5.50−4.55 = 0.95 m 잔여 폭이 본문에 있다. 소파와 테이블 사이를 통로로 세지 않고 각 예약의 실제 점유를 후속 모델이 검증할 수 있게 했다.
 @evidence principles/core/common.md#declared-basis 소파 뒤쪽 면은 기존 팬트리와의 닫힌 경계, 통로 목표는 0.90 m, 창대 돌출은 06에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 소파 뒤쪽 면을 plan H2의 팬트리 닫힌 경계, 0.90 m를 use-profile 연속 통로 목표, 창대/손잡이 돌출을 06-openings.md#external-opening-interface에서 받아 각 값의 근거를 가리킬 수 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실의 소파와 낮은 테이블을 -Z 정원/창 쪽을 향하게 두고 테이블 오른쪽으로 창에 돌아갈 공간을 남기는 배치를 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 우측 가족실 소파·낮은 테이블에 대해 소파를 -Z 정원/창 쪽으로 향하게 하고 테이블 X = 4.50 오른쪽에 창으로 도는 공간을 남기는 배치 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 common-room은 우측 가족실의 소파와 낮은 테이블을 요구한다. 이 H2는 소파의 -Z 방향과 테이블 X = [3.40, 4.45] 배치, 오른쪽 창으로 도는 여유를 정하며 설정에 없는 위치와 방향을 더한다.
 @evidence principles/design/spaces.md#space-topology 가족실을 공용부의 오른쪽 기능 구역으로 두고 별도 벽/문/방 id를 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 가족실을 같은 공용부의 오른쪽 기능 구역으로 두고 별도 벽/문/방 id 없이 소파 왼쪽은 중앙 주 경로에서, 테이블 오른쪽으로 창에 닿는 접근 관계가 메시 없이 읽힘을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 소파 뒤쪽 면을 common-room-plan이 닫아 둔 팬트리 경계에 대고 그 앞에 별도 벽을 세우지 않으며 두 창 void는 입면 owner에서 소비한다.
@@ -149,12 +149,12 @@
 @evidence principles/design/spaces.md#space-verification-address 서비스 진입에서 좌석과 두 창으로의 접근, 앉은 시야, 03의 세 기능과 점유/그림자 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 서비스 진입에서 좌석과 두 창으로의 접근, 앉은 시야, 03 공용부 세 기능과 실제 점유/그림자 읽힘을 가족실 예약의 반증 관찰로 열거하고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#common-room 우측 가족실 좌석에 소파와 낮은 테이블을 두고 주 통과 경로를 그 사이에만 두지 않는다.
-@evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 우측 소파·낮은 테이블과 유일 통로 금지를 두 가구 사이를 앉고 일어나는 자리로만 두고 소파 왼쪽 중앙 경로와 테이블 오른쪽 통로를 따로 둔 배치에 대조해 성립함을 확인했다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정은 가족실에 소파와 낮은 테이블을 두고 주방 작업대나 식탁 사이만 유일한 통로로 삼지 말라고 한다. 이 H2는 소파·테이블 사이를 착석 자리로 정하고 왼쪽 중앙 경로와 테이블 오른쪽 창 접근을 남기며, 주방과 식탁을 우회하는 경로는 #common-clear-routes에 둔다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 우측 가족실·소파와 낮은 테이블, use-profile의 0.90 m 통로를 대조했고 창 쪽 측면 통로가 유지돼 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room 우측 가족실과 use-profile 0.90 m를 테이블 X = 4.50부터 방 안쪽 5.50까지의 창 쪽 통로와 커튼·소품 이후 폭 유지 조건에 적용해 부모 수정이 필요 없음을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room의 우측 가족실과 use-profile의 연속 통로 0.90 m를 이 H2의 테이블 오른쪽 접근에 적용했다. 테이블 끝 X = 4.45에서 실내 면 X = 5.50까지 1.05 m가 남고 커튼 깊이 0.12 m와 걸레받이 0.015 m를 빼도 0.915 m여서 부모 치수를 고칠 이유가 없다.
 -->
 
-가족실은 같은 공용부의 오른쪽이며 [설정](../../settings/10-house.md#common-room)이 요구한 소파와 낮은 테이블을 둔다. 소파의 최대 점유는 X = [3.25, 5.35] m, Z는 -7.15 m에서 [공용부 앞쪽 안쪽 면](#common-room-plan)까지, 높이 0.90 m로 하고 -Z의 정원/창 쪽을 향한다. 뒤쪽 면은 기존 팬트리와의 닫힌 경계에 닿으며 방 앞쪽에 별도 벽을 세우지 않는다. 낮은 테이블은 X = [3.40, 4.50], Z = [-8.35, -7.80] m, 높이 0.42 m의 예약이다. 러그의 공간 예약은 X = [3.00, 4.55], Z = [-8.55, -6.85] m다. 이는 테이블을 덮고 소파 앞끝 Z = -7.15 m보다 뒤로 0.30 m 들어가며, 오른쪽 실내 면 X = 5.50 m까지 0.95 m를 남긴다. 둘 사이 여유는 앉고 일어나는 자리이며 주 통과 경로를 그 사이에만 두지 않는다.
+가족실은 같은 공용부의 오른쪽이며 [설정](../../settings/10-house.md#common-room)이 요구한 소파와 낮은 테이블을 둔다. 소파의 최대 점유는 X = [3.25, 5.35] m, Z는 -7.15 m에서 [공용부 앞쪽 안쪽 면](#common-room-plan)까지, 높이 0.90 m로 하고 -Z의 정원/창 쪽을 향한다. 뒤쪽 면은 기존 팬트리와의 닫힌 경계에 닿으며 방 앞쪽에 별도 벽을 세우지 않는다. 낮은 테이블은 X = [3.40, 4.45], Z = [-8.35, -7.80] m, 높이 0.42 m의 예약이다. 러그의 공간 예약은 X = [3.00, 4.55], Z = [-8.55, -6.85] m다. 이는 테이블을 덮고 소파 앞끝 Z = -7.15 m보다 뒤로 0.30 m 들어가며, 오른쪽 실내 면 X = 5.50 m까지 0.95 m를 남긴다. 테이블 오른쪽은 같은 면까지 1.05 m이며, [커튼 깊이](../06-openings.md#selected-window-curtain-strips) 0.12 m와 걸레받이 0.015 m를 제외해도 0.915 m다. 둘 사이 여유는 앉고 일어나는 자리이며 주 통과 경로를 그 사이에만 두지 않는다.
 
 [family-rear-window](../envelope/rear.md#family-rear-window)와 [family-right-window](../envelope/right.md#family-right-window)의 하부와 창대 접근을 높은 책장/스크린으로 막지 않는다. 소파 왼쪽은 중앙의 주 경로에서 접근하고 테이블의 오른쪽으로는 창 쪽으로 돌아갈 공간을 남긴다. [창대/손잡이 돌출](../06-openings.md#external-opening-interface)을 포함해 이 측면의 통로 폭을 읽고 커튼·걸레받이·소품 이후에도 [연속 통로 폭 목표](../../settings/00-production.md#use-profile)인 0.90 m를 유지한다. 별도 벽/문/방 id를 만들거나 소파를 식당 의자로 대신하지 않는다.
 
@@ -177,7 +177,7 @@
 @evidence principles/design/spaces.md#space-verification-address 닫힌/열린 기구·의자 사용 점유를 함께 놓은 평면, 섬과 벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입의 왕복 시야를 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌/열린 기구·의자 점유 평면, 섬·벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입 왕복 시야를 반증 관찰로 들고 좌표 산술을 도달성 판정으로 바꾸지 않음을 확인했다.
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
-@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m와 커튼 앞 뒤쪽 띠 Z = [-10.33, -9.25]의 거친 폭 1.08 m에서 걸레받이 돌출 0.015 m를 빼면 순폭 0.955 m·1.05 m로 use-profile 0.90 m 하한을 넘음을 대조했다. 정원문 쪽 짧은 연결은 X 폭 4.15 m 안에서 방향을 바꾸며, 양방향 이동은 실제 관찰 항목으로 남긴다.
+@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m에서 양쪽 0.015 m를 빼면 0.94 m다. 뒤쪽 띠 Z = [-10.33, -9.25]의 거친 폭 1.08 m에서 양쪽 0.015 m를 빼면 1.05 m다. 두 값 모두 use-profile의 연속 통로 0.90 m를 넘고, 정원문 짧은 연결의 방향 전환과 양방향 이동은 실제 관찰에 남긴다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
 @evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.

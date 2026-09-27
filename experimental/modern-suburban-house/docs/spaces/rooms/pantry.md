@@ -21,7 +21,7 @@
 @evidence settings/10-house.md#service-band 팬트리 내부가 다음 실의 필수 통과 경로가 되지 않게 서비스 통로에서 분기한다.
 @evidenceReview settings/10-house.md#service-band #d262882 service-band의 '서비스 접근 통로에서 각 실로 분기'를 팬트리가 서비스 접근 뒤쪽에서 직접 열리고 식품을 가져올 때 세탁실을 통과하지 않는다는 본문과 대조해 분기 구조가 성립함을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work pantry의 "주방 또는 그에 바로 닿는 서비스 접근 통로에서 열리는" 조건과 service-band의 분기를 대조했고 서비스 접근이 공용부로 바로 열려 성립해 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 pantry의 '주방에 바로 닿는 서비스 접근 통로' 조건을 service-access-plan 뒤쪽 실문과 서비스 통로가 공용부로 바로 열리는 본문에 대조해 설정·map 수정 없이 성립함을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 pantry는 주방 또는 주방에 바로 닿는 서비스 접근 통로에서 열리는 별도 실을 허용한다. 이 H2의 문은 서비스 통로 뒤쪽에서 열리고 그 통로가 공용부 주방으로 이어져 부모의 두 허용 경로 중 하나가 성립한다. 설정이나 map의 수정을 요구하지 않는다.
 -->
 
 `pantry`는 ground-storey, [서비스 접근](service.md#service-access-plan)의 뒤쪽에서 직접 들어가는 방이다. 마감 안쪽 X = [3.22, 5.50], Z = [-6.05, -4.70] m다. 앞쪽은 세탁실 칸막이, 뒤쪽은 [공용부](common.md#common-room-plan) 경계, 오른쪽은 [차고 공유 벽](../00-building.md#attached-garage-extent)이다. [서비스 띠 설정](../../settings/10-house.md#service-band)에 따라 다른 실로 통과하는 문은 없다. 서비스 통로가 바로 공용부로 열리므로 식품을 가져오기 위해 세탁실을 통과하지 않는다.

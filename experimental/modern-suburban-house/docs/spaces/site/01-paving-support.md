@@ -19,10 +19,12 @@
 @evidence settings/10-house.md#site-identity 차고 진입 콘크리트 차도와 현관 보행길이 두께 있는 포장으로 읽히도록 바탕을 예약한다.
 @evidenceReview settings/10-house.md#site-identity #452f15e site-identity의 차고 진입 콘크리트 차도·현관 보행길을 본문의 driveway 0.15 m·front-walk 0.12 m 바탕 예약에 대조해 두 포장이 두께 있는 몸체로 받쳐지고 자동차·주차 구역은 없음을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 콘크리트 차도·보행길과 "측량/토목 인증이 아니다"를 대조했고 두께를 점유 예약으로 둘 수 있어 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 site-identity의 콘크리트 차도·보행길과 비인증 단서를 0.12/0.15 m 점유 예약과 '배합·철근·지지력 검증값이 아니다'라는 본문에 대조해 설정 수정 없이 두께를 정할 수 있음을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 site-identity가 요구한 콘크리트 차도·보행길에 이 H2는 보행면 0.12 m와 차도 0.15 m의 공간 점유를 배정한다. 본문은 이 두께로 배합·철근·줄눈·지지력·차량 하중을 검증했다고 주장하지 않아 설정의 비인증 경계를 고칠 필요가 없다.
 -->
 
 [house-site/ground-storey의 외부 접근](00-access.md#site-local-routes) 중 현관 보행길·측면 관리길·정원 아래 대기의 상면은 각각 [front-walk](front-walk.md#front-walk-plan), [side-walk](side-walk.md#side-walk-plan), [garden-lower-landing](terrace.md#garden-lower-landing-plan)이 소유한다. 이 세 보행면의 바탕 두께는 상면에서 Y 방향으로 0.12 m, [driveway](driveway.md#driveway-plan)는 0.15 m를 예약한다. [대지와 식재](../../settings/10-house.md#site-identity)의 차고 진입 콘크리트 차도와 현관 보행길은 이 두께 예약을 받는다. 이는 마감까지 포함한 공간 점유 선택이며 콘크리트 배합·철근·줄눈·지지력·차량 하중을 검증한 값이 아니다. 자동차나 별도 주차 구역을 추가하지 않는다.
+
+포치·현관 보행길·차도·관리길·테라스와 정원 아래 대기의 보이는 수평 포장면은 세계 X/Z 원점에서 U=X, V=Z를 쓴다. 각 포장 owner가 여러 판으로 분할해도 같은 상면의 위상은 이어지고, 실제 판 이음·문턱·연석·외곽에서 면을 자른다. 경사 접속면은 동일 X/Z 투영을 유지하며 수직 챌면은 자기 수평 접선 U와 Y의 V로 분리한다. 포장 아래 바탕과 지표는 보이는 상면의 UV 이음으로 간주하지 않는다.
 
 각 바탕의 아래면은 원래 상면 높이식에서 자기 두께를 수직으로 뺀다. 경사면에 수직한 재료 두께와 혼동하지 않는다. 차도 양쪽 연결로는 위치 X와 Z를 함께 소비하는 원래 보간식을 위아래에 적용한다. 모서리 네 점만으로 임의 평면을 만들어 중간 높이를 바꾸지 않는다. T자 보행길과 관리길 세 띠의 합집합 내부에는 중복 바탕이나 가짜 옆면을 생성하지 않는다. 바탕과 마감은 기존 완결 포장 owner가 함께 소유하며 같은 상면에 두 번째 불투명 판을 덧씌우지 않는다.
 

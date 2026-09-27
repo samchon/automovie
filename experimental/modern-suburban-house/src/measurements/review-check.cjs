@@ -29,9 +29,24 @@ function taskPlan(probes, npmCli) {
       [path.join(probes, "docs-review-host.mjs"), root, "docs/models"],
     ],
     [
+      "docs-spaces-review-host",
+      process.execPath,
+      [path.join(probes, "docs-review-host.mjs"), root, "docs/spaces"],
+    ],
+    [
+      "docs-spaces-review-quotes",
+      process.execPath,
+      [path.join(root, "src/measurements/docs-spaces-review-quotes.cjs"), probes],
+    ],
+    [
       "doc-review-numbers",
       process.execPath,
       [path.join(probes, "doc-review-numbers.mjs"), root],
+    ],
+    [
+      "docs-spaces-review-numbers",
+      process.execPath,
+      [path.join(probes, "doc-review-numbers.mjs"), root, "docs/spaces"],
     ],
     [
       "doc-anchor-graph",

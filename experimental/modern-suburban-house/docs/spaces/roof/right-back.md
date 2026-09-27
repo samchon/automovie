@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Rback 적용 범위(낮은 용마루~뒤 자유 처마)와 아래면을 공유할 뒤 처마·단차 후방 끝·오른쪽 삼각 벽 상단이 본문에 모두 정해져 하위가 낮은 뒤 면 윤곽을 새로 정할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 뒤 절반 영역과 Rback은 roof/00에서, 왼쪽 단차는 right-roof-closures에서 받고 아래 욕실과 옷방은 지붕 때문에 낮추거나 새 외벽선으로 바꾸지 않는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 오른쪽 영역·Rback은 00-junctions 링크, 왼쪽 단차와 삼각 벽 상단은 right.md#right-roof-closures 링크에 근거하고 욕실·옷방 보존은 이 면의 선택으로 적혀 있음을 대조해 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 낮은 오른쪽 지붕의 뒤쪽을 그 아래 욕실과 옷방의 천장과 외벽선을 바꾸지 않는 경사면으로 확정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00이 Rback 식만 정한 데 대해 이 H2가 그 아래 욕실·옷방을 낮추거나 새 외벽선으로 바꾸지 않는 뒤 경사면이라는 결정을 더함을 대조했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 오른쪽 뒤 경사면 아래면과 오른쪽 입면이 닫는 삼각 벽 상단을 동일 경계에 맞추고 단차 후방 끝을 검사한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 Rback과 본채 외곽·두 층 천장 보존을 이미 정한다. 이 H2는 뒤 처마에서 오른쪽 삼각 벽 상단과 경사면 아래면을 동일 경계에 맞추고 단차의 후방 끝을 단면 검사에 넣는다.
 @evidence principles/design/spaces.md#space-topology 앞은 낮은 용마루, 뒤는 자유 처마, 왼쪽은 주 지붕과의 단차, 오른쪽은 본채 박공 사선 모서리이며 아래에 욕실과 옷방이 그대로 있다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 앞 낮은 용마루·뒤 자유 처마·왼쪽 주 지붕 단차·오른쪽 본채 박공 사선과 아래 욕실·옷방 유지를 대조해 낮은 뒤 면의 인접·포함 관계가 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높이는 Rback에서 받고 오른쪽 삼각 벽 상단은 right-roof-closures가 이 면 아래면에 맞춰 닫는 같은 경계라서 삼각 벽 owner가 별도 높이를 만들지 않는다.

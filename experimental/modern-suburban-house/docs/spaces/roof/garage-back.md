@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문이 Gback을 차고 영역 뒤 절반에 적용해 앞 차고 용마루~뒤 후벽 자유 처마를 한 면으로 닫고 후면 별도 작은 동 확장을 배제해 하위가 뒤 면 범위를 새로 정할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이는 roof-profile-datums, 본채 벽과의 접촉선은 right-roof-closures에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 차고 뒤 면의 영역·Gback·본채 벽 접촉선이 roof-mass-allocation·roof-profile-datums·right.md#right-roof-closures 링크에, 두 창 위치가 각 창 H2에 근거함을 대조해 출처를 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 차고 지붕 뒤 면의 끝을 차고 후벽 위 자유 처마로 정해 부속 지붕이 후면 별동으로 늘어나지 않게 한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00이 차고 영역과 Gback만 정한 데 대해 이 H2가 뒤 면 끝을 차고 후벽 위 자유 처마로 확정하고 본채 창과의 겹침 검사를 더한 것이 부모에 없는 면 단위 결정임을 대조했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 차고 지붕 뒤 면의 돌출과 본채 오른쪽 외벽의 공용부·상층 욕실 창이 겹치는지를 창 H2의 위치와 지붕 접촉선으로 검사한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 Gback과 차고 후벽의 자유 돌출을 이미 정한다. 이 H2는 차고 뒤 면을 받은 뒤 family-right-window와 tub-right-window의 위치를 오른쪽 입면 지붕 접촉선과 함께 읽어 돌출과 창의 겹침을 검사하는 책임을 추가한다.
 @evidence principles/design/spaces.md#space-topology 앞은 차고 용마루, 뒤는 차고 후벽 위 자유 처마, 오른쪽은 박공 사선 모서리, 왼쪽은 본채 벽 접합이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 첫 문단 끝의 경계 목록을 00의 차고 X 방향 용마루·공유 벽 바깥 접합에 대조해 roof.garage.back이 용마루·후벽 처마·오른쪽 사선·본채 벽 네 이웃으로 빠짐없이 둘러싸임을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높이는 Gback에서 받고 창 위치는 family-right-window와 tub-right-window에서 받아 오른쪽 입면의 지붕 접촉선과 함께 읽으며 이 면이 창 좌표를 정하지 않는다.

@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 순내부 3.55 × 4.31 m를 한 자녀의 침대·책상·옷장과 별도 보행길을 넣기 위한 선택으로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 순내부 3.55 × 4.31 m가 X·Z 구간 차와 일치하고 침대·책상·옷장·별도 보행길을 위한 저작 선택으로 밝혀지며 앞·왼쪽·오른쪽 변이 외벽·계단실 링크를 근거로 가짐을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "복도에서 직접 들어가며 자기 외벽 창"을 +X 문설주 경첩·방 안 +Z 열림의 문과 전면 창 소비로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-two의 '복도에서 직접·자기 외벽 창'에 대해 뒤쪽 공유 벽 X = [-3.10, -2.10] 문의 +X 경첩·+Z 열림과 bedroom-two-front-window void 소비라는 공간층 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 bedroom-two가 요구한 복도 직접 진입과 자기 외벽 창에 대해 이 방은 뒤쪽 공유 벽 X = [-3.10, -2.10] 문의 +X 경첩·+Z 열림을 정하고 bedroom-two-front-window의 void를 소비한다. 설정에는 없는 문 위치와 열림 방향을 추가한 공간 결정이다.
 @evidence principles/design/spaces.md#space-topology 앞·왼쪽 외벽, 오른쪽 계단실, 뒤쪽 복도/주침실과 인접하고 다른 침실이나 욕실을 지나지 않고 들어온다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 앞·왼쪽 외벽, 오른쪽 계단실, 뒤쪽 Z = [-4.71, -4.56] 복도/주침실 경계 인접과 upper-hall-plan에서 자기 문으로 바로 드는 연결을 대조해 다른 침실·욕실을 거치지 않는 place graph를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 계단실 왼쪽 경계와 전면 창 void를 원래 owner에서 소비하고 복도의 계단 보호 경계에 문짝을 세우지 않는다.

@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문이 Mback을 주 지붕 뒤 절반 전체에 적용하고 전면 박공 관통·가려진 판을 배제해, 00의 박공 후보 영역이 본채 용마루 Z에서 끝나는 것과 맞게 뒤 면을 교차 없는 한 면으로 확정함을 확인했다.
 @evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이 함수는 roof-profile-datums, 후면 방 천장과의 관계는 storey-datums에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 주 지붕 뒤 면의 영역·Mback·후면 방 천장이 roof-mass-allocation·roof-profile-datums·01-storeys#storey-datums 링크에, 오른쪽 단차가 right-roof-closures에 근거함을 대조해 출처를 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 주 용마루 뒤쪽을 전면 교차가 없는 하나의 후방 경사면으로 확정하고 후면 gutter가 용마루처럼 올라가지 않게 경계별 역할을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00이 Mback 식만 준 데 대해 이 H2가 뒤 면을 전면 교차 없는 한 경사면으로 확정하고 후면 gutter·주 용마루·오른쪽 단차의 경계별 역할을 정한 면 단위 결정을 더함을 대조했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 후면 gutter를 뒤 자유 처마에 한정하고 오른쪽 단차에서 끝내어 단차 벽이나 주 용마루로 이어 붙이지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 Mback, 전면 박공의 뒤쪽 불연장과 각 경계의 별도 역할을 정한다. 이 H2의 후면 경사면은 gutter가 뒤 처마를 따르되 오른쪽 단차를 뚫거나 용마루처럼 올라가지 않는 국소 끝 조건을 더한다.
 @evidence principles/design/spaces.md#space-topology 앞 경계는 주 용마루, 뒤는 본채 후면의 자유 처마, 왼쪽은 측면 사선 모서리, 오른쪽은 낮은 지붕과의 단차이고 후면 방 천장과 이 지붕 사이에 거주 층이 없다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 앞 주 용마루·뒤 후면 자유 처마·왼쪽 측면 사선·오른쪽 단차와 '중간에 추가 거주 층을 넣지 않는다'를 대조해 주 지붕 뒤 면의 인접과 아래 후면 방과의 관계가 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높이는 00-junctions의 Mback과 주 지붕 영역에서 받고 오른쪽 단차는 right 입면의 단차 벽이 닫으므로 이 면이 그 경계를 뚫거나 다시 만들지 않는다.
@@ -24,4 +24,4 @@
 
 `roof.main.back`과 아래면은 `src/spaces/roof/main-back.ts`가 소유한다. [주 지붕 영역](00-junctions.md#roof-mass-allocation)의 뒤 절반에서 [Mback](00-junctions.md#roof-profile-datums)을 사용한다. 앞 경계는 주 용마루, 뒤는 본채 후면의 자유 처마, 왼쪽은 측면 사선 모서리, 오른쪽은 낮은 지붕과의 단차다. 전면 박공을 이 면까지 관통시키거나 아래에 가려진 판으로 남기지 않는다.
 
-후면 방 천장과 지붕 아래면은 [층 기준](../01-storeys.md#storey-datums)을 공유하고 중간에 추가 거주 층을 넣지 않는다. 후면 gutter가 용마루처럼 올라가거나 오른쪽 단차를 뚫지 않도록 경계별 역할을 유지하며, 그 단차는 [오른쪽 입면의 단차 벽](../envelope/right.md#right-roof-closures)이 닫으므로 이 면이 다시 만들지 않는다. 검사 주소는 후면 전체 입면, 용마루/뒤 처마 단면, 오른쪽 단차의 후방 끝과 아래면이다. 실제 형상·부재·노출 면 관찰은 unverified다.
+후면 방 천장과 지붕 아래면은 [층 기준](../01-storeys.md#storey-datums)을 공유하고 중간에 추가 거주 층을 넣지 않는다. 후면 gutter는 뒤 자유 처마를 따르다가 오른쪽 단차에서 끝나며 주 용마루로 올라가거나 단차를 뚫지 않는다. 그 단차는 [오른쪽 입면의 단차 벽](../envelope/right.md#right-roof-closures)이 닫으므로 이 면이 다시 만들지 않는다. 검사 주소는 후면 전체 입면, 용마루/뒤 처마 단면, 오른쪽 단차의 후방 끝과 아래면이다. 실제 형상·부재·노출 면 관찰은 unverified다.

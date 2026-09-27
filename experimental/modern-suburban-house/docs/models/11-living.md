@@ -39,21 +39,21 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 거실과 가족실의 낮은 테이블 두 예약을 길이 L·폭 W 매개변수 한 원형으로 받아 두 매개변수 쌍, 상판과 다리, 재질 경계, 관찰, 소스 owner를 이 H2에 모은다.
 @evidence principles/core/common.md#substantive-completion 상판 Y = [0.38, 0.42]의 두께 0.04 m, 모서리에서 0.05 m 안쪽의 0.05 m 각재 다리 넷, 에이프런·하부 선반 없음까지 정해 두 배치를 바로 구성할 수 있다.
-@evidence principles/core/common.md#declared-basis L = 1.30 m·W = 0.50 m와 L = 1.10 m·W = 0.55 m, 상면 0.42 m는 두 예약에서 상속하고, 원점을 바닥 평면 중심에 둔 것은 사방에서 쓰는 테이블이라는 이유를 밝힌 가구 국소 좌표의 예외다.
+@evidence principles/core/common.md#declared-basis L = 1.30 m·W = 0.50 m와 L = 1.05 m·W = 0.55 m, 상면 0.42 m는 두 예약에서 상속하고, 원점을 바닥 평면 중심에 둔 것은 사방에서 쓰는 테이블이라는 이유를 밝힌 가구 국소 좌표의 예외다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 예약은 외곽과 상면 0.42 m만 주고 이 H2는 L·W 매개변수화, 상판 두께 0.04 m, 다리 위치, 에이프런을 두지 않아 소파 앞 발 공간을 상판 아래로 잇는 결정을 더한다.
 @evidence principles/design/models.md#representation-contract 상판 하나와 다리 넷의 부품 구성, 재질 경계 `top`·`leg`, 관절 없음, 에이프런·하부 선반이 없어 상판 아래가 비어 있는 음공간을 정한다. 보이지 않는 한계는 본문의 "나뭇결·모서리 모따기·다리 이음은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 로컬 원점을 바닥 평면 중심에, +X를 긴 방향에 두며 거실 배치는 긴 방향이 world Z, 가족실 배치는 world X이고 두 곳 모두 상면이 0.42 m다.
 @evidence principles/design/models.md#reviewable-structure 두 매개변수 쌍의 외곽이 각 예약과 같은지, 측면에서 상면 0.42 m가 소파 좌면 0.43 m와 거의 같은 높이로 읽히는지를 모델 리뷰 뷰의 고정 뷰로 확인하게 한다.
 @evidence principles/design/models.md#model-observable-style-basis 거실과 가족실에 0.04 m 상판·0.05 m 각재 다리의 낮은 목재 테이블을 같은 원형으로 둔다. 레퍼런스 02의 TV 콘솔은 가족실 두 창의 채광·접근을 가리므로 채택하지 않는다고 본문에 근거를 적고, 목재 외관은 `top`·`leg` 경계만 materials에 넘긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 상면 0.42 m를 소파 좌면 0.43 m와 비교하는 높이 관계, 상판·다리 두 층, 두 재질 경계, 두 관찰이 적혀 있어 매개변수 한 쌍마다 블로킹 표현이 결정된다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 테이블 예약 X = [-3.95, -3.45]·Z = [-3.30, -2.00]과 가족실 테이블 예약 X = [3.40, 4.50]·Z = [-8.35, -7.80], 두 곳의 상면 0.42 m를 적힌 그대로 L·W와 높이로 썼고 부모 값에 고칠 결함이 없었다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 거실 테이블 예약 X = [-3.95, -3.45]·Z = [-3.30, -2.00]과 가족실 테이블 예약 X = [3.40, 4.45]·Z = [-8.35, -7.80], 두 곳의 상면 0.42 m를 적힌 그대로 L·W와 높이로 썼고 부모 값에 고칠 결함이 없었다.
 @evidence settings/10-house.md#living 제목의 '낮은 목재 테이블'은 거실 설정 정체성 항목을 그대로 원형 이름으로 삼은 것이고, 거실 배치 L = 1.30 m·W = 0.50 m로 소파 앞에 둔다.
-@evidence settings/10-house.md#common-room 공용부 설정의 '가족실에는 소파와 낮은 테이블'의 테이블을 같은 원형의 L = 1.10 m·W = 0.55 m 배치로 채운다.
+@evidence settings/10-house.md#common-room 공용부 설정의 '가족실에는 소파와 낮은 테이블'의 테이블을 같은 원형의 L = 1.05 m·W = 0.55 m 배치로 채운다.
 @evidence spaces/rooms/living.md#living-furniture-use 거실 테이블 예약 X = [-3.95, -3.45], Z = [-3.30, -2.00]을 L = 1.30 m, W = 0.50 m, 긴 방향 world Z, 상면 0.42 m로 소비한다.
-@evidence spaces/rooms/common.md#common-family-reservation 가족실 테이블 예약 X = [3.40, 4.50], Z = [-8.35, -7.80]을 L = 1.10 m, W = 0.55 m, 긴 방향 world X, 상면 0.42 m로 소비한다.
+@evidence spaces/rooms/common.md#common-family-reservation 가족실 테이블 예약 X = [3.40, 4.45], Z = [-8.35, -7.80]을 L = 1.05 m, W = 0.55 m, 긴 방향 world X, 상면 0.42 m로 소비한다.
 -->
 
-[거실 설정](../settings/10-house.md#living)의 낮은 목재 테이블과 [공용부 설정](../settings/10-house.md#common-room)의 가족실 낮은 테이블은 길이 L과 폭 W를 매개변수로 받는 한 원형이다. [거실 테이블 예약](../spaces/rooms/living.md#living-furniture-use) X = [-3.95, -3.45], Z = [-3.30, -2.00]은 L = 1.30 m, W = 0.50 m이고 긴 방향이 world Z다. [가족실 테이블 예약](../spaces/rooms/common.md#common-family-reservation) X = [3.40, 4.50], Z = [-8.35, -7.80]은 L = 1.10 m, W = 0.55 m이고 긴 방향이 world X다. 두 곳 모두 상면 0.42 m다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 사방에서 쓰므로 로컬 원점을 바닥 평면 중심에 두고 +X를 긴 방향으로 둔다.
+[거실 설정](../settings/10-house.md#living)의 낮은 목재 테이블과 [공용부 설정](../settings/10-house.md#common-room)의 가족실 낮은 테이블은 길이 L과 폭 W를 매개변수로 받는 한 원형이다. [거실 테이블 예약](../spaces/rooms/living.md#living-furniture-use) X = [-3.95, -3.45], Z = [-3.30, -2.00]은 L = 1.30 m, W = 0.50 m이고 긴 방향이 world Z다. [가족실 테이블 예약](../spaces/rooms/common.md#common-family-reservation) X = [3.40, 4.45], Z = [-8.35, -7.80]은 L = 1.05 m, W = 0.55 m이고 긴 방향이 world X다. 두 곳 모두 상면 0.42 m다. [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)의 예외로 사방에서 쓰므로 로컬 원점을 바닥 평면 중심에 두고 +X를 긴 방향으로 둔다.
 
 부품은 상판과 다리 넷이다. 상판은 Y = [0.38, 0.42]의 0.04 m 두께이고, 다리는 0.05 m 각재로 각 모서리에서 0.05 m 안쪽에 세운다. 에이프런과 하부 선반은 두지 않아 소파 앞 발 공간이 상판 아래로 이어진다. 재질 경계는 `top`, `leg`이고 관절은 없다.
 

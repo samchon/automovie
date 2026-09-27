@@ -24,7 +24,7 @@ const edgeAt = (a: number, b: number, value: number): boolean =>
  * @evidence spaces/site/01-paving-support.md This helper keeps the T-walk and three side-walk bands free of sides inside each union.
  * @evidenceReview spaces/site/01-paving-support.md #beb4a05 pavingFreeEdge classifies the caller's rectangle perimeter while allowing its joined predicate to omit internal sides in both the T-shaped front walk and three-band side walk.
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation The T-walk and three side-walk bands have no vertical side inside their union.
- * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #70f28d6 The paving-depth target forbids side faces inside joined walk bands; pavingFreeEdge returns false where the calling owner's joined predicate identifies such an internal contact.
+ * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #a4d8a4d The paving-depth target forbids side faces inside joined walk bands; pavingFreeEdge returns false where the calling owner's joined predicate identifies such an internal contact.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller's X/Z bounds and joined-edge predicate decide the perimeter; this helper assigns no new paving area.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 pavingFreeEdge receives its rectangle bounds and joined predicate from the walk owner; it chooses side closure without setting a new X/Z footprint or paving grade.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned predicate closes outer slab edges while rejecting cell seams and joined flat-band sides.
@@ -47,7 +47,7 @@ export const pavingFreeEdge = (
  * @evidence spaces/site/01-paving-support.md WALK_DEPTH is the reserved base under the three pedestrian paving surfaces.
  * @evidenceReview spaces/site/01-paving-support.md #beb4a05 WALK_DEPTH supplies the 0.12 m vertical base reservation used by the front walk, side walk and terrace lower landing beneath their walking tops.
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Its 0.12 m depth differs from the driveway base while remaining shared by walk and terrace builders.
- * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #70f28d6 The pedestrian surfaces in the target reserve 0.12 m while the driveway reserves 0.15 m; WALK_DEPTH exports the pedestrian value to those walk and landing builders.
+ * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #a4d8a4d The pedestrian surfaces in the target reserve 0.12 m while the driveway reserves 0.15 m; WALK_DEPTH exports the pedestrian value to those walk and landing builders.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a support depth, not a visible walking level or terrain foundation.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 WALK_DEPTH is applied as a slab thickness or subtracted for the terrace support bottom; it does not replace any walk's top height or specify map ground.
  * @evidence principles/core/source-units.md#source-substantive-completion The numeric value gives each walking slab a definite lower face.
@@ -72,7 +72,7 @@ export const DRIVE_DEPTH = 0.15;
 /** Add the connector's four segment endpoints to a neighbouring slab edge. */
 /**
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation A connector end line and its neighbouring flat walk or sloped driveway edge carry identical split vertices.
- * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #70f28d6 seamRect uses CONNECTOR_CELLS to place the same four subdivisions as blendedRun on a shared Z run; front-walk, side-walk and both driveway sides pass their connector intervals to it.
+ * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #a4d8a4d seamRect uses CONNECTOR_CELLS to place the same four subdivisions as blendedRun on a shared Z run; front-walk, side-walk and both driveway sides pass their connector intervals to it.
  * @evidence spaces/site/01-paving-support.md The shared paving support design transfers connector segmentation to neighbouring slabs.
  * @evidenceReview spaces/site/01-paving-support.md #beb4a05 The paving support target transfers connector end splits to adjacent paving; seamRect inserts those Z stations on the west and east edges supplied by the front walk, driveway and side walk.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper only subdivides caller supplied bounds; it changes neither grade nor paving ownership.

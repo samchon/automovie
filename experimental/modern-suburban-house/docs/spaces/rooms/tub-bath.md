@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 변기나 세면장을 넘지 않고 욕조에 닿는 경로, 창의 접근/프라이버시, 모든 구석과 부재 읽힘을 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 변기나 세면장을 넘지 않는 욕조 경로, 창의 접근/프라이버시, 문/창의 실제 방 binding, 모든 구석과 부재 읽힘을 이 H2 주장을 반증할 관찰로 두고 unverified로 남겼음을 확인했다.
 @evidence settings/10-house.md#tub-bathroom 샤워 욕실과 벽을 사이에 둔 독립 욕실로 두고 한 실의 좌우 구역으로 합치지 않는다.
-@evidenceReview settings/10-house.md#tub-bathroom #2fd6326 설정의 '샤워 욕실과 벽을 사이에 둔 독립 공간, 한 실의 좌우 구역으로 합치지 않는다'를 X = [3.07, 3.22] 공유 벽과 샤워 욕실 쪽 통과문 금지, 복도 쪽 자기 문에 대조했다.
+@evidenceReview settings/10-house.md#tub-bathroom #2fd6326 설정에서 샤워 욕실과 벽을 사이에 둔 별도 실을 요구한 것을 X = [3.07, 3.22] 공유 벽과 샤워 욕실 쪽 통과문 금지, 복도 쪽 자기 문에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work tub-bathroom의 자기 문·독립 실·욕조 접근 조건을 대조했고 복도에 닿는 왼쪽 벽의 hall-tub-door와 샤워 욕실·침실 쪽 통과문 없는 독립 실로 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 tub-bathroom의 자기 문 조건을 hall-tub-door Z = [-5.86, -4.86]가 복도에 닿는 왼쪽 벽 앞 부분에 있는 배치에 대조해 샤워 욕실을 거치지 않고 설정 수정 없이 성립함을 확인했다.
 -->

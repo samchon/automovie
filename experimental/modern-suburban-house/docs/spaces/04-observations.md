@@ -19,9 +19,9 @@
 @evidence contracts/observation-denominator.md#compiled-denominator 외부와 방별 고정 질문을 실제 공간 산출물에서 파생하고 비직사각의 가려진 부분에 질문을 더하며 01–05 질문을 분모에 추가해 대표 view로 줄이지 않는다.
 @evidenceReview contracts/observation-denominator.md#compiled-denominator #b98432e 계약의 외부 setting·노출 입면·모서리·지붕과 하부·개구부/출입구와 방별 threshold·네 안쪽 모서리·중심 네 방위를 첫 문단 목록과 항목별로 대조하고 비직사각 추가와 01–05 가산도 같은 문단에 있음을 확인했다.
 @evidence settings/20-verification.md#observation-allocation spaces가 storey·방·노출 경계·지붕·개구부의 정체성과 연결을 만들고 matching source가 그 산출물에서 질문·pose를 파생한다는 배분을 공간 쪽에서 실현한다.
-@evidenceReview settings/20-verification.md#observation-allocation #3cb63b1 배분의 ‘spaces가 정체성과 연결을, source가 컴파일 산출물에서 질문·pose를 파생’을 첫 문단의 레코드 생성 뒤 동일 산출물 파생 순서와 대조하고 관찰 수를 상수로 두지 않음도 확인했다.
+@evidenceReview settings/20-verification.md#observation-allocation #3cb63b1 observation-allocation은 spaces에 storey·방·노출 경계·지붕·개구부의 정체성과 연결을, matching source에 컴파일 산출물에서 질문·id·pose·binding을 파생할 책임을 준다. 본문은 레코드를 만든 뒤 같은 산출물에서 질문을 파생하며 관찰 수를 미리 고정하지 않는다.
 @evidence settings/20-verification.md#data-authority 선언된 room binding만으로 지지나 통행을 합격 처리하지 않고 고정 view 수를 미리 선언하지 않으며 문·가구·기기 점유 뒤의 순폭을 최종 산출물에서 다시 읽게 한다.
-@evidenceReview settings/20-verification.md#data-authority #5645d45 넷째 문단의 ‘선언된 room binding만으로 지지나 통행을 합격 처리하지 않는다’와 둘째 문단의 점유 뒤 순폭 재판독·경로 검사 unverified를 data-authority의 산출물 판독·계측 부재 규칙과 대조했다.
+@evidenceReview settings/20-verification.md#data-authority #5645d45 넷째 문단에서 선언된 room binding만으로 지지·통행을 합격 처리하지 않는다는 결정과 둘째 문단의 점유 뒤 순폭 재판독·경로 검사 unverified를 data-authority의 산출물 판독·계측 부재 규칙과 대조했다.
 @evidence settings/20-verification.md#frame-condition 방마다 파생하는 threshold·모서리·중심 pose의 카메라 조건을 프레임 조건에서 받고 경계 때문에 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 한다.
 @evidenceReview settings/20-verification.md#frame-condition #779c269 마지막 문단이 눈높이·시야각·near를 프레임 조건에서 소비하고 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 해, frame-condition의 1.6 m·60°·near 0.05 m 초기 선택을 다시 정하지 않음을 확인했다.
 @evidence settings/00-production.md#accessibility 방·경계·대지별 관찰 질문과 자기 공간 내부 pose의 파생 규칙을 글로 남기고 뷰어의 렌더링·실행·포트 조건은 이 공간 문서에서 정하지 않는다.
@@ -33,9 +33,9 @@
 @evidenceExclude settings/20-verification.md#viewer-handoff spaces 47개 문서 어디에도 뷰어의 시작 명령·실행 디렉터리·포트·경로를 정하거나 소비하는 공간 결정이 없다. 이 H2가 넘기는 것은 관찰 질문과 자기 공간 내부 pose의 파생 규칙이며 포트와 기동 조건은 settings의 viewer-handoff가 소유한다.
 @evidenceExcludeReview settings/20-verification.md#viewer-handoff #b2569d3 viewer-handoff의 시작 명령·실행 디렉터리·포트 4173·`--port`·tsx 실행기를 이 H2 본문과 대조해, 마지막 문단이 뷰어의 실행·포트 조건을 settings에 남길 뿐 어떤 값도 쓰지 않음을 확인했다.
 @evidenceExclude settings/20-verification.md#validation-boundary spaces 47개 문서 어디에도 lint나 검증 명령을 입력으로 쓰는 공간 결정이 없다. 이 H2의 unverified 표기는 data-authority의 계측 부재 규칙을 따르며 npm run lint 실행은 저작 turn의 검증 절차이지 경계·경로·관찰의 입력이 아니다.
-@evidenceExcludeReview settings/20-verification.md#validation-boundary #49cff26 validation-boundary의 npm run lint·대체 명령 금지·종료 코드 보고를 이 H2와 대조해, 본문의 unverified 표기가 data-authority 링크에서 오고 검증 명령을 관찰 파생의 입력으로 쓰지 않음을 확인했다.
+@evidenceExcludeReview settings/20-verification.md#validation-boundary #49cff26 validation-boundary의 그대로 실행하는 npm run lint와 별도 npm run check, 두 종료 코드 보고를 이 H2와 대조했다. 본문의 unverified 표기는 data-authority의 계측 부재에서 오며 두 검증 명령을 공간 관찰 파생의 입력으로 쓰지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work observation-allocation의 공간-소스 배분, data-authority의 산출물 판독, frame-condition의 초기 pose 조건을 공간 관찰 파생에 적용했고 settings가 관찰 수를 상수로 정하지 않아 파생 규칙과 충돌하지 않아 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 관찰 배분의 ‘관찰 수를 상수로 정하지 않는다’, data-authority의 산출물 판독, frame-condition의 초기 pose를 이 H2의 파생 규칙에 적용해 settings를 고치지 않고 방별 질문과 pose 기록이 성립함을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 observation-allocation은 topology가 없는 settings 단계에서 관찰 수를 상수로 정하거나 완료로 기록하지 못하게 한다. 이 H2는 실제 레코드에서 방별 질문과 pose를 파생하고 data-authority의 산출물 판독 및 frame-condition의 카메라 조건을 소비하므로 세 부모를 고칠 결함이 드러나지 않았다.
 -->
 
 [관찰 배분](../settings/20-verification.md#observation-allocation)을 받아 [전체 관찰 분모](../contracts/observation-denominator.md#compiled-denominator)를 이 spaces 층에 그대로 적용한다. 현재의 외곽·층 예약으로 고정 view 수를 선언하지 않는다. 실제 공간·boundary·opening·roof 레코드를 만든 뒤 동일 산출물에서 외부 setting, 모든 노출 입면과 만나는 모서리, 지붕과 하부, 모든 개구부·출입구의 질문을 파생한다. 방마다 threshold 하나, 안쪽 모서리 네 곳, 중심의 네 방향을 자기 공간 내부 pose로 생성하고 비직사각형의 가려진 부분은 질문을 더한다. 01–05의 참조 질문은 이 분모에 추가한다.
@@ -101,11 +101,11 @@
 @evidence settings/20-verification.md#lifecycle-boundary 모든 공간의 storey 귀속·도달과 소유된 표면 산출물 없이 1단계 완료를 선언하지 않는다.
 @evidenceReview settings/20-verification.md#lifecycle-boundary #fb801c4 lifecycle-boundary의 1단계 폐쇄 조건인 모든 공간의 storey 소속과 문·계단·복도 도달을, 마지막 문단의 ‘소유된 표면 산출물 없이 1단계 완료를 선언하지 않는다’와 대조했다.
 @evidence settings/20-verification.md#completion-boundary 관찰자 목록을 미수령으로 기록하고 다섯 비교를 unverified로 둔다.
-@evidenceReview settings/20-verification.md#completion-boundary #f549ddc completion-boundary의 관찰자 목록 미수령 기록 규칙을 마지막 문단의 ‘다섯 비교 모두 … unverified이며 관찰자 목록도 미수령’과 대조해 spaces 문서 검토를 1단계 폐쇄와 구별함을 확인했다.
+@evidenceReview settings/20-verification.md#completion-boundary #f549ddc completion-boundary의 관찰자 목록 미수령 기록 규칙을 마지막 문단에서 다섯 참조 비교와 관찰자 목록을 모두 미확인으로 남긴 결정과 대조해 spaces 문서 검토를 1단계 폐쇄와 구별함을 확인했다.
 @evidence settings/20-verification.md#role-boundary 공간 그래프를 바꾸어야만 해소되는 참조 충돌의 결정을 조정자에게 올린다.
 @evidenceReview settings/20-verification.md#role-boundary #5d14dd0 role-boundary의 ‘그래프 변경이 필요한 충돌 결정은 조정자’를, 공간 그래프를 바꾸어야만 풀리는 참조 충돌을 조정자에게 올린다는 마지막 문장과 대조해 배정 표가 그 결정을 하지 않음을 확인했다.
 @evidence settings/20-verification.md#fidelity 공간 설계 문서를 읽은 결과를 부재나 빛의 관찰 결과로 옮기지 않아 topology 검토만으로 시각 요구를 낮추지 않는다.
-@evidenceReview settings/20-verification.md#fidelity #079fa0b fidelity의 ‘topology PASS만으로 요구를 낮추지 않는다’를 ‘공간 설계 문서를 읽은 결과를 그 부재나 빛의 관찰 결과로 옮기지 않는다’와 01 행의 지표·식재 부재 시 남는 질문에 대조했다.
+@evidenceReview settings/20-verification.md#fidelity #079fa0b fidelity의 topology PASS만으로 관찰 요구를 낮출 수 없다는 결정을 공간 설계 문서의 판독을 실제 부재·빛 관찰로 대신하지 않는다는 본문 및 01 행의 지표·식재 부재 시 남는 질문에 대조했다.
 @evidence settings/00-production.md#governing-aim 고정 공간 그래프를 먼저 보존하고 그래프 변경이 필요한 참조 세부는 임의 선택하지 않는다.
 @evidenceReview settings/00-production.md#governing-aim #b17eff5 governing-aim의 고정 공간 그래프 우선과 그래프 변경 세부의 조정자 판단을, 03 행이 계단 뒤 분리벽을 사진처럼 보이게 제거하지 않는다는 비교와 마지막 문단의 지배 목표 링크에 대조했다.
 @evidence settings/00-production.md#operator-access 02의 평면과 절개를 검사 모드에서만 보게 한다.

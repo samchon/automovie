@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 기구 박스는 최종 제품 치수가 아닌 사용 공간을 먼저 남기는 상한이라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 변기·세면대 박스를 기구 형태나 최종 제품 치수가 아닌 사용 공간을 먼저 남기는 상한이라 밝히고 후속 fit-out이 이 예약 안에서 다시 측정한다고 적어 수치의 성격이 구분됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 통로에서 직접 들어가는 작은 화장실을 -Z 문설주 경첩·실내 +X 열림과 변기/세면대의 벽 배치로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 '서비스 통로에서 직접 들어가는 작은 화장실'에 본문이 -Z 문설주 경첩·실내 +X 열림(통로로 회전 안 함)과 오른쪽 벽 변기·전면 벽 세면대 박스라는 공간 결정을 더했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 powder는 1층 서비스 통로에서 직접 들어가는 독립 작은 화장실을 요구한다. 이 H2는 -Z 문설주 경첩과 실내 +X 열림, 오른쪽 벽 변기와 전면 벽 세면대의 점유를 정하여 설정에 없는 문 작동과 기구 위치를 더한다.
 @evidence principles/design/spaces.md#space-topology 파우더룸은 서비스 띠 앞쪽의 독립실이고 차고나 다른 실로 이어지는 문이 없다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 전면 본채 외벽, 뒤 Z = [-2.05, -1.90] 세탁실 칸막이, 서쪽 서비스 칸막이, 오른쪽 차고 접합의 인접과 service-powder-door 단일 연결, 차고·다른 실 문 부재로 장소 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 오른쪽 벽은 차고 접합을 소비하고 차고 전면보다 앞의 짧은 끝만 외부 노출로 두어 오른쪽 전체를 입면으로 중복 저작하지 않는다.

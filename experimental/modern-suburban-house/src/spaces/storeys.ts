@@ -84,7 +84,7 @@ export const GROUND_LAYERS = {
  * @evidence spaces/08-floor-assembly.md This constant is the upper room's visible finish share of the interstorey band.
  * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f `INTERSTOREY_FLOOR_FINISH` supplies the 0.025 m finish selected by `roomFloor` for upper rooms, apart from the structure emitted by `buildInterstorey`.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The 0.025 m value sits above shared structure between ground ceiling and upper finished floor.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 `buildInterstorey` stops the common structure at `STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH`, leaving this 0.025 m band for the upper rooms' finish.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #6c7c1c9 `buildInterstorey` stops the common structure at `STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH`, leaving this 0.025 m band for the upper rooms' finish.
  * @evidence principles/core/source-units.md#source-scope-preservation It describes only upper floor finish and does not thicken the structural band.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The export is one 0.025 m finish depth; `buildInterstorey` uses it as a top boundary while the remaining structure depth is derived from both storey datums and `CEILING_FINISH`.
  * @evidence principles/core/source-units.md#source-substantive-completion A concrete 0.025 m reservation lets upper-room builders form finish slabs.
@@ -104,7 +104,7 @@ export const INTERSTOREY_FLOOR_FINISH = 0.025;
  * @evidence spaces/09-ceiling-assembly.md CEILING_FINISH supplies the visible ceiling skin used by room builders.
  * @evidenceReview spaces/09-ceiling-assembly.md #403d803 `roomCeiling` places each room-owned finish from its finished ceiling datum up by `CEILING_FINISH`, leaving the structural support to its floor or garage owner.
  * @evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure The 0.015 m finish closes below upper ceiling support without lifting its finished datum.
- * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #a3b9afa `CEILING_FINISH` is 0.015 m; `roomCeiling` builds upward from `STOREYS.upperCeiling`, and `buildUpperCeiling` starts its base above that finish.
+ * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #df86e38 `CEILING_FINISH` is 0.015 m; `roomCeiling` builds upward from `STOREYS.upperCeiling`, and `buildUpperCeiling` starts its base above that finish.
  * @evidence principles/core/source-units.md#source-scope-preservation This thickness leaves room footprints, finished ceiling datums and total ceiling reservation unchanged while positioning the base and stair-notch edges.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `CEILING_FINISH` sets base bottoms in `buildInterstorey`, `buildUpperCeiling` and garage ceiling, and supplies `OPENING_EDGE`; `STOREYS` datums and `CEILING_RESERVATION` remain separate values.
  * @evidence principles/core/source-units.md#source-substantive-completion Room ceiling builders consume the numeric thickness to emit actual finish planes.
@@ -119,7 +119,7 @@ export const CEILING_FINISH = 0.015;
  * @evidence spaces/09-ceiling-assembly.md CEILING_RESERVATION is the roofward band above finished ceilings.
  * @evidenceReview spaces/09-ceiling-assembly.md #403d803 `CEILING_RESERVATION` is 0.18 m above the finished ceiling; `buildUpperCeiling` and `buildGarageCeiling` each use it as their support top.
  * @evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure The upper ceiling reserves 0.18 m above its finished datum for finish and support.
- * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #a3b9afa `buildUpperCeiling` ends its base at `STOREYS.upperCeiling + CEILING_RESERVATION`, matching the parent H2's 0.18 m finish-plus-support band.
+ * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #df86e38 `buildUpperCeiling` ends its base at `STOREYS.upperCeiling + CEILING_RESERVATION`, matching the parent H2's 0.18 m finish-plus-support band.
  * @evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure The same depth closes the lower garage ceiling above its finished datum.
  * @evidenceReview spaces/09-ceiling-assembly.md#garage-ceiling-closure #0ce5421 `buildGarageCeiling` uses `STOREYS.garageCeiling + CEILING_RESERVATION` for its top, sharing the depth while retaining the garage's lower finished datum.
  * @evidence principles/core/source-units.md#source-scope-preservation The reservation is ceiling buildup, not a change to roof pitch or storey height.

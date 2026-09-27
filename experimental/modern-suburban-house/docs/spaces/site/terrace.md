@@ -73,7 +73,7 @@
 @evidence settings/10-house.md#site-identity 후면 정원의 테라스 아래에서 정원으로 나가는 대기를 둔다.
 @evidenceReview settings/10-house.md#site-identity #452f15e site-identity의 후면 정원을 garden-lower-landing이 단에서 내려온 점유체가 정원으로 나가고 돌아오는 대기라는 본문에 대조해 테라스 아래 정원 출입 대기가 배정됨을 확인했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work site-identity의 테라스와 maps 소유 지표를 대조했고 대기 높이를 단에서 산출할 수 있어 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 site-identity 테라스와 maps 소유 지표를 '테라스 상면 - 세 단 높이' 산출과 지표 접촉 미완료 문장에 대조해 대기 높이가 설정 수정 없이 단에서 정해짐을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 site-identity는 테라스와 지표를 구별하고 실제 지표는 maps가 정한다. 이 H2는 아래 대기의 높이를 테라스 상면에서 세 단 높이를 뺀 값으로 정하며 양옆 지표 접촉은 미완료로 남겨 부모의 지표 소유를 바꿀 이유가 없다.
 -->
 
 `garden-lower-landing`은 house-site/ground-storey의 외부 대기 구역이다. [외부 단](#garden-steps-plan)의 마지막 챌판부터 -Z 방향으로 깊이 1.20 m, 단과 같은 폭의 평탄 면이며 그 높이는 테라스 상면에서 세 단 높이를 뺀 값이다. 계단에서 내려온 점유체가 정원으로 나가고 돌아와 방향을 잡는 곳이다. 바깥 끝은 [측면 관리길의 뒤쪽 가로 길](side-walk.md#side-walk-plan)이 같은 높이에서 소비한다. 양옆과 주변의 실제 지표 접촉은 maps 입력이 없어 미완료다.

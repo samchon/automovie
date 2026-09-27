@@ -13,7 +13,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * @evidence spaces/03-surface-owners.md Surface families are allocated to their emitting spaces owners.
  * @evidenceReview spaces/03-surface-owners.md #9596716 HousePartRole labels wall, roof, floor, stair and site parts; the owner field remains separate so each family in the surface-owner table can retain its emitting file.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior roles distinguish envelope, roof, porch, site and chimney parts.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c The union provides wall, roof, porch, paving, fence and chimney labels for the separately assigned exterior bodies in the owner table.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 The union provides wall, roof, porch, paving, fence and chimney labels for the separately assigned exterior bodies in the owner table.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Floor and ceiling roles identify room finish parts made by their room owners.
  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f The floor and ceiling variants can label the finishes the interior handoff assigns to each room; partition and stair variants do not transfer structural ownership to a room.
  * @evidence principles/core/source-units.md#source-scope-preservation This role labels an assigned part without claiming its surface for the helper.
@@ -42,7 +42,7 @@ export type HousePartRole =
  * @evidence spaces/03-surface-owners.md Every surface part keeps the identity of its assigned emitting owner.
  * @evidenceReview spaces/03-surface-owners.md #9596716 IHousePart requires an owner alongside each mesh; part() copies its caller's owner, matching the document's allocation of a complete surface to one source file.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior parts preserve one author for each emitted body.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c The record holds one owner string for each emitted exterior body; part() preserves the file supplied by the envelope, roof, porch or site emitter.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 The record holds one owner string for each emitted exterior body; part() preserves the file supplied by the envelope, roof, porch or site emitter.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room parts retain the owner of their floor and ceiling finish.
  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f IHousePart.owner remains attached to roomFloor and roomCeiling parts from rooms/shared.ts, allowing the room named in the interior handoff to remain their finish owner.
  * @evidence principles/core/source-units.md#source-scope-preservation The record carries an owner's geometry without making this helper the surface owner.
@@ -123,7 +123,7 @@ export interface IHousePart {
    * @evidence spaces/10-ground-floor.md Exterior walls at the temporary display bottom retain pending map-ground status.
    * @evidenceReview spaces/10-ground-floor.md #9f27f8e house.ts marks exterior walls whose outline reaches EXTERIOR_WALL_BOTTOM; pendingMapGround records the unresolved support that the ground-floor handoff separates from its display cut.
    * @evidence spaces/site/fence.md#fence-ground-profile Fence parts retain pending map-ground status at their temporary display bottom.
-   * @evidenceReview spaces/site/fence.md#fence-ground-profile #9146a87 house.ts marks every fence part pending; the fence-ground profile reserves its displayed lower edge until maps supplies the actual ground at each centreline point.
+   * @evidenceReview spaces/site/fence.md#fence-ground-profile #8697d24 house.ts marks every fence part pending; the fence-ground profile reserves its displayed lower edge until maps supplies the actual ground at each centreline point.
    * @evidence spaces/10-ground-floor.md#ground-support-handoff The marker distinguishes a temporary wall display bottom from structural support.
    * @evidenceReview spaces/10-ground-floor.md#ground-support-handoff #e70bb49 The marker is a status string, not a height; house.ts applies it to exterior wall parts at the provisional EXTERIOR_WALL_BOTTOM, as the handoff requires.
    * @evidence principles/core/source-units.md#source-scope-preservation This is a review status on an emitted part, never a terrain datum.
@@ -390,7 +390,7 @@ export interface IWallHole {
  * @evidence spaces/03-surface-owners.md Each emitting source keeps its own owner id and surface role.
  * @evidenceReview spaces/03-surface-owners.md #9596716 part() requires the emitting file's owner and copies it with the supplied id and role into one part; the surface-owner table assigns those source files.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior wall parts retain their cut face without assigning a second owner.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c When an elevation caller passes a wall solid, part() retains its cut face with the mesh and preserves that elevation's owner.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 When an elevation caller passes a wall solid, part() retains its cut face with the mesh and preserves that elevation's owner.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish parts keep the room's owner id.
  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f Room floor and ceiling callers pass their own owner to part(), which stores it unchanged beside the finish mesh assigned by the interior handoff.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper preserves caller identity, colour and geometry rather than selecting them.

@@ -43,7 +43,7 @@
 @evidence principles/core/common.md#substantive-completion 포치 Y = 0 m, 앞 보행길 Y = -0.45 m와 0.15 m 세 단·0.30 m 디딤, 포치 유효 깊이 1.80 m, 차고 바닥 Y = -0.15 m·천장 Y = 2.55 m를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 포치 Y = 0 m, 앞 보행길 Y = -0.45 m, 0.15 m 세 단·0.30 m 디딤, 유효 깊이 1.80 m, 차고 Y = -0.15 m·천장 Y = 2.55 m가 수치로 정해져 포치와 차고 owner가 높이를 새로 고를 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 앞 보행길 Y = -0.45 m와 0.15 m 세 단·0.30 m 디딤은 이 H2가 택한 예약이고 경사나 단수를 참조 픽셀에서 역산하지 않으며 외부 보도와의 접촉은 이후 대지 입력과 함께 검토한다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 앞 보행길 높이와 세 단·디딤을 이 H2의 예약으로 적고 ‘경사나 단수를 참조 픽셀에서 역산하지 않으며’ 외부 보도 접촉은 이후 대지 입력과 함께 검토한다고 밝혀 근거와 미해결 입력이 구분됨을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 앞 보행길 높이와 세 단·디딤을 이 H2의 예약으로 적고 경사·단수를 참조 픽셀에서 역산하지 않으며 외부 보도 접촉은 이후 대지 입력과 함께 검토한다고 밝혀 근거와 미해결 입력이 구분됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 포치 설정의 높은 바닥과 실제 단을 0.45 m 세 단으로 정하고 차고를 머드룸보다 한 단 낮은 바닥으로 둔다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry가 0.35–0.55 m 상승과 ‘실제 단’만 요구한 데 비해 이 H2는 0.45 m를 0.15 m 세 단으로 나누고 차고를 머드룸 Y = 0 m보다 한 단 낮은 Y = -0.15 m로 두는 결정을 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 차고와 머드룸의 평면 연결을 같은 높이의 통로로 기록하지 않고 차고 쪽 평탄 대기와 높이 0.15 m의 한 단을 거치는 연결로 정한다.

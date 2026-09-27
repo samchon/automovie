@@ -10,7 +10,7 @@
 @evidence principles/design/materials.md#material-binding-interface 따뜻한 백색 lap siding의 결합 vocabulary는 `siding-face`·`siding-butt`·`siding-back`·`siding-top`·`siding-cut`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 따뜻한 백색 lap siding의 반증 견본은 '[재료 리뷰 견본](00-material-frame.md#material-review-set)의 01 외관 기본 view와 벽 앞 2 m 근접…'이고 00 재료 리뷰 견본의 중성 조명 판이 #EDE8DC 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 따뜻한 백색 lap siding은 settings/20-verification.md#visual-grammar와 이번 모델 수리 뒤의 models/15-outdoor.md#lap-siding-board를 소비한다. 모서리 trim owner 추가는 모델 분기의 수리이며 이 재료 H2가 요구한 부모 결함은 아니다.
-@evidence contracts/texture-readability.md#material-texture-readability `siding-face`의 도장 섬유결을 결정론적 색·거칠기 맵으로 만든다. 판의 국소 +X를 U, +Y를 V로 놓고 아래 모서리를 원점으로 하며 0.15 m 노출 높이마다 결이 반복된다. 판 끝·창 void에서는 끊고 같은 높이의 코너 course는 위상을 맞춘다.
+@evidence contracts/texture-readability.md#material-texture-readability `siding-face`의 도장 섬유결을 결정론적 색·거칠기 맵으로 만든다. spaces 외피 면의 U/V와 이음을 소비하고 0.15 m 노출 높이마다 결을 반복해 같은 높이의 코너 course를 맞춘다.
 @evidence obligations/design/materials.md#material-identity-assembly 공장 도장 섬유시멘트 판과 lap siding 판의 siding-face·siding-butt·siding-back·siding-top·siding-cut 파티션으로 siding의 구성과 단위를 명명했다.
 @evidence settings/20-verification.md#visual-grammar 따뜻한 백색 lap siding이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #EDE8DC 값과 결합 면의 근거로 삼았다.
 @evidence spaces/envelope/front.md#front-openings 따뜻한 백색 lap siding이 '거실·침실·계단의 창과 현관문'(spaces/envelope/front.md#front-openings)를 링크로 소비해 #EDE8DC 값과 결합 면의 근거로 삼았다.
@@ -21,7 +21,7 @@
 
 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 따뜻한 백색 수평 lap siding이다. 구성은 공장 도장한 섬유시멘트 판이며 course의 노출 높이와 겹침 그림자는 [lap siding 판 단면](../models/15-outdoor.md#lap-siding-board)의 판 geometry와 그 반복 instance가 만든다. 외관은 도막 한 층의 색과 광택만 근사하는 `#EDE8DC`(선형 0.847, 0.807, 0.716), roughness 0.55, metallic 0.0, transmission 0.0이다. trim `#F6F4EE`보다 한 단계 따뜻하고 어두워 [흰 trim](#trim-white)과 벽이 같은 흰색으로 합쳐지지 않게 한다. 결합 면은 lap siding 판의 `siding-face`·`siding-butt`·`siding-back`·`siding-top`·`siding-cut`이며, 판이 덮는 host는 [전면](../spaces/envelope/front.md#front-openings)·[후면](../spaces/envelope/rear.md#rear-openings)·[왼쪽](../spaces/envelope/left.md#left-openings)·[오른쪽](../spaces/envelope/right.md#right-openings) 입면 owner의 기단 윗선 위 바깥 벽면, 박공 삼각 벽, 차고 바깥 벽면이다. 창·문 void와 trim 부재 면은 받지 않는다. source owner는 `src/materials/exterior/siding.ts`이고, 리뷰는 [재료 리뷰 견본](00-material-frame.md#material-review-set)의 01 외관 기본 view와 벽 앞 2 m 근접 view에서 siding과 trim의 명도 차가 읽히고 한 입면 안에 색 패치가 없는지를 관찰한다.
 
-표면 결속 계획: `siding-face`의 도장 섬유결을 결정론적 색·거칠기 맵으로 만든다. 판의 국소 +X를 U, +Y를 V로 놓고 아래 모서리를 원점으로 하며 0.15 m 노출 높이마다 결이 반복된다. 판 끝·창 void에서는 끊고 같은 높이의 코너 course는 위상을 맞춘다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: `siding-face`의 도장 섬유결을 결정론적 색·거칠기 맵으로 만든다. [외피 면의 UV와 절단](../spaces/03-surface-owners.md#exterior-surface-handoff)을 소비하여 V의 0.15 m 노출 높이마다 결을 반복하고 같은 높이의 코너 course를 맞춘다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 흰 외부 trim {#trim-white}
 <!--
@@ -52,7 +52,7 @@
 @evidence principles/design/materials.md#material-binding-interface 어두운 asphalt shingle의 결합 vocabulary는 spaces 03 표의 여덟 지붕 경사면 owner(`src/spaces/roof/*.ts`)와 `src/spaces/porch.ts` 포치 지붕의 상면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 어두운 asphalt shingle의 반증 견본은 '높은 roof view에서 경사면마다 같은 색이고 골짜기에서 재료가 끊기지 않는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #3A3C3E 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 어두운 asphalt shingle은 settings/20-verification.md#visual-grammar를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.330 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다.
+@evidence contracts/texture-readability.md#material-texture-readability `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 지붕 owner의 경사면 U/V를 소비해 탭 폭 0.330 m·course 노출 0.14 m에 맞추며 실제 면 절단에서 pattern을 끝낸다.
 @evidence settings/20-verification.md#visual-grammar 어두운 asphalt shingle이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #3A3C3E 값과 결합 면의 근거로 삼았다.
 -->
 
@@ -60,7 +60,7 @@
 
 shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 네 면은 같은 지붕널 재료를 받되 UV 이음은 탭 절단과 줄 끝에서 끊는다.
 
-표면 결속 계획: `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. 각 지붕 면의 처마를 V 원점, 처마 평행선을 U로 놓고 탭 폭 0.330 m·course 노출 0.14 m에 맞춘다. 골짜기·용마루·굴뚝 절단에서 pattern은 실제 잘린 부재와 함께 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: `shingle-face`의 광물 입자 거칠기와 미세 색 차를 결정론적 맵으로 만든다. [경사면 owner의 UV와 절단](../spaces/roof/00-junctions.md#roof-shared-edges)을 소비하여 U의 탭 폭 0.330 m·V의 course 노출 0.14 m에 맞춘다. 처마는 같은 V 등고선이고 pattern은 골짜기·용마루·굴뚝의 실제 잘린 면과 함께 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 붉은갈색 벽돌 {#brick-red-brown}
 <!--
@@ -72,14 +72,14 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 @evidence principles/design/materials.md#material-binding-interface 붉은갈색 벽돌의 결합 대상은 네 입면 owner의 기단 노출 수직 면과 `src/spaces/envelope/left.ts`의 굴뚝·벽난로 벽돌 몸체다. 색과 줄눈 마스크는 기존 면에만 붙인다.
 @evidence principles/design/materials.md#material-verification-address 붉은갈색 벽돌의 반증 견본은 '01 외관에서 기단과 굴뚝이 같은 벽돌로 읽히고 줄눈이 창·문을 침범하지 않는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #8A4A3A 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 붉은갈색 벽돌은 spaces/envelope/left.md#chimney-roof-interface를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 기단·굴뚝·벽난로의 벽돌 면에는 줄눈 포함 0.20 × 0.065 m 모듈과 0.01 m 줄눈의 색·거칠기·normal 맵을 쓴다. 벽 길이 U·높이 V, 외벽 바닥선과 굴뚝 하단을 원점으로 하며 홀수 줄은 U를 0.10 m 옮기고 모서리에서 수평 줄눈 높이를 맞추며 개구부에서 끊는다.
+@evidence contracts/texture-readability.md#material-texture-readability 기단·굴뚝·벽난로의 벽돌 면에는 줄눈 포함 0.20 × 0.065 m 모듈과 0.01 m 줄눈의 색·거칠기·normal 맵을 쓴다. 각 면 owner의 UV와 절단을 소비하고 홀수 줄은 U를 0.10 m 옮겨 외벽 모서리의 수평 줄눈 높이를 맞춘다.
 @evidence obligations/design/materials.md#material-identity-assembly 소성 점토 벽돌 #8A4A3A 값과 시멘트 모르타르 줄눈 #BDB5A8 두 층을 각자의 값으로 명명했다.
 @evidence spaces/envelope/left.md#chimney-roof-interface 붉은갈색 벽돌이 '벽난로에서 지붕까지의 굴뚝'(spaces/envelope/left.md#chimney-roof-interface)를 링크로 소비해 #8A4A3A 값과 결합 면의 근거로 삼았다.
 -->
 
 기단·굴뚝·벽난로의 붉은갈색 벽돌이다. 구성은 소성 점토 벽돌과 시멘트 모르타르 줄눈이다. 벽돌 외관은 `#8A4A3A`(선형 0.254, 0.068, 0.042), roughness 0.85, metallic 0.0, transmission 0.0이고 줄눈 외관은 `#BDB5A8`(선형 0.509, 0.462, 0.392), roughness 0.92다. 줄눈은 기존 벽돌 면의 UV에서 줄눈 포함 0.20 × 0.065 m 모듈 가장자리 폭 0.01 m의 색·거칠기·normal 마스크로 만든다. 짝수 줄은 U=0, 홀수 줄은 U=0.10 m에서 시작하고 0.002 m의 음각 normal 응답만 주며 메시를 변위하지 않는다. 별도 오목 geometry·face id나 instance 제작은 요구하지 않는다. 결합 면은 각 입면 owner의 기단 노출 수직 면, [굴뚝 접면](../spaces/envelope/left.md#chimney-roof-interface)의 굴뚝 몸체, 거실 벽난로 본체다. 굴뚝 cap은 [charcoal 금속](#window-frame-charcoal)이다. source owner는 `src/materials/exterior/brick.ts`이고, 리뷰는 01 외관에서 기단과 굴뚝이 같은 벽돌로 읽히고 줄눈이 창·문을 침범하지 않는지를 관찰한다.
 
-표면 결속 계획: 기단·굴뚝·벽난로의 기존 벽돌 면 UV에 줄눈 포함 0.20 × 0.065 m 모듈과 0.01 m 줄눈의 색·거칠기·normal 맵을 쓴다. 벽 길이 U·높이 V, 외벽 바닥선과 굴뚝 하단을 원점으로 하며 홀수 줄은 U를 0.10 m 옮기고 모서리에서 수평 줄눈 높이를 맞추며 개구부에서 끊는다. `modE(x,m)=x−m floor(x/m)`로 두고 줄 번호 `r=floor(V/0.065)`에 따라 `U′=U+0.10×modE(r,2)`로 정한다. `dU=min(modE(U′,0.20),0.20−modE(U′,0.20))`, `dV=min(modE(V,0.065),0.065−modE(V,0.065))` m 중 하나가 0.005 m 미만이면 경계 양쪽을 합친 폭 0.01 m 줄눈이다. 경계 양쪽 0.005 m에 0.002 m 음각 normal 기울기만 주며 메시를 변위하지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 기단·굴뚝·벽난로의 기존 벽돌 면 UV에 줄눈 포함 0.20 × 0.065 m 모듈과 0.01 m 줄눈의 색·거칠기·normal 맵을 쓴다. 기단과 굴뚝은 [외피 면의 UV와 절단](../spaces/03-surface-owners.md#exterior-surface-handoff)을 소비하고 벽난로의 별도 모델 면은 그 모델의 UV를 소비한다. 홀수 줄은 U를 0.10 m 옮기고 외벽 모서리에서 수평 줄눈 높이를 맞춘다. `modE(x,m)=x−m floor(x/m)`로 두고 줄 번호 `r=floor(V/0.065)`에 따라 `U′=U+0.10×modE(r,2)`로 정한다. `dU=min(modE(U′,0.20),0.20−modE(U′,0.20))`, `dV=min(modE(V,0.065),0.065−modE(V,0.065))` m 중 하나가 0.005 m 미만이면 경계 양쪽을 합친 폭 0.01 m 줄눈이다. 경계 양쪽 0.005 m에 0.002 m 음각 normal 기울기만 주며 메시를 변위하지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## charcoal 창틀·굴뚝 cap·지붕 flashing {#window-frame-charcoal}
 <!--
@@ -184,13 +184,13 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 @evidence principles/design/materials.md#material-binding-interface 포치 바닥의 결합 vocabulary는 spaces 03 표의 `src/spaces/porch.ts` 포치 바닥 상면·챌면·노출 옆면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 포치 바닥의 반증 견본은 '포치 단과 앞 보행길의 경계가 색과 그림자로 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #A8A49C 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 포치 바닥은 spaces/porch.md#porch-platform-access를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 포치 상면의 콘크리트 잔골재와 색 편차는 0.40 m 모듈이다. 세계 X/Z를 U/V로, 포치 바깥 왼쪽 모서리를 원점으로 투영하고 단 코와 기둥 기초에서 부재별로 자른다.
+@evidence contracts/texture-readability.md#material-texture-readability 포치 상면의 콘크리트 잔골재와 색 편차는 0.40 m 모듈이다. 포장 owner의 UV를 소비하고 단 코와 기둥 기초의 실제 면 끝에서 결을 자른다.
 @evidence spaces/porch.md#porch-platform-access 포치 바닥이 '현관문에 맞춘 포치와 세 챌판'(spaces/porch.md#porch-platform-access)를 링크로 소비해 #A8A49C 값과 결합 면의 근거로 삼았다.
 -->
 
 [현관 포치](../spaces/porch.md#porch-platform-access)의 높은 바닥과 단이다. 구성은 도장 콘크리트 상부판이다. 외관은 `#A8A49C`(선형 0.392, 0.371, 0.332), roughness 0.80, metallic 0.0, transmission 0.0으로 [포장 콘크리트](#paving-concrete)보다 조금 어둡게 해 높이 차이가 읽히게 한다. 결합 면은 포치 상면·챌면·노출 옆면이다. source owner는 `src/materials/exterior/paving.ts`이고, 리뷰는 포치 단과 앞 보행길의 경계가 색과 그림자로 구별되는지를 관찰한다.
 
-표면 결속 계획: 포치 상면의 콘크리트 잔골재와 색 편차는 0.40 m 모듈이다. 세계 X/Z를 U/V로, 포치 바깥 왼쪽 모서리를 원점으로 투영하고 단 코와 기둥 기초에서 부재별로 자른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 포치 상면의 콘크리트 잔골재와 색 편차는 0.40 m 모듈이다. [포장면의 UV와 절단](../spaces/site/01-paving-support.md#paving-depth-reservation)을 소비하여 단 코와 기둥 기초의 실제 면 끝에서 결을 자른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 포장 콘크리트 {#paving-concrete}
 <!--
@@ -202,7 +202,7 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 @evidence principles/design/materials.md#material-binding-interface 포장 콘크리트의 결합 vocabulary는 spaces 03 표의 `src/spaces/site/front-walk.ts`·`driveway.ts`·`side-walk.ts`·`terrace.ts` 상면과 노출 옆면이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 포장 콘크리트의 반증 견본은 '오후 key 아래 포장이 흰 벽보다 어둡고 잔디와 구별되는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #B4B0A8 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 포장 콘크리트는 settings/10-house.md#site-identity, spaces/site/01-paving-support.md#paving-depth-reservation를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 차도·보도·테라스의 콘크리트 잔골재는 0.50 m 세계 X/Z 모듈로 같은 위상을 쓴다. 대지 원점을 공유하고 실제 포장 판 이음·문턱·연석에서 결이 잘리며 틈에 색을 칠해 접지를 속이지 않는다.
+@evidence contracts/texture-readability.md#material-texture-readability 차도·보도·테라스의 콘크리트 잔골재는 포장 owner의 UV를 소비하여 0.50 m 모듈로 같은 위상을 쓴다. 실제 포장 판 이음·문턱·연석에서 결이 잘리며 틈에 색을 칠해 접지를 속이지 않는다.
 @evidence settings/10-house.md#site-identity 포장 콘크리트가 '대지와 식재'(settings/10-house.md#site-identity)를 링크로 소비해 #B4B0A8 값과 결합 면의 근거로 삼았다.
 @evidence spaces/site/01-paving-support.md#paving-depth-reservation 포장 콘크리트가 '낮은 포장의 두께와 경사 바탕'(spaces/site/01-paving-support.md#paving-depth-reservation)를 링크로 소비해 #B4B0A8 값과 결합 면의 근거로 삼았다.
 @evidence spaces/site/driveway.md#driveway-plan driveway가 같은 면의 후속 저작으로 넘긴 재료를 포장 콘크리트 #B4B0A8, roughness 0.88로 받고 줄눈은 이 H2가 만들지 않는다고 적었다.
@@ -211,7 +211,7 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 [차고 진입 콘크리트 차도와 현관 보행길](../settings/10-house.md#site-identity)이다. 구성은 빗자루 마감 현장 타설 콘크리트이며 두께는 [포장 바탕](../spaces/site/01-paving-support.md#paving-depth-reservation)이 예약한다. 외관은 빗자루 결을 평균한 `#B4B0A8`(선형 0.456, 0.434, 0.392), roughness 0.88, metallic 0.0, transmission 0.0이다. 결합 면은 front-walk·driveway·side-walk·terrace owner의 상면과 노출 옆면이며 줄눈은 이 H2가 만들지 않는다. source owner는 `src/materials/exterior/paving.ts`이고, 리뷰는 오후 key 아래 포장이 흰 벽보다 어둡고 잔디와 구별되는지를 관찰한다.
 
-표면 결속 계획: 차도·보도·테라스의 콘크리트 잔골재는 0.50 m 세계 X/Z 모듈로 같은 위상을 쓴다. 대지 원점을 공유하고 실제 포장 판 이음·문턱·연석에서 결이 잘리며 틈에 색을 칠해 접지를 속이지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 차도·보도·테라스의 콘크리트 잔골재는 [포장면의 UV와 절단](../spaces/site/01-paving-support.md#paving-depth-reservation)을 소비하여 0.50 m 반복 모듈로 같은 위상을 쓴다. 실제 포장 판 이음·문턱·연석에서 결이 잘리며 틈에 색을 칠해 접지를 속이지 않는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 중간갈색 울타리 목재 {#fence-wood}
 <!--
@@ -223,11 +223,11 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 @evidence principles/design/materials.md#material-binding-interface 중간갈색 울타리 목재의 결합 vocabulary는 spaces 고정 울타리의 노출 목재 면과 models 대문의 `leaf-panel`·`gate-batten`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 중간갈색 울타리 목재의 반증 견본은 '01 외관에서 울타리가 현관문보다 회색빛이 도는 중간갈색으로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #8C6A48 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 중간갈색 울타리 목재는 settings/10-house.md#site-identity, spaces/site/fence.md#fence-enclosure-plan를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 울타리 보드의 세로 목리는 보드 폭 0.14 m, 세로 반복 0.80 m를 따른다. 각 보드의 바닥 안쪽 모서리를 원점으로 U 폭·V 높이로 투영하고 보드 사이와 문짝 경첩선에서 끊는다.
+@evidence contracts/texture-readability.md#material-texture-readability 울타리 보드의 세로 목리는 보드 폭 0.14 m, 세로 반복 0.80 m를 따른다. 고정 패널은 spaces 울타리 UV를, 문짝은 모델 UV를 소비하고 실제 보드 사이와 경첩선에서 결을 끝낸다.
 @evidence settings/10-house.md#site-identity 중간갈색 울타리 목재가 '대지와 식재'(settings/10-house.md#site-identity)를 링크로 소비해 #8C6A48 값과 결합 면의 근거로 삼았다.
 @evidence spaces/site/fence.md#fence-enclosure-plan 중간갈색 울타리 목재가 '건물 두 끝에 닿는 울타리 선'(spaces/site/fence.md#fence-enclosure-plan)를 링크로 소비해 #8C6A48 값과 결합 면의 근거로 삼았다.
 -->
 
 [우측 목재 울타리](../settings/10-house.md#site-identity)다. 구성은 착색한 방부 목재 판이다. 외관은 `#8C6A48`(선형 0.262, 0.144, 0.065), roughness 0.75, metallic 0.0, transmission 0.0이다. 결합 면은 [울타리 고정 패널·문 개구부·기둥](../spaces/site/fence.md#fence-enclosure-plan)의 노출 목재 면과 [옆마당 목재 대문](../models/02-exterior-doors.md#side-yard-gate)의 `leaf-panel`·`gate-batten`이다. 대문 철물은 검은 금속을 받으며 울타리 spaces source의 면으로 세지 않는다. source owner는 `src/materials/exterior/fence.ts`이고, 리뷰는 01 외관에서 울타리가 현관문보다 회색빛이 도는 중간갈색으로 읽히는지를 관찰한다.
 
-표면 결속 계획: 울타리 보드의 세로 목리는 보드 폭 0.14 m, 세로 반복 0.80 m를 따른다. 각 보드의 바닥 안쪽 모서리를 원점으로 U 폭·V 높이로 투영하고 보드 사이와 문짝 경첩선에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 울타리 보드의 세로 목리는 보드 폭 0.14 m, 세로 반복 0.80 m를 따른다. 고정 판재는 [울타리 owner의 UV와 절단](../spaces/site/fence.md#fence-ground-profile)을 소비하고, 별도 문짝은 모델의 국소 UV를 소비한다. 실제 판재 사이와 문짝 경첩선에서 결이 끝난다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.

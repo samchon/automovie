@@ -18,6 +18,8 @@
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현재 spaces 골격의 part 측정과 후속 model 충전 면의 미구현을 본문에서 구분하며 표의 행 수를 전체 표면 수로 읽지 않는지 다시 확인했다.
 @evidence settings/20-verification.md#surface-allocation 외피·층·지붕과 접합을 실제 source 파일 경계로 나누어 첫 저작에 넘긴다.
 @evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 첫 저작 전 파일 경계가 정해졌음을 확인했다.
+@evidence settings/20-verification.md#visual-grammar 외벽·벽돌·지붕·포치 면의 U/V 축과 세계 원점·절단 이음을 완결 면 owner에 배정하고 재료는 반복 길이와 광학 응답을 정하게 한다.
+@evidenceReview settings/20-verification.md#visual-grammar #5b47467 설정이 면의 UV 좌표를 spaces/models에 맡긴 범위를 본문의 외벽 X/Z 접선·Y 높이, 지붕 처마 축·경사 거리, 세계 원점과 절단 이음에 대조했다. 반복 길이와 광학 응답은 materials에 남긴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 계산 파일과 면 owner의 분리에 대조했고 공유 계산이 면을 소유하지 않아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 surface-allocation의 동일 면 복제·독립 기준 금지를 ‘공유 계산은 경사면을 소유하는 두 번째 geometry가 아니다’와 `boundaries.ts`의 계산 한정에 대조해 settings 문장을 고치지 않고 배정이 성립함을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 입면·지붕 경사면·포치·층 바탕·계단·포장·울타리 패널과 문기둥의 완결 면을 한 spaces source에 배정하고 대문 문짝·철물은 models/02에 넘긴다. building·junctions·openings·site 계산 파일은 표면을 소유하지 않는다.
@@ -25,6 +27,8 @@
 -->
 
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)에 따라 [완결 표면 계약](../contracts/surface-ownership.md#whole-surface-owner)을 source 저작에 적용한다. 아래 표는 spaces의 벽·지붕·바탕 파일 책임을 배정한다. 담당 저작자는 모두 이 production의 단일 저작자다. 완결 면 하나를 통째로 넘기며 같은 면의 부재·반복·마감을 따로 넘기지 않는다. spaces의 골격 source와 part 측정은 존재하지만 후속 model 충전 부재는 아직 source가 없으므로 이 표를 전체 surface id·면 개수·누락/중복 census의 완료 선언으로 읽지 않는다.
+
+[공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 UV 좌표 소유는 완결 면 owner가 받는다. 네 외벽의 노출 수직 면은 세계 원점에서 전후면의 U를 X, 좌우면의 U를 Z, V를 Y로 둔다. 기단과 굴뚝의 수직 벽돌 면도 그 면의 수평 접선과 같은 U, Y의 V를 쓰며 층·모서리에서 수평 줄 높이를 공유한다. 벽 절단면과 실제 판·개구부 끝에서는 면이 끝나고 새 부재는 자기 UV를 시작하되, 한 외벽을 여러 mesh로 나눈 것만으로 위상을 재시작하지 않는다. 지붕 경사면은 각 면의 처마 평행 세계 축을 U, 세계 원점에서 그 면의 경사를 따라 올라간 부호 있는 거리를 V로 둔다. 골짜기·용마루·단차·굴뚝 절단에서 면이 끝나며 접합 반대편의 별도 면은 자기 경사와 축을 받는다. 포치의 수평 지붕 아래면과 구조 상면은 X/Z 평면을 쓰고 실제 모서리·기둥 접합에서 자른다. 반복 길이와 광학 응답은 materials가 이 좌표를 소비해 정한다.
 
 | 완결 면 또는 공유 경계 | 소스 파일 owner | 책임과 접합 |
 | --- | --- | --- |
@@ -59,6 +63,8 @@
 
 일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽은 위 표의 높이별 두 owner를, 계단 구조는 기존 stair owner를 따른다.
 
+각 방의 보이는 안쪽 벽은 전후면 U=X, 좌우면 U=Z, V=Y인 세계 좌표를 소비한다. 바닥과 천장은 U=X, V=Z를 공유하고 세계 X/Z 원점을 유지해 같은 층에서 방 경계를 지나도 위상이 바뀌지 않는다. 벽의 문·창·니치 절단과 바닥의 재료 문턱·계단 구멍, 천장의 실제 구멍·높이 단차에서 각 면은 끝난다. 절단 뒤 같은 평면에 남는 면은 같은 세계 위상을 유지하며, 다른 방향의 벽이나 다른 높이의 천장은 자기 평면을 따로 투영한다. 계단 디딤판은 각 코의 왼쪽에서 U를 폭 방향, V를 진행 방향으로 잡고 코와 참의 실제 이음에서 자른다. spaces가 만드는 난간 손잡이와 난간살은 각 직선 구간의 시작 기둥에서 길이 방향 U를 시작하고 접합에서 자른다. 모델이 만드는 문선·문짝·창틀·독립 손잡이의 국소 UV는 해당 모델 owner에 남긴다.
+
 [외벽 모서리와 지붕 단차 접합](07-boundary-assembly.md#exterior-boundary-junctions)은 앞뒤 입면/공유 벽이 받는 단일 구조 몸체와 각 완결 입면의 마감을 구별한다. [벽 상단의 지붕 접촉](roof/00-junctions.md#roof-wall-head-junctions)은 지붕 교차 계산에서 받아 벽 두께 전체에 적용한다. 공유 계산이나 공통 몸체를 이유로 위 표의 입면·지붕·방 표면 소유를 바꾸지 않는다.
 
 [층간 구조의 가장자리](08-floor-assembly.md#interstorey-edge-junctions)는 외벽의 두께 구역과 실내 벽 상하 접촉을 같은 경계로 잇는다. 계단 구멍의 몸체는 upper 층판 owner, 그 두께 단면의 보이는 연속 마감은 stair owner, 도착의 보이는 바닥은 upper-hall owner다. 같은 가장자리에 두 번째 층판이나 테두리 마감을 생성하지 않는다.
@@ -86,7 +92,9 @@
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 ‘방의 면 개수를 표의 행 수로 대체하지 않는다’와 방별 binding을 05의 방 owner와 대조하라는 문장이 동선 표 교차 대조와 source 이후 census를 이 배정의 반증 검사로 지목함을 확인했다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.
-@evidenceReview settings/10-house.md#storage #cc3fdd3 storage의 ‘사람이 들어가는 수납실은 다른 방과 같은 전체 관찰’을 옷방의 자기 파일·전체 관찰 추가에, ‘붙박이장이라는 이름으로 질문을 없애지 않는다’를 린넨장·외투장 접면 분류에 대조했다.
+@evidenceReview settings/10-house.md#storage #cc3fdd3 storage는 수납실을 공간으로 저작한 경우 다른 방과 같은 전체 관찰을 부담하게 하며 붙박이장이라는 이름으로 실제 방의 질문을 없애지 못하게 한다. 본문은 옷방을 자기 파일과 전체 관찰이 있는 공간으로 채택하고 린넨장·외투장은 각각 복도·현관의 접면으로 분류한다.
+@evidence settings/20-verification.md#visual-grammar 방 안쪽 벽·바닥·천장과 계단 면의 U/V 축, 원점과 실제 절단 이음을 spaces에 정하고 모델의 독립 부재 UV를 모델 owner에 남긴다.
+@evidenceReview settings/20-verification.md#visual-grammar #5b47467 설정의 면 UV 소유 인계를 방 벽의 수평 접선·Y, 바닥/천장의 X/Z 세계 원점과 구멍·문턱 이음, 계단 디딤과 난간의 부재별 축·시작점에 대조했다. 모델이 만드는 별도 부재는 이 결정에 포함하지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 사람이 들어가는 수납실 조건과 surface-allocation의 "각 방 내부의 완결 면" 배정을 대조했고 옷방·린넨장·외투장을 구별해 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 storage의 사람이 들어가는 수납실 조건과 surface-allocation의 방 내부 완결 면 배정을 옷방·린넨장·외투장 세 분류에 대조해 settings 문장을 고치지 않고 방 파일 배정이 닫힘을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 방의 안쪽 벽·천장·바닥·reveal을 그 방의 한 room 파일에 배정하고 사람이 들어가는 옷방은 자기 파일로, 린넨장·외투장은 소비하는 방의 접면으로 구분한다.

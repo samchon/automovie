@@ -43,6 +43,12 @@ void test("metric tiles project by actual face and retain fallbacks", () => {
     roofUvs?.map((value) => Math.round(value * 1000) / 1000),
     [0, 0, 1, 0.833],
   );
+  assert.deepEqual(
+    houseTextureUvs([0, 0.24, 0.32], [0, 0.928, 0.371], shingle)?.map(
+      (value) => Math.round(value * 1000) / 1000,
+    ),
+    [0, 2.31],
+  );
   assert.equal(
     houseTextureUvs([0, 0, 0], [0, 1, 0], houseFinish("ceiling", 0xf6f4ef)),
     undefined,

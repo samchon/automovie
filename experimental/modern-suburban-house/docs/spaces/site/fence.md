@@ -11,7 +11,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 대지 설정의 우측 목재 울타리를 관리문과 함께 정원 뒤까지 이어지는 하나의 울타리 선으로 해석한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 site-identity의 '우측의 목재 울타리'에 없는 관리문→오른쪽→뒤쪽→왼쪽→본채 왼쪽 벽까지의 다섯 구간 폐합선과 앞마당 횡단 금지를 본문이 더하는지 대조해 부모 반복이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology 울타리 양 끝이 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿고 건물 외피가 나머지 정원 경계를 이어 앞마당을 횡단하지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 다섯 구간 표의 시작·끝과 '양 끝은 본채 왼쪽 벽과 차고 오른쪽 앞 모서리에 닿는다', 건물 외피가 나머지 경계를 잇는다는 본문을 대조해 정원 안팎 경계 그래프가 복원됨을 확인했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 다섯 구간 표는 본채 왼쪽 벽에서 시작해 왼쪽·뒤쪽·오른쪽 긴 면을 지나 차고 오른쪽 앞 모서리에 닿는다. 본문은 양 끝을 각각 그 건물 접점에 붙이고 기존 외피가 남은 정원 경계를 이어 안팎 경계 그래프를 닫는다.
 @evidence principles/design/spaces.md#space-boundary-authority 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner가 소유하고 울타리는 별도 바닥을 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 울타리 내부 지표는 maps, 테라스·관리길은 각 spaces owner에 두고 garden-fence가 별도 바닥을 만들지 않으며 F를 side-walk의 문 평면 Z에서 받는 본문을 대조했다.
 @evidence principles/design/spaces.md#space-verification-address 전체 평면과 양쪽 벽 접점, 모든 꺾임의 안팎 시야로 폐합을 검사한다.
@@ -93,6 +93,8 @@
 -->
 
 울타리 패널 상단은 [관리문](side-walk.md#side-gate-interface)의 문짝 상단과 같은 world 높이로 예약한다. 울타리 중심선의 실제 maps 지표 높이를 g라 할 때 패널 아래끝은 g + 0.05 m를 따른다. 문 앞뒤의 보행면과 문기둥 접촉은 관리길 상면 S와 맞아야 한다. 지표가 아직 없으므로 g를 일정 높이로 꾸며 넣거나 패널 높이·접지를 완료했다고 보고하지 않는다. 실제 지표가 올라와 패널 상하가 역전되거나 필요한 통행을 막으면 지표/울타리의 해당 owner에서 해결한다.
+
+고정 울타리의 각 직선 구간은 [외피 면 UV 인계](../03-surface-owners.md#exterior-surface-handoff)에 따라 세계 좌표의 수평 접선(X 또는 Z)을 U, Y를 V로 쓴다. 판재와 가로 보·기둥은 자기 물리 끝에서 면을 절단하지만 같은 구간의 나란한 판재는 세계 위상을 유지한다. 구간의 모서리·관리문 개구부·건물 접점에서 이음이 끝난다. 독립 문짝과 철물의 국소 UV는 models owner가 정하며 고정 패널의 좌표를 문짝에 강제하지 않는다.
 
 maps 지표를 받기 전의 차단 뷰에서는 패널 아래끝을 임시로 S + 0.05 m에 그린다. 이는 g의 대입이나 울타리 지면 접촉선 결정이 아니다. 해당 패널은 산출물에 `map-ground-pending`으로 표시하고, 실제 g가 들어오면 각 중심선 위치에서 아래끝과 기둥/기초 접점을 다시 산출한다. 임시 수평선으로 경사 지표나 완성 패널 높이를 검증하지 않는다.
 

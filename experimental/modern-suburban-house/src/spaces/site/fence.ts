@@ -47,7 +47,7 @@ const HALF = 0.05;
  * @evidence spaces/site/fence.md#fence-gate-junction Two posts flank SIDE_WALK.x and the front panel omits that gate interval.
  * @evidenceReview spaces/site/fence.md#fence-gate-junction #ee70766 The two `gate-post-*` blocks touch the outer edges of `SIDE_WALK.x`, and `fence-right-front-inner` and `-outer` stop at their far faces, leaving the full gate interval open.
  * @evidence spaces/site/fence.md#fence-ground-profile Panel tops follow the side-walk datum plus 1.70 m; bottoms use its provisional ground proxy plus 0.05 m.
- * @evidenceReview spaces/site/fence.md#fence-ground-profile #9146a87 `runX` and `runZ` span from `SIDE_WALK.top + 0.05` to `SIDE_WALK.top + 1.7` and carry `map-ground-pending`, so the lower edge is an explicit display proxy rather than an asserted map contact.
+ * @evidenceReview spaces/site/fence.md#fence-ground-profile #8697d24 `runX` and `runZ` span from `SIDE_WALK.top + 0.05` to `SIDE_WALK.top + 1.7` and carry `map-ground-pending`, so the lower edge is an explicit display proxy rather than an asserted map contact.
  * @evidence principles/core/source-units.md#source-scope-preservation Value imports keep building/path contacts aligned, and no gate leaf or map-ground foundation is emitted.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `F` and both end posts derive from building bounds, `L` derives from chimney/main bounds, and `R`, `B`, `S` derive from `SIDE_WALK`; the return array contains fixed fence parts without a gate leaf or foundation.
  * @evidence principles/core/source-units.md#source-substantive-completion Stable post and run ids yield a continuous fixed enclosure except for the authored gate gap.

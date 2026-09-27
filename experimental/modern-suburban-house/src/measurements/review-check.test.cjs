@@ -4,14 +4,17 @@ const { taskPlan, execute } = require("./review-check.cjs");
 
 void test("review plan includes all seven probe types, both review populations and the production check", () => {
   const plan = taskPlan("C:/probes", "C:/npm/cli.js");
-  assert.equal(plan.length, 9);
+  assert.equal(plan.length, 12);
   assert.deepEqual(
     plan.map(([name]) => name),
     [
       "src-literal-duplication",
       "src-review-host",
       "docs-review-host",
+      "docs-spaces-review-host",
+      "docs-spaces-review-quotes",
       "doc-review-numbers",
+      "docs-spaces-review-numbers",
       "doc-anchor-graph",
       "face-binding-owner",
       "evidence-reason-docs",
@@ -21,9 +24,12 @@ void test("review plan includes all seven probe types, both review populations a
   );
   assert.deepEqual(plan[1][2].slice(-1), ["src/spaces"]);
   assert.deepEqual(plan[2][2].slice(-1), ["docs/models"]);
-  assert.deepEqual(plan[6][2].slice(-1), ["docs"]);
-  assert.deepEqual(plan[7][2].slice(-1), ["src"]);
-  assert.deepEqual(plan[8][2].slice(-2), ["run", "check"]);
+  assert.deepEqual(plan[3][2].slice(-1), ["docs/spaces"]);
+  assert.deepEqual(plan[4][2].slice(-1), ["C:/probes"]);
+  assert.deepEqual(plan[6][2].slice(-1), ["docs/spaces"]);
+  assert.deepEqual(plan[9][2].slice(-1), ["docs"]);
+  assert.deepEqual(plan[10][2].slice(-1), ["src"]);
+  assert.deepEqual(plan[11][2].slice(-2), ["run", "check"]);
 });
 
 void test("every check runs and nonzero or failed spawn statuses accumulate", () => {

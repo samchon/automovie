@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 두 층 평면·네 입면·중앙 계단 단면에서 면적 0.01㎡, 경계 0.001 m 허용 오차로 입력 산술과 산출 외곽을 비교하게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 넷째 문단의 `src/spaces/building.ts` 산출 외곽, 두 층 평면·전후좌우 입면·중앙 계단 단면, 면적 0.01㎡·경계 0.001 m 허용 오차가 246.10㎡ 산술과 외곽 주장을 반증할 주소임을 확인했다.
 @evidence settings/10-house.md#house-scale 차고 제외 두 층의 246.10㎡ 산술은 235–255㎡ 목표 안의 외곽 선택이다.
-@evidenceReview settings/10-house.md#house-scale #f7cbe11 house-scale의 ‘차고·개방 포치·대지 제외 두 층 외벽 기준 합’ 해석과 235–255㎡ 범위를 층당 123.05㎡·두 층 246.10㎡와 차고·포치·대지 비포함 문장에 대조해 범위 안의 선택임을 확인했다.
+@evidenceReview settings/10-house.md#house-scale #f7cbe11 house-scale은 차고·개방 포치·대지를 제외한 두 층의 외벽 기준 바닥면적 합을 235–255㎡ 안에서 설계하도록 한다. 본문은 층당 11.50 × 10.70 = 123.05㎡, 두 층 246.10㎡를 산출하고 세 제외 항목을 합계에 넣지 않는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work house-scale의 폭 11.2–11.8 m·깊이 10.4–11.0 m·235–255㎡를 대조했고 11.50 m·10.70 m·246.10㎡가 세 범위 안에 들며 이 외곽 선택이 entry·service-band·upper-hall의 그래프를 바꾸지 않아 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 house-scale의 폭 11.2–11.8 m·깊이 10.4–11.0 m·235–255㎡에 11.50 m·10.70 m·246.10㎡를 대조하고, 외곽 선택이 entry·service-band·upper-hall 그래프를 바꿀 권한이 없다는 셋째 문단으로 부모 수정 불필요를 확인했다.
 @evidence obligations/design/spaces.md#space-reference-topology 본채 외벽 바깥 기준 X = [-5.75, 5.75] m, Z = [-10.70, 0] m를 두 층이 함께 쓰는 하나의 직사각 building 외곽으로 두고 방의 유효 치수를 벽 중심선이 아닌 최종 안쪽 면 사이에서 읽게 한다.
