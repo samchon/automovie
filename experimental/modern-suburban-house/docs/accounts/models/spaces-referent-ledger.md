@@ -161,7 +161,7 @@
 | 세탁바구니 | 1 | [settings/00-production.md#use-profile](../../settings/00-production.md#use-profile) | UNCLASSIFIED |
 | 이상 | 5 | [settings/00-production.md#use-profile](../../settings/00-production.md#use-profile) | UNCLASSIFIED |
 | 점유체 | 4 | [settings/00-production.md#use-profile](../../settings/00-production.md#use-profile) | UNCLASSIFIED |
-| 범위 | 22 | [settings/00-production.md#use-profile](../../settings/00-production.md#use-profile) | UNCLASSIFIED |
+| 범위 | 23 | [settings/00-production.md#use-profile](../../settings/00-production.md#use-profile) | UNCLASSIFIED |
 | 금지 | 3 | [settings/00-production.md#build-allocation](../../settings/00-production.md#build-allocation) | UNCLASSIFIED |
 | 표현 | 4 | [settings/00-production.md#build-allocation](../../settings/00-production.md#build-allocation) | UNCLASSIFIED |
 | 개체 | 2 | [settings/00-production.md#build-allocation](../../settings/00-production.md#build-allocation) | UNCLASSIFIED |
@@ -561,6 +561,11 @@
 | 접선에 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 걸레받 | 4 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 담당 | 2 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 기록만 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 전역 | 2 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 아래에서 | 4 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 이웃 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 곳에 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 지나 | 8 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 이음 | 7 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 모델 | 3 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
@@ -645,8 +650,7 @@
 | 직사각형 | 3 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 패임 | 1 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 압출 | 1 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
-| 절반 | 7 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
-| 아래에서 | 3 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
+| 절반 | 11 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 아래에 | 4 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 확보하 | 1 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 돌출하 | 3 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
@@ -682,7 +686,7 @@
 | 방향만 | 1 | [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions) | UNCLASSIFIED |
 | 가로지르 | 5 | [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions) | UNCLASSIFIED |
 | 전환선 | 2 | [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions) | UNCLASSIFIED |
-| 중앙면 | 2 | [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions) | UNCLASSIFIED |
+| 중앙면 | 4 | [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions) | UNCLASSIFIED |
 | 구멍에 | 1 | [spaces/07-boundary-assembly.md#interior-boundary-junctions](../../spaces/07-boundary-assembly.md#interior-boundary-junctions) | UNCLASSIFIED |
 | 출입구 | 1 | [spaces/07-boundary-assembly.md#exterior-boundary-junctions](../../spaces/07-boundary-assembly.md#exterior-boundary-junctions) | UNCLASSIFIED |
 | 사각형 | 3 | [spaces/07-boundary-assembly.md#exterior-boundary-junctions](../../spaces/07-boundary-assembly.md#exterior-boundary-junctions) | UNCLASSIFIED |
@@ -698,6 +702,8 @@
 | 아래쪽 | 2 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
 | 마감재 | 1 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
 | 완성면 | 1 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
+| 기록 | 2 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
+| 바닥판 | 2 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
 | 메쉬 | 1 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
 | 접촉하 | 1 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
 | 조건과 | 1 | [spaces/08-floor-assembly.md#interstorey-floor-boundary](../../spaces/08-floor-assembly.md#interstorey-floor-boundary) | UNCLASSIFIED |
@@ -714,7 +720,7 @@
 | 별개 | 2 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
 | 올라가 | 2 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
 | 장선 | 1 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
-| 마감판 | 1 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
+| 마감판 | 2 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
 | 소속이어 | 1 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
 | 중간 | 4 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
 | 위에서 | 1 | [spaces/09-ceiling-assembly.md#upper-ceiling-closure](../../spaces/09-ceiling-assembly.md#upper-ceiling-closure) | UNCLASSIFIED |
@@ -734,7 +740,6 @@
 | 안에서 | 3 | [spaces/10-ground-floor.md#main-ground-floor-base](../../spaces/10-ground-floor.md#main-ground-floor-base) | UNCLASSIFIED |
 | 마감판만 | 1 | [spaces/10-ground-floor.md#main-ground-floor-base](../../spaces/10-ground-floor.md#main-ground-floor-base) | UNCLASSIFIED |
 | 지지되 | 1 | [spaces/10-ground-floor.md#garage-ground-floor-base](../../spaces/10-ground-floor.md#garage-ground-floor-base) | UNCLASSIFIED |
-| 바닥판 | 1 | [spaces/10-ground-floor.md#garage-ground-floor-base](../../spaces/10-ground-floor.md#garage-ground-floor-base) | UNCLASSIFIED |
 | 처리 | 1 | [spaces/10-ground-floor.md#garage-ground-floor-base](../../spaces/10-ground-floor.md#garage-ground-floor-base) | UNCLASSIFIED |
 | 연장하 | 1 | [spaces/10-ground-floor.md#ground-threshold-junctions](../../spaces/10-ground-floor.md#ground-threshold-junctions) | UNCLASSIFIED |
 | 챌면 | 3 | [spaces/10-ground-floor.md#ground-threshold-junctions](../../spaces/10-ground-floor.md#ground-threshold-junctions) | UNCLASSIFIED |

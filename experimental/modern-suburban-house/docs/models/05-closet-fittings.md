@@ -70,7 +70,7 @@
 @evidence spaces/rooms/upper-hall.md#upper-linen-storage upper-linen-opening X = [1.97, 2.97] m와 다섯 선반 규칙을 문짝 0.525 m와 선반 상면 값으로 소비한다.
 @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 린넨장의 고정 전면 벽·개구부와 그 속 미닫이 문짝·선반의 두 source owner를 분리한다.
 @evidence contracts/reservation-fit.md#reservation-fit 선반 깊이 0.55 m 뒤에 0.05 m 여유가 있고 문 트랙은 별도의 국소 깊이 [0,0.15] m 경계 안에 있다. 문선은 거친 개구부 X 바깥·복도 쪽 Z≤−3.41 m라 문짝과 체적을 공유하지 않는다.
-@evidence upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall의 린넨장 치수는 그대로 소비했다. 다만 spaces/07-boundary-assembly.md#interior-boundary-ownership의 수납문 소유가 방 면과 모델 원형에 겹치던 부분은 벽 개구부만 spaces, 문짝은 models로 부모에서 고친 뒤 이 H2의 두 문짝을 지정했다.
+@evidence upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall의 통행 윤곽 밖 수납 내부 바닥 마감이 비어 있었으므로 spaces/rooms/upper-hall.md#upper-linen-storage에서 수납 바닥과 개구부 마감 띠를 먼저 닫았다. 이 H2는 바뀐 완성 바닥 상면 Y=3.06 m를 레일 아래끝으로 소비하며 바닥 면을 만들지 않는다.
 -->
 
 레퍼런스 05의 상층 복도 수납문과 02의 복도 수납 위치를 채택한다. 내부 다섯 선반과 수건은 사진 비례가 아닌 수납 요구로 정한다.
@@ -82,6 +82,8 @@
 이 문 트랙의 깊이 d=0은 장 안쪽 전면 Z=−3.26 m이고 +d는 복도 쪽 −Z다. 뒤 문짝 Z=[−3.36,−3.33], 앞 문짝 Z=[−3.40,−3.37] m다. 각 `rail`의 바닥판은 자기 Z 깊이와 개구부 X=[1.97,2.97] m 전체에서 상층 바닥 위 Y=[0,0.01] m, 머리판은 Y=[2.17,2.20] m를 차지해 문짝 Y=[0.01,2.17] m와 면으로만 맞댄다. 선반 앞끝 Z=−3.21 m와 뒤 문짝 뒷면 Z=−3.33 m 사이에는 0.12 m가 남는다. 닫힌 앞 왼쪽 문짝 X=[1.97,2.495], 뒤 오른쪽 문짝 X=[2.445,2.97] m의 정면 겹침은 0.05 m이고 두께 층은 분리된다. 앞 문짝은 +X로, 뒤 문짝은 −X로 각각 0–0.475 m 이동하며, 양쪽 홈 중심은 만남선 중간 X=2.47 m에서 바깥으로 0.04 m인 X=2.43·2.51 m다. 각 폭 0.10 m 홈의 가까운 끝과 패널 가장자리 사이는 0.005 m이고 복도 쪽 끝 Z=−3.40 m는 문선 뒷면 Z=−3.41 m보다 0.01 m 안쪽이다.
 
 선반 `shelf`의 가로 길이는 장 안쪽 X=[1.87,3.07] m의 1.20 m이며, 장 중심 X=2.47 m 기준 국소 X=[−0.60,0.60] m로 양 끝면을 벽 안쪽 면에 맞댄다. 각 선반은 뒤쪽 국소 깊이 d=[0,0.55] m를 채우고 별도 브래킷은 만들지 않는다. 선반과 벽은 면으로만 접하며 문 트랙의 복도 쪽 띠에는 진입하지 않는다.
+
+[상층 복도 수납 바닥 owner](../spaces/rooms/upper-hall.md#upper-linen-storage)가 장 내부 X=[1.87,3.07]·Z=[−3.26,−2.66] m와 문 개구부 띠에 마감 두께 0.025 m를 채워 상면 Y=3.06 m로 닫는다. 모델은 그 마감을 복제하지 않는다. 바닥 `rail`의 국소 Y=[0,0.01] m는 world Y=[3.06,3.07] m이고, 개구부 마감 띠에 있는 두 트랙의 아랫면은 spaces 마감 윗면 Y=3.06 m에 면으로 닿는다.
 
 선반 전용 깊이 `d_s=0`은 장 뒤쪽 안쪽 벽면 Z=−2.66 m이고 +`d_s`는 복도 쪽 −Z다. 그러므로 다섯 `shelf` 판은 모두 X=[1.87,3.07]·Z=[−3.21,−2.66] m이며 각 상면 0.25·0.63·1.01·1.39·1.77 m에서 0.02 m 아래까지의 Y 구간을 차지한다. 문 트랙 전용 `d_t=0`은 별도의 장 앞쪽 안쪽 면 Z=−3.26 m이며 +`d_t`도 복도 쪽 −Z다. 선반 앞끝 Z=−3.21 m에서 이 면 Z=−3.26 m까지 0.05 m, 뒤 문짝 뒷면 Z=−3.33 m까지 0.12 m가 남는다. 두 깊이 좌표의 원점을 혼용하지 않는다.
 
