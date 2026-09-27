@@ -70,6 +70,15 @@ export const validateMaterialOverlays = (
         1,
         "overlay roughness",
       );
+    if (overlay.colorFactor !== undefined)
+      for (const channel of ["r", "g", "b"] as const)
+        finiteMinimum(
+          (overlay.colorFactor as Record<string, number>)[channel],
+          0,
+          `${at}.colorFactor.${channel}`,
+          "overlay colour factor",
+          collector,
+        );
     if (overlay.normalScale !== undefined)
       finiteMinimum(
         overlay.normalScale as number,
