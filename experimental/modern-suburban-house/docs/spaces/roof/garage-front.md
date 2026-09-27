@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문의 Gfront와 차고 정면 처마·뒤 낮은 용마루·오른쪽 차고 박공·본채 공유 벽 바깥 접합을 대조해 차고 앞 면의 네 경계가 하나의 경사면으로 닫혀 하위가 윤곽을 새로 정하지 않아도 됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이는 roof-profile-datums, 차고 내부 높이는 ground-threshold-datums에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 차고 앞 면의 영역·Gfront·내부 높이가 roof-mass-allocation·roof-profile-datums·01-storeys#ground-threshold-datums 링크에, 문·레일 예약이 front.md#garage-front-opening에 근거함을 대조했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 차고 지붕 경계와 garage-front-opening의 문·가이드 예약을 받아, 앞 경사면의 아래면·자유 두께가 같은 owner에 속하고 그 예약과 만나는 단면을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions는 차고 지붕의 영역·돌출을, garage-front-opening은 문·가이드·레일의 범위를 정한다. 이 H2는 앞 경사면의 아래면과 자유 두께를 garage-front.ts에 배정하고 그 면과 이미 정한 이동 예약을 같은 단면에서 검사한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 차고 지붕 경계, garage-front-opening의 문·가이드 예약, 03-surface-owners의 아래면 owner를 받아, 지붕·문·천장 단면에서 처마 아래면과 문 이동 예약을 함께 대조한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 차고 지붕 영역을, garage-front-opening이 문·가이드·레일의 범위를, exterior-surface-handoff 표가 앞 경사면과 아래면의 파일을 이미 정한다. 이 H2는 닫힌 문을 둔 지붕·문·천장 단면을 검사 주소로 더해 처마 아래면이 이동 예약을 가리는지 살피게 한다.
 @evidence principles/design/spaces.md#space-topology 지붕판이 본채 공유 벽 바깥에서 끝나 머드룸 천장을 관통하지 않고 앞 처마 아래에 닫힌 패널문이 있는 차고 정면이 온다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 첫 문단의 왼쪽 경계와 마지막 문장, 둘째 문단의 앞 처마 아래 정면 벽을 대조해 roof.garage.front가 본채 안으로 들어가지 않고 머드룸 천장·닫힌 패널문과의 안팎 관계가 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높이는 Gfront에서 받고 패널문 개구부·상부 가이드·수직 레일의 예약은 garage-front-opening에서 받아 이 면 아래와 대조한다.

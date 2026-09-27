@@ -16,9 +16,9 @@ import { gable, GABLE_CORNERS, ROOF_THICKNESS } from "./junctions";
 /**
  * Emit the gable's east face.
  * @evidence spaces/roof/front-gable-right.md This export constructs the stair-window side of the front gable.
- * @evidenceReview spaces/roof/front-gable-right.md #b47b7ea `buildFrontGableRightRoof` returns `roof-front-gable-right`, the +X slope above the stair-window side of the front gable.
+ * @evidenceReview spaces/roof/front-gable-right.md #94198fb `buildFrontGableRightRoof` returns `roof-front-gable-right`, the +X slope above the stair-window side of the front gable.
  * @evidence spaces/roof/front-gable-right.md#front-gable-right-roof Its plan runs from apex through rightFoot to ridgeFront, so the eastern valley shares the computed apex with the western face.
- * @evidenceReview spaces/roof/front-gable-right.md#front-gable-right-roof #b1d6a88 The plan orders `[apex, rightFoot, ridgeFront]` from `GABLE_CORNERS`; both gable builders consume the same apex and ridge-front values, so this east face meets the west face there.
+ * @evidenceReview spaces/roof/front-gable-right.md#front-gable-right-roof #2efe577 The plan orders `[apex, rightFoot, ridgeFront]` from `GABLE_CORNERS`; both gable builders consume the same apex and ridge-front values, so this east face meets the west face there.
  * @evidence principles/core/source-units.md#source-scope-preservation The function emits the right gable face alone, taking valley corners and thickness from junctions without moving the shared ridge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The function returns one east gable part and reads its valley/ridge corners and depth from `junctions.ts`; it does not move the shared ridge or construct the stair window.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab materializes the triangular roof mesh under gable(x), and part assigns its stable right-face identity.

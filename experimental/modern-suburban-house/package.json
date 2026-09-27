@@ -47,7 +47,7 @@
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "viewer": "tsx src/viewer/server.cts",
     "geometry-audit": "tsx src/measurements/geometry-check.ts",
-    "test": "node --import tsx --test src/measurements/*.test.cjs src/measurements/*.test.ts",
+    "test": "node --import tsx --test src/measurements/*.test.cjs src/measurements/*.test.ts src/spaces/*.test.cjs",
     "docs-review-host": "node src/measurements/docs-review-host.cjs",
     "check": "node src/measurements/check.cjs",
     "check:spaces": "node src/measurements/check.cjs --layer=spaces",
@@ -55,7 +55,7 @@
     "check:models": "node src/measurements/check.cjs --layer=models",
     "check:settings": "node src/measurements/check.cjs --layer=settings",
     "review-check": "node src/measurements/review-check.cjs",
-    "review-check:spaces": "node src/measurements/review-check.cjs"
+    "review-check:spaces": "node src/measurements/review-check.cjs D:/AutoMovieBench/probes --spaces"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

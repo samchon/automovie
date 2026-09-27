@@ -41,7 +41,7 @@
 @evidence principles/core/common.md#declared-basis 각 경로 구간은 링크한 front-walk·driveway·porch·entry·laundry·garden-door·terrace·side-walk·fence owner에서 받고 사용체는 use-profile에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb front-walk·driveway·porch·entry·laundry·rear·terrace·side-walk·fence 링크와 use-profile을 경로 근거로 대조하고, 새 2.00 m 외부 zone 체적은 실제 머리 여유가 아닌 map-ground-pending 표현 높이로 이 H2가 한정함을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "외부 보행자는 앞 보도에서 포치와 현관으로 직접 접근"과 테라스 설정을 구간 순서가 있는 내부 경로 그래프로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry와 site-identity는 현관 접근과 후면 테라스를 요구하고 front-walk·side-walk·terrace는 가로 연결로와 아래 대기 접속을 이미 정한다. 이 H2는 그 접속들을 현관·차고·후면의 순서 있는 외부 보행 경로로 엮는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry와 site-identity는 현관 접근과 후면 테라스를 요구하고 front-walk·side-walk·terrace는 가로 연결로와 아래 대기 접속을 이미 정한다. 이 H2는 보도와 차도에서 포치·현관으로 걷는 두 순서와 정원문에서 테라스 아래 대기로 나가는 순서를 연결하며 차고의 실내 진입은 머드룸 경로로 구별한다.
 @evidence principles/design/spaces.md#space-topology 차고 외부문은 기본 닫힘이고 차고 실내 진입은 머드룸이며 관리길 앞뒤 구역과 울타리 문은 외부 node를 늘리지 않는 내부 연결이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 차고 외부문 기본 닫힘, 머드룸 실내 진입, 관리길 앞뒤 구역·울타리 문의 내부 연결을 본문에서 대조해 접속·차단 관계가 외부 node 추가 없이 그래프로 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 높은 테라스와 낮은 대기의 지표 접속, 필지·울타리 선은 각 owner와 maps로 넘기고 잔디 통과를 열린 연결로 대신하지 않는다.

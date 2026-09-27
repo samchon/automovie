@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 +X 면이 00의 F 오른쪽 기울기·아래면과 동일 골짜기를 링크로 받고 소스를 front-gable-right.ts 하나로 지정해, 계단 창 쪽으로 내려가는 면의 높이·윤곽·소유가 하위 발명 없이 정해짐을 확인했다.
 @evidence principles/core/common.md#declared-basis 박공 중심은 roof-mass-allocation, 높이는 roof-profile-datums, 골짜기는 roof-shared-edges, 계단 창과의 관계는 front-roof-closures에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문 링크를 진술별로 대응시켜 +X 면의 박공 존재는 설정 main-mass, 중심·F·골짜기는 00의 세 H2, 계단 창 관계는 front.md의 stair-front-window·front-roof-closures에서 오는 것으로 근거가 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 F·골짜기와 front-roof-closures의 계단 창 검사를 받아, 박공 중심 +X 경사면의 날씨 면·아래면·자유 두께를 front-gable-right.ts 한 owner에 배정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 F·골짜기 경계를, front-roof-closures가 계단 창 위 처마 단면 검사를 이미 정한다. 이 H2는 박공 중심 +X 쪽 경사면과 아래면·노출 두께를 front-gable-right.ts가 통째로 맡도록 배정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 F·골짜기, front-roof-closures의 계단 창 검사, 03-surface-owners의 면 배정을 받아, 전면 노출 사선만 자유 두께면으로 닫고 오른쪽 골짜기에는 fascia를 두지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 F와 골짜기를, front-roof-closures가 계단 창 위 단면 검사를, exterior-surface-handoff 표가 +X 면과 아래면의 파일 owner를 이미 정한다. 이 H2는 전면 사선의 노출 두께에만 흰 fascia를 두고 오른쪽 골짜기·왼쪽 용마루의 공유 두께면을 비워 창 앞의 중복 덮개도 배제한다.
 @evidence principles/design/spaces.md#space-topology 왼쪽 박공 용마루, 앞 전면 사선 모서리, 뒤 주 지붕 앞 면과의 골짜기가 이 면의 세 경계이고 이 면이 계단 창 앞까지 내려와 창을 덮는지를 검사할 차단 관계로 둔다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 왼쪽 박공 용마루·앞 전면 사선·뒤 골짜기 세 경계와 stair-front-window 개구부 앞으로 내려와 창을 덮는지의 차단 관계를 대조해 +X 면의 인접과 가림 관계가 본문에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 골짜기 윤곽과 F 높이는 roof/00의 계산을 그대로 소비하고 계단 창과의 관계는 front-roof-closures에서 받아 이 면이 창 좌표를 정하지 않는다.
@@ -26,4 +26,4 @@
 
 이 면이 [계단 창](../envelope/front.md#stair-front-window)의 개구부 앞까지 내려와 창을 덮는지 [전면 경계](../envelope/front.md#front-roof-closures)와 함께 검사한다. 박공 트림·아래면·주 지붕 합류를 별도 장식 판으로 겹치지 않는다. 검사 주소는 오른쪽 골짜기 끝과 계단 창 위 처마의 정면/측면 단면, 박공 정면의 사선이다. source가 없어 개구부 간섭·윤곽·그림자 판정은 unverified다.
 
-이 owner의 흰 박공 처마 하부는 전면 자유 끝에서 뒤쪽 −Z로 잰 길이를 U, 오른쪽 자유 처마에서 박공 용마루 쪽 −X로 올라간 실제 경사 거리를 V로 두며 전면 오른쪽 끝에서 시작한다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 전면 사선과 오른쪽 처마의 노출 두께면 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 실제 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m를 V로 다시 시작한다. 왼쪽 용마루·뒤쪽 골짜기에서 면과 UV를 자르고 계단 창 앞에 별도 흰 덮개를 더하지 않는다.
+이 owner의 흰 박공 아래면은 전면 자유 끝에서 뒤쪽 −Z로 잰 길이를 U, 각 Z에서 오른쪽 골짜기와 만나는 점부터 박공 용마루 쪽 −X로 올라간 실제 경사 거리를 V로 둔다. 전면에서 U=0이고 골짜기에서 V=0이며 골짜기·용마루 이음에서 끊는다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 흰 fascia는 전면 노출 사선의 사전식으로 작은 (X,Z) 끝에서 실제 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m의 V를 시작한다. 오른쪽 골짜기와 왼쪽 용마루에는 노출 자유 두께면이 없으므로 fascia를 두지 않고 계단 창 앞에 별도 흰 덮개를 더하지 않는다.

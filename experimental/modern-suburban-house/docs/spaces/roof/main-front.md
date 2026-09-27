@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본문이 날씨 면을 Mfront, 아래면을 수직 두께로 정하고 자유 외곽 두께로 둘을 잇되 골짜기/용마루 내부 막음판을 배제해 주 지붕 앞 면 입체가 하위 발명 없이 완결됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 영역은 roof-mass-allocation, 높이는 roof-profile-datums, 박공 우세 영역과 굴뚝 절단은 roof-shared-edges에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 주 지붕 앞 면의 영역·Mfront·박공 우세 영역과 굴뚝 절단이 roof-mass-allocation·roof-profile-datums·roof-shared-edges 링크에, 굴뚝 위치가 설정 living에 근거함을 대조해 출처를 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 박공·굴뚝 절단 뒤의 주 지붕 앞 면은 아래면과 자유 외곽 두께를 같은 owner에 두고 골짜기·용마루의 내부 막음판을 두지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 Mfront의 우세 영역과 굴뚝 절단 및 같은 위치의 중첩 지붕판 금지를 이미 정한다. 이 H2는 남은 주 지붕 앞 면의 아래면과 자유 외곽 두께를 함께 소유하고 골짜기·용마루에 별도 내부 막음판을 남기지 않는 경계 구성을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 박공·굴뚝 절단과 03-surface-owners의 주 지붕 앞 면·아래면 배정을 받아, 단차·왼쪽 사선·전면 처마의 자유 두께를 닫고 골짜기·용마루 내부 막음판은 두지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 박공 우세 영역과 굴뚝 절단을, exterior-surface-handoff 표가 주 지붕 앞 면·아래면의 파일 owner를 이미 정한다. 이 H2는 X=1.60 m 단차와 X=−6.15 m 왼쪽 사선의 노출 구간을 처마와 함께 자유 두께로 닫되 골짜기·용마루의 내부 막음판은 두지 않는 경계를 더한다.
 @evidence principles/design/spaces.md#space-topology 이 면은 왼쪽에서 본채 측면, 뒤에서 주 용마루, 오른쪽에서 낮은 지붕 위의 단차, 앞에서 처마와 박공 합류에 닿고 지붕 아래는 방의 추가 바닥이나 통행 공간이 아니다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 첫 문단 끝의 네 방향 경계 목록과 둘째 문단 끝의 비거주·비통행 문장을 대조해, roof.main.front의 이웃(본채 측면·주 용마루·낮은 지붕 단차·박공 합류)과 아래 공간 관계가 메쉬 없이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 골짜기 윤곽은 roof-shared-edges의 등고 경계를 소비하고 처마 끝·홈통·반복 지붕재도 그 공유 경계를 별도 좌표로 다시 만들지 않는다.
@@ -28,4 +28,4 @@
 
 검사 주소는 주 용마루에서 전면 처마로 내려오는 단면, 전면 박공 양쪽 골짜기, [왼쪽 외벽 굴뚝](../../settings/10-house.md#living) 옆 절단과 아래면이다. 실제 source·면 윤곽·접합 부재·재료와 그림자 읽힘은 unverified다.
 
-이 owner의 흰 처마 하부는 앞 자유 처마의 왼쪽 끝에서 +X를 U, 그 처마에서 주 용마루 쪽 −Z로 올라간 실제 경사 거리를 V의 원점과 축으로 쓴다. 날씨 면의 지붕널은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 전면 처마와 굴뚝 절단 뒤 노출된 자유 두께면의 흰 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 모서리 길이 U를 시작하고 날씨 면에서 아래면까지의 0.24 m 수직 두께를 V로 잰다. 박공 골짜기·주 용마루·굴뚝 접합에서는 면과 UV를 끝내며 내부 공유 두께면에 흰 판을 새로 만들지 않는다.
+이 owner의 흰 처마 하부는 앞 자유 처마의 왼쪽 끝에서 +X를 U, 그 처마에서 주 용마루 쪽 −Z로 올라간 실제 경사 거리를 V의 원점과 축으로 쓴다. 날씨 면의 지붕널은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 전면 자유 처마, X=−6.15 m 왼쪽 노출 사선의 굴뚝 절단 앞뒤 두 구간, X=1.60 m 오른쪽 지붕 단차의 노출 끝, 굴뚝 절단의 노출 자유 두께면에는 흰 fascia를 둔다. 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 모서리 길이 U를 시작하고 날씨 면에서 아래면까지의 0.24 m 수직 두께를 V로 잰다. 박공 골짜기·주 용마루·굴뚝 접합에서는 면과 UV를 끝내며 내부 공유 두께면에 흰 판을 새로 만들지 않는다.

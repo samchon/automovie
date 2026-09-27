@@ -15,7 +15,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 디딤 위치는 개수·진행 방향·시작점에서 반복 산출하고 손으로 같은 레코드를 복제하지 않으며 좌표 허용 오차는 main-building-extent에서 받는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 디딤 위치를 ‘개수·진행 방향·시작점에서 반복 산출’하고 손으로 복제하지 않으며 좌표 허용 오차는 외곽의 설계 대조 기준 링크에서 소비한다는 문장을 대조해 같은 값이 두 번 저작되지 않음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 단 수, 진행 방향, 두 도착면과 실제 단의 접속을 계단 산출물·단면·양방향 통행으로 대조하게 한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 마지막 문단의 단 수·진행 방향·두 도착면과 실제 단의 접속 비교와 계단 산출물·단면·양방향 통행의 unverified 표기가 18단 L형 경로 주장을 반증할 주소임을 확인했다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 경로 표 다음 비교 문단이 단 수·진행 방향·두 도착면과 실제 단의 접속을 검사 대상으로 지정하고 산출물·단면·양방향 통행을 unverified로 남겨 18단 L형 경로 주장을 반증할 주소를 제공하는지 확인했다.
 @evidence settings/10-house.md#stair 두 직선 flight와 90° 중간참을 한 main-stair에 담고 다른 층간 길을 두지 않는다.
 @evidenceReview settings/10-house.md#stair #170ce55 stair 설정의 두 직선 flight·중간참 90° L형과 별도 계단·사다리 금지를 표의 세 경로 부분과 ‘두 storey 사이에는 이 계단 연결 하나만 둔다’에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work stair의 "두 직선 flight와 중간참"과 storey 높이 3.06 m를 대조했고 18 × 0.17 m 분할과 X = [-1.80, -0.65] 경로로 L형과 유일 연결이 성립해 부모 수정이 없었다.
@@ -34,7 +34,7 @@
 
 계단의 예정 source owner는 `src/spaces/stair.ts`다. 디딤별 위치는 위 개수·진행 방향·시작점에서 반복 산출하며 손으로 같은 레코드를 복제하지 않는다. 비교 대상은 단 수, 진행 방향, 두 도착면과 실제 단의 접속이며 좌표 허용 오차는 [외곽의 설계 대조 기준](00-building.md#main-building-extent)을 소비한다. 현재 값은 저작 입력이며 계단 산출물·단면·양방향 통행은 unverified다.
 
-디딤마다 폭 방향 U와 진행 방향 V를 새로 시작한다. 아래 flight는 −Z로 올라가므로 코의 왼쪽 끝 X=−1.80 m에서 U=X+1.80, 각 디딤 앞 코에서 V를 −Z 진행 거리로 둔다. 위 flight는 +X로 올라가므로 코의 왼쪽 끝 Z=−4.56 m에서 U=Z+4.56, 각 디딤 앞 코에서 V를 +X 진행 거리로 둔다. 아래 챌판의 수직 앞면은 자기 왼쪽 X=−1.80 m에서 U=X+1.80, 위 챌판은 자기 왼쪽 Z=−4.56 m에서 U=Z+4.56을 시작하며 V는 각 챌판 바닥에서 Y 높이로 잰다. 참 상면은 왼쪽 앞 모서리 (X,Z)=(−1.80,−3.41) m에서 U=+X, V=−Z를 쓰며 Y=1.36 m의 판 둘레와 두 flight의 코 접면에서 끊는다. 같은 oak 결을 받더라도 디딤·챌판·참이 서로의 원점을 이어 쓰지 않는다.
+디딤마다 폭 방향 U와 진행 방향 V를 새로 시작한다. 아래 flight는 −Z로 올라가므로 코의 왼쪽 끝 X=−1.80 m에서 U=X+1.80, 각 디딤 앞 코에서 V를 −Z 진행 거리로 둔다. 위 flight는 +X로 올라가므로 코의 왼쪽 끝 Z=−4.56 m에서 U=Z+4.56, 각 디딤 앞 코에서 V를 +X 진행 거리로 둔다. 아래 챌판의 수직 앞면은 자기 왼쪽 X=−1.80 m에서 U=X+1.80, 위 챌판은 자기 왼쪽 Z=−4.56 m에서 U=Z+4.56을 시작하며 V는 각 챌판 바닥에서 Y 높이로 잰다. 참 상면은 왼쪽 앞 모서리 (X,Z)=(−1.80,−3.41) m에서 U=+X, V=−Z를 쓰며 Y=1.36 m의 판 둘레와 두 flight의 코 접면에서 끊는다. 디딤과 참은 같은 oak 결을 받지만 원점을 이어 쓰지 않고, 흰 도장 챌판은 자기 수직면 원점에서 다시 시작한다.
 
 ## 하나의 연결에 속하는 두 flight와 중간참 {#stair-connector-handoff}
 <!--
@@ -139,7 +139,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 구조 바탕은 stair.ts, 인접 방 마감은 03의 완결 면 배정이 유지하고 벽이 있는 높이에 난간 패널을 중복 생성하지 않으며 모든 기둥·벽붙이 손잡이·난간살의 통행 쪽 점유를 stair-clearance의 양쪽 0.075 m 예약 안에 둔다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 구조 바탕은 `src/spaces/stair.ts`, 인접 방 마감은 03 완결 면 배정 링크로 유지하고 벽 높이에 난간 패널을 중복 생성하지 않으며 모든 기둥·손잡이·난간살을 양쪽 0.075 m 예약 안에 두는 문장을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 현관에서 보이는 아래 flight, 중간참 두 방향, 디딤별 손잡이 단면, 상부 도착과 복도 가장자리, 외투장 위 단면을 관찰로 둔다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 마지막 문단의 현관에서 보이는 아래 flight, 중간참 두 방향, 디딤별 손잡이 단면, 상부 도착과 복도 가장자리, 외투장 위 단면 관찰이 높이별 경계 주장을 반증할 주소임을 확인했다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 높이별 경계 표 뒤의 관찰 문단이 현관 아래 flight, 중간참 두 방향, 디딤별 손잡이 단면, 상부 도착과 복도 가장자리, 외투장 위 단면을 지정해 보호 높이와 접합 주장을 반증할 주소를 제공하는지 확인했다.
 @evidence settings/10-house.md#stair 목재 손잡이와 검은 난간살은 열린 가장자리를 보호하며 참의 통행을 가로막지 않는다.
 @evidenceReview settings/10-house.md#stair #170ce55 stair 설정의 검은 난간살·목재 손잡이와 ‘중간참과 상부참에 닫힌 벽이나 난간이 통로를 가로지르지 않는다’를 아래 flight 열린 가장자리 보호와 첫 챌판 앞·+X 도착의 비차단 행에 대조했다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work stair의 "중간참과 상부참에 닫힌 벽이나 난간이 통로를 가로지르지 않는다"와 난간 재료를 여섯 경계에 적용했고 열린 도착과 보호가 함께 성립해 부모 수정이 없었다.
@@ -157,8 +157,8 @@
 | 계단 뒤쪽, 아래 서비스 통로/위 복도 쪽 | ground-storey 바닥부터 upper-storey 바닥까지 분리벽으로 닫고, 그 위 복도의 추락 가장자리는 기둥·난간살로 보호한다. 아래 서비스 통로와 위 복도의 바닥을 같은 실로 잇지 않는다. |
 | 위 flight의 +X 도착 끝 | 상층 바닥 높이부터 열린 도착이다. 그 아래는 계단 아래 막음이며 [외투장 opening](rooms/entry.md#entry-coat-storage)만 소비한다. 외투장 문 상단을 상층 도착의 막힌 벽으로 연장하지 않는다. |
 
-경사진 손잡이 상단은 각 디딤 코의 높이를 잇는 선 위 수직 0.90 m, 중간참에서는 참 위 0.90 m로 택한다. 상층 복도의 평탄한 추락 경계 보호 상단은 upper-storey 바닥 위 1.05 m다. 손잡이와 보호 상단의 다른 높이는 도착 옆에서 구별하고, 손잡이의 끝은 옆 기둥/벽으로 돌아가 통로를 가로지르지 않는다. 난간살의 사이 빈 간격은 0.10 m 이하, 맨 아래 부재와 디딤/참 사이 빈 높이는 0.10 m 이하를 설계 상한으로 둔다. 이는 이 집의 저작 선택이며 안전 법규 적합성 인증은 아니다. 반복 개수는 실제 각 구간 유효 길이와 부재 폭/이 간격 상한에서 후속 모듈이 산출한다.
+경사진 손잡이 상단은 각 디딤 코의 높이를 잇는 선 위 수직 0.90 m, 중간참에서는 참 위 0.90 m로 택한다. 아래 flight 손잡이는 참 모서리 기둥에서 참 높이 1.36+0.90=2.26 m에 끝나고, 위 flight 손잡이는 같은 기둥에서 첫 위 디딤 코 높이 1.53+0.90=2.43 m에 시작한다. 모서리 기둥은 2.43 m 상단까지 올라와 두 손잡이 끝을 높이별로 받으며 그 사이 통로에 별도 꺾임 손잡이를 놓지 않는다. 상층 복도의 평탄한 추락 경계 보호 상단은 upper-storey 바닥 위 1.05 m다. 손잡이와 보호 상단의 다른 높이는 도착 옆에서 구별하고, 손잡이의 끝은 옆 기둥/벽으로 돌아가 통로를 가로지르지 않는다. 난간살의 사이 빈 간격은 0.10 m 이하, 맨 아래 부재와 디딤/참 사이 빈 높이는 0.10 m 이하를 설계 상한으로 둔다. 이는 이 집의 저작 선택이며 안전 법규 적합성 인증은 아니다. 반복 개수는 실제 각 구간 유효 길이와 부재 폭/이 간격 상한에서 후속 모듈이 산출한다.
 
 모든 기둥·벽붙이 손잡이·난간살의 통행 쪽 점유는 [양쪽 0.075 m 예약](#stair-clearance) 안에 있어야 한다. 벽이 있는 높이에 같은 자리를 차지하는 난간 패널을 중복 생성하지 않는다. 계단 아래 막음과 외투장 위의 디딤 7–9 아래면은 [외투장 몸통 상단 Y = 2.15 m](rooms/entry.md#entry-coat-storage)을 소비하며 구조 두께를 0으로 취급해 수납 여유를 얻지 않는다. 외투장 몸통 X는 계단의 일곱째 위쪽 디딤 시작점에서 정한다. 관찰은 현관에서 보이는 아래 flight, 중간참의 두 방향, 각 디딤 손잡이 단면, 상부 도착과 복도 가장자리, 외투장 위 단면이다. 실제 보호 높이·순폭·머리 공간·막음/문/마감 접합 및 03–05의 계단 읽힘은 unverified다.
 
-이 보호 경계에서 `src/spaces/stair-guards.ts`가 만드는 기둥은 각 기둥 바닥의 왼쪽 아래 모서리에서 수평 접선 U·Y 높이 V를 시작하고 다른 기둥·손잡이·띠와 만나는 곳에서 끝낸다. 직선 손잡이는 시작 기둥에 닿는 끝에서 실제 축 길이 U·단면 둘레 V를 시작하며 꺾임과 벽 접합에서 다시 시작한다. 난간살의 부재·반복·UV는 [별도 모델 원형](../models/04-stair-members.md#stair-balusters)이 맡는다.
+이 보호 경계의 면 owner는 `src/spaces/stair.ts`이며, 그 파일이 호출하는 `src/spaces/stair-guards.ts`가 기둥·손잡이 형상을 만든다. 기둥은 각 기둥 바닥의 왼쪽 아래 모서리에서 수평 접선 U·Y 높이 V를 시작하고 다른 기둥·손잡이·띠와 만나는 곳에서 끝낸다. 직선 손잡이는 시작 기둥에 닿는 끝에서 실제 축 길이 U·단면 둘레 V를 시작하며 꺾임과 벽 접합에서 다시 시작한다. 난간살의 부재·반복·UV는 [별도 모델 원형](../models/04-stair-members.md#stair-balusters)이 맡는다.

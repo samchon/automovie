@@ -16,9 +16,9 @@ import { gable, GABLE_CORNERS, ROOF_THICKNESS } from "./junctions";
 /**
  * Emit the gable's west face.
  * @evidence spaces/roof/front-gable-left.md This export builds the left front-gable roof part from shared valley corners.
- * @evidenceReview spaces/roof/front-gable-left.md #e2c9614 `buildFrontGableLeftRoof` returns the -X gable face as `roof-front-gable-left`, using the shared left valley foot, apex and front ridge endpoint.
+ * @evidenceReview spaces/roof/front-gable-left.md #9051ff5 `buildFrontGableLeftRoof` returns the -X gable face as `roof-front-gable-left`, using the shared left valley foot, apex and front ridge endpoint.
  * @evidence spaces/roof/front-gable-left.md#front-gable-left-roof Its triangular plan joins leftFoot, apex, and ridgeFront; gable(x) raises the weather face over that plan.
- * @evidenceReview spaces/roof/front-gable-left.md#front-gable-left-roof #7acac44 The plan is `[leftFoot, apex, ridgeFront]` from `GABLE_CORNERS`; `gable(x)` raises the weather face along the west slope and leaves the valley edge at the shared vertices.
+ * @evidenceReview spaces/roof/front-gable-left.md#front-gable-left-roof #c8f7021 The plan is `[leftFoot, apex, ridgeFront]` from `GABLE_CORNERS`; `gable(x)` raises the weather face along the west slope and leaves the valley edge at the shared vertices.
  * @evidence principles/core/source-units.md#source-scope-preservation The returned part has only the left gable face and takes its corners and thickness from junctions instead of inventing another roof edge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This builder chooses no local valley coordinate: `GABLE_CORNERS` supplies the triangle, `ROOF_THICKNESS` supplies depth, and only the left gable part is returned.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab turns the three plan vertices, gable height, and roof thickness into an actual mesh part with a stable id.

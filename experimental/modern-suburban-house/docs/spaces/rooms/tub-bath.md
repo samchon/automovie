@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 마감 안쪽 X = [3.22, 5.50]·Z = [-8.80, -4.71] m, 왼쪽 벽 개구부 Z = [-5.86, -4.86]·Y = [3.06, 5.26] m와 0.90 m 목표가 있어 욕조 욕실 평면과 문 위치가 수치로 확정됨을 확인했다.
 @evidence principles/core/common.md#declared-basis 뒤쪽으로 긴 순내부 2.28 × 4.09 m와 기구 예약을 욕조 겸 샤워·변기·세면장 배치 근거로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 순내부 2.28 × 4.09 m가 X·Z 구간의 차와 일치하고, 세 기구가 이 뒤쪽으로 긴 내부와 #tub-fixture-use 예약을 소비한다고 밝혀 기구 배치의 근거가 층 소유 치수로 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 독립 욕실·복도 직접 진입을 받아, 샤워 욕실과의 공유 벽을 X=[3.07,3.22] m에 놓고 +Z 경첩·방 안 +X 열림을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 tub-bathroom이 샤워 욕실과 벽을 사이에 둔 독립실을 이미 요구하는지 확인했다. 이 H2의 추가 결정은 왼쪽 공유 벽 X=[3.07,3.22] m와 hall-tub-door의 +Z 문설주 경첩·방 안 +X 열림이다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 독립 욕실과 shower-bath-plan의 X=[3.07,3.22] m 공유 벽을 받아, hall-tub-door의 +Z 문설주 경첩·방 안 +X 열림을 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 tub-bathroom 설정은 샤워 욕실과 분리된 방을, shower-bath-plan은 공유 벽 X=[3.07,3.22] m를 이미 정한다. 이 H2가 그 벽에 낸 hall-tub-door의 +Z 문설주 경첩과 방 안 +X 열림은 부모 문장에 없는 국소 개구부 결정이다.
 @evidence principles/design/spaces.md#space-topology 왼쪽 벽의 앞 부분은 복도, 뒤 부분은 샤워 욕실에 닿고 샤워 욕실·침실 쪽에는 통과문이 없다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 왼쪽 벽 앞 부분은 upper-hall-plan, 뒤 부분은 shower-bath-plan, 앞쪽은 청회색 침실, 뒤쪽은 옷방, 오른쪽은 외벽이라는 인접과 샤워 욕실·침실 쪽 통과문 금지로 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 오른쪽 외벽 창은 tub-right-window에서 소비하고 이 방에만 바인딩한다.

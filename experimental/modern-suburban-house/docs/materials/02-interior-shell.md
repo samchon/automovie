@@ -58,7 +58,7 @@
 
 외투장·린넨장은 spaces의 벽 속 수납 개구부여서 별도 `carcass` 메시가 없다. [외투장](../models/05-closet-fittings.md#coat-closet-doors)과 [린넨장](../models/05-closet-fittings.md#linen-closet-fittings)의 문짝 `leaf`·`leaf-panel`과 선반 `shelf`는 이 도막을 받는다. 검은 레일·봉·손잡이에는 결합하지 않는다.
 
-표면 결속 계획: 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이다. [계단 챌판·기둥](../spaces/02-stair.md#stair-reservation)은 spaces owner의 UV 축·원점·이음을 소비하고, 문선·걸레받이·패널 문짝은 각 모델의 UV를 소비한다. 패널 오목부·문짝 가장자리의 이음은 모델 owner가 정하며, 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이다. [계단 챌판](../spaces/02-stair.md#stair-reservation)과 [난간 기둥](../spaces/02-stair.md#stair-boundary-heights)은 spaces owner의 UV 축·원점·이음을 소비하고, 문선·걸레받이·패널 문짝은 각 모델의 UV를 소비한다. 패널 오목부·문짝 가장자리의 이음은 모델 owner가 정하며, 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 `jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`의 물리 판은 [실내 문 부재](../models/03-interior-doors.md#interior-door-members)가 정한다. 이 H2의 `casing`은 [현관문 원형](../models/02-exterior-doors.md#front-entry-door)의 실내 판이고 `carcass`는 [침실 붙박이 미닫이 옷장](../models/13-bedrooms.md#sliding-closet)의 몸통이다. 외투장·린넨장의 개구부 벽을 `carcass`로 다시 만들지 않는다.
 

@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 -X 면 높이를 F로 두고 뒤쪽 윤곽을 roof-shared-edges 골짜기로 끊어 주 지붕에 가려지는 사각 판을 남기지 않는 본문을 대조해 왼쪽 박공 면 형상이 하위 발명 없이 정해짐을 확인했다.
 @evidence principles/core/common.md#declared-basis 박공 중심은 roof-mass-allocation, 높이 F는 roof-profile-datums, 뒤쪽 윤곽은 roof-shared-edges에서 받고 사선 모서리와 아래면을 끝낼 삼각 벽 상단 선은 front-roof-closures에서 받는다고 링크로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb -X 면의 박공 중심·F·골짜기·삼각 벽 상단이 각각 roof-mass-allocation·roof-profile-datums·roof-shared-edges·front.md#front-roof-closures 링크에 근거함을 본문에서 하나씩 대조해 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 F와 front-roof-closures의 삼각 벽 상단 접촉을 받아, 박공 -X 경사면의 아래면·노출 사선 두께를 front-gable-left.ts에 배정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions는 F와 벽 상단의 아래면 접촉을, front-roof-closures는 전면 삼각 벽의 높이를 이미 정한다. 이 H2는 박공 중심 -X 경사면과 노출 사선 두께·아래면을 front-gable-left.ts가 맡도록 분리한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 00-junctions의 F·골짜기와 front-roof-closures의 삼각 벽 상단, 03-surface-owners의 경사면·아래면 배정을 받아, 전면 노출 사선만 자유 두께면으로 닫고 왼쪽 골짜기에는 fascia를 두지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 00-junctions가 F와 골짜기 접촉을, front-roof-closures가 삼각 벽 상단을, exterior-surface-handoff 표가 -X 면과 아래면의 파일 owner를 이미 정한다. 이 H2는 전면 사선의 자유 두께만 흰 fascia로 닫고 왼쪽 골짜기·오른쪽 용마루의 공유 두께를 비워 구체적인 노출 경계를 정한다.
 @evidence principles/design/spaces.md#space-topology 앞은 전면 돌출과 삼각 벽, 오른쪽은 박공 용마루, 뒤와 왼쪽 합류는 주 지붕 앞 면과 만난다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 첫 문단의 앞=전면 돌출과 삼각 벽, 오른쪽=박공 용마루, 뒤/왼쪽 합류=주 지붕 앞 면을 대조해 -X 면의 네 방향 인접이 모두 적혀 장소 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 뒤쪽 윤곽은 roof-shared-edges가 계산한 골짜기를 소비하고 드러난 사선 모서리와 아래면은 front-roof-closures가 닫는 전면 삼각 벽의 상단과 일치시킨다.
@@ -26,4 +26,4 @@
 
 주 지붕에 가려지는 영역은 원래 사각 판으로 남기지 않는다. 외부에 드러난 사선 모서리와 아래면은 실제 두께로 끝내며 [전면 삼각 벽](../envelope/front.md#front-roof-closures)의 상단과 일치시킨다. 왼쪽 모서리에서 골짜기가 처마로 빠지는 끝, 전면에서 보이는 경사 두께와 그림자가 검사 질문이다. source·실제 경계 일치·01의 형상 판정은 unverified다.
 
-이 owner의 흰 박공 처마 하부는 전면 자유 끝에서 뒤쪽 −Z로 잰 길이를 U, 왼쪽 자유 처마에서 박공 용마루 쪽 +X로 올라간 실제 경사 거리를 V로 두며 전면 왼쪽 끝에서 시작한다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 전면 사선과 왼쪽 처마에서 보이는 두께 0.24 m의 흰 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 실제 3차원 길이 U와 날씨 면부터 아래면까지 수직 거리 V를 다시 시작한다. 오른쪽 용마루와 뒤쪽 골짜기는 공유 이음으로 자르고 주 지붕 아래에 가려진 두께면은 노출시키지 않는다.
+이 owner의 흰 박공 아래면은 전면 자유 끝에서 뒤쪽 −Z로 잰 길이를 U, 각 Z에서 왼쪽 골짜기와 만나는 점부터 박공 용마루 쪽 +X로 올라간 실제 경사 거리를 V로 둔다. 전면에서 U=0이고 골짜기에서 V=0이며 골짜기·용마루 이음에서 끊는다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 흰 fascia는 전면 노출 사선의 사전식으로 작은 (X,Z) 끝에서 실제 3차원 길이 U와 날씨 면부터 아래면까지 수직 두께 0.24 m의 V를 시작한다. 왼쪽 골짜기와 오른쪽 용마루에는 노출 자유 두께면이 없으므로 fascia를 두지 않는다.

@@ -8,7 +8,7 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 차량 점유를 비우고 선반·공구·구조를 #garage-storage-use와 #garage-use-routes에 배정하며 문 안쪽 무턱, 천장 임의 높임 금지, 문을 닫아도 머드룸으로 닿는 관찰까지 정해져 있음을 확인했다.
 @evidence principles/core/common.md#declared-basis 외곽·공유 벽은 attached-garage-extent, 바닥/천장 높이는 ground-threshold-datums, 천장은 garage-ceiling-closure, 바닥은 garage-ground-floor-base에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외곽·공유 벽은 attached-garage-extent, 바닥/천장 높이는 ground-threshold-datums, 천장은 garage-ceiling-closure, 바닥은 garage-ground-floor-base 링크로 받아 각 경계의 출처를 지목할 수 있음을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 차고 설정을 문 안쪽에 별도 턱이 없는 문턱 바닥과 머드룸 경유 관찰로 정하고 차량 대신 수납·경로에 바닥을 배정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 차고 설정의 머드룸 경유 관찰과 ground-threshold-junctions의 문 안쪽 별도 턱 없는 바닥을 소비한다. 차량 점유를 비운 바닥에 후벽 수납과 내부 경로를 배정한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 garage는 빈 차고의 머드룸 경유 관찰을 정하고 10-ground-floor#ground-threshold-junctions와 front#garage-front-opening은 전면 문턱의 바깥 접촉을 이미 정한다. 이 방 본문은 그 바닥을 받아 차량 점유 없이 후벽 수납과 내부 경로로 쓰는 위치 배정을 더한다.
 @evidence principles/design/spaces.md#space-topology garage는 ground-storey 부속 공간이고 서쪽 경계의 머드룸 문으로 집과, 전면문으로 차도와 연결된다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 garage/ground-storey 부속 공간 포함과 서쪽 경계 머드룸 문→집, 전면 garage-front-door와 바깥 벽면까지 이어진 문턱→차도의 연결 그래프가 메시 없이 읽힘을 확인했다.

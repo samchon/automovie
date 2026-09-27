@@ -49,7 +49,7 @@
 @evidence principles/core/common.md#declared-basis 문 평면·회전·문짝 위아래·손잡이 반경·대기·순폭은 side-gate-interface의 값을 그대로 받는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 문 평면·회전 방향·문짝 위아래·손잡이 반경·앞뒤 대기·최종 순폭을 side-gate-interface owner 값으로 두고 '여기서 재정의하지 않는다'고 적은 본문을 대조해 gate 수치 근거가 한 곳을 가리킴을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 울타리와 관리문의 관계를 패널 연속 생성 후 문짝을 붙이는 방식 대신 개구부를 비우는 접합으로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 fence-enclosure-plan은 오른쪽 앞 울타리 구간을, side-gate-interface는 문 개구부 X 구간과 양옆 대기를 이미 정한다. 이 H2는 연속 패널 위에 문짝만 붙이는 방식을 배제하고 그 구간을 비운 잔여 패널·문기둥 접합을 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 fence-enclosure-plan은 오른쪽 앞 울타리 구간을, side-gate-interface는 문 개구부 X 구간과 양옆 대기 및 개구부 바깥 문기둥 원칙을 이미 정한다. 이 H2는 문기둥 예약 폭 0.12 m와 두 안쪽 면의 개구부 끝 정렬, 기둥 바깥 잔여 패널 두 구간을 현장 경계로 더한다.
 @evidence principles/design/spaces.md#space-topology 오른쪽 앞 구간의 잔여 패널이 문기둥 바깥에서 차고 접점/오른쪽 모서리 기둥까지 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 두 잔여 패널이 문기둥 바깥에서 차고 접점과 오른쪽 모서리 기둥까지 닫고 짧다는 이유로 삭제되지 않는다는 본문을 대조해 오른쪽 앞 구간의 연속·개구 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 끝기둥/기초 중심을 벽 위에 놓지 않고 외벽을 두 번째 기둥으로 두껍게 하지 않으며 창과 굴뚝을 지지체로 쓰지 않는다.

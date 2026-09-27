@@ -8,8 +8,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 본채 후벽을 주/낮은 뒤 지붕 아래면까지, 차고 후벽을 Gback 아래면까지 닫는 본문 결정을 대조해 다음 단계가 후면 벽 높이나 X 분할면 단차 벽의 소속을 새로 발명할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 후벽 평면은 main-building-extent와 attached-garage-extent, 아래면은 roof-profile-datums, 몸체 배정은 exterior-boundary-junctions에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문의 후벽 평면·지붕 아래면·모서리 몸체 진술을 main-building-extent·attached-garage-extent·roof-profile-datums·exterior-boundary-junctions 링크에 하나씩 대응시켜 근거 없는 후면 폐합 진술이 없음을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass와 00-junctions의 후벽 단차·지붕 아래면 접촉을 받아, 후면의 공용부·주침실·옷방 바인딩과 본채/차고의 서로 다른 뒤 모서리 검사 주소를 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass와 00-junctions가 높은 본채·낮은 오른쪽 지붕의 단차와 벽 상단 접촉을 이미 정한다. 이 H2는 후면 아래 공용부, 위 주침실·옷방의 소속과 본채/차고 각각의 뒤 모서리 관찰을 배정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation main-mass·roof-wall-head-junctions의 높이 접촉과 common-room·primary·wardrobe의 후벽 방 바인딩을 받아, 서로 다른 Z에 선 본채/차고 후벽을 한 평면으로 덮지 않고 두 뒤 모서리를 따로 검사한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass와 roof-wall-head-junctions가 높은 본채·낮은 오른쪽 지붕의 접촉을, 세 방 계획이 후벽 쪽 방 소속을 이미 정한다. 이 H2는 본채와 차고의 서로 다른 후벽 Z를 별도 몸체로 닫고 두 뒤 모서리와 사이 측면을 한 평면으로 숨기지 않는 후면 검사를 더한다.
 @evidence principles/design/spaces.md#space-topology 본채 후면 아래는 연속 공용부, 위는 주침실과 별도 옷방에 바인딩되고 본채와 차고 후벽은 서로 다른 Z의 두 평면이다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문이 후면 아래를 common-room-plan, 위를 primary-plan·primary-wardrobe-plan에 바인딩하고 서로 다른 Z의 두 후벽과 차고 뒤 숨은 통로 부재를 밝혀 형상 전에 후면 place graph가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority +X 단차 벽은 오른쪽 입면 owner, 뒤 처마 돌출은 지붕 owner가 소유하고 두 후벽 사이의 노출 측면은 오른쪽 입면 owner와 같은 모서리를 소비하며 이 H2는 같은 모서리에 두 번째 벽을 겹치지 않는다.
@@ -164,6 +164,6 @@
 
 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25], 바깥 대기 X = [-1.50, 1.50], Z = [-12.50, -10.70] m는 모두 Y = 0 m의 평탄 바닥으로 예약한다. 바깥 대기는 ground-storey 외부 구역이며 깊이 1.80 m를 택해 문을 당겨 열고 물러서는 공간을 남긴다. 문턱은 양쪽 바닥 위 0.02 m 이내이며 바닥 사이 빈틈을 남기지 않는다.
 
-`garden-door-threshold` 상면의 UV는 왼쪽 문설주 X = -1.20 m에서 U=0으로 시작해 +X로, 안쪽 벽면 Z = `INNER`에서 V=0으로 시작해 바깥쪽 `BACK`으로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 테라스와 방 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
+`garden-door-threshold` 상면의 UV는 [정원문 개구부](#garden-door)의 왼쪽 문설주 X=−1.20 m에서 U=0으로 시작해 +X로, [본채 후면 벽](../00-building.md#main-building-extent)의 안쪽 면 Z=−10.45 m에서 V=0으로 시작해 바깥쪽 면 Z=−10.70 m로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 테라스와 방 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
 
 식탁·의자는 안쪽 대기를 막지 않고, 바깥 대기는 열린 두 문짝과 정원에서 돌아오는 중심 경로를 함께 수용해야 한다. [테라스](../site/terrace.md#garden-terrace-plan)는 이 대기를 포함하고 중앙 경로와 외부 단을 정원 쪽으로 연결한다. 바깥 대기 바닥은 완결 테라스 owner인 `src/spaces/site/terrace.ts`, 후벽·문 void·문턱판은 `src/spaces/envelope/rear.ts`, 닫힌 정원문 문틀·두 문짝·철물은 [모델 원형](../../models/02-exterior-doors.md#garden-door-pair)이 맡는다. 이 H2의 문짝 수·방향·회전 예약은 모델의 입력이며 rear source가 그 문짝 메시를 중복 생성하지 않는다. 실제 지표와의 접속은 maps 입력이 없어 미완료다. 실제 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임은 unverified다.

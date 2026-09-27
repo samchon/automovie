@@ -45,9 +45,9 @@ import type {
 /**
  * Axis-aligned box between two world corners.
  * @evidence spaces/03-surface-owners.md Assigned owners use box solids for their own structural or finish details.
- * @evidenceReview spaces/03-surface-owners.md #3440187 `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
+ * @evidenceReview spaces/03-surface-owners.md #a830535 `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #0c5aa37 `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #b1ed234 `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The `min` and `max` world corners are both caller arguments; `block` calculates their differences and midpoint without choosing a location or material.
  * @evidence principles/core/source-units.md#source-substantive-completion It rejects nonpositive extents and returns a transformed closed box mesh.
@@ -356,9 +356,9 @@ export const slopedSlab = (props: {
  * and underside faces. The caller supplies convex coplanar tiles and a free
  * outline predicate; shared tile seams receive no vertical face.
  * @evidence spaces/roof/main-front.md A single roof part retains the concave weather face without internal vertical seams.
- * @evidenceReview spaces/roof/main-front.md #ee0cf1d `buildMainFrontRoof` passes four convex remainder tiles to one `slopedPlate`; the caller's `freeEdge` excludes shared tile seams so the concave roof remains one visible part.
+ * @evidenceReview spaces/roof/main-front.md #df2fd88 `buildMainFrontRoof` passes four convex remainder tiles to one `slopedPlate`; the caller's `freeEdge` excludes shared tile seams so the concave roof remains one visible part.
  * @evidence spaces/roof/main-front.md#main-front-roof This keeps the cut main front weather face and underside in one part.
- * @evidenceReview spaces/roof/main-front.md#main-front-roof #bfb13f2 `slopedPlate` collects top and reversed underside faces from every tile and makes one polyhedron, adding thickness sides only on the caller-marked free perimeter.
+ * @evidenceReview spaces/roof/main-front.md#main-front-roof #b6f6938 `slopedPlate` collects top and reversed underside faces from every tile and makes one polyhedron, adding thickness sides only on the caller-marked free perimeter.
  * @evidence principles/core/source-units.md#source-scope-preservation Roof owners identify their free outline; this helper never selects a roof junction.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The caller supplies the tile plans, top function, vertical thickness, and `freeEdge` predicate; this primitive does not choose a valley or chimney notch.
  * @evidence principles/core/source-units.md#source-substantive-completion Each planar tile has an underside and only selected free sides close its thickness.
@@ -402,11 +402,11 @@ export const slopedPlate = (props: {
  * sloped handrails. Its four long faces follow the bar direction; the section
  * is `size` wide and stays level across the bar.
  * @evidence spaces/02-stair.md The stair owner uses square-section members for its guard and handrail.
- * @evidenceReview spaces/02-stair.md #0cdd903 `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
+ * @evidenceReview spaces/02-stair.md #a47ac9f `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
  * @evidence spaces/02-stair.md#stair-clearance The member follows caller-supplied endpoints and width beside the route.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `buildStairGuards` sets each `bar` size from the 0.075 m `guardReserve` and centres lower/upper rails within their reserved side strips beside the stair route.
  * @evidence spaces/02-stair.md#stair-boundary-heights Its sloped endpoints can track a flight without losing a closed guard body.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #6123dba `railTop` places bar centres at nosing plus 0.90 m minus half their section, while the upper hall top rail centres at upper floor plus 1.05 m minus half its section.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights #9c45301 `railTop` places bar centres at nosing plus 0.90 m minus half their section, while the upper hall top rail centres at upper floor plus 1.05 m minus half its section.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper adds no rail location; the stair author supplies both ends and size.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `bar` receives both world endpoints and its square width from its caller; it constructs no stair station or guard height itself.
  * @evidence principles/core/source-units.md#source-substantive-completion It builds outward square-section faces and handles a vertical segment.
