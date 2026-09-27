@@ -23,24 +23,24 @@
 @evidenceExclude spaces/002-spatial-graph.md#entry-common 현관과 공용실의 1.30m 열린 문 없는 개구는 spaces 소유다. sofa의 앞 점유는 이후 instances가 이 route와 대조한다.
 @evidenceExclude spaces/003-surface-ownership.md#rear-common-glazing 후면 공용부와 정원을 가르는 고정창에는 별도 출입 route가 없다. 소파는 실내 점유만 내고 창을 문으로 바꾸지 않는다.
 @evidenceExclude spaces/003-surface-ownership.md#right-common-glazing 서비스 외벽 후단 z=3.60..5.40m 공용실 유리는 façade owner 소유다. sofa의 낮은 등판은 그 유리 bay·shade를 정하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  `straight`와 `chaise-right`는 같은 거실 좌석의 두 원형 결과로 남기고 ref02 작업실 안락의자는 별도 `accent-chair`에 둔다. 소파 H2가 다른 방의 좌석을 삼키지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  공통 좌석 셋·등 쿠션·팔·베개를 부품별로 적고 긴 의자에는 앞쪽 frame·seat·두 leg를 더했다. 등판 층 사이의 틈도 `@curve-linear`로 정해 단순 L자 상자에서 끝나지 않는다.
-@evidenceReview principles/core/common.md#declared-basis  ref02는 오른쪽 발치, ref03은 낮은 직선 좌석의 시각 근거로 한정한다. 0.88m 등판과 각 접합 좌표는 `@envelope`·`@part` 및 곡선 행이 소유하므로 사진을 치수 도면으로 가장하지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program의 sofa와 common-room의 열린 거실 cell 위에 좌석 셋과 앞쪽으로 1.30m까지 뻗는 오른쪽 chaise 부품을 더했다. 부모의 방 프로그램에는 이 쿠션·발치 분해가 없다.
-@evidenceReview principles/design/models.md#representation-contract  `back-frame`과 쿠션은 기울기 층으로 맞닿고 pillow는 등 쿠션에서 떨어져 좌판에만 지지된다. `chaise-frame` 아래의 바닥은 비워 두어 두 상태의 열린 공간도 형상 계약에 들어간다.
-@evidenceReview principles/design/models.md#spatial-convention  원점은 바닥 폭과 본체 깊이 중심이고 +Z가 앉는 쪽, +X가 오른쪽이다. `chaise-right`의 추가 좌판은 양의 Z로 1.30m까지 차지해 방향을 반대로 놓으면 선언 외곽을 위반한다.
-@evidenceReview principles/design/models.md#reviewable-structure  정면·상부의 세 좌석 및 사이 틈과 낮은 하부의 발치 앞다리·빈 바닥을 비교 대상으로 명시한다. 한 원근 화면에서 두 변종이 닮아 보여도 하부가 닫히면 반증된다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 L자와 ref03의 직선형은 발치 유무와 낮은 직물 질량이라는 다른 차단 실루엣으로 번역한다. 사진의 원근이나 내부 프레임 기계 구조는 채택 범위에서 뺐다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  `straight`의 세 좌석과 y=0.88 상단을 유지한 채 chaise 상태에서 z=1.30 외곽과 추가 네 part를 선언한다. 상태별 inventory에 그 부품이 없으면 실루엣이 있어도 구조가 닫히지 않는다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 sofa, common-room의 무칸막이 cell, surface-decomposition의 원형/배치 분리를 대조했다. 좌석과 발치의 local 접지는 물체 안에서 정하고 현관 통로 및 창 앞 실제 위치는 instances가 묻기 때문에 방 경계나 새 운영 상태가 필요하지 않다.
-@evidenceReview settings/001-production.md#governing-aim  소파를 앉는 좌석, 등받이와 발치가 보이는 생활 물체로 만들어 공용실의 거실 기능을 식별하게 한다. 사람의 착석 동작을 구현했다는 의미로 넓히지 않는다.
-@evidenceReview settings/002-household.md#household-program  주민을 캐릭터로 세우는 대신 가족이 함께 쓰는 거실에 `straight`와 `chaise-right` 좌석 형상을 제공한다. 어느 변종을 몇 개 배치할지는 이 모델의 결정이 아니다.
-@evidenceReview settings/002-household.md#ground-program  후면 common room에 적힌 sofa를 세 좌석 원형으로 구체화한다. 같은 방의 low table과 식탁은 소파의 part로 넣지 않아 프로그램 목록의 물체 역할을 구분한다.
-@evidenceReview spaces/002-spatial-graph.md#common-room  낮은 좌석 원형은 거실·식당·주방이 하나로 이어진 common-room에 놓일 수 있다. 이 모델은 내부 벽을 더하지 않고 주방으로 통하는 실제 통로는 배치 단계에 남긴다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  좌판·등판·팔·발치의 안정 face를 모델 안에 두고 위치·반복과 직물 finish는 다른 owner가 받는다. 같은 소파를 직선형과 긴 의자형으로 쓸 수 있어도 방별 instance를 이 문서가 만들지 않는다.
-@evidenceExcludeReview spaces/002-spatial-graph.md#entry-common  현관에서 공용부로 통하는 1.30m leaf 없는 개구는 소파의 part가 아니다. 앞쪽 chaise가 통로를 막는지 후속 배치가 검사해야 하므로 이 H2는 그 opening 위치를 바꾸지 않는다.
-@evidenceExcludeReview spaces/003-surface-ownership.md#rear-common-glazing  공용부와 정원 사이 후면 유리는 고정창이고 sofa의 낮은 좌석은 실내 점유만 낸다. 발치를 늘려도 창을 출입문으로 바꾸거나 sill·head를 재설계하지 않는다.
-@evidenceExcludeReview spaces/003-surface-ownership.md#right-common-glazing  서측 후단 z=3.60..5.40m 고정 유리의 frame·shade는 입면 owner가 만든다. 소파 등판의 0.88m 높이는 그 유리 span이나 privacy 상태의 입력이 아니다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 `straight`와 `chaise-right`는 같은 거실 좌석의 두 원형 결과로 남기고 ref02 작업실 안락의자는 별도 `accent-chair`에 둔다. 소파 H2가 다른 방의 좌석을 삼키지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 공통 좌석 셋·등 쿠션·팔·베개를 부품별로 적고 긴 의자에는 앞쪽 frame·seat·두 leg를 더했다. 등판 층 사이의 틈도 `@curve-linear`로 정해 단순 L자 상자에서 끝나지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02는 오른쪽 발치, ref03은 낮은 직선 좌석의 시각 근거로 한정한다. 0.88m 등판과 각 접합 좌표는 `@envelope`·`@part` 및 곡선 행이 소유하므로 사진을 치수 도면으로 가장하지 않는다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 sofa와 common-room의 열린 거실 cell 위에 좌석 셋과 앞쪽으로 1.30m까지 뻗는 오른쪽 chaise 부품을 더했다. 부모의 방 프로그램에는 이 쿠션·발치 분해가 없다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 `back-frame`과 쿠션은 기울기 층으로 맞닿고 pillow는 등 쿠션에서 떨어져 좌판에만 지지된다. `chaise-frame` 아래의 바닥은 비워 두어 두 상태의 열린 공간도 형상 계약에 들어간다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 원점은 바닥 폭과 본체 깊이 중심이고 +Z가 앉는 쪽, +X가 오른쪽이다. `chaise-right`의 추가 좌판은 양의 Z로 1.30m까지 차지해 방향을 반대로 놓으면 선언 외곽을 위반한다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면·상부의 세 좌석 및 사이 틈과 낮은 하부의 발치 앞다리·빈 바닥을 비교 대상으로 명시한다. 한 원근 화면에서 두 변종이 닮아 보여도 하부가 닫히면 반증된다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 L자와 ref03의 직선형은 발치 유무와 낮은 직물 질량이라는 다른 차단 실루엣으로 번역한다. 사진의 원근이나 내부 프레임 기계 구조는 채택 범위에서 뺐다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e `straight`의 세 좌석과 y=0.88 상단을 유지한 채 chaise 상태에서 z=1.30 외곽과 추가 네 part를 선언한다. 상태별 inventory에 그 부품이 없으면 실루엣이 있어도 구조가 닫히지 않는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 sofa, common-room의 무칸막이 cell, surface-decomposition의 원형/배치 분리를 대조했다. 좌석과 발치의 local 접지는 물체 안에서 정하고 현관 통로 및 창 앞 실제 위치는 instances가 묻기 때문에 방 경계나 새 운영 상태가 필요하지 않다.
+@evidenceReview settings/001-production.md#governing-aim #e9869fc 소파를 앉는 좌석, 등받이와 발치가 보이는 생활 물체로 만들어 공용실의 거실 기능을 식별하게 한다. 사람의 착석 동작을 구현했다는 의미로 넓히지 않는다.
+@evidenceReview settings/002-household.md#household-program #d4b8ac1 주민을 캐릭터로 세우는 대신 가족이 함께 쓰는 거실에 `straight`와 `chaise-right` 좌석 형상을 제공한다. 어느 변종을 몇 개 배치할지는 이 모델의 결정이 아니다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 후면 common room에 적힌 sofa를 세 좌석 원형으로 구체화한다. 같은 방의 low table과 식탁은 소파의 part로 넣지 않아 프로그램 목록의 물체 역할을 구분한다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 낮은 좌석 원형은 거실·식당·주방이 하나로 이어진 common-room에 놓일 수 있다. 이 모델은 내부 벽을 더하지 않고 주방으로 통하는 실제 통로는 배치 단계에 남긴다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 좌판·등판·팔·발치의 안정 face를 모델 안에 두고 위치·반복과 직물 finish는 다른 owner가 받는다. 같은 소파를 직선형과 긴 의자형으로 쓸 수 있어도 방별 instance를 이 문서가 만들지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#entry-common #45048eb 현관에서 공용부로 통하는 1.30m leaf 없는 개구는 소파의 part가 아니다. 앞쪽 chaise가 통로를 막는지 후속 배치가 검사해야 하므로 이 H2는 그 opening 위치를 바꾸지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#rear-common-glazing #8601cc9 공용부와 정원 사이 후면 유리는 고정창이고 sofa의 낮은 좌석은 실내 점유만 낸다. 발치를 늘려도 창을 출입문으로 바꾸거나 sill·head를 재설계하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#right-common-glazing #914052e 서측 후단 z=3.60..5.40m 고정 유리의 frame·shade는 입면 owner가 만든다. 소파 등판의 0.88m 높이는 그 유리 span이나 privacy 상태의 입력이 아니다.
 -->
 
 등 프레임·등 쿠션·베개는 아래 `@curve-linear`의 같은 기울기 곡선을 따른다. 첫 인터페이스는 맞닿고 둘째는 해당 행이 정한 양수 간격을 두므로 베개는 등 쿠션에서 떨어진 채 좌판에만 지지된다. 긴 의자 변종은 공통 본체 부품을 같은 좌표로 재사용하고 앞쪽 연장 프레임·좌판 두 부품과 다리 둘을 추가한다.
@@ -141,19 +141,19 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 @evidence settings/002-household.md#operative-subjects 가족 네 자리와 방문자 두 자리를 설명하는 여섯 자리 식탁 규모를 상판과 네 다리의 독립 모델로 받는다.
 @evidence spaces/002-spatial-graph.md#common-room 연속 공용실의 식사 영역을 여섯 자리 상판과 다리 원형으로 표현하고 kitchen 접근 route는 후속 배치가 확인하게 한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 식탁 상판·다리의 재사용 형상과 face는 models에서 닫고 여섯 의자의 배치와 마감은 별도 owner에 남긴다.
-@evidenceReview principles/core/common.md#scope-preservation  `dining-table`은 상판과 네 발의 원형만 정의한다. 여섯 개 의자의 transform을 이 식탁 표에 포함하지 않아 여섯 자리 요구를 배치 수량과 혼동하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  1.80×0.92m 상판을 y=0.696..0.740에 두고 네 0.045m 다리를 지면까지 내린다. 다리 사이를 막지 않는 무릎 공간도 형상의 부재로 정했다.
-@evidenceReview principles/core/common.md#declared-basis  operative-subjects의 가족·손님 여섯 자리와 common-room 식사 영역을 사용 배경으로 받는다. x=±0.81, z=±0.37 다리 및 0.025m 수평 모서리는 이 표의 저작 치수다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  여섯 자리 프로그램과 열린 공용실이 지정하지 않은 0.044m 상판, 네 지지점과 빈 하부를 하나의 reusable 식탁으로 결정한다. 공간 부모의 room 크기를 식탁 폭으로 다시 쓰지 않는다.
-@evidenceReview principles/design/models.md#representation-contract  `top/edge`가 네 수직 측면을, `top/underside`가 아래 수평면을 소유하고 다리마다 shaft·top·sole을 둔다. 모서리에서만 만나는 두 주소를 또 `top/side`로 중복 발행하면 본문 분할을 위반한다.
-@evidenceReview principles/design/models.md#spatial-convention  네 접지점의 중심을 원점으로 두고 +Z를 좌석 접근 방향으로 정했다. 상면 y=0.74와 다리 중심의 ±X·±Z 값이 있어 방에 놓는 코드가 축과 높이를 발명하지 않는다.
-@evidenceReview principles/design/models.md#reviewable-structure  하부 뷰에서 다리 사이의 빈 공간, 상부와 45°에서 상판 두께·둥근 코너를 비교한다. 하부 판을 추가해 무릎 통로를 막으면 이 관찰에서 바로 어긋난다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref03의 식탁과 자리 간격을 낮은 상판·네 다리의 비례로 가져오며 ref01·04·05의 보이지 않는 제품 세부는 차용하지 않는다. 목재의 실제 finish나 하중은 모델 형상 주장 밖이다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  공통 y=0.74 기준을 상판 실제 상면에 놓고 `top`·`leg-0..3`의 폐합 범위와 하부 빈 공간을 함께 준다. 상판 높이만 맞추고 다리가 없는 메시로는 이 사용을 충족하지 못한다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  operative-subjects의 여섯 자리, common-room의 식사 cell과 surface-decomposition의 모델 형상 소유를 대조했다. 상판과 네 지지는 local 범위 안에서 닫히고 실제 여섯 의자 간격 및 주방 접근은 instances가 검사하므로 부모 방을 수정하지 않는다.
-@evidenceReview settings/002-household.md#operative-subjects  가족 넷과 방문자 둘이 앉는 여섯 자리 식탁의 독립 상판을 1.80m 폭으로 제공한다. 의자 수와 가족 모델을 이 원형에서 생성하지 않는다.
-@evidenceReview spaces/002-spatial-graph.md#common-room  거실·식당·주방이 한 clear cell인 곳에 놓을 식탁 외곽만 낸다. 방을 가르는 내부 seam을 만들지 않고 식탁 옆 주방 route는 배치에서 검증한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  `top/upper`부터 네 `leg/sole`까지 물체의 재사용 면 주소를 models에 남긴다. 목재 finish와 여섯 의자 반복은 각각 materials·instances가 소비할 다른 결정이다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 `dining-table`은 상판과 네 발의 원형만 정의한다. 여섯 개 의자의 transform을 이 식탁 표에 포함하지 않아 여섯 자리 요구를 배치 수량과 혼동하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 1.80×0.92m 상판을 y=0.696..0.740에 두고 네 0.045m 다리를 지면까지 내린다. 다리 사이를 막지 않는 무릎 공간도 형상의 부재로 정했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb operative-subjects의 가족·손님 여섯 자리와 common-room 식사 영역을 사용 배경으로 받는다. x=±0.81, z=±0.37 다리 및 0.025m 수평 모서리는 이 표의 저작 치수다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 여섯 자리 프로그램과 열린 공용실이 지정하지 않은 0.044m 상판, 네 지지점과 빈 하부를 하나의 reusable 식탁으로 결정한다. 공간 부모의 room 크기를 식탁 폭으로 다시 쓰지 않는다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 `top/edge`가 네 수직 측면을, `top/underside`가 아래 수평면을 소유하고 다리마다 shaft·top·sole을 둔다. 모서리에서만 만나는 두 주소를 또 `top/side`로 중복 발행하면 본문 분할을 위반한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 네 접지점의 중심을 원점으로 두고 +Z를 좌석 접근 방향으로 정했다. 상면 y=0.74와 다리 중심의 ±X·±Z 값이 있어 방에 놓는 코드가 축과 높이를 발명하지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 하부 뷰에서 다리 사이의 빈 공간, 상부와 45°에서 상판 두께·둥근 코너를 비교한다. 하부 판을 추가해 무릎 통로를 막으면 이 관찰에서 바로 어긋난다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03의 식탁과 자리 간격을 낮은 상판·네 다리의 비례로 가져오며 ref01·04·05의 보이지 않는 제품 세부는 차용하지 않는다. 목재의 실제 finish나 하중은 모델 형상 주장 밖이다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 공통 y=0.74 기준을 상판 실제 상면에 놓고 `top`·`leg-0..3`의 폐합 범위와 하부 빈 공간을 함께 준다. 상판 높이만 맞추고 다리가 없는 메시로는 이 사용을 충족하지 못한다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 operative-subjects의 여섯 자리, common-room의 식사 cell과 surface-decomposition의 모델 형상 소유를 대조했다. 상판과 네 지지는 local 범위 안에서 닫히고 실제 여섯 의자 간격 및 주방 접근은 instances가 검사하므로 부모 방을 수정하지 않는다.
+@evidenceReview settings/002-household.md#operative-subjects #64a96e8 가족 넷과 방문자 둘이 앉는 여섯 자리 식탁의 독립 상판을 1.80m 폭으로 제공한다. 의자 수와 가족 모델을 이 원형에서 생성하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 거실·식당·주방이 한 clear cell인 곳에 놓을 식탁 외곽만 낸다. 방을 가르는 내부 seam을 만들지 않고 식탁 옆 주방 route는 배치에서 검증한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 `top/upper`부터 네 `leg/sole`까지 물체의 재사용 면 주소를 models에 남긴다. 목재 finish와 여섯 의자 반복은 각각 materials·instances가 소비할 다른 결정이다.
 -->
 
 @prose-part 상판은: top
@@ -198,19 +198,19 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 @evidence settings/002-household.md#ground-program 거실의 low table을 상판과 네 발이 열린 독립 원형으로 만든다.
 @evidence spaces/002-spatial-graph.md#common-room 탁자 원형은 거실 영역에 쓰이고 식당·주방으로 이어지는 경로의 최종 점유는 배치에 남긴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 탁자의 top·leg face를 재사용 주소로 정의하고 공용실 위치와 finish를 소유하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  낮은 탁자의 `top`과 네 `leg`만 이 주소 아래 둔다. 사진의 그릇은 `tabletop-props`이고 공용실에서의 위치는 instances에 남아 탁자 메시가 다른 소품을 먹지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  y=0.32..0.36의 0.04m 상판과 지면에서 상판까지 닿는 0.04m 사각 다리 넷을 정했다. 하부를 플린스로 채우지 않는 결정이 있어 낮은 탁자의 구조가 닫힌다.
-@evidenceReview principles/core/common.md#declared-basis  ref03 전경에서는 낮은 높이 관계, ref02에서는 거실 위치 역할을 읽는다. 0.90×1.25m와 네 발 구조는 사진을 복제한 값이 아니라 본문과 `@part`의 선택이다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program의 low table과 common-room의 거실 cell에는 없는 +Z 장축, 네 열린 지지부와 `top/edge/underside` 분할을 추가한다. 이 물체의 바닥 점유가 방의 새 경계가 되지는 않는다.
-@evidenceReview principles/design/models.md#representation-contract  상판과 다리는 각각 닫힌 부품이며 상판 edge와 underside는 접합선에서 만나고 다리의 sole은 따로 주소화된다. ref03의 그릇을 상판에 용접하면 이 part 모집단과 다르다.
-@evidenceReview principles/design/models.md#spatial-convention  네 발 중심 원점에서 긴 축을 +Z로 두고 다리 중심을 x=±0.39, z=±0.55에 고정했다. 상판의 0.36m 높이는 공통 식탁 기준보다 낮다는 관계도 local m 값이다.
-@evidenceReview principles/design/models.md#reviewable-structure  정면·상부·45°는 낮은 상판, 하부는 네 발 사이로 보이는 바닥을 묻게 한다. 막힌 상자형 탁자로 바꾸면 ref03과 얼핏 닮아도 하부 관찰에서 실패한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref03의 막힌 전경 탁자 외형은 의도적으로 버리고 낮은 높이와 거실 내 자리만 취한다. 개방된 다리 구조가 이 production의 차단 실루엣이므로 사진 복제를 스타일 판정으로 삼지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  `@envelope`의 ±0.45 X·±0.625 Z와 y=0..0.36 안에 상판과 네 leg의 점유가 모두 있다. 상판 두께와 지지 높이가 맞지 않거나 바닥 틈이 사라지면 이 원형은 미완성이다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 low table, common-room의 열린 거실 및 surface-decomposition의 형상 권한을 대조했다. local 0.90×1.25m 탁자는 새 방 기능이나 관절 상태가 필요 없고 실제 식탁 접근·소파 간격은 배치가 확인한다.
-@evidenceReview settings/002-household.md#ground-program  거실 목록의 low table에 독립 원형을 제공한다. 이 책상형 상판 위의 그릇은 별도 소품이므로 low table 역할에 식탁이나 주방 기구를 합치지 않는다.
-@evidenceReview spaces/002-spatial-graph.md#common-room  탁자의 외곽은 하나로 이어진 공용실 안의 거실 사용에 맞지만 방 내부를 분할하지 않는다. kitchen으로 이어지는 동선에 실제 간섭이 있는지는 instances가 이 외곽을 써서 판단한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  탁자의 상판·다리와 `upper/edge/underside/sole`을 모델 face로 노출한다. 공용실 내 좌표와 finish 색을 이 H2가 배정하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 낮은 탁자의 `top`과 네 `leg`만 이 주소 아래 둔다. 사진의 그릇은 `tabletop-props`이고 공용실에서의 위치는 instances에 남아 탁자 메시가 다른 소품을 먹지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 y=0.32..0.36의 0.04m 상판과 지면에서 상판까지 닿는 0.04m 사각 다리 넷을 정했다. 하부를 플린스로 채우지 않는 결정이 있어 낮은 탁자의 구조가 닫힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03 전경에서는 낮은 높이 관계, ref02에서는 거실 위치 역할을 읽는다. 0.90×1.25m와 네 발 구조는 사진을 복제한 값이 아니라 본문과 `@part`의 선택이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 low table과 common-room의 거실 cell에는 없는 +Z 장축, 네 열린 지지부와 `top/edge/underside` 분할을 추가한다. 이 물체의 바닥 점유가 방의 새 경계가 되지는 않는다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 상판과 다리는 각각 닫힌 부품이며 상판 edge와 underside는 접합선에서 만나고 다리의 sole은 따로 주소화된다. ref03의 그릇을 상판에 용접하면 이 part 모집단과 다르다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 네 발 중심 원점에서 긴 축을 +Z로 두고 다리 중심을 x=±0.39, z=±0.55에 고정했다. 상판의 0.36m 높이는 공통 식탁 기준보다 낮다는 관계도 local m 값이다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면·상부·45°는 낮은 상판, 하부는 네 발 사이로 보이는 바닥을 묻게 한다. 막힌 상자형 탁자로 바꾸면 ref03과 얼핏 닮아도 하부 관찰에서 실패한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03의 막힌 전경 탁자 외형은 의도적으로 버리고 낮은 높이와 거실 내 자리만 취한다. 개방된 다리 구조가 이 production의 차단 실루엣이므로 사진 복제를 스타일 판정으로 삼지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e `@envelope`의 ±0.45 X·±0.625 Z와 y=0..0.36 안에 상판과 네 leg의 점유가 모두 있다. 상판 두께와 지지 높이가 맞지 않거나 바닥 틈이 사라지면 이 원형은 미완성이다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 low table, common-room의 열린 거실 및 surface-decomposition의 형상 권한을 대조했다. local 0.90×1.25m 탁자는 새 방 기능이나 관절 상태가 필요 없고 실제 식탁 접근·소파 간격은 배치가 확인한다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 거실 목록의 low table에 독립 원형을 제공한다. 이 책상형 상판 위의 그릇은 별도 소품이므로 low table 역할에 식탁이나 주방 기구를 합치지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 탁자의 외곽은 하나로 이어진 공용실 안의 거실 사용에 맞지만 방 내부를 분할하지 않는다. kitchen으로 이어지는 동선에 실제 간섭이 있는지는 instances가 이 외곽을 써서 판단한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 탁자의 상판·다리와 `upper/edge/underside/sole`을 모델 face로 노출한다. 공용실 내 좌표와 finish 색을 이 H2가 배정하지 않는다.
 -->
 
 `coffee-table`은 X 폭 0.90, Z 깊이 1.25, 높이 0.36m다. 바닥의 네 발 중심이 원점이고 +Z가 긴 축이다. 상판은 두께 0.04m로 y=0.32..0.36, 모서리 반경 0.02m이며 다리 0.04×0.04m 네 개의 중심은 x=±0.39, z=±0.55, y=0..0.32다. `top/upper/edge/underside`와 `leg-0..3/shaft/top/sole`은 식탁과 별도 prototype 주소다. 상면 UV 장축은 Z, edge 이음은 underside로 이어지는 접합선에서 끝난다. 정면·상부·45°와 하부에서 낮은 높이와 상판 아래 빈 공간이 드러나야 한다. ref03 전경의 낮은 탁자와 ref02의 거실 탁자 위치 역할을 채택하지만 ref03 사진의 그릇을 탁자 메시로 합치지 않는다. ref01·04·05에는 이 탁자를 판독할 근거가 없다. 그릇·쟁반 prototype은 [식탁 소품](004-decor-and-fixtures.md#tabletop-props)이, 위 배치는 instances가 맡는다. 실제 탁자 하중은 `unverified`다.
@@ -251,20 +251,20 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidence settings/002-household.md#operative-subjects 가족 네 명과 방문자 두 명이 쓰는 자리 수를 의자 반복의 근거로 받되 인물 asset은 만들지 않는다.
 @evidence spaces/002-spatial-graph.md#common-room 연속 공용실의 식사 영역에 놓이는 의자 형상만 정하고 주방 통로의 최종 clear는 배치에서 검사한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 의자의 프레임·패드·다리와 노출 face를 models가 소유하고 재료 결합과 여섯 개의 transform은 넘긴다.
-@evidenceReview principles/core/common.md#scope-preservation  `seat-frame`·`seat-pad`·굽은 뒤 다리·등판은 식탁 의자에 묶고 연결된 셸 구조의 작업 의자는 `desk-chair`에 남긴다. 여섯 자리의 배치 자체를 하나의 메시로 굳히지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  뒤 다리마다 `@piece` 두 조각을 `@shear-z`로 잇고 `@flat-contact`가 등판 하단을 받친다. y=0.45..0.49의 등 아래 틈까지 정해 연결되지 않은 등판을 남기지 않는다.
-@evidenceReview principles/core/common.md#declared-basis  ref03의 별도 직물 좌판과 목재 뒤 지지를 받고 ref02는 여섯 반복 자리의 근거로만 쓴다. 0.03m 다리 단면과 등판 곡선은 본문 식과 구조 행이 직접 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program의 여섯 자리와 operative-subjects의 가족·방문자 수 위에 0.45m 분리 패드와 뒤로 휘는 다리·등판을 설계했다. 부모가 지정한 것은 좌석 수이지 그 접합 구조가 아니다.
-@evidenceReview principles/design/models.md#representation-contract  `seat-frame`, `seat-pad`, `back`과 네 다리를 서로 다른 닫힌 부품으로 둔다. 뒤 다리 두 조각은 하나의 part로 용접하고 직물과 목재는 face를 공유하지 않아 downstream 결합 주소가 분명하다.
-@evidenceReview principles/design/models.md#spatial-convention  바닥에서 좌판 X/Z 중심이 원점, +Z가 착석 앞이며 `seat-pad` 상면은 y=0.45다. 최고 등판 y=0.84와 뒤 다리의 음의 Z 점유가 있어 source가 뒤쪽을 뒤집을 수 없다.
-@evidenceReview principles/design/models.md#reviewable-structure  측면에서 등판의 z 곡선과 0.04m 빈 띠, 정면에서 패드 두께와 독립된 뒤 지지 둘을 보게 한다. 패드를 frame에 합치거나 틈을 메우면 이 view가 반증한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref03의 목재 프레임 위 천 좌판을 표면 분리로 옮기며 ref04의 셸형 작업 의자는 다른 원형으로 구분한다. 실제 직물 finish와 착석 강도는 이 모델 스타일의 증명이 아니다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  폭 0.48·깊이 0.55·높이 0.84m 안에 y=0.45 좌면, 등판과 다리 접점 및 face를 모두 둔다. 공통 의자 척도만 맞고 등판이 떠 있다면 이 H2의 지지 구조가 빠진다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 여섯 자리, operative-subjects의 네 가족·두 방문자와 common-room의 식사 cell을 대조했다. 각 의자의 sole과 등 지지는 local 설계로 닫히고 여섯 반복의 간격·주방 통로는 instances가 재므로 부모 치수 수정이 필요하지 않다.
-@evidenceReview settings/002-household.md#ground-program  식탁의 여섯 자리를 반복해서 채울 수 있는 한 좌석 원형이다. 여섯 개를 물체 H2에서 이미 배치했다고 해석하면 이 단일 `default` inventory와 어긋난다.
-@evidenceReview settings/002-household.md#operative-subjects  가족 넷과 방문자 둘을 좌석 수의 배경으로 받되 이 의자는 인물 형상을 포함하지 않는다. 사람 사이의 최종 자리 배치는 후속 instance 모집단에서 확인해야 한다.
-@evidenceReview spaces/002-spatial-graph.md#common-room  거실·식당·주방이 이어진 방의 식사 영역에 필요한 의자 외곽을 제공한다. 의자가 실제 route를 막는지는 room cell과 이 부품의 최종 변환을 함께 봐야 한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  천 패드와 목재 frame의 분리 face, 다리 sole을 모델이 노출한다. 재료 결합과 여섯 개의 좌석 transform은 이 주소의 소비자에게 남아 있다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 `seat-frame`·`seat-pad`·굽은 뒤 다리·등판은 식탁 의자에 묶고 연결된 셸 구조의 작업 의자는 `desk-chair`에 남긴다. 여섯 자리의 배치 자체를 하나의 메시로 굳히지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 뒤 다리마다 `@piece` 두 조각을 `@shear-z`로 잇고 `@flat-contact`가 등판 하단을 받친다. y=0.45..0.49의 등 아래 틈까지 정해 연결되지 않은 등판을 남기지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03의 별도 직물 좌판과 목재 뒤 지지를 받고 ref02는 여섯 반복 자리의 근거로만 쓴다. 0.03m 다리 단면과 등판 곡선은 본문 식과 구조 행이 직접 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 여섯 자리와 operative-subjects의 가족·방문자 수 위에 0.45m 분리 패드와 뒤로 휘는 다리·등판을 설계했다. 부모가 지정한 것은 좌석 수이지 그 접합 구조가 아니다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 `seat-frame`, `seat-pad`, `back`과 네 다리를 서로 다른 닫힌 부품으로 둔다. 뒤 다리 두 조각은 하나의 part로 용접하고 직물과 목재는 face를 공유하지 않아 downstream 결합 주소가 분명하다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥에서 좌판 X/Z 중심이 원점, +Z가 착석 앞이며 `seat-pad` 상면은 y=0.45다. 최고 등판 y=0.84와 뒤 다리의 음의 Z 점유가 있어 source가 뒤쪽을 뒤집을 수 없다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 측면에서 등판의 z 곡선과 0.04m 빈 띠, 정면에서 패드 두께와 독립된 뒤 지지 둘을 보게 한다. 패드를 frame에 합치거나 틈을 메우면 이 view가 반증한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03의 목재 프레임 위 천 좌판을 표면 분리로 옮기며 ref04의 셸형 작업 의자는 다른 원형으로 구분한다. 실제 직물 finish와 착석 강도는 이 모델 스타일의 증명이 아니다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 폭 0.48·깊이 0.55·높이 0.84m 안에 y=0.45 좌면, 등판과 다리 접점 및 face를 모두 둔다. 공통 의자 척도만 맞고 등판이 떠 있다면 이 H2의 지지 구조가 빠진다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 여섯 자리, operative-subjects의 네 가족·두 방문자와 common-room의 식사 cell을 대조했다. 각 의자의 sole과 등 지지는 local 설계로 닫히고 여섯 반복의 간격·주방 통로는 instances가 재므로 부모 치수 수정이 필요하지 않다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 식탁의 여섯 자리를 반복해서 채울 수 있는 한 좌석 원형이다. 여섯 개를 물체 H2에서 이미 배치했다고 해석하면 이 단일 `default` inventory와 어긋난다.
+@evidenceReview settings/002-household.md#operative-subjects #64a96e8 가족 넷과 방문자 둘을 좌석 수의 배경으로 받되 이 의자는 인물 형상을 포함하지 않는다. 사람 사이의 최종 자리 배치는 후속 instance 모집단에서 확인해야 한다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 거실·식당·주방이 이어진 방의 식사 영역에 필요한 의자 외곽을 제공한다. 의자가 실제 route를 막는지는 room cell과 이 부품의 최종 변환을 함께 봐야 한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 천 패드와 목재 frame의 분리 face, 다리 sole을 모델이 노출한다. 재료 결합과 여섯 개의 좌석 transform은 이 주소의 소비자에게 남아 있다.
 -->
 
 뒷다리 하나의 아래 shaft와 위로 굽은 접합부는 같은 부품 주소의 서로 면으로 닿는 두 점유 조각이다. 위쪽 조각은 `@piece`가 정한 좌판 위 구간에 있으므로 좌판 속을 관통하지 않는다. `@piece`는 부품 전체 AABB가 아닌 실제 연결된 점유를 검사한다.
@@ -322,20 +322,20 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidence settings/002-household.md#household-program 일상 가구로 주방 스툴 원형을 허용하는 생활 범위를 받는다.
 @evidence spaces/002-spatial-graph.md#common-room 연속 공용실의 주방 영역을 스툴의 가능한 배치 공간으로 받되 실제 점유는 instances가 검사한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 스툴 좌판·발받침 고리·다리의 형상과 face를 models에서 소유한다.
-@evidenceReview principles/core/common.md#scope-preservation  섬을 향하는 한 스툴의 좌판·발·발받침만 원형으로 두고 세 번의 반복은 배치에 남긴다. 실물 하중도 `unverified`여서 주방 장비 성능을 형상으로 대신하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  고리 네 막대는 `mitered-box`와 `@joint`로 45° 한 접합면에서만 만나고 끝 단면은 다리 내측에 유한 면으로 닿는다. AABB가 겹친다는 사실을 닫힌 고체 접합으로 오인하지 않게 한다.
-@evidenceReview principles/core/common.md#declared-basis  ref03에서 긴 섬 옆의 고리 스툴을 읽고 ref02는 배치 확인에만 쓴다. 좌면 y=0.63과 고리 y=0.23 및 mitre 절삭식은 이 H2의 수치 저작이다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program은 island를, common-room은 열린 주방 영역을 준다. 이 두 부모가 지정하지 않은 좌판·네 발·사각 발받침의 원형을 선택했고 세 개의 배치 수는 모델 결론으로 만들지 않았다.
-@evidenceReview principles/design/models.md#representation-contract  `seat`, `leg-0..3`, `footrest-0..3`을 별도 part로 내고 고리 모서리는 두 막대가 한 45° 면을 공유하도록 절삭한다. 열린 내부 부피를 두 번 발행하거나 고리를 장식 네 토막으로 나누면 어긋난다.
-@evidenceReview principles/design/models.md#spatial-convention  네 sole 중심을 원점으로 하고 +Z를 island 쪽으로 선언했다. y=0.585..0.63 좌판과 y=0.23 고리의 local 높이를 고정해 상판에 맞추는 배치가 숨은 pivot을 필요로 하지 않는다.
-@evidenceReview principles/design/models.md#reviewable-structure  위·옆·아래 45°에서 네 footrest가 하나의 둘레인지와 중심 바닥이 열려 있는지를 묻는다. 막대 사이에 틈이 나거나 중앙을 판으로 덮으면 이 view에서 반증된다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref03에서 가는 다리와 고리라는 차단 관계를 채택하고 0.36m 좌판·0.63m 높이는 모델의 값으로 둔다. ref02의 간단한 스툴에서 보이지 않는 제품 치수를 빌리지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  좌판 반지름 0.18 안에 다리 외곽과 ±0.1065 고리가 들어가며 접지부터 좌면까지 part가 연결된다. 전체 AABB만 맞고 고리가 다리에서 떨어져 있으면 완료된 원형이 아니다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 island, common-room의 주방 및 household-program의 생활 가구 범위를 대조했다. 세 개라는 수는 ref03에 근거한 후속 배치 선택이고 local 좌면·고리·접지는 새 방 경계나 운영 상태를 요구하지 않는다.
-@evidenceReview settings/002-household.md#ground-program  프로그램의 island를 스툴이 향하는 조리대 대상으로 받는다. 그 목록에 스툴 세 개가 적혀 있다고 주장하지 않고 반복 수는 별도 배치 결정으로 남긴다.
-@evidenceReview settings/002-household.md#household-program  특정 주민 asset 대신 일상 가구로 생활 흔적을 표현하는 범위에서 island-stool을 저작한다. 가족 구성원의 착석 자세나 행동은 포함하지 않는다.
-@evidenceReview spaces/002-spatial-graph.md#common-room  스툴 외곽을 거실·식당·주방이 연속된 방의 주방 쪽에 놓을 수 있다. 실제 셋의 간격이 식당에서 주방으로 가는 route를 지키는지는 이 local part 표로 판단하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  원통 좌판, 사각 다리와 footrest의 별도 face를 models가 소유한다. 몇 개를 어디에 두고 어느 finish를 붙일지는 이 표가 결정하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 섬을 향하는 한 스툴의 좌판·발·발받침만 원형으로 두고 세 번의 반복은 배치에 남긴다. 실물 하중도 `unverified`여서 주방 장비 성능을 형상으로 대신하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 고리 네 막대는 `mitered-box`와 `@joint`로 45° 한 접합면에서만 만나고 끝 단면은 다리 내측에 유한 면으로 닿는다. AABB가 겹친다는 사실을 닫힌 고체 접합으로 오인하지 않게 한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03에서 긴 섬 옆의 고리 스툴을 읽고 ref02는 배치 확인에만 쓴다. 좌면 y=0.63과 고리 y=0.23 및 mitre 절삭식은 이 H2의 수치 저작이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program은 island를, common-room은 열린 주방 영역을 준다. 이 두 부모가 지정하지 않은 좌판·네 발·사각 발받침의 원형을 선택했고 세 개의 배치 수는 모델 결론으로 만들지 않았다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 `seat`, `leg-0..3`, `footrest-0..3`을 별도 part로 내고 고리 모서리는 두 막대가 한 45° 면을 공유하도록 절삭한다. 열린 내부 부피를 두 번 발행하거나 고리를 장식 네 토막으로 나누면 어긋난다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 네 sole 중심을 원점으로 하고 +Z를 island 쪽으로 선언했다. y=0.585..0.63 좌판과 y=0.23 고리의 local 높이를 고정해 상판에 맞추는 배치가 숨은 pivot을 필요로 하지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 위·옆·아래 45°에서 네 footrest가 하나의 둘레인지와 중심 바닥이 열려 있는지를 묻는다. 막대 사이에 틈이 나거나 중앙을 판으로 덮으면 이 view에서 반증된다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03에서 가는 다리와 고리라는 차단 관계를 채택하고 0.36m 좌판·0.63m 높이는 모델의 값으로 둔다. ref02의 간단한 스툴에서 보이지 않는 제품 치수를 빌리지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 좌판 반지름 0.18 안에 다리 외곽과 ±0.1065 고리가 들어가며 접지부터 좌면까지 part가 연결된다. 전체 AABB만 맞고 고리가 다리에서 떨어져 있으면 완료된 원형이 아니다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 island, common-room의 주방 및 household-program의 생활 가구 범위를 대조했다. 세 개라는 수는 ref03에 근거한 후속 배치 선택이고 local 좌면·고리·접지는 새 방 경계나 운영 상태를 요구하지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 프로그램의 island를 스툴이 향하는 조리대 대상으로 받는다. 그 목록에 스툴 세 개가 적혀 있다고 주장하지 않고 반복 수는 별도 배치 결정으로 남긴다.
+@evidenceReview settings/002-household.md#household-program #d4b8ac1 특정 주민 asset 대신 일상 가구로 생활 흔적을 표현하는 범위에서 island-stool을 저작한다. 가족 구성원의 착석 자세나 행동은 포함하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 스툴 외곽을 거실·식당·주방이 연속된 방의 주방 쪽에 놓을 수 있다. 실제 셋의 간격이 식당에서 주방으로 가는 route를 지키는지는 이 local part 표로 판단하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 원통 좌판, 사각 다리와 footrest의 별도 face를 models가 소유한다. 몇 개를 어디에 두고 어느 finish를 붙일지는 이 표가 결정하지 않는다.
 -->
 
 @prose-part 좌판 지름: seat
@@ -392,24 +392,24 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidenceExclude spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면 고정창의 sill·head·privacy 층은 façade owner가 정한다. 책상 원형은 방 안의 벽 접촉과 보조 상판만 낸다.
 @evidenceExclude spaces/003-surface-ownership.md#left-flex-glazing 작업실 +X 측면 창은 전면 창과 직교하며 불투명 return을 남긴다. 책상은 그 두 opening을 연결하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-entry-common 현관과 공용실의 문 없는 opening을 가진 벽은 공간 경계다. 책상은 작업실 가구이며 공용 개구의 jamb를 형성하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  flex의 두 보조판 상태와 세 침실 폭을 같은 `work-desk` 가족으로 내지만 벽 구멍·높이 운동·방별 회전은 만들지 않는다. 책상 형상과 그 소비자 사이 경계가 남는다.
-@evidenceReview principles/core/common.md#substantive-completion  flex에는 서랍장·두 겹 기둥·collar·hinge와 두 판 상태를, 침실 변종에는 앞다리 둘·한 서랍·back rail을 각각 inventory에 넣었다. 접힌 손잡이 절삭과 보어까지 있어 다음 source가 연결 방식을 새로 고를 필요가 없다.
-@evidenceReview principles/core/common.md#declared-basis  ground-program의 작업 책상, flex-states의 보조 상판 및 upper-program의 침실 책상은 사용과 상태를 준다. 보이는 사각 sleeve, 0.70m hinge 위치와 세 폭은 ref04의 사진 측량이 아닌 이 H2의 국소 저작이다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  세 프로그램 부모와 flex-workroom의 2.24m 방 폭 위에 `aux-hinge`의 Z축·두 상태의 판 점유 및 침실 폭별 앞다리를 설계했다. 부모가 이미 준 작업/손님 용도를 반복한 것이 아니라 접촉 가능한 원형을 만든다.
-@evidenceReview principles/design/models.md#representation-contract  top과 aux-panel의 같은 Z 보어가 0.024m 핀을 받고 접힌 `aux-pull`은 판 안에 매립된다. 침실형에는 그 hinge·collar·기둥이 없어 두 가족의 part 집합이 다르다.
-@evidenceReview principles/design/models.md#spatial-convention  바닥의 상판 폭·깊이 중심을 원점, +Z를 앉는 쪽으로 두고 `back-rail` 뒤 z=-0.30을 벽 접촉 평면으로 지정했다. 힌지는 x=0.70,y=0.715이므로 판 회전축을 구현에서 추측하지 않는다.
-@evidenceReview principles/design/models.md#reviewable-structure  folded/open의 보어와 판 손잡이 돌출, 정면·하부의 서랍장과 침실 앞다리 지지를 각각 볼 수 있다. 열린 판을 닫힌 판과 동시에 내거나 무릎 영역을 메우면 이 비교가 실패한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref04의 벽 책상·서랍선은 유지하지만 보이지 않는 지지부는 설정의 조절 단서를 읽히게 하는 사각 두 겹 기둥으로 따로 설계했다. 사진에 없는 높이 구동 성능은 주장하지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  `flex-1400`의 필수 folded/open과 `bed-1200/1240/1250` 각각이 다른 AABB·부품 집합을 가진다. 벽 접촉 back rail과 앞 지지 경로가 모두 있어 폭 이름만 바뀌는 빈 변종이 아니다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 조절 desk, flex-states의 고정 책상·보조판, upper-program의 작은 desk와 flex-workroom의 2.24m 폭을 대조했다. local hinge·기둥·앞다리는 이 능력 안에서 닫히고 실제 출입 clear는 instances가 재므로 부모 방 경계를 고칠 결과가 없다.
-@evidenceReview settings/002-household.md#ground-program  flex workroom의 조절식 책상과 접이식 작업면을 `flex-1400`의 보이는 두 겹 기둥과 aux-panel로 표현한다. 실제 높이 조절 작동이나 방 안 책상 위치는 프로그램과 이 형상 사이에서 별도다.
-@evidenceReview settings/002-household.md#flex-states  보조 상판은 folded/open의 서로 다른 정지 geometry이며 책상과 wall shelf는 작업·손님 상태 사이에도 고정이라는 상류 조건을 따른다. 판이 회전하는 시간 경로는 납품하지 않는다.
-@evidenceReview settings/002-household.md#upper-program  주침실의 small desk와 작은 침실들의 desk 선택을 `bed-1200/1240/1250`의 가능한 목적지로 받는다. 선반을 고른 방까지 책상이 필수라고 넓히지 않는다.
-@evidenceReview spaces/002-spatial-graph.md#flex-workroom  clear 폭 2.24m인 전면 작업실 안에서 쓸 책상 점유를 제공하되 어느 위치에서 두 상태의 통행 원통이 지나가는지는 정하지 않는다. room cell을 책상 외곽에 맞게 키우지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  상판, 보어·힌지·기둥과 서랍의 안정 part/face는 모델이 노출한다. 벽 속 anchor와 실제 방별 배치는 후속 owner가 대조할 일이다.
-@evidenceExcludeReview spaces/003-surface-ownership.md#front-flex-glazing  전면 고정창은 façade의 sill·head·privacy 면이고 책상 `back-rail`은 실내 벽 접촉이다. 보조판이 열려도 그 창의 cut 또는 shade 상태를 모델이 수정하지 않는다.
-@evidenceExcludeReview spaces/003-surface-ownership.md#left-flex-glazing  +X 측면 유리는 전면 창과 직교하면서 불투명 return을 남긴다. desk의 오른쪽 aux-panel 회전은 방 안 가구 결과이지 두 유리를 모서리에서 잇는 opening이 아니다.
-@evidenceExcludeReview spaces/002-spatial-graph.md#wall-entry-common  현관과 common-room 사이 boundary는 작업실 책상의 벽 datum이 아니다. 책상 back rail을 붙여도 leaf 없는 entry-common 개구의 jamb나 wall 몸체는 생성하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 flex의 두 보조판 상태와 세 침실 폭을 같은 `work-desk` 가족으로 내지만 벽 구멍·높이 운동·방별 회전은 만들지 않는다. 책상 형상과 그 소비자 사이 경계가 남는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 flex에는 서랍장·두 겹 기둥·collar·hinge와 두 판 상태를, 침실 변종에는 앞다리 둘·한 서랍·back rail을 각각 inventory에 넣었다. 접힌 손잡이 절삭과 보어까지 있어 다음 source가 연결 방식을 새로 고를 필요가 없다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ground-program의 작업 책상, flex-states의 보조 상판 및 upper-program의 침실 책상은 사용과 상태를 준다. 보이는 사각 sleeve, 0.70m hinge 위치와 세 폭은 ref04의 사진 측량이 아닌 이 H2의 국소 저작이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 세 프로그램 부모와 flex-workroom의 2.24m 방 폭 위에 `aux-hinge`의 Z축·두 상태의 판 점유 및 침실 폭별 앞다리를 설계했다. 부모가 이미 준 작업/손님 용도를 반복한 것이 아니라 접촉 가능한 원형을 만든다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 top과 aux-panel의 같은 Z 보어가 0.024m 핀을 받고 접힌 `aux-pull`은 판 안에 매립된다. 침실형에는 그 hinge·collar·기둥이 없어 두 가족의 part 집합이 다르다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥의 상판 폭·깊이 중심을 원점, +Z를 앉는 쪽으로 두고 `back-rail` 뒤 z=-0.30을 벽 접촉 평면으로 지정했다. 힌지는 x=0.70,y=0.715이므로 판 회전축을 구현에서 추측하지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b folded/open의 보어와 판 손잡이 돌출, 정면·하부의 서랍장과 침실 앞다리 지지를 각각 볼 수 있다. 열린 판을 닫힌 판과 동시에 내거나 무릎 영역을 메우면 이 비교가 실패한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref04의 벽 책상·서랍선은 유지하지만 보이지 않는 지지부는 설정의 조절 단서를 읽히게 하는 사각 두 겹 기둥으로 따로 설계했다. 사진에 없는 높이 구동 성능은 주장하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e `flex-1400`의 필수 folded/open과 `bed-1200/1240/1250` 각각이 다른 AABB·부품 집합을 가진다. 벽 접촉 back rail과 앞 지지 경로가 모두 있어 폭 이름만 바뀌는 빈 변종이 아니다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 조절 desk, flex-states의 고정 책상·보조판, upper-program의 작은 desk와 flex-workroom의 2.24m 폭을 대조했다. local hinge·기둥·앞다리는 이 능력 안에서 닫히고 실제 출입 clear는 instances가 재므로 부모 방 경계를 고칠 결과가 없다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 flex workroom의 조절식 책상과 접이식 작업면을 `flex-1400`의 보이는 두 겹 기둥과 aux-panel로 표현한다. 실제 높이 조절 작동이나 방 안 책상 위치는 프로그램과 이 형상 사이에서 별도다.
+@evidenceReview settings/002-household.md#flex-states #a162198 보조 상판은 folded/open의 서로 다른 정지 geometry이며 책상과 wall shelf는 작업·손님 상태 사이에도 고정이라는 상류 조건을 따른다. 판이 회전하는 시간 경로는 납품하지 않는다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 주침실의 small desk와 작은 침실들의 desk 선택을 `bed-1200/1240/1250`의 가능한 목적지로 받는다. 선반을 고른 방까지 책상이 필수라고 넓히지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#flex-workroom #4b08fbc clear 폭 2.24m인 전면 작업실 안에서 쓸 책상 점유를 제공하되 어느 위치에서 두 상태의 통행 원통이 지나가는지는 정하지 않는다. room cell을 책상 외곽에 맞게 키우지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 상판, 보어·힌지·기둥과 서랍의 안정 part/face는 모델이 노출한다. 벽 속 anchor와 실제 방별 배치는 후속 owner가 대조할 일이다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#front-flex-glazing #74f735e 전면 고정창은 façade의 sill·head·privacy 면이고 책상 `back-rail`은 실내 벽 접촉이다. 보조판이 열려도 그 창의 cut 또는 shade 상태를 모델이 수정하지 않는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#left-flex-glazing #2ca6488 +X 측면 유리는 전면 창과 직교하면서 불투명 return을 남긴다. desk의 오른쪽 aux-panel 회전은 방 안 가구 결과이지 두 유리를 모서리에서 잇는 opening이 아니다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-entry-common #4167cfb 현관과 common-room 사이 boundary는 작업실 책상의 벽 datum이 아니다. 책상 back rail을 붙여도 leaf 없는 entry-common 개구의 jamb나 wall 몸체는 생성하지 않는다.
 -->
 
 @prose-part flex 상판은: top
@@ -531,20 +531,20 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @evidence settings/002-household.md#upper-program 주침실의 작은 책상과 두 작은 침실의 책상 또는 선반을 목적지 기능으로 받는다. 침실 의자는 ref02에 근거한 모델 저작 선택이며 방별 수량은 배치가 정한다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 출입 통로를 남겨야 하는 방 조건을 받아 의자의 실제 위치는 instances에 남긴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 의자의 셸·패드·다리와 face 주소를 models에서 정한다.
-@evidenceReview principles/core/common.md#scope-preservation  작업실과 침실 책상에 재사용할 연결형 셸 좌석을 이 H2가 맡고 식탁의 별도 목재 프레임 의자는 `dining-chair`에 둔다. 두 의자 유형이 같은 소유 주소로 합쳐지지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  `@curve-layer`가 셸 뒤 곡선과 0.035m 천층, 0.001m 좌판 뒤 간격을 정의한다. 두 upholstery 조각은 Y 접합면에서 한 부품으로 닫혀 단순한 겹친 상자가 아니다.
-@evidenceReview principles/core/common.md#declared-basis  ref04의 초록 연결 셸은 외관 근거이고 ref02 침실 책상 의자는 재사용 근거다. 등 곡선의 계수와 네 다리의 x=±0.18 좌표는 이 단위의 수치값이다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program은 작업실 chair를 명시하고 upper-program은 침실 desk를 허용한다. 그 두 사용 장소에 연결된 seat/back 셸과 분리 천층·네 발을 추가하는 것은 모델 쪽 선택이며 상층 프로그램이 의자 수를 준 것으로 읽지 않는다.
-@evidenceReview principles/design/models.md#representation-contract  `shell-seat`와 `shell-back`은 공유 모서리에서 연결하고 두 천 조각도 닫힌 한 `upholstery`로 용접한다. 천층의 볼륨을 셸과 겹치지 않게 계산하므로 서로 다른 face 소유가 유지된다.
-@evidenceReview principles/design/models.md#spatial-convention  바닥 x=z=0을 원점, +Z를 앉는 앞쪽으로 두고 좌면 y=0.39..0.45와 등 최고 y=0.83을 지정한다. 뒤쪽 곡선과 네 지지점도 이 local m에서 정의된다.
-@evidenceReview principles/design/models.md#reviewable-structure  측면·45°에서 seat와 back의 한 곡선 및 얇은 천층을 보고 하부에서 네 다리 사이가 열린 것을 확인한다. 기존 직각 독립 등판을 그대로 두면 연결 셸 관찰에 맞지 않는다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref04 초록 의자의 연속 곡면과 얇은 덮개를 형상으로 채택하고 ref03 목재 식탁 의자의 분리된 등 구조와 구분한다. 색이나 직물 재질 선택을 셸 형상의 성과로 세지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  0.52×0.55×0.83m 안에서 셸·천층의 곡면 AABB와 다리의 실제 접촉이 닫힌다. 외곽만 맞는 빈 셸이나 서로 관통한 상자는 구조·층 분할을 충족하지 못한다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 작업실 chair, upper-program의 작은 책상과 flex-workroom의 출입 유지 조건을 대조했다. local 셸·다리의 접지와 크기는 새 침실 좌석 의무나 상태를 만들지 않으며 최종 통행은 instances가 재므로 부모 수정 근거가 없다.
-@evidenceReview settings/002-household.md#ground-program  작업실 프로그램의 chair에 책상과 분리된 좌석을 제공한다. 책상 높이 조절 기구나 벽 선반을 의자 part로 편입하지 않는다.
-@evidenceReview settings/002-household.md#upper-program  침실의 small desk 또는 desk 선택은 같은 의자 원형이 놓일 수 있는 배경이다. 그 프로그램에 의자가 적혀 있지는 않아 실제 침실 의자 채택은 ref02에 근거한 모델 선택이며 수량은 배치가 정한다.
-@evidenceReview spaces/002-spatial-graph.md#flex-workroom  2.24m clear 폭의 작업실에서 출입 통로가 유지돼야 한다는 조건 아래 의자 외곽을 배치 입력으로 낸다. 0.52m 의자가 실제 문 clear를 피하는지 이 원형 하나로 보증하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  `shell-seat/upper`, `shell-back/front`, `upholstery/seat`와 다리 sole은 모델 face다. 천의 finish와 방마다 반복할 좌표는 이 원형에 들어 있지 않다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 작업실과 침실 책상에 재사용할 연결형 셸 좌석을 이 H2가 맡고 식탁의 별도 목재 프레임 의자는 `dining-chair`에 둔다. 두 의자 유형이 같은 소유 주소로 합쳐지지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 `@curve-layer`가 셸 뒤 곡선과 0.035m 천층, 0.001m 좌판 뒤 간격을 정의한다. 두 upholstery 조각은 Y 접합면에서 한 부품으로 닫혀 단순한 겹친 상자가 아니다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref04의 초록 연결 셸은 외관 근거이고 ref02 침실 책상 의자는 재사용 근거다. 등 곡선의 계수와 네 다리의 x=±0.18 좌표는 이 단위의 수치값이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program은 작업실 chair를 명시하고 upper-program은 침실 desk를 허용한다. 그 두 사용 장소에 연결된 seat/back 셸과 분리 천층·네 발을 추가하는 것은 모델 쪽 선택이며 상층 프로그램이 의자 수를 준 것으로 읽지 않는다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 `shell-seat`와 `shell-back`은 공유 모서리에서 연결하고 두 천 조각도 닫힌 한 `upholstery`로 용접한다. 천층의 볼륨을 셸과 겹치지 않게 계산하므로 서로 다른 face 소유가 유지된다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 x=z=0을 원점, +Z를 앉는 앞쪽으로 두고 좌면 y=0.39..0.45와 등 최고 y=0.83을 지정한다. 뒤쪽 곡선과 네 지지점도 이 local m에서 정의된다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 측면·45°에서 seat와 back의 한 곡선 및 얇은 천층을 보고 하부에서 네 다리 사이가 열린 것을 확인한다. 기존 직각 독립 등판을 그대로 두면 연결 셸 관찰에 맞지 않는다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref04 초록 의자의 연속 곡면과 얇은 덮개를 형상으로 채택하고 ref03 목재 식탁 의자의 분리된 등 구조와 구분한다. 색이나 직물 재질 선택을 셸 형상의 성과로 세지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.52×0.55×0.83m 안에서 셸·천층의 곡면 AABB와 다리의 실제 접촉이 닫힌다. 외곽만 맞는 빈 셸이나 서로 관통한 상자는 구조·층 분할을 충족하지 못한다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 작업실 chair, upper-program의 작은 책상과 flex-workroom의 출입 유지 조건을 대조했다. local 셸·다리의 접지와 크기는 새 침실 좌석 의무나 상태를 만들지 않으며 최종 통행은 instances가 재므로 부모 수정 근거가 없다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 작업실 프로그램의 chair에 책상과 분리된 좌석을 제공한다. 책상 높이 조절 기구나 벽 선반을 의자 part로 편입하지 않는다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 침실의 small desk 또는 desk 선택은 같은 의자 원형이 놓일 수 있는 배경이다. 그 프로그램에 의자가 적혀 있지는 않아 실제 침실 의자 채택은 ref02에 근거한 모델 선택이며 수량은 배치가 정한다.
+@evidenceReview spaces/002-spatial-graph.md#flex-workroom #4b08fbc 2.24m clear 폭의 작업실에서 출입 통로가 유지돼야 한다는 조건 아래 의자 외곽을 배치 입력으로 낸다. 0.52m 의자가 실제 문 clear를 피하는지 이 원형 하나로 보증하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 `shell-seat/upper`, `shell-back/front`, `upholstery/seat`와 다리 sole은 모델 face다. 천의 finish와 방마다 반복할 좌표는 이 원형에 들어 있지 않다.
 -->
 
 @axis-control default: upholstery, Z, -0.074, upholstery-to-back junction
@@ -606,20 +606,20 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @evidence settings/002-household.md#upper-program 침실의 작은 desk를 같은 원형의 가능한 배치 대상으로 받는다.
 @evidence settings/002-household.md#household-program 생활 흔적을 물체로 표현하는 범위 안에서 화면과 키보드를 저작 소품으로 선택한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 화면 받침·bezel·키 배열의 형상 주소를 models가 정하고 전자 작동과 방별 배치는 약속하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  이 H2는 `work-display`와 `work-keyboard`의 물체 외형만 낸다. 실제 화면 UI·문자·전원은 `unverified`이고 받치는 desk 상판도 다른 원형의 부품이다.
-@evidenceReview principles/core/common.md#substantive-completion  화면은 stand-base부터 recessed screen까지 다섯 부품, 키보드는 body와 12×4 `@grid`의 48 cap으로 닫는다. cap 수와 bezel 절삭을 누락하면 작업 도구의 외형 결과가 다르다.
-@evidenceReview principles/core/common.md#declared-basis  ref04의 책상 위 장치는 형상 선택의 배경이고 ref02 책상은 다른 놓임의 근거다. 0.50m 화면 폭, key pitch 0.025×0.023과 recess 0.0035는 본문·구조 행의 모델 값이다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program의 작업실 desk와 upper-program의 침실 desk가 허용한 상판 위에, 화면 지지대·절삭 bezel·행 우선 key 원형을 별도 물체로 설계했다. 부모는 화면이나 키보드의 전자 성능을 요구하지 않는다.
-@evidenceReview principles/design/models.md#representation-contract  bezel의 중앙 구멍을 관통 절삭하고 `screen`을 housing 앞에 물린다. 키 48개는 `keyboard-body` 상면에 접하는 각각의 닫힌 부품이어서 눈에 보이는 격자를 하나의 텍스처로 대신할 수 없다.
-@evidenceReview principles/design/models.md#spatial-convention  두 장치의 아래면 중심을 각각 원점, +Z를 사용자 쪽으로 정했다. 키 id `12r+c`와 x/z pitch 식이 있어 오른쪽·앞쪽 및 행 순서가 source에 맡겨지지 않는다.
-@evidenceReview principles/design/models.md#reviewable-structure  정면에서 stand와 안쪽으로 물린 screen, 상부·45°에서 12열×4행의 별도 cap과 지지 body를 볼 수 있다. 평평한 판에 키 그림만 그리면 이 관찰에서 차이가 난다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref04의 간결한 작업 장치를 평판과 낮은 key 배열로 번역한다. 앱 화면·문자는 만들지 않아 사진의 콘텐츠를 이 모델의 시대·스타일 결정으로 추측하지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  display의 ±0.25 X·y=0..0.42와 keyboard의 ±0.175 X·y=0..0.015 외곽 안에 각 부품이 포함된다. stand 또는 key grid가 빠지면 bounds만 맞아도 사용을 정한 representation이 아니다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground·upper-program의 desk, household-program의 물체로 표현하는 생활 흔적과 surface-decomposition의 소품 형상 소유를 대조했다. 두 장치는 상판 지지 원형이고 별도 전자 상태·방 opening을 요구하지 않으므로 부모 프로그램을 바꾸지 않는다.
-@evidenceReview settings/002-household.md#ground-program  flex 작업실 desk를 두 장치의 가능한 지지 상판으로 받는다. 이 프로그램이 화면 수나 출력 기능을 지정했다고 읽지는 않는다.
-@evidenceReview settings/002-household.md#upper-program  주침실의 small desk 및 다른 침실의 desk 선택은 같은 물체가 다시 놓일 가능한 목적지다. 선반만 고른 방까지 화면·키보드를 필수 배치로 만들지 않는다.
-@evidenceReview settings/002-household.md#household-program  주민 캐릭터 없이 가구·소품으로 생활 흔적을 주는 설정에서 두 작업 도구를 고른다. 화면 글자나 사용자의 행동을 그 흔적의 필수 성능으로 주장하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  받침, housing, screen과 48 cap의 part/face는 models가 정한다. 책상 위 transform과 전자 작동은 이 재사용 형상 주소에 포함되지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 이 H2는 `work-display`와 `work-keyboard`의 물체 외형만 낸다. 실제 화면 UI·문자·전원은 `unverified`이고 받치는 desk 상판도 다른 원형의 부품이다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 화면은 stand-base부터 recessed screen까지 다섯 부품, 키보드는 body와 12×4 `@grid`의 48 cap으로 닫는다. cap 수와 bezel 절삭을 누락하면 작업 도구의 외형 결과가 다르다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref04의 책상 위 장치는 형상 선택의 배경이고 ref02 책상은 다른 놓임의 근거다. 0.50m 화면 폭, key pitch 0.025×0.023과 recess 0.0035는 본문·구조 행의 모델 값이다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 작업실 desk와 upper-program의 침실 desk가 허용한 상판 위에, 화면 지지대·절삭 bezel·행 우선 key 원형을 별도 물체로 설계했다. 부모는 화면이나 키보드의 전자 성능을 요구하지 않는다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 bezel의 중앙 구멍을 관통 절삭하고 `screen`을 housing 앞에 물린다. 키 48개는 `keyboard-body` 상면에 접하는 각각의 닫힌 부품이어서 눈에 보이는 격자를 하나의 텍스처로 대신할 수 없다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 두 장치의 아래면 중심을 각각 원점, +Z를 사용자 쪽으로 정했다. 키 id `12r+c`와 x/z pitch 식이 있어 오른쪽·앞쪽 및 행 순서가 source에 맡겨지지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면에서 stand와 안쪽으로 물린 screen, 상부·45°에서 12열×4행의 별도 cap과 지지 body를 볼 수 있다. 평평한 판에 키 그림만 그리면 이 관찰에서 차이가 난다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref04의 간결한 작업 장치를 평판과 낮은 key 배열로 번역한다. 앱 화면·문자는 만들지 않아 사진의 콘텐츠를 이 모델의 시대·스타일 결정으로 추측하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e display의 ±0.25 X·y=0..0.42와 keyboard의 ±0.175 X·y=0..0.015 외곽 안에 각 부품이 포함된다. stand 또는 key grid가 빠지면 bounds만 맞아도 사용을 정한 representation이 아니다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground·upper-program의 desk, household-program의 물체로 표현하는 생활 흔적과 surface-decomposition의 소품 형상 소유를 대조했다. 두 장치는 상판 지지 원형이고 별도 전자 상태·방 opening을 요구하지 않으므로 부모 프로그램을 바꾸지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 flex 작업실 desk를 두 장치의 가능한 지지 상판으로 받는다. 이 프로그램이 화면 수나 출력 기능을 지정했다고 읽지는 않는다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 주침실의 small desk 및 다른 침실의 desk 선택은 같은 물체가 다시 놓일 가능한 목적지다. 선반만 고른 방까지 화면·키보드를 필수 배치로 만들지 않는다.
+@evidenceReview settings/002-household.md#household-program #d4b8ac1 주민 캐릭터 없이 가구·소품으로 생활 흔적을 주는 설정에서 두 작업 도구를 고른다. 화면 글자나 사용자의 행동을 그 흔적의 필수 성능으로 주장하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 받침, housing, screen과 48 cap의 part/face는 models가 정한다. 책상 위 transform과 전자 작동은 이 재사용 형상 주소에 포함되지 않는다.
 -->
 
 @prose-part 화면 하단은: housing
@@ -676,19 +676,19 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @evidence settings/002-household.md#ground-program 전면 작업실의 chair 기능에 낮은 독립 좌석 원형을 제안하되 의자 수를 프로그램의 의무로 돌리지 않는다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 2.24m clear 폭과 현관 직결 출입을 안락의자 배치의 경계로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 안락의자의 팔걸이·쿠션·다리 형상과 face를 models가 정한다.
-@evidenceReview principles/core/common.md#scope-preservation  ref02 작업실 창가의 독립 낮은 좌석만 `accent-chair/default`에 둔다. 거실 소파의 축소형이나 접이식 책상 앞 `desk-chair`로 합치지 않아 세 좌석 역할을 유지한다.
-@evidenceReview principles/core/common.md#substantive-completion  frame 위 seat와 back, 등판 앞 cushion, 양팔과 네 개별 접지 다리의 유한 접촉 경로를 정했다. 부품 이름만 붙인 빈 의자 틀이 아니라 닫힌 열 part다.
-@evidenceReview principles/core/common.md#declared-basis  ref02의 낮은 창가 의자와 팔걸이 높이가 시각 근거다. 0.86m 폭·0.82m 등 높이·0.70m 깊이와 사각 부품 접합은 이 H2가 표로 결정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program의 작업실 chair와 flex-workroom의 전면 방에 낮은 양팔·등 쿠션을 가진 별도 원형을 더했다. 프로그램이 안락의자 수량이나 이 접합을 이미 지시한 것은 아니다.
-@evidenceReview principles/design/models.md#representation-contract  frame의 outer/underside, seat의 upper/side/underside, back과 cushion의 앞뒤 및 네 다리 sole이 다른 면 주소다. 쿠션과 등판을 한 상자·한 face로 만들면 재사용 표면 소유가 사라진다.
-@evidenceReview principles/design/models.md#spatial-convention  바닥 중심이 원점이고 +Z가 앉는 앞쪽이며 다리는 y=0..0.12, 등판은 y=0.82까지다. 이 값으로 창가에 회전 배치해도 원형 자체의 방향이 유지된다.
-@evidenceReview principles/design/models.md#reviewable-structure  정면·측면·45°에서 양팔이 낮은 좌판과 어떻게 붙는지, 등 쿠션이 등판과 좌판에 닿는지, 네 발이 분리되는지 본다. 다리 하나가 빠진 결과는 겉 실루엣이 비슷해도 지지 관찰에서 드러난다.
-@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 초록 낮은 의자를 직육면체 덩어리와 열린 네 발로 번역한다. ref04 작업 셸 의자의 한 장 곡면과 섞거나 천 색을 이 geometry의 스타일 성공으로 세지 않는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion  ±0.43m 양팔 폭과 최고 0.82m 등 높이 안에 frame, seat, back, cushion, arm 둘, leg 넷이 들어간다. 숨은 추가 지지부를 구현자가 만들어야 하는 공백은 없다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  ground-program의 작업실 chair와 flex-workroom의 2.24m 폭·현관 출입을 대조했다. 낮은 팔걸이와 네 접지는 원형 안에서 닫히고 실제 문 앞 clear는 instances의 배치 검사여서 방 크기나 정지 상태를 새로 요구하지 않는다.
-@evidenceReview settings/002-household.md#ground-program  전면 작업실의 chair 기능에 이 낮은 독립 좌석을 사용할 수 있다. 프로그램이 추가 안락의자의 개수나 창가 좌표를 강제했다는 뜻은 아니다.
-@evidenceReview spaces/002-spatial-graph.md#flex-workroom  현관에서만 진입하는 2.24m 폭 작업실에 놓을 원형의 0.86m 점유를 제공한다. 침대·책상과 함께 놓았을 때 통로가 남는지는 실제 배치를 봐야 한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  arm·back-cushion·leg를 별도 part와 face로 만든다. 초록 finish나 창가 transform은 이 H2의 형상 표가 고르지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 ref02 작업실 창가의 독립 낮은 좌석만 `accent-chair/default`에 둔다. 거실 소파의 축소형이나 접이식 책상 앞 `desk-chair`로 합치지 않아 세 좌석 역할을 유지한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 frame 위 seat와 back, 등판 앞 cushion, 양팔과 네 개별 접지 다리의 유한 접촉 경로를 정했다. 부품 이름만 붙인 빈 의자 틀이 아니라 닫힌 열 part다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02의 낮은 창가 의자와 팔걸이 높이가 시각 근거다. 0.86m 폭·0.82m 등 높이·0.70m 깊이와 사각 부품 접합은 이 H2가 표로 결정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 작업실 chair와 flex-workroom의 전면 방에 낮은 양팔·등 쿠션을 가진 별도 원형을 더했다. 프로그램이 안락의자 수량이나 이 접합을 이미 지시한 것은 아니다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 frame의 outer/underside, seat의 upper/side/underside, back과 cushion의 앞뒤 및 네 다리 sole이 다른 면 주소다. 쿠션과 등판을 한 상자·한 face로 만들면 재사용 표면 소유가 사라진다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 중심이 원점이고 +Z가 앉는 앞쪽이며 다리는 y=0..0.12, 등판은 y=0.82까지다. 이 값으로 창가에 회전 배치해도 원형 자체의 방향이 유지된다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면·측면·45°에서 양팔이 낮은 좌판과 어떻게 붙는지, 등 쿠션이 등판과 좌판에 닿는지, 네 발이 분리되는지 본다. 다리 하나가 빠진 결과는 겉 실루엣이 비슷해도 지지 관찰에서 드러난다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 초록 낮은 의자를 직육면체 덩어리와 열린 네 발로 번역한다. ref04 작업 셸 의자의 한 장 곡면과 섞거나 천 색을 이 geometry의 스타일 성공으로 세지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e ±0.43m 양팔 폭과 최고 0.82m 등 높이 안에 frame, seat, back, cushion, arm 둘, leg 넷이 들어간다. 숨은 추가 지지부를 구현자가 만들어야 하는 공백은 없다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 작업실 chair와 flex-workroom의 2.24m 폭·현관 출입을 대조했다. 낮은 팔걸이와 네 접지는 원형 안에서 닫히고 실제 문 앞 clear는 instances의 배치 검사여서 방 크기나 정지 상태를 새로 요구하지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 전면 작업실의 chair 기능에 이 낮은 독립 좌석을 사용할 수 있다. 프로그램이 추가 안락의자의 개수나 창가 좌표를 강제했다는 뜻은 아니다.
+@evidenceReview spaces/002-spatial-graph.md#flex-workroom #4b08fbc 현관에서만 진입하는 2.24m 폭 작업실에 놓을 원형의 0.86m 점유를 제공한다. 침대·책상과 함께 놓았을 때 통로가 남는지는 실제 배치를 봐야 한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 arm·back-cushion·leg를 별도 part와 face로 만든다. 초록 finish나 창가 transform은 이 H2의 형상 표가 고르지 않는다.
 -->
 
 ref02의 작업실 창가에 놓인 낮은 독립 안락의자를 `accent-chair/default`로 둔다. 바닥 중심이 원점이고 +Z가 앉는 사람의 앞이다. 아래 행의 닫힌 직육면체가 부품의 실제 점유다. 넷의 다리는 좌우·앞뒤 두 위치씩이며, 프레임 위에 좌판, 뒤 가장자리 위에 등판이 선다. 등 쿠션은 등판 앞면과, 좌판은 양팔의 안쪽 면과 각각 유한 면으로 접촉한다. 등 쿠션의 아래면과 좌판의 윗면은 같은 Y 평면에서 만난다. 모서리를 임의로 둥글리는 자유도나 숨은 내부 부재는 없다. 실제 인체 하중은 `unverified`이고 방 안의 통행 폭은 instances가 측정한다.
