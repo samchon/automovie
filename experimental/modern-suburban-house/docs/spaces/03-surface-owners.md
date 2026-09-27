@@ -3,13 +3,13 @@
 ## 입면·지붕·층의 소유 {#exterior-surface-handoff}
 <!--
 @evidence principles/core/common.md#scope-preservation 네 입면, 공유 벽, 지붕 경사면, 포치, 본채/차고 바닥·층간·천장 바탕, 계단, 포장과 울타리 패널·문기둥의 완결 면을 spaces source에 배정하고 별도 대문 문짝은 models에 넘기며 계산 파일의 역할을 구분한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 표가 네 입면·공유 벽체·여덟 지붕 경사면·포치·1층/층간/차고 바탕·계단·네 포장·울타리 패널과 문기둥을 spaces 파일에 배정함을 대조했다. 대문 문짝·철물은 models/02에 별도 배정하고 building·junctions·openings·boundaries·site는 계산 역할로 구분한다.
+@evidenceReview principles/core/common.md#scope-preservation 표가 네 입면·공유 벽체·여덟 지붕 경사면·포치·1층/층간/차고 바탕·계단·네 포장·울타리 패널과 문기둥을 spaces 파일에 배정함을 대조했다. 대문 문짝·철물은 models/02에 별도 배정하고 building·site는 조립, junctions·openings·boundaries는 공유 계산 역할로 구분한다.
 @evidence principles/core/common.md#substantive-completion 완결 면마다 source owner를 정하고 본채/차고 공유 벽은 지붕 높이에 따라 garage와 right 두 파일에 배정하며 building·roof/junctions·openings·boundaries·site 파일은 계산과 조립만 하게 한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 완결 면의 source owner를 적고 공유 벽 행은 차고 지붕을 경계로 `garage.ts`와 `envelope/right.ts` 두 몸체를 적는지 대조했다. `building.ts`는 외곽·공유 좌표 조립, `roof/junctions.ts`는 교차 경계 산출로 한정한다.
 @evidence principles/core/common.md#declared-basis 배정 근거는 whole-surface-owner 계약이고 spaces source의 건물 골격은 실재하지만 model 충전 부재는 후속 분기라 표가 그 두 시점의 owner 경계임을 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표면 분해 인계와 완결 표면 계약 링크, 현재 spaces source의 골격과 아직 없는 model 충전 부재라는 두 시점을 본문에서 다시 대조했다. 충전 부재 면 census 완료로 확대하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 사전 분해 요구를 입면별·지붕 경사면별·포장별 파일로 나누고 종전의 포장 전체 한 파일 예약을 소스 저작 전에 보행면·차도·테라스로 쪼갠다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation이 owner·파일 경계 선언만 요구한 데 비해 이 H2는 지붕 경사면별 파일과, ‘종전의 포장 전체 한 파일 예약’을 보행면·차도·테라스 파일로 나눈 결정을 소스 저작 전에 더함을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 surface-allocation의 방 안쪽을 포함한 완결 면 owner·파일 경계와 동일 면의 독립 기준 금지를 대조했다. 이 H2는 지붕 경사면별 파일과 종전 포장 전체 한 파일 예약을 보행면·차도·테라스 파일로 나누는 구체 배정을 더한다.
 @evidence principles/design/spaces.md#space-topology 포치 아래 대기와 정원문 바깥 대기를 각 연속 포장 owner에 통째로 속하게 하고 관리길의 앞뒤 두 구역도 같은 면 owner를 유지한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-walk 행의 ‘포치 아래 대기를 포함’, terrace 행의 정원문 바깥 대기 포함, site.ts 문단의 관리길 앞뒤 두 구역 단일 owner를 대조해 대기 구역의 포함 관계가 포장 면 하나에 묶임을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 모서리·단차 몸체는 07, 벽 상단은 roof/00, 층간 가장자리는 08, 지상 지지는 10이 배정해도 이 표의 면 소유는 바뀌지 않는다.
@@ -17,7 +17,7 @@
 @evidence principles/design/spaces.md#space-verification-address 표의 행 수를 면 개수로 쓰지 않고 현재 spaces part 측정과 후속 model 충전 면 census를 단계별로 구분한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현재 spaces 골격의 part 측정과 후속 model 충전 면의 미구현을 본문에서 구분하며 표의 행 수를 전체 표면 수로 읽지 않는지 다시 확인했다.
 @evidence settings/20-verification.md#surface-allocation 외피·층·지붕과 접합을 실제 source 파일 경계로 나누어 첫 저작에 넘긴다.
-@evidenceReview settings/20-verification.md#surface-allocation #a6f76e5 surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 첫 저작 전 파일 경계가 정해졌음을 확인했다.
+@evidenceReview settings/20-verification.md#surface-allocation surface-allocation의 외부 입면·층 바닥·천장·계단 구멍과 접합 owner 선언을 입면 네 행, floors/ground·upper, 차고 천장, stair 행과 07·08·10 접합 문단에 대조해 현재 source owner 경계가 명시됐음을 확인했다.
 @evidence settings/20-verification.md#visual-grammar 외벽·벽돌·지붕·포치 면의 U/V 축과 세계 원점·절단 이음을 완결 면 owner에 배정하고 재료는 반복 길이와 광학 응답을 정하게 한다.
 @evidenceReview settings/20-verification.md#visual-grammar #5b47467 설정이 면의 UV 좌표를 spaces/models에 맡긴 범위를 본문의 외벽 X/Z 접선·Y 높이, 지붕 처마 축·경사 거리, 세계 원점과 절단 이음에 대조했다. 반복 길이와 광학 응답은 materials에 남긴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work surface-allocation의 "여러 소유자의 독립 기준을 허용하지 않는다"를 계산 파일과 면 owner의 분리에 대조했고 공유 계산이 면을 소유하지 않아 부모 수정이 없었다.
@@ -84,13 +84,13 @@
 @evidence principles/core/common.md#declared-basis 방별 경계·문·창·storey binding은 동선 인계의 방 owner와 대조한다. 방별 spaces 골격 source는 있으나 model 충전이 없어 방 전체 면 census는 unverified라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단의 동선·수납 링크, 현재 spaces 골격 source의 존재, 아직 없는 model 충전과 전체 면 census unverified를 대조했다. 표 행 수를 실제 방 면 개수로 쓰지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation storage 설정의 "사람이 들어가는 수납실을 공간으로 저작하면 다른 방과 같은 전체 관찰을 부담한다"를 옷방은 방, 린넨장·외투장은 소비 방의 접면이라는 분류로 적용한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage 설정은 사람이 들어가는 수납실의 관찰 부담만 정했는데, 이 H2는 옷방을 자기 파일의 방으로, 린넨장은 upper-hall, 외투장은 entry의 접면으로 분류하는 결정을 더함을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage 설정의 계단참 근처 린넨 수납, 사용실에서 직접 닿는 외투장·옷장, 사람이 들어가는 수납실의 전체 관찰 조건을 대조했다. 이 H2는 옷방을 자기 파일의 방으로, 린넨장은 upper-hall, 외투장은 entry의 접면으로 분류하는 결정을 더한다.
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner가 한 번 절단한다. 방 owner는 안쪽 벽·바닥·reveal 마감 면을 만들며 별도 닫힌 문짝·창호·벽 걸레받이는 models가 만들어 같은 접면에 맞춘다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문의 방별 설명은 안쪽 벽·바닥·reveal 면을 방 source에 두고 문짝·창호·걸레받이의 닫힌 부재를 각 models/03·01·06에 둔다. 방 source가 그 판을 복제하지 않고 두 모델이 받은 void와 벽·바닥 접선을 각각 맞추도록 한 문장을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority 본문의 방별 설명은 안쪽 벽·바닥·reveal 면을 방 source에 두고 문짝·창호·걸레받이의 닫힌 부재를 각 models/03·01·06에 둔다. 방 source가 그 부재를 복제하지 않고 문·창 모델은 받은 void, 걸레받이는 벽·바닥 접선을 맞추도록 한 문장을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 ‘방의 면 개수를 표의 행 수로 대체하지 않는다’와 방별 binding을 05의 방 owner와 대조하라는 문장이 동선 표 교차 대조와 source 이후 census를 이 배정의 반증 검사로 지목함을 확인했다.
+@evidenceReview principles/design/spaces.md#space-verification-address # 방의 면 개수를 표의 행 수로 대체하지 않고 방별 binding을 05의 방 owner와 대조한다는 본문을 확인했다. 현재 spaces 골격과 후속 모델 충전 뒤 전체 면 census를 구별해 이 배정의 반증 시점을 명시한다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.
 @evidenceReview settings/10-house.md#storage #cc3fdd3 storage는 수납실을 공간으로 저작한 경우 다른 방과 같은 전체 관찰을 부담하게 하며 붙박이장이라는 이름으로 실제 방의 질문을 없애지 못하게 한다. 본문은 옷방을 자기 파일과 전체 관찰이 있는 공간으로 채택하고 린넨장·외투장은 각각 복도·현관의 접면으로 분류한다.
 @evidence settings/20-verification.md#visual-grammar 방 안쪽 벽·바닥·천장과 계단 면의 U/V 축, 원점과 실제 절단 이음을 spaces에 정하고 모델의 독립 부재 UV를 모델 owner에 남긴다.

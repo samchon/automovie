@@ -13,7 +13,7 @@
 @evidence principles/design/spaces.md#space-topology 각 입면 void가 방 안쪽 reveal까지 관통하고 문짝 상부 유리를 별도 외벽 구멍으로 세지 않으며 기준 상태에서 외부 문과 모든 창을 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 입면 void가 외곽 안쪽 면까지 관통하고 문짝 상부 유리를 그 문짝의 충전으로 세며 외부 문과 모든 창이 기준 상태에서 닫힌다는 문장을 대조해 안팎 관계와 개구부 개수가 메쉬 없이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 개구부 좌표는 네 입면 owner, front-door만 entry owner가 소유하고 방은 같은 id의 reveal만 맡으며 openings.ts는 입면 geometry를 가져가지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 전면·후면·왼쪽·오른쪽 입면 H2와 rooms/entry의 front-door만 좌표를 갖고 방은 같은 id의 reveal, openings.ts는 공통 예약만 맡는지 대조해 창 좌표가 두 곳에서 저작되지 않음을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 전면·후면·왼쪽·오른쪽 입면 H2와 rooms/entry의 front-door가 개구부 좌표를 갖고 방은 같은 id·void의 안쪽 마감과 reveal을 맡는다. openings.ts는 공통 예약·인계 형식과 관통 절단 조건을 제공하는 계산 경계임을 대조해 창 좌표가 두 곳에서 저작되지 않음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 방 안쪽 reveal에서 외벽 void를 지나는 단면, 닫힌 충전의 정면/측면, 문 열림과 대기로 거친 폭과 순폭을 구별하게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 안쪽 reveal에서 같은 외벽 void를 지나는 단면, 닫힌 충전 정면/측면, 문 열림과 대기, 거친 폭에서 프레임·문짝·손잡이 점유를 뺀 순폭 판정을 대조해 창·문 주장마다 반증 관찰이 지정됨을 확인했다.
 @evidence settings/10-house.md#openings 사각 구멍으로 창호를 대신하지 않도록 벽·틀·유리·살대의 깊이와 충전을 분리한다.

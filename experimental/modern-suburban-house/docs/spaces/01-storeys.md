@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 순높이 2.75 m·2.60 m는 main-mass 높이 범위 안의 선택이고 0.31 m는 세부 적층이나 구조 안전을 검증한 값이 아닌 예약이라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 순높이 2.75 m·2.60 m를 본채 높이 범위 링크 안의 선택으로, 0.31 m를 ‘세부 적층이나 구조 안전을 검증한 결과가 아니다’라는 예약으로 밝혀 각 수치의 근거와 지위가 드러남을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 층별 순높이 범위를 두 datum과 층간 0.31 m로 고정하고 차고·포치를 ground-storey 부속으로, 지붕 속을 층이 아닌 공간으로 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass가 1층 2.65–2.80 m·2층 2.50–2.65 m 순높이 범위만 둔 데 비해 이 H2는 두 datum과 층간 0.31 m를 고정하고 차고·포치를 ground-storey 부속, 지붕 속을 비층 공간으로 정함을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 main-mass의 두 층 본채·차고 종속과 1층 2.65–2.80 m·2층 2.50–2.65 m 순높이 범위, 오른쪽 박공의 비층 조건을 대조했다. 이 H2는 두 datum과 층간 0.31 m를 고정하고 차고·포치를 ground-storey 부속으로, 지붕 속 전체를 비층 공간으로 정한다.
 @evidence principles/design/spaces.md#space-topology 본채에는 두 storey만 두고 차고·포치는 ground-storey 부속이며 지붕 속 공간을 세 번째 층으로 쓰지 않고 각 실은 건물 전체의 자식이어도 storey 소속을 생략하지 않고 해당 storey를 직접 참조한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘본채에는 이 두 storey만’, 차고·현관 포치의 ground-storey 부속, 지붕 속 세 번째 층 금지, ‘건물 전체의 자식이라는 이유로 storey 소속을 생략하지 않는다’를 포함 관계 요구와 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority datum은 src/spaces/storeys.ts가 한 번 소유하고 계단 구멍 평면은 stair-floor-opening에서 받으며 이 높이 예약 안의 층간 점유는 interstorey-floor-boundary가 정하고 upper-storey 천장 datum은 upper-ceiling-closure가 소비한다.

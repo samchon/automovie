@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 높이 3.06 m는 storey-datums에서 받고 각 구간의 마지막 챌판이 다음 참에 도달하므로 참을 디딤으로 다시 세지 않는 산출 규칙을 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 3.06 m를 층 기준 링크에서 받고 ‘각 구간의 마지막 챌판은 다음 참에 도달하므로 참을 디딤으로 한 번 더 세지 않는다’는 산출 규칙과 ‘현재 값은 저작 입력’이라는 지위를 밝혀 근거가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 L형 계단을 현관 하부 대기에서 -Z로 오른 뒤 중간참에서 +X로 한 번 꺾는 실제 진행 방향과 X = [-1.80, -0.65] 경로로 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 stair 설정이 L형·두 flight·중간참만 정한 데 비해 이 H2는 하부 대기에서 -Z로 오른 뒤 중간참에서 +X로 한 번 꺾는 방향과 X = [-1.80, -0.65] 경로, 위 flight X = -0.65 → 1.87을 더함을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 stair 설정의 본채 중앙 위치, 현관·상층 복도 연결, 두 직선 flight와 중간참의 L형, 통행 개구부·재료 조건을 대조했다. 이 H2는 하부 대기에서 -Z로 오른 뒤 +X로 꺾는 방향과 아래 X = [-1.80, -0.65], 위 X = -0.65 → 1.87 경로를 더한다.
 @evidence principles/design/spaces.md#space-topology 두 flight와 중간참을 ground-storey 계단 공간에 두고 목적지는 upper-storey 도착면이며 두 storey 사이에 이 연결 하나만 두고 계단 아래를 통과해야 거실이나 후면 공용부에 닿는 경로를 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 두 flight와 중간참의 ground-storey 귀속, upper-storey 도착면 목적지, ‘두 storey 사이에는 이 계단 연결 하나만’, 계단 아래를 지나야 거실·후면 공용부에 닿는 경로 금지를 포함·연결 요구와 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority 디딤 위치는 개수·진행 방향·시작점에서 반복 산출하고 손으로 같은 레코드를 복제하지 않으며 좌표 허용 오차는 main-building-extent에서 받는다.
@@ -103,7 +103,7 @@
 @evidence principles/core/common.md#declared-basis 1.00 m는 use-profile 0.95 m 목표와의 설계 비교이며 실제 난간 점유 계측이 아니라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 1.00 m를 사용자 프로필 링크의 0.95 m 목표보다 0.05 m 큰 계산값으로 적고 ‘실제 난간 점유를 계측한 합격값이 아니다’라고 밝혀 비교 근거와 미계측 상태가 구분됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 계단 유효폭 목표에 기둥·손잡이 끝·접합판이 넘으면 안 되는 예약선과 넘었을 때 그 부재를 고치는 규칙을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 use-profile·stair 설정이 0.95 m 목표만 준 데 비해 이 H2는 기둥·손잡이 끝·접합판이 넘으면 안 되는 양쪽 0.075 m 예약선과 넘으면 같은 단을 재검사해 부재를 고치는 규칙을 더함을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 use-profile의 0.95 m 계단 유효폭·2.00 m 머리 공간과 점유체 축소 금지, stair 설정의 실제 단면 검토를 대조했다. 이 H2는 기둥·손잡이 끝·접합판에 양쪽 0.075 m 예약선을 두고 넘으면 같은 단을 재검사해 부재를 고치는 구체 규칙을 더한다.
 @evidence principles/design/spaces.md#space-topology 하부 대기는 현관, 상부 대기는 복도의 바닥이고 위 flight 아래 닫힌 외투장은 현관 수납에만 속하며 관통 통로가 아니다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 하부 대기는 현관, 상부 대기는 복도의 바닥을 소비하고 위 flight 아래 닫힌 외투장은 현관 수납에만 속하며 ‘관통 통로가 아니다’를 대조해 계단 주변 공간의 포함·비통행 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 경로 폭은 stair-reservation, 두 대기는 entry-plan·upper-hall-plan, 외투장은 entry-coat-storage에서 받는다.

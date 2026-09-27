@@ -83,7 +83,7 @@
 
 [실내 현관의 참나무색 마루](../settings/10-house.md#entry)이고 1층 거실·공용부·서비스 통로·팬트리에 이어진다. 구성은 폭 0.13 m 판의 오일 마감 원목 마루이며 판 이음 선은 후속 마감 맵의 0.13 m 판 모듈과 실제 방·문턱 경계에서 표현하며, 장래 별도 판 부재를 만들면 그 경계와 일치시킨다. 외관 기준색은 오일 마감 표면의 `#B08050`(선형 0.434, 0.216, 0.080), roughness 0.50, metallic 0.0, transmission 0.0이다. 결합 면은 entry·living·common·service·pantry owner의 보이는 바닥 마감이다. 문턱에서 다른 재료로 바뀌는 선은 [실내 경계의 문턱](../spaces/07-boundary-assembly.md#interior-boundary-junctions)을 따른다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 04와 03의 비교 view에서 마루가 꿀빛으로 읽히고 파우더룸·세탁실 문턱에서 끊기는지를 관찰한다.
 
-표면 결속 계획: 1층 마루는 판 폭 0.13 m와 길이 방향의 결정론적 오크 결·판 이음을 색/거칠기 맵에 함께 둔다. [바닥 owner의 UV와 절단](../spaces/08-floor-assembly.md#interstorey-floor-boundary)을 소비해 방 사이 위상을 이어 가며 욕실·세탁실·문턱에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 1층 마루는 판 폭 0.13 m와 길이 방향의 결정론적 오크 결·판 이음을 색/거칠기 맵에 함께 둔다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비해 방 사이 위상을 이어 가며 욕실·세탁실·문턱에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 밝은 목재 계단 디딤판 {#stair-tread-wood}
 <!--
@@ -191,7 +191,7 @@
 
 [밝은 타일 바닥](../settings/10-house.md#powder)과 욕실의 방수 바닥이다. 구성은 유약 자기질 타일 0.30 m 모듈이며, [타일 줄눈](#tile-grout)은 같은 바닥 면의 UV에 0.005 m 폭 마스크와 음영용 normal 응답으로 결합한다. 별도 오목 geometry와 별도 `grout` face id는 요구하지 않는다. 외관은 유약면을 근사하는 `#D8D4CC`(선형 0.687, 0.658, 0.604), roughness 0.40, metallic 0.0, transmission 0.0이다. 벽 타일보다 어두워 바닥과 벽의 경계가 읽힌다. 결합 면은 powder·shower-bath·tub-bath owner의 보이는 바닥 마감이다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 욕실 threshold view에서 바닥·벽 타일이 구별되는지를 관찰한다.
 
-표면 결속 계획: 욕실 바닥 타일은 0.30 × 0.30 m 판과 줄눈의 반복 결을 쓴다. [바닥 owner의 UV와 절단](../spaces/08-floor-assembly.md#interstorey-floor-boundary)을 소비하고 배수·벽·문턱에서 실제 면을 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 욕실 바닥 타일은 0.30 × 0.30 m 판과 줄눈의 반복 결을 쓴다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 배수·벽·문턱에서 실제 면을 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 욕실 벽 타일 {#bath-wall-tile}
 <!--
@@ -228,7 +228,7 @@
 
 이 H2는 두 타일 재료에 공통인 시멘트 줄눈의 텍스처 응답을 소유한다. 외관은 `#A9A39A`(선형 0.397, 0.366, 0.323), roughness 0.90, metallic 0.0, transmission 0.0이다. 독립 줄눈 geometry와 `grout` face id는 없다. bath-floor-tile과 bath-wall-tile이 이미 결합한 방 owner 면의 UV 안에서 타일 중앙과 줄눈 마스크를 구분하며, normal 응답은 빛의 기울기만 바꾸고 표면 실루엣·깊이를 바꾸지 않는다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 근접 view에서 모듈과 0.005 m 선이 맞고 리뷰 거리에서도 색과 법선 음영으로 줄눈이 읽히는지를 관찰한다.
 
-표면 결속 계획: 음수 좌표에도 일관되도록 `modE(x,m)=x−m floor(x/m)`로 둔다. 바닥 UV에서 `dU=min(modE(U,0.30),0.30−modE(U,0.30))`, `dV=min(modE(V,0.30),0.30−modE(V,0.30))` m로 정해 `dU<0.0025` 또는 `dV<0.0025`이면 경계 양쪽을 합친 폭 0.005 m 줄눈이다. 벽은 `r=floor(V/0.10)`, `U′=U+0.15×modE(r,2)`로 줄을 0.15 m씩 엇갈리게 하고 같은 `dU` 식의 U에 U′를, `dV` 식의 모듈 0.30에 0.10을 대입한다. 줄눈 중심 normal은 타일 면보다 뒤로 눌린 듯한 0.002 m 높이차를 경계 양쪽 0.0025 m에서 선형 기울기로만 표현한다. 실제 메시를 변위시키지 않는다. 두 타일 면의 UV와 절단은 각각 [바닥](../spaces/08-floor-assembly.md#interstorey-floor-boundary)·[방 안쪽 벽](../spaces/03-surface-owners.md#interior-surface-handoff) owner에서 받는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 음수 좌표에도 일관되도록 `modE(x,m)=x−m floor(x/m)`로 둔다. 바닥 UV에서 `dU=min(modE(U,0.30),0.30−modE(U,0.30))`, `dV=min(modE(V,0.30),0.30−modE(V,0.30))` m로 정해 `dU<0.0025` 또는 `dV<0.0025`이면 경계 양쪽을 합친 폭 0.005 m 줄눈이다. 벽은 `r=floor(V/0.10)`, `U′=U+0.15×modE(r,2)`로 줄을 0.15 m씩 엇갈리게 하고 같은 `dU` 식의 U에 U′를, `dV` 식의 모듈 0.30에 0.10을 대입한다. 줄눈 중심 normal은 타일 면보다 뒤로 눌린 듯한 0.002 m 높이차를 경계 양쪽 0.0025 m에서 선형 기울기로만 표현한다. 실제 메시를 변위시키지 않는다. 두 타일 면의 UV와 절단은 [방 안쪽 면 owner](../spaces/03-surface-owners.md#interior-surface-handoff)에서 각각 받는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 세탁실 밝은 회색 바닥 {#laundry-floor}
 <!--
@@ -246,7 +246,7 @@
 
 [밝은 회색의 내구성 바닥](../settings/10-house.md#laundry-mudroom)이다. 구성은 비닐 판 바닥이다. 외관은 `#C9C4BA`(선형 0.584, 0.552, 0.491), roughness 0.50, metallic 0.0, transmission 0.0이다. [차고 콘크리트](#garage-concrete)보다 밝고 매끈해 두 바닥이 같은 문턱에서 구별된다. 결합 면은 laundry owner의 보이는 바닥 마감과 머드룸 쪽 높은 문턱 챌면이다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 머드룸 문 view에서 두 바닥의 명도·광택 차를 관찰한다.
 
-표면 결속 계획: 세탁실의 밝은 회색 바닥은 0.30 m 정방 모듈의 약한 얼룩·거칠기를 쓴다. [방 바닥 owner의 UV와 절단](../spaces/08-floor-assembly.md#interstorey-floor-boundary)을 소비하고 머드룸·차고 문턱에서 이음을 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 세탁실의 밝은 회색 바닥은 0.30 m 정방 모듈의 약한 얼룩·거칠기를 쓴다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 머드룸·차고 문턱에서 이음을 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 차고 콘크리트 {#garage-concrete}
 <!--
@@ -265,4 +265,4 @@
 
 [차고의 콘크리트 바닥과 내부](../settings/10-house.md#garage)다. 구성은 흙손 마감 콘크리트 슬래브다. 외관은 `#9C9890`(선형 0.332, 0.314, 0.279), roughness 0.85, metallic 0.0, transmission 0.0이다. 차고 내부 벽은 도장 석고보드이므로 [실내 벽 도장](#interior-wall-paint)을 받고 회색 변형을 따로 두지 않는다. 결합 면은 [garage-interior](../spaces/rooms/garage-interior.md#garage-interior-plan) owner의 노출 콘크리트 상면이다. source owner는 `src/materials/interior/floors.ts`이고, 리뷰는 차고 코너 view에서 바닥이 포장 콘크리트보다 어둡고 거칠게 읽히는지를 관찰한다.
 
-표면 결속 계획: 빈 차고 바닥은 0.50 m 콘크리트 잔골재·완만한 얼룩 모듈을 쓴다. [차고 바닥 owner의 UV와 절단](../spaces/08-floor-assembly.md#interstorey-floor-boundary)을 소비하고 차고문 레일·머드룸 문턱·포장 경계에서 자른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 빈 차고 바닥은 0.50 m 콘크리트 잔골재·완만한 얼룩 모듈을 쓴다. [방 바닥 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 차고문 레일·머드룸 문턱·포장 경계에서 자른다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.

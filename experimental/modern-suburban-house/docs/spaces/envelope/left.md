@@ -67,7 +67,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 거실 설정의 벽난로와 겹치지 않도록 창을 화구보다 뒤쪽 벽에 두는 위치 결정을 더한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 living의 왼쪽 외벽 벽난로에 대해 본문이 Z = [-5.50, -4.30] m 창을 벽난로/굴뚝 예약보다 뒤에 두어 화구와 겹치지 않게 한 위치 결정을 더했는지 확인했다.
 @evidence principles/design/spaces.md#space-topology 창을 ground-storey living-room의 왼쪽 외벽 중 벽난로 앞면 예약보다 뒤쪽 구간에 속하게 한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'ground-storey의 living-room에 속한다'와 벽난로/굴뚝 예약보다 뒤라는 진술을 대조해 Z = [-5.50, -4.30] m 창의 방 소속과 화구 대비 위치가 복원됨을 확인했다.
+@evidenceReview principles/design/spaces.md#space-topology 본문에서 창을 ground-storey의 living-room에 바인딩하고 벽난로/굴뚝 예약보다 뒤에 둔 결정을 대조해 Z = [-5.50, -4.30] m 창의 방 소속과 화구 대비 위치가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 굴뚝/벽난로 예약 좌표를 다시 적지 않고 링크된 owner보다 뒤라는 결과만 둔다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문이 living-left-window를 굴뚝 좌표 재기록 없이 chimney-roof-interface 링크보다 '뒤'라는 결과로만 두는지 대조했고, 그 앞면 Z = [-3.00, -1.40] m보다 뒤임도 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 거실 가구 뒤 접근, 창/굴뚝 단면, 왼쪽 시야의 읽힘을 반증 관찰로 둔다.

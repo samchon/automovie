@@ -9,11 +9,11 @@
 @evidence principles/core/common.md#declared-basis 표의 이름은 소스로 넘길 식별자이며 compiled id·개수·binding이 아니고 방의 마감 안쪽 경계·입구·예약 사용 공간은 표에 링크한 각 owner가 결정한다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 두 외곽을 00-building, 두 층을 01-storeys, 층간 연결을 02-stair에 돌리고 표 이름을 compiled id가 아닌 인계 식별자로 한정함을 대조해 각 연결 진술의 근거를 가리킬 수 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 고정 그래프를 builtEnvironmentAdjacentSpaces의 경계 인접성과 분리해 통행용 문·열린 접속·connector만 사람 경로 edge로 세는 규칙을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings entry·service-band·upper-hall의 방 그래프에는 없는, 경계 인접 반환을 막힌 칸막이 통과로 읽지 않고 문 void·조작 상태·connector만 edge로 세는 규칙이 본문에 더해졌음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings entry·service-band·upper-hall의 방 그래프에는 없는, 경계 인접 반환을 막힌 칸막이 통과로 읽지 않고 통행문·열린 접속의 실제 boundary/void와 조작 상태 또는 저작된 connector를 edge로 세는 규칙이 본문에 더해졌음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 팬트리·파우더룸·침실을 통과하지 않고 공용실·차고·두 욕실에 닿아야 하며, 실내에서 차고로 가는 edge는 laundry-garage-door 하나이고 garage-front-door는 개방 검사 상태에서만 driveway와 garage를 잇는 외부 edge다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 표에서 garage에 닿는 행이 laundry-garage-door 행과 개방 검사 상태의 driveway 행뿐이고 팬트리/파우더룸/침실 비통과가 검사 문단에 명시됨을 대조해 place graph가 메쉬 없이 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 표는 방 owner의 좌표를 복사하지 않고 연결 순서만 인계하며 층간 연결은 main-stair, 두 층은 storey owner가 소유한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 표 셀이 좌표 대신 rooms·envelope·site H2 링크만 담고 층간 연결을 02-stair#stair-connector-handoff, 층을 01-storeys에 두는지 대조해 이 H2가 다시 저작한 공간 값이 없음을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 표 셀이 좌표 대신 rooms·envelope·porch·site H2 링크를 담고 층간 연결을 02-stair#stair-connector-handoff, 층을 01-storeys에 두는지 대조해 이 H2가 다시 저작한 공간 값이 없음을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 현관에서 각 목적지까지 갔다 같은 경계 순서로 돌아오는 경로를 검사하고 거친 개구부 좌표와 문틀/문짝 뒤 통행을 다른 검사로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 왕복 경로 검사, 거친 개구부 좌표와 문틀/문짝 뒤 통행의 분리, 문 조작 가능과 즉시 통과의 구별, 04-observations 인계를 대조해 연결 주장마다 반증할 통행 결과가 지정됨을 확인했다.
 @evidence settings/10-house.md#service-band service-access에서 service-powder-door·service-laundry-door·service-pantry-door로 파우더룸·세탁 머드룸·팬트리에 분기하고 laundry-mudroom의 laundry-garage-door로 차고에 닿는다.

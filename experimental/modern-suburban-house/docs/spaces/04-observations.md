@@ -3,7 +3,7 @@
 ## 공간 산출물에서 파생할 검사 {#spatial-observation-derivation}
 <!--
 @evidence principles/core/common.md#scope-preservation 외부 setting·노출 입면과 모서리·지붕과 하부·개구부, 방마다 threshold·네 안쪽 모서리·중심 네 방향, 비직사각의 추가 질문, 01–05 추가 질문과 07·08·09·10·방별 사용·대지·울타리의 추가 단면을 한 파생 규칙에 모은다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 첫 문단의 외부 setting·노출 입면과 모서리·지붕 하부·개구부와 방별 threshold·네 안쪽 모서리·중심 네 방향, 이후 07–10·방 사용·대지·울타리 문단의 추가 단면이 각각 owner 링크를 가져 빠진 관찰이 없음을 확인했다.
+@evidenceReview principles/core/common.md#scope-preservation 첫 문단의 외부 setting·노출 입면과 모서리·지붕과 하부·개구부와 방별 threshold·네 안쪽 모서리·중심 네 방향, 이후 07–10·방 사용·대지·울타리 문단의 추가 단면이 각각 owner 링크를 가져 빠진 관찰이 없음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 고정 view 수를 선언하지 않고 실제 공간·boundary·opening·roof 레코드를 만든 뒤 같은 산출물에서 질문과 자기 공간 내부 pose를 파생한다는 규칙을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 ‘현재의 외곽·층 예약으로 고정 view 수를 선언하지 않는다’와 레코드를 만든 뒤 같은 산출물에서 질문·pose를 파생한다는 순서가 정해져, source가 관찰 대상을 새로 고를 결정이 남지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis 분모는 compiled-denominator 계약, pose의 눈높이·시야각·near는 frame-condition에서 받고 뷰어의 렌더링·실행·포트 조건은 settings가 소유해 이 H2가 정하지 않는다고 근거를 나눈다.
@@ -15,7 +15,7 @@
 @evidence principles/design/spaces.md#space-boundary-authority 07·08·09·10·방·대지 owner H2를 링크해 그 경계에서 추가 관찰을 파생하고 구조 바탕과 시각 면의 소유를 구별하며 설계의 owner 표를 실제 boundary/surface census로 대신하지 않는다.
 @evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 07 공유 경계·08 층간 바닥·09 천장·10 지상층 바탕·방·대지 문단이 각 owner H2를 링크해 추가 관찰만 파생하고, ‘owner 표를 실제 boundary/surface census로 대신하지 않는다’를 둠을 확인했다.
 @evidence principles/design/spaces.md#space-verification-address 두 storey 평면, 계단·머드룸 문턱·포치 단면, 네 방향 입면과 지붕 합류 경계를 수치 검사로 두고 사람·바구니를 줄여 통과를 얻지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 둘째 문단의 두 storey 평면·계단/머드룸 문턱/포치 단면·네 방향 입면과 지붕 합류 경계, 그리고 owner 문단마다 ‘찾는다’로 적은 결함 목록이 이 H2 주장을 떨어뜨릴 관찰 주소임을 확인했다.
+@evidenceReview principles/design/spaces.md#space-verification-address 둘째 문단의 두 storey 평면·계단/머드룸 문턱/포치 단면·네 방향 입면과 지붕 합류 경계, 이어지는 owner별 부재·동선 대조와 결함 조건이 이 H2 주장을 떨어뜨릴 관찰 주소임을 확인했다.
 @evidence contracts/observation-denominator.md#compiled-denominator 외부와 방별 고정 질문을 실제 공간 산출물에서 파생하고 비직사각의 가려진 부분에 질문을 더하며 01–05 질문을 분모에 추가해 대표 view로 줄이지 않는다.
 @evidenceReview contracts/observation-denominator.md#compiled-denominator #b98432e 계약의 외부 setting·노출 입면·모서리·지붕과 하부·개구부/출입구와 방별 threshold·네 안쪽 모서리·중심 네 방위를 첫 문단 목록과 항목별로 대조하고 비직사각 추가와 01–05 가산도 같은 문단에 있음을 확인했다.
 @evidence settings/20-verification.md#observation-allocation spaces가 storey·방·노출 경계·지붕·개구부의 정체성과 연결을 만들고 matching source가 그 산출물에서 질문·pose를 파생한다는 배분을 공간 쪽에서 실현한다.
@@ -25,9 +25,9 @@
 @evidence settings/20-verification.md#frame-condition 방마다 파생하는 threshold·모서리·중심 pose의 카메라 조건을 프레임 조건에서 받고 경계 때문에 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 한다.
 @evidenceReview settings/20-verification.md#frame-condition #779c269 마지막 문단이 눈높이·시야각·near를 프레임 조건에서 소비하고 시점을 안쪽으로 옮긴 근거를 pose와 함께 기록하게 해, frame-condition의 1.6 m·60°·near 0.05 m 초기 선택을 다시 정하지 않음을 확인했다.
 @evidence settings/00-production.md#accessibility 방·경계·대지별 관찰 질문과 자기 공간 내부 pose의 파생 규칙을 글로 남기고 뷰어의 렌더링·실행·포트 조건은 이 공간 문서에서 정하지 않는다.
-@evidenceReview settings/00-production.md#accessibility #891d1b6 accessibility의 ‘공간 구조 설명 문서는 필수’와 source/viewer의 관찰 선택 구현을, 방·경계·대지별 질문을 한국어 문장으로 적고 뷰어의 렌더링·실행·포트 조건을 정하지 않는 마지막 문단과 대조했다.
+@evidenceReview settings/00-production.md#accessibility accessibility의 공간 구조 설명 문서와 source/viewer 관찰 선택 구현 조건을 방·경계·대지별 질문을 적은 여러 문단 및 뷰어의 렌더링·실행·포트 조건을 정하지 않는 마지막 문단과 대조했다.
 @evidence settings/00-production.md#use-profile 현관에서 목적지까지 왕복하는 경로 검사에서 use-profile의 사람·바구니 크기를 줄여 통과를 얻지 않고 문·가구·기기 점유 뒤 순폭을 최종 산출물에서 다시 읽는다.
-@evidenceReview settings/00-production.md#use-profile #6ef5afe use-profile의 사람 점유체·바구니 폭 0.75 m 비축소와 가구 문·서랍·세탁기 작동 범위 추가 검사를, 둘째 문단의 현관 왕복 검사와 세탁·팬트리 문단의 열린 기기 작업 상태 구별에 대조했다.
+@evidenceReview settings/00-production.md#use-profile use-profile의 사람 점유체·바구니 폭 0.75 m 비축소와 가구 문·서랍·세탁기 작동 범위 추가 검사를 둘째 문단의 현관 왕복, 공용부의 열린 기기 작업, 세탁실과 팬트리의 조작·통행 상태 구별에 대조했다.
 @evidence obligations/design/spaces.md#space-review-set 평면·단면·입면·지붕 합류와 방별 내부 시점, 계단·문턱·포장·울타리 접합 단면을 compiled topology에서 파생하는 유한 관찰 집합으로 선택한다.
 @evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 두 storey 평면, 계단·문턱·포치·포장·울타리 단면, 네 방향 입면, 자기 실 내부 시점이 모두 compiled topology에서 파생되는 관찰로 정해져 review-set의 평면·단면·입면·투시 네 종류를 덮음을 확인했다.
 @evidenceExclude settings/20-verification.md#viewer-handoff spaces 47개 문서 어디에도 뷰어의 시작 명령·실행 디렉터리·포트·경로를 정하거나 소비하는 공간 결정이 없다. 이 H2가 넘기는 것은 관찰 질문과 자기 공간 내부 pose의 파생 규칙이며 포트와 기동 조건은 settings의 viewer-handoff가 소유한다.
@@ -85,7 +85,7 @@
 @evidence principles/core/common.md#substantive-completion 01은 온전한 외피의 전면과 두 앞 모서리, 02는 검사 모드의 두 storey 절개, 03은 kitchen-dining-family 내부, 04는 현관 분배 바닥 내부, 05는 상부 도착과 복도에서 파생한다는 배정 표를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 표가 01 전면과 두 앞 모서리, 02 검사 모드 두 storey 절개, 03 kitchen-dining-family 내부, 04 현관 분배 바닥 내부, 05 상부 도착과 복도로 시점 공간을 정해 source가 참조별 위치를 새로 고를 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 참조의 권위는 reference-authority, 프레임은 frame-condition에서 받고 이 배정이 설계 문서 사이의 인계라고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단이 레퍼런스 권위와 프레임 조건을 링크하고 ‘현재는 설계 문서 사이의 인계’라고 밝히며, 표의 각 배정 칸이 00·01·02·05·07·envelope·rooms·site owner 링크로 근거를 가리킴을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis # 첫 문단이 레퍼런스 권위와 프레임 조건을 링크하고 현재 설계 문서 사이의 인계라고 밝힌다. 표의 각 배정 칸은 00·01·02·05·07·porch·envelope·rooms·site owner 링크로 근거를 가리킨다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 다섯 입력 이미지를 이 집의 외곽·지붕군·포치·방·계단·복도 owner와 각 참조에서 반증할 비교 항목으로 연결한다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 reference-authority가 다섯 이미지의 순서와 역할만 정한 데 비해 이 H2는 01에 외곽·지붕군·포치·굴뚝, 04에 현관·거실·아래 flight, 05에 상부 도착·린넨장을 묶고 반증 비교 열을 더함을 대조했다.
 @evidence principles/design/spaces.md#space-topology 각 참조의 시점을 해당 공간 내부에서 파생하고 참조의 카메라를 흉내 내려고 방 밖으로 물러나거나 벽을 지우지 않는다.

@@ -14,7 +14,9 @@ const { deriveHouseObservations } = require("../spaces/observations.ts");
 const { buildCommon } = require("../spaces/rooms/common.ts");
 
 void test("family table leaves the authored curtain-side passage", () => {
-  const table = buildCommon().space.reservations.find((item) => item.id === "common-family-table");
+  const reservations = buildCommon().space?.reservations;
+  if (!reservations) throw new Error("common room reservations missing");
+  const table = reservations.find((item) => item.id === "common-family-table");
   assert.ok(table);
   const clearWidth = 5.5 - 0.12 - 0.015 - table.x[1];
   assert.ok(clearWidth >= 0.9, `family curtain passage is ${clearWidth} m`);

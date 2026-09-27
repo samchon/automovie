@@ -2,9 +2,9 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const { taskPlan, execute } = require("./review-check.cjs");
 
-void test("review plan includes all seven probe types, both review populations and the production check", () => {
+void test("review plan includes source, model, and spaces review probes with the production check", () => {
   const plan = taskPlan("C:/probes", "C:/npm/cli.js");
-  assert.equal(plan.length, 12);
+  assert.equal(plan.length, 13);
   assert.deepEqual(
     plan.map(([name]) => name),
     [
@@ -12,6 +12,7 @@ void test("review plan includes all seven probe types, both review populations a
       "src-review-host",
       "docs-review-host",
       "docs-spaces-review-host",
+      "docs-spaces-review-rows",
       "docs-spaces-review-quotes",
       "doc-review-numbers",
       "docs-spaces-review-numbers",
@@ -25,11 +26,11 @@ void test("review plan includes all seven probe types, both review populations a
   assert.deepEqual(plan[1][2].slice(-1), ["src/spaces"]);
   assert.deepEqual(plan[2][2].slice(-1), ["docs/models"]);
   assert.deepEqual(plan[3][2].slice(-1), ["docs/spaces"]);
-  assert.deepEqual(plan[4][2].slice(-1), ["C:/probes"]);
-  assert.deepEqual(plan[6][2].slice(-1), ["docs/spaces"]);
-  assert.deepEqual(plan[9][2].slice(-1), ["docs"]);
-  assert.deepEqual(plan[10][2].slice(-1), ["src"]);
-  assert.deepEqual(plan[11][2].slice(-2), ["run", "check"]);
+  assert.deepEqual(plan[4][2].slice(-5), ["spaces", "spaces/rooms", "spaces/envelope", "spaces/roof", "spaces/site"]);
+  assert.deepEqual(plan[7][2].slice(-1), ["docs/spaces"]);
+  assert.deepEqual(plan[10][2].slice(-1), ["docs"]);
+  assert.deepEqual(plan[11][2].slice(-1), ["src"]);
+  assert.deepEqual(plan[12][2].slice(-2), ["run", "check"]);
 });
 
 void test("every check runs and nonzero or failed spawn statuses accumulate", () => {
@@ -66,4 +67,33 @@ void test("a zero-population probe is counted as unverified even when it exits z
   assert.equal(result.exitSum, 2);
   assert.deepEqual(result.results.map((row) => row.status), [1, 1, 0]);
   assert.deepEqual(result.results.map((row) => row.unchecked), [true, true, false]);
+});
+
+void test("quoted source comparison contributes failure and checks a nonempty population", () => {
+  /** @type {Array<[string, string, string[]]>} */
+  const tasks = [
+    ["docs-spaces-review-rows", "node", []],
+    ["docs-spaces-review-quotes", "node", []],
+  ];
+  const outputs = [
+    "total 1184 hosts 121",
+    "rows with quotes 165 spans 184 { HOST: 102, ELSEWHERE: 38, TARGET: 43, LOOSE: 1 }",
+  ];
+  let called = 0;
+  const bad = execute(tasks, () => ({ status: 0, stdout: outputs[called++] }));
+  assert.deepEqual(bad.results.map((row) => row.status), [0, 1]);
+  assert.equal(bad.exitSum, 1);
+  const good = execute(tasks, () => ({ status: 0, stdout: outputs[called++ % 2].replace("LOOSE: 1", "TARGET: 1") }));
+  assert.equal(good.exitSum, 0);
+});
+
+void test("missing extracted rows or quotes cannot pass with a zero process exit", () => {
+  /** @type {Array<[string, string, string[]]>} */
+  const tasks = [
+    ["docs-spaces-review-rows", "node", []],
+    ["docs-spaces-review-quotes", "node", []],
+  ];
+  const result = execute(tasks, () => ({ status: 0, stdout: "no comparison reported" }));
+  assert.deepEqual(result.results.map((row) => row.unchecked), [true, true]);
+  assert.equal(result.exitSum, 2);
 });

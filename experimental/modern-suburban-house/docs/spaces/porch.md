@@ -13,7 +13,7 @@
 @evidence principles/design/spaces.md#space-topology front-porch는 ground-storey 외부 부속이고 뒤는 본채 전면, 앞은 보행 접근이며 거실을 지나지 않고 포치에서 front-door로 들어간다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-porch를 ground-storey 외부 부속으로, 뒤를 00-building 본채 전면, 앞을 보행 접근, 위를 포치 지붕으로 두고 거실을 거치지 않고 front-door로 진입한다는 첫 문단을 대조해 포치의 포함·연결 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 아래 평탄 대기 바닥은 front-walk가 보행길과 한 완결 면으로 소유하고 porch.ts는 포치 바닥·챌판·디딤을 소유하되 아래 대기 바닥과 세 번째 디딤을 중복 생성하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 아래 평탄 대기를 site/front-walk가 보행길과 한 완결 면으로 소유하고 porch.ts는 포치 바닥·챌판·디딤만 가지며 포치 바닥을 세 번째 디딤으로 중복 생성하지 않는 문장을 대조해 이중 저작이 없음을 확인했다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 아래 평탄 대기를 site/front-walk가 보행길과 한 완결 면으로 소유하고 porch.ts는 포치 바닥·챌판·디딤을 소유하며 그 아래 대기 바닥을 만들지 않는 문장을 대조했다. 포치 바닥을 세 번째 디딤으로 중복 생성하지 않아 이중 저작이 없다.
 @evidence principles/design/spaces.md#space-verification-address 현관문/세 단/아래 대기의 축, 위에서 아래로 돌아 나오는 길, 포치 가장자리와 접지·그림자를 관찰하게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 현관문/세 단/아래 대기의 축, 위에서 아래로 돌아 나오는 길, 포치 가장자리와 접지·그림자를 unverified 관찰 대상으로 명시한 문장을 대조해 진입 주장마다 반증할 관찰이 이름 붙어 있음을 확인했다.
 @evidence settings/10-house.md#porch-entry 현관 보행길이 아래 평탄 대기에서 0.15 m 세 챌판으로 포치 바닥에 오르고 거실을 지나지 않고 front-door로 들어가는 직접 접근을 만든다.

@@ -32,7 +32,7 @@ const MAIN_TO_GABLE_SLOPE = MAIN_PITCH / GABLE_PITCH;
 /** Vertical underside reservation of every roof, metres (roof-profile-datums). */
 /**
  * @evidence spaces/roof/00-junctions.md ROOF_THICKNESS fixes the vertical weather-to-underside gap shared by all main and garage roof planes.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd ROOF_THICKNESS exports the roof group's single 0.24 vertical underside reservation, which the roof plane builders pass to their sloped slabs and plates.
+ * @evidenceReview spaces/roof/00-junctions.md ROOF_THICKNESS exports the roof group's single 0.24 vertical underside reservation, which the roof plane builders pass to their sloped slabs and plates.
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums Its 0.24 m vertical offset is passed to each sloped roof slab.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 The roof-profile-datums table assigns 0.24 m to every roof underside; ROOF_THICKNESS supplies that Y-directed depth to slopedSlab and slopedPlate consumers.
  * @evidence principles/core/source-units.md#source-scope-preservation This number is an underside reservation, not a structural material specification or a new roof slope.
@@ -47,7 +47,7 @@ export const ROOF_THICKNESS = 0.24;
 /** Free overhangs beyond outer wall lines, metres (roof-profile-datums table). */
 /**
  * @evidence spaces/roof/00-junctions.md OVERHANG holds free eave reaches separately for main, gable, right, and garage roofs.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd OVERHANG exports separate main, gable, right and garage reaches; FRONT_EAVE_Z, GABLE_EAVE_Z and the right eave datums read their matching keys, while garage roof plans use the garage key on free sides.
+ * @evidenceReview spaces/roof/00-junctions.md OVERHANG exports separate main, gable, right and garage reaches; FRONT_EAVE_Z, GABLE_EAVE_Z and the right eave datums read their matching keys, while garage roof plans use the garage key on free sides.
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums The first three reaches are 0.40 m and the lower garage reach is 0.35 m.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 The roof-profile-datums table gives main, gable and right roofs 0.40 m free reaches and garage 0.35 m; OVERHANG encodes those four values under their respective names.
  * @evidence principles/core/source-units.md#source-scope-preservation These reaches extend free edges only; the main/garage shared-wall edge gets no free overhang.
@@ -67,7 +67,7 @@ export const OVERHANG = {
 /** X of the plane between the main roof and the right low roof (roof-mass-allocation). */
 /**
  * @evidence spaces/roof/00-junctions.md SPLIT_X locates the step between the high main and low right roofs.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd SPLIT_X exports the 1.6 plane used by high-main and lower-right roof plans; the roof document assigns their differing heights on opposite sides of that plane.
+ * @evidenceReview spaces/roof/00-junctions.md SPLIT_X exports the 1.6 plane used by high-main and lower-right roof plans; the roof document assigns their differing heights on opposite sides of that plane.
  * @evidence spaces/roof/00-junctions.md#roof-mass-allocation The plane at X=1.60 divides the two pitched roof populations without an overlapping face.
  * @evidenceReview spaces/roof/00-junctions.md#roof-mass-allocation #59e7a12 Roof-mass-allocation divides the main and lower-right masses at X = 1.60; main-back and main-front end at SPLIT_X, while right-back and right-front begin there.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a roof split coordinate, not a new building footprint or traversable opening.
@@ -82,7 +82,7 @@ export const SPLIT_X = 1.6;
 /** Front gable wall ends a, b on the front wall Z = 0 (roof-mass-allocation). */
 /**
  * @evidence spaces/roof/00-junctions.md GABLE holds the two front-gable wall ends and their common ridge X.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd GABLE exposes the front gable's two wall X ends and their computed midpoint; GABLE_CORNERS uses that midpoint for both the apex and forward ridge point.
+ * @evidenceReview spaces/roof/00-junctions.md GABLE exposes the front gable's two wall X ends and their computed midpoint; GABLE_CORNERS uses that midpoint for both the apex and forward ridge point.
  * @evidence spaces/roof/00-junctions.md#roof-mass-allocation The gable spans a=-5.75 to b=-1.80; center is derived as their midpoint.
  * @evidenceReview spaces/roof/00-junctions.md#roof-mass-allocation #59e7a12 Roof-mass-allocation puts the front gable wall between -5.75 and -1.80 and derives its ridge centre from the ends; GABLE stores those endpoints and calculates center as their mean.
  * @evidence principles/core/source-units.md#source-scope-preservation The record fixes gable wall endpoints and centre for its consumers without emitting an unbounded gable surface.
@@ -101,7 +101,7 @@ export const GABLE = (() => {
 /** Mid-plane of the main front and rear walls, where the main and right ridges run (roof-mass-allocation). */
 /**
  * @evidence spaces/roof/00-junctions.md MAIN_RIDGE_Z derives the main/right ridge from the imported main-building front and rear faces.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd MAIN_RIDGE_Z computes the midpoint of MAIN's rear and front outer Z faces, supplying the common front/back ridge position described in the roof allocation.
+ * @evidenceReview spaces/roof/00-junctions.md MAIN_RIDGE_Z computes the midpoint of MAIN's rear and front outer Z faces, supplying the common front/back ridge position described in the roof allocation.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses MAIN as a value import and does not keep a second independent copy of its Z bounds.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 MAIN_RIDGE_Z reads MAIN.outer.z rather than storing another copy of the building's front and rear bounds or borrowing the garage ridge.
  * @evidence principles/core/source-units.md#source-substantive-completion The midpoint expression gives front and back roof planes one stable ridge Z.
@@ -114,7 +114,7 @@ export const MAIN_RIDGE_Z = (MAIN.outer.z[0] + MAIN.outer.z[1]) / 2;
 /** Garage ridge Z: mean of the garage front and back walls (roof-mass-allocation). */
 /**
  * @evidence spaces/roof/00-junctions.md GARAGE_RIDGE_Z is the midpoint of imported garage front and rear bounds.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd GARAGE_RIDGE_Z averages GARAGE.outer.z's front and rear faces for the separate low garage roof ridge assigned by the mass allocation.
+ * @evidenceReview spaces/roof/00-junctions.md GARAGE_RIDGE_Z averages GARAGE.outer.z's front and rear faces for the separate low garage roof ridge assigned by the mass allocation.
  * @evidence principles/core/source-units.md#source-scope-preservation The garage roof ridge follows GARAGE rather than borrowing the main building's ridge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 GARAGE_RIDGE_Z depends only on the garage's outer Z limits; garageRoof branches at it without substituting MAIN_RIDGE_Z.
  * @evidence principles/core/source-units.md#source-substantive-completion Front and back garage slopes consume one repeatable ridge coordinate from this expression.
@@ -127,7 +127,7 @@ export const GARAGE_RIDGE_Z = (GARAGE.outer.z[1] + GARAGE.outer.z[0]) / 2;
 /** Main roof front face. */
 /**
  * @evidence spaces/roof/00-junctions.md mFront returns the high main roof's front weather height at a Z coordinate.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd mFront anchors the high main front weather height at MAIN's outer front wall and decreases it toward the front eave using MAIN_PITCH.
+ * @evidenceReview spaces/roof/00-junctions.md mFront anchors the high main front weather height at MAIN's outer front wall and decreases it toward the front eave using MAIN_PITCH.
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums It starts at 6.30 m on the front wall and falls by 8/12 per metre toward the eave.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 At MAIN.outer.z[1], mFront returns MAIN_WALL_HEIGHT = 6.3; each metre toward the front eave subtracts MAIN_PITCH = 8/12, matching Mfront in the profile target.
  * @evidence principles/core/source-units.md#source-scope-preservation This height function gives no extra gable or low-right roof surface.
@@ -141,7 +141,7 @@ export const mFront = (z: number): number => MAIN_WALL_HEIGHT - MAIN_PITCH * (z 
 /** Main roof back face. */
 /**
  * @evidence spaces/roof/00-junctions.md mBack gives the high main roof's rear weather height.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd mBack anchors the high main rear weather height at MAIN's outer rear wall and rises at MAIN_PITCH toward the shared ridge.
+ * @evidenceReview spaces/roof/00-junctions.md mBack anchors the high main rear weather height at MAIN's outer rear wall and rises at MAIN_PITCH toward the shared ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation Its +10.7 offset ties the rear equation to the main rear wall, not the garage rear edge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 mBack subtracts MAIN.outer.z[0] in its rear-wall offset; the garage rear bound and garage roof pitch play no part in this high-main equation.
  * @evidence principles/core/source-units.md#source-substantive-completion The 8/12 expression returns a numeric Y used by rear roof and envelope builders.
@@ -153,7 +153,7 @@ export const mBack = (z: number): number => MAIN_WALL_HEIGHT + MAIN_PITCH * (z -
 /** Right low roof front face (same walls and ridge, 5.95 at the wall line, 7/12). */
 /**
  * @evidence spaces/roof/00-junctions.md rFront gives the lower right roof's front height, separate from mFront.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd rFront calculates the lower-right front weather height from its own 5.95 wall level and 7/12 pitch while sharing MAIN's front wall position.
+ * @evidenceReview spaces/roof/00-junctions.md rFront calculates the lower-right front weather height from its own 5.95 wall level and 7/12 pitch while sharing MAIN's front wall position.
  * @evidence principles/core/source-units.md#source-scope-preservation Its 5.95 m and 7/12 constants preserve the designed step instead of flattening it to the main pitch.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 rFront uses RIGHT_WALL_HEIGHT and RIGHT_PITCH rather than the high-main height and pitch, preserving the roof step assigned to the right mass.
  * @evidence principles/core/source-units.md#source-substantive-completion Right-front roof and wall-head consumers receive a numeric Y for each Z.
@@ -165,7 +165,7 @@ export const rFront = (z: number): number => RIGHT_WALL_HEIGHT - RIGHT_PITCH * (
 /** Right low roof back face. */
 /**
  * @evidence spaces/roof/00-junctions.md rBack returns the lower right roof's rear Y at the queried Z.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd rBack uses the shared MAIN rear wall Z with the lower-right wall level and 7/12 rear slope, supplying the distinct low roof back profile.
+ * @evidenceReview spaces/roof/00-junctions.md rBack uses the shared MAIN rear wall Z with the lower-right wall level and 7/12 rear slope, supplying the distinct low roof back profile.
  * @evidence principles/core/source-units.md#source-scope-preservation The rear wall offset and 7/12 pitch stay with the lower right roof rather than main roof.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 rBack holds the low-right 5.95 and 7/12 profile at MAIN.outer.z[0]; mBack separately owns the 6.30 and 8/12 high-main rear profile.
  * @evidence principles/core/source-units.md#source-substantive-completion The formula supplies deterministic heights to the rear-right slab and sloping wall closure.
@@ -177,7 +177,7 @@ export const rBack = (z: number): number => RIGHT_WALL_HEIGHT + RIGHT_PITCH * (z
 /** Front gable faces: F(X) = 6.30 + (9/12) × min(X - a, b - X). */
 /**
  * @evidence spaces/roof/00-junctions.md gable returns the front-gable weather height from distance to its nearer side wall.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd gable takes the high-main front wall height from mFront and adds 9/12 times the nearer distance to GABLE.a or GABLE.b, matching the authored F(X) weather profile.
+ * @evidenceReview spaces/roof/00-junctions.md gable takes the high-main front wall height from mFront and adds 9/12 times the nearer distance to GABLE.a or GABLE.b, matching the authored F(X) weather profile.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses GABLE endpoints and the 9/12 profile without creating a roof face outside the finite gable plans.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 gable returns only a height from GABLE's wall ends and GABLE_PITCH; front-gable-left and front-gable-right restrict its surface use to their bounded corner plans.
  * @evidence principles/core/source-units.md#source-substantive-completion Math.min produces the two symmetric rising slopes that both gable plane builders consume.
@@ -189,7 +189,7 @@ export const gable = (x: number): number => mFront(MAIN.outer.z[1]) + GABLE_PITC
 /** Garage front face. */
 /**
  * @evidence spaces/roof/00-junctions.md gFront gives the low garage roof's front weather height.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd gFront starts the garage front roof at GARAGE_WALL_HEIGHT on GARAGE.outer.z[1] and lowers the weather height toward the front eave at GARAGE_PITCH.
+ * @evidenceReview spaces/roof/00-junctions.md gFront starts the garage front roof at GARAGE_WALL_HEIGHT on GARAGE.outer.z[1] and lowers the weather height toward the front eave at GARAGE_PITCH.
  * @evidence principles/core/source-units.md#source-scope-preservation Its -0.30 front-wall origin is garage-specific and does not reuse the main front-wall datum.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 gFront uses the garage's own outer front Z and 5/12 pitch; it does not reuse MAIN's front wall or its high roof profile.
  * @evidence principles/core/source-units.md#source-substantive-completion The 5/12 descent gives garage-front slab and front wall closure a concrete Y.
@@ -201,7 +201,7 @@ export const gFront = (z: number): number => GARAGE_WALL_HEIGHT - GARAGE_PITCH *
 /** Garage back face. */
 /**
  * @evidence spaces/roof/00-junctions.md gBack gives the garage rear roof height from the -6.70 wall line.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd gBack anchors the garage rear weather height at GARAGE.outer.z[0] and rises from GARAGE_WALL_HEIGHT toward its separate ridge at GARAGE_PITCH.
+ * @evidenceReview spaces/roof/00-junctions.md gBack anchors the garage rear weather height at GARAGE.outer.z[0] and rises from GARAGE_WALL_HEIGHT toward its separate ridge at GARAGE_PITCH.
  * @evidence principles/core/source-units.md#source-scope-preservation The function applies the garage 5/12 slope and leaves the main rear plane to mBack.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 gBack reads the garage rear bound and garage 5/12 pitch; the main rear wall and 8/12 high roof remain with mBack.
  * @evidence principles/core/source-units.md#source-substantive-completion Garage-back slab and rear closure can evaluate one exact Y for any Z in their region.
@@ -214,7 +214,7 @@ export const gBack = (z: number): number => GARAGE_WALL_HEIGHT + GARAGE_PITCH * 
 /** Main roof weather surface at any Z (front or back of the ridge). */
 /**
  * @evidence spaces/roof/00-junctions.md mainRoof selects the high main weather profile on the correct side of its ridge.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd mainRoof selects mFront on or forward of MAIN_RIDGE_Z and mBack behind it, returning the authored high-main weather profile across the ridge.
+ * @evidenceReview spaces/roof/00-junctions.md mainRoof selects mFront on or forward of MAIN_RIDGE_Z and mBack behind it, returning the authored high-main weather profile across the ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation The ridge comparison delegates to mFront/mBack and adds no third main slope.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 mainRoof only chooses between the existing mFront and mBack functions at MAIN_RIDGE_Z; it introduces no third slope or extra roof mass.
  * @evidence principles/core/source-units.md#source-substantive-completion Every Z receives one numeric roof height for wall-head and roof junction calculations.
@@ -228,7 +228,7 @@ export const mainRoof = (z: number): number => (z >= MAIN_RIDGE_Z
 /** Right low roof weather surface at any Z. */
 /**
  * @evidence spaces/roof/00-junctions.md rightRoof resolves the lower right weather height on either side of the common ridge.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd rightRoof selects rFront on or ahead of MAIN_RIDGE_Z and rBack behind it, joining the lower-right weather heights on the main body's common ridge.
+ * @evidenceReview spaces/roof/00-junctions.md rightRoof selects rFront on or ahead of MAIN_RIDGE_Z and rBack behind it, joining the lower-right weather heights on the main body's common ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses the rFront/rBack pair and cannot silently switch to the 8/12 main profile.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 rightRoof branches only between the 7/12 rFront and rBack profiles; it never substitutes mFront or mBack for the low-right mass.
  * @evidence principles/core/source-units.md#source-substantive-completion The selected numeric height closes the low right wall; the garage shared-wall head follows garageRoof instead.
@@ -242,7 +242,7 @@ export const rightRoof = (z: number): number => (z >= MAIN_RIDGE_Z
 /** Garage roof weather surface at any Z. */
 /**
  * @evidence spaces/roof/00-junctions.md garageRoof switches between the two garage 5/12 faces at GARAGE_RIDGE_Z.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd garageRoof switches from gBack to gFront at GARAGE_RIDGE_Z, keeping the garage's two 5/12 weather faces on its own ridge.
+ * @evidenceReview spaces/roof/00-junctions.md garageRoof switches from gBack to gFront at GARAGE_RIDGE_Z, keeping the garage's two 5/12 weather faces on its own ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation GARAGE_RIDGE_Z derives from the garage footprint midpoint, not the main roof ridge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 garageRoof compares Z with the ridge derived from GARAGE's own outer walls; it does not reuse the main-body ridge or add another garage slope.
  * @evidence principles/core/source-units.md#source-substantive-completion Garage envelope walls receive a deterministic weather height across front and rear halves.
@@ -257,7 +257,7 @@ export const garageRoof = (z: number): number => (z >= GARAGE_RIDGE_Z
 /** Front edge of the high main roof: the front wall plus its free overhang. */
 /**
  * @evidence spaces/roof/00-junctions.md FRONT_EAVE_Z extends the main front wall by the authored free eave reach.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd FRONT_EAVE_Z adds the high-main free reach to MAIN's outer front wall, giving main-front its weather-face edge beyond the wall.
+ * @evidenceReview spaces/roof/00-junctions.md FRONT_EAVE_Z adds the high-main free reach to MAIN's outer front wall, giving main-front its weather-face edge beyond the wall.
  * @evidence principles/core/source-units.md#source-scope-preservation It derives from MAIN and OVERHANG values instead of independently setting a porch or garage edge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 FRONT_EAVE_Z reads MAIN.outer.z[1] and OVERHANG.main; it defines no porch edge and does not substitute the garage or lower-right overhang.
  * @evidence principles/core/source-units.md#source-substantive-completion The expression yields the high main front edge while GABLE_EAVE_Z and RIGHT_FRONT_EAVE_Z retain their own reaches.
@@ -269,7 +269,7 @@ export const FRONT_EAVE_Z = MAIN.outer.z[1] + OVERHANG.main;
 /** Front free edge of the lower right roof, independently set by its own reach. */
 /**
  * @evidence spaces/roof/00-junctions.md The lower right roof's front edge uses its separate free overhang.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd RIGHT_FRONT_EAVE_Z places the lower-right front edge beyond MAIN's front wall using the right roof's own free reach, as the roof datum separates it from the high-main edge.
+ * @evidenceReview spaces/roof/00-junctions.md RIGHT_FRONT_EAVE_Z places the lower-right front edge beyond MAIN's front wall using the right roof's own free reach, as the roof datum separates it from the high-main edge.
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums The lower right roof has its own 0.40 m front free reach.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 The lower-right row assigns a 0.40 m free reach; RIGHT_FRONT_EAVE_Z adds OVERHANG.right = 0.4 to MAIN.outer.z[1].
  * @evidence principles/core/source-units.md#source-scope-preservation The edge consumes MAIN's front outer wall and OVERHANG.right, independent of the high roof's reach.
@@ -285,7 +285,7 @@ export const RIGHT_FRONT_EAVE_Z = MAIN.outer.z[1] + OVERHANG.right;
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums The front gable candidate extends by its gable overhang from the front wall.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 The finite gable candidate reaches from MAIN's front wall by its tabled gable overhang; GABLE_EAVE_Z adds OVERHANG.gable to that wall Z.
  * @evidence spaces/roof/00-junctions.md The junction owner supplies the gable candidate's free front edge.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd GABLE_EAVE_Z supplies GABLE_CORNERS' forward ridge and valley-foot Z positions, making the gable candidate's free front edge shared by both gable faces.
+ * @evidenceReview spaces/roof/00-junctions.md GABLE_EAVE_Z supplies GABLE_CORNERS' forward ridge and valley-foot Z positions, making the gable candidate's free front edge shared by both gable faces.
  * @evidence principles/core/source-units.md#source-scope-preservation This edge belongs to the gable while FRONT_EAVE_Z remains the main roof edge.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 GABLE_EAVE_Z feeds GABLE_CORNERS, including feet shared with main-front's valley, while main-front's outer eave uses FRONT_EAVE_Z and right-front's uses RIGHT_FRONT_EAVE_Z.
  * @evidence principles/core/source-units.md#source-substantive-completion The gable valley corners consume the gable reach instead of a duplicate main reach.
@@ -297,7 +297,7 @@ export const GABLE_EAVE_Z = MAIN.outer.z[1] + OVERHANG.gable;
 /** Back edge of the high main roof. */
 /**
  * @evidence spaces/roof/00-junctions.md BACK_EAVE_Z places the high main rear eave behind the imported rear wall.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd BACK_EAVE_Z subtracts the high-main free reach from MAIN's rear outer wall, and main-back uses the result for its rear weather-face limit.
+ * @evidenceReview spaces/roof/00-junctions.md BACK_EAVE_Z subtracts the high-main free reach from MAIN's rear outer wall, and main-back uses the result for its rear weather-face limit.
  * @evidence principles/core/source-units.md#source-scope-preservation It subtracts only the main free reach and does not apply the garage's shorter overhang.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 BACK_EAVE_Z uses only OVERHANG.main with MAIN.outer.z[0]; the lower-right and garage rear eaves keep their own reaches.
  * @evidence principles/core/source-units.md#source-substantive-completion The expression provides the high main rear eave; RIGHT_BACK_EAVE_Z serves the lower right plane.
@@ -309,7 +309,7 @@ export const BACK_EAVE_Z = MAIN.outer.z[0] - OVERHANG.main;
 /** Rear free edge of the lower right roof, independently set by its own reach. */
 /**
  * @evidence spaces/roof/00-junctions.md The lower right roof's rear edge uses its separate free overhang.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd RIGHT_BACK_EAVE_Z locates the lower-right rear free edge from MAIN's rear wall with OVERHANG.right, and right-back uses that coordinate for its own rear plan.
+ * @evidenceReview spaces/roof/00-junctions.md RIGHT_BACK_EAVE_Z locates the lower-right rear free edge from MAIN's rear wall with OVERHANG.right, and right-back uses that coordinate for its own rear plan.
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums The lower right roof has its own 0.40 m rear free reach.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 The lower-right roof's table row gives it a 0.40 m free reach; RIGHT_BACK_EAVE_Z subtracts that right-specific value from MAIN.outer.z[0].
  * @evidence principles/core/source-units.md#source-scope-preservation The edge consumes MAIN's rear outer wall and OVERHANG.right, independent of the high roof's reach.
@@ -323,7 +323,7 @@ export const RIGHT_BACK_EAVE_Z = MAIN.outer.z[0] - OVERHANG.right;
 /** Left edge of the main roof. */
 /**
  * @evidence spaces/roof/00-junctions.md LEFT_EAVE_X extends the high roof past the imported west outer wall.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd LEFT_EAVE_X carries the high-main roof beyond MAIN's west wall by OVERHANG.main, establishing the free left edge used by its front and back planes.
+ * @evidenceReview spaces/roof/00-junctions.md LEFT_EAVE_X carries the high-main roof beyond MAIN's west wall by OVERHANG.main, establishing the free left edge used by its front and back planes.
  * @evidence principles/core/source-units.md#source-scope-preservation The value controls only the left free edge, leaving gable and chimney cutouts to their owners.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 LEFT_EAVE_X only sets the high-main west reach; main-front obtains its chimney notch and gable valley from CHIMNEY_PLAN and GABLE_CORNERS instead of this value.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall coordinate minus 0.40 m supplies the high-roof plan a repeatable west edge.
@@ -335,7 +335,7 @@ export const LEFT_EAVE_X = MAIN.outer.x[0] - OVERHANG.main;
 /** Right edge of the right low roof. */
 /**
  * @evidence spaces/roof/00-junctions.md RIGHT_EAVE_X extends the lower right roof beyond the main east wall.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd RIGHT_EAVE_X adds the lower-right free reach to MAIN's east outer wall, giving the two low-right roof planes one outer X limit.
+ * @evidenceReview spaces/roof/00-junctions.md RIGHT_EAVE_X adds the lower-right free reach to MAIN's east outer wall, giving the two low-right roof planes one outer X limit.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses the right roof overhang, not the garage overhang or a step-plane overhang.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 RIGHT_EAVE_X uses OVERHANG.right at MAIN.outer.x[1]; it does not extend the internal SPLIT_X seam or apply the garage reach.
  * @evidence principles/core/source-units.md#source-substantive-completion The imported outer wall plus 0.40 m gives both right roof planes one outer X.
@@ -355,7 +355,7 @@ const valleyZ = (x: number): number => MAIN.outer.z[1] - GABLE_TO_MAIN_SLOPE * M
  */
 /**
  * @evidence spaces/roof/00-junctions.md GABLE_CORNERS shares one computed valley triangle between the gable and main-front plane builders.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd GABLE_CORNERS derives one set of valley feet, apex and forward ridge point that front-gable-left, front-gable-right and main-front share at their junction.
+ * @evidenceReview spaces/roof/00-junctions.md GABLE_CORNERS derives one set of valley feet, apex and forward ridge point that front-gable-left, front-gable-right and main-front share at their junction.
  * @evidence spaces/roof/00-junctions.md#roof-shared-edges leftFoot/rightFoot meet the front eave where F equals Mfront; apex joins their valleys on the gable ridge.
  * @evidenceReview spaces/roof/00-junctions.md#roof-shared-edges #413f7e2 GABLE_CORNERS solves the F(X)=Mfront(Z) valley at GABLE_EAVE_Z for both feet and calls valleyZ at GABLE.center for the apex; ridgeFront stays at the same X on the gable eave.
  * @evidence principles/core/source-units.md#source-scope-preservation The four points describe shared boundaries only; they emit no competing roof mesh.
@@ -379,7 +379,7 @@ export const GABLE_CORNERS = (() => {
 /** Chimney body plan, cut from the main front face (envelope/left chimney-roof-interface). */
 /**
  * @evidence spaces/roof/00-junctions.md CHIMNEY_PLAN gives the main-front roof builder one rectangular notch to omit around the chimney.
- * @evidenceReview spaces/roof/00-junctions.md #864b6cd CHIMNEY_PLAN gives main-front one X/Z body footprint; its four remainder plans leave that footprint open against the left edge instead of laying roof over the chimney.
+ * @evidenceReview spaces/roof/00-junctions.md CHIMNEY_PLAN gives main-front one X/Z body footprint; its four remainder plans leave that footprint open against the left edge instead of laying roof over the chimney.
  * @evidence principles/core/source-units.md#source-scope-preservation The X/Z ranges place the chimney masonry and the matching main-roof cutout; they add no second roof slab.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 CHIMNEY_PLAN is only a pair of plan intervals; left envelope and main-front consume it for their respective masonry and roof cut, while this record emits no second roof slab.
  * @evidence principles/core/source-units.md#source-substantive-completion The fixed footprint supplies the west-side chimney notch limits to main-front and the masonry plan to the left envelope.

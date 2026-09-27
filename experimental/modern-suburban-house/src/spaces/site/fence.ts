@@ -41,7 +41,7 @@ const HALF = 0.05;
 /** Emit the fence runs and gate posts while leaving the model leaf opening clear. */
 /**
  * @evidence spaces/site/fence.md This builder emits the fixed garden fence and gate posts while leaving the movable leaf empty.
- * @evidenceReview spaces/site/fence.md #c07d0c4 `buildFence` emits fixed runs, corner/end posts and two gate posts; its front run splits around `SIDE_WALK.x`, and no movable gate leaf is returned.
+ * @evidenceReview spaces/site/fence.md `buildFence` emits fixed runs, corner/end posts and two gate posts; its front run splits around `SIDE_WALK.x`, and no movable gate leaf is returned.
  * @evidence spaces/site/fence.md#fence-enclosure-plan The left, back, right, and front runs meet at shared posts; end posts terminate at MAIN and GARAGE outer faces.
  * @evidenceReview spaces/site/fence.md#fence-enclosure-plan #ee6f771 `buildFence` orders left-front, left, back, right and right-front runs through posts at `(L,F)`, `(L,B)`, `(R,B)` and `(R,F)`; its end posts reach `MAIN.outer.x[0]` and `GARAGE.outer.x[1]`.
  * @evidence spaces/site/fence.md#fence-gate-junction Two posts flank SIDE_WALK.x and the front panel omits that gate interval.

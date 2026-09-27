@@ -41,7 +41,7 @@ const OWNER = "garage.ts";
 /** Emit the main/garage shared wall with the laundry-garage door void. */
 /**
  * @evidence spaces/03-surface-owners.md The garage source emits the shared lower wall body and leaves the exposed upper siding to the right elevation.
- * @evidenceReview spaces/03-surface-owners.md #9596716 buildGarageSharedWall emits garage-shared-wall through the garageRoof weather line; envelope/right.ts emits the separate siding body above that line, matching the owner table.
+ * @evidenceReview spaces/03-surface-owners.md buildGarageSharedWall emits garage-shared-wall through the garageRoof weather line; envelope/right.ts emits the separate siding body above that line, matching the owner table.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall carries the laundry-garage-door void below the garage roof.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 The returned wallPanel includes LAUNDRY_GARAGE_DOOR in its hole list and remains under garage.ts until its garageRoof top, as the exterior handoff assigns.
  * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and the garageRoof upper weather line; its returned part does not duplicate upper siding.
@@ -126,7 +126,7 @@ export const buildGarageFloorBase = (): IHousePart[] => [
 /** Emit the garage ceiling base above the garage finished ceiling. */
 /**
  * @evidence spaces/09-ceiling-assembly.md This export builds garage ceiling support over the finished garage height.
- * @evidenceReview spaces/09-ceiling-assembly.md #403d803 buildGarageCeiling makes one structural ceiling base inside GARAGE.inner and leaves the visible interior finish to the room owner named by the ceiling handoff.
+ * @evidenceReview spaces/09-ceiling-assembly.md buildGarageCeiling makes one structural ceiling base inside GARAGE.inner and leaves the visible interior finish to the room owner named by the ceiling handoff.
  * @evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure The slab spans GARAGE.inner and fills Y from garageCeiling plus finish to garageCeiling plus reservation.
  * @evidenceReview spaces/09-ceiling-assembly.md#garage-ceiling-closure #0ce5421 rect uses GARAGE.inner X/Z and slab spans from garageCeiling plus the finish thickness to the reservation top, matching the garage ceiling closure.
  * @evidence principles/core/source-units.md#source-scope-preservation It omits the visible ceiling finish assigned to garage-interior and does not raise the roof or garage datum.

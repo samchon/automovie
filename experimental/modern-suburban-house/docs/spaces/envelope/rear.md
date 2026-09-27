@@ -95,7 +95,7 @@
 @evidence principles/core/common.md#declared-basis 창틀은 공통 인계, 위치는 가족실 좌석이 우측이라는 설정에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문에서 family-rear-window의 위치는 settings common-room의 가족실 우측 링크, 창틀과 분할은 external-opening-interface 링크로 각각 이어져 두 진술의 근거가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실 좌석의 우측 배치를 자기 창이 같은 방 안에 있는 후면 개구부로 만들고 별도 가족실 벽을 두지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 common-room의 '가족실 좌석은 우측'에 본문이 더한 family-rear-window의 X = [2.75, 4.75] m 후면 개구부와 별도 가족실 벽 없음 결정을 대조해 부모에 없는 창 위치 결정임을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정 common-room이 가족실 좌석을 공용부 오른쪽에 두도록 한 결정에 본문이 더한 family-rear-window의 X = [2.75, 4.75] m 후면 개구부와 별도 가족실 벽 없음 결정을 대조해 부모에 없는 창 위치 결정임을 확인했다.
 @evidence principles/design/spaces.md#space-topology 창을 kitchen-dining-family의 후벽 오른쪽에 속하게 한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 family-rear-window가 ground-storey kitchen-dining-family에 속하고 X = [2.75, 4.75] m로 후벽 오른쪽에 있으며 가족실 좌석과 같은 방이라는 본문 관계가 형상 없이 포함 관계를 줌을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 창틀·창대 돌출은 06에서 받고 창 앞 소파와 창대 접근은 common-family-reservation이 이 창을 소비해 배치한다.

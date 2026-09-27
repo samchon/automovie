@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 뒤 선반을 0.25 m로 얕게 택한 근거를 열린 문/손잡이와 통로를 함께 담기 위한 것으로 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 뒤 선반 0.25 m가 종전 0.30 m보다 얕은 이유를 #pantry-use-route의 열린 문/손잡이와 통로를 함께 담기 위한 공간층 선택으로 명시해, 선반 깊이의 근거가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "서비스 접근 통로에서 열리는 별도 식품 수납 공간"을 +Z 문설주 경첩·+X 열림의 실문과 앞쪽 벽 선반 배제로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정은 서비스 접근 통로에서 열리는 별도 수납만 요구하지만 본문은 서쪽 칸막이 실문의 +Z 문설주 경첩·실내 +X 열림과 앞쪽 벽 선반 금지라는 부모에 없는 결정을 더했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정의 별도 식품 수납, 선반·용기·상자와 작업 여유, 비통과·문 유효폭 조건을 대조했다. 본문은 서쪽 칸막이 실문의 +Z 문설주 경첩·실내 +X 열림과 앞쪽 벽 선반 금지라는 부모에 없는 결정을 더한다.
 @evidence principles/design/spaces.md#space-topology pantry는 서비스 접근 뒤쪽에서 직접 들어가며 다른 실로 통과하는 문이 없고 식품은 서비스 접근을 거쳐 공용부로 간다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 service-access-plan 뒤쪽에서 직접 들어가는 연결, 앞 세탁실 칸막이·뒤 공용부·오른쪽 차고 공유 벽 인접, 통과 문 부재와 서비스 통로→공용부 운반 경로로 팬트리의 장소 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 오른쪽 벽은 차고 공유 벽, 뒤쪽은 공용부 경계를 소비하고 두 번째 팬트리 문을 추가하지 않는다.

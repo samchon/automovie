@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 폭 11.50 m는 왼쪽 거실·중앙 계단과 진입·우측 서비스를 함께 놓을 여유, 깊이 10.70 m는 전면 생활부와 후면 공용부를 둘 범위라는 저작 선택이고 246.10㎡는 그 곱의 산술이라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 11.50 m 폭은 거실·계단·서비스 배치 여유, 10.70 m 깊이는 전면 생활부·후면 공용부 범위라는 근거와 ‘저작 입력의 산술이며 컴파일된 면적 계측 결과가 아니다’를 대조해 수치마다 근거가 붙음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 규모 설정의 범위에서 한 외곽을 고르고 전면 박공을 방 바닥 돌출이 아닌 지붕의 교차 형상으로 만든다는 공간 결정을 더한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 house-scale이 폭·깊이 범위와 전면 박공의 얕은 돌출 허용만 둔 데 비해 이 H2는 11.50 × 10.70 m 한 외곽을 고르고 박공을 방 바닥 돌출 없이 지붕 교차 형상으로 만든다는 결정을 더함을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 house-scale의 폭·깊이·235–255㎡ 범위, 거의 같은 두 층 외곽과 전면 박공의 얕은 돌출 허용을 대조했다. 이 H2는 11.50 × 10.70 m 한 외곽을 고르고 박공을 방 바닥 돌출 없이 지붕 교차 형상으로 만드는 결정을 더한다.
 @evidence principles/design/spaces.md#space-topology 두 storey가 같은 직사각 외곽을 공유하고 차고·포치·대지를 이 외곽의 면적 값에 넣지 않으며 방 분할과 문 위치는 동선 인계가 잇는 방별 owner에 둔다는 포함 관계를 정한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘두 층에 같은 직사각 외곽’, 차고·포치·대지의 면적 제외, 방 분할과 문 위치를 동선 인계의 방별 owner에 둔다는 문장을 대조해 building–storey–방의 포함 관계가 형상보다 먼저 선언됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 방 분할과 문 위치는 동선 인계가 잇는 방별 owner, 외벽 0.25 m 예약 안의 구조·외장 조합은 후속 부재 설계에 두고 외곽 선택으로 settings의 현관·서비스 띠·상층 복도 그래프를 바꿀 권한이 생기지 않는다고 적는다.

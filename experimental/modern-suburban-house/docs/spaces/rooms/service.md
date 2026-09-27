@@ -9,7 +9,7 @@
 @evidence principles/core/common.md#declared-basis 계단 보호 경계는 stair-floor-opening, 현관 연결은 entry-plan, 각 실 문은 자기 room owner에서 받는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 계단 보호 경계를 02-stair의 stair-floor-opening, 현관 연결을 entry-plan, 세 실 문을 각 room owner, 후면을 common-room-plan 링크로 받는다고 밝혀 경계 주장의 근거가 추적됨을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스 띠 설정을 계단 바깥을 돌아가는 열린 L형 동선과 X = [3.07, 3.22] m 공유 칸막이로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 service-band 설정은 실 목록과 분기만 주지만 본문은 계단 보호 경계 바깥을 돌아 계단 밑으로 들어가지 않는 열린 L형 동선과 X = [3.07, 3.22] m 공유 칸막이를 더했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 service-band 설정의 세 실·차고 직접 접촉, 비통과 분기와 중앙 동선에서 현관 복귀 조건을 대조했다. 본문은 계단 보호 경계 바깥을 돌아 계단 밑으로 들어가지 않는 열린 L형 동선과 X = [3.07, 3.22] m 공유 칸막이를 더한다.
 @evidence principles/design/spaces.md#space-topology 현관과 문 없이 X = 2.02 m 구간에서 연결되고 세 서비스실로 분기하며 차고에 가는 유일한 내부 경로는 머드룸을 통하게 한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 X = 2.02, Z = [-3.41, -0.25] 무문 현관 연결, 칸막이 문으로의 세 서비스실 분기, 후면 공용부 연결, 머드룸만 통하는 차고 내부 경로가 본문에 있어 서비스 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 세 실의 개구부는 각 room owner가 칸막이에서 소유하고 외투장 미닫이는 entry owner에서 받는다.

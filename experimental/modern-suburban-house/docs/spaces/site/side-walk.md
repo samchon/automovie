@@ -49,7 +49,7 @@
 @evidence principles/design/spaces.md#space-topology gate가 같은 연속 포장 위의 두 외부 구역을 나누고 둘 다 house-site/ground-storey에 속한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 gate가 같은 연속 포장 owner 위의 `side-front-access`와 `side-rear-access`를 나누고 둘 다 house-site/ground-storey에 속한다는 본문을 대조해 문 양쪽 구역의 포함·인접 관계를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 문기둥과 빈 개구부는 src/spaces/site/fence.ts, 움직이는 문짝과 철물은 models/02-exterior-doors.md#side-yard-gate에 배정한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 fence.ts가 문기둥과 빈 개구부만 만들고 대문 원형이 후속 문짝·철물을 만들도록 본문과 source를 대조했다. 보행면 owner는 이 면들을 생성하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 fence.ts가 완결 고정 울타리·문기둥·빈 개구부를 만들고 대문 원형이 후속 문짝·철물을 만들도록 본문과 source를 대조했다. 보행면 owner는 이 면들을 생성하지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 닫힌 문의 걸쇠 조작과 90° 열린 문 통과를 구별하고 두 구역 각각의 기본 시점과 꺾임의 가려진 코너를 검사한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌 문 걸쇠 조작과 90° 열린 문 통과를 구별하고 두 구역에 threshold·코너·중심 네 방향과 가려진 꺾임 질문을 두는 본문을 대조해 대표 view 하나로 줄이지 않는 반증 주소를 확인했다.
 @evidence settings/10-house.md#site-identity 우측 목재 울타리에 관리 통행용 문을 둔다.

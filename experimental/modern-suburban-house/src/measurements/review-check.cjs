@@ -1,4 +1,4 @@
-/** Run the coordinator's seven read probe types and the production check in one
+/** Run the coordinator's read probes and the production check in one
  * command. Every child runs, and every nonzero exit contributes to the final
  * exit sum. The reason probe is scoped to docs and src separately so ignored
  * historical .wiki snapshots are not mistaken for production review hosts.
@@ -8,6 +8,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 
 const root = path.resolve(__dirname, "../..");
+const logs = path.join(root, ".wiki", "stage3-review-check");
 
 /** @param {string} probes @param {string} npmCli
  * @returns {Array<[string, string, string[]]>} */
@@ -34,9 +35,25 @@ function taskPlan(probes, npmCli) {
       [path.join(probes, "docs-review-host.mjs"), root, "docs/spaces"],
     ],
     [
+      "docs-spaces-review-rows",
+      process.execPath,
+      [
+        path.join(probes, "1952-docs-rows-extract.mjs"),
+        path.join(root, "docs"),
+        path.join(logs, "docs-spaces-rows.json"),
+        "spaces", "spaces/rooms", "spaces/envelope", "spaces/roof", "spaces/site",
+      ],
+    ],
+    [
       "docs-spaces-review-quotes",
       process.execPath,
-      [path.join(root, "src/measurements/docs-spaces-review-quotes.cjs"), probes],
+      [
+        path.join(probes, "1952-docs-quote-check-all.cjs"),
+        path.join(root, "docs"),
+        path.join(logs, "docs-spaces-rows.json"),
+        "1",
+        path.join(logs, "docs-spaces-quotes"),
+      ],
     ],
     [
       "doc-review-numbers",
@@ -81,12 +98,19 @@ function execute(tasks, run) {
     const unchecked = /\bNOTHING (?:WAS )?CHECKED\b/i.test(
       `${result.stdout ?? ""}\n${result.stderr ?? ""}`,
     );
-    const status = Math.max(result.status ?? 1, unchecked ? 1 : 0);
+    const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+    const rowCount = /\btotal\s+(\d+)\s+hosts\s+\d+/.exec(output);
+    const spanCount = /\brows with quotes\s+\d+\s+spans\s+(\d+)/.exec(output);
+    const failedQuotes = /\b(?:ABSENT|LOOSE):\s*[1-9]\d*\b/.test(output);
+    const emptyPopulation =
+      (name === "docs-spaces-review-rows" && Number(rowCount?.[1] ?? 0) === 0) ||
+      (name === "docs-spaces-review-quotes" && Number(spanCount?.[1] ?? 0) === 0);
+    const status = Math.max(result.status ?? 1, unchecked || emptyPopulation || (name === "docs-spaces-review-quotes" && failedQuotes) ? 1 : 0);
     exitSum += status;
     results.push({
       name,
       status,
-      unchecked,
+      unchecked: unchecked || emptyPopulation,
       stdout: result.stdout ?? "",
       stderr: result.stderr ?? "",
       error: result.error?.message ?? "",
@@ -102,7 +126,6 @@ if (require.main === module) {
     console.error("usage: npm run review-check -- <probe-directory>");
     process.exitCode = 2;
   } else {
-    const logs = path.join(root, ".wiki", "stage3-review-check");
     fs.mkdirSync(logs, { recursive: true });
     const { exitSum, results } = execute(
       taskPlan(path.resolve(probes), npmCli),
