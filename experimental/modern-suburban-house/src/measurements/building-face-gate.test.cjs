@@ -28,4 +28,6 @@ void test("fixed fittings and exterior cladding use building exactness", () => {
     ["15-outdoor.md", "eave-gutter-downspout"],
   ]) assert.equal(isBuildingFaceMissing({ file, anchor, candidate: false }), true);
   assert.equal(isBuildingFaceMissing({ file: "15-outdoor.md", anchor: "terrace-chair", candidate: false }), false);
+  assert.equal(isBuildingFaceMissing({ file: "13-bedrooms.md", anchor: "sliding-closet", id: "clothes", candidate: false }), false);
+  assert.equal(isBuildingFaceMissing({ file: "14-bathrooms.md", anchor: "vanity-basin", id: "accessory", candidate: false }), false);
 });

@@ -4,7 +4,7 @@
  * does not certify the resulting solid, its UVs, or its neighbor contacts. */
 const list = /(?:재질 경계|표면 id|면 id|face id|id 목록|표면 파티션|경계는|경계를)/;
 const measure = /\d+(?:\.\d+)?\s*(?:m|UV\/m)|\[[−+\-.\d,\s]+\]\s*m|\d+(?:\.\d+)?\s*×\s*\d/;
-const placement = /(?:X|Y|Z)\s*=\s*\[|(?:X|Y|Z)\s*=\s*[−-]?\d|원점|중심|모서리|끝에서|윗면|아랫면|뒤쪽|앞쪽|상단|하단|좌우|양끝|둘레|깊이/;
+const placement = /(?:X|Y|Z)\s*=\s*\[|(?:X|Y|Z)\s*=\s*[−-]?\d|원점|중심|모서리|끝에서|윗면|아랫면|밑면|앞면|뒷면|뒤쪽|앞쪽|상단|하단|좌우|양끝|왼쪽|오른쪽|아래|위|둘레|깊이/;
 
 /** @param {string} body @param {string} id */
 function witness(body, id) {

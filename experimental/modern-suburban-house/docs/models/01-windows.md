@@ -68,7 +68,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 <!--
 @evidence principles/core/common.md#scope-preservation 거실·침실·주방·가족실의 상하 미닫이 창 9개의 계층(frame→unit-n→upper/lower-sash), 트랙 간격, 관절과 기준 상태를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion 두 sash가 칸 높이를 반씩 나누고 트랙 간격 0.02 m와 깊이 0.12 m가 0.14 m 안에 앞뒤 0.01 m 여유를 남기며 lower-sash만 0~sash 높이 절반 이동한다고 적는다.
-@evidence principles/core/common.md#declared-basis 작동 종류는 spaces/06-openings.md#external-opening-interface, 대상 창 좌표는 네 입면 H2, 닫힌 기준 상태는 settings/10-house.md#openings에서 받는다.
+@evidence principles/core/common.md#declared-basis 작동 종류는 spaces/06-openings.md#external-opening-interface, 대상 창 좌표는 네 입면 H2, 닫힌 기준 상태는 spaces/06-openings.md#external-opening-interface에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 06의 상하 미닫이 sash를 upper 고정·lower 평행 이동이라는 모델 관절로 바꾼다.
 @evidence principles/design/models.md#representation-contract 칸마다 unit 노드 아래 두 sash를 두는 계층과 upper rigid·lower 이동을 정한다.
 @evidence principles/design/models.md#spatial-convention lower-sash 이동 축을 국소 +Y, 범위를 sash 높이 절반으로 적는다.
@@ -86,7 +86,6 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 @evidence spaces/envelope/left.md#living-left-window 거실 왼쪽 한 칸 창을 상하 미닫이 한 unit으로 채운다.
 @evidence spaces/envelope/left.md#primary-left-window 주침실 왼쪽 두 칸 창을 상하 미닫이 두 unit으로 채운다.
 @evidence spaces/envelope/right.md#family-right-window 가족실 오른쪽 두 칸 창을 상하 미닫이 두 unit으로 채운다.
-@evidence spaces/06-openings.md#external-opening-interface 공통 개구부 인계의 기본 닫힘을 lower-sash 이동 0인 기준 상태로 받는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06의 작동 배정과 입면 좌표를 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
 -->
 
@@ -94,7 +93,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 
 거실·침실·주방·가족실의 창은 [06의 작동 배정](../spaces/06-openings.md#external-opening-interface)대로 상하 미닫이다. 대상은 [거실 전면 세 칸](../spaces/envelope/front.md#living-front-window), [올리브 침실](../spaces/envelope/front.md#bedroom-two-front-window)·[청회색 침실](../spaces/envelope/front.md#bedroom-three-front-window) 두 칸, [주방 한 칸](../spaces/envelope/rear.md#kitchen-rear-window), [가족실 후면 두 칸](../spaces/envelope/rear.md#family-rear-window), [주침실 후면 두 칸](../spaces/envelope/rear.md#primary-rear-window), [거실 왼쪽 한 칸](../spaces/envelope/left.md#living-left-window), [주침실 왼쪽 두 칸](../spaces/envelope/left.md#primary-left-window), [가족실 오른쪽 두 칸](../spaces/envelope/right.md#family-right-window)이다. 계층은 `frame` 아래 칸마다 `unit-<n>`, 그 아래 `upper-sash`와 `lower-sash`이며 두 sash는 칸 유효 높이를 같은 두 부분으로 나눈다. 바깥 트랙의 upper와 안쪽 트랙의 lower 사이는 0.02 m이며 두 sash 깊이 0.10 m와 합한 0.12 m가 0.14 m `frame` 깊이 안에 앞뒤 0.01 m씩 여유를 남기도록 정했다.
 
-motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이며 범위는 0부터 sash 높이의 절반까지다. `upper-sash`는 rigid 고정이다. 기준 상태는 [06](../spaces/06-openings.md#external-opening-interface)과 [settings 개구부](../settings/10-house.md#openings)대로 모두 닫힌 이동 0이다. 소스 owner는 `src/models/windows.ts`이며 닫힘과 최대 열림의 사선 투시로 검사한다.
+motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이며 범위는 0부터 sash 높이의 절반까지다. `upper-sash`는 rigid 고정이다. 기준 상태는 [06](../spaces/06-openings.md#external-opening-interface)대로 모두 닫힌 이동 0이다. 소스 owner는 `src/models/windows.ts`이며 닫힘과 최대 열림의 사선 투시로 검사한다.
 
 각 거친 창폭 W·높이 H·칸 수 n은 [창 부재 치수](#window-member-sizes)를 그대로 매개화한다. `frame`은 거친 개구부 둘레 폭 0.06 m·깊이 Z=[−0.18,−0.04] m를 쓰고, `mullion`은 인접 칸 사이마다 0.08 m 폭·0.14 m 깊이의 닫힌 기둥이다. 칸 폭은 c=(W−2×0.06−(n−1)×0.08)/n m다. 한 칸의 upper/lower `sash`는 각각 외곽 폭 c·높이 (H−2×0.06)/2 m, 테두리 0.05 m·깊이 0.05 m이며 안팎 트랙 간격은 위에서 정한 0.02 m다. 각 sash의 `muntin`은 중앙 세로 한 줄과 가로 한 줄의 폭 0.025 m·깊이 0.01 m 띠이고, 각 칸의 `glass`는 두께 0.006 m, 투명 사각 영역의 열 폭 (c−2×0.05−0.025)/2 m·행 높이 ((H−2×0.06)/2−2×0.05−0.025)/2 m인 네 닫힌 판이다. 문턱이나 창선은 이 창짝 원형에 중복하지 않는다.
 

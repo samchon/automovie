@@ -28,7 +28,6 @@
 @evidenceExclude settings/00-production.md#working-language 이 상위 H2는 작업 언어를 정하며 모델 문서는 그 언어로 쓰였을 뿐 부재 결정에 값을 받지 않는다.
 @evidenceExclude settings/10-house.md#house-scale 이 상위 H2는 집 전체 규모를 정하며 모델은 그 규모를 좌표로 확정한 spaces 개구부 H2에서 치수를 받는다.
 @evidenceExclude settings/10-house.md#main-mass 이 상위 H2는 본채 매스와 지붕 형태를 정하며 모델은 지붕·벽 몸체를 만들지 않는다.
-@evidenceExclude settings/10-house.md#porch-entry 포치 기둥·지붕과 현관 소품의 형상은 이 개구부 공통 좌표 H2의 대상이 아니다. 현관문 충전은 02#front-entry-door가 별도 근거와 함께 받는다.
 @evidenceExclude settings/10-house.md#service-band 이 상위 H2는 우측 서비스 동선을 정하며 모델은 그 안의 문 값을 각 room plan H2에서 받는다.
 @evidenceExclude settings/20-verification.md#completion-boundary 이 상위 H2는 완료와 기록 조건을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#data-authority 이 상위 H2는 측정과 프레임의 책임을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
@@ -37,7 +36,7 @@
 @evidenceExclude settings/20-verification.md#lifecycle-boundary 이 상위 H2는 저작 순서를 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#lighting-state 이 상위 H2는 key light 방향·그림자·켜진 실내 광원의 빛 상태를 정하며 빛은 systems 소유이고 모델 리뷰 뷰는 중성 배경을 쓴다.
 @evidenceExclude settings/20-verification.md#observation-allocation 이 상위 H2는 관찰 배분을 정하며 모델 리뷰 뷰는 frame-condition에서 받고 집 전체 관찰은 spaces가 맡는다.
-@evidenceExclude settings/20-verification.md#reference-authority 이 H2 본문은 참조 이미지를 치수 도면으로 쓰지 않는 한계에 직접 따른다. 배치 좌표와 치수는 settings 제작 좌표와 spaces 개구부에서 받아 이미지 픽셀을 역산하지 않는다.
+@evidence settings/20-verification.md#reference-authority 이 H2 본문의 레퍼런스 01–05 비측량 선언과 개구부 좌표·치수를 settings·spaces에서 받는 문장이 사진 비례에서 제작 치수를 역산하지 않는 경계를 소비한다.
 @evidenceExclude settings/20-verification.md#renderer-boundary 이 상위 H2는 실제 3D 렌더 경계를 정하는 source·viewer 조건이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#role-boundary 이 상위 H2는 저작·계측·판정 권한을 정하는 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude settings/20-verification.md#submission-boundary 이 상위 H2는 커밋과 푸시 절차이며 모델 부재의 형상·관절·표면을 정하지 않는다.
@@ -45,7 +44,6 @@
 @evidenceExclude settings/20-verification.md#viewer-handoff 이 상위 H2는 뷰어 실행 인계를 정하며 모델 부재의 형상·관절·표면을 정하지 않는다.
 @evidenceExclude spaces/01-storeys.md#storey-datums 이 상위 H2는 두 storey의 완성 바닥 높이를 정하며 모델 원형은 국소 원점에서 만들어지고 층 높이 배치는 instances가 한다.
 @evidenceExclude spaces/02-stair.md#stair-connector-handoff 이 상위 H2는 계단 connector 등록을 정하며 모델 난간살은 connector를 만들거나 바꾸지 않는다.
-@evidenceExclude spaces/02-stair.md#stair-reservation 계단 flight의 run·rise와 열린 옆면은 이 개구부 충전 좌표 H2의 형상 입력이 아니다. 04#stair-side-skirt가 그 부모를 직접 소비한다.
 @evidenceExclude spaces/04-observations.md#engine-render-handoff 이 상위 H2는 공간 산출물의 렌더 인계를 정하며 모델 부재 값을 주지 않는다.
 @evidenceExclude spaces/04-observations.md#reference-spatial-comparisons 이 상위 H2는 참조 대비 공간 비교를 정하며 모델 리뷰 뷰는 frame-condition에서 받는다.
 @evidenceExclude spaces/05-route-network.md#room-route-network 이 상위 H2는 방 사이 동선을 정하며 모델은 문 값을 각 room plan H2에서 받는다.
@@ -56,7 +54,6 @@
 @evidenceExclude spaces/09-ceiling-assembly.md#upper-ceiling-closure 이 상위 H2는 상층과 계단실 천장을 정하며 모델은 천장을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#garage-ground-floor-base 이 상위 H2는 차고 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/10-ground-floor.md#ground-support-handoff 이 상위 H2는 바닥 아래 지지와 지표 인계를 정하며 모델 부재와 관계가 없다.
-@evidenceExclude spaces/10-ground-floor.md#ground-threshold-junctions 이 공통 좌표 H2는 문턱판의 위치와 문짝 아래 끝을 정하지 않는다. 두 외부 문의 개별 H2가 문턱판 상면을 직접 받는다.
 @evidenceExclude spaces/10-ground-floor.md#main-ground-floor-base 이 상위 H2는 본채 바닥 바탕을 정하며 모델은 바닥을 만들지 않는다.
 @evidenceExclude spaces/envelope/front.md#front-roof-closures 이 상위 H2는 전면 박공 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
 @evidenceExclude spaces/envelope/left.md#left-roof-closure 이 상위 H2는 왼쪽 삼각 벽 폐합을 정하며 모델은 벽을 만들지 않는다.
@@ -186,6 +183,8 @@
 
 실내 방 벽에 독립으로 붙는 걸레받이 판의 id는 `wall-baseboard`(벽 하단 목재·MDF 판의 앞·뒤·위·아래·끝면)다. 열린 계단의 별도 흰 경사 측판은 `stair-skirt`(경사판과 참 연결판의 모든 닫힌 면)이며 구조 디딤·챌판과 다른 부재다. 가구 몸통 아래의 `plinth`와 역할이 다르며 벽 마감 면을 `wall-baseboard`로 다시 만들지 않는다.
 
+같은 역할의 면이 다른 id로 잘리거나 한 id가 서로 다른 역할을 덮는지 확인할 때는 [모델 리뷰 뷰](#model-review-set)의 face-id 오버레이와 재료 결합 뷰를 같은 카메라에서 대조한다. id는 실제 완결 면마다 하나만 붙이고 재료 결합을 위해 형상 없는 대체 면을 만들지 않는다.
+
 ## 원형 계열별 표현 완결 보고 {#model-representation-completion}
 <!--
 @evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고하는 경로를 정한다.
@@ -229,3 +228,4 @@
 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
 모델 리뷰는 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 canvas 1536×1024, device pixel ratio 1, 중성 배경을 쓴다. 각 모델마다 정면 직교, 측면 직교 단면, 45° 사선 투시(수직 FOV 45°, 눈높이 1.6 m), 관절이 있으면 기준 상태와 최대 열림 상태의 같은 사선 투시를 찍는다. 척도 대조로 같은 뷰에 [사람 점유체](../settings/00-production.md#use-profile)를 세운다. 이 뷰는 샷 구도와 무관하게 모델 개정 사이의 회귀를 비교하는 고정 목록이며 실제 집 안 배치 검사는 [전체 관찰](../spaces/04-observations.md#spatial-observation-derivation)이 맡는다. 소스 owner는 `src/models/frame.ts`이고 실제 캡처는 unverified다.
+\n같은 카메라·자세에서 부재 face-id를 각각 다른 단색으로 보이는 오버레이와 선언된 materials binding을 적용한 뷰를 한 쌍으로 기록한다. 첫 뷰는 형상 면의 중복·누락을, 둘째 뷰는 실제 재료 결합이 다른 부재로 새는지를 반증한다. 색은 식별 표식일 뿐 재료 선택이 아니며 원본 면의 위치·UV를 바꾸지 않는다. 캡처가 없으면 두 관찰은 unverified다.\n

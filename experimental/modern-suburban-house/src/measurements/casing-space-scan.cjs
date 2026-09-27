@@ -53,6 +53,16 @@ const pair = (s) => {
 const overlap = (a, b) => Math.min(a[1], b[1]) - Math.max(a[0], b[0]);
 /** @param {Span} a @param {Span} b */
 const subset = (a, b) => a[0] >= b[0] - 1e-8 && a[1] <= b[1] + 1e-8;
+/** @param {Span} target @param {Span[]} segments */
+const coveredBy = (target, segments) => {
+  let end = target[0];
+  for (const [start, next] of [...segments].sort((a, b) => a[0] - b[0])) {
+    if (start > end + 1e-8) return false;
+    end = Math.max(end, next);
+    if (end >= target[1] - 1e-8) return true;
+  }
+  return false;
+};
 /** @param {number} v */
 const isPositive = (v) => v > 1e-8;
 /** @typedef {{ id:string;kind:string;file:string;x:Span;z:Span;y:Span|null }} Reservation */
@@ -95,10 +105,11 @@ if (process.argv.includes("--inventory")) console.log(JSON.stringify({ doors }, 
 const modelFiles = fs.readdirSync(path.join(root, "docs/models")).filter((f) =>
   f.endsWith(".md"),
 );
-const subtractionLines = modelFiles.flatMap((file) => fs.readFileSync(path.join(root, "docs/models", file), "utf8")
-  .replace(/<!--[\s\S]*?-->/g, "").split(/\r?\n/)
-  .filter((line) => /빼|비운|절개|파낸/.test(line))
-  .map((line) => ({ file, line })));
+const subtractionLines = modelFiles.filter((file) => file !== "03-interior-doors.md")
+  .flatMap((file) => fs.readFileSync(path.join(root, "docs/models", file), "utf8")
+    .replace(/<!--[\s\S]*?-->/g, "").split(/\r?\n/)
+    .filter((line) => /빼|비운|잘라|파낸/.test(line))
+    .map((line) => ({ file, line })));
 /** @param {string} line @param {string} axis @returns {Span[]} */
 const range = (line, axis) => {
   const numeric = /^\s*[−-]?\d+(?:\.\d+)?\s*,\s*[−-]?\d+(?:\.\d+)?\s*$/;
@@ -106,11 +117,12 @@ const range = (line, axis) => {
     .filter((m) => numeric.test(m[1]))
     .map((m) => pair(m[1]));
 };
-/** @param {{ x:Span;z:Span;y:Span }} hit */
-const hasSubtraction = (hit) => subtractionLines.some(({ line }) => {
+/** @param {{ x:Span;z:Span;y:Span }} hit @param {string} reservationId */
+const matchingSubtractions = (hit, reservationId) => subtractionLines.filter(({ line }) => {
+  if (!line.includes(`\`${reservationId}\``)) return false;
   const xs = range(line, "X"), zs = range(line, "Z"), ys = range(line, "Y");
   return xs.some((x) => subset(hit.x, x)) && zs.some((z) => subset(hit.z, z)) &&
-    (!hit.y || ys.some((y) => subset(hit.y, y)) || /판 두께 전체|다섯 판|다섯 단/.test(line));
+    coveredBy(hit.y, ys);
 });
 const casingOverrides = modelBody.replace(/<!--[\s\S]*?-->/g, "").split(/\r?\n/)
   .filter((line) => line.includes("`casing-") && /[a-z-]+-door/.test(line))
@@ -181,7 +193,12 @@ for (const door of doors) {
         isPositive(v[1] - v[0]),
       )) continue;
       reservationIntersections++;
-      if (!hasSubtraction(hit)) failures.push(
+      const matching = matchingSubtractions(hit, box.id);
+      if (process.argv.includes("--inventory")) console.log(JSON.stringify({
+        door: door.id, reservation: box.id, hit,
+        subtractionSources: matching.map(({ file, line }) => ({ file, line: line.slice(0, 180) })),
+      }));
+      if (!matching.length) failures.push(
         `${door.id} casing intersects ${box.file}:${box.id} without model subtraction x=${hit.x} z=${hit.z} y=${hit.y}`,
       );
     }
