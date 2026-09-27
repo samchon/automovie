@@ -69,80 +69,80 @@ export interface IObservationPose {
 /**
  * One derived spatial question.
  * @evidence spaces/04-observations.md Every inspection question has a role, subject, and optional self-space pose.
- * @evidenceReview spaces/04-observations.md #696e544 v-141 role, subject and pose fields exist, with pose nullable. 04:41 gives questions plus self-space poses.
+  * @evidenceReview spaces/04-observations.md `IHouseObservation` carries a named question, its role and subject, and either an own-space pose or a null exterior camera handoff.
  * @evidence spaces/04-observations.md#spatial-observation-derivation Interior stations and exterior census questions share a stable record shape.
- * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea v-141 Stations (L441-468, L490, L517) and census questions (L528-559) share IHouseObservation.
+  * @evidenceReview spaces/04-observations.md#spatial-observation-derivation `deriveHouseObservations` appends accepted room, stair, storage, and zone stations and exterior building questions to the same typed observation list.
  * @evidence principles/core/source-units.md#source-scope-preservation A question observes authored geometry instead of adding geometry.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 The record only references ids; no geometry is emitted.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation The record points to an existing space or feature and optional camera pose; it adds no room surface, roof part, or opening geometry.
  * @evidence principles/core/source-units.md#source-substantive-completion The record exposes station identity, role, subject and camera ownership.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Fields: id, role, subject, space and pose (null means the settings camera).
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion Required id, role, space, subject, and nullable pose let consumers identify each question, locate its own-space camera when present, and distinguish exterior camera ownership.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation adds room centre, corner, and threshold poses alongside exposed facade, roof, and entrance questions; this record carries both populations.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41: exterior facades, corners, roofs/undersides and openings/entrances, plus per-room centre/corner/threshold. One record shape for both populations (stations :443-470; building :530-561).
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` assigns room centre/corner/threshold poses and facade, roof, corner, and entrance questions; this record carries both populations without inventing a new inspection place.
  */
 export interface IHouseObservation {
   /**
    * @evidence spaces/04-observations.md Questions need stable addresses for reference comparison.
-   * @evidenceReview spaces/04-observations.md #696e544 v-141 04:125 fixes observation ids from the compiled record; references select by id (L562-612).
-   * @evidence spaces/04-observations.md#spatial-observation-derivation Stable station or building-census address.
-   * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea v-141 Ids are `${space}/${station}` (L442/461) or `building/${role}/${subject}` (L529/547).
+    * @evidenceReview spaces/04-observations.md `reference-spatial-comparisons` selects actual derived observation ids, and this field retains each station or building-question address for that selection.
+    * @evidence spaces/04-observations.md#reference-spatial-comparisons Stable ids let each reference selection address its derived spatial questions.
+    * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons Interior ids combine space and station identity, while building ids combine role and feature identity; the five `references` select those exact ids.
    * @evidence principles/core/source-units.md#source-scope-preservation The address names an observation, not another geometry owner.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 The id is a string address only.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation This string identifies a question built from existing records and is never used as a new geometry owner or room id.
    * @evidence principles/core/source-units.md#source-substantive-completion It lets failures and references identify the same question.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 failures push o.id (L387-401) and references select by id (L562-612).
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires an address for each centre, corner, and threshold question; id retains the compiled station identity used in the failure census.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41-79 never mention ids or addresses; 'observation id' is in sibling 04:125 (and in settings/20-verification.md:169 observation-allocation, which 04:41 receives). Host part holds: id = space.id/station.id (observations.ts:444, :463), reused in failures (:389-402).
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion `accept` records rejected station ids in `failures`, and reference selections retain accepted question ids, giving both consumers a stable address.
+    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` requires derived observation ids from compiled boundaries, while `spatial-observation-derivation` supplies the questions; this field carries the actual station or building id into both acceptance and selection.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Room station ids and exterior question ids are produced from compiled records, then accepted or reported as failures and selected by the five references, so the cited design needs no new question address rule.
    */
   id: string;
   /**
    * @evidence spaces/04-observations.md The inspection census distinguishes station and building questions.
-   * @evidenceReview spaces/04-observations.md #696e544 v-141 The union (L102) separates station roles from building roles; 04:41.
+    * @evidenceReview spaces/04-observations.md The `role` union distinguishes centre, corner, threshold, and reflex stations from facade, roof, underside, envelope-corner, and entrance questions.
    * @evidence spaces/04-observations.md#spatial-observation-derivation Centre, corner, threshold and building roles identify the question.
-   * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea v-141 Roles are center/corner/threshold/reflex-corner/facade/roof/underside/envelope-corner/entrance; 04:41 lists these families.
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation The derivation assigns one of the nine role literals when it accepts a station, adds a reflex corner, or appends the compiled building census.
    * @evidence principles/core/source-units.md#source-scope-preservation These roles classify derived observations only.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 The role is a label with no geometry.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation The literal classifies an inspection question but does not create the cell, boundary, roof face, or opening it describes.
    * @evidence principles/core/source-units.md#source-substantive-completion The explicit union prevents an unclassified question from entering the result.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Typed union at L102; station.role is typed by the engine union center|corner|threshold.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion The closed role union covers engine stations and added reflex or building questions, giving reference filters a finite typed classification.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation calls for centre, inset corner, and opening threshold views, plus whole-building exterior questions; role distinguishes those named observation families.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41: centre directions, inner corners, threshold, extra non-rectangular questions, and facades/corners/roofs+undersides/openings. The role union (observations.ts:102) matches: center/corner/threshold/reflex-corner/facade/roof/underside/envelope-corner/entrance.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` specifies centre, inward corner, threshold, hidden concave corner, and exterior feature questions; these role literals preserve those families without inventing a view count.
    */
   role: "center" | "corner" | "threshold" | "reflex-corner" | "facade" | "roof" | "underside" | "envelope-corner" | "entrance";
   /**
    * @evidence spaces/04-observations.md Interior station ownership is by subject space.
-   * @evidenceReview spaces/04-observations.md #696e544 v-141 space is the station's own space id (L444, 463, 493, 519); 04:41.
+    * @evidenceReview spaces/04-observations.md Interior station builders put their own built space id here, while building questions use null because their exterior cameras have no room to stand in.
    * @evidence spaces/04-observations.md#spatial-observation-derivation The pose stands in this space; exterior census questions have none.
-   * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea v-141 Building questions have space:null and pose:null (L531-533, L549-558).
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation `accept` checks station poses against this id; facade, roof, underside, corner, and entrance questions carry `space:null` and no own-space pose.
    * @evidence principles/core/source-units.md#source-scope-preservation The string refers to an existing built space.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Ids come from environment.spaces or the house zones. accept fails a missing space (L391); reflex throws (L478).
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation Non-null values refer to compiled room, stair, storage, or exterior space ids; the observation record does not create a new space.
    * @evidence principles/core/source-units.md#source-substantive-completion The derivation can check pose containment against this id.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 accept uses spaces.get(o.space) and builtSpaceContainsPoint (L376, L391).
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion `accept` resolves this id in its compiled space map and tests the eye with `builtSpaceContainsPoint`, recording a failure if the pose leaves it.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation places each interior eye in its own room, while whole-building facade and roof questions have no room id; space records that distinction.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41 self-space poses per room; building questions set space:null (observations.ts:533, :551) while stations carry space.id.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` assigns self-space poses to indoor and walkable places and exterior questions to the building census; this nullable id keeps that distinction without a new room.
    */
   space: string | null;
   /**
    * @evidence spaces/04-observations.md Questions identify the feature under inspection.
-   * @evidenceReview spaces/04-observations.md #696e544 v-141 subject is an opening, boundary, corner or roof-part id.
+    * @evidenceReview spaces/04-observations.md `subject` names the opening at a threshold or the boundary, corner, entrance, or roof part a building question inspects; centre stations can leave it null.
    * @evidence spaces/04-observations.md#spatial-observation-derivation Opening, boundary or corner under inspection, when applicable.
-   * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea v-141 Threshold subject is the opening (L445-464); facade/roof/underside take the boundary; envelope-corner takes c.id; roof parts take part.id (L550).
+    * @evidenceReview spaces/04-observations.md#spatial-observation-derivation Threshold stations retain `station.opening`; census questions retain boundary, corner, or entrance ids, and roof-part questions retain the emitted part id.
    * @evidence principles/core/source-units.md#source-scope-preservation This is an existing subject id rather than a created feature.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Subject ids are read from the environment or house; nothing is created.
-   * @evidence principles/core/source-units.md#source-substantive-completion The subject connects a threshold or building question to its boundary.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Thresholds link opening ids and facades/roofs boundary ids, but roof/underside questions carry a part id with no boundary (observations.ts:543-559); loose.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation The id comes from an existing opening, boundary, corner, entrance, or emitted roof part; this field creates no feature.
+    * @evidence principles/core/source-units.md#source-substantive-completion The subject connects a threshold or building question to its opening, boundary, corner, entrance, or roof part.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion Thresholds identify opening ids, census questions identify compiled exterior features, and emitted roof questions identify part ids, allowing each feature to be located.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation ties threshold questions to their opening and building questions to their exterior element; subject retains the compiled id being inspected.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41: questions for every opening/entrance and exposed facade/corner/roof. subject = station.opening for thresholds (observations.ts:447, :457, :466, :523); boundary, corner or part id for building questions (:538-561).
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` requires threshold and exterior feature questions; this field retains their compiled opening, boundary, corner, entrance, or roof-part identity.
    */
   subject: string | null;
   /**
    * @evidence spaces/04-observations.md Interior inspection stations carry a camera pose.
-   * @evidenceReview spaces/04-observations.md #696e544 v-141 Stations carry a pose; accept fails a null one.
+    * @evidenceReview spaces/04-observations.md Accepted self-space stations carry a concrete `IObservationPose`; `accept` places a null or outside-space station in `failures` instead of the observation list.
    * @evidence spaces/04-observations.md#engine-render-handoff Interior questions carry a pose; settings supplies the exterior census camera.
-   * @evidenceReview spaces/04-observations.md#engine-render-handoff #330fc4a v-141 Census questions have pose:null (L533). 04:169: viewer camera/render conditions belong to settings.
+    * @evidenceReview spaces/04-observations.md#engine-render-handoff Building census and roof-part questions carry `pose:null`; the source records their inspection subject and leaves exterior camera/render conditions to settings.
    * @evidence principles/core/source-units.md#source-scope-preservation A null exterior pose leaves camera selection to settings.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Building questions have pose:null; no camera is authored.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation A null building pose does not invent an exterior camera; a non-null station pose remains data, not house geometry.
    * @evidence principles/core/source-units.md#source-substantive-completion The camera handoff can distinguish self-space and exterior questions.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 A null pose versus a self-space pose separates the two cases.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion The nullable field lets the caller distinguish a contained interior eye from an exterior question whose camera is supplied during rendering.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation accepts a pose inside each inhabited space and leaves exterior camera selection to frame-condition; pose is nullable when that engine station has no valid self-space eye.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 04:41 self-space poses; 04:79 pose camera conditions consume frame-condition, and viewer conditions belong to settings. pose is null for building questions (observations.ts:535, :553) and for engine-null stations, which go to failures (:388-391).
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` supplies own-space poses and exterior questions, while `engine-render-handoff` leaves exterior camera choice to settings; this field keeps interior data and exterior null distinct.
    */
   pose: IObservationPose | null;
 }
