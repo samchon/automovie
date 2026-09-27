@@ -17,7 +17,7 @@
 
 레퍼런스 01의 검은 창이 흰 외벽 안으로 들어간 깊이를 채택하고, 02의 절개 창은 개구부 위치 확인에만 쓴다. 깊이 수치는 사진에서 재지 않고 벽 예약을 따른다.
 
-모든 외부 창은 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰고 원점 면은 외벽 날씨 면이다. 창 모델 하나는 [공통 개구부 인계](../spaces/06-openings.md#external-opening-interface)의 거친 직사각 개구부 하나를 채우고 좌표와 칸 수는 네 입면 owner에서 받는다. frame 외곽의 폭과 높이는 거친 개구부와 같고, blocking 수준의 틈새 shim은 [표현 상한](00-model-frame.md#model-representation-ceiling)에서 만들지 않는 부재로 본다. frame 바깥 면은 국소 Z = -0.04 m, 안쪽 면은 Z = -0.18 m로 06의 0.04 m 물림과 0.14 m 깊이를 그대로 소비한다. 소스 owner는 `src/models/windows.ts`이며 각 방 안쪽 reveal 단면으로 검사한다.
+모든 외부 창은 [공통 국소 좌표](00-model-frame.md#model-local-frame)를 쓰고 원점 면은 외벽 날씨 면이다. 창 모델 하나는 [공통 개구부 인계](../spaces/06-openings.md#external-opening-interface)의 거친 직사각 개구부 하나를 채우고 좌표와 칸 수는 네 입면 owner에서 받는다. frame 외곽의 폭과 높이는 거친 개구부와 같고, blocking 수준의 틈새 shim은 [표현 상한](00-model-frame.md#model-representation-ceiling)에서 만들지 않는 부재로 본다. `frame` 바깥 면은 국소 Z = -0.04 m, 안쪽 면은 Z = -0.18 m로 06의 0.04 m 물림과 0.14 m 깊이를 그대로 소비한다. 소스 owner는 `src/models/windows.ts`이며 각 방 안쪽 reveal 단면으로 검사한다.
 
 ## 창틀·sash·mullion·살대의 부재 치수 {#window-member-sizes}
 <!--
@@ -37,7 +37,7 @@
 
 레퍼런스 01의 넓은 전면 창과 좁은 계단 창에 공통인 검은 테를 채택한다. 서로 다른 창폭에 맞는 유리 순폭은 예약별 산술로 정한다.
 
-spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 투명 격자의 각 칸마다 두께 0.006 m인 별도의 닫힌 판이다. 각 유리판의 앞뒤 면은 각각 바깥 법선을 가져 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
+spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입면 폭 0.06 m, `sash` 둘레 0.05 m, 칸 사이 `mullion` 0.08 m, 중앙 `muntin` 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 `frame` 0.14 m 전부, `sash` 0.05 m, 투명 격자의 각 칸마다 `glass` 0.006 m인 별도의 닫힌 판이다. 각 유리판의 앞뒤 면은 각각 바깥 법선을 가져 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
 고정창과 욕조 경첩창의 `sash`는 날씨 면을 국소 Z=0으로 두었을 때 Z=[−0.13,−0.08] m이고, 그 안의 유리는 Z=[−0.113,−0.107] m다. 상하 미닫이의 두 sash는 별도 트랙을 써서 바깥 upper가 Z=[−0.10,−0.05] m, 안쪽 lower가 Z=[−0.17,−0.12] m다. 각 트랙의 유리는 자기 sash 뒷면에서 0.017 m 안쪽의 0.006 m 판이므로 upper Z=[−0.083,−0.077] m, lower Z=[−0.153,−0.147] m다. 유리가 점유하는 사각형은 sash 안쪽의 유리 순폭·순높이이며 그 자리의 sash 면은 실제 구멍으로 비운다. 욕조 경첩창의 `awning-sash` 위쪽 회전축은 날씨 쪽 윗모서리 Z=−0.08 m다.
 
 ## 살대 격자 {#window-muntin-grid}
@@ -58,7 +58,9 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입�
 
 레퍼런스 01·04의 검은 가로세로 살대가 나눈 투명 칸을 채택한다. 사진의 작은 반사 무늬는 살대나 유리 질감으로 옮기지 않는다.
 
-[settings 개구부](../settings/10-house.md#openings)가 살대를 요구하므로 투명 유리를 가진 모든 sash는 가운데 세로 살대 하나와 가로 살대 하나로 2열 × 2행 유리 칸을 만든다. 한 sash 안의 격자는 입면 전체에서 같은 비례로 반복되어 [전면 입면](../spaces/envelope/front.md#front-openings)의 넓은 창·침실 창·작은 계단 창의 위계를 칸 수와 창 크기로만 읽게 하고 살대 무늬로 위계를 바꾸지 않는다. 흐린 유리의 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window)은 살대를 두지 않는다. 살대는 유리 양면의 각각 0.01 m 깊이 층에 붙는 막대다. 유리의 국소 깊이가 [g0,g1]이면 날씨 쪽 층은 [g1,g1+0.01], 실내 쪽 층은 [g0−0.01,g0]이다. 각 층에서 세로 살대 한 줄은 전체 유리 높이를 잇고 가로 살대는 세로 살대 양옆에서 끝나는 두 토막으로 만들어 중앙 교차부의 부피를 복제하지 않는다. 유리 네 장은 살대 폭 0.025 m를 뺀 네 사각 칸만 차지하며 살대와 접면만 공유한다. 고정창의 두 살대 층은 Z=[−0.123,−0.113]·[−0.107,−0.097] m로 sash [−0.13,−0.08] 안이고, 상하 미닫이 upper는 [−0.093,−0.083]·[−0.077,−0.067] m로 sash [−0.10,−0.05] 안, lower는 [−0.163,−0.153]·[−0.147,−0.137] m로 sash [−0.17,−0.12] 안이다. 두 층과 유리의 깊이는 서로 양의 부피를 공유하지 않는다. 흐린 욕실 유리에는 살대를 두지 않는다. 소스 owner는 `src/models/windows.ts`다.
+[settings 개구부](../settings/10-house.md#openings)가 살대를 요구하므로 투명 유리를 가진 모든 sash는 가운데 세로 살대 하나와 가로 살대 하나로 2열 × 2행 유리 칸을 만든다. 한 sash 안의 격자는 입면 전체에서 같은 비례로 반복되어 [전면 입면](../spaces/envelope/front.md#front-openings)의 넓은 창·침실 창·작은 계단 창의 위계를 칸 수와 창 크기로만 읽게 하고 살대 무늬로 위계를 바꾸지 않는다. 흐린 유리의 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window)은 살대를 두지 않는다. `muntin`은 유리 양면의 각각 0.01 m 깊이 층에 붙는 막대다. 유리의 국소 깊이가 [g0,g1]이면 날씨 쪽 층은 [g1,g1+0.01], 실내 쪽 층은 [g0−0.01,g0]이다. 각 층에서 세로 살대 한 줄은 전체 유리 높이를 잇고 가로 살대는 세로 살대 양옆에서 끝나는 두 토막으로 만들어 중앙 교차부의 부피를 복제하지 않는다. 유리 네 장은 살대 폭 0.025 m를 뺀 네 사각 칸만 차지하며 살대와 접면만 공유한다. 고정창의 두 살대 층은 Z=[−0.123,−0.113]·[−0.107,−0.097] m로 sash [−0.13,−0.08] 안이고, 상하 미닫이 upper는 [−0.093,−0.083]·[−0.077,−0.067] m로 sash [−0.10,−0.05] 안, lower는 [−0.163,−0.153]·[−0.147,−0.137] m로 sash [−0.17,−0.12] 안이다. 두 층과 유리의 깊이는 서로 양의 부피를 공유하지 않는다. 흐린 욕실 유리에는 살대를 두지 않는다. 소스 owner는 `src/models/windows.ts`다.
+
+각 sash 중심의 `glass` 네 장은 [창 부재 치수](#window-member-sizes)의 두께 0.006 m이고 `muntin` 중심 띠의 양옆·위아래로 나뉜 네 닫힌 사각 구역을 채운다. 한 장의 가로 폭은 sash 안쪽 폭에서 0.025 m를 뺀 값의 절반, 높이도 sash 안쪽 높이에서 0.025 m를 뺀 값의 절반이다.
 
 ## 상하 미닫이 창의 계층과 기준 상태 {#double-hung-window}
 <!--
@@ -87,11 +89,11 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입�
 
 레퍼런스 01의 위아래로 나뉜 전면 창을 채택한다. 실제 개폐 위치는 사진에서 알 수 없으므로 기준 상태를 닫힘으로 둔다.
 
-거실·침실·주방·가족실의 창은 [06의 작동 배정](../spaces/06-openings.md#external-opening-interface)대로 상하 미닫이다. 대상은 [거실 전면 세 칸](../spaces/envelope/front.md#living-front-window), [올리브 침실](../spaces/envelope/front.md#bedroom-two-front-window)·[청회색 침실](../spaces/envelope/front.md#bedroom-three-front-window) 두 칸, [주방 한 칸](../spaces/envelope/rear.md#kitchen-rear-window), [가족실 후면 두 칸](../spaces/envelope/rear.md#family-rear-window), [주침실 후면 두 칸](../spaces/envelope/rear.md#primary-rear-window), [거실 왼쪽 한 칸](../spaces/envelope/left.md#living-left-window), [주침실 왼쪽 두 칸](../spaces/envelope/left.md#primary-left-window), [가족실 오른쪽 두 칸](../spaces/envelope/right.md#family-right-window)이다. 계층은 `frame` 아래 칸마다 `unit-<n>`, 그 아래 `upper-sash`와 `lower-sash`이며 두 sash는 칸 유효 높이를 같은 두 부분으로 나눈다. 바깥 트랙의 upper와 안쪽 트랙의 lower 사이는 0.02 m이며 두 sash 깊이 0.10 m와 합한 0.12 m가 0.14 m frame 깊이 안에 앞뒤 0.01 m씩 여유를 남기도록 정했다.
+거실·침실·주방·가족실의 창은 [06의 작동 배정](../spaces/06-openings.md#external-opening-interface)대로 상하 미닫이다. 대상은 [거실 전면 세 칸](../spaces/envelope/front.md#living-front-window), [올리브 침실](../spaces/envelope/front.md#bedroom-two-front-window)·[청회색 침실](../spaces/envelope/front.md#bedroom-three-front-window) 두 칸, [주방 한 칸](../spaces/envelope/rear.md#kitchen-rear-window), [가족실 후면 두 칸](../spaces/envelope/rear.md#family-rear-window), [주침실 후면 두 칸](../spaces/envelope/rear.md#primary-rear-window), [거실 왼쪽 한 칸](../spaces/envelope/left.md#living-left-window), [주침실 왼쪽 두 칸](../spaces/envelope/left.md#primary-left-window), [가족실 오른쪽 두 칸](../spaces/envelope/right.md#family-right-window)이다. 계층은 `frame` 아래 칸마다 `unit-<n>`, 그 아래 `upper-sash`와 `lower-sash`이며 두 sash는 칸 유효 높이를 같은 두 부분으로 나눈다. 바깥 트랙의 upper와 안쪽 트랙의 lower 사이는 0.02 m이며 두 sash 깊이 0.10 m와 합한 0.12 m가 0.14 m `frame` 깊이 안에 앞뒤 0.01 m씩 여유를 남기도록 정했다.
 
 motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이며 범위는 0부터 sash 높이의 절반까지다. `upper-sash`는 rigid 고정이다. 기준 상태는 [06](../spaces/06-openings.md#external-opening-interface)과 [settings 개구부](../settings/10-house.md#openings)대로 모두 닫힌 이동 0이다. 소스 owner는 `src/models/windows.ts`이며 닫힘과 최대 열림의 사선 투시로 검사한다.
 
-각 거친 창폭 W·높이 H·칸 수 n은 [창 부재 치수](#window-member-sizes)를 그대로 매개화한다. `mullion`은 인접 칸 사이마다 0.08 m 폭·0.14 m 깊이의 닫힌 기둥이고, 칸 폭은 c=(W−2×0.06−(n−1)×0.08)/n m다. 한 칸의 upper/lower `sash`는 각각 외곽 폭 c·높이 (H−2×0.06)/2 m, 테두리 0.05 m·깊이 0.05 m이며 안팎 트랙 간격은 위에서 정한 0.02 m다. 각 sash의 `muntin`은 중앙 세로 한 줄과 가로 한 줄의 폭 0.025 m·깊이 0.01 m 띠이고, 각 칸의 `glass`는 두께 0.006 m, 투명 사각 영역의 열 폭 (c−2×0.05−0.025)/2 m·행 높이 ((H−2×0.06)/2−2×0.05−0.025)/2 m인 네 닫힌 판이다. 문턱이나 창선은 이 창짝 원형에 중복하지 않는다.
+각 거친 창폭 W·높이 H·칸 수 n은 [창 부재 치수](#window-member-sizes)를 그대로 매개화한다. `frame`은 거친 개구부 둘레 폭 0.06 m·깊이 Z=[−0.18,−0.04] m를 쓰고, `mullion`은 인접 칸 사이마다 0.08 m 폭·0.14 m 깊이의 닫힌 기둥이다. 칸 폭은 c=(W−2×0.06−(n−1)×0.08)/n m다. 한 칸의 upper/lower `sash`는 각각 외곽 폭 c·높이 (H−2×0.06)/2 m, 테두리 0.05 m·깊이 0.05 m이며 안팎 트랙 간격은 위에서 정한 0.02 m다. 각 sash의 `muntin`은 중앙 세로 한 줄과 가로 한 줄의 폭 0.025 m·깊이 0.01 m 띠이고, 각 칸의 `glass`는 두께 0.006 m, 투명 사각 영역의 열 폭 (c−2×0.05−0.025)/2 m·행 높이 ((H−2×0.06)/2−2×0.05−0.025)/2 m인 네 닫힌 판이다. 문턱이나 창선은 이 창짝 원형에 중복하지 않는다.
 
 ## 고정창의 계층 {#fixed-window}
 <!--
@@ -135,6 +137,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 레퍼런스 05의 욕실 옆 상부 창은 채광하는 작은 창으로 읽는다. 경첩 방향은 사진에서 단정하지 않고 부모 예약에 맞춘 상부 힌지로 결정한다.
 
 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window) Z = [−8.40,−7.50], Y = [4.56,5.31] m은 한 칸의 상부 경첩창이다. 계층은 `frame` 아래 `awning-sash` 하나이며 경첩 축은 sash 위 변 바깥 모서리를 지나는 국소 X 평행선이다. motion 인터페이스는 이 축의 바깥쪽 회전 하나이고 범위는 0–π/8 rad다. 높이 0.75 m 개구부에서 frame을 뺀 sash 높이 0.63 m의 아래 변 바깥 돌출은 `0.63×sin(π/8)=0.2411` m이므로 [오른쪽 입면의 0.25 m 예약](../spaces/envelope/right.md#tub-right-window) 안에 0.0089 m 남는다. frame 들임을 유리하게 빼지 않은 상한이다. 기준 상태는 닫힌 0 rad이다. 흐림은 `obscured-glass` 표면으로 넘기고 정도는 materials가 정한다. 소스 owner는 `src/models/windows.ts`다.
+
+이 `frame`은 위 거친 개구부의 네 변에서 폭 0.06 m·깊이 Z=[−0.18,−0.04] m로 닫는다. 안쪽 한 칸의 `sash`는 폭 0.90−0.12=0.78 m·높이 0.75−0.12=0.63 m, 테두리 0.05 m·깊이 Z=[−0.13,−0.08] m다. sash 안쪽의 `obscured-glass` 한 장은 투명 격자 대신 폭 0.78−0.10=0.68 m, 높이 0.63−0.10=0.53 m의 열린 중앙을 채우며 위아래 Y=[4.67,5.20] m·깊이 Z=[−0.113,−0.107] m에 닫힌 두께 0.006 m 판으로 둔다. 유리의 흐림은 이 면의 materials 응답이며 살대는 만들지 않는다.
 
 ## 창대와 외부 trim {#window-sill-trim}
 <!--
