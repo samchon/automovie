@@ -4564,7 +4564,7 @@
       "refused": [
         {
           "name": "sex-1-age25-bmi15-muscle0-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 54.304 to 143.237."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 54.299 to 143.239."
         },
         {
           "name": "sex1-age25-bmi15-muscle0-h1.6",
@@ -4600,19 +4600,19 @@
         },
         {
           "name": "sex-1-age25-bmi15-muscle1",
-          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.885 to 143.734."
+          "reason": "A mass of 45.9375 is beyond this basis, which reaches 46.839 to 143.694."
         },
         {
           "name": "sex-1-age25-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 59.172 to 171.014."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 59.119 to 170.968."
         },
         {
           "name": "sex-1-age60-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.068 to 158.286."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 57.009 to 158.235."
         },
         {
           "name": "sex-1-age90-bmi15-muscle1-h1.9",
-          "reason": "A mass of 54.15 is beyond this basis, which reaches 55.549 to 149.455."
+          "reason": "A mass of 54.15 is beyond this basis, which reaches 55.524 to 149.424."
         },
         {
           "name": "sex1-age25-bmi15-muscle1-h1.6",
@@ -4883,7 +4883,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0,
-              "musculatureDefinition": 0.1325625000000001,
+              "musculatureDefinition": 0.1113525000000001,
               "chestDefinition": 0.01988437500000002,
               "skeletalProminence": 0.24400000000000036,
               "hipScaleHoriz": 0.143,
@@ -4898,8 +4898,8 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.16642034583301069,
-              "macroWeight": -0.796804037975733
+              "macroHeight": 0.16642558026883136,
+              "macroWeight": -0.796770389684866
             }
           },
           "fresh": [
@@ -4912,7 +4912,7 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 23,
+              "triangles": 31,
               "otherTriangles": 24
             },
             {
@@ -4958,10 +4958,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 1,
-              "deltoidDefinitionLeft": 1,
-              "deltoidDefinitionRight": 1,
-              "scapularDefinition": 1,
+              "absDefinition": 0.84,
+              "deltoidDefinitionLeft": 0.84,
+              "deltoidDefinitionRight": 0.84,
+              "scapularDefinition": 0.84,
               "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -4974,7 +4974,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 1,
+              "musculatureDefinition": 0.84,
               "chestDefinition": 0.15,
               "skeletalProminence": 0.25,
               "hipScaleHoriz": 0.143,
@@ -4989,16 +4989,16 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.3732676151222973
+              "macroHeight": 0.16910540139504304,
+              "macroWeight": -1.36793913878843
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 21,
-              "otherTriangles": 21
+              "triangles": 22,
+              "otherTriangles": 22
             }
           ],
           "grown": []
@@ -5037,10 +5037,10 @@
               "flankFat": 0.14400000000000018,
               "outerThighFatLeft": 0.3000000000000003,
               "outerThighFatRight": 0.3000000000000003,
-              "absDefinition": 0.23099999999999987,
-              "deltoidDefinitionLeft": 0.7312499999999997,
-              "deltoidDefinitionRight": 0.7312499999999997,
-              "scapularDefinition": 0.7312499999999997,
+              "absDefinition": 0.19403999999999988,
+              "deltoidDefinitionLeft": 0.6142499999999997,
+              "deltoidDefinitionRight": 0.6142499999999997,
+              "scapularDefinition": 0.6142499999999997,
               "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -5053,7 +5053,7 @@
               "upperarmFatRight": 0.13500000000000015,
               "upperlegFatRight": 0.1845000000000001,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 0.28874999999999984,
+              "musculatureDefinition": 0.24254999999999985,
               "chestDefinition": 0.043312499999999976,
               "skeletalProminence": 0.046249999999999944,
               "hipScaleHoriz": -0.2862500000000002,
@@ -5068,22 +5068,22 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.521331401941834
+              "macroHeight": 0.16925582337302333,
+              "macroWeight": 0.5217927032966974
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 101,
-              "otherTriangles": 101
+              "triangles": 102,
+              "otherTriangles": 102
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 43,
-              "otherTriangles": 32
+              "triangles": 48,
+              "otherTriangles": 33
             },
             {
               "part": "leftLowerLeg",
@@ -5771,10 +5771,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 0.5,
-              "deltoidDefinitionLeft": 1,
-              "deltoidDefinitionRight": 1,
-              "scapularDefinition": 1,
+              "absDefinition": 0.42,
+              "deltoidDefinitionLeft": 0.84,
+              "deltoidDefinitionRight": 0.84,
+              "scapularDefinition": 0.84,
               "breastTransDownUp": -1,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
@@ -5787,7 +5787,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 0.525,
+              "musculatureDefinition": 0.441,
               "chestDefinition": 0.07875,
               "skeletalProminence": 0.125,
               "hipScaleHoriz": 0.143,
@@ -5802,16 +5802,16 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
-              "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.157428936066449
+              "macroHeight": 0.1787845989737753,
+              "macroWeight": -1.1543332650166667
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 62,
-              "otherTriangles": 62
+              "triangles": 63,
+              "otherTriangles": 63
             },
             {
               "part": "leftUpperLeg",
@@ -5822,8 +5822,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 18,
-              "otherTriangles": 18
+              "triangles": 17,
+              "otherTriangles": 17
             }
           ],
           "grown": []
@@ -8394,10 +8394,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 1,
-              "deltoidDefinitionLeft": 1,
-              "deltoidDefinitionRight": 1,
-              "scapularDefinition": 1,
+              "absDefinition": 0.84,
+              "deltoidDefinitionLeft": 0.84,
+              "deltoidDefinitionRight": 0.84,
+              "scapularDefinition": 0.84,
               "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -8410,7 +8410,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 1,
+              "musculatureDefinition": 0.84,
               "chestDefinition": 0.15,
               "skeletalProminence": 0.25,
               "hipScaleHoriz": 0.143,
@@ -8425,16 +8425,16 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.3732676151222973
+              "macroHeight": 0.16910540139504304,
+              "macroWeight": -1.36793913878843
             }
           },
           "fresh": [
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 75,
-              "otherTriangles": 75
+              "triangles": 79,
+              "otherTriangles": 79
             },
             {
               "part": "leftUpperLeg",
@@ -8445,8 +8445,8 @@
             {
               "part": "leftLowerLeg",
               "other": "leftLowerLeg",
-              "triangles": 14,
-              "otherTriangles": 14
+              "triangles": 10,
+              "otherTriangles": 10
             }
           ],
           "grown": []
@@ -11769,7 +11769,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0,
-              "musculatureDefinition": 0.1325625000000001,
+              "musculatureDefinition": 0.1113525000000001,
               "chestDefinition": 0.01988437500000002,
               "skeletalProminence": 0.24400000000000036,
               "hipScaleHoriz": 0.143,
@@ -11784,8 +11784,8 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.16642034583301069,
-              "macroWeight": -0.796804037975733
+              "macroHeight": 0.16642558026883136,
+              "macroWeight": -0.796770389684866
             }
           },
           "fresh": [
@@ -11832,10 +11832,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 1,
-              "deltoidDefinitionLeft": 1,
-              "deltoidDefinitionRight": 1,
-              "scapularDefinition": 1,
+              "absDefinition": 0.84,
+              "deltoidDefinitionLeft": 0.84,
+              "deltoidDefinitionRight": 0.84,
+              "scapularDefinition": 0.84,
               "breastTransDownUp": -0.594,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -11848,7 +11848,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 1,
+              "musculatureDefinition": 0.84,
               "chestDefinition": 0.15,
               "skeletalProminence": 0.25,
               "hipScaleHoriz": 0.143,
@@ -11863,8 +11863,8 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.1690651176617148,
-              "macroWeight": -1.3732676151222973
+              "macroHeight": 0.16910540139504304,
+              "macroWeight": -1.36793913878843
             }
           },
           "fresh": [
@@ -12002,10 +12002,10 @@
               "flankFat": 0.14400000000000018,
               "outerThighFatLeft": 0.3000000000000003,
               "outerThighFatRight": 0.3000000000000003,
-              "absDefinition": 0.23099999999999987,
-              "deltoidDefinitionLeft": 0.7312499999999997,
-              "deltoidDefinitionRight": 0.7312499999999997,
-              "scapularDefinition": 0.7312499999999997,
+              "absDefinition": 0.19403999999999988,
+              "deltoidDefinitionLeft": 0.6142499999999997,
+              "deltoidDefinitionRight": 0.6142499999999997,
+              "scapularDefinition": 0.6142499999999997,
               "breastTransDownUp": -0.08074999999999975,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -12018,7 +12018,7 @@
               "upperarmFatRight": 0.13500000000000015,
               "upperlegFatRight": 0.1845000000000001,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 0.28874999999999984,
+              "musculatureDefinition": 0.24254999999999985,
               "chestDefinition": 0.043312499999999976,
               "skeletalProminence": 0.046249999999999944,
               "hipScaleHoriz": -0.2862500000000002,
@@ -12033,16 +12033,16 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.16924419144502495,
-              "macroWeight": 0.521331401941834
+              "macroHeight": 0.16925582337302333,
+              "macroWeight": 0.5217927032966974
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 14,
-              "otherTriangles": 14
+              "triangles": 13,
+              "otherTriangles": 13
             }
           ],
           "grown": []
@@ -12706,10 +12706,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 0.5,
-              "deltoidDefinitionLeft": 1,
-              "deltoidDefinitionRight": 1,
-              "scapularDefinition": 1,
+              "absDefinition": 0.42,
+              "deltoidDefinitionLeft": 0.84,
+              "deltoidDefinitionRight": 0.84,
+              "scapularDefinition": 0.84,
               "breastTransDownUp": -1,
               "breastVolumeVertDownUp": -0.325,
               "breastPoint": -0.27999999999999997,
@@ -12722,7 +12722,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.023000000000000003,
               "torsoVshape": 0.3,
-              "musculatureDefinition": 0.525,
+              "musculatureDefinition": 0.441,
               "chestDefinition": 0.07875,
               "skeletalProminence": 0.125,
               "hipScaleHoriz": 0.143,
@@ -12737,16 +12737,16 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.6666666666666666,
-              "macroHeight": 0.17876341050596917,
-              "macroWeight": -1.157428936066449
+              "macroHeight": 0.1787845989737753,
+              "macroWeight": -1.1543332650166667
             }
           },
           "fresh": [
             {
               "part": "spine",
               "other": "spine",
-              "triangles": 14,
-              "otherTriangles": 14
+              "triangles": 13,
+              "otherTriangles": 13
             }
           ],
           "grown": []
@@ -15910,10 +15910,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 0.10657710739944172,
-              "deltoidDefinitionLeft": 0.28322138424930215,
-              "deltoidDefinitionRight": 0.28322138424930215,
-              "scapularDefinition": 0.28322138424930215,
+              "absDefinition": 0.08952477021553104,
+              "deltoidDefinitionLeft": 0.2379059627694138,
+              "deltoidDefinitionRight": 0.2379059627694138,
+              "scapularDefinition": 0.2379059627694138,
               "breastTransDownUp": -0.5086332540154668,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -15926,7 +15926,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.0433393813206425,
               "torsoVshape": 0.09,
-              "musculatureDefinition": 0.22696130883173932,
+              "musculatureDefinition": 0.19064749941866102,
               "chestDefinition": 0.0340441963247609,
               "skeletalProminence": 0.22558821066215168,
               "hipScaleHoriz": 0.05564069006543711,
@@ -15941,10 +15941,10 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
-              "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.5895011911458488,
-              "measureBustCirc": -0.17332937803825352,
-              "macroWeight": -0.578625767726703
+              "macroHeight": 0.0732841194621088,
+              "measureHipsCirc": 0.5873609866691336,
+              "measureBustCirc": -0.17406609605181106,
+              "macroWeight": -0.5766977242552459
             }
           },
           "fresh": [
@@ -16085,7 +16085,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.0017243367935409638,
               "torsoVshape": 0,
-              "musculatureDefinition": 0.10149037334853714,
+              "musculatureDefinition": 0.0852519136127712,
               "chestDefinition": 0.015223556002280569,
               "skeletalProminence": 0.303002563699276,
               "hipScaleHoriz": 0.0107208765859286,
@@ -16100,9 +16100,9 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.22690970216124287,
-              "macroWeight": -0.9006446250120997
+              "macroHeight": 0.2803553349196318,
+              "measureHipsCirc": -0.22934585303832664,
+              "macroWeight": -0.9002604551690366
             }
           },
           "fresh": [
@@ -17705,10 +17705,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 0.054679243542743144,
-              "deltoidDefinitionLeft": 0.1,
-              "deltoidDefinitionRight": 0.1,
-              "scapularDefinition": 0.1,
+              "absDefinition": 0.04593056457590424,
+              "deltoidDefinitionLeft": 0.084,
+              "deltoidDefinitionRight": 0.084,
+              "scapularDefinition": 0.084,
               "breastTransDownUp": -0.4071229496298445,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -17721,7 +17721,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.01576401993516233,
               "torsoVshape": 0.03,
-              "musculatureDefinition": 0.23243914552678802,
+              "musculatureDefinition": 0.19524888224250192,
               "chestDefinition": 0.0348658718290182,
               "skeletalProminence": 0.40736036439343637,
               "hipScaleHoriz": 0.09801108046644406,
@@ -17736,8 +17736,8 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.13943589576935728,
-              "macroWeight": -0.9981882350219462
+              "macroHeight": 0.139445228705969,
+              "macroWeight": -0.9978611347702305
             }
           },
           "fresh": [
@@ -17774,14 +17774,14 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 134,
-              "otherTriangles": 134
+              "triangles": 132,
+              "otherTriangles": 132
             },
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 34,
-              "otherTriangles": 40
+              "triangles": 33,
+              "otherTriangles": 39
             },
             {
               "part": "leftLowerLeg",
@@ -17792,14 +17792,14 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 133,
-              "otherTriangles": 133
+              "triangles": 136,
+              "otherTriangles": 136
             },
             {
               "part": "rightUpperLeg",
               "other": "rightLowerLeg",
-              "triangles": 30,
-              "otherTriangles": 36
+              "triangles": 29,
+              "otherTriangles": 40
             },
             {
               "part": "rightLowerLeg",
@@ -17862,10 +17862,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 0.10657710739944172,
-              "deltoidDefinitionLeft": 0.28322138424930215,
-              "deltoidDefinitionRight": 0.28322138424930215,
-              "scapularDefinition": 0.28322138424930215,
+              "absDefinition": 0.08952477021553104,
+              "deltoidDefinitionLeft": 0.2379059627694138,
+              "deltoidDefinitionRight": 0.2379059627694138,
+              "scapularDefinition": 0.2379059627694138,
               "breastTransDownUp": -0.5086332540154668,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -17878,7 +17878,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.0433393813206425,
               "torsoVshape": 0.09,
-              "musculatureDefinition": 0.22696130883173932,
+              "musculatureDefinition": 0.19064749941866102,
               "chestDefinition": 0.0340441963247609,
               "skeletalProminence": 0.22558821066215168,
               "hipScaleHoriz": 0.05564069006543711,
@@ -17893,10 +17893,10 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": -0.06,
-              "macroHeight": 0.07327510016331296,
-              "measureHipsCirc": 0.5895011911458488,
-              "measureBustCirc": -0.17332937803825352,
-              "macroWeight": -0.578625767726703
+              "macroHeight": 0.0732841194621088,
+              "measureHipsCirc": 0.5873609866691336,
+              "measureBustCirc": -0.17406609605181106,
+              "macroWeight": -0.5766977242552459
             }
           },
           "fresh": [
@@ -17933,8 +17933,8 @@
             {
               "part": "leftUpperLeg",
               "other": "leftUpperLeg",
-              "triangles": 77,
-              "otherTriangles": 77
+              "triangles": 78,
+              "otherTriangles": 78
             },
             {
               "part": "leftUpperLeg",
@@ -17951,8 +17951,8 @@
             {
               "part": "rightUpperLeg",
               "other": "rightUpperLeg",
-              "triangles": 79,
-              "otherTriangles": 79
+              "triangles": 80,
+              "otherTriangles": 80
             },
             {
               "part": "rightUpperLeg",
@@ -19496,10 +19496,10 @@
               "flankFat": 0,
               "outerThighFatLeft": 0,
               "outerThighFatRight": 0,
-              "absDefinition": 0.054679243542743144,
-              "deltoidDefinitionLeft": 0.1,
-              "deltoidDefinitionRight": 0.1,
-              "scapularDefinition": 0.1,
+              "absDefinition": 0.04593056457590424,
+              "deltoidDefinitionLeft": 0.084,
+              "deltoidDefinitionRight": 0.084,
+              "scapularDefinition": 0.084,
               "breastTransDownUp": -0.4071229496298445,
               "breastVolumeVertDownUp": 0,
               "breastPoint": 0,
@@ -19512,7 +19512,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.01576401993516233,
               "torsoVshape": 0.03,
-              "musculatureDefinition": 0.23243914552678802,
+              "musculatureDefinition": 0.19524888224250192,
               "chestDefinition": 0.0348658718290182,
               "skeletalProminence": 0.40736036439343637,
               "hipScaleHoriz": 0.09801108046644406,
@@ -19527,8 +19527,8 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.13943589576935728,
-              "macroWeight": -0.9981882350219462
+              "macroHeight": 0.139445228705969,
+              "macroWeight": -0.9978611347702305
             }
           },
           "fresh": [
@@ -19559,7 +19559,7 @@
             {
               "part": "leftUpperLeg",
               "other": "leftLowerLeg",
-              "triangles": 22,
+              "triangles": 23,
               "otherTriangles": 18
             },
             {
@@ -19669,7 +19669,7 @@
               "upperarmFatRight": 0,
               "upperlegFatRight": 0.0017243367935409638,
               "torsoVshape": 0,
-              "musculatureDefinition": 0.10149037334853714,
+              "musculatureDefinition": 0.0852519136127712,
               "chestDefinition": 0.015223556002280569,
               "skeletalProminence": 0.303002563699276,
               "hipScaleHoriz": 0.0107208765859286,
@@ -19684,9 +19684,9 @@
               "measureUpperlegHeight": 0,
               "measureLowerlegHeight": 0,
               "macroFirmness": 0,
-              "macroHeight": 0.2803511182831144,
-              "measureHipsCirc": -0.22690970216124287,
-              "macroWeight": -0.9006446250120997
+              "macroHeight": 0.2803553349196318,
+              "measureHipsCirc": -0.22934585303832664,
+              "macroWeight": -0.9002604551690366
             }
           },
           "fresh": [
