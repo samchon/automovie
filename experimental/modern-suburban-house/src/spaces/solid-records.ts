@@ -298,7 +298,7 @@ export interface IWallPoint {
    * @evidence principles/core/source-units.md#source-substantive-completion The outline can order corners and door notches.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f straightWall orders door notches by their running coordinate and emits u vertices around each notch before closing the wall outline.
     * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent and attached-garage-extent set outer wall runs, roof-mass-allocation sets the gable and ridge stations, chimney-roof-interface locates the left-wall split, and interior-boundary-junctions assigns door cuts to partition runs. u carries these outline stations; window intervals remain in IWallHole.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The front, rear, left, right and garage wallPanel callers put building, roof and chimney run stations in their outline u vertices; straightWall adds u vertices for floor-reaching door notches. Enclosed window spans instead enter the separate IWallHole.from/to list, so this field sets no opening location.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The front, rear, left, right and garage wallPanel callers put building, roof and chimney run stations in their outline u vertices; straightWall adds u vertices for floor-reaching door notches. Enclosed window spans instead enter the separate IWallHole.from/to list, so this field sets no opening location.
    */
   u: number;
   /**
@@ -309,7 +309,7 @@ export interface IWallPoint {
    * @evidence principles/core/source-units.md#source-substantive-completion Head, sill and top vertices are explicit.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f wallPanel reads y for each outline vertex, and straightWall uses it for the wall top and the head of every bottom notch.
     * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-support-handoff sets the displayed exterior wall bottom, roof-wall-head-junctions and roof-mass-allocation govern sloped wall tops, and storey-datums fixes partition levels; interior-boundary-junctions keeps room-owned door heads aligned with their partition notches. y carries those outline heights, while enclosed window heads remain in IWallHole.top.
-    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Exterior wallPanel outlines take y from EXTERIOR_WALL_BOTTOM and their roof-underside functions; partitionSpan supplies straightWall's bottom and top, and a floor-reaching door contributes its own top to notch vertices. Window heads stay in IWallHole.top rather than IWallPoint.y, so this field chooses no new elevation.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Exterior wallPanel outlines take y from EXTERIOR_WALL_BOTTOM and their roof-underside functions; partitionSpan supplies straightWall's bottom and top, and a floor-reaching door contributes its own top to notch vertices. Window heads stay in IWallHole.top rather than IWallPoint.y, so this field chooses no new elevation.
    */
   y: number;
 }
