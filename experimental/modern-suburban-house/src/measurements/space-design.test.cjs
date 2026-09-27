@@ -175,4 +175,11 @@ void test("a required reference observation cannot silently disappear", () => {
     }, house),
     /reference observation "kitchen-dining-family\/threshold-garden-door" is absent/,
   );
+  assert.throws(
+    () => deriveHouseObservations({
+      ...environment,
+      spaces: environment.spaces.map((space) => space.id === "living-room" ? { ...space, kind: "void" } : space),
+    }, house),
+    /reference observations for "living-room" role "center" are absent/,
+  );
 });

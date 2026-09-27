@@ -423,9 +423,11 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
     if (!ids.has(id)) throw new Error(`reference observation "${id}" is absent`);
     return id;
   });
-  const ofSpace = (space: string, role?: IHouseObservation["role"]): string[] => observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map(
-    (o) => o.id,
-  );
+  const ofSpace = (space: string, role?: IHouseObservation["role"]): string[] => {
+    const selected = observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map((o) => o.id);
+    if (selected.length === 0) throw new Error(`reference observations for "${space}"${role === undefined ? "" : ` role "${role}"`} are absent`);
+    return selected;
+  };
   const references: IReferenceComparison[] = [
     {
       reference: "01",
