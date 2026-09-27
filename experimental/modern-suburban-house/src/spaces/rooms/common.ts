@@ -27,7 +27,7 @@ import {
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/common.md The service-common-opening void follows the partition assigned to common.
- * @evidenceReview spaces/rooms/common.md `DOOR_SERVICE_COMMON_OPENING` fixes the service passage at X [-1.35, 3.07] with a 2.40 m head; `buildCommon` passes it to the front partition's holes, whose body belongs to this room under `07-boundary-assembly.md#interior-boundary-ownership`.
+ * @evidenceReview spaces/rooms/common.md #27b3168 `DOOR_SERVICE_COMMON_OPENING` fixes the service passage at X [-1.35, 3.07] with a 2.40 m head; `buildCommon` passes it to the front partition's holes, whose body belongs to this room under `07-boundary-assembly.md#interior-boundary-ownership`.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-common-opening interval remains with common while its adjacent room receives the span.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The service opening value stays in `common.ts`; `buildCommon` uses its span for the common threshold half and `service.ts` imports that same value for the adjacent half, without making a second opening owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-common-opening span cuts its wall and sets floor finish limits on both sides.
@@ -45,7 +45,7 @@ export const DOOR_SERVICE_COMMON_OPENING = door(
 
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/common.md The living-common-opening void follows the partition assigned to common.
- * @evidenceReview spaces/rooms/common.md `DOOR_LIVING_COMMON_OPENING` has the plan's X [-5.00, -2.15] and 2.40 m head; `buildCommon` cuts that opening from its Z [-6.20, -6.05] front partition rather than adding a leaf.
+ * @evidenceReview spaces/rooms/common.md #27b3168 `DOOR_LIVING_COMMON_OPENING` has the plan's X [-5.00, -2.15] and 2.40 m head; `buildCommon` cuts that opening from its Z [-6.20, -6.05] front partition rather than adding a leaf.
  * @evidence principles/core/source-units.md#source-scope-preservation The living-common-opening interval remains with common while its adjacent room receives the span.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The living opening value is exported by `common.ts`, whose partition owns the cut; `living.ts` consumes its `from` and `to` only to finish the living-side threshold strip.
  * @evidence principles/core/source-units.md#source-substantive-completion The living-common-opening span cuts its wall and sets floor finish limits on both sides.
@@ -141,7 +141,7 @@ const COMMON: IRoomSpace = {
 /** Emit the common room floor and its front partition with two open voids. */
 /**
  * @evidence spaces/rooms/common.md This export builds one continuous kitchen-dining-family room with a front wall cut for two open passages.
- * @evidenceReview spaces/rooms/common.md `buildCommon` returns the single `kitchen-dining-family` space, its floor and ceiling, and one `common-front-partition` pierced by the living and service openings; the kitchen, dining, and family areas remain reservations in that room.
+ * @evidenceReview spaces/rooms/common.md #27b3168 `buildCommon` returns the single `kitchen-dining-family` space, its floor and ceiling, and one `common-front-partition` pierced by the living and service openings; the kitchen, dining, and family areas remain reservations in that room.
  * @evidence spaces/rooms/common.md#common-room-plan COMMON uses the full rear X/Z outline and one partition with living and service opening ids.
  * @evidenceReview spaces/rooms/common.md#common-room-plan #004bed1 `COMMON.outline` uses X [-5.50, 5.50], Z [-10.45, -6.20], while its front partition spans Z [-6.20, -6.05] and takes the two opening values named in the plan; the rest stays wall.
  * @evidence spaces/rooms/common.md#common-kitchen-wall-reservation Back/left cabinet bands and fridge, range, oven, and microwave boxes retain distinct work/swing areas.

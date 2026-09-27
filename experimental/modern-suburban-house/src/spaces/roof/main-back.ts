@@ -21,7 +21,7 @@ import {
 /**
  * Emit the main back face.
  * @evidence spaces/roof/main-back.md This export builds the rear main-roof surface west of the right-roof step.
- * @evidenceReview spaces/roof/main-back.md `buildMainBackRoof` returns `roof-main-back`, the high roof's rear plane bounded on the right by `SPLIT_X` before the lower roof begins.
+ * @evidenceReview spaces/roof/main-back.md #50f1e3e `buildMainBackRoof` returns `roof-main-back`, the high roof's rear plane bounded on the right by `SPLIT_X` before the lower roof begins.
  * @evidence spaces/roof/main-back.md#main-back-roof The rectangle runs from LEFT_EAVE_X to SPLIT_X and BACK_EAVE_Z to MAIN_RIDGE_Z, with mBack setting its rising rear profile.
  * @evidenceReview spaces/roof/main-back.md#main-back-roof #a43fc34 The `rect` plan spans `LEFT_EAVE_X` to `SPLIT_X` and `BACK_EAVE_Z` to `MAIN_RIDGE_Z`; `mBack(z)` gives the rear face its upward rise toward that ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation The function takes the split and eave positions from junctions and leaves the lower right roof to its own source owner.

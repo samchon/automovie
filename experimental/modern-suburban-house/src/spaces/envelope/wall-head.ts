@@ -20,7 +20,7 @@ import { ROOF_THICKNESS } from "../roof/junctions";
 /** One wedge over X = `x`, across Z = `z`, under the roof function `roof`. */
 /**
  * @evidence spaces/roof/00-junctions.md wallHead forms a wedge under the roof across a front or rear wall's full thickness.
- * @evidenceReview spaces/roof/00-junctions.md wallHead spans the caller's X and Z wall-thickness rectangle and returns a sloped solid; front.ts and rear.ts call it for the front and rear wall-head contacts described by the roof junction design.
+ * @evidenceReview spaces/roof/00-junctions.md #6b8a777 wallHead spans the caller's X and Z wall-thickness rectangle and returns a sloped solid; front.ts and rear.ts call it for the front and rear wall-head contacts described by the roof junction design.
  * @evidence spaces/roof/00-junctions.md#roof-wall-head-junctions Its top samples the roof underside at each Z while the floor stays at the panel's outer-line underside.
  * @evidenceReview spaces/roof/00-junctions.md#roof-wall-head-junctions #0de3b07 The slopedSlab top samples props.roof(z) minus ROOF_THICKNESS through the wall, while its floor stays at the same underside evaluated at outerZ; it closes the higher inner contact without raising the outer line.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper returns the calling elevation's wall part and imports ROOF_THICKNESS; it does not claim the roof surface.

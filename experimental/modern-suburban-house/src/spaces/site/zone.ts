@@ -118,13 +118,13 @@ export interface IExteriorZone {
   pendingMapGround?: "map-ground-pending";
   /**
    * @evidence spaces/site/01-paving-support.md A joined connector retains the same height calculation as its emitted paving.
-   * @evidenceReview spaces/site/01-paving-support.md buildFrontWalk and buildSideWalk use the same connectorHeight functions in their groundAt callbacks and blendedRun paving builders; observation sampling and visible connector tops therefore consume the owner's height rule.
+   * @evidenceReview spaces/site/01-paving-support.md #3764892 buildFrontWalk and buildSideWalk use the same connectorHeight functions in their groundAt callbacks and blendedRun paving builders; observation sampling and visible connector tops therefore consume the owner's height rule.
    * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Bilinear connector samples need the source owner's X/Z height, not a single ramp interpolation.
-   * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #a4d8a4d Paving-depth-reservation requires X and Z interpolation across the connector; buildObservations calls zone.groundAt before patchFloor, so a joined walk reports its actual bilinear top rather than a two-point ramp substitute.
+   * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation Paving-depth-reservation requires X and Z interpolation across the connector. Within deriveHouseObservations, standingFloor calls zone.groundAt at the sampled X/Z before its patchFloor fallback, retaining the joined walk's bilinear top.
    * @evidence principles/core/source-units.md#source-scope-preservation This callback reads the existing paving profile and adds no ground datum.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The walk callbacks return either their owner-defined flat paving top or connectorHeight; neither callback authors independent terrain elevation or a second slab.
    * @evidence principles/core/source-units.md#source-substantive-completion Observation eyes can be placed over the actual sampled connector top.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f buildObservations standingFloor calls groundAt at the requested X/Z before its patch fallback, then places an observation eye at the returned floor plus EYE, so the callback is a usable standing-height boundary.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion In deriveHouseObservations, standingFloor calls groundAt at the requested X/Z before its patch fallback; accept then compares the pose with that returned floor plus EYE and moves the eye when needed.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires the connector top to follow its sampled bilinear height, and groundAt returns that same height at each X/Z point.
    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation requires the walkable and opaque connector tops to use the same X/Z rule; both joined walk builders pass connectorHeight to their paving and groundAt, with flat bands returned at their authored level.
    */

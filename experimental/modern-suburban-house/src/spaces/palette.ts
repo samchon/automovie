@@ -12,7 +12,7 @@
  *
  * Consumers: every spaces owner when it emits a part.
  * @evidence spaces/03-surface-owners.md The table supplies named blocking colours for parts made by the allocated surface owners.
- * @evidenceReview spaces/03-surface-owners.md `PALETTE` is a record of hexadecimal part colours; `envelope/front.ts` supplies its `siding` key to an exterior wall and `rooms/common.ts` supplies `woodFloor` to its room floor, while those builders retain the actual surface ownership.
+ * @evidenceReview spaces/03-surface-owners.md #ac6a85d `PALETTE` is a record of hexadecimal part colours; `envelope/front.ts` supplies its `siding` key to an exterior wall and `rooms/common.ts` supplies `woodFloor` to its room floor, while those builders retain the actual surface ownership.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior siding, trim, roof, brick, paving and fence colours are available to their assigned owners.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 `siding` reaches the envelope walls, `roof` the separate roof builders, `brick` the chimney, `trim` the porch, and `paving`/`fenceWood` the site parts; the palette gives each owner a colour without moving its assigned geometry into this file.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners can distinguish floor, ceiling and partition base colours.

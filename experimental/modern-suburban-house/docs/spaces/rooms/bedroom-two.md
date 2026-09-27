@@ -37,7 +37,7 @@
 @evidence principles/core/common.md#declared-basis 높이는 상층 완성 바닥 기준이며 수치는 몸체·닫힌 문/손잡이의 상한 예약이라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb world X/Z가 몸체·닫힌 문/손잡이의 상한 예약이고 높이가 상층 완성 바닥 기준이라는 해석이 첫 문단에 있어 표 수치마다 근거를 가리킬 수 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "침대를 지나 창과 수납에 접근할 수 있어야"를 협탁 오른쪽과 침대 오른쪽 바닥을 돌아 창에 닿는 경로로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정에서 침대 곁을 지나 자기 창과 수납에 닿도록 한 요구에 대해 복도 문→협탁 X = [-3.95, -3.50] 오른쪽→침대 오른쪽 바닥→창 경로와 옷장 앞 X = [-3.15, -2.55] 사용이라는 배치 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정에서 침대 곁을 지나 자기 창과 수납에 닿도록 한 요구에 대해 복도 문→협탁 X = [-3.95, -3.50] 오른쪽→침대 오른쪽 바닥→창 경로와 옷장 앞 X = [-3.15, -2.55] 사용이라는 배치 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 복도의 자기 문에서 세 기능과 전면 창으로 분기하며 다른 방으로 통과하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 뒤쪽 자기 문에서 뒤쪽 왼편 침대·왼쪽 벽 책상·오른쪽 벽 옷장과 책상·옷장 사이 열린 바닥의 전면 창으로 분기하고 다른 방 통과가 없는 접근 그래프를 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 옷장 몸체를 방 오른쪽 안쪽 면까지로 두고 커튼은 전면 창 안쪽 돌출 0.12 m 이내로 제한해 창대를 포함한 순폭을 다시 읽는다.

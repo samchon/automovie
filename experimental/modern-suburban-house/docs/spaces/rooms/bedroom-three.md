@@ -37,7 +37,7 @@
 @evidence principles/core/common.md#declared-basis 높이는 상층 완성 바닥 기준이고 린넨으로 파인 경계는 bedroom-three-plan에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표 좌표를 world X/Z 가구 점유 입력, 높이를 상층 완성 바닥 기준으로 밝히고 파인 경계를 #bedroom-three-plan 링크에서 받아 배치 수치마다 근거를 가리킬 수 있음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation "침구색과 창 주변 가구 배치로 별도 방임이 읽혀야"를 왼쪽 잠자리·전면 중앙 책상·오른쪽 옷장과 오른쪽 세로 띠 앞쪽에서 책상 오른쪽을 돌아 전면 창에 닿는 접근으로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정에서 침구색과 창 주변 가구 배치로 두 자녀실을 구별하도록 한 요구에 대해 왼쪽 침대 X = [-0.25, 0.90]·전면 중앙 책상 X = [1.40, 2.55]·오른쪽 옷장과 책상 오른쪽을 돌아 창에 닿는 경로라는 배치 결정이 더해짐을 대조했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정에서 침구색과 창 주변 가구 배치로 두 자녀실을 구별하도록 한 요구에 대해 왼쪽 침대 X = [-0.25, 0.90]·전면 중앙 책상 X = [1.40, 2.55]·오른쪽 옷장과 책상 오른쪽을 돌아 창에 닿는 경로라는 배치 결정이 더해짐을 대조했다.
 @evidence principles/design/spaces.md#space-topology 오른쪽 뒤 입구에서 앞으로 들어온 뒤 각 기능으로 꺾고 침대 발치와 책상 사이 틈을 주 통로로 세지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 오른쪽 뒤 입구에서 세로 띠 X = [3.30, 4.20]로 들어와 가로 띠 Z = [-2.50, -1.60]에서 침대 옆면과 책상으로 분기하고 침대 발치·책상 틈을 주 통로에서 뺀 접근 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 가로 띠의 뒤쪽을 린넨 경계 밖에 두고 문짝이 세로 띠에 들어오면 문 부재와 배치를 먼저 고친다.

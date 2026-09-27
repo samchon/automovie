@@ -14,7 +14,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 /**
  * Partition triangles lying wholly on one world-axis plane.
  * @evidence spaces/03-surface-owners.md The structural and room owners can receive disjoint triangles of one already-authored surface boundary.
- * @evidenceReview spaces/03-surface-owners.md `partitionPlaneFace` routes each source triangle to one indexed output; the structure and room callers then label their separate support and visible parts under the file owner table.
+ * @evidenceReview spaces/03-surface-owners.md #ac6a85d `partitionPlaneFace` routes each source triangle to one indexed output; the structure and room callers then label their separate support and visible parts under the file owner table.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The room finish is selected from the shared solid without overlapping its support face.
  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f The room callers take only triangles wholly on the requested upper floor or garage-side step plane; the same source triangles are absent from the corresponding structure bodies.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller supplies the mesh and world plane; this helper chooses no house surface owner.

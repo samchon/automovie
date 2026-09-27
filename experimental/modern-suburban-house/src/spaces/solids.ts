@@ -45,7 +45,7 @@ import type {
 /**
  * Axis-aligned box between two world corners.
  * @evidence spaces/03-surface-owners.md Assigned owners use box solids for their own structural or finish details.
- * @evidenceReview spaces/03-surface-owners.md `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
+ * @evidenceReview spaces/03-surface-owners.md #ac6a85d `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #3719896 `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
@@ -218,7 +218,7 @@ export const straightWall = (props: {
 /**
  * A horizontal slab: a plan polygon with optional plan holes between two heights.
  * @evidence spaces/08-floor-assembly.md Floor layers are extruded from owner-supplied plan outlines and heights.
- * @evidenceReview spaces/08-floor-assembly.md `slab` extrudes a caller's horizontal outline between its bottom and top, allowing the assigned floor or ceiling owner to provide its own vertical layer interval.
+ * @evidenceReview spaces/08-floor-assembly.md #d86b1a7 `slab` extrudes a caller's horizontal outline between its bottom and top, allowing the assigned floor or ceiling owner to provide its own vertical layer interval.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The interstorey structural caller supplies its front-reaching stair notch, while room finish callers supply their individual outlines.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #6c7c1c9 `buildInterstorey` passes a ten-corner ring with a stair recess to `slab`; `roomFloor` and `roomCeiling` pass their room outlines, so this primitive does not turn the stair opening into a closed inner hole.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The interstorey caller recedes its structural stair edge by the 0.015 m finish reservation before slab extrusion.
@@ -290,7 +290,7 @@ const cross = (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 =>
  * The plan ring is reordered so the top face's normal points up; the bottom
  * face reverses it and each side is the vertical quad under one plan edge.
  * @evidence spaces/roof/00-junctions.md Roof and wall-head owners supply a planar top and assigned underside.
- * @evidenceReview spaces/roof/00-junctions.md `slopedSlab` receives a planar top function and caller-supplied vertical thickness or lower face; roof builders use their profile functions while `wallHead` uses the same mesh primitive across wall thickness.
+ * @evidenceReview spaces/roof/00-junctions.md #6b8a777 `slopedSlab` receives a planar top function and caller-supplied vertical thickness or lower face; roof builders use their profile functions while `wallHead` uses the same mesh primitive across wall thickness.
  * @evidence spaces/roof/00-junctions.md#roof-profile-datums A caller-supplied vertical thickness closes each sloped roof face below its weather plane.
  * @evidenceReview spaces/roof/00-junctions.md#roof-profile-datums #dd15c02 Main and garage roof callers pass `ROOF_THICKNESS` with their profile top functions; `slopedSlab` subtracts that thickness in world Y for the underside specified by the roof datum.
  * @evidence spaces/roof/00-junctions.md#roof-wall-head-junctions A caller can close a wall-head wedge against its own level floor.

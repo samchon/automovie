@@ -76,7 +76,7 @@
 @evidence principles/core/common.md#declared-basis 0.90 m 통로 목표는 use-profile에서 받은 설계 입력 조건이며 실제 순폭 판정이 아니라고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단이 0.90 m 통로 목표를 use-profile 링크의 설계 입력 조건으로 받고 실제 산출물 순폭 판정이 아니라고 구분해, 통로 수치의 근거가 추적 가능함을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 거실이 현관과 공용부를 모두 잇는다는 설정을 벽난로 앞면과 테이블 사이의 띠, 문 없는 경계에서 옆으로 이동하는 경로로 만든다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation 설정에서 거실을 후면 공용부에 연결하도록 한 조건에 없는 결정, 즉 벽난로 앞면과 테이블 사이 X = [-4.90, -4.00] 띠와 문 없는 경계에서 옆으로 이동해 냉장고·섬 사이로 잇는 경로를 본문이 더했음을 확인했다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정에서 거실을 후면 공용부에 연결하도록 한 조건에 없는 결정, 즉 벽난로 앞면과 테이블 사이 X = [-4.90, -4.00] 띠와 문 없는 경계에서 옆으로 이동해 냉장고·섬 사이로 잇는 경로를 본문이 더했음을 확인했다.
 @evidence principles/design/spaces.md#space-topology 같은 living-room 내부에서 현관 문과 공용부 개구부를 잇고 책장 뒤를 숨은 통로로 만들지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 같은 living-room 안에서 #living-plan 문과 common-room-plan 개구부를 잇는 연결, 문 안쪽 대기와 연속된 같은 room 표면, 책장 뒤 숨은 통로 금지가 본문에 있어 경로 그래프가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 공용부 쪽 주방 진입은 common-clear-routes, 창대/손잡이 돌출은 external-opening-interface에서 받는다.
