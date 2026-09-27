@@ -18,6 +18,7 @@ import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
+import { liftHumanFaceColours } from "./liftHumanFaceColours";
 import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
@@ -69,7 +70,10 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * report it without evaluating twice. With `occlusion`, each opaque material
  * with UVs of the finished face (before any hair) takes the ambient
  * occlusion baked from the evaluated geometry (`bakeHumanFaceOcclusion`) as
- * its occlusion texture; without it no texture is baked.
+ * its occlusion texture; without it no texture is baked. A skin field that
+ * lightens a region past its material (a gain over one) is folded into the
+ * material's base colour so vertex colours stay in [0, 1] and every albedo
+ * is kept (`liftHumanFaceColours`); an albedo past one refuses.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-surface-maps Bakes the optional ambient occlusion of the evaluated face into its materials without changing geometry.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Same edits yield the same model; shape and expression are read from the same base under one evaluation order.
@@ -295,6 +299,9 @@ export function createHumanFaceBasisBuilder(
         transform: null,
       }));
     });
+    // Before validation, which a fixed weld partition may skip: a vertex
+    // colour never leaves [0, 1].
+    liftHumanFaceColours(parts, materialMap);
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,

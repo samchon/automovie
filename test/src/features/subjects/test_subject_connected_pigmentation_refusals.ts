@@ -6,7 +6,7 @@ import { pigmentationPanelSource } from "../internal/pigmentationPanelSource";
 /**
  * Regional field admission preserves the last committed document.
  * Scenarios:
- * 1. Blank or duplicate names, invalid dimensions and unbounded colour refuse.
+ * 1. Blank or duplicate names, invalid dimensions and negative colour refuse.
  * 2. Each refusal preserves both regions and a following valid edit recovers.
  */
 export const test_subject_connected_pigmentation_refusals =
@@ -23,7 +23,7 @@ export const test_subject_connected_pigmentation_refusals =
       ["pigment-center-0", "Infinity"],
       ["pigment-radius-1", "0"],
       ["pigment-radius-1", "-1"],
-      ["pigment-gain-0", "1.1"],
+      ["pigment-gain-0", "-0.1"],
       ["pigment-strength-0", "-0.1"],
     ]) {
       await f.change(id, value);
