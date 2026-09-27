@@ -35,15 +35,15 @@ const OWNER = "site/front-walk.ts";
 /** Front walk extent, metres. */
 /**
  * @evidence spaces/site/front-walk.md The porch-axis path and its cross band have one plan record for slab, zone, and connector.
- * @evidenceReview spaces/site/front-walk.md FRONT_WALK supplies the X/Z span used by the flat slab and zone outline, plus the cross-band Z limits read by the zone patch and connector mesh.
+ * @evidenceReview spaces/site/front-walk.md #6ad7b42 FRONT_WALK supplies the X/Z span used by the flat slab and zone outline, plus the cross-band Z limits read by the zone patch and connector mesh.
  * @evidence spaces/site/front-walk.md#front-walk-plan X follows the porch-step centre, the inner Z follows its front riser, and the cross band keeps its reviewed Z limits.
- * @evidenceReview spaces/site/front-walk.md#front-walk-plan FRONT_WALK derives both X sides from the porch-step centre and half-width, starts at PORCH_STEP_FRONT_Z, ends at the driveway paving end and keeps the authored cross band Z = [4.25, 5.45].
+ * @evidenceReview spaces/site/front-walk.md#front-walk-plan #a688486 FRONT_WALK derives both X sides from the porch-step centre and half-width, starts at PORCH_STEP_FRONT_Z, ends at the driveway paving end and keeps the authored cross band Z = [4.25, 5.45].
  * @evidence principles/core/source-units.md#source-scope-preservation The path consumes PORCH_STEP_CENTRE_X and PORCH_STEP_FRONT_Z rather than owning a second entry axis.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation FRONT_WALK reads PORCH_STEP_CENTRE_X, PORCH_STEP_HALF_WIDTH and PORCH_STEP_FRONT_Z from the porch owner rather than storing a separate entrance axis or first-riser position.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 FRONT_WALK reads PORCH_STEP_CENTRE_X, PORCH_STEP_HALF_WIDTH and PORCH_STEP_FRONT_Z from the porch owner rather than storing a separate entrance axis or first-riser position.
  * @evidence principles/core/source-units.md#source-substantive-completion The slab, joined zone patches, and exterior connector read the same path bounds.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion The flat seamRect, continuous zone outline, cross patch and blendedRun all consume FRONT_WALK's bounds, giving the paving and walking records the same plan.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The flat seamRect, continuous zone outline, cross patch and blendedRun all consume FRONT_WALK's bounds, giving the paving and walking records the same plan.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan places the T connector at the driveway side and consumes porch-platform-access for the 1.50 m stair-width near contact; this record shares those bounds.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan takes the main path width and axis from the porch step and the cross band toward the driveway; FRONT_WALK uses those porch bounds and the driveway's paving end without needing a new entrance alignment.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Front-walk-plan takes the main path width and axis from the porch step and the cross band toward the driveway; FRONT_WALK uses those porch bounds and the driveway's paving end without needing a new entrance alignment.
  */
 export const FRONT_WALK = {
   x: [PORCH_STEP_CENTRE_X - PORCH_STEP_HALF_WIDTH, PORCH_STEP_CENTRE_X + PORCH_STEP_HALF_WIDTH] as const,
@@ -54,15 +54,15 @@ export const FRONT_WALK = {
 /** Emit the walk and its sloped cross connector. */
 /**
  * @evidence spaces/site/front-walk.md This builder owns the porch-axis walk and its cross connector to the drive.
- * @evidenceReview spaces/site/front-walk.md buildFrontWalk emits one flat porch-axis paving part, a blendedRun reaching DRIVEWAY.x[0], and one continuous front-walk zone over those surfaces.
+ * @evidenceReview spaces/site/front-walk.md #6ad7b42 buildFrontWalk emits one flat porch-axis paving part, a blendedRun reaching DRIVEWAY.x[0], and one continuous front-walk zone over those surfaces.
  * @evidence spaces/site/front-walk.md#front-walk-plan The level walk reaches from the porch steps to Z=6.50; its connector blends the walk height to driveTop.
- * @evidenceReview spaces/site/front-walk.md#front-walk-plan The flat slab uses STOREYS.frontWalk from PORCH_STEP_FRONT_Z to DRIVEWAY.z[1]; connectorHeight blends that level with driveTop(z) across X as the front-walk plan specifies.
+ * @evidenceReview spaces/site/front-walk.md#front-walk-plan #a688486 The flat slab uses STOREYS.frontWalk from PORCH_STEP_FRONT_Z to DRIVEWAY.z[1]; connectorHeight blends that level with driveTop(z) across X as the front-walk plan specifies.
  * @evidence principles/core/source-units.md#source-scope-preservation It uses DRIVEWAY and driveTop value imports and creates no second driveway or porch landing.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation buildFrontWalk imports DRIVEWAY and driveTop for the cross connection and emits only its own walk slab and connector pieces, leaving the driveway and porch landing to their owners.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildFrontWalk imports DRIVEWAY and driveTop for the cross connection and emits only its own walk slab and connector pieces, leaving the driveway and porch landing to their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion A flat slab, triangulated connector parts, and a named walk zone return together.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion buildFrontWalk returns the flat slopedSlab, triangulated blendedRun pieces and a single front-walk zone with separate level and heightfield patches in one ISiteBuild result.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f buildFrontWalk returns the flat slopedSlab, triangulated blendedRun pieces and a single front-walk zone with separate level and heightfield patches in one ISiteBuild result.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan fixes the porch-axis walk, lower waiting area and T band to the driveway; buildFrontWalk emits those surfaces and one joined standing zone without another crossing.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Front-walk-plan assigns the lower waiting area to the one level walk and the cross band to its driveway connection; buildFrontWalk emits both paving bodies under a single front-walk zone, so the parent needs no additional standing area.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Front-walk-plan assigns the lower waiting area to the one level walk and the cross band to its driveway connection; buildFrontWalk emits both paving bodies under a single front-walk zone, so the parent needs no additional standing area.
  */
 export const buildFrontWalk = (): ISiteBuild => {
   const walkY = STOREYS.frontWalk;

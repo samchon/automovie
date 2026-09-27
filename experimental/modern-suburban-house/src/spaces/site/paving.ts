@@ -22,15 +22,15 @@ const edgeAt = (a: number, b: number, value: number): boolean =>
 
 /** Keep only the outside sides of a paving rectangle; omit a caller-owned joined edge.
  * @evidence spaces/site/01-paving-support.md This helper keeps the T-walk and three side-walk bands free of sides inside each union.
- * @evidenceReview spaces/site/01-paving-support.md pavingFreeEdge classifies the caller's rectangle perimeter while allowing its joined predicate to omit internal sides in both the T-shaped front walk and three-band side walk.
+ * @evidenceReview spaces/site/01-paving-support.md #beb4a05 pavingFreeEdge classifies the caller's rectangle perimeter while allowing its joined predicate to omit internal sides in both the T-shaped front walk and three-band side walk.
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation The T-walk and three side-walk bands have no vertical side inside their union.
- * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation The paving-depth target forbids side faces inside joined walk bands; pavingFreeEdge returns false where the calling owner's joined predicate identifies such an internal contact.
+ * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #70f28d6 The paving-depth target forbids side faces inside joined walk bands; pavingFreeEdge returns false where the calling owner's joined predicate identifies such an internal contact.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller's X/Z bounds and joined-edge predicate decide the perimeter; this helper assigns no new paving area.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation pavingFreeEdge receives its rectangle bounds and joined predicate from the walk owner; it chooses side closure without setting a new X/Z footprint or paving grade.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 pavingFreeEdge receives its rectangle bounds and joined predicate from the walk owner; it chooses side closure without setting a new X/Z footprint or paving grade.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned predicate closes outer slab edges while rejecting cell seams and joined flat-band sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion Its returned predicate accepts outer straight boundary edges and rejects both nonperimeter cell seams and caller-marked joined segments, giving slopedSlab a determinate side-face rule.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Its returned predicate accepts outer straight boundary edges and rejects both nonperimeter cell seams and caller-marked joined segments, giving slopedSlab a determinate side-face rule.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation forbids fake union-internal side faces; pavingFreeEdge classifies only the caller's rectangle perimeter and removes its declared same-union contact.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires no fake vertical sides within the two walk unions; pavingFreeEdge tests the caller's perimeter and joined contact directly, so that requirement needs no new parent boundary.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation requires no fake vertical sides within the two walk unions; pavingFreeEdge tests the caller's perimeter and joined contact directly, so that requirement needs no new parent boundary.
  */
 export const pavingFreeEdge = (
   x: readonly [number, number],
@@ -45,42 +45,42 @@ export const pavingFreeEdge = (
 /** Base depth below a walking surface, metres. */
 /**
  * @evidence spaces/site/01-paving-support.md WALK_DEPTH is the reserved base under the three pedestrian paving surfaces.
- * @evidenceReview spaces/site/01-paving-support.md WALK_DEPTH supplies the 0.12 m vertical base reservation used by the front walk, side walk and terrace lower landing beneath their walking tops.
+ * @evidenceReview spaces/site/01-paving-support.md #beb4a05 WALK_DEPTH supplies the 0.12 m vertical base reservation used by the front walk, side walk and terrace lower landing beneath their walking tops.
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Its 0.12 m depth differs from the driveway base while remaining shared by walk and terrace builders.
- * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation The pedestrian surfaces in the target reserve 0.12 m while the driveway reserves 0.15 m; WALK_DEPTH exports the pedestrian value to those walk and landing builders.
+ * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #70f28d6 The pedestrian surfaces in the target reserve 0.12 m while the driveway reserves 0.15 m; WALK_DEPTH exports the pedestrian value to those walk and landing builders.
  * @evidence principles/core/source-units.md#source-scope-preservation This is a support depth, not a visible walking level or terrain foundation.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation WALK_DEPTH is applied as a slab thickness or subtracted for the terrace support bottom; it does not replace any walk's top height or specify map ground.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 WALK_DEPTH is applied as a slab thickness or subtracted for the terrace support bottom; it does not replace any walk's top height or specify map ground.
  * @evidence principles/core/source-units.md#source-substantive-completion The numeric value gives each walking slab a definite lower face.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion front-walk and side-walk pass WALK_DEPTH to their paving solids, while terrace computes BOTTOM from LOW minus WALK_DEPTH, giving these walking bodies a definite underside.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f front-walk and side-walk pass WALK_DEPTH to their paving solids, while terrace computes BOTTOM from LOW minus WALK_DEPTH, giving these walking bodies a definite underside.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent fixes the pedestrian 0.12 m band; no new support thickness was added.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation fixes the pedestrian base at 0.12 m; WALK_DEPTH carries that authored depth without exposing a missing support dimension.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation fixes the pedestrian base at 0.12 m; WALK_DEPTH carries that authored depth without exposing a missing support dimension.
  */
 export const WALK_DEPTH = 0.12;
 /** Base depth below the driveway surface, metres. */
 /**
  * @evidence spaces/site/01-paving-support.md DRIVE_DEPTH reserves a thicker base below the sloping driveway.
- * @evidenceReview spaces/site/01-paving-support.md DRIVE_DEPTH exports the 0.15 m driveway base reservation, deeper than WALK_DEPTH under the three pedestrian walking surfaces.
+ * @evidenceReview spaces/site/01-paving-support.md #beb4a05 DRIVE_DEPTH exports the 0.15 m driveway base reservation, deeper than WALK_DEPTH under the three pedestrian walking surfaces.
  * @evidence principles/core/source-units.md#source-scope-preservation This 0.15 m offset changes only the driveway underside, leaving pedestrian paving at WALK_DEPTH.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation buildDriveway uses DRIVE_DEPTH for its slab; the pedestrian walk builders use WALK_DEPTH, so this value changes no walking top or adjacent path thickness.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildDriveway uses DRIVE_DEPTH for its slab; the pedestrian walk builders use WALK_DEPTH, so this value changes no walking top or adjacent path thickness.
  * @evidence principles/core/source-units.md#source-substantive-completion buildDriveway receives a concrete vertical slab thickness at every ramp point.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion buildDriveway passes DRIVE_DEPTH into slopedSlab, which lowers the underside from each sampled ramp top by that fixed vertical amount.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f buildDriveway passes DRIVE_DEPTH into slopedSlab, which lowers the underside from each sampled ramp top by that fixed vertical amount.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation gives the driveway a 0.15 m base below its sloped top, separately from the pedestrian 0.12 m base; DRIVE_DEPTH carries that authored depth.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation assigns the driveway a 0.15 m vertical base separate from the 0.12 m walks; DRIVE_DEPTH gives its builder exactly that value without revising the parent.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation assigns the driveway a 0.15 m vertical base separate from the 0.12 m walks; DRIVE_DEPTH gives its builder exactly that value without revising the parent.
  */
 export const DRIVE_DEPTH = 0.15;
 
 /** Add the connector's four segment endpoints to a neighbouring slab edge. */
 /**
  * @evidence spaces/site/01-paving-support.md#paving-depth-reservation A connector end line and its neighbouring flat walk or sloped driveway edge carry identical split vertices.
- * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation seamRect uses CONNECTOR_CELLS to place the same four subdivisions as blendedRun on a shared Z run; front-walk, side-walk and both driveway sides pass their connector intervals to it.
+ * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #70f28d6 seamRect uses CONNECTOR_CELLS to place the same four subdivisions as blendedRun on a shared Z run; front-walk, side-walk and both driveway sides pass their connector intervals to it.
  * @evidence spaces/site/01-paving-support.md The shared paving support design transfers connector segmentation to neighbouring slabs.
- * @evidenceReview spaces/site/01-paving-support.md The paving support target transfers connector end splits to adjacent paving; seamRect inserts those Z stations on the west and east edges supplied by the front walk, driveway and side walk.
+ * @evidenceReview spaces/site/01-paving-support.md #beb4a05 The paving support target transfers connector end splits to adjacent paving; seamRect inserts those Z stations on the west and east edges supplied by the front walk, driveway and side walk.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper only subdivides caller supplied bounds; it changes neither grade nor paving ownership.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation seamRect accepts caller X/Z bounds and west/east runs and returns IPlanPoint coordinates only; the caller still owns its top function, thickness and paving part.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 seamRect accepts caller X/Z bounds and west/east runs and returns IPlanPoint coordinates only; the caller still owns its top function, thickness and paving part.
  * @evidence principles/core/source-units.md#source-substantive-completion Collinear edge stations prevent a connector triangle from ending halfway along an unsplit slab edge.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion seamRect sorts unique connector stations and returns them along the two X edge lines; the adjacent slabs therefore have vertices at each four-cell connector end point.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f seamRect sorts unique connector stations and returns them along the two X edge lines; the adjacent slabs therefore have vertices at each four-cell connector end point.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving-depth-reservation parent requires shared edge subdivision and specifies at least four connector cells.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires shared connector-edge subdivision at four or more cells; seamRect uses CONNECTOR_CELLS = 4 for each passed end run without needing a new parent seam rule.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation requires shared connector-edge subdivision at four or more cells; seamRect uses CONNECTOR_CELLS = 4 for each passed end run without needing a new parent seam rule.
  */
 export const seamRect = (
   x: readonly [number, number],
@@ -100,13 +100,13 @@ export const seamRect = (
 
 /** The bilinear rule sampled from the same height callback as the paving mesh.
  * @evidence spaces/site/01-paving-support.md The connector's standable rule samples the same X/Z function as its opaque paving.
- * @evidenceReview spaces/site/01-paving-support.md front-walk and side-walk each pass their connectorHeight callback to both pavingHeightfield for the standable patch and blendedRun for its opaque triangles, keeping the two heights aligned.
+ * @evidenceReview spaces/site/01-paving-support.md #beb4a05 front-walk and side-walk each pass their connectorHeight callback to both pavingHeightfield for the standable patch and blendedRun for its opaque triangles, keeping the two heights aligned.
  * @evidence principles/core/source-units.md#source-scope-preservation The rule records the caller's paving height without a second level decision.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation pavingHeightfield takes the caller's X/Z bounds and height callback and samples its four corners; it introduces no independent walking level or paving owner.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 pavingHeightfield takes the caller's X/Z bounds and height callback and samples its four corners; it introduces no independent walking level or paving owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Four samples reproduce the current bilinear front- and side-connector profiles at every surface query.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion The 2×2 heightfield stores the callback at all four X/Z corners; the current front and side connectorHeight functions are bilinear, so those samples determine their interior standing height.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The 2×2 heightfield stores the callback at all four X/Z corners; the current front and side connectorHeight functions are bilinear, so those samples determine their interior standing height.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires each connector's standable surface to sample the same bilinear X/Z height used by its visible triangles; this rule records that function's four corners.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires standable connector height and opaque paving to consume the same original X/Z formula; pavingHeightfield samples the callbacks used by blendedRun, so no alternate parent grade is needed.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation requires standable connector height and opaque paving to consume the same original X/Z formula; pavingHeightfield samples the callbacks used by blendedRun, so no alternate parent grade is needed.
  */
 export const pavingHeightfield = (
   x: readonly [number, number],
@@ -134,13 +134,13 @@ export const pavingHeightfield = (
  */
 /**
  * @evidence spaces/site/01-paving-support.md blendedRun constructs sloped paving between different edge heights without a nonplanar quad.
- * @evidenceReview spaces/site/01-paving-support.md blendedRun divides the caller's graded connector into cells and emits two planar slopedSlab triangles per cell from the height callback, avoiding a single twisted quad.
+ * @evidenceReview spaces/site/01-paving-support.md #beb4a05 blendedRun divides the caller's graded connector into cells and emits two planar slopedSlab triangles per cell from the height callback, avoiding a single twisted quad.
  * @evidence principles/core/source-units.md#source-scope-preservation It receives its bounds and height callback from the calling walk owner and emits no independent path.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation blendedRun takes id, owner, color, X/Z bounds, height, depth and joined-edge rule from the calling walk; it adds no independent route or surface extent.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 blendedRun takes id, owner, color, X/Z bounds, height, depth and joined-edge rule from the calling walk; it adds no independent route or surface extent.
  * @evidence principles/core/source-units.md#source-substantive-completion The fixed four-by-four grid yields paired triangular top and bottom patches with shared sampled corners, stable ids and sides only at the connector perimeter.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion blendedRun fixes n = CONNECTOR_CELLS, samples a shared five-by-five X/Z grid, emits two named triangles per cell and passes pavingFreeEdge to close only the joined-aware outer boundary.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f blendedRun fixes n = CONNECTOR_CELLS, samples a shared five-by-five X/Z grid, emits two named triangles per cell and passes pavingFreeEdge to close only the joined-aware outer boundary.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires at least four divisions on each connector axis and two triangles per cell; blendedRun applies the caller's X/Z bounds and height at those shared corners.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires at least four cells per axis and two triangles per cell to bound bilinear approximation; blendedRun uses four in both axes with the caller's original height at shared corners.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Paving-depth-reservation requires at least four cells per axis and two triangles per cell to bound bilinear approximation; blendedRun uses four in both axes with the caller's original height at shared corners.
  */
 export const blendedRun = (props: {
   id: string;

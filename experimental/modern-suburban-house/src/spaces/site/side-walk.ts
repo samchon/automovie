@@ -33,13 +33,13 @@ const PATH_WIDTH = 1.2;
 /** Side path geometry, metres. */
 /**
  * @evidence spaces/site/side-walk.md SIDE_WALK records the side path X band, both cross bands, and lower-landing top.
- * @evidenceReview spaces/site/side-walk.md SIDE_WALK derives the long path X band from GARAGE, its front cross band from the driveway paving end, its rear band from LOWER_LANDING, and its top from the landing.
+ * @evidenceReview spaces/site/side-walk.md #c741222 SIDE_WALK derives the long path X band from GARAGE, its front cross band from the driveway paving end, its rear band from LOWER_LANDING, and its top from the landing.
  * @evidence principles/core/source-units.md#source-scope-preservation Its rear band takes the landing's outer Z as its endpoint and extends one path width behind it; the builder takes its X start from LOWER_LANDING.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation SIDE_WALK.backBand is [LOWER_LANDING.z[0] - PATH_WIDTH, LOWER_LANDING.z[0]]; buildSideWalk begins the rear strip at LOWER_LANDING.x[0], so it meets that authored landing only at its edge.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 SIDE_WALK.backBand is [LOWER_LANDING.z[0] - PATH_WIDTH, LOWER_LANDING.z[0]]; buildSideWalk begins the rear strip at LOWER_LANDING.x[0], so it meets that authored landing only at its edge.
  * @evidence principles/core/source-units.md#source-substantive-completion The typed intervals and elevation let the side-walk builder close three paving bands consistently.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion buildSideWalk uses SIDE_WALK.x, frontBand, backBand and top to place the long level strip, rear cross strip, front grade and continuous zone from one set of intervals.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f buildSideWalk uses SIDE_WALK.x, frontBand, backBand and top to place the long level strip, rear cross strip, front grade and continuous zone from one set of intervals.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan puts the path 0.60 m east of GARAGE's right outer wall and takes its rear junction from garden-lower-landing-plan; SIDE_WALK derives those contacts.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan fixes the +X 0.60 m garage offset, 1.20 m width and rear contact at the landing outer end; SIDE_WALK derives those boundaries from GARAGE and LOWER_LANDING without a new route placement.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Side-walk-plan fixes the +X 0.60 m garage offset, 1.20 m width and rear contact at the landing outer end; SIDE_WALK derives those boundaries from GARAGE and LOWER_LANDING without a new route placement.
  */
 export const SIDE_WALK = {
   x: [GARAGE.outer.x[1] + 0.6, GARAGE.outer.x[1] + 0.6 + PATH_WIDTH] as const,
@@ -51,17 +51,17 @@ export const SIDE_WALK = {
 /** Emit the three bands of the side path. */
 /**
  * @evidence spaces/site/side-walk.md This builder links the drive to the garden landing in three joined surface bands.
- * @evidenceReview spaces/site/side-walk.md buildSideWalk emits a long strip beside the garage, a rear strip touching LOWER_LANDING and a blended front connector from DRIVEWAY.x[1], forming the three bands assigned to the path.
+ * @evidenceReview spaces/site/side-walk.md #c741222 buildSideWalk emits a long strip beside the garage, a rear strip touching LOWER_LANDING and a blended front connector from DRIVEWAY.x[1], forming the three bands assigned to the path.
  * @evidence spaces/site/side-walk.md#side-walk-plan Two flat slabs hold the lower landing height; the front connector blends from the driveway grade into that height.
- * @evidenceReview spaces/site/side-walk.md#side-walk-plan The long and rear slabs use LOWER_LANDING.top; connectorHeight blends driveTop(z) to that same height across X for the front band instead of leaving a step at the driveway.
+ * @evidenceReview spaces/site/side-walk.md#side-walk-plan #c5f5cb5 The long and rear slabs use LOWER_LANDING.top; connectorHeight blends driveTop(z) to that same height across X for the front band instead of leaving a step at the driveway.
  * @evidence spaces/site/side-walk.md#side-gate-interface Two named waiting zones straddle the gate plane taken from imported GARAGE bounds.
- * @evidenceReview spaces/site/side-walk.md#side-gate-interface buildSideWalk takes the gate plane from GARAGE.outer.z[1] and constructs full-width side-front-access and side-rear-access zones at the target's offset intervals on opposite sides.
+ * @evidenceReview spaces/site/side-walk.md#side-gate-interface #b1d46df buildSideWalk takes the gate plane from GARAGE.outer.z[1] and constructs full-width side-front-access and side-rear-access zones at the target's offset intervals on opposite sides.
  * @evidence principles/core/source-units.md#source-scope-preservation The builder returns paving and standing zones while the fence owner creates the gate posts and model owner the leaf.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation buildSideWalk returns paving parts and standing zones; fence.ts retains the gate posts and opening, and the later gate model retains the moving leaf and hardware.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildSideWalk returns paving parts and standing zones; fence.ts retains the gate posts and opening, and the later gate model retains the moving leaf and hardware.
  * @evidence principles/core/source-units.md#source-substantive-completion Three solid bands and three zone records (continuous walk and two gate waits) share their end coordinates.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion buildSideWalk returns the long, rear and blended front paving bands together with one continuous side-walk zone and the two gate waiting zones, all tied to SIDE_WALK's bounds.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f buildSideWalk returns the long, rear and blended front paving bands together with one continuous side-walk zone and the two gate waiting zones, all tied to SIDE_WALK's bounds.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan gives the long path plus front and rear cross bands, and side-gate-interface sets waiting on both sides of the gate; buildSideWalk returns those three access zones.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Side-walk-plan fixes the three surface bands and side-gate-interface assigns both waiting offsets; buildSideWalk realizes one continuous zone plus those two waits without requiring a new parent route.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Side-walk-plan fixes the three surface bands and side-gate-interface assigns both waiting offsets; buildSideWalk realizes one continuous zone plus those two waits without requiring a new parent route.
  */
 export const buildSideWalk = (): ISiteBuild => {
   const s = SIDE_WALK.top;
