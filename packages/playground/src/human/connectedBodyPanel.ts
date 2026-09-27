@@ -8,11 +8,13 @@
  */
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
+  HUMAN_BODY_SIMPLE_POSTURE,
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
   type IAutoMovieHumanBodyChannelScale,
   type IAutoMovieHumanBodySimpleShape,
   createHumanFaceEditor,
+  humanBodySimplePosture,
   measureHumanBodyBasisChannels,
   parseHumanBodyBasisDocument,
   resolveHumanBodyCouplings,
@@ -356,6 +358,11 @@ export function mountConnectedBodyPanel<
       if (success) show(editor!.snapshot().model);
       refresh();
     };
+  // the trunk's joints the age posture bends, which pose presets keep
+  const standing: string[] = [
+    ...HUMAN_BODY_SIMPLE_POSTURE.thoracic.map(([bone]) => bone),
+    HUMAN_BODY_SIMPLE_POSTURE.compensation,
+  ];
   const simple = renderBodySimpleControls({
     dom,
     container: element("simple-controls"),
@@ -365,8 +372,22 @@ export function mountConnectedBodyPanel<
     reserveIntent: withdraw,
     currentIntent: intents.currentTicket,
     isCurrentIntent: intents.isCurrent,
-    onApply: (shape, ticket) =>
-      void change({ ...structuredClone(draft), shape }, ticket),
+    // the simple body also stands in the posture its age implies: its rows
+    // replace the standing joints' and keep every other joint's
+    onApply: (shape, ticket, values) => {
+      const posture = humanBodySimplePosture(props.basis, values);
+      void change(
+        {
+          ...structuredClone(draft),
+          shape,
+          pose: [
+            ...(draft.pose ?? []).filter((row) => !standing.includes(row.bone)),
+            ...posture,
+          ],
+        },
+        ticket,
+      );
+    },
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
   });
@@ -395,6 +416,7 @@ export function mountConnectedBodyPanel<
     container: element("pose-presets"),
     presets: props.poses,
     current: () => draft,
+    standing,
     armsDown: viewport.armsDown,
     reserve: withdraw,
     isCurrent: intents.isCurrent,

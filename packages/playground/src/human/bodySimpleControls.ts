@@ -133,7 +133,8 @@ const FIELDS: {
  * channel as it was, and an untouched required value is the exact projection
  * rather than its rounded display, so applying unchanged values leaves the
  * body unchanged. The simple values never enter the document, because the
- * detailed tier is its canonical form. A refused expansion (a stature, mass
+ * detailed tier is its canonical form; the panel is handed them with the
+ * shape, to stand the body in the posture its age implies. A refused expansion (a stature, mass
  * or girth the basis cannot reach) is reported through the editor's status,
  * and the document keeps its last valid state.
  *
@@ -159,7 +160,12 @@ export const renderBodySimpleControls = (props: {
   /** Read or check the panel generation when asynchronous work settles. */
   currentIntent: () => number;
   isCurrentIntent: (ticket: number) => boolean;
-  onApply: (shape: Record<string, number>, ticket: number) => void;
+  /** The expanded shape, with the values it was expanded from. */
+  onApply: (
+    shape: Record<string, number>,
+    ticket: number,
+    simple: IAutoMovieHumanBodySimpleShape,
+  ) => void;
   onRefuse: (error: unknown) => void;
   onBusy: (text: string) => void;
 }): { refresh: (shape: Record<string, number>) => Promise<void> } => {
@@ -240,9 +246,10 @@ export const renderBodySimpleControls = (props: {
     const over = props.current();
     props.onBusy("Solving the simple body against the basis…");
     try {
-      const shape = await props.expand(read(), over);
+      const simple = read();
+      const shape = await props.expand(simple, over);
       if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
-        props.onApply(shape, ticket);
+        props.onApply(shape, ticket, simple);
     } catch (error) {
       if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
         props.onRefuse(error);
