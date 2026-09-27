@@ -190,6 +190,19 @@ export interface IAutoMovieHumanBodyBasis {
     reference: [number, number, number];
 
     /**
+     * Landmark ids of two points the joint's flexion axis runs along, from the
+     * first to the second, when that axis is fixed in the parent rather than
+     * perpendicular to the bone: the hip flexes about the line through both
+     * hip centres, which the thigh, leaning out at rest, is not perpendicular
+     * to. The axis turns with the shape as the landmarks do, is read in the
+     * bone's rest frame, and must lie within 60 degrees of the frame's X; the
+     * abduction axis is then the frame's Z made perpendicular to it and the
+     * twist axis the third of that orthonormal basis. Omitted, the joint
+     * flexes about its frame's X.
+     */
+    flexionAxis?: [string, string];
+
+    /**
      * Clinical sign of each non-humeral axis under that frame, measured at extraction:
      * flexion is +1 by construction; abduction is the sign that carries the
      * bone away from the midline (or toward the thumb at the wrist); twist is
