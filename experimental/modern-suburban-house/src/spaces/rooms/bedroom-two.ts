@@ -25,13 +25,13 @@ import { floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/bedroom-two.md The hall-bedroom-two-door void follows the partition assigned to bedroom-two.
- * @evidenceReview spaces/rooms/bedroom-two.md `DOOR_HALL_BEDROOM_TWO_DOOR` names the plan's rear hall opening and supplies its X = [-3.10, -2.10] cut to `bedroom-two-hall-partition`.
+ * @evidenceReview spaces/rooms/bedroom-two.md #72a3676 `DOOR_HALL_BEDROOM_TWO_DOOR` names the plan's rear hall opening and supplies its X = [-3.10, -2.10] cut to `bedroom-two-hall-partition`.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-bedroom-two-door interval remains with bedroom-two while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation This room exports the hall-door interval; `buildUpperHall` imports the same `from` and `to` for its adjacent door finish rather than defining another opening.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This room exports the hall-door interval; `buildUpperHall` imports the same `from` and `to` for its adjacent door finish rather than defining another opening.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-bedroom-two-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildBedroomTwo` uses the exported door as its hall partition hole and room-side `doorFloor` X span; `buildUpperHall` uses that span for the other finish strip.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `buildBedroomTwo` uses the exported door as its hall partition hole and room-side `doorFloor` X span; `buildUpperHall` uses that span for the other finish strip.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-two-plan sets hall-bedroom-two-door in its rear wall at X=[-3.10, -2.10] with a 0.90 m clear-width target; this export preserves the rough X interval.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `bedroom-two-plan` supplies the rear-wall X = [-3.10, -2.10] rough opening and 0.90 m clear-width goal; this `door` value preserves the rough interval without inventing a second entrance.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `bedroom-two-plan` supplies the rear-wall X = [-3.10, -2.10] rough opening and 0.90 m clear-width goal; this `door` value preserves the rough interval without inventing a second entrance.
  */
 export const DOOR_HALL_BEDROOM_TWO_DOOR = door(
   "hall-bedroom-two-door",
@@ -65,17 +65,17 @@ const BEDROOM_TWO: IRoomSpace = {
 /** Emit the bedroom floor and its partition to the hall. */
 /**
  * @evidence spaces/rooms/bedroom-two.md This builder owns the olive-bedroom shell and hall-facing door partition.
- * @evidenceReview spaces/rooms/bedroom-two.md `buildBedroomTwo` returns one `bedroom-two` space, carpet floor and ceiling finishes, the room-side hall door strip and the door-cut hall partition assigned by the bedroom plan.
+ * @evidenceReview spaces/rooms/bedroom-two.md #72a3676 `buildBedroomTwo` returns one `bedroom-two` space, carpet floor and ceiling finishes, the room-side hall door strip and the door-cut hall partition assigned by the bedroom plan.
  * @evidence spaces/rooms/bedroom-two.md#bedroom-two-plan Its room box and door-cut hall run stop before the stair-owned corner.
- * @evidenceReview spaces/rooms/bedroom-two.md#bedroom-two-plan `BEDROOM_TWO.outline` ends at X = -1.95 and takes its rear Z from `STAIR_OPENING.back`; `bedroom-two-hall-partition` also stops at X = -1.95, leaving the stair corner to its own owner.
+ * @evidenceReview spaces/rooms/bedroom-two.md#bedroom-two-plan #7f664d0 `BEDROOM_TWO.outline` ends at X = -1.95 and takes its rear Z from `STAIR_OPENING.back`; `bedroom-two-hall-partition` also stops at X = -1.95, leaving the stair corner to its own owner.
  * @evidence spaces/rooms/bedroom-two.md#bedroom-two-furniture-use Bed, nightstand, desk, closet, and their use boxes are reserved inside the room.
- * @evidenceReview spaces/rooms/bedroom-two.md#bedroom-two-furniture-use `BEDROOM_TWO.reservations` records the bed, nightstand, desk, closet, desk-chair use and closet use within the plan's stated bounds; the front curtain takes the selected window span.
+ * @evidenceReview spaces/rooms/bedroom-two.md#bedroom-two-furniture-use #6b99abd `BEDROOM_TWO.reservations` records the bed, nightstand, desk, closet, desk-chair use and closet use within the plan's stated bounds; the front curtain takes the selected window span.
  * @evidence principles/core/source-units.md#source-scope-preservation It emits finish and wall geometry only; bed, desk, and closet remain later model fills.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation This builder emits only `roomFloor`, `roomCeiling`, `doorFloor` and the hall partition; bed, desk and closet occupy `BEDROOM_TWO.reservations` without furniture parts.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This builder emits only `roomFloor`, `roomCeiling`, `doorFloor` and the hall partition; bed, desk and closet occupy `BEDROOM_TWO.reservations` without furniture parts.
  * @evidence principles/core/source-units.md#source-substantive-completion The return provides carpet floor, ceiling, under-door finish, and a partition with the named door void.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion The returned space assigns `PALETTE.carpet` and the plan outline, while the parts include floor, ceiling, under-door finish and a partition cut by `DOOR_HALL_BEDROOM_TWO_DOOR`.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The returned space assigns `PALETTE.carpet` and the plan outline, while the parts include floor, ceiling, under-door finish and a partition cut by `DOOR_HALL_BEDROOM_TWO_DOOR`.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Bedroom-two-plan fixes hall-bedroom-two-door and bedroom-two-furniture-use places bed, desk, closet, and chair-use reservations; this builder retains those one-room bounds.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `buildBedroomTwo` keeps the single hall door and X/Z room outline from `bedroom-two-plan`, and reserves the bed, desk, closet and use rectangles from `bedroom-two-furniture-use` without adding another door or room.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `buildBedroomTwo` keeps the single hall door and X/Z room outline from `bedroom-two-plan`, and reserves the bed, desk, closet and use rectangles from `bedroom-two-furniture-use` without adding another door or room.
  */
 export const buildBedroomTwo = (): IRoomBuild => ({
   space: BEDROOM_TWO,
