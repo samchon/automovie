@@ -39,7 +39,7 @@
 | 본채/차고 공유 벽체 | `src/spaces/garage.ts` · `src/spaces/envelope/right.ts` | 한 X/Z 구조 기준에서 차고 지붕 윗면의 날씨선까지 문 있는 벽체는 garage가, 그 위의 바깥 사이딩 벽체는 right가 맡는다. 두 몸체는 그 날씨선에서 만나며 노출 도장 면이나 틈을 남기지 않는다. 두 실 안쪽 면의 owner는 각 실이다. |
 | 주 지붕 전방 경사면과 하부 | `src/spaces/roof/main-front.ts` | 전면 박공과 합류하는 골짜기 경계를 공유 지붕 교차 계산에서 받는다. |
 | 주 지붕 후방 경사면과 하부 | `src/spaces/roof/main-back.ts` | 주 용마루·후면 처마와 마감 경계를 소유한다. |
-| 전면 왼쪽 박공의 왼쪽 경사면·하부 | `src/spaces/roof/front-gable-left.ts` | 삼각 전면 벽과 왼쪽 처마·주 지붕 합류선. |
+| 전면 왼쪽 박공의 왼쪽 경사면·하부 | `src/spaces/roof/front-gable-left.ts` | 삼각 전면 벽과 왼쪽 골짜기·주 지붕 합류선. |
 | 전면 왼쪽 박공의 오른쪽 경사면·하부 | `src/spaces/roof/front-gable-right.ts` | 현관 쪽 골짜기·처마·용마루 접점. |
 | 본채 오른쪽 낮은 박공 전방 면·하부 | `src/spaces/roof/right-front.ts` | 높은 주 지붕과 낮은 우측 지붕의 단차 경계. |
 | 본채 오른쪽 낮은 박공 후방 면·하부 | `src/spaces/roof/right-back.ts` | 오른쪽 박공 삼각 벽과 후방 처마 접점. |

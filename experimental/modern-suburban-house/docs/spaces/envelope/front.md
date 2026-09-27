@@ -168,8 +168,8 @@
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 porch-entry의 '목재문·유리 상부·어두운 손잡이'에 대해 본문이 세 열·두 행 반복 분할과 경첩 반대편 손잡이라는 결정을 더했는지 대조해 설정 재진술이 아님을 확인했다.
 @evidence principles/design/spaces.md#space-topology front-door가 ground-storey 포치와 현관(entry-plan)을 잇는 연결임을 유지하고 상부 유리를 계단 창이나 별도 현관 바닥과 연결하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'ground-storey의 포치와 현관을 잇는다'와 상부 유리를 계단 창이나 별도 현관 바닥으로 해석하지 않는다는 문장을 대조해 front-door 연결 관계가 복원됨을 확인했다.
-@evidence principles/design/spaces.md#space-boundary-authority 문 void 좌표를 다시 적지 않고 entry owner로 링크한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문이 front-door void 좌표를 다시 적지 않고 현관 owner(entry-plan)로 링크하는지 대조해 문 void가 이 H2와 entry-plan에서 이중 저작되지 않음을 확인했다.
+@evidence principles/design/spaces.md#space-boundary-authority 문턱 UV의 U 원점에 필요한 현관문 왼쪽 문설주 값을 entry-plan에서 받고, 이 H2는 문턱 면의 UV 진행과 절단만 정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority # 본문의 문턱 UV U=0은 현관 owner의 개구부 왼쪽 X=0.40 m에 링크되어 있다. 개구부 폭·높이와 경첩 배치는 entry-plan에 남고 이 H2는 문턱 상면·측면의 UV 축과 이음을 정한다.
 @evidence principles/design/spaces.md#space-verification-address 01/04의 현관문과 포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이, 문 앞 양방향 통행을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 01/04의 현관문·포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이, 문 앞 양방향 통행을 unverified 관찰로 적었는지 확인해 현관문 충전의 반증 주소를 확인했다.
 @evidence settings/10-house.md#porch-entry 현관의 목재문·유리 상부·어두운 손잡이를 문짝 안의 분할과 손잡이 배치로 구현할 입력으로 만든다.
@@ -182,7 +182,7 @@
 
 `front-door`의 void·순폭 목표·경첩/열림은 [현관 owner](../rooms/entry.md#entry-plan) 그대로다. ground-storey의 포치와 현관을 잇는다. [공통 인계](../06-openings.md#external-opening-interface)에 따라 목재 문짝 상부 유리는 문짝 안에서 세 열·두 행으로 반복 분할하고 검은 손잡이는 경첩 반대편에 둔다. 이 유리를 계단 창과 연결하거나 별도 현관 바닥으로 해석하지 않는다.
 
-`front-door-threshold` 상면의 UV는 [현관 문 개구부](#front-openings)의 왼쪽 문설주 X=0.40 m에서 U=0으로 시작해 +X로, [본채 전면 벽](../00-building.md#main-building-extent)의 안쪽 면 Z=−0.25 m에서 V=0으로 시작해 바깥쪽 면 Z=0 m로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 포치 바닥과 현관 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
+`front-door-threshold` 상면의 UV는 [현관 owner](../rooms/entry.md#entry-plan)의 왼쪽 문설주 X=0.40 m에서 U=0으로 시작해 +X로, [본채 전면 벽](../00-building.md#main-building-extent)의 안쪽 면 Z=−0.25 m에서 V=0으로 시작해 바깥쪽 면 Z=0 m로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 포치 바닥과 현관 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
 
 관찰은 01/04의 현관문과 포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이를 포함한다. 실제 부재/void·문 앞 양방향 통행·01/04 비교는 unverified다.
 
