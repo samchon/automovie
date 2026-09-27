@@ -35,7 +35,7 @@
 @evidenceReview settings/50-production.md#references #eb34a79 이미지 02·03의 받침·둥근 테두리·가는 줄기만 채택하고 04의 잔형은 검토 실패로 둔 것을 확인했다.
 -->
 
-[분수 중정](../settings/30-interiors.md#fountain)의 낮은 원형 석조 수반과 한 줄기 물이다. 이미지 02·03의 둥근 돌 테두리와 낮은 받침단, 가운데서 곧게 오르는 가는 물줄기가 근거이고 이미지 04의 높은 잔형은 채택하지 않는다. 판정된 [중정](../spaces/rooms/courtyard.md#court-volume)의 외경 2.0m, 테두리 높이 0.52m, 물면 테두리 아래 0.08m, 물줄기 물면 위 0.65m를 그대로 쓴다.
+[분수 중정](../settings/30-interiors.md#fountain)의 낮은 원형 석조 수반과 한 줄기 물이다. 이미지 02·03의 둥근 돌 테두리와 낮은 받침단, 가운데서 곧게 오르는 가는 물줄기가 근거이고 이미지 04의 높은 잔형은 채택하지 않는다. 판정된 [중정](../spaces/rooms/courtyard.md#court-volume)의 외경 2.0m, 테두리 높이 0.52m, 물면 테두리 아래 0.08m, 물줄기 물면 위 0.65m를 그대로 쓴다. [서비스 상태](../settings/30-interiors.md#services)의 고정 수위는 이 정지 형상의 상태 입력이다.
 
 로컬 원점은 수반 중심의 중정 바닥 완성면이다. 받침단은 지름 2.30m·높이 0.08m 원판이고, 그 위 테두리 벽은 바깥 지름 2.00m·두께 0.18m의 원환 벽으로 바닥에서 0.52m까지 오르며 윗면 바깥 모서리를 0.02m 모따기한다. 안쪽 바닥은 바닥 위 0.12m에 있어 물 깊이 0.32m를 담는다. 물면은 테두리 안쪽 지름 1.64m 원판으로 바닥 위 0.44m에 있다. 물면 원판은 가운데 노즐 받침의 반지름 0.08m 안쪽을 비워 노즐 바깥면에서 시작한다. 가운데 노즐 받침은 반지름 0.08m 원통으로 안쪽 바닥에서 물면 위 0.05m까지 오르고, 물줄기는 노즐 윗면 Y=0.49m에서 시작해 물면 위 0.65m까지 오르는 원뿔대(아래 반지름 0.025m, 위 0.012m)이며 물면에는 중심선 반지름 0.11m의 낮은 파문 고리 하나가 있다. 파문 단면은 수평 폭 0.008m·수면 위 높이 0.006m인 **반타원형 마루**다. 중심선에서 가로 편차 r, 수면 위 높이 h에 대해 (r/0.004m)²+(h/0.006m)²=1, h≥0이며 양쪽 밑끝은 수면과 접한다. 원환 둘레는 48분할, 반타원 단면은 양 밑끝을 포함해 각도 0~π를 8등분한 9정점으로 잇고 수면 아래 닫힘 면은 물면과 합쳐 그리지 않는다. 파문 안쪽 반지름 0.106m는 노즐 받침 반지름 0.08m보다 0.026m 밖이므로 서로 관통하지 않는다. 다른 원형 부재는 48분할이고 테두리 벽과 물줄기는 부드러운 법선을 쓴다. 점유 상자는 2.30×약 1.09×2.30m다.
 
@@ -176,7 +176,7 @@ part와 표면은 `plinth`, `body`, `recess-frame`, `recess`, `cap`이다. 칸�
 @evidenceReview settings/50-production.md#references #eb34a79 이미지 02·04의 접시와 줄기 윤곽이 검토 판에서 볼 부재인지 확인했다.
 -->
 
-[등잔대](../settings/35-objects.md#lampstands)의 어두운 금속 자립 부재다. 이미지 02·04의 넓은 발, 가는 줄기, 얕은 원형 접시가 근거이며 불꽃은 없다.
+[등잔대](../settings/35-objects.md#lampstands)의 어두운 금속 자립 부재다. 이미지 02·04의 넓은 발, 가는 줄기, 얕은 원형 접시가 근거이며 [서비스 상태](../settings/30-interiors.md#services)에 따라 불꽃은 없다. [제실](../settings/30-interiors.md#sanctuary)의 좌우 배치 위치와 수량은 instances가 정한다.
 
 로컬 원점은 발 바닥의 중심이다. 발은 아래 지름 0.26m·윗지름 0.16m인 낮은 원뿔대(높이 0.06m)와 그 위 원판(지름 0.16m, 높이 0.02m)이다. 줄기는 반지름 0.015m 원통으로 원판 윗면 Y=0.08m부터 길이 1.02m 올라 윗끝 Y=1.10m에 접시 바닥을 받친다. 두 마디는 **바닥 기준 중심 Y=0.35m와 0.80m**에 놓인 반지름 0.03m·높이 0.03m 원통이다. 꼭대기 접시는 바깥 지름 0.22m·바닥 Y=1.10m·바닥 두께 0.006m인 평바닥 컵이다. 안쪽 바닥은 Y=1.106m, 안쪽 수직 벽 반지름은 0.10m, 바깥 수직 벽 반지름은 0.11m여서 벽 두께는 0.01m다. 안쪽 깊이 0.044m와 테 윗끝 Y=1.15m가 일치한다. 바닥 아랫면·안쪽 바닥·안팎 수직벽·테 윗면을 순서대로 잇고 접시 안쪽만 빈 공간으로 둔다. 원형 부재는 16분할이다. 점유 상자는 0.26×1.15×0.26m다.
 
@@ -261,14 +261,14 @@ part와 표면은 `top`, `trestle`이다. 상판 윗면은 instances가 그릇·
 @evidence settings/30-interiors.md#offering-room 봉헌실 벽 쪽 진열을 1.60m 진열대 변형으로 받는다.
 @evidenceReview settings/30-interiors.md#offering-room #8c76a3e 봉헌실 벽 진열을 1.60m 변형이 담당하는지 확인했다.
 @evidence settings/30-interiors.md#administration 관리실의 소량 도기 벽 선반을 1.00m 변형으로 받는다.
-@evidenceReview settings/30-interiors.md#administration #9a40923 관리실 소량 도기는 1.00m 짧은 변형에만 놓이게 했는지 확인했다.
+@evidenceReview settings/30-interiors.md#administration #9a40923 폭 1.00m 관리실 변형의 두 열린 칸에는 소량 도기만 올리고 두루마리를 쌓지 않아 작업실의 낮은 밀도를 유지하는지 확인했다.
 @evidence spaces/rooms/offering.md#offering-volume 북쪽과 서쪽 벽 우선 진열 배정을 진열대가 놓일 벽으로 넘긴다.
 @evidenceReview spaces/rooms/offering.md#offering-volume #bd0ef98 북·서 벽 우선 배정을 instances가 소비하도록 남겼는지 확인했다.
 @evidence spaces/rooms/administration.md#office-volume 관리실 벽 선반 자리를 짧은 변형이 놓일 벽으로 넘긴다.
 @evidenceReview spaces/rooms/administration.md#office-volume #59ae103 관리실 벽 선반 자리도 짧은 변형의 배치 입력으로 남겼는지 확인했다.
 -->
 
-[공동 봉헌실](../settings/30-interiors.md#offering-room)의 벽 쪽 목재 진열대이며 [관리실](../settings/30-interiors.md#administration)의 벽 선반도 같은 가족의 짧은 변형으로 맡는다. [선반](../settings/35-objects.md#shelves)의 두꺼운 측판과 넓고 낮은 칸이 근거이며 벽에 매몰되지 않는다.
+[공동 봉헌실](../settings/30-interiors.md#offering-room)의 벽 쪽 목재 진열대이며 [관리실](../settings/30-interiors.md#administration)의 벽 선반도 같은 가족의 짧은 변형으로 맡는다. [선반](../settings/35-objects.md#shelves)의 두꺼운 측판과 넓고 낮은 칸이 근거이며 벽에 매몰되지 않는다. 봉헌실의 [북·서 벽 우선 자리](../spaces/rooms/offering.md#offering-volume)와 관리실의 [벽 선반 자리](../spaces/rooms/administration.md#office-volume)는 instances의 배치 입력으로 남긴다.
 
 로컬 원점은 바닥면의 뒷변 중심이고 앞은 +Z다. 폭 1.60m·깊이 0.40m·높이 1.40m이며 측판 두께 0.04m다. 두께 0.03m인 선반 판 네 장의 아랫면은 바닥 위 Y=0.10m·0.55m·1.00m·1.37m에 있어 맨 윗판 윗면이 Y=1.40m에서 끝난다. 뒤판은 없고 벽에서 0.02m 떨어진다. 점유 상자는 1.60×1.40×0.40m다. 두 측판은 Y=0~1.40m를 차지하고 네 판은 측판의 안쪽 면 사이 X=−0.76~+0.76m에 끼워져 서로의 부피를 공유하지 않는다.
 
@@ -319,7 +319,7 @@ part와 표면은 `side`, `board`다. 칸은 앞뒤로 열린 빈 공간이며 �
 
 [관리실](../settings/30-interiors.md#administration)의 작성 책상과 [기록실](../settings/30-interiors.md#records)의 작은 열람 탁자다. [책상과 좌석](../settings/35-objects.md#workstation)의 상판·네 다리·가로 지지재와 이미지 05의 작업 탁자가 근거다. 같은 구성의 두 치수 변형이다.
 
-로컬 원점은 바닥면 중심이다. 작성 책상은 폭 1.10m·깊이 0.60m·높이 0.75m, 열람 탁자는 폭 0.90m·깊이 0.55m·높이 0.72m이며 상판 두께 0.04m, 다리는 정방 0.06m다. 두 변형 모두 네 다리 중심은 (X,Z)=(±(폭/2−0.06m), ±(깊이/2−0.06m))의 모든 조합이다. 네 다리 중심 사이의 가로 지지재는 각 변형의 두 X방향 선과 두 Z방향 선을 잇고, 단면의 수평 폭은 0.04m·연직 높이는 0.05m이며 **아랫면**이 바닥 위 Y=0.15m에 있다. 점유 상자는 각 폭×높이×깊이다.
+로컬 원점은 바닥면 중심이다. 작성 책상은 폭 1.10m·깊이 0.60m·높이 0.75m, 열람 탁자는 폭 0.90m·깊이 0.55m·높이 0.72m이며 상판 두께 0.04m, 다리는 정방 0.06m다. 두 상판은 [스툴](fixtures.md#stool)의 좌판 윗면 0.45m보다 각각 0.30m·0.27m 높다. 두 변형 모두 네 다리 중심은 (X,Z)=(±(폭/2−0.06m), ±(깊이/2−0.06m))의 모든 조합이다. 네 다리 중심 사이의 가로 지지재는 각 변형의 두 X방향 선과 두 Z방향 선을 잇고, 단면의 수평 폭은 0.04m·연직 높이는 0.05m이며 **아랫면**이 바닥 위 Y=0.15m에 있다. 점유 상자는 각 폭×높이×깊이다.
 
 부재 대응: `top`=상판; `leg`=다리; `stretcher`=가로 지지재.
 

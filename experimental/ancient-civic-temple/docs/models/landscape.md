@@ -138,7 +138,7 @@ part와 표면은 `trunk`, `branch`, `crown`이다. 위치·크기·회전 변�
 @evidenceExcludeReview spaces/storey.md#wall-ground-contact #ca2c8ba 외벽 지면 접촉은 spaces가 맡고 포기는 그 앞에 놓여 벽 하단을 바꾸지 않는지 확인했다.
 -->
 
-[식생](../settings/40-environment.md#vegetation)의 벽 밑 소량 풀이다. 이미지 01의 벽 가장자리 마른 풀 포기가 근거다.
+[식생](../settings/40-environment.md#vegetation)의 벽 밑 소량 풀이다. 이미지 01의 벽 가장자리 마른 풀 포기가 근거다. [국소 대지](../settings/40-environment.md#site)의 마른 흙 위에 놓이고, [배치 구역](../spaces/site.md#placement-zones)의 벽 밑 풀 띠 안에서 instances가 실제 위치를 정한다.
 
 로컬 원점은 포기의 지면 중심이다. 열두 잎 `bladeFan(i)`에서 i는 0~11의 정수이며 방위 θ=2πi/12다. 잎 너비는 `0.02+0.005×(i mod 3)`m, 끝 높이는 `0.20+0.15×((5i mod 12)/11)`m, 바닥 중심은 원점에서 θ 방향 0.03m, 끝의 바깥 기울기는 바닥 중심에서 같은 방향으로 `0.08+0.04×((i mod 4)/3)`m다. 각 잎의 밑변은 바닥 중심에서 θ에 수직으로 너비의 절반씩 벌어지고 꼭짓점은 위 끝 위치다. 이 삼각 판 묶음의 잎은 양면 표면이다. 점유 상자는 최대 반경 0.15m·높이 0.35m를 여유 있게 감싸는 0.35×0.35×0.35m다.
 

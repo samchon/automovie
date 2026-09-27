@@ -37,7 +37,7 @@
 @evidenceExcludeReview spaces/junctions.md#wall-junctions #46ba9a9 벽끼리 닫는 wall-junction 규칙과 보 끝면 맞댐이 다른 접합임을 확인했다.
 -->
 
-[연속 주랑](../settings/20-envelope.md#colonnade)의 어두운 목재 상부 보이며 이미지 03·05에서 원주 위를 수평으로 잇는 굵은 목재가 근거다. 기둥 사이를 한 번에 건너는 곧은 각재로 조각·몰딩은 주장하지 않는다. 단면은 폭 0.26m·깊이 0.28m 직사각형이며 폭은 [주랑 공간](../spaces/rooms/colonnade.md#ring-volume)의 0.35m 기둥 예산 안이다.
+[연속 주랑](../settings/20-envelope.md#colonnade)의 어두운 목재 상부 보이며 이미지 03·05에서 원주 위를 수평으로 잇는 굵은 목재가 근거다. 기둥 사이를 한 번에 건너는 곧은 각재로 조각·몰딩은 주장하지 않는다. 단면은 폭 0.26m·깊이 0.28m 직사각형이며 폭은 [주랑 공간](../spaces/rooms/colonnade.md#ring-volume)의 0.35m 기둥 예산 안이다. 아래 높이 식의 Y=3.20m 지붕 상면 기준은 [지붕 합성](../spaces/roofs/assembly.md#roof-junctions)에서 받는다.
 
 로컬 원점은 보 아랫면의 길이 방향 중심이고 길이는 로컬 X, 폭은 Z, 깊이는 +Y다. 이 모델은 길이와 지붕 경사를 매개변수로 가진 한 가족이며 source는 판정된 기준선에서 두 길이와 두 높이 변형을 만든다. 남·북 보는 중정 경계에서 0.175m 안쪽의 두 모서리 기둥 축 사이에 기둥 주두 판 반폭을 더한 길이(입력 산술상 약 7.69m)이고, 동·서 보는 남·북 보의 옆면 사이를 잇는 길이(약 7.94m)다. 보 중심선은 중정 경계에서 바깥으로 0.175m이고 보 폭 0.26m이므로 중정 쪽 윗모서리는 경계에서 0.175−0.26/2=0.045m 바깥이다. 그 선의 지붕 경사 α에 대해 slab 하부와 법선 깊이 0.12m 서까래의 아랫면은 `Ybeam(α)=3.20+0.045tan(α)−(0.18+0.12)/cos(α)`다. 12° 외쪽 변은 Ybeam=2.902862867m, 19° 동측 박공 변은 Ybeam=2.898208538m다. 각 변에서 이 값을 보 윗면으로 두고 중정 쪽 윗모서리에서 서까래가 접선으로 받치며 안쪽으로 갈수록 두 부재의 실체가 겹치지 않는다. 끝면 맞춤 턱을 제외한 각 보 몸체 아랫면은 그 변의 Ybeam에서 0.28m 낮고 그 높이 변형은 [주랑 원주](columns.md#colonnade-column)가 소비한다. 네 모서리 원주는 12° 높이 변형으로 남·북 보를 직접 받친다. 동·서 보는 남·북 보의 서로 마주 보는 옆면에 끝면을 맞대고, 각 변의 중간 원주만 해당 경사 높이 변형으로 그 아랫면을 받친다. 동측 보 윗면은 남·북 보보다 0.004654329m 낮지만 끝면의 공통 접촉 높이는 0.275345671m로 양수다. 동측 보의 양끝에서 모서리 주두와 겹치는 길이 0.040m·폭 0.26m의 아랫면을 δ=Ybeam(12°)−Ybeam(19°)=0.004654329m만큼 위로 따내어 남·북 보의 12° 모서리 주두 윗면에 정확히 닿게 한다. 중간 원주 위의 아랫면은 따내지 않으며 보의 끝면·주두와 부피가 관통하지 않는다. 서측 보와 남·북 보는 같은 12° 높이에서 끝면이 맞닿는다. 점유 상자는 길이×0.28×0.26m이며 평평한 면 법선을 쓴다.
 
@@ -202,7 +202,7 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 @evidence principles/core/common.md#substantive-completion 폭 0.12·깊이 0.18m, 길이 4.00m, 윗면 3.10m·아랫면 2.92m가 있어 source가 천장 보를 다시 고르지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.12×0.18m 단면, 4.00m 길이, Y=3.10/2.92m를 대조해 source가 보 치수를 추측하지 않는지 확인했다.
 @evidence principles/core/common.md#declared-basis 깊이 0.18m와 보 아래 2.92m는 storey.md#ground-storey의 예산, 길이는 기준선 west/east-inner~room, 문 head 2.36m는 openings.md#doors에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 층 예산과 네 방 순치수 및 문 head가 깊이·길이·유효 높이의 출처로 쓰이는지 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb storey의 0.18m 보 깊이와 2.92m 아래 높이, building의 east/west 방 4.00m 순치수를 단면·길이·높이 입력으로 썼는지 확인했다. 문 head는 통과 여유의 대조 대상이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 업무방·봉헌실의 낮은 목재 천장이라는 설정을 네 방 공통 4.00m 보와 널판 접촉이라는 모델 결정으로 바꾼다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 낮은 널판 천장 설정을 네 방의 공통 4m 보와 널판 아래 접촉으로 좁혔는지 확인했다.
 @evidence principles/design/models.md#representation-contract timber part 하나에 윗면·두 끝면의 가려진 접촉면과 평평한 면 법선을 정한다.
@@ -230,9 +230,9 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 @evidence spaces/rooms/administration.md#office-volume 관리실 널판 천장 아래를 보가 놓일 방으로 소비한다.
 @evidenceReview spaces/rooms/administration.md#office-volume #59ae103 관리실 널판 아래에 동일 길이 보를 둘 공간을 읽었다.
 @evidence spaces/rooms/records.md#records-volume 기록실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidenceReview spaces/rooms/records.md#records-volume #1d1d419 기록실 널판 아래에 동일 길이 보를 둘 공간을 읽었다.
+@evidenceReview spaces/rooms/records.md#records-volume #1d1d419 records 본체가 east-room~east-inner 경계 안에서 낮은 천장 표면을 소유하므로 이 보의 4.00m 변형이 그 방에 배치될 수 있음을 확인했다.
 @evidence spaces/rooms/storage.md#storage-volume 보관실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidenceReview spaces/rooms/storage.md#storage-volume #37f608a 보관실 널판 아래에 동일 길이 보를 둘 공간을 읽었다.
+@evidenceReview spaces/rooms/storage.md#storage-volume #37f608a storage 본체가 east-room~east-inner 경계 안에서 천장 표면을 소유하므로 이 보의 4.00m 변형이 그 방에 배치될 수 있음을 확인했다.
 @evidence spaces/observations.md#geometry-observations 각 방 중심→네 방위와 모서리 station을 보의 규칙적 노출을 볼 건물 시점으로 쓴다.
 @evidenceReview spaces/observations.md#geometry-observations #4155dcf 네 방 중심·모서리 관찰이 천장 보 반복과 문 위 여유를 볼 수 있는지 확인했다.
 @evidence settings/50-production.md#references 이미지 05의 널판 천장 아래 어두운 각재를 근거로 쓴다.

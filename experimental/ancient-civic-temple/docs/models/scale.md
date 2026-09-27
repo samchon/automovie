@@ -18,7 +18,7 @@
 @evidence principles/design/models.md#reviewable-structure 점유 상자와 보행 포락을 나란히 대조하는 규칙이 각 H2 검토 판의 공통 반증 기준이 된다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 포락 상자와 각 모델 상자의 비교가 지나치게 큰 집기·통로 막힘을 실패로 만드는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 고대 지중해라는 표지를 부재 분리와 빈 공간으로만 읽히게 하고 세로 홈·조각·특정 오더 비례는 주장하지 않으며 색·거칠기는 materials 몫이라고 경계를 긋는다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 고대 지중해 표지를 빈 공간과 부재 구성으로만 읽고 색·roughness는 materials에 남겼는지 확인했다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 본문의 고대 지중해 표지를 세로 홈·조각·특정 오더 비례로 확대하지 않고 부재 분리와 빈 공간으로 한정했으며 색·거칠기를 materials에 남겼는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 축척 기준·표현 상한·prototype 점유 상자·로컬 원점의 배치 기준을 함께 정해 반복 부재 H2가 배치 수 없이도 완결되게 한다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 공유 축척과 원점·상자·반복 규칙이 각 H2가 배치 수를 몰라도 형상을 닫게 하는지 확인했다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 사물 16개의 존재·범위가 settings에 빠져 있어 35-objects와 30-interiors의 정체성·방별 목록을 먼저 수리했다. user 지시는 존재 범위를 승인했고 치수·접합은 각 모델 H2의 저작 결정이다.
@@ -58,7 +58,7 @@
 @evidenceExclude spaces/building.md#footprint 외곽 치수 선택은 건물 매스의 결정이며 모델은 그 외곽 대신 방·주랑·지붕 순치수와 기준선만 소비한다.
 @evidenceExcludeReview spaces/building.md#footprint #d21e152 건물 외곽 footprint를 형상 입력으로 쓰지 않고 지붕·방의 실제 순치수만 받는지 확인했다.
 @evidenceExclude spaces/ownership.md#surface-map 표면 소유 지도는 spaces가 내는 벽·바닥·지붕 표면만 다루며 모델 표면 ID는 각 H2의 part 목록이 자기 prototype 안에서 정한다.
-@evidenceExcludeReview spaces/ownership.md#surface-map #87dc34b spaces 표면 지도와 달리 모델 표면 ID는 각 H2 part 대응이 소유하는지 확인했다.
+@evidenceExcludeReview spaces/ownership.md#surface-map #87dc34b spaces가 외피·지면·코핑·기단의 실체 표면을, 모델 H2가 기둥·문틀·수반 같은 독립 물체의 part 표면을 소유한다는 두 경계를 대조했다.
 -->
 
 2026-09-25 사용자 사물 제작 지시가 존재 범위를 넓혔을 때 settings의 35-objects와 30-interiors에 16개 물체의 정체성·방별 자리가 없었다. 두 부모 문서를 먼저 수리했고 각 물체의 구체 치수·접합은 해당 모델 H2가 맡는다.
@@ -139,7 +139,9 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 
 관절을 가진 모델은 [문짝](openings.md#double-door-leaf)과 [외개 문짝](openings.md#single-door-leaf)뿐이다. 각 문짝 판은 `hinge.<판 ID>` 이름의 변환 node 하나를 motion과 공개 opening operation이 쓸 수 있는 안정 인터페이스로 가진다. 회전축은 연직이며 양개문은 판 원점에서 X=+0.021m·Z=0, 외개문은 X=0·Z=+0.031m에 있다. 범위는 닫힘 0°부터 열림 90°까지이고 판의 국소 개방 변환은 이 축 주위 `R_y(−θ)`다. instances가 판 전체를 각 방의 스윙 방향으로 향하게 설치하므로 모델은 방별 회전 부호를 새로 고르지 않는다. 상태 이름은 `closed`와 `open`이며 기본 상태는 [개구부 소유](../spaces/openings.md#doors)가 정한 열림이다. 여는 방향은 spaces의 스윙 예약을 따르고 모델은 방향을 새로 정하지 않는다.
 
-그 밖의 모든 모델은 강체다. 궤 뚜껑은 닫힌 고정 부재이고 분수 물줄기는 [서비스 상태](../settings/30-interiors.md#services)의 고정 수위를 따른 정지 형상이며 시간에 따른 변화는 systems·motions의 후속 결정이다. 문짝의 손잡이·경첩·판은 판 node의 자식으로 함께 돌고 따로 움직이는 인터페이스가 아니다.
+그 밖의 모든 모델은 강체다. 궤 뚜껑은 닫힌 고정 부재이고 분수 물줄기는 [서비스 상태](../settings/30-interiors.md#services)의 고정 수위를 따른 정지 형상이며 등잔도 같은 설정의 꺼진 상태로 고정한다. 시간에 따른 변화는 systems·motions의 후속 결정이다. 문짝의 손잡이·경첩·판은 판 node의 자식으로 함께 돌고 따로 움직이는 인터페이스가 아니다.
+
+검토 판에서는 두 문짝을 각각 `closed` 0°와 `open` 90°에서 보아 경첩 축 주변의 판·손잡이·경첩이 함께 도는지 확인한다.
 
 ## 중립 모델 검토 판 {#model-review-board}
 
@@ -157,7 +159,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 @evidence principles/design/models.md#spatial-convention 각 prototype을 Y=0 바닥에 원점으로 세우고 보행 포락 상자를 +X 0.8m에 두는 배치 규칙을 정한다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 각 prototype Y=0과 +X 0.8m 포락 상자가 같은 공간 비교 규칙인지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 정면·우측면·배면·평면·반대편 대각 둘과 각 H2의 접합·관통·얇은 부재·개구 국소 근접 뷰를 필수 관찰로 두고 문짝·두루마리 등 명명 상태마다 반복한다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 여섯 실루엣과 작은 접합을 채우는 근접 시점을 문짝·두루마리 상태마다 반복하고, 항아리 관 끝의 원판 노출과 삽입 부재를 구별하는지 확인했다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 여섯 실루엣과 작은 접합 근접 시점을 명명 상태마다 반복하고, 운반 항아리·물동이·작은 용기의 끝 원판 부분 노출을 실제 삽입과 다면 근접 뷰로 구별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 셰이딩·연출이 아닌 구성 판단용 판이라고 선언해 양식 판정을 실루엣·부재 분리·빈 공간에 묶고 조명 연출이 양식 증거로 쓰이지 않게 한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 셰이딩·연출이 아닌 실루엣·빈 공간 판단 판이며 양식 근거를 광원에 기대지 않는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 포락 비교·시점·상태·반복 표본을 함께 정해 각 모델 H2의 관찰 층이 한 판 위에서 완결된다.

@@ -48,6 +48,8 @@ const decisions = {
   "scale#model-review-board": [
     ["각 모델 H2에서 이름 붙인", "non-contact: feature viewing requirement"],
     ["`closed`·`open` 문짝과", "non-contact: state viewing requirement"],
+    ["운반 항아리·물동이·작은 용기를", "non-contact: review-board partial-cap interpretation"],
+    ["끝 링 전체가", "non-contact: review-board floating-joint rejection criterion"],
     ["이 판은", "non-contact: review-board responsibility"],
   ],
   "columns#colonnade-column": [
@@ -182,6 +184,7 @@ const decisions = {
     ["조명은 건물", "non-contact: review-board light setting"],
     ["근접 뷰 배경도", "non-contact: repeatable close-view background"],
     ["비교 기준은", "non-contact: review-board comparison criterion"],
+    ["한 투시 방향에서", "non-contact: multiple-view interpretation rule for joint clearance"],
   ],
   "entablature#colonnade-beam:supplemental": [["중간 원주 위의 아랫면은", "east beam corner notch removes the capital penetration"]],
   "entablature#rafter:supplemental": [
@@ -196,12 +199,17 @@ const decisions = {
     ["벽을 뚫는", "non-contact: stated failure conditions"],
   ],
   "entablature#ceiling-joist:supplemental": [["널판에서", "non-contact: stated failure conditions"]],
-  "openings#door-frame:supplemental": [["안감은 세", "door lining touches void and trim wall"]],
+  "openings#door-frame:supplemental": [
+    ["판정된 출입문 표", "non-contact: parent wall-thickness attribution"],
+    ["안감은 세", "door lining touches void and trim wall"],
+  ],
   "openings#double-door-leaf:supplemental": [["판 하나로", "non-contact: stated failure conditions"]],
   "openings#single-door-leaf:supplemental": [["앞·뒤 연결 핀은", "single pins touch panel and rings on both sides"]],
   "cladding#roof-tile:supplemental": [["평판 위 무늬", "non-contact: stated failure conditions"]],
-  "cladding#ridge-tile:supplemental": [["고정된 0.06m", "non-contact: construction rule rejecting a copied stop distance"]],
-  "fixtures#fountain:supplemental": [["파문 안쪽", "fountain ripple clears nozzle pedestal"]],
+  "fixtures#fountain:supplemental": [
+    ["서비스 상태", "non-contact: parent water-state attribution"],
+    ["파문 안쪽", "fountain ripple clears nozzle pedestal"],
+  ],
   "fixtures#altar:supplemental": [["받침은 양옆", "altar support gap remains open"]],
   "fixtures#niche:supplemental": [["칸 없는", "non-contact: stated failure conditions"]],
   "fixtures#desk:supplemental": [

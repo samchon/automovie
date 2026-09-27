@@ -67,16 +67,16 @@ part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공�
 @evidence principles/design/models.md#model-observable-style-basis 몸체에 붙은 곡면 손잡이라는 도기 설정을 형상으로 반증 가능하게 한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 곡면 손잡이의 끝 링 삽입과 몸체 밖에 남는 원판 면, 열린 고리를 별개 형상으로 읽었다.
 @evidence principles/design/models.md#model-scale-layer-completion 윤곽·손잡이와 위치 소유가 정해져 운반 용기 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.50m 윤곽·손잡이 수치는 모델, 보관실 위치는 instances라는 경계를 확인했다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.50m 운반 항아리의 몸체 윤곽·두 손잡이 끝 삽입·점유 범위는 이 H2가 닫고 보관실의 실제 위치와 복제 수는 instances에 남겼는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels와 storage 설정의 손잡이 달린 운반 용기를 높이 0.50m 윤곽에 대조했고 부모를 고칠 모순이 없었다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 0.50m 운반 용기와 보관실 역할을 대조해 부모를 축소할 이유가 없는지 확인했다.
 @evidence settings/35-objects.md#vessels 몸체와 붙은 곡면 손잡이 도기를 운반 항아리 윤곽으로 받는다.
 @evidenceReview settings/35-objects.md#vessels #33b80a7 몸체에 붙은 곡면 손잡이가 ±X 두 관의 고정으로 구현되는지 확인했다.
 @evidence settings/30-interiors.md#storage 보관실의 손잡이 달린 운반 용기를 이 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실 손잡이 운반 용기가 큰 저장 항아리와 다른 원형으로 배정되는지 확인했다.
+@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실의 손잡이 달린 운반 용기를 이 0.50m 원형이 받고 실제 배치는 instances에 남겼는지 확인했다.
 -->
 
-손잡이 달린 중간 크기 운반 용기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 몸체와 붙은 곡면 손잡이가 근거다.
+손잡이 달린 중간 크기 운반 용기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 몸체와 붙은 곡면 손잡이가 근거다. [보관실](../settings/30-interiors.md#storage)의 운반 용기 역할을 맡고 실제 위치와 복제 수는 instances가 정한다.
 
 로컬 원점은 바닥면 중심이다. 바깥 윤곽은 (높이,반지름)=(0,0.07),(0.28,0.15),(0.40,0.10),(0.45,0.05),(0.50,0.06)m의 직선 연결이다. 입 안쪽은 (0.50,0.04)→(0.45,0.03)→(0.40,0.025)m의 직선 연결 뒤 Y=0.40m에서 중심까지 닫힌 바닥으로, 목의 최소 벽 두께가 0.02m다. 목과 어깨를 잇는 세로 고리 손잡이 두 개(관 반지름 0.018m)는 로컬 ±X 면에서 아래 부착점 (±0.15,0.28,0)m, 위 부착점 (±0.06,0.45,0)m을 잇는다. 각 경로는 아래점→(±0.20,0.30,0)→(±0.20,0.43,0)→위점을 제어점으로 하는 3차 베지어 곡선이며 길이 12분할·관 둘레 8분할이다. 몸체 회전 16분할이다. 점유 상자는 0.436×0.50×0.30m로 제어점 외피를 여유 있게 감싸는 보수적 경계다. 지정된 분할 수로 만든 실제 다면체 합집합 상자는 약 0.396×0.50×0.30m다.
 
@@ -246,7 +246,7 @@ part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이�
 @evidenceReview settings/50-production.md#references #eb34a79 이미지 02·05의 묶음 원통과 펼친 종이가 두 변형의 시각 기준인지 확인했다.
 -->
 
-[두루마리](../settings/35-objects.md#scrolls)의 말린 기록물이다. 이미지 02·05의 칸 안에 눕혀진 원통 묶음과 책상 위 펼친 한 장이 근거이며 읽을 수 있는 글자는 없다. 말린 한 개, 세 개 묶음, 펼친 한 장의 세 변형이다.
+[두루마리](../settings/35-objects.md#scrolls)의 말린 기록물이다. 이미지 02·05의 칸 안에 눕혀진 원통 묶음과 책상 위 펼친 한 장이 근거이며 읽을 수 있는 글자는 없다. [기록실](../settings/30-interiors.md#records)의 여러 칸과 [관리실](../settings/30-interiors.md#administration)의 작은 작업대에 놓일 말린 한 개, 세 개 묶음, 펼친 한 장의 세 변형이다.
 
 말린 두루마리는 로컬 원점이 원통 축의 중심이고 축은 로컬 X다. 반지름 0.03m·길이 0.28m 원통의 양끝 면에 반지름 0.012m의 말림 심이 0.004m씩 튀어나와 X 범위는 −0.144~+0.144m다. 한 개의 묶음 끈은 X=0 평면에서 중심선 반지름 0.0325m·관 반지름 0.0025m인 원환으로 종이에 닿고, 주환 16·관 8분할이다. 세 개 묶음은 이 원통을 축 X로 나란히 두되 YZ 중심을 (0,−0.03),(0,+0.03),(0.03√3,0)m로 정해 매끈한 원통 기준 서로 접하게 쌓는다. 16각 다면체에서 위 원통과 아래 두 원통의 마주 보는 평행 면 사이 틈은 약 0.00102m다. 한 끈의 중심선은 세 중심의 정삼각형 볼록 껍질을 반지름 0.0325m로 바깥 평행 이동한 둥근 삼각형이고 X=0에 놓인다. 세 모서리의 호는 각각 16분할, 세 직선은 한 구간, 관 반지름은 0.0025m·둘레 8분할이라 세 원통의 바깥면에 닿는다. 펼친 한 장은 로컬 X 폭 0.25m·Z 길이 0.35m·두께 0.002m 판으로 Y=0~0.002m에 놓인다. 양쪽 짧은 변 Z=±0.175m에 닿는 말린 끝은 X축 반지름 0.02m·길이 0.25m 원통이며 그 중심은 `(Y,Z)=(0.02,±(0.175+√(0.02²−0.018²)))m`다. 따라서 원통과 종이 윗모서리 사이 Y 차 0.018m와 Z 차 √(0.02²−0.018²)m의 제곱합은 반지름²이고 매끈한 원통 기준 접점이 종이 모서리 위에 있다. 16각 다면체에서는 양쪽 종이 모서리와 각각 약 0.00019m 떨어진다. 원통은 모두 둘레 16분할이다. 점유 상자는 말린 것 0.288×0.07×0.07m, 묶음 0.288×(0.03√3+0.07)×0.13m, 펼친 것 `0.25×0.04×(2×(0.175+√(0.02²−0.018²)+0.02))m`(Z 약 0.4074m)다.
 

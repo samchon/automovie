@@ -32,14 +32,16 @@
 @evidence spaces/roofs/west.md#west-roof 서측 외쪽 지붕 높은 끝 약 4.56m를 코핑 대조의 한 끝으로 쓴다.
 @evidenceReview spaces/roofs/west.md#west-roof #ee48ff5 서측 높은 끝 4.56m를 4.685m 높이 대조에 사용한 위치를 본문에서 확인했다.
 @evidence spaces/roofs/colonnade.md#south-canopy 남쪽 주랑 덮개의 실제 slab 상면을 받아 각 지붕 조각의 코핑 직전 정지 계산에 쓴다.
-@evidenceReview spaces/roofs/colonnade.md#south-canopy #698df98 남쪽 덮개 slab도 자체 상면으로 정지 계산한다고 적어 서측 수치를 복사하지 않음을 확인했다.
+@evidenceReview spaces/roofs/colonnade.md#south-canopy #698df98 남쪽 주랑 외쪽 slab 상면을 별도 입력으로 받으며 서측 4.56m를 남쪽 지붕의 높이로 쓰지 않았는지 확인했다.
 @evidence spaces/roofs/east.md#east-roof 19도 동측 지붕 조각의 실제 slab 상면을 코핑 아래 기와 줄의 정지 계산에 쓴다.
-@evidenceReview spaces/roofs/east.md#east-roof #674b805 동측 19도 지붕의 상면을 동일한 코핑 여유 검사 입력으로 지명했는지 확인했다.
+@evidenceReview spaces/roofs/east.md#east-roof #674b805 동측 박공 19°의 실제 slab 상면을 기와 0.125m와 더해 코핑 여유를 검사할 입력으로 남겼는지 확인했다.
 @evidence settings/50-production.md#references 이미지 01·03의 경사를 따라 내려오는 반원 덮개 줄과 처마 끝 반원 단면을 근거로 쓴다.
 @evidenceReview settings/50-production.md#references #eb34a79 참조 이미지의 처마 반원 끝과 경사를 따르는 덮개 줄이 본문 검토 기준에 각각 남아 있는지 확인했다.
 -->
 
 [경사지붕과 처마](../settings/20-envelope.md#roof-form)의 흙빛 붉은 곡면 기와다. 이미지 01·03의 지붕에서 반원형 덮개 기와의 줄이 경사를 따라 내려오고 처마 끝에서 반원 단면이 드러나는 것이 근거다. 평기와 한 장과 그 이음을 덮는 둥근기와 한 장을 한 단위로 삼으며 기와 한 장씩의 불규칙이나 표면 결은 주장하지 않는다.
+
+건물에서 이 단위가 놓이는 slab 상면은 [서측](../spaces/roofs/west.md#west-roof)·[남쪽 주랑](../spaces/roofs/colonnade.md#south-canopy)·[동측](../spaces/roofs/east.md#east-roof) 지붕과 [합성 경계](../spaces/roofs/assembly.md#roof-junctions)에서 받는다. [코핑 단면](../spaces/junctions.md#plinth-coping)의 아랫면 4.69m는 단위 높이를 더한 뒤의 상한이다.
 
 로컬 원점은 단위의 처마 쪽 아래 모서리 선의 중심이며 지붕 slab 상면 위에 놓인다. 로컬 +Z는 경사를 따라 오르는 방향, +Y는 지붕 면의 법선, X는 경사를 가로지르는 방향이다. 평기와는 X=−0.20~+0.20m, Z=0~0.52m, 두께 0.02m 판이다. Z=0.08~0.52m의 기본 판은 Y=0~0.02m이고 양 긴 가장자리 X=−0.20~−0.10m와 +0.10~+0.20m에는 Z=0.08~0.44m 구간에 한해 Y=0.02~0.04m의 폭 0.10m 턱이 붙는다. 마지막 Z=0.44~0.52m에서는 다음 평기와의 들린 앞끝이 Y=0.02~0.04m를 차지하므로 턱을 빼고 겹침 부피를 피한다. 처마 쪽 0≤Z<0.08m에서는 판 바닥과 윗면을 각각 Y=0.02/0.04m로 올리고 턱은 별도 부피로 만들지 않는다. Z=0.08m의 수직 접합면 뒤쪽은 판 Y=0/0.02m이다. 같은 줄의 위 단위를 0.44m마다 놓으면 위 단위의 들린 0.08m 아랫면이 아래 단위의 윗면 Y=0.02m에 면 접촉하므로 판 두 장의 부피가 겹치지 않는다. 둥근기와의 X 중심은 단위 오른쪽 이음선 X=+0.20m, 축은 +Z다. 바깥 반지름은 Z=0.08m에서 0.085m, Z=0.52m에서 0.075m로 선형으로 줄고 두께는 0.015m, 반원은 8분할한다. 두 발의 X는 시작에서 0.115/0.285m, 끝에서 0.125/0.275m다. Z=0.08~0.44m에서 왼발은 이 단위의 +X 턱(+0.10~+0.20m), 오른발은 X=+0.40m에 놓이는 다음 단위의 −X 턱(+0.20~+0.30m) 위에서 Y=0.04m에 닿는다. 끝 0.08m는 접촉 띠가 없는 짧은 돌출이며 앞 0.36m의 양발 지지로 매단다. 양 발의 0.015m 폭이 각 턱 안에 있고 가운데 X=+0.20m 이음을 가로지른다. 껍질은 Z=0.08~0.52m에만 있으며 이음의 아래 단위 끝과 위 단위 시작이 Z=0.52m에서 맞닿는다. 한 줄 노출 길이는 0.44m, 최대 높이는 0.04+0.085=0.125m다. imbrex가 옆 단위로 넘어가므로 한 단위 점유 범위 X=−0.20~+0.285m, Y=0~0.125m, Z=0~0.52m(상자 0.485×0.125×0.52m)다.
 

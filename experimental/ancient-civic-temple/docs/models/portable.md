@@ -61,7 +61,7 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 @evidence principles/design/models.md#reviewable-structure 측면에서 접시 깊이와 가는 지지대가 한 원통으로 합쳐지지 않는지 본다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 측면에서 가는 줄기와 오목 컵이 한 원통으로 합쳐지지 않는지 보는 기준을 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·04의 얕은 접시와 어두운 금속 실루엣을 소형으로 변주한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 02·04의 얕은 금속 접시를 작은 크기로 옮기되 불꽃 표현은 빼는지 확인했다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 02·04의 얕은 접시를 0.28m 이동식 비품의 열린 컵으로 옮기고 불꽃 part는 만들지 않았는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 큰 등잔대와 소형 등잔의 규모 차이와 표면 경계가 정해져 방별 비품이 같은 원형을 쓴다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 1.15m 높은 등잔대와 0.28m 소형 등잔의 크기·표면 경계를 구별했다.
 @evidence settings/30-interiors.md#services 꺼진 등잔 상태를 소형 비품에도 적용한다.
@@ -443,7 +443,7 @@ part와 표면은 `cloth`이고 위아래 겹과 접힌 띠는 한 표면 ID 아
 
 [사물 정체성](../settings/35-objects.md#stylus)과 [사용 공간](../settings/30-interiors.md#administration)이 이 prototype의 부모다. [레퍼런스 이미지 05](../settings/50-production.md#references)의 형태·공간 관계를 비교하며, 사물의 존재는 2026-09-25 사용자의 모든 사물 제작 지시에서 받는다. 아래 치수와 접합은 그 범위 안의 모델 결정이다.
 
-첨필은 로컬 +X 방향으로 뾰족해지는 작은 막대다. 원점은 전체 길이의 중앙이다. 몸통은 X=−0.11~0.09m, 반지름 0.006m의 8분할 원통이다. 끝은 X=0.09~0.11m에서 반지름 0.006m에서 0으로 좁아지는 8분할 원뿔이며 몸통 끝면과 접한다. 손잡이 문양·실제 필기 자국은 없다. 점유 상자는 0.22×0.012×0.012m다.
+첨필은 로컬 +X 방향으로 뾰족해지는 작은 막대다. [필기판](portable.md#writing-tablet)과 별도의 원형이며 실제 글자를 만들지 않는다. 원점은 전체 길이의 중앙이다. 몸통은 X=−0.11~0.09m, 반지름 0.006m의 8분할 원통이다. 끝은 X=0.09~0.11m에서 반지름 0.006m에서 0으로 좁아지는 8분할 원뿔이며 몸통 끝면과 접한다. 손잡이 문양·실제 필기 자국은 없다. 점유 상자는 0.22×0.012×0.012m다.
 
 관리실과 기록실의 책상 위에 도구 용기와 함께 놓이며 실제 위치·회전은 instances가 정한다.
 
@@ -486,7 +486,7 @@ part와 표면은 `shaft`, `tip`이다. 검토 판에서 접합부에 틈이 없
 
 필기판은 글자 없는 얕은 사각 목재 틀이다. 원점은 아래면 중심, 긴 변은 X다. 바깥 폭 0.28m·깊이 0.22m·높이 0.025m이고 테두리는 안쪽으로 폭 0.018m 남긴다. 가운데 쓰기 면은 X=−0.122~0.122m·Z=−0.092~0.092m에 놓인 두께 0.001m의 빈 양피지 면으로 윗면 Y=0.014m다. 중앙 목재 판은 아래면 Y=0부터 윗면 Y=0.013m까지 막히고, 쓰기 면은 그 윗면에 접하므로 부피를 겹치지 않는다. 테두리 윗면 Y=0.025m와 쓰기 면의 0.011m 단차가 있다. 점유 상자는 0.28×0.025×0.22m다.
 
-관리실·기록실의 작업이 멈춘 책상 위 빈 필기면으로 쓰고 두루마리와의 간격은 instances가 정한다.
+관리실·기록실의 작업이 멈춘 책상 위 빈 필기면으로 쓰고 두루마리와의 간격은 instances가 정한다. 폭 0.28m는 [첨필](portable.md#stylus)의 길이 0.22m보다 크고 [열람 탁자](fixtures.md#desk)의 폭 0.90m보다 작아 같은 작업면에 놓일 수 있다.
 
 부재 대응: `frame`=틀; `writing-face`=쓰기 면.
 
