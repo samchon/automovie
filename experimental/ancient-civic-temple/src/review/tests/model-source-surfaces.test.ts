@@ -5,7 +5,9 @@ import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TempleColumns } from "../../models/columns";
 import { TempleEntablature } from "../../models/entablature";
 import { TempleOpenings } from "../../models/openings";
+import { templePlan } from "../../spaces/building";
 import { templeClerestories, templeDoorPassages } from "../../spaces/openings";
+import { templeRoofRules } from "../../spaces/roofs/assembly";
 
 const partMesh=(model:IAutoMovieModel,id:string):IAutoMovieMesh=>{
   const part=model.parts.find((item)=>item.id===id);
@@ -64,6 +66,21 @@ const coverXY=(mesh:IAutoMovieMesh,x:number,y:number,z:number):boolean=>
     const wb=((c!.y-a!.y)*(x-c!.x)+(a!.x-c!.x)*(y-c!.y))/det;
     return Math.min(wa,wb,1-wa-wb)>=-1e-8;
   });
+
+void test("sanctuary rafter tail derives its inset from the roof support and wall",()=>{
+  const tail=partMesh(new TempleEntablature().sanctuaryRafters()[0]!,"timber");
+  const support=(templePlan.eastRoom+templePlan.eastRing)/2;
+  const roofEdge=templePlan.eastRoom+templeRoofRules.overhang;
+  const cut=roofEdge-(templePlan.eastRoom-support);
+  const span=cut-templePlan.eastRoom;
+  const angle=templeRoofRules.gableSlope;
+  const length=span/Math.cos(angle)+0.12*Math.tan(angle);
+  const zs=Array.from({ length:tail.positions.length/3 },(_,i)=>tail.positions[3*i+2]!);
+  close(Math.min(...zs),0);
+  close(Math.max(...zs),length);
+  close(cut,6.10);
+  close(roofEdge,6.25);
+});
 
 void test("truss underside follows the reviewed clipped plane and receives its supports",()=>{
   const truss=new TempleEntablature().sanctuaryTruss();

@@ -91,8 +91,10 @@ export class TempleEntablature {
   /** Wall thickness is absent: two independently closed sanctuary spans. */
   sanctuaryRafters(): readonly IAutoMovieModel[] {
     const inner = plan.eastRing;
-    // The reviewed rafter stops inside the roof's 0.35 m eave projection.
-    const rafterTail = 0.20;
+    // Match the roof-support setback inside the wall-based eave: the cut at
+    // support + overhang stays inside the roof edge at wall + overhang.
+    const support = (plan.eastRoom + plan.eastRing) / 2;
+    const rafterTail = support + templeRoofRules.overhang - plan.eastRoom;
     return [
       this.rafter(22, rafterTail, "sanctuary-tail"),
       this.rafter(22, inner, "sanctuary-interior"),

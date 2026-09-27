@@ -188,6 +188,7 @@ const decisions = {
   ],
   "entablature#colonnade-beam:supplemental": [["중간 원주 위의 아랫면은", "east beam corner notch removes the capital penetration"]],
   "entablature#rafter:supplemental": [
+    ["제실의 22° 변형은", "non-contact: roof-support setback locates the exterior cut"],
     ["제실 양쪽의", "sanctuary rafter pair stops at both faces of the side wall"],
     ["서까래 없이", "non-contact: stated failure conditions"],
   ],

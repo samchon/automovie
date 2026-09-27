@@ -42,7 +42,7 @@
 | [columns/porch-column](../../models/columns.md#porch-column) | `shaft` | 948 | `d401064a98a59a4497223fda4aaab7bd9f19255de2626d274ef9f00d0db16bb8` |
 | [columns/porch-column](../../models/columns.md#porch-column) | `capital` | 948 | `d401064a98a59a4497223fda4aaab7bd9f19255de2626d274ef9f00d0db16bb8` |
 | [entablature/colonnade-beam](../../models/entablature.md#colonnade-beam) | `timber` | 1725 | `e1e3823b80d22283533c3fb97e5c27d7d992eea1fe003768c8a061a1dc65f85f` |
-| [entablature/rafter](../../models/entablature.md#rafter) | `timber` | 1775 | `96ffb2936baa0e3af39407db5e584d731d01d0cfa20b720fc0332ef778723661` |
+| [entablature/rafter](../../models/entablature.md#rafter) | `timber` | 1837 | `10004a0e7eca75891132ace52798a0be8f168b78ca8ad06fdc7d190b8edce43b` |
 | [entablature/porch-entablature](../../models/entablature.md#porch-entablature) | `beam` | 1258 | `d4509f719ab14692d015f10232e48393bfade5ba6a41ff2173b1826204ea75c6` |
 | [entablature/porch-entablature](../../models/entablature.md#porch-entablature) | `cornice` | 1258 | `d4509f719ab14692d015f10232e48393bfade5ba6a41ff2173b1826204ea75c6` |
 | [entablature/porch-entablature](../../models/entablature.md#porch-entablature) | `raking-trim` | 1258 | `d4509f719ab14692d015f10232e48393bfade5ba6a41ff2173b1826204ea75c6` |
@@ -196,7 +196,7 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | --- | ---: | ---: |
 | cladding.md | 2 | 3665 |
 | columns.md | 2 | 2082 |
-| entablature.md | 5 | 5684 |
+| entablature.md | 5 | 5736 |
 | fixtures.md | 10 | 9010 |
 | landscape.md | 4 | 3867 |
 | openings.md | 4 | 4571 |
@@ -204,7 +204,7 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | ritual.md | 3 | 2227 |
 | scale.md | 3 | 7518 |
 | wares.md | 6 | 5416 |
-| 합계 | 52 | 54701 |
+| 합계 | 52 | 54753 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

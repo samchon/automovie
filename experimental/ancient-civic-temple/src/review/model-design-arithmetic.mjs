@@ -142,13 +142,17 @@ const sanctuaryLowerAtSide = sanctuarySupportY +
   roofThickness / Math.cos(porchSlope);
 const sanctuaryLowerAtRidge = sanctuarySupportY +
   sanctuaryRoofSupportX * Math.tan(porchSlope) - roofThickness / Math.cos(porchSlope);
-const rafterEnds = rafter.match(/바깥 처마 끝선 \|X\|=([\d.]+)m부터[^\n]+?바깥면 \|X\|=([\d.]+)m까지[^\n]+?안쪽면 \|X\|=([\d.]+)m부터 X=0/);
+const rafterEnds = rafter.match(/바깥 처마 끝 \|X\|=([\d.]+)m에서 지붕 지지선 \|X\|=([\d.]+)m와 측벽 바깥면 \|X\|=([\d.]+)m의 차이 ([\d.]+)m만큼 안쪽인 \|X\|=([\d.]+)m에서[^\n]+?바깥면 \|X\|=([\d.]+)m까지[^\n]+?안쪽면 \|X\|=([\d.]+)m부터 X=0/);
 assert.ok(rafterEnds, "sanctuary rafter two disjoint interval endpoints");
-const [eaveX, outerFaceX, innerFaceX] = rafterEnds.slice(1).map(Number);
+const [roofEdgeX, supportX, outerFaceDatumX, inset, eaveX, outerFaceX, innerFaceX] = rafterEnds.slice(1).map(Number);
 near("sanctuary outer rafter stops at outside wall face", outerFaceX, outerWallFace);
 near("sanctuary inner rafter starts at inside wall face", innerFaceX, innerWallFace);
-near("sanctuary eave ends at roof overhang", eaveX,
-  sanctuaryRoofSupportX + n(roofAssembly, /돌출 ([\d.]+)m와/));
+near("sanctuary roof edge starts at outer wall", roofEdgeX,
+  outerWallFace + n(roofAssembly, /돌출 ([\d.]+)m와/));
+near("sanctuary rafter cut uses the reviewed support", supportX, sanctuaryRoofSupportX);
+near("sanctuary rafter cut uses the reviewed wall", outerFaceDatumX, outerWallFace);
+near("sanctuary rafter inset is the support setback", inset, outerFaceDatumX-supportX);
+near("sanctuary rafter cut stays inside the eave", eaveX, roofEdgeX-inset);
 pass("rafter back cut reaches wall",
   /뒷벽 쪽 끝은 벽면에 닿는다/.test(rafter) &&
   Math.abs(outerFaceX - outerWallFace) < 1e-6 &&
