@@ -99,6 +99,8 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 
 현재 한계인 단순한 furniture/장비 형상, 얕은 frame, 향후 louver와 landscape 밀도를 별도 미완료로 남긴다. 이 항목은 재료만으로 그 결함을 지우는 판정이 아니다. 실제 GPU는 [관찰 장치](../settings/004-observation.md#review-apparatus)가 정한 Playwright channel chromium의 WebGL 경로로 확인하고 RENDERER·현재 sourceBasis·에러 배너/페이지 오류를 기록한다. 소프트웨어 rasterizer 결과나 이전 판정의 renderer를 새 실행의 값으로 쓰지 않는다. 자료가 없으면 unverified다.
 
+각 모델이 제시한 정면·측면·45° 중립 관찰은 같은 compiled 표본의 부품 경계와 재료 읽힘을 함께 묻는다. 마감의 광택이나 색이 누락된 부품을 가려도 형상 검사를 통과한 것으로 세지 않는다.
+
 ## 상태별 재료 {#material-state-samples}
 
 <!--
@@ -119,3 +121,5 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 현재 명시 상태 privacy=day/private/night와 flex=work/guest의 6개 조합을 동일 source producer에 준다. 이 상태들이 만드는 실제 부재 및 바인딩 census를 비교하고 유리·screen·folding bed가 영향을 받는 모든 opening/room 관찰을 반복한다. 나머지 집 전체 관찰은 기본 day/work에서 완주하고, 다른 상태가 바꾼 부재·재료의 영향 면은 빠짐없이 추가한다. 동일한 두 상태도 동일하다는 사실을 기록한다.
 
 door closed/open은 실제 기존 operation에 적용하여 문 grain과 hardware의 움직임을 같은 문턱에서 대조한다. 프레임 유지, 유리의 transparent/frosted band, screen의 내려온 범위, guest bed의 oak base/head와 linen mattress·흰 pillow·green duvet 직물, painted panel 배정이 반례 표본이다. 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않는다. 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능의 측정은 unverified다.
+
+모델이 고정한 정지 상태의 부품 주소만 이 상태별 결합의 입력으로 사용한다. 상태를 바꿀 때 나타나거나 사라지는 원형 부품에만 재료 census 차이를 기록한다.
