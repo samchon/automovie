@@ -1,0 +1,45 @@
+{
+  "source": "mpfb-connected-head-2026-09-25-canthal-tilt",
+  "revision": "mpfb-connected-head-2026-09-25-eyelash",
+  "lids": [
+    {
+      "region": "Human.eyelashes01/Human.eyelashes01",
+      "material": "Human.eyelashes01",
+      "cards": 2,
+      "drawn": 30374
+    },
+    {
+      "region": "Human.eyelashes01/Human.eyelashes01.lower",
+      "material": "Human.eyelashes01.lower",
+      "cards": 2,
+      "drawn": 13591
+    }
+  ],
+  "recorded": "2026-09-25T09:31:38.939Z",
+  "citations": {
+    "count": "Na JI, Kwon OS, Kim BJ, et al. Ethnic characteristics of eyelashes: a comparative analysis in Asian and Caucasian females. Br J Dermatol 2006;155(6):1170-1176, doi:10.1111/j.1365-2133.2006.07495.x: 2946 upper lashes of 20 Asian women (about 147 per lid) and 1715 of 10 Caucasian women (about 172); diameter 71.7 and 61.0 um.",
+    "length": "Kikuchi M, Matsuda K, Ishihara Y, et al. Glob Dermatol 2015;2(1):74-77, doi:10.15761/GOD.1000123: Japanese aged 22 to 38 (25 men, 25 women), longest central lash upper 7.33 (0.83) and 7.47 (0.68) mm, lower 4.98 (0.75) and 5.56 (0.60) mm; lower density 5.80 and 6.24 per 2 mm against upper 12.12 and 15.24.",
+    "profile": "Adekanmbi AJ et al., Nigerian J Plast Surg 2019;15(2):39-43 (abstract): upper lash medial, middle and lateral lengths, Hausa 7.80, 9.35, 8.29; Yoruba 7.40, 8.58, 7.67; Igbo 7.24, 8.65, 7.72 mm; medial over middle 0.834, 0.862, 0.837 (mean 0.844), lateral over middle 0.887, 0.894, 0.892 (mean 0.891).",
+    "cycle": "Elder MJ. Anatomy and physiology of eyelash follicles: relevance to lash ablation procedures. Ophthalmic Plast Reconstr Surg 1997;13(1):21-25: 41 percent of upper and 15 percent of lower follicles in anagen; shaft 205 (28) um upper, 158 (26) um lower. Thibaut S et al., Br J Dermatol 2010;162(2):304-310: growth 0.12 mm per day, asynchronous cycles."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "57746dd53a7a344c0197fc9b21ab1b38062e6e199ae9d790a0ef3a177946b0f0",
+      "bytes": 26386593
+    },
+    "subjects": {
+      "sha256": "ac3510ae48c0f4470ad8687f0da90dcd01d57cb71c3da195165f803cbc8de5f5",
+      "bytes": 78768
+    },
+    "controls": {
+      "sha256": "5424b5cf4a0827161f4d4f34c94d6509f81db42e647a0a6e50548e198e45f5c2",
+      "bytes": 7451
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "0d28509be10b6a96b51ac6c947469d74a300fe65e686f09ed8b0f7064205d7eb",
+      "bytes": 26324734
+    }
+  }
+}

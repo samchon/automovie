@@ -1,0 +1,62 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-jaw-taper-2",
+  "revision": "mpfb-connected-head-2026-09-27-nasal-root",
+  "channel": "nasalRootProjection",
+  "surfaces": [
+    {
+      "surface": "Human",
+      "rows": 389,
+      "removed": 277
+    },
+    {
+      "surface": "Human.eyebrow001",
+      "rows": 22,
+      "removed": 0
+    }
+  ],
+  "envelope": {
+    "reading": "nasofrontal",
+    "interval": [
+      115.69999999999999,
+      154.6
+    ],
+    "from": [
+      -1,
+      1
+    ],
+    "to": [
+      -2.12,
+      1
+    ],
+    "reached": [
+      115.69999999999999,
+      156.95204888721915
+    ],
+    "faults": [
+      0,
+      0
+    ]
+  },
+  "recorded": "2026-09-26T19:09:30.168Z",
+  "citations": "The nasofrontal norms and spread are faceUnseenNorms' (FACE_UNSEEN_NORMS: Wen et al., PLoS One 2015;10:e0134525), cited there.",
+  "inputs": {
+    "basis": {
+      "sha256": "f3a33ae93cb0aab0993a20ffe070cc0084e0dd7f013f11ac23f8f5d26c55e982",
+      "bytes": 27012196
+    },
+    "subjects": {
+      "sha256": "2d23abb978d33a2228f2f3365bc9efb92ea7346ef3e0d1902387723c9754119a",
+      "bytes": 83218
+    },
+    "controls": {
+      "sha256": "815358b4dca5c3f924646849b41d09a4d8bb814187aaa67be1094ef8365aa1fb",
+      "bytes": 7450
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "1f712a3721fd78c071ee7a6c5a48fa8dd413af41487db7275c7c19e3baedc19c",
+      "bytes": 27010774
+    }
+  }
+}

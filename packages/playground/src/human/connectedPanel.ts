@@ -52,10 +52,12 @@ export function mountConnectedFacePanel<
       build: (
         document: IAutoMovieHumanFaceBasisDocument,
         measure?: boolean,
+        occlusion?: boolean,
       ) => Promise<Model>;
       cancel: () => void;
       export: (
         document: IAutoMovieHumanFaceBasisDocument,
+        occlusion?: boolean,
       ) => Promise<Uint8Array<ArrayBuffer>>;
       publish: (model: Model) => void;
       dispose: (model: Model) => void;
@@ -72,7 +74,7 @@ export function mountConnectedFacePanel<
 <style>
 *{box-sizing:border-box}body{margin:0;background:#161c23;color:#e4eaf0;font:13px/1.5 system-ui}main{display:grid;grid-template-columns:minmax(300px,1fr) 410px;height:100vh}section{position:relative;min-width:0}canvas{width:100%;height:100%;display:block}aside{overflow:auto;padding:20px;background:#10161d}h1{font-size:20px;margin:0}h2{font-size:14px;margin:20px 0 8px}p,small{color:#a9b7c8}button,input,select,textarea{font:inherit;color:inherit;background:#202b37;border:1px solid #405063;border-radius:4px}button{padding:5px 8px;cursor:pointer}button:disabled{opacity:.4}a{color:#a7d1f0}.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.views{position:absolute;top:10px;left:10px;right:10px}fieldset{border:0;padding:0;margin:0}.row{margin:12px 0}.row label{display:block}.row div{display:flex;gap:10px}.row small{display:block;font-size:11px}.row input[type=range]{flex:1;min-width:0}.row input[type=number]{width:85px;padding:3px}textarea{width:100%;height:230px;font:11px monospace;padding:8px}select{width:100%;padding:6px}#face-status{white-space:pre-wrap;background:#1c2834;padding:10px;border-radius:5px;margin:12px 0}#face-status[data-state=error]{background:#422127;color:#ffd2d2}@media(max-width:780px){main{grid-template-columns:1fr;height:auto}section{height:60vh}}
 </style>
-<main><section><canvas id="face-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label></div></section>
+<main><section><canvas id="face-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label><label><input id="occlusion" type="checkbox" checked> Occlusion</label></div></section>
 <aside><h1>Face editor</h1><p>Numerical shape, expression, skin and hair</p><div id="face-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="face-undo">Undo</button><button id="face-redo">Redo</button><button id="face-reset">Reset</button></div><div class="toolbar"><button id="face-save">Save document</button><button id="face-load">Load document</button><button id="face-glb">Export GLB</button><button id="face-contacts">Check contacts</button><input id="face-file" type="file" accept=".json,application/json" hidden></div>
 <h2>Expression presets</h2><div id="presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group"><option value="shape">Face shape</option><option value="expression">Expression</option></select><p id="control-help">0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.</p><div id="basis-controls"></div><details><summary>Complete document and appearance</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
@@ -189,6 +191,11 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     viewport.setClay(element<HTMLInputElement>("clay").checked);
   element<HTMLInputElement>("shadows").onchange = () =>
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
+  // Every build bakes the face's ambient occlusion while the box is checked;
+  // a change applies from the next build.
+  const occlusion = () => element<HTMLInputElement>("occlusion").checked;
+  const build = (document: IAutoMovieHumanFaceBasisDocument, measure = false) =>
+    viewport.build(document, measure, occlusion());
   // Selecting a study is an ordinary validated transaction, so failed builds
   // retain the previous face and successful selection participates in history.
   const studies = dom.createElement("select");
@@ -246,7 +253,7 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     const button = element<HTMLButtonElement>("face-glb");
     button.disabled = true;
     try {
-      const bytes = await viewport.export(state.document);
+      const bytes = await viewport.export(state.document, occlusion());
       props.download(state.document.id + ".glb", bytes, "model/gltf-binary");
     } catch (error) {
       if (ticket === revision)
@@ -298,7 +305,7 @@ ${state.model.parts} material regions · committed numerical state${articulated}
     status("Measuring which surfaces cross…", "building");
     try {
       if (rest === undefined) {
-        const neutral = await viewport.build(props.initial, true);
+        const neutral = await build(props.initial, true);
         const reading = neutral.crossings;
         viewport.dispose(neutral);
         if (ticket !== revision) return;
@@ -308,7 +315,7 @@ ${state.model.parts} material regions · committed numerical state${articulated}
         }
         rest = reading;
       }
-      const posed = await viewport.build(editor!.snapshot().document, true);
+      const posed = await build(editor!.snapshot().document, true);
       const reading = posed.crossings;
       viewport.dispose(posed);
       if (ticket !== revision) return;
@@ -341,7 +348,7 @@ ${state.model.parts} material regions · committed numerical state${articulated}
   const ready = (async (): Promise<void> => {
     const ticket = ++revision;
     try {
-      const model = await viewport.build(props.initial);
+      const model = await build(props.initial);
       if (ticket !== revision) {
         viewport.dispose(model);
         return;
@@ -349,7 +356,7 @@ ${state.model.parts} material regions · committed numerical state${articulated}
       editor = createHumanFaceEditor({
         document: props.initial,
         model,
-        build: viewport.build,
+        build,
       });
       viewport.publish(model);
       viewport.fitView();

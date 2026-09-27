@@ -1,0 +1,35 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-lid-fold",
+  "revision": "mpfb-connected-head-2026-09-27-smile-split",
+  "rows": {
+    "mouthSmileRetractLeft": 1607,
+    "mouthSmileRetractRight": 1607
+  },
+  "sourceBasis": "mpfb-connected-head-2026-09-27-nasal-root",
+  "fullSmileLargestDifferenceMetres": 5.551115123125783e-17,
+  "recorded": "2026-09-27T07:24:46.922Z",
+  "inputs": {
+    "basis": {
+      "sha256": "3be1d6caae852d0cfbf0b4b7fbae786e00f54f49d1e094129883bf4b0013b80a",
+      "bytes": 27137901
+    },
+    "source": {
+      "sha256": "1f712a3721fd78c071ee7a6c5a48fa8dd413af41487db7275c7c19e3baedc19c",
+      "bytes": 27010774
+    },
+    "subjects": {
+      "sha256": "c00d1a50c1a18cd1e90999b9181f25efb0e120824f9092623e38bf18fc630180",
+      "bytes": 82705
+    },
+    "controls": {
+      "sha256": "eb50cc9f05d5bbf2548e96183ac1157f537be6785896ffc110c993bcafcf85ed",
+      "bytes": 7447
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "5ce44d665abf27d7dc73380724b983b1990819653b750ed35d39f7874f120b43",
+      "bytes": 27155366
+    }
+  }
+}

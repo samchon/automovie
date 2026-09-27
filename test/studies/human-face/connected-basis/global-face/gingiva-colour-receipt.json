@@ -1,0 +1,51 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-smile-split",
+  "revision": "mpfb-connected-head-2026-09-27-gingiva-colour",
+  "site": 7,
+  "before": [
+    38.931511294517485,
+    29.830589742351005,
+    9.872060795765602
+  ],
+  "after": [
+    52.82203736950501,
+    23.663720921121513,
+    14.720233107927871
+  ],
+  "norm": [
+    52.9,
+    23.3,
+    14.9
+  ],
+  "offset": [
+    13.968488705482514,
+    -6.530589742351005,
+    5.027939204234398
+  ],
+  "texels": 2021975,
+  "clamped": 45548,
+  "recorded": "2026-09-27T09:37:03.553Z",
+  "citations": {
+    "norm": "Ho DK, Ghinea R, Herrera LJ, Angelov N, Paravina RD. Color range and color distribution of healthy human gingiva: a prospective clinical study. Sci Rep 2015;5:18498, doi:10.1038/srep18498: keratinized gingiva 2-3 mm apical to the mid-facial gingival margin of a maxillary central incisor, 238 adults, L* 52.9 (SD 5.2), a* 23.3 (3.4), b* 14.9 (2.0)."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "5ce44d665abf27d7dc73380724b983b1990819653b750ed35d39f7874f120b43",
+      "bytes": 27155366
+    },
+    "subjects": {
+      "sha256": "82e8667b25e206a8458f6347db3550152416a893830ee102f587716d38ec6d96",
+      "bytes": 119131
+    },
+    "controls": {
+      "sha256": "2f59b9cf5aead5ab0a2c57146e0ad237bfc4704acb29414c49e60e3b04b48b25",
+      "bytes": 7450
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "b806f04c63bf7e9a904abc794f0a83d266a28def3e7639325b61fa3547de02b2",
+      "bytes": 27136251
+    }
+  }
+}

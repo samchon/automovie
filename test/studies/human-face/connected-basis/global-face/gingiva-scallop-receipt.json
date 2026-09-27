@@ -1,0 +1,84 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-gingiva-colour",
+  "revision": "mpfb-connected-head-2026-09-27-gingiva-scallop",
+  "anterior": [
+    {
+      "centre": 0.003907118212535149,
+      "normMetres": 0.00935,
+      "beforeMetres": 0.00775,
+      "wishMetres": 0.0016000000000000007,
+      "headroomMetres": 0.0019722656250000005,
+      "riseMetres": 0.0016000000000000007,
+      "afterMetres": 0.0089
+    },
+    {
+      "centre": -0.003907118212535149,
+      "normMetres": 0.00935,
+      "beforeMetres": 0.00775,
+      "wishMetres": 0.0016000000000000007,
+      "headroomMetres": 0.00219140625,
+      "riseMetres": 0.0016000000000000007,
+      "afterMetres": 0.0089
+    },
+    {
+      "centre": -0.010803788989072754,
+      "normMetres": 0.00775,
+      "beforeMetres": 0.007,
+      "wishMetres": 0.0007499999999999998,
+      "headroomMetres": 0.0012052734375,
+      "riseMetres": 0.0007499999999999997,
+      "afterMetres": 0.007
+    },
+    {
+      "centre": 0.01080379392656069,
+      "normMetres": 0.00775,
+      "beforeMetres": 0.007,
+      "wishMetres": 0.0007499999999999998,
+      "headroomMetres": 0.0011322265625000002,
+      "riseMetres": 0.0007499999999999998,
+      "afterMetres": 0.007
+    },
+    {
+      "centre": 0.016194914068494524,
+      "normMetres": 0.00868,
+      "beforeMetres": 0.006900000000000001,
+      "wishMetres": 0.0017799999999999995,
+      "headroomMetres": 0,
+      "riseMetres": 0,
+      "afterMetres": 0.006900000000000001
+    },
+    {
+      "centre": -0.016194914068494524,
+      "normMetres": 0.00868,
+      "beforeMetres": 0.006900000000000001,
+      "wishMetres": 0.0017799999999999995,
+      "headroomMetres": 0,
+      "riseMetres": 0,
+      "afterMetres": 0.006900000000000001
+    }
+  ],
+  "recorded": "2026-09-27T10:42:09.698Z",
+  "citations": {
+    "norms": "Melo M, Ata-Ali F, Huertas J, Cobo T, Shibli JA, Galindo-Moreno P, Ata-Ali J, et al. Revisiting the maxillary teeth in 384 subjects reveals a deviation from the classical aesthetic dimensions. Sci Rep 2019;9:730, doi:10.1038/s41598-018-36770-w: clinical crown height from the gingival zenith to the incisal margin, central 9.35, lateral 7.75, canine 8.68 mm."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "b806f04c63bf7e9a904abc794f0a83d266a28def3e7639325b61fa3547de02b2",
+      "bytes": 27136251
+    },
+    "subjects": {
+      "sha256": "9092fdb8f0aeeb725ba8d01d91e55c309ef86b81d3c352e1158caaef7766bb6a",
+      "bytes": 119185
+    },
+    "controls": {
+      "sha256": "c8a9d43fc81ae5865ac7a2f5fa1aab30aa6e5aae4bfa405e1c5a6f33b045de50",
+      "bytes": 7453
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "f3c0d3a1aa86ed464096279c7cda8ac6a13783d98e9b8aaf938e293149bfa306",
+      "bytes": 27136586
+    }
+  }
+}

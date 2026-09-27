@@ -1,0 +1,50 @@
+{
+  "source": "mpfb-connected-head-2026-09-25-gingiva",
+  "revision": "mpfb-connected-head-2026-09-25-canthal-tilt",
+  "factor": 0.10649574033351174,
+  "difference": 1.07,
+  "corners": [
+    {
+      "label": "Asian",
+      "before": {
+        "men": 7.348116501301438,
+        "women": 7.3586928281076665
+      },
+      "after": {
+        "men": 6.785660123300181,
+        "women": 7.862480860546095
+      }
+    }
+  ],
+  "recorded": "2026-09-25T09:30:47.495Z",
+  "citations": {
+    "definition": "Hall BD et al., Elements of morphology: standard terminology for the periorbital region. Am J Med Genet A 2009;149A(1):29-39, doi:10.1002/ajmg.a.32597: the inclination of the en-ex line against the horizontal.",
+    "eastAsian": [
+      "Park DH et al., Plast Reconstr Surg 2008;121:1405-1413: Korean adults 7.9 (2.4) men, 8.8 (2.3) women degrees, difference +0.9.",
+      "Takahagi S et al., Clin Ophthalmol 2008;2:563-567 (PMC2694016): Japanese aged 20 to 29, 6.62 (1.73) men, 7.80 (3.18) women, +1.18.",
+      "Gao T et al., Quant Imaging Med Surg 2025;15:882-897 (PMC11744102), 3D, aged 18 to 30: Chinese 4.89 men (n 19), 6.01 women (n 27), +1.12 (tilt as 180 degrees less the reported Ex-En-En angle)."
+    ],
+    "mean": "(0.9 + 1.18 + 1.12) / 3 = 1.07 degrees.",
+    "others": "Farkas LG, Anthropometry of the Head and Face, 1994, and Price KM et al., Plast Reconstr Surg 2009;124:615, as tabulated by Vasanthakumar P et al., Oman Med J 2013;28:26-32 (PMC3562989) Table 3: North American White 2.1 men, 4.1 women (+2.0); White American 3.6, 5.8 (+2.2); African American 3.9, 6.0 (+2.1); Gao 2025 3D Caucasian 0.78, 2.40 (+1.62). The source's European (+1.9) and African (+1.8) corners already agree and are left."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "bce652ee06d2eabf097cbf2fdbb9cba6cc910275d0766cd6c7eb4677cf5a5fe2",
+      "bytes": 26346891
+    },
+    "subjects": {
+      "sha256": "8882bb921b1a52c6f6d77bec7d46c92e1ed28b73e9ed63de569f6c2d2ade58c1",
+      "bytes": 78678
+    },
+    "controls": {
+      "sha256": "f03f91d0d395580ea32acff81c7c87416d4c54f21f67b93a067d2307e26c55ca",
+      "bytes": 7446
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "57746dd53a7a344c0197fc9b21ab1b38062e6e199ae9d790a0ef3a177946b0f0",
+      "bytes": 26386593
+    }
+  }
+}

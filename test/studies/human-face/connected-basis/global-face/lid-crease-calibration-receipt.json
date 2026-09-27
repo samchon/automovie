@@ -1,0 +1,37 @@
+{
+  "blur": 0.0066,
+  "renders": {
+    "without": 17,
+    "with": 17
+  },
+  "median": {
+    "without": 0.07610007910182923,
+    "with": 0.13140165006408655
+  },
+  "threshold": 0.10375086458295789,
+  "span": 29.972453214135168,
+  "read": {
+    "creases": 12,
+    "falsely": 4
+  },
+  "fold": {
+    "weights": [
+      -0.6,
+      0,
+      1
+    ],
+    "at": [
+      0.21875,
+      0.3671875,
+      0.4375
+    ],
+    "lids": [
+      34,
+      34,
+      33
+    ]
+  },
+  "detections": "j18-b documents on mpfb-connected-head-2026-09-27-lid-fold, portrait cameras: no crease and both lids at -0.48 (cc2); with the crease at fold heights -0.60 and +1.00 (fh)",
+  "recorded": "2026-09-27T04:53:04.361Z",
+  "blurSource": "the per-subject blur at which a render's brow band reads the photograph's, median over 11 subjects"
+}

@@ -13,7 +13,7 @@ import { nclose, throwsError } from "../internal/predicates";
 
 /** A symmetric synthetic face with every landmark the indices read. */
 const face = (): FaceAnthropometryPoint[] => {
-  const p: FaceAnthropometryPoint[] = new Array(470).fill(undefined);
+  const p: FaceAnthropometryPoint[] = new Array(477).fill(undefined);
   const set = (k: number, x: number, y: number) => (p[k] = [x, y]);
   const pair = (r: number, l: number, x: number, y: number) => {
     set(r, -x, y);
@@ -31,6 +31,11 @@ const face = (): FaceAnthropometryPoint[] => {
   set(FACE_ANTHROPOMETRY_UPPER_EDGE, 0, 60);
   set(FACE_ANTHROPOMETRY_LOWER_EDGE, 0, 64);
   set(152, 0, 100);
+  // The jaw outline: menton, then the mouth line's and the chin's widths.
+  set(470, 0, 100);
+  // The vermilion's borders from the midline's colour.
+  set(475, 0, 50);
+  set(476, 0, 66);
   set(199, 0, 90);
   pair(234, 454, 60, 20);
   pair(133, 362, 15, 5);
@@ -39,9 +44,29 @@ const face = (): FaceAnthropometryPoint[] => {
   pair(145, 374, 30, 10);
   pair(129, 358, 18, 38);
   pair(61, 291, 25, 56);
-  pair(136, 365, 45, 70);
-  pair(176, 400, 20, 92);
+  pair(471, 472, 45, 56);
+  pair(473, 474, 20, 92);
   pair(105, 334, 30, -20);
+  pair(157, 384, 20, 1);
+  pair(154, 381, 20, 9);
+  pair(161, 388, 40, 2);
+  pair(163, 390, 40, 8);
+  pair(70, 300, 50, -14);
+  pair(107, 336, 12, -18);
+  pair(37, 267, 8, 49);
+  pair(39, 269, 16, 51);
+  pair(81, 311, 16, 55);
+  pair(178, 402, 16, 57);
+  pair(181, 405, 16, 64);
+  pair(123, 352, 50, 30);
+  pair(193, 417, 6, 12);
+  pair(196, 419, 8, 24);
+  pair(21, 251, 55, -15);
+  pair(155, 382, 21, 8);
+  pair(27, 257, 30, -6);
+  pair(230, 450, 30, 16);
+  pair(49, 279, 12, 36);
+  set(1, 0, 32);
   return p;
 };
 
@@ -66,23 +91,31 @@ const face = (): FaceAnthropometryPoint[] => {
  *    subnasale there is no shift; a signed index writes its magnitude to
  *    `mouthLeft` or `mouthRight` by its sign, and an unsigned one (the lip
  *    gap's lower lip depressor pair) takes its value.
- * 4. A missing landmark leaves only the indices that read it null; fewer
- *    than two midline landmarks refuse.
+ * 4. Outer canthi raised 3 above inner canthi 30 apart tilt both fissures
+ *    by 3 / sqrt(909), the same in the image turned upside down; lowered,
+ *    the tilt is negative; without one exocanthion, or with the canthi
+ *    of each eye at one point, there is no tilt.
+ * 5. A missing landmark leaves only the indices that read it null (a
+ *    bilateral one when either side is missing, subnasale's eye level,
+ *    a bow peak's width and depth, a lid slope without its run, the chin's
+ *    height without the jaw outline's menton); fewer than two
+ *    midline landmarks refuse.
  */
 export const test_subject_face_anthropometry = (): void => {
   const points = face();
   const m = measureFaceAnthropometry(points);
   const expected: Record<string, number> = {
-    faceHeight: 100 / 120,
     intercanthal: 30 / 120,
     fissureLength: 30 / 120,
     fissureHeight: 10 / 30,
+    canthalTilt: 0,
     noseWidth: 36 / 120,
-    noseHeight: 40 / 100,
+    noseHeight: 40 / 120,
     mouthWidth: 50 / 120,
     upperVermilion: 5 / 50,
     lowerVermilion: 9 / 50,
-    upperLip: 15 / 60,
+    upperLip: 15 / 120,
+    chinHeight: 43 / 120,
     lipParting: 2 / 50,
     upperDisplay: 5 / 50,
     incisalGap: 4 / 50,
@@ -90,8 +123,24 @@ export const test_subject_face_anthropometry = (): void => {
     mouthShift: 0,
     lowerFaceWidth: 90 / 120,
     chinWidth: 40 / 120,
-    chinHeight: 34 / 100,
     browHeight: 20 / 30,
+    eyeLevel: 35 / 120,
+    medialAperture: 8 / 30,
+    lateralAperture: 6 / 30,
+    browSlope: 4 / 30,
+    cupidsBowWidth: 16 / 50,
+    cupidsBowDepth: 1 / 50,
+    upperLateralVermilion: 4 / 50,
+    lowerLateralVermilion: 7 / 50,
+    cheekProminence: 100 / 120,
+    noseUpperWidth: 12 / 120,
+    noseMiddleWidth: 16 / 120,
+    templeWidth: 110 / 120,
+    medialLowerLidSlope: 3 / 6,
+    upperLidHeight: 6 / 30,
+    infraorbitalHeight: 6 / 30,
+    noseTipHeight: 8 / 40,
+    nostrilHeight: 4 / 40,
   };
   TestValidator.predicate(
     "defining ratios",
@@ -192,12 +241,77 @@ export const test_subject_face_anthropometry = (): void => {
       ],
     ],
   );
+  const tilted = [...points];
+  tilted[33] = [-45, 2];
+  tilted[263] = [45, 2];
+  const drooping = [...points];
+  drooping[33] = [-45, 8];
+  drooping[263] = [45, 8];
+  const upside = tilted.map((p) =>
+    p === undefined ? undefined : ([-p[0], -p[1]] as const),
+  );
+  const blind = [...tilted];
+  blind[263] = undefined;
+  const collapsed = [...tilted];
+  collapsed[33] = collapsed[133];
+  collapsed[263] = collapsed[362];
+  TestValidator.predicate(
+    "signed canthal tilt",
+    nclose(
+      measureFaceAnthropometry(tilted).canthalTilt!,
+      3 / Math.sqrt(909),
+      1e-9,
+    ) &&
+      nclose(
+        measureFaceAnthropometry(upside).canthalTilt!,
+        3 / Math.sqrt(909),
+        1e-9,
+      ) &&
+      nclose(
+        measureFaceAnthropometry(drooping).canthalTilt!,
+        -3 / Math.sqrt(909),
+        1e-9,
+      ) &&
+      measureFaceAnthropometry(blind).canthalTilt === null &&
+      measureFaceAnthropometry(collapsed).canthalTilt === null,
+  );
   const missing = [...points];
   missing[129] = undefined;
   const partial = measureFaceAnthropometry(missing);
   TestValidator.predicate(
     "missing alare",
     partial.noseWidth === null && partial.mouthWidth !== null,
+  );
+  const jawless = [...points];
+  jawless[470] = undefined;
+  const chinless = measureFaceAnthropometry(jawless);
+  TestValidator.predicate(
+    "missing outline menton",
+    chinless.chinHeight === null &&
+      ["noseHeight", "upperLip", "eyeLevel"].every(
+        (id) => chinless[id] !== null,
+      ) &&
+      chinless.chinWidth !== null &&
+      chinless.mouthWidth !== null,
+  );
+  const sparse = [...points];
+  sparse[2] = undefined;
+  sparse[70] = undefined;
+  sparse[37] = undefined;
+  sparse[155] = undefined;
+  const without = measureFaceAnthropometry(sparse);
+  const upright = [...points];
+  upright[382] = upright[362];
+  const plumb = measureFaceAnthropometry(upright);
+  TestValidator.predicate(
+    "missing subnasale, brow tail and bow peak",
+    without.eyeLevel === null &&
+      without.browSlope === null &&
+      without.cupidsBowDepth === null &&
+      without.cupidsBowWidth === null &&
+      without.medialLowerLidSlope === null &&
+      plumb.medialLowerLidSlope === null &&
+      without.cheekProminence !== null,
   );
   TestValidator.predicate(
     "no midline",

@@ -19,6 +19,7 @@ export * from "./buildAutoMovieRegionFace";
 export * from "./buildAutoMovieWall";
 export * from "./createAutoMovieMeshDeformer";
 export * from "./createAutoMovieMeshDepthSampler";
+export * from "./createAutoMovieMeshRayCaster";
 export * from "./createAutoMovieSignedMeshQuery";
 export * from "./extrudeAutoMovieProfile";
 export * from "./extrudeAutoMovieRegion";

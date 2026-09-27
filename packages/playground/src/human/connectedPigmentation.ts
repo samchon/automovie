@@ -153,7 +153,8 @@ export function mountConnectedFacePigmentation(
       input.type = "number";
       input.step = "any";
       if (key !== "center") input.min = "0";
-      if (!metric) input.max = "1";
+      // A gain above one lightens (the builder folds it into the material).
+      if (key === "strength") input.max = "1";
       input.value = String(
         (key === "strength" ? field.strength : field[key][axis]) * scale,
       );

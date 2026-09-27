@@ -1,0 +1,30 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-vermilion-height",
+  "revision": "mpfb-connected-head-2026-09-26-jaw-taper",
+  "channel": "jawTaper",
+  "top": -0.03252929449081421,
+  "menton": -0.08110915412917072,
+  "unit": 0.1,
+  "rows": 2617,
+  "recorded": "2026-09-26T11:37:47.779Z",
+  "inputs": {
+    "basis": {
+      "sha256": "d0033ef36bb6e9877135b8d05bfdd45bf6ead4b9bff1b8ca5356f6359d879152",
+      "bytes": 26949511
+    },
+    "subjects": {
+      "sha256": "ea6bbe3d66df0312bb7122fe1ad74cc92f0ed47e091918b17b13f80a6f0dffea",
+      "bytes": 78840
+    },
+    "controls": {
+      "sha256": "2407c1fc2ed67c4f721b4f2052985b04ea822a87d9322226274e9b4fc82d0934",
+      "bytes": 7455
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "80d5b899426acca4d79c7b144223b83cf751d4a3e0b08d7f0ceef384d72c8fd1",
+      "bytes": 27016349
+    }
+  }
+}
