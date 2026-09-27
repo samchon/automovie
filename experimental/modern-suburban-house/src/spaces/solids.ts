@@ -45,7 +45,7 @@ import type {
 /**
  * Axis-aligned box between two world corners.
  * @evidence spaces/03-surface-owners.md Assigned owners use box solids for their own structural or finish details.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 block used under caller owners (stair.ts:294-399, porch.ts:100-127, left.ts:104-148, entry.ts:123-124).
+ * @evidenceReview spaces/03-surface-owners.md #9596716 block remains a geometry primitive used under caller owners: stair.ts calls stair-guards.ts for guard posts, while porch.ts, left.ts and entry.ts build their own assigned parts.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 Exterior details via block under own owner (porch beam, chimney cap, thresholds front.ts:168, fence posts).
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
@@ -151,7 +151,7 @@ export const wallPanel = (props: {
  * outline, so the panel stays one closed body on each side of the door. A void
  * that leaves the panel's length range or sits below its bottom is refused.
  * @evidence spaces/07-boundary-assembly.md Straight interior partitions retain their full face despite cut door voids.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 straightWall callers are rooms/shared.ts:420 (role 'partition') and stair.ts:238,270 (stair partitions, role 'partition'); no envelope run uses it. Face keeps the full rectangle with all voids incl. notched doors (solids.ts:425-438). 07:27,79 one body carries its opening cut. Old 'envelope runs' fixed.
+ * @evidenceReview spaces/07-boundary-assembly.md #007d289 rooms/shared.ts partition and stair.ts wall call straightWall with partition roles; no envelope run calls it. Its face keeps the rectangle with voids including notched doors, preserving the boundary design's single body and opening cut.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions A floor-reaching door becomes a bottom notch while its face lists the same void.
  * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 v-141 A true (notch L410-420; face lists every hole L444). The notch rule is 06-openings.md:31 ('벽 바닥까지 닿는 문은 외곽선의 열린 패임'); 07-boundary-assembly.md:79 supplies only the same-cut-boundary half.
  * @evidence principles/core/source-units.md#source-scope-preservation Callers set wall axis, span and holes; this helper changes no room allocation.
@@ -220,7 +220,7 @@ export const straightWall = (props: {
  * @evidence spaces/08-floor-assembly.md Floor layers are extruded from owner-supplied plan outlines and heights.
  * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f v-141 slab extrudes caller outline between bottom/top (L466-476); 08-floor-assembly.md:27 layer intervals.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Structural slabs use the notched MAIN.inner outline while finish slabs consume each room outline at their own vertical interval.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 08-floor-assembly.md:29,31 structural base on the main inner limit with the stair as a notched outer ring; 08:29 room finishes consume each room outline. Code upper.ts:53-66 notched MAIN.inner; shared.ts:333,375 room outlines. Plural over-reach: other structural slabs are un-notched (ground.ts:44, upper.ts:99), as 08:29 '층간 구멍을 모든 층판에 일괄 적용하지 않는다' requires.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 Upper-floor structural base uses MAIN.inner with a stair notch, while shared.ts roomFloor and roomCeiling consume individual room outlines. The evidence sentence's plural scope is too broad: ground and upper ceiling bases remain un-notched as the design requires.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The stair opening reaches the front boundary and is cut as an outer-ring notch, not a closed interior hole.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #5618479 A holds: no slab caller passes holes; upper.ts:53-66 supplies the notched outer ring. But 'not a closed interior hole, one notched outer ring' is 08-floor-assembly.md:31 in #interstorey-floor-boundary (same-file sibling); #interstorey-edge-junctions (08:65) only recedes the structure 0.015 m and shares the front-wall end.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller owns the polygon, cutouts and layer interval.
@@ -402,17 +402,17 @@ export const slopedPlate = (props: {
  * sloped handrails. Its four long faces follow the bar direction; the section
  * is `size` wide and stays level across the bar.
  * @evidence spaces/02-stair.md The stair owner uses square-section members for its guard and handrail.
- * @evidenceReview spaces/02-stair.md #d17bdfd v-141 stair.ts:314-320,360-378 bar for top rail and handrails; square posts via block (stair.ts:294-311,382-399); 02-stair.md:152-158 guard/handrail roles (square section is the source's choice).
+ * @evidenceReview spaces/02-stair.md #d17bdfd stair.ts calls stair-guards.ts, where bar forms the upper top rail and both sloped handrails while block forms square posts under the same stair owner; the stair design assigns those guard roles.
  * @evidence spaces/02-stair.md#stair-clearance The member follows caller-supplied endpoints and width beside the route.
- * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a v-141 Handrails at turnX-RESERVE/2 with size RESERVE 0.075 (stair.ts:103,354-378); 02-stair.md:119 0.075 m per side.
+ * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a The called stair-guards.ts helper centres handrails at turnX minus half RESERVE with RESERVE=opening.guardReserve=0.075 m; bar receives that section width from the stair design.
  * @evidence spaces/02-stair.md#stair-boundary-heights Its sloped endpoints can track a flight without losing a closed guard body.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f v-141 railTop(nosing)=nosing+0.90-RESERVE/2 (stair.ts:356); bar is one closed polyhedron (L650-678); 02-stair.md:158 0.90 m above nosing line.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f The stair-guards.ts railTop formula uses nosing + 0.90 m minus half the square rail section; bar then constructs one closed member between its passed endpoints.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper adds no rail location; the stair author supplies both ends and size.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 from/to/size all from caller (L620).
  * @evidence principles/core/source-units.md#source-substantive-completion It builds outward square-section faces and handles a vertical segment.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Vertical -> block (L623-626); faces flipped outward by centroid test (L658-677).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Stair-boundary-heights assigns open lower-flight guard and handrail rises, while stair-clearance keeps the route beside them; bar connects only the two supplied rail endpoints at their supplied section size.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 02-stair.md:152 open lower-flight edge with posts/balusters/handrail; :158 handrail 0.90 m over nosing line; :119 0.075 m side reservation within the 1.15 m route. bar builds one square-section member between two supplied points (solids.ts:613-672); callers stair.ts:354,400,411.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The reviewed stair design already assigns the open lower-flight guard, 0.90 m handrail rise and 0.075 m side reservation; this bar primitive supplies a square-section member to the buildStair-called stair-guards.ts helper without revising those parents.
  */
 export const bar = (from: IAutoMovieVector3, to: IAutoMovieVector3, size: number): IAutoMovieMesh => {
   const dir = sub(to, from);

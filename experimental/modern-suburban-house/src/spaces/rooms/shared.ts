@@ -45,7 +45,7 @@ import {
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry, storey, and finish reach environment assembly; reservations reach checkReservations and the measurement tools.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Environment assembly reads the room id, storey, outline and finished levels; room parts become elements, while the reservation list reaches reservations.ts checkReservations through buildHouse and the measurement tools.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns each room its finished outline and visible surfaces; IRoomSpace retains id, owner, storey, outline, floor colour, levels and reservations, while IRoomBuild.parts carries the emitted walls, ceiling and reveal.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 IRoomSpace fields id, owner, storey, outline, floor (number), levels?, reservations? (shared.ts:100-125); walls/ceiling/reveal emitted as IRoomBuild.parts. v-143 F8 closed.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 IRoomSpace retains id, owner, storey, outline, numeric floor, optional levels and reservations; IRoomBuild.parts carries the room's walls, ceiling and reveal. The interior-surface parent already assigns these roles.
  */
 export interface IRoomSpace {
   /**
@@ -67,7 +67,7 @@ export interface IRoomSpace {
    * @evidence principles/core/source-units.md#source-substantive-completion Emitted parts can trace back to that source.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 part(..., room.owner, ...) sets IHousePart.owner (solids.ts part).
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns the entry, living room, and common room to their respective room files; owner retains the emitting file for each finish part.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03-surface-owners.md:100-102 assign entry.ts, living.ts and common.ts. owner holds the emitting file ("rooms/entry.ts" entry.ts:55, living.ts:46, common.ts:60), and roomFloor/doorFloor/roomCeiling put room.owner on each finish part (shared.ts:330,351,372).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner table assigns entry.ts, living.ts and common.ts to their rooms; each record's owner names its emitting file, and roomFloor, doorFloor and roomCeiling keep that owner on their finish parts.
    */
   owner: string;
   /**
@@ -100,7 +100,7 @@ export interface IRoomSpace {
    * @evidence principles/core/source-units.md#source-substantive-completion Floor geometry carries an inspectable visual distinction.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomFloor colour room.floor (L331) becomes environment.ts:172 baseColor.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns the visible floor finish to the room source and leaves material optics elsewhere; floor carries that source's base colour.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:96 gives the room's source file its floor finish zone (A: floor colour e.g. PALETTE.woodFloor entry.ts:65, used by roomFloor shared.ts:332). But "leaves material optics elsewhere" is not in the interior-surface-handoff body: 03:96-116 mention only models members and the baseboard. Material optics are the materials layer (docs/README.md:20). Partial over-reach.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The interior handoff gives the room source its floor finish zone, carried here as a palette colour into roomFloor. The cited parent does not expressly assign material optics elsewhere; the material layer owns that decision, so this evidence sentence exceeds this parent's literal scope.
    */
   floor: number;
   /**
@@ -114,12 +114,12 @@ export interface IRoomSpace {
    * @evidence principles/core/source-units.md#source-substantive-completion A nonstandard room can give its actual floor and ceiling heights.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomLevels L238 returns levels when present; used by roomCeiling, environment.ts:582 and observations.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-threshold-datums puts the garage finished floor at -0.15 m below the ordinary ground-room finish; this field preserves that authored floor difference.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 01-storeys.md:63 garage finished floor Y=-0.15, ceiling 2.55; :29 ground Y=0. garage-interior.ts:34 levels [STOREYS.garageFloor (=groundFloor-0.15, storeys.ts:36), garageCeiling], used through roomLevels (shared.ts:239).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Storeys fixes garage floor Y=-0.15 and ceiling 2.55 against ordinary ground Y=0; garage-interior.ts supplies that pair as levels, and roomLevels consumes the override without choosing a new height.
    */
   levels?: readonly [number, number];
   /**
    * @evidence spaces/05-route-network.md The room record carries route and use reservations beside its surface owner outputs.
-   * @evidenceReview spaces/05-route-network.md #60bf203 05-route-network.md:29 room owners decide the inner boundary and reserved use areas; :66-78 route/use checks. IRoomSpace carries reservations (shared.ts:158) beside owner/outline/floor (119,133,140).
+   * @evidenceReview spaces/05-route-network.md #60bf203 The route network gives each room its reserved use areas and clear passage; IRoomSpace carries the room-authored reservations beside owner, outline and floor so the assembled route check can read them.
    * @evidence spaces/05-route-network.md#room-route-network The reservation list supplies the room's internal occupancy bands to the route check.
    * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 The route document tests walking bands to 2.00 m against bodies; the room's reservation list is read by reservations.ts checkReservations after buildHouse has gathered every room.
    * @evidence principles/core/source-units.md#source-scope-preservation The list reserves later objects without building them.
@@ -145,7 +145,7 @@ export interface IRoomSpace {
  * @evidence principles/core/source-units.md#source-substantive-completion It returns an explicit height pair for downstream ceiling and observation construction.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f roomCeiling, environment assembly, observations and reservations.ts checkReservations all read this finished floor/ceiling pair when the garage overrides ordinary storey datums.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes ordinary room floors and ceilings, while ground-threshold-datums puts the garage floor at -0.15 m; roomLevels chooses that explicit override without a third level.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 01-storeys.md:29,31: floors 0/3.06, ceilings 2.75/5.66; :63 garage -0.15. roomLevels (shared.ts:239) returns room.levels ?? [floorOf, ceilingOf]: one pair, no third level.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Storeys fixes floors 0/3.06 and ceilings 2.75/5.66, with garage floor -0.15; roomLevels returns either the room override or its storey floor/ceiling pair and creates no third level.
  */
 export const roomLevels = (room: IRoomSpace): readonly [number, number] => room.levels ?? [floorOf(room.storey), ceilingOf(room.storey)];
 
@@ -183,7 +183,7 @@ export interface IStorageSpace {
    * @evidence principles/core/source-units.md#source-substantive-completion The storage cell can be bounded in world X.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:547 cell x from storage.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-coat-storage derives its X start from tread seven plus 0.07 m, and upper-linen-storage fixes its own hall-side width; this interval carries each closet's owner value.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 entry.md:89: X start = 7th upper tread start + 0.07. entry.ts:113 x[0]=COAT_STORAGE.x[0]=STAIR_STEPS.upperClosetStartX+0.07 (entry.ts:86; stair.ts:102-104 upperTreadStart(7)). upper-hall.md:57 linen X=[1.87,3.07]; upper-hall.ts:71 [STAIR_OPENING.east, 3.07]. The coat x[1]=STAIR_OPENING.east includes the reveal (entry.ts:111).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Entry's coat X start derives from STAIR_STEPS.upperClosetStartX plus 0.07 at upper tread seven; upper-hall's linen X=[1.87,3.07] begins at STAIR_OPENING.east. The coat's opposite X face includes its reveal, and both storage extents follow reviewed room designs.
    */
   x: readonly [number, number];
   /**
@@ -221,7 +221,7 @@ export interface IStorageSpace {
  * @evidence principles/core/source-units.md#source-substantive-completion Space, parts and optional storage are all available for house assembly.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:168 parts, :230 spaces, :237-245 storages.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns every room one file for its finishes, with coat/linen as consuming-room storage; IRoomBuild returns that file's space, parts, and optional storage together.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03-surface-owners.md:98-114: one file per room; :116: coat and linen are storage of the consuming room. IRoomBuild (shared.ts:289-311) = space, parts, storages?; entry.ts:109-129 and upper-hall.ts return all three.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The interior handoff keeps one file per room and assigns coat and linen storage to their consuming rooms; IRoomBuild carries space, parts and optional storages, and entry.ts and upper-hall.ts return those under their room owners.
  */
 export interface IRoomBuild {
   /**
@@ -243,7 +243,7 @@ export interface IRoomBuild {
    * @evidence principles/core/source-units.md#source-substantive-completion The viewer receives the actual room floor, ceiling and assigned walls.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:168 spreads room parts to the viewer, but garage-interior emits no floor (its visible floor is garage.ts base) and service emits no wall; 'actual room floor' is over-general.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff leaves each room's wall, floor, ceiling, and reveal with its room file; parts carries only the builder's emitted bodies.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03-surface-owners.md:96: the room file owns its inner wall, ceiling and floor finish zones and opening perimeter. parts (shared.ts:303) holds only what each builder emits (e.g. entry.ts:114-129).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The interior handoff gives each room its inner wall, ceiling, floor finish and opening perimeter; IRoomBuild.parts holds only the parts the caller emits, as entry.ts demonstrates, so the type does not invent another surface owner.
    */
   parts: IHousePart[];
   /**
@@ -275,7 +275,7 @@ const finishDepth = (storey: StoreyId): number => (storey === "ground-storey"
  * @evidence principles/core/source-units.md#source-substantive-completion It emits a closed finish slab at the storey's finished floor.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slab top=floorOf, bottom=top-finishDepth (L326,332); solids.ts slab is a closed extrusion.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns visible floor finish to the room and main-ground-floor-base fixes its finish thickness; roomFloor extrudes that room outline to its floor datum.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 A: roomFloor (shared.ts:326-335) slabs room.outline from floorOf(storey)-finishDepth to floorOf(storey). B: main-ground-floor-base (10-ground-floor.md:27) fixes 0.025 m only for ground rooms. Upper rooms use INTERSTOREY_FLOOR_FINISH (shared.ts:314-316) from 08-floor-assembly.md:27 #interstorey-floor-boundary, which the row does not name. Partial parent list.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 roomFloor slabs the room outline from finished floor minus finishDepth to finished floor. The cited ground-floor base fixes 0.025 m for ground rooms, but upper roomFloor also uses INTERSTOREY_FLOOR_FINISH from interstorey-floor-boundary; the evidence sentence omits that second parent.
  */
 export const roomFloor = (room: IRoomSpace): IHousePart => {
   const top = floorOf(room.storey);
@@ -327,7 +327,7 @@ export const doorFloor = (room: IRoomSpace, doorId: string, x: readonly [number,
  * @evidence principles/core/source-units.md#source-substantive-completion It emits the thin ceiling finish at the resolved room height.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slab bottom..bottom+CEILING_FINISH at the resolved ceiling (garage 2.55 via levels).
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Upper-ceiling-closure fixes the room ceiling finish below its structural reservation and interior-surface-handoff assigns the visible face to the room; roomCeiling consumes both.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Upper rooms: 09-ceiling-assembly.md:27 puts the finish in the bottom 0.015 m of the 0.18 m reservation and :29 gives the visible ceiling to the room; roomCeiling (shared.ts:368-377) slabs [ceiling, ceiling+CEILING_FINISH]. But it also serves ground rooms (08-floor-assembly.md:27 ceiling finish 0.015) and the garage (09#garage-ceiling-closure); the row omits those parents (shared.ts:9-10).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Upper ceiling assembly puts the visible finish in the lower 0.015 m reservation, and roomCeiling slabs from finished ceiling to that datum plus CEILING_FINISH. This helper also serves ground rooms and garage, whose ceiling parents the evidence sentence omits.
  */
 export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = room.outline): IHousePart => {
   const [, bottom] = roomLevels(room);
@@ -351,7 +351,7 @@ export const roomCeiling = (room: IRoomSpace, outline: readonly IPlanPoint[] = r
  * @evidence principles/core/source-units.md#source-substantive-completion Partition construction receives an explicit bottom and top.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Returns [bottom, top] consumed at L413.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions joins room partitions from finished floor to the ceiling boundary; partitionSpan uses the selected storey's two datums for that height.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 A: partitionSpan (shared.ts:387-390) = [floorOf, ceilingOf]. B: the floor-to-ceiling partition height is stated in sibling #interior-boundary-ownership (07-boundary-assembly.md:45), not in #interior-boundary-junctions (07:75-87: junction zones and heights only). Same-file sibling.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 partitionSpan returns finished floor and ceiling for a full-height room partition. The cited junction unit governs junction zones, while sibling interior-boundary-ownership states this floor-to-ceiling body height; the evidence sentence cites the wrong sibling.
  */
 export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
   floorOf(storey),
@@ -375,7 +375,7 @@ export const partitionSpan = (storey: StoreyId): readonly [number, number] => [
  * @evidence principles/core/source-units.md#source-substantive-completion It emits the full-height cut partition with its boundary record.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 partitionSpan floor to ceiling (L413); part() keeps solid.face as the wall boundary record.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership gives one room source the partition body and its door void; partition returns that one wallPanel under the caller's owner id.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 B: 07-boundary-assembly.md:27: the structural owner creates the common body and opening cut once. A: partition (shared.ts:405-429) returns part(id, props.owner, "partition", straightWall(...)). straightWall builds one wallPanel mesh (solids.ts:419) but returns its own full-rectangle face (solids.ts:425-438). The row names the inner primitive, not what the host returns.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Boundary assembly assigns one structural body and opening cut to the owner; partition returns part(id, props.owner, "partition", straightWall(...)). straightWall builds one wallPanel mesh but returns its own full-rectangle face, so the evidence sentence names an inner primitive rather than the returned face.
  */
 export const partition = (props: {
   id: string;

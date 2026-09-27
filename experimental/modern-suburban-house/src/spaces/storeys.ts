@@ -82,13 +82,13 @@ export const GROUND_LAYERS = {
  */
 /**
  * @evidence spaces/08-floor-assembly.md This constant is the upper room's visible finish share of the interstorey band.
- * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f v-141 rooms/shared.ts:313-315 finishDepth(upper)=INTERSTOREY_FLOOR_FINISH for roomFloor; 08-floor-assembly.md:25,27.
+ * @evidenceReview spaces/08-floor-assembly.md #3fa5b4f rooms/shared.ts finishDepth selects INTERSTOREY_FLOOR_FINISH for upper roomFloor, keeping the design's separate upper finish depth.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The 0.025 m value sits above shared structure between ground ceiling and upper finished floor.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #b98a250 v-141 08-floor-assembly.md:27 0.025 below upper finished floor over 0.270 structure; floors/upper.ts:75 structure top = upperFloor - 0.025.
  * @evidence principles/core/source-units.md#source-scope-preservation It describes only upper floor finish and does not thicken the structural band.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 value only sets finish depth; structure top reads it (floors/upper.ts:75), no thickening.
  * @evidence principles/core/source-units.md#source-substantive-completion A concrete 0.025 m reservation lets upper-room builders form finish slabs.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 rooms/shared.ts:325-333 roomFloor slab bottom = top - finishDepth(upper).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f rooms/shared.ts roomFloor sets its slab bottom to finished floor minus finishDepth, consuming this exported upper finish value.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interstorey-floor-boundary allocates 0.025 m to upper room finish, 0.270 m to common structure, and 0.015 m to ground ceiling finish; this constant carries only the first depth.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 A: INTERSTOREY_FLOOR_FINISH=0.025 storeys.ts:76; the 0.270 structure is derived in floors/upper.ts:65,75. B: 08-floor-assembly.md:27 0.015 ceiling finish, 0.025 upper finish, 0.270 remainder.
  */
@@ -102,13 +102,13 @@ export const INTERSTOREY_FLOOR_FINISH = 0.025;
  */
 /**
  * @evidence spaces/09-ceiling-assembly.md CEILING_FINISH supplies the visible ceiling skin used by room builders.
- * @evidenceReview spaces/09-ceiling-assembly.md #403d803 v-141 rooms/shared.ts:374 roomCeiling top = bottom + CEILING_FINISH.
+ * @evidenceReview spaces/09-ceiling-assembly.md #403d803 rooms/shared.ts roomCeiling sets the finish top to its finished ceiling datum plus CEILING_FINISH.
  * @evidence spaces/09-ceiling-assembly.md#upper-ceiling-closure The 0.015 m finish closes below upper ceiling support without lifting its finished datum.
- * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #a3b9afa v-141 09-ceiling-assembly.md:27 lower 0.015 finish, finish underside = finished datum; shared.ts:374 slab from datum up; floors/upper.ts:91 base from +0.015.
+ * @evidenceReview spaces/09-ceiling-assembly.md#upper-ceiling-closure #a3b9afa Upper ceiling closure reserves a lower 0.015 m finish; shared.ts roomCeiling slabs upward from the finished datum, while floors/upper.ts starts the base above it.
  * @evidence principles/core/source-units.md#source-scope-preservation This thickness changes no room footprint, ceiling elevation, or structural reservation.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 footprints and ceiling datum unchanged, but the value positions structural bodies: interstorey-structure bottom (floors/upper.ts:65), upper-ceiling-base bottom (:91), garage-ceiling-base bottom (garage.ts:114), and via OPENING_EDGE=CEILING_FINISH (upper.ts:38,55-62) the structure's stair-notch recess. Only the total bands (0.31/0.18) are unchanged.
  * @evidence principles/core/source-units.md#source-substantive-completion Room ceiling builders consume the numeric thickness to emit actual finish planes.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomCeiling rooms/shared.ts:366-375.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f rooms/shared.ts roomCeiling consumes CEILING_FINISH to create the room-owned ceiling slab at its finished datum.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling parent provides the finish/support split; using 0.015 m introduced no second ceiling edge.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 09-ceiling-assembly.md:27 0.015/0.165 split; 08-floor-assembly.md:27 0.015 ground ceiling finish.
  */
@@ -134,7 +134,7 @@ export const CEILING_RESERVATION = 0.18;
 /** The two storey ids spaces records must reference directly (01 storey-datums). */
 /**
  * @evidence spaces/01-storeys.md StoreyId limits room records to the two authored main-building levels.
- * @evidenceReview spaces/01-storeys.md #3d5a439 v-141 rooms/shared.ts:126 IRoomSpace.storey: StoreyId; 01-storeys.md:29 two storeys, records reference their storey.
+ * @evidenceReview spaces/01-storeys.md #3d5a439 IRoomSpace.storey in rooms/shared.ts uses StoreyId, so each room record addresses one of the two design storeys.
  * @evidence principles/core/source-units.md#source-scope-preservation The union excludes garage and porch as additional storeys while allowing their distinct datums elsewhere.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 storeys.ts:111 two members; garage/porch datums kept in STOREYS.
  * @evidence principles/core/source-units.md#source-substantive-completion The literal union gives consumers a checked identity boundary for floorOf and ceilingOf.
@@ -166,7 +166,7 @@ export const floorOf = (storey: StoreyId): number => (storey === "ground-storey"
  * @evidence principles/core/source-units.md#source-scope-preservation It reads groundCeiling or upperCeiling from STOREYS, leaving garage's lower ceiling separate.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 groundCeiling/upperCeiling only; garageCeiling read directly by garage.ts:115.
  * @evidence principles/core/source-units.md#source-substantive-completion Both StoreyId inputs yield the declared height directly, giving rooms a stable ceiling coordinate.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomLevels rooms/shared.ts:238, tub-bath.ts:55.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f rooms/shared.ts roomLevels consumes the exported storey datums, while tub-bath.ts also reads them for its own finished room heights.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums assigns ground-storey ceiling Y=2.75 and upper-storey ceiling Y=5.66 m; ceilingOf selects exactly those two finished levels.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 A: ceilingOf storeys.ts:131-133 returns groundCeiling / upperCeiling. B: storey-datums 01-storeys.md:31 2.75 / 5.66.
  */

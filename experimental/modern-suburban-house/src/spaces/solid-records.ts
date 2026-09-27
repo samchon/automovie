@@ -15,13 +15,13 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior roles distinguish envelope, roof, porch, site and chimney parts.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 Roles wall/roof/porch/paving/fence/chimney used by envelope/*.ts, roof/*.ts, porch.ts:74, site/*, left.ts:104-148 (chimney). 03-surface-owners.md:31-44,50-54 exterior table incl. chimney interface :33.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Interior roles distinguish room finishes, partitions, stair and guards.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 Roles floor/ceiling/partition/stair/guard exist (L48-53; stair.ts:294-399 guard). But #interior-surface-handoff body (03-surface-owners.md:96-116) covers room finish zones only; the stair+guard allocation is in #exterior-surface-handoff (:49) and partition bodies at :60 (-> 07).
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f The role union includes floor, ceiling, partition, stair and guard; stair.ts calls stair-guards.ts for the guard role. The cited interior handoff covers room finish zones only, while the stair allocation sits in the surface-owner table and partitions are governed by boundary assembly.
  * @evidence principles/core/source-units.md#source-scope-preservation This role labels an assigned part without claiming its surface for the helper.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Type-only union L46-57; carries no owner or geometry; owner is the separate field L83.
  * @evidence principles/core/source-units.md#source-substantive-completion The viewer can group every emitted structural or finish family.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 role reaches every viewer item (houseScene.cts:99), finish bound per role/colour and unbound key throws (materialPreview.ts:171-175), payload type scenePayload.ts:31; all 11 roles are emitted.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff allocates walls, roofs, porch, paving and fence while interior-surface-handoff allocates room floors, ceilings and partitions; this role union labels their parts.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Exterior part true: 03-surface-owners.md:31-54 allocates elevations, roof slopes, porch, paving, fence. But interior-surface-handoff (03:96) allocates each room's inner-wall/ceiling/floor finish and says structural walls consume the shared basis; partition bodies are allocated by 07-boundary-assembly.md:27-41 (pointed to from 03:60). Role union solids.ts:46-57 does label these ('partition' at rooms/shared.ts:418, stair.ts:236).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner table allocates exterior bodies, while the interior handoff allocates room finish zones and refers structural walls to boundary assembly. The role union carries those labels; rooms/shared.ts and stair.ts emit partitions under their respective owners, so this record exposes no missing parent assignment.
  */
 export type HousePartRole =
   | "wall"
@@ -44,13 +44,13 @@ export type HousePartRole =
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior parts preserve one author for each emitted body.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 owner is a single string per emitted body L83; 03-surface-owners.md:27 hands one complete surface to one owner.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room parts keep their own floor, ceiling and partition ownership.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 rooms/shared.ts:325 roomFloor, :367 roomCeiling, :404 partition all emit with the room/caller owner; 03-surface-owners.md:96 room owner integrates inner wall/ceiling/floor finish zones.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f rooms/shared.ts roomFloor, roomCeiling and partition take their room or caller owner, carrying the interior handoff's separate floor, ceiling and inner partition finish roles.
  * @evidence principles/core/source-units.md#source-scope-preservation The record carries an owner's geometry without making this helper the surface owner.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Interface only; part() never substitutes solids.ts as owner (L690-701).
  * @evidence principles/core/source-units.md#source-substantive-completion Identity, owner, role, colour, mesh and optional wall face reach consumers together.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 part() returns one record with id/owner/role/color/mesh/wall (L691-701); environment.ts:611,624,725 and houseScene.cts:97-100 consume them from that one record.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns envelope and site bodies by source file and interior-surface-handoff assigns each room's finishes; IHousePart retains those owner ids with the meshes.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:29-54 table assigns envelope/site bodies to source files; 03:96-114 assigns room finishes to rooms/*.ts. IHousePart (solids.ts:69-120) holds owner+mesh; part() copies caller owner unchanged (solids.ts:683-693), e.g. 'envelope/front.ts' front.ts:41, 'garage.ts' garage.ts:36, room.owner shared.ts:330.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner table assigns envelope and site bodies to source files and each room's finishes to its room file; IHousePart carries owner and mesh, while part() copies the supplied owner unchanged for facade, garage and roomFloor parts.
  */
 export interface IHousePart {
   /**
@@ -83,7 +83,7 @@ export interface IHousePart {
    * @evidence principles/core/source-units.md#source-substantive-completion Viewer and review census can separate walls, floors, roof and site parts.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roof-overlap.ts:296 filters role roof; exterior-support.ts:62 paving/porch; environment.ts:621 partition/floor; space-audit.ts:73 role column; viewer houseScene.cts:99.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff separates room finish from partition and exterior-surface-handoff separates roof from wall; role carries those distinctions into the viewer census.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:96 separates room finish (안쪽 벽·천장·바닥 마감) from structural walls/slabs that consume the shared basis; 03:31-49 separates elevation walls from roof slopes. Roles: 'partition' shared.ts:418, finish 'floor'/'ceiling' shared.ts:331,373, 'roof' vs 'wall'; consumed by viewer scenePayload.ts:31, materialPreview.ts:171 and census space-audit.ts:73.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The surface-owner design separates room finish from structural walls and elevation walls from roof slopes; shared.ts emits partition, floor and ceiling roles, and viewer payload, material preview and space census consume those existing distinctions.
    */
   role: HousePartRole;
   /**
@@ -112,7 +112,7 @@ export interface IHousePart {
    * @evidence spaces/03-surface-owners.md A wall part may expose its opening-bearing boundary alongside the mesh.
    * @evidenceReview spaces/03-surface-owners.md #9596716 03:58 each elevation owner owns wall body, own void and cut face. part() sets wall: solid.face whenever an IWallSolid is passed (solids.ts:684-691). The removed openSharedEdges field does not touch this.
    * @evidence principles/core/source-units.md#source-scope-preservation Only an emitted wall or partition supplies this face.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 IWallSolid producers are wallPanel (solids.ts:336), straightWall (388) and blindRecessWall (rooms/recess.ts:90); every part() call passing one uses role 'wall' (front/rear/left/right/garage) or 'partition' (shared.ts:418, stair.ts:236,268, shower-bath.ts:98). Other callers pass plain meshes, so no face.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 IWallSolid producers are wallPanel, straightWall and blindRecessWall; their callers pass wall or partition roles, including shared.ts room partitions and stair.ts enclosed stair walls. Plain mesh callers have no wall face.
    * @evidence principles/core/source-units.md#source-substantive-completion Openings can be hosted on the same wall body that was cut.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f environment.ts:691-713 turns each face.holes entry of a part into an opening on that same part's boundary segment; house.ts:209 finds a door's host by hole id on p.wall.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface places a rough door/window void in the boundary wall and leaves its fill to models; wall carries that cut face beside the emitting wall mesh.
@@ -160,7 +160,7 @@ export interface IWallFace {
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can orient holes and boundary checks in that frame.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:655-657 origin/rotation from face.axis; boundaries.ts:25-28 facePoint uses axis.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions gives each straight partition a horizontal run and exterior-boundary-junctions gives each facade a wall line; axis records whether that run is world X or Z.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07:75-77 junctions between straight partition bodies (직선 벽/직선 몸체) in plan; 07:117-119 left/right/garage straight facade bodies. axis set by callers: front.ts:82 'x', left.ts:92 'z', right.ts:86 'z', partitions props.axis (shared.ts:421).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Boundary assembly already distinguishes straight partition junctions from left, right and garage facades; front, left, right and shared.ts partition callers pass their own axis, so this wall record exposes no missing axis decision.
    */
   axis: "x" | "z";
   /**
@@ -171,7 +171,7 @@ export interface IWallFace {
    * @evidence principles/core/source-units.md#source-substantive-completion It locates both faces of the one emitted wall body.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 depth=across[1]-across[0], centre mid-range (L349-350, L368, L376) put the two faces at across[0], across[1].
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent reserves 0.25 m exterior walls and interior-boundary-junctions uses the assigned partition band; across carries both physical faces of the selected wall.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 00-building.md:31 exterior wall reservation 0.25 m, partition 0.15 m; 07:75,83 junctions use the partition thickness (중앙면). across = [inner, outer] faces: front.ts:83 [INNER, FRONT] via MAIN.wall, garage.ts:52, stair.ts:244 via MAIN.partition; wallPanel copies it (solids.ts:354).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Building and boundary assembly already fix 0.25 m exterior and 0.15 m partition thickness; front and garage pass MAIN.wall faces while stair.ts passes MAIN.partition faces, and wallPanel copies each across interval.
    */
   across: readonly [number, number];
   /**
@@ -203,7 +203,7 @@ export interface IWallFace {
  * @evidence spaces/07-boundary-assembly.md A boundary has one body and one associated cut-face record.
  * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 IWallSolid {mesh, face} L179-194; 07-boundary-assembly.md:27 one common body per shared boundary.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership Room partitions pair their physical body with the opening host.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 v-141 partition() -> straightWall -> part(wall=face) (shared.ts:404-429; L691-699); 07-boundary-assembly.md:27.
+ * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 shared.ts partition() calls straightWall and then part() with that wall face, preserving one interior body and its opening cut under the caller owner.
  * @evidence principles/core/source-units.md#source-scope-preservation The pair stays under the caller's assigned wall owner.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Type pairs caller data; owner assigned only by part().
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry and opening-bearing face travel together.
@@ -239,7 +239,7 @@ export interface IWallSolid {
 /**
  * A point of a plan polygon in world X/Z metres.
  * @evidence spaces/site/00-access.md House and site use one world plan frame for their extents.
- * @evidenceReview spaces/site/00-access.md #a8ac95c site/00-access.md:29 house-site contains main, garage, porch and exterior zones in the common coordinate base; :101 site transform is identity. IPlanPoint is the ring type for room outlines (shared.ts:133), zone outlines (site/zone.ts:52) and floor rings (upper.ts:53).
+ * @evidenceReview spaces/site/00-access.md #a8ac95c The site document puts main, garage, porch and exterior zones in an identity-transformed coordinate base; IPlanPoint carries rings for room outlines in shared.ts, site zones and the upper-floor notch.
  * @evidence spaces/site/00-access.md#site-access-interface The site assembles the house and exterior zones in the inherited coordinate frame.
  * @evidenceReview spaces/site/00-access.md#site-access-interface #0ee9bff 00-access.md:29 site.ts assembles containment of house and exterior zones and coordinates use settings coordinate-units. IPlanPoint carries world X/Z (solids.ts:197-212) for those outlines.
  * @evidence principles/core/source-units.md#source-scope-preservation The point is supplied by a design owner, not chosen by this helper.
@@ -307,7 +307,7 @@ export interface IWallPoint {
    * @evidence principles/core/source-units.md#source-substantive-completion Head, sill and top vertices are explicit.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Outline carries notch heads and top; sills explicit as IWallHole.bottom.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes floor/ceiling levels and front-openings fixes its window heads; y carries each authored wall vertex in world height.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 01-storeys.md:29,31 fix floors Y=0/3.06 and ceilings 2.75/5.66, carried into IWallPoint.y by partitionSpan (shared.ts:387-390) and straightWall (solids.ts:406-418). Window heads are in child H2s front.md:83,107,133,157 (not front-openings:57) and live in IWallHole.top (front-windows.ts); they reach IWallPoint.y only via segment clips (boundaries.ts:122, 59-86).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Storeys fixes floor and ceiling datums Y=0/3.06 and 2.75/5.66; shared.ts partitionSpan and straightWall carry them to IWallPoint.y. Window heads belong to the front child units and pass through IWallHole.top and segment clipping, so this point type requires no parent revision.
    */
   y: number;
 }
@@ -390,7 +390,7 @@ export interface IWallHole {
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior wall parts retain their cut face without assigning a second owner.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c 03:58 elevation owner owns its wall body and cut face. part() forwards solid.face as wall with the caller's owner (solids.ts:684-691); no second owner field.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish and partition parts keep the room's owner id.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f 03:96-114 room files own room finishes; roomFloor/roomCeiling/partition pass room.owner or props.owner (shared.ts:330,372,417) and part() keeps it.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f Room files own their finish zones; shared.ts roomFloor, roomCeiling and partition pass the room or caller owner to part(), which retains it on each part record.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper preserves caller identity, colour and geometry rather than selecting them.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 part() only assembles caller id, owner, role, color and solid (solids.ts:683-693); it selects nothing.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns a complete part and carries a wall face when the solid has one.
