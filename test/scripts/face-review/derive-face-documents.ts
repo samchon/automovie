@@ -2,8 +2,10 @@
  * Derive every published document's shape and expression from its subject's
  * recorded facts and photograph by shared rules, from the test CWD:
  *
- *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity \
+ *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/derive-face-documents.ts identity [--fine] [--instrument INSTRUMENT.json] \
  *     STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]
+ *   ttsx ... derive-face-documents.ts instrument-study STUDY POSES ANCHORS CAMERAS OUTPUT
+ *   ttsx ... derive-face-documents.ts instrument STUDY DETECTIONS BOUND OUTPUT.json
  *   ttsx ... derive-face-documents.ts calibration-study STUDY POSE.json OUTPUT
  *   ttsx ... derive-face-documents.ts calibrate CALIBRATION_DETECTIONS DETECTIONS OUTPUT.json
  *   ttsx ... derive-face-documents.ts expression STUDY CALIBRATION.json REST_DETECTIONS DETECTIONS OUTPUT
@@ -15,10 +17,22 @@
  *
  * `identity` writes shape, and of expression only the controls an index
  * reads as a state of the face (`lipParting`). The population controls come from the facts
- * (`facePopulationControls`); every other shape channel starts at zero; the
- * anthropometric controls (`FACE_ANTHROPOMETRY_INDICES`) are then solved one
- * per index so the model under the photograph's camera has the photograph's
- * proportions (`solveFaceAnthropometry`). The model's landmarks are the
+ * (`facePopulationControls`); with `--fine` the ancestry stays at the
+ * source's midpoint (the fine tier has no racial traits: they are its fine
+ * controls') while the recorded age and sex, which no frontal index reads,
+ * still set the face's ageing and dimorphism (without them the fine
+ * documents of rounds ff5 to j14 rendered 65- to 80-year-olds as young
+ * adults and the women as more masculine than their photographs); every other shape
+ * channel starts at zero; the anthropometric controls
+ * (`FACE_ANTHROPOMETRY_INDICES`) are then solved one per index so the model
+ * under the photograph's camera has the photograph's proportions
+ * (`solveFaceAnthropometry`), and in turn with them the controls of what a
+ * frontal photograph cannot measure (`FACE_UNSEEN_INDICES`: the profile, the
+ * head behind the face and the ears), set to the subject's population at
+ * their sex and age (`faceUnseenNorm`) and read on the skin at rest; without
+ * a recorded sex or ancestry they keep their start. Both upper lids' crease
+ * is read from the photograph where its lids are large enough, else set to
+ * the population's more probable state (`faceLidCreaseWeight`). The model's landmarks are the
  * published anchors of that camera on the surface, and shape endpoints are
  * linear, so an index is read from the endpoint rows at the anchored
  * vertices on top of one real build at the starting controls (with the
@@ -33,10 +47,36 @@
  * slides over the surface as the face widens, where an anchor stays on its
  * vertex. PREVIOUS_STUDY (an earlier `identity` output) and RENDER_DETECTIONS
  * (the detector on its product renders, ids `portrait:<subject>__reference-yaw`)
- * close that loop: each index's target is the photograph's value plus what
- * the anchored model said minus what the render showed for the previous
- * documents, so the render, read by the photograph's own instrument, is what
- * the proportions are matched on.
+ * close that loop: each index's target is the photograph's value plus the
+ * median over the subjects of what the anchored model said minus what the
+ * render showed for the previous documents (`faceRenderCorrection`), one
+ * correction per index for every subject, since the gap is the detector's
+ * between renders and photographs, not a person's.
+ *
+ * With `--instrument` only the indices the photograph's instrument observes
+ * under the subject's camera (`faceInstrumentGains`) are photograph targets;
+ * any other index's control keeps its start, since a detector that does not
+ * see a control reports its own expectation there, not the subject. The
+ * gain admits an index; it is not applied to the target. Read through its
+ * gain (the photograph's departure from the start over the gain), a target
+ * carries the photograph-vs-render offset that no render calibration
+ * identifies, multiplied: on the seventeen photographs twice as many
+ * controls ended at a bound (134 against 64), the upper vermilion's on
+ * every subject.
+ *
+ * `instrument-study` writes the instrument's calibration documents
+ * (`faceInstrumentDocuments`: every index's control at its envelope's two
+ * ends on the reference head, a state of the face at five steps of it)
+ * under each of CAMERAS (comma-separated subjects of POSES and ANCHORS),
+ * beside STUDY's basis with their poses, and the anchored model's reading of
+ * every document under its camera (`instrument-model.json`). `instrument`
+ * reads the detector on their product renders (ids `inst:<document>`; the
+ * incisal edges from each render's mouth profile, as on a photograph), takes
+ * each index's widest pair of steps both instruments read
+ * (`faceInstrumentPair`), and writes each index's gains and whether it is
+ * observed at BOUND, each reading's resolution being its deviation under
+ * half a pixel of error in every point of the pair's lower render
+ * (`faceInstrumentResolution`).
  *
  * `calibration-study` writes the reference head's calibration documents
  * (`faceExpressionCalibrationDocuments`) beside STUDY's basis, with a pose
@@ -66,30 +106,83 @@ import {
   FACE_ANTHROPOMETRY_INDICES,
   FACE_ANTHROPOMETRY_LOWER_EDGE,
   FACE_ANTHROPOMETRY_UPPER_EDGE,
+  type FaceAnthropometryPoint,
+  type IFaceAnthropometryIndex,
   faceAnthropometryWeights,
   measureFaceAnthropometry,
 } from "./faceAnthropometry";
-import { solveFaceAnthropometry } from "./faceAnthropometrySolve";
+import {
+  solveFaceAnthropometry,
+  solveFaceNorms,
+} from "./faceAnthropometrySolve";
+import { faceBrowCover, faceBrowUnobservable } from "./faceBrowCover";
+import {
+  faceExpressionYield,
+  faceFaultClusters,
+  faceValidScale,
+} from "./faceDocumentValidity";
+import { faceSupportFaultTriangles, faceSupportFaults } from "./faceEnvelope";
 import {
   type IFaceExpressionCalibration,
   faceExpressionCalibrationDocuments,
   faceExpressionObservable,
+  faceExpressionPartner,
   faceExpressionRestNoise,
   transferFaceExpression,
 } from "./faceExpressionTransfer";
 import { faceIncisalEdges } from "./faceIncisalEdges";
-import { readFaceLikenessImage } from "./faceLikenessIo";
+import {
+  type IFaceInstrumentIndex,
+  type IFaceInstrumentReading,
+  faceInstrumentDocuments,
+  faceInstrumentGains,
+  faceInstrumentResolution,
+  faceInstrumentState,
+} from "./faceInstrumentGain";
+import {
+  FACE_LID_CREASE_CHANNELS,
+  FACE_LID_CREASE_LAYER,
+  FACE_LID_FOLD_CALIBRATION,
+  FACE_LID_FOLD_CHANNELS,
+  faceLidCreaseWeight,
+  faceLidFoldHeightWeight,
+  measureFaceLikenessCrease,
+} from "./faceLikenessCrease";
+import { readFaceLikenessImage, readFaceLikenessMask } from "./faceLikenessIo";
+import {
+  faceLikenessJawLandmarks,
+  measureFaceLikenessJawOutline,
+} from "./faceLikenessJawOutline";
 import { measureFaceLikenessTeeth } from "./faceLikenessTeeth";
+import {
+  FACE_LIKENESS_VERMILION_LANDMARKS,
+  measureFaceLikenessVermilion,
+} from "./faceLikenessVermilion";
 import {
   type IFacePopulationFacts,
   facePopulationControls,
 } from "./facePopulationFacts";
+import { faceRenderCorrection } from "./faceRenderCorrection";
 import { faceShapeFitProject, faceShapeFitView } from "./faceShapeFitCamera";
 import {
   type IFaceShapeFitAnchor,
   faceShapeFitAnchorPoint,
   faceShapeFitSurfacePositions,
 } from "./faceShapeFitSurface";
+import {
+  type IFaceSides,
+  faceSmileOrbital,
+  faceSmileRecouple,
+} from "./faceSmileOrbital";
+import {
+  FACE_UNSEEN_INDICES,
+  faceMidlineTriangles,
+  faceUnseenNorm,
+  faceUnseenParts,
+  measureFaceUnseen,
+} from "./faceUnseenNorms";
+import { faceLidCreaseDepth, faceSkinNormals } from "./prepareLidCreaseBasis";
+import { FACE_SMILE_RETRACTION_UNITS } from "./splitSmileRetractionBasis";
 
 const [command, ...args] = process.argv.slice(2);
 const json = <T>(file: string): T =>
@@ -101,7 +194,12 @@ const json = <T>(file: string): T =>
   ) as T;
 interface IDetection {
   id: string;
-  rgb?: string;
+  path?: string;
+  width?: number;
+  height?: number;
+  rgb?: string | null;
+  hairMask?: string | null;
+  faceSkinMask?: string | null;
   face: {
     landmarks: [number, number][];
     blendshapes: Record<string, number>;
@@ -113,6 +211,75 @@ const detections = (file: string) =>
   );
 const subjectOf = (document: IAutoMovieHumanFaceBasisDocument) =>
   document.id.replace(/-connected$/u, "");
+// A detection's points as the indices read them: the detector's 468 mesh
+// landmarks, the incisal edges where the image's mouth profile reads the
+// edge itself (`measureFaceLikenessTeeth`), the jaw's outline where its
+// face-skin mask shows one (`measureFaceLikenessJawOutline`) and the
+// vermilion's borders where the midline's colour shows them
+// (`measureFaceLikenessVermilion`), files beside the detection file.
+const observedPoints = (
+  one: IDetection,
+  directory: string,
+): FaceAnthropometryPoint[] => {
+  const landmarks = one.face!.landmarks;
+  const file =
+    one.rgb !== undefined && one.rgb !== null
+      ? path.join(directory, one.rgb)
+      : one.path;
+  const image = file === undefined ? null : readFaceLikenessImage(file);
+  const teeth =
+    image === null ? null : measureFaceLikenessTeeth(image, landmarks);
+  const points: FaceAnthropometryPoint[] = [
+    ...landmarks.slice(0, 468),
+    teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
+    teeth?.lower?.relation === "at" ? teeth.lower.point : undefined,
+  ];
+  const outline =
+    one.faceSkinMask === undefined || one.faceSkinMask === null
+      ? null
+      : measureFaceLikenessJawOutline(
+          readFaceLikenessMask(path.join(directory, one.faceSkinMask)),
+          landmarks,
+        );
+  if (outline !== null)
+    for (const [landmark, point] of faceLikenessJawLandmarks(outline))
+      points[landmark] = point;
+  const vermilion =
+    image === null ? null : measureFaceLikenessVermilion(image, landmarks);
+  for (const [landmark, point] of [
+    [FACE_LIKENESS_VERMILION_LANDMARKS.superius, vermilion?.superius],
+    [FACE_LIKENESS_VERMILION_LANDMARKS.inferius, vermilion?.inferius],
+  ] as const)
+    if (point !== null && point !== undefined) points[landmark] = point;
+  return points;
+};
+// The anchored landmarks of one camera on the skin, and the incisal edges on
+// the dentition, each read on its own surface.
+const anchoredLandmarks = (
+  anchors: readonly { landmark: number; anchor: IFaceShapeFitAnchor | null }[],
+  human: IAutoMovieHumanFaceBasis["surfaces"][number],
+  dentition: IAutoMovieHumanFaceBasis["surfaces"][number],
+  incisal: { upper: number; lower: number },
+) => [
+  ...anchors.flatMap((one) =>
+    one.anchor === null
+      ? []
+      : [{ landmark: one.landmark, anchor: one.anchor, surface: human }],
+  ),
+  ...(
+    [
+      [FACE_ANTHROPOMETRY_UPPER_EDGE, incisal.upper],
+      [FACE_ANTHROPOMETRY_LOWER_EDGE, incisal.lower],
+    ] as const
+  ).map(([landmark, vertex]) => ({
+    landmark,
+    anchor: {
+      vertices: [vertex, vertex, vertex] as [number, number, number],
+      weights: [1, 0, 0] as [number, number, number],
+    },
+    surface: dentition,
+  })),
+];
 const write = (
   output: string,
   study: string,
@@ -135,6 +302,11 @@ const write = (
 };
 
 if (command === "identity") {
+  const fine = args.includes("--fine");
+  const flag = args.indexOf("--instrument");
+  const instrumentFile = flag === -1 ? undefined : args[flag + 1];
+  if (flag !== -1 && instrumentFile === undefined)
+    throw new Error("--instrument names the instrument receipt.");
   const [
     study,
     factsFile,
@@ -145,10 +317,13 @@ if (command === "identity") {
     expressionStudy,
     previousStudy,
     renderDetectionFile,
-  ] = args;
+  ] = args.filter(
+    (one, k) =>
+      one !== "--fine" && (flag === -1 || (k !== flag && k !== flag + 1)),
+  );
   if (output === undefined)
     throw new Error(
-      "identity STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]",
+      "identity [--fine] [--instrument INSTRUMENT.json] STUDY FACTS DETECTIONS POSES ANCHORS OUTPUT [EXPRESSION_STUDY [PREVIOUS_STUDY RENDER_DETECTIONS]]",
     );
   // The render-side correction: what the anchored model said minus what the
   // detector reads on the product render of the same documents.
@@ -171,6 +346,29 @@ if (command === "identity") {
   const documents = json<IAutoMovieHumanFaceBasisDocument[]>(
     path.join(study!, "subjects.json"),
   );
+  // Whether a subject's photograph observes an index under its camera, every
+  // index without a receipt.
+  const instrument =
+    instrumentFile === undefined
+      ? undefined
+      : json<{
+          basis: string;
+          cameras: string[];
+          indices: IFaceInstrumentIndex[];
+        }>(instrumentFile);
+  if (instrument !== undefined && instrument.basis !== basis.id)
+    throw new Error(
+      `The instrument was calibrated on ${instrument.basis}, not ${basis.id}.`,
+    );
+  const observed = (subject: string, id: string): boolean => {
+    if (instrument === undefined) return true;
+    const camera = instrument.cameras.indexOf(subject);
+    if (camera === -1)
+      throw new Error(`The instrument has no calibration for ${subject}.`);
+    return instrument.indices.some(
+      (one) => one.index === id && one.observed[camera] === true,
+    );
+  };
   const expressions =
     expressionStudy === undefined
       ? new Map<string, IAutoMovieHumanFaceBasisDocument>()
@@ -179,6 +377,25 @@ if (command === "identity") {
             path.join(expressionStudy, "subjects.json"),
           ).map((one) => [one.id, one]),
         );
+  // Each unit's status in the expression study, where a transfer judged it
+  // (`derivation.json`): "unobservable" marks a unit no calibration reads.
+  const statuses =
+    expressionStudy === undefined ||
+    !fs.existsSync(path.join(expressionStudy, "derivation.json"))
+      ? {}
+      : json<Record<string, unknown>>(
+          path.join(expressionStudy, "derivation.json"),
+        );
+  const unobservable = (subject: string, unit: string): boolean => {
+    const rows = statuses[subject];
+    return (
+      Array.isArray(rows) &&
+      rows.some(
+        (one: { channel?: string; status?: string }) =>
+          one.channel === unit && one.status === "unobservable",
+      )
+    );
+  };
   const facts = json<{ subjects: Record<string, IFacePopulationFacts> }>(
     factsFile!,
   ).subjects;
@@ -198,12 +415,107 @@ if (command === "identity") {
   const channels = new Map(basis.channels.map((one) => [one.id, one]));
   const build = createHumanFaceBasisBuilder(basis);
   const ids = FACE_ANTHROPOMETRY_INDICES.map((one) => one.id);
+  const indices: readonly (IFaceAnthropometryIndex & {
+    resolution?: number;
+  })[] = [...FACE_ANTHROPOMETRY_INDICES, ...FACE_UNSEEN_INDICES];
+  const lips = basis.contact?.lips ?? null;
+  const { auricles, mastoids, scalp } = faceUnseenParts(basis, human);
+  // The lip and skin regions the lower vermilion's reading takes.
+  const lipRegion = human.regions.find((one) => one.id === "Human/lips");
+  const skinRegion = human.regions.find((one) => one.id === "Human/skin");
+  const vermilion =
+    lipRegion === undefined || skinRegion === undefined || lips === null
+      ? undefined
+      : {
+          indices: lipRegion.indices,
+          skin: new Set(skinRegion.indices),
+          contact: lips,
+        };
+  // The render correction, one per index for every subject
+  // (`faceRenderCorrection`), over every subject PREVIOUS_STUDY derived, so
+  // a STUDY holding some of them (a derivation split across processes)
+  // takes the same correction.
+  const correction = faceRenderCorrection(
+    ids,
+    Object.keys(previous ?? {}).flatMap((subject) => {
+      const before = previous?.[subject]?.anthropometry;
+      const render = renders?.get(`portrait:${subject}__reference-yaw`);
+      if (typeof before !== "object" || !render?.face) return [];
+      return [
+        {
+          model: Object.fromEntries(
+            ids.map((id) => [id, before[id]?.model ?? null]),
+          ),
+          rendered: measureFaceAnthropometry(
+            observedPoints(render, path.dirname(renderDetectionFile!)),
+          ),
+        },
+      ];
+    }),
+  );
+  // The skin vertices each channel's endpoint rows move.
+  const movingCache = new Map<string, Set<number>>();
+  const moving = (id: string): Set<number> => {
+    if (!movingCache.has(id)) {
+      const channel = basis.channels.find((one) => one.id === id);
+      const skin = basis.surfaces.find((one) => one.id === "Human");
+      const out = new Set<number>();
+      for (const name of [channel?.positive, channel?.negative])
+        if (name !== null && name !== undefined)
+          for (let i = 0; i < (skin?.targets[name]?.length ?? 0); i += 4)
+            out.add(skin!.targets[name]![i]!);
+      movingCache.set(id, out);
+    }
+    return movingCache.get(id)!;
+  };
+  // The crease control's depth at its end: the deepest of its rows along
+  // the skin's normal at rest (`faceLidCreaseDepth`: the cleft also slides
+  // up behind the fold), or null on a basis without both lids' control.
+  const creaseDepth = FACE_LID_CREASE_CHANNELS.every(
+    (one) =>
+      channels.get(one)?.negative !== undefined &&
+      channels.get(one)?.negative !== null,
+  )
+    ? (() => {
+        const normals = faceSkinNormals(human.positions, human.indices);
+        return Math.min(
+          ...FACE_LID_CREASE_CHANNELS.map(
+            (one) =>
+              faceLidCreaseDepth(
+                human.targets[channels.get(one)!.negative!] ?? [],
+                normals,
+              ).depth,
+          ),
+        );
+      })()
+    : null;
+  const creaseReading = (one: IDetection) => {
+    const file =
+      one.rgb !== undefined && one.rgb !== null
+        ? path.join(path.dirname(detectionFile!), one.rgb)
+        : one.path;
+    return file === undefined || one.face === null
+      ? null
+      : measureFaceLikenessCrease(
+          readFaceLikenessImage(file),
+          one.face.landmarks,
+        );
+  };
   const report: Record<string, unknown> = {};
   const derived = documents.map((document) => {
     const subject = subjectOf(document);
+    const recorded = facts[subject] ?? {
+      ageYears: null,
+      sex: null,
+      ancestry: null,
+    };
+    // The fine tier has no ancestry (its traits are the fine controls'),
+    // but a recorded age and sex, which no frontal index reads, still set
+    // the face's ageing and dimorphism.
     const population = facePopulationControls(
-      facts[subject] ?? { ageYears: null, sex: null, ancestry: null },
+      fine ? { ...recorded, ancestry: null } : recorded,
     );
+    const norm = faceUnseenNorm(recorded);
     const expression = expressions.get(document.id)?.expression ?? {};
     const start: IAutoMovieHumanFaceBasisDocument = {
       ...document,
@@ -221,28 +533,147 @@ if (command === "identity") {
       return start;
     }
     const camera = faceShapeFitView(pose, 900, pose.fov);
-    // The anchored landmarks on the skin, and the upper incisal edge on the
-    // dentition, each read on its own surface.
-    const list = [
-      ...view.anchors.flatMap((one) =>
-        one.anchor === null
-          ? []
-          : [{ landmark: one.landmark, anchor: one.anchor, surface: human }],
-      ),
-      ...(
-        [
-          [FACE_ANTHROPOMETRY_UPPER_EDGE, incisal.upper],
-          [FACE_ANTHROPOMETRY_LOWER_EDGE, incisal.lower],
-        ] as const
-      ).map(([landmark, vertex]) => ({
-        landmark,
-        anchor: {
-          vertices: [vertex, vertex, vertex] as [number, number, number],
-          weights: [1, 0, 0] as [number, number, number],
+    const list = anchoredLandmarks(view.anchors, human, dentition, incisal);
+    // The upper lids' crease: where the photograph shows the lids, whether
+    // it draws the crease's line; where it cannot, the population's more
+    // probable state (`faceLidCreaseWeight`), both lids carrying one fold
+    // of their skin and orbicularis.
+    const crease =
+      creaseDepth === null
+        ? null
+        : faceLidCreaseWeight({
+            reading: creaseReading(photos.get(`photo:${subject}`)!),
+            facts: recorded,
+            layer: FACE_LID_CREASE_LAYER,
+            depth: creaseDepth,
+          });
+    // The fold's height where there is a crease: the population's ratio
+    // (`faceLidFoldHeightWeight`); the lid height index, which no
+    // photograph's landmarks read, then keeps it.
+    const fold = faceLidFoldHeightWeight({
+      crease,
+      facts: recorded,
+      calibration: FACE_LID_FOLD_CALIBRATION,
+    });
+    if (
+      fold !== null &&
+      FACE_LID_FOLD_CHANNELS.every((one) => channels.has(one))
+    )
+      start.shape = {
+        ...start.shape,
+        ...Object.fromEntries(
+          FACE_LID_FOLD_CHANNELS.map((one) => [one, Number(fold.toFixed(5))]),
+        ),
+      };
+    if (crease !== null)
+      start.shape = {
+        ...start.shape,
+        ...Object.fromEntries(
+          FACE_LID_CREASE_CHANNELS.map((one) => [
+            one,
+            Number(crease.weight.toFixed(5)),
+          ]),
+        ),
+      };
+    // The smile's orbital part where the photograph's instrument cannot
+    // read it: each side's cheek raiser by the posed-smile norm
+    // (`faceSmileOrbital`), from rates read on this face's anchored points
+    // (the mouth's corners 61 and 291, each eye's lid margins over its
+    // pupil, 159 and 145, 386 and 374) with the photograph's expression. It
+    // joins the expression before the identity is solved, so the eyes'
+    // indices read the photograph's narrowed fissure as the raiser's and
+    // not as a narrower eye; set by a norm, it yields first where the
+    // expression folds the skin.
+    const orbitalPriors = new Set<string>();
+    let orbital: IFaceSides | null = null;
+    let orbitalRates: Parameters<typeof faceSmileRecouple>[0]["rates"] = null;
+    if (
+      unobservable(subject, "cheekSquintLeft") &&
+      unobservable(subject, "cheekSquintRight") &&
+      ((start.expression.mouthSmileLeft ?? 0) > 0 ||
+        (start.expression.mouthSmileRight ?? 0) > 0)
+    ) {
+      const smiling = build({ ...start, hair: undefined });
+      const skin = new Map(
+        [human, dentition].map((surface) => [
+          surface,
+          faceShapeFitSurfacePositions(basis, smiling, surface.id),
+        ]),
+      );
+      const point = (landmark: number, channel: string | null) => {
+        const one = list.find((item) => item.landmark === landmark);
+        if (one === undefined) return null;
+        const at = faceShapeFitAnchorPoint(skin.get(one.surface)!, one.anchor);
+        const name = channel === null ? null : channels.get(channel)?.positive;
+        if (name === null || name === undefined) return at;
+        const flat = one.surface.targets[name] ?? [];
+        const rows = new Map<number, number[]>();
+        for (let i = 0; i < flat.length; i += 4)
+          rows.set(flat[i]!, [flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+        return at.map((value, axis) =>
+          one.anchor.vertices.reduce(
+            (sum, vertex, k) =>
+              sum + one.anchor.weights[k]! * (rows.get(vertex)?.[axis] ?? 0),
+            value,
+          ),
+        );
+      };
+      const change = (channel: string, a: number, b: number): number => {
+        const [p, q, pp, qq] = [
+          point(a, null),
+          point(b, null),
+          point(a, channel),
+          point(b, channel),
+        ];
+        if (p === null || q === null || pp === null || qq === null) return 0;
+        return (
+          Math.hypot(...[0, 1, 2].map((k) => pp[k]! - qq[k]!)) -
+          Math.hypot(...[0, 1, 2].map((k) => p[k]! - q[k]!))
+        );
+      };
+      orbitalRates = {
+        labial: {
+          left: change("mouthSmileLeft", 61, 291),
+          right: change("mouthSmileRight", 61, 291),
         },
-        surface: dentition,
-      })),
-    ];
+        fissure: {
+          left: change("mouthSmileLeft", 386, 374),
+          right: change("mouthSmileRight", 159, 145),
+        },
+        raiser: {
+          left: change("cheekSquintLeft", 386, 374),
+          right: change("cheekSquintRight", 159, 145),
+        },
+        maximum: 1,
+      };
+      orbital = faceSmileOrbital({
+        ...orbitalRates,
+        smile: {
+          left: start.expression.mouthSmileLeft ?? 0,
+          right: start.expression.mouthSmileRight ?? 0,
+        },
+      });
+      for (const [unit, weight] of [
+        ["cheekSquintLeft", orbital.left],
+        ["cheekSquintRight", orbital.right],
+      ] as const)
+        if (weight > 0) {
+          start.expression = { ...start.expression, [unit]: weight };
+          orbitalPriors.add(unit);
+        }
+    }
+    // The smile's lip retraction onto the crowns, where the basis carries it
+    // as units of its own (`splitSmileRetractionBasis`): each side at its
+    // smile's weight, the scale its rows were sized to by the posed smile's
+    // norm; set by a norm, it yields before the photographed smile.
+    for (const { smile, retraction } of FACE_SMILE_RETRACTION_UNITS)
+      if (channels.has(retraction) && (start.expression[smile] ?? 0) > 0) {
+        start.expression = {
+          ...start.expression,
+          [retraction]: Math.min(1, start.expression[smile]!),
+        };
+        orbitalPriors.add(retraction);
+      }
     const model = build({ ...start, hair: undefined });
     const built = new Map(
       [human, dentition].map((surface) => [
@@ -313,80 +744,131 @@ if (command === "identity") {
         opened[0]![n]![axis]!
       );
     };
-    const contribution = (
-      channel: string,
-      weight: number,
-      n: number,
-      axis: number,
-    ) => {
-      if (channel === "jawOpen") return jaw(weight, n, axis);
-      if (weight === 0) return 0;
-      const one = channels.get(channel)!;
-      const name = weight > 0 ? one.positive : one.negative;
-      return name === null ? 0 : Math.abs(weight) * endpoint(name)[n]![axis]!;
-    };
-    const initial = FACE_ANTHROPOMETRY_INDICES.map((one) => {
+    const initial = indices.map((one) => {
       const own = one.expression ? start.expression : start.shape;
       return (
         (own[one.channels[0]!] ?? 0) -
         (one.negative === undefined ? 0 : (own[one.negative[0]!] ?? 0))
       );
     });
-    const evaluate = (values: readonly number[]) => {
+    // The unseen form is the face at rest: the skin built without
+    // expression, moved by the same endpoint rows at the vertices the
+    // readings use (the triangles that reach the midsagittal plane, the
+    // scalp and the auricles).
+    const rest = faceShapeFitSurfacePositions(
+      basis,
+      build({ ...start, hair: undefined, expression: {} }),
+      human.id,
+    );
+    const midline = faceMidlineTriangles(rest, human.indices);
+    const near = new Set<number>([
+      ...(lips === null ? [] : [lips.upper, lips.lower]),
+      ...(vermilion?.indices ?? []),
+      ...scalp,
+      ...auricles.left,
+      ...auricles.right,
+      ...mastoids.left,
+      ...mastoids.right,
+      ...midline,
+    ]);
+    const rows = new Map<string, number[][]>();
+    const row = (name: string): number[][] => {
+      if (!rows.has(name)) {
+        const flat = human.targets[name] ?? [];
+        const own: number[][] = [];
+        for (let i = 0; i < flat.length; i += 4)
+          if (near.has(flat[i]!))
+            own.push([flat[i]!, flat[i + 1]!, flat[i + 2]!, flat[i + 3]!]);
+        rows.set(name, own);
+      }
+      return rows.get(name)!;
+    };
+    const unseen = (values: readonly number[]) => {
+      if (norm === null || lips === null)
+        return FACE_UNSEEN_INDICES.map(() => null);
+      const positions = [...rest];
+      const move = (channel: string, weight: number, sign: number) => {
+        if (weight === 0) return;
+        const one = channels.get(channel)!;
+        const name = weight > 0 ? one.positive : one.negative;
+        if (name === null) return;
+        const scale = sign * Math.abs(weight);
+        for (const [vertex, dx, dy, dz] of row(name)) {
+          positions[3 * vertex!] += scale * dx!;
+          positions[3 * vertex! + 1] += scale * dy!;
+          positions[3 * vertex! + 2] += scale * dz!;
+        }
+      };
+      indices.forEach((index, k) => {
+        if (index.expression) return;
+        for (const [channel, weight] of faceAnthropometryWeights(
+          index,
+          values[k]!,
+        ))
+          move(channel, weight, 1);
+        for (const [channel, weight] of faceAnthropometryWeights(
+          index,
+          initial[k]!,
+        ))
+          move(channel, weight, -1);
+      });
+      const read = measureFaceUnseen({
+        positions,
+        indices: midline,
+        stomion: positions[3 * lips.upper + 1]!,
+        inferius: positions[3 * lips.lower + 1]!,
+        scalp,
+        auricles,
+        mastoids,
+        step: 0.0001,
+        lips: vermilion,
+      });
+      return FACE_UNSEEN_INDICES.map((one) => read[one.id]);
+    };
+    // The photograph's indices under its camera, every control at `values`.
+    const frontal = (values: readonly number[]) => {
+      // Every anchored point's displacement from the start: each index's
+      // channels at the values less the same at the start, a whole endpoint
+      // row at a time.
+      const shift = list.map(() => [0, 0, 0]);
+      indices.forEach((index, k) => {
+        for (const [weights, sign] of [
+          [faceAnthropometryWeights(index, values[k]!), 1],
+          [faceAnthropometryWeights(index, initial[k]!), -1],
+        ] as const)
+          for (const [channel, weight] of weights) {
+            if (channel === "jawOpen") {
+              shift.forEach((point, n) => {
+                for (let axis = 0; axis < 3; ++axis)
+                  point[axis]! += sign * jaw(weight, n, axis);
+              });
+              continue;
+            }
+            if (weight === 0) continue;
+            const one = channels.get(channel)!;
+            const name = weight > 0 ? one.positive : one.negative;
+            if (name === null) continue;
+            const rows = endpoint(name);
+            const scale = sign * Math.abs(weight);
+            shift.forEach((point, n) => {
+              for (let axis = 0; axis < 3; ++axis)
+                point[axis]! += scale * rows[n]![axis]!;
+            });
+          }
+      });
       const points: ([number, number] | undefined)[] = [];
       list.forEach((one, n) => {
-        const p = [0, 1, 2].map(
-          (axis) =>
-            base[n]![axis]! +
-            FACE_ANTHROPOMETRY_INDICES.reduce(
-              (sum, index, k) =>
-                sum +
-                faceAnthropometryWeights(index, values[k]!).reduce(
-                  (inner, [channel, weight]) =>
-                    inner + contribution(channel, weight, n, axis),
-                  0,
-                ) -
-                faceAnthropometryWeights(index, initial[k]!).reduce(
-                  (inner, [channel, weight]) =>
-                    inner + contribution(channel, weight, n, axis),
-                  0,
-                ),
-              0,
-            ),
-        );
+        const p = [0, 1, 2].map((axis) => base[n]![axis]! + shift[n]![axis]!);
         points[one.landmark] = faceShapeFitProject(camera, p);
       });
       const measured = measureFaceAnthropometry(points);
       return ids.map((id) => measured[id]!);
     };
-    // The photograph's upper incisal edge where its mouth profile reads the
-    // edge itself, not a bound.
-    const rgb = photos.get(`photo:${subject}`)?.rgb;
-    const teeth =
-      rgb === undefined
-        ? null
-        : measureFaceLikenessTeeth(
-            readFaceLikenessImage(path.join(path.dirname(detectionFile!), rgb)),
-            photo.landmarks,
-          );
-    const photographed = measureFaceAnthropometry([
-      ...photo.landmarks.slice(0, 468),
-      teeth?.upper?.relation === "at" ? teeth.upper.point : undefined,
-      teeth?.lower?.relation === "at" ? teeth.lower.point : undefined,
-    ]);
-    const before = previous?.[subject]?.anthropometry;
-    const render = renders?.get(`portrait:${subject}__reference-yaw`)?.face;
-    const rendered =
-      render === undefined || render === null
-        ? undefined
-        : measureFaceAnthropometry(render.landmarks.slice(0, 468));
-    const correction = Object.fromEntries(
-      ids.map((id) => {
-        const model =
-          typeof before === "object" ? (before[id]?.model ?? null) : null;
-        const seen = rendered?.[id] ?? null;
-        return [id, model === null || seen === null ? 0 : model - seen];
-      }),
+    const photographed = measureFaceAnthropometry(
+      observedPoints(
+        photos.get(`photo:${subject}`)!,
+        path.dirname(detectionFile!),
+      ),
     );
     const target = Object.fromEntries(
       ids.map((id) => [
@@ -394,39 +876,354 @@ if (command === "identity") {
         photographed[id] === null ? null : photographed[id]! + correction[id]!,
       ]),
     );
-    const solution = solveFaceAnthropometry({
-      controls: FACE_ANTHROPOMETRY_INDICES.map((one, k) => ({
-        id: one.id,
-        start: initial[k]!,
-        lower:
-          one.negative === undefined
-            ? channels.get(one.channels[0]!)!.minimum
-            : -channels.get(one.negative[0]!)!.maximum,
-        upper: channels.get(one.channels[0]!)!.maximum,
-      })),
-      // Without an expression study the documents are the identity at rest,
-      // whose renders are the expression transfer's rest reading, so a state
-      // of the face is not solved there and stays at its start, zero.
-      targets: FACE_ANTHROPOMETRY_INDICES.map((one) =>
-        one.expression === true && expressionStudy === undefined
-          ? null
-          : target[one.id]!,
+    const controls = indices.map((one, k) => ({
+      id: one.id,
+      start: initial[k]!,
+      lower:
+        one.negative === undefined
+          ? channels.get(one.channels[0]!)!.minimum
+          : -channels.get(one.negative[0]!)!.maximum,
+      upper: channels.get(one.channels[0]!)!.maximum,
+      resolution: one.resolution ?? 0,
+    }));
+    // Without an expression study the documents are the identity at rest,
+    // whose renders are the expression transfer's rest reading, so a state
+    // of the face is not solved there and stays at its start, zero.
+    const measuredTargets = FACE_ANTHROPOMETRY_INDICES.map((one) =>
+      (one.expression === true && expressionStudy === undefined) ||
+      !observed(subject, one.id)
+        ? null
+        : target[one.id]!,
+    );
+    // A reading standing in for a photograph's index holds only where the
+    // photograph does not measure that index: unobserved under its camera,
+    // or unread on it.
+    const unseenTargets = FACE_UNSEEN_INDICES.map((one) =>
+      one.photographed !== undefined &&
+      observed(subject, one.photographed) &&
+      photographed[one.photographed] !== null
+        ? null
+        : (norm?.[one.norm] ?? null),
+    );
+    const active = unseenTargets.filter((one) => one !== null).length;
+    // The two blocks are solved in turn (block Gauss-Seidel): the
+    // photograph's indices exactly with the unseen controls where they
+    // stand, then the most probable unseen form under the norms with the
+    // photograph's controls where they stand (`solveFaceNorms`), until a
+    // sweep leaves the unseen block where it was to the precision a document
+    // records (five decimals: a change under half of one cannot change the
+    // document). The photograph's
+    // measurements are met; the norms, a prior, fill what it does not show.
+    // The blocks meet only through the depth a frontal camera hardly sees;
+    // there is at most one sweep per unseen control.
+    const split = FACE_ANTHROPOMETRY_INDICES.length;
+    let values = [...initial];
+    const sweeps: [number, number][] = [];
+    let seen: ReturnType<typeof solveFaceAnthropometry>;
+    let unseenSolution: ReturnType<typeof solveFaceNorms>;
+    let moved: boolean;
+    do {
+      const fixed = values.slice(split);
+      seen = solveFaceAnthropometry({
+        controls: controls
+          .slice(0, split)
+          .map((one, k) => ({ ...one, start: values[k]! })),
+        targets: measuredTargets,
+        evaluate: (own) => frontal([...own, ...fixed]),
+      });
+      const front = seen.values;
+      const standing = values.slice(split);
+      unseenSolution = solveFaceNorms({
+        controls: controls
+          .slice(split)
+          .map((one, j) => ({ ...one, start: standing[j]! })),
+        targets: unseenTargets,
+        spreads: FACE_UNSEEN_INDICES.map((one) => one.spread),
+        evaluate: (own) => unseen([...front, ...own]),
+      });
+      moved = unseenSolution.values.some(
+        (v, j) => Math.abs(v - standing[j]!) >= 5e-6,
+      );
+      values = [...seen.values, ...unseenSolution.values];
+      sweeps.push([seen.iterations, unseenSolution.iterations]);
+    } while (moved && sweeps.length < active);
+    // The document's shape and expression from control values.
+    const compose = (own: readonly number[]) => {
+      const shape = { ...start.shape };
+      const posed = { ...start.expression };
+      indices.forEach((one, k) => {
+        // A stand-in reading that did not hold leaves its channel to the
+        // photograph's index.
+        if (
+          k >= split &&
+          FACE_UNSEEN_INDICES[k - split]!.photographed !== undefined &&
+          unseenTargets[k - split] === null
+        )
+          return;
+        for (const [channel, weight] of faceAnthropometryWeights(
+          one,
+          own[k]!,
+        )) {
+          const value = Number(weight.toFixed(5));
+          if (!one.expression) shape[channel] = value;
+          else if (value !== 0) posed[channel] = value;
+          else delete posed[channel];
+        }
+      });
+      return { shape, posed };
+    };
+    // Tissue does not pass through tissue: over the triangles the document
+    // moves, the priors' departure yields until it adds no fault its start
+    // lacks to those of the measured controls (`faceValidScale`), and the
+    // photograph's controls are then solved again beside them.
+    // The lips meet at rest: their overlap is their contact, not a fault.
+    const lipTriangles = new Set<string>();
+    for (let t = 0; t < (lipRegion?.indices.length ?? 0); t += 3)
+      lipTriangles.add(lipRegion!.indices.slice(t, t + 3).join());
+    const contact = new Set<number>();
+    for (let t = 0; t < human.indices.length; t += 3)
+      if (lipTriangles.has(human.indices.slice(t, t + 3).join()))
+        contact.add(t);
+    // A document the editor refuses (its hair's contact opening folded by
+    // the shape, as the jaw's taper beside a full lower face did on three
+    // documents of round j15) is no face at all: the worst fault.
+    const refused = Number.MAX_SAFE_INTEGER;
+    const faultsOf = (own: readonly number[]): number => {
+      const shape = compose(own).shape;
+      if (start.hair !== undefined)
+        try {
+          build({ ...start, shape, expression: {} });
+        } catch {
+          return refused;
+        }
+      const positions = faceShapeFitSurfacePositions(
+        basis,
+        build({ ...start, shape, hair: undefined, expression: {} }),
+        human.id,
+      );
+      const triangles: number[] = [];
+      for (let t = 0; t < human.indices.length; t += 3)
+        if (
+          [0, 1, 2].some((e) => {
+            const v = human.indices[t + e]!;
+            return [0, 1, 2].some(
+              (k) => Math.abs(positions[3 * v + k]! - rest[3 * v + k]!) > 1e-7,
+            );
+          })
+        )
+          triangles.push(t);
+      return faceSupportFaults({
+        source: rest,
+        positions,
+        indices: human.indices,
+        triangles,
+        contact,
+      });
+    };
+    // The skin's vertices in fault at control values: the triangles turned
+    // over or newly crossing, over those the document moves.
+    const faultVertices = (own: readonly number[]): Set<number> => {
+      const positions = faceShapeFitSurfacePositions(
+        basis,
+        build({
+          ...start,
+          shape: compose(own).shape,
+          hair: undefined,
+          expression: {},
+        }),
+        human.id,
+      );
+      const triangles: number[] = [];
+      for (let t = 0; t < human.indices.length; t += 3)
+        if (
+          [0, 1, 2].some((e) => {
+            const v = human.indices[t + e]!;
+            return [0, 1, 2].some(
+              (k) => Math.abs(positions[3 * v + k]! - rest[3 * v + k]!) > 1e-7,
+            );
+          })
+        )
+          triangles.push(t);
+      const out = new Set<number>();
+      for (const t of faceSupportFaultTriangles({
+        source: rest,
+        positions,
+        indices: human.indices,
+        triangles,
+        contact,
+      }))
+        for (let e = 0; e < 3; ++e) out.add(human.indices[t + e]!);
+      return out;
+    };
+    const priors = values.slice(split);
+    const scaled = (scale: number) => [
+      ...values.slice(0, split),
+      ...priors.map(
+        (v, j) => initial[split + j]! + scale * (v - initial[split + j]!),
       ),
-      evaluate,
+    ];
+    const validity = faceValidScale({
+      faults: (scale) => faultsOf(scaled(scale)),
+      steps: 6,
     });
-    const shape = { ...start.shape };
-    const posed = { ...start.expression };
-    FACE_ANTHROPOMETRY_INDICES.forEach((one, k) => {
-      for (const [channel, weight] of faceAnthropometryWeights(
-        one,
-        solution.values[k]!,
-      )) {
-        const value = Number(weight.toFixed(5));
-        if (!one.expression) shape[channel] = value;
-        else if (value !== 0) posed[channel] = value;
-        else delete posed[channel];
-      }
+    if (validity.scale < 1) {
+      const fixed = scaled(validity.scale).slice(split);
+      seen = solveFaceAnthropometry({
+        controls: controls
+          .slice(0, split)
+          .map((one, k) => ({ ...one, start: values[k]! })),
+        targets: measuredTargets,
+        evaluate: (own) => frontal([...own, ...fixed]),
+      });
+      values = [...seen.values, ...fixed];
+    }
+    let remaining = validity.scale < 1 ? faultsOf(values) : validity.faults;
+    // A face that passes through itself matches no photograph: where the
+    // measured controls fault by themselves, their departure yields until
+    // the skin is whole, and then the priors' beside them.
+    let measuredShare = 1;
+    let yielded: string[] = [];
+    let priorShare = validity.scale;
+    // Only the measured controls whose skin the faults lie in yield: a
+    // fault at the nasal base is no reason to move the canthi. An editor
+    // refusal names no triangle, and then every measured control yields.
+    // Yielding can move a fault elsewhere, so the controls of any fault
+    // left join them, over at most three rounds.
+    const implicated = indices.slice(0, split).map(() => false);
+    for (let round = 0; remaining > 0 && round < 3; ++round) {
+      const faulty = remaining === refused ? null : faultVertices(values);
+      indices.slice(0, split).forEach((one, k) => {
+        if (
+          faulty === null ||
+          faceAnthropometryWeights(one, 1)
+            .map(([channel]) => channel)
+            .concat(one.negative ?? [])
+            .some((channel) => [...moving(channel)].some((v) => faulty.has(v)))
+        )
+          implicated[k] = true;
+      });
+      const current = values.slice(0, split);
+      const measured = (scale: number) =>
+        current.map((v, k) =>
+          implicated[k] ? initial[k]! + scale * (v - initial[k]!) : v,
+        );
+      const startPriors = initial.slice(split);
+      const kept = faceValidScale({
+        faults: (scale) => faultsOf([...measured(scale), ...startPriors]),
+        steps: 6,
+      });
+      measuredShare *= kept.scale;
+      const front = measured(kept.scale);
+      const standing = values.slice(split);
+      const prior = (scale: number) =>
+        startPriors.map((v, j) => v + scale * (standing[j]! - v));
+      const beside = faceValidScale({
+        faults: (scale) => faultsOf([...front, ...prior(scale)]),
+        steps: 6,
+      });
+      priorShare *= beside.scale;
+      values = [...front, ...prior(beside.scale)];
+      remaining = faultsOf(values);
+    }
+    yielded = indices
+      .slice(0, split)
+      .flatMap((one, k) => (implicated[k] ? [one.id] : []));
+    const achieved = frontal(values);
+    const { shape, posed } = compose(values);
+    // The face as it is shown passes no tissue through tissue either: its
+    // expression, over the triangles it moves from the document's own face
+    // at rest, may add no fault (the lips' overlap stays their contact).
+    // Each fold's units yield toward rest by the largest share the skin
+    // stays whole at (`faceExpressionYield`); the others keep their weights.
+    const own = faceShapeFitSurfacePositions(
+      basis,
+      build({ ...start, shape, hair: undefined, expression: {} }),
+      human.id,
+    );
+    const shown = (expression: Record<string, number>) => {
+      const positions = faceShapeFitSurfacePositions(
+        basis,
+        build({ ...start, shape, hair: undefined, expression }),
+        human.id,
+      );
+      const triangles: number[] = [];
+      for (let t = 0; t < human.indices.length; t += 3)
+        if (
+          [0, 1, 2].some((e) => {
+            const v = human.indices[t + e]!;
+            return [0, 1, 2].some(
+              (k) => Math.abs(positions[3 * v + k]! - own[3 * v + k]!) > 1e-7,
+            );
+          })
+        )
+          triangles.push(t);
+      return { positions, triangles };
+    };
+    const yieldedFace = faceExpressionYield({
+      expression: posed,
+      faults: (expression) => {
+        const { positions, triangles } = shown(expression);
+        return faceSupportFaults({
+          source: own,
+          positions,
+          indices: human.indices,
+          triangles,
+          contact,
+        });
+      },
+      clusters: (expression) => {
+        const { positions, triangles } = shown(expression);
+        return faceFaultClusters(
+          human.indices,
+          faceSupportFaultTriangles({
+            source: own,
+            positions,
+            indices: human.indices,
+            triangles,
+            contact,
+          }),
+        );
+      },
+      // How far a unit at its weight moves a fold's skin: its vertices
+      // with the unit at rest against as shown.
+      contribution: (unit, expression, fold) => {
+        const { positions } = shown(expression);
+        const { positions: without } = shown({ ...expression, [unit]: 0 });
+        let by = 0;
+        for (const v of fold)
+          by += Math.hypot(
+            positions[3 * v]! - without[3 * v]!,
+            positions[3 * v + 1]! - without[3 * v + 1]!,
+            positions[3 * v + 2]! - without[3 * v + 2]!,
+          );
+        return by;
+      },
+      priors: orbitalPriors,
+      partner: (unit) =>
+        faceExpressionPartner(
+          unit,
+          basis.channels.map((one) => one.id),
+        ),
+      steps: 6,
+      rounds: 3,
     });
+    // The smile's coupled units follow the smile the face shows: a smile
+    // that yielded takes its raiser and retraction down with it
+    // (`faceSmileRecouple`), unless that would fold the skin again.
+    const recoupled = faceSmileRecouple({
+      expression: yieldedFace.expression,
+      rates: orbitalRates,
+    });
+    const recouplingFaults = faceSupportFaults({
+      source: own,
+      ...shown(recoupled),
+      indices: human.indices,
+      contact,
+    });
+    const shownExpression =
+      recouplingFaults <= yieldedFace.faults
+        ? recoupled
+        : yieldedFace.expression;
     report[subject] = {
       population,
       anthropometry: Object.fromEntries(
@@ -434,18 +1231,233 @@ if (command === "identity") {
           id,
           {
             photograph: photographed[id],
+            observed: observed(subject, id),
             correction: correction[id],
-            model: solution.achieved[k],
-            control: solution.values[k],
-            held: solution.held.includes(k),
+            model: achieved[k] ?? null,
+            control: seen.values[k],
+            held: seen.held.includes(k),
           },
         ]),
       ),
-      iterations: solution.iterations,
+      unseen: Object.fromEntries(
+        FACE_UNSEEN_INDICES.map((one, j) => [
+          one.id,
+          {
+            norm: norm?.[one.norm] ?? null,
+            target: unseenTargets[j],
+            model: unseenSolution.achieved[j],
+            control: unseenSolution.values[j],
+            held: unseenSolution.held.includes(j),
+          },
+        ]),
+      ),
+      iterations: sweeps,
+      crease,
+      fold,
+      validity: {
+        measured: measuredShare,
+        yielded,
+        priors: priorShare,
+        faults: remaining,
+        expression: {
+          orbital,
+          shares: yieldedFace.shares,
+          faults: yieldedFace.faults,
+          recoupled: Object.fromEntries(
+            Object.entries(recoupled).filter(
+              ([unit, weight]) => weight !== yieldedFace.expression[unit],
+            ),
+          ),
+          recouplingFaults,
+        },
+      },
     };
-    return { ...start, shape, expression: posed };
+    return { ...start, shape, expression: shownExpression };
   });
   write(output, study!, derived, report);
+} else if (command === "instrument-study") {
+  const [study, poseFile, anchorFile, cameraList, output] = args;
+  if (output === undefined)
+    throw new Error("instrument-study STUDY POSES ANCHORS CAMERAS OUTPUT");
+  const basis = json<IAutoMovieHumanFaceBasis>(
+    path.join(study!, "basis.json.gz"),
+  );
+  const poses = json<Record<string, Parameters<typeof faceShapeFitView>[0]>>(
+    poseFile!,
+  );
+  const anchors = json<{
+    views: Record<
+      string,
+      { anchors: { landmark: number; anchor: IFaceShapeFitAnchor | null }[] }
+    >;
+  }>(anchorFile!);
+  const cameras = cameraList!.split(",");
+  for (const camera of cameras)
+    if (poses[camera] === undefined || anchors.views[camera] === undefined)
+      throw new Error(`No camera or anchors for ${camera}.`);
+  const channels = new Map(basis.channels.map((one) => [one.id, one]));
+  // A state of the face is stepped over five values of its envelope: the
+  // incisal edges read only where the lips part over the teeth.
+  const { documents, probes } = faceInstrumentDocuments({
+    basis: basis.id,
+    indices: FACE_ANTHROPOMETRY_INDICES,
+    envelope: (index) => [
+      index.negative === undefined
+        ? channels.get(index.channels[0]!)!.minimum
+        : -channels.get(index.negative[0]!)!.maximum,
+      channels.get(index.channels[0]!)!.maximum,
+    ],
+    cameras,
+    steps: (index) => (index.expression === true ? 5 : 2),
+  });
+  const human = basis.surfaces.find((one) => one.id === "Human")!;
+  const incisal = faceIncisalEdges(basis);
+  const dentition = basis.surfaces.find((one) => one.id === incisal.surface)!;
+  const build = createHumanFaceBasisBuilder(basis);
+  // The anchored model's index of every document under its camera, each
+  // document built whole (the jaw turns rather than displaces).
+  const model = Object.fromEntries(
+    probes.map((probe, k) => {
+      const pose = poses[probe.camera]!;
+      const camera = faceShapeFitView(pose, 900, pose.fov);
+      const built = build({ ...documents[k]!, hair: undefined });
+      const surfaces = new Map(
+        [human, dentition].map((surface) => [
+          surface,
+          faceShapeFitSurfacePositions(basis, built, surface.id),
+        ]),
+      );
+      const points: ([number, number] | undefined)[] = [];
+      for (const one of anchoredLandmarks(
+        anchors.views[probe.camera]!.anchors,
+        human,
+        dentition,
+        incisal,
+      ))
+        points[one.landmark] = faceShapeFitProject(
+          camera,
+          faceShapeFitAnchorPoint(surfaces.get(one.surface)!, one.anchor),
+        );
+      return [probe.id, measureFaceAnthropometry(points)[probe.index] ?? null];
+    }),
+  );
+  fs.mkdirSync(output, { recursive: true });
+  fs.copyFileSync(
+    path.join(study!, "basis.json.gz"),
+    path.join(output, "basis.json.gz"),
+  );
+  fs.writeFileSync(
+    path.join(output, "subjects.json"),
+    JSON.stringify(documents, null, 2) + "\n",
+  );
+  fs.writeFileSync(
+    path.join(output, "poses.json"),
+    JSON.stringify(
+      Object.fromEntries(probes.map((one) => [one.id, poses[one.camera]])),
+      null,
+      2,
+    ) + "\n",
+  );
+  fs.writeFileSync(
+    path.join(output, "instrument-model.json"),
+    JSON.stringify({ basis: basis.id, cameras, probes, model }, null, 2) + "\n",
+  );
+} else if (command === "instrument") {
+  const [study, detectionFile, boundText, output] = args;
+  if (output === undefined)
+    throw new Error("instrument STUDY DETECTIONS BOUND OUTPUT.json");
+  const { basis, cameras, probes, model } = json<{
+    basis: string;
+    cameras: string[];
+    probes: {
+      id: string;
+      camera: string;
+      index: string;
+      value: number;
+      uncovered?: number;
+    }[];
+    model: Record<string, number | null>;
+  }>(path.join(study!, "instrument-model.json"));
+  const renders = detections(detectionFile!);
+  // The points of each render as a photograph's are read (the incisal
+  // edges, the jaw's outline and the vermilion's borders included).
+  const pointsOf = (id: string) => {
+    const one = renders.get(`inst:${id}`);
+    return one?.face ? observedPoints(one, path.dirname(detectionFile!)) : null;
+  };
+  const readings = cameras.map((camera) => {
+    const own = probes.filter((one) => one.camera === camera);
+    return [...new Set(own.map((one) => one.index))].map(
+      (index): IFaceInstrumentReading => {
+        // Each state of the uncovering control (one, rest, for most
+        // indices), its steps in ascending order.
+        const states = [
+          ...new Set(
+            own
+              .filter((one) => one.index === index)
+              .map((one) => one.uncovered ?? 0),
+          ),
+        ]
+          .sort((a, b) => a - b)
+          .map((state) => {
+            const steps = own
+              .filter(
+                (one) => one.index === index && (one.uncovered ?? 0) === state,
+              )
+              .sort((a, b) => a.value - b.value);
+            const points = steps.map((one) => pointsOf(one.id));
+            return {
+              steps,
+              points,
+              values: steps.map((one) => one.value),
+              model: steps.map((one) => model[one.id] ?? null),
+              detector: points.map((one) =>
+                one === null
+                  ? null
+                  : (measureFaceAnthropometry(one)[index] ?? null),
+              ),
+            };
+          });
+        // The most closed state with a pair both instruments read, and its
+        // widest pair.
+        const { state, pair } = faceInstrumentState(states);
+        const { steps, points, model: anchored, detector } = states[state]!;
+        const [a, b] = pair;
+        // What half a pixel of error in every point does to the reading, on
+        // the pair's lower render.
+        const resolution =
+          points[a] === null
+            ? null
+            : (faceInstrumentResolution(points[a]!, measureFaceAnthropometry, {
+                sigma: 0.5,
+                draws: 64,
+                seed: 1,
+              })[index] ?? null);
+        return {
+          index,
+          values: [steps[a]!.value, steps[b]!.value],
+          model: [anchored[a]!, anchored[b]!],
+          detector: [detector[a]!, detector[b]!],
+          resolution,
+        };
+      },
+    );
+  });
+  const bound = Number(boundText);
+  fs.writeFileSync(
+    output,
+    JSON.stringify(
+      {
+        basis,
+        bound,
+        cameras,
+        readings,
+        indices: faceInstrumentGains(readings, bound),
+      },
+      null,
+      2,
+    ) + "\n",
+  );
 } else if (command === "calibration-study") {
   const [study, poseFile, output] = args;
   if (output === undefined)
@@ -549,14 +1561,30 @@ if (command === "identity") {
       report[subject] = "photograph or rest render missing";
       return { ...document, expression: {} };
     }
+    // A fringe over a brow hides its raise (`faceBrowCover`).
+    const entry = photos.get(`photo:${subject}`)!;
+    const cover =
+      typeof entry.hairMask !== "string" ||
+      entry.width === undefined ||
+      entry.height === undefined
+        ? null
+        : faceBrowCover({
+            hair: readFaceLikenessMask(
+              path.join(path.dirname(detectionFile!), entry.hairMask),
+            ),
+            landmarks: photo.landmarks,
+            width: entry.width,
+            height: entry.height,
+          });
     const rows = transferFaceExpression({
       calibration,
       observable,
       photo: photo.blendshapes,
       rest: own.blendshapes,
       noise,
+      hidden: cover === null ? [] : faceBrowUnobservable(cover),
     });
-    report[subject] = rows;
+    report[subject] = { rows, browCover: cover };
     return {
       ...document,
       expression: Object.fromEntries(
@@ -569,5 +1597,5 @@ if (command === "identity") {
   write(output, study!, derived, report);
 } else
   throw new Error(
-    "derive-face-documents.ts identity | calibration-study | calibrate | expression",
+    "derive-face-documents.ts identity | instrument-study | instrument | calibration-study | calibrate | expression",
   );

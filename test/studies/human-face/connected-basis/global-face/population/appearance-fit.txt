@@ -76,3 +76,11 @@ park-eun-bin lips 0.4062 0.132 0.1331
 rupert-grint lips 0.3125 0.0736 0.0777
 yoo-seung-ho lips 0.2399 0.0862 0.08
 kdy1 unchanged
+
+# 2026-09-27 refit of the two documents the published fits had left stale: Lee Tae-ri's albedo follows the recorded sex (e0f1e958), so the fits that multiply it run again; Michael Gambon's greyscale photograph shows no hue, so his lips take the lip material's chromaticity and his hair is neutral (the greyscale rules the fits already carry). Photograph samples from appear-det2 (lips) and the j21-b receipt (iris, hair).
+lee-tae-ri lips 0.2549 0.0628 0.0617
+michael-gambon lips 0.3326 0.1109 0.1247
+iris lee-tae-ri mean 0.0175 0.0087 0.0064
+iris michael-gambon mean 0.0253 0.0253 0.0253
+hair lee-tae-ri color 0.0289 0.0230 0.0199
+hair michael-gambon color 0.3868 0.3868 0.3868

@@ -27,9 +27,12 @@
  * - the drop (`faceHairDropIndex`, chin to lowest hair over inter-ocular)
  *   with a common factor on each layer's hanging lengths, left, right, nape
  *   and back;
- * - the fringe (`faceHairFringeCoverage`, the share of the forehead and
- *   eyes between the eye corners and above the lower lids that hair covers)
- *   with a factor on each layer's front length.
+ * - the fringe (`faceHairFringeReach`, how far above the lower lids the
+ *   lowest tenth of the hair over the eye span ends, over inter-ocular) with
+ *   a factor on each layer's front scale, which cuts or grows every root by
+ *   its frontal share (`frontScale`): the frontal hairline's roots take much
+ *   of their length from the crown, which a factor on the front axis alone
+ *   could not shorten (Lee Tae-ri's locks hung across an eye at its floor).
  *
  * The crown's length lies over the scalp and keeps its authored value. Each
  * factor is solved by a secant iteration from 1 inside its range ([0.2, 8]
@@ -62,7 +65,7 @@ import {
   type IFaceHairShoulderNorms,
   faceHairDropIndex,
   faceHairFaceCoverage,
-  faceHairFringeCoverage,
+  faceHairFringeReach,
   faceHairHeadMask,
   faceHairLowestRow,
   faceHairShoulderDrop,
@@ -160,9 +163,12 @@ const CONTROLS = {
     reached: 0.1,
   },
   fringe: {
-    apply: lengths(new Set([4])),
+    apply: (layer: Layer, factor: number): Layer => ({
+      ...layer,
+      frontScale: Number(((layer.frontScale ?? 1) * factor).toFixed(5)),
+    }),
     range: [0.2, 3],
-    grows: true,
+    grows: false,
     reached: 0.05,
   },
 } as const;
@@ -224,7 +230,7 @@ const derived = documents.map((original) => {
         lowest,
         clipped: clipped && lowest !== null && lowest >= mask.height - 1,
       }),
-      fringe: faceHairFringeCoverage({
+      fringe: faceHairFringeReach({
         mask,
         top: at(10),
         eyes: [at(33), at(263)],

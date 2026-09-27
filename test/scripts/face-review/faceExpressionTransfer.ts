@@ -96,6 +96,8 @@ export function transferFaceExpression(props: {
   rest: Readonly<Record<string, number>>;
   /** Each unit's rest-reading deviation across the population's renders. */
   noise?: Readonly<Record<string, number>>;
+  /** Units this photograph cannot show (a fringe over a brow), held at rest. */
+  hidden?: readonly string[];
 }): IFaceExpressionTransferRow[] {
   const units = Object.keys(props.calibration);
   // Whether a unit, or its partner, stands out from the spread identity
@@ -136,7 +138,10 @@ export function transferFaceExpression(props: {
     const rest = props.rest[channel];
     if (score === undefined || rest === undefined)
       return { channel, weight: 0, status: "absent" as const };
-    if (!props.observable.includes(channel))
+    if (
+      !props.observable.includes(channel) ||
+      (props.hidden ?? []).includes(channel)
+    )
       return { channel, weight: 0, status: "unobservable" as const };
     const asked = score - rest;
     if (asked <= 0)

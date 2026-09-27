@@ -92,40 +92,41 @@ export function faceHairLowestRow(mask: IFaceHairMask): number | null {
 }
 
 /**
- * The share of the forehead and eyes the hair covers: the rectangle from the
- * top of the forehead (landmark 10) down to the higher lower lid (145, 374)
- * and between the lateral eye corners (33, 263), the region a fringe falls
- * over, or null when it has no pixel. It reaches through the palpebral
- * fissures, so a fringe hanging over the eyes still lengthens it rather than
- * saturating at the upper lids.
+ * Where a fringe ends over the eyes: in each pixel column between the
+ * lateral eye corners (33, 263), the lowest hair pixel from the top of the
+ * forehead (landmark 10) down to the higher lower lid (145, 374), or the
+ * forehead's top where the column has none; the index is the lower lid's
+ * height above the 90th percentile of those rows, over the eye corners'
+ * distance. A long fringe lowers it; a bare forehead gives the forehead's
+ * height. The percentile reads the lowest tenth of the eye span, so a few
+ * locks hanging across an eye count where a covered share would not tell
+ * them from a fringe that stops at the brows. Null when the span or the
+ * forehead is empty.
  */
-export function faceHairFringeCoverage(props: {
+export function faceHairFringeReach(props: {
   mask: IFaceHairMask;
   top: readonly [number, number];
   eyes: readonly [readonly [number, number], readonly [number, number]];
   lids: readonly [readonly [number, number], readonly [number, number]];
 }): number | null {
-  const x0 = Math.max(
-    0,
-    Math.ceil(Math.min(props.eyes[0][0], props.eyes[1][0])),
-  );
-  const x1 = Math.min(
-    props.mask.width,
-    Math.floor(Math.max(props.eyes[0][0], props.eyes[1][0])),
-  );
+  const [a, b] = props.eyes;
+  const x0 = Math.max(0, Math.ceil(Math.min(a[0], b[0])));
+  const x1 = Math.min(props.mask.width, Math.floor(Math.max(a[0], b[0])));
   const y0 = Math.max(0, Math.ceil(props.top[1]));
-  const y1 = Math.min(
-    props.mask.height,
-    Math.floor(Math.min(props.lids[0][1], props.lids[1][1])),
-  );
-  let covered = 0;
-  let total = 0;
-  for (let y = y0; y < y1; ++y)
-    for (let x = x0; x < x1; ++x) {
-      ++total;
-      if (props.mask.data[y * props.mask.width + x] !== 0) ++covered;
-    }
-  return total === 0 ? null : covered / total;
+  const lid = Math.min(props.lids[0][1], props.lids[1][1]);
+  const y1 = Math.min(props.mask.height, Math.floor(lid));
+  if (x1 <= x0 || y1 <= y0) return null;
+  const edges: number[] = [];
+  for (let x = x0; x < x1; ++x) {
+    let edge = y0;
+    for (let y = y0; y < y1; ++y)
+      if (props.mask.data[y * props.mask.width + x] !== 0) edge = y + 1;
+    edges.push(edge);
+  }
+  edges.sort((p, q) => p - q);
+  const edge =
+    edges[Math.min(edges.length - 1, Math.floor(0.9 * edges.length))]!;
+  return (lid - edge) / Math.hypot(a[0] - b[0], a[1] - b[1]);
 }
 
 /** Chin-to-shoulder norms by sex (`population/shoulder-drop-norms.json`). */

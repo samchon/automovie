@@ -6,6 +6,7 @@
  *   ttsx ... plan-face-likeness.ts yaw DETECTIONS OUT.json [DISTANCE]
  *   ttsx ... plan-face-likeness.ts frame DETECTIONS_DIR CAPTURES OUT.json
  *   ttsx ... plan-face-likeness.ts refine CALIBRATION POSES RENDERS OUT.json
+ *   ttsx ... plan-face-likeness.ts pnp STUDY POSES ANCHORS DETECTIONS OUT.json
  *
  * The published subjects and their photograph hashes come from the tracked
  * `subject-receipt.json`. The order of a run is fixed:
@@ -36,12 +37,25 @@
  * step 1 calibration renders in CALIBRATION (`refineFaceLikenessPoses`),
  * keeping every other camera field; its `.plan.json` records the residuals.
  *
+ * `pnp` moves each pose of POSES to the yaw and pitch under which the
+ * study's document of that subject, its interior landmarks placed by the
+ * view's ANCHORS (`anchor-face-landmarks.ts`), projects best onto the
+ * photograph's landmarks in DETECTIONS (`searchFaceLikenessPose`, 1 degree
+ * steps within 20 degrees, then a quarter degree), keeping every other
+ * camera field; its `.plan.json` records each residual before and after.
+ *
  * `measure-face-likeness.ts` then compares all of it. Every pose file keeps
  * the subjects without a plan out, so the capture page refuses them rather
  * than inventing a camera.
  */
+import {
+  type IAutoMovieHumanFaceBasis,
+  type IAutoMovieHumanFaceBasisDocument,
+  createHumanFaceBasisBuilder,
+} from "@automovie/human";
 import fs from "node:fs";
 import path from "node:path";
+import { gunzipSync } from "node:zlib";
 
 import {
   faceLikenessRegionUnion,
@@ -65,6 +79,15 @@ import {
   planFaceLikenessYaws,
   refineFaceLikenessPoses,
 } from "./faceLikenessPlan";
+import {
+  FACE_LIKENESS_SILHOUETTE,
+  searchFaceLikenessPose,
+} from "./faceLikenessPoseSearch";
+import {
+  type IFaceShapeFitAnchor,
+  faceShapeFitAnchorPoint,
+  faceShapeFitSurfacePositions,
+} from "./faceShapeFitSurface";
 
 const RECEIPT =
   "studies/human-face/connected-basis/global-face/subject-receipt.json";
@@ -248,4 +271,64 @@ if (command === "manifest") {
     });
   }
   write(output, poses);
-} else throw new Error("Command must be manifest, yaw, refine or frame.");
+} else if (command === "pnp") {
+  const [study, poseFile, anchorFile, detectionFile, output] = args;
+  if (output === undefined)
+    throw new Error("pnp STUDY POSES ANCHORS DETECTIONS OUT.json");
+  const basis = JSON.parse(
+    gunzipSync(fs.readFileSync(path.join(study!, "basis.json.gz"))).toString(
+      "utf8",
+    ),
+  ) as IAutoMovieHumanFaceBasis;
+  const documents = readFaceLikenessJson<IAutoMovieHumanFaceBasisDocument[]>(
+    path.join(study!, "subjects.json"),
+  );
+  const views = readFaceLikenessJson<{
+    views: Record<
+      string,
+      { anchors: { landmark: number; anchor: IFaceShapeFitAnchor | null }[] }
+    >;
+  }>(anchorFile!).views;
+  const byId = indexFaceLikenessDetections(
+    readFaceLikenessJson<IFaceLikenessDetections>(detectionFile!),
+  );
+  const poses = readFaceLikenessJson<
+    Record<string, Parameters<typeof searchFaceLikenessPose>[0]["pose"]>
+  >(poseFile!);
+  const build = createHumanFaceBasisBuilder(basis);
+  const silhouette = new Set(FACE_LIKENESS_SILHOUETTE);
+  const moved: Record<string, unknown> = {};
+  const plan: Record<string, unknown>[] = [];
+  for (const [subject, pose] of Object.entries(poses)) {
+    const document = documents.find((one) => one.id === `${subject}-connected`);
+    const photo = byId.get(`photo:${subject}`)?.face?.landmarks;
+    const view = views[subject];
+    if (document === undefined || photo === undefined || view === undefined) {
+      moved[subject] = pose;
+      plan.push({ subject, kept: "no document, photograph or view" });
+      continue;
+    }
+    const skin = faceShapeFitSurfacePositions(
+      basis,
+      build({ ...document, hair: undefined }),
+      "Human",
+    );
+    const pairs = view.anchors.filter(
+      (one) =>
+        one.anchor !== null &&
+        !silhouette.has(one.landmark) &&
+        photo[one.landmark] !== undefined,
+    );
+    const found = searchFaceLikenessPose({
+      model: pairs.map((one) => faceShapeFitAnchorPoint(skin, one.anchor!)),
+      photo: pairs.map((one) => photo[one.landmark] as [number, number]),
+      pose,
+      span: 20,
+      step: 1,
+    });
+    moved[subject] = { ...pose, yaw: found.yaw, pitch: found.pitch };
+    plan.push({ subject, landmarks: pairs.length, ...found });
+  }
+  write(output, moved);
+  write(output.replace(/\.json$/, ".plan.json"), plan);
+} else throw new Error("Command must be manifest, yaw, refine, frame or pnp.");

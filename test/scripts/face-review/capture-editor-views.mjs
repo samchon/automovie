@@ -9,8 +9,9 @@
  * `capture-articulation.mjs` draws exported meshes with its own lights and
  * materials, which is enough for geometry (landmarks, hair silhouettes) but
  * not for appearance: the editor shows the same builder output through its
- * own stage (ACES tone mapping, a key, fill and rim with soft shadows, a
- * hemisphere), transmissive optics and alpha-to-coverage cut-outs. This
+ * own stage (a linear display exposed on a grey card, a softbox key, a fill
+ * and rim with soft shadows, a hemisphere), transmissive optics and
+ * alpha-to-coverage cut-outs. This
  * runner shows each document the way an author does, by writing it into the
  * editor's document field and applying it, then places the display camera
  * with `window.__connectedFace.look` at the pose file's yaw, pitch, distance,
@@ -29,7 +30,11 @@
  * not know refused. The canvas is 900 by 900 pixels at device
  * pixel ratio 1. The `RENDERER` string is logged and written into
  * `captures.json` beside each camera, in the format the measurement reads,
- * with the view named `reference-yaw`.
+ * with the view named `reference-yaw`. With `OCCLUSION=off` in the
+ * environment the editor's Occlusion box is cleared before the first
+ * document, so every capture is built without its baked ambient occlusion
+ * (rounds compared with ones measured before it existed); `captures.json`
+ * records which.
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -102,6 +107,12 @@ await page.waitForFunction(
 );
 const renderer = await page.evaluate(() => window.__connectedFace.renderer());
 console.log("RENDERER:", renderer);
+const occlusion = process.env.OCCLUSION !== "off";
+if (!occlusion)
+  await page.evaluate(() => {
+    const box = document.querySelector("#occlusion");
+    if (box !== null) box.checked = false;
+  });
 const captures = [];
 const refused = [];
 for (const document_ of documents) {
@@ -186,6 +197,7 @@ fs.writeFileSync(
   JSON.stringify(
     {
       renderer,
+      occlusion,
       poseFileSha256: createHash("sha256").update(poseBytes).digest("hex"),
       captures,
       refused,
