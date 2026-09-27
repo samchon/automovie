@@ -1,23 +1,30 @@
-/** Exactness follows the authored member's building role, including fixed
- * fittings and exterior cladding filed alongside furniture. */
-const fixedMembers = new Map([
-  ["10-kitchen-dining.md", new Set(["kitchen-base-run", "kitchen-wall-cabinet"])],
-  ["11-living.md", new Set(["fireplace-insert-mantel"])],
-  ["12-service-rooms.md", new Set(["laundry-upper-storage", "pantry-l-shelf"])],
-  ["13-bedrooms.md", new Set(["sliding-closet", "wardrobe-hanging", "wardrobe-shelves"])],
-  ["14-bathrooms.md", new Set(["vanity-basin", "sliding-shower-booth", "bathtub"])],
-  ["15-outdoor.md", new Set(["lap-siding-board", "exterior-corner-trim", "asphalt-shingle-strip", "eave-gutter-downspout"])],
-]);
-const approximateContents = new Map([
-  ["sliding-closet", new Set(["clothes"])],
-  ["wardrobe-hanging", new Set(["clothes"])],
-  ["wardrobe-shelves", new Set(["folded", "shoe-box", "basket"])],
-  ["vanity-basin", new Set(["accessory"])],
-]);
+/** Exactness follows the authored member's building role. Mixed files declare
+ * an envelope, fitted, or fixed-service role in the owning H2 rather than this
+ * gate guessing from an anchor-name list. */
+const fs = require("node:fs");
+const path = require("node:path");
+const docs = path.resolve(__dirname, "../../docs/models");
+/** @type {Map<string, Map<string, string>>} */
+const cache = new Map();
+/** @param {string} file @param {string} anchor */
+const body = (file, anchor) => {
+  let sections = cache.get(file);
+  if (!sections) {
+    sections = new Map();
+    for (const chunk of fs.readFileSync(path.join(docs, file), "utf8").split(/^## /m).slice(1)) {
+      const id = /\{#([^}]+)\}/.exec(chunk.split("\n", 1)[0])?.[1];
+      if (id) sections.set(id, chunk.replace(/<!--[\s\S]*?-->/g, ""));
+    }
+    cache.set(file, sections);
+  }
+  return sections.get(anchor) ?? "";
+};
+const approximateContents = new Set(["clothes", "folded", "shoe-box", "basket", "accessory"]);
 /** @param {{file:string; anchor?:string; id?:string; candidate:boolean}} row */
-const isBuildingFaceMissing = (row) =>
-  !row.candidate && (/^0[1-6]-/.test(row.file) ||
-    (row.anchor !== undefined && fixedMembers.get(row.file)?.has(row.anchor) === true &&
-      (row.id === undefined || !approximateContents.get(row.anchor)?.has(row.id))));
+const isBuildingFaceMissing = (row) => {
+  if (row.candidate || (row.id && approximateContents.has(row.id))) return false;
+  if (/^0[1-6]-/.test(row.file)) return true;
+  return !!row.anchor && /^건물 분류: (?:외피|붙박이|설비) —/m.test(body(row.file, row.anchor));
+};
 
 module.exports = { isBuildingFaceMissing };

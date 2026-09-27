@@ -67,6 +67,8 @@
 @evidence obligations/design/models.md#model-representation-completion 판 단면·노출은 이 H2, 길이 매개변수의 실제 값·절단은 instances, 끝마감 몰딩은 트림 owner로 계정하고 제품 대조를 선언된 한계로 남긴다. 구조적 유효성과 의미적 완결을 따로 판정하지는 않는다.
 -->
 
+건물 분류: 외피 — 외벽에 붙는 사이딩 판이다.
+
 레퍼런스 01의 흰 외벽에서 수평으로 끊기지 않는 lap siding 줄과 아래 끝의 얕은 그림자를 채택한다. 레퍼런스 02의 절개 외벽은 이음 위치만 보조로 읽고, 사진 픽셀에서 판 높이와 두께를 역산하지 않는다.
 
 [재료 읽힘 설정](../settings/20-verification.md#visual-grammar)의 일관된 수평 course를 위해 판 한 장의 단면과 노출 0.15 m를 이 원형에서 정한다. [siding course 반복 법칙](../instances/03-exterior-repetition.md#siding-course-law)은 이 원형을 소비하여 시작 datum·절단·구성원 수를 정한다. 이 원형은 길이 L을 매개변수로 받는 쐐기 단면 판이며 L은 instances가 벽 구간과 개구부 절단에서 정한다. 로컬 원점은 판 아래 가장자리의 길이 중심이며 뒷면(외벽 바탕 면) 위에 있고, +X가 판 길이 방향, +Y가 위, +Z가 날씨 면 바깥 법선이다.
@@ -96,6 +98,8 @@
 @evidence contracts/surface-ownership.md#whole-surface-owner 구조 벽·siding 절단면·독립 L자 trim의 닫힌 면을 서로 다른 owner로 나누고 어느 끝면도 복제하지 않는다.
 -->
 
+건물 분류: 외피 — 외벽 모서리를 덮는 trim이다.
+
 레퍼런스 01에서 흰 본채 박공과 차고 외벽 모서리의 세로 판을 채택한다. [외벽 모서리 몸체](../spaces/07-boundary-assembly.md#exterior-boundary-junctions)는 spaces가 만들고, 이 원형은 그 두 날씨 면이 만나는 외측 교선에 붙는 하나의 닫힌 L자 trim만 만든다. 구조 벽·사이딩 판의 절단면·처마 fascia·창과 문 casing을 다시 만들지 않는다.
 
 국소 원점은 두 외벽 날씨 면 교선의 실제 노출 하단이다. +Y는 위, +X와 +Z는 각 이웃 입면의 외벽 면을 따라 모서리에서 멀어지는 방향이고 두 날씨 면은 국소 X=0·Z=0이다. 바깥쪽으로 돌출한 닫힌 L단면은 XZ 평면의 꼭짓점 `(-0.035,-0.035) → (0.075,-0.035) → (0.075,0) → (0,0) → (0,0.075) → (-0.035,0.075)` m를 잇는다. 따라서 각 날개는 해당 벽면을 따라 0.075 m 뻗고 날씨 면보다 0.035 m 돌출하며 두께도 0.035 m다. siding 판의 butt 최외점은 날씨 면에서 0.030 m이므로 trim 앞점이 0.005 m 더 나와 끝 절단면을 가린다. 사이딩 줄은 모서리에서 trim의 안쪽 X/Z=0.075 m 면에 맞대고 trim 뒤로 겹치지 않는다. 두 날개의 공통 모서리 사각형은 이 단면 한 번에만 포함되어 두 직육면체가 겹치지 않는다. 판의 하단은 외벽의 실제 노출 시작선, 상단은 해당 외벽의 처마 아래면 또는 박공 경사와 만나는 선으로 받으며, 지표·기단·지붕 구조를 관통하지 않고 그 선에서 절단·마감한다. 시작선과 끝선이 높이마다 달라지면 각 날개를 해당 선으로 자르고 두 날개의 공통 꼭짓점은 하나의 닫힌 접합으로 유지한다. 건물의 노출 모서리 목록과 실제 길이는 spaces 경계에서 후속 instances가 읽는다.
@@ -123,6 +127,8 @@
 @evidence obligations/design/models.md#representation-ceiling 이 원형은 중첩 결의 기하만 보이며 방수·접착·입자 질감·풍하중 성능을 주장하지 않는다는 한계를 둔다.
 @evidence obligations/design/models.md#articulation-ownership 줄·starter·ridge-cap·roof-flashing 모두 피벗 없는 강체이며 motion이 바꿀 인터페이스가 없다고 밝힌다.
 -->
+
+건물 분류: 외피 — 지붕 경사면에 붙는 지붕재다.
 
 레퍼런스 01의 어두운 박공지붕에 보이는 촘촘한 가로 줄과 작은 탭의 반복을 채택한다. 레퍼런스 02의 지붕 없는 절개 상층은 지붕널 모양의 근거에서 제외한다. 노출 폭과 단차는 사진 비례가 아니라 아래 모델 치수로 정한다.
 
@@ -158,6 +164,8 @@
 @evidence settings/20-verification.md#visual-grammar 레퍼런스 01의 외피 모서리와 돌출 부재를 실제 두께가 있는 홈통으로 채운다.
 @evidence obligations/design/models.md#addressable-model-decisions 외장 지붕널과 홈통을 다른 H2에 두어 표면과 반복 규칙이 뒤섞이지 않게 한다.
 -->
+
+건물 분류: 외피 — 처마와 벽에 연결되는 배수 부재다.
 
 레퍼런스 01의 가로 처마 끝 물받이와 수직 선홈통을 채택한다. 각 [노출 처마 경계](../spaces/roof/main-front.md#main-front-roof)는 roof owner가 내는 선분 열을 입력으로 받고, 지붕 판·fascia를 복제하지 않는다. `gutter`는 위가 열린 폭 0.12 m·깊이 0.08 m의 U단면, 금속 두께 0.003 m로 처마 물끊기 끝에서 바깥으로 0.03 m, 아래로 0.025 m 물려 건다. 외면과 속면·양 끝 절단면 전체가 같은 id다. 각 연결된 처마 구간의 바깥에서 보아 오른쪽 끝에 선홈통을 두되, 그 수직 투영 띠가 개구부 trim에서 0.15 m 안이면 왼쪽 끝을 택한다. 양 끝 모두 막히면 원형을 억지로 관통시키지 않고 roof/입면 owner에 stop으로 돌린다. `downspout`은 닫힌 0.08 × 0.06 m 직사각 관, 벽 두께 0.003 m, 외벽 날씨 면에서 0.02 m 떨어져 처마 밑에서 지면 위 0.10 m까지 이어진다. 노출관과 두 끝면은 같은 id다. 경로 길이는 입력 처마 끝과 입면 지표에서 계산하며 별도 world 좌표를 적지 않는다. UV는 처마·관의 길이를 U, 단면 둘레를 V로 하는 미터 좌표이고 모서리 엘보·관 끝에서 이음을 끊는다. 엘보는 반지름 0.10 m 90°의 네 분절 관이며 같은 `downspout` 표면이다. 실제 배수·우수관 연결·하중은 이 원형이 증명하지 않는다. source owner는 `src/models/exterior/drainage.ts`; 실제 접합과 GPU 프레임은 unverified다.
 

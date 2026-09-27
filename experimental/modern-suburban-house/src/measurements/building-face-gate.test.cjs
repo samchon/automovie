@@ -21,6 +21,7 @@ void test("rough furniture and props stay as reported review candidates", () => 
 void test("fixed fittings and exterior cladding use building exactness", () => {
   for (const [file, anchor] of [
     ["10-kitchen-dining.md", "kitchen-base-run"],
+    ["10-kitchen-dining.md", "kitchen-island"],
     ["11-living.md", "fireplace-insert-mantel"],
     ["12-service-rooms.md", "pantry-l-shelf"],
     ["13-bedrooms.md", "sliding-closet"],

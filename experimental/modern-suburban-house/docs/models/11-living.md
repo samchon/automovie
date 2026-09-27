@@ -156,6 +156,8 @@
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 거실의 레퍼런스 04 뷰를 검사한다.
 -->
 
+건물 분류: 설비 — spaces가 비운 벽돌 화구에 삽입하는 화구와 그 위 선반이다.
+
 [거실 조건](../settings/10-house.md#living)은 검은 화구·벽돌 본체·목재 선반을 구별한다. 벽돌 앞면과 굴뚝은 [왼쪽 입면 owner](../spaces/envelope/left.md#chimney-roof-interface)가 지었고, 화구 자리만 빈다. 이 원형의 국소 원점은 화구 아래 가운데의 벽돌 앞면이고 +Z는 거실 쪽, +X는 화구 가로, +Y는 위다. 화구 void는 폭 1.04 m, 높이 0.64 m, 바닥 위 0.23–0.87 m, 깊이 0.55 m다. 뒤·좌우·위·아래에 각각 두께 0.025 m의 닫힌 검은 금속 판을 놓되 판의 외곽은 void를 넘지 않는다. 전면 테는 폭 0.025 m, 두께 0.015 m이며 벽돌 앞면 안으로 물려 거실 쪽으로 돌출하지 않는다. 내부에서 벽돌과 화구가 함께 보이게 하는 것이 목적이고 불꽃·연도·연소는 구현하지 않는다.
 
 목재 선반은 벽돌 앞면 전체 폭 1.60 m, 깊이 0.55 m, 높이 0.10 m다. 바닥 위 Y = [1.30, 1.40] m를 채워 그 아래 벽돌 상단과 한 경계에서 만난다. 상면·아래면·네 옆면 모두 `mantel`, 금속 내부 판 모든 면은 `firebox`, 전면 테 모든 면은 `firebox-trim`이다. 목재 결을 위한 UV는 가로를 U·깊이를 V로, 검은 판은 각 판 국소 가로·세로를 미터로 투영한다. 위치와 크기는 [실내 앞면 예약](../spaces/envelope/left.md#chimney-roof-interface) 안이며 벽난로 앞 0.90 m 통로까지 늘어나지 않는다. 소스 owner는 `src/models/furnishings/living.ts`; [모델 고정 뷰](00-model-frame.md#model-review-set)와 레퍼런스 04의 거실 정면에서 검은 중심·벽돌·목재 세 재료를 대조한다. 실제 source와 렌더는 unverified다.

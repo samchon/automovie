@@ -54,6 +54,8 @@
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정의 세면대를 W = 0.85 m, D = 0.55 m 매개변수로 제공하되 설정이 말한 회갈색은 이 H2가 정하지 않고 표면 id `carcass`, `leaf`로만 남긴다.
 -->
 
+건물 분류: 설비 — 욕실 벽과 바닥 예약에 맞추는 고정 세면장이다.
+
 레퍼런스 02의 욕실 세면장과 05의 샤워 욕실 문 너머 세면 구역을 채택한다. 방마다 다른 폭은 예약에서 받는다.
 
 세면장은 폭 W와 깊이 D를 받는 한 원형이며 상면은 세 곳 모두 0.85 m다. [파우더룸](../spaces/rooms/powder.md#powder-fixture-use) X = [3.65, 4.25], Z = [-0.70, -0.25]는 W = 0.60 m, D = 0.45 m, 전면 -Z다. [샤워 욕실](../spaces/rooms/shower-bath.md#shower-fixture-use) X = [2.52, 3.07], Z = [-6.80, -6.10]은 W = 0.70 m, D = 0.55 m이고, [욕조 욕실](../spaces/rooms/tub-bath.md#tub-fixture-use) X = [4.95, 5.50], Z = [-5.75, -4.90]은 W = 0.85 m, D = 0.55 m이며 둘 다 전면 -X다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 +Z가 사용자가 서는 정면이다.
@@ -138,6 +140,8 @@
 @evidence obligations/design/models.md#articulation-ownership 앞면 세 유리의 피벗 `panel-1`, `panel-2`, `panel-3`가 로컬 +X로 미끄러져 오른쪽 끝에 한 장 폭으로 포개지는 motion 인터페이스이고, 오른쪽 유리는 고정 유리로 둔다.
 -->
 
+건물 분류: 설비 — 샤워실 바닥·벽에 맞추는 고정 부스다.
+
 레퍼런스 02의 상층 유리 샤워부스를 채택한다. 레퍼런스 05는 내부를 부분만 보여 주므로 문 패널 수의 근거로 쓰지 않는다.
 
 샤워부스는 [샤워 욕실 예약](../spaces/rooms/shower-bath.md#shower-fixture-use)의 X = [0.90, 2.15], Z = [-8.80, -7.70], 상층 바닥 위 2.10 m를 외곽으로 받아 폭 1.25 m, 깊이 1.10 m, 높이 2.10 m다. 방 왼쪽 벽과 뒤쪽 벽이 두 면을 이루므로 원형은 앞면과 오른쪽 면만 만든다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르며 yaw 0이므로 로컬 +Z는 world +Z, 로컬 +X는 world +X다.
@@ -167,6 +171,8 @@
 @evidence spaces/rooms/tub-bath.md#tub-fixture-use 욕조 욕실 예약 X = [4.70, 5.50], Z = [-8.70, -6.90], 상층 바닥 위 가장자리 0.55 m를 폭 0.80 m·길이 1.80 m·높이 0.55 m 외곽으로 소비한다.
 @evidence settings/10-house.md#tub-bathroom 욕조 욕실 설정의 욕조 겸 샤워와 욕조 가장자리·샤워 수전을 폭 0.06 m 테, 뒤쪽 끝 수전, 바닥 위 1.90 m까지 오르는 샤워 기둥과 헤드로 제공한다.
 -->
+
+건물 분류: 설비 — 욕실 바닥·벽 예약에 맞추는 고정 욕조다.
 
 레퍼런스 02의 별도 욕조 욕실 안 흰 욕조를 채택한다. 물과 배수 작동은 사진의 밝은 표면에서 추론하지 않는다.
 

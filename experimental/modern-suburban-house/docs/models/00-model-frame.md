@@ -2,7 +2,7 @@
 
 ## 국소 좌표와 배치 규칙 {#model-local-frame}
 <!--
-@evidence principles/core/common.md#scope-preservation 이 H2는 개구부 하나를 채우는 충전 모델의 공통 단위·축·배치 회전, 거친 외곽을 spaces에서 받고 부재 치수를 models에서 정하는 경계를 맡는다. 문 종류별 원점과 축의 명시적 변환은 각 원형 H2에 남긴다.
+@evidence principles/core/common.md#scope-preservation 이 H2는 개구부 하나를 채우는 충전 모델의 공통 단위·축·배치 회전, 거친 외곽을 spaces에서 받고 부재 치수를 models에서 정하는 경계를 맡는다. 외벽 창·외부 문과 실내 문의 원점 면도 여기서 정한다.
 @evidence principles/core/common.md#substantive-completion 원점을 거친 개구부 아래 변 가로 중앙, 외벽 창·외부 문은 날씨 면, 실내 문은 열림 쪽 벽면으로 정하고 회전을 Y축 0·π·±π/2 중 하나로 한정해 구현자가 배치 기준을 새로 고르지 않게 한다.
 @evidence principles/core/common.md#declared-basis 단위와 축은 settings/00-production.md#coordinate-units, 개구부 좌표 owner와 0.04·0.14 m 예약은 spaces/06-openings.md#external-opening-interface에서 받는다고 링크로 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 제작 좌표의 오른손 Y-up·m·rad를 개구부 충전의 아래 변 중앙 기준과 외벽 날씨 면·실내 문 열림 면 기준, Y축 네 배치 회전으로 구체화한다.
@@ -173,7 +173,7 @@
 @evidence principles/design/models.md#reviewable-structure 같은 역할이 다른 id를 쓰거나 한 id가 두 역할을 가지면 materials 바인딩 뷰에서 경계가 어긋나 반증된다.
 @evidence principles/design/models.md#model-observable-style-basis charcoal·흰 trim 같은 색은 materials 몫으로 남기고 모델은 부재 역할 경계만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 모든 모델이 공유하는 표면 인터페이스 이름을 정해 표면 층이 빠진 모델이 생기지 않게 한다.
-@evidence obligations/design/models.md#addressable-model-decisions 이 H2가 공통 면 이름을 주소로 두고 각 창·문·계단·수납 원형의 실제 표면 분할은 해당 원형의 표면 H2가 정하도록 분리한다.
+@evidence obligations/design/models.md#addressable-model-decisions 이 H2는 공통 면 id의 역할과 안팎 접미사·절단 끝 배정 규칙을 주소로 둔다. 실제 결합은 각 H2가 내는 id에 대조하도록 본문에서 요구한다.
 @evidence settings/20-verification.md#surface-allocation 모델이 경계를 받아 두께 있는 부재와 안정 표면 id를 내고 materials가 같은 binding으로 마감한다는 인계를 소비한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work surface-allocation을 적힌 그대로 소비했고 id 목록을 정하는 데 settings나 spaces의 수정이 필요하지 않았다.
 @evidence obligations/core/common.md#production-language id는 영어 kebab-case, 역할 설명과 본문은 한국어로 두고 id마다 괄호 안 한국어 역할을 붙여 독자가 용어를 추측하지 않게 한다.
@@ -189,7 +189,7 @@
 
 ## 원형 계열별 표현 완결 보고 {#model-representation-completion}
 <!--
-@evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고하는 경로를 정한다.
+@evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고한다. 외피·붙박이·고정 설비는 파일 번호가 아닌 건물 접합 역할로 엄격 검사에 넣는다.
 @evidence principles/core/common.md#substantive-completion 구조 판정을 닫힌 부피·바깥 법선·유한 좌표·id와 관절 노드로, 의미 판정을 예약 산술·표현 한계·리뷰 캡처로 정하고 source가 없어 구조 판정이 현재 unverified라고 적는다.
 @evidence principles/core/common.md#declared-basis 의미 판정 기준을 contracts/reservation-fit.md#reservation-fit과 이 파일의 model-review-set에서 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공용 완결 의무를 이 주택의 아홉 원형 계열(창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품)로 나누고 현재 H2별 예약 산술 표와 후속 source 구조·캡처 검사를 분리한다.
@@ -206,6 +206,8 @@
 -->
 
 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
+
+건물 부재의 엄격 검사는 외벽·지붕의 외피와 trim, 바닥·벽·개구부에 맞춘 붙박이 수납, 배관 또는 벽체에 고정되는 설비에 적용한다. 01–06의 창·문·계단·수납·실내 trim은 이 범위에 들고, 10–19의 원형은 각 H2 본문의 `건물 분류: 외피`·`건물 분류: 붙박이`·`건물 분류: 설비`로 같은 기준을 선언한다. 싱크 섬은 바닥 예약과 급배수 기능을 소비하는 설비라 이 범위에 포함한다. 이동 가구와 그릇·직물·식물 같은 대략 소품에는 이 엄격한 면별 치수 증인을 요구하지 않는다.
 
 모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납·걸레받이 부재([05](05-closet-fittings.md)·[06](06-interior-trim.md)), 가구·설비([10](10-kitchen-dining.md)–[15](15-outdoor.md)), 식재([16](16-planting.md)), 조명기구([17](17-light-fixtures.md)), 생활 소품([18](18-house-props.md)–[19](19-room-accents.md))이다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 현재 [예약 맞춤 account](../accounts/models/reservation-fit.md#model-reservation-fit)는 모델 H2와 예약 산술 두 칸만 전수로 열거한다. 구조 검사 결과와 계열별 실제 캡처 주소는 모델 source 단계에서 따로 보고하며 아직 unverified다. 소스 owner는 `src/models/frame.ts`다.
 

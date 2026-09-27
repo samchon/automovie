@@ -157,6 +157,8 @@
 @evidence obligations/design/models.md#articulation-ownership 앞 왼쪽 문 `door-front`는 +X, 뒤 오른쪽 문 `door-back`은 -X로 각각 0–0.72 m 미끄러지고 기준 상태는 둘 다 닫힘이라고 정한다.
 -->
 
+건물 분류: 붙박이 — 방의 벽 앞 예약에 맞추는 바닥부터 위까지의 옷장이다.
+
 레퍼런스 02의 작은 침실 수납과 05의 열린 옷장을 채택한다. 문짝 두께와 옷 개수는 사진에서 재지 않고 예약과 이 H2의 수치로 정한다.
 
 옷장은 [둘째 침실](../spaces/rooms/bedroom-two.md#bedroom-two-furniture-use) X = [-2.55, -1.95], Z = [-2.95, -1.45]와 [셋째 침실](../spaces/rooms/bedroom-three.md#bedroom-three-furniture-use) X = [4.90, 5.50], Z = [-2.80, -1.30]에 쓰는 한 원형이다. 두 예약 모두 폭 1.50 m, 깊이 0.60 m, 높이 2.20 m이고 -X 면에 미닫이 문을 둔다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 원점은 몸통 뒤면 바닥 중앙이고 +Z는 문 면이다.
@@ -219,6 +221,8 @@
 @evidence obligations/design/models.md#representation-ceiling 옷을 순번 i mod 3의 결정식으로 두께·길이를 고정한 판 묶음 대리 형상으로 두고 이 대리가 받치는 관찰을 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지로 한정한다.
 -->
 
+건물 분류: 붙박이 — 옷방 예약의 바닥·양옆에 맞춘 수납 몸통과 봉이다.
+
 레퍼런스 05 복도 옆 열린 옷장의 걸린 옷을 채택한다. 36벌의 두께와 길이 순서는 사진의 옷을 세지 않고 결정 규칙으로 만든다.
 
 옷걸이 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [2.10, 4.25], Z = [-10.45, -9.90], 높이 상층 바닥 위 2.05 m를 외곽으로 받아 길이 2.15 m, 깊이 0.55 m다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 봉은 후면에서 0.28 m, 높이 1.65 m이고 상단 선반은 상면 2.05 m, 깊이 0.55 m다. 옷은 36벌의 얇은 부피다. 순번 i = 0…35에 대해 두께 `0.035 + 0.005 × (i mod 3)` m, 앞뒤 폭 0.50 m, 걸린 길이 `0.85 + 0.10 × (i mod 3)` m로 고정한다. 이에 따라 옷 한 벌 두께는 0.035–0.045 m다. 두께 합은 1.44 m이며 실제 길이 2.09 m 봉 중앙에 좌우 0.325 m씩 여유를 두고 순서대로 건다. 어깨는 봉 아래 0.05 m, 옷 아랫끝은 바닥 위 최소 0.55 m이며 뒤벽과 0.55 m 앞면 사이에 머문다. 재질 경계는 `rod`, `shelf`, `carcass`, `clothes`이고 관절은 없다. 옷걸이 개별 형상·소매·옷 주름은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 위에서 옷 앞 끝이 Z = -9.90 m를 넘지 않는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
@@ -244,6 +248,8 @@
 @evidence spaces/rooms/wardrobe.md#wardrobe-storage-use 옷방 예약 X = [4.40, 5.50], Z = [-10.45, -9.90]을 길이 1.10 m·깊이 0.55 m 외곽으로 소비한다.
 @evidence obligations/design/models.md#model-representation-completion 이 파일 마지막 H2로서 네 단 높이·상자와 바구니 치수·다섯 재질 경계·관절 없음을 적고 정면 관찰이 unverified임을 밝혀 이 H2의 표현 완결 몫을 기록한다.
 -->
+
+건물 분류: 붙박이 — 옷방 예약의 바닥·양옆에 맞춘 선반 몸통이다.
 
 선반 구간은 [옷방 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 X = [4.40, 5.50], Z = [-10.45, -9.90]을 받아 길이 1.10 m, 깊이 0.55 m다. 네 선반 상면은 바닥 위 0.20 m부터 0.45 m 간격인 0.20, 0.65, 1.10, 1.55 m이고 두께 0.03 m다. 각 선반마다 접은 옷 두 더미와 오른쪽 용기 하나를 좌우로 둔다. 아래 세 선반의 용기는 신발 상자, 맨 위 선반의 용기는 레퍼런스 05의 바구니로 채택한다. 더미는 각각 0.28 × 0.32 × 0.12 m, 상자와 바구니는 모두 0.30 × 0.35 × 0.20 m이며 바구니는 벽 두께 0.015 m의 열린 상자와 양옆 지름 0.025 m 둥근 손잡이 두 개로 만든다. 바구니 입구는 위로 열리고, 0.02 m 간격 두 개를 포함한 가로 합은 0.90 m라 실제 선반 길이 1.04 m 안에 양끝 0.07 m씩 남는다. 네 선반에 더미 8개와 상자 3개·바구니 1개가 생기고 각 높이는 다음 선반과의 0.45 m 간격보다 작다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따른다. 재질 경계는 `shelf`, `carcass`, `folded`, `shoe-box`, `basket`이고 관절은 없다. 접은 옷의 층·신발 형상·선반 브래킷은 표현하지 않는다. 소스 owner는 `src/models/furnishings/bedrooms.ts`다. 관찰은 정면에서 네 단이 읽히는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 

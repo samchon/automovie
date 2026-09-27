@@ -102,7 +102,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 ## 고정창의 계층 {#fixed-window}
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 창 한 칸과 차고 측면 창 두 칸의 고정창 계층(frame→unit-n→fixed-sash)을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 고정 sash의 Z=[−0.13,−0.08] m와 frame의 Z=[−0.18,−0.04] m 사이 날씨 쪽 0.05 m·실내 쪽 0.04 m 여백을 정하고, 관절 없는 rigid 부재로 둔다.
+@evidence principles/core/common.md#substantive-completion 고정 sash의 Z=[−0.13,−0.08] m와 frame의 Z=[−0.18,−0.04] m 사이 날씨 쪽 0.04 m·실내 쪽 0.05 m 여백을 정하고, 관절 없는 rigid 부재로 둔다.
 @evidence principles/core/common.md#declared-basis 고정창 형식은 spaces/06-openings.md#external-opening-interface에서, 각 창의 위치와 칸 수는 front.md#stair-front-window와 right.md#garage-right-window에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 인계의 계단·차고 고정창 형식을 관절 없는 fixed-sash와 각 칸의 유리 네 장으로 구현할 원형으로 구체화한다.
 @evidence principles/design/models.md#representation-contract 고정창의 계층과 rigid 상태를 정한다.
@@ -119,7 +119,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 
 레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 유리 반사 속 나무 모양은 표면 형상으로 복제하지 않는다.
 
-[공통 개구부 인계](../spaces/06-openings.md#external-opening-interface)에 따라 [계단 창](../spaces/envelope/front.md#stair-front-window)의 한 칸과 [차고 측면 창](../spaces/envelope/right.md#garage-right-window)의 두 칸은 고정창이다. 계층은 `frame` 아래 칸마다 `unit-<n>`과 `fixed-sash` 하나이며 sash는 [공통 깊이](#window-member-sizes)의 Z=[−0.13,−0.08] m에 두어 frame Z=[−0.18,−0.04] m 안에서 날씨 쪽 여백 0.05 m·실내 쪽 여백 0.04 m를 남긴다. 관절 인터페이스는 없고 모든 부재가 rigid다. 소스 owner는 `src/models/windows.ts`이며 계단참과 차고 내부 reveal 단면으로 검사한다.
+[공통 개구부 인계](../spaces/06-openings.md#external-opening-interface)에 따라 [계단 창](../spaces/envelope/front.md#stair-front-window)의 한 칸과 [차고 측면 창](../spaces/envelope/right.md#garage-right-window)의 두 칸은 고정창이다. 계층은 `frame` 아래 칸마다 `unit-<n>`과 `fixed-sash` 하나이며 sash는 [공통 깊이](#window-member-sizes)의 Z=[−0.13,−0.08] m에 두어 frame Z=[−0.18,−0.04] m 안에서 날씨 쪽 여백 0.04 m·실내 쪽 여백 0.05 m를 남긴다. 관절 인터페이스는 없고 모든 부재가 rigid다. 소스 owner는 `src/models/windows.ts`이며 계단참과 차고 내부 reveal 단면으로 검사한다.
 
 고정창도 거친 폭 W·높이 H·칸 수 n을 입력받아 [창 부재 치수](#window-member-sizes)의 `frame` 둘레 0.06 m·깊이 0.14 m와 칸 사이 `mullion` 폭 0.08 m를 그대로 쓴다. 칸 폭 c=(W−2×0.06−(n−1)×0.08)/n m의 `sash`는 한 칸에 한 장이며 테두리 0.05 m·깊이 0.05 m다. `muntin`은 그 안의 세로·가로 중앙 폭 0.025 m·깊이 0.01 m이고 `glass`는 한 칸당 네 장, 각각 열 폭 (c−2×0.05−0.025)/2 m·행 높이 (H−2×0.06−2×0.05−0.025)/2 m·두께 0.006 m다. 계단 창 n=1에는 `mullion`이 0개이고 차고 두 칸 사이에는 1개다.
 
@@ -180,7 +180,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/core/common.md#scope-preservation 창의 표면 id 9개(frame·sash·mullion·muntin·glass·obscured-glass·exterior-trim·interior-sill·interior-casing)를 이 H2가 맡는다.
 @evidence principles/core/common.md#substantive-completion frame·sash·mullion·muntin을 교체 경로 때문에 분리한다고 적어 표면 경계를 구현자가 합치지 않게 한다.
 @evidence principles/core/common.md#declared-basis id 규칙은 00-model-frame.md#model-surface-partition-naming, 유리 조건은 settings/10-house.md#openings에서 받는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 유리 투명도 구분을 `glass`와 `obscured-glass` 면으로 구분하고 실제 광학값은 materials에 둔다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 유리를 불투명 검은 판으로 대신하지 않는 조건과 spaces/06-openings.md#external-opening-interface의 흐린 욕실 유리 배정을 받아 `glass`와 `obscured-glass` 면을 나누고 광학값은 materials에 둔다.
 @evidence principles/design/models.md#representation-contract 창의 안정 표면 소유를 부재별로 정한다.
 @evidence principles/design/models.md#spatial-convention 표면 id는 01의 부재 노드에 붙고 새 좌표를 정하지 않는다.
 @evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 부재 경계와 id 경계가 일치하는지로 반증한다.

@@ -58,6 +58,64 @@ const bodyWitness = (model, id) => {
 const files = fs.readdirSync(path.join(docs, "materials"))
   .filter((name) => name.endsWith(".md"))
   .sort((a, b) => a.localeCompare(b));
+/** Material tables and affirmative clauses can assign a face to another
+ * material H2. Resolve the destination before counting that H2's faces. */
+/** @type {Map<string, Map<string, Set<string>>>} */
+const crossBindings = new Map();
+const ambiguousBindingTables = [];
+/** @param {string} material @param {string} face @param {string} host */
+const crossBind = (material, face, host) => {
+  let faces = crossBindings.get(material);
+  if (!faces) {
+    faces = new Map();
+    crossBindings.set(material, faces);
+  }
+  let hosts = faces.get(face);
+  if (!hosts) {
+    hosts = new Set();
+    faces.set(face, hosts);
+  }
+  hosts.add(host);
+};
+for (const file of files) for (const { anchor, body } of sections(read(`materials/${file}`))) {
+  for (const line of body.split(/\r?\n/).filter((value) => /^\|\s*\[/.test(value))) {
+    const cells = line.split("|");
+    if (cells.length < 4) continue;
+    const hosts = [...cells[1].matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)]
+      .map((match) => `${match[1]}#${match[2]}`);
+    const faceGroups = cells[2].split("/").map((group) =>
+      [...group.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((match) => match[1]));
+    const faces = faceGroups.flat();
+    const materialLink = /\]\((?:([0-3][0-9]-[^#)]+\.md))?#([^)]+)\)/g;
+    const destinationGroups = cells[3].split("/").map((group) =>
+      [...group.matchAll(materialLink)].map((match) => `${match[1] || file}#${match[2]}`));
+    const destinations = destinationGroups.flat();
+    if (destinations.length === 1) {
+      for (const face of faces) for (const host of hosts) crossBind(destinations[0], face, host);
+    } else if (destinationGroups.length === faceGroups.length && faceGroups.length > 1) {
+      destinationGroups.forEach((group, index) => {
+        for (const destination of group) for (const face of faceGroups[index]) for (const host of hosts)
+          crossBind(destination, face, host);
+      });
+    } else if (/순번별/.test(cells[3]) && destinations.length === hosts.length && faces.length === 1) {
+      destinations.forEach((destination, index) => crossBind(destination, faces[0], hosts[index]));
+    } else if (/인스턴스별/.test(cells[3]) && hosts.length === 1) {
+      for (const destination of destinations) for (const face of faces) crossBind(destination, face, hosts[0]);
+    } else if (destinations.length > 1 && hosts.length && faces.length) {
+      ambiguousBindingTables.push(`${file}#${anchor} :: ${line}`);
+    }
+  }
+  // Clauses of the form "`face`는 [host]·[host]의 금속부" bind every
+  // cited host. A following contrast clause must not inherit those links.
+  for (const clause of body.split(/(?<=다\.)\s+|,\s*/)) {
+    if (/아니라|받지 않는다|결합하지 않는다/.test(clause)) continue;
+    const lead = /`([a-z][a-z0-9-]*)`(?:은|는)\s*/.exec(clause);
+    if (!lead || !/(?:금속부|마감부|결합부|이다|받는다)/.test(clause.slice(lead.index))) continue;
+    const hosts = [...clause.slice(lead.index).matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)]
+      .map((match) => `${match[1]}#${match[2]}`);
+    for (const host of hosts) crossBind(`${file}#${anchor}`, lead[1], host);
+  }
+}
 /** Binding prose is the part of a material H2 that actually assigns its finish.
  * Later texture and contrast prose may mention a face without binding it. */
 /** @param {string} body @param {string} currentAnchor */
@@ -156,7 +214,8 @@ for (const file of files) {
     const spaceLinks = [
       ...new Set([...body.matchAll(/\]\(\.\.\/spaces\/([^#)]+)#([^)]+)\)/g)].map((m) => `${m[1]}#${m[2]}`)),
     ];
-    const ids = [...new Set([...prose.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((m) => m[1]))].sort(
+    const cross = crossBindings.get(`${file}#${anchor}`) ?? new Map();
+    const ids = [...new Set([...prose.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((m) => m[1]).concat([...cross.keys()]))].sort(
       (a, b) => a.localeCompare(b),
     );
     // A material can own a UV response without any separate mesh face. Keep
@@ -169,7 +228,7 @@ for (const file of files) {
       // An account id alone is not a maker: the linked physical H2 must name
       // the face in its own prose. This caught the unbuilt garden-door casing.
       const boundHosts = [...new Set(prose.split(/\n\n/).filter((sentence) => sentence.includes(`\`${id}\``))
-        .flatMap((sentence) => bindingHosts(sentence, id)))];
+        .flatMap((sentence) => bindingHosts(sentence, id)).concat([...(cross.get(id) ?? [])].map((host) => `models/${host}`)))];
       const boundModels = boundHosts.filter((host) => host.startsWith("models/")).map(
         (host) => host.slice(7),
       );
@@ -239,6 +298,7 @@ const summary = {
   falseLinkedMakers: falseLinkedMakers.length,
   invalidExplicitClaims: explicitInvalid.length,
   invalidTableClaims: tableInvalid.length,
+  ambiguousBindingTables: ambiguousBindingTables.length,
   modelPairs: allModelPairs.length,
   unwitnessedModelPairs: allModelPairs.filter((row) => !row.witnessed).length,
 };
@@ -270,7 +330,7 @@ const evidenceLine = existingLedger.split(/\r?\n/).find((line) =>
 if (!evidenceLine) throw new Error(
   "Material face account lacks its authored evidence reason",
 );
-const document = `# 재료 결합 면에서 출발한 설계 owner 전수\n\n## 모든 material H2의 명명 면 역대조 {#material-face-ledger}\n<!--\n${evidenceLine}\n-->\n\n이 목록은 \`node src/measurements/material-binding-scan.cjs --check\`가 재료 H2 본문 ${summary.materialH2}개와 [모델 face 계정](surface-ownership.md#model-surface-ownership)을 다시 읽어 대조한다. 결합 문장이 있는 H2에서는 모든 긍정 결합 문장을, 없는 H2에서는 본문 전체의 면 토큰을 센다. face id를 쓰지 않고 물리 부재를 부르는 H2는 [부재군 역대조](material-host-census.md#material-host-census)가 받는다. owner가 여러 개면 같은 id가 각각의 원형에서 명명된다는 뜻이며, 서로 한 면을 중복 생성한다는 뜻이 아니다. 표는 인용 H2 본문에 면 id가 명명됐는지만 보증한다. 같은 면의 부재 치수·위치·UV와 이웃 고체 접촉은 [면별 검토 후보 생산자](../../../src/measurements/face-witness-audit.cjs) 및 별도 기하 대조에서 확인해야 한다. 실제 메시 결속은 modelSources 이전에 unverified다.\n\n${table}\n`;
+const document = `# 재료 결합 면에서 출발한 설계 owner 전수\n\n## 모든 material H2의 명명 면 역대조 {#material-face-ledger}\n<!--\n${evidenceLine}\n-->\n\n이 목록은 \`node src/measurements/material-binding-scan.cjs --check\`가 재료 H2 본문 ${summary.materialH2}개와 [모델 face 계정](surface-ownership.md#model-surface-ownership)을 다시 읽어 대조한다. 각 재료 H2의 긍정 결합 문장과 다른 H2의 표가 이 재료에 배정한 (호스트 H2, face id)를 함께 센다. 긍정 결합 문장이 없는 H2에서는 본문의 면 토큰을 검토 후보로 센다. face id를 쓰지 않고 물리 부재를 부르는 H2는 [부재군 역대조](material-host-census.md#material-host-census)가 받는다. owner가 여러 개면 같은 id가 각각의 원형에서 명명된다는 뜻이며, 서로 한 면을 중복 생성한다는 뜻이 아니다. 표는 인용 H2 본문에 면 id가 명명됐는지만 보증한다. 같은 면의 부재 치수·위치·UV와 이웃 고체 접촉은 [면별 검토 후보 생산자](../../../src/measurements/face-witness-audit.cjs) 및 별도 기하 대조에서 확인해야 한다. 실제 메시 결속은 modelSources 이전에 unverified다.\n\n${table}\n`;
 if (process.argv.includes("--write")) fs.writeFileSync(ledgerFile, document);
 else if (process.argv.includes("--check")) {
   const observed = fs.readFileSync(ledgerFile, "utf8").replace(/\r\n/g, "\n");
@@ -314,6 +374,7 @@ else if (process.argv.includes("--json")) console.log(
       falseLinkedMakers,
       explicitInvalid,
       tableInvalid,
+      ambiguousBindingTables,
     },
     null,
     2,
@@ -335,3 +396,4 @@ for (const claim of tableInvalid) console.error(
   `INVALID TABLE FACE CLAIM ${claim}`,
 );
 if (unowned.length || unlinkedAssignments.length || missingModelWitness.length || falseLinkedMakers.length || summary.unwitnessedModelPairs || explicitInvalid.length || tableInvalid.length) process.exitCode = 1;
+if (ambiguousBindingTables.length) process.exitCode = 1;

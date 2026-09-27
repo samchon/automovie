@@ -31,6 +31,7 @@ const layerTasks = {
     "model face review candidates",
     "reviewed referents",
     "model contacts",
+    "segmented panel sweep",
     "door casing versus spaces",
     "tests",
     "lint",
@@ -70,6 +71,12 @@ const tasks = [
     process.execPath,
     [path.join(__dirname, "model-contact-check.cjs")],
     "model-contacts",
+  ],
+  [
+    "segmented panel sweep",
+    process.execPath,
+    [path.join(__dirname, "segmented-panel-sweep.cjs")],
+    "exit",
   ],
   [
     "door casing versus spaces",
@@ -132,7 +139,7 @@ for (const [name, command, args, kind] of tasks) {
       } else if (kind === "material-hosts") {
         errors += value.missing.length + value.extra.length + value.duplicates.length + value.empty.length + value.invalid.length;
       } else if (kind === "material-bindings") {
-        errors += value.unowned + value.unlinkedAssignments + value.falseLinkedMakers + value.invalidExplicitClaims + value.invalidTableClaims + value.unwitnessedModelPairs;
+        errors += value.unowned + value.unlinkedAssignments + value.falseLinkedMakers + value.invalidExplicitClaims + value.invalidTableClaims + value.ambiguousBindingTables + value.unwitnessedModelPairs;
       } else if (kind === "face-witnesses") {
         errors += value.withoutLiteralFaceId + value.buildingRequiringManualReview;
       } else if (kind === "referents") {
