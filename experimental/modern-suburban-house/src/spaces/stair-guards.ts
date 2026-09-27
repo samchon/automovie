@@ -28,13 +28,13 @@ type StairWall = (
 
 /**
  * @evidence spaces/02-stair.md This called helper fills the stair's open guard edges, floor notch finish and high ceiling under the same stair owner.
- * @evidenceReview spaces/02-stair.md #a47ac9f `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
+ * @evidenceReview spaces/02-stair.md #ab366f6 `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
  * @evidence spaces/02-stair.md#stair-floor-opening Five edge strips finish the interstorey recession; the same outline closes the stair hall ceiling above the guard band.
  * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 Five `edge` parts occupy the recessed L opening sides from the ground ceiling to upper floor; `stair-hall-ceiling` uses the same opening outline with its back replaced by `guardBack` above the guard band.
  * @evidence spaces/02-stair.md#stair-clearance Posts and rails derive their section from the opening's guardReserve and are checked against it.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `RESERVE` comes from `opening.guardReserve`; both posts and bars use that width, and the final guard-section loop rejects any narrow X or Z span that differs from it.
  * @evidence spaces/02-stair.md#stair-boundary-heights Each sloped rail follows its flight's tread noses 0.90 m above them; the corner post receives their distinct landing and first upper-nose heights, and the hall rail rises 1.05 m over its floor.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #9c45301 The lower `railTop` endpoints follow the first lower nose and landing; the upper endpoints follow `landingTop + rise` at turnX and upperFloor at east. The corner post reaches the upper start while receiving the lower end below it, and `guardTop` sets the flat hall rail at upperFloor + 1.05 m.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights #011869c The lower `railTop` endpoints follow the first lower nose and landing; the upper endpoints follow `landingTop + rise` at turnX and upperFloor at east. The corner post reaches the upper start while receiving the lower end below it, and `guardTop` sets the flat hall rail at upperFloor + 1.05 m.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the stair owner and datums rather than declaring another stair or taking the entry-owned closet interior.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildStair` supplies owner, opening, steps, upper base, and wall constructor; this helper returns only stair-owned guards, edge finish, and ceiling, leaving the entry closet and room floor to their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ordered solids close the floor edge and ceiling while constructing and checking actual guard sections.

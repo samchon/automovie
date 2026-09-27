@@ -169,7 +169,7 @@
 @evidence principles/design/spaces.md#space-topology front-door가 ground-storey 포치와 현관(entry-plan)을 잇는 연결임을 유지하고 상부 유리를 계단 창이나 별도 현관 바닥과 연결하지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 본문의 'ground-storey의 포치와 현관을 잇는다'와 상부 유리를 계단 창이나 별도 현관 바닥으로 해석하지 않는다는 문장을 대조해 front-door 연결 관계가 복원됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 문턱 UV의 U 원점에 필요한 현관문 왼쪽 문설주 값을 entry-plan에서 받고, 이 H2는 문턱 면의 UV 진행과 절단만 정한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority # 본문의 문턱 UV U=0은 현관 owner의 개구부 왼쪽 X=0.40 m에 링크되어 있다. 개구부 폭·높이와 경첩 배치는 entry-plan에 남고 이 H2는 문턱 상면·측면의 UV 축과 이음을 정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 본문의 문턱 UV U=0은 현관 owner의 개구부 왼쪽 X=0.40 m에 링크되어 있다. 개구부 폭·높이와 경첩 배치는 entry-plan에 남고 이 H2는 문턱 상면·측면의 UV 축과 이음을 정한다.
 @evidence principles/design/spaces.md#space-verification-address 01/04의 현관문과 포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이, 문 앞 양방향 통행을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문이 01/04의 현관문·포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이, 문 앞 양방향 통행을 unverified 관찰로 적었는지 확인해 현관문 충전의 반증 주소를 확인했다.
 @evidence settings/10-house.md#porch-entry 현관의 목재문·유리 상부·어두운 손잡이를 문짝 안의 분할과 손잡이 배치로 구현할 입력으로 만든다.

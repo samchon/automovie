@@ -118,9 +118,9 @@ export interface IExteriorZone {
   pendingMapGround?: "map-ground-pending";
   /**
    * @evidence spaces/site/01-paving-support.md A joined connector retains the same height calculation as its emitted paving.
-   * @evidenceReview spaces/site/01-paving-support.md #3764892 buildFrontWalk and buildSideWalk use the same connectorHeight functions in their groundAt callbacks and blendedRun paving builders; observation sampling and visible connector tops therefore consume the owner's height rule.
+   * @evidenceReview spaces/site/01-paving-support.md #bcad46a buildFrontWalk and buildSideWalk use the same connectorHeight functions in their groundAt callbacks and blendedRun paving builders; observation sampling and visible connector tops therefore consume the owner's height rule.
    * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Bilinear connector samples need the source owner's X/Z height, not a single ramp interpolation.
-   * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #a4d8a4d Paving-depth-reservation requires X and Z interpolation across the connector. Within deriveHouseObservations, standingFloor calls zone.groundAt at the sampled X/Z before its patchFloor fallback, retaining the joined walk's bilinear top.
+   * @evidenceReview spaces/site/01-paving-support.md#paving-depth-reservation #08ee5c7 Paving-depth-reservation requires X and Z interpolation across the connector. Within deriveHouseObservations, standingFloor calls zone.groundAt at the sampled X/Z before its patchFloor fallback, retaining the joined walk's bilinear top.
    * @evidence principles/core/source-units.md#source-scope-preservation This callback reads the existing paving profile and adds no ground datum.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The walk callbacks return either their owner-defined flat paving top or connectorHeight; neither callback authors independent terrain elevation or a second slab.
    * @evidence principles/core/source-units.md#source-substantive-completion Observation eyes can be placed over the actual sampled connector top.
