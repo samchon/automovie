@@ -56,7 +56,9 @@ const flipped = (): FaceLikenessPoint[] =>
  *    past the open mouth; the outline at the mouth line (y 130) and at the
  *    chin's level, half the eyes' height (60) below stomion (y 160), lies on
  *    the ellipse (half-widths 52.0 and 29.0), the blob at the right edge
- *    being another region; the points take landmark indices 470 to 474.
+ *    being another region; across the cheeks at the nasal tip's height (y
+ *    100) it lies on the ellipse too (half-width 59.5); the points take
+ *    landmark indices 470 to 474, 477 and 478.
  * 2. Upside down the frame turns with the face: menton at y 29.
  * 3. A nasal tip outside the face, a face ending above stomion and one
  *    with no right side at a level read nothing; a missing landmark
@@ -69,14 +71,16 @@ export const test_subject_face_jaw_outline = (): void => {
   TestValidator.predicate(
     "menton and outline",
     near(outline.menton, 100, 170) &&
-      outline.levels.length === 2 &&
+      outline.levels.length === 3 &&
       near(outline.levels[0]![0], 48.04, 130) &&
       near(outline.levels[0]![1], 151.96, 130) &&
       near(outline.levels[1]![0], 100 - 29.05, 160) &&
       near(outline.levels[1]![1], 100 + 29.05, 160) &&
+      near(outline.levels[2]![0], 100 - 59.53, 100) &&
+      near(outline.levels[2]![1], 100 + 59.53, 100) &&
       faceLikenessJawLandmarks(outline)
         .map(([landmark]) => landmark)
-        .join() === "470,471,472,473,474" &&
+        .join() === "470,471,472,473,474,477,478" &&
       faceLikenessJawLandmarks(outline)[4]![1] === outline.levels[1]![1],
   );
   TestValidator.predicate(

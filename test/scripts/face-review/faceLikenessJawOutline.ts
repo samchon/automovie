@@ -29,8 +29,15 @@
  * being shorter (a point the model's anchors, which stay on the surface,
  * cannot follow). Half the eyes' height is where three quarters of the way
  * from the mouth line to menton falls on the photographs (0.40 to 0.59,
- * median 0.51). A mask without the nasal tip in the face, a scan that finds
- * no face, or a chin level below the face yields null.
+ * median 0.51). A third level reads the face's breadth across the cheeks
+ * at the nasal tip's height (landmark 4 projected on the face's vertical),
+ * where the detector's own face width (234, 454) sits inside the rendered
+ * silhouette and does not follow it (renders of round j18 were 12.9
+ * percent broader there than their photographs by the masks, for the same
+ * outer canthal width) and the hair, which covers the temples and the
+ * zygion's level in many photographs, rarely reaches. A mask without the
+ * nasal tip in the face, a scan that finds no face, or a chin level below
+ * the face yields null.
  *
  * Pure: the mask and points are read, never mutated.
  */
@@ -52,6 +59,7 @@ export const FACE_LIKENESS_JAW_LANDMARKS = {
   levels: [
     [471, 472],
     [473, 474],
+    [477, 478],
   ],
 } as const;
 
@@ -143,8 +151,11 @@ export function measureFaceLikenessJawOutline(
   const drop =
     ((stomion[0] - eyes[0]) * down[0]! + (stomion[1] - eyes[1]) * down[1]!) /
     iod;
+  const tip =
+    ((at(4)[0] - stomion[0]) * down[0]! + (at(4)[1] - stomion[1]) * down[1]!) /
+    iod;
   const levels: [FaceLikenessPoint, FaceLikenessPoint][] = [];
-  for (const t of [mouth, FACE_LIKENESS_JAW_CHIN * drop]) {
+  for (const t of [mouth, FACE_LIKENESS_JAW_CHIN * drop, tip]) {
     const side = (direction: 1 | -1): FaceLikenessPoint | null => {
       for (let s = REACH; s > 0; s -= STEP)
         if (inside(point(t, direction * s))) return point(t, direction * s);
