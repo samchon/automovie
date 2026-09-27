@@ -230,9 +230,9 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 @evidence spaces/rooms/administration.md#office-volume 관리실 널판 천장 아래를 보가 놓일 방으로 소비한다.
 @evidenceReview spaces/rooms/administration.md#office-volume #59ae103 관리실 널판 아래에 동일 길이 보를 둘 공간을 읽었다.
 @evidence spaces/rooms/records.md#records-volume 기록실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidenceReview spaces/rooms/records.md#records-volume #1d1d419 records 본체가 east-room~east-inner 경계 안에서 낮은 천장 표면을 소유하므로 이 보의 4.00m 변형이 그 방에 배치될 수 있음을 확인했다.
+@evidenceReview spaces/rooms/records.md#records-volume #1d1d419 records 본체가 east-room~east-inner 경계 안에서 낮은 천장 표면을 소유하므로 이 4.00m 보가 그 방에 배치될 수 있음을 확인했다.
 @evidence spaces/rooms/storage.md#storage-volume 보관실 널판 천장 아래를 보가 놓일 방으로 소비한다.
-@evidenceReview spaces/rooms/storage.md#storage-volume #37f608a storage 본체가 east-room~east-inner 경계 안에서 천장 표면을 소유하므로 이 보의 4.00m 변형이 그 방에 배치될 수 있음을 확인했다.
+@evidenceReview spaces/rooms/storage.md#storage-volume #37f608a storage 본체가 east-room~east-inner 경계 안에서 천장 표면을 소유하므로 이 4.00m 보가 그 방에 배치될 수 있음을 확인했다.
 @evidence spaces/observations.md#geometry-observations 각 방 중심→네 방위와 모서리 station을 보의 규칙적 노출을 볼 건물 시점으로 쓴다.
 @evidenceReview spaces/observations.md#geometry-observations #4155dcf 네 방 중심·모서리 관찰이 천장 보 반복과 문 위 여유를 볼 수 있는지 확인했다.
 @evidence settings/50-production.md#references 이미지 05의 널판 천장 아래 어두운 각재를 근거로 쓴다.

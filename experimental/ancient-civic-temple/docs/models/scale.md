@@ -18,7 +18,7 @@
 @evidence principles/design/models.md#reviewable-structure 점유 상자와 보행 포락을 나란히 대조하는 규칙이 각 H2 검토 판의 공통 반증 기준이 된다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 포락 상자와 각 모델 상자의 비교가 지나치게 큰 집기·통로 막힘을 실패로 만드는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 고대 지중해라는 표지를 부재 분리와 빈 공간으로만 읽히게 하고 세로 홈·조각·특정 오더 비례는 주장하지 않으며 색·거칠기는 materials 몫이라고 경계를 긋는다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 본문의 고대 지중해 표지를 세로 홈·조각·특정 오더 비례로 확대하지 않고 부재 분리와 빈 공간으로 한정했으며 색·거칠기를 materials에 남겼는지 확인했다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 본문의 특정 고대 양식 표지를 세로 홈·조각·특정 오더 비례로 확대하지 않고 부재 분리와 빈 공간으로 한정했으며 고대 지중해 정체성은 settings/10-building#civic-identity, 색·거칠기는 materials의 소유임을 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 축척 기준·표현 상한·prototype 점유 상자·로컬 원점의 배치 기준을 함께 정해 반복 부재 H2가 배치 수 없이도 완결되게 한다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 공유 축척과 원점·상자·반복 규칙이 각 H2가 배치 수를 몰라도 형상을 닫게 하는지 확인했다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 사물 16개의 존재·범위가 settings에 빠져 있어 35-objects와 30-interiors의 정체성·방별 목록을 먼저 수리했다. user 지시는 존재 범위를 승인했고 치수·접합은 각 모델 H2의 저작 결정이다.

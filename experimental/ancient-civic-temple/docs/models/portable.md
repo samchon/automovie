@@ -213,7 +213,7 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 @evidence principles/core/common.md#substantive-completion 바닥·벌어진 윗입·안쪽 바닥과 몸체 16분할, 손잡이 반타원의 두 접점·꼭대기·12구간 경로를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 16각 몸체와 12구간 반타원 양끝 (±0.1475,0.27), 꼭대기 (0,0.44)를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#bucket와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시는 물동이를 요구하고 서비스 마당 설정은 열린 입과 빈 상태를 정한다. 이미지 02·05는 비교에 쓰며 몸체와 손잡이의 두 part 접합은 모델 결정이다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시는 물동이를 요구하고 서비스 마당 설정은 빈 상태를, 35-objects#bucket은 열린 입을 정한다. 이미지 02·05는 비교에 쓰며 몸체와 손잡이의 두 part 접합은 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#bucket의 열린 입과 손잡이가 있는 마당 용기를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 손잡이 용기에 실제 열린 안쪽과 하나의 반타원 관을 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract body·handle, 열린 입, 실제 안쪽 바닥과 손잡이 아래 빈 공간을 정한다.
@@ -256,7 +256,7 @@ part와 표면은 `body`, `handle`이다. `body` 안쪽 면은 별도 법선·UV
 @evidence principles/core/common.md#substantive-completion 바닥·테두리·내벽·흙면의 높이와 빈 윗공간을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Y=0.270m 흙 상단·0.36m 테두리와 0.0059m 벽 간극을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#planter와 30-interiors#fountain이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 화분 존재와 중정 가장자리 설정을 확인했다. 이미지 01·03은 배치 인상만 비교하며 0.42m 흙 화분의 두 part 치수는 모델에서 정한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 화분 존재와 중정 가장자리 설정을 확인했다. 이미지 01·03은 형태·공간 관계를 비교하며 0.42m 흙 화분의 두 part 치수는 모델에서 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#planter의 중정 가장자리의 흙 화분을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 흙 화분에 열린 내벽과 테두리 아래 흙 실체를 수치로 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract pot·soil 표면, 열린 위, 흙 위 식물의 별도 배치를 정한다.

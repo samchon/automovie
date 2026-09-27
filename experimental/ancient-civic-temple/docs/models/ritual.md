@@ -10,7 +10,7 @@
 @evidence principles/core/common.md#substantive-completion 발·줄기·재를 담는 컵과 꺼진 향 세 개의 치수·표면·상태를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 컵 안쪽 Y=0.18m와 재 0.18~0.19m, 향 세 가닥 Y=0.19~0.35m를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#censer와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 제실 설정은 향로의 존재와 꺼진 상태를 정한다. 이미지 02·04는 의례실 규모 비교이고 ash·incense를 담는 part 치수는 모델 결정임을 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 제실 설정은 향로의 존재를, 35-objects#censer는 꺼진 상태를 정한다. 이미지 02·04는 의례실 규모 비교이고 ash·incense를 담는 part 치수는 모델 결정임을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#censer의 제단 위 꺼진 향로를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 꺼진 향로에 오목 컵·재 원판·세 향을 수치 부재로 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract foot·stem·cup·ash·incense의 부재와 열린 컵을 정한다.
