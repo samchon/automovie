@@ -141,61 +141,61 @@ export interface IHousePart {
  * built environment hosts openings on. `outline` is the panel outline in the
  * panel's (u, y); `holes` are its voids, each a door, window or open passage.
  * @evidence spaces/07-boundary-assembly.md One wall body retains the boundary record used at room and envelope junctions.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 part.wall kept per wall body (L698); environment.ts:624-663 boundaries and :631-647 partition-junction check read it; 07-boundary-assembly.md:27,47.
+ * @evidenceReview spaces/07-boundary-assembly.md IWallFace carries one wall's axis, thickness, outline and cuts; part() attaches that face to the emitted mesh, and environment-links.ts derives sided boundary segments from it.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership A partition's face and openings belong to its single wall body.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 v-141 straightWall returns mesh+face of one wallPanel (L426-446) -> part(); 07-boundary-assembly.md:27 common body and opening cut created once.
- * @evidence spaces/07-boundary-assembly.md#exterior-boundary-junctions Exterior junctions reuse the cut wall's face rather than a duplicate corner body.
- * @evidenceReview spaces/07-boundary-assembly.md#exterior-boundary-junctions #11dbbb5 v-141 No junction code reuses a face: corners sit inside the front/rear panel whose outline spans MAIN.outer.x (front.ts:81-88), side walls end at MAIN.inner.z (left.ts:73-74), and boundaries.ts:145 drops site|site corner cells. 'No duplicate corner body' matches 07-boundary-assembly.md:117-120; 'reuse' is loose.
+ * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership straightWall returns a mesh and complete face for one partition run; part() keeps that pair under the caller's owner, so its door cut remains on the common body.
+ * @evidence spaces/07-boundary-assembly.md#exterior-boundary-junctions The exterior corner's assigned wall body retains its own cut face without creating a second corner part.
+ * @evidenceReview spaces/07-boundary-assembly.md#exterior-boundary-junctions IWallFace describes the face of the wall actually emitted by its owner; the front and rear panels take their assigned corner body while side-wall runs stop at their inner faces, so this type introduces no corner body.
  * @evidence principles/core/source-units.md#source-scope-preservation This record describes the caller's wall and does not own the room or facade.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Interface fields only; caller supplies axis/across/outline/holes.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The interface retains axis, across, outline and holes supplied by the wall emitter; it sets no room or facade dimensions.
  * @evidence principles/core/source-units.md#source-substantive-completion Axis, thickness, outline and void list define the inspection boundary.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:649-663 builds the boundary face from axis/across/outline; openings from holes (:667-693).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion environment-links.ts uses axis and across to place boundary faces, clips outline for sided segments, and binds holes to those segments, making this record usable for inspection.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership pairs each partition body with its void host, while exterior-boundary-junctions allows the garage/main wall's lower and upper bodies to carry separate faces.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07-boundary-assembly.md:27 each shared partition's common body and opening cut are generated once by one owner; 07:123 main/garage wall divided into garage body up to the garage-roof weather line and right siding above. Code: garage.ts:50 and right.ts:110 are separate wallPanel solids with their own faces. Split added fa601efa/a15c1dd1; exposure owned by garage.ts:44/right.ts:79.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The boundary document assigns one partition body and divides the garage contact by height; each resulting wall solid has its own IWallFace and owner, matching those two existing assignments.
  */
 export interface IWallFace {
   /**
    * @evidence spaces/07-boundary-assembly.md A wall boundary runs along one world horizontal axis.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 axis 'x'|'z' L147; all walls run on X/Z per 00-building.md:29-31 extents and 07 runs.
+   * @evidenceReview spaces/07-boundary-assembly.md The axis union is limited to world X or Z, the two horizontal directions of the assigned straight wall runs in the boundary assembly.
    * @evidence principles/core/source-units.md#source-scope-preservation The axis describes the assigned wall's local frame only.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 axis only orients the caller's wall (wallPanel L365-379).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The axis field records the orientation passed to wallPanel by an assigned wall owner and chooses no new run.
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can orient holes and boundary checks in that frame.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:655-657 origin/rotation from face.axis; boundaries.ts:25-28 facePoint uses axis.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion boundaries.ts uses face.axis to map u into world X or Z, and environment-links.ts uses it to orient the boundary plane and its openings.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions gives each straight partition a horizontal run and exterior-boundary-junctions gives each facade a wall line; axis records whether that run is world X or Z.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Boundary assembly already distinguishes straight partition junctions from left, right and garage facades; front, left, right and shared.ts partition callers pass their own axis, so this wall record exposes no missing axis decision.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The assigned facade and partition emitters supply X or Z wall runs to wallPanel; recording that choice on IWallFace does not revise the boundary allocation.
    */
   axis: "x" | "z";
   /**
    * @evidence spaces/07-boundary-assembly.md The wall records its thickness across the running axis.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 across L154; 07-boundary-assembly.md:25 boundary consumes the reserved wall thickness.
+   * @evidenceReview spaces/07-boundary-assembly.md The across pair stores the two world coordinates of the assigned wall thickness that the boundary assembly says the room and envelope junctions must share.
    * @evidence principles/core/source-units.md#source-scope-preservation This range is the caller's wall thickness, not a second boundary.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 across is the caller's range; wallPanel only extrudes it (L349-350).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation wallPanel receives across from its caller and uses that interval for extrusion depth and placement, without selecting a new wall band.
    * @evidence principles/core/source-units.md#source-substantive-completion It locates both faces of the one emitted wall body.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 depth=across[1]-across[0], centre mid-range (L349-350, L368, L376) put the two faces at across[0], across[1].
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel extrudes by the difference of across endpoints and centres the mesh at their midpoint, placing both faces at the supplied coordinates.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-building-extent reserves 0.25 m exterior walls and interior-boundary-junctions uses the assigned partition band; across carries both physical faces of the selected wall.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Building and boundary assembly already fix 0.25 m exterior and 0.15 m partition thickness; front and garage pass MAIN.wall faces while stair.ts passes MAIN.partition faces, and wallPanel copies each across interval.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Building and boundary sources provide the exterior or partition wall band; across records the caller's two faces rather than setting another thickness or owner.
    */
   across: readonly [number, number];
   /**
    * @evidence spaces/07-boundary-assembly.md The outer panel trace remains available after cutting openings.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 face.outline = props.outline (L362) or the full rectangle incl. notches (L438-443).
+   * @evidenceReview spaces/07-boundary-assembly.md wallPanel retains the supplied polygon as face.outline; straightWall retains its full rectangular face even when the emitted mesh uses bottom door notches.
    * @evidence principles/core/source-units.md#source-scope-preservation The trace belongs to the existing emitted wall.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Outline is the caller's own wall outline (L362, L438-443).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The outline field records the emitting wall's boundary in its own u/Y frame and does not draw a second panel.
    * @evidence principles/core/source-units.md#source-substantive-completion It allows void and junction validation against full wall bounds.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 segmentsOf uses the full outline (boundaries.ts:120-127); environment.ts:667-686 requires each void inside a boundary segment; partition-junction check :631-647.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership requires a partition body around its door void and front-openings requires complete facade around its windows; outline retains the pre-cut wall perimeter for both.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07:27 partition body with its opening cut is true. But front-openings (envelope/front.md:57) only fixes wall thickness Z=[-0.25,0] and window binding; the complete front wall closure is front-roof-closures (front.md:25-31, same-file sibling). A holds: face outline is pre-cut (wallPanel solids.ts:355 outline without holes; straightWall solids.ts:431-436 full rectangle).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion boundaries.ts derives wall segments from face.outline, and environment-links.ts clips that outline to each sided segment before assigning openings.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership requires a partition body around its door void and front-roof-closures requires the complete front facade; outline retains the pre-cut perimeter for either owner.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The partition parent assigns one cut body and the front facade parent assigns a complete wall closure; wallPanel retains the supplied pre-cut outline while straightWall keeps a full face around its door notch, so neither parent needs a new perimeter rule.
    */
   outline: readonly IWallPoint[];
   /**
    * @evidence spaces/07-boundary-assembly.md Door and window voids remain hosted by their cut wall.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 holes stay on the cut wall's face (L363, L444); 07-boundary-assembly.md:79 cut made once by the room owner.
+   * @evidenceReview spaces/07-boundary-assembly.md wallPanel stores its hole list on the face returned with the mesh; straightWall includes bottom notches in that face list, keeping each opening on its assigned wall body.
    * @evidence principles/core/source-units.md#source-scope-preservation The list records cuts without creating door or window fills.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 IWallHole is id + four bounds; environment openings carry fill null (environment.ts:691).
-   * @evidence principles/core/source-units.md#source-substantive-completion Consumers can verify every actual opening against the wall mesh.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 No consumer checks holes against the mesh: environment.ts:667-693 matches holes to face segments, house.ts:200-212 checks door host/floor, space-audit.ts:86 counts. Holes and mesh share input (L352-358) so a mesh check is possible, not performed.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation IWallHole records an id and four cut bounds; holes stores those wall cuts without supplying a door leaf or window fill.
+   * @evidence principles/core/source-units.md#source-substantive-completion Consumers can bind each wall cut to a sided boundary segment.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment-links.ts finds a containing segment for each face hole or throws, then emits an opening with the hole id; the field supports boundary binding without claiming a mesh congruence check.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface keeps each rough window or door void in its wall host, and interior-boundary-ownership keeps partition doors in their one body; holes records those cuts.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 06:29 elevation owners own the void coordinates and rooms consume the same id; 07:27 partition owner cuts its opening once. holes: wallPanel face.holes = props.holes (solids.ts:356); straightWall face.holes lists every void incl. notched doors (solids.ts:437).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The external-opening parent assigns rough cuts to their elevation wall and the interior boundary parent assigns a partition cut once; wallPanel and straightWall keep the respective caller's hole list on that wall face.
    */
   holes: readonly IWallHole[];
 }
@@ -203,37 +203,37 @@ export interface IWallFace {
 /**
  * A wall panel's mesh together with the face it was cut from.
  * @evidence spaces/07-boundary-assembly.md A boundary has one body and one associated cut-face record.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 IWallSolid {mesh, face} L179-194; 07-boundary-assembly.md:27 one common body per shared boundary.
+ * @evidenceReview spaces/07-boundary-assembly.md IWallSolid pairs the emitted wall mesh with its IWallFace, letting the boundary assembly use one part for the cut body and its opening host.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-ownership Room partitions pair their physical body with the opening host.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership #6a03f13 shared.ts partition() calls straightWall and then part() with that wall face, preserving one interior body and its opening cut under the caller owner.
+ * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-ownership rooms/shared.ts passes straightWall's mesh and face to part() for an assigned partition, keeping the common body and its door host together.
  * @evidence principles/core/source-units.md#source-scope-preservation The pair stays under the caller's assigned wall owner.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Type pairs caller data; owner assigned only by part().
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation IWallSolid has no owner field; part() supplies the caller's owner when it wraps this mesh and face, so the pair does not claim a wall run.
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry and opening-bearing face travel together.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 wallPanel/straightWall return mesh and face together (L366-379, L433-446).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel and straightWall return both fields of IWallSolid; part() carries the face with its mesh for downstream boundary assembly.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership requires one body per interior partition; exterior-boundary-junctions instead divide the main/garage contact into lower garage and upper siding bodies, which this interface can carry separately.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07:27 one common body per shared partition; 07:123 main/garage contact divided at the garage-roof weather line into garage body and right siding body. garage.ts:50 and right.ts:110 each return an IWallSolid. Old FALSE ('single wall body at shared boundaries') fixed. Split added fa601efa/a15c1dd1, exposure owned by garage.ts:44/right.ts:79.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The boundary handoff calls for one body per interior partition and separate lower and upper bodies at the garage contact; each wallPanel result can carry its own face with its assigned mesh.
  */
 export interface IWallSolid {
   /**
    * @evidence spaces/07-boundary-assembly.md The wall's emitted body realizes the assigned boundary.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 mesh is the extruded wall body (L358-379); 07-boundary-assembly.md:27.
+   * @evidenceReview spaces/07-boundary-assembly.md wallPanel extrudes the caller's cut outline through its reserved thickness and puts that geometry in mesh, realizing the assigned boundary body.
    * @evidence principles/core/source-units.md#source-scope-preservation The mesh belongs to the caller's wall owner.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 mesh passed through from the caller's wall call.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The mesh field receives geometry made from the caller's wall plan; IWallSolid itself selects no room or exterior author.
    * @evidence principles/core/source-units.md#source-substantive-completion The boundary is actual geometry rather than a plan-only line.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 extrudeAutoMovieRegion closed body (L358), not a plan line.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel fills mesh with an extruded region, so this field holds a wall volume instead of a plan trace alone.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership assigns each cut partition one emitted body and exterior-boundary-junctions divides the garage/main contact by height; mesh carries the body for one such assignment.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Same parents 07:27, 07:123. mesh is the one extruded body per call (wallPanel solids.ts:359-372; straightWall solids.ts:427).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The interior and garage contact parents each assign a body to a source owner; mesh carries the extruded result of one wall call without merging those assignments.
    */
   mesh: IAutoMovieMesh;
   /**
    * @evidence spaces/07-boundary-assembly.md The same emitted wall carries the face and its voids.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 face and voids returned with the same mesh (L359-364, L433-446).
+   * @evidenceReview spaces/07-boundary-assembly.md wallPanel returns face and mesh together, and straightWall preserves all door cuts in face.holes beside its notched mesh.
    * @evidence principles/core/source-units.md#source-scope-preservation The face does not assign a second wall author.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 face carries no owner; part() sets one owner.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The face field contains geometry coordinates and holes but no owner; part() supplies the same caller owner to the enclosing part.
    * @evidence principles/core/source-units.md#source-substantive-completion Openings and junction checks can inspect the cut body's source face.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:624-693 reads the face for boundaries/openings/junctions; casing-space-scan.cjs:76-85 reads part.wall.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment-links.ts reads the carried face to derive sided boundaries and attach openings to the emitted wall part.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface requires a rough void through its own host wall, and interior-boundary-ownership keeps a door void on its partition; face preserves that host relation beside mesh.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 06:27 void passes through its elevation wall from inner to outer face; 07:27 opening cut once with the partition's common body. face holds the host's holes beside mesh (solids.ts:352-371, 426-438); environment.ts:691-713 binds the opening to that host part.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The exterior opening and interior partition parents keep a rough cut on its host wall; this face retains that wall's cuts beside its mesh for the boundary adapter.
    */
   face: IWallFace;
 }
@@ -241,37 +241,37 @@ export interface IWallSolid {
 /**
  * A point of a plan polygon in world X/Z metres.
  * @evidence spaces/site/00-access.md House and site use one world plan frame for their extents.
- * @evidenceReview spaces/site/00-access.md #a8ac95c The site document puts main, garage, porch and exterior zones in an identity-transformed coordinate base; IPlanPoint carries rings for room outlines in shared.ts, site zones and the upper-floor notch.
+ * @evidenceReview spaces/site/00-access.md IPlanPoint contains world X and Z for caller-supplied polygon rings; the site handoff places house, garage, porch and access zones in the same coordinate base.
  * @evidence spaces/site/00-access.md#site-access-interface The site assembles the house and exterior zones in the inherited coordinate frame.
- * @evidenceReview spaces/site/00-access.md#site-access-interface #0ee9bff 00-access.md:29 site.ts assembles containment of house and exterior zones and coordinates use settings coordinate-units. IPlanPoint carries world X/Z (solids.ts:197-212) for those outlines.
+ * @evidenceReview spaces/site/00-access.md#site-access-interface The site assembly uses the shared X/Z frame; this two-field point represents plan coordinates consumed by both building and exterior-zone polygon builders.
  * @evidence principles/core/source-units.md#source-scope-preservation The point is supplied by a design owner, not chosen by this helper.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 IPlanPoint has no default; callers pass extents (e.g. upper.ts:43-56 from MAIN).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation IPlanPoint declares x and z without a default or site offset; the polygon owner supplies each value.
  * @evidence principles/core/source-units.md#source-substantive-completion Both plan axes are present for closed surface rings.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 x and z fields L211, L218 used by slab/rect/slopedSlab rings.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The x and z fields give slab, rect and slopedSlab both horizontal coordinates needed to form closed plan rings.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface keeps house and exterior-zone coordinates in the common frame from settings/00-production.md#coordinate-units; IPlanPoint passes caller-supplied world X/Z metres without borrowing one building's bounds.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 00-access.md:29 '좌표는 [공통 기준](coordinate-units)을 사용한다' for house-site with main/garage/porch/zones. IPlanPoint is a plain {x,z} type (solids.ts:197-212) and reads no building bounds.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The site-access handoff requires one shared coordinate frame for house and zones; IPlanPoint only carries caller-supplied X/Z values, so it changes no site placement decision.
  */
 export interface IPlanPoint {
   /**
    * @evidence spaces/site/00-access.md World X places a plan point across the site.
-   * @evidenceReview spaces/site/00-access.md #a8ac95c 00-access.md:101 house authored directly in the common coordinates (identity site transform); :103 port widths are each paving owner's X interval. x holds world X (solids.ts:204); rect passes caller X unchanged (solids.ts:481-484).
+   * @evidenceReview spaces/site/00-access.md The x member retains the world lateral coordinate used for house and paving extents in the site's identity frame; rect copies the caller's X interval into its corners.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the caller's authored X value.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The x member carries a caller-supplied lateral world coordinate into IPlanPoint without a default or local placement rule.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The x member is a required caller-supplied number with no default or new lateral placement rule.
    * @evidence principles/core/source-units.md#source-substantive-completion A horizontal coordinate is available to polygon builders.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slab L467, rect L488-491, slopedSlab L535-539 read x.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion slab, rect and slopedSlab read x to position each plan corner, so the field has a direct geometry consumer.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface assembles house and exterior zones in the common world frame, whose +X points toward the garage in coordinate-units; x retains the caller's value on that axis.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 00-access.md:29 common base; settings/00-production.md:97 '+X는 정면에서 보아 오른쪽 차고 방향'. x is the caller's value (solids.ts:204, rect 481-484).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The site handoff uses the common coordinate frame whose +X points toward the garage; x retains the owner's selected value on that axis without redefining the frame.
    */
   x: number;
   /**
    * @evidence spaces/site/00-access.md World Z places a plan point toward or away from the street.
-   * @evidenceReview spaces/site/00-access.md #a8ac95c 00-access.md:31 paving end at Z=6.50 toward the front sidewalk; :103 connection direction +Z. z holds world Z (solids.ts:211).
+   * @evidenceReview spaces/site/00-access.md The z member holds depth in the site's world frame; the access handoff uses +Z for the front paving ends and their outgoing connection.
    * @evidence principles/core/source-units.md#source-scope-preservation This is the caller's authored Z value.
-    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The z member carries caller-supplied world depth toward the front walk or garden without a default or source-owned dimension.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The z member requires a caller-supplied depth coordinate and adds no default or site-owned dimension.
    * @evidence principles/core/source-units.md#source-substantive-completion A depth coordinate is available to polygon builders.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 slab L467, rect L488-491, slopedSlab L535-539 read z.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion slab, rect and slopedSlab read z for their plan rings, making world depth available to the emitted geometry.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Site-access-interface uses the common world frame for building and paving, whose +Z points to the front walk and -Z to the garden in coordinate-units; z retains the caller's depth on that axis.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 00-access.md:29 common frame; 00-production.md:97 '+Z는 주택에서 앞 보도 쪽… 후면 정원은 -Z' ('front walk' paraphrases 앞 보도; same +Z sense). z is the caller's depth (solids.ts:211).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The site handoff inherits +Z toward the front sidewalk and -Z toward the garden; z records an owner's depth in that frame without changing the site parent.
    */
   z: number;
 }
@@ -279,37 +279,37 @@ export interface IPlanPoint {
 /**
  * A point of a wall outline: u along the wall axis, y the world height.
  * @evidence spaces/07-boundary-assembly.md Cut wall panels retain their planar boundary trace.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 face.outline keeps the (u,y) trace (L362, L438-443).
+ * @evidenceReview spaces/07-boundary-assembly.md IWallPoint stores a coordinate along the wall and a world height; IWallFace.outline uses those points to retain the cut wall's boundary trace.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions The trace supports continuous room corners and door heads.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 v-141 Notch vertices give door heads (L414-420); environment.ts:631-647 checks partition ends via the face; 07-boundary-assembly.md:75-79 junction corners and door cuts.
+ * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions straightWall uses u/Y points around bottom-reaching door notches; the resulting face lets environment-links.ts inspect the sided boundary at room junctions.
  * @evidence principles/core/source-units.md#source-scope-preservation Coordinates describe the caller's wall only.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Points are caller-local (u,y) of one wall.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The point describes a vertex in the emitting wall's own run and world height, with no independent room or facade origin.
  * @evidence principles/core/source-units.md#source-substantive-completion Both running distance and height locate each outline vertex.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 u and y fields L236, L243.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions requires a full height trace around each partition door and exterior-boundary-junctions requires sloped wall heads; IWallPoint carries their run/height vertices.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 07:113 exterior walls end at the roof-wall-head contact (sloped heads) true; code garage.ts:53-57 weatherLine, right.ts stepRun. But the full floor-to-ceiling partition height is 07:45 (#interior-boundary-ownership, same-file sibling); interior-boundary-junctions (07:75-87) covers junction zones and door cuts only. IWallPoint vertices from straightWall notches (solids.ts:406-418).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The required u and y numbers locate each outline vertex; wallPanel maps them into the extruded region and straightWall uses them for door notch corners.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership fixes the partition's full height, interior-boundary-junctions fixes its door cuts, and exterior-boundary-junctions carries sloped wall contacts; IWallPoint records their run and height vertices.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The boundary parents distinguish a partition's complete body, its door junction and exterior wall contacts; IWallPoint provides u/Y vertices for those caller-owned traces without choosing a new height or junction owner.
  */
 export interface IWallPoint {
   /**
    * @evidence spaces/07-boundary-assembly.md This point locates a vertex along the wall run.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 u L236 along the axis (wallPanel L351).
+   * @evidenceReview spaces/07-boundary-assembly.md The u value locates one wall-outline vertex along the horizontal run used by the boundary's assigned owner.
    * @evidence principles/core/source-units.md#source-scope-preservation The value uses the assigned wall's local running axis.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 u runs along props.axis (L365-379).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation wallPanel interprets u along the axis supplied by its caller, so this field introduces no separate wall direction.
    * @evidence principles/core/source-units.md#source-substantive-completion The outline can order corners and door notches.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 straightWall sorts notches by from (L410-412) and emits vertices in u order (L413-425).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion straightWall orders door notches by their running coordinate and emits u vertices around each notch before closing the wall outline.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-openings locates door/window spans along X and left-openings locates them along Z; u carries the selected host wall's running coordinate.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 front-openings (front.md:57) fixes the wall thickness in Z (so spans run along X) but the X spans are in child H2s front.md:83,107,133,157, and it leaves the front-door void to rooms/entry.md:31; left-openings (left.md:55) same, spans at left.md:81,105. A holds: front.ts:82 axis 'x', left.ts:92 axis 'z'; u is the running coordinate (solids.ts:344).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The front wall opening children and entry plan supply X spans while the left opening children supply Z spans; u carries whichever running coordinate the host wall owner supplies.
    */
   u: number;
   /**
    * @evidence spaces/07-boundary-assembly.md This point locates a vertex at world height.
-   * @evidenceReview spaces/07-boundary-assembly.md #007d289 v-141 y L243 is world height (no local offset in wallPanel L351).
+   * @evidenceReview spaces/07-boundary-assembly.md The y number places a wall-outline vertex at its world height, letting the boundary follow the caller's top, bottom or door head.
    * @evidence principles/core/source-units.md#source-scope-preservation The height follows the assigned wall datum.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Callers set y from storey datums (shared.ts partitionSpan), EXTERIOR_WALL_BOTTOM, roof undersides.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The caller supplies y from its wall and storey datums; this field stores the value without choosing a new elevation.
    * @evidence principles/core/source-units.md#source-substantive-completion Head, sill and top vertices are explicit.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Outline carries notch heads and top; sills explicit as IWallHole.bottom.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel reads y for each outline vertex, and straightWall uses it for the wall top and the head of every bottom notch.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes floor/ceiling levels and front-openings fixes its window heads; y carries each authored wall vertex in world height.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Storeys fixes floor and ceiling datums Y=0/3.06 and 2.75/5.66; shared.ts partitionSpan and straightWall carry them to IWallPoint.y. Window heads belong to the front child units and pass through IWallHole.top and segment clipping, so this point type requires no parent revision.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Storey and opening owners select the wall elevations and cut heads; y carries their world heights into the wall outline without redefining those datums.
    */
   y: number;
 }
@@ -317,70 +317,70 @@ export interface IWallPoint {
 /**
  * A rectangular void cut through a wall panel, in the panel's (u, y).
  * @evidence spaces/06-openings.md Door and window sites are actual wall voids before model fills.
- * @evidenceReview spaces/06-openings.md #bad6451 v-141 holes become real voids (L352-358) or notches (L410-420); 06-openings.md:31 real cuts; 03-surface-owners.md:58 fills by models.
+ * @evidenceReview spaces/06-openings.md IWallHole holds an id and four u/Y bounds; wallPanel cuts an enclosed ring from those bounds and straightWall uses a bottom-reaching hole as an open notch, matching the rough-void rule.
  * @evidence spaces/06-openings.md#external-opening-interface Exterior openings keep their structural host distinct from door/window models.
- * @evidenceReview spaces/06-openings.md#external-opening-interface #457149c v-141 06-openings.md:29,37 structural host vs model fills; environment opening fill null (environment.ts:691).
+ * @evidenceReview spaces/06-openings.md#external-opening-interface The record has cut coordinates and no frame, sash, glass or leaf geometry; the external-opening handoff keeps those later fills separate from the wall void.
  * @evidence principles/core/source-units.md#source-scope-preservation This record cuts the assigned wall only and does not supply a model leaf.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Record is id + bounds only; no leaf geometry.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The void record contains only its id and horizontal and vertical bounds, so it cannot claim the later door or window model.
  * @evidence principles/core/source-units.md#source-substantive-completion Id and four bounds locate a real rectangular cut.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 from/to/bottom/top become a rectangle ring (L352-357) or notch.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel turns the four bounds into an interior rectangular ring; straightWall turns a floor-reaching cut into a bottom notch, so the record supplies actual wall-cut inputs.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work External-opening-interface assigns the rough door/window cut to its wall source and leaves frames/leaves to models; IWallHole carries only that four-bound wall cut.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 06:29 elevation owners (front-door via entry) own the rough void coordinates; 06:31,33 frame/sash/glass fill are later members (models per 03:58). IWallHole is id + from/to/bottom/top only (solids.ts:247-283).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The opening handoff gives each rough void to its wall owner and reserves fills for models; IWallHole carries only the owner's cut coordinates, so no fill or owner decision is added here.
  */
 export interface IWallHole {
   /**
-   * @evidence spaces/06-openings.md The opening retains a stable host-relative id.
-   * @evidenceReview spaces/06-openings.md #bad6451 v-141 Ids are house-global ('living-left-window', 'front-door'): environment.ts:688 uses hole.id as the opening id and house.ts:204-208 finds the host by id; 06-openings.md:29 rooms consume the same id. Not host-relative.
+   * @evidence spaces/06-openings.md The opening retains one house-wide id shared by its wall and room bindings.
+   * @evidenceReview spaces/06-openings.md The id field passes through environment-links.ts as the opening id; house.ts finds the host wall by the same id, matching the handoff's requirement that the room consume its wall's opening address.
    * @evidence principles/core/source-units.md#source-scope-preservation This names a void, not its later model fill.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 id names the void; fills are models (03-surface-owners.md:58).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation This id names the rough wall cut rather than a door leaf or glazing part, leaving the separate fill to its assigned model owner.
    * @evidence principles/core/source-units.md#source-substantive-completion The environment can connect a compiled opening to its cut.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:688 opening id = hole.id with boundary idOf(k).
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Front-openings names front-door and garage-front-opening names garage-front-door; id preserves the authored opening address through wall and environment assembly.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 garage-front-opening names garage-front-door (front.md:209; front.ts:54) true. front-openings (front.md:57) never names id front-door; it leaves the 현관문 void to rooms/entry.md:31, which names `front-door`, as does sibling front-entry-filling (front.md:183). A holds: FRONT_DOOR.id entry.ts:46; opening id = hole.id (environment.ts:712); house.ts:204-209.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment-links.ts emits the hole id as an opening id and house.ts matches expected door ids to host wall holes, making the field a usable connection key.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The entry plan names front-door and garage-front-opening names garage-front-door; id preserves those authored addresses through wall and environment assembly.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The entry and garage-front parents name their separate door voids; their wall callers supply those ids, and the environment adapter retains them as opening ids without creating another opening address.
    */
   id: string;
   /**
    * @evidence spaces/06-openings.md The void starts at a position along its host wall.
-   * @evidenceReview spaces/06-openings.md #bad6451 v-141 06-openings.md:27 X or Z interval is the horizontal width.
+   * @evidenceReview spaces/06-openings.md The from number is the first endpoint of the horizontal X or Z interval on the assigned wall, as required for a rough door or window void.
    * @evidence principles/core/source-units.md#source-scope-preservation The start lies in the existing wall coordinate frame.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 from uses the wall's u frame (L353, L416).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation wallPanel and straightWall interpret from along their caller's wall axis; this field adds no independent world placement.
    * @evidence principles/core/source-units.md#source-substantive-completion The left edge participates in a measurable opening width.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 environment.ts:680-684 width from from/to with >= 0.3 m check.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion environment-links.ts computes each opening's width from its from and to bounds and rejects a clipped passage that is too narrow.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes the garage door's left X=6.10 and entry-plan fixes the entry door's left X=0.40; from carries each caller's first running coordinate into its host cut.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 front.md:209 6.10, entry.md:31 0.40; from carries each caller coordinate. v-144 F13 minor closed.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The garage-front-opening and entry-plan parents set the respective left X limits for their doors; from carries each chosen bound into its owner's cut.
    */
   from: number;
   /**
    * @evidence spaces/06-openings.md The void ends at a position along its host wall.
-   * @evidenceReview spaces/06-openings.md #bad6451 v-141 06-openings.md:27 horizontal interval.
+   * @evidenceReview spaces/06-openings.md The to number is the second endpoint of the wall's horizontal X or Z interval, completing the rough opening span.
    * @evidence principles/core/source-units.md#source-scope-preservation The end remains within the assigned wall run.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 straightWall refuses to >= along[1] (L406); wallPanel requires the outline to enclose holes (L335).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation straightWall checks to against its caller-supplied wall run; wallPanel receives the same host's cut extent without assigning a new run.
    * @evidence principles/core/source-units.md#source-substantive-completion Together with from, it fixes the cut width.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 from/to give the cut width (L353-356).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel forms the cut ring using from and to, and environment-links.ts uses their difference as the opening width.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes the garage door's right X=11.10 and entry-plan fixes the entry door's right X=1.40; to carries each caller's second running coordinate into its host cut.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 front.md:209 11.10, entry.md:31 1.40. v-144 F14 minor closed.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The garage-front-opening and entry-plan parents set the right X limits of their respective doors; to keeps the caller's endpoint in the cut record.
    */
   to: number;
   /**
    * @evidence spaces/06-openings.md The opening has a sill or threshold height.
-   * @evidenceReview spaces/06-openings.md #bad6451 v-141 06-openings.md:27 Y interval in world height.
+   * @evidenceReview spaces/06-openings.md The bottom number is the world Y lower endpoint of the rough wall void, serving as a sill or a door threshold cut.
    * @evidence principles/core/source-units.md#source-scope-preservation The lower edge describes a wall cut, not a separate threshold object.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Thresholds are separate parts (front.ts:168, rear.ts:145); bottom is only a bound.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The field sets a wall-cut bound only; an exterior threshold remains a separately emitted body under its assigned owner.
    * @evidence principles/core/source-units.md#source-substantive-completion A floor-reaching opening can become a true bottom notch.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 bottom <= panel bottom -> notch (L410-420).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion straightWall turns a hole whose bottom reaches the panel bottom into an outline notch, leaving a true floor-reaching passage.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Ground-threshold-junctions extends floor-reaching door voids into their base while living-front-window fixes its own sill above the floor; bottom carries that opening-specific lower edge.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 10-ground-floor.md:92 wall owner excludes the base reservation under each entrance door, no wall below the opening lower edge (also 07:85); code FRONT_DOOR.bottom = floor-finish-base (entry.ts:49), GARAGE_FRONT_DOOR.bottom garage base (front.ts:57). living-front-window Y=[0.70,2.30] (front.md:83) -> bottom 0.7 (front-windows.ts). Scope is the four entrances.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The ground-threshold handoff keeps wall material out of a floor-reaching entrance and the living window parent gives a raised sill; bottom carries each opening's assigned lower edge without deciding a new threshold.
    */
   bottom: number;
   /**
    * @evidence spaces/06-openings.md The opening has an explicit head height.
-   * @evidenceReview spaces/06-openings.md #bad6451 v-141 06-openings.md:27 Y interval top.
+   * @evidenceReview spaces/06-openings.md The top number is the world Y upper endpoint of the rough opening, giving the wall cut an explicit head.
    * @evidence principles/core/source-units.md#source-scope-preservation The top edge belongs to the host wall cut.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 top only bounds the cut (L355-356, L417-418).
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The top field bounds the cut ring or notch supplied by the host wall; it adds no separate header or window fill.
    * @evidence principles/core/source-units.md#source-substantive-completion Header clearance can be checked against the wall top.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 straightWall refuses h.top >= wall top (L406), keeping a header.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion straightWall rejects a hole reaching its wall top, preserving an actual header above the opening in the emitted mesh.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-front-opening fixes its door head Y=2.15 and living-front-window fixes its window head; top carries each host's upper cut limit.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 front.md:209 garage door Y top 2.15 -> front.ts:58 top 2.15; front.md:83 living window head 2.30 -> front-windows.ts top 2.3. top is the cut's upper limit (solids.ts:282, used 348-349).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The garage door and living front window parents set their distinct head heights; top retains the caller's selected height in the host wall cut.
    */
   top: number;
 }
@@ -388,17 +388,17 @@ export interface IWallHole {
 /**
  * Build one part record.
  * @evidence spaces/03-surface-owners.md Each emitting source keeps its own owner id and surface role.
- * @evidenceReview spaces/03-surface-owners.md #9596716 03-surface-owners.md table assigns each surface to one source file. part() keeps caller id, owner and role verbatim (solids.ts:683-693).
+ * @evidenceReview spaces/03-surface-owners.md part() requires the emitting file's owner and copies it with the supplied id and role into one part; the surface-owner table assigns those source files.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior wall parts retain their cut face without assigning a second owner.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c 03:58 elevation owner owns its wall body and cut face. part() forwards solid.face as wall with the caller's owner (solids.ts:684-691); no second owner field.
- * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish and partition parts keep the room's owner id.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f Room files own their finish zones; shared.ts roomFloor, roomCeiling and partition pass the room or caller owner to part(), which retains it on each part record.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff When an elevation caller passes a wall solid, part() retains its cut face with the mesh and preserves that elevation's owner.
+ * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish parts keep the room's owner id.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff Room floor and ceiling callers pass their own owner to part(), which stores it unchanged beside the finish mesh assigned by the interior handoff.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper preserves caller identity, colour and geometry rather than selecting them.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 part() only assembles caller id, owner, role, color and solid (solids.ts:683-693); it selects nothing.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation part() takes the id, owner, role, colour and solid from its caller and selects no new space, geometry or finish assignment.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns a complete part and carries a wall face when the solid has one.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f part() returns id/owner/role/color/mesh and adds wall when the solid carries a face (solids.ts:684-693). openSharedEdges is gone from part and IHousePart; no row mentions it.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion part() returns all required IHousePart fields and, when given IWallSolid, carries its face into wall beside the emitted mesh.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff gives garage-shared-wall to garage.ts and the upper siding to envelope/right.ts; part carries each caller's id, owner, colour and geometry without reassigning it.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03:35 lower shared wall to garage.ts, siding above to envelope/right.ts; code garage.ts:63 and right.ts:159. part() copies id, owner, color, mesh unchanged (solids.ts:683-693).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The surface handoff assigns garage and right elevation separate shared-wall bodies by height; part() preserves the owner supplied for either body, with no new allocation.
  */
 export const part = (id: string, owner: string, role: HousePartRole, color: number, solid: IAutoMovieMesh | IWallSolid): IHousePart =>
   "face" in solid
