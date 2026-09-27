@@ -1,15 +1,16 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { taskPlan, execute } = require("./review-check.cjs");
+const { taskPlan, execute, identifierStatus } = require("./review-check.cjs");
 
 void test("review plan includes source, model, and spaces review probes with the production check", () => {
   const plan = taskPlan("C:/probes", "C:/npm/cli.js");
-  assert.equal(plan.length, 13);
+  assert.equal(plan.length, 14);
   assert.deepEqual(
     plan.map(([name]) => name),
     [
       "src-literal-duplication",
       "src-review-host",
+      "src-review-missing-idents",
       "docs-review-host",
       "docs-spaces-review-host",
       "docs-spaces-review-rows",
@@ -24,13 +25,26 @@ void test("review plan includes source, model, and spaces review probes with the
     ],
   );
   assert.deepEqual(plan[1][2].slice(-1), ["src/spaces"]);
-  assert.deepEqual(plan[2][2].slice(-1), ["docs/models"]);
-  assert.deepEqual(plan[3][2].slice(-1), ["docs/spaces"]);
-  assert.deepEqual(plan[4][2].slice(-5), ["spaces", "spaces/rooms", "spaces/envelope", "spaces/roof", "spaces/site"]);
-  assert.deepEqual(plan[7][2].slice(-1), ["docs/spaces"]);
-  assert.deepEqual(plan[10][2].slice(-1), ["docs"]);
-  assert.deepEqual(plan[11][2].slice(-1), ["src"]);
-  assert.deepEqual(plan[12][2].slice(-2), ["run", "check"]);
+  assert.match(plan[2][2][0], /src-review-missing-idents\.py$/);
+  assert.deepEqual(plan[3][2].slice(-1), ["docs/models"]);
+  assert.deepEqual(plan[4][2].slice(-1), ["docs/spaces"]);
+  assert.deepEqual(plan[5][2].slice(-5), ["spaces", "spaces/rooms", "spaces/envelope", "spaces/roof", "spaces/site"]);
+  assert.deepEqual(plan[8][2].slice(-1), ["docs/spaces"]);
+  assert.deepEqual(plan[11][2].slice(-1), ["docs"]);
+  assert.deepEqual(plan[12][2].slice(-1), ["src"]);
+  assert.deepEqual(plan[13][2].slice(-2), ["run", "check"]);
+});
+
+void test("missing source identifiers fail while the observed verb exception passes", () => {
+  assert.equal(identifierStatus("rows 1266 tokens-with-absent-part 0", 0), 0);
+  const verb = "flat" + "Maps";
+  const missing = "build" + "UpperFloor";
+  assert.equal(identifierStatus(`rows 1266 tokens-with-absent-part 1\nsrc/spaces/site/zone.ts:170\t@evidenceReview\t${verb}\tabsent=${verb}`, 1), 0);
+  assert.equal(identifierStatus(`rows 1266 tokens-with-absent-part 1\nsrc/spaces/stair.ts:68\t@evidenceReview\t${missing}\tabsent=${missing}`, 1), 1);
+  assert.equal(identifierStatus(`rows 1266 tokens-with-absent-part 2\nsrc/spaces/site/zone.ts:170\t@evidenceReview\t${verb}\tabsent=${verb}`, 1), 1);
+  assert.equal(identifierStatus("unexpected producer output", 1), 1);
+  assert.equal(identifierStatus("rows 0 tokens-with-absent-part 0", 0), 1);
+  assert.equal(identifierStatus("rows 1266 tokens-with-absent-part 0", 1), 1);
 });
 
 void test("every check runs and nonzero or failed spawn statuses accumulate", () => {

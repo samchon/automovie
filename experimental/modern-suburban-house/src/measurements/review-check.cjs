@@ -10,6 +10,20 @@ const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "../..");
 const logs = path.join(root, ".wiki", "stage3-review-check");
 
+/** @param {string} output @param {number|null} processStatus */
+function identifierStatus(output, processStatus) {
+  const count = /^rows (\d+) tokens-with-absent-part (\d+)$/m.exec(output);
+  if (!count || Number(count[1]) === 0) return 1;
+  const hits = output.split(/\r?\n/).filter((line) => line.startsWith("src/"));
+  const total = Number(count[2]);
+  if (hits.length !== total || processStatus !== (total === 0 ? 0 : 1)) return 1;
+  const allowedVerb = "flat" + "Maps";
+  return hits.every((line) => {
+    const fields = line.split("\t");
+    return fields.length === 4 && fields[2] === allowedVerb && fields[3] === `absent=${allowedVerb}`;
+  }) ? 0 : 1;
+}
+
 /** @param {string} probes @param {string} npmCli
  * @returns {Array<[string, string, string[]]>} */
 function taskPlan(probes, npmCli) {
@@ -23,6 +37,11 @@ function taskPlan(probes, npmCli) {
       "src-review-host",
       process.execPath,
       [path.join(probes, "src-review-host.mjs"), root, "src/spaces"],
+    ],
+    [
+      "src-review-missing-idents",
+      "python",
+      [path.join(probes, "src-review-missing-idents.py"), root],
     ],
     [
       "docs-review-host",
@@ -105,7 +124,9 @@ function execute(tasks, run) {
     const emptyPopulation =
       (name === "docs-spaces-review-rows" && Number(rowCount?.[1] ?? 0) === 0) ||
       (name === "docs-spaces-review-quotes" && Number(spanCount?.[1] ?? 0) === 0);
-    const status = Math.max(result.status ?? 1, unchecked || emptyPopulation || (name === "docs-spaces-review-quotes" && failedQuotes) ? 1 : 0);
+    const status = name === "src-review-missing-idents"
+      ? identifierStatus(output, result.status)
+      : Math.max(result.status ?? 1, unchecked || emptyPopulation || (name === "docs-spaces-review-quotes" && failedQuotes) ? 1 : 0);
     exitSum += status;
     results.push({
       name,
@@ -148,4 +169,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { taskPlan, execute };
+module.exports = { taskPlan, execute, identifierStatus };
