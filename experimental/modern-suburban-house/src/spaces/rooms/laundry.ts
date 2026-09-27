@@ -74,7 +74,7 @@ export const LAUNDRY_GARAGE_DOOR = {
 /** One under-door slab supplies disjoint structural and room-owned faces. */
 /**
  * @evidence spaces/rooms/laundry.md The mudroom's garage door and single step determine this shared under-door slab.
- * @evidenceReview spaces/rooms/laundry.md `laundryGarageDoorBaseMesh` takes the room's exported east-door span and the existing ground support interval; the room and ground callers partition its end rather than authoring two overlapping steps.
+ * @evidenceReview spaces/rooms/laundry.md #6b84229 `laundryGarageDoorBaseMesh` takes the room's exported east-door span and the existing ground support interval; the room and ground callers partition its end rather than authoring two overlapping steps.
  * @evidence spaces/10-ground-floor.md#ground-threshold-junctions The slab continues the ground support through the laundry-garage shared-wall opening.
  * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions #4150be7 `laundryGarageDoorBaseMesh` spans `MAIN.inner.x[1]` to the garage-side `MAIN.outer.x[1]` at the exported door's Z interval, while its top and bottom use the ground finish and support depths.
  * @evidence spaces/rooms/laundry.md#laundry-plan Its garage-facing end lies below the room's raised threshold at the designed passage.
