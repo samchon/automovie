@@ -26,13 +26,13 @@ import { ceilingOf, floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/tub-bath.md The hall-tub-door void follows the partition assigned to tub-bath.
- * @evidenceReview spaces/rooms/tub-bath.md #47f49cb v-141 tub-bath.ts:33-38 door(-5.86,-4.86) is the hole of tub-hall-partition X=[3.07,3.22] (tub-bath.ts:84-92); 07:40 assigns tub<->hall; tub-bath.md:27 left wall Z=[-5.86,-4.86].
+ * @evidenceReview spaces/rooms/tub-bath.md `DOOR_HALL_TUB_DOOR` fixes the plan's left-wall Z = [-5.86, -4.86] opening and is used as the sole hole of the tub-owned hall partition.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-tub-door interval remains with tub-bath while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 upper-hall.ts:14 imports DOOR_HALL_TUB_DOOR and uses .from/.to (upper-hall.ts:103-108); 05:55.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The tub room exports its hall-door span; `buildUpperHall` imports `from` and `to` for the adjacent floor finish without defining another bathroom entrance.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-tub-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Hole at tub-bath.ts:91. Shares tub x[3.145,3.22] (tub-bath.ts:78-83) and hall x[3.07,3.145] (upper-hall.ts:103-108).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildTubBath` cuts `tub-hall-partition` with this door and finishes X = [3.145, 3.22]; `buildUpperHall` finishes X = [3.07, 3.145] using the same Z interval.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Tub-bath-plan places hall-tub-door in the left corridor wall at Z=[-5.86, -4.86], Y=[3.06, 5.26], apart from the shower room; this export carries its Z cut.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 tub-bath.md:25,27 left wall X=[3.07,3.22] touches hall in its front part; Z=[-5.86,-4.86], Y=[3.06,5.26]; no pass door to shower/bedroom.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `tub-bath-plan` gives the hall-facing section of X = [3.07, 3.22] one rough opening at Z = [-5.86, -4.86], Y = [3.06, 5.26]; this upper-storey `door` carries that span without a shower or bedroom passage.
  */
 export const DOOR_HALL_TUB_DOOR = door(
   "hall-tub-door",
@@ -68,17 +68,17 @@ const TUB_BATH: IRoomSpace = {
 
 /**
  * @evidence spaces/rooms/tub-bath.md This builder owns the long upper tub bathroom at the hall end.
- * @evidenceReview spaces/rooms/tub-bath.md #47f49cb v-141 box([3.22,5.5],[-8.8, guardBack=-4.71]) (tub-bath.ts:46) = tub-bath.md:25, inner 2.28x4.09 (:29); entered from the hall end.
+ * @evidenceReview spaces/rooms/tub-bath.md `TUB_BATH.outline` uses the plan's X = [3.22, 5.50] and rear Z = -8.80 up to `STAIR_OPENING.guardBack`; `buildTubBath` returns its long independent upper-floor room and parts.
  * @evidence spaces/rooms/tub-bath.md#tub-bath-plan It cuts one hall door and closes the shower-side and bedroom-three-side runs at their assigned corners.
- * @evidenceReview spaces/rooms/tub-bath.md#tub-bath-plan #03995d0 v-141 One hole (tub-bath.ts:91). tub-shower-partition along [-8.95,-6.06] and tub-bedroom-three-partition along [3.22,5.5] have no holes (tub-bath.ts:93-108). Corners Z[-6.06,-5.91] and X[3.07,3.22]xZ[-4.71,-4.56] are left to shower/bedroom-three (07:77). tub-bath.md:25,27.
+ * @evidenceReview spaces/rooms/tub-bath.md#tub-bath-plan `tub-hall-partition` alone has `DOOR_HALL_TUB_DOOR`; the shower-side and bedroom-three-side partitions have no holes and stop at their assigned junction edges.
  * @evidence spaces/rooms/tub-bath.md#tub-fixture-use Vanity, toilet, tub, towel, mirror, and their use/route areas remain separately reserved.
- * @evidenceReview spaces/rooms/tub-bath.md#tub-fixture-use #477e768 v-141 tub-bath.ts:50-61: vanity, toilet, tub, towel Z[-6.85,-6.10], mirror, plus vanity-use, toilet-use, tub-use and main-route [3.32,4.22]x[-8.7,-5.0]. Values match tub-bath.md:59-65.
+ * @evidenceReview spaces/rooms/tub-bath.md#tub-fixture-use `TUB_BATH.reservations` separates vanity, toilet and tub body boxes from their use zones and the X = [3.32, 4.22] route; towel, mirror and curtain-rail boxes follow the specified walls.
  * @evidence principles/core/source-units.md#source-scope-preservation The function emits tile finish and three walls without authoring sanitary fixtures or stealing adjacent T corners.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Parts: tile floor/doorFloor, ceiling and 3 partitions (tub-bath.ts:76-108); no fixture part. Corners not taken: tub-hall ends at guardBack, which bedroom-three-arrival-partition covers (bedroom-three.ts:92-99); shower-hall-partition runs to 3.22.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The builder emits tile floor, ceiling, hall-door finish and three partition parts; sanitary fixtures stay in reservations, and the hall run ends at the bedroom-three junction.
  * @evidence principles/core/source-units.md#source-substantive-completion The return contains the room, floor/ceiling, door strip, and three concrete partition parts.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Space plus roomFloor, roomCeiling, doorFloor and 3 partitions (tub-bath.ts:73-110).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildTubBath` returns one room record plus floor, ceiling, hall door strip and three concrete partitions, with a hole for the only hall entrance.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Tub-bath-plan gives one hall-tub-door, and tub-fixture-use places the long left route beside basin, toilet, bath, and curtain-rail reservations.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 tub-bath.md:27 hall-tub-door only, no pass door to shower or bedroom; :63 main route X=[3.32,4.22] left band; :59-65 vanity, toilet, tub, curtain-rail band. Host tub-bath.ts:50-57.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `buildTubBath` keeps the single hall door and closed shower/bedroom partitions from `tub-bath-plan`, and reserves the left route beside the vanity, toilet, tub and curtain band from `tub-fixture-use`.
  */
 export const buildTubBath = (): IRoomBuild => ({
   space: TUB_BATH,
