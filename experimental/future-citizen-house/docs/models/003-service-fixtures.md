@@ -43,7 +43,7 @@
 @evidenceReview settings/002-household.md#ground-program #c5026c0 1층 powder 세면 호출을 @inventory 800과 실제 powder.ts용 basin/800에 대응시킨다.
 @evidenceReview settings/002-household.md#upper-program #55473ad 상층 욕실 vanity 세면 호출을 @inventory 1000과 폭 1.00m 본문 원형에 대응시킨다.
 @evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 basin·tap·mirror를 안정 part와 rim/upper, bowl/inner, mirror-glass/front 등의 face 주소로 분해한다.
-@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-bathroom #5b2410b corridor-bathroom의 안쪽 여는 문을 basin 원형에 넣지 않으며 이 H2의 @envelope만 후속 문 상태 검사에 제공한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-bathroom #_______ basin의 `rim`·`bowl`·tap·mirror 부품에는 corridor-bathroom의 안쪽 여는 문이나 frame이 없다. 이 H2의 `@envelope`는 기구 국소 점유이고 문짝·route는 공간 경계에 남는다.
 @evidenceExcludeReview spaces/003-surface-ownership.md#rear-bath-glazing #bca1863 상층 욕실 후면 고정창의 절삭·shade를 거울과 합치지 않고 거울은 @flat-contact로 실내 wall에 붙인다.
 @evidenceExcludeReview spaces/003-surface-ownership.md#right-bath-glazing #49514f7 상층 욕실 -X 창의 bay와 jamb는 1000mm basin 폭에서 파생하지 않으며 모델에는 독립 mirror-frame만 있다.
 @evidenceExcludeReview spaces/003-surface-ownership.md#glazing-interface #b73976a 외부 창 frame의 공통 깊이·분할은 이 H2의 mirror-frame과 별개이며 mirror-glass는 자체 @void 안에 물린다.
@@ -136,7 +136,7 @@
 @evidenceReview principles/design/models.md#representation-contract #46718c6 @ellipse bowl·seat는 타원 구멍을 내고 interior-floor 축 규칙은 bowl 내부 바닥만 닫아 seat 안에 가짜 막을 두지 않는다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 접촉 원점, 앉는 방향 +Z와 seat 뒤 z=-0.21·cistern 앞 z=-0.215의 틈이 본문 좌표에 있다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b bowl/inner, seat/edge, cistern/front, flush/outer가 위·정면·측면에서 열린 구멍과 분리 경계를 관찰하게 한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02는 두 방의 변기 역할만 뒷받침하고 화면상 크기로 폭을 추정하지 않는다고 본문이 밝힌다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #_______ ref02의 두 화장실 도기 형상을 bowl·seat·lid·cistern의 분할 근거로 삼고, 본문은 사진의 화면 면적에서 폭을 역산하지 않은 채 0.42×0.72m 점유를 별도로 정한다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope lid-open과 여섯 @part가 최고 0.828m, floor 접촉, seat·tank 사이 0.005m 틈을 수치로 닫는다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 두 프로그램과 두 욕실의 변기 용도에 같은 0.42×0.72m 고정 도기를 대조했고 방·문과 실제 접근 점유는 배치에 남는다.
 @evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-bathroom #c221644 corridor-bathroom 공유벽은 @inventory의 여섯 도기 부품에 없고 toilet은 독립 바닥 접촉만 선언한다.
@@ -606,7 +606,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e washer·dryer @envelope 각각 0.66×0.66×0.84m이며 bore·rim 반지름과 두 hinge 조각의 접촉이 수치로 있다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 upper-service의 세탁·건조 및 점검 영역에 두 국소 원형을 대조했고 적층과 점검 통로는 배치에 남겨 공간 수정이 없다.
 @evidenceReview spaces/002-spatial-graph.md#upper-service #c37bff6 복도 직결 설비실의 washer와 dryer를 별도 @inventory로 답하고 실제 적층·정비 여유는 원형에 넣지 않는다.
-@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-service #d7d4e8b 복도와 설비실 문은 세탁기 @inventory에 포함되지 않으며 기기 @envelope만 문 상태 충돌 검사에 준다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-service #_______ washer·dryer의 `@inventory`는 본체·drum·고정 hinge를 열거하며 corridor-service의 방 안쪽 여는 문과 frame을 포함하지 않는다. 기기 `@envelope`는 국소 점유이고 문 개구는 공간 owner가 정한다.
 @evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-service #f5d2036 문 host wall의 geometry를 body로 대체하지 않고 두 기구는 독립 바닥 접촉 원형이다.
 @evidenceExcludeReview spaces/002-spatial-graph.md#wall-service-corridor-front #07903a5 설비실 전면의 닫힌 벽을 washer·dryer 배치로 뚫지 않으며 기구의 앞면 +Z는 로컬 축일 뿐이다.
 @evidenceReview settings/002-household.md#upper-program #55473ad 복도 직결 상층 설비실의 세탁기·건조기를 각자 다른 control 배열의 원형으로 제공한다.

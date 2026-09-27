@@ -329,7 +329,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidenceReview principles/design/models.md#representation-contract #46718c6 `seat`, `leg-0..3`, `footrest-0..3`을 별도 part로 내고 고리 모서리는 두 막대가 한 45° 면을 공유하도록 절삭한다. 열린 내부 부피를 두 번 발행하거나 고리를 장식 네 토막으로 나누면 어긋난다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 네 sole 중심을 원점으로 하고 +Z를 island 쪽으로 선언했다. y=0.585..0.63 좌판과 y=0.23 고리의 local 높이를 고정해 상판에 맞추는 배치가 숨은 pivot을 필요로 하지 않는다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 위·옆·아래 45°에서 네 footrest가 하나의 둘레인지와 중심 바닥이 열려 있는지를 묻는다. 막대 사이에 틈이 나거나 중앙을 판으로 덮으면 이 view에서 반증된다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03에서 가는 다리와 고리라는 차단 관계를 채택하고 0.36m 좌판·0.63m 높이는 모델의 값으로 둔다. ref02의 간단한 스툴에서 보이지 않는 제품 치수를 빌리지 않는다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #_______ ref03에서 발받침 고리와 긴 섬 옆의 세 스툴 관계를 채택한다. 좌판 지름 0.36m·상면 y=0.63m 및 네 사각 다리는 로컬 치수이며 ref02는 배치 확인에만 쓴다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 좌판 반지름 0.18 안에 다리 외곽과 ±0.1065 고리가 들어가며 접지부터 좌면까지 part가 연결된다. 전체 AABB만 맞고 고리가 다리에서 떨어져 있으면 완료된 원형이 아니다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program의 island, common-room의 주방 및 household-program의 생활 가구 범위를 대조했다. 세 개라는 수는 ref03에 근거한 후속 배치 선택이고 local 좌면·고리·접지는 새 방 경계나 운영 상태를 요구하지 않는다.
 @evidenceReview settings/002-household.md#ground-program #c5026c0 프로그램의 island를 스툴이 향하는 조리대 대상으로 받는다. 그 목록에 스툴 세 개가 적혀 있다고 주장하지 않고 반복 수는 별도 배치 결정으로 남긴다.
@@ -606,7 +606,7 @@ prototype은 `work-desk/flex-1400`, `work-desk/bed-1200`, `work-desk/bed-1240`, 
 @evidence settings/002-household.md#upper-program 침실의 작은 desk를 같은 원형의 가능한 배치 대상으로 받는다.
 @evidence settings/002-household.md#household-program 생활 흔적을 물체로 표현하는 범위 안에서 화면과 키보드를 저작 소품으로 선택한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 화면 받침·bezel·키 배열의 형상 주소를 models가 정하고 전자 작동과 방별 배치는 약속하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 이 H2는 `work-display`와 `work-keyboard`의 물체 외형만 낸다. 실제 화면 UI·문자·전원은 `unverified`이고 받치는 desk 상판도 다른 원형의 부품이다.
+@evidenceReview principles/core/common.md#scope-preservation #_______ `work-display`의 stand·screen과 `work-keyboard`의 key cap 형상은 이 H2에 있다. 본문은 화면 UI와 글자를 만들지 않으며 출력·전원을 미검증으로 두고 desk 상판은 이 원형에 합치지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 화면은 stand-base부터 recessed screen까지 다섯 부품, 키보드는 body와 12×4 `@grid`의 48 cap으로 닫는다. cap 수와 bezel 절삭을 누락하면 작업 도구의 외형 결과가 다르다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref04의 책상 위 장치는 형상 선택의 배경이고 ref02 책상은 다른 놓임의 근거다. 0.50m 화면 폭, key pitch 0.025×0.023과 recess 0.0035는 본문·구조 행의 모델 값이다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 작업실 desk와 upper-program의 침실 desk가 허용한 상판 위에, 화면 지지대·절삭 bezel·행 우선 key 원형을 별도 물체로 설계했다. 부모는 화면이나 키보드의 전자 성능을 요구하지 않는다.
