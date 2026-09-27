@@ -54,15 +54,15 @@ export function faceValidScale(props: {
  * vertices (`clusters`, each a fold's vertices): one at the lids and one at
  * the lips are two. For each fold in turn, the units that move its
  * vertices (`contribution`, how far a unit at its weight moves them, over
- * zero) yield one at a time, a unit set by a norm rather than read on the
- * photograph (`priors`) before any other, and among each the one moving
- * the fold most first: each keeps the largest share of its weight, of
- * `steps` halvings, at which the skin has no more faults than with that
- * unit at rest (`faceValidScale`). A unit that does not make the fold keeps
- * its weight, and a fold one unit makes costs no other unit anything; a
- * fold that no single unit makes (each at rest alone leaves it) takes one
- * shared share of all the units moving it; a
- * yield can move a fold elsewhere, which the next round gathers, over at
+ * zero) yield: those a norm set rather than the photograph read (`priors`)
+ * first, together, then the photographed ones together, each group keeping
+ * the largest share of its weights, of `steps` halvings, at which the skin
+ * has no more faults than with that group at rest (`faceValidScale`). A
+ * unit that does not move the fold keeps its weight, and a fold several
+ * units make costs each the same share: yielded one at a time, the unit
+ * moving the fold most went to rest (three smiles of round j19 lost their
+ * smile to a fold the lip raiser and depressor made with it). A yield can
+ * move a fold elsewhere, which the next round gathers, over at
  * most `rounds` rounds. A unit and its partner on the other side
  * (`partner`: a smile's two corners, a gaze's two eyes) move and yield as
  * one, by the sum of what they move, so a fold at the midline does not
@@ -131,12 +131,17 @@ export function faceExpressionYield(props: {
         });
         expression = scaled(kept.scale);
       };
-      const before = props.faults(expression);
-      for (const { units } of moved) yieldTogether(units);
-      // A fold no one of its units makes alone (each alone at rest leaves
-      // it) yields all of them together.
-      if (props.faults(expression) >= before)
-        yieldTogether(moved.flatMap(({ units }) => units));
+      // A norm's units yield first; what they leave, the photographed units
+      // moving the fold yield together by one share: a fold several make is
+      // no single unit's to pay for.
+      const priorUnits = moved
+        .filter((one) => one.prior)
+        .flatMap(({ units }) => units);
+      if (priorUnits.length !== 0) yieldTogether(priorUnits);
+      const read = moved
+        .filter((one) => !one.prior)
+        .flatMap(({ units }) => units);
+      if (read.length !== 0) yieldTogether(read);
       faults = props.faults(expression);
     }
   const shares = Object.fromEntries(

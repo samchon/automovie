@@ -23,13 +23,13 @@ import { throwsError } from "../internal/predicates";
  *    units the fault does not touch; one without a fault stands as given;
  *    two folds apart yield their own units by their own shares (a to 0.5,
  *    b to 0.25), not one share for both.
- * 6. A fold two units make together costs only the one moving it most (a,
- *    to half), or the one a norm set (b, to half) before a photographed one.
+ * 6. A fold two photographed units make together costs both the same share
+ *    (half each); where a norm set one (b), it yields first and alone.
  * 7. A fold that moves onto unit b's skin once a has yielded brings b in on
  *    the next round (both at half, the skin whole); a unit a fold needs at
  *    nothing is dropped; a fold no unit moves is left and reported.
- * 8. A unit and its partner yield as one (both corners to half) where alone
- *    the corner moving the fold most would go to rest and leave the other.
+ * 8. A smile's two corners folding the midline together yield together, to
+ *    half, as partners or not, never one corner to rest.
  * 9. A fold any two of three units make (each at rest alone leaves it)
  *    yields all three together, to half.
  * 10. Fewer than one round refuses, and the faulting triangles gather into
@@ -146,11 +146,11 @@ export const test_subject_face_document_validity = (): void => {
       rounds: 3,
     });
   TestValidator.predicate(
-    "the unit moving a fold most yields first, a norm's before a reading's",
+    "a fold's photographed units share its yield, a norm's yield first",
     JSON.stringify(joint()) ===
       JSON.stringify({
-        expression: { a: 0.5, b: 1 },
-        shares: { a: 0.5 },
+        expression: { a: 0.5, b: 0.5 },
+        shares: { a: 0.5, b: 0.5 },
         faults: 0,
       }) &&
       JSON.stringify(joint(new Set(["b"]))) ===
@@ -240,7 +240,8 @@ export const test_subject_face_document_validity = (): void => {
             : null,
       ).expression,
     ) === JSON.stringify({ smileLeft: 0.5, smileRight: 0.5 }) &&
-      JSON.stringify(pair().expression) === JSON.stringify({ smileLeft: 1 }),
+      JSON.stringify(pair().expression) ===
+        JSON.stringify({ smileLeft: 0.5, smileRight: 0.5 }),
   );
   const two = (e: Record<string, number>) =>
     ["a", "b", "c"].filter((unit) => (e[unit] ?? 0) > 0.5).length >= 2;
