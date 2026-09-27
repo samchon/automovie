@@ -5,14 +5,14 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 여덟 문의 벽 두께 안 안감 세 조각과 양면 테를 치수·변형·접촉·통과 영역까지 정하고 문턱 바닥은 방 소유로 남긴다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 여덟 문의 안감·양면 테와 빈 통과부를 읽고 문턱 바닥은 방에 남겨 중복하지 않았는지 확인했다.
-@evidence principles/core/common.md#substantive-completion 문설주 0.06m·상인방·벽 두께 깊이의 안감, 폭 0.16m·돌출 0.03m 테, 변형을 (유효 폭, 유효 높이, 벽 두께) 조합에서 만드는 규칙이 있어 source가 문틀을 다시 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.06m 안감과 0.16m 테를 유효 폭·높이·벽 두께 조합에 적용하는 식을 대조했다.
+@evidence principles/core/common.md#substantive-completion 문설주 0.06m·상인방·벽 두께 깊이의 안감과 양면 테의 모서리 겹침을 정해 source가 테의 닫힘 방식을 고르지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion 안감 세 조각과 윗띠가 옆띠 위를 덮는 닫힌 둘레를 본문의 치수·점유 상자에 대조했다.
 @evidence principles/core/common.md#declared-basis 유효 치수·틀 0.06m는 openings.md#doors와 #boundary-ownership, 벽 두께 0.30/0.60m는 판정된 경계, 돌 테의 존재는 20-envelope#walls의 석재 문 주변에서 온다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 문 표의 유효 치수와 틀 두께, 벽 깊이 및 석재 주변 설정이 안감·테의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 깊은 문설주와 문 주변 틀이라는 설정을 void를 채우는 안감과 벽면 위 테라는 두 표면 모델로 바꾼다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 깊은 문설주를 벽 두께 전체 안감과 벽면 돌출 테의 두 표면으로 구체화했는지 확인했다.
-@evidence principles/design/models.md#representation-contract lining·surround part와 두 표면, 안감 바깥면·테 뒷면의 가려진 접촉면, 유효 통과 영역의 negative space를 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 lining·surround의 접촉면과 유효 폭×높이의 빈 영역을 구분했다.
+@evidence principles/design/models.md#representation-contract lining·surround part와 테의 윗모서리 소유, 안감 바깥면·테 뒷면의 가려진 접촉면, 유효 통과 영역의 negative space를 정한다.
+@evidenceReview principles/design/models.md#representation-contract 윗띠의 양끝이 옆띠 외곽까지 이르는 테와 벽 접촉면을 확인하고 통과부의 빈 영역과 구분했다.
 @evidence principles/design/models.md#spatial-convention 원점을 void 바닥 가장자리 선의 중심(문턱 완성면 Y=0, 벽 중심면)에 두고 X 벽 길이·Z 벽 두께·+Y 위로 정한다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e void 바닥 선 원점·X 벽 길이·Z 깊이·+Y 위가 여덟 변형의 기준으로 일치하는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 1.0×2.2×0.3m 변형의 세 시점과 건물의 각 문 양면에서 틀이 void를 정확히 채우고 유효 폭을 줄이지 않는지를 본다.
@@ -41,7 +41,7 @@
 
 [개구부와 문짝](../settings/20-envelope.md#openings)의 벽 두께 안 깊은 문설주·상인방과 문 주변 틀이다. 이미지 03·04에서 문 둘레를 두르는 넓은 돌 테와 이미지 05의 깊은 reveal이 근거다. 판정된 [출입문 표](../spaces/openings.md#doors)의 유효 폭·높이와 [경계 소유](../spaces/openings.md#boundary-ownership)의 각 가장자리 0.06m 틀, [석재 문 주변 벽](../settings/20-envelope.md#walls)의 0.30/0.60m 두께를 그대로 소비하며 void 위치를 새로 정하지 않는다.
 
-로컬 원점은 void 바닥 가장자리 선의 중심, 곧 문턱 완성면 Y=0에서 벽 중심면 위의 점이다. 로컬 X는 벽 길이 방향, Z는 벽 두께 방향, +Y는 위다. 안감은 세 조각으로, 두 문설주는 폭 0.06m·높이(유효 높이+0.06m)이고 상인방은 길이(유효 폭+0.12m)·높이 0.06m이며 세 조각의 깊이는 그 문이 뚫린 벽의 두께(0.30m 또는 0.60m)다. 벽 양면에는 void 둘레를 두르는 테(폭 0.16m, 벽면에서 0.03m 돌출)가 문설주 양옆과 상인방 위를 감싼다. 변형은 판정된 여덟 문의 (유효 폭, 유효 높이, 벽 두께) 조합에서 source가 만든다. 점유 상자는 (유효 폭+0.44m)×(유효 높이+0.22m)×(벽 두께+0.06m)다.
+로컬 원점은 void 바닥 가장자리 선의 중심, 곧 문턱 완성면 Y=0에서 벽 중심면 위의 점이다. 로컬 X는 벽 길이 방향, Z는 벽 두께 방향, +Y는 위다. 안감은 세 조각으로, 두 문설주는 폭 0.06m·높이(유효 높이+0.06m)이고 상인방은 길이(유효 폭+0.12m)·높이 0.06m이며 세 조각의 깊이는 그 문이 뚫린 벽의 두께(0.30m 또는 0.60m)다. 벽 양면에는 void 둘레를 두르는 테(폭 0.16m, 벽면에서 0.03m 돌출)가 문설주 양옆과 상인방 위를 감싼다. 각 면의 테 윗띠는 길이 (유효 폭+0.44m)로 양쪽 옆띠 위를 덮고 위쪽 두 모서리를 채운다. 변형은 판정된 여덟 문의 (유효 폭, 유효 높이, 벽 두께) 조합에서 source가 만든다. 점유 상자는 (유효 폭+0.44m)×(유효 높이+0.22m)×(벽 두께+0.06m)다.
 
 부재 대응: `lining`=안감; `surround`=테.
 
