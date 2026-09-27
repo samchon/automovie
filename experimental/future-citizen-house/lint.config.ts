@@ -92,7 +92,7 @@ export const productionEvidence = {
       document: "contracts/model-fitout-handoff.md",
       account: "accounts/models/legacy-fitout.md",
       layer: "models",
-      stage: "evidence",
+      stage: "review",
       populationScope: { mode: "complete-production" },
     }),
   ],
