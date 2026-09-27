@@ -100,11 +100,11 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 ## 고정창의 계층 {#fixed-window}
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 창 한 칸과 차고 측면 창 두 칸의 고정창 계층(frame→unit-n→fixed-sash)을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion sash를 frame 깊이 가운데 두고 관절 없이 모든 부재를 rigid로 정한다.
+@evidence principles/core/common.md#substantive-completion 고정 sash의 Z=[−0.13,−0.08] m와 frame의 Z=[−0.18,−0.04] m 사이 날씨 쪽 0.05 m·실내 쪽 0.04 m 여백을 정하고, 관절 없는 rigid 부재로 둔다.
 @evidence principles/core/common.md#declared-basis 고정창 형식은 spaces/06-openings.md#external-opening-interface에서, 각 창의 위치와 칸 수는 front.md#stair-front-window와 right.md#garage-right-window에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공통 인계의 계단·차고 고정창 형식을 관절 없는 fixed-sash와 각 칸의 유리 네 장으로 구현할 원형으로 구체화한다.
 @evidence principles/design/models.md#representation-contract 고정창의 계층과 rigid 상태를 정한다.
-@evidence principles/design/models.md#spatial-convention fixed-sash의 깊이 위치를 frame 깊이 가운데로 적는다.
+@evidence principles/design/models.md#spatial-convention fixed-sash가 공통 창 깊이 Z=[−0.13,−0.08] m를 소비해 frame 안에 놓이는 위치와 양쪽 여백을 적는다.
 @evidence principles/design/models.md#reviewable-structure 계단참과 차고 내부 reveal 단면에서 sash 위치를 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 고정창이라는 라벨을 움직이는 노드가 없는 계층이라는 관찰 가능한 결정으로 바꾼다.
 @evidence principles/design/models.md#model-scale-layer-completion 고정창에도 frame·sash·유리 층이 모두 있음을 정해 사각 구멍 대체를 막는다.

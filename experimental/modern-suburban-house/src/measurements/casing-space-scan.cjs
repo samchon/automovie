@@ -257,8 +257,8 @@ for (const door of doors) {
     ? [face, face + leafWidth]
     : [face - leafWidth, face];
   const side = row.end === "low"
-    ? [pivot - row.handle, pivot + leafThickness]
-    : [pivot - leafThickness, pivot + row.handle];
+    ? [pivot - row.handle, pivot + leafThickness + row.handle]
+    : [pivot - leafThickness - row.handle, pivot + row.handle];
   const x = /** @type {Span} */ (/** @type {unknown} */ (openAxis === "x"
     ? open
     : side));
@@ -278,6 +278,10 @@ for (const door of doors) {
   if (routeHits.length) failures.push(
     `${door.id}: open leaf intersects routes ${routeHits.join(",")}`,
   );
+  const associatedSwings = boxes.filter((b) => b.kind === "swing" && b.file === row.roomFile &&
+    b.id.includes("door") && isPositive(overlap(x, b.x)) && isPositive(overlap(z, b.z)));
+  for (const swing of associatedSwings) if (!subset(x, swing.x) || !subset(z, swing.z))
+    failures.push(`${door.id}: both open handle faces exceed ${swing.id} x=${x} z=${z}`);
   const obstructionHits = boxes.filter((b) => ["furniture", "fixture", "storage"].includes(b.kind) &&
     b.file === row.roomFile && b.y && isPositive(overlap(x, b.x)) && isPositive(overlap(z, b.z)) &&
     isPositive(overlap([door.wall.floor, door.wall.floor + 2.16], b.y))).map((b) => b.id);

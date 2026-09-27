@@ -3,7 +3,7 @@
 ## 난간살의 단면과 반복 {#stair-balusters}
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 난간살의 0.02 m 정사각 단면, 0.075 m 예약 가운데 배치, 개수와 간격 산출을 이 H2가 맡고 기둥·손잡이는 spaces source에 남긴다.
-@evidence principles/core/common.md#substantive-completion 아래 flight·참은 양끝 기둥 안쪽, 상부 flight는 참 기둥 안쪽에서 손잡이 자유단 X=1.87 m까지를 L로 잡는다. n=ceil((L−0.10)/0.12)와 간격 (L−0.02n)/(n+1)로 빈 간격 0.10 m 이하를 산출하고 아래끝을 디딤·참 또는 복도 bottom-rail 윗면에 맞댄다.
+@evidence principles/core/common.md#substantive-completion 아래 flight·참·복도의 평탄 구간은 양끝 기둥 안쪽을 L로 잡고 n=ceil((L−0.10)/0.12), gap=(L−0.02n)/(n+1)로 반복한다. 위 flight는 디딤 j=1…8마다 중심 X=a_j+0.05+0.06k(k=0…3)인 네 살을 두고 Y=2.75 m 벽 시작에서 위끝을 자른다.
 @evidence principles/core/common.md#declared-basis 간격 상한과 역할은 spaces/02-stair.md#stair-boundary-heights, 점유 예약은 #stair-clearance, 철제 수직살은 settings/10-house.md#stair에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 02-stair의 난간살 간격 상한과 후속 반복 산출 인계를 아래 flight·참·복도 개수식과 위 flight의 디딤별 네 살 배치로 구체화한다.
 @evidence principles/design/models.md#representation-contract rigid 난간살 원형과 위아래 끝의 접속을 정한다.
