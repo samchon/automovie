@@ -24,11 +24,11 @@ const radians = (degrees: number) => degrees * Math.PI / 180;
 /**
  * Builds the five reviewed timber and porch-stone families without choosing placement.
  * @evidence models/entablature.md This class groups the beam, rafter, porch trim, sanctuary truss and room joist builders under their reviewed local frames.
- * @evidenceReview models/entablature.md #c85b3ff Matched the five H2s to the five construction entry points, including the separately returned sanctuary rafters and fixed room joist.
+ * @evidenceReview models/entablature.md #c85b3ff The five design H2s correspond to six public methods: rafter and sanctuaryRafters share the rafter H2, while the other four methods each realize a different H2.
  * @evidence principles/core/source-units.md#source-scope-preservation Its public methods emit only entablature.md members; roof piece selection, repetition and world transforms remain with instances.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The class returns local timber and stone assemblies; no method takes an instance transform, repeat count or roof-piece selection.
  * @evidence principles/core/source-units.md#source-substantive-completion Each family has a callable mesh builder with the H2's named parts and a stable model ID, including distinct sanctuary tail and interior spans.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The five callable paths reach reviewedModel outputs, with sanctuaryRafters yielding two separately identified closed spans.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Each of the six public methods reaches a mesh result; sanctuaryRafters calls rafter twice and returns distinct tail and inner-span models.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The five H2s give the sections, contact faces and part splits consumed here; the corrected rafter cut uses the reviewed wall, support and eave datums without reopening those parents.
  * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Checked the five source sections against their H2 dimensions and the revised eave datum; no remaining source-only section or contact choice was found.
  * @evidence obligations/design/model-sources.md#design-owned-construction ObjectMesh boxes and polygon extrusions emit the H2 part surfaces without choosing materials or inventing instance spacing.
@@ -189,7 +189,7 @@ export class TempleEntablature {
    * @evidence principles/core/source-units.md#source-scope-preservation Roof support, slope and thickness come from the space-owned support and shared rules; the emitted tie-beam, principal, king-post and strut are exactly the H2's four parts.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 sanctuaryTruss reads shared support and gable slope and returns exactly the four H2 part keys, with no roof placement or surface finish.
    * @evidence principles/core/source-units.md#source-substantive-completion Explicit clipped polygons and boxes produce all four meshes, including V-cut king-post head and strut-end contacts.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The principal polygons include their clipping kink, the king-post polygon has a V head, and each strut polygon is trimmed to the roof underside.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The principal polygons bend at kink and flatten against tieTop; the king-post head follows bottom(x), and strut heads stop at that same lower principal boundary.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The sanctuary-truss H2 fixes its underside equation, flat tie clipping, V head and two strut endpoints; emitting those cuts required no extra joint decision.
    * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The H2's underside and strut endpoints match bottom(x), foot and head; polygon clipping uses those inputs without selecting another joint.
    */

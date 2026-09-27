@@ -22,7 +22,7 @@ const jar=(id:string,name:string,
  * @evidence principles/core/source-units.md#source-substantive-completion Vessel profiles and scroll branches emit distinct body, handle, sheet and tie meshes instead of one generic cylinder.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Checked jar and ObjectMesh calls across all six builders: their vessel, loop, box and cylinder operations emit the stated separate parts.
  * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The six wares H2s give the major open profiles, rough extents and state identities needed for these fixed blocking meshes.
- * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Compared the six builders with their H2 profiles and states; no builder requires an additional design choice for its emitted proxy.
+ * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The six H2s supply vessel and scroll identities and main profiles; circular handle and tie proxies approximate their finer paths without changing those authored roles.
  * @evidence obligations/design/model-sources.md#design-owned-construction Explicit vessel profile arrays and the scroll-state branch follow their H2s and keep part IDs stable for later binding.
  * @evidenceReview obligations/design/model-sources.md#design-owned-construction #535df68 Inspected the fixed profile arrays and scroll switch; model IDs and emitted part labels derive from the cited designs and selected state.
  */
@@ -33,7 +33,7 @@ export class TempleWares {
    * @evidence principles/core/source-units.md#source-scope-preservation This builder yields the large storage shape alone; jar placement and finish are absent.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 storageJar returns only jar's mesh; its call passes profile and handle coordinates, with no scene or finish argument.
    * @evidence principles/core/source-units.md#source-substantive-completion A 16-sector body mesh and two handle rings form distinct parts with an open top.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Traced storageJar through jar: m.vessel emits body at 16 sectors and two m.loop calls emit handle geometry around the open lip.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f jar emits the 16-sector body and two handle loops centered on the Y=0.58 shoulder, below the open lip at Y=0.70.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The storage-jar H2 fixes the foot, belly, neck, lip and opposed handle sites used by the profile and loop calls.
    * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Matched storageJar's foot-to-lip points and opposed handle sites to the H2 before accepting its coarse 16-sector mesh.
    */
@@ -52,7 +52,7 @@ export class TempleWares {
    * @evidence principles/core/source-units.md#source-substantive-completion The 16-sector open vessel and separate paired loops distinguish this prototype from storageJar's larger profile.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Compared carryJar's 16-sector jar call and two loop coordinates with storageJar's larger profile to verify the distinct emitted silhouette.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The carry-jar H2 supplies the medium outline and two handle positions used for this approximate fixed form.
-   * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Checked the carry-jar H2's rough body and handle description against carryJar's fixed profile and opposed loop inputs.
+   * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The H2 specifies two vertical Bézier handle paths; carryJar emits simpler opposed loop proxies around the same vessel profile and leaves the parent profile unchanged.
    */
   carryJar():IAutoMovieModel {
     return jar("ware.carry-jar","운반 항아리",
@@ -80,7 +80,7 @@ export class TempleWares {
 
   /**
    * @evidence models/wares.md#offering-bowl The 24-sector vessel follows a shallow 0.11 m outer radius and an inset inner profile to leave a visible open bowl.
-   * @evidenceReview models/wares.md#offering-bowl #dc4c0d8 Read the bowl section and inspected offeringBowl's outside and inset inside profiles reaching the 0.11 m rim height.
+   * @evidenceReview models/wares.md#offering-bowl #dc4c0d8 offeringBowl passes [height,radius] rings to m.vessel: its outer rim is at Y=0.06 with radius 0.11, and its inner ring begins at the same height with radius 0.098.
    * @evidence principles/core/source-units.md#source-scope-preservation One bowl part represents the H2's unadorned offering vessel; its material and altar position are not selected here.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 offeringBowl constructs only ObjectMesh vessel part bowl and returns it without assigning an altar instance or material.
    * @evidence principles/core/source-units.md#source-substantive-completion The profile produces a rim, sloped inner face and base rather than a flat disc.
@@ -98,13 +98,13 @@ export class TempleWares {
 
   /**
    * @evidence models/wares.md#basket An open tapered wall and floor sit beneath ten alternating raised ring bands and a separate upper rim; the coarse bands remain distinct from the wall surface.
-   * @evidenceReview models/wares.md#basket #6fae36c Matched basket's widening vessel wall, closed floor, ten band loops and top rim to the basket H2's coarse parts.
+   * @evidenceReview models/wares.md#basket #6fae36c basket emits a widening wall, closed floor, ten circumferential band loops and a rim; the H2's twenty-four vertical ribs are absent from this blocking mesh.
    * @evidence principles/core/source-units.md#source-scope-preservation This builder emits the basket's coarse circular body and ribbed band proxy, without choosing carried contents.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 basket returns wall, floor and rim geometry plus fixed band loops; it has no content or carrying parameter.
    * @evidence principles/core/source-units.md#source-substantive-completion The 24-sector wall, closed base, ten bands and rim make the vessel open at the top and divided into named parts.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Checked basket's 24-sector vessel and frustum floor, separate rim loop and ten wall loops; no lid closes the mouth.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The basket H2 supplies the widening wall, closed floor, raised band rhythm and upper rim for this approximate silhouette.
-   * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c Read the basket section and matched its coarse wall, base, raised strips and rim to the ObjectMesh calls.
+   * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The basket H2 fixes its band and rib pattern; this export uses the authored wall, floor, band and rim sizes but omits the vertical ribs in its coarse proxy.
    */
   basket():IAutoMovieModel {
     const m=new ObjectMesh();

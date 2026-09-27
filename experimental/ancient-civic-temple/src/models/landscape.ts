@@ -41,7 +41,7 @@ export class TempleLandscape {
    * @evidence principles/core/source-units.md#source-scope-preservation It builds a ground-centered trunk/branch/crown model without choosing a planting point.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 broadTree has no position argument; its branches and crown share the same local trunk root, with placement left to instances.
    * @evidence principles/core/source-units.md#source-substantive-completion Three branch rods remain separate from six crown volumes so their gaps can be inspected in emitted geometry.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f ObjectMesh retains branch and crown as separate part IDs, with rods reaching the centers of six overlapping volumes.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The three branch cylinders terminate at Y=2.6 within the lower crown region; six ellipsoids retain a separate crown part above them.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The broad-tree H2 determines each rod endpoint, crown center, half-axis and sector count used here.
    * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The broad-tree endpoint list, ellipsoid axes and 10-by-6 sectors were already authored in its H2; the loop required no new branching rule.
    */

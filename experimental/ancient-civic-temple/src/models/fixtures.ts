@@ -75,7 +75,7 @@ export class TempleFixtures {
    * @evidence principles/core/source-units.md#source-scope-preservation This unmarked niche has no statue or wall hole; only the freestanding plinth/body/recess-frame/recess/cap parts are emitted.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 niche() returns five fixed parts and has neither a wall-cut input nor a statue mesh path.
    * @evidence principles/core/source-units.md#source-substantive-completion The rear slab is set back from the front bars, so the central bay has actual depth in the mesh.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The recess box starts behind the front framing at Z=0.09, leaving an observable inset bay between the side blocks.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The recess slab centered at Z=0.09 occupies Z=0.02..0.16; the framing extends forward to Z=0.38, leaving a visible inset bay.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The niche H2 fixes its five part roles and recessed bay, which these box sections realize at approximate blocking fidelity.
    * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The H2 names the five niche layers and inset; the boxes keep that hierarchy without selecting an icon or additional ornament.
    */

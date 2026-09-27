@@ -68,7 +68,7 @@ export class TemplePortable {
    * @evidence principles/core/source-units.md#source-scope-preservation The rack model contains no jars and chooses no storage-room placement.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 jarRack() produces only top, leg and well-marker geometry; it has no jar mesh or room coordinate.
    * @evidence principles/core/source-units.md#source-substantive-completion Top, leg and well-marker parts make the two-place stand legible at rough blocking scale.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The two ring loops are independently addressable above an open four-leg stand, making both storage positions visible.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Two loops at X=−0.29 and +0.29 share the well part ID, while the four leg boxes and top remain separate parts beneath them.
    * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The jar-rack H2 gives the top footprint, four leg centers and paired jar-site centers used by this approximate proxy.
    * @evidenceExcludeReview upstream/design/model-sources.md#design-revision-from-model-source-work #2f8f56c The H2 identifies the paired jar centers and stand footprint; the proxy chooses no extra jar capacity or location.
    */
