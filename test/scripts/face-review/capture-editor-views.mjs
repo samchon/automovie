@@ -30,7 +30,11 @@
  * not know refused. The canvas is 900 by 900 pixels at device
  * pixel ratio 1. The `RENDERER` string is logged and written into
  * `captures.json` beside each camera, in the format the measurement reads,
- * with the view named `reference-yaw`.
+ * with the view named `reference-yaw`. With `OCCLUSION=off` in the
+ * environment the editor's Occlusion box is cleared before the first
+ * document, so every capture is built without its baked ambient occlusion
+ * (rounds compared with ones measured before it existed); `captures.json`
+ * records which.
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -103,6 +107,12 @@ await page.waitForFunction(
 );
 const renderer = await page.evaluate(() => window.__connectedFace.renderer());
 console.log("RENDERER:", renderer);
+const occlusion = process.env.OCCLUSION !== "off";
+if (!occlusion)
+  await page.evaluate(() => {
+    const box = document.querySelector("#occlusion");
+    if (box !== null) box.checked = false;
+  });
 const captures = [];
 const refused = [];
 for (const document_ of documents) {
@@ -187,6 +197,7 @@ fs.writeFileSync(
   JSON.stringify(
     {
       renderer,
+      occlusion,
       poseFileSha256: createHash("sha256").update(poseBytes).digest("hex"),
       captures,
       refused,
