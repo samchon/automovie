@@ -20,6 +20,7 @@ import { createHumanFaceBasisRegion } from "../../face/basis/createHumanFaceBasi
 import { humanFaceBasisRegion } from "../../face/basis/humanFaceBasisRegion";
 import { portraitNormals } from "../../face/mesh/portraitNormals";
 import { HUMAN_BODY_SKIN_DETAIL } from "../constants/HUMAN_BODY_SKIN_DETAIL";
+import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
 import { HUMAN_BODY_SKIN_SCATTERING } from "../constants/HUMAN_BODY_SKIN_SCATTERING";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import { HUMAN_BODY_SKIN_TONE } from "../constants/HUMAN_BODY_SKIN_TONE";
@@ -35,6 +36,7 @@ import { createHumanBodySkinToneTexture } from "./createHumanBodySkinToneTexture
 import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
+import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
@@ -561,24 +563,55 @@ export function createHumanBodyBasisBuilder(
         });
       })();
       const normals = portraitNormals(positions, surface.indices);
-      return surface.regions.map((region) => ({
-        id: region.id,
-        name: region.id,
-        material: region.material,
-        geometry: {
-          type: "mesh" as const,
-          mesh:
-            coloured === null || region.material !== skin
-              ? humanFaceBasisRegion(positions, normals, region)
-              : createHumanFaceBasisRegion(region)(
-                  positions,
-                  normals,
-                  coloured.colors[index],
+      // the skin's anatomical relief follows the pose: its creases deepen
+      // where a bent joint folds the skin and its wrinkles flatten where it
+      // stretches it, read on the body at rest
+      const reliefWeights =
+        document.skinDetail === undefined ||
+        surface.relief?.material !== skin ||
+        !posed
+          ? null
+          : (() => {
+              const atRestNow = restAll();
+              return humanBodyReliefWeights({
+                basis,
+                table: HUMAN_BODY_SKIN_RELIEF_POSE,
+                positions: atRestNow.surfaces[index],
+                normals: portraitNormals(
+                  atRestNow.surfaces[index],
+                  surface.indices,
                 ),
-        },
-        attachedBone: null,
-        transform: null,
-      }));
+                landmarks: atRestNow.landmarks,
+                pose: document.pose ?? [],
+              });
+            })();
+      return surface.regions.map((region) => {
+        const mesh =
+          coloured === null || region.material !== skin
+            ? humanFaceBasisRegion(positions, normals, region)
+            : createHumanFaceBasisRegion(region)(
+                positions,
+                normals,
+                coloured.colors[index],
+              );
+        if (reliefWeights !== null && region.material === skin) {
+          // gathered through the region's own source correspondence
+          const triples = reliefWeights.flatMap((w) => [w, w, w]);
+          const gathered = createHumanFaceBasisRegion(region)(
+            triples,
+            triples,
+          ).positions;
+          mesh.reliefWeights = gathered.filter((_, i) => i % 3 === 0);
+        }
+        return {
+          id: region.id,
+          name: region.id,
+          material: region.material,
+          geometry: { type: "mesh" as const, mesh },
+          attachedBone: null,
+          transform: null,
+        };
+      });
     });
     const model: IAutoMovieModel = {
       id: document.id,
