@@ -6,11 +6,6 @@ import { evaluateHumanBodyMeasurement } from "../measure/evaluateHumanBodyMeasur
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { humanBodyCappedSurface } from "./humanBodyCappedSurface";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
-import { humanBodySurfaceBoundary } from "./humanBodySurfaceBoundary";
-
-// An admitted basis is immutable; its topological loops are the same at every
-// inversion sample even while the evaluated positions move.
-const boundaryLoops = new WeakMap<IAutoMovieHumanBodyBasis, number[][][]>();
 
 /**
  * Measure a shaped body the way the simple tier reads it: stature in metres
@@ -50,18 +45,10 @@ export const measureHumanBodySimpleShape = {
       basis,
       humanBodyBasisWeights(basis, { shape }),
     ).surfaces;
-    let loops = boundaryLoops.get(basis);
-    if (loops === undefined) {
-      loops = basis.surfaces.map((surface) =>
-        humanBodySurfaceBoundary(surface.indices, true),
-      );
-      boundaryLoops.set(basis, loops);
-    }
     const solids = surfaces.map((positions, index) => {
       const solid = humanBodyCappedSurface(
         positions,
         basis.surfaces[index].indices,
-        loops[index],
       );
       solid.assertGeometry();
       return solid;
