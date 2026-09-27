@@ -41,13 +41,13 @@ import { wallPanel } from "../solids";
 
 /**
  * @evidence spaces/envelope/right.md The family room side window owns its rough wall cut.
- * @evidenceReview spaces/envelope/right.md `FAMILY_RIGHT_WINDOW` stores the sole family-side cut at Z [-9.95, -8.25], Y [0.75, 2.30]; `buildRight` passes it to the exposed back panel's hole list.
+ * @evidenceReview spaces/envelope/right.md #a9e918c `FAMILY_RIGHT_WINDOW` stores the sole family-side cut at Z [-9.95, -8.25], Y [0.75, 2.30]; `buildRight` passes it to the exposed back panel's hole list.
  * @evidence principles/core/source-units.md#source-scope-preservation The common room consumes only the cut's inward curtain extent.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildRight` owns the wall hole; `COMMON.reservations` imports this record's span and head only to reserve an inward curtain, without a second wall cut.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildRight` owns the wall hole; `COMMON.reservations` imports this record's span and head only to reserve an inward curtain, without a second wall cut.
  * @evidence principles/core/source-units.md#source-substantive-completion The wall hole and fit-out reservation move from one coordinate.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion The back wall-panel holes include this record, and the common-room curtain derives its Z extent from `.from`/`.to` and upper extent from `.top`.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The back wall-panel holes include this record, and the common-room curtain derives its Z extent from `.from`/`.to` and upper extent from `.top`.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Family-right-window fixes the ground side opening Z=-9.95..-8.25 m at a 0.75 m sill; the common-room curtain consumes this host span.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `family-right-window` fixes this exposed side-wall span behind the garage rear; this record carries those Z/Y limits to the wall hole and common-room curtain without changing its parent.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `family-right-window` fixes this exposed side-wall span behind the garage rear; this record carries those Z/Y limits to the wall hole and common-room curtain without changing its parent.
  */
 export const FAMILY_RIGHT_WINDOW = {
   id: "family-right-window",
@@ -76,23 +76,23 @@ const stepRun = (z0: number, z1: number): IWallPoint[] => {
 /** Emit the right elevation parts. */
 /**
  * @evidence spaces/envelope/right.md This builder forms the exposed main-right, stepped roof, and garage-right wall segments.
- * @evidenceReview spaces/envelope/right.md `buildRight` returns the exposed back and front main-right panels, siding above the garage shared wall, three high-to-low step-wall runs, and the separate garage-right gable wall.
+ * @evidenceReview spaces/envelope/right.md #a9e918c `buildRight` returns the exposed back and front main-right panels, siding above the garage shared wall, three high-to-low step-wall runs, and the separate garage-right gable wall.
  * @evidence spaces/envelope/right.md#right-roof-closures Main-right panels include the exposed siding above the garage-owned lower wall; separate step runs close high-to-low roof spans.
- * @evidenceReview spaces/envelope/right.md#right-roof-closures `garageSharedUpper` begins on the garage roof weather line and ends at the right-roof underside; `stepRun` closes the remaining main-to-low underside spans inside the wall run and beyond both eaves.
+ * @evidenceReview spaces/envelope/right.md#right-roof-closures #6996e98 `garageSharedUpper` begins on the garage roof weather line and ends at the right-roof underside; `stepRun` closes the remaining main-to-low underside spans inside the wall run and beyond both eaves.
  * @evidence spaces/envelope/right.md#right-openings Two house windows and one garage window puncture exposed walls, never the main/garage shared contact.
- * @evidenceReview spaces/envelope/right.md#right-openings The exposed back panel has family and tub holes, the garage-right wall has its own high window hole, and neither the shared-upper panel nor its lower garage-owned mate is perforated by an exterior window.
+ * @evidenceReview spaces/envelope/right.md#right-openings #42f4eb6 The exposed back panel has family and tub holes, the garage-right wall has its own high window hole, and neither the shared-upper panel nor its lower garage-owned mate is perforated by an exterior window.
  * @evidence spaces/envelope/right.md#family-right-window The ground family hole lies behind the garage rear wall under the low right roof.
- * @evidenceReview spaces/envelope/right.md#family-right-window The `FAMILY_RIGHT_WINDOW` Z interval lies behind `GARAGE.outer.z[0]`; the back panel under `rightRoof` receives its rough hole at the plan's lower family-room Y interval.
+ * @evidenceReview spaces/envelope/right.md#family-right-window #b0e14b9 The `FAMILY_RIGHT_WINDOW` Z interval lies behind `GARAGE.outer.z[0]`; the back panel under `rightRoof` receives its rough hole at the plan's lower family-room Y interval.
  * @evidence spaces/envelope/right.md#tub-right-window The high upper-bath hole lies above the family window span with its own Y=4.56 sill.
- * @evidenceReview spaces/envelope/right.md#tub-right-window The upper hole in `backPanel` is Z [-8.40, -7.50], Y [4.56, 5.31], above the lower family hole and behind the garage rear, matching the bath-window parent without merging their distinct vertical cuts.
+ * @evidenceReview spaces/envelope/right.md#tub-right-window #23e3090 The upper hole in `backPanel` is Z [-8.40, -7.50], Y [4.56, 5.31], above the lower family hole and behind the garage rear, matching the bath-window parent without merging their distinct vertical cuts.
  * @evidence spaces/envelope/right.md#garage-right-window The garage-side void sits under its own gable between the front and rear garage walls.
- * @evidenceReview spaces/envelope/right.md#garage-right-window `garageWall` follows the garage inner Z faces beneath `garageRoof` and contains the Z [-5.85, -4.25], Y [1.40, 2.20] high-window cut in the right exterior thickness.
+ * @evidenceReview spaces/envelope/right.md#garage-right-window #eba71a3 `garageWall` follows the garage inner Z faces beneath `garageRoof` and contains the Z [-5.85, -4.25], Y [1.40, 2.20] high-window cut in the right exterior thickness.
  * @evidence principles/core/source-units.md#source-scope-preservation Garage owns the shared lower body and this builder owns siding above its roof; window leaves remain with models.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildGarageSharedWall` owns the door-bearing body through the garage roof weather line; `garageSharedUpper` starts there, and `buildRight` makes rough wall holes without model-owned window leaves.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildGarageSharedWall` owns the door-bearing body through the garage roof weather line; `garageSharedUpper` starts there, and `buildRight` makes rough wall holes without model-owned window leaves.
  * @evidence principles/core/source-units.md#source-substantive-completion Back/sliver and above-garage panels, three step runs, and the garage gable form concrete meshes with three named holes.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion Seven named wall parts contain back/front main panels, siding above the garage, three step runs, and the garage gable; their wall panels include three named window holes.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Seven named wall parts contain back/front main panels, siding above the garage, three step runs, and the garage gable; their wall panels include three named window holes.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The `garageSharedUpper` case exposed the need to split one shared wall at the garage roof weather line; spaces/envelope/right.md#right-roof-closures, spaces/03-surface-owners.md#exterior-surface-handoff, and spaces/07-boundary-assembly.md#exterior-boundary-junctions allocate lower door body to garage and exposed upper siding to right.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work `garageSharedUpper` begins at `garageRoof` while `buildGarageSharedWall` ends there; the three named design parents assign that single contact and its source owners, resolving the overlap the implementation exposed.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `garageSharedUpper` begins at `garageRoof` while `buildGarageSharedWall` ends there; the three named design parents assign that single contact and its source owners, resolving the overlap the implementation exposed.
  */
 export const buildRight = (): IHousePart[] => {
   const back = MAIN.inner.z[0];
