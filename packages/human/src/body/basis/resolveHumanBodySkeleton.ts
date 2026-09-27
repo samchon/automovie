@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieJointAxes,
   type IAutoMovieRestFrame,
   Quaternion,
   Vector3,
@@ -24,6 +25,10 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * basis hands over as `IAutoMovieRestFrame`s. The upper-arm Euler axes are
  * held and its bone frame serves as the skin's rest orientation; the separate
  * TT shoulder resolver computes its clinical goal after the girdle moves.
+ * A joint that declares `flexionAxis` flexes about that landmark line read
+ * in its rest frame instead of the frame's X, with the abduction axis the
+ * frame's Z made perpendicular to it and the twist axis completing the
+ * right-handed basis, and those joints' axes are returned for `resolvePose`.
  *
  * The rest transform of a bone is its world frame expressed in its parent's:
  * the root keeps its world frame and head as translation. Because the
@@ -43,6 +48,7 @@ export function resolveHumanBodySkeleton(
     { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
   >;
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
+  axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 } {
   const rest = new Map<
     AutoMovieHumanoidBone,
@@ -50,6 +56,7 @@ export function resolveHumanBodySkeleton(
   >();
   const frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> =
     {};
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
   const bones = basis.joints.map((joint) => {
     const head = landmarks[joint.head];
     const tail = landmarks[joint.tail];
@@ -62,6 +69,31 @@ export function resolveHumanBodySkeleton(
     const z = Vector3.cross(x, y);
     const rotation = quaternionFromBasis(x, y, z);
     rest.set(joint.bone, { position: head, rotation });
+    if (joint.flexionAxis !== undefined) {
+      // the declared line in the bone's rest frame, turned to flex the same
+      // way as the frame's X; abduction keeps as close to Z as it can
+      const line = Quaternion.rotateVector(
+        Quaternion.inverse(rotation),
+        Vector3.normalize(
+          Vector3.subtract(
+            landmarks[joint.flexionAxis[1]],
+            landmarks[joint.flexionAxis[0]],
+          ),
+        ),
+      );
+      const flexion = line.x < 0 ? Vector3.scale(line, -1) : line;
+      const abduction = Vector3.normalize(
+        Vector3.subtract(
+          Vector3.create(0, 0, 1),
+          Vector3.scale(flexion, flexion.z),
+        ),
+      );
+      axes[joint.bone] = {
+        flexion,
+        abduction,
+        twist: Vector3.cross(abduction, flexion),
+      };
+    }
     // The engine reads a document's clinical angle and turns the rig by
     // `(clinical - neutral) / sign`, so the measured rest angle travels here
     // and the empty pose is exactly the rest.
@@ -98,7 +130,12 @@ export function resolveHumanBodySkeleton(
       constraint: joint.constraint,
     };
   });
-  return { skeleton: { id: basis.id + "/skeleton", bones }, rest, frames };
+  return {
+    skeleton: { id: basis.id + "/skeleton", bones },
+    rest,
+    frames,
+    axes,
+  };
 }
 
 /**
