@@ -7,7 +7,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 두 실제 호출 폭 0.80·1.00m만 선택하고 하부 vanity 외함은 cabinet 모델의 독립 부품으로 남긴다.
 @evidence principles/core/common.md#substantive-completion rim의 개구와 bowl의 닫힌 바닥·내외벽, 관상 수전, 독립 벽부착 거울을 각 부품·빈 공간·접촉으로 전개한다.
-@evidence principles/core/common.md#declared-basis ref02의 위생기구 위치와 powder·upper-bath 호출 폭을 바탕으로 삼고 bowl 깊이와 수전·거울 치수는 이 모델 절의 선택이다.
+@evidence principles/core/common.md#declared-basis ref02의 위생기구 위치와 powder-utility·upper-bathroom의 세면 목적지를 바탕으로 삼고 두 basin 폭과 bowl 깊이·수전·거울 치수는 이 모델 절의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation powder-utility의 세면과 upper-bathroom의 vanity 목적지에 800·1000mm basin 폭과 별도 외함 접촉 규칙을 더한다.
 @evidence principles/design/models.md#representation-contract bowl 음각과 열린 배수구를 남기고 mirror-glass를 frame보다 물려 배치하며 vanity 판을 이 모델에서 중복 생성하지 않는다.
 @evidence principles/design/models.md#spatial-convention 하부장 바닥 중심을 원점, +Z를 사용자 쪽으로 두고 rim y=0.80..0.85와 뒤 거울 z 경계를 기록한다.
