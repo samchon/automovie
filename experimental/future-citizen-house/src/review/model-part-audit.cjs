@@ -2103,6 +2103,12 @@ function randomClosureFixture() {
 if (require.main !== module) {
   module.exports = { audit, sections, parse };
 } else if (process.argv.includes("--fixture")) {
+  // Evidence comments can repeat prose numbers; mutate only the authored body.
+  /** @param {string} source @param {string} before @param {string} after @returns {string} */
+  const replaceBodyProse = (source, before, after) => {
+    const bodyStart = source.indexOf("-->") + 3;
+    return source.slice(0, bodyStart) + source.slice(bodyStart).replace(before, after);
+  };
   const original = sections().get("dining-table");
   if (!original) throw Error("dining-table H2 absent");
   /** @param {string[]} lines */
@@ -2260,20 +2266,20 @@ if (require.main !== module) {
   ]) {
     const source = sections().get(anchor)?.join("\n");
     if (!source || !source.includes(before)) throw Error(`${anchor}: prose mutation source absent`);
-    const errors = audit(new Map([[anchor, source.replace(before, after).split("\n")]])).errors;
+    const errors = audit(new Map([[anchor, replaceBodyProse(source, before, after).split("\n")]])).errors;
     if (!errors.some((error) => error.includes("prose/table x envelope differs")))
       throw Error(`${anchor}: prose mutation missed envelope mismatch: ${errors}`);
     results.push({ label: `${anchor} prose width changed`, caught: true });
   }
   const pendantSource = sections().get("dining-pendant")?.join("\n");
   if (!pendantSource || !pendantSource.includes("지름 0.045m")) throw Error("pendant mutation source absent");
-  const pendantErrors = audit(new Map([["dining-pendant", pendantSource.replace("지름 0.045m", "지름 0.050m").split("\n")]])).errors;
+  const pendantErrors = audit(new Map([["dining-pendant", replaceBodyProse(pendantSource, "지름 0.045m", "지름 0.050m").split("\n")]])).errors;
   if (!pendantErrors.some((error) => error.includes("prose/table dimension")))
     throw Error(`pendant diameter mutation was not caught: ${pendantErrors}`);
   results.push({ label: "dining-pendant prose shade diameter changed", caught: true });
   const bookSource = sections().get("books")?.join("\n");
   if (!bookSource || !bookSource.includes("두께 0.004m")) throw Error("books mutation source absent");
-  const bookErrors = audit(new Map([["books", bookSource.replace("두께 0.004m", "두께 0.005m").split("\n")]])).errors;
+  const bookErrors = audit(new Map([["books", replaceBodyProse(bookSource, "두께 0.004m", "두께 0.005m").split("\n")]])).errors;
   if (!bookErrors.some((error) => error.includes("prose formula differs from table")))
     throw Error(`books cover-thickness mutation was not caught: ${bookErrors}`);
   results.push({ label: "books prose cover thickness changed", caught: true });
@@ -2286,14 +2292,15 @@ if (require.main !== module) {
     ["bowl prose diameter changed", "외경 0.22, 높이", "외경 0.23, 높이", "prose/table envelope differs"]
   ]) {
     if (!propsSource.includes(before)) throw Error(`${label}: mutation source absent`);
-    const errors = audit(new Map([["tabletop-props", propsSource.replace(before, after).split("\n")]])).errors;
+    const changed = label.includes("prose") ? replaceBodyProse(propsSource, before, after) : propsSource.replace(before, after);
+    const errors = audit(new Map([["tabletop-props", changed.split("\n")]])).errors;
     if (!errors.some((error) => error.includes(expected)))
       throw Error(`${label}: expected ${expected}, got ${errors}`);
     results.push({ label: `tabletop-props ${label}`, caught: true });
   }
   const tubSource = sections().get("bathtub")?.join("\n");
   if (!tubSource || !tubSource.includes("길이 1.53×폭 0.68m")) throw Error("bathtub prose mutation source absent");
-  const tubErrors = audit(new Map([["bathtub", tubSource.replace("길이 1.53×폭 0.68m", "길이 1.50×폭 0.68m").split("\n")]])).errors;
+  const tubErrors = audit(new Map([["bathtub", replaceBodyProse(tubSource, "길이 1.53×폭 0.68m", "길이 1.50×폭 0.68m").split("\n")]])).errors;
   if (!tubErrors.some((error) => error.includes("prose/table dimension")))
     throw Error(`bathtub prose cavity mutation was not caught: ${tubErrors}`);
   results.push({ label: "bathtub prose cavity length changed", caught: true });
@@ -2305,7 +2312,8 @@ if (require.main !== module) {
     ["prose pitch changed", "×0.025m, 행", "×0.026m, 행", "prose/table dimension"]
   ]) {
     if (!equipmentSource.includes(before)) throw Error(`${label}: mutation source absent`);
-    const errors = audit(new Map([["work-equipment", equipmentSource.replace(before, after).split("\n")]])).errors;
+    const changed = label.includes("prose") ? replaceBodyProse(equipmentSource, before, after) : equipmentSource.replace(before, after);
+    const errors = audit(new Map([["work-equipment", changed.split("\n")]])).errors;
     if (!errors.some((error) => error.includes(expected)))
       throw Error(`${label}: expected ${expected}, got ${errors}`);
     results.push({ label: `work-equipment ${label}`, caught: true });
