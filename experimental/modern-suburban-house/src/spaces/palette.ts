@@ -7,8 +7,9 @@
  * asphalt shingles, ground-floor wood, upper-floor carpet, bath tile and
  * garage concrete. Only a flat base colour per part is chosen here; optical
  * values, texture scale and texture images belong to the materials branch.
- * The surface owner supplies metric UV coordinates. No colour here is sampled
- * from a reference image.
+ * The spaces surface owner sets UV axes, origin and seams; the viewer preview
+ * projects world vertices to those coordinates. No colour here is sampled from
+ * a reference image.
  *
  * Consumers: every spaces owner when it emits a part.
  * @evidence spaces/03-surface-owners.md The table supplies named blocking colours for parts made by the allocated surface owners.
