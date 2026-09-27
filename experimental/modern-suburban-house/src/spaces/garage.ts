@@ -39,15 +39,15 @@ const OWNER = "garage.ts";
 /** Emit the main/garage shared wall with the laundry-garage door void. */
 /**
  * @evidence spaces/03-surface-owners.md The garage source emits the shared lower wall body and leaves the exposed upper siding to the right elevation.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 garage-shared-wall up to garageRoof (garage.ts:47-61); right-garage-shared-upper-wall above (right.ts:104-115); 03-surface-owners.md:35.
+ * @evidenceReview spaces/03-surface-owners.md buildGarageSharedWall emits garage-shared-wall through the garageRoof weather line; envelope/right.ts emits the separate siding body above that line, matching the owner table.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall carries the laundry-garage-door void below the garage roof.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c v-141 holes [LAUNDRY_GARAGE_DOOR] (garage.ts:60) in the lower body; 03-surface-owners.md:35 door-bearing body up to the garage roof weather line is garage.ts.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff The returned wallPanel includes LAUNDRY_GARAGE_DOOR in its hole list and remains under garage.ts until its garageRoof top, as the exterior handoff assigns.
  * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and the garageRoof upper weather line; its returned part does not duplicate upper siding.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Across MAIN.inner.x[1]..MAIN.outer.x[1], u from GARAGE.outer.z, top weatherLine=garageRoof(z) with no thickness (garage.ts:47-59); one part returned (62-64); right.ts starts at the same garageRoof.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The wall takes its X thickness from MAIN and its Z run from GARAGE, while garageRoof supplies the top; the function returns only the lower shared-wall part.
  * @evidence principles/core/source-units.md#source-substantive-completion wallPanel constructs the sloped top and door hole, and part returns the wall with an interior finish palette.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 wallPanel outline with ridge top and LAUNDRY hole; part(..., "wall", PALETTE.interiorWall, shared) (garage.ts:50-63).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion wallPanel extrudes the sloped outline and cuts LAUNDRY_GARAGE_DOOR; part() returns a named wall with that mesh, face and garage owner.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed surface handoff splits the wall at the garage roof: garage retains the door body and right owns exposed siding.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 Repair exists: fa601efa split the shared wall by height (03-surface-owners.md:35, 07, right.md); df38963f 00-building.md:59; a15c1dd1 set split at the weather line. Bodies say it. Row names outcome/one target, not the exposing case (space-sources.md:9); code split (garage.ts garageRoof top, right.ts upper panel) existed since 04df855f, before the doc repair.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work The owner handoff divides the shared wall at the garage roof weather line; garage.ts ends its door-bearing wall there and envelope/right.ts starts the exposed siding body there, so this source needs no parent change.
  */
 export const buildGarageSharedWall = (): IHousePart[] => {
   const weatherLine = (z: number): number => garageRoof(z);
@@ -73,15 +73,15 @@ export const buildGarageSharedWall = (): IHousePart[] => {
 /** Emit the independent garage floor base under the garage finished floor. */
 /**
  * @evidence spaces/10-ground-floor.md This export builds the separate lower garage base under its finished floor.
- * @evidenceReview spaces/10-ground-floor.md #9f27f8e v-141 garage-floor-base slab garage.ts:75-96; 10-ground-floor.md:55,57.
- * @evidence spaces/10-ground-floor.md#garage-ground-floor-base Its slab extends beneath the front-door threshold while ending at the garage inner-wall limits elsewhere.
- * @evidenceReview spaces/10-ground-floor.md#garage-ground-floor-base #c3227ca v-141 Host tongue X=GARAGE_FRONT_DOOR.from/to to GARAGE.outer.z[1] (garage.ts:86-89), rest at GARAGE.inner, OK. But the #garage-ground-floor-base body (10-ground-floor.md:55-59) only says the base receives the garage inner outline; the extension under the door is in #ground-threshold-junctions (10-ground-floor.md:89) / 03:46.
- * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor with a visible concrete top; garage-interior records the same floor level and emits the ceiling finish.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 garage.ts:92-93 top=STOREYS.garageFloor with PALETTE.concrete (:80); garage-interior.ts:33-34 records floor concrete/levels garageFloor and emits only roomCeiling (:69). v141 FALSE fixed.
+ * @evidenceReview spaces/10-ground-floor.md buildGarageFloorBase emits the independent garage slab 0.15 m below its finished floor, with no extension of the main house base into the garage.
+ * @evidence spaces/10-ground-floor.md#ground-threshold-junctions Its slab reaches the garage front wall's outer face only beneath garage-front-door and meets the inner wall limit elsewhere.
+ * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions The eight-point outline adds a tongue between GARAGE_FRONT_DOOR.from and .to through the front wall to GARAGE.outer.z; the threshold handoff assigns that support to the garage base.
+ * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor as the concrete surface, while garage-interior keeps the room record and ceiling finish without duplicating this slab.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation This slab's top is STOREYS.garageFloor and its colour is concrete; garage-interior records that floor level and emits a room ceiling finish, not a second floor body.
  * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and 0.15 m depth produce a closed garage-floor-base solid.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Eight-point outline garage.ts:82-91; depth garageBase 0.15 (garage.ts:92-93).
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ground-floor-base sets the top at garage finished floor -0.15 m and the base 0.15 m below, with a tongue under garage-front-door; this slab uses those bounds.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Top/0.15 base = 10-ground-floor.md:55 (datum -0.15 via 01-storeys.md:63); slab garage.ts:92-93. But the tongue under garage-front-door is authored in sibling ground-threshold-junctions :89, not garage-ground-floor-base (:55-59).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The caller supplies eight plan vertices and a 0.15 m vertical interval to slab(), which returns one closed garage-floor-base mesh.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ground-floor-base sets the independent slab 0.15 m below the finished floor; ground-threshold-junctions extends it beneath garage-front-door. This builder uses both bounds.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The garage base parent fixes its inner footprint and vertical interval, while the threshold parent extends support through the front opening; the eight-point slab applies those decisions without changing either.
  */
 export const buildGarageFloorBase = (): IHousePart[] => [
   part(
@@ -109,15 +109,15 @@ export const buildGarageFloorBase = (): IHousePart[] => [
 /** Emit the garage ceiling base above the garage finished ceiling. */
 /**
  * @evidence spaces/09-ceiling-assembly.md This export builds garage ceiling support over the finished garage height.
- * @evidenceReview spaces/09-ceiling-assembly.md #403d803 v-141 garage-ceiling-base garage.ts:106-118; 09-ceiling-assembly.md:57-59.
+ * @evidenceReview spaces/09-ceiling-assembly.md buildGarageCeiling makes one structural ceiling base inside GARAGE.inner and leaves the visible interior finish to the room owner named by the ceiling handoff.
  * @evidence spaces/09-ceiling-assembly.md#garage-ceiling-closure The slab spans GARAGE.inner and fills Y from garageCeiling plus finish to garageCeiling plus reservation.
- * @evidenceReview spaces/09-ceiling-assembly.md#garage-ceiling-closure #0ce5421 v-141 rect(GARAGE.inner), bottom garageCeiling+CEILING_FINISH, top +CEILING_RESERVATION (garage.ts:113-115); 09-ceiling-assembly.md:57.
+ * @evidenceReview spaces/09-ceiling-assembly.md#garage-ceiling-closure rect uses GARAGE.inner X/Z and slab spans from garageCeiling plus the finish thickness to the reservation top, matching the garage ceiling closure.
  * @evidence principles/core/source-units.md#source-scope-preservation It omits the visible ceiling finish assigned to garage-interior and does not raise the roof or garage datum.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Finish [2.55,2.565] emitted by garage-interior roomCeiling (garage-interior.ts:62); host starts at +0.015; no roof/datum edit.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The base starts above the garageCeiling finish interval; garage-interior emits that finish, and this builder changes neither roof height nor garage datum.
  * @evidence principles/core/source-units.md#source-substantive-completion rect and slab return a closed, stable garage-ceiling-base part with its support depth.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 rect + slab, stable id garage-ceiling-base (garage.ts:107-116).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion rect and slab make a closed ceiling base over the garage inner plan and part() gives it a stable garage-ceiling-base identity.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ceiling-closure puts support above the 2.55 m finished ceiling inside GARAGE.inner while garage-interior owns the finish; this builder emits that support footprint only.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 09-ceiling-assembly.md:57 base covers garage inner and consumes the 0.18 reservation; :59 base garage.ts, finish garage-interior; garage.ts:113-115; 2.55 = 01-storeys.md:63.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The ceiling closure parent assigns the inner-footprint base to garage.ts and the visible finish to garage-interior; this slab consumes the reserved interval without claiming the room finish.
  */
 export const buildGarageCeiling = (): IHousePart[] => [
   part(
