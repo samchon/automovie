@@ -1,0 +1,51 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-nasal-root",
+  "revision": "mpfb-connected-head-2026-09-27-smile-retraction",
+  "lips": 1596,
+  "skin": 1255,
+  "sweeps": 240,
+  "corner": 0.026431992650032043,
+  "held": 595,
+  "weight": 0.6003,
+  "norm": {
+    "labial": 10.39,
+    "upper": 2.63,
+    "lower": 1.96
+  },
+  "sourceSmile": {
+    "upper": -0.09,
+    "lower": -0.425
+  },
+  "retractionPerUnit": {
+    "upper": 4.532,
+    "lower": 3.973
+  },
+  "revised": {
+    "width": 10.196,
+    "upper": 1.382,
+    "lower": 1.96
+  },
+  "faultsAtFullSmile": 0,
+  "recorded": "2026-09-27T01:09:54.640Z",
+  "citations": "Posed smile against rest, 41 adults, 3D surface imaging: PMC12549365 (labial width +10.39 mm; |Prn-Ls|z +2.63 mm; |Prn-Li|z +1.96 mm).",
+  "inputs": {
+    "basis": {
+      "sha256": "1f712a3721fd78c071ee7a6c5a48fa8dd413af41487db7275c7c19e3baedc19c",
+      "bytes": 27010774
+    },
+    "subjects": {
+      "sha256": "bbce7cdcc7943b437d65bb43af64d74ace108a115030808ed7898355a9c533c1",
+      "bytes": 82741
+    },
+    "controls": {
+      "sha256": "c7daf1f7914264924f749a46095d59cb1609988e8bd66511b029cdf4c881da60",
+      "bytes": 7449
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "5b771319f6362f3f48663df2aa7102e7dfd3f3a9e9b6adc24c5634781faad3c0",
+      "bytes": 27028817
+    }
+  }
+}
