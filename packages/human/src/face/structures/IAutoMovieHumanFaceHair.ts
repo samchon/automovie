@@ -68,6 +68,15 @@ export namespace IAutoMovieHumanFaceHair {
      * These are a regional length field, not six measured anatomical landmarks.
      */
     lengthAxes: [number, number, number, number, number, number];
+    /**
+     * Optional positive factor on each root's whole length by its frontal
+     * share: a root's length is multiplied by 1 + (frontScale - 1) times the
+     * weight its direction gives the +Z (front) axis, so the roots of the
+     * frontal hairline, whose lengths the blend also takes from the crown,
+     * are cut or grown as a fringe is, and the crown behind them is not.
+     * Omission is one.
+     */
+    frontScale?: number;
     /** Seeded fractional length amplitude in [0,1]. */
     lengthVariation: number;
     /**
