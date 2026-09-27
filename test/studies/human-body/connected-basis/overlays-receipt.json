@@ -1,0 +1,930 @@
+{
+  "basis": "mpfb-connected-body-2026-09-27-anatomy-r14",
+  "tool": "overlay_maps.py (nails) and veins_map.py (veins) in the body-review tooling",
+  "layout": {
+    "size": 4096,
+    "texelMillimetres": 0.4493,
+    "sampling": "UV set 0 bound once, v down the image (flipY off)"
+  },
+  "nails": {
+    "method": "each digit's distal segment (distal interphalangeal joint, or the thumb's and big toe's interphalangeal joint, to the tip landmark), dorsal side by the joint frame's -Z for the fingers and up for the toes (one bone carries all five); the plate from a proximal border arched distally toward its corners, across a share of the digit's half-width measured on the skin's sections within the digit's reach, and on the dorsal face; colour the nail bed through the plate with the lunula's paler crescent and the free edge's off-white; relief a plate 0.08 mm proud between shallow grooves of the lateral and proximal nail folds; uncovered texels carry the plate's colour",
+    "roughness": 0.25,
+    "plates": [
+      {
+        "name": "left thumb fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.16,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "left index fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.08,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "left middle fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.08,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "left ring fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.06,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "left little fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.0,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "left big toenail",
+        "proximalBorder": 0.36,
+        "halfWidthShare": 0.72,
+        "lunula": 0.06,
+        "reachMillimetres": 13.0
+      },
+      {
+        "name": "left toenail 2",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "left toenail 3",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "left toenail 4",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "left toenail 5",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "right thumb fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.16,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "right index fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.08,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "right middle fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.08,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "right ring fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.06,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "right little fingernail",
+        "proximalBorder": 0.4,
+        "halfWidthShare": 0.8,
+        "lunula": 0.0,
+        "reachMillimetres": 11.0
+      },
+      {
+        "name": "right big toenail",
+        "proximalBorder": 0.36,
+        "halfWidthShare": 0.72,
+        "lunula": 0.06,
+        "reachMillimetres": 13.0
+      },
+      {
+        "name": "right toenail 2",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "right toenail 3",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "right toenail 4",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      },
+      {
+        "name": "right toenail 5",
+        "proximalBorder": 0.3,
+        "halfWidthShare": 0.7,
+        "lunula": 0.0,
+        "reachMillimetres": 7.5
+      }
+    ],
+    "colours": {
+      "plate": [
+        0.8706,
+        0.6667,
+        0.6471
+      ],
+      "lunula": [
+        0.9255,
+        0.8157,
+        0.7843
+      ],
+      "freeEdge": [
+        0.949,
+        0.9176,
+        0.8706
+      ]
+    },
+    "pngBytes": {
+      "color": 87020,
+      "normal": 74932
+    }
+  },
+  "veins": {
+    "method": "curves through anchors placed by the skeleton's joint centres and landmarks, projected onto the skin along limb-frame directions (the forearm's flexor surface turning from the elbow's front to the palm); tint 1 - footprint * exp(-2 mu_eff d) per primary at the depth d of skin and fat over the vein on the lean body; coverage a Gaussian of the radius plus 1.5 mm, relief a 0.5 mm mound over the same width, both times how much of the vein shows; one layer per region (the hands and feet, the arms, the legs), each texel's region its nearest corner's dominant bone, each layer's vertices those within 4 mm of a vein",
+    "research": {
+      "scattering": "Jacques 2013, reduced scattering 46 (lambda / 500 nm)^-1.421 per cm",
+      "colour": "Kienle et al. 1996: blood takes the deep red first, so a vein reads blue",
+      "anatomy": "Gray's Anatomy superficial veins of the upper and lower limbs"
+    },
+    "muEffPerMillimetre": {
+      "611nm": 0.5604,
+      "549nm": 0.9673,
+      "464nm": 1.1855
+    },
+    "attenuationPerMetre": 1120.8,
+    "footprint": 0.8,
+    "leanShare": 0.8,
+    "regions": {
+      "extremities": {
+        "vertices": 352,
+        "coveredTexels": 35489,
+        "pngBytes": {
+          "color": 222000,
+          "normal": 133656
+        }
+      },
+      "arms": {
+        "vertices": 324,
+        "coveredTexels": 42234,
+        "pngBytes": {
+          "color": 233475,
+          "normal": 124150
+        }
+      },
+      "legs": {
+        "vertices": 116,
+        "coveredTexels": 9103,
+        "pngBytes": {
+          "color": 206623,
+          "normal": 112244
+        }
+      }
+    },
+    "veins": [
+      {
+        "name": "left dorsal venous arch of the hand",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "left second dorsal metacarpal vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "left third dorsal metacarpal vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "left fourth dorsal metacarpal vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "left cephalic vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.04,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.6,
+            "depthMillimetres": 1.2,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.44,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.6,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.76,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 1.76,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 1.92,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 2.08,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.8,
+            "depthMillimetres": 2.24,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.4,
+            "shows": 0.7
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.56,
+            "shows": 0.6
+          }
+        ]
+      },
+      {
+        "name": "left basilic vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.04,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.36,
+            "shows": 0.95
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.6,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 1.84,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 2.0,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 2.08,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.24,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 4.2,
+            "depthMillimetres": 2.56,
+            "shows": 0.5
+          },
+          {
+            "diameterMillimetres": 4.2,
+            "depthMillimetres": 3.2,
+            "shows": 0.0
+          }
+        ]
+      },
+      {
+        "name": "left median antebrachial vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 1.6,
+            "shows": 0.7
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.76,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 2.6,
+            "depthMillimetres": 1.84,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.92,
+            "shows": 0.7
+          }
+        ]
+      },
+      {
+        "name": "left median cubital vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.76,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 1.76,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 1.92,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.8,
+            "depthMillimetres": 2.08,
+            "shows": 0.8
+          }
+        ]
+      },
+      {
+        "name": "left dorsal venous arch of the foot",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          }
+        ]
+      },
+      {
+        "name": "left great saphenous vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.2,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 1.44,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 1.92,
+            "shows": 0.6
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 2.4,
+            "shows": 0.45
+          },
+          {
+            "diameterMillimetres": 3.8,
+            "depthMillimetres": 2.72,
+            "shows": 0.35
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.88,
+            "shows": 0.3
+          },
+          {
+            "diameterMillimetres": 4.2,
+            "depthMillimetres": 3.2,
+            "shows": 0.25
+          },
+          {
+            "diameterMillimetres": 4.4,
+            "depthMillimetres": 3.36,
+            "shows": 0.2
+          }
+        ]
+      },
+      {
+        "name": "left small saphenous vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.6,
+            "depthMillimetres": 1.2,
+            "shows": 0.7
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.52,
+            "shows": 0.6
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 2.08,
+            "shows": 0.45
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 2.56,
+            "shows": 0.25
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 3.2,
+            "shows": 0.0
+          }
+        ]
+      },
+      {
+        "name": "right dorsal venous arch of the hand",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "right second dorsal metacarpal vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "right third dorsal metacarpal vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "right fourth dorsal metacarpal vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 1.8,
+            "depthMillimetres": 0.88,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 0.96,
+            "shows": 1.0
+          }
+        ]
+      },
+      {
+        "name": "right cephalic vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.04,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.6,
+            "depthMillimetres": 1.2,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.44,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.6,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.76,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 1.76,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 1.92,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 2.08,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.8,
+            "depthMillimetres": 2.24,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.4,
+            "shows": 0.7
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.56,
+            "shows": 0.6
+          }
+        ]
+      },
+      {
+        "name": "right basilic vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.04,
+            "shows": 1.0
+          },
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.36,
+            "shows": 0.95
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.6,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 1.84,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 2.0,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 2.08,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.24,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 4.2,
+            "depthMillimetres": 2.56,
+            "shows": 0.5
+          },
+          {
+            "diameterMillimetres": 4.2,
+            "depthMillimetres": 3.2,
+            "shows": 0.0
+          }
+        ]
+      },
+      {
+        "name": "right median antebrachial vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.2,
+            "depthMillimetres": 1.6,
+            "shows": 0.7
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.76,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 2.6,
+            "depthMillimetres": 1.84,
+            "shows": 0.75
+          },
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.92,
+            "shows": 0.7
+          }
+        ]
+      },
+      {
+        "name": "right median cubital vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.76,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 1.76,
+            "shows": 0.9
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 1.92,
+            "shows": 0.85
+          },
+          {
+            "diameterMillimetres": 3.8,
+            "depthMillimetres": 2.08,
+            "shows": 0.8
+          }
+        ]
+      },
+      {
+        "name": "right dorsal venous arch of the foot",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 2.4,
+            "depthMillimetres": 1.12,
+            "shows": 0.8
+          }
+        ]
+      },
+      {
+        "name": "right great saphenous vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.8,
+            "depthMillimetres": 1.2,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 1.44,
+            "shows": 0.8
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 1.92,
+            "shows": 0.6
+          },
+          {
+            "diameterMillimetres": 3.6,
+            "depthMillimetres": 2.4,
+            "shows": 0.45
+          },
+          {
+            "diameterMillimetres": 3.8,
+            "depthMillimetres": 2.72,
+            "shows": 0.35
+          },
+          {
+            "diameterMillimetres": 4.0,
+            "depthMillimetres": 2.88,
+            "shows": 0.3
+          },
+          {
+            "diameterMillimetres": 4.2,
+            "depthMillimetres": 3.2,
+            "shows": 0.25
+          },
+          {
+            "diameterMillimetres": 4.4,
+            "depthMillimetres": 3.36,
+            "shows": 0.2
+          }
+        ]
+      },
+      {
+        "name": "right small saphenous vein",
+        "anchors": [
+          {
+            "diameterMillimetres": 2.6,
+            "depthMillimetres": 1.2,
+            "shows": 0.7
+          },
+          {
+            "diameterMillimetres": 3.0,
+            "depthMillimetres": 1.52,
+            "shows": 0.6
+          },
+          {
+            "diameterMillimetres": 3.2,
+            "depthMillimetres": 2.08,
+            "shows": 0.45
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 2.56,
+            "shows": 0.25
+          },
+          {
+            "diameterMillimetres": 3.4,
+            "depthMillimetres": 3.2,
+            "shows": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

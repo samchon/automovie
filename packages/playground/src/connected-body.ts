@@ -101,6 +101,8 @@ async function main(): Promise<void> {
     skinDetail: { strength: 1 },
     // and its uneven tone, the two chromophores about the site colour
     skinTone: { strength: 1 },
+    // and the superficial veins, as far as the body's tissue lets them show
+    skinVeins: { strength: 1 },
   };
   const loader = new GLTFLoader();
   const decode = async (bytes: Uint8Array<ArrayBuffer>) =>
