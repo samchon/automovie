@@ -321,6 +321,19 @@
 @evidence settings/002-household.md#upper-program 침실의 desk 또는 shelf를 책 소품의 가능한 지지 가구로 받는다.
 @evidence settings/002-household.md#household-program 생활 흔적의 물품 범위에서 책 원형을 저작 선택으로 둔다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 책의 표지·책등·바닥 형상과 face 주소를 models가 정한다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory는 세 H/T/D 책만 두고 책 수·회전과 제목·인쇄를 각각 배치 또는 미정으로 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion  모든 크기에 cover-left·right, pages, spine 네 닫힌 @part와 @envelope가 있어 한 장 판으로 끝나지 않는다.
+@evidenceReview principles/core/common.md#declared-basis  ref04 책장과 ref02 침실 책상·선반을 목적지로 받고 180x30x120 등 세 치수 ID는 로컬로 선택한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  침실 desk·shelf와 소품 형상 권한에 별도 책등 두께를 가진 세 크기의 개별 책 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  cover 두 장과 pages, spine의 X·Z 경계가 서로의 유한 면에 맞닿고 독립 닫힌 부피를 이룬다.
+@evidenceReview principles/design/models.md#spatial-convention  선반 접촉 중심 원점과 spine 쪽 +Z를 정하고 ID의 H/T/D를 Y/X/Z에 대응시킨다.
+@evidenceReview principles/design/models.md#reviewable-structure  spine/outer, cover/outer·fore-edge, pages/front가 정면·상부·45°에서 폭과 책등 구별을 보이게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref04 책장과 ref02의 책상·선반 책을 받되 읽을 수 있는 제목은 표면에 만들지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  세 @envelope와 @part가 각 H/T/D에 0.004m cover 및 0.006m spine 층을 적용한다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  침실 책상·선반 및 생활 소품 범위에 세 책 원형을 대조했고 수량·회전·지지 배치는 별도 단계여서 수납 프로그램을 바꾸지 않는다.
+@evidenceReview settings/002-household.md#upper-program  침실 desk 또는 shelf를 책의 가능한 지지 가구로만 사용하며 책을 프로그램의 필수 수량으로 만들지 않는다.
+@evidenceReview settings/002-household.md#household-program  생활 흔적 소품 범위에서 독립 표지·종이·책등이 있는 책을 저작 선택한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  cover-*/outer, spine/outer, pages/front 등 재사용 책의 안정 part·face를 모델 H2에 정한다.
 -->
 
 @prose-dim 표지 두 장은: cover-*
@@ -375,6 +388,20 @@
 @evidence spaces/002-spatial-graph.md#upper-bathroom 욕실의 수건 수납에 놓이는 소품 원형으로 받는다.
 @evidence spaces/002-spatial-graph.md#upper-storage 복도 직결 linen 수납에 놓이는 소품 원형으로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 수건의 접힌 형상·face 주소는 models가 정하고 수량은 instances에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory 80·120·160은 접힌 정지 부품만 내고 젖음·섬유 변형을 unverified로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion  세 layer와 뒤 fold-0·앞 fold-1의 @part가 두 음영 틈을 남기면서 연속 접촉을 이룬다.
+@evidenceReview principles/core/common.md#declared-basis  ref02 욕실 및 linen 수납을 목적지로 받고 폭 0.38m·접힌 깊이 0.60m와 세 높이는 이 H2가 고른다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  상층 towel·linen 수납 목적지에 80·120·160mm 수건 묶음의 독립 원형과 Y 점유를 더한다.
+@evidenceReview principles/design/models.md#representation-contract  layer와 fold가 각각 닫힌 @part이고 0.004m 빈 층을 fold가 앞뒤 번갈아 이어 막힌 한 덩어리가 되지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention  선반 접촉 중심 원점, 접힌 앞 +Z와 아래에서 위로 layer-0..2 번호를 본문에 고정한다.
+@evidenceReview principles/design/models.md#reviewable-structure  layer-*/fold-front·fold-back과 fold-*/front·back 주소가 정면·측면·45°에서 세 겹과 양쪽 접힘을 드러낸다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 욕실·linen 수납에 쌓인 수건을 받으며 다른 사진으로 섬유 결이나 습기 효과를 추정하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  h=(H−2g)/3과 각 @envelope가 세 높이의 layer·fold 전체 Y 범위를 닫고 표 반올림 한계를 선언한다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  욕실 towel storage와 상층 linen 수납에 세 접힌 수건을 대조했고 선반 칸·수량은 배치가 정해 새 방이 없다.
+@evidenceReview settings/002-household.md#upper-program  욕실 수건 수납과 상층 linen 수납 모두에 같은 접힌 수건 높이 변종을 공급한다.
+@evidenceReview spaces/002-spatial-graph.md#upper-bathroom  상층 욕실 수건 수납을 사용할 목적지로 받고 수건의 국소 @envelope만 낸다.
+@evidenceReview spaces/002-spatial-graph.md#upper-storage  복도 직결 linen 수납에도 같은 원형을 공급하고 실제 선반 선택은 배치에 남긴다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  layer-*/upper·underside와 fold-*/front·back 등 접힌 소품의 안정 부품·face를 설계한다.
 -->
 
 `folded-towel/<높이-mm>`의 허용 전체 높이는 0.08, 0.12, 0.16m이고 폭 0.38, 접힌 깊이 0.60m다. 선반 접촉 중심 원점, +Z가 접힌 앞이다. 세 겹의 부피는 각각 높이 h=(H−2g)/3이고 앞쪽 모서리 반경 0.02m다. 아래에서 위로 `layer-0`은 y=0..h, `layer-1`은 y=h+g..2h+g, `layer-2`는 y=2h+2g..H에 놓는다. 두 0.004m 음영 틈의 각각 폭을 g라 한다. 뒤쪽 z=−0.30..−0.27에는 `fold-0`이 y=h..h+g로, 앞쪽 z=+0.27..+0.30에는 `fold-1`이 y=2h+g..2h+2g로 놓여 아래·위 겹의 대면적 접촉면에 각각 닿는다. 각 fold의 X 폭은 0.38m이며 세 겹과 두 접힘은 한 연속 접촉 그래프를 만든다. `layer-0..2/upper/fold-front/fold-back/fold-side/underside`와 `fold-0..1/front/back/top/sole/side`가 각 부품의 전 표면을 덮고 layer 번호는 아래에서 위로 증가한다. 정면·측면·45°에서 겹수가 읽혀야 한다. ref02 욕실·linen 수납의 쌓인 수건을 채택한다. ref01·03·04·05에는 접힌 수건을 판독할 근거가 없다. 섬유 유연성과 실제 습기 응답은 `unverified`다.
@@ -434,6 +461,21 @@
 @evidence spaces/002-spatial-graph.md#storage-1f 공용실과 직접 연결된 1층 수납실을 바구니의 가능한 배치 장소로 받고 지지 선반의 칸 선택은 instances에 남긴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 바구니 외벽·내벽·관통 손잡이의 형상과 face를 models가 정한다.
 @evidenceExclude spaces/002-spatial-graph.md#corridor-storage 복도에서 상층 linen 수납으로 드는 문의 clear 폭과 회전은 spaces 소유다. 바구니는 선반 위 개별 내용물이다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory default는 빈 외함과 두 손잡이만 내고 내용물·반복·손잡이 하중은 본문에서 별도 주체에 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion  bottom·wall·rim의 닫힌 부품과 양쪽 @void wall·handle이 내부 및 두 관통 구멍을 형성한다.
+@evidenceReview principles/core/common.md#declared-basis  ref02의 1층·linen 수납을 가능한 목적지로 받고 0.40×0.65×0.28m 크기는 이 H2의 @envelope로 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  두 수납 프로그램에 선반 위 열린 바구니와 관통 손잡이를 선택 소품으로 더한다.
+@evidenceReview principles/design/models.md#representation-contract  wall의 손잡이 외곽을 @void로 비운 뒤 같은 점유의 hollow handle을 두어 벽과 띠의 중복 고체를 피한다.
+@evidenceReview principles/design/models.md#spatial-convention  선반 접촉 중심 원점, 꺼내는 앞 +Z와 ±X 측벽의 handle-left·right 위치가 본문·표에 있다.
+@evidenceReview principles/design/models.md#reviewable-structure  wall/inner, handle-*/inner·cut-edge, rim/upper 주소가 상부·정면·45°의 빈 내부와 손잡이 구멍을 드러낸다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02 수납 바구니의 역할만 받고 ref04 책을 자동 내용물로 만들지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  @part·@void가 0.012m bottom, 0.010m wall, 0.018m rim과 손잡이 외곽을 @envelope 폭 안에 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  1층 storage·상층 linen·storage-1f cell에 빈 바구니 크기를 대조했고 내용물·선반 칸은 배치가 정하므로 새 cell이 없다.
+@evidenceReview settings/002-household.md#ground-program  1층 수납실을 빈 바구니의 가능한 방 목적지로 받되 필수 내용물은 만들지 않는다.
+@evidenceReview settings/002-household.md#upper-program  상층 linen 수납에도 같은 @inventory default 바구니 원형을 쓸 수 있도록 둔다.
+@evidenceReview spaces/002-spatial-graph.md#storage-1f  공용실 직결 1층 수납 cell에 놓일 국소 @envelope만 정하고 선반 위치는 배치에 남긴다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  wall/outer·inner, rim/upper, handle-*/inner·cut-edge 등 재사용 물체의 안정 face를 정한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-storage  상층 linen 출입문의 clear 폭·회전을 바구니 @inventory에 넣지 않고 선반 위 점유만 낸다.
 -->
 
 @prose-part 각 손잡이의 외곽: handle-*
@@ -484,6 +526,19 @@
 @evidence settings/002-household.md#ground-program 현관의 평벽 충전 선반을 작은 장치가 놓일 지지 가구로 받는다.
 @evidence spaces/002-spatial-graph.md#entry 현관 방을 장치의 목적지로 받고 실제 선반 위 위치는 instances에 남긴다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 충전 장치의 본체·단자 face는 models가 정하고 실제 기능은 약속하지 않는다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory default는 얇은 body·interface만 내고 실제 충전 과정은 systems 결정 전 미검증으로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion  body의 두 @void 중 윗면에는 flush interface가 들어가고 앞쪽 것은 빈 단자 port로 남는다.
+@evidenceReview principles/core/common.md#declared-basis  ref02의 현관 충전 기능과 평벽 선반을 받고 0.07×0.12×0.015m 소품 크기는 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-program의 우편·충전 선반에 둘 수 있는 별도 납작한 물체와 실제 단자 구멍을 추가한다.
+@evidenceReview principles/design/models.md#representation-contract  port는 body/port-inner·port-edge의 빈 면이고 interface는 위 절삭의 측·바닥에 접하는 별도 @part다.
+@evidenceReview principles/design/models.md#spatial-convention  선반에 닿는 아래면 중심 원점, 조작면 +Z와 support y=0을 본문에 명시한다.
+@evidenceReview principles/design/models.md#reviewable-structure  interface/front, body/port-inner 및 @envelope 0.015m 높이로 상부·정면·측면과 현관 거리에서 두께를 판별한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02의 현관 역할만 받아 창호나 작업 장치를 이 작은 충전 물체의 모양으로 전사하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  body와 0.002m interface의 @part, 0.012×0.006m port @void가 선반 위 점유를 수치로 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  현관 평벽 충전 선반과 entry 방에 이 작은 별도 소품을 대조했고 전력 공급·벽 절삭·가변 상태를 요구하지 않는다.
+@evidenceReview settings/002-household.md#ground-program  평벽 우편·충전 선반을 support y=0인 장치의 지지 가구로 받는다.
+@evidenceReview spaces/002-spatial-graph.md#entry  현관 방을 장치 목적지로 연결하되 선반 위 실제 위치는 @envelope에 넣지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  body/port-inner·port-edge와 interface/front·edge를 충전 소품의 안정 face 주소로 낸다.
 -->
 
 `entry-charger`는 폭 0.07, 깊이 0.12, 높이 0.015m다. [벽걸이 선반](002-storage-and-sleep.md#entry-charging-shelf)에 닿는 아래면 중심이 원점, +Z가 조작면이다. 본체 위쪽 x=±0.026,z=±0.0375,y=0.013..0.015m를 절삭한다. interface는 X 폭 0.052m·Z 깊이 0.075m·Y 높이 0.002m로 만들고 절삭면에 flush로 끼운다. 앞쪽 edge z=+0.05..+0.06,x=±0.006,y=0.0045..0.0105m에는 폭 0.012·높이 0.006·깊이 0.010m 단자 구멍을 실제로 절삭한다. `body/front/back/top/edge/sole/port-inner/port-edge`, `interface/front/back/edge`가 안정 주소다. 정면·상부·측면과 현관 리뷰 거리 관찰에서 과장된 두꺼운 판으로 보이지 않는지 확인한다. ref02의 현관 충전 기능을 settings의 평벽 선반에 연결한다. ref01·03·04·05의 창·작업 기기를 충전기 형상으로 삼지 않는다. 실제 충전 과정은 systems 결정 전까지 `unverified`다.
@@ -525,6 +580,21 @@
 @evidence spaces/002-spatial-graph.md#common-room 거실 영역을 큰 러그의 목적지로 받되 최종 바닥 점유는 instances가 정한다.
 @evidence spaces/002-spatial-graph.md#primary-bedroom 주침실의 직사각형 바닥을 침실 러그의 목적지로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 러그의 얇은 직물 형상과 face 주소를 models가 정한다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory는 거실·큰 침실 직사각과 작은 침실 원형 셋만 내고 섬유 개별 pile·미끄럼을 unverified로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion  세 상태마다 base·pile·bound-edge의 닫힌 @part와 안쪽 @void 또는 @radial 띠가 있다.
+@evidenceReview principles/core/common.md#declared-basis  ref02의 거실·침실 러그와 ref03 소파 앞 직물 범위를 받고 세 평면 크기는 각 @envelope에서 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  생활 소품 범위와 common-room·primary-bedroom 및 작은 침실 용도에 세 얇은 바닥 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  base 위 0.003m pile과 0.025m bound-edge를 별도 @part로 두고 round1200은 동심 원판·환형 띠다.
+@evidenceReview principles/design/models.md#spatial-convention  바닥 접촉 중심 원점, 직사각 긴 축 +Z와 원형의 입구 관찰 +Z를 본문에 정한다.
+@evidenceReview principles/design/models.md#reviewable-structure  pile/upper, bound-edge/inner·outer, base/contact가 상부·낮은 측면·실내 거리에서 둘레와 높이를 읽게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02 방 바닥의 러그와 ref03 소파 앞 경계를 형상 역할로 쓰고 문턱 재료를 직물로 바꾸지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  living 0.016m, bedroom1600x2200·round1200 0.012m의 @envelope 안에 base·pile·edge 세 층을 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  거실과 상층 침실의 바닥 목적지에 세 얇은 소품을 대조했고 문 호·침대와의 실제 간격은 배치가 검증한다.
+@evidenceReview settings/002-household.md#household-program  방의 생활 물품 범위에서 재사용 러그 세 크기를 저작 선택하고 필수 배치 수량은 정하지 않는다.
+@evidenceReview settings/002-household.md#upper-program  세 침실의 수면 용도를 침실 러그의 가능한 방 목적지로 받고 작은 방에는 round1200을 둔다.
+@evidenceReview spaces/002-spatial-graph.md#common-room  거실 영역을 2.80×3.65m living 원형의 목적지로 받고 최종 점유는 배치에 남긴다.
+@evidenceReview spaces/002-spatial-graph.md#primary-bedroom  주침실의 직사각 바닥 목적지에 bedroom1600x2200 원형을 제공한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  pile/upper·edge, bound-edge/inner·outer와 base/contact 및 장축 UV를 얇은 모델 주소로 정한다.
 -->
 
 @prose-part pile은: pile
@@ -587,6 +657,19 @@
 @evidence settings/002-household.md#household-program 침실을 식별하는 생활 물품 범위에서 벽 액자를 저작 선택한다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-1 작은 침실의 내측 벽을 액자의 가능한 부착 대상으로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 액자 frame·mat의 형상·face 주소는 models가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory는 액자 층과 중립 artwork 면만 내고 본문에서 가족 사진·직업·인쇄 내용을 확정하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  back·frame·mat·artwork·cover 다섯 @part와 두 @void, cover 뒤 빈 공기층이 두께 있는 벽 소품을 만든다.
+@evidenceReview principles/core/common.md#declared-basis  ref02 작은 침실 액자 역할을 받고 0.60×0.42×0.035m와 내부 깊이 층은 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  생활 물품 범위와 child-bedroom-1 벽 목적지에 열린 mat과 두께 있는 frame의 독립 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  @void frame·mat을 관통 절삭하고 artwork는 back에, cover는 frame에 닿되 mat과 cover 사이 0.010m가 빈다.
+@evidenceReview principles/design/models.md#spatial-convention  벽 접합 뒤면 중심 원점과 보는 앞 +Z를 정해 다섯 @part의 깊이를 0..0.035m에 둔다.
+@evidenceReview principles/design/models.md#reviewable-structure  frame/front·edge, mat/front 및 cover/front·edge가 정면·측면·45°에서 billboard와 다른 깊이를 보여준다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02 침실 벽의 액자를 역할 근거로 사용하고 창밖 풍경을 artwork 내용으로 복제하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  0.025m frame 띠와 back·mat·artwork·cover의 각 @part 깊이를 닫고 공기층에 숨은 지지대는 없다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  생활 물품과 child-bedroom-1 벽 목적지에 부착 액자를 대조했고 벽 cut·새 상태를 요청하지 않는다.
+@evidenceReview settings/002-household.md#household-program  침실을 식별할 생활 소품으로 중립 내용의 벽 액자를 저작 선택한다.
+@evidenceReview spaces/002-spatial-graph.md#child-bedroom-1  작은 침실 내측 벽을 back/contact의 가능한 부착 대상에 연결하고 정확한 걸이 위치는 배치에 남긴다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  frame/front·edge, mat/front, artwork/front, cover/front의 안정 part·face 주소를 이 H2가 소유한다.
 -->
 
 @prose-part 투명 cover는: cover
@@ -631,6 +714,19 @@
 @evidence settings/002-household.md#ground-program 식탁·low table·island를 빈 상판 소품의 가능한 지지 가구로 받는다.
 @evidence settings/002-household.md#household-program 일상 생활 물품 범위에서 빈 그릇·쟁반·컵을 저작 선택한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 세 소품의 rim·안쪽·밑면 형상과 face 주소를 models가 정한다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory는 빈 bowl·tray·cup만 내고 음식·브랜드·수량 및 식품 접촉 성능은 결정하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  bowl·cup의 @bore, tray의 @ellipse rim과 cup의 두 joining pad가 각 소품의 빈 곳과 닫힌 접촉을 만든다.
+@evidenceReview principles/core/common.md#declared-basis  ref03 낮은 탁자와 ref02 식탁의 그릇 역할을 받고 세 치수 및 컵 손잡이 접합은 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  식탁·low table·island의 가능한 상판 목적지에 높이와 내부가 다른 bowl·tray·cup을 선택 소품으로 더한다.
+@evidenceReview principles/design/models.md#representation-contract  bowl·cup은 위로 열린 @bore이고 컵 handle pad는 +Z 24각 몸체 facet에 닿되 안쪽 bore를 막지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention  세 소품의 받침 아래면 중심 원점, 컵 손잡이 쪽 +Z와 pad 뒤면의 facet 좌표식을 밝힌다.
+@evidenceReview principles/design/models.md#reviewable-structure  shell/inner, tray rim/inner, cup body/inner·handle/contact가 위·측면·45°에서 빈 내부와 고리 접합을 보여준다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref03의 낮은 탁자·조리대 소품과 ref02 식탁 그릇을 쓰고 음식·문구를 추가하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  bowl 0.22m 외경, tray 0.36×0.24m, cup 0.095m 높이와 돌출 손잡이가 각 @envelope와 @part에 닫힌다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  기존 식탁·low table·island 상판에 빈 세 소품을 대조했고 반복 수와 정확한 상판 접촉은 배치가 맡는다.
+@evidenceReview settings/002-household.md#ground-program  식탁·low table·island를 빈 그릇·쟁반·컵의 가능한 지지 상판으로 받는다.
+@evidenceReview settings/002-household.md#household-program  일상 생활 소품 범위에서 음식 없는 세 tabletop 원형을 저작 선택한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  shell/inner·rim, tray base/underside, cup body/inner와 handle/contact를 안정 면 주소로 구별한다.
 -->
 
 @axis-control cup: handle, Y, 0.050, handle ring center
@@ -692,6 +788,19 @@
 @evidence settings/002-household.md#ground-program 거실 media/storage wall을 화면 원형의 부착 기능으로 받는다.
 @evidence spaces/002-spatial-graph.md#common-room 거실의 내측 벽을 화면의 가능한 설치 면으로 받되 위치는 instances가 정한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 화면 bezel·screen·mount의 형상과 face 주소를 models가 정한다.
+@evidenceReview principles/core/common.md#scope-preservation  @inventory default는 꺼진 display 외형 네 부품만 내고 영상 내용과 전력 상태는 unverified로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion  mount·housing·hollow bezel·screen의 @part 및 bezel @void가 벽 이격과 물린 화면을 닫는다.
+@evidenceReview principles/core/common.md#declared-basis  ref02·03의 거실 미디어 역할을 받고 1.43×0.80m 및 층별 깊이는 이 H2가 선택한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  media/storage wall과 common-room 거실에 벽부착 mount, 좁은 bezel과 후퇴 screen 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  @void bezel 중앙을 비우고 screen edge가 내벽에 접하며 housing과 screen은 z=0.039m 공유면만 갖는다.
+@evidenceReview principles/design/models.md#spatial-convention  벽 접합 mount 중심 원점, 시청자 쪽 +Z와 screen 앞 0.042m·bezel 앞 0.045m 차이를 밝힌다.
+@evidenceReview principles/design/models.md#reviewable-structure  screen/front, bezel/front·edge, mount/outer가 정면·측면·45°에서 화면과 벽 이격을 분간하게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref02·03 거실 미디어 장치를 형상 근거로 쓰고 다른 그림의 커튼월 유리를 화면으로 취급하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  @envelope 1.43×0.80×0.045m 안에 0.018m bezel 폭과 mount 깊이, 0.003m screen 층을 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  media/storage wall과 common-room 거실 벽에 국소 mount를 대조했고 영상 재생·새 벽 개구·상태는 요구하지 않는다.
+@evidenceReview settings/002-household.md#ground-program  거실 media/storage wall을 mount/contact의 가능한 지지 대상으로 받아 별도 화면 원형을 둔다.
+@evidenceReview spaces/002-spatial-graph.md#common-room  거실 내측 벽을 가능한 설치 면으로 받고 실제 높이·위치는 배치에 남긴다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  screen/front·back, bezel/edge, housing/back 및 mount/contact를 안정 모델 면 주소로 낸다.
 -->
 
 @prose-part screen 뒷면은: screen
@@ -736,6 +845,18 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work production-visual-grammar의 따뜻한 실내등과 surface-decomposition의 등기구·emitter 분리를 시험했다. 0.12m 표면 부착 원형은 천장 아래에 접촉하고 매립 구멍·새 조명 상태를 요구하지 않으며 광량은 systems가 정한다.
 @evidence settings/001-production.md#production-visual-grammar 켜진 따뜻한 실내등의 보이는 기구 형상을 얕은 천장 부착 원형으로 제공한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 등기구 trim·housing·diffuser 형상과 face는 models가, 발광 과정은 systems가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation  천장 아래 0.04m 표면 기구만 @envelope에 두고 매립 구멍과 광량 성능은 내지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion  housing-body·flange·core·trim·diffuser의 다섯 @part와 동심 @radial이 방 쪽 원판을 노출한다.
+@evidenceReview principles/core/common.md#declared-basis  ref03·04·05의 작은 점등과 ref02 반복 위치를 받고 외경 0.12m·깊이 0.04m는 로컬로 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  따뜻한 실내등과 등기구 형상 권한에 얕은 housing, 고리 trim, 별도 diffuser의 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  trim @radial은 속 빈 고리이고 core는 그 안을 채우며 diffuser가 가장 낮아 발광 면을 가리지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention  천장 접촉 y=0 원점, +Y 천장 안쪽과 -Y 방 쪽을 밝히고 모든 @part가 y≤0이다.
+@evidenceReview principles/design/models.md#reviewable-structure  diffuser/front와 trim/front·edge가 방 아래·45°에서 지름 0.095m 원판과 돌출 깊이를 관찰하게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref03·04·05 점등의 기구 외형과 ref02 반복 위치를 쓰며 ref01의 빛점으로 부품을 특정하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  @radial trim 0.0475..0.06과 diffuser 0..0.0475, 다섯 @part의 Y 접촉이 0.12m 외경을 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  따뜻한 실내등과 기구·emitter 분리에 표면 부착 원형을 대조했고 천장 cut·새 상태는 요구하지 않으며 광량은 systems에 남는다.
+@evidenceReview settings/001-production.md#production-visual-grammar  켜진 따뜻한 실내등의 보이는 얕은 기구를 diffuser/front와 trim/front로 구별해 제공한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  housing·trim의 비발광 외형과 @emitter-face diffuser -Y를 나눠 모델 면과 systems 발광 소유를 분리한다.
 -->
 
 `ceiling-surface-light`는 외경 0.12, 전체 깊이 0.04m다. 천장 접합면 중심이 원점이고 +Y가 천장 안쪽이므로 보이는 trim은 외경 0.12m·내경 0.095m의 닫힌 고리로 y=−0.025..0이고, 별도 천장 구멍을 요구하지 않는 얕은 housing-body는 외경 0.085m, y=−0.037..−0.028다. housing-flange는 별도 닫힌 원판으로 외경 0.10m,y=−0.028..−0.025이며 housing-body 상면과 trim 아래면의 반지름 0.0475..0.05m 환형 접촉면에 닿는다. housing-core는 반지름 0.0475m의 닫힌 원통으로 y=−0.025..0에서 trim 안쪽을 채우고 아래면은 flange 윗면에, 윗면은 천장에 유한 면으로 닿는다. 이는 천장면 아래에서 마감되는 0.04m 표면 부착 다운라이트이며 천장 안으로 매립된 부품이라고 주장하지 않는다. 확산면 지름 0.095m·두께 0.003m는 y=−0.040..−0.037에 놓여 housing-body의 아래면과 반지름 0..0.0425m의 원판 면으로 닿는다. 방 쪽 −Y에서 수직으로 보면 발광면의 지름 0.095m 전체가 앞을 향하고, 비발광 몸체·flange·trim은 그 면을 가리지 않는다. `housing-body/outer/sole/top`, `housing-flange/top/edge/underside`, `housing-core/top/edge/underside`, `trim/front/edge/contact`, `diffuser/front/back/edge`가 안정 주소다. diffuser의 발광 과정은 system emitter와 별도 대응하고 housing은 emissive가 아니다. 아래·45°와 실내 거리에서 trim 깊이를 확인한다. ref03·04·05의 작은 천장 점등을 채택하고 ref01의 실내 빛점을 특정 fixture의 형상 근거로 쓰지 않는다. ref02는 두 층 반복 위치의 검사 자료다. 실제 광량은 systems 소유이며 이 모델 H2의 결과로는 `unverified`다.
@@ -785,6 +906,19 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 @evidence settings/002-household.md#ground-program 공용실 식탁을 펜던트의 가능한 아래쪽 사용 위치로 받는다.
 @evidence settings/001-production.md#production-visual-grammar 켜진 실내등의 보이는 형상을 식탁 펜던트 원형으로 제공한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition cord·shade 형상과 face 주소를 models가, emitter와 광량을 systems가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation  식탁 위 매달리는 canopy·cord·shade·diffuser만 내고 광량과 전기 작동은 systems에 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion  hollow canopy·shade-wall, 닫힌 cord·shade-cap·diffuser의 @radial과 @part가 접촉과 속 빈 공간을 닫는다.
+@evidenceReview principles/core/common.md#declared-basis  ref03 가는 원통 펜던트와 ref02 식탁 위 위치 관계를 받고 1.00m 길이·0.045m shade 외경은 로컬 수치다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  여섯 자리 식탁과 켜진 실내등의 부모 용도에 가는 cord 및 긴 원통 shade의 별도 기구 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  @radial canopy의 중앙 구멍을 cord가 지나고 shade-wall의 열린 내부에 후퇴 diffuser가 맞닿는다.
+@evidenceReview principles/design/models.md#spatial-convention  천장 cord 고정점 원점, 안쪽 +Y·식탁 방향 -Y와 @envelope y=-1..0을 본문에 고정한다.
+@evidenceReview principles/design/models.md#reviewable-structure  cord/outer·end, shade-wall/outer·inner와 diffuser/front가 정면·측면·45°에서 가는 선과 안쪽 원판을 보여준다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref03은 원통 형상에, ref02는 식탁과 천장 사이 위치 관계에만 사용한다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  cord -0.62..0m, shade -1..-0.62m와 canopy 0.08m·diffuser 0.038m를 @part와 @radial에 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  식탁·실내 점등·기구와 emitter 분리에 매달린 1.00m 원형을 대조했고 정확한 위치·광량은 후속 owner라 방 변경이 없다.
+@evidenceReview settings/002-household.md#ground-program  공용실 여섯 자리 식탁을 펜던트의 가능한 아래쪽 목적지로 받으며 설치 좌표는 정하지 않는다.
+@evidenceReview settings/001-production.md#production-visual-grammar  따뜻한 켜진 실내등의 보이는 세로 기구를 shade-wall과 diffuser 면으로 제공한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  cord/outer, shade-wall/inner와 @emitter-face diffuser -Y를 분리해 기구 형상과 발광 소유를 구별한다.
 -->
 
 @prose-dim cord는: cord
@@ -837,6 +971,19 @@ bezel의 중앙 개구는 x=±0.697,y=±0.382,z=0.039..0.045를 관통하고 그
 @evidence settings/002-household.md#ground-program 거실 reading light와 작업실 desk를 바닥등·작업등의 사용 근거로 받는다.
 @evidence settings/002-household.md#upper-program 주침실 bedside table을 작은 협탁등의 가능한 지지 가구로 받는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 세 등기구의 보이는 형상·face를 models가 소유하고 발광은 systems에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation  reading·bedside-globe·desk-task 세 고정 @inventory만 내고 조도와 전기 안전은 unverified로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion  세 변종의 @part가 바닥형 shade·bridge·diffuser, 탁상 globe, 두 stem 작업등의 head·diffuser를 각각 닫는다.
+@evidenceReview principles/core/common.md#declared-basis  ref03 독서등, ref04 구형·작업등과 ref02 협탁 크기를 받고 세 @envelope 비례는 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  거실 reading light와 침실 협탁·작업실 책상 목적지에 세 다른 이동식 등기구 원형을 더한다.
+@evidenceReview principles/design/models.md#representation-contract  reading @radial shade·diffuser는 중앙 여유를 남기고 bedside globe 목과 desk-task @void head·diffuser가 각기 맞닿는다.
+@evidenceReview principles/design/models.md#spatial-convention  세 변종은 받침 아래면 중심 원점·빛 방향 +Z이며 바닥 또는 상판의 y=0에 접한다.
+@evidenceReview principles/design/models.md#reviewable-structure  shade/inner, globe/outer, task-head/inner와 diffuser/front가 정면·측면·45°에서 서로 다른 높이·실루엣을 보여준다.
+@evidenceReview principles/design/models.md#model-observable-style-basis  ref03·04의 구분되는 램프를 형상 근거로 쓰고 ref01·05 외피 반사는 가져오지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion  reading 1.24m, globe 0.29m, desk-task 0.42m @envelope마다 실제 있는 부품만 @inventory에 둔다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work  거실 독서등·작업실 desk·침실 bedside table에 세 고정 원형의 접촉을 대조했고 설치 위치·광량은 후속 owner에 남는다.
+@evidenceReview settings/002-household.md#ground-program  거실 reading light와 작업실 desk를 reading·desk-task의 각각 가능한 지지 목적지로 연결한다.
+@evidenceReview settings/002-household.md#upper-program  주침실 bedside table을 낮은 bedside-globe 받침의 가능한 상판으로 받는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition  shade·globe·task-head의 부품 face와 reading·desk-task diffuser 및 globe 외면의 emitter 대응을 분리한다.
 -->
 
 @axis-control bedside-globe: globe, Y, 0.072, sphere cut and neck top
