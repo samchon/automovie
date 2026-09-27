@@ -13,13 +13,14 @@
  * Its real bottom contact waits for the maps ground input.
  */
 import { MAIN } from "../building";
+import { partitionPlaneFace } from "../face-partition";
 import { PALETTE } from "../palette";
 import { part, type IHousePart } from "../solid-records";
 import { rect, slab } from "../solids";
 import { GROUND_LAYERS, STOREYS } from "../storeys";
 import { FRONT_DOOR } from "../rooms/entry";
 import { GARDEN_DOOR } from "../envelope/rear";
-import { LAUNDRY_GARAGE_DOOR } from "../rooms/laundry";
+import { laundryGarageDoorBaseMesh } from "../rooms/laundry";
 
 /** Emit the main ground support base. */
 /**
@@ -31,7 +32,7 @@ import { LAUNDRY_GARAGE_DOOR } from "../rooms/laundry";
  * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions #4150be7 The three door-base calls take their in-plane spans from FRONT_DOOR, GARDEN_DOOR and LAUNDRY_GARAGE_DOOR and extend from the inside limit to the opposite wall face, supporting those authored crossings.
  * @evidence principles/core/source-units.md#source-scope-preservation Room owners retain visible finishes; this builder emits only support and does not claim actual maps-ground contact.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The base helper ends each structural slab below groundFloor by GROUND_LAYERS.finish; roomFloor owns the visible finish and this builder contains no map-ground contact geometry.
- * @evidence principles/core/source-units.md#source-substantive-completion Four slabs share the same calculated bottom/top and stable ids, so no threshold floats over an empty base.
+ * @evidence principles/core/source-units.md#source-substantive-completion Four supports share the same calculated bottom/top and stable ids; the laundry base leaves its garage-facing triangles to the room owner.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The local base helper computes one top from groundFloor and finish depth and one bottom from base depth, then uses that closed interval for the main slab and all three threshold strips.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-ground-floor-base keeps one 0.15 m support beneath MAIN.inner without a stair hole, and ground-threshold-junctions extends it under front, garden, and laundry-garage doors.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Main-ground-floor-base requires one uncut 0.15 m support beneath the finished inner plan and ground-threshold-junctions requires front, garden and laundry-garage extensions; the four returned slabs use those fixed boundaries without a new floor datum.
@@ -59,10 +60,12 @@ export const buildGroundFloor = (): IHousePart[] => {
       [GARDEN_DOOR.from, GARDEN_DOOR.to],
       [MAIN.outer.z[0], MAIN.inner.z[0]],
     ),
-    base(
+    part(
       "laundry-garage-door-base",
-      [MAIN.inner.x[1], MAIN.outer.x[1]],
-      [LAUNDRY_GARAGE_DOOR.from, LAUNDRY_GARAGE_DOOR.to],
+      "floors/ground.ts",
+      "floor",
+      PALETTE.structure,
+      partitionPlaneFace(laundryGarageDoorBaseMesh(), "x", MAIN.outer.x[1]).body,
     ),
   ];
 };

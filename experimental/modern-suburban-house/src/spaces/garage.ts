@@ -20,6 +20,8 @@
  * The garage stays empty: no vehicle is authored.
  */
 import { EXTERIOR_WALL_BOTTOM, GARAGE, MAIN } from "./building";
+import type { IAutoMovieMesh } from "@automovie/interface";
+import { partitionPlaneFace } from "./face-partition";
 import { PALETTE } from "./palette";
 import { GARAGE_RIDGE_Z, garageRoof } from "./roof/junctions";
 import { part, type IHousePart } from "./solid-records";
@@ -70,15 +72,37 @@ export const buildGarageSharedWall = (): IHousePart[] => {
   ];
 };
 
-/** Emit the independent garage floor base under the garage finished floor. */
+/** One garage floor solid supplies disjoint structural and visible faces. */
+/**
+ * @evidence spaces/10-ground-floor.md#garage-ground-floor-base The shared slab recipe spans the garage inner plan and the front door tongue at the specified lower datum.
+ * @evidence principles/core/source-units.md#source-scope-preservation Both garage owners use this one footprint without creating a second floor body.
+ * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and garage base depth provide the triangles partitioned by the two actual authors.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed garage base and front crossing already fix the footprint and levels consumed here.
+ */
+export const garageFloorMesh = (): IAutoMovieMesh => slab({
+  outline: [
+    { x: GARAGE.inner.x[0], z: GARAGE.inner.z[0] },
+    { x: GARAGE.inner.x[1], z: GARAGE.inner.z[0] },
+    { x: GARAGE.inner.x[1], z: GARAGE.inner.z[1] },
+    { x: GARAGE_FRONT_DOOR.to, z: GARAGE.inner.z[1] },
+    { x: GARAGE_FRONT_DOOR.to, z: GARAGE.outer.z[1] },
+    { x: GARAGE_FRONT_DOOR.from, z: GARAGE.outer.z[1] },
+    { x: GARAGE_FRONT_DOOR.from, z: GARAGE.inner.z[1] },
+    { x: GARAGE.inner.x[0], z: GARAGE.inner.z[1] },
+  ],
+  bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase,
+  top: STOREYS.garageFloor,
+});
+
+/** Emit the garage floor support beneath its room-owned top face. */
 /**
  * @evidence spaces/10-ground-floor.md This export builds the separate lower garage base under its finished floor.
  * @evidenceReview spaces/10-ground-floor.md #9f27f8e buildGarageFloorBase emits the independent garage slab 0.15 m below its finished floor, with no extension of the main house base into the garage.
  * @evidence spaces/10-ground-floor.md#ground-threshold-junctions Its slab reaches the garage front wall's outer face only beneath garage-front-door and meets the inner wall limit elsewhere.
  * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions #4150be7 The eight-point outline adds a tongue between GARAGE_FRONT_DOOR.from and .to through the front wall to GARAGE.outer.z; the threshold handoff assigns that support to the garage base.
- * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor as the concrete surface, while garage-interior keeps the room record and ceiling finish without duplicating this slab.
+ * @evidence principles/core/source-units.md#source-scope-preservation The base ends at STOREYS.garageFloor; garage-interior authors the exposed upper face from the same mesh.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This slab's top is STOREYS.garageFloor and its colour is concrete; garage-interior records that floor level and emits a room ceiling finish, not a second floor body.
- * @evidence principles/core/source-units.md#source-substantive-completion The eight-point outline and 0.15 m depth produce a closed garage-floor-base solid.
+ * @evidence principles/core/source-units.md#source-substantive-completion The eight-point slab's non-top triangles produce the garage-floor-base support with no overlapping visible face.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The caller supplies eight plan vertices and a 0.15 m vertical interval to slab(), which returns one closed garage-floor-base mesh.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Garage-ground-floor-base sets the independent slab 0.15 m below the finished floor; ground-threshold-junctions extends it beneath garage-front-door. This builder uses both bounds.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The garage base parent fixes its inner footprint and vertical interval, while the threshold parent extends support through the front opening; the eight-point slab applies those decisions without changing either.
@@ -89,20 +113,7 @@ export const buildGarageFloorBase = (): IHousePart[] => [
     OWNER,
     "floor",
     PALETTE.concrete,
-    slab({
-      outline: [
-        { x: GARAGE.inner.x[0], z: GARAGE.inner.z[0] },
-        { x: GARAGE.inner.x[1], z: GARAGE.inner.z[0] },
-        { x: GARAGE.inner.x[1], z: GARAGE.inner.z[1] },
-        { x: GARAGE_FRONT_DOOR.to, z: GARAGE.inner.z[1] },
-        { x: GARAGE_FRONT_DOOR.to, z: GARAGE.outer.z[1] },
-        { x: GARAGE_FRONT_DOOR.from, z: GARAGE.outer.z[1] },
-        { x: GARAGE_FRONT_DOOR.from, z: GARAGE.inner.z[1] },
-        { x: GARAGE.inner.x[0], z: GARAGE.inner.z[1] },
-      ],
-      bottom: STOREYS.garageFloor - GROUND_LAYERS.garageBase,
-      top: STOREYS.garageFloor,
-    }),
+    partitionPlaneFace(garageFloorMesh(), "y", STOREYS.garageFloor).body,
   ),
 ];
 
