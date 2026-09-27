@@ -17,7 +17,8 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * 2. Contact without articulation, aperture pairs that are absent, out of
  *    range or coincident, non-expression or self-referential closure, an
  *    absent tongue or nonpositive slab, a negative tolerance, no colliders or
- *    no soft surfaces, a collider with bad closure, reach or a repeated name,
+ *    no soft surfaces, a collider with bad closure, reach, cover (negative,
+ *    NaN or infinite) or a repeated name,
  *    a soft entry that is a collider or has a negative budget, and a collider
  *    whose sealed neutral is not an oriented sheet each refuse by message.
  */
@@ -84,6 +85,12 @@ export const test_subject_human_contact_admission = (): void => {
       (c) => ({ colliders: [{ ...c.colliders[0], reachMetres: 0 }] }),
       "positive reach",
     ],
+    ...[-0.001, Number.NaN, Infinity].map(
+      (coverMetres): [(c: Contact) => Partial<Contact>, string] => [
+        (c) => ({ colliders: [{ ...c.colliders[0], coverMetres }] }),
+        "finite nonnegative cover",
+      ],
+    ),
     [
       (c) => ({ colliders: [{ ...c.colliders[0], closure: [0, 1] }] }),
       "closure triangles",

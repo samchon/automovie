@@ -1,0 +1,31 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-gingiva-scallop",
+  "revision": "mpfb-connected-head-2026-09-27-globe-cover",
+  "surface": "Human.low-poly",
+  "coverMetres": 0.00125,
+  "documents": 18,
+  "recorded": "2026-09-27T14:18:19.002Z",
+  "citations": {
+    "cover": "Ultrasound biomicroscopic features of the normal lower eyelid. Orbit 2021;40(5), doi:10.1080/01676830.2020.1812094: 30 lower lids of 15 healthy adults, 50 MHz UBM; pretarsal orbicularis (skin-orbicularis complex) 0.68 +- 0.18 mm, tarsus 0.57 +- 0.12 mm."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "f3c0d3a1aa86ed464096279c7cda8ac6a13783d98e9b8aaf938e293149bfa306",
+      "bytes": 27136586
+    },
+    "subjects": {
+      "sha256": "3c3764f384fc8ae49cf96fd7dbda9c4e346f30b8420417dd25ce25e5488556be",
+      "bytes": 119210
+    },
+    "controls": {
+      "sha256": "73c58a1efbce3691917a39298bb6ca9233bb25ef863c567778453edfbbf30d3b",
+      "bytes": 7454
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "a4b3f0e9661a6bb307b410ebcdda5668fabfa03fa95aa5f52a2bf5e0b91ff187",
+      "bytes": 27136588
+    }
+  }
+}

@@ -91,13 +91,17 @@ export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
       named.has(collider.surface) ||
       !Number.isFinite(collider.reachMetres) ||
       collider.reachMetres <= 0 ||
+      !(
+        collider.coverMetres === undefined ||
+        (Number.isFinite(collider.coverMetres) && collider.coverMetres >= 0)
+      ) ||
       collider.closure.length % 3 !== 0 ||
       collider.closure.some(
         (vertex) => !Number.isInteger(vertex) || vertex < 0 || vertex >= count,
       )
     )
       throw new Error(
-        "A facial collider needs a resident surface named once, resident closure triangles and a positive reach: " +
+        "A facial collider needs a resident surface named once, resident closure triangles, a positive reach and a finite nonnegative cover: " +
           collider.surface,
       );
     named.add(collider.surface);

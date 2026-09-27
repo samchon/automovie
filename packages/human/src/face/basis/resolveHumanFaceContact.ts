@@ -8,8 +8,10 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
 /**
  * Keep soft tissue outside the rigid dental and ocular surfaces by the rest
  * floor rule:
- * every soft vertex keeps at least the clearance it has in the shape-only
- * rest state, so tissue the source authored touching or slightly inside a
+ * every soft vertex's floor is its clearance in the shape-only rest state,
+ * held to at most the collider's cover (the thinnest tissue that lies over
+ * it: a lid over a globe keeps its thickness, while lips meet the teeth
+ * with none), so tissue the source authored touching or slightly inside a
  * tooth at rest is left there, and only tissue that a pose pushed deeper is
  * moved back, along the nearest feature's normal, exactly to that floor. A
  * push larger than the surface's budget refuses the document by surface,
@@ -66,6 +68,7 @@ export function resolveHumanFaceContact(
   };
   const colliders = contact.colliders.map((collider) => ({
     reach: collider.reachMetres,
+    cover: collider.coverMetres ?? 0,
     now: compile(
       collider.surface,
       collider.closure,
@@ -123,7 +126,7 @@ export function resolveHumanFaceContact(
         if (!near(collider.rest, collider.reach, r)) continue;
         const before = collider.rest.query(r);
         if (before.boundary || before.distance > collider.reach) continue;
-        const floor = Math.min(before.signedDistance, 0);
+        const floor = Math.min(before.signedDistance, collider.cover);
         const excess = floor - hit.signedDistance;
         if (excess <= contact.toleranceMetres) continue;
         if (excess > soft.budgetMetres)
