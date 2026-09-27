@@ -10,7 +10,7 @@
 @evidence principles/core/common.md#substantive-completion 상판과 두 받침의 치수·접촉면·폭 매개변수, 열린 하부와 점유 상자를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Y=0.40m 받침 윗면과 상판 아랫면 접촉, W별 중심 X=±(W/2−0.17)을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#bench와 30-interiors#fountain이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 2026-09-25 지시·bench 설정·중정 쓰임과 이미지 비교를 존재·부모·시각 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시는 벤치의 존재를, 중정 설정은 낮은 대기 비품의 용도를 정한다. 이미지 비교에서 두 받침과 열린 하부를 읽고 W=1.40/1.10m의 접합 치수는 이 원형이 정했음을 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#bench의 중정과 정문의 낮은 대기 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 낮은 대기 비품에 W=1.40/1.10m 및 두 받침의 열린 구조를 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract seat·pier의 접촉, 좌석 아래 빈 공간, 막힌 상자형 벤치를 제외한다.
@@ -51,7 +51,7 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 @evidence principles/core/common.md#substantive-completion 발·줄기·오목한 접시의 범위와 연결 높이, 16분할 원형 면을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 발 윗면 Y=0.035m와 줄기, 접시 아랫면 Y=0.23m의 접촉 및 16분할을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#portable-lamp와 20-envelope#entrance-porch·30-interiors#fountain·#offering-room·#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 사물 지시와 소형 등잔 설정·네 공간·이미지 02·04를 권위와 비교 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 이동식 등잔 요구와 설정의 네 사용 공간·꺼진 상태를 읽었다. 이미지 02·04는 접시 모양 비교이고 세 part의 치수는 이 원형의 결정임을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#portable-lamp의 높은 제실 등잔대와 별개인 이동식 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 높은 등잔대에 없던 0.28m 이동식 비품의 독립 상자를 부모 결정에서 도출했는지 확인했다.
 @evidence principles/design/models.md#representation-contract foot·stem·dish와 위로 열린 접시, 불꽃 없는 proxy를 정한다.
@@ -90,7 +90,7 @@ part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이
 @evidence principles/core/common.md#substantive-completion 상판·두 홈·네 다리의 치수와 열린 아래, 저장 항아리 바닥 반지름 0.10m보다 큰 홈 반지름 0.16m를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 홈 반지름 0.16m가 저장 항아리 바닥 0.10m와 운반 항아리 0.07m보다 큰지 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#jar-rack와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 사물 지시와 jar-rack 설정·보관실 쓰임·이미지 02·05를 존재와 형상의 권위로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 항아리 받침 요구와 보관실의 두 자리 설정을 구별했다. 이미지 02·05의 수납 관계를 비교하되 세 part 받침 간격은 모델 산문에서 정했음을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#jar-rack의 두 항아리를 받는 보관실 가구를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 두 자리 가구에 판을 안 뚫는 두 홈과 독립 항아리 받침 datum을 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract top·leg·well의 실제 얕은 홈과 접촉면을 정하고 항아리 자체는 재저작하지 않는다.
@@ -129,7 +129,7 @@ part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검�
 @evidence principles/core/common.md#substantive-completion 막대·고리의 치수·중심·접촉과 고정 상태를 정해 하중 계산으로 오해되지 않게 한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 막대 Y=−0.025m 아랫면과 고리 최고점의 접촉, ±0.50m 중심을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#carrying-yoke와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 사물 지시와 멜대 설정·서비스 마당·이미지 비교를 존재·부모·시각 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시는 운반 도구의 존재를, 서비스 마당 설정은 놓이는 곳을 정한다. 이미지의 운반 맥락만 비교하고 beam과 양끝 hook의 고정 형상은 이 원형이 정했음을 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#carrying-yoke의 서비스 마당에 내려놓는 운반 비품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 마당 운반 비품에 1.16m 직선 막대와 빈 고리 두 개를 추가한 모델 선택을 확인했다.
 @evidence principles/design/models.md#representation-contract beam·hook의 분리와 고리 구멍을 정하고 줄·하중은 포함하지 않는다.
@@ -168,7 +168,7 @@ part와 표면은 `beam`, `hook`이다. 두 고리는 같은 형상의 반복이
 @evidence principles/core/common.md#substantive-completion 상판·두 바퀴·축·손잡이의 닫힌 범위와 바닥 접촉을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 바퀴 반지름 0.23m와 Y=0.23m 지면 접촉, 축 양끝의 0.04m 삽입을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#handcart와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 handcart 설정·마당 역할·이미지 비교가 존재·상태·형상의 권위를 나누는지 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 손수레 존재와 서비스 마당 설정의 정지 상태를 확인했다. 이미지의 수레 실루엣은 비교 근거이고 바퀴 회전 인터페이스 없는 다섯 part는 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#handcart의 바퀴가 멈춘 서비스 마당의 외부 소품을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 정지 손수레에 판·축·두 바퀴·두 손잡이의 수치 구조를 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract deck·axle·wheel·handle의 분리와 열린 밑면, 정지된 바퀴를 정한다.
@@ -213,7 +213,7 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 @evidence principles/core/common.md#substantive-completion 바닥·벌어진 윗입·안쪽 바닥과 몸체 16분할, 손잡이 반타원의 두 접점·꼭대기·12구간 경로를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 16각 몸체와 12구간 반타원 양끝 (±0.1475,0.27), 꼭대기 (0,0.44)를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#bucket와 30-interiors#service-yard이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 bucket 설정·마당 쓰임·이미지 02·05를 존재와 형태의 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시는 물동이를 요구하고 서비스 마당 설정은 열린 입과 빈 상태를 정한다. 이미지 02·05는 비교에 쓰며 몸체와 손잡이의 두 part 접합은 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#bucket의 열린 입과 손잡이가 있는 마당 용기를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 손잡이 용기에 실제 열린 안쪽과 하나의 반타원 관을 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract body·handle, 열린 입, 실제 안쪽 바닥과 손잡이 아래 빈 공간을 정한다.
@@ -256,7 +256,7 @@ part와 표면은 `body`, `handle`이다. `body` 안쪽 면은 별도 법선·UV
 @evidence principles/core/common.md#substantive-completion 바닥·테두리·내벽·흙면의 높이와 빈 윗공간을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Y=0.270m 흙 상단·0.36m 테두리와 0.0059m 벽 간극을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#planter와 30-interiors#fountain이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 planter 설정·중정 쓰임·이미지 01·03을 존재와 시각 비교의 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 화분 존재와 중정 가장자리 설정을 확인했다. 이미지 01·03은 배치 인상만 비교하며 0.42m 흙 화분의 두 part 치수는 모델에서 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#planter의 중정 가장자리의 흙 화분을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 흙 화분에 열린 내벽과 테두리 아래 흙 실체를 수치로 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract pot·soil 표면, 열린 위, 흙 위 식물의 별도 배치를 정한다.
@@ -297,7 +297,7 @@ part와 표면은 `pot`, `soil`이다. `soil`은 바닥에서 노출 윗면까�
 @evidence principles/core/common.md#substantive-completion 받침 폭과 앞뒤 안정 면, 판 높이·두께·접촉을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.36m 받침 위 Y=0.04~0.42m 판의 접촉과 0.035m 두께를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#votive-plaque와 30-interiors#offering-room이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 봉헌판 설정·봉헌실 역할·이미지 비교를 서로 다른 권위로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 봉헌실 설정이 판의 존재와 사용을 정하고, 이미지 02·04는 제단 주변 규모 비교에 쓴다. 글자 없는 판과 받침의 두 part는 이 원형이 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#votive-plaque의 봉헌실의 글자 없는 판을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 무문자 판에 받침·판의 크기와 앞뒤 면을 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract base·slab의 분리와 앞뒤 평면, 판 자체의 글자·그림 부재를 정한다.
@@ -338,7 +338,7 @@ part와 표면은 `base`, `slab`이다. 검토 판의 앞·옆에서 판과 받�
 @evidence principles/core/common.md#substantive-completion 바닥 판·네 림의 폭·두께·접촉과 빈 안쪽 범위를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 바닥 0.018m와 림 Y=0.018~0.055m, 0.49×0.31m 유효 안쪽을 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#offering-tray와 30-interiors#offering-room이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 쟁반 설정·봉헌실 역할·이미지 비교를 존재와 형태의 권위로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시의 쟁반과 봉헌실의 용도를 확인했다. 이미지 02·04는 놓이는 규모의 비교이고 floor·rim의 분리 형상은 모델 결정임을 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#offering-tray의 그릇을 모아 놓는 얕은 쟁반을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 얕은 쟁반에 네 림의 맞댐과 빈 가운데 면적을 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract floor·rim의 닫힌 판과 열린 위, 담긴 그릇의 별도 인스턴스를 정한다.
@@ -379,7 +379,7 @@ part와 표면은 `floor`, `rim`이다. `rim` 행은 네 외곽 판의 합집합
 @evidence principles/core/common.md#substantive-completion 가로·세로·두께 매개변수와 접힌 양끝, 바닥 접촉을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 W·D·T 두 변형에서 아래 겹·윗 겹·접힘 띠가 서로 접하고 중앙 T/2가 비는지 확인했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#textile와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 textile 설정·보관실 역할·이미지 비교를 존재·용도·시각 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시는 직물을 요구하고 보관실 설정은 접힌 덮개의 용도를 정한다. 이미지 04·05는 직물 더미의 시각 비교이며 좌구와 별개인 cloth 형상은 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#textile의 바닥 좌구와 구별되는 접은 덮개 천을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 덮개 천에 W/D/T 매개변수와 서로 분리된 두 겹을 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract cloth의 양면·두께·접힘 경계와 미세 직조 제외를 정한다.
@@ -420,7 +420,7 @@ part와 표면은 `cloth`이고 위아래 겹과 접힌 띠는 한 표면 ID 아
 @evidence principles/core/common.md#substantive-completion 길이·두께·끝 접점과 원통 분할을 정해 책상 위에서 읽히는 최소 형상을 확정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 X=−0.11~0.09m 몸통과 0.09~0.11m 끝이 반지름 0.006m 접면을 공유하는지 확인했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#stylus와 30-interiors#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 첨필 설정·관리실 역할·이미지 05를 존재·쓰임·비교 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 관리실 설정에서 필기 도구의 존재·쓰임을 확인했다. 이미지 05는 책상과의 규모 비교이고 shaft·tip의 길이와 끝은 모델에서 정했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#stylus의 작성 책상 위의 첨필을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 첨필에 0.22m 길이·8각 몸통·뾰족 끝을 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract shaft·tip의 접촉과 문자를 새기지 않는 외형을 정한다.
@@ -459,7 +459,7 @@ part와 표면은 `shaft`, `tip`이다. 검토 판에서 접합부에 틈이 없
 @evidence principles/core/common.md#substantive-completion 바깥 판·안쪽 면의 두께와 단차를 정해 상판 위에 놓을 수 있는 형상으로 닫는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Y=0.013m 목재 중앙 위 0.001m 면이 접하고 테두리 상단과 0.011m 단차가 나는지 확인했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#writing-tablet와 30-interiors#administration이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 필기판 설정·관리실 역할·이미지 05를 존재·공간·시각 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 관리실 설정은 글자 없는 작성 판의 존재·용도를 정한다. 이미지 05는 기록 작업 규모의 비교이며 frame·writing-face의 두 표면은 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#writing-tablet의 글자 없는 작성 판을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 무문자 판에 안쪽 면·테두리 두 표면과 수치 단차를 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract frame·writing-face의 표면 분리와 실제 움푹한 중앙을 정한다.
@@ -500,7 +500,7 @@ part와 표면은 `frame`, `writing-face`다. `writing-face`는 틀 내부의 �
 @evidence principles/core/common.md#substantive-completion 세 반지름·관 굵기·띠 접촉과 분할 수를 정해 끈을 평면 그림으로 대체하지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 반지름 0.045/0.075/0.105m, 관 0.008m, 실제 간극 약 0.0137m를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#rope-coil와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 끈 뭉치 설정·보관실 역할·이미지 비교를 존재와 형상의 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 보관실 설정은 묶는 끈의 존재·수납 용도를 정한다. 이미지 02·05는 저장 물건의 규모 비교이고 rope·tie의 느슨한 고리는 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#rope-coil의 기록물에 묶인 끈과 별도인 느슨한 고리을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 느슨한 고리에 세 동심 원환과 위쪽 가로 묶음 띠를 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract rope·tie의 접촉과 세 고리 사이 빈 간극을 정한다.

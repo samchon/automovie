@@ -10,7 +10,7 @@
 @evidence principles/core/common.md#substantive-completion 발·줄기·재를 담는 컵과 꺼진 향 세 개의 치수·표면·상태를 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 컵 안쪽 Y=0.18m와 재 0.18~0.19m, 향 세 가닥 Y=0.19~0.35m를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#censer와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 censer 설정·제실 사용·이미지 02·04를 존재와 시각 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 제실 설정은 향로의 존재와 꺼진 상태를 정한다. 이미지 02·04는 의례실 규모 비교이고 ash·incense를 담는 part 치수는 모델 결정임을 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#censer의 제단 위 꺼진 향로를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 꺼진 향로에 오목 컵·재 원판·세 향을 수치 부재로 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract foot·stem·cup·ash·incense의 부재와 열린 컵을 정한다.
@@ -49,7 +49,7 @@ part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 �
 @evidence principles/core/common.md#substantive-completion 바닥층·두툼한 패드·뒤 접힘선의 치수와 접촉을 확정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.04m base·0.10m pad·0.018m fold의 접촉 합이 0.158m인지 확인했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#floor-cushion와 30-interiors#sanctuary이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 좌구 설정·제실 쓰임·이미지 04를 존재와 비교 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 제실 설정에서 바닥 좌구의 존재·용도를 확인했다. 이미지 04는 낮은 좌면의 비교이고 직물 변형이 아닌 세 part 구조는 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#floor-cushion의 작업 스툴과 구별되는 제실 바닥 좌구를 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 바닥 좌구를 앉는 패드·뒤 접힘의 세 부재와 크기로 구체화했는지 확인했다.
 @evidence principles/design/models.md#representation-contract base·pad·fold 부재와 윗면을 정한다.
@@ -90,7 +90,7 @@ part와 표면은 `base`, `pad`, `fold`다. 제실 바닥에 놓고 인물·관�
 @evidence principles/core/common.md#substantive-completion 원형 발·기둥·윗 고리의 치수와 열린 중심을 정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 Y=0.30m 기둥 윗면과 고리의 반지름 0.045~0.06m 접촉 띠를 대조했다.
 @evidence principles/core/common.md#declared-basis 2026-09-25 사용자 사물 제작 지시가 존재 범위, 35-objects#jar-stand와 30-interiors#storage이 부모 권위, 레퍼런스 이미지는 시각 근거이고 치수·접합은 모델 결정이라고 첫 문단에 구별한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 jar-stand 설정·보관실 역할·이미지 02·05를 권위와 비교 근거로 구별했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 사용자 지시와 보관실 설정은 항아리 한 자리 받침의 존재·용도를 정한다. 이미지 02·05는 항아리 수납 관계 비교이고 foot·post·ring의 접합 치수는 모델 결정이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 35-objects#jar-stand의 한 항아리를 받는 원형 받침을 로컬 원점·형상 치수·part와 표면·검토 가능한 점유 상자로 좁힌다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 원형 받침에 지름 0.60m 발과 한 자리 열린 고리를 더했는지 확인했다.
 @evidence principles/design/models.md#representation-contract foot·post·ring의 분리된 실체를 정한다.
