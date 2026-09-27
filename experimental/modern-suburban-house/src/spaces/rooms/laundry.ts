@@ -141,7 +141,7 @@ const LAUNDRY: IRoomSpace = {
  * @evidence principles/core/source-units.md#source-substantive-completion The room, floor, ceiling, door strip, two walls, threshold, and lower exposed riser are returned with stable ids.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `buildLaundry` returns its room record and seven parts: floor, ceiling, service door strip, service partition, garage threshold, lower riser face, and pantry partition; each crossing receives a stable id.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan fixes both door spans and the garage step, laundry-equipment-use assigns one band to two machines, and laundry-through-route keeps their rear crossing clear; buildLaundry consumes these decisions without a parent revision.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `laundry-plan` fixes the two opposing doors and single step, `laundry-equipment-use` fixes the two machine bands, and `laundry-through-route` fixes waiting on both levels; the seven parts and reservations consume those decisions without a new level or route.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `laundry-plan` fixes the two opposing doors and single step, `laundry-equipment-use` fixes one band divided into adjoining washer and dryer boxes, and `laundry-through-route` fixes waiting on both levels; the seven parts and reservations consume those decisions without a new level or route.
  */
 export const buildLaundry = (): IRoomBuild => ({
   space: LAUNDRY,
