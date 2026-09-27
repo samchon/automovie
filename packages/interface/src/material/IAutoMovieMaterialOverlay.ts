@@ -43,6 +43,16 @@ export interface IAutoMovieMaterialOverlay {
   blend: "multiply" | "replace";
 
   /**
+   * Linear RGB factors on the colour image's colour, each finite and
+   * nonnegative, so one image serves bodies of different colouring (a nail
+   * bed follows the person's pigmentation); omitted, one.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `colorFactor` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `colorFactor` for the asset spec material texture relations system contract.
+   */
+  colorFactor?: { r: number; g: number; b: number };
+
+  /**
    * Roughness where the layer covers, `[0, 1]`; omitted, the material's.
    *
    * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `roughness` as the portable data boundary for the asset material composition requirement.

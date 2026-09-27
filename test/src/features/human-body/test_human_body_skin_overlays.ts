@@ -1,4 +1,5 @@
 import {
+  HUMAN_BODY_SKIN_SITES,
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySkinDetail,
   createHumanBodyBasisBuilder,
@@ -46,7 +47,9 @@ function textured(surface: Surface): Surface {
  *    overlay on the skin: its colour and normal map bound once over the
  *    UVs, clamped, sRGB and linear, its roughness, and full strength. A
  *    layer without a normal map binds none.
- * 2. A document without skin detail keeps the plain skin.
+ * 2. A document without skin detail keeps the plain skin; one with a cheek
+ *    over nails drawn for another tints them by the palm's albedo against
+ *    that cheek's, and without a drawn cheek the nails stay as drawn.
  * 3. A layer of an unknown kind is refused by the schema; a second nails
  *    layer on the same material, a colour or normal map that is not a PNG
  *    data URI, a material without textured regions and a roughness outside
@@ -97,6 +100,30 @@ export const test_human_body_skin_overlays = (): void => {
     skinOf([nails], false).overlays,
     undefined,
   );
+  // a document's cheek tints the nails by the palm's albedo against the
+  // cheek they were drawn for
+  const drawn = { r: 0.46, g: 0.27, b: 0.21 };
+  const own = { r: 0.08, g: 0.045, b: 0.03 };
+  const tinted = createHumanBodyBasisBuilder(
+    withOverlays([{ ...nails, cheek: drawn }]),
+  )({
+    ...document,
+    skinDetail: { strength: 0.5 },
+    skinColour: { cheek: own },
+  }).model.materials.find((one) => one.id === "skin")!.overlays![0]!;
+  const palm = (rgb: { r: number; g: number; b: number }) =>
+    HUMAN_BODY_SKIN_SITES.sites.palmar.map(
+      ([a, b], k) => Math.exp(a) * [rgb.r, rgb.g, rgb.b][k]! ** b,
+    );
+  const ratio = palm(own).map((value, k) => value / palm(drawn)[k]!);
+  TestValidator.predicate(
+    "a document's cheek tints the nails by the palm's albedo",
+    Math.abs(tinted.colorFactor!.r - ratio[0]!) < 1e-12 &&
+      Math.abs(tinted.colorFactor!.g - ratio[1]!) < 1e-12 &&
+      Math.abs(tinted.colorFactor!.b - ratio[2]!) < 1e-12 &&
+      tinted.colorFactor!.b < tinted.colorFactor!.r &&
+      skin.overlays![0]!.colorFactor === undefined,
+  );
   const refused = (overlays: unknown[]): boolean =>
     throwsError(
       () => createHumanBodyBasisBuilder(withOverlays(overlays)),
@@ -119,6 +146,7 @@ export const test_human_body_skin_overlays = (): void => {
       ["normal", () => refused([{ ...nails, normal: "nails-normal.png" }])],
       ["material", () => refused([{ ...nails, material: "flesh" }])],
       ["roughness", () => refused([{ ...nails, roughness: 1.5 }])],
+      ["cheek", () => refused([{ ...nails, cheek: { r: 0, g: 0.3, b: 0.2 } }])],
     ]),
     {
       kind: true,
@@ -127,6 +155,7 @@ export const test_human_body_skin_overlays = (): void => {
       normal: true,
       material: true,
       roughness: true,
+      cheek: true,
     },
   );
 };
