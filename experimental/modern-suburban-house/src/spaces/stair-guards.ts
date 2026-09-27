@@ -28,19 +28,19 @@ type StairWall = (
 
 /**
  * @evidence spaces/02-stair.md This called helper fills the stair's open guard edges, floor notch finish and high ceiling under the same stair owner.
- * @evidenceReview spaces/02-stair.md #d17bdfd The complete stair design assigns guards, the L opening edge, and the high ceiling to stair.ts; buildStair calls this helper with its owner id and datums after constructing the enclosing walls.
+ * @evidenceReview spaces/02-stair.md `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
  * @evidence spaces/02-stair.md#stair-floor-opening Five edge strips finish the interstorey recession; the same outline closes the stair hall ceiling above the guard band.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 The five edge solids follow the finished L outline at the CEILING_FINISH recession, and stair-hall-ceiling closes over the back guard band at upperCeiling without blocking the front window side.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening Five `edge` parts occupy the recessed L opening sides from the ground ceiling to upper floor; `stair-hall-ceiling` uses the same opening outline with its back replaced by `guardBack` above the guard band.
  * @evidence spaces/02-stair.md#stair-clearance Posts and rails derive their section from the opening's guardReserve and are checked against it.
- * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a RESERVE reads opening.guardReserve = 0.075; guard post and rail sections use it, and the final section loop rejects a narrow section that differs from that reservation.
+ * @evidenceReview spaces/02-stair.md#stair-clearance `RESERVE` comes from `opening.guardReserve`; both posts and bars use that width, and the final guard-section loop rejects any narrow X or Z span that differs from it.
  * @evidence spaces/02-stair.md#stair-boundary-heights Sloped handrails rise 0.90 m over the nosing, while the upper hall fall-edge rail rises 1.05 m over its floor.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f The lower and upper bars use railTop(nosing) from HANDRAIL = 0.9, while guardTop adds HALL_GUARD = 1.05 to upperFloor; baluster infill remains outside this helper.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights The lower and upper bars use `railTop` to put their top faces 0.90 m over nosing and landing heights; the upper-hall posts and top rail end 1.05 m over `STOREYS.upperFloor`.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the stair owner and datums rather than declaring another stair or taking the entry-owned closet interior.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The only call is inside buildStair, which supplies owner, opening, steps, upper base and wall; the helper emits no closet body or room floor and names no second stair.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildStair` supplies owner, opening, steps, upper base, and wall constructor; this helper returns only stair-owned guards, edge finish, and ceiling, leaving the entry closet and room floor to their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ordered solids close the floor edge and ceiling while constructing and checking actual guard sections.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Ordered part calls emit the guard band, posts, rails, corner closure, five floor edges and hall ceiling, then inspect every guard mesh section before returning them to buildStair.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The ordered result includes band, posts, rails, rear corner closure, five opening edges, and ceiling; before return it checks the narrow horizontal section of every returned guard mesh.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed floor-opening and boundary-height units already fix these guard and finish roles; extraction adds no new spatial decision.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 I compared the stair-floor-opening and stair-boundary-heights units with the moved part calls: they retain the same opening, 0.075 and 0.90/1.05 m reservations and owner, so the helper exposes no missing parent decision.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `stair-floor-opening` supplies the L edge and high-ceiling limits; `stair-boundary-heights` and `stair-clearance` supply rail heights and section reserve, all passed from `buildStair` into this helper under one stair owner.
  */
 export const buildStairGuards = (props: {
   owner: string;
