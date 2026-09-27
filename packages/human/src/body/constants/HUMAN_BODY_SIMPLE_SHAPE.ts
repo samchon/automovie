@@ -2,6 +2,19 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../structures/IAutoMov
 
 type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 
+// A muscle's relief under the skin is as deep as the muscle is thick, and a
+// woman's is thinner: her rectus abdominis 0.97 cm against a man's 1.15
+// (CT at the third lumbar vertebra, 109 women and 239 men; Kelly et al.
+// 2021), the 0.84 the upper body's muscle share implies too (Janssen et al.
+// 2000, 0.6 of a man's mass over 0.92 of his stature, square-rooted)
+const MUSCLE_THICKNESS_BY_SEX = {
+  parameter: "sex",
+  points: [
+    [-1, 0.84],
+    [1, 1],
+  ],
+} as const satisfies Term["curves"][number];
+
 /**
  * The expansion of the simple body tier into channel weights, as numbers.
  *
@@ -468,6 +481,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       channel: "absDefinition",
       gain: 1,
       curves: [
+        MUSCLE_THICKNESS_BY_SEX,
         {
           parameter: "developedMuscle",
           points: [
@@ -499,6 +513,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
         channel,
         gain: 1,
         curves: [
+          MUSCLE_THICKNESS_BY_SEX,
           {
             parameter: "developedMuscle",
             points: [
@@ -866,6 +881,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE: IAutoMovieHumanBodySimpleShapeTable = {
       channel: "musculatureDefinition",
       gain: 1,
       curves: [
+        MUSCLE_THICKNESS_BY_SEX,
         {
           parameter: "developedMuscle",
           points: [

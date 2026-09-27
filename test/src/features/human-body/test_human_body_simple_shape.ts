@@ -140,14 +140,15 @@ export const test_human_body_simple_shape = (): void => {
   // and from 10.8 to 14.8 for a girl, so the 11-year-old boy has built none
   // (0), the girl a twentieth (0.05 x 0.213 on the band at 10.45 points),
   // the 15-year-old boy five eighths (0.625 x 0.6375 at 5.625 points), and
-  // the rest read their floor of one point
+  // the rest read their floor of one point; a woman's rectus is 0.84 as
+  // thick as a man's, and so is its relief
   for (const sample of [
     { ageYears: 11, sex: 1, definition: 0 },
-    { ageYears: 11, sex: -1, definition: 0.01065 },
+    { ageYears: 11, sex: -1, definition: 0.01065 * 0.84 },
     { ageYears: 15, sex: 1, definition: 0.3984375 },
-    { ageYears: 15, sex: -1, definition: 1 },
+    { ageYears: 15, sex: -1, definition: 0.84 },
     { ageYears: 16, sex: 1, definition: 0.875 },
-    { ageYears: 16, sex: -1, definition: 1 },
+    { ageYears: 16, sex: -1, definition: 0.84 },
   ])
     TestValidator.predicate(
       `age-specific definition ${sample.ageYears} ${sample.sex}`,
