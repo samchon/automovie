@@ -20,70 +20,70 @@ import { roomLevels, type IRoomSpace } from "./shared";
  * is not authored here. A `covering` (a rug or mat a few millimetres thick) is
  * walked on, so a route may cross it.
  * @evidence spaces/05-route-network.md Room plans reserve bodies, use areas and clear passage before later objects are placed.
- * @evidenceReview spaces/05-route-network.md #60bf203 IRoomReservation carries each room-chosen zone's id, kind, plan bounds, optional height and neighboring space; buildHouse invokes this file's validator before later model placement.
+ * @evidenceReview spaces/05-route-network.md `IRoomReservation` carries each room's named body, use, swing, or clear-route box; `buildHouse` gathers those room records before calling the shared clearance check.
  * @evidence spaces/05-route-network.md#room-route-network Route clearance depends on distinct body, swing and use reservations.
- * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 The kind union distinguishes body, use, swing and route records; checkReservations blocks only route/body crossings below the 2.00 m band, leaving use and swing overlaps available for separate operating states.
+ * @evidenceReview spaces/05-route-network.md#room-route-network The `kind` union retains body, use, swing, covering, and route roles; `checkReservations` compares route boxes with furniture, fixture, and storage bodies in the authored 2.00 m walk band.
  * @evidence principles/core/source-units.md#source-scope-preservation This zone reserves space for later instances but creates no furniture or fixture.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This interface stores room-authored occupancy bounds and produces no part, mesh, furniture or route node.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation This interface stores a room-authored reservation's id, kind, box, and optional neighboring space; it declares no part, furniture, or route node of its own.
  * @evidence principles/core/source-units.md#source-substantive-completion Identity, kind and metric bounds allow containment and collision checks.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The id and metric bounds identify each failing zone; the validator reads kind and x/z/y for containment and low route/body intersections across the assembled rooms.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion Required id, kind, and X/Z bounds plus optional Y and space make a usable zone record; the validator reads those fields to locate containment and route/body failures.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network requires each room's passage bands to remain distinguishable from use reservations; this type carries their separate ids and extents.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The reviewed route-network unit already separates passage, use and body reservations; this record transports each caller's id and bounds, as the common room's distinct route and furniture zones demonstrate.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` already separates empty passage from use and body occupancy; this type transports each room's assigned id and metric interval without choosing a new passage or furniture position.
  */
 export interface IRoomReservation {
   /**
    * @evidence spaces/05-route-network.md Each reserved zone has a stable identifier.
-   * @evidenceReview spaces/05-route-network.md #60bf203 The required id remains the room author's stable address for one reservation; the validator includes it in containment and route-crossing diagnostics.
+   * @evidenceReview spaces/05-route-network.md Each room supplies `id` for one reservation; `checkReservations` carries that id into invalid-plan, escape, and crossing errors without generating a route-node id.
    * @evidence principles/core/source-units.md#source-scope-preservation This names a zone, not a new route node or model.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This string identifies a reserved zone and does not create a route node, object or surface.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The required string names the caller's reservation only; the interface field neither instantiates the reserved object nor adds a graph edge.
    * @evidence principles/core/source-units.md#source-substantive-completion A failed clearance check can name the exact reservation.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Empty-plan, unknown-space, escaping-zone and route/body refusal messages include this id, so the offending reservation can be located.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion The validator includes `r.id` in its empty-plan, unknown-space, escaping-zone, and route/body messages, making this field a usable failure address.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes fixes the right and rear passage bands, laundry-through-route fixes the Z=[-4.32, -3.42] crossing, and garage-use-routes fixes the cross band Z=[-4.75, -3.85]; id distinguishes the emitted reservation for each tested band.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Common-clear-routes, laundry-through-route and garage-use-routes already name their passage bands; this field retains common-main-route-back, laundry-through-route and garage-cross-route without choosing another route.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Common, laundry, and garage room builders supply distinct ids for their assigned passage bands; this field carries those names unchanged into the shared check.
    */
   id: string;
   /**
-   * @evidence spaces/05-route-network.md Body, use, route and swing zones have different clearance behavior.
-   * @evidenceReview spaces/05-route-network.md #60bf203 The union records furniture, fixture, storage, covering, use, route and swing separately; this validator treats use and swing alike because only body kinds are compared with routes, a narrower behavior than the evidence sentence suggests.
+   * @evidence spaces/05-route-network.md Body, use, route and swing zones retain distinct roles; this validator tests route/body overlap while operation states remain separate.
+   * @evidenceReview spaces/05-route-network.md The union records seven reservation roles; `checkReservations` selects route records against furniture, fixture, and storage, leaving use, swing, and covering overlaps for their separate operating-state checks.
    * @evidence principles/core/source-units.md#source-scope-preservation The kind classifies a reserved area without constructing its object.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The kind is a closed classification of a reservation, while the room owner remains responsible for any eventual object.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The literal union classifies a room-authored zone; it does not create a model or reassign the later object from its room owner.
    * @evidence principles/core/source-units.md#source-substantive-completion A route is checked against body kinds while coverings and sweeps may overlap it.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Furniture, fixture and storage are selected as blocking bodies; route records are tested against them, while covering and swing remain nonblocking in this check.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion `checkReservations` filters three body kinds and route zones by this field; it allows coverings and sweeps to overlap the route during this clearance check.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network distinguishes a clear passage from fixture, furniture, use, and door swing reservations; kind retains the caller's class for clearance checks.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The route-network unit fixes body obstruction versus door operation and room use; kind keeps the room's class, and checkReservations compares only routes with furniture, fixture or storage bodies.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` distinguishes passage from bodies and sequential use; the `kind` field preserves each authored class while the validator applies only the route/body test assigned here.
    */
   kind: "furniture" | "fixture" | "storage" | "covering" | "use" | "route" | "swing";
   /**
    * @evidence spaces/05-route-network.md A reserved zone occupies an explicit plan width.
-   * @evidenceReview spaces/05-route-network.md #60bf203 Each room supplies this required X interval for its own body, use or route band; the shared type fixes its metric shape without selecting a room width.
+   * @evidenceReview spaces/05-route-network.md Every reservation requires an X pair supplied by its room; the type preserves the authored horizontal span for later containment and passage checks.
    * @evidence principles/core/source-units.md#source-scope-preservation The range comes from the room's authored layout.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The readonly X pair carries the producing room's plan width and does not derive a new corridor or fixture size.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation This readonly pair transports the room's X endpoints and contains no default width, corridor alignment, or fixture dimension.
    * @evidence principles/core/source-units.md#source-substantive-completion The horizontal bounds support room containment and route overlap checks.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The validator refuses a reversed X pair, samples its left, centre and right positions inside the target space, and compares its overlap with a body's X interval.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion The validator rejects an empty X interval, samples both ends and centre against the chosen space outline, and uses the pair in its strict route/body overlap predicate.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes supplies the four common-room passage bands' X intervals, and living-through-route supplies the three living room bands; x transports each authored reservation width without selecting a new corridor.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Common-clear-routes and living-through-route supply their passage X bands, including living's [-4.90, -4.00] main band; this tuple carries the authored interval without choosing a corridor.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Common and living room builders provide the passage X spans fixed by their clear-route parents; this tuple carries each span without creating another corridor decision.
    */
   x: readonly [number, number];
   /**
    * @evidence spaces/05-route-network.md A reserved zone occupies an explicit plan depth.
-   * @evidenceReview spaces/05-route-network.md #60bf203 The required Z interval records the depth of each room-chosen reservation alongside its X span, allowing the route check to place it on the shared plan.
+   * @evidenceReview spaces/05-route-network.md The required Z pair accompanies the room's X pair, locating its body, use, or passage zone in the common plan frame.
    * @evidence principles/core/source-units.md#source-scope-preservation The range stays within the room or named neighboring space.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This field carries room-authored depth; the validator checks its samples against the named space outline instead of moving or extending it.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation This readonly Z range preserves the room's authored depth; the validator tests it against the chosen space outline without modifying its endpoints.
    * @evidence principles/core/source-units.md#source-substantive-completion The depth bounds support containment and route overlap checks.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The validator rejects an empty Z range, samples its near, centre and far positions for containment, and uses it in the route/body overlap test.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion An empty Z interval fails; both ends and centre are sampled for containment, and the same interval participates in the strict route/body plan overlap test.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-through-route fixes the mudroom crossing and common-clear-routes fixes the rear/garden approach depths; this field carries each authored Z interval for clearance checks.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Laundry-through-route supplies Z = [-4.32, -3.42], while common-clear-routes supplies the rear and garden depths; z transports each authored interval into checkReservations.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The laundry crossing supplies Z `[-4.32, -3.42]` and the common room supplies its rear passage depths; this field keeps those authored intervals for the shared check.
    */
   z: readonly [number, number];
   /**
    * @evidence spaces/05-route-network.md A body may need a vertical envelope above its plan area.
-   * @evidenceReview spaces/05-route-network.md #60bf203 Optional Y describes an overhead or wall-hung body; the validator compares its lower face with floor plus the 2.00 m walking band before marking a route crossing.
+   * @evidenceReview spaces/05-route-network.md The optional Y pair can place an overhead body above the walk band; the validator compares its lower endpoint with the route room's finished floor plus 2.00 m.
    * @evidence principles/core/source-units.md#source-scope-preservation The range reserves height but builds no object.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This optional height range reserves vertical occupancy but emits no body or wall geometry.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The optional height interval records occupancy above the caller's plan rectangle and instantiates no wall, guide, or other mesh.
    * @evidence principles/core/source-units.md#source-substantive-completion Body and wall-hung zones can be checked separately from clear floor areas.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f A body without Y blocks by plan; one with Y blocks only below the route floor plus 2.00 m, which lets the garage overhead guide remain above its walking band.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion A body with no Y is tested by plan alone; one with Y blocks only when its lower endpoint lies below route floor plus 2.00 m, leaving the garage overhead guide clear.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network fixes the 2.00 m clear band that checkReservations applies to every route through routeClearHeight, and garage-front-opening fixes the overhead guide Y=[2.15, 2.50]; current routes have no y, while optional y records the height of a body, wall-hung or overhead reservation when one is specified.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The route-network unit fixes the 2.00 m walking band and garage-front-opening fixes guide Y = [2.15, 2.50]; optional y records a body's actual vertical interval for that existing clearance comparison.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` fixes the walk band's 2.00 m height and `garage-front-opening` fixes the door guide above it; `y` carries the guide's room-authored interval into that comparison.
    */
   y?: readonly [number, number];
   /**
@@ -91,13 +91,13 @@ export interface IRoomReservation {
    * room's design decides beside its own door, on the neighbour's floor
    * (laundry's garage-side waiting, the coat closet's front use).
    * @evidence spaces/05-route-network.md Some room-owned uses occur across a door in the adjacent space.
-   * @evidenceReview spaces/05-route-network.md #60bf203 Entry's coat-front use remains entry-authored but names service-access here; laundry's lower waiting similarly names garage, matching the route document's cross-door use areas.
+   * @evidenceReview spaces/05-route-network.md The entry coat-front use zone names `service-access`, and the laundry lower waiting zone names `garage`; each remains in its author room's reservation list across the door.
    * @evidence principles/core/source-units.md#source-scope-preservation The override locates a reservation without transferring its author.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The validator retains the originating room and its owner in the placed record while this optional field selects the neighboring floor for containment.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation `placed` keeps the originating room beside each reservation, while `space` selects the named room outline and, for routes, its finished floor without changing authorship.
    * @evidence principles/core/source-units.md#source-substantive-completion Containment checks use the actual neighboring space outline.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The validator looks up this space in the assembled room-outline map and refuses an unknown destination or a sampled zone outside its boundary.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion The validator resolves the chosen `space` in the assembled outline map and rejects unknown names or any of its sampled points outside that boundary.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan puts the garage-side wait across laundry-garage-door, while entry-coat-storage puts the coat-use clearance in service-access; space names the neighbouring floor for each room-authored reservation.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Laundry-plan assigns the garage-side waiting band and entry-coat-storage assigns front use in service-access; space preserves those existing destinations without transferring the reservation's room author.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Laundry's garage-side wait and entry's coat-front use are placed across their doors by their respective design parents; this field carries those destinations without transferring ownership.
    */
   space?: string;
 }
@@ -123,15 +123,15 @@ const inOutline = (outline: readonly IPlanPoint[], x: number, z: number): boolea
  * appliance sweeps and coverings may cross routes: operating a door and walking
  * through are separate states (05), and a rug is walked on.
  * @evidence spaces/05-route-network.md The route must remain in its space and clear of reserved bodies.
- * @evidenceReview spaces/05-route-network.md #60bf203 The validator refuses a zone outside its named room outline and a route intersecting a low furniture, fixture or storage body, as the route document requires.
+ * @evidenceReview spaces/05-route-network.md `checkReservations` checks each room-owned zone against the outline of its named space, then rejects route intersections with furniture, fixture, or storage bodies below the walk-height limit.
  * @evidence spaces/05-route-network.md#room-route-network It checks reservation bounds, unknown spaces and route/body intersections within the designed 2.00 m walking volume while allowing sweeps and coverings.
- * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 Empty plans, unknown spaces and escaping samples throw before route/body testing; low bodies crossing the 2.00 m band throw, while use, swing and covering records do not block that route.
+ * @evidenceReview spaces/05-route-network.md#room-route-network The validator rejects empty X/Z spans, unknown space names, and sampled points outside the space before checking route/body plan overlaps below floor plus 2.00 m; sweeps and coverings are separate states.
  * @evidence principles/core/source-units.md#source-scope-preservation Validation reads room-authored zones without moving or generating them.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This function reads the assembled room and reservation records, returns void, and only throws diagnostics; it neither creates nor moves zones.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The function reads its assembled `rooms` argument and their reservations, returns void on success, and throws on invalid bounds or crossings without moving a room's zone.
  * @evidence principles/core/source-units.md#source-substantive-completion Failures name the offending room, zone and crossing body.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The refusal messages identify the originating room owner and reservation id, with the crossing body's id and owner when two zones conflict.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion Invalid-plan, unknown-space, escaping-zone, and route/body errors name the zone and originating owner; crossing errors also name the body zone and its owner.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The overhead garage guide exposed an unspecified vertical route test; room-route-network now fixes the 2.00 m body band this validator uses.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The earlier route-network revision fixed the 2.00 m band after the garage guide exposed the missing vertical test; routeClearHeight still applies it above roomLevels, leaving that guide above the band.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work `room-route-network` sets a 2.00 m walking volume; `routeClearHeight` adds it to the route room's finished floor, allowing the garage overhead guide to overlap only above that band.
  */
 export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
   const routeClearHeight = 2.0;
