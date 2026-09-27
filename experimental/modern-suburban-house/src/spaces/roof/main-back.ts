@@ -21,15 +21,15 @@ import {
 /**
  * Emit the main back face.
  * @evidence spaces/roof/main-back.md This export builds the rear main-roof surface west of the right-roof step.
- * @evidenceReview spaces/roof/main-back.md #83924ab buildMainBackRoof main-back.ts:28-41 rect [LEFT_EAVE_X, SPLIT_X]; main-back.md:25 rear main face whose right boundary is the step to the low roof.
+ * @evidenceReview spaces/roof/main-back.md `buildMainBackRoof` returns `roof-main-back`, the high roof's rear plane bounded on the right by `SPLIT_X` before the lower roof begins.
  * @evidence spaces/roof/main-back.md#main-back-roof The rectangle runs from LEFT_EAVE_X to SPLIT_X and BACK_EAVE_Z to MAIN_RIDGE_Z, with mBack setting its rising rear profile.
- * @evidenceReview spaces/roof/main-back.md#main-back-roof #7b226db plan rect([LEFT_EAVE_X, SPLIT_X],[BACK_EAVE_Z, MAIN_RIDGE_Z]) main-back.ts:35, top mBack :36; main-back-roof :25.
+ * @evidenceReview spaces/roof/main-back.md#main-back-roof The `rect` plan spans `LEFT_EAVE_X` to `SPLIT_X` and `BACK_EAVE_Z` to `MAIN_RIDGE_Z`; `mBack(z)` gives the rear face its upward rise toward that ridge.
  * @evidence principles/core/source-units.md#source-scope-preservation The function takes the split and eave positions from junctions and leaves the lower right roof to its own source owner.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 All bounds imported from junctions :11-18; X ends at SPLIT_X; the right low roof is right-back.ts.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation Every plan bound comes from `junctions.ts`, and the east edge stops at `SPLIT_X`; `buildRightBackRoof` owns the lower continuation without this builder duplicating it.
  * @evidence principles/core/source-units.md#source-substantive-completion slopedSlab constructs the rear pitched mesh with the shared roof thickness and a stable roof-main-back part id.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f slopedSlab with thickness ROOF_THICKNESS main-back.ts:34-39, id roof-main-back :30.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `slopedSlab` forms the rear plan under `mBack` with `ROOF_THICKNESS` and `roofFreeEdge`; `part` gives the resulting solid id `roof-main-back`.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Main-back-roof spans LEFT_EAVE_X to SPLIT_X and BACK_EAVE_Z to MAIN_RIDGE_Z with the 8/12 profile and ROOF_THICKNESS underside.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 A: main-back.ts:35-37. B: main-back-roof :25 back half of the main area using Mback (8/12 via linked roof-profile-datums :53,:62), front=main ridge, back=rear free eave, left=side rake, right=step; underside per :64.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `main-back-roof` assigns ridge, rear free eave and right step, while `roof-profile-datums` supplies `mBack`, 8/12 slope and 0.24 m underside; this rectangle needs no extra parent roof plane.
  */
 export const buildMainBackRoof = (): IHousePart[] => [
   part(
