@@ -41,7 +41,7 @@ const OWNER = "garage.ts";
 /** Emit the main/garage shared wall with the laundry-garage door void. */
 /**
  * @evidence spaces/03-surface-owners.md The garage source emits the shared lower wall body and leaves the exposed upper siding to the right elevation.
- * @evidenceReview spaces/03-surface-owners.md # buildGarageSharedWall emits garage-shared-wall through the garageRoof weather line; envelope/right.ts emits the separate siding body above that line, matching the owner table.
+ * @evidenceReview spaces/03-surface-owners.md #1efa548 buildGarageSharedWall emits garage-shared-wall through the garageRoof weather line; envelope/right.ts emits the separate siding body above that line, matching the owner table.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff garage-shared-wall carries the laundry-garage-door void below the garage roof.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #51ba773 The returned wallPanel includes LAUNDRY_GARAGE_DOOR in its hole list and remains under garage.ts until its garageRoof top, as the exterior handoff assigns.
  * @evidence principles/core/source-units.md#source-scope-preservation The wall uses MAIN/GARAGE contact coordinates and the garageRoof upper weather line; its returned part does not duplicate upper siding.

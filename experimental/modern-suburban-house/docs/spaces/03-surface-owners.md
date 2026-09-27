@@ -76,27 +76,27 @@
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 <!--
 @evidence principles/core/common.md#scope-preservation 실내 공간 책임마다 안쪽 벽·천장·바닥·개구부 둘레를 방 파일에 배정하고 옷방·린넨장·외투장의 분류를 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation # 방별 source 표가 안쪽 벽·천장·바닥·개구부 둘레를 나누고, 통행 윤곽 밖 얕은 수납의 바닥과 문턱도 소비 방에 남기는 규칙을 적었다. 옷방은 별도 방이고 외투장·린넨장은 각각 현관·복도 접면으로 분류된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 방별 source 표가 안쪽 벽·천장·바닥·개구부 둘레를 나누고, 통행 윤곽 밖 얕은 수납의 바닥과 문턱도 소비 방에 남기는 규칙을 적었다. 옷방은 별도 방이고 외투장·린넨장은 각각 현관·복도 접면으로 분류된다.
 @evidence principles/core/common.md#substantive-completion 방마다 src/spaces/rooms 아래 한 파일을 완결 내부 owner로 정하고 사람이 들어가는 옷방은 자기 파일로 분리한다.
-@evidenceReview principles/core/common.md#substantive-completion # 방마다 `src/spaces/rooms/<방>.ts` 하나를 완결 내부 owner로 정하고 주침실에서 들어가는 옷방을 `wardrobe.ts`로 분리해 source가 방 파일 경계를 다시 나눌 결정을 남기지 않음을 확인했다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 방마다 `src/spaces/rooms/<방>.ts` 하나를 완결 내부 owner로 정하고 주침실에서 들어가는 옷방을 `wardrobe.ts`로 분리해 source가 방 파일 경계를 다시 나눌 결정을 남기지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis 방별 경계·문·창·storey binding은 동선 인계의 방 owner와 대조한다. 방별 spaces 골격 source는 있으나 model 충전이 없어 방 전체 면 census는 unverified라고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis # 마지막 문단의 동선·수납 링크, 현재 spaces 골격 source의 존재, 아직 없는 model 충전과 전체 면 census unverified를 대조했다. 표 행 수를 실제 방 면 개수로 쓰지 않는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단의 동선·수납 링크, 현재 spaces 골격 source의 존재, 아직 없는 model 충전과 전체 면 census unverified를 대조했다. 표 행 수를 실제 방 면 개수로 쓰지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation storage의 수납실 관찰 조건과 wardrobe·entry·upper-hall의 선행 수납 분류를 받아, 방 마감·reveal 면과 독립 문짝·창호·걸레받이 부재의 owner 경계를 방별 파일 표에 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation # storage는 사람이 들어가는 수납실을 방으로 저작할 때 전체 관찰을 요구하고 wardrobe·entry·upper-hall은 옷방·외투장·린넨 접면을 이미 맡는다. 이 H2는 각 방의 벽·바닥·천장·reveal만 room 파일에 두고 닫힌 창호·문짝·걸레받이를 모델 원형에 넘기는 표면 경계를 방별로 확정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 storage는 사람이 들어가는 수납실을 방으로 저작할 때 전체 관찰을 요구하고 wardrobe·entry·upper-hall은 옷방·외투장·린넨 접면을 이미 맡는다. 이 H2는 각 방의 벽·바닥·천장·reveal만 room 파일에 두고 닫힌 창호·문짝·걸레받이를 모델 원형에 넘기는 표면 경계를 방별로 확정한다.
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology # ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
+@evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner가 한 번 절단한다. 방 owner는 안쪽 벽·바닥·reveal 마감 면을 만들며 별도 닫힌 문짝·창호·벽 걸레받이는 models가 만들어 같은 접면에 맞춘다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority # 방 source는 통행 윤곽과 별도 수납 내부의 마감판을 맡되 이미 다른 room floor가 덮은 곳에는 중복판을 만들지 않는다. 문짝·창호·걸레받이는 각각 models/03·01·06에 남고, 두 owner가 만나는 수납문 아래는 중앙면에서 절반씩 잇는다고 본문이 정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 source는 통행 윤곽과 별도 수납 내부의 마감판을 맡되 이미 다른 room floor가 덮은 곳에는 중복판을 만들지 않는다. 문짝·창호·걸레받이는 각각 models/03·01·06에 남고, 두 owner가 만나는 수납문 아래는 중앙면에서 절반씩 잇는다고 본문이 정한다.
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
-@evidenceReview principles/design/spaces.md#space-verification-address # 방의 면 개수를 표의 행 수로 대체하지 않고 방별 binding을 05의 방 owner와 대조한다는 본문을 확인했다. 현재 spaces 골격과 후속 모델 충전 뒤 전체 면 census를 구별해 이 배정의 반증 시점을 명시한다.
+@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 방의 면 개수를 표의 행 수로 대체하지 않고 방별 binding을 05의 방 owner와 대조한다는 본문을 확인했다. 현재 spaces 골격과 후속 모델 충전 뒤 전체 면 census를 구별해 이 배정의 반증 시점을 명시한다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.
-@evidenceReview settings/10-house.md#storage # storage는 수납실을 공간으로 저작한 경우 다른 방과 같은 전체 관찰을 부담하게 하며 붙박이장이라는 이름으로 실제 방의 질문을 없애지 못하게 한다. 본문은 옷방을 자기 파일과 전체 관찰이 있는 공간으로 채택하고 린넨장·외투장은 각각 복도·현관의 접면으로 분류한다.
+@evidenceReview settings/10-house.md#storage #cc3fdd3 storage는 수납실을 공간으로 저작한 경우 다른 방과 같은 전체 관찰을 부담하게 하며 붙박이장이라는 이름으로 실제 방의 질문을 없애지 못하게 한다. 본문은 옷방을 자기 파일과 전체 관찰이 있는 공간으로 채택하고 린넨장·외투장은 각각 복도·현관의 접면으로 분류한다.
 @evidence settings/20-verification.md#visual-grammar 방 안쪽 벽·바닥·천장과 계단 면의 U/V 축, 원점과 실제 절단 이음을 spaces에 정하고 모델의 독립 부재 UV를 모델 owner에 남긴다.
-@evidenceReview settings/20-verification.md#visual-grammar # 방 벽 U=X/Z·V=Y와 바닥·천장의 세계 X/Z 원점을 이 H2의 절단 규칙에 대조했다. 계단 디딤·챌판·참의 원점은 stair-reservation, spaces 손잡이·기둥은 stair-boundary-heights로 인계하고 난간살·문선·창틀의 국소 UV는 models owner에 남긴다.
+@evidenceReview settings/20-verification.md#visual-grammar #5b47467 방 벽 U=X/Z·V=Y와 바닥·천장의 세계 X/Z 원점을 이 H2의 절단 규칙에 대조했다. 계단 디딤·챌판·참의 원점은 stair-reservation, spaces 손잡이·기둥은 stair-boundary-heights로 인계하고 난간살·문선·창틀의 국소 UV는 models owner에 남긴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 사람이 들어가는 수납실 조건과 surface-allocation의 "각 방 내부의 완결 면" 배정을 대조했고 옷방·린넨장·외투장을 구별해 성립해 부모 수정이 없었다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work # storage의 사람이 들어가는 수납실 조건과 surface-allocation의 방 내부 완결 면 배정을 옷방·린넨장·외투장 세 분류에 대조해 settings 문장을 고치지 않고 방 파일 배정이 닫힘을 확인했다.
+@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 storage의 사람이 들어가는 수납실 조건과 surface-allocation의 방 내부 완결 면 배정을 옷방·린넨장·외투장 세 분류에 대조해 settings 문장을 고치지 않고 방 파일 배정이 닫힘을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 방의 안쪽 벽·천장·바닥·reveal을 그 방의 한 room 파일에 배정하고 사람이 들어가는 옷방은 자기 파일로, 린넨장·외투장은 소비하는 방의 접면으로 구분한다.
-@evidenceReview contracts/surface-ownership.md#whole-surface-owner # 계약의 방별 소유자·파일 선언과 한 표면 비분할을 ‘모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합’과 방별 room 파일 표에 대조하고 옷방의 별도 파일도 확인했다.
+@evidenceReview contracts/surface-ownership.md#whole-surface-owner #0e24f29 계약의 방별 소유자·파일 선언과 한 표면 비분할을 ‘모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합’과 방별 room 파일 표에 대조하고 옷방의 별도 파일도 확인했다.
 -->
 
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner가 한 번 절단한다. 아래 방 면 owner는 자기 reveal·마감 면과 [실내 문 원형](../models/03-interior-doors.md#interior-door-members)·[창 원형](../models/01-windows.md#window-member-sizes)의 부재가 동일 void와 접면에 맞는지 검사하고 문짝·창호 메시를 만들지 않는다. 마른 실과 세탁실의 벽·바닥 접선에는 [별도 닫힌 걸레받이 판](../models/06-interior-trim.md#wall-baseboard)이 붙으며 방 owner는 벽·바닥 마감 면만 만들고 그 판의 길이 입력과 종단 접면을 제공한다. 차고와 욕실 타일 벽에는 그 판을 배치하지 않는다. 모든 담당은 같은 단일 저작자다.

@@ -13,11 +13,11 @@
  *
  * Consumers: every spaces owner when it emits a part.
  * @evidence spaces/03-surface-owners.md The table supplies named blocking colours for parts made by the allocated surface owners.
- * @evidenceReview spaces/03-surface-owners.md # `PALETTE` is a record of hexadecimal part colours; `envelope/front.ts` supplies its `siding` key to an exterior wall and `rooms/common.ts` supplies `woodFloor` to its room floor, while those builders retain the actual surface ownership.
+ * @evidenceReview spaces/03-surface-owners.md #1efa548 `PALETTE` is a record of hexadecimal part colours; `envelope/front.ts` supplies its `siding` key to an exterior wall and `rooms/common.ts` supplies `woodFloor` to its room floor, while those builders retain the actual surface ownership.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior siding, trim, roof, brick, paving and fence colours are available to their assigned owners.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #51ba773 `siding` reaches the envelope walls, `roof` the separate roof builders, `brick` the chimney, `trim` the porch, and `paving`/`fenceWood` the site parts; the palette gives each owner a colour without moving its assigned geometry into this file.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners can distinguish floor, ceiling and partition base colours.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff # `rooms/common.ts` uses `woodFloor`, bedroom owners use `carpet`, bath owners use `tile`, and `rooms/shared.ts` supplies `ceiling` and `interiorWall` to room parts; `stairWood` is consumed by the separately assigned stair source rather than a room owner.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #93a519e `rooms/common.ts` uses `woodFloor`, bedroom owners use `carpet`, bath owners use `tile`, and `rooms/shared.ts` supplies `ceiling` and `interiorWall` to room parts; `stairWood` is consumed by the separately assigned stair source rather than a room owner.
  * @evidence principles/core/source-units.md#source-scope-preservation This palette supplies flat source colours; materials owns images, optical values and repetition.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Every `PALETTE` field is a flat numeric base colour selected for a spaces part; the record contains no image path, optical parameter, or repetition length, leaving those material decisions outside this source value.
  * @evidence principles/core/source-units.md#source-substantive-completion The emitted parts have named base colours for all surface families in this blocking pass.
