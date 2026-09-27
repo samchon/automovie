@@ -19,6 +19,10 @@
 @evidence spaces/002-spatial-graph.md#upper-storage 복도 직결 linen 수납의 open-shelf 형상과 선반 칸을 내며 수납실 문이나 cell 경계는 만들지 않는다.
 @evidence spaces/002-spatial-graph.md#common-storage 공용실↔1층 수납실 문은 공간 경계로 남기고 선반·cabinet의 국소 AABB를 후속 배치 검사에 제공한다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-common-storage 공용실·수납실 공유벽과 그 유일한 문은 storey/boundary owner 소유다. cabinet의 back 판은 그 벽 몸체를 대신하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-storage linen 수납과 복도의 shared wall에는 유일한 corridor-storage opening만 있다. 열린 선반의 back 판은 새 통로를 만들지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-service-storage 설비실과 linen 수납 사이에는 통과 opening이 없다. 각 방의 cabinet 외함은 공유벽을 중복 생성하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-storage-bath linen 수납과 욕실 사이 벽은 닫힌 경계다. cabinet 판의 두께로 그 건축벽 두께를 대체하지 않는다.
+@evidence settings/002-household.md#upper-program 주침실·작은 침실의 wardrobe, 욕실 towel storage, 상층 linen·청소 cabinet을 허용 외함 변종으로 소유한다.
 -->
 
 @prose-dim cleat의: cleat-*
@@ -1797,6 +1801,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidence spaces/002-spatial-graph.md#entry 현관의 신발 수납·착석을 bench-base와 cushion의 합성 모델로 받으며 계단 동측 보행대는 비워 둘 배치 조건으로 남긴다.
 @evidenceExclude spaces/002-spatial-graph.md#front-entry 외부 landing에서 현관으로 드는 목재 문·문턱판은 건축 owner다. 벤치의 점유는 출입 route와 instances에서 대조한다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-entry-storage 현관과 1층 수납실 사이 통과 금지벽은 spaces 소유다. 벤치·신발장 prototype은 벽 개구를 만들지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#front-stair-glazing 현관 계단실의 두 층 유리·spandrel은 전면 façade cut이다. 현관 벤치가 그 유리의 frame이나 shade를 생성하지 않는다.
 -->
 
 @prose-part 방석을 얹어 상면: cushion
@@ -1834,6 +1839,8 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work surface-decomposition이 선언한 현관 평벽 선반과 front-entry의 벽 마감면을 대조했다. cleat·bracket은 그 벽에 부착될 수 있는 모델 부품이며 건축 절삭을 요구하지 않았다.
 @evidence spaces/002-spatial-graph.md#entry-powder 현관↔powder 문은 열린 통행으로 남기고 평벽 선반의 국소 점유만 정해 그 문짝 회전과의 검사는 instances에 준다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-entry-powder powder와 현관 사이의 문 호스트 벽은 건축 경계다. 충전 선반은 벽 표면에만 닿고 그 벽을 절삭하지 않는다.
+@evidence settings/002-household.md#ground-program 현관의 건축 구멍 없는 우편·충전 선반을 벽 접촉판 원형으로 만들고 충전기·우편물의 배치는 별도 instance로 남긴다.
+@evidence spaces/002-spatial-graph.md#entry 평벽에 붙는 선반 형상은 현관 기능에 속하며 전면 문·계단 동측 보행대의 실제 clear cell을 바꾸지 않는다.
 -->
 
 `entry-charging-shelf`는 폭 0.32, 깊이 0.15, 몸판 두께 0.045m의 벽걸이 물체다. 원점은 평벽 마감면의 선반 아래 중앙(z=0)이며 +Z가 벽에서 실내로 나오는 방향, +Y가 위다. 판은 x=±0.16, y=0..0.045, z=0..0.15이고 뒤쪽 숨은 cleat는 0.22×0.030×0.025m로 x=±0.11,y=-0.030..0,z=0..0.025에 놓여 벽면과 판 아래면에 닿는다. 양 끝 아래의 지지 브래킷 둘은 두께 0.012m, 깊이 0.12m, 높이 0.08m이며 x=±0.125 중심,y=-0.08..0,z=0..0.12다. 각 브래킷은 z=0에서 평벽, y=0에서 판 아래면에 닿고 cleat와 x에서 겹치지 않는다. 우편을 올리는 상면은 평평하고 충전기 자리는 후속 배치다. `board/upper/underside/front-edge/side-left/side-right/back-contact`, `cleat/outer/contact`, `bracket-left/right/outer/contact`가 안정 주소다. 실제 건축 구멍이나 lining을 만들지 않는다. 정면·측면·상부에서 판 깊이와 평벽 접합이 읽혀야 한다. ref02의 현관 수납 기능과 settings의 건축 구멍 없는 선반 결정을 채택한다. ref01·03·04·05의 벽 장면을 충전 niche의 증거로 쓰지 않는다. 실제 앵커 하중은 `unverified`다.
@@ -1876,6 +1883,16 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidenceExclude spaces/002-spatial-graph.md#corridor-primary 복도↔주침실 0.90m 문의 열린 leaf는 공간/instance 검사 대상이다. 침대는 방 내부에서 국소 점유만 낸다.
 @evidenceExclude spaces/002-spatial-graph.md#corridor-child-one 첫 작은 침실의 복도 직결 문은 spaces가 소유한다. 1000mm 침대가 그 문 호를 막는지는 instances가 검사한다.
 @evidenceExclude spaces/002-spatial-graph.md#corridor-child-two 두 번째 작은 침실의 복도 직결 문은 spaces가 소유한다. 같은 침대 원형 재사용은 문 개구를 바꾸지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#front-bedroom-glazing 첫 작은 침실 전면 고정창은 하층 jamb 분할을 소비한다. 침대 원형은 그 창을 가리거나 나누는 실물 curtainwall 부재를 내지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#left-bedroom-glazing 첫 작은 침실의 +X 창은 하층 작업실 bay와 층선에서 정렬된다. 침대 1000mm 변종은 방 안 바닥 물체다.
+@evidenceExclude spaces/003-surface-ownership.md#left-child-two-glazing 둘째 작은 침실의 +X 창은 z=0.35..1.90m의 독립 opening이다. 같은 침대 원형을 재사용해도 창 span을 합치지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#rear-bedroom-glazing 주침실 후면 창은 욕실 공유벽을 관통하지 않는다. 침대 1800mm 원형은 그 창의 frame·shade를 생성하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-child-one-two 두 작은 침실 사이에는 직접 opening이 없다. fixed-bed 변종은 각각의 방 바닥에 놓일 뿐 공유벽을 절삭하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-child-two-primary 둘째 작은 침실과 주침실의 공유벽은 막혀 있다. single·double 침대가 이 벽의 구조 body가 되지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-bath-primary 욕실과 주침실의 직접 통과 없는 벽은 공간 owner가 닫는다. 침대 머리판은 그 공유벽의 내측 마감이 아니다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-child-one 첫 작은 침실의 복도 문 host 벽은 층 owner가 만든다. single 침대 외곽은 열린 leaf 충돌 검사의 입력이지 벽 geometry가 아니다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-child-two 둘째 작은 침실의 복도 문 host 벽은 건축 경계다. 침대의 재사용 형상으로 그 문 위치를 옮기지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-primary 복도와 주침실 사이 문·벽은 건축 owner다. double bed의 headboard는 이 boundary를 대신하지 않는다.
 -->
 
 @prose-part 매트리스 아래면: mattress
@@ -1958,6 +1975,7 @@ ref04 책상 왼쪽 벽붙박이 선반의 가로 책판과 목재 측판 읽힘
 @evidenceExclude spaces/002-spatial-graph.md#entry-flex 현관 직결 미닫이문 pocket과 1.20m clear 개구는 spaces 소유다. 내려온 침대와 열린 문 사이 통행은 instances가 검증한다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-entry-flex 작업실·현관 공유벽과 pocket은 층/문 owner의 형상이다. murphy 외함은 별도 가구로만 서서 벽 몸체를 복제하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-flex-common 작업실 뒤쪽과 공용실 사이에는 통과 opening이 없다. murphy-bed의 가구 판은 공유벽을 뚫거나 문을 추가하지 않는다.
+@evidence settings/002-household.md#ground-program 현관 직결 가변 작업실의 숨긴 수면 기능을 작업·손님 두 정지 상태의 벽 수납 침대로 받는다.
 -->
 
 @prose-part 외함 뒤판의 상단은: case-back

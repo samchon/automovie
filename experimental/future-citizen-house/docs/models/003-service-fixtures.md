@@ -15,11 +15,14 @@
 @evidence principles/design/models.md#model-observable-style-basis ref02의 두 층 위생기구 위치를 받되 다른 참조의 거실 유리를 욕실 거울 형상 근거로 삼지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 폭에 따라 rim·bowl·mirror 폭이 바뀌고 배수·관·프레임은 고정 치수로 남아 변종의 전체 envelope를 닫는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work powder와 upper-bath의 basin 호출, vanity 별도 소유, 벽 거울 배치를 맞춰 보았다. 두 폭과 접촉이 기존 방 기능 안에 들어가 프로그램·방 경계 수정은 필요하지 않았다.
-@evidence settings/003-spatial-basis.md#envelope-and-privacy 욕실 basin은 별도 실내 설비로만 형성하고 커튼월 privacy 층이나 창호 reveal을 위생기구 부품으로 옮기지 않는다.
+@evidenceExclude settings/003-spatial-basis.md#envelope-and-privacy 전면·후면 커튼월과 우측 불투명 코어의 형상은 건축 외피 owner가 결정한다. basin은 욕실 안의 독립 도기·거울이며 그 유리·reveal을 복제하지 않는다.
 @evidenceExclude settings/003-spatial-basis.md#privacy-states basin의 고정 rim·mirror는 유리 tint·shade의 세 광학 상태를 생성하지 않는다. 욕실 외피의 반투명 상태는 materials·spaces의 별도 소유다.
 @evidence spaces/002-spatial-graph.md#powder-utility 현관 직결 powder의 세면 기능을 800mm basin과 별도 vanity 외함으로 받고 cell 안 접근 면적은 배치 단계에 남긴다.
 @evidence spaces/002-spatial-graph.md#upper-bathroom 상층 욕실의 vanity 호출을 1000mm basin과 별도 cabinet 상면 접촉으로 구체화한다.
 @evidenceExclude spaces/002-spatial-graph.md#corridor-bathroom 복도↔욕실 0.90m 문과 안쪽 열림은 spaces 소유다. basin의 국소 외곽은 그 door-state 검사에 제공된다.
+@evidenceExclude spaces/003-surface-ownership.md#rear-bath-glazing 상층 욕실의 후면 반투명 고정창은 façade owner가 절삭·틀·shade를 낸다. basin mirror는 실내 벽부착 물체다.
+@evidenceExclude spaces/003-surface-ownership.md#right-bath-glazing 상층 욕실 -X 후단 창은 하층 공용부 bay를 이어받는다. basin의 1000mm 폭은 그 창의 jamb 위치가 아니다.
+@evidenceExclude spaces/003-surface-ownership.md#glazing-interface 외부 고정창의 0.04m frame·0.14m 깊이와 bay 분할은 외피 공통 인터페이스다. 세면대 거울의 frame은 이 창호 frame이 아니다.
 -->
 
 @axis-control 800: tap-spout, Y, 1.104, support-to-tube seam
@@ -97,6 +100,7 @@
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 화장실의 도기 호출과 바닥 접촉을 확인했다. 현재 고정 열린 상태와 점유는 기존 방 프로그램에 속하며 출입구나 경계 변경을 요구하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-corridor-bathroom 욕실과 복도 사이 shared wall·문 개구는 건축 owner가 닫는다. toilet은 그 벽을 만들지 않는 독립 바닥 도기다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-powder-storage powder와 1층 수납 사이 통과 금지벽은 spaces 소유다. 변기 점유는 powder 내부로만 배치한다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 상층 욕실의 도기 호출을 bowl·seat·cistern의 고정 열린 검사 상태로 받아 세면대·샤워와 별도 원형을 낸다.
 -->
 
 @prose-dim cistern은: cistern
@@ -151,6 +155,9 @@
 @evidence principles/design/models.md#model-observable-style-basis ref02의 투명 샤워 경계와 뒤쪽 기구 위치를 채택하며 커튼월 사진을 욕실 screen 상세로 읽지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 2.25m 높이 안에 screen rail·세 bracket·riser·head의 경계를 닫고 tray 아래면과 벽 접합 평면을 따로 선언한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 상층 목욕 공간의 샤워 호출, 뒤 벽 접촉과 열린 출입을 대조했다. 모델은 기존 샤워 점유 안의 부분 screen이므로 공간 프로그램 수정은 없다.
+@evidenceExclude spaces/002-spatial-graph.md#envelope-interface room clear 외주와 PV cassette 분할은 envelope·roof owner가 결정한다. 샤워 screen의 유리 edge는 외부 창호나 canopy panel이 아니다.
+@evidence settings/002-household.md#upper-program 상층 욕실의 shower/tub 중 샤워 역할을 열린 출입 screen·tray·head 원형으로 구체화한다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 임시 source의 샤워 tray를 최종 모델의 tray·drain·screen·head로 바꾸되 욕실 안 배치는 instances에 남긴다.
 -->
 
 @prose-part 유리 screen은: screen
@@ -215,6 +222,7 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @evidence principles/design/models.md#model-observable-style-basis ref02의 욕실 낮은 욕조를 읽고 다른 네 그림에 없는 욕조 세부를 전사하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion shell y=0..0.525와 rim y=0.525..0.58을 맞대고 floor 안쪽 기울기·아래 공백까지 수치로 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 욕실의 욕조 요구와 샤워 별도 호출을 맞춰 보았다. 형상은 그 역할을 회복하고 최종 방 안 동선은 instances 소유이므로 상위 프로그램 변경은 없다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 임시 room source가 아직 만들지 않은 욕조를 열린 내벽·rim·drain을 가진 독립 prototype으로 명시한다.
 -->
 
 @prose-part 바닥은 내부: floor
@@ -264,8 +272,10 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @evidence principles/design/models.md#model-observable-style-basis ref03의 섬·싱크·스툴 배치를 가져오고 ref02는 주방·식탁의 공간 관계에만 쓴다.
 @evidence principles/design/models.md#model-scale-layer-completion y=0.87..0.93 상판과 support@0.87을 닿게 하고 sink·tap의 상부 높이와 하부 외함 점유를 분리한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 공용실의 island-base·싱크·스툴 호출과 서비스 면 방향을 확인했다. 상판과 수전 형상은 기존 배치의 구현이며 공간 경계를 고치지 않는다.
-@evidence settings/001-production.md#production-visual-grammar 공용부 따뜻한 목재 cabinetry와 섬 상판의 낮은 채도 형상 관계를 받되 실제 색·finish는 materials가 결정한다.
+@evidence settings/001-production.md#production-visual-grammar 섬 상판과 cabinet의 안정 표면을 분리해 공용부의 목재·저채도 finish를 materials가 각 면에 결합할 수 있게 한다.
 @evidence settings/002-household.md#program-boundary 섬·싱크의 보이는 형상만 정하고 실제 조리 편의·설비 성능을 모델 형상에서 인증하지 않는다.
+@evidence settings/002-household.md#ground-program 후면 공용실 주방의 island·sink를 긴 상판·열린 bowl·별도 하부장의 원형으로 구체화한다.
+@evidence spaces/002-spatial-graph.md#common-room 거실·식당과 벽 없이 이어진 같은 common-room 안에서 섬과 sink의 국소 외곽을 내고 방 내부 partition을 추가하지 않는다.
 -->
 
 @axis-control default: tap-spout, X, -0.13, spout endpoint
@@ -456,6 +466,9 @@ tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 서비스 코어의 세탁·건조 호출과 별도 적층 transform을 확인했다. 두 독립 기기의 형상만 정하므로 공간 점유나 방 경계 변경은 없다.
 @evidence spaces/002-spatial-graph.md#upper-service 복도 직결 설비·세탁실의 washer와 dryer를 별도 원형으로 만들며 실제 적층과 정비 통로는 instances에 남긴다.
 @evidenceExclude spaces/002-spatial-graph.md#corridor-service 복도↔설비실의 실제 문은 공간 owner가 형성한다. 닫힌 세탁기·건조기 외곽은 열린 leaf와의 후속 충돌 검사 입력이다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-service 설비실↔복도 문의 host wall은 층·boundary owner가 만든다. washer·dryer의 body는 방 안 기기다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-service-corridor-front 설비실의 복도 전면 z 경계는 닫힌 벽이다. 세탁기와 건조기의 배치가 이 shared wall에 문을 추가하지 않는다.
+@evidence settings/002-household.md#upper-program 복도 직결 upper-service의 세탁기와 건조기를 별도 장치 상태로 내고 점검 공간은 배치·공간 owner에 남긴다.
 -->
 
 @prose-part 본체는: body

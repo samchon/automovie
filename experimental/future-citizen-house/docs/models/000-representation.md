@@ -32,6 +32,9 @@
 @evidenceExclude spaces/002-spatial-graph.md#mass-and-storeys 본채 11×12m 외곽·층 datum·벽 두께는 건축 space 값이다. 여기의 식탁·의자 척도는 물체에만 적용한다.
 @evidenceExclude spaces/002-spatial-graph.md#ground-level 1층 slab·plinth와 천장 표면은 storey owner가 만든다. 모델의 바닥 접촉면은 그 실물 표면을 instances에서 소비한다.
 @evidenceExclude spaces/002-spatial-graph.md#upper-level 2층 slab와 각 방의 바닥·천장은 storey owner 소유다. 모델은 바닥 부품의 국소 sole만 제공한다.
+@evidenceExclude spaces/002-spatial-graph.md#ground-partition 현관·작업실·공용실·powder·수납의 다섯 cell과 shared wall은 공간 분할이다. 모델 ID는 방 ID가 아니며 가구·설비만 정의한다.
+@evidenceExclude spaces/002-spatial-graph.md#upper-partition 복도 직결 여섯 목적지와 일곱 상층 cell은 spaces가 소유한다. 모델 원형은 각 방의 호출에서 재사용된다.
+@evidenceExclude spaces/003-surface-ownership.md#whole-surface-owners 전후좌우 입면과 지붕의 다섯 완결 건축 표면은 각 envelope owner가 형성한다. 모델 face 주소는 독립 물체 안에서만 닫힌다.
 -->
 
 모든 길이는 m이며 오른손 Y-up이다. 별도 명시가 없으면 바닥형 물체의 원점은 바닥 접촉 영역 중심이고 +Z는 사용하는 앞쪽이다. 천장형과 벽부착형은 자기 H2의 고정점과 전방을 따로 적는다. 저작 척도는 식탁 상면 y=0.74와 의자 좌면 y=0.45를 기준으로 한다. 각 H2가 최외곽 폭×높이×깊이와 부품 치수·오프셋을 확정하며 source는 primitive 기본값이나 남은 점유 공간으로 부품 치수를 발명하지 않는다. `prototype/part`가 안정 주소이고 부품의 가시 측면이 다른 downstream 응답을 필요로 하면 `prototype/part/face`다. 한 부품을 face로 나누면 face ID 집합은 그 부품의 모든 삼각형을 중복 없이 빠짐없이 덮는다. 두께 있는 판의 앞·뒤·노출 edge·위아래를, 접지 다리의 shaft·상단 접합·바닥 sole을 해당 H2가 이름으로 나눈다. 숨은 접촉면도 안정 주소를 갖되 시각 마감 약속으로 세지 않는다. 각 주소는 local frame, vertex AABB, winding·normal, UV 원점·축, 이음과 의도된 빈 공간을 운반한다. 모델은 재료 ID·색·방별 transform·개수·광량을 고르지 않는다. 얼굴·인체 모델은 이 library의 물체 모집단에 없다.
@@ -95,13 +98,15 @@
 @evidence principles/design/models.md#model-scale-layer-completion 선언 외곽, 개별 부품, 실제 접합면과 의도된 빈 공간을 함께 대조하고 식물만 접선 예외로 분리해 유효한 AABB가 끊긴 조립을 숨기지 못하게 한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work surface-decomposition의 물체 형상·방 배치 분리와 coordinate-datum의 local m 기준을 검사했다. 접촉 측정은 각 모델 H2의 부품과 후속 instance 배치에서 수행할 수 있어 건축 방 경계나 설정의 새 치수가 필요하지 않았다.
 @evidence obligations/core/common.md#proportionate-development 공통 점유·접합 규칙은 한 H2에 모으되 각 독립 물체에는 자체 H2와 상태별 inventory·part·envelope를 두어 큰 수납·가구를 소품 한 줄로 축약하지 않는다.
-@evidence obligations/design/models.md#model-representation-completion 각 H2의 inventory·address-state·envelope·part를 실제 생산자 감사와 대조하고 형상 설계의 구조 검사는 완료하되 source 구현·렌더 의미 완료는 unverified로 분리한다.
+@evidence obligations/design/models.md#model-representation-completion 001~005의 물체 H2가 상태별 inventory·address-state·envelope·part를 소유하고 문서 감사의 구조 통과와 source 구현·렌더 의미 검증의 미완료를 분리한다.
 @evidence settings/002-household.md#design-subject-conditions 열린 문짝과 실물 가구 사이 clearance는 각 prototype 실제 AABB를 instances에 제공해 후속 0.60m 가상 원통 검사에 쓰게 한다; 여기서 사용성 인증은 하지 않는다.
 @evidenceExclude settings/003-spatial-basis.md#ground-graph 현관·공용부·작업실의 벽과 문 연결은 spaces가 소유한다. 이 H2는 그 안에 놓일 가구의 점유와 접합만 검사하며 route를 다시 설계하지 않는다.
 @evidenceExclude settings/003-spatial-basis.md#upper-graph 일자 복도와 각 침실·욕실·수납의 직접 문 연결은 spaces 소유다. 모델 점유는 통행 검사 입력이지만 복도 분기를 정하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#stage-one-verification 방 cell·문·route·가구 통행의 전체 구조 검사는 spaces/instances가 수행한다. 이 H2는 prototype 자체의 실제 점유·접합만 검사한다.
 @evidenceExclude spaces/002-spatial-graph.md#door-interface 0.06m jamb·0.045m leaf와 문턱판은 건축 문 인터페이스다. 물체 모델은 문의 geometry를 복제하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#wall-junctions 내벽 T/L 접합을 층 owner가 한 번 닫는다. 물체 부품의 `@joint`는 자기 prototype 내부 접합에만 쓴다.
+@evidenceExclude spaces/002-spatial-graph.md#stair-opening 상층 slab의 x=-1.24..1.58 계단 구멍은 storey/stair owner가 절삭한다. 물체의 @void는 가구 내부 공동에만 적용한다.
+@evidenceExclude spaces/002-spatial-graph.md#stair-enclosure 계단과 상층 설비실·작은 침실을 막는 측벽은 공간 경계다. 모델 지지 접합 검사는 그 벽을 새 가구 판으로 대체하지 않는다.
 -->
 
 source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언 점유를 넘기면 그 prototype을 실패시킨다. 각 독립 부품의 AABB가 선언 점유 안에 있어야 하고 부품마다 바닥·벽 또는 다른 부품과 닿는 경로가 있어야 한다. 하중을 지지하는 접합은 관통이나 점·선 접촉이 아니라 지정된 유한 면으로 대조한다. `@shear-z state: part, Ymin..Ymax, Zcenter-min..Zcenter-max, Z-half-depth`는 Y를 따라 중심 Z가 선형 이동하는 닫힌 사각 단면을 두 수평 끝면에서 자른다. `@flat-contact state: guest, host, -Y|-Z, plane, Umin..Umax, Vmin..Vmax`는 guest에 일체화한 평평한 받침과 host의 면이 공유하는 직사각형이다. -Y에서는 U=X·V=Z, -Z에서는 U=X·V=Y다. 두 범위의 곱이 양수이고 범위의 네 모서리가 host의 실점유 안에 있어야 한다. `wall` host는 지정 평면의 외부 건축 벽이며 room 배치에서 다시 대조한다. 비하중 장식 식물의 줄기–가지·가지–잎은 [화분 H2](004-decor-and-fixtures.md#potted-plant)가 선언한 정확한 접선 하나만 허용하고 생산자가 그 접점을 상태마다 대조한다. 이 예외를 등기구·위생기구·좌석 지지에 확대하지 않는다. 임의의 미정 소형 부품을 상위 AABB에 넣어 넘어가는 허용 규칙은 없다. 각 prototype H2의 `@inventory state:`는 그 상태의 독립 부품 ID 모집단을, `@envelope`은 전체 선언 점유를, `@part`는 각 부품의 닫힌 X/Y/Z 범위·기본 형상·접촉 상대를 적는다. 모든 허용 폭 변종과 상태를 전개하고 한 부품이라도 표에서 빠지면 검사 실패다. 비상자 AABB가 겹칠 때는 `@joint`의 절삭면과 형상 교차 증명 없이는 통과시키지 않는다. 표와 설명 문장의 수치가 다르면 둘 중 하나를 암묵적으로 우선하지 않고 설계를 실패시킨다. 이 표는 source 구현이 아니라 검증 가능한 설계 입력이다. ref02~04의 부품 접합은 그림에서 구조 안전을 판정하지 않고 이 수치 경계로만 검사하며 ref01·05의 원경은 물체 접합 값을 주지 않는다. 실제 기하 생성 전의 접촉·점유 결과는 `unverified`다.
@@ -160,6 +165,8 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 
 `@curve-layer state: shell, cover, c0, c1, c2, shellDepth, coverDepth, seatGap`이 있으면 cover의 `@piece` 두 행은 채운 상자가 아니라 실제 곡면 점유의 AABB다. shell의 Y 구간에서 t=(y−Ymin)/(Ymax−Ymin), 뒤 곡선 z=c0+c1t+c2t²이다. 첫 cover 조각은 Ymin에서 이음 Y까지 z의 뒤 경계를 곡선+shellDepth+seatGap으로 잘라 좌면 앞 edge까지 채운다. 둘째 조각은 이음 Y부터 Ymax까지 곡선+shellDepth..곡선+shellDepth+coverDepth를 채운다. 두 조각의 X 구간은 같고 이음 Y 평면에서 하나의 닫힌 부품으로 합친다. 이 우선순위는 cover 두 조각에만 적용하며 다른 `@piece`는 계속 채운 상자다. 각 조각의 선언 AABB가 계산한 실제 곡면 극값과 맞지 않거나 seatGap이 음수이면 실패다.
 
+모델 설계 모집단 계정: 이 파일의 공통 규칙 5절과 `001`~`005`의 물체 원형 47절이 현재 library의 모델 설계다. 각 물체 절은 허용 상태의 `@inventory`·`@envelope`·`@part`·`@address-state`와 필요한 표면·접합·관찰을 소유하고, 다섯 문서 감사의 구조 오류는 0이었다. 이 구조 결과는 모델 source의 실제 mesh·face 완결을 인증하지 않는다. 식별되는 생활 기능과 reference 관계는 각 물체 절의 산문과 evidence에서 별도로 판단하며 독립 evidence review는 아직 대기 중이다. 구현된 modelSources의 geometry, materials·instances 결합, GPU 관찰과 최종 방 읽힘은 현재 `unverified`다.
+
 ## 중립 관찰과 재현 한계 {#model-neutral-observation}
 
 <!--
@@ -182,6 +189,8 @@ source는 모든 부품 vertex의 합집합으로 실제 점유를 재고 선언
 @evidenceExclude settings/004-observation.md#operator-access 카메라 선택·숨김·유리 및 flex 상태 UI는 viewer와 instances의 조작 계약이다. 여기에는 모델 상태의 고정 형상과 비교 뷰만 있다.
 @evidenceExclude settings/004-observation.md#accessibility-products 키보드 focus·대안 조작과 텍스트 topology는 viewer·README 납품이다. 모델 절의 face 주소는 그 UI 자체를 제공하지 않는다.
 @evidence spaces/001-citizen-house.md#spatial-observation 모델은 방 리뷰 거리에 추가해 중립 정면·측면·상부·대각 뷰를 정하고 spatial observation의 전체 외관·방 관찰을 대체하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#single-stair 두 flight·중간 참과 층간 route는 건축 source 관찰 대상이다. 중립 모델 뷰는 계단을 재현하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#upper-corridor 일자 복도의 폭·길이와 여러 문 직접 연결은 spatial observation 대상이다. 모델의 여러 원형 뷰로 복도 도달성을 승인하지 않는다.
 -->
 
 각 물체의 모든 명명 상태를 같은 18% 회색 배경, 0.50m 눈금, 한 방향 key light, 고정 노출, 색·라벨 off, 동일 raster와 직교 camera fit에서 반복 관찰한다. 기본 실루엣 여섯 뷰는 정면(+Z), 우측(+X), 배면(−Z), 상부(+Y), 대각(+X/+Z), 반대 대각(−X/−Z)이다. 하부(−Y)를 더하고, 접합·관통·얇은 부재·개구·가려진 면은 해당 부품에 맞춘 근접 뷰 또는 단면으로 각각 드러낸다. 비대칭이 왼쪽에만 있으면 좌측(−X)도 더한다. 상태가 바뀌면 전체 뷰와 그 상태의 접합 근접 뷰를 다시 찍는다. 같은 카메라·축척·배경·조명·raster의 이전 버전과 비교하며 실제 방의 리뷰 거리 뷰는 별도로 비교한다. 이 관찰은 비례·틈·표면 주소·점유를 묻는다. 광학·하중·방수·전기·인체 안전·제품 인증은 입증하지 않으며 결과가 없으면 `unverified`다. ref02의 절개는 부품의 상·하 관계를 검사하는 자료로만 채택하고 전달 화면으로 채택하지 않는다. ref01은 건축 외피 자료여서 독립 물체의 척도 원본으로 쓰지 않는다. ref03·04·05는 각 방의 읽힘과 소품 밀도만 제약하며 픽셀에서 물체 치수를 역산하지 않는다.

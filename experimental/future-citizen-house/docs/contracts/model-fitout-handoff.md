@@ -4,7 +4,7 @@
 
 # 기존 실내 물체의 모델 인계 계약
 
-**Status:** 사용자 지시의 전체 실내 완성과 미소유 요소 금지를 적용하는 production-local obligation. 현재 `models`는 `draft`이며 이 계약이 모델 설계의 승인을 뜻하지 않는다.
+**Status:** 사용자 지시의 전체 실내 완성과 미소유 요소 금지를 적용하는 production-local obligation. 현재 `models`는 `evidence`이며 이 계약이 모델 설계의 review 승인을 뜻하지 않는다.
 
 ## 모든 기존 물체 자식의 단일 목적지 {#legacy-fitout-child-destination}
 

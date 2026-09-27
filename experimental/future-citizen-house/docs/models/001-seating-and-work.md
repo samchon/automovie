@@ -20,6 +20,8 @@
 @evidence settings/002-household.md#ground-program 후면 공용부의 소파 역할을 독립 living-sofa 원형으로 내며 방의 다른 식탁·주방 기구는 각 H2에 남긴다.
 @evidence spaces/002-spatial-graph.md#common-room 후면의 한 공용실 안에서 소파를 낮은 거실 좌석 원형으로 두고 식탁·주방을 막는 내부 칸막이는 만들지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#entry-common 현관과 공용실의 1.30m 열린 문 없는 개구는 spaces 소유다. sofa의 앞 점유는 이후 instances가 이 route와 대조한다.
+@evidenceExclude spaces/003-surface-ownership.md#rear-common-glazing 후면 공용부와 정원을 가르는 고정창에는 별도 출입 route가 없다. 소파는 실내 점유만 내고 창을 문으로 바꾸지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#right-common-glazing 서비스 외벽 후단 z=3.60..5.40m 공용실 유리는 façade owner 소유다. sofa의 낮은 등판은 그 유리 bay·shade를 정하지 않는다.
 -->
 
 등 프레임·등 쿠션·베개는 아래 `@curve-linear`의 같은 기울기 곡선을 따른다. 첫 인터페이스는 맞닿고 둘째는 해당 행이 정한 양수 간격을 두므로 베개는 등 쿠션에서 떨어진 채 좌판에만 지지된다. 긴 의자 변종은 공통 본체 부품을 같은 좌표로 재사용하고 앞쪽 연장 프레임·좌판 두 부품과 다리 둘을 추가한다.
@@ -118,6 +120,7 @@ ref02 작업실의 초록 안락의자는 이 거실 소파의 축소형으로 �
 @evidence principles/design/models.md#model-scale-layer-completion 공통 0.74m 식탁 기준을 실제 상판 상면으로 사용하며 leg-0..3의 점유와 빈 무릎 공간을 함께 닫는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 여섯 자리 식사와 공용부의 식탁 배치를 대조했다. 상판·네 발의 local 점유는 허용된 식사 기능을 구현하며 의자 간격과 배치는 후속 instance 문제다.
 @evidence settings/002-household.md#operative-subjects 가족 네 자리와 방문자 두 자리를 설명하는 여섯 자리 식탁 규모를 상판과 네 다리의 독립 모델로 받는다.
+@evidence spaces/002-spatial-graph.md#common-room 연속 공용실의 식사 영역을 여섯 자리 상판과 다리 원형으로 표현하고 kitchen 접근 route는 후속 배치가 확인하게 한다.
 -->
 
 @prose-part 상판은: top
@@ -296,6 +299,9 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidence principles/design/models.md#model-observable-style-basis ref04의 벽 부착 책상과 서랍선을 채택하지만 사진에 없는 지지는 설정의 조절 단서를 보이는 두 겹 기둥으로 별도 표현한다.
 @evidence principles/design/models.md#model-scale-layer-completion 네 폭 키와 flex의 필수 상태가 부품 집합·AABB를 결정하며 back-rail 접촉과 앞쪽 지지가 책상마다 유한 면 경로를 이룬다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work flex-states의 작업/손님 구분과 침실 프로그램의 책상 요구, 벽 접촉 datum을 대조했다. hinge·기둥·침실 앞다리는 각 모델 안에서 닫혀 부모의 방 경계 수정 없이 배치할 수 있다.
+@evidenceExclude spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면 고정창의 sill·head·privacy 층은 façade owner가 정한다. 책상 원형은 방 안의 벽 접촉과 보조 상판만 낸다.
+@evidenceExclude spaces/003-surface-ownership.md#left-flex-glazing 작업실 +X 측면 창은 전면 창과 직교하며 불투명 return을 남긴다. 책상은 그 두 opening을 연결하지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-entry-common 현관과 공용실의 문 없는 opening을 가진 벽은 공간 경계다. 책상은 작업실 가구이며 공용 개구의 jamb를 형성하지 않는다.
 -->
 
 @prose-part flex 상판은: top

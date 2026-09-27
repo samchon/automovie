@@ -46,7 +46,7 @@ export const productionEvidence = {
   settings: "review",
   spaces: "review",
   spaceSources: "review",
-  models: "draft",
+  models: "evidence",
   materials: "evidence",
   claims: [
     ...createAutoMoviePopulationAccountClaims({
@@ -92,7 +92,7 @@ export const productionEvidence = {
       document: "contracts/model-fitout-handoff.md",
       account: "accounts/models/legacy-fitout.md",
       layer: "models",
-      stage: "draft",
+      stage: "evidence",
       populationScope: { mode: "complete-production" },
     }),
   ],

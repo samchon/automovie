@@ -562,6 +562,11 @@ ref02의 저장실·서비스실과 ref01의 정원에서 빈 창고가 되지 �
 @evidence principles/design/models.md#model-scale-layer-completion 상태별 @void·@bore·@sole-grid와 bicycle 절점·24각 관을 표 점유로 닫아 출입 비품 규모를 기록한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 진입로·정원 비품 호출과 지면 지지를 확인했다. 각 외부 물체는 기존 야외 점유의 형상이며 대지 동선 수정은 없다.
 @evidence spaces/001-citizen-house.md#site-access 작은 대지의 진입 방향을 외부 우편함·벤치·자전거·정원등의 +Z 관찰 앞과 지면 접촉의 배치 입력으로 받는다.
+@evidenceExclude spaces/003-surface-ownership.md#front-face 목재 현관문·계단실 유리·불투명 코어가 만나는 전면 외벽은 façade owner 소유다. 우편함과 외부 가구는 그 외벽의 opening을 자르지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#rear-face 공용부·주침실·욕실 창을 품은 후면 외벽은 façade owner가 닫는다. 외부 비품은 대지 위에 서며 유리 panel을 만들지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#right-face 화면 우측 -X 서비스 외벽과 배수관은 façade owner의 완결 면이다. 정원등·우편함의 지면 접촉은 그 건축 관을 복제하지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#left-face 화면 좌측 +X의 작업실·작은 침실 창 세 개는 façade opening이다. 자전거·벤치의 독립 점유는 창 reveal을 소유하지 않는다.
+@evidenceExclude spaces/003-surface-ownership.md#envelope-corners 네 외벽 코너의 대각 prism 접합은 façade owner들 사이의 건축 이음이다. 외부 물체의 @joint는 코너 벽 부피를 생성하지 않는다.
 -->
 
 @material-face garden-light: body/diffuser
