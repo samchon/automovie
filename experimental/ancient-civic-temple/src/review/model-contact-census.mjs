@@ -200,8 +200,7 @@ const decisions = {
   ],
   "entablature#ceiling-joist:supplemental": [["널판에서", "non-contact: stated failure conditions"]],
   "openings#door-frame:supplemental": [
-    ["문이 뚫린 벽의 0.30/0.60m", "non-contact: parent wall-thickness attribution"],
-    ["안감은 세", "door lining touches void and trim wall"],
+    ["문이 뚫린 벽의 두께(0.30m 또는 0.60m)", "non-contact: parent wall-thickness attribution"],
   ],
   "openings#double-door-leaf:supplemental": [["판 하나로", "non-contact: stated failure conditions"]],
   "openings#single-door-leaf:supplemental": [["앞·뒤 연결 핀은", "single pins touch panel and rings on both sides"]],
