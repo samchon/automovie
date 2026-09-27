@@ -28,47 +28,47 @@ import { openingAxis } from "./observation-records";
 /** One route edge: two spaces and the passage that joins them. */
 /**
  * @evidence spaces/05-route-network.md IRouteEdge models one named passage between exactly two logical space ids.
- * @evidenceReview spaces/05-route-network.md #60bf203 v-141 from/to plus the via union (L57); 05:31-56 rows are two spaces and one passage.
+ * @evidenceReview spaces/05-route-network.md IRouteEdge requires from, to and via; each row of the route table names two logical spaces and one authored passage between them.
  * @evidence principles/core/source-units.md#source-scope-preservation The type carries route endpoints and a passage discriminant, without treating a shared wall as traversable.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 An edge needs an opening, connector or open kind; the checker never uses adjacency (routes.ts:10, L150-215).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The via union admits an opening, connector or explicit open gap; checkRouteNetwork tests these hosts and does not turn boundary adjacency into a route.
  * @evidence principles/core/source-units.md#source-substantive-completion Its union distinguishes openings, connectors, and the one open gap with coordinates needed by the verifier.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 The union opening|connector|open carries at/normal (L57).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion The discriminated via union requires an id for an opening or connector and a point plus normal for the open gap, giving each edge a checkable host form.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network joins two named spaces through an opening, a connector, or the one wall-less entry/service gap; this edge type retains those three host forms.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05:33-56: each row joins two spaces through an opening, a connector (stair or site), or the 05:38 open connection (service.md:31 no door or full partition). via union has exactly opening/connector/open (routes.ts:57).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The route parent distinguishes doors and open voids, site or stair connectors, and the wall-less entry/service contact; the edge type encodes those host forms without inventing another path.
  */
 export interface IRouteEdge {
   /**
    * @evidence spaces/05-route-network.md The route's first endpoint is the space left of an authored table edge.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 from is the first column of the 05 table (05:33-56), in the same order (L69-93).
+   * @evidenceReview spaces/05-route-network.md The required from field holds the first logical space of each table row, such as front-walk for porch-steps and front-entry for entry-living-door.
    * @evidence principles/core/source-units.md#source-scope-preservation `from` names one existing logical space rather than a wall or mesh part.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 from is a string space id.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation from is a space id string separate from via's passage id, keeping a route endpoint distinct from its boundary or connector.
    * @evidence principles/core/source-units.md#source-substantive-completion Every edge has a required string source id for reachability and endpoint checks.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Required; used by reach() (L121-129) and the endpoint check (L149).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion checkRouteNetwork checks from against the built space map and host endpoints, while reach uses it to traverse the fixed route graph.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network names front-walk as the first end of the porch-steps edge and front-entry as the first end of the living door edge; from carries each table origin.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05:33 front-walk starts the porch three-step row; 05:37 front-entry starts entry-living-door; all 24 ROUTE_NETWORK from values match the 05 '출발' column (routes.ts:69-93).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The route table places front-walk before front-porch and front-entry before living-room; the corresponding from values preserve those authored origins without choosing a new space.
    */
   from: string;
   /**
    * @evidence spaces/05-route-network.md The route's second endpoint names the space reached through `via`.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 to is the destination column of the 05 table.
+   * @evidenceReview spaces/05-route-network.md The required to field holds the destination space in each authored edge, including front-porch and living-room for the named approach and entry routes.
    * @evidence principles/core/source-units.md#source-scope-preservation `to` is a space id and cannot stand in for the passage id held separately by `via`.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 The passage id is held separately in via.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation to names the reached logical space while via separately names or locates the passage, so a destination cannot stand in for a door.
    * @evidence principles/core/source-units.md#source-substantive-completion A required string destination lets route checks compare both sides of the host boundary.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 same(host.spaces,[from,to]) at L164; envelope case at L172.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion checkRouteNetwork compares to with the other opening-boundary space or connector endpoint and includes it in reachability checks.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network names front-porch as the other end of porch-steps and living-room as the other end of entry-living-door; to carries each authored destination.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05:33 front-porch and 05:37 living-room are the destinations; ROUTE_NETWORK to values match (routes.ts:69, :73).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The route parent names front-porch after porch-steps and living-room after entry-living-door; to carries those destinations rather than deriving new ones.
    */
   to: string;
   /** How the edge passes: an opening id, a connector id, or the open connection. */
   /**
-   * @evidence spaces/05-route-network.md `via` binds an edge to an opening id, connector id, or the measured wall-less gap.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 Opening id, connector id, or open {at, normal}. at (2.02, 1.0, -1.83) at L75 comes from service.md:31 (X=2.02, Z=[-3.41,-0.25] midpoint). "measured" is loose.
+   * @evidence spaces/05-route-network.md `via` binds an edge to an opening id, connector id, or an explicit point at the wall-less gap.
+   * @evidenceReview spaces/05-route-network.md The via union names an opening or connector by id or gives a point and normal for the entry/service open contact; the route parent requires a passage host rather than adjacency alone.
    * @evidence principles/core/source-units.md#source-scope-preservation The discriminant prevents an arbitrary shared boundary from silently becoming a passage.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 The open kind fails if any boundary separates the pair (L199-204); the opening kind requires the void.
+   * @evidenceReview principles/core/source-units.md#source-scope-preservation The opening variant requires a real opening id and the open variant fails if a boundary separates its two spaces, preventing a shared wall from becoming a route.
    * @evidence principles/core/source-units.md#source-substantive-completion Opening and connector ids or open-gap coordinates give the verifier a concrete host to test.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Ids are looked up (L153, L190); open coordinates are probed at +/-0.05 (L205-213).
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion checkRouteNetwork looks up the opening or connector id and tests points on both sides of an open contact at a small offset along its normal.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network distinguishes a door opening id, stair/site connector id, and the one open front-entry/service-access gap; via encodes exactly those passage hosts.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05:35-56 door/opening ids, connectors (05:33-34, 46-50), 05:38 open front-entry/service-access; 05:62 passages need a real door/open void or an authored connector. via kinds opening/connector/open (routes.ts:57).
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The table assigns opening ids, connector ids and the one open entry/service contact; via retains those three passage forms and adds no new circulation decision.
    */
   via: { kind: "opening"; id: string } | { kind: "connector"; id: string } | { kind: "open"; at: { x: number; y: number; z: number }; normal: "x" | "z" };
 }
@@ -76,15 +76,15 @@ export interface IRouteEdge {
 /** The 05 table in its order. */
 /**
  * @evidence spaces/05-route-network.md ROUTE_NETWORK is the two-level passage table from the front approach through rooms and garden access.
- * @evidenceReview spaces/05-route-network.md #60bf203 v-141 24 edges (L69-93) match the 05:33-56 table rows in the same order.
+ * @evidenceReview spaces/05-route-network.md ROUTE_NETWORK lists the table's front approach, interior rooms, garden and upper floor as 24 named two-space edges in the authored order.
  * @evidence spaces/05-route-network.md#room-route-network Each row records two space ids and its exact opening, connector, or service-side open-gap host.
- * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 v-141 Each edge has from/to plus an opening, connector or open host.
+ * @evidenceReview spaces/05-route-network.md#room-route-network Each route entry supplies both space ids and the table's opening, connector or wall-less entry/service contact as its via host.
  * @evidence principles/core/source-units.md#source-scope-preservation The table records authored circulation only; the checker refuses rather than fabricates missing passages.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Missing hosts become failures and a throw (L160-231); nothing is fabricated.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The readonly table lists authored paths; checkRouteNetwork records missing or mismatched hosts as failures and never creates a substitute passage.
  * @evidence principles/core/source-units.md#source-substantive-completion A fixed readonly sequence provides all edges for reachability, bypass, and unused-opening checks.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 readonly IRouteEdge[] feeds reach (L121), bypass (L227-228) and unused openings (L217-224).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion checkRouteNetwork iterates the fixed edge sequence for host checks, reachability and forbidden through-room access, giving the table an executable consumer.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network names each two-space edge and its opening/connector host, including the wall-less front-entry to service-access contact; the table carries those rows.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05:33-56 lists 24 edges; ROUTE_NETWORK has the same 24 pairs and hosts, including the open front-entry->service-access edge (routes.ts:69-93, :75).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The authored table has 24 passages including the open front-entry to service-access contact; ROUTE_NETWORK carries those same pairs and host kinds without changing the route parent.
  */
 export const ROUTE_NETWORK: readonly IRouteEdge[] = [
   { from: "front-walk", to: "front-porch", via: { kind: "connector", id: "porch-steps" } },
@@ -155,15 +155,15 @@ const reach = (start: string, avoid: readonly string[]): Set<string> => {
 /** Check the route network against a built environment; throws with every failed edge. */
 /**
  * @evidence spaces/05-route-network.md This verifier tests the route table against built spaces, openings, connectors, and boundary records.
- * @evidenceReview spaces/05-route-network.md #60bf203 v-141 Reads spaces, openings, boundaries and connectors (L144-215).
+ * @evidenceReview spaces/05-route-network.md checkRouteNetwork reads actual built spaces, openings, boundaries and connectors for every table edge, as the route parent requires before claiming topology.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads actual passage hosts and rejects mismatches; it cannot repair a missing door or change the authored route.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Only pushes failures and throws (L229-231).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The function accumulates errors and throws; it neither edits the environment nor changes the authored route table when a passage is missing.
  * @evidence principles/core/source-units.md#source-substantive-completion It reports absent/wrong hosts, unused passage openings, unreachable spaces, and forbidden through-room dependence in one diagnostic.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Missing/wrong hosts (L149-215), unused openings (L217-224), unreachable spaces (L225-226) and NOT_THROUGH (L227-228) go into a single Error.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion It checks host identity, unused passage openings, reachability from front-entry and access around forbidden through-rooms, then reports all failures in one error.
  * @evidence obligations/design/space-sources.md#space-source-invalid-topology A missing edge host or disconnected required room adds an explicit failure and throws instead of guessing geometry.
- * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology #030592d v-141 Failures plus a throw (L229); obligations space-sources.md:23.
+ * @evidenceReview obligations/design/space-sources.md#space-source-invalid-topology A missing or mismatched passage host adds a failure and the function throws after inspecting the network, exposing invalid topology instead of guessing a connection.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network requires every listed door or connector to join its two spaces and forbids common room, garage, or bath access only through pantry, powder, or a bedroom; this checker refuses those failures.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05:60: common room, garage and both baths reached without passing pantry/powder/bedroom; 05:62 passages need a real door/void or connector. checkRouteNetwork host checks (routes.ts:150-196), NOT_THROUGH/DIRECT reach (:97-110, :227-228), throw (:229-231).
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The route parent requires actual passage hosts and access to common room, garage and both baths without pantry, powder or bedroom transit; the checker verifies hosts and the restricted reach graph, then throws on failures.
  */
 export const checkRouteNetwork = (environment: IAutoMovieBuiltEnvironment): void => {
   const failures: string[] = [];
