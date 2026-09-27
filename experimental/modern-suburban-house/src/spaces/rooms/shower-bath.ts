@@ -23,13 +23,13 @@ import {
 import { blindRecessWall } from "./recess";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/shower-bath.md The hall-shower-door void follows the partition assigned to shower-bath.
- * @evidenceReview spaces/rooms/shower-bath.md #9969963 v-141 shower-bath.ts:30-35 door(1.05,2.05) is the hole of shower-hall-partition (shower-bath.ts:86-94); 07:39 assigns shower<->hall; shower-bath.md:27 front wall Z=[-6.06,-5.91].
+ * @evidenceReview spaces/rooms/shower-bath.md `DOOR_HALL_SHOWER_DOOR` fixes the shower plan's X = [1.05, 2.05] corridor opening and cuts the shower-owned front hall partition.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall-shower-door interval remains with shower-bath while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 upper-hall.ts:18 imports DOOR_HALL_SHOWER_DOOR and uses .from/.to (upper-hall.ts:97-102); 05:54 names shower-bath.md as owner.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation This room exports its hall-door interval; `buildUpperHall` imports `from` and `to` for the corridor-side finish without defining a separate bathroom door.
  * @evidence principles/core/source-units.md#source-substantive-completion The hall-shower-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Hole at shower-bath.ts:93. Floor shares shower z[-6.06,-5.985] (shower-bath.ts:80-85) and hall z[-5.985,-5.91] (upper-hall.ts:97-102).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildShowerBath` cuts `shower-hall-partition` with this door and finishes Z = [-6.06, -5.985]; `buildUpperHall` finishes Z = [-5.985, -5.91] from the same X span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-bath-plan locates hall-shower-door on the front corridor wall at X=[1.05, 2.05], Y=[3.06, 5.26]; this export preserves that opening without adding a bedroom door.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 shower-bath.md:27 front Z=[-6.06,-5.91] wall, X=[1.05,2.05], Y=[3.06,5.26], 주침실에 출입문을 추가하지 않는다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `shower-bath-plan` gives the front hall wall one opening at X = [1.05, 2.05], Y = [3.06, 5.26] and excludes a bedroom door; this upper-storey `door` preserves that rough cut and default head.
  */
 export const DOOR_HALL_SHOWER_DOOR = door(
   "hall-shower-door",
@@ -70,17 +70,17 @@ const SHOWER_BATH: IRoomSpace = {
 /** Emit the shower bathroom floor and its two partitions. */
 /**
  * @evidence spaces/rooms/shower-bath.md This builder owns the upper shower room reached directly from the hall.
- * @evidenceReview spaces/rooms/shower-bath.md #9969963 v-141 SHOWER_BATH box([0.9,3.07],[-8.8,-6.06]) on the upper storey (shower-bath.ts:39-44) = shower-bath.md:25; single door from the hall (:27).
- * @evidence spaces/rooms/shower-bath.md#shower-bath-plan The hall wall contains hall-shower-door and the primary-side wall has its bounded blind recess.
- * @evidenceReview spaces/rooms/shower-bath.md#shower-bath-plan #2fb7a85 v-141 Hall-wall hole (shower-bath.ts:86-94) matches shower-bath.md:27. The blind recess (shower-bath.ts:95-108) is real, but its decision is only in the #shower-fixture-use body (shower-bath.md:61); the #shower-bath-plan body (shower-bath.md:25-29) has no recess.
- * @evidence spaces/rooms/shower-bath.md#shower-fixture-use Booth, toilet, vanity, mirror, towel, and their access areas stay as typed room reservations.
- * @evidenceReview spaces/rooms/shower-bath.md#shower-fixture-use #3a48d97 v-141 shower-bath.ts:48-62: booth [0.9,2.15]x[-8.8,-7.7] h2.1; booth-wait; toilet [2.32,2.97]x[-8.8,-8.05] .82; toilet-use; vanity [2.52,3.07]x[-6.8,-6.1] .85; vanity-use; towel [2.2,2.45] proj .08; mirror on X=3.07 wall 1.10-1.90 proj .04. shower-bath.md:55-61 match.
+ * @evidenceReview spaces/rooms/shower-bath.md `SHOWER_BATH.outline` keeps the plan's X = [0.90, 3.07], Z = [-8.80, -6.06] upper-floor room; `buildShowerBath` gives it one hall entrance and no bedroom entrance.
+ * @evidence spaces/rooms/shower-bath.md#shower-bath-plan The front hall wall contains hall-shower-door while the primary-bedroom side remains a closed shared boundary.
+ * @evidenceReview spaces/rooms/shower-bath.md#shower-bath-plan `shower-hall-partition` contains `DOOR_HALL_SHOWER_DOOR`; the primary-side `blindRecessWall` has a closed back and no bedroom passage, matching the plan's single corridor entrance.
+ * @evidence spaces/rooms/shower-bath.md#shower-fixture-use Booth, toilet, vanity, mirror, towel, access areas and the blind bottle recess stay assigned to this room.
+ * @evidenceReview spaces/rooms/shower-bath.md#shower-fixture-use `SHOWER_BATH.reservations` separates the booth, toilet and vanity from their use boxes, mirror and towel; `blindRecessWall` builds the specified shallow bottle niche into the primary-side partition without a through opening.
  * @evidence principles/core/source-units.md#source-scope-preservation The function builds tile finishes and two allocated walls while leaving glass and plumbing fixtures to models.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Parts: tile roomFloor/doorFloor, roomCeiling, shower-hall-partition and shower-primary-partition (shower-bath.ts:77-109). No fixture parts; reservations only.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation The parts contain tile floor, ceiling, hall-door strip, hall partition and a closed recessed primary-side wall; sanitary fixtures stay in reservations without fixture meshes.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns room surfaces, under-door finish, the cut hall wall, and the recessed primary wall solid.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 roomFloor, roomCeiling, doorFloor, shower-hall-partition with hole, and the blindRecessWall part (shower-bath.ts:77-109).
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildShowerBath` returns the room and five concrete parts, including the hall wall cut and `shower-primary-partition` made from `blindRecessWall` with its bounded niche.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-bath-plan gives one hall-shower-door with no primary-bedroom door, and shower-fixture-use fixes a blind niche plus booth, basin, and toilet use areas inside the bathroom.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 shower-bath.md:27 one hall-shower-door, '주침실에 출입문을 추가하지 않는다'; :57-61 booth wait, toilet use, vanity (basin) use, blind niche. Host shower-bath.ts:30-35, reservations :46-63, niche wall :95-107.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `buildShowerBath` uses the single corridor door from `shower-bath-plan` and the booth, vanity, toilet, waiting boxes and blind niche from `shower-fixture-use`; the primary-side recess keeps a closed back, so no parent passage revision is needed.
  */
 export const buildShowerBath = (): IRoomBuild => ({
   space: SHOWER_BATH,
