@@ -13,6 +13,7 @@ import {
   buildMaterial,
   defaultMaterial,
 } from "./geometry";
+import { applyReliefWeights } from "./reliefWeightShading";
 
 /**
  * Expression sink supplied by imported runtimes such as VRM managers.
@@ -206,11 +207,14 @@ export const buildModel = (
   }
 
   const definitions = new Map(model.materials.map((m) => [m.id, m]));
-  const materials = new Map<string, Map<boolean, THREE.MeshStandardMaterial>>();
+  const materials = new Map<string, Map<string, THREE.MeshStandardMaterial>>();
   const parts = new Map<string, THREE.Object3D>();
   for (const part of model.parts) {
     const geo = buildGeometry(part.geometry);
     const colored = geo.hasAttribute("color");
+    // a mesh with relief weights takes its own variant, whose normal map's
+    // slopes they scale; one without keeps the material as authored
+    const weighted = geo.hasAttribute("reliefWeight");
     const definition =
       part.material === null ? undefined : definitions.get(part.material);
     let mat: THREE.MeshStandardMaterial;
@@ -223,11 +227,13 @@ export const buildModel = (
         variants = new Map();
         materials.set(definition.id, variants);
       }
-      const cached = variants.get(colored);
+      const key = `${colored}:${weighted}`;
+      const cached = variants.get(key);
       if (cached === undefined) {
         mat = buildMaterial(definition, resolveTexture);
         mat.vertexColors = colored;
-        variants.set(colored, mat);
+        if (weighted && mat.normalMap !== null) applyReliefWeights(mat);
+        variants.set(key, mat);
       } else mat = cached;
     }
     const skin =
