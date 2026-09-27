@@ -27,7 +27,7 @@
 
 계층은 `door` 아래 `jamb`(좌·우·머리), 양쪽 벽면의 `casing`, 그리고 경첩 축 노드 `hinge-pivot` 아래 `leaf`, `handle`로 둔다. casing은 [settings 개구부](../settings/10-house.md#openings)의 흰 실내 문선을 위해 벽면에서 0.015 m 돌출하는 폭 0.07 m 띠로 택한다. 돌출은 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 trim이 실제 돌출과 음영으로 접합을 설명한다는 조건에서, 폭은 [06의 외부 trim 상한 0.10 m](../spaces/06-openings.md#external-opening-interface)보다 좁게 두어 실내 문선이 외부 trim보다 가벼운 위계로 읽히게 하는 모델 결정이다. leaf는 [settings 개구부](../settings/10-house.md#openings)가 레퍼런스 03–05에서 채택한 흰 패널문을 위해 위아래 두 개의 오목 패널을 가지며 패널은 문짝 면에서 0.008 m 들어간다. 문짝 아래끝은 바닥 위 0.01 m, 두 패널의 로컬 높이 범위는 바닥 위 [0.18, 0.86]·[0.98, 1.98] m이고 양옆에서는 문짝 폭보다 0.12 m씩 좁혀 문짝 폭 W에 대해 패널 폭 W − 0.24 m로 정한다. 두 패널 사이 0.12 m 띠와 위 0.19 m 머리 띠가 남는다. 패널 바닥과 네 챌면의 id는 `leaf-panel`이며 앞뒤의 나머지 면과 네 두께 면은 `leaf`다. 패널 수 둘은 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 실내 threshold view(FOV 60°)에서 문짝이 평판이 아닌 패널문으로 읽히는 가장 단순한 분할로 택한 모델 결정이다. 문짝 면은 평면 법선과 문짝 국소 X·Y에 정렬한 미터 단위 UV를 가져 materials가 칠 마감이나 결을 같은 방향으로 바인딩할 수 있다. 열림 회전 반경은 문짝 폭과 같아 거친 폭 0.95·1.00·1.05 m 문에서 각각 0.89·0.94·0.99 m이고 손잡이는 문짝 가장자리 안쪽이라 반경을 늘리지 않는다. 기본형 일곱 문의 손잡이는 레퍼런스 05의 둥근 검은 손잡이를 채택한 지름 0.05 m 구형 knob 둘과 지름 0.065 m·두께 0.006 m 원형 받침 둘로, 바닥 위 0.95 m(사용 프로필 점유체 높이 1.90 m의 절반으로 성인과 자녀 모두의 손 높이 범위 안에 두는 모델 결정), 경첩 반대편 문짝 가장자리에서 0.07 m 안쪽에 두고 문짝 양면에서 각각 0.055 m 돌출한다. 경첩은 문짝 하단 위 0.20·1.05·1.90 m 중심의 지름 0.018 m·길이 0.08 m 원통 knuckle 셋이며 표면 id는 `hinge`다. 손잡이는 90° 열림에서 문짝의 자유단에 있어 문설주 면의 순폭 단면 안에 들어오지 않는다. 소스 owner는 `src/models/interior-door.ts`이며 순폭은 문설주 면 단면에서 측정한다.
 
-각 문에서 벽 두께 T=0.15 m, 세탁실–차고 문만 T=0.25 m로 두면 문설주 세로 몸통은 X=[0,0.03]·[W−0.03,W] m, Y=[0,2.17] m, Z=[−T,0] m이고 머리 몸통은 X=[0,W] m, Y=[2.17,2.20] m, Z=[−T,0] m다. 세로 몸통과 머리 몸통은 Y=2.17 m 면에서만 만나므로 같은 부피를 두 번 만들지 않는다. 문이 열리는 방의 Z=0 문설주 바깥 면 `jamb-a`는 이 세 판의 X/Y 끝까지, 반대 방의 Z=−T 바깥 면 `jamb-b`는 같은 X/Y 끝까지 한 번씩 만들고 벽에 묻힌 부분은 노출 면으로 만들지 않는다. 개구부 안쪽 X=0.03·W−0.03 m의 두 챌면과 Y=2.17 m의 머리 밑면, 각 판의 남는 절단 끝은 `jamb-core`로 덮으며 이 면들의 깊이 범위는 Z=[−T,0] m다. 닫힌 문짝 폭 W−0.06 m는 문설주 두 안쪽 면 사이 X=[0.03,W−0.03] m에 놓이고 Y=[0.01,2.17] m이므로 옆·윗면에서만 문설주에 닿는다.
+각 문에서 벽 두께 T=0.15 m, 세탁실–차고 문만 T=0.25 m로 두면 문설주 세로 몸통은 X=[0,0.03]·[W−0.03,W] m, Y=[0,2.17] m, Z=[−T,0] m이고 머리 몸통은 X=[0,W] m, Y=[2.17,2.20] m, Z=[−T,0] m다. 세로 몸통과 머리 몸통은 Y=2.17 m 면에서만 만나므로 같은 부피를 두 번 만들지 않는다. 열림 쪽 `jamb-a`는 두 세로 몸통 X=[0,0.03]·[W−0.03,W] m와 머리 몸통 X=[0,W]·Y=[2.17,2.20] m의 Z=0 m 바깥 면이다. 반대쪽 `jamb-b`는 같은 X/Y 구역에서 일반 벽의 Z=−0.15 m, 세탁실–차고 벽의 Z=−0.25 m 바깥 면이며 벽에 묻힌 부분은 노출 면으로 만들지 않는다. 개구부 안쪽 X=0.03·W−0.03 m의 두 챌면과 Y=2.17 m의 머리 밑면, 각 판의 남는 절단 끝은 `jamb-core`로 덮으며 이 면들의 깊이 범위는 Z=[−T,0] m다. 닫힌 문짝 폭 W−0.06 m는 문설주 두 안쪽 면 사이 X=[0.03,W−0.03] m에 놓이고 Y=[0.01,2.17] m이므로 옆·윗면에서만 문설주에 닿는다.
 
 문선의 기본 위치는 11개 문의 개구부 국소 좌표로 결정하되, 아래 욕조 욕실 문 한 곳의 모서리 쪽 판만 벽 경계에서 잘라 낸다. 거친 개구부 왼쪽 아래를 (X,Y)=(0,0), 폭을 W=0.95·1.00·1.05 m 중 해당 방의 값으로 둔다. 열림 쪽 A와 반대쪽 B의 완성 벽면 각각에서 `casing-a`·`casing-b` 좌우 세로 판은 X=[−0.07,0]·[W,W+0.07] m, Y=[0,2.20] m이고 머리 판은 X=[−0.07,W+0.07] m, Y=[2.20,2.27] m다. 세 판의 뒷면은 각 방의 완성 벽면에 있고 앞면은 그 방으로 0.015 m 돌출한다. 세로 두 발은 각 방 완성 바닥에 닿고 문턱판은 개구부 폭 안에서만 공간 owner가 만든다. 머리 판은 세로 판 윗면에 직각으로 접하며 부피를 복제하지 않는다. 차고 공유 벽에서는 열림 쪽 세탁실 `casing-a`의 +Z 세로 판이 [laundry-garage-door](../spaces/rooms/laundry.md#laundry-plan)의 월드 X=[5.485,5.50], Z=[−3.35,−3.28], Y=[0,2.20] m를 차지한다. 반대쪽 차고 `casing-b`의 바닥 끝은 차고 완성 바닥 Y=−0.15 m이며 그 판만 높이 2.35 m로 연장해 문 머리 Y=2.20 m에서 끝난다. 세탁기·상판·상부장 홈은 세탁실 쪽 닫힌 체적을 비운다. 팬트리 선반은 별도 service-pantry-door 문선의 인접 원형이므로 그 선반의 절개는 팬트리 선반 H2가 정한다.
 
@@ -98,6 +98,7 @@ hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이�
 @evidence principles/design/models.md#reviewable-structure materials 바인딩 뷰에서 양쪽 casing 경계로 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04·05의 흰 문짝, 챌면, 검은 손잡이가 따로 읽히므로 그 면들을 분리한다. 흰 문선 색은 materials에 두고 경계만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 실내 문 부재에 정한다.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 한 벽체의 양쪽 방 접면을 받아 jamb-a·jamb-b와 casing-a·casing-b를 별도 모델 면으로 나눈다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 00의 이름 규칙과 방 owner의 양쪽 마감 배정을 실내 문 -a/-b 분리에 그대로 소비했고 부모 수정이 없었다.
 -->
 
@@ -121,6 +122,7 @@ hall-tub-door는 복도 쪽 −Z 모서리에서 다음 샤워 욕실 칸막이�
 @evidence principles/design/models.md#model-observable-style-basis 기구 생략이라는 관찰 가능한 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 실내 문의 걸쇠·잠금·닫힘 장치와 문턱을 만들지 않는 층으로 명시한다.
 @evidence obligations/design/models.md#representation-ceiling 실내 문 계열의 걸쇠·잠금·닫힘 장치 생략을 적는다.
+@evidence spaces/rooms/laundry.md#laundry-plan 차고 쪽 바닥의 0.15 m 단차는 세탁실 바닥 datum으로 받고 모델 문턱을 따로 만들지 않는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work laundry의 문턱 datum을 그대로 소비했고 부모 수정이 없었다.
 -->
 

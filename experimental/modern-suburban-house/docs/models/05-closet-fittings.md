@@ -13,6 +13,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 트랙 층을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 각 문짝의 국소 X 평행 이동 0~0.45 m를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 현관 owner가 고정 몸체와 개구부만 맡는 경계를 받아 폭 0.95 m의 문짝 0.50 m 둘·겹침 0.05 m 및 통로 쪽 국소 깊이 최대 0.14 m를 이 모델에 배정한다.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 고정 수납 벽체의 개구부 면은 spaces에 두고 외투장 미닫이 문짝·트랙·문선은 별도 모델 고체로 만든다.
 @evidence contracts/reservation-fit.md#reservation-fit 두 트랙의 국소 깊이 끝 0.14 m가 0.15 m 경계 안이고 문선은 개구부 Z 바깥·통로 끝 X=2.035 < 2.07 m다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage는 원래 문짝·봉까지 entry.ts가 소유한다고 적었으나 실제 source에는 벽과 개구부만 있었다. 부모 H2를 벽·개구부는 spaces, 문짝·봉·선반은 models로 고쳤고 spaces/07-boundary-assembly.md#interior-boundary-ownership도 수납문이 방 면을 채우는 같은 소유 모순을 고쳐 닫힌 수납문 원형을 이 H2에 넘겼다.
 -->
@@ -41,6 +42,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 스타일 라벨 없이 수납 부재 위치만 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 몸통 국소 깊이 0.65 m 안의 부재 층을 정한다.
 @evidence spaces/rooms/entry.md#entry-coat-storage 봉 위치와 선반 상면 2.00 m, 몸통 깊이 0.65 m를 소비한다.
+@evidence spaces/02-stair.md#stair-boundary-heights 선반 윗면이 계단 구조 아래에 머물도록 계단 underside를 절단 한계로 받는다.
 @evidence contracts/reservation-fit.md#reservation-fit 봉과 선반이 몸통 국소 깊이 [0, 0.65] m 안에 있음을 적는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage의 원래 source 책임은 봉까지 entry.ts에 두어 이 원형과 중복됐다. 부모 H2를 벽·개구부만 spaces, 봉·선반은 models로 고쳤고 계단 구조 높이의 unverified 상태는 유지했다.
 -->
@@ -64,6 +66,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 인터페이스와 선반 층을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 린넨장 문짝의 국소 X 평행 이동을 외투장과 같은 형식의 motion 인터페이스로 정한다.
 @evidence spaces/rooms/upper-hall.md#upper-linen-storage upper-linen-opening X = [1.97, 2.97] m와 다섯 선반 규칙을 문짝 0.525 m와 선반 상면 값으로 소비한다.
+@evidence spaces/07-boundary-assembly.md#interior-boundary-ownership 린넨장의 고정 전면 벽·개구부와 그 속 미닫이 문짝·선반의 두 source owner를 분리한다.
 @evidence contracts/reservation-fit.md#reservation-fit 선반 깊이 0.55 m 뒤에 0.05 m 여유가 있고 문 트랙은 별도의 국소 깊이 [0,0.15] m 경계 안에 있다. 문선은 거친 개구부 X 바깥·복도 쪽 Z≤−3.41 m라 문짝과 체적을 공유하지 않는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work upper-hall의 린넨장 치수는 그대로 소비했다. 다만 spaces/07-boundary-assembly.md#interior-boundary-ownership의 수납문 소유가 방 면과 모델 원형에 겹치던 부분은 벽 개구부만 spaces, 문짝은 models로 부모에서 고친 뒤 이 H2의 두 문짝을 지정했다.
 -->
@@ -96,6 +99,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 색은 materials에 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion 외투장·린넨장 문짝과 봉·선반의 표면 인터페이스를 정한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work entry-coat-storage가 원래 문짝·봉을 spaces source에 맡긴 중복 소유를 부모에서 고쳐 수납 부재의 `leaf`·`rod`·`shelf` 면을 models 한 owner가 내도록 했다. upper-linen-storage의 선반 예약과 00의 id 규칙은 수정 없이 충분했다.
+@evidence spaces/rooms/entry.md#entry-coat-storage 외투장 몸통·개구부는 spaces에 두고 미닫이 leaf·rail·rod·shelf의 닫힌 면만 모델 부재의 표면 id로 받는다.
 -->
 
 레퍼런스 04·05의 흰 수납문 전면과 내부 봉·선반을 서로 다른 표면으로 채택한다. spaces에는 개구부만 남긴다.
@@ -118,6 +122,8 @@
 @evidence principles/design/models.md#model-observable-style-basis 롤러와 브래킷이 보이지 않는다는 관찰 가능한 수납 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 미닫이 롤러·선반 브래킷·나사와 옷·수건·용기를 만들지 않는 층으로 명시한다.
 @evidence obligations/design/models.md#representation-ceiling 수납 부재의 하드웨어 생략과 내용물 제외를 적는다.
+@evidence spaces/rooms/upper-hall.md#upper-linen-storage 린넨장 선반은 모델이 만들고 수건 내용물은 별도 소품 원형으로 두어 개구부·선반·내용물의 소유를 구분한다.
+@evidence settings/20-verification.md#fidelity 린넨장 문짝·내부 선반이 캡처에서 읽혀야 한다는 수준을 유지하되 숨은 롤러·나사는 생략한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings fidelity와 entry·upper-hall의 수납 내용물 서술을 수납 부재 생략과 대조했고 부모 수정이 필요하지 않았다.
 -->
 

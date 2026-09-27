@@ -25,7 +25,7 @@
 
 국소 원점은 난간살 아래 끝 중심, 국소 +Y는 world +Y이며 모든 난간살은 rigid이고 관절 인터페이스가 없다. 위 끝은 손잡이 아래면까지, 아래 flight와 참의 아래 끝은 각 디딤판·참의 보이는 윗면에, 상층 복도의 아래 끝만 [아래 부재](#stair-bottom-member)의 윗면에 맞댄다. 소스 owner는 `src/models/stair-baluster.ts`이며 검사 주소는 02가 적은 현관에서 보이는 아래 flight, 중간참 두 방향, 상부 도착과 복도 가장자리다.
 
-각 `baluster`의 중심은 기둥 안쪽에서 잰 해당 구간 길이축 s에서 i=0…n−1마다 s=gap+0.01+i×(0.02+gap) m이고, gap=(L−0.02n)/(n+1) m다. 각 중심에서 길이축 좌우 0.01 m와 0.075 m 예약의 가운데선 좌우 0.01 m를 쓰는 0.02×0.02 m 정사각 기둥을 세우며, 아래 끝은 해당 디딤·참 또는 상층 복도 아래 부재의 위 면, 위 끝은 해당 spaces 손잡이 아래 면에 맞댄다. 검은 칠을 받을 네 옆면과 양 절단 끝은 이 한 부재의 `baluster` 면이며 기둥·손잡이의 닫힌 체적에는 들어가지 않는다.
+각 `baluster`의 중심은 기둥 안쪽에서 잰 해당 구간 길이축 s에서 i=0…n−1마다 s=gap+0.01+i×(0.02+gap) m이고, gap=(L−0.02n)/(n+1) m다. 각 중심에서 길이축 좌우 0.01 m와 0.075 m 예약의 가운데선 좌우 0.01 m를 쓰는 0.02×0.02 m 정사각 기둥을 세우며, 아래 끝은 해당 디딤·참 또는 상층 복도 아래 부재의 위 면, 위 끝은 해당 spaces 손잡이 아래 면에 맞댄다. 각 `baluster`의 네 옆면과 양 절단 끝은 중심선 양쪽으로 0.01 m인 이 정사각 기둥 한 부재의 면이며 기둥·손잡이의 닫힌 체적에는 들어가지 않는다.
 
 ## 디딤과 복도 가장자리의 아래 부재 {#stair-bottom-member}
 <!--
@@ -83,6 +83,7 @@
 @evidence principles/design/models.md#reviewable-structure 바인딩 뷰에서 기둥과 난간살 경계로 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03·04의 검은 난간살과 흰 계단 바탕이 구분되므로 난간 부재 면만 models로 넘긴다. 검은 철제 색은 materials에 둔다.
 @evidence principles/design/models.md#model-scale-layer-completion baluster와 bottom-rail 두 표면 인터페이스를 정하고 기둥·손잡이 표면은 spaces에 남긴다.
+@evidence settings/10-house.md#stair 검은 철제 난간살의 색 결합 면을 baluster·bottom-rail로 한정하고 계단 기둥·손잡이 면은 spaces owner에 남긴다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings stair를 그대로 소비했고 부모 수정이 없었다.
 -->
 
@@ -102,6 +103,8 @@
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 04에서 읽히는 살대와 아래 띠는 채택하지만 나사·고정구는 사진에서도 보이지 않아 표현 범위에서 제외한다. 용접부·볼트가 보이지 않는다는 관찰 가능한 난간 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 난간 부재의 용접부·볼트·받침판을 만들지 않는 층으로 명시한다.
 @evidence obligations/design/models.md#representation-ceiling 난간 부재의 보호 성능·법규 비증명을 적는다.
+@evidence spaces/02-stair.md#stair-boundary-heights 간격과 아래 빈 높이의 형상 조건만 난간 부재로 소비하고 보호 성능·법규 적합 인증으로 확대하지 않는다.
+@evidence settings/20-verification.md#fidelity 계단 난간살과 아래 띠는 캡처에서 읽히는 부재로 유지하되 볼트·용접부를 사실적 기능 증명으로 확대하지 않는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings fidelity와 02-stair의 법규 비주장을 난간 부재 생략과 대조했고 부모 수정이 필요하지 않았다.
 -->
 

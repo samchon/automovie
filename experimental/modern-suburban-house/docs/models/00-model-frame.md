@@ -111,6 +111,7 @@
 @evidence principles/design/models.md#reviewable-structure 가구 외곽의 뒤 기준면은 벽 마감 면에 두고, 하단 0.10 m에서는 뒤·옆 접촉벽의 걸레받이 0.015 m 띠를 비웠는지와 +Z가 사용 공간을 향하는지를 room 관찰에서 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 스타일 라벨 없이 벽에 붙는 면과 사용 방향이라는 관찰 가능한 배치 결정만 정하고 재료·조명을 주장하지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 척도는 m, 층은 바닥 접지 면, 인터페이스는 뒤 모서리 원점으로 정해 가구 원형 배치에 빠진 척도나 층이 없다.
+@evidence settings/00-production.md#coordinate-units 제작 좌표의 Y-up·m 단위를 받되 가구 원점은 뒤쪽 바닥선 중앙, 사용 앞쪽을 국소 +Z로 고정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work coordinate-units와 reservation-fit 계약을 적힌 그대로 소비했고 가구 원점 규칙을 정하는 데 settings나 spaces의 결함을 찾지 못했다.
 -->
 
@@ -197,6 +198,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 스타일 판정을 새로 하지 않고 각 계열 H2의 관찰 가능한 결정이 답해졌는지만 묻는다.
 @evidence principles/design/models.md#model-scale-layer-completion 구조적으로 유효해도 척도·층·경계·관찰이 빠진 계열을 의미 판정에서 실패로 보고하는 경로를 정한다.
 @evidence obligations/design/models.md#model-representation-completion 모집단의 구조 판정과 의미 판정을 계열별로 분리해 보고하고 어느 판정도 다른 판정을 함의하지 않는다고 적는다.
+@evidence settings/20-verification.md#fidelity 실제 캡처에서 부재 읽힘을 요구하는 표현 수준을 의미 판정에 두고, 아직 없는 source 메시의 구조 판정은 unverified로 남긴다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work reservation-fit 계약과 settings fidelity를 그대로 소비했고 완결 보고 형식을 정하는 데 부모 수정이 필요하지 않았다.
 @evidence obligations/core/common.md#purpose-fit 아홉 원형 계열(창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품)마다 구조와 의미를 따로 판정해 문서 산술만으로 실제 source의 적합성을 주장하지 않는다.
 @evidence obligations/core/common.md#proportionate-development 계열마다 구조·의미 판정을 같은 형식으로 보고하게 해 한 계열이 산술 없이 압축되거나 source 없이 부풀려진 것을 드러낸다.
@@ -219,6 +221,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 척도 대조용 점유체를 모든 뷰에 포함시켜 척도가 빠진 리뷰를 허용하지 않는다.
 @evidence obligations/design/models.md#model-review-set 모델 개정 사이 회귀를 비교하는 유한한 중성 뷰·배경·척도 대조 목록을 정한다.
 @evidence settings/20-verification.md#frame-condition canvas 1536×1024·DPR 1·중성 배경·FOV 45°·눈높이 1.6 m를 모델 리뷰 뷰 조건으로 소비한다.
+@evidence settings/00-production.md#use-profile 사람 점유체의 척도를 모델 리뷰 뷰마다 같이 두는 대조 기준으로 받는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work frame-condition과 use-profile을 적힌 그대로 소비했고 리뷰 목록을 정하는 데 부모 수정이 필요하지 않았다.
 @evidence spaces/04-observations.md#spatial-observation-derivation 모델 리뷰와 별개로 실제 집 안 배치 검사는 전체 관찰이 맡는다는 경계를 소비한다.
 -->

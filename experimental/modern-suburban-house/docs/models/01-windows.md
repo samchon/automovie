@@ -31,6 +31,8 @@
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 넓은 전면 창과 좁은 계단 창에 공통인 검은 테를 채택한다. charcoal 창틀이 흰 trim 안에서 선으로 읽혀야 한다는 visual-grammar 요구를 0.06/0.05 m 폭으로 구체화한다.
 @evidence principles/design/models.md#model-scale-layer-completion 가장 작은 창에서도 유리 층이 남는 척도 관계를 산출해 부재가 유리를 덮는 경우를 막는다.
 @evidence settings/20-verification.md#visual-grammar 짙은 charcoal 창틀과 흰 trim이 구별돼야 한다는 조건을 frame 0.06·sash 0.05 m 부재 폭의 근거로 소비한다.
+@evidence settings/20-verification.md#frame-condition 외부 기본 view에서도 frame과 sash가 다른 선으로 읽히도록 창틀·sash 폭과 정면 직교 검사 주소를 정한다.
+@evidence settings/10-house.md#openings 창을 두께 있는 frame·sash·유리·살대로 구성하라는 요구를 각 부재 폭·깊이와 별도 유리판으로 구체화한다.
 @evidence spaces/envelope/front.md#stair-front-window 폭 0.78 m 계단 창을 최소 창으로 삼아 유리 폭 0.56 m를 산출한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work visual-grammar·frame-condition과 입면 owner의 칸 수를 그대로 소비했고 부재 폭이 부모 값과 충돌하지 않았다.
 -->
@@ -74,6 +76,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 `frame` 둘레 입
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 위아래로 나뉜 전면 창을 채택한다. 상하 미닫이라는 라벨을 두 sash의 앞뒤 트랙과 반높이 분할이라는 관찰 가능한 구성으로 바꾼다.
 @evidence principles/design/models.md#model-scale-layer-completion 칸·sash 두 층과 이동 인터페이스를 정해 층이나 관절이 빠진 창이 통과하지 않게 한다.
 @evidence obligations/design/models.md#articulation-ownership lower-sash의 국소 +Y 평행 이동을 motion 인터페이스로, upper-sash를 rigid로 정한다.
+@evidence spaces/06-openings.md#external-opening-interface 상하 미닫이 작동형을 받아 upper-sash를 고정하고 lower-sash만 국소 +Y로 이동시키는 관절을 정한다.
 @evidence spaces/envelope/front.md#living-front-window X = [-5.10, -2.30] m 세 칸 거실창을 상하 미닫이 세 unit으로 채운다.
 @evidence spaces/envelope/front.md#bedroom-two-front-window 올리브 침실의 두 칸 창을 상하 미닫이 두 unit으로 채운다.
 @evidence spaces/envelope/front.md#bedroom-three-front-window 청회색 침실의 두 칸 창을 상하 미닫이 두 unit으로 채운다.
@@ -107,6 +110,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 좁은 계단·차고 창은 고정창으로 채택한다. 고정창이라는 라벨을 움직이는 노드가 없는 계층이라는 관찰 가능한 결정으로 바꾼다.
 @evidence principles/design/models.md#model-scale-layer-completion 고정창에도 frame·sash·유리 층이 모두 있음을 정해 사각 구멍 대체를 막는다.
 @evidence spaces/envelope/front.md#stair-front-window X = [-1.62, -0.84], Y = [4.11, 5.21] m 계단 창을 고정창 한 unit으로 채운다.
+@evidence spaces/06-openings.md#external-opening-interface 고정창으로 배정된 계단·차고 창의 sash·유리를 rigid로 두고 개구부 안 별도 닫힌 부재로 채운다.
 @evidence spaces/envelope/right.md#garage-right-window 차고 측면 두 칸 창을 고정창 두 unit으로 채운다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 06과 두 입면 H2를 적힌 그대로 소비했고 수정할 부모 결함이 없었다.
 @evidence spaces/02-stair.md#stair-floor-opening 계단 창이 실제 계단 공간으로 열리고 창호는 후속 부재가 구현한다는 인계를 고정창 한 unit으로 소비한다.
@@ -131,6 +135,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#model-scale-layer-completion 경첩 인터페이스와 열림 상한을 정해 관절 없는 욕실 창이 통과하지 않게 한다.
 @evidence obligations/design/models.md#articulation-ownership awning-sash의 위 변 축 회전을 0~π/8 rad motion 인터페이스로 정한다.
 @evidence spaces/envelope/right.md#tub-right-window Z = [-8.40, -7.50], Y = [4.56, 5.31] m 욕실 창을 상부 경첩창 한 칸으로 채운다.
+@evidence spaces/06-openings.md#external-opening-interface 욕실 창의 상부 경첩 작동형을 받아 위쪽 축과 바깥 열림 회전 범위를 모델 관절로 둔다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work right.md와 06의 욕실 창 배정을 그대로 소비했고 수정할 부모 결함이 없었다.
 -->
 
@@ -153,6 +158,8 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#model-scale-layer-completion trim과 창대 층을 창 원형에 포함시켜 층 누락을 막는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 바깥 trim을 입면 owner에 남겨 이 창대·문선 원형과 같은 닫힌 면의 owner가 겹쳤다. 그 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 외부 trim·창대는 models로 고쳤다. spaces/06-openings.md#external-opening-interface의 0.10 m 폭·0.06 m 돌출 예약과 settings/20-verification.md#visual-grammar는 유지했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면의 벽 절단면은 spaces에 남기고 창 둘레 닫힌 trim과 창대를 이 원형이 한 번 만든다.
+@evidence spaces/06-openings.md#external-opening-interface 흰 trim 폭 0.10 m·실내 창대 돌출 0.06 m를 네 외부 판과 두 깊이의 창대 판으로 소비한다.
+@evidence settings/20-verification.md#visual-grammar 돌출 trim이 창 주변에 실제 음영을 만들어야 한다는 요구를 구조 날씨 면 앞 0.035 m 판으로 받는다.
 -->
 
 레퍼런스 01의 흰 창 둘레 돌출과 04·05의 실내 창대를 채택한다. 창대가 실내 마감보다 실제로 0.06 m 나오는지를 단면 산술로 확인한다.
@@ -178,6 +185,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 창 부재에 정해 빈 표면이 없게 한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 입면 owner와 이 원형에 바깥 trim을 중복 배정해 부모 H2에서 닫힌 trim·창틀·유리의 owner를 models로 바로잡았다. settings/10-house.md#openings와 models/00의 id 이름 규칙은 유지했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면 owner의 벽 몸체·void·절단면과 모델 원형의 닫힌 창틀·문선·유리 면을 분리한다.
+@evidence settings/10-house.md#openings 창틀·sash·살대·유리를 별도 표면 id로 전달해 검은 테와 투명 판의 결합 면을 분리한다.
 -->
 
 레퍼런스 01·05의 검은 창호와 흰 안팎 문선을 서로 다른 면으로 채택한다. 유리 반사 색은 여기서 정하지 않는다.
@@ -196,6 +204,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 창틀 깊이와 05의 실내 빛받이만 표현 목표로 채택한다. 스타일 대신 두께 있는 부재라는 관찰 가능한 구성을 요구한다.
 @evidence principles/design/models.md#model-scale-layer-completion 만들지 않는 층을 명시해 누락과 의도된 생략을 구별한다.
 @evidence obligations/design/models.md#representation-ceiling 창 계열의 표현 한계로 웨더스트립·잠금쇠·방충망·이중 유리·물끊기 홈 제외와 단열·방수 추론 금지를 적는다.
+@evidence settings/20-verification.md#fidelity 창호가 캡처에서 두께 있는 부재로 읽혀야 한다는 요구를 frame·sash·유리·trim·창대의 별도 부재 조건으로 받는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work fidelity를 적힌 그대로 소비했고 부모 수정이 필요하지 않았다.
 -->
 

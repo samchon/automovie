@@ -33,7 +33,7 @@
 
 현관문 상부 유리의 실제 구멍은 문짝 안쪽 X=[0.55,1.25]·Y=[1.30,2.05] m이고 닫힌 문짝 깊이 Z=[−0.145,−0.105] m를 관통한다. 폭 0.03 m의 세로 `muntin` 둘은 X=[0.763333…,0.793333…]·[1.006666…,1.036666…] m, Y=[1.30,2.05] m에 연속해서 둔다. 가로 `muntin`은 Y=[1.66,1.69] m에서 X=[0.55,0.763333…]·[0.793333…,1.006666…]·[1.036666…,1.25] m의 세 토막으로 만들어 세로 살대와 면에서만 맞댄다. 여섯 `glass` 판은 그 세 X 구간과 Y=[1.30,1.66]·[1.69,2.05] m의 곱에 두며, 깊이는 Z=[−0.128,−0.122] m인 0.006 m 닫힌 판이다. 나머지 상부 문짝은 X=[0.43,0.55]·[1.25,1.37] m의 두 stile, Y=[2.05,2.17] m의 top rail, Y=[1.18,1.30] m의 lock rail로 구멍을 둘러싼다. 이 나무 띠와 살대는 같은 부피를 복제하지 않고, 유리 여섯 장과도 양의 부피를 공유하지 않는다. 최종 외곽은 문짝 X=[0.43,1.37]·Y=[0.03,2.17]·Z=[−0.145,−0.105] m 안이다.
 
-닫힌 현관문에서 목재 `leaf-exterior`는 날씨 쪽 Z=−0.105 m·문짝 X=[0.43,1.37]·Y=[0.03,2.17] m의 구멍을 제외한 넓은 면이고, `leaf-interior`는 같은 X/Y에서 실내 쪽 Z=−0.145 m의 구멍을 제외한 넓은 면이다. 외곽 네 변과 상부 유리 구멍의 목재 챌면 `leaf-edge`는 이 두 넓은 면 사이 두께 0.04 m를 닫되 유리와 별도 `leaf-panel`이 맡는 하부 오목 패널 바닥·챌면을 덮지 않는다. 실내 `casing`의 좌우 세로 판은 X=[0.33,0.40]·[1.40,1.47] m, Y=[0,2.20] m, Z=[−0.265,−0.25] m이고 머리는 같은 깊이·X=[0.33,1.47]·Y=[2.20,2.27] m여서 실내 벽 앞에서만 닫힌다. `hinge` 세 원통은 경첩축 X=1.37·Z=−0.145 m에서 문짝 하단 위 0.20·1.05·1.90 m 중심, 지름 0.018 m·길이 0.08 m로 배치해 +X 문설주 고체가 아니라 개구부 안쪽에서 회전한다.
+닫힌 현관문에서 목재 `leaf-exterior`는 날씨 쪽 Z=−0.105 m·문짝 X=[0.43,1.37]·Y=[0.03,2.17] m의 구멍을 제외한 넓은 면이고, `leaf-interior`는 같은 X/Y에서 실내 쪽 Z=−0.145 m의 구멍을 제외한 넓은 면이다. `leaf-edge`는 문짝 X=[0.43,1.37]·Y=[0.03,2.17] m의 외곽 네 변과 상부 유리 구멍 X=[0.55,1.25]·Y=[1.30,2.05] m의 목재 챌면을 깊이 Z=[−0.145,−0.105] m에서 닫되 유리와 별도 `leaf-panel`이 맡는 하부 오목 패널 바닥·챌면은 덮지 않는다. 실내 `casing`의 좌우 세로 판은 X=[0.33,0.40]·[1.40,1.47] m, Y=[0,2.20] m, Z=[−0.265,−0.25] m이고 머리는 같은 깊이·X=[0.33,1.47]·Y=[2.20,2.27] m여서 실내 벽 앞에서만 닫힌다. `hinge` 세 원통은 경첩축 X=1.37·Z=−0.145 m에서 문짝 하단 위 0.20·1.05·1.90 m 중심, 지름 0.018 m·길이 0.08 m로 배치해 +X 문설주 고체가 아니라 개구부 안쪽에서 회전한다.
 
 세 경첩의 각 Y 중심에서 ±0.04 m 구간은 축 X=1.37·Z=−0.145 m 주위 반지름 0.009 m 원판을 문설주와 닫힌 문짝 몸통 양쪽에서 뺀다. 문설주의 파인 원통 벽은 `jamb`, 문짝의 파인 원통 벽은 `leaf-edge`, 빈 자리를 채우는 원통의 겉면과 양 끝은 `hinge`다. 문짝 쪽 절개는 문짝과 함께 축 주위로 회전하므로 0–π/2 작동 중에도 원통과 목재의 양의 부피 교차가 없다. 문설주·문짝 외곽 X와 닫힌 면 Z 범위는 그대로이며 경첩 바깥 반경은 X≤1.379 m라 거친 개구부의 +X 끝 1.40 m 안이다.
 
@@ -50,6 +50,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 패널·레일·이동 인터페이스 층을 정해 평판 차고문 대체를 막는다.
 @evidence obligations/design/models.md#articulation-ownership panel-joint 세 축과 rail-path를 따르는 travel 0~2.30 m 한 스칼라를 motion 인터페이스로, 기준 상태를 닫힘으로 정한다.
 @evidence spaces/envelope/front.md#garage-front-opening X = [6.10, 11.10] m 개구부, 유효 폭 4.80 m, 네 패널, 위 패널 유리 네 열, 레일 띠와 상부 예약을 문짝·rail-path로 소비한다.
+@evidence settings/20-verification.md#visual-grammar charcoal 차고문을 네 분절 패널·상부 네 열 유리·오목 면으로 읽히게 하고 평면 한 장으로 대체하지 않는다.
 @evidence contracts/reservation-fit.md#reservation-fit 5.00 m 거친 폭에서 문설주 2×0.10 m를 빼 4.80 m를 지키고 rail-path가 레일 띠와 상부 예약 안에 있음을 적는다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work garage-front-opening의 높이 2.15 m와 가이드 예약은 충분해 유지했다. 다만 spaces/10-ground-floor.md#ground-threshold-junctions의 차고문 행이 모델에 없는 하부 밀폐재를 front owner에 맡기던 것을 고쳐, 실제 모델의 닫힌 맨 아래 패널 끝면이 차고 상면에 접하고 별도 밀폐재를 만들지 않는다고 부모에서 정정했다.
 @evidence spaces/01-storeys.md#ground-threshold-datums 차고 바닥 Y = -0.15 m datum을 차고문 유효 높이 2.15 m의 기준면으로 소비한다.
@@ -79,6 +80,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 두 문짝 관절, spaces 문턱 +0.02 m 위 0.01 m 바닥 틈, 안팎 문선 세 판 외곽과 끝점을 정한다.
 @evidence obligations/design/models.md#articulation-ownership 두 경첩 축 각각의 0~π/2 rad 회전을 motion 인터페이스로, 기준 상태를 둘 다 닫힘으로 정한다.
 @evidence spaces/envelope/rear.md#garden-door X = [-1.20, 1.20] m 개구부, 바깥 -Z 열림, 0.95 m 목표, 1.80 m 바깥 대기를 문짝 1.17 m와 순폭 1.13 m로 소비한다. 후벽·void·문턱판은 rear owner에 남기고 닫힌 문틀·두 문짝·철물은 이 모델 원형이 받는다.
+@evidence spaces/10-ground-floor.md#ground-threshold-junctions 후면 문턱 상면 +0.02 m에서 문설주를 시작하고 문짝 하단을 +0.03 m에 두어 문턱판 체적을 복제하지 않는다.
 @evidence contracts/reservation-fit.md#reservation-fit 순폭 1.13 m와 회전 반경 1.17 m를 owner 목표 0.95 m와 대기 깊이 1.80 m에 대조한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 정원문 바깥 trim·충전 부재를 입면과 models에 겹쳐 배정해 부모 H2를 벽 몸체·void·절단면은 spaces, 닫힌 trim·문짝은 models로 고쳤다. spaces/envelope/rear.md#garden-door와 spaces/site/terrace.md#garden-terrace-plan에도 남은 "문과 후벽은 rear owner" 배정을 고쳐 후벽·void·문턱판은 rear, 테라스와 바깥 대기는 terrace, 닫힌 문틀·문짝·철물은 models로 분리했다. spaces/10-ground-floor.md#ground-threshold-junctions의 rear-door 문턱판 +0.02 m는 이미 충분해 그 행은 유지하고 모델 문짝 아래를 +0.03 m로 정했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 후면 벽의 void와 절단면은 spaces, 닫힌 정원문 두 짝과 문선은 models가 한 번 만든다.
@@ -139,6 +141,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 외부 문 모두에 표면 인터페이스를 정한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 바깥 문선·문짝을 입면 owner와 모델 원형 양쪽에 주던 충돌을 고쳐 독립 닫힌 부재의 owner를 models로 확정했다. spaces/10-ground-floor.md#ground-threshold-junctions의 front-door 행도 문턱판은 spaces, 충전은 models로 고쳤고 이 H2는 그 문턱 id를 표면 목록에 넣지 않는다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면 벽 절단면과 닫힌 외부 문 부재를 별도 표면 소유로 분리한다.
+@evidence settings/20-verification.md#surface-allocation 문짝·문선·문설주·철물의 면 id를 models에서 제공하고 광학값과 반복은 materials 결합으로 넘긴다.
 -->
 
 레퍼런스 01의 목재 현관문·검은 차고문·흰 문선은 서로 다른 재료로 읽힌다. 면 id는 각각의 전면·안면·끝면을 분리한다.
@@ -161,6 +164,7 @@
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 01의 현관문과 차고문은 완성된 문짝으로 읽히게 채택한다. 스타일이 아니라 기구 생략이라는 관찰 가능한 한계를 적는다.
 @evidence principles/design/models.md#model-scale-layer-completion 차고문 스프링·모터·케이블과 대문 걸쇠 내부를 만들지 않는 층으로 명시한다.
 @evidence obligations/design/models.md#representation-ceiling 외부 문 계열의 기구 생략과 차고문 간섭 비증명을 적는다.
+@evidence settings/20-verification.md#fidelity 외부 문짝과 문설주를 캡처에서 읽을 부재로 유지하고 모터·스프링 같은 내부 기구는 이 proxy의 표현 밖에 둔다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work settings fidelity의 창호·문짝 읽힘 요구를 외부 문 기구 생략과 대조했고 부모 수정이 필요하지 않았다.
 -->
 
