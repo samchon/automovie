@@ -188,6 +188,7 @@ motion 인터페이스는 각 `lower-sash`의 국소 +Y 평행 이동 하나이�
 @evidence principles/design/models.md#model-scale-layer-completion 표면 인터페이스를 모든 창 부재에 정해 빈 표면이 없게 한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#exterior-surface-handoff가 입면 owner와 이 원형에 바깥 trim을 중복 배정해 부모 H2에서 닫힌 trim·창틀·유리의 owner를 models로 바로잡았다. settings/10-house.md#openings와 models/00의 id 이름 규칙은 유지했다.
 @evidence spaces/03-surface-owners.md#exterior-surface-handoff 입면 owner의 벽 몸체·void·절단면과 모델 원형의 닫힌 창틀·문선·유리 면을 분리한다.
+@evidence spaces/06-openings.md#external-opening-interface 높은 욕실 창에 배정된 흐린 유리의 상부 경첩 형식을 받아 투명 `glass`와 별도 `obscured-glass` 면 경계를 유지한다.
 @evidence settings/10-house.md#openings 창틀·sash·살대·유리를 별도 표면 id로 전달해 검은 테와 투명 판의 결합 면을 분리한다.
 -->
 

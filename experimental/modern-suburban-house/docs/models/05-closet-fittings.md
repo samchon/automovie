@@ -58,7 +58,7 @@
 ## 린넨장의 미닫이 문짝과 선반 {#linen-closet-fittings}
 <!--
 @evidence principles/core/common.md#scope-preservation 린넨장 미닫이 문짝 0.525 m 두 장, 선반 다섯 개와 개구부 바깥 문선 세 판을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 선반 상면 0.25·0.63·1.01·1.39·1.77 m와 문짝 높이 2.16 m, Z=−3.26 m에서 시작한 두 트랙 깊이 [0.07,0.10]/[0.11,0.14] m, 두 문짝의 닫힌 X 범위·각 이동 0–0.475 m를 정한다. 복도 쪽 문선은 바닥부터 Y=2.25 m까지 세 판으로 정한다.
+@evidence principles/core/common.md#substantive-completion 선반 상면 0.25·0.63·1.01·1.39·1.77 m와 양끝 X=[1.87,3.07] m의 벽 접촉, 문짝 높이 2.16 m, Z=−3.26 m에서 시작한 두 트랙 깊이 [0.07,0.10]/[0.11,0.14] m, 두 문짝의 닫힌 X 범위·각 이동 0–0.475 m를 정한다. 복도 쪽 문선은 바닥부터 Y=2.25 m까지 세 판으로 정한다.
 @evidence principles/core/common.md#declared-basis 개구부·선반 규칙은 spaces/rooms/upper-hall.md#upper-linen-storage에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation upper-linen-storage의 '0.25 m부터 0.38 m 간격'을 다섯 상면 값으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 문짝·트랙·선반·복도 쪽 세 문선 판 계층을 정한다.

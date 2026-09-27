@@ -59,6 +59,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 경사식·두께·모서리 연결·종단·face id·미터 UV·후속 source owner를 정하며 새 계단이나 방 경계는 만들지 않는다.
 @evidence spaces/02-stair.md#stair-reservation 0.17 m rise와 0.28 m run, 아래 7단·참·위 9단의 단일 L형 계단을 두 경사 판의 길이와 기울기 입력으로 받는다.
 @evidence spaces/02-stair.md#stair-clearance 난간이 계단 통행 안쪽 0.075 m 예약을 쓰는 반면 측판은 구조 옆면에서 방 쪽 0.015 m를 써 계단 통행 예약과 교차하지 않도록 분리한다.
+@evidence spaces/02-stair.md#stair-boundary-heights 위 flight 앞쪽의 열린 난간과 상층 벽붙이 손잡이 구간 분리, 계단 구멍 노출 띠의 천장선 Y=2.75 m를 받아 경사 측판을 그 선에서 절단하고 위쪽 벽 면은 만들지 않는다.
 @evidence contracts/reservation-fit.md#reservation-fit 0.015 m 외측 판과 기존 난간의 0.075 m 내측 예약이 계단 옆면을 경계로 접할 뿐 겹치지 않으며, 방 쪽 실제 통행은 후속 compiled 관찰에서 다시 잰다.
 @evidence obligations/design/models.md#addressable-model-decisions 난간살·복도 아래 가로대와 다른 흰 경사 측판을 한 주소로 둔다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 기존 02의 디딤 외측 구조 면과 난간 예약은 움직이지 않고 그 바깥에 0.015 m 마감판을 추가하므로 부모의 구조·경로 수치를 수정하지 않았다. 방 쪽 실제 순폭은 source 생성 전 unverified다.
