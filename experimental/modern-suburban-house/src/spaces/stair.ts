@@ -38,10 +38,10 @@
  */
 import { MAIN } from "./building";
 import { PALETTE } from "./palette";
-import { bar, block, slab, straightWall } from "./solids";
+import { block, straightWall } from "./solids";
 import { part, type IHousePart } from "./solid-records";
+import { buildStairGuards } from "./stair-guards";
 import {
-  CEILING_FINISH,
   GROUND_LAYERS,
   INTERSTOREY_FLOOR_FINISH,
   STOREYS,
@@ -62,9 +62,9 @@ const STAIR_PLAN = {
 /** The finished L void and its back guard band are the stair owner's shared plan. */
 /**
  * @evidence spaces/02-stair.md#stair-floor-opening This polygon is the one finished opening received by the floor and ceiling owners.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 r4-host-changed: getters -> STAIR_PLAN spread; outline/guardBack identical values. | STAIR_OPENING.outline (stair.ts:74-83) read by upper.ts:57-62 (structure), upper room outlines and stair hall ceiling (stair.ts:490); reformat only.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 STAIR_OPENING keeps the six-corner L outline; upper.ts cuts the interstorey floor from it, and buildStair passes the same outline to the helper that closes the hall ceiling.
  * @evidence spaces/02-stair.md The stair owns the L opening and guard reservation used by its structural and route consumers.
- * @evidenceReview spaces/02-stair.md #d17bdfd STAIR_OPENING.guardReserve 0.075 (02-stair.md#stair-clearance 양쪽 0.075 m) consumed by stair-build.ts RESERVE and environment.ts:420 connector width; judge mutation 0.1 -> guards 7 parts + connector 0.95 MOVED.
+ * @evidenceReview spaces/02-stair.md #d17bdfd STAIR_OPENING.guardReserve is the design's 0.075 m side reservation; buildStair passes it to buildStairGuards, and environment.ts derives connector clear width from the same value.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair retains the opening while adjacent rooms receive its edges.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 r4-host-changed: getters -> STAIR_PLAN spread; outline/guardBack identical values. | Rooms read its edges (upper-hall.ts:40-45, bedroom-three.ts:48-49, service.ts:35-36) without redefining it.
  * @evidence principles/core/source-units.md#source-substantive-completion Named corners, an ordered outline and the side reservation allow consumers to derive cuts and clear route width.
@@ -169,32 +169,25 @@ export const STAIR_LANDING_STATION = 3;
 const OWNER = "stair.ts";
 const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 const UPPER_BASE = STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH;
-/** Handrail/guard occupancy reservation on each side of the path (stair-clearance). */
-const RESERVE = STAIR_OPENING.guardReserve;
-/** Sloped handrail top above the nosing line and above the landing. */
-const HANDRAIL = 0.9;
-/** Upper-hall fall-edge guard top above the upper floor. */
-const HALL_GUARD = 1.05;
-
 /**
  * @evidence spaces/02-stair.md This builder owns the one L-shaped two-flight stair, its closed boundaries, opening edge finish, and guards.
- * @evidenceReview spaces/02-stair.md #d17bdfd r5-moved-back: A: buildStair (stair.ts:173) emits 7+9 treads, landing, 7 walls/closure, 5 edge strips, hall ceiling, guard posts/rails (39 parts; part-author probe: 39/39 constructed in stair.ts, called from house.ts:169). B: 02-stair.md:35 names src/spaces/stair.ts as the stair source owner; 03-surface-owners.md:49 same. v-146 B1 closed.
+ * @evidenceReview spaces/02-stair.md #d17bdfd buildStair assembles both flights, landing, enclosing walls and the guard/edge helper's returned parts under stair.ts ownership; house.ts still calls this one builder, matching the design's single stair owner.
  * @evidence spaces/02-stair.md#stair-reservation Seven lower and nine upper treads derive from 18 risers and reach the 1.36 m landing and 3.06 m upper floor.
- * @evidenceReview spaces/02-stair.md#stair-reservation #883409e r5: host buildStair now in stair.ts (code identical up to alias inlining); Loops i=1..7 and j=1..9 (stair.ts:185,:215) with RISE=upperFloor/18; landing RISE*8=1.36; last riser to 3.06; 02-stair.md:27.
+ * @evidenceReview spaces/02-stair.md#stair-reservation #883409e The lower loop emits seven treads and the upper loop nine; both use upperFloor/18, while the landing uses the eighth rise at 1.36 m and the last upper step reaches 3.06 m.
  * @evidence spaces/02-stair.md#stair-connector-handoff The returned flight/landing parts provide the route's one physical stair rather than a second shortcut.
- * @evidenceReview spaces/02-stair.md#stair-connector-handoff #37e39b2 r5: host buildStair now in stair.ts (code identical up to alias inlining); environment.ts connector elements = all stair.ts parts; route STAIR_ROUTE.
+ * @evidenceReview spaces/02-stair.md#stair-connector-handoff #37e39b2 buildStair returns one ordered part population for house.ts, including the helper's guards; environment.ts selects its stair.ts owner label as one connector element set beside STAIR_ROUTE.
  * @evidence spaces/02-stair.md#stair-floor-opening Five narrow edge solids close the receded interstorey notch, while the front opening remains clear.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 r5: host buildStair now in stair.ts (code identical up to alias inlining); Five edge parts stair.ts:459-483 in the 0.015 m recession of upper.ts:57-62; no strip on the front-wall side.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 buildStair passes STAIR_OPENING to buildStairGuards, whose five edge strips fill the CEILING_FINISH recession in upper.ts; no front-wall strip crosses the open approach.
  * @evidence spaces/02-stair.md#stair-clearance Sloped handrails and the upper fall-edge rail stay in their 0.075 m side reservations.
- * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a r5: host buildStair now in stair.ts (code identical up to alias inlining); Unchanged: sloped handrails sit in the path-side 0.075 bands (stair.ts:390-416), but the upper fall-edge rail is centred in the 0.15 m back band at z=-4.635 (:309,:349-359), outside the 1.15 m path, not in a 0.075 m side reservation (02-stair.md:119).
+ * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a The called guard helper keeps sloped rails in the 0.075 m path-side bands and checks their section; the upper fall-edge rail remains centred in the back 0.15 m band outside the path, a narrower claim than the evidence sentence.
  * @evidence spaces/02-stair.md#stair-boundary-heights Lower open guards, upper closed walls, closet opening, and 1.05 m hall guard are distinct height cases.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f r5: host buildStair now in stair.ts (code identical up to alias inlining); Open lower posts/rails, full-height upper walls, entry-coat-opening (stair.ts:276-284), HALL_GUARD 1.05 (:308); 02-stair.md:151-158.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3da4d8f buildStair constructs the full-height upper partitions and coat opening, then calls the helper for open posts/rails and the 1.05 m hall guard; the +X arrival stays open.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair owns flights, guards, and its edge finish, leaving the hollow coat storage interior and room floors to entry/upper-hall.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 r5: host buildStair now in stair.ts (code identical up to alias inlining); No closet interior or room floor parts; closet walls in entry.ts:127-128; upper-hall outline ends at guardBack (upper-hall.ts:44-45).
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The builder and its called helper emit stair flights, partitions, guards and edge finishes; neither emits the entry-owned closet interior or the upper-hall room floor.
  * @evidence principles/core/source-units.md#source-substantive-completion Deterministic tread loops, walls, posts, rails, edge strips, and hall ceiling produce actual named solids.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f r5: host buildStair now in stair.ts (code identical up to alias inlining); Deterministic loops and named parts stair.ts:185-498 plus guard-section check :499-508.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Deterministic tread loops and named partitions are assembled with the helper's ordered posts, rails, edge strips and ceiling; the helper rejects guard sections outside the reservation before buildStair returns.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work buildStair's overCloset branch exposed a reversed vertical owner: a15c1dd1 revised rooms/entry.md#entry-coat-storage and 02-stair.md#stair-boundary-heights to make treads 7-9 consume the entry-owned Y=2.15 closet top.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 r5: host buildStair now in stair.ts (code identical up to alias inlining); overCloset (stair.ts:217-218) sets underside = COAT_STORAGE.top for treads 7-9; a15c1dd1 flipped entry.md:89 and 02-stair.md:160 from 'stair owns the underside' to 'treads 7-9 consume entry-owned Y=2.15'; overCloset existed since 4b23c12b.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The upper tread loop still reads coat.top for treads overlapping the entry-owned closet body; moving guards left that established parent revision and its Y = 2.15 m interface intact.
  */
 export const buildStair = (coat: typeof COAT_STORAGE): IHousePart[] => {
   const parts: IHousePart[] = [];
@@ -321,203 +314,14 @@ export const buildStair = (coat: typeof COAT_STORAGE): IHousePart[] => {
       STOREYS.upperCeiling,
     ),
   );
-  // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: two end posts and the top rail.
-  const guardTop = STOREYS.upperFloor + HALL_GUARD;
-  const z = (STAIR_OPENING.guardBack + STAIR_OPENING.back) / 2;
   parts.push(
-    part(
-      "stair-guard-band-floor",
-      OWNER,
-      "floor",
-      PALETTE.woodFloor,
-      block(
-        [
-          STAIR_OPENING.west,
-          STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH,
-          STAIR_OPENING.guardBack,
-        ],
-        [
-          STAIR_OPENING.east,
-          STOREYS.upperFloor,
-          STAIR_OPENING.back - CEILING_FINISH,
-        ],
-      ),
-    ),
-    part(
-      "stair-guard-post-west",
-      OWNER,
-      "guard",
-      PALETTE.railing,
-      block(
-        [STAIR_OPENING.west, STOREYS.upperFloor, z - RESERVE / 2],
-        [STAIR_OPENING.west + RESERVE, guardTop, z + RESERVE / 2],
-      ),
-    ),
-    part(
-      "stair-guard-post-east",
-      OWNER,
-      "guard",
-      PALETTE.railing,
-      block(
-        [STAIR_OPENING.east - RESERVE, STOREYS.upperFloor, z - RESERVE / 2],
-        [STAIR_OPENING.east, guardTop, z + RESERVE / 2],
-      ),
-    ),
-    part(
-      "stair-guard-top-rail",
-      OWNER,
-      "guard",
-      PALETTE.stairWood,
-      bar(
-        { x: STAIR_OPENING.west, y: guardTop - RESERVE / 2, z },
-        { x: STAIR_OPENING.east, y: guardTop - RESERVE / 2, z },
-        RESERVE,
-      ),
-    ),
-    wall(
-      "stair-west-back-corner",
-      "z",
-      [STAIR_OPENING.west - MAIN.partition, STAIR_OPENING.west],
-      [STAIR_OPENING.guardBack, STAIR_OPENING.back],
-      UPPER_BASE,
-      STOREYS.upperCeiling,
-    ),
-    part(
-      "stair-west-back-corner-ceiling",
-      OWNER,
-      "ceiling",
-      PALETTE.ceiling,
-      block(
-        [
-          STAIR_OPENING.west - MAIN.partition,
-          STOREYS.upperCeiling,
-          STAIR_OPENING.guardBack,
-        ],
-        [
-          STAIR_OPENING.west,
-          STOREYS.upperCeiling + CEILING_FINISH,
-          STAIR_OPENING.back,
-        ],
-      ),
-    ),
+    ...buildStairGuards({
+      owner: OWNER,
+      opening: STAIR_OPENING,
+      steps: STAIR_STEPS,
+      upperBase: UPPER_BASE,
+      wall,
+    }),
   );
-  // Sloped handrails inside the 0.075 m reservation: the lower flight's open
-  // side X = [-0.725, -0.65] and the upper flight's front side Z = [-3.485, -3.41].
-  // Both reach 0.90 m above the landing at the corner (-0.65, -3.41).
-  const x = STAIR_OPENING.turnX - RESERVE / 2;
-  const zFront = STAIR_OPENING.turnZ - RESERVE / 2;
-  const railTop = (nosing: number): number => nosing + HANDRAIL - RESERVE / 2;
-  parts.push(
-    part(
-      "stair-handrail-lower",
-      OWNER,
-      "guard",
-      PALETTE.stairWood,
-      bar(
-        { x, y: railTop(STAIR_STEPS.rise), z: STAIR_STEPS.lowerStartZ },
-        { x, y: railTop(STAIR_STEPS.landingTop), z: STAIR_OPENING.turnZ },
-        RESERVE,
-      ),
-    ),
-    part(
-      "stair-handrail-upper",
-      OWNER,
-      "guard",
-      PALETTE.stairWood,
-      bar(
-        { x: STAIR_OPENING.turnX, y: railTop(STAIR_STEPS.landingTop), z: zFront },
-        { x: STAIR_OPENING.east, y: railTop(STOREYS.upperFloor), z: zFront },
-        RESERVE,
-      ),
-    ),
-    part(
-      "stair-post-lower-start",
-      OWNER,
-      "guard",
-      PALETTE.railing,
-      block(
-        [STAIR_OPENING.turnX - RESERVE, STAIR_STEPS.rise, STAIR_STEPS.lowerStartZ - RESERVE],
-        [STAIR_OPENING.turnX, STAIR_STEPS.rise + HANDRAIL, STAIR_STEPS.lowerStartZ],
-      ),
-    ),
-    part(
-      "stair-post-landing-corner",
-      OWNER,
-      "guard",
-      PALETTE.railing,
-      block(
-        [
-          STAIR_OPENING.turnX - RESERVE,
-          STAIR_STEPS.landingTop,
-          STAIR_OPENING.turnZ - RESERVE,
-        ],
-        [STAIR_OPENING.turnX, STAIR_STEPS.landingTop + HANDRAIL, STAIR_OPENING.turnZ],
-      ),
-    ),
-  );
-  // stair-floor-opening, 08 interstorey-edge-junctions: the interstorey structure stops
-  // 0.015 m short of the finished opening; this owner closes that band with the
-  // opening's vertical finish from the ground ceiling up to the upper floor, and
-  // closes the stair hall top, the open guard band Z = [-4.71, -4.56] included, with
-  // its own ceiling finish (09 upper-ceiling-closure).
-  const edge = (id: string, x: readonly [number, number], z: readonly [number, number]): IHousePart =>
-    part(
-      id,
-      OWNER,
-      "floor",
-      PALETTE.interiorWall,
-      block([x[0], STOREYS.groundCeiling, z[0]], [x[1], STOREYS.upperFloor, z[1]]),
-    );
-  parts.push(
-    edge(
-      "stair-opening-edge-east",
-      [STAIR_OPENING.turnX, STAIR_OPENING.turnX + CEILING_FINISH],
-      [STAIR_OPENING.turnZ + CEILING_FINISH, STAIR_OPENING.front],
-    ),
-    edge(
-      "stair-opening-edge-front",
-      [STAIR_OPENING.turnX, STAIR_OPENING.east + CEILING_FINISH],
-      [STAIR_OPENING.turnZ, STAIR_OPENING.turnZ + CEILING_FINISH],
-    ),
-    edge(
-      "stair-opening-edge-arrival",
-      [STAIR_OPENING.east, STAIR_OPENING.east + CEILING_FINISH],
-      [STAIR_OPENING.back - CEILING_FINISH, STAIR_OPENING.turnZ],
-    ),
-    edge(
-      "stair-opening-edge-back",
-      [STAIR_OPENING.west - CEILING_FINISH, STAIR_OPENING.east],
-      [STAIR_OPENING.back - CEILING_FINISH, STAIR_OPENING.back],
-    ),
-    edge(
-      "stair-opening-edge-west",
-      [STAIR_OPENING.west - CEILING_FINISH, STAIR_OPENING.west],
-      [STAIR_OPENING.back, STAIR_OPENING.front],
-    ),
-    part(
-      "stair-hall-ceiling",
-      OWNER,
-      "ceiling",
-      PALETTE.ceiling,
-      slab({
-        outline: STAIR_OPENING.outline.map((p) => ({
-          x: p.x,
-          z: p.z === STAIR_OPENING.back ? STAIR_OPENING.guardBack : p.z,
-        })),
-        bottom: STOREYS.upperCeiling,
-        top: STOREYS.upperCeiling + CEILING_FINISH,
-      }),
-    ),
-  );
-  for (const guard of parts.filter((p) => p.role === "guard")) {
-    for (const axis of [0, 2]) {
-      const values = guard.mesh.positions.filter((_, i) => i % 3 === axis);
-      const width = Math.max(...values) - Math.min(...values);
-      if (width < 0.2 && Math.abs(width - RESERVE) > 1e-6)
-        throw new Error(
-          `${guard.id}: guard section ${width.toFixed(4)} differs from the stair clearance reservation ${RESERVE.toFixed(4)}`,
-        );
-    }
-  }
   return parts;
 };

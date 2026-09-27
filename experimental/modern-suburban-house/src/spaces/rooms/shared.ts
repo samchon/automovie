@@ -1,5 +1,5 @@
 /**
- * Room record shape and the two solids every room owner emits: its floor
+ * Room record shape and the solids every room owner emits: its floor
  * finish and the partitions `07-boundary-assembly.md#interior-boundary-ownership`
  * assigns to it.
  *
@@ -13,9 +13,11 @@
  * door void each room's floor finish reaches the partition mid-plane
  * (`#interior-boundary-junctions`) through `doorFloor`.
  *
- * Consumers: the fifteen `rooms/*.ts` owners. This helper owns no surface.
+ * Consumers: the fifteen `rooms/*.ts` owners. Reservation validation lives in
+ * `reservations.ts`; this helper owns no surface.
  */
 import { PALETTE } from "../palette";
+import type { IRoomReservation } from "./reservations";
 import { slab, straightWall } from "../solids";
 import {
   part,
@@ -33,96 +35,6 @@ import {
 } from "../storeys";
 
 /**
- * A plan zone a room reserves for one use, world metres: furniture or a
- * fixture body, a storage body, the floor a person uses in front of them, a
- * clear route, or the sweep of a door, drawer or appliance door. The zone is
- * a spaces decision later instances and observations consume; the object in it
- * is not authored here. A `covering` (a rug or mat a few millimetres thick) is
- * walked on, so a route may cross it.
- * @evidence spaces/05-route-network.md Room plans reserve bodies, use areas and clear passage before later objects are placed.
- * @evidenceReview spaces/05-route-network.md #60bf203 v-141 shared.ts:49-95 id/kind/x/z/y/space zone; 05-route-network.md:29 room owners decide reserved use spaces; :78 spaces-reservation section test before later models.
- * @evidence spaces/05-route-network.md#room-route-network Route clearance depends on distinct body, swing and use reservations.
- * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 v-141 kind union L63 separates body/use/swing/route. 05-route-network.md:62,66 separate door-operation and use states from passage; :78 bodies below 2.00 m block passage.
- * @evidence principles/core/source-units.md#source-scope-preservation This zone reserves space for later instances but creates no furniture or fixture.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Interface only (L49-95); no part, mesh or model is built from it.
- * @evidence principles/core/source-units.md#source-substantive-completion Identity, kind and metric bounds allow containment and collision checks.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 checkReservations L196-225 uses id, kind and x/z/y for containment (L197-209) and route/body crossing (L211-225).
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network requires each room's passage bands to remain distinguishable from use reservations; this type carries their separate ids and extents.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05-route-network.md:66 separates use states from passage, :68 main route bypasses furniture use, :78 walking bands are tested against bodies. IRoomReservation (shared.ts:49-95) keeps id/kind/x/z/y/space per zone, e.g. common.ts:110-113 routes vs its use and body zones.
- */
-export interface IRoomReservation {
-  /**
-   * @evidence spaces/05-route-network.md Each reserved zone has a stable identifier.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 L56 id string; 05-route-network.md:29 names handed to source are identifiers; use/route H2s are addressed by anchor (05:66-74).
-   * @evidence principles/core/source-units.md#source-scope-preservation This names a zone, not a new route node or model.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 A plain string field; it adds no route node or model.
-   * @evidence principles/core/source-units.md#source-substantive-completion A failed clearance check can name the exact reservation.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Error texts L198,202,208,217,223 carry r.id, route id and body id.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes fixes the right and rear passage bands, laundry-through-route fixes the Z=[-4.32, -3.42] crossing, and garage-use-routes fixes the cross band Z=[-4.75, -3.85]; id distinguishes the emitted reservation for each tested band.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 common.md:189 (#common-clear-routes) right/back bands -> common-main-route-right/back; laundry.md #laundry-through-route Z=[-4.32,-3.42] -> laundry-through-route; garage-interior.md #garage-use-routes Z=[-4.75,-3.85] -> garage-cross-route. v-143 F4 closed.
-   */
-  id: string;
-  /**
-   * @evidence spaces/05-route-network.md Body, use, route and swing zones have different clearance behavior.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 In checkReservations only bodies (furniture/fixture/storage, L211-213) and routes (L214) take part. use, swing and covering are never tested, so use and swing have identical clearance behaviour. See notes.
-   * @evidence principles/core/source-units.md#source-scope-preservation The kind classifies a reserved area without constructing its object.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 L63 is a string union label; nothing is constructed from it.
-   * @evidence principles/core/source-units.md#source-substantive-completion A route is checked against body kinds while coverings and sweeps may overlap it.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L211-213 bodies = furniture/fixture/storage; L214-225 only routes are tested against them; covering and swing are never tested.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network distinguishes a clear passage from fixture, furniture, use, and door swing reservations; kind retains the caller's class for clearance checks.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05-route-network.md:78 separates the clear walking band from furniture/fixture/storage bodies; :62,66 separate door operation and seating/storage use from passage. kind (shared.ts:63) keeps the producer's class, and checkReservations tests routes only against furniture/fixture/storage (shared.ts:212-226) while swings, uses and coverings may overlap.
-   */
-  kind: "furniture" | "fixture" | "storage" | "covering" | "use" | "route" | "swing";
-  /**
-   * @evidence spaces/05-route-network.md A reserved zone occupies an explicit plan width.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 L70 x range per zone; 05-route-network.md:29 reserved use spaces are room-owner decisions.
-   * @evidence principles/core/source-units.md#source-scope-preservation The range comes from the room's authored layout.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Type contract; rooms/*.ts fill x from their room H2s (e.g. entry.ts reservations with plan values).
-   * @evidence principles/core/source-units.md#source-substantive-completion The horizontal bounds support room containment and route overlap checks.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 x used in L197, L204-209 containment and L221 overlap.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Common-clear-routes supplies the four common-room passage bands' X intervals, and living-through-route supplies the three living room bands; x transports each authored reservation width without selecting a new corridor.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 common.ts:110-113 four route bands; living-through-route body: main band X=[-4.90,-4.00], front floor Z=[-1.45,-0.45], bookcase cross Z=[-4.65,-3.75] = living.ts:66,69,70. v-144 F5 minor closed.
-   */
-  x: readonly [number, number];
-  /**
-   * @evidence spaces/05-route-network.md A reserved zone occupies an explicit plan depth.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 L77 z range per zone.
-   * @evidence principles/core/source-units.md#source-scope-preservation The range stays within the room or named neighboring space.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 L200-209 throws 'leaves space' if a 3x3 sample leaves the outline of r.space ?? room.id.
-   * @evidence principles/core/source-units.md#source-substantive-completion The depth bounds support containment and route overlap checks.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 z used in L197, L204-209 and L221.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-through-route fixes the mudroom crossing and common-clear-routes fixes the rear/garden approach depths; this field carries each authored Z interval for clearance checks.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 laundry.md:97 through-route Z=[-4.32,-3.42] = laundry.ts:88; common.md:189 rear band Z=[-10.33,-9.25] and garden approach Z=[-10.45,-10.33] = common.ts:111-112 (MAIN.inner.z[0]+0.12). z carries them to checkReservations (shared.ts:198-226).
-   */
-  z: readonly [number, number];
-  /**
-   * @evidence spaces/05-route-network.md A body may need a vertical envelope above its plan area.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 L84 optional y; 05-route-network.md:78 reservations above the 2.00 m band (garage overhead guide) are not collisions.
-   * @evidence principles/core/source-units.md#source-scope-preservation The range reserves height but builds no object.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 A range field only; nothing built.
-   * @evidence principles/core/source-units.md#source-substantive-completion Body and wall-hung zones can be checked separately from clear floor areas.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L221 a body blocks only if y is undefined or y[0] < floor+2.0, so the garage guide (garage-interior.ts:29, y from door top 2.15) is checked separately.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network fixes the 2.00 m clear band that checkReservations applies to every route through routeClearHeight, and garage-front-opening fixes the overhead guide Y=[2.15, 2.50]; current routes have no y, while optional y records the height of a body, wall-hung or overhead reservation when one is specified.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 N1 closed. 05-route-network.md:78 2.00 m; front.md:213 guide Y=[2.15,2.50]; checkReservations applies routeClearHeight=2.0 to every kind:"route" (shared.ts:187,217-219); dump: 16 routes, 0 with y; y present on furniture/fixture/storage bodies, wall-hung items, garage-door-overhead-guide (and 3 coverings; row makes no exclusive claim). Consistent with sibling rows :78-80.
-   */
-  y?: readonly [number, number];
-  /**
-   * The space the zone lies in when it is not the owning room: a zone this
-   * room's design decides beside its own door, on the neighbour's floor
-   * (laundry's garage-side waiting, the coat closet's front use).
-   * @evidence spaces/05-route-network.md Some room-owned uses occur across a door in the adjacent space.
-   * @evidenceReview spaces/05-route-network.md #60bf203 v-141 L94 space override. 05-route-network.md:66 coat storage used from service, :70 garage lower waiting. entry.ts entry-coat-front-use has space 'service-access'.
-   * @evidence principles/core/source-units.md#source-scope-preservation The override locates a reservation without transferring its author.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 L189-195 keeps room (author, owner in errors) while space = r.space ?? room.id.
-   * @evidence principles/core/source-units.md#source-substantive-completion Containment checks use the actual neighboring space outline.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 L188 outline map built from all room outlines; L200 looks up the target space's outline for containment.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan puts the garage-side wait across laundry-garage-door, while entry-coat-storage puts the coat-use clearance in service-access; space names the neighbouring floor for each room-authored reservation.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 laundry.md:33 in #laundry-plan garage-side lower wait X=[5.75,6.80]; entry.md:93 front use in service band; code: laundry-garage-lower-waiting space "garage", entry-coat-front-use space "service-access". v-143 F7 closed.
-   */
-  space?: string;
-}
-
-/**
  * One interior space as its plan owner declares it.
  * @evidence spaces/03-surface-owners.md Each room owns its finished inner outline and visible floor/ceiling surfaces.
  * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 03-surface-owners.md:96 each room owner integrates its interior floor/ceiling finish; IRoomSpace outline/floor L133,140 feed roomFloor/roomCeiling.
@@ -131,7 +43,7 @@ export interface IRoomReservation {
  * @evidence principles/core/source-units.md#source-scope-preservation The shared type describes each room author's values without picking a plan for it.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Interface only; values come from rooms/*.ts.
  * @evidence principles/core/source-units.md#source-substantive-completion Geometry, storey, and finish reach environment assembly; reservations reach checkReservations and the measurement tools.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f environment.ts:605-624 reads room.id, storey (parent), outline (cells, floor surface) and roomLevels (finished levels); finish parts reach elements through house.parts (:635). Reservations reach checkReservations (house.ts:242) and measurements (casing-space-scan.cjs:62, scene-snapshot.ts:34, space-design.ts:110). v141 defect fixed.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Environment assembly reads the room id, storey, outline and finished levels; room parts become elements, while the reservation list reaches reservations.ts checkReservations through buildHouse and the measurement tools.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns each room its finished outline and visible surfaces; IRoomSpace retains id, owner, storey, outline, floor colour, levels and reservations, while IRoomBuild.parts carries the emitted walls, ceiling and reveal.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 IRoomSpace fields id, owner, storey, outline, floor (number), levels?, reservations? (shared.ts:100-125); walls/ceiling/reveal emitted as IRoomBuild.parts. v-143 F8 closed.
  */
@@ -142,7 +54,7 @@ export interface IRoomSpace {
    * @evidence principles/core/source-units.md#source-scope-preservation This id refers to the room owner's space, not a helper-owned room.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 id comes from each room owner's record; the helpers create no room.
    * @evidence principles/core/source-units.md#source-substantive-completion Routes and observations can address the same room.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 checkReservations matches route.space to room.id (L215). observations.ts:324,473 key room floors by s.id.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f reservations.ts matches a route's space to this room id, and observations.ts keys its room-floor lookup by the same stable id.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network names front-entry and living-room as separate nodes joined by entry-living-door; id preserves those authored addresses in the environment.
    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05-route-network.md:37 front-entry -> entry-living-door -> living-room. The ids "front-entry" (entry.ts:54) and "living-room" (living.ts:45) become environment space ids (environment.ts:605-608).
    */
@@ -209,90 +121,16 @@ export interface IRoomSpace {
    * @evidence spaces/05-route-network.md The room record carries route and use reservations beside its surface owner outputs.
    * @evidenceReview spaces/05-route-network.md #60bf203 05-route-network.md:29 room owners decide the inner boundary and reserved use areas; :66-78 route/use checks. IRoomSpace carries reservations (shared.ts:158) beside owner/outline/floor (119,133,140).
    * @evidence spaces/05-route-network.md#room-route-network The reservation list supplies the room's internal occupancy bands to the route check.
-   * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 05-route-network.md:78 tests walking bands to 2.00 m against bodies. checkReservations reads room.reservations (shared.ts:190-226) and is called at house.ts:242.
+   * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 The route document tests walking bands to 2.00 m against bodies; the room's reservation list is read by reservations.ts checkReservations after buildHouse has gathered every room.
    * @evidence principles/core/source-units.md#source-scope-preservation The list reserves later objects without building them.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 A readonly list of zones; nothing built.
    * @evidence principles/core/source-units.md#source-substantive-completion Route validation can inspect each room's reserved uses.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 checkReservations L186-227, called at house.ts:231.
+   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f buildHouse calls reservations.ts checkReservations on the assembled room list, so every room's reserved uses participate in route validation.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Room-route-network requires each room's internal use and route bands alongside its connection; reservations carries those room-owned zones for the 2.00 m clearance check.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 05-route-network.md:68-74 room-internal routes/uses; :78 the 2.00 m test. reservations (shared.ts:158) feed routeClearHeight (shared.ts:188-226). 0fae5e8d added the band; the positive rows sit on the exposing hosts checkReservations (shared.ts:185) and buildGarageInterior (garage-interior.ts:65). This field is unchanged since 6a1501fb.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The route-network unit supplies internal passage/use bands and the 2.00 m test; this field carries room-authored zones to reservations.ts checkReservations, while garage-interior supplies its own overhead-guide zone.
    */
   reservations?: readonly IRoomReservation[];
 }
-
-/** Whether a plan point lies inside or on a rectilinear outline. */
-const inOutline = (outline: readonly IPlanPoint[], x: number, z: number): boolean => {
-  const eps = 1e-9;
-  let inside = false;
-  for (let i = 0, j = outline.length - 1; i < outline.length; j = i++) {
-    const a = outline[i]!;
-    const b = outline[j]!;
-    const onEdge = (a.x === b.x && Math.abs(x - a.x) < eps && z >= Math.min(a.z, b.z) - eps && z <= Math.max(a.z, b.z) + eps) || (a.z === b.z && Math.abs(z - a.z) < eps && x >= Math.min(a.x, b.x) - eps && x <= Math.max(a.x, b.x) + eps);
-    if (onEdge) return true;
-    if (a.z > z !== b.z > z && x < ((b.x - a.x) * (z - a.z)) / (b.z - a.z) + a.x) inside = !inside;
-  }
-  return inside;
-};
-
-/**
- * Refuse any reservation that leaves the space it lies in (its `space`, else
- * its owning room), and any clear route that crosses a furniture, fixture or
- * storage body below 2.00 m above the room floor, whichever room owns either. Door and
- * appliance sweeps and coverings may cross routes: operating a door and walking
- * through are separate states (05), and a rug is walked on.
- * @evidence spaces/05-route-network.md The route must remain in its space and clear of reserved bodies.
- * @evidenceReview spaces/05-route-network.md #60bf203 v-141 L207 'leaves space' throw; L221-223 route crosses body throw; 05-route-network.md:78 bodies block the walking band.
- * @evidence spaces/05-route-network.md#room-route-network It checks reservation bounds, unknown spaces and route/body intersections within the designed 2.00 m walking volume while allowing sweeps and coverings.
- * @evidenceReview spaces/05-route-network.md#room-route-network #42ec637 v-141 L197 empty plan, L201 unknown space, L207 leaves space, L214-225 route/body overlap below head = floor+2.0 (L187,219). use/swing/covering not tested. 05-route-network.md:78.
- * @evidence principles/core/source-units.md#source-scope-preservation Validation reads room-authored zones without moving or generating them.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Only reads and throws; returns void; no reservation is mutated or created.
- * @evidence principles/core/source-units.md#source-substantive-completion Failures name the offending room, zone and crossing body.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Messages L198-223 carry room.owner (room source path), r.id and body.r.id with body.room.owner. The room is named by its owner path.
- * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The overhead garage guide exposed an unspecified vertical route test; room-route-network now fixes the 2.00 m body band this validator uses.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 v-141 0fae5e8d added 05-route-network.md:78 (2.00 m band above finished floor; the overhead garage guide is not a collision). The validator uses routeClearHeight 2.0 (L187, L219-221). The guide is garage-interior.ts:29 (y from door top 2.15 > -0.15+2.0).
- */
-export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
-  const routeClearHeight = 2.0;
-  const outline = new Map(rooms.map((r) => [r.id, r.outline]));
-  const placed = rooms.flatMap((room) =>
-    (room.reservations ?? []).map((r) => ({
-      room,
-      r,
-      space: r.space ?? room.id,
-    })),
-  );
-  for (const { room, r, space } of placed) {
-    if (!(r.x[0] < r.x[1] && r.z[0] < r.z[1])) throw new Error(
-      `${room.owner}: reservation "${r.id}" has an empty plan`,
-    );
-    const shape = outline.get(space);
-    if (shape === undefined) throw new Error(
-      `${room.owner}: reservation "${r.id}" lies in unknown space "${space}"`,
-    );
-    const samples = [r.x[0], (r.x[0] + r.x[1]) / 2, r.x[1]].flatMap((x) =>
-      [r.z[0], (r.z[0] + r.z[1]) / 2, r.z[1]].map((z) => [x, z] as const),
-    );
-    if (samples.some(([x, z]) => !inOutline(shape, x, z))) throw new Error(
-      `${room.owner}: reservation "${r.id}" leaves space "${space}"`,
-    );
-  }
-  const bodies = placed.filter(
-    (p) => p.r.kind === "furniture" || p.r.kind === "fixture" || p.r.kind === "storage",
-  );
-  for (const route of placed.filter((p) => p.r.kind === "route")) {
-    const routeRoom = rooms.find((room) => room.id === route.space);
-    if (routeRoom === undefined) throw new Error(
-      `${route.room.owner}: route "${route.r.id}" has no room floor`,
-    );
-    const head = roomLevels(routeRoom)[0] + routeClearHeight;
-    for (const body of bodies) {
-      if (route.space === body.space && (body.r.y === undefined || body.r.y[0] < head - 1e-9) && route.r.x[0] < body.r.x[1] - 1e-9 && body.r.x[0] < route.r.x[1] - 1e-9 && route.r.z[0] < body.r.z[1] - 1e-9 && body.r.z[0] < route.r.z[1] - 1e-9)
-        throw new Error(
-          `${route.room.owner}: route "${route.r.id}" crosses "${body.r.id}" (${body.room.owner})`,
-        );
-    }
-  }
-};
 
 /**
  * Finished floor and ceiling heights of a room.
@@ -305,7 +143,7 @@ export const checkReservations = (rooms: readonly IRoomSpace[]): void => {
  * @evidence principles/core/source-units.md#source-scope-preservation The function reads established datums and does not choose a new floor.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 Only reads room.levels or the STOREYS datums via floorOf/ceilingOf.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns an explicit height pair for downstream ceiling and observation construction.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 Consumers: roomCeiling L368, observations.ts:324,473, environment.ts:582, checkReservations L219.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f roomCeiling, environment assembly, observations and reservations.ts checkReservations all read this finished floor/ceiling pair when the garage overrides ordinary storey datums.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes ordinary room floors and ceilings, while ground-threshold-datums puts the garage floor at -0.15 m; roomLevels chooses that explicit override without a third level.
  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 01-storeys.md:29,31: floors 0/3.06, ceilings 2.75/5.66; :63 garage -0.15. roomLevels (shared.ts:239) returns room.levels ?? [floorOf, ceilingOf]: one pair, no third level.
  */

@@ -65,8 +65,8 @@ import { buildTubBath, DOOR_HALL_TUB_DOOR } from "./rooms/tub-bath";
 import { buildUpperHall } from "./rooms/upper-hall";
 import { buildWardrobe, DOOR_PRIMARY_WARDROBE_DOOR } from "./rooms/wardrobe";
 import { buildSite } from "./site";
+import { checkReservations } from "./rooms/reservations";
 import {
-  checkReservations,
   type IRoomSpace,
   type IStorageSpace,
 } from "./rooms/shared";
