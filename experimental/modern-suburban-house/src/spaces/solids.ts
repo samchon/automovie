@@ -45,7 +45,7 @@ import type {
 /**
  * Axis-aligned box between two world corners.
  * @evidence spaces/03-surface-owners.md Assigned owners use box solids for their own structural or finish details.
- * @evidenceReview spaces/03-surface-owners.md #1efa548 `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
+ * @evidenceReview spaces/03-surface-owners.md #4f960bc `block` returns only a mesh from caller corners; the porch, left chimney, entry, and stair guard builders wrap it as parts under their assigned owners.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff A caller may use this closed body for exterior details under its own owner id.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #51ba773 `buildPorch` uses closed blocks for its beam, `buildLeft` for the chimney cap, and the fence builder for posts; each caller sets the part owner after this mesh helper returns.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper chooses no house location; callers supply both world corners.
@@ -402,7 +402,7 @@ export const slopedPlate = (props: {
  * sloped handrails. Its four long faces follow the bar direction; the section
  * is `size` wide and stays level across the bar.
  * @evidence spaces/02-stair.md The stair owner uses square-section members for its guard and handrail.
- * @evidenceReview spaces/02-stair.md #ab366f6 `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
+ * @evidenceReview spaces/02-stair.md #175e6f4 `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
  * @evidence spaces/02-stair.md#stair-clearance The member follows caller-supplied endpoints and width beside the route.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `buildStairGuards` sets each `bar` size from the 0.075 m `guardReserve` and centres lower/upper rails within their reserved side strips beside the stair route.
  * @evidence spaces/02-stair.md#stair-boundary-heights Its sloped endpoints can track a flight without losing a closed guard body.

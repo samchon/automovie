@@ -3,7 +3,7 @@
  *
  * Design owner: `docs/spaces/rooms/entry.md` (`entry-plan`,
  * `entry-coat-storage`). Finished inner outline (X, Z): (-1.80, -0.25),
- * (2.02, -0.25), (2.02, -3.41), (-0.50, -3.41), (-0.50, -1.45), (-1.80, -1.45);
+ * (2.02, -0.25), (2.02, -3.41), (-0.65, -3.41), (-0.65, -1.45), (-1.80, -1.45);
  * it includes the stair's lower waiting area X = [-1.80, -0.65],
  * Z = [-1.45, -0.25]. The front door void belongs to the front wall and is cut
  * by `envelope/front.ts`; no partition is assigned to this owner by 07.
@@ -18,9 +18,9 @@
  * line, both up to the closet top. X = [1.75, 2.02] stays an open reveal. The
  * rod, shelves and sliding leaves are later models.
  *
- * Output: the room record, its wood floor finish, the separate closet floor and
- * room-side opening strip, and the closet walls. The two floor zones share the
- * ground datum but have disjoint plan interiors.
+ * Output: the room record, its wood floor and ceiling through the open strip
+ * beside the lower flight, the separate closet floor and room-side opening
+ * strip, and the closet walls. The floor zones have disjoint plan interiors.
  */
 import { DOOR_ENTRY_LIVING_DOOR } from "./living";
 import { PALETTE } from "../palette";
@@ -42,9 +42,9 @@ const FLOOR = floorOf("ground-storey");
 /** The entry plan owns the front threshold span consumed by wall, base and porch. */
 /**
  * @evidence spaces/rooms/entry.md The front entrance has one room-owned rough door span.
- * @evidenceReview spaces/rooms/entry.md #e539593 `FRONT_DOOR` names the entry plan's sole porch-facing opening, X = [0.40, 1.40] with head Y = 2.20; the wall and threshold consumers read this exported value.
+ * @evidenceReview spaces/rooms/entry.md #1aa3a1e `FRONT_DOOR` names the entry plan's sole porch-facing opening, X = [0.40, 1.40] with head Y = 2.20; the wall and threshold consumers read this exported value.
  * @evidence spaces/rooms/entry.md#entry-plan The exported jamb span feeds the front wall cut, ground base and porch step axis; its floor-derived bottom extends the wall cut through the support depth.
- * @evidenceReview spaces/rooms/entry.md#entry-plan #8374667 `buildFront` cuts the wall with `FRONT_DOOR` and spans its threshold by `from`/`to`; `buildGroundFloor` uses the same jambs for its base, while `PORCH_STEP_CENTRE_X` averages them. Only the wall cut reads this record's bottom.
+ * @evidenceReview spaces/rooms/entry.md#entry-plan #1a11c11 `buildFront` cuts the wall with `FRONT_DOOR` and spans its threshold by `from`/`to`; `buildGroundFloor` uses the same jambs for its base, while `PORCH_STEP_CENTRE_X` averages them. Only the wall cut reads this record's bottom.
  * @evidence principles/core/source-units.md#source-scope-preservation This value declares no second doorway or door leaf.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `FRONT_DOOR` is one rough hole record with id, jambs and vertical limits; it declares no door leaf, which belongs to the later front-entry filling.
  * @evidence principles/core/source-units.md#source-substantive-completion Consumers use one export for rough opening and threshold alignment.
@@ -68,8 +68,8 @@ const entrySpace = (): IRoomSpace => ({
     { x: STAIR_OPENING.west, z: STAIR_OPENING.front },
     { x: 2.02, z: STAIR_OPENING.front },
     { x: 2.02, z: STAIR_OPENING.turnZ },
-    { x: -0.5, z: STAIR_OPENING.turnZ },
-    { x: -0.5, z: STAIR_STEPS.lowerStartZ },
+    { x: STAIR_OPENING.turnX, z: STAIR_OPENING.turnZ },
+    { x: STAIR_OPENING.turnX, z: STAIR_STEPS.lowerStartZ },
     { x: STAIR_OPENING.west, z: STAIR_STEPS.lowerStartZ },
   ],
   floor: PALETTE.woodFloor,
@@ -87,7 +87,7 @@ const entrySpace = (): IRoomSpace => ({
 
 /**
  * @evidence spaces/rooms/entry.md The entry owns the coat body and opening consumed by the upper flight.
- * @evidenceReview spaces/rooms/entry.md #e539593 `COAT_STORAGE` exports the entry-owned body X, Y = 2.15 top and door span; `buildStair` consumes the top beneath overlapping upper treads and the span in its end closure.
+ * @evidenceReview spaces/rooms/entry.md #1aa3a1e `COAT_STORAGE` exports the entry-owned body X, Y = 2.15 top and door span; `buildStair` consumes the top beneath overlapping upper treads and the span in its end closure.
  * @evidence principles/core/source-units.md#source-scope-preservation Entry fixes the closet top and opening but derives its body X from the stair's seventh upper tread station.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `COAT_STORAGE.x` starts 0.07 m beyond `STAIR_STEPS.upperClosetStartX`, the seventh upper-tread station; the entry owns the closet top and opening while stair remains the tread owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The storage, closet walls, stair underside, and cut opening read one top; the closure reads this export's opening Z span.
@@ -107,9 +107,9 @@ const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 /** Emit the entry floor and ceiling finishes, its share under entry-living-door and the coat closet walls. */
 /**
  * @evidence spaces/rooms/entry.md This builder owns the L-shaped front-entry floor, its interrupted ceiling, and the under-stair coat closet.
- * @evidenceReview spaces/rooms/entry.md #e539593 `buildEntry` returns the six-corner entry floor, a separate coat-storage floor and inner opening strip, a ceiling stopped at the stair opening, and its two entry-owned closet walls beneath the upper flight.
+ * @evidenceReview spaces/rooms/entry.md #1aa3a1e `buildEntry` returns the six-corner entry floor, a separate coat-storage floor and inner opening strip, a ceiling stopped at the stair opening, and its two entry-owned closet walls beneath the upper flight.
  * @evidence spaces/rooms/entry.md#entry-plan ENTRY retains the six-corner outline and the stair waiting strip without creating a front-wall door body.
- * @evidenceReview spaces/rooms/entry.md#entry-plan #8374667 `entrySpace` traces the plan's six corners and reserves the lower stair waiting strip from `STAIR_OPENING.west` to `turnX`; `buildEntry` leaves the front-wall door cut to `buildFront`.
+ * @evidenceReview spaces/rooms/entry.md#entry-plan #1a11c11 `entrySpace` traces the six plan corners and reaches `STAIR_OPENING.turnX` beside the lower flight; `buildEntry` finishes that open strip at both datums and leaves the front-wall door cut to `buildFront`.
  * @evidence spaces/rooms/entry.md#entry-use-routes The entry mat, lower stair waiting, and floor under entry-living-door remain in the entry's own use area.
  * @evidenceReview spaces/rooms/entry.md#entry-use-routes #16baa19 `entrySpace.reservations` records the thin mat at X = [0.45, 1.35], Z = [-1.95, -1.30] and lower stair waiting; `buildEntry` finishes the room-side floor under `entry-living-door`.
  * @evidence spaces/rooms/entry.md#entry-coat-storage A hollow storage record and two closet walls end under the upper flight at COAT_STORAGE.top.
@@ -139,9 +139,7 @@ export const buildEntry = (): IRoomBuild => {
       { x: STAIR_OPENING.turnX, z: STAIR_OPENING.front },
       { x: 2.02, z: STAIR_OPENING.front },
       { x: 2.02, z: STAIR_OPENING.turnZ },
-      { x: -0.5, z: STAIR_OPENING.turnZ },
-      { x: -0.5, z: STAIR_STEPS.lowerStartZ },
-      { x: STAIR_OPENING.turnX, z: STAIR_STEPS.lowerStartZ },
+      { x: STAIR_OPENING.turnX, z: STAIR_OPENING.turnZ },
     ]),
     doorFloor(ENTRY, "entry-living-door", [-1.875, -1.8], [DOOR_ENTRY_LIVING_DOOR.from, DOOR_ENTRY_LIVING_DOOR.to]),
     part("entry-coat-back", ENTRY.owner, "partition", PALETTE.interiorWall, block([COAT_STORAGE.backWallX, BASE, STAIR_OPENING.back], [COAT_STORAGE.x[0], COAT_STORAGE.top, STAIR_OPENING.turnZ])),

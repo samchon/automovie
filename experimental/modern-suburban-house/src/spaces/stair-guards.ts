@@ -28,9 +28,9 @@ type StairWall = (
 
 /**
  * @evidence spaces/02-stair.md This called helper fills the stair's open guard edges, floor notch finish and high ceiling under the same stair owner.
- * @evidenceReview spaces/02-stair.md #ab366f6 `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
+ * @evidenceReview spaces/02-stair.md #175e6f4 `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
  * @evidence spaces/02-stair.md#stair-floor-opening Five edge strips finish the interstorey recession; the same outline closes the stair hall ceiling above the guard band.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 Five `edge` parts occupy the recessed L opening sides from the ground ceiling to upper floor; `stair-hall-ceiling` uses the same opening outline with its back replaced by `guardBack` above the guard band.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening #51d3110 Five `edge` parts occupy the recessed L opening sides from the ground ceiling to upper floor; `stair-hall-ceiling` uses the same opening outline with its back replaced by `guardBack` above the guard band.
  * @evidence spaces/02-stair.md#stair-clearance Posts and rails derive their section from the opening's guardReserve and are checked against it.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `RESERVE` comes from `opening.guardReserve`; both posts and bars use that width, and the final guard-section loop rejects any narrow X or Z span that differs from it.
  * @evidence spaces/02-stair.md#stair-boundary-heights Each sloped rail follows its flight's tread noses 0.90 m above them; the corner post receives their distinct landing and first upper-nose heights, and the hall rail rises 1.05 m over its floor.

@@ -76,7 +76,7 @@
 ## 방 내부의 완결 면 소유 {#interior-surface-handoff}
 <!--
 @evidence principles/core/common.md#scope-preservation 실내 공간 책임마다 안쪽 벽·천장·바닥·개구부 둘레를 방 파일에 배정하고 옷방·린넨장·외투장의 분류를 맡는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 방별 source 표가 안쪽 벽·천장·바닥·개구부 둘레를 나누고, 통행 윤곽 밖 얕은 수납의 바닥과 문턱도 소비 방에 남기는 규칙을 적었다. 옷방은 별도 방이고 외투장·린넨장은 각각 현관·복도 접면으로 분류된다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 방별 source 표가 안쪽 벽·천장·바닥·개구부 둘레를 나누고, 통행 윤곽 밖 열린 예약 띠와 얕은 수납도 소비 방이 마감하도록 본문이 정한다. 옷방은 별도 방이고 외투장·린넨장은 현관·복도 접면에 속한다.
 @evidence principles/core/common.md#substantive-completion 방마다 src/spaces/rooms 아래 한 파일을 완결 내부 owner로 정하고 사람이 들어가는 옷방은 자기 파일로 분리한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 방마다 `src/spaces/rooms/<방>.ts` 하나를 완결 내부 owner로 정하고 주침실에서 들어가는 옷방을 `wardrobe.ts`로 분리해 source가 방 파일 경계를 다시 나눌 결정을 남기지 않음을 확인했다.
 @evidence principles/core/common.md#declared-basis 방별 경계·문·창·storey binding은 동선 인계의 방 owner와 대조한다. 방별 spaces 골격 source는 있으나 model 충전이 없어 방 전체 면 census는 unverified라고 밝힌다.
@@ -86,7 +86,7 @@
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner가 한 번 절단한다. 방 owner는 안쪽 벽·바닥·reveal 마감 면을 만들며 별도 닫힌 문짝·창호·벽 걸레받이는 models가 만들어 같은 접면에 맞춘다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 source는 통행 윤곽과 별도 수납 내부의 마감판을 맡되 이미 다른 room floor가 덮은 곳에는 중복판을 만들지 않는다. 문짝·창호·걸레받이는 각각 models/03·01·06에 남고, 두 owner가 만나는 수납문 아래는 중앙면에서 절반씩 잇는다고 본문이 정한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 source는 통행 윤곽 밖에서 실제 벽·계단 고체가 없는 평면까지 마감을 맡고 다른 방의 판과 내부 면적을 공유하지 않는다. 문짝·창호·걸레받이는 models/03·01·06에 남으며 수납문 아래의 서로 다른 방 판은 문턱 중앙면에서 접한다.
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 방의 면 개수를 표의 행 수로 대체하지 않고 방별 binding을 05의 방 owner와 대조한다는 본문을 확인했다. 현재 spaces 골격과 후속 모델 충전 뒤 전체 면 census를 구별해 이 배정의 반증 시점을 명시한다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.
@@ -101,7 +101,7 @@
 
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner가 한 번 절단한다. 아래 방 면 owner는 자기 reveal·마감 면과 [실내 문 원형](../models/03-interior-doors.md#interior-door-members)·[창 원형](../models/01-windows.md#window-member-sizes)의 부재가 동일 void와 접면에 맞는지 검사하고 문짝·창호 메시를 만들지 않는다. 마른 실과 세탁실의 벽·바닥 접선에는 [별도 닫힌 걸레받이 판](../models/06-interior-trim.md#wall-baseboard)이 붙으며 방 owner는 벽·바닥 마감 면만 만들고 그 판의 길이 입력과 종단 접면을 제공한다. 차고와 욕실 타일 벽에는 그 판을 배치하지 않는다. 모든 담당은 같은 단일 저작자다.
 
-얕은 수납의 내부가 소비 방의 통행 바닥 윤곽 밖에 있으면 수납의 논리적 공간 기록만으로 바닥이 생기지 않는다. 수납을 맡은 방 owner는 그 안쪽 X/Z 전역에 자기 층의 완성 바닥까지 마감을 만들고, 수납 개구부 아래에서도 이웃의 완성 바닥과 이어야 한다. 같은 평면을 다른 room floor가 이미 마감한 곳에는 두 번째 판을 놓지 않는다. 개구부 양쪽 owner가 다르면 [문턱 중앙면 인계](07-boundary-assembly.md#interior-boundary-junctions)에 따라 각각 자기 쪽 절반만 채우며, 같은 owner면 개구부 폭 전체를 한 번 채운다. [외투장](rooms/entry.md#entry-coat-storage)과 [린넨장](rooms/upper-hall.md#upper-linen-storage)은 이 규칙의 현재 대상이다.
+본채 안쪽 외곽의 각 층 평면점은 방 마감판, 칸막이·벽 몸체, 계단 고체, 계단 구멍 가운데 정확히 하나에 속해야 한다. 통행 윤곽에서 뺀 예약 띠라도 실제 벽·계단 고체가 없는 평면을 빈 채로 두지 않는다. 바닥 마감은 그 열린 평면에 닿는 방 owner가, 낮은 층의 천장 마감은 같은 평면에서 실제 계단 구멍을 제외한 방 owner가 맡는다. 마감판은 다른 방의 마감판 또는 고체와 평면 내부를 공유하지 않고 접합선에서 맞댄다. 얕은 수납의 내부가 소비 방의 통행 윤곽 밖에 있는 경우도 이 규칙에 포함된다. 수납을 맡은 방 owner는 그 안쪽 X/Z 전역에 자기 층의 완성 바닥까지 마감을 만들고, 수납 개구부 아래에서도 이웃의 완성 바닥과 이어야 한다. 개구부 양쪽 owner가 다르면 [문턱 중앙면 인계](07-boundary-assembly.md#interior-boundary-junctions)에 따라 각각 자기 쪽 절반만 채우며, 같은 owner면 개구부 폭 전체를 한 번 채운다. 현재 [현관의 열린 계단 옆](rooms/entry.md#entry-plan)과 [외투장](rooms/entry.md#entry-coat-storage)·[린넨장](rooms/upper-hall.md#upper-linen-storage)의 바닥·천장 경계를 이 피복 규칙으로 정한다.
 
 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 실내 UV 좌표는 보이는 면의 owner가 정한다. 각 방의 안쪽 벽은 전후면 U=X, 좌우면 U=Z, V=Y인 세계 좌표를 소비한다. 바닥과 천장은 U=X, V=Z를 공유하고 세계 X/Z 원점을 유지해 같은 층에서 방 경계를 지나도 위상이 바뀌지 않는다. 벽의 문·창·니치 절단과 바닥의 재료 문턱·계단 구멍, 천장의 실제 구멍·높이 단차에서 각 면은 끝난다. 절단 뒤 같은 평면에 남는 면은 같은 세계 위상을 유지하며, 다른 방향의 벽이나 다른 높이의 천장은 자기 평면을 따로 투영한다. 계단 디딤판·챌판·참의 부재별 좌표는 [계단 경로 owner](02-stair.md#stair-reservation), spaces가 만드는 기둥·손잡이의 축과 이음은 [보호 경계 owner](02-stair.md#stair-boundary-heights)의 UV를 소비한다. 난간살은 [모델 원형](../models/04-stair-members.md#stair-balusters)이 만들며 그 면의 UV도 models가 정한다. 모델이 만드는 문선·문짝·창틀·독립 손잡이의 국소 UV는 해당 모델 owner에 남긴다.
 

@@ -14,9 +14,9 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 /**
  * Partition triangles lying wholly on one world-axis plane.
  * @evidence spaces/03-surface-owners.md The structural and room owners can receive disjoint triangles of one already-authored surface boundary.
- * @evidenceReview spaces/03-surface-owners.md #1efa548 `partitionPlaneFace` routes each source triangle to one indexed output; the structure and room callers then label their separate support and visible parts under the file owner table.
+ * @evidenceReview spaces/03-surface-owners.md #4f960bc `partitionPlaneFace` routes each source triangle to one indexed output; the structure and room callers then label their separate support and visible parts under the file owner table.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff The room finish is selected from the shared solid without overlapping its support face.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #93a519e The room callers take only triangles wholly on the requested upper floor or garage-side step plane; the same source triangles are absent from the corresponding structure bodies.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #fab2d91 The room callers take only triangles wholly on the requested upper floor or garage-side step plane; the same source triangles are absent from the corresponding structure bodies.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller supplies the mesh and world plane; this helper chooses no house surface owner.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 This utility receives a mesh, axis, and plane and returns two meshes with compact indices; only its callers provide part ids, roles, colors, and owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The result carries every source triangle and aligned attribute exactly once in a face or body mesh.
