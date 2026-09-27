@@ -121,9 +121,24 @@ const model = (id: string, name: string, plinth: IAutoMovieMesh,
     ],
   });
 
-/** Builds the reviewed 12°/19° colonnade variants and the larger porch column. */
+/**
+ * Builds the reviewed 12°/19° colonnade variants and the larger porch column.
+ * @evidence models/columns.md This class exposes the colonnade and porch stone-column builders with the shared plinth/base/shaft/capital part assembly.
+ * @evidence principles/core/source-units.md#source-scope-preservation Its only public variants are the two column families in columns.md; the shared model helper keeps their four named stone parts separate.
+ * @evidence principles/core/source-units.md#source-substantive-completion Both methods emit complete mesh parts with normals and UVs, rather than a column placeholder or an unconsumed parameter record.
+ * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The colonnade and porch H2s specify both shaft profiles, 24 radial sides, cap stacks, and beam contact heights; the two builders could emit those meshes without adding a new column decision.
+ * @evidence obligations/design/model-sources.md#design-owned-construction The box/round helper emits the two H2s' sections and retains plinth, base, shaft, and capital as stable material parts.
+ */
 export class TempleColumns {
-  /** The roof/rafter tangent fixes the capital top; the shaft consumes the remainder. */
+  /**
+   * The roof/rafter tangent fixes the capital top; the shaft consumes the remainder.
+   * @evidence models/columns.md#colonnade-column The 12° and 19° inputs select reviewed roof slopes, and beamTop minus 0.28 sets the cap height before the fixed 0.38 m stack leaves the tapered shaft span.
+   * @evidence principles/core/source-units.md#source-scope-preservation Its slope guard rejects other roof variants and its four emitted parts keep the reviewed 0.34 m plinth, 24-sided round sections, and two beam-height contacts.
+   * @evidence principles/core/source-units.md#source-substantive-completion For either accepted slope it returns positions, normals, UVs, indices and the complete plinth/base/shaft/capital hierarchy, with no later shaft-height choice.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The colonnade-column H2 gives both height equations and taper endpoints; the 12°/19° build and capital-to-beam contact use those inputs without finding an unowned section or UV seam.
+   * @evidence obligations/design/model-sources.md#deterministic-build Equal slope inputs select the same roof rule, arithmetic height and 24-sector loop, then assemble parts in fixed order without mutable state.
+   * @evidence obligations/design/model-sources.md#unsupported-fidelity-is-explicit The only parameter is a guarded 12°/19° roof slope; the output remains the H2's plain 24-sided blocking stone column.
+   */
   colonnade(slopeDegrees: 12 | 19): IAutoMovieModel {
     if (slopeDegrees !== 12 && slopeDegrees !== 19)
       throw new Error(`${slopeDegrees}: unsupported colonnade slope`);
@@ -148,7 +163,13 @@ export class TempleColumns {
     );
   }
 
-  /** The 3.20 m capital plane receives the porch beam without a placement offset. */
+  /**
+   * The 3.20 m capital plane receives the porch beam without a placement offset.
+   * @evidence models/columns.md#porch-column Box and round sections produce the 0.50 m plinth, 2.71 m taper, 0.46 m cap and four surface parts at the H2's local floor origin.
+   * @evidence principles/core/source-units.md#source-scope-preservation This no-argument builder fixes only the porch prototype; its cap reaches 3.20 m and leaves the two world placements to instances.
+   * @evidence principles/core/source-units.md#source-substantive-completion It returns the full plinth/base/shaft/capital meshes, including the tapered normals and continuous ring V coordinates at the neck.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The porch-column H2 already sets the six vertical sections, 24 sides, part names, origin and beam underside; this builder needs no new proportion or contact choice.
+   */
   porch(): IAutoMovieModel {
     const shaftBottom = 0.10 + 0.13;
     const shaftTop = shaftBottom + 2.71;

@@ -44,28 +44,29 @@ const box=(b:ObjectMesh,id:string,x0:number,y0:number,z0:number,
         },
   );
 
-/** Z-axis pin: U is its +X-to-+Y rim arc and V rises with local +Z. */
+/** Z-axis pin: U follows the face-facing rim, and V follows its Z direction. */
 const pinZ=(b:ObjectMesh,id:string,x:number,y:number,z0:number,z1:number,
-  radius:number,segments:number):void=>{
+  radius:number,segments:number,direction:1|-1):void=>{
   const low=Math.min(z0,z1),high=Math.max(z0,z1);
   const ring=(z:number)=>Array.from({ length:segments }, (_,i)=>{
-    const a=2*Math.PI*i/segments;
+    const a=direction*2*Math.PI*i/segments;
     return p(x+radius*Math.cos(a), y+radius*Math.sin(a), z);
   });
-  const a=ring(low),c=ring(high);
+  const a=ring(direction>0?low:high),c=ring(direction>0?high:low);
   b.face(id,[...a].reverse());
   b.face(id,c);
   for(let i=0;i<segments;i++){
     const next=(i+1)%segments;
     const u0=2*Math.PI*radius*i/segments,u1=2*Math.PI*radius*(i+1)/segments;
+    const v0=direction>0?low:0,v1=direction>0?high:high-low;
     b.face(
       id,
       [a[i]!, a[next]!, c[next]!, c[i]!],
       [
-        [u0, low],
-        [u1, low],
-        [u1, high],
-        [u0, high],
+        [u0, v0],
+        [u1, v0],
+        [u1, v1],
+        [u0, v1],
       ],
     );
   }
@@ -98,9 +99,22 @@ const posed=(model:IAutoMovieModel, pivot:{ x:number;z:number },state:"closed"|"
   };
 };
 
-/** Four reviewed families preserve the clear opening and named moving leaf. */
+/**
+ * Builds the passage-specific stone frames and timber leaves.
+ * @evidence models/openings.md This class exposes the four opening prototypes, keyed by reviewed door passages or clerestory wall thickness.
+ * @evidence principles/core/source-units.md#source-scope-preservation The methods take passage dimensions from spaces and leave wall placement and swing orientation to instances.
+ * @evidence principles/core/source-units.md#source-substantive-completion Each builder emits named lining, surround, leaf, hardware, or window mesh parts; doorOperation also supplies usable panel states.
+ * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The four H2s give frame, leaf, hardware, and window dimensions, and the builders consume those reviewed inputs without adding an opening family.
+ * @evidence obligations/design/model-sources.md#design-owned-construction The opening H2s govern the emitted frame and leaf geometry, while spaces owns each passage size and wall depth.
+ */
 export class TempleOpenings {
-  /** Building opening operation over closed rest meshes; instances name and orient leaves. */
+  /**
+   * Building opening operation over closed rest meshes; instances name and orient leaves.
+   * @evidence models/scale.md#articulation-map The operation registers one or two Y-axis hinge panels, checks their distinct identities, and supplies closed/open revolute states at 0 and -π/2.
+   * @evidence principles/core/source-units.md#source-scope-preservation It takes the passage ID and caller-owned leaf elements, without choosing the door's world placement.
+   * @evidence principles/core/source-units.md#source-substantive-completion It returns complete panel pivots, widths, heights, angular limits, and both operation states for the reviewed passage.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The paired passage IDs and articulation H2 already distinguish two hinges from one, so this method adds no new motion state.
+   */
   doorOperation(id:typeof templeDoorPassages[number]["id"],
     leaves:readonly { leafId:string;element:string }[]):IAutoMovieOpeningOperation{
     const door=templeDoorPassages.find((entry)=>entry.id===id);
@@ -142,14 +156,22 @@ export class TempleOpenings {
     };
   }
 
-  /** Deep lining through the actual host thickness, plus two outer surrounds. */
+  /**
+   * Deep lining through the actual host thickness, plus two outer surrounds.
+   * @evidence models/openings.md#door-frame The passage width, height, frame, and wall thickness set the three-sided lining and 0.16 m outer surrounds on both wall faces.
+   * @evidence principles/core/source-units.md#source-scope-preservation It uses the reviewed passage's frame allowance and emits no wall solid or placement transform.
+   * @evidence principles/core/source-units.md#source-substantive-completion Lining and surround are separately triangulated mesh parts spanning the full jambs and head on each face.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The door-frame H2 specifies lining depth and trim profile; door.frame owns the common 0.06 m allowance.
+   * @evidence obligations/design/model-sources.md#design-owned-construction The source builds the stone lintel and jamb ring from each host passage instead of copying one door's geometry to all eight.
+   */
   doorFrame(id:typeof templeDoorPassages[number]["id"]):IAutoMovieModel{
     const door=templeDoorPassages.find((entry)=>entry.id===id);
     if(door===undefined) throw new Error(`${id}: reviewed door missing`);
     const w=door.width,h=door.height,t=door.wallHigh-door.wallLow;
+    const frame=door.frame,trim=0.16;
     const lining=mesh("lining", (b)=>{
       for(const side of [-1,1]){
-        const inner=side*w/2,outer=side*(w/2+0.06);
+        const inner=side*w/2,outer=side*(w/2+frame);
         box(
           b,
           "lining",
@@ -161,13 +183,13 @@ export class TempleOpenings {
           t/2,
         );
       }
-      box(b, "lining", -w/2-0.06, h, -t/2, w/2+0.06, h+0.06, t/2);
+      box(b, "lining", -w/2-frame, h, -t/2, w/2+frame, h+frame, t/2);
     });
     const surround=mesh("surround", (b)=>{
       for(const face of [-1,1]){
         const z0=face>0 ? t/2 : -t/2-0.03,z1=z0+0.03;
         for(const side of [-1,1]){
-          const inner=side*(w/2+0.06),outer=side*(w/2+0.22);
+          const inner=side*(w/2+frame),outer=side*(w/2+frame+trim);
           box(
             b,
             "surround",
@@ -175,11 +197,12 @@ export class TempleOpenings {
             0,
             z0,
             Math.max(inner, outer),
-            h+0.06,
+            h+frame,
             z1,
           );
         }
-        box(b, "surround", -w/2-0.22, h+0.06, z0, w/2+0.22, h+0.22, z1);
+        box(b, "surround", -w/2-frame-trim, h+frame, z0,
+          w/2+frame+trim, h+frame+trim, z1);
       }
     });
     return reviewedModel(`frame.${id}`, `석재 문틀 ${id}`, [
@@ -188,7 +211,14 @@ export class TempleOpenings {
     ]);
   }
 
-  /** One reviewed half leaf; its two-part door placement belongs to instances. */
+  /**
+   * One reviewed half leaf; its two-part door placement belongs to instances.
+   * @evidence models/openings.md#double-door-leaf This method emits the half-width frame, inset panels, paired plate/ring/pin hardware, and two hinges for the entry and sanctuary leaves.
+   * @evidence principles/core/source-units.md#source-scope-preservation It uses the passage width and height and keeps the half leaf at its local hinge; paired placement remains with instances.
+   * @evidence principles/core/source-units.md#source-substantive-completion Six stable mesh parts include the reviewed closed leaf and an open pose rotated about the local hinge pivot.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The double-door H2 fixes panel bands, hardware sizes, hinge side and two states; no new leaf profile is chosen here.
+   * @evidence obligations/design/model-sources.md#deterministic-build The two named passage IDs and state determine fixed loop counts, part order and a reproducible hinge transform.
+   */
   doubleLeaf(id:"door-entry"|"door-sanctuary",state:"closed"|"open"="closed"):IAutoMovieModel{
     const door=templeDoorPassages.find((entry)=>entry.id===id);
     if(door===undefined) throw new Error(`${id}: reviewed double door missing`);
@@ -226,8 +256,8 @@ export class TempleOpenings {
       modelTorus(p(handleX, 1.05, -0.065), 0.054, 0.006, "xy", 16, 8),
     ]);
     const pin=mesh("pin", (b)=>{
-      pinZ(b, "pin", handleX, 1.104, 0.006, 0.015, 0.006, 12);
-      pinZ(b, "pin", handleX, 1.104, -0.056, -0.065, 0.006, 12);
+      pinZ(b, "pin", handleX, 1.104, 0.006, 0.015, 0.006, 12, 1);
+      pinZ(b, "pin", handleX, 1.104, -0.056, -0.065, 0.006, 12, -1);
     });
     const hinge=mesh("hinge",(b)=>{
       for(const y of [0.25,h-0.25])
@@ -247,7 +277,14 @@ export class TempleOpenings {
     );
   }
 
-  /** The fixed board has four recessed back seams and two front battens. */
+  /**
+   * The fixed board has four recessed back seams and two front battens.
+   * @evidence models/openings.md#single-door-leaf The passage width and height set the five board strips, two battens and straps, paired rings and pins for each single-leaf door.
+   * @evidence principles/core/source-units.md#source-scope-preservation It emits a local leaf for the six reviewed single passages without choosing their wall positions.
+   * @evidence principles/core/source-units.md#source-substantive-completion Board, batten, strap, pin and ring are separate mesh parts in closed and hinge-rotated open states.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The single-door H2 supplies all board, batten and metal dimensions; the builder changes width by passage rather than inventing a seventh door.
+   * @evidence obligations/design/model-sources.md#design-owned-construction The emitted strip and hardware geometry is computed from the selected passage, preserving the common reviewed part names.
+   */
   singleLeaf(id:"door-offering"|"door-administration"|"door-records"|
     "door-storage"|"door-yard"|"door-service-exterior",
     state:"closed"|"open"="closed"):IAutoMovieModel{
@@ -271,8 +308,8 @@ export class TempleOpenings {
       modelTorus(p(w-0.12, 1.05, -0.063), 0.045, 0.005, "xy", 16, 8),
     ]);
     const pin=mesh("pin", (b)=>{
-      pinZ(b, "pin", w-0.12, 1.095, 0, 0.025, 0.006, 12);
-      pinZ(b, "pin", w-0.12, 1.095, -0.05, -0.063, 0.006, 12);
+      pinZ(b, "pin", w-0.12, 1.095, 0, 0.025, 0.006, 12, 1);
+      pinZ(b, "pin", w-0.12, 1.095, -0.05, -0.063, 0.006, 12, -1);
     });
     return posed(
       reviewedModel(`door.single.${id}`, `외개 문짝 ${id}`, [
@@ -287,7 +324,14 @@ export class TempleOpenings {
     );
   }
 
-  /** Four-sided lining and an outer-only trim leave a real 0.4 m square void. */
+  /**
+   * Four-sided lining and an outer-only trim leave a real 0.4 m square void.
+   * @evidence models/openings.md#window-frame The clerestory host supplies 0.4 m clear dimensions and frame width; the builder surrounds that local void through the selected wall depth.
+   * @evidence principles/core/source-units.md#source-scope-preservation It selects an existing 0.30 or 0.60 m host and leaves the window's world center and sill with spaces and instances.
+   * @evidence principles/core/source-units.md#source-substantive-completion Four lining bars and four exterior surround bars form separate mesh parts with the center left open.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The window-frame H2 fixes the clear square, inner frame and outer trim, all of which use host data here.
+   * @evidence obligations/design/model-sources.md#design-owned-construction The model derives its bounds from host.clearWidth, clearHeight and frame and does not create a pane or shutter.
+   */
   windowFrame(thickness:0.30|0.60):IAutoMovieModel{
     const host=templeClerestories().find((entry)=>
       Math.abs(entry.wallHigh-entry.wallLow-thickness)<1e-8);

@@ -14,9 +14,23 @@ import {
 
 const p=(x:number,y:number,z:number)=>({ x,y,z });
 
-/** Two named tile surfaces preserve the actual overlaps and empty semicircle. */
+/**
+ * Two named tile surfaces preserve the actual overlaps and empty semicircle.
+ * @evidence models/cladding.md The class exposes separate roof-pitch and ridge-pitch builders, each with a local uphill Z axis and stable tile part identity.
+ * @evidence principles/core/source-units.md#source-scope-preservation The two methods make only the reviewed roof and ridge modules; roof-piece clipping, pitch placement and coping clearance stay with instances.
+ * @evidence principles/core/source-units.md#source-substantive-completion roofTile returns tegula and imbrex meshes, while ridgeTile returns a one-part raised shell for each selected gable slope.
+ * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work Both cladding H2s specify overlap pitches, radii, foot contacts and local axes; the emitted modules use those inputs without requiring a newly chosen tile silhouette.
+ * @evidence obligations/design/model-sources.md#design-owned-construction The class emits the reviewed tile profiles from equations and loops rather than transcribing vertex arrays or substituting a roof texture.
+ */
 export class TempleCladding {
-  /** One 0.40 m-wide pitch, with the lifted 0.08 m leading overlap. */
+  /**
+   * One 0.40 m-wide pitch, with the lifted 0.08 m leading overlap.
+   * @evidence models/cladding.md#roof-tile The flat panel raises its leading 0.08 m, omits the last 0.08 m rib, and the eight-sector half shell keeps its underside open between two rib-foot lines.
+   * @evidence principles/core/source-units.md#source-scope-preservation Only tegula and imbrex parts are returned; the top-face UV is X/uphill Z, with row count and roof-edge cuts left to instances.
+   * @evidence principles/core/source-units.md#source-substantive-completion The builder returns a full 0.52 m module with both panel and half-shell geometry, side normals, UVs and 0.44 m overlap interfaces.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The roof-tile H2 locates the raised front, removed rear ribs and tapered imbrex feet; these emitted faces exposed no further thickness or seam decision.
+   * @evidence obligations/design/model-sources.md#deterministic-build Fixed boxes, eight angular sectors and a linear radius taper yield the same two ordered part meshes on every no-argument call.
+   */
   roofTile():IAutoMovieModel{
     const flat=new ObjectMesh();
     modelBox(flat,"tegula",p(-0.20,0.02,0),p(0.20,0.04,0.08));
@@ -71,7 +85,13 @@ export class TempleCladding {
     ]);
   }
 
-  /** Raised 0.05 m front nose and 0.40 m rear shell for one ridge pitch. */
+  /**
+   * Raised 0.05 m front nose and 0.40 m rear shell for one ridge pitch.
+   * @evidence models/cladding.md#ridge-tile The 0.15 m front radius and 0.13 m rear radius meet at Z=0.05 m; each profile's lower edge follows the max of the inner arc and the 19°/22° flat-tile plane.
+   * @evidence principles/core/source-units.md#source-scope-preservation This ridge module uses only the H2's two slope values and one ridge part; roof-line length and final south cut remain with instances.
+   * @evidence principles/core/source-units.md#source-substantive-completion Twenty-four bisection steps locate each inner arc/tile intersection, and segment extrusions return faces, normals and UVs for both radius zones.
+   * @evidenceExclude upstream/design/model-sources.md#design-revision-from-model-source-work The ridge-tile H2 provides both shell radii, 0.02 m thickness, angular sampling, intersection rule and pitched foot plane; constructing the sections needed no new ridge height.
+   */
   ridgeTile(slopeDegrees:19|22):IAutoMovieModel{
     const angle=slopeDegrees*Math.PI/180, y0=0.02/Math.cos(angle)-0.13*Math.tan(angle);
     const tile=(x:number)=>0.02/Math.cos(angle)-Math.abs(x)*Math.tan(angle);

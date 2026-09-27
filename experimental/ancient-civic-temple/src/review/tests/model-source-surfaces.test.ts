@@ -4,6 +4,7 @@ import test from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TempleColumns } from "../../models/columns";
 import { TempleEntablature } from "../../models/entablature";
+import { TempleLandscape } from "../../models/landscape";
 import { TempleOpenings } from "../../models/openings";
 import { templePlan } from "../../spaces/building";
 import { templeClerestories, templeDoorPassages } from "../../spaces/openings";
@@ -66,6 +67,29 @@ const coverXY=(mesh:IAutoMovieMesh,x:number,y:number,z:number):boolean=>
     const wb=((c!.y-a!.y)*(x-c!.x)+(a!.x-c!.x)*(y-c!.y))/det;
     return Math.min(wa,wb,1-wa-wb)>=-1e-8;
   });
+
+void test("neighbor house openings recess into closed front walls",()=>{
+  const source=new TempleLandscape();
+  for(const [kind,depth,windowXs,windowYs] of [
+    ["gable",6,[-2.20,2.20],[1.35]],
+    ["shed",7,[-1.70,1.70],[1.25,2.95]],
+  ] as const){
+    const model=source.neighborHouse(kind);
+    const wall=partMesh(model,"wall"),recess=partMesh(model,"recess");
+    const openings=[{x:0,y:1.05},
+      ...windowXs.flatMap((x)=>windowYs.map((y)=>({x,y:y+0.40})))];
+    for(const {x,y} of openings){
+      assert.ok(!coverXY(wall,x,y,depth/2),`${kind}: filled opening at ${x},${y}`);
+      assert.ok(coverXY(recess,x,y,depth/2-0.20),
+        `${kind}: missing inset backing at ${x},${y}`);
+      assert.ok(coverXY(wall,x,y,depth/2-0.30),
+        `${kind}: missing remaining wall at ${x},${y}`);
+    }
+    assert.ok(coverXY(wall,0.7,1.05,depth/2),`${kind}: missing door-side wall`);
+    assert.ok(!coverXY(partMesh(model,"plinth"),0,0.25,depth/2+0.008),
+      `${kind}: plinth covers the door recess`);
+  }
+});
 
 void test("sanctuary rafter tail derives its inset from the roof support and wall",()=>{
   const tail=partMesh(new TempleEntablature().sanctuaryRafters()[0]!,"timber");
