@@ -213,26 +213,26 @@ export interface IStorageSpace {
 /**
  * What one room owner emits: its space record and the solids it owns.
  * @evidence spaces/03-surface-owners.md A room source emits its finished surfaces and room record as one owned unit.
- * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 IRoomBuild L288-310 space + parts (+ storages), returned by each rooms/*.ts builder; 03-surface-owners.md:96.
+  * @evidenceReview spaces/03-surface-owners.md Every room builder returns an `IRoomBuild` with its room record and emitted finish or partition parts, keeping that file's visible surfaces together for house assembly.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish parts stay with their room while storage records remain separately addressable.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f v-141 parts and storages are separate fields; house.ts:168 parts, :237 storages, environment.ts:542 storage spaces; 03-surface-owners.md:96,116.
+  * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff `IRoomBuild` separates mesh parts from optional storage volumes; `buildHouse` collects both under the emitting room, and environment assembly exposes storage as separate spaces.
  * @evidence principles/core/source-units.md#source-scope-preservation The interface preserves one room author and does not assign another room's partition.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 The type assigns nothing; partition owners come from callers per the 07-boundary-assembly.md:29-41 table.
+  * @evidenceReview principles/core/source-units.md#source-scope-preservation This output type receives a builder's `space`, `parts`, and optional `storages`; it assigns no neighboring partition that the room builder did not emit.
  * @evidence principles/core/source-units.md#source-substantive-completion Space, parts and optional storage are all available for house assembly.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:168 parts, :230 spaces, :237-245 storages.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildHouse` flattens each result's `parts`, collects its `space`, and pairs each optional storage with that room, so all three fields have assembly consumers.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns every room one file for its finishes, with coat/linen as consuming-room storage; IRoomBuild returns that file's space, parts, and optional storage together.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The interior handoff keeps one file per room and assigns coat and linen storage to their consuming rooms; IRoomBuild carries space, parts and optional storages, and entry.ts and upper-hall.ts return those under their room owners.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns one source file per room and keeps coat and linen with entry and upper hall; this result type carries each builder's space, parts, and optional storage without choosing another owner.
  */
 export interface IRoomBuild {
   /**
    * @evidence spaces/03-surface-owners.md The emitting room retains its own plan record.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 space: IRoomSpace of the emitting room.
+    * @evidenceReview spaces/03-surface-owners.md The `space` field is the emitting room's `IRoomSpace`; builders such as entry and common return their own finished outline and owner record here.
    * @evidence principles/core/source-units.md#source-scope-preservation This field does not create or claim an adjacent room.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 One IRoomSpace per build; house.ts:233-236 refuses duplicate space ids.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation The field carries one builder-supplied room record; `buildHouse` refuses duplicate room ids rather than merging another room into it.
    * @evidence principles/core/source-units.md#source-substantive-completion House assembly can collect the room's id, outline and uses.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:230 collects room.space (id, outline, reservations).
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildHouse` collects `room.space` into `house.spaces`, preserving id, storey, outline, and reservations for environment and route consumers.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Entry-plan and common-room-plan each fix their own room outline and doors; space preserves the respective IRoomSpace rather than composing a new plan.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 entry.md:29,31 fix the entry outline and front-door; common.md:25,27 fix the outline and two openings (door() voids common.ts:34,48). Builders return their own IRoomSpace as space (entry.ts:110, common.ts:131), not a composed plan.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Entry and common room plans fix separate outlines and door contacts; each builder returns its own record through `space`, without this field composing another plan.
    */
   space: IRoomSpace;
   /**
@@ -248,13 +248,13 @@ export interface IRoomBuild {
   parts: IHousePart[];
   /**
    * @evidence spaces/03-surface-owners.md A room may expose its own closet or linen volume.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 03-surface-owners.md:116 closets are interfaces of the consuming room; entry.ts:109, upper-hall.ts:68-74.
+    * @evidenceReview spaces/03-surface-owners.md The entry builder supplies its coat volume and upper hall its linen volume through `storages`, matching the handoff's consuming-room assignment.
    * @evidence principles/core/source-units.md#source-scope-preservation These are space records, not added storage furniture.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 IStorageSpace records only.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation Optional `IStorageSpace` records are bounded logical volumes; this field creates no closet shelf or sliding door model.
    * @evidence principles/core/source-units.md#source-substantive-completion House assembly can include the room's usable storage cells.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:237-245 collects storages with the owning room.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildHouse` pairs each returned storage with its room record, giving environment assembly the correct parent storey and storage cell bounds.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff keeps coat storage with entry and linen storage with upper-hall, while the walk-in wardrobe owns a room file; storages carries only the shallow volumes.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 03-surface-owners.md:100,108 keep coat with entry and linen with upper-hall; :110,116 give the wardrobe its own file. Only entry.ts:113 and upper-hall.ts:68-75 fill storages; wardrobe.ts has none.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` keeps shallow coat and linen storage with entry and upper hall, while the walk-in wardrobe is a room; only the first two builders fill this optional field.
    */
   storages?: IStorageSpace[];
 }
