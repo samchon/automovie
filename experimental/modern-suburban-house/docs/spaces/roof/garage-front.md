@@ -25,3 +25,5 @@
 `roof.garage.front`는 [차고 지붕 영역](00-junctions.md#roof-mass-allocation)의 앞 절반이다. [Gfront](00-junctions.md#roof-profile-datums)의 날씨 면과 아래면을 `src/spaces/roof/garage-front.ts`가 소유한다. 앞은 차고 정면 처마, 뒤는 낮은 용마루, 오른쪽은 차고 박공, 왼쪽은 본채 공유 벽 바깥의 지붕 접합이다. 본채 안에 기울어진 지붕판이 남아 머드룸 천장을 관통하지 않는다.
 
 닫힌 패널문과 레일을 위한 차고 내부 높이는 [기존 datum](../01-storeys.md#ground-threshold-datums)을 유지한다. 앞 처마 아래 차고 정면 벽의 패널문 개구부와 상부 가이드·수직 레일의 예약은 [닫힌 차고문과 상부 이동 예약](../envelope/front.md#garage-front-opening)에서 받아 이 지붕 아래와 대조한다. 검사 주소는 차고 정면, 본채 벽 접합의 앞 끝과 지붕/문/천장 단면이다. 차고문을 제거한 빈 공간으로 검사하지 않는다. 실제 부재 간섭·머드룸 문 연계·렌더는 unverified다.
+
+차고 앞 흰 처마 하부는 본채 공유 벽 바깥 접점의 앞 자유 처마에서 오른쪽 +X로 잰 거리를 U, 그 처마에서 차고 용마루 쪽 −Z로 올라간 실제 경사 거리를 V로 둔다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 차고 전면 처마·오른쪽 박공 사선의 노출 두께면 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m를 V로 다시 시작한다. 본채 공유 벽 접합과 차고 용마루에서 면과 UV를 자르고 벽 속에 묻힌 fascia를 노출시키지 않는다.

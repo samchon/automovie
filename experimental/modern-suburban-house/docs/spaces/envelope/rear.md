@@ -94,8 +94,8 @@
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 family-rear-window의 X = [2.75, 4.75], Y = [0.75, 2.30] m 개구부와 공통 인계의 수직 창 두 칸이 본문에 확정되어 다음 단계가 폭·높이·분할 수를 발명할 필요가 없음을 확인했다.
 @evidence principles/core/common.md#declared-basis 창틀은 공통 인계, 위치는 가족실 좌석이 우측이라는 설정에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 본문에서 family-rear-window의 위치는 settings common-room의 가족실 우측 링크, 창틀과 분할은 external-opening-interface 링크로 각각 이어져 두 진술의 근거가 추적됨을 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 가족실 좌석의 우측 배치를 자기 창이 같은 방 안에 있는 후면 개구부로 만들고 별도 가족실 벽을 두지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 common-room이 가족실 좌석을 공용부 오른쪽에 두도록 한 결정에 본문이 더한 family-rear-window의 X = [2.75, 4.75] m 후면 개구부와 별도 가족실 벽 없음 결정을 대조해 부모에 없는 창 위치 결정임을 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 설정 common-room의 오른쪽 좌석과 한 방 유지 결정을 받아, 그 좌석의 후면 창 개구부를 X=[2.75,4.75], Y=[0.75,2.30] m로 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 설정 common-room은 좌석의 오른쪽 위치와 완전 높이 벽·닫힌 문 없는 연속 공간을 이미 정한다. 이 H2가 추가한 것은 같은 방의 후벽에 family-rear-window 개구부를 X=[2.75,4.75], Y=[0.75,2.30] m로 놓고 수직 두 칸 창을 받는 위치 결정이다.
 @evidence principles/design/spaces.md#space-topology 창을 kitchen-dining-family의 후벽 오른쪽에 속하게 한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 family-rear-window가 ground-storey kitchen-dining-family에 속하고 X = [2.75, 4.75] m로 후벽 오른쪽에 있으며 가족실 좌석과 같은 방이라는 본문 관계가 형상 없이 포함 관계를 줌을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 창틀·창대 돌출은 06에서 받고 창 앞 소파와 창대 접근은 common-family-reservation이 이 창을 소비해 배치한다.
@@ -163,5 +163,7 @@
 `garden-door`는 [후벽](#rear-openings)의 X = [-1.20, 1.20], Y = [0, 2.25] m 개구부로 ground-storey의 [kitchen-dining-family](../rooms/common.md#common-room-plan)와 외부 대기를 잇는다. [공통 인계](../06-openings.md#external-opening-interface)를 소비하며 바깥쪽 -Z 방향으로 열리는 유리 경첩 문 두 장이다. +X 쪽이 일상 진입의 주 문이고 경첩은 양 끝 문설주, 손잡이는 중앙 만남에 둔다. 주 문만 90° 열었을 때 유효 폭 목표는 0.95 m다. 문 한 장의 실제 회전 반경은 문틀을 제외한 문짝 치수에서 산출한다.
 
 안쪽 대기 X = [-1.50, 1.50], Z = [-10.45, -9.25], 바깥 대기 X = [-1.50, 1.50], Z = [-12.50, -10.70] m는 모두 Y = 0 m의 평탄 바닥으로 예약한다. 바깥 대기는 ground-storey 외부 구역이며 깊이 1.80 m를 택해 문을 당겨 열고 물러서는 공간을 남긴다. 문턱은 양쪽 바닥 위 0.02 m 이내이며 바닥 사이 빈틈을 남기지 않는다.
+
+`garden-door-threshold` 상면의 UV는 왼쪽 문설주 X = -1.20 m에서 U=0으로 시작해 +X로, 안쪽 벽면 Z = `INNER`에서 V=0으로 시작해 바깥쪽 `BACK`으로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 테라스와 방 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
 
 식탁·의자는 안쪽 대기를 막지 않고, 바깥 대기는 열린 두 문짝과 정원에서 돌아오는 중심 경로를 함께 수용해야 한다. [테라스](../site/terrace.md#garden-terrace-plan)는 이 대기를 포함하고 중앙 경로와 외부 단을 정원 쪽으로 연결한다. 바깥 대기 바닥은 완결 테라스 owner인 `src/spaces/site/terrace.ts`, 후벽·문 void·문턱판은 `src/spaces/envelope/rear.ts`, 닫힌 정원문 문틀·두 문짝·철물은 [모델 원형](../../models/02-exterior-doors.md#garden-door-pair)이 맡는다. 이 H2의 문짝 수·방향·회전 예약은 모델의 입력이며 rear source가 그 문짝 메시를 중복 생성하지 않는다. 실제 지표와의 접속은 maps 입력이 없어 미완료다. 실제 양방향 통행·문짝/식탁 충돌·프라이버시·채광·03의 프레임은 unverified다.

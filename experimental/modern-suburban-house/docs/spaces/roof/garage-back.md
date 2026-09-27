@@ -25,3 +25,5 @@
 `roof.garage.back`과 아래면은 `src/spaces/roof/garage-back.ts`가 소유한다. [차고 영역](00-junctions.md#roof-mass-allocation)의 뒤 절반에 [Gback](00-junctions.md#roof-profile-datums)을 적용한다. 앞은 차고 용마루, 뒤는 차고 후벽의 자유 처마, 오른쪽은 박공 사선 모서리, 왼쪽은 본채 벽 접합이다.
 
 후면 돌출이 본채의 [공용부 창](../envelope/right.md#family-right-window)이나 [상층 욕조 욕실 창](../envelope/right.md#tub-right-window)과 겹치는지는 그 창 H2의 위치와 [오른쪽 입면](../envelope/right.md#right-roof-closures)의 지붕 접촉선을 함께 읽어 검사하며 이 면은 창 좌표를 정하지 않는다. 이 면을 후면의 별도 작은 동으로 늘리지 않는다. 뒤 처마 아래에서 본채 접점까지, 차고 내부 천장과 위 구조, 후방 경사면 전체가 검사 주소다. 실제 source·면 census·창과의 간섭·시각 읽힘은 unverified다.
+
+차고 뒤 흰 처마 하부는 본채 공유 벽 바깥 접점의 뒤 자유 처마에서 오른쪽 +X로 잰 거리를 U, 그 처마에서 차고 용마루 쪽 +Z로 올라간 실제 경사 거리를 V로 둔다. 지붕널 날씨 면은 [세계 경사 UV](../03-surface-owners.md#exterior-surface-handoff)를 유지한다. 차고 후면 처마·오른쪽 박공 사선의 노출 두께면 fascia는 각 자유 모서리의 사전식으로 작은 (X,Z) 끝에서 3차원 길이 U, 날씨 면에서 아래면까지 수직 두께 0.24 m를 V로 다시 시작한다. 본채 벽 접합과 차고 용마루에서 면과 UV를 자르며 다른 박공 면으로 UV를 통과시키지 않는다.

@@ -33,14 +33,14 @@
 @evidence principles/design/materials.md#material-binding-interface 흰 외부 trim은 모델 `exterior-trim`·`jamb`와 spaces의 전후면 문턱판 id에 결합하며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address 흰 외부 trim의 반증 견본은 '오후 key 아래 처마 soffit이 완전 검정으로 닫히지 않고 기둥 네 면이 같은 재료로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F6F4EE 값을 대조한다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work 모서리 판의 `exterior-trim` 결속을 대조하니 창 문선과 달리 닫힌 모서리 판 원형이 없었다. models/15-outdoor.md#exterior-corner-trim을 새 설계 owner로 추가하고 spaces/07-boundary-assembly.md#exterior-boundary-junctions에 구조 모서리 몸체와 별도 trim 판의 인계를 명시한 뒤 이 재료를 결합한다. settings/20-verification.md#visual-grammar의 흰 trim 읽힘은 유지했다.
-@evidence contracts/texture-readability.md#material-texture-readability `exterior-trim`과 처마 fascia·soffit은 도장 미세결을 0.10 m 모듈로 반복한다. 각 부재 길이를 U, 폭을 V로 하고 한 끝 모서리를 원점으로 두며 코너 맞댐에서는 방향을 새로 잡는다.
+@evidence contracts/texture-readability.md#material-texture-readability `exterior-trim`과 처마 fascia·soffit의 도장 미세결은 0.10 m 모듈로 반복하며, 여덟 지붕·포치·문턱의 spaces 면은 각 owner의 UV 축·원점·이음을 소비하고 모델 trim은 해당 모델의 UV를 소비한다.
 @evidence settings/20-verification.md#visual-grammar 흰 외부 trim이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #F6F4EE 값과 결합 면의 근거로 삼았다.
 @evidence spaces/porch.md#porch-roof-columns 흰 외부 trim이 '세 기둥과 낮은 경사 지붕'(spaces/porch.md#porch-roof-columns)를 링크로 소비해 #F6F4EE 값과 결합 면의 근거로 삼았다.
 -->
 
 창·문 둘레 casing, 모서리 판, 처마 fascia와 soffit, 포치 기둥·보다. 구성은 반광 도장한 PVC·목재 trim 판이다. 외관은 `#F6F4EE`(선형 0.922, 0.905, 0.855), roughness 0.35, metallic 0.0, transmission 0.0이며 반광으로 siding(0.55)보다 좁은 하이라이트를 가져 [trim이 돌출과 음영으로 접합을 설명](../settings/20-verification.md#visual-grammar)하는 읽힘을 돕는다. 결합 면은 [외벽 모서리 trim 원형](../models/15-outdoor.md#exterior-corner-trim)의 `exterior-trim`, [창의 표면 파티션](../models/01-windows.md#window-surface-partitions)의 `exterior-trim`, [현관문](../models/02-exterior-doors.md#front-entry-door)과 [정원문](../models/02-exterior-doors.md#garden-door-pair)의 `exterior-trim`·`jamb`, [전후면 문턱판](../spaces/10-ground-floor.md#ground-threshold-junctions)의 `front-door-threshold`·`garden-door-threshold`, 각 지붕 경사면 owner의 처마 하부와 fascia, [포치의 기둥·보·받침](../spaces/porch.md#porch-roof-columns)이다. 입면 owner는 모서리의 구조 벽과 연속 날씨 면을 만들지만 닫힌 L자 trim 판은 복제하지 않는다. source owner는 `src/materials/exterior/trim.ts`이고, 리뷰는 오후 key 아래 처마 soffit이 완전 검정으로 닫히지 않고 기둥 네 면이 같은 재료로 읽히는지를 관찰한다.
 
-표면 결속 계획: `exterior-trim`과 처마 fascia·soffit은 도장 미세결을 0.10 m 모듈로 반복한다. 각 부재 길이를 U, 폭을 V로 하고 한 끝 모서리를 원점으로 두며 코너 맞댐에서는 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: `exterior-trim`과 처마 fascia·soffit의 도장 미세결은 0.10 m 모듈로 반복한다. [여덟 지붕의 처마 면](../spaces/roof/00-junctions.md#roof-profile-datums)·[포치 기둥과 지붕](../spaces/porch.md#porch-roof-columns)·[전면](../spaces/envelope/front.md#front-entry-filling)과 [후면](../spaces/envelope/rear.md#garden-door)의 문턱판은 각 spaces owner의 UV 축·원점·이음을 소비하고, 모델 `exterior-trim`은 그 모델의 UV를 소비한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 ## 어두운 asphalt shingle {#roof-shingle}
 <!--
@@ -91,13 +91,13 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 @evidence principles/design/materials.md#material-binding-interface charcoal 창틀·굴뚝 cap·지붕 flashing의 결합 vocabulary는 `frame`·`sash`·`mullion`·`muntin`·`roof-flashing`이며 방향과 단면/양면은 00 면 결합 규칙을 따른다.
 @evidence principles/design/materials.md#material-verification-address charcoal 창틀·굴뚝 cap·지붕 flashing의 반증 견본은 '흰 trim 안에서 창틀이 두께 있는 틀로, 골짜기와 굴뚝 접합의 flashing이 지붕널과 다른 얇은 금속으로 읽히는지'이고 00 재료 리뷰 견본의 중성 조명 판이 #2E3033 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work charcoal 창틀·굴뚝 cap·지붕 flashing은 settings/20-verification.md#visual-grammar, 이번 모델 수리 뒤의 models/01-windows.md#window-surface-partitions와 models/15-outdoor.md#asphalt-shingle-strip의 `roof-flashing`을 소비한다. 바깥 trim 소유 정정은 모델 분기의 수리이며 이 재료 H2가 부모 수정으로 요구한 값은 없다.
-@evidence contracts/texture-readability.md#material-texture-readability `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap·지붕 flashing의 도장 금속 미세결은 각 부재 길이를 U로 한 0.05 m 모듈이다. 국소 부재 끝을 원점으로 하고 맞댐마다 결 방향을 새로 잡으며 모서리 하이라이트를 유지한다.
+@evidence contracts/texture-readability.md#material-texture-readability `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap·지붕 flashing의 도장 금속 미세결은 0.05 m 모듈이며, 굴뚝 cap은 spaces owner의 UV를, 모델 면은 각 모델의 UV를 소비한다.
 @evidence settings/20-verification.md#visual-grammar charcoal 창틀·굴뚝 cap·지붕 flashing이 '공통 재료와 외피 인상'(settings/20-verification.md#visual-grammar)를 링크로 소비해 #2E3033 값과 결합 면의 근거로 삼았다.
 -->
 
 [창틀의 짙은 charcoal](../settings/20-verification.md#visual-grammar)이다. 구성은 분체 도장 알루미늄이므로 [관례](00-material-frame.md#material-response-conventions)대로 도막을 metallic 0.0으로 표현한다. 외관은 `#2E3033`(선형 0.027, 0.030, 0.033), roughness 0.40, transmission 0.0이다. 결합 면은 [창의 표면 파티션](../models/01-windows.md#window-surface-partitions)의 `frame`·`sash`·`mullion`·`muntin`, [현관문](../models/02-exterior-doors.md#front-entry-door)의 `muntin`, [정원 쪽 유리문](../models/02-exterior-doors.md#garden-door-pair)의 `leaf-exterior`·`leaf-interior`·`leaf-edge`·`sash`, [처마 홈통](../models/15-outdoor.md#eave-gutter-downspout)의 `gutter`·`downspout`, [골짜기와 굴뚝 접합 금속](../models/15-outdoor.md#asphalt-shingle-strip)의 `roof-flashing`, 굴뚝 cap이다. source owner는 `src/materials/exterior/frames.ts`이고, 리뷰는 흰 trim 안에서 창틀이 두께 있는 틀로, 골짜기와 굴뚝 접합의 flashing이 지붕널과 다른 얇은 금속으로 읽히는지를 관찰한다.
 
-표면 결속 계획: `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap·지붕 flashing의 도장 금속 미세결은 각 부재 길이를 U로 한 0.05 m 모듈이다. 국소 부재 끝을 원점으로 하고 맞댐마다 결 방향을 새로 잡으며 모서리 하이라이트를 유지한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: `frame`·`sash`·`mullion`·`muntin`과 굴뚝 cap·지붕 flashing의 도장 금속 미세결은 0.05 m 모듈이다. [굴뚝 cap](../spaces/envelope/left.md#chimney-roof-interface)은 그 spaces owner의 UV 축·원점·이음을 소비하고, 창틀과 flashing은 각 모델의 UV를 소비한다. 모서리 하이라이트를 유지하며 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 `frame`·`mullion`의 물리 폭과 깊이는 [창 부재 치수](../models/01-windows.md#window-member-sizes)가 정한다. [창 표면 파티션](../models/01-windows.md#window-surface-partitions)은 이름 경계만 정하며 그 H2만으로 메시를 만들지 않는다.
 

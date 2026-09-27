@@ -182,6 +182,8 @@
 
 `front-door`의 void·순폭 목표·경첩/열림은 [현관 owner](../rooms/entry.md#entry-plan) 그대로다. ground-storey의 포치와 현관을 잇는다. [공통 인계](../06-openings.md#external-opening-interface)에 따라 목재 문짝 상부 유리는 문짝 안에서 세 열·두 행으로 반복 분할하고 검은 손잡이는 경첩 반대편에 둔다. 이 유리를 계단 창과 연결하거나 별도 현관 바닥으로 해석하지 않는다.
 
+`front-door-threshold` 상면의 UV는 왼쪽 문설주 X = `FRONT_DOOR.from`에서 U=0으로 시작해 +X로, 벽 안쪽 면 Z = `INNER`에서 V=0으로 시작해 바깥쪽 `FRONT`로 진행한다. 수직 측면은 각 측면의 왼쪽 아래 모서리에서 수평 접선 U와 +Y의 V를 쓰며, 문설주·내외 바닥 접촉선과 상면/측면 모서리에서 자른다. 포치 바닥과 현관 바닥의 UV 원점을 문턱판에 이어 붙이지 않는다.
+
 관찰은 01/04의 현관문과 포치 접속, 문틀 깊이·목재/상부 유리·열린 문짝과 손잡이를 포함한다. 실제 부재/void·문 앞 양방향 통행·01/04 비교는 unverified다.
 
 ## 닫힌 차고문과 상부 이동 예약 {#garage-front-opening}

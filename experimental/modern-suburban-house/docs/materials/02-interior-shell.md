@@ -49,7 +49,7 @@
 @evidence principles/design/materials.md#material-binding-interface 흰 실내 trim과 패널 문짝은 실내 문의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, 현관·정원문과 외투장·린넨장·침실 미닫이 옷장의 `casing`, 창의 `interior-sill`·`interior-casing`, 독립 걸레받이 `wall-baseboard`에 결합하고 계단 챌판·기둥은 spaces 계단 owner의 면을 쓴다.
 @evidence principles/design/materials.md#material-verification-address 흰 실내 trim과 패널 문짝의 반증 견본은 '05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지'이고 00 재료 리뷰 견본의 중성 조명 판이 #F4F2EC 값을 대조한다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 흰 실내 trim과 패널 문짝은 settings/10-house.md#openings, settings/10-house.md#stair를 적힌 그대로 소비했고 수정할 부모 결함을 찾지 않았다.
-@evidence contracts/texture-readability.md#material-texture-readability 실내 문선·걸레받이·패널 문짝의 도장 솔결은 부재 길이 U의 0.10 m 모듈이다. 각 파티션의 시작 모서리를 원점으로 하고 패널 오목부·문짝 가장자리에서 결 방향과 이음을 새로 잡는다.
+@evidence contracts/texture-readability.md#material-texture-readability 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이며, 계단 부재는 spaces owner의 UV를, 문선·걸레받이·문짝은 각 모델의 UV를 소비한다.
 @evidence settings/10-house.md#openings 흰 실내 trim과 패널 문짝이 '개구부의 읽힘'(settings/10-house.md#openings)를 링크로 소비해 #F4F2EC 값과 결합 면의 근거로 삼았다.
 @evidence settings/10-house.md#stair 흰 실내 trim과 패널 문짝이 '단일 꺾임계단'(settings/10-house.md#stair)를 링크로 소비해 #F4F2EC 값과 결합 면의 근거로 삼았다.
 -->
@@ -58,7 +58,7 @@
 
 외투장·린넨장은 spaces의 벽 속 수납 개구부여서 별도 `carcass` 메시가 없다. [외투장](../models/05-closet-fittings.md#coat-closet-doors)과 [린넨장](../models/05-closet-fittings.md#linen-closet-fittings)의 문짝 `leaf`·`leaf-panel`과 선반 `shelf`는 이 도막을 받는다. 검은 레일·봉·손잡이에는 결합하지 않는다.
 
-표면 결속 계획: 실내 문선·걸레받이·패널 문짝의 도장 솔결은 부재 길이 U의 0.10 m 모듈이다. 각 파티션의 시작 모서리를 원점으로 하고 패널 오목부·문짝 가장자리에서 결 방향과 이음을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이다. [계단 챌판·기둥](../spaces/02-stair.md#stair-reservation)은 spaces owner의 UV 축·원점·이음을 소비하고, 문선·걸레받이·패널 문짝은 각 모델의 UV를 소비한다. 패널 오목부·문짝 가장자리의 이음은 모델 owner가 정하며, 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 `jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`의 물리 판은 [실내 문 부재](../models/03-interior-doors.md#interior-door-members)가 정한다. 이 H2의 `casing`은 [현관문 원형](../models/02-exterior-doors.md#front-entry-door)의 실내 판이고 `carcass`는 [침실 붙박이 미닫이 옷장](../models/13-bedrooms.md#sliding-closet)의 몸통이다. 외투장·린넨장의 개구부 벽을 `carcass`로 다시 만들지 않는다.
 

@@ -149,7 +149,7 @@
 @evidence principles/design/spaces.md#space-verification-address 서비스 진입에서 좌석과 두 창으로의 접근, 앉은 시야, 03의 세 기능과 점유/그림자 읽힘을 반증 관찰로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 서비스 진입에서 좌석과 두 창으로의 접근, 앉은 시야, 03 공용부 세 기능과 실제 점유/그림자 읽힘을 가족실 예약의 반증 관찰로 열거하고 unverified로 둠을 확인했다.
 @evidence settings/10-house.md#common-room 우측 가족실 좌석에 소파와 낮은 테이블을 두고 주 통과 경로를 그 사이에만 두지 않는다.
-@evidenceReview settings/10-house.md#common-room #eb2f09d 설정은 가족실에 소파와 낮은 테이블을 두고 주방 작업대나 식탁 사이만 유일한 통로로 삼지 말라고 한다. 이 H2는 소파·테이블 사이를 착석 자리로 정하고 왼쪽 중앙 경로와 테이블 오른쪽 창 접근을 남기며, 주방과 식탁을 우회하는 경로는 #common-clear-routes에 둔다.
+@evidenceReview settings/10-house.md#common-room #eb2f09d 설정이 정한 우측 소파·낮은 테이블을 이 H2의 X=[3.25,5.35] m 소파와 X=[3.40,4.45] m 탁자 예약에 대조했다. 두 가구 사이를 착석 여유로 남기고 소파 왼쪽은 중앙 경로에서, 탁자 오른쪽은 창 쪽에서 접근한다. 작업대·식탁 우회는 별도 common-clear-routes H2가 맡는다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work common-room의 우측 가족실·소파와 낮은 테이블, use-profile의 0.90 m 통로를 대조했고 창 쪽 측면 통로가 유지돼 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 common-room의 우측 가족실과 use-profile의 연속 통로 0.90 m를 이 H2의 테이블 오른쪽 접근에 적용했다. 테이블 끝 X = 4.45에서 실내 면 X = 5.50까지 1.05 m가 남고 커튼 깊이 0.12 m와 걸레받이 0.015 m를 빼도 0.915 m여서 부모 치수를 고칠 이유가 없다.
 -->
@@ -177,7 +177,7 @@
 @evidence principles/design/spaces.md#space-verification-address 닫힌/열린 기구·의자 사용 점유를 함께 놓은 평면, 섬과 벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입의 왕복 시야를 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 닫힌/열린 기구·의자 점유 평면, 섬·벽 주방 단면, 정원문/의자/후면 띠 단면, 두 진입 왕복 시야를 반증 관찰로 들고 좌표 산술을 도달성 판정으로 바꾸지 않음을 확인했다.
 @evidence settings/00-production.md#use-profile 바구니 포함 사용 점유체의 양방향 이동과 0.90 m 이상 통로 목표를 주 경로에 적용한다.
-@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠 X = 2.10~3.07의 거친 폭 0.97 m에서 양쪽 0.015 m를 빼면 0.94 m다. 뒤쪽 띠 Z = [-10.33, -9.25]의 거친 폭 1.08 m에서 양쪽 0.015 m를 빼면 1.05 m다. 두 값 모두 use-profile의 연속 통로 0.90 m를 넘고, 정원문 짧은 연결의 방향 전환과 양방향 이동은 실제 관찰에 남긴다.
+@evidenceReview settings/00-production.md#use-profile #6ef5afe 오른쪽 띠의 거친 0.97 m에서는 벽 쪽 걸레받이 0.015 m 하나를 빼 0.955 m가 남고, 뒤쪽 띠의 1.08 m에서는 양쪽 0.015 m를 빼 1.05 m가 남는다. 본문이 정한 두 값은 설정의 연속 통로 목표 0.90 m 이상이며 바구니를 든 양방향 전환은 실제 관찰 대상으로 남는다.
 @evidence settings/10-house.md#common-room service-common-opening에서 들어와 garden-door 안쪽 대기로 가는 오른쪽·뒤쪽 두 띠를 두어 주방 작업대나 식탁 사이만이 유일한 통로가 되지 않게 한다.
 @evidenceReview settings/10-house.md#common-room #eb2f09d 설정의 유일 통로 금지를 식탁 오른쪽 X = 2.10부터의 오른쪽 띠와 뒤쪽 띠가 작업대·식탁 사이를 거치지 않고 garden-door 대기에 닿는 배치에 대조해 성립함을 확인했다.
 @evidence obligations/design/spaces.md#space-access-circulation service-common-opening에서 garden-door 안쪽 대기와 가족실 좌석으로 가는 두 띠를 손잡이·사용 점유로 줄이지 않고 living-common-opening에서 기기를 닫은 기준 상태의 작업면 사이로 후면 띠에 합류하는 주방 경로를 배정한다.

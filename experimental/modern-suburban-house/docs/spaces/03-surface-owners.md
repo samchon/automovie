@@ -63,8 +63,6 @@
 
 일반 실내 칸막이의 공통 몸체는 [공유 경계 배정](07-boundary-assembly.md#interior-boundary-ownership)의 단일 source owner가 생성하고 양쪽 room은 자기 완결 마감을 유지한다. `src/spaces/boundaries.ts`는 [교차부·개구부·문턱](07-boundary-assembly.md#interior-boundary-junctions)의 같은 경계를 전달하는 계산 책임만 가지며 별도 벽/마감을 만들지 않는다. 차고 공유 벽은 위 표의 높이별 두 owner를, 계단 구조는 기존 stair owner를 따른다.
 
-각 방의 보이는 안쪽 벽은 전후면 U=X, 좌우면 U=Z, V=Y인 세계 좌표를 소비한다. 바닥과 천장은 U=X, V=Z를 공유하고 세계 X/Z 원점을 유지해 같은 층에서 방 경계를 지나도 위상이 바뀌지 않는다. 벽의 문·창·니치 절단과 바닥의 재료 문턱·계단 구멍, 천장의 실제 구멍·높이 단차에서 각 면은 끝난다. 절단 뒤 같은 평면에 남는 면은 같은 세계 위상을 유지하며, 다른 방향의 벽이나 다른 높이의 천장은 자기 평면을 따로 투영한다. 계단 디딤판은 각 코의 왼쪽에서 U를 폭 방향, V를 진행 방향으로 잡고 코와 참의 실제 이음에서 자른다. spaces가 만드는 난간 손잡이와 난간살은 각 직선 구간의 시작 기둥에서 길이 방향 U를 시작하고 접합에서 자른다. 모델이 만드는 문선·문짝·창틀·독립 손잡이의 국소 UV는 해당 모델 owner에 남긴다.
-
 [외벽 모서리와 지붕 단차 접합](07-boundary-assembly.md#exterior-boundary-junctions)은 앞뒤 입면/공유 벽이 받는 단일 구조 몸체와 각 완결 입면의 마감을 구별한다. [벽 상단의 지붕 접촉](roof/00-junctions.md#roof-wall-head-junctions)은 지붕 교차 계산에서 받아 벽 두께 전체에 적용한다. 공유 계산이나 공통 몸체를 이유로 위 표의 입면·지붕·방 표면 소유를 바꾸지 않는다.
 
 [층간 구조의 가장자리](08-floor-assembly.md#interstorey-edge-junctions)는 외벽의 두께 구역과 실내 벽 상하 접촉을 같은 경계로 잇는다. 계단 구멍의 몸체는 upper 층판 owner, 그 두께 단면의 보이는 연속 마감은 stair owner, 도착의 보이는 바닥은 upper-hall owner다. 같은 가장자리에 두 번째 층판이나 테두리 마감을 생성하지 않는다.
@@ -94,7 +92,7 @@
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.
 @evidenceReview settings/10-house.md#storage #cc3fdd3 storage는 수납실을 공간으로 저작한 경우 다른 방과 같은 전체 관찰을 부담하게 하며 붙박이장이라는 이름으로 실제 방의 질문을 없애지 못하게 한다. 본문은 옷방을 자기 파일과 전체 관찰이 있는 공간으로 채택하고 린넨장·외투장은 각각 복도·현관의 접면으로 분류한다.
 @evidence settings/20-verification.md#visual-grammar 방 안쪽 벽·바닥·천장과 계단 면의 U/V 축, 원점과 실제 절단 이음을 spaces에 정하고 모델의 독립 부재 UV를 모델 owner에 남긴다.
-@evidenceReview settings/20-verification.md#visual-grammar #5b47467 설정의 면 UV 소유 인계를 방 벽의 수평 접선·Y, 바닥/천장의 X/Z 세계 원점과 구멍·문턱 이음, 계단 디딤과 난간의 부재별 축·시작점에 대조했다. 모델이 만드는 별도 부재는 이 결정에 포함하지 않는다.
+@evidenceReview settings/20-verification.md#visual-grammar #5b47467 설정이 면의 경계와 UV를 만드는 owner에 맡긴 것을 이 H2의 방 벽 U=X/Z·V=Y, 바닥과 천장의 세계 X/Z 원점, 실제 개구부·문턱의 절단에 대조했다. 계단 디딤과 spaces의 손잡이·기둥만 이 인계에 포함하고 난간살·문선·창틀의 국소 UV는 models owner에 남긴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work storage의 사람이 들어가는 수납실 조건과 surface-allocation의 "각 방 내부의 완결 면" 배정을 대조했고 옷방·린넨장·외투장을 구별해 성립해 부모 수정이 없었다.
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 storage의 사람이 들어가는 수납실 조건과 surface-allocation의 방 내부 완결 면 배정을 옷방·린넨장·외투장 세 분류에 대조해 settings 문장을 고치지 않고 방 파일 배정이 닫힘을 확인했다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 방의 안쪽 벽·천장·바닥·reveal을 그 방의 한 room 파일에 배정하고 사람이 들어가는 옷방은 자기 파일로, 린넨장·외투장은 소비하는 방의 접면으로 구분한다.
@@ -102,6 +100,8 @@
 -->
 
 [표면 분해 인계](../settings/20-verification.md#surface-allocation)가 요구한 각 방 내부의 완결 면에 대해, 아래 owner는 각 방의 모든 안쪽 벽·천장·바닥 마감 구역과 개구부 둘레를 한 저작자가 통합할 책임을 가진다. 구조 벽과 층판은 외곽/공유 기준을 소비하며 외피와 별도 방 좌표를 발명하지 않는다. 문·창의 실제 void는 경계 owner가 한 번 절단한다. 아래 방 면 owner는 자기 reveal·마감 면과 [실내 문 원형](../models/03-interior-doors.md#interior-door-members)·[창 원형](../models/01-windows.md#window-member-sizes)의 부재가 동일 void와 접면에 맞는지 검사하고 문짝·창호 메시를 만들지 않는다. 마른 실과 세탁실의 벽·바닥 접선에는 [별도 닫힌 걸레받이 판](../models/06-interior-trim.md#wall-baseboard)이 붙으며 방 owner는 벽·바닥 마감 면만 만들고 그 판의 길이 입력과 종단 접면을 제공한다. 차고와 욕실 타일 벽에는 그 판을 배치하지 않는다. 모든 담당은 같은 단일 저작자다.
+
+[공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 실내 UV 좌표는 보이는 면의 owner가 정한다. 각 방의 안쪽 벽은 전후면 U=X, 좌우면 U=Z, V=Y인 세계 좌표를 소비한다. 바닥과 천장은 U=X, V=Z를 공유하고 세계 X/Z 원점을 유지해 같은 층에서 방 경계를 지나도 위상이 바뀌지 않는다. 벽의 문·창·니치 절단과 바닥의 재료 문턱·계단 구멍, 천장의 실제 구멍·높이 단차에서 각 면은 끝난다. 절단 뒤 같은 평면에 남는 면은 같은 세계 위상을 유지하며, 다른 방향의 벽이나 다른 높이의 천장은 자기 평면을 따로 투영한다. 계단 디딤판은 각 코의 왼쪽에서 U를 폭 방향, V를 진행 방향으로 잡고 코와 참의 실제 이음에서 자른다. spaces가 만드는 난간 손잡이는 각 직선 구간의 시작 기둥에서 길이 방향 U, 실제 둘레를 V로 시작하고 접합에서 자른다. 난간 기둥은 바닥과 만나는 왼쪽 아래 모서리에서 U를 각 수평 면의 실제 폭, V를 높이로 시작하며 기둥마다 다시 시작한다. 난간살은 [모델 원형](../models/04-stair-members.md#stair-balusters)이 만들며 그 면의 UV도 models가 정한다. 모델이 만드는 문선·문짝·창틀·독립 손잡이의 국소 UV는 해당 모델 owner에 남긴다.
 
 | 공간 책임 | 소스 파일 owner |
 | --- | --- |
