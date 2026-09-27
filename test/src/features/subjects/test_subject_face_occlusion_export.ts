@@ -57,12 +57,12 @@ export const test_subject_face_occlusion_export = async (): Promise<void> => {
   model.materials[0]!.occlusionTexture = "photo.png";
   TestValidator.predicate(
     "an external occlusion binding refuses",
-    await exportHumanFace(model).then(
-      () => false,
-      (error: Error) =>
+    await exportHumanFace(model)
+      .then(() => false)
+      .catch((error: unknown) =>
         throwsError(() => {
           throw error;
         }, "resident PNG or JPEG"),
-    ),
+      ),
   );
 };

@@ -3,8 +3,8 @@ import type * as Human from "@automovie/human";
 import type { humanFaceAnatomySchemaReview } from "./anatomy-schema-review";
 import type { humanFaceConnectedReview } from "./connected-review";
 import type { humanFaceDetailReview } from "./detail-review";
-import type { humanFaceInteriorReview } from "./interior-review";
 import type { humanFaceFibreReview } from "./fibre-review";
+import type { humanFaceInteriorReview } from "./interior-review";
 import type { humanFaceIrisReview } from "./iris-review";
 import type { humanFaceNumericalHairReview } from "./numerical-hair-review";
 import type { humanFaceOcularReview } from "./ocular-review";
@@ -274,7 +274,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidenceReview {@link Human.portraitMinimumDirectionalSurfaceTargets} #eec6cdd Read the complete function beside the existing contactFrame, project and advance owners and the actual ocular caller. All twelve preserved six-state eye queries pass through this product path, retaining caps with at most 3.84e-8 mm measured remaining directional deficit. These are pre-propagation contact queries, not a renewed whole-face or Float32 acceptance.
  * @evidenceReview {@link Human.portraitDirectionalSurfaceTargets} #be04133 Read frame projection, retained front triangle ordinals and maximum travel per shared vertex. Every corner of an offending face receives at least that face's deficit, so its interpolated interior cannot retain the original directional penetration. The small enclosed-support oracle moves all three otherwise clear corners; clear/empty support, shared maxima and unrepresentable output are exercised. The host still owns skin adaptation and normals.
  * @evidence {@link Human.portraitDocument} Converts the complete static study into resident GLTF material groups and attributes.
- * @evidenceReview {@link Human.portraitDocument} #46440cb Reread static admission, part placement, material merging, final Float32 topology and optical closure, texture headers, deduplication and accessors. UV0 now uses the shared packed buffer; absent UV0 still omits its accessor, and textured groups still require it. COLOR_0, PNG/JPEG resources and optical extension behavior are retained. Preview checks local GPU meshes whereas export checks transformed material groups. This inspection does not certify anatomy, likeness or a new frozen-study replay.
+ * @evidenceReview {@link Human.portraitDocument} #487f7dc Reread static admission, part placement, material merging, final Float32 topology and optical closure, texture headers, deduplication and accessors. UV0 now uses the shared packed buffer; absent UV0 still omits its accessor, and textured groups still require it. COLOR_0, PNG/JPEG resources and optical extension behavior are retained. Preview checks local GPU meshes whereas export checks transformed material groups. This inspection does not certify anatomy, likeness or a new frozen-study replay. Reread the occlusion slot now admitted beside base colour and normal: a resident PNG or JPEG binds UV0 with clamped wrapping and the authored strength (one by default); metallic-roughness and emissive bindings still refuse.
  * @evidence {@link Human.portraitEarShape} Supplies the default authored ear profile when no replacement is selected.
  * @evidenceReview {@link Human.portraitEarShape} #e2cf74e Read the default datum, scales, projection and embedding beside both ear consumers. These values are procedural defaults rather than measured subject anatomy.
  * @evidence {@link Human.portraitFacesInsideLoop} Delegates anatomical-loop face selection to the engine's connectivity owner.
