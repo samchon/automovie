@@ -29,12 +29,11 @@ export interface IFaceBreadthFrame {
  * the span of the cheeks and zygomatic arches, the face's breadth beside
  * the eyes.
  *
- * Read on the face-skin masks, where the face's outline is seen, the
- * rendered faces of round j18 were broader than their photographs across
- * the cheeks for the same outer canthal distance (median +8.2 percent at
- * the zygion's height, +12.9 at the nasal tip's; +1.1 at the mouth's line,
- * which an index solves), while the detector's own face width, every
- * index's denominator, sits inside the rendered silhouette and misses it.
+ * The cheeks' breadth beside the eyes had no control of its own. (The
+ * face-skin masks of round j18 had read the renders as broader there than
+ * their photographs; that reading proved an artifact of the segmenter,
+ * which takes a render's unhaired ears into the face, so the control stays
+ * an authoring control with no index.)
  * No control of the source moves that breadth apart from the eyes: the
  * cheek bone narrows the zygion's level by 1.7 mm at its end, the head's
  * width moves the eyes with the face. Each skin vertex beside the eyes

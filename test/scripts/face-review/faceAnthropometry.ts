@@ -309,12 +309,6 @@ export const FACE_ANTHROPOMETRY_INDICES: readonly IFaceAnthropometryIndex[] = [
     channels: ["cheekFullness"],
   },
   {
-    id: "midfaceWidth",
-    definition:
-      "the face outline's width at the nasal tip's height (477, 478) over the outer canthal width (33, 263)",
-    channels: ["faceBreadth"],
-  },
-  {
     id: "chinWidth",
     definition:
       "the jaw outline's width half the eyes' height below stomion (473, 474) over face width",
@@ -511,7 +505,6 @@ export function measureFaceAnthropometry(
     })(),
     lowerFaceWidth: ratio(W(471, 472), fw),
     chinWidth: ratio(W(473, 474), fw),
-    midfaceWidth: ratio(W(477, 478), W(33, 263)),
     browHeight: ratio(mean(H(105, 159), H(334, 386)), fl),
     eyeLevel: ((): number | null => {
       const eye = [33, 133, 263, 362].map(at);
