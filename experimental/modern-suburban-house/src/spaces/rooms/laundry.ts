@@ -74,10 +74,15 @@ export const LAUNDRY_GARAGE_DOOR = {
 /** One under-door slab supplies disjoint structural and room-owned faces. */
 /**
  * @evidence spaces/10-ground-floor.md#ground-threshold-junctions The slab continues the ground support through the laundry-garage shared-wall opening.
+ * @evidenceReview spaces/10-ground-floor.md#ground-threshold-junctions `laundryGarageDoorBaseMesh` spans `MAIN.inner.x[1]` to the garage-side `MAIN.outer.x[1]` at the exported door's Z interval, while its top and bottom use the ground finish and support depths.
  * @evidence spaces/rooms/laundry.md#laundry-plan Its garage-facing end lies below the room's raised threshold at the designed passage.
+ * @evidenceReview spaces/rooms/laundry.md#laundry-plan The base mesh ends at `FLOOR - GROUND_LAYERS.finish` and its garage-facing end lies on `MAIN.outer.x[1]`; `buildLaundry` selects that end under its threshold to form the lower part of the single step.
  * @evidence principles/core/source-units.md#source-scope-preservation The ground owner and laundry owner partition this one mesh rather than overlapping support and finish solids.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildGroundFloor` calls this recipe for the structural body and `buildLaundry` calls it for only the garage-side face, keeping the slab bounds shared while each caller assigns its own actual part owner.
  * @evidence principles/core/source-units.md#source-substantive-completion The shared opening span and ground layer datums produce the full under-door slab for face partitioning.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `rect` joins the shared-wall X interval and `LAUNDRY_GARAGE_DOOR` Z interval; `slab` fills from the ground base bottom to its finish reservation, giving both callers identical input triangles.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The ground threshold and laundry passage parents already fix the shared-wall crossing used here.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `ground-threshold-junctions` assigns support below the laundry opening and `laundry-plan` fixes that opening's span and step; this mesh uses those values without changing either parent.
  */
 export const laundryGarageDoorBaseMesh = (): IAutoMovieMesh => slab({
   outline: rect(
@@ -124,17 +129,17 @@ const LAUNDRY: IRoomSpace = {
  * @evidence spaces/rooms/laundry.md This export builds the laundry-mudroom between service access and the lower garage.
  * @evidenceReview spaces/rooms/laundry.md `buildLaundry` returns the ground-storey `laundry-mudroom` with X [3.22, 5.50], Z [-4.55, -2.05] between its service-side partition and the garage shared wall, plus its own finish and crossing parts.
  * @evidence spaces/rooms/laundry.md#laundry-plan It emits service/pantry partitions and the full exposed garage-side riser across the shared-wall void.
- * @evidenceReview spaces/rooms/laundry.md#laundry-plan `buildLaundry` emits service and pantry partitions and a solid threshold across X [5.50, 5.75], Z from `LAUNDRY_GARAGE_DOOR`, Y [-0.025, 0]; this room owns the raised finish while `garage.ts` cuts the east shared wall.
+ * @evidenceReview spaces/rooms/laundry.md#laundry-plan `buildLaundry` cuts the west service partition, places the east threshold at Y [-0.025, 0], and authors the lower garage-facing base end from `laundryGarageDoorBaseMesh`; together its two faces close the one garage step without a second step plate.
  * @evidence spaces/rooms/laundry.md#laundry-equipment-use Two machine boxes, folding top, upper storage, shoe bench, hooks, and their work areas remain separately reserved.
  * @evidenceReview spaces/rooms/laundry.md#laundry-equipment-use `MACHINE_BACK_Z` and `MACHINE_WIDTH_Z` derive adjoining washer/dryer reservations in one band; separate -X door swings and work boxes, a 0.94 m folding top, upper storage, and left-side shoe bench/hooks keep the tasks distinct.
  * @evidence spaces/rooms/laundry.md#laundry-through-route The upper waiting, lower garage-side waiting, and through-route retain the 0.15 m level change.
- * @evidenceReview spaces/rooms/laundry.md#laundry-through-route The room reserves an upper waiting box, a lower box explicitly in `garage`, and a Z [-4.32, -3.42] route between the doors behind the machine work boxes; its threshold meets the garage floor one step below.
+ * @evidenceReview spaces/rooms/laundry.md#laundry-through-route The upper waiting reservation, lower `garage` waiting reservation, and Z [-4.32, -3.42] through-route occupy the same door span; the room-authored riser meets the garage floor below its threshold.
  * @evidence principles/core/source-units.md#source-scope-preservation The garage shared-wall body and its cut stay with garage.ts; this builder owns room finishes, the service and pantry partitions, and the higher garage threshold.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildLaundry` makes the room finishes, its service and pantry partitions, and the higher garage threshold; `buildGarageSharedWall` alone builds the shared-wall body with the separately exported laundry opening in its holes.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildLaundry` authors the threshold and lower garage-facing riser as room parts, while `buildGroundFloor` keeps the disjoint base body and `buildGarageSharedWall` alone cuts the wall using this room's exported opening.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, floor, ceiling, door strip, two walls, threshold, and lower exposed riser are returned with stable ids.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion Calling `buildLaundry` returns the room record and six parts: floor, ceiling, service door strip, service partition with a hole, solid garage threshold, and pantry partition with stable ids.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildLaundry` returns its room record and seven parts: floor, ceiling, service door strip, service partition, garage threshold, lower riser face, and pantry partition; each crossing receives a stable id.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Laundry-plan fixes both door spans and the garage step, laundry-equipment-use assigns one band to two machines, and laundry-through-route keeps their rear crossing clear; buildLaundry consumes these decisions without a parent revision.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `laundry.md#laundry-plan` fixes the two opposite door spans and garage step; `#laundry-equipment-use` gives one band holding two derived machine boxes, while `#laundry-through-route` stays behind their work zones, so this builder needs no new parent placement or level.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `laundry-plan` fixes the two opposing doors and single step, `laundry-equipment-use` fixes the two machine bands, and `laundry-through-route` fixes waiting on both levels; the seven parts and reservations consume those decisions without a new level or route.
  */
 export const buildLaundry = (): IRoomBuild => ({
   space: LAUNDRY,
