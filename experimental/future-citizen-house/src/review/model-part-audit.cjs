@@ -13,6 +13,7 @@ const names = fs.readdirSync(path.join(root, "docs/models"))
   .filter((name) => /^(?!000)\d{3}-.+\.md$/.test(name)).sort((a, b) => a.localeCompare(b))
   .map((name) => name.slice(0, -3));
 const epsilon = 0.000001;
+const commonRulePath = path.join(root, "docs/models/000-representation.md");
 /** @typedef {{state:string,id:string,shape:string,x:[number,number],y:[number,number],z:[number,number],contact:string[]}} Part */
 /** @typedef {{x:[number,number],y:[number,number],z:[number,number]}} Bounds */
 /** @typedef {{guest:string,host:string,axis:string,plane:number,u:[number,number],v:[number,number]}} FlatContact */
@@ -34,6 +35,18 @@ function sections() {
     }
   }
   return result;
+}
+
+/** @param {string} source */
+function commonTubeRuleErrors(source) {
+  const required = [
+    /닫힌 자유 끝에는 바깥 반지름만큼 진행 방향으로 뻗는 반구/,
+    /반구는 적도에서 극까지 동일한 여섯 위도 구간, 둘레 24구간/,
+    /일부라도 용접되는 관 끝은 진행 방향에 수직인 평평한 원판/,
+    /중심선이 꺾이는 두 관은.*구 조인트/,
+    /단면 24각의 첫 꼭짓점은 Y축 관이면 \+X, X축 관이면 \+Y, Z축 관이면 \+X/,
+  ];
+  return required.flatMap((pattern) => pattern.test(source) ? [] : [`common tube rule missing: ${pattern.source}`]);
 }
 
 /** @param {string} source @param {string} label @returns {[number,number]} */
@@ -1285,7 +1298,7 @@ function vesselClosureProof(lines, anchor, design) {
 
 /** @param {Map<string,string[]>} allSections @param {(anchor:string, parsed:ReturnType<typeof parse>)=>void} [mutate] @param {string} [onlyState] */
 function audit(allSections, mutate, onlyState) {
-  const errors = [];
+  const errors = commonTubeRuleErrors(fs.readFileSync(commonRulePath, "utf8"));
   const unprovedCurved = new Set();
   let examined = 0;
   let hollowParts = 0;
@@ -2490,6 +2503,43 @@ if (require.main !== module) {
       cylinderCapArea(cylinder, tangent, axis) > 1e-8)
       throw Error(`${axis}-axis cylinder cap accepted a tangent or rejected a finite patch`);
     results.push({ label: `${axis}-axis cap finite/tangent`, caught: true });
+  }
+  {
+    const radius = 0.0154, branchRadius = 0.0066;
+    const atVertex = stemPolygonDistance((radius + branchRadius) * Math.cos(75 * Math.PI / 180),
+      (radius + branchRadius) * Math.sin(75 * Math.PI / 180), radius);
+    const offVertex = stemPolygonDistance((radius + branchRadius) * Math.cos(72 * Math.PI / 180),
+      (radius + branchRadius) * Math.sin(72 * Math.PI / 180), radius);
+    if (Math.abs(atVertex - branchRadius) > 1e-10 || offVertex - branchRadius < 5e-5)
+      throw Error(`24-gon plant contact oracle invalid: ${atVertex}, ${offVertex}`);
+    results.push({ label: "24-gon branch vertex contact and off-vertex gap", caught: true });
+  }
+  {
+    const lines = sections().get("personal-articles");
+    if (!lines) throw Error("personal articles absent");
+    const damaged = lines.filter((line) => !line.startsWith("@suspension-face garment:"));
+    if (!audit(new Map([["personal-articles", damaged]]), undefined, "garment").errors.some((error) => error.includes("garment/body: suspension lacks")))
+      throw Error("missing garment hanging face escaped");
+    results.push({ label: "garment suspension face deletion", caught: true });
+  }
+  {
+    const lines = sections().get("work-desk");
+    if (!lines) throw Error("work desk absent");
+    const errors = audit(new Map([["work-desk", lines]]), (_anchor, parsed) => {
+      const bore = parsed.boresZ.get("folded/top");
+      if (!bore) throw Error("work desk top bore absent");
+      bore.z[1] -= 0.02;
+    }, "folded").errors;
+    if (!errors.some((error) => error.includes("folded/top: no face contact with aux-hinge")))
+      throw Error(`pin outside bore escaped: ${errors.slice(0, 5)}`);
+    results.push({ label: "hinge pin extends past bore end", caught: true });
+  }
+  {
+    const source = fs.readFileSync(commonRulePath, "utf8");
+    if (!commonTubeRuleErrors(source.replace("일부라도 용접되는 관 끝", "완전히 용접되는 관 끝")).length ||
+      !commonTubeRuleErrors(source.replace("Y축 관이면 +X", "Y축 관이면 +Z")).length)
+      throw Error("common tube rule mutation escaped");
+    results.push({ label: "common tube end and phase text mutations", caught: true });
   }
   console.log(JSON.stringify({ baselineParts: baseline.parts, measuredParts, mutationChecks,
     mutations: results, unselected: randomFixture(), vesselAttachments: randomVesselFixture(),
