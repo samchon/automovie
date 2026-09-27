@@ -1,5 +1,7 @@
 /** Design-equation checks against the emitted triangles consumed by the viewer. */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { TempleColumns } from "../../models/columns";
@@ -9,6 +11,7 @@ import { TempleOpenings } from "../../models/openings";
 import { templePlan } from "../../spaces/building";
 import { templeClerestories, templeDoorPassages } from "../../spaces/openings";
 import { templeRoofRules } from "../../spaces/roofs/assembly";
+import { createModelBoardPayload } from "../../viewer/model-board-payload";
 
 const partMesh=(model:IAutoMovieModel,id:string):IAutoMovieMesh=>{
   const part=model.parts.find((item)=>item.id===id);
@@ -109,21 +112,59 @@ void test("sanctuary rafter tail derives its inset from the roof support and wal
 void test("truss underside follows the reviewed clipped plane and receives its supports",()=>{
   const truss=new TempleEntablature().sanctuaryTruss();
   const principal=partMesh(truss,"principal");
-  const slope=22*Math.PI/180;
+  const slope=templeRoofRules.gableSlope;
+  const support=(templePlan.eastRoom+templePlan.eastRing)/2;
+  const tieBottom=4.86,tieTop=5.14;
+  const roof=(x:number)=>templeRoofRules.sanctuarySupport
+    +(support-Math.abs(x))*Math.tan(slope)
+    -templeRoofRules.normalThickness/Math.cos(slope);
+  const lower=(x:number)=>Math.max(roof(x)-0.20/Math.cos(slope),tieTop);
   const design=(x:number)=>Math.max(
-    5.35+(5.75-Math.abs(x))*Math.tan(slope)-0.38/Math.cos(slope),5.14,
-  )-4.86;
+    roof(x)-0.20/Math.cos(slope),tieTop,
+  )-tieBottom;
   for(const sign of [-1,1])
     for(const distance of [0.09,0.5,2.8,5.0,5.2554,5.3,5.59])
       close(undersideY(principal,sign*distance,0),design(distance),0.001);
-  for(const id of ["strut","king-post"]){
+  const vertices=(id:string)=>{
     const mesh=partMesh(truss,id);
-    const verts=Array.from({ length:mesh.positions.length/3 },(_,i)=>vertex(mesh,i));
-    const heads=verts.filter((v)=>v.y>0.28+0.1 && Math.abs(v.z)<0.091 &&
-      Math.abs(v.y-design(v.x))<0.001);
-    assert.ok(heads.length>=4,`${id}: roof-contact vertices missing`);
-    for(const v of heads)close(v.y,undersideY(principal,v.x,v.z),0.001);
+    return Array.from({length:mesh.positions.length/3},(_,i)=>vertex(mesh,i));
+  };
+  for(const v of vertices("tie-beam")){
+    close(Math.abs(v.x),templePlan.eastRing);
+    assert.ok(Math.abs(v.y)<1e-8||Math.abs(v.y-(tieTop-tieBottom))<1e-8,
+      `tie-beam vertex misses its floor or king-post contact: ${v.y}`);
   }
+  let roofContacts=0,tieContacts=0;
+  for(const v of vertices("principal")){
+    if(Math.abs(v.y-(roof(v.x)-tieBottom))<0.001)roofContacts++;
+    else {
+      close(v.y,lower(v.x)-tieBottom,0.001);
+      if(Math.abs(v.y-(tieTop-tieBottom))<0.001)tieContacts++;
+    }
+  }
+  assert.ok(roofContacts>=8&&tieContacts>=4,"principal roof and tie contacts");
+  let kingHeads=0;
+  for(const v of vertices("king-post")){
+    if(Math.abs(v.y-(tieTop-tieBottom))<0.001)continue;
+    close(v.y,lower(v.x)-tieBottom,0.001);
+    close(v.y,undersideY(principal,v.x,v.z),0.001);
+    kingHeads++;
+  }
+  assert.ok(kingHeads>=6,"king-post upper vertices missing");
+  let strutFeet=0,strutHeads=0;
+  for(const v of vertices("strut")){
+    if(Math.abs(v.x)<0.15){
+      close(Math.abs(v.x),0.09,0.001);
+      assert.ok(v.y>tieTop-tieBottom&&v.y<lower(v.x)-tieBottom,
+        `strut foot misses king-post side: ${v.x},${v.y}`);
+      strutFeet++;
+    }else{
+      close(v.y,lower(v.x)-tieBottom,0.001);
+      close(v.y,undersideY(principal,v.x,v.z),0.001);
+      strutHeads++;
+    }
+  }
+  assert.ok(strutFeet>=8&&strutHeads>=8,"both struts need full end contact");
 });
 
 void test("each clerestory lining starts at its void origin", ()=>{
@@ -142,38 +183,54 @@ void test("each clerestory lining starts at its void origin", ()=>{
   }
 });
 
-void test("both faces of every door surround fill their upper corner rectangles",()=>{
+void test("both faces of every door surround occupy the complete three-sided ring",()=>{
   const source=new TempleOpenings();
   for(const door of templeDoorPassages){
     const mesh=partMesh(source.doorFrame(door.id),"surround");
     const t=door.wallHigh-door.wallLow;
-    for(const z of [-t/2-0.03,t/2+0.03])
+    const inner=door.width/2+door.frame,outer=inner+0.16;
+    const top=door.height+door.frame;
+    for(const z of [-t/2-0.03,t/2+0.03]){
       for(const side of [-1,1])
         for(const fx of [0.1,0.5,0.9])
           for(const fy of [0.1,0.5,0.9]){
-            const x=side*(door.width/2+door.frame+0.16*fx);
-            const y=door.height+door.frame+0.16*fy;
-            assert.ok(coverXY(mesh,x,y,z),`${door.id}: empty surround at ${x},${y},${z}`);
+            const x=side*(inner+0.16*fx),y=top*fy;
+            assert.ok(coverXY(mesh,x,y,z),`${door.id}: empty jamb at ${x},${y},${z}`);
           }
+      for(const fx of [0.1,0.3,0.5,0.7,0.9])
+        for(const fy of [0.1,0.5,0.9]){
+          const x=-outer+2*outer*fx,y=top+0.16*fy;
+          assert.ok(coverXY(mesh,x,y,z),`${door.id}: empty lintel at ${x},${y},${z}`);
+        }
+      assert.ok(!coverXY(mesh,0,top/2,z),`${door.id}: surround fills the door void`);
+    }
   }
 });
 
 void test("front and back face U gradients follow the reviewed member axes",()=>{
   const source=new TempleOpenings();
-  const cases=[
-    { model:source.doubleLeaf("door-entry"),part:"panel",axis:"y" },
-    { model:source.doubleLeaf("door-entry"),part:"frame",axis:"y",region:(x:number)=>x<0.09 },
-    { model:source.doubleLeaf("door-entry"),part:"frame",axis:"x",region:(x:number,y:number)=>x>0.12&&y<0.16 },
-    { model:source.singleLeaf("door-yard"),part:"board",axis:"y" },
-    { model:source.singleLeaf("door-yard"),part:"batten",axis:"x" },
-    { model:source.singleLeaf("door-yard"),part:"strap",axis:"x" },
-  ] as const;
+  const cases=templeDoorPassages.flatMap((door)=>{
+    if(door.id==="door-entry"||door.id==="door-sanctuary"){
+      const model=source.doubleLeaf(door.id);
+      return [
+        { model,part:"panel",axis:"y" },
+        { model,part:"frame",axis:"y",region:(x:number)=>x<0.09 },
+        { model,part:"frame",axis:"x",region:(x:number,y:number)=>x>0.12&&y<0.16 },
+      ];
+    }
+    const model=source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0]);
+    return [
+      { model,part:"board",axis:"y" },
+      { model,part:"batten",axis:"x" },
+      { model,part:"strap",axis:"x" },
+    ];
+  });
   for(const item of cases){
     let seen=0;
     for(const [a,b,c] of triangles(partMesh(item.model,item.part))){
       if(Math.abs(a!.z-b!.z)>1e-9||Math.abs(a!.z-c!.z)>1e-9)continue;
       const x=(a!.x+b!.x+c!.x)/3,y=(a!.y+b!.y+c!.y)/3;
-      if("region" in item && !item.region(x,y))continue;
+      if(typeof item.region==="function"&&!item.region(x,y))continue;
       const edge=item.axis==="y"
         ? [a!,b!,c!].find((v)=>Math.abs(v.y-a!.y)>1e-9)
         : [a!,b!,c!].find((v)=>Math.abs(v.x-a!.x)>1e-9);
@@ -186,20 +243,120 @@ void test("front and back face U gradients follow the reviewed member axes",()=>
   }
 });
 
-void test("pin U follows the rim, V follows +Z, and capital V accumulates",()=>{
-  const pin=partMesh(new TempleOpenings().doubleLeaf("door-entry"),"pin");
-  const side=triangles(pin).find(([a,b,c])=>
-    Math.abs(a!.z-b!.z)<1e-9&&Math.abs(b!.z-c!.z)>1e-9&&
-    Math.abs(a!.u-b!.u)>1e-9);
-  assert.ok(side,"pin side triangle");
-  const [a,b,c]=side;
-  const handleX=templeDoorPassages.find((door)=>door.id==="door-entry")!.width/2-0.15;
-  close(a!.x-handleX,0.006);
-  close(a!.y,1.104);
-  close(a!.u,0);
-  close((b!.u-a!.u)/Math.hypot(b!.x-a!.x,b!.y-a!.y),
-    (2*Math.PI/12)/(2*Math.sin(Math.PI/12)),0.001);
-  close((c!.v-b!.v)/(c!.z-b!.z),1);
+void test("the opening UV table's named parts all emit finite UV0 for every passage",()=>{
+  const scale=readFileSync(join(__dirname,"../../../docs/models/scale.md"),"utf8");
+  const rows=scale.split(/\r?\n/u).filter((line)=>
+    line.startsWith("|")&&line.includes("`openings#"));
+  assert.equal(rows.length,2,"opening UV table rows");
+  const named=new Set(rows.flatMap((line)=>
+    [...line.split("|")[2]!.matchAll(/`([a-z-]+)`/gu)].map((match)=>match[1]!)));
+  const source=new TempleOpenings();
+  const models=[
+    ...templeDoorPassages.map((door)=>source.doorFrame(door.id)),
+    ...templeDoorPassages.flatMap((door)=>
+      door.id==="door-entry"||door.id==="door-sanctuary"
+        ? [source.doubleLeaf(door.id),source.doubleLeaf(door.id,"open")]
+        : [source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0]),
+          source.singleLeaf(door.id as Parameters<TempleOpenings["singleLeaf"]>[0],"open")]),
+    ...([0.30,0.60] as const).map((depth)=>source.windowFrame(depth)),
+  ];
+  const seen=new Set<string>();
+  for(const model of models)for(const part of model.parts){
+    assert.equal(part.geometry.type,"mesh",`${model.id}/${part.id}`);
+    if(part.geometry.type!=="mesh")continue;
+    const { positions,uvs }=part.geometry.mesh;
+    assert.ok(uvs,`${model.id}/${part.id}: missing UV0`);
+    assert.equal(uvs.length,positions.length/3*2,
+      `${model.id}/${part.id}: UV0 vertex count`);
+    assert.ok(uvs.every(Number.isFinite),`${model.id}/${part.id}: nonfinite UV0`);
+    if(named.has(part.id))seen.add(part.id);
+  }
+  const compare=(a:string,b:string)=>a.localeCompare(b);
+  assert.deepEqual([...seen].sort(compare),[...named].sort(compare),
+    "UV table part coverage");
+});
+
+void test("every model UV table row reaches emitted prototype parts",()=>{
+  const scale=readFileSync(join(__dirname,"../../../docs/models/scale.md"),"utf8");
+  const table=scale.split(/\r?\n/u).filter((line)=>
+    line.startsWith("|")&&/`[a-z-]+#/u.test(line.split("|")[1]??""));
+  const board=createModelBoardPayload().models;
+  assert.ok(table.length>=20,"model UV table rows");
+  const covered=new Set<string>();
+  for(const line of table){
+    const [,targets,parts]=line.split("|");
+    assert.ok(targets&&parts,"UV table columns");
+    let family="";
+    const designs=[...targets.matchAll(/`([^`]+)`/gu)].map((match)=>{
+      const [name,anchor]=match[1]!.split("#");
+      if(name)family=name;
+      assert.ok(family&&anchor,`invalid UV target ${match[1]}`);
+      return `models/${family}.md#${anchor}`;
+    });
+    const models=board.filter((item)=>designs.includes(item.design));
+    assert.ok(models.length>0,`UV row has no emitted model: ${targets}`);
+    const named=[...parts.matchAll(/`([a-z][a-z0-9-]*)`/gu)]
+      .map((match)=>match[1]!);
+    const seen=new Set<string>();
+    for(const {model,design} of models){
+      covered.add(design);
+      for(const part of model.parts){
+        assert.equal(part.geometry.type,"mesh",`${model.id}/${part.id}`);
+        if(part.geometry.type!=="mesh")continue;
+        const {positions,uvs}=part.geometry.mesh;
+        assert.ok(uvs,`${model.id}/${part.id}: UV0 absent`);
+        assert.equal(uvs.length,2*positions.length/3,
+          `${model.id}/${part.id}: UV0 vertex count`);
+        assert.ok(uvs.every(Number.isFinite),`${model.id}/${part.id}: UV0 nonfinite`);
+        if(named.includes(part.id))seen.add(part.id);
+      }
+    }
+    for(const id of named)
+      assert.ok(seen.has(id),`UV row ${targets}: ${id} has no emitted part`);
+  }
+  assert.ok(covered.size>=40,"UV table covers the reviewed model families");
+});
+
+void test("both pins of every door leaf follow face-facing rim and Z directions",()=>{
+  const source=new TempleOpenings();
+  for(const door of templeDoorPassages){
+    const paired=door.id==="door-entry"||door.id==="door-sanctuary";
+    const closed=paired
+      ? source.doubleLeaf(door.id as "door-entry"|"door-sanctuary")
+      : source.singleLeaf(door.id as "door-offering");
+    const open=paired
+      ? source.doubleLeaf(door.id as "door-entry"|"door-sanctuary","open")
+      : source.singleLeaf(door.id as "door-offering","open");
+    const pin=partMesh(closed,"pin"),posed=partMesh(open,"pin");
+    assert.deepEqual(posed.uvs,pin.uvs,`${door.id}: pose changed pin UVs`);
+    const centerX=paired?door.width/2-0.15:door.width-0.12;
+    const centerY=paired?1.104:1.095;
+    for(const direction of [1,-1] as const){
+      const sides=triangles(pin).filter(([a,b,c])=>
+        Math.sign((a!.z+b!.z+c!.z)/3)===direction&&
+        Math.abs(a!.z-b!.z)<1e-9&&Math.abs(b!.z-c!.z)>1e-9&&
+        Math.abs(a!.u-b!.u)>1e-9);
+      assert.equal(sides.length,12,`${door.id}: incomplete ${direction} pin rim`);
+      for(const [a,b,c] of sides){
+        close((b!.u-a!.u)/Math.hypot(b!.x-a!.x,b!.y-a!.y),
+          (2*Math.PI/12)/(2*Math.sin(Math.PI/12)),0.001);
+        close((c!.v-b!.v)/(c!.z-b!.z),direction);
+        const bx=b!.x-a!.x,by=b!.y-a!.y,cz=c!.z-a!.z;
+        const radial=(a!.x-centerX)*by*cz-(a!.y-centerY)*bx*cz;
+        assert.ok(radial>0,`${door.id}: ${direction} pin has inward winding`);
+      }
+      const seam=sides.find(([a])=>Math.abs(a!.u)<1e-9);
+      assert.ok(seam,`${door.id}: missing ${direction} seam`);
+      const [a,b]=seam;
+      close(a!.x-centerX,0.006);
+      close(a!.y,centerY);
+      assert.ok(direction*(b!.y-a!.y)>0,
+        `${door.id}: ${direction} pin U turns against its face`);
+    }
+  }
+});
+
+void test("capital V accumulates through the moulded sections",()=>{
   for(const [model,seamV] of [
     [new TempleColumns().colonnade(12),0.03],
     [new TempleColumns().porch(),0.04],
