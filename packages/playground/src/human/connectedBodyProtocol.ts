@@ -4,7 +4,9 @@
  * arrays belong to one reply and the page may retain only the displayed frame.
  */
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
 import type {
+  IAutoMovieJointPose,
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
@@ -70,7 +72,8 @@ export type ConnectedBodyModel = Omit<IAutoMovieModel, "parts"> & {
  */
 export type ConnectedBodyRequest =
   | { operation: "preview"; document: string; measure: boolean }
-  | { operation: "export"; document: string };
+  | { operation: "export"; document: string }
+  | { operation: "armsDown"; document: string };
 /** The matching result for one worker request.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Returns numerical preview buffers for publication.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Returns portable GLB bytes when requested.
@@ -84,7 +87,12 @@ export type ConnectedBodyResult =
       crossings: IAutoMovieModelCrossing[] | null;
       extras: Record<string, unknown>;
     }
-  | { operation: "export"; glb: Uint8Array<ArrayBuffer> };
+  | { operation: "export"; glb: Uint8Array<ArrayBuffer> }
+  | {
+      operation: "armsDown";
+      pose: IAutoMovieJointPose[];
+      shoulders: IAutoMovieHumanBodyShoulderPose[];
+    };
 
 /** Transfer exactly the buffers owned by this reply, never basis memory.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Delivers preview geometry without copying the compiled basis.
@@ -96,6 +104,7 @@ export function connectedBodyTransfers(
   result: ConnectedBodyResult,
 ): ArrayBuffer[] {
   if (result.operation === "export") return [result.glb.buffer];
+  if (result.operation === "armsDown") return [];
   const buffers: ArrayBuffer[] = [];
   for (const part of result.model.parts) {
     const mesh = part.geometry.mesh;

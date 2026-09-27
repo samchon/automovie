@@ -2,3 +2,5 @@ export * from "./evaluateHumanBodyMeasurement";
 export * from "./measureHumanBodyBasisChannels";
 export * from "./measureHumanBodySection";
 export * from "./segmentHumanBodyModel";
+export * from "./solveHumanBodyArmsDown";
+export * from "./stepHumanBodyArmsDown";

@@ -1,5 +1,6 @@
-import { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
 
 /** Local triangle record: three corners and the bounds used to index them. */
 interface Indexed {
@@ -31,38 +32,32 @@ const index = (mesh: IAutoMovieMesh): Indexed[] => {
   )
     throw new Error("Mesh crossings need finite complete triangle buffers.");
   const out: Indexed[] = [];
-  for (let at = 0; at < indices.length; at += 3) {
-    const points = indices
-      .slice(at, at + 3)
-      .map((vertex) => [
-        mesh.positions[vertex * 3],
-        mesh.positions[vertex * 3 + 1],
-        mesh.positions[vertex * 3 + 2],
-      ]);
+  const at = (vertex: number): number[] => [
+    mesh.positions[vertex * 3],
+    mesh.positions[vertex * 3 + 1],
+    mesh.positions[vertex * 3 + 2],
+  ];
+  for (let t = 0; t < indices.length; t += 3) {
+    const a = at(indices[t]);
+    const b = at(indices[t + 1]);
+    const c = at(indices[t + 2]);
     out.push({
-      ordinal: at / 3,
-      corners: points,
-      low: [0, 1, 2].map((axis) => Math.min(...points.map((p) => p[axis]))),
-      high: [0, 1, 2].map((axis) => Math.max(...points.map((p) => p[axis]))),
+      ordinal: t / 3,
+      corners: [a, b, c],
+      low: [
+        Math.min(a[0], b[0], c[0]),
+        Math.min(a[1], b[1], c[1]),
+        Math.min(a[2], b[2], c[2]),
+      ],
+      high: [
+        Math.max(a[0], b[0], c[0]),
+        Math.max(a[1], b[1], c[1]),
+        Math.max(a[2], b[2], c[2]),
+      ],
     });
   }
   return out;
 };
-
-const subtract = (a: number[], b: number[]): number[] => [
-  a[0] - b[0],
-  a[1] - b[1],
-  a[2] - b[2],
-];
-
-const cross = (a: number[], b: number[]): number[] => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
-];
-
-const dot = (a: number[], b: number[]): number =>
-  a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 
 /**
  * Moller-Trumbore, bounded to the segment rather than extended to a whole ray.
@@ -82,20 +77,35 @@ const segmentPierces = (
   target: number[],
   triangle: number[][],
 ): boolean => {
-  const edge1 = subtract(triangle[1], triangle[0]);
-  const edge2 = subtract(triangle[2], triangle[0]);
-  const direction = subtract(target, origin);
-  const perpendicular = cross(direction, edge2);
-  const determinant = dot(edge1, perpendicular);
+  // vector differences, cross and dot products written out as scalars,
+  // allocating nothing: this runs for every candidate pair of every mesh
+  const [t0, t1, t2] = triangle;
+  const e1x = t1[0] - t0[0],
+    e1y = t1[1] - t0[1],
+    e1z = t1[2] - t0[2];
+  const e2x = t2[0] - t0[0],
+    e2y = t2[1] - t0[1],
+    e2z = t2[2] - t0[2];
+  const dx = target[0] - origin[0],
+    dy = target[1] - origin[1],
+    dz = target[2] - origin[2];
+  const px = dy * e2z - dz * e2y,
+    py = dz * e2x - dx * e2z,
+    pz = dx * e2y - dy * e2x;
+  const determinant = e1x * px + e1y * py + e1z * pz;
   if (Math.abs(determinant) < 1e-15) return false;
   const inverse = 1 / determinant;
-  const toOrigin = subtract(origin, triangle[0]);
-  const u = dot(toOrigin, perpendicular) * inverse;
+  const ox = origin[0] - t0[0],
+    oy = origin[1] - t0[1],
+    oz = origin[2] - t0[2];
+  const u = (ox * px + oy * py + oz * pz) * inverse;
   if (u <= 0 || u >= 1) return false;
-  const along = cross(toOrigin, edge1);
-  const v = dot(direction, along) * inverse;
+  const ax = oy * e1z - oz * e1y,
+    ay = oz * e1x - ox * e1z,
+    az = ox * e1y - oy * e1x;
+  const v = (dx * ax + dy * ay + dz * az) * inverse;
   if (v <= 0 || u + v >= 1) return false;
-  const distance = dot(edge2, along) * inverse;
+  const distance = (e2x * ax + e2y * ay + e2z * az) * inverse;
   return distance > 0 && distance < 1;
 };
 
@@ -112,14 +122,18 @@ const coincide = (a: number[], b: number[]): boolean =>
  * fold through a shared vertex still reports, because its other edges cross.
  */
 const touchesCorner = (point: number[], triangle: number[][]): boolean =>
-  triangle.some((corner) => coincide(point, corner));
+  coincide(point, triangle[0]) ||
+  coincide(point, triangle[1]) ||
+  coincide(point, triangle[2]);
+
+const EDGES: readonly (readonly [number, number])[] = [
+  [0, 1],
+  [1, 2],
+  [2, 0],
+];
 
 const pierces = (first: number[][], second: number[][]): boolean => {
-  for (const [from, to] of [
-    [0, 1],
-    [1, 2],
-    [2, 0],
-  ]) {
+  for (const [from, to] of EDGES) {
     if (
       !touchesCorner(first[from], second) &&
       !touchesCorner(first[to], second) &&
@@ -182,16 +196,32 @@ const sharePlaneAndOverlap = (
   first: number[][],
   second: number[][],
 ): boolean => {
-  const normal = cross(
-    subtract(first[1], first[0]),
-    subtract(first[2], first[0]),
-  );
-  const length = Math.hypot(normal[0], normal[1], normal[2]);
+  // the rejection almost every candidate takes, written out as scalars
+  const [f0, f1, f2] = first;
+  const ux = f1[0] - f0[0],
+    uy = f1[1] - f0[1],
+    uz = f1[2] - f0[2];
+  const vx = f2[0] - f0[0],
+    vy = f2[1] - f0[1],
+    vz = f2[2] - f0[2];
+  const nx = uy * vz - uz * vy,
+    ny = uz * vx - ux * vz,
+    nz = ux * vy - uy * vx;
+  const length = Math.hypot(nx, ny, nz);
   if (length < 1e-15) return false;
-  const coplanar = second.every(
-    (point) => Math.abs(dot(subtract(point, first[0]), normal) / length) < 1e-9,
-  );
-  if (!coplanar) return false;
+  for (const point of second)
+    if (
+      !(
+        Math.abs(
+          ((point[0] - f0[0]) * nx +
+            (point[1] - f0[1]) * ny +
+            (point[2] - f0[2]) * nz) /
+            length,
+        ) < 1e-9
+      )
+    )
+      return false;
+  const normal = [nx, ny, nz];
   const drop = dominant(normal);
   const here = first.map((point) => flatten(point, drop));
   const there = second.map((point) => flatten(point, drop));
@@ -214,9 +244,12 @@ const sharePlaneAndOverlap = (
  * by first-mesh ordinal, so the same inputs always produce the same report.
  *
  * This answers containment-free overlap only. It does not say how deep the
- * crossing is, which surface should move, or whether a surface intersects
- * itself; the first is what `measureAutoMovieMeshClearance` supplies along a
- * chosen axis, and the last is a different question over one mesh.
+ * crossing is or which surface should move; the first is what
+ * `measureAutoMovieMeshClearance` supplies along a chosen axis. Whether a
+ * surface intersects itself is this same test with one mesh as both
+ * arguments: a triangle does not cross itself, and triangles that share an
+ * edge or a corner without folding through each other are touching
+ * (`measureAutoMovieModelCrossings` with `withinParts`).
  *
  * @param first Mesh whose triangles are reported.
  * @param second Mesh tested against it, in the same frame.
@@ -246,28 +279,46 @@ export function measureAutoMovieMeshCrossings(
       0,
     ) / theirs.length;
   const cell = span > 0 ? span : 1;
-  const key = (x: number, y: number, z: number): string => `${x},${y},${z}`;
-  const grid = new Map<string, Indexed[]>();
+  // Cells are numbered exactly inside the second mesh's cell box, so the
+  // walk visits the same cells in the same order as a textual key would and
+  // a first-mesh cell outside that box simply holds nothing; the candidate
+  // list keeps first-seen order through a per-query stamp.
+  const cellOf = (value: number): number => Math.floor(value / cell);
+  let lowX = Infinity,
+    lowY = Infinity,
+    lowZ = Infinity,
+    highX = -Infinity,
+    highY = -Infinity,
+    highZ = -Infinity;
+  for (const triangle of theirs) {
+    lowX = Math.min(lowX, cellOf(triangle.low[0]));
+    lowY = Math.min(lowY, cellOf(triangle.low[1]));
+    lowZ = Math.min(lowZ, cellOf(triangle.low[2]));
+    highX = Math.max(highX, cellOf(triangle.high[0]));
+    highY = Math.max(highY, cellOf(triangle.high[1]));
+    highZ = Math.max(highZ, cellOf(triangle.high[2]));
+  }
+  const spanY = highY - lowY + 1;
+  const spanZ = highZ - lowZ + 1;
+  // an exact number while the box's cell count is a safe integer, text past
+  // it, so two cells never share a bucket
+  const exact = (highX - lowX + 1) * spanY * spanZ <= Number.MAX_SAFE_INTEGER;
+  const key = (x: number, y: number, z: number): number | string =>
+    exact
+      ? ((x - lowX) * spanY + (y - lowY)) * spanZ + (z - lowZ)
+      : `${x},${y},${z}`;
+  const grid = new Map<number | string, Indexed[]>();
   const walk = (
     low: number[],
     high: number[],
-    visit: (at: string) => void,
+    visit: (at: number | string) => void,
   ): void => {
-    for (
-      let x = Math.floor(low[0] / cell);
-      x <= Math.floor(high[0] / cell);
-      x++
-    )
-      for (
-        let y = Math.floor(low[1] / cell);
-        y <= Math.floor(high[1] / cell);
-        y++
-      )
-        for (
-          let z = Math.floor(low[2] / cell);
-          z <= Math.floor(high[2] / cell);
-          z++
-        )
+    const x1 = Math.min(cellOf(high[0]), highX);
+    const y1 = Math.min(cellOf(high[1]), highY);
+    const z1 = Math.min(cellOf(high[2]), highZ);
+    for (let x = Math.max(cellOf(low[0]), lowX); x <= x1; x++)
+      for (let y = Math.max(cellOf(low[1]), lowY); y <= y1; y++)
+        for (let z = Math.max(cellOf(low[2]), lowZ); z <= z1; z++)
           visit(key(x, y, z));
   };
   for (const triangle of theirs)
@@ -277,20 +328,28 @@ export function measureAutoMovieMeshCrossings(
       else bucket.push(triangle);
     });
   const crossings: IAutoMovieMeshCrossing[] = [];
+  const stamp = new Int32Array(theirs.length).fill(-1);
   for (const triangle of ours) {
-    const candidates = new Set<Indexed>();
+    const candidates: Indexed[] = [];
     walk(triangle.low, triangle.high, (at) => {
-      for (const candidate of grid.get(at) ?? []) candidates.add(candidate);
+      const bucket = grid.get(at);
+      if (bucket === undefined) return;
+      for (const candidate of bucket)
+        if (stamp[candidate.ordinal] !== triangle.ordinal) {
+          stamp[candidate.ordinal] = triangle.ordinal;
+          candidates.push(candidate);
+        }
     });
     let pierced: Indexed | undefined;
     let flat: Indexed | undefined;
     for (const candidate of candidates) {
       if (
-        [0, 1, 2].some(
-          (axis) =>
-            candidate.high[axis] < triangle.low[axis] ||
-            candidate.low[axis] > triangle.high[axis],
-        )
+        candidate.high[0] < triangle.low[0] ||
+        candidate.low[0] > triangle.high[0] ||
+        candidate.high[1] < triangle.low[1] ||
+        candidate.low[1] > triangle.high[1] ||
+        candidate.high[2] < triangle.low[2] ||
+        candidate.low[2] > triangle.high[2]
       )
         continue;
       if (pierces(triangle.corners, candidate.corners)) {

@@ -1,0 +1,195 @@
+{
+  "source": {
+    "citation": "Lu Y, Xiao K, Pointer M, et al. The International Skin Spectra Archive (ISSA): a multicultural human skin phenotype and colour spectra collection. Sci Data 2025;12:487. doi:10.1038/s41597-025-04857-5",
+    "data": "doi:10.6084/m9.figshare.28228571.v4, ISSA_17_Jan_2025_Yan_Lu.xlsx, CC BY 4.0",
+    "sha256": "7396aa7608f1a6f91ec70bf8f8421252a9d81f71a2bca066eb7e98155b9d1161"
+  },
+  "space": "linear sRGB albedo under D65, CIE 1931 2 degree observer (the reduction of the face's skin-albedo norms, whose cheek means it reproduces)",
+  "method": "each subject's repeated measurements at a site averaged, then averaged per ancestry group and sex; for each site, the group-and-sex means with at least five subjects measured at that site are paired with the same group's cheek mean (site code 2), and per channel a least-squares line is fitted in logarithms, ln site = a + b * ln cheek, so albedo = exp(a) * cheek^b. Pigment absorbs multiplicatively, so the site follows the cheek as a power. The fit is made across group means rather than across individuals because one cheek reading measures a person's pigmentation with noise, and the individual-level fit regresses toward the archive's mean: pooled over subjects it overpredicted the darkest group's inner arm by 30 to 36% in green and blue, where the group-mean fit is within 7%.",
+  "individualLevel": "the same pairs fitted over individual subjects (776 to 1,711 per site) give R^2 0.46 to 0.85 per channel, the share of a site's variance across people that one cheek reading explains",
+  "sites": {
+    "protected": {
+      "archiveSite": "inner arm",
+      "groupMeans": 16,
+      "subjects": 1689,
+      "red": {
+        "a": -0.1967,
+        "b": 0.7988,
+        "r2": 0.983
+      },
+      "green": {
+        "a": 0.0631,
+        "b": 0.954,
+        "r2": 0.968
+      },
+      "blue": {
+        "a": 0.0936,
+        "b": 1.0072,
+        "r2": 0.969
+      },
+      "groups": [
+        "CAF",
+        "CAM",
+        "CNF",
+        "CNM",
+        "JPF",
+        "JPM",
+        "SAF",
+        "SAM",
+        "AFF",
+        "AFM",
+        "ABF",
+        "ABM",
+        "IQF",
+        "IQM",
+        "THF",
+        "THM"
+      ]
+    },
+    "exposed": {
+      "archiveSite": "outer arm",
+      "groupMeans": 16,
+      "subjects": 1629,
+      "red": {
+        "a": -0.132,
+        "b": 1.007,
+        "r2": 0.976
+      },
+      "green": {
+        "a": 0.0765,
+        "b": 1.0976,
+        "r2": 0.952
+      },
+      "blue": {
+        "a": -0.1482,
+        "b": 1.012,
+        "r2": 0.947
+      },
+      "groups": [
+        "CAF",
+        "CAM",
+        "CNF",
+        "CNM",
+        "JPF",
+        "JPM",
+        "SAF",
+        "SAM",
+        "AFF",
+        "AFM",
+        "ABF",
+        "ABM",
+        "IQF",
+        "IQM",
+        "THF",
+        "THM"
+      ]
+    },
+    "neck": {
+      "archiveSite": "neck",
+      "groupMeans": 12,
+      "subjects": 876,
+      "red": {
+        "a": 0.0233,
+        "b": 1.0777,
+        "r2": 0.948
+      },
+      "green": {
+        "a": 0.2457,
+        "b": 1.1598,
+        "r2": 0.952
+      },
+      "blue": {
+        "a": 0.0285,
+        "b": 1.0711,
+        "r2": 0.944
+      },
+      "groups": [
+        "CAF",
+        "CAM",
+        "CNF",
+        "CNM",
+        "JPF",
+        "JPM",
+        "SAF",
+        "SAM",
+        "AFF",
+        "AFM",
+        "ABF",
+        "ABM"
+      ]
+    },
+    "dorsal": {
+      "archiveSite": "back of hand",
+      "groupMeans": 16,
+      "subjects": 1714,
+      "red": {
+        "a": -0.1051,
+        "b": 1.0125,
+        "r2": 0.984
+      },
+      "green": {
+        "a": 0.0699,
+        "b": 1.0921,
+        "r2": 0.957
+      },
+      "blue": {
+        "a": -0.1322,
+        "b": 1.0063,
+        "r2": 0.96
+      },
+      "groups": [
+        "CAF",
+        "CAM",
+        "CNF",
+        "CNM",
+        "JPF",
+        "JPM",
+        "SAF",
+        "SAM",
+        "AFF",
+        "AFM",
+        "ABF",
+        "ABM",
+        "IQF",
+        "IQM",
+        "THF",
+        "THM"
+      ]
+    },
+    "palmar": {
+      "archiveSite": "palm",
+      "groupMeans": 12,
+      "subjects": 776,
+      "red": {
+        "a": -0.5201,
+        "b": 0.37,
+        "r2": 0.742
+      },
+      "green": {
+        "a": -0.599,
+        "b": 0.4821,
+        "r2": 0.859
+      },
+      "blue": {
+        "a": -0.6205,
+        "b": 0.5601,
+        "r2": 0.92
+      },
+      "groups": [
+        "CAF",
+        "CAM",
+        "CNF",
+        "CNM",
+        "JPF",
+        "JPM",
+        "AFF",
+        "AFM",
+        "ABF",
+        "ABM",
+        "IQF",
+        "IQM"
+      ]
+    }
+  },
+  "assignment": "the trunk, thighs and other covered skin take the protected inner arm (the archive measures no trunk or leg site); forearms the exposed outer arm; shanks and the backs of the feet half of each; the palm and the sole the palm; the back of the hand its own; the neck and head bones the neck; a band of 4 cm below the neck's cut blends from the cheek, which the face wears, to the sites"
+}

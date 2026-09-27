@@ -47,7 +47,7 @@ const FIELDS: {
   },
   {
     key: "muscle",
-    label: "Muscle (-1 … +1)",
+    label: "Muscle (-1 … +2)",
     unit: "",
     scale: 1,
     step: 0.05,
@@ -85,6 +85,30 @@ const FIELDS: {
     step: 0.5,
     optional: true,
   },
+  {
+    key: "thighMetres",
+    label: "Thigh girth",
+    unit: "cm",
+    scale: 100,
+    step: 0.5,
+    optional: true,
+  },
+  {
+    key: "upperArmMetres",
+    label: "Upper arm girth",
+    unit: "cm",
+    scale: 100,
+    step: 0.5,
+    optional: true,
+  },
+  {
+    key: "calfMetres",
+    label: "Calf girth",
+    unit: "cm",
+    scale: 100,
+    step: 0.5,
+    optional: true,
+  },
 ];
 
 /**
@@ -109,7 +133,8 @@ const FIELDS: {
  * channel as it was, and an untouched required value is the exact projection
  * rather than its rounded display, so applying unchanged values leaves the
  * body unchanged. The simple values never enter the document, because the
- * detailed tier is its canonical form. A refused expansion (a stature, mass
+ * detailed tier is its canonical form; the panel is handed them with the
+ * shape, to stand the body in the posture its age implies. A refused expansion (a stature, mass
  * or girth the basis cannot reach) is reported through the editor's status,
  * and the document keeps its last valid state.
  *
@@ -135,7 +160,12 @@ export const renderBodySimpleControls = (props: {
   /** Read or check the panel generation when asynchronous work settles. */
   currentIntent: () => number;
   isCurrentIntent: (ticket: number) => boolean;
-  onApply: (shape: Record<string, number>, ticket: number) => void;
+  /** The expanded shape, with the values it was expanded from. */
+  onApply: (
+    shape: Record<string, number>,
+    ticket: number,
+    simple: IAutoMovieHumanBodySimpleShape,
+  ) => void;
   onRefuse: (error: unknown) => void;
   onBusy: (text: string) => void;
 }): { refresh: (shape: Record<string, number>) => Promise<void> } => {
@@ -155,7 +185,11 @@ export const renderBodySimpleControls = (props: {
     HTMLInputElement
   >();
   for (const field of FIELDS) {
-    const [low, high] = HUMAN_BODY_SIMPLE_SHAPE.limits[field.key];
+    const [low, high] = HUMAN_BODY_SIMPLE_SHAPE.limits[field.key].map(
+      // in display units, without the binary residue of the scaling (2.2 m
+      // times 100 is 220.00000000000003 cm)
+      (limit) => Math.round(limit * field.scale * 1e6) / 1e6,
+    );
     const row = dom.createElement("div"),
       label = dom.createElement("label"),
       entry = dom.createElement("div"),
@@ -165,8 +199,8 @@ export const renderBodySimpleControls = (props: {
     label.textContent = field.label;
     number.id = "simple-" + field.key;
     number.type = "number";
-    number.min = String(low * field.scale);
-    number.max = String(high * field.scale);
+    number.min = String(low);
+    number.max = String(high);
     number.step = String(field.step);
     number.placeholder = field.optional ? "blank keeps the body's own" : "";
     label.htmlFor = number.id;
@@ -177,7 +211,7 @@ export const renderBodySimpleControls = (props: {
     number.addEventListener("input", touch);
     number.addEventListener("change", touch);
     note.textContent =
-      `${low * field.scale} to ${high * field.scale}${field.unit === "" ? "" : " " + field.unit}` +
+      `${low} to ${high}${field.unit === "" ? "" : " " + field.unit}` +
       (field.optional ? " · optional, measured on the current body" : "");
     entry.append(number);
     row.append(label, entry, note);
@@ -212,9 +246,10 @@ export const renderBodySimpleControls = (props: {
     const over = props.current();
     props.onBusy("Solving the simple body against the basis…");
     try {
-      const shape = await props.expand(read(), over);
+      const simple = read();
+      const shape = await props.expand(simple, over);
       if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
-        props.onApply(shape, ticket);
+        props.onApply(shape, ticket, simple);
     } catch (error) {
       if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
         props.onRefuse(error);

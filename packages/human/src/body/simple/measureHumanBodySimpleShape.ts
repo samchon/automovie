@@ -73,9 +73,17 @@ export const measureHumanBodySimpleShape = {
     return solids.reduce((sum, solid) => sum + solid.volume, 0);
   },
 
-  /** Whole-body mass in kilograms from the skin volume at a density, over the head-and-neck share. */
-  mass(volume: number, density: number, ageYears: number): number {
-    return (volume * density * 1000) / (1 - math.headAndNeckFraction(ageYears));
+  /** Whole-body mass in kilograms from the skin volume at a density, over the share above the clip ring. */
+  mass(
+    volume: number,
+    density: number,
+    ageYears: number,
+    bodyMassIndex: number,
+  ): number {
+    return (
+      (volume * density * 1000) /
+      (1 - math.headAndNeckFraction(ageYears, bodyMassIndex))
+    );
   },
 
   channel(

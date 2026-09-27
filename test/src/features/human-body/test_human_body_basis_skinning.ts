@@ -263,6 +263,7 @@ export const test_human_body_basis_skinning = (): void => {
       const p = skinHumanBodySurface(
         surface.positions,
         surface.skin,
+        basis.joints,
         transforms(rotation),
       );
       return { x: p[12], y: p[13], z: p[14] };
@@ -280,6 +281,7 @@ export const test_human_body_basis_skinning = (): void => {
         skinHumanBodySurface(
           basis.surfaces[0].positions,
           basis.surfaces[0].skin,
+          basis.joints,
           new Map([["hips" as const, transforms(q).get("hips")!]]),
         ),
       "spine",

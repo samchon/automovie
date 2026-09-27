@@ -13,21 +13,23 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateExtents } from "./validateExtents";
-import { validateMesh } from "./validateMesh";
+import { ViolationCollector } from "./ViolationCollector";
+import { collectNonEmptyId } from "./collectNonEmptyId";
 import { finiteMinimum } from "./finiteMinimum";
 import { finiteNumber } from "./finiteNumber";
-import { validateColor } from "./validateColor";
-import { validateTextureBinding } from "./validateTextureBinding";
+import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";
 import { validateBody } from "./validateBody";
-import { collectNonEmptyId } from "./collectNonEmptyId";
-import { validateUniqueValues } from "./validateUniqueValues";
+import { validateColor } from "./validateColor";
+import { validateExtents } from "./validateExtents";
 import { validateJointConstraint } from "./validateJointConstraint";
-import { validateSkeletonGraph } from "./validateSkeletonGraph";
+import { validateMaterialOverlays } from "./validateMaterialOverlays";
+import { validateMesh } from "./validateMesh";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
+import { validateSkeletonGraph } from "./validateSkeletonGraph";
+import { validateTextureBinding } from "./validateTextureBinding";
 import { validateTransformScalars } from "./validateTransformScalars";
-import { ViolationCollector } from "./ViolationCollector";
+import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
  * Validate an {@link IAutoMovieModel}: Tier-1 structural/range checks over its
@@ -214,36 +216,22 @@ export const validateModel = (props: {
   model.materials.forEach((m, i) => {
     const mp = `${path}.materials[${i}]`;
     collectNonEmptyId(m.id, `${mp}.id`, "material id", collector);
-    validateTextureBinding(
-      m.baseColorTexture,
-      `${mp}.baseColorTexture`,
-      "srgb",
-      collector,
-    );
-    validateTextureBinding(
-      m.metallicRoughnessTexture,
-      `${mp}.metallicRoughnessTexture`,
-      "linear",
-      collector,
-    );
-    validateTextureBinding(
-      m.normalTexture,
-      `${mp}.normalTexture`,
-      "linear",
-      collector,
-    );
-    validateTextureBinding(
-      m.occlusionTexture,
-      `${mp}.occlusionTexture`,
-      "linear",
-      collector,
-    );
-    validateTextureBinding(
-      m.emissiveTexture,
-      `${mp}.emissiveTexture`,
-      "srgb",
-      collector,
-    );
+    for (const slot of materialTextureSlots(m))
+      validateTextureBinding(
+        slot.binding,
+        `${mp}${slot.path}`,
+        slot.colorSpace,
+        collector,
+      );
+    if (m.detailNormalScale !== undefined)
+      finiteMinimum(
+        m.detailNormalScale,
+        0,
+        `${mp}.detailNormalScale`,
+        "detail normal scale",
+        collector,
+      );
+    validateMaterialOverlays(m.overlays, `${mp}.overlays`, collector);
     collector.range(`${mp}.metallic`, m.metallic, 0, 1, "metallic");
     collector.range(`${mp}.roughness`, m.roughness, 0, 1, "roughness");
     collector.range(`${mp}.opacity`, m.opacity, 0, 1, "opacity");
@@ -276,6 +264,15 @@ export const validateModel = (props: {
       finiteMinimum(m.thickness, 0, `${mp}.thickness`, "thickness", collector);
     if (m.clearcoat !== undefined)
       collector.range(`${mp}.clearcoat`, m.clearcoat, 0, 1, "clearcoat");
+    if (m.subsurfaceRadius !== undefined)
+      for (const channel of ["r", "g", "b"] as const)
+        finiteMinimum(
+          m.subsurfaceRadius[channel],
+          0,
+          `${mp}.subsurfaceRadius.${channel}`,
+          "subsurface radius",
+          collector,
+        );
     if (m.doubleSided !== undefined && typeof m.doubleSided !== "boolean")
       collector.push(
         "type",

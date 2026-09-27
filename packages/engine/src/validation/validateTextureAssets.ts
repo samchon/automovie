@@ -1,10 +1,16 @@
-import { IAutoMovieAssetProvenance, IAutoMovieMaterial, IAutoMovieTextureReference, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieAssetProvenance,
+  IAutoMovieTextureReference,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { ViolationCollector } from "./ViolationCollector";
-import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
 import { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
+import { ViolationCollector } from "./ViolationCollector";
+import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
+import { materialTextureSlots } from "./materialTextureSlots";
 
 /** Media types a material's PBR slot may bind. */
 const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
@@ -87,19 +93,18 @@ export const validateTextureAssets = (
   props.models.forEach((model, modelIndex) => {
     model.materials.forEach((material, materialIndex) => {
       const path = `$input.models[${modelIndex}].materials[${materialIndex}]`;
-      for (const slot of MATERIAL_SLOTS) {
-        const binding = material[slot.field];
-        if (binding === null || binding === undefined) continue;
+      for (const slot of materialTextureSlots(material)) {
+        const binding = slot.binding;
         const asset = bindingAsset(binding);
         claim("material-texture", model.id, asset);
         intend(
           asset,
-          `${path}.${slot.field}`,
+          `${path}${slot.path}`,
           typeof binding === "string" ? slot.colorSpace : binding.colorSpace,
         );
         checkAsset({
           asset,
-          path: `${path}.${slot.field}`,
+          path: `${path}${slot.path}`,
           consumer: { kind: "material-texture", id: model.id },
           media: MATERIAL_MEDIA,
           out,
@@ -189,32 +194,6 @@ const environmentIntent = (
   facts: IAutoMovieTextureImageFacts,
 ): "srgb" | "linear" =>
   facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
-
-/**
- * The PBR slots that bind an image, with the decoding each one requires.
- *
- * A legacy bare-id binding declares no intent, so the slot's own requirement is
- * what it means: base colour and emissive are radiometric colours stored in
- * sRGB, and the three data maps are measurements that must not be gamma
- * decoded.
- */
-const MATERIAL_SLOTS: ReadonlyArray<{
-  field: keyof IAutoMovieMaterial &
-    (
-      | "baseColorTexture"
-      | "metallicRoughnessTexture"
-      | "normalTexture"
-      | "occlusionTexture"
-      | "emissiveTexture"
-    );
-  colorSpace: "srgb" | "linear";
-}> = [
-  { field: "baseColorTexture", colorSpace: "srgb" },
-  { field: "metallicRoughnessTexture", colorSpace: "linear" },
-  { field: "normalTexture", colorSpace: "linear" },
-  { field: "occlusionTexture", colorSpace: "linear" },
-  { field: "emissiveTexture", colorSpace: "srgb" },
-];
 
 /** Registration, authorization, media, and dimension for one cited asset. */
 const checkAsset = (props: {

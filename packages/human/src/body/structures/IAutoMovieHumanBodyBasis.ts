@@ -218,6 +218,16 @@ export interface IAutoMovieHumanBodyBasis {
     constraint: IAutoMovieJointConstraint | null;
 
     /**
+     * Spread this bone's axial twist along its skin, as a rig's twist joints
+     * do. The bone's rotation relative to its parent is split into a swing
+     * and a twist about its rest axis (its head to its one child joint's
+     * head); a vertex it moves takes the swing whole and the twist in
+     * proportion to where it lies along that axis, none at the head and all
+     * of it at the child's head. Absent, the bone carries its skin rigidly.
+     */
+    distributeTwist?: boolean;
+
+    /**
      * Humerothoracic authoring coordinates for an upper arm. Only the two
      * upper arms carry this field. Their generic Euler axes are held at zero;
      * the shoulder goal is resolved from the thorax after girdle coupling.
@@ -230,10 +240,22 @@ export interface IAutoMovieHumanBodyBasis {
         elevation: number;
         axialRotation: number;
       };
-      /** Total humerothoracic elevation and axial rotation in degrees. */
+      /**
+       * Total humerothoracic elevation and axial rotation in degrees, and the
+       * plane-dependent reach (`humanBodyShoulderReaches`).
+       */
       range: {
         elevation: { min: number; max: number };
         axialRotation: { min: number; max: number };
+        /**
+         * The humeral joint sinus as `[plane, maximum total elevation]` knots:
+         * at least three, planes strictly increasing inside [-180, 180),
+         * maxima in (0, `elevation.max`], linear between neighbours and
+         * periodic across the -180/180 seam. A goal is admitted when its
+         * elevation is at most the envelope at its plane; the overhead pole
+         * is admitted when any knot reaches 180.
+         */
+        envelope: [number, number][];
       };
     };
   }[];
@@ -306,6 +328,59 @@ export interface IAutoMovieHumanBodyBasis {
     curve: [number, number][];
   }[];
 
+  /**
+   * The declared pelvifemoral rhythm: the posterior pelvic tilt that goes
+   * with hip flexion, applied by the builder after the couplings
+   * (`resolveHumanBodyPelvifemoralRhythm`, called inside
+   * `resolveHumanBodyCouplings`).
+   *
+   * With a rhythm declared, each upper leg's document flexion is the thigh's
+   * flexion relative to the trunk, the angle a goniometer reads without
+   * stabilizing the pelvis, rather than the femur's angle to the pelvis.
+   * Standing unilateral hip flexion carries the pelvis with it: Murray et al.
+   * 2002 (Clin Biomech 17:147, doi:10.1016/s0268-0033(01)00115-2) measured
+   * pelvic rotation contributing 18.1% of the change in hip flexion,
+   * throughout the movement, with the stance thigh held vertical; Tully et al.
+   * 2002 (Spine 27:E432) measured lumbar flexion concurrent with it. The curve
+   * maps the larger of the two legs' trunk-relative flexions to the tilt `T`;
+   * the pelvis turns posteriorly by `T` about the line through both hip
+   * centres (the root's flexion gains `-T` and the body is translated so the
+   * hip centres do not move), the lumbar joint's flexion gains `+T` so the
+   * trunk keeps its orientation, and each hip's pelvic-relative flexion is its
+   * document flexion minus `T`, so the lifted thigh reaches the authored
+   * direction and the other thigh stays where the author put it. One tilt for
+   * both legs is what a pelvis can do; the bilateral lift shares the larger
+   * side's tilt, which the declared curve must justify for the tasks it is
+   * cited for (Dewberry et al. 2003, Clin Biomech 18:494, measured 13.1 to
+   * 35.5% for suspended bilateral flexion, depending on knee position and
+   * hamstring length).
+   *
+   * A trunk-relative flexion past the leg's clinical range is refused, and so
+   * is a resulting pelvic-relative or lumbar angle past its own range; nothing
+   * is clamped. Correctives driven by a hip or the lumbar joint read the
+   * document's coupled angles (the hips trunk-relative): the tilt is a
+   * function of those, so a ramp on them is a ramp on the whole
+   * configuration, and the thigh's contact with the belly and chest follows
+   * the trunk-relative angle rather than the pelvic-relative one. A basis
+   * without the field poses hips pelvic-relative as before. Admission (`assertHumanBodyPelvifemoral`) requires both upper
+   * legs and the lumbar joint to be children of the root with open flexion,
+   * a nonblank id, at least two finite knots strictly increasing in flexion,
+   * the first at or above the legs' rest flexion with a zero ordinate,
+   * nondecreasing nonnegative ordinates and every `rest + ordinate` of the
+   * lumbar joint inside its flexion range, and no coupling driving a leg's or
+   * the lumbar joint's flexion.
+   */
+  pelvifemoral?: {
+    /** Name shown beside the rows it moves. */
+    id: string;
+
+    /** The lumbar joint whose flexion restores the trunk. */
+    lumbar: AutoMovieHumanoidBone;
+
+    /** `[trunk-relative hip flexion, posterior pelvic tilt]` knots in degrees. */
+    curve: [number, number][];
+  };
+
   /** Connected skin surfaces in the shared frame. */
   surfaces: {
     id: string;
@@ -343,6 +418,81 @@ export interface IAutoMovieHumanBodyBasis {
       boneIndices: number[];
       weights: number[];
     };
+
+    /**
+     * Soft-tissue sag under gravity after skinning, or absent for none. A
+     * vertex carries the tissue the document's rest body has over the same
+     * body with each `lean` channel at its weight, along the rest normal;
+     * its compliance is that times `gain` and the softness, `base` plus the
+     * sum of each `softness.channels` gain times the document's weight of that
+     * channel, held in `range`; it moves by compliance times the change of
+     * gravity's direction (-Y) in its skin's frame, smoothed over `sweeps`
+     * half-steps with the open boundary held.
+     */
+    sag?: {
+      lean: Record<string, number>;
+      gain: number;
+      sweeps: number;
+      softness: {
+        base: number;
+        channels: Record<string, number>;
+        range: [number, number];
+      };
+    };
+
+    /**
+     * The skin's anatomical relief, or absent for none: a tangent-space
+     * normal map over this surface's UV layout (a PNG data URI, linear, UV
+     * set 0 bound once, v down the image) of the flexion creases and
+     * wrinkles its vertices are too coarse to carry, for the regions of
+     * `material`. A document's skin detail binds it under the tiled
+     * micro-relief.
+     */
+    relief?: { material: string; texture: string };
+
+    /**
+     * Surface layers over this surface's UV layout for the regions of
+     * `material`, or absent for none, which a document's skin detail binds
+     * as that material's overlays: images bound once over UV set 0, v down
+     * the image, as PNG data URIs, the colour in sRGB with its coverage in
+     * alpha and the normal map linear.
+     *
+     * - A `nails` layer is the nail plates, another tissue that replaces the
+     *   skin where it covers, with its own colour, surface and `roughness`
+     *   in [0, 1], shown in full. With the `cheek` albedo its colour was
+     *   drawn for, a document's own cheek tints it by the palm's albedo
+     *   against that cheek's (the palm is the skin's least pigmented site,
+     *   as a nail bed is), so the plates follow the person's pigmentation.
+     * - A `veins` layer is the superficial veins, a tint of the skin over
+     *   them and their raised relief, drawn as they show over the lean body
+     *   this surface's `sag` declares. A document's `skinVeins` shows them
+     *   at its strength times `exp(-attenuation · t)`, where `t` is the mean
+     *   tissue in metres the document's body carries over its lean self
+     *   along the rest normal at the `vertices` the veins lie over, and
+     *   `attenuation` (per metre) is how fast the light a vein takes falls
+     *   with its depth. A body's regions keep different tissue over their
+     *   veins, so a surface may carry a veins layer per region.
+     *
+     * A material takes one nails layer at most and four layers in all.
+     */
+    overlays?: (
+      | {
+          kind: "nails";
+          material: string;
+          color: string;
+          normal?: string;
+          roughness: number;
+          cheek?: { r: number; g: number; b: number };
+        }
+      | {
+          kind: "veins";
+          material: string;
+          color: string;
+          normal?: string;
+          vertices: number[];
+          attenuation: number;
+        }
+    )[];
   }[];
 
   /** Resident finishes; the static exporter owns texture admission. */

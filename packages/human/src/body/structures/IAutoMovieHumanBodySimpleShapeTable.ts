@@ -28,6 +28,9 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     hipsMetres: [number, number];
     bustMetres: [number, number];
     shoulderMetres: [number, number];
+    thighMetres: [number, number];
+    upperArmMetres: [number, number];
+    calfMetres: [number, number];
   };
 
   /**
@@ -61,7 +64,14 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
 
   /** Optional tape measurements: the channel each is solved on, whose rule in `HUMAN_BODY_MEASUREMENTS` reads it. */
   measurements: {
-    parameter: "waistMetres" | "hipsMetres" | "bustMetres" | "shoulderMetres";
+    parameter:
+      | "waistMetres"
+      | "hipsMetres"
+      | "bustMetres"
+      | "shoulderMetres"
+      | "thighMetres"
+      | "upperArmMetres"
+      | "calfMetres";
     channel: string;
   }[];
 
@@ -82,6 +92,13 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
       adultFraction: number;
       /** Authored interpolation interval between the two study domains. */
       transitionAgeYears: [number, number];
+      /**
+       * The neck the skin keeps below its clip ring, which both head-and-neck
+       * segments above count: its share of body mass at a body mass index,
+       * taken out of theirs and falling inversely with the index, as the
+       * neck's volume holds while the body grows.
+       */
+      keptNeck: { fraction: number; bodyMassIndex: number };
     };
     fatFraction: [number, number];
   };
@@ -103,6 +120,29 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     /** Authored interpolation interval; the study reports separate age domains. */
     transitionAgeYears: [number, number];
     essentialBySex: [number, number][];
+
+    /**
+     * Fat-free mass index (kg/m²) one unit of the muscle parameter adds over
+     * the regression's body at the same stature and mass, by sex: the fat
+     * the definition gates read is the regression's less the mass that
+     * muscle displaces (`100 · Δ · muscle / BMI` points). Deurenberg's
+     * regression knows no muscularity, so without this an athlete reads the
+     * fat of an untrained body of the same mass index.
+     */
+    muscleFatFreeMassIndex: [number, number][];
+  };
+
+  /**
+   * The ages over which a body becomes able to build muscle, as curves over
+   * sex: before `startAgeYears` training adds no measurable muscle, from
+   * `endAgeYears` it adds an adult's, linearly between. The derived
+   * `developedMuscle` is the muscle parameter times this ramp; relations
+   * calibrated on adult training read it instead of `muscle`, and so does
+   * the fat-free mass the definition gates subtract.
+   */
+  maturity: {
+    startAgeYears: [number, number][];
+    endAgeYears: [number, number][];
   };
 
   /** Channel weight = Σ gain · Π curve(parameter) over the rows naming that channel. */

@@ -1,0 +1,90 @@
+{
+  "basis": "mpfb-connected-body-2026-09-26-anatomy-r11",
+  "supersedes": "mpfb-connected-body-2026-09-26-anatomy-r10",
+  "recorded": "2026-09-26",
+  "channel": {
+    "id": "breastShape",
+    "kind": "shape",
+    "group": "breast",
+    "mirror": null,
+    "minimum": 0,
+    "maximum": 1,
+    "positive": "breast/breast-shape-incr",
+    "negative": null
+  },
+  "trait": {
+    "region": "the tissue the source's macro/cupsize-max endpoint moves (floor 0.15 of its largest displacement, 6 smoothing sweeps at relaxation 0.5), gated to forward-facing skin (normal z from 0.1 to 0.4)",
+    "coordinate": "height above the tissue mask's mean height (-0.3177 m on the neutral), metres; the neutral's nipple, the nipple-areola fill's centre, stands at +0.007 and its inframammary fold at -0.032",
+    "positive": {
+      "direction": "normal",
+      "amplitudeMetres": 0.01,
+      "profile": {
+        "kind": "bell",
+        "centre": -0.025,
+        "sigma": 0.035
+      }
+    },
+    "negative": null,
+    "endpoints": {
+      "breast/breast-shape-incr": {
+        "vertices": 1377,
+        "mostMetres": 0.009993885530663237
+      }
+    }
+  },
+  "why": "The source's lower pole is short under a long convex upper pole: about the nipple, the upper to lower pole ratio is 63:37 to 73:27 on the review bodies. Mallucci and Branford (2012), measuring 100 natural models, give 45:55 with a convex lower pole. That puts the source at the upper-heavy end of the range, so the channel runs one way from it, rounding the lower pole out and down over the fold as a full lower pole rests over it.",
+  "measured": {
+    "method": "The parasagittal skin profile through the nipple (the built mesh's vertex at the nipple-areola fill's centre), the most anterior skin per millimetre of height. The breast's upper border and its lowest point are where the profile rejoins the same body's twin with the cup size at its minimum: the nearest 1 cm band above and below the nipple in which the two stay within 1 mm. The upper pole runs from the border to the nipple, the lower from the nipple to that lowest point.",
+    "bodies": {
+      "model (woman, 24 years, 1.76 m, 56 kg, muscle 0.3, waist 0.61 m, hips 0.89 m)": {
+        "upperToLowerPole": [
+          "71:29",
+          "52:48"
+        ],
+        "lowerPoleCentimetres": [
+          4.0,
+          8.8
+        ]
+      },
+      "hourglass (woman, 26 years, 1.68 m, 60 kg, muscle 0.3, bust 0.92 m, waist 0.64 m, hips 0.95 m)": {
+        "upperToLowerPole": [
+          "73:27",
+          "57:43"
+        ],
+        "lowerPoleCentimetres": [
+          3.9,
+          8.1
+        ]
+      },
+      "curvy (woman, 28 years, 1.65 m, 70 kg, muscle 0.2, hips 1.06 m)": {
+        "upperToLowerPole": [
+          "63:37",
+          "57:43"
+        ],
+        "lowerPoleCentimetres": [
+          6.3,
+          8.2
+        ]
+      }
+    },
+    "values": "at 0 and at 1",
+    "upperPole": "2 cm over the nipple and up, the profile moves forward by 4.6 to 5.3 mm at most, at the nipple's end of the pole; the border and the nipple's height do not move (within 1 mm)",
+    "sourceChannels": "On the hourglass, no source channel lengthens the lower pole: breastVolumeVertDownUp at -1 fills the lower pole just under the apex and leaves its lowest point in place (a crease forms there), breastPoint changes the projection, macroFirmness moves the profile by 3 mm at most, and breastTransDownUp moves the whole breast."
+  },
+  "rejected": [
+    "a bell pair over a polar coordinate between the mask's lower and upper rims: its isolines ring the nipple, and the positive end read as an areola",
+    "a lower-pole fill with an upper-pole flattening over height: the two bells' transition crossed the breast as a band",
+    "a negative end as the positive bell reversed: it carved a groove up to 4 mm deep into the chest wall below the fold",
+    "that bell gated off 1 cm under the fold: the lower pole pulled in above a chest wall held below left a ledge at the fold",
+    "a narrow bell (sigma 1.2 cm) pulling the middle of the lower pole in by its 9 mm convexity: the unpulled tissue at the fold stood as a ridge under the breast"
+  ],
+  "research": [
+    {
+      "claim": "upper:lower pole 45:55 about the nipple, the nipple about 20 degrees up, a straight or slightly concave upper pole and a convex lower pole, measured on 100 natural models",
+      "source": "Mallucci P, Branford OA. Concepts in aesthetic breast dimensions: analysis of the ideal breast. J Plast Reconstr Aesthet Surg 2012;65(1):8-16"
+    }
+  ],
+  "simpleTier": "no row: the survey reads no breast shape, so the channel is an author's control, 0 by default",
+  "uncompressedSha256": "60d77f22ebe9dc646b2f300c30aa4e95886a1f8ba7f29182e7c00dbf1f2eeb27",
+  "uncompressedBytes": 131712471
+}

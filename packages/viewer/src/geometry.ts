@@ -7,6 +7,10 @@ import {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { applyDetailNormal } from "./detailNormalShading";
+import { applyMaterialOverlays } from "./materialOverlayShading";
+import { applySubsurfaceShading } from "./subsurfaceShading";
+
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
  * parametric primitive (via the engine) or uploading raw mesh arrays.
@@ -47,6 +51,11 @@ export const buildGeometry = (
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(mesh.uvs, 2));
   if (mesh.colors !== undefined)
     geo.setAttribute("color", new THREE.Float32BufferAttribute(mesh.colors, 3));
+  if (mesh.reliefWeights !== undefined)
+    geo.setAttribute(
+      "reliefWeight",
+      new THREE.Float32BufferAttribute(mesh.reliefWeights, 1),
+    );
   if (mesh.indices !== null) geo.setIndex(mesh.indices);
   if (mesh.skin !== null) {
     geo.setAttribute(
@@ -87,7 +96,8 @@ export const textureBindingAsset = (
 ): string => (typeof binding === "string" ? binding : binding.asset);
 
 /**
- * Every texture binding one material declares, in slot order, nulls dropped.
+ * Every texture binding one material declares, in slot order and then each
+ * overlay's colour and normal map, nulls dropped.
  *
  * @evidence requirements/rendering/materials-lighting-and-color.md#rendering-material-resolution Resolves this public surface into the declared render material.
  * @evidence specifications/editorial-render-and-delivery/render-products-visibility-and-color.md#spec-render-material-color Implements the material and color binding at the render boundary.
@@ -99,8 +109,13 @@ export const materialTextureBindings = (
     material.baseColorTexture,
     material.metallicRoughnessTexture,
     material.normalTexture,
+    material.detailNormalTexture,
     material.occlusionTexture,
     material.emissiveTexture,
+    ...(material.overlays ?? []).flatMap((overlay) => [
+      overlay.baseColorTexture,
+      overlay.normalTexture,
+    ]),
   ].filter(
     (value): value is AutoMovieTextureBinding =>
       value !== null && value !== undefined,
@@ -283,6 +298,8 @@ export const buildMaterial = (
     thickness: material.thickness ?? 0,
     clearcoat: material.clearcoat ?? 0,
   });
+  if (material.subsurfaceRadius !== undefined)
+    applySubsurfaceShading(std, material.subsurfaceRadius);
   std.map = resolveMaterialTexture(
     material.baseColorTexture,
     "srgb",
@@ -302,6 +319,46 @@ export const buildMaterial = (
   );
   if (material.normalScale !== undefined)
     std.normalScale.setScalar(material.normalScale);
+  const detailNormal = resolveMaterialTexture(
+    material.detailNormalTexture,
+    "linear",
+    resolveTexture,
+  );
+  if (detailNormal !== null) {
+    if (std.normalMap !== null)
+      applyDetailNormal(std, detailNormal, material.detailNormalScale ?? 1);
+    else {
+      // a detail map alone stands in as the normal map
+      std.normalMap = detailNormal;
+      std.normalScale.setScalar(material.detailNormalScale ?? 1);
+    }
+  }
+  const overlays = (material.overlays ?? []).map((overlay) => ({
+    color: resolveMaterialTexture(
+      overlay.baseColorTexture,
+      "srgb",
+      resolveTexture,
+    ),
+    blend: overlay.blend,
+    colorFactor: overlay.colorFactor ?? { r: 1, g: 1, b: 1 },
+    roughness: overlay.roughness ?? null,
+    normal: resolveMaterialTexture(
+      overlay.normalTexture,
+      "linear",
+      resolveTexture,
+    ),
+    normalScale: overlay.normalScale ?? 1,
+    strength: overlay.strength,
+  }));
+  // an overlay shows only through its colour image; without a resolver there
+  // is none, and the material shows alone
+  applyMaterialOverlays(
+    std,
+    overlays.filter(
+      (overlay): overlay is typeof overlay & { color: THREE.Texture } =>
+        overlay.color !== null,
+    ),
+  );
   std.aoMap = resolveMaterialTexture(
     material.occlusionTexture,
     "linear",

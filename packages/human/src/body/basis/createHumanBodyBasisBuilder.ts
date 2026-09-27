@@ -1,22 +1,45 @@
-import { resolvePose, validateModel, validatePose } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolvePose,
+  validateModel,
+  validatePose,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMaterialOverlay,
   IAutoMovieModel,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieTextureReference,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanFaceBasisRegion } from "../../face/basis/createHumanFaceBasisRegion";
 import { humanFaceBasisRegion } from "../../face/basis/humanFaceBasisRegion";
 import { portraitNormals } from "../../face/mesh/portraitNormals";
+import { HUMAN_BODY_SKIN_DETAIL } from "../constants/HUMAN_BODY_SKIN_DETAIL";
+import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
+import { HUMAN_BODY_SKIN_SCATTERING } from "../constants/HUMAN_BODY_SKIN_SCATTERING";
+import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
+import { HUMAN_BODY_SKIN_TONE } from "../constants/HUMAN_BODY_SKIN_TONE";
 import { admitHumanBodyBasisDocument } from "../document/admitHumanBodyBasisDocument";
+import { humanBodySimpleShapeMath } from "../simple/humanBodySimpleShapeMath";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
+import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
+import { createHumanBodySkinDetailTexture } from "./createHumanBodySkinDetailTexture";
+import { createHumanBodySkinToneTexture } from "./createHumanBodySkinToneTexture";
+import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
+import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
+import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
+import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
+import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemoralRhythm";
 import { resolveHumanBodyShoulders } from "./resolveHumanBodyShoulders";
 import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
@@ -33,9 +56,13 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * The document's non-humeral clinical angles gain the declared couplings
  * (`resolveHumanBodyCouplings`, called inside `humanBodyBasisWeights` so the
  * corrective ramps read the same coupled angles) and are validated by the
- * engine. The separately authored TT humerothoracic goals are range checked
- * against the basis and resolved from the thorax after the engine's forward
- * kinematics and the girdle's movement, then dual
+ * engine, together with the pelvic-relative reading a declared pelvifemoral
+ * rhythm gives them (`resolveHumanBodyPelvifemoralRhythm`). The separately
+ * authored TT humerothoracic goals are checked against the basis's clinical
+ * reach (`humanBodyShoulderReaches`: the plane's joint-sinus maximum and the
+ * axial range) and resolved from the thorax after the engine's forward
+ * kinematics and the girdle's movement; the rhythm then turns the pelvis
+ * about the hip centres, then dual
  * quaternion skinning (`skinHumanBodySurface`), then common normals and material
  * regions. The couplings are added before validation so a girdle angle the
  * document wrote plus the rhythm an elevated arm adds is refused past the
@@ -55,8 +82,6 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the coupled sparse pose, resolves TT shoulder goals after the girdle and recomputes normals after skinning.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This domain index also covers the editing screen, export and census review; the builder owns evaluation, not the complete authoring workflow.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications This index joins evaluation, measurement, document and later editor boundaries; the builder does not own the browser adapter or the review process.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor This renderer-independent evaluator exposes no DOM, camera or file picker; the playground body page binds those to it.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The builder has no inputs, presets or display state; it evaluates the document the editor commits.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The builder owns no transaction history or worker; the face editor's state owner and the playground worker do.
  */
 export function createHumanBodyBasisBuilder(
@@ -66,6 +91,21 @@ export function createHumanBodyBasisBuilder(
     typia.assertEquals<IAutoMovieHumanBodyBasis>(input),
   );
   assertHumanBodyBasis(basis);
+  // read off the rig on the first document that asks for it
+  let siteColour: ReturnType<typeof createHumanBodySkinColour> | null = null;
+  // the micro-relief tile and its scale over the skin's UVs, on first use
+  let relief: { texture: string; turns: number } | null = null;
+  // the tone maps by their quantized strength, and their scale, on first use
+  const tones = new Map<
+    number,
+    ReturnType<typeof createHumanBodySkinToneTexture>
+  >();
+  let toneTurns: number | null = null;
+  const sags = basis.surfaces.map((surface) =>
+    surface.sag === undefined
+      ? null
+      : createHumanBodySurfaceSag(surface, surface.sag),
+  );
   return (inputDocument) => {
     const document = admitHumanBodyBasisDocument(inputDocument);
     if (
@@ -82,10 +122,7 @@ export function createHumanBodyBasisBuilder(
       )?.shoulder;
       if (
         contract === undefined ||
-        shoulder.elevation < contract.range.elevation.min ||
-        shoulder.elevation > contract.range.elevation.max ||
-        shoulder.axialRotation < contract.range.axialRotation.min ||
-        shoulder.axialRotation > contract.range.axialRotation.max
+        !humanBodyShoulderReaches(contract, shoulder)
       )
         throw new Error(
           "Body shoulder goal exceeds its thorax-tt clinical range: " +
@@ -93,20 +130,63 @@ export function createHumanBodyBasisBuilder(
         );
     }
     const shaped = evaluateHumanBodyShape(basis, state);
+    // whether the document leaves the rest pose the basis was authored in,
+    // and its shape at that rest pose
+    const posed =
+      (document.pose ?? []).length > 0 || (document.shoulders ?? []).length > 0;
+    const atRest = (shape: Record<string, number>) =>
+      evaluateHumanBodyShape(
+        basis,
+        humanBodyBasisWeights(basis, {
+          ...document,
+          shape,
+          pose: undefined,
+          shoulders: undefined,
+        }),
+      );
+    // each is evaluated once, on first use: the document at rest (the
+    // shaped body itself when it is not posed) and each surface's lean self
+    let restOnce: ReturnType<typeof atRest> | undefined;
+    const restAll = () =>
+      posed ? (restOnce ??= atRest(document.shape)) : shaped;
+    const leans = new Map<number, number[]>();
+    const leanOf = (index: number): number[] => {
+      let lean = leans.get(index);
+      if (lean === undefined) {
+        lean = atRest({
+          ...document.shape,
+          ...basis.surfaces[index].sag!.lean,
+        }).surfaces[index];
+        leans.set(index, lean);
+      }
+      return lean;
+    };
     const { skeleton, rest, frames } = resolveHumanBodySkeleton(
       basis,
       shaped.landmarks,
     );
+    // The coupled document pose is what forward kinematics turns, and its
+    // angles are judged against the clinical ranges. With a pelvifemoral
+    // rhythm the legs' document flexion is trunk-relative, so the rig's
+    // pelvic-relative hips and lumbar joint (the rhythm's additions applied)
+    // are judged too: a request must hold under both readings.
     const pose: IAutoMoviePose = {
       skeleton: skeleton.id,
       root: null,
       joints: state.pose,
     };
-    const violations = validatePose({ pose, skeleton });
-    if (violations.items.length > 0)
+    const rhythm = resolveHumanBodyPelvifemoralRhythm(basis, state.pose);
+    const violations = [
+      ...validatePose({ pose, skeleton }).items,
+      ...(rhythm.contributions.length === 0
+        ? []
+        : validatePose({ pose: { ...pose, joints: rhythm.joints }, skeleton })
+            .items),
+    ];
+    if (violations.length > 0)
       throw new Error(
         "Body pose violates the skeleton or its clinical ranges: " +
-          JSON.stringify(violations.items),
+          JSON.stringify(violations),
       );
     const transforms = new Map<
       AutoMovieHumanoidBone,
@@ -115,12 +195,42 @@ export function createHumanBodyBasisBuilder(
         posed: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
       }
     >();
+    // The rhythm leaves the trunk and both thighs where the document put
+    // them relative to the trunk and turns only the pelvis, posteriorly by
+    // the tilt about the line through both hip centres, which leaves the hip
+    // centres, the lifted thigh's authored direction and the other foot in
+    // place while the pelvis-to-thigh and pelvis-to-lumbar angles change.
+    const tilt = -(
+      rhythm.contributions.find((one) => one.bone === "hips")?.degrees ?? 0
+    );
     const resolvedBones = resolveHumanBodyShoulders(
       basis,
       document.shoulders ?? [],
       rest,
       resolvePose(pose, skeleton, undefined, frames),
     );
+    if (tilt !== 0) {
+      const at = (bone: AutoMovieHumanoidBone) =>
+        resolvedBones.find((one) => one.bone === bone)!;
+      const left = at("leftUpperLeg").worldPosition;
+      const axis = Vector3.normalize(
+        Vector3.subtract(left, at("rightUpperLeg").worldPosition),
+      );
+      // about +X (the subject's left) a positive angle carries the top of
+      // the pelvis forward; a posterior tilt is the negative one
+      const turn = Quaternion.fromAxisAngle(axis, -tilt);
+      const pelvis = at("hips");
+      pelvis.worldPosition = Vector3.add(
+        left,
+        Quaternion.rotateVector(
+          turn,
+          Vector3.subtract(pelvis.worldPosition, left),
+        ),
+      );
+      pelvis.worldRotation = Quaternion.normalize(
+        Quaternion.multiply(turn, pelvis.worldRotation),
+      );
+    }
     for (const resolved of resolvedBones)
       transforms.set(resolved.bone, {
         rest: rest.get(resolved.bone)!,
@@ -157,24 +267,368 @@ export function createHumanBodyBasisBuilder(
       if (override.roughness !== undefined)
         material.roughness = override.roughness;
     }
+    // the skin's colour by site, from the cheek the face wears: the material
+    // takes the largest albedo and its regions the multipliers of it
+    const skin = HUMAN_BODY_SKIN_SITES.material;
+    // skin is translucent: its material carries the measured scattering
+    // distance, which a renderer blurs the diffuse response over
+    if (materialMap.has(skin))
+      materialMap.get(skin)!.subsurfaceRadius = {
+        ...HUMAN_BODY_SKIN_SCATTERING,
+      };
+    const cheek = document.skinColour?.cheek;
+    if (
+      cheek !== undefined &&
+      (!materialMap.has(skin) ||
+        document.materials?.[skin]?.color !== undefined ||
+        [cheek.r, cheek.g, cheek.b].some((value) => value <= 0 || value > 1))
+    )
+      throw new Error(
+        "Body skin colour needs a skin material without a colour override and a cheek albedo in (0,1].",
+      );
+    const coloured =
+      cheek === undefined
+        ? null
+        : (siteColour ??= createHumanBodySkinColour(basis))([
+            cheek.r,
+            cheek.g,
+            cheek.b,
+          ]);
+    if (coloured !== null) {
+      const [r, g, b] = coloured.base;
+      materialMap.get(skin)!.baseColor = {
+        ...materialMap.get(skin)!.baseColor,
+        r,
+        g,
+        b,
+        hex: null,
+      };
+    }
+    if (
+      document.skinVeins !== undefined &&
+      !(document.skinVeins.strength >= 0 && document.skinVeins.strength <= 1)
+    )
+      throw new Error("Body skin veins need a strength in [0,1].");
+    // the skin's micro-relief as a tiled normal map, deepening with age
+    const detail = document.skinDetail;
+    if (detail !== undefined) {
+      if (
+        !materialMap.has(skin) ||
+        !(detail.strength >= 0 && detail.strength <= 1) ||
+        basis.surfaces.some((surface) =>
+          surface.regions.some(
+            (region) => region.material === skin && region.uvs === null,
+          ),
+        )
+      )
+        throw new Error(
+          "Body skin detail needs a skin material on textured regions and a strength in [0,1].",
+        );
+      relief ??= {
+        texture: createHumanBodySkinDetailTexture(HUMAN_BODY_SKIN_DETAIL),
+        turns:
+          humanBodySkinMetresPerUv(basis, skin) /
+          (HUMAN_BODY_SKIN_DETAIL.tileMillimetres / 1000),
+      };
+      const material = materialMap.get(skin)!;
+      const tile: IAutoMovieTextureReference = {
+        asset: relief.texture,
+        texCoord: 0,
+        coordinateSource: "source-uv",
+        colorSpace: "linear",
+        transform: {
+          offset: { x: 0, y: 0 },
+          scale: { x: relief.turns, y: relief.turns },
+          rotationDeg: 0,
+        },
+        sampler: {
+          wrapS: "repeat",
+          wrapT: "repeat",
+          minFilter: "linearMipmapLinear",
+          magFilter: "linear",
+        },
+      };
+      const deepening = humanBodySimpleShapeMath.curve(
+        HUMAN_BODY_SKIN_DETAIL.age,
+        document.shape.macroAge ?? 0,
+      );
+      // the surface's anatomical relief, where the basis has one, carries the
+      // creases under the tiled micro-relief, which becomes its detail
+      const anatomical = basis.surfaces.find(
+        (surface) => surface.relief?.material === skin,
+      )?.relief;
+      if (anatomical !== undefined) {
+        material.normalTexture = {
+          asset: anatomical.texture,
+          texCoord: 0,
+          coordinateSource: "source-uv",
+          colorSpace: "linear",
+          sampler: {
+            wrapS: "clamp",
+            wrapT: "clamp",
+            minFilter: "linearMipmapLinear",
+            magFilter: "linear",
+          },
+        };
+        material.normalScale = detail.strength * deepening;
+        material.detailNormalTexture = tile;
+        material.detailNormalScale = detail.strength * deepening;
+      } else {
+        material.normalTexture = tile;
+        material.normalScale = detail.strength * deepening;
+      }
+      // the surface layers the basis lays over the skin: the nail plates, a
+      // tissue of their own that replaces the skin where they cover
+      const once = (asset: string, colorSpace: "srgb" | "linear") => ({
+        asset,
+        texCoord: 0,
+        coordinateSource: "source-uv" as const,
+        colorSpace,
+        sampler: {
+          wrapS: "clamp" as const,
+          wrapT: "clamp" as const,
+          minFilter: "linearMipmapLinear" as const,
+          magFilter: "linear" as const,
+        },
+      });
+      // the veins show over the lean body the surface's sag declares, and
+      // the tissue the body carries over its lean self hides them as a
+      // deeper vein takes less of the light
+      const restNormals = new Map<number, number[]>();
+      const veinsShow = (
+        index: number,
+        overlay: { vertices: number[]; attenuation: number },
+        strength: number,
+      ): number => {
+        const surface = basis.surfaces[index];
+        const rest = restAll().surfaces[index];
+        const lean = leanOf(index);
+        let normals = restNormals.get(index);
+        if (normals === undefined) {
+          normals = portraitNormals(rest, surface.indices);
+          restNormals.set(index, normals);
+        }
+        let tissue = 0;
+        for (const v of overlay.vertices) {
+          let along = 0;
+          for (let k = 0; k < 3; k++)
+            along += (rest[v * 3 + k] - lean[v * 3 + k]) * normals[v * 3 + k];
+          tissue += Math.max(0, along);
+        }
+        return (
+          strength *
+          Math.exp((-overlay.attenuation * tissue) / overlay.vertices.length)
+        );
+      };
+      const overlays = basis.surfaces.flatMap((surface, index) =>
+        (surface.overlays ?? [])
+          .filter((overlay) => overlay.material === skin)
+          .flatMap((overlay): IAutoMovieMaterialOverlay[] => {
+            const normalTexture =
+              overlay.normal === undefined
+                ? null
+                : once(overlay.normal, "linear");
+            if (overlay.kind === "nails") {
+              // the nail bed follows the person's pigmentation as the palm,
+              // the skin's least pigmented site, does
+              const cheek = document.skinColour?.cheek;
+              const palm = (rgb: { r: number; g: number; b: number }) =>
+                HUMAN_BODY_SKIN_SITES.sites.palmar.map(
+                  ([a, b], k) => Math.exp(a) * [rgb.r, rgb.g, rgb.b][k] ** b,
+                );
+              const factor =
+                cheek === undefined || overlay.cheek === undefined
+                  ? undefined
+                  : ((own, drawn) => ({
+                      r: own[0] / drawn[0],
+                      g: own[1] / drawn[1],
+                      b: own[2] / drawn[2],
+                    }))(palm(cheek), palm(overlay.cheek));
+              return [
+                {
+                  baseColorTexture: once(overlay.color, "srgb"),
+                  blend: "replace",
+                  ...(factor === undefined ? {} : { colorFactor: factor }),
+                  roughness: overlay.roughness,
+                  normalTexture,
+                  strength: 1,
+                },
+              ];
+            }
+            const veins = document.skinVeins;
+            if (veins === undefined) return [];
+            return [
+              {
+                baseColorTexture: once(overlay.color, "srgb"),
+                blend: "multiply",
+                normalTexture,
+                strength: veinsShow(index, overlay, veins.strength),
+              },
+            ];
+          }),
+      );
+      if (overlays.length > 0) material.overlays = overlays;
+    }
+    // the skin's uneven tone as a tiled base-colour map, the two chromophores
+    // varying about the site colour, less even with age; the strength is
+    // taken to a twentieth so a population of documents shares a few maps
+    const toneOf = document.skinTone;
+    if (toneOf !== undefined) {
+      if (
+        !materialMap.has(skin) ||
+        !(toneOf.strength >= 0 && toneOf.strength <= 1) ||
+        basis.surfaces.some((surface) =>
+          surface.regions.some(
+            (region) => region.material === skin && region.uvs === null,
+          ),
+        )
+      )
+        throw new Error(
+          "Body skin tone needs a skin material on textured regions and a strength in [0,1].",
+        );
+      const material = materialMap.get(skin)!;
+      const toneStrength =
+        Math.round(
+          20 *
+            toneOf.strength *
+            humanBodySimpleShapeMath.curve(
+              HUMAN_BODY_SKIN_TONE.age,
+              document.shape.macroAge ?? 0,
+            ),
+        ) / 20;
+      if (toneStrength > 0) {
+        let tone = tones.get(toneStrength);
+        if (tone === undefined) {
+          tone = createHumanBodySkinToneTexture(
+            HUMAN_BODY_SKIN_TONE,
+            toneStrength,
+          );
+          tones.set(toneStrength, tone);
+        }
+        toneTurns ??=
+          humanBodySkinMetresPerUv(basis, skin) /
+          (HUMAN_BODY_SKIN_TONE.tileMillimetres / 1000);
+        material.baseColorTexture = {
+          asset: tone.texture,
+          texCoord: 0,
+          coordinateSource: "source-uv",
+          colorSpace: "srgb",
+          transform: {
+            offset: { x: 0, y: 0 },
+            scale: { x: toneTurns, y: toneTurns },
+            rotationDeg: 0,
+          },
+          sampler: {
+            wrapS: "repeat",
+            wrapT: "repeat",
+            minFilter: "linearMipmapLinear",
+            magFilter: "linear",
+          },
+        };
+        const [kr, kg, kb] = tone.compensation;
+        material.baseColor = {
+          ...material.baseColor,
+          r: Math.min(1, material.baseColor.r * kr),
+          g: Math.min(1, material.baseColor.g * kg),
+          b: Math.min(1, material.baseColor.b * kb),
+          hex: null,
+        };
+      }
+    }
+    // gravity's change in the skin's frame moves the soft tissue; a document
+    // at the rest pose the basis was authored in hangs as authored
+    const restShape =
+      posed && sags.some((sag) => sag !== null) ? restAll() : null;
     const parts = basis.surfaces.flatMap((surface, index) => {
-      const positions = skinHumanBodySurface(
+      const skinned = skinHumanBodySurface(
         shaped.surfaces[index],
         surface.skin,
+        basis.joints,
         transforms,
       );
+      const sag = sags[index];
+      const positions = (() => {
+        if (sag === null || restShape === null) return skinned;
+        const declared = surface.sag!;
+        const lean = leanOf(index);
+        // the skin's rest down after the pose: each vertex's transform is
+        // rigid, so a point a centimetre below it lands a centimetre along it
+        const below = skinHumanBodySurface(
+          shaped.surfaces[index].map((value, i) =>
+            i % 3 === 1 ? value - 0.01 : value,
+          ),
+          surface.skin,
+          basis.joints,
+          transforms,
+        );
+        const softness = Math.min(
+          declared.softness.range[1],
+          Math.max(
+            declared.softness.range[0],
+            Object.entries(declared.softness.channels).reduce(
+              (total, [id, gain]) => total + gain * (document.shape[id] ?? 0),
+              declared.softness.base,
+            ),
+          ),
+        );
+        return sag({
+          rest: restShape.surfaces[index],
+          lean,
+          skinned,
+          hanging: below.map((value, i) => (value - skinned[i]) / 0.01),
+          softness,
+        });
+      })();
       const normals = portraitNormals(positions, surface.indices);
-      return surface.regions.map((region) => ({
-        id: region.id,
-        name: region.id,
-        material: region.material,
-        geometry: {
-          type: "mesh" as const,
-          mesh: humanFaceBasisRegion(positions, normals, region),
-        },
-        attachedBone: null,
-        transform: null,
-      }));
+      // the skin's anatomical relief follows the pose: its creases deepen
+      // where a bent joint folds the skin and its wrinkles flatten where it
+      // stretches it, read on the body at rest
+      const reliefWeights =
+        document.skinDetail === undefined ||
+        surface.relief?.material !== skin ||
+        !posed
+          ? null
+          : (() => {
+              const atRestNow = restAll();
+              return humanBodyReliefWeights({
+                basis,
+                table: HUMAN_BODY_SKIN_RELIEF_POSE,
+                positions: atRestNow.surfaces[index],
+                normals: portraitNormals(
+                  atRestNow.surfaces[index],
+                  surface.indices,
+                ),
+                landmarks: atRestNow.landmarks,
+                pose: document.pose ?? [],
+              });
+            })();
+      return surface.regions.map((region) => {
+        const mesh =
+          coloured === null || region.material !== skin
+            ? humanFaceBasisRegion(positions, normals, region)
+            : createHumanFaceBasisRegion(region)(
+                positions,
+                normals,
+                coloured.colors[index],
+              );
+        if (reliefWeights !== null && region.material === skin) {
+          // gathered through the region's own source correspondence
+          const triples = reliefWeights.flatMap((w) => [w, w, w]);
+          const gathered = createHumanFaceBasisRegion(region)(
+            triples,
+            triples,
+          ).positions;
+          mesh.reliefWeights = gathered.filter((_, i) => i % 3 === 0);
+        }
+        return {
+          id: region.id,
+          name: region.id,
+          material: region.material,
+          geometry: { type: "mesh" as const, mesh },
+          attachedBone: null,
+          transform: null,
+        };
+      });
     });
     const model: IAutoMovieModel = {
       id: document.id,

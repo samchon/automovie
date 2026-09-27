@@ -74,6 +74,62 @@ export const test_human_body_shoulder_admission = (): void => {
       },
     ],
     [
+      "joint sinus needs three knots",
+      (basis) => {
+        left(basis).shoulder!.range.envelope.splice(2);
+      },
+    ],
+    [
+      "joint sinus planes must increase",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[1][0] = -180;
+      },
+    ],
+    [
+      "joint sinus planes must be canonical",
+      (basis) => {
+        left(basis).shoulder!.range.envelope.at(-1)![0] = 180;
+      },
+    ],
+    [
+      "joint sinus plane below the period",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[0][0] = -181;
+      },
+    ],
+    [
+      "joint sinus plane must be finite",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[0][0] = Number.NaN;
+      },
+    ],
+    [
+      "joint sinus maximum must be finite",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[0][1] = Number.NaN;
+      },
+    ],
+    [
+      "joint sinus maximum must be positive",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[0][1] = 0;
+      },
+    ],
+    [
+      "joint sinus maximum inside total elevation",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[3][1] = 181;
+      },
+    ],
+    [
+      "joint sinus must hold the measured rest",
+      (basis) => {
+        left(basis).shoulder!.range.envelope[3][1] = 44;
+        left(basis).shoulder!.range.envelope[4][1] = 44;
+        left(basis).shoulder!.range.envelope[2][1] = 44;
+      },
+    ],
+    [
       "thorax must own upper arm",
       (basis) => {
         left(basis).parent = "spine";
@@ -175,6 +231,12 @@ export const test_human_body_shoulder_admission = (): void => {
       "kernel centre axial must be clinical",
       (k) => {
         k.orientation.axialRotation = 91;
+      },
+    ],
+    [
+      "kernel centre must lie in the joint sinus",
+      (k) => {
+        k.orientation = { plane: -90, elevation: 90, axialRotation: 0 };
       },
     ],
     [

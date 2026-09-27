@@ -272,6 +272,21 @@ export const measureAutoMovieRenderInventory = (props: {
         cost.geometryBytes +=
           (cost.vertices * 3 - coloredComponents) *
           Float32Array.BYTES_PER_ELEMENT;
+      // and mixed weighted/bare parts every vertex a relief factor of one
+      const weightedVertices = byId
+        .get(id)!
+        .parts.reduce(
+          (sum, part) =>
+            sum +
+            (part.geometry.type === "mesh" &&
+            part.geometry.mesh.reliefWeights !== undefined
+              ? part.geometry.mesh.positions.length / 3
+              : 0),
+          0,
+        );
+      if (weightedVertices !== 0)
+        cost.geometryBytes +=
+          (cost.vertices - weightedVertices) * Float32Array.BYTES_PER_ELEMENT;
     }
     geometryBytes += cost.geometryBytes;
     add(`model:${id}`, `models["${id}"]`, "geometryBytes", cost.geometryBytes);

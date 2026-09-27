@@ -1,7 +1,6 @@
 import {
   HUMAN_BODY_MEASUREMENTS,
   HUMAN_BODY_SIMPLE_SHAPE,
-  type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodySimpleShape,
   expandHumanBodySimpleShape,
   humanBodyClipRing,
@@ -14,6 +13,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";
+import { humanBodySimpleFixture } from "../internal/humanBodySimpleFixture";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -29,17 +29,21 @@ import { nclose } from "../internal/predicates";
  * 2. Every parameter outside its envelope, or not finite, is refused, a
  *    missing required one too; a basis without `macroHeight` or
  *    `macroWeight` is refused, and a tape measurement whose channel the
- *    basis lacks or whose rule the surface cannot answer (the bust rule
- *    reads a landmark the box lacks). The stature channel's rule is a
+ *    basis lacks (the hip and the three limb girths) or whose rule the
+ *    surface cannot answer (the bust rule reads a landmark the box lacks). The stature channel's rule is a
  *    height and every tape channel has a rule.
  * 3. The two Deurenberg regressions at ages 11, 15, 16 and adult, for both
  *    sexes, and their authored fractional-age bridge are checked against
  *    hand arithmetic. Jensen's pediatric head-and-neck share and its bridge
- *    to the adult approximation are also checked by hand. Term rows by hand:
- *    a 25-year-old man at BMI 22 with muscle 0.5 gets
+ *    to the adult approximation, less the neck the skin keeps below the
+ *    clip ring (2.35 % at a body mass index of 24, inversely with the
+ *    index), are also checked by hand, and so is the abs
+ *    definition at 11, 15 and 16 through each sex's maturity ramp. Term rows
+ *    by hand: a 25-year-old man at BMI 22 with muscle 0.5 gets
  *    gender 1, age 0, muscle 0.5, ptosis -0.2 (the lift row only), abs
- *    definition 0.244 (Deurenberg 15.95% less 5% essential, 10.95% on the
- *    band) and no flank fat (its row starts at BMI 22 and the mass
+ *    definition 0.3025 (Deurenberg 15.95% less 5% essential and the 5
+ *    points half a unit of muscle's fat-free mass displaces, 5.95% on the
+ *    band, times the muscle curve's 0.5) and no flank fat (its row starts at BMI 22 and the mass
  *    direction leaves the banded depots alone); rows for channels the
  *    basis lacks are skipped.
  * 4. Saturation: a 90-year-old at BMI 30 with muscle -1 gets ptosis 1 (the
@@ -100,112 +104,8 @@ export const test_human_body_simple_shape = (): void => {
     [4],
   );
 
-  const wide = [0, 1, 2, 3, 4, 5, 6, 7].flatMap((v) => [
-    v,
-    surface.positions[v * 3] > 0 ? 0.05 : -0.05,
-    0,
-    0,
-  ]);
-  const narrow = [0, 1, 2, 3, 4, 5, 6, 7].flatMap((v) => [
-    v,
-    surface.positions[v * 3] > 0 ? -0.02 : 0.02,
-    0,
-    0,
-  ]);
-  const deep = [0, 1, 2, 3, 4, 5, 6, 7].flatMap((v) => [
-    v,
-    0,
-    0,
-    surface.positions[v * 3 + 2] > 0 ? 0.03 : -0.03,
-  ]);
-  const macros = (
-    weightPositive: number[],
-    weightNegative: number[],
-  ): IAutoMovieHumanBodyBasis => ({
-    ...box,
-    channels: [
-      ...box.channels,
-      ...[
-        ["macroGender", -1, 1],
-        ["macroAge", -1, 1],
-        // muscle past one, as the published basis carries it
-        ["macroMuscle", -1, 2],
-        ["macroFirmness", -1, 1],
-        ["buttocksPtosis", -1, 1],
-        ["absDefinition", 0, 1],
-        ["flankFat", 0, 1],
-      ].map(([id, minimum, maximum]) => ({
-        id: String(id),
-        kind: "shape" as const,
-        group: "macro",
-        mirror: null,
-        minimum: Number(minimum),
-        maximum: Number(maximum),
-        positive: "wideTall",
-        negative: minimum === 0 ? null : "wideTall",
-      })),
-      {
-        id: "macroHeight",
-        kind: "shape",
-        group: "macro",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "raised",
-        negative: "lowered",
-      },
-      {
-        id: "macroWeight",
-        kind: "shape",
-        group: "macro",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "grown",
-        negative: "shrunk",
-      },
-      {
-        // the bust rule reads joint-spine-1, which the box does not have
-        id: "measureBustCirc",
-        kind: "shape",
-        group: "torso",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "deep",
-        negative: null,
-      },
-      {
-        id: "measureWaistCirc",
-        kind: "shape",
-        group: "torso",
-        mirror: null,
-        minimum: -1,
-        maximum: 1,
-        positive: "deep",
-        negative: "shallow",
-      },
-    ],
-    correctives: [],
-    surfaces: [
-      {
-        ...surface,
-        // seven tenths of the box's width and depth put its body mass index
-        // reach at about 13 to 31, a human band
-        positions: surface.positions.map((value, at) =>
-          at % 3 === 1 ? value : value * 0.7,
-        ),
-        targets: {
-          ...surface.targets,
-          lowered: [4, 0, -0.5, 0, 5, 0, -0.5, 0, 6, 0, -0.5, 0, 7, 0, -0.5, 0],
-          grown: weightPositive,
-          shrunk: weightNegative,
-          deep,
-          shallow: deep.map((value, at) => (at % 4 === 0 ? value : -value / 3)),
-        },
-      },
-    ],
-  });
+  const { wide, narrow } = humanBodySimpleFixture.weights;
+  const macros = humanBodySimpleFixture.basis;
   const basis = macros(wide, narrow);
   const head = table.stature.headAboveRingMetres;
   const stature = 1.75 + head;
@@ -235,13 +135,20 @@ export const test_human_body_simple_shape = (): void => {
       nclose(humanBodySimpleShapeMath.fat(sample, 20).percent, sample.percent),
     );
   const absRow = table.terms.find((row) => row.channel === "absDefinition")!;
+  // the row reads the developed muscle, and the visible fat subtracts the
+  // fat-free mass it adds: maturity runs from 12.5 to 16.5 years for a boy
+  // and from 10.8 to 14.8 for a girl, so the 11-year-old boy has built none
+  // (0), the girl a twentieth (0.05 x 0.213 on the band at 10.45 points),
+  // the 15-year-old boy five eighths (0.625 x 0.6375 at 5.625 points), and
+  // the rest read their floor of one point; a woman's rectus is 0.84 as
+  // thick as a man's, and so is its relief
   for (const sample of [
     { ageYears: 11, sex: 1, definition: 0 },
-    { ageYears: 11, sex: -1, definition: 0.496 },
-    { ageYears: 15, sex: 1, definition: 0.24 },
-    { ageYears: 15, sex: -1, definition: 0.845 },
-    { ageYears: 16, sex: 1, definition: 0.926 },
-    { ageYears: 16, sex: -1, definition: 0.7552 },
+    { ageYears: 11, sex: -1, definition: 0.01065 * 0.84 },
+    { ageYears: 15, sex: 1, definition: 0.3984375 },
+    { ageYears: 15, sex: -1, definition: 0.84 },
+    { ageYears: 16, sex: 1, definition: 0.875 },
+    { ageYears: 16, sex: -1, definition: 0.84 },
   ])
     TestValidator.predicate(
       `age-specific definition ${sample.ageYears} ${sample.sex}`,
@@ -259,21 +166,28 @@ export const test_human_body_simple_shape = (): void => {
         sample.definition,
       ),
     );
-  for (const [ageYears, fraction] of [
-    [11, 0.11047128],
-    [15, 0.081158],
-    [15.5, 0.081079],
-    [16, 0.081],
-    [30, 0.081],
+  // the segment's share less the neck kept below the ring, 2.35 % at a body
+  // mass index of 24 and inversely with it
+  for (const [ageYears, bodyMassIndex, fraction] of [
+    [11, 24, 0.11047128 - 0.0235],
+    [15, 24, 0.081158 - 0.0235],
+    [15.5, 24, 0.081079 - 0.0235],
+    [16, 24, 0.081 - 0.0235],
+    [30, 24, 0.081 - 0.0235],
+    [30, 12, 0.081 - 0.047],
+    [30, 48, 0.081 - 0.01175],
   ]) {
     TestValidator.predicate(
-      `head and neck ${ageYears}`,
-      nclose(humanBodySimpleShapeMath.headAndNeckFraction(ageYears), fraction),
+      `head and neck ${ageYears} at ${bodyMassIndex}`,
+      nclose(
+        humanBodySimpleShapeMath.headAndNeckFraction(ageYears, bodyMassIndex),
+        fraction,
+      ),
     );
     TestValidator.predicate(
-      `mass share ${ageYears}`,
+      `mass share ${ageYears} at ${bodyMassIndex}`,
       nclose(
-        measureHumanBodySimpleShape.mass(0.1, 1, ageYears),
+        measureHumanBodySimpleShape.mass(0.1, 1, ageYears, bodyMassIndex),
         100 / (1 - fraction),
       ),
     );
@@ -323,6 +237,15 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.error("a tape measurement without its channel", () =>
     expandHumanBodySimpleShape(basis, { ...base, hipsMetres: 1 }),
   );
+  // the limb girths are solved on their own channels, which the box lacks
+  for (const [name, value] of [
+    ["thighMetres", 0.55],
+    ["upperArmMetres", 0.3],
+    ["calfMetres", 0.37],
+  ] as const)
+    TestValidator.error(`a ${name} without its channel`, () =>
+      expandHumanBodySimpleShape(basis, { ...base, [name]: value }),
+    );
   TestValidator.error("a tape measurement the surface cannot answer", () =>
     expandHumanBodySimpleShape(basis, { ...base, bustMetres: 0.9 }),
   );
@@ -332,7 +255,10 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.equals("age", young.macroAge, 0);
   TestValidator.equals("muscle", young.macroMuscle, 0.5);
   TestValidator.predicate("ptosis lift", nclose(young.buttocksPtosis, -0.2));
-  TestValidator.predicate("abs definition", nclose(young.absDefinition, 0.244));
+  TestValidator.predicate(
+    "abs definition",
+    nclose(young.absDefinition, 0.3025),
+  );
   // no flank row fires at BMI 22, and the mass direction leaves the banded
   // flank depot alone
   TestValidator.predicate("no flank fat", nclose(young.flankFat, 0));
@@ -376,6 +302,7 @@ export const test_human_body_simple_shape = (): void => {
       measureHumanBodySimpleShape.volume(basis, shape),
       density,
       simple.ageYears,
+      bodyMassIndex,
     );
   };
   const reach = [-1, 1].map((weight) =>
@@ -493,14 +420,15 @@ export const test_human_body_simple_shape = (): void => {
         name === "massKilograms" ? 0.05 : name === "waistMetres" ? 1e-3 : 1e-4,
       ),
     );
-  // the curve inverse holds at its ends: a feminine extreme reads -1, a
-  // muscle worn past the table's last point reads its last abscissa
+  // the curve inverse holds at its ends: a feminine extreme reads -1, and
+  // the muscle macro at the table's last point (the competition node, 2)
+  // reads its last abscissa
   const ends = projectHumanBodySimpleShape(basis, {
     macroGender: -1,
     macroMuscle: 2,
   });
   TestValidator.equals("sex at the first point", ends.sex, -1);
-  TestValidator.equals("muscle past the last point", ends.muscle, 1);
+  TestValidator.equals("muscle at the last point", ends.muscle, 2);
   // a basis without the identity channels reads them as neutral
   const plain = projectHumanBodySimpleShape(box, {});
   TestValidator.equals("plain sex", plain.sex, 0);

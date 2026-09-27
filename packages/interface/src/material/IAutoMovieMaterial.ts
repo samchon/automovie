@@ -1,5 +1,6 @@
 import { IAutoMovieColor } from "../color/IAutoMovieColor";
 import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
+import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
 
 /**
  * A physically-based (PBR) surface material: the "what it's made of and how it
@@ -198,4 +199,51 @@ export interface IAutoMovieMaterial {
    * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `clearcoat` for the asset spec material texture relations system contract.
    */
   clearcoat?: number;
+
+  /**
+   * Distance light travels under the surface before it leaves again, per
+   * primary, in metres: the diffuse mean free path of a translucent tissue
+   * such as skin (red farthest). A renderer blurs the diffuse response over
+   * the surface by it, so a lit side bleeds soft and red into the shadowed
+   * one where the surface curves within that distance and a flat surface
+   * stays Lambertian. glTF has no ratified extension for it, so an exported
+   * asset omits it. Omitted, the diffuse response is Lambertian.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `subsurfaceRadius` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `subsurfaceRadius` for the asset spec material texture relations system contract.
+   */
+  subsurfaceRadius?: { r: number; g: number; b: number };
+
+  /**
+   * Optional second tangent-space normal map, blended over `normalTexture`
+   * (whiteout: the two maps' slopes add), usually a fine relief tiled with its
+   * own transform over a coarser map bound once across the surface. glTF has
+   * one normal slot, so an exported asset keeps `normalTexture` and omits this
+   * one. Without a `normalTexture` it stands in as the normal map.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `detailNormalTexture` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalTexture` for the asset spec material texture relations system contract.
+   */
+  detailNormalTexture?: AutoMovieTextureBinding | null;
+
+  /**
+   * Strength of `detailNormalTexture`'s slopes, a nonnegative finite factor;
+   * omitted, one.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `detailNormalScale` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `detailNormalScale` for the asset spec material texture relations system contract.
+   */
+  detailNormalScale?: number;
+
+  /**
+   * Surface layers composited over this material in order, each where its
+   * own image covers (veins under a skin, the nail plates at its
+   * fingertips), at most four: a renderer samples up to two images for each
+   * on top of the material's own. glTF has no ratified extension for them, so
+   * an exported asset omits them. Omitted or empty, the material shows alone.
+   *
+   * @evidence requirements/asset-authoring/materials-and-textures.md#asset-material-composition Exposes `overlays` as the portable data boundary for the asset material composition requirement.
+   * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-material-texture-relations Types `overlays` for the asset spec material texture relations system contract.
+   */
+  overlays?: IAutoMovieMaterialOverlay[];
 }

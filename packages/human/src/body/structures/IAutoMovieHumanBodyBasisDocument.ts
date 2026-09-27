@@ -44,6 +44,42 @@ export interface IAutoMovieHumanBodyBasisDocument {
    */
   shoulders?: IAutoMovieHumanBodyShoulderPose[];
 
+  /**
+   * Optional skin colour by anatomical site: the cheek albedo the face wears,
+   * linear RGB, each channel in (0,1]. The skin material's regions are then
+   * coloured by site from it (`HUMAN_BODY_SKIN_SITES`), meeting the face in
+   * that colour at the neck; omission keeps the one material colour. A colour
+   * override of that material in `materials` is refused beside it.
+   */
+  skinColour?: { cheek: { r: number; g: number; b: number } };
+
+  /**
+   * Optional micro-relief of the skin: the skin material takes a tiled
+   * normal map of its primary lines and pores (`HUMAN_BODY_SKIN_DETAIL`) at
+   * `strength` in [0,1], deepening with the document's age; omission keeps
+   * the skin smooth.
+   */
+  skinDetail?: { strength: number };
+
+  /**
+   * Optional uneven tone of the skin: the skin material takes a tiled
+   * base-colour map of its two chromophores, melanin and haemoglobin,
+   * varying about the site colour (`HUMAN_BODY_SKIN_TONE`) at `strength` in
+   * [0,1], less even with the document's age; the base colour is compensated
+   * so the skin's mean colour stays the site albedo. Omission keeps the tone
+   * even.
+   */
+  skinTone?: { strength: number };
+
+  /**
+   * Optional superficial veins of the skin, where the basis draws them: with
+   * the skin detail on, they show at `strength` in [0,1] over the lean body,
+   * and the tissue the document's body carries over its lean self hides
+   * them further, as a vein deeper under the skin takes less of the light.
+   * Omission shows none.
+   */
+  skinVeins?: { strength: number };
+
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<
     string,

@@ -107,7 +107,14 @@ export const humanBodySimpleShapeDirection = {
     });
   },
 
-  /** Solve the scalar for `target` and return the worn shape; refuse beyond the reach. */
+  /**
+   * Solve the scalar for `target` and return the worn shape; beyond the
+   * reach, refuse, or with `saturate` wear the nearer end of the range. A
+   * saturated step belongs inside a coupled fixed point whose final pass is
+   * strict: a tape girth solved before the mass has converged can lie past
+   * the reach of the unconverged body and inside the reach of the solved
+   * one, so only the converged body may refuse it.
+   */
   solve(
     basis: IAutoMovieHumanBodyBasis,
     shape: Record<string, number>,
@@ -118,6 +125,7 @@ export const humanBodySimpleShapeDirection = {
     target: number,
     read: (trial: Record<string, number>) => number | null,
     what: string,
+    saturate = false,
   ): Record<string, number> {
     const samples = humanBodySimpleShapeDirection.samples(
       basis,
@@ -126,7 +134,14 @@ export const humanBodySimpleShapeDirection = {
       read,
       what,
     );
-    const t = math.invert(samples, target);
+    const inverted = math.invert(samples, target);
+    const rising = samples[samples.length - 1][1] > samples[0][1];
+    const t =
+      inverted !== null || !saturate
+        ? inverted
+        : target < samples[0][1] === rising
+          ? along.range[0]
+          : along.range[1];
     if (t === null)
       throw new Error(
         `A ${what} of ${target} is beyond this basis, which reaches ${samples[0][1].toFixed(3)} to ${samples[samples.length - 1][1].toFixed(3)}.`,

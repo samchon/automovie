@@ -25,17 +25,18 @@ import { nclose, throwsError } from "../internal/predicates";
  * Scenarios, on the analytic box at seven tenths of its width and depth
  * with the height, weight and ptosis macros, for a man of 40 at body mass
  * index 25 with muscle 1, whose ptosis rows are 0.15 (the age curve at 40
- * times the mass curve at 25) and -0.16 (the lift: -0.4 times the muscle
- * curve at 1 times the age curve at 40, 0.4), a sum of -0.01:
+ * times the mass curve at 25) and about -0.347 (the lift: -0.4 times the
+ * muscle curve at 1 times the age curve at 40, 1 - 0.4 * 10 / 30), a sum of
+ * about -0.197:
  * 1. The first row alone, 0.15, exceeds a ptosis maximum of 0.1, which is
  *    the arrangement the scenario needs: on that envelope the sum model
- *    gives -0.01, where a per-row model would clip the first row to 0.1 and
- *    give -0.06.
- * 2. On the ordinary envelope [-1, 1] the same body gives the same -0.01:
+ *    gives -0.197, where a per-row model would clip the first row to 0.1
+ *    and give -0.247.
+ * 2. On the ordinary envelope [-1, 1] the same body gives the same sum:
  *    the narrowed envelope did not change what the rows sum to.
  * 3. A maximum of -0.05 is refused by basis admission because it excludes
  *    neutral zero. On the admitted envelope [-0.005, 0.1], the row sum
- *    0.15 - 0.16 = -0.01 falls below the minimum and saturates to -0.005.
+ *    falls below the minimum and saturates to -0.005.
  */
 export const test_human_body_simple_saturation = (): void => {
   const table = HUMAN_BODY_SIMPLE_SHAPE;
@@ -115,14 +116,14 @@ export const test_human_body_simple_saturation = (): void => {
   const narrowed = expandHumanBodySimpleShape(narrowedBasis, simple);
   TestValidator.predicate(
     "the sum is saturated, not each row",
-    nclose(narrowed.buttocksPtosis, -0.01),
+    nclose(narrowed.buttocksPtosis, 0.15 - 0.4 * (1 - (0.4 * 10) / 30)),
   );
   const ordinaryBasis = basis(-1, 1);
   createHumanBodyBasisBuilder(ordinaryBasis);
   const ordinary = expandHumanBodySimpleShape(ordinaryBasis, simple);
   TestValidator.predicate(
     "the ordinary envelope gives the same sum",
-    nclose(ordinary.buttocksPtosis, -0.01),
+    nclose(ordinary.buttocksPtosis, 0.15 - 0.4 * (1 - (0.4 * 10) / 30)),
   );
   const lowerBasis = basis(-0.005, 0.1);
   createHumanBodyBasisBuilder(lowerBasis);

@@ -76,6 +76,15 @@ export function createConnectedBodyPreview(props: {
         throw new Error("Expected an exported body file.");
       return result.glb;
     },
+    armsDown: async (document: IAutoMovieHumanBodyBasisDocument) => {
+      const result = await worker.request({
+        operation: "armsDown",
+        document: serializeHumanBodyBasisDocument(document),
+      }).result;
+      if (result.operation !== "armsDown")
+        throw new Error("Expected a solved arms-down pose.");
+      return { pose: result.pose, shoulders: result.shoulders };
+    },
     disposeWorker: () => worker.dispose(),
   };
 }
