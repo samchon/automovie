@@ -120,9 +120,10 @@ export interface IFaceSkinSite {
  *
  * The midline is the skin vertices with X at zero, facing forward and in
  * the front half of the skin's depth (the back of the head also crosses
- * it); the stomion is the basis
- * vermilion seam pair's mean; the globes are the articulation's eye centres.
- * The skin is the `Human` surface's skin region. Pure.
+ * it); the stomion is the basis vermilion seam pair's mean; the globes are
+ * the articulation's eye centres. The skin is the `Human` surface's skin
+ * region. A basis missing any of these, or an ear-lobe channel that moves
+ * no auricle, refuses. Pure.
  */
 export function faceSkinSites(
   basis: IAutoMovieHumanFaceBasis,

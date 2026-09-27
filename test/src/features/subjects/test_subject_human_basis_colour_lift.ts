@@ -18,6 +18,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    as colours of its own and keeps its albedo.
  * 2. A field within one leaves the materials as the basis has them.
  * 3. A lift carrying an albedo past one refuses by name.
+ * 4. With a 1.5 red field on the attachment's skin too, the skin's lift is
+ *    the larger of its two surfaces' reds and the square's lips keep 1.2.
  */
 export const test_subject_human_basis_colour_lift = (): void => {
   const { basis, document } = humanFaceBasisFixture();
@@ -108,5 +110,27 @@ export const test_subject_human_basis_colour_lift = (): void => {
         }),
       "albedo above one",
     ),
+  );
+  const both = build({
+    ...document,
+    skin: {
+      ...field([1.2, 1, 1]),
+      attachment: [
+        {
+          name: "mark",
+          center: [2, 0, 0],
+          radius: [0.5, 0.5, 0.5],
+          gain: [1.5, 1, 1],
+          strength: 1,
+        },
+      ],
+    },
+  });
+  const lift = (id: string) =>
+    both.materials.find((one) => one.id === id)!.baseColor.r /
+    base.get(id)![0]!;
+  TestValidator.predicate(
+    "largest lift per material",
+    nclose(lift("skin"), 1.5) && nclose(lift("lips"), 1.2),
   );
 };

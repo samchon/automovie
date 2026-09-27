@@ -182,7 +182,9 @@ const group = (mean: [number, number, number], subjects: number) => ({
  *    cm) and the chin the most anterior in the lower half below the stomion
  *    (-7 cm); each lobule is its slab's lower corners' centroid; each cheek
  *    lies on its globe's column at the row nearest halfway between the
- *    globes and the stomion (0 cm).
+ *    globes and the stomion (0 cm). A basis without contact, an ear-lobe
+ *    channel or a globe landmark, or whose lobe channel moves no auricle,
+ *    refuses.
  * 2. An Asian woman's forehead is the subject-weighted mean of the Chinese
  *    and Japanese women's; a site measured on fewer than 30 subjects is
  *    left out; a group without a sex's record gives its whole group; an
@@ -208,12 +210,23 @@ export const test_subject_face_skin_sites = (): void => {
       near(place("cheek", "left"), [0.029, 0, 0.16 - 10 * 0.029 ** 2]) &&
       near(place("cheek", "right"), [-0.029, 0, 0.16 - 10 * 0.029 ** 2]),
   );
+  const lobeless = head();
+  lobeless.channels = lobeless.channels.filter(
+    (one) => one.id !== "rightEarLobe",
+  );
+  const unmoved = head();
+  unmoved.surfaces[0]!.targets["leftLobe"] = [0, 0, 0.001, 0];
+  const blind = head();
+  blind.landmarks!.ids = ["joint-l-eye", "other"];
   TestValidator.predicate(
     "an incomplete basis refuses",
     throwsError(
       () => faceSkinSites({ ...head(), contact: undefined }),
       "Skin sites need",
-    ),
+    ) &&
+      throwsError(() => faceSkinSites(lobeless), "No rightEarLobe channel") &&
+      throwsError(() => faceSkinSites(unmoved), "No left lobule") &&
+      throwsError(() => faceSkinSites(blind), "No landmark joint-r-eye"),
   );
   const norms: IFaceSkinSiteNorms = {
     groups: {

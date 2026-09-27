@@ -1,7 +1,4 @@
-import type {
-  IAutoMovieMaterial,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Fold vertex colours above one into their materials' base colours.
@@ -18,12 +15,11 @@ import type {
  * within one are untouched. Mutates the parts' colours and the materials.
  */
 export function liftHumanFaceColours(
-  parts: readonly IAutoMovieModelPart[],
+  parts: readonly { material: string; geometry: { mesh: IAutoMovieMesh } }[],
   materials: ReadonlyMap<string, IAutoMovieMaterial>,
 ): void {
   const lifts = new Map<string, number[]>();
   for (const part of parts) {
-    if (part.geometry.type !== "mesh" || part.material === null) continue;
     const colors = part.geometry.mesh.colors;
     if (colors === undefined) continue;
     const lift = lifts.get(part.material) ?? [1, 1, 1];
@@ -53,7 +49,7 @@ export function liftHumanFaceColours(
       hex: null,
     };
     for (const part of parts) {
-      if (part.geometry.type !== "mesh" || part.material !== id) continue;
+      if (part.material !== id) continue;
       const mesh = part.geometry.mesh;
       mesh.colors =
         mesh.colors === undefined
