@@ -177,6 +177,7 @@ import {
   measureFaceUnseen,
 } from "./faceUnseenNorms";
 import { faceLidCreaseDepth, faceSkinNormals } from "./prepareLidCreaseBasis";
+import { FACE_SMILE_RETRACTION_UNITS } from "./splitSmileRetractionBasis";
 
 const [command, ...args] = process.argv.slice(2);
 const json = <T>(file: string): T =>
@@ -649,6 +650,18 @@ if (command === "identity") {
           orbitalPriors.add(unit);
         }
     }
+    // The smile's lip retraction onto the crowns, where the basis carries it
+    // as units of its own (`splitSmileRetractionBasis`): each side at its
+    // smile's weight, the scale its rows were sized to by the posed smile's
+    // norm; set by a norm, it yields before the photographed smile.
+    for (const { smile, retraction } of FACE_SMILE_RETRACTION_UNITS)
+      if (channels.has(retraction) && (start.expression[smile] ?? 0) > 0) {
+        start.expression = {
+          ...start.expression,
+          [retraction]: Math.min(1, start.expression[smile]!),
+        };
+        orbitalPriors.add(retraction);
+      }
     const model = build({ ...start, hair: undefined });
     const built = new Map(
       [human, dentition].map((surface) => [
