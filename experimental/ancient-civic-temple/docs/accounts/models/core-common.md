@@ -127,8 +127,8 @@
 | [portable/handcart](../../models/portable.md#handcart) | `wheel` | 1350 | `60bef2214a837d7829012db3f3291a5092c1820cc2961acdea5d3308d21e19d1` |
 | [portable/handcart](../../models/portable.md#handcart) | `handle` | 1350 | `60bef2214a837d7829012db3f3291a5092c1820cc2961acdea5d3308d21e19d1` |
 | [portable/handcart](../../models/portable.md#handcart) | `support` | 1350 | `60bef2214a837d7829012db3f3291a5092c1820cc2961acdea5d3308d21e19d1` |
-| [portable/bucket](../../models/portable.md#bucket) | `body` | 1129 | `3f8f843ea491660365e00c20efaa721308faa7665015f718a4d2911fcf83193d` |
-| [portable/bucket](../../models/portable.md#bucket) | `handle` | 1129 | `3f8f843ea491660365e00c20efaa721308faa7665015f718a4d2911fcf83193d` |
+| [portable/bucket](../../models/portable.md#bucket) | `body` | 1295 | `680610b1deb8ae7c4d6b755be3e5d3da24802498a535fcfb69caec7e7f8c3981` |
+| [portable/bucket](../../models/portable.md#bucket) | `handle` | 1295 | `680610b1deb8ae7c4d6b755be3e5d3da24802498a535fcfb69caec7e7f8c3981` |
 | [portable/planter](../../models/portable.md#planter) | `pot` | 978 | `b3761b8795425a9ce44594acc20cb9db0e2689f92064586e32859eefebf9bdf1` |
 | [portable/planter](../../models/portable.md#planter) | `soil` | 978 | `b3761b8795425a9ce44594acc20cb9db0e2689f92064586e32859eefebf9bdf1` |
 | [portable/votive-plaque](../../models/portable.md#votive-plaque) | `base` | 629 | `624279fc63415c1726c9ae121f51478637086f4d8a2d1cc1797f74fe1c0c6fcb` |
@@ -153,24 +153,24 @@
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `foot` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `post` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
 | [ritual/jar-stand](../../models/ritual.md#jar-stand) | `ring` | 752 | `c71b1f4f3cb0bcb9e1410e067e648a252cb29ac18a40b37af204cd9da895a33d` |
-| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 7076 | `096aaa1ffb7feada8744e5cedb99fcda20658cbe177b82c7a1e1eeb70ebde41e` |
+| [scale/reference-scale](../../models/scale.md#reference-scale) | `공통 규칙` | 7153 | `2bad5fdd293a402a59b70d10b7953b35206f39fcd684d528e17850c65a485faf` |
 | [scale/articulation-map](../../models/scale.md#articulation-map) | `공통 규칙` | 686 | `805969903c14fe60a81940d2ae99d4b8dc9eca3fac9efbf7a223c7a04c595f02` |
-| [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 1067 | `39c900f45895b181bdaa9da014d36b7b63b7d3445b342660ad5a25a30fe41792` |
+| [scale/model-review-board](../../models/scale.md#model-review-board) | `공통 규칙` | 1243 | `e7cffd8222a9c3cc9ac37ca8e024fc57d73bc18803622e008271003f19e53a51` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `body` | 854 | `fc0a7eb94134aa72e2f979e57f35dbcacdb2767a80bb57d2c601fd245c143af5` |
 | [wares/storage-jar](../../models/wares.md#storage-jar) | `handle` | 854 | `fc0a7eb94134aa72e2f979e57f35dbcacdb2767a80bb57d2c601fd245c143af5` |
-| [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 860 | `349f14fb83743f15d9052cc84e09c24bd27e93815dd810cfe7810f49d2f245f6` |
-| [wares/carry-jar](../../models/wares.md#carry-jar) | `handle` | 860 | `349f14fb83743f15d9052cc84e09c24bd27e93815dd810cfe7810f49d2f245f6` |
+| [wares/carry-jar](../../models/wares.md#carry-jar) | `body` | 947 | `8b7b688a2d896fe7c65931df33e7a61a921c47726c2c29e049b7496c8336b1ae` |
+| [wares/carry-jar](../../models/wares.md#carry-jar) | `handle` | 947 | `8b7b688a2d896fe7c65931df33e7a61a921c47726c2c29e049b7496c8336b1ae` |
 | [wares/small-vessel](../../models/wares.md#small-vessel) | `body` | 900 | `ee3bc51f8ae686d17eb7b721080d7882ad6eafa60a9a5290d152330463af70dc` |
 | [wares/small-vessel](../../models/wares.md#small-vessel) | `handle` | 900 | `ee3bc51f8ae686d17eb7b721080d7882ad6eafa60a9a5290d152330463af70dc` |
 | [wares/offering-bowl](../../models/wares.md#offering-bowl) | `bowl` | 778 | `01439b43e8c4d046065eb91f1cc45446fe01f8a9f1bf38a30feaae62e51652f4` |
 | [wares/basket](../../models/wares.md#basket) | `wall` | 1226 | `c6029d6582d375182a151e3718c58936a05ee6f5b87f90f09873d1793b25b22b` |
 | [wares/basket](../../models/wares.md#basket) | `rim` | 1226 | `c6029d6582d375182a151e3718c58936a05ee6f5b87f90f09873d1793b25b22b` |
 | [wares/basket](../../models/wares.md#basket) | `floor` | 1226 | `c6029d6582d375182a151e3718c58936a05ee6f5b87f90f09873d1793b25b22b` |
-| [wares/scroll](../../models/wares.md#scroll) | `sheet` | 1503 | `c8f3979fda2fb76b48d6eb0f0ac327b95ed5269fe940cef5a321dbbabd2c1b79` |
-| [wares/scroll](../../models/wares.md#scroll) | `sheet-1` | 1503 | `c8f3979fda2fb76b48d6eb0f0ac327b95ed5269fe940cef5a321dbbabd2c1b79` |
-| [wares/scroll](../../models/wares.md#scroll) | `sheet-2` | 1503 | `c8f3979fda2fb76b48d6eb0f0ac327b95ed5269fe940cef5a321dbbabd2c1b79` |
-| [wares/scroll](../../models/wares.md#scroll) | `sheet-3` | 1503 | `c8f3979fda2fb76b48d6eb0f0ac327b95ed5269fe940cef5a321dbbabd2c1b79` |
-| [wares/scroll](../../models/wares.md#scroll) | `tie` | 1503 | `c8f3979fda2fb76b48d6eb0f0ac327b95ed5269fe940cef5a321dbbabd2c1b79` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet` | 1501 | `12728051c3f631ecaeddba598272c9cbca48323fc66855f216315a423f8ce4c1` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet-1` | 1501 | `12728051c3f631ecaeddba598272c9cbca48323fc66855f216315a423f8ce4c1` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet-2` | 1501 | `12728051c3f631ecaeddba598272c9cbca48323fc66855f216315a423f8ce4c1` |
+| [wares/scroll](../../models/wares.md#scroll) | `sheet-3` | 1501 | `12728051c3f631ecaeddba598272c9cbca48323fc66855f216315a423f8ce4c1` |
+| [wares/scroll](../../models/wares.md#scroll) | `tie` | 1501 | `12728051c3f631ecaeddba598272c9cbca48323fc66855f216315a423f8ce4c1` |
 
 ## 작업 언어와 식별 표기 {#working-language}
 
@@ -200,11 +200,11 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 | fixtures.md | 10 | 8685 |
 | landscape.md | 4 | 3747 |
 | openings.md | 4 | 4426 |
-| portable.md | 13 | 10361 |
+| portable.md | 13 | 10518 |
 | ritual.md | 3 | 2227 |
-| scale.md | 3 | 7149 |
-| wares.md | 6 | 5120 |
-| 합계 | 52 | 52715 |
+| scale.md | 3 | 7332 |
+| wares.md | 6 | 5176 |
+| 합계 | 52 | 53111 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

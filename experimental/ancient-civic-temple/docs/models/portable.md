@@ -1,6 +1,6 @@
 # 신전의 이동식 비품과 소품
 
-이 파일은 사물 단계의 재사용 prototype을 소유한다. 오른손 Y-up 미터 좌표와 [공통 축척](scale.md#reference-scale)을 쓰며 각 H2의 산문 치수와 식만 형상 설계의 입력이다. 점유 상자는 각 part 실체 범위의 합집합이고 방별 복제 수·회전·간격은 instances가 정한다. 표면 ID는 part 이름이며 별도 하위 표면이 필요한 경우에만 이름을 더한다. 모든 바닥 접촉형의 로컬 Y=0은 바닥면이고, 제조·하중·역사적 실물 복원을 주장하지 않는다.
+이 파일은 사물 단계의 재사용 prototype을 소유한다. 오른손 Y-up 미터 좌표와 [공통 축척](scale.md#reference-scale)을 쓰며 각 H2의 산문 치수와 식만 형상 설계의 입력이다. 점유 상자는 각 part 실체 범위의 합집합을 기준으로 하며 그 합집합을 여유 있게 감싸면 보수적 경계라고 명시한다. 방별 복제 수·회전·간격은 instances가 정한다. 표면 ID는 part 이름이며 별도 하위 표면이 필요한 경우에만 이름을 더한다. 모든 바닥 접촉형의 로컬 Y=0은 바닥면이고, 제조·하중·역사적 실물 복원을 주장하지 않는다.
 
 ## 대기와 작업용 석재 벤치 {#bench}
 
@@ -218,10 +218,10 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 손잡이 용기에 실제 열린 안쪽과 하나의 반타원 관을 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract body·handle, 열린 입, 실제 안쪽 바닥과 손잡이 아래 빈 공간을 정한다.
 @evidenceReview principles/design/models.md#representation-contract #41a7d98 body·handle가 안쪽 바닥과 손잡이 아래 빈 공간을 유지하는지 확인했다.
-@evidence principles/design/models.md#spatial-convention 바닥 중심 원점과 손잡이 관을 포함한 0.315×0.45×0.30m 점유를 정한다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 중심 원점에서 매끈한 외피 0.315×0.45×0.30m와 실제 X 약 0.3149m를 구별했다.
+@evidence principles/design/models.md#spatial-convention 바닥 중심 원점에서 매끈한 외피 0.315×0.45×0.30m와 실제 다면체의 Y 약 0.450114m를 구별하고 이를 감싸는 점유 상자 0.315×0.4502×0.30m를 정한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 매끈한 Y 0.45m와 mitre 꼭짓점 Y 약 0.450114m를 구분하고 보수적 상한 0.4502m가 실체를 감싸는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 손잡이 고리와 안쪽 깊이가 도기 항아리와 구별되는지 본다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 옆면에서 한 고리와 깊은 안쪽이 도기 항아리와 구별되는지 확인했다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 옆면의 한 고리·깊은 안쪽과 끝 원판 일부 노출을 함께 읽고, 삽입 없는 끝만 실패로 판정하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 물을 나르는 낮은 도구의 벌어진 입과 단일 고리 실루엣을 채택한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 낮은 물 운반 도구를 벌어진 입과 단일 고리로 한정하고 담긴 물은 묘사하지 않는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 수반보다 작은 크기와 열린 경계, 방별 반복 소유를 정해 물동이 역할을 닫는다.
@@ -238,15 +238,15 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 
 물동이는 고정된 빈 용기이고 물 표면·실제 담기는 양은 모델에 없다. 로컬 원점은 바닥 중심이다. 몸체 바깥은 Y=0에서 반지름 0.11m, Y=0.28m에서 반지름 0.15m로 벌어지는 16분할 원뿔대다. 바닥 두께 0.02m이며 안쪽은 Y=0.02m에서 반지름 0.095m부터 입 아래 반지름 0.135m까지 열려 있다. 손잡이는 XY 평면의 반타원 중심선을 따르는 관이고 관 반지름 0.01m·둘레 8분할이다. 손잡이 가운데 아래는 빈 공간이다.
 
-손잡이 중심선은 반타원으로 정한다. t=0..π를 12등분하고 각 점을 (X,Y,Z)=(0.1475 cos t,0.27+0.17 sin t,0)m에 놓아 양끝 (±0.1475,0.27)m과 꼭대기 (0,0.44)m를 정확히 지난다. 관의 바깥 X는 ±0.1575m, 꼭대기 Y는 0.45m이며 접점 중심은 몸체 바깥면에 약 0.0011m 들어가되 12구간의 8각 관 전체는 안쪽 벽에 닿지 않는다. 매끈한 관 외피의 보수적 점유 상자는 0.315×0.45×0.30m이고, 12구간·8각 관의 실제 X 폭은 약 0.3149m다.
+손잡이 중심선은 반타원으로 정한다. t=0..π를 12등분하고 각 점을 (X,Y,Z)=(0.1475 cos t,0.27+0.17 sin t,0)m에 놓아 양끝 (±0.1475,0.27)m과 꼭대기 (0,0.44)m를 정확히 지난다. 매끈한 관 외피의 바깥 X는 ±0.1575m, 꼭대기 Y는 0.45m이며 접점 중심은 몸체 바깥면에 약 0.0011m 들어가되 12구간의 8각 관 전체는 안쪽 벽에 닿지 않는다. 이 매끈한 기준 외피 상자는 0.315×0.45×0.30m다. 실제 12구간·8각 관은 mitre 꼭짓점에서 Y 약 0.450114m까지 이른다. 점유 상자는 0.315×0.4502×0.30m로 실제 다면체 합집합을 여유 있게 감싸는 보수적 경계다. 실제 다면체의 X 폭은 약 0.3149m다.
 
-손잡이 관의 양끝은 몸체 벽 안으로 들어가 고정되며, 가운데 호와 몸체 사이에는 열린 빈 공간이 남는다.
+손잡이 관의 양끝은 몸체 벽 안으로 들어가 고정되며 끝 원판의 일부는 몸체 밖에 드러난다. 가운데 호와 몸체 사이에는 열린 빈 공간이 남는다.
 
 이 물동이는 [중정 분수](fixtures.md#fountain)보다 작은 별도 빈 용기다. 중정과 서비스 마당의 손운반 비품이라는 배치 역할은 instances가 받으며 실제 운반 동작은 없다.
 
 부재 대응: `body`=몸체; `handle`=손잡이.
 
-part와 표면은 `body`, `handle`이다. `body` 안쪽 면은 별도 법선·UV 이음이다. 검토 판에서 벌어진 입과 반타원 손잡이의 실제 빈 공간을 본다. 손잡이 끝이 몸체에서 뜨거나 입이 막히면 실패다.
+part와 표면은 `body`, `handle`이다. `body` 안쪽 면은 별도 법선·UV 이음이다. 검토 판에서 벌어진 입과 반타원 손잡이의 실제 빈 공간을 본다. 끝 원판의 일부 노출은 접합의 일부로 읽고, 손잡이 끝 링이 몸체에 삽입되지 않거나 손잡이가 몸체에서 뜨거나 입이 막히면 실패다.
 
 ## 흙을 담은 낮은 화분 {#planter}
 

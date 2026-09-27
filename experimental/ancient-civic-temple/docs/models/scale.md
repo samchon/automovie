@@ -14,7 +14,7 @@
 @evidence principles/design/models.md#representation-contract 결정론적 blocking geometry라는 proxy 상태와 허용 주장(실루엣·부재 분리·실제 빈 공간·두께)과 금지 주장(조각·세로 홈·풍화·정확한 고대 비례)을 population 전체에 정한다.
 @evidenceReview principles/design/models.md#representation-contract #41a7d98 실루엣·부재·실제 두께는 주장하고 조각·풍화·고대 오더 정확성은 거부하는 proxy 경계를 확인했다.
 @evidence principles/design/models.md#spatial-convention 오른손 Y-up·m 단위를 쓰고 별도 앞·위 축을 두지 않으며 primitive 기본 크기를 치수로 쓰지 않는다는 좌표 규칙을 모든 모델에 건다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 오른손 Y-up·m를 기본으로 고정하고 primitive 기본 크기를 모델 치수로 쓰지 않는지 확인했다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 오른손 Y-up·m와 모든 열린 관의 첫 부착점→마지막 부착점 U·단면 V 규칙을 읽고 primitive 기본 크기를 치수로 쓰지 않는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 점유 상자와 보행 포락을 나란히 대조하는 규칙이 각 H2 검토 판의 공통 반증 기준이 된다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 포락 상자와 각 모델 상자의 비교가 지나치게 큰 집기·통로 막힘을 실패로 만드는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 고대 지중해라는 표지를 부재 분리와 빈 공간으로만 읽히게 하고 세로 홈·조각·특정 오더 비례는 주장하지 않으며 색·거칠기는 materials 몫이라고 경계를 긋는다.
@@ -71,7 +71,7 @@
 
 모든 방출 part는 position마다 유한한 UV0 한 쌍을 가진다. 로컬 원점에서 1 UV 단위는 1m다. 기본 평면 투영은 각 삼각형의 주법선 축으로 정한다. 법선 +X에는 (U,V)=(−Z,Y), −X에는 (Z,Y), +Y에는 (X,−Z), −Y에는 (X,Z), +Z에는 (X,Y), −Z에는 (−X,Y)를 쓴다. 각 경우 U×V는 해당 바깥법선을 향하므로 양면의 무늬가 거울상으로 뒤집히지 않는다. 면이 바뀌는 단단한 모서리와 서로 다른 part·표면 ID에서는 정점을 복제해 이음을 끊는다. 삼각형 하나 안에서 투영 축을 바꾸지 않는다. 잘린 끝면은 새 면 법선으로 다시 투영하고, 같은 면 안의 반복 부재는 각 prototype의 로컬 원점을 유지하므로 배치가 UV 원점을 새로 고르지 않는다. materials는 이 미터 좌표에서 반복 빈도·색·거칠기·텍스처 이미지를 결정한다. UV0가 없는 part에 texture를 결속하려 하면 source/viewer 검증이 실패해야 하며 단색으로 조용히 건너뛰지 않는다.
 
-Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 −Z 쪽으로 도는 각도 θ=atan2(−Z,X)를 [0,2π]로 펼치고 U=각 단면 고리의 실제 반지름×θ를 쓴다. V는 로컬 밑고리에서 시작해 단면을 이루는 연속 직선 구간마다 `√((ΔY)²+(Δ반지름)²)`를 누적한 모선 길이이며 원통에서는 Y와 같다. θ=0 이음의 정점을 복제한다. 원판 윗·아랫면은 기본 ±Y 투영이다. YZ 평면 원환의 큰 원 각도 0은 +Z에서 +Y로, XY 평면은 +X에서 +Y로, XZ 평면은 +X에서 −Z로 돈다. 큰 원 중심선의 호길이를 U, 작은 관 단면 호길이를 V로 하며 작은 관의 각도 0은 큰 원의 바깥 반경 방향으로 둔다. 두 닫힘 각도 0에서 이음을 복제한다. X축 원통의 θ=0은 +Z에서 +Y로, +X 축 방향 길이를 V로 둔다. Z축 연결 핀은 +Z 축을 기준으로 θ=0을 +X에서 +Y로 두고 U를 둘레 호길이, V를 +Z 방향 길이로 펼친다. −Z를 향하는 핀은 같은 +X 시접에서 −Y 쪽으로 돌아 U를 전개하고 V는 −Z 방향 길이로 둔다. 사선 나뭇가지 원통은 가지 시작점에서 축 방향 단위벡터에 +X를 직교 투영해 θ=0을 정하고, +X가 축과 평행하면 +Y, 그것도 평행하면 +Z를 같은 순서로 투영한다. 가지의 길이 방향을 V로 두고 시작점의 시접을 끝까지 평행 이동한다. 베지어 관은 아래 부착점에서 위 부착점으로 중심선 호길이를 U로 둔다. 시작 접선에 가장 덜 평행한 로컬 축을 X·Y·Z 순서로 고르고 접선에 직교 투영해 관 각도 0을 정한 뒤 구간마다 그 법선을 평행 이동해 시접을 잇는다. 첫 끝 링은 첫 분할 현에, 마지막 끝 링은 마지막 분할 현에 각각 수직이며 중간 링은 이웃 현의 정확한 mitre로 잇는다. 길이 방향 결을 읽는 목재 각재는 해당 H2가 지정한 부재 장축을 U, 그에 직교하는 면 내 축을 V로 둔다. 비정형 면은 위 기본 평면 규칙을 따른다. normal·UV·part 범위는 modelSources의 concrete exported class가 함께 방출하며, class는 여기서 없는 투영법을 새로 고르지 않는다.
+Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 −Z 쪽으로 도는 각도 θ=atan2(−Z,X)를 [0,2π]로 펼치고 U=각 단면 고리의 실제 반지름×θ를 쓴다. V는 로컬 밑고리에서 시작해 단면을 이루는 연속 직선 구간마다 `√((ΔY)²+(Δ반지름)²)`를 누적한 모선 길이이며 원통에서는 Y와 같다. θ=0 이음의 정점을 복제한다. 원판 윗·아랫면은 기본 ±Y 투영이다. YZ 평면 원환의 큰 원 각도 0은 +Z에서 +Y로, XY 평면은 +X에서 +Y로, XZ 평면은 +X에서 −Z로 돈다. 큰 원 중심선의 호길이를 U, 작은 관 단면 호길이를 V로 하며 작은 관의 각도 0은 큰 원의 바깥 반경 방향으로 둔다. 두 닫힘 각도 0에서 이음을 복제한다. X축 원통의 θ=0은 +Z에서 +Y로, +X 축 방향 길이를 V로 둔다. Z축 연결 핀은 +Z 축을 기준으로 θ=0을 +X에서 +Y로 두고 U를 둘레 호길이, V를 +Z 방향 길이로 펼친다. −Z를 향하는 핀은 같은 +X 시접에서 −Y 쪽으로 돌아 U를 전개하고 V는 −Z 방향 길이로 둔다. 사선 나뭇가지 원통은 가지 시작점에서 축 방향 단위벡터에 +X를 직교 투영해 θ=0을 정하고, +X가 축과 평행하면 +Y, 그것도 평행하면 +Z를 같은 순서로 투영한다. 가지의 길이 방향을 V로 두고 시작점의 시접을 끝까지 평행 이동한다. 모든 열린 관(베지어 관과 물동이 반타원 관을 포함한다)은 각 H2가 정한 첫 부착점에서 마지막 부착점까지 중심선 호길이를 U로, 관 단면 호길이를 V로 둔다. 시작 접선에 가장 덜 평행한 로컬 축을 X·Y·Z 순서로 고르고 접선에 직교 투영해 관 각도 0을 정한 뒤 구간마다 그 법선을 평행 이동해 시접을 잇는다. 첫 끝 링은 첫 분할 현에, 마지막 끝 링은 마지막 분할 현에 각각 수직이며 중간 링은 이웃 현의 정확한 mitre로 잇는다. 길이 방향 결을 읽는 목재 각재는 해당 H2가 지정한 부재 장축을 U, 그에 직교하는 면 내 축을 V로 둔다. 비정형 면은 위 기본 평면 규칙을 따른다. normal·UV·part 범위는 modelSources의 concrete exported class가 함께 방출하며, class는 여기서 없는 투영법을 새로 고르지 않는다.
 
 다음 표는 기본 평면 투영과 다른 표면을 빠짐없이 지정한다. 길이축 U는 각 부재가 점유하는 로컬 장축의 작은 좌표 끝에서 시작해 표에 적힌 양의 축으로 증가한다. 정방 다리·기둥은 밑끝, 서까래는 처마 끝, 트러스 버팀재는 낮은 발끝이 시작이다. 목재 장축 투영처럼 표가 V를 별도로 쓰지 않은 길이축 예외에서는 각 면의 단위 바깥법선 n과 단위 U 방향 u로 V 방향을 n×u로 정한다. 표가 V를 직접 지정한 경사 기와·이웃 지붕 등은 그 지정을 우선한다. 항아리·그릇 안쪽 면의 V 시작은 그 안쪽 단면의 가장 낮은 고리이며 바깥면과 내부 시접을 잇지 않는다. 이음은 표의 부재 끝·원주 시접에서 끊는다. 음의 길이 방향 부재는 배치 전에 prototype의 양의 길이축으로 뒤집으며, instances가 UV를 재작성하지 않는다.
 
@@ -92,7 +92,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `landscape#cypress`, `#broad-tree`, `#grass-tuft` | 줄기·가지·잎·풀 | 줄기와 가지는 각 축의 원통 전개, 잎과 풀의 앞뒷면은 기본 평면 투영; 줄기·가지 +X 시접과 각 잎·풀의 외곽에서 이음. |
 | `landscape#neighbor-house` | `roof`, `wall`, `plinth`, `recess` | 지붕 가로 +X를 U, 변형 A는 처마→용마루 경사 방향, 변형 B는 앞 처마→높은 뒤 처마 방향을 V로 둔다. 벽·기단·문창 안쪽은 기본 평면 투영; 지붕 경사·건물 모서리·개구부에서 이음. |
 | `portable#bench`, `#votive-plaque`, `#offering-tray`, `#writing-tablet`, `ritual#floor-cushion` | 모든 평판·각재 part | 각 독립 평면에 기본 투영을 쓰고 판의 모서리와 part 경계에서 이음. |
-| `portable#portable-lamp`, `#bucket`, `#planter`, `#stylus`, `ritual#censer`, `#jar-stand` | 회전체 옆면·원판·관 | 회전체는 +X 시접에서 호길이 U, 모선 길이 V; 원판·평평한 흙·재 면은 기본 평면 투영. 손잡이 관은 아래 부착점에서 위 부착점까지 호길이 U. |
+| `portable#portable-lamp`, `#bucket`, `#planter`, `#stylus`, `ritual#censer`, `#jar-stand` | 회전체 옆면·원판·관 | 회전체는 +X 시접에서 호길이 U, 모선 길이 V; 원판·평평한 흙·재 면은 기본 평면 투영. 물동이 손잡이 관은 t=0의 +X 끝에서 t=π의 −X 끝까지 중심선 호길이 U와 관 단면 호길이 V. |
 | `portable#jar-rack` | `top`, `leg`, `well` | 상판·다리는 부재 장축 U; 둥근 홈의 벽은 회전체 호길이 U, 바닥은 기본 평면 투영. `top`은 홈 구멍의 벽만, `well`은 홈 바닥만 소유한다. |
 | `portable#carrying-yoke` | `beam`, `hook` | 막대 장축 +X를 U, 고리 YZ 원환은 중심선·관 둘레 호길이로 전개한다. |
 | `portable#handcart` | `deck`, `handle`, `support`, `axle`, `wheel` | 판·손잡이·지지재는 각각 장축 U, 축·바퀴는 X축 원통의 둘레 U와 축 길이 V로 전개한다. |
@@ -146,8 +146,8 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 <!--
 @evidence principles/core/common.md#scope-preservation 검토 판의 장면 구성(중립 회색 바닥, +X 0.8m 보행 포락), 조명, 카메라, 여섯 실루엣 시점과 부재별 근접 시점, 모든 명명 상태·치수 변형, 반복 모듈 3×3 표본, 비교 기준을 모두 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 중립 배경·광원·포락과 여섯 전체 뷰·각 접합 근접·상태·변형·3×3 기와 표본을 본문에 대조했다.
-@evidence principles/core/common.md#substantive-completion 전체 시점마다 피사체의 긴 축이 화면의 약 70%를 채우도록 거리를 정하고 근접 시점은 접합 부재와 빈 공간을 함께 넣어 모든 prototype을 같은 조건으로 다시 볼 수 있다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 긴 축 70% 전체 시점과 접합 근접 조건이 서로 다른 질문을 재현할 수 있게 정해졌는지 확인했다.
+@evidence principles/core/common.md#substantive-completion 전체 시점마다 피사체의 긴 축이 화면의 약 70%를 채우도록 거리를 정하고 근접 시점은 접합 접촉 영역 주변의 국소 상자를 약 90% 채워 작은 부재와 빈 공간을 함께 볼 수 있다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 긴 축 70% 전체 시점과 작은 접합 주변 90% 근접 시점이 각각 실루엣과 핀·관 끝 질문을 재현하게 하는지 확인했다.
 @evidence principles/core/common.md#declared-basis 1600×1000·수직 시야각 50°는 00-delivery#review-condition, 고정 광원 방향은 40-environment#daylight에서 받고 건물 안 배치·접촉은 spaces 관찰로 넘긴다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 1600×1000·50도 및 낮 주광의 부모 수치를 받고 건물 안 접촉은 spaces로 넘겼는지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 건물 관찰 조건을 건물과 분리된 prototype 판의 배경·포락 비교·반복 표본이라는 모델 검토 결정으로 바꾼다.
@@ -156,8 +156,8 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 @evidenceReview principles/design/models.md#representation-contract #41a7d98 결속 전 part를 같은 중립 클레이로 보여 재료 효과 없이 부재 분리를 보게 하는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 각 prototype을 Y=0 바닥에 원점으로 세우고 보행 포락 상자를 +X 0.8m에 두는 배치 규칙을 정한다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 각 prototype Y=0과 +X 0.8m 포락 상자가 같은 공간 비교 규칙인지 확인했다.
-@evidence principles/design/models.md#reviewable-structure 정면·우측면·배면·평면·반대편 대각 둘과 각 H2의 접합·관통·얇은 부재·개구 근접 뷰를 필수 관찰로 두고 문짝·두루마리 등 명명 상태마다 반복한다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 여섯 실루엣과 접합·관통·얇은 부재·개구의 근접 시점이 문짝·두루마리 상태마다 반복되는지 확인했다.
+@evidence principles/design/models.md#reviewable-structure 정면·우측면·배면·평면·반대편 대각 둘과 각 H2의 접합·관통·얇은 부재·개구 국소 근접 뷰를 필수 관찰로 두고 문짝·두루마리 등 명명 상태마다 반복한다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 여섯 실루엣과 작은 접합을 채우는 근접 시점을 문짝·두루마리 상태마다 반복하고, 항아리 관 끝의 원판 노출과 삽입 부재를 구별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 셰이딩·연출이 아닌 구성 판단용 판이라고 선언해 양식 판정을 실루엣·부재 분리·빈 공간에 묶고 조명 연출이 양식 증거로 쓰이지 않게 한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 셰이딩·연출이 아닌 실루엣·빈 공간 판단 판이며 양식 근거를 광원에 기대지 않는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 포락 비교·시점·상태·반복 표본을 함께 정해 각 모델 H2의 관찰 층이 한 판 위에서 완결된다.
@@ -171,7 +171,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 @evidence spaces/observations.md#geometry-observations 건물 안 배치·접촉 판정은 spaces 관찰 전집합이 맡는다고 경계를 긋고 각 모델 H2의 건물 관찰 문장이 그 station을 가리키게 한다.
 @evidenceReview spaces/observations.md#geometry-observations #4155dcf 건물 안 배치·접촉은 spaces 관찰로 보내 중립판의 단면을 건물 판정으로 오용하지 않는지 확인했다.
 @evidence obligations/design/models.md#model-review-set 중립 배경·보행 포락 비교·여섯 실루엣 시점·부재별 근접 시점·모든 명명 상태와 치수 변형·3×3 표본으로 된 유한 검토 판을 정의한다.
-@evidenceReview obligations/design/models.md#model-review-set #8d4744e 여섯 방향·상태·치수 변형·3×3 기와·포락 비교가 유한 반복 판을 이루는지 확인했다.
+@evidenceReview obligations/design/models.md#model-review-set #8d4744e 여섯 방향·상태·치수 변형·3×3 기와·포락 비교와 작은 접합의 국소 90% 뷰가 유한 반복 판을 이루는지 확인했다.
 @evidenceExclude settings/00-delivery.md#accessibility 한국어 설명·키보드 조작은 viewer의 접근성 산출물이며 검토 판의 시점·배경이나 prototype 형상이 지는 의무가 아니다.
 @evidenceExcludeReview settings/00-delivery.md#accessibility #e5000b9 한국어·키보드 접근성은 viewer 산출물로 남기고 이 판의 카메라 수치와 혼동하지 않는지 확인했다.
 @evidenceExclude settings/00-delivery.md#governing-aim 다섯 이미지 대조는 건물 관찰 위치에서 판정되며 이 검토 판은 건물과 분리된 구성 판단이라 지배 목표의 대조를 직접 수행하지 않는다.
@@ -190,4 +190,4 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 
 모델 검토 판은 건물과 분리된 한 장면이다. 각 prototype을 Y=0의 중립 회색 바닥 위에 하나씩 세우고 오른쪽(+X) 0.8m에 보행 포락 상자(0.6×0.4×1.9m)를 둔다. 조명은 건물 뷰어의 검토용 주광 방향과 같은 고정 광원 하나와 하늘 보조광이며 재료가 결속되지 않은 part는 같은 중립 클레이로 보인다. 카메라는 수직 시야각 50°, 1600×1000 비율이다. [검토 조건](../settings/00-delivery.md#review-condition)의 프레임과 시야각, [낮 주광](../settings/40-environment.md#daylight)의 방향을 받는다.
 
-필수 전체 시점은 정면(+Z에서 −Z), 우측면(+X에서 −X), 배면(−Z에서 +Z), 평면(+Y에서 −Y), 첫 대각(+X·+Y·+Z 방향 고도 30°), 반대 대각(−X·+Y·−Z 방향 고도 30°)의 여섯 가지다. 각 시점은 화면에서 긴 축을 약 70% 채우도록 같은 피사체 경계로 거리를 정한다. 각 모델 H2에서 이름 붙인 접합·관통 경계, 얇은 부재, 개구마다 해당 두 부재와 빈 공간을 한 화면에 넣는 근접 뷰를 추가한다. 근접 뷰는 접합 법선을 향해 두 부재의 합집합 투영 상자가 화면 긴 축의 약 90%를 채우는 거리에서 찍고, 맞은편 법선 방향에서도 같은 거리·초점·투영 상자 기준으로 찍는다. 법선 방향에서 가려진 경계는 그 법선에 직교한 옆면과 아래쪽에서도 같은 채움 비율로 찍는다. 근접 뷰 배경도 전체 시점과 같은 중립 회색 바닥과 고정 주광·하늘 보조광을 쓴다. `closed`·`open` 문짝과 두루마리의 말린 한 개·세 개 묶음·펼친 한 장 등 이름 붙인 상태를 각각 여섯 전체 시점과 해당 근접 시점에서 본다. 치수 변형도 각 변형을 별도로 본다. 기와처럼 반복되는 모듈은 한 단위와 3×3 배열 표본을 함께 본다. 비교 기준은 각 모델 H2가 적은 실루엣 단면, 부재 분리, 실제 빈 공간, 접합면의 뜸·관통, 점유 상자와 보행 포락의 비례다. 이 판은 셰이딩이나 연출이 아닌 구성 판단용이며 건물 안 배치나 접촉은 instances와 spaces 관찰이 따로 본다.
+필수 전체 시점은 정면(+Z에서 −Z), 우측면(+X에서 −X), 배면(−Z에서 +Z), 평면(+Y에서 −Y), 첫 대각(+X·+Y·+Z 방향 고도 30°), 반대 대각(−X·+Y·−Z 방향 고도 30°)의 여섯 가지다. 각 시점은 화면에서 긴 축을 약 70% 채우도록 같은 피사체 경계로 거리를 정한다. 각 모델 H2에서 이름 붙인 접합·관통 경계, 얇은 부재, 개구마다 해당 두 부재와 빈 공간을 한 화면에 넣는 근접 뷰를 추가한다. 근접 뷰는 접합 부위와 그 둘레에서 작은 부재의 최장 단면 치수 한 배까지 포함한 국소 투영 상자가 화면 긴 축의 약 90%를 채우는 거리에서 찍고, 맞은편 법선 방향에서도 같은 거리·초점·국소 투영 상자 기준으로 찍는다. 긴 부재의 전체 길이는 근접 뷰의 거리 계산에 넣지 않는다. 법선 방향에서 가려진 경계는 그 법선에 직교한 옆면과 아래쪽에서도 같은 채움 비율로 찍는다. 근접 뷰 배경도 전체 시점과 같은 중립 회색 바닥과 고정 주광·하늘 보조광을 쓴다. `closed`·`open` 문짝과 두루마리의 말린 한 개·세 개 묶음·펼친 한 장 등 이름 붙인 상태를 각각 여섯 전체 시점과 해당 근접 시점에서 본다. 치수 변형도 각 변형을 별도로 본다. 기와처럼 반복되는 모듈은 한 단위와 3×3 배열 표본을 함께 본다. 비교 기준은 각 모델 H2가 적은 실루엣 단면, 부재 분리, 실제 빈 공간, 접합면의 뜸·관통, 점유 상자와 보행 포락의 비례다. 운반 항아리와 물동이의 손잡이 끝 원판 일부가 노출되더라도 끝 링의 다른 부분이 몸체에 삽입되면 그 노출은 뜸으로 세지 않는다. 끝 링 전체가 밖에 있거나 손잡이와 몸체 사이에 연속된 빈틈이 있으면 뜸이다. 이 판은 셰이딩이나 연출이 아닌 구성 판단용이며 건물 안 배치나 접촉은 instances와 spaces 관찰이 따로 본다.
