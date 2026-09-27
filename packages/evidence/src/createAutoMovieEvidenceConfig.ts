@@ -272,8 +272,6 @@ interface ISourcePopulation {
     | "settings"
     | "treatments"
   > | null;
-  /** Concrete design units owned by exported source symbols, when distinct from the whole design layer. */
-  designFiles?: readonly string[];
   files: readonly string[];
   ownerKinds: readonly ("class" | "function" | "property")[];
   ownerSymbols: readonly ("function" | "property" | "type")[];
@@ -339,8 +337,6 @@ const SOURCES: Record<SourceLayer, ISourcePopulation> = {
   },
   modelSources: {
     design: "models",
-    // scale.md governs every prototype and the review board; no one model class owns it.
-    designFiles: ["models/**/*.md", "!models/scale.md"],
     files: ["src/models/**/*.ts"],
     ownerKinds: ["class"],
     ownerSymbols: ["type"],
@@ -3298,7 +3294,6 @@ const sourceClaims = (graph: IProductionGraph): IBranchClaim[] => {
   ] as const) {
     const source = SOURCES[name];
     const design = source.design!;
-    const designFiles = source.designFiles ?? [`${design}/**/*.md`];
     const review = requiresReview(graph[name]);
     claims.push(
       ...branchClaims(
@@ -3314,7 +3309,7 @@ const sourceClaims = (graph: IProductionGraph): IBranchClaim[] => {
             reference: {
               type: "markdown",
               root: DOCS,
-              files: [...designFiles],
+              files: [`${design}/**/*.md`],
               symbol: "file",
               noEvidenceExclude: true,
               singleEvidencePerSymbol: true,
@@ -3337,7 +3332,7 @@ const sourceClaims = (graph: IProductionGraph): IBranchClaim[] => {
               reference: {
                 type: "markdown",
                 root: DOCS,
-                files: [...designFiles],
+                files: [`${design}/**/*.md`],
                 symbol: "h2",
                 noEvidenceExclude: true,
               },
