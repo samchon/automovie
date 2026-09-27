@@ -115,6 +115,7 @@ import {
   solveFaceAnthropometry,
   solveFaceNorms,
 } from "./faceAnthropometrySolve";
+import { faceBrowCover, faceBrowUnobservable } from "./faceBrowCover";
 import {
   faceExpressionYield,
   faceFaultClusters,
@@ -194,7 +195,10 @@ const json = <T>(file: string): T =>
 interface IDetection {
   id: string;
   path?: string;
+  width?: number;
+  height?: number;
   rgb?: string | null;
+  hairMask?: string | null;
   faceSkinMask?: string | null;
   face: {
     landmarks: [number, number][];
@@ -1557,14 +1561,30 @@ if (command === "identity") {
       report[subject] = "photograph or rest render missing";
       return { ...document, expression: {} };
     }
+    // A fringe over a brow hides its raise (`faceBrowCover`).
+    const entry = photos.get(`photo:${subject}`)!;
+    const cover =
+      typeof entry.hairMask !== "string" ||
+      entry.width === undefined ||
+      entry.height === undefined
+        ? null
+        : faceBrowCover({
+            hair: readFaceLikenessMask(
+              path.join(path.dirname(detectionFile!), entry.hairMask),
+            ),
+            landmarks: photo.landmarks,
+            width: entry.width,
+            height: entry.height,
+          });
     const rows = transferFaceExpression({
       calibration,
       observable,
       photo: photo.blendshapes,
       rest: own.blendshapes,
       noise,
+      hidden: cover === null ? [] : faceBrowUnobservable(cover),
     });
-    report[subject] = rows;
+    report[subject] = { rows, browCover: cover };
     return {
       ...document,
       expression: Object.fromEntries(
