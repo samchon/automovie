@@ -7,6 +7,7 @@ import { IPortraitSkinColourRegion } from "./structures/IPortraitSkinColourRegio
  * Sampling happens after reference-coordinate refinement, so a narrow region
  * between control vertices is not lost by interpolating white endpoint RGB.
  * Region names fix product order, making declaration order irrelevant.
+ * Gains lie in [0,1]: this path has no material to fold a lightening into.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Evaluates authored pigmentation independently of current pose and lighting.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Applies the compact C2 compact-support envelope to transported reference coordinates and multiplies named linear RGB contributions.
@@ -27,6 +28,8 @@ export function createPortraitSkinColour(
       throw new Error(
         "Skin colour needs resident reference bindings and finite XYZ offsets.",
       );
+    if (r.gain.some((value) => value > 1))
+      throw new Error("Skin colour region gains lie in [0,1].");
     const point = host.positions[r.anchor];
     if (point.length !== 3 || !point.every(Number.isFinite))
       throw new Error("Skin colour requires a finite reference anchor.");

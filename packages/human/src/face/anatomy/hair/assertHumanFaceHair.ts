@@ -50,6 +50,7 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
         bounded(angle, 0, Math.PI),
       ) ||
       !layer.lengthAxes.every(positive) ||
+      (layer.frontScale !== undefined && !positive(layer.frontScale)) ||
       !bounded(layer.lengthVariation, 0, 1) ||
       !positive(layer.samplingStep) ||
       layer.samplingStep > 0.005 ||
@@ -134,7 +135,9 @@ export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
         "Hair curl, taper and fibre appearance need resolved finite parameters.",
       );
     const perLock = Math.ceil(
-      (Math.max(...layer.lengthAxes) * (1 + layer.lengthVariation)) /
+      (Math.max(...layer.lengthAxes) *
+        Math.max(1, layer.frontScale ?? 1) *
+        (1 + layer.lengthVariation)) /
         layer.samplingStep,
     );
     intervals += perLock * layer.count;

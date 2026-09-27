@@ -14,6 +14,7 @@
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation GPU display consumes completed mesh parts; landmark articulation and attachment posing happen before it.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris GPU display draws whatever texture the material holds; the iris texels are painted before the model reaches it.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre GPU display draws whatever texture the material holds; fibre colour and coverage are painted before the model reaches it.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion GPU display maps the material's occlusion texture as it is; the builder computed it.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The viewer renders posed buffers; aperture measurement and contact resolution precede it in the human builder.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
@@ -40,6 +41,7 @@
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The general viewer displays compiled scene state; it does not own named craniofacial components, cavities and attached tissues.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition The render loop displays resolved skin geometry; it does not author persistent tissue morphology or choose expression crease strengths.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour The GPU lifecycle displays supplied vertex colours; it does not define pigment envelopes or pair facial component assemblies.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps GPU display draws whatever occlusion texture the material holds; the map is baked before the model reaches it.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement The general viewer displays compiled scene state; it does not own anatomical detail overrides and side-specific part replacement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression The general viewer displays compiled scene state; it does not own observed-relative eyelid, oral, dental and gaze performance.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-editor The general viewer displays compiled scene state; it does not own the interactive face editor, camera and file controls.

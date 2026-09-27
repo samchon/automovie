@@ -41,3 +41,68 @@ export function fitFaceLikenessBrowPigment(props: {
     clamped: raw.some((value) => value > 1),
   };
 }
+
+/** One side's brow and cheek samples in CIELAB. */
+export interface IFaceLikenessBrowSamples {
+  /** The median of the brow outline: the tone as seen. */
+  tone: readonly [number, number, number];
+  /** The darkest tenth of the outline: the fibres. */
+  fibre: readonly [number, number, number];
+  cheek: readonly [number, number, number];
+}
+
+/**
+ * The share of the brow outline its fibres cover, from what the eye sees
+ * there: the outline's tone is its fibres and the skin between them mixed
+ * in proportion to their coverage, so in luminance over the cheek's (which
+ * cancels exposure) `tone = c fibre + (1 - c)`, and `c = (1 - tone) /
+ * (1 - fibre)`. Null where the fibres' luminance lies within `contrast` of
+ * the skin's (grey or blond brows on pale skin), where the mixture cannot be
+ * told apart. Pure.
+ */
+export function faceLikenessBrowCoverage(
+  samples: IFaceLikenessBrowSamples,
+  contrast = 0.1,
+): number | null {
+  const Y = (lab: readonly [number, number, number]) => {
+    const fy = (lab[0] + 16) / 116;
+    return fy ** 3 > 216 / 24389 ? fy ** 3 : (116 * fy - 16) / (24389 / 27);
+  };
+  const cheek = Y(samples.cheek);
+  if (!(cheek > 0)) return null;
+  const tone = Y(samples.tone) / cheek;
+  const fibre = Y(samples.fibre) / cheek;
+  if (!(Math.abs(1 - fibre) >= contrast)) return null;
+  return Math.min(1, Math.max(0, (1 - tone) / (1 - fibre)));
+}
+
+/**
+ * A brow's fibre density from its photograph and its render at the current
+ * density: the density scales the card's coverage, so the one that makes the
+ * render's coverage the photograph's is the current density times their
+ * ratio, each coverage the mean of the sides that read one
+ * (`faceLikenessBrowCoverage`), held to the fibre rule's range [0, 4]. Null
+ * where either reads none or the render's is zero. Pure.
+ */
+export function fitFaceLikenessBrowDensity(props: {
+  photograph: readonly IFaceLikenessBrowSamples[];
+  render: readonly IFaceLikenessBrowSamples[];
+  density: number;
+}): { density: number; photograph: number; render: number } | null {
+  const mean = (sides: readonly IFaceLikenessBrowSamples[]) => {
+    const read = sides
+      .map((side) => faceLikenessBrowCoverage(side))
+      .filter((value) => value !== null);
+    return read.length === 0
+      ? null
+      : read.reduce((sum, value) => sum + value, 0) / read.length;
+  };
+  const photograph = mean(props.photograph);
+  const render = mean(props.render);
+  if (photograph === null || render === null || !(render > 0)) return null;
+  return {
+    density: Math.min(4, Math.max(0, (props.density * photograph) / render)),
+    photograph,
+    render,
+  };
+}
