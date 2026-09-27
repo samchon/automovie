@@ -237,13 +237,13 @@ export interface IRoomBuild {
   space: IRoomSpace;
   /**
    * @evidence spaces/03-surface-owners.md Only the room's own finishes and partitions enter its emitted part list.
-   * @evidenceReview spaces/03-surface-owners.md #9596716 v-141 Rooms emit roomFloor, roomCeiling, doorFloor and partition parts, entry's own closet walls (entry.ts:123-124) and laundry's threshold (laundry.ts:117). All are own finishes or partitions per 07:29-45 and 10-ground-floor.md:90.
+    * @evidenceReview spaces/03-surface-owners.md `parts` carries the solids returned by each room builder: `buildHouse` flattens that list after the structural builders, while the individual room builders decide which finish or partition parts they author.
    * @evidence principles/core/source-units.md#source-scope-preservation Another room's wall or finish is not emitted here.
-   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 All room parts use the room's own owner; house.ts:174-176 refuses duplicate part ids.
-   * @evidence principles/core/source-units.md#source-substantive-completion The viewer receives the actual room floor, ceiling and assigned walls.
-   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 house.ts:168 spreads room parts to the viewer, but garage-interior emits no floor (its visible floor is garage.ts base) and service emits no wall; 'actual room floor' is over-general.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff leaves each room's wall, floor, ceiling, and reveal with its room file; parts carries only the builder's emitted bodies.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The interior handoff gives each room its inner wall, ceiling, floor finish and opening perimeter; IRoomBuild.parts holds only the parts the caller emits, as entry.ts demonstrates, so the type does not invent another surface owner.
+    * @evidenceReview principles/core/source-units.md#source-scope-preservation The field contains only the caller's returned `IHousePart` values; `buildHouse` appends them to the house part list and checks duplicate part ids without assigning a neighboring room's wall through this interface.
+    * @evidence principles/core/source-units.md#source-substantive-completion The builder's emitted room parts are available for house assembly.
+    * @evidenceReview principles/core/source-units.md#source-substantive-completion `parts` is a required `IHousePart[]`, and `buildHouse` spreads every room result's list into the house's `parts` array; the field supplies a usable assembly boundary without asserting that every builder already emits every designed surface.
+    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-surface-handoff assigns room surfaces to their room files; this field transports each builder's emitted bodies without selecting a new surface owner.
+    * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `interior-surface-handoff` assigns each room an author; `IRoomBuild.parts` keeps the bodies returned by that author separate from its room record and optional storage, while the specific builder remains responsible for any missing finish.
    */
   parts: IHousePart[];
   /**
