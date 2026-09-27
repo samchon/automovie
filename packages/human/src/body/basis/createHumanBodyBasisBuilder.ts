@@ -161,7 +161,7 @@ export function createHumanBodyBasisBuilder(
       }
       return lean;
     };
-    const { skeleton, rest, frames } = resolveHumanBodySkeleton(
+    const { skeleton, rest, frames, axes } = resolveHumanBodySkeleton(
       basis,
       shaped.landmarks,
     );
@@ -207,7 +207,7 @@ export function createHumanBodyBasisBuilder(
       basis,
       document.shoulders ?? [],
       rest,
-      resolvePose(pose, skeleton, undefined, frames),
+      resolvePose(pose, skeleton, axes, frames),
     );
     if (tilt !== 0) {
       const at = (bone: AutoMovieHumanoidBone) =>

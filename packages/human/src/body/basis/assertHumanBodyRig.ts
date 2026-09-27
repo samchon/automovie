@@ -14,7 +14,8 @@ const AXES = ["abduction", "twist"] as const;
  * Called by `assertHumanBodyBasis` after the surfaces are known valid. The
  * joints must form one tree rooted at `hips` in parent-before-child order,
  * reference resident landmarks, carry a finite unit-length frame reference
- * that is not parallel to the bone, declare a clinical sign exactly on the
+ * that is not parallel to the bone, run a declared flexion axis between two
+ * distinct resident landmarks within 60 degrees of the frame's X, declare a clinical sign exactly on the
  * axes their generic constraint leaves mobile, and hold finite ranges that
  * contain zero and the measured rest angle. An upper arm additionally needs
  * an explicit thorax TT coordinate contract whose neutral elevation and
@@ -114,6 +115,36 @@ export function assertHumanBodyRig(basis: IAutoMovieHumanBodyBasis): void {
       throw new Error(
         "Body joint flexion reference is parallel to the bone: " + joint.bone,
       );
+    // a declared flexion axis runs between two resident landmarks and lies
+    // within 60 degrees of the frame's X, so the orthonormal basis built on
+    // it never degenerates
+    if (joint.flexionAxis !== undefined) {
+      const from = positions.get(joint.flexionAxis[0]);
+      const to = positions.get(joint.flexionAxis[1]);
+      const line =
+        from === undefined || to === undefined
+          ? null
+          : [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+      const size = line === null ? 0 : Math.hypot(...line);
+      const y = axis.map((v) => v / length);
+      const f = reference.map((v, k) => v - along * y[k]);
+      const x = [
+        y[1] * f[2] - y[2] * f[1],
+        y[2] * f[0] - y[0] * f[2],
+        y[0] * f[1] - y[1] * f[0],
+      ];
+      if (
+        line === null ||
+        size === 0 ||
+        Math.abs(line[0] * x[0] + line[1] * x[1] + line[2] * x[2]) /
+          (size * Math.hypot(...x)) <
+          0.5
+      )
+        throw new Error(
+          "Body joint flexion axis must run between two distinct resident landmarks within 60 degrees of its frame's X: " +
+            joint.bone,
+        );
+    }
     // An unconstrained joint (the root) is mobile on every axis and so must
     // declare every sign; a constrained joint declares one exactly where the
     // constraint leaves the axis mobile.
