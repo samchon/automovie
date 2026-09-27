@@ -12,17 +12,17 @@
  *
  * Consumers: every spaces owner when it emits a part.
  * @evidence spaces/03-surface-owners.md The table supplies named blocking colours for parts made by the allocated surface owners.
- * @evidenceReview spaces/03-surface-owners.md `PALETTE` holds colour values while `envelope/front.ts` passes `siding` and `rooms/common.ts` passes `woodFloor` to their own parts; this table creates neither surface.
+ * @evidenceReview spaces/03-surface-owners.md #9596716 `PALETTE` holds colour values while `envelope/front.ts` passes `siding` and `rooms/common.ts` passes `woodFloor` to their own parts; this table creates neither surface.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior siding, trim, roof, brick, paving and fence colours are available to their assigned owners.
- * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff `PALETTE` exposes `siding`, `trim`, `roof`, `brick`, `paving` and `fenceWood`; envelope, roof, site and porch builders consume those keys under their own part ids.
+ * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #9f3db3c `PALETTE` exposes `siding`, `trim`, `roof`, `brick`, `paving` and `fenceWood`; envelope, roof, site and porch builders consume those keys under their own part ids.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room owners can distinguish floor, ceiling and partition base colours.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff `rooms/common.ts` uses `woodFloor`, bedrooms use `carpet`, baths use `tile`, and `rooms/shared.ts` uses `ceiling` and `interiorWall`; `stairWood` is consumed by the separately allocated stair owner.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #f1d029f `rooms/common.ts` uses `woodFloor`, bedrooms use `carpet`, baths use `tile`, and `rooms/shared.ts` uses `ceiling` and `interiorWall`; `stairWood` is consumed by the separately allocated stair owner.
  * @evidence principles/core/source-units.md#source-scope-preservation This palette supplies flat source colours; materials owns images, optical values and repetition.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation Each `PALETTE` property is a hex base colour; the record has no texture reference, roughness or repeat scale, which remain outside this export.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Each `PALETTE` property is a hex base colour; the record has no texture reference, roughness or repeat scale, which remain outside this export.
  * @evidence principles/core/source-units.md#source-substantive-completion The emitted parts have named base colours for all surface families in this blocking pass.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion The record supplies distinct `roof`, `brick`, `paving`, `woodFloor`, `carpet`, `tile` and `concrete` values used by the corresponding source builders, so consumers need no placeholder colour.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The record supplies distinct `roof`, `brick`, `paving`, `woodFloor`, `carpet`, `tile` and `concrete` values used by the corresponding source builders, so consumers need no placeholder colour.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff assigns siding and brick to envelope owners and interior-surface-handoff assigns room finishes to room owners; this colour table changes neither assignment nor boundary.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `PALETTE` names colours but emits no surface; `03-surface-owners.md` already assigns the siding and chimney faces to envelope owners and interior finishes to room owners, so this value record needs no owner revision.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `PALETTE` names colours but emits no surface; `03-surface-owners.md` already assigns the siding and chimney faces to envelope owners and interior finishes to room owners, so this value record needs no owner revision.
  */
 export const PALETTE = {
   siding: 0xebe5d8,

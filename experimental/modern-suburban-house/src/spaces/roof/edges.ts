@@ -38,13 +38,13 @@ const onSegment = (p: IAutoMovieVector3, [a, b]: Edge): boolean => {
 
 /** Only a coincident weather edge belonging to another roof plane stays open.
  * @evidence spaces/roof/00-junctions.md This classification follows the roof parts' shared ridge and valley coordinates.
- * @evidenceReview spaces/roof/00-junctions.md `shared` builds main, right, garage and gable ridge segments plus both gable valleys from `junctions.ts` coordinates; `roofFreeEdge` classifies against those same lines.
+ * @evidenceReview spaces/roof/00-junctions.md #864b6cd `shared` builds main, right, garage and gable ridge segments plus both gable valleys from `junctions.ts` coordinates; `roofFreeEdge` classifies against those same lines.
  * @evidence principles/core/source-units.md#source-scope-preservation The rule selects closure of authored edges without changing roof mass.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation `roofFreeEdge` returns a boolean from two supplied vertices; `slopedSlab` and `slopedPlate` use it only when deciding whether to add a thickness side, leaving caller plan and height intact.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `roofFreeEdge` returns a boolean from two supplied vertices; `slopedSlab` and `slopedPlate` use it only when deciding whether to add a thickness side, leaving caller plan and height intact.
  * @evidence principles/core/source-units.md#source-substantive-completion A free step or chimney edge receives a thickness face, while paired weather edges remain open.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion `onSegment` rejects both endpoints on a shared ridge or valley; all other edges return true, so the solids builders add a side at free step or notch edges but skip coincident roof seams.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `onSegment` rejects both endpoints on a shared ridge or valley; all other edges return true, so the solids builders add a side at free step or notch edges but skip coincident roof seams.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Roof-shared-edges fixes coincident ridge and valley segments, and main-front-roof forbids internal closing faces while closing free thickness; roofFreeEdge tests that supplied distinction.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `roofFreeEdge` compares both endpoints against ridge and valley segments from `junctions.ts`; `roof-shared-edges` supplies those seams and `main-front-roof` assigns open internal versus closed free edges, so no parent edge rule was missing.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `roofFreeEdge` compares both endpoints against ridge and valley segments from `junctions.ts`; `roof-shared-edges` supplies those seams and `main-front-roof` assigns open internal versus closed free edges, so no parent edge rule was missing.
  */
 export const roofFreeEdge = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
   !shared.some((edge) => onSegment(a, edge) && onSegment(b, edge));
