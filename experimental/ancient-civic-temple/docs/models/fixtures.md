@@ -3,6 +3,8 @@
 ## 분수 수반과 물줄기 {#fountain}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 2.30×약 1.09×2.30m 수반 점유는 중정 통행을 남기고, `rim`·`basin-inner`의 Y축 회전체와 `ripple` 원환은 +X 시접의 호길이 UV, `water` 수평면은 평면 UV를 낸다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 중정 2.30m 수반 지름과 물면 높이를 읽고 둥근 테·안쪽·노즐의 회전체, 파문의 원환, 물면의 평면 UV를 구분했다.
 @evidence principles/core/common.md#scope-preservation 분수 수반을 받침단·테두리 벽·안쪽 바닥·물면·노즐·물줄기·파문 고리까지 정하고 물의 흐름과 반사는 systems로 넘긴다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 받침부터 파문까지 일곱 부재와 흐름·반사의 systems 경계를 함께 읽어 분수의 약속된 실체가 빠지지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 받침단·테두리·물면·물줄기 시작 Y=0.49m와 끝 치수에 더해 파문 고리의 반지름 0.11m·폭 0.008m·높이 0.006m, 반타원 방정식과 단면 8분할을 확정해 source가 수반 단면을 다시 고르지 않는다.
@@ -47,9 +49,13 @@ part와 표면은 `step`, `rim`, `basin-inner`, `water`, `ripple`, `nozzle`, `je
 
 검토 판에서 정면으로 받침단·테두리·물줄기의 세 높이를, 평면으로 원형과 물면이 테두리 안에만 있는지를 본다. 건물 관찰에서는 중정 중심→네 방위와 제실 문 축에서 수반 둘레에 보행 여백이 남는지 확인한다. 사각 물판, 테두리보다 높은 물면, 여러 갈래 분사나 높은 잔형은 실패다.
 
+분수 `rim`·`basin-inner`·`nozzle`·`jet`의 둥근 옆면은 +X 시접의 호길이 U와 단면 모선 V로, `ripple`은 큰 원·관 단면의 호길이로 UV0를 편다. `step`·`water`의 수평면은 바깥법선별 기본 투영으로 이음을 분리한다.
+
 ## 석조 제단과 석단 {#altar}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 2.40×1.10×1.60m 석단·상판·받침은 제실 북쪽 축에 놓일 크기로 정하고, `step`·`top`·`support`의 독립 석판 면에 기본 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 제단 2.40m 폭과 1.10m 상단을 제실 북쪽 자리와 대조하고 세 독립 석재 part의 각 면 평면 투영을 읽었다.
 @evidence principles/core/common.md#scope-preservation 석단과 그 위 석조 제단을 치수·상판 돌출·두 받침 사이 빈 공간·서는 자리·배치 예약까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 석단·제단 상판·두 받침과 앞 서는 자리까지 읽어 제실 중심 제단의 필요한 관계가 있는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 석단 2.40×1.60×0.15m, 제단 1.40×0.75×0.95m, 상판 0.14m·돌출 0.04m, 받침 두 석판, 뒤로 0.20m 물러남이 있어 source가 제단을 다시 고르지 않는다.
@@ -100,9 +106,13 @@ part와 표면은 `step`, `top`, `support`다. 상판 윗면은 [얕은 봉헌 �
 
 검토 판에서 정면·측면·3/4로 상판 돌출과 두 받침 사이 빈 공간, 석단의 한 단을 본다. 건물 관찰에서는 제실 threshold에서 제단이 북쪽 중심 축에 놓이고 문 스윙과 겹치지 않는지 확인한다. 받침 없는 상자 하나, 1.05m를 넘는 높이, 석단 없이 바닥에 선 제단은 실패다.
 
+제단 `step`·`top`·`support`의 UV0는 석판마다 바깥법선에 따른 기본 평면 투영이다. 상판 아랫면·받침 윗면·계단의 단단한 모서리에서 정점을 끊는다.
+
 ## 무문양 감실 {#niche}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.24×1.94×0.42m 감실은 북벽에 붙고 보행 포락보다 얕으며, `plinth`·`body`·`recess-frame`·`recess`·`cap`의 오목한 석재 면을 각 법선으로 평면 투영한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 북벽 앞 감실의 0.42m 깊이와 오목한 칸 경계를 읽고 다섯 석재 part의 턱·뒤판 면이 같은 UV 평면으로 뭉치지 않는지 확인했다.
 @evidenceExclude spaces/ownership.md#surface-map 표면 소유 지도는 spaces의 벽·바닥·지붕 실체를 나누고 모델의 part 표면 ID는 각 원형 H2가 독립 물체 안에서 정한다.
 @evidenceExcludeReview spaces/ownership.md#surface-map #87dc34b 건물 외피 표면과 독립 기둥·문틀·가구 part의 서로 다른 owner를 대조했다.
 @evidence principles/core/common.md#scope-preservation 제단 뒤의 무문양 감실을 받침·몸체·오목한 칸·머리판과 벽에 붙는 자립 조건까지 정한다.
@@ -145,9 +155,13 @@ part와 표면은 `plinth`, `body`, `recess-frame`, `recess`, `cap`이다. 칸�
 
 검토 판에서 정면으로 칸의 깊이와 머리판 돌출을, 건물 관찰에서 제실 문 축에서 제단 뒤로 감실이 중심을 잡는지 본다. 칸 없는 판, 벽을 뚫은 구멍, 인물 형상은 실패다.
 
+감실 `recess` 안쪽과 `recess-frame`의 턱은 서로 다른 평면 법선으로 UV0를 투영한다. `plinth`·`body`·`cap`은 모서리와 part 경계에서 이음을 끊으며 Z=0~0.42m의 얕은 점유를 유지한다.
+
 ## 금속 등잔대 {#lampstand}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.26×1.15×0.26m 등잔대는 제실 통로보다 좁고, `foot`·`stem`·`knop`·`dish`의 16각 둥근 옆면을 +X 시접의 Y축 호길이 U·모선 V로 편다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 높이 1.15m와 지름 0.26m를 제단·보행 포락과 대조하고 발·줄기·매듭·접시의 16각 +X 시접을 읽었다.
 @evidence principles/core/common.md#scope-preservation 금속 등잔대를 발·줄기·두 마디·접시와 높이·빈 공간·배치 소유까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 발·줄기·두 마디·접시와 불꽃 없는 상태를 한 자립 부재로 정했는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 발 원뿔대 아래/윗지름 0.26/0.16m, 줄기 상단 Y=1.10m, 마디 중심 0.35/0.80m와 접시 바닥 0.006m·안쪽 바닥 1.106m·윗끝 1.15m를 확정해 source가 등잔대 단면을 다시 고르지 않는다.
@@ -190,9 +204,13 @@ part와 표면은 `foot`, `stem`, `knop`, `dish`다. 접시 안쪽은 오목한 
 
 검토 판에서 정면 실루엣의 발·마디·접시 위계와 보행 포락 대비 약 0.6배 높이를 본다. 제단 석단 포함 상판 Y=1.10m보다 0.3m 넘게 높은 등잔, 접시 없는 막대, 발 없이 선 줄기는 실패다.
 
+등잔대 `foot`·`stem`·`knop`·`dish`의 둥근 옆면 UV0는 각 단면의 실제 반지름과 +X 시접으로 전개한다. 접시 안쪽은 가장 낮은 안쪽 고리에서 별도 V를 시작하고 원판 면은 기본 평면 투영으로 끊는다.
+
 ## 봉헌 탁자 {#offering-table}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 봉헌실 안 장축을 따르는 0.75×0.82×2.20m 탁자의 `top`·`trestle` 석재 평면은 각각 법선별 UV를 쓰고, 양 받침 사이 빈 공간은 UV용 막힌 판으로 채우지 않는다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 2.20m 장축 탁자와 두 받침 사이 열린 칸을 읽고 상판·받침의 각 석판 면만 기본 투영하는지 대조했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실의 긴 석재 탁자를 상판·두 다리받침과 빈 공간·배치 소유까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 긴 석재 상판·두 다리받침과 아래 빈 공간·방향 책임을 함께 읽어 제단과 구분되는 탁자가 완결됐는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 상판 2.20×0.75×0.10m·윗면 0.82m, 다리받침 단면과 상판 긴 변의 끝에서 중심선까지 0.35m를 확정해 source가 받침 위치·접면을 다시 고르지 않는다.
@@ -235,9 +253,13 @@ part와 표면은 `top`, `trestle`이다. 상판 윗면은 instances가 그릇·
 
 검토 판에서 측면으로 상판 아래 빈 공간과 두 다리받침을, 건물 관찰에서 봉헌실 장축 양끝 시점에서 탁자가 방 중앙에 길게 읽히는지 본다. 상자형 받침, 0.9m를 넘는 높이는 실패다.
 
+봉헌 탁자 `top`과 두 `trestle`은 각 석판의 바깥법선별 기본 UV0를 사용한다. 상판 아랫면과 받침 윗면을 서로 다른 면으로 투영하고, 양끝 단단한 모서리에서 이음을 둔다.
+
 ## 봉헌실 진열대와 관리실 벽 선반 {#display-shelf}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 봉헌실 1.60×1.40×0.40m와 관리실 1.00×1.20×0.30m 변형은 벽 앞 통로를 남기고, 긴 `side`는 +Y U, 가로 `board`는 +X U로 전개한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 두 진열대의 폭·높이·깊이 변형을 읽고 세로 측판 +Y와 선반 가로판 +X를 서로 다른 목재 결 축으로 대조했다.
 @evidenceExclude spaces/building.md#containment 공간 부모 위계는 spaces identity이며 prototype에는 부모 방이 없고 배치된 요소의 부모는 instances가 정한다.
 @evidenceExcludeReview spaces/building.md#containment #43621e3 원형 ID와 실제 배치 element의 공간 부모를 구분했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실 진열대와 관리실 벽 선반을 한 가족의 두 변형으로 치수·선반 높이·벽 이격까지 정한다.
@@ -284,9 +306,13 @@ part와 표면은 `side`, `board`다. 칸은 앞뒤로 열린 빈 공간이며 �
 
 검토 판에서 정면으로 넓은 세 칸과 측판 두께를 본다. 칸 없는 상자, 벽 속으로 들어간 선반은 실패다.
 
+진열대의 세로 `side`는 바닥에서 위로 +Y, 각 선반 `board`는 왼쪽에서 오른쪽으로 +X를 UV0의 U로 둔다. 변형별 네 장·세 장 판의 앞뒤 끝과 측판 맞댐에서 이음을 끊는다.
+
 ## 작성 책상과 열람 탁자 {#desk}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.10×0.75×0.60m 작성 책상과 0.90×0.72×0.55m 열람 탁자는 작업 포락에 맞고, `leg`는 +Y U, `top`·가로 `stretcher`는 각 긴 로컬 모서리를 U로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 두 책상 변형의 상판 높이와 폭을 읽고 정방 다리 +Y, 상판 긴 모서리와 가로지름대의 장축 U를 구분했다.
 @evidence principles/core/common.md#scope-preservation 관리실 작성 책상과 기록실 열람 탁자를 같은 구성의 두 치수 변형으로 상판·다리·가로 지지재까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두 방 탁자를 같은 상판·다리·지지재 가족으로 구분하고 아래 빈 공간을 보존하는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 두 변형의 폭·깊이·높이와 상판 0.04m, 다리 중심 X/Z=±(반폭/반깊이−0.06m), 지지재의 높이·단면을 확정해 source가 책상 다리 위치를 다시 고르지 않는다.
@@ -331,9 +357,13 @@ part와 표면은 `top`, `leg`, `stretcher`다. 상판 아래와 다리 사이�
 
 검토 판에서 두 변형을 나란히 보고 상판·다리·지지재의 분리를 확인한다. 상자형 책상, 0.8m를 넘는 높이는 실패다.
 
+책상 `top`은 폭 방향 +X, 네 정방 `leg`는 바닥에서 +Y, 가로·세로 `stretcher`는 각각 +X·+Z를 UV0의 U로 쓴다. 판과 다리의 끝면은 독립 이음으로 둔다.
+
 ## 스툴 {#stool}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.40×0.45×0.35m 스툴은 책상 아래 빈 공간에 들어가고, `seat`는 폭 +X U, 네 `leg`는 높이 +Y U, 두 방향 `stretcher`는 각 장축 U다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 좌면 0.45m 높이와 0.40m 폭을 책상 하부와 대조하고 좌판 X·다리 Y·지름대별 길이축 UV를 읽었다.
 @evidence principles/core/common.md#scope-preservation 관리실·기록실의 스툴을 좌판·네 다리·가로 지지재와 배치 소유까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 좌판·네 다리·지지재와 두 방 배치 경계를 읽어 단순 좌석의 구성 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 좌판 0.40×0.35×0.04m·윗면 0.45m, 네 다리 중심 X=±0.16m·Z=±0.135m와 정방 0.04m, 지지재 단면 0.025×0.03m·높이 0.12m를 확정해 source가 스툴 형상을 다시 고르지 않는다.
@@ -372,9 +402,13 @@ part와 표면은 `seat`, `leg`, `stretcher`다. 좌판 아래는 비어 있다.
 
 검토 판에서 책상 변형 옆에 두어 좌판이 상판보다 약 0.3m 낮은지 본다. 등받이나 쿠션이 있는 의자, 상자형 좌석은 실패다.
 
+스툴 `seat`의 긴 폭은 +X, 네 정방 `leg`의 긴 높이는 +Y, 두 방향 `stretcher`는 +X 또는 +Z로 UV0의 U를 정한다. 좌판·다리·가로지름대의 맞댐마다 이음을 둔다.
+
 ## 기록실 칸 선반 {#scroll-shelf}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.80×1.70×0.40m 기록 선반은 스무 빈 칸을 유지하고, `frame`은 +Y U, 가로 `board`는 +X U, 깊이가 가장 긴 `divider`는 +Z U로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 스무 칸을 만드는 1.80×1.70×0.40m 틀을 읽고 세로틀 Y·선반 X·칸막이 깊이 Z의 U 축을 확인했다.
 @evidence principles/core/common.md#scope-preservation 기록실의 두루마리 칸 선반을 4×5 격자·판 두께·칸 치수·뒤판 없음까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 4×5 스무 칸과 뒤판 없는 기록실 선반을 읽어 일반 진열대와 다른 구조를 확인했다.
 @evidence principles/core/common.md#substantive-completion 1.80×0.40×1.70m, 측판 0.04m·칸막이 0.03m, 가로 (1.80−2×0.04−3×0.03)/4≈0.41m·세로 (1.70−2×0.04−4×0.03)/5=0.30m의 칸이 있어 source가 격자를 다시 고르지 않는다.
@@ -417,11 +451,15 @@ part와 표면은 `frame`, `board`, `divider`다. 스무 칸의 빈 공간과 �
 
 검토 판에서 정면으로 4×5 격자와 칸 깊이를 본다. 격자 없는 상자, 봉헌실 진열대와 같은 넓은 칸은 실패다.
 
+기록 선반의 세로 `frame`은 +Y, 여섯 가로 `board`는 +X, 칸막이 `divider`는 앞뒤 깊이 +Z를 UV0의 U로 삼는다. 스무 칸의 각 판 끝과 part 경계에서 이음을 둔다.
+
 ## 보관 궤 {#chest}
 
 <!--
-@evidence settings/20-envelope.md#material-language 궤 H2는 body·lid·metal hardware의 안정된 part를 구별하고 UV0는 공통 원칙에 따르며 색·거칠기·비트맵 결속은 materials에 넘긴다.
-@evidenceReview settings/20-envelope.md#material-language #25e6ffa 궤의 목재와 금속 part 분리, 공통 UV 원칙, 후속 materials 결속 경계를 확인했다.
+@evidence contracts/principles-models.md#temple-reference-scale 0.82×0.505×0.535m 닫힌 궤는 설정의 궤 폭·깊이·높이 범위 안에 있고, 목재 `body`·`lid`의 긴 +X를 U로, 금속 `hasp`·`strap`은 기본 평면 UV로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 닫힌 뚜껑까지 0.505m 높이와 0.82m 폭을 읽고 목재 몸체·뚜껑의 X 결 방향과 쇠 걸쇠·띠의 별도 평면 UV를 대조했다.
+@evidence settings/20-envelope.md#material-language 궤의 `body`·`lid` 목재와 `hasp`·`strap` 금속은 서로 다른 part 표면으로 남기고, UV0는 모델이 방출하며 색·거칠기·텍스처 결속은 materials가 정한다.
+@evidenceReview settings/20-envelope.md#material-language #25e6ffa 궤 본문의 목재·금속 part 네 주소와 UV0 방출·후속 재료 결속의 소유 경계를 각각 확인했다.
 @evidence principles/core/common.md#scope-preservation 보관 궤를 몸체·분리된 뚜껑·이음 선·걸쇠·경첩 띠·모서리 띠까지 닫힌 고정 상태로 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 닫힌 고정 궤의 몸체·뚜껑·걸쇠·금속 띠와 실제 이음 틈을 모두 읽었다.
 @evidence principles/core/common.md#substantive-completion 몸체·뚜껑·0.005m 이격, 몸체와 뚜껑 앞면을 잇는 걸쇠의 세 접촉 구간, 경첩 띠 X=±0.27m의 꺾인 접촉 경로와 네 모서리 L단면 띠를 확정해 source가 궤 철물 접점을 다시 고르지 않는다.
@@ -461,5 +499,9 @@ part와 표면은 `frame`, `board`, `divider`다. 스무 칸의 빈 공간과 �
 부재 대응: `body`=몸체; `lid`=뚜껑; `hasp`=걸쇠; `strap`=띠.
 
 part와 표면은 `body`, `lid`, `hasp`, `strap`이다. 속 빈 공간과 내용물은 납품하지 않는다. 기록실과 보관실은 설정 범위에 드는 이 기본 궤 원형을 쓰고 배치·복제 수는 instances가 정한다. 관리실에는 궤를 배정하지 않는다.
+
+`body`·`lid`의 목재 면과 `hasp`·`strap`의 금속 면은 별도 part이며 모델이 각 면의 UV0를 방출한다. 색·거칠기·텍스처와 part별 결속은 [재료 결속](../materials/10-model-bindings.md#binding-map)이 맡는다.
+
+궤 `body`·`lid`의 목재 긴 면은 로컬 +X를 UV0의 U로 전개한다. 앞 걸쇠 `hasp`와 앞뒤·모서리 금속 `strap`은 각각의 바깥 평면 법선으로 투영하고 목재와 금속 경계에서 이음을 둔다.
 
 검토 판에서 뚜껑 두께와 이음 선, 걸쇠가 분리돼 읽히는지 본다. 뚜껑 없는 상자, 걸쇠 없는 궤는 실패다.

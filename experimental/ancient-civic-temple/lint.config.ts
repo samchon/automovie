@@ -3,6 +3,7 @@ import {
   type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
   createBlankAutoMovieProductionEvidence,
+  createAutoMovieProductionPrincipleClaim,
   createAutoMovieProductionObligationClaim,
   evidence,
 } from "@automovie/evidence";
@@ -50,13 +51,14 @@ export const productionEvidence = {
   modelSources: "evidence",
   materials: "draft",
   claims: [
-    createAutoMovieProductionObligationClaim({
+    createAutoMovieProductionPrincipleClaim({
       name: "temple-model-scale-uv",
       document: "contracts/principles-models.md",
-      account: "accounts/models/temple-principles.md",
+      files: ["models/**/*.md"],
       layer: "models",
       stage: "review",
       populationScope: { mode: "complete-production" },
+      symbol: "h2",
     }),
     createAutoMovieProductionObligationClaim({
       name: "temple-model-obligations",

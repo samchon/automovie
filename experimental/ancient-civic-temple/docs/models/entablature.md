@@ -3,6 +3,8 @@
 ## 주랑 목재 보 {#colonnade-beam}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 길이 7.69/7.94m·단면 0.28×0.26m인 `timber`는 기둥 주두와 서까래 사이의 지지 치수로 정하고, 노출 긴 면은 부재 시작→+X 길이를 U로 전개한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 남북·동서 두 보 길이와 0.28×0.26m 단면을 주두 지지선에 대조하고 노출 목재 면의 −X 끝→+X 끝 U를 읽었다.
 @evidence principles/core/common.md#scope-preservation 주랑 네 변의 목재 상부 보를 단면·두 길이 변형·윗면 높이·노출면과 접촉면까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 네 변 보의 단면·길이 변형과 기둥·서까래·이웃 보 접면이 모두 이 보에 배정됐는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 폭 0.26·깊이 0.28m 단면, 남·북 약 7.69m와 동·서 약 7.94m 길이, 서까래 법선 깊이를 연직으로 환산한 12°/19° 두 높이 식과 모서리의 남·북 보 직접 받침·동측 보 끝면 맞댐 및 양끝 0.040m 턱 절삭이 있어 source가 보 지지점을 다시 설계하지 않는다.
@@ -47,9 +49,13 @@ part와 표면은 `timber` 하나다. 아랫면 중 기둥 위 구간과 윗면 
 
 검토 판에서는 짧은 길이 표본(2.0m)을 정면·측면으로 보고, 건물 안 관찰에서는 기둥 주두 위에 보가 얹혀 지붕이 기둥에서 떠 보이지 않는지를 본다. 기둥 위 공백, 주두보다 넓게 튀어나온 보, 두 보가 모서리에서 겹쳐 뚫린 형상은 실패다.
 
+주랑 `timber`의 노출 긴 면 UV0는 각 보의 시작 끝에서 로컬 +X 길이를 U로 펴고, 보 끝과 모서리마다 이음을 둔다. 12°·19° 높이 변형에서도 이 장축 투영은 바뀌지 않는다.
+
 ## 서까래 {#rafter}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.08×0.12m 서까래의 연속 부재마다 경사 길이 L/cos(α)+0.12tan(α)를 점유로 두고, `timber`의 처마 쪽 절단→용마루 장축을 U로 전개한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 12°·19°·22° 서까래의 절단 경사 길이와 단면을 읽고 처마 끝에서 용마루로 가는 목재 U가 경사 장축을 따르는지 확인했다.
 @evidenceExclude settings/50-production.md#measurement-truth 모델 치수는 settings 허용 범위와 reviewed spaces에서 저작한 입력이며 과거 source 메시의 좌표 측정을 설계 원본으로 보존하지 않는다.
 @evidenceExcludeReview settings/50-production.md#measurement-truth #c6e89a8 설계 치수의 부모와 현재 source의 방출값이 서로 다른 증거인지 확인했다.
 @evidence principles/core/common.md#scope-preservation 주랑 외쪽 지붕·동측 박공·제실의 서까래를 한 가족으로 묶어 단면, 경사 유도, 처마 쪽 연직 절단, 뒷벽 끝 접촉, 제실 측벽 두께에서 끊는 두 부재와 지붕 하부 식, 만들지 않는 숨은 서까래까지 정한다.
@@ -102,9 +108,13 @@ part와 표면은 `timber` 하나다. 제실 양쪽의 외부 꼬리와 내부 �
 
 검토 판에서 1.0m 표본의 끝면이 연직으로 잘렸는지, 건물 안에서는 중정 쪽 처마 아래로 서까래 끝이 일정 간격으로 드러나는지를 본다. 제실 측벽 west/east-room~west/east-ring 단면에서 벽 두께 안에 목재가 없는지도 확인한다. 서까래 없이 slab 아랫면만 보이는 주랑 천장, 처마 끝을 넘어 공중에 뜬 끝, 벽을 뚫고 나가는 뒷끝은 실패다.
 
+서까래 `timber`의 UV0는 벽 두께를 건너지 않는 각 닫힌 목재 부재의 처마 끝에서 용마루 쪽 장축으로 U가 증가한다. 연직 절단 끝과 지붕 하부쪽 모서리에서 정점을 끊는다.
+
 ## 포치 보와 박공 트림 {#porch-entablature}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 포치의 석재 `beam`·`cornice`·`raking-trim`은 두 원주와 반환벽 사이의 판정 높이·폭만 점유하고, 목재 장축 예외 없이 세 part의 바깥 면마다 기본 평면 UV를 적용한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 포치 보 상단·막음·박공 트림의 높이 연쇄를 읽고 석재 세 part에 목재 결 방향 예외가 쓰이지 않는지 대조했다.
 @evidence principles/core/common.md#scope-preservation 포치의 석재 보, 수평 코니스, 두 경사 트림을 치수·위치·접촉까지 정하고 기둥→보→삼각 막음→지붕 끝선의 연속 관계를 보인다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 기둥 위 보에서 삼각 막음과 지붕 끝으로 이어지는 세 석재 part의 접촉이 빠짐없이 정해졌는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 보 3.30×0.30×0.30m와 아랫면 3.20m, 반환벽·막음과의 접면, 코니스 돌출 0.08m와 지붕 하부 식으로 얻는 두 경사 트림의 공통 X=0 끝을 정해 source가 접촉 기준을 다시 고르지 않는다.
@@ -149,9 +159,13 @@ part와 표면은 `beam`, `cornice`, `raking-trim`이다. 보 윗면은 삼각 �
 
 검토 판에서 정면·측면으로 보와 코니스, 두 경사 트림의 분리와 용마루에서의 만남을 본다. 건물 관찰에서는 정면에서 기둥→보→박공이 틈 없이 이어지고 트림이 포치 지붕 끝선 아래에 붙어 있는지를 확인한다. 기둥 위에서 뜬 보, 삼각 막음과 떨어진 트림, 판 하나로 된 박공은 실패다.
 
+포치 `beam`·`cornice`·`raking-trim`의 UV0는 석재 평면의 바깥법선별 기본 투영이다. 박공 경사 트림의 잘린 끝과 보·처마 장식의 part 경계에서 이음을 둔다.
+
 ## 제실 트러스 {#sanctuary-truss}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 11.20m 평보와 22° 경사재는 제실 벽 안쪽·지붕 하부의 11.20×약 2.62×0.22m 범위에 머물며, `tie-beam`·`principal`·`king-post`·`strut`의 각 장축을 U로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 벽 안쪽 11.20m 평보와 지붕 하부의 22° 경사재 높이를 읽고 네 목재 part가 각자 긴 축을 U로 삼는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 제실의 가운데 기둥 목조 트러스를 평보·경사재·가운데 기둥·버팀재 네 부재와 높이·접촉·창과의 여유까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 평보·경사재·가운데 기둥·버팀재의 지붕·벽·창 관계가 한 제실 트러스에 닫히는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 평보 11.20m·0.22×0.28m·아랫면 4.86m, 경사재의 지붕 하부식과 평보 윗면 절삭, 가운데 기둥 V형 머리, 버팀재 발끝 X=±0.09·Y=5.69m와 위끝 X=±2.80m를 확정해 source가 트러스의 구조 끝점을 다시 고르지 않는다.
@@ -198,9 +212,13 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 
 검토 판에서 정면으로 삼각 윤곽과 부재 네 종의 분리를, 건물 관찰에서 제실 중심→북·남과 threshold 시점에서 평보가 창과 문 위에 걸리는지, 경사재가 지붕 하부와 떨어지지 않는지를 본다. 벽을 뚫는 평보, 지붕 위로 솟는 경사재, 부재 없이 평평한 판 천장은 실패다.
 
+제실 트러스의 `tie-beam`은 왼쪽 끝에서 오른쪽 끝으로, `principal`은 측벽 발끝에서 용마루로, `king-post`는 평보 윗면에서 머리로, `strut`은 낮은 발끝에서 경사재 접점으로 UV0의 U를 전개한다. 각 목재 접합의 끝면은 새 평면 투영으로 끊는다.
+
 ## 업무방·봉헌실 천장 보 {#ceiling-joist}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 방의 west/east-inner~room 순폭에서 얻은 4.00×0.18×0.12m 보가 널판 아래에 머물고, 한 `timber`의 −X 끝에서 +X 끝까지 목재 결 U를 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 업무방·봉헌실 순폭 4.00m와 널판 하부 보 단면을 읽고 한 각재의 X 장축과 양쪽 절단면 UV 이음을 대조했다.
 @evidenceExclude settings/50-production.md#runtime-boundary CJS producer와 뷰어 전달 경계는 실행 방법이고 prototype의 형상·표면·관절 선택을 정하지 않는다.
 @evidenceExcludeReview settings/50-production.md#runtime-boundary #3eb9810 모델 H2의 의미 결정이 전송·번들링 방법에 의존하지 않는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실과 동측 세 방의 낮은 목재 천장 보를 단면·길이·높이와 배치 소유 경계까지 정한다.
@@ -252,5 +270,7 @@ part와 표면은 `tie-beam`, `principal`, `king-post`, `strut`이다. 평보의
 부재 대응: `timber`=목재 보.
 
 part와 표면은 `timber` 하나이고 윗면과 두 끝면은 가려진 접촉면이다. 간격(0.60m 중심 간격을 기본 제안으로 둔다)과 문·벽 가까이의 끝 위치는 instances가 정한다.
+
+천장 보 `timber`의 UV0는 방의 짧은 변을 가로지르는 로컬 −X 끝에서 +X 끝으로 U가 증가한다. 양쪽 절단면과 상단의 수평면은 평면 법선에 맞춰 별도 이음으로 둔다.
 
 검토 판에서 1.0m 표본을, 건물 관찰에서 각 방 중심→네 방위와 모서리 시점에서 보가 널판 아래에 규칙적으로 드러나고 문 head(2.36m 이하)보다 높게 남는지를 본다. 널판에서 떨어진 보, 벽을 뚫는 끝, 2.92m 아래로 처진 보는 실패다.

@@ -142,9 +142,9 @@ export class TempleLandscape {
       const ny=normals[3*i+1]!,nz=normals[3*i+2]!;
       if(ny<0.8||Math.abs(nz)<0.1)continue;
       const x=positions[3*i]!,z=positions[3*i+2]!;
-      const frontSlope=gable&&nz<0;
-      uvs[2*i]=frontSlope?halfRoofWidth-x:x+halfRoofWidth;
-      uvs[2*i+1]=(gable&&frontSlope?z+edge:edge-z)/Math.cos(slope);
+      const rearSlope=gable&&nz<0;
+      uvs[2*i]=rearSlope?halfRoofWidth-x:x+halfRoofWidth;
+      uvs[2*i+1]=(rearSlope?z+edge:edge-z)/Math.cos(slope);
     }
     return model;
   }

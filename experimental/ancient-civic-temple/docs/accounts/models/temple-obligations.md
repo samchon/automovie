@@ -18,4 +18,4 @@
 @evidenceReview contracts/obligations-models.md#temple-model-review-board #b0a6a16 원형 전체의 상태·변형과 작은 접합의 반대쪽 근접 뷰가 검토 계획에 포함되는지 확인했다.
 -->
 
-[중립 검토 판](../../contracts/obligations-models.md#temple-model-review-board)은 개별 원형을 같은 배경·광원·포락·카메라 비율로 비교한다. 각 H2의 접촉·빈 공간·경계와 치수 변형은 그 원형의 근접 시점으로 보충한다. 실제 건물 안의 배치와 접촉은 [spaces 관찰](../../spaces/observations.md#geometry-observations)이 맡으므로 이 판의 단독 형상 검토를 건물 납품 검토로 세지 않는다.
+[중립 검토 판](../../contracts/obligations-models.md#temple-model-review-board)은 개별 원형을 같은 배경·광원·포락·카메라 비율로 비교한다. 여섯 전체 방향과 각 H2의 접촉·빈 공간·경계 및 치수 변형의 맞은편 근접 시점, 두 문짝 상태, 두루마리 변형과 기와 3×3 반복을 관찰 주소로 둔다. 실제 건물 안의 배치와 접촉은 [spaces 관찰](../../spaces/observations.md#geometry-observations)이 맡으므로 이 판의 단독 형상 검토를 건물 납품 검토로 세지 않는다.

@@ -3,10 +3,12 @@
 ## 둥근기와와 평기와 {#roof-tile}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.40×0.52m 평기와와 이음 위 반원 덮개의 점유를 서측·남측·동측 지붕 접촉 높이에 대조하고, `tegula`는 +X 가로 U·+Z 오르막 V, `imbrex`는 반원 호길이 U·+Z V로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 평기와 0.40×0.52m 반복과 덮개 포함 0.485m 폭을 읽고, `tegula`의 가로/오르막 축과 `imbrex`의 반원 전개가 표의 두 기와 면에 대응하는지 대조했다.
 @evidenceExclude settings/00-delivery.md#operator-access 궤도·확대·시점 선택은 건물 viewer 조작이고 모델 population의 판은 계약에 정한 여섯 방향과 접합 근접 시점을 사용한다.
 @evidenceExcludeReview settings/00-delivery.md#operator-access #e19a32a 건물 viewer의 사용자 조작과 중립 판의 고정 관찰 목록을 분리했다.
-@evidence settings/50-production.md#fidelity 평기와·둥근기와 H2는 겹침·빈 반원 단면을 읽히게 하지만 장마다 다른 풍화나 정확한 역사 기와 제작을 납품 범위로 약속하지 않는다.
-@evidenceReview settings/50-production.md#fidelity #bb89317 기와의 입체 겹침과 열화·개별 불규칙 제외가 blocking 표현 상한에 맞는지 확인했다.
+@evidence settings/50-production.md#fidelity 평기와·둥근기와 H2는 실제 겹침과 빈 반원 단면을 읽히게 하지만 한 장씩 다른 표면 결을 기하로 만들지 않는다.
+@evidenceReview settings/50-production.md#fidelity #bb89317 기와 겹침과 반원 단면은 실체로 남기고 개별 표면 결은 원형 형상에서 제외한 경계를 확인했다.
 @evidence principles/core/common.md#scope-preservation 평기와와 둥근기와 한 쌍을 한 단위로 삼아 치수·겹침·표면·빈 공간·배치 소유와 코핑과의 높이 관계까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 평기와 한 장과 이음 위 둥근기와의 폭·겹침·배치 책임을 본문 끝까지 대조해 지붕 표면을 무늬 판으로 축소하지 않았음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 평기와 0.40×0.52m의 0.08m 들린 겹침과 0.44m 피치, 이음 X=+0.20m에 중심을 둔 둥근기와 시작·끝 반지름 0.085/0.075m, 양쪽 0.10m 턱의 접촉 띠와 단위 점유 폭 0.485m를 함께 정한다.
@@ -55,11 +57,15 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 
 검토 판에서 한 단위와 3×3 배열을 정면·측면·3/4로 보고 반원 덮개 줄과 겹침 단차, 처마 끝 반원 단면이 읽히는지 확인한다. 건물 관찰에서는 리뷰 거리에서 지붕이 줄무늬 판이 아니라 반원 덮개 줄의 기와면으로 읽히는지 본다. 평판 위 무늬, 줄 방향이 경사와 어긋난 배치, 파라펫을 뚫고 나간 기와는 실패다.
 
+평기와 `tegula`의 윗면 UV0는 로컬 +X 가로를 U, +Z 경사 오름을 V로 둔다. `imbrex`의 빈 반원 외피는 처마 쪽 −X 발에서 +X 발까지 호길이를 U, +Z 길이를 V로 펴고 단위 끝과 두 part 경계에서 끊는다.
+
 ## 용마루 기와 {#ridge-tile}
 
 <!--
-@evidenceExclude settings/00-delivery.md#review-condition 1600×1000·50° 카메라는 모델 population의 중립 검토 계약이 소유한다. 용마루 기와를 포함한 개별 원형 H2는 접합·실루엣 질문을 정하지만 공통 카메라 수치를 다시 결정하지 않는다.
-@evidenceExcludeReview settings/00-delivery.md#review-condition #6daf6ae 용마루의 근접 질문과 공통 검토 계약의 카메라 숫자를 분리해 원형별 재정의가 없음을 확인했다.
+@evidence contracts/principles-models.md#temple-reference-scale 반지름 0.13/0.15m의 용마루 덮개는 평기와 판과 코핑의 0.01m 여유 안에 점유시키고, `ridge`의 −X→+X 반원 호를 U, 수평 용마루 +Z를 V로 전개한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 두 반지름과 코핑 여유 식을 읽고 수평 용마루 방향이 V이며 −X 발부터 +X 발까지 반원 호가 U인지 대조했다.
+@evidence settings/00-delivery.md#review-condition 용마루 기와의 세 단위 줄과 발 접촉을 1600×1000·수직 50°의 공통 프레임에서 보고, 발의 근접 뷰를 추가한다.
+@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 용마루 세 단위와 발 접촉의 판이 공통 프레임 수치에서 관찰되며 근접 뷰가 그 발 위치를 보충하는지 확인했다.
 @evidenceExclude settings/50-production.md#gpu-observation GPU 캡처는 source 이후 실제 프레임의 관찰 경로이고 models의 원형 H2는 그 전 단계의 치수·시점 계획만 정한다.
 @evidenceExcludeReview settings/50-production.md#gpu-observation #b0ab4b5 모델 설계와 source 기반 GPU 캡처의 단계 경계를 확인했다.
 @evidence principles/core/common.md#scope-preservation 세 박공 용마루의 반원 덮개 단위를 치수·겹침·접촉·배치 소유와 동측 박공 남쪽 끝의 정지 규칙까지 정하고 골 기와를 만들지 않는 한계를 밝힌다.
@@ -107,5 +113,9 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 부재 대응: `ridge`=덮개.
 
 part와 표면은 `ridge` 하나다. 뒤쪽 발 X=±0.13m와 겹침 코 발 X=±0.15m는 양쪽 평기와 판 위에 닿는 가려진 접촉면이다. 용마루 길이와 배치 수는 instances가 각 용마루 선에서 유도한다. 동측 박공 남쪽 끝에서 slab 용마루 상면 약 4.53m에 19°의 `Y0+0.15m`를 더하면 약 4.656m다. 코핑 아랫면 4.69m까지 약 0.034m이므로 0.01m 여유를 확보한다. 동측 박공의 용마루 덮개 줄은 [박공 폐쇄](../spaces/junctions.md#gable-closures)가 정한 south-inner−0.06m, 곧 코핑 안쪽 돌출 끝에서 멈춘다. instances는 그 위치까지 온전한 단위를 놓고 마지막 단위를 그 평면에서 잘라 남쪽 끝면을 닫는다. 실제 높이와 해당 경사각의 `Y0+0.15m`도 코핑 아랫면과 대조해 0.01m 여유가 없으면 그 앞에서 멈춘다. 공간 인터페이스 보고: 동측 박공이 22°였을 때 slab 용마루가 약 4.73m로 올라 코핑 아랫면 4.69m를 넘었고, spaces가 [동측 박공](../spaces/roofs/east.md#east-roof)을 19°로 고쳐 받을 수 있게 되었다. 제실 용마루(약 7.67m)와 포치 용마루(약 4.67m, 두 반환벽 코핑 사이)는 막는 부재가 없다.
+
+세 단위 줄의 검토는 [공통 프레임](../settings/00-delivery.md#review-condition)의 1600×1000 픽셀·수직 시야각 50°를 쓰고, 양쪽 발과 평기와 받침은 별도 근접 뷰에서 확인한다.
+
+`ridge`의 UV0는 로컬 −X 발에서 +X 발까지 반원 호길이를 U, 수평 용마루 +Z 방향을 V로 둔다. 0.45m 단위 양끝과 코의 반지름 단차에서 이음을 둔다.
 
 검토 판에서 한 단위와 세 단위 줄을 보고, 건물 관찰에서 제실과 동측 박공의 용마루가 기와 줄로 읽히는지와 박공 끝에서 반원 단면이 보이는지 확인한다. 용마루 없이 두 경사면이 날카롭게 만나는 박공, 용마루 위로 뜬 덮개는 실패다.

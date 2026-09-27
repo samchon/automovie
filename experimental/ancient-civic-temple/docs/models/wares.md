@@ -3,6 +3,8 @@
 ## 큰 저장 항아리 {#storage-jar}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.495×0.70×0.48m 저장 항아리는 큰 항아리 설정 범위에 맞고, `body`는 +X 시접의 Y축 회전체, 양쪽 XY `handle`은 큰 원·관의 호길이 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 큰 항아리 0.70m 높이와 손잡이 포함 0.495m 폭을 읽고 몸체 Y축 시접과 양쪽 XY 손잡이 원환 전개를 구별했다.
 @evidenceExclude settings/00-delivery.md#operative-subjects 주체 표가 분류한 봉헌물·문서·용기·가구의 개별 정체성은 35-objects가, 분수 물은 30-interiors가 소유하므로 원형은 분류표를 형상 근거로 재사용하지 않는다.
 @evidenceExcludeReview settings/00-delivery.md#operative-subjects #78af323 주체 분류표의 사물 주소와 실제 모델 H2가 인용하는 설정 원본을 비교했다.
 @evidence principles/core/common.md#scope-preservation 큰 저장 항아리를 회전체 윤곽 다섯 점·열린 입·어깨 손잡이 두 개까지 정한다.
@@ -49,9 +51,13 @@ part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공�
 
 검토 판에서 측면 실루엣의 배·어깨·목·입술 네 구간과 열린 입을 본다. 구체나 원통, 입이 막힌 항아리는 실패다.
 
+저장 항아리 `body`의 바깥·입 안쪽 UV0는 각 단면 고리의 실제 반지름을 U, 바닥 또는 안쪽 최저 고리부터의 모선 길이를 V로 둔다. 두 XY `handle`은 큰 원·관 단면의 호길이로 펴고 +X 시접에서 끊는다.
+
 ## 운반 항아리 {#carry-jar}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 보수적 0.436×0.50×0.30m 운반 항아리 점유는 손잡이 돌출을 포함하며, `body`는 Y축 회전체, ±X 베지어 `handle`은 아래 부착점→위 부착점 호길이 U와 관 둘레 V를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 두 손잡이를 포함한 0.436m 폭과 0.50m 높이를 읽고 베지어 관의 아래→위 U와 몸체 회전체 UV가 서로 다른지 확인했다.
 @evidence principles/core/common.md#scope-preservation 운반 항아리를 윤곽 다섯 점·입 안쪽 깊이·목과 어깨를 잇는 세로 고리 손잡이 두 개까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 윤곽점과 목·어깨 두 세로 손잡이, 열린 입을 읽어 중형 용기의 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 몸체의 높이별 반지름과 입 안쪽 0.10m, ±X 손잡이의 두 부착점·바깥 제어점·곡선 분할·관 굵기를 정해 source가 곡선 경로를 새로 고르지 않는다.
@@ -90,9 +96,13 @@ part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽�
 
 검토 판에서 큰 항아리 옆에 두어 크기와 손잡이 형태가 다른 종류로 읽히는지 본다. 끝 원판의 노출은 접합의 일부로 읽고, 손잡이 끝 링이 몸체에 삽입되지 않거나 손잡이가 몸체에서 떨어진 형상은 실패다.
 
+운반 항아리 `body`는 +X 시접의 회전체 UV0를 바깥면과 입 안쪽에서 따로 전개한다. ±X `handle`은 각 아래 부착점부터 위 부착점까지 중심선 호길이를 U, 관 단면 호길이를 V로 두고 접합점에서 끊는다.
+
 ## 작은 탁상 용기 {#small-vessel}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale X −0.08~0.11m·Y 0~0.20m의 탁상 용기는 한쪽 손잡이 돌출을 점유에 포함하고, 12각 `body`는 회전체 UV, +X `handle`은 아래→위 관 호길이 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 X 비대칭 점유 −0.08~0.11m와 12각 몸체를 읽고 +X 한쪽 관 손잡이의 아래→위 시접을 대조했다.
 @evidence principles/core/common.md#scope-preservation 작은 탁상 용기를 윤곽 네 점·입 안쪽 깊이·손잡이 하나까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 네 윤곽점·좁은 입·+X 손잡이 하나를 읽어 탁상 용기의 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이에 +X 손잡이의 아래·위 부착점, 두 제어점과 12구간 경로·관 8분할을 더해 source가 손잡이 형상을 새로 고르지 않는다.
@@ -131,9 +141,13 @@ part와 표면은 `body`, `handle`이다. 위치와 수량은 instances가 정�
 
 검토 판에서 한 손잡이와 좁은 목을 본다. 작은 원통은 실패다.
 
+작은 용기 `body`는 바깥과 입 안쪽의 별도 +X 시접에서 둘레 U·모선 V를 펴고, 한쪽 +X `handle`은 아래 접점부터 위 접점까지 관의 중심선 U·단면 V를 쓴다.
+
 ## 얕은 봉헌 그릇 {#offering-bowl}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.22×0.06×0.22m 얕은 그릇은 제단 상판에 놓이고, 단일 `bowl`의 오목 안쪽은 바깥과 별도 최저 고리에서 시작하는 Y축 회전체 UV를 낸다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 얕은 그릇의 0.06m 높이와 0.22m 지름을 읽고 오목한 안쪽 V 시작이 바깥쪽과 이어지지 않는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 얕은 봉헌 그릇을 지름·높이·테두리 두께·오목면·굽까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 0.22m 그릇의 안팎 껍질·두꺼운 테두리·굽을 읽어 납작 판으로 축소하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 지름 0.22m·높이 0.06m, 안팎 단면 좌표와 테두리 0.012m·안쪽 깊이 0.045m·굽 치수·둘레 24분할이 있어 source가 그릇 껍질을 다시 고르지 않는다.
@@ -170,9 +184,13 @@ part와 표면은 `bowl` 하나이며 materials가 금속 또는 도기를 고�
 
 검토 판에서 측면으로 두꺼운 테두리와 오목한 안쪽을 본다. 납작한 원판은 실패다.
 
+봉헌 그릇 `bowl`의 바깥·오목 안쪽은 각기 +X 시접을 가진 둘레 호길이 U와 단면 모선 V로 UV0를 편다. 굽 아랫면은 −Y 바깥법선의 평면 투영으로 별도 이음을 둔다.
+
 ## 운반 바구니 {#basket}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 돌출 살과 테를 포함한 0.43×0.32×0.43m 바구니 점유는 열린 입을 남기며, `wall` 회전체·`rim` 원환은 호길이 UV, 세로 살은 +Y U, `floor`는 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 바구니 0.43m 외곽과 열린 윗입을 읽고 몸통·테 둘레 전개, 세로 살 Y축, 바닥 평면을 분리했다.
 @evidence principles/core/common.md#scope-preservation 운반 바구니를 벌어지는 원통 껍질·안쪽 바닥·띠와 살의 요철·테두리까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 벌어진 벽·바닥·열 띠·24 세로 살·원환 테두리를 읽어 짜임을 그림으로 대체하지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 지름·높이·벽 두께, 벽·바닥·열 줄 띠 둘레 24분할, 세로 살 24개의 Y=0.02~0.305m 범위·폭 0.012m·벽 면 기준 돌출 0.004m·시작각 7.5°, 테두리 원환 24×8분할을 확정해 source가 곡면이나 살 단면을 새로 고르지 않는다.
@@ -215,9 +233,13 @@ part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이�
 
 검토 판에서 가까이서 띠와 살의 요철, 멀리서 둥근 테두리를 본다. 매끈한 통, 무늬만 그린 원통은 실패다.
 
+바구니 `wall`의 안팎은 각자 +X 시접의 둘레 U·세로 모선 V, 열 가로 띠는 둘레 U, 24개 세로 살은 +Y U로 둔다. `rim`은 큰 원·관 호길이, `floor`는 수평 평면 UV0로 펴고 열린 입과 part 경계에서 끊는다.
+
 ## 두루마리 {#scroll}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 말린 0.288×0.07×0.07m·묶음 세 원통·펼친 0.25×0.04×약 0.4074m를 각 점유로 두고, `sheet` 원통은 둘레 U·X축 V, 펼친 판은 +Z U·+X V, `tie`는 YZ 원환이다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 말림·세 묶음·펼침 상태의 서로 다른 점유를 읽고 말린 종이의 X축 V와 펼친 판의 +Z U·+X V가 섞이지 않는지 대조했다.
 @evidence principles/core/common.md#scope-preservation 두루마리를 말린 한 개·세 개 묶음·펼친 한 장의 세 변형과 말림 심·끈까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 말린 한 개·세 개 묶음·펼친 장과 끈·심을 읽어 세 변형의 형상 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 반지름 0.03m·길이 0.28m 원통과 양끝 0.004m 심 돌출, 한 개·세 개의 끈 접촉 경로, 펼친 장과 양끝 말림 중심을 수치로 정해 source가 세 변형의 점유 범위를 다시 고르지 않는다.
@@ -259,5 +281,7 @@ part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이�
 부재 대응: `sheet`=종이; `sheet-1`=첫 종이 원통; `sheet-2`=둘째 종이 원통; `sheet-3`=셋째 종이 원통; `tie`=끈.
 
 part와 표면은 `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie`다. 위치와 칸별 수량은 instances가 정한다.
+
+말린 `sheet`와 묶음의 `sheet-1`·`sheet-2`·`sheet-3`는 +Z 시접에서 +Y로 도는 X축 원통 둘레를 UV0의 U, 축 +X 길이를 V로 둔다. 펼친 판은 긴 +Z를 U·+X를 V로 두고, 묶는 `tie`는 YZ 원환의 큰 원·관 단면 호길이로 편다.
 
 검토 판에서 끝면의 말림 심과 끈이 돌이나 나무 막대와 구별되는지 본다. 끝면이 막힌 원통, 글자가 있는 펼친 장은 실패다.

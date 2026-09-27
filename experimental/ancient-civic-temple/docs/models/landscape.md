@@ -3,8 +3,10 @@
 ## 좁고 높은 상록수 {#cypress}
 
 <!--
-@evidenceExclude settings/40-environment.md#daylight 고정 주광과 하늘 보조광은 모델 population의 중립 검토 계약이 소유한다. 상록수 원형은 수관·가지 형상만 결정하고 조명을 새로 정하지 않는다.
-@evidenceExcludeReview settings/40-environment.md#daylight #eac4028 상록수 H2의 형상 질문과 공통 판의 조명 출처를 구별했다.
+@evidence contracts/principles-models.md#temple-reference-scale 1.50×9.0×1.50m 상록수는 성인 포락보다 높고 대지 배치 구역에 놓이며, `trunk` 12각 옆면은 +X 시접의 Y축 원통 UV, 세 `crown` 덩어리는 각 면 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 상록수 9.0m 높이와 1.50m 수관 폭을 대지 규모에 대조하고 12각 줄기 원통과 세 수관의 면별 평면 UV를 읽었다.
+@evidence settings/40-environment.md#daylight 상록수의 세 수관 덩어리와 줄기 사이 빈틈은 정면 좌측 위 45° 주광과 하늘 보조광을 고정한 중립 판에서 판독한다.
+@evidenceReview settings/40-environment.md#daylight #eac4028 세 수관 사이 명암과 줄기 윤곽을 설정의 고정 주광·하늘 보조광에서 읽도록 한 검토 조건을 확인했다.
 @evidence principles/core/common.md#scope-preservation 좁고 높은 상록수를 줄기와 겹친 세 수관 덩어리, 높이·분할·법선, 덩어리 사이 빈틈까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 줄기와 겹친 세 수관·허리 빈틈을 읽어 좁은 나무를 단일 원뿔로 줄이지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 줄기 원뿔대의 둘레 12분할과 세 타원체의 반지름·높이·중심 XYZ·10×6분할을 확정해 source가 수관 축이나 줄기 단면을 다시 고르지 않는다.
@@ -47,11 +49,17 @@
 
 part와 표면은 `trunk`, `crown`이다. 덩어리 사이 허리의 좁아짐이 빈틈이다. 개체 위치·크기 변형·수는 instances가 [배치 구역](../spaces/site.md#placement-zones) 안에서 정한다.
 
+세 수관 덩어리와 줄기 사이의 빈틈은 [주광과 대기](../settings/40-environment.md#daylight)의 정면 좌측 위 고도 45° 주광과 하늘 보조광을 설정한 중립 판에서 읽는다.
+
 검토 판에서 보행 포락 대비 약 4.7배 높이와 세 덩어리의 겹침을 본다. 단일 원뿔, 직육면체 수관, 줄기 없는 덩어리는 실패다.
+
+상록수 `trunk`의 UV0는 밑동 +X 시접에서 둘레 호길이 U·높이 V로 편다. 세 `crown` 타원체의 면은 각 바깥법선별 기본 평면 투영을 쓰고 덩어리 경계에서 끊는다.
 
 ## 넓은 수관의 나무 {#broad-tree}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 약 4.4×5.2×4.2m 활엽수는 사람 포락을 넘어 대지에 두고, `trunk`는 Y축 둘레 UV, 세 `branch`는 가지축에 +X를 투영한 시접의 둘레 U·길이 V, `crown`은 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 넓은 수관의 4.4m 가로 점유를 읽고 줄기 Y축과 세 사선 가지의 +X 투영 시접이 다른 규칙임을 확인했다.
 @evidence principles/core/common.md#scope-preservation 낮고 넓은 수관 나무를 줄기·세 가지·여섯 수관 덩어리와 빈틈·분할까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 줄기·세 가지·여섯 수관과 사이 빈틈을 읽어 넓은 나무의 층이 빠지지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 줄기·세 가지의 끝 좌표와 여섯 수관의 중심·세 반축, 줄기 12분할·가지 8분할을 확정해 source가 덩어리 위치나 가지 단면을 다시 고르지 않는다.
@@ -105,9 +113,13 @@ part와 표면은 `trunk`, `branch`, `crown`이다. 위치·크기·회전 변�
 
 검토 판에서 정면·평면으로 줄기와 가지, 덩어리 사이 빈틈을 본다. 구 하나의 수관, 가지가 보이지 않는 덩어리는 실패다.
 
+넓은 나무 `trunk`는 +X 시접의 Y축 원통 UV0를, 세 `branch`는 시작점 축에 +X를 직교 투영한 시접에서 둘레 U·가지 길이 V를 쓴다. `crown` 타원체는 면 법선별 평면 UV로 끊는다.
+
 ## 벽 밑 풀 {#grass-tuft}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 최대 0.35m 풀 포락은 성인 통행보다 낮고 문턱 밖 띠에만 놓이며, 한 `blade`의 여러 평평한 앞뒤 면은 각 바깥법선의 기본 UV로 투영한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 풀 높이 0.35m와 문턱 밖 배치 한계를 읽고 여러 날개의 앞뒷면을 별도 평면으로 투영하는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 벽 밑 풀 포기를 잎 열두 장의 삼각 판 묶음과 높이·양면 표면·배치 금지 구역까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 열두 양면 잎과 문턱·경로 배제를 함께 읽어 벽 밑 풀의 필요한 형상·배치 경계를 확인했다.
 @evidence principles/core/common.md#substantive-completion 열두 잎의 폭·높이·방위·바깥 기울기를 잎 번호의 결정론적 식으로 정해 source가 각도를 다시 고르지 않는다.
@@ -150,9 +162,13 @@ part와 표면은 `blade` 하나다. 위치·수·크기 변형은 instances가 
 
 검토 판에서 벽 기단 옆에 둔 규모가 보행 포락의 약 0.15배인지 본다. 직육면체 풀, 문 앞을 막는 포기는 실패다.
 
+풀 `blade`의 앞뒷면 UV0는 각 면의 바깥법선으로 고른 평면 투영이며, 얇은 잎 외곽에서 정점을 분리한다. 0.35m 점유 밖으로 잎 무늬를 위한 추가 기하를 만들지 않는다.
+
 ## 이웃 회벽집 외피 {#neighbor-house}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale A 8.6×4.733×6.6m·B 6.6×5.952×7.6m 외피는 사람 포락보다 크지만 대지 배치 구역에 머물고, `roof`의 +Z 앞 경사 +X U·−Z 뒤 경사 −X U·외쪽 +X U와 각 처마→높은 쪽 V를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 A·B 외피 치수를 대지 구역과 대조하고 A의 +Z 앞 경사는 +X, −Z 뒤 경사는 −X U이며 각 V가 처마부터 증가하는지 읽었다.
 @evidenceExclude settings/00-delivery.md#governing-aim 다섯 reference의 건물 전체 대조는 건물 관찰 위치가 맡고 원형 검토 판은 분리된 부재 형상·빈 공간만 판단한다.
 @evidenceExcludeReview settings/00-delivery.md#governing-aim #df3c7b2 신전 전체 이미지 비교와 분리된 원형 판의 관찰 분모를 구별했다.
 @evidenceExclude spaces/building.md#footprint 외곽 footprint는 건물 매스가 소유하고 모델은 방·주랑·지붕의 판정된 순치수와 기준선만 받아 독립 부재를 만든다.
@@ -200,3 +216,5 @@ part와 표면은 `blade` 하나다. 위치·수·크기 변형은 instances가 
 part와 표면은 `wall`, `plinth`, `roof`, `recess`(문·창 자리 안쪽 면)이다. 문·창 자리는 막힌 오목 공간이며 뚫리지 않는다. 위치·회전·수는 신전의 박공·포치·외곽을 가리지 않도록 instances가 [배치 구역](../spaces/site.md#placement-zones) 안에서 정한다.
 
 검토 판에서 두 변형의 정면과 3/4를 보고, 신전 파라펫 코핑 4.85m와 비교해 A가 낮고 B가 비슷한 높이인지 본다. 신전보다 높은 이웃, 실내가 보이는 뚫린 창, 단색 상자는 실패다.
+
+이웃집 `roof`의 UV0는 로컬 +Z 앞 박공 경사에서 +X U, −Z 뒤 박공 경사에서 −X U, 외쪽 단경사에서 +X U를 쓰며 세 경사 모두 처마에서 높은 쪽으로 실제 경사 길이 V가 증가한다. `wall`·`plinth`·막힌 `recess`는 바깥법선별 기본 평면 투영으로 끊는다.

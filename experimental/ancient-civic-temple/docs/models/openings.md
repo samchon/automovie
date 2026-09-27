@@ -3,6 +3,8 @@
 ## 석재 문틀 {#door-frame}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 여덟 개구의 두께와 유효 폭에서 얻은 `(폭+0.44)×(높이+0.22)×(벽 두께+0.06)m` 안에 `lining`·`surround`를 두고, 석재 안감·양면 테의 면 법선별 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 여덟 문 폭·높이에서 테 여유 0.44/0.22m와 안감 두께를 도출한 식을 읽고 안감·테 모서리별 평면 UV를 확인했다.
 @evidenceExclude settings/00-delivery.md#accessibility 한국어 UI와 키보드 조작은 viewer의 산출물이며 49개 원형의 점유·관절·UV0 중 어느 것도 그 조작을 형상 입력으로 쓰지 않는다.
 @evidenceExcludeReview settings/00-delivery.md#accessibility #e5000b9 원형의 구성 검토와 viewer 조작·문자 접근성의 서로 다른 산출물을 대조했다.
 @evidenceExclude settings/10-building.md#fixed-graph 방 순서·문 연결·주랑 루프는 spaces의 설계이고 원형은 판정된 room volume과 문 치수만 받아 건물 그래프를 다시 만들지 않는다.
@@ -53,9 +55,13 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 검토 판에서 1.0×2.2×0.3m 변형을 정면·측면·3/4로 보고 안감 깊이와 테 돌출이 분리돼 읽히는지 본다. 건물 관찰에서는 각 문 양면에서 틀이 void를 정확히 채우고 벽과 틈이 없으며 유효 폭을 줄이지 않는지를 확인한다. 벽면에 붙인 평면 테만 있고 깊이 방향 안감이 없는 문, void보다 큰 안감, 유효 폭을 침범한 틀은 실패다.
 
+문틀 `lining`과 `surround`의 UV0는 각 석재 막대의 바깥 법선에 따른 기본 평면 투영이다. 안감 깊이 방향의 단단한 모서리, 양면 테의 앞뒤 돌출 모서리 및 두 part 경계에서 이음을 둔다.
+
 ## 양개 목재 문짝 {#double-door-leaf}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.8m·1.4m 통과 폭을 반씩 쓰는 각 짝의 닫힌 점유 X=0~폭/2·Y=0.01~2.5m에 목재 세로 +Y/가로 +X U, 두 면의 연결 핀 법선축 원통 U/V와 고리 XY 원환을 배정한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 정문·제실 각 짝 폭과 바닥 띄움 0.01m를 읽고 선대 +Y, 가로대 +X, 앞뒤 핀의 서로 반대 법선 시접을 대조했다.
 @evidence principles/core/common.md#scope-preservation 정문과 제실 문의 양개 목재 문짝을 두 변형으로 한정하고 짝 치수·테두리와 판·손잡이·경첩·관절·표면까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 정문·제실 두 치수의 양개 짝과 목재 판·철물·관절을 읽어 문짝 외의 문틀을 만들지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 선대·가로대·판 두께와 바닥 띄움, 손잡이 X·양면 Z·Y=1.104m 핀, 반지름 0.06m의 받침판 둘레 16분할·첫 꼭짓점 +X, 연결 핀 둘레 12분할, 원환 16×8분할과 경첩 12분할을 함께 정해 철물 접점을 고정한다.
@@ -98,9 +104,13 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 검토 판에서 닫힘·열림 두 상태의 정면·평면을 보고 판의 들어간 면과 테두리, 손잡이와 경첩이 분리돼 읽히는지 확인한다. 건물 관찰에서는 열린 짝이 벽에 닿기 전 90°에 멈추고 정문 유효폭 1.4m 이상을 남기는지 본다. 판 하나로 된 문, 문틀보다 큰 짝, 열림 상태에서 벽이나 기둥을 뚫는 짝은 실패다.
 
+양개 문짝 `frame`의 선대와 `panel`은 세로 +Y, 가로대는 +X 길이를 UV0의 U로 둔다. `plate`는 평면 투영, 양면 `pin`은 각 문면 법선축 원통, `ring`은 XY 원환, `hinge`는 Y축 원통으로 전개하고 철물 접점에서 이음을 끊는다.
+
 ## 외개 목재 문짝 {#single-door-leaf}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 세 외개문 변형의 폭 1.0/1.1/1.2m와 닫힌 두께 −0.068~+0.031m를 각각 문턱·스윙에 대조하며, 다섯 `board`는 +Y U, `batten`·`strap`은 +X U, 양면 `pin`·`ring`은 원통·원환 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 세 외개문 폭과 철물 포함 Z 점유를 읽고 다섯 널의 세로 U, 띠의 가로 U, XY 고리의 16×8 분할을 확인했다.
 @evidenceExclude settings/50-production.md#execution-authority 작업과 실행 권한은 저작 행위의 규칙이고 문짝 hinge 및 다른 원형의 형상 인터페이스를 고르는 근거가 아니다.
 @evidenceExcludeReview settings/50-production.md#execution-authority #cf13b03 실행 권한의 주체와 모델의 관절·기하 결정 주체를 구분했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실·세 업무방·마당 두 문의 외개 판문을 세 치수 변형으로 정하고 가로 띠·쇠 띠 경첩·이음 홈·손잡이·관절·표면까지 정한다.
@@ -149,9 +159,13 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 검토 판에서 두 상태와 두 면을 보고 가로 띠·쇠 띠가 한 면에만 있는지, 이음 홈이 반대면에서 읽히는지 본다. 건물 관찰에서는 열린 짝이 방 안 스윙 예약 안에 머물고 유효 폭 0.9m 이상을 남기는지 확인한다. 양개 문과 구별되지 않는 판, 스윙 예약 밖으로 여는 짝은 실패다.
 
+외개 `board` 다섯 장은 아래→위 +Y를 UV0의 U로, 두 `batten`과 쇠 `strap`은 경첩→손잡이 +X를 U로 둔다. 양면 `pin`은 문면 법선 방향 원통, `ring`은 로컬 XY 원환의 주환 16분할·관 8분할로 펴고 널 이음과 철물 part 경계에서 끊는다.
+
 ## 채광구 석재 틀 {#window-frame}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.4×0.4m 채광구 주변 0.72×0.72×(0.30/0.60+0.03)m 점유는 제실 벽 두께와 창틀 돌출을 따르고, `lining`·`surround` 석재 면은 기본 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 0.4m 채광 개구에 테를 더한 0.72m 바깥 폭과 두 벽 깊이를 읽고 외부 테와 안감의 면별 기본 UV를 대조했다.
 @evidenceExclude spaces/observations.md#viewer-path viewer-path는 건물 source의 실제 표시 경로이고 중립 원형 검토 판은 별도 장면이라 그 모드·절개를 형상 기준으로 쓰지 않는다.
 @evidenceExcludeReview spaces/observations.md#viewer-path #037f6c0 건물 viewer와 모델 판의 장면·관찰 주소를 구분했다.
 @evidence principles/core/common.md#scope-preservation 제실 채광구의 깊은 석재 안감과 바깥 테를 두 벽 두께 변형으로 정하고 유리·창살·덧문이 없음을 밝힌다.
@@ -197,3 +211,5 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 part와 표면은 `lining`, `surround`이다. 안감 바깥면과 테 뒷면은 벽과 맞닿는 가려진 접촉면이고 0.4×0.4m의 통과 영역은 비어 있다. 외부 면은 박공 창에서는 북측 입면·주랑 지붕 쪽, 측벽 창에서는 봉헌실 지붕·마당 쪽이며 instances가 그 방향을 소비한다.
 
 검토 판에서 정면과 45° 시점으로 깊은 안감과 바깥 테를 보고, 건물 관찰에서 실내 쪽에는 테 없이 reveal만 있고 외부에서는 테가 보이는지 확인한다. 유리 판, 벽 두께보다 얕은 안감, void를 막은 틀은 실패다.
+
+채광구 `lining`·`surround`의 UV0는 각 석재 안감과 외부 테의 바깥 면 법선에 따른 기본 평면 투영이다. 0.30m·0.60m 벽 깊이 변형의 막대 맞댐과 두 part 경계에서 이음을 둔다.

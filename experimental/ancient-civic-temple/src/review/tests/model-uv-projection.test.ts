@@ -101,9 +101,9 @@ void test("neighbor roof top UV runs outward U and uphill V on each slope",()=>{
     const tops=roof.filter((vertex)=>vertex.ny>0.8&&Math.abs(vertex.nz)>0.1);
     assert.ok(tops.length>=(kind==="gable"?8:4),`${kind}: roof top missing`);
     for(const vertex of tops){
-      const front=kind==="gable"&&vertex.nz<0;
-      close(vertex.u,front?4.3-vertex.x:vertex.x+(kind==="gable"?4.3:3.3));
-      close(vertex.v,(front?vertex.z+3.3:(kind==="gable"?3.3:3.8)-vertex.z)/Math.cos(slope));
+      const rear=kind==="gable"&&vertex.nz<0;
+      close(vertex.u,rear?4.3-vertex.x:vertex.x+(kind==="gable"?4.3:3.3));
+      close(vertex.v,(rear?vertex.z+3.3:(kind==="gable"?3.3:3.8)-vertex.z)/Math.cos(slope));
     }
     assert.ok(tops.some((vertex)=>Math.abs(vertex.v)<1e-8),`${kind}: eave datum`);
   }

@@ -1,6 +1,6 @@
 <!--
 @evidence discovery/design/models.md#work-specific-model-requirements 한 신전의 모든 원형에 반복 적용되는 축척·UV0 투영은 개별 원형의 형상 결정과 달리 여러 모델 소유자를 가로지르므로 local 원칙으로 보존한다.
-@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 모델 검색의 기존 no-result를 다시 읽고 공통 원칙 세 개가 개별 49 원형에 반복되는 별도 생산 조건임을 확인했다.
+@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 모델 검색의 기존 no-result를 다시 읽고 축척·UV 원칙 한 항목이 개별 49 원형에 반복되는 별도 생산 조건임을 확인했다.
 -->
 
 # 신전 모델의 반복 적용 원칙
@@ -41,7 +41,7 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 | `wares#storage-jar`, `#carry-jar`, `#small-vessel`, `#offering-bowl`, `#basket` | 항아리·그릇·바구니 원형 몸체와 손잡이 | Y축 회전체와 원환 전개; 손잡이 베지어 관은 아래 부착점에서 위 부착점까지 중심선 호길이 U와 관 둘레 호길이 V. 바구니 띠는 각 원형 띠의 호길이 U, 세로 살은 +Y를 U. +X 시접·각 손잡이 부착점에서 이음. |
 | `wares#scroll` | `sheet`, `sheet-1`, `sheet-2`, `sheet-3`, `tie` | 말린 종이·끈은 X축 원통/YZ 원환 전개, 펼친 종이는 로컬 +Z 긴 방향을 U, +X를 V로 하는 평면 투영; 종이 끝과 끈 시접에서 이음. |
 | `landscape#cypress`, `#broad-tree`, `#grass-tuft` | 줄기·가지·잎·풀 | 줄기와 가지는 각 축의 원통 전개, 잎과 풀의 앞뒷면은 기본 평면 투영; 줄기·가지 +X 시접과 각 잎·풀의 외곽에서 이음. |
-| `landscape#neighbor-house` | `roof`, `wall`, `plinth`, `recess` | 지붕 윗면의 U는 변형 A 앞 경사에서 −X, 뒤 경사와 변형 B에서 +X다. 각 경사의 V는 처마에서 높은 쪽으로 실제 경사 길이만큼 증가한다. 이 배향은 U×V가 바깥 법선을 향하게 한다. 벽·기단·문창 안쪽은 기본 평면 투영; 지붕 경사·건물 모서리·개구부에서 이음. |
+| `landscape#neighbor-house` | `roof`, `wall`, `plinth`, `recess` | 지붕 윗면의 U는 변형 A의 로컬 +Z 앞 경사에서 +X, −Z 뒤 경사에서 −X, 변형 B의 외쪽 경사에서 +X다. 각 경사의 V는 처마에서 높은 쪽으로 실제 경사 길이만큼 증가한다. 이 배향은 U×V가 바깥 법선을 향하게 한다. 벽·기단·문창 안쪽은 기본 평면 투영; 지붕 경사·건물 모서리·개구부에서 이음. |
 | `portable#bench`, `#votive-plaque`, `#offering-tray`, `#writing-tablet`, `ritual#floor-cushion` | 모든 평판·각재 part | 각 독립 평면에 기본 투영을 쓰고 판의 모서리와 part 경계에서 이음. |
 | `portable#portable-lamp`, `#bucket`, `#planter`, `#stylus`, `ritual#censer`, `#jar-stand` | 회전체 옆면·원판·관 | 회전체는 +X 시접에서 호길이 U, 모선 길이 V; 원판·평평한 흙·재 면은 기본 평면 투영. 물동이 손잡이 관은 t=0의 +X 끝에서 t=π의 −X 끝까지 중심선 호길이 U와 관 단면 호길이 V. |
 | `portable#jar-rack` | `top`, `leg`, `well` | 상판·다리는 부재 장축 U; 둥근 홈의 벽은 회전체 호길이 U, 바닥은 기본 평면 투영. `top`은 홈 구멍의 벽만, `well`은 홈 바닥만 소유한다. |
@@ -53,6 +53,6 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 모델은 각 part의 안정된 표면 ID와 UV0 투영·이음만 소유한다. 재료 결속 키·반복 길이·fallback과 part별 배정은 [재료 결속](../materials/10-model-bindings.md#binding-map)이 소유한다.
 
 
-Review question: 이 원형의 실제 점유와 UV0 투영·이음이 아래 수치 및 표의 해당 행과 일치하고, 보행 포락과 판정된 공간 순치수에 맞는가?
+Review question: 이 원형의 실제 점유와 UV0 투영·이음이 위 수치 및 표의 해당 행과 일치하고, 보행 포락과 판정된 공간 순치수에 맞는가?
 
 Sources: 검토된 기존 `docs/models/scale.md#reference-scale`의 설계 결정과 사용자 2026-09-27 지시.

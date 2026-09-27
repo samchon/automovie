@@ -5,6 +5,8 @@
 ## 대기와 작업용 석재 벤치 {#bench}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.40×0.46×0.45m 벤치는 성인 보행 포락보다 낮고 중정 통로 옆에 머물며, 석재 `seat`·`pier`의 각 노출 평면을 바깥법선별 기본 UV로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 벤치 좌면 0.46m와 길이 1.40m를 성인 포락에 대조하고 좌판·두 받침의 석재 평면 이음을 읽었다.
 @evidenceExclude settings/00-delivery.md#coverage-map 설정 소유 지도는 settings의 색인이고 원형은 지도가 가리키는 외피·실내·물체·환경 H2를 직접 소비하므로 지도 자체에서 추가 형상을 받지 않는다.
 @evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 모델 근거가 지도 항목이 아니라 실제 외피·실내·물체·환경 owner로 연결되는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 중정과 정문의 낮은 대기 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
@@ -45,9 +47,13 @@
 
 part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의 결은 후속 materials가 받는다. 검토 판의 정면·측면에서 0.40m 열린 하부와 두 받침의 분리를 본다. 지면과 떨어진 받침이나 막힌 상자형 벤치는 실패다.
 
+벤치 `seat`와 두 `pier`의 UV0는 각각의 윗면·옆면 바깥법선에 따른 기본 평면 투영이다. 0.40m 열린 하부를 채우지 않고 받침과 상판의 맞댐에서 이음을 둔다.
+
 ## 들고 놓는 소형 등잔 {#portable-lamp}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.24×0.28×0.24m 소형 등잔은 손에 드는 비품 범위에 맞고, `foot`·`stem`·`dish`의 둥근 옆면은 +X 시접의 Y축 회전체 UV, 접시 안쪽은 별도 최저 고리 V를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 0.28m 높이의 작은 등잔을 손 비품 크기와 대조하고 발·줄기·접시 곡면 및 접시 안쪽의 서로 다른 V 시작을 읽었다.
 @evidenceExclude settings/00-delivery.md#delivery-scope 납품 공간 목록과 뷰어 약속은 spaces와 viewer가 맡고 모델 원형의 사물 종류는 35-objects와 30-interiors의 개별 정체성에서 받는다.
 @evidenceExcludeReview settings/00-delivery.md#delivery-scope #142c909 방 납품과 물체 원형의 소유자를 00-delivery와 각 사물 설정에 대조했다.
 @evidence principles/core/common.md#scope-preservation 높은 제실 등잔대와 별개인 이동식 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
@@ -86,9 +92,13 @@ part와 표면은 `seat`, `pier`다. `seat` 윗면은 쓰는 면이며 재료의
 
 part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이고 접시 안쪽 면은 별도 법선과 UV 이음을 가진다. 검토 판에서 원형 접시의 실제 오목함과 줄기 끝 접촉을 본다. 불꽃을 더하거나 접시를 막힌 원판으로 바꾸면 실패다.
 
+소형 등잔의 `foot`·`stem`·`dish`는 +X 시접부터 둘레 호길이 U·단면 모선 V로 UV0를 편다. 오목한 접시 안쪽은 바깥쪽과 분리하고 아래 원판은 평면 투영한다.
+
 ## 항아리 두 자리 받침대 {#jar-rack}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.18×0.28×0.58m 두 자리 받침은 항아리 두 개의 접촉면을 남기고, 목재 `top`은 +X U·정방 `leg`는 +Y U, 둥근 `well` 벽은 원환 호길이 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 항아리 두 자리의 1.18m 길이와 두 홈 위치를 읽고 상판 X·다리 Y·홈 벽 둘레 UV가 분리됐는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 두 항아리를 받는 보관실 가구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두 항아리 홈과 네 다리·열린 아래를 읽어 받침대 자체를 도기와 혼동하지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 상판·두 홈·네 다리의 치수와 열린 아래, 저장 항아리 바닥 반지름 0.10m보다 큰 홈 반지름 0.16m를 정한다.
@@ -125,9 +135,13 @@ part와 표면은 `foot`, `stem`, `dish`다. 세 회전체는 둘레 16분할이
 
 part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검토 판의 상면에서 두 빈 홈, 측면에서 열린 하부를 확인한다. 홈이 관통하거나 홈 없이 도기와 겹치는 판은 실패다.
 
+두 자리 받침 `top`은 폭 +X, 네 `leg`는 바닥에서 위로 +Y를 UV0의 U로 둔다. 두 `well`의 열린 원형 벽은 둘레 호길이로 펴고 바닥은 평면 투영으로 별도 이음을 둔다.
+
 ## 양손 운반 멜대 {#carrying-yoke}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 1.16×0.17×0.12m 멜대의 X 길이는 양손 운반 폭으로 정하고, 목재 `beam`은 −X→+X 장축 U, 양 끝 `hook`은 YZ 원환의 큰 원·관 단면 호길이 UV다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 양손 멜대 1.16m 폭을 읽고 곧은 막대의 X 결 방향과 두 YZ 고리의 주환·관 호길이 UV를 대조했다.
 @evidence principles/core/common.md#scope-preservation 서비스 마당에 내려놓는 운반 비품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 내려놓은 가로대와 양끝 두 고리의 고정 상태·구멍을 읽어 운반 동작을 주장하지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 막대·고리의 치수·중심·접촉과 고정 상태를 정해 하중 계산으로 오해되지 않게 한다.
@@ -164,9 +178,13 @@ part와 표면은 `top`, `leg`, `well`이다. 홈 원주는 16분할이다. 검�
 
 part와 표면은 `beam`, `hook`이다. 두 고리는 같은 형상의 반복이며 첫 중심은 −X 쪽이다. 검토 판의 ±X 끝 입면에서 고리 두 구멍과 나무·금속 부재의 분리를 본다. 실제 적재 강도나 운반 동작은 주장하지 않는다.
 
+멜대 `beam`은 로컬 −X 끝에서 +X 끝으로 목재 결 UV0의 U를 늘리고, 두 `hook`은 YZ 평면 원환의 중심선·관 둘레 호길이로 편다. 막대 끝과 고리 부착점은 별도 이음이다.
+
 ## 작은 손수레 {#handcart}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.76×0.72×1.80m 손수레의 긴 판은 보행 포락 옆으로 밀 수 있는 고정 형상이며, `deck`·`handle`·`support`는 각 장축 U, X축 `axle`·`wheel`은 둘레 U·축 길이 V다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 손수레 1.80m 앞뒤 점유와 축·바퀴 간격을 읽고 목재 장축 U와 X축 회전 부재의 둘레 U·축 V를 구별했다.
 @evidence principles/core/common.md#scope-preservation 바퀴가 멈춘 서비스 마당의 외부 소품의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 바퀴가 멈춘 빈 판·축·손잡이·지지재를 읽어 외부 반입 소품의 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 상판·두 바퀴·축·손잡이의 닫힌 범위와 바닥 접촉을 정한다.
@@ -209,9 +227,13 @@ part와 표면은 `beam`, `hook`이다. 두 고리는 같은 형상의 반복이
 
 part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정지된 고정 부재이고 굴림 애니메이션 인터페이스는 없다. 검토 판에서 두 바퀴의 같은 지면 접촉, 축에서 판까지 이어지는 지지재, 판 아래 빈 공간과 뒤 손잡이를 본다. 외관으로 하중 성능을 주장하지 않는다.
 
+손수레 `deck`의 긴 +Z, 두 `handle`의 뒤로 뻗는 축, 세로 `support`의 +Y를 각각 UV0의 U로 둔다. `axle`·두 `wheel`은 +Z에서 +Y로 도는 X축 원통 둘레 U와 +X 축 길이 V로 전개한다.
+
 ## 손잡이 있는 물동이 {#bucket}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 손잡이를 포함한 보수적 0.315×0.4502×0.30m 물동이는 손에 드는 포락에 머물고, `body`의 안팎은 별도 Y축 회전체 UV, `handle`은 +X 부착점→−X 부착점 관 호길이 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 반타원 손잡이를 포함한 보수적 높이 0.4502m를 읽고 몸체 안팎의 별도 회전체 시접과 손잡이 관의 시작·끝 방향을 확인했다.
 @evidence principles/core/common.md#scope-preservation 열린 입과 손잡이가 있는 마당 용기의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 벌어진 몸체·열린 입·반타원 손잡이를 읽어 비어 있는 마당 용기를 물 표면 없이 표현하는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 바닥·벌어진 윗입·안쪽 바닥과 몸체 16분할, 손잡이 반타원의 두 접점·꼭대기·12구간 경로를 정한다.
@@ -252,9 +274,13 @@ part와 표면은 `deck`, `axle`, `wheel`, `handle`, `support`다. 바퀴는 정
 
 part와 표면은 `body`, `handle`이다. `body` 안쪽 면은 별도 법선·UV 이음이다. 검토 판에서 벌어진 입과 반타원 손잡이의 실제 빈 공간을 본다. 끝 원판의 일부 노출은 접합의 일부로 읽고, 손잡이 끝 링이 몸체에 삽입되지 않거나 손잡이가 몸체에서 뜨거나 입이 막히면 실패다.
 
+물동이 `body`의 안팎은 각자 +X 시접의 둘레 U·모선 V로 UV0를 편다. 반타원 `handle`은 +X 시작점부터 −X 끝점까지 중심선 호길이를 U·관 둘레를 V로 삼고 두 관 끝에서 이음을 둔다.
+
 ## 흙을 담은 낮은 화분 {#planter}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.42×0.36×0.42m 낮은 화분은 포치 통로의 낮은 비품 범위에 맞고, 둥근 `pot` 옆면은 +X 시접 회전체 UV, 수평 `soil` 노출면은 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 0.42m 화분 지름과 0.36m 높이를 포치 통로 비품 크기에 대조하고 둥근 용기와 수평 흙면의 투영 차이를 읽었다.
 @evidence principles/core/common.md#scope-preservation 중정 가장자리의 흙 화분의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 화분과 흙의 두 부피 및 위 빈 공간을 읽어 식물 자체를 화분 실체로 만들지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 바닥·테두리·내벽·흙면의 높이와 빈 윗공간을 정한다.
@@ -293,9 +319,13 @@ Y=0.270m에서 안쪽 벽 반지름은 0.12+(0.19−0.12)(0.270−0.03)/(0.36−
 
 part와 표면은 `pot`, `soil`이다. `soil`은 바닥에서 노출 윗면까지 이어진 닫힌 부피이고 `pot`과 부피를 겹쳐 방출하지 않는다. 검토 판의 평면·측면에서 흙면이 테두리 안쪽에 담기고 외벽을 뚫지 않는지 본다. 식물의 종류와 개수는 이 모델의 형상이 아니다.
 
+화분 `pot`의 바깥·안쪽은 +X 시접에서 둘레 U·모선 V를 각각 전개한다. `soil`의 윗면은 +Y 바깥법선의 평면 UV0를 쓰고 테두리와 흙의 part 경계에서 이음을 둔다.
+
 ## 무문양 봉헌판 {#votive-plaque}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.36×0.42×0.14m 봉헌판은 책상·제단 위에 놓일 작은 입체판이고, 글자 없는 `base`·`slab`의 각 직사각 노출면은 기본 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 글자 없는 판의 0.36×0.42m 전면과 0.14m 깊이를 읽고 받침·판의 직사각 노출면만 기본 평면으로 펼치는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실의 글자 없는 판의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 글자 없는 세운 판과 받침의 형상·배치 경계를 읽어 봉헌 내용을 임의로 새기지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 받침 폭과 앞뒤 안정 면, 판 높이·두께·접촉을 정한다.
@@ -334,9 +364,13 @@ part와 표면은 `pot`, `soil`이다. `soil`은 바닥에서 노출 윗면까�
 
 part와 표면은 `base`, `slab`이다. 검토 판의 앞·옆에서 판과 받침이 닿고 직사각 판의 두께가 남는지 본다. 글자가 읽히거나 받침 없이 공중에 서면 실패다.
 
+봉헌판 `base`·`slab`의 UV0는 판 앞뒤와 받침 윗·옆면 각각의 바깥법선별 기본 평면 투영이다. 받침 위에 판이 서는 맞댐과 무문양 판의 모서리에서 이음을 둔다.
+
 ## 낮은 봉헌 쟁반 {#offering-tray}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.52×0.055×0.34m 쟁반은 손에 드는 낮은 비품 크기와 열린 가운데를 지키고, `floor` 바닥과 네 `rim` 판의 평면 UV를 각 바깥법선으로 정한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 쟁반의 낮은 0.055m 높이와 네 변 림을 읽고 바닥 면과 네 림의 별도 바깥법선 이음을 확인했다.
 @evidence principles/core/common.md#scope-preservation 그릇을 모아 놓는 얕은 쟁반의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 작은 그릇을 모으는 열린 판과 네 림의 형태·배치 경계를 읽었다.
 @evidence principles/core/common.md#substantive-completion 바닥 판·네 림의 폭·두께·접촉과 빈 안쪽 범위를 정한다.
@@ -375,9 +409,13 @@ part와 표면은 `base`, `slab`이다. 검토 판의 앞·옆에서 판과 받�
 
 part와 표면은 `floor`, `rim`이다. `rim` 행은 네 외곽 판의 합집합 범위이며 가운데를 채운 상자가 아니다. 검토 판의 평면·측면에서 빈 가운데와 네 테두리의 맞댐을 본다. 얕은 그릇 하나와 구별되지 않는 원판은 실패다.
 
+쟁반 `floor`와 네 변 `rim`의 UV0는 수평 바닥과 수직 테두리마다 바깥법선별 평면 투영을 쓴다. 열린 가운데를 판으로 메우지 않고 네 모서리 및 part 경계에서 이음을 둔다.
+
 ## 접은 직물 {#textile}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.55×0.045×0.40m 접은 직물은 책상·선반 윗면에 얹히고, 하나의 `cloth` 안에서 두 겹의 윗·아랫면과 접힌 띠를 각각 평면 UV로 끊는다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 두 겹 직물의 0.045m 높이와 접힌 가장자리를 읽고 `cloth` 안의 윗면·아랫면·띠마다 평면 이음을 두는지 대조했다.
 @evidence principles/core/common.md#scope-preservation 바닥 좌구와 구별되는 접은 덮개 천의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 바닥 좌구와 별도인 두 겹 덮개 천과 앞뒤 접힘·빈 간격을 읽었다.
 @evidence principles/core/common.md#substantive-completion 가로·세로·두께 매개변수와 접힌 양끝, 바닥 접촉을 정한다.
@@ -416,9 +454,13 @@ part와 표면은 `floor`, `rim`이다. `rim` 행은 네 외곽 판의 합집합
 
 part와 표면은 `cloth`이고 위아래 겹과 접힌 띠는 한 표면 ID 아래 서로 다른 UV 이음이다. 검토 판의 측면에서 두 겹과 빈 간격, 앞뒤 접힘 띠 및 놓인 면의 접촉을 본다. 두 겹이 하나의 꽉 찬 판으로 보이면 실패다. 보이지 않는 직물 물성을 형상에서 추론하지 않는다.
 
+접힌 `cloth`의 두 평판과 앞뒤 접힌 띠는 각각 바깥법선별 기본 UV0를 쓰고, 접힌 모서리에서는 같은 part 안에서도 정점을 복제해 이음을 둔다. 두 겹 사이 빈 높이는 무늬를 위한 면으로 채우지 않는다.
+
 ## 필기용 첨필 {#stylus}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.22×0.012×0.012m 첨필은 작성 도구 크기이고, X축 `shaft`는 +Z→+Y 둘레 U·+X 길이 V, 경사 `tip` 면은 바깥법선의 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 첨필 0.22m X 길이와 0.012m 단면을 읽고 X축 몸통의 +Z 시접 둘레 U와 뾰족한 끝의 면별 평면 UV를 확인했다.
 @evidence principles/core/common.md#scope-preservation 작성 책상 위의 첨필의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 관리실 책상 위의 가는 몸통과 원뿔 끝, 배치 경계를 읽었다.
 @evidence principles/core/common.md#substantive-completion 길이·두께·끝 접점과 원통 분할을 정해 책상 위에서 읽히는 최소 형상을 확정한다.
@@ -455,10 +497,14 @@ part와 표면은 `cloth`이고 위아래 겹과 접힌 띠는 한 표면 ID 아
 
 part와 표면은 `shaft`, `tip`이다. 검토 판에서 접합부에 틈이 없고 끝이 몸통과 다른 경사로 읽히는지 본다. 책상 위 실제 배치와 회전은 instances가 정한다.
 
+첨필 `shaft`의 UV0는 +Z 시접부터 +Y로 도는 X축 원통 둘레 U와 −X→+X 길이 V다. 뾰족한 `tip`의 각 경사 삼각면은 자기 바깥법선의 평면 투영으로 나뉘는 이음을 둔다.
+
 ## 글자 없는 필기판 {#writing-tablet}
 
 <!--
-@evidenceExclude settings/00-delivery.md#working-language 작업 언어는 형상 치수나 UV0 입력이 아니며 이 계정의 production-language H2가 모델 population의 한국어 표기를 맡는다.
+@evidence contracts/principles-models.md#temple-reference-scale 0.28×0.025×0.22m 필기판은 책상 위 작은 작업면이며, 테두리 `frame`과 낮은 `writing-face`의 각 평면은 기본 UV로 투영하고 중앙 단차를 이음으로 둔다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 필기판 0.28×0.22m 작업면과 0.025m 두께를 읽고 낮은 쓰기 면과 솟은 테두리의 면별 이음을 대조했다.
+@evidenceExclude settings/00-delivery.md#working-language 작업 언어는 필기판의 형상 치수나 UV0 입력이 아니며 models 계정의 production-language H2가 원형 산문의 한국어 표기를 맡는다.
 @evidenceExcludeReview settings/00-delivery.md#working-language #ba75eb7 한국어 표기 의무의 실제 계정과 원형의 숫자·part 식별자 소유를 확인했다.
 @evidence principles/core/common.md#scope-preservation 글자 없는 작성 판의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 글자 없는 틀과 낮은 중앙 쓰기 면을 읽어 빈 구멍이나 비문으로 바꾸지 않았는지 확인했다.
@@ -498,9 +544,13 @@ part와 표면은 `shaft`, `tip`이다. 검토 판에서 접합부에 틈이 없
 
 part와 표면은 `frame`, `writing-face`다. `writing-face`는 틀 내부의 윗면이며 중복된 판 부피가 아니다. 검토 판에서 중앙 단차를 읽고 빈 구멍이나 임의의 글자가 없는지 본다.
 
+필기판 `frame`·`writing-face`의 UV0는 수평 쓰기 면과 둘레 턱의 바깥법선별 평면 투영이다. 글자나 비문을 새기지 않고 중앙 단차와 두 part 경계에서 이음을 둔다.
+
 ## 묶는 끈 뭉치 {#rope-coil}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.226×0.024×0.226m 끈 뭉치는 작은 보관 비품이고, 세 XZ 고리 `rope`는 중심선 호길이 U·관 둘레 V, 위를 묶는 `tie`는 평면 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 세 고리의 0.226m 외곽과 묶음 띠 높이를 읽고 XZ 원환의 큰 원 U·관 V와 직사각 띠 평면 UV를 구분했다.
 @evidence principles/core/common.md#scope-preservation 기록물에 묶인 끈과 별도인 느슨한 고리의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 두루마리 끈과 별도인 세 동심 고리·묶음 띠와 빈 간극을 읽었다.
 @evidence principles/core/common.md#substantive-completion 세 반지름·관 굵기·띠 접촉과 분할 수를 정해 끈을 평면 그림으로 대체하지 않는다.
@@ -536,3 +586,5 @@ part와 표면은 `frame`, `writing-face`다. `writing-face`는 틀 내부의 �
 부재 대응: `rope`=고리; `tie`=묶음 띠.
 
 part와 표면은 `rope`, `tie`다. 검토 판에서 세 간극과 띠의 위쪽 접촉을 본다. 끈 한 가닥의 미세한 꼬임, 물체를 실제로 묶는 물리 동작은 표시하지 않는다.
+
+세 `rope` 고리는 XZ 평면의 큰 원 중심선과 작은 관 둘레 호길이를 각각 UV0의 U·V로 펴고, 위를 가로지르는 직사각 `tie`는 면 법선별 평면 투영을 쓴다. 고리 시접과 띠 모서리에서 끊는다.

@@ -5,6 +5,8 @@
 ## 낮은 향로 {#censer}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.22×0.35×0.22m 향로는 제단 위 보행 포락보다 작다. foot·stem·cup·incense는 +X 시접의 회전체, ash 윗면은 수평 평면 UV0로 정한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 향로 0.35m 전체 높이와 열린 컵 안 재를 읽고 발·줄기·컵·향의 +X 회전체 시접과 재 윗면 평면 UV를 확인했다.
 @evidenceExclude settings/50-production.md#acceptance 판정 권한과 완료 조건은 제작 절차이며 원형 판은 관찰할 형상과 시점만 제공하므로 모델 H2는 판정 권한을 정의하지 않는다.
 @evidenceExcludeReview settings/50-production.md#acceptance #2c49b7f 관찰 질문과 최종 판정 권한을 50-production의 서로 다른 항목으로 읽었다.
 @evidence principles/core/common.md#scope-preservation 제단 위 꺼진 향로의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
@@ -41,11 +43,15 @@
 
 부재 대응: `foot`=발; `stem`=줄기; `cup`=컵; `ash`=재; `incense`=향.
 
+UV0는 발·줄기·컵·향의 둘레를 로컬 +X 시접에서 호길이 U, 아래에서 위로 모선 길이 V로 펼친다. 컵의 열린 안쪽은 바깥쪽과 별도 시접이고 재의 윗면은 +Y 평면 투영이다. 0.22×0.35×0.22m 점유는 제단 위에 머물며 성인 보행 포락 0.6×0.4×1.9m보다 작다.
+
 part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 상판에 놓이며 향은 타지 않는다. 검토 판의 정면·측면에서 제단 위 낮은 받침과 열린 컵 속 재, 세 향 줄기가 분리되어 보이는지 확인한다. 세 줄기가 보이지 않거나 봉헌 쟁반으로 읽히면 실패다.
 
 ## 바닥 좌구 {#floor-cushion}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.46×0.158×0.38m 좌구의 base·pad·fold는 평면 UV0이고 각 층의 단단한 모서리에서 이음을 끊는다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 바닥 좌구의 0.158m 낮은 높이와 뒤 접힘 위치를 읽고 세 겹의 각 노출면이 기본 평면 이음을 가지는지 대조했다.
 @evidenceExclude settings/50-production.md#author-commits 커밋·푸시는 저작 기록이며 어떤 원형의 치수·part·관절·UV0 결정도 그 절차에서 받지 않는다.
 @evidenceExcludeReview settings/50-production.md#author-commits #f2218c8 모델 입력과 커밋 절차의 경계를 전 원형 population에 대해 확인했다.
 @evidence principles/core/common.md#scope-preservation 작업 스툴과 구별되는 제실 바닥 좌구의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
@@ -84,11 +90,15 @@ part와 표면은 `foot`, `stem`, `cup`, `ash`, `incense`다. 제실 제단의 �
 
 부재 대응: `base`=아래층; `pad`=좌면; `fold`=뒤 접힘선.
 
+UV0는 `base`·`pad`·`fold`의 각 평면을 면 법선별 기본 투영으로 두고 세 층의 모서리와 part 경계에서 정점을 분리한다. 0.46×0.158×0.38m 점유는 보행 포락 폭 0.6m보다 좁고, 제실 바닥의 실제 놓는 자리는 instances가 고른다.
+
 part와 표면은 `base`, `pad`, `fold`다. 제실 바닥에 놓고 인물·관절은 포함하지 않는다. 검토 판 정면에서 낮은 좌면이 보이지 않고 접은 천 더미처럼만 보이면 실패다.
 
 ## 항아리 한 자리 받침 {#jar-stand}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.60×0.34×0.60m 받침의 foot·post·ring은 +X 시접에서 Y축 회전체 UV0로 펼치고 열린 고리의 안쪽 이음을 분리한다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 0.60m 발 지름과 0.34m 윗 고리 높이를 읽고 발·기둥·고리의 Y축 호길이 UV 및 고리 안쪽 분리 시접을 확인했다.
 @evidence principles/core/common.md#scope-preservation 한 항아리를 받는 원형 받침의 형태, part, 점유 범위, 검토와 instances 배치 소유를 이 H2에서 함께 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 한 항아리용 발·기둥·윗 고리와 열린 중심을 읽어 두 자리 선반과 구별했다.
 @evidence principles/core/common.md#substantive-completion 원형 발·기둥·윗 고리의 치수와 열린 중심을 정한다.
@@ -122,5 +132,7 @@ part와 표면은 `base`, `pad`, `fold`다. 제실 바닥에 놓고 인물·관�
 실제 위치와 수량은 instances가 정한다.
 
 부재 대응: `foot`=발; `post`=기둥; `ring`=윗 받침.
+
+UV0는 발·기둥·윗 고리의 곡면을 +X 시접의 둘레 호길이 U와 단면 모선 길이 V로 전개하며, 고리 안쪽은 바깥면과 별도 시접이다. 0.60×0.34×0.60m 점유는 성인 보행 폭과 같으므로 통로 밖 보관실 자리는 instances가 결정한다.
 
 part와 표면은 `foot`, `post`, `ring`이다. 항아리 한 개만 놓는 받침이며 두 자리 선반이 아니다. 검토 판 옆면에서 기둥의 열린 둘레가 보이지 않고 통짜 항아리처럼 읽히면 실패다.

@@ -3,6 +3,8 @@
 ## 주랑 원주 {#colonnade-column}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 0.34×h×0.34m 원형은 12°·19° 보 하부 높이에 맞춰 보행 포락보다 좁은 통행 지지재가 되고, `base`·`shaft`·`capital`의 둥근 옆면은 +X 시접의 Y축 원통 UV를 쓴다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 주랑 기둥 지름 0.34m와 두 보 아랫면 높이 식을 읽고, 받침·몸통·주두의 둥근 면은 +X 시접 회전체이며 정방 판은 평면 투영인지 확인했다.
 @evidence settings/00-delivery.md#build-scope 주랑 원형 H2는 plinth·shaft·capital의 형상을 정하고 실제 주랑의 반복 수와 위치는 instances에 넘겨 제작 분담의 prototype 경계를 지킨다.
 @evidenceReview settings/00-delivery.md#build-scope #8d597f9 원주 부재와 주랑 반복 배치의 서로 다른 owner를 이 H2와 00-delivery의 제작 분담표에서 확인했다.
 @evidenceExclude settings/10-building.md#scale 410~450㎡ 외곽과 장단변비는 spaces footprint가 소비하고 원형은 보행 포락과 방·지붕의 판정된 순치수로 각자 크기를 정한다.
@@ -49,9 +51,13 @@ part와 표면은 `plinth`, `base`, `shaft`, `capital`(목 띠·받침머리·�
 
 검토 판의 정면·측면 실루엣에서 기단·받침·몸통·목 띠·받침머리·주두 판의 여섯 단 구분과 몸통의 좁아짐이 읽혀야 한다. 보행 포락과 나란히 둘 때 기둥이 약 1.38배 높고 기단 폭은 포락 폭의 약 0.57배다. 원통 하나로 된 기둥, 0.35m를 넘는 기단, 주두 없이 보에 닿는 몸통은 이 모델의 실패다.
 
+주랑 `base`·`shaft`·`capital`의 둥근 옆면 UV0는 각 단면의 실제 반지름을 쓰는 Y축 원통 전개이며 +X에 시접을 둔다. 정방 `plinth`와 주두 판의 평면은 면 법선별 기본 투영으로 끊는다.
+
 ## 포치 원주 {#porch-column}
 
 <!--
+@evidence contracts/principles-models.md#temple-reference-scale 포치 기둥의 0.50×3.20×0.50m 점유는 두 받침 축 X=±1.35m와 보 아랫면을 연결하고, 24각 몸통·받침은 Y축 원통 UV, 정방 기단과 판은 평면 UV를 낸다.
+@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 포치 원주 3.20m 윗면과 0.50m 지름을 보 위치에 대조하고, 24각 원통 면과 정방 기단·판의 서로 다른 투영을 읽었다.
 @evidence settings/00-delivery.md#coordinates 포치 원주의 기단 바닥 Y=0, 중심 Z=10.00m와 높이 치수는 오른손 Y-up의 미터 좌표로 해석한다.
 @evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 포치 기단 원점·Z 중심·Y 높이를 settings의 축과 단위 규약에 대조했다.
 @evidence principles/core/common.md#scope-preservation 정면 포치의 두 원형 기둥을 여섯 부재 치수, 전체 높이 3.20m, 두 번 배치되는 위치 출처까지 정한다.
@@ -91,5 +97,7 @@ part와 표면은 `plinth`, `base`, `shaft`, `capital`(목 띠·받침머리·�
 부재 대응: `plinth`=기단; `base`=받침; `shaft`=몸통; `capital`=주두.
 
 part와 표면은 `plinth`, `base`, `shaft`, `capital`이다. 주두 판 윗면은 포치 보를 받는 가려진 접촉면이다. 이 모델은 두 번 배치되며 위치는 현관 설계의 X=±1.35m, Z=10.00m를 instances가 소비한다.
+
+포치 `base`·`shaft`·`capital`의 둥근 24각 옆면 UV0는 +X에서 시작하는 Y축 원통 호길이 U와 모선 길이 V다. 정방 `plinth`와 주두 판은 각각 바깥 법선의 평면 투영을 쓴다.
 
 검토 판에서 주랑 원주와 나란히 두어 같은 가족의 더 큰 부재로 읽히는지, 몸통 지름 0.36m가 보행 포락 폭의 약 0.6배인지 본다. 주랑 원주보다 가는 포치 기둥이나 주두 판 없이 보를 받는 몸통은 실패다.
