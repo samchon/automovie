@@ -20,13 +20,13 @@ import {
 import { floorOf } from "../storeys";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/pantry.md The service-pantry-door void follows the partition assigned to pantry.
- * @evidenceReview spaces/rooms/pantry.md #e284067 pantry.ts:87-95 service partition holes DOOR_SERVICE_PANTRY_DOOR; pantry.md:29 service-pantry-door Z=[-5.75,-4.80], Y=[0,2.20] in the west partition.
+ * @evidenceReview spaces/rooms/pantry.md `DOOR_SERVICE_PANTRY_DOOR` carries the pantry plan's west opening at Z = [-5.75, -4.80]; `buildPantry` uses it as the service partition's sole hole.
  * @evidence principles/core/source-units.md#source-scope-preservation The service-pantry-door interval remains with pantry while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Defined pantry.ts:27-32 (also read locally for ROUTE_FRONT_Z :39); service.ts:12 imports it and service.ts:67-71 reads from/to for the service share.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation This room exports the pantry-door span for its own partition and route limit; `buildService` imports the same `from` and `to` for its adjacent finish strip.
  * @evidence principles/core/source-units.md#source-substantive-completion The service-pantry-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Hole pantry.ts:94; floor shares pantry X=[3.145,3.22] pantry.ts:81-86 and service X=[3.07,3.145] service.ts:67-71.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildPantry` cuts `pantry-service-partition` with this door and finishes X = [3.145, 3.22]; `buildService` finishes X = [3.07, 3.145] using the same Z span.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes service-pantry-door in the west partition at Z=[-5.75, -4.80], Y=[0, 2.20]; this export carries that cut.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 pantry.md:29 (#pantry-plan) Z=[-5.75,-4.80], Y=[0,2.20]; reason clause removed. v-144 m2 closed.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `pantry-plan` fixes the west rough opening at Z = [-5.75, -4.80], Y = [0, 2.20]; this ground-storey `door` passes its Z interval and default head to the wall cut and both floor finishes.
  */
 export const DOOR_SERVICE_PANTRY_DOOR = door(
   "service-pantry-door",
@@ -70,19 +70,19 @@ const PANTRY: IRoomSpace = {
 /** Emit the pantry floor and its partition to the service band. */
 /**
  * @evidence spaces/rooms/pantry.md This builder forms the narrow rear service-band pantry behind its one door.
- * @evidenceReview spaces/rooms/pantry.md #e284067 v-141 pantry.ts:68-89 one door only; pantry.md:27 room directly behind service access with no other door.
+ * @evidenceReview spaces/rooms/pantry.md `buildPantry` returns the rear service-band `PANTRY` space, its floor and ceiling, and one west partition cut by the sole service door specified by the pantry plan.
  * @evidence spaces/rooms/pantry.md#pantry-plan PANTRY retains the 3.22..5.50 by -6.05..-4.70 interior and service-facing partition.
- * @evidenceReview spaces/rooms/pantry.md#pantry-plan #4752bae v-141 box([3.22,5.5],[-6.05,-4.7]) L40 = pantry.md:27; partition across [3.07,3.22] along [-6.05,-4.7] L79-87.
+ * @evidenceReview spaces/rooms/pantry.md#pantry-plan `PANTRY.outline` keeps the finished X = [3.22, 5.50], Z = [-6.05, -4.70] bounds; `pantry-service-partition` spans the corresponding west wall at X = [3.07, 3.22].
  * @evidence spaces/rooms/pantry.md#pantry-storage-use Separate back and right shelf reserves share their L corner once and rise to 2.10 m.
- * @evidenceReview spaces/rooms/pantry.md#pantry-storage-use #f525891 v-141 back shelf Z[-6.05,-5.80] full X, right shelf X[5.20,5.50] from Z=-5.80 (corner once) L47-48 = pantry.md:29,55; 2.10 = top shelf 1.80 (0.20+4x0.40) + 0.30 item limit per pantry.md:57-59 (host-computed, not written).
+ * @evidenceReview spaces/rooms/pantry.md#pantry-storage-use `PANTRY.reservations` puts the rear shelf at Z = [-6.05, -5.80] and starts the right shelf at that front edge, so the L corner is counted once; their 2.10 m body allowance contains the top shelf and item height.
  * @evidence spaces/rooms/pantry.md#pantry-use-route A clear route and turning box remain between the open door and shelves.
- * @evidenceReview spaces/rooms/pantry.md#pantry-use-route #dab8d72 v-141 route X[3.22,5.20] Z[-5.80,-4.88] (=-4.80-0.08), turning 0.90 m square centred X=4.70, Z=-5.34 L51-54 = pantry.md:89-93.
+ * @evidenceReview spaces/rooms/pantry.md#pantry-use-route `PANTRY.reservations` derives the route from the rear shelf front to 0.08 m behind the door jamb, and a 0.90 m turning square centred 0.50 m left of the right shelf front.
  * @evidence principles/core/source-units.md#source-scope-preservation The function leaves shelves and food to models and emits only floor/ceiling finish and its door-cut wall.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 v-141 parts L71-87: floor, ceiling, doorFloor, partition; no shelf/food solid.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation `buildPantry.parts` contains floor, ceiling, an under-door strip and the service wall; shelf bands and food occupancy remain reservations without storage or food meshes.
  * @evidence principles/core/source-units.md#source-substantive-completion The room record and four solids include the floor under the service-pantry-door void.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f v-141 four parts L71-87 including doorFloor under service-pantry-door L73-78.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes service-pantry-door, pantry-storage-use sets back/right L shelf bands, and pantry-use-route centres a 0.90 m turn square between shelf and door; buildPantry carries those reservations.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 pantry.md:29 (pantry-plan) fixes the door Z=[-5.75,-4.80] and also the L shelf depths (back 0.25, right 0.30); pantry-storage-use :55 consumes '선반 평면(#pantry-plan)' and only adds the one-corner rule and shelf heights; host comment pantry.ts:51 itself credits pantry-plan. Turn square 0.50 m -X of the right shelf front at the use-band Z centre (:93) holds (pantry.ts:40-42,62). Sibling attribution.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion `buildPantry` returns one usable room record and four concrete finish/wall parts, including a `doorFloor` at the same Z span as its partition opening.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Pantry-plan fixes the service door and back/right L shelf depths; pantry-storage-use adds the one-corner rule and shelf heights, while pantry-use-route centres a 0.90 m turn square between shelf and door; buildPantry carries those reservations.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work `buildPantry` uses the `pantry-plan` door and L shelf depths, starts the right shelf behind the rear shelf to avoid a double corner, and derives the turn square from `pantry-use-route` without another opening or parent revision.
  */
 export const buildPantry = (): IRoomBuild => ({
   space: PANTRY,
