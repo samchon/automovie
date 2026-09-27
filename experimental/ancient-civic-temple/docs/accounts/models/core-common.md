@@ -4,6 +4,7 @@
 
 <!--
 @evidence obligations/core/common.md#purpose-fit 열 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 방별 사물 역할 중 벤치·수레·직물·작성 도구 등의 형상 주소가 사라지고, fixtures·wares가 없으면 그 비품이 놓일 제단·선반·도기 원형이 비며, scale이 없으면 그 모두의 공통 UV0 투영·이음과 검토 기준이 갈라진다. 구조와 경관 파일의 별도 결손은 아래 본문에 적었다.
+@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 열 모델 파일의 분담을 본문 링크와 대조해 portable·fixtures·wares·scale 중 어느 하나가 빠져도 비품 원형이나 공통 기준의 납품이 달라짐을 확인했다.
 -->
 
 이 population은 한 단층 시민 신전과 그 대지가 소비할 독립 부재의 blocking prototype을 설계한다. [scale](../../models/scale.md)은 공유 축척 기준과 표현 상한, 관절 인터페이스, 중립 검토 판이라는 모든 모델의 공통 기준을 소유한다. 이 파일이 없으면 각 모델이 보행 포락 대신 제각각의 크기 기준과 fidelity 주장을 쓰고 문짝의 hinge 이름과 검토 시점이 모델마다 달라진다.
@@ -18,6 +19,7 @@
 
 <!--
 @evidence obligations/core/common.md#layer-boundary 52개 H2 중 공통 기준 셋은 축척·UV0 투영과 이음·prototype 내부 반복 기준·관절·검토 규칙을, 원형 49개는 형상·part 표면 ID·점유와 배치 기준점을 정한다. 재료 결속·텍스처 반복 길이·fallback·비트맵과 광학 반응은 materials, 방 안 prototype 배치·복제·실제 접촉은 instances, 물의 흐름과 빛은 systems, 외피·지면은 spaces가 맡는다고 아래 본문이 구분한다.
+@evidenceReview obligations/core/common.md#layer-boundary #5271f94 52개 H2에서 공통 규칙 셋과 원형 49개를 나누고 재료 반응·실제 복제와 접촉·흐름·외피를 각 후속 분기의 책임으로 남긴 경계를 확인했다.
 -->
 
 원형을 정의하는 49개 H2는 각각 자기 prototype의 형상, part와 표면 ID, [공통 UV0 투영·이음](../../models/scale.md#reference-scale), 가려진 접촉면과 빈 공간, 점유 범위와 배치 기준점을 결정한다. 나머지 scale의 세 H2는 공통 축척·UV0 투영과 이음·prototype 내부 반복 기준·관절·검토 판 규칙을 정한다. prototype 안에서 반복되는 부재의 개수·간격·첫 위치나 위상은 해당 모델 H2가 정하고, 실제 건물 안의 prototype 복제 수와 공간 경계에 따른 잘림은 instances가 판정된 공간과 합성 지붕에서 유도한다. 방 안 prototype의 배치와 다른 물체와의 실제 접촉도 instances가 정한다. 재료 결속·텍스처 반복 길이·fallback 색은 [재료 결속](../../materials/10-model-bindings.md#binding-map)이 소유하고, 비트맵 선택·색과 거칠기의 최종 반응도 materials가 소유한다.
@@ -174,6 +176,7 @@
 
 <!--
 @evidence obligations/core/common.md#production-language 모델 결정과 실패 조건은 한국어 기술 서술체로 읽히고, plinth·tegula·hinge.<판 ID> 같은 part·표면·인터페이스 식별자와 anchor, API 성격의 용어만 원문을 유지한다. plumb cut처럼 처음 쓰는 기술 용어에는 한국어 풀이가 붙어 있다.
+@evidenceReview obligations/core/common.md#production-language #3ef4142 치수와 실패 조건의 한국어 문장, part·관절·상태의 원문 식별자, plumb cut의 첫 한국어 풀이를 실제 표기와 대조했다.
 -->
 
 settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 따라 모델 문서는 현대 표준 한국어로 쓴다. 치수·높이·실패 조건은 한국어 문장 안에서 m 단위 숫자로 적는다. part와 표면 이름(`plinth`, `shaft`, `tegula`, `imbrex`, `lining`, `surround`), 관절 인터페이스(`hinge.<판 ID>`), 상태 이름(`closed`, `open`), 문 ID(`door-entry` 등)와 anchor는 source와 같은 식별자라 원문을 유지한다.
@@ -184,6 +187,7 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 
 <!--
 @evidence obligations/core/common.md#proportionate-development 아래 아홉 파일·49 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 한 방 전용 복제 대신 다방 재사용을 맡는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
+@evidenceReview obligations/core/common.md#proportionate-development #78feb28 열 파일 52 H2의 본문 분량 표와 과거 17 H2의 비교 근거를 읽고 prototype 재사용과 별도 소비자를 가진 H2 분할을 규모 판단에 적용했는지 확인했다.
 -->
 
 현재 모델 population의 파일·H2·본문 분량은 아래 self-check 생성 표로 고정한다. 본문 문자는 HTML 주석과 공백을 빼고 제목은 포함한 유니코드 코드 포인트 수다. 표에 없는 파일, 중복 파일, 낡은 행은 self-check 실패로 처리한다.

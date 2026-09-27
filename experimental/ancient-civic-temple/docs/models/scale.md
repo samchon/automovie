@@ -4,33 +4,61 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 모든 prototype이 따를 좌표·단위, 공유 축척 기준(보행 포락 0.6×0.4×1.9m), settings 범위·spaces 순치수에서의 치수 유도, 표현 상한, 반복 부재를 instances에 넘기는 경계를 한 H2에 모두 둔다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 Y-up·m, 보행 포락, 개별 H2 치수 유도, blocking 상한과 prototype/instances 경계를 본문에서 확인했다.
 @evidence principles/core/common.md#substantive-completion 점유 상자를 settings 범위·보행 포락과 대조하는 규칙, 허용·금지 시각 주장과 prototype 안 이산 반복의 개수·간격·시작 위치·기준면 요구가 있어 source가 축척이나 반복 위상을 다시 고르지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 포락과 settings 범위를 점유 상자에 대조하는 규칙 및 반복 부재의 첫 위치·간격 요구를 읽어 source가 위상을 다시 고를 여지가 없는지 확인했다.
 @evidence principles/core/common.md#declared-basis 좌표는 00-delivery#coordinates, 축척은 10-building#use-profile, 상한은 50-production#fidelity, 표면 ID 경계는 20-envelope#material-language, prototype/배치 분담은 00-delivery#build-scope에서 온다고 문장마다 연결한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 좌표·포락·fidelity·표면 언어·build-scope의 부모 주소가 본문의 해당 결정마다 사용되는지 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 보행 포락과 표현 수준을 모델 population의 비교 규칙·리뷰 거리 2~25m·곡면 분할과 법선 규칙이라는 모델 결정으로 바꾼다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 보행·표현 약속을 2~25m 거리와 곡면 분할·법선의 모델 검토 규칙으로 바꿨는지 확인했다.
 @evidence principles/design/models.md#representation-contract 결정론적 blocking geometry라는 proxy 상태와 허용 주장(실루엣·부재 분리·실제 빈 공간·두께)과 금지 주장(조각·세로 홈·풍화·정확한 고대 비례)을 population 전체에 정한다.
+@evidenceReview principles/design/models.md#representation-contract #41a7d98 실루엣·부재·실제 두께는 주장하고 조각·풍화·고대 오더 정확성은 거부하는 proxy 경계를 확인했다.
 @evidence principles/design/models.md#spatial-convention 오른손 Y-up·m 단위를 쓰고 별도 앞·위 축을 두지 않으며 primitive 기본 크기를 치수로 쓰지 않는다는 좌표 규칙을 모든 모델에 건다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 오른손 Y-up·m를 기본으로 고정하고 primitive 기본 크기를 모델 치수로 쓰지 않는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 점유 상자와 보행 포락을 나란히 대조하는 규칙이 각 H2 검토 판의 공통 반증 기준이 된다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 포락 상자와 각 모델 상자의 비교가 지나치게 큰 집기·통로 막힘을 실패로 만드는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 고대 지중해라는 표지를 부재 분리와 빈 공간으로만 읽히게 하고 세로 홈·조각·특정 오더 비례는 주장하지 않으며 색·거칠기는 materials 몫이라고 경계를 긋는다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 고대 지중해 표지를 빈 공간과 부재 구성으로만 읽고 색·roughness는 materials에 남겼는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 축척 기준·표현 상한·prototype 점유 상자·로컬 원점의 배치 기준을 함께 정해 반복 부재 H2가 배치 수 없이도 완결되게 한다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 공유 축척과 원점·상자·반복 규칙이 각 H2가 배치 수를 몰라도 형상을 닫게 하는지 확인했다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 사물 16개의 존재·범위가 settings에 빠져 있어 35-objects와 30-interiors의 정체성·방별 목록을 먼저 수리했다. user 지시는 존재 범위를 승인했고 치수·접합은 각 모델 H2의 저작 결정이다.
+@evidenceReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 16개 사물 정체성과 방별 목록을 settings에서 먼저 보충하고 치수는 각 모델 H2에 둔 부모 교정 순서를 확인했다.
 @evidence settings/00-delivery.md#coordinates 오른손 Y-up, 길이 m 규약을 모델 좌표로 그대로 쓴다.
+@evidenceReview settings/00-delivery.md#coordinates #4d2b0d4 오른손 Y-up과 m가 UV 물리 좌표와 모든 로컬 형상에 같은 단위로 쓰이는지 확인했다.
 @evidence settings/10-building.md#use-profile 성인 보행 포락 0.6×0.4×1.9m를 모든 모델의 공유 축척 기준으로 지명한다.
+@evidenceReview settings/10-building.md#use-profile #ee92183 0.6×0.4×1.9m 성인 포락이 모든 사물의 공유 비교 기준인지 확인했다.
 @evidence settings/50-production.md#fidelity 입체 부재가 리뷰 거리에서 읽히되 사진 같은 열화 복제는 증명하지 않는다는 요구를 blocking geometry 상한과 허용·금지 주장으로 옮긴다.
+@evidenceReview settings/50-production.md#fidelity #bb89317 리뷰 거리에서 읽히는 입체 부재만 약속하고 사진 수준 열화 복제를 배제했는지 확인했다.
 @evidence settings/20-envelope.md#material-language 색·roughness·texture 이미지와 반복 빈도는 materials가 결정하고 모델은 안정된 표면 ID와 1 UV=1m의 UV0 투영 좌표를 낸다고 정한다.
+@evidenceReview settings/20-envelope.md#material-language #25e6ffa 안정 part ID와 1 UV=1m를 모델이 내고 반복·색·이미지는 materials가 정하는지 확인했다.
 @evidence settings/00-delivery.md#build-scope 기둥·문짝·기와·집기 prototype은 models, 반복 배치는 instances라는 분담표를 반복 부재 규칙으로 옮긴다.
+@evidenceReview settings/00-delivery.md#build-scope #8d597f9 prototype 형상과 건물 안 복제 수를 models/instances로 나누는 문장을 확인했다.
 @evidence obligations/design/models.md#representation-ceiling population의 표현 상한과 모델이 주장할 수 없는 시각 추론(조각·세로 홈·풍화·기와 한 장씩의 불규칙·정확한 고대 비례)을 이 H2가 정한다.
+@evidenceReview obligations/design/models.md#representation-ceiling #80e74d3 조각·세로 홈·풍화·미세 꼬임·정확한 오더 비례를 시각 추론에서 명시적으로 거부했는지 확인했다.
 @evidence obligations/design/models.md#reference-scale 공유 축척 기준을 보행 포락으로 지명하고 점유 상자를 settings 범위·포락과 대조하는 도출·검사 규칙을 정한다.
+@evidenceReview obligations/design/models.md#reference-scale #2598af4 성인 포락과 settings 범위에서 각 점유를 검사하고 primitive 크기는 근거로 쓰지 않는지 확인했다.
 @evidenceExclude settings/00-delivery.md#coverage-map 설정 소유 지도는 settings 파일 사이의 색인이며 모델 H2는 지도가 가리키는 외피·실내·물체·환경 owner를 직접 인용하므로 지도 자체가 주는 모델 결정은 없다.
+@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 설정 소유 지도는 파일 색인이고 모델은 그 안의 외피·물체·실내 owner를 직접 인용하는지 확인했다.
 @evidenceExclude settings/00-delivery.md#delivery-scope 납품 범위의 공간 목록과 뷰어 약속은 spaces와 viewer가 받고, 모델 사물 범위는 사용자 사물 지시를 반영해 수리된 35-objects와 30-interiors의 개별 owner에서 받는다.
+@evidenceExcludeReview settings/00-delivery.md#delivery-scope #142c909 납품 공간·뷰어 범위는 spaces/viewer, 새 사물 존재는 35-objects/30-interiors에서 받는지 확인했다.
 @evidenceExclude settings/00-delivery.md#operative-subjects 주체 표는 봉헌물·등잔·문서·용기·가구를 35-objects로, 물을 30-interiors#fountain으로, 지역 이용 공동체를 10-building#use-profile로 라우팅한다. 모델은 각 owner를 직접 소비하므로 이 분류표를 별도 형상 근거로 재소비하지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#operative-subjects #78af323 주체 분류표를 형상 근거로 복사하지 않고 물체·물의 실제 개별 owner로 라우팅하는지 확인했다.
 @evidenceExclude settings/00-delivery.md#working-language 작업 언어는 모델 형상의 입력이 아니라 문서 표기 규칙이어서 accounts/models/core-common.md의 production-language 설명이 population 단위로 맡는다.
+@evidenceExcludeReview settings/00-delivery.md#working-language #ba75eb7 한국어 작업 언어는 이 기하 H2가 아닌 모델 계정의 population 언어 판단에 남겨 둔 경계를 확인했다.
 @evidenceExclude settings/10-building.md#fixed-graph 방 순서·문·주랑 루프는 spaces가 실현했고 모델은 그 결과를 방 volume과 문 표로만 받아 그래프를 직접 소비하는 prototype이 없다.
+@evidenceExcludeReview settings/10-building.md#fixed-graph #afadc4e 방 그래프를 재실현하지 않고 문 유효치수·방 volume의 판정 결과만 모델이 받는지 확인했다.
 @evidenceExclude settings/10-building.md#scale 410~450㎡ 외곽과 장단변비는 spaces footprint가 소비했고 모델 치수는 보행 포락과 판정된 방 순치수에서 유도해 건물 면적을 쓰지 않는다.
+@evidenceExcludeReview settings/10-building.md#scale #4d1f683 410~450㎡ 외곽은 spaces footprint가 소비하고 모델은 포락과 순치수를 쓰는지 확인했다.
 @evidenceExclude settings/50-production.md#measurement-truth 모델 문서의 치수는 settings 허용 범위와 판정된 spaces 값을 받아 저작한 입력이다. 은퇴한 source의 방출 mesh를 잰 좌표표를 설계값으로 보존하지 않으며 compiled 측정과 실패 기록은 modelSources가 생긴 뒤 그 source 관찰이 진다.
+@evidenceExcludeReview settings/50-production.md#measurement-truth #c6e89a8 설계 치수를 은퇴 source의 mesh 측정으로 취급하지 않고 새 source 관찰을 나중에 측정하게 했는지 확인했다.
 @evidenceExclude settings/50-production.md#runtime-boundary CJS producer와 뷰어 전달 경계는 source 전달 방식이며 prototype의 형상·표면·관절 결정 어느 것도 이 경계에서 오지 않는다.
+@evidenceExcludeReview settings/50-production.md#runtime-boundary #3eb9810 CJS producer·viewer 전달은 source 경계라 관·UV·관절 수치를 그 방식에서 도출하지 않는지 확인했다.
 @evidenceExclude spaces/building.md#containment 공간 부모 위계는 공간 identity 관계이고 모델 prototype은 공간 부모를 갖지 않으며 배치된 element의 부모는 instances가 정한다.
+@evidenceExcludeReview spaces/building.md#containment #43621e3 공간 containment는 spaces 관계이고 prototype은 parent space 없이 만들어지는지 확인했다.
 @evidenceExclude spaces/building.md#footprint 외곽 치수 선택은 건물 매스의 결정이며 모델은 그 외곽 대신 방·주랑·지붕 순치수와 기준선만 소비한다.
+@evidenceExcludeReview spaces/building.md#footprint #d21e152 건물 외곽 footprint를 형상 입력으로 쓰지 않고 지붕·방의 실제 순치수만 받는지 확인했다.
 @evidenceExclude spaces/ownership.md#surface-map 표면 소유 지도는 spaces가 내는 벽·바닥·지붕 표면만 다루며 모델 표면 ID는 각 H2의 part 목록이 자기 prototype 안에서 정한다.
+@evidenceExcludeReview spaces/ownership.md#surface-map #87dc34b spaces 표면 지도와 달리 모델 표면 ID는 각 H2 part 대응이 소유하는지 확인했다.
 -->
 
 2026-09-25 사용자 사물 제작 지시가 존재 범위를 넓혔을 때 settings의 35-objects와 30-interiors에 16개 물체의 정체성·방별 자리가 없었다. 두 부모 문서를 먼저 수리했고 각 물체의 구체 치수·접합은 해당 모델 H2가 맡는다.
@@ -78,20 +106,35 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 
 <!--
 @evidence principles/core/common.md#scope-preservation 관절이 있는 모델을 두 문짝으로 한정하고 hinge node 이름·축·범위·상태 이름·기본 상태·여는 방향의 출처를 모두 적으며 그 밖의 모든 모델을 강체로 선언한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 두 문짝만 hinge node를 갖고 나머지는 강체임을 읽어 궤·분수 상태까지 인터페이스 경계를 확인했다.
 @evidence principles/core/common.md#substantive-completion hinge.<판 ID> 변환 node, 연직 축, 0°~90°, closed/open, 기본 open이 정해져 있어 문짝 H2와 motion이 관절 인터페이스를 새로 만들 필요가 없다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 `hinge.<판 ID>`, 연직축, 0~90도, closed/open 및 기본 open이 명시돼 motion이 새 node를 만들 필요 없는지 확인했다.
 @evidence principles/core/common.md#declared-basis 기본 상태와 여는 방향은 spaces/openings.md#doors의 열림·스윙 예약에서, 분수와 등잔의 고정 상태는 30-interiors#services에서 받는다고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 문 표 스윙 예약과 services 고정 수위·꺼진 등잔이 회전·강체 선언의 각각 다른 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 문과 설비의 표시 상태라는 설정을 motion이 쓸 수 있는 node 하나와 강체 목록이라는 모델 인터페이스 결정으로 바꾼다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 문·설비 상태를 하나의 문짝 node와 나머지 강체 목록으로 구체화했는지 확인했다.
 @evidence principles/design/models.md#representation-contract 판 node의 자식으로 손잡이·경첩·판이 함께 도는 계층과 궤 뚜껑·물줄기의 고정 형상을 정해 관절 데이터가 필요한 곳과 필요 없는 곳을 가른다.
+@evidenceReview principles/design/models.md#representation-contract #41a7d98 손잡이·경첩·판이 짝 node 자식으로 함께 돌고 궤 뚜껑·물줄기는 고정임을 확인했다.
 @evidence principles/design/models.md#spatial-convention 양개문 X=+0.021·Z=0, 외개문 X=0·Z=+0.031m의 연직 hinge 축과 국소 R_y(−θ), 닫힘 0°에서 열림 90°까지의 각도 기준을 정한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 양개문 X=0.021/Z=0과 외개문 X=0/Z=0.031m 축 및 R_y(−θ)를 대조했다.
 @evidence principles/design/models.md#reviewable-structure 문짝은 closed와 open 두 상태를 각각 검토하도록 해 관절 영역이 검토 판에서 드러난다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b closed/open 두 상태를 각각 검토해 90도 범위가 관찰될 수 있는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 관절 규칙은 양식 표지를 쓰지 않고 연직 경첩 판문이라는 관찰 결정만 정하며 문 모양의 양식 근거는 각 문짝 H2에 남긴다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이 공통 규칙이 양식 외형을 선결하지 않고 문짝 H2에 남기는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 관절 모델과 강체 모델의 경계, 상태 이름, 범위를 함께 정해 motion 층이 형상을 다시 만들지 않고 쓸 인터페이스 층이 완결된다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 두 종류 문과 강체의 상태·범위가 motion에 전달할 안정 인터페이스로 닫혔는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work openings.md#doors의 기본 열림과 스윙 예약, services의 고정 수위·꺼진 등잔을 관절 범위에 대조했고 90° 열림이 스윙 예약 안에 들어 부모를 고치지 않았다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 여덟 문 기본 열림·스윙 및 고정 물줄기·등잔을 대조해 부모 상태 교정이 필요 없음을 확인했다.
 @evidence spaces/openings.md#doors 여덟 문의 기본 열림 상태와 스윙 예약을 hinge node의 기본 open 상태와 여는 방향으로 소비한다.
+@evidenceReview spaces/openings.md#doors #8a0716f 문 표의 open 기본과 각 방 스윙이 설치 방향으로 쓰이는지 확인했다.
 @evidence settings/20-envelope.md#openings 목재 문짝이 여닫히는 개구부라는 정체성을 두 문짝만 관절을 갖는 규칙으로 받는다.
+@evidenceReview settings/20-envelope.md#openings #4053d90 목재 문짝만 움직이고 다른 개구 틀은 강체라는 구분이 설정에 맞는지 확인했다.
 @evidence settings/30-interiors.md#services 고정 수위의 물줄기와 꺼진 등잔을 받아 분수·등잔을 시간 변화 없는 강체로 둔다.
+@evidenceReview settings/30-interiors.md#services #731a6e0 고정 수위 물줄기와 꺼진 등잔이 강체 상태로 남는지 확인했다.
 @evidence obligations/design/models.md#articulation-ownership motion이 쓸 수 있는 인터페이스를 hinge.<판 ID> 하나로 한정하고 손잡이·경첩·궤 뚜껑·물줄기를 의도된 강체로 선언한다.
+@evidenceReview obligations/design/models.md#articulation-ownership #96abfe1 motion이 쓸 수 있는 node는 문짝 hinge 하나이고 손잡이는 별도 제어가 아님을 확인했다.
 @evidenceExclude settings/50-production.md#execution-authority 작업 권한과 설치·검증 절차는 저작 행위의 규칙이며 관절 인터페이스나 어떤 prototype 형상도 이 권한에서 결정되지 않는다.
+@evidenceExcludeReview settings/50-production.md#execution-authority #cf13b03 제작 권한·설치 절차는 관절 노드의 형상 입력이 아니라는 범위 판단을 확인했다.
 -->
 
 관절을 가진 모델은 [문짝](openings.md#double-door-leaf)과 [외개 문짝](openings.md#single-door-leaf)뿐이다. 각 문짝 판은 `hinge.<판 ID>` 이름의 변환 node 하나를 motion과 공개 opening operation이 쓸 수 있는 안정 인터페이스로 가진다. 회전축은 연직이며 양개문은 판 원점에서 X=+0.021m·Z=0, 외개문은 X=0·Z=+0.031m에 있다. 범위는 닫힘 0°부터 열림 90°까지이고 판의 국소 개방 변환은 이 축 주위 `R_y(−θ)`다. instances가 판 전체를 각 방의 스윙 방향으로 향하게 설치하므로 모델은 방별 회전 부호를 새로 고르지 않는다. 상태 이름은 `closed`와 `open`이며 기본 상태는 [개구부 소유](../spaces/openings.md#doors)가 정한 열림이다. 여는 방향은 spaces의 스윙 예약을 따르고 모델은 방향을 새로 정하지 않는다.
@@ -102,26 +145,47 @@ Y축 회전체의 옆면은 평면 투영 대신 +X 반직선에서 시작해 �
 
 <!--
 @evidence principles/core/common.md#scope-preservation 검토 판의 장면 구성(중립 회색 바닥, +X 0.8m 보행 포락), 조명, 카메라, 여섯 실루엣 시점과 부재별 근접 시점, 모든 명명 상태·치수 변형, 반복 모듈 3×3 표본, 비교 기준을 모두 정한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 중립 배경·광원·포락과 여섯 전체 뷰·각 접합 근접·상태·변형·3×3 기와 표본을 본문에 대조했다.
 @evidence principles/core/common.md#substantive-completion 전체 시점마다 피사체의 긴 축이 화면의 약 70%를 채우도록 거리를 정하고 근접 시점은 접합 부재와 빈 공간을 함께 넣어 모든 prototype을 같은 조건으로 다시 볼 수 있다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 긴 축 70% 전체 시점과 접합 근접 조건이 서로 다른 질문을 재현할 수 있게 정해졌는지 확인했다.
 @evidence principles/core/common.md#declared-basis 1600×1000·수직 시야각 50°는 00-delivery#review-condition, 고정 광원 방향은 40-environment#daylight에서 받고 건물 안 배치·접촉은 spaces 관찰로 넘긴다고 밝힌다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 1600×1000·50도 및 낮 주광의 부모 수치를 받고 건물 안 접촉은 spaces로 넘겼는지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 건물 관찰 조건을 건물과 분리된 prototype 판의 배경·포락 비교·반복 표본이라는 모델 검토 결정으로 바꾼다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 건물 관찰과 구별한 개별 prototype 배경·포락·반복 표본이 이 모델층의 추가 결정인지 확인했다.
 @evidence principles/design/models.md#representation-contract 재료가 결속되지 않은 part를 같은 중립 클레이로 보이게 해 표면 분할과 부재 분리만으로 형상을 판단하게 한다.
+@evidenceReview principles/design/models.md#representation-contract #41a7d98 결속 전 part를 같은 중립 클레이로 보여 재료 효과 없이 부재 분리를 보게 하는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 각 prototype을 Y=0 바닥에 원점으로 세우고 보행 포락 상자를 +X 0.8m에 두는 배치 규칙을 정한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 각 prototype Y=0과 +X 0.8m 포락 상자가 같은 공간 비교 규칙인지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 정면·우측면·배면·평면·반대편 대각 둘과 각 H2의 접합·관통·얇은 부재·개구 근접 뷰를 필수 관찰로 두고 문짝·두루마리 등 명명 상태마다 반복한다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 여섯 실루엣과 접합·관통·얇은 부재·개구의 근접 시점이 문짝·두루마리 상태마다 반복되는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 셰이딩·연출이 아닌 구성 판단용 판이라고 선언해 양식 판정을 실루엣·부재 분리·빈 공간에 묶고 조명 연출이 양식 증거로 쓰이지 않게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 셰이딩·연출이 아닌 실루엣·빈 공간 판단 판이며 양식 근거를 광원에 기대지 않는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 포락 비교·시점·상태·반복 표본을 함께 정해 각 모델 H2의 관찰 층이 한 판 위에서 완결된다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 시점·상태·반복 모듈 표본·포락을 묶어 각 H2의 중립 관찰 주소가 완결됐는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work review-condition의 프레임과 daylight의 광원 방향을 건물과 분리된 판에 적용할 수 있었고 두 조건이 prototype 판정에 충분해 부모를 고치지 않았다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 review-condition 프레임과 daylight를 그대로 쓸 수 있어 모델판 때문에 부모 카메라·광원을 바꾸지 않는지 확인했다.
 @evidence settings/00-delivery.md#review-condition 기본 비교 프레임 1600×1000과 수직 시야각 50°를 검토 판 카메라로 그대로 쓴다.
+@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 1600×1000과 수직 시야각 50도가 판 카메라에 그대로 쓰이는지 확인했다.
 @evidence settings/40-environment.md#daylight 정면 좌측 위 고정 햇빛과 하늘 보조광을 검토 판의 광원 하나와 보조광으로 쓴다.
+@evidenceReview settings/40-environment.md#daylight #eac4028 고정 주광과 하늘 보조광을 건물 검토 방향과 일치시키는지 확인했다.
 @evidence spaces/observations.md#geometry-observations 건물 안 배치·접촉 판정은 spaces 관찰 전집합이 맡는다고 경계를 긋고 각 모델 H2의 건물 관찰 문장이 그 station을 가리키게 한다.
+@evidenceReview spaces/observations.md#geometry-observations #4155dcf 건물 안 배치·접촉은 spaces 관찰로 보내 중립판의 단면을 건물 판정으로 오용하지 않는지 확인했다.
 @evidence obligations/design/models.md#model-review-set 중립 배경·보행 포락 비교·여섯 실루엣 시점·부재별 근접 시점·모든 명명 상태와 치수 변형·3×3 표본으로 된 유한 검토 판을 정의한다.
+@evidenceReview obligations/design/models.md#model-review-set #8d4744e 여섯 방향·상태·치수 변형·3×3 기와·포락 비교가 유한 반복 판을 이루는지 확인했다.
 @evidenceExclude settings/00-delivery.md#accessibility 한국어 설명·키보드 조작은 viewer의 접근성 산출물이며 검토 판의 시점·배경이나 prototype 형상이 지는 의무가 아니다.
+@evidenceExcludeReview settings/00-delivery.md#accessibility #e5000b9 한국어·키보드 접근성은 viewer 산출물로 남기고 이 판의 카메라 수치와 혼동하지 않는지 확인했다.
 @evidenceExclude settings/00-delivery.md#governing-aim 다섯 이미지 대조는 건물 관찰 위치에서 판정되며 이 검토 판은 건물과 분리된 구성 판단이라 지배 목표의 대조를 직접 수행하지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#governing-aim #df3c7b2 다섯 이미지 대조는 건물 station에서 하며 이 판은 개별 형상 구성만 본다는 경계를 확인했다.
 @evidenceExclude settings/00-delivery.md#operator-access 궤도·확대·시점 선택은 건물 viewer 운영 조작이며 검토 판은 정해진 전체 여섯 시점과 H2별 근접·상태 시점만 쓰므로 이 조작을 소비하지 않는다.
+@evidenceExcludeReview settings/00-delivery.md#operator-access #e19a32a viewer 궤도·확대 조작을 판의 고정 시점 목록에 넣지 않는지 확인했다.
 @evidenceExclude settings/50-production.md#acceptance 판정 권한과 완료 조건은 제작 절차의 규칙이며 검토 판은 reviewer가 볼 구성 시점만 정하고 판정 권한을 정하지 않는다.
+@evidenceExcludeReview settings/50-production.md#acceptance #2c49b7f 판정 권한·완료 조건은 제작 절차가 소유하고 검토 판은 관찰 조건만 제시하는지 확인했다.
 @evidenceExclude settings/50-production.md#author-commits 커밋·푸시 절차는 저작 기록 규칙이며 검토 판을 포함한 어떤 모델 결정의 입력도 아니다.
+@evidenceExcludeReview settings/50-production.md#author-commits #f2218c8 커밋·푸시 기록은 사물 렌더의 카메라나 형상 입력이 아님을 확인했다.
 @evidenceExclude settings/50-production.md#gpu-observation GPU 캡처 경로는 프레임을 관찰로 세는 수단 규칙이며 검토 판의 시점·배경·비교 기준은 그 경로와 무관하게 정해지고 캡처는 modelSources 이후에 온다.
+@evidenceExcludeReview settings/50-production.md#gpu-observation #b0ab4b5 GPU 관찰 경로는 modelSources 뒤에 열리며 이 H2는 그 전에 비교 시점만 정하는지 확인했다.
 @evidenceExclude spaces/observations.md#viewer-path viewer-path는 건물 source를 그리는 전달 경로이고 검토 판은 건물과 분리된 별도 장면이라 그 경로의 모드·단면을 쓰지 않는다.
+@evidenceExcludeReview spaces/observations.md#viewer-path #037f6c0 건물 viewer-path 단면과 개별 중립 모델 판의 장면을 분리했는지 확인했다.
 -->
 
 모델 검토 판은 건물과 분리된 한 장면이다. 각 prototype을 Y=0의 중립 회색 바닥 위에 하나씩 세우고 오른쪽(+X) 0.8m에 보행 포락 상자(0.6×0.4×1.9m)를 둔다. 조명은 건물 뷰어의 검토용 주광 방향과 같은 고정 광원 하나와 하늘 보조광이며 재료가 결속되지 않은 part는 같은 중립 클레이로 보인다. 카메라는 수직 시야각 50°, 1600×1000 비율이다. [검토 조건](../settings/00-delivery.md#review-condition)의 프레임과 시야각, [낮 주광](../settings/40-environment.md#daylight)의 방향을 받는다.
