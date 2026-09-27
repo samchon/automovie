@@ -67,7 +67,7 @@ part와 표면은 `trunk`, `crown`이다. 덩어리 사이 허리의 좁아짐�
 @evidence principles/design/models.md#model-observable-style-basis 이미지 01·03의 둥글게 퍼진 회녹색 수관을 근거로 한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 01·03의 둥글게 퍼진 회녹 수관을 여섯 덩어리 윤곽으로 옮겼는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 가지와 수관 덩어리의 층과 위치·크기·회전 변형 소유가 정해져 넓은 나무 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 가지와 수관의 크기·회전 변형은 원형에, 실제 개체 값과 위치는 instances에 남겼는지 확인했다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 이 원형이 줄기·가지·수관의 기준 형상과 점유 범위를 닫고, 실제 개체의 위치·크기·회전 변형은 instances가 배치 구역 안에서 정하도록 남겼는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vegetation의 넓은 수관 나무와 placement-zones의 구역 폭을 약 4.4m 수관에 대조했고 1.5m 물러난 구역 안에 들어 부모를 고치지 않았다.
 @evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 4.4m 폭 수관을 포장에서 1.5m 물러난 허용 구역에 둘 수 있어 부모 경계를 고치지 않는지 확인했다.
 @evidence settings/40-environment.md#vegetation 낮고 넓은 회녹색 수관 나무를 가지와 여섯 덩어리 수관으로 받는다.

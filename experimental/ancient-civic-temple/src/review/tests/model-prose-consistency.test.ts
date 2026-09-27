@@ -29,7 +29,7 @@ void test("directed ranges and box comparisons use the source values", () => {
   assert.equal(reverse[0]?.pass, true);
   const display = section("fixtures", "display-shelf");
   assert.ok(declaredBoundRows("display", display).every((row: { pass: boolean }) => row.pass));
-  assert.ok(declaredBoundRows("display", display.replace("점유 상자는 1.00×1.10×0.30m", "점유 상자는 1.00×1.10×0.31m"))
+  assert.ok(declaredBoundRows("display", display.replace("점유 상자는 1.00×1.20×0.30m", "점유 상자는 1.00×1.20×0.31m"))
     .some((row: { pass: boolean }) => !row.pass));
   const shifted = declaredBoundRows("display", display.replace("X=−0.46~+0.46m", "X=−0.46~+0.47m"));
   assert.ok(shifted.some((row: { pass: boolean }) => !row.pass));

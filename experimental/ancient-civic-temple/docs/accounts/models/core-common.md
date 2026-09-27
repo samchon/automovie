@@ -13,7 +13,7 @@
 
 [cladding](../../models/cladding.md)은 합성 지붕 조각 위의 기와와 용마루 반복 단위를, [fixtures](../../models/fixtures.md)는 분수·제단·감실·등잔대·탁자·선반·책상·스툴·궤처럼 방의 용도를 읽히게 하는 설비와 가구를, [wares](../../models/wares.md)는 그 위와 안에 놓이는 항아리·그릇·바구니·두루마리를 소유한다. fixtures와 wares를 합치면 가구와 그 위 용기의 치수 관계가 한 파일 안의 비교로 숨고, 나누어 두면 칸 선반과 두루마리처럼 서로를 받는 두 결정이 각자 주소를 갖는다. [landscape](../../models/landscape.md)는 대지 배치 구역에 놓일 수목·풀·이웃 외피를 소유해 spaces 대지가 남긴 구역을 실제 개체 prototype으로 채울 수 있게 한다.
 
-[portable](../../models/portable.md)은 벤치·소형 등잔·두 자리 항아리 받침·멜대·손수레·물동이·화분·봉헌판·쟁반·직물·첨필·필기판·끈 뭉치의 재사용 prototype을 소유한다. [ritual](../../models/ritual.md)은 낮은 향로·바닥 좌구·한 자리 항아리 받침의 별도 실루엣을 소유한다. 각 방의 복제 수는 instances가 정한다. 작은 문서 상자는 [궤](../../models/fixtures.md#chest)의 s=0.55 변형이다.
+[portable](../../models/portable.md)은 벤치·소형 등잔·두 자리 항아리 받침·멜대·손수레·물동이·화분·봉헌판·쟁반·직물·첨필·필기판·끈 뭉치의 재사용 prototype을 소유한다. [ritual](../../models/ritual.md)은 낮은 향로·바닥 좌구·한 자리 항아리 받침의 별도 실루엣을 소유한다. 각 방의 복제 수는 instances가 정한다. 기록실과 보관실의 궤는 [같은 기본 원형](../../models/fixtures.md#chest)을 쓴다.
 
 ## 모델과 다른 제작 분기의 경계 {#layer-routing}
 
@@ -32,7 +32,7 @@
 | --- | --- | ---: | --- |
 | [cladding/roof-tile](../../models/cladding.md#roof-tile) | `tegula` | 2135 | `79e560bfb2b4409edeb7878bf6f1a3872304e6b2c875f870dd73ebd43c8c7791` |
 | [cladding/roof-tile](../../models/cladding.md#roof-tile) | `imbrex` | 2135 | `79e560bfb2b4409edeb7878bf6f1a3872304e6b2c875f870dd73ebd43c8c7791` |
-| [cladding/ridge-tile](../../models/cladding.md#ridge-tile) | `ridge` | 1974 | `e03c1befd8271329af84d3cc46260ed5c8541fb2690561e87e6a1bc17d3a9eb2` |
+| [cladding/ridge-tile](../../models/cladding.md#ridge-tile) | `ridge` | 2070 | `34e31b2ec5061cebd781670b5daed0ba93c4af2d4a1de3e06fde4ca95cc3d4dc` |
 | [columns/colonnade-column](../../models/columns.md#colonnade-column) | `plinth` | 1560 | `6e7087278e83af34bed29a226adc3c7e549c78bf42179d5cbdefc5dd4563aa59` |
 | [columns/colonnade-column](../../models/columns.md#colonnade-column) | `base` | 1560 | `6e7087278e83af34bed29a226adc3c7e549c78bf42179d5cbdefc5dd4563aa59` |
 | [columns/colonnade-column](../../models/columns.md#colonnade-column) | `shaft` | 1560 | `6e7087278e83af34bed29a226adc3c7e549c78bf42179d5cbdefc5dd4563aa59` |
@@ -72,8 +72,8 @@
 | [fixtures/lampstand](../../models/fixtures.md#lampstand) | `dish` | 918 | `4e677039228fd7cad8ec41c51ce8d51948890b93b0bd810b93291cacff045bc5` |
 | [fixtures/offering-table](../../models/fixtures.md#offering-table) | `top` | 715 | `5abc65eab6e88d4299f0f1a2ab5f7a271554b439edd9df266b96a36b23530b61` |
 | [fixtures/offering-table](../../models/fixtures.md#offering-table) | `trestle` | 715 | `5abc65eab6e88d4299f0f1a2ab5f7a271554b439edd9df266b96a36b23530b61` |
-| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `side` | 922 | `db251002050b14c9c712a8a0d5f0ab053258369412ce4ec087b83d937038581d` |
-| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `board` | 922 | `db251002050b14c9c712a8a0d5f0ab053258369412ce4ec087b83d937038581d` |
+| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `side` | 922 | `00b7a896ad46dcb14533e33abff7bd16e32c3061b916750cf0af309486e8e4ae` |
+| [fixtures/display-shelf](../../models/fixtures.md#display-shelf) | `board` | 922 | `00b7a896ad46dcb14533e33abff7bd16e32c3061b916750cf0af309486e8e4ae` |
 | [fixtures/desk](../../models/fixtures.md#desk) | `top` | 736 | `8ccb7d552a7dfc22c00f3d0c38d5687202b7311f667dc7aef633ea01ed96fedf` |
 | [fixtures/desk](../../models/fixtures.md#desk) | `leg` | 736 | `8ccb7d552a7dfc22c00f3d0c38d5687202b7311f667dc7aef633ea01ed96fedf` |
 | [fixtures/desk](../../models/fixtures.md#desk) | `stretcher` | 736 | `8ccb7d552a7dfc22c00f3d0c38d5687202b7311f667dc7aef633ea01ed96fedf` |
@@ -83,10 +83,10 @@
 | [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `frame` | 1040 | `c0957579cd4ce3e680a50dc5c7911ac14b934e3c86d4bff0bd15c54504ea1239` |
 | [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `board` | 1040 | `c0957579cd4ce3e680a50dc5c7911ac14b934e3c86d4bff0bd15c54504ea1239` |
 | [fixtures/scroll-shelf](../../models/fixtures.md#scroll-shelf) | `divider` | 1040 | `c0957579cd4ce3e680a50dc5c7911ac14b934e3c86d4bff0bd15c54504ea1239` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `body` | 1557 | `a1e10096cb67ce633bd32cad1da17468d39a0d790237b531a8b90a2d37c1e9dd` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `lid` | 1557 | `a1e10096cb67ce633bd32cad1da17468d39a0d790237b531a8b90a2d37c1e9dd` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `hasp` | 1557 | `a1e10096cb67ce633bd32cad1da17468d39a0d790237b531a8b90a2d37c1e9dd` |
-| [fixtures/chest](../../models/fixtures.md#chest) | `strap` | 1557 | `a1e10096cb67ce633bd32cad1da17468d39a0d790237b531a8b90a2d37c1e9dd` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `body` | 1494 | `b7d8d2908d5f84506f8aabc760233a16793eb74da255ea2a5c52fb099205eb12` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `lid` | 1494 | `b7d8d2908d5f84506f8aabc760233a16793eb74da255ea2a5c52fb099205eb12` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `hasp` | 1494 | `b7d8d2908d5f84506f8aabc760233a16793eb74da255ea2a5c52fb099205eb12` |
+| [fixtures/chest](../../models/fixtures.md#chest) | `strap` | 1494 | `b7d8d2908d5f84506f8aabc760233a16793eb74da255ea2a5c52fb099205eb12` |
 | [landscape/cypress](../../models/landscape.md#cypress) | `trunk` | 922 | `fd21e7a9439a26b1dc7b1388f63264b92b1f023591bfbf2f18675d2462aa9784` |
 | [landscape/cypress](../../models/landscape.md#cypress) | `crown` | 922 | `fd21e7a9439a26b1dc7b1388f63264b92b1f023591bfbf2f18675d2462aa9784` |
 | [landscape/broad-tree](../../models/landscape.md#broad-tree) | `trunk` | 1215 | `f63eb26a674c2cd10c979f9b02246f9d7f9b8a6513319f6207685798b421ecba` |
@@ -162,7 +162,7 @@
 | [wares/carry-jar](../../models/wares.md#carry-jar) | `handle` | 947 | `8b7b688a2d896fe7c65931df33e7a61a921c47726c2c29e049b7496c8336b1ae` |
 | [wares/small-vessel](../../models/wares.md#small-vessel) | `body` | 900 | `ee3bc51f8ae686d17eb7b721080d7882ad6eafa60a9a5290d152330463af70dc` |
 | [wares/small-vessel](../../models/wares.md#small-vessel) | `handle` | 900 | `ee3bc51f8ae686d17eb7b721080d7882ad6eafa60a9a5290d152330463af70dc` |
-| [wares/offering-bowl](../../models/wares.md#offering-bowl) | `bowl` | 778 | `01439b43e8c4d046065eb91f1cc45446fe01f8a9f1bf38a30feaae62e51652f4` |
+| [wares/offering-bowl](../../models/wares.md#offering-bowl) | `bowl` | 779 | `9abca54132b74592db227068e3889f06edbc73b95239806c4e78de0fdf3acf67` |
 | [wares/basket](../../models/wares.md#basket) | `wall` | 1226 | `c6029d6582d375182a151e3718c58936a05ee6f5b87f90f09873d1793b25b22b` |
 | [wares/basket](../../models/wares.md#basket) | `rim` | 1226 | `c6029d6582d375182a151e3718c58936a05ee6f5b87f90f09873d1793b25b22b` |
 | [wares/basket](../../models/wares.md#basket) | `floor` | 1226 | `c6029d6582d375182a151e3718c58936a05ee6f5b87f90f09873d1793b25b22b` |
@@ -186,7 +186,7 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 ## 규모와 전개 분량의 비교 {#proportion}
 
 <!--
-@evidence obligations/core/common.md#proportionate-development 아래 아홉 파일·49 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 한 방 전용 복제 대신 다방 재사용을 맡는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
+@evidence obligations/core/common.md#proportionate-development 아래 열 파일·52 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 한 방 전용 복제 대신 다방 재사용을 맡는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
 @evidenceReview obligations/core/common.md#proportionate-development #78feb28 열 파일 52 H2의 본문 분량 표와 과거 17 H2의 비교 근거를 읽고 prototype 재사용과 별도 소비자를 가진 H2 분할을 규모 판단에 적용했는지 확인했다.
 -->
 
@@ -194,17 +194,17 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 
 | 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |
 | --- | ---: | ---: |
-| cladding.md | 2 | 3310 |
+| cladding.md | 2 | 3393 |
 | columns.md | 2 | 2082 |
 | entablature.md | 5 | 5608 |
-| fixtures.md | 10 | 8685 |
+| fixtures.md | 10 | 8634 |
 | landscape.md | 4 | 3747 |
 | openings.md | 4 | 4426 |
 | portable.md | 13 | 10518 |
 | ritual.md | 3 | 2227 |
 | scale.md | 3 | 7332 |
-| wares.md | 6 | 5176 |
-| 합계 | 52 | 53111 |
+| wares.md | 6 | 5177 |
+| 합계 | 52 | 53144 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

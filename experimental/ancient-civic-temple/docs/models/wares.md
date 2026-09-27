@@ -138,13 +138,13 @@ part와 표면은 `body`, `handle`이다. 위치와 수량은 instances가 정�
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 여덟 단면 구간·24각과 깊이 0.045m, 굽 Y=0~0.01m를 대조했다.
 @evidence principles/core/common.md#declared-basis 지름 0.15~0.30m와 두꺼운 테두리·오목한 안쪽은 35-objects#vessels에서, 놓이는 면은 제단·탁자·진열대 모델 H2에서 온다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb vessels의 지름·오목함과 제단·탁자·선반 놓임이 형상·받침의 근거인지 확인했다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 봉헌 그릇 설정을 얇은 테두리의 오목 껍질과 굽이라는 모델 결정으로 바꾸고 재료 선택은 materials에 남긴다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 얇은 테두리의 오목 껍질·굽을 모델이 정하고 금속/도기 재료는 materials에 남겼는지 확인했다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 봉헌 그릇 설정을 수평 두께 0.012m의 두꺼운 테두리·오목 껍질·굽이라는 모델 결정으로 바꾸고 재료 선택은 materials에 남긴다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 두꺼운 테두리 0.012m와 오목 껍질·굽을 모델이 정하고 금속/도기 재료는 materials에 남겼는지 확인했다.
 @evidence principles/design/models.md#representation-contract bowl part 하나와 오목한 안쪽 빈 공간을 정하고 금속·도기 선택을 materials에 넘긴다.
 @evidenceReview principles/design/models.md#representation-contract #41a7d98 bowl 하나가 열린 안쪽을 갖고 재료 선택을 이 part가 선결하지 않는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 점유 상자 0.22×0.06×0.22m를 적는다.
 @evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 0.22×0.06×0.22m가 테두리와 굽을 감싸는지 확인했다.
-@evidence principles/design/models.md#reviewable-structure 측면의 얇은 테두리와 오목한 안쪽을 보고 납작한 원판을 실패로 둔다.
+@evidence principles/design/models.md#reviewable-structure 측면의 두꺼운 테두리와 오목한 안쪽을 보고 납작한 원판을 실패로 둔다.
 @evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 옆면에서 0.012m 테두리·오목한 면이 보여 원판 실패를 판별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 두꺼운 테두리와 오목한 안쪽이라는 설정을 측면 윤곽으로 반증 가능하게 한다.
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 부모의 두꺼운 테두리·오목함이 실제 단면 좌표로 검증 가능해졌는지 확인했다.
@@ -166,7 +166,7 @@ part와 표면은 `body`, `handle`이다. 위치와 수량은 instances가 정�
 
 part와 표면은 `bowl` 하나이며 materials가 금속 또는 도기를 고른다. 오목한 안쪽이 빈 공간이다. 위치는 instances가 정한다.
 
-검토 판에서 측면으로 얇은 테두리와 오목한 안쪽을 본다. 납작한 원판은 실패다.
+검토 판에서 측면으로 두꺼운 테두리와 오목한 안쪽을 본다. 납작한 원판은 실패다.
 
 ## 운반 바구니 {#basket}
 

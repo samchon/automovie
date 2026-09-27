@@ -28,7 +28,7 @@
 @evidence spaces/openings.md#doors 여덟 문의 유효 폭·높이와 문이 뚫린 벽을 문틀 변형의 입력으로 소비한다.
 @evidenceReview spaces/openings.md#doors #8a0716f 여덟 문의 유효 폭·높이가 변형 입력이고 문틀이 별도 크기를 발명하지 않는지 확인했다.
 @evidence spaces/openings.md#boundary-ownership 각 가장자리 0.06m 틀과 void가 경계 한 곳에만 속한다는 규칙을 안감 두께와 void 채움으로 소비한다.
-@evidenceReview spaces/openings.md#boundary-ownership #0984b09 경계 하나에 속한 0.06m 틀을 안감 깊이로 받으며 두 벽이 중복 만들지 않는지 확인했다.
+@evidenceReview spaces/openings.md#boundary-ownership #0984b09 한 경계의 문설주 폭·상인방 높이 0.06m와 벽 두께 0.30/0.60m를 따르는 안감 깊이를 구분하고, 인접한 두 벽이 같은 틀을 중복 만들지 않는지 확인했다.
 @evidence spaces/storey.md#threshold-support 문턱 바닥이 방 소유라는 배정을 받아 문틀이 바닥을 만들지 않는다.
 @evidenceReview spaces/storey.md#threshold-support #6354225 문턱은 방 바닥이 소유해 문틀의 아래 네 번째 조각이 없는지 확인했다.
 @evidence settings/20-envelope.md#walls 문 주변이 연한 회백색 석재로 회벽을 나눈다는 설정을 벽면 위 surround 표면으로 받는다.

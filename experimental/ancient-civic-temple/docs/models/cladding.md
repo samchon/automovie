@@ -22,7 +22,7 @@
 @evidence principles/design/models.md#model-scale-layer-completion 평기와 반복 폭 0.40m·길이 0.52m, 둥근기와를 포함한 점유 폭 0.485m·최대 높이 0.125m와 코핑 아래 0.01m 여유를 실제 지붕 높이로 검사하는 규칙이 있어 반복 모듈 층이 완결된다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.485m 점유 폭과 0.125m 최고점으로 코핑 아래 실제 여유를 검사하게 해 모듈의 크기·경계·배치가 한 닫힌 결정인지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 서측 지붕 높은 끝의 slab 상면 약 4.56m와 코핑 아랫면 4.69m 차이는 0.13m라서 높이 0.125m의 기와는 들어가도 0.01m 여유는 못 남긴다. 부모 지붕·코핑 치수를 바꾸지 않고 instances가 실제 높이의 0.01m 여유를 검사해 줄을 멈추므로 부모 수정은 필요 없었다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 서측 slab 4.56m에 0.125m를 더한 4.685m와 코핑 하단 4.69m의 차이는 0.005m라 0.01m 여유에 못 미침을 재계산했고, 단위를 멈추는 책임이 instances에 있음을 확인했다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 junctions#plinth-coping의 서측 기와 약 4.66m는 0.10m 추정이고, 이 단위의 상한 0.125m를 더하면 4.685m로 코핑 하단과 0.005m만 남는다. 부모의 코핑 높이·지붕 끝은 유지하고 instances가 0.01m 여유 전에 온전한 단위를 멈추는지 대조했다.
 @evidence settings/20-envelope.md#roof-form 흙빛 붉은 곡면 기와의 경사지붕을 평기와·둥근기와 단위로 받는다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 흙빛 붉은 경사 기와라는 부모 조건이 평판 무늬가 아닌 두 실제 부재로 구체화됐는지 읽었다.
 @evidence spaces/junctions.md#plinth-coping 코핑 아랫면 4.69m를 기와 줄 끝이 들어가야 할 높이 상한으로 쓴다.
@@ -57,7 +57,7 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 @evidence principles/core/common.md#substantive-completion 뒤쪽 반지름 0.13m·앞쪽 코 0.15m, 0.45m 길이·12분할·0.40m 피치와 경사별 Y 기준식·발 절삭식 및 마지막 0.16m 평기와 받침을 정해 source가 접촉 높이를 다시 고르지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.13m 몸통과 0.15m 코, 0.40m 피치, 경사별 절삭식을 따라 발의 받침과 겹침이 수치로 정해지는지 대조했다.
 @evidence principles/core/common.md#declared-basis 세 용마루 높이는 roofs/sanctuary(약 7.67m)·east(약 4.53m)·porch(약 4.67m), 정지 규칙은 junctions#gable-closures, 코핑 아랫면 4.69m는 #plinth-coping에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 제실·동측·포치 용마루 높이와 코핑 폐쇄 행이 실제 덮개 적용 범위를 나누는 입력인지 확인했다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 제실·동측·포치 용마루 높이를 사용선 분류에, junctions의 south-inner−0.06m 돌출 끝을 동측 덮개 종료점에 사용했는지 본문과 대조했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 용마루 기와 줄이라는 설정을 쓰이는 세 용마루와 쓰이지 않는 네 골선·외쪽 높은 끝, 코핑 앞 정지라는 모델 결정으로 바꾼다.
 @evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 용마루 줄 약속을 세 사용선과 네 비사용 골선 및 동남단 정지라는 모델 결정으로 좁혔음을 확인했다.
 @evidence principles/design/models.md#representation-contract ridge part 하나와 아랫 가장자리의 가려진 접촉면을 정하고 골선은 slab 접힘과 잘린 기와 끝으로만 읽힌다는 표현 한계를 적는다.
@@ -71,15 +71,15 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 @evidence principles/design/models.md#model-scale-layer-completion 세 용마루의 높이와 막는 부재 유무, 코핑과의 높이 대조가 함께 정해져 용마루 층이 완결된다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 세 용마루별 막는 부재와 높이 계산, 끊는 위치가 모두 정해져 source가 골선 사용 여부를 새로 고르지 않는지 확인했다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work 동측 박공이 22°였을 때 slab 용마루 약 4.73m가 코핑 아랫면 4.69m보다 높아 덮개를 받을 수 없었다. spaces/roofs/east.md#east-roof와 roofs/assembly.md#roof-junctions의 동측 경사를 19°로 고치고 junctions.md#gable-closures에 덮개가 코핑 안쪽 돌출 끝에서 멈추는 행을 더한 뒤(a2153151) 이 단위를 다시 정했다.
-@evidenceReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 옛 동측 22도에서는 4.73m slab가 4.69m 코핑보다 높았다는 결함과 19도 수리 후 4.53m가 된 부모 문서를 대조했다.
+@evidenceReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 옛 22도 slab 약 4.73m는 코핑 하단 4.69m를 넘었고, 수리된 19도 slab 약 4.53m에 덮개 최대 Y0+0.15m를 더하면 4.656m다. junctions의 기와 약 4.63m는 옛 0.10m 추정으로 읽고, 부모의 돌출 끝 정지·코핑 높이를 그대로 적용하는지 대조했다.
 @evidence settings/20-envelope.md#roof-form 박공 용마루를 덮는 기와 줄을 반원 덮개 단위로 받는다.
 @evidenceReview settings/20-envelope.md#roof-form #7269ea1 박공의 용마루 기와 줄 요구가 독립 `ridge` 덮개로 실현되고 골선에는 옮겨지지 않는지 확인했다.
 @evidence spaces/roofs/east.md#east-roof 수리된 19° 동측 박공의 용마루 약 4.53m를 덮개 높이 대조에 쓴다.
 @evidenceReview spaces/roofs/east.md#east-roof #674b805 동측 19도·약 4.53m를 Y0+0.15m 식에 넣어 코핑 아래 여유 약 0.034m가 생기는지 대조했다.
 @evidence spaces/roofs/assembly.md#roof-junctions 수리된 동측 경사와 네 골선을 용마루 기와가 쓰이는 곳과 쓰이지 않는 곳의 경계로 쓴다.
 @evidenceReview spaces/roofs/assembly.md#roof-junctions #1812a91 assembly가 네 골선을 분류한다는 사실과 이 H2의 골선 비사용 선언이 일치하는지 확인했다.
-@evidence spaces/junctions.md#gable-closures SE 모서리의 용마루가 코핑 아래에서 멈추는 폐쇄 행을 덮개 정지 위치로 소비한다.
-@evidenceReview spaces/junctions.md#gable-closures #4ca854c 동남단 용마루가 코핑 안쪽에서 멈춘다는 폐쇄 행을 덮개 잘림 위치로 받는지 확인했다.
+@evidence spaces/junctions.md#gable-closures SE 모서리의 용마루 덮개가 south-inner−0.06m의 코핑 안쪽 돌출 끝에서 멈추는 폐쇄 행을 정지 위치로 소비한다.
+@evidenceReview spaces/junctions.md#gable-closures #4ca854c 동남단 덮개 줄의 마지막 절단면을 south-inner−0.06m의 코핑 안쪽 돌출 끝에 두어 폐쇄 표의 정확한 위치를 받았는지 확인했다.
 @evidence spaces/junctions.md#plinth-coping 코핑 아랫면 4.69m를 덮개 최대 높이 0.15m를 더한 실제 용마루 높이의 정지 기준으로 쓴다.
 @evidenceReview spaces/junctions.md#plinth-coping #711b673 4.69m 코핑 하단과 덮개 상단 사이 0.01m 최저 여유가 본문 정지 조건에 들어 있는지 확인했다.
 @evidence spaces/roofs/sanctuary.md#sanctuary-roof 제실 용마루 약 7.67m를 막는 부재가 없는 용마루로 쓴다.
@@ -96,6 +96,6 @@ part와 표면은 `tegula`, `imbrex`로 나눠 materials가 두 기와의 색을
 
 부재 대응: `ridge`=덮개.
 
-part와 표면은 `ridge` 하나다. 뒤쪽 발 X=±0.13m와 겹침 코 발 X=±0.15m는 양쪽 평기와 판 위에 닿는 가려진 접촉면이다. 용마루 길이와 배치 수는 instances가 각 용마루 선에서 유도한다. 동측 박공 남쪽 끝에서 slab 용마루 상면 약 4.53m에 19°의 `Y0+0.15m`를 더하면 약 4.656m다. 코핑 아랫면 4.69m까지 약 0.034m이므로 0.01m 여유를 확보한다. instances는 실제 용마루 선의 높이와 해당 경사각의 `Y0+0.15m`를 대조해 코핑 아랫면 아래 0.01m 여유가 남는 마지막 점에서 줄을 멈추고, 남쪽 잘린 끝면을 닫는다. 고정된 0.06m 정지 위치를 모든 경사에 복사하지 않는다. 공간 인터페이스 보고: 동측 박공이 22°였을 때 slab 용마루가 약 4.73m로 올라 코핑 아랫면 4.69m를 넘었고, spaces가 [동측 박공](../spaces/roofs/east.md#east-roof)을 19°로 고쳐 받을 수 있게 되었다. 제실 용마루(약 7.67m)와 포치 용마루(약 4.67m, 두 반환벽 코핑 사이)는 막는 부재가 없다.
+part와 표면은 `ridge` 하나다. 뒤쪽 발 X=±0.13m와 겹침 코 발 X=±0.15m는 양쪽 평기와 판 위에 닿는 가려진 접촉면이다. 용마루 길이와 배치 수는 instances가 각 용마루 선에서 유도한다. 동측 박공 남쪽 끝에서 slab 용마루 상면 약 4.53m에 19°의 `Y0+0.15m`를 더하면 약 4.656m다. 코핑 아랫면 4.69m까지 약 0.034m이므로 0.01m 여유를 확보한다. 동측 박공의 용마루 덮개 줄은 [박공 폐쇄](../spaces/junctions.md#gable-closures)가 정한 south-inner−0.06m, 곧 코핑 안쪽 돌출 끝에서 멈춘다. instances는 그 위치까지 온전한 단위를 놓고 마지막 단위를 그 평면에서 잘라 남쪽 끝면을 닫는다. 실제 높이와 해당 경사각의 `Y0+0.15m`도 코핑 아랫면과 대조해 0.01m 여유가 없으면 그 앞에서 멈춘다. 공간 인터페이스 보고: 동측 박공이 22°였을 때 slab 용마루가 약 4.73m로 올라 코핑 아랫면 4.69m를 넘었고, spaces가 [동측 박공](../spaces/roofs/east.md#east-roof)을 19°로 고쳐 받을 수 있게 되었다. 제실 용마루(약 7.67m)와 포치 용마루(약 4.67m, 두 반환벽 코핑 사이)는 막는 부재가 없다.
 
 검토 판에서 한 단위와 세 단위 줄을 보고, 건물 관찰에서 제실과 동측 박공의 용마루가 기와 줄로 읽히는지와 박공 끝에서 반원 단면이 보이는지 확인한다. 용마루 없이 두 경사면이 날카롭게 만나는 박공, 용마루 위로 뜬 덮개는 실패다.

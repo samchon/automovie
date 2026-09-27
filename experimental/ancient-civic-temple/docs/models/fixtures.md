@@ -238,7 +238,7 @@ part와 표면은 `top`, `trestle`이다. 상판 윗면은 instances가 그릇·
 <!--
 @evidence principles/core/common.md#scope-preservation 봉헌실 진열대와 관리실 벽 선반을 한 가족의 두 변형으로 치수·선반 높이·벽 이격까지 정한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실·관리실 두 변형의 판 수와 크기·벽 이격을 읽어 한 가족 안에서 역할을 구별했는지 확인했다.
-@evidence principles/core/common.md#substantive-completion 진열대 1.60×0.40×1.40m와 선반 네 높이, 관리실 변형 1.00×0.30×1.10m와 두 칸, 측판·판 두께, 벽에서 0.02m 이격이 있어 source가 선반을 다시 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 진열대 1.60×0.40×1.40m와 선반 네 높이, 관리실 변형 1.00×0.30×1.20m와 두 칸, 측판·판 두께, 벽에서 0.02m 이격이 있어 source가 선반을 다시 고르지 않는다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 1.60m 네 판과 1.00m 세 판의 높이·두께·벽 0.02m 틈을 대조했다.
 @evidence principles/core/common.md#declared-basis 선반 구성은 35-objects#shelves, 두 방의 역할은 30-interiors#offering-room과 #administration, 벽 위치는 두 방 volume에서 온다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 선반 구성, 두 방의 쓰임, 벽 우선 위치가 변형 설계와 배치 책임에 연결되는지 확인했다.
@@ -254,8 +254,8 @@ part와 표면은 `top`, `trestle`이다. 상판 윗면은 instances가 그릇·
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 두꺼운 측판을 유지하되 관리실 변형을 기록실 4×5 칸과 혼동하지 않게 했는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 변형의 치수와 올릴 물건의 경계가 정해져 두 방의 선반 층이 완결된다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 두 크기의 상자와 올릴 용기를 구별하고 위치는 instances에 남겼는지 확인했다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work shelves의 구성과 offering-volume의 북·서 벽 진열, office-volume의 벽 선반 자리를 두 변형 깊이 0.40/0.30m에 대조했고 방 통로를 막지 않아 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 0.40/0.30m 깊이가 봉헌실·관리실 벽 자리의 통로를 막지 않는다는 부모 대조를 확인했다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work shelves의 높이 1.2~1.8m·깊이 0.25~0.45m에 두 변형의 1.40/1.20m 높이와 0.40/0.30m 깊이를 각각 대조했다. offering-volume의 북·서 벽과 office-volume의 벽 선반 자리에서 통로를 막지 않아 부모 치수나 방 경계를 고칠 필요가 없었다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 봉헌실 1.40×0.40m와 관리실 1.20×0.30m가 shelves의 높이·깊이 범위에 모두 들고 두 방의 벽 자리와 통로를 유지하는지 확인했다.
 @evidence settings/35-objects.md#shelves 두꺼운 측판과 넓고 낮은 칸의 목재 선반을 진열대 가족으로 받는다.
 @evidenceReview settings/35-objects.md#shelves #d686d25 넓고 낮은 목재 선반 설정이 두 변형의 열린 칸으로 구현됐는지 확인했다.
 @evidence settings/30-interiors.md#offering-room 봉헌실 벽 쪽 진열을 1.60m 진열대 변형으로 받는다.
@@ -272,7 +272,7 @@ part와 표면은 `top`, `trestle`이다. 상판 윗면은 instances가 그릇·
 
 로컬 원점은 바닥면의 뒷변 중심이고 앞은 +Z다. 폭 1.60m·깊이 0.40m·높이 1.40m이며 측판 두께 0.04m다. 두께 0.03m인 선반 판 네 장의 아랫면은 바닥 위 Y=0.10m·0.55m·1.00m·1.37m에 있어 맨 윗판 윗면이 Y=1.40m에서 끝난다. 뒤판은 없고 벽에서 0.02m 떨어진다. 점유 상자는 1.60×1.40×0.40m다. 두 측판은 Y=0~1.40m를 차지하고 네 판은 측판의 안쪽 면 사이 X=−0.76~+0.76m에 끼워져 서로의 부피를 공유하지 않는다.
 
-관리실 변형은 폭 1.00m·깊이 0.30m·높이 1.10m이며 두께 0.03m인 선반 판 세 장의 아랫면은 바닥 위 Y=0.10m·0.60m·1.07m에 있어 맨 윗판 윗면이 Y=1.10m에서 끝나고 칸이 두 개다. 관리실의 소량 도기만 올리며 두루마리를 쌓아 기록실처럼 읽히게 하지 않는다. 점유 상자는 1.00×1.10×0.30m다. 짧은 변형도 측판은 Y=0~1.10m이고 세 판은 X=−0.46~+0.46m 사이에 든다.
+관리실 변형은 폭 1.00m·깊이 0.30m·높이 1.20m이며 두께 0.03m인 선반 판 세 장의 아랫면은 바닥 위 Y=0.10m·0.65m·1.17m에 있어 맨 윗판 윗면이 Y=1.20m에서 끝나고 칸이 두 개다. 관리실의 소량 도기만 올리며 두루마리를 쌓아 기록실처럼 읽히게 하지 않는다. 점유 상자는 1.00×1.20×0.30m다. 짧은 변형도 측판은 Y=0~1.20m이고 세 판은 X=−0.46~+0.46m 사이에 든다.
 
 부재 대응: `side`=측판; `board`=선반 판.
 
@@ -434,14 +434,14 @@ part와 표면은 `frame`, `board`, `divider`다. 스무 칸의 빈 공간과 �
 @evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 05의 낮은 잠금 궤를 앞면 걸쇠가 보이는 형상으로 옮겼는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 닫힌 고정 상태와 관절 없음이 articulation-map과 맞고 배치 소유가 정해져 궤 층이 완결된다.
 @evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e articulation-map의 강체 선언과 닫힌 궤 고정 상태가 일치하고 배치만 instances에 남는지 확인했다.
-@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work chests 구성과 records 설정의 여닫을 공간 요구를 닫힌 고정 궤에 대조했고 여닫는 동작은 납품하지 않되 공간은 spaces가 남겨 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 기록실의 여닫을 주변 공간 요구는 유지하되 이 모델은 동작 없는 닫힌 궤라는 경계를 확인했다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work chests의 폭 0.6~1.0m·깊이 0.4~0.6m·높이 0.4~0.6m에 기본 궤의 0.82×0.535×0.505m 점유 상자를 대조했다. records의 여닫을 공간 요구는 닫힌 고정 표시에서도 spaces가 남기므로 부모를 고칠 필요가 없었다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 기본 궤 0.82×0.535×0.505m가 chests의 세 범위에 들고 기록실의 여닫을 여백은 고정 표시에서도 유지되는지 확인했다.
 @evidence settings/35-objects.md#chests 목재 몸체와 분리된 뚜껑의 보관 궤를 이 prototype으로 받는다.
 @evidenceReview settings/35-objects.md#chests #7077398 목재 몸체와 분리된 뚜껑이 실제 0.005m 틈을 가진 부재인지 확인했다.
 @evidence settings/30-interiors.md#records 기록실의 잠금 장치가 보이는 낮은 궤를 걸쇠 달린 궤로 받는다.
 @evidenceReview settings/30-interiors.md#records #e7df752 기록실 잠금 장치가 눈에 보이는 앞 걸쇠로 표현되는지 확인했다.
 @evidence settings/30-interiors.md#storage 보관실의 뚜껑 있는 상자를 이 분리된 뚜껑·걸쇠가 있는 고정 궤 원형으로 받는다.
-@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실 뚜껑 상자에 같은 궤 원형을 쓰고 크기는 s=0.55 변형에 맡기는지 확인했다.
+@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실 뚜껑 상자를 기본 궤 원형으로 받고 위치·개수만 instances에 넘겼는지 확인했다.
 @evidence settings/50-production.md#references 이미지 05의 걸쇠 달린 낮은 궤를 근거로 쓴다.
 @evidenceReview settings/50-production.md#references #eb34a79 이미지 05의 걸쇠 달린 낮은 궤가 본문의 앞 금속판 형태로 이어지는지 확인했다.
 -->
@@ -454,6 +454,6 @@ part와 표면은 `frame`, `board`, `divider`다. 스무 칸의 빈 공간과 �
 
 부재 대응: `body`=몸체; `lid`=뚜껑; `hasp`=걸쇠; `strap`=띠.
 
-part와 표면은 `body`, `lid`, `hasp`, `strap`이다. 속 빈 공간과 내용물은 납품하지 않는다. 기록실·관리실의 작은 문서 상자는 동일한 궤 geometry의 모든 길이와 접합 기준에 균일 치수 매개변수 s=0.55를 적용한 변형이다. 금속 부재도 같은 s를 소비하며 별도의 본체·뚜껑 수치를 재입력하지 않는다. 배치는 instances가 정한다.
+part와 표면은 `body`, `lid`, `hasp`, `strap`이다. 속 빈 공간과 내용물은 납품하지 않는다. 기록실과 보관실은 설정 범위에 드는 이 기본 궤 원형을 쓰고 배치·복제 수는 instances가 정한다. 관리실에는 궤를 배정하지 않는다.
 
 검토 판에서 뚜껑 두께와 이음 선, 걸쇠가 분리돼 읽히는지 본다. 뚜껑 없는 상자, 걸쇠 없는 궤는 실패다.
