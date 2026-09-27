@@ -152,15 +152,24 @@ void test("pin U follows the rim, V follows +Z, and capital V accumulates",()=>{
     Math.abs(a!.u-b!.u)>1e-9);
   assert.ok(side,"pin side triangle");
   const [a,b,c]=side;
+  const handleX=templeDoorPassages.find((door)=>door.id==="door-entry")!.width/2-0.15;
+  close(a!.x-handleX,0.006);
+  close(a!.y,1.104);
+  close(a!.u,0);
   close((b!.u-a!.u)/Math.hypot(b!.x-a!.x,b!.y-a!.y),
     (2*Math.PI/12)/(2*Math.sin(Math.PI/12)),0.001);
   close((c!.v-b!.v)/(c!.z-b!.z),1);
-  const capital=partMesh(new TempleColumns().colonnade(12),"capital");
-  const capitals=Array.from({ length:capital.positions.length/3 },(_,i)=>vertex(capital,i))
-    .filter((v)=>Math.abs(v.y-Math.min(...Array.from({ length:capital.positions.length/3 },(_,j)=>capital.positions[3*j+1]!)))<1e-8);
-  assert.ok(capitals.some((v)=>Math.abs(v.v)<1e-9));
-  assert.ok(Array.from({ length:capital.positions.length/3 },(_,i)=>vertex(capital,i))
-    .some((v)=>Math.abs(v.v-0.03)<1e-8));
+  for(const [model,seamV] of [
+    [new TempleColumns().colonnade(12),0.03],
+    [new TempleColumns().porch(),0.04],
+  ] as const){
+    const capital=partMesh(model,"capital");
+    const verts=Array.from({ length:capital.positions.length/3 },(_,i)=>vertex(capital,i));
+    const lowest=Math.min(...verts.map((v)=>v.y));
+    const seam=verts.filter((v)=>Math.abs(v.y-lowest-seamV)<1e-8&&Math.abs(v.ny)<0.99);
+    assert.ok(seam.length>=48,`${model.id}: missing seam sides`);
+    for(const v of seam)close(v.v,seamV);
+  }
 });
 
 void test("concave beam cap triangles keep outward winding", ()=>{
