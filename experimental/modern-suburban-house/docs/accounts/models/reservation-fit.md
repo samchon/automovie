@@ -18,14 +18,14 @@
 | [model-review-set](../../models/00-model-frame.md#model-review-set) | 검증 절차 H2; 1536×1024·FOV 45°는 카메라 조건이다. |
 | [window-local-frame](../../models/01-windows.md#window-local-frame) | 12개 창의 외곽은 각 거친 개구부와 같고 깊이 0.14 = 0.18−0.04 m다. |
 | [window-member-sizes](../../models/01-windows.md#window-member-sizes) | 최소 0.78 m 계단창 유효 유리폭 0.78−0.12−0.10 = 0.56 m ≥ 0.30 m. |
-| [window-muntin-grid](../../models/01-windows.md#window-muntin-grid) | 각 투명 sash 2×2; 살대 깊이 0.01 m는 유리를 관통하지 않는다. |
+| [window-muntin-grid](../../models/01-windows.md#window-muntin-grid) | 각 투명 sash 2×2; 유리의 앞뒤 0.01 m 살대 층은 고정창 sash [−0.13,−0.08], upper [−0.10,−0.05], lower [−0.17,−0.12] m 안이다. 각 층의 가로 막대는 세로 막대 옆에서 끝나고 네 유리판과 부피 교집합 0이다. |
 | [double-hung-window](../../models/01-windows.md#double-hung-window) | upper/lower 두 sash의 깊이 간격 0.02 m ≤ 0.14 m frame 깊이. |
 | [fixed-window](../../models/01-windows.md#fixed-window) | 계단 1칸·차고 2칸의 sash는 거친 창 외곽 안; 가동 점유 없음. |
 | [awning-window](../../models/01-windows.md#awning-window) | 0.63 sin(π/8) = 0.2411 m 바깥 회전 돌출 ≤ right.md#tub-right-window의 0.25 m 예약; 여유 0.0089 m, 기준 닫힘 0. |
 | [window-sill-trim](../../models/01-windows.md#window-sill-trim) | 창대 -0.18→-0.31 = 0.13 m, 실내 마감 -0.25 기준 돌출 0.06 m; 길이 W+2×0.07 m가 문선 두 발을 받는다. 구조 날씨 면에서 trim 0.035−siding butt 0.030 = 0.005 m 앞섬. |
 | [window-surface-partitions](../../models/01-windows.md#window-surface-partitions) | 면 계약 H2; window-local-frame과 window-sill-trim 점유를 재사용하고 새 부재 없음. |
 | [window-fidelity](../../models/01-windows.md#window-fidelity) | 표현 범위 H2; 새 점유 없음, 캡처 판정 unverified. |
-| [front-entry-door](../../models/02-exterior-doors.md#front-entry-door) | 유효폭 1.00−2×0.03−0.04 = 0.90 m; 문턱 +0.02 뒤 문짝 하단 +0.03, 상단 2.17, 높이 2.14 m. 개구부 밖 trim·casing은 Y=0 바닥에서 시작해 폭 안 문턱판과 겹치지 않고 구조 날씨 면 기준 trim 0.035 m는 siding 0.030 m보다 앞선다. |
+| [front-entry-door](../../models/02-exterior-doors.md#front-entry-door) | 유효폭 1.00−2×0.03−0.04 = 0.90 m; 문턱 +0.02 뒤 문짝 하단 +0.03, 상단 2.17, 높이 2.14 m. 개구부 밖 trim·casing은 Y=0 바닥에서 시작해 폭 안 문턱판과 겹치지 않고 구조 날씨 면 기준 trim 0.035 m는 siding 0.030 m보다 앞선다. 상부 구멍 X=[0.55,1.25]·Y=[1.30,2.05], 유리 Z=[−0.128,−0.122]는 문짝 Z=[−0.145,−0.105] 안이고 두 세로 살대와 세 조각 가로 살대는 부피 교집합 0이다. |
 | [garage-sectional-door](../../models/02-exterior-doors.md#garage-sectional-door) | 유효폭 5.00−2×0.10 = 4.80 m; 문짝 높이 2.00−(−0.15) = 2.15 m; 상부 가이드 2.15–2.50 m. |
 | [garden-door-pair](../../models/02-exterior-doors.md#garden-door-pair) | 주 문 1.20−0.03−0.04 = 1.13 m, 손잡이 뒤 1.07 ≥ 0.95 m; 회전 1.17 ≤ 1.80 m; 문짝 하단 +0.03. 개구부 밖 trim·casing Y=0은 테라스·공용부 바닥에 닿고 문턱판은 개구부 안 Y=0.02다. |
 | [side-yard-gate](../../models/02-exterior-doors.md#side-yard-gate) | 판 폭 8×0.14+7×0.008+2×0.002 = 1.18 m; 순폭 1.20−0.04−0.05 = 1.11 ≥ 1.05 m. |

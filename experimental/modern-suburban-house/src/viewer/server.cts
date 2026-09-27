@@ -11,6 +11,9 @@
  *
  * Start: `npm run viewer -- --port 4173` from the production directory, then
  * open `http://127.0.0.1:4173/`.
+ * `--model-inputs <module>` adds generated model prototypes, placements,
+ * face finishes, and model-owned UVs to the same house scene for inspection.
+ * The module exports a typed `buildViewerModelInputs()` function.
  *
  * Routes:
  * - `/` serves `public/index.html`;
@@ -21,9 +24,10 @@
  *   `/scene?subject=calibration` builds the calibration shape instead.
  *
  * Staleness: the server digests the production source (`src`, `docs`,
- * `public`, `lint.config.ts`, `package.json`) at start. If a later `/scene`
- * request finds a different digest it answers 409, so a page can never keep
- * presenting an old scene as the current result (live-viewing rule). The
+ * `public`, `lint.config.ts`, `package.json`) and any model-input module at
+ * start. If a later `/scene` request finds a different digest it answers 409,
+ * so a page can never keep presenting an old scene as the current result
+ * (live-viewing rule). The
  * coordinator restarts the server; nothing is cached or written to disk.
  */
 import { createHash } from "node:crypto";
@@ -38,15 +42,30 @@ import { parseArgs } from "node:util";
 
 import { buildCalibrationScene } from "./calibration.cjs";
 import { buildHouseScene } from "./houseScene.cjs";
+import type { IViewerModelInputs } from "./modelScene.cjs";
 
 /** Production root: this file lives at `src/viewer/server.cts`. */
 const ROOT = resolve(__dirname, "..", "..");
+
+/** Load production values from source rather than a serialized design store. */
+const loadViewerModelInputs = (moduleFile: string): IViewerModelInputs => {
+  const loaded = require(moduleFile) as { buildViewerModelInputs?: unknown };
+  if (typeof loaded.buildViewerModelInputs !== "function")
+    throw new Error(`${moduleFile} must export buildViewerModelInputs()`);
+  return (loaded.buildViewerModelInputs as () => IViewerModelInputs)();
+};
 
 /** Directory of the installed three.js build files. */
 const THREE_BUILD = dirname(require.resolve("three"));
 
 /** Source inputs whose change makes a running view stale. */
-const DIGEST_INPUTS = ["src", "docs", "public", "lint.config.ts", "package.json"];
+const DIGEST_INPUTS = [
+  "src",
+  "docs",
+  "public",
+  "lint.config.ts",
+  "package.json",
+];
 
 /** Collect every regular file under one input, in a stable order. */
 const listFiles = (path: string): string[] => {
@@ -60,7 +79,7 @@ const listFiles = (path: string): string[] => {
 };
 
 /** Digest the production source so a scene names the basis it came from. */
-const digestSource = (): string => {
+const digestSource = (modelInputsFile?: string): string => {
   const hash = createHash("sha256");
   for (const input of DIGEST_INPUTS)
     for (const file of listFiles(join(ROOT, input))) {
@@ -69,16 +88,37 @@ const digestSource = (): string => {
       hash.update(readFileSync(file));
       hash.update("\0");
     }
+  if (modelInputsFile !== undefined) {
+    hash.update(modelInputsFile);
+    hash.update("\0");
+    hash.update(readFileSync(modelInputsFile));
+  }
   return hash.digest("hex").slice(0, 12);
 };
 
 /** Static files the page needs, by request path. */
 const STATIC_FILES: Record<string, { file: string; type: string }> = {
-  "/": { file: join(ROOT, "public", "index.html"), type: "text/html; charset=utf-8" },
-  "/vendor/three.module.js": { file: join(THREE_BUILD, "three.module.js"), type: "text/javascript; charset=utf-8" },
-  "/vendor/three.core.js": { file: join(THREE_BUILD, "three.core.js"), type: "text/javascript; charset=utf-8" },
+  "/": {
+    file: join(ROOT, "public", "index.html"),
+    type: "text/html; charset=utf-8",
+  },
+  "/vendor/three.module.js": {
+    file: join(THREE_BUILD, "three.module.js"),
+    type: "text/javascript; charset=utf-8",
+  },
+  "/vendor/three.core.js": {
+    file: join(THREE_BUILD, "three.core.js"),
+    type: "text/javascript; charset=utf-8",
+  },
   "/vendor/OrbitControls.js": {
-    file: join(THREE_BUILD, "..", "examples", "jsm", "controls", "OrbitControls.js"),
+    file: join(
+      THREE_BUILD,
+      "..",
+      "examples",
+      "jsm",
+      "controls",
+      "OrbitControls.js",
+    ),
     type: "text/javascript; charset=utf-8",
   },
 };
@@ -106,6 +146,7 @@ const handle = (
   request: IncomingMessage,
   response: ServerResponse,
   startDigest: string,
+  modelInputsFile?: string,
 ): void => {
   const url = new URL(request.url ?? "/", "http://localhost");
   const path = url.pathname;
@@ -133,15 +174,21 @@ const handle = (
   if (path === "/scene") {
     const subject = url.searchParams.get("subject");
     if (subject !== null && subject !== "calibration")
-      return send(response, 404, "text/plain; charset=utf-8", `unknown subject: ${subject}`);
-    const current = digestSource();
+      return send(
+        response,
+        404,
+        "text/plain; charset=utf-8",
+        `unknown subject: ${subject}`,
+      );
+    const current = digestSource(modelInputsFile);
     if (current !== startDigest)
       return send(
         response,
         409,
         "application/json; charset=utf-8",
         JSON.stringify({
-          error: "production source changed after the viewer started; restart the viewer",
+          error:
+            "production source changed after the viewer started; restart the viewer",
           startDigest,
           currentDigest: current,
         }),
@@ -150,30 +197,44 @@ const handle = (
       response,
       200,
       "application/json; charset=utf-8",
-      JSON.stringify(subject === "calibration"
-        ? buildCalibrationScene(current)
-        : buildHouseScene(current)),
+      JSON.stringify(
+        subject === "calibration"
+          ? buildCalibrationScene(current)
+          : buildHouseScene(
+              current,
+              modelInputsFile === undefined
+                ? undefined
+                : loadViewerModelInputs(modelInputsFile),
+            ),
+      ),
     );
   }
   if (path === "/favicon.ico") return send(response, 204, "text/plain", "");
   return send(response, 404, "text/plain; charset=utf-8", `not found: ${path}`);
 };
 
-/** Parse `--port` and `--host`, then listen. */
+/** Parse viewer options, then listen. */
 const main = (): void => {
   const { values } = parseArgs({
     options: {
       port: { type: "string", default: "4173" },
       host: { type: "string", default: "127.0.0.1" },
+      "model-inputs": { type: "string" },
     },
   });
   const port = Number(values.port);
   if (!Number.isInteger(port) || port < 1 || port > 65535)
-    throw new Error(`--port must be an integer in 1..65535, got ${values.port}`);
-  const startDigest = digestSource();
+    throw new Error(
+      `--port must be an integer in 1..65535, got ${values.port}`,
+    );
+  const modelInputsFile =
+    values["model-inputs"] === undefined
+      ? undefined
+      : resolve(values["model-inputs"]);
+  const startDigest = digestSource(modelInputsFile);
   const server = createServer((request, response) => {
     try {
-      handle(request, response, startDigest);
+      handle(request, response, startDigest, modelInputsFile);
     } catch (error) {
       send(response, 500, "text/plain; charset=utf-8", String(error));
     }

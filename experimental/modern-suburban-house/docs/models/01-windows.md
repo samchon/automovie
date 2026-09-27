@@ -22,7 +22,7 @@
 ## 창틀·sash·mullion·살대의 부재 치수 {#window-member-sizes}
 <!--
 @evidence principles/core/common.md#scope-preservation frame 0.06·sash 0.05·mullion 0.08·살대 0.025 m 부재 폭과 칸 폭 산출식, 깊이 배분, 유리 법선·UV를 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다. 고정·경첩 sash Z=[−0.13,−0.08] m와 유리 Z=[−0.113,−0.107] m, 상하 미닫이의 별도 앞뒤 트랙을 구분한다.
+@evidence principles/core/common.md#substantive-completion 칸 폭 = (거친 폭 - 2×0.06 - (칸 수-1)×0.08)/칸 수와 0.30 m 미만 실패 조건, 계단 창 유리 폭 0.56 m 산출을 적는다. 고정·경첩 sash Z=[−0.13,−0.08] m와 유리 Z=[−0.113,−0.107] m, 상하 미닫이의 별도 앞뒤 트랙과 각 유리칸의 별도 닫힌 판을 구분한다.
 @evidence principles/core/common.md#declared-basis 부재 폭 근거를 settings/20-verification.md#visual-grammar의 charcoal 창틀과 #frame-condition의 외부 기본 view, 계단 창 폭 0.78 m에서 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '두께 있는 frame·sash·유리·살대'를 네 부재 폭과 유리 두께 0.006 m라는 모델 결정으로 바꾼다.
 @evidence principles/design/models.md#representation-contract 부재 폭·깊이와 유리를 닫힌 얇은 상자(양면 바깥 법선)로 정하고, 금속 프레임은 부재 길이를 U로 한 미터 UV를 낸다.
@@ -37,13 +37,13 @@
 
 레퍼런스 01의 넓은 전면 창과 좁은 계단 창에 공통인 검은 테를 채택한다. 서로 다른 창폭에 맞는 유리 순폭은 예약별 산술로 정한다.
 
-spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 두께 0.006 m 판 하나다. 유리는 앞뒤 면이 각각 바깥 법선을 갖는 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
-고정창과 욕조 경첩창의 `sash`는 날씨 면을 국소 Z=0으로 두었을 때 Z=[−0.13,−0.08] m이고, 그 안의 유리는 Z=[−0.113,−0.107] m다. 상하 미닫이의 두 sash는 별도 트랙을 써서 바깥 upper가 Z=[−0.17,−0.12] m, 안쪽 lower가 Z=[−0.10,−0.05] m다. 각 트랙의 유리는 자기 sash 뒷면에서 0.017 m 안쪽의 0.006 m 판이므로 upper Z=[−0.153,−0.147] m, lower Z=[−0.083,−0.077] m다. 유리가 점유하는 사각형은 sash 안쪽의 유리 순폭·순높이이며 그 자리의 sash 면은 실제 구멍으로 비운다. 욕조 경첩창의 `awning-sash` 위쪽 회전축은 날씨 쪽 윗모서리 Z=−0.08 m다.
+spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입면 폭 0.06 m, sash 둘레 0.05 m, 칸 사이 mullion 0.08 m, 살대 0.025 m를 모델 결정으로 택한다. 근거는 [공통 재료와 외피 인상](../settings/20-verification.md#visual-grammar)의 짙은 charcoal 창틀이 흰 trim 안쪽에서 선으로 읽혀야 하고 [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 외부 기본 view에서도 frame과 sash가 구별돼야 한다는 점, 그리고 가장 작은 [계단 창](../spaces/envelope/front.md#stair-front-window) 폭 0.78 m에서도 유리 폭이 0.56 m 남는다는 산출이다. 칸 폭은 (거친 폭 - 2 × 0.06 - (칸 수 - 1) × 0.08) / 칸 수이고 이 값이 0.30 m 미만이면 실패로 보고한다. 깊이는 frame 0.14 m 전부, sash 0.05 m, 유리는 투명 격자의 각 칸마다 두께 0.006 m인 별도의 닫힌 판이다. 각 유리판의 앞뒤 면은 각각 바깥 법선을 가져 닫힌 얇은 상자로 만들어 실내외 양쪽 view에서 같은 판이 보이게 한다. 창틀·sash·살대는 면마다 평면 법선을 쓰고, [charcoal 미세결](../materials/01-exterior.md#window-frame-charcoal)이 붙을 수 있도록 각 직선 부재의 시작 모서리를 원점으로 길이 U·부재 폭 V를 미터 단위로 기록하며 맞댐에서 끊는다. 유리 앞뒤 면에는 창 유리판의 왼쪽 아래를 원점으로 가로 U·세로 V를 미터 단위로 기록한다. 소스 owner는 `src/models/windows.ts`이며 정면 직교 뷰에서 부재 폭을 잰다.
+고정창과 욕조 경첩창의 `sash`는 날씨 면을 국소 Z=0으로 두었을 때 Z=[−0.13,−0.08] m이고, 그 안의 유리는 Z=[−0.113,−0.107] m다. 상하 미닫이의 두 sash는 별도 트랙을 써서 바깥 upper가 Z=[−0.10,−0.05] m, 안쪽 lower가 Z=[−0.17,−0.12] m다. 각 트랙의 유리는 자기 sash 뒷면에서 0.017 m 안쪽의 0.006 m 판이므로 upper Z=[−0.083,−0.077] m, lower Z=[−0.153,−0.147] m다. 유리가 점유하는 사각형은 sash 안쪽의 유리 순폭·순높이이며 그 자리의 sash 면은 실제 구멍으로 비운다. 욕조 경첩창의 `awning-sash` 위쪽 회전축은 날씨 쪽 윗모서리 Z=−0.08 m다.
 
 ## 살대 격자 {#window-muntin-grid}
 <!--
 @evidence principles/core/common.md#scope-preservation 투명 유리 sash 전부의 2열×2행 살대 격자와 흐린 욕실 창의 살대 없음, 살대의 유리 양면 부착을 이 H2가 맡는다.
-@evidence principles/core/common.md#substantive-completion 세로·가로 살대 하나씩, 깊이 0.01 m 막대를 유리 양면에 붙이고 유리를 관통하지 않는다고 정해 격자를 구현자가 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion 세로·가로 살대 하나씩을 유리 양면의 0.01 m 깊이 층에 붙이고 교차부에서 가로 막대를 두 토막으로 잘라 공통 부피를 없앤다. 세 sash 깊이 구간과 유리 경계를 수치로 대조한다.
 @evidence principles/core/common.md#declared-basis 살대 요구는 settings/10-house.md#openings, 위계는 spaces/envelope/front.md#front-openings에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation settings openings의 '살대'를 sash마다 같은 2×2 격자라는 모델 결정으로 바꾸고 위계는 칸 수와 창 크기로만 읽게 한다.
 @evidence principles/design/models.md#representation-contract 살대를 유리 양면의 별도 막대 부재로 정해 유리에 구멍이 생기지 않는 연결을 명시한다.
@@ -58,7 +58,7 @@ spaces와 settings가 부재 폭을 정하지 않았으므로 frame 둘레 입�
 
 레퍼런스 01·04의 검은 가로세로 살대가 나눈 투명 칸을 채택한다. 사진의 작은 반사 무늬는 살대나 유리 질감으로 옮기지 않는다.
 
-[settings 개구부](../settings/10-house.md#openings)가 살대를 요구하므로 투명 유리를 가진 모든 sash는 가운데 세로 살대 하나와 가로 살대 하나로 2열 × 2행 유리 칸을 만든다. 한 sash 안의 격자는 입면 전체에서 같은 비례로 반복되어 [전면 입면](../spaces/envelope/front.md#front-openings)의 넓은 창·침실 창·작은 계단 창의 위계를 칸 수와 창 크기로만 읽게 하고 살대 무늬로 위계를 바꾸지 않는다. 흐린 유리의 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window)은 살대를 두지 않는다. 살대는 유리 양면에 붙는 0.01 m 깊이 막대로 만들고 유리를 관통하는 구멍을 만들지 않는다. 소스 owner는 `src/models/windows.ts`다.
+[settings 개구부](../settings/10-house.md#openings)가 살대를 요구하므로 투명 유리를 가진 모든 sash는 가운데 세로 살대 하나와 가로 살대 하나로 2열 × 2행 유리 칸을 만든다. 한 sash 안의 격자는 입면 전체에서 같은 비례로 반복되어 [전면 입면](../spaces/envelope/front.md#front-openings)의 넓은 창·침실 창·작은 계단 창의 위계를 칸 수와 창 크기로만 읽게 하고 살대 무늬로 위계를 바꾸지 않는다. 흐린 유리의 [욕조 욕실 창](../spaces/envelope/right.md#tub-right-window)은 살대를 두지 않는다. 살대는 유리 양면의 각각 0.01 m 깊이 층에 붙는 막대다. 유리의 국소 깊이가 [g0,g1]이면 날씨 쪽 층은 [g1,g1+0.01], 실내 쪽 층은 [g0−0.01,g0]이다. 각 층에서 세로 살대 한 줄은 전체 유리 높이를 잇고 가로 살대는 세로 살대 양옆에서 끝나는 두 토막으로 만들어 중앙 교차부의 부피를 복제하지 않는다. 유리 네 장은 살대 폭 0.025 m를 뺀 네 사각 칸만 차지하며 살대와 접면만 공유한다. 고정창의 두 살대 층은 Z=[−0.123,−0.113]·[−0.107,−0.097] m로 sash [−0.13,−0.08] 안이고, 상하 미닫이 upper는 [−0.093,−0.083]·[−0.077,−0.067] m로 sash [−0.10,−0.05] 안, lower는 [−0.163,−0.153]·[−0.147,−0.137] m로 sash [−0.17,−0.12] 안이다. 두 층과 유리의 깊이는 서로 양의 부피를 공유하지 않는다. 흐린 욕실 유리에는 살대를 두지 않는다. 소스 owner는 `src/models/windows.ts`다.
 
 ## 상하 미닫이 창의 계층과 기준 상태 {#double-hung-window}
 <!--
