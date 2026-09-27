@@ -49,7 +49,7 @@ const OWNER = "garage.ts";
  * @evidence principles/core/source-units.md#source-substantive-completion wallPanel constructs the sloped top and door hole, and part returns the wall with an interior finish palette.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f wallPanel extrudes the sloped outline and cuts LAUNDRY_GARAGE_DOOR; part() returns a named wall with that mesh, face and garage owner.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Exterior-surface-handoff and attached-garage-extent already divide the shared wall at the garage roof weather line: garage owns the door-bearing lower body and envelope/right owns the exposed siding above it.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The two design parents assign one X/Z shared wall and split its owners at the garage roof weather line; buildGarageSharedWall stops its door-bearing body there, so this implementation reveals no further missing parent boundary.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The two design parents assign one X/Z shared wall and split its owners at the garage roof weather line; buildGarageSharedWall stops its door-bearing body there, so this implementation reveals no further missing parent boundary.
  */
 export const buildGarageSharedWall = (): IHousePart[] => {
   const weatherLine = (z: number): number => garageRoof(z);

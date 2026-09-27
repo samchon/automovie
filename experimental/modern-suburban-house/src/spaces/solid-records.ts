@@ -298,7 +298,7 @@ export interface IWallPoint {
    * @evidence principles/core/source-units.md#source-substantive-completion The outline can order corners and door notches.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f straightWall orders door notches by their running coordinate and emits u vertices around each notch before closing the wall outline.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-front-window, bedroom-two-front-window, stair-front-window and bedroom-three-front-window fix front X intervals; entry-plan fixes the front-door X interval, while living-left-window and primary-left-window fix left Z intervals. u carries the selected wall's running coordinate.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The four front-window H2s and entry-plan each give their own X bounds, and the two left-window H2s give Z bounds; callers pass those authored running values as u rather than IWallPoint choosing a new opening location.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The four front-window H2s and entry-plan each give their own X bounds, and the two left-window H2s give Z bounds; callers pass those authored running values as u rather than IWallPoint choosing a new opening location.
    */
   u: number;
   /**
@@ -309,7 +309,7 @@ export interface IWallPoint {
    * @evidence principles/core/source-units.md#source-substantive-completion Head, sill and top vertices are explicit.
    * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f wallPanel reads y for each outline vertex, and straightWall uses it for the wall top and the head of every bottom notch.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Storey-datums fixes floor/ceiling levels; living-front-window, bedroom-two-front-window, stair-front-window and bedroom-three-front-window set their respective Y heads at 2.30, 5.31, 5.21 and 5.31 m. y carries the caller's authored wall height.
-   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The storey parent supplies floor and ceiling datums while the four front-window H2s supply distinct upper cut heights; IWallPoint.y retains whichever world height the wall caller passes, without moving a head or floor.
+   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The storey parent supplies floor and ceiling datums while the four front-window H2s supply distinct upper cut heights; IWallPoint.y retains whichever world height the wall caller passes, without moving a head or floor.
    */
   y: number;
 }

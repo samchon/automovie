@@ -65,7 +65,7 @@ const STAIR_PLAN = {
 /** The finished L void and its back guard band are the stair owner's shared plan. */
 /**
  * @evidence spaces/02-stair.md#stair-floor-opening This polygon is the one finished opening received by the floor and ceiling owners.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening STAIR_OPENING supplies the six-corner L ring; buildInterstorey in floors/upper.ts uses its turn and return to cut the slab notch, while buildStair passes the same opening to buildStairGuards for edge and high-ceiling finishes.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening #c2b6e36 STAIR_OPENING supplies the six-corner L ring; buildInterstorey in floors/upper.ts uses its turn and return to cut the slab notch, while buildStair passes the same opening to buildStairGuards for edge and high-ceiling finishes.
  * @evidence spaces/02-stair.md The stair owns the L opening and guard reservation used by its structural and route consumers.
  * @evidenceReview spaces/02-stair.md #d17bdfd STAIR_OPENING holds the L plan and 0.075 m guardReserve; buildStairGuards uses the reservation for posts and rails while buildHouseEnvironment subtracts it twice from the 1.15 m route width.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair retains the opening while adjacent rooms receive its edges.

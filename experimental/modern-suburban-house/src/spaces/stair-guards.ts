@@ -40,7 +40,7 @@ type StairWall = (
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ordered solids close the floor edge and ceiling while constructing and checking actual guard sections.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The ordered result includes band, posts, rails, rear corner closure, five opening edges, and ceiling; before return it checks the narrow horizontal section of every returned guard mesh.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The reviewed floor-opening and boundary-height units already fix these guard and finish roles; extraction adds no new spatial decision.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work The stair parents set the L opening, 0.90 m handrail and 1.05 m hall-guard tops, and the 0.075 m section reserve. buildStair passes opening, steps, upperBase, owner and wall; this helper uses its HANDRAIL and HALL_GUARD constants for the parent heights and derives RESERVE from opening.guardReserve.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The stair parents set the L opening, 0.90 m handrail and 1.05 m hall-guard tops, and the 0.075 m section reserve. buildStair passes opening, steps, upperBase, owner and wall; this helper uses its HANDRAIL and HALL_GUARD constants for the parent heights and derives RESERVE from opening.guardReserve.
  */
 export const buildStairGuards = (props: {
   owner: string;

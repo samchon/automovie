@@ -416,7 +416,7 @@ export const partition = (props: {
  * @evidence principles/core/source-units.md#source-substantive-completion Bottom and top derive from the selected storey datum and head height.
   * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The returned bottom is the selected storey's finished floor and top adds the supplied head, defaulting to 2.20 m for ordinary interior doors.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan owns entry-living-door at Z=[-1.35, -0.35] and laundry-plan owns service-laundry-door at Z=[-4.40, -3.35]; their callers pass those spans to door, whose standard 2.20 m default matches both parents' heads.
-  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work Living and laundry parents fix the respective spans and Y=[0, 2.20] heads. The callers pass the spans; door's head parameter defaults to 2.20 m and makes those wall cuts without choosing a different parent height.
+  * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Living and laundry parents fix the respective spans and Y=[0, 2.20] heads. The callers pass the spans; door's head parameter defaults to 2.20 m and makes those wall cuts without choosing a different parent height.
  */
 export const door = (id: string, storey: StoreyId, from: number, to: number, head = 2.2): IWallHole => ({
   id,

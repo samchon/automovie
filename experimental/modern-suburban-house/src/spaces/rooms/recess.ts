@@ -22,7 +22,7 @@ import type { IWallSolid } from "../solid-records";
  * @evidence principles/core/source-units.md#source-scope-preservation This input describes the shower wall's own recess and no sanitary fixture.
   * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 IBlindRecess has wall intervals, opening intervals and depth only; it describes the niche cut and includes no bottle, plumbing or sanitary-fixture field.
  * @evidence principles/core/source-units.md#source-substantive-completion Wall, opening and depth intervals fully determine the solid.
-  * @evidenceReview principles/core/source-units.md#source-substantive-completion blindRecessWall takes five intervals (wallX, wallY, wallZ, openingY, openingZ) and depth, derives the cavity back plane and cell grid, then returns mesh and wall-face records without another cut coordinate.
+  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f blindRecessWall takes five intervals (wallX, wallY, wallZ, openingY, openingZ) and depth, derives the cavity back plane and cell grid, then returns mesh and wall-face records without another cut coordinate.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Shower-fixture-use sets a 0.08 m blind recess in the X=[0.75, 0.90] partition, ending at X=0.82 with 0.07 m back wall; these intervals represent that existing cavity.
   * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Shower-fixture-use supplies the 0.15 m wall interval, 0.08 m recess depth and retained 0.07 m back; buildShowerBath passes those inputs and the measurement fixture exercises the same type without introducing a new production niche.
  */
