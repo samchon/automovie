@@ -78,9 +78,10 @@ const skinVertices = new Set(
 );
 const cheilia = [...new Set(lips.indices)].filter((v) => skinVertices.has(v));
 const xs = cheilia.map((v) => P[3 * v]!);
-const corners = cheilia.filter(
-  (v) => P[3 * v]! === Math.max(...xs) || P[3 * v]! === Math.min(...xs),
-);
+const corners = cheilia.filter((v) => {
+  const x = P[3 * v]!;
+  return x === Math.max(...xs) || x === Math.min(...xs);
+});
 const mouth = corners.reduce((s, v) => s + P[3 * v + 1]!, 0) / corners.length;
 let tipVertex = -1;
 for (let v = 0; v < P.length / 3; ++v)
