@@ -56,7 +56,7 @@ const tasks = [
   [
     "model face review candidates",
     process.execPath,
-    [path.join(__dirname, "face-witness-audit.cjs")],
+    [path.join(__dirname, "face-witness-audit.cjs"), "--building-strict"],
     "face-witnesses",
   ],
   [
@@ -134,7 +134,7 @@ for (const [name, command, args, kind] of tasks) {
       } else if (kind === "material-bindings") {
         errors += value.unowned + value.unlinkedAssignments + value.falseLinkedMakers + value.invalidExplicitClaims + value.invalidTableClaims + value.unwitnessedModelPairs;
       } else if (kind === "face-witnesses") {
-        errors += value.withoutLiteralFaceId;
+        errors += value.withoutLiteralFaceId + value.buildingRequiringManualReview;
       } else if (kind === "referents") {
         errors += Number(value.ledgerDiff) + value.ownerless;
       } else if (kind === "model-contacts") {

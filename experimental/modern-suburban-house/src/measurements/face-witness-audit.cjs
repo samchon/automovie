@@ -4,6 +4,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { witness } = require("./model-face-witness.cjs");
+const { isBuildingFaceMissing } = require("./building-face-gate.cjs");
 
 const docs = path.resolve(__dirname, "../../docs");
 /** @param {string} p */
@@ -41,10 +42,12 @@ for (const pair of pairs) {
   });
 }
 const missing = inventory.filter((p) => !p.candidate);
+const buildingMissing = inventory.filter(isBuildingFaceMissing);
 const summary = {
   pairs: inventory.length,
   partSentenceCandidates: inventory.length - missing.length,
   requiringManualReview: missing.length,
+  buildingRequiringManualReview: buildingMissing.length,
   withoutLiteralFaceId: missing.filter((p) => p.named === 0).length,
 };
 if (process.argv.includes("--json")) console.log(JSON.stringify({ summary, inventory }, null, 2));
@@ -56,3 +59,5 @@ else {
     );
 }
 if (process.argv.includes("--strict") && missing.length) process.exitCode = 1;
+if (process.argv.includes("--building-strict") && buildingMissing.length)
+  process.exitCode = 1;
