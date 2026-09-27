@@ -30,7 +30,9 @@
  * frontal photograph cannot measure (`FACE_UNSEEN_INDICES`: the profile, the
  * head behind the face and the ears), set to the subject's population at
  * their sex and age (`faceUnseenNorm`) and read on the skin at rest; without
- * a recorded sex or ancestry they keep their start. The model's landmarks are the
+ * a recorded sex or ancestry they keep their start. Both upper lids' crease
+ * is read from the photograph where its lids are large enough, else set to
+ * the population's more probable state (`faceLidCreaseWeight`). The model's landmarks are the
  * published anchors of that camera on the surface, and shape endpoints are
  * linear, so an index is read from the endpoint rows at the anchored
  * vertices on top of one real build at the starting controls (with the
