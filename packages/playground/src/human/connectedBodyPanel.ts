@@ -47,6 +47,8 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel formats the measurements the package computed.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The panel calls the package's parse and serialize functions.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The panel has no underwear control; a loaded document's underwear is cut by the package builder in the worker.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The panel evaluates no underwear region, clip or lift.
  */
 export function mountConnectedBodyPanel<
   Model extends {

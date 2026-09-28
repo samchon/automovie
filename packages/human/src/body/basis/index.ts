@@ -5,6 +5,7 @@ export * from "./assertSparseRows";
 export * from "./createHumanBodyBasisBuilder";
 export * from "./createHumanBodySkinColour";
 export * from "./createHumanBodySurfaceSag";
+export * from "./createHumanBodyUnderwear";
 export * from "./evaluateHumanBodyShape";
 export * from "./humanBodyBasisWeights";
 export * from "./humanBodyReliefWeights";
