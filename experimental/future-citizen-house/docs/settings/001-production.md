@@ -84,7 +84,7 @@
 <!--
 @evidence principles/core/common.md#declared-basis 사용자가 지정한 compiled topology 분모와 저작자·관찰자 목록의 동시 종료를 그대로 채택한다.
 @evidence principles/core/common.md#scope-preservation setting·입면·모서리·지붕·하부·개구부와 모든 room의 threshold·모서리·4방위를 하나도 대표 view로 대체하지 않는다.
-@evidence principles/core/common.md#substantive-completion 수치 계측과 시각 자기 동일성의 역할, 절개의 검사 지위, 독립 판정 전 완료 금지를 확정한다.
+@evidence principles/core/common.md#substantive-completion 수치 계측과 시각 자기 동일성의 역할, 절개의 검사 지위, 전체 자체 관찰 전에 완료할 수 없다는 조건을 확정한다.
 @evidence principles/core/settings.md#fact-status 프레임이 수·id·binding을 증명한다는 추론을 거부하고 실제 컴파일 값과 시각 결과의 지위를 구분한다.
 @evidence principles/core/settings.md#source-support 관찰 분모와 다섯 reference의 지위는 사용자 브리프의 명시 조건이며 임의의 외부 검증 표준을 인용하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 이 H2가 바꾸는 것은 검사 분모와 종료 판단이며 production-world subject의 상태 능력은 정의하지 않는다. 실제 유리와 작업실 상태의 능력·제약은 003과 002의 상태 canon을 따른다.
@@ -102,16 +102,16 @@
 
 컴파일된 topology가 관찰 분모다. 외부는 setting 하나, 노출된 네 입면, 입면 모서리, 지붕과 하부, 개구부와 출입구를 포함한다. 각 room은 threshold 하나, 네 안쪽 모서리, room 내부 중심에서 +X·-X·+Z·-Z 방향을 포함한다. 계획이나 section은 질문을 추가할 수 있지만 이 분모를 줄이지 않는다.
 
-수·id·위치·binding·치수는 컴파일 산출물에서 읽고, frame은 구조 산출물이 답하지 못하는 한 가지 시각 질문만 답한다. section axonometric은 검사 수단이지 납품 frame이 아니다. 저작자 목록과 관찰자 목록이 다섯 reference 모두에서 동시에 비어야 종료하며, 별도 read-only reviewer의 판정 전에는 완료를 주장하지 않는다. 재현할 장치·프레임·카메라 조건은 [관찰 장치](004-observation.md#review-apparatus)가 소유한다.
+수·id·위치·binding·치수는 컴파일 산출물에서 읽고, frame은 구조 산출물이 답하지 못하는 한 가지 시각 질문만 답한다. section axonometric은 검사 수단이지 납품 frame이 아니다. 2026-09-28 이어받기 지시가 전달한 사용자 원문에 따라 모델러 자신이 자기 렌더를 전수 관찰하고 판단·수리한다. 다섯 reference와 전체 관찰 모집단에 대한 저작·관찰의 미완료 항목이 모두 없어야 완료를 주장한다. 별도 판정 에이전트는 만들지 않는다. 재현할 장치·프레임·카메라 조건은 [관찰 장치](004-observation.md#review-apparatus)가 소유한다. 이 파일의 기존 evidenceReview 주석은 이전 시점 기록이며 이번 실행의 종료 권한이나 검토 요건이 아니다.
 
 ## 역할과 접근성 {#roles-and-accessibility}
 
 <!--
-@evidence principles/core/common.md#declared-basis 사용자가 정한 저작자·관찰자·독립 reviewer의 역할 분리를 따른다.
-@evidence principles/core/common.md#scope-preservation 저작자가 source와 자기 수리를 소유하고 관찰자의 주장을 검증하되 판정자의 권한을 대신하지 않는다.
+@evidence principles/core/common.md#declared-basis 2026-09-28 이어받기에서 전달한 모델러 자신의 렌더 판정·수리와 별도 판정 에이전트 금지 원문을 따른다.
+@evidence principles/core/common.md#scope-preservation 같은 저작자가 전체 source·관찰·판정·수리를 책임지며 감독에게 그 책임을 넘기지 않는다.
 @evidence principles/core/common.md#substantive-completion 관찰·원인·판정의 차이를 정하고 조작 및 접근성 조건은 004-observation의 소유로 연결한다.
 @evidence principles/core/settings.md#fact-status 관찰자의 보고는 틀릴 수 있는 관찰이며 컴파일 계측으로 반박할 수 있는 주장으로 취급한다.
-@evidence principles/core/settings.md#source-support 이 역할 배정은 사용자 브리프에서 왔으며 reviewer라는 이름만으로 실물 접근성이나 GPU 성능을 증명하지 않는다.
+@evidence principles/core/settings.md#source-support 역할 배정은 이어받기에 보존된 사용자 직접 지시이며 자체 판정자의 이름으로 실물 접근성이나 GPU 성능을 증명하지 않는다.
 @evidence principles/core/settings.md#capability-boundary 저작·관찰·판정의 권한을 생산세계 주민이나 장치의 능력으로 전용하지 않는다. 이 역할 배정은 거주 인물의 행동이나 집의 물리 상태를 추가하지 않는다.
 @evidence principles/core/settings.md#constraint-sufficiency 한국어 설명과 안정 id·치수·연결 표를 필수로 남기고 접근성 납품은 별도 owner에서 결정한다.
 @evidence principles/core/settings.md#observable-identity 저작자·관찰자·reviewer는 책임 역할이며 납품할 인물이나 감각적 subject가 아니다. 이 H2는 그들의 외형을 발명하지 않고 주택의 모습은 003#envelope-and-privacy에 남긴다.
@@ -125,14 +125,14 @@
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 저작자와 reviewer는 이 library에 등장하는 인물 asset으로 정의되지 않는다. 그들의 외형을 적지 않은 것은 주택 외형 누락과 다른 조건이며 현재 인용은 이 역할 차이를 유지한다.
 -->
 
-저작자는 source·fan-out·자기 수리를 소유하고 관찰자는 계측만 하며, 별도 reviewer가 판정한다. 관찰은 원인이나 명령이 아니며 관찰 결과를 측정으로 반박할 수 있다. 한국어 문서와 안정된 id·치수·연결 표는 필수다. 운영자가 볼 수 있는 범위와 필수 키보드 대안, 자막·전사·오디오 설명의 분류는 [관찰과 사용 조건](004-observation.md)이 소유한다. 역할 분담은 물리적 접근성의 통과를 뜻하지 않는다.
+저작자 한 명이 source·관찰·판정·자기 수리를 모두 소유한다. 감독자는 세션 유지·사용자 원문 전달·관찰·기록만 맡으며 저작이나 판정·단계 전이를 대신하지 않는다. 사용자의 “모델러 스스로가 렌더 샷 보면서 스스로 판정하고 스스로 개선해야지”와 별도 판정 에이전트 금지가 앞선 역할 분리를 대체한다. 관찰은 원인이나 명령이 아니며 관찰 결과를 측정으로 반박할 수 있다. 한국어 문서와 안정된 id·치수·연결 표는 필수다. 운영자의 조작 범위와 접근성 납품 분류는 [관찰과 사용 조건](004-observation.md)이 소유한다. 자체 판정은 실물 접근성의 인증을 뜻하지 않는다.
 
 ## 저작 권한과 단계 유지 {#runtime-and-restart}
 
 <!--
-@evidence principles/core/common.md#declared-basis 2026-09-21 조정자 후속 정정을 직접 권한으로 삼아 앞선 all-draft 명령을 대체한다.
+@evidence principles/core/common.md#declared-basis 2026-09-28 이어받기 지시와 함께 보존된 사용자 원문을 현재 실행 권한으로 삼는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 후속 조정자의 날짜별 정정을 권한으로 명시하여 제자리 재작성과 공유 브랜치 절차를 묵시적 관행으로 취급하지 않는다.
-@evidence principles/core/common.md#scope-preservation 제자리 재작성 중 모든 활성 층의 review 선언을 유지하고 이전 시각 판정은 재사용하지 않는다.
+@evidence principles/core/common.md#scope-preservation 기존 파일·변경·PNG와 전체 선언 모집단을 보존하고 영향받은 검사를 새 source 기준으로 갱신한다. evidence-only 지시가 검토 stage 요구를 대체한다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 production 내부 저작과 의존성 변경 때의 lockfile 예외만 허용하여 commit 권한을 다른 production 수정으로 넓히지 않는다.
 @evidence principles/core/common.md#substantive-completion 단계의 순방향 유지와 재검토 권한, production-only 수정 및 설치·서버·git 담당 경계를 확정한다.
 @evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 검증·스테이지 유지·실행 주체·명시 경로 commit·push 실패 처리가 정해져 운영 재개 조건을 추측할 필요가 없다.
@@ -142,17 +142,17 @@
 @evidenceReview principles/core/settings.md#source-support #430bca9 9월 21일의 stage·git 정정과 22일의 dependency 정정을 근거로 연결해 승인 주체나 설치 권한을 외부 추정에서 가져오지 않는다.
 @evidence principles/core/settings.md#capability-boundary stage·파일 쓰기·설치 담당은 저작 절차의 권한이며 주택·주민의 생산세계 능력이 아니다. 이 정정은 공간이나 설비가 할 수 있는 동작을 확대하지 않는다.
 @evidenceReview principles/core/settings.md#capability-boundary #83a6f2c 저작자와 observer는 독립 판정을 대신할 수 없고 지속 server 운영도 coordinator 책임으로 한정된다.
-@evidence principles/core/settings.md#constraint-sufficiency dependency 변경 시 저작자가 root install과 lockfile을 같은 커밋에 포함하고, 상시 server 운영과 임시 실행 검증의 담당을 구분한다. 추적 트리에 파생물을 남기지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 설치 하니스·공통 package·lockfile·브랜치를 동결하고 production의 명시 경로만 커밋한다. 모든 하위 실행은 windowsHide로 숨기며 tty나 새 터미널 창을 만들지 않는다.
 @evidenceReview principles/core/settings.md#constraint-sufficiency #20cf612 전진 stage·동일 commit의 lockfile·금지된 rebase와 force-push가 명시되어 공유 checkout에서 따를 제약이 충분하다.
 @evidence principles/core/settings.md#observable-identity 단계와 쓰기 권한은 생산 절차이며 관찰할 장소나 인물의 정체를 정의하지 않는다. review 선언의 유지가 001#delivery-fidelity의 실제 건물 모습 요구를 변경하지 않는다.
 @evidenceReview principles/core/settings.md#observable-identity #4ccb62e 관찰 가능한 납품의 재검토는 현재 frame과 다섯 reference의 독립 대조로 정해져 과거 판정만으로 같은 production을 식별하지 않는다.
 -->
 
-**권한: 2026-09-21 사용자 직접 지시.** 조정자의 후속 정정에 따라 제자리 재작성을 택한다. 완료했던 settings·spaces·spaceSources의 review 선언을 유지하며 stage는 disabled → draft → evidence → review로만 전진한다. 이전 판정은 무효이며 내용 편집으로 영향받은 검사를 다시 연다. 실제 frame을 다섯 reference와 대조한 독립 read-only reviewer의 현재 판정만 재검토 종료와 이후 전이를 허용한다. 작성자와 observer는 이를 대신 승인하지 않는다.
+**권한: 2026-09-28 이어받기 지시와 여기에 보존된 사용자 원문.** 기존 파일과 미커밋 변경을 이어받아 제자리에서 완성한다. “건물부터 완벽하게 완성시킨 뒤 소품으로”라는 순서를 지키며 건물 완료는 실제 검사와 전체 자체 렌더 판정으로 입증한다. 12:52Z의 완료 기대 시각이 지났다는 사실은 완료 근거가 아니다. “evidenceReview 필요없는거로 해라 … evidence만 쓰면 끝나게”라는 지시에 따라 이번 실행의 stage 종점은 evidence이고 모집단·인용 의무를 줄이지 않는다. 이전 판정과 영향받은 캡처는 현재 검증으로 재사용하지 않는다. 설치 지침 파일은 동결하며 이 직접 override는 현재 canon과 로컬 worklog에 기록한다.
 
-이 production 내부에서만 저작하고 바깥은 읽기만 한다. packages, 공통 .agents, 다른 production, human face 코드는 수정하지 않는다. 2026-09-22 조정자 정정에 따라 의존성을 변경하면 저작자가 저장소 루트에서 pnpm install을 실행하고 변경된 pnpm-lock.yaml을 해당 production과 같은 커밋에 포함한다. 이 경우에만 git add experimental/future-citizen-house pnpm-lock.yaml을 사용한다. 상시 server 운영은 coordinator 담당이며 저작자는 요청된 실행 검증을 위해 잠깐 시작하고 종료한다. 추적 대상 트리에 파생물·캐시·임시 파일을 남기지 않으며 gitignored node_modules/.cache/ttsc는 보존한다.
+이 production 내부에서만 저작하고 바깥은 읽기만 한다. packages, 설치 scaffold, 공통 .agents, 다른 production, lockfile, human face 코드는 수정하지 않으며 #1954를 시작하지 않는다. 기존 PNG를 삭제하지 않고 preload·monkeypatch·ESM 전환·기본 -P/-p tsconfig.json을 도입하지 않는다. 이어받기가 중지 상태를 대체하지만 새 CMD·PowerShell·터미널 창의 절대 금지는 유지한다. exec는 파이프 모드로 사용하고 tty를 켜지 않는다. 모든 하위 실행은 숨김이며 저작자는 자기 관찰에 필요한 production viewer를 같은 조건으로 실행한다. 추적 트리에 임시 파생물을 넣지 않고 기존 캐시와 로컬 .wiki를 보존하며 .wiki는 커밋하지 않는다.
 
-2026-09-21 후속 지시에 따라 commit·push는 저작자가 맡는다. 공유 브랜치 benchmark/1951-1953-harness에서 git add experimental/future-citizen-house로 이 production만 스테이지하고 feat(experimental): 한 줄 메시지로 커밋한 뒤 git push origin benchmark/1951-1953-harness를 실행한다. 매 turn 끝과 단계 종료·뷰어 작성 시 진행을 저장하며 검증 명령·종료 코드, 커밋 해시와 push 종료 코드를 보고한다. git add -A, 다른 경로 스테이지, master 접촉, pull --rebase, force-push와 이력 재작성은 금지한다. non-fast-forward 또는 도구 거부는 우회하지 않고 실제 오류를 보고한다. 진행 커밋은 미완료 검사의 승인이나 단계 전이를 뜻하지 않는다.
+commit·push는 저작자가 맡는다. 현재 공유 브랜치 feat/benchmark-one-hour-completion와 Draft PR #2627을 유지한다. 공유 index 슬롯을 감독에게 배정받은 다음 본인이 검증한 production 파일을 명시 경로로만 stage하며 변경되지 않은 파일·다른 저작자 변경·.wiki를 포함하지 않는다. 검증 명령·종료 코드, staged 경로, 커밋 해시와 push 종료 코드를 보고하고 슬롯을 반환한다. git add -A, switch·stash·revert, 다른 경로 스테이지, master 커밋, merge, pull --rebase, force-push와 이력 재작성은 금지한다. non-fast-forward 또는 도구 거부는 우회하지 않고 실제 오류를 보고한다. 진행 커밋은 미완료 검사의 승인이나 단계 전이를 뜻하지 않는다.
 
 ## 모듈 소비 경계 {#module-boundary}
 
@@ -186,7 +186,7 @@
 @evidence principles/core/settings.md#fact-status 지원이나 계측이 없는 결과는 명령 성공 여부와 관계없이 unverified로 남긴다.
 @evidence principles/core/settings.md#source-support 검증 경로는 README와 사용자 브리프의 지시이며 DOM의 renderer 표시만으로 실제 GPU라는 사실을 추정하지 않는다.
 @evidence principles/core/settings.md#capability-boundary lint와 GPU 관찰은 증거를 얻는 수단이며 생산세계 subject의 능력이 아니다. 성공한 명령이 주민 행동이나 설비 작동 범위를 새로 허용하지 않는다.
-@evidence principles/core/settings.md#constraint-sufficiency viewer를 작성하면 시작 명령·cwd·포트·URL을 보고하되 server 시작은 coordinator에게 남긴다.
+@evidence principles/core/settings.md#constraint-sufficiency 저작자가 숨김 viewer를 실행하고 시작 명령·cwd·포트·URL과 실제 GPU identity·source 기준·캡처 절대 경로를 보고한다.
 @evidence principles/core/settings.md#observable-identity npm run lint·GPU 기록·실행 보고는 검증 절차이며 건물의 형태를 정의하는 새 canon이 아니다. 무엇이 보여야 하는지는 001#delivery-fidelity와 003의 외피 owner가 유지한다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb README의 npm run lint와 사용자가 지정한 chromium WebGL 경로를 검사의 근거로 삼는다. 저작자가 편한 대체 바이너리를 동등한 검증으로 채택할 권한은 여기서 나오지 않는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 canonical lint와 실제 RENDERER 기록을 모두 남겨 구조 검사만으로 렌더 축을 삭제하지 않는다. 검사 overlay 기본 off도 유지되므로 건물 대신 라벨을 납품하는 축소가 허용되지 않는다.
@@ -229,7 +229,7 @@
 
 가족·두 층의 생활 프로그램·작동 주체·가상 통행 검사 조건·상속 기본값은 002-household의 해당 H2가 소유한다. 좌표·고정 1층/2층 그래프·외피와 프라이버시·완결 표면 소유 규칙은 003-spatial-basis의 해당 H2가 명시 canon이다. 재현할 프레임·카메라·GPU 기록, 운영자의 조작 범위, 접근성 납품 분류는 004-observation의 해당 H2에 있다.
 
-정확한 방 치수·문 위치·계단 구조·입면 모듈은 spaces 설계가, 재사용 가능한 가구·설비·소품 형상과 part/face 주소는 models 설계가, 그 방별 배치·반복은 instances 설계가 이 canon을 소비해 결정한다. 광원의 과정은 systems, 표면 응답과 결합은 materials가 결정한다. 그 설계 역할을 설정의 미정 사실로 넘기지 않는다. 기존 방 source가 물체를 직접 생성하는 동안의 임시 소비와 퇴역 조건은 [표면 분해](003-spatial-basis.md#surface-decomposition)가 명시하며, 이를 최종 소유권으로 승인하지 않는다. 건축 geometry와 3D viewer는 구현됐고 이전 독립 판정의 GPU 관찰 이력이 있다. 후속 물체 이관·재료 구현과 새 트리의 전체 GPU 결과·독립 판정은 `unverified`인 검증 결과이며 임의로 선택할 canon 값이 아니다. 새 결과를 주장하려면 현재 source를 canonical lint와 실제 viewer에서 검증해야 한다. film·시간축·인물 asset·실물 인증은 납품 범위 밖이며, 정확한 거주자 직업 등 결과에 무관한 사항만 002-household의 상속 경계 아래 남긴다.
+정확한 방 치수·문 위치·계단 구조·입면 모듈은 spaces 설계가, 재사용 가능한 가구·설비·소품 형상과 part/face 주소는 models 설계가, 그 방별 배치·반복은 instances 설계가 이 canon을 소비해 결정한다. 광원의 과정은 systems, 표면 응답과 결합은 materials가 결정한다. 그 설계 역할을 설정의 미정 사실로 넘기지 않는다. 기존 방 source가 물체를 직접 생성하는 동안의 임시 소비와 퇴역 조건은 [표면 분해](003-spatial-basis.md#surface-decomposition)가 명시하며, 이를 최종 소유권으로 승인하지 않는다. 건축 geometry와 3D viewer는 구현됐고 이전 GPU 관찰 이력이 있다. 후속 물체 이관·재료 구현과 새 트리의 전체 GPU 결과는 현재 자체 검사로 갱신하기 전에는 `unverified`인 검증 결과이며 임의로 선택할 canon 값이 아니다. 새 결과를 주장하려면 현재 source를 canonical lint와 실제 viewer에서 검증해야 한다. film·시간축·인물 asset·실물 인증은 납품 범위 밖이며, 정확한 거주자 직업 등 결과에 무관한 사항만 002-household의 상속 경계 아래 남긴다.
 
 ## 제작과 채택의 범위 {#build-or-adopt}
 

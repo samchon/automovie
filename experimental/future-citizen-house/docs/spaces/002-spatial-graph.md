@@ -484,6 +484,8 @@ jamb·head·문짝을 제외한 유효 치수가 이 값이다. structural cut�
 
 ## 단일 꺾임계단과 필수 바닥 개구 {#single-stair}
 
+참의 실제 목재 상면도 `stair-half-landing-walk` 보행 surface로 등록한다. polygon은 생성된 참 중심(0.14,-4.92)과 폭2.64·깊이1.20에서, 높이는 실제 9단 상승의 halfRise에서 도출하며 별도 좌표나 숨은 collision box가 아니다. 이전 source는 참 solid만 생성하고 walk surface를 빠뜨렸으므로 원통의 바닥 접촉을 연속으로 설명하지 못했다. [검사 조건](../settings/002-household.md#design-subject-conditions)의 접촉 기반 상승 경로와 같은 실제 삼각형에서 계단 도달·headroom·난간 충돌을 함께 검사한다.
+
 <!--
 @evidence principles/core/common.md#declared-basis 한 꺾임계단 요구를 두 flight와 한 참으로 해석하고 높이는 층 datum에서,18 riser와0.28m 진행은 저작 선택에서 받는다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 총 상승 3.20m를 18등분한 수치는 층 datum의 파생값이며 안전 인증값이 아니다.

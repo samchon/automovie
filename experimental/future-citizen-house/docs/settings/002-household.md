@@ -152,6 +152,8 @@
 
 ## 설계가 수용할 검사 조건 {#design-subject-conditions}
 
+계단에서 원통은 실제 tread·참·도착 바닥 polygon의 접촉을 따라 올라간다. 수평 진행 중 지름 0.60m 원판이 더 높은 보행 면에 처음 닿는 위치에서 바닥을 그 높이로 수직 상승한 뒤 수평 진행한다. 직선 계단 route의 발 위치를 그대로 비스듬히 보간하면 앞쪽 riser를 관통하므로 이 접촉 기반 경로를 쓴다. 접촉 이벤트는 polygon edge의 반지름 offset 및 vertex 원과 route 선분의 교점에서 도출한다. 시작 접근은 첫 route 점에서 첫 진행 방향 반대로 반지름만큼 연장하되 현관 cell 내부여야 한다. X/Z가 겹친 상층 바닥은 현재 route 구간의 최고 발 높이와 실제 한 단 rise보다 높으면 보행 면으로 승격하지 않고 천장 장애물로 남긴다. 모든 지지 geometry도 삼각형 충돌 모집단에 유지한다. 경로의 각 수평 구간과 수직 상승 구간에서 원통의 전체 체적을 검사하고 tolerance는 1mm다. 이 방법은 접촉하는 가상 원통의 연속 기하 경로이며 실제 인간의 다리 동작·안전·대피 인증이 아니다.
+
 <!--
 @evidence principles/core/common.md#declared-basis 지름 0.60m·높이 1.80m 수직 원통은 인체 표준이 아닌 명시적인 가상 검사 입력으로 채택한다.
 @evidence principles/core/common.md#scope-preservation 문·복도·계단의 실제 연결과 가구가 막지 않는 통행 검사를 남기고 안전 인증으로 확대하지 않는다.
