@@ -9,6 +9,7 @@ export * from "./createHumanBodyUnderwear";
 export * from "./evaluateHumanBodyShape";
 export * from "./humanBodyBasisWeights";
 export * from "./humanBodyReliefWeights";
+export * from "./humanBodySkinDownDirection";
 export * from "./humanBodyShoulderTtRotation";
 export * from "./humanBodyShoulderOrientationDistance";
 export * from "./humanBodyShoulderElevationLimit";

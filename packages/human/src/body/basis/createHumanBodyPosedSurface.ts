@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
+import { humanBodySkinDownDirection } from "./humanBodySkinDownDirection";
 import { skinHumanBodySurface } from "./skinHumanBodySurface";
 
 type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
@@ -14,9 +15,9 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  * the sag field compares gravity in the rest and posed skin frames, then moves
  * the posed vertices in metres. The basis and document are read only; each
  * evaluation returns a new position array for normal and region projection.
- * The inherited 10 mm backward difference estimates the posed rest-down
- * direction where distributed twist makes skinning depend on vertex position;
- * it is a numerical derivative step, not an anatomical tissue parameter.
+ * `humanBodySkinDownDirection` evaluates the current rig's local rest-down
+ * direction for sag, including position-dependent distributed twist. Its
+ * difference step comes from floating-point error, not tissue calibration.
  * This stage has no collision or tissue-contact constraint.
  */
 export function createHumanBodyPosedSurface(
@@ -37,14 +38,6 @@ export function createHumanBodyPosedSurface(
     const skinned = skinHumanBodySurface(shaped, surface.skin, joints, transforms);
     if (sag === null || rest === null) return skinned;
     const declared = surface.sag!;
-    // The skin's posed image of a rest-down displacement estimates the local
-    // hanging direction, including the vertex-dependent distributed twist.
-    const below = skinHumanBodySurface(
-      shaped.map((value, i) => (i % 3 === 1 ? value - 0.01 : value)),
-      surface.skin,
-      joints,
-      transforms,
-    );
     const softness = Math.min(
       declared.softness.range[1],
       Math.max(
@@ -59,7 +52,13 @@ export function createHumanBodyPosedSurface(
       rest,
       lean: lean(),
       skinned,
-      hanging: below.map((value, i) => (value - skinned[i]) / 0.01),
+      hanging: humanBodySkinDownDirection({
+        positions: shaped,
+        skinned,
+        skin: surface.skin,
+        joints,
+        transforms,
+      }),
       softness,
     });
   };
