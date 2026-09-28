@@ -32,7 +32,7 @@ Use the commands declared in `package.json`:
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
 | `npm run check` | Run model accounts, reverse handoffs, material bindings, reviewed referents, settings review host checks, tests, geometry, and lint; report every failure. |
-| `npm run review-check -- D:/AutoMovieBench/probes` | Run the seven external review probe types and `npm run check`, preserving each full log under `.wiki/stage3-review-check` and summing their exit codes. The reason probe checks `docs` and `src` separately to exclude ignored snapshots. Pass the local probe directory as the argument. |
+| `npm run review-check -- D:/AutoMovieBench/probes` | Run ordinary source identifier, source duplication, anchor, face-owner, and production checks, preserving each full log under `.wiki/stage3-review-check` and summing their exit codes. Pass the local probe directory as the argument. |
 | `npm run viewer` | Start the current source viewer from this directory on port 4173. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.
@@ -43,7 +43,7 @@ The installed `automovie` CLI separately provides Markdown TOC maintenance, exte
 
 When the task needs a model view, building walkthrough, or film playback, follow [Live viewing](.agents/skills/review-verification/live-viewing.md) to implement the required view over the production's own source. A page and its controls are authored for that need, not selected from seeded viewer templates.
 
-The viewer opens at `http://127.0.0.1:4173/`. The current view renders `buildHouseEnvironment(buildHouse())`: the space structure with viewer-owned material colours, response values, and procedural texture tiles for inspection, without model prototypes or furnished instances. `?subject=calibration` shows the scale reference. `node src/viewer/generate-preview-textures.mjs` regenerates the committed texture tiles. The model prototype source was retired while its design layer awaits independent review; its earlier authored source remains recoverable from Git history at `5c35b711`. The texture preview does not claim that the separate material source layer is complete.
+The viewer opens at `http://127.0.0.1:4173/`. The current view renders the authored spaces, building model prototypes, material bindings, fixed placements, and deterministic `HouseLighting` system through `buildHouseScene`. `?subject=calibration` shows the scale reference; `?subject=model-review` and `?subject=material-review` use the production's inspection producers. `node src/viewer/generate-preview-textures.mjs` regenerates the committed texture tiles. The building inputs contain 900 prototypes and 922 placements, including the individual exterior and baseboard pieces. Independent furniture, portable lamps, planting, and loose props remain outside the current building completion scope. Source declarations remain in draft while their complete library populations are unfinished; a passing structural check does not establish visual or semantic completion.
 
 ## Ownership
 

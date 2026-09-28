@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/design/designs.md#work-specific-design-requirements reviewed settings와 spaces가 후속 모델에 넘긴 부재가 계정 밖에 숨지 않도록 명명 부재의 역대조를 별도 production 의무로 둔다.
-@evidenceReview discovery/design/designs.md#work-specific-design-requirements #1c8460c 발견 절의 settings·지시·소비자에서 조건을 도출하라는 문장을 읽고 reviewed settings·spaces의 부재 인계를 이 계약 모집단으로 삼았다. lint.config.ts의 house-model-referent-audit claim과 현재 어휘 검사기의 한계를 함께 대조했다.
 -->
 # 상류 부재 참조의 제작자 대조
 

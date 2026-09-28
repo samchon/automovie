@@ -16,7 +16,7 @@ const probes = [
 ];
 
 /**
- * @param {(command: string, args: string[], options: { shell: boolean; stdio: "inherit" }) => { status: number | null }} [run]
+ * @param {(command: string, args: string[], options: { shell: boolean; stdio: "inherit"; windowsHide: boolean }) => { status: number | null }} [run]
  * @param {(line: string) => void} [write]
  * @param {string} [probeDirectory]
  */
@@ -32,7 +32,7 @@ const runBenchmarkAudit = (
     const command = python ? "python" : process.execPath;
     const result = run(command, [join(probeDirectory, file), production, ...extra], {
       shell: false,
-      stdio: "inherit",
+      stdio: "inherit", windowsHide: true,
     });
     const status = result.status ?? 1;
     failures += status === 0 ? 0 : 1;

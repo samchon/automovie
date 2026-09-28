@@ -16,7 +16,8 @@ import { bathroom } from "./rooms/bathroom";
 import { storageUpper } from "./rooms/storage-upper";
 import { serviceUpper } from "./rooms/service-upper";
 import { auditCanopy } from "./canopy-audit";
-export function buildHouse(state: State = initialState, report?: (audit: ReturnType<typeof auditCanopy>) => void) {
+import { auditMaterialTextureScale, type MaterialTextureScaleAudit } from "../materials/observation";
+export function buildHouse(state: State = initialState, report?: (audit: ReturnType<typeof auditCanopy>) => void, materialReport?: (audit: MaterialTextureScaleAudit) => void) {
   const a = new Assembly(state);
   structure(a); envelope(a); garden(a);
   entry(a); flex(a); common(a); powder(a); storageGround(a);
@@ -27,5 +28,9 @@ export function buildHouse(state: State = initialState, report?: (audit: ReturnT
   const canopy = auditCanopy(a);
   if (canopy.errors.length) throw new Error(canopy.errors.join("\n"));
   report?.(canopy);
+  const materialAudit = auditMaterialTextureScale({ models: a.environment.models });
+  materialReport?.(materialAudit);
+  if (!materialAudit.validation.success)
+    throw new Error(materialAudit.validation.violations.map(v => `${v.path}: ${v.expected}`).join("\n"), { cause: materialAudit });
   return a.environment;
 }

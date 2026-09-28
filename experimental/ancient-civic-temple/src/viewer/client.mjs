@@ -10,6 +10,8 @@
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createTemplePresentation } from "./daylight.mjs";
+import { isTempleRoofCovering } from "./inspection-visibility.mjs";
 import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene.mjs";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
@@ -50,37 +52,13 @@ const notices = required("#notices", HTMLElement);
 const spaceList = required("#space-list", HTMLElement);
 const labels = required("#labels", HTMLElement);
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(1);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFShadowMap;
-renderer.localClippingEnabled = true;
-const gl = renderer.getContext();
-const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-const rendererName = debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)) : "unverified: WEBGL_debug_renderer_info 없음";
+const { renderer, rendererName, scene } = createTemplePresentation(canvas);
 console.info("RENDERER", rendererName);
 
-const scene = new THREE.Scene();
-scene.background = skyTexture();
 const camera = new THREE.PerspectiveCamera();
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = false;
 controls.maxDistance = 160;
-const hemisphere = new THREE.HemisphereLight(0xe3ecf7, 0x9c8a6c, 1.15);
-const sun = new THREE.DirectionalLight(0xfff1dc, 3.1);
-// 설정 40-environment#daylight: 정면(+Z) 좌측(-X) 위, 고도 45°.
-const sunDirection = new THREE.Vector3(-0.5, Math.SQRT1_2, 0.5).normalize();
-sun.position.copy(sunDirection).multiplyScalar(45);
-sun.castShadow = true;
-sun.shadow.mapSize.set(4096, 4096);
-Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 120 });
-sun.shadow.bias = -0.0002;
-sun.shadow.normalBias = 0.02;
-scene.add(hemisphere, sun, sun.target);
-
 /** @type {{ payload: Payload, basis: string, root: THREE.Group, supports: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material>, textures: Map<string, THREE.Texture> } | null} */
 let current = null;
 /** @type {Observation | null} */
@@ -148,6 +126,7 @@ ${await response.text()}`);
   }
   sectionShown = { key, pieces: body.pieces.length };
   handle.sectionPieces = body.pieces.length;
+  handle.sectionKey = key;
   describe();
 }
 
@@ -161,8 +140,8 @@ function cutState() {
   };
 }
 
-/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], sectionPieces: number | null, select: (id: string) => boolean, look: (position: number[], target: number[]) => boolean }} */
-const handle = { ready: false, renderer: rendererName, error: null, stations: [], sectionPieces: null, select: (id) => selectStation(id), look: (position, target) => look(position, target) };
+/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], sectionPieces: number | null, sectionKey: string | null, select: (id: string) => boolean, look: (position: number[], target: number[]) => boolean }} */
+const handle = { ready: false, renderer: rendererName, error: null, stations: [], sectionPieces: null, sectionKey: null, select: (id) => selectStation(id), look: (position, target) => look(position, target) };
 Object.assign(window, { templeViewer: handle });
 
 /** @param {string} message */
@@ -395,7 +374,7 @@ function applyInspection() {
   }
   for (const mesh of current.meshes) {
     const model = String(mesh.userData.model);
-    mesh.visible = !(roofOff && (model.startsWith("model.roof") || model === "model.ceilings"));
+    mesh.visible = !(roofOff && isTempleRoofCovering(model));
     const surface = String(mesh.userData.surface);
     mesh.material = on && owners.checked
       ? current.ownerMaterials.get(surface) ?? mesh.material
@@ -515,22 +494,3 @@ if (params.get("ortho") === "1") sectionOrtho.checked = true;
 if (params.get("span") !== null) sectionSpan.value = String(params.get("span"));
 requestAnimationFrame(frame);
 load().catch((error) => fail(error instanceof Error ? error.stack ?? error.message : String(error)));
-
-/** 위가 밝고 수평선이 옅은 하늘 배경(조명원이 아닌 배경색). */
-function skyTexture() {
-  const size = 256;
-  const surface = document.createElement("canvas");
-  surface.width = 2;
-  surface.height = size;
-  const context = surface.getContext("2d");
-  if (context === null) return new THREE.Color(0xb9d0e6);
-  const gradient = context.createLinearGradient(0, 0, 0, size);
-  gradient.addColorStop(0, "#7fa7cf");
-  gradient.addColorStop(0.55, "#bcd3e8");
-  gradient.addColorStop(1, "#e6e2d6");
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, 2, size);
-  const texture = new THREE.CanvasTexture(surface);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-}

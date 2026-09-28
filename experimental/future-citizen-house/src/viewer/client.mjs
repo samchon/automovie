@@ -62,6 +62,8 @@ scene.add(sky, sun, sun.target);
 let payload = null;
 /** @type {THREE.Group | null} */
 let house = null;
+let redraw = true;
+let sectionSignature = "";
 /** @type {THREE.Box3Helper | null} */
 let outline = null;
 let running = true;
@@ -79,6 +81,7 @@ function reset() {
   controls.target.copy(centre);
   camera.position.copy(centre).add(new THREE.Vector3(-0.85, 0.45, -1).normalize().multiplyScalar(distance));
   controls.update();
+  redraw = true;
   observation = "free";
   observationSpace = null;
   setSection();
@@ -135,6 +138,7 @@ async function load() {
   if (house) { scene.remove(house); disposeHouse(house); }
   if (outline) { scene.remove(outline); outline.geometry.dispose(); if (!Array.isArray(outline.material)) outline.material.dispose(); }
   house = uploadHouse(payload);
+  sectionSignature = ""; redraw = true;
   scene.add(house);
   outline = new THREE.Box3Helper(new THREE.Box3().setFromObject(house), 0x26725a);
   outline.visible = false;
@@ -159,6 +163,9 @@ async function load() {
 /** @param {{height: number; remove: "above" | "below"} | undefined} [cut] */
 function setSection(cut) {
   if (!house) return;
+  const signature = JSON.stringify(inspection.checked ? cut ?? null : null);
+  if (signature === sectionSignature) return;
+  sectionSignature = signature; redraw = true;
   const planes = cut && inspection.checked ? [new THREE.Plane(new THREE.Vector3(0, cut.remove === "above" ? -1 : 1, 0), cut.remove === "above" ? cut.height : -cut.height)] : [];
   house.traverse((object) => {
     if (object instanceof THREE.Light && object.userData.emitter instanceof THREE.Vector3)
@@ -182,6 +189,7 @@ inspection.addEventListener("change", () => {
   section.disabled = !inspection.checked;
   if (!inspection.checked) { section.value = "none"; setSection(); }
   if (outline) outline.visible = inspection.checked;
+  redraw = true;
   report();
 });
 spaceSelect.addEventListener("change", selectSpace);
@@ -189,7 +197,7 @@ stationSelect.addEventListener("change", selectStation);
 required("#reset", HTMLButtonElement).addEventListener("click", reset);
 controls.addEventListener("start", () => { observation = "free"; observationSpace = null; report(); });
 canvas.addEventListener("webglcontextlost", (event) => { event.preventDefault(); fail(new Error("WebGL context lost. Reload after restoring the GPU context.")); });
-controls.addEventListener("change", report);
+controls.addEventListener("change", () => { redraw = true; report(); });
 canvas.addEventListener("keydown", (event) => {
   if (!running) return;
   const offset = camera.position.clone().sub(controls.target);
@@ -216,9 +224,11 @@ function draw() {
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   if (width && height) {
-    if (canvas.width !== width || canvas.height !== height) renderer.setSize(width, height, false);
-    camera.aspect = width / height; camera.updateProjectionMatrix();
-    renderer.render(scene, camera); gl.finish();
+    if (canvas.width !== width || canvas.height !== height) { renderer.setSize(width, height, false); redraw = true; }
+    if (redraw) {
+      camera.aspect = width / height; camera.updateProjectionMatrix();
+      renderer.render(scene, camera); gl.finish(); redraw = false;
+    }
   }
   requestAnimationFrame(draw);
   } catch (error) { fail(error); }

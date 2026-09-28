@@ -77,30 +77,48 @@ const crossBind = (material, face, host) => {
   }
   hosts.add(host);
 };
-for (const file of files) for (const { anchor, body } of sections(read(`materials/${file}`))) {
-  for (const line of body.split(/\r?\n/).filter((value) => /^\|\s*\[/.test(value))) {
+for (const file of files) for (const { anchor, body } of sections(
+  read(`materials/${file}`),
+)) {
+  for (const line of body.split(/\r?\n/).filter((value) =>
+    /^\|\s*\[/.test(value),
+  )) {
     const cells = line.split("|");
     if (cells.length < 4) continue;
     const hosts = [...cells[1].matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)]
       .map((match) => `${match[1]}#${match[2]}`);
     const faceGroups = cells[2].split("/").map((group) =>
-      [...group.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((match) => match[1]));
+      [...group.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((match) => match[1]),
+    );
     const faces = faceGroups.flat();
     const materialLink = /\]\((?:([0-3][0-9]-[^#)]+\.md))?#([^)]+)\)/g;
     const destinationGroups = cells[3].split("/").map((group) =>
-      [...group.matchAll(materialLink)].map((match) => `${match[1] || file}#${match[2]}`));
+      [...group.matchAll(materialLink)].map(
+        (match) => `${match[1] || file}#${match[2]}`,
+      ),
+    );
     const destinations = destinationGroups.flat();
     if (destinations.length === 1) {
-      for (const face of faces) for (const host of hosts) crossBind(destinations[0], face, host);
+      for (const face of faces) for (const host of hosts) crossBind(
+        destinations[0],
+        face,
+        host,
+      );
     } else if (destinationGroups.length === faceGroups.length && faceGroups.length > 1) {
       destinationGroups.forEach((group, index) => {
         for (const destination of group) for (const face of faceGroups[index]) for (const host of hosts)
           crossBind(destination, face, host);
       });
     } else if (/순번별/.test(cells[3]) && destinations.length === hosts.length && faces.length === 1) {
-      destinations.forEach((destination, index) => crossBind(destination, faces[0], hosts[index]));
+      destinations.forEach((destination, index) =>
+        crossBind(destination, faces[0], hosts[index]),
+      );
     } else if (/인스턴스별/.test(cells[3]) && hosts.length === 1) {
-      for (const destination of destinations) for (const face of faces) crossBind(destination, face, hosts[0]);
+      for (const destination of destinations) for (const face of faces) crossBind(
+        destination,
+        face,
+        hosts[0],
+      );
     } else if (destinations.length > 1 && hosts.length && faces.length) {
       ambiguousBindingTables.push(`${file}#${anchor} :: ${line}`);
     }
@@ -120,12 +138,26 @@ for (const file of files) for (const { anchor, body } of sections(read(`material
   // both "`face`는 [finish]다" and "`face`는 [finish]를 받는다" assign it.
   for (const clause of body.split(/(?<=다\.)\s+|,\s*/)) {
     if (/아니라|받지 않는다|결합하지 않는다/.test(clause)) continue;
-    const hostLinks = [...clause.matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)];
-    for (const assignment of clause.matchAll(/`([a-z][a-z0-9-]*)`(?:은|는)\s*\[[^\]]+\]\((?:(0[0-3]-[^#)]+\.md))?#([^)]+)\)/g)) {
+    const hostLinks = [
+      ...clause.matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g),
+    ];
+    for (const assignment of clause.matchAll(
+      /`([a-z][a-z0-9-]*)`(?:은|는)\s*\[[^\]]+\]\((?:(0[0-3]-[^#)]+\.md))?#([^)]+)\)/g,
+    )) {
       const destination = `${assignment[2] || file}#${assignment[3]}`;
-      const before = hostLinks.filter((host) => (host.index ?? 0) < (assignment.index ?? 0));
-      const hosts = before.length ? before : hostLinks.filter((host) => (host.index ?? 0) > (assignment.index ?? 0));
-      for (const host of hosts) crossBind(destination, assignment[1], `${host[1]}#${host[2]}`);
+      const before = hostLinks.filter(
+        (host) => (host.index ?? 0) < (assignment.index ?? 0),
+      );
+      const hosts = before.length
+        ? before
+        : hostLinks.filter(
+            (host) => (host.index ?? 0) > (assignment.index ?? 0),
+          );
+      for (const host of hosts) crossBind(
+        destination,
+        assignment[1],
+        `${host[1]}#${host[2]}`,
+      );
     }
   }
 }
@@ -188,16 +220,18 @@ const tableInvalid = [];
 const unlinkedAssignments = [];
 for (const file of files) {
   for (const { anchor, body } of sections(read(`materials/${file}`))) {
-    for (const line of body.split(/\r?\n/).filter((value) => /^\|\s*\[/.test(value))) {
-        const [, hosts, faceCell] = line.split("|");
-        if (!faceCell) continue;
-        const hostNames = [...hosts.matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)].map(
-          (match) => `${match[1]}#${match[2]}`,
-        );
-        const faceNames = [...faceCell.matchAll(/`([a-z][a-z0-9-]*)`/g)].map(
-          (match) => match[1],
-        );
-        for (const host of hostNames) for (const face of faceNames)
+    for (const line of body.split(/\r?\n/).filter((value) =>
+      /^\|\s*\[/.test(value),
+    )) {
+      const [, hosts, faceCell] = line.split("|");
+      if (!faceCell) continue;
+      const hostNames = [...hosts.matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)].map(
+        (match) => `${match[1]}#${match[2]}`,
+      );
+      const faceNames = [...faceCell.matchAll(/`([a-z][a-z0-9-]*)`/g)].map(
+        (match) => match[1],
+      );
+      for (const host of hostNames) for (const face of faceNames)
           if (!modelIds.get(host)?.has(face) || !bodyWitness(host, face))
             tableInvalid.push(`${file}#${anchor} :: ${host} :: ${face}`);
     }

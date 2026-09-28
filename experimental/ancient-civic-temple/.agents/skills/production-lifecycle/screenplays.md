@@ -1,10 +1,10 @@
 # Screenplays
 
-Screenplay construction belongs only to a film. Mirror the reviewed script delivery partition in `docs/screenplays`: preserve every delivery-group directory, index H1, unit filename and H1, and exact H2/H3/H4 identity, nesting, and order. This tree is the complete content-bearing construction screenplay, not the final naturalness edition.
+Screenplay construction belongs only to a film. Mirror the completed script delivery partition in `docs/screenplays`: preserve every delivery-group directory, index H1, unit filename and H1, and exact H2/H3/H4 identity, nesting, and order. This tree is the complete content-bearing construction screenplay, not the final naturalness edition.
 
 Run `npx --no-install automovie toc` after the mirrored inventory changes and `npx --no-install automovie toc --check` before advancing evidence. The generated managed block links units in canonical filename order; prose remains in the unit files and never moves into the index.
 
-Write the complete human-readable audiovisual contract under the [Screenplay principles](../../../docs/principles/story/screenplays.md). Apply their mechanical-description criterion while enacting each scene from its actual script parents, and ask an independent shot author to identify any physical or audiovisual decision still missing. Repair that decision at its construction owner before final audience-language revision begins.
+Write the complete human-readable audiovisual contract under the [Screenplay principles](../../../docs/principles/story/screenplays.md). Apply their mechanical-description criterion while enacting each scene from its actual script parents. The author then reads as the downstream shot implementer and identifies every physical or audiovisual decision still missing. Repair that decision at its construction owner before final audience-language revision begins.
 
 Check the screenplay principles' [master-scene boundary](../../../docs/principles/story/screenplays.md#master-scene-shooting-boundary), [scene completion](../../../docs/principles/story/screenplays.md#screenplay-scene-completion), and [heading identity](../../../docs/principles/story/screenplays.md#screenplay-heading-identity) against the finished scene body. After naturalness or downstream work has started, a substantive construction change invalidates final lineage and downstream mappings; never let renumbering or formatting disguise changed content.
 
@@ -22,7 +22,7 @@ Apply the narrative unit-addressability obligation across the population after d
 
 ## Gate
 
-Start at `screenplays: "draft"` only after scripts are in `review`. Before `evidence`, read the construction screenplay as a viewer and reject units that merely expand script instructions, contain unfilmable intent, lose inherited pressure or effect, leave dialogue, captions, sound, silence, access, or render-critical time for naturalness or source code to invent, compress the declared film, or fail a selected construction principle.
+Start at `screenplays: "draft"` after script completion under [Evidence staging](../evidence-graph/staging.md#transitions). Before `evidence`, read the construction screenplay as a viewer and reject units that merely expand script instructions, contain unfilmable intent, lose inherited pressure or effect, leave dialogue, captions, sound, silence, access, or render-critical time for naturalness or source code to invent, compress the declared film, or fail a selected construction principle.
 
 Run [Author process Self-Review](../review-verification/self-review.md) to its clean round before every stage transition and again after any repair.
 

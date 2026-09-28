@@ -1,6 +1,6 @@
 /** Structural walls have one owner per storey. Room linings fill the remaining
  * 6 mm on each side; openings are subtracted before any finish is attached. */
-import { Assembly } from "../assembly";
+import { Assembly, identity } from "../assembly";
 import {
   type Rect,
   datum,
@@ -18,6 +18,7 @@ import {
   wallFrame,
 } from "../walls";
 import { slabTop } from "./floors";
+import type { FaceFinishes } from "../../materials/surface-parts";
 
 export function partitions(a: Assembly, level: 0 | 1): void {
   for (const wall of sharedWalls().filter((w) => w.level === level)) {
@@ -154,6 +155,14 @@ export function partitions(a: Assembly, level: 0 | 1): void {
             Math.min(xs[i + 1], stairHole[1]) - Math.max(xs[i], stairHole[0]) >
               1e-6));
       const base = hole ? slabTop(1) : datum.floors[level];
+      const faces: FaceFinishes = {};
+      // Ask the same cell atlas which room a face points into. Horizontal
+      // faces and buried faces stay painted; exposed vertical tile faces
+      // inherit the adjoining room's finish without a copied junction list.
+      for (const [key, px, pz] of [["x-", xs[i] - 0.001, z], ["x+", xs[i + 1] + 0.001, z], ["z-", x, zs[j] - 0.001], ["z+", x, zs[j + 1] + 0.001]] as const) {
+        const room = rooms.find(r => r.level === level && r.cells.some(c => inside(c, px, pz)));
+        if (room?.finish === "tile") faces[key] = "wet-tile";
+      }
       a.box(
         id,
         level ? "upper-storey" : "ground-storey",
@@ -164,6 +173,8 @@ export function partitions(a: Assembly, level: 0 | 1): void {
         w,
         datum.ceilings[level] - base,
         d,
+        identity,
+        faces,
       );
       for (const boundary of a.environment.boundaries.filter((b) =>
         touches.includes(b.id),

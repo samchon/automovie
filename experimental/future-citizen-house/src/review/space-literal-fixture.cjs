@@ -102,7 +102,7 @@ try {
         "--house",
         fixtureHouse,
       ],
-      { encoding: "utf8" },
+      { windowsHide: true, encoding: "utf8" },
     );
     sampled++;
     if (run.status === 1 && run.stderr.includes("RETYPED")) red++;

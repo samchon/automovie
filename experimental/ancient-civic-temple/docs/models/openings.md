@@ -4,45 +4,25 @@
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 여덟 개구의 두께와 유효 폭에서 얻은 `(폭+0.44)×(높이+0.22)×(벽 두께+0.06)m` 안에 `lining`·`surround`를 두고, 석재 안감·양면 테의 면 법선별 평면 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 여덟 문 폭·높이에서 테 여유 0.44/0.22m와 안감 두께를 도출한 식을 읽고 안감·테 모서리별 평면 UV를 확인했다.
 @evidenceExclude settings/00-delivery.md#accessibility 한국어 UI와 키보드 조작은 viewer의 산출물이며 49개 원형의 점유·관절·UV0 중 어느 것도 그 조작을 형상 입력으로 쓰지 않는다.
-@evidenceExcludeReview settings/00-delivery.md#accessibility #e5000b9 원형의 구성 검토와 viewer 조작·문자 접근성의 서로 다른 산출물을 대조했다.
 @evidenceExclude settings/10-building.md#fixed-graph 방 순서·문 연결·주랑 루프는 spaces의 설계이고 원형은 판정된 room volume과 문 치수만 받아 건물 그래프를 다시 만들지 않는다.
-@evidenceExcludeReview settings/10-building.md#fixed-graph #afadc4e 모델 원형의 입력이 공간 그래프 자체가 아닌 각 공간의 순치수와 문 표인지 확인했다.
 @evidence principles/core/common.md#scope-preservation 여덟 문의 벽 두께 안 안감 세 조각과 양면 테를 치수·변형·접촉·통과 영역까지 정하고 문턱 바닥은 방 소유로 남긴다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 여덟 문의 안감·양면 테와 빈 통과부를 읽고 문턱 바닥은 방에 남겨 중복하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 문설주 0.06m·상인방·벽 두께 깊이의 안감과 양면 테의 모서리 겹침을 정해 source가 테의 닫힘 방식을 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 안감 세 조각과 윗띠가 옆띠 위를 덮는 닫힌 둘레를 본문의 치수·점유 상자에 대조했다.
 @evidence principles/core/common.md#declared-basis 유효 치수·틀 0.06m는 openings.md#doors와 #boundary-ownership, 벽 두께 0.30/0.60m는 판정된 경계, 돌 테의 존재는 20-envelope#walls의 석재 문 주변에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 문 표의 유효 치수와 틀 두께, 벽 깊이 및 석재 주변 설정이 안감·테의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 깊은 문설주와 문 주변 틀이라는 설정을 void를 채우는 안감과 벽면 위 테라는 두 표면 모델로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 깊은 문설주를 벽 두께 전체 안감과 벽면 돌출 테의 두 표면으로 구체화했는지 확인했다.
 @evidence principles/design/models.md#representation-contract lining·surround part와 테의 윗모서리 소유, 안감 바깥면·테 뒷면의 가려진 접촉면, 유효 통과 영역의 negative space를 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 윗띠의 양끝이 옆띠 외곽까지 이르는 테와 벽 접촉면을 확인하고 통과부의 빈 영역과 구분했다.
 @evidence principles/design/models.md#spatial-convention 원점을 void 바닥 가장자리 선의 중심(문턱 완성면 Y=0, 벽 중심면)에 두고 X 벽 길이·Z 벽 두께·+Y 위로 정한다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e void 바닥 선 원점·X 벽 길이·Z 깊이·+Y 위가 여덟 변형의 기준으로 일치하는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 1.0×2.2×0.3m 변형의 세 시점과 건물의 각 문 양면에서 틀이 void를 정확히 채우고 유효 폭을 줄이지 않는지를 본다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 1.0×2.2×0.3m 표본과 각 문 양면이 void 채움과 통과 폭 침범을 드러내는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 03·04의 넓은 돌 테와 이미지 05의 깊은 reveal을 근거로 하고 평면 테만 있는 문을 실패로 둔다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 03·04의 돌 테와 05의 깊은 reveal을 모두 받아 평면 테만 남는 실패를 막는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 문 표의 여덟 조합과 벽 두께가 변형을 모두 정하고 점유 상자 식이 있어 개구부 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 문 표 여덟 조합과 벽 두께가 상자 식의 모든 입력이고 위치를 다시 고르지 않는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work openings.md#doors의 여덟 유효 치수, #boundary-ownership의 0.06m 틀과 void, storey의 문턱 바닥 소유를 안감·테에 대조했고 void와 틀이 정확히 맞아 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 여덟 void와 0.06m 틀, 바닥 소유를 대조해 문틀이 부모 개구를 줄이지 않는지 확인했다.
 @evidence settings/20-envelope.md#openings 벽 두께 안의 깊은 문설주·상인방과 문 주변 틀이라는 개구부 설정을 안감과 테로 받는다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 깊은 설주·상인방과 문 주변 석재 테가 실제 두 part로 표현되는지 확인했다.
 @evidence spaces/openings.md#doors 여덟 문의 유효 폭·높이와 문이 뚫린 벽을 문틀 변형의 입력으로 소비한다.
-@evidenceReview spaces/openings.md#doors #8a0716f 여덟 문의 유효 폭·높이가 변형 입력이고 문틀이 별도 크기를 발명하지 않는지 확인했다.
 @evidence spaces/openings.md#boundary-ownership 각 가장자리 0.06m 틀과 void가 경계 한 곳에만 속한다는 규칙을 안감 두께와 void 채움으로 소비한다.
-@evidenceReview spaces/openings.md#boundary-ownership #0984b09 한 경계의 문설주 폭·상인방 높이 0.06m와 벽 두께 0.30/0.60m를 따르는 안감 깊이를 구분하고, 인접한 두 벽이 같은 틀을 중복 만들지 않는지 확인했다.
 @evidence spaces/storey.md#threshold-support 문턱 바닥이 방 소유라는 배정을 받아 문틀이 바닥을 만들지 않는다.
-@evidenceReview spaces/storey.md#threshold-support #6354225 문턱은 방 바닥이 소유해 문틀의 아래 네 번째 조각이 없는지 확인했다.
 @evidence settings/20-envelope.md#walls 문 주변이 연한 회백색 석재로 회벽을 나눈다는 설정을 벽면 위 surround 표면으로 받는다.
-@evidenceReview settings/20-envelope.md#walls #35026c5 석재 문 주변 설정을 surround 표면으로 받고 마감 선택은 materials에 남겼는지 확인했다.
 @evidence settings/50-production.md#references 이미지 03·04의 문 둘레 돌 테와 이미지 05의 깊은 reveal을 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 03·04의 돌 테와 05의 안감 깊이가 검토 두 방향에서 보이는지 확인했다.
 @evidenceExclude spaces/facades/east.md#east-envelope 동측 외벽의 서비스 문 void는 openings.md#doors 표로 받으며 입면의 완결 외면·기단·코핑은 spaces 벽이 소유해 문틀이 입면에서 받는 결정이 없다.
-@evidenceExcludeReview spaces/facades/east.md#east-envelope #e1ad78f 동측 입면의 기단·코핑은 spaces 소유이고 서비스 문 void만 문 표로 받아 이 H2가 벽을 복제하지 않는지 확인했다.
 -->
 
 [개구부와 문짝](../settings/20-envelope.md#openings)의 벽 두께 안 깊은 문설주·상인방과 문 주변 틀이다. 이미지 03·04에서 문 둘레를 두르는 넓은 돌 테와 이미지 05의 깊은 reveal이 근거다. 판정된 [출입문 표](../spaces/openings.md#doors)의 유효 폭·높이와 [경계 소유](../spaces/openings.md#boundary-ownership)의 각 가장자리 0.06m 틀, [석재 문 주변 벽](../settings/20-envelope.md#walls)의 0.30/0.60m 두께를 그대로 소비하며 void 위치를 새로 정하지 않는다.
@@ -61,37 +41,21 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 1.8m·1.4m 통과 폭을 반씩 쓰는 각 짝의 닫힌 점유 X=0~폭/2·Y=0.01~2.5m에 목재 세로 +Y/가로 +X U, 두 면의 연결 핀 법선축 원통 U/V와 고리 XY 원환을 배정한다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 정문·제실 각 짝 폭과 바닥 띄움 0.01m를 읽고 선대 +Y, 가로대 +X, 앞뒤 핀의 서로 반대 법선 시접을 대조했다.
 @evidence principles/core/common.md#scope-preservation 정문과 제실 문의 양개 목재 문짝을 두 변형으로 한정하고 짝 치수·테두리와 판·손잡이·경첩·관절·표면까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 정문·제실 두 치수의 양개 짝과 목재 판·철물·관절을 읽어 문짝 외의 문틀을 만들지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 선대·가로대·판 두께와 바닥 띄움, 손잡이 X·양면 Z·Y=1.104m 핀, 반지름 0.06m의 받침판 둘레 16분할·첫 꼭짓점 +X, 연결 핀 둘레 12분할, 원환 16×8분할과 경첩 12분할을 함께 정해 철물 접점을 고정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 손잡이 받침판 16각, 두 핀 Y=1.104m, 고리 16×8각과 경첩 12각의 접촉 좌표를 대조했다.
 @evidence principles/core/common.md#declared-basis 변형 치수는 openings.md#doors의 door-entry 1.8×2.5m·door-sanctuary 1.4×2.5m, 열림 판정 1.4m는 10-building#use-profile, 관절은 ../contracts/obligations-models.md#temple-articulation-map에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb door-entry/door-sanctuary 크기, 정문 1.4m 통과, articulation-map이 치수·통과·회전의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 어두운 목재 양개문이라는 설정을 테두리 판문 구조와 짝마다 hinge node를 가진 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 어두운 양개문 약속을 선대·두 판과 각 짝 hinge node로 구체화했는지 확인했다.
 @evidence principles/design/models.md#representation-contract frame·panel·plate·pin·ring·hinge part로 목재와 철물의 각 독립 표면을 구별하고 손잡이·경첩을 짝 node의 자식으로 둔다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 frame·panel·plate·pin·ring·hinge가 목재와 금속 경계를 나누고 모두 짝 node 자식인지 확인했다.
 @evidence principles/design/models.md#spatial-convention 짝 원점을 경첩 쪽 판 모서리 바닥 점, hinge 축을 X=+0.021·Z=0에 두고 여는 쪽 벽면 0.05m 안쪽에 설치하며 닫힌 자세의 X·Z 범위를 적는다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 짝 아래 경첩 모서리 원점과 X=0.021/Z=0 축, 닫힌 X·Z 범위를 설치 설명에 대조했다.
 @evidence principles/design/models.md#reviewable-structure 닫힘·열림 두 상태의 정면·평면과 건물 안에서 열린 짝이 90°에 멈추고 정문 유효폭 1.4m 이상을 남기는지를 본다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b closed/open 정면·평면이 90도 회전과 정문 1.4m 이상 폭을 판별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 01의 정문 양개문과 이미지 04의 판과 테두리를 근거로 하고 판 하나로 된 문을 실패로 둔다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 01·04의 판과 테두리를 받아 한 판짜리 문을 실패로 두었는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 변형 치수·관절 범위·기본 open 상태·열린 폭 판정이 함께 정해져 관절 모델 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 두 크기·기본 open·90도 범위·열린 폭이 한 관절 모델로 함께 결정되는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work door-entry·door-sanctuary의 유효 치수와 room-double 스윙, use-profile의 열린 정문 1.4m를 짝 폭 0.9/0.7m에 대조했고 90° 열린 두 짝의 두께와 손잡이 돌출을 빼도 정문에 산술상 약 1.62m가 남아 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 정문 1.8m에서 열린 두 짝의 두께·손잡이 돌출을 빼 약 1.62m가 남는 부모 대조를 확인했다.
 @evidence settings/20-envelope.md#openings 어두운 목재 양개 정문과 제실 문이라는 설정을 양개 문짝 두 변형으로 받는다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 어두운 목재 정문과 제실 문이 같은 원형의 폭 변형으로 표현되는지 확인했다.
 @evidence spaces/openings.md#doors door-entry 1.8×2.5m와 door-sanctuary 1.4×2.5m, room-double 스윙을 두 변형 치수와 여는 방향으로 소비한다.
-@evidenceReview spaces/openings.md#doors #8a0716f 1.8×2.5m와 1.4×2.5m, room-double 스윙을 두 짝 폭·방향으로 받는지 확인했다.
 @evidence settings/10-building.md#use-profile 열린 정문 1.4m 통과 조건을 열린 짝이 남길 유효폭 판정으로 쓴다.
-@evidenceReview settings/10-building.md#use-profile #ee92183 열린 정문 1.4m 통과 요구가 건물 관찰의 직접 실패 조건인지 확인했다.
 @evidence settings/50-production.md#references 이미지 01의 정문 양개문과 이미지 04의 판·테두리를 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 01 정문과 04 판문 구성이 실루엣·표면 분할의 근거인지 확인했다.
 @evidenceExclude spaces/circulation.md#public-route 현관-주랑 순환 경로는 문 위치와 통과 순서로 이미 openings.md#doors에 실현됐고 문짝은 그 경로에 새 형상을 더하지 않고 통과 폭만 use-profile로 판정한다.
-@evidenceExcludeReview spaces/circulation.md#public-route #535ef8f 현관-주랑 경로의 순서는 circulation에 남고 문짝은 통과 폭만 검사하는지 확인했다.
 -->
 
 [개구부와 문짝](../settings/20-envelope.md#openings)의 어두운 목재 양개 정문과 제실 문이다. 이미지 01의 정문 양개문과 이미지 04의 판과 테두리가 근거다. 판정된 `door-entry`(유효 1.8×2.5m)와 `door-sanctuary`(1.4×2.5m)의 두 변형만 만들며 한 짝의 폭은 유효 폭의 절반이다.
@@ -110,43 +74,24 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 세 외개문 변형의 폭 1.0/1.1/1.2m와 닫힌 두께 −0.068~+0.031m를 각각 문턱·스윙에 대조하며, 다섯 `board`는 +Y U, `batten`·`strap`은 +X U, 양면 `pin`·`ring`은 원통·원환 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 세 외개문 폭과 철물 포함 Z 점유를 읽고 다섯 널의 세로 U, 띠의 가로 U, XY 고리의 16×8 분할을 확인했다.
 @evidenceExclude settings/50-production.md#execution-authority 작업과 실행 권한은 저작 행위의 규칙이고 문짝 hinge 및 다른 원형의 형상 인터페이스를 고르는 근거가 아니다.
-@evidenceExcludeReview settings/50-production.md#execution-authority #cf13b03 실행 권한의 주체와 모델의 관절·기하 결정 주체를 구분했다.
 @evidence principles/core/common.md#scope-preservation 봉헌실·세 업무방·마당 두 문의 외개 판문을 세 치수 변형으로 정하고 가로 띠·쇠 띠 경첩·이음 홈·손잡이·관절·표면까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 봉헌실·업무방·마당 여섯 문의 세 크기와 한 면 띠·반대면 홈·철물·회전을 읽었다.
 @evidence principles/core/common.md#substantive-completion 가로 띠·쇠 띠·같은 너비의 널 다섯 장과 이음 홈 X=jw/5, 쇠 띠의 X 시작·Y 중심·앞면 Z에 손잡이 위치, 양면 연결 핀 둘레 12분할과 원환 16×8분할을 더해 source가 철물 접점을 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 널 다섯 장 이음 X=jw/5, 두 가로 띠·쇠 띠 좌표, 앞뒤 핀과 고리의 접점을 대조했다.
 @evidence principles/core/common.md#declared-basis 변형 치수와 여는 방향은 openings.md#doors의 여섯 문과 스윙, 열린 폭 0.9m 판정은 10-building#use-profile, 관절 규칙은 ../contracts/obligations-models.md#temple-articulation-map에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 여섯 문 표·스윙, 방 문 0.9m 통과와 공통 관절 규칙이 치수·방향·범위의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 서비스·업무 문의 단순한 판문이라는 설정을 한 면에만 띠와 쇠 띠가 있는 비대칭 판과 hinge node라는 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 단순 판문 설정에 비대칭 두 면과 한 hinge node를 더한 모델 결정을 확인했다.
 @evidence principles/design/models.md#representation-contract board·batten·strap·pin·ring part로 목재와 금속 표면을 나누고 여는 쪽 면과 반대면의 형상 차이를 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 board·batten·strap·pin·ring이 여는 면과 반대 면을 실제로 달리 만드는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 경첩 쪽 판 모서리 바닥 점으로 두고 외개 hinge 축은 쇠 띠 앞면 Z=+0.031m, 닫힌 짝 폭 = 유효 폭·높이 = 유효 높이−0.01m로 정한다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 경첩 모서리 원점과 X=0/Z=0.031m 축에서 열린 면이 안감 X<0으로 들어가지 않는 계산을 확인했다.
 @evidence principles/design/models.md#reviewable-structure 두 상태와 두 면에서 띠가 한 면에만 있는지, 이음 홈이 반대면에서 읽히는지, 열린 짝이 스윙 예약 안에 머무는지를 본다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b closed/open 양면 관찰이 앞 띠와 뒤 이음 홈의 차이 및 스윙 예약 이탈을 드러내는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 01의 서비스 문과 이미지 05의 업무방 문처럼 세로 널을 가로 띠로 묶은 판문을 근거로 하고 양개문과 구별되지 않는 판을 실패로 둔다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 01 서비스 문·05 업무방 판문의 세로 널·가로 띠를 받고 양개문과 구분되는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 세 치수 변형·경첩 쪽·여는 방향·열린 폭 판정이 함께 정해져 외개 문 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 세 변형과 여섯 문 스윙, 최소 0.9m 통과 판정이 함께 정해졌는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 여섯 문의 유효 치수(1.2×2.3, 1.0×2.2, 1.1×2.2m)와 북·남 스윙 예약, use-profile의 방 문 0.9m를 짝 폭에 대조했고 가장 좁은 1.0m 문에서도 열린 짝 두께와 손잡이 돌출을 빼면 산술상 최소 0.901m가 남아 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 가장 좁은 1.0m 문에서도 열린 짝 두께·고리를 빼 0.901m가 남는 계산을 확인했다.
 @evidence settings/20-envelope.md#openings 봉헌실·업무방·마당의 목재 판문이라는 개구부 설정을 외개 문짝으로 받는다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 봉헌실·업무방·마당의 목재 판문이 한 외개 prototype으로 연결되는지 확인했다.
 @evidence spaces/openings.md#doors door-offering·door-administration·door-records·door-yard·door-storage·door-service-exterior의 치수와 스윙을 세 변형과 여는 방향으로 소비한다.
-@evidenceReview spaces/openings.md#doors #8a0716f 여섯 ID의 유효 폭과 스윙을 세 크기·설치 방향으로 분류해 소비하는지 확인했다.
 @evidence settings/10-building.md#use-profile 방 문 0.9m 통과 조건을 열린 외개 짝이 남길 유효 폭 판정으로 쓴다.
-@evidenceReview settings/10-building.md#use-profile #ee92183 방 문 통과 0.9m가 열린 자세의 건물 관찰 실패 조건인지 확인했다.
 @evidence settings/50-production.md#references 이미지 01의 서비스 문과 이미지 05의 업무방 문을 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 01·05의 띠 묶은 판문이 앞면 part와 뒷면 홈에 반영되는지 확인했다.
 @evidenceExclude spaces/circulation.md#service-route 마당에서 보관실까지의 반입 순서는 door-yard·door-storage 위치로 openings.md#doors에 이미 실현됐고 문짝 형상은 그 순서에서 새로 받는 결정이 없다.
-@evidenceExcludeReview spaces/circulation.md#service-route #49bf8ec 마당→보관실 반입 순서는 circulation 문 ID에 남고 모델은 그 경로를 새로 정하지 않는지 확인했다.
 @evidenceExclude spaces/site.md#site-connections 대지 connector는 서비스 문 밖 앞마당과 정문 진입의 보행 연결이며 door-service-exterior 짝은 외벽 void 안에서만 돌아 connector 끝점을 바꾸지 않는다.
-@evidenceExcludeReview spaces/site.md#site-connections #13eaa36 서비스 문 바깥 connector 끝점은 spaces 소유이고 문짝은 void 안에서만 도는지 확인했다.
 @evidenceExclude spaces/building.md#approach-contacts 정문 도로와 서비스 외부 접점의 높이·위치는 spaces가 문턱과 connector로 소유하고 문짝은 문턱 완성면 위 0.01m에서 도는 판이라 접점을 소비하지 않는다.
-@evidenceExcludeReview spaces/building.md#approach-contacts #6e35a95 정문 도로·서비스 접점 높이는 문턱/connector가 맡고 문짝은 완성면 위 0.01m 띄우는지 확인했다.
 -->
 
 봉헌실·세 업무방·마당 두 문의 외개 목재 문이다. 이미지 01의 서비스 문과 이미지 05의 업무방 문처럼 세로 널을 가로 띠로 묶은 단순한 판문이 근거다. 판정된 `door-offering`(1.2×2.3m), `door-administration`·`door-records`·`door-yard`(1.0×2.2m), `door-storage`·`door-service-exterior`(1.1×2.2m)의 세 치수 변형을 만든다.
@@ -165,41 +110,23 @@ part와 표면은 `lining`(안감), `surround`(양면 테)이며 두 표면을 �
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 0.4×0.4m 채광구 주변 0.72×0.72×(0.30/0.60+0.03)m 점유는 제실 벽 두께와 창틀 돌출을 따르고, `lining`·`surround` 석재 면은 기본 평면 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 0.4m 채광 개구에 테를 더한 0.72m 바깥 폭과 두 벽 깊이를 읽고 외부 테와 안감의 면별 기본 UV를 대조했다.
 @evidenceExclude spaces/observations.md#viewer-path viewer-path는 건물 source의 실제 표시 경로이고 중립 원형 검토 판은 별도 장면이라 그 모드·절개를 형상 기준으로 쓰지 않는다.
-@evidenceExcludeReview spaces/observations.md#viewer-path #037f6c0 건물 viewer와 모델 판의 장면·관찰 주소를 구분했다.
 @evidence principles/core/common.md#scope-preservation 제실 채광구의 깊은 석재 안감과 바깥 테를 두 벽 두께 변형으로 정하고 유리·창살·덧문이 없음을 밝힌다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 제실 여덟 채광구의 두 벽 두께 변형과 바깥 테·실내 reveal을 읽어 유리·창살을 추가하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 안감 폭 0.06m와 벽 두께 깊이, 외부 면 테 0.10m·돌출 0.03m, 점유 상자 0.72×0.72×(벽 두께+0.03)m가 있어 source가 창틀을 다시 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 안감 0.06m, 외부 테 0.10m·0.03m 돌출, 0.72m 외폭과 깊이 식을 대조했다.
 @evidence principles/core/common.md#declared-basis 유효 0.4×0.4m와 틀 0.06m는 openings.md#clerestories, 벽 두께는 북측 박공 0.60m·제실 남벽과 spine 0.30m, 외부 면 방향은 #boundary-ownership의 위쪽 외부 경계에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.4×0.4m void·벽 0.60/0.30m·상부 외면 방향이 창 크기·변형·테 면의 출처인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 깊은 틀의 작은 채광구라는 설정을 안쪽은 reveal만, 바깥에만 테가 있는 비대칭 창틀 모델로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 깊은 작은 창 설정을 실내 안감과 외부에만 있는 테의 비대칭 구조로 바꿨는지 확인했다.
 @evidence principles/design/models.md#representation-contract lining·surround part와 안감·테의 가려진 접촉면, 0.4×0.4m의 빈 통과 영역을 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 lining·surround와 0.4×0.4m 통과 빈 공간이 서로 다른 소유인지 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 void 아랫변 중심(창대 높이−0.06m, 벽 중심면)에 둔다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e void 아랫변·벽 중심 원점에서 창대−0.06m 높이가 정해지는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 정면과 45° 시점의 깊은 안감·바깥 테와 건물의 실내 쪽 reveal·외부 쪽 테를 반증 관찰로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 정면·45도와 건물 양면 관찰이 실내 reveal과 외부 테를 구분하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 04의 벽 위쪽 작은 창과 깊은 틀을 근거로 하고 유리 판·얕은 안감을 실패로 둔다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 04의 높은 작은 창과 깊은 틀을 받아 얕은 안감·유리판을 실패로 두었는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 두 벽 두께 변형과 외부 면 방향의 소유가 정해져 여덟 창이 모두 이 prototype으로 덮인다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 두 벽 두께와 외면 방향을 instances에 넘겨 여덟 창을 같은 원형으로 덮는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work clerestories의 유효 치수·창대 높이와 수리된 위쪽 외부 경계를 두 두께 변형에 대조했고 여덟 창 모두 외부 면이 정해져 모델 쪽에서 부모를 더 고치지 않았다. 창 결속 수리(c7af729c)는 space-source 작업에서 먼저 드러났다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 위쪽 외부 경계가 이미 spaces에서 수리돼 여덟 창의 테 방향이 모두 정해졌는지 확인했다.
 @evidence settings/20-envelope.md#openings 깊은 석재 틀과 내부 reveal을 가진 작은 채광구라는 설정을 창틀 prototype으로 받는다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 작은 채광구의 깊은 석재 틀이 안감·테 두 부재로 구현되는지 확인했다.
 @evidence spaces/openings.md#clerestories 유효 0.4×0.4m, 틀 0.06m, 박공 창과 측벽 창의 결속 벽을 두 변형으로 소비한다.
-@evidenceReview spaces/openings.md#clerestories #5e3e79e 0.4×0.4m 유효 void와 0.06m 틀을 두 벽 두께 변형에 대조했다.
 @evidence spaces/openings.md#boundary-ownership 측벽·남측 창이 결속된 위쪽 외부 경계를 테가 붙을 외부 면 방향으로 소비한다.
-@evidenceReview spaces/openings.md#boundary-ownership #0984b09 창 결속 외부면이 테가 붙는 한쪽 면을 지정하는지 확인했다.
 @evidence spaces/facades/north.md#north-envelope 박공 창의 외부 면이 북측 입면이라는 사실을 0.60m 변형의 테 방향으로 쓴다.
-@evidenceReview spaces/facades/north.md#north-envelope #9cc0e76 북측 박공 외면이 0.60m 변형의 테 방향인지 확인했다.
 @evidence settings/50-production.md#references 이미지 04의 벽 위쪽 작은 창과 깊은 틀을 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 04의 작은 위쪽 창을 본문 깊이와 검토 45도 시점의 근거로 썼는지 확인했다.
 @evidenceExclude spaces/facades/west.md#west-envelope 서측 봉헌실 외벽은 창이 없는 연속 외피라 채광구 틀 변형이 놓이지 않고 다른 모델도 서측 입면을 소비하지 않는다.
-@evidenceExcludeReview spaces/facades/west.md#west-envelope #0520696 서측 봉헌실 외벽에는 채광구가 없으므로 이 모델 변형이 서측 입면을 소비하지 않는지 확인했다.
 -->
 
 [개구부와 문짝](../settings/20-envelope.md#openings)의 깊은 석재 틀과 내부 reveal을 가진 작은 채광구다. 이미지 04의 벽 위쪽 작은 창과 깊은 틀이 근거이며 유리·창살·덧문은 두지 않는다. 판정된 [채광구](../spaces/openings.md#clerestories)의 유효 0.4×0.4m와 0.06m 틀을 소비한다.

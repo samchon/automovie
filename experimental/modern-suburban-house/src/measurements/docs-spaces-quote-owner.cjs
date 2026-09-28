@@ -1,12 +1,16 @@
 /** Check the owner named before a quoted phrase against its actual H2. */
 const fs = require("node:fs");
 
-/** @param {Array<{id:number,file:string,host:string,text:string}>} rows
+/** @param {Array<{ id:number;file:string;host:string;text:string }>} rows
  * @param {string[][]} spans
- * @param {Array<{file:string,anchor:string,body:string}>} hosts */
+ * @param {Array<{ file:string;anchor:string;body:string }>} hosts */
 function quoteOwnerFailures(rows, spans, hosts = []) {
-  const byId = new Map(rows.map((row) => [`R${String(row.id).padStart(4, "0")}`, row]));
-  const bodies = new Map(hosts.map((host) => [`${host.file}#${host.anchor}`, host.body]));
+  const byId = new Map(
+    rows.map((row) => [`R${String(row.id).padStart(4, "0")}`, row]),
+  );
+  const bodies = new Map(
+    hosts.map((host) => [`${host.file}#${host.anchor}`, host.body]),
+  );
   const failures = [];
   let checked = 0;
   for (const [id, host, , status, quote] of spans) {
@@ -42,7 +46,9 @@ function quoteOwnerFailures(rows, spans, hosts = []) {
       if (before.endsWith("owner의")) return row.text.slice(0, at).includes(anchor);
       return row.text.slice(0, at).includes(anchor);
     };
-    if (!sources.some(sourceMatches)) failures.push(`${id} ${host} quoted '${quote}' as '${before}' but source is ${sources.join(",")}`);
+    if (!sources.some(sourceMatches)) failures.push(
+      `${id} ${host} quoted '${quote}' as '${before}' but source is ${sources.join(",")}`,
+    );
   }
   return { checked, failures };
 }
@@ -50,13 +56,19 @@ function quoteOwnerFailures(rows, spans, hosts = []) {
 if (require.main === module) {
   const [rowsPath, spansPath] = process.argv.slice(2);
   if (!rowsPath || !spansPath) {
-    console.error("usage: node docs-spaces-quote-owner.cjs <rows.json> <quotes.tsv>");
+    console.error(
+      "usage: node docs-spaces-quote-owner.cjs <rows.json> <quotes.tsv>",
+    );
     process.exitCode = 2;
   } else {
     const data = JSON.parse(fs.readFileSync(rowsPath, "utf8"));
-    const spans = fs.readFileSync(spansPath, "utf8").split(/\r?\n/).filter(Boolean).map((line) => line.split("\t"));
+    const spans = fs.readFileSync(spansPath, "utf8").split(/\r?\n/).filter(Boolean).map(
+      (line) => line.split("\t"),
+    );
     const result = quoteOwnerFailures(data.rows, spans, data.hosts);
-    console.log(`quote owners checked ${result.checked} mismatched ${result.failures.length}`);
+    console.log(
+      `quote owners checked ${result.checked} mismatched ${result.failures.length}`,
+    );
     for (const failure of result.failures) console.log(failure);
     process.exitCode = result.checked > 0 && result.failures.length === 0 ? 0 : 1;
   }

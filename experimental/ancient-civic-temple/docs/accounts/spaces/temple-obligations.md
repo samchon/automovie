@@ -7,10 +7,9 @@
 -->
 
 <!--
-@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 역검사가 21개 방출 owner를 열거했고 owner 행이 없던 boundaries reveal을 표에 더해 닫았다고 본문이 밝혀, 계약의 최초 분해가 실제 면에 대해 지급됐다.
 -->
 
-[ownership](../../spaces/ownership.md#surface-map)은 남북서동 외측 면을 각 입면에, 아홉 공간의 내측 면/바닥/천장을 각 room에, 기준과 구조체 공유 접합을 storey에, roof 상부/외부 처마 하부를 roof owner에, 대지 흙띠·경계석·포장·먼 능선을 [대지](../../spaces/site.md) owner에 배정한다. 각 행의 source 주소는 후속 단독 owner 지정이며 현재 존재하는 TypeScript라는 주장이 아니다. 모든 room과 입면/roof 문서를 읽었고 물리벽은 입면 또는 boundaries 하나가 만들고 서로 마주 보는 두 마감은 각 공간에 남기는 관계가 일치했다.
+[ownership](../../spaces/ownership.md#surface-map)은 남북서동 외측 면을 각 입면에, 아홉 공간의 내측 면/바닥/천장을 각 room에, 기준과 구조체 공유 접합을 storey에, roof 상부/외부 처마 하부를 roof owner에, 대지 흙띠·경계석·포장·먼 능선을 [대지](../../spaces/site.md) owner에 배정한다. 각 행의 source 주소는 단독 owner 지정이다. 실제 구현 존재와 표면 배정은 아래 방출된 surface ID의 역검사로 따로 확인한다. 모든 room과 입면/roof 문서를 읽었고 물리벽은 입면 또는 boundaries 하나가 만들고 서로 마주 보는 두 마감은 각 공간에 남기는 관계가 일치했다.
 
 [threshold-support](../../spaces/storey.md#threshold-support)는 문턱 전체를 주랑이 아닌 방에 주며 실제 벽 두께 안 예약과 cell 연장을 함께 다룬다. [junctions](../../spaces/junctions.md)는 맞댐과 박공 연장, 외벽 기단·코핑 단면의 계산을 맡고 새 완결 표면 소유자가 아니다. 코핑과 기단 표면은 각 입면의 coping·plinth ID이고 마당 벽 위 코핑은 서비스 마당의 wall-top이며 모서리 칸도 한 표면만 받는다. [실내 하부 띠](../../spaces/ownership.md#interior-dado)는 주랑·제실 벽 마감을 0.60m에서 나눈 두 dado 표면이며 여전히 각 방 owner의 표면이다. [roof assembly](../../spaces/roofs/assembly.md#roof-junctions)의 면 분할도 원래 surface ID에 남으며 외부 처마와 내부 천장 하부를 구별한다. 독립 기둥·문·수반·집기는 prototype 전체 표면을 별도 model 한 소유가 만들고 방 파일은 그 배치/접촉을 소비한다.
 
@@ -23,11 +22,10 @@
 -->
 
 <!--
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 본문은 방별 station·접합·연직 단면, 안타 끝 둘과 박공 앞뒤 입면, 처마 밑 제실·spine 양쪽과 마당 spine 상부를 포함한 미주소 띠 20구간의 단면·모서리 질문과 unverified 상태를 구별한다. 개구부·무효 창 threshold·reference 관찰도 남는다.
 -->
 
 [geometry-observations](../../spaces/observations.md#geometry-observations)는 같은 generation의 built environment와 lowering에서 setting·경계 주소를 가진 노출 입면/모서리/roof/하부/출입/개구부를 유도하고, 입면 host 중심선 밖의 노출 접합 띠 20구간(그중 제실·spine 처마 밑 상부 두 구간)은 observations#geometry-observations의 모서리·T 접합·파라펫 질문과 명시된 unverified 단면에 결속한다. 안타 끝 둘과 포치 박공 양면은 별도 입면 주소를 가진다. 공간마다 자기 내부 threshold·네 모서리·중심 네 방위가 있고 주랑은 외접 상자 중앙으로 대신하지 않으며 여섯 평면 영역과 구멍/notch 경계를 추가한다. 서비스 마당은 두 문턱, 긴 봉헌실은 장축 양끝, 현관은 중앙/양끝/기둥 받침 단면, 대지는 구획 조감·두 접근·골목 경사·먼 능선 시점으로 해당 지역의 실패를 더 묻는다. 주랑은 엔진의 외측 모서리 넷에 더해 중정 쪽 안쪽 모서리 넷과 현관 몸체 모서리 둘을 source pose로 가지며, 접합 관찰은 네 골·제실 처마 아래와 파라펫 위·세 파라펫 만남·동측 박공 남쪽 끝·외곽 네 모서리 석재 띠를 pose로 둔다. 연직 단면 질문은 `section` 묶음이 뷰어의 정확한 단면 보기로 문과 용마루의 종횡 단면, 문턱 종단면, 박공 끝 하부, 채광구, 날개 지붕의 높이 차이 끝면, 처마 돌출, L/T 접합, 외벽 하단, 현관 평행 단면을 모두 pose로 가지며, X/Z 평면으로 따라갈 수 없는 대각 골 전 길이 단면만 그 이유를 적은 pose 없는 unverified 항목이다. 여섯 일정 높이 host와 두 반환벽의 네 위쪽 외부 향 경계·후퇴벽 끝 칸의 네 높은 외부 향 북면·옆면 및 네 낮은 한 공간 경계·두 포치 자유 끝, 제실 창 여덟은 외부 입면·개구부 전집합에 들고, 이전 결속이 봉헌실·주랑 안에 만든 무효 창 threshold 넷은 지우지 않고 pose 없는 unverified 항목으로 남는다. 포치 자유 끝의 자기 면 가시율은 방출 면 광선으로 재며 한 시점에서 가려진 부분은 unverified다. 계산 cell 접면은 새 방 모서리나 표면 소유가 아니다.
 
 관찰 함수가 다른 눈높이 또는 문에서 먼 내부 점을 반환하면 원 결과를 보존하고 설정의 요구 위치와 따로 비교한다. 충돌/null을 목록에서 빼지 않고 unverified 및 같은 공간의 보조 위치로 남긴다. 문틀·문짝·철물의 실체 sweep은 두께 없는 panel 상자와 다르며, 실제 수단이 없으면 유사 수치로 통과시키지 않는다. 북동 canopy 전체 덮임, 외벽 최저 접지, 문턱 전 폭/깊이도 한 점 검사로 대체하지 않는다.
 
-다섯 reference의 외관·절개 검사·중정·제실·기록/서비스 질문은 위 전집합에 더해진다. source는 이를 `reference` 묶음의 다섯 pose로 두며 판정 전에는 unverified다. 절개는 검사 수단이고 전달 프레임이 아니다. 관찰 pose가 벽·지붕 실체 안에 놓였는지는 `npm run self-check`가 외피 겹침 스캔과 함께 센다. [viewer-path](../../spaces/observations.md#viewer-path)는 현재 source 실체와 ID·변환·재료·관찰 generation을 함께 전달하며 기본 화면에 라벨이나 semantic support를 덮지 않는다. census·관찰 수·GPU RENDERER는 viewer payload와 화면이 매번 유도하지만 방별 프레임의 시각 판정과 pose binding의 전수 대조는 아직 없으므로 unverified다. 이 account는 계획된 전집합의 책임 배정이며 실제 관찰자 목록이 비었다는 보고가 아니다.
+다섯 reference의 외관·절개 검사·중정·제실·기록/서비스 질문은 위 전집합에 더해진다. source는 이를 `reference` 묶음의 다섯 pose로 두며 판정 전에는 unverified다. 절개는 검사 수단이고 전달 프레임이 아니다. 관찰 pose가 벽·지붕 실체 안에 놓였는지는 `npm run self-check`가 외피 겹침 스캔과 함께 센다. [viewer-path](../../spaces/observations.md#viewer-path)는 현재 source 실체와 ID·변환·재료·관찰 generation을 함께 전달하며 기본 화면에 라벨이나 semantic support를 덮지 않는다. census·관찰 수·GPU RENDERER는 viewer payload와 화면이 매번 유도한다. 현재 실제 topology의 303개 관찰은 298개 PNG와 pose 없는 5개로 대조했고 298개를 직접 판독했다. 네 무효 방 결속 창 threshold와 대각 골 전 길이 단면은 pose 없는 원본으로 보존하며, 실제 여덟 창의 안·밖 전용 보기와 연직 단면, 네 골의 외관·접합 보기로 각 질문을 따로 대조했다. roof/underside census가 빈 population인 부분은 별도 지붕/하부 보기로 보았고 절개에서 생략한 낮은 천장과 경계석은 방·대지의 실제 3D 보기로 읽었다. 이 account의 설계 책임 배정과 현재 건물 관찰 결과를 구분하며, 미완 사물 전체나 GI·구조 인증의 완료를 주장하지 않는다.

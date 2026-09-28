@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/design/designs.md#work-specific-design-requirements 재료가 결합하는 이름만 있고 물리 부재가 없는 결함이 반복되어 이 production은 재료 H2 전부에서 face id의 설계 제작자를 역으로 대조한다.
-@evidenceReview discovery/design/designs.md#work-specific-design-requirements #1c8460c 해당 발견 절의 branch 간 인터페이스·식별자·반증 관찰 요구를 읽고, 이 계약이 materials의 명명 면과 models의 물리 제작자를 잇는 별도 owner이며 models 계정 claim이 이 H2를 가리키는지 lint.config.ts에서 대조했다. 검사기의 실제 해상도는 모델 부재 문장을 따로 검토한다.
 -->
 # 모델과 재료의 면 결합 대조
 

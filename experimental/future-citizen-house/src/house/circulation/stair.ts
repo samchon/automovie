@@ -148,26 +148,59 @@ export function stair(a: Assembly): void {
           v(
             stringerX,
             yStart + halfRise - 0.12,
-            zStart + direction * ((stepsPerFlight - 0.5) * going + stringerEndExtension),
+            zStart +
+              direction *
+                ((stepsPerFlight - 0.5) * going + stringerEndExtension),
           ),
           stringerRadius,
         ),
       );
     }
   }
+  const halfLanding = { x: 0.14, z: -4.92, width: 2.64 };
   ids.push(
     a.box(
       "stair-half-landing",
       "entry",
       "oak",
-      0.14,
+      halfLanding.x,
       datum.floors[0] + halfRise - landingDepth / 2,
-      -4.92,
-      2.64,
+      halfLanding.z,
+      halfLanding.width,
       landingDepth,
       treadWidth,
     ),
   );
+  a.environment.surfaces.push({
+    space: "entry",
+    surface: {
+      id: "stair-half-landing-walk",
+      kind: "floor",
+      polygon: [
+        v(
+          halfLanding.x - halfLanding.width / 2,
+          0,
+          halfLanding.z - treadWidth / 2,
+        ),
+        v(
+          halfLanding.x + halfLanding.width / 2,
+          0,
+          halfLanding.z - treadWidth / 2,
+        ),
+        v(
+          halfLanding.x + halfLanding.width / 2,
+          0,
+          halfLanding.z + treadWidth / 2,
+        ),
+        v(
+          halfLanding.x - halfLanding.width / 2,
+          0,
+          halfLanding.z + treadWidth / 2,
+        ),
+      ],
+      height: { kind: "constant", value: datum.floors[0] + halfRise },
+    },
+  });
   for (const x of [-1.14, 1.42]) {
     a.rod(
       "landing-side-" + x,

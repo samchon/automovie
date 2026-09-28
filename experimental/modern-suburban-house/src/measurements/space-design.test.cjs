@@ -180,17 +180,29 @@ void test("a required reference observation cannot silently disappear", () => {
   const environment = buildHouseEnvironment(house);
   assert.doesNotThrow(() => deriveHouseObservations(environment, house));
   assert.throws(
-    () => deriveHouseObservations({
-      ...environment,
-      openings: environment.openings.filter((opening) => opening.id !== "garden-door"),
-    }, house),
+    () =>
+      deriveHouseObservations(
+        {
+          ...environment,
+          openings: environment.openings.filter(
+            (opening) => opening.id !== "garden-door",
+          ),
+        },
+        house,
+      ),
     /reference observation "kitchen-dining-family\/threshold-garden-door" is absent/,
   );
   assert.throws(
-    () => deriveHouseObservations({
-      ...environment,
-      spaces: environment.spaces.map((space) => space.id === "living-room" ? { ...space, kind: "void" } : space),
-    }, house),
+    () =>
+      deriveHouseObservations(
+        {
+          ...environment,
+          spaces: environment.spaces.map((space) =>
+            space.id === "living-room" ? { ...space, kind: "void" } : space,
+          ),
+        },
+        house,
+      ),
     /reference observations for "living-room" role "center" are absent/,
   );
 });
