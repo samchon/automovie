@@ -1,8 +1,10 @@
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
+  type IAutoMovieHumanFaceComponentTree,
   type IAutoMovieHumanFaceControlMap,
   type IAutoMovieHumanFaceEndpointScale,
+  createHumanFaceComponentTree,
   createHumanFaceControlMap,
   measureHumanFaceBasisChannels,
 } from "@automovie/human";
@@ -13,6 +15,8 @@ import {
  * captured fine origin, combining pending group values before a transaction;
  * fine input composes with the latest draft. The panel owns admission/history.
  * Only owned document coordinates are authored values; omission displays zero.
+ * A basis-bound component tree groups fine controls for navigation; it changes
+ * neither saved channel IDs nor the basis's evaluation order or shared skin.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes editable and searchable fine shape and performance channels.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement without changing replay on a mode switch.
@@ -22,6 +26,7 @@ export function mountConnectedFaceControls(
   props: {
     basis: IAutoMovieHumanFaceBasis;
     map?: IAutoMovieHumanFaceControlMap;
+    components?: IAutoMovieHumanFaceComponentTree;
     document: () => IAutoMovieHumanFaceBasisDocument;
     change: (document: IAutoMovieHumanFaceBasisDocument) => Promise<void>;
     refuse: (error: unknown) => void;
@@ -34,6 +39,10 @@ export function mountConnectedFaceControls(
     props.map === undefined
       ? undefined
       : createHumanFaceControlMap({ basis: props.basis, map: props.map });
+  const anatomy =
+    props.components === undefined
+      ? undefined
+      : createHumanFaceComponentTree(props.basis, props.components);
   const scales = new Map(
     measureHumanFaceBasisChannels(props.basis).map((scale) => [
       scale.id,
@@ -76,17 +85,21 @@ export function mountConnectedFaceControls(
       : "0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.";
     const query = search.value.toLowerCase().replace(/\s/g, "");
     container.replaceChildren();
-    const append = (control: {
-      id: string;
-      label: string;
-      description: string;
-      minimum: number;
-      maximum: number;
-      value: number;
-      edit: (value: number) => IAutoMovieHumanFaceBasisDocument;
-    }): void => {
+    const append = (
+      control: {
+        id: string;
+        label: string;
+        description: string;
+        minimum: number;
+        maximum: number;
+        value: number;
+        group?: string;
+        edit: (value: number) => IAutoMovieHumanFaceBasisDocument;
+      },
+      target: HTMLElement = container,
+    ): void => {
       if (
-        !(control.id + control.label)
+        !(control.id + control.label + (control.group ?? ""))
           .toLowerCase()
           .replace(/\s/g, "")
           .includes(query)
@@ -131,7 +144,7 @@ export function mountConnectedFaceControls(
       note.id = (simple ? "simple-description-" : "scale-") + control.id;
       note.textContent = control.description;
       row.append(label, entry, note);
-      container.append(row);
+      target.append(row);
     };
     if (simple) {
       const projection = project(document.shape);
@@ -146,29 +159,69 @@ export function mountConnectedFaceControls(
             return { ...structuredClone(props.document()), shape };
           },
         });
-    } else
-      for (const channel of props.basis.channels.filter(
+    } else {
+      const channels = props.basis.channels.filter(
         (channel) => channel.kind === kind.value,
-      )) {
+      );
+      const byId = new Map(channels.map((channel) => [channel.id, channel]));
+      const appendChannel = (
+        channel: (typeof channels)[number],
+        target: HTMLElement,
+      ): void => {
         const scale = scales.get(channel.id)!;
-        append({
-          ...channel,
-          label: channel.id.replace(/([a-z])([A-Z])/g, "$1 $2"),
-          value: Object.hasOwn(document[channel.kind], channel.id)
-            ? document[channel.kind][channel.id]
-            : 0,
-          description: [
-            ...(channel.description === undefined ? [] : [channel.description]),
-            describe("+", scale.positive),
-            ...(scale.negative === null ? [] : [describe("-", scale.negative)]),
-          ].join(" · "),
-          edit: (value) => {
-            const next = structuredClone(props.document());
-            next[channel.kind] = { ...next[channel.kind], [channel.id]: value };
-            return next;
+        append(
+          {
+            ...channel,
+            label: channel.id.replace(/([a-z])([A-Z])/g, "$1 $2"),
+            group: anatomy?.channelPaths.get(channel.id)?.join(" "),
+            value: Object.hasOwn(document[channel.kind], channel.id)
+              ? document[channel.kind][channel.id]
+              : 0,
+            description: [
+              ...(channel.description === undefined
+                ? []
+                : [channel.description]),
+              describe("+", scale.positive),
+              ...(scale.negative === null
+                ? []
+                : [describe("-", scale.negative)]),
+            ].join(" · "),
+            edit: (value) => {
+              const next = structuredClone(props.document());
+              next[channel.kind] = {
+                ...next[channel.kind],
+                [channel.id]: value,
+              };
+              return next;
+            },
           },
-        });
+          target,
+        );
+      };
+      if (anatomy === undefined)
+        for (const channel of channels) appendChannel(channel, container);
+      else {
+        const visit = (
+          node: IAutoMovieHumanFaceComponentTree.Node,
+          parent: HTMLElement,
+        ): void => {
+          const group = dom.createElement("details");
+          group.dataset.component = node.id;
+          group.open = true;
+          const summary = dom.createElement("summary");
+          summary.textContent = node.label;
+          group.append(summary);
+          parent.append(group);
+          for (const id of node.channels) {
+            const channel = byId.get(id);
+            if (channel !== undefined) appendChannel(channel, group);
+          }
+          for (const child of node.children) visit(child, group);
+          if (group.querySelector(".row") === null) group.remove();
+        };
+        visit(anatomy.root, container);
       }
+    }
   };
   kind.onchange = render;
   level.onchange = render;

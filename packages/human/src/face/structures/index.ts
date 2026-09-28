@@ -4,6 +4,7 @@ export * from "./IAutoMovieHumanFaceBindings";
 export * from "./IAutoMovieHumanFaceChannelScale";
 export * from "./IAutoMovieHumanFaceControls";
 export * from "./IAutoMovieHumanFaceControlMap";
+export * from "./IAutoMovieHumanFaceComponentTree";
 export * from "./IAutoMovieHumanFaceDetailChannel";
 export * from "./IAutoMovieHumanFaceDocument";
 export * from "./IAutoMovieHumanFaceEditorSnapshot";

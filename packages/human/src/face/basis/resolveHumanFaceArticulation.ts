@@ -12,24 +12,33 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
  *
  * The jaw opens by `opening.degrees * w` about the condylar axis point
  * (`pivot landmark + axisOffset`) and translates by `opening.translation * w`
- * at the same time, which is the linear coupling of condylar translation to
- * rotation measured in vivo (Jász 2024: 0.30 mm per mm of incisal opening,
- * R^2 0.998; Chen 2021: about 0.5 mm per degree); protrusion and each
- * laterotrusion add their translations. The sagittal budget is one: the
+ * at the same time. Lindauer et al. 1995 observed both movements from initial
+ * opening (https://pubmed.ncbi.nlm.nih.gov/7771361/); Jasz et al. 2024 found
+ * a roughly linear translation/opening relation in the first 5 mm only
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC11026373/). Scaling one authored
+ * endpoint across the whole range is this rig's approximation, not a measured
+ * patient-specific trajectory. Protrusion and each laterotrusion add their
+ * translations. The sagittal budget is one: the
  * summed opening and protrusion translation may not exceed
- * `translationLimitMetres`, which closes the bottom of Posselt's envelope,
- * where a fully open jaw has no protrusive capacity left. A document past it
+ * `translationLimitMetres`, an authored supported-combination boundary rather
+ * than a universal clinical limit. A document past it
  * is refused with the figures rather than clamped, because clamping one
  * control to honour another is a hidden edit of the document.
  *
  * Each eye rotates about its centre landmark by its gaze channels in list
  * order, each `degrees * w` about its authored axis, and shifts by the sum of
  * their `translation * w`, the eccentric drift the source authored beside
- * its lids (Demer and Clark 2019 measured the human eye turning about a
- * varying point rather than a fixed one). No lid weight exists;
- * the lids' gaze coupling is the residual the source authored. Blinks do not
- * rotate the globe: a normal blink shows no Bell's movement (Doane 1980;
- * Takagi 1992), so closure is tissue alone.
+ * its lids. Demer and Clark 2019 measured a varying eccentric rotation point
+ * and gaze-dependent globe translation (https://pubmed.ncbi.nlm.nih.gov/31239125/),
+ * which this fitted linear endpoint path does not predict. No lid weight exists;
+ * the lids' gaze coupling is the residual the source authored. This rig leaves
+ * globe blink motion at zero. Doane 1980 and Takagi 1992 report no large upward
+ * Bell movement in normal spontaneous blinks
+ * (https://pubmed.ncbi.nlm.nih.gov/7369314/ and
+ * https://pubmed.ncbi.nlm.nih.gov/1473450/), but Riggs et al. 1987 measured
+ * smaller nasal/downward rotations and retraction
+ * (https://iovs.arvojournals.org/article.aspx?articleid=2160135). The omitted
+ * small motion is a stated limit, not evidence that the globe is immobile.
  *
  * Landmarks are read from the shaped rest, never from the neutral, so an
  * identity that moves a globe or the jaw pivot moves the joint with it. The
