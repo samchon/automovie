@@ -1,0 +1,50 @@
+{
+  "subject": "generated-white-girl-01",
+  "basis": "mpfb-connected-head-2026-09-23-ocular-contact",
+  "reference": {
+    "gitRevision": "f57d3396d1fb2d57b01d851c14130ef7409a822d",
+    "relative": "white/generated-white-girl-01/generated-white-girl-01-age-14.png",
+    "sha256": "58cae33a788066f88a6b5f1a26894569802a22cbf2aff9d2f511c787543ee316",
+    "license": "Not established; photograph is not committed here"
+  },
+  "instrument": {
+    "renderer": "ANGLE (AMD, AMD Radeon 780M Graphics (0x000015BF) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "capture": "test/scripts/face-review/capture-articulation.mjs",
+    "view": "reference-yaw and reference-yaw-hair-mask",
+    "camera": {
+      "yaw": -26.82185516540818,
+      "pitch": 0,
+      "distance": 1.5228831185852345,
+      "target": [0, -0.19262486315511962, 0.06]
+    },
+    "faceLandmarkerSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "hairSegmenterSha256": "2628cf3ce5f695f604cbea2841e00befcaa3624bf80caf3664bef2656d59bf84",
+    "mediapipeVersion": "0.10.35",
+    "comparison": "Face landmarks align render to photo by an eight-point 2D similarity transform. Hair IoU uses the photo segmenter's hair class and the render's visible numerical-hair ID pass. Full is the whole image; head is the detected face bounds expanded 0.6 face width horizontally, 1.0 face height above and 0.2 below."
+  },
+  "before": {
+    "modelSha256": "febee960fe8b0920d6c891a0cdc11f4d1c537c3518acde74872e84b7ecbbca00",
+    "renderSha256": "fbc01028d711585b05f4179d499a958065bb9e0e7e00ab69a227d111b4af7e42",
+    "hairMaskSha256": "911efa80c06c277de303467cf836920b175c0dca3d34e50c036f1988ad220a5c",
+    "hairIouFull": 0.22468451573653925,
+    "hairIouHead": 0.3824234299054294,
+    "renderHairPixelsFull": 273894,
+    "skinHairCrossingTriangles": 516
+  },
+  "after": {
+    "modelSha256": "20cf78f0a6fa5d2aacbd50ed83e1b8e0ff6c893c679da59fe1094f9ab3d406ab",
+    "renderSha256": "0b4601726ec43e22f2dccd28d52c068d270b2fd12cd73299cbdb6b647ebea009",
+    "hairMaskSha256": "c3204d18677a54f809162ae2770a68c5bb1f59772e2465a4c02a53112dcbeb57",
+    "hairIouFull": 0.6056318412066315,
+    "hairIouHead": 0.6293649339278806,
+    "renderHairPixelsFull": 146314,
+    "skinHairCrossingTriangles": 513
+  },
+  "unchangedDocuments": "Before the subject migration, all 18 existing no-gather rest model JSON files had identical SHA-256 under the old and new shared builder.",
+  "limits": [
+    "One photo and an estimated camera yaw do not recover physical camera intrinsics or hidden hair depth.",
+    "The reference hair mask is a selfie-trained model estimate; the render mask is geometry-derived.",
+    "Hair IoU is one silhouette measure, not whole-person likeness acceptance.",
+    "Root-fan and hair-to-hair intersections are not resolved by the gathering field."
+  ]
+}

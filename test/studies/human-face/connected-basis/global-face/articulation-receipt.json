@@ -1,0 +1,670 @@
+{
+  "revision": "mpfb-connected-head-2026-09-23-articulated",
+  "source": "mpfb-connected-head-2026-09-22-numerical-hair",
+  "jaw": {
+    "axis": [
+      0.9999999999998962,
+      -4.544177884403219e-7,
+      -3.574867930697629e-8
+    ],
+    "openingDegrees": 21.155430064603948,
+    "openingTranslationMm": [
+      0,
+      -2.702,
+      11.041
+    ],
+    "screwPivotMm": [
+      0,
+      -15.731,
+      58.849
+    ],
+    "slideMm": 0,
+    "axisPointMm": [
+      0,
+      15.183,
+      60.564
+    ],
+    "axisOffsetMm": [
+      0,
+      13.765,
+      4.059
+    ],
+    "openingFitRmsMm": 0,
+    "protrusion": {
+      "translationMm": [
+        0,
+        -1.5,
+        8.3
+      ],
+      "residualDegrees": 0.0000017513899330460941,
+      "rmsMm": 0
+    },
+    "left": {
+      "translationMm": [
+        6.6,
+        -0.8,
+        4.3
+      ],
+      "residualDegrees": 0.0000021613204441993725,
+      "rmsMm": 0
+    },
+    "right": {
+      "translationMm": [
+        -6.6,
+        -0.8,
+        4.3
+      ],
+      "residualDegrees": 0.000002116856840293581,
+      "rmsMm": 0
+    },
+    "translationLimitMm": 14.722
+  },
+  "gaze": {
+    "eyeLookUpLeft": {
+      "degrees": 9.637095124111282,
+      "axis": [
+        -0.9998974057621268,
+        -0.000046785901284491504,
+        -0.014323957597257722
+      ],
+      "translationMm": [
+        -0.001,
+        0.219,
+        -0.267
+      ],
+      "rmsMm": 0.052
+    },
+    "eyeLookDownLeft": {
+      "degrees": 11.081465658254354,
+      "axis": [
+        0.9969088172739475,
+        -0.0017500267849870446,
+        -0.07854773992745515
+      ],
+      "translationMm": [
+        -0.055,
+        -1.139,
+        -1.46
+      ],
+      "rmsMm": 0.109
+    },
+    "eyeLookInLeft": {
+      "degrees": 14.769707494881388,
+      "axis": [
+        -0.0019208947728249922,
+        -0.9977824461685596,
+        -0.06653194932629786
+      ],
+      "translationMm": [
+        -1.838,
+        -0.017,
+        0.15
+      ],
+      "rmsMm": 0.172
+    },
+    "eyeLookOutLeft": {
+      "degrees": 14.270177832382927,
+      "axis": [
+        0.005614301419149143,
+        0.9976035822666093,
+        0.06896065739538201
+      ],
+      "translationMm": [
+        1.701,
+        0.038,
+        -0.631
+      ],
+      "rmsMm": 0.141
+    },
+    "eyeLookUpRight": {
+      "degrees": 9.637097380617664,
+      "axis": [
+        -0.9998973917905075,
+        0.00004698394113377161,
+        0.014324932217975274
+      ],
+      "translationMm": [
+        0.001,
+        0.219,
+        -0.267
+      ],
+      "rmsMm": 0.052
+    },
+    "eyeLookDownRight": {
+      "degrees": 11.08144034243716,
+      "axis": [
+        0.996908734193899,
+        0.0017498210889555202,
+        0.07854879893463933
+      ],
+      "translationMm": [
+        0.055,
+        -1.139,
+        -1.46
+      ],
+      "rmsMm": 0.109
+    },
+    "eyeLookInRight": {
+      "degrees": 14.769710668599757,
+      "axis": [
+        -0.0019211804762684149,
+        0.9977823963379595,
+        0.06653268838440496
+      ],
+      "translationMm": [
+        1.838,
+        -0.017,
+        0.15
+      ],
+      "rmsMm": 0.172
+    },
+    "eyeLookOutRight": {
+      "degrees": 14.270175526743447,
+      "axis": [
+        0.005615339624839465,
+        -0.9976036698526327,
+        -0.06895930580753636
+      ],
+      "translationMm": [
+        -1.701,
+        0.038,
+        -0.631
+      ],
+      "rmsMm": 0.141
+    }
+  },
+  "weights": {
+    "Human": {
+      "attached": 8190,
+      "fullyAttached": 60,
+      "clamped": 714,
+      "worstExcess": 0.009486297427849122,
+      "worstOffAxisMm": 2.421
+    },
+    "Human.tongue01": {
+      "attached": 898,
+      "fullyAttached": 898,
+      "clamped": 377,
+      "worstExcess": 0.000005069060894813404,
+      "worstOffAxisMm": 0
+    }
+  },
+  "dropped": [
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookDownLeft",
+      "maxMm": 4.641
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookDownRight",
+      "maxMm": 4.641
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookInLeft",
+      "maxMm": 5.778
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookInRight",
+      "maxMm": 5.778
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookOutLeft",
+      "maxMm": 5.642
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookOutRight",
+      "maxMm": 5.642
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookUpLeft",
+      "maxMm": 2.853
+    },
+    {
+      "surface": "Human.low-poly",
+      "endpoint": "eyeLookUpRight",
+      "maxMm": 2.854
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawForward",
+      "maxMm": 8.435
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawLeft",
+      "maxMm": 7.918
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawOpen",
+      "maxMm": 29.389
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawRight",
+      "maxMm": 7.918
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "tongueOut",
+      "maxMm": 0.001
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawOpenMouthCloseEase",
+      "maxMm": 19.601
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawOpenArcAt25",
+      "maxMm": 1.02
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawOpenArcAt5",
+      "maxMm": 1.36
+    },
+    {
+      "surface": "Human.teeth_base",
+      "endpoint": "jawOpenArcAt75",
+      "maxMm": 1.02
+    }
+  ],
+  "residuals": [
+    {
+      "endpoint": "browDownLeft",
+      "maxMm": 6.733
+    },
+    {
+      "endpoint": "browDownRight",
+      "maxMm": 6.733
+    },
+    {
+      "endpoint": "browInnerUp",
+      "maxMm": 4.579
+    },
+    {
+      "endpoint": "browOuterUpLeft",
+      "maxMm": 6.301
+    },
+    {
+      "endpoint": "browOuterUpRight",
+      "maxMm": 6.301
+    },
+    {
+      "endpoint": "cheekPuff",
+      "maxMm": 13.012
+    },
+    {
+      "endpoint": "cheekSquintLeft",
+      "maxMm": 8.653
+    },
+    {
+      "endpoint": "cheekSquintRight",
+      "maxMm": 8.664
+    },
+    {
+      "endpoint": "eyeBlinkLeft",
+      "maxMm": 15.521
+    },
+    {
+      "endpoint": "eyeBlinkRight",
+      "maxMm": 15.521
+    },
+    {
+      "endpoint": "eyeLookDownLeft",
+      "maxMm": 4.011
+    },
+    {
+      "endpoint": "eyeLookDownRight",
+      "maxMm": 4.011
+    },
+    {
+      "endpoint": "eyeLookInLeft",
+      "maxMm": 1.105
+    },
+    {
+      "endpoint": "eyeLookInRight",
+      "maxMm": 1.105
+    },
+    {
+      "endpoint": "eyeLookOutLeft",
+      "maxMm": 1.105
+    },
+    {
+      "endpoint": "eyeLookOutRight",
+      "maxMm": 1.105
+    },
+    {
+      "endpoint": "eyeLookUpLeft",
+      "maxMm": 2.818
+    },
+    {
+      "endpoint": "eyeLookUpRight",
+      "maxMm": 2.818
+    },
+    {
+      "endpoint": "eyeSquintLeft",
+      "maxMm": 3.947
+    },
+    {
+      "endpoint": "eyeSquintRight",
+      "maxMm": 3.947
+    },
+    {
+      "endpoint": "eyeWideLeft",
+      "maxMm": 3.917
+    },
+    {
+      "endpoint": "eyeWideRight",
+      "maxMm": 3.917
+    },
+    {
+      "endpoint": "jawForward",
+      "maxMm": 0.968
+    },
+    {
+      "endpoint": "jawLeft",
+      "maxMm": 2.421
+    },
+    {
+      "endpoint": "jawOpen",
+      "maxMm": 9.294
+    },
+    {
+      "endpoint": "jawRight",
+      "maxMm": 2.421
+    },
+    {
+      "endpoint": "mouthClose",
+      "maxMm": 34.052
+    },
+    {
+      "endpoint": "mouthDimpleLeft",
+      "maxMm": 7.64
+    },
+    {
+      "endpoint": "mouthDimpleRight",
+      "maxMm": 7.64
+    },
+    {
+      "endpoint": "mouthFrownLeft",
+      "maxMm": 6.438
+    },
+    {
+      "endpoint": "mouthFrownRight",
+      "maxMm": 6.438
+    },
+    {
+      "endpoint": "mouthFunnel",
+      "maxMm": 10.244
+    },
+    {
+      "endpoint": "mouthLeft",
+      "maxMm": 10.428
+    },
+    {
+      "endpoint": "mouthLowerDownLeft",
+      "maxMm": 4.478
+    },
+    {
+      "endpoint": "mouthLowerDownRight",
+      "maxMm": 4.478
+    },
+    {
+      "endpoint": "mouthPressLeft",
+      "maxMm": 7.98
+    },
+    {
+      "endpoint": "mouthPressRight",
+      "maxMm": 7.986
+    },
+    {
+      "endpoint": "mouthPucker",
+      "maxMm": 8.374
+    },
+    {
+      "endpoint": "mouthRight",
+      "maxMm": 10.428
+    },
+    {
+      "endpoint": "mouthRollLower",
+      "maxMm": 6.727
+    },
+    {
+      "endpoint": "mouthRollUpper",
+      "maxMm": 10.359
+    },
+    {
+      "endpoint": "mouthShrugLower",
+      "maxMm": 6.389
+    },
+    {
+      "endpoint": "mouthShrugUpper",
+      "maxMm": 5.201
+    },
+    {
+      "endpoint": "mouthSmileLeft",
+      "maxMm": 18.176
+    },
+    {
+      "endpoint": "mouthSmileRight",
+      "maxMm": 17.615
+    },
+    {
+      "endpoint": "mouthStretchLeft",
+      "maxMm": 8.37
+    },
+    {
+      "endpoint": "mouthStretchRight",
+      "maxMm": 8.369
+    },
+    {
+      "endpoint": "mouthUpperUpLeft",
+      "maxMm": 5.686
+    },
+    {
+      "endpoint": "mouthUpperUpRight",
+      "maxMm": 5.686
+    },
+    {
+      "endpoint": "noseSneerLeft",
+      "maxMm": 4.594
+    },
+    {
+      "endpoint": "noseSneerRight",
+      "maxMm": 4.594
+    },
+    {
+      "endpoint": "tongueOut",
+      "maxMm": 27.392
+    },
+    {
+      "endpoint": "jawOpenMouthCloseEase",
+      "maxMm": 11.861
+    },
+    {
+      "endpoint": "jawOpenArcAt25",
+      "maxMm": 0.715
+    },
+    {
+      "endpoint": "jawOpenArcAt5",
+      "maxMm": 0.955
+    },
+    {
+      "endpoint": "jawOpenArcAt75",
+      "maxMm": 0.717
+    }
+  ],
+  "removedCorrectives": [
+    "tongueOutJawOpenUnfold",
+    "tongueOutArcAt25",
+    "tongueOutArcAt5",
+    "tongueOutArcAt75",
+    "jawOpenAt25TongueOutAt25Arc",
+    "jawOpenAt25TongueOutAt5Arc",
+    "jawOpenAt25TongueOutAt75Arc",
+    "jawOpenAt25TongueOutAt1Arc",
+    "jawOpenAt5TongueOutAt25Arc",
+    "jawOpenAt5TongueOutAt5Arc",
+    "jawOpenAt5TongueOutAt75Arc",
+    "jawOpenAt5TongueOutAt1Arc",
+    "jawOpenAt75TongueOutAt25Arc",
+    "jawOpenAt75TongueOutAt5Arc",
+    "jawOpenAt75TongueOutAt75Arc",
+    "jawOpenAt75TongueOutAt1Arc",
+    "jawOpenAt1TongueOutAt25Arc",
+    "jawOpenAt1TongueOutAt5Arc",
+    "jawOpenAt1TongueOutAt75Arc"
+  ],
+  "replayWorstMm": {
+    "browDownLeft": 0,
+    "browDownRight": 0,
+    "browInnerUp": 0,
+    "browOuterUpLeft": 0,
+    "browOuterUpRight": 0,
+    "cheekPuff": 0,
+    "cheekSquintLeft": 0,
+    "cheekSquintRight": 0,
+    "eyeBlinkLeft": 0,
+    "eyeBlinkRight": 0,
+    "eyeLookDownLeft": 0,
+    "eyeLookDownRight": 0,
+    "eyeLookInLeft": 0,
+    "eyeLookInRight": 0,
+    "eyeLookOutLeft": 0,
+    "eyeLookOutRight": 0,
+    "eyeLookUpLeft": 0,
+    "eyeLookUpRight": 0,
+    "eyeSquintLeft": 0,
+    "eyeSquintRight": 0,
+    "eyeWideLeft": 0,
+    "eyeWideRight": 0,
+    "jawForward": 0,
+    "jawLeft": 0,
+    "jawOpen": 0,
+    "jawRight": 0,
+    "mouthClose": 0,
+    "mouthDimpleLeft": 0,
+    "mouthDimpleRight": 0,
+    "mouthFrownLeft": 0,
+    "mouthFrownRight": 0,
+    "mouthFunnel": 0,
+    "mouthLeft": 0,
+    "mouthLowerDownLeft": 0,
+    "mouthLowerDownRight": 0,
+    "mouthPressLeft": 0,
+    "mouthPressRight": 0,
+    "mouthPucker": 0,
+    "mouthRight": 0,
+    "mouthRollLower": 0,
+    "mouthRollUpper": 0,
+    "mouthShrugLower": 0,
+    "mouthShrugUpper": 0,
+    "mouthSmileLeft": 0,
+    "mouthSmileRight": 0,
+    "mouthStretchLeft": 0,
+    "mouthStretchRight": 0,
+    "mouthUpperUpLeft": 0,
+    "mouthUpperUpRight": 0,
+    "noseSneerLeft": 0,
+    "noseSneerRight": 0,
+    "tongueOut": 0
+  },
+  "tolerances": {
+    "rotationDegrees": 0.01,
+    "slideMetres": 0.0001,
+    "gazeCenterMetres": 0.003,
+    "replayMetres": 0.000001
+  },
+  "documents": 18,
+  "configuration": {
+    "jaw": {
+      "pivot": "joint-mouth",
+      "opening": "jawOpen",
+      "protrusion": "jawForward",
+      "left": "jawLeft",
+      "right": "jawRight",
+      "surface": "Human.teeth_base",
+      "group": "mandibular",
+      "couplingPerDegree": [
+        0,
+        -0.00012773722627737227,
+        0.0005218978102189782
+      ],
+      "translationLimitMetres": 0.0147220922426128
+    },
+    "eyes": [
+      {
+        "id": "leftEye",
+        "center": "joint-l-eye",
+        "surface": "Human.low-poly",
+        "group": "leftGlobe",
+        "gaze": [
+          "eyeLookUpLeft",
+          "eyeLookDownLeft",
+          "eyeLookInLeft",
+          "eyeLookOutLeft"
+        ]
+      },
+      {
+        "id": "rightEye",
+        "center": "joint-r-eye",
+        "surface": "Human.low-poly",
+        "group": "rightGlobe",
+        "gaze": [
+          "eyeLookUpRight",
+          "eyeLookDownRight",
+          "eyeLookInRight",
+          "eyeLookOutRight"
+        ]
+      }
+    ],
+    "attachedSurfaces": [
+      "Human",
+      "Human.tongue01"
+    ],
+    "carriers": [
+      {
+        "channel": "tongueOut",
+        "carried": "jawOpen"
+      }
+    ]
+  },
+  "coupling": {
+    "source": "Chen et al. 2021, Dentomaxillofac Radiol 50:20190464, PMC7860955",
+    "degrees": 27.4,
+    "forwardMetres": 0.0143,
+    "downMetres": 0.0035
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "5dbb05ff01925fa6fca8af6e46720d4735ef8a36fba5f7a77dfe2666cfbf2a35",
+      "bytes": 23491139
+    },
+    "attachments": {
+      "sha256": "894b33766c3bc32273e7d6e14366eb10f7b69a434b8a24fc1afe7fb5e45d744a",
+      "bytes": 31415
+    },
+    "subjects": {
+      "sha256": "dc478cf542a5c0f45e1cd17d0032e4dd03c78d4af0257e72be9d1efdc48d703f",
+      "bytes": 154119
+    },
+    "controls": {
+      "sha256": "8cf0a383846801f692e925538b07caa61b266921601c806cee5896903f313104",
+      "bytes": 6349
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "6cf4464e37fe70e353c8b645fd871b30fc2ad1a2924adf75aa40014d9cbc4120",
+      "bytes": 18623082
+    }
+  }
+}

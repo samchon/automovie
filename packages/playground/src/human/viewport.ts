@@ -4,6 +4,7 @@ import type { JSONDocument } from "@gltf-transform/core";
 import * as THREE from "three";
 
 import { createHumanPreviewBuilder } from "./previewBuilder";
+import { addHumanPreviewRig } from "./previewRig";
 import {
   createHumanPreviewCamera,
   disposeHumanPreview,
@@ -17,6 +18,8 @@ type BuiltFace = {
   parts: number;
   /** Absent when the port does not measure, null when the request did not ask. */
   crossings?: IAutoMovieModelCrossing[] | null;
+  /** Facts the worker described beside the bytes, when it described any. */
+  extras?: Record<string, unknown>;
 };
 /**
  * Own the face preview scene and publication through explicit browser IO ports.
@@ -65,49 +68,33 @@ export function createHumanViewport<
   worker: Parameters<typeof createHumanPreviewBuilder<BuiltFace>>[0]["worker"];
   decode: (bytes: ArrayBuffer) => Promise<THREE.Group>;
   observeResize: (callback: () => void) => void;
+  /**
+   * The half extent of the subject in metres: 0.2 frames a head and is the
+   * default; a whole body passes about 1. Lights, the shadow frustum and the
+   * orbit's reach scale with it so the same scene serves both.
+   */
+  extent?: number;
 }) {
   const { renderer, canvas } = props;
+  const scale = (props.extent ?? 0.2) / 0.2;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
+  renderer.toneMapping = THREE.LinearToneMapping;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  const shadowLights: THREE.DirectionalLight[] = [];
   scene.background = new THREE.Color(0x1c252e);
-  scene.add(new THREE.HemisphereLight(0xffeee2, 0x526578, 0.5));
-  for (const [x, y, z, power, color] of [
-    [-0.3, 0.35, 0.45, 2.3, 0xffe9d8],
-    [0.35, 0.1, 0.3, 0.85, 0xdaeaff],
-    [0.1, 0.3, -0.25, 1.6, 0xffffff],
-  ]) {
-    const light = new THREE.DirectionalLight(color, power);
-    light.position.set(x, y, z);
-    scene.add(light);
-    if (x < 0) {
-      shadowLights.push(light);
-      light.castShadow = true;
-      light.shadow.mapSize.set(4096, 4096);
-      Object.assign(light.shadow.camera, {
-        left: -0.2,
-        right: 0.2,
-        top: 0.2,
-        bottom: -0.2,
-        near: 0.01,
-        far: 2,
-      });
-      light.shadow.normalBias = 0.0008;
-      light.shadow.bias = -0.00005;
-      light.shadow.camera.updateProjectionMatrix();
-    }
-  }
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 10);
+  const shadowLights = addHumanPreviewRig({
+    scene,
+    renderer,
+    scale: scale,
+  });
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 10 * scale);
   const orbit = props.orbit(camera);
   orbit.target.set(0, -0.015, 0);
   orbit.enableDamping = true;
   orbit.minDistance = 0.12;
-  orbit.maxDistance = 2;
+  orbit.maxDistance = 2 * scale;
   const clay = new THREE.MeshStandardMaterial({
     color: 0x999999,
     roughness: 0.75,
@@ -115,6 +102,10 @@ export function createHumanViewport<
   });
   let active: BuiltFace | undefined;
   let clayEnabled = false;
+  // A companion is a second decoded group shown beside the active model and
+  // placed by the host: the face seated on a body's head. It is never part of
+  // the document, the export or the fit; the host owns its lifetime.
+  let companion: THREE.Group | undefined;
   const dispose = disposeHumanPreview;
   const { build, cancel } = createHumanPreviewBuilder<BuiltFace, Document>({
     serialize: props.serialize,
@@ -186,6 +177,19 @@ export function createHumanViewport<
     // Changing the light's shadow count also refreshes Three's shader variant.
     setShadows: (enabled: boolean): void => {
       for (const light of shadowLights) light.castShadow = enabled;
+    },
+    companion: {
+      show: (group: THREE.Group | undefined): void => {
+        if (companion !== undefined) scene.remove(companion);
+        companion = group;
+        if (group !== undefined) scene.add(group);
+      },
+      place: (matrix: THREE.Matrix4): void => {
+        if (companion === undefined) return;
+        companion.matrixAutoUpdate = false;
+        companion.matrix.copy(matrix);
+        companion.matrixWorldNeedsUpdate = true;
+      },
     },
     finish: () => {
       render();

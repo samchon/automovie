@@ -1,23 +1,23 @@
 /**
  * Browser entry for the reusable connected-prior editor. Native browser IO
  * resolves one application-selected CC0 basis; all editing, history, numerical
- * admission and rendering delegate to the same package/viewport owners as the
- * ordinary face page. The selected photo never participates in this replay.
+ * admission and rendering delegate to the human package and resident viewport.
+ * Both face.html and connected-face.html mount this same numerical editor.
+ * The selected photo never participates in this replay.
  */
 import {
   type IAutoMovieHumanFaceBasisDocument,
   parseHumanFaceBasisDocument,
-  serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+import simpleControls from "../../../test/studies/human-face/connected-basis/global-face/simple-controls.json";
 import studyDocuments from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { mountConnectedFacePanel } from "./human/connectedPanel";
-import { createHumanViewport } from "./human/viewport";
-import { createHumanPreviewWorkerPort } from "./human/workerPort";
+import { createConnectedFaceViewport } from "./human/connectedViewport";
+import { createHumanResidentPort } from "./human/residentPort";
 
 async function main(): Promise<void> {
   const basis = await readConnectedFaceAsset({
@@ -40,14 +40,15 @@ async function main(): Promise<void> {
     shape: {},
     expression: {},
   };
-  let viewport!: ReturnType<
-    typeof createHumanViewport<IAutoMovieHumanFaceBasisDocument>
-  >;
+  let viewport!: ReturnType<typeof createConnectedFaceViewport>;
+  let camera!: THREE.PerspectiveCamera;
+  let orbit!: OrbitControls;
   const panel = mountConnectedFacePanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
       basis,
       initial,
+      controlMap: simpleControls,
       studies: studyDocuments.map((document) =>
         parseHumanFaceBasisDocument(JSON.stringify(document)),
       ),
@@ -62,9 +63,8 @@ async function main(): Promise<void> {
         { name: "Pucker", expression: { mouthPucker: 0.5 } },
       ],
       viewport: (canvas) => {
-        const loader = new GLTFLoader();
-        return (viewport = createHumanViewport({
-          serialize: serializeHumanFaceBasisDocument,
+        const loader = new THREE.TextureLoader();
+        return (viewport = createConnectedFaceViewport({
           canvas,
           pixelRatio: devicePixelRatio,
           renderer: new THREE.WebGLRenderer({
@@ -72,15 +72,18 @@ async function main(): Promise<void> {
             antialias: true,
             preserveDrawingBuffer: true,
           }),
-          orbit: (camera) => new OrbitControls(camera, canvas),
+          orbit: (stageCamera) => {
+            camera = stageCamera;
+            return (orbit = new OrbitControls(stageCamera, canvas));
+          },
           worker: () =>
-            createHumanPreviewWorkerPort(
+            createHumanResidentPort(
               new Worker(
                 new URL("./connected-face-worker.ts", import.meta.url),
                 { type: "module" },
               ),
             ),
-          decode: async (bytes) => (await loader.parseAsync(bytes, "")).scene,
+          loadTexture: (asset) => loader.loadAsync(asset),
           observeResize: (resize) => {
             new ResizeObserver(resize).observe(canvas);
           },
@@ -101,6 +104,24 @@ async function main(): Promise<void> {
       snapshot: panel.snapshot,
       document: () => panel.snapshot()?.document,
       camera: viewport.cameraView,
+      // A review places the camera where a photograph's was: position and
+      // target in metres, vertical field of view in degrees. It moves the
+      // display camera only, as an orbit drag would, and lifts the orbit's
+      // distance limits and damping so the placement is exact.
+      look: (view: {
+        position: [number, number, number];
+        target: [number, number, number];
+        fov: number;
+      }): void => {
+        orbit.enableDamping = false;
+        orbit.minDistance = 0;
+        orbit.maxDistance = Infinity;
+        orbit.target.set(...view.target);
+        camera.position.set(...view.position);
+        camera.fov = view.fov;
+        camera.updateProjectionMatrix();
+        orbit.update();
+      },
       finish: viewport.finish,
       renderer: viewport.renderer,
     },

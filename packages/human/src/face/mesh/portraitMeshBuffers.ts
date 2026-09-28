@@ -2,8 +2,8 @@ import { Vector3, inspectAutoMovieMeshTopology } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
- * Materialize the actual glTF precision boundary and refuse new surface loss.
- * Positions and normals are Float32; resident triangle indices are Uint32.
+ * Materialize the shared preview/glTF precision boundary and refuse surface loss.
+ * Positions, normals and UV0 are Float32; resident triangle indices are Uint32.
  * The existing engine weld rule identifies source triangles already redundant
  * at a pole or seam. Preserve that policy by exact face identity, not by an
  * unchanged aggregate count that could hide one newly lost face behind another.
@@ -14,11 +14,14 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * No photograph, subject name, absolute area threshold or renderer verdict
  * exempts a face. All coordinates remain in the input's local metre frame.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Preserves metric facial surface orientation and unit normal directions at actual glTF buffer precision.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Materializes Float32 positions/normals and Uint32 indices, checks finite components and compares each nonredundant triangle's oriented area.
+ * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supplies the precision admission used before preparing a new visible face.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Checks each resident mesh's finite aligned Float32 attributes and face orientation before the preview's topology and publication stages.
+ * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Materializes aligned finite Float32 positions/normals/UV0 and Uint32 indices and compares each nonredundant triangle's oriented area.
  */
 export function portraitMeshBuffers(mesh: IAutoMovieMesh): {
   positions: Float32Array<ArrayBuffer>;
   normals: Float32Array<ArrayBuffer> | null;
+  uvs: Float32Array<ArrayBuffer> | null;
   indices: Uint32Array<ArrayBuffer>;
 } {
   const topology = inspectAutoMovieMeshTopology(mesh);
@@ -28,6 +31,14 @@ export function portraitMeshBuffers(mesh: IAutoMovieMesh): {
     );
   const positions = new Float32Array(mesh.positions);
   const normals = mesh.normals === null ? null : new Float32Array(mesh.normals);
+  const uvs = mesh.uvs === null ? null : new Float32Array(mesh.uvs);
+  if (
+    uvs !== null &&
+    (uvs.length !== (positions.length / 3) * 2 || !uvs.every(Number.isFinite))
+  )
+    throw new Error(
+      "Portrait UV0 must remain complete and finite at Float32 precision.",
+    );
   const indices = new Uint32Array(
     mesh.indices ??
       Array.from({ length: mesh.positions.length / 3 }, (_v, i) => i),
@@ -62,7 +73,7 @@ export function portraitMeshBuffers(mesh: IAutoMovieMesh): {
       "Float32 conversion",
     );
   }
-  return { positions, normals, indices };
+  return { positions, normals, uvs, indices };
 }
 
 function triangleArea(

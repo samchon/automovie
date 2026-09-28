@@ -56,6 +56,9 @@ export const measure = (
           (mesh.normals === null ? 0 : AUTOMOVIE_NORMAL_BYTES) +
           (mesh.uvs === null ? 0 : AUTOMOVIE_UV_BYTES) +
           (mesh.colors === undefined ? 0 : 3 * Float32Array.BYTES_PER_ELEMENT) +
+          (mesh.reliefWeights === undefined
+            ? 0
+            : Float32Array.BYTES_PER_ELEMENT) +
           (mesh.skin === null ? 0 : AUTOMOVIE_SKIN_BYTES)) +
       (mesh.indices === null ? 0 : mesh.indices.length) * AUTOMOVIE_INDEX_BYTES;
   }

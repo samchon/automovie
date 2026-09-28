@@ -1,9 +1,11 @@
 /**
- * Everything this package builds today is a face, and that will not stay true:
- * a body and the things worn on one are the same kind of problem against the
- * same engine. So the face lives in its own folder rather than at the root,
- * and a sibling folder is where the next anatomy goes.
+ * The face and the body are the same kind of problem against the same engine:
+ * a connected numerical basis, compact documents against it, and a static
+ * export. Each anatomy lives in its own folder at this one level, and the
+ * body imports what it shares with the face (region splitting, normals, the
+ * document text envelope) rather than copying it.
  *
- * One level, not a taxonomy. The face's own internals keep the shape they had.
+ * One level, not a taxonomy. Each folder's internals keep their own shape.
  */
+export * from "./body";
 export * from "./face";

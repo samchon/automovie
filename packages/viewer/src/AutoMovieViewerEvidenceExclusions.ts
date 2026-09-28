@@ -9,14 +9,41 @@
  * Positive implementation citations remain on the actual public exports.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis The viewer displays evaluated geometry and does not interpret reusable facial bases or compact editing documents.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis GPU display consumes completed mesh parts; sparse endpoint evaluation and normals before material separation happen in the human builder.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation The viewer displays posed geometry and does not evaluate facial joints, landmarks or attachment weights.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact The viewer displays the resolved face; it does not judge lip, tooth or tongue contact.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation GPU display consumes completed mesh parts; landmark articulation and attachment posing happen before it.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris GPU display draws whatever texture the material holds; the iris texels are painted before the model reaches it.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre GPU display draws whatever texture the material holds; fibre colour and coverage are painted before the model reaches it.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion GPU display maps the material's occlusion texture as it is; the builder computed it.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The viewer renders posed buffers; aperture measurement and contact resolution precede it in the human builder.
  * An exclusion neither implements a feature nor approves a rendered asset.
  * Add a boundary at its semantic owner and retain native graph validation.
  *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The viewer draws the posed model the human body builder emits; it evaluates no basis, joint, measurement or document.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis The viewer consumes the evaluated static body model and holds no basis endpoints or correctives.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The viewer draws already skinned positions; landmark-defined joints and skinning belong to the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements The viewer displays no girth or length; measurement belongs to the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The viewer never reads a compact body document.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The viewer projects the body builder's result and owns none of the body basis, measurement or document contracts.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The viewer consumes the evaluated static body model and holds no basis endpoints or correctives.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The viewer draws already skinned positions; landmark-defined joints and skinning belong to the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The viewer displays no girth or length; measurement belongs to the human package.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The viewer never reads a compact body document.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The viewer hosts no body editing screen; the playground page does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The viewer does not serialize a built body; the human package's exporter does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The viewer owns no body editor inputs or display state.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The viewer owns no body editor transaction or worker boundary.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The viewer does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The viewer does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The viewer draws the underwear part like any other resident mesh; it does not cut it from the skin.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The viewer evaluates no simple-tier table or measured inversion.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The viewer evaluates no underwear region, clip or lift.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The general viewer displays compiled scene state; it does not own detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The general viewer displays compiled scene state; it does not own the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The general viewer displays compiled scene state; it does not own named craniofacial components, cavities and attached tissues.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition The render loop displays resolved skin geometry; it does not author persistent tissue morphology or choose expression crease strengths.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour The GPU lifecycle displays supplied vertex colours; it does not define pigment envelopes or pair facial component assemblies.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps GPU display draws whatever occlusion texture the material holds; the map is baked before the model reaches it.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement The general viewer displays compiled scene state; it does not own anatomical detail overrides and side-specific part replacement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression The general viewer displays compiled scene state; it does not own observed-relative eyelid, oral, dental and gaze performance.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-editor The general viewer displays compiled scene state; it does not own the interactive face editor, camera and file controls.
@@ -27,6 +54,7 @@
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The general viewer displays compiled scene state; it does not own the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The general viewer displays compiled scene state; it does not own human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The general viewer displays compiled scene state; it does not own cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair GPU display consumes completed hair strips and materials; it does not sample scalp roots or integrate numerical styling fields.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition This GPU lifecycle consumes constructed meshes and owns neither anatomical field synthesis nor portrait-local conforming subdivision.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour The GPU lifecycle displays supplied vertex colours; it does not define pigment envelopes or pair facial component assemblies.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The general viewer displays compiled scene state; it does not own ordered face defaults, trait offsets, array replacement and asymmetric detail.

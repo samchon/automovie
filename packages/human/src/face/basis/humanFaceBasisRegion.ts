@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 
 /**
  * Emit a material region from an already evaluated connected surface.
@@ -16,26 +17,5 @@ export function humanFaceBasisRegion(
   normals: number[],
   region: IAutoMovieHumanFaceBasis["surfaces"][number]["regions"][number],
 ): IAutoMovieMesh {
-  const output: IAutoMovieMesh = {
-    positions: [],
-    normals: [],
-    indices: [],
-    uvs: region.uvs === null ? null : [],
-    skin: null,
-  };
-  const vertices = new Map<string, number>();
-  region.indices.forEach((source, corner) => {
-    const uv = region.uvs?.slice(corner * 2, corner * 2 + 2);
-    const key = `${source}/${uv?.join(",") ?? ""}`;
-    let index = vertices.get(key);
-    if (index === undefined) {
-      index = vertices.size;
-      vertices.set(key, index);
-      output.positions.push(...positions.slice(source * 3, source * 3 + 3));
-      output.normals!.push(...normals.slice(source * 3, source * 3 + 3));
-      if (uv !== undefined) output.uvs!.push(...uv);
-    }
-    output.indices!.push(index);
-  });
-  return output;
+  return createHumanFaceBasisRegion(region)(positions, normals);
 }

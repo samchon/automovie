@@ -16,12 +16,39 @@ import { numberOf, numberParameter } from "./parameterValues";
  * The catalogue's articulated figure: one height-driven primitive rig.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-connected-basis This primitive figure catalogue does not provide the connected anatomical face prior or its independent editing document.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Primitive rig construction does not compile sparse facial endpoints or separate connected facial material regions; the human authoring builder owns that operation.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-articulation This primitive figure catalogue carries no facial joints, landmarks or attachment weights.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-contact This primitive figure has no lips, teeth or tongue to keep apart.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Primitive rig construction evaluates no facial rest layer, landmark articulation or sparse attachment posing.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Primitive rig construction has no textured globe and paints no iris.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Primitive rig construction has no brow or lash card and paints no fibre.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion Primitive rig construction has no connected face to occlude.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact The stickman declares no contact block; oral contact belongs to the human face basis.
  *
+ * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The stickman catalogue constructs a primitive skeleton and body; it does not provide the connected body basis, its joints, measurements or documents.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-connected-basis This primitive figure catalogue does not compile a licensed connected body prior or its identity layer.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-joints The stickman rig places joints by height rules, not by shape-following landmarks over a skinned basis.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-measurements The stickman exposes no anthropometric millimetre channels.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-document The stickman has no compact body edit document.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications Primitive rig construction owns none of the body basis, measurement or document contracts.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis This primitive figure catalogue does not compile a licensed connected body prior or its identity layer.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The stickman rig places joints by height rules, not by shape-following landmarks over a skinned basis.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The stickman exposes no anthropometric millimetre channels.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The stickman has no compact body edit document.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The stickman archetype hosts no body editing screen; the playground page does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-export The stickman archetype does not serialize a built body; the human package's exporter does.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The stickman archetype owns no body editor inputs or display state.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The stickman archetype owns no body editor transaction or worker boundary.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The stickman archetype does not write a built body to glTF through the human package.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-simple-shape The stickman archetype does not expand simple body parameters; the human package's expansion does.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The stickman archetype wears no body underwear; the human package's builder cuts it.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The stickman archetype evaluates no simple-tier table or measured inversion.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The stickman archetype evaluates no underwear region, clip or lift.
  * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide detailed facial authoring across document, editor and study review.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-document The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide the standalone human-face recipe, basis and version interpreter.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide named craniofacial components, cavities and attached tissues.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-condition This height-driven primitive proxy has no anatomical facial skin; rest-state and expression-driven skin morphology belongs to independently authored human faces.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-skin-colour This primitive actor has no reference facial tissue or pigmentation regions; it does not synthesize anatomical colour.
+ * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-surface-maps The stickman catalogue builds primitive parts; it bakes no surface map from a face's geometry.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide anatomical detail overrides and side-specific part replacement.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-expression The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide observed-relative eyelid, oral, dental and gaze performance.
  * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-editor The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide the interactive face editor, camera and file controls.
@@ -32,6 +59,7 @@ import { numberOf, numberParameter } from "./parameterValues";
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide the complete face construction, application and review boundary.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide human-face version admission and photo-independent basis interpretation.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide cranial, cervical, ocular, nasal, oral and auricular surface assembly.
+ * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair The height-driven primitive figure has no scalp domain or hair document; its body catalogue does not synthesize anatomical hair.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Primitive proxy construction has no portrait attachment graph, tissue fields or locally refined skin surface to synthesize.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour This primitive actor has no reference facial tissue or pigmentation regions; it does not synthesize anatomical colour.
  * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls The stickman catalogue constructs a coarse primitive skeleton and body; it does not provide ordered face defaults, trait offsets, array replacement and asymmetric detail.

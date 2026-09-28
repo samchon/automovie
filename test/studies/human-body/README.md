@@ -1,8 +1,8 @@
 # Connected body basis studies
 
-This directory holds the reproducible record behind the numerical body basis that `@automovie/human` will evaluate below the neck: pinned reference sources, the anthropometric distributions that bound its channels, and the clinical joint ranges its joints are validated against. The basis itself, its receipts and the study population are added by later topics of [#2519](https://github.com/samchon/automovie/issues/2519); this file is the part that must exist before any geometry is extracted, because every later receipt cites it.
+This directory holds the reproducible record behind the numerical body basis that `@automovie/human` evaluates below the neck: pinned reference sources, the anthropometric distributions that bound its channels, and the clinical joint ranges its joints are validated against. The basis itself lives in [`connected-basis`](connected-basis/README.md) with its extraction, pose-corrective, individuality, envelope, joint and census receipts, and with `archetypes.json`, the simple tier's review population. Every receipt cites this file.
 
-The face lives in [`../human-face/connected-basis`](../human-face/connected-basis/README.md). The body is the remainder of the same MPFB base mesh below the neck clip at Y = -0.145 m, so the two studies share the source revision, the license record and the coordinate frame.
+The face lives in [`../human-face/connected-basis`](../human-face/connected-basis/README.md). The body is the complement of the face collar crop on the same MPFB base mesh, so the two studies share the source revision, the license record and the coordinate frame. An earlier extraction cut the body at the shoulder plane Y = -0.145 m and left a gap below the face collar; the [current extraction](connected-basis/README.md) replaced that cut with the complement of the face triangles.
 
 ## Sources and license
 
@@ -18,7 +18,7 @@ The downloaded files live under the gitignored `.references/` directory at the p
 
 ## Anthropometry
 
-[`anthropometry-percentiles.json`](anthropometry-percentiles.json) is produced by [`test/scripts/body-review/ansur2-percentiles.py`](../../scripts/body-review/ansur2-percentiles.py), which refuses a source CSV whose SHA256 differs from the receipt. For each measurement the body basis exposes as a millimetre channel, or uses to check a joint pivot, it records per sex the sample size, the 5th, 50th and 95th nearest-rank percentiles, the mean and the population standard deviation. Units are millimetres as published; `weightkg` is in tenths of a kilogram.
+[`anthropometry-percentiles.json`](anthropometry-percentiles.json) was produced from the pinned ANSUR II working data by a nearest-rank percentile pass that refused a source CSV whose SHA256 differed from the receipt; the receipt names the producing script and the repository no longer keeps review tooling, so a regeneration re-derives it from the receipt's definitions. For each measurement the body basis exposes as a millimetre channel, or uses to check a joint pivot, it records per sex the sample size, the 5th, 50th and 95th nearest-rank percentiles, the mean and the population standard deviation. Units are millimetres as published; `weightkg` is in tenths of a kilogram.
 
 These distributions decide what a channel's authored endpoints have to reach, not what they are: the endpoints stay the CC0 targets as authored, and a channel whose reach does not cover the 5th to 95th percentile is recorded as such in the basis receipt rather than stretched.
 
@@ -47,4 +47,4 @@ The engine's fallback table `DEFAULT_HUMANOID_ROM` in `@automovie/engine` declar
 
 ## Frame and correspondence with the face
 
-Measured in Blender 5.2 against the committed face basis: subdividing the masked MPFB body once with Catmull-Clark, limit surface on, reproduces all 17,727 non-ring head vertices of the face basis to 0.00000 mm, under the frame `x = x_blender`, `y = z_blender - 1.519431`, `z = -y_blender` (metres, Y up, Z forward). The body basis is published in that same frame so that the 200 ring vertices at the neck clip are the same points in both bases with no translation; the ground plane sits at about Y = -1.519 m and is recorded in the extraction receipt.
+Measured in Blender 5.2 against the committed face basis: subdividing the masked MPFB body once with Catmull-Clark, limit surface on, reproduces all 17,727 non-ring head vertices of the face basis to 0.00000 mm, under the frame `x = x_blender`, `y = z_blender - 1.519431`, `z = -y_blender` (metres, Y up, Z forward). The body basis is published in that same frame with a nonplanar collar loop of 120 source vertices shared with the face, with no translation. Their Y coordinates range from -0.0902116299 m to -0.0807635784 m, and the [extraction receipt](connected-basis/extraction-receipt.json) records 120 vertices on each boundary with 0.0 m worst separation. The ground plane sits at Y = -1.5187 m and is recorded in the same receipt. The receipt also records the frame offset and face/body correspondence; its script digest identifies the offline extraction.

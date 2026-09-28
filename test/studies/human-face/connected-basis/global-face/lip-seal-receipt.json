@@ -1,0 +1,36 @@
+{
+  "source": "mpfb-connected-head-2026-09-24-lower-lash",
+  "revision": "mpfb-connected-head-2026-09-24-lip-seal",
+  "unit": "mouthSmile",
+  "depressor": "mouthLowerDown",
+  "factor": 0.7245459548706681,
+  "apertureMetres": {
+    "rest": 0.000882267951965332,
+    "before": -0.0020140320480346655,
+    "after": 0.000882267951965339
+  },
+  "recorded": "2026-09-24T09:32:21.440Z",
+  "citations": {
+    "posedSmile": "Banditsaowapak P, Cheng JHC. Effects of varying anteroposterior craniodentofacial morphologies on three-dimensional smile variables. J Dent Sci 2025;20(4):2219-2230: rest to posed smile in 41 skeletal Class I adults, inferior point of the upper lip +4.76 +- 2.69 mm (up), superior point of the lower lip -3.28 +- 2.02 mm (down), interlabial gap 1.83 to 10.47 mm."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "cb001c2b8eeb1bb12761c192313eb1bdaf12b954d141fe970ffdbecebbd387ba",
+      "bytes": 26067194
+    },
+    "subjects": {
+      "sha256": "41054cfb06480cd851292688a4bc82236cf17c5b798d43e9819b457449b6e968",
+      "bytes": 75913
+    },
+    "controls": {
+      "sha256": "582b4db65f405312648085e03024728c89f6007786f38bda0897710cb0258763",
+      "bytes": 7449
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "0a84345eb991444920e7b62c97e5f2776eeddc91987f352673d814921ed74025",
+      "bytes": 26111937
+    }
+  }
+}

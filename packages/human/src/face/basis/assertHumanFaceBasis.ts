@@ -1,8 +1,12 @@
-
 import { validateMeshTopology } from "@automovie/engine";
+
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import { assertHumanFaceArticulation } from "./assertHumanFaceArticulation";
+import { assertHumanFaceContact } from "./assertHumanFaceContact";
+
 /**
- * Admit immutable connectivity, endpoint correspondence and triangle partitions.
+ * Admit immutable connectivity, endpoint correspondence and triangle partitions,
+ * then the landmarks, articulation and attachments that ride on them.
  * Called once by the basis builder after schema admission and ownership cloning.
  * This rejects broken data before an edit can allocate a partially formed model.
  * A valid topological surface may still self-intersect; this is not collision
@@ -26,6 +30,10 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   );
   const endpoints = new Set<string>();
   for (const channel of basis.channels) {
+    if (channel.description !== undefined && channel.description.trim() === "")
+      throw new Error(
+        "A supplied facial channel description must be nonempty.",
+      );
     if (
       ![channel.minimum, channel.maximum].every(Number.isFinite) ||
       channel.minimum > 0 ||
@@ -75,6 +83,37 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
       if (channel === undefined || channel[input.side] === null)
         throw new Error(
           "A facial corrective drives off a side no channel carries: " +
+            input.channel +
+            "." +
+            input.side,
+        );
+      // A peak at zero would divide the driver by it, and one past the driver
+      // envelope's unit would never be reached; both name an in-between that
+      // cannot exist.
+      if (
+        input.peak !== undefined &&
+        (!Number.isFinite(input.peak) || input.peak <= 0 || input.peak > 1)
+      )
+        throw new Error(
+          "A facial corrective in-between peaks in (0,1]: " +
+            input.channel +
+            "." +
+            input.side,
+        );
+      // A span has to hold the peak strictly above its lower end, or the
+      // rise would divide by nothing, and its upper end has to reach the peak
+      // and stay inside the envelope.
+      const peak = input.peak ?? 1;
+      if (
+        input.between !== undefined &&
+        (!input.between.every(Number.isFinite) ||
+          input.between[0] < 0 ||
+          input.between[0] >= peak ||
+          input.between[1] < peak ||
+          input.between[1] > 1)
+      )
+        throw new Error(
+          "A facial corrective in-between spans [below, above] with 0 <= below < peak <= above <= 1: " +
             input.channel +
             "." +
             input.side,
@@ -171,8 +210,36 @@ export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
     if (triangles.size !== 0)
       throw new Error("Facial regions cannot omit resident triangles.");
   }
-  if ([...endpoints].some((name) => !residentEndpoints.has(name)))
+  // An endpoint whose whole effect is a joint motion has no residual row to
+  // publish: the articulation is what it moves. Every other endpoint must
+  // reach a surface, or a channel would evaluate to a silent no-op.
+  const jaw = basis.articulation?.jaw;
+  const articulated = new Set(
+    jaw === undefined
+      ? []
+      : [
+          jaw.opening.channel,
+          jaw.protrusion.channel,
+          jaw.laterotrusion.left.channel,
+          jaw.laterotrusion.right.channel,
+          ...basis.articulation!.eyes.flatMap((eye) =>
+            eye.gaze.map((gaze) => gaze.channel),
+          ),
+        ],
+  );
+  const drivenEndpoints = new Set(
+    basis.channels
+      .filter((channel) => articulated.has(channel.id))
+      .map((channel) => channel.positive),
+  );
+  if (
+    [...endpoints].some(
+      (name) => !residentEndpoints.has(name) && !drivenEndpoints.has(name),
+    )
+  )
     throw new Error(
-      "Every declared facial endpoint must move at least one resident surface.",
+      "Every declared facial endpoint must move at least one resident surface or drive a joint.",
     );
+  assertHumanFaceArticulation(basis, endpoints);
+  assertHumanFaceContact(basis);
 }

@@ -1,0 +1,43 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-arch-width",
+  "revision": "mpfb-connected-head-2026-09-26-valid-envelope-2",
+  "limits": [
+    {
+      "channel": "leftEyeElevation",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.75,
+      "faults": 0,
+      "evidence": "1 raises a lit ridge along the medial upper lid"
+    },
+    {
+      "channel": "rightEyeElevation",
+      "side": "maximum",
+      "from": 1,
+      "to": 0.75,
+      "faults": 0,
+      "evidence": "1 raises a lit ridge along the medial upper lid"
+    }
+  ],
+  "recorded": "2026-09-25T22:46:05.335Z",
+  "inputs": {
+    "basis": {
+      "sha256": "f61446ecb0f8eb74a17fd25f025cdf174844c6143e36c9fe0dba9f59d86a55d4",
+      "bytes": 26572450
+    },
+    "subjects": {
+      "sha256": "58e93cbc452ad532c2e30d62a71074c52c464a3d0c323d46fa7832bf53dd27a4",
+      "bytes": 78732
+    },
+    "controls": {
+      "sha256": "855ebfdcf430e66dae0c96759d77843e3ba8112b99b3d0e718428193f5d1aff1",
+      "bytes": 7449
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "a05827cffa29f556b54501b5227990476f96f379e3d9c328967932ad9ba7fb41",
+      "bytes": 26572477
+    }
+  }
+}

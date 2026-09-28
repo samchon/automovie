@@ -26,6 +26,8 @@
 
 skin은 정점 또는 표면 sample에서 bone identity로 가는 정규화된 영향과 bind 기준을 기록하고, morph는 기준 geometry revision에 대한 이름 있는 차이와 허용 범위를 기록한다. 여러 변형이 함께 적용되면 평가 순서와 합성 규칙을 명시하며, topology나 기준 geometry가 바뀌면 기존 skin·morph를 자동 재사용하지 않는다.
 
+변형 목표에 강체 제약을 적용할 때는 기준 형상과 목표 형상의 동일 정점 대응을 사용한다. 기준과 목표의 중심을 분리하고 대응점 제곱 오차를 최소화하는 proper rotation을 구하며, 기준 형상의 배율·반사를 허용하지 않는다. 결과는 회전, 기준 중심과 목표 중심으로 표현한다. 양쪽 XYZ 버퍼는 같은 길이이며 선택 정점은 비어 있지 않은 고유 상주 목록이어야 하고 선택한 좌표와 계산은 유한해야 한다. 회전을 유일하게 정하지 못하는 대응에는 결정적인 최적해를 사용하며 이를 관절의 생리적 기준으로 해석하지 않는다. 이 연산은 강체성을 제한하며 관절 범위나 주변 조직 접촉을 추론하지 않는다.
+
 ### 상태와 동작의 분리 {#asset-spec-state-motion-separation}
 
 <!-- @evidence requirements/asset-authoring/rig-and-state.md#asset-state-motion-distinction 문이 열림, 접힘, 손상됨과 같은 상태를 그 상태로 가는 동작과 구분해야 한다. -->

@@ -1,3 +1,7 @@
+import type { IPortraitColourField } from "../anatomy/skin/structures/IPortraitColourField";
+import type { IAutoMovieHumanFaceHair } from "./IAutoMovieHumanFaceHair";
+import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
+
 /**
  * Compact edits against a separately supplied immutable facial basis.
  * Zero is the source neutral; omitted channels are zero. Negative controls use
@@ -25,54 +29,44 @@ export interface IAutoMovieHumanFaceBasisDocument {
   expression: Record<string, number>;
 
   /**
-   * Optional per-vertex identity, by surface, moving the neutral this document
-   * is edited from.
-   *
-   * The named channels reach the faces the basis was authored to reach, and no
-   * further. A fit against 468 landmarks has 84 shape degrees of freedom and
-   * nearly a thousand constraints, and it converges: the residual at the
-   * landmarks is about a millimetre. What remains is between them — the shape
-   * of a cheek across the span where no landmark sits — and no amount of
-   * channel weight recovers it, because the channels do not describe it.
-   *
-   * MetaHuman's DNA carries a character's neutral as vertex positions and keeps
-   * its rig parametric above them (`GeometryReader.h`: `getVertexPosition`).
-   * This is the same separation. A shared neutral with identity expressed only
-   * as channel weights is the layer this basis was missing.
-   *
-   * Rows are sparse and packed as `[vertex, dx, dy, dz]`, exactly as an
-   * endpoint's `targets` are, and are applied before any channel: identity
-   * moves the neutral, and an expression moves from the neutral this face
-   * actually has. Applying it afterwards would mix the two, so a wider jaw
-   * would open differently from a narrow one for no authored reason.
-   *
-   * Omission is the shared neutral, which is what every face built from this
-   * basis was before. Nothing here infers a delta; it is authored or derived
-   * by the caller like any other geometry.
+   * Optional numerical scalp populations on the basis's shared growth domains.
+   * Omission, null or empty layers is bald. Every lock is generated from fields;
+   * no identity-dependent groom resource or personal guide coordinates resolve.
    */
-  identity?: Record<string, number[]>;
+  hair?: IAutoMovieHumanFaceHair | null;
 
   /**
-   * Optional identity of the seated groom this face wears. Omission is bald,
-   * which is what a connected basis carries on its own: the prior has no hair
-   * surface, so a face only has hair because its document named one. The groom
-   * itself is a separate resource, like the basis, and the consumer resolves
-   * this identity against the grooms it holds.
+   * Numerical pigmentation by basis surface identity. Field centres and radii
+   * use metres in the immutable neutral basis, so shape and expression carry
+   * the same tissue colours. Omission, null and an empty record add no fields.
+   * These compact envelopes carry no image or per-vertex colour array.
+   * Global colour and roughness remain in materials. A surface's fields apply
+   * across its material regions with their common vertex correspondence.
    */
-  hair?: string | null;
+  skin?: Record<string, IPortraitColourField[]> | null;
 
   /**
-   * Optional identity of the observed appearance this face wears. Omission is
-   * the basis's own flat finishes, which is what a connected prior carries: it
-   * has one base colour per material and no maps for skin. The appearance is a
-   * separate resource, like the basis and the groom, and the consumer resolves
-   * this identity against the appearances it holds.
+   * Optional iris pigmentation of each articulated eye, painted by one shared
+   * rule into the basis eye texture's anatomical iris disc. Omission and null
+   * keep the basis texture byte for byte.
    */
-  skin?: string | null;
+  iris?: IAutoMovieHumanFaceIris | null;
 
-  /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
+  /**
+   * Optional overrides by existing material ID: linear RGB `color` and
+   * `roughness`, each in [0,1]. A material whose base-colour texture carries
+   * fibre coverage in its alpha (a brow or lash card cut by a mask or
+   * blended) also takes `pigment`, the fibres' linear RGB albedo in [0,1],
+   * and `density`, a factor on that coverage in [0,4]; both are painted into
+   * the texture by the shared fibre rule.
+   */
   materials?: Record<
     string,
-    { color?: { r: number; g: number; b: number }; roughness?: number }
+    {
+      color?: { r: number; g: number; b: number };
+      roughness?: number;
+      pigment?: [number, number, number];
+      density?: number;
+    }
   >;
 }

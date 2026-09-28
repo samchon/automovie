@@ -1,5 +1,62 @@
-/** Pure inspection choices shared by the browser and its unit scenarios. */
+/**
+ * Pure inspection choices for the browser face review harness. The capture
+ * page and unit scenarios call these functions with explicitly supplied IDs,
+ * pixels, camera values or export records. `resetPortraitWebSubject` alone
+ * mutates the supplied scene object's matrix before a bounds read; the other
+ * inputs remain caller-owned, and the page owns WebGL resources. The hair ID
+ * mask relies on emitted part identity and texture alpha, so its silhouette
+ * reflects visible fibres at the capture camera without inferring hair from
+ * a rendered colour.
+ */
 export const portraitWebModes = ["colour", "clay", "wireframe"];
+
+/** Identify numerical hair independently of a subject or material colour. */
+export function portraitWebHairMaskPart(id) {
+  return id.startsWith("numerical-hair:");
+}
+
+/** Keep fibre alpha while making even a black hair texture a white ID mask. */
+export function portraitWebHairMaskPixels(rgba) {
+  if (rgba.length % 4 !== 0)
+    throw new Error("Hair mask needs complete RGBA pixels.");
+  const white = new Uint8ClampedArray(rgba.length);
+  for (let offset = 0; offset < rgba.length; offset += 4) {
+    white[offset] = white[offset + 1] = white[offset + 2] = 255;
+    white[offset + 3] = rgba[offset + 3];
+  }
+  return white;
+}
+
+/** Use an externally measured view without silently inventing a missing pose. */
+export function portraitWebCapturePose(poses, id, hairMask) {
+  const pose = poses?.[id];
+  if (
+    pose === undefined ||
+    pose === null ||
+    !Number.isFinite(pose.yaw) ||
+    !Number.isFinite(pose.pitch) ||
+    Math.abs(pose.yaw) > 180 ||
+    Math.abs(pose.pitch) >= 90 ||
+    (pose.distance !== undefined &&
+      (!Number.isFinite(pose.distance) || pose.distance <= 0)) ||
+    (pose.target !== undefined &&
+      (pose.target.length !== 3 ||
+        pose.target.some((value) => !Number.isFinite(value)))) ||
+    (pose.fov !== undefined &&
+      (!Number.isFinite(pose.fov) || pose.fov <= 0 || pose.fov >= 180))
+  )
+    throw new Error(
+      "A matched face view needs a finite measured camera pose and frame.",
+    );
+  return {
+    yaw: pose.yaw,
+    pitch: pose.pitch,
+    hairMask,
+    ...(pose.distance === undefined ? {} : { distance: pose.distance }),
+    ...(pose.target === undefined ? {} : { target: [...pose.target] }),
+    ...(pose.fov === undefined ? {} : { fov: pose.fov }),
+  };
+}
 
 /** Reset the subject frame before a close camera reads child world bounds. */
 export function resetPortraitWebSubject(subject) {
@@ -175,4 +232,18 @@ export function portraitWebReferenceFrame(profile) {
       1,
     ],
   };
+}
+
+/**
+ * Alpha test of an exported material, following the product viewer's
+ * `buildMaterial`: `mask` cuts at the material's own `alphaCutoff` (0.5
+ * when absent), `blend` and `opaque` do not cut. A record exported before
+ * alpha fields were carried (no `alphaMode` key at all) keeps the historical
+ * 0.45 so an old census renders as it did.
+ */
+export function portraitWebAlphaTest(material) {
+  if (!Object.hasOwn(material, "alphaMode")) return 0.45;
+  const mode =
+    material.alphaMode ?? ((material.opacity ?? 1) < 1 ? "blend" : "opaque");
+  return mode === "mask" ? (material.alphaCutoff ?? 0.5) : 0;
 }

@@ -1,0 +1,165 @@
+{
+  "source": "mpfb-connected-head-2026-09-25-eyelash",
+  "revision": "mpfb-connected-head-2026-09-26-lip-envelope",
+  "neutral": {
+    "upper": 0.20970887143305417,
+    "lower": 0.25575266504147026
+  },
+  "envelopes": [
+    {
+      "channel": "upperLipHeight",
+      "measure": "upper",
+      "interval": [
+        0.08150830320940519,
+        0.310322608196997
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -2.05,
+        1
+      ],
+      "reached": [
+        0.10756355913742457,
+        0.26730769340364957
+      ],
+      "faults": [
+        0,
+        1
+      ]
+    },
+    {
+      "channel": "lowerLipHeight",
+      "measure": "lower",
+      "interval": [
+        0.09100150364539394,
+        0.3172006648052967
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -2.23,
+        1
+      ],
+      "reached": [
+        0.09100150364539394,
+        0.3258826274221163
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    }
+  ],
+  "recorded": "2026-09-25T17:32:54.170Z",
+  "populations": [
+    {
+      "population": "European men (3D Facial Norms, 19 to 25)",
+      "upper": {
+        "mean": 0.15674603174603174,
+        "spread": 0.037618864268313276
+      },
+      "lower": {
+        "mean": 0.18253968253968253,
+        "spread": 0.04576908944714429
+      }
+    },
+    {
+      "population": "European women (3D Facial Norms, 19 to 25)",
+      "upper": {
+        "mean": 0.1593291404612159,
+        "spread": 0.031351716499719455
+      },
+      "lower": {
+        "mean": 0.19077568134171907,
+        "spread": 0.04196196521104387
+      }
+    },
+    {
+      "population": "Kenyan men (Nairobi, 18 to 30)",
+      "upper": {
+        "mean": 0.24508050089445438,
+        "spread": 0.027389016259542324
+      },
+      "lower": {
+        "mean": 0.24686940966010734,
+        "spread": 0.021716539463734235
+      }
+    },
+    {
+      "population": "Kenyan women (Nairobi, 18 to 30)",
+      "upper": {
+        "mean": 0.2576923076923077,
+        "spread": 0.026315150252344627
+      },
+      "lower": {
+        "mean": 0.26153846153846155,
+        "spread": 0.027831101633417555
+      }
+    },
+    {
+      "population": "Hong Kong Chinese men (3dMD, 18 to 35)",
+      "upper": {
+        "mean": 0.20523138832997986,
+        "spread": 0.04026846346276782
+      },
+      "lower": {
+        "mean": 0.2209255533199195,
+        "spread": 0.036012870445295754
+      }
+    },
+    {
+      "population": "Hong Kong Chinese women (3dMD, 18 to 35)",
+      "upper": {
+        "mean": 0.20119521912350596,
+        "spread": 0.0405575734693937
+      },
+      "lower": {
+        "mean": 0.21668880035413898,
+        "spread": 0.04003310018557503
+      }
+    },
+    {
+      "population": "Korean women (3D, 20 to 39)",
+      "upper": {
+        "mean": 0.15545556805399324,
+        "spread": 0.030071062009953232
+      },
+      "lower": {
+        "mean": 0.2155230596175478,
+        "spread": 0.03463913546005463
+      }
+    }
+  ],
+  "citations": {
+    "european": "Wong/Weinberg et al., 3D Facial Norms compared with Farkas (PMC6571015), supplementary tables S17 (ch-ch), S22 (ls-sto) and S23 (sto-li): 3dMD, ages 19 to 25, 320 men and 575 women.",
+    "kenyan": "Virdi SS, Wertheim D, Naini FB, Maxillofac Plast Reconstr Surg 2019;41:9 (PMC6384287): direct anthropometry, Nairobi university sample aged 18 to 30, 36 men and 36 women; African-American means (Farkas, Katic and Forrest 2007) agree but carry no deviations.",
+    "chinese": "Jayaratne YSN et al., 3dMD, Hong Kong Chinese aged 18 to 35, 51 men and 52 women.",
+    "korean": "Kwon SH et al., Ann Dermatol 2021;33:52-60 (PMC7875215): 3D, Korean women aged 20 to 39, 48.",
+    "excluded": "Samples chosen for attractiveness, facial harmony or occlusion, orthodontic and surgical patients."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "0d28509be10b6a96b51ac6c947469d74a300fe65e686f09ed8b0f7064205d7eb",
+      "bytes": 26324734
+    },
+    "subjects": {
+      "sha256": "5208a81afdf871ce8fefd347756a1f93b81635a89b10cf956fd101a82e4d48c6",
+      "bytes": 78678
+    },
+    "controls": {
+      "sha256": "87a2277f085d370d28c270a40542d4fde1d74f263a0e976b8d74dfb1677b8173",
+      "bytes": 7446
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "e2aa12d13d1c3892afc8efb8fe89fa8126ea569c39b056e86132014b5f90e94b",
+      "bytes": 26324771
+    }
+  }
+}

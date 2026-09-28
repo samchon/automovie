@@ -1,14 +1,27 @@
-import { mergeAutoMovieMeshes, readAutoMovieImageFacts, tessellate, validateMeshTopology, validateModel } from "@automovie/engine";
+import {
+  mergeAutoMovieMeshes,
+  readAutoMovieImageFacts,
+  tessellate,
+  validateMeshTopology,
+  validateModel,
+} from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { Document } from "@gltf-transform/core";
-import { KHRMaterialsClearcoat, KHRMaterialsIOR, KHRMaterialsTransmission, KHRMaterialsVolume } from "@gltf-transform/extensions";
+import {
+  KHRMaterialsClearcoat,
+  KHRMaterialsIOR,
+  KHRMaterialsTransmission,
+  KHRMaterialsVolume,
+} from "@gltf-transform/extensions";
+
 import { placePortraitMesh } from "../mesh/placePortraitMesh";
 import { portraitMeshBuffers } from "../mesh/portraitMeshBuffers";
 
 /**
  * Convert a static AutoMovie portrait into portable glTF buffers and materials.
  * Metallic/roughness colour, emission, alpha modes and scalar optical material
- * fields and resident PNG base-colour and normal textures are preserved.
+ * fields and resident PNG base-colour, normal and occlusion textures are
+ * preserved.
  * External images, other texture slots and rigs are refused. PNG headers and positive extents
  * are inspected here; the receiving image decoder owns payload decoding.
  * Positive volume
@@ -27,13 +40,13 @@ export function portraitDocument(model: IAutoMovieModel): Document {
   if (
     model.skeleton !== null ||
     model.materials.some((m) =>
-      [m.metallicRoughnessTexture, m.occlusionTexture, m.emissiveTexture].some(
+      [m.metallicRoughnessTexture, m.emissiveTexture].some(
         (binding) => binding !== null && binding !== undefined,
       ),
     )
   )
     throw new Error(
-      "Portrait export accepts static models with resident base-colour and normal PNG only.",
+      "Portrait export accepts static models with resident base-colour, normal and occlusion PNG only.",
     );
   const document = new Document();
   const buffer = document.createBuffer();
@@ -109,7 +122,11 @@ export function portraitDocument(model: IAutoMovieModel): Document {
           : alphaModes[finish.alphaMode],
       )
       .setAlphaCutoff(finish.alphaCutoff ?? 0.5);
-    for (const slot of ["baseColorTexture", "normalTexture"] as const) {
+    for (const slot of [
+      "baseColorTexture",
+      "normalTexture",
+      "occlusionTexture",
+    ] as const) {
       const binding = finish[slot];
       if (binding === null || binding === undefined) continue;
       // glTF admits exactly two image encodings, and which one a map wants is
@@ -162,11 +179,16 @@ export function portraitDocument(model: IAutoMovieModel): Document {
       if (slot === "baseColorTexture") {
         material.setBaseColorTexture(texture);
         material.getBaseColorTextureInfo()!.setWrapS(33071).setWrapT(33071);
-      } else {
+      } else if (slot === "normalTexture") {
         material
           .setNormalTexture(texture)
           .setNormalScale(finish.normalScale ?? 1);
         material.getNormalTextureInfo()!.setWrapS(33071).setWrapT(33071);
+      } else {
+        material
+          .setOcclusionTexture(texture)
+          .setOcclusionStrength(finish.occlusionStrength ?? 1);
+        material.getOcclusionTextureInfo()!.setWrapS(33071).setWrapT(33071);
       }
     }
     if (finish.transmission !== undefined || finish.thickness !== undefined)
@@ -238,24 +260,15 @@ export function portraitDocument(model: IAutoMovieModel): Document {
           .setArray(new Float32Array(mesh.colors))
           .setBuffer(buffer),
       );
-    if (mesh.uvs !== null) {
-      const uvs = new Float32Array(mesh.uvs);
-      if (
-        uvs.length !== (packed.positions.length / 3) * 2 ||
-        !uvs.every(Number.isFinite)
-      )
-        throw new Error(
-          "Portrait UV0 must remain complete and finite at Float32 precision.",
-        );
+    if (packed.uvs !== null)
       primitive.setAttribute(
         "TEXCOORD_0",
         document
           .createAccessor()
           .setType("VEC2")
-          .setArray(uvs)
+          .setArray(packed.uvs)
           .setBuffer(buffer),
       );
-    }
     scene.addChild(
       document
         .createNode(finish.id)

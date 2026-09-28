@@ -38,6 +38,11 @@ const flat = blade([
  * 4. Coplanar and overlapping is reported with coplanar true; coplanar and apart is not reported.
  * 5. An absent index buffer means consecutive position triples, and malformed buffers refuse.
  * 6. Ordinals follow the first mesh's own triangle order, and neither input is mutated.
+ * 7. Two triangles of one surface that share a corner and bend gently across
+ *    it are not a crossing, however the shared corner sits in either corner
+ *    list and including an exact pair from the shipped body skin that the
+ *    barycentric residue used to report; a fold that drives an edge of one
+ *    through the other still is.
  */
 export const test_geometry_mesh_crossings = (): void => {
   const through = blade([
@@ -220,5 +225,56 @@ export const test_geometry_mesh_crossings = (): void => {
     "neither input is mutated",
     JSON.stringify(pair),
     snapshot,
+  );
+  // Neighbours on a curved surface: both meet at (1, 0, 0), the second tilting
+  // slightly upward, in every rotation of its corner list.
+  for (const rotate of [0, 1, 2]) {
+    const corners = [
+      [1, 0, 0],
+      [2, 0.01, 0.05],
+      [1, 1.001, 0.03],
+    ];
+    const neighbour = blade([
+      ...corners.slice(rotate),
+      ...corners.slice(0, rotate),
+    ]);
+    TestValidator.equals(
+      "a gently bent neighbour sharing a corner is not a crossing " + rotate,
+      measureAutoMovieMeshCrossings(flat, neighbour),
+      [],
+    );
+  }
+  // Two neighbouring skin triangles of the shipped body, copied exactly: they
+  // share their corner at x = -0.0803 and the surface bends by a few degrees
+  // between them. The barycentric test alone reported them as crossed, which
+  // read every seam of a partitioned body as a collision; the corner must be
+  // excluded by identity before the arithmetic.
+  const skinA = blade([
+    [-0.07281415909528732, -0.5830061435699463, -0.06736848503351212],
+    [-0.08017368614673615, -0.5966654419898987, -0.07248512655496599],
+    [-0.08033677190542221, -0.5835632681846619, -0.06539095193147659],
+  ]);
+  const skinB = blade([
+    [-0.07291097939014435, -0.5704334378242493, -0.05966000258922577],
+    [-0.08033677190542221, -0.5835632681846619, -0.06539095193147659],
+    [-0.08007320761680602, -0.5711591839790344, -0.05790312588214874],
+  ]);
+  TestValidator.equals(
+    "adjacent skin triangles sharing one corner do not cross",
+    measureAutoMovieMeshCrossings(skinA, skinB),
+    [],
+  );
+  // The same shared corner, but the neighbour folds back through the
+  // reference: its far edge runs from below the plane to above it inside the
+  // reference's interior, which is a real crossing.
+  const folded = blade([
+    [1, 0, 0],
+    [0.2, 0.2, -0.1],
+    [0.3, 0.3, 0.1],
+  ]);
+  TestValidator.equals(
+    "a fold through a shared corner still crosses",
+    measureAutoMovieMeshCrossings(flat, folded),
+    [{ triangle: 0, other: 0, coplanar: false }],
   );
 };

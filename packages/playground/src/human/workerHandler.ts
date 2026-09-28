@@ -22,6 +22,12 @@ export function createHumanFaceWorkerHandler<
   build: (document: Document) => Model;
   /** Optional crossing measurement, run only when a request asks for it. */
   measure?: (model: Model) => IAutoMovieModelCrossing[];
+  /**
+   * Optional structured-cloneable facts about the built model that travel
+   * beside the bytes (a body's posed bone transforms, which the page needs to
+   * seat the face); absent for a face, which carries none.
+   */
+  describe?: (model: Model) => Record<string, unknown>;
   export: (
     model: Model,
   ) => Promise<{ glb: Uint8Array<ArrayBuffer>; gltf: JSONDocument }>;
@@ -34,6 +40,7 @@ export function createHumanFaceWorkerHandler<
           gltf: JSONDocument;
           parts: number;
           crossings: IAutoMovieModelCrossing[] | null;
+          extras?: Record<string, unknown>;
         }
       | { success: false; error: string },
     transfer?: ArrayBuffer[],
@@ -55,6 +62,9 @@ export function createHumanFaceWorkerHandler<
             measure && props.measure !== undefined
               ? props.measure(model)
               : null,
+          ...(props.describe === undefined
+            ? {}
+            : { extras: props.describe(model) }),
         },
         [glb.buffer],
       );

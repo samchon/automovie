@@ -1,0 +1,52 @@
+{
+  "sourceCommit": "3bc7702058484fc8aa9bd2f648023c466abf98d2",
+  "sourceBasis": "mpfb-connected-head-2026-09-21-fine-141-rigid",
+  "basis": "mpfb-connected-head-2026-09-22-numerical-hair",
+  "documents": 18,
+  "facialValuesUnchanged": true,
+  "inputs": [
+    {
+      "file": "studies/human-face/connected-basis/global-face/basis.json.gz",
+      "bytes": 23482892,
+      "sha256": "0daa1dcd05b312036e153334e416ea47d39850278da62c9ab9e2cbc9e51be1c8"
+    },
+    {
+      "file": "../.shots/face-2533/prepared-numerical-hair-basis/basis.json.gz",
+      "bytes": 23491139,
+      "sha256": "5dbb05ff01925fa6fca8af6e46720d4735ef8a36fba5f7a77dfe2666cfbf2a35"
+    },
+    {
+      "file": "studies/human-face/connected-basis/global-face/subjects.json",
+      "bytes": 115091,
+      "sha256": "7913257e3676ceed9ccef3cf0d1ebf9d4eb5d0afe82861c63cdcdd5b5f48790a"
+    },
+    {
+      "file": "studies/human-face/connected-basis/global-face/simple-controls.json",
+      "bytes": 6349,
+      "sha256": "e7e304cb7544c42d59694261a43d72e53fb006aab5246ac042d7e64b33542ff8"
+    },
+    {
+      "file": "../.shots/face-2533/numerical-hairstyles-candidate.json",
+      "bytes": 42347,
+      "sha256": "9bd56ee1a433de5ece9e909eaafb76dd4361d8bd6e98f0e04f4ec3e10270642f"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "basis.json.gz",
+      "bytes": 23491139,
+      "sha256": "5dbb05ff01925fa6fca8af6e46720d4735ef8a36fba5f7a77dfe2666cfbf2a35"
+    },
+    {
+      "file": "subjects.json",
+      "bytes": 154119,
+      "sha256": "dc478cf542a5c0f45e1cd17d0032e4dd03c78d4af0257e72be9d1efdc48d703f"
+    },
+    {
+      "file": "simple-controls.json",
+      "bytes": 6349,
+      "sha256": "8cf0a383846801f692e925538b07caa61b266921601c806cee5896903f313104"
+    }
+  ],
+  "acceptance": "Numerical document migration and byte-exact offline replay verified. The built editor admitted all 18 study options; selection, scalar length editing, undo/redo, saved-document restoration, legacy-key refusal and GLB export passed on a real GPU for Alan Rickman. Its browser GLB exactly matched native export. Population runtime inspection remains in progress. Observed hairline, posterior coverage and long-hair defects are unresolved; anatomy and hairstyle likeness are not accepted. Local full suite: 1359/1369 passed, ten timing-only failures; targeted recheck: 10/12 passed, oral-chamber panel and skin-identity scenarios still exceeded 500 ms."
+}

@@ -1,0 +1,86 @@
+{
+  "source": "mpfb-connected-head-2026-09-24-closed-lips",
+  "revision": "mpfb-connected-head-2026-09-25-vermilion",
+  "ancestries": [
+    {
+      "channel": "europeanAncestry",
+      "factor": -0.48442027385467495,
+      "corners": [
+        {
+          "label": "North American White men",
+          "targetMetres": 0.0078,
+          "beforeMetres": 0.008759274483126685,
+          "afterMetres": 0.00862154694235372
+        },
+        {
+          "label": "North American White women",
+          "targetMetres": 0.0087,
+          "beforeMetres": 0.00909524845316257,
+          "afterMetres": 0.007878453057648203
+        }
+      ]
+    },
+    {
+      "channel": "africanAncestry",
+      "factor": 0.39881398693509656,
+      "corners": [
+        {
+          "label": "African-American men",
+          "targetMetres": 0.0136,
+          "beforeMetres": 0.011141610336448369,
+          "afterMetres": 0.0127061809417061
+        },
+        {
+          "label": "African-American women",
+          "targetMetres": 0.0133,
+          "beforeMetres": 0.012629248453221501,
+          "afterMetres": 0.014193819058293894
+        }
+      ]
+    },
+    {
+      "channel": "asianAncestry",
+      "factor": -1.7411126573074442,
+      "corners": [
+        {
+          "label": "Korean men",
+          "targetMetres": 0.0074,
+          "beforeMetres": 0.011931610336414308,
+          "afterMetres": 0.0075581809423405436
+        },
+        {
+          "label": "Korean women",
+          "targetMetres": 0.007,
+          "beforeMetres": 0.01121524845203721,
+          "afterMetres": 0.006841819057377095
+        }
+      ]
+    }
+  ],
+  "recorded": "2026-09-24T18:49:24.067Z",
+  "citations": {
+    "european": "Farkas LG, Katic MJ, Forrest CR. Comparison of craniofacial measurements of young adult African-American and North American white males and females. Ann Plast Surg 2007;59(6):692-698; ls-sto as Virdi SS, Wertheim D, Naini FB, Maxillofac Plast Reconstr Surg 2019;41:9, Table 6, reports it (Kenyan mean less the stated difference): NAW men 7.8 mm (n 109), women 8.7 mm (n 200).",
+    "african": "The same source and table: African-American men 13.6 mm, women 13.3 mm (n 50 each).",
+    "asian": "Kim WS, Hong JS, Kim HK, Kim SH. Photogrammetric study of lip in young population in Korean. J Korean Soc Plast Reconstr Surg 2005;32(2):155-160: height of upper vermilion 0.74 (0.16) cm in 917 men and 0.70 (0.15) cm in 1312 women aged 18 to 33; Kwon et al., Ann Dermatol 2021;33:52, ls-stm 6.91 (1.26) mm in Korean women aged 20 to 39, agrees."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "0f441e97a3b04aaf5203eec0b61fbc32295b92b5743e637978fe50abc38eace8",
+      "bytes": 26301815
+    },
+    "subjects": {
+      "sha256": "453e367b4fea89ca987b9525aff160ba07bd669b1618dbee85c5ba939e3aa650",
+      "bytes": 78456
+    },
+    "controls": {
+      "sha256": "84eea69642b0c23c97e0786869a4bab6aa46290eedd7b6f0e4aa1c196fb0aad9",
+      "bytes": 7450
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "a047912410ddc31f4d8d4cae1618986bd183f8c333c6bc2a4a7ba6e0a5bf83c8",
+      "bytes": 26346911
+    }
+  }
+}

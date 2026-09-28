@@ -48,3 +48,6 @@ test/src/**/*.d.ts
 test/studies/**/*.js
 test/studies/**/*.js.map
 test/studies/**/*.d.ts
+
+# Python bytecode from the offline Blender extraction modules
+__pycache__/

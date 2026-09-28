@@ -1,0 +1,46 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-smile-retraction",
+  "revision": "mpfb-connected-head-2026-09-27-face-breadth",
+  "channel": "faceBreadth",
+  "frame": {
+    "canthus": 0.04271348565816879,
+    "side": 0.08094673603773117,
+    "brow": 0.0493486141145955,
+    "zygion": 0.0340359802246094,
+    "tip": -0.002964019775390625,
+    "mouth": -0.03252929449081421,
+    "ear": 0.03801667439585475,
+    "behind": 0.03
+  },
+  "unit": 0.004,
+  "envelope": [
+    -2,
+    2
+  ],
+  "rows": 4546,
+  "faultsAtEnds": [
+    0,
+    0
+  ],
+  "recorded": "2026-09-27T01:33:37.611Z",
+  "inputs": {
+    "basis": {
+      "sha256": "5b771319f6362f3f48663df2aa7102e7dfd3f3a9e9b6adc24c5634781faad3c0",
+      "bytes": 27028817
+    },
+    "subjects": {
+      "sha256": "e03f7ce9491b5ac1dc4b0baac2340ece6e870c1795cc2c5fe447d407fa11c94a",
+      "bytes": 82849
+    },
+    "controls": {
+      "sha256": "ecdb5a9fdcc460c8910add7df15f212dea0eabca563b02156d12c938418d470a",
+      "bytes": 7455
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "e166a2b4cd8ec683d665c5e15e29d0d9e668d86ea2be767bc9438c8485b39d07",
+      "bytes": 27137928
+    }
+  }
+}

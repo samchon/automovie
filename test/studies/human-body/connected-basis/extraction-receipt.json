@@ -1,0 +1,4191 @@
+{
+  "id": "mpfb-connected-body-2026-09-21-coronal-limits",
+  "recorded": "2026-09-21",
+  "sources": "test/studies/human-body/references-receipt.json",
+  "script": {
+    "path": "test/scripts/body-review/extract-body-basis.py",
+    "sha256": "e2df40139cb5b32b8fa5be5a061d683ed392da90051080ede70a9c1cb639e899"
+  },
+  "blender": "5.2.0 LTS",
+  "frame": {
+    "offset": 1.5194313526153564,
+    "groundY": -1.5187464784830809,
+    "cut": "complement of the face basis surface triangles; the boundary is the face's neck crop loop"
+  },
+  "correspondence": {
+    "faceBasis": "mpfb-connected-head-2026-09-20-rigid-mandible",
+    "offset": 1.5194313526153564,
+    "matchedVertices": 17727,
+    "worstMatchMetres": 0.0,
+    "uvCornersCompared": 91458,
+    "uvWorstPlain": 0.959621999412775,
+    "uvWorstFlipped": 0.0,
+    "invertV": true
+  },
+  "boundary": {
+    "faceLoop": 120,
+    "bodyBoundary": 120,
+    "worstMetres": 0.0,
+    "bodyBoundaryYMetres": [
+      -0.09021162986755371,
+      -0.08076357841491699
+    ]
+  },
+  "vertices": {
+    "kept": 36810,
+    "droppedToFace": 33526,
+    "triangles": 73498
+  },
+  "nippleFlattening": {
+    "regionVertices": 538,
+    "boundaryVertices": 128,
+    "maxDisplacementMetres": 0.005664734015792598,
+    "meanDisplacementMetres": 0.0020884690336463495,
+    "definedBy": [
+      "breast/nipple-size-incr",
+      "breast/nipple-point-incr"
+    ],
+    "method": "biharmonic fill of the region with two surrounding rings fixed, applied to every state"
+  },
+  "endpointRowResolutionMetres": 1e-06,
+  "neutralRecoveryMaximumMetres": {
+    "Human": 0.0,
+    "landmarks": 0.0
+  },
+  "basisMirror": {
+    "rmsMetres": 6.411238955869806e-08,
+    "worstMetres": 3.5801571129923104e-07,
+    "involution": true,
+    "midlineVertices": 162,
+    "leftRightEndpointWorstMetres": 6.668269675870181e-05,
+    "pairs": {
+      "lowerarmScaleDepthLeft": {
+        "positive": 3.625620960295719e-07,
+        "negative": 4.77999893794818e-07
+      },
+      "upperarmScaleHorizLeft": {
+        "positive": 4.777675730550706e-07,
+        "negative": 4.851466594964178e-07
+      },
+      "upperarmFatLeft": {
+        "positive": 4.777712039354027e-07,
+        "negative": 4.77999893794818e-07
+      },
+      "lowerarmFatLeft": {
+        "positive": 4.777820964108429e-07,
+        "negative": 3.5886748369909214e-07
+      },
+      "lowerarmScaleHorizLeft": {
+        "positive": 3.626374460350858e-07,
+        "negative": 4.77999893794818e-07
+      },
+      "lowerarmMuscleLeft": {
+        "positive": 3.588783597713298e-07,
+        "negative": 3.6863436927953305e-07
+      },
+      "upperarmShoulderMuscleLeft": {
+        "positive": 4.76837158203125e-07,
+        "negative": 4.78942537968142e-07
+      },
+      "upperarmScaleDepthLeft": {
+        "positive": 2.2351741790771484e-08,
+        "negative": 1.4901161193847656e-08
+      },
+      "lowerarmScaleVertLeft": {
+        "positive": 3.625608998714816e-07,
+        "negative": 4.805480091749757e-07
+      },
+      "upperarmMuscleLeft": {
+        "positive": 4.777712039354027e-07,
+        "negative": 3.68709654559452e-07
+      },
+      "upperarmScaleVertLeft": {
+        "positive": 4.777675730550706e-07,
+        "negative": 4.76837158203125e-07
+      },
+      "upperlegFatLeft": {
+        "positive": 2.385349660155493e-07,
+        "negative": 2.384476811558792e-07
+      },
+      "lowerlegMuscleLeft": {
+        "positive": 6.668269675870181e-05,
+        "negative": 1.490145222931011e-07
+      },
+      "legValgusLeft": {
+        "positive": 2.385349660155493e-07,
+        "negative": 2.4027400458748785e-07
+      },
+      "lowerlegScaleDepthLeft": {
+        "positive": 2.9802322387695312e-08,
+        "negative": 2.2351741790771484e-08
+      },
+      "lowerlegScaleVertLeft": {
+        "positive": 1.2013700229374393e-07,
+        "negative": 1.1920928955078125e-07
+      },
+      "upperlegScaleDepthLeft": {
+        "positive": 2.9802322387695312e-08,
+        "negative": 2.2351741790771484e-08
+      },
+      "upperlegScaleHorizLeft": {
+        "positive": 2.388837865275353e-07,
+        "negative": 2.388837865275353e-07
+      },
+      "lowerlegFatLeft": {
+        "positive": 9.071674691055656e-08,
+        "negative": 9.424321830774485e-08
+      },
+      "lowerlegScaleHorizLeft": {
+        "positive": 5.960464477539063e-08,
+        "negative": 5.960464477539063e-08
+      },
+      "upperlegMuscleLeft": {
+        "positive": 1.84354827279726e-07,
+        "negative": 2.9813961647029e-07
+      },
+      "upperlegScaleVertLeft": {
+        "positive": 1.7943374184954607e-07,
+        "negative": 1.7943374184954607e-07
+      },
+      "handTransInOutLeft": {
+        "positive": 3.579381748874281e-07,
+        "negative": 4.805480091749757e-07
+      },
+      "handFingersLengthLeft": {
+        "positive": 3.2236140449023154e-07,
+        "negative": 2.669762502188819e-07
+      },
+      "handScaleLeft": {
+        "positive": 3.6378370570342845e-07,
+        "negative": 3.6010283153040923e-07
+      },
+      "handFingersDiameterLeft": {
+        "positive": 3.009887021291875e-07,
+        "negative": 2.7028258364226004e-07
+      },
+      "handFingersDistanceLeft": {
+        "positive": 2.5463115409962923e-07,
+        "negative": 3.5886748369909214e-07
+      },
+      "footScaleHorizLeft": {
+        "positive": 5.960464477539063e-08,
+        "negative": 5.960464477539063e-08
+      },
+      "footTransInOutLeft": {
+        "positive": 7.450580596923828e-08,
+        "negative": 7.450580596923828e-08
+      },
+      "footScaleVertLeft": {
+        "positive": 5.960464477539063e-08,
+        "negative": 2.9802322387695312e-08
+      },
+      "footTransBackwardForwardLeft": {
+        "positive": 6.388872861862183e-05,
+        "negative": 6.666406989097595e-05
+      },
+      "footScaleDepthLeft": {
+        "positive": 7.450580596923828e-08,
+        "negative": 5.960464477539063e-08
+      },
+      "footScaleLeft": {
+        "positive": 8.940696716308594e-08,
+        "negative": 6.666604492132843e-08
+      },
+      "footTransDownUpLeft": {
+        "positive": 8.940696716308594e-08,
+        "negative": 5.960464477539063e-08
+      }
+    }
+  },
+  "channels": {
+    "regional": 124,
+    "macro": 8,
+    "endpoints": 264
+  },
+  "endpointDisplacement": {
+    "torso/torso-trans-backward": {
+      "rmsMetres": 0.04849028907033924,
+      "maxMetres": 0.050000131130218506,
+      "movedVertices": 23093
+    },
+    "torso/torso-trans-forward": {
+      "rmsMetres": 0.04849029552564314,
+      "maxMetres": 0.05000010132789612,
+      "movedVertices": 23093
+    },
+    "torso/torso-muscle-pectoral-decr": {
+      "rmsMetres": 0.003114390005149466,
+      "maxMetres": 0.005882888509476563,
+      "movedVertices": 2243
+    },
+    "torso/torso-muscle-pectoral-incr": {
+      "rmsMetres": 0.014949024084015567,
+      "maxMetres": 0.033926056594304144,
+      "movedVertices": 2351
+    },
+    "torso/measure-underbust-circ-decr": {
+      "rmsMetres": 0.004491053367822262,
+      "maxMetres": 0.008504918839678207,
+      "movedVertices": 4976
+    },
+    "torso/measure-underbust-circ-incr": {
+      "rmsMetres": 0.01335932052944202,
+      "maxMetres": 0.025658319587520614,
+      "movedVertices": 5138
+    },
+    "torso/torso-scale-horiz-decr": {
+      "rmsMetres": 0.030098524299125188,
+      "maxMetres": 0.0338001549243927,
+      "movedVertices": 23135
+    },
+    "torso/torso-scale-horiz-incr": {
+      "rmsMetres": 0.03067792504060103,
+      "maxMetres": 0.034200191497802734,
+      "movedVertices": 22427
+    },
+    "torso/torso-scale-depth-decr": {
+      "rmsMetres": 0.009604258021436688,
+      "maxMetres": 0.017396491368486117,
+      "movedVertices": 7292
+    },
+    "torso/torso-scale-depth-incr": {
+      "rmsMetres": 0.01658984884218916,
+      "maxMetres": 0.03297317773103714,
+      "movedVertices": 7069
+    },
+    "torso/measure-napetowaist-dist-decr": {
+      "rmsMetres": 0.04215325853111542,
+      "maxMetres": 0.04690825939178467,
+      "movedVertices": 23483
+    },
+    "torso/measure-napetowaist-dist-incr": {
+      "rmsMetres": 0.07077842225797969,
+      "maxMetres": 0.07870006561279297,
+      "movedVertices": 23482
+    },
+    "torso/measure-waisttohip-dist-decr": {
+      "rmsMetres": 0.04690659386638704,
+      "maxMetres": 0.048000335693359375,
+      "movedVertices": 24027
+    },
+    "torso/measure-waisttohip-dist-incr": {
+      "rmsMetres": 0.07493559049945224,
+      "maxMetres": 0.07610046863555908,
+      "movedVertices": 23219
+    },
+    "torso/measure-shoulder-dist-decr": {
+      "rmsMetres": 0.012583302654629877,
+      "maxMetres": 0.013500213623046875,
+      "movedVertices": 20028
+    },
+    "torso/measure-shoulder-dist-incr": {
+      "rmsMetres": 0.023969945022015247,
+      "maxMetres": 0.02490025758743286,
+      "movedVertices": 18638
+    },
+    "torso/measure-hips-circ-decr": {
+      "rmsMetres": 0.007912319336987977,
+      "maxMetres": 0.017721205891101193,
+      "movedVertices": 3249
+    },
+    "torso/measure-hips-circ-incr": {
+      "rmsMetres": 0.01563687015376486,
+      "maxMetres": 0.03547785438103694,
+      "movedVertices": 3331
+    },
+    "torso/torso-vshape-decr": {
+      "rmsMetres": 0.024311764749704482,
+      "maxMetres": 0.026700139045715332,
+      "movedVertices": 21186
+    },
+    "torso/torso-vshape-incr": {
+      "rmsMetres": 0.024353175656316273,
+      "maxMetres": 0.026700198650360107,
+      "movedVertices": 21114
+    },
+    "torso/torso-trans-down": {
+      "rmsMetres": 0.06811776334288848,
+      "maxMetres": 0.07020044326782227,
+      "movedVertices": 23026
+    },
+    "torso/torso-trans-up": {
+      "rmsMetres": 0.09827957206542577,
+      "maxMetres": 0.10000050067901611,
+      "movedVertices": 22082
+    },
+    "torso/torso-muscle-dorsi-decr": {
+      "rmsMetres": 0.008006460089537109,
+      "maxMetres": 0.027665902238314246,
+      "movedVertices": 3185
+    },
+    "torso/torso-muscle-dorsi-incr": {
+      "rmsMetres": 0.008006462711925347,
+      "maxMetres": 0.027665884529414996,
+      "movedVertices": 3185
+    },
+    "torso/measure-waist-circ-decr": {
+      "rmsMetres": 0.01201053538859809,
+      "maxMetres": 0.027804259232617007,
+      "movedVertices": 3840
+    },
+    "torso/measure-waist-circ-incr": {
+      "rmsMetres": 0.012010535328805758,
+      "maxMetres": 0.0278042741550574,
+      "movedVertices": 3840
+    },
+    "torso/measure-frontchest-dist-decr": {
+      "rmsMetres": 0.009779297363829613,
+      "maxMetres": 0.015552821409049983,
+      "movedVertices": 3003
+    },
+    "torso/measure-frontchest-dist-incr": {
+      "rmsMetres": 0.007718501663783322,
+      "maxMetres": 0.02176446022132362,
+      "movedVertices": 2648
+    },
+    "torso/torso-scale-vert-decr": {
+      "rmsMetres": 0.03885873932131677,
+      "maxMetres": 0.04310035705566406,
+      "movedVertices": 23579
+    },
+    "torso/torso-scale-vert-incr": {
+      "rmsMetres": 0.09824943608529825,
+      "maxMetres": 0.10280048847198486,
+      "movedVertices": 22807
+    },
+    "torso/measure-bust-circ-decr": {
+      "rmsMetres": 0.015460559537024306,
+      "maxMetres": 0.031785479733064954,
+      "movedVertices": 5455
+    },
+    "torso/measure-bust-circ-incr": {
+      "rmsMetres": 0.017535816222291598,
+      "maxMetres": 0.043480838405703125,
+      "movedVertices": 5555
+    },
+    "torso/torso-trans-in": {
+      "rmsMetres": 0.048509215757406514,
+      "maxMetres": 0.05000019073486328,
+      "movedVertices": 23153
+    },
+    "torso/torso-trans-out": {
+      "rmsMetres": 0.04850921635497757,
+      "maxMetres": 0.05000019073486328,
+      "movedVertices": 23153
+    },
+    "arms/l-lowerarm-scale-depth-decr": {
+      "rmsMetres": 0.0036296460956586093,
+      "maxMetres": 0.011993819367905298,
+      "movedVertices": 1462
+    },
+    "arms/l-lowerarm-scale-depth-incr": {
+      "rmsMetres": 0.0031357169899035925,
+      "maxMetres": 0.010395739990175996,
+      "movedVertices": 1462
+    },
+    "arms/r-lowerarm-scale-depth-decr": {
+      "rmsMetres": 0.0036296479977516783,
+      "maxMetres": 0.011993809665513094,
+      "movedVertices": 1462
+    },
+    "arms/r-lowerarm-scale-depth-incr": {
+      "rmsMetres": 0.0031357166027493203,
+      "maxMetres": 0.01039557646079973,
+      "movedVertices": 1462
+    },
+    "arms/l-upperarm-scale-horiz-decr": {
+      "rmsMetres": 0.040116794912688984,
+      "maxMetres": 0.04106449184502232,
+      "movedVertices": 8083
+    },
+    "arms/l-upperarm-scale-horiz-incr": {
+      "rmsMetres": 0.07044167353190316,
+      "maxMetres": 0.07211889997043928,
+      "movedVertices": 8069
+    },
+    "arms/r-upperarm-scale-horiz-decr": {
+      "rmsMetres": 0.040116796867855464,
+      "maxMetres": 0.04106441571308213,
+      "movedVertices": 8083
+    },
+    "arms/r-upperarm-scale-horiz-incr": {
+      "rmsMetres": 0.07044167426871813,
+      "maxMetres": 0.07211888054820179,
+      "movedVertices": 8069
+    },
+    "arms/l-upperarm-fat-decr": {
+      "rmsMetres": 0.004944778361168703,
+      "maxMetres": 0.011458577886620951,
+      "movedVertices": 1976
+    },
+    "arms/l-upperarm-fat-incr": {
+      "rmsMetres": 0.006531173579947739,
+      "maxMetres": 0.015517796311179954,
+      "movedVertices": 1995
+    },
+    "arms/r-upperarm-fat-decr": {
+      "rmsMetres": 0.004943528217838913,
+      "maxMetres": 0.011458652464521237,
+      "movedVertices": 1977
+    },
+    "arms/r-upperarm-fat-incr": {
+      "rmsMetres": 0.0065344495316436175,
+      "maxMetres": 0.01551781184430474,
+      "movedVertices": 1993
+    },
+    "arms/measure-upperarm-length-decr": {
+      "rmsMetres": 0.04670485883371696,
+      "maxMetres": 0.04850777732916144,
+      "movedVertices": 16882
+    },
+    "arms/measure-upperarm-length-incr": {
+      "rmsMetres": 0.06704057123216037,
+      "maxMetres": 0.06972108697481696,
+      "movedVertices": 16926
+    },
+    "arms/l-lowerarm-fat-decr": {
+      "rmsMetres": 0.003847693981811989,
+      "maxMetres": 0.010101944508575763,
+      "movedVertices": 941
+    },
+    "arms/l-lowerarm-fat-incr": {
+      "rmsMetres": 0.007260708611540656,
+      "maxMetres": 0.016914140836327567,
+      "movedVertices": 1992
+    },
+    "arms/r-lowerarm-fat-decr": {
+      "rmsMetres": 0.0038476959416030767,
+      "maxMetres": 0.010102047011393746,
+      "movedVertices": 941
+    },
+    "arms/r-lowerarm-fat-incr": {
+      "rmsMetres": 0.007260707185363989,
+      "maxMetres": 0.016914162137899445,
+      "movedVertices": 1992
+    },
+    "arms/l-lowerarm-scale-horiz-decr": {
+      "rmsMetres": 0.04973495880534608,
+      "maxMetres": 0.05141692135242086,
+      "movedVertices": 7279
+    },
+    "arms/l-lowerarm-scale-horiz-incr": {
+      "rmsMetres": 0.0627617811367861,
+      "maxMetres": 0.06489902108727705,
+      "movedVertices": 7283
+    },
+    "arms/r-lowerarm-scale-horiz-decr": {
+      "rmsMetres": 0.0497349600937049,
+      "maxMetres": 0.05141695218861881,
+      "movedVertices": 7279
+    },
+    "arms/r-lowerarm-scale-horiz-incr": {
+      "rmsMetres": 0.0627617808328384,
+      "maxMetres": 0.06489903771097541,
+      "movedVertices": 7283
+    },
+    "arms/l-lowerarm-muscle-decr": {
+      "rmsMetres": 0.002545233412864364,
+      "maxMetres": 0.006435439672229396,
+      "movedVertices": 1176
+    },
+    "arms/l-lowerarm-muscle-incr": {
+      "rmsMetres": 0.004760530803683897,
+      "maxMetres": 0.011500081237958678,
+      "movedVertices": 870
+    },
+    "arms/r-lowerarm-muscle-decr": {
+      "rmsMetres": 0.002546314266826433,
+      "maxMetres": 0.0064356013791863,
+      "movedVertices": 1175
+    },
+    "arms/r-lowerarm-muscle-incr": {
+      "rmsMetres": 0.004757798355648766,
+      "maxMetres": 0.011499968658192377,
+      "movedVertices": 871
+    },
+    "arms/l-upperarm-shoulder-muscle-decr": {
+      "rmsMetres": 0.004431801768098149,
+      "maxMetres": 0.013130257692350567,
+      "movedVertices": 397
+    },
+    "arms/l-upperarm-shoulder-muscle-incr": {
+      "rmsMetres": 0.005699552612689485,
+      "maxMetres": 0.014651531623023456,
+      "movedVertices": 1013
+    },
+    "arms/r-upperarm-shoulder-muscle-decr": {
+      "rmsMetres": 0.004431802111430927,
+      "maxMetres": 0.013130357097994459,
+      "movedVertices": 397
+    },
+    "arms/r-upperarm-shoulder-muscle-incr": {
+      "rmsMetres": 0.005699554002492336,
+      "maxMetres": 0.014651552007269128,
+      "movedVertices": 1013
+    },
+    "arms/measure-upperarm-circ-decr": {
+      "rmsMetres": 0.007393584420042284,
+      "maxMetres": 0.016700138484938173,
+      "movedVertices": 2653
+    },
+    "arms/measure-upperarm-circ-incr": {
+      "rmsMetres": 0.007392189817602286,
+      "maxMetres": 0.01670049902293727,
+      "movedVertices": 2654
+    },
+    "arms/l-upperarm-scale-depth-decr": {
+      "rmsMetres": 0.004510310046721477,
+      "maxMetres": 0.01280625257641077,
+      "movedVertices": 1408
+    },
+    "arms/l-upperarm-scale-depth-incr": {
+      "rmsMetres": 0.004510310144713769,
+      "maxMetres": 0.012806251645088196,
+      "movedVertices": 1408
+    },
+    "arms/r-upperarm-scale-depth-decr": {
+      "rmsMetres": 0.004510309932895426,
+      "maxMetres": 0.012806251645088196,
+      "movedVertices": 1408
+    },
+    "arms/r-upperarm-scale-depth-incr": {
+      "rmsMetres": 0.004510310288160671,
+      "maxMetres": 0.012806255370378494,
+      "movedVertices": 1408
+    },
+    "arms/l-lowerarm-scale-vert-decr": {
+      "rmsMetres": 0.0043331302741907,
+      "maxMetres": 0.014880532168560289,
+      "movedVertices": 1478
+    },
+    "arms/l-lowerarm-scale-vert-incr": {
+      "rmsMetres": 0.004334595592584773,
+      "maxMetres": 0.014880576241937204,
+      "movedVertices": 1477
+    },
+    "arms/r-lowerarm-scale-vert-decr": {
+      "rmsMetres": 0.004333132035688228,
+      "maxMetres": 0.01488055420523522,
+      "movedVertices": 1478
+    },
+    "arms/r-lowerarm-scale-vert-incr": {
+      "rmsMetres": 0.004336061997684723,
+      "maxMetres": 0.01488055420523522,
+      "movedVertices": 1476
+    },
+    "arms/measure-lowerarm-length-decr": {
+      "rmsMetres": 0.0431518095713014,
+      "maxMetres": 0.045165305470084446,
+      "movedVertices": 14894
+    },
+    "arms/measure-lowerarm-length-incr": {
+      "rmsMetres": 0.06383538567684742,
+      "maxMetres": 0.06594364649986485,
+      "movedVertices": 14486
+    },
+    "arms/l-upperarm-muscle-decr": {
+      "rmsMetres": 0.0032398868310793403,
+      "maxMetres": 0.011042729031692657,
+      "movedVertices": 1235
+    },
+    "arms/l-upperarm-muscle-incr": {
+      "rmsMetres": 0.005444874943532322,
+      "maxMetres": 0.018652245804367036,
+      "movedVertices": 1214
+    },
+    "arms/r-upperarm-muscle-decr": {
+      "rmsMetres": 0.0032411965038204944,
+      "maxMetres": 0.011042777986553058,
+      "movedVertices": 1234
+    },
+    "arms/r-upperarm-muscle-incr": {
+      "rmsMetres": 0.0054448767786666455,
+      "maxMetres": 0.01865212738842112,
+      "movedVertices": 1214
+    },
+    "arms/l-upperarm-scale-vert-decr": {
+      "rmsMetres": 0.005006045432946449,
+      "maxMetres": 0.014734399924761842,
+      "movedVertices": 1179
+    },
+    "arms/l-upperarm-scale-vert-incr": {
+      "rmsMetres": 0.004511204747532339,
+      "maxMetres": 0.013287787490761751,
+      "movedVertices": 1180
+    },
+    "arms/r-upperarm-scale-vert-decr": {
+      "rmsMetres": 0.005003921798989385,
+      "maxMetres": 0.014734399924761842,
+      "movedVertices": 1180
+    },
+    "arms/r-upperarm-scale-vert-incr": {
+      "rmsMetres": 0.0045112069155279514,
+      "maxMetres": 0.013287764658182624,
+      "movedVertices": 1180
+    },
+    "legs/measure-calf-circ-decr": {
+      "rmsMetres": 0.008363571618117406,
+      "maxMetres": 0.018101162336560537,
+      "movedVertices": 2000
+    },
+    "legs/measure-calf-circ-incr": {
+      "rmsMetres": 0.008363571847877121,
+      "maxMetres": 0.01810116758400168,
+      "movedVertices": 2000
+    },
+    "legs/measure-lowerleg-height-decr": {
+      "rmsMetres": 0.05498632614510657,
+      "maxMetres": 0.05900003761053085,
+      "movedVertices": 10642
+    },
+    "legs/measure-lowerleg-height-incr": {
+      "rmsMetres": 0.07623554985082381,
+      "maxMetres": 0.08115420209187336,
+      "movedVertices": 10450
+    },
+    "legs/l-upperleg-fat-decr": {
+      "rmsMetres": 0.006975701690377158,
+      "maxMetres": 0.02196714188815123,
+      "movedVertices": 1420
+    },
+    "legs/l-upperleg-fat-incr": {
+      "rmsMetres": 0.01091935084527635,
+      "maxMetres": 0.030853304706759562,
+      "movedVertices": 2292
+    },
+    "legs/r-upperleg-fat-decr": {
+      "rmsMetres": 0.006975701652562774,
+      "maxMetres": 0.02196714188815123,
+      "movedVertices": 1420
+    },
+    "legs/r-upperleg-fat-incr": {
+      "rmsMetres": 0.010919350707460968,
+      "maxMetres": 0.030853302184680444,
+      "movedVertices": 2292
+    },
+    "legs/l-lowerleg-muscle-decr": {
+      "rmsMetres": 0.004577056303289008,
+      "maxMetres": 0.015614184538613617,
+      "movedVertices": 912
+    },
+    "legs/l-lowerleg-muscle-incr": {
+      "rmsMetres": 0.011112273903655403,
+      "maxMetres": 0.03483732534351251,
+      "movedVertices": 914
+    },
+    "legs/r-lowerleg-muscle-decr": {
+      "rmsMetres": 0.004577056727844056,
+      "maxMetres": 0.015614206246355244,
+      "movedVertices": 912
+    },
+    "legs/r-lowerleg-muscle-incr": {
+      "rmsMetres": 0.01114870826263719,
+      "maxMetres": 0.03483733182003079,
+      "movedVertices": 908
+    },
+    "legs/l-leg-valgus-decr": {
+      "rmsMetres": 0.030776156093985214,
+      "maxMetres": 0.051473801354751894,
+      "movedVertices": 2574
+    },
+    "legs/l-leg-valgus-incr": {
+      "rmsMetres": 0.02657993818540361,
+      "maxMetres": 0.045319770880925626,
+      "movedVertices": 2140
+    },
+    "legs/r-leg-valgus-decr": {
+      "rmsMetres": 0.03077615629214485,
+      "maxMetres": 0.051473801354751894,
+      "movedVertices": 2574
+    },
+    "legs/r-leg-valgus-incr": {
+      "rmsMetres": 0.026573730558213833,
+      "maxMetres": 0.045319759807625995,
+      "movedVertices": 2141
+    },
+    "legs/l-lowerleg-scale-depth-decr": {
+      "rmsMetres": 0.006997026547624682,
+      "maxMetres": 0.02225208654999733,
+      "movedVertices": 1824
+    },
+    "legs/l-lowerleg-scale-depth-incr": {
+      "rmsMetres": 0.0063803166416026135,
+      "maxMetres": 0.020763546228408813,
+      "movedVertices": 1952
+    },
+    "legs/r-lowerleg-scale-depth-decr": {
+      "rmsMetres": 0.006997026664054985,
+      "maxMetres": 0.022252094000577927,
+      "movedVertices": 1824
+    },
+    "legs/r-lowerleg-scale-depth-incr": {
+      "rmsMetres": 0.006380316689425647,
+      "maxMetres": 0.020763542503118515,
+      "movedVertices": 1952
+    },
+    "legs/l-lowerleg-scale-vert-decr": {
+      "rmsMetres": 0.07054604450252097,
+      "maxMetres": 0.07579773235501076,
+      "movedVertices": 5341
+    },
+    "legs/l-lowerleg-scale-vert-incr": {
+      "rmsMetres": 0.08339224675965083,
+      "maxMetres": 0.08871802356057638,
+      "movedVertices": 5195
+    },
+    "legs/r-lowerleg-scale-vert-decr": {
+      "rmsMetres": 0.07053944126745486,
+      "maxMetres": 0.07579773601159895,
+      "movedVertices": 5342
+    },
+    "legs/r-lowerleg-scale-vert-incr": {
+      "rmsMetres": 0.08339224685850954,
+      "maxMetres": 0.08871801832019476,
+      "movedVertices": 5195
+    },
+    "legs/l-upperleg-scale-depth-decr": {
+      "rmsMetres": 0.007643272523182083,
+      "maxMetres": 0.021655559539794922,
+      "movedVertices": 1288
+    },
+    "legs/l-upperleg-scale-depth-incr": {
+      "rmsMetres": 0.008276588943586726,
+      "maxMetres": 0.023436106741428375,
+      "movedVertices": 1289
+    },
+    "legs/r-upperleg-scale-depth-decr": {
+      "rmsMetres": 0.007643272386564632,
+      "maxMetres": 0.02165555488318205,
+      "movedVertices": 1288
+    },
+    "legs/r-upperleg-scale-depth-incr": {
+      "rmsMetres": 0.008276589119981876,
+      "maxMetres": 0.023436114192008972,
+      "movedVertices": 1289
+    },
+    "legs/l-upperleg-scale-horiz-decr": {
+      "rmsMetres": 0.006598903076877757,
+      "maxMetres": 0.020311368290264153,
+      "movedVertices": 1298
+    },
+    "legs/l-upperleg-scale-horiz-incr": {
+      "rmsMetres": 0.009513492634142213,
+      "maxMetres": 0.02736874339229124,
+      "movedVertices": 1577
+    },
+    "legs/r-upperleg-scale-horiz-decr": {
+      "rmsMetres": 0.00659890365449179,
+      "maxMetres": 0.020311381380110134,
+      "movedVertices": 1298
+    },
+    "legs/r-upperleg-scale-horiz-incr": {
+      "rmsMetres": 0.00951650989503808,
+      "maxMetres": 0.027368768729920744,
+      "movedVertices": 1576
+    },
+    "legs/upperlegs-height-decr": {
+      "rmsMetres": 0.06985347251501367,
+      "maxMetres": 0.0750114325533673,
+      "movedVertices": 13495
+    },
+    "legs/upperlegs-height-incr": {
+      "rmsMetres": 0.10136821825617325,
+      "maxMetres": 0.10688558872045335,
+      "movedVertices": 12894
+    },
+    "legs/l-lowerleg-fat-decr": {
+      "rmsMetres": 0.0035609270563657356,
+      "maxMetres": 0.010764802545270616,
+      "movedVertices": 922
+    },
+    "legs/l-lowerleg-fat-incr": {
+      "rmsMetres": 0.005761093516922017,
+      "maxMetres": 0.018669778674848425,
+      "movedVertices": 1094
+    },
+    "legs/r-lowerleg-fat-decr": {
+      "rmsMetres": 0.0035609272328593978,
+      "maxMetres": 0.010764803009756855,
+      "movedVertices": 922
+    },
+    "legs/r-lowerleg-fat-incr": {
+      "rmsMetres": 0.00576109315019981,
+      "maxMetres": 0.018669778439118358,
+      "movedVertices": 1094
+    },
+    "legs/l-lowerleg-scale-horiz-decr": {
+      "rmsMetres": 0.0059471189541922525,
+      "maxMetres": 0.01640625298023224,
+      "movedVertices": 1385
+    },
+    "legs/l-lowerleg-scale-horiz-incr": {
+      "rmsMetres": 0.004178564373619824,
+      "maxMetres": 0.011883333325386047,
+      "movedVertices": 1545
+    },
+    "legs/r-lowerleg-scale-horiz-decr": {
+      "rmsMetres": 0.005947119230663338,
+      "maxMetres": 0.016406245529651642,
+      "movedVertices": 1385
+    },
+    "legs/r-lowerleg-scale-horiz-incr": {
+      "rmsMetres": 0.004177213076107429,
+      "maxMetres": 0.011883348226547241,
+      "movedVertices": 1546
+    },
+    "legs/lowerlegs-height-decr": {
+      "rmsMetres": 0.05498632614510657,
+      "maxMetres": 0.05900003761053085,
+      "movedVertices": 10642
+    },
+    "legs/lowerlegs-height-incr": {
+      "rmsMetres": 0.07623554985082381,
+      "maxMetres": 0.08115420209187336,
+      "movedVertices": 10450
+    },
+    "legs/measure-upperleg-height-decr": {
+      "rmsMetres": 0.06987418552765522,
+      "maxMetres": 0.0750114325533673,
+      "movedVertices": 13487
+    },
+    "legs/measure-upperleg-height-incr": {
+      "rmsMetres": 0.10136821825617325,
+      "maxMetres": 0.10688558872045335,
+      "movedVertices": 12894
+    },
+    "legs/l-upperleg-muscle-decr": {
+      "rmsMetres": 0.005042582688010203,
+      "maxMetres": 0.015091335047467304,
+      "movedVertices": 1454
+    },
+    "legs/l-upperleg-muscle-incr": {
+      "rmsMetres": 0.006037321618569221,
+      "maxMetres": 0.01498137492978515,
+      "movedVertices": 1344
+    },
+    "legs/r-upperleg-muscle-decr": {
+      "rmsMetres": 0.005042583294095,
+      "maxMetres": 0.015091328218802248,
+      "movedVertices": 1454
+    },
+    "legs/r-upperleg-muscle-incr": {
+      "rmsMetres": 0.0060373213716239,
+      "maxMetres": 0.014981299768087564,
+      "movedVertices": 1344
+    },
+    "legs/measure-knee-circ-decr": {
+      "rmsMetres": 0.0051127755340561005,
+      "maxMetres": 0.01183302642842372,
+      "movedVertices": 2612
+    },
+    "legs/measure-knee-circ-incr": {
+      "rmsMetres": 0.008566849698917129,
+      "maxMetres": 0.01982354454017306,
+      "movedVertices": 2636
+    },
+    "legs/measure-thigh-circ-decr": {
+      "rmsMetres": 0.006528320424211553,
+      "maxMetres": 0.013267022784005943,
+      "movedVertices": 2563
+    },
+    "legs/measure-thigh-circ-incr": {
+      "rmsMetres": 0.009945155295399657,
+      "maxMetres": 0.020268623957655323,
+      "movedVertices": 2589
+    },
+    "legs/l-upperleg-scale-vert-decr": {
+      "rmsMetres": 0.04064513371702394,
+      "maxMetres": 0.05639639255598011,
+      "movedVertices": 1794
+    },
+    "legs/l-upperleg-scale-vert-incr": {
+      "rmsMetres": 0.02878595371371511,
+      "maxMetres": 0.039307228695773876,
+      "movedVertices": 1476
+    },
+    "legs/r-upperleg-scale-vert-decr": {
+      "rmsMetres": 0.0406224944303628,
+      "maxMetres": 0.05639633315868239,
+      "movedVertices": 1796
+    },
+    "legs/r-upperleg-scale-vert-incr": {
+      "rmsMetres": 0.028785955234480406,
+      "maxMetres": 0.03930722399500192,
+      "movedVertices": 1476
+    },
+    "hands/l-hand-trans-in": {
+      "rmsMetres": 0.020603080847649096,
+      "maxMetres": 0.02113264197329543,
+      "movedVertices": 7027
+    },
+    "hands/l-hand-trans-out": {
+      "rmsMetres": 0.031064907026613908,
+      "maxMetres": 0.031713578296770704,
+      "movedVertices": 6853
+    },
+    "hands/r-hand-trans-in": {
+      "rmsMetres": 0.020603081492536215,
+      "maxMetres": 0.02113264197329543,
+      "movedVertices": 7027
+    },
+    "hands/r-hand-trans-out": {
+      "rmsMetres": 0.031064906543354122,
+      "maxMetres": 0.031713597937226064,
+      "movedVertices": 6853
+    },
+    "hands/l-hand-fingers-length-decr": {
+      "rmsMetres": 0.008469686398253039,
+      "maxMetres": 0.0166632608576754,
+      "movedVertices": 5412
+    },
+    "hands/l-hand-fingers-length-incr": {
+      "rmsMetres": 0.02175918247518447,
+      "maxMetres": 0.04249660433874512,
+      "movedVertices": 5371
+    },
+    "hands/r-hand-fingers-length-decr": {
+      "rmsMetres": 0.008469686943692482,
+      "maxMetres": 0.016663264613492077,
+      "movedVertices": 5412
+    },
+    "hands/r-hand-fingers-length-incr": {
+      "rmsMetres": 0.021759182009530396,
+      "maxMetres": 0.04249660433874512,
+      "movedVertices": 5371
+    },
+    "hands/l-hand-scale-decr": {
+      "rmsMetres": 0.026207536035577596,
+      "maxMetres": 0.03877913666273867,
+      "movedVertices": 6853
+    },
+    "hands/l-hand-scale-incr": {
+      "rmsMetres": 0.04121088942043117,
+      "maxMetres": 0.059304703183581,
+      "movedVertices": 6853
+    },
+    "hands/r-hand-scale-decr": {
+      "rmsMetres": 0.026207537540031915,
+      "maxMetres": 0.03877915616562387,
+      "movedVertices": 6853
+    },
+    "hands/r-hand-scale-incr": {
+      "rmsMetres": 0.04121088867641522,
+      "maxMetres": 0.059304623555046974,
+      "movedVertices": 6853
+    },
+    "hands/l-hand-fingers-diameter-decr": {
+      "rmsMetres": 0.0012546919046914388,
+      "maxMetres": 0.0022944619967145584,
+      "movedVertices": 6011
+    },
+    "hands/l-hand-fingers-diameter-incr": {
+      "rmsMetres": 0.0016849289411753033,
+      "maxMetres": 0.002942860905310531,
+      "movedVertices": 6064
+    },
+    "hands/r-hand-fingers-diameter-decr": {
+      "rmsMetres": 0.0012549007389735909,
+      "maxMetres": 0.002294428004543267,
+      "movedVertices": 6009
+    },
+    "hands/r-hand-fingers-diameter-incr": {
+      "rmsMetres": 0.0016849286774723836,
+      "maxMetres": 0.0029428771073657673,
+      "movedVertices": 6064
+    },
+    "hands/l-hand-fingers-distance-decr": {
+      "rmsMetres": 0.001990270523477182,
+      "maxMetres": 0.0028387906906761798,
+      "movedVertices": 5588
+    },
+    "hands/l-hand-fingers-distance-incr": {
+      "rmsMetres": 0.002003733971351691,
+      "maxMetres": 0.002828366994787838,
+      "movedVertices": 5492
+    },
+    "hands/r-hand-fingers-distance-decr": {
+      "rmsMetres": 0.0019902707850034305,
+      "maxMetres": 0.0028388044022239684,
+      "movedVertices": 5588
+    },
+    "hands/r-hand-fingers-distance-incr": {
+      "rmsMetres": 0.0020037335299293965,
+      "maxMetres": 0.0028283814815560377,
+      "movedVertices": 5492
+    },
+    "hands/measure-wrist-circ-decr": {
+      "rmsMetres": 0.0022770200780144016,
+      "maxMetres": 0.003853971192922953,
+      "movedVertices": 2304
+    },
+    "hands/measure-wrist-circ-incr": {
+      "rmsMetres": 0.005308428337159737,
+      "maxMetres": 0.008986875487637075,
+      "movedVertices": 2338
+    },
+    "feet/l-foot-scale-horiz-decr": {
+      "rmsMetres": 0.008228219799451797,
+      "maxMetres": 0.017786085605621338,
+      "movedVertices": 4695
+    },
+    "feet/l-foot-scale-horiz-incr": {
+      "rmsMetres": 0.010839414601028647,
+      "maxMetres": 0.023422233760356903,
+      "movedVertices": 4695
+    },
+    "feet/r-foot-scale-horiz-decr": {
+      "rmsMetres": 0.008228219561155442,
+      "maxMetres": 0.017786115407943726,
+      "movedVertices": 4695
+    },
+    "feet/r-foot-scale-horiz-incr": {
+      "rmsMetres": 0.010839414917190392,
+      "maxMetres": 0.023422233760356903,
+      "movedVertices": 4695
+    },
+    "feet/l-foot-trans-in": {
+      "rmsMetres": 0.03114577550245433,
+      "maxMetres": 0.03230005502700806,
+      "movedVertices": 4871
+    },
+    "feet/l-foot-trans-out": {
+      "rmsMetres": 0.031702842956602695,
+      "maxMetres": 0.034000083804130554,
+      "movedVertices": 5403
+    },
+    "feet/r-foot-trans-in": {
+      "rmsMetres": 0.031145775346371325,
+      "maxMetres": 0.03230005502700806,
+      "movedVertices": 4871
+    },
+    "feet/r-foot-trans-out": {
+      "rmsMetres": 0.031702843177730956,
+      "maxMetres": 0.034000083804130554,
+      "movedVertices": 5403
+    },
+    "feet/l-foot-scale-vert-decr": {
+      "rmsMetres": 0.009404206633216932,
+      "maxMetres": 0.033903464674949646,
+      "movedVertices": 4543
+    },
+    "feet/l-foot-scale-vert-incr": {
+      "rmsMetres": 0.007646266388928907,
+      "maxMetres": 0.02749842405319214,
+      "movedVertices": 4703
+    },
+    "feet/r-foot-scale-vert-decr": {
+      "rmsMetres": 0.00940420661628093,
+      "maxMetres": 0.03390347212553024,
+      "movedVertices": 4543
+    },
+    "feet/r-foot-scale-vert-incr": {
+      "rmsMetres": 0.007646266422540276,
+      "maxMetres": 0.027498438954353333,
+      "movedVertices": 4703
+    },
+    "feet/l-foot-trans-backward": {
+      "rmsMetres": 0.045746945024200174,
+      "maxMetres": 0.049100056290626526,
+      "movedVertices": 5411
+    },
+    "feet/l-foot-trans-forward": {
+      "rmsMetres": 0.036908983152560276,
+      "maxMetres": 0.039600059390068054,
+      "movedVertices": 5407
+    },
+    "feet/r-foot-trans-backward": {
+      "rmsMetres": 0.0458402270093735,
+      "maxMetres": 0.049100056290626526,
+      "movedVertices": 5389
+    },
+    "feet/r-foot-trans-forward": {
+      "rmsMetres": 0.036970571019837827,
+      "maxMetres": 0.039600059390068054,
+      "movedVertices": 5389
+    },
+    "feet/l-foot-scale-depth-decr": {
+      "rmsMetres": 0.03732542320142797,
+      "maxMetres": 0.05391111969947815,
+      "movedVertices": 4669
+    },
+    "feet/l-foot-scale-depth-incr": {
+      "rmsMetres": 0.029052195398221112,
+      "maxMetres": 0.04195384681224823,
+      "movedVertices": 4669
+    },
+    "feet/r-foot-scale-depth-decr": {
+      "rmsMetres": 0.037325423039293495,
+      "maxMetres": 0.05391111969947815,
+      "movedVertices": 4669
+    },
+    "feet/r-foot-scale-depth-incr": {
+      "rmsMetres": 0.02905219556502744,
+      "maxMetres": 0.041953831911087036,
+      "movedVertices": 4669
+    },
+    "feet/l-foot-scale-decr": {
+      "rmsMetres": 0.028384033055519366,
+      "maxMetres": 0.03929040256579779,
+      "movedVertices": 4707
+    },
+    "feet/l-foot-scale-incr": {
+      "rmsMetres": 0.0414594170062229,
+      "maxMetres": 0.05754082212709805,
+      "movedVertices": 4829
+    },
+    "feet/r-foot-scale-decr": {
+      "rmsMetres": 0.02838403320855103,
+      "maxMetres": 0.039290399430619315,
+      "movedVertices": 4707
+    },
+    "feet/r-foot-scale-incr": {
+      "rmsMetres": 0.04145941714230638,
+      "maxMetres": 0.05754083556306304,
+      "movedVertices": 4829
+    },
+    "feet/l-foot-trans-down": {
+      "rmsMetres": 0.03299973802647369,
+      "maxMetres": 0.03400002047419548,
+      "movedVertices": 4747
+    },
+    "feet/l-foot-trans-up": {
+      "rmsMetres": 0.0519503137968232,
+      "maxMetres": 0.05360002815723419,
+      "movedVertices": 4771
+    },
+    "feet/r-foot-trans-down": {
+      "rmsMetres": 0.032999738020865164,
+      "maxMetres": 0.03400002047419548,
+      "movedVertices": 4747
+    },
+    "feet/r-foot-trans-up": {
+      "rmsMetres": 0.05195031376716231,
+      "maxMetres": 0.05360002815723419,
+      "movedVertices": 4771
+    },
+    "feet/measure-ankle-circ-decr": {
+      "rmsMetres": 0.005198187256248956,
+      "maxMetres": 0.011848250584108556,
+      "movedVertices": 2680
+    },
+    "feet/measure-ankle-circ-incr": {
+      "rmsMetres": 0.005198187667413409,
+      "maxMetres": 0.011848253723382662,
+      "movedVertices": 2680
+    },
+    "neck/measure-neck-circ-decr": {
+      "rmsMetres": 0.005120410792234015,
+      "maxMetres": 0.009330199434405264,
+      "movedVertices": 975
+    },
+    "neck/measure-neck-circ-incr": {
+      "rmsMetres": 0.005753696828938687,
+      "maxMetres": 0.009987540826396772,
+      "movedVertices": 1247
+    },
+    "neck/measure-neck-height-decr": {
+      "rmsMetres": 0.012718296832015488,
+      "maxMetres": 0.02913224697113037,
+      "movedVertices": 931
+    },
+    "neck/measure-neck-height-incr": {
+      "rmsMetres": 0.012725124024176353,
+      "maxMetres": 0.029132366180419922,
+      "movedVertices": 930
+    },
+    "neck/neck-scale-depth-decr": {
+      "rmsMetres": 0.00526448171728344,
+      "maxMetres": 0.011352784931659698,
+      "movedVertices": 1307
+    },
+    "neck/neck-scale-depth-incr": {
+      "rmsMetres": 0.005264481975369628,
+      "maxMetres": 0.011352762579917908,
+      "movedVertices": 1307
+    },
+    "neck/neck-trans-backward": {
+      "rmsMetres": 0.013399733151978146,
+      "maxMetres": 0.02000000700354576,
+      "movedVertices": 1369
+    },
+    "neck/neck-trans-forward": {
+      "rmsMetres": 0.013391773768041073,
+      "maxMetres": 0.020000014454126358,
+      "movedVertices": 1237
+    },
+    "neck/neck-double-decr": {
+      "rmsMetres": 0.0036048438079949764,
+      "maxMetres": 0.009654260602136616,
+      "movedVertices": 399
+    },
+    "neck/neck-double-incr": {
+      "rmsMetres": 0.004108316714831775,
+      "maxMetres": 0.011857173712602717,
+      "movedVertices": 423
+    },
+    "neck/neck-trans-in": {
+      "rmsMetres": 0.006888908035561807,
+      "maxMetres": 0.010000012814998627,
+      "movedVertices": 1159
+    },
+    "neck/neck-trans-out": {
+      "rmsMetres": 0.006703730466409102,
+      "maxMetres": 0.010000009089708328,
+      "movedVertices": 1065
+    },
+    "neck/neck-back-scale-depth-decr": {
+      "rmsMetres": 0.004887776605815927,
+      "maxMetres": 0.01591239194411295,
+      "movedVertices": 640
+    },
+    "neck/neck-back-scale-depth-incr": {
+      "rmsMetres": 0.0033734752025741757,
+      "maxMetres": 0.010426458589048058,
+      "movedVertices": 302
+    },
+    "neck/neck-scale-horiz-decr": {
+      "rmsMetres": 0.0042805354137042985,
+      "maxMetres": 0.009442359209060669,
+      "movedVertices": 998
+    },
+    "neck/neck-scale-horiz-incr": {
+      "rmsMetres": 0.005179460303229118,
+      "maxMetres": 0.011158335953950882,
+      "movedVertices": 1181
+    },
+    "neck/neck-scale-vert-decr": {
+      "rmsMetres": 0.013754431330337694,
+      "maxMetres": 0.027743935585021973,
+      "movedVertices": 1785
+    },
+    "neck/neck-scale-vert-incr": {
+      "rmsMetres": 0.027558005092540343,
+      "maxMetres": 0.053691864013671875,
+      "movedVertices": 869
+    },
+    "neck/neck-trans-down": {
+      "rmsMetres": 0.005015498643641374,
+      "maxMetres": 0.007300257682800293,
+      "movedVertices": 1103
+    },
+    "neck/neck-trans-up": {
+      "rmsMetres": 0.005840609637541418,
+      "maxMetres": 0.009869813919067383,
+      "movedVertices": 741
+    },
+    "hip/hip-trans-in": {
+      "rmsMetres": 0.02183106776427509,
+      "maxMetres": 0.030000045895576477,
+      "movedVertices": 4967
+    },
+    "hip/hip-trans-out": {
+      "rmsMetres": 0.021831067525537796,
+      "maxMetres": 0.030000045895576477,
+      "movedVertices": 4967
+    },
+    "hip/hip-scale-horiz-decr": {
+      "rmsMetres": 0.014847688935266898,
+      "maxMetres": 0.03692221641540527,
+      "movedVertices": 5655
+    },
+    "hip/hip-scale-horiz-incr": {
+      "rmsMetres": 0.014842439871317534,
+      "maxMetres": 0.03692224621772766,
+      "movedVertices": 5659
+    },
+    "hip/hip-scale-depth-decr": {
+      "rmsMetres": 0.015199034929587485,
+      "maxMetres": 0.033600710332393646,
+      "movedVertices": 5855
+    },
+    "hip/hip-scale-depth-incr": {
+      "rmsMetres": 0.016640380626431254,
+      "maxMetres": 0.036799997091293335,
+      "movedVertices": 5859
+    },
+    "hip/hip-waist-down": {
+      "rmsMetres": 0.027185642872626058,
+      "maxMetres": 0.05954483723916736,
+      "movedVertices": 4915
+    },
+    "hip/hip-waist-up": {
+      "rmsMetres": 0.017700171377601222,
+      "maxMetres": 0.03403890132904053,
+      "movedVertices": 3117
+    },
+    "hip/hip-trans-backward": {
+      "rmsMetres": 0.02873991105463987,
+      "maxMetres": 0.04000003635883331,
+      "movedVertices": 5335
+    },
+    "hip/hip-trans-forward": {
+      "rmsMetres": 0.03315724891381977,
+      "maxMetres": 0.05000002309679985,
+      "movedVertices": 5335
+    },
+    "hip/hip-scale-vert-decr": {
+      "rmsMetres": 0.02045024137462253,
+      "maxMetres": 0.03540295362472534,
+      "movedVertices": 4843
+    },
+    "hip/hip-scale-vert-incr": {
+      "rmsMetres": 0.020450243526991978,
+      "maxMetres": 0.03540301322937012,
+      "movedVertices": 4843
+    },
+    "hip/hip-trans-down": {
+      "rmsMetres": 0.029165988286805843,
+      "maxMetres": 0.04000025987625122,
+      "movedVertices": 4949
+    },
+    "hip/hip-trans-up": {
+      "rmsMetres": 0.029165980683001014,
+      "maxMetres": 0.04000025987625122,
+      "movedVertices": 4949
+    },
+    "pelvis/pelvis-tone-decr": {
+      "rmsMetres": 0.01797522521937007,
+      "maxMetres": 0.03705073789943869,
+      "movedVertices": 1307
+    },
+    "pelvis/pelvis-tone-incr": {
+      "rmsMetres": 0.009425105735941288,
+      "maxMetres": 0.02869270210054807,
+      "movedVertices": 2565
+    },
+    "stomach/stomach-pregnant-decr": {
+      "rmsMetres": 0.00624381553693868,
+      "maxMetres": 0.014691927056305312,
+      "movedVertices": 855
+    },
+    "stomach/stomach-pregnant-incr": {
+      "rmsMetres": 0.033485498082891384,
+      "maxMetres": 0.09650169150161696,
+      "movedVertices": 1889
+    },
+    "stomach/stomach-navel-in": {
+      "rmsMetres": 0.0026472610486713457,
+      "maxMetres": 0.00619998574256897,
+      "movedVertices": 141
+    },
+    "stomach/stomach-navel-out": {
+      "rmsMetres": 0.0011969299518150356,
+      "maxMetres": 0.0028000175952911377,
+      "movedVertices": 141
+    },
+    "stomach/stomach-navel-down": {
+      "rmsMetres": 0.018810248120389002,
+      "maxMetres": 0.037700116634368896,
+      "movedVertices": 921
+    },
+    "stomach/stomach-navel-up": {
+      "rmsMetres": 0.014088235980632623,
+      "maxMetres": 0.028200268745422363,
+      "movedVertices": 921
+    },
+    "stomach/stomach-tone-decr": {
+      "rmsMetres": 0.015945657254286733,
+      "maxMetres": 0.04269703668990727,
+      "movedVertices": 1138
+    },
+    "stomach/stomach-tone-incr": {
+      "rmsMetres": 0.0031749570129999435,
+      "maxMetres": 0.007600274230060624,
+      "movedVertices": 1041
+    },
+    "buttocks/buttocks-volume-decr": {
+      "rmsMetres": 0.006893495943197594,
+      "maxMetres": 0.0183671444721757,
+      "movedVertices": 1231
+    },
+    "buttocks/buttocks-volume-incr": {
+      "rmsMetres": 0.0075970030859126856,
+      "maxMetres": 0.020233386911825482,
+      "movedVertices": 2701
+    },
+    "breast/breast-point-decr": {
+      "rmsMetres": 0.006530276089134035,
+      "maxMetres": 0.010279432910611664,
+      "movedVertices": 1383
+    },
+    "breast/breast-point-incr": {
+      "rmsMetres": 0.01509040222751716,
+      "maxMetres": 0.023621364912742422,
+      "movedVertices": 978
+    },
+    "breast/breast-dist-decr": {
+      "rmsMetres": 0.02552636954096053,
+      "maxMetres": 0.033659622274066145,
+      "movedVertices": 1479
+    },
+    "breast/breast-dist-incr": {
+      "rmsMetres": 0.016047958491971426,
+      "maxMetres": 0.023558476855109214,
+      "movedVertices": 1489
+    },
+    "breast/breast-volume-vert-down": {
+      "rmsMetres": 0.006747673250107432,
+      "maxMetres": 0.01432442637522255,
+      "movedVertices": 1278
+    },
+    "breast/breast-volume-vert-up": {
+      "rmsMetres": 0.006533109032927229,
+      "maxMetres": 0.017560605732891223,
+      "movedVertices": 1735
+    },
+    "breast/breast-trans-down": {
+      "rmsMetres": 0.023480341734942355,
+      "maxMetres": 0.03300034999847412,
+      "movedVertices": 2893
+    },
+    "breast/breast-trans-up": {
+      "rmsMetres": 0.012645393298460005,
+      "maxMetres": 0.017800331115722656,
+      "movedVertices": 2889
+    },
+    "macro/gender-female": {
+      "rmsMetres": 0.051263770260498887,
+      "maxMetres": 0.07136456647538778,
+      "movedVertices": 36810
+    },
+    "macro/gender-male": {
+      "rmsMetres": 0.051424883502808,
+      "maxMetres": 0.07158489724195082,
+      "movedVertices": 36810
+    },
+    "macro/age-child": {
+      "rmsMetres": 0.21215451756277948,
+      "maxMetres": 0.32599269338350695,
+      "movedVertices": 36810
+    },
+    "macro/age-old": {
+      "rmsMetres": 0.025670615448847533,
+      "maxMetres": 0.041083698128060835,
+      "movedVertices": 36810
+    },
+    "macro/muscle-min": {
+      "rmsMetres": 0.008846309067326537,
+      "maxMetres": 0.026208044799192042,
+      "movedVertices": 14026
+    },
+    "macro/muscle-max": {
+      "rmsMetres": 0.006727371337956995,
+      "maxMetres": 0.02082803374011632,
+      "movedVertices": 16542
+    },
+    "macro/weight-min": {
+      "rmsMetres": 0.00700979079739622,
+      "maxMetres": 0.018709328173730343,
+      "movedVertices": 16534
+    },
+    "macro/weight-max": {
+      "rmsMetres": 0.006088062062171772,
+      "maxMetres": 0.02085117037021018,
+      "movedVertices": 16634
+    },
+    "macro/height-min": {
+      "rmsMetres": 0.23102664768152742,
+      "maxMetres": 0.33372517547148894,
+      "movedVertices": 36810
+    },
+    "macro/height-max": {
+      "rmsMetres": 0.43199153135427204,
+      "maxMetres": 0.6427237034408232,
+      "movedVertices": 36810
+    },
+    "macro/proportions-uncommon": {
+      "rmsMetres": 0.01196148722496613,
+      "maxMetres": 0.022602636102775648,
+      "movedVertices": 36510
+    },
+    "macro/proportions-ideal": {
+      "rmsMetres": 0.014287612153274083,
+      "maxMetres": 0.03576936307168369,
+      "movedVertices": 36808
+    },
+    "macro/cupsize-min": {
+      "rmsMetres": 0.011469169753788705,
+      "maxMetres": 0.02270472015583573,
+      "movedVertices": 2079
+    },
+    "macro/cupsize-max": {
+      "rmsMetres": 0.039866562176068016,
+      "maxMetres": 0.08437495819368682,
+      "movedVertices": 2018
+    },
+    "macro/firmness-min": {
+      "rmsMetres": 0.01175808114194468,
+      "maxMetres": 0.019740613626802062,
+      "movedVertices": 1269
+    },
+    "macro/firmness-max": {
+      "rmsMetres": 0.004840906272441746,
+      "maxMetres": 0.008247822246523453,
+      "movedVertices": 1441
+    }
+  },
+  "macroPairCorrectives": {
+    "thresholdMetres": 0.0005,
+    "sampled": [
+      {
+        "id": "macro/gender-female+age-child",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0258880552521593,
+        "maxMetres": 0.038571969907612136,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+age-old",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.038621347287146356,
+        "maxMetres": 0.06501345402735416,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+age-child",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.022864732193401148,
+        "maxMetres": 0.03522409132930395,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+age-old",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.03871503124366045,
+        "maxMetres": 0.06511427982626339,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+muscle-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0060169989161774455,
+        "maxMetres": 0.022722811697172586,
+        "movedVertices": 14026,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+muscle-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.006629592128567417,
+        "maxMetres": 0.020470517062645188,
+        "movedVertices": 16542,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+muscle-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0059139635868311405,
+        "maxMetres": 0.022265677589311767,
+        "movedVertices": 14024,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+muscle-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.006580927649287941,
+        "maxMetres": 0.020138309798354136,
+        "movedVertices": 16542,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+weight-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004185954070952557,
+        "maxMetres": 0.012053981486274262,
+        "movedVertices": 16531,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+weight-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.003735523130085839,
+        "maxMetres": 0.011655667044521617,
+        "movedVertices": 16635,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+weight-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004247267397686722,
+        "maxMetres": 0.01236348928483325,
+        "movedVertices": 16534,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+weight-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0037385254006375187,
+        "maxMetres": 0.011379244896283097,
+        "movedVertices": 16635,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+height-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0022640680489711988,
+        "maxMetres": 0.0032707889542351026,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+height-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.00423353618711424,
+        "maxMetres": 0.006299279591264437,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+height-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0022640666850400094,
+        "maxMetres": 0.0032709082493386247,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+height-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.004233538769762951,
+        "maxMetres": 0.006299398798142954,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.005920049632149321,
+        "maxMetres": 0.011265662546056094,
+        "movedVertices": 36510,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.009596298038126658,
+        "maxMetres": 0.01880848734312149,
+        "movedVertices": 36809,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.005761881149666966,
+        "maxMetres": 0.010887917631673343,
+        "movedVertices": 36510,
+        "published": true
+      },
+      {
+        "id": "macro/gender-male+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.009525379176757578,
+        "maxMetres": 0.01917719738045725,
+        "movedVertices": 36808,
+        "published": true
+      },
+      {
+        "id": "macro/gender-female+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.445794736002237e-07,
+        "maxMetres": 4.777820964108429e-07,
+        "movedVertices": 1954,
+        "published": false
+      },
+      {
+        "id": "macro/gender-female+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.7728251605764973e-07,
+        "maxMetres": 5.242548157893768e-07,
+        "movedVertices": 1916,
+        "published": false
+      },
+      {
+        "id": "macro/gender-male+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.506366254005377e-07,
+        "maxMetres": 5.979061915796661e-07,
+        "movedVertices": 1965,
+        "published": false
+      },
+      {
+        "id": "macro/gender-male+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.8446188357747424e-07,
+        "maxMetres": 6.260828368982259e-07,
+        "movedVertices": 1921,
+        "published": false
+      },
+      {
+        "id": "macro/gender-female+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.3051204031770026e-07,
+        "maxMetres": 3.589448174967141e-07,
+        "movedVertices": 1201,
+        "published": false
+      },
+      {
+        "id": "macro/gender-female+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.7651692907940198e-07,
+        "maxMetres": 4.789859998358914e-07,
+        "movedVertices": 1357,
+        "published": false
+      },
+      {
+        "id": "macro/gender-male+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.4486832199164468e-07,
+        "maxMetres": 4.770699320310986e-07,
+        "movedVertices": 1199,
+        "published": false
+      },
+      {
+        "id": "macro/gender-male+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroGender",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.5769943572310218e-07,
+        "maxMetres": 5.964653956778477e-07,
+        "movedVertices": 1350,
+        "published": false
+      },
+      {
+        "id": "macro/age-child+muscle-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004859551927498571,
+        "maxMetres": 0.01641947298680871,
+        "movedVertices": 16203,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+muscle-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0062957011226302245,
+        "maxMetres": 0.01805149851493874,
+        "movedVertices": 16833,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+muscle-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00403170923521988,
+        "maxMetres": 0.014362773359144087,
+        "movedVertices": 14023,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+muscle-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.004083461503594836,
+        "maxMetres": 0.014986116689072246,
+        "movedVertices": 16541,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+weight-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00408230767373048,
+        "maxMetres": 0.012103400357602212,
+        "movedVertices": 16638,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+weight-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0031892581644481347,
+        "maxMetres": 0.013453909601562845,
+        "movedVertices": 16612,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+weight-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0035142460815528287,
+        "maxMetres": 0.012873031530279244,
+        "movedVertices": 16529,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+weight-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0040200975030955915,
+        "maxMetres": 0.013392469902914051,
+        "movedVertices": 16947,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+height-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 9.314827754479944e-08,
+        "maxMetres": 5.365064742590528e-07,
+        "movedVertices": 36485,
+        "published": false
+      },
+      {
+        "id": "macro/age-child+height-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.08640443831616523,
+        "maxMetres": 0.12853594654010744,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+height-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004546832119962373,
+        "maxMetres": 0.008074901417832757,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+height-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0074032293233489395,
+        "maxMetres": 0.012433312357356438,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0006843943536389923,
+        "maxMetres": 0.007686922516564229,
+        "movedVertices": 35976,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0051045026975608246,
+        "maxMetres": 0.018013872584851074,
+        "movedVertices": 36526,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0006987077951317303,
+        "maxMetres": 0.007814194911271248,
+        "movedVertices": 36519,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0012174308621274205,
+        "maxMetres": 0.013434680738111361,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.008082892801503197,
+        "maxMetres": 0.016710124198742658,
+        "movedVertices": 2079,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.005055886792241854,
+        "maxMetres": 0.016210533501360678,
+        "movedVertices": 1995,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.005645479968992502,
+        "maxMetres": 0.013156864459769366,
+        "movedVertices": 3272,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.011283990886314973,
+        "maxMetres": 0.03115671713375181,
+        "movedVertices": 2057,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.006760842607595519,
+        "maxMetres": 0.012027833914442768,
+        "movedVertices": 1313,
+        "published": true
+      },
+      {
+        "id": "macro/age-child+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0017094617724263512,
+        "maxMetres": 0.003954579959605967,
+        "movedVertices": 1458,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.005524304436473905,
+        "maxMetres": 0.01405870526063396,
+        "movedVertices": 1385,
+        "published": true
+      },
+      {
+        "id": "macro/age-old+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroAge",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0043313784634013905,
+        "maxMetres": 0.00869705228797763,
+        "movedVertices": 1449,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+weight-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.014717775945299303,
+        "maxMetres": 0.06967464416035822,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+weight-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.02204404089915448,
+        "maxMetres": 0.07884607534077656,
+        "movedVertices": 29135,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+weight-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00654776599814226,
+        "maxMetres": 0.01766945887133643,
+        "movedVertices": 16944,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+weight-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.016432154221463026,
+        "maxMetres": 0.050779929879937506,
+        "movedVertices": 18936,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+height-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004528125172957579,
+        "maxMetres": 0.006541339717922283,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+height-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.008467043623058054,
+        "maxMetres": 0.012597855072915349,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+height-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004528127300552627,
+        "maxMetres": 0.006541339546871146,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+height-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.008467040566688618,
+        "maxMetres": 0.012597963166250567,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0006987656510485246,
+        "maxMetres": 0.007814212575945148,
+        "movedVertices": 36513,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0012272385986243767,
+        "maxMetres": 0.01343447287572099,
+        "movedVertices": 36807,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0006987374737168413,
+        "maxMetres": 0.007814212892745781,
+        "movedVertices": 36516,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0013513254808822795,
+        "maxMetres": 0.01343447287572099,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0006649872795530606,
+        "maxMetres": 0.0021344353700542946,
+        "movedVertices": 2009,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 2.3406574030122197e-07,
+        "maxMetres": 6.597158892466481e-07,
+        "movedVertices": 1902,
+        "published": false
+      },
+      {
+        "id": "macro/muscle-max+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0020988663373783527,
+        "maxMetres": 0.009296730493076225,
+        "movedVertices": 2162,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.00293252175075706,
+        "maxMetres": 0.015125678523913917,
+        "movedVertices": 1974,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-min+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.830367857053452e-07,
+        "maxMetres": 4.791598078850963e-07,
+        "movedVertices": 1192,
+        "published": false
+      },
+      {
+        "id": "macro/muscle-min+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 5.201239698053472e-05,
+        "maxMetres": 0.00042075018996929155,
+        "movedVertices": 1413,
+        "published": false
+      },
+      {
+        "id": "macro/muscle-max+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0002978940460462185,
+        "maxMetres": 0.0021227439633478866,
+        "movedVertices": 1216,
+        "published": true
+      },
+      {
+        "id": "macro/muscle-max+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroMuscle",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0006175680985257679,
+        "maxMetres": 0.0033344480164299055,
+        "movedVertices": 1391,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+height-min",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.004528126060962329,
+        "maxMetres": 0.006541220536298947,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+height-max",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.008467040606267792,
+        "maxMetres": 0.012598320779315627,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+height-min",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00452812536715812,
+        "maxMetres": 0.006541220421156015,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+height-max",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.008467041006030329,
+        "maxMetres": 0.012598201546483855,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0005996864326474435,
+        "maxMetres": 0.007814202653697056,
+        "movedVertices": 36504,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0011170876657003428,
+        "maxMetres": 0.0063022790166865385,
+        "movedVertices": 36810,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00029033746968905923,
+        "maxMetres": 0.004455022499836068,
+        "movedVertices": 36496,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0004007413712122677,
+        "maxMetres": 0.004019592767713009,
+        "movedVertices": 36807,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00036676843017595395,
+        "maxMetres": 0.0029506923348188194,
+        "movedVertices": 2002,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0017021950844370041,
+        "maxMetres": 0.009849772875153994,
+        "movedVertices": 1951,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.571462045273605e-07,
+        "maxMetres": 4.805624485015869e-07,
+        "movedVertices": 1962,
+        "published": false
+      },
+      {
+        "id": "macro/weight-max+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.7606732909544504e-07,
+        "maxMetres": 5.9627923294058e-07,
+        "movedVertices": 1903,
+        "published": false
+      },
+      {
+        "id": "macro/weight-min+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.006670327717083995,
+        "maxMetres": 0.012388799323628292,
+        "movedVertices": 1393,
+        "published": true
+      },
+      {
+        "id": "macro/weight-min+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.0018476385129255403,
+        "maxMetres": 0.005189275607097109,
+        "movedVertices": 1441,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.0004954239548827577,
+        "maxMetres": 0.0026395150574649194,
+        "movedVertices": 1267,
+        "published": true
+      },
+      {
+        "id": "macro/weight-max+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroWeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.00026876296272156,
+        "maxMetres": 0.001535111578710802,
+        "movedVertices": 1371,
+        "published": true
+      },
+      {
+        "id": "macro/height-min+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 9.986668732023634e-08,
+        "maxMetres": 6.078961537520067e-07,
+        "movedVertices": 35658,
+        "published": false
+      },
+      {
+        "id": "macro/height-min+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.0538141913988423e-07,
+        "maxMetres": 5.977206589744158e-07,
+        "movedVertices": 35928,
+        "published": false
+      },
+      {
+        "id": "macro/height-max+proportions-uncommon",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.4093331162818973e-07,
+        "maxMetres": 8.34498417635746e-07,
+        "movedVertices": 35807,
+        "published": false
+      },
+      {
+        "id": "macro/height-max+proportions-ideal",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.467967673497212e-07,
+        "maxMetres": 8.344982877131202e-07,
+        "movedVertices": 36091,
+        "published": false
+      },
+      {
+        "id": "macro/height-min+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.1054715744141418e-07,
+        "maxMetres": 4.183618766476648e-07,
+        "movedVertices": 1974,
+        "published": false
+      },
+      {
+        "id": "macro/height-min+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.340412287396838e-07,
+        "maxMetres": 4.183328503757412e-07,
+        "movedVertices": 1933,
+        "published": false
+      },
+      {
+        "id": "macro/height-max+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.6017740202524703e-07,
+        "maxMetres": 5.964188604411334e-07,
+        "movedVertices": 1979,
+        "published": false
+      },
+      {
+        "id": "macro/height-max+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.8617265866656923e-07,
+        "maxMetres": 4.791598078850963e-07,
+        "movedVertices": 1939,
+        "published": false
+      },
+      {
+        "id": "macro/height-min+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.3057925226101183e-07,
+        "maxMetres": 4.1783079185515503e-07,
+        "movedVertices": 1222,
+        "published": false
+      },
+      {
+        "id": "macro/height-min+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.6293453090196583e-07,
+        "maxMetres": 5.364935406266061e-07,
+        "movedVertices": 1410,
+        "published": false
+      },
+      {
+        "id": "macro/height-max+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.489002208966757e-07,
+        "maxMetres": 4.773025923385312e-07,
+        "movedVertices": 1220,
+        "published": false
+      },
+      {
+        "id": "macro/height-max+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroHeight",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.9432374112423266e-07,
+        "maxMetres": 5.968375469514142e-07,
+        "movedVertices": 1375,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-uncommon+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.0636863237431714e-07,
+        "maxMetres": 4.77825663829564e-07,
+        "movedVertices": 1704,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-uncommon+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.1348592364551575e-07,
+        "maxMetres": 5.967910407334801e-07,
+        "movedVertices": 1645,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-ideal+cupsize-min",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.7458336905889752e-07,
+        "maxMetres": 5.290538750396171e-07,
+        "movedVertices": 1922,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-ideal+cupsize-max",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          },
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.5473787733538248e-07,
+        "maxMetres": 5.962326831740902e-07,
+        "movedVertices": 1877,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-uncommon+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 1.0247922630634729e-07,
+        "maxMetres": 3.5886748369909214e-07,
+        "movedVertices": 1006,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-uncommon+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 8.900945433343263e-08,
+        "maxMetres": 3.5886748369909214e-07,
+        "movedVertices": 1169,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-ideal+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 2.2599535891758127e-07,
+        "maxMetres": 5.56896905519911e-07,
+        "movedVertices": 1175,
+        "published": false
+      },
+      {
+        "id": "macro/proportions-ideal+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroProportions",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 1.5520008071362874e-07,
+        "maxMetres": 4.77825663829564e-07,
+        "movedVertices": 1337,
+        "published": false
+      },
+      {
+        "id": "macro/cupsize-min+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.00932337083876644,
+        "maxMetres": 0.01935336677195923,
+        "movedVertices": 1940,
+        "published": true
+      },
+      {
+        "id": "macro/cupsize-min+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroCupsize",
+            "side": "negative"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.004075704431644778,
+        "maxMetres": 0.008087652413536291,
+        "movedVertices": 1954,
+        "published": true
+      },
+      {
+        "id": "macro/cupsize-max+firmness-min",
+        "inputs": [
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "negative"
+          }
+        ],
+        "rmsMetres": 0.02670141953067134,
+        "maxMetres": 0.05007403860919119,
+        "movedVertices": 2314,
+        "published": true
+      },
+      {
+        "id": "macro/cupsize-max+firmness-max",
+        "inputs": [
+          {
+            "channel": "macroCupsize",
+            "side": "positive"
+          },
+          {
+            "channel": "macroFirmness",
+            "side": "positive"
+          }
+        ],
+        "rmsMetres": 0.00931483904344232,
+        "maxMetres": 0.01990694784877156,
+        "movedVertices": 1926,
+        "published": true
+      }
+    ],
+    "published": 78
+  },
+  "skin": {
+    "influences": 4,
+    "largestDroppedWeight": 0.042000144720077515,
+    "joints": 52
+  },
+  "joints": [
+    {
+      "bone": "hips",
+      "constraintSource": "root; its orientation is the pose root, not a joint range",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "spine",
+      "constraintSource": "38 CFR 4.71a Note (2) thoracolumbar totals split equally over three segments",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "chest",
+      "constraintSource": "38 CFR 4.71a Note (2) thoracolumbar totals split equally over three segments",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "upperChest",
+      "constraintSource": "38 CFR 4.71a Note (2) thoracolumbar totals split equally over three segments",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "neck",
+      "constraintSource": "38 CFR 4.71a Note (2) cervical totals split equally over two segments",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "head",
+      "constraintSource": "38 CFR 4.71a Note (2) cervical totals split equally over two segments",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftShoulder",
+      "constraintSource": "AAOS shoulder girdle elevation 40 / depression 10; protraction and retraction from the engine table, sign unpinned",
+      "signs": {
+        "flexion": 1,
+        "abduction": 1,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": -0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftUpperArm",
+      "constraintSource": "38 CFR 4.71 Plate I; extension AAOS; adduction limited to 10 in the coronal plane (crossing the trunk needs flexion, not modelled); swing headroom from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": 1,
+        "twist": -1
+      },
+      "neutral": {
+        "flexion": 0.1877,
+        "abduction": 41.752,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftLowerArm",
+      "constraintSource": "38 CFR 4.71 Plate I",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": -1
+      },
+      "neutral": {
+        "flexion": 43.0563,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftHand",
+      "constraintSource": "38 CFR 4.71 Plate I",
+      "signs": {
+        "flexion": 1,
+        "abduction": 1,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 6.5838,
+        "abduction": 10.9919,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftUpperLeg",
+      "constraintSource": "38 CFR 4.71 Plate II; extension and rotation AAOS; adduction limited to 10 in the coronal plane (crossing the other thigh needs flexion, not modelled); the swing cone equals the pinned flexion so every pure-plane clinical maximum stays admissible (the engine table's 120 sat below the 125 flexion and refused it)",
+      "signs": {
+        "flexion": 1,
+        "abduction": 1,
+        "twist": -1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": -0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftLowerLeg",
+      "constraintSource": "38 CFR 4.71 Plate II",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftFoot",
+      "constraintSource": "38 CFR 4.71 Plate II; inversion/eversion from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": 1,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": -0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftToes",
+      "constraintSource": "AAOS MTP extension 70 (positive here) / flexion 45",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftThumbMetacarpal",
+      "constraintSource": "AAOS thumb CMC flexion 15, extension 20; palmar and radial abduction not yet driven (held)",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftThumbProximal",
+      "constraintSource": "AAOS thumb MCP flexion 60, extension 10",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 18.4454,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftThumbDistal",
+      "constraintSource": "AAOS thumb IP flexion 80, extension 20",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 15.7798,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftIndexProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 12.3215,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftIndexIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 12.2427,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftIndexDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5019,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftMiddleProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 15.9362,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftMiddleIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 5.9007,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftMiddleDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5659,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftRingProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 13.5886,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftRingIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 7.3886,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftRingDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 6.3204,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftLittleProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 17.9954,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftLittleIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 9.2097,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "leftLittleDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": -0.9821,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightShoulder",
+      "constraintSource": "AAOS shoulder girdle elevation 40 / depression 10; protraction and retraction from the engine table, sign unpinned",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": -0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightUpperArm",
+      "constraintSource": "38 CFR 4.71 Plate I; extension AAOS; adduction limited to 10 in the coronal plane (crossing the trunk needs flexion, not modelled); swing headroom from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.1877,
+        "abduction": 41.752,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightLowerArm",
+      "constraintSource": "38 CFR 4.71 Plate I",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 43.0563,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightHand",
+      "constraintSource": "38 CFR 4.71 Plate I",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 6.5838,
+        "abduction": 10.9919,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightUpperLeg",
+      "constraintSource": "38 CFR 4.71 Plate II; extension and rotation AAOS; adduction limited to 10 in the coronal plane (crossing the other thigh needs flexion, not modelled); the swing cone equals the pinned flexion so every pure-plane clinical maximum stays admissible (the engine table's 120 sat below the 125 flexion and refused it)",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": 1
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightLowerLeg",
+      "constraintSource": "38 CFR 4.71 Plate II",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightFoot",
+      "constraintSource": "38 CFR 4.71 Plate II; inversion/eversion from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": -1,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightToes",
+      "constraintSource": "AAOS MTP extension 70 (positive here) / flexion 45",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightThumbMetacarpal",
+      "constraintSource": "AAOS thumb CMC flexion 15, extension 20; palmar and radial abduction not yet driven (held)",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 0.0,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightThumbProximal",
+      "constraintSource": "AAOS thumb MCP flexion 60, extension 10",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 18.4454,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightThumbDistal",
+      "constraintSource": "AAOS thumb IP flexion 80, extension 20",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 15.7798,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightIndexProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 12.3215,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightIndexIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 12.2427,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightIndexDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5019,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightMiddleProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 15.9362,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightMiddleIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 5.9007,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightMiddleDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 7.5659,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightRingProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 13.5886,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightRingIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 7.3886,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightRingDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 6.3204,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightLittleProximal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) MCP 0-90; hyperextension 20 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 17.9954,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightLittleIntermediate",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) PIP 0-100",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": 9.2097,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    },
+    {
+      "bone": "rightLittleDistal",
+      "constraintSource": "38 CFR 4.71a digits II-V note (1) DIP 0-80; hyperextension 10 from the engine table",
+      "signs": {
+        "flexion": 1,
+        "abduction": null,
+        "twist": null
+      },
+      "neutral": {
+        "flexion": -0.9821,
+        "abduction": 0.0,
+        "twist": 0.0
+      }
+    }
+  ],
+  "excludedTargets": [
+    "bulge-decr-incr",
+    "nipple-point-decr-incr",
+    "nipple-size-decr-incr",
+    "genitals/*",
+    "asym/*",
+    "macro race",
+    "face folders"
+  ],
+  "limits": [
+    "Authored upstream prior, not individual anatomy",
+    "Joints are hinge/ball approximations at MPFB joint cube centroids; no scapulohumeral rhythm or knee screw-home",
+    "No collision, physiological or likeness acceptance"
+  ],
+  "uncompressedSha256": "22511c45dd19f85974f093b3d085ae4c1583ab4c1b79d7d01ed27308d405a551",
+  "uncompressedBytes": 109944026,
+  "elapsedSeconds": 195.2,
+  "compressedSha256": "35e124fb07ae73c4f0a583365b524193377ed79d385d4f69e0b83928f8bd19b2",
+  "compressedBytes": 27752919
+}

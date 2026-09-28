@@ -1,0 +1,78 @@
+{
+  "recorded": "2026-09-22",
+  "sourceCommit": "817587ceb2ea03ea17a5b47e04396cbb4ddfa2d5",
+  "script": {
+    "path": "test/scripts/face-review/extract-face-attachments.py",
+    "sha256": "c7b77fc951996b0cb2c17490d9dce064bb0c9144c1d70098c06030d6ae61e107"
+  },
+  "blender": "5.1.2",
+  "correspondence": {
+    "faceBasis": "mpfb-connected-head-2026-09-22-numerical-hair",
+    "offset": 1.5194313526153564,
+    "vertices": 16942,
+    "twins": 16758,
+    "ringVertices": 184,
+    "worstMatchMetres": 1.5515838457795457e-17,
+    "neutralErrorMetres": 1.3877787807814457e-17
+  },
+  "weights": {
+    "jaw": {
+      "vertices": 3857,
+      "fullyAttached": 0,
+      "maximum": 0.9218000769615173
+    },
+    "eyeL": {
+      "vertices": 234,
+      "fullyAttached": 0,
+      "maximum": 0.10468953102827072
+    },
+    "eyeR": {
+      "vertices": 234,
+      "fullyAttached": 0,
+      "maximum": 0.10468953102827072
+    },
+    "owners": {
+      "jaw": "sum of the default rig's jaw subtree",
+      "eyeL": "eye.L",
+      "eyeR": "eye.R"
+    }
+  },
+  "landmarks": {
+    "cubes": [
+      "joint-mouth",
+      "joint-jaw",
+      "joint-l-eye",
+      "joint-r-eye",
+      "joint-l-eye-target",
+      "joint-r-eye-target",
+      "joint-head",
+      "joint-head-2",
+      "joint-neck",
+      "joint-tongue-1",
+      "joint-tongue-2",
+      "joint-tongue-3",
+      "joint-tongue-4"
+    ],
+    "endpointsWithMotion": 29
+  },
+  "recipes": {
+    "candidates": 298,
+    "toleranceMetres": 2e-06,
+    "matched": 274,
+    "unmatched": []
+  },
+  "neutralRecoveryMaximumMetres": {
+    "Human": 0.0,
+    "landmarks": 0.0
+  },
+  "uncompressedSha256": "5eb6d90c7a66123590173a8203d6a712c302e3a05d2291a9af14902e9c08a2c0",
+  "uncompressedBytes": 101974,
+  "elapsedSeconds": 78.3,
+  "limits": [
+    "Weights are the source rig's painted attachment, transported through the subdivision; not measured tissue mechanics",
+    "Landmarks are the source's joint cube centroids; not clinical joint centres",
+    "Expression endpoints move no landmark by design"
+  ],
+  "compressedSha256": "894b33766c3bc32273e7d6e14366eb10f7b69a434b8a24fc1afe7fb5e45d744a",
+  "compressedBytes": 31415
+}

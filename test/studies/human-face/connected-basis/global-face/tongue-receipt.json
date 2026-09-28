@@ -1,0 +1,207 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-valid-envelope",
+  "revision": "mpfb-connected-head-2026-09-26-tongue",
+  "endpoints": [
+    {
+      "endpoint": "headWidth.positive",
+      "residual": 4.4746683251079e-9,
+      "before": 0.0052920132875442505,
+      "after": 0.0037673406723836263
+    },
+    {
+      "endpoint": "headWidth.negative",
+      "residual": 3.243130341969852e-9,
+      "before": 0.0052920151501894,
+      "after": 0.0037673393208360394
+    },
+    {
+      "endpoint": "headHeight.positive",
+      "residual": 3.6372328626743666e-7,
+      "before": 0.011000394821166992,
+      "after": 0.011000048410101994
+    },
+    {
+      "endpoint": "headHeight.negative",
+      "residual": 3.595790022455775e-7,
+      "before": 0.011000514030456543,
+      "after": 0.011000056998356432
+    },
+    {
+      "endpoint": "headDepth.positive",
+      "residual": 1.4056922382175985e-7,
+      "before": 0.01130002737045288,
+      "after": 0.011300003736453876
+    },
+    {
+      "endpoint": "headDepth.negative",
+      "residual": 1.1153747865155078e-7,
+      "before": 0.007600024342536926,
+      "after": 0.007615258822990468
+    },
+    {
+      "endpoint": "chinHeight.positive",
+      "residual": 0,
+      "before": 0.020400404930114746,
+      "after": 0
+    },
+    {
+      "endpoint": "chinProjection.negative",
+      "residual": 1.5826726808926636e-7,
+      "before": 0,
+      "after": 0.00009187453218652224
+    },
+    {
+      "endpoint": "mouthWidth.positive",
+      "residual": 5.064544172060648e-9,
+      "before": 0,
+      "after": 0.003972830198885646
+    },
+    {
+      "endpoint": "mouthWidth.negative",
+      "residual": 3.1139815960187778e-9,
+      "before": 0,
+      "after": 0.003972830226363415
+    },
+    {
+      "endpoint": "mouthHeight.positive",
+      "residual": 0.000005750101611650196,
+      "before": 0,
+      "after": 0.007594727167266063
+    },
+    {
+      "endpoint": "jawPrognathism.positive",
+      "residual": 6.830486944525704e-7,
+      "before": 0,
+      "after": 0.007242838355931744
+    },
+    {
+      "endpoint": "jawPrognathism.negative",
+      "residual": 6.851528173389132e-7,
+      "before": 0,
+      "after": 0.007242839969534887
+    },
+    {
+      "endpoint": "faceAgeStructure.positive",
+      "residual": 2.4321093510496805e-7,
+      "before": 0,
+      "after": 0.00027604671608218027
+    },
+    {
+      "endpoint": "faceAgeStructure.negative",
+      "residual": 7.097426375911257e-7,
+      "before": 0.0025472670504286697,
+      "after": 0.003176868296330381
+    },
+    {
+      "endpoint": "mouthElevation.positive",
+      "residual": 3.646870849950735e-7,
+      "before": 0.0064780002588758785,
+      "after": 0.006477657603633735
+    },
+    {
+      "endpoint": "mouthElevation.negative",
+      "residual": 3.479690146596798e-7,
+      "before": 0.008800387382507324,
+      "after": 0.00880004453069925
+    },
+    {
+      "endpoint": "globalAgeStructure.positive",
+      "residual": 0.0000014940050335785664,
+      "before": 0.004451276310045903,
+      "after": 0.007819422171063907
+    },
+    {
+      "endpoint": "globalAgeStructure.negative",
+      "residual": 9.999131973132695e-7,
+      "before": 0.010694294172367048,
+      "after": 0.009993810328206681
+    },
+    {
+      "endpoint": "globalSexualDimorphism.positive",
+      "residual": 3.872618512031462e-7,
+      "before": 0.006272936919604839,
+      "after": 0.006857595531479406
+    },
+    {
+      "endpoint": "globalSexualDimorphism.negative",
+      "residual": 3.1370145249243815e-7,
+      "before": 0.006219869949380336,
+      "after": 0.006835496509704414
+    },
+    {
+      "endpoint": "globalAdiposity.negative",
+      "residual": 0,
+      "before": 0.0002558995715078706,
+      "after": 0
+    },
+    {
+      "endpoint": "mouthForwardPosition.positive",
+      "residual": 2.762006184866758e-7,
+      "before": 0.010300025343894958,
+      "after": 0.007890619258693131
+    },
+    {
+      "endpoint": "mouthForwardPosition.negative",
+      "residual": 9.232462785686152e-8,
+      "before": 0.0064000412821769714,
+      "after": 0.006400005371473728
+    },
+    {
+      "endpoint": "mouthLateralPosition.positive",
+      "residual": 7.140831915830915e-8,
+      "before": 0.0060000065714120865,
+      "after": 0.0060001727693665755
+    },
+    {
+      "endpoint": "mouthLateralPosition.negative",
+      "residual": 1.74347396998871e-7,
+      "before": 0.006000004708766937,
+      "after": 0.006001011968941777
+    },
+    {
+      "endpoint": "noseForwardPosition.negative",
+      "residual": 3.464804711875798e-7,
+      "before": 0,
+      "after": 0.0005342637943591206
+    },
+    {
+      "endpoint": "africanAncestry.positive",
+      "residual": 0.0000016925908373975056,
+      "before": 0.009431903996542796,
+      "after": 0.006450496203982402
+    },
+    {
+      "endpoint": "asianAncestry.positive",
+      "residual": 0.0000016036541066490574,
+      "before": 0.006707099000313026,
+      "after": 0.005796710032809592
+    },
+    {
+      "endpoint": "europeanAncestry.positive",
+      "residual": 9.030753984362437e-7,
+      "before": 0.004492323007086645,
+      "after": 0.003953915594550952
+    }
+  ],
+  "recorded": "2026-09-25T21:59:55.521Z",
+  "inputs": {
+    "basis": {
+      "sha256": "89877c3426bf9e0c914f36c7a3857bb91ed9e570d2b60a3b93116da546e50eff",
+      "bytes": 26324883
+    },
+    "subjects": {
+      "sha256": "3aabaa3e003777cff708c99496b5d924f17e51a1acc4868caf5889f30ecedec2",
+      "bytes": 78804
+    },
+    "controls": {
+      "sha256": "ccb93ca8ded0aa105628016c0b83dbe98ba81931a28d28328fa1de1a514638d0",
+      "bytes": 7453
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "bcc8e1d282c206b9877abbb36bdf1bf840e14e00633d5fca6f5d4e205dd79085",
+      "bytes": 26571671
+    }
+  }
+}

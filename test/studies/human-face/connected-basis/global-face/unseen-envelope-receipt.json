@@ -1,0 +1,292 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-lip-envelope",
+  "revision": "mpfb-connected-head-2026-09-26-unseen-envelope",
+  "envelopes": [
+    {
+      "reading": "eLineUpper",
+      "channel": "mouthForwardPosition",
+      "interval": [
+        -0.01198,
+        0.0066
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1.6,
+        1
+      ],
+      "reached": [
+        -0.010136203742668935,
+        0.00958841563395388
+      ],
+      "faults": [
+        297,
+        0
+      ]
+    },
+    {
+      "reading": "eLineLower",
+      "channel": "lowerLipVolume",
+      "interval": [
+        -0.01122,
+        0.00997
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1.7,
+        1
+      ],
+      "reached": [
+        -0.003508059234824904,
+        0.00329243857762927
+      ],
+      "faults": [
+        29,
+        1
+      ]
+    },
+    {
+      "reading": "facialConvexity",
+      "channel": "chinProjection",
+      "interval": [
+        159.8,
+        178.8
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1.39
+      ],
+      "reached": [
+        157.4019276319588,
+        178.8
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    },
+    {
+      "reading": "nasofrontal",
+      "channel": "nasalRootProjection",
+      "interval": [
+        115.69999999999999,
+        154.6
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1.46,
+        1
+      ],
+      "reached": [
+        115.69999999999999,
+        156.95204888721915
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    },
+    {
+      "reading": "nasolabial",
+      "channel": "noseSeptumAngle",
+      "interval": [
+        69.9,
+        119.3
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1.05,
+        2.5
+      ],
+      "reached": [
+        118.96776833379052,
+        71.49024086622258
+      ],
+      "faults": [
+        0,
+        4
+      ]
+    },
+    {
+      "reading": "nasalProtrusion",
+      "channel": "noseDepth",
+      "interval": [
+        0.28,
+        0.412
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1.94
+      ],
+      "reached": [
+        0.2188403737868825,
+        0.412
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    },
+    {
+      "reading": "cephalicIndex",
+      "channel": "posteriorHeadDepth",
+      "interval": [
+        0.7051000000000001,
+        0.9153
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1
+      ],
+      "reached": [
+        0.8335106040559317,
+        0.6401759270486619
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    },
+    {
+      "reading": "earLengthLeft",
+      "channel": "leftEarScale",
+      "interval": [
+        0.41759999999999997,
+        0.6082
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1.38
+      ],
+      "reached": [
+        0.30507233373421816,
+        0.6082
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    },
+    {
+      "reading": "earLengthRight",
+      "channel": "rightEarScale",
+      "interval": [
+        0.41759999999999997,
+        0.6082
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1.38
+      ],
+      "reached": [
+        0.3050723304673498,
+        0.6082
+      ],
+      "faults": [
+        0,
+        0
+      ]
+    },
+    {
+      "reading": "earProtrusionLeft",
+      "channel": "leftEarFlap",
+      "interval": [
+        0.2478,
+        0.4595
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1
+      ],
+      "reached": [
+        0.16607649287782084,
+        0.4111552505575843
+      ],
+      "faults": [
+        0,
+        9
+      ]
+    },
+    {
+      "reading": "earProtrusionRight",
+      "channel": "rightEarFlap",
+      "interval": [
+        0.2478,
+        0.4595
+      ],
+      "from": [
+        -1,
+        1
+      ],
+      "to": [
+        -1,
+        1
+      ],
+      "reached": [
+        0.16607633825660273,
+        0.41115617003462357
+      ],
+      "faults": [
+        0,
+        9
+      ]
+    }
+  ],
+  "recorded": "2026-09-25T18:48:38.108Z",
+  "citations": "The norms and spreads are faceUnseenNorms' (FACE_UNSEEN_NORMS, FACE_UNSEEN_INDICES), each cited there.",
+  "inputs": {
+    "basis": {
+      "sha256": "e2aa12d13d1c3892afc8efb8fe89fa8126ea569c39b056e86132014b5f90e94b",
+      "bytes": 26324771
+    },
+    "subjects": {
+      "sha256": "7ad65dc5ee4a4f2235ca90814e12cd20d446ac68d6bdc51a1faaf8165fa7d502",
+      "bytes": 78768
+    },
+    "controls": {
+      "sha256": "f175917db994aef797ede8e9f18a0c6d2a662b369104cccb32063e241d067b17",
+      "bytes": 7451
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "2861fad12fbf7c6184af8cfed7cbdbdb087606ec85d7dea1e7360848fb11c35f",
+      "bytes": 26324835
+    }
+  }
+}

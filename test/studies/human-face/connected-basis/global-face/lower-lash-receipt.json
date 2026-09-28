@@ -1,0 +1,44 @@
+{
+  "source": "mpfb-connected-head-2026-09-24-brow-binding",
+  "revision": "mpfb-connected-head-2026-09-24-lower-lash",
+  "material": "Human.eyelashes01.lower",
+  "count": 0.62,
+  "length": {
+    "upper": 0.006983480068652443,
+    "lower": 0.005764205073245906
+  },
+  "lowerTriangles": 176,
+  "upperTriangles": 192,
+  "upperCovered": 0.0001602857853065053,
+  "lowerCovered": {
+    "before": 0.00012453261382248636,
+    "target": 0.00008202650815998847,
+    "after": 0.00007270118738914884
+  },
+  "clumps": {
+    "before": 30,
+    "kept": 21
+  },
+  "recorded": "2026-09-24T08:05:35.560Z",
+  "citation": "Aumond S, Bitton E. The eyelash follicle features and anomalies: a review. J Optom 2018;11(4):211-222: the lower lid carries 75-80 lashes in three to four rows, the upper 90-160 in five to six.",
+  "inputs": {
+    "basis": {
+      "sha256": "b1d53ee3b1a317e2ab0095bca18e6cf807189688e6710c8a8114a9f7b3e13c46",
+      "bytes": 25985618
+    },
+    "subjects": {
+      "sha256": "d0955bec9b21edaa61f07481c80c000810eaade5e36b86d91f874cb68eca542f",
+      "bytes": 75948
+    },
+    "controls": {
+      "sha256": "1656c5536fd9380d89735dfa1ae825c4c78283df7862dbf1814a4fac4678e796",
+      "bytes": 7451
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "cb001c2b8eeb1bb12761c192313eb1bdaf12b954d141fe970ffdbecebbd387ba",
+      "bytes": 26067194
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "basis": "mpfb-connected-body-2026-09-21-individuality",
+  "supersedes": "mpfb-connected-body-2026-09-21-pose-correctives",
+  "recorded": "2026-09-21",
+  "method": "procedural displacement fields on the neutral surface: a tissue mask read off the source endpoint over the same anatomy, a polar or geodesic coordinate over it, and a normal or gravity direction; right endpoints reflected from the left",
+  "research": ".wiki/04-domain-research/anatomy.md",
+  "channels": [
+    {
+      "id": "buttocksPtosis",
+      "group": "buttocks",
+      "mirror": null,
+      "envelope": [
+        -1,
+        1
+      ],
+      "positive": {
+        "endpoint": "buttocks/buttocks-ptosis-incr",
+        "vertices": 894,
+        "mostMillimetres": 15.7
+      },
+      "negative": {
+        "endpoint": "buttocks/buttocks-ptosis-decr",
+        "vertices": 896,
+        "mostMillimetres": 15.6
+      },
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "stomachOverhang",
+      "group": "stomach",
+      "mirror": null,
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "stomach/stomach-overhang-incr",
+        "vertices": 283,
+        "mostMillimetres": 23.9
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "flankFat",
+      "group": "torso",
+      "mirror": null,
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "torso/flank-fat-incr",
+        "vertices": 1128,
+        "mostMillimetres": 20.1
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "outerThighFatLeft",
+      "group": "legs",
+      "mirror": "outerThighFatRight",
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "legs/l-outer-thigh-fat-incr",
+        "vertices": 574,
+        "mostMillimetres": 17.6
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": 0
+    },
+    {
+      "id": "outerThighFatRight",
+      "group": "legs",
+      "mirror": "outerThighFatLeft",
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "legs/r-outer-thigh-fat-incr",
+        "vertices": 574,
+        "mostMillimetres": 17.6
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "hipDipLeft",
+      "group": "hip",
+      "mirror": "hipDipRight",
+      "envelope": [
+        -1,
+        1
+      ],
+      "positive": {
+        "endpoint": "hip/l-hip-dip-incr",
+        "vertices": 1035,
+        "mostMillimetres": 15
+      },
+      "negative": {
+        "endpoint": "hip/l-hip-dip-decr",
+        "vertices": 1011,
+        "mostMillimetres": 12
+      },
+      "mirrorResidualMillimetres": 0
+    },
+    {
+      "id": "hipDipRight",
+      "group": "hip",
+      "mirror": "hipDipLeft",
+      "envelope": [
+        -1,
+        1
+      ],
+      "positive": {
+        "endpoint": "hip/r-hip-dip-incr",
+        "vertices": 1035,
+        "mostMillimetres": 15
+      },
+      "negative": {
+        "endpoint": "hip/r-hip-dip-decr",
+        "vertices": 1011,
+        "mostMillimetres": 12
+      },
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "absDefinition",
+      "group": "stomach",
+      "mirror": null,
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "stomach/abs-definition-incr",
+        "vertices": 736,
+        "mostMillimetres": 5
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "deltoidDefinitionLeft",
+      "group": "arms",
+      "mirror": "deltoidDefinitionRight",
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "arms/l-deltoid-definition-incr",
+        "vertices": 689,
+        "mostMillimetres": 4.3
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": 0
+    },
+    {
+      "id": "deltoidDefinitionRight",
+      "group": "arms",
+      "mirror": "deltoidDefinitionLeft",
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "arms/r-deltoid-definition-incr",
+        "vertices": 689,
+        "mostMillimetres": 4.3
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "scapularDefinition",
+      "group": "torso",
+      "mirror": null,
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "torso/scapular-definition-incr",
+        "vertices": 518,
+        "mostMillimetres": 4.6
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    },
+    {
+      "id": "skeletalProminence",
+      "group": "torso",
+      "mirror": null,
+      "envelope": [
+        0,
+        1
+      ],
+      "positive": {
+        "endpoint": "torso/skeletal-prominence-incr",
+        "vertices": 1642,
+        "mostMillimetres": 7
+      },
+      "negative": null,
+      "mirrorResidualMillimetres": null
+    }
+  ],
+  "uncompressedSha256": "a4ed02e4f17b2df5b0433da5342d83cd7412939534d1de0a6a4194b91d44fb5a",
+  "uncompressedBytes": 110706669,
+  "compressedSha256": "1b66d60eec7d812efe029e8c7bf4a1c35aa53b9bf76a024cfec24e8d74e65a5f",
+  "compressedBytes": 28068738
+}

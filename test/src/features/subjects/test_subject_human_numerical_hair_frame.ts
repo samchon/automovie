@@ -1,0 +1,121 @@
+import { Vector3, createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { buildHumanFaceHairMesh } from "@automovie/human/face/anatomy/hair/buildHumanFaceHairMesh";
+import { TestValidator } from "@nestia/e2e";
+
+import { createSignedVoxelUnion } from "../internal/createSignedMeshFixture";
+import { nclose, vclose } from "../internal/predicates";
+
+/**
+ * A ribbon emerging normally must obtain its width direction from the actual
+ * bend into combing. A world-axis choice at the normal root puts some ribbons
+ * edge-on to the skin and makes surface coverage depend on head orientation.
+ * The analytic path rises 4 mm from z=0 and bends into +Y at fixed z=4 mm.
+ * Its transverse direction is X, independently of the transport calculation.
+ *
+ * Scenarios:
+ * 1. Free rows span 2 mm in X and remain in the z=4 mm contact-parallel plane.
+ * 2. Cyclic coordinate rotations preserve that geometric result, including
+ *    directions for which a least-aligned world-axis root frame happens to work.
+ * 3. The root and every station centre remain exactly on the input polyline.
+ * 4. Every combed triangle faces along the root's outward normal, for the
+ *    bend into +Y and its mirror into -Y alike: a ribbon over the scalp faces
+ *    away from it, whichever way the curve happens to turn.
+ *
+ * The transported frame is the subject here, so the surface stands ten metres
+ * away and never narrows a ribbon against itself.
+ */
+export const test_subject_human_numerical_hair_frame = (): void => {
+  const union = createSignedVoxelUnion([[0, 0, 0]]);
+  const distant = createAutoMovieSignedMeshQuery({
+    ...union,
+    positions: union.positions.map((value, at) =>
+      at % 3 === 0 ? value + 10 : value,
+    ),
+  });
+  const original = [
+    Vector3.create(0, 0, 0),
+    Vector3.create(0, 0, 0.004),
+    Vector3.create(0, 0.001, 0.004),
+    Vector3.create(0, 0.002, 0.004),
+  ];
+  for (let rotation = 0; rotation < 3; rotation++) {
+    const rotate = (p: ReturnType<typeof Vector3.create>) => {
+      const axes = [p.x, p.y, p.z];
+      return Vector3.create(
+        axes[rotation],
+        axes[(rotation + 1) % 3],
+        axes[(rotation + 2) % 3],
+      );
+    };
+    const points = original.map(rotate);
+    const normal = rotate(Vector3.create(0, 0, 1));
+    const across = rotate(Vector3.create(1, 0, 0));
+    const mesh = buildHumanFaceHairMesh(
+      [{ points, normal, length: 0.006, clearance: 0.003 }],
+      { clearance: 0, taper: { tipWidth: 1, start: 0 } },
+      { widths: [0.002], query: distant },
+    );
+    const point = (id: number) =>
+      Vector3.create(
+        ...(mesh.positions.slice(id * 3, id * 3 + 3) as [
+          number,
+          number,
+          number,
+        ]),
+      );
+    TestValidator.predicate(
+      "root retained",
+      vclose(point(0), points[0], 1e-12),
+    );
+    for (let at = 1; at < points.length; at++) {
+      const a = point(2 * at - 1),
+        b = point(2 * at);
+      const width = Vector3.subtract(b, a);
+      TestValidator.predicate(
+        "width follows the emergence/combing plane",
+        nclose(Math.abs(Vector3.dot(width, across)), 0.002, 1e-12),
+      );
+      TestValidator.predicate(
+        "free rows remain parallel to skin",
+        nclose(Vector3.dot(width, normal), 0, 1e-12),
+      );
+      TestValidator.predicate(
+        "centreline unchanged",
+        vclose(Vector3.scale(Vector3.add(a, b), 0.5), points[at], 1e-12),
+      );
+    }
+    for (const mirror of [1, -1]) {
+      const bent = original
+        .map((p) => Vector3.create(p.x, mirror * p.y, p.z))
+        .map(rotate);
+      const ribbon = buildHumanFaceHairMesh(
+        [{ points: bent, normal, length: 0.006, clearance: 0.003 }],
+        { clearance: 0, taper: { tipWidth: 1, start: 0 } },
+        { widths: [0.002], query: distant },
+      );
+      const at = (id: number) =>
+        Vector3.create(
+          ...(ribbon.positions.slice(id * 3, id * 3 + 3) as [
+            number,
+            number,
+            number,
+          ]),
+        );
+      const indices = ribbon.indices!;
+      for (let t = 0; t < indices.length; t += 3) {
+        const [p, q, r] = [0, 1, 2].map((k) => at(indices[t + k]!));
+        // The rising segment stands edge-on to the scalp; the combed rows lie
+        // in the plane 4 mm above it.
+        if ([p, q, r].some((v) => Vector3.dot(v!, normal) < 0.004 - 1e-9))
+          continue;
+        TestValidator.predicate(
+          "faces away from the scalp",
+          Vector3.dot(
+            Vector3.cross(Vector3.subtract(q!, p!), Vector3.subtract(r!, p!)),
+            normal,
+          ) > 0,
+        );
+      }
+    }
+  }
+};

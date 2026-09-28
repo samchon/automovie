@@ -148,6 +148,17 @@ const flattenRigidParts = (
         new THREE.Float32BufferAttribute(values, colorSize),
       );
     }
+  // relief weights likewise: a bare vertex's is one, its material not reading it
+  if (geometries.some((geometry) => geometry.hasAttribute("reliefWeight")))
+    for (const geometry of geometries)
+      if (!geometry.hasAttribute("reliefWeight"))
+        geometry.setAttribute(
+          "reliefWeight",
+          new THREE.Float32BufferAttribute(
+            new Float32Array(geometry.getAttribute("position").count).fill(1),
+            1,
+          ),
+        );
   const geometry = mergeGeometries(geometries, true);
   if (geometry === null || materials.length === 0)
     throw new Error(`${owner} cannot be flattened for instancing.`);

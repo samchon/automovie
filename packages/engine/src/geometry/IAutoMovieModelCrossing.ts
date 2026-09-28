@@ -6,6 +6,10 @@
  * they answer different questions: how much of a lip is compromised is not how
  * much of the tooth row is, and a caller repairing one needs its own side.
  *
+ * A part measured against itself (`measureAutoMovieModelCrossings` with
+ * `withinParts`) names itself as both `part` and `other`, and both counts
+ * are the triangles of that part another of its own triangles crosses.
+ *
  * `coplanar` separates the pairs that lie flat against each other from the ones
  * that pierce. Flat contact is what adjacent shells do when they are merely
  * touching, so counting it as piercing would make a resting pose look broken.

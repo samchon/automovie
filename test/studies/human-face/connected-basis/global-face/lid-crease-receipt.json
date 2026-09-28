@@ -1,0 +1,50 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-face-breadth",
+  "revision": "mpfb-connected-head-2026-09-27-lid-fold",
+  "minimum": -0.72,
+  "channels": [
+    {
+      "channel": "leftEyelidFoldConvexity",
+      "rows": 189,
+      "depth": 3.606,
+      "slide": 2.64
+    },
+    {
+      "channel": "rightEyelidFoldConvexity",
+      "rows": 189,
+      "depth": 3.606,
+      "slide": 2.64
+    }
+  ],
+  "layer": {
+    "skin": 0.98,
+    "orbicularis": 0.76,
+    "total": 1.74
+  },
+  "faults": {
+    "atMinimum": 0,
+    "past": 2
+  },
+  "recorded": "2026-09-27T04:15:34.634Z",
+  "citations": "Upper eyelid skin with subcutaneous tissue 0.98 +- 0.17 mm, orbicularis oculi 0.76 +- 0.1 mm, high-frequency ultrasound, 48 healthy adults aged 17 to 46 (Rad Proc 2021;26).",
+  "inputs": {
+    "basis": {
+      "sha256": "e166a2b4cd8ec683d665c5e15e29d0d9e668d86ea2be767bc9438c8485b39d07",
+      "bytes": 27137928
+    },
+    "subjects": {
+      "sha256": "765fc3a60158eab443462814e56e44dca9b7c9b32cd81d65a226dbdfebdd1886",
+      "bytes": 82777
+    },
+    "controls": {
+      "sha256": "0f7234f39337063250da62fc58cabde27389c762669be21ddd09402cf16cd6e4",
+      "bytes": 7451
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "3be1d6caae852d0cfbf0b4b7fbae786e00f54f49d1e094129883bf4b0013b80a",
+      "bytes": 27137901
+    }
+  }
+}

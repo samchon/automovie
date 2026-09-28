@@ -15,3 +15,5 @@ export * from "./IPortraitUpperLidPoint";
 export * from "./IPortraitUpperLidProfile";
 export * from "./IPortraitUpperLidSection";
 export * from "./roles";
+export * from "./IHumanFaceIrisDisc";
+export * from "./IHumanFaceIrisTexels";

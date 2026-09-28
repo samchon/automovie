@@ -1,0 +1,1007 @@
+{
+  "basis": "mpfb-connected-head-2026-09-21-jaw-arc",
+  "supersedes": "mpfb-connected-head-2026-09-20-rigid-mandible",
+  "screw": {
+    "axis": [
+      0.9999999999998977,
+      -4.544177883361942e-7,
+      -3.574867942984768e-8
+    ],
+    "pivotMetres": [
+      -5.044492417484403e-9,
+      -0.015730625585959595,
+      0.05884926951108939
+    ],
+    "slideMetres": 9.189287463220608e-9,
+    "degrees": 21.155430064603895
+  },
+  "refolded": [
+    {
+      "channel": "tongueOut",
+      "unfold": "tongueOutJawOpenUnfold",
+      "kneadedMillimetresRms": 2.2980407993451553,
+      "ownArchMotionMillimetres": 0
+    }
+  ],
+  "carriers": [
+    {
+      "channel": "jawOpen",
+      "side": "positive",
+      "target": "jawOpen",
+      "fraction": 1,
+      "leftover": 7.036309642421266e-15
+    },
+    {
+      "channel": "tongueOut",
+      "side": "positive",
+      "target": "tongueOut",
+      "fraction": 0.9999946171032357,
+      "leftover": 0.00001879438938300098
+    }
+  ],
+  "grid": [
+    0.25,
+    0.5,
+    0.75,
+    1
+  ],
+  "published": [
+    {
+      "corrective": "tongueOutArcAt25",
+      "node": {
+        "tongueOut": 0.25
+      },
+      "vertices": 9186,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.210039668771235
+    },
+    {
+      "corrective": "tongueOutArcAt5",
+      "node": {
+        "tongueOut": 0.5
+      },
+      "vertices": 9481,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.614751064405904
+    },
+    {
+      "corrective": "tongueOutArcAt75",
+      "node": {
+        "tongueOut": 0.75
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.2100334706114537
+    },
+    {
+      "corrective": "jawOpenArcAt25",
+      "node": {
+        "jawOpen": 0.25
+      },
+      "vertices": 9186,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.210039668771235
+    },
+    {
+      "corrective": "jawOpenArcAt5",
+      "node": {
+        "jawOpen": 0.5
+      },
+      "vertices": 9481,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.614751064405904
+    },
+    {
+      "corrective": "jawOpenArcAt75",
+      "node": {
+        "jawOpen": 0.75
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.2100334706114537
+    },
+    {
+      "corrective": "jawOpenAt25TongueOutAt25Arc",
+      "node": {
+        "jawOpen": 0.25,
+        "tongueOut": 0.25
+      },
+      "vertices": 9044,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 0.8321538319325339
+    },
+    {
+      "corrective": "jawOpenAt25TongueOutAt5Arc",
+      "node": {
+        "jawOpen": 0.25,
+        "tongueOut": 0.5
+      },
+      "vertices": 9186,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.3125128570798839
+    },
+    {
+      "corrective": "jawOpenAt25TongueOutAt75Arc",
+      "node": {
+        "jawOpen": 0.25,
+        "tongueOut": 0.75
+      },
+      "vertices": 9171,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.4365194046722793
+    },
+    {
+      "corrective": "jawOpenAt25TongueOutAt1Arc",
+      "node": {
+        "jawOpen": 0.25,
+        "tongueOut": 1
+      },
+      "vertices": 9186,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.210039668771235
+    },
+    {
+      "corrective": "jawOpenAt5TongueOutAt25Arc",
+      "node": {
+        "jawOpen": 0.5,
+        "tongueOut": 0.25
+      },
+      "vertices": 9186,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.3125128570798839
+    },
+    {
+      "corrective": "jawOpenAt5TongueOutAt5Arc",
+      "node": {
+        "jawOpen": 0.5,
+        "tongueOut": 0.5
+      },
+      "vertices": 9481,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 2.020386349191659
+    },
+    {
+      "corrective": "jawOpenAt5TongueOutAt75Arc",
+      "node": {
+        "jawOpen": 0.5,
+        "tongueOut": 0.75
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 2.119260720156914
+    },
+    {
+      "corrective": "jawOpenAt5TongueOutAt1Arc",
+      "node": {
+        "jawOpen": 0.5,
+        "tongueOut": 1
+      },
+      "vertices": 9481,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.614751064405904
+    },
+    {
+      "corrective": "jawOpenAt75TongueOutAt25Arc",
+      "node": {
+        "jawOpen": 0.75,
+        "tongueOut": 0.25
+      },
+      "vertices": 9171,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.4365194046722793
+    },
+    {
+      "corrective": "jawOpenAt75TongueOutAt5Arc",
+      "node": {
+        "jawOpen": 0.75,
+        "tongueOut": 0.5
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 2.119260720156914
+    },
+    {
+      "corrective": "jawOpenAt75TongueOutAt75Arc",
+      "node": {
+        "jawOpen": 0.75,
+        "tongueOut": 0.75
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 2.042142012691576
+    },
+    {
+      "corrective": "jawOpenAt75TongueOutAt1Arc",
+      "node": {
+        "jawOpen": 0.75,
+        "tongueOut": 1
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.2100334706114537
+    },
+    {
+      "corrective": "jawOpenAt1TongueOutAt25Arc",
+      "node": {
+        "jawOpen": 1,
+        "tongueOut": 0.25
+      },
+      "vertices": 9186,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.210039668771235
+    },
+    {
+      "corrective": "jawOpenAt1TongueOutAt5Arc",
+      "node": {
+        "jawOpen": 1,
+        "tongueOut": 0.5
+      },
+      "vertices": 9481,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.614751064405904
+    },
+    {
+      "corrective": "jawOpenAt1TongueOutAt75Arc",
+      "node": {
+        "jawOpen": 1,
+        "tongueOut": 0.75
+      },
+      "vertices": 9173,
+      "surfaces": [
+        "Human",
+        "Human.teeth_base",
+        "Human.tongue01"
+      ],
+      "mostMillimetres": 1.2100334706114537
+    }
+  ],
+  "archOffScrewMillimetres": {
+    "worstBefore": 12.724863280504454,
+    "worstAfter": 0.13153594838112018,
+    "samples": [
+      {
+        "expression": {
+          "jawOpen": 0.05
+        },
+        "before": 0.2582517932771426,
+        "after": 0.05445354562232362
+      },
+      {
+        "expression": {
+          "jawOpen": 0.1
+        },
+        "before": 0.4893980039386564,
+        "after": 0.08163086359091153
+      },
+      {
+        "expression": {
+          "jawOpen": 0.15
+        },
+        "before": 0.6934123716948735,
+        "after": 0.08160694045777732
+      },
+      {
+        "expression": {
+          "jawOpen": 0.2
+        },
+        "before": 0.8702717186817684,
+        "after": 0.05447121613289095
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25
+        },
+        "before": 1.0199559520925021,
+        "after": 0.0006866556590176313
+      },
+      {
+        "expression": {
+          "jawOpen": 0.3
+        },
+        "before": 1.1424480664592753,
+        "after": 0.05451664692015168
+      },
+      {
+        "expression": {
+          "jawOpen": 0.35
+        },
+        "before": 1.2377341455840647,
+        "after": 0.08169522826979622
+      },
+      {
+        "expression": {
+          "jawOpen": 0.4
+        },
+        "before": 1.3058033641184097,
+        "after": 0.08170523198478227
+      },
+      {
+        "expression": {
+          "jawOpen": 0.45
+        },
+        "before": 1.3466479887927223,
+        "after": 0.054547018324718
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5
+        },
+        "before": 1.3602633792939927,
+        "after": 0.0006852063812400192
+      },
+      {
+        "expression": {
+          "jawOpen": 0.55
+        },
+        "before": 1.3466479887927263,
+        "after": 0.05467409760470779
+      },
+      {
+        "expression": {
+          "jawOpen": 0.6
+        },
+        "before": 1.3058033641184237,
+        "after": 0.08194650445952406
+      },
+      {
+        "expression": {
+          "jawOpen": 0.65
+        },
+        "before": 1.2377341455840793,
+        "after": 0.08193962746822919
+      },
+      {
+        "expression": {
+          "jawOpen": 0.7
+        },
+        "before": 1.1424480664593293,
+        "after": 0.05465333653023944
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75
+        },
+        "before": 1.0199559520925547,
+        "after": 0.0006968608552623629
+      },
+      {
+        "expression": {
+          "jawOpen": 0.8
+        },
+        "before": 0.8702717186818318,
+        "after": 0.05462671564177269
+      },
+      {
+        "expression": {
+          "jawOpen": 0.85
+        },
+        "before": 0.6934123716949792,
+        "after": 0.08188741867017169
+      },
+      {
+        "expression": {
+          "jawOpen": 0.9
+        },
+        "before": 0.48939800393871324,
+        "after": 0.08186934926182973
+      },
+      {
+        "expression": {
+          "jawOpen": 0.95
+        },
+        "before": 0.2582517932772248,
+        "after": 0.05457250932535514
+      },
+      {
+        "expression": {
+          "tongueOut": 0.05
+        },
+        "before": 0.6398510774767856,
+        "after": 0.05446447480560291
+      },
+      {
+        "expression": {
+          "tongueOut": 0.1
+        },
+        "before": 1.2830250154444327,
+        "after": 0.08165297959208727
+      },
+      {
+        "expression": {
+          "tongueOut": 0.15
+        },
+        "before": 1.92952608502326,
+        "after": 0.08162726808835674
+      },
+      {
+        "expression": {
+          "tongueOut": 0.2
+        },
+        "before": 2.579357358658093,
+        "after": 0.054498181370811846
+      },
+      {
+        "expression": {
+          "tongueOut": 0.25
+        },
+        "before": 3.2325207083206635,
+        "after": 0.0008214853151452024
+      },
+      {
+        "expression": {
+          "tongueOut": 0.3
+        },
+        "before": 3.8890168041701605,
+        "after": 0.054545332364209706
+      },
+      {
+        "expression": {
+          "tongueOut": 0.35
+        },
+        "before": 4.548845113661474,
+        "after": 0.08172829376820358
+      },
+      {
+        "expression": {
+          "tongueOut": 0.4
+        },
+        "before": 5.212003901091228,
+        "after": 0.08177855370346064
+      },
+      {
+        "expression": {
+          "tongueOut": 0.45
+        },
+        "before": 5.878490227571487,
+        "after": 0.05463970807855429
+      },
+      {
+        "expression": {
+          "tongueOut": 0.5
+        },
+        "before": 6.548299951420748,
+        "after": 0.0009455732308582243
+      },
+      {
+        "expression": {
+          "tongueOut": 0.55
+        },
+        "before": 7.221427728962545,
+        "after": 0.05480195204414934
+      },
+      {
+        "expression": {
+          "tongueOut": 0.6
+        },
+        "before": 7.897867015721533,
+        "after": 0.08208747278660747
+      },
+      {
+        "expression": {
+          "tongueOut": 0.65
+        },
+        "before": 8.577610068007186,
+        "after": 0.08209387785789729
+      },
+      {
+        "expression": {
+          "tongueOut": 0.7
+        },
+        "before": 9.260647944875402,
+        "after": 0.05482109401434989
+      },
+      {
+        "expression": {
+          "tongueOut": 0.75
+        },
+        "before": 9.946970510458335,
+        "after": 0.0011570996949926292
+      },
+      {
+        "expression": {
+          "tongueOut": 0.8
+        },
+        "before": 10.636566436652746,
+        "after": 0.054816394847220555
+      },
+      {
+        "expression": {
+          "tongueOut": 0.85
+        },
+        "before": 11.32942320615783,
+        "after": 0.08209075774797525
+      },
+      {
+        "expression": {
+          "tongueOut": 0.9
+        },
+        "before": 12.025527115852611,
+        "after": 0.08208659161023078
+      },
+      {
+        "expression": {
+          "tongueOut": 0.95
+        },
+        "before": 12.724863280504454,
+        "after": 0.05480390933051465
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.125
+        },
+        "before": 1.4131135212522683,
+        "after": 0.13153594838112018
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.25
+        },
+        "before": 2.8214685103687427,
+        "after": 0.04788742405490874
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.375
+        },
+        "before": 4.262189045768252,
+        "after": 0.09976591806401779
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.5
+        },
+        "before": 5.723830479075079,
+        "after": 0.02159885629534488
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.625
+        },
+        "before": 7.204024958463348,
+        "after": 0.07872350789002552
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.75
+        },
+        "before": 8.701902441243819,
+        "after": 0.005770201386264404
+      },
+      {
+        "expression": {
+          "jawOpen": 0.125,
+          "tongueOut": 0.875
+        },
+        "before": 10.216999773941811,
+        "after": 0.06813766119097985
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.125
+        },
+        "before": 1.4282373562596076,
+        "after": 0.047874994793372615
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.25
+        },
+        "before": 2.4286498854169603,
+        "after": 0.0007265579390602735
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.375
+        },
+        "before": 3.6528252396288465,
+        "after": 0.04794277413941118
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.5
+        },
+        "before": 4.90342862011625,
+        "after": 0.0008839525011143982
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.625
+        },
+        "before": 6.172559394538298,
+        "after": 0.04798454093365362
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.75
+        },
+        "before": 7.457515363272292,
+        "after": 0.0010214483517095915
+      },
+      {
+        "expression": {
+          "jawOpen": 0.25,
+          "tongueOut": 0.875
+        },
+        "before": 8.757075129313424,
+        "after": 0.04811474255992697
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.125
+        },
+        "before": 1.5010284694070757,
+        "after": 0.09970770221870895
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.25
+        },
+        "before": 2.0457873464932494,
+        "after": 0.04793396787465529
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.375
+        },
+        "before": 3.0488122675551406,
+        "after": 0.06788152578011047
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.5
+        },
+        "before": 4.085912793205978,
+        "after": 0.021562788292058887
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.625
+        },
+        "before": 5.142532161138631,
+        "after": 0.04667572847042729
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.75
+        },
+        "before": 6.213711343685259,
+        "after": 0.005689043968486566
+      },
+      {
+        "expression": {
+          "jawOpen": 0.375,
+          "tongueOut": 0.875
+        },
+        "before": 7.297285743518864,
+        "after": 0.03607751718088016
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.125
+        },
+        "before": 1.449731219545418,
+        "after": 0.021489548554410223
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.25
+        },
+        "before": 1.6645197672682823,
+        "after": 0.0007335619871912123
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.375
+        },
+        "before": 2.4470171460561807,
+        "after": 0.021517421342014946
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.5
+        },
+        "before": 3.270094740311588,
+        "after": 0.0007832840672130695
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.625
+        },
+        "before": 4.113544743574581,
+        "after": 0.021536430165737322
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.75
+        },
+        "before": 4.97039229329227,
+        "after": 0.0008610380240461229
+      },
+      {
+        "expression": {
+          "jawOpen": 0.5,
+          "tongueOut": 0.875
+        },
+        "before": 5.837621116487047,
+        "after": 0.021541265298881677
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.125
+        },
+        "before": 1.2748005825955433,
+        "after": 0.07860473433475788
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.25
+        },
+        "before": 1.3032049014168208,
+        "after": 0.04815276551914924
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.375
+        },
+        "before": 1.8443081496505558,
+        "after": 0.04674418576712432
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.5
+        },
+        "before": 2.4547830680833616,
+        "after": 0.021490769931786478
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.625
+        },
+        "before": 3.0851977419653025,
+        "after": 0.025449795706145178
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.75
+        },
+        "before": 3.7274599928145733,
+        "after": 0.005592667931100197
+      },
+      {
+        "expression": {
+          "jawOpen": 0.625,
+          "tongueOut": 0.875
+        },
+        "before": 4.3780707422999505,
+        "after": 0.0148066909106081
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.125
+        },
+        "before": 0.9747610345103246,
+        "after": 0.005603065623777888
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.25
+        },
+        "before": 0.9595434239020502,
+        "after": 0.0006911812109568418
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.375
+        },
+        "before": 1.23758393110783,
+        "after": 0.005857618519213124
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.5
+        },
+        "before": 1.6387868088995972,
+        "after": 0.000721305442341068
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.625
+        },
+        "before": 2.0570912539414947,
+        "after": 0.005576529917382225
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.75
+        },
+        "before": 2.484816119209028,
+        "after": 0.000729025070551981
+      },
+      {
+        "expression": {
+          "jawOpen": 0.75,
+          "tongueOut": 0.875
+        },
+        "before": 2.9186241096722916,
+        "after": 0.005578306777067413
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.125
+        },
+        "before": 0.549754656095251,
+        "after": 0.06795719764092595
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.25
+        },
+        "before": 0.5250909614555811,
+        "after": 0.048028651798311194
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.375
+        },
+        "before": 0.6238011881116289,
+        "after": 0.0360965993686459
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.5
+        },
+        "before": 0.8209189650428554,
+        "after": 0.021511229520962488
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.625
+        },
+        "before": 1.0288252585101516,
+        "after": 0.014746211581512908
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.75
+        },
+        "before": 1.2423622720567615,
+        "after": 0.005551104422876427
+      },
+      {
+        "expression": {
+          "jawOpen": 0.875,
+          "tongueOut": 0.875
+        },
+        "before": 1.459270702431773,
+        "after": 0.004119293956369097
+      }
+    ]
+  },
+  "limits": [
+    "The in-betweens are exact at the grid nodes and tents between them; between nodes the arch is off the screw by what the samples report, not by nothing.",
+    "The carriers open the jaw by 1 - (1 - w_j)(1 - w_t), which is what the unfold corrective makes of them; a third carrier would need the grid to grow.",
+    "A subject's identity moves the arch before the screw is applied, so (I - R) S survives per subject as mandible-receipt.json reports; only a posed pivot reaches it."
+  ]
+}

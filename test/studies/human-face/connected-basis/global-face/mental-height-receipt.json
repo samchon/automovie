@@ -1,0 +1,30 @@
+{
+  "source": "mpfb-connected-head-2026-09-26-eye-depth",
+  "revision": "mpfb-connected-head-2026-09-26-mental-height",
+  "channel": "mentalHeight",
+  "fold": -0.050809154129170725,
+  "menton": -0.08110915412917072,
+  "unit": 0.005,
+  "rows": 1156,
+  "recorded": "2026-09-26T07:12:02.163Z",
+  "inputs": {
+    "basis": {
+      "sha256": "cdc63178adbb62eafa5df6750e4a913f4130bc421436b881d2d0af8666fb7888",
+      "bytes": 26884922
+    },
+    "subjects": {
+      "sha256": "12ff9352b9f73ee50c5fd3b7ceb6a998a652208c8418fb04328e6b7ef32a7f3b",
+      "bytes": 78714
+    },
+    "controls": {
+      "sha256": "5d2649df08c03db16efc28e50c202c4f80187936bfc9cf12ba64dd73526ececb",
+      "bytes": 7448
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "b8e9bbf5d7f24baefe187ba3489e70071253d8ddbc0311cba67c3d8de264a949",
+      "bytes": 26913024
+    }
+  }
+}

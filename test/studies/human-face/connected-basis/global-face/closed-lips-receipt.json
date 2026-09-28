@@ -1,0 +1,117 @@
+{
+  "source": "mpfb-connected-head-2026-09-24-lip-seal",
+  "revision": "mpfb-connected-head-2026-09-24-closed-lips",
+  "restApertureMetres": 0.000882267951965332,
+  "units": [
+    {
+      "channels": [
+        "mouthSmileLeft",
+        "mouthSmileRight"
+      ],
+      "depressors": [
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight"
+      ],
+      "factor": 0,
+      "apertureMetres": {
+        "before": 0.000882267951965339,
+        "after": 0.000882267951965339
+      }
+    },
+    {
+      "channels": [
+        "mouthPressLeft",
+        "mouthPressRight"
+      ],
+      "depressors": [
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight"
+      ],
+      "factor": 0.5790263671386422,
+      "apertureMetres": {
+        "before": -0.0014323320480346714,
+        "after": 0.000882267951965332
+      }
+    },
+    {
+      "channels": [
+        "mouthPucker"
+      ],
+      "depressors": [
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight"
+      ],
+      "factor": 0.5234652524140705,
+      "apertureMetres": {
+        "before": -0.0012102320480346651,
+        "after": 0.000882267951965332
+      }
+    },
+    {
+      "channels": [
+        "mouthRollLower"
+      ],
+      "depressors": [
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight"
+      ],
+      "factor": 0.5869815379996977,
+      "apertureMetres": {
+        "before": -0.0014641320480346665,
+        "after": 0.000882267951965332
+      }
+    },
+    {
+      "channels": [
+        "mouthLeft"
+      ],
+      "depressors": [
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight"
+      ],
+      "factor": 0.32951418421974177,
+      "apertureMetres": {
+        "before": -0.00043493204803465857,
+        "after": 0.000882267951965332
+      }
+    },
+    {
+      "channels": [
+        "mouthRight"
+      ],
+      "depressors": [
+        "mouthLowerDownLeft",
+        "mouthLowerDownRight"
+      ],
+      "factor": 0.3295392004803119,
+      "apertureMetres": {
+        "before": -0.00043503204803466144,
+        "after": 0.000882267951965332
+      }
+    }
+  ],
+  "recorded": "2026-09-24T11:07:18.435Z",
+  "citations": {
+    "posedSmile": "Banditsaowapak P, Cheng JHC. Effects of varying anteroposterior craniodentofacial morphologies on three-dimensional smile variables. J Dent Sci 2025;20(4):2219-2230: rest to posed smile in 41 skeletal Class I adults, inferior point of the upper lip +4.76 +- 2.69 mm (up), superior point of the lower lip -3.28 +- 2.02 mm (down), interlabial gap 1.83 to 10.47 mm."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "0a84345eb991444920e7b62c97e5f2776eeddc91987f352673d814921ed74025",
+      "bytes": 26111937
+    },
+    "subjects": {
+      "sha256": "a3296facb7b5ae007b7ed62e981d5c2a7250fe815f3cbcb121296d349a4deeac",
+      "bytes": 76144
+    },
+    "controls": {
+      "sha256": "abaffbe8254a35411de76c5664c6bcc8781802ad758ef0ff995e5483f0e0f747",
+      "bytes": 7447
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "0f441e97a3b04aaf5203eec0b61fbc32295b92b5743e637978fe50abc38eace8",
+      "bytes": 26301815
+    }
+  }
+}

@@ -23,7 +23,7 @@
 
 기하 입력은 기본 형상 또는 자유 형상의 source facts, 실제 단위의 치수, 좌표계와 원점, 정점·곡선·면 또는 volume의 관계, 방향과 winding, 표면 영역 역할을 포함한다. 기본 형상은 이름 있는 작은 매개변수 recipe이고, explicit mesh는 외부 입력, engine bake 또는 이름 있는 ordinary source 함수가 검토된 식과 입력에서 결정론적으로 생성한 triangle data다. Agent가 불투명한 대량 배열을 직접 전사한 값은 저작 입력으로 인정하지 않는다. 서로 다른 좌표계나 단위의 입력을 합칠 때는 각 source frame과 목적 frame, 변환 순서와 결과 오차를 명시한다.
 
-원시 메시의 선택적 정점색은 위치와 같은 정점 순서를 갖는 선형 RGB 세 성분이며 각 값은 유한한 [0,1] 범위다. 재질과 texture의 base colour에 곱하고 알파나 조명은 변경하지 않는다. 생략은 흰색 곱셈이며 별도 버퍼를 요구하지 않는다. 변환과 정점 대응이 유지되는 변형에서는 색이 정점을 따라가고, 결합은 유색 member가 있을 때만 무색 member를 흰색으로 채워 유색 정보를 유지한다. 정적 GLB는 이를 COLOR_0 VEC3 Float32로 보존한다.
+원시 메시의 선택적 정점색은 위치와 같은 정점 순서를 갖는 선형 RGB 세 성분이며 각 값은 유한한 [0,1] 범위다. 재질과 texture의 base colour에 곱하고 알파나 조명은 변경하지 않는다. 생략은 흰색 곱셈이며 별도 버퍼를 요구하지 않는다. 변환과 정점 대응이 유지되는 변형에서는 색이 정점을 따라가고, 결합은 유색 member가 있을 때만 무색 member를 흰색으로 채워 유색 정보를 유지한다. 정적 GLB는 이를 COLOR_0 VEC3 Float32로 보존한다. 선택적 부조 가중치(`reliefWeights`)는 정점마다 하나인 유한한 0 이상의 배율로, 그 메시를 그리는 재질의 법선 map(`normalTexture`) 기울기에만 곱하며 detail 법선 map과 덧층의 기울기는 바꾸지 않는다. 관절이 굽어 피부가 늘어나면 펴지는 주름처럼 표면을 따라 깊어지거나 옅어지는 부조를 위한 것이다. 생략은 1이며 버퍼를 요구하지 않는다. 변환은 가중치를 복사하고, 결합은 가중치가 있는 member가 있을 때만 없는 member를 1로 채운다. 길이가 정점 수와 다르거나 음수·비유한 값이면 거부한다. glTF에는 비준된 대응 속성이 없어 정적 GLB는 이를 생략한다.
 
 ### 조합 연산과 위상 불변식 {#asset-spec-geometry-operations-topology}
 
@@ -39,7 +39,7 @@
 <!-- @evidence requirements/asset-authoring/materials-and-textures.md#asset-texture-coordinates-scale texture 좌표, 축척과 sampling 의미를 제어할 수 있어야 한다. -->
 <!-- @evidence requirements/asset-authoring/materials-and-textures.md#asset-user-authored-texture 사용자가 저작한 image와 texture를 독립 자원으로 결합할 수 있어야 한다. -->
 
-재료는 표면이 빛과 합성에 응답하는 의미 및 입력 channel의 조합이고, texture는 좌표에 따라 표본화되는 독립 자원이다. 결합 기록은 재료 영역, texture revision, 좌표 집합, 좌표 변환, 실제 축척, 반복·clamp 정책, filtering, seam 처리, color space와 channel 의미를 명시하며 어느 image도 재료 의미를 암묵적으로 결정하지 않는다.
+재료는 표면이 빛과 합성에 응답하는 의미 및 입력 channel의 조합이고, texture는 좌표에 따라 표본화되는 독립 자원이다. 결합 기록은 재료 영역, texture revision, 좌표 집합, 좌표 변환, 실제 축척, 반복·clamp 정책, filtering, seam 처리, color space와 channel 의미를 명시하며 어느 image도 재료 의미를 암묵적으로 결정하지 않는다. 반투명 조직의 재료는 선택적 피하 산란 반경(`subsurfaceRadius`, 원색별 확산 평균 자유 경로, m, 0 이상의 유한값)을 가질 수 있으며, 이는 빛이 표면 아래로 들어가 다시 나오기까지 가는 거리로 renderer가 확산 응답을 흐리는 폭이다. glTF에는 비준된 대응 확장이 없어 내보낸 자산은 이 값을 생략한다. 재료는 선택적 두 번째 법선 map(`detailNormalTexture`, linear, 자기 좌표 변환)과 그 기울기 배율(`detailNormalScale`, 0 이상의 유한값, 생략 시 1)을 가질 수 있다. 보통 표면 전체에 한 번 결합한 굵은 법선 map 위에 반복하는 가는 부조이며, glTF의 법선 slot은 하나이므로 내보낸 자산은 `normalTexture`만 남긴다. `normalTexture`가 없으면 이 map이 법선 map을 대신한다. 재료는 자기 map과 따로 표면 전체에 한 번 놓이는 표면 덧층(`overlays`, 최대 4개)을 순서대로 가질 수 있다. 덧층은 sRGB 색 image(alpha가 덮는 정도)와 선택적 선형 색 배율(`colorFactor`, 채널마다 0 이상의 유한값, 생략 시 1, image의 색에 곱해 한 image로 색이 다른 몸을 덮는다)과 합성 방식(`multiply`는 기본색에 색을 곱하고 `replace`는 기본색을 그 색으로 바꾼다), 선택적 거칠기([0, 1], 덮는 곳에서 재료의 거칠기를 바꾼다), 선택적 linear 법선 map과 기울기 배율(0 이상의 유한값, 생략 시 1), 강도([0, 1])를 가진다. 덮는 정도는 alpha × 강도다. 법선 map은 배율로 곱해지며, `multiply` 덧층의 기울기는 강도도 곱해 재료의 법선에 whiteout 방식으로 더해지고 `replace` 덧층의 법선은 덮는 정도만큼 재료의 법선을 대체해 그 아래 조직이 비치지 않는다. 법선 map이 없는 재료에서는 표면의 법선을 굽힌다. 강도 0의 덧층은 없는 것과 같다. 피부 아래 정맥이나 손끝의 손톱판처럼 재료의 반복 map이 담지 못하는 조직을 한 image로 여러 세기에 쓰기 위한 것이며, glTF에는 비준된 대응 확장이 없어 내보낸 자산은 덧층을 생략한다.
 
 ### 표면 좌표 규약 {#asset-spec-surface-coordinate-convention}
 
