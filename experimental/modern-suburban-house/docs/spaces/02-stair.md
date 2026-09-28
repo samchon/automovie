@@ -79,7 +79,7 @@
 @evidence principles/design/spaces.md#space-topology 구멍은 두 flight·중간참·하부 대기 위의 계단실에만 속하고 거실·현관 분배 바닥·침실을 비우는 복층 보이드는 없으며 계단실 위는 본채 2층 천장으로 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 구멍이 두 flight·중간참·하부 대기 위 계단실에만 속하고 거실·현관 분배 바닥·침실의 복층 보이드가 없으며 ‘계단실 위는 본채 2층 천장으로 닫힌다’를 포함 관계 요구와 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority 같은 구멍 경계를 upper.ts의 층간 구조와 방별 마감 owner가 소비한다. 보호 예약 중 실제 벽이 없는 1층 오른쪽 띠는 현관 마감이 맡고 벽·마감을 중복 생성하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 `upper.ts`의 층간 구멍과 방별 마감이 같은 경계를 소비한다. 오른쪽 띠 X = [-0.65, -0.50]의 열린 1층에는 현관 마감이 닿는다고 본문이 지정해 예약을 전 높이 벽으로 오인하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority # `upper.ts`와 방 마감은 한 L형 구멍을 소비한다. 열린 오른쪽 띠의 현관 천장은 Y=2.765 m에서 끝나고 계단 소유 수직 테두리가 그 위에서 시작하며, 예약 전체를 전 높이 벽으로 만들지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복, 참을 막는 난간을 검사 질문으로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 셋째 문단이 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복, 참을 막는 난간을 검사 질문으로 명시해 L형 구멍 주장을 반증할 주소를 둠을 확인했다.
 @evidence settings/10-house.md#openings 작은 상층 전면 창 뒤에 실제 계단실을 두고 가짜 창을 허용하지 않는다.
@@ -92,7 +92,7 @@
 
 구멍은 [단일 꺾임계단](../settings/10-house.md#stair)이 요구한 실제 통행 개구부이며 두 flight·중간참·하부 대기 위의 계단실에만 속한다. 거실·현관 분배 바닥·침실을 추가로 비우는 복층 보이드는 없다. 통행 구멍의 동일 경계를 [단일 층간 구조](08-floor-assembly.md#interstorey-floor-boundary)의 `src/spaces/floors/upper.ts`와 위층 바닥/아래층 천장의 방별 마감 owner가 소비한다. 계단 쪽에 보이는 수직 두께 마감과 상부 도착은 [가장자리 인계](08-floor-assembly.md#interstorey-edge-junctions)를 따른다. 계단실 위는 본채 2층 천장으로 닫힌다. 구멍을 지붕까지 연장하지 않는다.
 
-구멍 왼쪽의 보호/분리 경계는 X = [-1.95, -1.80], 세로 구간 오른쪽은 X = [-0.65, -0.50], 가로 구간 앞쪽은 Z = [-3.41, -3.26], 뒤쪽은 Z = [-4.71, -4.56]의 0.15 m 예약이다. 예약은 전 높이의 벽 몸체를 뜻하지 않는다. 세로 구간 오른쪽 X = [-0.65, -0.50]·Z = [-3.41, -1.45]의 1층은 열린 난간 옆이므로 [현관 바닥·천장](rooms/entry.md#entry-plan)이 계단 구멍의 X = -0.65 m 경계에 닿는다. 다른 구간도 실제 벽·계단 고체와 방 마감의 [평면 피복](03-surface-owners.md#interior-surface-handoff)을 따라 인접 방의 안쪽 끝에 접하며 같은 부피를 두 번 만들지 않는다. 위 flight의 +X 끝은 상부참으로 통하는 열린 경계이므로 막는 난간을 놓지 않는다. 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복 및 참을 막는 난간이 검사 질문이다. 현재 실제 surface id와 단면 관찰은 unverified다.
+구멍 왼쪽의 보호/분리 경계는 X = [-1.95, -1.80], 세로 구간 오른쪽은 X = [-0.65, -0.50], 가로 구간 앞쪽은 Z = [-3.41, -3.26], 뒤쪽은 Z = [-4.71, -4.56]의 0.15 m 예약이다. 예약은 전 높이의 벽 몸체를 뜻하지 않는다. 세로 구간 오른쪽 X = [-0.65, -0.50]·Z = [-3.41, -1.45]의 1층은 열린 난간 옆이므로 [현관 바닥·천장](rooms/entry.md#entry-plan)이 계단 구멍의 X = -0.65 m 경계에 닿는다. 천장의 0.015 m 두께는 [층간 수직 테두리](08-floor-assembly.md#interstorey-edge-junctions)가 시작하는 높이 아래에서 끝나므로 같은 부피를 만들지 않는다. 다른 구간도 실제 벽·계단 고체와 방 마감의 [평면 피복](03-surface-owners.md#interior-surface-handoff)을 따라 인접 방의 안쪽 끝에 접한다. 위 flight의 +X 끝은 상부참으로 통하는 열린 경계이므로 막는 난간을 놓지 않는다. 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복 및 참을 막는 난간이 검사 질문이다. 현재 실제 surface id와 단면 관찰은 unverified다.
 
 계단실 위의 [높은 천장 폐합](09-ceiling-assembly.md#upper-ceiling-closure)은 같은 구멍과 그 둘레 중 천장 높이에서 노출되는 보호 띠를 마감 구역으로 소비한다. [경계 높이](#stair-boundary-heights)에 따라 뒤쪽 난간 위까지 닫되 완전 높이 벽 구역은 제외하며, upper-storey 천장 높이에서 복도 마감과 만난다. 공통 바탕은 upper 층 owner, 계단실에서 보이는 마감은 이 계단 owner다. ground-storey 소속을 이유로 낮은 천장판을 계단 위에 생성하지 않는다.
 
@@ -161,4 +161,4 @@
 
 모든 기둥·벽붙이 손잡이·난간살의 통행 쪽 점유는 [양쪽 0.075 m 예약](#stair-clearance) 안에 있어야 한다. 벽이 있는 높이에 같은 자리를 차지하는 난간 패널을 중복 생성하지 않는다. 계단 아래 막음과 외투장 위의 디딤 7–9 아래면은 [외투장 몸통 상단 Y = 2.15 m](rooms/entry.md#entry-coat-storage)을 소비하며 구조 두께를 0으로 취급해 수납 여유를 얻지 않는다. 외투장 몸통 X는 계단의 일곱째 위쪽 디딤 시작점에서 정한다. 관찰은 현관에서 보이는 아래 flight, 중간참의 두 방향, 각 디딤 손잡이 단면, 상부 도착과 복도 가장자리, 외투장 위 단면이다. 실제 보호 높이·순폭·머리 공간·막음/문/마감 접합 및 03–05의 계단 읽힘은 unverified다.
 
-이 보호 경계의 면 owner는 `src/spaces/stair.ts`이며, 그 파일이 호출하는 `src/spaces/stair-guards.ts`가 기둥·손잡이 형상을 만든다. 기둥은 각 기둥 바닥의 왼쪽 아래 모서리에서 수평 접선 U·Y 높이 V를 시작하고 다른 기둥·손잡이·띠와 만나는 곳에서 끝낸다. 직선 손잡이는 시작 기둥에 닿는 끝에서 실제 축 길이 U·단면 둘레 V를 시작하며 끝 기둥과 벽 접합에서 자른다. 계단 구멍의 `stair-opening-edge-*` 노출 수직 띠는 각 직선 구간의 작은 (X,Z) 끝에서 수평 길이 U를 시작하고 층 아래 천장 Y=2.75 m에서 +Y를 V로 잰다. 띠의 짧은 끝면은 해당 끝의 안쪽 모서리에서 두께 방향 U·같은 Y 기준 V를 쓰며 모서리와 맞닿는 구조 면에서 자른다. 난간살의 부재·반복·UV는 [별도 모델 원형](../models/04-stair-members.md#stair-balusters)이 맡는다.
+이 보호 경계의 면 owner는 `src/spaces/stair.ts`이며, 그 파일이 호출하는 `src/spaces/stair-guards.ts`가 기둥·손잡이 형상을 만든다. 기둥은 각 기둥 바닥의 왼쪽 아래 모서리에서 수평 접선 U·Y 높이 V를 시작하고 다른 기둥·손잡이·띠와 만나는 곳에서 끝낸다. 직선 손잡이는 시작 기둥에 닿는 끝에서 실제 축 길이 U·단면 둘레 V를 시작하며 끝 기둥과 벽 접합에서 자른다. 계단 구멍의 `stair-opening-edge-*` 노출 수직 띠는 각 직선 구간의 작은 (X,Z) 끝에서 수평 길이 U를 시작하고 아래 천장 마감 윗면 Y=2.765 m에서 +Y를 V로 잰다. 띠의 짧은 끝면은 해당 끝의 안쪽 모서리에서 두께 방향 U·같은 Y 기준 V를 쓰며 모서리와 맞닿는 구조 면에서 자른다. 난간살의 부재·반복·UV는 [별도 모델 원형](../models/04-stair-members.md#stair-balusters)이 맡는다.

@@ -11,11 +11,11 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 /**
  * What a part is, so the viewer and later reviews can group it.
  * @evidence spaces/03-surface-owners.md Surface families are allocated to their emitting spaces owners.
- * @evidenceReview spaces/03-surface-owners.md #4f960bc HousePartRole labels wall, roof, floor, stair and site parts; the owner field remains separate so each family in the surface-owner table can retain its emitting file.
+ * @evidenceReview spaces/03-surface-owners.md # HousePartRole labels wall, roof, floor, stair and site parts; the owner field remains separate so each family in the surface-owner table can retain its emitting file.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior roles distinguish envelope, roof, porch, site and chimney parts.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #51ba773 The union provides wall, roof, porch, paving, fence and chimney labels for the separately assigned exterior bodies in the owner table.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Floor and ceiling roles identify room finish parts made by their room owners.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #fab2d91 The floor and ceiling variants can label the finishes the interior handoff assigns to each room; partition and stair variants do not transfer structural ownership to a room.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff # The floor and ceiling variants can label the finishes the interior handoff assigns to each room; partition and stair variants do not transfer structural ownership to a room.
  * @evidence principles/core/source-units.md#source-scope-preservation This role labels an assigned part without claiming its surface for the helper.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 HousePartRole is a string union without an owner or mesh; IHousePart carries those separately, leaving the selected emitting file responsible for the surface.
  * @evidence principles/core/source-units.md#source-substantive-completion The viewer can group every emitted structural or finish family.
@@ -40,11 +40,11 @@ export type HousePartRole =
  * One emitted solid: a stable id, the source owner that authors it, its role,
  * its base colour, and its world-space mesh.
  * @evidence spaces/03-surface-owners.md Every surface part keeps the identity of its assigned emitting owner.
- * @evidenceReview spaces/03-surface-owners.md #4f960bc IHousePart requires an owner alongside each mesh; part() copies its caller's owner, matching the document's allocation of a complete surface to one source file.
+ * @evidenceReview spaces/03-surface-owners.md # IHousePart requires an owner alongside each mesh; part() copies its caller's owner, matching the document's allocation of a complete surface to one source file.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior parts preserve one author for each emitted body.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #51ba773 The record holds one owner string for each emitted exterior body; part() preserves the file supplied by the envelope, roof, porch or site emitter.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room parts retain the owner of their floor and ceiling finish.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #fab2d91 IHousePart.owner remains attached to roomFloor and roomCeiling parts from rooms/shared.ts, allowing the room named in the interior handoff to remain their finish owner.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff # IHousePart.owner remains attached to roomFloor and roomCeiling parts from rooms/shared.ts, allowing the room named in the interior handoff to remain their finish owner.
  * @evidence principles/core/source-units.md#source-scope-preservation The record carries an owner's geometry without making this helper the surface owner.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 IHousePart describes the emitted record and part() copies the caller's owner; this shared record does not select a surface file.
  * @evidence principles/core/source-units.md#source-substantive-completion Identity, owner, role, colour, mesh and optional wall face reach consumers together.
@@ -55,7 +55,7 @@ export type HousePartRole =
 export interface IHousePart {
   /**
    * @evidence spaces/03-surface-owners.md Each emitted body retains its own id beside the assigned surface owner.
-   * @evidenceReview spaces/03-surface-owners.md #4f960bc The id and owner fields coexist on each IHousePart; the surface-owner table assigns the body while house.ts rejects duplicate ids during assembly. This field does not claim that the later complete surface census is finished.
+   * @evidenceReview spaces/03-surface-owners.md # The id and owner fields coexist on each IHousePart; the surface-owner table assigns the body while house.ts rejects duplicate ids during assembly. This field does not claim that the later complete surface census is finished.
    * @evidence principles/core/source-units.md#source-scope-preservation The id names an emitted part rather than a second owner.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The id field addresses the emitted part while the separate owner field carries the source file, so an id cannot reassign its surface.
    * @evidence principles/core/source-units.md#source-substantive-completion A unique id supports mesh and boundary census.
@@ -66,7 +66,7 @@ export interface IHousePart {
   id: string;
   /**
    * @evidence spaces/03-surface-owners.md The source path identifies the part's assigned surface author.
-   * @evidenceReview spaces/03-surface-owners.md #4f960bc The owner string stores the emitting source path, such as an envelope or room file, which is the unit named by the exterior table and interior handoff.
+   * @evidenceReview spaces/03-surface-owners.md # The owner string stores the emitting source path, such as an envelope or room file, which is the unit named by the exterior table and interior handoff.
    * @evidence principles/core/source-units.md#source-scope-preservation The helper retains the caller's ownership rather than assigning itself.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 part() requires an owner argument and copies it into IHousePart; solid-records.ts cannot silently substitute itself as the source.
    * @evidence principles/core/source-units.md#source-substantive-completion Consumers can trace every part to a source owner.
@@ -77,7 +77,7 @@ export interface IHousePart {
   owner: string;
   /**
    * @evidence spaces/03-surface-owners.md The role groups a surface part by its spatial function.
-   * @evidenceReview spaces/03-surface-owners.md #4f960bc The role field accepts HousePartRole while the owner field still names the source file; the exterior and room tables allocate files for those part families.
+   * @evidenceReview spaces/03-surface-owners.md # The role field accepts HousePartRole while the owner field still names the source file; the exterior and room tables allocate files for those part families.
    * @evidence principles/core/source-units.md#source-scope-preservation Classification does not transfer ownership between room and envelope authors.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Role and owner are independent IHousePart fields, so classifying a part as a wall or floor does not change its author.
    * @evidence principles/core/source-units.md#source-substantive-completion Viewer and review census can separate walls, floors, roof and site parts.
@@ -88,7 +88,7 @@ export interface IHousePart {
   role: HousePartRole;
   /**
    * @evidence spaces/03-surface-owners.md The emitted part keeps its colour beside the source owner assigned to that surface.
-   * @evidenceReview spaces/03-surface-owners.md #4f960bc The colour number is a field on the same IHousePart as owner and mesh; callers supply it to part() without changing the emitting file assigned by the surface-owner table.
+   * @evidenceReview spaces/03-surface-owners.md # The colour number is a field on the same IHousePart as owner and mesh; callers supply it to part() without changing the emitting file assigned by the surface-owner table.
    * @evidence principles/core/source-units.md#source-scope-preservation The field is a flat source colour, leaving texture and optics to materials.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The field is only a numeric base colour; it carries no texture image, repeat length or optical parameter reserved for materials by the visual-grammar setting.
    * @evidence principles/core/source-units.md#source-substantive-completion The mesh has a reproducible visible colour for inspection.
@@ -99,7 +99,7 @@ export interface IHousePart {
   color: number;
   /**
    * @evidence spaces/03-surface-owners.md The assigned owner emits a world-space body for its surface.
-   * @evidenceReview spaces/03-surface-owners.md #4f960bc IHousePart.mesh holds the geometry emitted by the assigned envelope, roof, site or room source; the record does not generate a competing surface.
+   * @evidenceReview spaces/03-surface-owners.md # IHousePart.mesh holds the geometry emitted by the assigned envelope, roof, site or room source; the record does not generate a competing surface.
    * @evidence principles/core/source-units.md#source-scope-preservation This field carries the caller's mesh rather than synthesizing another surface owner.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 part() copies the caller solid's mesh into IHousePart while keeping the supplied owner; this field does not author another body.
    * @evidence principles/core/source-units.md#source-substantive-completion Triangles, normals and indices reach the deterministic viewer.
@@ -110,7 +110,7 @@ export interface IHousePart {
   mesh: IAutoMovieMesh;
   /**
    * @evidence spaces/03-surface-owners.md A wall part may expose its opening-bearing boundary alongside the mesh.
-   * @evidenceReview spaces/03-surface-owners.md #4f960bc The exterior handoff gives the elevation owner its wall body, void and cut face; IHousePart.wall retains the face beside the owner's mesh when part() receives a wall solid.
+   * @evidenceReview spaces/03-surface-owners.md # The exterior handoff gives the elevation owner its wall body, void and cut face; IHousePart.wall retains the face beside the owner's mesh when part() receives a wall solid.
    * @evidence principles/core/source-units.md#source-scope-preservation Only an emitted wall or partition supplies this face.
    * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 IHousePart.wall is optional and part() fills it only for a solid with a face; a plain mesh receives no extra wall boundary.
    * @evidence principles/core/source-units.md#source-substantive-completion Openings can be hosted on the same wall body that was cut.
@@ -388,11 +388,11 @@ export interface IWallHole {
 /**
  * Build one part record.
  * @evidence spaces/03-surface-owners.md Each emitting source keeps its own owner id and surface role.
- * @evidenceReview spaces/03-surface-owners.md #4f960bc part() requires the emitting file's owner and copies it with the supplied id and role into one part; the surface-owner table assigns those source files.
+ * @evidenceReview spaces/03-surface-owners.md # part() requires the emitting file's owner and copies it with the supplied id and role into one part; the surface-owner table assigns those source files.
  * @evidence spaces/03-surface-owners.md#exterior-surface-handoff Exterior wall parts retain their cut face without assigning a second owner.
  * @evidenceReview spaces/03-surface-owners.md#exterior-surface-handoff #51ba773 When an elevation caller passes a wall solid, part() retains its cut face with the mesh and preserves that elevation's owner.
  * @evidence spaces/03-surface-owners.md#interior-surface-handoff Room finish parts keep the room's owner id.
- * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff #fab2d91 Room floor and ceiling callers pass their own owner to part(), which stores it unchanged beside the finish mesh assigned by the interior handoff.
+ * @evidenceReview spaces/03-surface-owners.md#interior-surface-handoff # Room floor and ceiling callers pass their own owner to part(), which stores it unchanged beside the finish mesh assigned by the interior handoff.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper preserves caller identity, colour and geometry rather than selecting them.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 part() takes the id, owner, role, colour and solid from its caller and selects no new space, geometry or finish assignment.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns a complete part and carries a wall face when the solid has one.

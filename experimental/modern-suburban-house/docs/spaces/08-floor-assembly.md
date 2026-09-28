@@ -41,7 +41,7 @@ upper-storey의 실문 아래는 [문턱 중앙면의 마감 인계](07-boundary
 @evidence principles/core/common.md#scope-preservation 층간 구조의 외벽 둘레, 실내 칸막이 상하 접촉, 계단 뒤 분리벽과 층판의 겹침, 계단 구멍 수직 단면 마감, 마지막 챌판과 도착 바닥, 기존 차고 구조 owner를 유지하는 차고 쪽 공유 벽 접점을 맡는다.
 @evidenceReview principles/core/common.md#scope-preservation #24155e1 외벽 둘레, 칸막이 상하 접촉, 계단 뒤 분리벽 겹침, 구멍 수직 단면 마감, 마지막 챌판·복도 도착, 차고 쪽 공유 벽 문단을 대조해 층간 가장자리마다 owner가 있음을 확인했다.
 @evidence principles/core/common.md#substantive-completion 계단 구멍 단면 마감을 최대 0.015 m 두께로 층판 쪽에 들여 원래 통행 구멍의 완성 경계를 좁히지 않게 한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 계단실 연속 마감을 최대 0.015 m 층판 쪽으로 들이고 구조 바탕이 그만큼 물러나 02-stair 통행 구멍의 완성 경계를 좁히지 않는다는 문장을 대조해 다음 층이 구멍 단면 두께를 정할 일이 없음을 확인했다.
+@evidenceReview principles/core/common.md#substantive-completion # 수직 테두리 두께 0.015 m를 층판 쪽에 두고 Y=2.765–3.035 m의 노출 구간에만 세운다. 뒤 보호 띠의 수평 상면은 Z=-4.56 m까지 마감하고, 방 천장·위 바닥과는 높이 경계에서 맞대므로 다음 층이 단면 두께나 끝 높이를 정할 일이 없다.
 @evidence principles/core/common.md#declared-basis 외벽 안쪽 면은 00, 칸막이 높이 역할은 07, 계단 경계 높이는 stair-boundary-heights에서 받는다고 밝힌다.
 @evidenceReview principles/core/common.md#declared-basis #7ccd1cb 외벽 안쪽 면을 00-building#main-building-extent, 칸막이 높이 역할을 07#interior-boundary-ownership, 분리벽·보호 벽 높이를 02-stair#stair-boundary-heights 링크로 받는지 대조해 가장자리 진술의 근거를 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-allocation의 접합 owner 요구와 upper-hall·stair의 도착 바닥/챌판 배정을 받아, 계단 구멍의 구조 가장자리와 보이는 연속 수직 마감을 0.015 m 물림을 두고 나눈다.
@@ -64,7 +64,7 @@ upper-storey의 실문 아래는 [문턱 중앙면의 마감 인계](07-boundary
 
 [계단 뒤쪽의 분리벽](02-stair.md#stair-boundary-heights)처럼 두 층 사이 높이까지 이어지는 내부 구조가 층간 바탕과 만나는 경우, 겹치는 몸체 구역은 upper 층판 owner가 한 번만 생성하고 해당 벽 몸체에서 그 구역을 뺀다. 이는 접합 몸체의 분할이며 뒤쪽 분리벽의 높이 역할이나 위 복도 난간을 삭제하는 지시가 아니다. 그 앞에서 계단실로 보이는 벽/층판 단면 마감은 stair owner가 하나의 연속 면으로 잇고 같은 높이에 두 마감을 포개지 않는다. 외벽 두께 구역은 앞 문단의 외벽 owner 배정을 유지한다.
 
-계단 구멍의 수직 두께 단면은 `src/spaces/floors/upper.ts`의 공통 구조 가장자리를 소비하되, 계단실에서 보이는 연속 마감은 `src/spaces/stair.ts`가 통째로 맡는다. 이 마감의 두께는 최대 0.015 m를 남겨 둔 층판 쪽으로 들여 배치하고 구조 바탕이 그 자리만큼 물러난다. [원래 통행 구멍](02-stair.md#stair-floor-opening)의 완성 경계를 마감 두께만큼 안으로 좁히지 않는다. 볼록/오목 모서리와 전면 외벽에 닿는 끝에서도 같은 경계를 공유하고 방 마감 owner가 별도 테두리를 덧씌우지 않는다. 보호 벽이 이미 단면을 가리는 구간은 [계단의 높이별 경계](02-stair.md#stair-boundary-heights)와 만나며 노출되지 않는 겹친 장식 띠를 만들지 않는다.
+계단 구멍의 수직 두께 단면은 `src/spaces/floors/upper.ts`의 공통 구조 가장자리를 소비하되, 계단실에서 보이는 연속 마감은 `src/spaces/stair.ts`가 맡는다. 수직 테두리판은 아래층 천장 마감의 윗면 Y=2.765 m부터 위층 바닥 마감의 아랫면 Y=3.035 m까지만 서고, 양 끝에서 각각의 수평 마감 단면에 맞댄다. 뒤쪽 보호 띠의 수평 마감은 Z=[-4.71,-4.56] m까지 닿아 테두리판 위 X=[-1.80,1.87] m·Z=[-4.575,-4.56] m의 좁은 상면도 한 번 덮는다. 판 두께 0.015 m는 남겨 둔 층판 쪽으로 들여 배치하고 구조 바탕이 그 자리만큼 물러난다. 따라서 아래 천장 Y=[2.75,2.765] m와 위 바닥 Y=[3.035,3.06] m, 이 높이에서 시작하는 위층 칸막이는 수직 테두리판과 부피를 공유하지 않는다. [원래 통행 구멍](02-stair.md#stair-floor-opening)의 완성 경계를 판 두께만큼 안으로 좁히지 않는다. 볼록/오목 모서리와 전면 외벽에 닿는 끝에서도 같은 경계를 공유하고 방 마감 owner가 별도 테두리를 덧씌우지 않는다. 보호 벽이 이미 단면을 가리는 구간은 [계단의 높이별 경계](02-stair.md#stair-boundary-heights)와 만나며 노출되지 않는 겹친 장식 띠를 만들지 않는다.
 
 위 flight의 마지막 챌판은 [기존 상층 복도 도착](rooms/upper-hall.md#upper-hall-plan) 바닥 끝에 접한다. 그 끝의 공통 구조는 upper 층판 owner, 보이는 복도 바닥은 upper-hall owner, 마지막 챌판과 계단 손잡이는 stair owner가 맡는다. 도착 바닥을 별도 계단 디딤판으로 한 번 더 포개거나 얇은 틈을 남기지 않는다. 계단 구멍의 나머지 둘레에 필요한 보호 벽/난간을 열린 도착 끝까지 연장하지 않는다. 차고 쪽 공유 벽은 [기존 차고 구조 owner](00-building.md#attached-garage-extent)를 유지하고 차고 내부 천장이나 머드룸 한 단을 본채 층간 가장자리로 바꾸지 않는다.
 

@@ -51,8 +51,8 @@ const SERVICE: IRoomSpace = {
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildService returns only roomFloor, roomCeiling and doorFloor parts, including its half of the coat opening; adjoining owners retain the wall and opening bodies.
  * @evidence principles/core/source-units.md#source-substantive-completion The return has a continuous floor/ceiling and four named doorFloor strips for actual passage bottoms.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The SERVICE outline feeds floor and ceiling parts; five named doorFloor strips cover the coat opening and powder, laundry, pantry and common thresholds.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Service-access-plan joins the right/front and stair-back bands without a wall and assigns the common, powder, laundry, and pantry door contacts; buildService keeps that one open service space.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Service-access-plan fixes the two L bands, open entry boundary and powder, laundry, pantry and common contacts; SERVICE's outline and buildService's finish shares implement those inputs without a new service wall or route decision.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emitting the service side of the coat opening exposed an unfinished crossing between the passage and storage; rooms/service.md#service-access-plan and 03-surface-owners.md#interior-surface-handoff were revised to make this builder own its half of the opening floor.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work # `buildService` emits `entry-coat-opening` from the partition midpoint to the service face, meeting the entry side without adding a service wall; the cited passage and surface owners assign that crossing to the two room builders.
  */
 export const buildService = (): IRoomBuild => ({
   space: SERVICE,

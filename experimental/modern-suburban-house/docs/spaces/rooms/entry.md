@@ -13,7 +13,7 @@
 @evidence principles/design/spaces.md#space-topology front-entry를 ground-storey에 두고 포치→front-door→현관, 현관→거실·계단·서비스가 다른 방을 거치지 않는 연결 그래프를 명시한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-entry/ground-storey 포함과 포치→front-door→현관, 현관→living-plan 출입구·계단 첫 단·오른쪽 service-access-plan이 다른 방을 거치지 않는 연결 그래프가 메시 없이 읽힘을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 아래 계단 경로를 현관 바닥에서 제외하고 열린 난간 옆을 현관 마감에 포함한다. 거실·서비스 쪽 경계는 living-plan·service-access-plan으로 링크한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 현관 바닥이 계단 고체의 X = -0.65 m 경계에 닿고 열린 난간 옆의 마감을 맡는다. 거실·서비스 쪽은 living-plan·service-access-plan 링크로 받아 방 경계를 다시 정하지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority # 현관 바닥은 계단 고체와 X=-0.65 m에서 만나고 같은 선까지 온 천장의 윗면 Y=2.765 m는 계단 소유 수직 테두리의 아래 끝에 닿는다. 거실·서비스 경계는 living-plan·service-access-plan을 소비한다.
 @evidence principles/design/spaces.md#space-verification-address 입구 문짝의 회전, 하부 대기와 거실문 열림, 현관 안의 전체 관찰 pose를 이 평면을 반증할 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 입구 문짝 회전, 하부 대기와 거실문 열림, 현관 안 전체 관찰 pose를 L형 평면의 반증 관찰로 들고 door binding·문틀 순폭·통행·시야를 unverified로 둔 것을 확인했다.
 @evidence settings/10-house.md#entry 거실은 자기 출입구로 직접 연결하고 계단 첫 단을 같은 현관에 노출해 현관에서 거실·계단·서비스로 가는 길이 다른 방을 통과하지 않게 한다.
@@ -26,7 +26,7 @@
 @evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 설정 entry의 직접 분배, stair의 중앙 단일 계단, use-profile 문 0.80 m 목표를 L형 평면과 X = [0.40, 1.40] 문의 0.90 m 이상 유효 폭에 적용해 모순 없이 성립하여 부모 수정이 필요 없음을 확인했다.
 -->
 
-`front-entry`는 ground-storey의 실내 분배 공간이다. [본채 안쪽 한계](../00-building.md#main-building-extent)와 [층 기준](../01-storeys.md#storey-datums)을 소비한다. 마감 안쪽 평면 꼭짓점은 (X, Z) m로 (-1.80, -0.25), (2.02, -0.25), (2.02, -3.41), (-0.65, -3.41), (-0.65, -1.45), (-1.80, -1.45)다. 마지막 점에서 첫 점으로 닫는다. [단일 계단](../02-stair.md#stair-reservation)의 아래 flight 경로는 현관 바닥에서 제외하고 하부 대기 X = [-1.80, -0.65]·Z = [-1.45, -0.25]는 포함한다. 계단 구멍 오른쪽의 X = [-0.65, -0.50]·Z = [-3.41, -1.45]는 1층에서 완전 높이 벽이 아닌 열린 난간 옆이므로 현관 owner가 바닥 Y = [-0.025, 0] m와 천장 Y = [2.75, 2.765] m를 마감한다. 그 마감은 디딤·난간의 실제 몸체와 평면 내부를 공유하지 않고 X = -0.65 m에서 맞닿는다.
+`front-entry`는 ground-storey의 실내 분배 공간이다. [본채 안쪽 한계](../00-building.md#main-building-extent)와 [층 기준](../01-storeys.md#storey-datums)을 소비한다. 마감 안쪽 평면 꼭짓점은 (X, Z) m로 (-1.80, -0.25), (2.02, -0.25), (2.02, -3.41), (-0.65, -3.41), (-0.65, -1.45), (-1.80, -1.45)다. 마지막 점에서 첫 점으로 닫는다. [단일 계단](../02-stair.md#stair-reservation)의 아래 flight 경로는 현관 바닥에서 제외하고 하부 대기 X = [-1.80, -0.65]·Z = [-1.45, -0.25]는 포함한다. 계단 구멍 오른쪽의 X = [-0.65, -0.50]·Z = [-3.41, -1.45]는 1층에서 완전 높이 벽이 아닌 열린 난간 옆이므로 현관 owner가 바닥 Y = [-0.025, 0] m와 천장 Y = [2.75, 2.765] m를 마감한다. 바닥은 디딤·난간의 실제 몸체와 평면 내부를 공유하지 않고 X = -0.65 m에서 맞닿는다. 천장은 같은 구멍선까지 이어지되 그 윗면 Y=2.765 m에서 [계단 구멍의 수직 테두리](../08-floor-assembly.md#interstorey-edge-junctions) 아래 끝과 맞대고 겹치지 않는다.
 
 `front-door`는 포치와 이 현관 사이의 본채 전면 벽에 속한다. 거친 벽 개구부는 X = [0.40, 1.40], Y = [0, 2.20] m, 벽 두께 방향은 Z다. [문 유효폭 목표](../../settings/00-production.md#use-profile)를 넘는 유효 폭 0.90 m 이상을 남기는 문틀을 후속 부재로 맞춘다. +X 문설주에 경첩을 두고 실내 -Z 방향으로 열리는 문짝을 예약한다. 닫힘이 기준 상태이며 내부 관찰을 위한 열림에서도 계단 대기까지의 바닥을 비운다. 포치 높이는 [문턱 기준](../01-storeys.md#ground-threshold-datums)을 따른다.
 
