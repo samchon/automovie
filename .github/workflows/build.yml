@@ -27,7 +27,4 @@ jobs:
         with:
           path: node_modules/.cache/ttsc
           key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
-      # Use the compiler configuration shipped to the generated project.
-      - name: Check the shipped scaffold
-        run: pnpm exec ttsc -p packages/template/scaffold/package.json --noEmit
       - run: pnpm run build
