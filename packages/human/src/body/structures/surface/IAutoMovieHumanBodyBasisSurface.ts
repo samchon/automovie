@@ -10,8 +10,8 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * and `createHumanBodySurfaceParts` calculates the posed surface before
  * material projection. Skinning, sag and appearance metadata do not by
  * themselves establish volume preservation or contact. The current MPFB
- * study records topology and skin-weight extraction in
- * `test/studies/human-body/connected-basis/extraction-receipt.json`.
+ * study records initial topology and skin-weight extraction in its extraction
+ * receipt and subsequent bilateral weight changes in its symmetry receipt.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisSurface {

@@ -30,6 +30,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * pelvis-to-hip ratio for every body, age or knee pose. The basis owns its
  * declared curve and the admission constraints below; the curve's validity
  * across its supported shape and pose population still needs measurement.
+ * The connected study's `couplings-receipt.json` records its authored knots.
  *
  * A trunk-relative flexion past the leg's clinical range is refused, and so
  * is a resulting pelvic-relative or lumbar angle past its own range; nothing

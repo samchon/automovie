@@ -6,9 +6,10 @@
  * endpoint exists on the connected skin or joint landmarks. A missing row set
  * means that population does not move. The endpoint is measured displacement
  * data in the basis frame, not a claim that a muscle or bone has this shape.
- * The current MPFB study records its source and extraction in
- * `test/studies/human-body/connected-basis/extraction-receipt.json`; other
- * licensed bases supply their own provenance and revision identity.
+ * The current MPFB study records its initial extraction and later channel
+ * additions in the receipts indexed by
+ * `test/studies/human-body/connected-basis/README.md`; other licensed bases
+ * supply their own provenance and revision identity.
  *
  * The basis owns order, sign, range and explicit left/right mirror identity.
  * A channel value cannot establish physiological validity or skin contact;

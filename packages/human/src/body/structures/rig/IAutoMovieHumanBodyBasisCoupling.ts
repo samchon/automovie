@@ -24,6 +24,8 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * rig approximation, not a verified model of the four scapulothoracic degrees
  * of freedom measured by Seth et al. 2016. The anatomy and GPU limitations
  * are recorded in the body atlas and anatomical-layers studies.
+ * The connected study's `couplings-receipt.json` records its actual curves;
+ * those authored knots are not replacement measurements of scapular motion.
  *
  * A coupling is a declared driver in the sense of the rig control driver
  * requirement rather than a hidden corrective: its input, output, bounded
