@@ -90,7 +90,7 @@ export function validateAutoMovieLocalContractClaims(
         !isDeepStrictEqual(references, expected.reference)
       )
         throw new Error(
-          `Production-local principle ${JSON.stringify(raw.name)} must retain its canonical claim severity, authored heading hosts, and complete no-exclusion H2 checklist references with owning-stage review.`,
+          `Production-local principle ${JSON.stringify(raw.name)} must retain its canonical claim severity, authored heading hosts, and complete no-exclusion H2 checklist references without companion-review requirements.`,
         );
       continue;
     }

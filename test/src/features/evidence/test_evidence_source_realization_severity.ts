@@ -11,11 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  * AutoMovie's typed configuration output, never native evidence evaluation.
  *
  * Scenarios:
- * 1. Every rendered source family keeps error structure beside warning review.
- * 2. System evaluation and production serialization retain error freshness.
+ * 1. Every source family keeps one error-level structural reference without companion reviews.
+ * 2. System evaluation and production serialization use the same structural policy.
  * 3. Pre-review declarations emit only error structure with no review demand.
  * 4. File, unit, and scene selectors retain their roots, exclusions, checklist,
- *    ownership, and cardinality in both references without mutating the input.
+ *    ownership, and cardinality without mutating the input.
  */
 export const test_evidence_source_realization_severity = (): void => {
   const families: readonly [AutoMovieSourceRealizationBranch, boolean][] = [
@@ -30,7 +30,7 @@ export const test_evidence_source_realization_severity = (): void => {
     ["systemSources", false],
     ["productionSources", false],
   ];
-  for (const [branch, rendered] of families)
+  for (const [branch] of families)
     for (const requireReview of [false, true]) {
       const reference = {
         type: "markdown",
@@ -57,15 +57,9 @@ export const test_evidence_source_realization_severity = (): void => {
         {
           ...input,
           severity: "error",
-          requireReview: requireReview && !rendered,
+          requireReview: false,
         },
       ];
-      if (rendered && requireReview)
-        expected.push({
-          ...input,
-          severity: "warning",
-          requireReview: true,
-        });
       TestValidator.equals(
         `${branch} review=${requireReview}`,
         output,
@@ -94,10 +88,7 @@ export const test_evidence_source_realization_severity = (): void => {
     TestValidator.equals(
       `${symbol} structural policy stays strict beside rendered review`,
       output,
-      [
-        { ...reference, severity: "error", requireReview: false },
-        { ...reference, severity: "warning", requireReview: true },
-      ],
+      [{ ...reference, severity: "error", requireReview: false }],
     );
   }
 };

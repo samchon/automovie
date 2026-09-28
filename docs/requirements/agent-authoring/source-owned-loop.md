@@ -20,7 +20,7 @@
 
 Compile artifact, render, drawing, 진단과 review receipt는 어떤 source revision과 입력 bytes에서 나왔는지 추적할 수 있어야 한다.
 
-실행되는 top-level export는 evidence graph가 선택하고 검토한 정확한 source path, export 이름, authored target과 동일해야 하며, 결과도 그 target과 source digest를 함께 보존해야 한다. 같은 population 안의 다른 유효한 owner나 helper export로 바꾸는 것은 동일한 source를 사용한 것으로 간주하지 않는다.
+실행되는 top-level export는 evidence graph가 선택한 완료된 정확한 source path, export 이름, authored target과 동일해야 하며, 결과도 그 target과 source digest를 함께 보존해야 한다. Evidence 완료는 별도 review companion을 필요로 하지 않으며 실제 결과의 검증·관찰 의무를 대신하지 않는다. 같은 population 안의 다른 유효한 owner나 helper export로 바꾸는 것은 동일한 source를 사용한 것으로 간주하지 않는다.
 
 결과는 그것을 만든 production namespace도 함께 보존해야 한다. 같은 source와 입력 bytes라도 다른 production namespace에서 만든 결과는 같은 결과로 취급하지 않는다.
 

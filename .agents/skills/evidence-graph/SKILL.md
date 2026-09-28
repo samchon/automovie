@@ -113,7 +113,7 @@ Make every reason state why this claimant answers for that target. A restatement
 
 Use `@evidenceExclude` only when the selected claim intentionally owes no relationship to the target. State the specific boundary and why no implementation belongs there. An exclusion is not positive implementation evidence and must not satisfy a reference configured with `noEvidenceExclude`.
 
-Preserve `@evidenceReview` and `@evidenceExcludeReview` when a reference requires review. Treat an expired fingerprint as a request to inspect the cited content again, not as a value to copy without review.
+Require truthful `@evidence` and applicable `@evidenceExclude` relationships over the complete declared population. Repository and generated-production graphs never require `@evidenceReview`, `@evidenceExcludeReview` or companion fingerprints. Semantic inspection and actual-output verification remain the owning review procedures’ responsibilities.
 
 ## Repository evidence review companions
 
@@ -121,7 +121,7 @@ Keep `evidence/review` disabled on the repository requirement-specification-sour
 
 Apply [Validation responsibilities](#validation-responsibilities) to the repository graph. The [development skill](../development/SKILL.md) owns tests and changed-position coverage, and the [review skill](../review/SKILL.md) owns the complete semantic review procedure.
 
-The generated-production graph is separate. Its review stage records substantive relationship inspections over the production's selected authored population and remains active under the scaffold's shipped evidence-graph and review-verification skills. Reconsider the repository rule when a mechanism can select changed semantic relationships, preserve concrete observations, and reject copied acknowledgements without demanding a companion sentence for every stable edge.
+The generated-production graph is separate. Its completion stage is `evidence`, and a retained `review` declaration has the same structural policy. It requires truthful relationships over its whole authored population and the author’s actual-output judgment under the shipped evidence-graph and review-verification skills. It never reinstates native companion-review requirements.
 
 ## Change workflow
 
