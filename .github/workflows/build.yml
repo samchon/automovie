@@ -40,22 +40,14 @@ jobs:
           node-version: 22.x
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       - run: pnpm install
+      # Two cache roots: the repository root, and the manor, whose own `lint`
+      # writes beside its own `node_modules`.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          # Two plugin caches, because two projects compile here from two
-          # working directories: the repository root, and the manor, whose own
-          # `lint` writes beside its own `node_modules`. The two build
-          # different plugin sets and hash apart, so without the second path the
-          # manor step rebuilds `@ttsc/lint` from a cold Go cache every run.
-          #
-          # The key carries `v2` so that second path is actually saved. An exact
-          # key hit makes `actions/cache` skip the save, so keeping the old key
-          # would have restored the root path, never written the manor one, and
-          # left it permanently cold while looking cached.
           path: |
-            node_modules/.cache/ttsc/plugins
-            experimental/medieval-baron-manor/node_modules/.cache/ttsc/plugins
-          key: ttsc-plugins-v2-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+            node_modules/.cache/ttsc
+            experimental/medieval-baron-manor/node_modules/.cache/ttsc
+          key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
       # Use the compiler configuration shipped to the generated project.
       - name: Check the shipped scaffold
         run: pnpm exec ttsc -p packages/template/scaffold/package.json --noEmit
