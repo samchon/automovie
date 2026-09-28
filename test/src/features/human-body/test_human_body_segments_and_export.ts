@@ -120,6 +120,11 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     measureAutoMovieModelCrossings(seamed.model),
     [],
   );
+  TestValidator.equals(
+    "a UV seam alone is not a within-segment crossing",
+    measureAutoMovieModelCrossings(seamed.model, { withinParts: true }),
+    [],
+  );
   const regions = humanBodyBasisFixture();
   const two = regions.basis.surfaces[0];
   regions.basis.materials.push({
