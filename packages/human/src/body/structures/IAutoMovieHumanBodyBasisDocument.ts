@@ -1,6 +1,7 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyShoulderPose } from "./IAutoMovieHumanBodyShoulderPose";
+import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwear";
 
 /**
  * Compact edits against a separately supplied immutable body basis.
@@ -79,6 +80,14 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * Omission shows none.
    */
   skinVeins?: { strength: number };
+
+  /**
+   * Optional plain default underwear: boxer briefs, or a sports bra and
+   * briefs, cut from the posed skin by landmark rules and lifted a few
+   * millimetres off it as a part of its own material, in the table's colour
+   * or `color` (`HUMAN_BODY_UNDERWEAR`). Omission wears none.
+   */
+  underwear?: IAutoMovieHumanBodyUnderwear;
 
   /** Optional linear RGB and roughness, each in [0,1], by existing material ID. */
   materials?: Record<

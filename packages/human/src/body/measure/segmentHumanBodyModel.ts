@@ -24,7 +24,9 @@ import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBody
  * material, so the parts remain a valid resident model. A basis with one
  * region keeps bare bone names; with several regions the stable part name
  * includes surface and region identity. `sources` uses global source vertex
- * ordinals, concatenating surfaces in basis order.
+ * ordinals, concatenating surfaces in basis order. Parts the builder emits
+ * after the skin's regions (the underwear, a garment lifted off the skin)
+ * are left out: the partition is of the skin.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Names the two skin segments of one connected body that a posed joint drives into each other, which the census and the editor's contact check report.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Partitions the built surface by dominant skin weight in joint order, preserving the region splitter's vertex order and the built normals.
@@ -37,7 +39,9 @@ export function segmentHumanBodyModel(
     (count, surface) => count + surface.regions.length,
     0,
   );
-  if (built.model.parts.length !== regionCount)
+  // the skin's regions come first; a garment the builder cut from the skin
+  // (the underwear) follows them and is not skin, so it is not partitioned
+  if (built.model.parts.length < regionCount)
     throw new Error("The segment partition needs every built surface region.");
   const jointOrder = new Map(basis.joints.map((joint, i) => [joint.bone, i]));
   const entries: {
