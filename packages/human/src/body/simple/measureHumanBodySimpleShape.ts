@@ -1,8 +1,8 @@
 import { evaluateHumanBodyShape } from "../basis/evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "../basis/humanBodyBasisWeights";
-import { HUMAN_BODY_MEASUREMENTS } from "../constants/HUMAN_BODY_MEASUREMENTS";
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import { evaluateHumanBodyMeasurement } from "../measure/evaluateHumanBodyMeasurement";
+import { humanBodyMeasurementRule } from "../measure/humanBodyMeasurementRule";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { humanBodyCappedSurface } from "./humanBodyCappedSurface";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
@@ -27,12 +27,11 @@ export const measureHumanBodySimpleShape = {
     basis: IAutoMovieHumanBodyBasis,
     shape: Record<string, number>,
   ): number {
-    // the stature channel's rule is a height, which always answers: the
-    // two tables are checked against each other by the simple-tier test
+    // The simple-tier test checks that this authored channel has a height rule.
     const height = evaluateHumanBodyMeasurement(
       basis,
       shape,
-      HUMAN_BODY_MEASUREMENTS[HUMAN_BODY_SIMPLE_SHAPE.solved.stature],
+      humanBodyMeasurementRule(HUMAN_BODY_SIMPLE_SHAPE.solved.stature)!,
     )!;
     return height + HUMAN_BODY_SIMPLE_SHAPE.stature.headAboveRingMetres;
   },
@@ -78,12 +77,11 @@ export const measureHumanBodySimpleShape = {
     shape: Record<string, number>,
     channel: string,
   ): number | null {
-    // every tape channel the table names has a rule (checked by the test);
-    // the rule itself may find no section on a surface and answer null
-    return evaluateHumanBodyMeasurement(
-      basis,
-      shape,
-      HUMAN_BODY_MEASUREMENTS[channel],
-    );
+    // The simple-tier test checks the named tape rules. A rule may still find
+    // no closed section on a particular shaped surface and answer null.
+    const rule = humanBodyMeasurementRule(channel);
+    if (rule === undefined)
+      throw new Error("No body measurement rule for " + channel + ".");
+    return evaluateHumanBodyMeasurement(basis, shape, rule);
   },
 };

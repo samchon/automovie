@@ -1,6 +1,6 @@
-import { HUMAN_BODY_MEASUREMENTS } from "../constants/HUMAN_BODY_MEASUREMENTS";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
+import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
 import { invertHumanBodyMeasurement } from "./invertHumanBodyMeasurement";
 
 /**
@@ -31,7 +31,7 @@ export function solveHumanBodyMeasuredChannel(input: {
 }): { shape: Record<string, number>; actualMetres: number } {
   const { basis, shape, channel: id, targetMetres } = input;
   const channel = basis.channels.find((one) => one.id === id);
-  const rule = HUMAN_BODY_MEASUREMENTS[id];
+  const rule = humanBodyMeasurementRule(id);
   if (channel === undefined || rule === undefined)
     throw new Error("A detailed body measurement needs a named measured channel: " + id);
   const worn = (weight: number): Record<string, number> => {
