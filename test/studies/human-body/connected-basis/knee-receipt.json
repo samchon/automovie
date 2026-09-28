@@ -1,0 +1,107 @@
+{
+  "basis": "mpfb-connected-body-2026-09-28-anatomy-r16",
+  "recorded": "2026-09-28",
+  "landmarks": [
+    "joint-l-knee",
+    "joint-r-knee"
+  ],
+  "moved": {
+    "axis": "z",
+    "metres": -0.018,
+    "direction": "posterior"
+  },
+  "measured": {
+    "site": "the neutral left knee, a 12 mm wide sagittal strip of skin at the landmark's height",
+    "frontSkinToLandmarkMm": 51,
+    "depthMm": 113,
+    "share": 0.45
+  },
+  "evidence": {
+    "flexionAxis": "the functional flexion-extension axis lies within 1.9 (medial) and 2.0 (lateral) mm of the axis through the centres of the posterior condylar cylinder, and 3.2 to 6.7 mm from the transepicondylar axis; 20 subjects (the in vivo kinematic study at PMC4454551, Identifying the Functional Flexion-extension Axis of the Knee)",
+    "facetRadiusMm": 22,
+    "facetRadiusSource": "the medial flexion facet is an arc of radius 22 mm (Iwaki, Pinskerova and Freeman 2000, J Bone Joint Surg Br 82:1189)",
+    "distalFemurDepthMm": {
+      "men": 64.02,
+      "women": 57.33,
+      "source": "adult Malay population, PMC3835611"
+    },
+    "anteriorTissueMm": [
+      25,
+      30
+    ],
+    "anteriorTissueNote": "patella and prepatellar tissue; published patellar thicknesses disagree by method (12 to 14 mm bony on CT models, 22 to 25 mm by caliper in surgery), which is this estimate's main uncertainty",
+    "axisFromFrontSkinMm": {
+      "men": 69,
+      "women": 60
+    },
+    "contactOnsetDegrees": 130,
+    "contactOnsetSource": "thigh-calf contact begins near 130 degrees of knee flexion (Zelle et al. 2007, Clin Biomech; 2009, J Biomech); so a crossing before it is the rig's, not tissue meeting tissue"
+  },
+  "decision": "18 mm posterior, the upper end of the 9 to 18 mm the anatomy gives against the landmark's 51 mm",
+  "check": {
+    "note": "raw crossing triangles between and within the left thigh and calf, knee correctives removed, the landmark moved back by each amount",
+    "shiftsMm": [
+      0,
+      10,
+      15,
+      20,
+      25
+    ],
+    "at106": {
+      "neutral": [
+        116,
+        92,
+        41,
+        0,
+        0
+      ],
+      "female": [
+        123,
+        115,
+        73,
+        33,
+        0
+      ],
+      "male": [
+        133,
+        84,
+        7,
+        0,
+        0
+      ],
+      "heavy": [
+        135,
+        99,
+        84,
+        0,
+        0
+      ]
+    },
+    "at120": {
+      "neutral": [
+        null,
+        null,
+        112,
+        102,
+        24
+      ],
+      "female": [
+        null,
+        null,
+        130,
+        112,
+        51
+      ]
+    },
+    "at140": {
+      "neutral": [
+        187,
+        159,
+        167,
+        150,
+        null
+      ]
+    }
+  },
+  "correctives": "the 862 correctives any knee axis drove, solved on the landmark as extracted, were removed and the knee's flexion correctives solved again on the moved pivot"
+}

@@ -1,12 +1,12 @@
 # Production lifecycle
 
-You are authoring one production: this project. Read `AGENTS.md`, `src/lint.config.ts`, `docs/README.md`, every active upstream layer, and every contract selected by the evidence graph before drafting. Write only what the user requested. Do not create placeholder files, headings, or invented production content.
+You are authoring one production: this project. Read `AGENTS.md`, `lint.config.ts`, `docs/README.md`, every active upstream layer, and every contract selected by the evidence graph before drafting. Write only what the user requested. Do not create placeholder files, headings, or invented production content.
 
 ## Ordered procedure
 
-Before first-version drafting while a layer is disabled, follow the contract skill from `AGENTS.md` and read the exact inventory selected by `src/lint.config.ts`. Apply unit-level principles from the beginning, but defer population-distribution and post-draft questions until their complete selected population exists. A contract annotation records work already done and never substitutes for authorship.
+Before first-version drafting while a layer is disabled, follow the contract skill from `AGENTS.md` and read the exact inventory selected by `lint.config.ts`. Apply unit-level principles from the beginning, but defer population-distribution and post-draft questions until their complete selected population exists. A contract annotation records work already done and never substitutes for authorship.
 
-Select the production kind and settle complete settings before downstream work. Activate only the next applicable layer whose direct parents are reviewed, author one coherent version, stage its evidence, review it, and only then open its child. A later finding returns to the earliest semantic owner, propagates through every affected descendant, and renews their evidence and review.
+Select the production kind and settle complete settings before downstream work. Activate the next applicable layer through [Evidence staging](../evidence-graph/staging.md#transitions), author one coherent version, complete its evidence and author inspection, then hand it to its child. A later finding returns to the earliest semantic owner, propagates through every affected descendant, and renews their evidence and actual-output inspection.
 
 Apply this procedure without subject-matter shortcuts. Historical, biographical, familiar, externally documented, or technically standardized material still needs explicit project canon, selected design owners, source realization, and current review. External knowledge supports an owner; it never replaces one.
 
@@ -14,11 +14,11 @@ Do not partition one authored layer into release and non-release populations. Tr
 
 Record authorship and assistance truthfully in Git history and durable source provenance where the production contract calls for it. Do not move process history into current canon, attribute generated output as human observation, or treat tool assistance as authority for a production fact.
 
-Choose exactly one shape in `src/lint.config.ts`. [Production kinds](production-kinds.md) is the sole semantic owner of the film, brief, and library ladders, their parallel inputs, and their refusals. This lifecycle index routes to that decision and does not restate it.
+Choose exactly one shape in `lint.config.ts`. [Production kinds](production-kinds.md) is the sole semantic owner of the film, brief, and library ladders, their parallel inputs, and their refusals. This lifecycle index routes to that decision and does not restate it.
 
 ## Project instructions
 
-Follow the [static-document update policy](../../../README.md#static-document-updates) when editing installed instructions or adopting upstream changes. Production facts remain in `src/lint.config.ts` and their canonical document and source owners; changing a fact does not require rebuilding an instruction file or a parallel inventory.
+Follow the [static-document update policy](../../../README.md#static-document-updates) when editing installed instructions or adopting upstream changes. Production facts remain in `lint.config.ts` and their canonical document and source owners; changing a fact does not require rebuilding an instruction file or a parallel inventory.
 
 Start the coding-agent session from this project root. Codex loads `AGENTS.md`; Claude Code follows `CLAUDE.md -> @AGENTS.md`.
 
@@ -51,7 +51,7 @@ Read each applicable sibling document in full before acting:
 - [Production delivery decisions](configuration.md) explains the delivery, repaint, dialogue, and simulation fields of the design record; read it before source authorship.
 - [Upstream revision](upstream-revision.md) repairs the earliest parent exposed by a child and preserves the child until coherent resumption.
 
-Map, model, space, material, instance, motion, and system design plus TypeScript implementation belong to [Source authoring](../source-authoring/SKILL.md). Contract inventory, citations, stages, and fingerprints belong to [Evidence graph](../evidence-graph/SKILL.md). Review, capture, inspection, and final acceptance belong to [Review verification](../review-verification/SKILL.md).
+Map, model, space, material, instance, motion, and system design plus TypeScript implementation belong to [Source authoring](../source-authoring/SKILL.md). Contract inventory, citations, completion stages, and legacy fingerprint compatibility belong to [Evidence graph](../evidence-graph/SKILL.md). Review, capture, inspection, and final acceptance belong to [Review verification](../review-verification/SKILL.md).
 
 ## Ownership and consequence
 

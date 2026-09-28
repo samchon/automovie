@@ -34,6 +34,7 @@ import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { createHumanBodySkinDetailTexture } from "./createHumanBodySkinDetailTexture";
 import { createHumanBodySkinToneTexture } from "./createHumanBodySkinToneTexture";
 import { createHumanBodySurfaceSag } from "./createHumanBodySurfaceSag";
+import { createHumanBodyUnderwear } from "./createHumanBodyUnderwear";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyReliefWeights } from "./humanBodyReliefWeights";
@@ -101,6 +102,8 @@ export function createHumanBodyBasisBuilder(
     ReturnType<typeof createHumanBodySkinToneTexture>
   >();
   let toneTurns: number | null = null;
+  // the underwear's per-vertex arm weights, on the first document wearing it
+  let dress: ReturnType<typeof createHumanBodyUnderwear> | null = null;
   const sags = basis.surfaces.map((surface) =>
     surface.sag === undefined
       ? null
@@ -161,7 +164,7 @@ export function createHumanBodyBasisBuilder(
       }
       return lean;
     };
-    const { skeleton, rest, frames } = resolveHumanBodySkeleton(
+    const { skeleton, rest, frames, axes } = resolveHumanBodySkeleton(
       basis,
       shaped.landmarks,
     );
@@ -207,7 +210,7 @@ export function createHumanBodyBasisBuilder(
       basis,
       document.shoulders ?? [],
       rest,
-      resolvePose(pose, skeleton, undefined, frames),
+      resolvePose(pose, skeleton, axes, frames),
     );
     if (tilt !== 0) {
       const at = (bone: AutoMovieHumanoidBone) =>
@@ -289,11 +292,12 @@ export function createHumanBodyBasisBuilder(
     const coloured =
       cheek === undefined
         ? null
-        : (siteColour ??= createHumanBodySkinColour(basis))([
-            cheek.r,
-            cheek.g,
-            cheek.b,
-          ]);
+        : (siteColour ??= createHumanBodySkinColour(basis))(
+            [cheek.r, cheek.g, cheek.b],
+            // the skin over a joint lightens as the coupled pose folds it
+            (bone) =>
+              state.pose.find((row) => row.bone === bone)?.flexion ?? null,
+          );
     if (coloured !== null) {
       const [r, g, b] = coloured.base;
       materialMap.get(skin)!.baseColor = {
@@ -539,97 +543,111 @@ export function createHumanBodyBasisBuilder(
     // at the rest pose the basis was authored in hangs as authored
     const restShape =
       posed && sags.some((sag) => sag !== null) ? restAll() : null;
-    const parts = basis.surfaces.flatMap((surface, index) => {
-      const skinned = skinHumanBodySurface(
-        shaped.surfaces[index],
-        surface.skin,
-        basis.joints,
-        transforms,
-      );
-      const sag = sags[index];
-      const positions = (() => {
-        if (sag === null || restShape === null) return skinned;
-        const declared = surface.sag!;
-        const lean = leanOf(index);
-        // the skin's rest down after the pose: each vertex's transform is
-        // rigid, so a point a centimetre below it lands a centimetre along it
-        const below = skinHumanBodySurface(
-          shaped.surfaces[index].map((value, i) =>
-            i % 3 === 1 ? value - 0.01 : value,
-          ),
+    const posedSurfaces: { positions: number[]; normals: number[] }[] = [];
+    const parts: IAutoMovieModel["parts"] = basis.surfaces.flatMap(
+      (surface, index) => {
+        const skinned = skinHumanBodySurface(
+          shaped.surfaces[index],
           surface.skin,
           basis.joints,
           transforms,
         );
-        const softness = Math.min(
-          declared.softness.range[1],
-          Math.max(
-            declared.softness.range[0],
-            Object.entries(declared.softness.channels).reduce(
-              (total, [id, gain]) => total + gain * (document.shape[id] ?? 0),
-              declared.softness.base,
+        const sag = sags[index];
+        const positions = (() => {
+          if (sag === null || restShape === null) return skinned;
+          const declared = surface.sag!;
+          const lean = leanOf(index);
+          // the skin's rest down after the pose: each vertex's transform is
+          // rigid, so a point a centimetre below it lands a centimetre along it
+          const below = skinHumanBodySurface(
+            shaped.surfaces[index].map((value, i) =>
+              i % 3 === 1 ? value - 0.01 : value,
             ),
-          ),
-        );
-        return sag({
-          rest: restShape.surfaces[index],
-          lean,
-          skinned,
-          hanging: below.map((value, i) => (value - skinned[i]) / 0.01),
-          softness,
+            surface.skin,
+            basis.joints,
+            transforms,
+          );
+          const softness = Math.min(
+            declared.softness.range[1],
+            Math.max(
+              declared.softness.range[0],
+              Object.entries(declared.softness.channels).reduce(
+                (total, [id, gain]) => total + gain * (document.shape[id] ?? 0),
+                declared.softness.base,
+              ),
+            ),
+          );
+          return sag({
+            rest: restShape.surfaces[index],
+            lean,
+            skinned,
+            hanging: below.map((value, i) => (value - skinned[i]) / 0.01),
+            softness,
+          });
+        })();
+        const normals = portraitNormals(positions, surface.indices);
+        posedSurfaces[index] = { positions, normals };
+        // the skin's anatomical relief follows the pose: its creases deepen
+        // where a bent joint folds the skin and its wrinkles flatten where it
+        // stretches it, read on the body at rest
+        const reliefWeights =
+          document.skinDetail === undefined ||
+          surface.relief?.material !== skin ||
+          !posed
+            ? null
+            : (() => {
+                const atRestNow = restAll();
+                return humanBodyReliefWeights({
+                  basis,
+                  table: HUMAN_BODY_SKIN_RELIEF_POSE,
+                  positions: atRestNow.surfaces[index],
+                  normals: portraitNormals(
+                    atRestNow.surfaces[index],
+                    surface.indices,
+                  ),
+                  landmarks: atRestNow.landmarks,
+                  pose: document.pose ?? [],
+                });
+              })();
+        return surface.regions.map((region) => {
+          const mesh =
+            coloured === null || region.material !== skin
+              ? humanFaceBasisRegion(positions, normals, region)
+              : createHumanFaceBasisRegion(region)(
+                  positions,
+                  normals,
+                  coloured.colors[index],
+                );
+          if (reliefWeights !== null && region.material === skin) {
+            // gathered through the region's own source correspondence
+            const triples = reliefWeights.flatMap((w) => [w, w, w]);
+            const gathered = createHumanFaceBasisRegion(region)(
+              triples,
+              triples,
+            ).positions;
+            mesh.reliefWeights = gathered.filter((_, i) => i % 3 === 0);
+          }
+          return {
+            id: region.id,
+            name: region.id,
+            material: region.material,
+            geometry: { type: "mesh" as const, mesh },
+            attachedBone: null,
+            transform: null,
+          };
         });
-      })();
-      const normals = portraitNormals(positions, surface.indices);
-      // the skin's anatomical relief follows the pose: its creases deepen
-      // where a bent joint folds the skin and its wrinkles flatten where it
-      // stretches it, read on the body at rest
-      const reliefWeights =
-        document.skinDetail === undefined ||
-        surface.relief?.material !== skin ||
-        !posed
-          ? null
-          : (() => {
-              const atRestNow = restAll();
-              return humanBodyReliefWeights({
-                basis,
-                table: HUMAN_BODY_SKIN_RELIEF_POSE,
-                positions: atRestNow.surfaces[index],
-                normals: portraitNormals(
-                  atRestNow.surfaces[index],
-                  surface.indices,
-                ),
-                landmarks: atRestNow.landmarks,
-                pose: document.pose ?? [],
-              });
-            })();
-      return surface.regions.map((region) => {
-        const mesh =
-          coloured === null || region.material !== skin
-            ? humanFaceBasisRegion(positions, normals, region)
-            : createHumanFaceBasisRegion(region)(
-                positions,
-                normals,
-                coloured.colors[index],
-              );
-        if (reliefWeights !== null && region.material === skin) {
-          // gathered through the region's own source correspondence
-          const triples = reliefWeights.flatMap((w) => [w, w, w]);
-          const gathered = createHumanFaceBasisRegion(region)(
-            triples,
-            triples,
-          ).positions;
-          mesh.reliefWeights = gathered.filter((_, i) => i % 3 === 0);
-        }
-        return {
-          id: region.id,
-          name: region.id,
-          material: region.material,
-          geometry: { type: "mesh" as const, mesh },
-          attachedBone: null,
-          transform: null,
-        };
+      },
+    );
+    // the underwear, cut from the posed skin after every skin region
+    if (document.underwear !== undefined) {
+      const dressed = (dress ??= createHumanBodyUnderwear(basis))({
+        underwear: document.underwear,
+        rest: restAll(),
+        posed: posedSurfaces,
       });
-    });
+      materials.push(dressed.material);
+      parts.push(...dressed.parts);
+    }
     const model: IAutoMovieModel = {
       id: document.id,
       name: document.name,

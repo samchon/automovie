@@ -24,6 +24,11 @@ const SITES = ["protected", "exposed", "neck", "dorsal", "palmar"] as const;
  * the face joins, the albedo goes from the cheek itself at the cut to the
  * sites' over the table's collar band (a smoothstep in the neutral distance
  * to the nearest boundary vertex), so the body meets the face in its colour.
+ * Over each joint the table names, the skin on the extension side (a
+ * Gaussian along the bone within its reach, where the normal faces away from
+ * the flexion side, diffused as the sites are) takes the joint's ratio,
+ * blended from straight to folded by the flexion `flexion` reads (the joint's
+ * rest when it reads none).
  *
  * The result is a material base colour, the largest albedo of any vertex
  * per channel, and per surface the per-vertex multipliers of that base
@@ -36,7 +41,17 @@ const SITES = ["protected", "exposed", "neck", "dorsal", "palmar"] as const;
 export function createHumanBodySkinColour(
   basis: IAutoMovieHumanBodyBasis,
   table: IAutoMovieHumanBodySkinSites = HUMAN_BODY_SKIN_SITES,
-): (cheek: Rgb) => { base: Rgb; colors: number[][] } {
+): (
+  cheek: Rgb,
+  flexion?: (bone: string) => number | null,
+) => { base: Rgb; colors: number[][] } {
+  const joints = new Map(
+    basis.joints.map((joint) => [joint.bone as string, joint]),
+  );
+  const landmark = (id: string): number[] => {
+    const k = basis.landmarks.ids.indexOf(id);
+    return basis.landmarks.positions.slice(k * 3, k * 3 + 3);
+  };
   const reference = new Map(
     basis.joints.map((joint) => [joint.bone as string, joint.reference]),
   );
@@ -130,6 +145,52 @@ export function createHumanBodySkinColour(
           return 0.5 * value + (0.5 * sum) / around.size;
         }),
       );
+    // each prominence's region on either side, off the neutral rig: the
+    // joint frame is the bone's (Y head to tail, X = Y x reference, Z =
+    // X x Y the flexion side), and the extension side faces -Z
+    const prominences = table.prominences.flatMap((prominence) =>
+      (["left", "right"] as const).flatMap((side) => {
+        const joint = joints.get(side + prominence.bone);
+        if (joint === undefined) return [];
+        const head = landmark(joint.head);
+        const tail = landmark(joint.tail);
+        const y = unit(tail.map((value, k) => value - head[k]));
+        const x = unit(cross(y, joint.reference));
+        const z = cross(x, y);
+        let field = Float64Array.from({ length: count }, (_, v) => {
+          const d = [0, 1, 2].map((k) => p[v * 3 + k] - head[k]);
+          const along = dot(d, y);
+          const radial = Math.hypot(
+            d[0] - along * y[0],
+            d[1] - along * y[1],
+            d[2] - along * y[2],
+          );
+          if (radial > prominence.reachMetres) return 0;
+          const n = [0, 1, 2].map((k) => normals[v * 3 + k]);
+          const size = Math.hypot(n[0], n[1], n[2]) || 1;
+          return (
+            Math.exp(-((along / prominence.sigmaMetres) ** 2)) *
+            smooth(-dot(n, z) / size, [0.2, 0.6])
+          );
+        });
+        for (let sweep = 0; sweep < table.sweeps; sweep++)
+          field = field.map((value, v) => {
+            const around = neighbours[v];
+            if (around.size === 0) return value;
+            let sum = 0;
+            for (const u of around) sum += field[u];
+            return 0.5 * value + (0.5 * sum) / around.size;
+          });
+        return [
+          {
+            prominence,
+            bone: joint.bone as string,
+            neutral: joint.neutral.flexion,
+            field,
+          },
+        ];
+      }),
+    );
     const ring = [...boundary];
     const collar = Float64Array.from({ length: count }, (_, v) => {
       let nearest = Infinity;
@@ -144,27 +205,44 @@ export function createHumanBodySkinColour(
         );
       return 1 - smooth(nearest, [0, table.collarMetres]);
     });
-    return { count, weights, collar };
+    return { count, weights, collar, prominences };
   });
 
-  return (cheek) => {
+  return (cheek, flexion) => {
     const albedo = SITES.map((site) =>
       table.sites[site].map(([a, b], k) =>
         Math.min(1, Math.exp(a) * cheek[k] ** b),
       ),
     );
-    const per = surfaces.map(({ count, weights, collar }) =>
-      Array.from({ length: count }, (_, v) => {
+    const per = surfaces.map(({ count, weights, collar, prominences }) => {
+      // each prominence's ratio at its joint's flexion, the rest's when the
+      // pose leaves the joint unposed
+      const ratios = prominences.map(({ prominence, bone, neutral }) => {
+        const share = Math.min(
+          1,
+          Math.max(
+            0,
+            (flexion?.(bone) ?? neutral) / prominence.foldedAtDegrees,
+          ),
+        );
+        return prominence.extended.map(
+          (value, k) => value + (prominence.folded[k] - value) * share,
+        );
+      });
+      return Array.from({ length: count }, (_, v) => {
         const total = weights.reduce((sum, field) => sum + field[v], 0);
         return [0, 1, 2].map((k) => {
-          const sites = weights.reduce(
+          let sites = weights.reduce(
             (sum, field, s) => sum + (field[v] / total) * albedo[s][k],
             0,
           );
+          prominences.forEach(({ field }, at) => {
+            sites *= 1 + field[v] * (ratios[at][k] - 1);
+          });
           return collar[v] * cheek[k] + (1 - collar[v]) * sites;
         });
-      }),
-    );
+      });
+    });
     const base = [0, 1, 2].map((k) =>
       Math.max(...per.flatMap((vertices) => vertices.map((rgb) => rgb[k]))),
     ) as Rgb;
@@ -176,3 +254,15 @@ export function createHumanBodySkinColour(
     };
   };
 }
+
+const dot = (a: number[], b: number[]): number =>
+  a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a: number[], b: number[]): number[] => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
+const unit = (a: number[]): number[] => {
+  const size = Math.hypot(a[0], a[1], a[2]);
+  return [a[0] / size, a[1] / size, a[2] / size];
+};

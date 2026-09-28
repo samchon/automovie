@@ -7,8 +7,8 @@ import type * as Human from "@automovie/human";
  * evaluates (`connected-basis/basis.json.gz`), the analytic scenarios under
  * `test/src/features/human-body`, and its consumers. Deterministic replay and
  * source correctness do not accept a body's physiological range or likeness;
- * the census and render observations live beside the payload. No review
- * fingerprints are authored for those inspections.
+ * the census and render observations live beside the payload. Native-issued
+ * fingerprints are added only after those inspections.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis The study supplies a licensed neutral body prior and independent compact edits to the evaluator this review reads.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints The study's joints, landmarks and skin weights are what the inspected skeleton and skinning code evaluate.
@@ -22,6 +22,8 @@ import type * as Human from "@automovie/human";
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export The exported study body exercises the shared Float32 writer without a rig.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape The study's basis is what the simple tier's stature and body mass index are solved against.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape The study's ring and skin volume are the measurements the expansion's inversions read.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-underwear The study's landmarks, skin weights and nipple vertex are what the inspected underwear rules are read on.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The study body exercises the underwear's landmark rules, the clip at their zero and the lift along the posed normals.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-editor The browser editor is the playground's; the study review inspects the package sources it calls, not the screen.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view The study review owns no inputs, presets or display state.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The study review owns no transaction history or worker.
@@ -93,6 +95,20 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.stepHumanBodyArmsDown} Read the chain walk, the rest baseline, the bottom check and the one-degree bisection with a pause after each build and crossing read, and the solved joints it returns.
  * @evidence {@link Human.resolveHumanBodyShoulders} Read the coupled girdle frame, measured A-pose subtraction, thorax-relative world goal and rigid transport of each humeral descendant about the moved joint centre.
  * @evidence {@link Human.measureHumanBodySection} Read the plane cut, edge-keyed crossings, closed-loop chaining, open-chain discard and seed-nearest selection against the analytic box.
+ * @evidence {@link Human.createHumanBodyUnderwear} Read the coverage field on the body at rest: the waistband height, the leg line from the crotch within the gusset out to the outer hip's depth blended from back to front, the bra band blended from back to front by depth with the straps, and the uncovered arm skin at a metre per unit of weight; the clip at the field's zero with crossings held 5% inside an edge and shared by its two triangles, the lift along the posed normals, the refusals, and the part and material it emits after the skin.
+ * @evidence {@link Human.HUMAN_BODY_UNDERWEAR} Read the landmark names against the basis's MPFB joint cubes and the nipple vertex the bust girth uses, and each fraction against the rendered neutral, female, male, child and heavy bodies at rest and in the editor's presets; a costume table, not a garment standard.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear} Read the two styles and the optional colour a document puts on the body.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.style} Read the boxer briefs and the sports bra with briefs the style picks.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.color} Read the optional linear RGB in [0,1] that replaces the table's colour.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable} Read the table form the rules are evaluated from, every height and width a fraction between shaped landmarks.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.material} Read the garment's material id, refused when the basis uses it.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.color} Read the default linear fabric colour.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.roughness} Read the fabric roughness.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.offsetMetres} Read the lift of the fabric along the posed normal in metres.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.uncovered} Read the bones whose skin, with every bone below them, is never covered past half a vertex's weight.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.landmarks} Read the landmark ids the waist, legs, bra band and straps are measured on.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.briefs} Read each style's waist fraction, the leg line's crotch, front and back depths, and its gusset and outer distances.
+ * @evidence {@link Human.IAutoMovieHumanBodyUnderwear.ITable.bra} Read the nipple skin landmark and the band's bottom, front and back fractions and the strap's centre and half width.
  * @evidence {@link Human.segmentHumanBodyModel} Read the dominant-bone partition against the census: one part per bone in joint order, majority and first-corner tie rules, the UV-seam vertex walk, and the population check that refuses a mismatched build.
  * @evidence {@link Human.exportHumanBody} Read the static export: the face's portrait document and writer applied to the built body model, no rig written.
  * @evidence {@link Human.measureHumanBodyBasisChannels} Read the whole-surface RMS accumulation, the empty-population refusal and the rule evaluation through the same shape path the builder uses.

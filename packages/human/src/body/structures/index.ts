@@ -12,3 +12,4 @@ export * from "./IAutoMovieHumanBodySkinSites";
 export * from "./IAutoMovieHumanBodySkinDetail";
 export * from "./IAutoMovieHumanBodySkinTone";
 export * from "./IAutoMovieHumanBodySkinReliefPose";
+export * from "./IAutoMovieHumanBodyUnderwear";

@@ -37,6 +37,7 @@ import {
   parseAutoMovieEvidenceSyntax,
   projectAutoMovieMarkdownSyntax,
 } from "./parseAutoMovieEvidenceSyntax";
+import { requiresAutoMovieEvidenceReview as requiresReview } from "./productionEvidenceReviewPolicy";
 import { projectAutoMovieNativeClaims } from "./projectAutoMovieNativeClaims";
 import { readAutoMovieContractRules } from "./readAutoMovieContractRules";
 import {
@@ -420,7 +421,7 @@ const DESIGN_LAYERS = [
 type DesignLayer = (typeof DESIGN_LAYERS)[number];
 
 /**
- * Upstream design families whose reviewed units the selected host population
+ * Upstream design families whose completed units the selected host population
  * must account for. A host cites only the units it actually consumes; omission
  * from another host is not an exclusion, while a genuinely unused target needs
  * one truthful population-wide exclusion.
@@ -1111,7 +1112,6 @@ const expectedContract = (
 const isActive = (stage: Stage): boolean => stage !== "disabled";
 const requiresEvidence = (stage: Stage): boolean =>
   stage === "evidence" || stage === "review";
-const requiresReview = (stage: Stage): boolean => stage === "review";
 const posix = (value: string): string => value.replaceAll("\\", "/");
 const compareCodeUnits = (left: string, right: string): number =>
   Number(left > right) - Number(left < right);
@@ -2261,52 +2261,58 @@ const validateProductionTargets = (
   }
 };
 
-const requireReviewedParent = (
+/**
+ * Refuse an active child whose parent has not completed.
+ *
+ * A layer completes at `evidence`: its claims are active and paid, and no
+ * review fingerprint is owed. `review` remains an accepted later stage, so it
+ * also counts as complete.
+ */
+const requireCompletedParent = (
   childName: string,
   child: Stage,
   parentName: string,
   parent: Stage,
 ): void => {
-  if (isActive(child) && parent !== "review")
+  if (isActive(child) && !requiresEvidence(parent))
     throw new Error(
-      `${childName} cannot enter ${child} before ${parentName} is in review.`,
+      `${childName} cannot enter ${child} before ${parentName} reaches evidence.`,
     );
 };
 
 /**
- * Refuse a design layer that reaches review over an active but unreviewed
+ * Refuse a design layer that completes over an active but incomplete
  * foundation.
  *
  * `designFoundations` contributes a foundation's units only once that
- * foundation is itself in review, so a host promoted ahead of its foundation
- * pays nothing for it and reads complete. A production could therefore review
+ * foundation is itself complete, so a host completed ahead of its foundation
+ * pays nothing for it and reads complete. A production could therefore finish
  * `spaces` against a `draft` `maps` with zero map references demanded, and
  * collect that debt only later, when the parent caught up. The window is a
  * false completion rather than permanent unsoundness, which is exactly the kind
  * of gap a stage is supposed to close.
  *
- * The gate is on entering review rather than on entering draft, because
+ * The gate is on entering evidence rather than on entering draft, because
  * `DESIGN_FOUNDATIONS` is not a tree. `motions` and `systems` name each other,
  * so a draft-entry rule would deadlock the pair with no legal order. Gating
- * review lets both sit in draft and evidence while they are written against one
- * another and then promote together in one declaration, which is the only
- * honest way to review a mutual dependency: each is read with the other's
- * reviewed units available.
+ * completion lets both sit in draft while they are written against one another
+ * and then promote together in one declaration, which is the only honest way
+ * to complete a mutual dependency: each pays for the other's completed units.
  *
  * An inactive foundation is skipped rather than demanded. A library that
  * delivers spaces without a map branch owes no map references, and forcing one
  * would manufacture an owner for a decision the production never made.
  */
-const requireReviewedFoundations = (graph: IProductionGraph): void => {
+const requireCompletedFoundations = (graph: IProductionGraph): void => {
   for (const [name, foundations] of Object.entries(DESIGN_FOUNDATIONS) as [
     MarkdownLayer,
     readonly DesignLayer[],
   ][]) {
-    if (graph[name] !== "review") continue;
+    if (!requiresEvidence(graph[name])) continue;
     for (const design of foundations)
-      if (isActive(graph[design]) && graph[design] !== "review")
+      if (isActive(graph[design]) && !requiresEvidence(graph[design]))
         throw new Error(
-          `${name} cannot enter review before ${design} is in review. An active foundation contributes no units until it is reviewed, so reviewing ${name} first pays nothing for ${design}. Promote both in one declaration when they depend on each other.`,
+          `${name} cannot enter ${graph[name]} before ${design} reaches evidence. An active foundation contributes no units until it reaches evidence, so completing ${name} first pays nothing for ${design}. Promote both in one declaration when they depend on each other.`,
         );
   }
 };
@@ -2317,7 +2323,7 @@ const requireReviewedFoundations = (graph: IProductionGraph): void => {
  * This decision reads no files. The graph factory separately admits physical
  * populations, contracts, and reset predecessor identities before publication.
  *
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps each production shape and final revision behind its applicable reviewed parents.
+ * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps each production shape and final revision behind its applicable completed parents.
  * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Applies the shared stage state machine to typed declarations before any graph claims are returned.
  */
 export const validateAutoMovieProductionStages = (
@@ -2347,7 +2353,7 @@ export const validateAutoMovieProductionStages = (
       );
     if (graph.kind === "film" && revisionStage(graph) !== "disabled")
       throw new Error(
-        "A film complete-production-reset disables screenplay naturalness and removes its final hosts until construction is reviewed again.",
+        "A film complete-production-reset disables screenplay naturalness and removes its final hosts until construction reaches evidence again.",
       );
     if (graph.kind === "library") {
       const hasResetPair = (Object.keys(SOURCES) as SourceLayer[]).some(
@@ -2403,7 +2409,7 @@ export const validateAutoMovieProductionStages = (
   if (isActive(graph.research))
     for (const name of Object.keys(MARKDOWN) as MarkdownLayer[])
       if (name !== "research")
-        requireReviewedParent(name, graph[name], "research", graph.research);
+        requireCompletedParent(name, graph[name], "research", graph.research);
 
   for (const name of [
     "maps",
@@ -2416,26 +2422,26 @@ export const validateAutoMovieProductionStages = (
     "treatments",
     "briefs",
   ] as const)
-    requireReviewedParent(name, graph[name], "settings", graph.settings);
-  requireReviewedFoundations(graph);
+    requireCompletedParent(name, graph[name], "settings", graph.settings);
+  requireCompletedFoundations(graph);
   if (
     graph.populationScope.mode !== "complete-production-reset" ||
     graph.kind !== "film"
   ) {
-    requireReviewedParent(
+    requireCompletedParent(
       "scripts",
       graph.scripts,
       "treatments",
       graph.treatments,
     );
-    requireReviewedParent(
+    requireCompletedParent(
       "screenplays",
       graph.screenplays,
       "scripts",
       graph.scripts,
     );
   }
-  requireReviewedParent(
+  requireCompletedParent(
     "screenplay naturalness",
     revisionStage(graph),
     "screenplays",
@@ -2453,9 +2459,9 @@ export const validateAutoMovieProductionStages = (
         graph[design] === "draft"
       )
     )
-      requireReviewedParent(name, graph[name], design, graph[design]);
+      requireCompletedParent(name, graph[name], design, graph[design]);
   }
-  requireReviewedParent(
+  requireCompletedParent(
     "productionSources",
     graph.productionSources,
     "settings",
@@ -2463,27 +2469,27 @@ export const validateAutoMovieProductionStages = (
   );
   if (isActive(graph.shots)) {
     if (graph.kind === "film")
-      requireReviewedParent(
+      requireCompletedParent(
         "shots",
         graph.shots,
         "screenplay naturalness",
         revisionStage(graph),
       );
-    else requireReviewedParent("shots", graph.shots, "briefs", graph.briefs);
+    else requireCompletedParent("shots", graph.shots, "briefs", graph.briefs);
     for (const name of Object.keys(SOURCES) as SourceLayer[]) {
       const design = SOURCES[name].design;
       if (design !== null && isActive(graph[design]))
-        requireReviewedParent("shots", graph.shots, name, graph[name]);
+        requireCompletedParent("shots", graph.shots, name, graph[name]);
     }
   }
   if (isActive(graph.filmSources)) {
-    requireReviewedParent(
+    requireCompletedParent(
       "filmSources",
       graph.filmSources,
       "shots",
       graph.shots,
     );
-    requireReviewedParent(
+    requireCompletedParent(
       "filmSources",
       graph.filmSources,
       "productionSources",
@@ -3053,14 +3059,34 @@ const referencesPerFile = (
   }));
 };
 
+/**
+ * Select the design foundations whose units a host layer must pay for.
+ *
+ * A foundation contributes once it completes at `evidence` (or the later
+ * `review`); a disabled or draft foundation contributes nothing yet, which is
+ * why {@link validateAutoMovieProductionStages} refuses to complete a host over
+ * an active incomplete foundation. The result keeps the declared foundation
+ * order.
+ *
+ * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Pays each host's design foundations from the stage at which a foundation completes.
+ * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Selects completed active foundations in declared order for the host's authored claims.
+ */
+export const selectAutoMovieCompletedDesignFoundations = (
+  graph: IAutoMovieEvidenceConfigProps,
+  host: AutoMovieAuthoredDocumentLayer,
+): AutoMovieAuthoredDocumentLayer[] =>
+  (DESIGN_FOUNDATIONS[host] ?? []).filter((design) =>
+    requiresEvidence(graph[design]),
+  );
+
 const designFoundations = (
   graph: IProductionGraph,
   host: MarkdownLayer,
   review: boolean,
 ): ITtscEvidenceGraphReference[] =>
-  (DESIGN_FOUNDATIONS[host] ?? [])
-    .filter((design) => requiresReview(graph[design]))
-    .flatMap((design) => referencesPerFile(graph, design, "h2", review));
+  selectAutoMovieCompletedDesignFoundations(graph, host).flatMap((design) =>
+    referencesPerFile(graph, design, "h2", review),
+  );
 
 const lineage = (
   graph: IProductionGraph,

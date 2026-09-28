@@ -26,7 +26,7 @@ Contract and production changes are ordinary reviewed source changes. The CLI do
 
 ## Generated project routes
 
-Every new project contains five installed skill routers under `.agents/skills`: contract lookup, production lifecycle, evidence graph, source authoring, and review verification. `AGENTS.md` is their shared entry point and `CLAUDE.md` imports it. The current project selection and contract bindings come from `src/lint.config.ts` and the project-local documents, not from a regenerated instruction inventory.
+Every new project contains five installed skill routers under `.agents/skills`: contract lookup, production lifecycle, evidence graph, source authoring, and review verification. `AGENTS.md` is their shared entry point and `CLAUDE.md` imports it. The current project selection and contract bindings come from `lint.config.ts` and the project-local documents, not from a regenerated instruction inventory.
 
 Use the generated [production document map](../template/scaffold/docs/README.md) for physical ownership and its [authoring routes](../template/scaffold/README.md#authoring-routes) for production-kind, contract, evidence, source, and review decisions. The scaffold README's [command inventory](../template/scaffold/README.md#canonical-command-routes) accounts for the project-local package scripts; this package README does not maintain a second command contract.
 

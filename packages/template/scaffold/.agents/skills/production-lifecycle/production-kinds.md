@@ -1,20 +1,20 @@
 # Production kinds
 
-The generated scaffold starts with `kind: null` and every stage disabled. Select exactly one `kind` in the typed `src/lint.config.ts` declaration when authorship begins. Runtime and aspect ratio do not decide the kind; authored structure does.
+The generated scaffold starts with `kind: null` and every stage disabled. Select exactly one `kind` in the typed `lint.config.ts` declaration when authorship begins. Runtime and aspect ratio do not decide the kind; authored structure does.
 
-Every layer begins `disabled` with no governed hosts. For a layer forbidden by the selected kind, that state is permanent. For a required or planned layer, it means not begun; add its hosts and enter `draft` only after its direct parents reach `review`.
+Every layer begins `disabled` with no governed hosts. For a layer forbidden by the selected kind, that state is permanent. For a required or planned layer, it means not begun. [Evidence staging](../evidence-graph/staging.md#transitions) owns parent completion and admission to draft.
 
 ## Film
 
-A film makes a narrative claim through the exact `settings -> treatments -> scripts -> screenplay construction -> screenplay naturalness -> shots -> filmSources` ladder. Construction lives in `docs/screenplays`; expression-only final revision lives in `docs/final/screenplays`. Reviewed `productionSources` is a parallel assembly input before `filmSources`; map, model, space, material, instance, motion, and system branches apply when the film authors them. Use film for any narrative production, including a short film. Briefs are disabled.
+A film makes a narrative claim through the exact `settings -> treatments -> scripts -> screenplay construction -> screenplay naturalness -> shots -> filmSources` ladder. Construction lives in `docs/screenplays`; expression-only final revision lives in `docs/final/screenplays`. Completed `productionSources` is a parallel assembly input before `filmSources`; map, model, space, material, instance, motion, and system branches apply when the film authors them. Use film for any narrative production, including a short film. Briefs are disabled.
 
 ## Brief
 
-A brief makes one bounded audiovisual claim directly through the exact `settings -> briefs -> shots -> filmSources` ladder. Reviewed `productionSources` is a parallel assembly input before `filmSources`. Use brief for a simple short-form action, product turntable, locomotion demonstration, logo sting, or another result whose complete intent fits one delivery/shot/observation hierarchy. Local action may be present; independently authored causal character change, audience revelation, or scene-to-scene inheritance requires the film ladder. Narrative layers are disabled. Runtime alone never decides the shape.
+A brief makes one bounded audiovisual claim directly through the exact `settings -> briefs -> shots -> filmSources` ladder. Completed `productionSources` is a parallel assembly input before `filmSources`. Use brief for a simple short-form action, product turntable, locomotion demonstration, logo sting, or another result whose complete intent fits one delivery/shot/observation hierarchy. Local action may be present; independently authored causal character change, audience revelation, or scene-to-scene inheritance requires the film ladder. Narrative layers are disabled. Runtime alone never decides the shape.
 
 ## Library
 
-A library authors reusable settings and whichever map, model, space, material, instance, motion, or system design/source branches apply, without a timed audiovisual result. Use it for a world, site, figure, prop, environment, building exterior/interior, material system, repeated population, rig, motion, light/effect/simulation/sound system, or compatible collection that has no shots. Production source is optional when the library needs to serialize a reviewed delivery contract; narrative, brief, shot, and film-source layers are disabled.
+A library authors reusable settings and whichever map, model, space, material, instance, motion, or system design/source branches apply, without a timed audiovisual result. Use it for a world, site, figure, prop, environment, building exterior/interior, material system, repeated population, rig, motion, light/effect/simulation/sound system, or compatible collection that has no shots. Production source is optional when the library needs to serialize a completed delivery contract; narrative, brief, shot, and film-source layers are disabled.
 
 ## Refusals
 

@@ -6,13 +6,13 @@
 
 모든 생성 프로젝트는 같은 공통 원칙·의무·상위 수정·작품별 발견·자연스러움 문서 목록과 각 문서의 명시적 H2 대상을 사용해야 한다. 목록과 실제 문서가 어긋나거나 대상이 누락·중복·충돌하면 그래프를 만들 수 없어야 한다.
 
-원칙은 선택된 모든 구성 H2/H3/H4 단위가 각 항목을 자기 자신에 대해 답하는 무배제 checklist다. 의무는 같은 구성 계층의 관련 H2들이 공동으로 충족하는 무배제 coverage다. 실제 담당 H2 또는 모집단 결론을 소유한 account H2에서 해당 의무를 증언하며, 기여자가 여럿이면 필요한 소유자가 함께 답한다. Source 의무도 선택된 public export 모집단의 같은 coverage를 따른다. 자연스러움은 reviewed construction screenplay를 동결한 뒤 final screenplay H2/H3/H4가 표현만을 두고 답하는 별도 무배제 checklist다. 구성의 내용·identity·timing을 바꾸어 답하거나 모집단 의무를 final에 옮겨서는 안 된다.
+원칙은 선택된 모든 구성 H2/H3/H4 단위가 각 항목을 자기 자신에 대해 답하는 무배제 checklist다. 의무는 같은 구성 계층의 관련 H2들이 공동으로 충족하는 무배제 coverage다. 실제 담당 H2 또는 모집단 결론을 소유한 account H2에서 해당 의무를 증언하며, 기여자가 여럿이면 필요한 소유자가 함께 답한다. Source 의무도 선택된 public export 모집단의 같은 coverage를 따른다. 자연스러움은 완료된 construction screenplay를 동결한 뒤 final screenplay H2/H3/H4가 표현만을 두고 답하는 별도 무배제 checklist다. 구성의 내용·identity·timing을 바꾸어 답하거나 모집단 의무를 final에 옮겨서는 안 된다.
 
 설정과 디자인 foundation은 provider, consumer, 적용 상태와 구체적 사유를 한 topology account 행렬로 보여야 한다. 선택된 edge의 누락, 실제 foundation이 아닌 provider, 비활성 분기에 남은 positive edge, 선행 순서를 어긴 edge를 거부하고, provider 또는 consumer가 실제 선택 밖일 때만 구체적인 `inapplicable` 행을 허용해야 한다. Unit-local foundation evidence는 각 단위가 실제 사용한 부모를 계속 설명하며 topology account를 대신하지 않는다. 기술 디자인의 foundation 관계는 실제 소비하는 H2에서 진술한다. 서사와 brief의 문서 단위 parentage는 해당 파일에서 진술한다.
 
 상위 수정은 실제 저술 부모를 상속하는 각 design·brief·서사 H2/H3/H4와 source export가 자기 부모를 시험한 결과를 직접 답하는 checklist여야 한다. 하위 작업이 드러낸 결함은 가장 이른 부모에서 고치고 양의 답에 그 발견과 수리를 기록해야 한다. 부모가 충분했다면 구체적으로 시험한 부모 결정과 결과를 밝힌 제외를 허용해야 하며, 부모 없는 단위·조용한 통과·반복된 일반 문장으로 대신할 수 없어야 한다. 설정과 조사는 저술 부모를 상속하지 않으므로 이 family를 선택해서는 안 된다.
 
-Review 문장은 acknowledgement를 독립적으로 다시 읽은 결과를 기록해야 한다. 인접 acknowledgement를 정규화한 문장으로 되풀이하거나 한 host의 서로 다른 target에 같은 관찰을 재사용하는 기계적으로 판정 가능한 두 형태는 그래프를 만들기 전에 거부해야 한다. 이 검사는 review 상태나 판정을 저장하지 않고 review 품질을 추론하지 않아야 한다.
+선택적으로 보존한 legacy review 문장은 acknowledgement를 독립적으로 다시 읽은 결과를 기록해야 한다. 인접 acknowledgement를 정규화한 문장으로 되풀이하거나 한 host의 서로 다른 target에 같은 관찰을 재사용하는 기계적으로 판정 가능한 두 형태는 그래프를 만들기 전에 거부해야 한다. 이 검사는 review 상태나 판정을 저장하지 않고 review 품질을 추론하지 않아야 하며, 새 companion 문장 작성을 완료 조건으로 요구하지 않아야 한다.
 
 서로 다른 host에서 인용·경로·수치만 바뀐 review frame이 반복되거나 review 이유가 target의 Review question을 그대로 포함하면 그 위치와 반복 수를 결정적인 Self-Review alarm으로 보여야 한다. 이 alarm은 새로운 검토를 지시하되 corpus에 맞춘 자동 거부나 의미 판정이 되어서는 안 되며, target 모집단을 실제로 읽었는지도 결과에 밝혀야 한다.
 
@@ -30,9 +30,9 @@ Review 문장은 acknowledgement를 독립적으로 다시 읽은 결과를 기�
 
 아직 제작 종류를 선택하지 않은 명시적 선언은 영화로 추정하지 않아야 한다. 생성 프로젝트의 build와 제작 lint는 종류 선택을 요구하며, 거부된 blank build가 제작 namespace나 incarnation을 만들어서는 안 된다. 선언 자체를 받지 않는 기존 API의 호환 경로와 명시적으로 비어 있는 선언은 구별해야 한다.
 
-그래프는 `film`, `brief`, `library`를 상호 배타적인 제작 종류로 다루고, 각 구성 분기와 선택된 자연스러움 pass를 `disabled -> draft -> evidence -> review` 순서와 부모 단계 선행 조건에 따라 전진시켜야 한다. Film 자연스러움은 construction screenplay review 뒤에만 열리고 shots는 final naturalness review 뒤에만 열려야 한다. Brief와 library는 자연스러움을 활성화할 수 없다. 같은 선언에서 settings와 design foundation topology를 투영하여 stage 선택과 account 행렬이 모순되지 않게 해야 한다. 간단한 영상에는 장편 서사 단계를 강요하지 않고, 재사용 자산에는 촬영·편집 단계를 강요하지 않아야 한다.
+그래프는 `film`, `brief`, `library`를 상호 배타적인 제작 종류로 다루고, 각 구성 분기와 선택된 자연스러움 pass를 `disabled -> draft -> evidence` 순서와 부모 단계 선행 조건에 따라 전진시켜야 한다. `evidence`가 완료 단계이며 별도 review companion이나 fingerprint 작성을 요구하지 않아야 한다. 기존 `review` 선언도 호환되는 완료 값으로 유지해야 한다. Film 자연스러움은 construction screenplay 완료 뒤에만 열리고 shots는 final naturalness 완료 뒤에만 열려야 한다. Brief와 library는 자연스러움을 활성화할 수 없다. 같은 선언에서 settings와 design foundation topology를 투영하여 stage 선택과 account 행렬이 모순되지 않게 해야 한다. 간단한 영상에는 장편 서사 단계를 강요하지 않고, 재사용 자산에는 촬영·편집 단계를 강요하지 않아야 한다.
 
-렌더된 실현을 확인하는 source 관계는 구조와 관찰 의무를 분리해야 한다. 미관찰·stale 시각 review는 첫 compile과 capture를 허용하는 warning이되, 대상 coverage·소유·cardinality, 저술 및 비시각 source review는 error를 유지해야 한다. Warning만 남았다는 사실은 관찰 완료나 final 수용이 아니며, 실제 다각도·시간·전달 개체군의 current physical evidence가 독립적으로 충족되어야 한다.
+렌더된 실현을 확인하는 source 관계는 구조와 관찰 의무를 분리해야 한다. 모든 완료 단계에서 대상 coverage·소유·cardinality는 error로 검사하고, 저작자가 현재 결과를 직접 관찰·판정·수정해야 한다. 어느 단계나 source family도 companion이나 fingerprint를 요구하지 않아야 한다. 완성 그래프는 관찰 완료나 final 수용이 아니며, 실제 다각도·시간·전달 개체군의 current physical evidence가 독립적으로 충족되어야 한다.
 
 ### 실제 대상과 계보의 무결성 {#agent-production-evidence-physical-integrity}
 

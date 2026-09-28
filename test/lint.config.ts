@@ -1,14 +1,16 @@
 import { type ITtscEvidenceGraphConfig, evidence } from "@ttsc/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
-// The source populations remain declared so graph diagnostics stay visible as
-// warnings while the review-tag scheme is removed.
+// Each declared person owns a review. Unassigned source stays in the shared
+// residual population, so a new helper cannot silently escape review coverage.
 const subjects = ["generated-korean-girl-01"];
 const sharedSources = [
   "src/subjects/**/*.ts",
   ...subjects.map((subject) => `!src/subjects/${subject}/**/*.ts`),
 ];
-// The body folder and face residual remain separate graph populations.
+// The body folder of the human package is inspected by the body study review;
+// the face reviews keep the residual population, so a new human source file
+// owes an inspection somewhere by default.
 // Domain review carriers remain attached to the root construction record.
 // Match their explicit suffix, so a future preview.ts is still source to review.
 const studyReviews = [
@@ -21,9 +23,10 @@ const studySources = [
 ];
 
 /**
- * The declared source and view relationships remain visible while their graph
- * diagnostics warn. Review fingerprints are no longer required or authored.
- * A warning does not establish anatomical or photographic acceptance.
+ * A model owes every recorded view, and that review owes the complete current
+ * construction source. Source relationships remain visible as warnings while
+ * review companion tags are removed. These diagnostics do not establish that
+ * an anatomical construction or photographic likeness is acceptable.
  */
 const graph: ITtscEvidenceGraphConfig = {
   claims: [
@@ -34,14 +37,6 @@ const graph: ITtscEvidenceGraphConfig = {
         files: [`src/subjects/${subject}/model.ts`],
         symbol: "function" as const,
         reference: [
-          {
-            type: "markdown" as const,
-            files: [`src/subjects/${subject}/review.md`],
-            symbol: "h2" as const,
-            checklist: true,
-            noEvidenceExclude: true,
-            severity: "error" as const,
-          },
           {
             type: "markdown" as const,
             files: [`src/subjects/${subject}/review.md`],
@@ -123,14 +118,6 @@ const graph: ITtscEvidenceGraphConfig = {
       files: studySources,
       symbol: ["type", "function", "property"],
       reference: [
-        {
-          type: "markdown",
-          files: ["studies/human-face/review.md"],
-          symbol: "h2",
-          checklist: true,
-          noEvidenceExclude: true,
-          severity: "error",
-        },
         {
           type: "markdown",
           files: ["studies/human-face/review.md"],

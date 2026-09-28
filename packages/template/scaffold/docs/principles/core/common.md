@@ -34,6 +34,6 @@ Every consequential claim in the current unit names its declared basis: the upst
 
 Review question: can a reader point from each consequential statement in this unit to one inherited unit, explicit derivation, layer-owned choice, or unresolved input without guessing from tone?
 
-This item asks where the current unit derives its authority. Independent semantic review separately asks whether an evidence citation truthfully describes a configured host-target relationship.
+This item asks where the current unit derives its authority. The author's semantic evidence inspection separately asks whether a citation truthfully describes its configured host-target relationship.
 
 Sources: [NIST guidance on traceability through an unbroken chain of calibrations](https://www.nist.gov/calibrations/traceability); [W3C PROV-O on representing provenance relations](https://www.w3.org/TR/prov-o/)

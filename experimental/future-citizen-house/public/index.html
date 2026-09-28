@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2080 시민 주택 · 3D 검사</title><link rel="icon" href="data:,"><link rel="stylesheet" href="/viewer.css">
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js","three/addons/controls/OrbitControls.js":"/vendor/OrbitControls.js"}}</script>
+<script type="module" src="/src/viewer/client.mjs"></script></head>
+<body>
+<header><div><p class="eyebrow">AUTOMOVIE / FUTURE CITIZEN HOUSE</p><h1>2080년대 시민 주택</h1></div><p id="status" role="status">source를 불러오는 중입니다.</p></header>
+<nav aria-label="공간 관찰"><label>공간 <select id="space"></select></label><label class="check"><input id="inspection" type="checkbox"> 검사 모드</label><label>관찰 위치 <select id="station" disabled><option value="">관찰 id 선택</option></select></label><label>유리 <select id="privacy"><option value="day">낮</option><option value="private">사적</option><option value="night">야간 차폐</option></select></label><label>작업실 <select id="flex"><option value="work">작업</option><option value="guest">손님 수면</option></select></label><label>절개 <select id="section" disabled><option value="none">없음</option><option value="ground">1층 검사</option><option value="upper">2층 검사</option></select></label><button id="reset" type="button">카메라 초기화</button></nav>
+<main><canvas tabindex="0" aria-label="주택 3D 장면. 방향키 회전, Shift 방향키 이동, 더하기와 빼기 확대, R 초기화"></canvas><aside><h2>현재 관찰</h2><p>드래그: 회전 · 오른쪽 드래그: 이동 · 휠: 확대</p><p>키보드: 방향키 회전 · Shift+방향키 이동 · +/− 확대 · R 초기화</p><p>관찰은 현재 공간·개구·입면에서 도출합니다. 절개와 외곽선은 검사 모드에서만 표시합니다. 야간은 차폐 상태이며 조명·노출은 동일합니다.</p><pre id="details"></pre></aside></main>
+</body></html>

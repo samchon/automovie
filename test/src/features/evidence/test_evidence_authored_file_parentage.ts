@@ -69,7 +69,10 @@ export const test_evidence_authored_file_parentage = (): void => {
             symbol: "file",
             files: population,
             disabled: !enabled,
-            reference: references,
+            reference: references.map((reference) => ({
+              ...reference,
+              requireReview: false,
+            })),
           },
         );
       TestValidator.equals(
