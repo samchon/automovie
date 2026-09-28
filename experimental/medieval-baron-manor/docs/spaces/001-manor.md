@@ -3,90 +3,48 @@
 ## 실제 저택 공간 {#manor-space}
 <!--
 @evidence settings/001-production.md#delivery-scope 전체 본채·모든 실·가구·정원과 접근부를 같은 환경으로 배치한다.
-@evidenceReview settings/001-production.md#delivery-scope #e880aeb 두 층의 모든 실과 외관·정원 관찰을 남기고 물리 적합성은 비요구로 두어 홀만의 설계로 전체 납품을 축소하지 않는다.
 @evidence settings/001-production.md#governing-aim 가족의 생활 기능을 한 집의 연결과 배치로 묶는다.
-@evidenceReview settings/001-production.md#governing-aim #599b9dd 주방·홀·업무·침실·세척을 같은 본채에 배치하여 웅장한 외관을 위해 방을 별채로 떼어내는 선택을 하지 않는다.
 @evidence settings/001-production.md#language-access 한국어 방 설명과 정확한 source·시점 ID를 함께 제공한다.
-@evidenceReview settings/001-production.md#language-access #755a8cb hall과 master 같은 ID는 홀·주침실의 방향 설명에서 뜻을 얻으며 회랑·복도·절개는 서로 다른 층과 관찰 역할로 사용된다.
 @evidence settings/001-production.md#operator-access 정상 외관·실내와 선언 상태를 선택할 관찰 계획을 둔다.
-@evidenceReview settings/001-production.md#operator-access #a93aa3f 문을 닫는 코너 pose와 기본 pose, 절개·단독 시점의 차이를 마지막 문단이 밝히므로 숨긴 외피를 정상 외관으로 제출하지 않는다.
 @evidence settings/001-production.md#accessibility-products 방·물품·좌표와 시각 질문을 텍스트로 설명한다.
-@evidenceReview settings/001-production.md#accessibility-products #85fbb27 시각표의 한국어 질문과 영문 ID가 대상·관찰 역할을 함께 제공하지만 촬영 전 계획을 이미지별 관찰 텍스트의 완료로 주장하지 않는다.
 @evidence settings/001-production.md#coordinate-datum 같은 세계 축과 지상·상층 마감면을 소비한다.
-@evidenceReview settings/001-production.md#coordinate-datum #16a75be 지상0.45·상층3.33과 중간참1.89의 배치를 같은 X·Y·Z에서 사용하고 실내 관찰은 해당 면 위1.60으로 정한다.
 @evidence settings/001-production.md#reference-priority 원본별 외관·절개·정원·홀·상층 질문을 고정 그래프에 적용한다.
-@evidenceReview settings/001-production.md#reference-priority #a00d7bd 이미지02를 이유로 계단을 직선으로 바꾸지 않고 북쪽에서 동쪽으로 꺾이는 한 세트를 유지하며 원본을 평면 텍스처로 붙이지 않는다.
 @evidence settings/001-production.md#visual-grammar 목구조·충전벽·기초·분할 창·지붕과 생활 재료를 전역에 적용한다.
-@evidenceReview settings/001-production.md#visual-grammar #e8e2921 본문의 외피·정원 구성과 원본01·03을 부모의 기둥/층보/버팀·충전면·기단·연결 지붕·회랑 빈 곳에 대조했다. 설계는 그 형태와 재료 대비를 소비하고 정상 외관·후면·지붕 보조 시점을 남기며, 닫힘과 열린 관찰 상태를 구별한다. 구체적 구현 좌표가 부모 정체성을 재정의하지 않는다.
 @evidence settings/001-production.md#fidelity 실제 모델·배치에서 파생한 환경과 시각 관찰을 연결한다.
-@evidenceReview settings/001-production.md#fidelity #a346a43 공간 carrier는 축약 상자를 대신 쓰지 않고 현재 형상을 소비하며 가구·소품의 형체와 재료를 실제 배치 시점에서 읽도록 계획한다.
 @evidence settings/001-production.md#review-condition 실내 기본 눈높이와 높은 보조 관찰을 구별한다.
-@evidenceReview settings/001-production.md#review-condition #6a4100b 기본1층Y2.05·상층Y4.93과 중립 규격 링크를 유지하고 pantry·storage의 높은 뷰는 기본 눈높이의 대체로 쓰지 않는다.
 @evidence settings/001-production.md#observation-population 전체 공간의 시각 질문을 기본·조건부 보조 시점에 연결한다.
-@evidenceReview settings/001-production.md#observation-population #9861871 표가 양쪽 작은 침실과 모든 생활실을 각각 남겨 같은 원형 가구를 공유한다는 이유로 한 방의 촬영을 다른 방에 전용하지 않는다.
 @evidence settings/001-production.md#review-roles 관찰 전 계획과 직접 PNG 열람의 역할을 구별한다.
-@evidenceReview settings/001-production.md#review-roles #5d8cce2 현재 렌더를 읽기 전 완성을 선언하지 않는 선정 문단은 설계·코드 존재를 저작자와 독립 평가자의 이미지 열람으로 대체하지 않는다.
 @evidence settings/001-production.md#completion-condition 현재 소스·관찰에 한정한 종료 판단을 소비한다.
-@evidenceReview settings/001-production.md#completion-condition #5c1ac9c 시각표는 첫 관찰 계획이며 현재 렌더를 직접 읽어 설계한 형체의 시각적 완성을 확인하도록 본문에 적혀 있다.
 @evidence settings/001-production.md#pilot-boundary 홀의 상세 배치를 전체 본채 설계 안에 둔다.
-@evidenceReview settings/001-production.md#pilot-boundary #f2cf384 홀의 좌판·상판 좌표 뒤에도 주방·장부실·서비스·상층·정원이 각자 전개되어 우선 구획이 다른 방을 납품에서 밀어내지 않는다.
 @evidence settings/001-production.md#coverage-map 설정 소유 주소에서 공간 배치의 근거를 찾는다.
-@evidenceReview settings/001-production.md#coverage-map #0b38807 생활실과 공간 연결의 링크는 지도에 있는 현행 소유자로 이어지며 제거된 인체 검사 주소를 이 공간의 새 근거로 사용하지 않는다.
 @evidence settings/001-production.md#subject-inventory 건축·생활 물품·정원 대상과 관찰 역할을 배치·시점으로 구별한다.
-@evidenceReview settings/001-production.md#subject-inventory #9bc99bd 쟁반·물통·직물·철물은 실제 물품으로 남고 가족은 배경이므로 인체 대리 형체를 새 납품 자산으로 추가하지 않는다.
 @evidence settings/002-household.md#household 세 침실과 여섯 자리 홀의 가족 배경을 실제 실 구성으로 소비한다.
-@evidenceReview settings/002-household.md#household #b2e4e7a 주침실과 두 자녀 침실·홀 가구가 같은 본채에 있고 별도 지원자 숙직동이나 인물 모델을 설계하지 않는다.
 @evidence settings/002-household.md#family-hall 홀의 식탁·벤치·화구·함·도기·쟁반·깔개를 배치한다.
-@evidenceReview settings/002-household.md#family-hall #85c3b8b 부모가 고정한 상판·좌판 크기를 그대로 소비하고 식탁 중심(-6.57,2.35), 양쪽 벤치X=-7.22/-6.01, 깔개·화구·수납 배치를 추가한다. 현재 생성자의 판재 상판·네 다리·하부 연결, 여섯 식기와 낮은 벤치가 새 형태 기준에 대응하며 corner-b/d는 실제 배치 관찰 계획이다. 이 대조는 새 캡처 통과를 주장하지 않는다.
 @evidence settings/002-household.md#kitchen-pantry 주방과 식료실의 작업대·도구·화구·저장 물품을 각 방에 둔다.
-@evidenceReview settings/002-household.md#kitchen-pantry #cf3789d 작업대의 부모 크기에 중심(-5.80,-4.65)·Y1.34를 배분하고 선반·화구를 별도 방에 귀속했다. 현재 생성자의 작업면·걸린 도구·솥, 식료 선반의 다단 빈 곳·자루·통은 부모의 구별되는 윤곽과 일치하는 구현 대상이다. 좁은 방의 기본 관찰과 물품 oblique의 역할을 분리한다.
 @evidence settings/002-household.md#ledger-room 책상·좌석·선반·잠금함과 필기구·장부를 업무실에 배치한다.
-@evidenceReview settings/002-household.md#ledger-room #2bbac2c 책상·좌석·장부 선반·잠금함의 네 중심을 부모가 정한 직사각 상판·등받이·펼친 장부·앞 잠금부에 대조했다. 현재 모델의 두 장부 면과 잉크통·깃털 필기구가 문서 작업을 식사 자리와 다르게 구성하고, 설계는 그 배치와 관찰을 소유한다.
 @evidence settings/002-household.md#service-room 세척대·수납·거치와 대야·통·빗자루를 동쪽 서비스실에 둔다.
-@evidenceReview settings/002-household.md#service-room #e8fc22b 대야 받침(6.85,2.50), 수납장(6.22,5.32), 건조 거치(5.50,4.80)와 실제 용기·빗자루 생성 내용을 부모의 오목한 대야·빈 통·열린 거치·솔 묶음에 대조했다. 별도 세척실 소속을 유지하고 식료 선반과 섞지 않으며 정면과 측면은 현재 room 시점으로 읽을 대상이다.
 @evidence settings/002-household.md#bedrooms 세 침실의 침대·침구·수납·좌석·탁자를 각각 배치한다.
-@evidenceReview settings/002-household.md#bedrooms #e63c6ec 부모의 길이2.05m·부부1.60m/자녀0.95m 폭을 현재 세 bed 호출과 대조했다. 머리/발 높이·매트리스·시트·이불 층과 두 개/한 개 베개·방별 이불색을 가진 원형을 서로 다른 세 방 중심에 배치한다. 모델 생성 내용과 설계 관찰 계획의 일치이며 새 렌더의 완료 판정은 아니다.
 @evidence settings/002-household.md#upper-washroom 대야·측간 물품·주전자·수건·칸막이·빗장을 공용실에 둔다.
-@evidenceReview settings/002-household.md#upper-washroom #e0f660b 한 방 안의 대야(3.74,1.75)와 측간 물품(3.88,3.10), 주전자·수건·칸막이를 부모의 입구·깊이·두 면 직물·뚜껑 상태에 대조했다. 현대 설비를 추가하지 않고 screen과 단독 oblique를 가림 해소 역할로만 배정하여 열린 검사와 정상 문 상태를 혼동하지 않는다.
 @evidence settings/002-household.md#upper-storage 공용 직물 선반과 뚜껑 함을 독립 상층 수납에 둔다.
-@evidenceReview settings/002-household.md#upper-storage #8a34a67 부모의 선반1.60×0.40×3.60m 기준을 현재 shelf 호출에 대조하고 선반(5.35,3.25)·함(6.65,4.90)의 실제 실 소속을 확인했다. 개방된 칸과 접힌 직물 적층은 공용 건조 수납이며 침실 의복이나 젖은 수건을 대신 배치하지 않는다.
 @evidence settings/002-household.md#water-and-waste 주전자·대야·오수 물품을 해당 생활실에 배치한다.
-@evidenceReview settings/002-household.md#water-and-waste #b4ae240 주방·침실·공동 세척실의 용기와 뚜껑 상태를 각 방에 남기고 연못은 독립 정원 요소로 배치한다. 부모의 입구·수면·외벽 구분과 닫힌 오수 용기 원칙을 소비하며 물 색으로 위생을 보증하거나 정원 연못을 급배수 설비로 재해석하지 않는다.
 @evidence settings/002-household.md#garden 사과나무·자연석 연못·약초밭·자갈길을 중앙정원에 구성한다.
-@evidenceReview settings/002-household.md#garden #29082fb 한 사과나무와 돌·수면·가장자리·바닥·약초·길을 같은 정원에 둔 설계와 현재 생성자의 가지 분기·개별 잎·수관 빈 곳·낮은 수면을 부모에 대조했다. courtyard/reverse와 pond·tree 보조 관찰을 구별하고 카메라 방향에 따라 잎을 재생성할 권한을 두지 않는다. 실제 신규 이미지의 미관 판정과 이 설계 대조는 별개다.
 @evidence settings/002-household.md#make-scope 실제 모델·배치와 공간 carrier의 소유를 구별한다.
-@evidenceReview settings/002-household.md#make-scope #653e17b manorSpaceSource는 모델entry와 instance-set의 환경을 소비하고 물품의 형상 생성 자체를 축약 공간 상자로 다시 정의하지 않는다.
 @evidence settings/003-spatial-basis.md#single-house 남쪽 정원을 감싼 한 ㄷ자 본채와 대지 접근부를 배치한다.
-@evidenceReview settings/003-spatial-basis.md#single-house #2848dd3 서측·후면·동측이 같은 환경의 층·벽·지붕을 공유하고 남쪽 길은 중앙 현관에 닿아 별채나 연못 횡단을 추가하지 않는다.
 @evidence settings/003-spatial-basis.md#area-budget 채택한 모델 규모를 유지하며 중정·계단 개방부를 메우지 않는다.
-@evidenceReview settings/003-spatial-basis.md#area-budget #6e24112 방 체적 합집합으로 개방부를 채우지 않는 결정이 예산의 제외 영역을 보존하며 실별 유효면적 재측정을 완료 조건으로 만들지 않는다.
 @evidence settings/003-spatial-basis.md#ground-access 현관·세 회랑·단일 계단과 각 필수실의 직접 문을 구성한다.
-@evidenceReview settings/003-spatial-basis.md#ground-access #2193f75 방향 예산을 실제 홀 서측·주방 후면서측·장부 후면동측·서비스 동측 배치로 정하고 모든 실의 문은 같은 회랑 또는 현관에 남긴다.
 @evidence settings/003-spatial-basis.md#single-stair 북쪽 여덟 오름과 동쪽 여덟 오름을 한 중간참에 연결한다.
-@evidenceReview settings/003-spatial-basis.md#single-stair #ae50e89 중간참Y1.89와 두 구간의 일곱 계단판·마지막 참을 지정해 16개 오름을 구현하고 별도17번째 오름이나 두 번째 계단을 만들지 않는다.
 @evidence settings/003-spatial-basis.md#upper-access 후면의 동서 일자 복도에서 상층 다섯 실에 직접 문을 낸다.
-@evidenceReview settings/003-spatial-basis.md#upper-access #99f3811 master·두 child·washroom·storage가 동일 corridor에 연결되어 연쇄 침실이나 상층 ㄷ자 복도로 고정 구성을 바꾸지 않는다.
 @evidence settings/003-spatial-basis.md#surface-responsibility 같은 실제 벽과 개구부에서 안팎 경계·바닥·지붕을 등록한다.
-@evidenceReview settings/003-spatial-basis.md#surface-responsibility #360ae9b wall segment·opening과 위쪽 삼각형 surface를 같은 모델 원천에서 사용하여 외관용 건물과 실내용 건물을 별개로 꾸미지 않는다.
 
 @evidence principles/core/common.md#declared-basis 고정 설정과 현재 모델 원천에서 공간의 배치·관찰 결정을 도출한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 첫 문단의 설정·원본 링크와 carrier 원천, 가구별 설정 링크가 배치의 권한을 잇고 수치가 현재 모델 값임을 한정한다.
 @evidence principles/core/common.md#scope-preservation 전체 두 층·모든 실·생활 물품·정원과 외피의 소유를 남긴다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 홀 밖 장부실·서비스·세 침실·공용 세척·수납·정원도 배치와 시각 질문을 가져 홀만의 상세 설계로 나머지 본채를 생략하지 않는다.
 @evidence principles/core/common.md#substantive-completion 같은 환경의 방·물품·계단과 현재 시각 질문별 선택을 결정한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 방 방향과 가구 중심·계단판 좌표, 각 실의 기본 시점과 가림에 따른 보조 선택이 있어 소스가 공간 배치와 관찰 계획을 새로 기획할 필요가 없다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 설정의 용도·고정 그래프에서 방 배정·배치 좌표·구체 시점을 결정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 family-hall의 식탁·벤치 목록에 실제 중심과 크기·화구 위치를, observation-population의 선정 규칙에 hall--corner-b/d 등 구체 질문별 시점을 더해 부모를 다시 요약한 파일이 아니다.
 @evidence principles/design/spaces.md#space-boundary-authority 공유 설정의 축·층·용도를 링크하고 여기서는 실제 공간 배치를 소유한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 층 기준은 coordinate-datum의 값으로 소비하고 생활실별 링크 뒤에 local 가구 중심을 정하므로 별도 원점을 만들거나 면적 예산을 재측정해 덮어쓰지 않는다.
 @evidence principles/design/spaces.md#space-topology 방의 포함과 직접 문·회랑·복도·한 계단 연결을 구현 원천과 함께 정한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 층별 방 ID와 방향·직접 연결이 가구 좌표보다 먼저 나와 메시를 역분석하지 않고 ground 필수실과 upper 다섯 실의 연결을 찾을 수 있다.
 @evidence principles/design/spaces.md#space-verification-address 공간·물품의 시각 질문을 기본 투시와 보조 절개·근접에 연결한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 외피 윤곽은 reference-exterior와 북서 시점, 층 관계는 평면·골조, 개별 실은 눈높이 코너로 나누어 특정 방의 누락을 지붕 위 사진으로 감추지 않는다.
 @evidence upstream/design/spaces.md#settings-and-map-revision-from-space-work 방별 배치와 현행 모델의 외형을 대조하자 settings/001-production.md#visual-grammar와 settings/002-household.md의 family-hall, kitchen-pantry, ledger-room, service-room, bedrooms, upper-washroom, upper-storage, water-and-waste, garden이 물품 이름만으로 형상 기준을 넘기는 결함을 드러냈다. 그 부모에 식별 부품·재질 영역·현행 제작 치수·열림 상태를 먼저 보강하고 이 공간은 치수 기준을 참조하며 배치 좌표와 연결을 소유하도록 수정했다. map 부모와 실건물 인증을 새로 도입하지 않는다.
-@evidenceReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 같은 책상·세면대·침구·정원이라는 이름으로 다른 형태가 허용되던 부모와 방별 배치를 비교했다. visual-grammar의 다면 외형과 household 아홉 단원의 부품·치수·상태를 현행 제작 선택으로 명시한 뒤 이 본문의 식탁·작업대 치수 복제를 부모 참조로 바꾸었다. 층 기준과 16오름, 한 중간참, 직접 문 연결은 그대로이며 형상 기준의 누락을 공간의 임의 결정으로 감추지 않았다.
 @evidence contracts/manor-spatial-requirements.md#manor-spatial-requirements 한 ㄷ자 본채·연속 회랑·중앙 꺾임계단·상층 일자 복도의 형체를 같은 실제 환경에서 소유한다.
-@evidenceReview contracts/manor-spatial-requirements.md#manor-spatial-requirements #52ff61b 공간은 현재 모델·배치의 wall segment·opening·surface를 소비하고 중정·계단 개방부를 방 합집합으로 메우지 않는다. 각 실의 직접 문과 두 구간 계단을 명시하여 이름만 등록한 방이나 별도 축약 건물을 계약 실현으로 제출하지 않는다.
 -->
 
 이 설계는 남쪽으로 열린 ㄷ자형 2층 본채 전체를 하나의 3D 환경으로 구성한다. [고정 공간 구성](../settings/003-spatial-basis.md)과 [원본 다섯 장](../settings/001-production.md#reference-priority)을 함께 적용한다. 외피와 물품의 재현할 정체성·기준 규모는 settings가 소유하며, 아래 배치·부재 관계와 관찰 계획은 그 기준을 공간으로 실현한다.
