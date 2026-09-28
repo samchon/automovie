@@ -32,7 +32,7 @@
 @evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work 기둥 원형 높이·기단 폭과 주랑 court·ring 기준선을 모두 대조했고 북남 통행축 및 동측 턱 접촉은 기존 부모 치수로 성립한다.
 -->
 
-중정 경계 X=±3.5m, Z=−1.75/6.10m에서 중정 바깥쪽 0.175m의 축선을 쓴다. 북·남 변은 각 X=−3.675, −1.225, 1.225, 3.675m의 네 원주를 두고, 동·서 변은 양끝 모서리를 공유하므로 내부 세 축만 균등 분할한다. 총 주랑 원주는 14개다. 북·남·서와 네 모서리는 12° 원형, 동측 중간은 19° 원형이다. 네 보의 로컬 X 장축을 각 변에 맞추고 각각 같은 경사 원형의 주두 상면에 보 아랫면을 붙인다. 포치 원주는 X=±1.35m, Z=10.00m의 두 축이고 3.20m 보를 받는다. 이 원주와 보는 정문·제실 문 중앙축을 채우지 않는다. 반복 ID는 변과 축 좌표를 포함한다. 모든 배치는 단일 상세 tier이며 개별 임의 배율이나 시드가 없다.
+중정 경계 X=±3.5m, Z=−1.75/6.10m에서 중정 바깥쪽 0.175m의 축선을 쓴다. 북·남 변은 각 X=−3.675, −1.225, 1.225, 3.675m의 네 원주를 두고, 동·서 변은 양끝 모서리를 공유하므로 내부 세 축만 균등 분할한다. 총 주랑 원주는 14개다. 북·남·서와 네 모서리는 12° 원형, 동측 중간은 19° 원형이다. 네 보의 로컬 X 장축을 각 변에 맞추고 각각 같은 경사 원형의 주두 상면에 보 아랫면을 붙인다. 포치 원주는 X=±1.35m, Z=10.00m의 두 축이고 길이 3.30m인 보의 아랫면 Y=3.20m를 받는다. 이 원주와 보는 정문·제실 문 중앙축을 채우지 않는다. 반복 ID는 변과 축 좌표를 포함한다. 모든 배치는 단일 상세 tier이며 개별 임의 배율이나 시드가 없다.
 
 ## 문과 채광구 {#openings}
 
@@ -143,7 +143,7 @@
 @evidence obligations/core/common.md#purpose-fit building.md는 건축 부재, envelope.md는 보존한 공간 실체, site.md는 이웃·식생의 수와 변환을 각각 소유하여 어느 파일을 빼도 해당 membership과 접촉 판정이 없어지게 한다.
 @evidence obligations/core/common.md#layer-boundary 세 문서는 membership·ID·변환·tier·배치 판정만 정하고 원형 형상·공간 경계·재료 recipe는 각 부모에 남긴다.
 @evidence obligations/core/common.md#production-language 한국어 본문으로 모든 위치·접촉·범위를 설명하며 코드 ID와 m 수치만 정확한 기술 식별자로 유지한다.
-@evidence obligations/core/common.md#proportionate-development 실제 기와 반복과 열린 문·기둥/보 접촉은 별도 상세 배치 H2로, 보존한 shell과 작은 풀은 다른 독립 집합으로 나누어 수반 한 문단으로 430m² 건물의 전 membership을 대신하지 않는다; 아직 배치하지 않은 소품의 부모 H2는 전수 모집단에 그대로 남는다.
+@evidence obligations/core/common.md#proportionate-development 실제 기와 반복과 열린 문·기둥/보 접촉은 별도 상세 배치 H2로, 보존한 shell과 작은 풀은 다른 독립 집합으로 나누어 수반 한 문단으로 430m² 건물의 전 membership을 대신하지 않는다; 이미 배치한 소품 초안의 부모 H2도 전수 모집단에 남고 그 개별 전체 판정은 건물 완료와 구별한다.
 @evidenceExclude upstream/design/instances.md#parent-revision-from-instance-work 분수 반지름과 중정 중앙 포장·방문축을 함께 대조했고 수반 한 개가 통로를 막지 않아 부모 위치를 바꿀 필요가 없었다.
 -->
 

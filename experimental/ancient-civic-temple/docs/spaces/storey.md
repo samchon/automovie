@@ -5,7 +5,7 @@
 <!--
 @evidence principles/core/common.md#scope-preservation 모든 공간을 temple-ground에 귀속하고 중정·정문·제단의 국소 높이차가 새 층을 만들지 않게 한다.
 @evidence principles/core/common.md#substantive-completion 주랑 Y=0, 중정 -0.12m, 정문 도로 -0.24m와 바닥 두께·낮은 천장·보의 높이 예산을 결정한다.
-@evidence principles/core/common.md#declared-basis 생산 좌표와 바닥 접근 허용값을 소비한 설계 높이이며 실제 단차 검사는 unverified로 구분한다.
+@evidence principles/core/common.md#declared-basis 생산 좌표와 바닥 접근 허용값을 소비한 설계 높이와 실제 문턱·중정·석단 종단면의 높이 비교를 구분하며, 주랑 0m·중정 -0.12m·도로 -0.24m 입력만으로 접지를 판정하지 않는다.
 @evidence principles/design/spaces.md#space-topology 제실과 주랑은 경사지붕 하부를 따르고 업무방·봉헌실 위 비거주 구조 틈에는 진입이나 새 바닥을 두지 않는다.
 @evidence principles/design/spaces.md#space-boundary-authority 층은 기준 높이·두께·공유 접합만 정하고 방별 마감과 제단의 석단은 그 소유자에게 남긴다.
 @evidence principles/design/spaces.md#space-verification-address 종횡 단면과 문턱·중정 경계를 읽어 끊긴 주랑 바닥이나 서비스 경로의 0.02m 초과 단차를 실패로 삼는다.
@@ -25,7 +25,7 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 
 봉헌실·관리실·기록실·보관실의 수평 널판 천장 아랫면은 Y=3.10m, 널판 위쪽 구조 예약은 0.10m, 아래로 드러나는 보 깊이 예산은 0.18m다. 따라서 보 아래 유효 높이는 2.92m이며 문틀 상단보다 높다. 실제 보·널판 단면은 후속 부재 단계에서 이 예약과 지붕 하부 사이에 들어가는지 확인한다. 제실과 주랑은 이 낮은 천장을 소비하지 않고 각각 경사지붕의 노출 하부를 따른다. 구조 틈은 비거주이며 진입 문·바닥·사다리를 두지 않는다.
 
-같은 storey에 속한다는 표지만으로 단차를 검증하지 않는다. source 소유 `src/spaces/storey.ts`는 각 바닥 host의 완성면과 두께를 실제 공간 바닥에 묶는다. 관찰은 Y 기준의 종·횡단면, 각 문턱과 중정 가장자리다. 주랑의 바닥이 끊기거나 서비스 경로에 0.02m를 넘는 차이가 생기면 실패이며 현재 실체 검사는 unverified다.
+같은 storey에 속한다는 표지만으로 단차를 검증하지 않는다. source 소유 `src/spaces/storey.ts`는 각 바닥 host의 완성면과 두께를 실제 공간 바닥에 묶는다. 관찰은 Y 기준의 종·횡단면, 각 문턱과 중정 가장자리다. 주랑의 바닥이 끊기거나 서비스 경로에 0.02m를 넘는 차이가 생기면 실패다. 실제 문턱 여덟과 정문·중정 단차의 단면을 직접 읽었고 주랑 바닥의 단절이나 서비스 문턱의 높이 차를 발견하지 않았다.
 
 ## 벽 두께를 건너는 문턱 바닥 {#threshold-support}
 
@@ -53,7 +53,7 @@ storey ID `temple-ground`의 부모는 `temple`이다. [건물 연결](building.
 
 일반 방 슬래브는 벽 안쪽 면에 맞닿지만 문턱 슬래브는 벽 두께 안에 들어간다. 그 문턱이 차지하는 실제 평면과 완성면 아래 두께는 벽 실체에서 비워 양의 체적 중첩을 막는다. 문턱 밑의 벽은 슬래브 아랫면까지 이어질 수 있으나 슬래브나 통과 void를 덮지 않는다. 이 구조체 예약은 바닥 소유에서 유도하며 문 profile의 유효 폭·높이나 문짝 fitting을 낮추는 새 개구부가 아니다.
 
-방 문서의 직사각형은 방 본체다. 벽 두께 안의 유효 폭·높이 통과 부피를 그 방의 `cells` 합집합에 추가해 문턱 지지면도 해당 공간 안에 있도록 한다. 이것은 기존 개구부 안의 연장이며 새 공간·벽·문을 만들지 않는다. 문틀 자리나 닫힌 벽을 통과 volume에 포함하지 않고, 주랑 또는 외부의 반대쪽 공간과는 열린 접면만 공유한다. 실제 `IAutoMovieBuiltSurface.space`, support 높이와 mesh 상면, room volume, connector의 진입·도착 위치를 같은 산출물에서 대조해야 한다. 지금은 설계이며 물리 연속성·귀속·충돌은 unverified다.
+방 문서의 직사각형은 방 본체다. 벽 두께 안의 유효 폭·높이 통과 부피를 그 방의 `cells` 합집합에 추가해 문턱 지지면도 해당 공간 안에 있도록 한다. 이것은 기존 개구부 안의 연장이며 새 공간·벽·문을 만들지 않는다. 문틀 자리나 닫힌 벽을 통과 volume에 포함하지 않고, 주랑 또는 외부의 반대쪽 공간과는 열린 접면만 공유한다. 실제 `IAutoMovieBuiltSurface.space`, support 높이와 mesh 상면, room volume, connector의 진입·도착 위치를 같은 산출물에서 대조해야 한다. 실제 단면의 바닥 연속성과 공간·표면 귀속 검사, 열린 문짝을 포함한 문 통과 SAT를 대조했고 실패는 없었다. connector의 선언값만을 실체 검사 결과로 쓰지 않았다.
 
 ## 외벽 하단과 지면의 접촉 {#wall-ground-contact}
 

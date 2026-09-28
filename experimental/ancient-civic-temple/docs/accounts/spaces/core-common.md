@@ -56,16 +56,16 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 
 | 역할 | 파일/H2 | 파일별 본문 문자 수 |
 | --- | --- | --- |
-| building·storey | 2/7 | 3578·3143 |
-| openings·junctions·circulation | 3/8 | 6945·4789·1869 |
+| building·storey | 2/7 | 3655·3218 |
+| openings·junctions·circulation | 3/8 | 7043·4840·2103 |
 | 남·북·서·동 입면 | 4/4 | 1326·887·824·820 |
-| 현관·중정·주랑 | 3/3 | 1850·978·1693 |
-| 제실·봉헌실 | 2/2 | 733·646 |
+| 현관·중정·주랑 | 3/3 | 1900·1038·1747 |
+| 제실·봉헌실 | 2/2 | 846·646 |
 | 관리실·기록실·보관실·마당 | 4/4 | 624·580·577·960 |
-| assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·758·1488 |
-| ownership·observations | 2/4 | 4359·11291 |
-| site | 1/6 | 5588 |
+| assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·790·1488 |
+| ownership·observations | 2/4 | 4359·11368 |
+| site | 1/6 | 5626 |
 
 주랑과 현관이 다른 방보다 긴 이유는 각각 구멍 있는 합집합과 구간별 계단 바닥을 따로 결정하기 때문이다. 가장 짧은 porch roof도 두 지지선·앞끝 돌출·후퇴벽 위 뒤끝·삼각 막음의 소유·하부 관찰을 갖는다. site는 범위·지면 식·구획표·connector·배치 구역·능선을 여섯 H2로 나눠 결정하므로 건물 한 문서보다 길다. 반대로 observations는 topology 전집합, 반환 pose의 한계, 실제 문턱/접합/지면, 전송 경계를 모두 책임져 단일 대표 view 설명으로 줄일 수 없다. 동일한 골격의 일반 방보다 이 인터페이스들에 상세가 집중된 것은 납품 효과에 맞는다.
 
-부모 settings는 허용 범위와 방/부재 정체성을 정하고 spaces는 기준선·벽 두께·문 중심·roof 지지선·순환·대지 구획과 표면 소유를 더했다. v-077 판정 제출본 `a4c1d46870fb186cbf29c5b112a5476a2bfeb0e4`는 같은 계수법으로 26파일/37 H2였고 현재 수치는 위의 전수 생성 표에서 읽는다. 기존 26파일은 모두 남았다. 그중 roofs/colonnade와 roofs/porch만 짧아졌다. 파라펫 뒤 외쪽 경사로 바꿀 때 폐기한 최소 높이 제한과 notch 문장이 빠졌지만 두 문서의 지지선·끝선·하부 소유는 유지했다. 늘어난 기존 열여덟 파일은 변경 이유가 다르다. 남·서·북·동 입면에는 파라펫·코핑·띠 분할과 제실·포치 접점을, roofs/west와 assembly·sanctuary·east roof에는 후보 영역·지지·경사 및 제실 지지와 동측 박공 수리를 더했다. courtyard와 service-yard는 논리 상한 참조를 주랑 처마 3.20m로 바로잡았다. junctions에는 박공 폐쇄 표·기단/코핑 단면·L/T 접합·마당/보관실 상부 경계를, observations에는 대지·주랑·접합·단면·reference·문창 방향 pose와 반환벽 상부 관찰을 더했다. ownership에는 대지·실내 dado·reveal 역검사를, openings에는 제실 창 여덟과 여섯 일정 높이 host·두 반환벽 경사 분할을 더했다. building·storey는 대지 접점과 접지를, circulation은 서비스 문 connector를, entrance는 포치 기둥·보·삼각 막음의 위치 관계를 더했다. 새 site는 대지 결정 여섯 H2를 소유한다. administration·colonnade room·offering·records·sanctuary·storage는 바뀌지 않은 여섯 파일이다. 새 account와 주석은 공간 수를 늘린 것으로 세지 않는다. 이 분포 비교는 실제 구현 깊이·통과·시각 품질의 완료 판정이 아니며 후속 소스와 프레임에서 별도로 검토한다.
+부모 settings는 허용 범위와 방/부재 정체성을 정하고 spaces는 기준선·벽 두께·문 중심·roof 지지선·순환·대지 구획과 표면 소유를 더했다. v-077 판정 제출본 `a4c1d46870fb186cbf29c5b112a5476a2bfeb0e4`는 같은 계수법으로 26파일/37 H2였고 현재 수치는 위의 전수 생성 표에서 읽는다. 기존 26파일은 모두 남았다. 그중 roofs/colonnade와 roofs/porch만 짧아졌다. 파라펫 뒤 외쪽 경사로 바꿀 때 폐기한 최소 높이 제한과 notch 문장이 빠졌지만 두 문서의 지지선·끝선·하부 소유는 유지했다. 늘어난 기존 열여덟 파일은 변경 이유가 다르다. 남·서·북·동 입면에는 파라펫·코핑·띠 분할과 제실·포치 접점을, roofs/west와 assembly·sanctuary·east roof에는 후보 영역·지지·경사 및 제실 지지와 동측 박공 수리를 더했다. courtyard와 service-yard는 논리 상한 참조를 주랑 처마 3.20m로 바로잡았다. junctions에는 박공 폐쇄 표·기단/코핑 단면·L/T 접합·마당/보관실 상부 경계를, observations에는 대지·주랑·접합·단면·reference·문창 방향 pose와 반환벽 상부 관찰을 더했다. ownership에는 대지·실내 dado·reveal 역검사를, openings에는 제실 창 여덟과 여섯 일정 높이 host·두 반환벽 경사 분할을 더했다. building·storey는 대지 접점과 접지를, circulation은 서비스 문 connector를, entrance는 포치 기둥·보·삼각 막음의 위치 관계를 더했다. 새 site는 대지 결정 여섯 H2를 소유한다. 이 비교를 처음 작성했을 때 administration·colonnade room·offering·records·sanctuary·storage는 바뀌지 않은 여섯 파일이었다. 이어받기에서는 실제 건물 관찰과 모순된 상태 문장을 building·storey·openings·junctions·circulation·entrance·courtyard·colonnade room·sanctuary·porch roof·observations·site에서 고쳤다. 위 표는 그 현재 본문 분량이며 이 문서 수리는 방·geometry·조명의 변경이 아니다. 새 account와 주석은 공간 수를 늘린 것으로 세지 않는다. 이 분포 비교는 실제 구현 깊이·통과·시각 품질의 완료 판정이 아니며 후속 소스와 프레임에서 별도로 검토한다.

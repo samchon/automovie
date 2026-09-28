@@ -24,7 +24,7 @@
 
 공개 타입 `IAutoMovieBuiltSpace`의 `cells`는 볼록 cell의 합집합으로 한 공간을 표현한다. 구현은 `id: colonnade`, `parent: temple-ground` 한 레코드에 이 합집합을 담고 `shell`을 동시에 선언하지 않는다. 평면 여섯 영역에 [완성 바닥](../storey.md#ground-storey)과 [합성된 지붕 하부](../roofs/assembly.md#roof-junctions)를 적용해 실제 3차원 cell을 유도한다. 지붕 접합에서 볼록성을 유지하기 위한 추가 분해가 필요하면 같은 공간 안 cell만 늘린다. 따라서 여섯 평면 영역을 compiled cell 수로 고정하지 않는다. cell의 계산 접면은 물리벽·문·표면 소유자를 만들지 않으며, 주랑의 완결된 바닥과 천장 노출면 소유도 나누지 않는다.
 
-각 cell은 world 좌표의 `dot(normal, point) <= offset` 반공간 교집합이며, 공개 `builtSpaceContainsPoint`는 이 cell들의 합집합을 판독한다. 이 경로와 `lowerBuiltEnvironment`의 원래 built environment 보존을 저장소 source에서 확인했다. 실제 산출물에서는 주랑 각 영역 내부, 열린 접면 양쪽, 중정 구멍, 현관 후퇴부와 반환벽 안의 점을 대조해 합집합이 설계 경계를 따르는지 확인한다. 문턱의 연결은 실제 개구부와 connector에서 별도로 읽는다. 공개 표현 가능성을 확인한 것이며 production의 containment·관찰 위치·통과 결과는 아직 unverified다.
+각 cell은 world 좌표의 `dot(normal, point) <= offset` 반공간 교집합이며, 공개 `builtSpaceContainsPoint`는 이 cell들의 합집합을 판독한다. 이 경로와 `lowerBuiltEnvironment`의 원래 built environment 보존을 저장소 source에서 확인했다. 실제 산출물에서는 주랑 각 영역 내부, 열린 접면 양쪽, 중정 구멍, 현관 후퇴부와 반환벽 안의 점을 대조해 합집합이 설계 경계를 따르는지 확인한다. 문턱의 연결은 실제 개구부와 connector에서 별도로 읽는다. 실제 containment와 관찰 위치 검사는 실패 0이고, 열린 문짝·기둥을 포함한 world 삼각형의 문 통과 및 고리 회전 SAT도 충돌 0이었다. 지지면 연속성은 실제 단면에서 별도로 읽었다. 이 건물 결과로 미완 집기 전체의 배치·접촉을 통과시키지는 않는다.
 
 [주랑 정체성](../../settings/20-envelope.md#colonnade)의 기둥 열은 중정 경계 쪽에 두고 주랑에 돌출하는 기단/주두 평면 폭은 경계에서 최대 0.35m다. 북·동·서쪽 명목 폭에서 이를 뺀 여유는 1.75m이고 남쪽 현관 후퇴벽 앞은 1.60m다. 이는 배치 전 예산이며 [사용 포락](../../settings/10-building.md#use-profile)의 유효폭 검사는 문짝·기둥·집기 배치 후 다시 한다. 문 앞을 기둥이 막는 반복 규칙은 채택할 수 없다.
 

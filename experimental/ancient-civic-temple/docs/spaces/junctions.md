@@ -23,7 +23,7 @@
 
 내부 T 접합은 관통하는 벽의 접면에서 가지 벽을 끝낸다. 서·동 spine은 north-inner~south-inner 사이에 놓이고, 제실 남벽의 X 끝은 west-ring/east-ring, 오른쪽 가로 벽의 X 끝은 east-room/east-inner다. 이로써 외벽·spine과 가지 벽의 접면은 맞닿고 체적은 겹치지 않는다. 현관 후퇴벽의 X 끝은 west-porch-outer/east-porch-outer이며 반환벽은 entrance-front에서 south-outer까지다. 반환벽의 바깥 X 면이 남측 외벽의 중앙 절단 끝에 맞닿는다. 현관 후퇴벽·반환벽은 남측 외피의 물리 소유이고 boundaries가 두 번째 실체를 만들지 않는다.
 
-접면의 양쪽 element와 면 주소는 보존하되 접촉 내부 면을 노출 마감이나 두꺼운 틈으로 그리지 않는다. 외부/방 쪽의 완결 시각 표면은 [소유 지도](ownership.md#surface-map)를 유지한다. 판정은 [관찰 소유](observations.md#geometry-observations)의 모든 L/T 접합에서 빈 틈·중복 체적·노출된 내부 끝마개를 읽고 공유 기준선의 허용 오차와 비교한다. 중복 체적은 외피 겹침 전수 스캔이 수치로 재고, 빈 틈과 내부 끝마개의 노출은 접합 관찰 위치의 화면으로 본다. 접면의 단면은 [관찰 소유](observations.md#geometry-observations)의 `section` 묶음이 외곽 네 모서리의 L 접합과 spine·제실 남벽·오른쪽 가로벽·현관 후퇴벽의 T 접합마다 둔 연직 단면을 뷰어의 단면 검사로 읽는다. 그 단면을 아직 판정에서 읽지 않았으므로 단면 판독 결과는 unverified다.
+접면의 양쪽 element와 면 주소는 보존하되 접촉 내부 면을 노출 마감이나 두꺼운 틈으로 그리지 않는다. 외부/방 쪽의 완결 시각 표면은 [소유 지도](ownership.md#surface-map)를 유지한다. 판정은 [관찰 소유](observations.md#geometry-observations)의 모든 L/T 접합에서 빈 틈·중복 체적·노출된 내부 끝마개를 읽고 공유 기준선의 허용 오차와 비교한다. 중복 체적은 외피 겹침 전수 스캔이 수치로 재고, 빈 틈과 내부 끝마개의 노출은 접합 관찰 위치의 화면으로 본다. 접면의 단면은 [관찰 소유](observations.md#geometry-observations)의 `section` 묶음이 외곽 네 모서리의 L 접합과 spine·제실 남벽·오른쪽 가로벽·현관 후퇴벽의 T 접합마다 둔 연직 단면을 뷰어의 단면 검사로 읽는다. 이 연직 단면 전부와 실제 접합 화면을 직접 읽어 빈 틈·노출 내부 끝마개를 발견하지 않았고 외피 겹침 스캔도 중복 체적 0이었다. 대각 골의 전 길이 단면은 이 연직 단면 수단의 범위 밖이며 그 무효 질문은 보존한다.
 
 ## 박공과 지붕 아래의 닫힌 경계 {#gable-closures}
 
