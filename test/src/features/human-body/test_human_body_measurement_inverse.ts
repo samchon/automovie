@@ -13,6 +13,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    response refuse without clamping.
  * 3. A reversing midpoint, a discontinuous target and nonfinite input or
  *    reading refuse rather than claiming a shaped body was measured.
+ * 4. An affine metric response needs at most five actual readings: the
+ *    current point, the two ends, a midpoint check and its exact inverse.
  */
 export const test_human_body_measurement_inverse = (): void => {
   const solve = (
@@ -33,6 +35,17 @@ export const test_human_body_measurement_inverse = (): void => {
     "increasing metric inverse",
     nclose(increasing.weight, 0.5, 0.0001) &&
       nclose(increasing.actualMetres, 1.75, 0.00005),
+  );
+  let reads = 0;
+  const affine = solve((weight) => {
+    reads++;
+    return 1.5 + 0.5 * weight;
+  }, 1.65);
+  TestValidator.predicate(
+    "affine response uses its measured line without repeated bisection",
+    reads <= 5 &&
+      nclose(affine.weight, 0.3, 0.0001) &&
+      nclose(affine.actualMetres, 1.65, 0.00005),
   );
   const decreasing = solve((weight) => 1.5 - 0.5 * weight, 1.25);
   TestValidator.predicate(
