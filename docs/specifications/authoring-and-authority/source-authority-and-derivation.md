@@ -52,7 +52,7 @@ Identity 계산 규칙이 바뀌면 이전 규칙으로 기록된 결과는 현�
 
 Revision을 자기 bytes에 기록한 artifact는 영향받지 않은 결과를 재생성한다. 그 재생성이 다시 revision을 올리고 다음 derivation이 올라간 값을 기록하므로 repair가 수렴하지 않으며, 진단은 source나 design이 바뀌었다고 말하게 된다.
 
-Graph-selected TypeScript 결과는 normalized source digest뿐 아니라 실행된 project-relative path와 named export, 그 export가 인용한 정확한 Markdown target을 하나의 owner edge로 보존한다. Review와 final은 이 edge가 현재 fingerprint로 검토되지 않았거나 0개 또는 여러 개로 해석되거나 runtime이 다른 owner를 주장하면 실행과 귀속을 모두 거부한다. Helper import는 허용하지만 graph-selected top-level owner로 승격하지 않는다.
+Graph-selected TypeScript 결과는 normalized source digest뿐 아니라 실행된 project-relative path와 named export, 그 export가 인용한 정확한 Markdown target을 하나의 owner edge로 보존한다. Review와 final은 이 edge가 enforced 상태의 evidence 또는 호환 review 완료가 아니거나, 0개 또는 여러 개로 해석되거나, runtime이 다른 owner를 주장하거나, source digest가 실행 bytes와 다르면 실행과 귀속을 모두 거부한다. Companion review fingerprint는 evidence 완료의 실행 조건이 아니다. 같은 shot target의 완료된 비진입 export는 각 source digest를 유지한 acceptance 귀속으로만 남는다. Library 실행 계획과 현재 publication도 같은 완료 edge와 정확한 owner·digest를 검사하고 모든 완료 export의 index entry를 요구한다. 실제 물리 관찰과 freshness gate는 별도로 유지한다. Helper import는 허용하지만 graph-selected top-level owner로 승격하지 않는다.
 
 ### 변경 영향 불변식 {#spec-authoring-source-change-impact-invariant}
 

@@ -72,7 +72,7 @@ export const test_evidence_local_principle_policy = (): void => {
         [
           { noEvidenceExclude: false },
           { noEvidenceExclude: undefined },
-          { requireReview: stage !== "review" },
+          { requireReview: true },
           { requireReview: undefined },
           { severity: "warning" },
           { severity: "off" },

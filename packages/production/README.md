@@ -27,7 +27,7 @@ const status = inspectAutoMovieProduction(
 );
 ```
 
-For these stored-project entry points, `projectRoot` is a seed rather than an answer. The resolver walks upward to the nearest directory carrying both `package.json` and a root-level `lint.config.ts`. That is a compatibility layout, not the current scaffold's `src/lint.config.ts` layout. Do not add a root configuration or state directory to a source-first project to invoke this example. `productionId` selects the production inside a compatible store; capture also names that production explicitly.
+For these stored-project entry points, `projectRoot` is a seed rather than an answer. The resolver walks upward to the nearest directory carrying both `package.json` and a root-level `lint.config.ts`, which is where the scaffold puts its declaration. Do not add a root configuration or state directory to a source-first project to invoke this example. `productionId` selects the production inside a compatible store; capture also names that production explicitly.
 
 ## Reader editions
 

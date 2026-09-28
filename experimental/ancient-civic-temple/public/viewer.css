@@ -1,0 +1,22 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; background: #1d1b18; color: #eee8dc; }
+body { display: grid; grid-template-rows: auto auto 1fr; }
+header { display: flex; justify-content: space-between; align-items: end; gap: 1rem; padding: 0.6rem 1rem; background: #2a2622; }
+header h1 { margin: 0; font-size: 1.15rem; }
+.eyebrow { margin: 0; font-size: 0.7rem; letter-spacing: 0.12em; color: #b9a98c; }
+#status { margin: 0; font-size: 0.8rem; color: #d8ccb4; text-align: right; }
+nav { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; padding: 0.5rem 1rem; background: #25221e; font-size: 0.85rem; }
+nav select, nav button { font: inherit; background: #3a342d; color: #f3ecdf; border: 1px solid #5d5346; border-radius: 4px; padding: 0.2rem 0.4rem; max-width: 22rem; }
+nav select:focus, nav button:focus, nav input:focus, canvas:focus { outline: 2px solid #e0b665; outline-offset: 1px; }
+.check { display: inline-flex; gap: 0.3rem; align-items: center; }
+main { position: relative; display: grid; grid-template-columns: 1fr 22rem; min-height: 0; }
+canvas { width: 100%; height: 100%; display: block; min-height: 0; }
+aside { overflow: auto; padding: 0.8rem 1rem; background: #22201c; font-size: 0.8rem; line-height: 1.45; }
+aside h2 { font-size: 0.85rem; margin: 0.8rem 0 0.3rem; color: #e0c48c; }
+aside pre { white-space: pre-wrap; margin: 0; }
+#labels span { position: fixed; transform: translate(-50%, -50%); padding: 0.1rem 0.35rem; background: rgba(20, 18, 15, 0.75); border: 1px solid #c8a867; border-radius: 3px; font-size: 0.75rem; pointer-events: none; }
+#error { position: absolute; left: 1rem; top: 1rem; right: 23rem; max-height: 60%; overflow: auto; margin: 0; padding: 0.8rem; background: #5b1d17; color: #ffe7e0; border: 2px solid #ff8b76; white-space: pre-wrap; font-size: 0.8rem; }
+body.capture { display: block; background: #000; }
+body.capture header, body.capture nav, body.capture aside { display: none; }
+body.capture main { display: block; width: 1600px; height: 1000px; }
+body.capture canvas { width: 1600px; height: 1000px; }

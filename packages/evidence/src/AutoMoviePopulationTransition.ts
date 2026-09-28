@@ -41,7 +41,7 @@ export interface IAutoMovieFilmPopulationTransitionReceipt {
     mode: "first-pilot";
     partitionGroup: `001-${string}`;
   };
-  /** Complete film ladder that was in review when the receipt was made. */
+  /** Completed film ladder. The field name preserves version-1 compatibility. */
   reviewedBranches: readonly [
     "treatments",
     "scripts",
@@ -53,9 +53,12 @@ export interface IAutoMovieFilmPopulationTransitionReceipt {
 }
 
 /**
- * One reviewed design/source pair carried by a library pilot receipt.
+ * One completed design/source pair carried by a library pilot receipt.
  *
- * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Names the reviewed library pair authorized to reset together.
+ * The type name preserves the version-1 receipt API; completion occurs at
+ * evidence, with review retained as a compatible declaration.
+ *
+ * @evidence requirements/production-evidence/input.md#agent-production-evidence-visible-selection Names the completed library pair authorized to reset together.
  * @evidence specifications/production-evidence/input.md#spec-authoring-production-evidence-input-state Restricts a library predecessor to a real design/source pair.
  */
 export interface IAutoMovieReviewedLibraryPair {
@@ -96,7 +99,7 @@ export interface IAutoMovieLibraryPopulationTransitionReceipt {
   owner: string;
   /** Exact prior library pilot population. */
   pilotScope: { mode: "first-pilot" };
-  /** Real design/source pairs that were both in review at transition time. */
+  /** Completed pairs. The field name preserves version-1 compatibility. */
   reviewedPairs: readonly IAutoMovieReviewedLibraryPair[];
   /** Pilot hosts preserved into the reset tree. */
   retainedHosts: readonly IAutoMovieRetainedPilotHost[];
@@ -192,7 +195,7 @@ export function createAutoMovieRetainedPilotHost(
  * Validates the privileged reset transition against its exact passed pilot.
  *
  * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Makes the only backward stage transition executable from a versioned predecessor.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Requires the complete film ladder or every recorded library pair to move from reviewed predecessor to current draft together.
+ * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Requires the complete film ladder or every recorded library pair to move from completed predecessor to current draft together.
  */
 export function validateAutoMoviePopulationTransition(
   props: IValidateAutoMoviePopulationTransitionProps,
@@ -304,7 +307,7 @@ export function validateAutoMoviePopulationTransition(
   }
 }
 
-/** Reset construction together after the complete final pilot was reviewed. */
+/** Reset construction together after the complete final pilot passed. */
 function validateFilmReceipt(
   receipt: IAutoMovieFilmPopulationTransitionReceipt,
   stages: Readonly<Record<string, string>>,
@@ -324,7 +327,7 @@ function validateFilmReceipt(
     )
   )
     throw new Error(
-      "A film reset receipt requires the complete reviewed narrative ladder.",
+      "A film reset receipt requires the complete narrative ladder in reviewedBranches.",
     );
   if (stages.screenplayNaturalness !== "disabled")
     throw new Error(
@@ -347,7 +350,7 @@ function validateLibraryReceipt(
     receipt.reviewedPairs.length !== 1
   )
     throw new Error(
-      "A library reset receipt requires one exact reviewed design/source pair.",
+      "A library reset receipt requires one exact completed design/source pair in reviewedPairs.",
     );
   const pair = receipt.reviewedPairs[0]!;
   if (

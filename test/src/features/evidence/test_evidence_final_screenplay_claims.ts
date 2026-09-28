@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  * 1. Every stage emits file/H2/H3/H4 lineage; only evidence and review enable
- *    claims, and only review requires current review companions.
+ *    claims without requiring companion rows in either completed stage.
  * 2. Complete and first-pilot populations select matching construction/final
  *    directories; a disabled construction branch retains its full denominator.
  * 3. File lineage has no naturalness checklist; each heading independently
@@ -83,7 +83,7 @@ export const test_evidence_final_screenplay_claims = (): void => {
               noEvidenceExclude: true,
               uniqueEvidence: true,
               singleEvidencePerSymbol: true,
-              requireReview: stage === "review",
+              requireReview: false,
             },
           );
           TestValidator.equals(
@@ -102,7 +102,7 @@ export const test_evidence_final_screenplay_claims = (): void => {
                   symbol: "h2",
                   checklist: true,
                   noEvidenceExclude: true,
-                  requireReview: stage === "review",
+                  requireReview: false,
                 })),
           );
         }

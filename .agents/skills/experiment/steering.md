@@ -34,6 +34,9 @@ Two details decide whether the delivery works at all.
 
 - Name the session UUID explicitly. `--last` resolves to a sub-agent thread and fails with `direct app-server input is not allowed for multi-agent v2 sub-agents`.
 - `codex exec resume` accepts no `-C`, so change directory first.
+- `codex exec resume` does not inherit the session's model. It takes the configured default, so a run pinned to one model silently resumes on another: a campaign that had frozen `gpt-5.6-luna` resumed on `gpt-5.6-sol` because the machine's `config.toml` named that one. The harness says so (`This session was recorded with model X but is resuming with Y`) and says it as a warning in a stream that is mostly tool output. Pass `-m` on every resume, and read the model line rather than trusting the launch.
+
+That substitution also rewrites what the session records, so the next resume warns in the opposite direction and the recorded model no longer identifies the run. Once it has happened, the per-turn flag is the only thing carrying model identity, and the record says which turns ran under which model rather than naming one model for the session.
 
 ## One Machine, Several Campaigns
 
@@ -186,13 +189,13 @@ What you withhold is only withheld from your own messages. The environment the a
 
 **A readable root that contains this repository ends the legibility question.** The same session read the tracked baseline for its own sandbox (34,754 characters, on its eighth tool call, no error) and with it the previous agent's stage state, the driver's probe results, the findings, the method and the trap history. Codex's `workspace-write` restricts writes and never reads, so this was always open and only looked closed because that harness's readable root stayed narrow in practice.
 
-The earlier lesson needs correcting rather than supplementing. A previous cycle lost four axes to a working-root handoff file and concluded "track it so it is not in the working root", which fixed the **write** vector and left the **read** vector untouched. The requirement is a setup requirement and belongs before the run: **a sandbox whose readable root does not contain this repository at all.** Moving the baseline is not the fix: tracked is what makes it outlive the sandbox, which is why it exists.
+The earlier lesson needs correcting rather than supplementing. A previous cycle lost four axes to a working-root handoff file and concluded "track it so it is not in the working root", which fixed the **write** vector and left the **read** vector untouched. Neither vector closes here, because [Create The Sandbox](SKILL.md#create-the-sandbox) puts the sandbox under `experimental/` and a production that is kept graduates into a committed workspace member the website imports. So this is a property of the harness to record before the run, not a setup defect that an out-of-repository readable root would repair. Moving the baseline is not the fix either: tracked is what makes it outlive the sandbox, which is why it exists.
 
 Say plainly, in the record, that the file grew under a standing instruction to keep it current and that every addition made the eventual read worth more. That is the honest shape of it, and it is how the next cycle avoids repeating it.
 
-**And the file does not have to be opened.** A second agent read nothing, zero hits on every marker unique to its driver's notes, and still received twenty-two campaign commit subjects, because it ran `git log` on the parent repository, once explicitly following the baseline's own path. Subject lines carry the narrative: which stage reopened, which turn was recovered, which steering rule was learned. So the setup requirement is a readable root that excludes this repository **and its history**, and a driver checking for contamination looks for `git log` as well as for a read.
+**And the file does not have to be opened.** A second agent read nothing, zero hits on every marker unique to its driver's notes, and still received twenty-two campaign commit subjects, because it ran `git log` on the parent repository, once explicitly following the baseline's own path. Subject lines carry the narrative: which stage reopened, which turn was recovered, which steering rule was learned. So the history reaches a session that opens nothing, and a driver checking for contamination looks for `git log` as well as for a read.
 
-Splitting the axis beats reporting it lost. That driver kept **production legibility** as measurable, since the agent was recovering state from the work root's own decision records, source, generated output and guides, which is the question, while recording **blindness to being in an experiment** as spent, and noting that the ceilings question had narrowed rather than died. Three answers where a single verdict would have thrown away two of them.
+Splitting the axis beats reporting it lost, and here it is the only move left. That driver kept **production legibility** as measurable, since the agent was recovering state from the work root's own decision records, source, generated output and guides, which is the question, while recording **blindness to being in an experiment** as spent, and noting that the ceilings question had narrowed rather than died. Three answers where a single verdict would have thrown away two of them.
 
 ## Ask For Its List When Yours Is Empty
 

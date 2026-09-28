@@ -24,12 +24,9 @@ const studySources = [
 
 /**
  * A model owes every recorded view, and that review owes the complete current
- * construction source. Review fingerprints expire on referenced declarations;
- * they record inspection, not a compiler judgment that the face looks correct.
- * Coverage, carrier cardinality and nonvisual source inspection remain errors.
- * Missing or expired rendered-view acknowledgements warn independently of
- * construction-source inspection. Their structural twins retain the population
- * and acknowledgement constraints; a warning never accepts the face's likeness.
+ * construction source. Coverage, carrier cardinality and source relationships
+ * remain errors. The observations and their semantic judgments remain authored
+ * records; no relationship requires evidenceReview companions or fingerprints.
  */
 const graph: ITtscEvidenceGraphConfig = {
   claims: [
@@ -47,15 +44,6 @@ const graph: ITtscEvidenceGraphConfig = {
             checklist: true,
             noEvidenceExclude: true,
             severity: "error" as const,
-          },
-          {
-            type: "markdown" as const,
-            files: [`src/subjects/${subject}/review.md`],
-            symbol: "h2" as const,
-            checklist: true,
-            noEvidenceExclude: true,
-            requireReview: true,
-            severity: "warning" as const,
           },
         ],
       },
@@ -79,7 +67,6 @@ const graph: ITtscEvidenceGraphConfig = {
             ],
             symbol: ["type", "function", "property"],
             noEvidenceExclude: true,
-            requireReview: true,
           },
           {
             type: "typescript" as const,
@@ -96,7 +83,6 @@ const graph: ITtscEvidenceGraphConfig = {
             ],
             symbol: ["type", "function", "property"],
             noEvidenceExclude: true,
-            requireReview: true,
           },
         ],
       },
@@ -109,7 +95,6 @@ const graph: ITtscEvidenceGraphConfig = {
           type: "typescript" as const,
           files: [`src/subjects/${subject}/**/*-review.ts`],
           symbol: "property" as const,
-          requireReview: true,
           noEvidenceExclude: true,
         },
       },
@@ -141,15 +126,6 @@ const graph: ITtscEvidenceGraphConfig = {
           noEvidenceExclude: true,
           severity: "error",
         },
-        {
-          type: "markdown",
-          files: ["studies/human-face/review.md"],
-          symbol: "h2",
-          checklist: true,
-          noEvidenceExclude: true,
-          requireReview: true,
-          severity: "warning",
-        },
       ],
     },
     {
@@ -177,14 +153,12 @@ const graph: ITtscEvidenceGraphConfig = {
           files: ["src/**/*.ts", "!src/body/**/*.ts", "!src/**/index.ts"],
           symbol: ["type", "function", "property"],
           noEvidenceExclude: true,
-          requireReview: true,
         },
         {
           type: "typescript",
           files: studySources,
           symbol: ["type", "function", "property"],
           noEvidenceExclude: true,
-          requireReview: true,
         },
       ],
     },
@@ -197,7 +171,6 @@ const graph: ITtscEvidenceGraphConfig = {
         type: "typescript",
         files: ["studies/human-face/**/*-review.ts"],
         symbol: "property",
-        requireReview: true,
         noEvidenceExclude: true,
       },
     },
@@ -212,9 +185,6 @@ const graph: ITtscEvidenceGraphConfig = {
         files: ["src/body/**/*.ts", "!src/**/index.ts"],
         symbol: ["type", "function", "property"],
         noEvidenceExclude: true,
-        requireReview: true,
-        // The human source graph is being replaced; keep its coverage visible
-        // without blocking the body refactor on obsolete review fingerprints.
         severity: "warning",
       },
     },

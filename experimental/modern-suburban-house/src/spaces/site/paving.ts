@@ -1,0 +1,164 @@
+/**
+ * Paving depths and the sloped-connector surface used by the site paving owners.
+ *
+ * Design owner: `docs/spaces/site/01-paving-support.md`
+ * (`paving-depth-reservation`): the three walking surfaces reserve 0.12 m of
+ * base below their top, the driveway 0.15 m. A connector whose top blends two
+ * different edge heights is a bilinear surface; the owner splits each sloped
+ * run into at least four parts along X and Z so the two-triangle difference
+ * stays under about 0.00083 m, and every cell is two triangles whose corners
+ * are shared with their neighbours. This helper emits no surface of its own.
+ */
+import { slopedSlab } from "../solids";
+import { part, type IHousePart, type IPlanPoint } from "../solid-records";
+import type {
+  IAutoMovieHeightRule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+const CONNECTOR_CELLS = 4;
+const edgeAt = (a: number, b: number, value: number): boolean =>
+  Math.abs(a - value) < 1e-8 && Math.abs(b - value) < 1e-8;
+
+/** Keep only the outside sides of a paving rectangle; omit a caller-owned joined edge.
+ * @evidence spaces/site/01-paving-support.md This helper keeps the T-walk and three side-walk bands free of sides inside each union.
+ * @evidence spaces/site/01-paving-support.md#paving-depth-reservation The T-walk and three side-walk bands have no vertical side inside their union.
+ * @evidence principles/core/source-units.md#source-scope-preservation The caller's X/Z bounds and joined-edge predicate decide the perimeter; this helper assigns no new paving area.
+ * @evidence principles/core/source-units.md#source-substantive-completion The returned predicate closes outer slab edges while rejecting cell seams and joined flat-band sides.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation forbids fake union-internal side faces; pavingFreeEdge classifies only the caller's rectangle perimeter and removes its declared same-union contact.
+ */
+export const pavingFreeEdge = (
+  x: readonly [number, number],
+  z: readonly [number, number],
+  joined: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = () => false,
+): ((a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean) =>
+  (a, b) => (
+    edgeAt(a.x, b.x, x[0]) || edgeAt(a.x, b.x, x[1]) ||
+    edgeAt(a.z, b.z, z[0]) || edgeAt(a.z, b.z, z[1])
+  ) && !joined(a, b);
+
+/** Base depth below a walking surface, metres. */
+/**
+ * @evidence spaces/site/01-paving-support.md WALK_DEPTH is the reserved base under the three pedestrian paving surfaces.
+ * @evidence spaces/site/01-paving-support.md#paving-depth-reservation Its 0.12 m depth differs from the driveway base while remaining shared by walk and terrace builders.
+ * @evidence principles/core/source-units.md#source-scope-preservation This is a support depth, not a visible walking level or terrain foundation.
+ * @evidence principles/core/source-units.md#source-substantive-completion The numeric value gives each walking slab a definite lower face.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving parent fixes the pedestrian 0.12 m band; no new support thickness was added.
+ */
+export const WALK_DEPTH = 0.12;
+/** Base depth below the driveway surface, metres. */
+/**
+ * @evidence spaces/site/01-paving-support.md DRIVE_DEPTH reserves a thicker base below the sloping driveway.
+ * @evidence principles/core/source-units.md#source-scope-preservation This 0.15 m offset changes only the driveway underside, leaving pedestrian paving at WALK_DEPTH.
+ * @evidence principles/core/source-units.md#source-substantive-completion buildDriveway receives a concrete vertical slab thickness at every ramp point.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation gives the driveway a 0.15 m base below its sloped top, separately from the pedestrian 0.12 m base; DRIVE_DEPTH carries that authored depth.
+ */
+export const DRIVE_DEPTH = 0.15;
+
+/** Add the connector's four segment endpoints to a neighbouring slab edge. */
+/**
+ * @evidence spaces/site/01-paving-support.md#paving-depth-reservation A connector end line and its neighbouring flat walk or sloped driveway edge carry identical split vertices.
+ * @evidence spaces/site/01-paving-support.md The shared paving support design transfers connector segmentation to neighbouring slabs.
+ * @evidence principles/core/source-units.md#source-scope-preservation The helper only subdivides caller supplied bounds; it changes neither grade nor paving ownership.
+ * @evidence principles/core/source-units.md#source-substantive-completion Collinear edge stations prevent a connector triangle from ending halfway along an unsplit slab edge.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The paving-depth-reservation parent requires shared edge subdivision and specifies at least four connector cells.
+ */
+export const seamRect = (
+  x: readonly [number, number],
+  z: readonly [number, number],
+  west: readonly (readonly [number, number])[] = [],
+  east: readonly (readonly [number, number])[] = [],
+): IPlanPoint[] => {
+  const stations = (runs: readonly (readonly [number, number])[]): number[] =>
+    [...new Set([z[0], z[1], ...runs.flatMap(([a, b]) =>
+      Array.from({ length: CONNECTOR_CELLS + 1 }, (_, i) => a + ((b - a) * i) / CONNECTOR_CELLS),
+    )])].sort((a, b) => a - b);
+  return [
+    ...stations(east).map((value) => ({ x: x[1], z: value })),
+    ...stations(west).reverse().map((value) => ({ x: x[0], z: value })),
+  ];
+};
+
+/** The bilinear rule sampled from the same height callback as the paving mesh.
+ * @evidence spaces/site/01-paving-support.md The connector's standable rule samples the same X/Z function as its opaque paving.
+ * @evidence principles/core/source-units.md#source-scope-preservation The rule records the caller's paving height without a second level decision.
+ * @evidence principles/core/source-units.md#source-substantive-completion Four samples reproduce the current bilinear front- and side-connector profiles at every surface query.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires each connector's standable surface to sample the same bilinear X/Z height used by its visible triangles; this rule records that function's four corners.
+ */
+export const pavingHeightfield = (
+  x: readonly [number, number],
+  z: readonly [number, number],
+  height: (x: number, z: number) => number,
+): IAutoMovieHeightRule => ({
+  kind: "heightfield",
+  originX: x[0],
+  originZ: z[0],
+  spacingX: x[1] - x[0],
+  spacingZ: z[1] - z[0],
+  columns: 2,
+  rows: 2,
+  samples: [
+    height(x[0], z[0]),
+    height(x[1], z[0]),
+    height(x[0], z[1]),
+    height(x[1], z[1]),
+  ],
+});
+
+/**
+ * A sloped run over X = `x`, Z = `z` whose top is `height(x, z)`, emitted as
+ * `cells × cells` quads split into triangles, each a prism of `depth`.
+ */
+/**
+ * @evidence spaces/site/01-paving-support.md blendedRun constructs sloped paving between different edge heights without a nonplanar quad.
+ * @evidence principles/core/source-units.md#source-scope-preservation It receives its bounds and height callback from the calling walk owner and emits no independent path.
+ * @evidence principles/core/source-units.md#source-substantive-completion The fixed four-by-four grid yields paired triangular top and bottom patches with shared sampled corners, stable ids and sides only at the connector perimeter.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Paving-depth-reservation requires at least four divisions on each connector axis and two triangles per cell; blendedRun applies the caller's X/Z bounds and height at those shared corners.
+ */
+export const blendedRun = (props: {
+  id: string;
+  owner: string;
+  color: number;
+  x: readonly [number, number];
+  z: readonly [number, number];
+  height: (x: number, z: number) => number;
+  depth: number;
+  /** Edge joined to another part of the same paving union. */
+  joined?: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean;
+}): IHousePart[] => {
+  const n = CONNECTOR_CELLS;
+  const xs = Array.from(
+    { length: n + 1 },
+    (_, i) => props.x[0] + ((props.x[1] - props.x[0]) * i) / n,
+  );
+  const zs = Array.from(
+    { length: n + 1 },
+    (_, i) => props.z[0] + ((props.z[1] - props.z[0]) * i) / n,
+  );
+  const parts: IHousePart[] = [];
+  for (let i = 0; i < n; ++i)
+    for (let j = 0; j < n; ++j) {
+      const p00 = { x: xs[i]!, z: zs[j]! };
+      const p10 = { x: xs[i + 1]!, z: zs[j]! };
+      const p11 = { x: xs[i + 1]!, z: zs[j + 1]! };
+      const p01 = { x: xs[i]!, z: zs[j + 1]! };
+      // Each triangle's three corners are planar by construction, so the
+      // bilinear height sampled at them defines its top exactly.
+      for (const [k, tri] of [[p00, p10, p11], [p00, p11, p01]].entries())
+        parts.push(
+          part(
+            `${props.id}-${i}-${j}-${k}`,
+            props.owner,
+            "paving",
+            props.color,
+            slopedSlab({
+              plan: tri,
+              top: props.height,
+              thickness: props.depth,
+              freeEdge: pavingFreeEdge(props.x, props.z, props.joined),
+            }),
+          ),
+        );
+    }
+  return parts;
+};

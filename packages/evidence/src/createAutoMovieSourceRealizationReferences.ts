@@ -20,31 +20,18 @@ export type AutoMovieSourceRealizationBranch =
   | "spaceSources"
   | "systemSources";
 
-/** Rendered realization, not source construction or a finite review plan. */
-const RENDERED: Readonly<Record<AutoMovieSourceRealizationBranch, boolean>> = {
-  filmSources: true,
-  instanceSources: true,
-  mapSources: true,
-  materialSources: true,
-  modelSources: true,
-  motionSources: true,
-  productionSources: false,
-  shots: true,
-  spaceSources: true,
-  systemSources: false,
-};
-
 /**
- * Keep realization coverage and cardinality blocking while an unobserved
- * render remains payable after source compilation. Only the authored
- * realization reference uses this policy; source principles, upstream checks,
- * obligations, and authored population accounts remain independent errors.
- * The native evaluator owns both references and their review fingerprints.
+ * Keep exact realization coverage and cardinality blocking for every source.
+ *
+ * The native relationship requires its actual acknowledgement, never an
+ * evidenceReview companion or target fingerprint. `branch` and `requireReview`
+ * remain accepted input fields for existing callers. Actual observations are
+ * authored and authenticated through the separate physical review/final gates.
  *
  * @evidence requirements/production-evidence/README.md#production-evidence-requirements Separates initial construction from the rendered evidence a completed production owes.
- * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps source realization structural enforcement active while deferring its rendered review payment.
+ * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shape-stage Keeps realization structural enforcement active without companion-row authoring at any stage.
  * @evidence specifications/production-evidence/README.md#production-evidence-specifications Constructs native references without replacing their evaluator.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Separates error coverage from warning rendered freshness without weakening the owning mixed claim.
+ * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shape-stage Emits one error-level structural reference with the same complete population and cardinality for every source family.
  */
 export const createAutoMovieSourceRealizationReferences = (props: {
   branch: AutoMovieSourceRealizationBranch;
@@ -54,16 +41,5 @@ export const createAutoMovieSourceRealizationReferences = (props: {
   >;
   requireReview: boolean;
 }): ITtscEvidenceGraphMarkdownReference[] => {
-  const rendered = RENDERED[props.branch];
-  const structural: ITtscEvidenceGraphMarkdownReference = {
-    ...props.reference,
-    severity: "error",
-    requireReview: props.requireReview && !rendered,
-  };
-  if (rendered && props.requireReview)
-    return [
-      structural,
-      { ...props.reference, severity: "warning", requireReview: true },
-    ];
-  return [structural];
+  return [{ ...props.reference, severity: "error", requireReview: false }];
 };

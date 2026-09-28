@@ -12,8 +12,10 @@ import { throwsError } from "../internal/predicates";
  *
  * Scenarios:
  * 1. Blank and selected first layers remain valid without activating final.
- * 2. Each active final stage requires construction review and is forbidden in other shapes.
- * 3. Film shots require final review; brief shots retain their own reviewed parent.
+ * 2. Each active final stage requires construction to reach evidence and is
+ *    forbidden in other shapes.
+ * 3. Film shots require final naturalness to reach evidence; brief shots retain
+ *    their own completed parent.
  * 4. A film reset withdraws final and resets all construction branches together.
  * 5. A library reset keeps its independent design/source pair, not film stages.
  */
@@ -66,9 +68,9 @@ export const test_evidence_production_naturalness_gates = (): void => {
         }),
       ),
     );
-    for (const parent of ["disabled", "draft", "evidence"] as const)
+    for (const parent of ["disabled", "draft"] as const)
       TestValidator.predicate(
-        "final waits for construction review",
+        "final waits for construction to reach evidence",
         throwsError(() =>
           validateAutoMovieProductionStages({
             ...film,
@@ -77,9 +79,14 @@ export const test_evidence_production_naturalness_gates = (): void => {
           }),
         ),
       );
-    if (stage !== "review")
+    validateAutoMovieProductionStages({
+      ...film,
+      screenplays: "evidence",
+      naturalness: { screenplays: stage },
+    });
+    if (stage === "draft")
       TestValidator.predicate(
-        "shots wait for final review",
+        "shots wait for final naturalness to reach evidence",
         throwsError(() =>
           validateAutoMovieProductionStages({
             ...film,
@@ -88,6 +95,12 @@ export const test_evidence_production_naturalness_gates = (): void => {
           }),
         ),
       );
+    else
+      validateAutoMovieProductionStages({
+        ...film,
+        naturalness: { screenplays: stage },
+        shots: "draft",
+      });
   }
   TestValidator.predicate(
     "disabled final does not open film shots",
