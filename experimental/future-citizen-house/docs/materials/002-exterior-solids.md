@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#scope-preservation 네 입면의 stone panel population·wall body·corner prism·창 아래 drip과 roof owner의 roof-slab 전체와 roof-bearing의 외부 노출면을 이 마감에 두고, 금속 cassette 자체와 계단 void에 드러나는 body 띠 두 개·위층 drip 끝면·roof-bearing 아래 면, 보존되는 roof-weather와 대지 포장·실내 타일은 배정 밖이라고 적어, 외벽의 밝은 불투명 면에 무소유 부분이나 겹친 배정이 남지 않는다.
 @evidence principles/core/common.md#substantive-completion #c9c3b5·roughness .82, limestone-grain 512²·0.64m 반복, 평균 .98·범위 .94..1.00, 입자 2..8mm와 구름무늬 40..100mm, member 계수 .98..1.02를 정해 구현이 석재 외관을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 밝은 무채색 외벽은 production-visual-grammar와 envelope-and-privacy에서, 0.016m 패널과 wall body는 입면 owner의 기존 geometry에서 받고 색·grain 수치는 이 층의 저작 선택이라고 구분한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 "밝은 석재 계열 불투명 면"까지만 말한다. 이 H2는 honed 석재의 무광 응답, 0.64m 반복의 입자 규모, member 변화 폭과 실제 패널 간격을 texture로 덮지 않는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation envelope-and-privacy는 밝은 석재 계열의 불투명 외피를, front-face·rear-face·left-face·right-face와 roof-face는 실제 panel·wall·roof 면을 준다. 이 H2는 honed 무광 응답, 0.64m grain 반복, member 색 변화와 실제 패널 틈을 texture로 덮지 않는 규칙을 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 패널·wall body를 물리 부재로 두고 grain은 선형 명도 변화로만, 빛과 그림자는 geometry와 조명으로만 만든다고 나눠 날카로운 점·가짜 균열로 구조를 흉내 내지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 입면 local 수평 U/수직 V를 쓰고 corner는 두 실제 면의 투영이 만나는 모서리로 두며, 패널 간격과 개구부 recess를 texture로 덮지 않는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address ref01의 패널성·저광택, 모서리와 1층/2층 이음, front와 right의 동일 재료 읽힘은 reference-material-samples에서, 근접 입자와 원거리 평균색, 입면 위 끝과 roof-slab·bearing ring, 아래 끝과 기초 bearing ring의 이음은 scale-and-junction-samples에서 반증한다.
@@ -66,7 +66,7 @@ cassette의 외향 plate와 return은 명목 0.08mm 무광 도막, 색 #454d4a, 
 @evidence principles/core/common.md#scope-preservation 창호 jamb/mullion/head/sill·shade-box·금속 hem, 문 hardware, 실내 계단 난간, 가구의 metal 다리·손잡이, 샤워 screen rail, 등기구 metal trim·pendant cord를 이 마감에 두고 drip 석재·canopy-metal·PV frame·화면·hob·기기 외장은 제외해 metal 이름 부재의 배정이 겹치지 않는다.
 @evidence principles/core/common.md#substantive-completion #293332·roughness .38·metallic 0, 명목 0.08mm 도막, texture 없음과 bare metal의 .65를 쓰지 않는 이유까지 정해 구현이 금속 응답을 고를 일이 없다.
 @evidence principles/core/common.md#declared-basis 차콜 frame은 시각 문법, 창호·문·계단 부재는 glazing-interface·door-interface·single-stair, 가구 다리·손잡이·샤워 rail·등기구 trim·cord의 목표 형상은 models에서 받는다. 현재 방 source의 해당 메시를 임시 관찰 대상으로만 읽고 도장 반사 수치는 이 층에서 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 어두운 금속 frame과 부재 위치만 정한다. 이 H2는 그것이 도장된 비금속 반사 응답이라는 결정과 새 bevel 없이 기존 모서리·면 방향이 광택 폭을 만든다는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation production-visual-grammar는 차콜 frame의 색 관계를, glazing-interface·door-interface·single-stair는 금속 frame·hardware·난간 부재를 준다. 이 H2는 그 면의 도장 응답과 기존 bevel·법선에서 읽히는 광택 폭을 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 금속 기재 위 명목 0.08mm 도막을 구조 사실로, metallic=0·roughness .38을 그 도막의 렌더 응답으로 두어 도장 frame을 bare metal처럼 보이게 하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 창호 owner, doorway를 만드는 층 owner(현관문은 전면 owner), 방·계단 owner가 각자 부재를 유지한 채 역할 주소로만 결합하고, texture가 없어 좌표 요구가 없으며 canopy·PV frame에는 결합하지 않는다는 호환 경계를 둔다.
 @evidence principles/design/materials.md#material-verification-address 프레임이 검은 구멍이 아니라 기존 깊이로 빛을 받는 부재로 읽히는지를 외관·공용부·상층 reference 표본에서 반증하고, 얕은 frame 깊이의 한계는 창호 단계로 남긴다.
@@ -88,7 +88,7 @@ cassette의 외향 plate와 return은 명목 0.08mm 무광 도막, 색 #454d4a, 
 @evidence principles/core/common.md#scope-preservation 수전·싱크 판·가전 손잡이·hob ring·계단 steel stringer·flush·shower 부속을 steel-satin으로, 욕실과 powder의 거울 역할을 mirror-proxy로 나누고 싱크 위 metal basin 판·캐노피 support anchor·cassette 체결 bolt·head·거름망·점검 덮개·steel 설비장 몸체·site 부재는 보존 역할로 넘겨 노출 금속면에 owner가 둘인 면이 없다.
 @evidence principles/core/common.md#substantive-completion steel-satin #b4bcb8·metallic .85·roughness .24와 mirror-proxy #d6ddda·metallic 1·roughness .06을 정해 두 반사 응답을 구현이 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 부재는 방·계단 owner의 기존 box·rod·타원체 형상에서 받고, 금속 응답과 환경맵 거울 근사는 이 층의 선택이며 합금·부식·위생 성능은 이 값이 표현하지 않는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 프로그램은 sink·induction cooktop을 주고 거울의 최종 형상 주소는 models에서 받는다. 이 H2는 노출 금속과 거울을 서로 다른 응답으로 나누고 현재 환경 반사의 한계를 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program은 주방 sink·cooktop을, powder-utility와 upper-bathroom은 세면·위생 공간을, basin 모델은 거울의 face를, single-stair는 stringer를 준다. 이 H2는 노출 금속과 거울을 서로 다른 반사 응답으로 나누고 환경 반사만 가능한 한계를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 형상·양각·곡률을 유지한 채 금속성은 metallic·roughness 근사로만 표현하고, 방 안 물체의 정확한 거울상은 지원하지 않는다고 구분해 다른 화면이나 사진으로 가리지 않는다.
 @evidence principles/design/materials.md#material-binding-interface texture가 없어 좌표 요구가 없고 수전·싱크·stringer·mirror라는 역할 주소로만 결합하며 site 부재로 확장하지 않는 경계를 둔다.
 @evidence principles/design/materials.md#material-verification-address 싱크·수전·손잡이와 거울을 공용부·욕실 표본에서 각각 주소로 열고, 부재가 비금속 회색 플라스틱처럼 읽히면 이 H2의 실패로 둔다.

@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#scope-preservation 모든 역할의 owner·element 또는 set/member·part/면·material·texture·tile·UV 근거를 열거하고 junction 16면·slab 면 분할·다섯 cassette band의 plate·seal과 그 뒤 석재 기층, 이름 있는 retained 역할을 면·역할별로 남겨 재료 배정의 누락·중복·미지원 channel을 드러낸다.
 @evidence principles/core/common.md#substantive-completion 검사 입력(현재 state의 buildHouse 반환과 공개 lowering·instanceSlot), 열거 항목, 실패 조건, 기존과 비교할 주소·ID·count·transform·bounds, sourceBasis에 새 문서와 source를 포함할 조건까지 정해 검사자가 census 형식을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 비교할 house·storey·room·connector·opening 주소는 본문이 링크한 citizen-house-space와 stage-one-verification, 입력 경로는 공개 engine API에서 받고 열거 항목과 실패 분류는 이 층의 선택이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모의 전수 검증은 층 귀속·도달·분할을 묻는다. 이 H2는 재료 교체 뒤 같은 산출물에서 역할별 마감 배정과 모델 variant 증가를 설명하는 재료 전용 census를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation citizen-house-space는 house·site·storey 계층을, stage-one-verification은 층 귀속·도달·분할 질문을 준다. 이 H2는 같은 컴파일 산출물에서 재료 교체 뒤 역할별 배정과 model variant 증가를 묻는 별도 census를 더한다.
 @evidence principles/design/materials.md#material-construction-appearance 물리 층은 부재 소유 문서·geometry와 명목 표면층 선택으로 나누고 광학 값은 native material에서 읽게 해, census가 두께와 렌더 응답을 한 값으로 섞지 않는다.
 @evidence principles/design/materials.md#material-binding-interface census가 역할 주소마다 재료·texture·UV 근거를 읽어 host geometry와 재료 결합의 호환을 확인하고 미정 배정을 plaster나 retained로 대신하지 않는다.
 @evidence principles/design/materials.md#material-verification-address 텍스트 census는 시각 합격이 아니며 실제 프레임과 함께 읽는다고 정하고, member별 prototype·modelRecipe로 없는 prototype의 Error 대체를 드러내며 topology·캐노피 audit 오류와 잘못된 binding을 숨기지 않는 반증 조건을 둔다.
@@ -27,7 +27,7 @@
 @evidence principles/core/common.md#scope-preservation 모든 새 texture family의 최소·최대 면과 UV 방향, 1m·3m·12m 거리와 정면·30° 사선, 다섯 cassette band의 plate·seal·drip 경계와 배후 석재, slab 외곽·junction 면·계단 구멍 절단면을 포함한 필수 접합 목록과 native validateTextureScale 호출을 한 표본 집합에 둔다.
 @evidence principles/core/common.md#substantive-completion 중성 배경 #808080, hemisphere 1·directional 2와 45° 위치, exposure 1·1600×1000·DPR1·FOV50, 1m 기준 막대, validateTextureScale의 입력·반환·경고 조건, MaterialTextureScaleAudit schema와 build·payload의 호출 경로까지 정해 검사자가 조건을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis raster·FOV는 review-apparatus, 검증 명령은 verification-boundary, 함수 계약은 engine과 interface 원본에서 받고 중성 조명값과 표본 선택 규칙은 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 관찰 장치는 방과 외관의 원근 프레임만 정한다. 이 H2는 texture 반복·접합·scale을 격리해 반증하는 중성 장면과 native span 검사의 production wrapper를 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation review-apparatus는 1600×1000·DPR1·FOV50 관찰 장치를, envelope-corners·door-interface·single-stair는 접합 부재를 준다. 이 H2는 texture 반복·scale·접합을 따로 반증하는 중성 장면과 native span wrapper를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 중성 장면과 광도 값은 실측 조명 인증이 아니고 native span 검사는 등거리성·seam·pole·시각 합격을 인증하지 않는다고 나눠 렌더 파라미터 검사를 물리 검증으로 부풀리지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 각 접합의 부재 ID와 표면 정상 방향을 기록하고, 현재 environment.models 전부를 원래 순서로 native 입력에 주되 texture를 받는 variant에는 실제 scale이 반영된 primary UV를 요구하는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address grain 늘어남·뒤집힌 face·이중 tint·타일 경계·moiré·가짜 geometry 읽힘을 실패로 정하고, 측정하지 못한 축과 실행하지 못한 world-space 길이 대조는 unverified로 남긴다.
@@ -84,7 +84,7 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 @evidence principles/core/common.md#scope-preservation 현재 topology에서 파생된 전체 관찰 집합과 실패 위치를 그대로 두고 재료가 바뀌지 않은 방도 분모에서 빼지 않으며, 다섯 reference별 재료 질문과 캐노피 회귀 표본을 더한다.
 @evidence principles/core/common.md#substantive-completion 다섯 reference 각각이 묻는 재료(석재·frame·금속 cassette·seal·유리·PV, 바닥·침구·습식, oak·직물·cabinet·worktop·금속, felt·desk·접이식 전면, 문 결·floor·유리 반사)와 GPU 기록 항목을 정해 관찰자가 무엇을 볼지 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 관찰 분모는 delivery-review-condition과 spatial-observation, GPU 경로와 RENDERER 기록은 review-apparatus에서 받고, reference별 재료 질문은 이 층의 선택이며 사진 픽셀로 roughness나 치수를 역산하지 않는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 공간 관찰 분모와 다섯 reference의 공간 질문만 준다. 이 H2는 같은 분모에 재료 읽힘의 질문을 얹고 기존 GPU 캡처와 나란히 비교하는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation delivery-review-condition과 spatial-observation은 topology 전체 관찰 분모와 공간 실패 위치를, review-apparatus는 같은 GPU 관찰 장치를 준다. 이 H2는 그 분모에 재료 읽힘 질문을 더하고 기존 캡처와 비교하는 규칙을 정한다.
 @evidence principles/design/materials.md#material-construction-appearance reference 사진에서 광학 파라미터를 역산하지 않고 단순한 가구·장비 형상, 얕은 frame, louver와 조경 밀도를 재료로 지운 결함으로 세지 않아 외관 판단과 형상 사실을 섞지 않는다.
 @evidence principles/design/materials.md#material-binding-interface reference02의 절개는 검사 수단일 뿐 전달 프레임이 아니며, 각 표본이 실제 compiled 표면의 재료를 보도록 관찰 위치를 공간 분모에서 받는다.
 @evidence principles/design/materials.md#material-verification-address Playwright channel chromium의 WebGL 경로와 RENDERER·sourceBasis·에러 배너 기록을 요구하고, 소프트웨어 rasterizer나 이전 판정의 renderer를 새 실행 값으로 쓰지 않으며 자료가 없으면 unverified로 둔다.
@@ -109,7 +109,7 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 @evidence principles/core/common.md#scope-preservation privacy 세 상태와 flex 두 상태의 여섯 조합을 같은 producer에 주고 문 closed/open은 기존 opening operation 상태로 대조하며, 상태가 바꾼 부재·재료의 영향 면을 모두 추가 관찰하고 두 상태가 같다는 사실도 기록해 상태별 재료의 약속을 빠짐없이 묻는다.
 @evidence principles/core/common.md#substantive-completion 조합 수, 기본 day/work에서 완주할 전체 관찰, 상태가 바꾼 면만 추가하는 규칙, 반례 표본(frame 유지·유리 band·screen 범위·guest bed 직물·painted panel)을 정해 관찰자가 상태 표본을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 상태 선택은 operator-access, 유리 상태 의미는 privacy-states, 침대 상태는 flex-states, 문 상태는 기존 opening operation에서 받고 추가 관찰 규칙은 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 선택할 수 있는 상태와 그 공간 의미만 준다. 이 H2는 상태 변화가 재료 census와 관찰 면에 미치는 차이를 같은 producer로 비교하는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation operator-access는 선택 가능한 관찰 모드를, privacy-states와 flex-states는 유리·작업실의 정지 상태를 준다. 이 H2는 상태가 재료 census와 관찰 면에 만든 차이를 같은 producer로 대조한다.
 @evidence principles/design/materials.md#material-construction-appearance 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능 측정이 아니라고 나눠 상태 외관을 성능으로 읽지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않고 기존 상태가 만든 실제 부재에만 결합한 재료를 비교한다.
 @evidence principles/design/materials.md#material-verification-address 같은 문턱에서 문 grain과 hardware의 움직임, 같은 opening의 유리 band와 screen 범위, guest bed의 linen·white·green 직물과 painted panel의 배정을 상태 쌍으로 반증한다.
@@ -122,6 +122,6 @@ axes는 입력 model/part 순서, schema에 적은 slot 순서, u/v 순서로 �
 
 현재 명시 상태 privacy=day/private/night와 flex=work/guest의 6개 조합을 동일 source producer에 준다. 이 상태들이 만드는 실제 부재 및 바인딩 census를 비교하고 유리·screen·folding bed가 영향을 받는 모든 opening/room 관찰을 반복한다. 나머지 집 전체 관찰은 기본 day/work에서 완주하고, 다른 상태가 바꾼 부재·재료의 영향 면은 빠짐없이 추가한다. 동일한 두 상태도 동일하다는 사실을 기록한다.
 
-door closed/open은 실제 기존 operation에 적용하여 문 grain과 hardware의 움직임을 같은 문턱에서 대조한다. 프레임 유지, 유리의 transparent/frosted band, screen의 내려온 범위, guest bed의 oak base/head와 linen mattress·흰 pillow·green duvet 직물, painted panel 배정이 반례 표본이다. 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않는다. 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능의 측정은 unverified다.
+door closed/open은 실제 기존 operation에 적용하여 문 grain과 hardware의 움직임을 같은 문턱에서 대조한다. 프레임 유지, 유리의 transparent/frosted band, screen의 내려온 범위, guest bed의 oak bed-frame·support-left/right와 linen mattress·흰 pillow·green duvet 직물, painted panel 배정이 반례 표본이다. 새 프라이버시 상태·동작 경로·차양 geometry를 이 검사에서 발명하지 않는다. 낮아진 transmission은 렌더 근사이며 실물 시선 차단·에너지·광학 성능의 측정은 unverified다.
 
 모델이 고정한 정지 상태의 부품 주소만 이 상태별 결합의 입력으로 사용한다. 상태를 바꿀 때 나타나거나 사라지는 원형 부품에만 재료 census 차이를 기록한다.

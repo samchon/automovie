@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#scope-preservation powder-utility·upper-bathroom·upper-service의 floor-boards, powder·욕실의 tile lining(공유 벽에서는 그 방 쪽 면만), 욕실 동측 tile 벽 안의 junction -X면 하나를 이 마감에 두고 upper-service lining과 공유 벽 반대편 면은 실내 도장, 세면기 bowl의 tile색은 도기로 넘겨 습식 면의 배정이 섞이지 않는다.
 @evidence principles/core/common.md#substantive-completion #6f746f·roughness .65, tile-grain 512²·.45m, 2..6mm 입자와 평균 .98·범위 .95..1.00, 바닥 X/Z·벽 수평/수직 좌표를 정해 구현이 습식 마감을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 세 방의 .45m pitch 판과 잘린 타일, lining은 층·방 owner의 기존 geometry에서 받고, 색·입자는 이 층의 선택이며 방수층·배수 경사·마찰 성능은 인증 범위 밖이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 세 방이 위생·설비 공간이라는 사실과 층·방 owner source의 타일 판 분할과 tile lining만 준다. 이 H2는 도기·금속·목재와 구분되는 짙은 무광 타일 응답과 새 줄눈망 없이 실제 틈만 쓰는 규칙을 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation powder-utility·upper-bathroom·upper-service는 세 습식 방의 목적지를, ground-level·upper-level과 wall-junctions는 실제 바닥판·lining·욕실 junction 면을 준다. 이 H2는 도기·금속·목재와 구분되는 짙은 무광 tile 응답과 실제 틈만 따르는 grain을 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance 기존 tile 판 두께와 틈은 geometry 그대로 두고 입자는 명도 texture로만 쓰며 벽돌 무늬나 줄눈 texture로 구조를 흉내 내지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 바닥 X/Z, 벽 수평/수직의 metric UV로 결합하고 세면기 bowl처럼 같은 색 이름의 다른 역할에는 결합하지 않는다.
 @evidence principles/design/materials.md#material-verification-address 습식 방 표본에서 도기·금속·목재와의 구분, 문턱의 oak/tile 경계, 물체 아래 남은 바닥 면을, 그 면을 실제로 담는 upper-bathroom/corner-1·corner-3 관찰과 007 접합 표본에서 욕실 동측 tile 벽이 junction 면에서 도장 띠로 끊기지 않는지를 반증한다.
@@ -22,6 +22,8 @@
 @evidence spaces/002-spatial-graph.md#wall-storage-bath 상층 수납·욕실 닫힌 경계에서 이 마감은 욕실 쪽 tile lining만 받고 수납 쪽 면은 실내 도장이 받는다.
 @evidence spaces/002-spatial-graph.md#wall-bath-primary 욕실·주침실 측면 경계에서 이 마감은 욕실 쪽 tile lining만 받고 주침실 쪽 면은 실내 도장이 받는다.
 @evidence spaces/002-spatial-graph.md#wall-junctions 욕실·주침실·복도 벽 끝이 만나는 junction solid의 -X면이 욕실 tile 벽 안에 드러나므로 이 마감이 그 한 면을 받는다.
+@evidence spaces/002-spatial-graph.md#ground-level 1층 powder-utility의 실제 floor-boards는 층 owner가 만들고 이 H2는 그 판의 tile 응답을 결합한다.
+@evidence spaces/002-spatial-graph.md#upper-level 상층 욕실·설비실의 실제 floor-boards는 층 owner가 만들고 이 H2는 그 판의 tile 응답을 결합한다.
 @evidence spaces/002-spatial-graph.md#door-interface tile 방 세 문 아래의 host 벽 두께는 문턱판이 채우며 tile 바닥판은 방 쪽 경계에서 그 판과 만난다.
 -->
 
@@ -35,7 +37,7 @@
 @evidence principles/core/common.md#scope-preservation kitchen-island counter와 kitchen-wall-bank worktop의 판 면만 이 마감에 두고 sink와 hob의 형상은 models, 배치는 instances에 남겨 조리대 표면의 범위를 닫는다.
 @evidence principles/core/common.md#substantive-completion #dad7ce·roughness .30, worktop-grain 512²·.50m, 1..3mm 입자와 평균 .985·범위 .96..1.00, 금속성·투과·clearcoat 없음을 정해 구현이 조리대 외관을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 조리대 판 두께와 sink·hob 형상은 models, 방 안 배치는 instances에서 받는다. 현재 공용부 source의 값은 임시 관찰 입력이며 연마 합성 석재 근사와 수치는 이 층의 선택이고 식품 접촉·내열 성능은 unverified다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 프로그램은 island와 주방이 있다는 사실만 준다. 이 H2는 초록 cabinet·식탁·싱크와 구분되는 연마된 밝은 석재 응답을 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program은 island·sink·induction cooktop의 주방 기능을, common-room은 연속 공용부 cell을, kitchen-island와 cooking-appliances 모델은 두 상판의 노출 face를 준다. 이 H2는 초록 cabinet·식탁·싱크와 구분되는 연마된 밝은 석재 응답을 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 판 두께는 geometry로 두고 입자는 명도 texture로만 쓰며 검은 marble vein이나 구운 광택 줄로 형상을 흉내 내지 않는다.
 @evidence principles/design/materials.md#material-binding-interface top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 두어 top과 edge의 색이 이어지는 좌표 조건을 정한다.
 @evidence principles/design/materials.md#material-verification-address ref03 조리대 표본에서 초록 cabinet·식탁·싱크와 다르게 읽히는지, top/edge 색이 연결되는지를 반증한다.
@@ -57,7 +59,7 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence principles/core/common.md#scope-preservation basin rim/bowl, toilet pedestal/bowl/cistern, 현재 샤워 트레이와 별도 욕조 원형의 shell·rim·floor 노출면을 이 마감에 두고 벽 타일·침구·가전 흰색에는 적용하지 않는다.
 @evidence principles/core/common.md#substantive-completion texture 없음, #e7e6df·roughness .19·metallic 0·clearcoat .12와 명목 .5mm 유약을 정해 구현이 도기 응답을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 위생 기구 목록은 생활 프로그램, 최종 형상은 models에서 받는다. 현재 방 source는 임시 관찰 입력이고 배관·작동 제외는 program-boundary, 유광 수치는 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program은 vanity·toilet·shower/tub 선택지를 주고 upper-bathroom은 현재 샤워 트레이를 쓴다. model H2는 별도 욕조의 shell·rim·floor도 정한다. 이 H2는 이 노출 위생면을 하나의 유광 도기 응답으로 결합한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program은 vanity·toilet·shower/tub 선택지를, upper-bathroom은 현재 샤워 공간을, basin·toilet·shower·bathtub 모델은 노출 도기 face를 준다. 이 H2는 그 위생면을 하나의 유광 도기 응답으로 결합한다.
 @evidence principles/design/materials.md#material-construction-appearance 유약 .5mm는 기하 안에 포함된 명목 층이고 위생 기구의 두께는 models, 배관 과정은 납품 밖에 남긴다. 유광 마감으로 단순한 형상이나 배관 작동을 해결했다고 하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface texture가 없어 좌표 요구가 없고 곡면은 현재 mesh 그대로 반사하며, 역할 주소(rim·bowl·pedestal·cistern·tray)로만 결합한다.
 @evidence principles/design/materials.md#material-verification-address 습식 방 관찰에서 도기가 직물처럼 보이지 않는지, basin 내부가 바닥 tile과 같은 재료로 읽히지 않는지를 반증한다.
@@ -86,7 +88,7 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence principles/core/common.md#scope-preservation toilet의 기존 *-seat 면만 이 마감에 두고 도기 유약·직물 피복을 선언하지 않아, linen색 이름이 만든 직물 오배정을 닫는다.
 @evidence principles/core/common.md#substantive-completion #e7e6df·roughness .30·metallic 0·clearcoat 0·texture 없음을 정해 구현이 좌판 응답을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 좌판의 최종 타원 형상과 두께는 models에서 받고 현재 방 source geometry는 임시 관찰 입력이다. 성형 수지 분류와 수치는 이 층의 선택이며 조성·내구·하중은 unverified다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 toilet이 있다는 사실만 준다. 이 H2는 좌판을 도기 bowl과 같은 색·다른 광택의 수지로 구분하는 결정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation powder-utility와 upper-bathroom은 변기가 놓이는 방을, toilet 모델은 bowl과 분리된 seat face를 준다. 이 H2는 좌판을 도기와 비슷한 색·다른 광택의 수지로 구분한다.
 @evidence principles/design/materials.md#material-construction-appearance 성형 수지라는 부재 분류와 roughness .30의 렌더 응답을 나누고 도기와 겹치는 이중 표면을 만들지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 면 방향은 현재 mesh 법선을 따르고 texture 좌표 없이 *-toilet-seat 역할 주소로만 결합한다.
 @evidence principles/design/materials.md#material-verification-address 습식 방 관찰에서 seat/bowl 경계를 함께 보고, 좌판에 직물 격자가 생기거나 도기와 겹치는 이중 표면이 생기면 실패로 둔다.
@@ -107,7 +109,7 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence principles/core/common.md#scope-preservation kitchen-island·kitchen-wall-bank의 녹색 cabinet 판은 joinery-green, kitchen-overhead와 murphy closed-panel의 plaster색 판은 joinery-light로 모두 받고 green 소파 pillow·잎, plaster 벽·천장은 제외해 도장 가구의 배정이 섞이지 않는다.
 @evidence principles/core/common.md#substantive-completion joinery-green #626b59·.44와 joinery-light #c9c3b7·.48, 명목 .1mm 도막, texture 없음·metallic 0을 정해 구현이 도장 가구를 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 낮은 채도의 녹색 가구는 시각 문법, murphy 상태는 flex-states, 최종 문짝 분할과 손잡이는 models에서 받고 색·광택은 이 층에서 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 녹색 가구와 접이식 panel이 있다는 사실만 준다. 이 H2는 무광 벽보다 약간 매끈한 도장 응답과 plaster 이름의 panel을 벽 도장과 다른 역할로 나누는 결정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation production-visual-grammar는 낮은 채도의 녹색 가구를, common-room은 주방 목적지를, flex-states와 murphy-bed는 접힌 panel 상태를 준다. 이 H2는 cabinet 녹색과 panel 연색을 벽 도장과 구분되는 두 무광 joinery 응답으로 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 명목 .1mm 도막은 표면층이고 문짝 분할·손잡이·틈은 models, 상태별 배치는 instances에 남긴다. 새 서랍 형상을 재료로 흉내 내지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 판 두께와 local face를 그대로 쓰고 texture가 없어 방향 좌표 요구가 없으며, 반사 방향은 실제 법선이 정한다는 조건으로 결합한다.
 @evidence principles/design/materials.md#material-verification-address ref03·04 표본에서 cabinet이 무광 벽보다 약간 매끈하고 worktop·직물과 구분되는지를 반증한다.
@@ -131,7 +133,7 @@ sofa 가운데 green pillow와 식물 잎, plaster wall/ceiling에 확장하지 
 @evidence principles/core/common.md#scope-preservation 식재·토양·대지 포장(잔디 보강 포장 service-band와 캐노피 cassette-staging-pad 포함), 기기 화면·hob·keyboard와 glow에 더해 felt 바구니·linen 더미·샤워 유리·세탁기·steel 설비장 몸체·stool 좌판·cassette clip과 anchor처럼 새 마감이 없는 역할을 이름으로 retained/<현재 material id>에 두어 catch-all 없이 기존 역할을 보존한다.
 @evidence principles/core/common.md#substantive-completion 보존 대상과 금지되는 자동 배정(oak 줄기→가구 결, green 소파→cabinet paint, 가전 white→도기)을 이름으로 정해 구현이 이름 추측으로 나머지 면을 칠하지 않는다.
 @evidence principles/core/common.md#declared-basis 식재 수와 배치는 v-076의 roof-face 조경 결정, 대지 부재는 site-access에서 받고 기기·소품의 현재 방 source 값은 임시 입력으로 구분한다. 최종 물체 주소는 models·instances에 있고 보존 결정은 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 spaces는 대지 면을, roof-face는 외부 식재의 ID·형상·보존을 정하고 기기·실내 소품의 최종 형상은 models에 남긴다. 이 H2는 임시 물체 주소와 이미 소유된 건축 면을 구별하며 retained 역할에 모르는 이름을 몰아넣지 않는 규칙을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation site-access와 roof-face는 대지·캐노피·식재의 기존 형상과 배치를, surface-decomposition은 실내 기기·소품의 최종 part/face를 model owner에 남긴다. 이 H2는 보존할 현재 재료 역할을 이름으로 묶고 알 수 없는 면을 retained에 자동 배정하지 않는다.
 @evidence principles/design/materials.md#material-construction-appearance 보존 면의 geometry와 material 값을 그대로 두고, 낮은 조경 밀도·기기 화면의 단색·단순한 조명 기구를 재료 PASS로 지운 완성으로 주장하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface retained 역할은 현재 owner 주소와 material id를 출력에서 추적하는 결합이며 값을 복사한 표를 새 owner로 만들지 않는다는 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address 보존 목록은 binding-census에서, 전경의 읽힘은 reference 표본에서 반증하고 보존된 한계를 미완료로 남긴다.

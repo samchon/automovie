@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#scope-preservation plaster lining·stair-lining·두 층 ceiling, 층 owner의 내벽 body·pocket skin, junction 노출면 16개 중 plaster 방과 계단 구멍을 향한 15면과 숨은 junction 면, slab의 계단 구멍 쪽 절단면과 전면 strip 윗면, 계단 void에 드러나는 전면 body 띠 두 개·위층 drip 끝면·roof-bearing-front 아래 면을 이 도장에 두고 욕실 tile 벽 안의 junction 1면은 wet-tile로 넘겨, 어느 벽에도 retained 석고나 다른 방 마감이 끼지 않게 한다.
 @evidence principles/core/common.md#substantive-completion #e5e0d6·roughness .90, paint-grain 256²·.256m, 평균 .99·범위 .98..1.00, 입자 1..3mm, 벽 수평/수직과 천장 X/Z 좌표를 정해 구현이 실내 도장을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 벽·천장·내벽 몸체의 소유와 상대 owner가 면 요구를 넘기는 규칙은 surface-decomposition과 방·층·wall-junctions H2에서, junction 12개·노출면 16개와 향한 공간은 plan의 cell·벽 끝·계단 구멍에서, 계단 구멍 가장자리의 면과 그 owner는 stair-enclosure에서 받고 색·입자와 slab·외벽 body의 면 분할은 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 lining·ceiling·junction·slab·외벽 body의 소유만 정한다. 이 H2는 무광 도장 응답과 등방성 입자, junction 면을 향한 공간의 벽 마감에 맞추는 규칙, slab·외벽 body의 면 단위 분할을 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-level·upper-level과 wall-junctions는 천장·내벽·junction의 면을, stair-enclosure는 slab 절단면과 계단 void 쪽 마감 경계를 준다. 이 H2는 그 면의 무광 도장·등방성 입자와 향한 방별 junction 배정 및 slab·외벽 body의 면 분할을 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance 명목 .15mm 도장은 표면층, lining 두께와 개구부 cut은 geometry로 두고, 큰 얼룩이나 미장 이음 texture가 형상의 그림자를 대신하지 않게 나눈다.
 @evidence principles/design/materials.md#material-binding-interface 벽 local 수평/수직, 천장 local X/Z의 metric 좌표로 결합하고 가구의 plaster색 panel과 glow는 다른 역할로 넘겨 이름이 같은 면을 칠하지 않는다.
 @evidence principles/design/materials.md#material-verification-address 벽·천장 연결과 개구부 반환면을 방 내부 전체 표본에서, junction 16면의 마감과 이음을 그 면을 담는 방 관찰(공용부 전면벽 두 면, upper-bathroom/corner-1이 샤워 고정 유리 너머로 담는 욕실 동측 tile 벽 1면)에서, 계단 구멍의 slab 절단면·stair-lining·가장자리 junction의 연속과 전면 strip·외벽 실내 띠를 계단 표본에서, 면별 배정을 census에서 반증한다.
@@ -57,7 +57,7 @@ upper slab는 네 box piece를 면 단위 material part로 나눈다. 계단 구
 @evidence principles/core/common.md#scope-preservation flex-workroom의 felt lining 면만 이 마감에 두고 lining 두께와 개구 cut은 방 owner에 남겨 작업실 벽 마감의 범위를 닫는다.
 @evidence principles/core/common.md#substantive-completion #a09a8d·roughness .96, felt-grain 512²·.256m, 평균 .97·범위 .91..1.00, 1..4mm 섬유 점과 벽 수평 U/수직 V를 정해 구현이 흡음 패널 외관을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis felt lining의 소유와 벽마다 한 장인 형상은 flex-workroom의 방 owner에서, 섬유 피복 명목 .003m와 색·입자는 이 층의 선택이며 흡음률은 계산하지 않는다고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 작업실의 벽이 felt lining이라는 방 owner 결정만 준다. 이 H2는 plaster보다 거칠고 부드러운 무광 섬유 응답과 입자 규모를 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation flex-workroom은 네 외주 felt lining을, wall-entry-flex와 wall-flex-common은 공유벽의 작업실 쪽 면을 준다. 이 H2는 plaster보다 거칠고 부드러운 무광 섬유 응답과 입자 규모를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 섬유 피복 두께는 기존 판 안에 포함된 명목 층이고 입자는 색 변화일 뿐 섬유 두께·흡음 성능이 아니라고 나눈다.
 @evidence principles/design/materials.md#material-binding-interface 작업실 lining 면의 벽 수평 U/수직 V로만 결합하고 geometry에 없는 패널 이음을 texture로 그리지 않는다는 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address ref04와 작업실 네 모서리 표본에서 plaster보다 부드럽고 거친 패널로 읽히는지, 책상 목재와 색이 뭉개지는지를 반증한다.
@@ -85,7 +85,7 @@ upper slab는 네 box piece를 면 단위 material part로 나눈다. 계단 구
 @evidence settings/002-household.md#ground-program 거실 sofa의 직물을 textile-linen·textile-green으로 받아 공용부의 앉는 자리를 읽히게 한다. rug의 형상은 최종 models owner가 맡는다.
 @evidence settings/002-household.md#upper-program 세 침실의 double/single bed라는 목적지를 받고, 침대 model의 mattress·duvet·pillow에 네 직물 색을 배정한다. 침실 의자는 이 프로그램의 열거 물품이 아니다.
 @evidence settings/002-household.md#flex-states 손님 수면 상태에서 바닥과 평행하게 내려오는 guest bed의 mattress·duvet·pillow에도 침대 직물의 색·조직 규칙이 그대로 적용된다.
-@evidence spaces/002-spatial-graph.md#common-room 공용부가 소파와 rug를 수용한다는 방 목적을 받고 직물 결합은 최종 model part/face에 배정한다.
+@evidence spaces/002-spatial-graph.md#common-room 후면 연속 공용부의 clear cell을 목적지로 받고, 거실 소파와 저작 선택 rug의 직물 결합은 최종 model part/face에 배정한다.
 @evidence spaces/002-spatial-graph.md#primary-bedroom 후면 주침실 cell을 침대·저작 선택 의자의 목적지로 받아 mattress·duvet·pillow와 seat·back에 직물을 결합한다. 이 방 H2는 의자 수를 정하지 않는다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-1 L자 첫 작은 침실 cell을 침대·저작 선택 의자의 목적지로 받아 green duvet와 seat·back을 결합하되 의자를 방의 의무로 바꾸지 않는다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-2 두 번째 작은 침실 cell을 침대·저작 선택 의자의 목적지로 받아 blue duvet와 seat·back을 결합하되 의자를 방의 의무로 바꾸지 않는다.
@@ -112,7 +112,7 @@ ref03의 sofa/rug, ref02의 침구, ref04의 chair를 [방 검사](007-observati
 @evidence principles/core/common.md#scope-preservation 기존 shade panel 표면만 이 직물에 두고 금속 hem과 shade-box는 도장 금속으로 넘겨, 차양 부재 한 벌 안의 배정이 겹치지 않는다.
 @evidence principles/core/common.md#substantive-completion #aab3a0·roughness .88, opacity 1·transmission 0, woven-grain의 변화 폭 .96..1.00과 수직 V를 정해 구현이 screen 외관을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis roller 상태·높이·개수와 차폐 영역은 privacy-states와 창호 owner에서, 색은 기존 shade 색 #aab3a0에서 받고, roughness·조직 폭은 이 층의 선택이며 weave의 투광 성능은 unverified라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 shade가 내려오는 면적만 정한다. 이 H2는 그 면이 직물로 읽히도록 불투명 직물 응답과 약한 조직 변화를 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states는 shade의 60%·100% 내려옴을, glazing-interface는 roller sheet와 hem의 실제 면을 준다. 이 H2는 sheet의 불투명 직물 응답과 약한 조직 변화를 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance texture에 투명한 구멍을 뚫거나 외부 louver를 그리지 않고 기존 0.006m sheet 형상 위에 천의 읽힘만 더해 차폐 구조와 외관을 섞지 않는다.
 @evidence principles/design/materials.md#material-binding-interface shade panel의 수직 V를 따르고 roller의 높이·개수·실제 차폐 영역은 창호 owner가 그대로 소유한다는 조건으로 결합한다.
 @evidence principles/design/materials.md#material-verification-address 각 실제 screen의 올림·내림 범위와 유리 구분을 material-state-samples에서 반증하고 ref03·05가 요구하는 추가 차폐 성능은 별도 판정으로 남긴다.

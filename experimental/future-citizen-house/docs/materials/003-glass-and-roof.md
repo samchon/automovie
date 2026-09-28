@@ -6,7 +6,7 @@
 @evidence principles/core/common.md#scope-preservation 모든 curtainwall pane 중 glass 면과 day·private/night 두 상태를 이 마감에 두고, 새 광학 상태·프라이버시 보증·glare 판은 만들지 않는다고 적어 투명 유리의 약속 범위를 닫는다.
 @evidence principles/core/common.md#substantive-completion 0.018m, ior 1.5, roughness .09, day #d2e2dc·transmission .94와 private/night #526c64·.38을 정해 구현이 유리 상태값을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 상태의 의미는 privacy-states, 유리 두께는 glazing-interface 단면에서 받고, 색·투과 수치는 전기변색 실측이 아닌 현재 보이는 상태의 저작 근사라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy canon은 밝은 투명과 어두운 tint를 말로만 정한다. 이 H2는 그 두 상태를 native baseColor·transmission 쌍과 공통 roughness·ior로 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states는 낮의 투명 유리와 사적 상태의 tint를, glazing-interface는 실제 pane와 두께를 준다. 이 H2는 상태별 native baseColor·transmission 쌍과 공통 roughness·ior를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 형상 두께 0.018m와 렌더 thickness·ior를 맞추되 transmission은 가시광 투과율·열 성능이 아니라고 분리해 광학 근사를 제품 성능으로 읽지 않게 한다.
 @evidence principles/design/materials.md#material-binding-interface 기존 curtainwall owner의 pane 면에만 결합하고 texture가 없어 좌표 요구가 없으며, 반사는 기존 sky·PMREM과 주변 재료가 정한다는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address 낮/사적 상태 차이와 앞뒤 면·실내 가구의 보임을 material-state-samples와 ref01·03·05에서 반증하고, 새 석재·목재가 바꾼 반사 대비를 회귀 표본에 넣는다.
@@ -29,7 +29,7 @@ texture는 없다. 유리의 반사는 동일한 기존 sky/PMREM과 주변 재�
 @evidence principles/core/common.md#scope-preservation 작업실·침실 하부 privacy band와 욕실 전체 frosted 면을 facade가 만든 그대로 받고, 프라이버시 강화나 외부 차양의 새 설계는 이 보존 결정에서 승인하지 않는다고 경계를 적는다.
 @evidence principles/core/common.md#substantive-completion #b7ccc0, roughness .70, transmission .28, thickness .018, ior 1.5를 정해 반투명 표현값을 구현이 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 고정 반투명 층의 존재와 위치는 privacy-states와 각 opening H2에서 받고, 거친 투과의 수치는 이 층의 근사 선택이라고 밝힌다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 반투명이라는 상태와 위치만 정한다. 이 H2는 입자 이미지 대신 roughness .70과 transmission .28의 scalar 응답으로 거친 투과를 표현한다는 결정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states는 고정 반투명 영역의 상태 의미를, glazing-interface와 rear-bath-glazing 등 창 H2는 그 pane 위치를 준다. 이 H2는 roughness .70과 transmission .28의 scalar 응답으로 거친 투과를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 유리 두께 형상은 유지하고 거친 투과는 렌더 근사일 뿐 시선 차단 성능이 아니라고 나눠, 반투명 외관을 프라이버시 보증으로 읽지 않게 한다.
 @evidence principles/design/materials.md#material-binding-interface 투명/반투명 경계의 높이·개수와 각 면은 spaces owner가 소유하고 재료는 texture 좌표 없이 그 면에만 결합한다는 호환 조건을 둔다.
 @evidence principles/design/materials.md#material-verification-address 같은 opening의 상하 band를 material-state-samples에서 함께 보고, 세라믹처럼 완전히 불투명하거나 낮·밤 상태에서 열린 문과 혼동되면 실패로 둔다.
