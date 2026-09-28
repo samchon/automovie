@@ -29,7 +29,12 @@ export interface IAutoMovieHumanFaceBasis {
     /** Identity edits and transient performance remain separate in saved documents. */
     kind: "shape" | "expression";
 
-    /** Finite envelope, including zero; weights are refused rather than clamped. */
+    /**
+     * Finite source-authoring envelope, including zero; weights are refused
+     * rather than clamped. This bounds interpolation of authored endpoints,
+     * not population anatomy. A measured parameter needs a landmark mapping
+     * and population-appropriate norms before such a claim is possible.
+     */
     minimum: number;
     maximum: number;
 
