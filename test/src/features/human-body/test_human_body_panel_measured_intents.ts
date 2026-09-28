@@ -106,9 +106,10 @@ export const test_human_body_panel_measured_intents =
       [...app.querySelectorAll<HTMLButtonElement>("button")].find(
         (one) => one.textContent === name,
       )!;
-    const target = app.querySelector<HTMLInputElement>("#control-macroHeight")!;
-    TestValidator.predicate("measured channel is offered", target !== null);
-    target.value = "2200";
+    const target = (): HTMLInputElement =>
+      app.querySelector<HTMLInputElement>("#control-macroHeight")!;
+    TestValidator.predicate("measured channel is offered", target() !== null);
+    target().value = "2200";
     button("Set measurement").click();
     button("Bent").click();
     await Promise.resolve();
@@ -124,8 +125,11 @@ export const test_human_body_panel_measured_intents =
       ],
       [0, 10, committedParts],
     );
-    target.value = "2300";
+    // A committed pose rebuilds the rows. Enter the next measurement into
+    // the live input so its worker promise is actually observed by the panel.
+    target().value = "2300";
     button("Set measurement").click();
+    TestValidator.equals("new measurement starts a second solve", solves, 2);
     button("Rest").click();
     await Promise.resolve();
     failing.reject(new Error("old measurement failure"));
