@@ -6,6 +6,7 @@ export * from "./assertHumanFaceHair";
 export * from "./buildHumanFaceHairMesh";
 export * from "./closeHumanFaceHairContact";
 export * from "./createHumanFaceHairBuilder";
+export * from "./createHumanFaceHairResultCache";
 export * from "./createHumanFaceHairGatherField";
 export * from "./createHumanFaceHairRoots";
 export * from "./createHumanFaceHairTailSpread";

@@ -4,7 +4,9 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
+import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
+import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
 import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTint";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
@@ -47,10 +49,15 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * The pose evaluator owns that sequence in one module. The builder retains
  * only the latest channel-weight vector and its posed positions, contact
  * summary and common normals. An appearance-only change reuses those arrays,
- * while each emitted region still gathers owned copies and hair is built
- * afresh from the current numerical layer document. Shape or expression
- * changes replace the cached pose. Observers receive a copy of the contact
- * summary so they cannot modify a later reused report.
+ * while each emitted region still gathers owned copies. Hair is generated
+ * again when the pose or its own numerical layers change; other edits receive
+ * a copy of the last generated cards and finish. Shape or expression changes
+ * replace the cached pose. Observers receive a copy of the contact summary
+ * so they cannot modify a later reused report. A hair result is certified only
+ * after the complete resident model passes validateModel. On a certified hit,
+ * the current base model still takes the model gate, and the part/material ID
+ * collision check still runs before composition; the engine's model validator
+ * has no cross-part geometry test beyond references and unique IDs.
  *
  * Pigmentation is sampled on immutable neutral source coordinates, then
  * gathered with the same region correspondence; the scalp under a hair
@@ -96,7 +103,9 @@ export function createHumanFaceBasisBuilder(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
-  const buildHair = createHumanFaceHairBuilder(basis);
+  const buildHair = createHumanFaceHairResultCache(
+    createHumanFaceHairBuilder(basis),
+  );
   const scalpTint = createHumanFaceScalpTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
   const fibrePigment = createHumanFaceFibrePigment();
@@ -161,11 +170,8 @@ export function createHumanFaceBasisBuilder(
     }
     fibrePigment(document.materials, materials);
     irisPigment(document.iris, materials);
-    const {
-      positions: posed,
-      normals,
-      summary,
-    } = evaluatePose(state, document.shape);
+    const pose = evaluatePose(state, document.shape);
+    const { positions: posed, normals, summary } = pose;
     const evaluated = new Map<string, readonly number[]>();
     const tints = scalpTint(document.hair, materials);
     const parts = surfaces.flatMap(({ surface, regions }) => {
@@ -240,7 +246,9 @@ export function createHumanFaceBasisBuilder(
       for (const [id, uri] of bakeHumanFaceOcclusion(model, options.occlusion))
         materialMap.get(id)!.occlusionTexture = uri;
     if (document.hair !== undefined && document.hair !== null) {
-      const hair = buildHair(document.hair, evaluated);
+      assertHumanFaceHair(document.hair);
+      const generated = buildHair(document.hair, evaluated, pose);
+      const hair = generated.value;
       if (
         hair.parts.some((part) =>
           model.parts.some((resident) => resident.id === part.id),
@@ -252,14 +260,29 @@ export function createHumanFaceBasisBuilder(
         throw new Error(
           "Numerical hair identities collide with resident face geometry or finishes.",
         );
+      // validateModel checks each part/material locally plus IDs and references.
+      // A certified hair copy passed the full model gate for this exact pose
+      // and hair document. Admit the current face/material changes separately
+      // before composing it; the collision check above settles shared IDs.
+      if (generated.certified) {
+        const validation = validateModel({ model });
+        if (!validation.success)
+          throw new Error(
+            "The numerical hairstyle did not form a valid resident model: " +
+              JSON.stringify(validation),
+          );
+      }
       model.parts.push(...hair.parts);
       model.materials.push(...hair.materials);
-      const validation = validateModel({ model });
-      if (!validation.success)
-        throw new Error(
-          "The numerical hairstyle did not form a valid resident model: " +
-            JSON.stringify(validation),
-        );
+      if (!generated.certified) {
+        const validation = validateModel({ model });
+        if (!validation.success)
+          throw new Error(
+            "The numerical hairstyle did not form a valid resident model: " +
+              JSON.stringify(validation),
+          );
+        generated.certify();
+      }
     }
     options?.observe?.(summary === null ? null : structuredClone(summary));
     return model;
