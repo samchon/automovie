@@ -10,6 +10,12 @@ import type { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovi
  * evaluation. The optional upper-arm goal is humerothoracic and is resolved
  * after girdle motion. A VRM bone name is an authoring slot, not evidence of
  * an internal bone surface or an independent scapular articulation.
+ * In particular, a humerus head-to-elbow line does not settle the shaft's
+ * own centre and orientation. In the University of Utah adult CT scapula and
+ * humerus dataset (doi:10.5281/zenodo.19077748), the shaft-cylinder centres
+ * of 169 complete humeri with no recorded pathology lie a median 4-5 mm off
+ * that line. This population observation identifies a missing anatomical
+ * frame; it is not a fixed sideways correction to apply to every arm.
  * The current MPFB study records its landmark and constraint sources in
  * `test/studies/human-body/connected-basis/joints-receipt.json`. Other bases
  * must carry their own source and valid range.

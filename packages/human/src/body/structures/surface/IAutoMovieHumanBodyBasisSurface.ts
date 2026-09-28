@@ -9,7 +9,13 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * Shape endpoints and four-influence weights move the same shared vertices,
  * and `createHumanBodySurfaceParts` calculates the posed surface before
  * material projection. Skinning, sag and appearance metadata do not by
- * themselves establish volume preservation or contact. The current MPFB
+ * themselves establish volume preservation or contact. This one exterior
+ * sheet has no bone surfaces, individual muscle volumes, or subcutaneous fat
+ * boundary from which their compression could be solved. The Visible Human
+ * male/female lower-limb segmentation distinguishes bones, muscles, cartilage,
+ * ligaments, and two fat/fascia compartments (Andreassen et al. 2023,
+ * doi:10.1038/s41597-022-01905-2); those are separate anatomical structures,
+ * not displacements to infer from this skin array alone. The current MPFB
  * study records initial topology and skin-weight extraction in its extraction
  * receipt and subsequent bilateral weight changes in its symmetry receipt.
  * @author Samchon

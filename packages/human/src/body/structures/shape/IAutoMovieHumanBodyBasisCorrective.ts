@@ -23,9 +23,12 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * the bone.
  * The current basis contains pose correctives that repair sampled forms, but
  * a sum of independent rest-space rows cannot enforce simultaneous bilateral
- * contact or preserve tissue volume in arbitrary deep flexion. Contact is a
- * separate posed-surface constraint, not a stronger corrective gain. The
- * connected study's `pose-correctives-receipt.json` records the sampled
+ * contact or preserve tissue volume in arbitrary deep flexion. The same
+ * limitation already appears at rest when macro pair and weight-envelope
+ * rows add on some valid multi-axis body shapes: each family alone can be
+ * clear while their sum folds the skin. Contact is a separate posed-surface
+ * constraint, not a stronger corrective gain. The connected study's
+ * `pose-correctives-receipt.json` records the sampled
  * production of its rows and the revision on which they were solved.
  * @author Samchon
  */
