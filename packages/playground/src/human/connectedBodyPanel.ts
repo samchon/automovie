@@ -1,7 +1,7 @@
 /**
  * Browser adapter for the connected body basis, sharing the face editor's
  * transaction and viewport owners. This panel owns only DOM inputs, draft
- * composition, file-read generations and the millimetre formatting of the
+ * composition and file-read generations. `bodyShapeControls` formats the
  * package's channel measurements. The package validates controls, forms and
  * skins the model and exports it; camera and clay state never enter the
  * document, and neither does the face shown beside the body.
@@ -45,7 +45,7 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The panel owns the editing screen boundary only.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The panel performs no basis evaluation.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel formats the measurements the package computed.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel displays precomputed channel scales through bodyShapeControls; the package owns the measurement rules and calculation.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The panel calls the package's parse and serialize functions.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The panel selects the document's style, while the package builder owns the garment's anatomical cut and posed skin attachment.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The panel evaluates no underwear region, clip or lift.
