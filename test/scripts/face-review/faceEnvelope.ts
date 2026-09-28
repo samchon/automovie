@@ -242,6 +242,7 @@ function crossingPairs(
   const pairs: [number, number][] = [];
   for (const crossing of measureAutoMovieMeshCrossings(mesh, mesh, {
     allPairs: true,
+    interiorTolerance: 1e-9,
   })) {
     if (crossing.coplanar) continue;
     const [a, b] = [crossing.triangle * 3, crossing.other * 3].sort(

@@ -70,16 +70,16 @@ const index = (mesh: IAutoMovieMesh): Indexed[] => {
  * penetration puts the crossing strictly inside both the segment and the
  * triangle, so nothing a caller would want reported is lost.
  *
- * A parallel segment returns false and is left to the coplanar report.
- * The dimensionless interior tolerance excludes arithmetic residues at an
- * edge or endpoint: a shared seam whose computed intersection falls within
- * that tolerance remains touching instead of alternating with a crossing.
+ * A parallel segment returns false and is left to the coplanar report. A
+ * caller may set a dimensionless interior tolerance for its own near-contact
+ * classification. Zero keeps the exact strict predicate used by topology
+ * admission, including cases whose only witness lies very near an edge.
  */
-const INTERIOR_TOLERANCE = 1e-9;
 const segmentPierces = (
   origin: number[],
   target: number[],
   triangle: number[][],
+  tolerance: number,
 ): boolean => {
   // vector differences, cross and dot products written out as scalars,
   // allocating nothing: this runs for every candidate pair of every mesh
@@ -103,14 +103,14 @@ const segmentPierces = (
     oy = origin[1] - t0[1],
     oz = origin[2] - t0[2];
   const u = (ox * px + oy * py + oz * pz) * inverse;
-  if (u <= INTERIOR_TOLERANCE || u >= 1 - INTERIOR_TOLERANCE) return false;
+  if (u <= tolerance || u >= 1 - tolerance) return false;
   const ax = oy * e1z - oz * e1y,
     ay = oz * e1x - ox * e1z,
     az = ox * e1y - oy * e1x;
   const v = (dx * ax + dy * ay + dz * az) * inverse;
-  if (v <= INTERIOR_TOLERANCE || u + v >= 1 - INTERIOR_TOLERANCE) return false;
+  if (v <= tolerance || u + v >= 1 - tolerance) return false;
   const distance = (e2x * ax + e2y * ay + e2z * az) * inverse;
-  return distance > INTERIOR_TOLERANCE && distance < 1 - INTERIOR_TOLERANCE;
+  return distance > tolerance && distance < 1 - tolerance;
 };
 
 const coincide = (a: number[], b: number[]): boolean =>
@@ -136,18 +136,22 @@ const EDGES: readonly (readonly [number, number])[] = [
   [2, 0],
 ];
 
-const pierces = (first: number[][], second: number[][]): boolean => {
+const pierces = (
+  first: number[][],
+  second: number[][],
+  tolerance: number,
+): boolean => {
   for (const [from, to] of EDGES) {
     if (
       !touchesCorner(first[from], second) &&
       !touchesCorner(first[to], second) &&
-      segmentPierces(first[from], first[to], second)
+      segmentPierces(first[from], first[to], second, tolerance)
     )
       return true;
     if (
       !touchesCorner(second[from], first) &&
       !touchesCorner(second[to], first) &&
-      segmentPierces(second[from], second[to], first)
+      segmentPierces(second[from], second[to], first, tolerance)
     )
       return true;
   }
@@ -250,6 +254,10 @@ const sharePlaneAndOverlap = (
  * default stops at one. A corrective that must clear every contact uses the
  * complete population and decides which shared vertices or intended contacts
  * are exempt. Both modes use the same spatial index and triangle predicate.
+ * `interiorTolerance` is a dimensionless distance from segment and triangle
+ * boundaries in their own interpolation coordinates. Omission is zero, so a
+ * topology validator retains its strict legacy predicate; a face census may
+ * explicitly classify sub-resolution seam residues as contact.
  *
  * This answers containment-free overlap only. It does not say how deep the
  * crossing is or which surface should move; the first is what
@@ -261,7 +269,7 @@ const sharePlaneAndOverlap = (
  *
  * @param first Mesh whose triangles are reported.
  * @param second Mesh tested against it, in the same frame.
- * @param options Whether every pair is reported; omitted, one per first triangle.
+ * @param options Pair population and optional near-boundary contact tolerance.
  * @returns Crossings in first-triangle and spatial candidate order.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies a direction-free crossing test composable with the axis-ordered clearance measure, without depending on any catalogue item.
@@ -270,9 +278,14 @@ const sharePlaneAndOverlap = (
 export function measureAutoMovieMeshCrossings(
   first: IAutoMovieMesh,
   second: IAutoMovieMesh,
-  options?: { allPairs?: boolean },
+  options?: { allPairs?: boolean; interiorTolerance?: number },
 ): IAutoMovieMeshCrossing[] {
   const allPairs = options?.allPairs === true;
+  const tolerance = options?.interiorTolerance ?? 0;
+  if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance >= 0.5)
+    throw new Error(
+      "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
+    );
   const ours = index(first);
   const theirs = index(second);
   if (ours.length === 0 || theirs.length === 0) return [];
@@ -363,7 +376,7 @@ export function measureAutoMovieMeshCrossings(
         candidate.low[2] > triangle.high[2]
       )
         continue;
-      if (pierces(triangle.corners, candidate.corners)) {
+      if (pierces(triangle.corners, candidate.corners, tolerance)) {
         if (allPairs) {
           crossings.push({
             triangle: triangle.ordinal,

@@ -29,23 +29,51 @@ export const test_geometry_mesh_crossings_ulp_boundary = (): void => {
       `segment endpoint roundoff is contact (${allPairs})`,
       measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-13), {
         allPairs,
+        interiorTolerance: 1e-9,
       }),
       [],
     );
     TestValidator.equals(
       `triangle edge roundoff is contact (${allPairs})`,
-      measureAutoMovieMeshCrossings(surface, blade(1e-13, -1), { allPairs }),
+      measureAutoMovieMeshCrossings(surface, blade(1e-13, -1), {
+        allPairs,
+        interiorTolerance: 1e-9,
+      }),
       [],
     );
     TestValidator.equals(
       `a deeper segment crossing is retained (${allPairs})`,
-      measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-6), { allPairs }),
+      measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-6), {
+        allPairs,
+        interiorTolerance: 1e-9,
+      }),
       [{ triangle: 0, other: 0, coplanar: false }],
     );
     TestValidator.equals(
       `a point inside the triangle edge is retained (${allPairs})`,
-      measureAutoMovieMeshCrossings(surface, blade(1e-6, -1), { allPairs }),
+      measureAutoMovieMeshCrossings(surface, blade(1e-6, -1), {
+        allPairs,
+        interiorTolerance: 1e-9,
+      }),
       [{ triangle: 0, other: 0, coplanar: false }],
     );
+  }
+  TestValidator.equals(
+    "zero tolerance retains the default topology predicate",
+    measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-13), {
+      interiorTolerance: 0,
+    }),
+    measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-13)),
+  );
+  for (const tolerance of [-1, 0.5, Number.NaN]) {
+    let refused = false;
+    try {
+      measureAutoMovieMeshCrossings(surface, blade(0.25, -1), {
+        interiorTolerance: tolerance,
+      });
+    } catch {
+      refused = true;
+    }
+    TestValidator.predicate(`invalid tolerance ${tolerance} refuses`, refused);
   }
 };
