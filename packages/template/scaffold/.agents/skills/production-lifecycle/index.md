@@ -6,7 +6,7 @@ You are authoring one production: this project. Read `AGENTS.md`, `lint.config.t
 
 Before first-version drafting while a layer is disabled, follow the contract skill from `AGENTS.md` and read the exact inventory selected by `lint.config.ts`. Apply unit-level principles from the beginning, but defer population-distribution and post-draft questions until their complete selected population exists. A contract annotation records work already done and never substitutes for authorship.
 
-Select the production kind and settle complete settings before downstream work. Activate only the next applicable layer whose direct parents are reviewed, author one coherent version, stage its evidence, review it, and only then open its child. A later finding returns to the earliest semantic owner, propagates through every affected descendant, and renews their evidence and review.
+Select the production kind and settle complete settings before downstream work. Activate the next applicable layer through [Evidence staging](../evidence-graph/staging.md#transitions), author one coherent version, complete its evidence and author inspection, then hand it to its child. A later finding returns to the earliest semantic owner, propagates through every affected descendant, and renews their evidence and actual-output inspection.
 
 Apply this procedure without subject-matter shortcuts. Historical, biographical, familiar, externally documented, or technically standardized material still needs explicit project canon, selected design owners, source realization, and current review. External knowledge supports an owner; it never replaces one.
 
@@ -51,7 +51,7 @@ Read each applicable sibling document in full before acting:
 - [Production delivery decisions](configuration.md) explains the delivery, repaint, dialogue, and simulation fields of the design record; read it before source authorship.
 - [Upstream revision](upstream-revision.md) repairs the earliest parent exposed by a child and preserves the child until coherent resumption.
 
-Map, model, space, material, instance, motion, and system design plus TypeScript implementation belong to [Source authoring](../source-authoring/SKILL.md). Contract inventory, citations, stages, and fingerprints belong to [Evidence graph](../evidence-graph/SKILL.md). Review, capture, inspection, and final acceptance belong to [Review verification](../review-verification/SKILL.md).
+Map, model, space, material, instance, motion, and system design plus TypeScript implementation belong to [Source authoring](../source-authoring/SKILL.md). Contract inventory, citations, completion stages, and legacy fingerprint compatibility belong to [Evidence graph](../evidence-graph/SKILL.md). Review, capture, inspection, and final acceptance belong to [Review verification](../review-verification/SKILL.md).
 
 ## Ownership and consequence
 

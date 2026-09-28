@@ -155,8 +155,8 @@ export interface IAutoMovieProductionObligationClaimProps extends Omit<
  * Creates one production-local principle claim.
  *
  * Every selected host answers every H2 item for itself. An exclusion cannot
- * discharge an answer, and review-stage answers carry the cited item's current
- * fingerprint. Draft and disabled hosts carry no evidence tags, so their local
+ * discharge an answer, and completed-stage answers retain their actual citations without
+ * companion rows or fingerprints. Draft and disabled hosts carry no evidence tags, so their local
  * contract claim remains declared but disabled alongside the shared graph.
  *
  * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves the required no-exclusion per-host checklist meaning of a principle.
@@ -175,7 +175,7 @@ export function createAutoMovieProductionPrincipleClaim(
  * Creates one production-local obligation claim.
  *
  * The owning layer's H2s and a reserved aggregate account collectively cover
- * the contract's H2 targets. Each cited target keeps its current review duty.
+ * the contract's H2 targets. Each cited target keeps its structural coverage duty.
  * The binding retains the full eligible population and aggregate host address.
  *
  * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves the required no-exclusion population coverage meaning of an obligation.
@@ -220,7 +220,7 @@ export function createAutoMovieProductionObligationClaim(
       documentRoot: props.documentRoot ?? "docs",
       populationFiles,
       enabled: base.disabled !== true,
-      requireReview: props.stage === "review",
+      requireReview: false,
     }),
     autoMovieBinding: { ...base.autoMovieBinding, account: props.account },
   };
@@ -303,7 +303,7 @@ function createClaim(
       symbol: "h2" as const,
       ...(checklist ? { checklist: true as const } : {}),
       noEvidenceExclude: true,
-      requireReview: props.stage === "review",
+      requireReview: false,
     })),
   };
 }

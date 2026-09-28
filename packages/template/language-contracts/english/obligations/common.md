@@ -14,7 +14,7 @@ Apply the mechanical-specification boundary in `obligations/core/defaults.md` wh
 }
 ```
 
-After a layer is complete, a reviewer fluent in the declared English variety reads its evidence-free population before counting recurrent frames. Compare scenes, speakers, pressures, transitions, and closures, preserve functional refrain and institutional form, and report only convergence whose literal instances share no production-owned reason.
+After the complete selected layer exists, the authoring agent, fluent in the declared English variety, reads its evidence-free population before counting recurrent frames. Compare scenes, speakers, pressures, transitions, and closures, preserve functional refrain and institutional form, and report only convergence whose literal instances share no production-owned reason.
 
 Review question: which English clause frame or register dominates unlike material without a shared function, and which literal members establish that finding?
 
