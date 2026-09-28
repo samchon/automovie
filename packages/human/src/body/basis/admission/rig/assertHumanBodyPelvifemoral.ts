@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHumanBodyBasis";
 
 /**
  * Admit a basis's declared pelvifemoral rhythm, or its absence.
@@ -19,8 +19,12 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * angle the pose validator refuses. A coupling that drives a leg's or the
  * lumbar joint's flexion would add to the same axis twice and is refused.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Refuses a pelvic rhythm whose chain, range or curve could not be evaluated as declared.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Checks the root-child chain, open flexion axes, the zero-at-rest nondecreasing curve inside the lumbar range and the absence of a second driver.
+ * Murray et al. 2002 (doi:10.1016/S0268-0033(01)00115-2) measured a
+ * pelvic contribution to standing unilateral hip flexion; Dewberry et al.
+ * 2003 measured a task-dependent range in suspended bilateral flexion.
+ * These observations motivate coordination, not one universal ratio.
+ * This function admits a declared curve; it does not fit that curve to a
+ * person or prove clearance between thigh and abdomen in deep flexion.
  */
 export function assertHumanBodyPelvifemoral(
   basis: Pick<

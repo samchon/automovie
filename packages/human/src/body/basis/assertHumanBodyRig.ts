@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import { assertHumanBodyPelvifemoral } from "./assertHumanBodyPelvifemoral";
+import { assertHumanBodyPelvifemoral } from "./admission/rig/assertHumanBodyPelvifemoral";
 import { assertHumanBodyRigCorrectives } from "./admission/rig/assertHumanBodyRigCorrectives";
 import { assertHumanBodyRigCouplings } from "./admission/rig/assertHumanBodyRigCouplings";
 import { assertHumanBodyRigJoints } from "./admission/rig/assertHumanBodyRigJoints";

@@ -1,5 +1,5 @@
 export * from "./assertHumanBodyBasis";
-export * from "./assertHumanBodyPelvifemoral";
+export * from "./admission/rig/assertHumanBodyPelvifemoral";
 export * from "./assertHumanBodyRig";
 export * from "./assertSparseRows";
 export * from "./createHumanBodyBasisBuilder";
