@@ -31,22 +31,23 @@
  * coordinator restarts the server; nothing is cached or written to disk.
  */
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import {
-  createServer,
   type IncomingMessage,
   type ServerResponse,
+  createServer,
 } from "node:http";
 import { dirname, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
+import { MaterialReview } from "../materials/review";
+import { Frame } from "../models/frame";
+import { buildHouseEnvironment } from "../spaces/environment";
+import { buildHouse } from "../spaces/house";
+import { buildBuildingInputs } from "./buildingInputs.cjs";
 import { buildCalibrationScene } from "./calibration.cjs";
 import { buildHouseScene } from "./houseScene.cjs";
 import type { IViewerModelInputs } from "./modelScene.cjs";
-import {Frame} from "../models/frame";
-import {buildBuildingInputs} from "./buildingInputs.cjs";
-import {buildHouse} from "../spaces/house";
-import {buildHouseEnvironment} from "../spaces/environment";
 
 /** Production root: this file lives at `src/viewer/server.cts`. */
 const ROOT = resolve(__dirname, "..", "..");
@@ -126,8 +127,8 @@ const STATIC_FILES: Record<string, { file: string; type: string }> = {
     type: "text/javascript; charset=utf-8",
   },
   "/vendor/Reflector.js": {
-    file:join(THREE_BUILD,"..","examples","jsm","objects","Reflector.js"),
-    type:"text/javascript; charset=utf-8",
+    file: join(THREE_BUILD, "..", "examples", "jsm", "objects", "Reflector.js"),
+    type: "text/javascript; charset=utf-8",
   },
 };
 
@@ -181,7 +182,12 @@ const handle = (
     );
   if (path === "/scene") {
     const subject = url.searchParams.get("subject");
-    if (subject !== null && subject !== "calibration" && subject !== "model-review")
+    if (
+      subject !== null &&
+      subject !== "calibration" &&
+      subject !== "model-review" &&
+      subject !== "material-review"
+    )
       return send(
         response,
         404,
@@ -201,12 +207,73 @@ const handle = (
           currentDigest: current,
         }),
       );
-    if(subject==="model-review"){
-      const house=buildHouse(),input=buildBuildingInputs(buildHouseEnvironment(house),house);
-      const view=url.searchParams.get("view")??"front";
-      if(view!=="front"&&view!=="side"&&view!=="diagonal")return send(response,400,"application/json",JSON.stringify({error:`invalid model view: ${view}`}));
-      const id=url.searchParams.get("model")??input.prototypes[0]!.model.id;
-      return send(response,200,"application/json; charset=utf-8",JSON.stringify(new Frame().build(input,id,view,url.searchParams.get("overlay")==="true",current)));
+    if (subject === "material-review") {
+      const mode = url.searchParams.get("mode") ?? "neutral";
+      if (mode !== "neutral" && mode !== "baseline")
+        return send(
+          response,
+          400,
+          "application/json",
+          JSON.stringify({ error: `invalid material mode: ${mode}` }),
+        );
+      return send(
+        response,
+        200,
+        "application/json",
+        JSON.stringify(
+          new MaterialReview().build(
+            Number(url.searchParams.get("page") ?? 0),
+            mode,
+            current,
+          ),
+        ),
+      );
+    }
+    if (subject === "model-review") {
+      const pose = url.searchParams.get("pose") ?? "closed";
+      if (
+        pose !== "closed" &&
+        pose !== "maximum" &&
+        pose !== "maximum-opposite"
+      )
+        return send(
+          response,
+          400,
+          "application/json",
+          JSON.stringify({ error: `invalid inspection pose: ${pose}` }),
+        );
+      const house = buildHouse(),
+        environment = buildHouseEnvironment(house);
+      const input = buildBuildingInputs(environment, house, pose),
+        bounds = buildBuildingInputs(
+          environment,
+          house,
+          pose === "closed" ? "maximum" : "closed",
+        );
+      const view = url.searchParams.get("view") ?? "front";
+      if (view !== "front" && view !== "side" && view !== "diagonal")
+        return send(
+          response,
+          400,
+          "application/json",
+          JSON.stringify({ error: `invalid model view: ${view}` }),
+        );
+      const id = url.searchParams.get("model") ?? input.prototypes[0]!.model.id;
+      return send(
+        response,
+        200,
+        "application/json; charset=utf-8",
+        JSON.stringify(
+          new Frame().build(
+            input,
+            id,
+            view,
+            url.searchParams.get("overlay") === "true",
+            current,
+            bounds,
+          ),
+        ),
+      );
     }
     return send(
       response,

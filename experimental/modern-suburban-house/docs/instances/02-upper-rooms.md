@@ -42,7 +42,7 @@
 @evidence spaces/rooms/wardrobe.md#primary-wardrobe-plan `primary-wardrobe-plan`의 좌표·치수·통로·관찰 기준을 이 H2의 개체 위치와 접점 검사에 적용한다.
 -->
 
-[드레스룸 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 `primary-wardrobe-hanging`과 `primary-wardrobe-shelves`는 각각 [옷방 옷걸이 구간](../models/13-bedrooms.md#wardrobe-hanging)과 [옷방 선반 구간](../models/13-bedrooms.md#wardrobe-shelves)으로 yaw 0이다. 최악 경우는 `primary-wardrobe-turning`에 몸체가 걸치지 않는지다.
+[드레스룸 예약](../spaces/rooms/wardrobe.md#wardrobe-storage-use)의 `primary-wardrobe-hanging`과 `primary-wardrobe-shelves`는 각각 [옷방 옷걸이 구간](../models/13-bedrooms.md#wardrobe-hanging)과 [옷방 선반 구간](../models/13-bedrooms.md#wardrobe-shelves)이다. 두 원형은 방의 world XZ와 바닥 위 부재 높이가 이미 저장되어 있으므로 p=(0,3.06,0) m·yaw 0·scale 1이며 예약 중심 평행이동을 다시 하지 않는다. 최악 경우는 `primary-wardrobe-turning`에 몸체가 걸치지 않는지다.
 
 ## 두 자녀실의 같은 가구 집합 {#child-bedroom-furniture}
 <!--

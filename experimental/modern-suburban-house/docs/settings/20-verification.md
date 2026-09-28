@@ -152,29 +152,29 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 <!--
 @evidence principles/core/common.md#scope-preservation 매스·공간 그래프와 표면 분해부터 외피·모듈·fit-out·마감까지 거친 순서의 저작 범위를 보존한다.
 @evidence principles/core/common.md#substantive-completion 1단계의 storey 소속·실제 도달성 검사와 상태의 전진 및 오류 수리 방식을 정해 단계 폐쇄 조건을 사용할 수 있게 한다.
-@evidence principles/core/common.md#declared-basis 제작 순서는 사용자 브리프에서, 독립 판정 권한은 role-boundary에서 이어받으며 stage 방향은 현재 계약을 따른다.
+@evidence principles/core/common.md#declared-basis 건물부터 마감하고 별도 사물은 두라는 최신 사용자 순서와 role-boundary의 저작자 자체 판정을 이어받으며 evidence 완료 지시를 현재 계약에 적용한다.
 @evidence principles/core/settings.md#fact-status 폐쇄 조건은 채택한 절차이지 공간과 문·계단이 이미 검증되었다는 완료 사실이 아니다.
 @evidence principles/core/settings.md#source-support 사용자가 준 제작 단계와 계약 상태를 근거로 하며 이전 세션의 문서 gate를 현재 시각 검증의 출처로 쓰지 않는다.
 @evidence principles/core/settings.md#capability-boundary 완료된 층을 되돌릴 수 없으며 이후 오류는 최초 소유 내용의 수정 이유와 영향받은 재검사로 처리한다.
-@evidence principles/core/settings.md#constraint-sufficiency 모든 공간의 storey 소속과 끊김 없는 실제 경로가 없으면 1단계를 닫을 수 없고 독립 판정 전에는 다음 상태로 가지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 모든 공간의 storey 소속과 끊김 없는 실제 경로, 요구 원형과 현재 출력의 자체 판독이 없으면 건물 경계를 닫지 않는다. 촬영 완료나 lint 성공만으로 다음 상태를 선언하지 않는다.
 @evidence principles/core/settings.md#observable-identity 형태와 동선을 먼저 고정한 뒤 부재·반복 외장·실내·재료를 더하므로 마감으로 잘못된 집의 매스를 가리는 순서를 막는다.
 -->
 
-사용자의 제작 순서는 매스/공간 그래프와 표면 분해를 함께 닫고, 실제 외피 부재, 외피 반복 모듈, fit-out, 재료 읽힘과 정리로 전진하는 것이다. 1단계 폐쇄에는 모든 공간의 storey 소속과 모든 요구 공간에 실제 문·계단·복도로 끊김 없이 도달하는 검사가 포함된다. lifecycle상 settings를 먼저 완성하고 role-boundary의 독립 판정으로 다음 상태를 진행한다. 단계는 disabled → draft → evidence → review로만 전진하며 완료된 층을 되돌리지 않는다. 이후 오류는 이유를 기록해 최초 소유 내용을 수정하고 영향받은 검사를 다시 수행한다.
+사용자의 제작 순서는 매스/공간 그래프와 표면 분해를 함께 닫고, 실제 외피 부재, 외피 반복 모듈, fit-out, 재료 읽힘과 정리로 전진하는 것이다. 1단계 폐쇄에는 모든 공간의 storey 소속과 모든 요구 공간에 실제 문·계단·복도로 끊김 없이 도달하는 검사가 포함된다. settings를 먼저 완성하고 role-boundary의 저작자 자체 렌더 판정으로 각 경계를 진행한다. 최신 사용자 지시대로 완료 층은 evidence에서 닫고 미완 사물이 포함된 source 전체 모집단은 draft로 보존한다. 이후 오류는 이유를 기록해 최초 소유 내용을 수정하고 영향받은 검사를 다시 수행한다. 건물 자체 완료 후 별도 사물은 시작하지 않고 원래 초안과 실패·관찰 기록을 보존해 제출한다.
 
 ## 저작·계측·판정 권한 {#role-boundary}
 <!--
-@evidence principles/core/common.md#scope-preservation 저작·계측·독립 판정과 조정자의 배정 권한을 나누어 자체 검토를 단계 승인으로 바꾸지 못하게 한다.
+@evidence principles/core/common.md#scope-preservation 저작자가 자기 소스·렌더 판정·수리를 모두 맡고 감독은 세션·원문 전달·관찰·Git 순서 조율을 맡는 사용자 지정 경계를 유지한다.
 @evidence principles/core/common.md#substantive-completion 관찰에 대한 측정 반박과 설치·서버·제출의 담당 owner를 명시해 각 주체가 할 수 있는 일을 확정한다.
-@evidence principles/core/common.md#declared-basis 저작자·관찰자·reviewer의 역할 구분은 사용자의 production 운영 지시를 그대로 권한 근거로 삼는다.
+@evidence principles/core/common.md#declared-basis 모델러 스스로 렌더 샷을 보고 고치며 별도 판정 에이전트를 두지 말라는 최신 사용자 원문을 권한 근거로 삼는다.
 @evidence principles/core/settings.md#fact-status 관찰은 원인이나 승인으로 확정된 사실이 아니며 현재 산출물의 측정으로 재검토할 수 있는 주장이다.
 @evidence principles/core/settings.md#source-support 역할 권한은 사용자에게서 왔으며 관찰자의 과거 정확도에 대한 추정으로 현재 관찰을 채택하거나 폐기하지 않는다.
-@evidence principles/core/settings.md#capability-boundary 저작자는 자기 소스와 수리를 소유하지만 reviewer 배정과 그래프 변경 충돌의 결정은 조정자의 권한이다.
-@evidence principles/core/settings.md#constraint-sufficiency 설치·기동·커밋은 각 경계 항목에 연결하고 자체 검토가 독립 판정을 대체할 수 없다는 예외 없는 조건을 둔다.
-@evidence principles/core/settings.md#observable-identity 그림의 승인 주체를 저작자와 분리하여 같은 집으로 읽힌다는 판단이 자기 소스 설명만으로 끝나지 않게 한다.
+@evidence principles/core/settings.md#capability-boundary 저작자는 본인 production만 쓰고 전체 렌더를 직접 판정하며 별도 reviewer를 만들지 않는다. 그래프 변경 충돌과 공유 Git index 순서는 감독에게 올린다.
+@evidence principles/core/settings.md#constraint-sufficiency 설치·기동·커밋은 각 경계 항목에 연결하고 자기 화면 판정·실제 검사·최종 전체 자체 검토가 마감되기 전에는 건물 완료를 선언하지 않는다.
+@evidence principles/core/settings.md#observable-identity 같은 집으로 읽힌다는 판정을 저작자의 소스 설명이 아니라 직접 표시된 원본 픽셀과 유한 관찰 집합에 결합한다.
 -->
 
-사용자가 정한 역할에 따라 저작자는 이 production의 소스·자기 fan-out·수리를 소유하고, 관찰자는 계측하며, 독립 read-only reviewer가 단계 전이를 판정한다. 관찰은 원인이나 승인으로 받아들이지 않고 현재 산출물의 측정으로 반박할 수 있다. reviewer 배정과 그래프 변경이 필요한 충돌 결정은 조정자가 맡는다. 설치 권한은 implementation-boundary, 서버 기동은 viewer-handoff, 저작자의 커밋·푸시는 submission-boundary가 각각 소유한다. 저작자의 자체 검토가 독립 판정을 대체하지 않는다.
+최신 사용자 지시대로 저작자는 이 production의 소스·자기 fan-out·수리와 자체 렌더 판정을 소유한다. 별도 판정 에이전트를 두지 않는다. 감독은 세션 유지·사용자 원문 전달·관찰·기록·공유 Git index 순서 조율을 맡으며 저작이나 건물 완료 판정을 대신하지 않는다. 관찰은 원인이나 승인으로 받아들이지 않고 실제 현재 산출물과 대조한다. 그래프 변경이 필요한 충돌은 감독에게 올린다. 설치 권한은 implementation-boundary, 서버 기동은 viewer-handoff, 저작자의 커밋·푸시는 submission-boundary가 각각 소유한다. 이전의 독립 reviewer 지시는 작업 이력에 보존하고 이 최신 사용자 지시로 대체한다.
 
 ## 편집과 의존성 경계 {#implementation-boundary}
 <!--
@@ -236,13 +236,13 @@ settings 전체 관찰 의무의 원문은 ../contracts/observation-denominator.
 <!--
 @evidence principles/core/common.md#scope-preservation 저작자와 관찰자의 목록, 다섯 추가 질문과 현재 GPU 프레임을 최종 판정 범위로 유지한다.
 @evidence principles/core/common.md#substantive-completion 미수령·실패·폐기·악화·unverified의 기록과 현재 revision 결합을 정해 무엇을 완료라고 부를지 확정한다.
-@evidence principles/core/common.md#declared-basis 양쪽 목록은 observation-denominator의 dual-completion을 따르며 독립 판정과 성공·실패 동등 기록은 사용자 요구다.
+@evidence principles/core/common.md#declared-basis 양쪽 목록은 observation-denominator의 dual-completion을 따르며 사용자 최신 지시대로 모델러 스스로 화면을 판정·수리하고 성공·실패를 같은 비중으로 기록한다.
 @evidence principles/core/settings.md#fact-status 관찰자 목록이 없으면 미수령이며 lint 통과는 현재 선언 검증일 뿐 시각 품질 승인이라는 사실로 바뀌지 않는다.
 @evidence principles/core/settings.md#source-support 현재 저작물과 산출물만 판정 근거이고 이전 fingerprint나 stale frame을 새 완료의 출처로 사용할 수 없다.
 @evidence principles/core/settings.md#capability-boundary 한쪽 목록이 비어도 종료할 수 없으며 지원되지 않거나 표현하지 못한 항목을 성공 기록 뒤로 숨길 수 없다.
-@evidence principles/core/settings.md#constraint-sufficiency 매 round 미완료를 보고하고 모든 실제 관찰·추가 다섯 질문·현재 GPU 프레임이 독립 판정에 포함되어야 최종 승인 조건이 갖춰진다.
+@evidence principles/core/settings.md#constraint-sufficiency 매 round 미완료를 보고하고 모든 실제 관찰·추가 다섯 질문·현재 GPU 프레임을 저작자가 직접 판정하며 전체 자체 검토의 두 clean round와 실제 검사·소유 프로세스 종료를 마감한다.
 @evidence principles/core/settings.md#observable-identity 각 부재와 방이 읽히는지의 실제 프레임을 최종 판정에 넣어 문서와 topology만 맞는 상자 집을 완성으로 부르지 않게 한다.
-@evidence contracts/observation-denominator.md#dual-completion 저작자와 관찰자 양쪽 미완료 및 독립 판정을 함께 요구하고 목록 미수령·unverified를 빈 목록으로 바꾸지 않으며 lint와 과거 fingerprint를 현재 GPU 프레임 판정의 대리로 쓰지 않는다.
+@evidence contracts/observation-denominator.md#dual-completion 저작자와 관찰자 양쪽 미완료 모집단을 보존하고 모델러 자신의 화면 판정·수리를 요구한다. 목록 미수령·unverified를 빈 목록으로 바꾸지 않으며 lint와 과거 fingerprint를 현재 GPU 프레임 판정의 대리로 쓰지 않는다.
 -->
 
-../contracts/observation-denominator.md#dual-completion의 양쪽 목록과 독립 판정을 적용한다. 저작자는 매 round 자기 미완료를 보고하고 관찰자의 목록이 없으면 미수령으로 기록한다. 시도와 폐기, 악화, 오류와 우회, 표현 불가, unverified는 성공과 같은 비중으로 해당 저작 owner의 관찰 및 작업 이력에 남긴다. 판정은 현재 저작 내용과 산출물에 결합하며 이전 상태의 fingerprint를 재사용하지 않는다. lint 통과는 현재 선언의 검증이고 시각 품질 승인이 아니다. 최종 승인 전 모든 실제 관찰·추가 다섯 질문·현재 GPU 프레임이 독립 판정에 들어가야 한다.
+../contracts/observation-denominator.md#dual-completion의 양쪽 목록을 보존한다. 사용자 최신 지시대로 모델러 스스로 실제 렌더 샷을 보며 판정하고 수리하며 별도 판정 에이전트는 두지 않는다. 저작자는 매 round 자기 미완료를 보고하고 관찰자의 목록이 없으면 미수령으로 기록한다. 시도와 폐기, 악화, 오류와 우회, 표현 불가, unverified는 성공과 같은 비중으로 해당 저작 owner의 관찰 및 작업 이력에 남긴다. 판정은 현재 저작 내용과 산출물에 결합하며 이전 상태의 fingerprint를 재사용하지 않는다. lint 통과는 현재 선언의 검증이고 시각 품질 승인이 아니다. 최종 승인 전 모든 실제 관찰·추가 다섯 질문·현재 GPU 프레임을 모델러가 직접 판정해야 한다.

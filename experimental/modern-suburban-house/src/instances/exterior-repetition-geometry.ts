@@ -15,6 +15,8 @@ export type Plane = { x: number; y: number; limit: number };
 export type Model = {
   model: IAutoMovieModel;
   faceByPart: Readonly<Record<string, string>>;
+  /** Collection membership survives material partitioning and inspection. */
+  memberByPart?: Readonly<Record<string, string>>;
 };
 export type Instance = {
   id: string;
@@ -282,6 +284,7 @@ export const collect = (
 ): Model => {
   const parts: IAutoMovieModelPart[] = [];
   const faceByPart: Record<string, string> = {};
+  const memberByPart: Record<string, string> = {};
   for (const [memberIndex, { built, transform }] of members.entries())
     for (const part of built.model.parts) {
       if (part.geometry.type !== "mesh")
@@ -302,6 +305,8 @@ export const collect = (
         transform: null,
       });
       faceByPart[partId] = face;
+      memberByPart[partId] =
+        `${memberIndex}/${built.memberByPart?.[part.id] ?? ""}`;
     }
   const model: IAutoMovieModel = {
     id,
@@ -316,6 +321,7 @@ export const collect = (
   return {
     model,
     faceByPart,
+    memberByPart,
   };
 };
 

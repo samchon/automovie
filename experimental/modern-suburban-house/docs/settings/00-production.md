@@ -3,17 +3,17 @@
 ## 전달물 {#delivery-scope}
 <!--
 @evidence principles/core/common.md#scope-preservation 전체 실내·빈 차고·대지와 소스 기반 뷰어를 library의 전달 범위에 넣어 외관 한 장만 납품할 여지를 닫는다.
-@evidence principles/core/common.md#substantive-completion 마지막 산출물을 공개 TypeScript와 실제 3D 뷰어 및 독립 판정으로 정해 영화 shot을 추가로 발명할 필요가 없다.
+@evidence principles/core/common.md#substantive-completion 마지막 산출물을 공개 TypeScript와 실제 3D 뷰어 및 저작자의 전체 자체 판독으로 정하고 최신 종료 범위인 건물 자체와 미완 사물 초안을 구분한다.
 @evidence principles/core/common.md#declared-basis 사용자 브리프가 한 채의 중산층 주택과 전체 인테리어를 요구한다는 권위를 첫 문장에 둔다.
 @evidence principles/core/settings.md#fact-status library 채택과 자동차·사람·시간 기반 영화의 부재는 이 production의 전달 결정이며 실재 주택 조사 사실이 아니다.
 @evidence principles/core/settings.md#source-support 주택 요청의 입력은 사용자 브리프이고 사진을 배경이나 표면에 붙이지 않는 제한도 그 입력에 귀속된다.
 @evidence principles/core/settings.md#capability-boundary 절개는 검사에만 허용하고 일반 전달은 결정론적 3D로 제한하므로 이미지 합성으로 주택을 대신할 수 없다.
 @evidence principles/core/settings.md#constraint-sufficiency 전체 실내까지 포함한다는 범위와 시간 기반 shot·음성이 없다는 끝점을 함께 정한다.
 @evidence principles/core/settings.md#observable-identity 평범한 미국 교외 2층 집과 우측 차고라는 식별 관계를 유지하며 세부 외형은 같은 설정의 주택 항목으로 이어진다.
-@evidence obligations/core/settings.md#delivery-scope 이 library의 마지막 전달물을 공개 TypeScript 산출물·현재 소스의 실제 3D viewer·전체 관찰과 독립 판정으로 정하고 영화·음성·사람·차량은 제외한다.
+@evidence obligations/core/settings.md#delivery-scope 공개 TypeScript 산출물·현재 소스의 실제 3D viewer·전체 자체 관찰을 전달하며 최신 사용자 지시대로 이번 종료는 건물 자체까지만 한다. 미완 사물 초안을 보존하고 영화·음성·사람·차량은 제외한다.
 -->
 
-사용자 브리프를 권위로 삼아 현대 미국 교외의 평범한 중산층 가족용 2층 단독주택 한 채, 전체 실내, 우측 붙박이 2대 차고와 주택을 읽는 데 필요한 대지를 결정론적 library로 저작한다. 마지막 전달물은 공개 TypeScript 공간·형상·재료 산출물과 그것을 실제 3D로 보여 주는 소스 기반 뷰어, 전체 관찰 및 다섯 레퍼런스의 독립 판정이다. 시간 순서가 있는 영화·shot·음성·사람·자동차는 이 전달물에 없다. 컷어웨이는 검사 기능으로만 제공한다. 사진을 배경이나 표면에 붙인 재현은 허용되지 않는다.
+사용자 브리프를 권위로 삼아 현대 미국 교외의 평범한 중산층 가족용 2층 단독주택 한 채, 전체 실내, 우측 붙박이 2대 차고와 주택을 읽는 데 필요한 대지를 결정론적 library로 저작한다. 마지막 전달물은 공개 TypeScript 공간·형상·재료 산출물과 그것을 실제 3D로 보여 주는 소스 기반 뷰어, 전체 관찰 및 다섯 레퍼런스에 대한 저작자의 자체 판독이다. 최신 사용자 지시로 이번 종료 범위는 건물 자체이며 별도 개별 사물은 시작하지 않는다. 미제작 가구·식재·생활 소품의 설계 초안은 보존하며 건물 완료로 그 사물까지 완성되었다고 주장하지 않는다. 시간 순서가 있는 영화·shot·음성·사람·자동차는 이 전달물에 없다. 컷어웨이는 검사 기능으로만 제공한다. 사진을 배경이나 표면에 붙인 재현은 허용되지 않는다.
 
 ## 지배 목표 {#governing-aim}
 <!--
@@ -82,13 +82,13 @@
 @evidence principles/core/common.md#declared-basis 정적 library라는 전달 형태를 근거로 자막·음성 해설의 의도적 부재를 설명한다.
 @evidence principles/core/settings.md#fact-status 접근 기능은 요구 상태이고 비시각 시각 판정의 동등성을 보장하지 않는다는 한계가 명시된다.
 @evidence principles/core/settings.md#source-support 무장애 인증을 주장하지 않아 채택한 키보드 기능을 법적 접근성 적합성으로 오인하지 않게 한다.
-@evidence principles/core/settings.md#capability-boundary 문서로 구조를 읽을 수 있어도 그림자·재료 판정은 실제 프레임을 읽는 독립 검토자가 해야 한다.
+@evidence principles/core/settings.md#capability-boundary 문서로 구조를 읽을 수 있어도 그림자·재료 판정은 저작자가 실제 프레임을 직접 읽어 수행해야 한다.
 @evidence principles/core/settings.md#constraint-sufficiency 필수 기능과 의도적으로 없는 트랙, 보장하지 않는 판단을 각각 정해 전달 범위를 구체화한다.
 @evidence principles/core/settings.md#observable-identity 색만으로 상태를 표시하지 않는 조작 표면을 요구하되 재료 외형 판단을 문서로 대체하지 않는다.
 @evidence obligations/core/settings.md#accessibility-deliverable-states 한국어 구조 문서와 이름 있는 키보드·관찰 선택·복귀·색 외 상태 표시는 source/viewer의 필수 구현이고, 시간 기반 프로그램이 없어 자막·전사·음성 해설은 의도적 부재이며 비시각 재료 판정의 동등성은 보장하지 않는다.
 -->
 
-이 library의 필수 대체 접근은 한국어 문서, 이름 있는 키보드 조작, 카메라 복귀 및 관찰 선택, 색만으로 상태를 구분하지 않는 검사 결과다. source/viewer가 이를 구현한다. 자막·대사 전사·음성 해설 트랙은 음성/영상 프로그램이 없으므로 의도적으로 제공하지 않는다. 공간 구조 설명 문서는 필수지만 비시각 사용자가 재료나 그림자 판정을 동일하게 수행할 수 있다는 보장은 하지 않는다. 그 시각 판정은 독립 검토자의 실제 프레임 읽기가 필요하다. 주택 자체의 무장애 인증은 전달 범위 밖이며 이를 접근성 문서와 혼동하지 않는다.
+이 library의 필수 대체 접근은 한국어 문서, 이름 있는 키보드 조작, 카메라 복귀 및 관찰 선택, 색만으로 상태를 구분하지 않는 검사 결과다. source/viewer가 이를 구현한다. 자막·대사 전사·음성 해설 트랙은 음성/영상 프로그램이 없으므로 의도적으로 제공하지 않는다. 공간 구조 설명 문서는 필수지만 비시각 사용자가 재료나 그림자 판정을 동일하게 수행할 수 있다는 보장은 하지 않는다. 그 시각 판정은 최신 사용자 지시대로 모델러 자신의 실제 프레임 읽기가 필요하다. 주택 자체의 무장애 인증은 전달 범위 밖이며 이를 접근성 문서와 혼동하지 않는다.
 
 ## 설정 소유 지도 {#coverage-map}
 <!--
@@ -119,7 +119,7 @@
 @evidence obligations/core/settings.md#operative-subject-inventory 주택·식재·빛·개구부뿐 아니라 검토자와 compiler/viewer 및 저작·계측·판정 권한을 각 H2에 연결하고 가족은 사용 가정, 차량·동물·이웃과 사업자 운영은 전달 밖으로 분류한다.
 -->
 
-주택과 각 공간은 10-house.md의 해당 H2가 소유한다. 대지·식재는 같은 파일의 site-identity, 햇빛·실내 광원은 20-verification.md#lighting-state, 문·창·차고문은 10-house.md#openings의 정적 상태를 가진다. 검토자 조작은 operator-access, compiler/viewer가 관찰에 미치는 영향은 20-verification.md#data-authority와 renderer-boundary가 소유한다. 저작자·관찰자·독립 reviewer·조정자의 권한은 20-verification.md#role-boundary가 소유하며 설치·서버·제출은 거기서 각 소유 항목으로 연결한다. 가족은 사용 조건일 뿐 장면 속 인물이나 행동 주체로 모델링하지 않는다. 차량, 반려동물, 군중, 이웃 주민, 전력·수도 사업자의 운영은 전달 밖이다.
+주택과 각 공간은 10-house.md의 해당 H2가 소유한다. 대지·식재는 같은 파일의 site-identity, 햇빛·실내 광원은 20-verification.md#lighting-state, 문·창·차고문은 10-house.md#openings의 정적 상태를 가진다. 검토자 조작은 operator-access, compiler/viewer가 관찰에 미치는 영향은 20-verification.md#data-authority와 renderer-boundary가 소유한다. 저작자의 자체 화면 판정과 감독의 관찰·기록·Git 조율 권한은 20-verification.md#role-boundary가 소유하며 설치·서버·제출은 거기서 각 소유 항목으로 연결한다. 가족은 사용 조건일 뿐 장면 속 인물이나 행동 주체로 모델링하지 않는다. 차량, 반려동물, 군중, 이웃 주민, 전력·수도 사업자의 운영은 전달 밖이다.
 
 ## 사용과 통행 가정 {#use-profile}
 <!--

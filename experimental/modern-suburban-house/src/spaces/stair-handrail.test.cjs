@@ -30,10 +30,14 @@ const topAt = (id, axis, station) => {
   /** @param {number} end */
   const endTop = (end) =>
     Math.max(
-      ...vertices.filter((point) => Math.abs(point[axis] - end) < 1e-8).map((point) => point[1]),
+      ...vertices
+        .filter((point) => Math.abs(point[axis] - end) < 1e-8)
+        .map((point) => point[1]),
     );
   const firstTop = endTop(first);
-  return firstTop + ((endTop(last) - firstTop) * (station - first)) / (last - first);
+  return (
+    firstTop + ((endTop(last) - firstTop) * (station - first)) / (last - first)
+  );
 };
 
 void test("both sloped handrails clear every actual tread nose by 0.90 m", () => {
@@ -65,3 +69,24 @@ void test("landing corner post receives both rail ends", () => {
   assert.ok(cornerTop >= lowerTop);
   assert.ok(Math.abs(lowerTop - 1.36 - 0.9) < 1e-8);
 });
+
+for (const end of ["west", "east"])
+  void test(`hall guard ${end} post meets the rail underside without overlapping its finish`, () => {
+    const post = `stair-guard-post-${end}`;
+    const rail = "stair-guard-top-rail";
+    const [postBottom, postTop] = bounds(post, 1);
+    const [railBottom, railTop] = bounds(rail, 1);
+    assert.ok(postBottom < postTop);
+    assert.ok(railBottom < railTop);
+    assert.ok(
+      Math.abs(postTop - railBottom) < 1e-8,
+      `${post}: post top ${postTop}, rail underside ${railBottom}`,
+    );
+    for (const axis of [0, 2]) {
+      const postSpan = bounds(post, axis);
+      const railSpan = bounds(rail, axis);
+      assert.ok(
+        postSpan[0] >= railSpan[0] - 1e-8 && postSpan[1] <= railSpan[1] + 1e-8,
+      );
+    }
+  });

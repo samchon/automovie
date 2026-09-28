@@ -4,15 +4,42 @@ import { createRequire } from "node:module";
 import { test } from "node:test";
 
 const require = createRequire(import.meta.url);
-const { ExteriorRepetition } = require("../instances/exterior-repetition.ts") as typeof import("../instances/exterior-repetition");
-const { ExteriorEdges } = require("../instances/exterior-repetition-edges.ts") as typeof import("../instances/exterior-repetition-edges");
-const { buildHouse } = require("../spaces/house.ts") as typeof import("../spaces/house");
-const { GARAGE_RIDGE_Z, MAIN_RIDGE_Z, mFront } = require("../spaces/roof/junctions.ts") as typeof import("../spaces/roof/junctions");
+const { ExteriorRepetition } =
+  require("../instances/exterior-repetition.ts") as typeof import("../instances/exterior-repetition");
+const { ExteriorEdges } =
+  require("../instances/exterior-repetition-edges.ts") as typeof import("../instances/exterior-repetition-edges");
+const { buildHouse } =
+  require("../spaces/house.ts") as typeof import("../spaces/house");
+const { GARAGE_RIDGE_Z, MAIN_RIDGE_Z, mFront } =
+  require("../spaces/roof/junctions.ts") as typeof import("../spaces/roof/junctions");
 
 const house = buildHouse();
 const onePart = (id: string) => ({
   ...house,
   parts: house.parts.filter((part) => part.id === id),
+});
+void test("collection records every source member without merging touching solids", () => {
+  const { Siding } =
+    require("../models/exterior/siding.ts") as typeof import("../models/exterior/siding");
+  const { collect } =
+    require("../instances/exterior-repetition-geometry.ts") as typeof import("../instances/exterior-repetition-geometry");
+  const first = new Siding().build({ id: "first", length: 0.5 });
+  const nested = {
+    ...first,
+    memberByPart: Object.fromEntries(
+      first.model.parts.map((p) => [p.id, "nested"]),
+    ),
+  };
+  const assembled = collect("assembly", [
+    { built: first, transform: {} },
+    { built: nested, transform: { translation: { x: 0.5, y: 0, z: 0 } } },
+  ]);
+  assert.equal(assembled.model.parts.length, first.model.parts.length * 2);
+  for (const part of assembled.model.parts)
+    assert.equal(
+      assembled.memberByPart![part.id],
+      part.id.startsWith("0-") ? "0/" : "1/nested",
+    );
 });
 
 void test("siding covers the front wall in separate cut parts with deterministic course ids", () => {

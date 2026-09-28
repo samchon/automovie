@@ -24,7 +24,7 @@
 @evidence principles/core/settings.md#capability-boundary 오른쪽의 낮은 지붕은 같은 본채에 붙은 형상만 허용하며 별동이나 세 번째 층을 만들 권한을 주지 않는다.
 @evidence principles/core/settings.md#constraint-sufficiency 삼각 벽·양 경사면·처마 밑면을 닫고 골짜기의 틈과 중첩을 금지하여 교차부가 결정되지 않은 채 남지 않게 한다.
 @evidence principles/core/settings.md#observable-identity 정면 왼쪽 큰 박공 뒤의 좌우 용마루와 오른쪽의 낮은 박공이 여러 각도에서 같은 지붕군으로 읽힐 기준이다.
-@evidence obligations/core/settings.md#production-visual-grammar 전면 왼쪽 박공·좌우 주 용마루·우측 낮은 박공과 단층 차고의 위계를 고정하여 20의 공통 palette가 어느 실루엣과 층 비례에 적용되는지 정한다.
+@evidence obligations/core/settings.md#production-visual-grammar 전면 왼쪽 박공·좌우 주 용마루·우측 낮은 박공과 단층 차고의 위계를 고정하여 다른 각도에서도 같은 지붕군과 층 비례가 읽히게 한다.
 -->
 
 사용자 그래프와 외관 레퍼런스 01의 관계를 채택한다. 두 층 본채가 중심이고 우측의 낮은 붙박이 차고가 종속된다. 정면 왼쪽의 전방을 향한 큰 박공, 그 뒤 본채의 좌우 방향 주 용마루, 본채 오른쪽 끝의 더 낮은 지붕과 우측을 향하는 박공이 하나의 지붕군을 이룬다. 오른쪽 박공은 별도 독립 동이나 세 번째 층이 아니다. 각 박공은 실제 삼각 벽과 양쪽 경사 지붕, 처마 밑면으로 닫혀야 한다. 저작 범위는 본채 지붕 경사 30–38°, 외벽 밖 처마 돌출 0.35–0.50 m, 1층 실내 순높이 2.65–2.80 m, 2층 2.50–2.65 m다. 정확한 층판 두께·용마루 높이·교차부는 spaces/models가 결정한다. 골짜기와 합류부에 빈틈이나 중첩 지붕판을 남기지 않는다.
@@ -120,7 +120,7 @@
 @evidence principles/core/common.md#substantive-completion 통로에서 각 방으로 분기하고 머드룸이 차고에 직접 맞닿는 구조를 정해 이름만 연결한 그래프를 금지한다.
 @evidence principles/core/common.md#declared-basis 서비스 띠의 구성과 직접 차고 연결은 사용자 고정 그래프에서 오며 통과실을 피하는 배치는 이 항목의 선택이다.
 @evidence principles/core/settings.md#fact-status 서비스 경로는 채택한 공간 관계이고 벽·문의 최종 위치는 spaces가 결정할 설계값이다.
-@evidence principles/core/settings.md#source-support 기능 관계는 사용자 지시에 의해 확정하며 참조에 없는 문 위치를 실재 도면의 사실로 제시하지 않는다.
+@evidence principles/core/settings.md#source-support 사용자 고정 그래프에 따라 본채 1층 우측 서비스 띠와 차고의 직접 연결을 받으며 최종 벽·문 위치는 spaces가 정할 설계값으로 남긴다.
 @evidence principles/core/settings.md#capability-boundary 팬트리나 파우더룸이 다음 방으로 가는 필수 통로가 될 수 없고 중앙 공용 동선으로 돌아갈 수 있어야 한다.
 @evidence principles/core/settings.md#constraint-sufficiency 머드룸·차고의 직접 접면과 각 실의 분기 접근이 최종 벽과 문으로 성립하지 않으면 이 띠는 실패다.
 @evidence principles/core/settings.md#observable-identity 오른쪽의 서비스실들이 실제 문과 벽을 가지면서 중앙과 차고 사이에 이어지는 띠로 읽혀야 한다.
@@ -154,7 +154,7 @@
 @evidence principles/core/settings.md#observable-identity 밝은 타일과 따뜻한 흰 벽 안의 변기·작은 세면대·거울이 욕조 없는 파우더룸을 구별한다.
 -->
 
-사용자 지정 파우더룸을 1층 서비스 통로에서 직접 들어가는 독립 작은 화장실로 저작한다. 변기와 손씻는 세면대·거울·수건·조명을 갖추고 욕조나 샤워실은 없다. 내부는 밝은 타일 바닥과 따뜻한 흰 벽으로 읽힌다. 출입문은 프라이버시를 확보하고 다음 방이나 차고로 이어지는 두 번째 통행문을 두지 않는다. 변기와 세면대의 점유 및 사용 공간을 따로 검토한다.
+사용자 지정 파우더룸을 1층 서비스 통로에서 직접 들어가는 독립 작은 화장실로 저작한다. 변기와 손씻는 세면대·거울·수건·조명을 갖추고 욕조나 샤워실은 없다. 내부는 밝은 타일 바닥과 따뜻한 흰 벽으로 읽힌다. 출입문은 프라이버시를 확보하고 다음 방이나 차고로 이어지는 두 번째 통행문을 두지 않는다. 이 마감과 두 번째 통행문 금지는 사용자 지정 독립 파우더룸을 실현하는 이 주택의 저작 결정이다. 변기와 세면대의 점유 및 사용 공간을 따로 검토한다.
 
 ## 세탁 겸 머드룸 {#laundry-mudroom}
 <!--

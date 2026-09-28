@@ -21,11 +21,11 @@ import type {
  */
 export interface IObservationPose {
   /**
-    * @evidence spaces/04-observations.md A camera eye adjusted to an authored standing floor can retain its height-correction reason.
-    * @evidence spaces/04-observations.md#spatial-observation-derivation A derived inward move records its boundary reason alongside the pose.
+   * @evidence spaces/04-observations.md A camera eye adjusted to an authored standing floor can retain its height-correction reason.
+   * @evidence spaces/04-observations.md#spatial-observation-derivation A derived inward move records its boundary reason alongside the pose.
    * @evidence principles/core/source-units.md#source-scope-preservation The explanation records a derived camera correction and leaves the place unchanged.
-    * @evidence principles/core/source-units.md#source-substantive-completion A vertically corrected eye can report its standing floor and 1.60 m offset; inward fallbacks can report their displacement.
-   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires reasons for inward station moves, while settings/20-verification.md#frame-condition supplies the 1.60 m eye; this field carries both corrections without changing either parent.
+   * @evidence principles/core/source-units.md#source-substantive-completion A vertically corrected eye can report its standing floor and 1.60 m offset; inward fallbacks can report their displacement.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation requires reasons for inward station moves, while `settings/20-verification.md#frame-condition` supplies the 1.60 m eye; this field carries both corrections without changing either parent.
    */
   reason?: string;
   /**
@@ -57,10 +57,10 @@ export interface IObservationPose {
 export interface IHouseObservation {
   /**
    * @evidence spaces/04-observations.md Questions need stable addresses for reference comparison.
-    * @evidence spaces/04-observations.md#reference-spatial-comparisons Stable ids let each reference selection address its derived spatial questions.
+   * @evidence spaces/04-observations.md#reference-spatial-comparisons Stable ids let each reference selection address its derived spatial questions.
    * @evidence principles/core/source-units.md#source-scope-preservation The address names an observation, not another geometry owner.
    * @evidence principles/core/source-units.md#source-substantive-completion It lets failures and references identify the same question.
-    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` requires derived observation ids from compiled boundaries, while `spatial-observation-derivation` supplies the questions; this field carries the actual station or building id into both acceptance and selection.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` requires derived observation ids from compiled boundaries, while `spatial-observation-derivation` supplies the questions; this field carries the actual station or building id into both acceptance and selection.
    */
   id: string;
   /**
@@ -70,7 +70,16 @@ export interface IHouseObservation {
    * @evidence principles/core/source-units.md#source-substantive-completion The explicit union prevents an unclassified question from entering the result.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation calls for centre, inset corner, and opening threshold views, plus whole-building exterior questions; role distinguishes those named observation families.
    */
-  role: "center" | "corner" | "threshold" | "reflex-corner" | "facade" | "roof" | "underside" | "envelope-corner" | "entrance";
+  role:
+    | "center"
+    | "corner"
+    | "threshold"
+    | "reflex-corner"
+    | "facade"
+    | "roof"
+    | "underside"
+    | "envelope-corner"
+    | "entrance";
   /**
    * @evidence spaces/04-observations.md Interior station ownership is by subject space.
    * @evidence spaces/04-observations.md#spatial-observation-derivation The pose stands in this space; exterior census questions have none.
@@ -83,7 +92,7 @@ export interface IHouseObservation {
    * @evidence spaces/04-observations.md Questions identify the feature under inspection.
    * @evidence spaces/04-observations.md#spatial-observation-derivation Opening, boundary or corner under inspection, when applicable.
    * @evidence principles/core/source-units.md#source-scope-preservation This is an existing subject id rather than a created feature.
-    * @evidence principles/core/source-units.md#source-substantive-completion The subject connects a threshold or building question to its opening, boundary, corner, entrance, or roof part.
+   * @evidence principles/core/source-units.md#source-substantive-completion The subject connects a threshold or building question to its opening, boundary, corner, entrance, or roof part.
    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Spatial-observation-derivation ties threshold questions to their opening and building questions to their exterior element; subject retains the compiled id being inspected.
    */
   subject: string | null;
@@ -116,10 +125,10 @@ export interface IReferenceComparison {
   reference: "01" | "02" | "03" | "04" | "05";
   /**
    * @evidence spaces/04-observations.md Comparisons use the derived station census.
-    * @evidence spaces/04-observations.md#reference-spatial-comparisons References with spatial questions list their accepted observation ids; the cutaway may use compiled records instead.
+   * @evidence spaces/04-observations.md#reference-spatial-comparisons References with spatial questions list their accepted observation ids; the cutaway may use compiled records instead.
    * @evidence principles/core/source-units.md#source-scope-preservation These ids refer to accepted questions rather than cloned views.
    * @evidence principles/core/source-units.md#source-substantive-completion The selector lists each observation it needs.
-    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` assigns extra comparison questions for 01–05; this field selects existing derived observation ids where they apply, while the 02 cutaway reads compiled records without an invented pose.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `reference-spatial-comparisons` assigns extra comparison questions for 01–05; this field selects existing derived observation ids where they apply, while the 02 cutaway reads compiled records without an invented pose.
    */
   observations: string[];
   /**
@@ -135,10 +144,10 @@ export interface IReferenceComparison {
 /**
  * The derivation result.
  * @evidence spaces/04-observations.md It returns accepted questions, failed stations and reference selections.
-  * @evidence spaces/04-observations.md#engine-render-handoff Null, outside, or coincident stations remain failures instead of counting as successful observations.
+ * @evidence spaces/04-observations.md#engine-render-handoff Null, outside, or coincident stations remain failures instead of counting as successful observations.
  * @evidence principles/core/source-units.md#source-scope-preservation The result is computed from the built house record.
  * @evidence principles/core/source-units.md#source-substantive-completion Both the accepted census and rejected stations reach the caller.
-  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` supplies the compiled question census, `engine-render-handoff` separates invalid station poses, and `reference-spatial-comparisons` assigns five comparisons; this type returns those three populations.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` supplies the compiled question census, `engine-render-handoff` separates invalid station poses, and `reference-spatial-comparisons` assigns five comparisons; this type returns those three populations.
  */
 export interface IObservationDerivation {
   /**
@@ -151,10 +160,10 @@ export interface IObservationDerivation {
   observations: IHouseObservation[];
   /**
    * @evidence spaces/04-observations.md Failed stations remain audit data.
-    * @evidence spaces/04-observations.md#engine-render-handoff Invalid or coincident stations retain an id and cause outside the accepted census.
+   * @evidence spaces/04-observations.md#engine-render-handoff Invalid or coincident stations retain an id and cause outside the accepted census.
    * @evidence principles/core/source-units.md#source-scope-preservation Failed questions do not create substitute rooms or cameras.
    * @evidence principles/core/source-units.md#source-substantive-completion Every rejected station has a reason for review.
-    * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `engine-render-handoff` requires unresolved own-space stations to remain outside the successful census; this list records their id and cause after the inward fallbacks.
+   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `engine-render-handoff` requires unresolved own-space stations to remain outside the successful census; this list records their id and cause after the inward fallbacks.
    */
   failures: { id: string; cause: string }[];
   /**
@@ -175,19 +184,26 @@ export interface IObservationDerivation {
  */
 /**
  * @evidence spaces/06-openings.md openingAxis resolves an authored wall void to a world-space centre, local face normal, and beyond-face reach.
-  * @evidence spaces/06-openings.md#external-opening-interface The helper reads the host face origin, rotation and wall thickness to locate an opening through its assigned boundary.
+ * @evidence spaces/06-openings.md#external-opening-interface The helper reads the host face origin, rotation and wall thickness to locate an opening through its assigned boundary.
  * @evidence principles/core/source-units.md#source-scope-preservation It reads the existing opening profile and boundary face, without assigning a new door or window frame.
  * @evidence principles/core/source-units.md#source-substantive-completion Missing opening, face, or profile throws; otherwise quaternion rotation and origin yield world coordinates.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work The external-opening-interface parent supplies the host wall and through-thickness void; this helper's bidirectional beyond-face probe adds no opening coordinate.
  */
-export const openingAxis = (environment: IAutoMovieBuiltEnvironment, openingId: string): { centre: IAutoMovieVector3; normal: IAutoMovieVector3; reach: number } => {
+export const openingAxis = (
+  environment: IAutoMovieBuiltEnvironment,
+  openingId: string,
+): { centre: IAutoMovieVector3; normal: IAutoMovieVector3; reach: number } => {
   const opening = environment.openings.find((o) => o.id === openingId);
-  const face = opening === undefined
-    ? undefined
-    : environment.boundaries.find((b) => b.id === opening.boundary)?.face;
-  if (opening === undefined || face === undefined || opening.profile === undefined) throw new Error(
-    `opening "${openingId}" has no host face or void`,
-  );
+  const face =
+    opening === undefined
+      ? undefined
+      : environment.boundaries.find((b) => b.id === opening.boundary)?.face;
+  if (
+    opening === undefined ||
+    face === undefined ||
+    opening.profile === undefined
+  )
+    throw new Error(`opening "${openingId}" has no host face or void`);
   const n = opening.profile.outline.length;
   const cx = opening.profile.outline.reduce((s, q) => s + q.x, 0) / n;
   const cy = opening.profile.outline.reduce((s, q) => s + q.y, 0) / n;

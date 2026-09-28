@@ -5,8 +5,8 @@ import { test } from "node:test";
 
 import { buildHouseScene } from "../viewer/houseScene.cjs";
 import {
-  lowerViewerModels,
   type IViewerModelInputs,
+  lowerViewerModels,
 } from "../viewer/modelScene.cjs";
 
 const model: IAutoMovieModel = {
@@ -67,6 +67,36 @@ void test("model placement carries face finish and model metric UVs", () => {
   assert.deepEqual(item?.positions, [2, 3, 4, 3, 3, 4, 2, 4, 4]);
   assert.deepEqual(item?.uvs, [0, 0, 1, 0, 0, 1]);
 });
+void test("isolated inspection preserves repeated source parts and producer membership while house batching stays on", () => {
+  const prototype = structuredClone(model);
+  prototype.id = "roof:sample-shingle-0";
+  prototype.parts.push({
+    ...structuredClone(prototype.parts[0]!),
+    id: "second",
+  });
+  const i: IViewerModelInputs = {
+    prototypes: [
+      {
+        model: prototype,
+        faceByPart: { frame: "frame", second: "frame" },
+        memberByPart: { frame: "0", second: "1" },
+      },
+    ],
+    instances: [{ id: "sample", modelId: prototype.id, transform: {} }],
+    finishes: { frame: { color: 0x333333, roughness: 0.4, metalness: 0 } },
+  };
+  assert.equal(lowerViewerModels(i).length, 1);
+  const separated = lowerViewerModels({ ...i, batchRepetitions: false });
+  assert.deepEqual(
+    separated.map((p) => p.id),
+    ["sample/frame", "sample/second"],
+  );
+  assert.deepEqual(
+    separated.map((p) => p.assemblyMember),
+    ["0", "1"],
+  );
+  assert.deepEqual(separated[0]!.positions, separated[1]!.positions);
+});
 
 void test("a material tile module converts model metres into texture repeats", () => {
   const tiled = input();
@@ -81,7 +111,12 @@ void test("a material tile module converts model metres into texture repeats", (
   };
   assert.deepEqual(lowerViewerModels(tiled)[0]?.uvs, [0, 0, 4, 0, 0, 2]);
   tiled.finishes = {
-    frame: { color: 0xffffff, roughness: 0.4, metalness: 0, textureMetres: [0, 1] },
+    frame: {
+      color: 0xffffff,
+      roughness: 0.4,
+      metalness: 0,
+      textureMetres: [0, 1],
+    },
   };
   assert.throws(() => lowerViewerModels(tiled), /invalid texture module/);
 });

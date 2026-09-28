@@ -6,6 +6,9 @@ import { Siding } from "../models/exterior/siding";
 import { EXTERIOR_PLINTH_TOP } from "../spaces/envelope/finish-boundary";
 import type { IHouse } from "../spaces/house";
 import {
+  type Instance,
+  type Model,
+  type Point,
   clip,
   collect,
   facadeFrame,
@@ -18,9 +21,6 @@ import {
   roofTriangles,
   trianglePlanes,
   world,
-  type Instance,
-  type Model,
-  type Point,
 } from "./exterior-repetition-geometry";
 
 export class ExteriorRepetition {
@@ -76,8 +76,10 @@ export class ExteriorRepetition {
             const top = (x: number) => left[band]![1] + topSlope * (x - q1);
             const cuts = [xa, xb];
             for (const [value, slope, at] of [
+              [bottom(q1), bottomSlope, y],
               [bottom(q1), bottomSlope, y + 0.18],
               [top(q1), topSlope, y],
+              [top(q1), topSlope, y + 0.18],
             ] as const) {
               if (Math.abs(slope) > 1e-12) {
                 const crossX = q1 + (at - value) / slope;

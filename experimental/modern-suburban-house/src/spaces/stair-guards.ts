@@ -12,10 +12,10 @@
  */
 import { MAIN } from "./building";
 import { PALETTE } from "./palette";
+import { type IHousePart, part } from "./solid-records";
 import { bar, block, slab } from "./solids";
-import { part, type IHousePart } from "./solid-records";
-import { CEILING_FINISH, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 import type { STAIR_OPENING, STAIR_STEPS } from "./stair";
+import { CEILING_FINISH, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 
 type StairWall = (
   id: string,
@@ -53,7 +53,9 @@ export const buildStairGuards = (props: {
   const HANDRAIL = 0.9;
   const HALL_GUARD = 1.05;
   const parts: IHousePart[] = [];
-  // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: two end posts and the top rail.
+  // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: the
+  // two end posts meet the rail underside; their painted tops do not share
+  // the wood rail's exposed top face.
   const guardTop = STOREYS.upperFloor + HALL_GUARD;
   const z = (STAIR_OPENING.guardBack + STAIR_OPENING.back) / 2;
   parts.push(
@@ -78,7 +80,7 @@ export const buildStairGuards = (props: {
       PALETTE.trim,
       block(
         [STAIR_OPENING.west, STOREYS.upperFloor, z - RESERVE / 2],
-        [STAIR_OPENING.west + RESERVE, guardTop, z + RESERVE / 2],
+        [STAIR_OPENING.west + RESERVE, guardTop - RESERVE, z + RESERVE / 2],
       ),
     ),
     part(
@@ -88,7 +90,7 @@ export const buildStairGuards = (props: {
       PALETTE.trim,
       block(
         [STAIR_OPENING.east - RESERVE, STOREYS.upperFloor, z - RESERVE / 2],
-        [STAIR_OPENING.east, guardTop, z + RESERVE / 2],
+        [STAIR_OPENING.east, guardTop - RESERVE, z + RESERVE / 2],
       ),
     ),
     part(
@@ -205,7 +207,13 @@ export const buildStairGuards = (props: {
   // opening's vertical finish between the actual neighbours at each edge, and
   // closes the stair hall top, the open guard band Z = [-4.71, -4.56] included, with
   // its own ceiling finish (09 upper-ceiling-closure).
-  const edge = (id: string, x: readonly [number, number], z: readonly [number, number], bottom: number, top: number): IHousePart =>
+  const edge = (
+    id: string,
+    x: readonly [number, number],
+    z: readonly [number, number],
+    bottom: number,
+    top: number,
+  ): IHousePart =>
     part(
       id,
       OWNER,

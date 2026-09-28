@@ -55,9 +55,12 @@ const query = new URLSearchParams(window.location.search);
 const queryPoint = (name) => {
   const values = (query.get(name) ?? "").split(",").map(Number);
   return values.length === 3 && values.every(Number.isFinite)
-    ? /** @type {[number, number, number]} */ (values)
+    ? [values[0], values[1], values[2]]
     : null;
 };
+
+/** @type {string[]} */
+const texturesFailed = [];
 
 /** State a capture script reads; written only by this module. */
 const state = {
@@ -67,7 +70,7 @@ const state = {
   sourceDigest: "",
   error: "",
   texturesLoaded: 0,
-  texturesFailed: /** @type {string[]} */ ([]),
+  texturesFailed,
 };
 Reflect.set(window, "automovieViewer", state);
 
@@ -114,23 +117,39 @@ const buildMesh = (item, textures) => {
   geometry.setIndex(item.indices);
   if (item.uvs !== undefined)
     geometry.setAttribute("uv", new THREE.Float32BufferAttribute(item.uvs, 2));
-  if(item.faceId==="mirror"&&!item.inspectionFace&&!item.inspectionSection){
+  if (
+    item.faceId === "mirror" &&
+    !item.inspectionFace &&
+    !item.inspectionSection
+  ) {
     // Reflector's local plane is +Z through its origin. Rebase the actual
     // engine vertices onto the first front-face plane without changing a
     // single world vertex; the closed silver plate keeps its original depth.
-    const origin=new THREE.Vector3(...item.positions.slice(0,3));
-    const normal=new THREE.Vector3(...item.normals.slice(0,3)).normalize();
-    const rotation=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
-    const inverse=rotation.clone().invert();
-    geometry.translate(-origin.x,-origin.y,-origin.z).applyQuaternion(inverse);
-    const mirror=new Reflector(geometry,{textureWidth:512,textureHeight:512,color:item.color,clipBias:.0001});
-    mirror.name=item.id;mirror.position.copy(origin).add(new THREE.Vector3(...item.position));mirror.quaternion.copy(rotation);
-    mirror.castShadow=item.castShadow;mirror.receiveShadow=item.receiveShadow;
+    const origin = new THREE.Vector3(...item.positions.slice(0, 3));
+    const normal = new THREE.Vector3(...item.normals.slice(0, 3)).normalize();
+    const rotation = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(0, 0, 1),
+      normal,
+    );
+    const inverse = rotation.clone().invert();
+    geometry
+      .translate(-origin.x, -origin.y, -origin.z)
+      .applyQuaternion(inverse);
+    const mirror = new Reflector(geometry, {
+      textureWidth: 512,
+      textureHeight: 512,
+      color: item.color,
+      clipBias: 0.0001,
+    });
+    mirror.name = item.id;
+    mirror.position.copy(origin).add(new THREE.Vector3(...item.position));
+    mirror.quaternion.copy(rotation);
+    mirror.castShadow = item.castShadow;
+    mirror.receiveShadow = item.receiveShadow;
     return mirror;
   }
-  const map = item.texture === undefined
-    ? undefined
-    : textures.get(item.texture);
+  const map =
+    item.texture === undefined ? undefined : textures.get(item.texture);
   const options = {
     color: map === undefined || item.textureTint ? item.color : 0xffffff,
     map: map ?? null,
@@ -141,14 +160,15 @@ const buildMesh = (item, textures) => {
     depthWrite: item.opacity === undefined || item.opacity >= 1,
     side: item.doubleSided ? THREE.DoubleSide : THREE.FrontSide,
   };
-  const material = item.transmission !== undefined && item.transmission > 0
-    ? new THREE.MeshPhysicalMaterial({
-        ...options,
-        transmission: item.transmission,
-        ior: item.ior ?? 1.5,
-        thickness: item.thickness ?? 0,
-      })
-    : new THREE.MeshStandardMaterial(options);
+  const material =
+    item.transmission !== undefined && item.transmission > 0
+      ? new THREE.MeshPhysicalMaterial({
+          ...options,
+          transmission: item.transmission,
+          ior: item.ior ?? 1.5,
+          thickness: item.thickness ?? 0,
+        })
+      : new THREE.MeshStandardMaterial(options);
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = item.id;
   mesh.position.set(...item.position);
@@ -167,30 +187,53 @@ const buildScene = (payload, textures) => {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xd9dde2);
   const light = payload.lighting;
-  if(payload.physicalLighting){
-    const physical=payload.physicalLighting;
-    const background=physical.environment.background;
-    scene.background=background?new THREE.Color().setRGB(background.r,background.g,background.b):null;
-    for(const source of physical.lights){
-      const c=new THREE.Color().setRGB(source.color.r,source.color.g,source.color.b);
-      if(source.type!=="point"&&source.type!=="directional")throw Error(`unsupported house light ${source.id}`);
-      const light=source.type==="point"?new THREE.PointLight(c,source.intensity,source.range,2):new THREE.DirectionalLight(c,source.intensity);
-      const p=source.transform.translation;
-      if(light instanceof THREE.DirectionalLight){
-        const q=source.transform.rotation,d=new THREE.Vector3(0,0,-1).applyQuaternion(new THREE.Quaternion(q.x,q.y,q.z,q.w));
-        light.target.position.set(3,0,-5);light.position.copy(light.target.position).addScaledVector(d,-52);
+  if (payload.physicalLighting) {
+    const physical = payload.physicalLighting;
+    const background = physical.environment.background;
+    scene.background = background
+      ? new THREE.Color().setRGB(background.r, background.g, background.b)
+      : null;
+    for (const source of physical.lights) {
+      const c = new THREE.Color().setRGB(
+        source.color.r,
+        source.color.g,
+        source.color.b,
+      );
+      if (source.type !== "point" && source.type !== "directional")
+        throw Error(`unsupported house light ${source.id}`);
+      const light =
+        source.type === "point"
+          ? new THREE.PointLight(c, source.intensity, source.range, 2)
+          : new THREE.DirectionalLight(c, source.intensity);
+      const p = source.transform.translation;
+      if (light instanceof THREE.DirectionalLight) {
+        const q = source.transform.rotation,
+          d = new THREE.Vector3(0, 0, -1).applyQuaternion(
+            new THREE.Quaternion(q.x, q.y, q.z, q.w),
+          );
+        light.target.position.set(3, 0, -5);
+        light.position.copy(light.target.position).addScaledVector(d, -52);
         scene.add(light.target);
-      }else light.position.set(p.x,p.y,p.z);
-      light.castShadow=source.castShadow??false;
-      if(source.shadow){
-        const s=source.shadow;light.shadow.mapSize.set(s.mapSize,s.mapSize);light.shadow.bias=s.bias;light.shadow.normalBias=s.normalBias;
-        light.shadow.camera.near=s.near;light.shadow.camera.far=s.far;
-        if(light instanceof THREE.DirectionalLight){light.shadow.camera.left=-24;light.shadow.camera.right=24;light.shadow.camera.bottom=-24;light.shadow.camera.top=24;}
+      } else light.position.set(p.x, p.y, p.z);
+      light.castShadow = source.castShadow ?? false;
+      if (source.shadow) {
+        const s = source.shadow;
+        light.shadow.mapSize.set(s.mapSize, s.mapSize);
+        light.shadow.bias = s.bias;
+        light.shadow.normalBias = s.normalBias;
+        light.shadow.camera.near = s.near;
+        light.shadow.camera.far = s.far;
+        if (light instanceof THREE.DirectionalLight) {
+          light.shadow.camera.left = -24;
+          light.shadow.camera.right = 24;
+          light.shadow.camera.bottom = -24;
+          light.shadow.camera.top = 24;
+        }
       }
       scene.add(light);
     }
-    for(const item of payload.items)scene.add(buildMesh(item,textures));
-    renderer.toneMappingExposure=physical.environment.exposure;
+    for (const item of payload.items) scene.add(buildMesh(item, textures));
+    renderer.toneMappingExposure = physical.environment.exposure;
     return scene;
   }
   scene.add(
@@ -201,9 +244,10 @@ const buildScene = (payload, textures) => {
     ),
   );
   const key = new THREE.DirectionalLight(0xffffff, light.keyIntensity);
-  key.position.set(...light.keyFrom).normalize().multiplyScalar(
-    2 * (light.shadowHalfExtent ?? 8) + 4,
-  );
+  key.position
+    .set(...light.keyFrom)
+    .normalize()
+    .multiplyScalar(2 * (light.shadowHalfExtent ?? 8) + 4);
   if (light.keyTarget) {
     key.target.position.set(...light.keyTarget);
     key.position.add(key.target.position);
@@ -238,41 +282,64 @@ const show = async (payload) => {
   renderer.setSize(width, height);
   const loader = new THREE.TextureLoader();
   const textures = new Map();
-  const urls = query.get("textures") === "off"
-    ? []
-    : [
-        ...new Set(payload.items.flatMap((item) => item.texture === undefined ? [] : [item.texture])),
-      ];
-  await Promise.all(urls.map(async (url) => {
-    try {
-      const texture = await loader.loadAsync(url);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-      textures.set(url, texture);
-    } catch {
-      state.texturesFailed.push(url);
-    }
-  }));
+  const urls =
+    query.get("textures") === "off"
+      ? []
+      : [
+          ...new Set(
+            payload.items.flatMap((item) =>
+              item.texture === undefined ? [] : [item.texture],
+            ),
+          ),
+        ];
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        const texture = await loader.loadAsync(url);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.anisotropy = Math.min(
+          8,
+          renderer.capabilities.getMaxAnisotropy(),
+        );
+        textures.set(url, texture);
+      } catch {
+        state.texturesFailed.push(url);
+      }
+    }),
+  );
   state.texturesLoaded = textures.size;
   const scene = buildScene(payload, textures);
   /** @param {string|null} part */
-  const isolate=(part)=>{
-    const meshes=scene.children.filter(item=>item instanceof THREE.Mesh);
-    const selected=part===null?meshes:meshes.filter(item=>item.name===part||item.name.startsWith(part+"/"));
-    if(selected.length===0)throw Error(`isolated inspection has no existing meshes: ${part}`);
-    for(const item of meshes)item.visible=selected.includes(item);
-    const record={part,visible:selected.map(item=>item.name),hidden:meshes.filter(item=>!item.visible).map(item=>item.name),sourceDigest:payload.sourceDigest};
-    Reflect.set(window,"automovieIsolatedInspection",record);
+  const isolate = (part) => {
+    const meshes = scene.children.filter((item) => item instanceof THREE.Mesh);
+    const selected =
+      part === null
+        ? meshes
+        : meshes.filter(
+            (item) => item.name === part || item.name.startsWith(part + "/"),
+          );
+    if (selected.length === 0)
+      throw Error(`isolated inspection has no existing meshes: ${part}`);
+    for (const item of meshes) item.visible = selected.includes(item);
+    const record = {
+      part,
+      visible: selected.map((item) => item.name),
+      hidden: meshes.filter((item) => !item.visible).map((item) => item.name),
+      sourceDigest: payload.sourceDigest,
+    };
+    Reflect.set(window, "automovieIsolatedInspection", record);
     return record;
   };
-  const only=query.get("only");
-  if(only!==null)isolate(only);
+  const only = query.get("only");
+  if (only !== null) isolate(only);
   const cut = Number(query.get("cut") ?? "NaN");
   renderer.clippingPlanes = Number.isFinite(cut)
     ? [new THREE.Plane(new THREE.Vector3(0, -1, 0), cut)]
-    : payload.sectionX===undefined?[]:[new THREE.Plane(new THREE.Vector3(-1,0,0),payload.sectionX)];
+    : payload.sectionX === undefined
+      ? []
+      : [new THREE.Plane(new THREE.Vector3(-1, 0, 0), payload.sectionX)];
   const observed = (payload.observations ?? []).find(
     (o) => o.id === query.get("observe"),
   );
@@ -290,12 +357,22 @@ const show = async (payload) => {
           fovDeg: 60,
           near: 0.05,
         };
-  const camera = start.orthographicSpan===undefined?new THREE.PerspectiveCamera(
-    start.fovDeg,
-    width / height,
-    start.near,
-    start.far,
-  ):new THREE.OrthographicCamera(-start.orthographicSpan*width/height/2,start.orthographicSpan*width/height/2,start.orthographicSpan/2,-start.orthographicSpan/2,start.near,start.far);
+  const camera =
+    start.orthographicSpan === undefined
+      ? new THREE.PerspectiveCamera(
+          start.fovDeg,
+          width / height,
+          start.near,
+          start.far,
+        )
+      : new THREE.OrthographicCamera(
+          (-start.orthographicSpan * width) / height / 2,
+          (start.orthographicSpan * width) / height / 2,
+          start.orthographicSpan / 2,
+          -start.orthographicSpan / 2,
+          start.near,
+          start.far,
+        );
   const controls = new OrbitControls(camera, canvas);
   controls.listenToKeyEvents(window);
   const reset = () => {
@@ -309,23 +386,51 @@ const show = async (payload) => {
   controls.addEventListener("change", render);
   reset();
   render();
-  Reflect.set(window,"automovieObservation",{
-    ids:(payload.observations??[]).map(o=>o.id),
+  Reflect.set(window, "automovieObservation", {
+    ids: (payload.observations ?? []).map((o) => o.id),
     /** @param {string|null} part */
-    isolate(part){const result=isolate(part);render();return result;},
-    /** @param {string} id */
-    select(id){
-      const view=payload.observations?.find(o=>o.id===id);
-      if(!view)throw Error(`unknown compiled observation ${id}`);
-      camera.position.set(...view.position);controls.target.set(...view.target);
-      if(!(camera instanceof THREE.PerspectiveCamera))throw Error("house observation requires its perspective camera");
-      camera.fov=view.fovDeg??60;camera.near=view.near??.05;camera.updateProjectionMatrix();controls.update();render();
-      return {id,position:camera.position.toArray(),target:controls.target.toArray(),fovDeg:camera.fov,near:camera.near,sourceDigest:payload.sourceDigest};
+    isolate(part) {
+      const result = isolate(part);
+      render();
+      return result;
     },
-    probe(){
-      const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(0,0),camera);
-      const hit=ray.intersectObjects(scene.children,false)[0];
-      return {position:camera.position.toArray(),target:controls.target.toArray(),firstHit:hit?{id:hit.object.name,distance:hit.distance,point:hit.point.toArray()}:null};
+    /** @param {string} id */
+    select(id) {
+      const view = payload.observations?.find((o) => o.id === id);
+      if (!view) throw Error(`unknown compiled observation ${id}`);
+      camera.position.set(...view.position);
+      controls.target.set(...view.target);
+      if (!(camera instanceof THREE.PerspectiveCamera))
+        throw Error("house observation requires its perspective camera");
+      camera.fov = view.fovDeg ?? 60;
+      camera.near = view.near ?? 0.05;
+      camera.updateProjectionMatrix();
+      controls.update();
+      render();
+      return {
+        id,
+        position: camera.position.toArray(),
+        target: controls.target.toArray(),
+        fovDeg: camera.fov,
+        near: camera.near,
+        sourceDigest: payload.sourceDigest,
+      };
+    },
+    probe() {
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(new THREE.Vector2(0, 0), camera);
+      const hit = ray.intersectObjects(scene.children, false)[0];
+      return {
+        position: camera.position.toArray(),
+        target: controls.target.toArray(),
+        firstHit: hit
+          ? {
+              id: hit.object.name,
+              distance: hit.distance,
+              point: hit.point.toArray(),
+            }
+          : null,
+      };
     },
   });
   state.subject = payload.subject;
@@ -336,11 +441,15 @@ const show = async (payload) => {
     `소스 ${payload.sourceDigest}`,
     `RENDERER ${state.renderer}`,
     `${width}×${height} @${pixelRatio}`,
+    ...(payload.materialReview
+      ? [`위에서 아래: ${payload.materialReview.rows.join(" / ")}`]
+      : []),
     "R 기본 시점 · I 검사 표시",
   ].join(" · ");
   window.addEventListener("keydown", (event) => {
     if (event.key === "r" || event.key === "R") reset();
-    else if (event.key === "i" || event.key === "I") panel.hidden = !panel.hidden;
+    else if (event.key === "i" || event.key === "I")
+      panel.hidden = !panel.hidden;
   });
   window.addEventListener("pagehide", () => {
     controls.dispose();
@@ -366,15 +475,13 @@ const fail = (error) => {
 const load = async () => {
   const subject = query.get("subject");
   const response = await fetch(
-    subject === null
-      ? "/scene"
-      : `/scene?${query.toString()}`,
+    subject === null ? "/scene" : `/scene?${query.toString()}`,
     { cache: "no-store" },
   );
   const body = await response.json();
   if (!response.ok)
     throw new Error(`${response.status}: ${String(body.error ?? "unknown")}`);
-  return /** @type {IViewerScene} */ (body);
+  return /** @type {IViewerScene} */ body;
 };
 
 void load().then(show).catch(fail);
