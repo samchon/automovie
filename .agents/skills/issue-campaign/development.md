@@ -88,7 +88,7 @@ Every owner:
 1. Implements its issue across every layer the issue's **Scope** section names, tracing the full consequence surface rather than the reported witness. A layer that lands in an integration file is handed over, not edited.
 2. Leaves every executable position it wrote at 100% statements, branches, functions, and lines, by testing rather than by hiding code. The obligation is per change; the repository total carries inherited gaps in files nobody touched, and an owner neither inherits those nor reports the total as its own result.
 3. Runs a complete solo Self-Review over its own surface under the [review skill's law](../review/SKILL.md#non-negotiable-review-law), repeating full rounds until one finds nothing.
-4. Confirms formatting without writing outside its own paths, commits its own paths, and pushes. The root `format` script writes across the whole repository, so in a shared checkout it rewrites other owners' uncommitted files, which is the cross-owner edit this topology forbids. Run `pnpm run format:check`; on exit 0 the write variant would have been a no-op, and when it reports a file, format only the owned paths.
+4. Commits only its own paths and pushes. The [pull-request skill](../pull-request/SKILL.md#merge-on-explicit-request-or-standing-autonomous-mandate) owns the single formatting pass immediately before an authorized merge; an owner does not format during implementation in a shared checkout.
 5. Reports what is closed, what is not, its commit SHAs, the integration wiring it needs, its changed-branch unit-test evidence under the [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write), and every verification it could not run.
 
 ### Committing From A Shared Checkout
@@ -148,9 +148,8 @@ When either gate finds a defect:
 
 1. Diagnose the real cause from the CI log or review evidence.
 2. Correct the source and complete the corresponding regression coverage, or hand it back to the owner whose surface it is when that owner is still active.
-3. Format the correction. `pnpm run format` is safe only when no owner is active; while any owner holds uncommitted work, use `pnpm run format:check` and format just the corrected paths, because the root script writes every matching file in the tree.
-4. Commit and push the correction.
-5. Let the new CI run to completion and restart the integration Self-Review as a fresh complete round over the new head.
+3. Commit and push the correction without an intermediate formatting pass.
+4. Let the new CI run to completion and restart the integration Self-Review as a fresh complete round over the new head.
 
 Fix every red CI lane in the same campaign pull request even when the failure predates the campaign or is unrelated to its original issues.
 
@@ -172,7 +171,7 @@ After merge:
 4. For every assignment-created external path, confirm no live process or other assignment uses it, preserve required evidence, delete only the exact proven path, and verify it is absent.
 5. Never bulk-delete a shared temporary directory, a global build cache, an installed toolchain, or an asset whose ownership is uncertain.
 
-Formatting belongs to the unified cycle pull request, so a separate post-campaign formatting pull request is not part of this workflow.
+The [pull-request skill](../pull-request/SKILL.md#merge-on-explicit-request-or-standing-autonomous-mandate) places the single formatting pass on the final unified cycle pull request before its authorized merge. A separate post-campaign formatting pull request is not part of this workflow.
 
 ## Repeat Until A Clean Round
 
