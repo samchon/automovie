@@ -57,7 +57,7 @@ State a settings fact's authority under [Settings](../production-lifecycle/setti
 
 ## Activation and revision
 
-Create every production-local target under `docs/contracts` and its additive `claims` entry in `src/lint.config.ts` in one coherent change. Follow [Evidence staging](staging.md) for population, cardinality, exclusion, stage, and review semantics. An unselected target is not enforced, and an extra claim extends rather than replaces the shared graph. The discovery host is automatic; the claim governing the production's authored or source population is not.
+Create every production-local target under `docs/contracts` and its additive `claims` entry in `lint.config.ts` in one coherent change. Follow [Evidence staging](staging.md) for population, cardinality, exclusion, stage, and review semantics. An unselected target is not enforced, and an extra claim extends rather than replaces the shared graph. The discovery host is automatic; the claim governing the production's authored or source population is not.
 
 For an authored obligation, declare its eligible authored population and aggregate address through `createAutoMovieProductionObligationClaim` under [Production-specific claims](staging.md#production-specific-claims). Keep the rule in its contract and the evidence with the authored or aggregate owner that fulfills it. [Contract targets](contract-targets.md) owns the relationship forms.
 

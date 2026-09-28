@@ -66,7 +66,7 @@ Solo repository-wide issue discovery, main-agent-vetted issue publication, DAG-o
 
 ### Experiment
 
-Ad-hoc experimentation: a disposable source-linked sandbox under `experimental/`, briefed and steered through a live Claude Code or Codex session against the working tree, `.agents/skills/experiment/SKILL.md`. Read when the user wants to try something out, run a benchmark against an authoring agent, or drive a generated project's scripts by hand.
+Ad-hoc experimentation and benchmark supervision: a disposable source-linked sandbox under `experimental/`, briefed and kept alive through a live Claude Code or Codex session against the working tree, `.agents/skills/experiment/SKILL.md`. A minimal supervision overview: it never prescribes how the production is authored, reviewed, staged, or judged, which the shipped scaffold skills own, and it attaches no separate reviewer agent. Read when the user wants to try something out, run a benchmark against an authoring agent, or drive a generated project's scripts by hand.
 
 ### 3D Modeling
 

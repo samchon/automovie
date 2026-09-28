@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ancient civic temple model board</title>
+  <style>
+    html,body{margin:0;background:#747474;color:#fff;font:14px system-ui}
+    main{display:flex;flex-direction:column;min-height:100vh}
+    header{display:flex;align-items:center;gap:12px;padding:8px 12px;background:#303030}
+    select,button{padding:5px;background:#eee;color:#111}
+    canvas{display:block;width:100%;height:auto;aspect-ratio:8/5}
+    #status{white-space:pre-wrap;margin:0;padding:8px 12px;background:#303030}
+    #error{color:#ffd0c4}
+  </style>
+  <script type="importmap">
+    {"imports":{"three":"/vendor/three.module.js","three/addons/controls/OrbitControls.js":"/vendor/OrbitControls.js"}}
+  </script>
+</head>
+<body>
+  <main>
+    <header><strong>중립 모델 검토 판</strong><select id="model"></select><select id="view">
+      <option value="front">정면</option><option value="right">우측면</option>
+      <option value="rear">배면</option><option value="top">평면</option>
+      <option value="diagonal">첫 대각</option><option value="opposite">반대 대각</option>
+    </select><button id="reset">다시 맞춤</button><span id="error"></span></header>
+    <canvas width="1600" height="1000"></canvas>
+    <pre id="status">현재 source를 불러오는 중</pre>
+  </main>
+  <script type="module" src="/src/viewer/model-board.mjs"></script>
+</body>
+</html>

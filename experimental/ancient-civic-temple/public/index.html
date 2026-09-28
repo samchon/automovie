@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>고대 지중해 시민 신전 · 3D 검토 뷰어</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/viewer.css">
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js","three/addons/controls/OrbitControls.js":"/vendor/OrbitControls.js"}}</script>
+<script type="module" src="/src/viewer/client.mjs"></script>
+</head>
+<body>
+<header>
+  <div><p class="eyebrow">AUTOMOVIE / ANCIENT CIVIC TEMPLE</p><h1>고대 지중해 시민 신전</h1></div>
+  <p id="status" role="status">현재 source를 불러오는 중입니다.</p>
+</header>
+<nav aria-label="관찰 선택">
+  <label>공간 <select id="space"></select></label>
+  <label>관찰 위치 <select id="station"></select></label>
+  <label class="check"><input id="inspection" type="checkbox"> 검사 모드</label>
+  <label>절개 <select id="section" disabled>
+    <option value="none">없음</option>
+    <option value="roof-off">지붕·천장 숨김(절개 조감 검사)</option>
+    <option value="plan-cut">평면 절단 Y=1.2m</option>
+    <option value="cut-x">연직 단면 X=값</option>
+    <option value="cut-z">연직 단면 Z=값</option>
+  </select></label>
+  <label>단면 위치(m) <input id="section-offset" type="number" step="0.05" value="0" disabled></label>
+  <label class="check"><input id="section-flip" type="checkbox" disabled> 반대쪽 남김</label>
+  <label class="check"><input id="section-ortho" type="checkbox" disabled> 정사영</label>
+  <label>정사영 반높이(m) <input id="section-span" type="number" step="0.5" min="0.5" value="4" disabled></label>
+  <label class="check"><input id="owners" type="checkbox" disabled> 표면 소유 색</label>
+  <label class="check"><input id="supports" type="checkbox" disabled> 보행 support</label>
+  <button id="reset" type="button">시점 초기화</button>
+</nav>
+<main>
+  <canvas tabindex="0" aria-label="신전 3D 장면. 방향키 회전, Shift+방향키 이동, 더하기/빼기 확대, R 시점 초기화"></canvas>
+  <div id="labels" hidden></div>
+  <pre id="error" role="alert" hidden></pre>
+  <aside>
+    <h2>현재 관찰</h2>
+    <pre id="details"></pre>
+    <h2>조작</h2>
+    <p>드래그: 회전 · 오른쪽 드래그: 이동 · 휠: 확대. 키보드: 방향키 회전, Shift+방향키 이동, +/− 확대, R 초기화.</p>
+    <p>연직 단면(검사 모드): 절개에서 X 또는 Z 단면을 고르고 위치(m)를 넣습니다. 서버가 현재 source의 벽·지붕·코핑·기단·바닥 실체를 그 평면으로 잘라 정확한 조각(벽 적갈, 지붕 청회, 코핑·기단 황, 바닥 녹)과 대지 지면선(초록)을 그립니다. 정사영을 켜면 평면에 수직으로 보고, 0.5m 격자(빨간 선은 Y=0)로 높이를 읽습니다. 조각 사이 빈칸은 틈, 포개짐은 겹침입니다. 주소 예: <code>?inspect=1&amp;section=cut-x&amp;offset=0&amp;ortho=1&amp;span=2</code></p>
+    <p>관찰 위치는 현재 source의 공간·개구부·입면에서 유도합니다. 카메라가 방 안에 있다는 사실은 보행 도달의 증거가 아닙니다. 라벨·support·표면 소유 색·절개는 검사 모드에서만 켭니다.</p>
+    <h2>자가검사 결산</h2>
+    <p>판정 요청 전 <code>npm run self-check</code>와 같은 producer로 현재 source를 잽니다: 외피 겹침 스캔(1cm 격자), 실체 안 관찰 pose, 모든 model의 topology 결산(퇴화·열린·비다양체 모서리, 감김, T 접합 해소 뒤 틈, 연결 성분, 체적)과 닫힘 계약 위반. 수 초 걸립니다.</p>
+    <p>결산이 찍은 결함 위치는 <code>?camera=x,y,z&amp;target=x,y,z</code>로 같은 시점을 다시 엽니다.</p>
+    <button id="review-load" type="button">결산 불러오기</button>
+    <pre id="review" aria-live="polite"></pre>
+    <h2>현재 한계</h2>
+    <ul id="notices"></ul>
+    <h2>공간 목록</h2>
+    <ul id="space-list"></ul>
+  </aside>
+</main>
+</body>
+</html>
