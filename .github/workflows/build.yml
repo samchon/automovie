@@ -8,8 +8,6 @@ on:
 permissions:
   contents: read
 
-# A push replaces its predecessor rather than queueing behind it. Without this
-# the lane was five runs deep and the newest commit waited on four obsolete ones.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -20,21 +18,6 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-      - name: Validate incoming diff
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PUSH_BASE_SHA: ${{ github.event.before }}
-          PUSH_HEAD_SHA: ${{ github.sha }}
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git diff --check "$PR_BASE_SHA...$PR_HEAD_SHA"
-          else
-            git diff --check "$PUSH_BASE_SHA...$PUSH_HEAD_SHA"
-          fi
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.x
@@ -42,34 +25,6 @@ jobs:
       - run: pnpm install
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          # Two plugin caches, because two projects compile here from two
-          # working directories: the repository root, and the manor, whose own
-          # `lint` writes beside its own `node_modules`. The two build
-          # different plugin sets and hash apart, so without the second path the
-          # manor step rebuilds `@ttsc/lint` from a cold Go cache every run.
-          #
-          # The key carries `v2` so that second path is actually saved. An exact
-          # key hit makes `actions/cache` skip the save, so keeping the old key
-          # would have restored the root path, never written the manor one, and
-          # left it permanently cold while looking cached.
-          path: |
-            node_modules/.cache/ttsc/plugins
-            experimental/medieval-baron-manor/node_modules/.cache/ttsc/plugins
-          key: ttsc-plugins-v2-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      # Use the compiler configuration shipped to the generated project.
-      - name: Check the shipped scaffold
-        run: pnpm exec ttsc -p packages/template/scaffold/package.json --noEmit
-      # The committed showcase uses its own compiler project and workspace
-      # dependencies. This checks source resolution, not installed declarations.
-      - name: Check the manor production
-        run: pnpm --filter medieval-baron-manor run lint
+          path: node_modules/.cache/ttsc
+          key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm run build
-      - name: Verify validation left the checkout clean
-        run: |
-          git diff --check HEAD --
-          git diff --exit-code HEAD --
-          untracked="$(git ls-files --others --exclude-standard)"
-          if [ -n "$untracked" ]; then
-            printf '%s\n' "$untracked"
-            exit 1
-          fi

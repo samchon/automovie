@@ -10,9 +10,7 @@ on:
       - "packages/engine/**"
       - "packages/interface/**"
       - "packages/viewer/**"
-      # The manor page bundles this production's authored source and textures,
-      # so a change to the house republishes the site without touching website/.
-      - "experimental/medieval-baron-manor/**"
+      - "experimental/**"
       - "website/**"
       - "package.json"
       - "pnpm-lock.yaml"
@@ -24,7 +22,7 @@ on:
       - "packages/engine/**"
       - "packages/interface/**"
       - "packages/viewer/**"
-      - "experimental/medieval-baron-manor/**"
+      - "experimental/**"
       - "website/**"
       - "package.json"
       - "pnpm-lock.yaml"
@@ -55,8 +53,8 @@ jobs:
       - run: pnpm install
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: node_modules/.cache/ttsc/plugins
-          key: ttsc-plugins-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          path: node_modules/.cache/ttsc
+          key: ttsc-website-${{ hashFiles('pnpm-lock.yaml') }}
 
       # Vite bundles the viewer, the engine, and the manor straight from their
       # workspace sources, so no package build precedes the site build.
