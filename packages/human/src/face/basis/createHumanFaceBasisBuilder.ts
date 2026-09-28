@@ -18,6 +18,7 @@ import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
 import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
+import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { liftHumanFaceColours } from "./liftHumanFaceColours";
 
@@ -79,7 +80,10 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * report it without evaluating twice. With `occlusion`, each opaque material
  * with UVs of the finished face (before any hair) takes the ambient
  * occlusion baked from the evaluated geometry (`bakeHumanFaceOcclusion`) as
- * its occlusion texture; without it no texture is baked. A skin field that
+ * its occlusion texture. The resulting image is reused while the admitted
+ * pose stays the same: the source material's opaque classification is fixed,
+ * and colour, roughness and fibre edits do not change the geometry the rays
+ * read. Without the option no texture is baked. A skin field that
  * lightens a region past its material (a gain over one) is folded into the
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
@@ -113,6 +117,14 @@ export function createHumanFaceBasisBuilder(
     basis.channels,
     createHumanFaceBasisPoseEvaluator(basis),
   );
+  const occlusion =
+    options?.occlusion === undefined ? undefined : { ...options.occlusion };
+  const bakeOcclusion =
+    occlusion === undefined
+      ? undefined
+      : createHumanFaceOcclusionCache((model) =>
+          bakeHumanFaceOcclusion(model, occlusion),
+        );
   const surfaces = basis.surfaces.map((surface) => ({
     surface,
     regions: surface.regions.map((region) => ({
@@ -242,8 +254,8 @@ export function createHumanFaceBasisBuilder(
           createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
         );
     }
-    if (options?.occlusion !== undefined)
-      for (const [id, uri] of bakeHumanFaceOcclusion(model, options.occlusion))
+    if (bakeOcclusion !== undefined)
+      for (const [id, uri] of bakeOcclusion(pose, model))
         materialMap.get(id)!.occlusionTexture = uri;
     if (document.hair !== undefined && document.hair !== null) {
       assertHumanFaceHair(document.hair);
