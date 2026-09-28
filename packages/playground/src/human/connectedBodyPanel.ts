@@ -107,7 +107,7 @@ export function mountConnectedBodyPanel<
 ) {
   const dom = app.ownerDocument;
   const scales = new Map(
-    measureHumanBodyBasisChannels(props.basis).map((scale) => [
+    measureHumanBodyBasisChannels(props.basis, { measuredOnly: true }).map((scale) => [
       scale.id,
       scale,
     ]),

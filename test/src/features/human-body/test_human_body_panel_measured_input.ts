@@ -83,13 +83,21 @@ export const test_human_body_panel_measured_input =
     TestValidator.equals("blank target stays uncommitted", calls.length, 0);
     target.value = "2250";
     apply.click();
-    await Promise.resolve();
+    for (
+      let attempt = 0;
+      attempt < 8 && panel.snapshot()?.document.shape.macroHeight !== 0.5;
+      attempt++
+    )
+      await Promise.resolve();
+    TestValidator.equals("one metric worker request", calls.length, 1);
     TestValidator.predicate(
-      "metric target reaches worker and commits its body",
-      calls.length === 1 &&
-        calls[0].channel === "macroHeight" &&
-        nclose(calls[0].targetMetres, 2.25) &&
-        panel.snapshot()?.document.shape.macroHeight === 0.5 &&
+      "millimetres become metres on the named rule",
+      calls[0].channel === "macroHeight" &&
+        nclose(calls[0].targetMetres, 2.25),
+    );
+    TestValidator.predicate(
+      "measured result commits without sculpting width",
+      panel.snapshot()?.document.shape.macroHeight === 0.5 &&
         panel.snapshot()?.document.shape.width === undefined,
     );
   };

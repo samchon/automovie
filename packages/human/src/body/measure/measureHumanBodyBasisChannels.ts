@@ -8,7 +8,9 @@ import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
 /**
  * Measure every channel's metric effect on an admitted body basis, in metres.
  *
- * The body editor calls this once per loaded basis and prints the result
+ * The body editor calls this once per loaded basis for channels with a public
+ * measurement rule; diagnostic callers may omit `measuredOnly` to inspect
+ * every legacy channel's geometric displacement. The editor prints the result
  * beside each control: the per-unit RMS displacement, peak and moved vertex
  * count as the face reports them, plus, for a channel with a rule in
  * `HUMAN_BODY_MEASUREMENTS`, the rule evaluated on the shaped surface at the
@@ -25,11 +27,10 @@ import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
  * `assertHumanBodyBasis`; an empty surface population is refused here because
  * an RMS over nothing would publish NaN.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Turns each channel's dimensionless weight into a stated measurement with its neutral value and per-unit change, and reports the unmeasurable ones as such.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Evaluates the RMS, peak and count per endpoint and the girth, distance, height and breadth rules at neutral and both endpoints.
  */
 export function measureHumanBodyBasisChannels(
   basis: IAutoMovieHumanBodyBasis,
+  options: { measuredOnly?: boolean } = {},
 ): IAutoMovieHumanBodyChannelScale[] {
   const resident = basis.surfaces.reduce(
     (total, surface) => total + surface.positions.length / 3,
@@ -64,26 +65,32 @@ export function measureHumanBodyBasisChannels(
     rule: IAutoMovieHumanBodyMeasurement,
     shape: Record<string, number>,
   ): number | null => evaluateHumanBodyMeasurement(basis, shape, rule);
-  return basis.channels.map((channel) => {
-    const rule = HUMAN_BODY_MEASUREMENTS[channel.id];
-    return {
-      id: channel.id,
-      group: channel.group,
-      positive: scale(channel.positive),
-      negative: channel.negative === null ? null : scale(channel.negative),
-      measurement:
-        rule === undefined
-          ? null
-          : {
-              id: channel.id,
-              kind: rule.kind,
-              neutral: evaluateRule(rule, {}),
-              positive: evaluateRule(rule, { [channel.id]: channel.maximum }),
-              negative:
-                channel.negative === null
-                  ? null
-                  : evaluateRule(rule, { [channel.id]: channel.minimum }),
-            },
-    };
-  });
+  return basis.channels
+    .filter(
+      (channel) =>
+        options.measuredOnly !== true ||
+        HUMAN_BODY_MEASUREMENTS[channel.id] !== undefined,
+    )
+    .map((channel) => {
+      const rule = HUMAN_BODY_MEASUREMENTS[channel.id];
+      return {
+        id: channel.id,
+        group: channel.group,
+        positive: scale(channel.positive),
+        negative: channel.negative === null ? null : scale(channel.negative),
+        measurement:
+          rule === undefined
+            ? null
+            : {
+                id: channel.id,
+                kind: rule.kind,
+                neutral: evaluateRule(rule, {}),
+                positive: evaluateRule(rule, { [channel.id]: channel.maximum }),
+                negative:
+                  channel.negative === null
+                    ? null
+                    : evaluateRule(rule, { [channel.id]: channel.minimum }),
+              },
+      };
+    });
 }

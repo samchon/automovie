@@ -85,7 +85,7 @@ export function renderBodyMeasuredControls(props: {
           Number(requested) / 1000,
         );
         if (!props.isCurrent(ticket)) return;
-        number.value = String(result.actualMetres * 1000);
+        number.value = (result.actualMetres * 1000).toFixed(1);
         props.change({ ...current, shape: result.shape }, ticket);
       } catch (error) {
         if (props.isCurrent(ticket)) props.refuse(error);
