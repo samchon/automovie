@@ -71,7 +71,11 @@ const index = (mesh: IAutoMovieMesh): Indexed[] => {
  * triangle, so nothing a caller would want reported is lost.
  *
  * A parallel segment returns false and is left to the coplanar report.
+ * The dimensionless interior tolerance excludes arithmetic residues at an
+ * edge or endpoint: a shared seam whose computed intersection falls within
+ * that tolerance remains touching instead of alternating with a crossing.
  */
+const INTERIOR_TOLERANCE = 1e-9;
 const segmentPierces = (
   origin: number[],
   target: number[],
@@ -99,14 +103,14 @@ const segmentPierces = (
     oy = origin[1] - t0[1],
     oz = origin[2] - t0[2];
   const u = (ox * px + oy * py + oz * pz) * inverse;
-  if (u <= 0 || u >= 1) return false;
+  if (u <= INTERIOR_TOLERANCE || u >= 1 - INTERIOR_TOLERANCE) return false;
   const ax = oy * e1z - oz * e1y,
     ay = oz * e1x - ox * e1z,
     az = ox * e1y - oy * e1x;
   const v = (dx * ax + dy * ay + dz * az) * inverse;
-  if (v <= 0 || u + v >= 1) return false;
+  if (v <= INTERIOR_TOLERANCE || u + v >= 1 - INTERIOR_TOLERANCE) return false;
   const distance = (e2x * ax + e2y * ay + e2z * az) * inverse;
-  return distance > 0 && distance < 1;
+  return distance > INTERIOR_TOLERANCE && distance < 1 - INTERIOR_TOLERANCE;
 };
 
 const coincide = (a: number[], b: number[]): boolean =>
@@ -242,6 +246,10 @@ const sharePlaneAndOverlap = (
  * A returned entry names the first-mesh triangle, one second-mesh witness, and
  * whether the pair crosses transversally or lies flat in one plane. Ordering is
  * by first-mesh ordinal, so the same inputs always produce the same report.
+ * `allPairs` retains every second-mesh witness for each first triangle; the
+ * default stops at one. A corrective that must clear every contact uses the
+ * complete population and decides which shared vertices or intended contacts
+ * are exempt. Both modes use the same spatial index and triangle predicate.
  *
  * This answers containment-free overlap only. It does not say how deep the
  * crossing is or which surface should move; the first is what
@@ -253,7 +261,8 @@ const sharePlaneAndOverlap = (
  *
  * @param first Mesh whose triangles are reported.
  * @param second Mesh tested against it, in the same frame.
- * @returns One entry per crossed triangle of `first`, in ordinal order.
+ * @param options Whether every pair is reported; omitted, one per first triangle.
+ * @returns Crossings in first-triangle and spatial candidate order.
  *
  * @evidence requirements/asset-authoring/geometry.md#asset-composable-geometry-operations Supplies a direction-free crossing test composable with the axis-ordered clearance measure, without depending on any catalogue item.
  * @evidence specifications/asset-and-representation/model-geometry-and-surface-facts.md#asset-spec-geometry-operations-topology Reports crossings against the original triangle ordinals of both meshes so a caller can map them onto the buffers it owns.
@@ -261,7 +270,9 @@ const sharePlaneAndOverlap = (
 export function measureAutoMovieMeshCrossings(
   first: IAutoMovieMesh,
   second: IAutoMovieMesh,
+  options?: { allPairs?: boolean },
 ): IAutoMovieMeshCrossing[] {
+  const allPairs = options?.allPairs === true;
   const ours = index(first);
   const theirs = index(second);
   if (ours.length === 0 || theirs.length === 0) return [];
@@ -353,15 +364,31 @@ export function measureAutoMovieMeshCrossings(
       )
         continue;
       if (pierces(triangle.corners, candidate.corners)) {
+        if (allPairs) {
+          crossings.push({
+            triangle: triangle.ordinal,
+            other: candidate.ordinal,
+            coplanar: false,
+          });
+          continue;
+        }
         pierced = candidate;
         break;
       }
-      if (
+      if (allPairs) {
+        if (sharePlaneAndOverlap(triangle.corners, candidate.corners))
+          crossings.push({
+            triangle: triangle.ordinal,
+            other: candidate.ordinal,
+            coplanar: true,
+          });
+      } else if (
         flat === undefined &&
         sharePlaneAndOverlap(triangle.corners, candidate.corners)
       )
         flat = candidate;
     }
+    if (allPairs) continue;
     const witness = pierced ?? flat;
     if (witness !== undefined)
       crossings.push({
