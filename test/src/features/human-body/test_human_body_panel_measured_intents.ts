@@ -28,6 +28,7 @@ const deferred = <T>() => {
  *    status with its obsolete error.
  * 3. An export superseded by a newer edit cannot download; the current export
  *    downloads the current document once.
+ * 4. A pose redraw preserves a typed measurement target in its new DOM row.
  */
 export const test_human_body_panel_measured_intents =
   async (): Promise<void> => {
@@ -109,10 +110,18 @@ export const test_human_body_panel_measured_intents =
     const target = (): HTMLInputElement =>
       app.querySelector<HTMLInputElement>("#control-macroHeight")!;
     TestValidator.predicate("measured channel is offered", target() !== null);
-    target().value = "2200";
+    const firstTarget = target();
+    firstTarget.value = "2200";
     button("Set measurement").click();
     button("Bent").click();
-    await Promise.resolve();
+    for (let attempt = 0; attempt < 8 && target() === firstTarget; attempt++)
+      await Promise.resolve();
+    TestValidator.predicate(
+      "pose redraw retains the typed measurement target",
+      target() !== firstTarget &&
+        target().value === "2200" &&
+        panel.snapshot()?.document.pose?.[0]?.flexion === 10,
+    );
     const committedParts = panel.snapshot()!.model.parts;
     slow.resolve({ shape: { macroHeight: 1 }, actualMetres: 2.2 });
     await Promise.resolve();

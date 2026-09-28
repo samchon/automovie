@@ -21,6 +21,9 @@ import {
  * refused and the last committed body remains. The parent panel's intent
  * ticket discards an old
  * numerical reply after any newer document, pose or simple-tier edit.
+ * The parent owns uncommitted text by channel ID so a pose or history redraw
+ * cannot erase a measurement the user is still entering. Only a successful
+ * solve changes the body document; this draft map is never serialized.
  */
 export function renderBodyMeasuredControls(props: {
   dom: Document;
@@ -29,6 +32,7 @@ export function renderBodyMeasuredControls(props: {
   scales: Map<string, IAutoMovieHumanBodyChannelScale>;
   kind: string;
   query: string;
+  drafts: Map<string, string>;
   current: () => IAutoMovieHumanBodyBasisDocument;
   reserve: () => number;
   isCurrent: (ticket: number) => boolean;
@@ -76,10 +80,13 @@ export function renderBodyMeasuredControls(props: {
     number.type = "number";
     number.step = "0.1";
     number.placeholder = "Target mm";
+    number.value = props.drafts.get(channel.id) ?? "";
+    number.oninput = () => props.drafts.set(channel.id, number.value);
     label.htmlFor = number.id;
     apply.type = "button";
     apply.textContent = "Set measurement";
     apply.onclick = async (): Promise<void> => {
+      props.drafts.set(channel.id, number.value);
       const ticket = props.reserve();
       const requested = number.value.trim();
       if (requested === "" || !Number.isFinite(Number(requested))) {

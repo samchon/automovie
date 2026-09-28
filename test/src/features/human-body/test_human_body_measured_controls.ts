@@ -17,6 +17,7 @@ import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";
  * 3. A numerical answer whose intent was superseded cannot commit.
  * 4. A comparable adult survey tape shows its population band as context;
  *    an unrelated control has no survey band and neither band limits input.
+ * 5. A typed millimetre target remains a UI draft when rows redraw.
  */
 export const test_human_body_measured_controls = async (): Promise<void> => {
   const { basis, document: initial } = humanBodyBasisFixture();
@@ -52,6 +53,7 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
     ],
   ]);
   let current = initial;
+  const drafts = new Map<string, string>();
   let ticket = 0;
   let pending = false;
   const refused: unknown[] = [];
@@ -66,6 +68,7 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
       scales,
       kind,
       query,
+      drafts,
       current: () => current,
       reserve: () => ++ticket,
       isCurrent: (value) => ticket === value,
@@ -110,6 +113,8 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
   TestValidator.equals("blank refuses without solving", [calls.length, refused.length], [0, 1]);
   current = { ...current, name: "A newer draft" };
   target.value = "250";
+  target.dispatchEvent(new dom.defaultView!.Event("input"));
+  TestValidator.equals("typed millimetre draft is retained", drafts.get("width"), "250");
   apply.click();
   for (let attempt = 0; attempt < 5 && reports.length === 0; attempt++)
     await Promise.resolve();
@@ -149,5 +154,11 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
       survey.includes("women") &&
       survey.includes("men") &&
       survey.includes("Observed sample only; no clinical limit"),
+  );
+  render("torso", "wid");
+  TestValidator.equals(
+    "uncommitted measurement survives a redraw",
+    container.querySelector<HTMLInputElement>("#control-width")?.value,
+    "290",
   );
 };

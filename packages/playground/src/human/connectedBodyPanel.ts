@@ -157,6 +157,9 @@ export function mountConnectedBodyPanel<
     | undefined;
   let draft = structuredClone(props.initial);
   const intents = createBodyIntentGate();
+  // Typed measurement targets are UI drafts. A committed pose rebuilds rows
+  // without converting an unfinished number into document geometry.
+  const measurementDrafts = new Map<string, string>();
   let bone: AutoMovieHumanoidBone = "leftUpperArm";
   const status = (text: string, state: string): void => {
     element("body-status").textContent = text;
@@ -303,6 +306,7 @@ export function mountConnectedBodyPanel<
       scales,
       kind,
       query,
+      drafts: measurementDrafts,
       current: () => draft,
       reserve: withdraw,
       isCurrent: intents.isCurrent,
