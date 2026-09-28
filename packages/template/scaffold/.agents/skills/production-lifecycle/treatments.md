@@ -28,7 +28,7 @@ A count the later layers cannot realize is never solved by thinning units into r
 
 ## Gate
 
-Start at `treatments: "draft"` only after settings are in `review`. Before `evidence`, read the complete treatment as an audience member and test every unit's arrival, development, departure, long-range consequence, information state, applicable agency, legibility of deliberate jumps, and proportional realization of the declared film scale. Compare the hierarchy to the unit map and reject placeholders, event lists, causal cards, inert lore, false bridges, and hidden units.
+Start at `treatments: "draft"` after settings completion under [Evidence staging](../evidence-graph/staging.md#transitions). Before `evidence`, read the complete treatment as an audience member and test every unit's arrival, development, departure, long-range consequence, information state, applicable agency, legibility of deliberate jumps, and proportional realization of the declared film scale. Compare the hierarchy to the unit map and reject placeholders, event lists, causal cards, inert lore, false bridges, and hidden units.
 
 Run [Author process Self-Review](../review-verification/self-review.md) to its clean round before every stage transition and again after any repair.
 

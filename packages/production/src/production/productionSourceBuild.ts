@@ -214,15 +214,15 @@ export interface ICompiledLibraryOwnerRegistration {
  * owns; `collectLibrarySourceRegistrations` owns everything after it.
  *
  * An address the active authoring declaration does not own is refused rather
- * than silently skipped, because a module that builds a subject no reviewed
- * decision asked for would publish an artifact no review ever charges an
+ * than silently skipped, because a module that builds a subject no completed
+ * decision asked for would publish an artifact no authored owner charges an
  * observation on.
  *
  * @evidence requirements/agent-authoring/source-owned-loop.md#agent-ordinary-code-authoring Evaluates the selected library module with ordinary Node loading from the project's own package root, so an owner is plain project code rather than a hidden editor state.
  * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Evaluates exactly the graph-selected project-relative path whose exports are then admitted as owner edges.
  */
 export const buildLibrarySource = (props: {
-  /** Project-relative source path selected by a reviewed source binding. */
+  /** Project-relative source path selected by an enforced graph binding. */
   path: string;
   /** Normalized source text of that file. */
   source: string;

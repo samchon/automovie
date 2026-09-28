@@ -19,7 +19,7 @@ export interface IAutoMoviePopulationAccountClaimsProps {
   obligationFiles: readonly string[];
   /** Whether the branch currently enforces evidence. */
   enabled: boolean;
-  /** Whether acknowledgement reviews are required. */
+  /** Compatibility input; native companions are never required. */
   requireReview: boolean;
 }
 
@@ -110,7 +110,7 @@ export function createAutoMoviePopulationAccountClaim(props: {
     files: [props.document],
     symbol: "h2",
     noEvidenceExclude: true,
-    requireReview: props.requireReview,
+    requireReview: false,
   };
   return {
     name: props.name,

@@ -14,6 +14,7 @@ import {
   digestAutoMovieBytes,
   normalizeAutoMovieSource,
 } from "./contentIdentity";
+import { isAutoMovieSourceOwnerBindingComplete } from "./sourceOwnerBinding";
 
 /** Versioned identity of the graph-selected library input closure. */
 export const AUTOMOVIE_LIBRARY_AUTHORING_SNAPSHOT_PROTOCOL =
@@ -84,9 +85,9 @@ export interface IAutoMovieLibrarySourceExecution {
   exportName: string;
   /** Exact authored target path and anchor. */
   owner: string;
-  /** Reviewed normalized source digest. */
+  /** Normalized source digest authenticated by the execution plan. */
   sourceDigest: string;
-  /** Whether the current graph edge passed review. */
+  /** Optional legacy review-metadata observation, independent of completion. */
   reviewed: boolean;
 }
 
@@ -193,16 +194,16 @@ export const sameAutoMovieLibraryAuthoringSnapshot = (
  *
  * Source-owner edges include design source branches and the separately
  * selected `productionSources` branch. The plan therefore cannot silently
- * hash a reviewed production source without executing its named export, and a
- * stale, missing, ambiguous, or unreviewed edge stays outside `entries`.
+ * hash a completed production source without executing its named export, and a
+ * stale, missing, ambiguous, or incomplete edge stays outside `entries`.
  *
- * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Makes reviewed library production sources part of both execution and result attribution.
+ * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Makes completed library production sources part of both execution and result attribution.
  * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries source path, named export, exact authored owner and source digest as one execution identity.
  * @author Samchon
  */
 export const createAutoMovieLibrarySourceExecutionPlan = (
   snapshot: IAutoMovieLibraryAuthoringSnapshot,
-  requireReviewed: boolean = true,
+  requireCompleted: boolean = true,
 ): IAutoMovieLibrarySourceExecutionPlan => {
   const sourceDigests = new Map(
     snapshot.sources.map((source) => [source.path, source.digest]),
@@ -238,10 +239,10 @@ export const createAutoMovieLibrarySourceExecutionPlan = (
     }
     if (
       binding.enforced === false ||
-      (requireReviewed && binding.reviewed === false)
+      (requireCompleted && !isAutoMovieSourceOwnerBindingComplete(binding))
     ) {
       problems.push(
-        `Library source "${binding.sourcePath}#${binding.exportName}" has no current enforced reviewed owner edge.`,
+        `Library source "${binding.sourcePath}#${binding.exportName}" has no completed enforced owner edge.`,
       );
       continue;
     }

@@ -2,7 +2,7 @@
 
 Run `npx --no-install automovie routes <film|brief|library>` before selecting a design field. Its typed matrix names the canonical owner, typed input, public consumer, and authoring route for each supported capability, or the exact reason that capability is inapplicable to the selected shape. A field absent from that matrix is not made available by mentioning it in prose.
 
-Delivery tiers, repaint adoption and requests, the dialogue generator and its speaker joins, and live soft-body admission are typed production values. Author each in governed source under its reviewed document owner and pass it directly to the runtime consumer. [Ownership](../../../README.md#ownership) owns the source and file boundary.
+Delivery tiers, repaint adoption and requests, the dialogue generator and its speaker joins, and live soft-body admission are typed production values. Author each in governed source under its completed document owner and pass it directly to the runtime consumer. [Ownership](../../../README.md#ownership) owns the source and file boundary.
 
 Read the consuming package's input types and validators before the runtime chooses a provider, actor, raster, or live solver. Validate actual input values rather than assuming a TypeScript declaration proves data received at a runtime boundary.
 
@@ -39,7 +39,7 @@ The same selection also contains `generatorProvenance`: the cost basis and a typ
 
 Repaint uses the same adoption discipline through its independent `repaint` field: exact provider and model revision, cost, reasoned consumer, no credential, and receipt-bound output identity. Dialogue and repaint remain separate consumers, but neither may invent an ephemeral provider choice outside the design record.
 
-Declare adopted input assets with their project-relative paths and typed consumer bindings in the source owner that uses them. Record their provenance in the corresponding reviewed document. Derive deterministic geometry through source functions rather than a second asset ledger.
+Declare adopted input assets with their project-relative paths and typed consumer bindings in the source owner that uses them. Record their provenance in the corresponding completed document. Derive deterministic geometry through source functions rather than a second asset ledger.
 
 ## Speaker identity join
 
