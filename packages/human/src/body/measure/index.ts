@@ -6,3 +6,4 @@ export * from "./segmentHumanBodyModel";
 export * from "./solveHumanBodyMeasuredChannel";
 export * from "./solveHumanBodyArmsDown";
 export * from "./stepHumanBodyArmsDown";
+export * from "./createHumanBodySegmenter";

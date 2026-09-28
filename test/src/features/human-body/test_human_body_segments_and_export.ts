@@ -1,6 +1,7 @@
 import { measureAutoMovieModelCrossings } from "@automovie/engine";
 import {
   createHumanBodyBasisBuilder,
+  createHumanBodySegmenter,
   exportHumanBody,
   segmentHumanBodyModel,
 } from "@automovie/human";
@@ -26,6 +27,9 @@ import { throwsError } from "../internal/predicates";
  *    region walk, or whose part is not a mesh, refuses.
  * 4. The export returns GLB bytes with the glTF magic and a glTF JSON whose
  *    single mesh carries the box's triangles.
+ * 5. A basis-compiled partition reuses UV and skin ownership across two
+ *    different shaped builds but returns fresh posed buffers and source maps.
+ *    A same-size builder mesh with reordered corners refuses.
  */
 export const test_human_body_segments_and_export = async (): Promise<void> => {
   const { basis, document } = humanBodyBasisFixture();
@@ -58,6 +62,52 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     [4, 5, 6, 7].every((v) => sources.get("spine")!.includes(v)) &&
       [0, 1, 2, 3].every((v) => sources.get("hips")!.includes(v)) &&
       sources.get("spine")!.length === 8,
+  );
+  const segment = createHumanBodySegmenter(basis);
+  const atRest = segment(built);
+  const restPart = atRest.model.parts[0];
+  if (restPart.geometry.type !== "mesh") throw new Error("expected a mesh");
+  const restPositions = restPart.geometry.mesh.positions.slice();
+  const shaped = segment(build({ ...document, shape: { width: 1 } }));
+  const shapedPart = shaped.model.parts[0];
+  if (shapedPart.geometry.type !== "mesh") throw new Error("expected a mesh");
+  TestValidator.predicate(
+    "compiled ownership survives a new shape with fresh output buffers",
+    shapedPart.geometry.mesh.positions.some(
+      (value, at) => value !== restPositions[at],
+    ) &&
+      atRest.sources !== shaped.sources &&
+      atRest.sources.get("hips") !== shaped.sources.get("hips") &&
+      JSON.stringify([...atRest.sources]) === JSON.stringify([...shaped.sources]),
+  );
+  TestValidator.equals(
+    "a later shape leaves the first built positions alone",
+    restPart.geometry.mesh.positions,
+    restPositions,
+  );
+  const firstPart = built.model.parts[0];
+  if (firstPart.geometry.type !== "mesh") throw new Error("expected a mesh");
+  const reordered = {
+    ...built,
+    model: {
+      ...built.model,
+      parts: [
+        {
+          ...firstPart,
+          geometry: {
+            type: "mesh" as const,
+            mesh: {
+              ...firstPart.geometry.mesh,
+              indices: firstPart.geometry.mesh.indices!.slice().reverse(),
+            },
+          },
+        },
+      ],
+    },
+  };
+  TestValidator.predicate(
+    "same-size reordered builder corners refuse",
+    throwsError(() => segment(reordered), "corner order"),
   );
 
   // 2. top corners 4, 5, 6, 7 on hips, chest, chest, spine: the top triangle

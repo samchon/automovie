@@ -9,7 +9,7 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyShoulderPose } from "../structures/IAutoMovieHumanBodyShoulderPose";
-import { segmentHumanBodyModel } from "./segmentHumanBodyModel";
+import { createHumanBodySegmenter } from "./createHumanBodySegmenter";
 
 const SIDES = ["left", "right"] as const;
 
@@ -22,6 +22,8 @@ const SIDES = ["left", "right"] as const;
  * omitting their mutual crossings from each first-safe reading; an arm
  * already clear holds its chosen angle. The final pair is built with
  * cross-arm crossings restored before returning it.
+ * The resident worker passes its basis-compiled skin partition; a standalone
+ * caller compiles that immutable ownership once for this solve.
  *
  * A caller that must stay responsive (the editor's body worker, which
  * evaluates one request at a time) hands its thread back between steps and
@@ -37,6 +39,8 @@ export function* stepHumanBodyArmsDown(
     document: IAutoMovieHumanBodyBasisDocument,
   ) => IAutoMovieHumanBodyBuild,
   document: IAutoMovieHumanBodyBasisDocument,
+  segment: ReturnType<typeof createHumanBodySegmenter> =
+    createHumanBodySegmenter(basis),
 ): Generator<
   undefined,
   Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">,
@@ -91,8 +95,7 @@ export function* stepHumanBodyArmsDown(
     elevations: number[],
     omitOppositeArm = false,
   ): Map<string, number>[] => {
-    const parts = segmentHumanBodyModel(
-      basis,
+    const parts = segment(
       build({ ...document, pose, shoulders: goals(elevations) }),
     ).model.parts.map((part) => ({
       // the partition emits the builder's resident meshes only
