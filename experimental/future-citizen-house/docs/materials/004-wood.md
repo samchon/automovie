@@ -4,31 +4,18 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 타일 세 방을 뺀 아홉 방의 floor-boards population 전체를 이 마감에 두고, 판 폭·길이·잘린 판·두께·틈은 층 owner에 남겨 바닥 목재의 배정 누락과 형상 침범이 없다.
-@evidenceReview principles/core/common.md#scope-preservation  바닥 마감 범위가 아홉 방의 floor-boards로 고정돼 있다. tile 방의 판재를 오크로 덮는 경계 침범은 본문에서 막는다.
 @evidence principles/core/common.md#substantive-completion #a78965·roughness .55, oak-grain 1024²·U .36m·V 1.8m, 평균 .96·범위 .86..1.00, 결 간격 1.5..4mm·띠 폭 20..50mm·횡편차 8mm, 판별 계수 .96..1.04를 정해 구현이 바닥 외관을 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  본문의 색·광택·결 간격과 판별 계수는 source가 새 미관 값을 고를 필요가 없을 만큼 정해졌다.
 @evidence principles/core/common.md#declared-basis 따뜻한 목재 바닥은 시각 문법, 판 치수와 틈은 floors.ts의 층 owner, +Z 결은 coordinate-datum과 판 local 축에서 받고 grain·색 수치는 이 층의 선택이다.
-@evidenceReview principles/core/common.md#declared-basis  판 치수와 틈은 floors.ts의 몫으로 남는다. 여기서 선택한 것은 그 판 위에 읽힐 색과 결이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation production-visual-grammar는 따뜻한 목재 바닥을, ground-level과 upper-level은 실제 floor-boards의 소유와 판 분할을 준다. 이 H2는 +Z 결, 반복 길이, 판별 위상과 .96..1.04 색 변화, 저광택 투명 응답을 결정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  ground-level과 upper-level이 바닥판을 주고 visual grammar가 따뜻한 목재를 요구한다. 본문은 그 위에서 판별 결 위상과 투명 마감 응답을 따로 정한다.
 @evidence principles/design/materials.md#material-construction-appearance 명목 .06mm 무광 투명 마감은 표면층, 0.016m 판 두께와 틈은 geometry, 결은 명도 texture로 나누고 돌출이나 검은 옹이 구멍을 만들지 않는다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  명목 투명층은 메시를 두껍게 하지 않는다. 본문은 texture의 밝기 변화와 실제 판 단면을 분리한다.
 @evidence principles/design/materials.md#material-binding-interface 각 판 local +Z와 결 V를 맞추고 방 cell 경계에서 결을 돌리지 않는 world +Z 규칙을 정해 잘린 판에서도 결 방향이 바뀌지 않게 하고 결 폭은 001의 metric UV에 맡긴다.
-@evidenceReview principles/design/materials.md#material-binding-interface  잘린 판에도 local+Z 결을 유지한다. 방 경계를 이유로 texture 방향을 바꾸는 구현은 본문과 맞지 않는다.
 @evidence principles/design/materials.md#material-verification-address 최단·최장 판의 scale 표본과 ref03·05의 방 안 네 방향·문턱에서 판재와 저광택 목재가 동시에 읽히는지를 반증한다.
-@evidenceReview principles/design/materials.md#material-verification-address  최단·최장 판 및 방 내부 관찰 지점이 명시돼 있어 grain scale과 저광택 외관을 반증할 수 있다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work ground-level·upper-level의 층 owner 바닥 소유, 0.18×1.8m pitch와 x%3 엇갈림·0.016m 두께·1.5mm 틈의 판 분할을 대조했다. 잘린 판도 실제 크기를 가져 층 owner의 바닥 결정은 충분했다. 문 아래 host 벽 두께의 16mm 홈은 층 owner가 아니라 door-interface 문턱판으로 수리됐다(fbaf7c73).
-@evidenceExcludeReview upstream/design/materials.md#parent-revision-from-material-work  층 source의 판 분할과 두께가 이미 정해져 있다. 문 아래의 다른 홈은 door-interface에서 수리된 사실을 본문이 구별한다.
 @evidence settings/001-production.md#production-visual-grammar 따뜻한 목재 바닥과 참나무 계열이라는 재료 관계를 #a78965 저광택 오크로 구체화한다.
-@evidenceReview settings/001-production.md#production-visual-grammar  production-visual-grammar의 따뜻한 목재 요구를 구체 색과 roughness로 좁혔으며 사진의 계측치로 주장하지 않는다.
 @evidence settings/003-spatial-basis.md#coordinate-datum +Z 후면 축을 타일 방을 뺀 아홉 방 바닥판의 결 방향으로 쓴다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum  world+Z로 유지할 결의 기준이 건물 좌표계와 일치한다. 판 단위 국소 변환 뒤에도 관찰 축은 고정된다.
 @evidence spaces/002-spatial-graph.md#door-interface 바닥판이 닿지 않는 문 아래 host 벽 두께는 doorway의 문턱판이 채우므로 오크 바닥 grain을 그 빈 구간까지 늘리지 않는다.
-@evidenceReview spaces/002-spatial-graph.md#door-interface  문 아래 빈 구간의 소유자가 문턱판이라는 본문 링크가 있다. 바닥 texture를 그 구멍으로 연장하지 않는다.
 @evidence spaces/002-spatial-graph.md#ground-level 1층 연속 바닥의 최종 면을 층 owner가 소유하므로 현관·작업실·공용부·1층 수납의 판재 population에 이 마감을 배정한다.
-@evidenceReview spaces/002-spatial-graph.md#ground-level  1층 오크 바닥의 목적지가 현관·작업실·공용부·수납실로 열거돼 있다. 다른 세 tile 방을 포함시키지 않는다.
 @evidence spaces/002-spatial-graph.md#upper-level 2층 복도·세 침실·상층 수납의 바닥판을 같은 층 owner 결정으로 받는다.
-@evidenceReview spaces/002-spatial-graph.md#upper-level  상층 복도와 침실 세 곳·수납의 판이 대상이다. 복도와 침실의 판 결 축이 하나로 정의된다.
 -->
 
 `oak-floor`는 타일 방 세 곳(powder-utility, upper-bathroom, upper-service)을 제외한 아홉 방(entry, flex-workroom, common-room, storage-1f, upper-corridor, primary-bedroom, child-bedroom-1, child-bedroom-2, upper-storage)의 `<room.id>-floor-boards`에만 배정한다. storeys/floors.ts가 0.18m 폭·1.8m 길이 pitch, x열마다 0.6m씩 어긋나는(x%3) 판 이음, 잘린 판, 0.016m 판 두께와 판 사이 1.5mm 틈을 유지한다. 문 아래 host 벽 두께의 바닥 마감은 [door-interface](../spaces/002-spatial-graph.md#door-interface)의 문턱판이 채우며 oak-floor grain을 그 구간에 늘리지 않는다. 명목 무광 투명 마감층 .06mm이며 geometry를 추가하지 않는다. 기준색 #a78965, roughness=.55다. `oak-grain` 1024², U=.36m·V=1.8m 반복에서 결은 각 판 local+Z와 나란하다.
@@ -41,63 +28,34 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 
 <!--
 @evidence principles/core/common.md#scope-preservation 모든 doorway의 leaf·jamb·head·threshold, 본문이 이름으로 든 oak cabinet 18개의 문짝·측판·선반·back 판, 현관 충전 선반, murphy의 oak back·side·top을 이 마감에 두고 painted murphy closed-panel과 green·plaster·steel cabinet은 제외해 문과 수납 목재의 배정이 겹치거나 빠지지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  문틀과 oak cabinet의 노출 판은 포함하고 green·plaster·steel cabinet은 제외한다. 닫힌 panel도 painted 마감으로 분리된다.
 @evidence principles/core/common.md#substantive-completion 명목 .6mm 오크 베니어와 .06mm 투명 마감, #a08059·roughness .45, 판별 .98..1.02, 문짝·jamb·수직 전면·head·문턱판·선반·cabinet back·murphy 부재·충전 선반의 V 축을 정해 구현이 결 방향과 응답을 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  베니어 두께, 오크 기준색, 부재별 V축과 동률 규칙이 본문에 있어 결 방향을 source에서 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 문 단면과 leaf 두께는 door-interface, 손으로 여는 일반 문은 inherited-defaults, murphy의 상태는 flex-states에서 받는다. murphy 틀의 최종 part는 models가 소유하며 색·결 축은 이 층의 선택이다.
-@evidenceReview principles/core/common.md#declared-basis  문 단면·운동과 murphy 상태는 부모 소유다. 본문은 그 부재의 표면층과 방향만 결정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation door-interface는 leaf·jamb·head·threshold의 단면과 운동을, flex-states와 murphy-bed는 작업·손님 상태의 외함 부재를, cabinet-and-shelf와 entry-charging-shelf는 노출 수납면을 준다. 이 H2는 그 면의 세로·가로결과 베니어 응답을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  door-interface가 창구멍과 문 형상을, model H2가 수납 판을 제공한다. 이 H2의 새 결정은 그 노출 판의 목재 마감이다.
 @evidence principles/design/materials.md#material-construction-appearance 베니어·투명 마감은 명목 표면층이고 부재 두께와 운동은 geometry라고 나누며, 조립 내부 접착층과 실제 베니어 접합 상세를 구현했다고 하지 않는다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  베니어를 명목층이라고 적어 문짝 두께나 운동의 변경으로 읽지 못하게 한다. 내부 접착 시공도 인증하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 문짝·jamb·장 측판·수직 전면·murphy back·side는 V=local+Y, head·문턱판·수평 선반·충전 선반·murphy top은 긴 수평축(동률이면 local+X), cabinet back은 넓은 면의 긴 축으로 정하고 좁은 edge band의 결도 명시해 문이 hinge로 돌거나 pocket으로 미끄러져도 결이 문짝과 함께 움직인다.
-@evidenceReview principles/design/materials.md#material-binding-interface  세로 문짝과 가로 선반의 서로 다른 V축이 구체적이다. 문 운동 뒤에도 결이 부재를 따라가야 한다.
 @evidence principles/design/materials.md#material-verification-address 상층·작업실 방 표본에서 문틀 세로결·선반 가로결·열린 책장의 back 판과 handle 경계를, 문 상태 표본에서 열린 문짝의 세로결을 반례로 연다.
-@evidenceReview principles/design/materials.md#material-verification-address  열린 책장 back과 열린 문짝의 결이 관찰 대상이다. 단순 색 배정만으로 해당 검사는 통과하지 못한다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work 문 아래 oak/tile 문턱의 16mm 빈 홈은 부모 door-interface와 doorway source에서 fbaf7c73으로 수리했다. door-interface의 jamb·leaf와 opening 폭·높이·열림은 건축 목재 결에 충분하나 flex.ts의 murphy `back`·`side`·`top`은 임시 물체 주소다. settings/003#surface-decomposition의 이관 뒤 최종 model part/face를 결속한다.
-@evidenceReview upstream/design/materials.md#parent-revision-from-material-work  문 아래 빈 홈의 수리와 임시 murphy 부품 주소를 구별한다. 후자의 최종 소유가 model로 이관돼야 한다는 미결 조건을 숨기지 않는다.
 @evidence settings/002-household.md#inherited-defaults 손으로 여는 일반 실내 문이라는 기본값을 베니어 문짝과 hinge 회전을 따르는 결로 표현한다.
-@evidenceReview settings/002-household.md#inherited-defaults  일반 여닫이 문의 손 조작 기본값과 회전하는 leaf의 grain이 같은 부재에 붙는다.
 @evidence settings/002-household.md#flex-states 작업·손님 두 상태에 모두 남는 murphy 오크 틀은 이 마감으로, 작업 상태의 닫힌 panel은 painted로 나눈다.
-@evidenceReview settings/002-household.md#flex-states  murphy 외함은 두 상태에서 남고 closed-panel은 작업 상태의 painted 면이다. 서로 같은 목재로 합치지 않는다.
 @evidence spaces/002-spatial-graph.md#door-interface 0.06m jamb·head와 0.045m leaf 단면, clear width·host 두께의 0.016m 문턱판에 베니어 결 축을 부여하고 leaf 둘레의 틈은 형상 그대로 둔다.
-@evidenceReview spaces/002-spatial-graph.md#door-interface  leaf·jamb·head·threshold에 각각 부여하는 결은 기존 문틀 치수와 틈을 바꾸지 않는다.
 @evidence spaces/002-spatial-graph.md#front-entry 현관 출입구의 leaf와 틀, 외부 landing과 entry 바닥 사이 전면 외벽 두께를 채운 문턱판이 이 오크 베니어를 받는다.
-@evidenceReview spaces/002-spatial-graph.md#front-entry  현관 문턱판은 외부 landing과 실내 오크 바닥의 접합에 있다. 외부 포장 texture를 그 판에 쓰지 않는다.
 @evidence spaces/002-spatial-graph.md#entry-flex 벽 pocket으로 -Z 방향으로 미끄러지는 leaf의 세로결이 prismatic 이동과 함께 움직인다.
-@evidenceReview spaces/002-spatial-graph.md#entry-flex  pocket leaf가 미끄러지는 동안 세로 grain도 leaf와 함께 이동한다. 고정 벽에 texture를 남기는 결속을 배제한다.
 @evidence spaces/002-spatial-graph.md#entry-common leaf 없는 x=2.05 개구의 양 jamb와 head가 같은 오크 틀 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#entry-common  문짝 없는 entry-common 개구에는 jamb와 head만 목재가 된다. 존재하지 않는 leaf를 청구하지 않는다.
 @evidence spaces/002-spatial-graph.md#entry-powder powder 안쪽으로 여는 leaf와 틀, 문턱판이 이 마감이고 문턱판의 powder 쪽 끝에서 tile 바닥과 만난다.
-@evidenceReview spaces/002-spatial-graph.md#entry-powder  powder 쪽 tile 경계에서 문턱판의 오크가 끝난다. tile 바닥 전체를 오크로 바꾸지 않는다.
 @evidence spaces/002-spatial-graph.md#common-storage 수납실 안쪽으로 여는 x=-4.14 문짝과 틀을 이 마감으로 둔다.
-@evidenceReview spaces/002-spatial-graph.md#common-storage  common-storage 문짝과 틀의 목재 finish를 지정하며 수납실 안쪽 열림은 건축 owner의 운동이다.
 @evidence spaces/002-spatial-graph.md#corridor-primary 주침실 안쪽으로 여는 leaf의 세로결이 hinge와 함께 돈다.
-@evidenceReview spaces/002-spatial-graph.md#corridor-primary  주침실 leaf의 세로 결은 실제 hinge 회전을 따라야 한다. 위치나 회전값은 이 재료 H2가 만들지 않는다.
 @evidence spaces/002-spatial-graph.md#corridor-child-one 작은 침실 1로 여는 문짝과 틀, 문턱판이 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#corridor-child-one  작은 침실 1 문짝·틀·문턱판이 대상이며 방 바닥 전체의 판 결은 oak-floor의 몫이다.
 @evidence spaces/002-spatial-graph.md#corridor-child-two 작은 침실 2로 여는 z=1.05 문짝과 틀이 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#corridor-child-two  작은 침실 2의 문짝과 틀만 대상이다. z 위치는 부모 개구 위치를 받아 쓴다.
 @evidence spaces/002-spatial-graph.md#corridor-bathroom 욕실 안쪽으로 여는 leaf와 틀, 문턱판이 복도 쪽 오크 읽힘을 유지하고 문턱판의 욕실 쪽 끝에서 tile 바닥과 만난다.
-@evidenceReview spaces/002-spatial-graph.md#corridor-bathroom  욕실 문턱의 오크는 욕실 tile과 만나는 선까지만 간다. 한 판의 두 끝 마감 경계를 명시한다.
 @evidence spaces/002-spatial-graph.md#corridor-storage 상층 수납으로 여는 z=0.48 문짝과 틀이 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#corridor-storage  상층 수납 입구의 leaf와 틀을 목재 면으로 받는다. 부모 개구의 z 위치를 바꾸지 않는다.
 @evidence spaces/002-spatial-graph.md#corridor-service 설비실로 여는 z=-0.95 문짝과 틀이 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#corridor-service  설비실 문짝과 틀은 목재지만 그 안의 설비 cabinet은 steel 역할로 남는다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 murphy frame의 back·side·top 오크 판과 열린 벽 책장 flex-books의 back·측판·선반이 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#flex-workroom  작업실 murphy와 열린 책장의 판이 목재 목적지다. 본문은 방 source의 현재 이름을 최종 part 주소로 승인하지 않는다.
 @evidence models/002-storage-and-sleep.md#cabinet-and-shelf 수납장과 열린 책장의 door·side·shelf·back 노출 판에 oak-grain을 부품 길이 축으로 결합하며 green·steel 외함에는 적용하지 않는다.
-@evidenceReview models/002-storage-and-sleep.md#cabinet-and-shelf  수납장 노출 door·side·shelf·back에 결을 주되 green·steel cabinet에는 적용하지 않는 경계가 본문과 맞는다.
 @evidence models/002-storage-and-sleep.md#entry-bench 현관 벤치·신발장의 목재 외함 면은 oak-joinery로 받고 cushion은 직물 H2로 보낸다.
-@evidenceReview models/002-storage-and-sleep.md#entry-bench  신발 벤치의 목재 외함과 cushion을 따로 분배한다. model이 제공하는 두 표면을 한 texture로 뭉개지 않는다.
 @evidence models/002-storage-and-sleep.md#entry-charging-shelf 벽 연결 충전 선반의 노출 목재 판에 수평 결을 배정하고 충전 물체의 마감과 구별한다.
-@evidenceReview models/002-storage-and-sleep.md#entry-charging-shelf  충전 선반의 노출 수평 판에 grain을 주고 그 위 물체의 면 소유를 가져오지 않는다.
 @evidence models/002-storage-and-sleep.md#murphy-bed 두 정지 상태가 공유하는 case-back·case-side-left·case-side-right·case-top의 노출 목재면을 받되 work의 closed-panel은 painted-joinery에 남긴다.
-@evidenceReview models/002-storage-and-sleep.md#murphy-bed  두 상태 공통 case 판만 joinery 목재다. 손님 상태의 침대 frame과 닫힌 작업 panel은 다른 마감으로 분리된다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 문틀은 건축 owner, cabinet·murphy·충전 선반의 노출 부품은 model owner가 생성하며 이 H2는 각각의 목재 finish만 정한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  건축 문틀과 모델 수납장의 형상 소유가 다르다는 부모 경계를 본문이 유지한다. 재료는 두 종류의 노출 면에만 결속한다.
 @evidence settings/002-household.md#ground-program 건축 구멍 없는 평벽 부착 우편·충전 선반의 oak 면과 신발 수납·media wall·pantry·recycling cabinet의 oak 판이 이 마감을 받는다.
-@evidenceReview settings/002-household.md#ground-program  ground-program의 신발 수납·media wall·pantry·recycling 목적지를 현재 cabinet 목록과 연결한다. 비품 배치를 재료가 결정하지 않는다.
 -->
 
 `oak-joinery`는 doorway의 `*-leaf`, jamb/head, clear opening 아래의 `*-threshold`와 oak cabinet·충전 선반·murphy 틀의 노출 목재 면을 대상으로 한다. 현재 방 source의 [cabinet 조립](../../src/house/rooms/interior.ts)이 만든 18개 cabinet의 `door-*`·`side-*`·`shelf-*`·`back`, `entry-charging-shelf`, murphy `back`·`side-*`·`top`은 이관 전 임시 element 주소다. murphy 설계의 두 정지 상태가 공유하는 `case-back`·`case-side-left`·`case-side-right`·`case-top`의 노출 목재면은 이 오크 역할이고 work 상태의 `closed-panel`은 painted-joinery다. 최종 model part/face 주소는 models 재판정에 따라 각 cabinet 앞·뒤·edge까지 결속하며 현재 `back` 하나가 앞뒤를 모두 대표한다고 승인하지 않는다. oak cabinet의 현재 목록은 entry-shoe-bench, flex-books, common-media, kitchen-fridge-pantry, kitchen-sorting, powder-cleaning, powder-basin, ground-store-shelves, primary-nightstand 두 개, primary-wardrobe, child-one-wardrobe, child-one-books, child-two-wardrobe, upper-linen-cabinet, upper-utility-shelf, bath-vanity, bath-towels다. flex-books, child-one-books, ground-store-shelves, upper-linen-cabinet, upper-utility-shelf, bath-towels는 열린 선반으로 back 판이 노출된다. green cabinet, plaster cabinet, steel 설비장은 이 마감이 아니다. tile 방 세 문의 문턱판은 tile 방 쪽 벽면 선에서 [wet-tile](006-wet-and-joinery.md#wet-tile)과 만난다. 실제 문 운동과 부재 두께는 해당 건축 owner의 현재 geometry다. 판에는 명목 .6mm 오크 베니어와 .06mm 투명 마감을 표현하며 색 #a08059, roughness=.45, 같은 oak-grain을 쓴다. 판별 계수 .98..1.02다.
@@ -108,53 +66,29 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 
 <!--
 @evidence principles/core/common.md#scope-preservation 식탁·coffee table·네 desk의 top과 다리, 세 침실 고정 침대의 base/head·네 다리와 손님 상태 murphy의 bed-frame·support-left/right, 식탁 의자의 목재 seat·back, sofa plinth를 이 마감에 두고 식재 줄기·흙·잎과 element가 없는 palette의 walnut은 제외해 실제 가구 목재만 배정한다.
-@evidenceReview principles/core/common.md#scope-preservation  가구 목재의 열거는 식탁·탁자·책상·침대·의자·소파 받침으로 한정된다. 식재와 쓰이지 않는 walnut palette는 배제한다.
 @evidence principles/core/common.md#substantive-completion oak-furniture #aa8760·.48과 기준색 변화 .98..1.02, top·base·plinth·headboard·다리·좌판의 V 축과 동률 규칙을 정해 구현이 가구 목재를 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  가구 오크는 바닥 및 문 오크와 별도 기준색·광택을 갖는다. part별 grain 축도 본문에 있다.
 @evidence principles/core/common.md#declared-basis 가구 목록은 ground/upper program, 최종 형상은 models에서 받는다. 현재 방 source 메시를 임시 관찰 입력으로 구별하고 바닥·문과 다른 색·광택·결 축은 이 층에서 정한다.
-@evidenceReview principles/core/common.md#declared-basis  program은 가구의 역할을, models는 부품을 제공한다. 임시 room 메시 이름을 최종 결합 주소로 오인하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program과 upper-program은 식탁·책상·침대의 용도를, common-room·primary-bedroom·child-bedroom-1·child-bedroom-2는 목적지 cell을 준다. dining-table·work-desk·fixed-bed·murphy-bed 모델은 노출 목재 부재를 구분한다. 이 H2는 바닥·문과 다른 가구 오크 응답과 부재별 결 축을 결정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  방 cell과 모델 노출 부품을 함께 받아 가구의 목적지와 표면을 구별한다. 부모가 정하지 않은 것은 색·결 축이다.
 @evidence principles/design/materials.md#material-construction-appearance 판류는 .6mm 베니어, 0.045m 각재 다리는 통목처럼 읽히는 마감의 근사로 나누고 숨은 내부 구조를 성능 주장으로 남기지 않는다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  판 veneer와 각재 다리의 읽힘을 다르게 설명하고 숨은 구조 성능을 주장하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface table top·침대 base·sofa plinth는 윗면의 긴 축, headboard V=local+Y, 다리는 길이 축, 좌판·등받이는 넓은 면의 긴 축이고 동률이면 local+X로 정해 가구 회전과 함께 결이 움직인다.
-@evidenceReview principles/design/materials.md#material-binding-interface  상판·headboard·다리·좌판의 grain은 서로 다른 축이다. 동률 규칙이 있는 면도 구현 선택으로 남지 않는다.
 @evidence principles/design/materials.md#material-verification-address ref03·04와 세 침실의 방 표본에서 식탁·책상·고정 침대의 목재 결을 바닥·조리대와 구분하고, 손님 상태 표본에서는 murphy bed-frame·support-left/right의 오크 결을 반증한다. 상자 형상의 단순함은 모델 형상 판단에 남긴다.
-@evidenceReview principles/design/materials.md#material-verification-address  세 침실과 작업실 guest 상태가 관찰 대상이다. 단순 상자 형상은 model 검사의 몫이라고 경계를 둔다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work table·desk 다리, bed base, sofa 접지의 임시 방 source 오류는 8d0319f6에서 고쳤으나 형상의 최종 소유권은 부모에서 잘못 방에 배정돼 있었다. settings/003#surface-decomposition을 models prototype·instances 배치로 개정했고, 네 desk와 의자 및 cabinet의 새 part 주소는 models 재판정 뒤 결속한다.
-@evidenceReview upstream/design/materials.md#parent-revision-from-material-work  임시 room source의 접지 수리와 소유권 이관을 구별했다. furniture texture가 geometry 수리를 대신했다는 주장도 없다.
 @evidence settings/002-household.md#ground-program 여섯 자리 식탁·low table·조절식 desk를 가구 오크로 배정해 식사와 일의 가구로 읽히게 한다.
-@evidenceReview settings/002-household.md#ground-program  식사·거실·작업 가구의 목재 역할을 받되 식탁 자리 배치는 따로 남긴다.
 @evidence settings/002-household.md#upper-program 침실의 double/single bed와 desk를 같은 가구 목재로 받는다.
-@evidenceReview settings/002-household.md#upper-program  침실 침대와 desk의 목재 면을 받는다. program이 없는 다른 침실 가구의 반복 수를 끌어오지 않는다.
 @evidence spaces/002-spatial-graph.md#common-room 후면 연속 공용부의 clear cell을 식탁·낮은 탁자·식탁 의자·소파의 목적지로 받고, 목재 마감은 그 물체의 model part에 배정한다.
-@evidenceReview spaces/002-spatial-graph.md#common-room  공용부 cell을 가구의 목적지로 사용한다. 식탁 의자와 소파의 표면 분할은 model owner를 따른다.
 @evidence spaces/002-spatial-graph.md#primary-bedroom 주침실 침대의 base/head와 desk가 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#primary-bedroom  주침실 침대 frame과 desk가 이 목재의 목적지다. 침실 전체 바닥은 다른 H2가 맡는다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-1 L자 작은 침실 1의 침대 base/head와 desk가 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#child-bedroom-1  작은 침실 1의 꺾인 cell에서도 침대·책상 결은 각 부품의 local 축을 따라간다.
 @evidence spaces/002-spatial-graph.md#child-bedroom-2 작은 침실 2의 침대 base/head와 desk가 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#child-bedroom-2  작은 침실 2의 침대·desk를 같은 가구 목재로 읽되 방별 위치는 결정하지 않는다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 desk의 top과 다리, 손님 상태에 내려오는 guest bed의 bed-frame·support-left/right가 이 마감을 받는다.
-@evidenceReview spaces/002-spatial-graph.md#flex-workroom  작업실 desk와 펼친 손님 침대의 목재 부품을 함께 받는다. 접힌 상태의 외함은 joinery로 나눈다.
 @evidence settings/002-household.md#flex-states 손님 수면 상태에서만 나타나는 guest bed의 oak bed-frame·support-left/right도 세 침실 침대와 같은 가구 목재와 결 규칙을 받는다.
-@evidenceReview settings/002-household.md#flex-states  guest 상태에 나타나는 bed-frame과 지지부만 이 H2의 가구 오크다. work 상태 panel은 포함하지 않는다.
 @evidence models/001-seating-and-work.md#living-sofa 소파의 plinth 목재에 가구 오크를 배정하고 cushion·arm·back 직물은 별도 마감으로 남긴다.
-@evidenceReview models/001-seating-and-work.md#living-sofa  소파 plinth는 목재이고 arm·back·cushion은 직물이다. 두 재료의 접합이 본문에서 식별된다.
 @evidence models/001-seating-and-work.md#dining-table 식탁 top의 긴 수평 축과 다리 길이 축에 oak-grain을 결합한다.
-@evidenceReview models/001-seating-and-work.md#dining-table  식탁 top과 다리의 서로 다른 축을 모델 part에 결속한다. 식탁을 방 바닥 무늬로 대체하지 않는다.
 @evidence models/001-seating-and-work.md#coffee-table 낮은 탁자 top의 긴 local+Z와 다리 길이 방향에 가구 오크 결을 준다.
-@evidenceReview models/001-seating-and-work.md#coffee-table  낮은 탁자의 긴 방향은 local+Z이며 다리는 세로축이다. 같은 오크 이미지를 각 축에 맞춰 써야 한다.
 @evidence models/001-seating-and-work.md#dining-chair 식탁 의자의 seat-frame·back·leg-0..3은 가구 오크, 분리된 seat-pad는 직물로 배정한다.
-@evidenceReview models/001-seating-and-work.md#dining-chair  식탁 의자 목재 frame·back·다리와 seat-pad 직물을 분리한 주소가 본문 범위와 맞는다.
 @evidence models/001-seating-and-work.md#work-desk 작업실·침실 desk의 top과 다리에 가구 오크를 배정하고 상태별 위치와 회전은 instances에 둔다.
-@evidenceReview models/001-seating-and-work.md#work-desk  네 작업 책상은 같은 재료 역할을 쓰지만 상태별 transform은 instances 소유로 남는다.
 @evidence models/002-storage-and-sleep.md#fixed-bed 세 침실 고정 침대의 frame-side-left·frame-side-right·frame-head·frame-foot·support-deck·headboard·leg-0..3은 가구 오크, mattress·duvet·pillow는 직물로 나눈다.
-@evidenceReview models/002-storage-and-sleep.md#fixed-bed  고정 침대의 frame·deck·headboard·다리만 목재다. 침구 표면은 이 마감에서 제외된다.
 @evidence models/002-storage-and-sleep.md#murphy-bed 손님 상태에만 나타나는 bed-frame·support-left/right에는 가구 오크를, 공유 case는 oak-joinery를, mattress·duvet·pillow에는 직물을 배정한다.
-@evidenceReview models/002-storage-and-sleep.md#murphy-bed  손님 침대 frame·지지부와 공유 case를 다른 오크 역할로 나눈다. mattress는 직물로 남는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 가구의 최종 노출 face는 model owner가 만들고 방별 transform은 instances에 남기며 이 H2는 목재 색·결 축을 결합한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  model이 최종 face를 만들고 instances가 배치한다는 부모의 분업을 유지한다. 이 H2는 그 면에 색과 grain만 준다.
 -->
 
 `oak-furniture`는 공용부 식탁·coffee table과 네 desk(flex·primary·child-one·child-two)의 top·다리, 세 침실 고정 침대의 frame-side-left·frame-side-right·frame-head·frame-foot·support-deck·headboard·네 다리와 손님 상태 flex murphy의 bed-frame·support-left/right, 식탁 의자의 목재 부재, sofa plinth의 실제 면에 배정한다. 가구별 전체 형상과 최종 part/face 주소는 models가 소유하며 각 방의 배치는 instances가 소유한다. 현재 방 source의 element 이름은 이관 중 관찰 주소일 뿐 최종 바인딩이 아니다. 판류는 .6mm 베니어, 0.045m 각재 다리는 통목처럼 읽히는 마감의 근사이고 숨은 내부 구조는 미정 성능 주장으로 남기지 않는다. 색 #aa8760, roughness=.48, oak-grain을 쓰며 기준색 변화는 .98..1.02다.
@@ -165,25 +99,15 @@ table top·고정 침대 support-deck·murphy bed-frame·sofa plinth의 V는 윗
 
 <!--
 @evidence principles/core/common.md#scope-preservation 계단 owner의 기존 tread·riser와 stair-half-landing 전체를 이 마감에 두고 handrail은 coated-metal로 남겨 계단 목재면의 배정을 끝낸다.
-@evidenceReview principles/core/common.md#scope-preservation  계단 tread·riser·참은 목재이고 난간은 금속이다. 서로 닿는 곳에서도 owner가 바뀌지 않는다.
 @evidence principles/core/common.md#substantive-completion oak-stair #a78965·roughness .50과 oak-grain, tread·riser V=local+X, 참판 +Z를 정해 구현이 계단 결을 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  계단 오크의 기준색·광택과 tread·riser·참의 서로 다른 축이 본문에 고정돼 있다.
 @evidence principles/core/common.md#declared-basis 단 수·위치·폭·단높이는 single-stair, 도착선은 stair-opening에서 받고 색은 바닥 기준색을 잇는 이 층의 선택이다.
-@evidenceReview principles/core/common.md#declared-basis  단 수와 높이는 single-stair에서, 도착 경계는 stair-opening에서 받는다. 재료가 계단 geometry를 다시 산정하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation single-stair는 9+9단의 rise·going과 참 위치를, stair-opening은 상층 도착 경계를 준다. 이 H2는 tread·riser·참의 결 축과 층 바닥으로 이어지는 결 읽힘을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  계단 부모가 마련한 9+9단과 참을 대상으로 grain 축을 정한다. 층 바닥과 이어 보이는 목재 마감이 추가 결정이다.
 @evidence principles/design/materials.md#material-construction-appearance 명목 .06mm 투명 마감을 clearcoat 없이 roughness .50으로 근사하고 미끄럼·안전 성능을 선언하지 않으며, 실제 부재가 없는 접합을 texture로 추가하지 않는다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  투명층은 광택 근사만이다. 본문은 실제 미끄럼 성능이나 존재하지 않는 접합을 승인하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface tread·riser는 폭 방향 local+X, 참판은 +Z로 결을 정해 계단 수·위치·폭·회전을 바꾸지 않고 결합한다.
-@evidenceReview principles/design/materials.md#material-binding-interface  디딤·챌판 local+X와 참 +Z의 방향이 구별된다. 계단 부재 회전과 폭에는 영향을 주지 않는다.
 @evidence principles/design/materials.md#material-verification-address 첫단·꺾임참·마지막 단과 층 바닥의 이어짐, rail과 목재의 광택 차이를 scale-and-junction-samples의 계단 접합에서 반증한다.
-@evidenceReview principles/design/materials.md#material-verification-address  첫단·참·마지막 단과 rail 접합이 검사 지점이다. 목재와 금속 광택이 같으면 실패를 알 수 있다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work single-stair의 9+9 tread·riser와 y=1.60 참, stair-opening의 z=-1.80 도착선을 대조했다. 결 방향을 정하는 데 필요한 부재 local 축과 도착 경계가 모두 있었다.
-@evidenceExcludeReview upstream/design/materials.md#parent-revision-from-material-work  부모의 단 분할·참 높이·도착선은 grain 배치에 충분하다. 추가 계단 형상 수정 사유를 적지 않는다.
 @evidence spaces/002-spatial-graph.md#single-stair 9+9 tread·riser와 y=1.60 참판에 결 방향을 부여하고 metal handrail은 목재로 바꾸지 않는다.
-@evidenceReview spaces/002-spatial-graph.md#single-stair  single-stair의 tread·riser·참을 수신하고 handrail을 목재 마감에서 제외한다.
 @evidence spaces/002-spatial-graph.md#stair-opening 상부 flight 마지막 tread가 z=-1.80에서 복도 바닥판과 만나는 도착선을 결 연속 표본의 경계로 쓴다.
-@evidenceReview spaces/002-spatial-graph.md#stair-opening  상층 복도의 도착선은 grain 연속 판정 경계다. stair-opening의 높이·위치를 재료가 바꾸지 않는다.
 -->
 
 계단 owner의 기존 tread/riser와 stair-half-landing은 `oak-stair` 색 #a78965·roughness=.50, oak-grain이다. 계단 수와 위치·폭·단높이·회전은 바꾸지 않는다. 디딤판 결의 V는 폭 방향 local+X, riser도 가로+X, 참판은 +Z다. 현재 handrail은 metal이므로 목재로 바꾸지 않고 coated-metal을 받는다. 명목 .06mm 투명 마감을 roughness .50만으로 근사하며 clearcoat는 두지 않는다. 미끄럼/안전 성능을 선언하지 않는다.
@@ -194,25 +118,15 @@ table top·고정 침대 support-deck·murphy bed-frame·sofa plinth의 V는 윗
 
 <!--
 @evidence principles/core/common.md#scope-preservation grain 축이 면 법선과 평행한 모든 목재 끝면을 같은 완결 owner의 wood-end 역할로 받아 끝면이 무배정이나 불가능한 투영으로 남지 않게 한다.
-@evidenceReview principles/core/common.md#scope-preservation  모든 노출 끝면에 역할을 배정하고, 불가능한 평면 결 투영을 피한다. 끝면만 소유하는 별도 geometry를 만들지 않는다.
 @evidence principles/core/common.md#substantive-completion 베니어 판 끝면은 긴 접선축 V와 X·Z·Y 동률 순서, 통판(바닥판·디딤판·챌판·참판)과 0.045m 각재 다리의 끝면은 같은 기준색·roughness의 무texture 면으로 정해 구현이 끝면 처리를 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  베니어 끝과 통판 절단면을 다르게 다룬다. 같은 색을 쓰더라도 texture 유무가 정해져 있다.
 @evidence principles/core/common.md#declared-basis 기준 목재 마감은 oak-floor·oak-joinery·furniture-wood·stair-wood에서, 끝면 소유는 surface-decomposition의 완결 owner에서 받고 끝면 규칙은 이 층의 선택이다.
-@evidenceReview principles/core/common.md#declared-basis  네 목재 역할의 기준 응답을 재사용하면서 끝면에서만 필요한 결속 규칙을 이 H2가 추가한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-decomposition은 목재 부재 형상과 face 주소를 건축 또는 model owner에 남기고, door-interface는 leaf·jamb·threshold 단면을 정한다. 이 H2는 grain 축이 법선과 평행한 끝면의 별도 마감 규칙을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  부모가 부재와 face를 제공하고 이 H2가 법선 방향에 따른 예외 표면을 결정한다. 문짝 두께를 바꾸지 않는다.
 @evidence principles/design/materials.md#material-construction-appearance .6mm edge band는 명목 표면층이고 기준 부재 두께는 geometry 그대로이며 실제 나이테나 접착 시공을 인증하지 않는다고 나눈다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  edge band는 명목 마감층이다. 실제 판 두께와 접착 구성은 이 마감이 인증하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 끝면 법선과 grain 축의 비교로 역할을 정하고 부재 두께나 형상을 바꾸지 않는 결합 조건을 둔다.
-@evidenceReview principles/design/materials.md#material-binding-interface  면 법선과 결 축의 관계만으로 끝면 역할을 고른다. 기하의 절단 위치를 새로 정하지 않는다.
 @evidence principles/design/materials.md#material-verification-address 문·식탁·계단 접합 표본에서 얇은 edge와 넓은 면의 연결을 보고, census에서 texture 적용 면 수와 무texture 끝면 수를 따로 반증한다.
-@evidenceReview principles/design/materials.md#material-verification-address  문·식탁·계단의 접합 표본과 texture/무texture 수를 함께 요구해 끝면 누락이 드러나게 한다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work door-interface의 leaf·jamb 끝면은 건축 owner로 충분하지만 가구 판과 다리의 노출 끝면은 기존 방 source의 임시 주소다. settings/003#surface-decomposition에서 형상 owner를 models로 고쳤고, 판 edge까지 완결된 part/face 주소를 models 재판정에서 확인해야 한다. 다리 접지 source 오류는 8d0319f6에서 고쳤다.
-@evidenceReview upstream/design/materials.md#parent-revision-from-material-work  건축 문끝과 가구 끝면의 소유가 다르다. 후자의 임시 주소를 최종 바인딩으로 승인하지 않는 미결을 기록한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 끝면을 넓은 면과 같은 완결 owner가 배정해 다른 owner가 끝면만 덧칠하지 않게 한다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  끝면과 넓은 면을 같은 geometry owner가 완결한다. 마감만 별도 역할로 분기한다.
 @evidence spaces/002-spatial-graph.md#door-interface 0.045m leaf의 위·아래 끝면이 베니어 edge band 규칙의 대표 표면이다. jamb의 위 끝은 head 아래, 아래 끝은 바닥 datum에서 아래를 향해 가려진다.
-@evidenceReview spaces/002-spatial-graph.md#door-interface  leaf 위아래 끝이 대표적 edge band 검사 면이다. 가려진 jamb 끝을 보이는 표본으로 꾸미지 않는다.
 -->
 
 grain 축이 면 법선과 평행한 끝면은 같은 완결 owner가 `wood-end/<기준 목재 마감>` 역할을 배정한다. 베니어 판은 명목 .6mm edge band이며 그 끝면의 긴 접선축을 V로 삼아 같은 oak-grain을 쓴다. 접선 길이가 같으면 X, Z, Y 순으로 결정한다. 통판으로 표현한 바닥판·디딤판·챌판·참판과 통목처럼 표현한 0.045m 각재 다리의 절단 끝은 같은 기준색·roughness의 무texture 면으로 두어 불가능한 축 투영이나 가짜 나이테를 만들지 않는다. 보이는 통판 끝면은 계단 flight 옆 끝, 참의 z=-4.32 끝과 전면 계단 유리 너머의 z=-5.52 끝, 복도 도착에서 상부 flight 마지막 디딤판 옆으로 남는 x=-1.24..-1.18·0.02..0.12의 바닥판 끝이다. 기준 부재 두께는 그대로다.

@@ -4,15 +4,10 @@
 
 <!--
 @evidence obligations/design/materials.md#addressable-material-decisions 새 마감과 보존 역할, cassette·seal을 포함한 texture family, 관찰 네 역할을 29 H2에 배정한다. 석재 입자, 금속 층간 cassette와 seal, 목재 끝면, 도기와 좌판의 광택처럼 따로 바뀌는 결정은 해당 H2가 소유하며 직물 색·joinery 도장 같은 변형은 한 H2의 명시 항목으로 둔다.
-@evidenceReview obligations/design/materials.md#addressable-material-decisions  본문 표의 29 owner가 새 마감과 보존 역할을 나눠 가진다. 금속 plate와 seal, wood end, toilet seat처럼 분리된 역할도 별도 행이다.
 @evidence obligations/design/materials.md#material-identity-assembly 각 마감 H2가 기준색을 정하고 표면층이 있는 마감은 명목 두께(실내 도장 .15mm, cassette·coated-metal 도막 .08mm, joinery 도막 .1mm, 바닥·계단 투명 .06mm, 문·수납 베니어 .6mm+투명 .06mm, 가구 베니어 .6mm, 유약 .5mm, 직물 .001m, 섬유 .003m)를 이름으로 정한다. 금속 cassette의 어두운 seal은 별도 부재이고 석재 기층은 석재 마감을 유지한다.
-@evidenceReview obligations/design/materials.md#material-identity-assembly  명목 도장·베니어·유약·직물 층과 별도 금속 seal의 구분이 본문 표와 이어진다. geometry 두께로 오인하지 않는다.
 @evidence obligations/design/materials.md#material-surface-assignment 001의 역할 주소 위에서 002~006이 표면군을 나눠 받고 wood-end·금속 cassette·seal·retained까지 배정한다. oak cabinet은 back 판까지, junction 노출면은 향한 방의 벽 마감을, slab는 계단 구멍 쪽 절단면과 전면 strip 윗면만, 전면 외벽 body의 실내 면은 계단 void 띠만 도장을 받는다. cassette 뒤 panel·wall body는 석재, clip·anchor는 기존 금속 역할로 남고 plate·seal만 각자의 새 응답을 받는다. 별도 욕조 원형의 도기 노출면도 sanitary-ceramic에 배정한다.
-@evidenceReview obligations/design/materials.md#material-surface-assignment  stone 뒤판과 cassette 앞판, junction 방별 면, slab 절단면과 보존 면의 주소가 갈린다. 욕조 원형도 도기 목적지로만 배정된다.
 @evidence obligations/design/materials.md#material-response 모든 마감이 sRGB 기준색과 roughness·metallic을 수치로, 유리·PV·도기·거울이 transmission·ior·thickness·clearcoat·metallic 1을, grain texture가 linear 무채색 평균·범위와 물리 반복 길이를 갖는다. normal·displacement는 001에서 채널 밖으로 둔다.
-@evidenceReview obligations/design/materials.md#material-response  각 마감의 광학값과 texture 반복은 해당 H2가 소유한다. normal과 displacement를 지원 채널로 약속하지 않는다.
 @evidence obligations/design/materials.md#material-review-set 007이 native census, 1m·3m·12m와 30° 사선의 중성 장면·접합 목록, topology 전체 관찰과 다섯 reference, privacy·flex·문 상태 쌍을 배정하고 각 마감 H2가 자기 반례를 그 표본에 연결한다.
-@evidenceReview obligations/design/materials.md#material-review-set  007 네 관찰 역할이 census, 규모·접합, 전체 reference, 상태 쌍을 맡는다. 시각 합격을 아직 받았다고 적지 않는다.
 -->
 
 재료 결정은 다음 owner로 나뉜다. 각 H2는 자기 마감의 기준색·응답·texture·좌표·표본을 소유하고, 결합 주소와 좌표 규칙은 001을 공유한다.

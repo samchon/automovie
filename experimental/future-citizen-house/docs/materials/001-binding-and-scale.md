@@ -4,55 +4,30 @@
 
 <!--
 @evidence principles/core/common.md#scope-preservation 재료 층의 몫을 질감·반사로 한정하고 새 창호 단면·차양은 spaces, 물체 외형은 models, 식재 이동은 해당 배치 owner로 돌려 형상 결손을 재료 채널로 덮지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  본문은 새 창호나 물체 외형을 재료의 성과로 세지 않고 finish 응답으로 범위를 닫는다. 따라서 외피의 빈 형상을 칠로 감추는 누락은 이 H2의 통과로 오인하지 않는다.
 @evidence principles/core/common.md#substantive-completion 사용하는 native 값(baseColor 색과 primary UV의 baseColorTexture, scalar roughness·metallic·opacity·transmission·ior·thickness·clearcoat, emissive 색, alphaMode·alphaCutoff·doubleSided)과 쓰지 않는 채널(normal·metallicRoughness·occlusion·emissive texture, displacement, 새 shader·후처리 치환)을 이름으로 가르고, roughness는 모든 마감이 명시하며 나머지 미명시 값의 기본값을 적어 구현이 채널이나 기본값을 새로 고를 일이 없다.
-@evidenceReview principles/core/common.md#substantive-completion  전달 범위 본문의 지원 채널과 기본값을 함께 보면 미지정 roughness나 새 normal texture를 구현자가 선택할 여지가 없다. 실제 표면 결합은 아직 다음 source 층의 일이다.
 @evidence principles/core/common.md#declared-basis 채널 한계는 README의 현재 재료 전달 범위와 scene.mjs·payload.ts의 현재 경로에서, 표면 소유는 whole-surface-owners와 surface-decomposition에서, 길이 단위 m는 coordinate-datum에서 받고, sRGB 표기·기본값·수치는 이 층의 저작 선택이며 레퍼런스 픽셀 측정이나 실물 인증이 아니라고 구분한다.
-@evidenceReview principles/core/common.md#declared-basis  본문은 현재 uploader 경로와 표면 분해를 근거로 들고, 색 표기와 기본값을 재료 저작 선택이라고 분리한다. 사진에서 측정한 수치라는 근거를 주장하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation whole-surface-owners는 완결 외피 면의 owner를, surface-decomposition은 건축 면과 물체 face의 분리를, envelope-and-privacy와 production-visual-grammar는 밝은 석재·어두운 frame·목재 floor의 색 관계를 준다. 이 H2는 그 입력을 실제 렌더 채널·응답 기본값·명목 두께와 렌더 thickness의 구분·미해결 주소 실패로 구체화한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  whole-surface-owners가 제공하는 면과 surface-decomposition의 물체 경계를 받아 이 H2가 실패 주소와 렌더 기본값을 추가한다. 어느 부모도 이 native 채널 목록을 정하지 않았다.
 @evidence principles/design/materials.md#material-construction-appearance 렌더 thickness=0이 두께 없는 물체라는 뜻이 아니라고 적고 부재 두께는 spaces geometry, 도장·베니어의 명목 두께는 각 마감 H2, 광학 값은 렌더 근사로 나눈다. 색상 입자로 섬유 요철이나 석재 돌출을 만들었다고 하지 않는 경계도 둔다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  전달 범위의 thickness=0은 광학 기본값이고 실제 패널 두께가 아니라는 설명이 있다. 이 구분 덕분에 색상 grain을 물리 요철이나 구조층으로 읽는 오류를 막는다.
 @evidence principles/design/materials.md#material-binding-interface 재료는 완결 owner의 기존 표면에만 결합하고 새 형상을 만들지 않으며, owner·표면·재료·좌표 중 하나라도 풀리지 않으면 plaster fallback 대신 그 주소로 실패한다고 정해 host geometry 소유를 넘겨받지 않는다.
-@evidenceReview principles/design/materials.md#material-binding-interface  전달 범위의 미해결 주소 Error는 재료 이름을 plaster로 바꾸는 기존 fallback을 거부한다. 면 생성은 계속 원래 space/model owner의 책임이다.
 @evidence principles/design/materials.md#material-verification-address native 재료·texture 자원·현재 모델·uploader가 같은 값을 소비하는지를 binding-census가 반증하도록 연결하고, 방 안 정확한 거울상은 unverified로 남긴다.
-@evidenceReview principles/design/materials.md#material-verification-address  binding-census는 등록된 native 재료와 texture 소비를 대조할 주소이며 정확한 방 안 거울상은 검증 결과로 세지 않는다. 두 주장은 모두 전달 범위 본문에서 제한된다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work 이 재료 설계가 부모의 물체 owner 충돌을 드러냈다. settings/003#surface-decomposition에서 건축 표면과 model prototype·instance 배치를 분리하고 임시 방 source 퇴역을 선언했다. 기존 채널 제한과 fallback 금지는 이 층의 선택으로 남긴다.
-@evidenceReview upstream/design/materials.md#parent-revision-from-material-work  전달 범위의 건축 면·물체 face·배치 경계는 부모 surface-decomposition을 실제 수정한 내용에 대응한다. 별도 채널 선택은 부모 수정이 아니라 이 재료 H2에 남는다.
 @evidence settings/001-production.md#delivery-fidelity 실물 사진의 미세 질감이 아닌 blocking pass라는 경계를 scalar 응답과 색상 texture만 쓰는 채널 선택으로 옮기고, 재료 이름이나 색 패치로 빠진 부재를 대신하지 않는다.
-@evidenceReview settings/001-production.md#delivery-fidelity  실물 인증을 포기한 범위가 scalar 응답과 색상 이미지 사용에 나타난다. 빠진 창호 부재를 색으로 만들어냈다는 결과를 이 H2는 주장하지 않는다.
 @evidence settings/001-production.md#build-or-adopt production 내부 WebGL 도구와 공개 engine API라는 채택 범위 안에서 새 shader·channel·후처리 서비스 없이 기존 uploader가 받는 값만 설계한다.
-@evidenceReview settings/001-production.md#build-or-adopt  전달 범위의 native 재료 속성은 현행 viewer 전달 경로에 있는 것들이다. 별도 shader나 후처리 입력을 요구하지 않아 production 내부 채택 범위를 지킨다.
 @evidence settings/001-production.md#runtime-and-restart 단계의 순방향 유지와 변경 뒤 재검증 조건을 받아, 재료 설계의 관계 검사를 닫은 다음 materialSources 구현을 시작한다. 2026-09-28 사용자의 후속 지시에 따라 그 판정은 저작자가 직접 수행한다.
-@evidenceReview settings/001-production.md#runtime-and-restart  전달 범위 본문이 설계 검토 뒤 source 구현이라는 순서를 명시한다. 최신 사용자 지시로 판정 주체만 저작자로 바뀌었으며 순방향 stage와 재검증 조건은 유지된다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 입면·방·층은 건축 표면, models는 물체 part/face, instances는 그 배치를 소유한다는 개정 경계를 재료 결합 주소의 적용 범위로 삼는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  전달 범위의 면 주소는 입면·방·층과 물체 part를 구별하고 배치를 재료가 소유하지 않는다. surface-decomposition의 수정된 경계가 결합 범위를 제한한다.
 @evidence spaces/003-surface-ownership.md#whole-surface-owners 다섯 외피 면의 단독 owner가 return·개구·틀·마감을 모두 소유한다는 결정을 받아 재료가 외피를 사후 칠하기 owner로 나누지 않는다.
-@evidenceReview spaces/003-surface-ownership.md#whole-surface-owners  전달 범위는 외피를 사후 paint owner로 쪼개지 않고 완결된 공간 면을 입력으로 받는다. 한 모서리의 형상 결정은 여전히 해당 입면 owner에 있다.
 @evidence settings/003-spatial-basis.md#coordinate-datum m와 Y-up·후면 +Z를 재료 두께 및 후속 표면 좌표의 단위·축으로 받되 이 H2에서 새 공간 좌표를 만들지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum  전달 범위에서 m·Y-up·+Z를 값의 단위와 축으로 쓰되 이 H2는 방의 새 위치를 만들지 않는다. 좌표 기준을 광학 값의 실제 치수와 구분해 적용한다.
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 밝은 석재 불투명 면·어두운 금속 frame·연속 목재 floor라는 재료 언어를 각 마감 H2의 입력으로 받는다.
-@evidenceReview settings/003-spatial-basis.md#envelope-and-privacy  전달 범위는 석재 불투명 면, 금속 틀, 목재 바닥의 역할만 상속한다. 각 finish의 색·roughness 수치는 뒤의 마감 H2가 소유한다.
 @evidence settings/001-production.md#production-visual-grammar 흰 면을 색으로 데워 조명을 흉내 내지 않는 시각 문법을 채널과 기준색 선택의 한계로 받는다.
-@evidenceReview settings/001-production.md#production-visual-grammar  전달 범위는 흰 마감의 기준색을 조명 효과로 조정하지 않고 응답 기본값으로 한정한다. 색으로 납품 장면의 조명을 흉내 내는 경로가 없다.
 @evidenceExclude settings/001-production.md#roles-and-accessibility 관찰 결과와 생산세계의 물리적 접근성은 서로 다른 대상임을 검토했다. 이 H2의 채널·기본값·주소 오류 규칙은 관찰자 역할이나 운영자 UI를 구현하지 않는다. 한국어 서술과 안정 finish id의 일관성은 재료 공통 account의 production-language가 답한다.
-@evidenceExcludeReview settings/001-production.md#roles-and-accessibility  본문의 채널 계약은 관찰 결과와 UI 접근성의 역할을 정의하지 않는다. 한국어 설명과 ID 조건은 공통 account가 맡으므로 이 H2의 제외 범위가 실제로 비어 있다.
 @evidenceExclude settings/001-production.md#settings-coverage-map 개정된 설정 지도는 건축 치수·문·입면을 spaces, 물체 형상을 models, 배치를 instances로 넘긴다. 이 H2는 그 색인을 직접 소비하지 않고 시각 문법·표면 분해·외피와 개구부·좌표 기준 H2를 각각 읽는다.
-@evidenceExcludeReview settings/001-production.md#settings-coverage-map  설정 지도 전체를 재료 좌표로 바꾸지 않고 전달 범위에서 직접 필요한 표면·외피·시각 문법 target을 따른다. 상속 목록을 빠뜨린 것을 색인 인용으로 숨기지 않는다.
 @evidenceExclude settings/002-household.md#household-program 거주자를 인물 asset이 아닌 사용 배경으로 두는 결정을 검토했다. 이 H2는 사물과 건물 표면의 재료 채널만 정하므로 거주자나 공동생활 밀도를 표면 무늬로 생성하지 않는다. 가구·설비별 마감은 해당 재료 H2에서 인용한다.
-@evidenceExcludeReview settings/002-household.md#household-program  거주자 밀도는 물체 표면의 grain seed가 아니다. 전달 범위는 인물 asset을 만들지 않고 건물과 사물의 finish만 입력으로 삼는다.
 @evidenceExclude settings/002-household.md#design-subject-conditions 지름 0.60m·높이 1.80m 가상 통행 원통과 인체 사용성 범위 밖 목록을 검토했다. 재료는 형상·배치·문 상태를 바꾸지 않아 원통 검사의 입력을 소비하거나 변경하지 않으며, 미끄럼·안전 성능을 주장하지 않는다는 한계는 각 마감 H2에 따로 있다.
-@evidenceExcludeReview settings/002-household.md#design-subject-conditions  통행 원통의 지름과 높이를 재료 채널로 재현하지 않는다. 미끄럼 안전 등 물성 인증도 전달 범위의 렌더 기본값에서 도출되지 않는다.
 @evidenceExclude settings/003-spatial-basis.md#ground-graph 1층의 현관·계단·공용부·작업실·코어 연결 그래프를 검토했다. 재료는 연결을 더하거나 빼지 않고 문턱 마감 경계는 개별 문과 방 H2를 인용하므로 그래프 자체를 입력으로 쓰는 재료 결정이 없다.
-@evidenceExcludeReview settings/003-spatial-basis.md#ground-graph  현관에서 공용부까지의 연결은 벽과 문의 topology로 남는다. 이 H2는 그 edge 수를 바꾸지 않고 실제 개별 면만 후속 결합 대상으로 둔다.
 @evidenceExclude settings/003-spatial-basis.md#upper-graph 계단참에서 시작하는 일자 복도와 여섯 방의 직접 문 연결을 검토했다. 상층 마감은 각 방·문·벽 H2의 실제 면에 결합하고 복도 그래프의 분기 금지나 연결 수를 읽지 않는다.
-@evidenceExcludeReview settings/003-spatial-basis.md#upper-graph  복도에서 여섯 방으로 나뉘는 상층 그래프는 finish 기본값의 입력이 아니다. 실내 면은 방 owner가 생성한 주소를 통해서만 받는다.
 @evidenceExclude settings/004-observation.md#accessibility-products 텍스트 id 목록·키보드 조작·글자 상태 표시와 자막·전사 없음의 분류를 검토했다. 재료 상태 표본은 privacy·flex 선택을 소비할 뿐 텍스트 목록이나 조작 요소를 바꾸지 않고, 유리 색만으로 상태를 알리는 새 UI를 만들지 않는다.
-@evidenceExcludeReview settings/004-observation.md#accessibility-products  privacy·flex는 재료 상태가 취할 입력이나 키보드 UI의 구현은 아니다. 전달 범위의 마감 채널로 접근성 산출물을 대체하지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#ground-partition 1층 다섯 방의 clear cell 분할과 cell 사이 gap을 shared wall로만 쓰는 원칙을 검토했다. 재료는 각 방·벽·문 H2의 실제 면을 인용하고, 분할 원칙 자체는 마감의 좌표·배정·응답 어느 것에도 쓰이지 않는다.
-@evidenceExcludeReview spaces/002-spatial-graph.md#ground-partition  1층 cell 사이 공용벽은 공간 소유이며 전달 범위의 재료 범위는 생성된 벽 면 뒤에서 시작한다. cell gap을 finish가 새로 나누지 않는다.
 @evidenceExclude spaces/002-spatial-graph.md#upper-partition 복도와 그 복도에서 직접 닿는 여섯 방으로 된 상층 분할과 L자 seam에 벽을 두지 않는 원칙을 검토했다. 재료는 개별 방·벽 H2의 면에 결합하며 분할 원칙이나 seam 무벽 규칙을 입력으로 읽지 않는다.
-@evidenceExcludeReview spaces/002-spatial-graph.md#upper-partition  상층 L자 seam에 벽이 없다는 조건은 재료층이 변경할 수 없다. 이 H2는 방 표면의 finish를 정하지만 분할 자체를 읽지 않는다.
 -->
 
 이 설계는 사용자가 요청한 재료 질감·반사를 소유한다. [표면 분해](../settings/003-spatial-basis.md#surface-decomposition)에 따라 입면·방·층은 건축 면, models는 물체 part/face, instances는 배치를 맡는다. 재료 언어는 [외피와 개구부](../settings/003-spatial-basis.md#envelope-and-privacy)의 밝은 석재 계열 불투명 면·어두운 금속 frame·연속 목재 floor와 cabinetry, 색 관계는 [시각 문법](../settings/001-production.md#production-visual-grammar)에서 받는다. materials는 재사용 가능한 재료 응답과 좌표 조건을 제공한다. 새 창호 단면과 차양은 spaces, 가구 외형은 models, 식재 위치는 해당 배치 owner에 남긴다. 현재 방 source의 물체 메시와 마감 문자열은 이관 중 임시 소비이고 영구 결합 주소로 승인하지 않는다. 재료는 계측·판정 역할 분담, 방·층 그래프와 분할, 거주자 설정의 인물·생활 밀도, 접근성 산출물, 통행 원통 검사를 바꾸지 않고 개별 방·벽·문·창·입면 H2의 실제 면과 생활 프로그램을 소비한다. 검증 대상은 같은 집의 실제 표면이며 별도 샘플이 집을 대신하지 않는다.
@@ -61,97 +36,54 @@
 
 이하 색은 sRGB `#RRGGBB`, 길이는 [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)의 m, roughness와 metallic은 무차원 렌더 값이다. roughness는 모든 마감 H2가 명시한다. 별도 명시가 없으면 metallic=0, opacity=1, alphaMode=opaque, doubleSided=false, transmission=0, emissive=null, thickness=0, clearcoat=0, ior=1.5다. alphaCutoff는 alphaMode=mask에서만 쓰며 미명시 0.5이고, baseColorTexture가 없는 마감은 texture 없이 색만 쓴다. 렌더 thickness=0은 물체의 두께가 없다는 뜻이 아니다. 부재 두께는 spaces의 기존 geometry, 표면 도장·베니어의 명목 두께는 각 마감 H2가 소유한다. 값은 저작 선택이며 레퍼런스 픽셀에서 잰 값이나 실물 인증값이 아니다.
 
-미지정 재료 이름을 plaster로 대신하는 현재 fallback은 새 바인딩 경로에서 허용하지 않는다. owner·표면·재료·좌표가 해결되지 않으면 그 주소로 실패한다. [전달 검사](007-observation.md#binding-census)는 native 재료, texture 자원, 현재 모델과 uploader가 같은 값을 소비하는지 검사한다. 이 경로와 source는 materials가 review에 들어간 뒤 materialSources에서 구현한다.
+미지정 재료 이름을 plaster로 대신하는 현재 fallback은 새 바인딩 경로에서 허용하지 않는다. owner·표면·재료·좌표가 해결되지 않으면 그 주소로 실패한다. [전달 검사](007-observation.md#binding-census)는 native 재료, texture 자원, 현재 모델과 uploader가 같은 값을 소비하는지 검사한다. 이 경로와 source는 materials evidence 내용이 닫힌 뒤 materialSources에서 구현한다.
 
 ## 표면 배정 인터페이스 {#surface-bindings}
 
 <!--
 @evidence principles/core/common.md#scope-preservation 재료 역할 주소는 건축 면과 model part/face에 결합하되 plan·벽 cut·opening·connector는 spaces, 물체 부재는 models, membership·transform은 instances에 남겨 재료 교체가 topology를 복제하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation  표면 배정 인터페이스는 동일한 `oak` 또는 `white` 문자열이라도 나무 줄기·가구·베개·도기를 구별한다. 따라서 finish 교체가 opening이나 prototype 생성까지 가져가지 않는다.
 @evidence principles/core/common.md#substantive-completion 재료 variant는 물체 형상·world bounds를 보존하고 instances가 공개 prototype 레코드의 세 필드와 explicit member 선택을 작성한다. 이 H2는 두 owner의 결합 순서와 검증 주소를 정해 variant 선택을 materialSources가 중복 소유하지 않게 한다.
-@evidenceReview principles/core/common.md#substantive-completion  material variant가 형상과 bounds를 유지하고 instance가 명시적으로 선택해야 한다. `default` 충돌과 미등록 recipe의 실패 지점까지 적혀 있어 단계 사이 소유가 비지 않는다.
 @evidence principles/core/common.md#declared-basis IAutoMovieInstancePrototypeDesign·IAutoMovieExplicitInstanceTransform과 materializeCompiledInstanceSet·instanceSlot의 계약과 id의 비공백·set 내 유일 조건은 interface·engine 원본 링크에서, `default`는 engine이 기본 modelRecipe에 부여하는 id에서, palette의 절대 sRGB 해석은 engine과 viewer의 기존 선형색 보정식에서 받고, weight=1 고정과 작성 경계의 Error 거부는 이 층의 선택으로 구분한다.
-@evidenceReview principles/core/common.md#declared-basis  공개 레코드와 compile 함수는 구현 입력이고, weight=1과 오류 거부는 저작 규칙으로 구분된다. type 자체에 없는 런타임 검사를 type의 기능으로 돌리지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation surface-decomposition은 건축 면·model part/face·instance 배치를, whole-surface-owners는 외피 면의 단독 owner를 정한다. 이 H2는 그 주소에 역할별 마감 ID·결 축·동일 형상 metric UV variant를 결합하고 instance의 명시적 선택과 기준색 palette 전달을 정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  부모가 주는 건축·물체 주소 위에 model 상태별 결합 표가 finish를 붙이고 variant 선택을 정의한다. 그 마감과 metric UV 결정은 부모의 공간 형상을 반복하지 않는다.
 @evidence principles/design/materials.md#material-construction-appearance variant는 형상·transform·member ID·world bounds를 보존하고 UV와 마감만 다르다고 정해 외관 교체가 부재 크기나 배치라는 구조 사실을 바꾸지 않으며, palette 절대색을 viewer 보정식으로 이중 tint하지 않는다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  variant는 같은 형상과 world bounds를 전제로 한다. 절대 palette에 viewer tint를 다시 곱하지 않아 재료 차이가 위치 변경으로 번지지 않는다.
 @evidence principles/design/materials.md#material-binding-interface 건축 면은 공간 owner와 element/face, 물체는 model prototype part/face와 instance id로 주소를 나눠 흰 pillow 직물·흰 basin rim 도기와 나무 줄기·가구 목재의 반례를 구별한다. variant의 prototypeBounds와 world bounds 일치를 호환 조건으로 둔다.
-@evidenceReview principles/design/materials.md#material-binding-interface  침구의 white와 세면대 rim의 white는 다른 면 역할이다. 잘못된 variant ID는 다른 부품으로 대체되지 않는다.
 @evidence principles/design/materials.md#material-verification-address explicit prototype으로 고른 variant가 모델별 부재 선택·동일 world bounds·member 정체성·기존 topology 참조를 유지했는지와, 없는 prototype의 native Error를 기본 모델이나 빈 population으로 바꾸지 않았는지를 binding-census가 반증하도록 연결한다.
-@evidenceReview principles/design/materials.md#material-verification-address  결합 census가 모델 부품, member 정체, bounds, topology 참조를 검사 대상으로 모은다. 실패한 explicit prototype은 native Error 그대로라 조용한 기본값 성공을 막는다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work surface-decomposition의 portal binding과 Assembly.repeat의 set/member 구조를 대조하며 재료 variant 선택의 형상·배치 owner 충돌을 찾았다. settings/003#surface-decomposition에서 model part와 instance 선택을 분리했고 이 H2도 materialSources가 member transform을 쓰지 않게 수리했다.
-@evidenceReview upstream/design/materials.md#parent-revision-from-material-work  표면 배정 인터페이스는 초기 임시 방 메시의 색 문자열을 영구 결합 주소로 인정하지 않는다. 부모 surface-decomposition에 물체 part와 instance 선택이 분리된 뒤 이 H2가 소비 경계를 적었다.
 @evidence settings/001-production.md#module-boundary CommonJS engine의 lowerBuiltEnvironment·materializeCompiledInstanceSet·instanceSlot을 서버 쪽 payload.ts에서만 호출하고 브라우저 client는 engine을 import하지 않은 채 server가 보낸 JSON payload를 소비하는 현재 경계를 variant 소비 경로로 그대로 쓰며, variant는 그 호출에 explicit prototype만 더한다.
-@evidenceReview settings/001-production.md#module-boundary  compiler 호출은 서버 payload 경로에 있고 브라우저는 JSON만 받는다. variant 선택 때문에 CommonJS engine을 browser client로 옮길 이유가 생기지 않는다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 건축·물체 생성 owner는 안정된 양면 주소와 seam을 제공하고 materials가 주소별 finish 결합을 결정한다. 상대 owner는 자기 면의 요구만 넘긴다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition  건축과 물체의 양면 주소는 생성 owner가 먼저 제공한다. 재료는 그 주소에 결 축과 응답을 결합할 뿐 part나 transform을 쓰지 않는다.
 @evidence spaces/003-surface-ownership.md#whole-surface-owners 입면 owner는 창호·shade와 노출 마감 면의 안정 주소를 제공하고 materials가 그 주소의 finish 결합을 결정한다. 입면이 자체 저작하는 건축 모듈 반복과 독립 물체의 instanceSources population은 구분한다.
-@evidenceReview spaces/003-surface-ownership.md#whole-surface-owners  외피가 완결 면 주소를 유지하고 재료가 finish를 공급한다. 입면 자체의 반복과 독립 물체 population을 한 owner로 합치지 않는다.
 @evidence models/000-representation.md#model-address-and-scale 물체의 prototype/part/face 주소와 숨은 접촉면까지 닫는 규칙을 받아 finish 결합은 생성 owner의 면을 참조하고 새 부품을 만들지 않는다.
-@evidenceReview models/000-representation.md#model-address-and-scale  상태별 결합 표는 model prototype의 노출 face에만 재료 ID를 붙인다. `body/*`의 닫힌 접촉면은 렌더하지 않는다는 점도 모델 표면을 새로 만들지 않게 한다.
 @evidence models/000-representation.md#model-bounds-and-states material variant는 원형의 상태별 부품 집합과 AABB를 보존하고 instances의 prototype 선택만 달리하는 결합으로 한정한다.
-@evidenceReview models/000-representation.md#model-bounds-and-states  동일 bounds 요구가 material variant에 의해 모델 상태별 AABB가 바뀌는 것을 막는다. 부품의 유무나 크기를 finish 선택으로 정하지 않는다.
 @evidence models/001-seating-and-work.md#accent-chair 표의 frame·leg에는 oak-furniture, seat·back·back-cushion·arm에는 textile-linen/green을 각각 배정한다.
-@evidenceReview models/001-seating-and-work.md#accent-chair  안락의자의 frame/leg는 oak, seat/back/arm은 textile로 갈라 한 상태 안에서 서로 다른 face 역할을 보존한다.
 @evidence models/003-service-fixtures.md#rear-counter-sink 표의 bowl·rim은 prop-steel, tap-base·tap-riser·tap-arm·tap-outlet은 coated-metal을 받는다.
-@evidenceReview models/003-service-fixtures.md#rear-counter-sink  뒤 싱크의 basin bowl/rim과 수전 네 부품은 별도 표면 역할이다. 금속이라는 큰 이름으로 수전 주소를 지우지 않는다.
 @evidence models/005-everyday-objects.md#household-textiles 표의 직물 상태는 textile 계열을, outdoor-mat은 prop-rubber를 body 면에 배정한다.
-@evidenceReview models/005-everyday-objects.md#household-textiles  실내 직물과 outdoor-mat는 같은 prototype의 다른 상태이고 후자에는 고무 단색을 쓴다. 직물 texture가 현관 매트에 누출되지 않는다.
 @evidence models/005-everyday-objects.md#personal-articles shoe·coat·garment·umbrella의 body와 sole, hanger·umbrella-stand의 body를 직물·고무·도장 금속 역할로 가른다.
-@evidenceReview models/005-everyday-objects.md#personal-articles  신발 밑창, 걸린 옷, 옷걸이의 면은 다른 재료로 읽는다. hanger의 금속은 코트의 직물 grain을 공유하지 않는다.
 @evidence models/005-everyday-objects.md#dining-wares plate·vase·bottle·cutlery의 body를 도기·용기 유리·금속으로 상태별 배정한다.
-@evidenceReview models/005-everyday-objects.md#dining-wares  병의 투과, 접시의 유약 근사, 식기의 금속 응답은 별도 상태다. body 하나라는 주소가 세 물성을 동질화하지 않는다.
 @evidence models/005-everyday-objects.md#kitchen-smallwares pot·pan·kettle 등의 금속, board·block의 목재, crock·jar·소형 기기의 별도 body 마감은 표의 상태별 결합이다.
-@evidenceReview models/005-everyday-objects.md#kitchen-smallwares  주방 소품의 결합 표는 도마의 결 축, 병의 투과, 소형 가전의 단색을 구별한다. pot의 metal을 crock의 도기로 확장하지 않는다.
 @evidence models/005-everyday-objects.md#bath-accessories body의 플라스틱·금속·종이와 cap-side·pump-top의 덧면을 상태별 역할에 결합한다.
-@evidenceReview models/005-everyday-objects.md#bath-accessories  욕실 소품의 병 몸체와 cap-side 및 soap pump-top은 분리된다. tissue-roll의 종이 면을 동일한 욕실 플라스틱으로 덮지 않는다.
 @evidence models/005-everyday-objects.md#household-boxes 상자 body의 종이와 parcel-locker body의 도장 금속을 다른 역할로 배정한다.
-@evidenceReview models/005-everyday-objects.md#household-boxes  네 종이 상자와 parcel-locker는 body를 공유해도 서로 다른 finish를 쓴다. locker에 종이 grain을 적용하지 않는다.
 @evidence models/005-everyday-objects.md#household-tools 도구 body의 기기 외피와 spare-light diffuser의 투과면을 구별한다.
-@evidenceReview models/005-everyday-objects.md#household-tools  도구 외피와 spare-light diffuser의 투과 응답은 다르다. 확산면의 존재는 도구 원형이 정하고 마감 표가 추가하지 않는다.
 @evidence models/005-everyday-objects.md#exterior-furnishings 외부 비품 body·garden-light diffuser·bicycle wheel을 도장 금속·확산면·고무로 구분한다.
-@evidenceReview models/005-everyday-objects.md#exterior-furnishings  외부 비품의 bicycle wheel 고무와 garden-light diffuser는 도장 금속 body가 아니다. outdoor-waste-bin은 또 별도 플라스틱이다.
 @evidence models/005-everyday-objects.md#wall-accessories entry-mirror front와 wall-sconce diffuser를 각 body의 도장 금속에서 따로 결합한다.
-@evidenceReview models/005-everyday-objects.md#wall-accessories  거울 앞면의 환경 반사와 벽등 확산면을 각각 금속 외함과 구별한다. `body/front`를 추가 pane 형상으로 오해하지 않는다.
 @evidence models/005-everyday-objects.md#desk-controls pointing-device body를 prop-appliance 응답으로 결합한다.
-@evidenceReview models/005-everyday-objects.md#desk-controls  pointing-device는 body 하나에 기기 외피 응답을 준다. 버튼이나 화면 같은 미정 부품을 재료층이 만들지 않는다.
 @evidence models/005-everyday-objects.md#under-cabinet-light body의 도장 금속과 diffuser의 prop-diffuser를 나눈다.
-@evidenceReview models/005-everyday-objects.md#under-cabinet-light  하부장 광띠의 body와 diffuser는 광학 응답이 다르다. 발광 과정 자체는 이 표가 소유하지 않는다.
 @evidence models/005-everyday-objects.md#kitchen-extractor body와 filter-left/right의 외면은 도장 금속, 두 필터 underside는 prop-steel로 결합한다.
-@evidenceReview models/005-everyday-objects.md#kitchen-extractor  배기 후드 두 필터의 underside만 steel이고 외면은 도장 금속이다. 필터를 하나의 균일 금속 면으로 합치지 않는다.
 @evidence models/001-seating-and-work.md#island-stool seat·leg와 새 footrest의 금속 외피는 기존 metal 역할을 유지하고 실제 접촉·형상은 모델에 남긴다.
-@evidenceReview models/001-seating-and-work.md#island-stool  섬 스툴의 footrest까지 기존 metal 역할을 따른다. 발받침의 치수와 접촉은 모델 owner의 결정으로 남아 있다.
 @evidence models/001-seating-and-work.md#work-equipment 화면·stand의 metal과 keyboard의 white를 보존하며 새 housing·keys 면도 해당 기기 역할로 결합한다.
-@evidenceReview models/001-seating-and-work.md#work-equipment  작업 장치의 화면 외함과 keyboard-body/keys는 다른 기존 metal·white 역할에 붙는다. 입력장치의 추가 형상을 이 표가 결정하지 않는다.
 @evidence models/003-service-fixtures.md#cooking-appliances wall-worktop top은 worktop-stone, hob·oven 외피와 금속 조작면은 기존 metal·steel 역할로 나누고 새 window만 유리로 결합한다.
-@evidenceReview models/003-service-fixtures.md#cooking-appliances  뒤 조리대 top, cooktop/oven 외피, window는 서로 다른 마감 역할이다. oven window에 조작부의 metal을 씌우지 않는다.
 @evidence models/003-service-fixtures.md#refrigerator body·door·toe와 handle을 기기 외피·도장 금속으로 배정하고 내부 선반을 마감 대상처럼 되살리지 않는다.
-@evidenceReview models/003-service-fixtures.md#refrigerator  냉장고 본체·문·toe와 손잡이는 다른 재료 역할이다. 내부 선반을 보이는 새 모델 part라고 주장하지 않는다.
 @evidence models/003-service-fixtures.md#laundry-appliances washer·dryer의 body는 기존 white, drum·controls는 metal, window는 glass 역할로 분리한다.
-@evidenceReview models/003-service-fixtures.md#laundry-appliances  washer와 dryer 몸체, drum/controls, window를 세 응답으로 분리한다. 투명 창을 흰 기기 외함으로 덮지 않는다.
 @evidence models/004-decor-and-fixtures.md#potted-plant pot의 기존 metal과 soil·stem·branch·leaf의 식재색 역할을 구분해 가구 목재 결이 잎에 번지지 않게 한다.
-@evidenceReview models/004-decor-and-fixtures.md#potted-plant  화분의 soil·stem·branch·leaf 색은 보존 역할이다. `oak`라는 문자열이 stem을 가구 베니어로 바꾸는 근거가 되지 않는다.
 @evidence models/004-decor-and-fixtures.md#books cover-left/right·spine과 pages를 책 표지·종이 역할로 결합한다.
-@evidenceReview models/004-decor-and-fixtures.md#books  표지·spine·pages는 종이 역할이고 texture가 접힌 페이지 형상을 만들어내지 않는다. 해당 면 주소는 책 모델의 것이다.
 @evidence models/004-decor-and-fixtures.md#folded-towels layer-0..2·fold-0..1의 노출면에 기존 linen 역할을 유지하고 모델의 접힌 틈을 texture로 채우지 않는다.
-@evidenceReview models/004-decor-and-fixtures.md#folded-towels  towel layer와 fold가 모두 linen을 쓰되 접힌 틈은 기하로 유지된다. woven 색상 입자를 새 음영 홈으로 취급하지 않는다.
 @evidence models/004-decor-and-fixtures.md#storage-basket bottom·wall·rim·handle에 기존 felt 역할을 유지한다.
-@evidenceReview models/004-decor-and-fixtures.md#storage-basket  bottom·wall·rim·handle은 felt 역할로 함께 배정된다. 손잡이를 별도 구조 소유자로 옮기지 않는다.
 @evidence models/004-decor-and-fixtures.md#entry-charger body와 interface는 기존 metal 역할에 두고 전자 기능을 마감이 주장하지 않는다.
-@evidenceReview models/004-decor-and-fixtures.md#entry-charger  충전기 interface와 body는 금속색이지만 충전 동작이나 발광을 주장하지 않는다. 표면 응답만 이 층의 범위다.
 @evidence models/004-decor-and-fixtures.md#wall-art back·frame·mat·artwork·cover를 목재 틀·종이 그림·투명 전면 역할로 가른다.
-@evidenceReview models/004-decor-and-fixtures.md#wall-art  액자의 back/frame, mat/artwork, cover를 목재·종이·투명 전면으로 나눈다. cover와 artwork가 같은 평면색이 되지 않는다.
 @evidence models/004-decor-and-fixtures.md#tabletop-props bowl·tray·cup의 shell·base·rim·body·handle에 도기·목재 역할을 상태별 결합한다.
-@evidenceReview models/004-decor-and-fixtures.md#tabletop-props  bowl·tray·cup은 shell, base, rim, handle의 기존 부품에 도기 또는 목재를 붙인다. 그릇 손잡이를 texture로 그린다는 설명이 없다.
 @evidence models/004-decor-and-fixtures.md#living-display mount·housing·bezel·screen은 기존 metal 역할에 두고 화면 표시 기능을 마감이 주장하지 않는다.
-@evidenceReview models/004-decor-and-fixtures.md#living-display  화면 housing과 screen에는 보존 metal 역할만 적었다. 실제 영상 표시 내용은 이 material binding으로 보증하지 않는다.
 @evidence models/004-decor-and-fixtures.md#ceiling-surface-light housing·trim의 metal과 diffuser의 glow를 기존 역할로 유지하며 발광은 systems에 둔다.
-@evidenceReview models/004-decor-and-fixtures.md#ceiling-surface-light  천장등의 housing/trim과 diffuser를 갈라 기존 glow 역할을 유지한다. 발광원 제어는 다른 층에 남긴다.
 @evidence models/004-decor-and-fixtures.md#dining-pendant canopy·cord·shade의 metal과 diffuser의 glow를 분리해 보존한다.
-@evidenceReview models/004-decor-and-fixtures.md#dining-pendant  pendant canopy·cord·shade와 diffuser는 금속/확산 역할로 갈린다. cord가 텍스처 속 선으로 대체되지 않는다.
 @evidence models/004-decor-and-fixtures.md#portable-lamps 기존 협탁등 globe의 glow와 금속 base를 보존하고 신규 독서등·작업등은 금속 외피·확산면으로 결합한다.
-@evidenceReview models/004-decor-and-fixtures.md#portable-lamps  협탁등과 독서·작업등은 상태별 외함과 diffuser에 배정된다. 독서등을 기존 globe 상태와 혼동해 재질 주소를 합치지 않는다.
 -->
 
 건축과 물체의 안정 면 주소는 각각 [표면 분해](../settings/003-spatial-basis.md#surface-decomposition)의 공간 owner와 model owner가 제공한다. materials가 양면 주소에 대한 finish ID·결 축·재료 응답을 결정하고 생성 owner는 그 결합을 운반한다. `oak`나 `white` 문자열 전체를 일괄 교체하지 않는다. 침대 pillow의 흰색은 직물이고 세면대 rim의 흰색은 도기다. 나무 줄기의 oak는 가구 목재가 아니다. 이 역할은 생성 시점의 typed 입력이며 viewer가 이름을 추측해서 칠하지 않는다. 기존 plan·벽 cut·opening·connector는 spaces, 물체 부재는 models, 배치와 상태별 위치는 instances가 계속 생성한다. 이전 방 source의 `*-bed-pillow-*`와 `*-rim` 문자열은 이관 전 임시 주소이며 model part id의 확정은 models 재판정 뒤 반영한다.
@@ -260,27 +192,16 @@ palette는 engine에서 절대 sRGB 색으로 쓰인다. materialSources는 새 
 
 <!--
 @evidence principles/core/common.md#scope-preservation 새 texture의 생성(seed·texel), 전달(surface-metres·transform·sampler), 비균일 scale 반영, 판별 위상, GPU 자원 공유를 한 규칙으로 묶고 PV와 층간 띠의 예외 owner를 명시해 좌표 규칙이 없는 texture 면이 남지 않게 한다.
-@evidenceReview principles/core/common.md#scope-preservation  metric 규칙은 seed 생성부터 sampler, scale, 판별 위상까지 texture 면의 공통 좌표를 적는다. PV 바인딩은 고유 owner의 예외로 남겨 무단 재투영을 막는다.
 @evidence principles/core/common.md#substantive-completion seed=2080, sRGB colorSpace와 ±.005 평균 오차, transform.scale=(1/tileU,1/tileV), wrapS/T·minFilter·magFilter·anisotropy, XY·XZ·ZY 접선축과 법선 부호, FNV-1a 위상의 비트 배정과 8종 상한까지 수치로 정해 구현이 표면 좌표계를 발명하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion  `surface-metres`와 역 타일 길이, 법선별 접선축, FNV-1a 비트 사용이 수치로 닫혀 있다. source가 임의 정규화 UV나 무작위 위상을 고를 여지가 없다.
 @evidence principles/core/common.md#declared-basis m와 +Y 위·+Z 후면 축은 본문이 링크한 coordinate-datum, reference 이미지 비사용은 delivery-scope, validateTextureScale의 반환은 engine 원본에서 받고, 위상 hash·texture 해상도·specialization key는 이 층의 저작 선택이라고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis  좌표 단위와 사진 배제는 부모 설정에 닿고 hash·해상도·key는 재료의 저작 결정이라고 명시한다. engine의 선택이라고 잘못 귀속하지 않는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 coordinate-datum은 단위와 축만 정한다. 이 H2는 그 단위를 texture 반복 길이, 실제 scale을 반영한 UV specialization key, 판별 위상 hash라는 표면 좌표 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation  좌표 기준은 m와 방향만 제공한다. 이 H2가 실제 표면 길이의 UV와 variant specialization으로 그 기준을 마감 반복에 맞게 바꾼다.
 @evidence principles/design/materials.md#material-construction-appearance 색상 texture는 구운 조명·접합 그림자 없는 명도 grain이라고 하고, tessellateToMesh나 기존 mesh의 위치·법선·삼각형은 보존한 채 face seam에서 UV가 달라지는 정점 속성만 복제한다고 정해 부재 형상과 외관 파라미터를 떼어 놓는다.
-@evidenceReview principles/design/materials.md#material-construction-appearance  seam에서는 속성 정점만 복제하고 위치·법선·삼각형을 보존한다. grain은 조명이나 구조 홈을 굽지 않아 물리 층과 구분된다.
 @evidence principles/design/materials.md#material-binding-interface box 면마다 XY·XZ·ZY 중 두 접선축과 법선 부호를 고르고, 넓은 면의 V를 grain 축에, 문짝 결은 문 회전과 함께 움직이게 두어 host 형상을 바꾸지 않고 따를 좌표 계약을 정한다.
-@evidenceReview principles/design/materials.md#material-binding-interface  box 면의 접선축 선택과 법선 반전이 metric 규칙에 있다. 문짝 결이 회전 뒤에도 문을 따라간다는 조건은 host geometry를 재배치하지 않는다.
 @evidence principles/design/materials.md#material-verification-address validateTextureScale 호출과 실제 scale이 반영된 UV의 길이 대조, 반복 주기 경계, native 모델 variant 수와 texture 자원 수·bytes를 scale-and-junction-samples와 binding-census에 연결하고 frame rate는 보증하지 않는다.
-@evidenceReview principles/design/materials.md#material-verification-address  census는 variant와 texture 수를, 접합 표본은 실제 m 반복을 본다. 두 표본을 모두 통과해도 FPS 성능이 증명된다고 하지 않는다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work coordinate-datum의 m·+Y 위·+Z 후면, 기존 unit box primitive와 part transform·부모 scale 구조, tessellateToMesh의 정점 배열을 대조했다. 부모가 metric UV를 막는 좌표 결함은 없었고 unit UV 확대 방식의 폐기는 이 층 안의 결정이다.
-@evidenceExcludeReview upstream/design/materials.md#parent-revision-from-material-work  부모의 Y-up·+Z와 기존 mesh 정점 구조는 metric 좌표의 입력으로 충분하다. unit UV 확대를 버린 것은 이 H2의 선택이어서 부모 도면을 고칠 근거가 아니다.
 @evidence settings/003-spatial-basis.md#coordinate-datum m 단위를 surface-metres UV와 transform.scale=(1/tileU,1/tileV)의 단위로 써 모든 texture의 물리 반복 길이를 같은 미터로 잰다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum  길이 m가 tileU·tileV의 단위를 정한다. 회전하거나 이동해도 UV가 세계에 붙어 미끄러지지 않도록 local 적용을 제한한다.
 @evidence settings/001-production.md#delivery-scope 다섯 reference 이미지를 texture로 삽입하지 않는다는 결정에 따라 모든 grain을 seed=2080의 typed source RGBA로 생성하고 사진·billboard·구운 조명을 쓰지 않는다.
-@evidenceReview settings/001-production.md#delivery-scope  reference 사진을 texture 픽셀로 저장하지 않고 seed와 정수 texel에서 색을 만든다. 다섯 이미지의 시각 기준을 사진 asset 사용 허가로 바꾸지 않는다.
 @evidence models/000-representation.md#model-uv-and-topology texture를 받는 모델 face의 UV와 닫힌 곡면 seam을 받아 실제 표면 m를 반복 길이로 환산하고 비균일 scale을 variant 주소에 포함한다.
-@evidenceReview models/000-representation.md#model-uv-and-topology  model의 닫힌 곡면 seam과 실제 scale을 texture 좌표에서 소비한다. UV 수리는 부품 위치나 topology 수리를 뜻하지 않는다.
 -->
 
 길이 단위 m와 +Y 위·+Z 후면의 축은 [좌표 기준](../settings/003-spatial-basis.md#coordinate-datum)을, 다섯 reference 이미지를 texture로 쓰지 않는 결정은 [납품 범위](../settings/001-production.md#delivery-scope)를 따른다. 색상 texture는 typed source가 고정 seed=2080과 정수 texel 좌표로 만드는 tileable RGBA다. 사진·레퍼런스·billboard·구운 조명·구운 접합 그림자는 사용하지 않는다. 무채색 grain asset은 sRGB colorSpace로 결합되어 uploader가 선형 조명 공간으로 decode하며 alpha=255이고 평균 허용 오차는 선형값 ±.005다. texture마다 문서의 ID·해상도·물리 반복 길이를 그대로 자원에 담고, primary UV는 `coordinateSource: surface-metres`, transform.scale=(1/tileU,1/tileV), offset=(0,0), rotationDeg=0으로 전달한다. sampler는 wrapS/T=repeat, minFilter=linearMipmapLinear, magFilter=linear이다. binding 레코드에는 anisotropy 필드가 없으며 [uploader](../../src/viewer/scene.mjs)가 모든 texture에 anisotropy 8을 적용한다. PV의 기존 바인딩은 해당 owner가 명시한 예외다. [층간 금속 cassette와 seal](002-exterior-solids.md#opaque-floor-band)은 이 metric 반복 규칙을 따른다.
