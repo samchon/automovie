@@ -159,6 +159,8 @@ For hip, wrist, calf and ankle tapes with comparable protocols, the detailed con
 
 The simple tier solves stature through the same bounded shaped-skin measurement inverse as the detailed height control, with the head allowance added to the body's clip-ring height. It revisits height as mass and tape controls change the body and measures the final shape again. A shape corrective may bend the height response between source endpoints, so the committed stature is checked by reading the resulting body rather than by assuming a linearly interpolated morph weight.
 
+`solveHumanBodyArmsDown` tests both lateral-plane arms at each whole-degree elevation from hanging down toward their rest goals. It keeps an arm at its first safe goal while the other continues and checks the combined goals for new cross-arm penetration before returning them. Contact can disappear and return as an arm passes different body regions, so the search does not assume a monotone contact response. The body worker yields between evaluated steps; the cost grows with the first safe angle.
+
 `assertHumanBodyBasis` admits one immutable basis in ordered stages: unique names, channel/corrective endpoints, connected surfaces and material partitions, landmark endpoint correspondence, then rig and clinical ranges. The matching files under `body/basis/admission/` own those checks separately. This is representation admission; a legal body document can still have a contact or anatomical-form problem, which needs pose-space measurement and visual review.
 
 Basis names used as record keys also cannot collide with inherited JavaScript Object properties. The common identity check covers channels, landmarks, endpoints, surfaces, materials and regions before shape evaluation reads their named rows.

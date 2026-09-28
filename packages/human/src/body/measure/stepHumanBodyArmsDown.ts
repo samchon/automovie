@@ -15,14 +15,21 @@ const SIDES = ["left", "right"] as const;
 
 /**
  * The arms-down solve (`solveHumanBodyArmsDown`) as a sequence of steps: the
- * generator pauses after each build and crossing read, about eight in all,
- * and returns the solved joints. A caller that must stay responsive (the
- * editor's body worker, which evaluates one request at a time) hands its
- * thread back between steps and stops iterating when a later request
- * supersedes the solve; the synchronous function runs every step at once.
+ * generator pauses after each build and crossing read. It walks the allowed
+ * whole-degree goals from low to high because contact can disappear and then
+ * return as an arm passes different body regions; bisection would skip the
+ * first clean interval. One build tests both arms at each degree while
+ * omitting their mutual crossings from each first-safe reading; an arm
+ * already clear holds its chosen angle. The final pair is built with
+ * cross-arm crossings restored before returning it.
+ *
+ * A caller that must stay responsive (the editor's body worker, which
+ * evaluates one request at a time) hands its thread back between steps and
+ * stops iterating when a later request supersedes the solve; the synchronous
+ * function runs every step at once.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets the editor interrupt an arms-down solve a newer edit supersedes instead of holding the body worker for its whole length.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Pauses the preset's lateral-plane bisection after each crossing read so the worker can yield between steps.
+ * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Pauses the preset's lateral-plane search after each crossing read so the worker can yield between steps.
  */
 export function* stepHumanBodyArmsDown(
   basis: IAutoMovieHumanBodyBasis,
@@ -79,8 +86,11 @@ export function* stepHumanBodyArmsDown(
       elevation: elevations[k],
       axialRotation: 0,
     }));
-  /** Triangles each chain's segments and the rest of the body cross, per outside pair. */
-  const contacts = (elevations: number[]): Map<string, number>[] => {
+  /** Each chain's self and outside crossings, optionally deferring cross-arm pairs. */
+  const contacts = (
+    elevations: number[],
+    omitOppositeArm = false,
+  ): Map<string, number>[] => {
     const parts = segmentHumanBodyModel(
       basis,
       build({ ...document, pose, shoulders: goals(elevations) }),
@@ -90,14 +100,18 @@ export function* stepHumanBodyArmsDown(
       id: part.id,
       mesh: (part.geometry as { mesh: IAutoMovieMesh }).mesh,
     }));
-    return chains.map((chain) => {
+    return chains.map((chain, k) => {
       const found = new Map<string, number>();
       for (const own of parts.filter((part) => chain.has(part.bone))) {
         // the chain's own segment folding through itself (the armpit skin
         // the upper arm carries) is contact too
         const folded = measureAutoMovieMeshCrossings(own.mesh, own.mesh).length;
         if (folded > 0) found.set(`${own.id}|${own.id}`, folded);
-        for (const other of parts.filter((part) => !chain.has(part.bone))) {
+        for (const other of parts.filter(
+          (part) =>
+            !chain.has(part.bone) &&
+            (!omitOppositeArm || !chains[1 - k].has(part.bone)),
+        )) {
           const crossed = crossings(own.mesh, other.mesh);
           if (crossed > 0) found.set(`${own.id}|${other.id}`, crossed);
         }
@@ -111,30 +125,25 @@ export function* stepHumanBodyArmsDown(
     [...reading].every(
       ([pair, count]) => count <= (baseline[k].get(pair) ?? 0),
     );
-  const low = [0, 0];
-  const high = [...rest];
-  const bottom = contacts(low);
-  yield;
-  const solved = [false, false];
-  for (const k of [0, 1])
-    if (clean(bottom[k], k)) {
-      high[k] = 0;
-      solved[k] = true;
-    }
-  while (SIDES.some((_, k) => !solved[k] && high[k] - low[k] > 1)) {
-    const middle = SIDES.map((_, k) =>
-      solved[k] ? high[k] : (low[k] + high[k]) / 2,
+  const solved: (number | null)[] = [null, null];
+  for (let elevation = 0; elevation < Math.max(...rest); elevation++) {
+    const trial = SIDES.map(
+      (_, k) => solved[k] ?? Math.min(elevation, rest[k]),
     );
-    const reading = contacts(middle);
+    const reading = contacts(trial, true);
     yield;
-    for (const k of [0, 1]) {
-      if (solved[k]) continue;
-      if (clean(reading[k], k)) high[k] = middle[k];
-      else low[k] = middle[k];
-      if (high[k] - low[k] <= 1) solved[k] = true;
-    }
+    for (const k of [0, 1])
+      if (solved[k] === null && clean(reading[k], k)) solved[k] = trial[k];
+    if (solved.every((value) => value !== null)) break;
   }
-  return { pose, shoulders: goals(high) };
+  const goalsAt = SIDES.map((_, k) => solved[k] ?? rest[k]);
+  const combined = contacts(goalsAt);
+  yield;
+  if (SIDES.some((_, k) => !clean(combined[k], k)))
+    throw new Error(
+      "Arms down cannot combine both first-safe arm goals without new skin crossings.",
+    );
+  return { pose, shoulders: goals(goalsAt) };
 }
 
 /** Triangles of either mesh the other crosses, after a bounds rejection. */
