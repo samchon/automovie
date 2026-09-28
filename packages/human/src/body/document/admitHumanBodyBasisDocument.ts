@@ -7,7 +7,7 @@ import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieH
  * document.
  *
  * Parsing admits the shape of the record and the finiteness of every number
- * it carries (named weights, generic pose angles, TT shoulder goals, the skin's cheek albedo and detail strength, material scalars) and the
+ * it carries (named weights, generic pose angles, TT shoulder goals, the skin's cheek albedo and detail strength, the underwear's colour, material scalars) and the
  * nonemptiness of its identifiers. Whether a channel or joint exists
  * in the basis and whether a value lies in range is the compiled basis's
  * decision (`createHumanBodyBasisBuilder`), which is why a document can be
@@ -36,6 +36,8 @@ export function admitHumanBodyBasisDocument(
   if (document.skinTone !== undefined) values.push(document.skinTone.strength);
   if (document.skinVeins !== undefined)
     values.push(document.skinVeins.strength);
+  if (document.underwear?.color !== undefined)
+    values.push(...Object.values(document.underwear.color));
   for (const material of Object.values(document.materials ?? {})) {
     values.push(...Object.values(material.color ?? {}));
     if (material.roughness !== undefined) values.push(material.roughness);
