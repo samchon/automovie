@@ -20,7 +20,11 @@ const openings = [
 ] as const;
 
 const bounds = (positions: number[]): [number, number][] => {
-  const result: [number, number][] = [[Infinity, -Infinity], [Infinity, -Infinity], [Infinity, -Infinity]];
+  const result: [number, number][] = [
+    [Infinity, -Infinity],
+    [Infinity, -Infinity],
+    [Infinity, -Infinity],
+  ];
   for (let i = 0; i < positions.length; i += 3)
     for (let axis = 0; axis < 3; axis++) {
       result[axis]![0] = Math.min(result[axis]![0], positions[i + axis]!);

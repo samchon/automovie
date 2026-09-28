@@ -11,15 +11,21 @@
  * settings `frame-condition` for the default exterior view: slightly right of
  * the front, eye height 1.6 m, vertical FOV 45°, raster 1536 × 1024 at pixel
  * ratio 1, at a distance that keeps the house, porch, driveway and site paving
- * in frame. Lighting follows settings `lighting-state`: one key from the
- * front-left above plus a hemisphere fill at fixed exposure.
+ * in frame. Lighting follows settings `lighting-state`: the deterministic HouseLighting daylight and practical-light
+ * system at fixed exposure. Fixed models and fills consume their authored
+ * prototypes, material bindings and world-metre instance transforms.
  *
  * The only item not emitted by `src/spaces` is `viewer-reference-ground`, a
  * neutral inspection plane just under the paving (Y = -0.46 m). Terrain is a
  * maps input that is not authored (maps disabled); this plane is viewer
  * context so shadows and contact read, and it is not a spaces or maps result.
  */
+import { HouseLighting } from "../systems/lighting";
+import { WallTilePartitions } from "../materials/wall-tile-partitions";
+import { wallTile } from "../materials/interior/tile";
+import { PALETTE } from "../spaces/palette";
 import {
+  linearColorToSrgbHex,
   lowerBuiltEnvironment,
   tessellateToMesh,
   transformAutoMovieMesh,
@@ -27,9 +33,10 @@ import {
 
 import { buildHouseEnvironment } from "../spaces/environment";
 import { buildHouse } from "../spaces/house";
-import { deriveHouseObservations } from "../spaces/observations";
-import { houseTextureUvs, houseWallFinishGroups } from "./materialPreview";
-import { type IViewerModelInputs, lowerViewerModels } from "./modelScene.cjs";
+import { buildObservationViews } from "./observationViews.cjs";
+import { buildBuildingInputs } from "./buildingInputs.cjs";
+import { houseFinish, houseTextureUvs, houseWallFinishGroups } from "./materialPreview";
+import { lowerViewerModels, type IViewerModelInputs } from "./modelScene.cjs";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
 
 /** Neutral reference ground, viewer-owned. */
@@ -97,14 +104,16 @@ export function buildHouseScene(
         throw new Error(
           `house part ${part.id}/${member.id} (${part.owner}) lacks normals or indices`,
         );
-      for (const group of houseWallFinishGroups(
-        part,
-        mesh.normals,
-        mesh.indices,
-      )) {
+      const partitioned=new WallTilePartitions().build(part,mesh);
+      const chimney=new WallTilePartitions().chimney(part,partitioned.paint);
+      const pieces=[{mesh:chimney.masonry,suffix:"",wet:false,paint:false},...(partitioned.tile?[{mesh:partitioned.tile,suffix:"/wet-tile",wet:true,paint:false}]:[]),...(chimney.paint?[{mesh:chimney.paint,suffix:"/interior-paint",wet:false,paint:true}]:[])];
+      for(const piece of pieces){
+      for (const group of piece.paint?[{suffix:"",indices:piece.mesh.indices!,finish:houseFinish("wall",PALETTE.interiorWall)}]:piece.wet?[{
+        suffix:"",indices:piece.mesh.indices!,finish:{id:wallTile.material.id,color:Number.parseInt(linearColorToSrgbHex(wallTile.material.baseColor).slice(1),16),roughness:wallTile.material.roughness,metalness:wallTile.material.metallic,texture:wallTile.texture},
+      }]:houseWallFinishGroups(part,piece.mesh.normals!,piece.mesh.indices!)) {
         const finish = group.finish;
         items.push({
-          id: `${model.parts.length === 1 ? part.id : `${part.id}/${member.id}`}${group.suffix}`,
+          id: `${model.parts.length === 1 ? part.id : `${part.id}/${member.id}`}${piece.suffix}${group.suffix}`,
           role: part.role,
           owner: part.owner,
           color: finish.color,
@@ -114,20 +123,24 @@ export function buildHouseScene(
             finish.texture === undefined
               ? undefined
               : `/textures/${finish.texture.file}`,
-          uvs: houseTextureUvs(mesh.positions, mesh.normals, finish, part.id),
+          uvs: houseTextureUvs(piece.mesh.positions, piece.mesh.normals!, finish, part.id),
           position: [0, 0, 0],
-          positions: mesh.positions,
-          normals: mesh.normals,
+          positions: piece.mesh.positions,
+          normals: piece.mesh.normals!,
           indices: group.indices,
           castShadow: true,
           receiveShadow: true,
         });
       }
+      }
     }
   }
-  if (modelInputs !== undefined) items.push(...lowerViewerModels(modelInputs));
+  items.push(
+    ...lowerViewerModels(modelInputs ?? buildBuildingInputs(environment, house)),
+  );
   return {
     subject: "house",
+    physicalLighting:new HouseLighting().build(),
     inspection: false,
     sourceDigest,
     raster: { width: 1536, height: 1024, pixelRatio: 1 },
@@ -149,23 +162,6 @@ export function buildHouseScene(
       shadowHalfExtent: 24,
     },
     items,
-    observations: deriveHouseObservations(
-      environment,
-      house,
-    ).observations.flatMap((o) =>
-      o.pose === null
-        ? []
-        : [
-            {
-              id: o.id,
-              position: [
-                o.pose.position.x,
-                o.pose.position.y,
-                o.pose.position.z,
-              ],
-              target: [o.pose.target.x, o.pose.target.y, o.pose.target.z],
-            },
-          ],
-    ),
+    observations: buildObservationViews(environment,house),
   };
 }

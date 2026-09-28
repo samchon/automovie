@@ -31,11 +31,11 @@
  * coordinator restarts the server; nothing is cached or written to disk.
  */
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import {
+  createServer,
   type IncomingMessage,
   type ServerResponse,
-  createServer,
 } from "node:http";
 import { dirname, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -43,6 +43,10 @@ import { parseArgs } from "node:util";
 import { buildCalibrationScene } from "./calibration.cjs";
 import { buildHouseScene } from "./houseScene.cjs";
 import type { IViewerModelInputs } from "./modelScene.cjs";
+import {Frame} from "../models/frame";
+import {buildBuildingInputs} from "./buildingInputs.cjs";
+import {buildHouse} from "../spaces/house";
+import {buildHouseEnvironment} from "../spaces/environment";
 
 /** Production root: this file lives at `src/viewer/server.cts`. */
 const ROOT = resolve(__dirname, "..", "..");
@@ -121,6 +125,10 @@ const STATIC_FILES: Record<string, { file: string; type: string }> = {
     ),
     type: "text/javascript; charset=utf-8",
   },
+  "/vendor/Reflector.js": {
+    file:join(THREE_BUILD,"..","examples","jsm","objects","Reflector.js"),
+    type:"text/javascript; charset=utf-8",
+  },
 };
 
 /** Browser modules may only be flat `.mjs` files in this directory. */
@@ -173,7 +181,7 @@ const handle = (
     );
   if (path === "/scene") {
     const subject = url.searchParams.get("subject");
-    if (subject !== null && subject !== "calibration")
+    if (subject !== null && subject !== "calibration" && subject !== "model-review")
       return send(
         response,
         404,
@@ -193,6 +201,13 @@ const handle = (
           currentDigest: current,
         }),
       );
+    if(subject==="model-review"){
+      const house=buildHouse(),input=buildBuildingInputs(buildHouseEnvironment(house),house);
+      const view=url.searchParams.get("view")??"front";
+      if(view!=="front"&&view!=="side"&&view!=="diagonal")return send(response,400,"application/json",JSON.stringify({error:`invalid model view: ${view}`}));
+      const id=url.searchParams.get("model")??input.prototypes[0]!.model.id;
+      return send(response,200,"application/json; charset=utf-8",JSON.stringify(new Frame().build(input,id,view,url.searchParams.get("overlay")==="true",current)));
+    }
     return send(
       response,
       200,

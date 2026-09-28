@@ -28,13 +28,9 @@ import { floorOf } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 /** Shared void owned by this room and consumed at its floor and adjacent finish.
  * @evidence spaces/rooms/living.md The entry-living-door void follows the partition assigned to living.
- * @evidenceReview spaces/rooms/living.md #de6670b `DOOR_ENTRY_LIVING_DOOR` spans Z [-1.35, -0.35] with `door`'s 2.20 m default head; `buildLiving` cuts it from the entry-side partition assigned to this room by `07-boundary-assembly.md#interior-boundary-ownership`.
  * @evidence principles/core/source-units.md#source-scope-preservation The entry-living-door interval remains with living while its adjacent room receives the span.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `living.ts` exports the entry opening and uses its span for the living-side threshold; `entry.ts` imports the same value for the entry-side strip, while the wall cut remains with `buildLiving`.
  * @evidence principles/core/source-units.md#source-substantive-completion The entry-living-door span cuts its wall and sets floor finish limits on both sides.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `buildLiving` uses this opening as a real partition hole and finishes X [-1.95, -1.875]; `buildEntry` consumes its `from`/`to` to finish the adjoining X [-1.875, -1.80].
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan locates entry-living-door in the entry/living wall at Z=[-1.35, -0.35], Y=[0, 2.20] and keeps furniture clear of its swing; this export supplies that rough cut.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `living.md#living-plan` already puts the 1.00 m rough door in wall X [-1.95, -1.80], Z [-1.35, -0.35], Y [0, 2.20]; this export supplies exactly its Z span and head without revising that parent cut.
  */
 export const DOOR_ENTRY_LIVING_DOOR = door(
   "entry-living-door",
@@ -78,19 +74,12 @@ const LIVING: IRoomSpace = {
 /** Emit the living floor and the partitions 07 gives this owner. */
 /**
  * @evidence spaces/rooms/living.md This export builds the front-left living room and its two assigned partition runs.
- * @evidenceReview spaces/rooms/living.md #de6670b `buildLiving` returns one `living-room` space and the assigned entry and service partition runs; its floor and ceiling share the room outline, and the entry run alone carries the door hole.
  * @evidence spaces/rooms/living.md#living-plan The room box and entry-door void align with the partition on X=[-1.95,-1.80].
- * @evidenceReview spaces/rooms/living.md#living-plan #64a1649 `LIVING.outline` uses X [-5.50, -1.95], Z [-6.05, -0.25]; both right-side partition runs occupy X [-1.95, -1.80], with `DOOR_ENTRY_LIVING_DOOR` only in the front run and the common opening imported for the rear threshold.
  * @evidence spaces/rooms/living.md#living-furniture-use Sofa, table, reading chair, bookcase, rug, and their use rectangles are reserved in LIVING.
- * @evidenceReview spaces/rooms/living.md#living-furniture-use #89ac81c `LIVING.reservations` places the sofa against the right side, the low table to its left, the chair and bookcase behind, and a separate thin rug; sofa, chair, and bookcase each have their own use box without furniture parts in `buildLiving`.
  * @evidence spaces/rooms/living.md#living-through-route Front, main, and bookcase-cross route bands occupy the authored floor around the furniture boxes.
- * @evidenceReview spaces/rooms/living.md#living-through-route #687df5e The left main route and the door-side front turn remain separate from the bookcase crossing. That crossing overlaps the chair-use box at X=[-3.90,-3.05], Z=[-4.65,-4.20]; the room parent allows chair use and bookcase access in sequence instead of adding their simultaneous occupied widths.
  * @evidence principles/core/source-units.md#source-scope-preservation It leaves furniture meshes to models and the stair's intervening wall to the stair owner.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildLiving` emits no sofa, chair, or bookcase mesh; its service partition stops at `STAIR_OPENING.guardBack`, and `stair.ts` supplies `stair-back-ground` and `stair-left-ground` through the intervening stair boundary.
  * @evidence principles/core/source-units.md#source-substantive-completion Floor, ceiling, both threshold halves, and the door-cut entry partition are returned with the room record.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Calling `buildLiving` returns its room record, floor, ceiling, both living-side threshold strips, an entry partition pierced by `DOOR_ENTRY_LIVING_DOOR`, and a separate service partition ending at the stair guard datum.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Living-plan fixes entry-living-door at Z=[-1.35, -0.35], common-room-plan owns living-common-opening at X=[-5.00, -2.15], living-furniture-use assigns the seats, and living-through-route keeps the passage inside this room; buildLiving consumes both opening owners.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `living.md#living-plan` supplies the entry door and clear swing floor, while `common.md#common-room-plan` owns the rear leafless opening; `buildLiving` consumes both spans for its threshold halves and keeps the three route bands inside the authored room, so neither parent needs a new opening or path.
  */
 export const buildLiving = (): IRoomBuild => ({
   space: LIVING,

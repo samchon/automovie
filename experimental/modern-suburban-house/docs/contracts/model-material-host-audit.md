@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/design/designs.md#work-specific-design-requirements 재료 H2가 face id를 쓰지 않고 물리 부재를 부르는 경우도 빠짐없이 제작자를 대조하려고 이 production의 역방향 계정을 둔다.
-@evidenceReview discovery/design/designs.md#work-specific-design-requirements #1c8460c 발견 절의 부재 인계·호환성 요구를 읽고 이 계약의 모집단이 재료 파일 네 개라는 것을 docs/materials 파일 목록과 대조했다. 모델 계정 claim은 lint.config.ts의 house-model-material-host-audit 하나가 소유한다.
 -->
 # 재료 H2의 부재군 대조
 

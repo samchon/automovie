@@ -32,7 +32,7 @@ Use the commands declared in `package.json`:
 | `npm run lint` | Check the complete TypeScript program and active authored evidence. |
 | `npm run format` | Format source with the configured compiler formatter. |
 | `npm run check` | Run model accounts, reverse handoffs, material bindings, reviewed referents, settings review host checks, tests, geometry, and lint; report every failure. |
-| `npm run review-check -- D:/AutoMovieBench/probes` | Run the seven external review probe types and `npm run check`, preserving each full log under `.wiki/stage3-review-check` and summing their exit codes. The reason probe checks `docs` and `src` separately to exclude ignored snapshots. Pass the local probe directory as the argument. |
+| `npm run review-check -- D:/AutoMovieBench/probes` | Run ordinary source identifier, source duplication, anchor, face-owner, and production checks, preserving each full log under `.wiki/stage3-review-check` and summing their exit codes. Pass the local probe directory as the argument. |
 | `npm run viewer` | Start the current source viewer from this directory on port 4173. |
 
 The scaffold provides instructions, contracts, and source lint, not prewritten production or viewer code. Author only the concrete source the requested work needs through the packages' public APIs. It supplies no film build, capture, render, or publication command.

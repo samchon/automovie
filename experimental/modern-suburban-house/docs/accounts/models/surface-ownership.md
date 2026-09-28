@@ -81,13 +81,13 @@
 | [primary-window-curtains](../../models/13-bedrooms.md#primary-window-curtains) | `src/models/furnishings/bedrooms.ts` | `rod`·`bracket`·`curtain` |
 | [wardrobe-hanging](../../models/13-bedrooms.md#wardrobe-hanging) | `src/models/furnishings/bedrooms.ts` | `rod`·`shelf`·`carcass`·`clothes` |
 | [wardrobe-shelves](../../models/13-bedrooms.md#wardrobe-shelves) | `src/models/furnishings/bedrooms.ts` | `shelf`·`carcass`·`folded`·`shoe-box`·`basket` |
-| [shared-toilet](../../models/14-bathrooms.md#shared-toilet) | `src/models/furnishings/bathrooms.ts` | `ceramic`·`toilet-seat`·`lid`·`handle` |
+| [shared-toilet](../../models/14-bathrooms.md#shared-toilet) | `src/models/furnishings/sanitary-fittings.ts` | `ceramic`·`toilet-seat`·`lid`·`handle` |
 | [vanity-basin](../../models/14-bathrooms.md#vanity-basin) | `src/models/furnishings/bathrooms.ts` | `plinth`·`carcass`·`leaf`·`countertop`·`ceramic`·`faucet`·`handle`·`accessory` |
-| [wall-mirror](../../models/14-bathrooms.md#wall-mirror) | `src/models/furnishings/bathrooms.ts` | `mirror-frame`·`mirror` |
-| [towel-bar](../../models/14-bathrooms.md#towel-bar) | `src/models/furnishings/bathrooms.ts` | `rod`·`bracket`·`towel` |
+| [wall-mirror](../../models/14-bathrooms.md#wall-mirror) | `src/models/furnishings/sanitary-fittings.ts` | `mirror-frame`·`mirror` |
+| [towel-bar](../../models/14-bathrooms.md#towel-bar) | `src/models/furnishings/sanitary-fittings.ts` | `rod`·`bracket`·`towel` |
 | [sliding-shower-booth](../../models/14-bathrooms.md#sliding-shower-booth) | `src/models/furnishings/bathrooms.ts` | `shower-tray`·`glass`·`rail`·`handle`·`faucet` |
 | [bathtub](../../models/14-bathrooms.md#bathtub) | `src/models/furnishings/bathrooms.ts` | `ceramic`·`faucet` |
-| [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | `src/models/furnishings/bathrooms.ts` | `rail`·`rod`·`curtain` |
+| [tub-curtain-rail](../../models/14-bathrooms.md#tub-curtain-rail) | `src/models/furnishings/sanitary-fittings.ts` | `rail`·`rod`·`curtain` |
 | [bath-floor-mats](../../models/14-bathrooms.md#bath-floor-mats) | `src/models/furnishings/bathrooms.ts` | `field`·`border` |
 | [shower-niche-bottles](../../models/14-bathrooms.md#shower-niche-bottles) | `src/models/furnishings/bathrooms.ts` | `container`·`lid` |
 | [terrace-table](../../models/15-outdoor.md#terrace-table) | `src/models/furnishings/outdoor.ts` | `top`·`leg` |

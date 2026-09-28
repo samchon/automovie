@@ -41,7 +41,9 @@
 @evidence principles/design/models.md#representation-contract 상판과 받침목 두 부품, 재질 경계 `top`·`cleat`, 관절 없음, 기기 문 앞에 다리나 옆판이 없다는 열린 경계를 정한다. 보이지 않는 한계는 본문의 "상판 가장자리 몰딩과 받침목 고정 철물은 표현하지 않는다."로 밝힌다.
 @evidence principles/design/models.md#spatial-convention 원점을 뒤쪽 모서리 선의 하단 중심 Y = 0.88 m에 두고 +Z가 yaw -π/2에서 world -X가 된다고 가구 국소 좌표에서 달라지는 점을 밝힌다.
 @evidence principles/design/models.md#reviewable-structure 측면에서 상판 상면 0.94 m와 기기 상면 0.88 m 사이 틈이 없는지, 정면에서 문 앞 지지 부재가 없는지를 반증 관찰로 둔다.
-@evidence principles/design/models.md#model-observable-style-basis 레퍼런스 02의 세탁기 위 작업 상판을 채택한다. 양식 라벨 없이 기기 위를 덮는 0.06 m 한 판과 다리·옆판을 세우지 않는 구성이라는 관찰 가능한 결정만 두고 마감은 `top`·`cleat` 경계로 넘긴다.
+@evidence principles/design/models.md#model-observable-style-basis 건물 분류: 붙박이 — 벽 받침목에 고정되는 세탁 작업 상판이다.
+
+레퍼런스 02의 세탁기 위 작업 상판을 채택한다. 양식 라벨 없이 기기 위를 덮는 0.06 m 한 판과 다리·옆판을 세우지 않는 구성이라는 관찰 가능한 결정만 두고 마감은 `top`·`cleat` 경계로 넘긴다.
 @evidence principles/design/models.md#model-scale-layer-completion 예약에서 받은 세 축 범위, 두 부품, 두 재질 경계, 관절 없음과 두 관찰로 상판 모델이 결정되며 이 H2는 proxy가 지지하지 않는 관찰을 따로 열거하지 않는다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 세탁 작업 예약의 상판 범위 Y = [0.88, 0.94]와 지지 부재가 기기 문을 가리지 않는다는 조건을 그대로 소비했고 부모 값에서 고칠 결함을 찾지 않았다.
 @evidence settings/10-house.md#laundry-mudroom 설정이 요구한 접는 상판을 두 기기 위 1.30 m 한 판으로 만들고 기기 문 앞에 다리를 두지 않는다.
@@ -56,6 +58,8 @@
 
 `laundry-folding-top` 예약의 차고 출입문 쪽 상판·받침목은 [실내 문선](03-interior-doors.md#interior-door-members)의 세로 판 world X=[5.485,5.50], Z=[−3.35,−3.28], Y=[0,2.20] m를 공유하지 않는다. 상판의 뒤쪽 오른쪽 모서리에서 이 0.015×0.07 m 평면 직사각형을 Y=[0.88,0.94] m 내내 빼고 새 절단면을 `top`으로 닫는다. 두 받침목도 같은 직사각형에 들어가는 끝을 잘라 `cleat`으로 닫는다. 예약의 X·Z 바깥 모서리와 작업 앞끝은 움직이지 않는다.
 두 `cleat`은 상판 길이 방향의 두 끝에서 0.10 m 물린 세계 Z=[−3.25,−3.22]·[−2.18,−2.15] m의 받침목이다. 각 받침목은 세계 X=[5.47,5.50] m·Y=[0.88,0.92] m이고 위 문선 절개와 교집합이 있을 때 그 체적만 뺀다. 상판 아래 면에 남은 받침 면이 닿으며 받침목을 상판 속에 겹친 판으로 만들지 않는다.
+
+세탁 상판의 소스 원형은 위 국소 배치를 house XZ로 미리 변환하여 저장하고 instance는 해당 층 바닥 Y만 더한다. `top` 한 닫힌 mesh에서 문선 모서리와 두 받침목 socket을 제거하고 `cleat/1`·`cleat/2`가 socket의 면에만 접한다.
 
 ## 세탁실 상부 수납 {#laundry-upper-storage}
 <!--
@@ -128,12 +132,16 @@
 @evidence spaces/rooms/laundry.md#laundry-equipment-use 예약 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다.
 -->
 
+건물 분류: 붙박이 — 벽판과 네 고리만 건물 고정 하드웨어이며, 매단 외투 두 벌은 건물 완료 이후 소품 단계에서 구현한다.
+
 레퍼런스 02에는 머드룸 외투의 개별 형상이 선명하지 않다. 세탁·머드룸의 사용 요구로 걸이 넷과 외투 둘을 결정한다.
 
 외투 걸이는 [예약](../spaces/rooms/laundry.md#laundry-equipment-use)의 X = [3.22, 3.62], Z = [-2.85, -2.05], Y = [1.10, 1.85] 안에 걸이와 걸린 외투의 최대 돌출을 함께 담는다. 로컬 좌표는 [가구 국소 좌표](00-model-frame.md#model-furniture-local-frame)를 따르되 벽걸이 원형이므로 원점을 벽면의 걸이판 하단 중심에 둔다. 걸이판은 길이 0.80 m, 높이 0.10 m, 두께 0.02 m이며 하단이 1.65 m에 오고, 걸이 넷은 판 중심에서 -0.25·-0.08·+0.08·+0.25 m, 돌출 0.08 m다.
 
 걸린 외투 둘은 양끝 걸이(-0.25·+0.25 m)에 매단 둥근 모서리 판 덩어리로 두며 폭 0.30 m, 깊이 0.25 m, 걸이 아래 1.10 m 높이까지 내려온다. 두 외투의 가로 점유는 각각 [-0.40, -0.10]·[0.10, 0.40] m로 0.80 m 예약 안에서 0.20 m 떨어지고, 외투까지 포함한 돌출은 0.40 m 깊이 안에 든다. 걸이판의 모든 면은 `board`, 고리는 `hook`, 외투 판은 `clothes`이고 관절은 없다. 천 주름·소매는 표현하지 않는다. 소스 owner는 `src/models/furnishings/service-rooms.ts`다. 관찰은 측면에서 외투 하단이 벤치 좌면 위 0.65 m에 멈추는지다. 관찰은 [모델 리뷰 뷰](00-model-frame.md#model-review-set)의 고정 뷰로 찍고 재질 경계 이름은 [표면 파티션 이름 규칙](00-model-frame.md#model-surface-partition-naming)을 따르며, 모든 관찰은 unverified다.
 네 `hook`의 벽판 하단 기준 중심 높이는 각각 0.065 m이므로 세계 Y=1.715 m다. 각 고리는 판 앞면에서 0.08 m 뻗은 지름 0.012 m 막대와 끝에서 위로 0.025 m 꺾인 같은 지름의 끝목 두 부재이며, 두 부재의 접합면만 공유한다. 외투 상단은 이 끝목에 닿고 외투 아래 끝 Y=1.10 m다.
+
+머드룸 걸이판의 소스 원형은 위 국소 배치를 house XZ로 미리 변환하여 저장하고 instance는 해당 층 바닥 Y만 더한다. `board`는 X=[3.22,3.24]·Y=[1.65,1.75]·Z=[−2.85,−2.05] m의 닫힌 판이며 네 `hook`의 중심 Z는 −2.20·−2.37·−2.53·−2.70 m다. 수평 막대와 세로 끝목은 X+Y=5.035 m의 45도 miter 면으로 나누어 같은 경계 고리만 공유한다. 두 관의 체적 중복을 두지 않는다. cloth 부품의 미구현을 고정 하드웨어 관찰로 대체하지 않는다.
 
 ## 팬트리 L형 선반 {#pantry-l-shelf}
 <!--

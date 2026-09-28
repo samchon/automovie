@@ -94,19 +94,80 @@ const axisItems = (): IViewerSceneItem[] => {
   const cap = 0.2;
   const tick = 0.12;
   const result: IViewerSceneItem[] = [
-    item("axis-x", "axis", AXIS_COLORS.x, { type: "box", width: AXIS_LENGTH, height: t, depth: t }, [half, t / 2, 0], true),
-    item("axis-y", "axis", AXIS_COLORS.y, { type: "box", width: t, height: AXIS_LENGTH, depth: t }, [0, half, 0], true),
-    item("axis-z", "axis", AXIS_COLORS.z, { type: "box", width: t, height: t, depth: AXIS_LENGTH }, [0, t / 2, half], true),
-    item("axis-x-cap", "axis", AXIS_COLORS.x, { type: "box", width: cap, height: cap, depth: cap }, [AXIS_LENGTH, cap / 2, 0], true),
-    item("axis-y-cap", "axis", AXIS_COLORS.y, { type: "box", width: cap, height: cap, depth: cap }, [0, AXIS_LENGTH, 0], true),
-    item("axis-z-cap", "axis", AXIS_COLORS.z, { type: "box", width: cap, height: cap, depth: cap }, [0, cap / 2, AXIS_LENGTH], true),
+    item(
+      "axis-x",
+      "axis",
+      AXIS_COLORS.x,
+      { type: "box", width: AXIS_LENGTH, height: t, depth: t },
+      [half, t / 2, 0],
+      true,
+    ),
+    item(
+      "axis-y",
+      "axis",
+      AXIS_COLORS.y,
+      { type: "box", width: t, height: AXIS_LENGTH, depth: t },
+      [0, half, 0],
+      true,
+    ),
+    item(
+      "axis-z",
+      "axis",
+      AXIS_COLORS.z,
+      { type: "box", width: t, height: t, depth: AXIS_LENGTH },
+      [0, t / 2, half],
+      true,
+    ),
+    item(
+      "axis-x-cap",
+      "axis",
+      AXIS_COLORS.x,
+      { type: "box", width: cap, height: cap, depth: cap },
+      [AXIS_LENGTH, cap / 2, 0],
+      true,
+    ),
+    item(
+      "axis-y-cap",
+      "axis",
+      AXIS_COLORS.y,
+      { type: "box", width: cap, height: cap, depth: cap },
+      [0, AXIS_LENGTH, 0],
+      true,
+    ),
+    item(
+      "axis-z-cap",
+      "axis",
+      AXIS_COLORS.z,
+      { type: "box", width: cap, height: cap, depth: cap },
+      [0, cap / 2, AXIS_LENGTH],
+      true,
+    ),
   ];
   for (const meter of [1, 2]) {
-    const cube = { type: "box", width: tick, height: tick, depth: tick } as const;
+    const cube = {
+      type: "box",
+      width: tick,
+      height: tick,
+      depth: tick,
+    } as const;
     result.push(
-      item(`tick-x-${meter}`, "tick", AXIS_COLORS.x, cube, [meter, tick / 2, 0], true),
+      item(
+        `tick-x-${meter}`,
+        "tick",
+        AXIS_COLORS.x,
+        cube,
+        [meter, tick / 2, 0],
+        true,
+      ),
       item(`tick-y-${meter}`, "tick", AXIS_COLORS.y, cube, [0, meter, 0], true),
-      item(`tick-z-${meter}`, "tick", AXIS_COLORS.z, cube, [0, tick / 2, meter], true),
+      item(
+        `tick-z-${meter}`,
+        "tick",
+        AXIS_COLORS.z,
+        cube,
+        [0, tick / 2, meter],
+        true,
+      ),
     );
   }
   return result;
@@ -140,10 +201,31 @@ export function buildCalibrationScene(sourceDigest: string): IViewerScene {
       exposure: 1,
     },
     items: [
-      item("ground", "ground", 0xb8b8b0, { type: "box", width: 10, height: 0.02, depth: 10 }, [0, -0.01, 0], false),
+      item(
+        "ground",
+        "ground",
+        0xb8b8b0,
+        { type: "box", width: 10, height: 0.02, depth: 10 },
+        [0, -0.01, 0],
+        false,
+      ),
       ...axisItems(),
-      restingBox("reference-cube", "reference", 0xeeeeee, { width: 1, height: 1, depth: 1 }, -2, -2),
-      restingBox("person-occupancy", "reference", 0xc9b89a, { width: 0.6, height: 1.9, depth: 0.45 }, 2, -2),
+      restingBox(
+        "reference-cube",
+        "reference",
+        0xeeeeee,
+        { width: 1, height: 1, depth: 1 },
+        -2,
+        -2,
+      ),
+      restingBox(
+        "person-occupancy",
+        "reference",
+        0xc9b89a,
+        { width: 0.6, height: 1.9, depth: 0.45 },
+        2,
+        -2,
+      ),
     ],
   };
 }

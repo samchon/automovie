@@ -23,7 +23,7 @@ source owner는 `src/systems/lighting.ts`다. 필요한 관찰은 외관 프레�
 ## 하늘 fill과 고정 노출 {#daylight-sky-fill}
 <!--
 @evidence principles/core/common.md#scope-preservation 하늘 fill 광원과 environment의 background·exposure·toneMapping·shadows 고정값을 맡는다.
-@evidence principles/core/common.md#substantive-completion fill 방향 (0.25, 1.00, -0.25), 7,000 K (0.80, 0.88, 1.00), intensity 0.9, image null, exposure 1.0, acesFilmic, pcfSoft를 정한다.
+@evidence principles/core/common.md#substantive-completion 앞·뒤 fill 방향 (-0.60, 1.00, 0.60)·(0.60, 1.00, -0.60), 선형 RGB (0.80, 0.88, 1.00), 각각 intensity 0.45와 아래쪽 바닥 bounce intensity 0.16, image null, exposure 1.0, acesFilmic, pcfSoft를 정한다.
 @evidence principles/core/common.md#declared-basis 하늘 fill과 고정 노출 요구는 lighting-state에서 받고 hemisphere 부재는 설치 IAutoMovieSceneEnvironment를 읽은 결과라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation lighting-state가 fill과 고정 노출 기록만 요구한 데 비해 fill의 종류·방향·색·강도와 environment 수치를 더한다.
 @evidence principles/design/systems.md#system-authority-confinement fill 레코드와 environment 값만 쓰고 표면 반응은 materials에 남긴다.
@@ -33,7 +33,7 @@ source owner는 `src/systems/lighting.ts`다. 필요한 관찰은 외관 프레�
 @evidence settings/20-verification.md#lighting-state 하늘 fill이 깊은 그늘을 닫지 않게 하고 고정 노출·white balance를 모든 view에 같은 environment 값으로 기록한다.
 -->
 
-하늘 fill은 그림자를 던지지 않는 directional 광원 `light:daylight:sky-fill`로 실현한다. 방향은 거의 수직 위에서 뒤 오른쪽으로 약간 기울어진 (0.25, 1.00, -0.25) 쪽이며 색은 약 7,000 K 차가운 흰색 (0.80, 0.88, 1.00), `intensity`는 0.9다. 설치된 `IAutoMovieSceneEnvironment`에는 hemisphere 광원이 없고 외부 HDR 이미지를 채택하지 않으므로 `image`는 null이다. 환경 값은 `background` 옅은 하늘색, `exposure` 1.0, `toneMapping` `acesFilmic`, `shadows.enabled` 참·`type` `pcfSoft`로 고정하고 모든 view가 같은 값을 쓴다. 이 노출과 white balance는 설정이 요구한 기록값이며 방별 보정은 없다.
+하늘 fill은 그림자를 던지지 않는 directional 광원 둘로 실현한다. `light:daylight:sky-fill`은 위에서 뒤 오른쪽 (0.60, 1.00, -0.60), `light:daylight:sky-front-fill`은 위에서 앞 왼쪽 (-0.60, 1.00, 0.60) 쪽이다. 각각 선형 RGB (0.80, 0.88, 1.00), `intensity` 0.80로 같은 하늘 기여를 나눈다. 한쪽 fill만 쓰면 반대 벽과 포치의 막힌 그늘이 검게 사라지므로 두 방향을 함께 둔다. 2026-09-28 자체 GPU 검사에서 하부장 수직 면이 어두워 외곽만 읽히던 원인을 확인해, 두 fill의 수평 기여와 세기를 이 값으로 올렸다. 같은 값이 모든 방과 외관에 적용되며 시점별 밝기 보정은 하지 않는다. 별도 `light:daylight:ground-bounce`는 아래쪽 (-0.10, -1.00, 0.10), 선형 RGB (0.75, 0.72, 0.65), `intensity` 0.16의 그림자 없는 directional이다. 이것은 바닥에서 반사되는 낮빛의 정해진 근사이며 포치·처마 밑의 구조를 읽히게 한다. 네 directional 모두 집 전체에 동일하게 적용한다. 설치된 `IAutoMovieSceneEnvironment`에는 hemisphere 광원이 없고 외부 HDR 이미지를 채택하지 않으므로 `image`는 null이다. 환경 값은 `background` 옅은 하늘색, `exposure` 1.0, `toneMapping` `acesFilmic`, `shadows.enabled` 참·`type` `pcfSoft`로 고정하고 모든 view가 같은 값을 쓴다. 이 노출과 white balance는 설정이 요구한 기록값이며 방별 보정은 없다.
 
 source owner는 `src/systems/lighting.ts`다. 필요한 관찰은 태양 반대면이 완전 검정으로 닫히지 않는지, 외관과 실내 프레임의 environment 값이 같은지이며 unverified다.
 

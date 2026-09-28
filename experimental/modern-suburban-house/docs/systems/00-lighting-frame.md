@@ -14,6 +14,31 @@
 @evidence settings/00-production.md#working-language 본문 끝 문단대로 조명 결정을 한국어로 쓰고 API·필드명·광원 id만 원형을 보존한다.
 @evidence obligations/design/systems.md#addressable-system-decisions 태양·하늘 fill·창 자연광·기구 묶음마다 독립 H2를 두고 광원 하나를 공간 하나에 묶어 따로 바꾸고 검토하게 한다.
 @evidence obligations/design/systems.md#system-ownership-interfaces 입력(spaces 방 id·천장 datum), 출력(광원 레코드·environment 값), 영향받는 owner(models·materials·instances)를 이 H2가 나눈다.
+@evidenceExclude instances/00-placement-frame.md#reservation-derived-membership 이 H2의 방 가구·설비 예약 membership은 배치 개체를 정한다. 조명은 그 예약을 생성 입력으로 읽지 않고 별도 조명 기구 배치를 받는다.
+@evidenceExclude instances/00-placement-frame.md#no-member-variation 배치 개체의 seed·jitter 금지는 models의 반복 형상 변이를 제한한다. 광원은 이 문서의 정지 상태와 명시 좌표만으로 정하며 그 변이 값을 읽지 않는다.
+@evidenceExclude instances/01-ground-rooms.md#dining-table-chairs 식탁·의자 개체 수와 변환은 조명 입력이 아니다. 식탁등 위치는 spaces의 식탁 예약 중심에서 정한다.
+@evidenceExclude instances/01-ground-rooms.md#island-stools 스툴 세 개의 변환은 광원 입력이 아니다. pendant의 통로 여유는 spaces의 섬·use 예약에서 대조한다.
+@evidenceExclude instances/01-ground-rooms.md#kitchen-fixtures 주방 기기와 붙박이 몸체의 원형 배치는 광원 목록·값을 바꾸지 않는다. 섬 위 광원은 spaces의 섬 예약을 읽는다.
+@evidenceExclude instances/01-ground-rooms.md#family-seating 가족실 소파·탁자의 개체 id와 변환은 광원을 만들지 않는다. 가족실 천장등은 spaces의 가족실 예약을 읽는다.
+@evidenceExclude instances/01-ground-rooms.md#living-furniture 거실 좌석·서가·러그의 배치는 거실 천장등 좌표의 입력이 아니다. 광원은 living-plan의 방 외곽 중심을 읽는다.
+@evidenceExclude instances/01-ground-rooms.md#window-curtain-members 커튼 여덟 개의 개체 배치는 창의 발광 광원을 만들지 않는다. 자연광은 외부 개구부와 실제 유리 충전으로 검사한다.
+@evidenceExclude instances/01-ground-rooms.md#entry-mat 현관 바닥 매트의 외곽·변환은 현관 천장등이나 포치 벽등의 위치를 정하지 않는다.
+@evidenceExclude instances/01-ground-rooms.md#powder-fixtures 파우더룸 변기·세면장·거울·수건걸이의 배치는 세면등 광원의 좌표·세기를 정하지 않는다. 세면등은 spaces의 세면장 예약을 읽는다.
+@evidenceExclude instances/01-ground-rooms.md#laundry-fixtures 세탁 기기·벤치의 개체 변환은 세탁실 천장등의 입력이 아니다. 광원은 방 외곽 중심을 읽는다.
+@evidenceExclude instances/01-ground-rooms.md#pantry-shelves 팬트리 L 선반과 용기의 배치는 천장등 광원의 입력이 아니다. 광원은 방 외곽 중심을 읽는다.
+@evidenceExclude instances/01-ground-rooms.md#garage-storage 차고 선반·작업대의 배치는 차고 천장등의 입력이 아니다. 광원은 차고 공간의 중심과 천장 datum을 읽는다.
+@evidenceExclude instances/02-upper-rooms.md#primary-furniture 주침실 침대·협탁·러그의 개체 변환은 침실 조명의 좌표·상태를 정하지 않는다. 천장등과 협탁등은 spaces의 방·침대 예약을 읽는다.
+@evidenceExclude instances/02-upper-rooms.md#wardrobe-storage 드레스룸 수납 개체의 변환은 드레스룸 천장등의 입력이 아니다. 광원은 방 외곽과 천장 datum을 읽는다.
+@evidenceExclude instances/02-upper-rooms.md#child-bedroom-furniture 두 자녀실 가구의 개체 id·변환은 각 방 천장등의 입력이 아니다. 광원은 두 방의 spaces 외곽을 읽는다.
+@evidenceExclude instances/02-upper-rooms.md#bath-fixtures 욕실의 변기·샤워·욕조 개체 변환은 세면등을 만들지 않는다. 세면등은 spaces의 세면장 예약을 읽는다.
+@evidenceExclude instances/03-exterior-repetition.md#siding-course-law siding 판의 course·절단은 태양 아래 렌더된 그림자 수신면에 영향을 주지만 광원 레코드의 방향·세기·상태 입력은 아니다.
+@evidenceExclude instances/03-exterior-repetition.md#shingle-course-law shingle 판의 course·절단은 태양 아래 렌더된 그림자 수신면에 영향을 주지만 광원 레코드의 방향·세기·상태 입력은 아니다.
+@evidenceExclude instances/03-exterior-repetition.md#exterior-exclusions 포치 기둥·난간·차고문을 외장 반복에서 빼는 결정은 태양·벽등 광원 목록의 생성 입력이 아니다.
+@evidenceExclude instances/03-exterior-repetition.md#porch-props 포치 발판·화분의 개체 배치는 현관 벽등의 위치·상태를 정하지 않는다. 벽등은 front-door 개구부와 포치 바닥을 읽는다.
+@evidenceExclude instances/03-exterior-repetition.md#planting-individuals 대지 식재의 구성원·접지·yaw는 태양 그림자를 받을 수 있지만 태양 광원 레코드의 입력이 아니다.
+@evidenceExclude instances/03-exterior-repetition.md#terrace-furniture 테라스 식탁·의자의 개체 배치는 낮빛과 포치 벽등의 광원 값·상태를 정하지 않는다.
+@evidenceExclude instances/04-opening-fill.md#interior-door-fill-placement 열한 실내 문짝의 변환은 방마다 정지 조명 하나를 두는 이 systems의 광원 생성 입력이 아니다.
+@evidenceExclude instances/04-opening-fill.md#non-door-opening-fills 열린 통로와 수납 미닫이문의 identity 변환은 광원 레코드의 위치·세기·상태를 정하지 않는다.
 @evidenceExclude settings/00-production.md#accessibility 「접근성 전달 상태」는 "이 library의 필수 대체 접근은 한국어 문서, 이름 있는 키보드 조작, 카메라 복귀 및 관찰 선택, 색만으로 상태를 구분하지 않는 검사 결과다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
 @evidenceExclude settings/00-production.md#coverage-map 「설정 소유 지도」는 "현재 설정의 명시적 canon은 이 파일의 전달·사용·좌표·언어·접근성과 사용 가정, 10-house.md의 규모·매스·각 방과 조경 정체성, 20-verification.md의 레퍼런스 권위·GPU·계측·관찰·소유 분해·저작 순서·역할·편집 및…"를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
 @evidenceExclude settings/00-production.md#governing-aim 「지배 목표」는 "사용자 지정 목표는 리뷰 거리의 외부 및 각 실내에서 레퍼런스 다섯 장과 같은 집의 구조·부재·재료·생활 기능이 읽히게 하는 것이다."를 정한다. 조명 H2는 이 결정을 광원 위치·색·강도·상태의 입력으로 읽지 않는다.
@@ -167,19 +192,19 @@ source owner는 `src/systems/lighting.ts`다. 필요한 관찰은 서로 다른 
 ## 광원 수와 그림자 예산 {#lighting-budget}
 <!--
 @evidence principles/core/common.md#scope-preservation 광원 수, 입장 상한, 그림자 광원 수, 초과 시 저하 순서와 보고를 맡는다.
-@evidence principles/core/common.md#substantive-completion 광원 30개(directional 2·point 28), 입장 상한 32, 그림자 광원은 태양 하나, 초과 시 range 축소→같은 방 area 병합→조정자 보고의 순서를 정한다.
+@evidence principles/core/common.md#substantive-completion 광원 32개(directional 4·point 28), 입장 상한 32, 그림자 광원은 태양 하나, 초과 시 range 축소→같은 방 area 병합→조정자 보고의 순서를 정한다.
 @evidence principles/core/common.md#declared-basis 그림자 map 하나는 renderer-boundary의 실제 WebGL canvas를 위한 이 branch의 선택이고 방을 빼지 않는 규칙은 build-allocation에서 받는다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation build-allocation이 성능 때문에 방을 생략하지 말라고만 한 데 비해 32개 상한과 세 단계 저하 순서를 더한다.
 @evidence principles/design/systems.md#system-authority-confinement 저하는 광원의 range·종류만 바꾸고 방이나 기구 형상을 지우지 않아 spaces·instances 소유를 건드리지 않는다.
 @evidence principles/design/systems.md#system-dependency-basis 저하 발동은 컴파일된 광원 수와 32의 비교라는 이름 있는 입력에만 의존한다.
 @evidence principles/design/systems.md#system-verification-address 컴파일된 광원 수와 그림자 광원 수 1, 실제 canvas의 RENDERER와 프레임 오류 유무가 반증 관찰이다.
-@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work build-allocation의 방 생략 금지와 renderer-boundary의 실제 GPU canvas를 30개 광원·그림자 1개에 대조했고 상한 안이어서 부모 예산 결정을 고칠 결함이 없었다.
+@evidenceExclude upstream/design/systems.md#parent-revision-from-system-work build-allocation의 방 생략 금지와 renderer-boundary의 실제 GPU canvas를 32개 광원·그림자 1개에 대조했고 상한 안이어서 부모 예산 결정을 고칠 결함이 없었다.
 @evidence settings/20-verification.md#renderer-boundary 실제 WebGL canvas에서 그림자 map을 태양 하나로 묶고 RENDERER 보고를 관찰에 넣는다.
 @evidence obligations/design/systems.md#system-budget-degradation 입장 상한 32, 그림자 광원 1, range 축소→area 병합→보고의 저하와 실내 그림자 부재라는 보이는 한계를 정한다.
-@evidence obligations/core/common.md#proportionate-development 네 파일 14개 H2와 광원 30개를 17개 공간에 배분하되 기능 구분이 조명에 걸린 공용부에 매달린 광원 세 개와 갓 외곽 대조, 위생실에 세면등 세 개를 더 주고 수납·통로에는 천장등 하나씩만 둬 결과 비중에 맞춘다.
+@evidence obligations/core/common.md#proportionate-development 네 파일 14개 H2와 광원 32개를 17개 공간에 배분하되 기능 구분이 조명에 걸린 공용부에 매달린 광원 세 개와 갓 외곽 대조, 위생실에 세면등 세 개를 더 주고 수납·통로에는 천장등 하나씩만 둬 결과 비중에 맞춘다.
 -->
 
-현재 광원은 낮빛 directional 2개와 실내 point 28개로 30개이며 입장 상한을 32개로 둔다. 그림자를 던지는 광원은 태양 하나로 제한한다. 실내·외부 기구는 모두 `castShadow`를 쓰지 않는다. 이는 [렌더 경계](../settings/20-verification.md#renderer-boundary)의 실제 WebGL canvas에서 그림자 map 수를 하나로 묶기 위한 이 branch의 선택이며, 실내등의 그림자가 없다는 한계는 리뷰에서 보이는 결과로 기록한다. 광원 수가 설치 엔진의 한도를 넘으면 방을 빼지 않고 `range`를 줄이거나 같은 방의 여러 기구를 area 하나로 합치는 순서로 처리하며, 그래도 넘으면 실제 한도를 조정자에게 보고한다.
+현재 광원은 낮빛 directional 4개와 실내 point 28개로 32개이며 입장 상한을 32개로 둔다. 그림자를 던지는 광원은 태양 하나로 제한한다. 실내·외부 기구는 모두 `castShadow`를 쓰지 않는다. 이는 [렌더 경계](../settings/20-verification.md#renderer-boundary)의 실제 WebGL canvas에서 그림자 map 수를 하나로 묶기 위한 이 branch의 선택이며, 실내등의 그림자가 없다는 한계는 리뷰에서 보이는 결과로 기록한다. 광원 수가 설치 엔진의 한도를 넘으면 방을 빼지 않고 `range`를 줄이거나 같은 방의 여러 기구를 area 하나로 합치는 순서로 처리하며, 그래도 넘으면 실제 한도를 조정자에게 보고한다.
 
 source owner는 `src/systems/lighting.ts`다. 필요한 관찰은 컴파일된 광원 수와 그림자 광원 수, 실제 canvas의 RENDERER와 프레임 오류 유무이며 unverified다.
 

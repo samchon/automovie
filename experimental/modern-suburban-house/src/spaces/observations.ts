@@ -44,6 +44,7 @@ import {
 } from "./observation-records";
 import type { IHouse } from "./house";
 import { roomLevels } from "./rooms/shared";
+import { standingObservation } from "./observation-standing";
 import type { IPlanPoint } from "./solid-records";
 
 /** Eye height above a space's floor (settings frame-condition). */
@@ -161,19 +162,12 @@ const unit = (from: IPlanPoint, to: IPlanPoint): IPlanPoint => {
 /**
  * Derive every spatial question and self-space pose of the house.
  * @evidence spaces/04-observations.md The derivation consumes the built environment and house-owned outlines.
- * @evidenceReview spaces/04-observations.md #696e544 `deriveHouseObservations` uses the compiled environment for station poses and building census, house outlines for reflex corners, and roof parts for additional exterior questions; the returned observations and five reference selections all refer to those input records.
  * @evidence spaces/04-observations.md#spatial-observation-derivation Engine stations, concave corners and building census generate questions and poses from the built records.
- * @evidenceReview spaces/04-observations.md#spatial-observation-derivation #86f0eea The loop over compiled room, stair, storage, and exterior spaces accepts centre, corner, and threshold stations; `reflexCorners` adds outline poses, while `builtEnvironmentBuildingCensus` and roof-part iteration add exterior questions without a fixed view count.
  * @evidence spaces/04-observations.md#reference-spatial-comparisons Five reference selections connect derived observation ids to their relevant house, room, storage, and storey records.
- * @evidenceReview spaces/04-observations.md#reference-spatial-comparisons #367a7d1 `references` pairs 01 with exterior census and front approach, 02 with storey and stair records for a record-only cutaway, 03 with named common-room and terrace questions, 04 with entry and living observations, and 05 with hall, stair, and linen observations; `pick` and `ofSpace` reject a missing required selection.
  * @evidence spaces/04-observations.md#engine-render-handoff The returned poses are inspection data for later rendering, not camera geometry in the house.
- * @evidenceReview spaces/04-observations.md#engine-render-handoff #330fc4a The return value contains accepted inspection poses, explicit rejected-station causes, and reference links; `deriveHouseObservations` neither appends a model element to `environment` nor issues a render command.
  * @evidence principles/core/source-units.md#source-scope-preservation The function derives from the one compiled environment and house record without duplicating their geometry.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The two input arguments supply compiled cells, openings, connectors, room levels, outlines, zones, and roof parts; the function derives observation data and validates each pose against its compiled space without creating another geometry owner.
  * @evidence principles/core/source-units.md#source-substantive-completion It returns the station list, explicit failures and all five reference selections.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `accept` rejects null, outside, and same-place poses with causes, while `pick` and `ofSpace` throw if a required reference selection disappears; the returned record contains accepted observations, failures, and all five reference entries.
- * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work `spatial-observation-derivation` requires stations and exterior questions from built records, while `reference-spatial-comparisons` assigns five additional comparisons; this function returns the question list and its separate per-reference selections.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Engine stations, house outline reflex corners, compiled census, and emitted roof parts give this function its observation subjects; the five reference entries only select their ids and named house records, and missing required selections fail without inventing a second spatial boundary.
+ * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The original logical stations ignored planned furniture and door swings; the revised spatial observation owner requires full standing-footprint clearance, and this producer now resolves each room pose before accepting its unchanged question id.
  */
 export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment, house: IHouse): IObservationDerivation => {
   const observations: IHouseObservation[] = [];
@@ -232,6 +226,15 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
   };
   const accept = (o: IHouseObservation): void => {
     const space = o.space === null ? undefined : spaces.get(o.space);
+    const room=house.spaces.find(r=>r.id===o.space);
+    if(o.pose!==null&&space!==undefined&&room!==undefined){
+      const floor=roomLevels(room)[0];
+      const occupied=house.spaces.flatMap(owner=>(owner.reservations??[]).map(zone=>({...zone,y:zone.y??[roomLevels(owner)[0],roomLevels(owner)[0]+1.90] as const})))
+        .filter(zone=>["furniture","fixture","storage","swing"].includes(zone.kind))
+        .filter(zone=>zone.y[0]<floor+1.90&&zone.y[1]>floor);
+      o.pose=standingObservation({space,pose:o.pose,floor,eye:EYE,preserveDirection:o.role==="center",occupied,previous:observations,ranges:space.cells.map(cell=>({x:cellRange(cell,"x"),z:cellRange(cell,"z")}))});
+      if(o.pose===null){failures.push({id:o.id,cause:`no standing footprint outside occupied reservations in ${space.id}`});return;}
+    }
     if (o.pose !== null && o.space !== null) {
       const floor = standingFloor(
         o.space,
@@ -424,8 +427,12 @@ export const deriveHouseObservations = (environment: IAutoMovieBuiltEnvironment,
     return id;
   });
   const ofSpace = (space: string, role?: IHouseObservation["role"]): string[] => {
-    const selected = observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map((o) => o.id);
-    if (selected.length === 0) throw new Error(`reference observations for "${space}"${role === undefined ? "" : ` role "${role}"`} are absent`);
+    const selected = observations.filter((o) => o.space === space && (role === undefined || o.role === role)).map(
+      (o) => o.id,
+    );
+    if (selected.length === 0) throw new Error(
+      `reference observations for "${space}"${role === undefined ? "" : ` role "${role}"`} are absent`,
+    );
     return selected;
   };
   const references: IReferenceComparison[] = [

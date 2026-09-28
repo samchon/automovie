@@ -137,6 +137,8 @@
 
 ## 표면 결·광학 응답과 텍스처 결속 {#material-texture-response}
 <!--
+@evidence models/00-model-frame.md#model-furniture-local-frame 가구·창호 각 면의 1 UV/m 투영과 개별 H2 우선 순위를 소비해 반복 모듈을 미터로 결속하며 materials가 좌표를 다시 생성하지 않는다.
+@evidence models/00-model-frame.md#model-representation-ceiling 실제 창틀·유리·문짝의 두께를 host에 남기고 재료 무늬로 누락한 부재를 대신하지 않으며 모델이 제외한 웨더스트립·나사를 복원하지 않는다.
 @evidence principles/core/common.md#declared-basis 사용자가 같은 날 비트맵 보류를 철회한 지시를 근거로 삼고 매끈한 표면과 반복 결이 필요한 표면을 구별한다.
 @evidence principles/core/common.md#scope-preservation siding·shingle course와 판 두께는 models/instances에 남기고 벽돌·타일 줄눈의 색·거칠기·법선 마스크와 면 결속은 materials가 받으며 발광은 systems에 남긴다.
 @evidence principles/core/common.md#substantive-completion 미터 모듈·투영 축·원점·회전·이음·실패 fallback과 validateTextureScale의 실제 모집단을 정한다.
@@ -172,6 +174,9 @@
 
 ## 면 결합 규칙 {#material-binding-rule}
 <!--
+@evidence models/00-model-frame.md#model-local-frame 개구부 아래 중앙/날씨 면 또는 열림 면의 원형 좌표를 가진 실제 host 면에만 결속하며 창·문 world 배치와 외곽은 변경하지 않는다.
+@evidence models/00-model-frame.md#model-surface-partition-naming 부재 역할 id와 안팎 접미사를 결속 키로 사용하고 모든 두께/끝면을 포함해 정확히 한 최종 재료를 준다.
+@evidenceExclude models/00-model-frame.md#model-reference-scale 문 90° 유효폭과 창의 순유리 폭은 모델 부재를 빼서 산출하는 geometry 검증이다. 이 면 결합 규칙은 기존 면 id에 색/광학값을 연결하며 사람 점유체나 개구부 폭을 생성·측정하지 않는다.
 @evidence principles/core/common.md#declared-basis 결합 대상이 spaces 03의 exterior-surface-handoff와 interior-surface-handoff owner 표라고 링크로 밝힌다.
 @evidence principles/core/common.md#scope-preservation 재료는 면의 경계·두께·개수를 바꾸지 않고 host owner 면에만 결합한다고 정한다.
 @evidence principles/core/common.md#substantive-completion 한 면 한 최종 재료, 벽돌·타일 줄눈의 단일 재료 내부 UV 마스크, host 부재 경계와 일치, 삼각형 단위 분할 금지, 단면 기본과 유리·얇은 커튼 양면 규칙을 모두 적었다.
@@ -193,6 +198,9 @@
 
 ## 재료 리뷰 견본 {#material-review-set}
 <!--
+@evidence models/03-interior-doors.md#interior-door-hinges 열한 문의 low/high 경첩과 기준 π/2 상태를 재료 판정에서 그대로 쓰며 열린 두 방 쪽의 패널/문선/철물 경계가 같은 결속을 유지하는지 대조한다.
+@evidence models/00-model-frame.md#model-representation-completion 모델 구조 판정과 의미 판정이 별개라는 기준을 받아 재료 견본 성공을 닫힌 부피·예약 맞춤 성공으로 보고하지 않는다.
+@evidence models/00-model-frame.md#model-review-set 동일 카메라의 face-id 오버레이와 실제 materials 뷰를 짝지어 바인딩 누출/누락을 확인하고 문 열림 상태에서도 같은 실제 면을 사용한다.
 @evidence principles/core/common.md#declared-basis 견본 조건이 frame-condition의 1536×1024 canvas·중성 배경과 lighting-state에서 온다고 밝힌다.
 @evidence principles/core/common.md#scope-preservation 재료 판정 견본만 정하고 관찰 위치·결과는 컴파일 산출물과 현재 GPU 프레임에서 읽는다고 남긴다.
 @evidence principles/core/common.md#substantive-completion 중성 조명 판, 기준 상태 판, 약 20 m·2 m·threshold·1 m 거리 견본, 상태 견본 네 가지와 실패 시 unverified 처리를 모두 적었다.
