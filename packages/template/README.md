@@ -8,7 +8,7 @@ Every rendered project is self-contained:
 
 - the scaffold's [contract-target inventory](./scaffold/.agents/skills/evidence-graph/contract-targets.md) is installed inside the generated project's `docs` root;
 - `docs/contracts` contains production-specific additive targets;
-- one typed `src/lint.config.ts` owns the production shape, population scope, branch stages, local claims, and evidence graph;
+- one typed `lint.config.ts` owns the production shape, population scope, branch stages, local claims, and evidence graph;
 - `.agents/skills/{contract,production-lifecycle,evidence-graph,source-authoring,review-verification}` exposes five distinct contract and authoring triggers with conditionally loaded sibling procedures;
 - `AGENTS.md` routes those skills, while `CLAUDE.md` only imports the provider-neutral router.
 

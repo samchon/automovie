@@ -1,0 +1,62 @@
+import { Assembly } from "../house/assembly";
+import { front } from "../house/envelope/front";
+import { left } from "../house/envelope/left";
+import { rear } from "../house/envelope/rear";
+import { right } from "../house/envelope/right";
+import { roof } from "../house/envelope/roof";
+
+/** Complete exterior surfaces, cut profiles and measured repeating assemblies.
+ * @evidence spaces/003-surface-ownership.md envelope가 네 입면과 지붕의 완결 owner를 호출한다. 각 owner가 자기 벽·개구·창호·차양·외부 노출 마감 면·corner 조각의 안정 주소를 만들며 viewer용 대체 외피가 없다. 재료 결합은 materials가 결정한다.
+ * @evidenceReview spaces/003-surface-ownership.md #85b2c68 envelope()가 front·rear·left·right·roof 다섯 owner를 호출하고, 각 입면의 facade()와 corners()가 자기 벽·창호·차양·모서리 geometry를 만든다. right.ts의 배수관·clip·덮개와 roof.ts의 PV·배수 부재도 현재 구현되어 있다. v-076·v-096의 설계 PASS는 이 건축 범위의 역사이며 현 트리의 재료 결합이나 새 GPU 외관을 승인하지 않는다.
+ * @evidence principles/core/source-units.md#source-scope-preservation 003의 plane·normal·clear span·frame 깊이·캐노피 외곽을 그대로 소비한다. 본채는 평지붕 직사각형이고 박공·굴뚝·옥상 통행이나 새 후문을 추가하지 않는다.
+ * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 외피 export는 facade·roof를 반환하며 계단이나 실내 room 경계를 다시 저작하지 않아 003의 표면 책임에 머문다.
+ * @evidence principles/core/source-units.md#source-substantive-completion façade는 공개 wall kernel의 닫힌 절삭 mesh, 깊이 있는 frame과 glass, 반복 stone panel·shade를 생성한다. roof는 실제 slab·edge·지지·PV cassette를 내므로 라벨이나 빈 boundary만 남는 구현이 아니다.
+ * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f 열거한 opening마다 cut·frame·pane이 실제 부재로 생성되며 재료의 시각적 단순함을 topology 완료와 혼동하지 않는다.
+ * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work 003의 전체 입면과 room별 opening을 동일 좌표에서 구현했고 유효 span 밖0.04m frame, 층선, 삼각 corner 분할을 유지했다. 닫힌 wall·창틀·불투명 return을 만들기 위해 room graph나 roof 형태를 바꿀 필요가 없었다. 광학·구조 성능 인증은 포함하지 않는다.
+ * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 003의 floor band·room 끝·corner return으로 모든 외피 cut을 만들 수 있어 envelope 조립에서 상위 고정 그래프를 수정할 결손은 없었다.
+ * @evidence spaces/003-surface-ownership.md#whole-surface-owners front/rear/left/right/roof 모듈이 각 표면 전체를 소유하며 full facade boundary는 house에 귀속하고 그 face는 외측 O에 둔다. 구조 내벽·실내 수평 마감과 입면 아래 plinth는 storey 모듈, 현관 출입구 아래 문턱판과 계단 void 앞 외벽 실내 면은 전면 facade에 남는다.
+ * @evidenceReview spaces/003-surface-ownership.md#whole-surface-owners #209ea3f facade()는 C에서 벽을 절삭하고 외측 boundary.face.origin을 C+(d/2)N에 두며 네 입면의 안정 면 주소를 만든다. plinth는 ground.ts, 현관 문턱판은 front.ts의 doorway(), 위 ring은 roof.ts가 만드는 건축 면이다. v-096 설계 PASS와 이전 compiled centroid 측정은 현 트리의 재료 결합 또는 새 GPU 외관의 판정으로 확대하지 않는다.
+ * @evidence spaces/003-surface-ownership.md#front-face 절삭 중심 z=-5.88, 외측 face z=-6.00·normal -Z의 벽에서 현관문·하상층 계단창·작업실창·상층 침실창을 절삭한다. -X 불투명 코어를 유지하고 표준 창 높이에서 짝을 선택해 두 floor 사이 spandrel cassette를 만든다.
+ * @evidenceReview spaces/003-surface-ownership.md#front-face #f877f75 front.ts의 frame plane -5.88·normal -1과 네 Glazing·현관 portal cut, compiled face centroid z=-6.00과 법선 (0,0,-1)을 읽었다. 코어 -X 구간은 창 없이 stone panel이며 현재 buildHouse의 계단 band 3 plate와 작업실/침실 band 2 plate가 x=-1.24..1.58과 3.02..5.26에 각각 있다.
+ * @evidence spaces/003-surface-ownership.md#rear-face 절삭 중심 z=5.88, 외측 face z=6.00·normal +Z의 후면 벽에 common·primary·bathroom의 독립 opening을 두며 상층 코어 벽 끝을 넘어 유리를 잇지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#rear-face #8b132df rear.ts의 세 Glazing(common -5.22..5.22, primary -2.80..5.22, bath -4.86..-3.42)과 face centroid z=6.00·법선 (0,0,1)을 읽었다. 욕실 창은 privacy all로 전체 frosted이고 primary 창 bay가 욕실 쪽 벽 끝을 넘지 않는다.
+ * @evidence spaces/003-surface-ownership.md#left-face 절삭 중심 x=5.38, 외측 face x=5.50의 +X 외벽에 작업실과 child-one의 같은 z span, child-two의 별도 창을 구현한다. 전면과의 불투명 return은 삼각 corner 및 wall body로 닫는다.
+ * @evidenceReview spaces/003-surface-ownership.md#left-face #333b56d left.ts의 세 Glazing(z=-5.40..-2.30 두 층, child-two 0.35..1.90)과 face centroid x=5.50·법선 (1,0,0), 두 corner prism을 읽었다. 앞 모서리 쪽은 창 없는 wall body와 corner로 닫힌다.
+ * @evidence spaces/003-surface-ownership.md#right-face 절삭 중심 x=-5.38, 외측 face x=-5.50의 -X 외벽에서 전면 서비스 영역을 불투명하게 닫고 후면 common·bath 두 창만 같은 z span에 둔다.
+ * @evidenceReview spaces/003-surface-ownership.md#right-face #aba48e7 right.ts의 두 Glazing(z=3.60..5.40, 1층 common과 2층 bath), face centroid x=-5.50·법선 (-1,0,0), z=0의 배수관·clip·점검 덮개 구현을 읽었다. 관은 창 cut과 3.5m 떨어진 불투명 구간에 있고 이 owner는 형상과 면 주소를 내며 finish 결합은 materials에 남는다.
+ * @evidence spaces/003-surface-ownership.md#roof-face roof가 B/J/T/P와 R의 경사에서 주보·분절 rail·열린 cassette·지지·거터·outlet·overflow를 만들고 right가 y=6.10 아래 관을 이어 준다. top·soffit도 native boundary로 내며 정비 식재는 이 export가 중복 생성하지 않고 site-access를 실현하는 citizenHouseSpaceSource의 garden 호출에 남긴다.
+ * @evidenceReview spaces/003-surface-ownership.md#roof-face #aa28daa v-076은 경사·거터·배수와 cassette70·girder3·rail44·post9를 roof/right 및 오류 없는 native audit에 대조했고, 설계에 보완한 나무4·관목48그룹·풀23그룹의 보존 배치와 garden 실행 연결까지 통과시켰다. 이 export의 지붕·관 연결과 buildHouse의 별도 garden 호출을 구분하여 읽었고 식재를 roof가 생성한다는 중복 소유는 없다. 제공된 WebGL2 외관·절개·하부 캡처에서 셀 사이 하늘, 프레임·레일 리듬과 지붕 위 지지의 분리를 확인한 이력이 있다. r3의 설계 추적과 캐노피 충실도·시각 판정은 닫혔으며 최종 finish 결합·실제 배수 용량·장비 운용은 이 결과가 인증하지 않는다.
+ * @evidence spaces/003-surface-ownership.md#glazing-interface 각 창의 jamb·mullion은 member 중심에서 body·web·압착판·덮개 네 부재, head·sill은 bay마다 같은 단면의 네 부재를 인접 수직 부재의 같은 부재 face까지 이어 맞댄다. 유리는 seat 안으로 0.006 들어가고 gasket과 setting block이 받친다. cut 안쪽 reveal, 표준 창 높이와 층 datum에서 유도한 층간 cassette, 입면 몸체 끝에서 자른 drip, 전면·좌측 작업실과 침실 창의 하부 루버를 같은 owner가 만들고, 후면 주침실 창에는 루버를 두지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#glazing-interface #b73976a curtainwall.ts의 SECTION 표(body s±0.020 n-0.070..-0.015, web ±0.010, 압착판 ±0.020 0.015..0.035, 직사각 덮개 ±0.018 0.035..0.070), 유리 L-0.006..R+0.006, gasket abs(s) 0.014..0.020, head·sill 네 부재의 같은 부재 face까지 잇는 horizontal(), reveal 0.004/0.006을 확인했다. 현재 buildHouse의 spandrel은 311요소이고 설계 표의 다섯 interval과 plate 17장을 모두 가지며, 모든 plate의 Y=2.844..3.246·n=0.138..0.140, side seal Y=2.84..3.25, slot·clip·anchor 및 외장면 위 0.020m 돌출을 space-element-audit가 실제 bounds에서 검사했다. 하부 head와 상부 sill의 비교는 standardWindowHeight의 1e-7m 허용오차를 쓰며 seal 재료가 box-seal로 결합된다. 루버는 k=15·p=0.078·40% 날개, 속이 찬 지지대, 끝판 안쪽 체결구, LOUVRED 다섯 창과 현관 접근 bay 제외를 읽었다. 앞선 compiled 관찰에서 날개 180장, 지지대 17·arm 34, rear-bedroom 루버 0, 후면·전면 drip의 corner prism AABB 비겹침, 창틀·glass·gasket·setting block의 비관통, 세 privacy 상태의 루버 part 1379개 bounds 일치를 계측했다. 이 기하 계측은 낙수 성능이나 materialSources의 최종 결합을 검증하지 않는다.
+ * @evidence spaces/003-surface-ownership.md#front-stair-glazing stair hole 양 끝에서0.04 안쪽인 x=-1.20..1.54를 하상층으로 나누고 floor+0.12/ceiling-0.10에 glass를 둔다. entry와 upper-storey의 소속을 각 fill element에 기록한다.
+ * @evidenceReview spaces/003-surface-ownership.md#front-stair-glazing #1c3e22d front.ts의 하층 x=-1.20..1.54·sill 0.12·head 2.80과 상층 sill 3.32·head 6.00, room entry·upper-storey를 읽었다. 상층 창은 lining 없는 계단 void 쪽이라 실내 reveal이 벽 몸체 면에서 끝난다.
+ * @evidence spaces/003-surface-ownership.md#front-flex-glazing x=3.06..5.22의 ground opening이 작업실 clear face 안에 frame까지 들어간다. 낮에는 하부 반투명, 상부 clear이며 사적·야간 상태는 같은 opening의 shade를 내린다.
+ * @evidenceReview spaces/003-surface-ownership.md#front-flex-glazing #74f735e front.ts의 a=3.06·b=5.22·privacy lower와 두 bay, 하부 frosted 0.12..1.37을 compiled scene에서 읽었다. roller drop은 facade.ts 상태식대로 사적·야간 100%다.
+ * @evidence spaces/003-surface-ownership.md#front-bedroom-glazing child-one의 x=1.80..5.22 span에 하층 작업실 서측 jamb 중심 x=3.04를 우선 분할선으로 넣고, 상층 sill/head와 privacy band를 따로 적용한다.
+ * @evidenceReview spaces/003-surface-ownership.md#front-bedroom-glazing #8007264 front.ts의 breaks [3.04]로 edge가 1.80·3.04·4.13·5.22가 되어 첫 분할이 하층 작업실 서측 jamb 중심과 맞는 것과, 상층 sill 3.32·head 6.00, 하부 frosted 띠 3.32..4.57을 compiled scene에서 확인했다.
+ * @evidence spaces/003-surface-ownership.md#rear-common-glazing rear.ts는 roomEdge("common-room", "x", "min/max")에서 glazingInset을 양끝에 적용해 현재 x=-5.22..5.22의 고정 curtainwall을 만든다. 뒤뜰로 통하는 추가 door나 route는 없다.
+ * @evidenceReview spaces/003-surface-ownership.md#rear-common-glazing #8601cc9 rear.ts의 a=-5.22·b=5.22·sill 0.12·head 2.80과 아홉 bay를 읽었고, 이 창과 연결된 portal이나 connector가 없어 뒤뜰 통로를 만들지 않는다.
+ * @evidence spaces/003-surface-ownership.md#rear-bedroom-glazing primary의 x=-2.80..5.22 span을 upper floor에 맞춰 나누며 -X 욕실과 shared wall의 끝을 관통하지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#rear-bedroom-glazing #5c225a6 rear.ts의 a=-2.80·b=5.22·privacy lower와 일곱 bay(pane 14장)를 compiled scene에서 읽었다. 서측 jamb 바깥 cut -2.84는 욕실·주침실 벽(-3.02..-2.84)의 끝과 맞닿고 넘지 않는다.
+ * @evidence spaces/003-surface-ownership.md#rear-bath-glazing x=-4.86..-3.42,y=4.20..5.65에 고정 반투명 유리를 만들고 욕실의 방 바인딩을 유지한다. 침실의 전기변색 상태로 바꾸지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#rear-bath-glazing #bca1863 rear.ts의 x=-4.86..-3.42·sill 4.20·head 5.65·privacy all과, 모든 상태에서 frosted pane만 있고 roller sheet가 내려오지 않는 facade.ts 상태식을 읽었다.
+ * @evidence spaces/003-surface-ownership.md#left-flex-glazing z=-5.40..-2.30의 ground 측창을 전면 창과 별개인 직교 opening으로 절삭하고 하부 띠 앞에 루버를 둔다. 앞 모서리까지 유리를 연장하지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#left-flex-glazing #2ca6488 left.ts의 a=-5.40·b=-2.30·privacy lower와 세 bay, 날개 45장을 읽었다. 앞쪽 cut 끝 -5.44는 corner 안쪽 -5.76에 닿지 않아 모서리까지 유리가 가지 않는다.
+ * @evidence spaces/003-surface-ownership.md#left-bedroom-glazing 작업실 측창과 같은 z span·bay 규칙을 상층 child-one에 적용하고 하부 띠 앞에 루버를 둔다. floor band를 가로지르는 panel을 만들지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#left-bedroom-glazing #6319d4b left.ts의 상층 z=-5.40..-2.30·sill 3.32·head 6.00, 세 bay와 날개 45장을 읽었다. 현재 buildHouse에서는 아래 작업실창과의 층간 cassette 3 plate가 Z=-5.44..-2.26이고 band seal Y=2.84..3.25다.
+ * @evidence spaces/003-surface-ownership.md#left-child-two-glazing child-two의 z=0.35..1.90,y=3.90..5.80 opening을 독립 window로 구현하고 하부 1.25m 띠 앞에 루버를 둔다. 인접 침실과 한 창으로 묶지 않는다.
+ * @evidenceReview spaces/003-surface-ownership.md#left-child-two-glazing #48f2284 left.ts의 a=0.35·b=1.90·sill 3.90·head 5.80과 두 bay, 날개 30장을 읽었다. sill이 3.32가 아니어서 층간 cassette 쌍에서 빠진다.
+ * @evidence spaces/003-surface-ownership.md#right-common-glazing core 후면 z=3.60..5.40에서 ground common의 측창만 절삭한다. 나머지 코어 벽은 불투명 panel 몸체다.
+ * @evidenceReview spaces/003-surface-ownership.md#right-common-glazing #914052e right.ts의 1층 z=3.60..5.40·sill 0.12·head 2.80과 그 밖의 코어 구간이 cut 없는 wall body·stone panel인 것을 읽었다.
+ * @evidence spaces/003-surface-ownership.md#right-bath-glazing 위층 같은 z span에 전면 반투명 bath glass를 두고 room·floor 경계를 보존한다. bath glazing은 세 privacy 상태에서도 고정 반투명이다.
+ * @evidenceReview spaces/003-surface-ownership.md#right-bath-glazing #49514f7 right.ts의 2층 z=3.60..5.40·sill 3.32·head 6.00·privacy all과 전 상태 frosted를 읽었다. 현재 buildHouse에는 1층 common 창과의 층간 cassette 2 plate가 Z=3.56..5.44에 있고 위쪽 seal이 Y=3.246..3.25에서 drip 아래에 닿는다.
+ * @evidence spaces/003-surface-ownership.md#envelope-corners 각0.24×0.24 코너를 inner–outer 대각선의 두 convex triangle prism으로 나눈다. 한 조각은 정면/후면, 다른 조각은 측면이 소유하고 각 boundary가 자기 실물 element를 참조한다.
+ * @evidenceReview spaces/003-surface-ownership.md#envelope-corners #187c93e facade.ts corners()가 inner(5.26,5.76)·edge·outer(5.50,6.00) 세 점 삼각 profile을 6.1 높이로 압출해 입면마다 두 prism을 만들고 해당 boundary.elements에 넣는 것을 읽었다. compiled scene에 corner prism 8개가 있다.
+ */
+export function envelope(a: Assembly): void {
+  front(a);
+  rear(a);
+  left(a);
+  right(a);
+  roof(a);
+}
