@@ -41,6 +41,10 @@ for path in sorted(DOCS.glob("[0-9][0-9][1-9]-*.md")):
                 state = inv[1].strip()
                 states[state] = {"state": state, "parts": [], "inventory": sum((expand(t.strip()) for t in inv[2].split(",")), [])}
         for line in sec.splitlines():
+            if line.startswith("| @envelope |"):
+                cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                _, state, _, _, x, y, z, _ = cells
+                states[state]["envelope"] = {"x": interval(x), "y": interval(y), "z": interval(z)}
             if line.startswith("| @part |"):
                 cells = [c.strip() for c in line.strip().strip("|").split("|")]
                 _, state, pid, shape, x, y, z, _ = cells
@@ -77,6 +81,12 @@ for path in sorted(DOCS.glob("[0-9][0-9][1-9]-*.md")):
             if m:
                 st=m[1].strip(); v=[t.strip() for t in m[2].split(",")]
                 states[st].setdefault("apices", {})[v[0]] = [float(t) for t in v[1:]]
+            m = re.match(r"@compose\s+([^:]+):\s*(.+)$", line)
+            if m:
+                st=m[1].strip(); v=[t.strip() for t in m[2].split(",")]
+                if len(v)!=5:
+                    raise ValueError(f"{anchor}/{st}: invalid @compose")
+                states[st]["compose"] = {"anchor": v[0], "state": v[1], "offset": [float(t) for t in v[2:]]}
             m = re.match(r"@grid\s+([^:]+):\s*(.+)$", line)
             if m:
                 st=m[1].strip(); v=[t.strip() for t in m[2].split(",")]
@@ -87,6 +97,8 @@ for path in sorted(DOCS.glob("[0-9][0-9][1-9]-*.md")):
                         cx=(col-(cols-1)/2)*pitchx; cz=(row-(rows-1)/2)*pitchz
                         states[st]["parts"].append({"id":f"{prefix}-{row*cols+col}","shape":"box","x":[cx-width/2,cx+width/2],"y":interval(ys),"z":[cz-depth/2,cz+depth/2]})
         for state in states.values():
+            if "envelope" not in state:
+                raise ValueError(f"{anchor}/{state['state']} lacks reviewed @envelope")
             if plant_spec is not None:
                 state["plantSpec"] = plant_spec
             actual = {p["id"] for p in state["parts"]}
@@ -96,7 +108,19 @@ for path in sorted(DOCS.glob("[0-9][0-9][1-9]-*.md")):
         prototypes.append({"anchor": anchor, "name": title, "states": list(states.values())})
     basename = path.stem
     class_name = "Models" + basename.split("-",1)[0]
-    body = json.dumps(prototypes, ensure_ascii=False, separators=(",",":"))
+    compact = lambda value: json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    rendered = ["["]
+    for prototype in prototypes:
+        rendered.append(f'  {{ "anchor": {compact(prototype["anchor"])}, "name": {compact(prototype["name"])}, "states": [')
+        for state in prototype["states"]:
+            rendered.append(f'    {{ "state": {compact(state["state"])}, "parts": [')
+            rendered.extend(f"      {compact(part)}," for part in state["parts"])
+            rendered.append("    ],")
+            rendered.extend(f'      "{key}": {compact(value)},' for key, value in state.items() if key not in ("state", "parts"))
+            rendered.append("    },")
+        rendered.append("  ] },")
+    rendered.append("]")
+    body = "\n".join(rendered)
     output = (f'/** Static coordinates copied from reviewed docs/models/{path.name} @part and @inventory. */\n'
               f'import {{ ModelRepresentation, ModelPrototype }} from "./representation";\n'
               f'import {{ IAutoMovieMaterial, IAutoMovieModel }} from "@automovie/interface";\n'

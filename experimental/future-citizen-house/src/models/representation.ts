@@ -8,6 +8,7 @@ export interface ModelPartRecord {
 }
 export interface ModelStateRecord {
   state: string;
+  envelope: Bounds;
   parts: ModelPartRecord[];
   voids?: Record<string, Bounds[]>;
   pieces?: Record<string, Bounds[]>;
@@ -18,6 +19,7 @@ export interface ModelStateRecord {
   joins?: Record<string, number[]>;
   apices?: Record<string, number[]>;
   plantSpec?: { wallMinimum: number; wallFactor: number; potBottomRadius: number; potTopRadius: number; potHeight: number; soilSurface: number; leafThickness: number; [key: string]: unknown };
+  compose?: {anchor:string;state:string;offset:[number,number,number]};
 }
 export interface ModelPrototype {
   anchor: string; name: string; states: ModelStateRecord[];
@@ -44,8 +46,8 @@ class MeshWriter {
     const outward=dot(cross(sub(p(b),p(a)),sub(p(c),p(a))),n)>=0;
     this.indices.push(a,outward?b:c,outward?c:b);
   }
-  quad(points: [Vec, Vec, Vec, Vec], normal: Vec): void {
-    const face = points.map(p => this.vertex(p, normal, metricUv(p, normal, points)));
+  quad(points: [Vec, Vec, Vec, Vec], normal: Vec, uvReference: Vec[] = points): void {
+    const face = points.map(p => this.vertex(p, normal, metricUv(p, normal, uvReference)));
     const ab = sub(points[1], points[0]); const ac = sub(points[2], points[0]);
     if (dot(cross(ab, ac), normal) > 0) {
       this.triangle(face[0], face[1], face[2]); this.triangle(face[0], face[2], face[3]);
@@ -69,14 +71,11 @@ function metricUv(p: Vec, n: Vec, points: Vec[]): [number, number] {
   const axis = Math.abs(n[0]) > 0.5 ? [2,1] : Math.abs(n[1]) > 0.5 ? [0,2] : [0,1];
   return [p[axis[0]]-Math.min(...points.map(q=>q[axis[0]])), p[axis[1]]-Math.min(...points.map(q=>q[axis[1]]))];
 }
-function planarBox(w: MeshWriter, b: Bounds): void {
+function planarBox(w: MeshWriter, b: Bounds, skipAxis = -1): void {
   const [x0,x1]=b.x, [y0,y1]=b.y, [z0,z1]=b.z;
-  w.quad([[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],[-1,0,0]);
-  w.quad([[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],[1,0,0]);
-  w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]],[0,0,-1]);
-  w.quad([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],[0,0,1]);
-  w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],[0,-1,0]);
-  w.quad([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],[0,1,0]);
+  if(skipAxis!==0){w.quad([[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],[-1,0,0]);w.quad([[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],[1,0,0]);}
+  if(skipAxis!==2){w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]],[0,0,-1]);w.quad([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],[0,0,1]);}
+  if(skipAxis!==1){w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],[0,-1,0]);w.quad([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],[0,1,0]);}
 }
 
 /** Boundary of an axis-aligned union of reviewed pieces minus reviewed voids. */
@@ -91,16 +90,21 @@ function cutBoxes(w: MeshWriter, part: Bounds, pieces: Bounds[], voids: Bounds[]
     const x=(intervals[0][i][0]+intervals[0][i][1])/2, y=(intervals[1][j][0]+intervals[1][j][1])/2, z=(intervals[2][k][0]+intervals[2][k][1])/2;
     return (pieces.length ? pieces.some(b=>inside(x,y,z,b)) : inside(x,y,z,part)) && !voids.some(b=>inside(x,y,z,b));
   };
+  const faces: Array<{points:[Vec,Vec,Vec,Vec];normal:Vec;plane:number}> = [];
+  const face=(points:[Vec,Vec,Vec,Vec],normal:Vec,plane:number)=>faces.push({points,normal,plane});
   for(let i=0;i<intervals[0].length;i++) for(let j=0;j<intervals[1].length;j++) for(let k=0;k<intervals[2].length;k++) {
     if(!solid(i,j,k)) continue;
     const [x0,x1]=intervals[0][i], [y0,y1]=intervals[1][j], [z0,z1]=intervals[2][k];
-    if(!solid(i-1,j,k)) w.quad([[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],[-1,0,0]);
-    if(!solid(i+1,j,k)) w.quad([[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],[1,0,0]);
-    if(!solid(i,j-1,k)) w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],[0,-1,0]);
-    if(!solid(i,j+1,k)) w.quad([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],[0,1,0]);
-    if(!solid(i,j,k-1)) w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]],[0,0,-1]);
-    if(!solid(i,j,k+1)) w.quad([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],[0,0,1]);
+    if(!solid(i-1,j,k)) face([[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],[-1,0,0],x0);
+    if(!solid(i+1,j,k)) face([[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],[1,0,0],x1);
+    if(!solid(i,j-1,k)) face([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],[0,-1,0],y0);
+    if(!solid(i,j+1,k)) face([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],[0,1,0],y1);
+    if(!solid(i,j,k-1)) face([[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]],[0,0,-1],z0);
+    if(!solid(i,j,k+1)) face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],[0,0,1],z1);
   }
+  const groups=new Map<string,Vec[]>();
+  for(const f of faces){const key=`${f.normal.join(",")}/${f.plane}`;groups.set(key,[...(groups.get(key)??[]),...f.points]);}
+  for(const f of faces)w.quad(f.points,f.normal,groups.get(`${f.normal.join(",")}/${f.plane}`)!);
 }
 
 function cylinder(w: MeshWriter, b: Bounds): void {
@@ -220,9 +224,10 @@ function lathedShell(w:MeshWriter,cx:number,cz:number,outer:Ring[],inner:Ring[],
   };
   wall(outer,false);wall(inner,true);
   const bridge=(o:Ring,ir:Ring,n:Vec)=>{
+    const reference=Array.from({length:SEGMENTS},(_,i)=>point(o,i));
     for(let i=0;i<SEGMENTS;i++) {
       const a=point(o,i),b=point(o,i+1),c=point(ir,i+1),d=point(ir,i);
-      w.quad([a,b,c,d],n);
+      w.quad([a,b,c,d],n,reference);
     }
   };
   bridge(outer[outer.length-1],inner[inner.length-1],[0,1,0]);
@@ -267,6 +272,99 @@ function vessel(w:MeshWriter,b:Bounds,st:ModelStateRecord,part:ModelPartRecord):
   return false;
 }
 
+/** A 24-sided axial bore through the authored interval of a rectangular host. */
+function boxWithBore(w:MeshWriter,b:Bounds,bore:{axis:string;args:string[]}):boolean {
+  if(bore.axis!=="-x"&&bore.axis!=="-z")throw Error(`unsupported box bore axis ${bore.axis}`);
+  const numeric=(s:string)=>Number(s.replace("−","-"));
+  const range=(s:string):[number,number]=>{const values=s.split("..").map(numeric);if(values.length!==2||!values.every(Number.isFinite))throw Error(`invalid bore ${s}`);return [values[0],values[1]];};
+  const axis= bore.axis==="-x"?0:2;
+  const axial=axis===0?b.x:b.z;
+  const span=axis===0?range(bore.args[0]):range(bore.args[3]);
+  const centerU=axis===0?numeric(bore.args[1]):numeric(bore.args[0]);
+  const centerV=axis===0?numeric(bore.args[2]):numeric(bore.args[1]);
+  const radius=axis===0?numeric(bore.args[3]):numeric(bore.args[2]);
+  const u=axis===0?b.y:b.x,v=axis===0?b.z:b.y;
+  if(span[0]<axial[0]-1e-8||span[1]>axial[1]+1e-8||span[1]<=span[0]||
+    radius<=0||centerU-radius<=u[0]||centerU+radius>=u[1]||centerV-radius<=v[0]||centerV+radius>=v[1]) return false;
+  const point=(axialValue:number,uu:number,vv:number):Vec=>axis===0?[axialValue,uu,vv]:[uu,vv,axialValue];
+  const normal=(sign:number):Vec=>axis===0?[sign,0,0]:[0,0,sign];
+  const circle=(at:number,i:number):Vec=>point(at,centerU+radius*Math.cos(TAU*i/SEGMENTS),centerV+radius*Math.sin(TAU*i/SEGMENTS));
+  const outer=(at:number,i:number):{point:Vec;side:number}=>{
+    const du=Math.cos(TAU*i/SEGMENTS),dv=Math.sin(TAU*i/SEGMENTS);
+    const tu=du>0?(u[1]-centerU)/du:du<0?(u[0]-centerU)/du:Infinity;
+    const tv=dv>0?(v[1]-centerV)/dv:dv<0?(v[0]-centerV)/dv:Infinity;
+    const scale=Math.min(tu,tv),side=tu<=tv?(du>0?0:2):(dv>0?1:3);
+    let uu=centerU+du*scale,vv=centerV+dv*scale;
+    if(side===0)uu=u[1];else if(side===2)uu=u[0];else if(side===1)vv=v[1];else vv=v[0];
+    return {point:point(at,uu,vv),side};
+  };
+  const corner=(side:number):[number,number]=>side===0?[u[1],v[1]]:side===1?[u[0],v[1]]:side===2?[u[0],v[0]]:[u[1],v[0]];
+  const boundary:Array<[number,number]>=[];
+  for(let i=0;i<SEGMENTS;i++) {
+    const a=outer(0,i),next=outer(0,(i+1)%SEGMENTS);
+    boundary.push(axis===0?[a.point[1],a.point[2]]:[a.point[0],a.point[1]]);
+    if(a.side!==next.side)boundary.push(corner(a.side));
+  }
+  for(let side=0;side<4;side++) {
+    const fixed=side===0?u[1]:side===1?v[1]:side===2?u[0]:v[0];
+    const along=(side===0||side===2?1:0);
+    const values=[...new Set(boundary.filter(p=>Math.abs(p[1-along]-fixed)<1e-9).map(p=>p[along]))].sort((a,b)=>a-b);
+    const n:Vec=axis===0?(side===0?[0,1,0]:side===1?[0,0,1]:side===2?[0,-1,0]:[0,0,-1]):
+      (side===0?[1,0,0]:side===1?[0,1,0]:side===2?[-1,0,0]:[0,-1,0]);
+    const uvReference=[point(axial[0],u[0],v[0]),point(axial[1],u[1],v[1])];
+    for(let i=0;i<values.length-1;i++){
+      const cross0:[number,number]=along===1?[fixed,values[i]]:[values[i],fixed];
+      const cross1:[number,number]=along===1?[fixed,values[i+1]]:[values[i+1],fixed];
+      w.quad([point(axial[0],...cross0),point(axial[1],...cross0),point(axial[1],...cross1),point(axial[0],...cross1)],n,uvReference);
+    }
+  }
+  const faceReference=[point(0,u[0],v[0]),point(0,u[1],v[1])];
+  for(const [end,sign] of [[0,-1],[1,1]] as const) {
+    const at=axial[end],n=normal(sign);
+    if(Math.abs(at-span[end])>1e-8){
+      const ci=w.vertex(point(at,centerU,centerV),n,metricUv(point(at,centerU,centerV),n,faceReference));
+      for(let i=0;i<boundary.length;i++){
+        const a=point(at,...boundary[i]),next=point(at,...boundary[(i+1)%boundary.length]);
+        const ia=w.vertex(a,n,metricUv(a,n,faceReference)),ib=w.vertex(next,n,metricUv(next,n,faceReference));
+        w.triangle(ci,ia,ib);
+      }
+      continue;
+    }
+    for(let i=0;i<SEGMENTS;i++) {
+      const a=outer(at,i),next=outer(at,(i+1)%SEGMENTS);
+      w.quad([a.point,next.point,circle(at,(i+1)%SEGMENTS),circle(at,i)],n,faceReference);
+      if(a.side!==next.side){
+        const vertex=corner(a.side),p=point(at,vertex[0],vertex[1]);
+        if(Math.hypot(...sub(a.point,p))>1e-12&&Math.hypot(...sub(next.point,p))>1e-12){
+          const ids=[a.point,p,next.point].map(q=>w.vertex(q,n,metricUv(q,n,faceReference)));
+          w.triangle(ids[0],ids[1],ids[2]);
+        }
+      }
+    }
+  }
+  let arc=0;
+  for(let i=0;i<SEGMENTS;i++){
+    const edge=Math.hypot(...sub(circle(span[0],i+1),circle(span[0],i)));
+    const radial:Vec=axis===0?[0,-Math.cos(TAU*(i+0.5)/SEGMENTS),-Math.sin(TAU*(i+0.5)/SEGMENTS)]:
+      [-Math.cos(TAU*(i+0.5)/SEGMENTS),-Math.sin(TAU*(i+0.5)/SEGMENTS),0];
+    const points=[circle(span[0],i),circle(span[0],i+1),circle(span[1],i+1),circle(span[1],i)];
+    const uv:[[number,number],[number,number],[number,number],[number,number]]=[[arc,0],[arc+edge,0],[arc+edge,span[1]-span[0]],[arc,span[1]-span[0]]];
+    const ids=points.map((p,j)=>w.vertex(p,radial,uv[j]));
+    w.triangle(ids[0],ids[1],ids[2]);w.triangle(ids[0],ids[2],ids[3]);arc+=edge;
+  }
+  for(const [at,sign] of [[span[0],1],[span[1],-1]] as const){
+    if(Math.abs(at-axial[sign>0?0:1])<=1e-8)continue;
+    const n=normal(sign),center=point(at,centerU,centerV),reference=[point(at,centerU-radius,centerV-radius),point(at,centerU+radius,centerV+radius)];
+    const ci=w.vertex(center,n,metricUv(center,n,reference));
+    for(let i=0;i<SEGMENTS;i++){
+      const a=circle(at,i),next=circle(at,i+1);
+      const ia=w.vertex(a,n,metricUv(a,n,reference)),ib=w.vertex(next,n,metricUv(next,n,reference));
+      w.triangle(ci,ia,ib);
+    }
+  }
+  return true;
+}
+
 function boreCuts(bore:{axis:string;args:string[]},part:Bounds):Bounds[] {
   let axis:0|1|2,centerA:number,centerB:number,radius:number,interval:[number,number];
   const numeric=(s:string)=>Number(s.replace("−","-"));
@@ -298,7 +396,13 @@ function plantLeaf(w:MeshWriter,b:Bounds,apex:number[],thickness:number):void {
     [b.x[0],b.y[1]-thickness,b.z[1]], [b.x[1],b.y[1]-thickness,b.z[1]],
   ];
   const faces:[Vec,Vec,Vec][]=[[a,end[0],end[1]],[a,end[1],end[3]],[a,end[3],end[2]],[a,end[2],end[0]],[end[0],end[2],end[3]],[end[0],end[3],end[1]]];
-  for(const face of faces){const n=normalize(cross(sub(face[1],face[0]),sub(face[2],face[0])));const ids=face.map(p=>w.vertex(p,n,[Math.hypot(p[0]-a[0],p[2]-a[2]),p[1]-a[1]]));w.triangle(ids[0],ids[1],ids[2]);}
+  const direction=normalize([(b.x[0]+b.x[1])/2-a[0],0,(b.z[0]+b.z[1])/2-a[2]]);
+  const tangent:Vec=[-direction[2],0,direction[0]];
+  for(const face of faces){
+    const n=normalize(cross(sub(face[1],face[0]),sub(face[2],face[0])));
+    const ids=face.map(p=>w.vertex(p,n,[dot(sub(p,a),tangent),Math.hypot(...sub(p,a))]));
+    w.triangle(ids[0],ids[1],ids[2]);
+  }
 }
 
 function buildPart(part:ModelPartRecord,state:ModelStateRecord):IAutoMovieMesh {
@@ -309,6 +413,7 @@ function buildPart(part:ModelPartRecord,state:ModelStateRecord):IAutoMovieMesh {
   }
   else if(part.shape==="hollow" && vessel(w,bounds,state,part)) { /* authored cavity */ }
   else if(state.radial?.[part.id] && state.radial[part.id][2]>0) radialShell(w,bounds,state.radial[part.id]);
+  else if(part.shape==="hollow" && state.bores?.[part.id] && !state.voids?.[part.id] && !state.pieces?.[part.id] && state.bores[part.id].axis!=="-y" && boxWithBore(w,bounds,state.bores[part.id])) { /* circular host bore */ }
   else if(part.shape==="hollow") {
     const voids=[...(state.voids?.[part.id]??[]),...(state.bores?.[part.id]?boreCuts(state.bores[part.id],bounds):[])];
     const pieces=state.pieces?.[part.id]??[];
