@@ -3,8 +3,8 @@
   "name": "@automovie/docs",
   "version": "0.1.0",
   "scripts": {
-    "build": "ttsc --noEmit -p tsconfig.json",
-    "lint": "ttsc --noEmit -p tsconfig.json"
+    "build": "ttsc --noEmit",
+    "lint": "ttsc --noEmit"
   },
   "devDependencies": {
     "@ttsc/evidence": "catalog:typescript",
