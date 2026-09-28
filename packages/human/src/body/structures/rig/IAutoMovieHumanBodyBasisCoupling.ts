@@ -22,8 +22,12 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * has no independent scapular bone or scapulothoracic joint, and its shoulder
  * skin weights do not establish scapular motion. This authored coupling is a
  * rig approximation, not a verified model of the four scapulothoracic degrees
- * of freedom measured by Seth et al. 2016. The anatomy and GPU limitations
- * are recorded in the body atlas and anatomical-layers studies.
+ * of freedom modelled by Seth et al. 2016
+ * (doi:10.1371/journal.pone.0141028: elevation, abduction, upward rotation
+ * and internal rotation on a thoracic surface). In r16, the public shoulder
+ * slot has no independently moving scapular surface and no skin vertex with
+ * more than half its weight on that slot. Changing this curve cannot create
+ * either absent degree of freedom or its tissue attachment.
  * The connected study's `couplings-receipt.json` records its actual curves;
  * those authored knots are not replacement measurements of scapular motion.
  *

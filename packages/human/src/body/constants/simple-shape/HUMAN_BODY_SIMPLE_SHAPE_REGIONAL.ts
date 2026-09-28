@@ -8,7 +8,19 @@ import { MUSCLE_THICKNESS_BY_SEX } from "./MUSCLE_THICKNESS_BY_SEX";
 
 type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 
-/** Ordered regional superficial tissue relations. */
+/**
+ * Ordered abdominal, breast, neck and limb appearance relations.
+ *
+ * The sex-dependent relief curve shares the L3 CT rectus-thickness observation
+ * of Kelly et al. (doi:10.1016/j.acra.2021.06.005) and whole-body MRI muscle
+ * distribution of Janssen et al. (doi:10.1152/jappl.2000.89.1.81) with
+ * `MUSCLE_THICKNESS_BY_SEX`. Fat visibility,
+ * breast position and regional fullness rows have their own source notes and
+ * authored interpolation knots beside them. Their product is a channel weight
+ * for the connected MPFB-derived skin, not a measured tissue thickness or an
+ * independent anatomical compartment. `HUMAN_BODY_SIMPLE_SHAPE` preserves
+ * their order when composing the simple editor tier.
+ */
 export const HUMAN_BODY_SIMPLE_SHAPE_REGIONAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       channel: "absDefinition",

@@ -7,7 +7,23 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
 
 type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 
-/** Ordered age, sex and developmental tissue relations. */
+/**
+ * Ordered life-stage and tissue relations applied before population fits.
+ *
+ * The macro age nodes follow the MPFB source. The muscle row subtracts 0.3
+ * from age 30 to 80, a linear six-percentage-point-per-decade authoring
+ * approximation within the broad 3–8% muscle-loss range discussed by Volpi
+ * et al. (doi:10.1097/01.mco.0000134362.76653.b2). The gluteal age/weight
+ * relation is not settled: Gonzalez 2006 reported both associations in 87
+ * surgical candidates (doi:10.1007/s00266-005-0051-y), whereas Babuccu et
+ * al. 2004 reported weight rather than age for adult strata in 132 women
+ * (doi:10.1007/s00266-004-4010-9). Its knots are authored, not a fitted
+ * universal causal law. Gluteal and abdominal rows describe visible tissue
+ * responses rather than reconstructing
+ * each person's muscle and fat compartments. The simple-tier evaluator sums
+ * these dimensionless channel gains in the table's declared order; no row
+ * moves a vertex directly or certifies a physiological range.
+ */
 export const HUMAN_BODY_SIMPLE_SHAPE_LIFECYCLE: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       channel: "macroGender",
@@ -50,7 +66,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_LIFECYCLE: IAutoMovieHumanBodySimpleShapeTa
       ],
     },
     {
-      // sarcopenia: about thirty percent of muscle between 30 and 80
+      // authored 30% loss from 30 to 80; not an individual sarcopenia forecast
       channel: "macroMuscle",
       gain: -0.3,
       curves: [
@@ -108,7 +124,7 @@ export const HUMAN_BODY_SIMPLE_SHAPE_LIFECYCLE: IAutoMovieHumanBodySimpleShapeTa
       }),
     ),
     {
-      // gluteal ptosis with age, more on a heavier body
+      // authored age/BMI relation; the source studies disagree on age effects
       channel: "buttocksPtosis",
       gain: 1,
       curves: [
@@ -133,9 +149,8 @@ export const HUMAN_BODY_SIMPLE_SHAPE_LIFECYCLE: IAutoMovieHumanBodySimpleShapeTa
       ],
     },
     {
-      // a muscular body lifts, less as the muscle ages: the gluteus maximus
-      // carries the fold, and it loses three to five percent a decade after
-      // thirty (sarcopenia), so an old muscular body keeps part of the lift
+      // authored lift from developed muscle, attenuated with age; gluteal
+      // muscle and tissue loss vary by person and are not measured by this row
       channel: "buttocksPtosis",
       gain: -0.4,
       curves: [
@@ -172,8 +187,8 @@ export const HUMAN_BODY_SIMPLE_SHAPE_LIFECYCLE: IAutoMovieHumanBodySimpleShapeTa
       ],
     },
     {
-      // and it atrophies with age (sarcopenia after thirty; the skin
-      // envelope, fat and muscle all diminish with age, Gonzalez)
+      // authored age decline in gluteal volume; ptosis is not a direct
+      // measurement of muscle or fat volume for an individual
       channel: "buttocksVolume",
       gain: -0.4,
       curves: [

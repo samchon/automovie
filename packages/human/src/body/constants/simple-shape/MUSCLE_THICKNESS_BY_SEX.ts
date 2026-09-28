@@ -7,12 +7,19 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
 
 type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 
-// A muscle's relief under the skin is as deep as the muscle is thick, and a
-// woman's is thinner: her rectus abdominis 0.97 cm against a man's 1.15
-// (CT at the third lumbar vertebra, 109 women and 239 men; Kelly et al.
-// 2021), the 0.84 the upper body's muscle share implies too (Janssen et al.
-// 2000, 0.6 of a man's mass over 0.92 of his stature, square-rooted)
-/** Shared sex-dependent superficial muscle thickness curve. */
+/**
+ * Sex-conditioned superficial muscle-relief multiplier shared by two terms.
+ *
+ * Kelly et al.'s L3 CT sample of 348 adults found a mean rectus abdominis
+ * thickness of 0.97 cm in 109 women and 1.15 cm in 239 men
+ * (doi:10.1016/j.acra.2021.06.005). Their ratio is about 0.84. Janssen et
+ * al.'s whole-body MRI study of 468 adults found a larger sex difference in
+ * upper- than lower-body muscle distribution
+ * (doi:10.1152/jappl.2000.89.1.81). The latter is not a measurement of local
+ * skin relief or thickness. The shared 0.84 point is an authored proxy for
+ * visible relief, not a universal thickness field: subcutaneous tissue,
+ * individual muscle shape and site-specific anatomy remain separate.
+ */
 export const MUSCLE_THICKNESS_BY_SEX = {
   parameter: "sex",
   points: [

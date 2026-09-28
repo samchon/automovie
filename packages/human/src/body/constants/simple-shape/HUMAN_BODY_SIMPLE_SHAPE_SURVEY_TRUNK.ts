@@ -5,7 +5,17 @@
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 
-/** Ordered survey fits for trunk proportions. */
+/**
+ * Ordered ANSUR II fits for trunk section, limb length and pelvic height.
+ *
+ * The current table stores this contiguous sequence together to preserve
+ * floating-point summation order. Its row notes distinguish waist/bust
+ * sections from anthropometric limb lengths and vertical hip placement.
+ * These are visible exterior and rig proportions, not estimates of internal
+ * bone geometry. The 2012 ANSUR II working database contains 4,082 men and
+ * 1,986 women measured in the US Army; it is not a universal body prior.
+ * `HUMAN_BODY_SIMPLE_SHAPE` composes these rows after the distal survey terms.
+ */
 export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_TRUNK: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       // ANSUR II people: torsoScaleHoriz, women. The waist section stood too

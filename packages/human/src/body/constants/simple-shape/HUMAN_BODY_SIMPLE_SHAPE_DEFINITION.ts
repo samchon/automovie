@@ -6,7 +6,18 @@
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 import { MUSCLE_THICKNESS_BY_SEX } from "./MUSCLE_THICKNESS_BY_SEX";
 
-/** Ordered muscle and skeletal definition relations. */
+/**
+ * Ordered visible muscle and skeletal-relief controls.
+ *
+ * Training and estimated fat-free mass drive the authored surface endpoints;
+ * tissue above a muscle masks its relief. The rows use the sex-conditioned
+ * superficial thickness relation shared with regional controls, but the
+ * resulting weights are image-visible shape proxies, not a volumetric muscle
+ * reconstruction. The named physiological and anthropometric assumptions are
+ * documented beside each row. Janssen et al.'s MRI sample of 468 adults
+ * (doi:10.1152/jappl.2000.89.1.81) constrains the sex-dependent regional
+ * muscle share; it does not provide a skin-visible contour for every muscle.
+ */
 export const HUMAN_BODY_SIMPLE_SHAPE_DEFINITION: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       // a trained upper body widens from the latissimus and deltoids into a

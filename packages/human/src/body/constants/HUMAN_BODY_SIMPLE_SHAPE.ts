@@ -14,10 +14,15 @@ import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_TRUNK } from "./simple-shape/HUMAN_BODY_
  * the piecewise-linear curves over the simple parameters (and two derived
  * ones) whose product the gain scales. A curve is `[x, y]` points in
  * ascending `x`, held flat outside its ends. The rows encode, with their
- * sources pinned in the body study, MakeHuman's age nodes (child 11 years,
- * young 25, old 90), the sarcopenia figure of three to five percent of muscle
- * per decade after thirty, Gonzalez's gluteal ptosis rising with age and
- * weight change, the gluteal mass and pelvic tone muscle raises and age
+ * sources described beside their owning rows, MakeHuman's age nodes (child
+ * 11 years, young 25, old 90), and an authored 30% muscle loss from age 30
+ * to 80 (six percentage points per decade, within the broad 3–8% per decade
+ * range discussed by Volpi et al., doi:10.1097/01.mco.0000134362.76653.b2).
+ * The gluteal-ptosis age and mass curve is an authored hypothesis: Gonzalez
+ * 2006 associated both with ptosis (doi:10.1007/s00266-005-0051-y), while
+ * Babuccu et al. 2004 found weight, not age, explained the adult groups in
+ * their female sample (doi:10.1007/s00266-004-4010-9). Gluteal mass and
+ * pelvic tone muscle raises and age
  * takes, the adolescent maturity before which training builds no muscle, the
  * redistribution of fat from the limbs to the trunk with age, the WHO
  * android/gynoid split by sex, Deurenberg's age-specific body fat estimates

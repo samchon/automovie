@@ -5,7 +5,19 @@
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 
-/** Ordered survey fits for the pelvis and proximal legs. */
+/**
+ * Ordered ANSUR II fits for hip breadth/depth, proximal limb tissue and
+ * breast-point height in the current contiguous table segment.
+ *
+ * The rows are regression-like corrections to the MPFB-derived skin, using
+ * the survey measurements and covariates identified beside each term. The
+ * 2012 ANSUR II working database has 4,082 men, 1,986 women and 93 direct
+ * measurements (US Army Public Health Center). These outer measurements
+ * do not infer acetabular width or pelvic bone shape from outer hip girth;
+ * those quantities cannot be linked by one uniform pelvic scale. The adult
+ * US Army population does not establish a growth law for children or
+ * unobserved body forms.
+ */
 export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_PELVIS: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     // The ANSUR II people rows (below): reproduced from their own sex, age,
     // stature, mass and chest and buttock girths, the survey's people read

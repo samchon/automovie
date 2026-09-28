@@ -5,7 +5,16 @@
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 
-/** Ordered survey fits for the distal limbs. */
+/**
+ * Ordered wrist and ankle girth relations fitted to ANSUR II people.
+ *
+ * The 2012 ANSUR II working database contains 4,082 men and 1,986 women in
+ * the US Army. These dimensionless endpoint weights reproduce its distal
+ * measurements under its age, sex and mass inputs; their row notes identify
+ * the measurement and fitted response. ANSUR II is an adult US Army sample,
+ * not a universal growth law or a direct bone-radius measurement. The simple
+ * tier composes these after the proximal survey relations.
+ */
 export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       // ANSUR II people: measureWristCirc, women. The reproduced women's wrists
