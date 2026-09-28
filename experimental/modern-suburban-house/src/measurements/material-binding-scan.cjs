@@ -115,6 +115,19 @@ for (const file of files) for (const { anchor, body } of sections(read(`material
       .map((match) => `${match[1]}#${match[2]}`);
     for (const host of hosts) crossBind(`${file}#${anchor}`, lead[1], host);
   }
+  // A material paragraph can send one face to another linked finish in the
+  // same clause. Resolve the links and face token, not the Korean copula:
+  // both "`face`는 [finish]다" and "`face`는 [finish]를 받는다" assign it.
+  for (const clause of body.split(/(?<=다\.)\s+|,\s*/)) {
+    if (/아니라|받지 않는다|결합하지 않는다/.test(clause)) continue;
+    const hostLinks = [...clause.matchAll(/\]\(\.\.\/models\/([^#)]+)#([^)]+)\)/g)];
+    for (const assignment of clause.matchAll(/`([a-z][a-z0-9-]*)`(?:은|는)\s*\[[^\]]+\]\((?:(0[0-3]-[^#)]+\.md))?#([^)]+)\)/g)) {
+      const destination = `${assignment[2] || file}#${assignment[3]}`;
+      const before = hostLinks.filter((host) => (host.index ?? 0) < (assignment.index ?? 0));
+      const hosts = before.length ? before : hostLinks.filter((host) => (host.index ?? 0) > (assignment.index ?? 0));
+      for (const host of hosts) crossBind(destination, assignment[1], `${host[1]}#${host[2]}`);
+    }
+  }
 }
 /** Binding prose is the part of a material H2 that actually assigns its finish.
  * Later texture and contrast prose may mention a face without binding it. */

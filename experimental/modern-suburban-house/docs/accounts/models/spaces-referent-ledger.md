@@ -263,7 +263,7 @@
 | 명시적 | 2 | [settings/10-house.md#garage](../../settings/10-house.md#garage) | UNCLASSIFIED |
 | 외장 | 1 | [settings/10-house.md#garage](../../settings/10-house.md#garage) | UNCLASSIFIED |
 | 완성 | 2 | [settings/10-house.md#garage](../../settings/10-house.md#garage) | UNCLASSIFIED |
-| 시작하 | 2 | [settings/10-house.md#upper-hall](../../settings/10-house.md#upper-hall) | UNCLASSIFIED |
+| 시작하 | 4 | [settings/10-house.md#upper-hall](../../settings/10-house.md#upper-hall) | UNCLASSIFIED |
 | 돌아가 | 2 | [settings/10-house.md#upper-hall](../../settings/10-house.md#upper-hall) | UNCLASSIFIED |
 | 안방 | 1 | [settings/10-house.md#upper-hall](../../settings/10-house.md#upper-hall) | UNCLASSIFIED |
 | 욕실 | 16 | [settings/10-house.md#upper-hall](../../settings/10-house.md#upper-hall) | UNCLASSIFIED |
@@ -442,7 +442,7 @@
 | 공유하 | 5 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 겹침 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 참조한다 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
-| 아래 | 56 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
+| 아래 | 57 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 임의 | 2 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 머드룸이라 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
 | 실패 | 1 | [spaces/00-building.md#attached-garage-extent](../../spaces/00-building.md#attached-garage-extent) | UNCLASSIFIED |
@@ -471,7 +471,7 @@
 | 않는지 | 1 | [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums) | UNCLASSIFIED |
 | 연결만 | 1 | [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums) | UNCLASSIFIED |
 | 차도 | 12 | [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums) | UNCLASSIFIED |
-| 각각 | 5 | [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums) | UNCLASSIFIED |
+| 각각 | 6 | [spaces/01-storeys.md#ground-threshold-datums](../../spaces/01-storeys.md#ground-threshold-datums) | UNCLASSIFIED |
 | 도착면 | 3 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 목적지 | 4 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 사이에 | 4 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
@@ -479,7 +479,7 @@
 | 길이 | 14 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 직각 | 1 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 앞면 | 5 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
-| 상면 | 38 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
+| 상면 | 39 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 둘레 | 5 | [spaces/02-stair.md#stair-reservation](../../spaces/02-stair.md#stair-reservation) | UNCLASSIFIED |
 | 계단실 | 6 | [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff) | UNCLASSIFIED |
 | 직선 | 2 | [spaces/02-stair.md#stair-connector-handoff](../../spaces/02-stair.md#stair-connector-handoff) | UNCLASSIFIED |
@@ -502,8 +502,8 @@
 | 창호 | 4 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
 | 비우 | 2 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
 | 앞쪽 | 17 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
+| 부피 | 5 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
 | 고체 | 3 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
-| 부피 | 4 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
 | 통하 | 2 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
 | 노출되 | 3 | [spaces/02-stair.md#stair-floor-opening](../../spaces/02-stair.md#stair-floor-opening) | UNCLASSIFIED |
 | 하나라 | 2 | [spaces/02-stair.md#stair-clearance](../../spaces/02-stair.md#stair-clearance) | UNCLASSIFIED |
@@ -540,7 +540,7 @@
 | 응답 | 1 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
 | 충전 | 3 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
 | 때문 | 10 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
-| 윗면 | 9 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
+| 윗면 | 10 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
 | 날씨선 | 6 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
 | 벽체 | 4 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
 | 합류하 | 1 | [spaces/03-surface-owners.md#exterior-surface-handoff](../../spaces/03-surface-owners.md#exterior-surface-handoff) | UNCLASSIFIED |
@@ -566,6 +566,7 @@
 | 띠라 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 마감판 | 3 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 접합선 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
+| 칸막 | 15 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 전역 | 2 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 아래에서 | 4 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
 | 이웃 | 1 | [spaces/03-surface-owners.md#interior-surface-handoff](../../spaces/03-surface-owners.md#interior-surface-handoff) | UNCLASSIFIED |
@@ -663,7 +664,6 @@
 | 적합성 | 1 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 가져가지 | 1 | [spaces/06-openings.md#external-opening-interface](../../spaces/06-openings.md#external-opening-interface) | UNCLASSIFIED |
 | 법선 | 1 | [spaces/06-openings.md#selected-window-curtain-strips](../../spaces/06-openings.md#selected-window-curtain-strips) | UNCLASSIFIED |
-| 칸막 | 14 | [spaces/07-boundary-assembly.md#interior-boundary-ownership](../../spaces/07-boundary-assembly.md#interior-boundary-ownership) | UNCLASSIFIED |
 | 가리키 | 1 | [spaces/07-boundary-assembly.md#interior-boundary-ownership](../../spaces/07-boundary-assembly.md#interior-boundary-ownership) | UNCLASSIFIED |
 | 중간선 | 1 | [spaces/07-boundary-assembly.md#interior-boundary-ownership](../../spaces/07-boundary-assembly.md#interior-boundary-ownership) | UNCLASSIFIED |
 | 조립 | 3 | [spaces/07-boundary-assembly.md#interior-boundary-ownership](../../spaces/07-boundary-assembly.md#interior-boundary-ownership) | UNCLASSIFIED |
@@ -716,6 +716,7 @@
 | 고형체 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 삭제하 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 문단 | 3 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
+| 테두리판 | 2 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 테두리 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 디딤판 | 2 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
 | 엔진에서 | 1 | [spaces/08-floor-assembly.md#interstorey-edge-junctions](../../spaces/08-floor-assembly.md#interstorey-edge-junctions) | UNCLASSIFIED |
@@ -890,6 +891,7 @@
 | 냉장고 | 2 | [spaces/rooms/common.md#common-clear-routes](../../spaces/rooms/common.md#common-clear-routes) | UNCLASSIFIED |
 | 경로에서 | 1 | [spaces/rooms/common.md#common-clear-routes](../../spaces/rooms/common.md#common-clear-routes) | UNCLASSIFIED |
 | 꼭짓점 | 3 | [spaces/rooms/entry.md#entry-plan](../../spaces/rooms/entry.md#entry-plan) | UNCLASSIFIED |
+| 구멍선 | 1 | [spaces/rooms/entry.md#entry-plan](../../spaces/rooms/entry.md#entry-plan) | UNCLASSIFIED |
 | 남기 | 2 | [spaces/rooms/entry.md#entry-plan](../../spaces/rooms/entry.md#entry-plan) | UNCLASSIFIED |
 | 닫힘 | 1 | [spaces/rooms/entry.md#entry-plan](../../spaces/rooms/entry.md#entry-plan) | UNCLASSIFIED |
 | 열림에서 | 1 | [spaces/rooms/entry.md#entry-plan](../../spaces/rooms/entry.md#entry-plan) | UNCLASSIFIED |

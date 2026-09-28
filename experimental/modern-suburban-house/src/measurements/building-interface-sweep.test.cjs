@@ -4,22 +4,34 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { audit } = require("./building-interface-sweep.cjs");
 
-const name = "05-closet-fittings.md";
-const source = fs.readFileSync(path.resolve(__dirname, `../../docs/models/${name}`), "utf8");
-/** @param {string} text */
-const check = (text) => audit([{ name, source: text }]);
+const directory = path.resolve(__dirname, "../../docs/models");
+const files = fs.readdirSync(directory).filter(name => name.endsWith(".md"))
+  .map(name => ({ name, source: fs.readFileSync(path.join(directory, name), "utf8") }));
+/** @param {{name:string,source:string}[]} population */
+const check = (population) => audit(population);
 
-void test("side-wall contacts use both ends of each authored fitting", () => {
-  const result = check(source);
-  assert.equal(result.axialClaims, 2);
-  assert.equal(result.checkedIntervals, 3);
+void test("all authored axial wall contacts have two measured ends", () => {
+  const result = check(files);
+  assert.ok(result.h2 > 0);
+  assert.ok(result.axialClaims > 0);
+  assert.ok(result.checkedIntervals >= result.axialClaims);
   assert.deepEqual(result.failures, []);
 });
 
-void test("shortened fitting ranges leave positive gaps at reviewed walls", () => {
-  const rod = source.replace("Z=[−4.56,−3.51] m의 길이 1.05 m", "Z=[−4.51,−3.56] m의 길이 0.95 m")
-    .replace("두 측벽의 안쪽 면 Z=[−4.56,−3.51] m", "두 측벽의 안쪽 면 Z=[−4.51,−3.56] m");
-  const shelves = source.replace("모두 X=[1.87,3.07]", "모두 X=[1.92,3.02]");
-  assert.equal(check(rod).failures.length, 4);
-  assert.equal(check(shelves).failures.length, 2);
+void test("moving an authored contact interval off its wall fails", () => {
+  const target = files.find(file => /두\s*[XYZ]\s*끝면[^\n]*(?:측벽|옆벽|양쪽 벽)/.test(file.source));
+  assert.ok(target);
+  const paragraph = target.source.replace(/<!--[\s\S]*?-->/g, "").split(/\n+/)
+    .find(text => /두\s*[XYZ]\s*끝면[^\n]*(?:측벽|옆벽|양쪽 벽)/.test(text));
+  assert.ok(paragraph);
+  const claim = /두\s*([XYZ])\s*끝면[^\n]*(?:측벽|옆벽|양쪽 벽)/.exec(paragraph);
+  assert.ok(claim);
+  const axis = claim[1];
+  const interval = new RegExp(`${axis}=\\[([−-]?\\d+(?:\\.\\d+)?),([−-]?\\d+(?:\\.\\d+)?)\\]`).exec(paragraph);
+  assert.ok(interval);
+  /** @param {string} text */
+  const number = (text) => Number(text.replace("−", "-"));
+  const moved = `${axis}=[${number(interval[1]) + 0.05},${number(interval[2]) + 0.05}]`;
+  const population = files.map(file => file === target ? { ...file, source:file.source.replace(paragraph, paragraph.replace(interval[0], moved)) } : file);
+  assert.ok(check(population).failures.length > 0);
 });

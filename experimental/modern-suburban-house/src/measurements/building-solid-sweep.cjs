@@ -5,7 +5,7 @@ const path = require("node:path");
 require(require.resolve("tsx/cjs"));
 const { buildHouse } = require("../spaces/house.ts");
 
-const directory = path.resolve(__dirname, "../../docs/models");
+const directory = process.env.MODEL_DOCS_DIR || path.resolve(__dirname, "../../docs/models");
 const number = "([−-]?\\d+(?:\\.\\d+)?)";
 /** @param {string} value */
 const n = (value) => Number(value.replace("−", "-"));
@@ -58,15 +58,23 @@ function scan(parts) {
     }
   }
 
-  // A jamb standing on a separately owned threshold must begin at its top.
-  const door = section("02-exterior-doors.md", "front-entry-door");
-  const [jamb0] = values(door, new RegExp(`Y = \\[${number}, ${number}\\] m를 차지`), "jamb vertical interval");
-  const [openingX0, openingX1] = values(door, new RegExp(`거친 개구부 X = \\[${number}, ${number}\\]`), "reviewed opening interval");
-  const threshold = boxes.filter((part) => part.role === "floor" && part.box.x[0] <= openingX0 + 1e-6 && part.box.x[1] >= openingX1 - 1e-6 && part.box.y[1] > 0 && part.box.y[1] < 0.1)
-    .sort((a, b) => b.box.y[1] - a.box.y[1])[0];
-  if (!threshold) throw Error("missing reviewed threshold solid");
-  contacts++;
-  if (Math.abs(jamb0 - threshold.box.y[1]) > 1e-4) failures.push(`jamb bottom misses threshold top by ${Math.abs(jamb0 - threshold.box.y[1]).toFixed(4)} m`);
+  // For every exterior leaf whose jambs meet a separately owned threshold,
+  // compare its authored start with the emitted floor solid under that opening.
+  const exteriorDoors = fs.readFileSync(path.join(directory, "02-exterior-doors.md"), "utf8");
+  for (const h2 of exteriorDoors.split(/^## /m).slice(1)) {
+    const body = h2.replace(/<!--[\s\S]*?-->/g, "");
+    if (!body.includes("문턱 상면") || !body.includes("세로 문설주")) continue;
+    const [openingX0, openingX1] = values(body, new RegExp(`(?:거친 개구부\\s*)?X\\s*=\\s*\\[${number},\\s*${number}\\]`), "exterior door opening interval");
+    const jamb = /세로 문설주[^\n]{0,220}/.exec(body)?.[0];
+    if (!jamb) throw Error("missing vertical jamb statement");
+    const [jamb0] = values(jamb, new RegExp(`Y\\s*=\\s*(?:\\[)?${number}`), "jamb start height");
+    const threshold = boxes.filter((part) => part.role === "floor" && part.box.x[0] <= openingX0 + 1e-6 && part.box.x[1] >= openingX1 - 1e-6 && part.box.y[1] > 0 && part.box.y[1] < 0.1)
+      .sort((a, b) => b.box.y[1] - a.box.y[1])[0];
+    if (!threshold) throw Error("missing reviewed threshold solid");
+    contacts++;
+    if (Math.abs(jamb0 - threshold.box.y[1]) > 1e-4)
+      failures.push(`jamb bottom ${jamb0} misses threshold top ${threshold.box.y[1]}`);
+  }
 
   // Nosing-relative vertical members stop before the nearest wall begins.
   const stair = section("04-stair-members.md", "stair-balusters");
@@ -94,21 +102,32 @@ function scan(parts) {
       failures.push(`vertical member at X=${x.toFixed(3)} passes wall start by ${(actualTop - wall.box.y[0]).toFixed(4)} m`);
   }
 
-  // Where text declares a member centered in a parent depth, its explicit
-  // depth interval must share the parent's midpoint.
+  // Compare each stated depth relationship with the authored intervals. A
+  // placement word cannot override inconsistent numeric margins or midpoints.
   const windows = fs.readFileSync(path.join(directory, "01-windows.md"), "utf8");
   const [frameLo, frameHi] = values(windows, new RegExp(`frame Z=\\[${number},${number}\\]`), "window frame depth");
   for (const h2 of windows.split(/^## /m).slice(1)) {
     const body = h2.replace(/<!--[\s\S]*?-->/g, "");
-    if (!/sash[는를] frame 깊이의 가운데/.test(body)) continue;
-    const [sashLo, sashHi] = values(body, new RegExp(`sash[^\n]*?Z=\\[${number},${number}\\]`), "centered sash depth");
-    depthAssertions++;
-    if (Math.abs((sashLo + sashHi) - (frameLo + frameHi)) > 1e-6) failures.push("sash depth contradicts stated centered placement");
+    const centred = /sash[^\n]{0,100}frame 깊이[^\n]{0,30}(?:가운데|중앙)/.test(body);
+    const margins = new RegExp(`날씨 쪽 여백 ${number} m·실내 쪽 여백 ${number} m`).exec(body);
+    if (!centred && !margins) continue;
+    const [sashLo, sashHi] = values(body, new RegExp(`sash[^\n]*?Z=\\[${number},${number}\\]`), "sash depth");
+    if (centred) {
+      depthAssertions++;
+      if (Math.abs((sashLo + sashHi) - (frameLo + frameHi)) > 1e-6)
+        failures.push("sash depth contradicts stated centered placement");
+    }
+    if (margins) {
+      depthAssertions += 2;
+      if (Math.abs(frameHi - sashHi - n(margins[1])) > 1e-6)
+        failures.push("weather-side sash margin contradicts authored depth");
+      if (Math.abs(sashLo - frameLo - n(margins[2])) > 1e-6)
+        failures.push("interior-side sash margin contradicts authored depth");
+    }
   }
 
   // A glass infill stated as an X/Y panel must carry a real thickness and fit
   // within the surrounding sash, rather than leave depth for source code.
-  const exteriorDoors = fs.readFileSync(path.join(directory, "02-exterior-doors.md"), "utf8");
   for (const chunk of exteriorDoors.split(/^## /m).slice(1)) {
     const body = chunk.replace(/<!--[\s\S]*?-->/g, "");
     for (const sentence of body.split(/(?<=다\.)\s+/)) {

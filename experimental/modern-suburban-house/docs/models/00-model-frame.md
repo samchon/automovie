@@ -189,7 +189,7 @@
 
 ## 원형 계열별 표현 완결 보고 {#model-representation-completion}
 <!--
-@evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고한다. 외피·붙박이·고정 설비는 파일 번호가 아닌 건물 접합 역할로 엄격 검사에 넣는다.
+@evidence principles/core/common.md#scope-preservation 창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품 아홉 계열에 구조 판정과 의미 판정을 따로 보고한다. 외피·붙박이·방의 고정 구획을 만드는 설비는 파일 번호가 아닌 건물 접합 역할로 엄격 검사에 넣는다.
 @evidence principles/core/common.md#substantive-completion 구조 판정을 닫힌 부피·바깥 법선·유한 좌표·id와 관절 노드로, 의미 판정을 예약 산술·표현 한계·리뷰 캡처로 정하고 source가 없어 구조 판정이 현재 unverified라고 적는다.
 @evidence principles/core/common.md#declared-basis 의미 판정 기준을 contracts/reservation-fit.md#reservation-fit과 이 파일의 model-review-set에서 받는다고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 공용 완결 의무를 이 주택의 아홉 원형 계열(창·외부 문·실내 문·난간·수납·가구/설비·식재·조명기구·생활 소품)로 나누고 현재 H2별 예약 산술 표와 후속 source 구조·캡처 검사를 분리한다.
@@ -207,7 +207,7 @@
 
 레퍼런스 01–05는 치수 도면으로 사용하지 않는다. 이 H2의 기술 규칙은 설정과 공간 예약에서 정하며 사진 비례를 근거로 삼지 않는다. 이 판단은 사진으로 척도를 역산하지 않는다는 경계이며 외곽·동선의 owner를 바꾸지 않는다.
 
-건물 부재의 엄격 검사는 외벽·지붕의 외피와 trim, 바닥·벽·개구부에 맞춘 붙박이 수납, 배관 또는 벽체에 고정되는 설비에 적용한다. 01–06의 창·문·계단·수납·실내 trim은 이 범위에 들고, 10–19의 원형은 각 H2 본문의 `건물 분류: 외피`·`건물 분류: 붙박이`·`건물 분류: 설비`로 같은 기준을 선언한다. 싱크 섬은 바닥 예약과 급배수 기능을 소비하는 설비라 이 범위에 포함한다. 이동 가구와 그릇·직물·식물 같은 대략 소품에는 이 엄격한 면별 치수 증인을 요구하지 않는다.
+건물 부재의 엄격 검사는 01–06의 창·문·계단·수납·실내 trim 전부와, 10–19 중 외벽·지붕의 연속 외피와 trim, 바닥·벽·개구부 예약을 채워 방의 수납 경계를 만드는 붙박이 몸통, 방의 고정 구획을 직접 만드는 설비에 적용한다. 뒤 세 종류는 각 H2가 `건물 분류: 외피`·`건물 분류: 붙박이`·`건물 분류: 설비`로 선언한다. 싱크 섬은 바닥 예약 안에서 싱크·상판·몸통이 한 구획을 이루므로 설비에 포함한다. 전원·배관 연결 또는 벽 고정만 있는 개별 가전·도기·고리·거울·등기구는 방의 경계가 아니므로 대략 형상과 눈에 보이는 접합을 검사한다. 이동 가구와 그릇·직물·식물에도 엄격한 면별 치수 증인을 요구하지 않는다.
 
 모델 모집단의 완결은 원형 계열마다 두 판정을 따로 보고한다. 구조 판정은 `src/models`가 만든 메시가 닫힌 부피·바깥 법선·유한 좌표·선언한 표면 id와 관절 노드를 모두 갖는지이고, 의미 판정은 [예약 맞춤 계약](../contracts/reservation-fit.md#reservation-fit)의 산술, 선언한 표현 한계, [모델 리뷰 뷰 목록](#model-review-set)의 캡처가 모두 답해졌는지다. 한 판정은 다른 판정을 함의하지 않는다. 계열은 창([01](01-windows.md)), 외부 문과 대문([02](02-exterior-doors.md)), 실내 문([03](03-interior-doors.md)), 난간 부재([04](04-stair-members.md)), 수납·걸레받이 부재([05](05-closet-fittings.md)·[06](06-interior-trim.md)), 가구·설비([10](10-kitchen-dining.md)–[15](15-outdoor.md)), 식재([16](16-planting.md)), 조명기구([17](17-light-fixtures.md)), 생활 소품([18](18-house-props.md)–[19](19-room-accents.md))이다. 현재 모든 계열은 설계 문서만 있고 source가 없으므로 구조 판정은 unverified이며, 의미 판정은 각 H2의 산술이 문서에 적힌 수준까지만 성립한다. 현재 [예약 맞춤 account](../accounts/models/reservation-fit.md#model-reservation-fit)는 모델 H2와 예약 산술 두 칸만 전수로 열거한다. 구조 검사 결과와 계열별 실제 캡처 주소는 모델 source 단계에서 따로 보고하며 아직 unverified다. 소스 owner는 `src/models/frame.ts`다.
 
