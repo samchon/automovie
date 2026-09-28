@@ -4,7 +4,7 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis 사용자 확정인 약 250㎡·주택 한 채·전체 인테리어와 제작 선택인 시간축 없는 library를 구분해 채택한다.
-@evidence principles/core/common.md#scope-preservation 본채·외피·인테리어·설비·가구·소품·앞마당을 납품에 남기고 film과 주민 asset을 추가하지 않는다.
+@evidence principles/core/common.md#scope-preservation 최초 본채·외피·인테리어·설비·가구·소품·앞마당의 계획을 보존하며, 후속 직접 지시로 이번 종료를 건물 자체에 한정하고 미완 사물의 문서·모집단·초안을 지우거나 완료로 표시하지 않는다.
 @evidence principles/core/common.md#substantive-completion 마지막 산출물을 재사용 가능한 건축 환경 하나로 정하고 금지 구조와 다섯 PNG의 사용 범위까지 확정한다.
 @evidence principles/core/settings.md#fact-status 11×12m와 두 층은 브리프의 목표이고 library라는 kind는 제작 선택이며 PNG는 측량 사실이 아니다.
 @evidence principles/core/settings.md#source-support 다섯 PNG의 디렉터리와 파일명을 명시하고 2026-09-21 첨부본을 형태 자료로 한정해 건축 성능의 외부 근거로 쓰지 않는다.
@@ -15,7 +15,9 @@
 
 **권한:** 규모·주택 한 채·전체 인테리어·고정 그래프·reference 지위는 사용자 확정이다. 시간축 없는 library라는 production kind는 그 납품을 실현하는 제작 선택이다.
 
-이 production은 시간축이 없는 `library`다. 약 250㎡ 규모의 2080년대 시민 가족용 2층 주택 한 채와 그 외피·전체 인테리어·설비·가구·소품·작은 대지 앞마당을 결정론적 3D library로 납품한다. 완성 결과는 재사용 가능한 건축 환경 하나이며 film, screenplay, timed motion, resident character asset은 범위에 넣지 않는다.
+이 production은 시간축이 없는 `library`다. 최초 브리프는 약 250㎡ 규모의 2080년대 시민 가족용 2층 주택 한 채와 그 외피·전체 인테리어·설비·가구·소품·작은 대지 앞마당을 결정론적 3D library로 정했다. 재사용 가능한 건축 환경 하나라는 결과 형태를 유지하며 film, screenplay, timed motion, resident character asset은 범위에 넣지 않는다. 이번 종료 범위는 아래 후속 사용자 지시를 따른다.
+
+2026-09-28 후속 사용자 지시 “건물만 완료했으면 개별 오브젝트들은 뭐 좀 내비두고 마무리짓게하라. 모든 녀석들이 건물 그 자체를 완료하거든, 너 또한 PR 머지하고 작업 마치도록.”에 따라 이번 이어받기의 종료 범위는 완료된 건물 자체다. 앞선 건물 완료 후 개별 사물 통합 순서는 이 지시로 중단한다. 기존 건물의 공간·외피·개구·계단·roof/canopy·건물 마감과 현재 생활 관계를 유지하며, 별도 원형의 통합·사물 배치·사물 재료 source 마감은 미완 후속으로 보존한다. 원래 사물 모집단·문서·소스 초안·실패·PNG와 전체 evidence 의무를 삭제하거나 완료로 표시하지 않는다. 건물 완료와 전체 사물 production의 완료는 다른 판정이다.
 
 매스는 약 11×12m의 단순 직사각형 상자 하나다. 중정, 별동, 브리지, 캔틸레버, 복층 보이드, 두 번째 계단, 분기 복도, 단절된 방은 납품 대상에서 제외한다. 제외는 미완료가 아니라 사용자가 고정한 공간 그래프의 경계다.
 

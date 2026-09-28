@@ -254,7 +254,7 @@ ref03 전경의 막힌 상자형 낮은 탁자 외형은 현재 `coffee-table`�
 @evidence principles/core/common.md#substantive-completion 좌판·네 발·네 mitered-box 발받침의 점유와 45° 맞댐 한 접합면을 정해 겹친 AABB를 겹친 고체로 잘못 읽지 않게 한다.
 @evidence principles/core/common.md#declared-basis ref03의 긴 섬 측면 스툴과 발받침 고리를 시각 근거로 쓰고 0.63m 좌면·0.23m 고리·mitre 치수는 이 H2의 값이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program의 island와 common-room의 주방 영역에 놓을 저작 선택인 스툴에 네 발 내부의 닫힌 발받침 고리를 더한다.
-@evidence principles/design/models.md#representation-contract 45° 반평면으로 네 막대의 열린 내부 겹침을 없애고 한 유한 면에서만 만나게 하며 seat/leg/footrest face를 분리한다.
+@evidence principles/design/models.md#representation-contract 45° 반평면으로 네 막대의 열린 내부 겹침을 없애고 한 유한 면에서만 만나게 한다. 좌판의 seat/upper/edge/underside, 네 다리의 leg-*/shaft/top/sole, 네 막대의 footrest-*/outer/contact를 각각의 부품에 분리한다.
 @evidence principles/design/models.md#spatial-convention 네 발 접촉 중심이 원점이고 +Z가 섬이며 좌면 y=0.585..0.63, 고리 중심 y=0.23을 local 값으로 고정한다.
 @evidence principles/design/models.md#reviewable-structure 위·옆·하부 45°에서 고리 네 조각이 이어진 하나의 둘레인지, 중앙과 다리 사이가 실제로 비었는지 반증한다.
 @evidence principles/design/models.md#model-observable-style-basis ref03의 가는 다리·고리 스툴을 단순 막대와 원통 좌판으로 읽고 ref02의 간단한 스툴에서는 형상 치수를 빌리지 않는다.

@@ -10,7 +10,7 @@ import * as THREE from "three";
  * models. Identities and transforms still come from the payload unchanged:
  * each batch keeps the exact placement ids it carries, instance palettes become
  * per-vertex colour ratios, and a mirrored transform flips its triangle winding.
- * @param {Payload} payload */
+ * @param {Pick<Payload, "environment" | "models" | "placements" | "textures">} payload */
 export function uploadHouse(payload) {
   const root = new THREE.Group(); root.name = payload.environment.id;
   const texture = textureCache(payload.textures);
@@ -36,9 +36,10 @@ export function uploadHouse(payload) {
       if (part.transform) local.compose(new THREE.Vector3().copy(part.transform.translation), new THREE.Quaternion().copy(part.transform.rotation), new THREE.Vector3().copy(part.transform.scale));
       for (const p of placements) {
         const matrix = new THREE.Matrix4().compose(new THREE.Vector3().copy(p.position), new THREE.Quaternion().copy(p.rotation), new THREE.Vector3().copy(p.scale)).multiply(local);
-        // The engine palette is an absolute linear colour; divide by the base so
-        // the material colour times the vertex ratio reproduces it exactly once.
-        const colour = p.palette ? new THREE.Color(p.palette.r / Math.max(entry.baseColor.r, 1e-6), p.palette.g / Math.max(entry.baseColor.g, 1e-6), p.palette.b / Math.max(entry.baseColor.b, 1e-6)) : null;
+        // A declared shared reference preserves the native multi-material finish.
+        // Existing populations reproduce their absolute palette per part.
+        const reference = p.paletteReference ?? entry.baseColor;
+        const colour = p.palette ? new THREE.Color(p.palette.r / Math.max(reference.r, 1e-6), p.palette.g / Math.max(reference.g, 1e-6), p.palette.b / Math.max(reference.b, 1e-6)) : null;
         batch.items.push({ mesh: part.mesh, matrix, colour, node: p.node });
       }
       if (entry.emissive) for (const p of placements) {

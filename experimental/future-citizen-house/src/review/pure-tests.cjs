@@ -1,7 +1,7 @@
 // Discover and invoke every authored pure test export in this production.
 const fs = require("node:fs");
 const path = require("node:path");
-const root = path.resolve(__dirname, "../house");
+const root = path.resolve(__dirname, "..");
 /** @param {string} dir @returns {string[]} */
 const discover = (dir) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
