@@ -49,7 +49,7 @@ export const productionEvidence = {
   spaceSources: "review",
   models: "review",
   modelSources: "review",
-  materials: "draft",
+  materials: "evidence",
   claims: [
     createAutoMovieProductionPrincipleClaim({
       name: "temple-model-scale-uv",
