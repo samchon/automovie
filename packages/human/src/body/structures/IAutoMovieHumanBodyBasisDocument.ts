@@ -14,8 +14,6 @@ import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwea
  * names decides what every field means, and a basis mismatch is refused rather
  * than migrated.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Separates basis revision, named channel weights, joint pose and material adjustments in one replayable record, with no per-person vertex rows.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Fixes the document's fields and the neutral meaning of every omission the save boundary and the builder share.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisDocument {
@@ -28,7 +26,14 @@ export interface IAutoMovieHumanBodyBasisDocument {
   /** Must equal the supplied basis identity; no implicit migration occurs. */
   basis: string;
 
-  /** Persistent numeric shape edits against the basis's named, bounded channels. */
+  /**
+   * Canonical basis weights for replay, including legacy authored morphs.
+   * These are internal document coordinates, not a request for the user to
+   * sculpt vertices. The editor derives supported values from anthropometric
+   * inputs or from a named metric rule solved on the current shaped body;
+   * unmeasured source morphs remain readable for existing documents but do
+   * not become detailed anatomical input controls.
+   */
   shape: Record<string, number>;
 
   /**

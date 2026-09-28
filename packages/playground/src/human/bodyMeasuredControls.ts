@@ -1,0 +1,103 @@
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanBodyChannelScale,
+} from "@automovie/human";
+
+/**
+ * Edit only detailed controls with a defined body measurement in millimetres.
+ *
+ * A legacy channel whose only description is the RMS or peak of a vertex
+ * displacement is an internal morph, not an anatomical parameter to ask a
+ * person to sculpt. This panel offers exterior girth, breadth and height or
+ * landmark distance when `HUMAN_BODY_MEASUREMENTS` supplies a rule and the
+ * loaded basis can evaluate it. A basis envelope is the supported asset reach,
+ * not a clinical normal range. The worker inverts the actual measured body
+ * along that one bounded channel, with every other shape value fixed. A
+ * missing section, reversal or unreachable request is refused and the last
+ * committed body remains. The parent panel's intent ticket discards an old
+ * numerical reply after any newer document, pose or simple-tier edit.
+ */
+export function renderBodyMeasuredControls(props: {
+  dom: Document;
+  container: HTMLElement;
+  basis: IAutoMovieHumanBodyBasis;
+  scales: Map<string, IAutoMovieHumanBodyChannelScale>;
+  kind: string;
+  query: string;
+  current: () => IAutoMovieHumanBodyBasisDocument;
+  reserve: () => number;
+  isCurrent: (ticket: number) => boolean;
+  solve: (
+    shape: Record<string, number>,
+    channel: string,
+    targetMetres: number,
+  ) => Promise<{ shape: Record<string, number>; actualMetres: number }>;
+  change: (document: IAutoMovieHumanBodyBasisDocument, ticket: number) => void;
+  busy: (text: string) => void;
+  refuse: (error: unknown) => void;
+}): void {
+  const mm = (metres: number | null): string =>
+    metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm";
+  for (const channel of props.basis.channels.filter((one) => {
+    const measurement = props.scales.get(one.id)?.measurement;
+    return (
+      one.group === props.kind &&
+      one.id.toLowerCase().includes(props.query) &&
+      measurement !== null &&
+      measurement !== undefined &&
+      measurement.neutral !== null &&
+      measurement.positive !== null &&
+      (one.negative === null || measurement.negative !== null)
+    );
+  })) {
+    const measurement = props.scales.get(channel.id)!.measurement!;
+    const row = props.dom.createElement("div");
+    const label = props.dom.createElement("label");
+    const entry = props.dom.createElement("div");
+    const number = props.dom.createElement("input");
+    const apply = props.dom.createElement("button");
+    const note = props.dom.createElement("small");
+    row.className = "row";
+    label.textContent =
+      channel.id.replace(/([a-z])([A-Z])/gu, "$1 $2") +
+      ` (${measurement.kind}, mm)`;
+    number.id = "control-" + channel.id;
+    number.type = "number";
+    number.step = "0.1";
+    number.placeholder = "Target mm";
+    label.htmlFor = number.id;
+    apply.type = "button";
+    apply.textContent = "Set measurement";
+    apply.onclick = async (): Promise<void> => {
+      const ticket = props.reserve();
+      const requested = number.value.trim();
+      if (requested === "" || !Number.isFinite(Number(requested))) {
+        props.refuse("A finite measurement in millimetres is required.");
+        return;
+      }
+      const current = structuredClone(props.current());
+      props.busy("Solving " + channel.id + " on the current body…");
+      try {
+        const result = await props.solve(
+          current.shape,
+          channel.id,
+          Number(requested) / 1000,
+        );
+        if (!props.isCurrent(ticket)) return;
+        number.value = String(result.actualMetres * 1000);
+        props.change({ ...current, shape: result.shape }, ticket);
+      } catch (error) {
+        if (props.isCurrent(ticket)) props.refuse(error);
+      }
+    };
+    entry.append(number, apply);
+    note.id = "scale-" + channel.id;
+    note.textContent =
+      `Neutral ${mm(measurement.neutral)}; source endpoints ` +
+      [measurement.negative, measurement.positive].map(mm).join(" to ") +
+      ". The current body's reach may differ.";
+    row.append(label, entry, note);
+    props.container.append(row);
+  }
+}

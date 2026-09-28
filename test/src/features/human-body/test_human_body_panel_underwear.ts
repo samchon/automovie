@@ -32,7 +32,6 @@ export const test_human_body_panel_underwear = async (): Promise<void> => {
   const panel = mountConnectedBodyPanel(app, {
     basis,
     initial,
-    shapes: [],
     poses: [],
     viewport: () => ({
       build: async (document) => {
@@ -51,7 +50,14 @@ export const test_human_body_panel_underwear = async (): Promise<void> => {
       setShadows: () => {},
     }),
     seat: () => {},
-    simple: { expand: async () => ({}), project: async () => simple },
+    simple: {
+      expand: async () => ({}),
+      project: async () => simple,
+      solveMeasurement: async (shape, _channel, targetMetres) => ({
+        shape,
+        actualMetres: targetMetres,
+      }),
+    },
     download: () => {},
   });
   await panel.ready;

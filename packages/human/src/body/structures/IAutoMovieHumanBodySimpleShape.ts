@@ -13,17 +13,18 @@
  * (`expandHumanBodySimpleShape`) is a numeric table of terms per channel
  * plus measured inversions: stature against the basis's own height rule,
  * mass through the skin volume, and each tape measurement against its rule.
- * Age moves the tissue the way the clinical literature says it does
- * (gluteal and breast ptosis, sarcopenia, fat redistribution toward the
- * trunk, loss of tone), muscle raises mass and tone and a trained V, and
+ * Age, mass and training drive authored tissue responses. Sarcopenia,
+ * gluteal and breast ptosis and fat redistribution motivate their directions,
+ * but the table's knots are not a clinical forecast for an individual;
+ * published adult gluteal studies disagree on an independent age effect
+ * (Gonzalez 2006, doi:10.1007/s00266-005-0051-y; Babuccu et al. 2004,
+ * doi:10.1007/s00266-004-4010-9). Muscle raises mass and tone and a trained V, and
  * muscle definition appears only where the body fat lets it: the fat the
  * definition reads subtracts the fat-free mass the muscle adds, so a trained
  * body at an athlete's mass index reads an athlete's fat. `projectHumanBodySimpleShape` reads these values back off any
  * detailed shape, so a simple edit changes only what it names and keeps the
  * detailed residue.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Names the identity-card values and the tape measurements a user can author a body from, and what each is measured in.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Fixes the parameter envelope the expansion refuses outside of.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShape {

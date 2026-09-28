@@ -1,8 +1,9 @@
 /**
  * Browser adapter for the connected body basis, sharing the face editor's
  * transaction and viewport owners. This panel owns only DOM inputs, draft
- * composition and file-read generations. `bodyShapeControls` formats the
- * package's channel measurements. The package validates controls, forms and
+ * composition and file-read generations. `bodyMeasuredControls` accepts
+ * measured targets; vertex displacement statistics are not input controls.
+ * The package validates controls, forms and
  * skins the model and exports it; camera and clay state never enter the
  * document, and neither does the face shown beside the body.
  */
@@ -24,7 +25,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
-import { renderBodyShapeControls } from "./bodyShapeControls";
+import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { createBodyIntentGate } from "./createBodyIntentGate";
@@ -35,7 +36,7 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * angles all come from the admitted basis; the panel formats and binds them.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Provides grouped shape controls in millimetres where a rule exists, clinical joint controls, the simple tier, presets, history, file IO, contact check and orbit/clay/face display for one connected body.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Prints each measured channel's neutral and end values in millimetres beside its dimensionless weight.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Accepts a measured target in millimetres and shows its neutral and source endpoint readings while the worker solves the current body.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Binds scalar controls to numerical edits, states each control's envelope and measured effect, and keeps camera, clay and the companion face outside replay data.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Shares the face's transactional history and cancels stale file reads and builds by generation.
  * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements The panel is the editing screen alone; extraction, the package evaluator and the census review are other owners of this domain index.
@@ -45,7 +46,7 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications The panel owns the editing screen boundary only.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis The panel performs no basis evaluation.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel displays precomputed channel scales through bodyShapeControls; the package owns the measurement rules and calculation.
+ * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel displays precomputed endpoint readings through bodyMeasuredControls; the package owns the measurement rule, current-body reading and inverse.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The panel calls the package's parse and serialize functions.
  * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The panel selects the document's style, while the package builder owns the garment's anatomical cut and posed skin attachment.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The panel evaluates no underwear region, clip or lift.
@@ -61,11 +62,6 @@ export function mountConnectedBodyPanel<
   props: {
     basis: IAutoMovieHumanBodyBasis;
     initial: IAutoMovieHumanBodyBasisDocument;
-    /** A preset's shape, or a function that solves it when it is chosen (the simple tier's archetypes take seconds, off the page's thread). */
-    shapes: {
-      name: string;
-      shape: Record<string, number> | (() => Promise<Record<string, number>>);
-    }[];
     poses: BodyPosePreset[];
     viewport: (canvas: HTMLCanvasElement) => {
       build: (
@@ -100,6 +96,11 @@ export function mountConnectedBodyPanel<
       project: (
         shape: Record<string, number>,
       ) => Promise<IAutoMovieHumanBodySimpleShape>;
+      solveMeasurement: (
+        shape: Record<string, number>,
+        channel: string,
+        targetMetres: number,
+      ) => Promise<{ shape: Record<string, number>; actualMetres: number }>;
     };
     download: (filename: string, bytes: BlobPart, mime: string) => void;
   },
@@ -111,7 +112,22 @@ export function mountConnectedBodyPanel<
       scale,
     ]),
   );
-  const groups = [...new Set(props.basis.channels.map((c) => c.group))];
+  const groups = [
+    ...new Set(
+      props.basis.channels
+        .filter((channel) => {
+          const measurement = scales.get(channel.id)?.measurement;
+          return (
+            measurement !== null &&
+            measurement !== undefined &&
+            measurement.neutral !== null &&
+            measurement.positive !== null &&
+            (channel.negative === null || measurement.negative !== null)
+          );
+        })
+        .map((channel) => channel.group),
+    ),
+  ];
   app.innerHTML = `
 <style>
 *{box-sizing:border-box}body{margin:0;background:#161c23;color:#e4eaf0;font:13px/1.5 system-ui}main{display:grid;grid-template-columns:minmax(300px,1fr) 430px;height:100vh}section{position:relative;min-width:0}canvas{width:100%;height:100%;display:block}aside{overflow:auto;padding:20px;background:#10161d}h1{font-size:20px;margin:0}h2{font-size:14px;margin:20px 0 8px}p,small{color:#a9b7c8}button,input,select,textarea{font:inherit;color:inherit;background:#202b37;border:1px solid #405063;border-radius:4px}button{padding:5px 8px;cursor:pointer}button:disabled{opacity:.4}a{color:#a7d1f0}.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.views{position:absolute;top:10px;left:10px;right:10px}fieldset{border:0;padding:0;margin:0}.row{margin:12px 0}.row label{display:block}.row div{display:flex;gap:10px}.row small{display:block;font-size:11px}.row input[type=range]{flex:1;min-width:0}.row input[type=number]{width:85px;padding:3px}textarea{width:100%;height:230px;font:11px monospace;padding:8px}select{width:100%;padding:6px}#body-status{white-space:pre-wrap;background:#1c2834;padding:10px;border-radius:5px;margin:12px 0}#body-status[data-state=error]{background:#422127;color:#ffd2d2}@media(max-width:780px){main{grid-template-columns:1fr;height:auto}section{height:60vh}}
@@ -119,7 +135,7 @@ export function mountConnectedBodyPanel<
 <main><section><canvas id="body-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label><label><input id="face" type="checkbox" checked> Face</label></div></section>
 <aside><h1>Connected body editor</h1><p>Shape in millimetres and joints in clinical degrees on one connected skin</p><a href="connected-face.html">Open connected face editor</a><div id="body-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="body-undo">Undo</button><button id="body-redo">Redo</button><button id="body-reset">Reset</button></div><div class="toolbar"><button id="body-save">Save document</button><button id="body-load">Load document</button><button id="body-glb">Export GLB</button><button id="body-contacts">Check contacts</button><input id="body-file" type="file" accept=".json,application/json" hidden></div>
-<h2>Simple body</h2><p>Identity-card values and tape measurements, read off the current body and expanded into the detailed channels; age sags and softens, muscle defines only where the body fat lets it.</p><div id="simple-controls"></div><h2>Body presets</h2><div id="shape-presets" class="toolbar"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${g === "macro" ? "Macro (gender, age, weight, muscle, height…)" : "Shape · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>0 is the source neutral. A measured channel states its girth, length or height in millimetres at neutral and at each end; a joint states its clinical range and rest angle.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
+<h2>Simple body</h2><p>Identity-card values and tape measurements, read off the current body and expanded into the detailed channels; age sags and softens, muscle defines only where the body fat lets it.</p><div id="simple-controls"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Detailed measurements and pose</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${"Measurement · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>Enter a target in millimetres for a supported measurement; the current body is measured and solved in a worker. Joint angles remain clinical degrees.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
   const underwearRow = dom.createElement("div");
@@ -279,7 +295,7 @@ export function mountConnectedBodyPanel<
       });
       return;
     }
-    renderBodyShapeControls({
+    renderBodyMeasuredControls({
       dom,
       container,
       basis: props.basis,
@@ -287,7 +303,11 @@ export function mountConnectedBodyPanel<
       kind,
       query,
       current: () => draft,
-      change: (next) => void change(next),
+      reserve: withdraw,
+      isCurrent: intents.isCurrent,
+      solve: props.simple.solveMeasurement,
+      change: (next, ticket) => void change(next, ticket),
+      busy: (text) => status(text, "building"),
       refuse,
     });
   };
@@ -362,26 +382,6 @@ export function mountConnectedBodyPanel<
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
   });
-  for (const preset of props.shapes) {
-    const button = dom.createElement("button");
-    button.textContent = preset.name;
-    button.onclick = async () => {
-      const ticket = withdraw();
-      try {
-        if (typeof preset.shape === "function")
-          status("Solving the " + preset.name + " preset…", "building");
-        const shape =
-          typeof preset.shape === "function"
-            ? await preset.shape()
-            : preset.shape;
-        if (!intents.isCurrent(ticket)) return;
-        void change({ ...structuredClone(draft), shape: { ...shape } }, ticket);
-      } catch (error) {
-        if (intents.isCurrent(ticket)) refuse(error);
-      }
-    };
-    element("shape-presets").append(button);
-  }
   renderBodyPosePresets({
     dom,
     container: element("pose-presets"),
