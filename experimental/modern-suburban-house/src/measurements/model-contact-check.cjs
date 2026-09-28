@@ -310,13 +310,17 @@ function audit(files, resolveParent = null) {
         body,
       );
       const offset = /위 모서리는 그 값\+([+−-]?\d+(?:\.\d+)?)/.exec(body);
-      const ceiling = /Y≥([+−-]?\d+(?:\.\d+)?)/.exec(body);
-      if (slope && offset && ceiling) {
+      const parentHeights = resolveParent === null ? [] : [...section.raw.matchAll(/^@evidence (spaces\/[^\s]+)/gm)]
+        .flatMap((match) => [...(resolveParent(match[1]) ?? "").matchAll(/Y\s*=\s*\[\s*([+−-]?\d+(?:\.\d+)?)\s*,\s*([+−-]?\d+(?:\.\d+)?)\s*\]/g)]
+          .flatMap((span) => [numeric(span[1]), numeric(span[2])]));
+      const localBoundary = /Y≥([+−-]?\d+(?:\.\d+)?)/.exec(body);
+      if (slope && offset && (parentHeights.length || localBoundary)) {
         result.clippedSlopes++;
         const top = numeric(slope[1]) + numeric(slope[2]) * (numeric(cutoff[1]) + numeric(slope[3])) / numeric(slope[4]) + numeric(offset[1]);
-        if (Math.abs(top - numeric(ceiling[1])) > 0.001)
+        const boundaries = parentHeights.length ? parentHeights : localBoundary ? [numeric(localBoundary[1])] : [];
+        if (!boundaries.some((height) => Math.abs(top - height) <= 0.001))
           result.failures.push(
-            `${label}: clipped slope ends at ${top}, ceiling starts at ${ceiling[1]}`,
+            `${label}: clipped slope ends at ${top}, away from its cited space boundaries`,
           );
       } else result.failures.push(
         `${label}: cutoff has no measurable slope and ceiling relationship`,

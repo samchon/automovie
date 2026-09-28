@@ -78,6 +78,19 @@ void test("a cutoff must retain the slope and ceiling relationship", () => {
   assert.ok(missing.some((line) => line.includes("no measurable slope")));
 });
 
+void test("a cutoff can meet a cited finish boundary without a local wall-height phrase", () => {
+  const body = "아래 모서리는 Y=1.36+0.17×(X+0.65)/0.28 m, 위 모서리는 그 값+0.10 m다. " +
+    "Xc=−0.65+(2.75−1.46)×0.28/0.17=1.474705882 m에서 천장에 닿는다.";
+  const source = `## Part {#part}\n<!--\n@evidence spaces/rooms/entry.md#entry-plan 천장 접면을 소비한다.\n-->\n${body}\n`;
+  const parent = () => "현관 천장 마감은 Y=[2.75,2.765] m다.";
+  const good = audit([{ name:"sample.md", source }], parent);
+  assert.equal(good.clippedSlopes, 1);
+  assert.ok(!good.failures.some(line => line.includes("clipped slope")));
+  const displaced = source.replace("=1.474705882 m", "=1.60 m");
+  const bad = audit([{ name:"sample.md", source:displaced }], parent);
+  assert.ok(bad.failures.some(line => line.includes("clipped slope")));
+});
+
 void test("the lexical census reports what is still outside the measured grammar", () => {
   const report = audit(
     file("상판은 바닥에 붙는다. 별도 판은 Y=[0,0.10] m에서 바닥에 닿는다. 좌표 A=[왼쪽,오른쪽]이다."),
