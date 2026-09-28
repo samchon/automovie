@@ -67,9 +67,9 @@ const STAIR_PLAN = {
 /** The finished L void and its back guard band are the stair owner's shared plan. */
 /**
  * @evidence spaces/02-stair.md#stair-floor-opening This polygon is the one finished opening received by the floor and ceiling owners.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c78d9a6 STAIR_OPENING supplies the six-corner L ring; buildInterstorey in floors/upper.ts uses its turn and return to cut the slab notch, while buildStair passes the same opening to buildStairGuards for edge and high-ceiling finishes.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening # STAIR_OPENING supplies the six-corner L ring; buildInterstorey in floors/upper.ts uses its turn and return to cut the slab notch, while buildStair passes the same opening to buildStairGuards for edge and high-ceiling finishes.
  * @evidence spaces/02-stair.md The stair owns the L opening and guard reservation used by its structural and route consumers.
- * @evidenceReview spaces/02-stair.md #7b5a315 STAIR_OPENING holds the L plan and 0.075 m guardReserve; buildStairGuards uses the reservation for posts and rails while buildHouseEnvironment subtracts it twice from the 1.15 m route width.
+ * @evidenceReview spaces/02-stair.md # STAIR_OPENING holds the L plan and 0.075 m guardReserve; buildStairGuards uses the reservation for posts and rails while buildHouseEnvironment subtracts it twice from the 1.15 m route width.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair retains the opening while adjacent rooms receive its edges.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 STAIR_OPENING spreads the stair-owned plan and derives guardBack from MAIN.partition; upper-hall, bedroom-three and service read its edges for their own outlines instead of creating another opening.
  * @evidence principles/core/source-units.md#source-substantive-completion Named corners, an ordered outline and the side reservation allow consumers to derive cuts and clear route width.
@@ -95,7 +95,7 @@ const upperTreadStart = (n: number) => STAIR_OPENING.turnX + STAIR_RUN * (n - 1)
 
 /**
  * @evidence spaces/02-stair.md One rise and run locate the treads and upper flight's coat split; the rise also fixes the connector landing height.
- * @evidenceReview spaces/02-stair.md #7b5a315 STAIR_STEPS derives rise from upperFloor divided by 18, fixes the authored 0.28 m run, takes landingTop after eight rises and exposes upperTreadStart(7) for the entry-owned coat body's X derivation.
+ * @evidenceReview spaces/02-stair.md # STAIR_STEPS derives rise from upperFloor divided by 18, fixes the authored 0.28 m run, takes landingTop after eight rises and exposes upperTreadStart(7) for the entry-owned coat body's X derivation.
  * @evidence principles/core/source-units.md#source-scope-preservation These are stair coordinates, while entry owns the closet body.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 STAIR_STEPS contains stair riser, run, approach and landing datums plus a tread-seven start; rooms/entry.ts derives its coat X from that station and owns the closet body and height itself.
  * @evidence principles/core/source-units.md#source-substantive-completion Treads, landing, connector, and coat-start consumers read the relevant values from this record.
@@ -114,7 +114,7 @@ export const STAIR_STEPS = {
 } as const;
 /**
  * @evidence spaces/02-stair.md The connector follows the lower flight, landing centre and upper flight, with approach and arrival points in their named rooms.
- * @evidenceReview spaces/02-stair.md #7b5a315 STAIR_ROUTE orders a front-entry approach, lower-flight start, landing entry and centre, turn exit, upper-flight arrival and upper-hall point, following the single L route described by the stair parent.
+ * @evidenceReview spaces/02-stair.md # STAIR_ROUTE orders a front-entry approach, lower-flight start, landing entry and centre, turn exit, upper-flight arrival and upper-hall point, following the single L route described by the stair parent.
  * @evidence principles/core/source-units.md#source-scope-preservation This route uses the stair opening and tread datums; it adds no second stair geometry.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 Every STAIR_ROUTE point is derived from STAIR_OPENING, STAIR_STEPS and STOREYS values; the vector list creates no second tread or landing body.
  * @evidence principles/core/source-units.md#source-substantive-completion An upper-floor datum edit changes landing Y through STAIR_STEPS.rise and arrival Y through STOREYS.upperFloor; landing plan coordinates come from STAIR_OPENING.
@@ -161,7 +161,7 @@ export const STAIR_ROUTE: readonly IAutoMovieVector3[] = [
 ];
 /**
  * @evidence spaces/02-stair.md The landing station indexes the derived route's landing-centre point.
- * @evidenceReview spaces/02-stair.md #7b5a315 STAIR_LANDING_STATION selects STAIR_ROUTE[3], whose X/Z coordinates are the midpoint of the authored landing and whose Y is the eight-rise landingTop.
+ * @evidenceReview spaces/02-stair.md # STAIR_LANDING_STATION selects STAIR_ROUTE[3], whose X/Z coordinates are the midpoint of the authored landing and whose Y is the eight-rise landingTop.
  * @evidence principles/core/source-units.md#source-scope-preservation The index refers to the stair-owned route without defining another landing.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The numeric index points into the stair-owned route; the physical stair-landing part remains in buildStair and no duplicate landing geometry comes from this export.
  * @evidence principles/core/source-units.md#source-substantive-completion The environment connector reads this route station to calculate landing.at on the main stair.
@@ -176,17 +176,17 @@ const BASE = STOREYS.groundFloor - GROUND_LAYERS.finish;
 const UPPER_BASE = STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH;
 /**
  * @evidence spaces/02-stair.md This builder owns the one L-shaped two-flight stair, its closed boundaries, opening edge finish, and guards.
- * @evidenceReview spaces/02-stair.md #7b5a315 buildStair emits lower and upper flights, one landing and enclosing partitions, then appends buildStairGuards output with the same stair.ts owner; buildHouse calls that one builder for main-stair.
+ * @evidenceReview spaces/02-stair.md # buildStair emits lower and upper flights, one landing and enclosing partitions, then appends buildStairGuards output with the same stair.ts owner; buildHouse calls that one builder for main-stair.
  * @evidence spaces/02-stair.md#stair-reservation Seven lower and nine upper treads derive from 18 risers and reach the 1.36 m landing and 3.06 m upper floor.
  * @evidenceReview spaces/02-stair.md#stair-reservation #7564c06 The lower loop emits seven named treads, the landing top uses eight rises, and the upper loop emits nine treads at rises nine through seventeen before the upper-floor arrival at rise eighteen.
  * @evidence spaces/02-stair.md#stair-connector-handoff The returned flight/landing parts provide the route's one physical stair rather than a second shortcut.
  * @evidenceReview spaces/02-stair.md#stair-connector-handoff #37e39b2 buildStair returns its flights and landing with the called helper's guards in one part array; buildHouseEnvironment selects parts owned by stair.ts as elements of its single main-stair connector following STAIR_ROUTE.
- * @evidence spaces/02-stair.md#stair-floor-opening Five narrow edge solids close the receded interstorey notch, while the front opening remains clear.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c78d9a6 buildStair passes STAIR_OPENING and its owner to buildStairGuards, which emits five named edge strips in the upper-floor finish recession while leaving the front entry to the opening clear.
+ * @evidence spaces/02-stair.md#stair-floor-opening Five opening sides receive stair-owned finish; the front side has two pieces where its upper neighbour changes, while the front entry remains clear.
+ * @evidenceReview spaces/02-stair.md#stair-floor-opening # buildStair passes STAIR_OPENING and its owner to buildStairGuards, which emits six strips along five opening sides with a separate linen corner interval while leaving the front entry clear.
  * @evidence spaces/02-stair.md#stair-clearance Sloped handrails stay in their 0.075 m path-side reservations, and the upper hall fall-edge guard sits in the back band outside the walking path.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a buildStairGuards centres the lower and upper sloped rails inside their 0.075 m path-side bands and checks the guard sections; its upper-hall posts and top rail are centred in the separate back guard band.
  * @evidence spaces/02-stair.md#stair-boundary-heights Lower open guards, upper closed walls, closet opening, and 1.05 m hall guard are distinct height cases.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #9666105 buildStair emits bedroom-side partitions and a ground arrival closure cut by entry-coat-opening. Its guard helper puts the lower rail above lower noses, starts the upper rail above the first upper nose on a taller corner post, and sets the separate hall top above upperFloor.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights # buildStair emits bedroom-side partitions and a ground arrival closure cut by entry-coat-opening. Its guard helper puts the lower rail above lower noses, starts the upper rail above the first upper nose on a taller corner post, and sets the separate hall top above upperFloor.
  * @evidence principles/core/source-units.md#source-scope-preservation The stair owns flights, guards, and its edge finish, leaving the hollow coat storage interior and room floors to entry/upper-hall.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildStair and its guard helper return stair-owned flights, walls, guards and finishes; the coat volume is passed in from entry and the upper-hall floor remains with its room builder.
  * @evidence principles/core/source-units.md#source-substantive-completion Deterministic tread loops, walls, posts, rails, edge strips, and hall ceiling produce actual named solids.

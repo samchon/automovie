@@ -218,11 +218,11 @@ export const straightWall = (props: {
 /**
  * A horizontal slab: a plan polygon with optional plan holes between two heights.
  * @evidence spaces/08-floor-assembly.md Floor layers are extruded from owner-supplied plan outlines and heights.
- * @evidenceReview spaces/08-floor-assembly.md #17cd1b7 `slab` extrudes a caller's horizontal outline between its bottom and top, allowing the assigned floor or ceiling owner to provide its own vertical layer interval.
+ * @evidenceReview spaces/08-floor-assembly.md # `slab` extrudes a caller's horizontal outline between its bottom and top, allowing the assigned floor or ceiling owner to provide its own vertical layer interval.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The interstorey structural caller supplies its front-reaching stair notch, while room finish callers supply their individual outlines.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #58ff097 `buildInterstorey` sends its recessed ten-corner ring to `slab`, while `roomFloor` sends the caller's circulation or shallow-storage outline at the assigned finish level; the primitive chooses neither boundary.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions The interstorey caller recedes its structural stair edge by the 0.015 m finish reservation before slab extrusion.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #9608f54 `buildInterstorey` offsets the stair-opening turns by `OPENING_EDGE`, then passes that receded plan ring to `slab`; the stair owner can finish the exposed edge without this helper choosing the inset.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions # `buildInterstorey` offsets the stair-opening turns by `OPENING_EDGE`, then passes that receded plan ring to `slab`; the stair owner can finish the exposed edge without this helper choosing the inset.
  * @evidence principles/core/source-units.md#source-scope-preservation The caller owns the polygon, cutouts and layer interval.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The outline, optional plan holes, and two heights all come from `props`; `slab` does not choose the stair cutout or claim the layer owner.
  * @evidence principles/core/source-units.md#source-substantive-completion Region extrusion creates a horizontal closed mesh with real plan holes.
@@ -402,11 +402,11 @@ export const slopedPlate = (props: {
  * sloped handrails. Its four long faces follow the bar direction; the section
  * is `size` wide and stays level across the bar.
  * @evidence spaces/02-stair.md The stair owner uses square-section members for its guard and handrail.
- * @evidenceReview spaces/02-stair.md #7b5a315 `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
+ * @evidenceReview spaces/02-stair.md # `buildStair` calls `buildStairGuards`, which uses `bar` for its upper guard top rail and two sloped handrails under the stair owner, alongside separate block posts.
  * @evidence spaces/02-stair.md#stair-clearance The member follows caller-supplied endpoints and width beside the route.
  * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `buildStairGuards` sets each `bar` size from the 0.075 m `guardReserve` and centres lower/upper rails within their reserved side strips beside the stair route.
  * @evidence spaces/02-stair.md#stair-boundary-heights Its sloped endpoints can track a flight without losing a closed guard body.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #9666105 `railTop` places bar centres at nosing plus 0.90 m minus half their section, while the upper hall top rail centres at upper floor plus 1.05 m minus half its section.
+ * @evidenceReview spaces/02-stair.md#stair-boundary-heights # `railTop` places bar centres at nosing plus 0.90 m minus half their section, while the upper hall top rail centres at upper floor plus 1.05 m minus half its section.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper adds no rail location; the stair author supplies both ends and size.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `bar` receives both world endpoints and its square width from its caller; it constructs no stair station or guard height itself.
  * @evidence principles/core/source-units.md#source-substantive-completion It builds outward square-section faces and handles a vertical segment.
