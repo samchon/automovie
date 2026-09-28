@@ -33,7 +33,7 @@
 | `garage-front-door` | 차고문 | (8.60, −0.15, −0.30) | 0 | 5.00×2.30 |
 | `garden-door` | 정원문 | (0, 0, −10.70) | π | 2.40×2.25 |
 
-[옆마당 관리문 경계](../spaces/site/side-walk.md#side-gate-interface)는 environment 개구부 목록 대신 울타리의 별도 빈 구간이다. [옆마당 대문 원형](../models/02-exterior-doors.md#side-yard-gate)의 문짝 하나를 X=[12.30,13.50] m, Z=−0.30 m, 아래 높이는 그 자리의 보행면 S+0.05 m에 놓는다. 닫힌 문짝의 가로 중앙은 X=12.90 m이고 정원 쪽 −Z를 향하는 yaw π, scale 1이다. 경첩은 +X 문기둥과 접하며 울타리 기둥·패널은 instance가 다시 만들지 않는다. 대문도 건물 충전 모집단에 넣되 환경의 `fill` 개수에는 합산하지 않는다.
+[옆마당 관리문 경계](../spaces/site/side-walk.md#side-gate-interface)는 environment 개구부 목록 대신 울타리의 별도 빈 구간이다. [옆마당 대문 원형](../models/02-exterior-doors.md#side-yard-gate)은 닫힌 판재 X=[12.31,13.49] m·Z=[−0.32,−0.28] m와 +X 경첩축을 세계 좌표로 정한다. 따라서 이 원형 한 개의 instance 변환은 위치 (0,0,0) m·yaw 0·scale 1이며, 이 H2에서 X=12.90 m 중심이나 정원 쪽 −Z 방향을 두 번째 변환으로 적용하지 않는다. 현장 경계 X=[12.30,13.50] m와 문짝의 맞댐만 검사하고 울타리 기둥·패널은 다시 만들지 않는다. 대문도 건물 충전 모집단에 넣되 환경의 `fill` 개수에는 합산하지 않는다.
 
 ## 실내 여닫이문 열한 곳 {#interior-door-fill-placement}
 
@@ -55,7 +55,7 @@
 
 ## 열린 통로와 붙박이 수납문의 경계 {#non-door-opening-fills}
 
-나머지 `kind=opening` 네 곳은 여닫이문 목록에 넣지 않는다. `living-common-opening`과 `service-common-opening`은 통행을 위해 비워 두는 공간 개구부다. `entry-coat-opening`은 [외투장 미닫이문](../models/05-closet-fittings.md#coat-closet-doors), `upper-linen-opening`은 [린넨장 미닫이문](../models/05-closet-fittings.md#linen-closet-fittings)이 닫는다. 이 두 원형은 각 H2가 이미 선언한 절대 벽면을 배치 datum으로 삼는다. 외투장 앞면 X=2.02 m·가로 Z=[−4.51,−3.56] m·바닥 Y=0이며, 린넨장 앞면 Z=−3.41 m·가로 X=[1.97,2.97] m·바닥 Y=3.06 m이다. 수납문은 공간 벽·완성 바닥을 복제하지 않는다.
+나머지 `kind=opening` 네 곳은 여닫이문 목록에 넣지 않는다. `living-common-opening`과 `service-common-opening`은 통행을 위해 비워 두는 공간 개구부다. `entry-coat-opening`은 [외투장 미닫이문](../models/05-closet-fittings.md#coat-closet-doors), `upper-linen-opening`은 [린넨장 미닫이문](../models/05-closet-fittings.md#linen-closet-fittings)이 닫는다. 두 모델 H2는 부재를 세계 좌표로 이미 정했으므로 각 instance의 변환은 위치 (0,0,0) m·yaw 0·scale 1이다. 외투장 앞면 X=2.02 m·가로 Z=[−4.51,−3.56] m·바닥 Y=0, 린넨장 앞면 Z=−3.41 m·가로 X=[1.97,2.97] m·바닥 Y=3.06 m를 각각 맞댐 기준으로 검사한다. 두 번째 이동·회전을 적용하거나 공간 벽·완성 바닥을 복제하지 않는다.
 
 ## 배치의 관찰 문턱 {#opening-fill-observation}
 
