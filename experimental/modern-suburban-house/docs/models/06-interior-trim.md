@@ -8,7 +8,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 방의 완결 벽 마감 owner와 구별되는 별도 닫힌 0.10 × 0.015 m 부재, 개구부와 계단에서의 종단, face id와 반복 입력을 더한다.
 @evidence principles/design/models.md#representation-contract 모델은 벽·바닥·문선·계단 측면을 복제하지 않고 그 면에 접한 닫힌 걸레받이만 만든다. 보이지 않는 접착제·못과 타일 벽의 걸레받이는 표현하지 않는다.
 @evidence principles/design/models.md#spatial-convention 국소 원점은 완성 바닥과 실내 마감 벽면이 만나는 노출 run의 시작점, +X는 run 방향, +Y는 위, +Z는 방 안쪽이다. 길이 L과 코너 miter는 실제 방 경계에서 받는다.
-@evidence principles/design/models.md#reviewable-structure 03 공용부, 04 현관·계단, 05 복도의 낮은 벽과 문선 옆을 방 안쪽 모서리/중심에서 보아 흰 0.10 m 띠의 연속, 문 아래 빈 띠, 모서리 중복을 반증한다.
+@evidence principles/design/models.md#reviewable-structure 중성 정면에서 0.10 m 띠와 종단, 측면 단면에서 0.015 m 돌출과 윗 사면, face-id 오버레이에서 단일 `wall-baseboard` 분할을 검토한다. 배치 뒤 03 공용부·04 현관 계단·05 복도의 문 아래 빈 띠와 모서리 중복을 별도로 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 레퍼런스 03·04·05의 흰 벽 하단 판을 낮은 연속 띠로 채택한다. 벽보다 좁은 반광 하이라이트는 materials가 정하고 사진의 픽셀 높이는 치수 근거로 쓰지 않는다.
 @evidence principles/design/models.md#model-scale-layer-completion 닫힌 오각 단면의 다섯 꼭짓점, run 산출과 종단, 단일 id, UV·source owner·관찰을 정한다. 실측된 방 경계 외의 길이·배치 수는 후속 instances가 정한다.
 @evidence upstream/design/models.md#settings-and-space-revision-from-model-work spaces/03-surface-owners.md#interior-surface-handoff가 모든 안쪽 벽 마감을 방 owner에 주면서 materials가 요구한 별도 걸레받이를 분리하지 않았다. 그 부모 본문과 space-boundary-authority 근거에 방 벽·바닥 면은 spaces, 닫힌 걸레받이 판은 models/06이라는 단일 소유 인계를 명시했다. spaces/rooms/common.md#common-clear-routes의 공용부 순폭도 실제 걸레받이 돌출 0.015 m를 공제하도록 부모에서 고쳤다.
@@ -16,7 +16,7 @@
 @evidence settings/20-verification.md#visual-grammar 읽히는 실내 trim을 방의 낮은 벽에서 연속한 돌출 띠로 구현할 원형을 정한다.
 @evidence contracts/surface-ownership.md#whole-surface-owner 각 run의 앞·뒤·윗면·아랫면·절단 끝을 한 모델 owner와 `wall-baseboard` face id로 닫고 벽·바닥 마감과 중복 생성하지 않는다.
 @evidence obligations/design/models.md#addressable-model-decisions 방 벽 걸레받이를 문짝·가구 plinth와 구별되는 주소로 두고, 원형 단면과 room 반복 배치를 분리한다.
-@evidence obligations/design/models.md#model-review-set 방 안쪽 모서리·threshold·중심의 낮은 벽 관찰에서 판의 연속·종단·모서리 겹침을 검사하도록 정한다.
+@evidence obligations/design/models.md#model-review-set 중성 정면·측면 단면·face-id 오버레이로 원형 단면과 끝마개를 비교하고, 방 안쪽 모서리·문턱·중심의 배치 뷰로 연속과 중복을 확인하도록 정한다.
 -->
 
 레퍼런스 03의 공용실, 04의 현관과 계단 옆, 05의 상층 복도에서 낮은 흰 걸레받이를 채택한다. 이는 [방 내부 완결 면](../spaces/03-surface-owners.md#interior-surface-handoff)의 벽 도장이나 바닥 마감 자체가 아니라 그 접선에 붙는 별도 닫힌 목재·MDF 판 원형이다. 색·광택·목재 결은 [흰 실내 trim](../materials/02-interior-shell.md#interior-trim-white)이 정한다. 사진의 높이를 픽셀에서 재지 않는다.
@@ -31,4 +31,4 @@ UV는 run 시작 끝면의 완성 바닥·벽 접점을 원점으로 한다. 긴
 
 한 직선 run의 `wall-baseboard` 닫힌 면은 국소 X=[0,L] m·Y=[0,0.10] m·방 안쪽 Z=[0,0.015] m의 오각 단면 압출에서 나온다. 구조 벽과 닿는 Z=0 뒷면도 이 id로 닫고, 이웃 run과 맞닿는 45° miter에서는 공유 내부 면을 노출 면에서 제외한다.
 
-걸레받이 검토 뷰는 03 공용부, 04 현관·계단, 05 상층 복도의 방 안쪽 모서리와 중심에서 낮은 벽을 보며 0.10 m 띠의 이어짐, 문 아래 빈 띠, 모서리 중복을 확인한다. 문턱에서는 문선 바깥 끝과 걸레받이 끝을 가까운 단면으로 대조한다. 실제 modelSources 메시·재료 결속은 unverified다.
+원형의 [중성 리뷰 뷰](00-model-frame.md#model-review-set)에서는 정면 직교로 0.10 m 높이의 띠·수직 끝마개를, 측면 직교 단면으로 최대 0.015 m 돌출·위쪽 사면을 본다. 같은 자세의 face-id 오버레이에서는 앞·뒤·윗면과 절단 끝이 한 `wall-baseboard` 분할에 드는지 검사한다. 배치 뒤에는 03 공용부, 04 현관·계단, 05 상층 복도의 방 안쪽 모서리와 중심에서 판의 이어짐, 문 아래 빈 띠, 모서리 중복을 확인한다. 문턱에서는 문선 바깥 끝과 걸레받이 끝을 가까운 단면으로 대조한다. 실제 modelSources 메시·재료 결속은 unverified다.
