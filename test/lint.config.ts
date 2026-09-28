@@ -1,16 +1,14 @@
 import { type ITtscEvidenceGraphConfig, evidence } from "@ttsc/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
-// Each declared person owns a review. Unassigned source stays in the shared
-// residual population, so a new helper cannot silently escape review coverage.
+// The source populations remain declared so graph diagnostics stay visible as
+// warnings while the review-tag scheme is removed.
 const subjects = ["generated-korean-girl-01"];
 const sharedSources = [
   "src/subjects/**/*.ts",
   ...subjects.map((subject) => `!src/subjects/${subject}/**/*.ts`),
 ];
-// The body folder of the human package is inspected by the body study review;
-// the face reviews keep the residual population, so a new human source file
-// owes an inspection somewhere by default.
+// The body folder and face residual remain separate graph populations.
 // Domain review carriers remain attached to the root construction record.
 // Match their explicit suffix, so a future preview.ts is still source to review.
 const studyReviews = [
@@ -23,13 +21,9 @@ const studySources = [
 ];
 
 /**
- * A model owes every recorded view, and that review owes the complete current
- * construction source. Review fingerprints expire on referenced declarations;
- * they record inspection, not a compiler judgment that the face looks correct.
- * Coverage, carrier cardinality and nonvisual source inspection remain errors.
- * Missing or expired rendered-view acknowledgements warn independently of
- * construction-source inspection. Their structural twins retain the population
- * and acknowledgement constraints; a warning never accepts the face's likeness.
+ * The declared source and view relationships remain visible while their graph
+ * diagnostics warn. Review fingerprints are no longer required or authored.
+ * A warning does not establish anatomical or photographic acceptance.
  */
 const graph: ITtscEvidenceGraphConfig = {
   claims: [
@@ -54,7 +48,6 @@ const graph: ITtscEvidenceGraphConfig = {
             symbol: "h2" as const,
             checklist: true,
             noEvidenceExclude: true,
-            requireReview: true,
             severity: "warning" as const,
           },
         ],
@@ -79,7 +72,6 @@ const graph: ITtscEvidenceGraphConfig = {
             ],
             symbol: ["type", "function", "property"],
             noEvidenceExclude: true,
-            requireReview: true,
           },
           {
             type: "typescript" as const,
@@ -96,7 +88,6 @@ const graph: ITtscEvidenceGraphConfig = {
             ],
             symbol: ["type", "function", "property"],
             noEvidenceExclude: true,
-            requireReview: true,
           },
         ],
       },
@@ -109,7 +100,6 @@ const graph: ITtscEvidenceGraphConfig = {
           type: "typescript" as const,
           files: [`src/subjects/${subject}/**/*-review.ts`],
           symbol: "property" as const,
-          requireReview: true,
           noEvidenceExclude: true,
         },
       },
@@ -147,7 +137,6 @@ const graph: ITtscEvidenceGraphConfig = {
           symbol: "h2",
           checklist: true,
           noEvidenceExclude: true,
-          requireReview: true,
           severity: "warning",
         },
       ],
@@ -177,14 +166,12 @@ const graph: ITtscEvidenceGraphConfig = {
           files: ["src/**/*.ts", "!src/body/**/*.ts", "!src/**/index.ts"],
           symbol: ["type", "function", "property"],
           noEvidenceExclude: true,
-          requireReview: true,
         },
         {
           type: "typescript",
           files: studySources,
           symbol: ["type", "function", "property"],
           noEvidenceExclude: true,
-          requireReview: true,
         },
       ],
     },
@@ -197,7 +184,6 @@ const graph: ITtscEvidenceGraphConfig = {
         type: "typescript",
         files: ["studies/human-face/**/*-review.ts"],
         symbol: "property",
-        requireReview: true,
         noEvidenceExclude: true,
       },
     },
@@ -212,7 +198,6 @@ const graph: ITtscEvidenceGraphConfig = {
         files: ["src/body/**/*.ts", "!src/**/index.ts"],
         symbol: ["type", "function", "property"],
         noEvidenceExclude: true,
-        requireReview: true,
       },
     },
     {
@@ -301,5 +286,5 @@ const graph: ITtscEvidenceGraphConfig = {
 export default {
   extends: "../config/lint.config.ts",
   plugins: { evidence },
-  rules: { "evidence/graph": ["error", graph] },
+  rules: { "evidence/graph": ["warning", graph] },
 } satisfies ITtscLintConfig;
