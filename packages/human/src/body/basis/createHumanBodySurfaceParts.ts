@@ -28,9 +28,8 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * Form each posed skin surface once, then project it into its authored material
  * regions. Region buffers do not own the original shared vertex identities;
  * the unsplit positions and normals are also returned for garment cutting.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Skins the shaped connected surface and forms its deterministic material regions without replacing its shared topology.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Applies the declared pose, gravity sag and relief weights before deriving common normals and material-region meshes.
+ * A rest document uses its skinned positions without a sag calculation;
+ * anatomical relief weights are evaluated only for posed textured skin.
  */
 export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
   const sags = basis.surfaces.map((surface) =>

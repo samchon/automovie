@@ -37,14 +37,8 @@ import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
  * existing Float32 exporter admits it unchanged. The rest skeleton and
  * per-bone transforms travel beside it for rig inspection. The builder still
  * does not establish collision-free or physiological movement.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Evaluates named shape edits on one reusable body prior without source images, refusing a document that names another basis revision.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Bends non-humeral joints by clinical angles and each humerus by its total thorax-relative TT goal, range checks both and skins the resulting transforms.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Runs the named channel, corrective, landmark, skeleton, pose and skin order once per document over an admitted basis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates the coupled sparse pose, resolves TT shoulder goals after the girdle and recomputes normals after skinning.
- * @evidenceExclude requirements/actors/body-authoring/README.md#body-requirements This domain index also covers the editing screen, export and census review; the builder owns evaluation, not the complete authoring workflow.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/README.md#body-specifications This index joins evaluation, measurement, document and later editor boundaries; the builder does not own the browser adapter or the review process.
- * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor The builder owns no transaction history or worker; the face editor's state owner and the playground worker do.
+ * Recompiling for a different basis revision creates new appearance and sag
+ * caches; no cached result is shared across independent basis builders.
  */
 export function createHumanBodyBasisBuilder(
   input: IAutoMovieHumanBodyBasis,

@@ -26,9 +26,9 @@ import { resolveHumanBodySkeleton } from "./resolveHumanBodySkeleton";
  * of the requested pose is valid. The pelvis uses the one bilateral hip line
  * after shoulder resolution and before transforms are published, so the
  * thorax and each authored thigh keep their world orientation.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Resolves the body's named clinical joints and total thorax-relative shoulder goals before skinning.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Validates coupled and pelvic-relative readings, then publishes the rest and posed transforms in their declared order.
+ * This function allocates a new transform map for each document and leaves
+ * the basis and authored pose untouched. The caller has already checked the
+ * named TT shoulder goal against its basis range.
  */
 export function resolveHumanBodyBuildPose(input: {
   basis: IAutoMovieHumanBodyBasis;

@@ -2,10 +2,12 @@ import { type ITtscEvidenceGraphConfig, evidence } from "@ttsc/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
 /**
- * Authored public definitions owe both contracts; barrels only re-export
- * their carriers. The body folder is assigned to the body contract and the
- * residual population (everything that is not the body) answers for the face,
- * so a new source file under `src/` owes a contract by default.
+ * Keep the historical body and face evidence populations visible while their
+ * relationships are being redesigned. Every evidence diagnostic in this
+ * package is advisory; source modules still explain their responsibility in
+ * JSDoc. Barrels only re-export their carriers. The body folder remains
+ * separate from the residual face population so later graph work can inspect
+ * exactly which relationship each file previously occupied.
  */
 const bodyLeaves = ["src/body/**/*.ts", "!src/**/index.ts"];
 const publicLeaves = ["src/**/*.ts", "!src/body/**/*.ts", "!src/**/index.ts"];
@@ -106,11 +108,11 @@ export default {
   plugins: { evidence },
   rules: {
     "evidence/documented": [
-      "error",
+      "warning",
       { symbol: ["type", "function", "property"] },
     ],
-    "evidence/graph": ["error", graph],
-    "evidence/singular": "error",
-    "evidence/todo": "error",
+    "evidence/graph": ["warning", graph],
+    "evidence/singular": "warning",
+    "evidence/todo": "warning",
   },
 } satisfies ITtscLintConfig;

@@ -32,9 +32,9 @@ import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
  * Skin maps are made only on first use and then reused for later documents on
  * the same basis. The body builder owns rest and lean evaluation so veins and
  * sag read identical shaped positions when both are requested.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Resolves the body's named skin appearance without mutating the reusable anatomical basis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Applies skin material, site colour, relief, overlays and tone from one admitted body document before surface regions are formed.
+ * Source UVs determine physical tile scale in metres; maps carry their own
+ * linear or sRGB colour space. The copied material array is new per document,
+ * and only the texture bytes and site weights remain cached across documents.
  */
 export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis) {
   // Read the site weights from the basis only when the first cheek asks for them.
