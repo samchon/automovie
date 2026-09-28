@@ -33,8 +33,12 @@ export function renderBodyMeasuredControls(props: {
     channel: string,
     targetMetres: number,
   ) => Promise<{ shape: Record<string, number>; actualMetres: number }>;
-  change: (document: IAutoMovieHumanBodyBasisDocument, ticket: number) => void;
+  change: (
+    document: IAutoMovieHumanBodyBasisDocument,
+    ticket: number,
+  ) => Promise<boolean>;
   busy: (text: string) => void;
+  report: (text: string) => void;
   refuse: (error: unknown) => void;
 }): void {
   const mm = (metres: number | null): string =>
@@ -85,8 +89,14 @@ export function renderBodyMeasuredControls(props: {
           Number(requested) / 1000,
         );
         if (!props.isCurrent(ticket)) return;
-        number.value = (result.actualMetres * 1000).toFixed(1);
-        props.change({ ...current, shape: result.shape }, ticket);
+        const success = await props.change(
+          { ...current, shape: result.shape },
+          ticket,
+        );
+        if (success && props.isCurrent(ticket))
+          props.report(
+            `${channel.id}: ${(result.actualMetres * 1000).toFixed(1)} mm measured on the committed body.`,
+          );
       } catch (error) {
         if (props.isCurrent(ticket)) props.refuse(error);
       }

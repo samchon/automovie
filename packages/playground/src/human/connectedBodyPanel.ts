@@ -203,15 +203,16 @@ export function mountConnectedBodyPanel<
   const change = async (
     next: IAutoMovieHumanBodyBasisDocument,
     ticket: number = withdraw(),
-  ): Promise<void> => {
-    if (!intents.isCurrent(ticket)) return;
+  ): Promise<boolean> => {
+    if (!intents.isCurrent(ticket)) return false;
     draft = structuredClone(next);
     status("Building the latest body…", "building");
     const success = await editor!.edit(next);
-    if (!intents.isCurrent(ticket)) return;
+    if (!intents.isCurrent(ticket)) return false;
     if (success) show(editor!.snapshot().model);
     refresh();
     if (success) void contacts.after(editor!.snapshot().document, ticket);
+    return success;
   };
   const applyText = async (
     text: string,
@@ -306,8 +307,11 @@ export function mountConnectedBodyPanel<
       reserve: withdraw,
       isCurrent: intents.isCurrent,
       solve: props.simple.solveMeasurement,
-      change: (next, ticket) => void change(next, ticket),
+      change: (next, ticket) => change(next, ticket),
       busy: (text) => status(text, "building"),
+      report: (text) => {
+        element("body-status").textContent += String.fromCharCode(10) + text;
+      },
       refuse,
     });
   };

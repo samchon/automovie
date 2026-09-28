@@ -53,6 +53,7 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
   let ticket = 0;
   let pending = false;
   const refused: unknown[] = [];
+  const reports: string[] = [];
   const calls: { channel: string; target: number }[] = [];
   const render = (kind: string, query: string): void => {
     container.replaceChildren();
@@ -80,10 +81,12 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
           actualMetres: targetMetres,
         };
       },
-      change: (document) => {
+      change: async (document) => {
         current = document;
+        return true;
       },
       busy: () => {},
+      report: (text) => reports.push(text),
       refuse: (error) => refused.push(error),
     });
   };
@@ -105,14 +108,16 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
   current = { ...current, name: "A newer draft" };
   target.value = "250";
   apply.click();
-  await Promise.resolve();
+  for (let attempt = 0; attempt < 5 && reports.length === 0; attempt++)
+    await Promise.resolve();
   TestValidator.predicate(
     "millimetres solve on the latest draft",
     calls.length === 1 &&
       calls[0].channel === "width" &&
       calls[0].target === 0.25 &&
       current.name === "A newer draft" &&
-      current.shape.width === 0.5,
+      current.shape.width === 0.5 &&
+      reports.some((text) => text.includes("250.0 mm measured")),
   );
   pending = true;
   target.value = "290";

@@ -85,7 +85,10 @@ export const test_human_body_panel_measured_input =
     apply.click();
     for (
       let attempt = 0;
-      attempt < 8 && panel.snapshot()?.document.shape.macroHeight !== 0.5;
+      attempt < 8 &&
+      !app
+        .querySelector<HTMLDivElement>("#body-status")
+        ?.textContent?.includes("2250.0 mm measured on the committed body");
       attempt++
     )
       await Promise.resolve();
@@ -99,5 +102,11 @@ export const test_human_body_panel_measured_input =
       "measured result commits without sculpting width",
       panel.snapshot()?.document.shape.macroHeight === 0.5 &&
         panel.snapshot()?.document.shape.width === undefined,
+    );
+    TestValidator.predicate(
+      "committed metric reading is visible",
+      app.querySelector<HTMLDivElement>("#body-status")?.textContent?.includes(
+        "2250.0 mm measured on the committed body",
+      ) === true,
     );
   };
