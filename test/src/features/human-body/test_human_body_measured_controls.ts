@@ -15,6 +15,8 @@ import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";
  * 2. Blank input refuses; a 250 mm target is sent as 0.25 m and its solution
  *    edits the latest document, preserving a newer name and other channels.
  * 3. A numerical answer whose intent was superseded cannot commit.
+ * 4. A comparable adult survey tape shows its population band as context;
+ *    an unrelated control has no survey band and neither band limits input.
  */
 export const test_human_body_measured_controls = async (): Promise<void> => {
   const { basis, document: initial } = humanBodyBasisFixture();
@@ -99,7 +101,8 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
       container.querySelector("#scale-width")?.textContent?.includes(
         "Neutral 200.0 mm",
       ) === true &&
-      container.querySelector("#scale-width")?.textContent?.includes("vertices") === false,
+      container.querySelector("#scale-width")?.textContent?.includes("vertices") === false &&
+      container.querySelector("#scale-width")?.textContent?.includes("ANSUR II") === false,
   );
   const target = container.querySelector<HTMLInputElement>("#control-width")!;
   const apply = container.querySelector<HTMLButtonElement>("button")!;
@@ -130,4 +133,21 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
   TestValidator.equals("unmeasured macro is hidden", container.querySelectorAll(".row").length, 0);
   render("torso", "absent");
   TestValidator.equals("unmatched search is empty", container.querySelectorAll(".row").length, 0);
+  basis.channels.push({ ...basis.channels[0], id: "measureHipsCirc", group: "hips" });
+  const measured = scales.get("width")!;
+  scales.set("measureHipsCirc", {
+    ...measured,
+    id: "measureHipsCirc",
+    group: "hips",
+    measurement: { ...measured.measurement!, id: "measureHipsCirc" },
+  });
+  render("hips", "hips");
+  const survey = container.querySelector("#scale-measureHipsCirc")?.textContent ?? "";
+  TestValidator.predicate(
+    "comparable tape names its survey population without imposing a limit",
+    survey.includes("ANSUR II soldiers age 17–58 (P1–P99)") &&
+      survey.includes("women") &&
+      survey.includes("men") &&
+      survey.includes("Observed sample only; no clinical limit"),
+  );
 };
