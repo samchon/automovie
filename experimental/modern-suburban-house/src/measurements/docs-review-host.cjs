@@ -1,4 +1,4 @@
-/** Compare every reviewed settings H2's reason with the body that owns it.
+/** Compare every settings H2's evidence reason with the body that owns it.
  *
  * This is a necessary lexical check, not a semantic evidence verdict. A reason
  * can be false even when its words occur in the body, and an absent word can be
@@ -13,7 +13,7 @@ const path = require("node:path");
 
 const root = path.resolve(__dirname, "../..");
 const docs = path.join(root, "docs", "settings");
-const rowPattern = /^\s*(@evidence(?:Exclude)?Review)\s+(\S+)\s+#[a-f\d]{7}\s+(.+)$/;
+const rowPattern = /^\s*(@evidence(?:Exclude)?)\s+(\S+)\s+(.+)$/;
 const decisionTargets = /#(?:declared-basis|source-support|fact-status)$/;
 const authorityWords = [
   {
@@ -56,14 +56,13 @@ function sections(source) {
         const end = remaining.indexOf("-->");
         const comment = end < 0 ? remaining : remaining.slice(0, end);
         const row = rowPattern.exec(comment);
+        if (/^\s*@evidence/.test(comment)) current.evidence += comment + "\n";
         if (row) current.reviews.push({
           line: index + 1,
           target: row[2],
           reason: row[3],
         });
-        else if (/^\s*@evidence/.test(
-          comment,
-        )) current.evidence += comment + "\n";
+
         if (end < 0) break;
         inComment = false;
         remaining = remaining.slice(end + 3);
@@ -124,6 +123,8 @@ function inspect(section) {
   let exclusiveRows = 0;
   let otherRows = 0;
   for (const row of section.reviews) {
+    const otherEvidence = section.reviews.filter((candidate) => candidate !== row)
+      .map((candidate) => candidate.reason).join("\n");
     const numbers = measurements(row.reason);
     if (numbers.length) measuredRows++;
     if (!numbers.length && !decisionTargets.test(row.target) && !/[^\s]+만\s/.test(row.reason)) {
@@ -139,7 +140,7 @@ function inspect(section) {
       findings.push({
         line: row.line,
         target: row.target,
-        kind: section.evidence.includes(value)
+        kind: otherEvidence.includes(value)
           ? "measurement-in-evidence-only"
           : "measurement-outside-host",
         value,
@@ -167,7 +168,7 @@ function inspect(section) {
         findings.push({
           line: row.line,
           target: row.target,
-          kind: section.evidence.match(authority.row)
+          kind: otherEvidence.match(authority.row)
             ? "authority-in-evidence-only"
             : "authority-outside-host",
           value: authority.name,
@@ -233,7 +234,7 @@ function audit(files) {
   return report;
 }
 
-/** Only confirmed lexical contradictions and an empty review population fail.
+/** Only confirmed lexical contradictions and an empty evidence population fail.
  * Candidate rows need a human semantic read; absence of a token is not proof. */
 /** @param {ReturnType<typeof audit>} report */
 function failureCount(report) {

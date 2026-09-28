@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 import { GARAGE } from "./building";
 import { clipOutline, segmentsOf } from "./boundaries";
+import { boundaryOrientation } from "./boundary-orientation";
 import type { IHouse } from "./house";
 import type { IHousePart } from "./solid-records";
 import { driveTop, DRIVEWAY } from "./site/driveway";
@@ -63,9 +64,6 @@ const containsMeshPoint = (part: IHousePart, point: IAutoMovieVector3): boolean 
   }
   return hits.length % 2 === 1;
 };
-
-/** Quarter turn about world Y taking a face's local +X to world +Z (walls along Z). */
-const TO_Z_AXIS = { x: 0, y: -Math.SQRT1_2, z: 0, w: Math.SQRT1_2 };
 
 /** Kind of a void from its id: every void id names what it is. */
 const openingKind = (owner: string, id: string): "door" | "window" | "opening" => {
@@ -219,15 +217,10 @@ const exteriorConnectors = (house: IHouse): IAutoMovieBuiltConnector[] => {
 /**
  * Build sided wall records, their hosted voids and site crossing connectors.
  * @evidence spaces/04-observations.md The environment handoff carries emitted boundary faces, their openings and exterior route links from the same house.
- * @evidenceReview spaces/04-observations.md #696e544 buildEnvironmentLinks reads the supplied house's wall parts and zones, emits sided boundary records and openings hosted on those records, then returns exterior route connectors from the same house.
  * @evidence spaces/04-observations.md#engine-render-handoff Each wall void selects the boundary segment containing its centre, a mesh witness assigns an apparent interior gap to its junction body, and site anchors select the exterior connectors.
- * @evidenceReview spaces/04-observations.md#engine-render-handoff #330fc4a For each wall void, buildEnvironmentLinks finds the containing segment and attaches the opening to that segment's boundary id; for an apparent partition gap it requires a mesh-containing junction body, while exteriorConnectors reads authored zone anchors and paving records for its routes.
  * @evidence principles/core/source-units.md#source-scope-preservation The adapter uses the supplied house, cells and measured junction bodies without moving an authored room or paving endpoint.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildEnvironmentLinks reads house parts, supplied space cells and measured junction bodies to make boundary and opening records; exteriorConnectors reads the existing site zones and constants without moving a room or paving endpoint.
  * @evidence principles/core/source-units.md#source-substantive-completion Every wall void receives its containing face and every exterior passage receives a named route and emitting elements.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f Every face.holes record either produces an opening with a containing boundary and clipped profile or throws; exteriorConnectors returns named passages with from/to zones, route points, width and source part ids.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-junctions assigns cut walls their shared host and room-route-network assigns exterior crossings to the paving zones; both input relations suffice for this assembly.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 Interior-boundary-junctions requires openings and their wall host to share one cut boundary, and room-route-network names the porch, walk, drive, garden and side gate crossings; this adapter builds those records from the assigned owners without finding a missing parent route.
  */
 export const buildEnvironmentLinks = (
   house: IHouse,
@@ -249,6 +242,9 @@ export const buildEnvironmentLinks = (
     const segments = segmentsOf(inner, face);
     const idOf = (k: number): string => `${p.id}/${segments[k]!.sides.join("|")}/${k}`;
     segments.forEach((seg, k) => {
+      const orientation=boundaryOrientation(face.axis,seg.sides);
+      const outline=clipOutline(face.outline,seg.u,seg.y).map(q=>({x:q.u*orientation.sign,y:q.y}));
+      if(orientation.sign===-1)outline.reverse();
       let kind: string = p.role;
       if (p.role === "partition" && seg.sides.includes("house-site")) {
         const u = (seg.u[0] + seg.u[1]) / 2;
@@ -277,11 +273,8 @@ export const buildEnvironmentLinks = (
           origin: face.axis === "x"
             ? { x: 0, y: 0, z: center }
             : { x: center, y: 0, z: 0 },
-          rotation: face.axis === "x" ? { x: 0, y: 0, z: 0, w: 1 } : TO_Z_AXIS,
-          outline: clipOutline(face.outline, seg.u, seg.y).map((q) => ({
-            x: q.u,
-            y: q.y,
-          })),
+          rotation: orientation.rotation,
+          outline,
           thickness: face.across[1] - face.across[0],
         },
       });
@@ -299,6 +292,7 @@ export const buildEnvironmentLinks = (
         `${p.owner}: void "${hole.id}" in "${p.id}" lies in no boundary between two spaces`,
       );
       const seg = segments[k]!;
+      const orientation=boundaryOrientation(face.axis,seg.sides);
       const u0 = Math.max(hole.from, seg.u[0]);
       const u1 = Math.min(hole.to, seg.u[1]);
       const y0 = Math.max(hole.bottom, seg.y[0]);
@@ -313,10 +307,10 @@ export const buildEnvironmentLinks = (
         fill: null,
         profile: {
           outline: [
-            { x: u0, y: y0 },
-            { x: u1, y: y0 },
-            { x: u1, y: y1 },
-            { x: u0, y: y1 },
+            { x: Math.min(u0*orientation.sign,u1*orientation.sign), y: y0 },
+            { x: Math.max(u0*orientation.sign,u1*orientation.sign), y: y0 },
+            { x: Math.max(u0*orientation.sign,u1*orientation.sign), y: y1 },
+            { x: Math.min(u0*orientation.sign,u1*orientation.sign), y: y1 },
           ],
         },
       });

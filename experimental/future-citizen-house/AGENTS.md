@@ -40,7 +40,7 @@ Use [Evidence staging](.agents/skills/evidence-graph/staging.md) when declaring 
 
 ### Evidence graph
 
-[Evidence graph](.agents/skills/evidence-graph/SKILL.md) owns the typed declaration in `lint.config.ts`, shared and local contract populations, claims, citations, exclusions, fingerprints, and stages. Read it before changing a governed contract, graph relationship, annotation, or stage. It does not own visual craft or frame observations beyond their declared evidence relationships.
+[Evidence graph](.agents/skills/evidence-graph/SKILL.md) owns the typed declaration in `lint.config.ts`, shared and local contract populations, claims, citations, exclusions, and completion stages. Read it before changing a governed contract, graph relationship, annotation, or stage. It does not own visual craft or frame observations beyond their declared evidence relationships.
 
 ### Source authoring
 

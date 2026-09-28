@@ -1,6 +1,11 @@
 /** Compare every exterior standing patch with the opaque mesh below it. */
 import * as engineNamespace from "@automovie/engine";
-import type { IAutoMovieBuiltEnvironment, IAutoMovieSurface, IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieSurface,
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 import type { IHouse } from "../spaces/house";
 import type { IHousePart } from "../spaces/solid-records";
 
@@ -18,14 +23,26 @@ interface ITriangle {
 
 const triangles = (part: IHousePart): ITriangle[] => {
   const mesh = part.mesh;
-  if (mesh.indices === null) throw new Error(`${part.id}: support mesh has no indices`);
-  const point = (i: number): IAutoMovieVector3 => ({ x: mesh.positions[3 * i]!, y: mesh.positions[3 * i + 1]!, z: mesh.positions[3 * i + 2]! });
+  if (mesh.indices === null) throw new Error(
+    `${part.id}: support mesh has no indices`,
+  );
+  const point = (i: number): IAutoMovieVector3 => ({
+    x: mesh.positions[3 * i]!,
+    y: mesh.positions[3 * i + 1]!,
+    z: mesh.positions[3 * i + 2]!,
+  });
   const result: ITriangle[] = [];
   for (let i = 0; i < mesh.indices.length; i += 3) {
     const a = point(mesh.indices[i]!);
     const b = point(mesh.indices[i + 1]!);
     const c = point(mesh.indices[i + 2]!);
-    result.push({ a, b, c, x: [Math.min(a.x, b.x, c.x), Math.max(a.x, b.x, c.x)], z: [Math.min(a.z, b.z, c.z), Math.max(a.z, b.z, c.z)] });
+    result.push({
+      a,
+      b,
+      c,
+      x: [Math.min(a.x, b.x, c.x), Math.max(a.x, b.x, c.x)],
+      z: [Math.min(a.z, b.z, c.z), Math.max(a.z, b.z, c.z)],
+    });
   }
   return result;
 };
@@ -59,12 +76,16 @@ const inPolygon = (polygon: readonly IAutoMovieVector3[], x: number, z: number):
 export const verifyExteriorSupport = (house: IHouse, environment: IAutoMovieBuiltEnvironment): number => {
   const zones = new Map(house.zones.map((zone) => [zone.id, zone]));
   const byOwner = new Map<string, ITriangle[]>();
-  for (const part of house.parts.filter((p) => p.role === "paving" || p.role === "porch")) {
+  for (const part of house.parts.filter(
+    (p) => p.role === "paving" || p.role === "porch",
+  )) {
     const list = byOwner.get(part.owner) ?? [];
     list.push(...triangles(part));
     byOwner.set(part.owner, list);
   }
-  const exterior = environment.surfaces.filter((entry) => zones.has(entry.space));
+  const exterior = environment.surfaces.filter((entry) =>
+    zones.has(entry.space),
+  );
   let sampled = 0;
   for (const { space, surface } of exterior) {
     const zone = zones.get(space)!;
@@ -78,9 +99,13 @@ export const verifyExteriorSupport = (house: IHouse, environment: IAutoMovieBuil
         const declared = standingHeight(surface, x, z);
         const actual = meshTop(faces, x, z, declared);
         if (actual === null || Math.abs(actual - declared) > 0.001)
-          throw new Error(`${surface.id}: standing ${declared.toFixed(4)} differs from opaque paving ${actual?.toFixed(4) ?? "absent"} at (${x.toFixed(3)}, ${z.toFixed(3)})`);
+          throw new Error(
+            `${surface.id}: standing ${declared.toFixed(4)} differs from opaque paving ${actual?.toFixed(4) ?? "absent"} at (${x.toFixed(3)}, ${z.toFixed(3)})`,
+          );
         if (zone.groundAt !== undefined && Math.abs(zone.groundAt(x, z) - declared) > 0.001)
-          throw new Error(`${surface.id}: groundAt ${zone.groundAt(x, z).toFixed(4)} differs from standing ${declared.toFixed(4)} at (${x.toFixed(3)}, ${z.toFixed(3)})`);
+          throw new Error(
+            `${surface.id}: groundAt ${zone.groundAt(x, z).toFixed(4)} differs from standing ${declared.toFixed(4)} at (${x.toFixed(3)}, ${z.toFixed(3)})`,
+          );
         sampled++;
       }
   }
@@ -97,8 +122,12 @@ export const verifyExteriorSupport = (house: IHouse, environment: IAutoMovieBuil
           const vertical = Math.abs(p.x - q.x) < 1e-8 && Math.abs(r.x - s.x) < 1e-8 && Math.abs(p.x - r.x) < 1e-8;
           const horizontal = Math.abs(p.z - q.z) < 1e-8 && Math.abs(r.z - s.z) < 1e-8 && Math.abs(p.z - r.z) < 1e-8;
           if (!vertical && !horizontal) continue;
-          const start = vertical ? Math.max(Math.min(p.z, q.z), Math.min(r.z, s.z)) : Math.max(Math.min(p.x, q.x), Math.min(r.x, s.x));
-          const end = vertical ? Math.min(Math.max(p.z, q.z), Math.max(r.z, s.z)) : Math.min(Math.max(p.x, q.x), Math.max(r.x, s.x));
+          const start = vertical
+            ? Math.max(Math.min(p.z, q.z), Math.min(r.z, s.z))
+            : Math.max(Math.min(p.x, q.x), Math.min(r.x, s.x));
+          const end = vertical
+            ? Math.min(Math.max(p.z, q.z), Math.max(r.z, s.z))
+            : Math.min(Math.max(p.x, q.x), Math.max(r.x, s.x));
           if (end - start < 0.05) continue;
           for (let t = start + 0.025; t < end; t += 0.05) {
             const x = vertical ? p.x : t;
@@ -106,7 +135,9 @@ export const verifyExteriorSupport = (house: IHouse, environment: IAutoMovieBuil
             const ay = standingHeight(a.surface, x, z);
             const by = standingHeight(b.surface, x, z);
             if (Math.abs(ay - by) > 0.001)
-              throw new Error(`${a.surface.id}/${b.surface.id}: standing seam differs by ${Math.abs(ay - by).toFixed(4)} at (${x.toFixed(3)}, ${z.toFixed(3)})`);
+              throw new Error(
+                `${a.surface.id}/${b.surface.id}: standing seam differs by ${Math.abs(ay - by).toFixed(4)} at (${x.toFixed(3)}, ${z.toFixed(3)})`,
+              );
           }
         }
       }

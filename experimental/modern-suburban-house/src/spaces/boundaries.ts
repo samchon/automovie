@@ -52,13 +52,9 @@ const insideOutline = (outline: readonly IWallPoint[], u: number, y: number): bo
 /** Clip a face outline to a (u, y) rectangle, one rectangle side at a time. */
 /**
  * @evidence spaces/07-boundary-assembly.md clipOutline restricts one existing wall face to a smaller u/Y boundary rectangle.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 `clipOutline` clips the supplied face outline by four u/Y half-planes; `buildEnvironmentLinks` uses the resulting polygon for each sided segment without constructing another wall.
  * @evidence principles/core/source-units.md#source-scope-preservation It returns clipped points only; it does not create another wall or assign a room finish.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `clipOutline` returns `IWallPoint[]` from an input outline and u/Y limits; its return type carries no wall part or finish assignment.
  * @evidence principles/core/source-units.md#source-substantive-completion Four successive half-plane clips and duplicate-corner removal produce an actual polygon for the segment.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `clipOutline` intersects the polygon with each of four half-planes, inserts crossing points, and removes adjacent equal corners within 1e-9 before returning it.
  * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership assigns one common wall body and sided boundary records; clipOutline crops the supplied face for one segment without creating a second body.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `clipOutline` only transforms the supplied `IWallPoint[]`; the common-body and sided-boundary handoff in `07-boundary-assembly.md#interior-boundary-ownership` needs no new parent decision for this polygon crop.
  */
 export const clipOutline = (outline: readonly IWallPoint[], u: readonly [number, number], y: readonly [number, number]): IWallPoint[] => {
   const sides: ((p: IWallPoint) => number)[] = [
@@ -105,15 +101,10 @@ interface ISegment {
  */
 /**
  * @evidence spaces/07-boundary-assembly.md segmentsOf assigns the two logical sides of each part of an existing wall face.
- * @evidenceReview spaces/07-boundary-assembly.md #007d289 `segmentsOf` calls `sidesAt` at each cell centre, probing 0.001 m beyond each face and using `house-site` where no inner space contains a probe.
  * @evidence spaces/07-boundary-assembly.md#interior-boundary-junctions It cuts at cell and void edges, then merges adjacent rectangles only when both space ids agree.
- * @evidenceReview spaces/07-boundary-assembly.md#interior-boundary-junctions #78b06b5 segmentsOf uses cell and hole edges as candidate cuts, then merges neighbours with the same two side ids; hole cuts can disappear, while a room-change cut remains. buildEnvironmentLinks attaches opening records to the resulting boundaries afterwards.
  * @evidence principles/core/source-units.md#source-scope-preservation The function reads built cells and the given face; it returns sided segment data for environment links without a second wall mesh.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `segmentsOf` returns `ISegment[]` with u/Y bounds and two ids; `buildEnvironmentLinks` consumes them as boundaries, while this export creates no wall part.
  * @evidence principles/core/source-units.md#source-substantive-completion It drops exterior-to-exterior or same-side cells and returns deterministic u/Y segments for environment boundaries.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f `segmentsOf` sorts both cut axes, rejects cells outside the face or with equal side ids, then merges equal pairs in u and Y order into repeatable segments.
   * @evidenceExclude upstream/design/space-sources.md#design-revision-from-space-source-work Interior-boundary-ownership assigns one body and two space ids per boundary, while interior-boundary-junctions keeps room-owned opening locations on that body. segmentsOf tests face and cell edges as candidate cuts, merges equal-sided cells across redundant hole edges, and leaves opening records for buildEnvironmentLinks to attach afterward.
- * @evidenceExcludeReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `segmentsOf` takes cell and hole cuts from its inputs and retains each pair from `sidesAt`; the common-body and opening-cut decisions in `07-boundary-assembly.md` suffice for these sided segments.
  */
 export const segmentsOf = (inner: readonly IAutoMovieBuiltSpace[], face: IWallFace): ISegment[] => {
   const axis = face.axis;

@@ -35,35 +35,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 문턱·박공·외부 처마와 대지 표면에 더해 내부 경계벽 reveal 행이 생겨, 역검사에서 owner 없이 방출되던 표면이 표 밖에 남지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 각 행이 design anchor와 source 경로를 짝짓고 surface.<owner>.<face> ID와 단독 저작 규칙을 정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 표는 설계 답이고, 방출 surface ID의 owner 열거와 표 행의 대조가 별도 역검사라고 마지막 문단이 구별한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 한 공유벽의 양쪽 마감과 내부 접촉면을 구별해 실체와 시각 면을 같은 것으로 세지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 cell 분해나 반복이 완결 면을 나눌 권한이 없고 독립 물체와 이웃·식생의 표면은 prototype 하나에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 `npm run self-check`의 surfaceOwnerAudit가 표의 방출 owner 열과 실제 방출 owner를 양방향 대조하고 누락·중복을 failure 합에 넣으므로 표 밖 방출을 실패로 돌린다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 분기 배정을 각 입면·방·roof·대지·내부 경계벽의 단독 파일과 접합 면의 귀속으로 구체화했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 물리벽과 양면 마감, reveal을 구별하면 분담이 유지돼 이 표면 지도에서 드러난 부모 결함은 없고, 대지 행 수정은 site의 upstream 보고로 분리돼 있다.
-@evidenceReview settings/00-delivery.md#build-scope #8d597f9 고친 build-scope의 대지 행이 표의 두 대지 행으로, 독립 물체 행이 prototype 소유 문장으로 대응한다.
-@evidenceReview obligations/design/spaces.md#addressable-spatial-decisions #9c97153 기준·문·접합·표면·관찰·대지·내부 경계벽 owner를 전체 문서와 대조했고 junctions는 새 완결 면 owner가 아니다.
-@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 방 바닥의 벽 두께 문턱, roof 하부·박공, 대지 표면, 내부 경계벽 reveal까지 표에서 귀속시켜 최초 분해를 지급한다.
-@evidenceExcludeReview settings/00-delivery.md#coverage-map #fe00d39 이 공간 소유 지도는 settings 파일 소유 목록 자체를 다시 완성하는 host가 아니며, 각 공간은 설정 목록이 가리킨 실제 그래프·외피·실내·대지·관찰 target을 소비한다.
-@evidenceExcludeReview settings/40-environment.md#daylight #eac4028 창·roof·대지 표면의 가림은 결정됐지만 태양 고도·광원 방향·노출을 정하는 host는 없고 조명 수치는 systems에 남는다.
-@evidenceExcludeReview settings/35-objects.md#bench #4731814 벤치의 좌면과 받침을 주랑 바닥 표면으로 세지 않는 소유 경계를 확인했다
-@evidenceExcludeReview settings/35-objects.md#portable-lamp #2f26356 소형 등잔의 접촉 위치는 배치가 정하며 공간 표면 지도에 등잔 part를 더하지 않는다
-@evidenceExcludeReview settings/35-objects.md#jar-rack #433211e 받침 홈과 다리는 모델에 남고 보관실 바닥은 독립 표면으로 남는다
-@evidenceExcludeReview settings/35-objects.md#carrying-yoke #7226d89 멜대의 걸침·하중을 공간 표면 지도에서 주장하지 않는다
-@evidenceExcludeReview settings/35-objects.md#handcart #58fa819 정지 손수레의 실제 놓임과 포장 접촉은 후속 배치에서 검증한다
-@evidenceExcludeReview settings/35-objects.md#bucket #97dc9fe 물동이의 위치와 수량을 공간 완결 면의 일부로 중복 소유하지 않는다
-@evidenceExcludeReview settings/35-objects.md#planter #5494e82 화분 내부 흙을 site 바닥 흙띠로 잘못 세지 않는 소유 경계를 확인했다
-@evidenceExcludeReview settings/35-objects.md#votive-plaque #564c5ab 봉헌판의 글자 없는 판을 방 벽의 고정 마감으로 오인하지 않는다
-@evidenceExcludeReview settings/35-objects.md#offering-tray #00c29b0 쟁반의 받침 접촉은 배치의 문제이고 공간 표면 지도는 탁자·제단 geometry를 복제하지 않는다
-@evidenceExcludeReview settings/35-objects.md#textile #4ad9673 직물의 덮개 역할을 모델에 남겨 실내 표면 소유를 바꾸지 않는다
-@evidenceExcludeReview settings/35-objects.md#stylus #4491a6c 첨필 위치는 책상 배치가 정하고 공간 표면 지도에는 형상 행이 없다
-@evidenceExcludeReview settings/35-objects.md#writing-tablet #cd87272 필기면의 물체 소유와 기록실 공간 표면 소유가 분리돼 있다
-@evidenceExcludeReview settings/35-objects.md#rope-coil #96ce70c 느슨한 끈 뭉치의 고리와 묶음 띠가 공간 벽·바닥 형상으로 중복 방출되지 않는다
-@evidenceExcludeReview settings/35-objects.md#censer #bb1b3d5 향로가 제단 위에 놓여도 제실 완결 표면 owner는 바뀌지 않는다
-@evidenceExcludeReview settings/35-objects.md#floor-cushion #6e384d3 좌구의 앉는 면과 제실 석재 바닥을 서로 다른 표면 소유로 유지한다
-@evidenceExcludeReview settings/35-objects.md#jar-stand #5d59a6d 한 자리 받침의 고리·기둥을 보관실 완결 바닥 면에서 제외한다
 -->
 
 [추가 공간 의무](../contracts/obligations-spaces.md#surface-ownership)를 실제 평면 경계와 연결한다. 아래의 source 경로는 각 완결 표면의 단독 저작 owner다. 표가 있다는 사실은 compiled binding의 역검사 통과를 뜻하지 않는다. 저작자는 이번 production 세션 한 명이고 fan-out이 생겨도 하나의 행이 가진 완결 표면을 여러 사람에게 나누지 않는다. 내부벽의 물리 topology는 [boundaries](openings.md#boundary-ownership) 한 소유이며 마주 보는 두 마감은 각각의 방 소유다.
@@ -119,18 +90,6 @@ surface ID는 `surface.<owner>.<face>`로 안정되게 정하고 실제 boundary
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑 여섯 영역과 제실 네 벽이 대상이고 봉헌실·업무방·마당·외부가 제외로 열거돼 적갈색 띠를 방 하나에만 두는 축소나 모든 방으로의 확대가 남지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 0.60m 수평선과 두 표면 ID, 문에서의 끊김이 적혀 environment가 분할 높이와 대상을 추정하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 띠의 범위는 설정 링크에서, 0.60m는 이미지 03·04에서 약 0.5~0.75m로 읽은 범위 안의 저작 값이며 실측이 아니라고 구별했다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 같은 평면의 면 분할이고 턱·돌출이 없다고 적어 띠가 주랑 통행이나 제실 문 통과에 새 장애를 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 소유 지도의 주랑·제실 행을 그대로 따르며 dado 표면도 같은 방 owner라서 입면이나 materials가 이 면을 새로 소유하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 owner 색 검사와 납품 보기를 함께 쓰라는 문장이 재료가 없는 현재에도 띠 경계를 반증할 수단을 준다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모는 색 관계와 범위만 줬고 윗선 높이·표면 ID·문에서의 끊김은 공간 층이 더한 결정이다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 세 설정 조건이 기존 벽 마감의 한 수평 분할로 함께 성립해 부모의 색 관계나 방별 용도를 고칠 결함이 없었다.
-@evidenceReview settings/20-envelope.md#material-language #25e6ffa 부모의 중정·제실 띠와 밝은 업무방이 대상 두 표면과 제외 목록으로 그대로 옮겨졌다.
-@evidenceReview settings/20-envelope.md#walls #35026c5 띠 경계가 바닥 위 일정 높이의 수평선이라 부모의 높이 경계를 따르는 재료 경계 원칙에 맞는다.
-@evidenceReview settings/30-interiors.md#sanctuary #224fd8d 제실 네 벽 하부의 sanctuary.dado가 이미지 04의 낮은 붉은 띠를 받는다.
-@evidenceReview contracts/obligations-spaces.md#surface-ownership #1a50ebe 두 dado 표면이 각 방 owner의 완결 표면으로 귀속되고 한 면이 두 표면에 겹치면 실패로 명시돼 단독 소유가 유지된다.
 -->
 
 [재료 관계](../settings/20-envelope.md#material-language)는 적갈색 띠가 중정과 제실 벽 하부를 연속해서 따르고 업무방은 밝은 회벽을 유지한다고 정한다. [외피 canon](../settings/20-envelope.md#walls)은 재료 경계가 부재와 높이 경계를 따르게 하고, [제실](../settings/30-interiors.md#sanctuary)은 이미지 04의 낮은 붉은 띠를 채택한다. 이 H2는 그 경계를 공간 표면의 분할로 정한다. 중정을 둘러싼 벽은 [주랑](rooms/colonnade.md#ring-volume)의 벽 마감 `surface.colonnade.wall`이고 제실은 [제실](rooms/sanctuary.md#sanctuary-volume)의 벽 마감 `surface.sanctuary.wall`이다.

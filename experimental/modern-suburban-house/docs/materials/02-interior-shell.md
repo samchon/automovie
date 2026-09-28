@@ -21,6 +21,8 @@
 
 표면 결속 계획: 방 벽 도장의 미세 롤러 결은 0.10 m 모듈로 투영한다. [방 안쪽 벽의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하며 실제 문·창·걸레받이 부재 끝에서 끊는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
+[굴뚝 몸통](../spaces/envelope/left.md#chimney-roof-interface)의 X=-5.50 m 안쪽 면 중 upper-storey의 완성 바닥·천장 Y=[3.06,5.66] m, Z=[-2.75,-1.65] m는 같은 침실 벽 도장이다. 외부 몸통과 지붕 위는 벽돌, 1층 벽난로 앞면은 벽돌을 유지한다. 마감 경계에서 기존 삼각형만 잘라 배정하며 두 번째 벽 또는 돌출 도장판을 만들지 않는다.
+
 ## 평평한 흰 천장 {#interior-ceiling}
 <!--
 @evidence principles/core/common.md#declared-basis 평평한 흰 천장의 #FAF9F6·roughness 0.65은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
@@ -41,6 +43,16 @@
 
 ## 흰 실내 trim과 패널 문짝 {#interior-trim-white}
 <!--
+@evidence models/13-bedrooms.md#sliding-closet carcass·leaf·shelf의 닫힌 판과 오목 leaf-panel에 흰 trim 도막을 결속하고 rod·rail·handle·clothes를 각각 다른 재료로 남긴다.
+@evidence models/13-bedrooms.md#wardrobe-shelves 네 shelf와 두 옆 carcass의 실제 끝면·걸레받이 홈에 흰 도막을 붙이며 folded·shoe-box·basket 소품에는 흰 도막을 넘기지 않는다.
+@evidence models/03-interior-doors.md#interior-door-members 두께 있는 양쪽 casing과 jamb-a/b/core·leaf·오목 leaf-panel에 같은 반광 도막을 적용하고 각 판의 미터 UV·끝면을 소비한다.
+@evidence models/03-interior-doors.md#interior-door-surfaces A·B 문선과 문설주·문짝·패널의 실제 id 경계에서 결속을 끝내 검은 handle·hinge에 흰 도막이 새지 않게 한다.
+@evidenceExclude models/03-interior-doors.md#interior-door-fidelity 심재·힌지 나사·걸쇠·도어클로저는 원형이 만들지 않는 부재로 재료 host도 없다. 흰 도막은 실제 문짝/문선의 광학 응답만 정하며 그 숨은 기구를 대신하지 않는다.
+@evidence models/04-stair-members.md#stair-side-skirt 두 경사판과 참 연결판의 stair-skirt 닫힌 면과 실제 경사 길이 UV에 흰 도막을 결속하며 spaces 디딤·챌판 면을 복제하지 않는다.
+@evidence models/05-closet-fittings.md#coat-closet-doors 두 깊이 층의 leaf·leaf-panel과 개구부 밖 casing만 흰 도막을 받고 오목 handle과 두 rail은 금속으로 남긴다.
+@evidence models/05-closet-fittings.md#linen-closet-fittings 닫힌 두 미닫이 leaf/패널과 다섯 shelf·세 casing의 앞뒤/끝면까지 같은 도막을 받되 선반과 트랙의 서로 다른 깊이 원점을 변경하지 않는다.
+@evidence models/05-closet-fittings.md#closet-fitting-surfaces leaf·leaf-panel·shelf·casing id와 각 부재가 낸 미터 UV에 결속하며 rod·rail·handle 파티션은 금속 결속에 남긴다.
+@evidence models/06-interior-trim.md#wall-baseboard 0.10 m 높이·0.015 m 최대 돌출인 wall-baseboard의 사면·앞뒤·끝면과 miter seam을 소비해 run 길이 방향의 흰 도막을 결속한다.
 @evidence principles/core/common.md#declared-basis 흰 실내 trim과 패널 문짝의 #F4F2EC·roughness 0.35은 settings/10-house.md#openings의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 흰 실내 trim과 패널 문짝은 models 02 외부 문의 실내 문선·03 실내 문·05 수납·01 창 안쪽 창대와 창선·06 벽 걸레받이 파티션과 `src/spaces/stair.ts` 계단의 챌판·난간 기둥에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 흰 실내 trim과 패널 문짝은 #F4F2EC(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/trim.ts`, 리뷰 관찰을 모두 적었다.
@@ -56,7 +68,7 @@
 
 [03–05의 흰 실내 문선 및 패널문](../settings/10-house.md#openings)과 계단의 [흰 챌판과 기둥](../settings/10-house.md#stair)이다. 구성은 반광 도장한 목재·MDF 부재이며 패널 분절은 모델 geometry가 만든다. 외관은 도막을 근사하는 `#F4F2EC`(선형 0.905, 0.888, 0.839), roughness 0.35, metallic 0.0, transmission 0.0이다. 결합 면은 [실내 문의 표면 파티션](../models/03-interior-doors.md#interior-door-surfaces)의 `leaf`·`leaf-panel`·`jamb-a`·`jamb-b`·`jamb-core`·`casing-a`·`casing-b`, [현관문](../models/02-exterior-doors.md#front-entry-door)과 [정원문](../models/02-exterior-doors.md#garden-door-pair)의 `casing`, [벽 걸레받이 원형](../models/06-interior-trim.md#wall-baseboard)의 `wall-baseboard`, [계단 경사 측판](../models/04-stair-members.md#stair-side-skirt)의 `stair-skirt`, 창 안쪽 `interior-sill`·`interior-casing`([창의 표면 파티션](../models/01-windows.md#window-surface-partitions)), 계단 챌판과 난간 기둥, [외투장](../models/05-closet-fittings.md#coat-closet-doors)·[린넨장](../models/05-closet-fittings.md#linen-closet-fittings) 문짝·문선과 선반, [작은 침실 옷장](../models/13-bedrooms.md#sliding-closet)의 `casing`, 외투장 [봉과 선반](../models/05-closet-fittings.md#coat-closet-rod-shelf)의 `shelf`다. source owner는 `src/materials/interior/trim.ts`이고, 리뷰는 05의 복도 view에서 흰 문짝과 문선이 벽과 분리되고 반광 하이라이트가 벽보다 좁은지를 관찰한다.
 
-외투장·린넨장은 spaces의 벽 속 수납 개구부여서 별도 `carcass` 메시가 없다. [외투장](../models/05-closet-fittings.md#coat-closet-doors)과 [린넨장](../models/05-closet-fittings.md#linen-closet-fittings)의 문짝 `leaf`·`leaf-panel`과 선반 `shelf`는 이 도막을 받는다. 검은 레일·봉·손잡이에는 결합하지 않는다.
+외투장·린넨장은 spaces의 벽 속 수납 개구부여서 별도 `carcass` 메시가 없다. [외투장](../models/05-closet-fittings.md#coat-closet-doors)과 [린넨장](../models/05-closet-fittings.md#linen-closet-fittings)의 문짝 `leaf`·`leaf-panel`과 선반 `shelf`는 이 도막을 받는다. 금속 레일·봉·손잡이에는 결합하지 않는다.
 
 표면 결속 계획: 실내 문선·걸레받이·패널 문짝과 계단 챌판·기둥의 도장 솔결은 0.10 m 모듈이다. [계단 챌판](../spaces/02-stair.md#stair-reservation)과 [난간 기둥](../spaces/02-stair.md#stair-boundary-heights)은 spaces owner의 UV 축·원점·이음을 소비하고, 문선·걸레받이·패널 문짝은 각 모델의 UV를 소비한다. 패널 오목부·문짝 가장자리의 이음은 모델 owner가 정하며, 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
@@ -126,6 +138,11 @@
 
 ## 검은 도장 금속 {#black-coated-metal}
 <!--
+@evidence models/14-bathrooms.md#tub-curtain-rail 1.80 m rail과 두 천장 지지 rod의 검은 도막을 부재 둘레 UV에 결속하며 커튼 cloth의 무광 직물을 금속으로 덮지 않는다.
+@evidence models/04-stair-members.md#stair-balusters 0.02 m 정사각 baluster의 네 면과 절단 끝에 미터 높이/둘레 UV로 분체 도막을 붙이고 개수·끝 높이를 바꾸지 않는다.
+@evidence models/04-stair-members.md#stair-bottom-member 복도 bottom-rail의 길이3.52 m·0.04 m 단면과 실제 길이 UV에 동일 검은 도막을 결속하며 디딤/참에 경사 레일을 추가하지 않는다.
+@evidence models/04-stair-members.md#stair-member-surfaces baluster·bottom-rail을 흰 기둥/챌판·목재 handrail과 다른 결속 키로 유지한다.
+@evidenceExclude models/04-stair-members.md#stair-member-fidelity 용접부·고정 볼트·받침판은 난간 원형에 없어 도막 host가 없으며 분체 결로 그 형상이나 보호/법규 성능을 대신하지 않는다.
 @evidence principles/core/common.md#declared-basis 검은 도장 금속의 #1F1F20·roughness 0.40은 settings/10-house.md#stair의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 검은 도장 금속은 models/04-stair-members.md#stair-balusters, models/04-stair-members.md#stair-bottom-member와 본문에 링크한 문·수납 손잡이·등기구 외장의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 검은 도장 금속은 #1F1F20(선형 0.014, 0.014, 0.014), roughness 0.40, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/interior/metal.ts`, 리뷰 관찰을 모두 적었다.
@@ -212,6 +229,8 @@
 [흰 타일](../settings/10-house.md#shower-bathroom)과 주방의 [타일 backsplash](../settings/10-house.md#kitchen-equipment)다. 구성은 유약 도기 벽 타일이며 0.30 × 0.10 m 모듈과 [줄눈](#tile-grout)은 벽 면의 UV 텍스처 응답에서 만든다. 별도 타일·줄눈 geometry를 만들지 않는다. 외관은 `#EEEDEA`(선형 0.855, 0.847, 0.823), roughness 0.30, metallic 0.0, transmission 0.0이다. 결합 면은 샤워부스 안 벽, 욕조 주위 벽, 주방 하부장과 상부장 사이 벽 구역이며, 그 구역의 경계는 host owner의 기구·수납 끝선을 따른다. source owner는 `src/materials/interior/tile.ts`이고, 리뷰는 05와 03 view에서 흰 타일이 벽 도장과 광택 차이로 구별되는지를 관찰한다.
 
 표면 결속 계획: 욕실 벽 타일은 0.30 m 가로 × 0.10 m 세로의 엇갈린 줄과 약한 유약 거칠기를 쓴다. [방 안쪽 벽 owner의 UV와 절단](../spaces/03-surface-owners.md#interior-surface-handoff)을 소비하고 코너·문·니치·설비에서 실제 면을 절단한다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+
+타일 경계는 샤워의 주침실 쪽 칸막이 안쪽 X=[0.82,0.90], Z=[-8.80,-7.70] m와 뒤 벽 Z=-8.80, X=[0.90,2.15] m, 욕조의 오른쪽 벽 X=5.50, Z=[-8.70,-6.90] m와 뒤 벽 Z=-8.80, X=[4.70,5.50] m다. 두 욕실은 Y=[3.06,5.66] m이며 샤워 niche 안쪽도 같은 타일이다. 주방 backsplash는 X=-5.50, Z=[-9.80,-7.40] m와 Z=-10.45, X=[-5.50,-2.15] m, Y=[0.91,1.45] m의 실내를 향한 면이다. 기존 벽 삼각형을 이 경계에서 분할하고 위치·법선·UV와 총 면적을 보존한다.
 
 ## 타일 줄눈 {#tile-grout}
 <!--

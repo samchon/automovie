@@ -8,7 +8,7 @@ const auditStatuses = (statuses) => statuses.reduce(
 );
 
 /**
- * @param {(command: string, args: string[], options: { shell: boolean; stdio: "inherit" }) => { status: number | null }} [run]
+ * @param {(command: string, args: string[], options: { shell: boolean; stdio: "inherit"; windowsHide: boolean }) => { status: number | null }} [run]
  * @param {(line: string) => void} [write]
  */
 const runAudit = (run = spawnSync, write = (line) => process.stdout.write(line)) => {
@@ -21,7 +21,7 @@ const runAudit = (run = spawnSync, write = (line) => process.stdout.write(line))
       cli ? [cli, "run", script] : ["run", script],
       {
         shell: !cli && process.platform === "win32",
-        stdio: "inherit",
+        stdio: "inherit", windowsHide: true,
       },
     );
     const status = result.status ?? 1;

@@ -16,10 +16,19 @@
  * the client converts them to linear working color through three.js color
  * management.
  */
+import type {
+  IAutoMovieLight,
+  IAutoMovieSceneEnvironment,
+} from "@automovie/interface";
+
 import type { HousePartRole } from "../spaces/solid-records";
 
 /** Which subject a scene draws: the calibration shape or the house. */
-export type ViewerSceneSubject = "calibration" | "house";
+export type ViewerSceneSubject =
+  | "calibration"
+  | "house"
+  | "model-review"
+  | "material-review";
 
 /** One triangle mesh placed in world space by translation only. */
 export interface IViewerSceneItem {
@@ -35,6 +44,14 @@ export interface IViewerSceneItem {
   /** Model prototype and stable surface partition for an authored model part. */
   modelId?: string;
   faceId?: string;
+  /** Producer-issued assembly member, independent of render batching. */
+  assemblyMember?: string;
+  /** Identification pass draws every face opaquely, including mirror/glass. */
+  inspectionFace?: boolean;
+  /** A real source intersection cap, for inspection only. */
+  inspectionSection?: boolean;
+  /** Exact source partitions contributing to a joined physical-shell section. */
+  sectionSourceFaces?: string[];
 
   /** Base color as an sRGB hex integer, for example 0xd94a3a. */
   color: number;
@@ -43,6 +60,11 @@ export interface IViewerSceneItem {
   opacity?: number;
   roughness?: number;
   metalness?: number;
+  /** Physical plate-glass response supplied by an authored material owner. */
+  transmission?: number;
+  ior?: number;
+  thickness?: number;
+  doubleSided?: boolean;
 
   /** Authored sRGB tile URL and UV repeat coordinates; color is the fallback. */
   texture?: string;
@@ -85,6 +107,8 @@ export interface IViewerSceneCamera {
 
   /** Far clip plane distance, meters. */
   far: number;
+  /** Full vertical extent for the fixed orthographic review camera. */
+  orthographicSpan?: number;
 }
 
 /** Light rig recorded with the scene so a capture names its conditions. */
@@ -116,6 +140,11 @@ export interface IViewerSceneLighting {
 
 /** Complete payload of `GET /scene`. */
 export interface IViewerScene {
+  /** Authored portable physical lights; calibration retains its own simple rig. */
+  physicalLighting?: {
+    lights: IAutoMovieLight[];
+    environment: IAutoMovieSceneEnvironment;
+  };
   /** Subject drawn by this scene. */
   subject: ViewerSceneSubject;
 
@@ -136,12 +165,31 @@ export interface IViewerScene {
 
   /** Placed meshes. */
   items: IViewerSceneItem[];
+  /** Supplemental native model inspection, separate from the whole-house views. */
+  modelReview?: {
+    id: string;
+    view: "front" | "side" | "diagonal";
+    overlay: boolean;
+    faces: string[];
+    models: string[];
+  };
+  /** Actual active material identities, top row first, for an inspection plate. */
+  materialReview?: {
+    page: number;
+    mode: "neutral" | "baseline";
+    total: number;
+    rows: string[];
+  };
+  /** Side-section plane keeps the source's X<=0 half without adding cap geometry. */
+  sectionX?: number;
   /**
    * Self-space observation poses derived by `src/spaces/observations.ts`, for
    * the `observe=<id>` inspection query; absent for the calibration scene.
    */
   observations?: {
     id: string;
+    fovDeg?: number;
+    near?: number;
     position: [number, number, number];
     target: [number, number, number];
   }[];

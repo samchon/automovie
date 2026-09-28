@@ -8,7 +8,7 @@ const docs = path.resolve(__dirname, "../../docs");
 require(require.resolve("tsx/cjs"));
 const { buildHouse } = require("../spaces/house.ts");
 /** @typedef {[number, number]} Span */
-/** @typedef {{X:Span;Y:Span;Z:Span}} Box */
+/** @typedef {{ X:Span;Y:Span;Z:Span }} Box */
 const num = "([−-]?\\d+(?:\\.\\d+)?)";
 /** @param {string} text */
 const value = (text) => Number(text.replace("−", "-"));
@@ -24,8 +24,16 @@ const intervals = (text, axis) => [...text.matchAll(new RegExp(`${axis}\\s*=\\s*
 /** @param {number[]} positions @returns {Box} */
 function bounds(positions) {
   /** @type {Box} */
-  const box = { X: [Infinity, -Infinity], Y: [Infinity, -Infinity], Z: [Infinity, -Infinity] };
-  for (let i = 0; i < positions.length; i += 3) for (const [axis, offset] of [["X", 0], ["Y", 1], ["Z", 2]]) {
+  const box = {
+    X: [Infinity, -Infinity],
+    Y: [Infinity, -Infinity],
+    Z: [Infinity, -Infinity],
+  };
+  for (let i = 0; i < positions.length; i += 3) for (const [axis, offset] of [
+    ["X", 0],
+    ["Y", 1],
+    ["Z", 2],
+  ]) {
     const span = box[/** @type {"X"|"Y"|"Z"} */ (axis)];
     span[0] = Math.min(span[0], positions[i + /** @type {number} */ (offset)]);
     span[1] = Math.max(span[1], positions[i + /** @type {number} */ (offset)]);
@@ -43,7 +51,7 @@ const touchesWall = (axis, end, cross) => walls.some(({ box }) => {
     .filter((other) => other !== axis)
     .every((other) => !cross[other]?.length || cross[other].some((span) => overlap(span, box[other]) > 1e-8));
 });
-/** @param {{name:string;source:string}[]} files */
+/** @param {{ name:string;source:string }[]} files */
 function audit(files) {
   const failures = [];
   let h2 = 0, axialClaims = 0, checkedIntervals = 0;
@@ -52,27 +60,44 @@ function audit(files) {
     const targets = [...section.raw.matchAll(/^@evidence spaces\/([^#\s]+)#([^\s]+)/gm)]
       .map((match) => `${match[1]}#${match[2]}`);
     for (const paragraph of section.body.split(/\n+/)) {
-      const claim = /(?:두|양쪽|양)\s*([XYZ])\s*끝면[^.\n]*(?:측벽|옆벽|양쪽 벽)[^.\n]*(?:맞대|닿)/.exec(paragraph);
+      const claim = /(?:두|양쪽|양)\s*([XYZ])\s*끝면[^.\n]*(?:측벽|옆벽|양쪽 벽)[^.\n]*(?:맞대|닿)/.exec(
+        paragraph,
+      );
       if (!claim) continue;
       axialClaims++;
       const axis = /** @type {"X"|"Y"|"Z"} */ (claim[1]);
       const preface = paragraph.slice(0, claim.index);
       const made = intervals(preface, axis);
       /** @type {Record<string, Span[]>} */
-      const cross = { X: intervals(preface, "X"), Y: intervals(preface, "Y"), Z: intervals(preface, "Z") };
+      const cross = {
+        X: intervals(preface, "X"),
+        Y: intervals(preface, "Y"),
+        Z: intervals(preface, "Z"),
+      };
       if (!made.length || !targets.length) {
-        failures.push(`${file.name}#${section.anchor}: axial contact lacks a model interval or cited spaces owner on ${axis}`);
+        failures.push(
+          `${file.name}#${section.anchor}: axial contact lacks a model interval or cited spaces owner on ${axis}`,
+        );
         continue;
       }
       for (const span of made) {
         checkedIntervals++;
         for (const end of span) if (!touchesWall(axis, end, cross))
-          failures.push(`${file.name}#${section.anchor}: ${axis} end face ${end} does not meet a reviewed wall solid`);
+          failures.push(
+            `${file.name}#${section.anchor}: ${axis} end face ${end} does not meet a reviewed wall solid`,
+          );
       }
     }
   }
   if (!axialClaims) failures.push("no axial contact claim was measured");
-  return { files: files.length, h2, wallSolids: walls.length, axialClaims, checkedIntervals, failures };
+  return {
+    files: files.length,
+    h2,
+    wallSolids: walls.length,
+    axialClaims,
+    checkedIntervals,
+    failures,
+  };
 }
 
 if (require.main === module) {

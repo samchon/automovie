@@ -12,10 +12,10 @@
  */
 import { MAIN } from "./building";
 import { PALETTE } from "./palette";
+import { type IHousePart, part } from "./solid-records";
 import { bar, block, slab } from "./solids";
-import { part, type IHousePart } from "./solid-records";
-import { CEILING_FINISH, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 import type { STAIR_OPENING, STAIR_STEPS } from "./stair";
+import { CEILING_FINISH, INTERSTOREY_FLOOR_FINISH, STOREYS } from "./storeys";
 
 type StairWall = (
   id: string,
@@ -28,19 +28,12 @@ type StairWall = (
 
 /**
  * @evidence spaces/02-stair.md This called helper fills the stair's open guard edges, floor notch finish and high ceiling under the same stair owner.
- * @evidenceReview spaces/02-stair.md #3de739d `buildStair` calls this helper after its flights and walls, supplying the stair owner and opening; the returned parts fill the guard, opening-edge, and high-ceiling roles assigned to that stair.
  * @evidence spaces/02-stair.md#stair-floor-opening The five opening sides receive stair-owned edge finish; the front side splits where its upper neighbour changes, and the same outline closes the stair hall ceiling above the guard band.
- * @evidenceReview spaces/02-stair.md#stair-floor-opening #c78d9a6 Six `edge` parts finish the five sides of the recessed L opening, with the front split at the linen partition; `stair-hall-ceiling` uses the same opening outline with its back replaced by `guardBack` above the guard band.
  * @evidence spaces/02-stair.md#stair-clearance Posts and rails derive their section from the opening's guardReserve and are checked against it.
- * @evidenceReview spaces/02-stair.md#stair-clearance #8753e6a `RESERVE` comes from `opening.guardReserve`; both posts and bars use that width, and the final guard-section loop rejects any narrow X or Z span that differs from it.
  * @evidence spaces/02-stair.md#stair-boundary-heights Each sloped rail follows its flight's tread noses 0.90 m above them; the corner post receives their distinct landing and first upper-nose heights, and the hall rail rises 1.05 m over its floor.
- * @evidenceReview spaces/02-stair.md#stair-boundary-heights #3d9bed1 The lower `railTop` endpoints follow the first lower nose and landing; the upper endpoints follow `landingTop + rise` at turnX and upperFloor at east. The corner post reaches the upper start while receiving the lower end below it, and `guardTop` sets the flat hall rail at upperFloor + 1.05 m.
  * @evidence principles/core/source-units.md#source-scope-preservation The helper receives the stair owner and datums rather than declaring another stair or taking the entry-owned closet interior.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `buildStair` supplies owner, opening, steps, upper base, and wall constructor; this helper returns only stair-owned guards, edge finish, and ceiling, leaving the entry closet and room floor to their owners.
  * @evidence principles/core/source-units.md#source-substantive-completion The returned ordered solids close the floor edge and ceiling while constructing and checking actual guard sections.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The ordered result includes band, posts, rails, rear corner closure, six opening edge pieces across five sides, and ceiling; before return it checks the narrow horizontal section of every returned guard mesh.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emission first exposed shared ceiling and floor finish volumes at the opening edge, then exposed lower gaps at its west and back sides and an upper gap at the linen corner. The revisions to 02-stair.md#stair-boundary-heights, 08-floor-assembly.md#interstorey-edge-junctions and 03-surface-owners.md#interior-surface-handoff assign each edge interval to its actual neighbour.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 The `edge` calls use groundCeiling at west and back where a wall ends, groundCeiling + CEILING_FINISH where a room ceiling reaches the opening, upperFloor at the front linen corner, and upperFloor - INTERSTOREY_FLOOR_FINISH elsewhere; the helper still receives its opening and guard geometry from `buildStair`.
  */
 export const buildStairGuards = (props: {
   owner: string;
@@ -60,7 +53,9 @@ export const buildStairGuards = (props: {
   const HANDRAIL = 0.9;
   const HALL_GUARD = 1.05;
   const parts: IHousePart[] = [];
-  // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: two end posts and the top rail.
+  // Upper-hall fall edge over the back band Z = [-4.71, -4.56]: the
+  // two end posts meet the rail underside; their painted tops do not share
+  // the wood rail's exposed top face.
   const guardTop = STOREYS.upperFloor + HALL_GUARD;
   const z = (STAIR_OPENING.guardBack + STAIR_OPENING.back) / 2;
   parts.push(
@@ -75,11 +70,7 @@ export const buildStairGuards = (props: {
           STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH,
           STAIR_OPENING.guardBack,
         ],
-        [
-          STAIR_OPENING.east,
-          STOREYS.upperFloor,
-          STAIR_OPENING.back,
-        ],
+        [STAIR_OPENING.east, STOREYS.upperFloor, STAIR_OPENING.back],
       ),
     ),
     part(
@@ -89,7 +80,7 @@ export const buildStairGuards = (props: {
       PALETTE.trim,
       block(
         [STAIR_OPENING.west, STOREYS.upperFloor, z - RESERVE / 2],
-        [STAIR_OPENING.west + RESERVE, guardTop, z + RESERVE / 2],
+        [STAIR_OPENING.west + RESERVE, guardTop - RESERVE, z + RESERVE / 2],
       ),
     ),
     part(
@@ -99,7 +90,7 @@ export const buildStairGuards = (props: {
       PALETTE.trim,
       block(
         [STAIR_OPENING.east - RESERVE, STOREYS.upperFloor, z - RESERVE / 2],
-        [STAIR_OPENING.east, guardTop, z + RESERVE / 2],
+        [STAIR_OPENING.east, guardTop - RESERVE, z + RESERVE / 2],
       ),
     ),
     part(
@@ -165,7 +156,11 @@ export const buildStairGuards = (props: {
       "guard",
       PALETTE.stairWood,
       bar(
-        { x: STAIR_OPENING.turnX, y: railTop(STAIR_STEPS.landingTop + STAIR_STEPS.rise), z: zFront },
+        {
+          x: STAIR_OPENING.turnX,
+          y: railTop(STAIR_STEPS.landingTop + STAIR_STEPS.rise),
+          z: zFront,
+        },
         { x: STAIR_OPENING.east, y: railTop(STOREYS.upperFloor), z: zFront },
         RESERVE,
       ),
@@ -176,8 +171,16 @@ export const buildStairGuards = (props: {
       "guard",
       PALETTE.trim,
       block(
-        [STAIR_OPENING.turnX - RESERVE, STAIR_STEPS.rise, STAIR_STEPS.lowerStartZ - RESERVE],
-        [STAIR_OPENING.turnX, STAIR_STEPS.rise + HANDRAIL, STAIR_STEPS.lowerStartZ],
+        [
+          STAIR_OPENING.turnX - RESERVE,
+          STAIR_STEPS.rise,
+          STAIR_STEPS.lowerStartZ - RESERVE,
+        ],
+        [
+          STAIR_OPENING.turnX,
+          STAIR_STEPS.rise + HANDRAIL,
+          STAIR_STEPS.lowerStartZ,
+        ],
       ),
     ),
     part(
@@ -191,7 +194,11 @@ export const buildStairGuards = (props: {
           STAIR_STEPS.landingTop,
           STAIR_OPENING.turnZ - RESERVE,
         ],
-        [STAIR_OPENING.turnX, STAIR_STEPS.landingTop + STAIR_STEPS.rise + HANDRAIL, STAIR_OPENING.turnZ],
+        [
+          STAIR_OPENING.turnX,
+          STAIR_STEPS.landingTop + STAIR_STEPS.rise + HANDRAIL,
+          STAIR_OPENING.turnZ,
+        ],
       ),
     ),
   );
@@ -200,7 +207,13 @@ export const buildStairGuards = (props: {
   // opening's vertical finish between the actual neighbours at each edge, and
   // closes the stair hall top, the open guard band Z = [-4.71, -4.56] included, with
   // its own ceiling finish (09 upper-ceiling-closure).
-  const edge = (id: string, x: readonly [number, number], z: readonly [number, number], bottom: number, top: number): IHousePart =>
+  const edge = (
+    id: string,
+    x: readonly [number, number],
+    z: readonly [number, number],
+    bottom: number,
+    top: number,
+  ): IHousePart =>
     part(
       id,
       OWNER,

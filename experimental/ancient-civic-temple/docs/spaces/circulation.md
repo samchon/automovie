@@ -17,17 +17,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 정문 두 단과 중정 남쪽 턱, 각 방 문을 모두 지나가는 경로라 고리만 남긴 축소가 아니다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 계단 connector와 문 connector를 분리하고 중정 디딤 면도 정해 실제 연결 순서를 제공한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb builtConnectorSectionAt 반환을 장애물 여유 실측으로 읽지 않는 한계가 명시돼 있다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 colonnade→colonnade를 만들지 않고 같은 volume 내부 경로를 택해 공간 수를 늘리지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 계단 단면은 entrance, 높이는 storey에서 받아 경로 문서가 바닥을 재정의하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 열린 문짝과 고리 모서리 회전까지 검사하므로 단순 그래프 도달만으로 통과시킬 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 단일 고리 요구에 외부 계단·정문·중정 턱의 서로 다른 전이 순서를 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 보행·운반 포락을 직접 문과 고리에 적용하는 설계가 가능하며 새 복도를 부모에게 요구하지 않았다.
-@evidenceReview settings/10-building.md#fixed-graph #afadc4e 남→동→북→서→남에서 모서리 문을 추가하지 않아 원래 순환 관계가 보존된다.
-@evidenceReview settings/10-building.md#use-profile #ee92183 이동자의 포락을 줄이는 대신 왕복과 회전에서 실제 문·기둥을 확인하도록 남겼다.
-@evidenceReview obligations/design/spaces.md#space-access-circulation #76c5e04 공용 경로와 service-route를 함께 읽었고 두 시작점 모두 같은 주랑과 실체 문턱을 경유한다.
 -->
 
 공용 시작은 [건물 접점](building.md#approach-contacts) `contact-temple-public`이다. [현관](rooms/entrance.md#entrance-volume)의 두 석단과 상부참을 거쳐 `door-entry`를 통과하면 남쪽 주랑이며 직진하면 중정의 남쪽 턱을 내려 중앙 수반 앞에 선다. 주랑의 순환은 남→동→북→서→남의 같은 바닥이고 어느 모서리에도 문이나 닫힌 벽을 추가하지 않는다. 제실·봉헌실·관리실·기록실·보관실은 각각 자기 [문](openings.md#doors)으로 이 고리에 붙는다.
@@ -58,18 +47,8 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 대지 서비스 문 앞 포장에서 보관실 중앙까지 반입 순서가 이어지고 제실·기록실을 거치지 않아 서비스 기능이 공용 방을 잠식하지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 contact-temple-service, door-service-exterior, door-yard, door-storage가 차례로 명명돼 반입 경로의 시작과 도착이 정해진다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb site 링크는 외부 Y=0 지면과 서비스 문 접속을 주고, 이 H2는 운반 포락과 층 바닥 높이를 경로 검사 입력으로 지명한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 북동 주랑의 짧은 구간을 공유하므로 마당-보관실 사이에 새 문이나 두 번째 순환 복도가 필요하지 않다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 문 위치를 다시 적지 않고 openings를 소비하며 이 H2는 반입 순서와 회전 검사만 결정한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 좁은 마당 문 앞과 북동 모서리 회전점이 지정돼 직선 통과만으로 반입 경로를 통과시킬 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 마당의 두 출입 약속에 보관실까지 명명된 문 순서를 더한 것이 이 단위의 추가 결정이다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 봉헌물의 운반 포락과 서비스 단차 한계를 그대로 적용해도 같은 높이 경로가 성립해 사용 범위를 고칠 필요가 없었다.
-@evidenceReview settings/10-building.md#ground-access #be07d7d 외부 connector부터 보관실까지 같은 층 높이로 이어져 정문 도로 높이를 서비스 입구에 복사하는 해석을 거부한다.
-@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 외부 반입→마당→주랑→보관실의 순서가 마당을 실제 반입 공간으로 쓰게 한다.
 -->
 
 서비스 시작은 대지 동측 골목의 서비스 문 앞 포장에서 받는 [건물 접점](building.md#approach-contacts) `contact-temple-service`다. `door-service-exterior`→[서비스 마당](rooms/service-yard.md#yard-volume)→`door-yard`→북동 주랑→`door-storage`→보관실 중앙 순서로 작은 봉헌물을 옮긴다. 외부 접점부터 전 구간이 같은 층 바닥 높이이며 제실이나 기록실을 통과하지 않는다. 이 경로는 기존 주랑의 짧은 구간을 공유하고 별도 순환 복도를 만들지 않는다.
 
-운반 포락은 회전 시에도 벽·기둥·열린 문짝을 통과할 수 없다. 특히 좁은 마당 문 앞과 북동 모서리에서 회전을 검사한다. 외부 쪽은 [대지와 건물의 연결](site.md#site-connections)의 서비스 문 connector가 Y=0 지면에서 받으며 정문 도로의 낮은 높이를 서비스 문에도 복사하지 않는다. 양방향 threshold와 바닥 종단면, 가장 가까운 장애물까지의 compiled 거리로 반증한다. 문짝과 운반 포락의 실제 통과는 아직 측정하지 않았으므로 unverified다.
+운반 포락은 회전 시에도 벽·기둥·열린 문짝을 통과할 수 없다. 특히 좁은 마당 문 앞과 북동 모서리에서 회전을 검사한다. 외부 쪽은 [대지와 건물의 연결](site.md#site-connections)의 서비스 문 connector가 Y=0 지면에서 받으며 정문 도로의 낮은 높이를 서비스 문에도 복사하지 않는다. 양방향 threshold와 바닥 종단면, 가장 가까운 장애물까지의 compiled 거리로 반증한다. 실제 world 삼각형과 SAT로 0.8m 정방형·높이 0.01~1.90m의 문 통과, 주랑 1.5m 폭, 모든 회전 방향을 덮는 0.8√2m 정방형을 대조했다. 이동축을 0.01m 확장한 0.01m 간격 검사는 연속 sweep을 덮는다. 서비스 경로 (X,Z)=(10.8,-6.4)→(7.8,-6.4)→(7.8,-3.15)→(4.7225,-3.15)→(4.7225,-0.3)→(7.8,-0.3)의 이동·회전 충돌은 0이었다. 마당 X=6.6m의 다른 lane은 열린 문짝과 충돌해 거부했으며 모든 자유 경로가 통과한다고 주장하지 않는다. 바닥 지지는 별도 종단면에서 읽었다.

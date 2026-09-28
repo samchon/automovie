@@ -8,7 +8,7 @@ const { sections, measurements, attributions, audit, failureCount } = require(
 );
 
 /** @param {string} reason @param {string} body @param {string} [evidence] */
-const source = (reason, body, evidence = "") => `# settings\n\n## Room {#room}\n<!--\n${evidence}\n@evidenceReview principles/core/common.md#declared-basis #123abcd ${reason}\n-->\n${body}\n`;
+const source = (reason, body, evidence = "") => `# settings\n\n## Room {#room}\n<!--\n${evidence}\n@evidence principles/core/common.md#declared-basis ${reason}\n-->\n${body}\n`;
 /** @param {string} reason @param {string} body @param {string} [evidence] */
 const inspect = (reason, body, evidence) => audit([
   { name: "test.md", source: source(reason, body, evidence) },
@@ -23,7 +23,7 @@ void test("the H2 parser counts reviewed rows and omits evidence prose from the 
     ),
   );
   assert.equal(parsed.length, 1);
-  assert.equal(parsed[0].reviews.length, 1);
+  assert.equal(parsed[0].reviews.length, 2);
   assert.ok(!parsed[0].body.includes("다른 사실"));
   assert.ok(parsed[0].evidence.includes("다른 사실"));
 });
@@ -85,9 +85,20 @@ void test("an unreviewed population is counted rather than accepted as green", (
   ]);
   assert.equal(report.h2, 1);
   assert.equal(report.reviewRows, 0);
-  const unmeasured = audit([{ name: "other.md", source: source("방의 물건이 있다.", "방에 물건이 있다.").replace("#declared-basis", "#scope-preservation") }]);
+  const unmeasured = audit([
+    {
+      name: "other.md",
+      source: source("방의 물건이 있다.", "방에 물건이 있다.").replace(
+        "#declared-basis",
+        "#scope-preservation",
+      ),
+    },
+  ]);
   assert.equal(unmeasured.otherRows, 1);
-  assert.equal(unmeasured.unmeasuredCandidates[0].target, "principles/core/common.md#scope-preservation");
+  assert.equal(
+    unmeasured.unmeasuredCandidates[0].target,
+    "principles/core/common.md#scope-preservation",
+  );
 });
 
 void test("acronyms and exclusive lists remain explicit reading candidates", () => {
@@ -98,15 +109,41 @@ void test("acronyms and exclusive lists remain explicit reading candidates", () 
 });
 
 void test("unread review candidates are reported without failing the census", () => {
-  const report = audit([{ name: "other.md", source: source("방의 물건이 있다.", "방에 물건이 있다.").replace("#declared-basis", "#scope-preservation") }]);
+  const report = audit([
+    {
+      name: "other.md",
+      source: source("방의 물건이 있다.", "방에 물건이 있다.").replace(
+        "#declared-basis",
+        "#scope-preservation",
+      ),
+    },
+  ]);
   assert.equal(report.reviewRows, 1);
   assert.equal(report.otherRows, 1);
   assert.equal(failureCount(report), 0);
-  assert.equal(failureCount(audit([{ name: "empty.md", source: "## Empty {#empty}\n본문이다.\n" }])), 1);
+  assert.equal(
+    failureCount(
+      audit([{ name: "empty.md", source: "## Empty {#empty}\n본문이다.\n" }]),
+    ),
+    1,
+  );
 });
 
 void test("confirmed missing measurements fail the census", () => {
   const report = inspect("높이는 2.65 m다.", "높이는 설계가 정한다.");
   assert.equal(report.findings[0].kind, "measurement-outside-host");
   assert.equal(failureCount(report), 1);
+});
+
+void test("ordinary acknowledgements and exclusions retain their reasons without companion metadata", () => {
+  const parsed = sections("# Settings\n## Owner {#owner}\n<!--\n@evidence settings/common.md#basis adopted basis\n@evidenceExclude settings/common.md#unused unused basis\n-->\nadopted basis\n");
+  assert.equal(parsed[0].reviews.length, 2);
+  assert.deepEqual(parsed[0].reviews.map((row) => row.target), [
+    "settings/common.md#basis", "settings/common.md#unused",
+  ]);
+  assert.deepEqual(parsed[0].reviews.map((row) => row.reason), [
+    "adopted basis", "unused basis",
+  ]);
+  assert.ok(!parsed[0].body.includes("unused basis"));
+  assert.ok(parsed[0].evidence.includes("unused basis"));
 });

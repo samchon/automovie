@@ -131,6 +131,7 @@ let failed = 0;
 for (const [name, command, args, kind] of tasks) {
   if (layerTasks[layer] !== null && !layerTasks[layer].has(name)) continue;
   const result = spawnSync(command, args, {
+    windowsHide: true,
     cwd: root,
     encoding: "utf8",
     maxBuffer: 1 << 25,
