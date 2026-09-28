@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 
 /**
  * The median length, in metres of the neutral skin, of one unit of the UV

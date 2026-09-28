@@ -1,10 +1,10 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
-import { HUMAN_BODY_SKIN_TONE } from "../constants/HUMAN_BODY_SKIN_TONE";
-import { humanBodySimpleShapeMath } from "../simple/humanBodySimpleShapeMath";
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
+import { HUMAN_BODY_SKIN_TONE } from "../../constants/HUMAN_BODY_SKIN_TONE";
+import { humanBodySimpleShapeMath } from "../../simple/humanBodySimpleShapeMath";
+import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanBodySkinToneTexture } from "./createHumanBodySkinToneTexture";
 import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 

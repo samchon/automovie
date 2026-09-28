@@ -16,7 +16,7 @@ import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
-import type { createHumanBodyAppearance } from "./createHumanBodyAppearance";
+import type { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearance";
 import { createHumanBodyPosedSurface } from "./createHumanBodyPosedSurface";
 import { createHumanBodySurfaceRegionParts } from "./createHumanBodySurfaceRegionParts";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";

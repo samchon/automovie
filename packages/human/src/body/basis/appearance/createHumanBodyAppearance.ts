@@ -9,14 +9,14 @@
  */
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import { HUMAN_BODY_SKIN_SCATTERING } from "../constants/HUMAN_BODY_SKIN_SCATTERING";
-import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import { HUMAN_BODY_SKIN_SCATTERING } from "../../constants/HUMAN_BODY_SKIN_SCATTERING";
+import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
+import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { createHumanBodySkinDetail } from "./createHumanBodySkinDetail";
 import { createHumanBodySkinTone } from "./createHumanBodySkinTone";
-import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
+import { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
 
 /**
  * Resolve one document's material copies and per-surface colour multipliers.

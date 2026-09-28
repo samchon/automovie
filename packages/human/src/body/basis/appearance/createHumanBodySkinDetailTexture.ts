@@ -1,7 +1,7 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../face/mesh/encodePortraitPng";
-import type { IAutoMovieHumanBodySkinDetail } from "../structures/IAutoMovieHumanBodySkinDetail";
+import { encodePortraitPng } from "../../../face/mesh/encodePortraitPng";
+import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieHumanBodySkinDetail";
 
 /**
  * A tileable tangent-space normal map of the skin's micro-relief, as a PNG

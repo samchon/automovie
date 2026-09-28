@@ -1,6 +1,6 @@
-import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodySkinSites } from "../structures/IAutoMovieHumanBodySkinSites";
+import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
+import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodySkinSites } from "../../structures/IAutoMovieHumanBodySkinSites";
 
 type Rgb = [number, number, number];
 

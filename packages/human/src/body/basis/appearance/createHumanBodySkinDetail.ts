@@ -4,14 +4,14 @@ import type {
   IAutoMovieTextureReference,
 } from "@automovie/interface";
 
-import { portraitNormals } from "../../face/mesh/portraitNormals";
-import { HUMAN_BODY_SKIN_DETAIL } from "../constants/HUMAN_BODY_SKIN_DETAIL";
-import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
-import { humanBodySimpleShapeMath } from "../simple/humanBodySimpleShapeMath";
-import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
-import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
+import { portraitNormals } from "../../../face/mesh/portraitNormals";
+import { HUMAN_BODY_SKIN_DETAIL } from "../../constants/HUMAN_BODY_SKIN_DETAIL";
+import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
+import { humanBodySimpleShapeMath } from "../../simple/humanBodySimpleShapeMath";
+import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
+import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanBodySkinDetailTexture } from "./createHumanBodySkinDetailTexture";
-import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
+import { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
 import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 
 /**

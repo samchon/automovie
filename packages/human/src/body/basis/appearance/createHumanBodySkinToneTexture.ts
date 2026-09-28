@@ -1,7 +1,7 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../face/mesh/encodePortraitPng";
-import type { IAutoMovieHumanBodySkinTone } from "../structures/IAutoMovieHumanBodySkinTone";
+import { encodePortraitPng } from "../../../face/mesh/encodePortraitPng";
+import type { IAutoMovieHumanBodySkinTone } from "../../structures/IAutoMovieHumanBodySkinTone";
 
 /**
  * A tileable base-colour map of the skin's tone heterogeneity, as a PNG data

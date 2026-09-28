@@ -7,7 +7,7 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
-import { createHumanBodyAppearance } from "./createHumanBodyAppearance";
+import { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearance";
 import { createHumanBodySurfaceParts } from "./createHumanBodySurfaceParts";
 import { createHumanBodyUnderwear } from "./createHumanBodyUnderwear";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
