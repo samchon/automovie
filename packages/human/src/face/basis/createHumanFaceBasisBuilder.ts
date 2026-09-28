@@ -7,22 +7,17 @@ import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPi
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
 import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTint";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
-import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
+import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
+import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
 import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
-import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
-import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { liftHumanFaceColours } from "./liftHumanFaceColours";
-import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
-import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
-import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
-import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 
 /**
  * Compile a caller-owned connected facial prior into a deterministic builder.
@@ -49,6 +44,13 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * same transform before their own tissue rows are added. A basis without
  * articulation evaluates the same rest layer and poses nothing, which is the
  * purely linear prior; a basis without contact stops after posing.
+ * The pose evaluator owns that sequence in one module. The builder retains
+ * only the latest channel-weight vector and its posed positions, contact
+ * summary and common normals. An appearance-only change reuses those arrays,
+ * while each emitted region still gathers owned copies and hair is built
+ * afresh from the current numerical layer document. Shape or expression
+ * changes replace the cached pose. Observers receive a copy of the contact
+ * summary so they cannot modify a later reused report.
  *
  * Pigmentation is sampled on immutable neutral source coordinates, then
  * gathered with the same region correspondence; the scalp under a hair
@@ -98,6 +100,10 @@ export function createHumanFaceBasisBuilder(
   const scalpTint = createHumanFaceScalpTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
   const fibrePigment = createHumanFaceFibrePigment();
+  const evaluatePose = createHumanFaceBasisPoseCache(
+    basis.channels,
+    createHumanFaceBasisPoseEvaluator(basis),
+  );
   const surfaces = basis.surfaces.map((surface) => ({
     surface,
     regions: surface.regions.map((region) => ({
@@ -105,14 +111,6 @@ export function createHumanFaceBasisBuilder(
       evaluate: createHumanFaceBasisRegion(region),
     })),
   }));
-  const closure = new Set(
-    basis.contact === undefined ? [] : [basis.contact.closure.channel],
-  );
-  const shapeChannels = new Set(
-    basis.channels
-      .filter((channel) => channel.kind === "shape")
-      .map((channel) => channel.id),
-  );
   let partitions:
     | ReturnType<typeof createMeshWeldPartitionMatcher>[]
     | undefined;
@@ -163,106 +161,11 @@ export function createHumanFaceBasisBuilder(
     }
     fibrePigment(document.materials, materials);
     irisPigment(document.iris, materials);
-    const rest = evaluateHumanFaceRest(basis, state, closure);
-    const motions =
-      basis.articulation === undefined
-        ? undefined
-        : resolveHumanFaceArticulation(
-            basis.articulation,
-            state.weights,
-            rest.landmarks,
-          ).motions;
-    let summary: IAutoMovieHumanFaceContactSummary | null = null;
-    let shaped: ReturnType<typeof evaluateHumanFaceRest> | undefined;
-    let frame: ReturnType<typeof measureHumanFaceAperture> | undefined;
-    const contact = basis.contact;
-    if (contact !== undefined) {
-      shaped = evaluateHumanFaceRest(basis, {
-        weights: new Map(
-          [...state.weights].filter(([id]) => shapeChannels.has(id)),
-        ),
-        activations: state.activations.filter((one) => one.shapeOnly),
-      });
-      const referenced = evaluateHumanFaceRest(
-        basis,
-        humanFaceBasisWeights(basis, {
-          shape: document.shape,
-          expression: { [contact.closure.reference]: 1 },
-        }),
-      );
-      frame = measureHumanFaceAperture(
-        basis,
-        contact,
-        shaped,
-        referenced,
-        rest,
-        motions!,
-      );
-      const weight = state.weights.get(contact.closure.channel) ?? 0;
-      const gain = weight * frame.closureRatio;
-      const endpoint = basis.channels.find(
-        (channel) => channel.id === contact.closure.channel,
-      )!.positive;
-      if (gain !== 0)
-        basis.surfaces.forEach((surface, index) => {
-          const rows = surface.targets[endpoint];
-          if (rows === undefined) return;
-          const positions = rest.surfaces[index];
-          for (let i = 0; i < rows.length; i += 4)
-            for (let axis = 0; axis < 3; axis++)
-              positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
-        });
-    }
-    const posed = new Map<string, number[]>();
-    basis.surfaces.forEach((surface, index) => {
-      posed.set(
-        surface.id,
-        motions !== undefined && (surface.attachments?.length ?? 0) > 0
-          ? poseHumanFaceSurface(
-              rest.surfaces[index],
-              surface.attachments!,
-              motions,
-            )
-          : rest.surfaces[index],
-      );
-    });
-    if (contact !== undefined) {
-      // The lips are read again after closure: passage and the summary judge
-      // the seam the render shows, not the aperture the closure was scaled to.
-      const lips = posed.get(contact.lips.surface)!;
-      const seam = [0, 1, 2].reduce(
-        (total, axis) =>
-          total +
-          (lips[3 * contact.lips.upper + axis] -
-            lips[3 * contact.lips.lower + axis]) *
-            [frame!.up.x, frame!.up.y, frame!.up.z][axis],
-        0,
-      );
-      frame = { ...frame!, lips: { ...frame!.lips, gap: seam } };
-      const passage = evaluateHumanFacePassage(
-        contact,
-        posed.get(contact.passage.surface)!,
-        frame,
-      );
-      const resolved = resolveHumanFaceContact(
-        basis,
-        contact,
-        posed,
-        new Map(
-          basis.surfaces.map((surface, index) => [
-            surface.id,
-            shaped!.surfaces[index],
-          ]),
-        ),
-      );
-      summary = {
-        interlabialMetres: frame!.lips.gap,
-        interincisalMetres: frame!.incisors.gap,
-        closureRatio: frame!.closureRatio,
-        passage,
-        resolved,
-      };
-    }
+    const {
+      positions: posed,
+      normals,
+      summary,
+    } = evaluatePose(state, document.shape);
     const evaluated = new Map<string, readonly number[]>();
     const tints = scalpTint(document.hair, materials);
     const parts = surfaces.flatMap(({ surface, regions }) => {
@@ -285,7 +188,7 @@ export function createHumanFaceBasisBuilder(
             ? tint.slice()
             : colors.map((value, at) => value * tint[at]);
       const positions = posed.get(surface.id)!;
-      const normals = portraitNormals(positions, surface.indices);
+      const surfaceNormals = normals.get(surface.id)!;
       evaluated.set(surface.id, positions);
       return regions.map(({ region, evaluate }) => ({
         id: region.id,
@@ -293,7 +196,7 @@ export function createHumanFaceBasisBuilder(
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: evaluate(positions, normals, colors),
+          mesh: evaluate(positions, surfaceNormals, colors),
         },
         attachedBone: null,
         transform: null,
@@ -358,7 +261,7 @@ export function createHumanFaceBasisBuilder(
             JSON.stringify(validation),
         );
     }
-    options?.observe?.(summary);
+    options?.observe?.(summary === null ? null : structuredClone(summary));
     return model;
   };
   build({
