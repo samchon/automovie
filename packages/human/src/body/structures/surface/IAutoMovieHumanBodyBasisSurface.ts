@@ -1,11 +1,19 @@
-/**
- * One connected skin surface with shared vertices, source regions, weights and optional tissue appearance.
- * This is authored basis data in metres and the shared Y-up, Z-forward
- * frame. The connected body builder reads it without mutating it.
- */
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/** One connected surface sharing its vertex identities across all regions. */
+/**
+ * One connected skin surface in the common right-handed Y-up, Z-forward
+ * basis frame, with shared positions in metres.
+ *
+ * Its source vertices have one identity across triangles and material regions;
+ * UV seams may split render corners but do not split the physical skin answer.
+ * Shape endpoints and four-influence weights move the same shared vertices,
+ * and `createHumanBodySurfaceParts` calculates the posed surface before
+ * material projection. Skinning, sag and appearance metadata do not by
+ * themselves establish volume preservation or contact. The current MPFB
+ * study records topology and skin-weight extraction in
+ * `test/studies/human-body/connected-basis/extraction-receipt.json`.
+ * @author Samchon
+ */
 export interface IAutoMovieHumanBodyBasisSurface {
   /** Stable name of the surface in the basis document. */
   id: string;

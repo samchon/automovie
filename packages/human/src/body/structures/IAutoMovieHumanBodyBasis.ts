@@ -1,9 +1,11 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMaterial,
-} from "@automovie/interface";
-import type { IAutoMovieHumanBodyBasisJoint } from "./IAutoMovieHumanBodyBasisJoint";
-import type { IAutoMovieHumanBodyBasisSurface } from "./IAutoMovieHumanBodyBasisSurface";
+import type { IAutoMovieMaterial } from "@automovie/interface";
+import type { IAutoMovieHumanBodyBasisChannel } from "./shape/IAutoMovieHumanBodyBasisChannel";
+import type { IAutoMovieHumanBodyBasisCorrective } from "./shape/IAutoMovieHumanBodyBasisCorrective";
+import type { IAutoMovieHumanBodyBasisLandmarks } from "./rig/IAutoMovieHumanBodyBasisLandmarks";
+import type { IAutoMovieHumanBodyBasisCoupling } from "./rig/IAutoMovieHumanBodyBasisCoupling";
+import type { IAutoMovieHumanBodyBasisPelvifemoral } from "./rig/IAutoMovieHumanBodyBasisPelvifemoral";
+import type { IAutoMovieHumanBodyBasisJoint } from "./rig/IAutoMovieHumanBodyBasisJoint";
+import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanBodyBasisSurface";
 
 /**
  * An immutable, externally authored connected body below the neck, with the
@@ -29,9 +31,11 @@ import type { IAutoMovieHumanBodyBasisSurface } from "./IAutoMovieHumanBodyBasis
  * (`createHumanBodyBasisBuilder`).
  *
  * Every endpoint name (`channels[].positive`, `negative`, `correctives[].target`)
- * resolves in each surface's `targets` and in `landmarks.targets` alike, so one
- * shape moves the skin and the joints that live under it. Changes to geometry,
- * endpoints, landmarks, joints or weights require a new basis identity.
+ * must move at least one resident skin vertex or landmark. A surface or the
+ * landmark set may omit rows for an endpoint it does not move. The current r16
+ * study has 1,859 declared endpoints on skin and 183 with landmark rows;
+ * only those 183 also reposition rig points. Changes to geometry, endpoints,
+ * landmarks, joints or weights require a new basis identity.
  *
  * Endpoint interpolation describes an authored shape, not muscle; skinning
  * describes a rigid attachment, not tissue. Neither proves nonpenetration or
@@ -48,119 +52,14 @@ export interface IAutoMovieHumanBodyBasis {
   /** Immutable revision identity, also stored in every dependent document. */
   id: string;
 
-  /** Ordered shape controls. Evaluation follows this order, never object insertion order. */
-  channels: {
-    /** Trait name unique within this basis, e.g. `torsoScaleVert` or `upperarmFatLeft`. */
-    id: string;
+  /** Ordered dimensionless shape controls. */
+  channels: IAutoMovieHumanBodyBasisChannel[];
 
-    /** Named body shape edit; a pose is not a channel. */
-    kind: "shape";
+  /** Authored corrective driver and endpoint. */
+  correctives?: IAutoMovieHumanBodyBasisCorrective[];
 
-    /** Source region or `macro`, for grouping in an editor; not evaluated. */
-    group: string;
-
-    /**
-     * The channel this one mirrors across X, or null for a midline control.
-     * Left and right are explicit data so a consumer never infers a pair from
-     * a name, and so the extraction can prove each right endpoint is the mirror
-     * of its left and record the residual.
-     */
-    mirror: string | null;
-
-    /** Finite envelope, including zero; weights are refused rather than clamped. */
-    minimum: number;
-    maximum: number;
-
-    /** Endpoint applied with abs(weight) on the positive side. */
-    positive: string;
-
-    /** Negative-side endpoint, or null for a nonnegative control. */
-    negative: string | null;
-  }[];
-
-  /**
-   * Combination correctives, evaluated after the channels that drive them, with
-   * the activation `min(1, weight * product of clamped inputs)` of
-   * `createHumanFaceBasisBuilder`. Two kinds of driver exist. A channel driver
-   * reads a shape weight, and the first revision's macro pair residuals use
-   * it: the source blends its macro targets as products of node weights, so a
-   * tall child is not a scaled tall adult, and the difference is sampled and
-   * published rather than approximated. A channel driver may carry its own
-   * ramp over the weight, so a corrective solved at an envelope extreme past
-   * the source's unit node stays off at the node, where the body it corrects
-   * does not yet exist. A joint driver reads a clinical pose
-   * angle as a ramp: zero until the joint has moved `onset` degrees from its
-   * rest toward the named side, one from `full` degrees on, linear between.
-   * That is RigLogic's conditional table applied to a joint, and it is how a
-   * pose corrective (a fold pushed out, a girth restored) fires only where
-   * the census found the defect and not across the whole range.
-   *
-   * Every corrective endpoint is a rest-space displacement applied before the
-   * skin is posed, as MetaHuman applies its pose-space deformations as blend
-   * shapes under the joints; the skinning then carries the correction with
-   * the bone.
-   */
-  correctives?: {
-    /** Name unique within this basis, distinct from every channel id. */
-    id: string;
-
-    /** Driving sides or shoulder pose kernels, all multiplied. */
-    inputs: (
-      | {
-          channel: string;
-          side: "positive" | "negative";
-          /** Weight toward `side` at which the ramp leaves zero; zero when absent. */
-          onset?: number;
-          /** Weight toward `side` at which the ramp reaches one; one when absent, above `onset` and within the envelope on that side. */
-          full?: number;
-        }
-      | {
-          bone: AutoMovieHumanoidBone;
-          axis: "flexion" | "abduction" | "twist" | "elevation";
-          /** Positive counts clinical degrees above the rest angle, negative below it. */
-          side: "positive" | "negative";
-          /** Degrees from rest at which the ramp leaves zero. */
-          onset: number;
-          /** Degrees from rest at which the ramp reaches one; above `onset` and within the range. */
-          full: number;
-        }
-      | {
-          /** Humerus whose whole physical orientation gates the corrective. */
-          shoulder: "leftUpperArm" | "rightUpperArm";
-          /** TT coordinates of the kernel's central humerothoracic pose. */
-          orientation: {
-            plane: number;
-            elevation: number;
-            axialRotation: number;
-          };
-          /** Angular distance at or within which the kernel reaches one. */
-          innerDegrees: number;
-          /** Angular distance at or beyond which the kernel is zero. */
-          outerDegrees: number;
-        }
-    )[];
-
-    /** Authored gain in (0,1]. */
-    weight: number;
-
-    /** Endpoint name, resolved in every surface's targets and in the landmarks. */
-    target: string;
-  }[];
-
-  /**
-   * Named points that move with the shape and define the joints: the centroids
-   * of the source's joint cubes. Their endpoint rows use the same sparse
-   * `[landmark, dx, dy, dz]` format as a surface, indexed into `ids`.
-   */
-  landmarks: {
-    ids: string[];
-
-    /** Flat XYZ per landmark, in the basis frame. */
-    positions: number[];
-
-    /** Sparse rows per endpoint name, strictly increasing by landmark. */
-    targets: Record<string, number[]>;
-  };
+  /** Shape-dependent joint landmarks in metres. */
+  landmarks: IAutoMovieHumanBodyBasisLandmarks;
 
   /**
    * The skeleton as data: one entry per humanoid slot the body carries, in an
@@ -169,126 +68,11 @@ export interface IAutoMovieHumanBodyBasis {
    */
   joints: IAutoMovieHumanBodyBasisJoint[];
 
-  /**
-   * Declared joint couplings: one joint's motion adding a bounded angle to
-   * another joint's clinical axis, applied by the builder to the document's
-   * pose before that pose is validated and resolved
-   * (`resolveHumanBodyCouplings`). The upper arm supplies a total
-   * humerothoracic TT elevation, while its parent girdle can also move. The
-   * builder solves the humeral child after the girdle moves so the coupled
-   * contribution does not add to the authored total. The intended data is
-   * the scapulohumeral rhythm:
-   * Inman, Saunders and Abbott 1944 (J Bone Joint Surg 26:1) measured
-   * glenohumeral to scapulothoracic motion at about 2:1 past 30 degrees of
-   * elevation, and Ludewig et al. 2009 (J Bone Joint Surg Am 91:378) put the
-   * clavicle at about 11 degrees of elevation and 16 degrees of retraction at
-   * full arm elevation; a basis that declares the rhythm carries those
-   * figures as curves from each upper arm's elevation to its girdle bone's
-   * abduction and flexion, and a basis that declares nothing poses exactly
-   * as before.
-   *
-   * A coupling is a declared driver in the sense of the rig control driver
-   * requirement rather than a hidden corrective: its input, output, bounded
-   * function and range are data of the basis, the builder applies it in a
-   * stated order, the editor shows the addition beside the joint row, and the
-   * document never stores it. For a TT shoulder source, `source.measure` is
-   * the document's total `shoulders[].elevation`, or the measured A-pose
-   * elevation when omitted. For a non-humeral source it retains the engine's
-   * `swingConeAngle` of the clinical flexion and abduction. The curve is
-   * piecewise linear over
-   * `[elevation, degrees]` knots: zero at and below the first knot, linear
-   * between knots, the last ordinate held past the last knot; a shipped
-   * shoulder curve therefore starts at the rest elevation, approximating
-   * Inman's 30 degree onset as zero up to it. The ordinate is added to the
-   * output joint's clinical angle on `output.axis`, the document's angle when
-   * it has one and the rest angle otherwise; the sum is validated like any
-   * document angle and refused past the range, never clamped.
-   *
-   * Admission (`assertHumanBodyRig`) requires a unique nonblank `id`, declared
-   * source and output joints, an output axis the output joint's constraint
-   * leaves open (which excludes the unconstrained root), at least two finite
-   * knots strictly increasing in elevation, the first at or above the source
-   * joint's rest elevation with an ordinate of zero so the rest, the hanging
-   * arm and every pose below the rest add nothing, every `rest + ordinate`
-   * inside the output axis's clinical range, no output joint that
-   * is any coupling's source (so no chain and no cycle), and no output axis
-   * driven twice. Correctives read the coupled angles, so a joint ramp on the
-   * girdle fires on an automatic elevation exactly as on an authored one.
-   */
-  couplings?: {
-    /** Name unique among the couplings, shown beside the coupled joint row. */
-    id: string;
+  /** Declared clinical joint coupling. */
+  couplings?: IAutoMovieHumanBodyBasisCoupling[];
 
-    /** The driving joint and the measure read from it. */
-    source: {
-      bone: AutoMovieHumanoidBone;
-
-      /** TT total elevation on an upper arm, otherwise the clinical flexion/abduction swing cone. */
-      measure: "elevation";
-    };
-
-    /** The driven joint and the clinical axis the ordinate is added to. */
-    output: {
-      bone: AutoMovieHumanoidBone;
-      axis: "flexion" | "abduction" | "twist";
-    };
-
-    /** `[elevation, degrees]` knots, strictly increasing in elevation from the source's rest elevation or above, the first ordinate zero. */
-    curve: [number, number][];
-  }[];
-
-  /**
-   * The declared pelvifemoral rhythm: the posterior pelvic tilt that goes
-   * with hip flexion, applied by the builder after the couplings
-   * (`resolveHumanBodyPelvifemoralRhythm`, called inside
-   * `resolveHumanBodyCouplings`).
-   *
-   * With a rhythm declared, each upper leg's document flexion is the thigh's
-   * flexion relative to the trunk, the angle a goniometer reads without
-   * stabilizing the pelvis, rather than the femur's angle to the pelvis.
-   * Standing unilateral hip flexion carries the pelvis with it: Murray et al.
-   * 2002 (Clin Biomech 17:147, doi:10.1016/s0268-0033(01)00115-2) measured
-   * pelvic rotation contributing 18.1% of the change in hip flexion,
-   * throughout the movement, with the stance thigh held vertical; Tully et al.
-   * 2002 (Spine 27:E432) measured lumbar flexion concurrent with it. The curve
-   * maps the larger of the two legs' trunk-relative flexions to the tilt `T`;
-   * the pelvis turns posteriorly by `T` about the line through both hip
-   * centres (the root's flexion gains `-T` and the body is translated so the
-   * hip centres do not move), the lumbar joint's flexion gains `+T` so the
-   * trunk keeps its orientation, and each hip's pelvic-relative flexion is its
-   * document flexion minus `T`, so the lifted thigh reaches the authored
-   * direction and the other thigh stays where the author put it. One tilt for
-   * both legs is what a pelvis can do; the bilateral lift shares the larger
-   * side's tilt, which the declared curve must justify for the tasks it is
-   * cited for (Dewberry et al. 2003, Clin Biomech 18:494, measured 13.1 to
-   * 35.5% for suspended bilateral flexion, depending on knee position and
-   * hamstring length).
-   *
-   * A trunk-relative flexion past the leg's clinical range is refused, and so
-   * is a resulting pelvic-relative or lumbar angle past its own range; nothing
-   * is clamped. Correctives driven by a hip or the lumbar joint read the
-   * document's coupled angles (the hips trunk-relative): the tilt is a
-   * function of those, so a ramp on them is a ramp on the whole
-   * configuration, and the thigh's contact with the belly and chest follows
-   * the trunk-relative angle rather than the pelvic-relative one. A basis
-   * without the field poses hips pelvic-relative as before. Admission (`assertHumanBodyPelvifemoral`) requires both upper
-   * legs and the lumbar joint to be children of the root with open flexion,
-   * a nonblank id, at least two finite knots strictly increasing in flexion,
-   * the first at or above the legs' rest flexion with a zero ordinate,
-   * nondecreasing nonnegative ordinates and every `rest + ordinate` of the
-   * lumbar joint inside its flexion range, and no coupling driving a leg's or
-   * the lumbar joint's flexion.
-   */
-  pelvifemoral?: {
-    /** Name shown beside the rows it moves. */
-    id: string;
-
-    /** The lumbar joint whose flexion restores the trunk. */
-    lumbar: AutoMovieHumanoidBone;
-
-    /** `[trunk-relative hip flexion, posterior pelvic tilt]` knots in degrees. */
-    curve: [number, number][];
-  };
+  /** Declared pelvic and lumbar rhythm. */
+  pelvifemoral?: IAutoMovieHumanBodyBasisPelvifemoral;
 
   /** Connected skin surfaces in the shared frame. */
   surfaces: IAutoMovieHumanBodyBasisSurface[];

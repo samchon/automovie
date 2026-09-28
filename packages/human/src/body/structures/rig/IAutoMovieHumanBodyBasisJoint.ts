@@ -1,11 +1,20 @@
-/**
- * One named rig joint, its shaped landmarks, clinical ranges and optional humerothoracic shoulder goal.
- * This is authored basis data in metres and the shared Y-up, Z-forward
- * frame. The connected body builder reads it without mutating it.
- */
 import type { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
 
-/** One landmark-defined joint in the authored body basis. */
+/**
+ * One rig joint defined by two shape-dependent landmarks and a parent bone.
+ *
+ * Its rest frame uses the head-to-tail direction and a flexion reference in
+ * the common right-handed Y-up, Z-forward frame, in metres. Clinical angles
+ * and limits are degrees; the basis supplies measured rest signs and sourced ranges,
+ * while `resolveHumanBodySkeleton` computes the current frame after shape
+ * evaluation. The optional upper-arm goal is humerothoracic and is resolved
+ * after girdle motion. A VRM bone name is an authoring slot, not evidence of
+ * an internal bone surface or an independent scapular articulation.
+ * The current MPFB study records its landmark and constraint sources in
+ * `test/studies/human-body/connected-basis/joints-receipt.json`. Other bases
+ * must carry their own source and valid range.
+ * @author Samchon
+ */
 export interface IAutoMovieHumanBodyBasisJoint {
   /** Public rig bone driven by this joint. */
   bone: AutoMovieHumanoidBone;

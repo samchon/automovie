@@ -4,7 +4,7 @@
  * second evaluator. Curves and source notes remain beside each row.
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
-import { MUSCLE_THICKNESS_BY_SEX } from "./HUMAN_BODY_MUSCLE_THICKNESS_BY_SEX";
+import { MUSCLE_THICKNESS_BY_SEX } from "./MUSCLE_THICKNESS_BY_SEX";
 
 /** Ordered muscle and skeletal definition relations. */
 export const HUMAN_BODY_SIMPLE_SHAPE_DEFINITION: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
