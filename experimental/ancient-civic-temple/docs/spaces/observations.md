@@ -21,21 +21,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 주랑과 열린 현관의 내부 질문, 접합·단면, 문·창 16개, reference 다섯 질문을 유지한다. 박공 앞뒤와 제실 남벽 양쪽 처마 밑, 마당 동측 spine 접합 위쪽을 포함한 20구간을 묻는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 opening-facing 거리식, 끝 칸·높은 띠·안타·박공 pose, 네 종횡 단면과 20개 미주소 wall#face 구간을 정한다. 서비스 마당 쪽 동측 spine 상부의 0.20m 접합 띠와 현관 박공 뒷면의 별도 주소 의무도 본문에 있다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 창 threshold와 창을 향한 pose가 다른 질문이며, 박공의 앞뒤 주소는 같은 실체라도 각 주소 법선 쪽 방출 면을 5cm로 본다. 마당 상부 띠는 15방향 대각 광선의 외부 탈출로 검출하되 실제 화면 판독은 unverified다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 중정 구멍과 현관 notch를 보존하고 끝 칸·반환벽·안타·박공을 기존 공간에 묶는다. 제실 양쪽 처마 밑과 마당 spine 상부는 접합 질문이고 박공 뒷면은 열린 현관 질문이라 새 방이 생기지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 compiled boundary/opening ID를 소비하며 박공 양면은 각기 기존 물리 host를 가리킨다. 서·동 spine 처마 밑과 마당 쪽 spine 상부는 원래 벽 소유 그대로 section에, 박공 뒷면은 현관 경계에 남는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 입면 face 밖 노출 띠 20구간을 모서리·T·파라펫 질문에 결속하고 실제 프레임 판독은 unverified로 둔다. 5cm 외부점의 15방향 탈출로 처마 밑의 좁은 노출을, 열린 현관 cell과 접한 박공 뒷면은 별도 주소 요구로 판정한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 끝 칸 넷·안타 둘·박공 앞뒤를 각각 입면으로, 외곽의 미주소 띠와 제실 spine 접합 두 띠·서비스 마당 spine 상부 한 띠를 단면·모서리로 둔다. 현관 박공 안쪽도 주소를 잃지 않는다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 높은 입면과 박공 안쪽을 보는 보조 pose, 처마 밑·마당 spine 상부 접합 질문은 support 위 1.6m인 필수 실내·대지 station의 대체가 아니다.
-@evidenceReview settings/00-delivery.md#review-condition #6daf6ae 공간 필수 station은 support 위 1.6m, opening-facing은 창 profile 중심, 높은 입면은 가림을 푸는 pose다. 현관 박공 뒷면과 제실·마당 spine 상부 띠는 각각의 질문을 보존한다.
-@evidenceReview settings/00-delivery.md#governing-aim #df3c7b2 reference 다섯은 topology 질문에 추가되고 안타·박공·끝 칸·반환벽은 각 자기 면으로, 주소 밖 20띠는 접합 단면으로 답한다. 열린 현관 박공 안쪽도 제외하지 않는다.
-@evidenceReview settings/50-production.md#references #eb34a79 절개 레퍼런스는 검사 자료이고 전달 프레임이 아니다. 문·창 16개, 제실 박공·처마 밑, 마당 spine 상부 접합과 포치 박공 앞뒤는 서로 별도 관찰이다.
-@evidenceReview settings/50-production.md#measurement-truth #c6e89a8 겹침 0.01m, 개구부 절두체, 주소 법선 쪽 방출 면 시야, 앞 2cm 공기·5cm 외부점의 대지 cell 또는 15 탈출 방향을 구별한다. 박공 안쪽은 열린 현관 cell의 별도 주소 대상이며 프레임에서의 방 정체성은 unverified다.
-@evidenceReview settings/50-production.md#acceptance #2c49b7f reference 다섯, 골·천장·경계석·충돌 원과 20개 접합 띠는 실제 프레임 판독 전까지 미완료다. 박공 뒷면의 주소 검증만으로 화면 완료라 쓰지 않는다.
-@evidenceReview obligations/design/spaces.md#space-review-set #86bcab4 Y=1.2m 평면·네 종횡 단면과 방별 threshold·모서리·방위를 유지한다. 20개 주소 밖 띠 중 둘은 제실 남벽 spine 접합, 하나는 마당 spine 상부이며 포치 박공 뒷면은 별도 단일 공간 주소다.
-@evidenceReview contracts/obligations-spaces.md#compiled-observations #09b52ea 안타·포치 박공 앞뒤의 compiled 주소를 각각 관찰하고 20개 노출 접합 띠를 모서리·section으로 연결한다. 문·창 16개와 reference 다섯도 유지한다.
 -->
 
 [관찰 계약](../contracts/obligations-spaces.md#compiled-observations)과 [검토 프레임](../settings/00-delivery.md#review-condition)을 그대로 소비한다. 입력은 한 generation의 실제 built environment와 lowering 산출물이며 viewer와 계측이 같은 값을 쓴다. `builtEnvironmentBuildingCensus`의 외피·지붕·처마 하부·모서리·외부 출입 population을 소비하되 내부 개구부는 별도 actual boundary/opening 전집합에서 더한다. 이 census는 host face를 가진 단일 공간 경계만 입면으로 세며 지붕은 경계 face가 아니어서 지붕·처마 하부 population이 비므로, 네 방향 지붕 조감과 네 입면의 처마 하부 관찰을 source owner가 별도로 더한다.
@@ -46,7 +31,7 @@
 
 [중정](rooms/courtyard.md#court-volume)과 [서비스 마당](rooms/service-yard.md#yard-volume)의 위쪽 cell 평면은 유한한 논리 범위이며 물리 천장이 아니다. 실제 공간 bounds와 서비스 마당의 두 문턱을 포함한 귀속을 확인하고, 하늘을 가리는 mesh나 그림자·support patch가 그 평면에서 생성되지 않았는지도 본다. 공간 안 시점에서도 논리 상한이 시선·조명·화면을 잘라 하늘이나 높은 지붕을 숨기지 않아야 한다. 처마 하부와 하늘의 노출 여부는 실제 roof/element에서 읽는다. 논리 bounds만으로 열린 하늘이나 유효 높이 검증을 완료하지 않는다.
 
-기본 threshold 위치는 개구부 중심에서 공간 기준점 쪽으로 이동해 내부 점을 찾으며 시선은 실내 도착 방향이다. 구멍 있는 주랑에서는 같은 공간 내부라는 사실만으로 해당 문 바로 안쪽의 도착을 보여 준다고 할 수 없다. 실제 opening ID·boundary face와 관찰 위치의 관계를 읽어 문턱 쪽에 서는지 별도로 확인한다. 창 threshold 여덟은 자기 창이 카메라 뒤에 있으므로 창 판독의 증거로 세지 않는다. 별도 `opening-facing` 관찰은 모든 문·창 16개 각각의 실제 host profile 중심을 자기 방 안에서 바라본다. 문과 창의 시점 높이는 해당 profile 중심이며 제실 창은 높은 창 중심까지 방 안 시점을 올려 수평으로 바라본다. host 법선 중 방 중심 station을 향하는 쪽에서 0.1m 간격으로 자기 공간 안의 가장 먼 유효점을 찾고, 먼 벽에서 `min(0.3m, 유효 거리/2)`만큼 물린다. 그 한도 안에서 profile 높이 `h`에 대한 수직 50° 화면의 70% 맞춤 거리 `max(2m, h/(1.4×tan25°))`를 목표로 한다. 이는 문 pose의 거리나 높이를 source가 다시 고르지 않게 하고 바닥 위 1.6m인 필수 중심·모서리 관찰을 대체하지 않는다. 제실 창 여덟은 profile 네 꼭짓점까지 뷰어의 50° 수직 시야·1600:1000 비율 안에 드는지 전수 검산한다. 반환 불가/null이나 충돌한 원 질문은 지우지 않고 unverified로 남겨 자기 공간 안 가장 가까운 유효 보조 위치와 함께 표시한다. 모든 공간의 개구부 양면도 누락하지 않는다. [개구부 소유](openings.md#boundary-ownership)가 나눈 높은 외부 향 경계 열네 곳(일정 높이 여섯, 반환벽 경사·바깥 각 둘, 후퇴벽 양끝 북면·옆면 넷), 반환벽 포치 자유 끝 두 곳과 후퇴벽 끝 칸의 낮은 한 공간 경계 네 곳은 census의 입면 전집합에 든다. 보통 높은 면은 맞춤 거리에서 면 중심보다 0.8m 높게 보되, 반환벽 `.outer-upper` 둘은 X=±5.0m·Y=6.0m·면 중심 Z에서 보고, 후퇴벽 `.west|east-end.upper`는 끝 칸 X 중심·Y=5.7m·Z=4.05m, `.west|east-side.upper`는 X=±5.0m·Y=5.8m·Z=6.05m에서 본다. 이 높은 관찰점은 포치 지붕이 가리는 면을 자기 입면에서 보기 위한 보조 pose다. 포치 자유 끝 둘은 X=0m·Y=3.0m·Z=14.25m의 열린 포치 중심선에서 본다. 이 시점은 끝면 전체를 정면으로 보지 못하므로 자기 면의 가시율을 방출 mesh에 대한 절두체·가림 검사로 기록하고 보이지 않는 부분은 unverified로 둔다. 제실 창 여덟은 모두 창 바깥 2.5m에서 창 중심보다 0.6m 높게 본다. 이전 결속이 봉헌실과 주랑 안에 만든 창 threshold 네 곳은 창을 보여 주지 않는 무효 위치였으므로 목록에서 지우지 않고 pose 없는 unverified 항목으로 남긴다.
+기본 threshold 위치는 개구부 중심에서 공간 기준점 쪽으로 이동해 내부 점을 찾는다. 문 threshold의 눈 위치는 그대로 두고 시선은 host 중심면에서 그 눈이 있는 쪽으로 수직인 내부 법선이다. 타깃은 그 방향 1m의 단위 시선 벡터이며 새 물리적 길이를 주장하지 않는다. 열린 문짝을 지나 방 중심으로 대각선으로 보다가 문짝에 막힌 관찰을 방 안쪽을 향하는 정면 문턱 질문으로 수리한다. 구멍 있는 주랑에서는 같은 공간 내부라는 사실만으로 해당 문 바로 안쪽의 도착을 보여 준다고 할 수 없다. 실제 opening ID·boundary face와 관찰 위치의 관계를 읽어 문턱 쪽에 서는지 별도로 확인한다. 창 threshold 여덟은 자기 창이 카메라 뒤에 있으므로 창 판독의 증거로 세지 않는다. 별도 `opening-facing` 관찰은 모든 문·창 16개 각각의 실제 host profile 중심을 자기 방 안에서 바라본다. 문과 창의 시점 높이는 해당 profile 중심이며 제실 창은 높은 창 중심까지 방 안 시점을 올려 수평으로 바라본다. host 법선 중 방 중심 station을 향하는 쪽에서 0.1m 간격으로 자기 공간 안의 가장 먼 유효점을 찾고, 먼 벽에서 `min(0.3m, 유효 거리/2)`만큼 물린다. 그 한도 안에서 profile 높이 `h`에 대한 수직 50° 화면의 70% 맞춤 거리 `max(2m, h/(1.4×tan25°))`를 목표로 한다. 이는 문 pose의 거리나 높이를 source가 다시 고르지 않게 하고 바닥 위 1.6m인 필수 중심·모서리 관찰을 대체하지 않는다. 제실 창 여덟은 profile 네 꼭짓점까지 뷰어의 50° 수직 시야·1600:1000 비율 안에 드는지 전수 검산한다. 반환 불가/null이나 충돌한 원 질문은 지우지 않고 unverified로 남겨 자기 공간 안 가장 가까운 유효 보조 위치와 함께 표시한다. 모든 공간의 개구부 양면도 누락하지 않는다. [개구부 소유](openings.md#boundary-ownership)가 나눈 높은 외부 향 경계 열네 곳(일정 높이 여섯, 반환벽 경사·바깥 각 둘, 후퇴벽 양끝 북면·옆면 넷), 반환벽 포치 자유 끝 두 곳과 후퇴벽 끝 칸의 낮은 한 공간 경계 네 곳은 census의 입면 전집합에 든다. 보통 높은 면은 맞춤 거리에서 면 중심보다 0.8m 높게 보되, 반환벽 `.outer-upper` 둘은 X=±5.0m·Y=6.0m·면 중심 Z에서 보고, 후퇴벽 `.west|east-end.upper`는 끝 칸 X 중심·Y=5.7m·Z=4.05m, `.west|east-side.upper`는 X=±5.0m·Y=5.8m·Z=6.05m에서 본다. 이 높은 관찰점은 포치 지붕이 가리는 면을 자기 입면에서 보기 위한 보조 pose다. 포치 자유 끝 둘은 X=0m·Y=3.0m·Z=14.25m의 열린 포치 중심선에서 본다. 이 시점은 끝면 전체를 정면으로 보지 못하므로 자기 면의 가시율을 방출 mesh에 대한 절두체·가림 검사로 기록하고 보이지 않는 부분은 unverified로 둔다. 제실 창 여덟은 모두 창 바깥 2.5m에서 창 중심보다 0.6m 높게 본다. 이전 결속이 봉헌실과 주랑 안에 만든 창 threshold 네 곳은 창을 보여 주지 않는 무효 위치였으므로 목록에서 지우지 않고 pose 없는 unverified 항목으로 남긴다.
 
 [개구부 소유](openings.md#boundary-ownership)의 같은 boundary/opening ID마다 선언한 profile과 실제 벽 void의 위치·범위·관통 깊이를 대조한다. 바닥까지 열린 문 아래에 벽 띠가 남는지, 높은 창 위 박공이 외접 직사각형으로 메워졌는지, reveal 뒤에 중복 벽이나 기둥 사이 내부 접면이 드러나는지를 문턱 종단면과 양면에서 확인한다. 닫힌 자세의 문짝 fitting과 열린 자세의 통과 영역도 같은 실제 element를 읽는다. `builtOpeningSweepEnvelope`는 두께 없는 panel 직사각형의 회전/이동을 감싸는 world 상자를 반환하므로 실제 문짝 두께·철물·손잡이의 swept 실체나 장애물 충돌 판정을 대신하지 않는다. 이 상자와 실제 mesh의 검토 범위를 구별하고, 전체 실체의 회전·통과를 재는 수단이 없거나 실행하지 않았다면 해당 질문은 unverified로 남긴다.
 
@@ -89,6 +74,8 @@
 
 ## 원래 소스를 그리는 뷰어 {#viewer-path}
 
+연직 단면 캡처는 현재 축·offset·flip을 합친 키가 서버 응답 뒤 뷰어에 적용된 `sectionKey`와 같을 때만 저장한다. 응답 전에 남아 있는 이전 절단면이나 속이 비어 보이는 clipped surface는 현재 단면의 판독 근거로 세지 않는다. 원래 관찰 항목과 pose는 그대로 유지한다.
+
 <!--
 @evidence principles/core/common.md#scope-preservation source 실체·현재 문 상태·계측 generation·한국어 관찰 UI와 GPU 결과를 하나의 전달 경로에 배정한다.
 @evidence principles/core/common.md#substantive-completion server.cts→공개 lowering/tessellation→클라이언트의 전달 경계와 식별자/변환/재료 보존, 오류 표시 및 포트 인자를 정한다.
@@ -111,24 +98,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 현재 source·문 상태·관찰 generation과 한국어 UI, GPU 확인이 한 전달 경로에 묶여 그림만 다른 시점의 결과가 되지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 CJS producer에서 mesh/변환/재료를 전송하는 순서와 오류·포트 처리, 시작 명령·경로가 구체적이다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마지막 문단이 저작자 GPU 확인을 전달 경로 동작의 증거로만 한정하고 방별 reference 판독과 구별해 더는 viewer가 없다는 낡은 문장이 남지 않는다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 논리 cap·support·외접 상자는 기본 실체 화면에 그리지 않아 누락 구조를 검사 도형으로 감출 수 없다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 part local과 element world를 분리하고 UV/재료 부재도 보존해 client가 새 건물을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 오류 시 이전 화면을 버리고 RENDERER·콘솔·빈 캔버스를 매번 다시 확인하는 조건이 오래된 성공 화면을 증거로 쓰는 것을 막는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 CJS 약속을 lowering의 문 상태와 part/world 변환을 보존하는 구체 전송 경계로 좁혔다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 UV 부재와 authored set 한계를 전달 계약에 드러낼 수 있어 ESM 전환이나 소프트웨어 캡처의 성공 인정이 필요하지 않았다.
-@evidenceReview settings/00-delivery.md#delivery-scope #142c909 공간 library의 실제 source를 보는 경로이며 client용 복제 건물이나 영화로 납품을 바꾸지 않는다.
-@evidenceReview settings/00-delivery.md#operator-access #e19a32a 라벨·경계·절개는 명시 검사에서만 켜고 공간 선택 패널은 화면 밖에 둔다.
-@evidenceReview settings/00-delivery.md#working-language #ba75eb7 공간/관찰 선택과 설명을 한국어로 제공하고 API 식별자는 정확히 보존한다.
-@evidenceReview settings/00-delivery.md#operative-subjects #78af323 producer가 실체를 만들고 renderer는 전달받은 값을 그려 관찰 UI가 geometry 저작자가 되지 않는다.
-@evidenceReview settings/00-delivery.md#accessibility #e5000b9 텍스트 목록·키보드 선택·색 외 상태 표시를 관찰 UI 조건으로 두고 실제 조작 성공은 source와 관찰에서 확인한다고 적었다.
-@evidenceReview settings/50-production.md#runtime-boundary #3eb9810 브라우저에서 Node/engine runtime을 import하지 않고 CJS 서버만 engine을 호출한다.
-@evidenceReview settings/50-production.md#fidelity #bb89317 원근·조명·그림자·깊이는 실제 mesh에 적용하고 support를 바닥으로 대체하지 않는다.
-@evidenceReview settings/50-production.md#gpu-observation #b0ab4b5 chromium 채널에서 하드웨어 RENDERER·콘솔 오류·빈 캔버스를 확인하는 방법이 적혀 소프트웨어 렌더나 빈 화면을 GPU 성공으로 셀 수 없다.
-@evidenceReview settings/50-production.md#execution-authority #cf13b03 package.json의 viewer script가 시작 명령을 가지고 서버를 띄워 두는 역할은 조정자로 나뉘어 있다.
-@evidenceReview settings/50-production.md#author-commits #f2218c8 의존성 변경 때 root pnpm install과 lockfile 동시 commit을 명시해 frozen install의 불일치를 막는다.
 -->
 
 [CJS 경계](../settings/50-production.md#runtime-boundary)를 따른다. `src/viewer/server.cts`가 CJS 환경에서 생산 source와 공개 engine을 호출하고 현재 environment, 실제 mesh·transform·material, 같은 generation의 관찰 정보를 클라이언트로 전달한다. 브라우저는 Node/engine 런타임을 import하지 않으며 실제 3D 원근·조명·그림자·깊이로 받은 geometry를 그린다. 건물을 client 데이터로 다시 만들지 않는다. 실행 코드는 src, HTML·스타일 자산은 public에 둔다.

@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/design/models.md#work-specific-model-requirements 두 문짝만 관절을 가진다는 역할 배정과 모델 전체가 공유하는 유한 검토 판은 각 원형의 세부 형상과 구분되는 population 의무로 보존한다.
-@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 문짝의 관절 역할과 모든 원형의 검토 판이 각 원형의 축척·UV 원칙과 다른 배정 단위임을 확인했다.
 -->
 
 # 신전 모델 population의 반복 의무

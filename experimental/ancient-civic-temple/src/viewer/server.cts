@@ -67,6 +67,7 @@ const main = async (): Promise<void> => {
     ["/viewer.css", resolve(productionRoot, "public/viewer.css")],
     ["/src/viewer/client.mjs", resolve(productionRoot, "src/viewer/client.mjs")],
     ["/src/viewer/scene.mjs", resolve(productionRoot, "src/viewer/scene.mjs")],
+    ["/src/viewer/inspection-visibility.mjs", resolve(productionRoot, "src/viewer/inspection-visibility.mjs")],
     ["/src/viewer/model-board.mjs", resolve(productionRoot, "src/viewer/model-board.mjs")],
     ["/vendor/three.module.js", resolve(threeBuild, "three.module.js")],
     ["/vendor/three.core.js", resolve(threeBuild, "three.core.js")],

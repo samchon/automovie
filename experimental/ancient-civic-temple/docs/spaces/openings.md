@@ -16,16 +16,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 문 양면과 지붕 띠, 후퇴벽 중앙·양끝, 반환벽 상부·자유 끝, 거리 쪽 안타 끝면 둘과 포치 박공 양면을 기존 host에 빠짐없이 주소화한다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 여섯 높이 절단, 후퇴벽 북면과 옆면의 서로 다른 지붕 최고점, 반환벽 경사 교차·자유 끝, 안타·박공의 host ID와 공간 결속을 본문이 정한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 이웃 지붕 상면·마당 상한 3.20m와 반환벽의 12° 상면을 절단 근거로 쓴다. 후퇴벽 북면 노출은 3.614m부터, 옆면 노출은 최고점 3.678m부터다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 반환벽의 두 공간/한 공간 구간과 후퇴벽 끝 칸의 주랑 한 공간 구간을 구별한다. 안타·박공 외부 주소는 방·직접 문·순환 루프를 추가하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 후퇴벽·반환벽·안타·박공의 새 경계는 기존 물리벽에 붙는다. 박공·반환벽의 실체와 완결 표면은 남측 입면 owner가 계속 소유한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 지붕 위 반환벽·후퇴벽 끝 칸과 포치 자유 끝·거리 쪽 안타·박공 양면을 각자 다른 노출면 주소와 관찰 질문으로 남긴다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 문은 절단 profile, 반환벽의 0.159m 띠는 경사 분할 host, 후퇴벽 양끝·안타·박공 양면은 한 공간 경계로 구체화한다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 노출면 주소와 북면·옆면 절단 높이만 바로잡았다. 중앙 문 연결, 박공의 물리 막음, reveal 형상과 한 주랑 루프는 상위 결정을 유지한다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 노출면 경계를 보탰어도 문·창 수와 같은 host/profile의 양면 절단은 유지한다. 제실 채광창을 낮은 방의 문턱으로 세지 않는다.
-@evidenceReview obligations/design/spaces.md#space-envelope-interface #4b397de 여섯 상부 host·반환벽·후퇴벽 북면/옆면·안타·박공 경계는 기존 물리벽의 주소이고 두 번째 벽 실체가 아니다.
 -->
 
 [공유 기준선](building.md#plan-datums)이 두께와 접면을 정하고 이 파일은 각 물리 경계의 ID·인접 관계·void를 소유한다. 외벽 실체는 해당 입면 source가 만들고 내부벽 실체는 `src/spaces/boundaries.ts`가 만든다. 방 파일은 그 벽의 자기 쪽 표면을 참조할 뿐 두 번째 벽을 생성하지 않는다. 같은 벽에 뚫린 문·창은 이 경계의 절단 결과를 내·외부에서 함께 쓴다. 문짝이나 틀을 붙였다고 void가 생겼다고 세지 않는다.
@@ -66,16 +56,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 마당의 두 문까지 각 경계·연결·스윙을 정해 공용 문만으로 목록을 끝내지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 유효 폭/높이에서 틀 0.06m를 더하는 순서와 실제 panel 상태를 정했다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 마당 접면 1.4m와 void 1.12m의 여유를 입력 산술로 한정해 실체 검증과 구별했다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 방 문은 방 안으로, 정문은 현관 쪽으로 열어 주랑을 문 스윙으로 막지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 후속 hinge/model이 폭을 조용히 복제하지 말고 이 owner를 수정하도록 단일 치수 책임을 유지한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문짝 두께·손잡이가 남긴 열린 통과 영역도 읽게 해 문틀 안 폭만으로 통과시킬 수 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 최소 폭 요구에 각 방의 다른 중심·높이·열림 방향과 상태 binding을 더했다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 좁은 마당 접면에도 틀 포함 void와 양끝 벽 여유가 남아 부모 폭을 줄이지 않았다.
-@evidenceReview settings/10-building.md#use-profile #ee92183 설정의 통과 최소는 열린 문짝/철물 뒤 실제 영역에도 유지해야 한다고 명시했다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 opening.fill의 실제 panel과 closed/open 상태가 같은 lowering 경로를 써서 브라우저의 별도 회전이 개구부를 대신하지 않는다.
 -->
 
 아래 치수는 프레임을 제외한 유효 통과 폭·높이이고 중심은 벽 길이 방향의 좌표다. Y=0 문턱으로 [층 높이](storey.md#ground-storey)를 잇는다. 개구부 원형 폭은 양쪽 문틀 각 0.06m를 더해 유도하고 head도 틀 두께 0.06m를 더한다. 인방·문설주는 벽 두께를 관통하는 reveal을 가지며 문짝 두께 예산은 0.05m다. 문은 기본 열림이며 실제 회전축과 열린 폭을 후속 model/instance가 이 통과 영역에 맞춘다.
@@ -111,16 +91,6 @@
 -->
 
 <!--
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 북·남 박공과 서·동 측벽에 각 두 창을 둔 여덟 ID가 제실 상부에만 속한다. 남·서·동의 바깥은 분할된 외부 향 경계이며 마지막 문단은 이를 낮은 방의 threshold로 세지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 X=±1.0m·sill 4.6m인 박공 창과 Z=-8.0/-5.8m·sill 4.0m인 측벽 창의 0.4m 유효 크기·0.06m 틀, 북벽과 세 위쪽 host가 첫 문단에 확정된다. 마지막 문단은 방 쪽 pose도 창 ID에 결속한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 둘째 문단은 박공 3.65m 지붕 위/6.97m 하부 아래와 측벽 틀 3.94~4.46m 대 서측 3.71m·제실 5.10~5.22m, 동측 마당 3.20m를 설계 산술로 구분한다. 실제 채광은 마지막 문단에서 unverified로 남긴다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 북벽 두 창은 원래 제실/외부이고 다른 여섯은 제실/외부 상부 경계다. 본문이 도착 threshold의 창 판독 효력을 제외해 낮은 봉헌실·주랑·마당을 통한 허위 창 연결을 막는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 창 X/Z·sill과 profile은 이 절이 정하고 북·남 벽 및 두 spine 기준선, 제실 하부·이웃 지붕 상면·마당 상한은 각 owner에서 읽는다. `#boundary-ownership`의 ID를 소비해 창 pose 때문에 벽을 다시 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 본문 마지막 문단이 창별 연직 단면·지붕/마당 위 외부 관찰·제실 내부 `opening-facing` pose를 나누고, 도착 threshold가 창을 등진다고 명시한다. 네 꼭짓점 절두체 검사도 요구한다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 settings의 상부 채광 요구에 박공 네 곳·측벽 네 곳의 좌표·틀 여유·관통 깊이를 더한다. 해당 창의 내부 판독은 창 중심 높이에서 자기 ID를 향하는 pose로 구체화한다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 제실 측벽 틀 3.94~4.46m가 서측 지붕 3.71m 위·제실 하부 5.10~5.22m 아래이며 동쪽 마당 상한 3.20m 위다. threshold를 창 관찰에서 빼도 별도 pose로 직접 읽으므로 부모의 채광·지붕 설정을 바꾸지 않는다.
-@evidenceReview settings/30-interiors.md#sanctuary #224fd8d 북·남 박공과 측벽의 여덟 창은 제실 상부에 남는다. 본문은 각 창의 방 쪽 관찰을 threshold가 아니라 profile 중심 높이에서 자기 창을 향하는 `opening-facing` pose로 정한다.
-@evidenceReview settings/20-envelope.md#openings #4053d90 북·남 박공과 서·동 spine을 관통하는 0.4×0.4m 유효 void와 0.06m 석재 틀, 유리 없음이 첫 문단에 분리된다. 마지막 문단은 reveal을 방 쪽 창 pose와 외부 단면에서 실제로 읽게 한다.
 -->
 
 제실의 북·남 박공 벽과 서·동 측벽에 작은 채광구를 둔다. 박공 창은 `window-sanctuary-{north|south}-{west|east}`이며 중심 X=±1.0m, sill Y=4.6m다. Z 방향 void는 [기준선](building.md#plan-datums)의 북측 벽 north-outer~north-inner와 남측 벽 sanctuary-front~north-ring을 각각 관통한다. 측벽 창은 `window-sanctuary-{west|east}-{north|south}`이며 중심 Z=-8.0m(north)와 Z=-5.8m(south), sill Y=4.0m이고 X 방향 void는 서측 spine west-room~west-ring과 동측 spine east-ring~east-room의 제실 구간을 관통한다. 북측 박공 창은 원래 제실 하나만 가진 `boundary-north.sanctuary`에, 남측 박공 창과 측벽 창은 [경계 소유](#boundary-ownership)의 외부 향 위쪽 경계 `boundary-sanctuary-south.upper`, `boundary-west-spine.sanctuary-upper`, `boundary-east-spine.sanctuary-upper`에 속한다. 모든 창의 바깥은 외부이며 봉헌실·주랑·마당과 이어지는 개구부가 아니다. 모든 창의 유효 폭·높이는 0.4m, 석재 틀 두께는 각 가장자리 0.06m이고 유리는 없다. [제실 지붕](roofs/sanctuary.md#sanctuary-roof)은 상부 한계를 제공하며 처마 끝선으로 창 위치를 옮기지 않는다. 모두 문 인방 위에 있고 다른 방으로 연결되는 출입구가 아니다.

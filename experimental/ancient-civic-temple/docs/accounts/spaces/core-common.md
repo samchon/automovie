@@ -7,7 +7,6 @@
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 공간 파일을 각 역할의 결과에 다시 대조했다. 기준선·방 목록·site·junctions 단면에 더해, ownership의 하부 띠 분할을 빼면 materials가 주랑·제실 벽 하부에만 적갈색을 결속할 경계가 사라진다는 결손이 본문 첫 문단의 ownership 문장으로 드러난다.
 -->
 
 이 population은 한 단층 신전의 건물 내부와 외피를 함께 설계한다. [building](../../spaces/building.md)은 외곽·공유 기준선·부모 위계·외부 접점을, [storey](../../spaces/storey.md)는 높이·문턱 지지·외벽 하단을 소유한다. 둘 중 하나가 없으면 방의 평면만 맞아도 도로·문턱·지면을 같은 건물로 연결할 수 없다. [openings](../../spaces/openings.md)는 경계 identity와 실제 void/문/창 위치를, [junctions](../../spaces/junctions.md)는 벽 끝/박공의 폐쇄와 외벽 기단·코핑의 단면을 정한다. 후자는 개구부 표만으로는 막을 수 없는 모서리 중첩·roof 아래 누광과, 네 입면이 따로 정하면 모서리에서 어긋날 석재 띠의 만남을 다룬다. [circulation](../../spaces/circulation.md)은 공용/서비스의 서로 다른 시작과 주랑 경유 순서를 정한다.
@@ -25,7 +24,6 @@ roofs의 [assembly](../../spaces/roofs/assembly.md)는 높이·두께·돌출·�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#layer-boundary #5271f94 방/입면/roof/대지의 수치는 공간 경계·지면·배치 구역에 쓰이며 물체 곡면·기와 반복·roughness·조명값·이웃 개체 배치를 결정한 단위는 없다. 대지를 maps가 아닌 spaces에 둔 이유와 viewer 전달의 한계가 본문에 구별돼 있다.
 -->
 
 27개 파일은 spaces의 topology·외피·대지·치수·표면 배정·관찰 설계다. room 문서의 책상/제단/수반 언급은 방이 수용할 중심·접근·관계의 입력이며 prototype의 곡면·보 단면·기와 mesh를 만드는 설계가 아니다. roof 문서의 경사 매스와 닫힘은 건물 외피가 소유하고 기와/서까래 반복 상세는 후속 모델/반복 분기가 소비한다. 입면의 회벽·기단은 그 재료가 덮을 표면 경계이며 roughness·UV·색 수치는 materials가 소유한다.
@@ -39,7 +37,6 @@ building의 두 접점과 storey의 외벽 하단은 같은 spaces의 [대지](.
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#production-language #3ef4142 작성·건조 보관·반입의 차이와 대지의 흙띠·경계석·배치 구역이 한국어 본문으로 설명되고 영어는 source/API 주소·좌표·식별자에 한정된다. 반공간과 지면 식도 단위와 부호가 설명돼 파일명 추측이 필요 없다.
 -->
 
 [언어 설정](../../settings/00-delivery.md#working-language)에 따라 설계의 결정·이유·관찰은 한국어 기술 서술이다. 관리실의 작성, 기록실의 건조 보관/열람, 보관실의 봉헌물 반입이 한국어로 구별되어 영어 파일명을 추측할 필요가 없다. west/east와 north/south 기준선은 building의 X/Z 표에, cell의 반공간은 colonnade의 부등식에 뜻이 있고 단위 m와 경사 도수는 생산 좌표 규약을 따른다. source 각도 변환과 API의 정확한 철자는 구현 시에도 유지한다.
@@ -53,7 +50,6 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 -->
 
 <!--
-@evidenceReview obligations/core/common.md#proportionate-development #78feb28 27파일·45 H2와 아홉 분량 행은 이번 트리에서 `npm run self-check -- --sync-accounts`가 본문에서 생성해 같은 실행으로 대조했다. 관찰 본문이 늘어난 값도 표에 반영했고, v-077의 26파일·37 H2 비교는 본문의 별도 문단에 둔다.
 -->
 
 비교 기준은 21×20.5m 단층, 같은 층의 아홉 공간, 네 외측 입면, 하나의 주랑, 여섯 roof 문서가 다루는 외피와 그 둘레의 국소 대지다. 이 숫자는 authored 설계의 분포이며 compiled census가 아니다. 현재는 27파일/45 H2다. 아래 문자 수는 해당 Markdown에서 HTML 주석·제목 줄·공백 문자를 제거한 본문의 유니코드 코드 포인트 수이며 `npm run self-check`가 같은 방식으로 파일마다 출력한다. 링크/표 표기 문자는 남겼으므로 독자용 어절 수나 geometry 양으로 읽지 않는다. evidence 문장이 길어져 생긴 분량은 이 비교에 포함하지 않았다.
@@ -67,7 +63,7 @@ viewer-path의 한국어 설명과 키보드 조작은 설계 요구이며 이�
 | 제실·봉헌실 | 2/2 | 733·646 |
 | 관리실·기록실·보관실·마당 | 4/4 | 624·580·577·960 |
 | assembly·sanctuary·west·east·porch·colonnade roof | 6/7 | 2194·944·909·936·758·1488 |
-| ownership·observations | 2/4 | 4359·11039 |
+| ownership·observations | 2/4 | 4359·11291 |
 | site | 1/6 | 5588 |
 
 주랑과 현관이 다른 방보다 긴 이유는 각각 구멍 있는 합집합과 구간별 계단 바닥을 따로 결정하기 때문이다. 가장 짧은 porch roof도 두 지지선·앞끝 돌출·후퇴벽 위 뒤끝·삼각 막음의 소유·하부 관찰을 갖는다. site는 범위·지면 식·구획표·connector·배치 구역·능선을 여섯 H2로 나눠 결정하므로 건물 한 문서보다 길다. 반대로 observations는 topology 전집합, 반환 pose의 한계, 실제 문턱/접합/지면, 전송 경계를 모두 책임져 단일 대표 view 설명으로 줄일 수 없다. 동일한 골격의 일반 방보다 이 인터페이스들에 상세가 집중된 것은 납품 효과에 맞는다.

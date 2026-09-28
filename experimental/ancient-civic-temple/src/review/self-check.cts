@@ -187,7 +187,7 @@ console.log(`model construction noun/part census: ${modelDocuments.reduce((sum, 
 for (const row of partNounMismatches) console.log(`  part owner: ${row}`);
 let arithmeticFailures = 0;
 try {
-  console.log(execFileSync(process.execPath, [join(__dirname, "model-contact-census.mjs")], { encoding: "utf8" }).trim());
+  console.log(execFileSync(process.execPath, [join(__dirname, "model-contact-census.mjs")], { encoding: "utf8", windowsHide: true }).trim());
 } catch (error) {
   arithmeticFailures = 1;
   const failure = error as { stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
@@ -197,7 +197,7 @@ try {
 }
 let geometryFailures = 0;
 try {
-  console.log(execFileSync(process.execPath, [join(__dirname, "model-geometry-bounds.mjs")], { encoding: "utf8" }).trim());
+  console.log(execFileSync(process.execPath, [join(__dirname, "model-geometry-bounds.mjs")], { encoding: "utf8", windowsHide: true }).trim());
 } catch (error) {
   geometryFailures = 1;
   const failure = error as { stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
@@ -218,9 +218,9 @@ for (const failure of spaceBinding.failures) console.error(failure);
 const npmCli = [process.env.npm_execpath, join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")]
   .find((path) => path !== undefined && existsSync(path));
 const unit = npmCli
-  ? spawnSync(process.execPath, [npmCli, "run", "test"], { cwd: join(__dirname, "..", ".."), encoding: "utf8" })
+  ? spawnSync(process.execPath, [npmCli, "run", "test"], { cwd: join(__dirname, "..", ".."), encoding: "utf8", windowsHide: true })
   : spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", ["run", "test"], {
-    cwd: join(__dirname, "..", ".."), encoding: "utf8", shell: process.platform === "win32",
+    cwd: join(__dirname, "..", ".."), encoding: "utf8", shell: process.platform === "win32", windowsHide: true,
   });
 const unitFailure = unit.status === 0 ? 0 : 1;
 const unitSummary = (unit.stdout ?? "").split(/\r?\n/).filter((line) => /^ℹ (?:tests|pass|fail|todo) /.test(line));

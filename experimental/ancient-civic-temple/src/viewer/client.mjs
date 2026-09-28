@@ -11,6 +11,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene.mjs";
+import { isTempleRoofCovering } from "./inspection-visibility.mjs";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
 /** @typedef {Payload["observations"][number]} Observation */
@@ -77,8 +78,10 @@ sun.position.copy(sunDirection).multiplyScalar(45);
 sun.castShadow = true;
 sun.shadow.mapSize.set(4096, 4096);
 Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 120 });
-sun.shadow.bias = -0.0002;
-sun.shadow.normalBias = 0.02;
+// Sub-millimetre shadow offsets suppress self-acne without detaching contact
+// shadows by the former 2 cm normal displacement at closed wall/floor joints.
+sun.shadow.bias = -0.000005;
+sun.shadow.normalBias = 0.0005;
 scene.add(hemisphere, sun, sun.target);
 
 /** @type {{ payload: Payload, basis: string, root: THREE.Group, supports: THREE.Group, meshes: THREE.Mesh[], ownerMaterials: Map<string, THREE.Material>, beautyMaterials: Map<THREE.Mesh, THREE.Material>, textures: Map<string, THREE.Texture> } | null} */
@@ -148,6 +151,7 @@ ${await response.text()}`);
   }
   sectionShown = { key, pieces: body.pieces.length };
   handle.sectionPieces = body.pieces.length;
+  handle.sectionKey = key;
   describe();
 }
 
@@ -161,8 +165,8 @@ function cutState() {
   };
 }
 
-/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], sectionPieces: number | null, select: (id: string) => boolean, look: (position: number[], target: number[]) => boolean }} */
-const handle = { ready: false, renderer: rendererName, error: null, stations: [], sectionPieces: null, select: (id) => selectStation(id), look: (position, target) => look(position, target) };
+/** @type {{ ready: boolean, renderer: string, error: string | null, stations: string[], sectionPieces: number | null, sectionKey: string | null, select: (id: string) => boolean, look: (position: number[], target: number[]) => boolean }} */
+const handle = { ready: false, renderer: rendererName, error: null, stations: [], sectionPieces: null, sectionKey: null, select: (id) => selectStation(id), look: (position, target) => look(position, target) };
 Object.assign(window, { templeViewer: handle });
 
 /** @param {string} message */
@@ -395,7 +399,7 @@ function applyInspection() {
   }
   for (const mesh of current.meshes) {
     const model = String(mesh.userData.model);
-    mesh.visible = !(roofOff && (model.startsWith("model.roof") || model === "model.ceilings"));
+    mesh.visible = !(roofOff && isTempleRoofCovering(model));
     const surface = String(mesh.userData.surface);
     mesh.material = on && owners.checked
       ? current.ownerMaterials.get(surface) ?? mesh.material
