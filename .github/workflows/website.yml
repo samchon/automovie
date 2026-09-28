@@ -10,9 +10,6 @@ on:
       - "packages/engine/**"
       - "packages/interface/**"
       - "packages/viewer/**"
-      # The manor page bundles this production's authored source and textures,
-      # so a change to the house republishes the site without touching website/.
-      - "experimental/medieval-baron-manor/**"
       - "website/**"
       - "package.json"
       - "pnpm-lock.yaml"
@@ -24,7 +21,6 @@ on:
       - "packages/engine/**"
       - "packages/interface/**"
       - "packages/viewer/**"
-      - "experimental/medieval-baron-manor/**"
       - "website/**"
       - "package.json"
       - "pnpm-lock.yaml"
