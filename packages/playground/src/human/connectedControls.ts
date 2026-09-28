@@ -10,6 +10,7 @@ import {
 } from "@automovie/human";
 
 import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticulationDegrees";
+import { connectedFaceJawExcursionMillimetres } from "./anatomy/connectedFaceJawExcursionMillimetres";
 
 /**
  * Present simple coordinates or the canonical fine shape/performance controls.
@@ -19,8 +20,8 @@ import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticul
  * Only owned document coordinates are authored values; omission displays zero.
  * A basis-bound component tree groups fine controls for navigation; it changes
  * neither saved channel IDs nor the basis's evaluation order or shared skin.
- * Jaw opening and gaze display their basis endpoint's physical degrees while
- * lowering edited degrees back to the same flat performance weights.
+ * Jaw opening and gaze display source endpoint degrees, and forward/lateral
+ * jaw excursions display millimetres. They lower to the same flat weights.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes editable and searchable fine shape and performance channels.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement without changing replay on a mode switch.
@@ -56,13 +57,18 @@ export function mountConnectedFaceControls(
   const describe = (
     sign: string,
     scale: IAutoMovieHumanFaceEndpointScale,
-    angle: number | null = null,
+    metric: { perWeight: number; unit: string } | null = null,
   ): string => {
-    const degree = angle === null ? null : sign === "-" ? -angle : angle;
+    const measured =
+      metric === null
+        ? null
+        : sign === "-"
+          ? -metric.perWeight
+          : metric.perWeight;
     const amount =
-      degree === null
+      measured === null
         ? `${sign}1`
-        : `${degree >= 0 ? "+" : ""}${degree.toFixed(2)}°`;
+        : `${measured >= 0 ? "+" : ""}${measured.toFixed(2)}${metric!.unit}`;
     return (
       `${amount} moves ${(scale.displacement * 1000).toFixed(2)} mm rms, ` +
       `${(scale.peak * 1000).toFixed(2)} mm peak on ${scale.vertices} vertices`
@@ -95,7 +101,7 @@ export function mountConnectedFaceControls(
     kind.hidden = simple;
     app.querySelector<HTMLElement>("#control-help")!.textContent = simple
       ? "Simple edits preserve your fine adjustments, including differences between the two sides. Each range accounts for those adjustments. Values describe authored shapes, not physical measurements."
-      : "0 is the source neutral. Most controls are authored endpoint weights; jaw opening and gaze show degrees within this basis's supported endpoints. These limits are not universal clinical ranges.";
+      : "0 is the source neutral. Most controls are authored endpoint weights; jaw opening and gaze show degrees, and jaw forward/lateral motion shows millimetres within this basis's endpoints. These limits are not universal clinical ranges.";
     const query = search.value.toLowerCase().replace(/\s/g, "");
     container.replaceChildren();
     const append = (
@@ -183,13 +189,23 @@ export function mountConnectedFaceControls(
       ): void => {
         const scale = scales.get(channel.id)!;
         const angle = connectedFaceArticulationDegrees(props.basis, channel.id);
-        const unit = angle ?? 1;
+        const distance = connectedFaceJawExcursionMillimetres(
+          props.basis,
+          channel.id,
+        );
+        const metric =
+          angle !== null
+            ? { perWeight: angle, unit: "°", label: "°" }
+            : distance !== null
+              ? { perWeight: distance, unit: " mm", label: "mm" }
+              : null;
+        const unit = metric?.perWeight ?? 1;
         append(
           {
             ...channel,
             label:
               channel.id.replace(/([a-z])([A-Z])/g, "$1 $2") +
-              (angle === null ? "" : " (°)"),
+              (metric === null ? "" : ` (${metric.label})`),
             group: anatomy?.channelPaths.get(channel.id)?.join(" "),
             minimum: Math.min(channel.minimum * unit, channel.maximum * unit),
             maximum: Math.max(channel.minimum * unit, channel.maximum * unit),
@@ -200,10 +216,10 @@ export function mountConnectedFaceControls(
               ...(channel.description === undefined
                 ? []
                 : [channel.description]),
-              describe("+", scale.positive, angle),
+              describe("+", scale.positive, metric),
               ...(scale.negative === null
                 ? []
-                : [describe("-", scale.negative, angle)]),
+                : [describe("-", scale.negative, metric)]),
             ].join(" · "),
             edit: (value) => {
               const next = structuredClone(props.document());
