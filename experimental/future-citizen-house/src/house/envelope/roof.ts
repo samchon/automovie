@@ -4,6 +4,7 @@
 import { Quaternion, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
+import { partitionSurfaceRegions } from "../../materials/surface-regions";
 import { Assembly, rectangle, v } from "../assembly";
 import { fitCellTexture } from "../canopy-finish";
 import {
@@ -14,7 +15,6 @@ import {
   putMesh,
 } from "../metric-solid";
 import { datum, exteriorWallZone, stairHole } from "../plan";
-import { partitionSurfaceRegions } from "../../materials/surface-regions";
 import { type Flat, type Solid, drainage } from "./roof-drainage";
 
 const canopyMinX = datum.minX - 0.3,
@@ -92,16 +92,40 @@ export function roof(a: Assembly): void {
       r[3] - r[2],
     );
     if (id === "front") {
-      const placed = a.environment.elements.find(e => e.id === element)!;
-      const model = a.environment.models.find(m => m.id === placed.model)!;
+      const placed = a.environment.elements.find((e) => e.id === element)!;
+      const model = a.environment.models.find((m) => m.id === placed.model)!;
       // The 6mm underside exposed above the stair void is the same painted
       // wall continuation. Select its actual world region in unit box local
       // coordinates and keep the rest of the bearing ring as exterior stone.
-      const parts = model.parts.flatMap(part => {
-        const source = part.geometry.type === "mesh" ? part.geometry.mesh : tessellateToMesh(part.geometry.shape);
-        return partitionSurfaceRegions(source, part.material!, [{ finish: "plaster-paint", normal: "y-",
-          min: [(stairHole[0] - placed.transform.translation.x) / placed.transform.scale.x, -.5, (-datum.innerZ - placed.transform.translation.z) / placed.transform.scale.z],
-          max: [(stairHole[1] - placed.transform.translation.x) / placed.transform.scale.x, .5, .5] }]).map(p => ({ ...part, id: "surface/" + p.finish, material: p.finish, geometry: { type: "mesh" as const, mesh: p.mesh } }));
+      const parts = model.parts.flatMap((part) => {
+        const source =
+          part.geometry.type === "mesh"
+            ? part.geometry.mesh
+            : tessellateToMesh(part.geometry.shape);
+        return partitionSurfaceRegions(source, part.material!, [
+          {
+            finish: "plaster-paint",
+            normal: "y-",
+            min: [
+              (stairHole[0] - placed.transform.translation.x) /
+                placed.transform.scale.x,
+              -0.5,
+              (-datum.innerZ - placed.transform.translation.z) /
+                placed.transform.scale.z,
+            ],
+            max: [
+              (stairHole[1] - placed.transform.translation.x) /
+                placed.transform.scale.x,
+              0.5,
+              0.5,
+            ],
+          },
+        ]).map((p) => ({
+          ...part,
+          id: "surface/" + p.finish,
+          material: p.finish,
+          geometry: { type: "mesh" as const, mesh: p.mesh },
+        }));
       });
       model.parts = parts;
       model.materials.push(a.material("plaster-paint"));
@@ -348,7 +372,9 @@ export function roof(a: Assembly): void {
           (_, z) => B(z),
         ),
       );
-      // Embedded anchors show the slab connection; no Boolean cut is claimed.
+      // The 6mm exposed threaded end stands above the plate. Ending exactly
+      // on its top face hid the end behind a coincident opaque surface.
+      // The embedded shaft is a connection representation, not a Boolean bore.
       for (const sx of [-1, 1])
         for (const sz of [-1, 1])
           a.rod(
@@ -356,7 +382,7 @@ export function roof(a: Assembly): void {
             "house",
             "steel",
             v(x + sx * 0.06, datum.roof - 0.02, zg + sz * 0.06),
-            v(x + sx * 0.06, R(x) + 0.042, zg + sz * 0.06),
+            v(x + sx * 0.06, R(x) + 0.048, zg + sz * 0.06),
             0.003,
           );
     }

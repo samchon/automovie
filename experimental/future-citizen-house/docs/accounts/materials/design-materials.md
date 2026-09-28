@@ -37,8 +37,14 @@
 | joinery-green, joinery-light | 006#painted-joinery | 녹색 cabinet, overhead·murphy panel |
 | retained/<현재 material id> | 006#retained-surfaces | 식재·토양·대지 포장·기기·소품·glow와 이름으로 든 새 마감 없는 역할(felt 바구니·linen 더미·샤워 유리·세탁기·steel 설비장·stool 좌판·cassette clip·anchor 등), 잔디 보강 포장(service-band)·캐노피 staging pad, 지붕 방수 최종 면(가장자리 포함)·캐노피 pedestal·기초 plinth와 외벽 아래 bearing ring, upper slab의 도장 면을 뺀 나머지 면(방 바닥판·천장 뒤와 외벽 body 안에 묻힌 면) |
 
-texture family는 limestone-grain, cassette-grain, seal-grain, oak-grain, paint-grain, felt-grain, woven-grain, tile-grain, worktop-grain과 보존되는 canopy-pv-cell이다. 모두 typed source의 결정론적 RGBA이고 사진이나 reference 이미지를 쓰지 않는다. 새 cassette·seal 결합은 surface-metres와 repeat를 쓰며 다른 texture의 적용 범위는 각 마감 H2가 정한다.
+texture family는 limestone-grain, cassette-grain, seal-grain, oak-grain, paint-grain, felt-grain, woven-grain, screen-grain, tile-grain, worktop-grain과 보존되는 canopy-pv-cell이다. 모두 source가 정한 결정론적 RGBA이고 사진이나 reference 이미지를 쓰지 않는다. screen-grain은 광도가 낮은 woven-grain을 이중 tint로 쓰던 문제를 분리한 독립 asset이다. 새 cassette·seal 결합은 surface-metres와 repeat를 쓰며 다른 texture의 적용 범위는 각 마감 H2가 정한다.
 
 두 마감은 석재 panel·wall body와 그 외측 금속 cassette·seal의 실제 깊이·이음에서 만나며, 금속판이 가린 석재를 재도장하지 않는다. 명목 표면층은 실내 도장 .15mm, cassette·coated-metal 도막 .08mm, joinery 도막 .1mm, 바닥·계단 투명 .06mm, 문·수납 베니어 .6mm+투명 .06mm, 가구 베니어 .6mm, 유약 .5mm, 직물 .001m, 섬유 .003m이고 석재·유리·금속·tile·좌판·screen 직물은 층 없이 geometry의 재료 자체다. 공유 벽은 양쪽 방 lining이 각자 마감을 받고 문턱은 oak 판이 tile 바닥과 만난다. junction 노출면은 향한 방의 벽 마감을 받으며 같은 면을 두 마감에 중복 배정하지 않는다.
 
-관찰은 007이 맡는다. binding-census는 역할 주소별 배정과 variant 증가를, scale-and-junction-samples는 1m·3m·12m 거리와 정면·30° 사선의 반복·접합·native span 검사를, reference-material-samples는 topology 전체 관찰과 다섯 reference를, material-state-samples는 privacy·flex·문 상태 쌍을 반증한다. cassette·seal의 texture asset은 보존되지만 현재 native binding은 없다. 완성된 materialSources, native census 실행, GPU 프레임도 없다. 전체 재료 구현과 source 시각 판정은 미완료다.
+관찰은 007이 맡는다. binding-census는 역할 주소별 배정과 variant 증가를, scale-and-junction-samples는 1m·3m·12m 거리와 정면·30° 사선의 반복·접합·native span 검사를, reference-material-samples는 topology 전체 관찰과 다섯 reference를, material-state-samples는 privacy·flex·문 상태 쌍을 반증한다.
+
+2026-09-28 successor의 현재 native 결합·전수 census와 자체 GPU 판정은 [공통 account](core-common.md#materials-core-common-coverage)에 실제 basis·분모·절대 캡처 경로·한계를 기록했다. cassette·seal은 현재 해당 native binding을 받으며 뒤 stone panel·wall body는 limestone을 유지한다. 도장 및 tile junction, upper slab 절단면과 계단 void 띠, wood-end는 원래 삼각형을 면의 소유에 따라 나눠 마감을 받으며 viewer가 좌표나 material 결정을 대체하지 않는다. 전체 texture-bearing native 모델에 primary UV가 있고 uploader는 UV가 없는 textured batch를 거부한다. wood-end의 무texture 면과 이름 있는 retained 역할도 개별 행으로 남겼다.
+
+현 basis 전체 실내·외관 1,116장은 저작자가 직접 읽었다. 별도 중성 906장과 privacy/flex 추가 718장은 앞선 `a00382b4` basis의 검증이며 최신 basis로 바꾸어 표시하지 않았다. 실제 문 operation closed/open에서 leaf·hardware 배정 및 원래 문턱을 대조했다. 실패 캡처와 원거리에서 읽히지 않는 작은 면은 보존했다. native span 경고 1,296개, curved UV 등거리성·실물 광학/구조 인증의 unverified는 이 account의 실패/한계 기록에 남는다.
+
+재료 source 전체 완료는 아직 선언하지 않는다. 30 export 및 public type fields 전체 population의 evidence 인용 의무를 유지하며, 개별 사물 reusable prototype 통합과 그 source 결합·전체 evidence 마감이 남아 있다. 현재 건물 필수 접합부의 중성 판정도 진행 중이며 단순한 inherited fitout 형상을 이 재료 관찰로 완료 처리하지 않는다.

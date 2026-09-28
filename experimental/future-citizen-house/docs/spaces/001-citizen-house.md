@@ -17,20 +17,6 @@
 @evidence settings/003-spatial-basis.md#surface-decomposition 외주의 완결 표면과 각 층·방의 구현 책임을 settings의 단독 배정으로 연결한다. 집 조립 owner가 같은 창호나 바닥을 중복 생성할 권한을 갖지 않는다.
 @evidenceExclude settings/001-production.md#module-boundary 선택된 spaces 세 파일의 site/building/storey/room, wall·opening·stair, 입면·corner와 관찰 도출을 대조했다. 이 결정들은 typed topology의 포함·치수·연결·가시성 관계이며 어느 H2도 engine을 어느 모듈 로더로 실행할지 결정하거나 그 형식을 입력으로 사용하지 않는다. 관찰 도출 역시 컴파일 산출물의 face/cell을 소비할 뿐 CJS에서 수치가 달라지는 규칙이 아니다. CJS 서버·Node import 경계는 이 population 밖의 실행 도구가 settings에서 직접 소비한다.
 @evidenceExclude settings/001-production.md#settings-coverage-map 설정 population의 canon 배분 지도는 이 본채의 방이나 경계를 하나 더 만들지 않는다. 공간은 그 지도 문장을 복사하지 않고 납품 범위·층 그래프·외피·관찰의 실제 설정 H2를 각각 소비한다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb house의 단일 본채 성격과 금지된 체적은 고정 그래프에 근거하고, citizen-site 아래에 두 storey를 두는 식별 관계는 이 설계의 결정이다. 외곽과 층 datum은 mass-and-storeys를 가리켜 여기서 치수를 독립적으로 추정하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 house 아래의 두 층과 각 방을 남기고 외주 전체를 네 입면과 지붕으로 연결한다. 외관만 있는 모형으로 범위를 줄이거나 화면에 안 잡힌 층의 실내를 납품 밖으로 빼는 해석은 이 포함 관계와 맞지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 building의 parent와 두 storey의 주소, 외부로 통하는 opening의 소속, 층 사이 유일한 계단이 정해져 있다. 다음 구현 단계가 집의 계층이나 외피와 내부 연결의 조립 방식을 새로 선택해야 하는 빈 이름에 머물지 않는다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 납품 범위의 ‘주택 한 채’와 생활 동선의 요구를 house–citizen-site 및 ground-storey·upper-storey의 주소 관계로 바꾸고, 분할과 외피의 실제 설계 owner를 연결했다. 이 부모들은 그러한 id와 설계 파일 간 결합을 이미 정해 놓지 않았다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 house가 대지 안에 있고 방들이 두 storey에 속하며 외주 boundary의 opening과 단일 계단으로 외부 및 층간 통행이 이어진다. 이 관계는 mesh가 우연히 맞닿는 모습을 해석하지 않고 본문과 연결된 partition에서 읽을 수 있다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 집 조립은 mass-and-storeys의 외곽·datum·두께를 다시 수치로 소유하지 않는다. 방 배치는 두 partition으로, 닫힌 외주는 외피의 완결 표면으로 넘겨 같은 집에 두 번째 크기나 경계가 생기지 않게 한다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 포함·도달·외피 불연속을 전체 공간 관찰과 stage-one-verification에 연결했다. house라는 id가 존재해도 room의 층 귀속이나 계단 연결이 어긋나면 이 검증 역할에서 실패할 수 있어 이름 등록을 검증으로 대신하지 않는다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 단일 library의 납품 범위와 두 층·한 계단의 조건을 집의 포함 구조 및 외주 분담에 대조했다. 이 집 수준의 조립에는 별동이나 추가 world가 필요하지 않았고 maps도 선택되지 않아 이 단위 때문에 부모의 규모·연결 권한을 바꿀 근거는 없다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 집 수준에서는 한 본채 아래 두 층을 두고 그 사이 통행을 single-stair로 한정하며 중정·브리지·추가 계단과 복층 거실을 배제한다. 세부 room 연결과 curtainwall 대응은 링크된 설계와 컴파일 산출물의 별도 검사에 남겨 이 조립 문장만으로 새 트리의 전체 실현을 승인하지 않는다.
-@evidenceReview settings/001-production.md#delivery-scope #e314261 재사용할 집의 공간 범위를 citizen-site, house, 두 storey와 그 안의 방으로 배정한다. 별동이나 추가 체적을 만드는 납품으로 확장하지 않으며 외피와 실내를 같은 본채의 구성으로 유지한다.
-@evidenceReview settings/001-production.md#governing-aim #e9869fc 1층과 2층 partition 및 단일 계단을 집 조립의 직접 입력으로 삼아 현관 이후의 생활 동선을 보존한다. 외관을 꾸미기 위해 추가 계단이나 분리된 체적을 허용하는 조립이라면 이 지배 목적을 소비한 현재 관계가 성립하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 입면·층·방의 건축 면 주소와 물체 prototype·instance·발광 과정·finish 결합의 다른 owner를 읽었다. 현행 메시 교체는 모든 기존 물체와 발광 element를 후속 part·instance 및 해당 emitter에 대응시키는 조건 뒤에만 일어나며 이 집 H2는 건축 공간 관계만 연결한다.
-@evidenceExcludeReview settings/001-production.md#module-boundary #6450145 세 spaces 파일의 포함 계층, clear 경계, opening·계단·입면 및 관찰 도출을 모두 대조했으며 어느 결정도 CJS나 ESM을 공간 입력으로 삼지 않는다. stage-one-verification이 컴파일 뒤의 검사를 요구하는 사실도 모듈 로더의 선택은 아니므로, 이 foundation target의 직접 소비는 공간 population 밖의 실행 source와 viewer에 남는다.
-@evidenceExcludeReview settings/001-production.md#settings-coverage-map #eb1d6cc 설정 소유 지도가 방·문·외피를 spaces에, 물체 형상을 models에, 배치를 instances에 배정하고 현재 건축 source·viewer와 후속 이관 상태를 구분한 문장을 확인했다. spaces population은 납품 범위·좌표·층 그래프·외피의 실제 H2를 소비하고 물체 배치 결정을 가져오지 않으므로 이 지도 자체를 공간 사실로 중복 인용하지 않는다.
 -->
 
 본채 space id house는 [citizen-site](#site-access)의 자식인 단일 본채다. [ground-storey](002-spatial-graph.md#ground-level)와 [upper-storey](002-spatial-graph.md#upper-level) 두 층을 포함하고 각 방은 해당 층에 귀속한다. 엔진의 building unit id citizen-house는 이 전체 대지·본채를 한 단위로 소유하며, 논리 루트는 부모가 없는 citizen-site, 가시 요소 루트는 house-root다. 단위의 논리 루트 바인딩과 본채의 공간 id를 구분하며 별도 건물 단위를 추가하지 않는다. 본채의 외곽·층 datum·벽 두께는 [매스와 층](002-spatial-graph.md#mass-and-storeys)이 유일하게 소유한다.
@@ -45,9 +31,6 @@
 @evidence settings/001-production.md#delivery-scope 주택 한 채의 작은 앞마당 범위를 citizen-site와 전면 보도·현관 도착으로 배정한다. 주변 건물이나 교통망을 새 납품 영역으로 추가하지 않는다.
 @evidence settings/003-spatial-basis.md#coordinate-datum 본채와 같은 metre·Y-up 좌표에서 site bounds와 지면·tread 높이를 정하고 현관 floor datum을 소비한다. reference 픽셀을 측량 치수로 사용하지 않는다.
 @evidence settings/004-observation.md#accessibility-products 세 단차로 구성한 도착 경로를 실물 무장애 인증으로 보고하지 않는 공간 설계상의 경계를 소비한다. 키보드나 음성 제품의 구현 책임을 대지 geometry의 통과로 대신하지 않는다.
-@evidenceReview settings/001-production.md#delivery-scope #e314261 site의 15.60×17.00m 안에 집·앞마당과 임시 작업 예약면을 배정했다. 배수망은 집수구 접속 밖을 납품하지 않아 작은 대지라는 범위를 주변 기반시설로 확대하지 않는다.
-@evidenceReview settings/003-spatial-basis.md#coordinate-datum #2227bc8 같은 m·Y-up의 y=-0.45 지면에서 세 번 0.15m 올라 현관 y=0에 닿는다. 집수구도 이 지면 아래 깊이로 정의하여 관·보도에 다른 높이 기준을 만들지 않는다. 현재 건축 source의 이전 계측 이력과 이 설계 좌표를 구분하고 전체 새 트리 판정은 별도로 둔다.
-@evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 세 단차와 flush 격자를 정하면서도 무장애 인증·주행 하중을 미검증으로 명시했다. 물리적 도착을 그렸다는 사실로 viewer의 키보드 대안이나 비시각 동등성을 인증하지 않는다.
 -->
 
 <!--
@@ -60,15 +43,6 @@
 @evidence principles/design/spaces.md#space-verification-address stage-one-verification의 containment·tread 접지·문 threshold와 setting 관찰이 대지 주장을 반증한다. 식재와 창 점검 공간의 간섭도 garden owner의 실물 관찰에 남긴다.
 @evidenceExclude upstream/design/spaces.md#settings-and-map-revision-from-space-work settings의 작은 앞마당, 좌표 관례, 현관 직접 진입을 ground datum과 전면 문 범위에 대조했다. 세 단차로 도착을 구성할 수 있었고 실물 무장애 인증은 부모도 약속하지 않아 경사로나 넓은 외부 망을 추가하는 부모 수정은 필요하지 않았다.
 @evidence contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements 본채 하나가 있는 대지에서 전면 현관으로만 도착하며 별동·브리지나 두 번째 내부 계단을 도입하지 않는다. 외부 세 단차와 내부 단일 꺾임계단의 역할을 혼동하지 않는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 작은 앞마당은 delivery-scope에서, 집 datum은 mass에서 받고 site 경계·tread는 지역 저작값으로 선언했다. 장비 reach는 roof 원본을 참조해 조경자가 별도의 장비 성능을 가정하지 않는다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 현관 접근·식재와 함께 두 유지관리 예약대 및 관 아래 집수 공간을 garden에 남겼다. 식재를 우선해 작업 여유를 지우거나 집수구 밖 우수망까지 납품했다고 할 수 없다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 대지 지면이 본채 외곽 밖에서 끝나 plinth에 y=-0.45로 닿는 접합, 지면 위 tread·landing·후면 포장을 지면부터 자기 상면까지 채우는 규칙, 지면 높이의 보도·예약대 포장·cassette 예약면을 흙 바닥 y=-0.852까지 채우는 규칙을 정했다. 그 바닥은 집수 공간 바닥판 하면이어서 집수 공간의 벽과 출구도 흙 안에 묻힌다. 두 tread·landing의 구간과 높이, staging pad와 flush 집수구의 범위·깊이·출구도 있어 구현자가 단차 수·도착 높이·지면 아래 관 끝을 발명하거나 떠 있는 부재를 남길 여지가 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 작은 대지와 현관 도착이라는 부모 조건을 실제 세 단차·예약대·집수구로 전개했다. roof가 요구한 여유를 기존 대지 안의 점유 금지 구역으로 해결하는 것이 site의 추가 결정이며, 식재 재배치는 roof-face의 결정을 garden이 실현한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 보도에서 landing을 거쳐 front-entry에 닿는 한 도착 경로를 유지한다. 양 측면 예약대는 임시 장비 공간이며 집에 새 출입 connector나 별동을 만들지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 site는 지면·계단과 집수구를 소유하고 현관문은 front-entry, 장비 envelope는 roof를 소비한다. 관과 격자 사이 0.15m 낙차가 두 owner의 접합 결과로 명시되어 독립된 출구 높이를 복제하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 containment·tread 접지·문 threshold와 식재의 접근 간섭을 전수 관찰에 붙였다. 예약대나 PV 탈거 공간을 수관이 침범해도 조경의 외관 한 장만 보고 성공 처리할 수 없다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 작은 앞마당과 현관 직접 진입은 세 단차로 이어지며 2m 장비 예약대도 기존 site 경계 안이다. 장비·하중 인증은 부모의 약속이 아니므로 대지를 넓히거나 경사로를 추가하는 settings 수정이 필요하지 않다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d 외부 세 단차는 한 현관으로만 이어지고 내부 꺾임계단을 대체하지 않는다. 임시 장비·cart의 예약면을 별동·브리지나 두 번째 주택 출입 동선으로 만들지 않았다.
 -->
 
 [작은 앞마당의 납품 범위](../settings/001-production.md#delivery-scope)를 site id citizen-site로 배정하며 본채 house를 포함한다. [좌표 관례](../settings/003-spatial-basis.md#coordinate-datum)를 따른다. broad world·주변 건물·공공 교통망은 만들지 않는다. x=-7.80..7.80, z=-8.50..8.50m의 15.60×17.00m 경계를 이번 저작 치수로 채택한다. 지면 기준 y=-0.45m이며 본채의 위치·외곽과 층 datum은 [매스와 층](002-spatial-graph.md#mass-and-storeys)을 소비한다. 대지 지면은 본채 외곽 밖에서 끝나 [1층 owner](002-spatial-graph.md#ground-level)의 plinth 외면에 y=-0.45로 맞닿고 본채 아래로 이어지지 않는다. 지면 위 부재(현관 tread·landing, 후면 포장)는 지면에서 자기 상면까지 채워 떠 있지 않다. 대지 흙은 집수 공간 바닥판 하면 y=-0.852부터 지면 -0.45까지이며(집수 깊이 0.40m와 바닥판 0.002m), 지면 높이에 놓이는 보도·측면 예약대 포장·cassette 예약면도 흙 바닥 y=-0.852부터 채워 그 아래에 빈 공간을 남기지 않는다. 이 치수는 측량값이나 기존 산출물 유지 판정이 아니다.
@@ -100,19 +74,6 @@
 @evidence settings/001-production.md#delivery-fidelity 실내 원근과 외부 실제 geometry 관찰을 평면·단면 진단과 구별한다. 공간 라벨이나 box cell이 보인다는 것만으로 방과 부재가 읽힌다고 승인하지 않는다.
 @evidence settings/004-observation.md#review-apparatus settings가 소유한 raster·lens·eye와 공간 안 시점 조건을 그대로 소비하고 compiled normal/bounds에서 외부 관찰을 산출하게 한다. camera 위치가 성립하지 않는 경우를 실패 id로 보존한다.
 @evidence settings/004-observation.md#accessibility-products 텍스트로 읽을 공간·관찰 id를 topology에서 파생하는 공간 입력을 제공하며 실패 id도 목록에서 지우지 않는다. 이 관계는 공간 질문의 식별 가능한 설계를 답하고, 키보드·focus·자막 등의 UI 납품이나 시각 판정의 비시각 동등성을 구현했다는 뜻이 아니다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb raster·lens·eye는 관찰 장치에서 받고 전체 관찰 분모는 종료 조건을 따른다. 현재 집의 boundary.face·opening.profile·cell·surface·connector에 질문을 붙이고 두 L자 방의 추가 관찰을 정하는 부분이 이 공간 설계의 몫으로 구별된다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 외부의 노출 면·모서리·지붕·하부·개구와 실내의 threshold·모서리·중심 방위를 모두 남긴다. L자 방에서 성립하지 않는 위치를 삭제하거나 다섯 reference 화면으로 전체 분모를 치환하지 않아 어려운 관찰도 완료 조건에 남는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 평면에서는 cell·벽·개구·connector, 계단 단면에서는 tread·route·slab opening·도착 바닥, 입면에서는 jamb·floor line·bay를 함께 대조하도록 정했다. 도구 구현자가 어떤 관계를 겹쳐 보아야 할지 새로 발명하거나 임의의 대표 view만 선택할 여지가 없다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 관찰 조건을 현재 경계와 개구·cell에 연결하고 두 L자 방의 오목 모서리와 연장부를 추가 질문으로 지정한다. 계단 단면과 입면에서 함께 볼 부재 관계도 정하여 카메라 조건을 다시 적는 것 이상의 공간별 반증 구성을 제공한다.
-@evidenceReview principles/design/spaces.md#space-topology #3f8d925 외부 관찰은 해당 면의 world normal 쪽 바깥에, 실내 관찰은 자기 공간 내부에 있어야 한다. L자 cell 밖의 box corner를 성공 시점으로 바꾸지 않으므로 관찰 설계 역시 방의 안팎과 경계를 보존한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 카메라 장치의 수치는 settings owner를 소비하고 관찰 id와 위치의 기준은 현재 컴파일된 face·cell·opening 등에 둔다. 검사 편의를 위해 다른 방 경계나 수동 개구 목록을 병렬로 소유하지 않아 source와 관찰 사본이 따로 바뀌는 구조를 허용하지 않는다.
-@evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 문과 벽을 지나가는 connector는 평면에서, slab과 계단 도착의 충돌은 단면에서, bay와 방·층 경계의 불일치는 입면에서 드러나게 한다. 각 반례를 실패 id·source·상태·URL·RENDERER에 연결하므로 관계가 깨진 위치를 추적할 수 있으며 현재 결과는 unverified로 남긴다.
-@evidenceExcludeReview upstream/design/spaces.md#settings-and-map-revision-from-space-work #46f1b62 관찰 장치의 0.25m inset과 내부 눈높이·중심 조건을 두 L자 방과 작은 코어 공간에 대조했다. 부모가 이미 성립하지 않는 위치의 실패 id 보존과 추가 관찰을 허용하므로, 어려운 위치를 감추기 위해 camera 기준이나 전체 분모를 부모에서 낮출 필요는 없다.
-@evidenceReview contracts/citizen-house-spatial-requirements.md#citizen-house-spatial-requirements #d31488d room/storey 귀속과 문·단일 계단의 연결, curtainwall의 room/floor 대응을 실제 topology 및 각 공간의 화면에서 반증하도록 남긴다. 절개 조감이나 reference 몇 장을 통과하면 이 고정 그래프의 전수 검사가 끝난다는 대체 조건을 만들지 않았다.
-@evidenceReview settings/001-production.md#delivery-review-condition #c796e5c 질문은 컴파일된 경계·개구·공간에서 도출하고 실패 id도 분모에 유지하며 다섯 reference는 추가한다. 절개 진단을 납품용 외관으로 세지 않으므로 종료 조건이 대표 화면의 성공 수로 축소되지 않는다.
-@evidenceReview settings/001-production.md#delivery-fidelity #374c8c8 평면·계단 단면·입면의 진단과 방 안 원근·외부 실제 geometry 관찰을 구별하고 전자가 후자를 대신할 수 없게 한다. 논리 cell이나 검사용 겹침이 보인다는 사실만으로 생활 공간과 부재의 읽힘을 승인하지 않는다.
-@evidenceReview settings/004-observation.md#review-apparatus #1872595 raster·lens·eye를 관찰 장치에서 직접 받으며 외부 거리는 compiled bounds와 FOV, 관찰 방향은 실제 면의 world normal을 사용한다. 자기 공간 밖인 L자 corner는 실패로 남겨 장치 조건을 만족하지 않은 시점을 정상 내부 관찰로 기록하지 않는다.
-@evidenceReview settings/004-observation.md#accessibility-products #2e72dbe 공간·관찰 id를 topology에서 도출하고 실패한 id까지 유지하여 텍스트로 식별할 질문 목록의 공간 입력을 제공한다. 이 설계 관계는 focus·키보드 조작이나 비시각 동등성의 구현 완료를 뜻하지 않으며 실제 UI 납품은 viewer에 남는다.
 -->
 
 [관찰 장치](../settings/004-observation.md#review-apparatus)의 raster·lens·eye 조건을 소비한다. 산출물의 boundary.face·opening.profile·space cell·surface·connector를 기준으로 전체 관찰 id를 도출하며 실패한 id도 분모에 남긴다. 검사 도구 구현은 src/viewer가 소유하고 이 H2는 어떤 공간 관계를 관찰해야 하는지 소유한다.

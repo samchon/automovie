@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, "../..");
 const checks = [
   ["--lint"],
   ["pure-tests.cjs", "--tsx"],
+  ["canopy-anchor-audit.cjs", "--tsx"],
   ["ceiling-light-audit.cjs", "--tsx"],
   ["space-literal-audit.cjs"],
   ["space-literal-fixture.cjs"],
@@ -52,9 +53,9 @@ for (const args of checks) {
       : ["run", "lint"]
     : python
       ? args.filter((arg) => arg !== "--python")
-    : tsx
-      ? ["-r", "tsx/cjs", ...args.filter((arg) => arg !== "--tsx")]
-      : args;
+      : tsx
+        ? ["-r", "tsx/cjs", ...args.filter((arg) => arg !== "--tsx")]
+        : args;
   const result = spawnSync(
     lint
       ? process.platform === "win32"
@@ -81,7 +82,8 @@ for (const args of checks) {
   if (failed) failures++;
 }
 if (process.argv.includes("--bench")) {
-  const probes = process.env.AUTOMOVIE_BENCH_PROBES || "D:/AutoMovieBench/probes";
+  const probes =
+    process.env.AUTOMOVIE_BENCH_PROBES || "D:/AutoMovieBench/probes";
   const benchChecks = [
     ["src-literal-duplication.cjs", root],
     ["src-review-host.mjs", root, "src/spaces"],
@@ -96,7 +98,12 @@ if (process.argv.includes("--bench")) {
     const result = spawnSync(
       name.endsWith(".py") ? "python" : process.execPath,
       [path.join(probes, name), ...args],
-      { cwd: root, windowsHide: true, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+      {
+        cwd: root,
+        windowsHide: true,
+        encoding: "utf8",
+        maxBuffer: 64 * 1024 * 1024,
+      },
     );
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);

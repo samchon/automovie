@@ -350,7 +350,7 @@ export function observations(
           "additional-clear-eye",
           eye,
           center,
-          "Original eye or first 0.35m look segment intersects a compiled element bound; original observation retained. Additional 0.08m camera pocket and near-view on segment toward interior center; not a body-clearance or farther-visibility claim.",
+          "Original eye or segment to its interior target intersects a compiled element bound; original observation retained. Additional 0.08m camera pocket and target segment on the original-center line; not a body-clearance or full-frustum visibility claim.",
         );
     }
   }

@@ -58,7 +58,7 @@ export function verifySupplementalObservationEye(): void {
     supplementalObservationEye(space, v(0.25, 1.6, 0.25), v(1, 1.6, 1), [all]),
     null,
   );
-  const leaf = { min: v(0.35, 0, 0.1), max: v(0.38, 2, 1.9) };
+  const leaf = { min: v(0.8, 0, 0.1), max: v(0.83, 2, 1.9) };
   const outside = v(0.2, 1.6, 1),
     target = v(1.5, 1.6, 1);
   assert.equal(clearObservationEye(outside, [leaf]), true);
@@ -67,7 +67,7 @@ export function verifySupplementalObservationEye(): void {
   const afterLeaf = supplementalObservationEye(space, outside, target, [leaf]);
   assert.ok(
     afterLeaf &&
-      afterLeaf.x >= 0.46 &&
+      afterLeaf.x >= 0.91 &&
       clearObservationView(afterLeaf, target, [leaf]),
   );
 }

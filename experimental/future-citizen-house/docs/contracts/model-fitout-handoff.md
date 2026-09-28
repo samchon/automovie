@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/design/models.md#work-specific-model-requirements 임시 room source의 root 54개와 child 501개를 part 주소 또는 명명 퇴역으로 전수 대조해야 한다는 이 집의 인계 조건을 독립 obligation으로 보존한다. 공유 model 형상 의무만으로는 source 작성 지점과 새 part 사이의 1:1 퇴역 경계를 특정하지 못한다.
-@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 이 집의 임시 방 물체 root와 child마다 안정된 prototype/part/face 주소나 명명 퇴역을 한 곳만 지정하도록 독립 의무를 두었다. 주소 없는 child와 삭제된 주소를 실패로 검사하게 하여 subject별 부품 인계 조건을 실제 계약과 계정에 연결한다.
 -->
 
 # 기존 실내 물체의 모델 인계 계약

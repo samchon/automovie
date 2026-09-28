@@ -78,6 +78,34 @@ function planarBox(w: MeshWriter, b: Bounds, skipAxis = -1): void {
   if(skipAxis!==1){w.quad([[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],[0,-1,0]);w.quad([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],[0,1,0]);}
 }
 
+/** Extrude the reviewed 45-degree half-plane at each end of a stool ring bar. */
+function miteredBox(w: MeshWriter, b: Bounds): void {
+  const [x0,x1]=b.x,[y0,y1]=b.y,[z0,z1]=b.z;
+  const xLong=x1-x0>z1-z0;
+  const cx=(x0+x1)/2,cz=(z0+z1)/2;
+  const half=(xLong?z1-z0:x1-x0)/2;
+  const profile:[number,number][]=xLong
+    ? [[x0,cz<0?z0:z1],[x1,cz<0?z0:z1],[x1,cz],
+      [x1-half,cz<0?z1:z0],[x0+half,cz<0?z1:z0],[x0,cz]]
+    : [[cx<0?x0:x1,z0],[cx<0?x0:x1,z1],[cx,z1],
+      [cx<0?x1:x0,z1-half],[cx<0?x1:x0,z0+half],[cx,z0]];
+  const area=profile.reduce((sum,p,i)=>{
+    const q=profile[(i+1)%profile.length];return sum+p[0]*q[1]-q[0]*p[1];
+  },0);
+  for(const [y,normal] of [[y0,-1],[y1,1]] as const){
+    const n:Vec=[0,normal,0];
+    const ids=profile.map(([x,z])=>w.vertex([x,y,z],n,[x-x0,z-z0]));
+    for(let i=1;i<ids.length-1;i++)w.triangle(ids[0],ids[i],ids[i+1]);
+  }
+  for(let i=0;i<profile.length;i++){
+    const a=profile[i],d=profile[(i+1)%profile.length];
+    const dx=d[0]-a[0],dz=d[1]-a[1],length=Math.hypot(dx,dz);
+    const sign=area>0?1:-1;
+    const n:Vec=[sign*dz/length,0,-sign*dx/length];
+    w.quad([[a[0],y0,a[1]],[d[0],y0,d[1]],[d[0],y1,d[1]],[a[0],y1,a[1]]],n);
+  }
+}
+
 /** Boundary of an axis-aligned union of reviewed pieces minus reviewed voids. */
 function cutBoxes(w: MeshWriter, part: Bounds, pieces: Bounds[], voids: Bounds[]): void {
   const axes: (keyof Bounds)[] = ["x","y","z"];
@@ -536,6 +564,7 @@ function buildPart(part:ModelPartRecord,state:ModelStateRecord,anchor:string):IA
     cutBoxes(w,bounds,pieces,voids);
   }
   else if(part.shape==="cylinder") cylinder(w,bounds);
+  else if(part.shape==="mitered-box") miteredBox(w,bounds);
   else if(state.pieces?.[part.id]) cutBoxes(w,bounds,state.pieces[part.id],[]);
   else if(part.shape==="curved") {if(!authoredSilhouette(w,bounds,anchor,state.state,part.id))ellipsoid(w,bounds);}
   else planarBox(w,bounds);
