@@ -110,7 +110,7 @@ ref03의 sofa/rug, ref02의 침구, ref04의 chair를 [방 검사](007-observati
 
 <!--
 @evidence principles/core/common.md#scope-preservation 기존 shade panel 표면만 이 직물에 두고 금속 hem과 shade-box는 도장 금속으로 넘겨, 차양 부재 한 벌 안의 배정이 겹치지 않는다.
-@evidence principles/core/common.md#substantive-completion #aab3a0·roughness .88, opacity 1·transmission 0, woven-grain의 변화 폭 .96..1.00과 수직 V를 정해 구현이 screen 외관을 고르지 않는다.
+@evidence principles/core/common.md#substantive-completion #aab3a0·roughness .88, opacity 1·transmission 0, 별도 screen-grain의 선형 변화 폭 약 .96..1.00과 수직 V를 정해 구현이 screen 외관을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis roller 상태·높이·개수와 차폐 영역은 privacy-states와 창호 owner에서, 색은 기존 shade 색 #aab3a0에서 받고, roughness·조직 폭은 이 층의 선택이며 weave의 투광 성능은 unverified라고 밝힌다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation privacy-states는 shade의 60%·100% 내려옴을, glazing-interface는 roller sheet와 hem의 실제 면을 준다. 이 H2는 sheet의 불투명 직물 응답과 약한 조직 변화를 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance texture에 투명한 구멍을 뚫거나 외부 louver를 그리지 않고 기존 0.006m sheet 형상 위에 천의 읽힘만 더해 차폐 구조와 외관을 섞지 않는다.
@@ -121,6 +121,8 @@ ref03의 sofa/rug, ref02의 침구, ref04의 chair를 [방 검사](007-observati
 @evidence spaces/003-surface-ownership.md#glazing-interface roller sheet의 n=0.137..0.143 점유와 hem n=0.131..0.149를 받아 sheet는 직물, hem은 금속으로 나눈다.
 -->
 
-`screen-fabric`은 기존 `shade` panel 표면에만 배정한다. 창호 owner의 roller는 bay마다 box(n=0.100..0.180), 두께 0.006m sheet(n=0.137..0.143), hem(n=0.131..0.149)이며 sheet는 창 높이에 대해 낮 4.5%, 사적 상태에서 공용부·계단 60%·작업실·침실 100%, 야간 100% 내려온다. 욕실 두 창은 box만 있고 sheet가 내려오지 않는다. 금속 hem과 shade-box는 [도장 금속](002-exterior-solids.md#coated-metal)이다. 색은 기존 shade 색 #aab3a0을 유지하고 roughness는 .88로 정하며 opacity=1·transmission=0을 유지하고 woven-grain의 변화 폭을 .96..1.00으로 낮춘다. shade panel의 수직 V를 따른다. 기존 roller 상태·높이·개수와 실제 차폐 영역은 창호 owner가 그대로 소유한다.
+`screen-fabric`은 기존 `shade` panel 표면에만 배정한다. 창호 owner의 roller는 bay마다 box(n=0.100..0.180), 두께 0.006m sheet(n=0.137..0.143), hem(n=0.131..0.149)이며 sheet는 창 높이에 대해 낮 4.5%, 사적 상태에서 공용부·계단 60%·작업실·침실 100%, 야간 100% 내려온다. 욕실 두 창은 box만 있고 sheet가 내려오지 않는다. 금속 hem과 shade-box는 [도장 금속](002-exterior-solids.md#coated-metal)이다. 색은 기존 shade 색 #aab3a0을 유지하고 roughness는 .88로 정하며 opacity=1·transmission=0을 유지한다. 동일한 1.5..2mm 조직 주기를 가진 별도 `screen-grain` 256²·.064×.064m를 결합하여 선형 변화 폭을 약 .96..1.00으로 낮춘다. shade panel의 수직 V를 따른다. 기존 roller 상태·높이·개수와 실제 차폐 영역은 창호 owner가 그대로 소유한다.
+
+공유 woven-grain은 가구 직물에 .89..1.00 변조를 전달하므로 shader 없이 screen만 contrast를 낮출 수 없었다. 이 H2에서 screen 전용 색 자원을 분리한다. 같은 조직 파형의 진폭을 1.4, 저주파 fleck 진폭을 .6으로 낮추고 평균 encoded 값을 253/255로 올린다. 8bit 양자화된 최소·최대 선형 값은 자원 전수 측정으로 확인한다. 기존 PNG와 가구 직물 자원은 보존한다.
 
 texture에 투명한 구멍을 뚫거나 외부 louver를 그리지 않는다. 천의 읽힘만 개선하고 유리 상태/차양 배치의 후속 설계를 대신하지 않는다. [상태 검사](007-observation.md#material-state-samples)에서 각 실제 screen의 올림/내림 범위와 유리 구분을 본다. ref03·05의 차폐가 요구하는 추가 성능은 별도 판정 전이며 weave의 투광 성능은 unverified다.

@@ -71,6 +71,7 @@ const change = (dir, pattern) => {
 const run = (dir) => {
   fs.writeFileSync(path.join(dir, "driver.cjs"), driver);
   const result = spawnSync(process.execPath, ["-r", "tsx/cjs", "driver.cjs"], {
+    windowsHide: true,
     cwd: dir,
     encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,

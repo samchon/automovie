@@ -1,7 +1,7 @@
 import { extrudeAutoMovieProfile } from "@automovie/engine";
 
 import { Assembly, rectangle, v } from "../assembly";
-import { type Rect, datum, roomById } from "../plan";
+import { type Rect, datum, roomById, stairHole } from "../plan";
 import { subtract } from "../storeys/floors";
 import { type Frame, bar, cutWall, localCut, localU, position } from "../walls";
 import { centresOf, curtainwall, louvre, spandrel } from "./curtainwall";
@@ -89,7 +89,11 @@ export function facade(
     ),
     ...extraCuts,
   ];
-  cutWall(a, f, cuts, "stone", f.id, -f.normal * 0.005, f.depth - 0.022);
+  const centerY = (f.floor + f.top) / 2;
+  cutWall(a, f, cuts, "stone", f.id, -f.normal * 0.005, f.depth - 0.022, true,
+    f.id === "front-face" ? [{ finish: "plaster-paint", normal: "z-",
+      min: [Math.min(localU(f, stairHole[0]), localU(f, stairHole[1])), datum.floors[1] - 0.016 - centerY, -f.depth],
+      max: [Math.max(localU(f, stairHole[0]), localU(f, stairHole[1])), f.top - centerY, f.depth] }] : undefined);
   const outer = ((f.depth - 0.016) / 2) * f.normal;
   const nx = Math.ceil((f.b - f.a) / 1.25),
     ny = Math.ceil((f.top - f.floor) / 0.8);
@@ -158,6 +162,7 @@ function glazing(a: Assembly, f: Frame, w: Glazing): void {
     0.03,
     0.275,
     0.0275 * f.normal,
+    w.id === "front-stair-glazing-upper" ? { "z-": "plaster-paint" } : undefined,
   );
   const centres = centresOf(w);
   for (let i = 0; i < centres.length - 1; i++) {

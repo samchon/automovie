@@ -13,7 +13,7 @@
 @evidence principles/design/materials.md#material-verification-address 원형 전체 part를 표와 대조해 누락·중복을 찾고 기둥·트러스·문철물·기와는 모델 검토판에서 우선 본다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work models의 49 prototype part 이름과 UV0 투영을 결속표와 대조했고 이 표는 part를 새로 만들거나 표면 경계를 바꾸지 않는다.
 @evidence models/cladding.md#ridge-tile `cladding#ridge-tile`의 방출 part 결속: `ridge` → `roof-terracotta`.
-@evidence models/cladding.md#roof-tile `cladding#roof-tile`의 방출 part 결속: `tegula`, `imbrex` → `roof-terracotta`.
+@evidence models/cladding.md#roof-tile `cladding#roof-tile`의 기본 판·들린 앞끝·반원 덮개 결속: `tegula`, `lip`, `imbrex` → `roof-terracotta`.
 @evidence models/columns.md#colonnade-column `columns#colonnade-column`의 방출 part 결속: `plinth`, `base`, `shaft`, `capital` → `limestone`.
 @evidence models/columns.md#porch-column `columns#porch-column`의 방출 part 결속: `plinth`, `base`, `shaft`, `capital` → `limestone`.
 @evidence models/entablature.md#ceiling-joist `entablature#ceiling-joist`의 방출 part 결속: `timber` → `dark-wood`.
@@ -129,7 +129,7 @@
 | `openings#double-door-leaf` | `plate`, `pin`, `ring`, `hinge` | `dark-metal` |
 | `openings#single-door-leaf` | `board`, `batten` | `dark-wood` |
 | `openings#single-door-leaf` | `strap`, `pin`, `ring` | `dark-metal` |
-| `cladding#roof-tile` | `tegula`, `imbrex` | `roof-terracotta` |
+| `cladding#roof-tile` | `tegula`, `lip`, `imbrex` | `roof-terracotta` |
 | `cladding#ridge-tile` | `ridge` | `roof-terracotta` |
 | `fixtures#fountain` | `step`, `rim`, `basin-inner`, `nozzle` | `limestone` |
 | `fixtures#fountain` | `water`, `ripple`, `jet` | `water` |
@@ -178,4 +178,4 @@
 | `landscape#neighbor-house` | `plinth` | `limestone` |
 | `landscape#neighbor-house` | `roof` | `roof-terracotta` |
 
-모델 결속의 검토 단위는 각 원형의 모든 방출 part다. 모델 원형 H2의 `part와 표면은` 선언과 이 표를 양방향으로 대조해 빠진 part·가짜 part·중복 키를 거부한다. 기둥의 네 석재 part, 트러스의 네 목재 part, 문짝의 목재·철물 분리, `tegula`·`imbrex`·`ridge`의 실제 기와 면을 검토판에서 우선 본다. 소품도 같은 주소 전수 검사에 남기되 색·거칠기의 관찰은 근사 수준으로 둔다. 공간 face가 이 모델 표의 part 이름과 우연히 같아도 [공간 결속](20-space-bindings.md#space-binding-map)의 별도 주소로 판단한다.
+모델 결속의 검토 단위는 각 원형의 모든 방출 part다. 모델 원형 H2의 `part와 표면은` 선언과 이 표를 양방향으로 대조해 빠진 part·가짜 part·중복 키를 거부한다. 기둥의 네 석재 part, 트러스의 네 목재 part, 문짝의 목재·철물 분리, `tegula`·`lip`·`imbrex`·`ridge`의 실제 기와 면을 검토판에서 우선 본다. 소품도 같은 주소 전수 검사에 남기되 색·거칠기의 관찰은 근사 수준으로 둔다. 공간 face가 이 모델 표의 part 이름과 우연히 같아도 [공간 결속](20-space-bindings.md#space-binding-map)의 별도 주소로 판단한다.

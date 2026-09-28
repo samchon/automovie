@@ -67,6 +67,59 @@ void test("model placement carries face finish and model metric UVs", () => {
   assert.deepEqual(item?.positions, [2, 3, 4, 3, 3, 4, 2, 4, 4]);
   assert.deepEqual(item?.uvs, [0, 0, 1, 0, 0, 1]);
 });
+void test("isolated inspection preserves repeated source parts and producer membership while house batching stays on", () => {
+  const prototype = structuredClone(model);
+  prototype.id = "roof:sample-shingle-0";
+  prototype.parts.push({
+    ...structuredClone(prototype.parts[0]!),
+    id: "second",
+  });
+  const i: IViewerModelInputs = {
+    prototypes: [
+      {
+        model: prototype,
+        faceByPart: { frame: "frame", second: "frame" },
+        memberByPart: { frame: "0", second: "1" },
+      },
+    ],
+    instances: [{ id: "sample", modelId: prototype.id, transform: {} }],
+    finishes: { frame: { color: 0x333333, roughness: 0.4, metalness: 0 } },
+  };
+  assert.equal(lowerViewerModels(i).length, 1);
+  const separated = lowerViewerModels({ ...i, batchRepetitions: false });
+  assert.deepEqual(
+    separated.map((p) => p.id),
+    ["sample/frame", "sample/second"],
+  );
+  assert.deepEqual(
+    separated.map((p) => p.assemblyMember),
+    ["0", "1"],
+  );
+  assert.deepEqual(separated[0]!.positions, separated[1]!.positions);
+});
+
+void test("a material tile module converts model metres into texture repeats", () => {
+  const tiled = input();
+  tiled.finishes = {
+    frame: {
+      color: 0xffffff,
+      roughness: 0.4,
+      metalness: 0,
+      texture: "/textures/siding.png",
+      textureMetres: [0.25, 0.5],
+    },
+  };
+  assert.deepEqual(lowerViewerModels(tiled)[0]?.uvs, [0, 0, 4, 0, 0, 2]);
+  tiled.finishes = {
+    frame: {
+      color: 0xffffff,
+      roughness: 0.4,
+      metalness: 0,
+      textureMetres: [0, 1],
+    },
+  };
+  assert.throws(() => lowerViewerModels(tiled), /invalid texture module/);
+});
 
 void test("house scene accepts an authored model placement input", () => {
   const scene = buildHouseScene("test-source", input());
@@ -74,6 +127,42 @@ void test("house scene accepts an authored model placement input", () => {
     scene.items.find((item) => item.id === "window-1/frame")?.faceId,
     "frame",
   );
+});
+
+void test("a glass model face retains its authored physical optics in the scene", () => {
+  const glassInput = input();
+  glassInput.finishes = {
+    frame: {
+      color: 0xe8eef0,
+      roughness: 0.03,
+      metalness: 0,
+      transmission: 0.92,
+      ior: 1.5,
+      thickness: 0.006,
+      doubleSided: true,
+    },
+  };
+  const [glass] = lowerViewerModels(glassInput);
+  assert.equal(glass?.transmission, 0.92);
+  assert.equal(glass?.ior, 1.5);
+  assert.equal(glass?.thickness, 0.006);
+  assert.equal(glass?.doubleSided, true);
+});
+
+void test("a model-qualified finish wins when different prototypes reuse a face id", () => {
+  const bound = input();
+  bound.finishes = {
+    ...bound.finishes,
+    "sample-window/frame": {
+      color: 0x111111,
+      roughness: 0.2,
+      metalness: 0.4,
+    },
+  };
+  const [item] = lowerViewerModels(bound);
+  assert.equal(item?.color, 0x111111);
+  assert.equal(item?.roughness, 0.2);
+  assert.equal(item?.metalness, 0.4);
 });
 
 void test("model path refuses unresolved identity and texture coordinates", () => {

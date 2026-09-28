@@ -37,7 +37,9 @@ const connectedComponents = (mesh: IAutoMovieMesh): number => {
   const indices = mesh.indices;
   if (indices === null) throw new Error("mesh has no indices");
   const parent = new Map<string, string>();
-  const key = (index: number): string => [0, 1, 2].map((axis) => Math.round(mesh.positions[3 * index + axis]! * 1e9)).join(",");
+  const key = (index: number): string => [0, 1, 2].map((axis) => Math.round(mesh.positions[3 * index + axis]! * 1e9)).join(
+    ",",
+  );
   const find = (name: string): string => {
     const original = parent.get(name);
     if (original === undefined) {
@@ -51,7 +53,10 @@ const connectedComponents = (mesh: IAutoMovieMesh): number => {
   };
   for (let i = 0; i < indices.length; i += 3) {
     const first = find(key(indices[i]!));
-    for (let j = i + 1; j < i + 3; j++) parent.set(find(key(indices[j]!)), first);
+    for (let j = i + 1; j < i + 3; j++) parent.set(
+      find(key(indices[j]!)),
+      first,
+    );
   }
   return new Set([...parent.keys()].map(find)).size;
 };

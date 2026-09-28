@@ -4,7 +4,6 @@
 
 <!--
 @evidence obligations/design/models.md#addressable-model-decisions 49개 모델 원형 H2를 소비자와 변경 경로로 대조했다. 공통 축척·관절·검토 판의 세 항목은 생산 계약으로 옮기고, 구조 부재는 접촉·치수가 다른 원형으로 나뉜다. portable 13 H2와 ritual 3 H2에서는 벤치·직물의 크기 변형과 별도 향로·좌구·한 자리 받침을 구분하고 기록실·보관실 궤는 같은 기본 원형으로 둔다.
-@evidenceReview obligations/design/models.md#addressable-model-decisions #226db18 원형마다 한 주소를 두고, 치수 변형은 같은 H2에 묶으며 구조·문짝·기와와 별도 ritual 원형은 소비자별로 갈랐는지 읽었다.
 -->
 
 모델 결정은 소비자가 다르거나 따로 바뀔 수 있으면 자기 H2를 가진다. [공통 축척과 표현 상한](../../contracts/principles-models.md#temple-reference-scale)은 모든 원형 H2가 자기 점유·UV0로 따로 답하는 원칙이다. [관절 규칙](../../contracts/obligations-models.md#temple-articulation-map)과 [검토 판](../../contracts/obligations-models.md#temple-model-review-board)은 모델 모집단의 역할 배정을 결산한다. 주랑 원주와 포치 원주는 같은 가족이지만 치수와 배치 수, 받는 보가 달라 따로 두고, 양개 문짝과 외개 문짝도 관절 수와 면 구성이 달라 나눈다. 평기와와 용마루 기와는 쓰이는 지붕 선과 코핑과의 관계가 달라 각자 주소를 가진다.
@@ -16,14 +15,9 @@
 <!--
 @evidence obligations/design/models.md#model-representation-completion 49개 원형 H2의 part·부재 대응과 표면 결속을 결산하고, 현재 modelSources evidence 단계의 구조 검사와 원점·점유·접합·실패 조건의 문서 검사를 구별한다.
 @evidence obligations/design/models.md#reference-scale 각 원형 H2에 적용되는 축척·UV 원칙은 보행 포락과 점유 상자를 원형마다 비교하며 치수를 primitive 기본 크기에서 받지 않는다.
-@evidenceReview obligations/design/models.md#reference-scale #2598af4 49개 원형 각각의 점유·UV 답과 계약의 보행 포락·투영 표가 대응하는지 원형 본문을 대조했다.
 @evidence obligations/design/models.md#representation-ceiling 원형의 part·빈 공간과 리뷰 거리에서 읽히는 실루엣까지만 형상 조건이며 조각·풍화·기와 한 장씩의 불규칙·정확한 역사 양식은 범위 밖이다.
-@evidenceReview obligations/design/models.md#representation-ceiling #80e74d3 표현 결산 본문의 실루엣·part·빈 공간과 원칙 계약의 상세 배제 목록을 비교해 표면 열화가 형상 요구로 들어가지 않았는지 읽었다.
 @evidence obligations/design/models.md#articulation-ownership 양개·외개 문짝의 `hinge.<판 ID>`만 회전 node이며 손잡이·경첩은 판과 함께 움직이고 나머지 47개 원형은 강체다.
-@evidenceReview obligations/design/models.md#articulation-ownership #96abfe1 표현 결산 본문의 두 문짝 node와 나머지 강체의 역할을 열림 상태 인터페이스와 대조했다.
 @evidence obligations/design/models.md#model-review-set 여섯 전체 방향과 원형별 맞은편 근접 시점, 닫힘·열림 문짝, 세 두루마리 변형과 3×3 기와 반복을 중립 원형 판의 관찰 주소로 정한다.
-@evidenceReview obligations/design/models.md#model-review-set #8d4744e 전체 여섯 방향에 접합 반대쪽 근접·문 상태·두루마리·기와 반복이 추가된 판 계획을 읽었다.
-@evidenceReview obligations/design/models.md#model-representation-completion #76dd818 49개 원형의 부재·표면 주소를 읽고 modelSources evidence 선언의 참조 검증, source와 렌더의 의미 검토를 서로 다른 결산으로 확인했다.
 -->
 
 표현 층은 원형을 정의하는 49개 H2가 part와 표면 목록, 부재 대응 주소, 접촉면·빈 공간·점유 범위를 적어 결산된다. 이동식 소품 13 H2는 각 본문 산문에 부재 치수와 점유 범위를 적고 전체 49 H2에는 부재 문법 검사가 돈다. 축척·UV0 원칙은 각 H2가 답하고, 관절·중립 검토 판 두 항목은 생산 의무가 맡으며 part를 내지 않는다. 축척 관계는 [공통 기준](../../contracts/principles-models.md#temple-reference-scale)의 보행 포락에 대한 비율과 판정된 spaces 순치수에서 오며 primitive 기본 치수로 정하지 않는다. 리뷰 거리에서는 실루엣·part·빈 공간을 판독하고 조각·풍화·기와 한 장씩의 불규칙·정확한 역사 양식 복원은 형상 조건에서 제외한다. 계층은 기둥→보→서까래→지붕 하부, 석단→제단→그릇, 칸 선반→두루마리, 손수레 판→축·바퀴의 받침 연쇄로 이어진다. 관절 인터페이스는 양개·외개 두 문짝의 `hinge.<판 ID>`뿐이고 손잡이·경첩은 판과 함께 움직이며 다른 47개 원형은 강체다. 중립 원형 판은 여섯 전체 방향과 접합 반대쪽 근접 시점, 닫힘·열림 문짝, 말린·묶음·펼친 두루마리 및 3×3 기와 반복을 같은 조명과 카메라 비율로 관찰한다.

@@ -65,8 +65,6 @@ Put a contract file's discovery answer in one HTML comment before its first H1, 
 ```text
 @evidence path/file.md#anchor What exact fact, decision, transition, or observation the host realizes.
 @evidenceExclude path/file.md#anchor Why no host in the complete population owes the target.
-@evidenceReview path/file.md#anchor #fingerprint What target-host relationship was checked.
-@evidenceExcludeReview path/file.md#anchor #fingerprint What population boundary was checked.
 ```
 
 Use configured evidence roots such as `settings/...`, `models/...`, `motions/...`, `treatments/...`, `scripts/...`, `screenplays/...`, `final/screenplays/...`, shared `discovery/...`, `naturalness/...`, `principles/...`, and `obligations/...`, or the root declared by a production-specific claim. These `scripts/...` evidence references resolve under `docs/scripts`; `src` contains executable tooling and is not the authored screenplay evidence root. Do not prefix a target with `docs/` unless that claim's root requires it. Every Markdown target unit has a stable explicit anchor.

@@ -49,9 +49,31 @@ void test("face partition refuses unsupported or incomplete input", () => {
     indices: [0, 1, 2, 0, 3, 1],
     skin: null,
   };
-  assert.throws(() => partitionPlaneFace({ ...mesh, skin: { joints: [], boneIndices: [], weights: [] } }, "y", 0), /skin data/);
-  assert.throws(() => partitionPlaneFace({ ...mesh, indices: [0, 1] }, "y", 0), /complete triangles/);
-  assert.throws(() => partitionPlaneFace({ ...mesh, indices: [0, 1, 9] }, "y", 0), /invalid vertex index/);
+  assert.throws(
+    () =>
+      partitionPlaneFace(
+        { ...mesh, skin: { joints: [], boneIndices: [], weights: [] } },
+        "y",
+        0,
+      ),
+    /skin data/,
+  );
+  assert.throws(
+    () => partitionPlaneFace({ ...mesh, indices: [0, 1] }, "y", 0),
+    /complete triangles/,
+  );
+  assert.throws(
+    () => partitionPlaneFace({ ...mesh, indices: [0, 1, 9] }, "y", 0),
+    /invalid vertex index/,
+  );
   assert.throws(() => partitionPlaneFace(mesh, "z", 9), /both face and body/);
-  assert.throws(() => partitionPlaneFace({ ...mesh, positions: mesh.positions.slice(0, 9), indices: [0, 1, 2] }, "y", 0), /both face and body/);
+  assert.throws(
+    () =>
+      partitionPlaneFace(
+        { ...mesh, positions: mesh.positions.slice(0, 9), indices: [0, 1, 2] },
+        "y",
+        0,
+      ),
+    /both face and body/,
+  );
 });

@@ -1,11 +1,11 @@
 import {
-  type AutoMovieProductionLanguage,
-  type IAutoMovieEvidenceConfigProps,
   createAutoMovieEvidenceConfig,
-  createBlankAutoMovieProductionEvidence,
   createAutoMovieProductionObligationClaim,
   createAutoMovieProductionPrincipleClaim,
+  createBlankAutoMovieProductionEvidence,
   evidence,
+  type AutoMovieProductionLanguage,
+  type IAutoMovieEvidenceConfigProps,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 import { fileURLToPath } from "node:url";
@@ -44,14 +44,17 @@ export const productionEvidence = {
 } satisfies IAutoMovieEvidenceConfigProps;
 
 productionEvidence.kind = "library";
-productionEvidence.settings = "review";
-productionEvidence.spaces = "review";
-productionEvidence.spaceSources = "review";
+productionEvidence.settings = "evidence";
+productionEvidence.spaces = "evidence";
+productionEvidence.spaceSources = "evidence";
 productionEvidence.models = "evidence";
 productionEvidence.modelSources = "draft";
 productionEvidence.materials = "evidence";
-productionEvidence.instances = "draft";
+productionEvidence.materialSources = "draft";
+productionEvidence.instances = "evidence";
+productionEvidence.instanceSources = "draft";
 productionEvidence.systems = "evidence";
+productionEvidence.systemSources = "draft";
 productionEvidence.claims = [
   createAutoMovieProductionObligationClaim({
     name: "house-observation-denominator",

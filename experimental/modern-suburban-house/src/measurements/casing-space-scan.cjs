@@ -194,10 +194,17 @@ for (const door of doors) {
       )) continue;
       reservationIntersections++;
       const matching = matchingSubtractions(hit, box.id);
-      if (process.argv.includes("--inventory")) console.log(JSON.stringify({
-        door: door.id, reservation: box.id, hit,
-        subtractionSources: matching.map(({ file, line }) => ({ file, line: line.slice(0, 180) })),
-      }));
+      if (process.argv.includes("--inventory")) console.log(
+        JSON.stringify({
+          door: door.id,
+          reservation: box.id,
+          hit,
+          subtractionSources: matching.map(({ file, line }) => ({
+            file,
+            line: line.slice(0, 180),
+          })),
+        }),
+      );
       if (!matching.length) failures.push(
         `${door.id} casing intersects ${box.file}:${box.id} without model subtraction x=${hit.x} z=${hit.z} y=${hit.y}`,
       );
@@ -219,7 +226,7 @@ const leafThickness = Number(/문짝 두께를\s*(0\.\d+) m/.exec(modelBody)?.[1
 if (![jambInset, leafThickness].every(Number.isFinite)) throw new Error("Cannot read shared door jamb and leaf thickness");
 /** @type {{ id:string;x:Span;z:Span;routeHits:string[];obstructionHits:string[] }[]} */
 const openLeaves = [];
-/** @param {Span} x @param {Span} z @param {readonly {x:number;z:number}[]} outline */
+/** @param {Span} x @param {Span} z @param {readonly { x:number;z:number }[]} outline */
 function insideRoom(x, z, outline) {
   const points = outline.map((point) => [point.x, point.z]);
   if (points.length < 3) return false;
@@ -265,7 +272,9 @@ for (const door of doors) {
   const z = /** @type {Span} */ (/** @type {unknown} */ (openAxis === "z"
     ? open
     : side));
-  const room = house.spaces.find((space) => path.basename(space.owner) === row.roomFile);
+  const room = house.spaces.find(
+    (space) => path.basename(space.owner) === row.roomFile,
+  );
   if (!room) failures.push(
     `${door.id}: no measured room source at ${row.roomFile}`,
   );
@@ -281,7 +290,9 @@ for (const door of doors) {
   const associatedSwings = boxes.filter((b) => b.kind === "swing" && b.file === row.roomFile &&
     b.id.includes("door") && isPositive(overlap(x, b.x)) && isPositive(overlap(z, b.z)));
   for (const swing of associatedSwings) if (!subset(x, swing.x) || !subset(z, swing.z))
-    failures.push(`${door.id}: both open handle faces exceed ${swing.id} x=${x} z=${z}`);
+    failures.push(
+      `${door.id}: both open handle faces exceed ${swing.id} x=${x} z=${z}`,
+    );
   const obstructionHits = boxes.filter((b) => ["furniture", "fixture", "storage"].includes(b.kind) &&
     b.file === row.roomFile && b.y && isPositive(overlap(x, b.x)) && isPositive(overlap(z, b.z)) &&
     isPositive(overlap([door.wall.floor, door.wall.floor + 2.16], b.y))).map((b) => b.id);

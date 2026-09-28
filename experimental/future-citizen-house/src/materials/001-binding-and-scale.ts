@@ -10,6 +10,16 @@ export function materialFinish(
 ): IAutoMovieMaterial {
   if (!Number.isFinite(roughness) || roughness < 0 || roughness > 1)
     throw new Error(`${id}: roughness must be in [0, 1]`);
+  for (const key of ["metallic", "opacity", "transmission", "clearcoat"] as const) {
+    const value = overrides[key];
+    if (value !== undefined && (!Number.isFinite(value) || value < 0 || value > 1))
+      throw new Error(`${id}: ${key} must be in [0, 1]`);
+  }
+  for (const [key, minimum] of [["ior", 1], ["thickness", 0]] as const) {
+    const value = overrides[key];
+    if (value !== undefined && (!Number.isFinite(value) || value < minimum))
+      throw new Error(`${id}: ${key} must be finite and >= ${minimum}`);
+  }
   return {
     id,
     name: id,

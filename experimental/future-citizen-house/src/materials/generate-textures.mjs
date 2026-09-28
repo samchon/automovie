@@ -1,14 +1,13 @@
 // @ts-check
-import { deflateSync } from "node:zlib";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { deflateSync } from "node:zlib";
 
 const tau = Math.PI * 2;
 /** @param {number} u @param {number} v @param {number} ax @param {number} ay @param {number} [phase] */
-const wave = (u, v, ax, ay, phase = 0) => Math.sin(
-  tau * (u * ax + v * ay) + phase,
-);
+const wave = (u, v, ax, ay, phase = 0) =>
+  Math.sin(tau * (u * ax + v * ay) + phase);
 /** @param {number} v */
 const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
 /** @param {number} v */
@@ -16,13 +15,17 @@ const fract = (v) => v - Math.floor(v);
 /** Smooth wrapped lattice noise, periodic at 64 texels on both axes.
  * @param {number} x @param {number} y @param {number} seed */
 const noise = (x, y, seed) => {
-  const gx = x / 4, gy = y / 4, ix = Math.floor(gx), iy = Math.floor(gy);
+  const gx = x / 4,
+    gy = y / 4,
+    ix = Math.floor(gx),
+    iy = Math.floor(gy);
   const sx = (gx - ix) ** 2 * (3 - 2 * (gx - ix));
   const sy = (gy - iy) ** 2 * (3 - 2 * (gy - iy));
   /** @param {number} a @param {number} b */
-  const hash = (a, b) => fract(
-    Math.sin((a % 16) * 127.1 + (b % 16) * 311.7 + seed * 74.7) * 43758.5453,
-  );
+  const hash = (a, b) =>
+    fract(
+      Math.sin((a % 16) * 127.1 + (b % 16) * 311.7 + seed * 74.7) * 43758.5453,
+    );
   const left = hash(ix, iy) * (1 - sy) + hash(ix, iy + 1) * sy;
   const right = hash(ix + 1, iy) * (1 - sy) + hash(ix + 1, iy + 1) * sy;
   return left * (1 - sx) + right * sx;
@@ -44,21 +47,24 @@ export function makeTextureAssets() {
     [
       "cassette-grain",
       (u, v, x, y) => {
-        const grain = (noise(x % 64, y % 64, 2087) - 0.5) * 4 + wave(u, v, 2, 1) * 0.5;
+        const grain =
+          (noise(x % 64, y % 64, 2087) - 0.5) * 4 + wave(u, v, 2, 1) * 0.5;
         return [248 + grain, 248 + grain, 248 + grain];
       },
     ],
     [
       "seal-grain",
       (u, v, x, y) => {
-        const grain = (noise(x % 64, y % 64, 2088) - 0.5) * 2 + wave(u, v, 1, 1) * 0.2;
+        const grain =
+          (noise(x % 64, y % 64, 2088) - 0.5) * 2 + wave(u, v, 1, 1) * 0.2;
         return [249 + grain, 249 + grain, 249 + grain];
       },
     ],
     [
       "paint-grain",
       (u, v, x, y) => {
-        const n = (noise(x % 64, y % 64, 2082) - 0.5) * 3 + wave(u, v, 2, 1) * 0.6;
+        const n =
+          (noise(x % 64, y % 64, 2082) - 0.5) * 3 + wave(u, v, 2, 1) * 0.6;
         return [254 + n, 254 + n, 254 + n];
       },
     ],
@@ -66,14 +72,18 @@ export function makeTextureAssets() {
       "oak-grain",
       (u, v) => {
         const bend = 0.018 * wave(u, v, 1, 2);
-        const grain = Math.sin(tau * (u * 22 + bend)) * 7 + Math.sin(tau * (u * 7 - bend)) * 5 + wave(u, v, 2, 1) * 2;
+        const grain =
+          Math.sin(tau * (u * 22 + bend)) * 7 +
+          Math.sin(tau * (u * 7 - bend)) * 5 +
+          wave(u, v, 2, 1) * 2;
         return [250 + grain, 250 + grain, 250 + grain];
       },
     ],
     [
       "felt-grain",
       (u, v, x, y) => {
-        const fibre = (noise(x % 64, y % 64, 2089) - 0.5) * 9 + wave(u, v, 37, 31) * 2;
+        const fibre =
+          (noise(x % 64, y % 64, 2089) - 0.5) * 9 + wave(u, v, 37, 31) * 2;
         return [251 + fibre, 251 + fibre, 251 + fibre];
       },
     ],
@@ -86,42 +96,67 @@ export function makeTextureAssets() {
       },
     ],
     [
+      "screen-grain",
+      (u, v, x, y) => {
+        const weave = wave(u, v, 32, 0) * wave(u, v, 0, 32) * 1.4;
+        const fleck = (noise(x % 64, y % 64, 2083) - 0.5) * 0.6;
+        return [253 + weave + fleck, 253 + weave + fleck, 253 + weave + fleck];
+      },
+    ],
+    [
       "tile-grain",
       (u, v, x, y) => {
-        const fleck = (noise(x % 64, y % 64, 2084) - 0.5) * 5 + wave(u, v, 3, 2) * 2;
+        const fleck =
+          (noise(x % 64, y % 64, 2084) - 0.5) * 5 + wave(u, v, 3, 2) * 2;
         return [253 + fleck, 253 + fleck, 253 + fleck];
       },
     ],
     [
       "worktop-grain",
       (u, v, x, y) => {
-        const fleck = (noise(x % 64, y % 64, 2090) - 0.5) * 5 + wave(u, v, 11, 7) * 1.2;
+        const fleck =
+          (noise(x % 64, y % 64, 2090) - 0.5) * 5 + wave(u, v, 11, 7) * 1.2;
         return [253 + fleck, 253 + fleck, 253 + fleck];
       },
     ],
     [
       "earth-grain",
       (u, v, x, y) => {
-        const n = (noise(x % 64, y % 64, 2085) - 0.5) * 32 + wave(u, v, 4, 3) * 9 + wave(u, v, 9, -4) * 5;
+        const n =
+          (noise(x % 64, y % 64, 2085) - 0.5) * 32 +
+          wave(u, v, 4, 3) * 9 +
+          wave(u, v, 9, -4) * 5;
         return [225 + n, 230 + n, 215 + n];
       },
     ],
     [
       "paving-grain",
       (u, v, x, y) => {
-        const n = (noise(x % 64, y % 64, 2086) - 0.5) * 12 + wave(u, v, 3, 2) * 3;
+        const n =
+          (noise(x % 64, y % 64, 2086) - 0.5) * 12 + wave(u, v, 3, 2) * 3;
         return [242 + n, 242 + n, 240 + n];
       },
     ],
   ];
   return recipes.map(([id, sample]) => {
-    const size = ["limestone-grain", "felt-grain", "tile-grain", "worktop-grain"].includes(id) ? 512 : id === "oak-grain" ? 1024 : 256;
+    const size = [
+      "limestone-grain",
+      "felt-grain",
+      "tile-grain",
+      "worktop-grain",
+    ].includes(id)
+      ? 512
+      : id === "oak-grain"
+        ? 1024
+        : 256;
     const rgba = [];
-    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-      const u = x / size, v = y / size;
-      const rgb = sample(u, v, x, y);
-      rgba.push(clamp(rgb[0]), clamp(rgb[1]), clamp(rgb[2]), 255);
-    }
+    for (let y = 0; y < size; y++)
+      for (let x = 0; x < size; x++) {
+        const u = x / size,
+          v = y / size;
+        const rgb = sample(u, v, x, y);
+        rgba.push(clamp(rgb[0]), clamp(rgb[1]), clamp(rgb[2]), 255);
+      }
     return { id, width: size, height: size, rgba };
   });
 }
@@ -154,12 +189,13 @@ function png(asset) {
   header[8] = 8;
   header[9] = 6;
   const rows = [];
-  for (let y = 0; y < asset.height; y++) rows.push(
-    Buffer.from([0]),
-    Buffer.from(
-      asset.rgba.slice(y * asset.width * 4, (y + 1) * asset.width * 4),
-    ),
-  );
+  for (let y = 0; y < asset.height; y++)
+    rows.push(
+      Buffer.from([0]),
+      Buffer.from(
+        asset.rgba.slice(y * asset.width * 4, (y + 1) * asset.width * 4),
+      ),
+    );
   return Buffer.concat([
     Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
     chunk("IHDR", header),
@@ -168,11 +204,12 @@ function png(asset) {
   ]);
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))
+) {
   const directory = resolve("public/textures");
   mkdirSync(directory, { recursive: true });
-  for (const asset of makeTextureAssets()) writeFileSync(
-    resolve(directory, asset.id + ".png"),
-    png(asset),
-  );
+  for (const asset of makeTextureAssets())
+    writeFileSync(resolve(directory, asset.id + ".png"), png(asset));
 }

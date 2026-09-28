@@ -129,10 +129,12 @@ const cases = [
   [
     "stair-closet-tread",
     "src/spaces/stair.ts",
-    [[
-      "STAIR_OPENING.turnX + STAIR_RUN * (n - 1);",
-      "STAIR_OPENING.turnX + STAIR_RUN * (n - 1) + 0.02;",
-    ]],
+    [
+      [
+        "STAIR_OPENING.turnX + STAIR_RUN * (n - 1);",
+        "STAIR_OPENING.turnX + STAIR_RUN * (n - 1) + 0.02;",
+      ],
+    ],
     ["upperSeventhTreadX", "coatStorageX", "coatBackWallX", "coatSideWallX"],
   ],
 ];
@@ -328,6 +330,7 @@ if (process.argv[2] === "--sample") {
       process.execPath,
       [__filename, "--sample", ...(name ? [name] : [])],
       {
+        windowsHide: true,
         cwd: root,
         encoding: "utf8",
         maxBuffer: 16 << 20,
@@ -352,7 +355,7 @@ if (process.argv[2] === "--sample") {
       if (name === "stair-closet-tread" && ![base, changed].every((scene) =>
         Number.isFinite(scene.coatStorageX) &&
         Number.isFinite(scene.upperSeventhTreadX) &&
-        Math.abs(scene.coatStorageX - scene.upperSeventhTreadX - 0.07) < 1e-6
+        Math.abs(scene.coatStorageX - scene.upperSeventhTreadX - 0.07) < 1e-6,
       )) throw new Error(
         `${name}: coat storage must start 0.07 m beyond the seventh upper tread`,
       );

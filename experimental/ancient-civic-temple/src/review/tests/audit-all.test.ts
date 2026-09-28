@@ -4,7 +4,7 @@ import test from "node:test";
 const { auditStatuses, runAudit } = require("../audit-all.cjs") as {
   auditStatuses: (statuses: number[]) => number;
   runAudit: (
-    run: (command: string, args: string[], options: { shell: boolean }) => { status: number | null },
+    run: (command: string, args: string[], options: { shell: boolean; windowsHide: boolean }) => { status: number | null },
     write: (line: string) => void,
   ) => number;
 };
@@ -13,7 +13,10 @@ void test("audit sums failures and still runs every gate", () => {
   assert.equal(auditStatuses([0, 1, 0, 2]), 2);
   let calls = 0;
   const lines: string[] = [];
-  const failures = runAudit(() => ({ status: [1, null, 0][calls++] ?? null }), (line) => lines.push(line));
+  const failures = runAudit(
+    () => ({ status: [1, null, 0][calls++] ?? null }),
+    (line) => lines.push(line),
+  );
   assert.equal(calls, 3);
   assert.equal(failures, 2);
   assert.match(lines.join(""), /audit: 3 gates, 2 failed/);
@@ -25,6 +28,7 @@ void test("audit invokes npm without a shell when the CLI path is available", ()
   try {
     process.env.npm_execpath = "C:/npm/bin/npm-cli.js";
     assert.equal(runAudit((command, args, options) => {
+      assert.equal(options.windowsHide, true);
       calls.push({ command, args, shell: options.shell });
       return { status: 0 };
     }, () => {}), 0);
@@ -36,6 +40,7 @@ void test("audit invokes npm without a shell when the CLI path is available", ()
     delete process.env.npm_execpath;
     calls.length = 0;
     assert.equal(runAudit((command, args, options) => {
+      assert.equal(options.windowsHide, true);
       calls.push({ command, args, shell: options.shell });
       return { status: 0 };
     }, () => {}), 0);

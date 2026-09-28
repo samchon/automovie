@@ -5,7 +5,9 @@ import { buildHouseEnvironment } from "../spaces/environment";
 import { deriveHouseObservations } from "../spaces/observations";
 
 const r6 = (value: number): number => Number(value.toFixed(6));
-const rounded = (_key: string, value: unknown): unknown => typeof value === "number" ? r6(value) : value;
+const rounded = (_key: string, value: unknown): unknown => typeof value === "number"
+  ? r6(value)
+  : value;
 
 export const sceneSnapshot = () => {
   const house = buildHouse();
@@ -52,7 +54,9 @@ export const sceneSnapshot = () => {
     rooms,
     env,
     elements: environment.elements.length,
-    elementRecords: Object.fromEntries(environment.elements.map((element) => [element.id, element])),
+    elementRecords: Object.fromEntries(
+      environment.elements.map((element) => [element.id, element]),
+    ),
     obsJson: deriveHouseObservations(environment, house),
   };
 };

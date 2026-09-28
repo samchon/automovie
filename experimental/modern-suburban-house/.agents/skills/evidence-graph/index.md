@@ -9,9 +9,9 @@ Read the applicable sibling in full before acting:
 - [Contract targets](contract-targets.md) defines discovery, upstream, principle, obligation, and source target forms.
 - [Production-specific contract](work-specific.md) classifies direct instructions and additive local targets under `docs/contracts`.
 - [Upstream revision](upstream.md) governs shared inherited-unit duties when an owner changes.
-- [Evidence staging](staging.md) owns populations, citations, exclusions, `disabled -> draft -> evidence -> review`, diagnostics, and fingerprints.
-- [Conformance owner map](conformance.md) routes semantic, structural, freshness, rewrite, and repair failures to one canonical owner.
+- [Evidence staging](staging.md) owns populations, citations, exclusions, completion stages, diagnostics, and legacy review compatibility.
+- [Conformance owner map](conformance.md) routes semantic, structural, changed-basis, rewrite, and repair failures to one canonical owner.
 
 ## Verification
 
-Use [Production-specific contract](work-specific.md) for discovery results, [Evidence staging](staging.md) for claims, stages, citations, exclusions, fingerprints, and validation commands, and [Conformance owner map](conformance.md) for the first authoritative repair owner. After a complete contract pass, evidence repair, or authorized stage transition, run [Author process Self-Review](../review-verification/self-review.md) over that boundary.
+Use [Production-specific contract](work-specific.md) for discovery results, [Evidence staging](staging.md) for claims, completion stages, citations, exclusions, legacy metadata compatibility, and validation commands, and [Conformance owner map](conformance.md) for the first authoritative repair owner. After a complete contract pass, evidence repair, or authorized stage transition, run [Author process Self-Review](../review-verification/self-review.md) over that boundary.

@@ -1,6 +1,5 @@
 <!--
 @evidence discovery/design/models.md#work-specific-model-requirements 한 신전의 모든 원형에 반복 적용되는 축척·UV0 투영은 개별 원형의 형상 결정과 달리 여러 모델 소유자를 가로지르므로 local 원칙으로 보존한다.
-@evidenceReview discovery/design/models.md#work-specific-model-requirements #e541d95 모델 검색의 기존 no-result를 다시 읽고 축척·UV 원칙 한 항목이 개별 49 원형에 반복되는 별도 생산 조건임을 확인했다.
 -->
 
 # 신전 모델의 반복 적용 원칙

@@ -1,6 +1,6 @@
 # Screenplay naturalness
 
-Naturalness is the film-only audience-language pass from the reviewed construction screenplay in `docs/screenplays` to the final screenplay in `docs/final/screenplays`. Use this phase after construction review; [Evidence staging](../evidence-graph/staging.md#transitions) owns its entry and downstream gates.
+Naturalness is the film-only audience-language pass from the completed construction screenplay in `docs/screenplays` to the final screenplay in `docs/final/screenplays`. [Evidence staging](../evidence-graph/staging.md#transitions) owns its entry and downstream gates.
 
 ## Expression-only boundary
 
@@ -18,13 +18,13 @@ Use counts or diagnostics only to locate passages after a literal reading has es
 
 ## Revision procedure
 
-1. Confirm `screenplays: "review"`, settle the exact selected population, and set `naturalness.screenplays: "draft"` while creating the matching `docs/final/screenplays` tree.
+1. Confirm construction completion under [Evidence staging](../evidence-graph/staging.md#transitions), settle the exact selected population, and set `naturalness.screenplays: "draft"` while creating the matching `docs/final/screenplays` tree.
 2. Mirror the construction tree under the exact topology in [Evidence staging](../evidence-graph/staging.md#states). Run `npx --no-install automovie toc` to refresh its managed indexes.
 3. Read the complete construction population without annotations and write the final body in context. Copy mechanical description exactly; revise only eligible audience language. An unchanged eligible passage is valid when the qualified reading finds no expression defect.
 4. After the complete final population exists, apply every selected shared, language, and work-specific naturalness target to all instances it governs in context. This is the time to judge the finished expression, not a prohibition on reading the contracts before authoring.
-5. Compare construction and final lineages. Verify every protected content decision, mechanical clause, and numeric selector, then reread eligible language as an audience and the complete final population as an independent shot author.
+5. Compare construction and final lineages. Verify every protected content decision, mechanical clause, and numeric selector. The author rereads eligible language as an audience and the complete final population from the downstream shot implementer's perspective.
 6. After final bodies and fidelity checks are complete, move to `evidence` and write the final lineage and naturalness batch under [Evidence staging](../evidence-graph/staging.md#tags).
-7. Follow [Evidence staging](../evidence-graph/staging.md), then [Author process Self-Review](../review-verification/self-review.md) through a complete clean round before `review`.
+7. Complete [Evidence staging](../evidence-graph/staging.md) and [Author process Self-Review](../review-verification/self-review.md) before handing off the final population.
 
 ## Work-specific naturalness
 
@@ -40,4 +40,4 @@ Naturalness does not require a larger body. Eligible language size may rise or f
 
 Before opening shot source work, update the machine screenplay index's screenplay-level and per-scene document paths to their exact final counterparts. Preserve its scene identifiers, authority fields, treatment pointers, and locks. Shot source lineage and the compiler's index-derived owner must name the same final unit; retaining a construction path in that index cannot answer a final owner edge.
 
-Run `npx --no-install automovie toc --check` and `npm run lint`. Read the complete final population without contracts or evidence annotations, using a reader edition when requested. Only a reviewed naturalness stage is eligible for shot and film-source realization.
+Run `npx --no-install automovie toc --check` and `npm run lint`. Read the complete final population without contracts or evidence annotations, using a reader edition when requested. Hand the completed naturalness population to shot and film-source realization under [Evidence staging](../evidence-graph/staging.md#transitions).

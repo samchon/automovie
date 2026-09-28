@@ -2,6 +2,7 @@
 
 ## 따뜻한 백색 lap siding {#siding-warm-white}
 <!--
+@evidence models/15-outdoor.md#lap-siding-board 각 단 lap-siding-board의 노출0.15 m 면과 실제 겹침/끝면에 도막 결을 붙이고 무늬로 물리 겹침을 대체하지 않는다.
 @evidence principles/core/common.md#declared-basis 따뜻한 백색 lap siding의 #EDE8DC·roughness 0.55은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 따뜻한 백색 lap siding은 spaces 03 exterior-surface-handoff의 네 입면 owner(`src/spaces/envelope/front.ts`·`rear.ts`·`left.ts`·`right.ts`) 바깥 벽면에 놓이는 lap siding 판에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 따뜻한 백색 lap siding은 #EDE8DC(선형 0.847, 0.807, 0.716), roughness 0.55, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/siding.ts`, 리뷰 관찰을 모두 적었다.
@@ -25,6 +26,8 @@
 
 ## 흰 외부 trim {#trim-white}
 <!--
+@evidence models/15-outdoor.md#exterior-corner-trim 두 서로 직각인 corner-trim 판의 앞뒤·절단 끝에 흰 도막을 결속하며 두 판 사이 miter seam의 부피를 추가하지 않는다.
+@evidence models/01-windows.md#window-sill-trim 날씨 면에서 0.035 m 돌출한 네 exterior-trim 판과 각 절단 끝의 길이 U·폭 V를 소비해 백색 마감 경계를 trim 판 끝에서 닫는다.
 @evidence principles/core/common.md#declared-basis 흰 외부 trim의 #F6F4EE·roughness 0.35은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 흰 외부 trim은 models/15-outdoor.md#exterior-corner-trim 및 창·문 모델의 trim 면, 여덟 지붕 경사면 owner(`src/spaces/roof/*.ts`)의 처마 하부·fascia, `src/spaces/porch.ts`의 기둥·보·받침에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 흰 외부 trim은 #F6F4EE(선형 0.922, 0.905, 0.855), roughness 0.35, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/trim.ts`, 리뷰 관찰을 모두 적었다.
@@ -44,6 +47,7 @@
 
 ## 어두운 asphalt shingle {#roof-shingle}
 <!--
+@evidence models/15-outdoor.md#asphalt-shingle-strip 1.00×0.32 m strip의 세 tab·실제 절개·0.32 m 사면 UV에 granule 결을 결속하고 overlap가 만든 노출0.15 m를 더 많은 tab으로 나누지 않는다.
 @evidence principles/core/common.md#declared-basis 어두운 asphalt shingle의 #3A3C3E·roughness 0.90은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 어두운 asphalt shingle은 spaces 03 표의 여덟 지붕 경사면 owner(`src/spaces/roof/*.ts`)와 `src/spaces/porch.ts` 포치 지붕의 상면에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 어두운 asphalt shingle은 #3A3C3E(선형 0.042, 0.045, 0.048), roughness 0.90, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/shingle.ts`, 리뷰 관찰을 모두 적었다.
@@ -83,6 +87,11 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 ## charcoal 창틀·굴뚝 cap·지붕 flashing {#window-frame-charcoal}
 <!--
+@evidence models/15-outdoor.md#eave-gutter-downspout 열린 gutter 안쪽·바깥과 downspout의 닫힌 단면에 charcoal 응답을 이어 붙이고 홈을 불투명 cap으로 덮지 않는다.
+@evidence models/02-exterior-doors.md#garden-door-pair 두 유리문 알루미늄 leaf-exterior·leaf-interior·leaf-edge·sash에 charcoal 분체 도막을 결속하며 glass 중앙과 흰 안팎 문선을 칠하지 않는다.
+@evidence models/01-windows.md#window-member-sizes 0.06 m frame·0.05 m sash·0.08 m mullion의 실제 길이/폭 미터 UV에 분체 도장 결을 결속하며 부재 폭을 바꾸지 않는다.
+@evidence models/01-windows.md#window-muntin-grid 유리 양쪽 0.01 m 층의 muntin만 같은 charcoal 도막을 받고 네 유리 칸에 금속 결을 넘기지 않는다.
+@evidence models/01-windows.md#window-surface-partitions frame·sash·mullion·muntin id를 charcoal 결속 키로 사용하며 흰 trim·창대·문선과 투명/흐린 유리를 별도 재료로 남긴다.
 @evidence principles/core/common.md#declared-basis charcoal 창틀·굴뚝 cap·지붕 flashing의 #2E3033·roughness 0.40은 settings/20-verification.md#visual-grammar의 짙은 외피 금속 조건과 models/15-outdoor.md#asphalt-shingle-strip의 금속 접합 원형을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation charcoal 창틀·굴뚝 cap·지붕 flashing은 models/01-windows.md#window-surface-partitions, models/02-exterior-doors.md#front-entry-door, models/02-exterior-doors.md#garden-door-pair 및 models/15-outdoor.md#eave-gutter-downspout 및 models/15-outdoor.md#asphalt-shingle-strip의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion charcoal 창틀·굴뚝 cap·지붕 flashing은 #2E3033(선형 0.027, 0.030, 0.033), roughness 0.40, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/frames.ts`, 리뷰 관찰을 모두 적었다.
@@ -103,6 +112,11 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 ## 투명 창유리 {#glass-clear}
 <!--
+@evidence models/14-bathrooms.md#sliding-shower-booth 0.008 m glass 세 판에 투과 응답을 적용하고 rail·handle·faucet의 금속 파티션과 받침 판을 분리한다.
+@evidence models/01-windows.md#window-local-frame 날씨 면 원형 안쪽에 들인 창의 기존 glass host에 결속하며 frame 깊이를 투과 shader의 두께로 대체하지 않는다.
+@evidence models/01-windows.md#double-hung-window 바깥 upper·안쪽 lower의 각 닫힌 0.006 m glass 칸에 동일 투과 응답을 결속하고 이동 노드나 두 트랙 깊이를 생성하지 않는다.
+@evidence models/01-windows.md#fixed-window 계단 한 칸과 차고 두 칸의 fixed-sash 안 네 glass 판 각각을 투명 재료로 남겨 검은 격자와 분리한다.
+@evidence models/01-windows.md#window-fidelity 원형이 제외한 복층 공기층을 shader 두께에 덧붙이지 않고 실제 한 겹 판유리만 근사해 단열·방수 성능을 주장하지 않는다.
 @evidence principles/core/common.md#declared-basis 투명 창유리의 #E8EEF0·roughness 0.03은 settings/10-house.md#openings의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 투명 창유리는 models/02-exterior-doors.md#front-entry-door, models/02-exterior-doors.md#garage-sectional-door, models/02-exterior-doors.md#garden-door-pair의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 투명 창유리는 #E8EEF0(선형 0.807, 0.855, 0.871), roughness 0.03, metallic 0.0, transmission 0.92, 결합 면, source owner `src/materials/exterior/glass.ts`, 리뷰 관찰을 모두 적었다.
@@ -122,6 +136,7 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 ## 불투명 욕실 유리 {#glass-obscure}
 <!--
+@evidence models/01-windows.md#awning-window sash 안 0.68×0.53 m의 obscured-glass 한 판만 산부식 응답을 받고 살대 없는 중앙과 0.006 m 실두께를 유지한다.
 @evidence principles/core/common.md#declared-basis 불투명 욕실 유리의 #E8EEF0·roughness 0.55은 settings/20-verification.md#visual-grammar의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 불투명 욕실 유리는 spaces/envelope/right.md#tub-right-window, models/01-windows.md#awning-window의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 불투명 욕실 유리는 #E8EEF0(선형 0.807, 0.855, 0.871), roughness 0.55, metallic 0.0, transmission 0.80, 결합 면, source owner `src/materials/exterior/glass.ts`, 리뷰 관찰을 모두 적었다.
@@ -140,6 +155,8 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 ## 꿀빛 목재 현관문 {#front-door-wood}
 <!--
+@evidence models/02-exterior-doors.md#front-entry-door 유리 여섯 칸과 오목 패널을 제외한 실제 leaf-exterior·leaf-interior·leaf-edge·leaf-panel만 참나무 도막/결을 받고 흰 casing·검은 철물은 분리한다.
+@evidence models/02-exterior-doors.md#exterior-door-surfaces 문짝 넓은 양면·두께 끝·패널 바닥과 챌면의 id를 받아 세로 목리를 절단 끝에서 다시 투영하며 hinge 구멍의 목재 벽도 해당 leaf-edge로 닫는다.
 @evidence principles/core/common.md#declared-basis 꿀빛 목재 현관문의 #9A6A3E·roughness 0.50은 settings/10-house.md#porch-entry의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 꿀빛 목재 현관문은 models/02-exterior-doors.md#front-entry-door의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 꿀빛 목재 현관문은 #9A6A3E(선형 0.323, 0.144, 0.048), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/doors.ts`, 리뷰 관찰을 모두 적었다.
@@ -158,6 +175,8 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 ## charcoal 차고문 패널 {#garage-door-charcoal}
 <!--
+@evidence models/02-exterior-doors.md#garage-sectional-door 네 강체 패널의 넓은 양면·오목 분절·panel-edge 홈에 동일 도막을 결속하고 최상단 네 glass와 rail의 금속 응답을 제외한다.
+@evidenceExclude models/02-exterior-doors.md#exterior-door-fidelity 차고 원형에 없는 스프링·모터·케이블과 롤러는 최종 재료를 받을 host가 없다. 패널 도막으로 그 부품이나 실제 레일 접촉 증명을 만들어내지 않는다.
 @evidence principles/core/common.md#declared-basis charcoal 차고문 패널의 #34373A·roughness 0.45은 settings/10-house.md#garage의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation charcoal 차고문 패널은 models/02-exterior-doors.md#garage-sectional-door의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion charcoal 차고문 패널은 #34373A(선형 0.034, 0.038, 0.042), roughness 0.45, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/doors.ts`, 리뷰 관찰을 모두 적었다.
@@ -215,6 +234,7 @@ shingle 원형의 `shingle-face`·`shingle-butt`·`shingle-back`·`shingle-cut` 
 
 ## 중간갈색 울타리 목재 {#fence-wood}
 <!--
+@evidence models/02-exterior-doors.md#side-yard-gate 여덟 leaf-panel과 정원 쪽 두 gate-batten의 실제 국소 UV에 목리를 붙이며 0.008 m 빈 간격과 hinge·handle에는 목재 재료를 만들지 않는다.
 @evidence principles/core/common.md#declared-basis 중간갈색 울타리 목재의 #8C6A48·roughness 0.75은 settings/10-house.md#site-identity의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 중간갈색 울타리 목재는 spaces 03 표의 `src/spaces/site/fence.ts` 울타리 노출 면과 models 02 옆마당 대문에 마감만 결합하고 그 면의 geometry·경계와 개수는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 중간갈색 울타리 목재는 #8C6A48(선형 0.262, 0.144, 0.065), roughness 0.75, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/exterior/fence.ts`, 리뷰 관찰을 모두 적었다.

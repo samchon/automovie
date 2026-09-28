@@ -4,39 +4,22 @@
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 0.495×0.70×0.48m 저장 항아리는 큰 항아리 설정 범위에 맞고, `body`는 +X 시접의 Y축 회전체, 양쪽 XY `handle`은 큰 원·관의 호길이 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 큰 항아리 0.70m 높이와 손잡이 포함 0.495m 폭을 읽고 몸체 Y축 시접과 양쪽 XY 손잡이 원환 전개를 구별했다.
 @evidenceExclude settings/00-delivery.md#operative-subjects 주체 표가 분류한 봉헌물·문서·용기·가구의 개별 정체성은 35-objects가, 분수 물은 30-interiors가 소유하므로 원형은 분류표를 형상 근거로 재사용하지 않는다.
-@evidenceExcludeReview settings/00-delivery.md#operative-subjects #78af323 주체 분류표의 사물 주소와 실제 모델 H2가 인용하는 설정 원본을 비교했다.
 @evidence principles/core/common.md#scope-preservation 큰 저장 항아리를 회전체 윤곽 다섯 점·열린 입·어깨 손잡이 두 개까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 윤곽점·열린 입·양쪽 어깨 고리를 읽어 큰 저장 항아리의 필요 형상이 있는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이, ±X 어깨에 로컬 XY 평면으로 향하는 두 고리 손잡이의 중심·원환 치수, 몸체 16분할을 확정해 source가 항아리 손잡이 방향을 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 입 안쪽 Y=0.55m와 ±0.20m 원환 중심·16각 몸체를 대조했다.
 @evidence principles/core/common.md#declared-basis 윤곽 구성은 35-objects#vessels, 쓰이는 곳은 30-interiors#storage와 #service-yard, 형태는 이미지 02·05에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb vessels의 구성, 보관실·마당 사용, 이미지 02·05가 윤곽·배치·형태 근거로 구별되는지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 배·어깨·목·입술 네 구간과 열린 입이라는 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 도기에 배·어깨·목·입술과 열린 속을 추가한 모델 결정을 확인했다.
 @evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 0.15m의 보이는 빈 공간, 부드러운 법선을 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 body·handle와 입 안쪽 0.15m 빈 곳, 부드러운 법선의 적용을 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이 끝 X=±0.2475m를 포함한 점유 상자 0.495×0.70×0.48m를 적는다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 손잡이 최대 X=±0.2475m와 배 Z=±0.24m를 상자에 대조했다.
 @evidence principles/design/models.md#reviewable-structure 측면 실루엣의 네 구간과 열린 입을 보고 구체·원통·막힌 입을 실패로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 옆 실루엣의 네 높이 구간과 열린 입으로 구형·원통 실패를 구별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 벽을 따라 선 큰 항아리를 근거로 한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 02·05의 벽 따라 선 큰 도기를 높이 0.70m 항아리로 옮겼는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 윤곽과 크기군 반복 소유가 정해져 저장 용기 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 크기군 원형과 실제 방별 반복을 분리해 위치·수는 instances에 남겼는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 구성과 storage·service-yard의 벽 따라 놓인 큰 항아리를 높이 0.70m에 대조했고 부모를 고칠 모순이 없었다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 0.70m 높이가 큰 항아리 settings와 벽 따라 배치 역할에 양립하는지 확인했다.
 @evidence settings/35-objects.md#vessels 바닥·부푼 배·좁은 목·입술과 열린 입의 도기 구성을 큰 항아리 윤곽으로 받는다.
-@evidenceReview settings/35-objects.md#vessels #33b80a7 바닥·배·목·입술과 열린 입의 부모 구성이 다섯 점 윤곽에 남는지 확인했다.
 @evidence settings/30-interiors.md#storage 보관실 벽을 따라 놓인 큰 도기 항아리를 이 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실 벽쪽 큰 도기가 이 원형의 배치 대상인지 확인했다.
 @evidence settings/30-interiors.md#service-yard 서비스 마당의 소수 항아리를 같은 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 서비스 마당의 소수 항아리에도 같은 원형을 쓰는지 확인했다.
 @evidence settings/50-production.md#references 이미지 02·05의 큰 항아리를 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 02·05의 큰 도기 실루엣을 측면 검토에 연결했는지 확인했다.
 @evidenceExclude spaces/rooms/service-yard.md#yard-volume 마당 volume의 열린 범위와 court-eave 상한은 항아리·바구니 prototype의 형상을 제약하지 않고 마당 안 위치와 수는 instances가 정해 어떤 모델도 이 volume을 소비하지 않는다.
-@evidenceExcludeReview spaces/rooms/service-yard.md#yard-volume #81ac083 서비스 마당 높이 volume은 배치가 소비하며 이 항아리의 곡면 수치를 정하지 않는지 확인했다.
 -->
 
 [보관실](../settings/30-interiors.md#storage)과 서비스 마당의 큰 도기 항아리다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 바닥·부푼 배·좁은 목·입술과 열린 입, 이미지 02·05의 벽을 따라 선 큰 항아리가 근거다.
@@ -57,31 +40,18 @@ part와 표면은 `body`, `handle`이다. 입 안쪽 0.15m가 보이는 빈 공�
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 보수적 0.436×0.50×0.30m 운반 항아리 점유는 손잡이 돌출을 포함하며, `body`는 Y축 회전체, ±X 베지어 `handle`은 아래 부착점→위 부착점 호길이 U와 관 둘레 V를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 두 손잡이를 포함한 0.436m 폭과 0.50m 높이를 읽고 베지어 관의 아래→위 U와 몸체 회전체 UV가 서로 다른지 확인했다.
 @evidence principles/core/common.md#scope-preservation 운반 항아리를 윤곽 다섯 점·입 안쪽 깊이·목과 어깨를 잇는 세로 고리 손잡이 두 개까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 다섯 윤곽점과 목·어깨 두 세로 손잡이, 열린 입을 읽어 중형 용기의 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 몸체의 높이별 반지름과 입 안쪽 0.10m, ±X 손잡이의 두 부착점·바깥 제어점·곡선 분할·관 굵기를 정해 source가 곡선 경로를 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 ±X 두 베지어 경로와 12구간·8각 관, 입 안쪽 0.10m를 대조했다.
 @evidence principles/core/common.md#declared-basis 몸체와 붙은 곡면 손잡이는 35-objects#vessels, 보관실의 손잡이 달린 운반 용기는 30-interiors#storage에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb vessels의 붙은 손잡이와 storage의 운반 용기가 각각 형태·쓰임의 부모인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 큰 항아리와 구별되는 중간 크기와 세로 고리 손잡이라는 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 큰 저장 항아리와 달리 높이 0.50m와 세로 고리 두 개를 정한 모델 선택을 확인했다.
 @evidence principles/design/models.md#representation-contract body·handle part와 손잡이 안쪽 고리·입 안쪽의 빈 공간을 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 body·handle 둘과 입·고리의 빈 공간을 구별했다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이 제어점의 보수적 외피 상자와 실제 다면체 점유 상자를 구별한다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 제어점 외피 0.436m X와 실제 다면체 약 0.396m X를 별도 상자로 읽었다.
 @evidence principles/design/models.md#reviewable-structure 큰 항아리 옆에서 크기와 손잡이 형태가 다른 종류로 읽히는지 보고 몸체에서 떨어진 손잡이를 실패로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 큰 항아리 옆의 크기·고리 비교와 끝 원판의 일부 노출을 구분해, 삽입 없는 관 끝을 실패로 만드는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 몸체에 붙은 곡면 손잡이라는 도기 설정을 형상으로 반증 가능하게 한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 곡면 손잡이의 끝 링 삽입과 몸체 밖에 남는 원판 면, 열린 고리를 별개 형상으로 읽었다.
 @evidence principles/design/models.md#model-scale-layer-completion 윤곽·손잡이와 위치 소유가 정해져 운반 용기 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.50m 운반 항아리의 몸체 윤곽·두 손잡이 끝 삽입·점유 범위는 이 H2가 닫고 보관실의 실제 위치와 복제 수는 instances에 남겼는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels와 storage 설정의 손잡이 달린 운반 용기를 높이 0.50m 윤곽에 대조했고 부모를 고칠 모순이 없었다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 0.50m 운반 용기와 보관실 역할을 대조해 부모를 축소할 이유가 없는지 확인했다.
 @evidence settings/35-objects.md#vessels 몸체와 붙은 곡면 손잡이 도기를 운반 항아리 윤곽으로 받는다.
-@evidenceReview settings/35-objects.md#vessels #33b80a7 몸체에 붙은 곡면 손잡이가 ±X 두 관의 고정으로 구현되는지 확인했다.
 @evidence settings/30-interiors.md#storage 보관실의 손잡이 달린 운반 용기를 이 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실의 손잡이 달린 운반 용기를 이 0.50m 원형이 받고 실제 배치는 instances에 남겼는지 확인했다.
 -->
 
 손잡이 달린 중간 크기 운반 용기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 몸체와 붙은 곡면 손잡이가 근거다. [보관실](../settings/30-interiors.md#storage)의 운반 용기 역할을 맡고 실제 위치와 복제 수는 instances가 정한다.
@@ -102,31 +72,18 @@ part와 표면은 `body`, `handle`이다. 손잡이 안쪽 고리와 입 안쪽�
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale X −0.08~0.11m·Y 0~0.20m의 탁상 용기는 한쪽 손잡이 돌출을 점유에 포함하고, 12각 `body`는 회전체 UV, +X `handle`은 아래→위 관 호길이 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 X 비대칭 점유 −0.08~0.11m와 12각 몸체를 읽고 +X 한쪽 관 손잡이의 아래→위 시접을 대조했다.
 @evidence principles/core/common.md#scope-preservation 작은 탁상 용기를 윤곽 네 점·입 안쪽 깊이·손잡이 하나까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 네 윤곽점·좁은 입·+X 손잡이 하나를 읽어 탁상 용기의 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 높이별 반지름과 입 안쪽 깊이에 +X 손잡이의 아래·위 부착점, 두 제어점과 12구간 경로·관 8분할을 더해 source가 손잡이 형상을 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 아래 (0.07,0.10)·위 (0.035,0.16) 부착과 두 제어점·12×8 관을 대조했다.
 @evidence principles/core/common.md#declared-basis 높이 0.12~0.30m 탁상 용기 범위는 35-objects#vessels에서, 작은 도구 용기라는 관리실의 쓰임은 30-interiors#administration에서 받는다. 봉헌실·감실의 배치는 각 선반·감실 모델 H2와 instances가 받는다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb 0.12~0.30m 탁상 범위와 관리실 작은 도구 용도가 각각 크기·쓰임을 뒷받침하는지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 도기 설정을 좁은 목과 한쪽 손잡이의 0.20m 용기라는 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 도기 중 0.20m 좁은 목과 한쪽 고리를 정한 모델 선택을 확인했다.
 @evidence principles/design/models.md#representation-contract body·handle part와 입 안쪽 빈 공간을 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 body·handle 분리와 입 안쪽 닫힌 바닥 위 빈 공간을 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 손잡이를 포함한 점유 범위 X=−0.08~0.11m·Y=0~0.20m·Z=−0.08~0.08m를 적는다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 X −0.08~0.11m 상자가 실제 관 끝 약 0.0994m를 감싸는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 한 손잡이와 좁은 목을 보고 작은 원통을 실패로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 좁은 목·고리 한 개의 뷰가 작은 원통 대체를 실패로 드러내는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 탁상 용기 범위를 손잡이와 좁은 목이라는 관찰 결정으로 좁힌다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 탁상 용기 설정을 좁은 목과 +X 손잡이라는 볼 수 있는 형상으로 좁혔는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 높이 0.20m가 탁상 범위 안이고 위치·수량 소유가 정해져 탁상 용기 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.20m가 부모 0.12~0.30m 안이고 사용 수량은 instances가 정하는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 0.12~0.30m 범위를 높이 0.20m에 대조했고 감실 칸 0.80m·선반 칸 높이 안에 들어 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 감실 0.80m 칸과 선반 안에 0.20m 용기가 들어가 부모 치수를 고칠 필요가 없는지 확인했다.
 @evidence settings/35-objects.md#vessels 높이 0.12~0.30m 탁상 용기 범위를 0.20m 용기로 받는다.
-@evidenceReview settings/35-objects.md#vessels #33b80a7 vessels의 작은 탁상 범위가 실제 높이 0.20m에 적용되는지 확인했다.
 @evidence settings/30-interiors.md#administration 작업대의 작은 도구 용기를 이 열린 입을 가진 작은 탁상 용기로 받으며 도구의 수와 배치는 instances에 남긴다.
-@evidenceReview settings/30-interiors.md#administration #9a40923 관리실 도구는 이 열린 입 용기에 놓이되 도구 개수·자리는 instances에 남는지 확인했다.
 -->
 
 봉헌실·관리실·감실의 작은 도기다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 높이 0.12~0.30m 탁상 용기가 근거다. [관리실](../settings/30-interiors.md#administration)의 작은 도구 용기는 이 원형의 열린 입을 쓰는 한 배치다. 도구의 수와 배치 위치는 instances가 정한다.
@@ -147,29 +104,17 @@ part와 표면은 `body`, `handle`이다. 위치와 수량은 instances가 정�
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 0.22×0.06×0.22m 얕은 그릇은 제단 상판에 놓이고, 단일 `bowl`의 오목 안쪽은 바깥과 별도 최저 고리에서 시작하는 Y축 회전체 UV를 낸다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 얕은 그릇의 0.06m 높이와 0.22m 지름을 읽고 오목한 안쪽 V 시작이 바깥쪽과 이어지지 않는지 확인했다.
 @evidence principles/core/common.md#scope-preservation 얕은 봉헌 그릇을 지름·높이·테두리 두께·오목면·굽까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 0.22m 그릇의 안팎 껍질·두꺼운 테두리·굽을 읽어 납작 판으로 축소하지 않았는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 지름 0.22m·높이 0.06m, 안팎 단면 좌표와 테두리 0.012m·안쪽 깊이 0.045m·굽 치수·둘레 24분할이 있어 source가 그릇 껍질을 다시 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 여덟 단면 구간·24각과 깊이 0.045m, 굽 Y=0~0.01m를 대조했다.
 @evidence principles/core/common.md#declared-basis 지름 0.15~0.30m와 두꺼운 테두리·오목한 안쪽은 35-objects#vessels에서, 놓이는 면은 제단·탁자·진열대 모델 H2에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb vessels의 지름·오목함과 제단·탁자·선반 놓임이 형상·받침의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 봉헌 그릇 설정을 수평 두께 0.012m의 두꺼운 테두리·오목 껍질·굽이라는 모델 결정으로 바꾸고 재료 선택은 materials에 남긴다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 두꺼운 테두리 0.012m와 오목 껍질·굽을 모델이 정하고 금속/도기 재료는 materials에 남겼는지 확인했다.
 @evidence principles/design/models.md#representation-contract bowl part 하나와 오목한 안쪽 빈 공간을 정하고 금속·도기 선택을 materials에 넘긴다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 bowl 하나가 열린 안쪽을 갖고 재료 선택을 이 part가 선결하지 않는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 점유 상자 0.22×0.06×0.22m를 적는다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 0.22×0.06×0.22m가 테두리와 굽을 감싸는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 측면의 두꺼운 테두리와 오목한 안쪽을 보고 납작한 원판을 실패로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 옆면에서 0.012m 테두리·오목한 면이 보여 원판 실패를 판별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 두꺼운 테두리와 오목한 안쪽이라는 설정을 측면 윤곽으로 반증 가능하게 한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 부모의 두꺼운 테두리·오목함이 실제 단면 좌표로 검증 가능해졌는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 치수가 제단 상판 1.40×0.75m 위에 놓일 규모이고 위치 소유가 정해져 봉헌 그릇 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.22m 지름이 제단 1.40×0.75m 상판에 들고 위치는 instances 몫인지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work vessels의 지름 범위와 제단·탁자·진열대 윗면을 지름 0.22m에 대조했고 모두 올릴 수 있어 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 부모 지름 0.15~0.30m 안에 있으며 세 받침면 모두 이 크기를 수용하는지 확인했다.
 @evidence settings/35-objects.md#vessels 지름 0.15~0.30m, 두꺼운 테두리와 오목한 안쪽의 그릇을 0.22m 그릇으로 받는다.
-@evidenceReview settings/35-objects.md#vessels #33b80a7 vessels의 오목한 봉헌 그릇이 0.22m bowl 원형으로 실현되는지 확인했다.
 -->
 
 제단·봉헌 탁자·진열대의 얕은 그릇이다. [도기와 봉헌 그릇](../settings/35-objects.md#vessels)의 지름 0.15~0.30m, 두꺼운 테두리와 오목한 안쪽 면이 근거다.
@@ -190,35 +135,20 @@ part와 표면은 `bowl` 하나이며 materials가 금속 또는 도기를 고�
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 돌출 살과 테를 포함한 0.43×0.32×0.43m 바구니 점유는 열린 입을 남기며, `wall` 회전체·`rim` 원환은 호길이 UV, 세로 살은 +Y U, `floor`는 평면 UV를 쓴다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 바구니 0.43m 외곽과 열린 윗입을 읽고 몸통·테 둘레 전개, 세로 살 Y축, 바닥 평면을 분리했다.
 @evidence principles/core/common.md#scope-preservation 운반 바구니를 벌어지는 원통 껍질·안쪽 바닥·띠와 살의 요철·테두리까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 벌어진 벽·바닥·열 띠·24 세로 살·원환 테두리를 읽어 짜임을 그림으로 대체하지 않는지 확인했다.
 @evidence principles/core/common.md#substantive-completion 지름·높이·벽 두께, 벽·바닥·열 줄 띠 둘레 24분할, 세로 살 24개의 Y=0.02~0.305m 범위·폭 0.012m·벽 면 기준 돌출 0.004m·시작각 7.5°, 테두리 원환 24×8분할을 확정해 source가 곡면이나 살 단면을 새로 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 시작각 7.5도와 살 폭 0.012m·법선 돌출 0.004m, 테두리 24×8각을 대조했다.
 @evidence principles/core/common.md#declared-basis 구성은 35-objects#baskets, 쓰이는 곳은 30-interiors#storage·#service-yard, 형태는 이미지 02·05에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb baskets 설정, 보관실·마당 쓰임, 이미지 02·05가 구성·위치·형태의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 짠 바구니 설정을 그림 판이 아닌 띠·살 요철의 기하라는 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모의 짠 바구니에 띠·살의 면 요철을 모델 기하로 추가했는지 확인했다.
 @evidence principles/design/models.md#representation-contract wall·rim·floor part와 위로 열린 빈 공간을 정한다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 wall·rim·floor가 위 열린 속과 바닥 닫힌 면을 분담하는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 원점을 바닥면 중심에 두고 테두리 관 반지름까지 포함한 점유 상자 0.43×0.32×0.43m를 적는다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 원점에서 테두리 최대 반지름 0.215m가 0.43m 상자 폭과 맞는지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 가까이서 띠와 살의 요철, 멀리서 둥근 테두리를 보고 매끈한 통·무늬만 그린 원통을 실패로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 근접 띠·살과 먼 테두리 뷰가 매끈한 통·무늬 원통 실패를 판별하는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 둥근 몸체와 테두리를 근거로 하고 짜임 무늬를 texture로 대신하지 않는다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 02·05의 둥근 몸체를 실제 24각 띠·살로 옮기고 텍스처만으로 주장하지 않는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 요철 규모가 리뷰 거리와 맞고 위치·수 소유가 정해져 바구니 층이 완결된다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 요철 0.004m와 원형 윤곽을 모델에 두고 보관실·마당 수량은 instances에 남겼는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work baskets 구성과 storage·service-yard의 바구니를 지름 0.40m에 대조했고 부모를 고칠 모순이 없었다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 지름 0.40m가 바구니 설정과 두 방의 보관 비품 역할에 맞는지 확인했다.
 @evidence settings/35-objects.md#baskets 황갈색 짠 운반 바구니를 띠·살 요철의 원통 껍질로 받는다.
-@evidenceReview settings/35-objects.md#baskets #a70a8f6 황갈 짠 운반 바구니의 형상은 띠·살이고 황갈색은 재료 결속에 남겼는지 확인했다.
 @evidence settings/30-interiors.md#storage 보관실의 짠 바구니를 이 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#storage #7be97cb 보관실 짠 바구니가 이 열린 원통 원형으로 쓰이는지 확인했다.
 @evidence settings/30-interiors.md#service-yard 서비스 마당의 운반 바구니를 같은 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#service-yard #7d2bf02 서비스 마당 운반 바구니에도 같은 원형을 쓰는지 확인했다.
 @evidence settings/50-production.md#references 이미지 02·05의 둥근 몸체와 테두리를 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 02·05의 둥근 바구니와 테두리를 근접·전체 관찰에 연결했는지 확인했다.
 -->
 
 [운반 바구니](../settings/35-objects.md#baskets)의 황갈색 짠 바구니다. 이미지 02·05의 둥근 몸체와 테두리가 근거다. 짜임은 리뷰 거리에서 띠와 살의 요철로 표현하며 전면 그림 판을 쓰지 않는다.
@@ -239,35 +169,20 @@ part와 표면은 `wall`, `rim`, `floor`다. 속은 위로 열린 빈 공간이�
 
 <!--
 @evidence contracts/principles-models.md#temple-reference-scale 말린 0.288×0.07×0.07m·묶음 세 원통·펼친 0.25×0.04×약 0.4074m를 각 점유로 두고, `sheet` 원통은 둘레 U·X축 V, 펼친 판은 +Z U·+X V, `tie`는 YZ 원환이다.
-@evidenceReview contracts/principles-models.md#temple-reference-scale #64c0ea1 말림·세 묶음·펼침 상태의 서로 다른 점유를 읽고 말린 종이의 X축 V와 펼친 판의 +Z U·+X V가 섞이지 않는지 대조했다.
 @evidence principles/core/common.md#scope-preservation 두루마리를 말린 한 개·세 개 묶음·펼친 한 장의 세 변형과 말림 심·끈까지 정한다.
-@evidenceReview principles/core/common.md#scope-preservation #24155e1 말린 한 개·세 개 묶음·펼친 장과 끈·심을 읽어 세 변형의 형상 범위를 확인했다.
 @evidence principles/core/common.md#substantive-completion 반지름 0.03m·길이 0.28m 원통과 양끝 0.004m 심 돌출, 한 개·세 개의 끈 접촉 경로, 펼친 장과 양끝 말림 중심을 수치로 정해 source가 세 변형의 점유 범위를 다시 고르지 않는다.
-@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 말린 길이 0.28m와 양끝 심, 세 중심의 삼각 배치에서 면 사이 틈 약 0.00102m, 펼친 장의 모서리 거리 약 0.00019m를 대조했다.
 @evidence principles/core/common.md#declared-basis 구성은 35-objects#scrolls, 칸 선반에 놓임은 30-interiors#records, 형태는 이미지 02·05, 글자 없음은 10-building#civic-identity에서 온다고 밝힌다.
-@evidenceReview principles/core/common.md#declared-basis #7ccd1cb scrolls 구성·기록실 칸·이미지 02·05·무문자 요구가 변형·배치·형태·내용의 근거인지 확인했다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 두루마리 설정을 세 변형과 끝면 심·끈으로 막대와 구별되는 모델 결정으로 바꾼다.
-@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 부모 기록물을 한 원통 막대가 아닌 세 상태와 끈·심으로 구분했는지 확인했다.
 @evidence principles/design/models.md#representation-contract sheet·tie part를 정하고 읽을 수 있는 글자가 없음을 적는다.
-@evidenceReview principles/design/models.md#representation-contract #41a7d98 sheet 계열과 tie가 각 상태의 종이·끈을 분담하고 글자는 표면에 없는지 확인했다.
 @evidence principles/design/models.md#spatial-convention 말린 두루마리의 원점을 원통 축 중심, 축을 로컬 X로 둔다.
-@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 말린 축 중심 원점과 로컬 X 길이에서 양끝 심 포함 X=±0.144m인지 확인했다.
 @evidence principles/design/models.md#reviewable-structure 끝면의 말림 심과 끈이 돌·나무 막대와 구별되는지 보고 막힌 끝면·글자 있는 장을 실패로 둔다.
-@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b 끝면 말림 심과 끈을 보는 뷰가 막힌 원통·글자 있는 장을 실패로 드러내는지 확인했다.
 @evidence principles/design/models.md#model-observable-style-basis 이미지 02·05의 칸 안 원통 묶음과 책상 위 펼친 장을 근거로 한다.
-@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 이미지 02·05의 칸 속 묶음과 책상 위 펼친 장을 별도 상태로 옮겼는지 확인했다.
 @evidence principles/design/models.md#model-scale-layer-completion 말린 변형 길이 0.28m는 칸 선반 폭 약 0.41m 안에 들어가고 칸별 수량은 instances에 남는다.
-@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 0.28m 기본형이 약 0.41m 칸 폭에 들어가고 칸별 수량은 instances가 정하는지 확인했다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work scrolls 구성과 records의 칸 선반 보관, civic-identity의 가짜 비문 금지를 세 변형에 대조했고 칸에 들어가 부모를 고치지 않았다.
-@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 세 상태를 기록실 칸과 무문자 조건에 대조해 부모 변경 없이 수용되는지 확인했다.
 @evidence settings/35-objects.md#scrolls 말린 기록물을 세 변형의 두루마리로 받는다.
-@evidenceReview settings/35-objects.md#scrolls #eba3a8f 말린 기록물 설정이 한 개·세 개·펼친 장의 서로 다른 종이 상태로 구현되는지 확인했다.
 @evidence settings/30-interiors.md#records 기록실 칸 선반의 마른 두루마리를 이 prototype으로 받는다.
-@evidenceReview settings/30-interiors.md#records #e7df752 기록실 칸 선반에 말린 0.28m 원통을 넣는 용도를 확인했다.
 @evidence settings/10-building.md#civic-identity 고대 언어의 가짜 비문을 만들지 않는다는 정체성을 글자 없는 펼친 장으로 받는다.
-@evidenceReview settings/10-building.md#civic-identity #62ab7cd 고대어 가짜 비문 금지가 펼친 장에도 적용돼 읽을 글자가 없는지 확인했다.
 @evidence settings/50-production.md#references 이미지 02·05의 칸 안 원통 묶음과 펼친 한 장을 근거로 쓴다.
-@evidenceReview settings/50-production.md#references #eb34a79 이미지 02·05의 묶음 원통과 펼친 종이가 두 변형의 시각 기준인지 확인했다.
 -->
 
 [두루마리](../settings/35-objects.md#scrolls)의 말린 기록물이다. 이미지 02·05의 칸 안에 눕혀진 원통 묶음과 책상 위 펼친 한 장이 근거이며 [고대 언어의 가짜 비문 금지](../settings/10-building.md#civic-identity)에 따라 읽을 수 있는 글자는 없다. [기록실](../settings/30-interiors.md#records)의 여러 칸과 [관리실](../settings/30-interiors.md#administration)의 작은 작업대에 놓일 말린 한 개, 세 개 묶음, 펼친 한 장의 세 변형이다.

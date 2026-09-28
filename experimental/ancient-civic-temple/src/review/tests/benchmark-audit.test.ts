@@ -4,7 +4,7 @@ import test from "node:test";
 
 const { runBenchmarkAudit } = require("../benchmark-audit.cjs") as {
   runBenchmarkAudit: (
-    run: (command: string, args: string[], options: { shell: boolean; stdio: "inherit" }) => { status: number | null },
+    run: (command: string, args: string[], options: { shell: boolean; stdio: "inherit"; windowsHide: boolean }) => { status: number | null },
     write: (line: string) => void,
     probeDirectory?: string,
   ) => number;
@@ -15,6 +15,7 @@ void test("review audit runs every probe after local gates and sums failed exits
   const lines: string[] = [];
   const statuses = [0, 0, 0, 1, 0, 0, 0, 0, null, 0, 0];
   const failures = runBenchmarkAudit((command, args, options) => {
+    assert.equal(options.windowsHide, true);
     calls.push({ command, args, shell: options.shell });
     return { status: statuses[calls.length - 1] ?? null };
   }, (line) => lines.push(line), "C:/review-probes");
@@ -37,7 +38,11 @@ void test("review audit runs every probe after local gates and sums failed exits
 
 void test("review audit accepts a complete green run", () => {
   const lines: string[] = [];
-  const result = runBenchmarkAudit(() => ({ status: 0 }), (line) => lines.push(line), "C:/review-probes");
+  const result = runBenchmarkAudit(
+    () => ({ status: 0 }),
+    (line) => lines.push(line),
+    "C:/review-probes",
+  );
   assert.equal(result, 0);
   assert.match(lines.join(""), /benchmark audit: 11 gates, 0 failed/);
 });

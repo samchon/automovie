@@ -1,19 +1,19 @@
-# Independent semantic review
+# Semantic evidence inspection
 
-This procedure owns semantic evidence judgment. The evidence builder owns structural validation and fingerprint issuance; it never writes a finding. Mechanical tooling may locate rows, report diagnostics and alarms, and append one verified fingerprint to an already-authored structural slot. A generator, codemod, formatter, or bulk rewrite must never create, complete, paraphrase, or normalize the semantic sentence.
+The authoring agent performs this inspection over its own complete evidence population. The evidence builder owns structural validation; it never decides semantic truth. Mechanical tooling may locate rows and report diagnostics and alarms. A generator, codemod, formatter, or bulk rewrite must never create, complete, paraphrase, or normalize a semantic reason.
 
 Read the [conformance owner map](../evidence-graph/conformance.md) before repairing a semantic or structural evidence failure.
 
-## Two-step transaction
+## Relationship inspection
 
 Process one relationship at a time:
 
-1. Resolve the exact target H2, complete host, necessary lineage, and configured host kind from the immutable revision under review. Record the submitted commit and target and host blob identities in the commit or pull-request chronology.
-2. Leave the fingerprint slot empty. Read the target and host literally, perform the semantic pass below, write the finding, and inspect that prose while no fingerprint is present.
-3. Freeze the accepted semantic row. Ask the builder or a dedicated token inserter for the current fingerprint, then let that tool append only the token in the structural slot. Reject an operation that changes review prose or any protected authored byte.
-4. Run evidence lint and verify the resulting row against the same immutable target and host blobs. A moved branch, changed blob, unresolved anchor, different population, or edited semantic row invalidates the transaction and requires a new literal read.
+1. Resolve the exact target H2, complete host, necessary lineage, and configured host kind from the current source basis.
+2. Read the target and host literally, perform the semantic pass below, and repair any disagreement at its earliest owner before writing the host's acknowledgement or exclusion reason.
+3. Inspect that reason against the same target, host, and population, then run scoped evidence lint. A changed source basis, unresolved anchor, different population, or edited semantic statement requires a fresh literal read.
+4. Record the inspected revision, population, findings, repairs, and check results in the ordinary commit, pull-request, or handoff chronology. Complete applicable actual-output inspection under [Production review](review.md).
 
-The durable Git commit or pull-request chronology records the fingerprint-empty semantic row, its author, the immutable revision and target and host identities, then the fingerprint insertion and proof that only the token slot changed. Do not create a repository approval, waiver, status, or review ledger. A private session path, `.wiki` note, or remembered context is not transferable provenance.
+Completion at `evidence` requires no companion review sentence, fingerprint transaction, or separate reviewer. A compatible `review` declaration uses the same companion-free structural policy. Existing companion rows are compatibility metadata and do not prove this inspection occurred. Do not create a repository approval, waiver, status, or review ledger; an ordinary chronology carries the process result.
 
 ## Host-kind discriminator
 
@@ -33,7 +33,7 @@ An exclusion uses the negative scope configured by its claim. A unit-local upstr
 
 ## Literal semantic pass
 
-For every acknowledgement, exclusion, and review:
+For every acknowledgement, exclusion, and any retained legacy review:
 
 1. Read the complete cited H2 and state its subject in target terms without relying on the annotation or review already present.
 2. Identify the configured host kind and claim family. State the host operation that could fill the target role without inferring it from document adjacency or generation order.
@@ -46,24 +46,24 @@ For every acknowledgement, exclusion, and review:
 
 A quotation is optional and must be exact and complete. Otherwise give a stable locator and describe the host's own rendering. Mid-word slices, truncated quotations, nonexistent rows, converted notation, and a heading offered as body support fail. Reread an asserted absence against its complete configured negative scope every time.
 
-When literal support fails, define the mismatch class from the failed field and relationship, not from a filename prefix. Audit that class across both the target's complete host population and the host's complete target set. Record the immutable basis, literal locations, mismatched actor, object, site, authority, operation, state, or consequence, reproducible class membership, and every affected edge in the pull-request review. Repair the earliest true owner and propagate every consequence before restarting the transaction.
+When literal support fails, define the mismatch class from the failed field and relationship, not from a filename prefix. Audit that class across both the target's complete host population and the host's complete target set. Record the source basis, literal locations, mismatched actor, object, site, authority, operation, state, or consequence, reproducible class membership, and every affected edge in the ordinary review chronology. Repair the earliest true owner and propagate every consequence before restarting the inspection.
 
 For an obligation, inspect its actual contributors against the complete target. A population-wide comparison reads the population whose relation the target governs and records the conclusion with its authored or aggregate owner. Each acknowledgement and review describes that relationship.
 
 ## Evidence-gate audit
 
-At `evidence -> review`, no review rows exist yet. Apply steps 1 through 6 of the literal semantic pass to the complete acknowledgement and exclusion population. Then read one exact target across its complete host population and one complete host across its exact target set. A mismatch triggers the same class-wide audit and earliest-owner repair before the layer may enter `review`.
+Before reporting a layer complete at `evidence`, apply the literal semantic pass to its complete acknowledgement and exclusion population. Inspect both complete population axes below. A mismatch requires the same class-wide audit and earliest-owner repair before completion; entering another stage cannot pay it.
 
 ## Completing-population audit
 
-Before completing evidence review, reread the immutable population on both axes:
+Before completing the inspection, reread the current population on both axes:
 
 - one exact target across its complete host population;
 - one complete host across its exact target set.
 
 For each axis, exchange predicates and dependent clauses with the nearest siblings. Review alarms may report repeated frames, copied target questions, repeated n-grams, slot-normalized skeletons, uniform lengths, or high review-to-body ratios. These are inputs that trigger complete literal inspection, never scores, sampling instructions, or semantic verdicts.
 
-When the audit confirms a reusable frame, report the affected target and host population, a reproducible membership rule, every matching member, and the target-specific falsifier or literal comparison that the frame failed to establish. Sweep the entire class and require a fresh two-step transaction. Paraphrasing, synonym replacement, noun substitution, and new fingerprints do not repair it. Repeated terminology passes only when each exact target question, host-specific literal support, and target-specific falsifier was independently established.
+When the audit confirms a reusable frame, report the affected target and host population, a reproducible membership rule, every matching member, and the target-specific falsifier or literal comparison that the frame failed to establish. Sweep the entire class and require a fresh literal inspection. Paraphrasing, synonym replacement, noun substitution, and new fingerprints do not repair it. Repeated terminology passes only when each exact target question, host-specific literal support, and target-specific falsifier was independently established.
 
 ## Acceptance matrix
 
@@ -78,12 +78,12 @@ Use these cases when reviewing the harness or a production's completed evidence 
 | Exact lineage relation versus a sibling's result                               | Pass only the exact child-parent edge and fail the exchanged attachment.                                                           |
 | Discovery or population exclusion contradicted by one selected host            | Fail the exclusion and report the complete contradicted class.                                                                     |
 | False quotation, converted notation, or asserted absence without a full search | Fail literal support.                                                                                                              |
-| Cross-event fact, wrong authority, or premature consequence                    | Fail even when the address and fingerprint are current.                                                                            |
-| Generic rows with current unique fingerprints                                  | Fail because attachment freshness cannot satisfy semantic independence.                                                            |
-| One tool writes findings and fingerprints                                      | Fail because the same operation owns both sides of the transaction.                                                                |
+| Cross-event fact, wrong authority, or premature consequence                    | Fail even when the attachment address is correct.                                                                                  |
+| Generic rows with exact attachment addresses                                   | Fail because attachment correctness cannot satisfy semantic independence.                                                          |
+| A tool creates semantic reasons and reports their inspection complete          | Fail because generated prose cannot establish the author's literal relationship inspection.                                        |
 | Metadata rewrite changes any protected authored byte                           | Fail before semantic judgment; restore the protected projection and restart from the immutable basis.                              |
 | Loud repetition alarms with exact independent findings                         | Pass only after both complete axes establish the literal host facts and target-specific falsifiers; alarm volume is not a verdict. |
 | Honest similarity                                                              | Pass only when both axes establish distinct literal host facts and target-specific falsifiers.                                     |
 | Target, host, population, or semantic-row edit after judgment                  | Invalidate the judgment and restart from a new immutable basis.                                                                    |
 
-Run the complete matrix with current builder-issued fingerprints where applicable so fingerprint freshness cannot decide the semantic result. A harness passes only when identical immutable inputs produce identical alarm membership and every semantic verdict still comes from literal review.
+Run the complete matrix without companion rows or fingerprints. Metadata cannot decide the semantic result. A harness passes only when identical inputs produce identical alarm membership and every semantic verdict still comes from the author's literal inspection.

@@ -4,11 +4,6 @@
 @evidence discovery/core/settings.md#directive-promise-subject-requirements 단일 본채와 방별 직접 연결은 settings/003-spatial-basis.md, 가족 배경과 모든 생활 물품은 settings/002-household.md, 이미지 기반 시각적 납품과 관찰 종료는 settings/001-production.md가 소유한다. 실건물의 물리적 적합성은 delivery-scope에서 비요구로 분류한다.
 @evidence discovery/core/settings.md#planned-delivery-backcast 실제 공간 carrier와 3D 모델·배치가 공유할 기준면과 계단 형식은 coordinate-datum과 single-stair가 정한다. 외형·가구·재료는 reference-priority와 visual-grammar, 실제 렌더의 관찰은 observation-population이 정하며 물리 사용성 대리 형체를 추가 조건으로 채택하지 않는다.
 @evidence discovery/design/spaces.md#work-specific-space-requirements 남쪽으로 열린 ㄷ자 본채에서 1층 필수실은 같은 회랑에, 2층 필수실은 같은 일자 복도에 직접 연결되는 고정 구성을 보존한다. 이 제작 고유의 형식은 아래 항목과 기존 공간 claim이 소유하며 실건물 사용성의 수치 조건을 추가하지 않는다.
-@evidenceReview discovery/core/common.md#shared-local-boundary #ae499c0 공유 연결 원칙만으로는 남쪽으로 열린 ㄷ자·한 꺾임계단·상층 일자 복도를 선택하지 않는다. 이 계약은 사용자가 확정한 그 형식을 보존하므로 다른 유효한 평면으로 바꾸는 경우를 실제 반례로 남긴다.
-@evidenceReview discovery/core/common.md#canonical-realization #5a6e541 보존 조건의 원천은 settings/003-spatial-basis.md이고 실현 소유자는 manor-space 및 등록된 manorSpaceSource다. 기존 공간 claim이 같은 H2를 대상으로 하므로 계약이 작업 메모에만 남지 않으며 새 독립 물리 검사 claim을 만들지 않는다.
-@evidenceReview discovery/core/settings.md#directive-promise-subject-requirements #1c99050 현재 설정에는 본채 전체·각 실·여섯 식사 자리와 물품·정원·시각 관찰의 소유자가 남아 있다. 운반·착석·유효 치수 시험의 비요구는 delivery-scope가 분류하며, 이 분류를 물통이나 의자 삭제로 바꾸면 해당 방의 목록을 위반한다.
-@evidenceReview discovery/core/settings.md#planned-delivery-backcast #73ac216 현재 공간과 모델·배치가 필요로 하는 축·층 기준면·고정 연결·재료 언어 및 관찰 경계는 연결한 설정에 있다. 등록된 기존 숫자를 실건물의 합격 조건으로 읽지 않으며, 표현 인터페이스의 구체 설계는 그 자식 소유자에 남긴다.
-@evidenceReview discovery/design/spaces.md#work-specific-space-requirements #a751db6 ground-access와 upper-access의 각 방 직접 연결 및 single-stair의 한 꺾임계단을 계약 본문과 대조했다. 공유 공간 계약이 허용할 다른 연결 형식도 여기서는 반례가 되며, 사람의 통과·머리높이·운반 시험으로 이 시각적 공간 보존 조건을 확대하지 않는다.
 -->
 # 저택 공간 보존 계약
 

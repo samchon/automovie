@@ -1,11 +1,11 @@
 import {
+  createAutoMovieEvidenceConfig,
+  createAutoMovieProductionObligationClaim,
+  createAutoMovieProductionPrincipleClaim,
+  createBlankAutoMovieProductionEvidence,
+  evidence,
   type AutoMovieProductionLanguage,
   type IAutoMovieEvidenceConfigProps,
-  createAutoMovieEvidenceConfig,
-  createBlankAutoMovieProductionEvidence,
-  createAutoMovieProductionPrincipleClaim,
-  createAutoMovieProductionObligationClaim,
-  evidence,
 } from "@automovie/evidence";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
@@ -36,7 +36,7 @@ import type { ITtscLintConfig } from "@ttsc/lint";
  * productionSources as the parallel typed assembly input to filmSources.
  */
 const settingsStage = "review" as const;
-const spacesStage = "review" as const;
+const spacesStage = "evidence" as const;
 
 export const productionEvidence = {
   ...createBlankAutoMovieProductionEvidence(
@@ -46,17 +46,20 @@ export const productionEvidence = {
   kind: "library",
   settings: settingsStage,
   spaces: spacesStage,
-  spaceSources: "review",
-  models: "review",
-  modelSources: "review",
+  spaceSources: "evidence",
+  models: "evidence",
+  modelSources: "evidence",
   materials: "evidence",
+  materialSources: "evidence",
+  instances: "evidence",
+  instanceSources: "evidence",
   claims: [
     createAutoMovieProductionPrincipleClaim({
       name: "temple-model-scale-uv",
       document: "contracts/principles-models.md",
       files: ["models/**/*.md"],
       layer: "models",
-      stage: "review",
+      stage: "evidence",
       populationScope: { mode: "complete-production" },
       symbol: "h2",
     }),
@@ -65,7 +68,7 @@ export const productionEvidence = {
       document: "contracts/obligations-models.md",
       account: "accounts/models/temple-obligations.md",
       layer: "models",
-      stage: "review",
+      stage: "evidence",
       populationScope: { mode: "complete-production" },
     }),
     createAutoMovieProductionObligationClaim({

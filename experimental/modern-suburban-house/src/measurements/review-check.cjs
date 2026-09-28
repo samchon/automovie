@@ -1,7 +1,7 @@
 /** Run the coordinator's read probes and the production check in one
  * command. Every child runs, and every nonzero exit contributes to the final
- * exit sum. The reason probe is scoped to docs and src separately so ignored
- * historical .wiki snapshots are not mistaken for production review hosts.
+ * exit sum. Identifier inspection reads ordinary source acknowledgements and
+ * exclusions. Companion-only probes are retired with their annotation duty.
  * Full output stays in the ignored .wiki review log. */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -21,14 +21,9 @@ function identifierStatus(output, processStatus) {
   return hits.every((line) => {
     const fields = line.split("\t");
     return fields.length === 4 && fields[2] === allowedVerb && fields[3] === `absent=${allowedVerb}`;
-  }) ? 0 : 1;
-}
-
-/** Number reports are selectors for manual reading, not a failure count. */
-/** @param {string} output @param {number|null} processStatus */
-function numberReportStatus(output, processStatus) {
-  const rows = /^review rows\s+(\d+)$/m.exec(output);
-  return rows && Number(rows[1]) > 0 && (processStatus === 0 || processStatus === 1) ? 0 : 1;
+  })
+    ? 0
+    : 1;
 }
 
 /** @param {string} probes @param {string} npmCli
@@ -41,64 +36,9 @@ function taskPlan(probes, npmCli) {
       [path.join(probes, "src-literal-duplication.cjs"), root],
     ],
     [
-      "src-review-host",
-      process.execPath,
-      [path.join(probes, "src-review-host.mjs"), root, "src/spaces"],
-    ],
-    [
       "src-review-missing-idents",
       "python",
-      [path.join(probes, "src-review-missing-idents.py"), root],
-    ],
-    [
-      "docs-review-host",
-      process.execPath,
-      [path.join(probes, "docs-review-host.mjs"), root, "docs/models"],
-    ],
-    [
-      "docs-spaces-review-host",
-      process.execPath,
-      [path.join(probes, "docs-review-host.mjs"), root, "docs/spaces"],
-    ],
-    [
-      "docs-spaces-review-rows",
-      process.execPath,
-      [
-        path.join(probes, "1952-docs-rows-extract.mjs"),
-        path.join(root, "docs"),
-        path.join(logs, "docs-spaces-rows.json"),
-        "spaces", "spaces/rooms", "spaces/envelope", "spaces/roof", "spaces/site",
-      ],
-    ],
-    [
-      "docs-spaces-review-quotes",
-      process.execPath,
-      [
-        path.join(probes, "1952-docs-quote-check-all.cjs"),
-        path.join(root, "docs"),
-        path.join(logs, "docs-spaces-rows.json"),
-        "1",
-        path.join(logs, "docs-spaces-quotes"),
-      ],
-    ],
-    [
-      "docs-spaces-quote-owners",
-      process.execPath,
-      [
-        path.join(__dirname, "docs-spaces-quote-owner.cjs"),
-        path.join(logs, "docs-spaces-rows.json"),
-        path.join(logs, "docs-spaces-quotes.tsv"),
-      ],
-    ],
-    [
-      "doc-review-numbers",
-      process.execPath,
-      [path.join(probes, "doc-review-numbers.mjs"), root],
-    ],
-    [
-      "docs-spaces-review-numbers",
-      process.execPath,
-      [path.join(probes, "doc-review-numbers.mjs"), root, "docs/spaces"],
+      [path.join(probes, "src-review-missing-idents.py"), root, "--all-tags"],
     ],
     [
       "doc-anchor-graph",
@@ -110,21 +50,11 @@ function taskPlan(probes, npmCli) {
       process.execPath,
       [path.join(probes, "face-binding-owner.cjs"), root],
     ],
-    [
-      "evidence-reason-docs",
-      "python",
-      [path.join(probes, "evidence-reason-shared.py"), root, "docs"],
-    ],
-    [
-      "evidence-reason-src",
-      "python",
-      [path.join(probes, "evidence-reason-shared.py"), root, "src"],
-    ],
     ["production-check", process.execPath, [npmCli, "run", "check"]],
   ];
 }
 
-/** @param {ReturnType<typeof taskPlan>} tasks @param {(command:string,args:string[])=>{status:number|null,stdout?:string,stderr?:string,error?:Error}} run */
+/** @param {ReturnType<typeof taskPlan>} tasks @param {(command:string,args:string[])=>{ status:number|null;stdout?:string;stderr?:string;error?:Error }} run */
 function execute(tasks, run) {
   let exitSum = 0;
   const results = [];
@@ -134,22 +64,14 @@ function execute(tasks, run) {
       `${result.stdout ?? ""}\n${result.stderr ?? ""}`,
     );
     const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
-    const rowCount = /\btotal\s+(\d+)\s+hosts\s+\d+/.exec(output);
-    const spanCount = /\brows with quotes\s+\d+\s+spans\s+(\d+)/.exec(output);
-    const failedQuotes = /\b(?:ABSENT|LOOSE):\s*[1-9]\d*\b/.test(output);
-    const emptyPopulation =
-      (name === "docs-spaces-review-rows" && Number(rowCount?.[1] ?? 0) === 0) ||
-      (name === "docs-spaces-review-quotes" && Number(spanCount?.[1] ?? 0) === 0);
     const status = name === "src-review-missing-idents"
       ? identifierStatus(output, result.status)
-      : name === "doc-review-numbers" || name === "docs-spaces-review-numbers"
-      ? numberReportStatus(output, result.status)
-      : Math.max(result.status ?? 1, unchecked || emptyPopulation || (name === "docs-spaces-review-quotes" && failedQuotes) ? 1 : 0);
+      : Math.max(result.status ?? 1, unchecked ? 1 : 0);
     exitSum += status;
     results.push({
       name,
       status,
-      unchecked: unchecked || emptyPopulation,
+      unchecked,
       stdout: result.stdout ?? "",
       stderr: result.stderr ?? "",
       error: result.error?.message ?? "",
@@ -168,16 +90,15 @@ if (require.main === module) {
     fs.mkdirSync(logs, { recursive: true });
     const spacesOnly = process.argv[3] === "--spaces";
     const tasks = taskPlan(path.resolve(probes), npmCli).filter(([name]) =>
-      !spacesOnly || (name !== "docs-review-host" && name !== "production-check"),
+      !spacesOnly || name !== "production-check",
     );
-    const { exitSum, results } = execute(
-      tasks,
-      (command, args) =>
-        spawnSync(command, args, {
-          cwd: root,
-          encoding: "utf8",
-          maxBuffer: 1 << 26,
-        }),
+    const { exitSum, results } = execute(tasks, (command, args) =>
+      spawnSync(command, args, {
+        windowsHide: true,
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 1 << 26,
+      }),
     );
     for (const result of results) {
       const log = path.join(logs, `${result.name}.txt`);
@@ -191,4 +112,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { taskPlan, execute, identifierStatus, numberReportStatus };
+module.exports = { taskPlan, execute, identifierStatus };
