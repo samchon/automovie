@@ -1,8 +1,9 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointConstraint,
   IAutoMovieMaterial,
 } from "@automovie/interface";
+import type { IAutoMovieHumanBodyBasisJoint } from "./IAutoMovieHumanBodyBasisJoint";
+import type { IAutoMovieHumanBodyBasisSurface } from "./IAutoMovieHumanBodyBasisSurface";
 
 /**
  * An immutable, externally authored connected body below the neck, with the
@@ -41,10 +42,6 @@ import type {
  * other owners (clothing to a production's own assets, hair to the face's
  * groom, ethnicity to the face track that declined it too).
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Carries shared face/body collar vertices, neutral surfaces, signed named channels with explicit mirrors, correctives, landmarks and weights one document replays without Blender.
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Puts the joints, their landmark-defined pivots and their clinical limits inside the basis contract instead of a later layer.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the shared face/body collar frame, the sparse row format, the channel envelope and the product activation this type is evaluated under.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Declares landmark-defined joints, generic signs and ranges for non-humeral bones, measured TT coordinates for upper arms and each surface's four-influence skin.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasis {
@@ -170,108 +167,7 @@ export interface IAutoMovieHumanBodyBasis {
    * order where every parent precedes its children. The builder projects these
    * onto `IAutoMovieSkeleton` after the shape has moved the landmarks.
    */
-  joints: {
-    bone: AutoMovieHumanoidBone;
-
-    /** Parent slot, or null for the root (`hips`). */
-    parent: AutoMovieHumanoidBone | null;
-
-    /** Landmark ids of the joint centre and of the bone's distal end. */
-    head: string;
-    tail: string;
-
-    /**
-     * The reference direction for the bone frame's X axis, in the basis frame
-     * of the neutral. The frame is Y along head to tail, X equal to `Y x F`
-     * and Z equal to `X x Y`. Non-humeral joints use this frame for the
-     * engine's flexion/abduction/twist axes; the upper arms use it only for
-     * skin binding, while their clinical goal uses `shoulder` below.
-     */
-    reference: [number, number, number];
-
-    /**
-     * Landmark ids of two points the joint's flexion axis runs along, from the
-     * first to the second, when that axis is fixed in the parent rather than
-     * perpendicular to the bone: the hip flexes about the line through both
-     * hip centres, which the thigh, leaning out at rest, is not perpendicular
-     * to. The axis turns with the shape as the landmarks do, is read in the
-     * bone's rest frame, and must lie within 60 degrees of the frame's X; the
-     * abduction axis is then the frame's Z made perpendicular to it and the
-     * twist axis the third of that orthonormal basis. Omitted, the joint
-     * flexes about its frame's X.
-     */
-    flexionAxis?: [string, string];
-
-    /**
-     * Clinical sign of each non-humeral axis under that frame, measured at extraction:
-     * flexion is +1 by construction; abduction is the sign that carries the
-     * bone away from the midline (or toward the thumb at the wrist); twist is
-     * the sign of external rotation. Null marks an axis the constraint holds
-     * immobile. These become the bone's `IAutoMovieRestFrame` at pose time.
-     */
-    signs: {
-      flexion: 1;
-      abduction: 1 | -1 | null;
-      twist: 1 | -1 | null;
-    };
-
-    /**
-     * Clinical rest angle of each non-humeral axis in degrees, measured from
-     * its anatomical zero. The upper arms hold these generic axes at zero;
-     * their separate `shoulder.neutral` records the A-pose direction and
-     * axial zero in the thorax's anatomical frame.
-     */
-    neutral: {
-      flexion: number;
-      abduction: number;
-      twist: number;
-    };
-
-    /** Generic clinical range, or null for the root; all upper-arm generic axes are held. */
-    constraint: IAutoMovieJointConstraint | null;
-
-    /**
-     * Spread this bone's axial twist along its skin, as a rig's twist joints
-     * do. The bone's rotation relative to its parent is split into a swing
-     * and a twist about its rest axis (its head to its one child joint's
-     * head); a vertex it moves takes the swing whole and the twist in
-     * proportion to where it lies along that axis, none at the head and all
-     * of it at the child's head. Absent, the bone carries its skin rigidly.
-     */
-    distributeTwist?: boolean;
-
-    /**
-     * Humerothoracic authoring coordinates for an upper arm. Only the two
-     * upper arms carry this field. Their generic Euler axes are held at zero;
-     * the shoulder goal is resolved from the thorax after girdle coupling.
-     */
-    shoulder?: {
-      coordinates: "thorax-tt";
-      /** Anatomical A-pose direction and axial zero in thorax coordinates. */
-      neutral: {
-        plane: number;
-        elevation: number;
-        axialRotation: number;
-      };
-      /**
-       * Total humerothoracic elevation and axial rotation in degrees, and the
-       * plane-dependent reach (`humanBodyShoulderReaches`).
-       */
-      range: {
-        elevation: { min: number; max: number };
-        axialRotation: { min: number; max: number };
-        /**
-         * The humeral joint sinus as `[plane, maximum total elevation]` knots:
-         * at least three, planes strictly increasing inside [-180, 180),
-         * maxima in (0, `elevation.max`], linear between neighbours and
-         * periodic across the -180/180 seam. A goal is admitted when its
-         * elevation is at most the envelope at its plane; the overhead pole
-         * is admitted when any knot reaches 180.
-         */
-        envelope: [number, number][];
-      };
-    };
-  }[];
+  joints: IAutoMovieHumanBodyBasisJoint[];
 
   /**
    * Declared joint couplings: one joint's motion adding a bounded angle to
@@ -395,118 +291,7 @@ export interface IAutoMovieHumanBodyBasis {
   };
 
   /** Connected skin surfaces in the shared frame. */
-  surfaces: {
-    id: string;
-
-    /** Shared flat XYZ positions, before material or UV seam splitting. */
-    positions: number[];
-
-    /** Oriented triangles over those shared vertex identities. */
-    indices: number[];
-
-    /** Sparse [vertex, dx, dy, dz] rows, strictly increasing by vertex per endpoint. */
-    targets: Record<string, number[]>;
-
-    /** An exact partition of the surface triangles, preserving oriented triples. */
-    regions: {
-      id: string;
-      material: string;
-      indices: number[];
-
-      /** Flat UV pairs per triangle corner, or null for untextured geometry. */
-      uvs: number[] | null;
-    }[];
-
-    /**
-     * Four influences per shared vertex, glTF style: `boneIndices[4v..4v+3]`
-     * index `joints` and `weights[4v..4v+3]` sum to one. The weights blend the
-     * bones' `posed ∘ rest⁻¹` transforms as unit dual quaternions, so a shared
-     * vertex follows one rigid screw motion between its bones and keeps its
-     * distance from the joint at a fold or a twist, and a vertex bound to one
-     * bone with weight one moves rigidly with it, which is the property the
-     * rigid-segment check measures.
-     */
-    skin: {
-      joints: AutoMovieHumanoidBone[];
-      boneIndices: number[];
-      weights: number[];
-    };
-
-    /**
-     * Soft-tissue sag under gravity after skinning, or absent for none. A
-     * vertex carries the tissue the document's rest body has over the same
-     * body with each `lean` channel at its weight, along the rest normal;
-     * its compliance is that times `gain` and the softness, `base` plus the
-     * sum of each `softness.channels` gain times the document's weight of that
-     * channel, held in `range`; it moves by compliance times the change of
-     * gravity's direction (-Y) in its skin's frame, smoothed over `sweeps`
-     * half-steps with the open boundary held.
-     */
-    sag?: {
-      lean: Record<string, number>;
-      gain: number;
-      sweeps: number;
-      softness: {
-        base: number;
-        channels: Record<string, number>;
-        range: [number, number];
-      };
-    };
-
-    /**
-     * The skin's anatomical relief, or absent for none: a tangent-space
-     * normal map over this surface's UV layout (a PNG data URI, linear, UV
-     * set 0 bound once, v down the image) of the flexion creases and
-     * wrinkles its vertices are too coarse to carry, for the regions of
-     * `material`. A document's skin detail binds it under the tiled
-     * micro-relief.
-     */
-    relief?: { material: string; texture: string };
-
-    /**
-     * Surface layers over this surface's UV layout for the regions of
-     * `material`, or absent for none, which a document's skin detail binds
-     * as that material's overlays: images bound once over UV set 0, v down
-     * the image, as PNG data URIs, the colour in sRGB with its coverage in
-     * alpha and the normal map linear.
-     *
-     * - A `nails` layer is the nail plates, another tissue that replaces the
-     *   skin where it covers, with its own colour, surface and `roughness`
-     *   in [0, 1], shown in full. With the `cheek` albedo its colour was
-     *   drawn for, a document's own cheek tints it by the palm's albedo
-     *   against that cheek's (the palm is the skin's least pigmented site,
-     *   as a nail bed is), so the plates follow the person's pigmentation.
-     * - A `veins` layer is the superficial veins, a tint of the skin over
-     *   them and their raised relief, drawn as they show over the lean body
-     *   this surface's `sag` declares. A document's `skinVeins` shows them
-     *   at its strength times `exp(-attenuation · t)`, where `t` is the mean
-     *   tissue in metres the document's body carries over its lean self
-     *   along the rest normal at the `vertices` the veins lie over, and
-     *   `attenuation` (per metre) is how fast the light a vein takes falls
-     *   with its depth. A body's regions keep different tissue over their
-     *   veins, so a surface may carry a veins layer per region.
-     *
-     * A material takes one nails layer at most and four layers in all.
-     */
-    overlays?: (
-      | {
-          kind: "nails";
-          material: string;
-          color: string;
-          normal?: string;
-          roughness: number;
-          cheek?: { r: number; g: number; b: number };
-        }
-      | {
-          kind: "veins";
-          material: string;
-          color: string;
-          normal?: string;
-          vertices: number[];
-          attenuation: number;
-        }
-    )[];
-  }[];
+  surfaces: IAutoMovieHumanBodyBasisSurface[];
 
   /** Resident finishes; the static exporter owns texture admission. */
   materials: IAutoMovieMaterial[];
