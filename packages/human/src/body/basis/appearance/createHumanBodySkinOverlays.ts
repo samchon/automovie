@@ -18,6 +18,8 @@ import { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
  * where t is outward tissue thickness in metres between this body's rest
  * skin and its lean self along the rest normal. The basis supplies that
  * attenuation; this function does not infer vessel depth from imaging.
+ * A vein request without a declared layer refuses instead of succeeding
+ * without any visible effect.
  *
  * The body builder provides rest and lean shapes lazily for the same document
  * revision. The basis and document are read, while the per-document material
@@ -31,12 +33,21 @@ export function createHumanBodySkinOverlays(input: {
   leanOf: (index: number) => number[];
 }): void {
   const { basis, document, materialMap, restAll, leanOf } = input;
+  const skin = HUMAN_BODY_SKIN_SITES.material;
   if (
     document.skinVeins !== undefined &&
     !(document.skinVeins.strength >= 0 && document.skinVeins.strength <= 1)
   )
     throw new Error("Body skin veins need a strength in [0,1].");
-  const skin = HUMAN_BODY_SKIN_SITES.material;
+  if (
+    document.skinVeins !== undefined &&
+    !basis.surfaces.some((surface) =>
+      (surface.overlays ?? []).some(
+        (overlay) => overlay.kind === "veins" && overlay.material === skin,
+      ),
+    )
+  )
+    throw new Error("Body skin veins need declared veins on the basis.");
   const once = (asset: string, colorSpace: "srgb" | "linear") => ({
     asset,
     texCoord: 0,

@@ -82,7 +82,7 @@ export interface IAutoMovieHumanBodyBasisDocument {
    * they show at `strength` in [0,1] over the lean body independently of
    * skin micro-relief. Tissue the document's body carries over its lean self
    * hides them further, as a vein deeper under the skin takes less light.
-   * Omission shows none.
+   * A request without any declared vein layer is refused. Omission shows none.
    */
   skinVeins?: { strength: number };
 
