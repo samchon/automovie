@@ -52,8 +52,8 @@ function textured(surface: Surface): Surface {
  *    strength times `exp(-attenuation · t)`, `t` the mean outward tissue at
  *    the veins' vertices read off the two built meshes, and a wider one
  *    still shows them less. A posed document reads its rest shape.
- * 3. Without `skinVeins` the veins are not bound, and a strength outside
- *    [0, 1] is refused.
+ * 3. Without skin micro-relief a requested vein still binds; without
+ *    `skinVeins` it does not, and a strength outside [0, 1] is refused.
  * 4. Each region's veins layer shows by the tissue over its own vertices,
  *    several veins layers and the nails composite in their listed order.
  * 5. Veins on a surface without a declared lean body, at a nonpositive or
@@ -148,6 +148,14 @@ export const test_human_body_skin_veins = (): void => {
     return total / veins.vertices.length;
   };
   const wide = skinOf(at(0)).overlays![0]!.strength;
+  TestValidator.predicate(
+    "vein visibility does not depend on micro-relief",
+    nclose(
+      skinOf(at(0, { skinDetail: undefined })).overlays?.[0]?.strength ?? NaN,
+      wide,
+      1e-12,
+    ),
+  );
   const wider = skinOf(at(1)).overlays![0]!.strength;
   const posed = skinOf(
     at(0, {

@@ -78,10 +78,10 @@ export interface IAutoMovieHumanBodyBasisDocument {
   skinTone?: { strength: number };
 
   /**
-   * Optional superficial veins of the skin, where the basis draws them: with
-   * the skin detail on, they show at `strength` in [0,1] over the lean body,
-   * and the tissue the document's body carries over its lean self hides
-   * them further, as a vein deeper under the skin takes less of the light.
+   * Optional superficial veins of the skin, where the basis draws them:
+   * they show at `strength` in [0,1] over the lean body independently of
+   * skin micro-relief. Tissue the document's body carries over its lean self
+   * hides them further, as a vein deeper under the skin takes less light.
    * Omission shows none.
    */
   skinVeins?: { strength: number };

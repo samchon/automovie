@@ -15,6 +15,7 @@ import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanB
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { createHumanBodySkinDetail } from "./createHumanBodySkinDetail";
+import { createHumanBodySkinOverlays } from "./createHumanBodySkinOverlays";
 import { createHumanBodySkinTone } from "./createHumanBodySkinTone";
 import { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
 
@@ -105,7 +106,14 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis) {
         hex: null,
       };
     }
-    detail({ document, materialMap, restAll, leanOf });
+    detail({ document, materialMap });
+    createHumanBodySkinOverlays({
+      basis,
+      document,
+      materialMap,
+      restAll,
+      leanOf,
+    });
     tone(document, materialMap);
     return { materials, coloured };
   };

@@ -84,9 +84,10 @@ export interface IAutoMovieHumanBodyBasisSurface {
   relief?: { material: string; texture: string };
 
   /**
-   * Surface layers over this surface's UV layout for the regions of
-   * `material`, or absent for none, which a document's skin detail binds
-   * as that material's overlays: images bound once over UV set 0, v down
+   * Surface layers over this surface's UV layout for the skin material,
+   * or absent for none. The builder binds nail plates at full
+   * strength and veins when the document requests them, independently of
+   * skin micro-relief. Images bind once over UV set 0, v down
    * the image, as PNG data URIs, the colour in sRGB with its coverage in
    * alpha and the normal map linear.
    *

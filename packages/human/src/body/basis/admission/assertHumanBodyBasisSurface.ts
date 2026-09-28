@@ -1,5 +1,6 @@
 import { validateMeshTopology } from "@automovie/engine";
 
+import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
 import { humanBodyCappedSurface } from "../../simple/humanBodyCappedSurface";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import { assertSparseRows } from "../assertSparseRows";
@@ -9,8 +10,8 @@ import { assertSparseRows } from "../assertSparseRows";
  * of shared vertex identities in metres, right-handed Y-up/Z-forward.
  *
  * Topology, sparse shape rows, soft-tissue sag metadata, relief and
- * overlays are checked before the builder can skin or split a material
- * region. A cap closes each authored boundary only for solid admission
+ * skin-material overlays are checked before the builder can skin or split a
+ * material region. A cap closes each authored boundary only for solid admission
  * and volume measurement; it does not add skin to the rendered body.
  * Surfaces may have overlapping bounds but not overlapping interiors.
  * This returns the endpoint names that move some surface vertex; it
@@ -108,6 +109,7 @@ export function assertHumanBodyBasisSurface(
       if (overlay.kind === "nails") count.nails += 1;
       layers.set(overlay.material, count);
       if (
+        overlay.material !== HUMAN_BODY_SKIN_SITES.material ||
         count.nails > 1 ||
         count.all > 4 ||
         (overlay.kind === "veins" &&
@@ -136,7 +138,7 @@ export function assertHumanBodyBasisSurface(
         )
       )
         throw new Error(
-          "Body surface overlays need at most one nail layer and four layers per material, PNG data URIs over a textured region of their material, a nails roughness in [0,1] and reference cheek in (0,1], and veins over existing vertices of a surface with a declared lean body at a finite positive attenuation: " +
+          "Body surface overlays need the skin material, at most one nail layer and four layers per material, PNG data URIs over a textured region of their material, a nails roughness in [0,1] and reference cheek in (0,1], and veins over existing vertices of a surface with a declared lean body at a finite positive attenuation: " +
             surface.id,
         );
     }
