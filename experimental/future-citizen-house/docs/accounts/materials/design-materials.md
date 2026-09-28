@@ -14,7 +14,7 @@
 
 | 마감 또는 역할 | 소유 H2 | 받는 표면 |
 | --- | --- | --- |
-| limestone-honed | 002#limestone-panels | 네 입면의 stone panel·wall body·corner prism·drip(계단 void에 드러나는 실내 면 제외), 금속 cassette 뒤 석재 기층, roof-slab과 roof-bearing ring의 외부 노출면(계단 void 쪽 아래 면 제외) |
+| limestone-honed | 002#limestone-panels | 네 입면의 stone panel·wall body·corner prism·drip(계단 void에 드러나는 실내 면 제외), 금속 cassette 뒤 석재 기층, roof-slab 전체와 roof-bearing ring의 외부 노출면(계단 void 쪽 아래 면 제외) |
 | cassette-coat, spandrel-seal | 002#opaque-floor-band | 다섯 층간 cassette band의 금속 plate·return과 별도 상·하·측 seal 부재 |
 | frame-coated | 002#coated-metal | 창호 frame·shade-box·hem, 문 hardware, 실내 계단 난간, 가구 metal 다리·손잡이, 샤워 screen rail, 등기구 trim·pendant cord |
 | steel-satin, mirror-proxy | 002#exposed-steel | 수전·싱크·hob ring·가전 손잡이·stringer·flush·shower 부속, 욕실·powder 거울 |
