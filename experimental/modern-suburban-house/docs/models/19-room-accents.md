@@ -8,7 +8,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 낮은 목재 탁자의 빈 상판에 소량 물건을 올려 가구 자체와 별도 부품으로 만든다.
 @evidence principles/design/models.md#representation-contract 닫힌 책·쟁반·꽃병·줄기·꽃 덩어리를 `book`·`tray`·`container`·`stem`·`foliage`로 나눈다.
 @evidence principles/design/models.md#spatial-convention 원점은 각 host 상판 접점 중앙, +Y는 위이고 배치 yaw와 위치는 instances가 정한다.
-@evidence principles/design/models.md#reviewable-structure 위에서 낮은 탁자의 0.50/0.55 m 폭을 넘지 않는지, 측면에서 착석 시야를 가리지 않는지 확인한다.
+@evidence principles/design/models.md#reviewable-structure 원형의 45° 실루엣을 먼저 보고, 배치한 상판 평면에서 외곽 안인지와 거실 착석 위치에서 꽃이 시야를 막는지 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 얇은 책·얕은 쟁반·작은 꽃병의 다른 높이가 04의 실제 사용 중인 탁자 실루엣을 만든다.
 @evidence principles/design/models.md#model-scale-layer-completion 소품 개수·치수·접점·표면 id·UV·검사 뷰를 결정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 모든 물건은 11의 이미 예약된 상판 안에 놓아 방 경계·통행을 바꾸지 않는다.
@@ -19,6 +19,8 @@
 
 레퍼런스 04의 낮은 탁자에는 책과 쟁반, 꽃이 있다. [낮은 탁자](11-living.md#low-table)의 상판을 host로 삼고 책 두 권은 각각 0.22 × 0.16 × 0.025 m, 쟁반은 0.24 × 0.18 × 0.025 m, 꽃병은 아래 지름 0.08 m·윗지름 0.06 m·높이 0.12 m다. 꽃병에는 지름 0.004 m·길이 0.12 m의 줄기 세 개와 각 끝의 지름 0.04 m 닫힌 꽃 덩어리 세 개를 둔다. 전체 높이는 상판 위 0.28 m 이하이며 착석 시야를 가리지 않는다. 책의 모든 면은 `book`, 쟁반은 `tray`, 꽃병은 `container`, 줄기는 `stem`, 꽃 덩어리는 `foliage`다. UV는 판 가로·세로 또는 둘레·높이를 미터로 둔다. 소품 원점은 상판 접점 중앙이고 실제 놓는 좌표는 instances가 1.30 × 0.50 m와 1.05 × 0.55 m 상판 중 선택한 host에 맞춰 결정한다. 글자·개별 꽃잎은 표현하지 않는다. 레퍼런스 04의 안락의자 옆 별도 탁자는 [거실 예약](../spaces/rooms/living.md#living-furniture-use)의 주 통행 띠·의자 사용·책장 접근 구간과 겹칠 별도 0.40 m 박스가 없어 채택하지 않는다. 이 거부는 04의 중심 커피테이블 원형을 없애지 않는다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 간섭과 프레임은 unverified다.
 탁자 꽃의 세 줄기 시작은 꽃병 입구 중심에서 수평 반지름 0.015 m, 방위각 0·120·240°이고 각 끝의 높이는 꽃병 입구 위 0.12 m다. 지름 0.04 m 꽃 덩어리의 중심은 줄기 끝보다 0.02 m 높여 줄기 끝면과 면으로만 맞댄다.
+
+[모델 고정 뷰](00-model-frame.md#model-review-set)의 45° 사선에서는 책·쟁반·꽃병의 구별되는 실루엣을, 측면에서는 꽃 덩어리의 높이를 본다. 실제 탁자에 놓은 뒤 상판 외곽 안에 드는지, [거실 관찰](../spaces/04-observations.md#spatial-observation-derivation)의 착석 시야를 가리지 않는지 검사한다. 실제 배치와 GPU 판정은 unverified다.
 
 ## 벽 액자와 상판 위 작은 식물 {#wall-art-indoor-plant}
 <!--
@@ -44,6 +46,8 @@
 
 액자의 `art-print` 판은 폭·높이에서 테 0.025 m씩 뺀 작은 변형 0.45×0.30 m 또는 큰 변형 0.55×0.35 m, 두께 0.002 m이고 뒤판에서 앞쪽 0.018 m에 아랫면을 둔다.
 
+[모델 고정 뷰](00-model-frame.md#model-review-set)의 정면에서는 액자 테와 인쇄면, 측면에서는 0.025 m 액자 깊이를 확인한다. 배치된 방의 관찰에서는 액자와 문선·창틀의 비접촉 및 식물의 상판 접지를 확인하며 실제 GPU 판정은 unverified다.
+
 ## 소파의 보조 쿠션과 담요 {#sofa-throws}
 <!--
 @evidence principles/core/common.md#scope-preservation 세 좌석 쿠션과 팔걸이 몸체를 11에 남기고 보조 쿠션 둘·접은 담요 하나만 맡는다.
@@ -52,7 +56,7 @@
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 기본 소파의 세 좌석 칸 위에 새로운 직물 층을 얹되 좌석 수는 바꾸지 않는다.
 @evidence principles/design/models.md#representation-contract 닫힌 쿠션 두 부피와 접힌 담요 판을 만들고 `pillow`·`folded`가 모든 면을 덮는다.
 @evidence principles/design/models.md#spatial-convention 원점은 소파 좌면 접점, +Z는 소파 앞, +Y는 위이며 world 배치는 host 소파를 상속한다.
-@evidence principles/design/models.md#reviewable-structure 세 좌석과 두 보조 쿠션을 정면에서 구분하고 담요가 팔걸이 밖으로 나오지 않는지 측면에서 본다.
+@evidence principles/design/models.md#reviewable-structure 원형 뷰에서 보조 쿠션 둘과 담요 판을 보고, 소파 결속 뷰에서 구조 좌석과 보조 쿠션을 구분하고 담요가 팔걸이 밖으로 나오지 않는지 확인한다.
 @evidence principles/design/models.md#model-observable-style-basis 회색 소파 위 다른 직물 두 층이 생활감을 더하고 색·짜임은 materials에서 정한다.
 @evidence principles/design/models.md#model-scale-layer-completion 개수·외곽·접점·id·UV·검사 주소를 정한다.
 @evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work 소파 외곽 안에만 소품을 놓아 방 예약·통로를 바꾸지 않는다.
@@ -62,4 +66,4 @@
 @evidence obligations/design/models.md#model-review-set 00의 정면·측면·45°와 03·04 실내 뷰를 대조한다.
 -->
 
-레퍼런스 02–04의 소파는 [구조 원형의 세 좌석 쿠션](11-living.md#fabric-sofa) 외에 보조 쿠션과 담요가 보인다. 보조 쿠션은 각각 0.42 × 0.42 × 0.10 m의 닫힌 둥근 모서리 부피 두 개로 등받이 앞 좌우에 놓는다. 담요는 펼친 길이 0.65 m·깊이 폭 0.45 m·두께 0.025 m의 직물을 소파 오른쪽 팔걸이 상면에서 길이 0.13 m씩 다섯 번 접는다. 소파 중심 국소 좌표에서 접힌 다섯 판은 모두 X=[0.92,1.05]·Z=[0.25,0.70] m이고 아래부터 i=0…4에 대해 Y=[0.62+0.025i,0.645+0.025i] m다. 이웃 판은 수평 접면에서만 만나며 팔걸이 `arm`의 상면 Y=0.62 m에 얹힌다. 가장 높은 면 Y=0.745 m는 소파 등받이 상단 0.90 m보다 낮고 모든 판은 소파 외곽 X=1.05 m 안에 있다. 쿠션의 모든 면은 `pillow`, 담요의 양면과 절단 끝은 `folded`다. 원점은 소파 좌면 접점, +Z는 앞쪽이고 UV는 펼친 담요의 길이 방향 U·깊이 방향 V를 접힘선에서 연속해 1 UV/m로 둔다. 장식 술·주름은 만들지 않는다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 소파 결속과 렌더는 unverified다.
+레퍼런스 02–04의 소파는 [구조 원형의 세 좌석 쿠션](11-living.md#fabric-sofa) 외에 보조 쿠션과 담요가 보인다. 보조 쿠션은 각각 0.42 × 0.42 × 0.10 m의 닫힌 둥근 모서리 부피 두 개로 등받이 앞 좌우에 놓는다. 담요는 펼친 길이 0.65 m·깊이 폭 0.45 m·두께 0.025 m의 직물을 소파 오른쪽 팔걸이 상면에서 길이 0.13 m씩 다섯 번 접는다. 소파 중심 국소 좌표에서 접힌 다섯 판은 모두 X=[0.92,1.05]·Z=[0.25,0.70] m이고 아래부터 i=0…4에 대해 Y=[0.62+0.025i,0.645+0.025i] m다. 이웃 판은 수평 접면에서만 만나며 팔걸이 `arm`의 상면 Y=0.62 m에 얹힌다. 가장 높은 면 Y=0.745 m는 소파 등받이 상단 0.90 m보다 낮고 모든 판은 소파 외곽 X=1.05 m 안에 있다. 쿠션의 모든 면은 `pillow`, 담요의 양면과 절단 끝은 `folded`다. 원점은 소파 좌면 접점, +Z는 앞쪽이고 UV는 펼친 담요의 길이 방향 U·깊이 방향 V를 접힘선에서 연속해 1 UV/m로 둔다. 장식 술·주름은 만들지 않는다. [모델 고정 뷰](00-model-frame.md#model-review-set)의 정면에서는 보조 쿠션 둘의 실루엣을, 측면에서는 담요 다섯 판의 높이를 본다. 실제 소파에 놓은 뒤 정면에서 세 구조 좌석과 두 보조 쿠션을 구분하고 측면에서 담요가 팔걸이 외곽 X=1.05 m를 넘지 않는지 확인한다. 소스 owner는 `src/models/furnishings/props.ts`; 실제 소파 결속과 렌더는 unverified다.

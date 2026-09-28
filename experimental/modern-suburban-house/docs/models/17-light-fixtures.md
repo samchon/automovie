@@ -66,7 +66,7 @@
 
 레퍼런스 02·05의 욕실 거울 위 밝은 띠를 세면 벽등으로 채택한다. 사진의 빛 번짐을 기구 형상으로 복제하지 않는다.
 
-세 위생실은 같은 벽등 원형을 거울 위에 쓴다. 원점은 벽 접점 중앙, +Z는 방 안쪽이다. 뒤 받침판은 폭 0.36 m·높이 0.06 m·두께 0.015 m, 양끝 받침은 폭 0.025 m·높이 0.06 m·앞 돌출 0.08 m, 확산봉은 양끝 받침 사이 길이 0.31 m·지름 0.045 m다. 전체 벽 돌출은 0.08 m로 [실내 기구의 0.10 m 상한](../systems/02-interior-fixtures.md#interior-baths) 안이다. 금속 판과 받침 모든 면은 `fixture-housing`, 확산봉 모든 면은 `fixture-diffuser`다. 길이 U·둘레 V를 미터로 제공한다. 빛의 세기와 색은 systems, 위치는 instances가 정한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 거울 간섭과 실제 프레임은 unverified다.
+세 위생실은 같은 벽등 원형을 거울 위에 쓴다. 원점은 벽 접점 중앙, +Z는 방 안쪽이다. 뒤 받침판은 폭 0.36 m·높이 0.06 m·두께 0.015 m, 양끝 받침은 폭 0.025 m·높이 0.06 m·앞 돌출 0.08 m, 확산봉은 양끝 받침 사이 길이 0.31 m·지름 0.045 m다. 전체 벽 돌출은 0.08 m로 [실내 기구의 0.10 m 상한](../systems/02-interior-fixtures.md#interior-baths) 안이다. 금속 판과 받침 모든 면은 `fixture-housing`, 확산봉 모든 면은 `fixture-diffuser`다. 길이 U·둘레 V를 미터로 제공한다. 빛의 세기와 색은 systems, 위치는 instances가 정한다. [모델 고정 뷰](00-model-frame.md#model-review-set)의 정면에서는 받침과 확산봉의 좌우 대칭을, 측면에서는 0.08 m 돌출을 확인한다. 실제 욕실에 놓은 뒤 거울 중앙 정렬과 거울 면 비접촉을 검사한다. 소스 owner는 `src/models/lighting-fixtures.ts`; 거울 간섭과 실제 프레임은 unverified다.
 거울 위 확산봉 `fixture-diffuser`의 축은 뒤판 중심에서 벽 법선 +Z=0.0575 m, 수평 X 방향 X=[−0.155,0.155] m다. 지름 0.045 m이므로 가장 앞점은 Z=0.080 m이고 두 끝은 받침의 안쪽 X 끝에 면으로 닿는다. 양끝 받침은 판 앞면 Z=0.015 m에서 축 깊이까지 이어지며 확산봉 안으로 끝을 밀어 넣지 않는다.
 
 ## 포치 문 옆의 벽등 {#porch-wall-sconce}
