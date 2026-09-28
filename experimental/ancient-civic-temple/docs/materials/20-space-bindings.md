@@ -31,11 +31,11 @@
 | `surface.courtyard.floor` | `paving` |
 | `surface.entrance.floor` | `paving` |
 | `surface.offering.floor` | `paving` |
-| `surface.records.floor` | `paving` |
+| `surface.records.floor` | `paving-small` |
 | `surface.sanctuary.floor` | `paving` |
 | `surface.service-yard.floor` | `paving` |
 | `surface.site.paving` | `paving` |
-| `surface.storage.floor` | `paving` |
+| `surface.storage.floor` | `paving-small` |
 | `surface.administration.wall` | `plaster` |
 | `surface.boundaries.bearing`, `surface.boundaries.joint` | `plaster` |
 | `surface.colonnade.sanctuary-gable`, `surface.colonnade.wall` | `plaster` |
@@ -52,7 +52,7 @@
 | `surface.roof-sanctuary.bearing` | `plaster` |
 | `surface.roof-west.bearing` | `plaster` |
 | `surface.sanctuary.wall` | `plaster` |
-| `surface.service-yard.wall`, `surface.service-yard.wall-top` | `plaster` |
+| `surface.service-yard.wall`, `surface.service-yard.wall-top` | `limestone` |
 | `surface.storage.wall` | `plaster` |
 | `surface.roof-colonnade.upper` | `roof-terracotta` |
 | `surface.roof-east.upper` | `roof-terracotta` |
@@ -70,4 +70,4 @@
 
 ## 재료 검토 표본 {#material-review-set}
 
-비교 조건은 [검토 프레임](../settings/00-delivery.md#review-condition)의 1600×1000·수직 50°와 [주광](../settings/40-environment.md#daylight)의 고정 낮·하늘 보조광을 따른다. 검토판에서는 기둥 석재·목재 보·문철물·기와 한 단위와 2m 포장 표본을 정면·사선·가까운 시점으로 본다. 건물에서는 이미지 01 외관, 02 절개 조감의 면 배정, 03 중정, 04 제실, 05 기록·서비스의 각 질문을 별도로 대조한다. 주랑 2m 포장의 각 축 네 칸과 업무방 1m 포장의 각 축 네 칸이 다르게 나타나지 않거나, 기와 geometry 이외에 직교 격자가 보이거나, 문틀·문짝 간 재료가 뒤집히거나, 붉은 띠가 방 바깥으로 새거나, 천장과 회벽이 단색으로 합쳐지거나, 포장·흙·수반 물이 분리되지 않으면 실패다. 사진 수준의 손상 복제는 주장하지 않는다. 초안 단계에서는 이 표본과 실패 조건을 설계하고, 실제 재료 source와 배치가 생긴 뒤 같은 조건으로 화면을 판정한다.
+비교 조건은 [검토 프레임](../settings/00-delivery.md#review-condition)의 1600×1000·수직 50°와 [주광](../settings/40-environment.md#daylight)의 고정 낮·하늘 보조광을 따른다. 검토판에서는 기둥 석재·목재 보·문철물·기와 한 단위와 2m 포장 표본을 정면·사선·가까운 시점으로 본다. 건물에서는 이미지 01 외관, 02 절개 조감의 면 배정, 03 중정, 04 제실, 05 기록·서비스의 각 질문을 별도로 대조한다. 서비스 마당 북·동 낮은 안쪽 벽과 높은 제실·보관실 벽의 마당 쪽 면, 벽 위 코핑을 석재로 읽되 북·동 바깥면 회벽과 분리한다. 관리실·기록실·보관실 문턱마다 1m 포장과 주랑 2m 포장의 네 칸 주기를 대조한다. 어느 업무방이든 주랑과 줄눈 간격이 같거나, 기와 geometry 이외에 직교 격자가 보이거나, 문틀·문짝 간 재료가 뒤집히거나, 붉은 띠가 방 바깥으로 새거나, 천장과 회벽이 단색으로 합쳐지거나, 포장·흙·수반 물이 분리되지 않으면 실패다. 사진 수준의 손상 복제는 주장하지 않는다. 초안 단계에서는 이 표본과 실패 조건을 설계하고, 실제 재료 source와 배치가 생긴 뒤 같은 조건으로 화면을 판정한다.
