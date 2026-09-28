@@ -49,6 +49,7 @@ export const productionEvidence = {
   models: "review",
   modelSources: "draft",
   materials: "evidence",
+  materialSources: "draft",
   claims: [
     ...createAutoMoviePopulationAccountClaims({
       layer: "settings",

@@ -47,10 +47,7 @@ const pattern = {
     const ring = Math.sin(2 * Math.PI * (v * 21 + bend * 21 + 0.45 * noise(u, v, 4, 5)));
     return 228 + 8 * ring + 10 * (noise(u, v, 16, 6) - 0.5);
   },
-  tile: (u, v) => {
-    const grout = edge(u * 4) < 0.025 || edge(v * 8) < 0.05;
-    return grout ? 146 : 225 + 32 * (noise(u, v, 8, 7) - 0.5) + 13 * (noise(u, v, 32, 8) - 0.5);
-  },
+  tile: (u, v) => 225 + 32 * (noise(u, v, 8, 7) - 0.5) + 13 * (noise(u, v, 32, 8) - 0.5),
   textile: (u, v) => {
     const warp = Math.sin(2 * Math.PI * u * 32);
     const weft = Math.sin(2 * Math.PI * v * 32);

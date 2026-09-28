@@ -6,8 +6,8 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis 낮은 마당 둘레벽은 settings/30-interiors.md#service-yard에서, 높은 마당쪽 면까지 같은 limestone 키로 묶는 선택은 spaces/facades/north.md#north-envelope와 단일 service-yard.wall ID에서 온다.
-@evidence principles/core/common.md#scope-preservation 기단·코핑·문틀·기둥·수반의 석재 part와 service-yard 안쪽 wall 및 wall-top에 한정해 limestone를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
-@evidence principles/core/common.md#substantive-completion 기단·코핑·문틀·기둥·수반의 석재 part와 service-yard 안쪽 wall 및 wall-top의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
+@evidence principles/core/common.md#scope-preservation 모델 결속표의 석재 고체 part와 공간 결속표의 경계석·마당 안쪽 wall·wall-top에 limestone을 주고 바깥 outer 회벽은 남긴다.
+@evidence principles/core/common.md#substantive-completion 석재 범위에 기본색 #c9c0ad·거칠기 0.86·stone.png의 1 m 반복과 비트맵 실패 시 단색, 01·02·03 관찰 대상을 모두 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 석재로 정해진 낮은 마당 벽에 더해, 단일 service-yard.wall 주소가 품은 높은 두 면과 코핑을 limestone으로 결속하고 1 m 반복·거칠기 0.86과 01·02·03 관찰 장면을 정한다.
 @evidence principles/design/materials.md#material-construction-appearance limestone의 1m 석재 명암과 거칠기 0.86을 블록 형상 대신 표면 응답으로 둔다
 @evidence principles/design/materials.md#material-binding-interface 기단/코핑/문틀/기둥 part와 service-yard.wall·wall-top, 월드 미터 UV0를 분리한다
@@ -21,16 +21,17 @@
 @evidence spaces/junctions.md#plinth-coping 기단·코핑·문 주변의 물리 면을 limestone으로 묶고 회벽 전환은 기존 부재 경계에서만 둔다.
 @evidence spaces/openings.md#doors door-frame의 석재 lining/surround를 목재 leaf와 금속 철물로부터 분리한다.
 @evidence spaces/rooms/service-yard.md#yard-volume 마당 안쪽 wall·wall-top을 limestone으로, floor를 paving으로 분리한다.
+
 -->
 
-기단·코핑·문틀·기둥·제단·분수의 고체 part와 경계석에는 `limestone`을 배정한다. 서비스 마당의 `surface.service-yard.wall`은 낮은 북·동쪽 둘레벽의 안쪽과 제실·북쪽 주랑 동단벽 및 보관실 북벽의 마당 쪽 면을 함께 가리키므로 이 면들을 석재로 읽는다. `surface.service-yard.wall-top`의 코핑도 석재이며 북·동 바깥면 `outer`는 회벽으로 남긴다. 기본색 `#c9c0ad`, 거칠기 0.86, 금속도 0, 불투명도 1이다. `stone.png`의 얕은 명암을 1m×1m로 반복하며 비트맵이 없으면 기본색을 유지한다. 돌의 실제 두께는 spaces와 models가 소유하고 재료는 줄눈 그림으로 가짜 블록을 만들지 않는다. 이미지 01의 포치 기둥·코핑과 02의 마당 둘레, 03의 수반 테를 같은 주광 아래 목재보다 차갑고 회벽과 구분되는지 본다.
+모델 결속표의 기단·코핑·문틀·기둥·제단·벤치·분수 등 석재 고체 part와 공간 결속표의 경계석에는 `limestone`을 배정한다. 서비스 마당의 `surface.service-yard.wall`은 낮은 북·동쪽 둘레벽의 안쪽과 제실·북쪽 주랑 동단벽 및 보관실 북벽의 마당 쪽 면을 함께 가리키므로 이 면들을 석재로 읽는다. `surface.service-yard.wall-top`의 코핑도 석재이며 북·동 바깥면 `outer`는 회벽으로 남긴다. 기본색 `#c9c0ad`, 거칠기 0.86, 금속도 0, 불투명도 1이다. `stone.png`의 얕은 명암을 1m×1m로 반복하며 비트맵이 없으면 기본색을 유지한다. 돌의 실제 두께는 spaces와 models가 소유하고 재료는 줄눈 그림으로 가짜 블록을 만들지 않는다. 이미지 01의 포치 기둥·코핑과 02의 마당 둘레, 03의 수반 테를 같은 주광 아래 목재보다 차갑고 회벽과 구분되는지 본다.
 
 ## 절단 석재 바닥과 포장 {#paving}
 
 <!--
 @evidence principles/core/common.md#declared-basis settings/20-envelope.md#stone-floors의 작은 업무방 돌판은 관리실·기록실·보관실 세 floor ID에 paving-small을 주는 근거이고, 중정·주랑 등의 큰 판은 별도 paving 키로 정한다.
-@evidence principles/core/common.md#scope-preservation 중정·주랑·현관·제실·봉헌실·마당의 floor와 세 업무방 floor에 한정해 paving/paving-small를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
-@evidence principles/core/common.md#substantive-completion 중정·주랑·현관·제실·봉헌실·마당의 floor와 세 업무방 floor의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
+@evidence principles/core/common.md#scope-preservation 중정·주랑·현관·제실·봉헌실·서비스 마당과 대지 길의 paving, 세 업무방 floor의 paving-small을 구분하며 바닥 경계나 단차는 다시 정하지 않는다.
+@evidence principles/core/common.md#substantive-completion 두 포장 키의 기본색·거칠기와 같은 paving.png의 2 m·1 m 반복, 세 업무방 문턱에서 주랑과 다른 줄눈이어야 하는 실패 조건을 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 상속된 큰 돌판과 세 업무방 작은 돌판을 같은 paving.png의 2 m·1 m 반복으로 나누고 주랑과 업무방 문턱의 줄눈 주기를 비교 대상으로 정한다.
 @evidence principles/design/materials.md#material-construction-appearance paving 2m와 paving-small 1m의 동일 석재 이미지를 다른 줄눈 간격으로 둔다
 @evidence principles/design/materials.md#material-binding-interface 각 surface.*.floor와 site.paving에 기존 평면 UV0만 사용하고 바닥 높이는 받는다
@@ -46,6 +47,7 @@
 @evidence spaces/site.md#site-paving site.paving은 paving, site.curb는 limestone, 남은 흙띠는 soil에 배정한다.
 @evidence spaces/storey.md#threshold-support 관리실·기록실·보관실 문턱의 1m 포장과 주랑 2m 포장을 맞대어 관찰한다.
 @evidence spaces/ownership.md#surface-map 관리실·기록실·보관실의 세 floor ID를 paving-small에, 주랑 floor를 paving에 배정해 주랑과 업무방의 줄눈 간격을 나눈다.
+
 -->
 
 중정·주랑·현관·제실·봉헌실·서비스 마당의 `floor`와 대지 `paving`에는 `paving`을 배정한다. 관리실·기록실·보관실 세 업무방의 `floor`에는 `paving-small`을 배정한다. 두 키의 기본색은 `#c9c0ad`, 거칠기 0.90, 금속도 0, 불투명도 1이다. 같은 `paving.png`의 한 주기는 각 축에 네 칸씩 있으며 `paving`의 2m×2m 반복은 0.5m 줄눈 간격, `paving-small`의 1m×1m 반복은 0.25m 간격을 낸다. 이미지 01·03·05의 길과 마당을 읽히게 하되 텍스처 줄눈은 바닥 높이·계단·경계석 형상을 바꾸지 않는다. 비트맵 실패 시 석재 기본색만 남는다. 2m 주랑 표본과 관리실·기록실·보관실의 각 1m 표본에 각각 네 칸씩 있는지, 세 방의 문턱과 주랑 포장 접점에서 대조한다. 어느 업무방이든 주랑과 줄눈 간격이 같거나 벽에 바닥 줄눈이 나타나면 실패다.
@@ -54,8 +56,8 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis settings/20-envelope.md#walls의 황토 외피를 outer와 일반 실내 wall의 plaster 근거로 쓰되, spaces/facades/north.md#north-envelope의 석재 마당 경계는 이 키의 범위에서 뺀다.
-@evidence principles/core/common.md#scope-preservation 외벽 outer·일반 실내 wall·박공과 필라스터 노출면 및 가려진 bearing에 한정해 plaster를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
-@evidence principles/core/common.md#substantive-completion 외벽 outer·일반 실내 wall·박공과 필라스터 노출면 및 가려진 bearing의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
+@evidence principles/core/common.md#scope-preservation 외벽 outer·실내 wall·박공·파라펫·반환벽과 숨은 joint·bearing의 회벽을 정하되 service-yard 안쪽 wall·wall-top은 limestone에 남긴다.
+@evidence principles/core/common.md#substantive-completion 황토 기본색·거칠기 0.96·plaster.png의 1.5 m 반복과 숨은 접면의 fallback, 01·03·04에서 얼룩이 void를 가리지 않는 관찰 기준을 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 외피의 황토색 요구를 outer·room wall·노출 박공의 plaster 키, 1.5 m 얼룩 반복, 코핑·목재 문과의 시각 분리 기준으로 내린다.
 @evidence principles/design/materials.md#material-construction-appearance 1.5m 회벽 무늬와 거칠기 0.96은 벽 두께·개구부 void를 만들지 않는다
 @evidence principles/design/materials.md#material-binding-interface outer·wall·bearing·joint를 받아 service-yard 안쪽 wall·wall-top은 limestone에 남긴다
@@ -63,6 +65,7 @@
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 서비스 마당 안쪽 wall과 wall-top은 이미 별도 surface ID이므로 일반 outer 회벽에서 제외한다. 회벽의 1.5 m 얼룩은 기존 UV0에 붙이며 벽·개구부 형상 수정은 요구하지 않는다.
 @evidence settings/20-envelope.md#walls 외벽 outer와 일반 실내 wall에 황토 plaster를 두고 석재 기단·코핑 및 마당 안쪽 석벽은 분리한다.
 @evidence spaces/openings.md#clerestories 채광구 void를 덮지 않는 plaster와 limestone reveal을 서로 다른 공간 면에서 받는다.
+
 -->
 
 외벽 `outer`와 일반 실내 `wall`, 박공·파라펫의 노출 면과 반환벽에는 `plaster`를 배정한다. 서비스 마당 안쪽 `wall`과 그 코핑은 석재 주소이므로 이 일반 규칙에서 제외한다. 기본색 `#cdb68e`, 거칠기 0.96, 금속도 0, 불투명도 1이며 `plaster.png`의 약한 얼룩을 1.5m×1.5m로 반복한다. 벽 `joint`와 지붕 `bearing`의 숨은 접면은 같은 회벽 기본색으로 닫되 표면을 새로 띄워 붙이지 않는다. 지면 가까운 마모는 약하게만 읽히며 별도 부식 geometry나 임의 사각 색 패치를 만들지 않는다. 비트맵이 없으면 크림색 평면으로 남는다. 이미지 01 외벽과 03 중정·04 제실의 동일 노출에서 코핑과 목재 문을 분리해 보고, 얼룩이 벽 실체나 창 void를 가리면 실패다.
@@ -80,6 +83,7 @@
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 주랑·제실의 하부 띠는 별도 dado surface ID와 0.60 m 경계로 이미 방출된다. 붉은 재료를 입히기 위해 wall 면을 중복하거나 새 경계를 자를 필요가 없다.
 @evidence settings/30-interiors.md#sanctuary 제실 벽 하부 Y=0~0.60m의 붉은 dado와 위쪽 plaster를 별개 마감으로 둔다.
 @evidence spaces/ownership.md#interior-dado 주랑·제실의 Y=0~0.60m 벽 하부 면만 붉은 dado로 하고 문 void에서 멈춘다.
+
 -->
 
 `surface.colonnade.dado`와 `surface.sanctuary.dado`에만 `dado`를 배정한다. spaces가 정한 바닥 위 Y=0~0.60m의 면 분할을 소비하며 띠 높이·문 void·벽 두께를 다시 정하지 않는다. 기본색 `#866350`, 거칠기 0.94, 금속도 0, 불투명도 1이고 낮은 진폭의 `plaster.png`를 1.5m×1.5m로 쓴다. 이미지 03·04의 문턱과 모서리에서 두 방의 띠 윗선이 이어지고 봉헌실·기록실·외벽에는 번지지 않는지 본다. 색만으로 원래 wall 면 위에 띠를 중복 결속하면 실패다.
@@ -100,6 +104,7 @@
 @evidence models/landscape.md#cypress 수관과 별개인 trunk 목재 part의 둘레 U에 dark-wood를 결속하고 횡결 proxy를 인정한다.
 @evidence models/landscape.md#broad-tree trunk·branch 목재 part는 foliage crown과 분리하고 둘레 U의 횡결을 소품 proxy로 밝힌다.
 @evidence models/portable.md#handcart 축·바퀴의 둘레 U에 dark-wood를 써 판재 deck의 장축 결 규칙과 구분한다.
+
 -->
 
 제실 트러스·서까래·보·문짝·선반·책상, 널판 천장과 처마 하부에는 `dark-wood`를 배정한다. 기본색 `#795339`, 거칠기 0.78, 금속도 0, 불투명도 1이다. `timber.png`는 1m×1m로 반복한다. 보·판재는 모델 H2의 장축 U에 긴 결을 맞추지만, 나무 줄기·가지와 손수레 축·바퀴는 원통 둘레 U를 따라 횡결이 보이는 소품 proxy다. 공간 천장·지붕 하부는 기존 월드 UV0를 사용하며 결 회전이 필요한 건물 면은 source에서 새로 발명하지 않고 공간 설계를 먼저 고친다. 비트맵이 없으면 중간 갈색이다. 이미지 04의 트러스와 05의 선반을 회벽에서 분리해 보고 석재 벤치·제단·봉헌 탁자에 목재가 붙으면 실패다.
@@ -109,10 +114,10 @@
 <!--
 @evidence principles/core/common.md#declared-basis settings/20-envelope.md#roof-form의 적갈색 지붕과 models/cladding.md의 roof-tile·ridge-tile part가 roof-terracotta의 건물 면 근거다.
 @evidence principles/core/common.md#scope-preservation tegula·imbrex·ridge와 다섯 roof upper face에 한정해 roof-terracotta를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
-@evidence principles/core/common.md#substantive-completion tegula·imbrex·ridge와 다섯 roof upper face의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
+@evidence principles/core/common.md#substantive-completion tegula·imbrex·ridge와 다섯 roof upper face에 점토 기본색·거칠기·tile.png의 약한 얼룩을 정하고 실제 이음과 경쟁하는 격자를 실패로 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 20-envelope.md#roof-form과 models/cladding.md#roof-tile·#ridge-tile의 실물 기와 면을 roof-terracotta 결속, 표면 반응 및 검토 표본 01·03 처마에서 낱개 기와와 바탕의 같은 점토색이 직교 격자 없이 읽히는가로 구체화한다.
-@evidence principles/design/materials.md#material-construction-appearance roof-terracotta 단색은 별도 기와 prototype과 바탕 면을 구별하며 격자 무늬를 발명하지 않는다
-@evidence principles/design/materials.md#material-binding-interface 세 기와 part와 roof-*.upper의 UV0를 받고 edge·soffit은 목재에 남긴다
+@evidence principles/design/materials.md#material-construction-appearance tile.png는 0.50 m마다 점토 명암만 바꾸고 개별 기와의 홈·겹침·처마 끝은 model geometry로 남긴다.
+@evidence principles/design/materials.md#material-binding-interface 세 기와 part와 roof-*.upper의 UV0에 tile.png를 0.50 m 반복으로 붙이고 edge·soffit은 목재에 남긴다.
 @evidence principles/design/materials.md#material-verification-address 01·03 처마에서 낱개 기와와 바탕의 같은 점토색이 직교 격자 없이 읽히는가
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work roof upper와 tegula·imbrex·ridge는 이미 서로 다른 공간 면·모델 part다. 이 H2는 동일 점토색으로 결속하며 기와 홈이나 처마 형상을 재설계하지 않는다.
 @evidence settings/20-envelope.md#roof-form 모든 roof upper와 tegula·imbrex·ridge를 점토색으로 묶고 edge·soffit은 목재로 둔다.
@@ -122,17 +127,18 @@
 @evidence spaces/roofs/porch.md#porch-roof 현관 roof-porch.upper는 점토색, edge·soffit는 목재색으로 나눈다.
 @evidence spaces/roofs/sanctuary.md#sanctuary-roof 제실 roof-sanctuary.upper 점토색과 edge·soffit 목재색을 나눈다.
 @evidence spaces/roofs/west.md#west-roof 서쪽 날개 roof-west.upper 점토색과 edge·soffit 목재색을 나눈다.
+
 -->
 
-`tegula`·`imbrex`·`ridge`와 지붕 `upper`에는 `roof-terracotta`를 배정한다. 기본색 `#874b38`, 거칠기 0.84, 금속도 0, 불투명도 1이다. 지붕 상면은 배치 전에도 흙빛 붉은 바탕이지만 최종 줄·겹침·처마 끝 빈 반원은 독립 기와 모델이 맡는다. 기존 `tile.png`의 직교 줄눈 격자는 개별 기와 UV에 결합하지 않는다. 이 재료는 현재 단색으로 설계하고, 후속 비트맵은 실제 점토 면의 약한 얼룩만 담은 반복 자산을 별도로 만들 때 채택한다. `tile.png`는 보존한다. 이미지 01 조감과 03 처마 끝에서 기와가 크림 벽과 분리되고 그려진 격자가 실제 이음과 경쟁하지 않는지 본다.
+`tegula`·`imbrex`·`ridge`와 지붕 `upper`에는 `roof-terracotta`를 배정한다. 기본색 `#874b38`, 거칠기 0.84, 금속도 0, 불투명도 1이다. `tile.png`는 직교 줄눈을 제거하고 약한 점토 명암만 담아 각 축 0.50 m로 반복한다. 지붕 상면은 배치 전에도 흙빛 붉은 바탕이지만 최종 줄·겹침·처마 끝 빈 반원은 독립 기와 모델이 맡는다. 비트맵을 쓸 수 없으면 기본색을 유지한다. 이미지 01 조감과 03 처마 끝에서 기와가 크림 벽과 분리되고 그려진 격자가 실제 이음과 경쟁하지 않는지 본다.
 
 ## 청동 철물과 등잔 {#metal}
 
 <!--
 @evidence principles/core/common.md#declared-basis settings/20-envelope.md#openings의 목재 문짝과 models/openings.md#double-door-leaf의 분리 철물이 문 금속 part만 dark-metal에 배정하는 근거다.
 @evidence models/openings.md#double-door-leaf plate·pin·ring·hinge만 금속 키를 받고 frame·panel은 dark-wood를 유지한다.
-@evidence principles/core/common.md#scope-preservation 문 철물·궤 hasp/strap·등잔 및 필기구 금속 part에 한정해 dark-metal를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
-@evidence principles/core/common.md#substantive-completion 문 철물·궤 hasp/strap·등잔 및 필기구 금속 part의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
+@evidence principles/core/common.md#scope-preservation 문짝 철물·궤 hasp/strap·등잔·향로·봉헌 쟁반·필기구의 금속 part만 dark-metal로 받고 문 panel과 다른 목재 면은 남긴다.
+@evidence principles/core/common.md#substantive-completion 이 금속 part에 #574b39·거칠기 0.39·금속도 0.82·무비트맵을 정하고 03·04·05에서 과도한 거울 반사를 실패로 둔다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 문짝의 plate·pin·ring·hinge와 궤·등잔의 금속 part에 무비트맵 dark-metal, 금속도 0.82를 정하고 03·04·05에서 목재와의 분리를 본다.
 @evidence principles/design/materials.md#material-construction-appearance dark-metal의 0.82 금속도와 0.39 거칠기는 목재 면을 청동으로 바꾸지 않는다
 @evidence principles/design/materials.md#material-binding-interface plate·pin·ring·hinge 등 분리된 model part만 받고 별도 비트맵을 요구하지 않는다
@@ -140,9 +146,10 @@
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 문 철물은 문짝의 plate·pin·ring·hinge로 이미 분리되어 있다. 이 H2는 그 part의 표면 응답만 정하며 문짝 mesh나 경첩 축 변경을 요구하지 않는다.
 @evidence obligations/design/materials.md#material-response dark-metal의 금속도 0.82·거칠기 0.39를 목재·석재와 구분하고 H2의 다른 재료도 자기 기본색·거칠기·불투명도를 둔다.
 @evidence settings/20-envelope.md#openings 문짝의 plate·pin·ring·hinge는 dark-metal에, 목재 panel은 dark-wood에 남겨 철물을 분리한다.
+
 -->
 
-문짝 철물, 궤의 hasp·strap, 등잔·향로·필기 도구의 금속 part에는 `dark-metal`을 배정한다. 기본색 `#574b39`, 거칠기 0.39, 금속도 0.82, 불투명도 1이며 별도 비트맵은 요구하지 않는다. 얇은 고리와 못은 반사로 구별하고 목재 면 전체를 청동으로 바꾸지 않는다. 이미지 03 열린 문과 04·05 근접 시점에서 목재·석재와 구별되되 거울처럼 번쩍이지 않는지 본다.
+문짝 철물, 궤의 hasp·strap, 등잔·향로·봉헌 쟁반·필기 도구의 금속 part에는 `dark-metal`을 배정한다. 기본색 `#574b39`, 거칠기 0.39, 금속도 0.82, 불투명도 1이며 별도 비트맵은 요구하지 않는다. 얇은 고리와 못은 반사로 구별하고 목재 면 전체를 청동으로 바꾸지 않는다. 이미지 03 열린 문과 04·05 근접 시점에서 목재·석재와 구별되되 거울처럼 번쩍이지 않는지 본다.
 
 ## 붉은 도기 {#ceramic}
 
@@ -153,11 +160,12 @@
 @evidence models/wares.md#carry-jar 운반 항아리 body와 handle을 terracotta로 묶고 손잡이 접합을 재료로 대체하지 않는다.
 @evidence principles/core/common.md#scope-preservation 항아리·물동이·작은 용기·화분 pot의 도기 몸체에 한정해 terracotta를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
 @evidence principles/core/common.md#substantive-completion 항아리·물동이·작은 용기·화분 pot의 도기 몸체의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 항아리·물동이·작은 용기·화분 pot의 body를 terracotta에 묶고 0.22 m 반복과 02·05 저장 구역의 목재 대비를 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation 항아리·물동이·작은 용기·화분 pot의 body를 무비트맵 terracotta에 묶고 02·05 저장 구역의 목재 대비를 정한다.
 @evidence principles/design/materials.md#material-construction-appearance terracotta의 0.22m 반복 없는 점토 기본색은 실제 두께와 굽을 대신하지 않는다
 @evidence principles/design/materials.md#material-binding-interface body·handle·pot에만 붙고 planter.soil과 offering-bowl.bowl은 다른 키다
 @evidence principles/design/materials.md#material-verification-address 02·05 저장 용기에서 목재 가구와 붉은 도기가 분리되는가
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 도기 용기의 body·handle·pot와 화분 흙은 이미 다른 part다. 붉은 도기 색을 붙이기 위해 용기 윤곽이나 굽을 새로 정할 필요가 없다.
+
 -->
 
 항아리·물동이·작은 용기·화분의 몸체와 손잡이에 `terracotta`를 배정한다. 기본색 `#9a684b`, 거칠기 0.72, 금속도 0, 불투명도 1이고 반복 길이는 0.22m다. 별도 비트맵은 없으며 윤곽과 구멍은 모델 part가 담당한다. 화분의 `soil`과 봉헌 그릇의 `bowl`은 이 키로 바꾸지 않는다. 이미지 02·05의 보관 용기를 선반 목재와 구별하는 대략의 재질 읽힘이 관찰 기준이다.
@@ -175,6 +183,7 @@
 @evidence principles/design/materials.md#material-binding-interface 바구니 세 part의 기존 UV0를 쓰되 교차 짜임 비트맵은 지정하지 않는다
 @evidence principles/design/materials.md#material-verification-address 02 보관 구역에서 바구니가 나무 선반과 다른 마른 섬유색으로 읽히는가
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work basket의 wall·rim·floor proxy는 이미 원형이 방출한다. 이 색은 짜임 구멍의 추가 geometry를 약속하지 않아 모델 수리가 필요하지 않다.
+
 -->
 
 바구니 `wall`·`rim`·`floor`에는 `wicker`를 배정한다. 기본색 `#a58658`, 거칠기 0.96, 금속도 0, 불투명도 1이고 반복 길이는 0.11m다. 별도 교차 짜임 비트맵은 사용하지 않는다. 벽의 실제 띠와 생략된 세로 살은 모델의 proxy 한계이며 재료가 빠진 살을 무늬로 채워 구현됐다고 주장하지 않는다. 이미지 02의 저장 구역과 서비스 마당에서 도기·목재와 다른 마른 섬유색이면 충분하다.
@@ -235,8 +244,8 @@
 
 <!--
 @evidence principles/core/common.md#declared-basis settings/40-environment.md#site와 spaces/site.md#site-grade의 전경 흙 면을 받으며 화분 soil과 향로 ash·incense에도 흙빛 키를 고른다.
-@evidence principles/core/common.md#scope-preservation site earth·ground와 화분 soil 및 향로 ash·incense에 한정해 soil를 정하고 형상·배치·인접 재료의 소유를 건드리지 않는다.
-@evidence principles/core/common.md#substantive-completion site earth·ground와 화분 soil 및 향로 ash·incense의 기본색·거칠기·비트맵 또는 무비트맵과 검토 실패 조건을 H2에서 닫는다.
+@evidence principles/core/common.md#scope-preservation 전경 site.earth·ground와 먼 기슭 ground, 화분 soil·향로 ash·incense에 soil을 주고 별도 ridge 면은 distant-earth에 남긴다.
+@evidence principles/core/common.md#substantive-completion 전경 지면의 earth.png 0.25 m 반복과 작은 흙 part의 단색, 기본색 #8c795c·거칠기 1 및 01의 포장 경계 실패 조건을 정한다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation site.earth·ground에는 0.25 m earth.png 반복을, 화분 soil과 향로 ash·incense에는 같은 키의 기본색을 주고 01 포장 경계에서 분리해 본다.
 @evidence principles/design/materials.md#material-construction-appearance soil 기본색과 전경 earth.png 0.25m 반복은 대지 경사나 화분 깊이를 바꾸지 않는다
 @evidence principles/design/materials.md#material-binding-interface surface.site.earth·ground와 soil/ash part를 구분하고 먼 ridge는 다른 키다

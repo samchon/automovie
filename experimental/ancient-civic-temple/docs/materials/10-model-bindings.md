@@ -114,7 +114,7 @@
 | `foliage` | 0.28·0.28 | `#526448` |
 | `plaster` | 1.50·1.50 | `#cdb68e` |
 
-절차 자산은 `limestone`→`stone.png`, `paving`·`paving-small`→`paving.png`, `plaster`·`dado`→`plaster.png`, `dark-wood`→`timber.png`, `linen`→`textile.png`, `soil`→`earth.png`이다. 다른 키는 비트맵 없이 기본색을 쓴다. 기존 `tile.png`는 삭제하지 않지만 그 직교 격자를 실제 개별 기와에 씌우지 않는다. 비트맵의 채널은 sRGB base color뿐이며 금속도·거칠기·법선·높이를 이미지의 회색값에서 추론하지 않는다. 한 자산을 여러 키가 공유해도 기본색·물성은 각 키의 H2에서 별개로 적용한다.
+절차 자산은 `limestone`→`stone.png`, `paving`·`paving-small`→`paving.png`, `plaster`·`dado`→`plaster.png`, `dark-wood`→`timber.png`, `roof-terracotta`→`tile.png`, `linen`→`textile.png`, `soil`→`earth.png`이다. 다른 키는 비트맵 없이 기본색을 쓴다. `tile.png`는 직교 격자 없이 점토 얼룩만 담는다. 비트맵의 채널은 sRGB base color뿐이며 금속도·거칠기·법선·높이를 이미지의 회색값에서 추론하지 않는다. 한 자산을 여러 키가 공유해도 기본색·물성은 각 키의 H2에서 별개로 적용한다.
 
 각 행의 part 목록은 해당 모델 H2가 방출하는 part 표면이다. 같은 part는 정확히 하나의 키를 쓴다. 봉헌 그릇의 도기 변형은 같은 `bowl` 표면과 UV0를 유지하고 금속 대신 도기 결속을 택한다. 기록실·보관실의 기본 궤 원형과 직물 변형도 표면 ID와 UV0 미터 단위를 유지한다. 실체가 없는 face id를 재료가 추가하거나, 기와·수반·문처럼 서로 다른 part를 하나의 표면으로 합치지 않는다.
 

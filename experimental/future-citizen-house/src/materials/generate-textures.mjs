@@ -38,7 +38,7 @@ export function makeTextureAssets() {
       (u, v, x, y) => {
         const cloud = wave(u, v, 2, 1) * 2.5 + wave(u, v, 3, -2, 0.8) * 1.5;
         const fleck = (noise(x % 64, y % 64, 2081) - 0.5) * 5;
-        return [247 + cloud + fleck, 247 + cloud + fleck, 247 + cloud + fleck];
+        return [253 + cloud + fleck, 253 + cloud + fleck, 253 + cloud + fleck];
       },
     ],
     [
@@ -59,7 +59,7 @@ export function makeTextureAssets() {
       "paint-grain",
       (u, v, x, y) => {
         const n = (noise(x % 64, y % 64, 2082) - 0.5) * 3 + wave(u, v, 2, 1) * 0.6;
-        return [251 + n, 251 + n, 251 + n];
+        return [254 + n, 254 + n, 254 + n];
       },
     ],
     [
@@ -67,7 +67,14 @@ export function makeTextureAssets() {
       (u, v) => {
         const bend = 0.018 * wave(u, v, 1, 2);
         const grain = Math.sin(tau * (u * 22 + bend)) * 7 + Math.sin(tau * (u * 7 - bend)) * 5 + wave(u, v, 2, 1) * 2;
-        return [244 + grain, 244 + grain, 244 + grain];
+        return [250 + grain, 250 + grain, 250 + grain];
+      },
+    ],
+    [
+      "felt-grain",
+      (u, v, x, y) => {
+        const fibre = (noise(x % 64, y % 64, 2089) - 0.5) * 9 + wave(u, v, 37, 31) * 2;
+        return [251 + fibre, 251 + fibre, 251 + fibre];
       },
     ],
     [
@@ -75,14 +82,21 @@ export function makeTextureAssets() {
       (u, v, x, y) => {
         const weave = wave(u, v, 32, 0) * wave(u, v, 0, 32) * 4;
         const fleck = (noise(x % 64, y % 64, 2083) - 0.5) * 3;
-        return [246 + weave + fleck, 246 + weave + fleck, 246 + weave + fleck];
+        return [251 + weave + fleck, 251 + weave + fleck, 251 + weave + fleck];
       },
     ],
     [
       "tile-grain",
       (u, v, x, y) => {
         const fleck = (noise(x % 64, y % 64, 2084) - 0.5) * 5 + wave(u, v, 3, 2) * 2;
-        return [247 + fleck, 247 + fleck, 247 + fleck];
+        return [253 + fleck, 253 + fleck, 253 + fleck];
+      },
+    ],
+    [
+      "worktop-grain",
+      (u, v, x, y) => {
+        const fleck = (noise(x % 64, y % 64, 2090) - 0.5) * 5 + wave(u, v, 11, 7) * 1.2;
+        return [253 + fleck, 253 + fleck, 253 + fleck];
       },
     ],
     [
@@ -101,7 +115,7 @@ export function makeTextureAssets() {
     ],
   ];
   return recipes.map(([id, sample]) => {
-    const size = id === "limestone-grain" ? 512 : 256;
+    const size = ["limestone-grain", "felt-grain", "tile-grain", "worktop-grain"].includes(id) ? 512 : id === "oak-grain" ? 1024 : 256;
     const rgba = [];
     for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
       const u = x / size, v = y / size;

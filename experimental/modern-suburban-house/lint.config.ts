@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
  * production review.
  *
  * Select the production shape, then advance one construction layer at a time
- * through `draft -> evidence -> review`. A film constructs settings,
+ * through `draft -> evidence`. A film constructs settings,
  * treatments, scripts, and `docs/screenplays`, then independently revises the
  * frozen screenplay into `docs/final/screenplays` through the naturalness
  * stage. Shots and film sources consume only that reviewed final tree. A brief
@@ -48,6 +48,7 @@ productionEvidence.settings = "review";
 productionEvidence.spaces = "review";
 productionEvidence.spaceSources = "review";
 productionEvidence.models = "evidence";
+productionEvidence.modelSources = "draft";
 productionEvidence.materials = "evidence";
 productionEvidence.instances = "draft";
 productionEvidence.systems = "evidence";
