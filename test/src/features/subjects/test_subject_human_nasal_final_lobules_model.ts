@@ -5,7 +5,8 @@ import { coarseHumanFaceFixture } from "../internal/humanFaceFixture";
 import { nclose } from "../internal/predicates";
 
 /**
- * Full document interpretation carries a local final target into resident skin.
+ * Full document interpretation carries a source-owned local final target into
+ * resident skin without editing its free section coordinates.
  *
  * Scenarios:
  * 1. With baseline nasal depth edits disabled, a five-mm sphere's pole three mm
@@ -24,16 +25,12 @@ export const test_subject_human_nasal_final_lobules_model = (): void => {
   };
   const anchor = face.basis.bindings.nose.sectionAnchor!,
     point = face.basis.host.positions[anchor];
-  face.detail = {
-    nose: {
-      body: {
-        shape: {
-          lobules: [{ anchor, offset: [0, 0, 3], radii: [5, 5, 5], core: 0.8 }],
-        },
-        joinWidth: 0.1,
-        depthReach: 20,
-      },
+  face.basis.recipe.nose.body = {
+    shape: {
+      lobules: [{ anchor, offset: [0, 0, 3], radii: [5, 5, 5], core: 0.8 }],
     },
+    joinWidth: 0.1,
+    depthReach: 20,
   };
   const model = buildHumanFace(face, 0);
   const matches: number[] = [];

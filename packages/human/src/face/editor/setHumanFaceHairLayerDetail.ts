@@ -1,4 +1,5 @@
 import { humanFaceDetailChannels } from "../channels/humanFaceDetailChannels";
+import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { mergeHumanFaceSettings } from "../document/mergeHumanFaceSettings";
 import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
@@ -8,6 +9,8 @@ import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDo
  * The selected authored population becomes a whole-array override, preserving
  * every other layer and the separate legacy hair owner. Clearing one scalar is
  * deliberately absent: inheritance resets the entire additional-layer region.
+ * The copied layer's nonempty card guides must exactly match its source basis;
+ * this method changes only a scalar finish/shape field, not a hair path.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Edits a named layer's numeric profile without requiring its guide array to be re-entered.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Uses the same hair channel bounds and units while retaining complete-array replacement semantics.
@@ -30,11 +33,13 @@ export function setHumanFaceHairLayerDetail(
   if (index < 0) throw new Error("The selected hair layer does not exist.");
   const next = structuredClone(document);
   (next.detail ??= {}).hairLayers = layers;
-  return writeDetail(
+  const edited = writeDetail(
     next,
     ["detail", "hairLayers", String(index), "profile", ...definition.path],
     value,
   );
+  assertHumanFaceEditableDetail(edited);
+  return edited;
 }
 
 function assertDetailValue(

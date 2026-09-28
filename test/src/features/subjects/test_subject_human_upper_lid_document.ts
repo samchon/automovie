@@ -11,13 +11,13 @@ import { humanFaceFixture } from "../internal/humanFaceFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Upper lid sections survive the same complete-region and JSON editor paths as
- * other anatomy. A side-specific population replaces, rather than splices, it.
+ * Upper lid sections belong to the source recipe. The editor may retain them
+ * while side-specific scalar values remain independently editable.
  *
  * Scenarios:
- * 1. Common three-station detail round-trips all six roles and signed depths.
- * 2. A left two-station replacement retains the right profile and unrelated
- *    nose trait. Clearing the side restores the common section population.
+ * 1. A source three-station profile round-trips its roles and depths.
+ * 2. A new left two-station array refuses, while a left scalar adjustment
+ *    retains the right profile and unrelated nose trait.
  * 3. Missing a required crease point refuses at JSON admission.
  */
 export const test_subject_human_upper_lid_document = (): void => {
@@ -37,12 +37,8 @@ export const test_subject_human_upper_lid_document = (): void => {
       },
     })),
   };
-  const common = replaceHumanFaceRegion({
-    document: source,
-    basisId: source.basis.id,
-    region: "eye",
-    value: { upperLidProfile: profile },
-  });
+  source.basis.recipe.eye.upperLidProfile = structuredClone(profile);
+  const common = parseHumanFaceDocument(serializeHumanFaceDocument(source));
   const loaded = parseHumanFaceDocument(serializeHumanFaceDocument(common));
   TestValidator.equals(
     "complete profile survives JSON",
@@ -50,18 +46,37 @@ export const test_subject_human_upper_lid_document = (): void => {
     profile,
   );
   const left = { sections: [profile.sections[0], profile.sections[2]] };
+  TestValidator.predicate(
+    "new left tissue stations refuse",
+    throwsError(
+      () =>
+        replaceHumanFaceRegion({
+          document: loaded,
+          basisId: source.basis.id,
+          region: "eye",
+          side: "left",
+          value: { upperLidProfile: left } as never,
+        }),
+      "source geometry array",
+    ),
+  );
   const paired = replaceHumanFaceRegion({
     document: loaded,
     basisId: source.basis.id,
     region: "eye",
     side: "left",
-    value: { upperLidProfile: left },
+    value: { widthScale: 1.08 },
   });
   const resolved = resolveHumanFaceDocument(paired);
   TestValidator.equals(
-    "left array replaces complete population",
+    "left inherits source tissue population",
     resolved.left.eye.upperLidProfile,
-    left,
+    profile,
+  );
+  TestValidator.equals(
+    "left scalar remains independent",
+    resolved.left.eye.widthScale,
+    1.08,
   );
   TestValidator.equals(
     "right inherits untouched common",
@@ -87,7 +102,8 @@ export const test_subject_human_upper_lid_document = (): void => {
     profile,
   );
   const malformed = JSON.parse(serializeHumanFaceDocument(common));
-  delete malformed.detail.eye.upperLidProfile.sections[0].section.creaseOuter;
+  delete malformed.basis.recipe.eye.upperLidProfile.sections[0].section
+    .creaseOuter;
   TestValidator.predicate(
     "missing required upper point refuses",
     throwsError(() => parseHumanFaceDocument(JSON.stringify(malformed))),
