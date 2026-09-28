@@ -1,4 +1,4 @@
-import { validateMeshTopology } from "@automovie/engine";
+import { measureAutoMovieMeshCrossings, validateMeshTopology } from "@automovie/engine";
 
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
 import { humanBodyCappedSurface } from "../../simple/humanBodyCappedSurface";
@@ -9,9 +9,10 @@ import { assertSparseRows } from "../assertSparseRows";
  * Admit connected skin surfaces and their material partitions as one source
  * of shared vertex identities in metres, right-handed Y-up/Z-forward.
  *
- * Topology, sparse shape rows, soft-tissue sag metadata, relief and
- * skin-material overlays are checked before the builder can skin or split a
- * material region. A cap closes each authored boundary only for solid admission
+ * Topology, neutral skin self-crossings, sparse shape rows, soft-tissue sag
+ * metadata, relief and skin-material overlays are checked before the builder
+ * can skin or split material regions. A cap closes each authored boundary only
+ * for solid admission
  * and volume measurement; it does not add skin to the rendered body.
  * Surfaces may have overlapping bounds but not overlapping interiors.
  * This returns the endpoint names that move some surface vertex; it
@@ -144,6 +145,17 @@ export function assertHumanBodyBasisSurface(
     }
     const solid = humanBodyCappedSurface(surface.positions, surface.indices);
     solid.assertValid();
+    const neutral = {
+      positions: surface.positions,
+      indices: surface.indices,
+      normals: null,
+      uvs: null,
+      skin: null,
+    };
+    if (measureAutoMovieMeshCrossings(neutral, neutral).length > 0)
+      throw new Error(
+        "Body neutral skin surface cannot cross itself: " + surface.id,
+      );
     solids.push(solid);
     for (const [name, rows] of Object.entries(surface.targets)) {
       if (!endpoints.has(name))

@@ -165,6 +165,8 @@ The simple tier solves stature through the same bounded shaped-skin measurement 
 
 `assertHumanBodyBasis` admits one immutable basis in ordered stages: unique names, channel/corrective endpoints, connected surfaces and material partitions, landmark endpoint correspondence, then rig and clinical ranges. The matching files under `body/basis/admission/` own those checks separately. This is representation admission; a legal body document can still have a contact or anatomical-form problem, which needs pose-space measurement and visual review.
 
+Surface admission rejects nonadjacent triangle crossings in the neutral shared skin before UV or material regions are split. This does not certify every shaped or posed combination; the editor's contact reading and the full body census still inspect those states.
+
 Basis names used as record keys also cannot collide with inherited JavaScript Object properties. The common identity check covers channels, landmarks, endpoints, surfaces, materials and regions before shape evaluation reads their named rows.
 
 The body builder passes each shared surface through `createHumanBodyPosedSurface` for joint skinning and optional gravity response. `createHumanBodySurfaceParts` then computes normals and pose relief before `createHumanBodySurfaceRegionParts` gathers the authored material regions; underwear receives the same unsplit posed surface. These are processing owners for the legacy skin, not internal anatomical components or a contact solver.
