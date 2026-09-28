@@ -1,0 +1,740 @@
+# 위생기구와 생활 설비 모델
+
+[모델 단위·표면 규칙](000-representation.md#model-address-and-scale)을 참조한다.
+
+## 세면대·수전·거울 {#basin}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 두 실제 호출 폭 0.80·1.00m만 선택하고 하부 vanity 외함은 cabinet 모델의 독립 부품으로 남긴다.
+@evidence principles/core/common.md#substantive-completion rim의 개구와 bowl의 닫힌 바닥·내외벽, 관상 수전, 독립 벽부착 거울을 각 부품·빈 공간·접촉으로 전개한다.
+@evidence principles/core/common.md#declared-basis ref02의 위생기구 위치와 powder-utility·upper-bathroom의 세면 목적지를 바탕으로 삼고 두 basin 폭과 bowl 깊이·수전·거울 치수는 이 모델 절의 선택이다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation powder-utility의 세면과 upper-bathroom의 vanity 목적지에 800·1000mm basin 폭과 별도 외함 접촉 규칙을 더한다.
+@evidence principles/design/models.md#representation-contract bowl 음각과 열린 배수구를 남기고 mirror-glass를 frame보다 물려 배치하며 vanity 판을 이 모델에서 중복 생성하지 않는다.
+@evidence principles/design/models.md#spatial-convention 하부장 바닥 중심을 원점, +Z를 사용자 쪽으로 두고 rim y=0.80..0.85와 뒤 거울 z 경계를 기록한다.
+@evidence principles/design/models.md#reviewable-structure 상부에서 bowl 구멍, 정면에서 프레임 속 유리와 수전, 45°에서 bowl 외벽과 vanity 상면 접촉을 확인하도록 면 주소를 낸다.
+@evidence principles/design/models.md#model-observable-style-basis ref02의 두 층 위생기구 위치를 받되 다른 참조의 거실 유리를 욕실 거울 형상 근거로 삼지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 두 폭에 따라 rim·bowl·mirror 폭이 바뀌고 배수·관·프레임은 고정 치수로 남아 변종의 전체 envelope를 닫는다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work powder-utility의 세면·변기와 upper-bathroom의 세면·수건 수납을 시험했다. 800·1000mm bowl과 수전·거울의 벽 접촉은 두 위생실의 설비 원형에 닫히며 접근 면적은 배치에서 재므로 새 방·상태가 필요하지 않다.
+@evidenceExclude settings/003-spatial-basis.md#envelope-and-privacy 전면·후면 커튼월과 우측 불투명 코어의 형상은 건축 외피 owner가 결정한다. basin은 욕실 안의 독립 도기·거울이며 그 유리·reveal을 복제하지 않는다.
+@evidenceExclude settings/003-spatial-basis.md#privacy-states basin의 고정 rim·mirror는 유리 tint·shade의 세 광학 상태를 생성하지 않는다. 욕실 외피의 반투명 상태는 materials·spaces의 별도 소유다.
+@evidence spaces/002-spatial-graph.md#powder-utility 현관 직결 powder의 세면 기능을 800mm basin과 별도 vanity 외함으로 받고 cell 안 접근 면적은 배치 단계에 남긴다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 상층 욕실의 세면대 목적지를 1000mm basin 원형으로 받고 vanity 외함의 구체 선택은 upper-program에서 받는다.
+@evidence settings/002-household.md#ground-program powder의 세면 기능을 800mm basin 원형의 사용 근거로 받는다.
+@evidence settings/002-household.md#upper-program 상층 욕실 vanity를 1000mm basin 원형의 사용 근거로 받는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition basin·수전·거울의 형상과 face 주소를 models가 소유하고 설치 위치를 넘긴다.
+@evidenceExclude spaces/002-spatial-graph.md#corridor-bathroom 복도↔욕실 0.90m 문과 안쪽 열림은 spaces 소유다. basin의 국소 외곽은 그 door-state 검사에 제공된다.
+@evidenceExclude spaces/003-surface-ownership.md#rear-bath-glazing 상층 욕실의 후면 반투명 고정창은 façade owner가 절삭·틀·shade를 낸다. basin mirror는 실내 벽부착 물체다.
+@evidenceExclude spaces/003-surface-ownership.md#right-bath-glazing 상층 욕실 -X 후단 창은 하층 공용부 bay를 이어받는다. basin의 1000mm 폭은 그 창의 jamb 위치가 아니다.
+@evidenceExclude spaces/003-surface-ownership.md#glazing-interface 외부 고정창의 0.04m frame·0.14m 깊이와 bay 분할은 외피 공통 인터페이스다. 세면대 거울의 frame은 이 창호 frame이 아니다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory 800·1000은 실제 두 폭만 담고 하부 vanity 판은 @support의 cabinet-and-shelf에 남긴다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 rim·bowl의 @void, bowl @bore와 tap·mirror의 @part가 세면대의 열린 물길과 독립 벽거울을 구분한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb powder-utility와 upper-bathroom의 세면 목적지를 받되 0.80·1.00m 폭, bowl 깊이와 거울 물림은 이 H2가 수치로 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 두 욕실의 세면 용도에 800·1000 변종 및 별도 vanity 상면에 대한 @support를 로컬로 더한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @void rim·bowl, @bore bowl과 mirror-frame의 별도 @void가 막힌 덩어리 대신 구멍과 물린 유리를 표현한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 하부장 중심 원점, 사용자 쪽 +Z와 rim y=0.80..0.85, 거울 z=-0.27..-0.252를 본문과 표에서 일치시킨다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b rim/upper와 bowl/inner·drain-edge, mirror-glass/front 주소가 정면·상부·45°의 음각과 유리 물림 관찰을 가능하게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 두 층 위생기구 목적지만 위치 근거로 취하고 거실 커튼월의 유리 형상을 욕실 거울로 옮기지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope 800·1000과 각 여섯 @part가 폭별 rim·bowl·mirror 외곽, 공통 tap 및 배수구를 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 powder의 세면과 상층 욕실 vanity에 맞춰 두 폭과 벽부착 거울을 검토했고 점유·접근은 배치에 남아 새 방이나 상태를 요구하지 않는다.
+@evidenceExcludeReview settings/003-spatial-basis.md#envelope-and-privacy #467ca4b 욕실 안 mirror-frame만 모델 주소로 두며 외피 커튼월과 불투명 코어의 bay·reveal은 세면대 부품으로 내지 않는다.
+@evidenceExcludeReview settings/003-spatial-basis.md#privacy-states #a8e7bae 고정 basin·거울 부품에는 tint·shade 광학 상태가 없고 @inventory는 두 크기 변종만 구분한다.
+@evidenceReview spaces/002-spatial-graph.md#powder-utility #212302a 현관 직결 powder의 세면 기능에 폭 0.80m 원형을 연결하고 방 안 여유 면적은 부품 표로 확정하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#upper-bathroom #3a9f2f7 상층 욕실의 세면 목적지에 폭 1.00m 원형을 연결하고 독립 vanity 접촉만 @support로 명시한다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 1층 powder 세면 호출을 @inventory 800과 실제 powder.ts용 basin/800에 대응시킨다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 상층 욕실 vanity 세면 호출을 @inventory 1000과 폭 1.00m 본문 원형에 대응시킨다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 basin·tap·mirror를 안정 part와 rim/upper, bowl/inner, mirror-glass/front 등의 face 주소로 분해한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-bathroom #5b2410b basin의 `rim`·`bowl`·tap·mirror 부품에는 corridor-bathroom의 안쪽 여는 문이나 frame이 없다. 이 H2의 `@envelope`는 기구 국소 점유이고 문짝·route는 공간 경계에 남는다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#rear-bath-glazing #bca1863 상층 욕실 후면 고정창의 절삭·shade를 거울과 합치지 않고 거울은 @flat-contact로 실내 wall에 붙인다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#right-bath-glazing #49514f7 상층 욕실 -X 창의 bay와 jamb는 1000mm basin 폭에서 파생하지 않으며 모델에는 독립 mirror-frame만 있다.
+@evidenceExcludeReview spaces/003-surface-ownership.md#glazing-interface #b73976a 외부 창 frame의 공통 깊이·분할은 이 H2의 mirror-frame과 별개이며 mirror-glass는 자체 @void 안에 물린다.
+-->
+
+@axis-control 800: tap-spout, Y, 1.104, support-to-tube seam
+@axis-control 1000: tap-spout, Y, 1.104, support-to-tube seam
+
+부품 표에서 `support@0.80`은 별도 [vanity 외함](../models/002-storage-and-sleep.md#cabinet-and-shelf)의 상단 접촉면이며 이 prototype 내부에 외함 판을 중복 생성하지 않는다. bowl의 안쪽과 rim의 개구는 서로 다른 경계이고, bowl 바깥쪽 입술이 rim 아랫면에 면으로 닿는다. 거울은 벽에 독립 부착한다. drain은 bowl 바닥의 지름 0.045m 열린 구멍 면 주소다.
+
+@scalar-control excluded-basin-default: 0.65
+@scalar-control vanity-depth: 0.48
+@scalar-control mirror-width-deduction: 0.08
+@scalar-control mirror-glass-recess: 0.004
+@scalar-control mirror-glass-width-deduction: 0.036
+
+@prose-part 수전 기둥은: tap-body
+@prose-part 이 받침의: tap-spout
+@prose-part 거울은: mirror-*
+@prose-part bowl은: bowl
+@inventory 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
+@inventory 1000: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
+@support 800: cabinet-and-shelf, vanity/800x800x480/closed, top, 0, 0, 0
+@support 1000: cabinet-and-shelf, vanity/1000x800x480/closed, top, 0, 0, 0
+@void 800: rim, -0.272..0.272, 0.80..0.85, -0.125..0.175
+@void 1000: rim, -0.34..0.34, 0.80..0.85, -0.125..0.175
+@void 800: bowl, -0.25..0.25, 0.725..0.80, -0.10..0.15
+@void 1000: bowl, -0.318..0.318, 0.725..0.80, -0.10..0.15
+@bore 800: bowl, 0.0225, 0.71..0.725
+@bore 1000: bowl, 0.0225, 0.71..0.725
+@flat-contact 800: tap-spout, tap-body, -Y, 1.10, 0.152..0.168, -0.17..-0.16
+@flat-contact 1000: tap-spout, tap-body, -Y, 1.10, 0.152..0.168, -0.17..-0.16
+@axis-control 800: tap-spout, Y, 1.104, support-to-tube-seam
+@axis-control 1000: tap-spout, Y, 1.104, support-to-tube-seam
+@flat-contact 800: mirror-frame, wall, -Z, -0.27, -0.30..0.30, 1.17..1.188
+@flat-contact 1000: mirror-frame, wall, -Z, -0.27, -0.40..0.40, 1.17..1.188
+@void 800: mirror-frame, -0.342..0.342, 1.188..1.852, -0.27..-0.252
+@void 1000: mirror-frame, -0.442..0.442, 1.188..1.852, -0.27..-0.252
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | 800 | * | bounds | -0.4..0.4 | 0.71..1.87 | -0.27..0.25 | - |
+| @part | 800 | rim | hollow | -0.4..0.4 | 0.80..0.85 | -0.25..0.25 | support@0.80,bowl,tap-body |
+| @part | 800 | bowl | hollow | -0.29..0.29 | 0.71..0.80 | -0.14..0.19 | rim |
+| @part | 800 | tap-body | cylinder | 0.146..0.174 | 0.85..1.10 | -0.184..-0.156 | rim,tap-spout |
+| @part | 800 | tap-spout | curved | 0.149..0.171 | 1.10..1.122 | -0.17..-0.04 | tap-body |
+| @part | 800 | mirror-frame | hollow | -0.36..0.36 | 1.17..1.87 | -0.27..-0.252 | wall,mirror-glass |
+| @part | 800 | mirror-glass | box | -0.342..0.342 | 1.188..1.852 | -0.27..-0.256 | mirror-frame |
+| @envelope | 1000 | * | bounds | -0.5..0.5 | 0.71..1.87 | -0.27..0.25 | - |
+| @part | 1000 | rim | hollow | -0.5..0.5 | 0.80..0.85 | -0.25..0.25 | support@0.80,bowl,tap-body |
+| @part | 1000 | bowl | hollow | -0.358..0.358 | 0.71..0.80 | -0.14..0.19 | rim |
+| @part | 1000 | tap-body | cylinder | 0.146..0.174 | 0.85..1.10 | -0.184..-0.156 | rim,tap-spout |
+| @part | 1000 | tap-spout | curved | 0.149..0.171 | 1.10..1.122 | -0.17..-0.04 | tap-body |
+| @part | 1000 | mirror-frame | hollow | -0.46..0.46 | 1.17..1.87 | -0.27..-0.252 | wall,mirror-glass |
+| @part | 1000 | mirror-glass | box | -0.442..0.442 | 1.188..1.852 | -0.27..-0.256 | mirror-frame |
+
+실제 `powder.ts` 호출을 받는 `basin/800`은 폭 0.80m이고 상층의 `basin/1000`은 폭 1.00m다. 0.65m 함수 기본값은 현재 호출의 값이 아니므로 채택하지 않는다. 두 변종 모두 바닥 하부장 중심이 원점, +Z가 사용자 쪽이고 basin 본체 깊이 0.50m, 뒤 벽거울까지 합친 전체 깊이 0.52m, rim 상단은 `@part rim`의 Y 윗면이다. [vanity 수납 외함](002-storage-and-sleep.md#cabinet-and-shelf)은 폭 W, 높이 0.80, 깊이 0.48m의 독립 부품 주소로 조합한다. rim은 y=0.80..0.85의 두께 0.05m이고 안쪽 개구는 폭 0.68W×깊이 0.30m, 중심 Z는 `@void rim`의 앞뒤 중점이다. bowl은 rim에서 y=0.71까지 0.14m 내려가는 닫힌 외벽·내벽·바닥을 가진다. 지름 0.045m 배수구는 bowl 바닥 중앙에서 열린 물길의 시각 단서지만 실제 관로는 없다. 수전 기둥은 0.028m 지름, y=0.85..1.10, x=0.16, z=-0.17이다. spout는 외경 0.022m이며 중심 높이·Z 길이와 양 끝은 `@part tap-spout`의 Y 중점과 Z 범위가 정한다. spout의 뒤쪽에는 `@flat-contact tap-spout`의 X/Z 직사각형과 접촉 Y 평면에서 support-to-tube-seam `@axis-control`까지 평평한 일체형 받침을 만들고 관의 아래쪽 원호를 받침 상면에서 절단해 잇는다. 이 받침의 `@flat-contact` 아래면은 기둥 상면 원판 안쪽의 0.016×0.010m 직사각형 유한 면으로 닿는다. 거울은 폭 W−0.08, 높이 0.70, 두께 0.018m, 하단 y=1.17이며 basin 뒤쪽 z=−0.27..−0.252에 별도 벽부착 물체로 선다. 둘레 프레임 폭은 0.018m이고 유리 앞면은 프레임 앞면보다 0.004m 물려 `@part mirror-glass`의 Z 앞면에 있고 유리의 폭·높이는 각각 바깥 폭−0.036m와 0.664m다. 벽 안으로 들어가는 형상은 없다.
+
+주소는 `rim/upper/edge/underside`, `bowl/inner/outer/bottom/rim/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`, `mirror-glass/front/back/edge`, `mirror-frame/front/back/edge`이며 vanity의 각 판 주소는 cabinet 쪽에서 유지한다. 내부와 외부 normal이 반대이고 bowl의 rim은 두 벽을 잇는 닫힌 두께다. 정면·상부·45°에서 실제 음각과 mirror/frame·tap을 확인한다. ref02의 1층/2층 위생기구 위치 역할을 채택하고 ref03·04·05의 거실/작업/복도 유리를 욕실 거울로 복제하지 않는다. ref01에는 basin 세부가 없다. 거울 광학 응답·급배수·실제 사용성은 `unverified`다.
+
+<!-- @authored-address-state:start -->
+@address-state 800: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
+@address-state 1000: rim, bowl, tap-body, tap-spout, mirror-frame, mirror-glass
+<!-- @authored-address-state:end -->
+
+## 변기 {#toilet}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 변기는 열린 lid 한 상태만 모델링하고 수세 작동이나 배관 동작은 주장하지 않는다.
+@evidence principles/core/common.md#substantive-completion pedestal·음각 bowl·뚫린 seat·선 lid·cistern·flush를 분리해 도기와 열린 중심을 완결한다.
+@evidence principles/core/common.md#declared-basis ref02의 화장실 도기 역할을 받되 0.42×0.72m 점유와 seat·tank 치수는 이 절의 결정으로 명시한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation powder-utility와 upper-bathroom의 변기 요구에 bowl 내부·seat 고리·cistern·바닥 받침의 부품 분할을 더한다.
+@evidence principles/design/models.md#representation-contract bowl과 seat의 타원 개구를 실제로 비우고 bowl 내벽은 바닥에서 닫아 빈 공간을 외부까지 관통시키지 않는다.
+@evidence principles/design/models.md#spatial-convention 바닥 접촉 중심을 원점, 앉는 앞을 +Z로 두며 seat 뒤와 cistern 앞 사이 0.005m 틈을 남긴다.
+@evidence principles/design/models.md#reviewable-structure 위에서 bowl·seat 구멍, 정면에서 열린 lid와 flush, 측면에서 seat·tank의 분리와 받침을 검사한다.
+@evidence principles/design/models.md#model-observable-style-basis ref02의 두 화장실 도기 종류를 반영하되 사진 화면 면적으로 변기 폭을 역산하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 0.828m 최고점까지 seat·lid·cistern·button 점유를 닫고 각 접촉과 0.005m 후면 틈을 수치로 분리한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 powder 변기, upper-program의 욕실 변기, 두 방 H2의 위생 목적지를 시험했다. 0.42×0.72m 도기와 열린 seat의 고정 검사 형상은 양쪽 방에서 재사용되고 바닥 접촉·최종 위치는 배치가 확인하므로 문·방 경계를 고치지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-bathroom 욕실과 복도 사이 shared wall·문 개구는 건축 owner가 닫는다. toilet은 그 벽을 만들지 않는 독립 바닥 도기다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-powder-storage powder와 1층 수납 사이 통과 금지벽은 spaces 소유다. 변기 원형은 위생 도기의 국소 점유만 정하며 그 벽을 형성하지 않는다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 상층 욕실의 도기 호출을 bowl·seat·cistern의 고정 열린 검사 상태로 받아 세면대·샤워와 별도 원형을 낸다.
+@evidence spaces/002-spatial-graph.md#powder-utility 1층 powder의 변기 요구에도 같은 도기 원형을 제공하고 접근 영역은 instances에서 확인한다.
+@evidence settings/002-household.md#ground-program powder/utility의 변기 기능을 원형의 첫 사용 근거로 받는다.
+@evidence settings/002-household.md#upper-program 상층 욕실의 변기 기능을 같은 원형의 둘째 사용 근거로 받는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 도기의 bowl·seat·cistern 형상과 face를 models가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory lid-open 한 상태만 정의하고 수세 성능을 본문에서 미검증으로 두어 기구 외형 범위를 지킨다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 pedestal, bowl, seat, lid, cistern, flush의 여섯 @part와 타원 개구 및 접촉 표가 고정 검사 상태를 닫는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02의 두 화장실 도기 위치를 받아 0.42×0.72m 점유, seat 0.465m와 최고 0.828m는 이 H2가 결정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 powder-utility와 upper-bathroom의 변기 요구에 hollow bowl, 관통 seat 고리와 별도 물탱크·버튼 분할을 더한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @ellipse bowl·seat는 타원 구멍을 내고 interior-floor 축 규칙은 bowl 내부 바닥만 닫아 seat 안에 가짜 막을 두지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 접촉 원점, 앉는 방향 +Z와 seat 뒤 z=-0.21·cistern 앞 z=-0.215의 틈이 본문 좌표에 있다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b bowl/inner, seat/edge, cistern/front, flush/outer가 위·정면·측면에서 열린 구멍과 분리 경계를 관찰하게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 두 화장실 도기 형상을 채택하되 사진 화면의 면적으로 폭을 역산하지 않는다. 0.42×0.72m 점유와 여섯 부품 분할은 이 H2의 국소 결정이다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope lid-open과 여섯 @part가 최고 0.828m, floor 접촉, seat·tank 사이 0.005m 틈을 수치로 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 두 프로그램과 두 욕실의 변기 용도에 같은 0.42×0.72m 고정 도기를 대조했고 방·문과 실제 접근 점유는 배치에 남는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-bathroom #c221644 corridor-bathroom 공유벽은 @inventory의 여섯 도기 부품에 없고 toilet은 독립 바닥 접촉만 선언한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-powder-storage #925c6cb powder-storage의 닫힌 경계를 변기 부품으로 만들지 않고 pedestal의 ground 접촉과 국소 @envelope만 정한다.
+@evidenceReview spaces/002-spatial-graph.md#upper-bathroom #3a9f2f7 상층 욕실 변기 목적지에 동일 lid-open 원형을 연결하며 세면·샤워와 결합한 방 형상은 정의하지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#powder-utility #212302a 1층 powder의 변기 요구에도 여섯 부품 도기를 공급하고 문 여유와 접근 면적은 이 H2에서 확정하지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 powder/utility 변기 기능을 floor 접촉 도기 원형의 1층 사용처로 지정한다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 상층 욕실 변기 기능을 같은 lid-open 원형의 두 번째 사용처로 지정한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 pedestal/sole, bowl/inner, seat/upper, cistern/front, flush/contact 등 기구별 안정 part·face 주소를 본문에 나눈다.
+-->
+
+@prose-dim cistern은: cistern
+
+@axis-control lid-open: bowl, Y, 0.29, interior-floor
+@axis-control lid-open: seat, Z, -0.125, rear-ring-edge
+@prose-part pedestal은: pedestal
+@prose-part bowl 외곽은: bowl
+@prose-part cistern은: cistern
+@prose-part seat 뒤 edge: seat
+@prose-part flush 버튼은: flush
+
+`toilet`은 바닥 점유 0.42×0.72m, seat 상단 0.465m, cistern 상단 0.82m, 버튼을 포함한 최고점 0.828m다. 바닥 접촉 중심이 원점, +Z가 앉는 앞이다. pedestal은 x폭 0.31, z깊이 0.47, y=0..0.27; bowl 외곽은 0.41×0.59m, y=0.27..0.43이며 아래면이 pedestal 상면에 닿는다. bowl의 상단 안쪽 구멍은 0.27×0.40m 타원과 깊이 0.14m의 음각이며 바닥 Y는 interior-floor `@axis-control`이 정한다. seat는 x=±0.21,z=−0.21..+0.36,y=0.43..0.465의 두께 0.035m 고리로 bowl 상면에 닿고, lid는 뒤쪽 힌지 x=0,y=0.465,z=−0.20에서 위로 선 검사 상태 하나로 두며 폭·높이·두께와 Y·Z 경계는 아래 `@part lid` 행이 소유한다. 이는 bowl을 보이게 하는 열린 상태이며 닫힘 상태를 동시에 내지 않는다. cistern은 X 폭 0.40m·Z 깊이 0.145m·Y 높이 0.39m로 z=−0.36..−0.215, y=0.43..0.82이며 bowl 뒤쪽 상면과 `@part`가 공유하는 Y 평면에서 닿는다. seat 뒤 edge z=−0.21과 cistern 앞면 사이에는 0.005m의 열린 틈이 있고 seat는 bowl 고리의 유한 면으로 지지된다. flush 버튼은 X 폭 0.05m·Z 깊이 0.035m·Y 두께 0.008m로 중심 x=0,y=0.824,z=−0.285로 아래면 y=0.82가 cistern 상면에 면 접촉한다. `pedestal/outer/sole`, `bowl/inner/outer/rim`, `seat/upper/edge/underside`, `lid/front/back/edge`, `cistern/front/back/side/top/sole`, `flush/outer/contact`가 안정 주소다. bowl 내부는 바닥으로 이어지는 닫힌 곡면이며 상단 개구와 중앙 빈 공간만 열린 공간이다. 상부·정면·측면에서 bowl 구멍, seat와 tank 경계가 읽혀야 한다. ref02의 두 화장실 도기 형상을 채택하지만 사진의 화면 면적에서 폭을 추정하지 않는다. ref01·03·04·05에는 변기 판별 세부가 없고 수세 성능은 `unverified`다.
+
+타원형 bowl 구멍의 X 반축은 0.135m, Z 반축은 0.20m이고 중심은 (x=0,z=0)이다. seat의 타원형 구멍은 같은 반축을 가지되 외곽 좌표에 맞춰 중심은 `@ellipse seat`의 X/Z 중심으로 옮긴다. 두 열린 영역의 교집합이 bowl 내부를 드러내며 seat 뒤쪽의 `@part seat` Z 하한부터 rear-ring-edge `@axis-control`까지인 고리 상면에 `@part lid` 하단 Z 범위가 유한 면으로 닿는다. `@ellipse`의 마지막 두 값은 호스트 외곽 타원의 X/Z 중심이고, bowl의 안쪽 면은 interior-floor `@axis-control`에서 닫히고, seat는 `@ellipse`가 정한 X/Z 타원 개구가 두께 전체를 관통하는 고리다. seat의 열린 개구에는 바닥 원판을 만들지 않는다.
+
+@ellipse lid-open: bowl, 0.135, 0.20, 0.205, 0.295, 0, 0
+@ellipse lid-open: seat, 0.135, 0.20, 0.21, 0.285, 0, 0.075
+@scalar-control bowl-cavity-depth: 0.14
+@prose-gap lid-open: seat, cistern, Z, 열린 틈
+
+@inventory lid-open: pedestal, bowl, seat, lid, cistern, flush
+@cap-contact lid-open: bowl, pedestal, Y, -
+@cap-contact lid-open: bowl, seat, Y, +
+@cap-contact lid-open: bowl, cistern, Y, +
+@cap-contact lid-open: lid, seat, Y, -
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | lid-open | * | bounds | -0.21..0.21 | 0..0.828 | -0.36..0.36 | - |
+| @part | lid-open | pedestal | box | -0.155..0.155 | 0..0.27 | -0.235..0.235 | ground,bowl |
+| @part | lid-open | bowl | hollow | -0.205..0.205 | 0.27..0.43 | -0.295..0.295 | pedestal,seat,cistern |
+| @part | lid-open | seat | hollow | -0.21..0.21 | 0.43..0.465 | -0.21..0.36 | bowl,lid |
+| @part | lid-open | lid | box | -0.175..0.175 | 0.465..0.805 | -0.20..-0.182 | seat |
+| @part | lid-open | cistern | box | -0.20..0.20 | 0.43..0.82 | -0.36..-0.215 | bowl,flush |
+| @part | lid-open | flush | box | -0.025..0.025 | 0.82..0.828 | -0.3025..-0.2675 | cistern |
+
+<!-- @authored-address-state:start -->
+@address-state lid-open: pedestal, bowl, seat, lid, cistern, flush
+<!-- @authored-address-state:end -->
+
+## 고정 스크린 샤워 {#shower}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 고정 screen과 열린 입구를 납품하며 물 흐름·방수 작동을 모델 주장 밖에 둔다.
+@evidence principles/core/common.md#substantive-completion tray curb·drain 절삭·screen·rail·riser 고리 받침·head 관과 분사판을 실제 단면과 접촉으로 전개한다.
+@evidence principles/core/common.md#declared-basis ref02의 뒤쪽 투명 샤워 경계를 받되 2.05×1.45m tray와 0.95m 출입 틈은 이 모델의 명시 치수다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program과 upper-bathroom의 shower 기능에 tray·부분 screen·벽 riser·head의 구별되는 형상을 더한다.
+@evidence principles/design/models.md#representation-contract tray 중심과 drain을 비우고 bracket 고리는 닫힌 bore로 내며 head의 내부 용접면은 노출 face로 발행하지 않는다.
+@evidence principles/design/models.md#spatial-convention tray 중심을 원점, 출입 앞을 +Z로 놓고 screen은 -X 쪽 1.10m, +X 쪽 0.95m를 열린 입구로 둔다.
+@evidence principles/design/models.md#reviewable-structure 출입구와 상부에서 열린 폭·배수구를, 측면에서 유리 두께와 riser·head 연결을 확인할 주소를 낸다.
+@evidence principles/design/models.md#model-observable-style-basis ref02의 투명 샤워 경계와 뒤쪽 기구 위치를 채택하며 커튼월 사진을 욕실 screen 상세로 읽지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 2.25m 높이 안에 screen rail·세 bracket·riser·head의 경계를 닫고 tray 아래면과 벽 접합 평면을 따로 선언한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work upper-program의 shower/tub와 upper-bathroom의 욕실·샤워 목적지를 시험했다. 2.05×1.45m tray, 벽 riser 접촉과 0.95m 열린 screen 틈은 샤워 원형 안에 닫히며 방 안 접근은 배치가 재므로 부모 방 외주를 바꾸지 않는다.
+@evidenceExclude spaces/002-spatial-graph.md#envelope-interface 각 room이 소유한 clear 외주를 외피 boundary가 소비하고 개구·반복 bay는 건축 owner가 정한다. 샤워 screen의 내부 유리 edge는 어느 외부 창호·canopy 부재도 아니다.
+@evidence settings/002-household.md#upper-program 상층 욕실의 shower/tub 중 샤워 역할을 열린 출입 screen·tray·head 원형으로 구체화한다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 임시 source의 샤워 tray를 최종 모델의 tray·drain·screen·head로 바꾸되 욕실 안 배치는 instances에 남긴다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 샤워 tray·screen·riser·head의 형상과 face 주소를 models에서 정한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 고정 screen과 0.95m 열린 출입을 형상으로 내고 물 흐름·방수는 본문에서 unverified로 둔다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 @inventory default의 tray·screen·rail·riser·bracket 세 개·head가 @void, @bore, @flat-contact와 각각 수치화된다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02 뒤쪽 샤워 위치를 받아 tray 2.05×1.45m와 열린 입구 0.95m를 이 H2의 @envelope와 @scalar-control에 확정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 상층 욕실의 shower 용도에 hollow tray, 부분 screen, 벽부착 riser·head와 bracket의 구별되는 부품을 더한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @void·@bore tray는 중앙면과 drain을 실제로 비우고 @radial-at bracket은 riser를 감싸는 닫힌 고리를 정한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e tray 바닥 중심 원점, 출입 +Z, screen의 -X 1.10m와 +X 남은 0.95m가 @part 및 본문 좌표에서 같다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b tray/drain-inner, screen/front/back/edge와 head/face·pipe-outer 주소가 상부·입구·측면에서 열린 입구와 접합을 분간하게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02 뒤쪽 투명 샤워 경계를 사용하지만 다른 사진의 외피 커튼월을 욕실 screen 부품 근거로 삼지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope 높이 2.25m에 rail·riser·head를 닫고 tray/underside와 세 bracket의 wall @flat-contact를 별도로 둔다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 상층 shower/tub 및 upper-bathroom의 용도에 tray·screen·벽 접촉을 대조했고 실제 방 안 배치는 후속 단계이므로 외주 수정이 없다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#envelope-interface #e6db593 샤워 내부 screen의 투명 면은 외피 bay나 외부 개구가 아니며 이 H2의 @inventory에 창호 부품은 없다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 상층 욕실 shower 역할을 tray·부분 screen·head의 default 원형으로 구체화하고 tub와는 합치지 않는다.
+@evidenceReview spaces/002-spatial-graph.md#upper-bathroom #3a9f2f7 상층 욕실의 샤워 목적지를 국소 tray와 열린 screen으로 받고 방 cell·설치 좌표는 만들지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 tray/floor·drain-inner, screen/front·back·edge, riser/outer와 head/face 등의 안정 주소를 모델 본문에 소유한다.
+-->
+
+@prose-part 유리 screen은: screen
+
+`shower`는 X 폭 2.05, Z 깊이 1.45, Y 높이 2.25m다. tray 바닥 중심이 원점, +Z가 출입 쪽이다. tray는 y=0..0.07m의 두께와 안쪽으로 0.015m 내려간 중앙면, 0.045m 폭의 둘레 curb를 가진다. drain 중심은 tray 바닥 상면의 (0,0.055,0)이고 지름 0.12m다. 출입 전면에서 유리 screen은 x=−1.025..+0.075의 길이 1.10m, z=+0.713..+0.725의 두께 0.012m, y=0.07..2.225다. +X 쪽은 screen의 끝 X와 `@envelope`의 +X 경계 사이의 0.95m가 문 없는 열린 출입구다. screen rail은 같은 길이의 닫힌 사각 단면 상부 부재로 z=+0.700..+0.725, y=2.225..2.25이며 screen의 윗면과 0.012m 깊이의 유한 면으로 닿는다. riser는 x=−0.85,z=−0.705,y=0.40..2.20의 지름 0.025m이며 벽에 붙은 세 bracket의 원형 보어가 지지한다. 세 고정 bracket의 중심·Y 범위와 안팎 반지름은 아래 `@part riser-bracket-*` 및 `@radial-at` 행이 정한 닫힌 고리다. 각 고리와 한 부품으로 합친 뒤쪽 고정 패드는 해당 `@part`의 X/Y 전폭에서 벽 접촉 `@flat-contact` 평면부터 `@radial-at` 안반지름의 뒤쪽 접선까지 Z로 뻗는다. 패드의 벽쪽 평면은 방 벽면에 유한 면적으로 닿는다. 패드는 보어의 뒤쪽 z>−0.7175를 침범하지 않고 고리의 외벽과 닫힌 합집합을 이루며 안쪽 원통면이 riser 외면과 맞는다. `head`는 riser 축을 중심으로 반지름 0.0125m인 수직 원통 목을 riser 상면부터 아래 neck-top `@axis-control`까지 두고, 같은 반지름의 수평 24각 관을 riser X/Z 축에서 pipe-center `@axis-control`의 높이로 이어 spray-plate center `@axis-control`의 Z 중심선 끝까지 닫힌 합집합으로 만든다. 앞쪽 중심선 끝에는 공통 관 끝 규칙의 반구를 붙이며 실제 관 앞 경계는 rounded-pipe-front `@axis-control`이 정한다. 뒤쪽 중심선 끝은 목과 일부 용접되므로 z=−0.705에서 평평한 원판으로 끝난다. 목 윗면 위로 남는 D형 원판 조각은 `head/rear-cap`이며 목의 노출 윗면은 `head/neck-top`이다. 분사판은 riser의 X 중심과 spray-plate center `@axis-control`의 Z 중심, X 반경 0.15m·Z 반경 0.03m인 24각 타원 판이며 neck-top `@axis-control`부터 `@part head`의 Y 윗면까지 채운다. 관과 판은 spray-plate rear와 rounded-pipe-front 두 `@axis-control` 사이에서 부피를 공유해 한 부품을 이루고, 목의 아래 원판 전체는 riser의 상면 원판 전체와 면 접촉한다. 분사판의 neck-top `@axis-control` 아래 노출 평면에서 관과 합쳐 제거된 내부 면을 제외한 부분은 `head/face`이고, 판 아래로 드러난 관의 아래 반원통과 앞 반구·목의 외면은 `head/edge`다. 판의 윗면과 뒤 노출면은 `head/back`이다. 판 아래 남는 관 조각과 관 중간 윗반원은 `head/pipe-outer`이며 내부 용접면은 발행하지 않는다. 이 부품은 외피 벽을 생성하지 않고, 실제 벽면과의 world 접합은 instances가 검증한다.
+
+주소는 `tray/floor/curb/outside/underside/drain-inner/drain-edge`, `screen/front/back/edge/top`, `screen-rail/outer/contact`, `riser/outer/contact`, `riser-bracket-0..2/front/back/edge/contact`, `head/face/back/edge/rear-cap/neck-top/pipe-outer`다. 두께 있는 유리의 앞뒤·잘린 edge는 별도 face이며 tray의 물이 빠지는 경사라는 외관과 실제 방수 능력을 구별한다. 위·출입구·측면 관찰에서 0.95m 열린 부분과 음각 배수구가 보여야 한다. ref02의 뒤쪽 샤워와 투명 경계를 채택한다. ref01·03·04·05의 커튼월을 욕실 screen 상세로 차용하지 않는다. 물 흐름·방수는 `unverified`다.
+
+tray의 중앙은 x=−0.980..+0.980,z=−0.680..+0.680에서 y=0.055..0.070을 절삭하여 0.045m curb를 만든다. drain은 중심 x/z=0, 반지름 0.060m로 tray 바닥 y=0..0.055를 뚫는 빈 구멍의 `tray/drain-inner`·`tray/drain-edge` 면 주소다. bracket의 고리는 `@radial-at`에 적은 공통 중심과 반지름으로 닫히며 임의의 C자 단면을 코드에서 고르지 않는다. `ground`는 tray 아래면, `wall`은 `@envelope` 뒤 경계의 외부 접합 평면이며 각 bracket 패드의 접촉 넓이는 0.04×0.03m다.
+
+@scalar-control tray-curb-width: 0.045
+@scalar-control drain-diameter: 0.12
+@scalar-control open-entry-width: 0.95
+@axis-control default: head, Y, 2.215, neck top and spray-plate underside
+@axis-control default: head, Y, 2.2125, pipe-center height
+@axis-control default: head, Z, -0.515, spray-plate center and pipe centerline end
+@axis-control default: head, Z, -0.545, spray-plate rear
+@axis-control default: head, Z, -0.5025, rounded-pipe-front
+
+@prose-part screen rail은: screen-rail
+@prose-part riser는: riser
+@prose-part tray의 중앙은: tray!void
+@inventory default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
+@cap-contact default: head, riser, Y, -
+@flat-contact default: head, riser, -Y, 2.20, -0.858..-0.842, -0.713..-0.697
+@void default: tray, -0.98..0.98, 0.055..0.07, -0.68..0.68
+@bore default: tray, 0.06, 0..0.055
+@radial-at default: riser, -0.85, -0.705, 0, 0.0125
+@radial-at default: riser-bracket-0, -0.85, -0.705, 0.0125, 0.02
+@radial-at default: riser-bracket-1, -0.85, -0.705, 0.0125, 0.02
+@radial-at default: riser-bracket-2, -0.85, -0.705, 0.0125, 0.02
+@flat-contact default: riser-bracket-0, wall, -Z, -0.725, -0.87..-0.83, 0.535..0.565
+@flat-contact default: riser-bracket-1, wall, -Z, -0.725, -0.87..-0.83, 1.435..1.465
+@flat-contact default: riser-bracket-2, wall, -Z, -0.725, -0.87..-0.83, 2.085..2.115
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -1.025..1.025 | 0..2.25 | -0.725..0.725 | - |
+| @part | default | tray | hollow | -1.025..1.025 | 0..0.07 | -0.725..0.725 | ground,screen |
+| @part | default | screen | box | -1.025..0.075 | 0.07..2.225 | 0.713..0.725 | tray,screen-rail |
+| @part | default | screen-rail | box | -1.025..0.075 | 2.225..2.25 | 0.7..0.725 | screen |
+| @part | default | riser | cylinder | -0.8625..-0.8375 | 0.4..2.2 | -0.7175..-0.6925 | riser-bracket-0,head |
+| @part | default | riser-bracket-0 | hollow | -0.87..-0.83 | 0.535..0.565 | -0.725..-0.685 | wall,riser |
+| @part | default | riser-bracket-1 | hollow | -0.87..-0.83 | 1.435..1.465 | -0.725..-0.685 | wall,riser |
+| @part | default | riser-bracket-2 | hollow | -0.87..-0.83 | 2.085..2.115 | -0.725..-0.685 | wall,riser |
+| @part | default | head | curved | -1..-0.7 | 2.2..2.225 | -0.7175..-0.485 | riser |
+
+<!-- @authored-address-state:start -->
+@address-state default: tray, screen, screen-rail, riser, riser-bracket-0, riser-bracket-1, riser-bracket-2, head
+<!-- @authored-address-state:end -->
+
+## 욕조 {#bathtub}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 욕조의 열린 물 공간과 낮은 외함만 주장하고 급배수·하중 성능과 방 안 배치 검증은 밖에 둔다.
+@evidence principles/core/common.md#substantive-completion shell·rim·곡면 floor를 분리하고 배수·overflow 구멍과 내부 바닥 아래 빈 공간을 닫힌 두께로 구현한다.
+@evidence principles/core/common.md#declared-basis ref02의 낮은 욕조 역할을 바탕으로 1.62×0.76m 점유·0.58m rim과 배수 경사는 모델 절에서 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program과 upper-bathroom의 tub 목적지에 높은 끝벽·긴 내벽·깊은 개구·overflow를 가진 독립 원형을 더한다.
+@evidence principles/design/models.md#representation-contract shell 내부를 비우고 floor를 별도 닫힌 판으로 맞대며 rim 개구와 두 원형 구멍은 고체에서 절삭한다.
+@evidence principles/design/models.md#spatial-convention 바닥 중심 원점, 긴 축 +Z, 외벽 y=0..0.58로 선언하고 벽 쪽 transform은 instances가 소유한다.
+@evidence principles/design/models.md#reviewable-structure 상부에서 물 공간과 배수, 측면에서 낮은 rim과 외벽, 45°에서 내벽·floor의 만남을 점검한다.
+@evidence principles/design/models.md#model-observable-style-basis ref02의 욕실 낮은 욕조를 읽고 다른 네 그림에 없는 욕조 세부를 전사하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion shell y=0..0.525와 rim y=0.525..0.58을 맞대고 floor 안쪽 기울기·아래 공백까지 수치로 정한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work upper-program의 shower/tub와 upper-bathroom의 목욕 목적지를 시험했다. 1.62×0.76m 욕조의 바닥·rim·drain은 독립 고정 원형이며 샤워와 함께 놓일 실제 통로는 배치가 재므로 새 방·상태가 필요하지 않다.
+@evidence spaces/002-spatial-graph.md#upper-bathroom 임시 room source가 아직 만들지 않은 욕조를 열린 내벽·rim·drain을 가진 독립 prototype으로 명시한다.
+@evidence settings/002-household.md#upper-program 상층 욕실의 shower/tub 중 tub 기능을 별도 욕조 원형의 목적지로 받는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 욕조 외벽·내벽·rim의 형상과 face 주소를 models에서 정한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory default는 열린 욕조 shell·floor·rim만 내고 급배수·하중과 샤워 사이 통행을 미검증으로 밝힌다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 @void shell·rim, 내부 floor 경사식과 drain·overflow 절삭이 물 공간과 닫힌 바닥 두께를 함께 정의한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02의 낮은 욕조 역할을 받아 @envelope 1.62×0.76m 및 0.58m rim, drain 경사는 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 상층 욕실 tub 목적지에 긴 hollow shell, 열린 rim, 기울어진 floor와 overflow를 독립 원형으로 더한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @void shell·rim이 안쪽 공간을 비우고 @cavity-contact가 floor를 내벽에 붙이며 두 원형 구멍의 면 주소를 낸다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 접지 중심 원점, 긴 축 +Z와 y=0..0.58 외벽을 본문에 적고 실제 욕실 벽 방향은 instances에 남긴다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b shell/inner·overflow-edge, rim/upper·inner, floor/drain-inner 주소로 위·측면·45°에서 개구와 경사 바닥을 구별한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02의 낮은 욕조를 근거로 삼고 다른 참조의 유리 면을 욕조 재료나 외함으로 전사하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @part shell y=0..0.525와 rim y=0.525..0.58이 맞대고 floor의 0.12..0.20m와 아래 빈 공간이 수치화된다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 upper-program과 upper-bathroom의 목욕 목적지에 고정 욕조 원형을 대조했고 샤워와의 실제 통행은 배치 단계여서 방 변경이 없다.
+@evidenceReview spaces/002-spatial-graph.md#upper-bathroom #3a9f2f7 상층 욕실의 욕조 목적지에 별도 shell·floor·rim 원형을 공급하며 방 cell이나 설치 좌표는 모델 표에 없다.
+@evidenceReview settings/002-household.md#upper-program #55473ad shower/tub 호출 중 tub를 열린 1.62m 욕조로 답하고 shower 원형과 분리한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 shell/outer·inner, rim/upper, floor/drain-inner 등 안정적인 독립 part·face 주소를 설계한다.
+-->
+
+@prose-part 바닥은 내부: floor
+@prose-part 외함의 내벽 간 치수는: shell!void
+@prose-part rim 안쪽의 실제 위쪽 개구는: rim!void
+
+@axis-control default: floor, Z, 0.50, drain-center
+@axis-control default: floor, Y, 0.185, drain-low-point
+@axis-control default: shell, Y, 0.43, overflow-center
+
+`bathtub`은 바닥 점유 1.62×0.76m, rim 높이 0.58m, 내부 바닥판의 아래면은 `@part floor`의 Y 하한이다. 바닥 접촉 중심이 원점이고 +Z가 긴 축이며 어느 방 벽에 붙일지는 instances가 정한다. 외함의 끝벽 두께는 `@part shell`의 Z 외곽에서 `@void shell`의 Z 개구 경계를 뺀 값이고, 긴 측벽 두께는 두 X 경계의 차다. 상단 rim의 X/Z 폭은 각 축의 `@part rim` 외곽 경계에서 `@void rim` 개구 경계를 뺀 값이며 네 외벽이 y=0..0.58에서 바닥에 닿는다. 내부 바닥판 아래 y=0..0.12는 외벽 안에서 비운다. 외함의 내벽 간 치수는 길이 1.53×폭 0.68m, rim 안쪽의 실제 위쪽 개구는 1.51×0.65m, 중심 (x=0,z=0)의 안쪽 바닥은 식에 따라 y≈0.191m이며, 내부 경계에서 y≤0.20m이고 +Z 끝벽 중앙에서는 식에 따라 y≈0.188m다. 배수구 중심의 X는 원점이고 Z는 drain-center `@axis-control`이 정하며 지름은 0.05m다. 욕조 바닥의 아래면은 `@part floor`의 Y 하한, 안쪽 면은 배수구에서 drain-low-point `@axis-control`이며 둘 사이에 닫힌 두께를 둔다. 바닥은 내부 x=±0.34,z=±0.765에서 y=0.20을 상한으로 두고 r=min(1,sqrt((x/0.34)^2+((z−0.50)/1.265)^2))에 따라 y=0.185+0.015r로 배수구 중심까지 내려간다. overflow는 발치 반대쪽 `@void shell` 내벽의 −Z 면에서 X 원점·overflow-center `@axis-control` 높이에 지름 0.04m의 관통 음각으로 둔다. `shell/outer/inner/end/underside/overflow-inner/overflow-edge`, `rim/upper/inner/outer/underside`, `floor/inner/underside/drain-inner/drain-edge`가 안정 주소다. 두께 있는 rim에서 외·내벽이 연결되며 물이 담길 빈 공간을 위에서 확인할 수 있다. 상부·측면·45°에서 개구와 길이 방향 벽이 샤워 tray와 구별돼야 한다. ref02 욕실의 낮은 욕조를 채택해 누락된 생활 기능을 복구한다. ref01·03·04·05는 욕조 세부를 주지 않으므로 그 이미지의 다른 유리 면을 욕조 외함으로 읽지 않는다. 욕조와 샤워의 같은 방 안 배치·통행은 instances의 별도 검증이며 실제 급배수와 하중은 `unverified`다.
+
+네 외벽의 독립 부품 `shell`은 y=0..0.525이고 `rim`은 y=0.525..0.58에서 맞대므로 두 부품의 합이 위의 y=0..0.58 외벽이다. shell 내부는 `@void shell`의 X/Z 경계까지 비우고, 그 안에 `@part floor` Y 범위의 곡면 바닥을 측면에 맞댄다. rim의 안쪽 개구는 `@void rim`의 X/Z 경계가 정한다. `floor/drain-inner`·`floor/drain-edge`는 floor에서, `shell/overflow-inner`·`shell/overflow-edge`는 shell의 −Z 끝벽에서 잘라 낸 구멍의 면 주소이며 별도 고체 부품이 아니다. 다음 표의 `@void`는 두 직사각형 내부 공백을 재고, 원형 drain·overflow는 위 식과 중심·지름으로 결정한다.
+
+@scalar-control basin-center-height-rounded: 0.191
+@scalar-control basin-boundary-height: 0.20
+@scalar-control basin-foot-height-rounded: 0.188
+@scalar-control drain-diameter: 0.05
+@scalar-control drain-slope-rise: 0.015
+
+@inventory default: shell, floor, rim
+@void default: shell, -0.34..0.34, 0..0.525, -0.765..0.765
+@cavity-contact default: shell, floor, X
+@void default: rim, -0.325..0.325, 0.525..0.58, -0.755..0.755
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.38..0.38 | 0..0.58 | -0.81..0.81 | - |
+| @part | default | shell | hollow | -0.38..0.38 | 0..0.525 | -0.81..0.81 | ground,floor,rim |
+| @part | default | floor | curved | -0.34..0.34 | 0.12..0.2 | -0.765..0.765 | shell |
+| @part | default | rim | hollow | -0.38..0.38 | 0.525..0.58 | -0.81..0.81 | shell |
+
+<!-- @authored-address-state:start -->
+@address-state default: shell, floor, rim
+<!-- @authored-address-state:end -->
+
+## 주방 섬·싱크 {#kitchen-island}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 섬 상판·싱크·수전만 이 모델이 납품하고 하부장 다섯 문은 cabinet/island-base에 남긴다.
+@evidence principles/core/common.md#substantive-completion 실제 sink 절삭과 bowl 벽·배수, 길이 방향 overhang, 관상 수전과 하부장 접촉을 전개한다.
+@evidence principles/core/common.md#declared-basis ref03의 긴 섬·싱크·세 스툴 관계를 받고 1.20×2.82m 상판과 문 면은 이 모델과 cabinet 절에서 정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program의 island·sink와 common-room의 열린 주방 영역에 상판 bowl·수전·서로 다른 측면 주소를 더한다.
+@evidence principles/design/models.md#representation-contract counter 개구를 실제로 비우고 sink를 닫힌 bowl로 넣으며 수전 관은 굽힘 안쪽 관통 없이 열린 출구를 가진다.
+@evidence principles/design/models.md#spatial-convention 상판 바닥 중심 원점, +X 스툴 면, +Z 긴 방향 뒤로 두고 +X overhang 0.20m를 명시한다.
+@evidence principles/design/models.md#reviewable-structure 상부에서 sink 깊이, +X에서 스툴 접근, -X에서 다섯 서비스 문, 45°에서 수전과 overhang을 본다.
+@evidence principles/design/models.md#model-observable-style-basis ref03의 섬·싱크·스툴 배치를 가져오고 ref02는 주방·식탁의 공간 관계에만 쓴다.
+@evidence principles/design/models.md#model-scale-layer-completion y=0.87..0.93 상판과 support@0.87을 닿게 하고 sink·tap의 상부 높이와 하부 외함 점유를 분리한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 island·sink, common-room의 벽 없는 주방, surface-decomposition의 설비 형상 소유를 시험했다. 1.20×2.82m 상판·bowl·하부장 접촉은 섬 원형에 닫히고 스툴의 수·통로는 배치가 정하므로 부모 공간이나 상태를 수정하지 않는다.
+@evidence settings/001-production.md#production-visual-grammar 섬 상판과 cabinet의 안정 표면을 분리해 공용부의 목재·저채도 finish를 materials가 각 면에 결합할 수 있게 한다.
+@evidence settings/002-household.md#program-boundary 섬·싱크의 보이는 형상만 정하고 실제 조리 편의·설비 성능을 모델 형상에서 인증하지 않는다.
+@evidence settings/002-household.md#ground-program 후면 공용실 주방의 island·sink를 긴 상판·열린 bowl·별도 하부장의 원형으로 구체화한다.
+@evidence spaces/002-spatial-graph.md#common-room 거실·식당과 벽 없이 이어진 같은 common-room 안에서 섬과 sink의 국소 외곽을 내고 방 내부 partition을 추가하지 않는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 섬 상판·bowl·수전의 형상과 face 주소를 models가 맡고 위치·마감·발광은 넘긴다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory에는 counter·sink·tap만 있고 하부장의 다섯 문은 @support의 cabinet-and-shelf로 분리한다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 @void counter·sink와 @bore sink가 실제 개구·배수를 내며 @support는 상판 아래 외함 접촉을 지정한다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03 섬·싱크·스툴 배치를 받아 1.20×2.82m 상판과 +X overhang은 이 H2, 서비스 문은 cabinet H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program과 common-room의 열린 주방에 hollow 상판·bowl·tap과 식사·서비스 측면을 구별한 모델 주소를 더한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @void counter 안으로 hollow sink가 내려가고 tap-spout의 환형 출구만 열어 평판으로 싱크 구멍을 막지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 상판 바닥 중심 원점, 스툴 쪽 +X와 길이 뒤쪽 +Z를 밝히고 base X 상한 0.40m에 대한 counter 상한 0.60m가 overhang을 만든다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b counter/upper, sink/inner, tap-spout/end와 cabinet의 별도 문 주소로 상부·양 긴 면·45°에서 역할을 대조한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03의 긴 섬과 스툴 접근을 형상 근거로 쓰고 ref02는 주방·식탁의 한 방 관계에만 사용한다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e counter y=0.87..0.93과 cabinet support@0.87, sink y=0.75..0.87 및 tap 최고 1.291m가 독립 @part로 닫힌다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 ground-program island·sink와 common-room의 무벽 주방에 이 국소 상판·bowl·base 접촉을 대조했고 스툴 수·통로는 배치가 정한다.
+@evidenceReview settings/001-production.md#production-visual-grammar #a673c40 counter/upper와 cabinet 문을 다른 안정 면 주소로 내어 공용부의 목재·저채도 finish를 materials가 별도로 결합할 수 있다.
+@evidenceReview settings/002-household.md#program-boundary #2480d92 섬·싱크의 눈에 보이는 상판·개구·수전만 정하고 본문에서 급배수와 앉는 무릎 안전을 unverified로 둔다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 후면 공용실의 island·sink를 2.82m 긴 상판과 실제 hollow bowl의 원형으로 제공한다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 하나의 common-room 안에 들어갈 섬의 국소 @envelope만 정하고 주방과 식탁 사이 새 partition은 만들지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 counter/upper·underside, sink/inner·drain-edge, tap-spout/end를 안정 part·face 주소로 낸다.
+-->
+
+@axis-control default: tap-spout, X, -0.13, spout endpoint
+@axis-control default: tap-spout, X, -0.38, sealed-centerline-start
+@axis-control default: tap-spout, Z, 0.709, spout-outlet-plane
+@axis-control default: tap-spout, Y, 1.273, support-to-tube seam
+@axis-control default: tap-spout, Y, 1.28, horizontal-pipe-center
+
+섬 하부장은 별도 cabinet prototype이다. 이 부품 표의 `support@0.87`은 그 상단 접촉면이다. sink 안쪽 바닥은 `@part sink`의 Y 하한과 `@bore sink`의 Y 상한 사이를 닫는다. 바깥 lip은 `@part sink` 외곽과 `@void counter` 개구의 X/Z 경계 차만큼 넓어 counter 아래면에 닿는다. 배수구는 sink 바닥의 면 주소로 둔다.
+
+@scalar-control cabinet-half-length: 1.325
+@scalar-control end-overhang: 0.085
+@prose-bore-diameter default: sink, 배수 개구
+@scalar-control sink-drain-diameter: 0.045
+@scalar-control island-spout-bend-radius: 0.02
+@scalar-control island-spout-inner-radius: 0.006
+
+@prose-part 상판은: counter
+@prose-part sink 개구는: counter!void
+@prose-part tap 기둥은: tap-body
+@prose-part 출구의 Z 평면은: tap-spout
+@inventory default: counter, sink, tap-body, tap-spout
+@support default: cabinet-and-shelf, island-base/880x870x2650/closed, top, -0.04, 0, 0
+@void default: counter, -0.36..0.12, 0.87..0.93, 0.47..0.83
+@void default: sink, -0.34..0.10, 0.77..0.87, 0.49..0.81
+@bore default: sink, 0.0225, 0.75..0.77
+@flat-contact default: tap-spout, tap-body, -Y, 1.269, -0.387..-0.373, 0.893..0.907
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.6..0.6 | 0.75..1.291 | -1.41..1.41 | - |
+| @part | default | counter | hollow | -0.6..0.6 | 0.87..0.93 | -1.41..1.41 | support@0.87,sink,tap-body |
+| @part | default | sink | hollow | -0.38..0.14 | 0.75..0.87 | 0.45..0.85 | counter |
+| @part | default | tap-body | cylinder | -0.391..-0.369 | 0.93..1.269 | 0.889..0.911 | counter,tap-spout |
+| @part | default | tap-spout | curved | -0.391..-0.119 | 1.269..1.291 | 0.709..0.911 | tap-body |
+
+`kitchen-island`의 X 폭 1.20, Z 길이 2.82이고 상면은 `@part counter`의 Y 윗면이다. 바닥 원점은 상판 중심이고 +X가 스툴이 붙는 긴 면, +Z가 길이의 뒤쪽이다. `cabinet/island-base/880x870x2650/closed`는 아래 `@support`의 국소 이동량에 놓이고, X 점유 -0.48..+0.40·Z 점유 ±1.325m다. 상판은 X ±0.60·Z ±1.41m, 두께 0.06m로 y=0.87..0.93이다. 따라서 +X 스툴 쪽 overhang은 0.20m, -X 쪽은 0.12m이며 양 끝은 0.085m다. +X 긴 변에는 문을 두지 않고 서비스 문 다섯 장은 -X 긴 변에만 둔다. 상판 sink 개구는 X 폭 0.48, Z 길이 0.36m, 중심 (x=-0.12,z=+0.65)이며 bowl은 y=0.93에서 0.18m 아래로 내려간다. tap 기둥은 x=−0.38,z=+0.90,y=0.93..1.269이다. 지름 0.022m spout는 horizontal-pipe-center `@axis-control`의 Y 높이에서 tap 기둥의 X/Z 중심부터 출구 X보다 0.02m 뒤의 X 접선점까지 수평으로 뻗는다. 중심선은 X/Z 평면에서 반지름 0.02m의 90° 원호를 여섯 구간으로 돌아 출구 X에서 시작 Z보다 0.02m 앞의 Z 접선점에 이르고, 이어 spout-outlet-plane `@axis-control`의 Z 출구 평면까지 −Z 방향으로 간다. 관은 24각 외반지름 0.011m, 안반지름 0.006m의 속 빈 단면을 이 중심선을 따라 일정하게 쓸며 굽힘 내벽의 자체 관통을 허용하지 않는다. 끝은 spout-outlet-plane `@axis-control`에서 안팎 반지름을 가진 평평한 환형 출구 face이고 뒤쪽 중심선 시작은 sealed-centerline-start `@axis-control`에 공통 관 끝 규칙의 닫힌 반구를 붙여 `@part tap-spout`의 실제 X 하한을 만든다. 안쪽 통로도 이 마개에서 막고 전방 출구만 평평한 열린 환형 끝으로 남긴다. spout 뒤쪽에는 `@flat-contact tap-spout`의 X/Z 직사각형과 접촉 Y 평면에서 support-to-tube-seam `@axis-control`까지 평평한 일체형 받침이 있고 관 아래 원호는 그 받침 상면에서 끝난다. 받침의 `@flat-contact` 아래면은 기둥 상면 원판 안쪽의 0.014×0.014m 유한 면으로 닿는다. outlet 중심 X와 출구의 Z 평면은 각각 해당 `@axis-control`이 정하며 둘 다 `@void counter`가 정한 sink 개구 안에 있다. 별도 평판 `sink-basin`으로 구멍을 막지 않는다.
+
+안정 주소는 `counter/upper/edge/underside`, `sink/rim/inner/outer/bottom/drain-inner/drain-edge`, `tap-body/outer/contact`, `tap-spout/outer/end`이며 base의 panel·door·edge 주소는 cabinet H2가 낸다. 배수 개구는 sink 바닥 두께 0.02m를 `@part sink`의 X/Z 중심에서 지름 0.045m로 관통 절삭한 면이며 독립 고체 part가 아니다. 상부·+X 식사 쪽·-X 서비스 쪽·45°에서 긴 측면의 문 유무, 0.20m overhang, bowl 깊이와 스툴 접근을 확인한다. ref03의 긴 섬·싱크·세 스툴 관계를 채택하고 ref02의 조감으로 kitchen과 식탁의 한 공간 관계를 확인한다. ref01·04·05의 다른 유리나 책상을 조리대 세부로 차용하지 않는다. 실제 급배수와 앉는 무릎 안전은 `unverified`다.
+
+<!-- @authored-address-state:start -->
+@address-state default: counter, sink, tap-body, tap-spout
+<!-- @authored-address-state:end -->
+
+## 벽 조리대·쿡탑·오븐 {#cooking-appliances}
+
+<!--
+@evidence principles/core/common.md#scope-preservation wall-worktop·cooktop·oven 세 prototype만 납품하고 cabinet bay·뒤 싱크는 각 소유 모델에 남긴다.
+@evidence principles/core/common.md#substantive-completion 상판 두 절삭, 네 분리 zone, flush 조리면, 비어 있는 oven bay 속 프레임·창·조절판을 전개한다.
+@evidence principles/core/common.md#declared-basis ref03의 밝은 상판·검은 매립 조리면과 서랍 하부장을 근거로 하고 zone·oven 좌표는 이 절의 명시 선택이다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program의 induction cooktop과 common-room의 주방 영역에 상판 개구·네 zone·별도 oven bay의 모델 형상을 더한다.
+@evidence principles/design/models.md#representation-contract 쿡탑 개구에는 상판 중복면을 남기지 않고 oven 프레임 링 안에 유리·controls가 맞대도록 실제 빈 면을 둔다.
+@evidence principles/design/models.md#spatial-convention 조리대 바닥 폭·깊이 중심을 세 prototype의 공통 원점으로 두고 +Z를 조리자가 선 앞쪽으로 선언한다.
+@evidence principles/design/models.md#reviewable-structure 상부에서 네 zone과 두 개구, 정면에서 oven·서랍 분리, 45°에서 flush 높이와 프레임 깊이를 확인한다.
+@evidence principles/design/models.md#model-observable-style-basis ref03의 벽면 조리대·매립 조리면의 배치와 부분 분할만 형상 근거로 삼고 초록 하부장·밝은 상판·어두운 조리면의 finish 선택은 materials에 남긴다.
+@evidence principles/design/models.md#model-scale-layer-completion 3.00m 상판, 0.65×0.50m cooktop, 0.60m oven을 접촉 높이와 앞면 깊이로 닫고 zone 사이 0.02m 틈을 남긴다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 induction cooktop, common-room의 연속 주방, household-program의 생활 설비 범위를 시험했다. 오븐·벽 조리대는 ref03에서 선택한 추가 기구이고 상판·cabinet 접촉과 점유는 원형에 닫힌다. 새 조리 성능이나 방 경계를 요구하지 않는다.
+@evidence settings/002-household.md#ground-program 공용실 주방의 induction cooktop을 네 zone 조리면 원형의 명시 목적지로 받는다.
+@evidence settings/002-household.md#household-program 생활 설비의 fit-out 범위에서 벽 조리대와 오븐을 저작 선택으로 둔다.
+@evidence spaces/002-spatial-graph.md#common-room 조리대 원형은 거실·식당과 이어진 주방에 쓰이며 방 안 partition은 만들지 않는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 조리대 개구·zone·oven 외함의 형상과 노출 face를 models가 소유한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory는 wall-worktop·cooktop·oven 셋으로 한정하고 base cabinet과 뒤 싱크는 별도 owner의 @support·개구로 잇는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 상판의 두 @void, 네 @radial-at zone과 oven의 hollow front-frame·window·controls가 세 원형의 볼 수 있는 분할을 닫는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03의 벽 조리대와 매립 조리면을 형상 배경으로 받아 zone 중심 및 oven bay 좌표는 이 H2의 @part가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 induction cooktop과 common-room의 주방에 열린 상판·네 zone·별도 oven을 더한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @void wall-worktop에 flush cooktop body가 놓이고 oven의 @void front-frame 속에 물린 window·controls가 링 부피를 중복하지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 세 @envelope가 조리대 바닥 중심의 공통 원점을 쓰며 +Z가 조리자 앞이라고 본문이 밝힌다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b top/upper, zone-0..3/upper, front-frame/front와 window/front가 위·정면·45°에서 조리면과 oven bay를 구별하게 한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03에서 조리대·쿡탑의 배치와 부분 분할을 취하고 하부장·상판·조리면의 색과 finish는 materials에 남긴다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e 3.00m top, 0.65×0.50m cooktop, 0.60m oven의 @envelope와 zone 간 0.02m 틈, oven 앞면 접촉을 수치로 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 induction cooktop과 열린 common-room 주방에 조리대·오븐의 추가 고정 기구를 대조했고 조리 성능·방 경계를 바꾸지 않는다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 1층 주방의 induction cooktop을 네 독립 원형 zone과 매립 body의 직접 목적지로 받는다.
+@evidenceReview settings/002-household.md#household-program #d4b8ac1 생활 설비 범위에 벽 상판과 oven을 저작 선택으로 추가하되 @inventory에서 별도 prototype으로 구별한다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 벽 없는 common-room 주방에 놓일 조리대의 국소 점유만 정하고 실내 partition은 추가하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 top/upper, zone-0..3/upper, oven front-frame/front·window/front 등 기구의 안정 part·face를 설계한다.
+-->
+
+@prose-part 벽 조리대는: top
+@prose-part 상판을: top
+@prose-part cooktop 본체는: body
+@prose-part 가장자리 rim만: rim
+@prose-part 네 원형 zone은: zone-*
+@prose-part oven은: body
+@prose-part front-frame의 앞면: front-frame
+@prose-part 오븐 몸체 깊이는: body
+@prose-part 전면 프레임은: front-frame
+@prose-part 유리창은: window
+@prose-part 상부 조절판은: controls
+@prose-part 유리 상단의: window
+@prose-part 둥근 knob 둘은: knob-*
+@prose-part 오븐 손잡이는: handle
+@prose-part 프레임은 cabinet 전면: front-frame
+
+@prose-dim wall-worktop: top
+@prose-part 쿡탑 절삭은: top!void
+
+벽 조리대의 쿡탑 절삭은 Y 높이 0.012m에만 있고 아래쪽 0.043m가 flush 쿡탑의 받침면이다. 네 zone의 지름은 0.22m로 두 중심 피치 0.24m보다 작게 정하여 독립 원판 사이 0.02m를 남긴다. 오븐의 가로 handle은 0.36m여서 x=±0.22 knob와 체적이 겹치지 않는다. cabinet의 가전 bay는 별도 owner이고, `support@0.15`가 oven-sill의 상단이다.
+
+@scalar-control cooktop-support-depth: 0.043
+@scalar-control zone-center-pitch: 0.24
+@scalar-control zone-clearance: 0.02
+
+@inventory wall-worktop: top
+@support wall-worktop: cabinet-and-shelf, kitchen-base/2900x870x620/closed, top, 0, 0, 0
+@void wall-worktop: top, -0.325..0.325, 0.913..0.925, -0.25..0.25
+@void wall-worktop: top, 0.90..1.30, 0.87..0.925, -0.08..0.22
+@inventory cooktop: body, rim, zone-0, zone-1, zone-2, zone-3
+@support cooktop: cooking-appliances, wall-worktop, top, 0, 0, 0
+@void cooktop: rim, -0.31..0.31, 0.925..0.927, -0.235..0.235
+@radial-at cooktop: zone-0, -0.17, -0.12, 0, 0.11
+@radial-at cooktop: zone-1, 0.17, -0.12, 0, 0.11
+@radial-at cooktop: zone-2, -0.17, 0.12, 0, 0.11
+@radial-at cooktop: zone-3, 0.17, 0.12, 0, 0.11
+@inventory oven: body, front-frame, window, controls, knob-0, knob-1, handle
+@support oven: cabinet-and-shelf, kitchen-base/2900x870x620/closed, oven-sill, 0, 0, 0
+@void oven: front-frame, -0.245..0.245, 0.26..0.70, 0.292..0.31
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | wall-worktop | * | bounds | -1.5..1.5 | 0.87..0.925 | -0.335..0.335 | - |
+| @part | wall-worktop | top | hollow | -1.5..1.5 | 0.87..0.925 | -0.335..0.335 | support@0.87 |
+| @envelope | cooktop | * | bounds | -0.325..0.325 | 0.913..0.927 | -0.25..0.25 | - |
+| @part | cooktop | body | box | -0.325..0.325 | 0.913..0.925 | -0.25..0.25 | support@0.913,rim,zone-0 |
+| @part | cooktop | rim | hollow | -0.325..0.325 | 0.925..0.927 | -0.25..0.25 | body |
+| @part | cooktop | zone-0 | cylinder | -0.28..-0.06 | 0.925..0.927 | -0.23..-0.01 | body |
+| @part | cooktop | zone-1 | cylinder | 0.06..0.28 | 0.925..0.927 | -0.23..-0.01 | body |
+| @part | cooktop | zone-2 | cylinder | -0.28..-0.06 | 0.925..0.927 | 0.01..0.23 | body |
+| @part | cooktop | zone-3 | cylinder | 0.06..0.28 | 0.925..0.927 | 0.01..0.23 | body |
+| @envelope | oven | * | bounds | -0.30..0.30 | 0.15..0.74 | -0.248..0.338 | - |
+| @part | oven | body | box | -0.30..0.30 | 0.15..0.74 | -0.248..0.292 | support@0.15,front-frame |
+| @part | oven | front-frame | hollow | -0.30..0.30 | 0.15..0.74 | 0.292..0.31 | body,window,controls |
+| @part | oven | window | box | -0.245..0.245 | 0.26..0.62 | 0.302..0.306 | front-frame,controls |
+| @part | oven | controls | box | -0.245..0.245 | 0.62..0.70 | 0.302..0.31 | front-frame,window,knob-0,handle |
+| @part | oven | knob-0 | cylinder | -0.2375..-0.2025 | 0.6725..0.7075 | 0.31..0.328 | controls |
+| @part | oven | knob-1 | cylinder | 0.2025..0.2375 | 0.6725..0.7075 | 0.31..0.328 | controls |
+| @part | oven | handle | box | -0.18..0.18 | 0.6675..0.6925 | 0.31..0.338 | controls |
+
+벽 조리대는 `wall-worktop`(상면 y=0.925m, X 폭 3.00, Z 깊이 0.67), `cooktop`(0.65×0.50×0.014m), `oven`(폭 0.60×손잡이 포함 깊이 0.586×높이 0.59m)의 세 prototype이다. 바닥에서 조리대 폭 중심이 원점, +Z가 사용자가 서는 앞이다. `cabinet/kitchen-base/2900x870x620/closed`의 외함 위에 두께 0.055m 상판을 y=0.87..0.925로 둔다. 상판 중앙 x=0,z=0에는 0.65×0.50m 개구를 실제로 절삭한다. 같은 상판 오른쪽은 [뒤 조리대 싱크·수전](#rear-counter-sink)의 외벽이 통과하도록 `@void wall-worktop: top` 두 번째 행의 전 두께를 절삭한다. sink의 외벽은 cabinet 상판의 대응 개구를 지나가고 서랍 윗면보다 위에서 끝난다. 두께 0.012m cooktop 본체는 y=0.913..0.925로 그 구멍에 flush로 들어가고 가장자리 rim만 y=0.925..0.927로 0.002m 올라오며 겹친 상판 면은 남지 않는다. 네 원형 zone은 지름 0.22m, 중심 x=±0.17,z=±0.12다. cabinet 중앙 개방 bay에 oven은 x=0,y=0.15..0.74,z=+0.022에 넣어 front-frame의 앞면 z=+0.31을 cabinet 앞과 맞추고 양옆 0.02m clear를 남긴다. oven 전면 유리·테두리·손잡이는 door 전면으로 읽히지만 cabinet drawer face가 그 앞에 나타나지 않는다. 세 prototype의 공통 국소 원점은 바닥의 벽 조리대 폭·깊이 중심이며 oven도 이 좌표를 그대로 쓴다. 따라서 oven 몸체 아래면 중심은 국소 (0,0.15,+0.022)에 있고 다음 z·y는 이미 이 공통 국소 좌표다. 오븐 몸체 깊이는 0.54m이며 assembly 좌표의 몸체는 z=−0.248..+0.292에서 끝나 프레임 뒤의 중복 부피를 만들지 않는다. 전면 프레임은 x=±0.30,y=0.15..0.74,z=0.292..0.31의 한 폐합 링이며 내부 개구는 x=±0.245,y=0.26..0.70이다. 좌우 띠 폭은 0.055m, 아래 띠 높이는 0.11m, 위 띠 높이는 0.04m다. 유리창은 x=±0.245,y=0.26..0.62,z=0.302..0.306으로 링의 좌우·아래 edge에 면 접촉하고 앞면이 프레임보다 0.004m 물린다. 상부 조절판은 x=±0.245,y=0.62..0.70,z=0.302..0.31로 유리 상단의 z=0.302..0.306 단면과 링 좌우·위 edge에 면 접촉하며, 이를 위한 개구 안에서 링 부피와 겹치지 않는다. 둥근 knob 둘은 지름 0.035m, 중심 x=±0.22,y=0.69,z=0.31..0.328이다. 오븐 손잡이는 0.36×0.025×0.028m로 중심 y=0.68, z=0.324이고 바깥 끝 z=0.338이다. 프레임은 cabinet 전면 z=0.31에 맞추고 손잡이만 앞으로 돌출한다.
+
+주소는 `top/upper/edge/underside`(wall-worktop), `body/top/edge/underside`, `rim/upper/edge/underside`, `zone-0..3/upper/edge`(cooktop), `body/front/back/side-left/side-right/top/sole`, `front-frame/front/back/edge`, `window/front/back/edge`, `handle/outer/contact`, `controls/front/edge`, `knob-0..1/outer/contact`(oven)다. 정면·상부·45°에서 네 zone, oven 빈 bay, 서랍과 가전의 분리를 확인한다. ref03의 색과 마감은 materials의 finish 결합 근거로 남기고 이 H2는 조리면·상판·서랍의 분리된 형상 주소를 정한다. ref02는 공용부 위치 근거이며 ref01·04·05에서는 조리대 치수를 읽지 않는다. 가열·후드 환기 성능은 `unverified`다.
+
+<!-- @authored-address-state:start -->
+@address-state wall-worktop: top
+@address-state cooktop: body, rim, zone-0, zone-1, zone-2, zone-3
+@address-state oven: body, front-frame, window, controls, knob-0, knob-1, handle
+<!-- @authored-address-state:end -->
+
+## 두 문 냉장고 {#refrigerator}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 두 문 외관과 toe만 표현하며 내부 선반·냉각 기능은 이 모델 주장 밖에 둔다.
+@evidence principles/core/common.md#substantive-completion body·상하 문·두 손잡이·후퇴한 toe를 분리해 정면 문틈과 측면 깊이를 만든다.
+@evidence principles/core/common.md#declared-basis ref03의 주방 기기 자리와 ref02의 tall unit을 받되 0.90×2.65m 크기·문 분할은 모델의 선택이다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program의 refrigerator와 common-room의 주방 목적지에 수직 두 문·손잡이·toe의 독립 설비 형상을 더한다.
+@evidence principles/design/models.md#representation-contract body 앞에 두 닫힌 문을 붙이고 문 사이 0.006m 공백을 실제로 남기며 빈 냉장 내부를 주장하지 않는다.
+@evidence principles/design/models.md#spatial-convention 바닥 중심을 원점, 문 앞을 +Z로 두고 body z=−0.38..+0.29, 문 앞 +0.38, toe 앞 +0.33으로 구별한다.
+@evidence principles/design/models.md#reviewable-structure 정면에서 두 문과 0.006m seam, 측면에서 0.785m 손잡이 포함 깊이, 45°에서 toe 후퇴를 살핀다.
+@evidence principles/design/models.md#model-observable-style-basis ref03의 기기 위치와 ref02의 높은 장 규모를 쓰되 사진의 문틀 폭을 복제하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 0.90m 폭·2.65m 높이에 두 문·손잡이·0.08m toe의 각 접촉을 닫아 pantry와 다른 전면 층을 만든다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 refrigerator와 tall pantry, common-room의 주방 목적지를 시험했다. 냉장고의 두 문·손잡이·toe는 pantry와 구별되는 고정 설비 형상이고 실제 바닥 자리·통로는 배치에서 재므로 부모 프로그램을 고치지 않는다.
+@evidence settings/002-household.md#ground-program 공용실 주방의 refrigerator를 tall pantry와 구별된 별도 기기로 받는다.
+@evidence spaces/002-spatial-graph.md#common-room 냉장고 원형의 목적지는 연속 공용실 주방이며 식사·거실을 막는 내부 벽을 만들지 않는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 냉장고 문·손잡이·toe의 형상과 face 주소는 models가 정한다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory default는 외형 body·문·손잡이·toe만 두고 내부 선반과 냉각을 본문에서 다루지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 body 앞의 door-lower·upper와 각 handle, 바닥 toe의 @part가 정면 문틈과 측면 점유를 닫는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03 기기 자리와 ref02 높은 장을 참조하되 0.90×2.65m 외곽 및 문 seam은 이 H2 수치다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 ground-program의 refrigerator에 common-room 주방용 별도 두 문·손잡이·후퇴 toe의 기구 형상을 부여한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 두 @part door 사이 y=1.047..1.053의 실제 빈 seam을 두고 빈 냉장 내부를 만들어졌다고 주장하지 않는다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 바닥 중심 원점과 문 쪽 +Z를 명시하고 body 앞 0.29, door 앞 0.38, toe 앞 0.33m를 구분한다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b door-*/front·edge, handle-*/outer와 toe/front 주소가 정면·측면·45°에서 문틈과 후퇴를 드러낸다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03의 주방 기기 자리와 ref02 높은 장 규모만 사용하고 사진에서 door seam 치수를 역산하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope 0.90×2.65×0.785m 안에 두 문과 손잡이, 0.08m toe가 모두 @part로 닫힌다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 주방 refrigerator와 tall pantry의 별도 목적지에 두 문 기기를 대조했고 실제 바닥 점유와 통로는 배치가 정한다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 공용실 주방 refrigerator를 cabinet pantry와 분리된 독립 @inventory default 원형으로 받는다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 냉장고의 국소 @envelope만 주방 목적지에 공급하고 거실·식당 사이 공간 벽은 만들지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 door-*/front, handle-*/outer, toe/front 등 안정 부품과 face를 기구 H2에 정한다.
+-->
+
+@prose-part 상·하 문은: door-*
+@prose-part 하부 문: door-lower
+@prose-part 상부 문: door-upper
+@prose-part toe는: toe
+@prose-part 문 앞면: door-*
+
+@axis-control default: body, Y, 1.05, door seam
+
+`refrigerator`는 X 폭 0.90, 높이 2.65, 손잡이 포함 Z 깊이 0.785m다. 바닥 중심 원점, +Z가 문 앞이다. body는 x=±0.45,y=0.08..2.65,z=−0.38..+0.29, 상·하 문은 z=+0.29..+0.38의 두께 0.09m이고 하부 문 y=0.08..1.047, 상부 문 y=1.053..2.65라 `@axis-control`의 seam 중심에 0.006m 틈이 보인다. 손잡이는 문마다 0.022×0.28×0.025m로 x=+0.37, z=+0.38..+0.405, 중심 높이 y=1.65와 0.57이다. toe는 x=±0.45,y=0..0.08,z=−0.38..+0.33으로 문 앞면 z=+0.38보다 0.05m 물린다. `body/front/side-left/side-right/back/top/sole`, `door-upper/lower/front/back/edge`, `handle-upper/lower/outer/contact`, `toe/front/back/top/underside/side`가 안정 주소다. 내부는 구현하지 않으며 일반 tall pantry와 전면 분할로 구별한다. 정면·측면·45°에서 두 문과 깊이를 확인한다. ref03 주방 벽장의 기기 위치와 ref02의 tall unit을 채택하되 사진의 문틀 폭을 복제하지 않는다. ref01·04·05에는 냉장고 상세가 없다. 냉각은 `unverified`다.
+
+@scalar-control door-seam: 0.006
+@scalar-control toe-front-recess: 0.05
+
+@prose-part 손잡이는: handle-*
+@prose-part 중심 높이: handle-*
+@inventory default: body, door-lower, door-upper, handle-lower, handle-upper, toe
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | -0.45..0.45 | 0..2.65 | -0.38..0.405 | - |
+| @part | default | body | box | -0.45..0.45 | 0.08..2.65 | -0.38..0.29 | toe,door-lower,door-upper |
+| @part | default | door-lower | box | -0.45..0.45 | 0.08..1.047 | 0.29..0.38 | body,handle-lower |
+| @part | default | door-upper | box | -0.45..0.45 | 1.053..2.65 | 0.29..0.38 | body,handle-upper |
+| @part | default | handle-lower | box | 0.359..0.381 | 0.43..0.71 | 0.38..0.405 | door-lower |
+| @part | default | handle-upper | box | 0.359..0.381 | 1.51..1.79 | 0.38..0.405 | door-upper |
+| @part | default | toe | box | -0.45..0.45 | 0..0.08 | -0.38..0.33 | ground,body |
+
+<!-- @authored-address-state:start -->
+@address-state default: body, door-lower, door-upper, handle-lower, handle-upper, toe
+<!-- @authored-address-state:end -->
+
+## 세탁기와 건조기 {#laundry-appliances}
+
+<!--
+@evidence principles/core/common.md#scope-preservation washer·dryer의 고정 닫힌 문만 내며 열림 궤적·세척·건조·적층 transform은 이 모델 밖에 둔다.
+@evidence principles/core/common.md#substantive-completion 몸체 bore·깊은 drum·유리·원형 rim·두 힌지 조각·서로 다른 controls 배열을 각 기기에 닫는다.
+@evidence principles/core/common.md#declared-basis ref02의 서비스 코어 세탁기 역할을 받고 0.66m 점유와 다이얼·버튼 차이는 이 절의 설계다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program과 upper-service의 세탁기·건조기 목적지에 서로 다른 제어판과 호출 ID의 기기 원형을 더한다.
+@evidence principles/design/models.md#representation-contract 몸체·rim의 동심 개구를 실제로 뚫고 창 뒤 0.066m 빈 깊이를 두며 hinge tongue은 절삭 recess에만 삽입한다.
+@evidence principles/design/models.md#spatial-convention 각 기기 바닥 중심 원점, 전면 +Z, body 앞 +0.30과 문 앞 +0.33으로 정하고 적층은 instances transform에 남긴다.
+@evidence principles/design/models.md#reviewable-structure 정면에서 원형 창과 버튼 수, 측면에서 창 뒤 음각·hinge 연결, 45°에서 고리와 본체 경계를 점검한다.
+@evidence principles/design/models.md#model-observable-style-basis ref02의 오른쪽 서비스 코어를 목적지 근거로 쓰며 형상 세부가 없는 다른 참조에서 세탁기 단면을 추정하지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion 두 기기 각각 0.66×0.66×0.84m를 닫고 원형 bore·rim 반지름과 hinge-barrel·tongue의 유한 접촉을 수치로 분리한다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work upper-program의 세탁·건조기와 upper-service의 점검 영역을 시험했다. 0.66m 외함·제어판의 두 고정 원형은 설비 형상이며 적층 transform과 점검 통로는 배치가 소유하므로 새 공간·작동 상태가 필요하지 않다.
+@evidence spaces/002-spatial-graph.md#upper-service 복도 직결 설비·세탁실의 washer와 dryer를 별도 원형으로 만들며 실제 적층과 정비 통로는 instances에 남긴다.
+@evidenceExclude spaces/002-spatial-graph.md#corridor-service 복도↔설비실의 실제 문은 공간 owner가 형성한다. 닫힌 세탁기·건조기 외곽은 열린 leaf와의 후속 충돌 검사 입력이다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-corridor-service 설비실↔복도 문의 host wall은 층·boundary owner가 만든다. washer·dryer의 body는 방 안 기기다.
+@evidenceExclude spaces/002-spatial-graph.md#wall-service-corridor-front 설비실의 복도 전면 z 경계는 닫힌 벽이다. 세탁기와 건조기의 배치가 이 shared wall에 문을 추가하지 않는다.
+@evidence settings/002-household.md#upper-program 복도 직결 upper-service의 세탁기와 건조기를 별도 장치 상태로 내고 점검 공간은 배치·공간 owner에 남긴다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 세탁기·건조기의 외함·제어판 face를 models가 정의하고 기기 위치는 instances에 남긴다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory washer·dryer는 닫힌 고정 문 원형이며 작동 궤적·세척·적층 변환을 본문에서 확정하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 두 @inventory와 각 @part가 드럼 음각, 창·rim, barrel·tongue 및 서로 다른 버튼 수를 따로 닫는다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref02의 서비스 코어 기기 목적지를 받고 0.66×0.66×0.84m 원형과 제어판 배열은 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 upper-program과 upper-service의 washer·dryer 호출에 한 모델의 별도 인벤토리와 두 controls 배열을 부여한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @bore-z body와 @radial-z rim·window가 동심 개구 뒤 0.066m 빈 깊이를 만들고 hinge-tongue만 @void rim에 들어간다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e 각 기기 바닥 중심 원점, 전면 +Z와 body 앞 0.30m·door 앞 0.33m를 적으며 적층 transform은 내지 않는다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b drum-rim/front·inner, window/back, hinge-barrel/contact와 controls-button 주소로 정면·측면·45°의 깊이와 배열을 살핀다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref02는 서비스 코어의 기기 목적지로만 쓰고 다른 참조에서 드럼 단면 치수를 추정하지 않는다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e washer·dryer @envelope 각각 0.66×0.66×0.84m이며 bore·rim 반지름과 두 hinge 조각의 접촉이 수치로 있다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 upper-service의 세탁·건조 및 점검 영역에 두 국소 원형을 대조했고 적층과 점검 통로는 배치에 남겨 공간 수정이 없다.
+@evidenceReview spaces/002-spatial-graph.md#upper-service #c37bff6 복도 직결 설비실의 washer와 dryer를 별도 @inventory로 답하고 실제 적층·정비 여유는 원형에 넣지 않는다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#corridor-service #d7d4e8b washer·dryer의 `@inventory`는 본체·drum·고정 hinge를 열거하며 corridor-service의 방 안쪽 여는 문과 frame을 포함하지 않는다. 기기 `@envelope`는 국소 점유이고 문 개구는 공간 owner가 정한다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-corridor-service #f5d2036 문 host wall의 geometry를 body로 대체하지 않고 두 기구는 독립 바닥 접촉 원형이다.
+@evidenceExcludeReview spaces/002-spatial-graph.md#wall-service-corridor-front #07903a5 설비실 전면의 닫힌 벽을 washer·dryer 배치로 뚫지 않으며 기구의 앞면 +Z는 로컬 축일 뿐이다.
+@evidenceReview settings/002-household.md#upper-program #55473ad 복도 직결 상층 설비실의 세탁기·건조기를 각자 다른 control 배열의 원형으로 제공한다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 body/drum-bore-inner, drum-rim/inner, controls-panel/front, hinge-tongue/contact의 안정 주소를 모델 H2에 낸다.
+-->
+
+@prose-part 본체는: body
+@prose-part 직사각 tongue는: hinge-tongue
+@prose-part controls 판은: controls-panel
+
+원형 드럼은 Z축을 바라보는 동심원으로 잰다. `@radial-z`는 행에 적은 중심·안팎 반경의 실제 원판 또는 고리를 뜻하며 사각 AABB 내부를 모두 고체로 세지 않는다. 기존 하나였던 `door-hinge` 주소는 서로 면으로 잇는 `hinge-barrel`·`hinge-tongue`로 나눈다. tongue만 고리의 직사각 recess에 들어가고 나머지 고리는 원형이다.
+
+@scalar-control excluded-stacked-height: 1.68
+
+@prose-part 전면 드럼 문은: drum-rim
+@prose-part drum 중심은: drum-inner
+@prose-part 바깥 D형 barrel은: hinge-barrel
+@prose-dim 각 다이얼은: controls-dial
+@prose-dim 버튼은: controls-button-*
+@prose-gap *: window, drum-inner, Z, 실제 빈 깊이
+@inventory washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
+@inventory dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
+@cap-contact washer: body, drum-rim, Z, +
+@cap-contact washer: body, controls-panel, Z, +
+@cap-contact washer: body, hinge-barrel, Z, +
+@cap-contact washer: hinge-barrel, hinge-tongue, X, +
+@cap-contact dryer: body, drum-rim, Z, +
+@cap-contact dryer: body, controls-panel, Z, +
+@cap-contact dryer: body, hinge-barrel, Z, +
+@cap-contact dryer: hinge-barrel, hinge-tongue, X, +
+@radial-z washer: drum-inner, 0, 0.38, 0, 0.19
+@radial-z washer: drum-rim, 0, 0.38, 0.175, 0.23
+@radial-z washer: window, 0, 0.38, 0, 0.175
+@radial-z dryer: drum-inner, 0, 0.38, 0, 0.19
+@radial-z dryer: drum-rim, 0, 0.38, 0.175, 0.23
+@radial-z dryer: window, 0, 0.38, 0, 0.175
+@bore-z washer: body, 0, 0.38, 0.19, 0.246..0.30
+@bore-z dryer: body, 0, 0.38, 0.19, 0.246..0.30
+@void washer: drum-rim, -0.23..-0.21, 0.35..0.41, 0.305..0.315
+@void dryer: drum-rim, -0.23..-0.21, 0.35..0.41, 0.305..0.315
+@cavity-contact washer: drum-rim, hinge-tongue, X
+@cavity-contact dryer: drum-rim, hinge-tongue, X
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | washer | * | bounds | -0.33..0.33 | 0..0.84 | -0.33..0.33 | - |
+| @part | washer | body | hollow | -0.33..0.33 | 0..0.84 | -0.33..0.30 | ground,drum-inner,drum-rim,controls-panel,hinge-barrel |
+| @part | washer | drum-inner | curved | -0.19..0.19 | 0.19..0.57 | 0.246..0.26 | body |
+| @part | washer | drum-rim | hollow | -0.23..0.23 | 0.15..0.61 | 0.30..0.33 | body,window,hinge-tongue |
+| @part | washer | window | curved | -0.175..0.175 | 0.205..0.555 | 0.326..0.33 | drum-rim |
+| @part | washer | controls-panel | box | -0.025..0.225 | 0.7125..0.7675 | 0.30..0.314 | body,controls-dial,controls-button-0 |
+| @part | washer | controls-dial | cylinder | -0.0025..0.0325 | 0.7225..0.7575 | 0.314..0.329 | controls-panel |
+| @part | washer | controls-button-0 | cylinder | 0.113..0.127 | 0.733..0.747 | 0.314..0.329 | controls-panel |
+| @part | washer | controls-button-1 | cylinder | 0.163..0.177 | 0.733..0.747 | 0.314..0.329 | controls-panel |
+| @part | washer | hinge-barrel | curved | -0.25..-0.23 | 0.34..0.42 | 0.30..0.32 | body,hinge-tongue |
+| @part | washer | hinge-tongue | box | -0.23..-0.21 | 0.35..0.41 | 0.305..0.315 | hinge-barrel,drum-rim |
+| @envelope | dryer | * | bounds | -0.33..0.33 | 0..0.84 | -0.33..0.33 | - |
+| @part | dryer | body | hollow | -0.33..0.33 | 0..0.84 | -0.33..0.30 | ground,drum-inner,drum-rim,controls-panel,hinge-barrel |
+| @part | dryer | drum-inner | curved | -0.19..0.19 | 0.19..0.57 | 0.246..0.26 | body |
+| @part | dryer | drum-rim | hollow | -0.23..0.23 | 0.15..0.61 | 0.30..0.33 | body,window,hinge-tongue |
+| @part | dryer | window | curved | -0.175..0.175 | 0.205..0.555 | 0.326..0.33 | drum-rim |
+| @part | dryer | controls-panel | box | -0.025..0.225 | 0.7125..0.7675 | 0.30..0.314 | body,controls-dial,controls-button-0 |
+| @part | dryer | controls-dial | cylinder | 0.1725..0.2075 | 0.7225..0.7575 | 0.314..0.329 | controls-panel |
+| @part | dryer | controls-button-0 | cylinder | 0.008..0.022 | 0.733..0.747 | 0.314..0.329 | controls-panel |
+| @part | dryer | controls-button-1 | cylinder | 0.063..0.077 | 0.733..0.747 | 0.314..0.329 | controls-panel |
+| @part | dryer | controls-button-2 | cylinder | 0.113..0.127 | 0.733..0.747 | 0.314..0.329 | controls-panel |
+| @part | dryer | hinge-barrel | curved | -0.25..-0.23 | 0.34..0.42 | 0.30..0.32 | body,hinge-tongue |
+| @part | dryer | hinge-tongue | box | -0.23..-0.21 | 0.35..0.41 | 0.305..0.315 | hinge-barrel,drum-rim |
+
+`laundry-washer`와 `laundry-dryer`는 각각 폭·깊이 0.66, 높이 0.84m다. 각 장치의 바닥 중심이 원점, +Z가 전면이다. 본체는 z=-0.33..+0.30, 전면 드럼 문은 z=+0.30..+0.33이다. drum 중심은 x=0,y=0.38이고 rim 외경 0.46, 투명 창 외경 0.35m다. 창의 Z 범위는 `@part window` 행이 정한다. 그 뒤 몸체에는 `@bore-z`가 정한 중심·반지름·Z 범위로 원형 보어를 뚫는다. `drum-inner`의 채운 원판은 `@part drum-inner`의 Z 범위에서 그 보어의 뒤를 닫는다. 이어지는 rim 개구의 Z 범위는 `@part drum-rim`과 `@part window`의 앞뒤 경계가, 안팎 반지름은 `@radial-z drum-rim`이 정한다. 따라서 `drum-inner` 앞면부터 `window` 뒤면까지 0.066m의 실제 빈 깊이가 있고 두 구간의 반지름을 같다고 취급하지 않는다. 몸체 앞면에 네모난 개구 모서리를 남기지 않는다. 문 힌지는 y=0.34..0.42의 `hinge-barrel`과 y=0.35..0.41의 `hinge-tongue` 두 닫힌 부품이다. 바깥 D형 barrel은 x=−0.25..−0.23,z=0.30..0.32에 있고 XZ 단면은 `@part hinge-barrel`의 X 전폭·Z 하한부터 Z 중심까지의 직사각형과, 그 X/Z 중심에서 X 반폭을 반지름으로 하는 +Z 반원의 합집합이다. 뒤쪽 평면은 `@part body`의 전면과 0.02×0.08m 면으로 접한다. 별도 부품인 직사각 tongue는 x=−0.23..−0.21,y=0.35..0.41,z=0.305..0.315이며 드럼 rim의 이 점유만 원래 닫힌 부피에서 절삭한 recess에 들어가 유한 면으로 접한다. barrel은 X 최대 경계에서 뒤쪽 직사각형 절반만 노출하므로 `@part hinge-barrel`의 Z 하한부터 Z 중앙까지와 `@part hinge-tongue`의 Z 범위가 교차하는 0.06×0.005m 직사각형 면으로 이어지고 몸체·rim의 남은 고체를 관통하지 않는다. 두 부품은 고정 도어의 조립 이음이며 열림 검사 상태나 작동 궤적을 주장하지 않는다. controls 판은 0.25×0.055×0.014m로 중심 x=+0.10,y=0.74,z=0.307이다. washer는 아래 `@part washer`의 다이얼 하나와 버튼 둘, dryer는 `@part dryer`의 다이얼 하나와 버튼 셋을 각 행의 X 중심에 고정한다. 각 다이얼은 지름 0.035, 버튼은 지름 0.014m이며 모두 판 앞의 해당 `@part` Z 범위에 머문다. `body/front/side-left/side-right/back/top/sole/drum-bore-inner/drum-bore-back`, `drum-inner/inner/outer/edge`, `drum-rim/front/back/inner/outer`, `window/front/back/edge`, `controls-panel/front/back/edge`, `controls-dial/outer/contact`, washer의 `controls-button-0..1/outer/contact` 또는 dryer의 `controls-button-0..2/outer/contact`, `hinge-barrel/outer/contact`, `hinge-tongue/outer/contact`가 안정 주소다. 위아래 적층 transform은 instances가 정하고 모델 내부에 1.68m 탑을 미리 만들지 않는다. 정면·측면·45°에서 두 controls 배열과 창 깊이를 확인한다. ref02 우측 서비스 코어의 세탁기 목적지 관계를 채택한다. ref01·03·04·05에서는 세탁기 형상을 특정할 자료가 없으며 세척·건조·진동은 `unverified`다.
+
+<!-- @authored-address-state:start -->
+@address-state washer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, hinge-barrel, hinge-tongue
+@address-state dryer: body, drum-inner, drum-rim, window, controls-panel, controls-dial, controls-button-0, controls-button-1, controls-button-2, hinge-barrel, hinge-tongue
+<!-- @authored-address-state:end -->
+
+## 뒤 조리대 싱크·수전 {#rear-counter-sink}
+
+<!--
+@evidence principles/core/common.md#scope-preservation 뒤 조리대용 얕은 싱크와 세 직선 수전만 만들고 굽은 관·작동 배관을 주장하지 않는다.
+@evidence principles/core/common.md#substantive-completion rim·bowl의 내부 절삭과 닫힌 바닥, counter 개구, 서로 맞닿는 tap-riser·arm·outlet을 전개한다.
+@evidence principles/core/common.md#declared-basis ref03의 섬 뒤 조리대 수전을 받아 별도 rear-counter-sink로 정하고 형상·접촉은 이 절의 선택으로 둔다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program의 주방 sink와 common-room의 연속 주방에 ref03에서 선택한 뒤 조리대의 얕은 bowl·각진 수전을 추가한다.
+@evidence principles/design/models.md#representation-contract bowl·rim 안쪽을 비우고 외벽은 counter와 cabinet의 맞는 개구를 통과시키되 서랍 윗면과는 겹치지 않는다.
+@evidence principles/design/models.md#spatial-convention wall-worktop과 같은 바닥 중심 원점과 사용자 방향 +Z를 쓰며 rim과 tap-base를 상판 윗면에 접촉시킨다.
+@evidence principles/design/models.md#reviewable-structure 상부에서 cooktop과 별도인 개구, 정면에서 얕은 bowl, 45°에서 아래 향한 수전 출구를 확인한다.
+@evidence principles/design/models.md#model-observable-style-basis ref03의 뒤 조리대 수전 위치를 표현하고 참조 이미지에서 물길 성능을 읽어내지 않는다.
+@evidence principles/design/models.md#model-scale-layer-completion wall-worktop 두 번째 절삭과 cabinet 상판 개구에 bowl 외벽을 맞추고 네모 관 세 부품의 끝 평면 접촉을 닫는다.
+@evidenceExclude upstream/design/models.md#settings-and-space-revision-from-model-work ground-program의 주방 sink, common-room의 주방, surface-decomposition의 설비 형상 소유를 시험했다. 둘째 싱크는 ref03에서 선택한 추가 기구이고 얕은 bowl·수전의 상판 접촉은 원형에 닫혀 새 방·급수 성능·상태를 요구하지 않는다.
+@evidence settings/002-household.md#ground-program 공용실 주방의 sink 기능을 뒤 조리대 싱크의 가능한 사용 근거로 받되 둘째 개수를 프로그램의 의무로 주장하지 않는다.
+@evidence settings/002-household.md#household-program 생활 설비의 fit-out 범위에서 뒤 조리대의 별도 싱크를 저작 선택으로 둔다.
+@evidence spaces/002-spatial-graph.md#common-room 뒤 조리대 싱크는 연속 공용실 주방의 원형이며 정확한 설치 위치는 instances에 남긴다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 뒤 bowl·수전과 그 face 주소를 models가 정하고 방별 배치는 넘긴다.
+@evidenceReview principles/core/common.md#scope-preservation #24155e1 @inventory에는 얕은 bowl·rim과 직선 수전 네 부품만 있으며 굽힘·급배수 성능은 본문에서 주장하지 않는다.
+@evidenceReview principles/core/common.md#substantive-completion #5b9d0e7 bowl·rim의 @void와 닫힌 바닥, wall-worktop @support, riser·arm·outlet의 맞닿는 @part가 한 원형을 이룬다.
+@evidenceReview principles/core/common.md#declared-basis #7ccd1cb ref03의 섬 뒤 별도 수전을 목적지로 받고 X 0.88..1.32m의 얕은 싱크와 수전 치수는 이 H2가 정한다.
+@evidenceReview principles/core/inherited-units.md#derived-parent-differentiation #0632226 프로그램의 주방 sink와 열린 common-room에 ref03에서 선택한 둘째 얕은 bowl 및 각진 수전 형상을 추가한다.
+@evidenceReview principles/design/models.md#representation-contract #46718c6 @void bowl·rim으로 열린 내부를 만들고 bowl 외벽은 조리대 개구를 지나되 cabinet 서랍 면에는 닿지 않는다고 본문이 정한다.
+@evidenceReview principles/design/models.md#spatial-convention #5bbf49e wall-worktop과 같은 바닥 중심 원점·사용자 쪽 +Z를 사용하고 rim 및 tap-base 아래면을 상판 y=0.925m에 맞춘다.
+@evidenceReview principles/design/models.md#reviewable-structure #c22ab4b bowl/inner·bottom, rim/upper, tap-outlet/end 주소로 상부·정면·45°에서 쿡탑과 다른 개구와 아래 향한 출구를 확인한다.
+@evidenceReview principles/design/models.md#model-observable-style-basis #328d161 ref03에서 뒤 조리대의 별도 수전 위치만 읽고 물길이나 실제 사용성은 unverified로 둔다.
+@evidenceReview principles/design/models.md#model-scale-layer-completion #6df8b7e @envelope default 안에 bowl·rim과 tap-base·riser·arm·outlet의 좌표와 끝 평면 접촉을 분리해 닫는다.
+@evidenceExcludeReview upstream/design/models.md#settings-and-space-revision-from-model-work #3e4d880 프로그램의 주방 sink를 검토하되 둘째 개수는 요구로 만들지 않고 ref03 선택 원형을 상판 접촉에 닫아 방·상태 수정이 없다.
+@evidenceReview settings/002-household.md#ground-program #c5026c0 공용실 주방 sink 기능에 참여하지만 뒤쪽 둘째 싱크의 수량을 그 프로그램의 의무로 전환하지 않는다.
+@evidenceReview settings/002-household.md#household-program #d4b8ac1 생활 설비 fit-out 범위에서 별도 뒤 싱크를 저작 선택으로 두고 @inventory default에 여섯 부품을 명명한다.
+@evidenceReview spaces/002-spatial-graph.md#common-room #b06ac33 같은 공용실 주방에 쓸 국소 싱크·수전의 @envelope를 정하되 실내 좌표와 partition은 정하지 않는다.
+@evidenceReview settings/003-spatial-basis.md#surface-decomposition #0451742 bowl/inner·bottom, rim/edge, tap-arm/end, tap-outlet/end 등 기구의 안정 face 주소를 낸다.
+-->
+
+
+ref03의 섬 뒤쪽 조리대에 보이는 별도 수전을 `rear-counter-sink/default`의 일체형 얕은 싱크·수전으로 설계한다. 원점은 `wall-worktop`과 같은 조리대 바닥 중심이고 +Z가 조리자 쪽이다. `bowl`과 `rim`의 닫힌 외벽에서 각 `@void` 내부를 실제로 빼며, 외벽은 조리대와 하부장 상판의 같은 X/Z 개구를 통과한다. 그릇 바닥은 `bowl` 외면의 Y 하한과 내부 `@void`의 Y 하한 사이의 닫힌 층이며 cabinet 서랍 윗면보다 위에 있다. rim은 조리대 상면에 사방의 유한 환형 면으로 놓이고 수전 받침도 이 평면에 닿는다. 네모 관의 세 직선 부재는 서로의 끝 평면에 유한 면으로 맞닿고, 출구는 아래를 향한다. 굽은 관·별도 손잡이·급배수 기능은 이 blocking 설계에 없다.
+
+@inventory default: bowl, rim, tap-base, tap-riser, tap-arm, tap-outlet
+@support default: cooking-appliances, wall-worktop, top, 0, 0, 0
+@void default: bowl, 0.915..1.285, 0.82..0.925, -0.065..0.205
+@cavity-min default: bowl, 1/16, 1/20
+@void default: rim, 0.915..1.285, 0.925..0.94, -0.065..0.205
+
+| kind | state | part | shape | X min..max | Y min..max | Z min..max | contact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| @envelope | default | * | bounds | 0.88..1.32 | 0.80..1.28 | -0.22..0.24 | - |
+| @part | default | bowl | hollow | 0.90..1.30 | 0.80..0.925 | -0.08..0.22 | rim |
+| @part | default | rim | hollow | 0.88..1.32 | 0.925..0.94 | -0.10..0.24 | bowl,support@0.925 |
+| @part | default | tap-base | box | 1.06..1.14 | 0.925..0.945 | -0.22..-0.14 | support@0.925,tap-riser |
+| @part | default | tap-riser | box | 1.0875..1.1125 | 0.945..1.255 | -0.1925..-0.1675 | tap-base,tap-arm |
+| @part | default | tap-arm | box | 1.0875..1.1125 | 1.255..1.28 | -0.18..0.10 | tap-riser,tap-outlet |
+| @part | default | tap-outlet | box | 1.0875..1.1125 | 1.20..1.255 | 0.075..0.10 | tap-arm |
+
+안정 주소는 `bowl/inner/outer/bottom/rim`, `rim/upper/edge/underside`, `tap-base/outer/contact`, `tap-riser/shaft/top/sole`, `tap-arm/outer/end`, `tap-outlet/outer/end`다. 상부·정면·45°에서 오른쪽 조리대 개구가 쿡탑 개구와 분리됐는지, 싱크 바닥과 수전 출구의 관계를 확인한다. 참조 그림은 물길의 기능이나 실제 사용성의 근거가 아니며 이는 `unverified`다.
+
+@address-state default: bowl, rim, tap-base, tap-riser, tap-arm, tap-outlet

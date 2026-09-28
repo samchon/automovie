@@ -26,7 +26,7 @@ Durable authoring procedures live under `.agents/skills/`. Read the applicable s
 
 ### Contract
 
-Before drafting or changing production work, read [Contract](.agents/skills/contract/SKILL.md), the declaration in [src/lint.config.ts](src/lint.config.ts), and the applicable contract documents. The declaration selects the production's actual obligations; this entry point does not replace those contracts.
+Before drafting or changing production work, read [Contract](.agents/skills/contract/SKILL.md), the declaration in [lint.config.ts](lint.config.ts), and the applicable contract documents. The declaration selects the production's actual obligations; this entry point does not replace those contracts.
 
 - Shared contracts live under `docs/discovery`, `docs/naturalness`, `docs/upstream`, `docs/principles`, and `docs/obligations`. [Contract targets](.agents/skills/evidence-graph/contract-targets.md) owns each family's meaning and the boundaries between them.
 - The creation-selected language contracts live under `docs/language`. Follow the same [contract-target procedure](.agents/skills/evidence-graph/contract-targets.md) to select construction or final-language duties for the active work.
@@ -40,7 +40,7 @@ Use [Evidence staging](.agents/skills/evidence-graph/staging.md) when declaring 
 
 ### Evidence graph
 
-[Evidence graph](.agents/skills/evidence-graph/SKILL.md) owns the typed declaration in `src/lint.config.ts`, shared and local contract populations, claims, citations, exclusions, fingerprints, and stages. Read it before changing a governed contract, graph relationship, annotation, or stage. It does not own visual craft or frame observations beyond their declared evidence relationships.
+[Evidence graph](.agents/skills/evidence-graph/SKILL.md) owns the typed declaration in `lint.config.ts`, shared and local contract populations, claims, citations, exclusions, fingerprints, and stages. Read it before changing a governed contract, graph relationship, annotation, or stage. It does not own visual craft or frame observations beyond their declared evidence relationships.
 
 ### Source authoring
 

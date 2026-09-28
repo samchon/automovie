@@ -6,7 +6,7 @@ labels: ""
 assignees: ""
 ---
 
-<!-- Read .agents/skills/experiment/records.md, briefing.md, steering.md, and comparison.md when several units share one harness. Delete no section. Use unverified or n/a with a reason instead of leaving a field blank. Opening this issue does not authorize launch. -->
+<!-- Read .agents/skills/experiment/SKILL.md, records.md, briefing.md, and steering.md. The supervisor records the run and never judges the production; the authoring agent's shipped skills own authoring, review, and stages. Delete no section. Use unverified or n/a with a reason instead of leaving a field blank. Opening this issue does not authorize launch. -->
 
 ## Question and authority
 
@@ -25,7 +25,6 @@ assignees: ""
 | unverified | unverified | unverified | unverified | unverified | unverified | n/a | n/a | unverified |
 
 - Repetition rationale, expected heterogeneity, cost, and limitation:
-- Outcome rubric identity and digest:
 - Aggregation and uncertainty method:
 - Result disposition (`exploratory`, `provisional`, `consistency-only`, `variability-found`, `controlled-comparison`, or `inconclusive`):
 - Uncontrolled differences and excluded claims:
@@ -57,18 +56,9 @@ assignees: ""
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | unverified | unverified | unverified | unverified | unverified | unverified | unverified | unverified | unverified | unverified |
 
-## Judgment calibration and escalation
-
-- Calibration record id, corpus digest, and qualified-human truth:
-- Passing, known-failure, ambiguous/high-impact, and order-sensitive witnesses:
-- Original and reversed presentation results:
-- Human agreement, false PASS, false FAIL, and known blind spots:
-- Same-family reviewer separation and its limitation:
-- Escalation triggers, alternate model family or qualified human, evidence, reason, and superseded verdict:
-
 ## Operation and recovery ledger
 
-- Stable coordinator, commissioner, writer, independent reviewer, and liveness-observer ids, plus proof that the reviewer overlaps none of the other four roles:
+- Stable supervisor, commissioner, and writer ids (no separate reviewer agent is attached to the production):
 - Preflight result, including model availability, root isolation, path budget, process ownership, and observation instrument:
 
 | Receipt id | Sequence | Run/generation | From | To | Timestamp | Actor | Reason | Evidence | Result |
@@ -87,14 +77,13 @@ assignees: ""
 - Planned and actual runtime/resource use:
 - Terminal state and close audit of processes, sessions, sandboxes, temporary paths, registrations, receipts, timers, retained artifacts, and privacy dispositions:
 
-## Observations and verdicts
+## Observations
 
-| Verdict id | Run/generation and operation receipt | Gate or claim | Artifact and stage | Evidence | Verdict | Reason | Next action | Escalation |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| unverified | unverified | unverified | unverified | unverified | INCONCLUSIVE | unverified | unverified | unverified |
+| Observation id | Run/generation and operation receipt | Claim or question | Artifact and stage | Evidence | How it was obtained | Limitation |
+| --- | --- | --- | --- | --- | --- | --- |
+| unverified | unverified | unverified | unverified | unverified | unverified | unverified |
 
 - Writer variance:
-- Judge variance on unchanged evidence:
 - Machine-invisible defects and empty/topology populations:
 - Results within the claim ceiling:
 - Limitations and unresolved hypotheses:
@@ -107,4 +96,4 @@ assignees: ""
 - Manual record-matrix result from `.agents/skills/experiment/records.md`:
 - Launch audit disposition (`ready`, `blocked`, or `not authorized`) and reason:
 
-`ready` is invalid when calibration, outcome rubric, observation plan, role separation, per-run actual provenance, or path/root preflight is missing or `unverified`. A completed run whose design cannot support its claimed result disposition is retained as `inconclusive`, never upgraded after observing the outcome.
+`ready` is invalid when the observation plan, role statement, per-run actual provenance, or path/root preflight is missing or `unverified`. A completed run whose design cannot support its claimed result disposition is retained as `inconclusive`, never upgraded after observing the outcome.

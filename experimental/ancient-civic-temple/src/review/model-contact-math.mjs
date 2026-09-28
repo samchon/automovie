@@ -1,0 +1,56 @@
+/** Geometric distances used by the prose contact audit; every input is metres. */
+
+/** @param {number} plateRadius @param {number} plateY @param {number} pinRadius @param {number} pinY */
+export const pinPlateRadialMargin = (plateRadius, plateY, pinRadius, pinY) =>
+  plateRadius + pinRadius - Math.abs(pinY - plateY);
+
+/**
+ * The imbrex has semicircular tube feet of finite thickness. Both complete
+ * radial bands must have positive width inside the adjacent raised ribs.
+ * @param {number} centre @param {number} outer @param {number} thickness
+ * @param {[number, number]} leftRib @param {[number, number]} rightRib
+ */
+export const imbrexFootMargin = (centre, outer, thickness, leftRib, rightRib) => {
+  const inner = outer - thickness;
+  if (inner <= 0) return -Infinity;
+  return Math.min(
+    centre - outer - leftRib[0],
+    leftRib[1] - (centre - inner),
+    centre + inner - rightRib[0],
+    rightRib[1] - (centre + outer),
+  );
+};
+
+/** @param {number} sheetY @param {number} sheetZ @param {number} rollY @param {number} rollZ @param {number} radius */
+export const rollSheetGap = (sheetY, sheetZ, rollY, rollZ, radius) =>
+  Math.hypot(sheetY - rollY, sheetZ - rollZ) - radius;
+
+/** @param {number} datum @param {number} tileThickness @param {number} footX @param {number} angleDegrees */
+export const ridgeFootGap = (datum, tileThickness, footX, angleDegrees) => {
+  const angle = angleDegrees * Math.PI / 180;
+  return datum - (tileThickness / Math.cos(angle) - footX * Math.tan(angle));
+};
+
+/**
+ * The inner arc is clipped to the sloped flat tile. Beyond its inner radius,
+ * the full foot follows that tile. A copied level foot would penetrate it.
+ * @param {number} datum @param {number} outerRadius @param {number} shellThickness
+ * @param {number} flatThickness @param {number} angleDegrees @param {number} x
+ */
+export const ridgeSectionAt = (datum, outerRadius, shellThickness, flatThickness, angleDegrees, x) => {
+  const absoluteX = Math.abs(x);
+  if (outerRadius <= shellThickness || absoluteX > outerRadius) throw new RangeError("ridge section outside shell");
+  const slope = angleDegrees * Math.PI / 180;
+  const tile = flatThickness / Math.cos(slope) - absoluteX * Math.tan(slope);
+  const innerRadius = outerRadius - shellThickness;
+  const lower = absoluteX <= innerRadius
+    ? Math.max(datum + Math.sqrt(Math.max(0, innerRadius ** 2 - absoluteX ** 2)), tile)
+    : tile;
+  const upper = datum + Math.sqrt(Math.max(0, outerRadius ** 2 - absoluteX ** 2));
+  return { tile, lower, upper };
+};
+
+/** @param {number} battenBottom @param {number} battenHeight @param {number} strapCentre @param {number} strapHeight */
+export const strapBattenVerticalMargin = (battenBottom, battenHeight, strapCentre, strapHeight) =>
+  Math.min(strapCentre + strapHeight / 2, battenBottom + battenHeight) -
+  Math.max(strapCentre - strapHeight / 2, battenBottom);

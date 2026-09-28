@@ -1,0 +1,42 @@
+# Models and motions
+
+Before authoring an `externalMotions` adoption, run `npx --no-install automovie inspect-external <project-path> --profile <profile>`. The deterministic result supplies the exact source-order node identities, hierarchy, local rest basis, dependencies, takes, channels, and timing the adoption record may name. It deliberately performs no semantic bone mapping or adoption choice; the author records those decisions in governed source and may not infer them from display names alone.
+
+Read [Geometry](geometry.md) before changing triangle data or choosing a geometry operation, and read [Rigging](rigging.md) before changing hierarchy, pivots, controls, or deformation.
+
+## Model decisions
+
+`docs/models` records the deterministic blocking representation of a settings subject: coordinate frame, dimensions, hierarchy, joints or degrees of freedom, geometry allocation, stable surface partitions, level of abstraction, and visible limitations. Structural validity and semantic completion are separate: a parseable mesh recipe or hierarchy still fails when the promised scale relation, representation layer, stable boundary, proxy limit, observable style consequence, or review observation has no owner. It answers what is built, not what the fictional subject is, how its surfaces respond, or how it moves over time.
+
+Each model-source file contains a concrete named exported class, and every exported type in the branch cites exactly one model document. Properties and helpers collectively cover the model-source obligations, while the exact type edge prevents undocumented or multiply owned model contracts. Derived design records and meshes do not substitute for this authored source edge.
+
+Before drafting, complete `discovery/core/common.md`, `discovery/design/designs.md`, and `discovery/design/models.md` against the actual represented subjects, source assets, downstream consumers, and review promise, then settle every retained rule or truthful no-result through [Design branches](design-branches.md#discovery-and-draft-procedure). Inventory independent representation owners and apply `docs/obligations/design/models.md#addressable-model-decisions`. Separate geometry or hierarchy, articulation interfaces, surface partitions, fidelity limits, and neutral observations when they have different consumers or change paths. Material construction and response belong in `docs/materials`. Compare the completed dimensions, pivots, surfaces, and review views with their settings basis and applicable model obligations.
+
+## Anatomical face models
+
+Use `@automovie/human` when a reviewed model calls for numerically authored facial anatomy. Its installed package README and public JSDoc describe `IAutoMovieHumanFaceDocument`, `buildHumanFace`, component profiles and scalar controls. Keep the production's observed or authored basis, part settings, provenance and visible limitations under its model-source owner. The package supplies capability, not named people or photograph fitting.
+
+Identity, observed expression and current expression are separate records. An omitted current expression means neutral; it does not replay the photographed smile. A motion owner may evaluate its reviewed time-varying expression and call the face builder for the selected pose. This is procedural reconstruction, not a skinned animation or a real-time playback guarantee. Record the sampling cost and supported combinations before choosing it for a shot.
+
+Use the returned metre-valued `IAutoMovieModel` through the same model and instance realization path as other authored geometry. `exportHumanFace(model)` produces portable GLB bytes and glTF/resources without handing a class-bound document across module instances. A static facial GLTF/GLB may instead be adopted as an external model under the existing adoption procedure; its exported pose has no facial animation channels. Review the actual eyes, lips, dental occlusion, shared skin and all required views through the review-verification skill. Construction success does not settle likeness, hidden anatomy or unsupported oral physiology.
+
+## Motion decisions
+
+`docs/motions` records a named transition over time: subject and starting state, endpoint, duration or timing domain, interpolation, invariants, collision or range limits, composition behavior, and observable acceptance. It cites the settings facts it preserves and every reviewed map, model, space, material, instance, or system interface whose state it changes; a motion that changes no model cites no model merely to fill the graph.
+
+Each exported motion function and each exported motion property cites exactly one motion document. Motion implementation lives under `src/motions`; a subject method may delegate to it. Do not hide reusable motion math inside a shot or claim an incidental render callback as a motion.
+
+Before drafting, complete `discovery/core/common.md`, `discovery/design/designs.md`, and `discovery/design/motions.md` against the actual changing subjects, consumed interfaces, compositions, contacts, and review promise, then settle every retained rule or truthful no-result through [Design branches](design-branches.md#discovery-and-draft-procedure). Inventory independently callable or reviewable transitions and apply `docs/obligations/design/motions.md#addressable-motion-decisions`. Each transition settles entry, exit, allowed change, time domain, phases, spatial relations, invariants, limits, parameters, composition, interruption, and observable acceptance where applicable. Return a missing capability to settings or a missing target interface to its map, model, space, material, instance, or system owner before continuing.
+
+## Gates
+
+Start an applicable branch at `models: "draft"` or `motions: "draft"`. Both begin after settings review. A motion may target a map, model, space, material, instance, or system interface. Design branches may proceed in parallel, but each newly active reviewed branch adds its foundation targets and reopens affected motion evidence; final motion review cites every active design branch it consumes and truthfully excludes only an unused permitted foundation target. Before `evidence`, require stable H2 owners, no placeholders, a complete first version, an omission and proportionality audit, and neutral review observations. Read every common and branch principle against each H2 in turn, then confirm that the H2 population supplies every common and branch-obligation owner.
+
+Model source begins at `modelSources: "draft"` only after model review. Motion source begins at `motionSources: "draft"` only after motion review. Every exported owner implements reviewed design rather than making a new visual, structural, temporal, or parameter decision in code. Follow [Evidence staging](../evidence-graph/staging.md) for citations and reviews and this skill's geometry verification routes.
+
+## Boundary cases
+
+- A semantic scale or clearance required regardless of representation is a settings fact; proxy dimensions, occupied bounds, and primitive decomposition are model decisions derived from it.
+- Settings authorize a state change and any semantic limit; a model names the joint, pivot, and construction-safe interface that realizes it; a motion owns the timed path within both contracts.
+- A treatment states why a movement matters; a script stages the physical event; a screenplay states the final audiovisual beat; a shot composes the implemented motions.
+- A library stops at its reviewed source branches. A film or brief may consume the same model or motion source through shots.
