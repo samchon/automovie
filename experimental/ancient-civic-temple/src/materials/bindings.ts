@@ -4,9 +4,24 @@ import type {
   IAutoMovieMaterial,
 } from "@automovie/interface";
 
-type Finish = "limestone" | "paving" | "paving-small" | "dado" | "dark-metal"
-  | "dark-wood" | "terracotta" | "roof-terracotta" | "wicker" | "parchment"
-  | "linen" | "rope-fibre" | "soil" | "distant-earth" | "water" | "foliage" | "plaster";
+type Finish =
+  | "limestone"
+  | "paving"
+  | "paving-small"
+  | "dado"
+  | "dark-metal"
+  | "dark-wood"
+  | "terracotta"
+  | "roof-terracotta"
+  | "wicker"
+  | "parchment"
+  | "linen"
+  | "rope-fibre"
+  | "soil"
+  | "distant-earth"
+  | "water"
+  | "foliage"
+  | "plaster";
 
 /**
  * @evidence materials/00-surface-palette.md The 17 fixed finish keys retain their authored color, surface response, bitmap choice, and metre repeat.
@@ -31,7 +46,16 @@ type Finish = "limestone" | "paving" | "paving-small" | "dado" | "dark-metal"
  * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The palette H2s already specify every key and surface response encoded in this record.
  * @evidence obligations/design/material-sources.md#material-source-renderer-mapping One literal palette record gives every selected finish its renderer color, roughness, metallic and texture values.
  */
-export const templeMaterialPalette: Record<Finish, { color: number; roughness: number; metallic: number; scale: number; image: string | null }> = {
+export const templeMaterialPalette: Record<
+  Finish,
+  {
+    color: number;
+    roughness: number;
+    metallic: number;
+    scale: number;
+    image: string | null;
+  }
+> = {
   limestone: {
     color: 0xc9c0ad,
     roughness: 0.86,
@@ -41,14 +65,14 @@ export const templeMaterialPalette: Record<Finish, { color: number; roughness: n
   },
   paving: {
     color: 0xc9c0ad,
-    roughness: 0.90,
+    roughness: 0.9,
     metallic: 0,
     scale: 2,
     image: "paving",
   },
   "paving-small": {
     color: 0xc9c0ad,
-    roughness: 0.90,
+    roughness: 0.9,
     metallic: 0,
     scale: 1,
     image: "paving",
@@ -159,7 +183,8 @@ const linear = (channel: number): number => {
 };
 
 const material = (finish: Finish): IAutoMovieMaterial => {
-  const { color, roughness, metallic, image, scale } = templeMaterialPalette[finish];
+  const { color, roughness, metallic, image, scale } =
+    templeMaterialPalette[finish];
   return {
     id: `temple.${finish}`,
     name: finish,
@@ -174,25 +199,26 @@ const material = (finish: Finish): IAutoMovieMaterial => {
     roughness,
     emissive: null,
     opacity: 1,
-    baseColorTexture: image === null
-      ? null
-      : {
-          asset: `textures/${image}.png`,
-          texCoord: 0,
-          coordinateSource: "surface-metres",
-          colorSpace: "srgb",
-          transform: {
-            offset: { x: 0, y: 0 },
-            scale: { x: 1 / scale, y: 1 / scale },
-            rotationDeg: 0,
+    baseColorTexture:
+      image === null
+        ? null
+        : {
+            asset: `textures/${image}.png`,
+            texCoord: 0,
+            coordinateSource: "surface-metres",
+            colorSpace: "srgb",
+            transform: {
+              offset: { x: 0, y: 0 },
+              scale: { x: 1 / scale, y: 1 / scale },
+              rotationDeg: 0,
+            },
+            sampler: {
+              wrapS: "repeat",
+              wrapT: "repeat",
+              minFilter: "linearMipmapLinear",
+              magFilter: "linear",
+            },
           },
-          sampler: {
-            wrapS: "repeat",
-            wrapT: "repeat",
-            minFilter: "linearMipmapLinear",
-            magFilter: "linear",
-          },
-        },
   };
 };
 
@@ -208,71 +234,159 @@ const material = (finish: Finish): IAutoMovieMaterial => {
  */
 export const templeSpaceFinish = (id: string): Finish => {
   if (id === "surface.site-distant.ridge") return "distant-earth";
-  if (id === "surface.site.earth" || id === "surface.site.ground" || id === "surface.site-distant.ground") return "soil";
-  if (id === "surface.site.curb" || id === "surface.service-yard.wall" || id === "surface.service-yard.wall-top") return "limestone";
+  if (
+    id === "surface.site.earth" ||
+    id === "surface.site.ground" ||
+    id === "surface.site-distant.ground"
+  )
+    return "soil";
+  if (
+    id === "surface.site.curb" ||
+    id === "surface.service-yard.wall" ||
+    id === "surface.service-yard.wall-top"
+  )
+    return "limestone";
   if (id.endsWith(".dado")) return "dado";
   if (id.endsWith(".floor") || id === "surface.site.paving")
-    return ["surface.administration.floor", "surface.records.floor", "surface.storage.floor"].includes(
-      id,
-    )
+    return [
+      "surface.administration.floor",
+      "surface.records.floor",
+      "surface.storage.floor",
+    ].includes(id)
       ? "paving-small"
       : "paving";
-  if (id.endsWith(".footing") || id.endsWith(".plinth") || id.endsWith(".coping") || id.endsWith(".reveal"))
+  if (
+    id.endsWith(".footing") ||
+    id.endsWith(".plinth") ||
+    id.endsWith(".coping") ||
+    id.endsWith(".reveal")
+  )
     return "limestone";
   if (id.endsWith(".upper")) return "roof-terracotta";
-  if (id.endsWith(".ceiling") || id.endsWith(".ceiling-back") || id.endsWith(".concealed")
-    || id.endsWith(".edge") || id.endsWith(".soffit")) return "dark-wood";
+  if (
+    id.endsWith(".ceiling") ||
+    id.endsWith(".ceiling-back") ||
+    id.endsWith(".concealed") ||
+    id.endsWith(".edge") ||
+    id.endsWith(".soffit")
+  )
+    return "dark-wood";
   if (id.startsWith("surface.")) return "plaster";
   throw new Error(`${id}: no space finish`);
 };
 
-/**
- * @evidence materials/10-model-bindings.md One prototype part receives the key prescribed by the reviewed part-to-finish table.
- * @evidence materials/10-model-bindings.md#binding-map Columns and frames bind to stone, timber members to wood, roof tiles to terracotta, and named door and fountain parts to metal or water.
- * @evidence principles/core/source-units.md#source-scope-preservation The classifier changes no prototype geometry or placement and returns only a material key.
- * @evidence principles/core/source-units.md#source-substantive-completion Each current building prototype family reaches an explicit finish; an unsupported family throws with model and part ID.
- * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The model binding table already names the stone, timber, tile, door and fountain part-to-finish assignments.
- * @evidence obligations/design/material-sources.md#material-source-design-ownership Prototype part IDs select finishes without altering their mesh construction.
- * @evidence obligations/design/material-sources.md#material-source-invalid-state An unsupported prototype family throws with both model and part identities before any renderer record is assembled.
- */
-const objectFinishes: Readonly<Record<string, Readonly<Record<string, Finish>>>> = {
-  "fixture.altar": { step:"limestone",top:"limestone",support:"limestone" },
-  "fixture.niche": { plinth:"limestone",body:"limestone","recess-frame":"limestone",recess:"limestone",cap:"limestone" },
-  "fixture.lampstand": { foot:"dark-metal",stem:"dark-metal",knop:"dark-metal",dish:"dark-metal" },
-  "fixture.offering-table": { top:"limestone",trestle:"limestone" },
-  "fixture.display-shelf.offering": { side:"dark-wood",board:"dark-wood" },
-  "fixture.display-shelf.administration": { side:"dark-wood",board:"dark-wood" },
-  "fixture.desk.writing": { top:"dark-wood",leg:"dark-wood",stretcher:"dark-wood" },
-  "fixture.desk.reading": { top:"dark-wood",leg:"dark-wood",stretcher:"dark-wood" },
-  "fixture.stool": { seat:"dark-wood",leg:"dark-wood",stretcher:"dark-wood" },
-  "fixture.scroll-shelf": { frame:"dark-wood",board:"dark-wood",divider:"dark-wood" },
-  "fixture.chest": { body:"dark-wood",lid:"dark-wood",hasp:"dark-metal",strap:"dark-metal" },
-  "ware.storage-jar": { body:"terracotta",handle:"terracotta" },
-  "ware.carry-jar": { body:"terracotta",handle:"terracotta" },
-  "ware.small-vessel": { body:"terracotta",handle:"terracotta" },
-  "ware.offering-bowl": { bowl:"dark-metal" },
-  "ware.basket": { wall:"wicker",rim:"wicker",floor:"wicker" },
-  "ware.scroll.rolled": { sheet:"parchment",tie:"rope-fibre" },
-  "ware.scroll.bundle": { "sheet-1":"parchment","sheet-2":"parchment","sheet-3":"parchment",tie:"rope-fibre" },
-  "ware.scroll.open": { sheet:"parchment" },
-  "portable.bench.standard": { seat:"limestone",pier:"limestone" },
-  "portable.bench.short": { seat:"limestone",pier:"limestone" },
-  "portable.lamp": { foot:"dark-metal",stem:"dark-metal",dish:"dark-metal" },
-  "portable.jar-rack": { top:"dark-wood",leg:"dark-wood",well:"dark-wood" },
-  "portable.carrying-yoke": { beam:"dark-wood",hook:"dark-metal" },
-  "portable.handcart": { deck:"dark-wood",handle:"dark-wood",support:"dark-wood",axle:"dark-wood",wheel:"dark-wood" },
-  "portable.bucket": { body:"terracotta",handle:"terracotta" },
-  "portable.planter": { pot:"terracotta",soil:"soil" },
-  "portable.votive-plaque": { base:"limestone",slab:"limestone" },
-  "portable.offering-tray": { floor:"dark-metal",rim:"dark-metal" },
-  "portable.textile.standard": { cloth:"linen" },
-  "portable.textile.small": { cloth:"linen" },
-  "portable.stylus": { shaft:"dark-metal",tip:"dark-metal" },
-  "portable.writing-tablet": { frame:"dark-wood","writing-face":"parchment" },
-  "portable.rope-coil": { rope:"rope-fibre",tie:"rope-fibre" },
-  "ritual.censer": { foot:"dark-metal",stem:"dark-metal",cup:"dark-metal",ash:"soil",incense:"soil" },
-  "ritual.floor-cushion": { base:"linen",pad:"linen",fold:"linen" },
-  "ritual.jar-stand": { foot:"limestone",post:"limestone",ring:"limestone" },
+/** Private part table consumed by the public templeModelFinish classifier. */
+const objectFinishes: Readonly<
+  Record<string, Readonly<Record<string, Finish>>>
+> = {
+  "fixture.altar": {
+    step: "limestone",
+    top: "limestone",
+    support: "limestone",
+  },
+  "fixture.niche": {
+    plinth: "limestone",
+    body: "limestone",
+    "recess-frame": "limestone",
+    recess: "limestone",
+    cap: "limestone",
+  },
+  "fixture.lampstand": {
+    foot: "dark-metal",
+    stem: "dark-metal",
+    knop: "dark-metal",
+    dish: "dark-metal",
+  },
+  "fixture.offering-table": { top: "limestone", trestle: "limestone" },
+  "fixture.display-shelf.offering": { side: "dark-wood", board: "dark-wood" },
+  "fixture.display-shelf.administration": {
+    side: "dark-wood",
+    board: "dark-wood",
+  },
+  "fixture.desk.writing": {
+    top: "dark-wood",
+    leg: "dark-wood",
+    stretcher: "dark-wood",
+  },
+  "fixture.desk.reading": {
+    top: "dark-wood",
+    leg: "dark-wood",
+    stretcher: "dark-wood",
+  },
+  "fixture.stool": {
+    seat: "dark-wood",
+    leg: "dark-wood",
+    stretcher: "dark-wood",
+  },
+  "fixture.scroll-shelf": {
+    frame: "dark-wood",
+    board: "dark-wood",
+    divider: "dark-wood",
+  },
+  "fixture.chest": {
+    body: "dark-wood",
+    lid: "dark-wood",
+    hasp: "dark-metal",
+    strap: "dark-metal",
+  },
+  "ware.storage-jar": { body: "terracotta", handle: "terracotta" },
+  "ware.carry-jar": { body: "terracotta", handle: "terracotta" },
+  "ware.small-vessel": { body: "terracotta", handle: "terracotta" },
+  "ware.offering-bowl": { bowl: "dark-metal" },
+  "ware.basket": { wall: "wicker", rim: "wicker", floor: "wicker" },
+  "ware.scroll.rolled": { sheet: "parchment", tie: "rope-fibre" },
+  "ware.scroll.bundle": {
+    "sheet-1": "parchment",
+    "sheet-2": "parchment",
+    "sheet-3": "parchment",
+    tie: "rope-fibre",
+  },
+  "ware.scroll.open": { sheet: "parchment" },
+  "portable.bench.standard": { seat: "limestone", pier: "limestone" },
+  "portable.bench.short": { seat: "limestone", pier: "limestone" },
+  "portable.lamp": {
+    foot: "dark-metal",
+    stem: "dark-metal",
+    dish: "dark-metal",
+  },
+  "portable.jar-rack": {
+    top: "dark-wood",
+    leg: "dark-wood",
+    well: "dark-wood",
+  },
+  "portable.carrying-yoke": { beam: "dark-wood", hook: "dark-metal" },
+  "portable.handcart": {
+    deck: "dark-wood",
+    handle: "dark-wood",
+    support: "dark-wood",
+    axle: "dark-wood",
+    wheel: "dark-wood",
+  },
+  "portable.bucket": { body: "terracotta", handle: "terracotta" },
+  "portable.planter": { pot: "terracotta", soil: "soil" },
+  "portable.votive-plaque": { base: "limestone", slab: "limestone" },
+  "portable.offering-tray": { floor: "dark-metal", rim: "dark-metal" },
+  "portable.textile.standard": { cloth: "linen" },
+  "portable.textile.small": { cloth: "linen" },
+  "portable.stylus": { shaft: "dark-metal", tip: "dark-metal" },
+  "portable.writing-tablet": {
+    frame: "dark-wood",
+    "writing-face": "parchment",
+  },
+  "portable.rope-coil": { rope: "rope-fibre", tie: "rope-fibre" },
+  "ritual.censer": {
+    foot: "dark-metal",
+    stem: "dark-metal",
+    cup: "dark-metal",
+    ash: "soil",
+    incense: "soil",
+  },
+  "ritual.floor-cushion": { base: "linen", pad: "linen", fold: "linen" },
+  "ritual.jar-stand": {
+    foot: "limestone",
+    post: "limestone",
+    ring: "limestone",
+  },
 };
 
 /**
@@ -286,31 +400,40 @@ const objectFinishes: Readonly<Record<string, Readonly<Record<string, Finish>>>>
  */
 export const templeModelFinish = (id: string, part: string): Finish => {
   if (objectFinishes[id] !== undefined) {
-    const finish=objectFinishes[id]![part];
-    if(finish===undefined)throw new Error(`${id}/${part}: no object part finish`);
+    const finish = objectFinishes[id]![part];
+    if (finish === undefined)
+      throw new Error(`${id}/${part}: no object part finish`);
     return finish;
   }
-  if (id.startsWith("landscape.neighbor-house.")) return part === "roof"
-    ? "roof-terracotta"
-    : part === "plinth"
-      ? "limestone"
-      : "plaster";
+  if (id.startsWith("landscape.neighbor-house."))
+    return part === "roof"
+      ? "roof-terracotta"
+      : part === "plinth"
+        ? "limestone"
+        : "plaster";
   if (id === "landscape.cypress" || id === "landscape.broad-tree")
     return part === "crown" ? "foliage" : "dark-wood";
   if (id === "landscape.grass-tuft") return "foliage";
-  if (id.startsWith("column.") || id.startsWith("frame.") || id === "entablature.porch") return "limestone";
-  if (id.startsWith("beam.") || id.startsWith("rafter.") || id.startsWith("truss.") || id.startsWith("joist.")) return "dark-wood";
-  if (id.startsWith("tile.")) return "roof-terracotta";
-  if (id.startsWith(
-    "door.",
-  )) return ["plate", "pin", "ring", "hinge", "strap"].includes(part)
-    ? "dark-metal"
-    : "dark-wood";
-  if (id === "fixture.fountain" || id === "fountain") return ["water", "ripple", "jet"].includes(
-    part,
+  if (
+    id.startsWith("column.") ||
+    id.startsWith("frame.") ||
+    id === "entablature.porch"
   )
-    ? "water"
-    : "limestone";
+    return "limestone";
+  if (
+    id.startsWith("beam.") ||
+    id.startsWith("rafter.") ||
+    id.startsWith("truss.") ||
+    id.startsWith("joist.")
+  )
+    return "dark-wood";
+  if (id.startsWith("tile.")) return "roof-terracotta";
+  if (id.startsWith("door."))
+    return ["plate", "pin", "ring", "hinge", "strap"].includes(part)
+      ? "dark-metal"
+      : "dark-wood";
+  if (id === "fixture.fountain" || id === "fountain")
+    return ["water", "ripple", "jet"].includes(part) ? "water" : "limestone";
   throw new Error(`${id}/${part}: no model finish`);
 };
 
@@ -323,7 +446,9 @@ export const templeModelFinish = (id: string, part: string): Finish => {
  * @evidenceExclude upstream/design/material-sources.md#design-revision-from-material-source-work The palette and two binding tables cover the emitted finish relationships; this assembly adds no new material decision.
  * @evidence obligations/design/material-sources.md#material-source-renderer-mapping The same environment and static lookup create the same material list and part bindings.
  */
-export const bindTempleMaterials = (environment: IAutoMovieBuiltEnvironment): IAutoMovieBuiltEnvironment => ({
+export const bindTempleMaterials = (
+  environment: IAutoMovieBuiltEnvironment,
+): IAutoMovieBuiltEnvironment => ({
   ...environment,
   models: environment.models.map((model) => {
     const assignments = model.parts.map((part) => ({
