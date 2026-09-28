@@ -1,4 +1,4 @@
-import { builtSpaceVolumeBounds, builtSpaceContainsPoint, builtConvexCellVertices, builtEnvironmentEnvelopeFaces, builtEnvironmentEnvelopeCorners, builtSpaceObservationStations, Quaternion, Vector3 } from "@automovie/engine";
+import { builtSpaceVolumeBounds, builtSpaceContainsPoint, builtConvexCellVertices, builtEnvironmentElementBounds, builtEnvironmentEnvelopeFaces, builtEnvironmentEnvelopeCorners, builtSpaceObservationStations, Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { v } from "./assembly";
 import type { auditCanopy } from "./canopy-audit";
@@ -23,14 +23,51 @@ export function observations(e: IAutoMovieBuiltEnvironment, canopy?: ReturnType<
       const occupied = space.cells.filter(c => { const ys = builtConvexCellVertices(c).map(p => p.y); return y >= Math.min(...ys) && y <= Math.max(...ys); });
       bounds = builtSpaceVolumeBounds({ ...space, cells: occupied }) ?? bounds;
     }
+    const floor = y - 1.6;
     let center = v((bounds.min.x + bounds.max.x) / 2, y, (bounds.min.z + bounds.max.z) / 2);
     let rationale = "volume-bounds center at floor+1.60m";
+    let centerUsable = true;
     if (!builtSpaceContainsPoint(space, center)) {
       const engine = builtSpaceObservationStations(e, space.id).find((s) => s.role === "center" && s.pose)?.pose?.position;
       if (engine) { center = { ...engine, y }; rationale = "bounds center outside own cells; engine interior center with production eye"; }
     }
+    if (space.kind === "room") {
+      // Containment alone admits a camera in the switchback stair or in a
+      // cabinet. Derive standable centers from current placed parts, keeping
+      // the original center when its floor-to-eye clearance is already open.
+      const obstacles = e.elements.filter((element) => element.space === space.id).flatMap((element) => {
+        const box = builtEnvironmentElementBounds(e, element.id);
+        return box ? [{ id: element.id, box }] : [];
+      });
+      const clear = (point: IAutoMovieVector3, radius: number) =>
+        [point, v(point.x - radius, y, point.z), v(point.x + radius, y, point.z), v(point.x, y, point.z - radius), v(point.x, y, point.z + radius)].every((sample) => builtSpaceContainsPoint(space, sample)) && obstacles.every(({ id, box }) => {
+        const circulation = id.startsWith("stair-") || id.startsWith("landing-");
+        return (!circulation && (box.max.y <= floor + 0.08 || box.min.y >= y + 0.05)) ||
+          box.max.x <= point.x - radius || box.min.x >= point.x + radius ||
+          box.max.z <= point.z - radius || box.min.z >= point.z + radius;
+      });
+      if (!clear(center, 0.18)) {
+        const candidates: IAutoMovieVector3[] = [];
+        for (let x = bounds.min.x + 0.25; x <= bounds.max.x - 0.25 + 1e-7; x += 0.25)
+          for (let z = bounds.min.z + 0.25; z <= bounds.max.z - 0.25 + 1e-7; z += 0.25)
+            candidates.push(v(x, y, z));
+        candidates.sort((a, b) =>
+          (a.x - center.x) ** 2 + (a.z - center.z) ** 2 -
+          ((b.x - center.x) ** 2 + (b.z - center.z) ** 2) || b.x - a.x || a.z - b.z);
+        // Prefer a broad viewing pocket when one exists. A compact room can
+        // still use the smaller camera cylinder without claiming that radius.
+        let candidate: IAutoMovieVector3 | undefined;
+        let selectedRadius = 0;
+        for (const radius of [0.7, 0.5, 0.18]) {
+          candidate = candidates.find((point) => clear(point, radius));
+          if (candidate) { selectedRadius = radius; break; }
+        }
+        if (candidate) { center = candidate; rationale = `nearest center with ${selectedRadius.toFixed(2)}m compiled bound clearance at floor+1.60m`; }
+        else { centerUsable = false; rationale = "No compiled room-clear standing center; center question retained as failed"; }
+      }
+    }
     const inside = (p: IAutoMovieVector3) => builtSpaceContainsPoint(space, p) ? p : null;
-    for (const [id, direction] of [["center-x-minus", v(-1, 0, 0)], ["center-x-plus", v(1, 0, 0)], ["center-z-minus", v(0, 0, -1)], ["center-z-plus", v(0, 0, 1)]] as const) add(space.id, id, "center", inside(center), Vector3.add(center, direction), rationale);
+    for (const [id, direction] of [["center-x-minus", v(-1, 0, 0)], ["center-x-plus", v(1, 0, 0)], ["center-z-minus", v(0, 0, -1)], ["center-z-plus", v(0, 0, 1)]] as const) add(space.id, id, "center", centerUsable ? inside(center) : null, Vector3.add(center, direction), rationale);
     for (const [i, sx, sz] of [[0, -1, -1], [1, -1, 1], [2, 1, -1], [3, 1, 1]]) {
       const p = v(sx < 0 ? bounds.min.x + 0.25 : bounds.max.x - 0.25, y, sz < 0 ? bounds.min.z + 0.25 : bounds.max.z - 0.25);
       add(space.id, "corner-" + i, "corner", inside(p), center, inside(p) ? "0.25m from both inside walls" : "Required box corner is outside own cells; not substituted");

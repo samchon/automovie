@@ -117,7 +117,7 @@
 
 [관찰 장치](../settings/004-observation.md#review-apparatus)의 raster·lens·eye 조건을 소비한다. 산출물의 boundary.face·opening.profile·space cell·surface·connector를 기준으로 전체 관찰 id를 도출하며 실패한 id도 분모에 남긴다. 검사 도구 구현은 src/viewer가 소유하고 이 H2는 어떤 공간 관계를 관찰해야 하는지 소유한다.
 
-대지 setting 1개, 모든 외부 boundary의 정면, 인접 노출 face가 만나는 모서리, 지붕 상면과 노출 하부, 모든 opening·출입구를 묻는다. 외부 카메라는 해당 면의 world normal 쪽 바깥에서 면 중심을 향하고 거리는 compiled bounds와 FOV로 산출한다. 실내는 각 space의 threshold, 네 안쪽 모서리, 내부 중심에서 네 방위를 묻는다. box corner가 L자 방 밖이면 성공 위치로 덮어쓰지 않고 실패 id를 남기며 두 L자 방의 오목 모서리·연장부를 추가한다.
+대지 setting 1개, 모든 외부 boundary의 정면, 인접 노출 face가 만나는 모서리, 지붕 상면과 노출 하부, 모든 opening·출입구를 묻는다. 외부 카메라는 해당 면의 world normal 쪽 바깥에서 면 중심을 향하고 거리는 compiled bounds와 FOV로 산출한다. 실내는 각 space의 threshold, 네 안쪽 모서리, 내부 중심에서 네 방위를 묻는다. 방의 중심 시점은 포함 판정에 더해 현재 컴파일된 계단과 실내 부재의 floor-to-eye 점유를 피하는 가까운 방 안 위치에서 고른다. 공간 안에 서 있을 수 없는 원래 중심을 성공 관찰로 세지 않으며 적합한 위치가 없으면 네 중심 id를 실패로 남긴다. box corner가 L자 방 밖이면 성공 위치로 덮어쓰지 않고 실패 id를 남기며 두 L자 방의 오목 모서리·연장부를 추가한다.
 
 평면은 room cell·shared wall·opening·connector를 같은 좌표로 겹쳐 보고, 계단 단면은 tread·route·slab opening·도착 바닥을 함께 본다. 입면은 room jamb·floor line과 bay를 대조한다. 이 진단은 납품용 절개 장면이 아니며 방 안 원근과 외부 실제 geometry 관찰을 대신하지 않는다. 다섯 reference 질문은 이 전체 분모에 추가한다. 실내 reference 03·04·05는 해당 방의 실제 connector에서 도출한 threshold 위치와 방 내부 target을 소비한다. 별도의 최대 bounds 모서리를 카메라로 삼지 않는다. 이 결정은 방별 threshold·네 모서리·중심 네 방위와 외부 관찰의 id나 실패를 삭제하지 않고, 추가 reference 질문의 진입 위치만 수정한다. 정보 패널의 cameraSpace는 reference 그룹명이 아니라 실제 방 id를 표시한다. [전수 검증](002-spatial-graph.md#stage-one-verification)의 각 반례가 실패 id·source·상태·URL·실제 RENDERER에 연결되어야 하며 현재 관찰 결과는 unverified다.
 
