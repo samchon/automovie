@@ -5,6 +5,7 @@
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 
+/** Ordered survey fits for trunk proportions. */
 export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_TRUNK: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       // ANSUR II people: torsoScaleHoriz, women. The waist section stood too

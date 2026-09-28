@@ -5,6 +5,7 @@
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 
+/** Ordered survey fits for the pelvis and proximal legs. */
 export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_PELVIS: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     // The ANSUR II people rows (below): reproduced from their own sex, age,
     // stature, mass and chest and buttock girths, the survey's people read

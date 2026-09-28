@@ -5,7 +5,9 @@
  */
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+/** One connected surface sharing its vertex identities across all regions. */
 export interface IAutoMovieHumanBodyBasisSurface {
+  /** Stable name of the surface in the basis document. */
   id: string;
 
   /** Shared flat XYZ positions, before material or UV seam splitting. */

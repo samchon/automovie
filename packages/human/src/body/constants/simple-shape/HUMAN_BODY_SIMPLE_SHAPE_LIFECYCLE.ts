@@ -7,6 +7,7 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
 
 type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 
+/** Ordered age, sex and developmental tissue relations. */
 export const HUMAN_BODY_SIMPLE_SHAPE_LIFECYCLE: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       channel: "macroGender",

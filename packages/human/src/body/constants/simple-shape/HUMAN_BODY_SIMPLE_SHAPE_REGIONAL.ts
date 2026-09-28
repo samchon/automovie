@@ -8,6 +8,7 @@ import { MUSCLE_THICKNESS_BY_SEX } from "./HUMAN_BODY_MUSCLE_THICKNESS_BY_SEX";
 
 type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 
+/** Ordered regional superficial tissue relations. */
 export const HUMAN_BODY_SIMPLE_SHAPE_REGIONAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       channel: "absDefinition",

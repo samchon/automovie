@@ -5,6 +5,7 @@
  */
 import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAutoMovieHumanBodySimpleShapeTable";
 
+/** Ordered survey fits for the distal limbs. */
 export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
       // ANSUR II people: measureWristCirc, women. The reproduced women's wrists

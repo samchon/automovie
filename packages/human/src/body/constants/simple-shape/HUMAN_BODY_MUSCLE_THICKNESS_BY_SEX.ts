@@ -12,6 +12,7 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
 // (CT at the third lumbar vertebra, 109 women and 239 men; Kelly et al.
 // 2021), the 0.84 the upper body's muscle share implies too (Janssen et al.
 // 2000, 0.6 of a man's mass over 0.92 of his stature, square-rooted)
+/** Shared sex-dependent superficial muscle thickness curve. */
 export const MUSCLE_THICKNESS_BY_SEX = {
   parameter: "sex",
   points: [

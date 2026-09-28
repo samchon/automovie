@@ -5,7 +5,9 @@
  */
 import type { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
 
+/** One landmark-defined joint in the authored body basis. */
 export interface IAutoMovieHumanBodyBasisJoint {
+  /** Public rig bone driven by this joint. */
   bone: AutoMovieHumanoidBone;
 
   /** Parent slot, or null for the root (`hips`). */
@@ -13,6 +15,7 @@ export interface IAutoMovieHumanBodyBasisJoint {
 
   /** Landmark ids of the joint centre and of the bone's distal end. */
   head: string;
+  /** Landmark at the bone's distal end. */
   tail: string;
 
   /**
