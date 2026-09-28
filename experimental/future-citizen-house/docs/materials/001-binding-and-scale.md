@@ -16,9 +16,12 @@
 @evidence settings/001-production.md#runtime-and-restart 단계는 독립 판정으로만 전진한다는 권한을 "materials가 review에 들어간 뒤 materialSources에서 구현한다"는 이 층의 구현 시점으로 적용한다.
 @evidence settings/003-spatial-basis.md#surface-decomposition 입면·방·층은 건축 표면, models는 물체 part/face, instances는 그 배치를 소유한다는 개정 경계를 재료 결합 주소의 적용 범위로 삼는다.
 @evidence spaces/003-surface-ownership.md#whole-surface-owners 다섯 외피 면의 단독 owner가 return·개구·틀·마감을 모두 소유한다는 결정을 받아 재료가 외피를 사후 칠하기 owner로 나누지 않는다.
+@evidence settings/003-spatial-basis.md#coordinate-datum m와 Y-up·후면 +Z를 재료 두께 및 후속 표면 좌표의 단위·축으로 받되 이 H2에서 새 공간 좌표를 만들지 않는다.
+@evidence settings/003-spatial-basis.md#envelope-and-privacy 밝은 석재 불투명 면·어두운 금속 frame·연속 목재 floor라는 재료 언어를 각 마감 H2의 입력으로 받는다.
+@evidence settings/001-production.md#production-visual-grammar 흰 면을 색으로 데워 조명을 흉내 내지 않는 시각 문법을 채널과 기준색 선택의 한계로 받는다.
 @evidenceExclude settings/001-production.md#roles-and-accessibility 저작자·관찰자·리뷰어의 분담과 한국어 문서·안정 id 요구를 검토했다. 이 H2의 채널·기본값·fallback 규칙은 본문대로 계측·판정 역할 분담을 입력으로 읽거나 바꾸지 않으며, 한국어 서술과 안정 finish id의 일관성은 재료 공통 account의 production-language가 답한다.
 @evidenceExclude settings/001-production.md#settings-coverage-map 개정된 설정 지도는 건축 치수·문·입면을 spaces, 물체 형상을 models, 배치를 instances로 넘긴다. 이 H2는 그 색인을 직접 소비하지 않고 시각 문법·표면 분해·외피와 개구부·좌표 기준 H2를 각각 읽는다.
-@evidenceExclude settings/002-household.md#household-program 거주자를 인물 asset이 아닌 사용 배경으로 두는 결정과 공동생활의 밀도를 검토했다. 재료는 인물이나 생활 밀도를 표현하지 않고, 방을 식별하는 가구·설비의 마감은 ground-program·upper-program·flex-states의 구체 항목을 인용한다.
+@evidenceExclude settings/002-household.md#household-program 거주자를 인물 asset이 아닌 사용 배경으로 두는 결정을 검토했다. 이 H2는 사물과 건물 표면의 재료 채널만 정하므로 거주자나 공동생활 밀도를 표면 무늬로 생성하지 않는다. 가구·설비별 마감은 해당 재료 H2에서 인용한다.
 @evidenceExclude settings/002-household.md#design-subject-conditions 지름 0.60m·높이 1.80m 가상 통행 원통과 인체 사용성 범위 밖 목록을 검토했다. 재료는 형상·배치·문 상태를 바꾸지 않아 원통 검사의 입력을 소비하거나 변경하지 않으며, 미끄럼·안전 성능을 주장하지 않는다는 한계는 각 마감 H2에 따로 있다.
 @evidenceExclude settings/003-spatial-basis.md#ground-graph 1층의 현관·계단·공용부·작업실·코어 연결 그래프를 검토했다. 재료는 연결을 더하거나 빼지 않고 문턱 마감 경계는 개별 문과 방 H2를 인용하므로 그래프 자체를 입력으로 쓰는 재료 결정이 없다.
 @evidenceExclude settings/003-spatial-basis.md#upper-graph 계단참에서 시작하는 일자 복도와 여섯 방의 직접 문 연결을 검토했다. 상층 마감은 각 방·문·벽 H2의 실제 면에 결합하고 복도 그래프의 분기 금지나 연결 수를 읽지 않는다.

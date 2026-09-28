@@ -13,6 +13,7 @@
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work 네 입면의 stone panel 분할과 0.004m 간격, wall body 두께, corner miter prism, 창 아래 drip, roof-slab 가장자리와 시각 문법의 외벽 색을 대조했다. 입면의 위·아래 끝을 결합하며 wall body·corner가 6.10에서 끝나고 roof-slab이 6.108에서 시작해 0.008m 틈이, 기초 상면 -0.016과 입면 시작 0 사이에 0.016m 틈이 둘레 전체에 열린 source 상태를 찾았다. whole-surface-owners가 입면을 ground floor부터 upper ceiling까지로 정하고 그 위·아래 구조를 roof와 층 owner에 남긴 부모 결정은 충분했고, 두 owner source가 외벽 구간에 bearing ring을 두지 않은 실현 결함이라 47c52c85에서 고쳤다. 재료는 틈을 칠로 메우지 않는다.
 @evidence settings/001-production.md#production-visual-grammar 밝은 무채색 외벽과 흰 면을 칠로 데우지 않는 규칙을 #c9c3b5 무광 석재와 ±2% member 변화로 구체화한다.
 @evidence settings/003-spatial-basis.md#envelope-and-privacy 밝은 석재 계열 불투명 면이라는 외피 공통 재료 언어를 네 입면의 불투명 부재 마감으로 받는다.
+@evidence spaces/003-surface-ownership.md#whole-surface-owners 네 입면의 외벽·panel·corner와 roof 면은 각각의 공간 owner가 생성하며 이 마감은 그 면의 색과 반사만 정한다.
 @evidence spaces/003-surface-ownership.md#front-face 전면 -Z 외벽에서 현관문·계단실·작업실·상층 침실 유리의 cut 밖에 남는 닫힌 벽·panel과 -X 코어 불투명 벽을 전면 owner가 이 석재로 배정한다.
 @evidence spaces/003-surface-ownership.md#rear-face 후면 +Z 외벽에서 공용부·주침실 유리 밖 panel과 욕실 창을 둘러싼 닫힌 벽을 후면 owner가 이 석재로 배정한다.
 @evidence spaces/003-surface-ownership.md#left-face +X 좌측의 불투명 return과 세 창 사이 panel을 좌측 owner가 같은 석재로 받아 옆면이 다른 재료로 읽히지 않게 한다.
@@ -74,6 +75,7 @@ cassette의 외향 plate와 return은 명목 0.08mm 무광 도막, 색 #454d4a, 
 @evidence spaces/003-surface-ownership.md#glazing-interface jamb·mullion·head·sill과 shade-box·hem의 기존 부재를 각 입면 owner가 이 도장 금속으로 배정한다.
 @evidence spaces/002-spatial-graph.md#door-interface doorway가 문짝에 붙이는 handle hardware를 doorway를 만드는 층 owner(현관문은 전면 owner)가 이 도장 금속으로 받는다.
 @evidence spaces/002-spatial-graph.md#single-stair tread pitch를 따르는 baluster·handrail과 참 난간을 계단 owner가 이 마감으로 받아 목재 디딤판과 광택을 구분한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 가구·위생 기구·등기구의 금속 part는 model owner가 주소를 만들고 이 H2가 그 주소의 도장 응답을 정한다.
 -->
 
 `frame-coated`는 curtainwall jamb/mullion/head/sill과 shade-box/금속 hem, 문 hardware, 실내 계단 난간, 가구의 metal 다리·손잡이(murphy pull과 설비장 손잡이 포함), 욕실 샤워 screen의 metal rail과 등기구 metal trim·pendant cord에 배정한다. 창 아래 drip은 석재를 유지한다. 창호 owner, doorway를 만드는 층 owner(현관문은 전면 owner), 방/계단 owner가 각각 자기 부재를 유지한다. 명목 0.08mm 도막이며 색 #293332, roughness=.38, metallic=0이다. 도장 위 반사를 나타내므로 bare metal의 metallic=.65를 유지하지 않는다. texture는 없고 기존 기하의 모서리와 면 방향이 광택 폭을 만든다. 새 bevel을 이 항목에서 추가하지 않는다.
@@ -96,6 +98,8 @@ cassette의 외향 plate와 return은 명목 0.08mm 무광 도막, 색 #454d4a, 
 @evidence spaces/002-spatial-graph.md#powder-utility powder 세면대의 tap·spout은 steel-satin, 그 위 거울은 mirror-proxy로 나눈다.
 @evidence spaces/002-spatial-graph.md#upper-bathroom 욕실 vanity 수전·거울과 shower riser·head·drain을 같은 두 역할로 받는다.
 @evidence spaces/002-spatial-graph.md#single-stair 두 flight의 steel stringer를 노출 금속으로 두어 도장 난간과 반사가 구분되게 한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 싱크·수전·거울 같은 물체의 임시 방 element 대신 model part/face를 최종 결합 주소로 받는다.
+@evidence models/003-service-fixtures.md#basin powder와 상층 욕실의 mirror-glass/front에는 반사판, mirror-frame에는 별도 금속 응답을 둔다.
 -->
 
 `steel-satin`은 수도꼭지, 싱크 판(steel `kitchen-island-sink`; 그 위 metal basin 판은 보존), 가전 손잡이·hob ring, 계단 steel stringer, 욕실·powder의 flush 버튼과 shower riser·head·drain에 배정한다. 기존 box·rod·타원체(hob ring) 형상을 유지하며 기하를 재료로 보충하지 않는다. 색 #b4bcb8, metallic=.85, roughness=.24, texture 없음이다. 캐노피 support anchor·cassette 체결 bolt·head·거름망·우측 배수 점검 덮개, 설비실 steel 설비장 몸체, 식재·집수구 같은 site 부재는 [보존 역할](006-wet-and-joinery.md#retained-surfaces)이며 이 마감으로 확장하지 않는다. 실물 합금 조성·부식·위생 성능은 이 값이 표현하지 않는다.

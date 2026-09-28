@@ -13,11 +13,12 @@
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work ground-level·upper-level의 층 owner 바닥 소유, 0.18×1.8m pitch와 x%3 엇갈림·0.016m 두께·1.5mm 틈의 판 분할을 대조했다. 잘린 판도 실제 크기를 가져 층 owner의 바닥 결정은 충분했다. 문 아래 host 벽 두께의 16mm 홈은 층 owner가 아니라 door-interface 문턱판으로 수리됐다(fbaf7c73).
 @evidence settings/001-production.md#production-visual-grammar 따뜻한 목재 바닥과 참나무 계열이라는 재료 관계를 #a78965 저광택 오크로 구체화한다.
 @evidence settings/003-spatial-basis.md#coordinate-datum +Z 후면 축을 타일 방을 뺀 아홉 방 바닥판의 결 방향으로 쓴다.
+@evidence spaces/002-spatial-graph.md#door-interface 바닥판이 닿지 않는 문 아래 host 벽 두께는 doorway의 문턱판이 채우므로 오크 바닥 grain을 그 빈 구간까지 늘리지 않는다.
 @evidence spaces/002-spatial-graph.md#ground-level 1층 연속 바닥의 최종 면을 층 owner가 소유하므로 현관·작업실·공용부·1층 수납의 판재 population에 이 마감을 배정한다.
 @evidence spaces/002-spatial-graph.md#upper-level 2층 복도·세 침실·상층 수납의 바닥판을 같은 층 owner 결정으로 받는다.
 -->
 
-`oak-floor`는 타일 방 세 곳(powder-utility, upper-bathroom, upper-service)을 제외한 아홉 방(entry, flex-workroom, common-room, storage-1f, upper-corridor, primary-bedroom, child-bedroom-1, child-bedroom-2, upper-storage)의 `<room.id>-floor-boards`에만 배정한다. storeys/floors.ts가 0.18m 폭·1.8m 길이 pitch, x열마다 0.6m씩 어긋나는(x%3) 판 이음, 잘린 판, 0.016m 판 두께와 판 사이 1.5mm 틈을 유지한다. 명목 무광 투명 마감층 .06mm이며 geometry를 추가하지 않는다. 기준색 #a78965, roughness=.55다. `oak-grain` 1024², U=.36m·V=1.8m 반복에서 결은 각 판 local+Z와 나란하다.
+`oak-floor`는 타일 방 세 곳(powder-utility, upper-bathroom, upper-service)을 제외한 아홉 방(entry, flex-workroom, common-room, storage-1f, upper-corridor, primary-bedroom, child-bedroom-1, child-bedroom-2, upper-storage)의 `<room.id>-floor-boards`에만 배정한다. storeys/floors.ts가 0.18m 폭·1.8m 길이 pitch, x열마다 0.6m씩 어긋나는(x%3) 판 이음, 잘린 판, 0.016m 판 두께와 판 사이 1.5mm 틈을 유지한다. 문 아래 host 벽 두께의 바닥 마감은 [door-interface](../spaces/002-spatial-graph.md#door-interface)의 문턱판이 채우며 oak-floor grain을 그 구간에 늘리지 않는다. 명목 무광 투명 마감층 .06mm이며 geometry를 추가하지 않는다. 기준색 #a78965, roughness=.55다. `oak-grain` 1024², U=.36m·V=1.8m 반복에서 결은 각 판 local+Z와 나란하다.
 
 texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물결치는 세로결과 20..50mm 폭의 완만한 띠다. 결의 횡편차는 주기당 최대 8mm이며 돌출·검은 옹이 구멍은 없다. 판별 위상은 [metric 규칙](001-binding-and-scale.md#metric-texture-coordinates), 판별 sRGB 기준색 계수는 .96..1.04다. 잘린 판에서 결 폭이 커지거나 판 이음이 texture의 검은 선으로 중복되면 실패다.
 
@@ -52,10 +53,12 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 @evidence models/002-storage-and-sleep.md#cabinet-and-shelf 수납장과 열린 책장의 door·side·shelf·back 노출 판에 oak-grain을 부품 길이 축으로 결합하며 green·steel 외함에는 적용하지 않는다.
 @evidence models/002-storage-and-sleep.md#entry-bench 현관 벤치·신발장의 목재 외함 면은 oak-joinery로 받고 cushion은 직물 H2로 보낸다.
 @evidence models/002-storage-and-sleep.md#entry-charging-shelf 벽 연결 충전 선반의 노출 목재 판에 수평 결을 배정하고 충전 물체의 마감과 구별한다.
+@evidence models/002-storage-and-sleep.md#murphy-bed 두 정지 상태가 공유하는 case-back·case-side-left·case-side-right·case-top의 노출 목재면을 받되 work의 closed-panel은 painted-joinery에 남긴다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 문틀은 건축 owner, cabinet·murphy·충전 선반의 노출 부품은 model owner가 생성하며 이 H2는 각각의 목재 finish만 정한다.
 @evidence settings/002-household.md#ground-program 건축 구멍 없는 평벽 부착 우편·충전 선반의 oak 면과 신발 수납·media wall·pantry·recycling cabinet의 oak 판이 이 마감을 받는다.
 -->
 
-`oak-joinery`는 doorway의 `*-leaf`, jamb/head, clear opening 아래의 `*-threshold`와 oak cabinet·충전 선반·murphy 틀의 노출 목재 면을 대상으로 한다. 현재 방 source의 [cabinet 조립](../../src/house/rooms/interior.ts)이 만든 18개 cabinet의 `door-*`·`side-*`·`shelf-*`·`back`, `entry-charging-shelf`, murphy `back`·`side-*`·`top`은 이관 전 임시 element 주소다. 최종 model part/face 주소는 models 재판정에 따라 각 cabinet 앞·뒤·edge까지 결속하며 현재 `back` 하나가 앞뒤를 모두 대표한다고 승인하지 않는다. oak cabinet의 현재 목록은 entry-shoe-bench, flex-books, common-media, kitchen-fridge-pantry, kitchen-sorting, powder-cleaning, powder-basin, ground-store-shelves, primary-nightstand 두 개, primary-wardrobe, child-one-wardrobe, child-one-books, child-two-wardrobe, upper-linen-cabinet, upper-utility-shelf, bath-vanity, bath-towels다. flex-books, child-one-books, ground-store-shelves, upper-linen-cabinet, upper-utility-shelf, bath-towels는 열린 선반으로 back 판이 노출된다. green cabinet, plaster cabinet, steel 설비장은 이 마감이 아니다. tile 방 세 문의 문턱판은 tile 방 쪽 벽면 선에서 [wet-tile](006-wet-and-joinery.md#wet-tile)과 만난다. 실제 문 운동과 부재 두께는 해당 건축 owner의 현재 geometry다. 판에는 명목 .6mm 오크 베니어와 .06mm 투명 마감을 표현하며 색 #a08059, roughness=.45, 같은 oak-grain을 쓴다. 판별 계수 .98..1.02다.
+`oak-joinery`는 doorway의 `*-leaf`, jamb/head, clear opening 아래의 `*-threshold`와 oak cabinet·충전 선반·murphy 틀의 노출 목재 면을 대상으로 한다. 현재 방 source의 [cabinet 조립](../../src/house/rooms/interior.ts)이 만든 18개 cabinet의 `door-*`·`side-*`·`shelf-*`·`back`, `entry-charging-shelf`, murphy `back`·`side-*`·`top`은 이관 전 임시 element 주소다. murphy 설계의 두 정지 상태가 공유하는 `case-back`·`case-side-left`·`case-side-right`·`case-top`의 노출 목재면은 이 오크 역할이고 work 상태의 `closed-panel`은 painted-joinery다. 최종 model part/face 주소는 models 재판정에 따라 각 cabinet 앞·뒤·edge까지 결속하며 현재 `back` 하나가 앞뒤를 모두 대표한다고 승인하지 않는다. oak cabinet의 현재 목록은 entry-shoe-bench, flex-books, common-media, kitchen-fridge-pantry, kitchen-sorting, powder-cleaning, powder-basin, ground-store-shelves, primary-nightstand 두 개, primary-wardrobe, child-one-wardrobe, child-two-wardrobe, upper-linen-cabinet, upper-utility-shelf, bath-vanity, bath-towels다. flex-books, child-one-books, ground-store-shelves, upper-linen-cabinet, upper-utility-shelf, bath-towels는 열린 선반으로 back 판이 노출된다. green cabinet, plaster cabinet, steel 설비장은 이 마감이 아니다. tile 방 세 문의 문턱판은 tile 방 쪽 벽면 선에서 [wet-tile](006-wet-and-joinery.md#wet-tile)과 만난다. 실제 문 운동과 부재 두께는 해당 건축 owner의 현재 geometry다. 판에는 명목 .6mm 오크 베니어와 .06mm 투명 마감을 표현하며 색 #a08059, roughness=.45, 같은 oak-grain을 쓴다. 판별 계수 .98..1.02다.
 
 문짝·jamb·장 측판과 수직 전면, murphy의 back·side의 V는 local+Y, head·문턱판·수평 선반·충전 선반·murphy top은 긴 수평 축이고 두 수평 변이 같으면(예: powder-cleaning 선반 0.52×0.52) local+X다. cabinet back은 넓은 면의 긴 축을 V로 삼아 높이가 폭 이상이면 local+Y, 폭이 더 길면 local+X다. 문이 열려도 grain이 문짝과 함께 움직여야 한다. 여닫이 leaf는 hinge와 함께 돌고 작업실 pocket leaf는 벽 안으로 미끄러진다. doorway leaf 둘레의 기존 틈은 양옆 3mm·위아래 6mm의 형상 그대로 둔다. 좁은 edge band도 기존 끝면 안에서 grain 방향을 명시하고 painted murphy closed-panel에는 이 재료를 배정하지 않는다. [상층/작업실 방 검사](007-observation.md#reference-material-samples)에서 문틀 세로결과 선반 가로결, 열린 책장의 back 판, handle 경계가, [문 상태 검사](007-observation.md#material-state-samples)에서 열린 문짝의 세로결이 반례다. 조립 내부 접착층과 실제 베니어 접합 상세를 구현했다고 하지 않는다.
 
@@ -65,7 +68,7 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 @evidence principles/core/common.md#scope-preservation 식탁·coffee table·네 desk의 top과 다리, 세 침실과 손님 상태 guest bed의 base/head·다리, 식탁 의자의 목재 seat·back, sofa plinth를 이 마감에 두고 식재 줄기·흙·잎과 element가 없는 palette의 walnut은 제외해 실제 가구 목재만 배정한다.
 @evidence principles/core/common.md#substantive-completion oak-furniture #aa8760·.48과 기준색 변화 .98..1.02, top·base·plinth·headboard·다리·좌판의 V 축과 동률 규칙을 정해 구현이 가구 목재를 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 가구 목록은 ground/upper program, 최종 형상은 models에서 받는다. 현재 방 source 메시를 임시 관찰 입력으로 구별하고 바닥·문과 다른 색·광택·결 축은 이 층에서 정한다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 가구가 있다는 사실과 배치만 정한다. 이 H2는 바닥·문과 구분되는 가구 목재 응답과 부재별 결 축을 결정한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation ground-program과 upper-program은 식탁·책상·침대의 용도를, common-room과 침실 H2는 목적지 cell을, model H2는 노출 목재 부재를 준다. 이 H2는 바닥·문과 구분되는 가구 목재 응답과 부재별 결 축을 결정한다.
 @evidence principles/design/materials.md#material-construction-appearance 판류는 .6mm 베니어, 0.045m 각재 다리는 통목처럼 읽히는 마감의 근사로 나누고 숨은 내부 구조를 성능 주장으로 남기지 않는다.
 @evidence principles/design/materials.md#material-binding-interface table top·침대 base·sofa plinth는 윗면의 긴 축, headboard V=local+Y, 다리는 길이 축, 좌판·등받이는 넓은 면의 긴 축이고 동률이면 local+X로 정해 가구 회전과 함께 결이 움직인다.
 @evidence principles/design/materials.md#material-verification-address ref03·04 가구 표본과 세 침실의 방 관찰, 상태 검사의 guest bed base/head에서 조리대·식탁, 가구 목재와 바닥의 결·광택 구분을 반증하고 상자 형상의 단순함은 후속 형상 설계에 남긴다.
@@ -84,6 +87,7 @@ texture는 선형 무채색 평균 .96, 범위 .86..1.00, 1.5..4mm 간격의 물
 @evidence models/001-seating-and-work.md#dining-chair 식탁 의자의 seat-frame·back·leg-0..3은 가구 오크, 분리된 seat-pad는 직물로 배정한다.
 @evidence models/001-seating-and-work.md#work-desk 작업실·침실 desk의 top과 다리에 가구 오크를 배정하고 상태별 위치와 회전은 instances에 둔다.
 @evidence models/002-storage-and-sleep.md#fixed-bed 세 침실과 손님 침대의 base·head·다리는 가구 오크, mattress·duvet·pillow는 직물로 나눈다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 가구의 최종 노출 face는 model owner가 만들고 방별 transform은 instances에 남기며 이 H2는 목재 색·결 축을 결합한다.
 -->
 
 `oak-furniture`는 공용부 식탁·coffee table과 네 desk(flex·primary·child-one·child-two)의 top·다리, 세 침실 침대와 손님 상태의 flex guest bed의 base/head·네 다리, 식탁 의자의 목재 부재, sofa plinth의 실제 면에 배정한다. 가구별 전체 형상과 최종 part/face 주소는 models가 소유하며 각 방의 배치는 instances가 소유한다. 현재 방 source의 element 이름은 이관 중 관찰 주소일 뿐 최종 바인딩이 아니다. 판류는 .6mm 베니어, 0.045m 각재 다리는 통목처럼 읽히는 마감의 근사이고 숨은 내부 구조는 미정 성능 주장으로 남기지 않는다. 색 #aa8760, roughness=.48, oak-grain을 쓰며 기준색 변화는 .98..1.02다.

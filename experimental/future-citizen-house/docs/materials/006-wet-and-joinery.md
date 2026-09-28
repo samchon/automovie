@@ -22,6 +22,7 @@
 @evidence spaces/002-spatial-graph.md#wall-storage-bath 상층 수납·욕실 닫힌 경계에서 이 마감은 욕실 쪽 tile lining만 받고 수납 쪽 면은 실내 도장이 받는다.
 @evidence spaces/002-spatial-graph.md#wall-bath-primary 욕실·주침실 측면 경계에서 이 마감은 욕실 쪽 tile lining만 받고 주침실 쪽 면은 실내 도장이 받는다.
 @evidence spaces/002-spatial-graph.md#wall-junctions 욕실·주침실·복도 벽 끝이 만나는 junction solid의 -X면이 욕실 tile 벽 안에 드러나므로 이 마감이 그 한 면을 받는다.
+@evidence spaces/002-spatial-graph.md#door-interface tile 방 세 문 아래의 host 벽 두께는 문턱판이 채우며 tile 바닥판은 방 쪽 경계에서 그 판과 만난다.
 -->
 
 `wet-tile`은 powder-utility, upper-bathroom, upper-service의 floor-boards, powder-utility와 upper-bathroom의 tile lining(powder는 전면·우측 외벽과 현관·수납 쪽 공유 벽의 네 면), 그리고 upper-bathroom 동측 tile 벽 안 x=-3.02..-2.84, z=2.40..2.58에 드러나는 층 owner junction의 -X면이다. 이 junction 면은 복도·주침실 벽 끝 사이에서 욕실 lining과 같은 면에 놓이므로 tile 벽을 도장 띠로 끊지 않도록 [실내 도장](005-soft-finishes.md#plaster-paint)의 junction 규칙에 따라 이 마감이 받는다. floor owner의 .45m pitch, 잘린 타일, 실제 틈과 room lining을 유지한다. upper-service의 lining은 plaster이며 [실내 도장](005-soft-finishes.md#plaster-paint)이 받는다. tile lining이 붙은 공유 벽의 반대편 면은 상대 방의 plaster lining으로 실내 도장이 받는다. oak 바닥과 만나는 문턱은 entry-powder, corridor-bathroom, corridor-service의 세 곳이며, 각 문의 [oak 문턱판](004-wood.md#oak-joinery)이 host 벽 두께를 채우고 tile 방 쪽 벽면 선에서 tile 바닥판과 만난다. 색 #6f746f, roughness=.65, `tile-grain` 512²·.45×.45m, 2..6mm 입자의 선형 평균 .98·범위 .95..1.00이다. 기존 tile 판의 두께는 geometry 값 그대로이고 새 줄눈망이나 벽돌 무늬는 그리지 않는다.
@@ -42,6 +43,8 @@
 @evidence settings/002-household.md#ground-program 주방 island와 cooktop이 놓인 조리대가 cabinet과 구분되는 밝은 석재로 읽히게 한다.
 @evidence spaces/002-spatial-graph.md#common-room 연속 공용부 주방이라는 목적에 놓이는 island counter와 wall bank worktop의 model part에 이 마감을 배정한다.
 @evidence models/003-service-fixtures.md#kitchen-island 섬 counter의 노출 top·edge에 밝은 worktop-stone을 결합하고 sink·tap의 금속면과 분리한다.
+@evidence models/003-service-fixtures.md#cooking-appliances 벽 조리대 wall-worktop의 top·edge에 같은 석재 응답을 두고 hob·oven의 금속·유리면과 구별한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 섬과 벽 조리대 판의 최종 face는 model owner, 실제 주방 위치는 instances가 정하며 이 H2는 노출 상판 마감만 결합한다.
 -->
 
 `worktop-stone`은 kitchen-island counter와 kitchen-wall-bank worktop의 기존 판 면이다. 현재 판 두께와 sink/hob의 기하 관계를 유지한다. 연마된 밝은 합성 석재의 근사로 색 #dad7ce, roughness=.30, `worktop-grain` 512²·.50×.50m, 1..3mm 입자, 선형 평균 .985·범위 .96..1.00을 쓴다. 금속성·투과·clearcoat는 없다.
@@ -51,20 +54,22 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 ## 위생 도기 {#sanitary-ceramic}
 
 <!--
-@evidence principles/core/common.md#scope-preservation basin rim/bowl, toilet pedestal/bowl/cistern, 샤워 트레이의 실제 면을 이 마감에 두고 벽 타일·침구·가전 흰색에는 적용하지 않아 흰 면들의 배정이 섞이지 않는다.
+@evidence principles/core/common.md#scope-preservation basin rim/bowl, toilet pedestal/bowl/cistern, 현재 샤워 트레이와 별도 욕조 원형의 shell·rim·floor 노출면을 이 마감에 두고 벽 타일·침구·가전 흰색에는 적용하지 않는다.
 @evidence principles/core/common.md#substantive-completion texture 없음, #e7e6df·roughness .19·metallic 0·clearcoat .12와 명목 .5mm 유약을 정해 구현이 도기 응답을 고르지 않는다.
 @evidence principles/core/common.md#declared-basis 위생 기구 목록은 생활 프로그램, 최종 형상은 models에서 받는다. 현재 방 source는 임시 관찰 입력이고 배관·작동 제외는 program-boundary, 유광 수치는 이 층의 선택이다.
-@evidence principles/core/inherited-units.md#derived-parent-differentiation 부모는 vanity·toilet·shower가 있다는 사실만 준다. 이 H2는 white·tile 이름으로 흩어진 위생 기구를 하나의 유광 도기 역할로 모으는 결정을 더한다.
+@evidence principles/core/inherited-units.md#derived-parent-differentiation upper-program은 vanity·toilet·shower/tub 선택지를 주고 upper-bathroom은 현재 샤워 트레이를 쓴다. model H2는 별도 욕조의 shell·rim·floor도 정한다. 이 H2는 이 노출 위생면을 하나의 유광 도기 응답으로 결합한다.
 @evidence principles/design/materials.md#material-construction-appearance 유약 .5mm는 기하 안에 포함된 명목 층이고 위생 기구의 두께는 models, 배관 과정은 납품 밖에 남긴다. 유광 마감으로 단순한 형상이나 배관 작동을 해결했다고 하지 않는다.
 @evidence principles/design/materials.md#material-binding-interface texture가 없어 좌표 요구가 없고 곡면은 현재 mesh 그대로 반사하며, 역할 주소(rim·bowl·pedestal·cistern·tray)로만 결합한다.
 @evidence principles/design/materials.md#material-verification-address 습식 방 관찰에서 도기가 직물처럼 보이지 않는지, basin 내부가 바닥 tile과 같은 재료로 읽히지 않는지를 반증한다.
 @evidence upstream/design/materials.md#parent-revision-from-material-work 도기 역할을 욕실 기구에 결합하며 spaces/002#upper-bathroom이 욕조와 샤워를 모두 약속한 반면 source에는 샤워 트레이 하나만 있음을 찾았다. upper-program은 shower/tub 가운데 하나를 요구하므로 부모 upper-bathroom을 샤워로 고쳤다(ad32755d). powder와 욕실의 basin·toilet·shower tray 형상과 program-boundary의 설비 작동 제외는 충분했다.
-@evidence settings/002-household.md#upper-program 욕실의 vanity·toilet·shower 기구를 유광 도기로 식별되게 한다.
+@evidence settings/002-household.md#upper-program 욕실의 vanity·toilet·shower/tub 생활 기능을 받아, 현재 선택된 샤워 기구와 독립 욕조 원형의 노출 도기면에 같은 응답을 지정한다.
+@evidence settings/002-household.md#ground-program powder/utility의 세면대·변기를 별도 도기 결합의 1층 목적지로 받는다.
 @evidence settings/002-household.md#program-boundary 설비 작동을 검증하지 않는다는 경계를 도기 마감이 배관 작동을 해결하지 않는다는 한계로 옮긴다.
 @evidence spaces/002-spatial-graph.md#powder-utility powder의 세면기 rim·bowl과 toilet pedestal·bowl·cistern이 이 도기를 받는다.
 @evidence spaces/002-spatial-graph.md#upper-bathroom 욕실 vanity rim·bowl, toilet 세 부재와 shower tray가 이 도기를 받는다.
 @evidence models/003-service-fixtures.md#basin 세면기 rim·bowl의 실제 face는 벽 tile 대신 이 도기를 받고 tap과 거울은 별도 금속·반사 역할로 남긴다.
 @evidence models/003-service-fixtures.md#toilet pedestal·bowl·cistern에는 도기, 분리된 seat에는 sanitary-seat를 배정한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 변기 seat와 bowl의 안정된 노출 face는 model owner에게서 받고 재료는 좌판 수지와 도기 응답만 나눈다.
 @evidence models/003-service-fixtures.md#shower 고정 샤워의 tray 도기면을 유리 screen·금속 fixture와 구별한다.
 @evidence models/003-service-fixtures.md#bathtub 욕조 shell·rim·floor의 노출 도기면을 같은 도기 응답으로 결합하며 drain·overflow 개구는 모델의 실제 면 주소를 따른다.
 -->
@@ -88,6 +93,8 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence upstream/design/materials.md#parent-revision-from-material-work powder와 욕실의 seat와 bowl은 현재 별도 element이나 방 source의 임시 주소다. settings/003#surface-decomposition에서 위생 기구의 최종 part/face 소유를 models로 돌렸고 seat와 bowl 경계는 models 재판정 뒤 다시 결속한다.
 @evidence spaces/002-spatial-graph.md#powder-utility powder toilet의 좌판이 이 수지 마감을 받는다.
 @evidence spaces/002-spatial-graph.md#upper-bathroom 욕실 toilet의 좌판이 이 수지 마감을 받는다.
+@evidence models/003-service-fixtures.md#toilet 도기 bowl과 분리된 seat face를 수지 응답의 최종 결합 주소로 받는다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 변기의 seat·bowl 형상과 part/face 주소는 model owner가 만들고 이 H2는 좌판 응답만 결정한다.
 -->
 
 `sanitary-seat`는 toilet의 좌판 면만 받는 흰 성형 수지 마감이다. 현재 `*-toilet-seat`는 임시 element 주소이며 최종 model part/face의 타원 형상과 두께를 사용한다. 도기 유약이나 직물 피복을 선언하지 않는다. 색 #e7e6df, roughness=.30, metallic=0, clearcoat=0, texture 없음이다. 기존 linen이라는 색 이름을 실제 직물로 해석하지 않는다. 면 방향은 최종 mesh 법선을 따르고 광택의 차이만 도기 bowl과 구분한다.
@@ -110,6 +117,8 @@ top X/Z와 실제 edge 면에 같은 크기의 등방성 입자를 배정하며 
 @evidence spaces/002-spatial-graph.md#common-room 주방 wall bank·island와 overhead가 공용부에 놓인다는 목적을 받고 각 model part의 두 도장 결합을 정한다.
 @evidence spaces/002-spatial-graph.md#flex-workroom 작업실 murphy closed-panel의 방 귀속을 받고 joinery-light를 model part에 결합한다.
 @evidence models/002-storage-and-sleep.md#murphy-bed 접힌 work 상태의 closed-panel만 joinery-light를 받고 guest의 bed-frame·mattress·duvet에는 가구 목재·직물 결합을 남긴다.
+@evidence models/002-storage-and-sleep.md#cabinet-and-shelf 주방 외함의 노출 green panel은 joinery-green으로, open shelf의 목재 판은 oak-joinery로 구분한다.
+@evidence settings/003-spatial-basis.md#surface-decomposition cabinet·murphy의 최종 panel과 손잡이는 models가 생성하고 이 H2는 그 면의 두 도장 응답을 결정한다.
 -->
 
 `joinery-green`은 kitchen-island·kitchen-wall-bank cabinet의 green back·door·shelf·side 판에 색 #626b59·roughness=.44를 배정한다. `joinery-light`는 kitchen-overhead 및 flex murphy closed-panel의 밝은 판에 #c9c3b7·roughness=.48을 쓴다. 명목 .1mm 도막, texture 없음, metallic=0이다. murphy closed-panel은 작업 상태에만 있고 손님 상태에는 instance가 guest bed를 배치한다. 최종 문짝 분할·손잡이·틈의 주소는 models가 정하며 현재 방 source의 역할 이름은 임시 입력이다.
@@ -119,7 +128,7 @@ sofa 가운데 green pillow와 식물 잎, plaster wall/ceiling에 확장하지 
 ## 나머지 표면의 보존 {#retained-surfaces}
 
 <!--
-@evidence principles/core/common.md#scope-preservation 식재·토양·대지 포장(잔디 보강 포장 service-band와 캐노피 cassette-staging-pad 포함), 기기 화면·hob·keyboard와 glow에 더해 felt 바구니·linen 더미·샤워 유리·세탁기·steel 설비장 몸체·stool 좌판처럼 새 마감이 없는 역할을 이름으로 retained/<현재 material id>에 두어 catch-all 없이 모든 기존 역할에 owner와 배정이 남게 한다.
+@evidence principles/core/common.md#scope-preservation 식재·토양·대지 포장(잔디 보강 포장 service-band와 캐노피 cassette-staging-pad 포함), 기기 화면·hob·keyboard와 glow에 더해 felt 바구니·linen 더미·샤워 유리·세탁기·steel 설비장 몸체·stool 좌판·cassette clip과 anchor처럼 새 마감이 없는 역할을 이름으로 retained/<현재 material id>에 두어 catch-all 없이 기존 역할을 보존한다.
 @evidence principles/core/common.md#substantive-completion 보존 대상과 금지되는 자동 배정(oak 줄기→가구 결, green 소파→cabinet paint, 가전 white→도기)을 이름으로 정해 구현이 이름 추측으로 나머지 면을 칠하지 않는다.
 @evidence principles/core/common.md#declared-basis 식재 수와 배치는 v-076의 roof-face 조경 결정, 대지 부재는 site-access에서 받고 기기·소품의 현재 방 source 값은 임시 입력으로 구분한다. 최종 물체 주소는 models·instances에 있고 보존 결정은 이 층의 선택이다.
 @evidence principles/core/inherited-units.md#derived-parent-differentiation 부모 spaces는 대지 면을, roof-face는 외부 식재의 ID·형상·보존을 정하고 기기·실내 소품의 최종 형상은 models에 남긴다. 이 H2는 임시 물체 주소와 이미 소유된 건축 면을 구별하며 retained 역할에 모르는 이름을 몰아넣지 않는 규칙을 더한다.
@@ -131,8 +140,10 @@ sofa 가운데 green pillow와 식물 잎, plaster wall/ceiling에 확장하지 
 @evidence spaces/003-surface-ownership.md#roof-face roof-face가 보존 조건을 정하고 v-076에서 닫힌 나무·관목·풀의 ID·형상·재료를 재료 교체에서도 그대로 유지한다.
 @evidence settings/002-household.md#operative-subjects 고정 식재와 보이는 fixture만 납품한다는 경계를 식재·기기 재료를 새 응답 없이 보존하는 결정으로 받는다.
 @evidence settings/001-production.md#delivery-fidelity 낮은 fidelity로 빠진 부재를 면제하지 않는다는 기준에 따라 대지·나무의 낮은 형상 밀도를 보존된 미완료 한계로 남긴다.
+@evidence settings/003-spatial-basis.md#surface-decomposition 현재 방 source의 기기·소품 element를 영구 결합 주소로 승인하지 않고 model part/face와 instance 배치의 분리를 따른다.
+@evidence spaces/003-surface-ownership.md#right-face 우측 불투명 코어의 배수관·clip·점검 덮개는 그 입면 owner의 기존 형상·재료 역할로 보존한다.
 -->
 
-v-076의 식재·토양·대지 포장 및 equipment screen/hob/keyboard와 glow는 각 현재 owner의 geometry와 material 값을 유지한다. 현재 source에서 새 마감이 없는 역할은 이름으로 남긴다: 1층 수납의 felt 바구니, 상층 수납의 linen 더미, 욕실 샤워의 고정 유리 screen, 세탁기의 white 몸체·metal drum·glass 창·metal controls, 설비실의 steel 설비장 몸체(metal 손잡이는 [도장 금속](002-exterior-solids.md#coated-metal)), island stool의 metal 좌판, island 싱크 개구를 나타내는 짙은 metal basin 판, desk 화면·stand와 keyboard, 공용부 display, hob과 oven, 충전기, 식물 화분과 줄기·잎, 캐노피 support anchor·cassette 체결 bolt·head·거름망과 우측 배수 점검 덮개, 대지 포장·curb·계단·집수 부재와 green 잔디 보강 포장(`service-band-*`), 캐노피 정비용 석재 받침(`cassette-staging-pad`), 지붕 방수 최종 면(roof-weather, 가장자리 면 포함)과 캐노피 pedestal, 1층 기초 plinth(ground-foundation과 외벽 아래 `ground-foundation-bearing-*`), upper slab에서 계단 구멍 쪽 절단면과 전면 strip 윗면을 뺀 나머지 면(piece 사이 맞닿은 면 포함). 나무4·관목48그룹·풀23그룹의 이동이나 추가는 없다. 식재의 oak 줄기에 furniture grain을, 소파의 green에 cabinet paint를, appliance white에 도기를 자동 배정하지 않는다. 신규 finish가 지정되지 않은 기존 역할은 `retained/<현재 material id>`로 명시하며 알 수 없는 이름을 이 역할에 몰아넣지 않는다.
+v-076의 식재·토양·대지 포장 및 equipment screen/hob/keyboard와 glow는 각 현재 owner의 geometry와 material 값을 유지한다. 현재 source에서 새 마감이 없는 역할은 이름으로 남긴다: 1층 수납의 felt 바구니, 상층 수납의 linen 더미, 욕실 샤워의 고정 유리 screen, 세탁기의 white 몸체·metal drum·glass 창·metal controls, 설비실의 steel 설비장 몸체(metal 손잡이는 [도장 금속](002-exterior-solids.md#coated-metal)), island stool의 metal 좌판, island 싱크 개구를 나타내는 짙은 metal basin 판, desk 화면·stand와 keyboard, 공용부 display, hob과 oven, 충전기, 식물 화분과 줄기·잎, 캐노피 support anchor·cassette clip·체결 bolt·head·거름망과 우측 배수 점검 덮개, 대지 포장·curb·계단·집수 부재와 green 잔디 보강 포장(`service-band-*`), 캐노피 정비용 석재 받침(`cassette-staging-pad`), 지붕 방수 최종 면(roof-weather, 가장자리 면 포함)과 캐노피 pedestal, 1층 기초 plinth(ground-foundation과 외벽 아래 `ground-foundation-bearing-*`), upper slab에서 계단 구멍 쪽 절단면과 전면 strip 윗면을 뺀 나머지 면(piece 사이 맞닿은 면 포함). 나무4·관목48그룹·풀23그룹의 이동이나 추가는 없다. 식재의 oak 줄기에 furniture grain을, 소파의 green에 cabinet paint를, appliance white에 도기를 자동 배정하지 않는다. 신규 finish가 지정되지 않은 기존 역할은 `retained/<현재 material id>`로 명시하며 알 수 없는 이름을 이 역할에 몰아넣지 않는다.
 
 검증은 [완전 바인딩 census](007-observation.md#binding-census)의 보존 목록 및 [reference 전경 검사](007-observation.md#reference-material-samples)다. source 값을 복사한 표를 새 소유자로 만들지 않고 기존 material 및 owner 주소를 출력에서 추적한다. 대지·나무의 낮은 형상 밀도, 기기 화면의 단색, 조명 기구의 단순함은 보존된 한계이며 이번 재료 PASS만으로 전체 제작 완료를 주장하지 않는다.

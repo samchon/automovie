@@ -35,6 +35,8 @@
 @evidence settings/004-observation.md#review-apparatus 1600×1000 CSS pixel·DPR1·FOV50의 관찰 raster를 중성 표본에도 같은 조건으로 쓴다.
 @evidence settings/001-production.md#verification-boundary README의 npm run lint를 source·evidence 검사로만 두고, 별도 CLI나 우회 설정 없이 측정하지 못한 geometry 결과를 unverified로 보고한다.
 @evidence spaces/003-surface-ownership.md#envelope-corners front/right 외부 모서리의 대각 miter prism을 석재 접합 표본의 부재로 쓴다.
+@evidence spaces/002-spatial-graph.md#door-interface leaf·jamb·head·문턱판의 실제 접촉 경계를 접합 표본에 넣어 마감이 문 아래 홈을 가렸는지 확인한다.
+@evidence spaces/002-spatial-graph.md#single-stair 첫 단·참·마지막 단과 stringer·난간의 부재 경계를 목재·금속 접합 표본의 대상으로 받는다.
 -->
 
 모든 새 texture family에서 현재 적용 면의 최소/최대 크기 및 각 UV 방향을 하나씩 선택한다. 기준은 실제 native 면적·extent이며 동률은 ID 사전순이다. 같은 source geometry를 1m, 3m, 12m 거리에서 정면, 접선과 30°를 이루는 사선으로 본다. 좁은 실제 방에서는 카메라가 자기 공간을 벗어나지 않는 최대 거리까지만 찍고 불가능한 거리와 이유를 남긴다. 나머지 거리 표본은 검사 전용 격리 장면에서 같은 모델/마감/배치를 사용하며 실제 방 검사를 대체하지 않는다.

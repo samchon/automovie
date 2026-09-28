@@ -35,6 +35,7 @@ texture는 없다. 유리의 반사는 동일한 기존 sky/PMREM과 주변 재�
 @evidence principles/design/materials.md#material-verification-address 같은 opening의 상하 band를 material-state-samples에서 함께 보고, 세라믹처럼 완전히 불투명하거나 낮·밤 상태에서 열린 문과 혼동되면 실패로 둔다.
 @evidenceExclude upstream/design/materials.md#parent-revision-from-material-work privacy-states의 하부 시선대와 욕실 고정층, glazing-interface의 하부 띠 상단 F=min(head, S+1.25)와 욕실 창 전체 frosted를 대조했다. 부모가 위치와 상태를 정했고 재료는 응답만 더했다.
 @evidence settings/003-spatial-basis.md#privacy-states 작업실·침실 하부 시선대와 욕실 전체의 고정 반투명 층을 이 응답으로 받는다.
+@evidence spaces/003-surface-ownership.md#glazing-interface bay의 sill부터 min(head, sill+1.25)까지와 욕실 창 전체의 frosted pane 면을 공간 owner에게서 받아 roughness·transmission을 결합한다.
 @evidence spaces/003-surface-ownership.md#rear-bath-glazing 후면 욕실 창 전체가 모든 상태에서 이 frosted 응답을 유지한다.
 @evidence spaces/003-surface-ownership.md#right-bath-glazing 욕실 측면창 전체가 같은 frosted 응답을 받아 두 욕실 창의 프라이버시 읽힘이 같다.
 @evidence spaces/003-surface-ownership.md#front-flex-glazing 작업실 전면창의 sill부터 1.25m 하부 band가 frosted를 받고 위쪽은 투명 유리로 남는다.
