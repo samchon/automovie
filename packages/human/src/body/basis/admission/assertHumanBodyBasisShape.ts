@@ -9,7 +9,8 @@ import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
  * explicit reciprocal authoring relation rather than a naming guess.
  * Channel ramps must lie inside the authored envelope; joint-driven
  * ramps are checked by the rig stage. This function returns the complete
- * endpoint name population for later surface/landmark correspondence.
+ * record-safe endpoint name population for later surface and landmark
+ * correspondence.
  * It does not certify muscle physiology or collision-free combinations.
  */
 export function assertHumanBodyBasisShape(basis: IAutoMovieHumanBodyBasis): Set<string> {
@@ -116,5 +117,6 @@ export function assertHumanBodyBasisShape(basis: IAutoMovieHumanBodyBasis): Set<
     }
     endpoints.add(corrective.target);
   }
+  assertHumanBodyUniqueIds([...endpoints], "endpoint identities");
   return endpoints;
 }

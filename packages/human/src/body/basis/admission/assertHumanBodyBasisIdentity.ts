@@ -2,9 +2,9 @@ import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanB
 import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
 
 /**
- * Admit the immutable basis revision and the distinct names shared by its
- * channels, surfaces, materials and material regions. Cross-population
- * endpoint residency is checked after shape and surface admission.
+ * Admit the immutable basis revision and the distinct record-safe names of
+ * its channels, landmarks, surfaces, materials and material regions.
+ * Cross-population endpoint residency follows shape and surface admission.
  */
 export function assertHumanBodyBasisIdentity(basis: IAutoMovieHumanBodyBasis): void {
   assertHumanBodyUniqueIds([basis.id], "identities");
@@ -12,6 +12,7 @@ export function assertHumanBodyBasisIdentity(basis: IAutoMovieHumanBodyBasis): v
     basis.channels.map((channel) => channel.id),
     "channel identities",
   );
+  assertHumanBodyUniqueIds(basis.landmarks.ids, "landmark identities");
   assertHumanBodyUniqueIds(
     basis.surfaces.map((surface) => surface.id),
     "surface identities",

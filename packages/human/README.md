@@ -157,6 +157,8 @@ The body editor accepts identity-card and tape inputs in its simple tier and mea
 
 `assertHumanBodyBasis` admits one immutable basis in ordered stages: unique names, channel/corrective endpoints, connected surfaces and material partitions, landmark endpoint correspondence, then rig and clinical ranges. The matching files under `body/basis/admission/` own those checks separately. This is representation admission; a legal body document can still have a contact or anatomical-form problem, which needs pose-space measurement and visual review.
 
+Basis names used as record keys also cannot collide with inherited JavaScript Object properties. The common identity check covers channels, landmarks, endpoints, surfaces, materials and regions before shape evaluation reads their named rows.
+
 The body builder passes each shared surface through `createHumanBodyPosedSurface` for joint skinning and optional gravity response. `createHumanBodySurfaceParts` then computes normals and pose relief before `createHumanBodySurfaceRegionParts` gathers the authored material regions; underwear receives the same unsplit posed surface. These are processing owners for the legacy skin, not internal anatomical components or a contact solver.
 
 When the rig distributes twist along a bone, `humanBodySkinDownDirection` derives the posed direction of rest-frame gravity from that position-dependent skin map. Its backward difference step follows floating-point error balance at the body's metre scale; it is not a softness or tissue thickness parameter.

@@ -37,6 +37,13 @@ import type { IAutoMovieHumanBodyBasisSurface } from "./surface/IAutoMovieHumanB
  * only those 183 also reposition rig points. Changes to geometry, endpoints,
  * landmarks, joints or weights require a new basis identity.
  *
+ * Basis IDs that address record fields (channels, endpoints, landmarks,
+ * surfaces, materials and regions) must not name an inherited Object property.
+ * The admission stages check this once so a missing authored row cannot be
+ * mistaken for `constructor`, `toString` or another prototype member during
+ * shape evaluation. This is a JavaScript representation constraint, not an
+ * anatomical limit on a person's measurements.
+ *
  * Endpoint interpolation describes an authored shape, not muscle; skinning
  * describes a rigid attachment, not tissue. Neither proves nonpenetration or
  * physiological range for arbitrary combinations, which the body-review

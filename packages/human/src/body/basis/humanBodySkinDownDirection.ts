@@ -13,8 +13,9 @@ import { skinHumanBodySurface } from "./skinHumanBodySurface";
  * Its first-order truncation is O(h/L) and subtraction roundoff is
  * O(epsilon L/h); h = sqrt(Number.EPSILON) L balances the two. L is at least
  * one metre and spans the largest absolute input coordinate. The already
- * skinned positions are supplied by the caller, so only one further skin
- * evaluation is needed. Neither input array is changed. This is a numeric
+ * skinned positions must be the output of the same input positions, skin,
+ * joints and transforms, so only one further skin evaluation is needed.
+ * Neither input array is changed. This is a numeric
  * derivative of the current rig, not a measured tissue parameter.
  */
 export function humanBodySkinDownDirection(input: {
