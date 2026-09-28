@@ -82,7 +82,7 @@ export const GROUND_LAYERS = {
  */
 /**
  * @evidence spaces/08-floor-assembly.md This constant is the upper room's visible finish share of the interstorey band.
- * @evidenceReview spaces/08-floor-assembly.md # `INTERSTOREY_FLOOR_FINISH` supplies the 0.025 m finish selected by `roomFloor` for upper rooms, apart from the structure emitted by `buildInterstorey`.
+ * @evidenceReview spaces/08-floor-assembly.md #8b02a02 `INTERSTOREY_FLOOR_FINISH` supplies the 0.025 m finish selected by `roomFloor` for upper rooms, apart from the structure emitted by `buildInterstorey`.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary The 0.025 m value sits above shared structure between ground ceiling and upper finished floor.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #58ff097 `buildInterstorey` stops the common structure at `STOREYS.upperFloor - INTERSTOREY_FLOOR_FINISH`, leaving this 0.025 m band for the upper rooms' finish.
  * @evidence principles/core/source-units.md#source-scope-preservation It describes only upper floor finish and does not thicken the structural band.

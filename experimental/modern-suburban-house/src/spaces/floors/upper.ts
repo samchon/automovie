@@ -41,11 +41,11 @@ const OPENING_EDGE = CEILING_FINISH;
 /** Emit the 0.270 m interstorey structure between the two finish layers, with the receded stair notch. */
 /**
  * @evidence spaces/08-floor-assembly.md This builder emits one interstorey structure between ground ceiling and upper room finishes.
- * @evidenceReview spaces/08-floor-assembly.md # buildInterstorey returns one interstorey-structure slab within MAIN.inner rather than separate structural boxes for the rooms above and below it.
+ * @evidenceReview spaces/08-floor-assembly.md #8b02a02 buildInterstorey returns one interstorey-structure slab within MAIN.inner rather than separate structural boxes for the rooms above and below it.
  * @evidence spaces/08-floor-assembly.md#interstorey-floor-boundary Its Y band excludes 0.015 m ground ceiling and 0.025 m upper floor finishes.
  * @evidenceReview spaces/08-floor-assembly.md#interstorey-floor-boundary #58ff097 Its bottom is groundCeiling plus the 0.015 m ceiling finish, and its top is upperFloor minus the 0.025 m floor finish, leaving the assigned 0.270 m structural interval.
  * @evidence spaces/08-floor-assembly.md#interstorey-edge-junctions A receded L notch leaves a 0.015 m edge band for the stair's continuous opening finish.
- * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions # The outline offsets the stair opening by OPENING_EDGE, equal to the 0.015 m finish reservation; the stair owner fills that band along five opening sides, splitting the front side where the upper neighbour changes.
+ * @evidenceReview spaces/08-floor-assembly.md#interstorey-edge-junctions #c0f65fc The outline offsets the stair opening by OPENING_EDGE, equal to the 0.015 m finish reservation; the stair owner fills that band along five opening sides, splitting the front side where the upper neighbour changes.
  * @evidence principles/core/source-units.md#source-scope-preservation The opening reaches the front wall as a notch, while room finishes and stair edge trim remain with their owners.
  * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 The polygon reaches the front inner wall on both sides of the stair notch, while each room keeps its finish and the stair owner supplies the opening edge strips.
  * @evidence principles/core/source-units.md#source-substantive-completion The ten-point outline extrudes one solid slab with deterministic top and bottom datums.
