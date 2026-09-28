@@ -37,6 +37,7 @@ import {
   parseAutoMovieEvidenceSyntax,
   projectAutoMovieMarkdownSyntax,
 } from "./parseAutoMovieEvidenceSyntax";
+import { requiresAutoMovieEvidenceReview as requiresReview } from "./productionEvidenceReviewPolicy";
 import { projectAutoMovieNativeClaims } from "./projectAutoMovieNativeClaims";
 import { readAutoMovieContractRules } from "./readAutoMovieContractRules";
 import {
@@ -1111,7 +1112,6 @@ const expectedContract = (
 const isActive = (stage: Stage): boolean => stage !== "disabled";
 const requiresEvidence = (stage: Stage): boolean =>
   stage === "evidence" || stage === "review";
-const requiresReview = (stage: Stage): boolean => stage === "review";
 const posix = (value: string): string => value.replaceAll("\\", "/");
 const compareCodeUnits = (left: string, right: string): number =>
   Number(left > right) - Number(left < right);

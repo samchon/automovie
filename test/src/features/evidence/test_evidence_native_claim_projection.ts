@@ -26,8 +26,9 @@ const { projectAutoMovieNativeClaims } = loadSourceModule<{
  * Native evaluation must not erase the declaration a manifest still consumes.
  *
  * Scenarios:
- * 1. Admitted principle and population-account claims lose only binding metadata.
- * 2. Mixed error/warning references retain their exact selectors and policies.
+ * 1. Admitted principle and population-account claims lose binding metadata and
+ *    companion requirements while retaining every structural relationship.
+ * 2. Mixed error/warning references retain selectors and structural policy without companion requirements.
  * 3. Frozen declarations and empty populations remain unchanged by projection.
  */
 export const test_evidence_native_claim_projection = (): void => {
@@ -97,7 +98,12 @@ export const test_evidence_native_claim_projection = (): void => {
       TestValidator.equals(
         `native field ${key} is retained`,
         Reflect.get(output, key),
-        Reflect.get(claim, key),
+        key === "reference"
+          ? (Array.isArray(claim.reference)
+              ? claim.reference
+              : [claim.reference]
+            ).map((reference) => ({ ...reference, requireReview: false }))
+          : Reflect.get(claim, key),
       );
     TestValidator.equals(
       "no additional fields",
@@ -115,7 +121,10 @@ export const test_evidence_native_claim_projection = (): void => {
   TestValidator.equals(
     "native references stay intact",
     projected[2]!.reference,
-    [structural, { ...structural, severity: "warning", requireReview: true }],
+    [
+      { ...structural, requireReview: false },
+      { ...structural, severity: "warning", requireReview: false },
+    ],
   );
   TestValidator.equals(
     "empty population stays empty",

@@ -24,9 +24,9 @@ The table maps document roles; it does not require empty directories for inactiv
 | `treatments` | Film treatment units. |
 | `scripts` | Film script delivery units. |
 | `screenplays` | Complete film screenplay construction units that settle audience-visible and audible content. |
-| `final/screenplays` | Expression-only final screenplay units, mirroring reviewed construction identity exactly. |
+| `final/screenplays` | Expression-only final screenplay units, mirroring completed construction identity exactly. |
 | `briefs` | Direct-brief delivery, shot, and observation units. |
 
-Reviewed delivery decisions are implemented as typed source values. Record observations at the authored owner that claims the result; [Ownership](../README.md#ownership) owns source placement and the project file boundary.
+Completed delivery decisions are implemented as typed source values. Record observations at the authored owner that claims the result; [Ownership](../README.md#ownership) owns source placement and the project file boundary.
 
 Maintain this README with the project under [Static-document updates](../README.md#static-document-updates).

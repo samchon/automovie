@@ -25,7 +25,7 @@ import {
  * gate's inputs and runs the gate only when they moved. Without one, each call
  * runs a new builder with freshly read evidence.
  * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-reapproval-after-change Recomputes the publication input fingerprint from the current inputs so a changed source or tool never inherits an earlier approval.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Reopens reviewed authoring bindings with the source builder before binding the terminal publication snapshot.
+ * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Reopens current authoring bindings with the source builder before binding the terminal publication snapshot.
  * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-reapproval-after-change Makes terminal currentness depend on the newly compiled source and authoring identity after an input changes.
  */
 export const productionPublicationInputFingerprint = (
@@ -84,9 +84,9 @@ export const productionPublicationInputFingerprint = (
  * Bind terminal publication to a successful source check using live authoring.
  *
  * The injected compile boundary preserves the timed builder's optional reader
- * contract while allowing a host to reopen target reviews on every call.
+ * contract while allowing a host to reopen the target graph on every call.
  * @evidence requirements/evidence-and-provenance/completeness-freshness-and-refusal.md#evidence-reapproval-after-change Includes the fresh compile identity in the terminal snapshot and refuses failed source checks.
- * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Recomputes source-owner freshness at the publication boundary rather than reusing an earlier reviewed flag.
+ * @evidence specifications/review-and-acceptance/subject-surface-and-inspection.md#review-system-subject-freshness Recomputes source-owner freshness at the publication boundary rather than reusing an earlier completion observation.
  * @evidence specifications/evidence-and-provenance/completeness-freshness-and-refusal.md#evp-reapproval-after-change Refuses a failed current compile and includes a changed compile identity in the publication comparison.
  */
 export const readProductionPublicationInputFingerprint = <Authoring>(props: {

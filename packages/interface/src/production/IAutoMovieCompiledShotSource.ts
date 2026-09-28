@@ -31,11 +31,11 @@ export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput
   };
 
   /**
-   * Reviewed non-entry exports bound to the same unit, retained as acceptance
+   * Completed non-entry exports bound to the same unit, retained as acceptance
    * attribution without executing them as shot builders.
    *
-   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps reviewed acceptance attribution separate from the executed runtime source.
-   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries non-entry reviewed edges without promoting them to runtime ownership.
+   * @evidence requirements/agent-authoring/source-owned-loop.md#agent-source-result-link Keeps completed acceptance attribution separate from the executed runtime source.
+   * @evidence specifications/authoring-and-authority/source-authority-and-derivation.md#spec-authoring-derivation-output-lineage Carries non-entry completed edges without promoting them to runtime ownership.
    */
   acceptanceSources?: Array<{
     path: string;

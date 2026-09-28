@@ -49,7 +49,7 @@ export class AutoMovieProductionContext {
   /**
    * Open one host-fixed production context.
    *
-   * The compile identity a production publishes includes the reviewed source
+   * The compile identity a production publishes includes the graph-selected source
    * owner bindings of its authoring evidence, so a context that judges
    * generated freshness without the same declaration reads every compiled
    * production as stale. Hand it the declaration the compile read.

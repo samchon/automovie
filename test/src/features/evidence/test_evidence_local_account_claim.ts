@@ -117,7 +117,7 @@ export const test_evidence_local_account_claim = (): void => {
       (staged.reference as ITtscEvidenceGraphMarkdownReference[]).map(
         (reference) => reference.requireReview,
       ),
-      [stage === "review"],
+      [false],
     );
   }
   const pilot: AutoMoviePopulationScope = {
@@ -256,8 +256,8 @@ export const test_evidence_local_account_claim = (): void => {
       ],
     ),
     [
-      [true, true, true],
-      [true, true, true],
+      [true, true, false],
+      [true, true, false],
     ],
   );
   createAutoMovieProductionPrincipleClaim({

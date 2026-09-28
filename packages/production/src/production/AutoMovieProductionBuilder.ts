@@ -145,7 +145,10 @@ import {
   autoMovieSourceContentFinding,
   autoMovieValidationFindings,
 } from "./sourceContentDiagnostics";
-import { resolveAutoMovieSourceOwnerBinding } from "./sourceOwnerBinding";
+import {
+  attributeAutoMovieCompiledShotSource,
+  resolveAutoMovieSourceOwnerBinding,
+} from "./sourceOwnerBinding";
 import { storySyncDiagnostics } from "./storySyncDiagnostics";
 import { resolveAutoMovieTimedAuthoringKind } from "./timedAuthoringKind";
 import { validateAutoMovieProductionGraph } from "./validateProductionDesign";
@@ -566,44 +569,14 @@ export class AutoMovieProductionBuilder {
               ...realized.diagnostics,
             ];
             diagnostics.push(...postDiagnostics);
-            const binding = owner?.success === true ? owner.binding : null;
-            const target =
-              binding === null
-                ? null
-                : `${binding.targetPath}#${binding.targetAnchor}`;
-            compiled.set(entry.id, {
-              ...materialized.value,
-              ...(binding === null
-                ? {}
-                : {
-                    sourceOwner: {
-                      branch: binding.branch,
-                      path: binding.sourcePath,
-                      export: binding.exportName,
-                      digest: binding.sourceDigest,
-                      target: target!,
-                    },
-                    // A resolved binding came from this evidence carrier, so
-                    // the sibling reviewed exports are read from the same one.
-                    acceptanceSources:
-                      this.authoringEvidence!.sourceOwners.filter(
-                        (candidate) =>
-                          candidate.branch === "shots" &&
-                          candidate.reviewed &&
-                          `${candidate.targetPath}#${candidate.targetAnchor}` ===
-                            target &&
-                          !(
-                            candidate.sourcePath === binding.sourcePath &&
-                            candidate.exportName === binding.exportName
-                          ),
-                      ).map((candidate) => ({
-                        path: candidate.sourcePath,
-                        export: candidate.exportName,
-                        digest: candidate.sourceDigest,
-                        target: target!,
-                      })),
-                  }),
-            });
+            compiled.set(
+              entry.id,
+              attributeAutoMovieCompiledShotSource({
+                value: materialized.value,
+                bindings: this.authoringEvidence?.sourceOwners ?? [],
+                entry: owner?.success === true ? owner.binding : null,
+              }),
+            );
             for (const conversion of result.conversions)
               externalMotionConversions.set(conversion.adoption, conversion);
             realizations.set(entry.id, realized.realization);
@@ -1056,7 +1029,7 @@ export class AutoMovieProductionBuilder {
    * Execute, publish and gate one generated reusable library.
    *
    * A film reaches its compiled artifacts through shots. A library has none, so
-   * this is the whole of its source path: every file the reviewed source
+   * this is the whole of its source path: every file the enforced source
    * branches select is linked, inspected, transpiled and evaluated in the same
    * deterministic sandbox a shot runs in, every owner registration it exports is
    * matched against an exact active design H2, and what those owners return is
@@ -1121,9 +1094,8 @@ export class AutoMovieProductionBuilder {
       );
 
     // The exact addresses a source registration is allowed to name. A library
-    // owner declares which reviewed decision it realizes; anything else is a
-    // building nobody asked for, and a review that never charges it is exactly
-    // how an unreviewed artifact ships.
+    // owner declares which completed decision it realizes. Exact graph
+    // ownership prevents an unrelated artifact from borrowing that decision.
     const units = new Map<string, IAutoMovieLibraryBuildContext>();
     const sourceBranchByDesign = new Map<string, string>();
     for (const owner of snapshotAuthoring.designOwners)
