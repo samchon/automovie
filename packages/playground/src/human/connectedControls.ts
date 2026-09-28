@@ -9,6 +9,8 @@ import {
   measureHumanFaceBasisChannels,
 } from "@automovie/human";
 
+import { connectedFaceArticulationDegrees } from "./anatomy/connectedFaceArticulationDegrees";
+
 /**
  * Present simple coordinates or the canonical fine shape/performance controls.
  * Presentation changes never write a document. Simple input lowers from one
@@ -17,6 +19,8 @@ import {
  * Only owned document coordinates are authored values; omission displays zero.
  * A basis-bound component tree groups fine controls for navigation; it changes
  * neither saved channel IDs nor the basis's evaluation order or shared skin.
+ * Jaw opening and gaze display their basis endpoint's physical degrees while
+ * lowering edited degrees back to the same flat performance weights.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Exposes editable and searchable fine shape and performance channels.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Shows current values, effective domains and endpoint displacement without changing replay on a mode switch.
@@ -52,9 +56,18 @@ export function mountConnectedFaceControls(
   const describe = (
     sign: string,
     scale: IAutoMovieHumanFaceEndpointScale,
-  ): string =>
-    `${sign}1 moves ${(scale.displacement * 1000).toFixed(2)} mm rms, ` +
-    `${(scale.peak * 1000).toFixed(2)} mm peak on ${scale.vertices} vertices`;
+    angle: number | null = null,
+  ): string => {
+    const degree = angle === null ? null : sign === "-" ? -angle : angle;
+    const amount =
+      degree === null
+        ? `${sign}1`
+        : `${degree >= 0 ? "+" : ""}${degree.toFixed(2)}°`;
+    return (
+      `${amount} moves ${(scale.displacement * 1000).toFixed(2)} mm rms, ` +
+      `${(scale.peak * 1000).toFixed(2)} mm peak on ${scale.vertices} vertices`
+    );
+  };
   const search = dom.createElement("input");
   search.id = "control-search";
   search.type = "search";
@@ -82,7 +95,7 @@ export function mountConnectedFaceControls(
     kind.hidden = simple;
     app.querySelector<HTMLElement>("#control-help")!.textContent = simple
       ? "Simple edits preserve your fine adjustments, including differences between the two sides. Each range accounts for those adjustments. Values describe authored shapes, not physical measurements."
-      : "0 is the source neutral. Weights interpolate authored endpoints; they are not physical measurements. Each control states how far one unit of its endpoints moves the surface.";
+      : "0 is the source neutral. Most controls are authored endpoint weights; jaw opening and gaze show degrees within this basis's supported endpoints. These limits are not universal clinical ranges.";
     const query = search.value.toLowerCase().replace(/\s/g, "");
     container.replaceChildren();
     const append = (
@@ -169,28 +182,34 @@ export function mountConnectedFaceControls(
         target: HTMLElement,
       ): void => {
         const scale = scales.get(channel.id)!;
+        const angle = connectedFaceArticulationDegrees(props.basis, channel.id);
+        const unit = angle ?? 1;
         append(
           {
             ...channel,
-            label: channel.id.replace(/([a-z])([A-Z])/g, "$1 $2"),
+            label:
+              channel.id.replace(/([a-z])([A-Z])/g, "$1 $2") +
+              (angle === null ? "" : " (°)"),
             group: anatomy?.channelPaths.get(channel.id)?.join(" "),
+            minimum: Math.min(channel.minimum * unit, channel.maximum * unit),
+            maximum: Math.max(channel.minimum * unit, channel.maximum * unit),
             value: Object.hasOwn(document[channel.kind], channel.id)
-              ? document[channel.kind][channel.id]
+              ? document[channel.kind][channel.id] * unit
               : 0,
             description: [
               ...(channel.description === undefined
                 ? []
                 : [channel.description]),
-              describe("+", scale.positive),
+              describe("+", scale.positive, angle),
               ...(scale.negative === null
                 ? []
-                : [describe("-", scale.negative)]),
+                : [describe("-", scale.negative, angle)]),
             ].join(" · "),
             edit: (value) => {
               const next = structuredClone(props.document());
               next[channel.kind] = {
                 ...next[channel.kind],
-                [channel.id]: value,
+                [channel.id]: value / unit,
               };
               return next;
             },
