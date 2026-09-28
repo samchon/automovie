@@ -17,13 +17,12 @@ import { portraitNormals } from "../../face/mesh/portraitNormals";
 import { HUMAN_BODY_SKIN_DETAIL } from "../constants/HUMAN_BODY_SKIN_DETAIL";
 import { HUMAN_BODY_SKIN_SCATTERING } from "../constants/HUMAN_BODY_SKIN_SCATTERING";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
-import { HUMAN_BODY_SKIN_TONE } from "../constants/HUMAN_BODY_SKIN_TONE";
 import { humanBodySimpleShapeMath } from "../simple/humanBodySimpleShapeMath";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { createHumanBodySkinDetailTexture } from "./createHumanBodySkinDetailTexture";
-import { createHumanBodySkinToneTexture } from "./createHumanBodySkinToneTexture";
+import { createHumanBodySkinTone } from "./createHumanBodySkinTone";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 
@@ -40,11 +39,7 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis) {
   // Read the site weights from the basis only when the first cheek asks for them.
   let siteColour: ReturnType<typeof createHumanBodySkinColour> | null = null;
   let relief: { texture: string; turns: number } | null = null;
-  const tones = new Map<
-    number,
-    ReturnType<typeof createHumanBodySkinToneTexture>
-  >();
-  let toneTurns: number | null = null;
+  const tone = createHumanBodySkinTone(basis);
   return (input: {
     document: IAutoMovieHumanBodyBasisDocument;
     pose: readonly IAutoMovieJointPose[];
@@ -283,72 +278,7 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis) {
       );
       if (overlays.length > 0) material.overlays = overlays;
     }
-    // the skin's uneven tone as a tiled base-colour map, the two chromophores
-    // varying about the site colour, less even with age; the strength is
-    // taken to a twentieth so a population of documents shares a few maps
-    const toneOf = document.skinTone;
-    if (toneOf !== undefined) {
-      if (
-        !materialMap.has(skin) ||
-        !(toneOf.strength >= 0 && toneOf.strength <= 1) ||
-        basis.surfaces.some((surface) =>
-          surface.regions.some(
-            (region) => region.material === skin && region.uvs === null,
-          ),
-        )
-      )
-        throw new Error(
-          "Body skin tone needs a skin material on textured regions and a strength in [0,1].",
-        );
-      const material = materialMap.get(skin)!;
-      const toneStrength =
-        Math.round(
-          20 *
-            toneOf.strength *
-            humanBodySimpleShapeMath.curve(
-              HUMAN_BODY_SKIN_TONE.age,
-              document.shape.macroAge ?? 0,
-            ),
-        ) / 20;
-      if (toneStrength > 0) {
-        let tone = tones.get(toneStrength);
-        if (tone === undefined) {
-          tone = createHumanBodySkinToneTexture(
-            HUMAN_BODY_SKIN_TONE,
-            toneStrength,
-          );
-          tones.set(toneStrength, tone);
-        }
-        toneTurns ??=
-          humanBodySkinMetresPerUv(basis, skin) /
-          (HUMAN_BODY_SKIN_TONE.tileMillimetres / 1000);
-        material.baseColorTexture = {
-          asset: tone.texture,
-          texCoord: 0,
-          coordinateSource: "source-uv",
-          colorSpace: "srgb",
-          transform: {
-            offset: { x: 0, y: 0 },
-            scale: { x: toneTurns, y: toneTurns },
-            rotationDeg: 0,
-          },
-          sampler: {
-            wrapS: "repeat",
-            wrapT: "repeat",
-            minFilter: "linearMipmapLinear",
-            magFilter: "linear",
-          },
-        };
-        const [kr, kg, kb] = tone.compensation;
-        material.baseColor = {
-          ...material.baseColor,
-          r: Math.min(1, material.baseColor.r * kr),
-          g: Math.min(1, material.baseColor.g * kg),
-          b: Math.min(1, material.baseColor.b * kb),
-          hex: null,
-        };
-      }
-    }
+    tone(document, materialMap);
     return { materials, coloured };
   };
 }
