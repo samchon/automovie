@@ -4,9 +4,13 @@
 
 <!--
 @evidence obligations/core/common.md#purpose-fit 001의 전달·좌표, 002~006의 표면군별 마감, 007의 관찰이라는 일곱 파일 역할을 배정한다. 001이 없으면 채널과 metric texture 좌표를, 002~006 중 하나가 없으면 그 표면군의 마감을, 007이 없으면 재료 결과를 반증할 표본을 다음 단계가 발명해야 한다.
+@evidenceReview obligations/core/common.md#purpose-fit  본문이 001 전달, 002~006 마감, 007 관찰의 일곱 역할을 실제 파일에 대응시킨다. 빠진 한 파일이 다음 단계에 남길 결정도 설명한다.
 @evidence obligations/core/common.md#layer-boundary 일곱 파일은 전달 채널·역할 주소·prototype variant·좌표, 마감·응답, census·표본 계약만 정하고 표면의 형상과 소유는 spaces와 settings/003#surface-decomposition에, 재료 source·native census·reference 대조는 이후 단계에 남긴다. 재료 문서가 형상 치수를 새로 정하지 않는다.
+@evidenceReview obligations/core/common.md#layer-boundary  형상·면 소유는 spaces/models에 두고 이 계정은 마감과 표본의 경계를 기록한다. source 완료를 현재 증거로 세지 않는다.
 @evidence obligations/core/common.md#production-language 판단과 근거는 한국어로 쓰고 finish id·texture id·`*-floor-boards` 같은 역할 주소·공개 API 이름은 source와 같은 표기로, roughness·metallic·moiré 같은 렌더 용어는 원어로 유지한다.
+@evidenceReview obligations/core/common.md#production-language  설명은 한국어이고 식별자·API는 source 표기다. 영문 렌더 용어의 사용이 판단 언어를 바꾸지 않는다.
 @evidence obligations/core/common.md#proportionate-development 7파일 29 H2의 주석 제외 본문 45,576자와 draft(929170b2)의 29,656자, H2별 442~6,084자 분포를 기록했다. 채널·좌표와 관찰, 여러 부재의 경계를 가르는 층간 띠와 실내 도장에 긴 본문을, 단일 마감에는 짧은 본문을 두었고 증가분은 v-084·v-086·v-088과 g4 r4 판정이 요구한 범위·부류·면 분할·색 배정, 근거와 저작 선택 표시, 계단 구멍·문턱·입면 위아래 끝·가구 지지·욕실 기구의 upstream 수리에 맞춘 면 배정, oak back·guest bed·끝면·결 축 규칙, census·접합·방 표본 항목이다.
+@evidenceReview obligations/core/common.md#proportionate-development  29 H2의 분량 표가 파일별 본문 길이와 길어진 이유를 구분한다. 이 길이를 시각 품질이나 구현 완료로 해석하지 않는다.
 -->
 
 재료 설계는 일곱 역할로 나뉜다. 001은 native 전달 채널, 역할 주소와 explicit prototype variant, metric texture 좌표를 모든 마감이 공유하는 규칙으로 소유한다. 002는 외피의 석재·층간 띠·도장 금속·노출 금속, 003은 유리 두 종류와 보존할 PV·캐노피, 004는 목재 다섯 역할, 005는 실내 도장·흡음 패널·직물·screen, 006은 습식·조리대·위생·도장 가구와 보존 역할을 소유한다. 007은 census·크기와 접합·reference·상태의 네 관찰 역할이다. 표면의 형상과 소유는 spaces와 settings/003#surface-decomposition에 남고, 재료 문서는 그 표면에 결합하는 마감만 정한다.
