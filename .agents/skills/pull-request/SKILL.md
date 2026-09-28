@@ -41,7 +41,7 @@ A campaign owner pushes its own commits. It stages explicit paths, never `git ad
 
 After every push, watch `gh pr checks <PR>` until each check settles. On failure, fetch the job log, diagnose the real cause, fix it in place, push a new commit, and let the checks resume. Both `build` and `test` must pass; do not treat a green unrelated job as acceptance for a failed required surface. The workflows own their actual commands. The [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write) owns the changed-position unit-test obligation and how review verifies it; CI has no coverage instrument or coverage gate.
 
-The `build` and `test` workflows run for pull requests and pushes to `master`. Each run checks the event-owned base-to-head range before validation and must finish with no tracked diff or unignored file. A pull-request run uses `pull_request.base.sha...pull_request.head.sha`; a push run uses `before...sha`. Do not replace either with a mutable branch name or a locally inferred merge base.
+The `build` and `test` workflows run for pull requests and pushes to `master`.
 
 A campaign implementation cycle reads CI once per settled head instead, under its own development procedure. Its intermediate commits are not gates, and its merge still requires the settled head's green required checks.
 
