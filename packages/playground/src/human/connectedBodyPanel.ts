@@ -11,7 +11,6 @@ import {
   HUMAN_BODY_SIMPLE_POSTURE,
   type IAutoMovieHumanBodyBasis,
   type IAutoMovieHumanBodyBasisDocument,
-  type IAutoMovieHumanBodyChannelScale,
   type IAutoMovieHumanBodySimpleShape,
   createHumanFaceEditor,
   humanBodySimplePosture,
@@ -25,6 +24,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
+import { renderBodyShapeControls } from "./bodyShapeControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { createBodyIntentGate } from "./createBodyIntentGate";
@@ -47,7 +47,7 @@ import { createBodyIntentGate } from "./createBodyIntentGate";
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints The panel performs no skinning or pose resolution.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements The panel formats the measurements the package computed.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-document The panel calls the package's parse and serialize functions.
- * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The panel has no underwear control; a loaded document's underwear is cut by the package builder in the worker.
+ * @evidenceExclude requirements/actors/body-authoring/contract.md#actor-body-underwear The panel selects the document's style, while the package builder owns the garment's anatomical cut and posed skin attachment.
  * @evidenceExclude specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear The panel evaluates no underwear region, clip or lift.
  */
 export function mountConnectedBodyPanel<
@@ -111,23 +111,6 @@ export function mountConnectedBodyPanel<
       scale,
     ]),
   );
-  const mm = (metres: number | null): string =>
-    metres === null ? "n/a" : (metres * 1000).toFixed(1) + " mm";
-  const describe = (scale: IAutoMovieHumanBodyChannelScale): string => {
-    if (scale.measurement !== null) {
-      const m = scale.measurement;
-      return (
-        `${m.kind} ${m.id}: neutral ${mm(m.neutral)} · +1 → ${mm(m.positive)}` +
-        (m.negative === null ? "" : ` · -1 → ${mm(m.negative)}`)
-      );
-    }
-    const side = (sign: string, end: typeof scale.positive): string =>
-      `${sign}1 moves ${mm(end.displacement)} rms, ${mm(end.peak)} peak on ${end.vertices} vertices`;
-    return [
-      side("+", scale.positive),
-      ...(scale.negative === null ? [] : [side("-", scale.negative)]),
-    ].join(" · ");
-  };
   const groups = [...new Set(props.basis.channels.map((c) => c.group))];
   app.innerHTML = `
 <style>
@@ -139,6 +122,17 @@ export function mountConnectedBodyPanel<
 <h2>Simple body</h2><p>Identity-card values and tape measurements, read off the current body and expanded into the detailed channels; age sags and softens, muscle defines only where the body fat lets it.</p><div id="simple-controls"></div><h2>Body presets</h2><div id="shape-presets" class="toolbar"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Controls</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${g === "macro" ? "Macro (gender, age, weight, muscle, height…)" : "Shape · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>0 is the source neutral. A measured channel states its girth, length or height in millimetres at neutral and at each end; a joint states its clinical range and rest angle.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
+  const underwearRow = dom.createElement("div");
+  underwearRow.className = "row";
+  const underwearLabel = dom.createElement("label");
+  underwearLabel.htmlFor = "body-underwear";
+  underwearLabel.textContent = "Default underwear";
+  const underwear = dom.createElement("select");
+  underwear.id = "body-underwear";
+  underwear.innerHTML =
+    '<option value="">None</option><option value="boxer-briefs">Boxer briefs</option><option value="bra-and-briefs">Sports bra and briefs</option>';
+  underwearRow.append(underwearLabel, underwear);
+  element("editing").querySelector("h2")!.before(underwearRow);
   const viewport = props.viewport(element<HTMLCanvasElement>("body-canvas"));
   let editor:
     | ReturnType<
@@ -186,6 +180,7 @@ export function mountConnectedBodyPanel<
     element<HTMLButtonElement>("body-redo").disabled = !state.canRedo;
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanBodyBasisDocument(state.document);
+    underwear.value = state.document.underwear?.style ?? "";
     void simple.refresh(state.document.shape);
     renderControls();
   };
@@ -284,53 +279,17 @@ export function mountConnectedBodyPanel<
       });
       return;
     }
-    for (const channel of props.basis.channels.filter(
-      (channel) =>
-        channel.group === kind && channel.id.toLowerCase().includes(query),
-    )) {
-      const row = dom.createElement("div"),
-        label = dom.createElement("label"),
-        entry = dom.createElement("div"),
-        slider = dom.createElement("input"),
-        number = dom.createElement("input"),
-        note = dom.createElement("small");
-      row.className = "row";
-      label.textContent = channel.id.replace(/([a-z])([A-Z])/g, "$1 $2");
-      slider.type = "range";
-      number.type = "number";
-      number.min = String(channel.minimum);
-      slider.min = number.min;
-      number.max = String(channel.maximum);
-      slider.max = number.max;
-      slider.step = "0.01";
-      number.step = "any";
-      number.value = String(draft.shape[channel.id] ?? 0);
-      slider.value = number.value;
-      number.id = "control-" + channel.id;
-      slider.id = number.id + "-slider";
-      label.htmlFor = number.id;
-      slider.setAttribute("aria-label", label.textContent + " slider");
-      const editValue = async (value: string): Promise<void> => {
-        if (value.trim() === "") {
-          refuse("A numeric value is required.");
-          return;
-        }
-        const next = structuredClone(draft);
-        if (Number(value) === 0) delete next.shape[channel.id];
-        else next.shape[channel.id] = Number(value);
-        await change(next);
-      };
-      slider.oninput = () => {
-        number.value = slider.value;
-      };
-      slider.onchange = () => editValue(slider.value);
-      number.onchange = () => editValue(number.value);
-      entry.append(slider, number);
-      note.id = "scale-" + channel.id;
-      note.textContent = describe(scales.get(channel.id)!);
-      row.append(label, entry, note);
-      container.append(row);
-    }
+    renderBodyShapeControls({
+      dom,
+      container,
+      basis: props.basis,
+      scales,
+      kind,
+      query,
+      current: () => draft,
+      change: (next) => void change(next),
+      refuse,
+    });
   };
   for (const button of app.querySelectorAll<HTMLButtonElement>("[data-view]"))
     button.onclick = () => viewport.cameraView(Number(button.dataset.view));
@@ -341,6 +300,16 @@ export function mountConnectedBodyPanel<
     viewport.setShadows(element<HTMLInputElement>("shadows").checked);
   element<HTMLInputElement>("face").onchange = () => {
     if (editor !== undefined) show(editor.snapshot().model);
+  };
+  underwear.onchange = () => {
+    const next = structuredClone(draft);
+    if (underwear.value === "") delete next.underwear;
+    else
+      next.underwear = {
+        ...next.underwear,
+        style: underwear.value as NonNullable<typeof next.underwear>["style"],
+      };
+    void change(next);
   };
   element<HTMLSelectElement>("control-kind").onchange = renderControls;
   const search = dom.createElement("input");
