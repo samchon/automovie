@@ -47,15 +47,15 @@ const scan = (house) => {
         }
     }
   }
-  /** @type {Array<[string,number,string,boolean,boolean]>} */
+  /** @type {Array<[string,number,boolean,boolean]>} */
   const levels = [
-    ["ground floor",STOREYS.groundFloor,"floor",true,false],
-    ["upper floor",STOREYS.upperFloor,"floor",true,true],
-    ["ground ceiling",STOREYS.groundCeiling,"ceiling",false,true],
+    ["ground floor",STOREYS.groundFloor,true,false],
+    ["upper floor",STOREYS.upperFloor,true,true],
+    ["ground ceiling",STOREYS.groundCeiling,false,true],
   ];
   /** @type {Record<string,Count>} */
   const result = {};
-  for (const [name,y,role,up,hasOpening] of levels) {
+  for (const [name,y,up,hasOpening] of levels) {
     /** @type {Count} */
     const out = {samples:0,finish:0,body:0,opening:0,openingIntrusions:0,holes:0,overlaps:0,examples:[]};
     result[name]=out;

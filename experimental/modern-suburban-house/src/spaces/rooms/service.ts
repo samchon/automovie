@@ -52,7 +52,7 @@ const SERVICE: IRoomSpace = {
  * @evidence principles/core/source-units.md#source-substantive-completion The return has a continuous floor/ceiling and four named doorFloor strips for actual passage bottoms.
  * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The SERVICE outline feeds floor and ceiling parts; five named doorFloor strips cover the coat opening and powder, laundry, pantry and common thresholds.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emitting the service side of the coat opening exposed an unfinished crossing between the passage and storage; rooms/service.md#service-access-plan and 03-surface-owners.md#interior-surface-handoff were revised to make this builder own its half of the opening floor.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work # `buildService` emits `entry-coat-opening` from the partition midpoint to the service face, meeting the entry side without adding a service wall; the cited passage and surface owners assign that crossing to the two room builders.
+ * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `buildService` emits `entry-coat-opening` from the partition midpoint to the service face, meeting the entry side without adding a service wall; the cited passage and surface owners assign that crossing to the two room builders.
  */
 export const buildService = (): IRoomBuild => ({
   space: SERVICE,

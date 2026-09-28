@@ -86,7 +86,7 @@
 @evidence principles/design/spaces.md#space-topology 린넨장은 upper-hall, 외투장은 entry의 접면으로 두고 수납 이름으로 방의 질문을 없애지 않는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 ‘상층 복도와 린넨 수납 접면’·‘실내 현관과 외투 수납 접면’ 행과 ‘이 분류로 실제 방의 질문을 줄이지 않는다’를 대조해 얕은 수납의 포함 관계가 소비 방 안에 명시됨을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 구조 벽과 층판은 외곽/공유 기준을 소비하고 문·창 void는 경계 owner가 한 번 절단한다. 방 owner는 안쪽 벽·바닥·reveal 마감 면을 만들며 별도 닫힌 문짝·창호·벽 걸레받이는 models가 만들어 같은 접면에 맞춘다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority # 방 source는 통행 윤곽 밖에서 실제 벽·계단 고체가 없는 완성 높이의 평면까지 마감을 맡는다. 계단 구멍의 수직 테두리는 수평 방 마감 사이 높이에서 계단 owner가 맡고, 수납문 아래의 서로 다른 방 판은 문턱 중앙면에서 접한다. 문짝·창호·걸레받이는 models/03·01·06에 남는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 방 source는 통행 윤곽 밖에서 실제 벽·계단 고체가 없는 완성 높이의 평면까지 마감을 맡는다. 계단 구멍의 수직 테두리는 수평 방 마감 사이 높이에서 계단 owner가 맡고, 수납문 아래의 서로 다른 방 판은 문턱 중앙면에서 접한다. 문짝·창호·걸레받이는 models/03·01·06에 남는다.
 @evidence principles/design/spaces.md#space-verification-address 방별 경계·문·창·storey binding을 05와 대조하고 표의 행 수를 방의 면 개수로 쓰지 않게 한다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 방의 면 개수를 표의 행 수로 대체하지 않고 방별 binding을 05의 방 owner와 대조한다는 본문을 확인했다. 현재 spaces 골격과 후속 모델 충전 뒤 전체 면 census를 구별해 이 배정의 반증 시점을 명시한다.
 @evidence settings/10-house.md#storage 사람이 들어가는 옷방은 자기 파일·전체 관찰을 가지며 얕은 장은 소비 방에 속한다.

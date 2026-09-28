@@ -13,7 +13,7 @@
 @evidence principles/design/spaces.md#space-topology front-entry를 ground-storey에 두고 포치→front-door→현관, 현관→거실·계단·서비스가 다른 방을 거치지 않는 연결 그래프를 명시한다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 front-entry/ground-storey 포함과 포치→front-door→현관, 현관→living-plan 출입구·계단 첫 단·오른쪽 service-access-plan이 다른 방을 거치지 않는 연결 그래프가 메시 없이 읽힘을 확인했다.
 @evidence principles/design/spaces.md#space-boundary-authority 아래 계단 경로를 현관 바닥에서 제외하고 열린 난간 옆을 현관 마감에 포함한다. 거실·서비스 쪽 경계는 living-plan·service-access-plan으로 링크한다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority # 현관 바닥은 계단 고체와 X=-0.65 m에서 만나고 같은 선까지 온 천장의 윗면 Y=2.765 m는 계단 소유 수직 테두리의 아래 끝에 닿는다. 거실·서비스 경계는 living-plan·service-access-plan을 소비한다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 현관 바닥은 계단 고체와 X=-0.65 m에서 만나고 같은 선까지 온 천장의 윗면 Y=2.765 m는 계단 소유 수직 테두리의 아래 끝에 닿는다. 거실·서비스 경계는 living-plan·service-access-plan을 소비한다.
 @evidence principles/design/spaces.md#space-verification-address 입구 문짝의 회전, 하부 대기와 거실문 열림, 현관 안의 전체 관찰 pose를 이 평면을 반증할 관찰로 든다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 입구 문짝 회전, 하부 대기와 거실문 열림, 현관 안 전체 관찰 pose를 L형 평면의 반증 관찰로 들고 door binding·문틀 순폭·통행·시야를 unverified로 둔 것을 확인했다.
 @evidence settings/10-house.md#entry 거실은 자기 출입구로 직접 연결하고 계단 첫 단을 같은 현관에 노출해 현관에서 거실·계단·서비스로 가는 길이 다른 방을 통과하지 않게 한다.

@@ -79,7 +79,7 @@
 @evidence principles/design/spaces.md#space-topology 구멍은 두 flight·중간참·하부 대기 위의 계단실에만 속하고 거실·현관 분배 바닥·침실을 비우는 복층 보이드는 없으며 계단실 위는 본채 2층 천장으로 닫는다.
 @evidenceReview principles/design/spaces.md#space-topology #3f8d925 구멍이 두 flight·중간참·하부 대기 위 계단실에만 속하고 거실·현관 분배 바닥·침실의 복층 보이드가 없으며 ‘계단실 위는 본채 2층 천장으로 닫힌다’를 포함 관계 요구와 대조했다.
 @evidence principles/design/spaces.md#space-boundary-authority 같은 구멍 경계를 upper.ts의 층간 구조와 방별 마감 owner가 소비한다. 보호 예약 중 실제 벽이 없는 1층 오른쪽 띠는 현관 마감이 맡고 벽·마감을 중복 생성하지 않는다.
-@evidenceReview principles/design/spaces.md#space-boundary-authority # `upper.ts`와 방 마감은 한 L형 구멍을 소비한다. 열린 오른쪽 띠의 현관 천장은 Y=2.765 m에서 끝나고 계단 소유 수직 테두리가 그 위에서 시작하며, 예약 전체를 전 높이 벽으로 만들지 않는다.
+@evidenceReview principles/design/spaces.md#space-boundary-authority #d114e35 `upper.ts`와 방 마감은 한 L형 구멍을 소비한다. 열린 오른쪽 띠의 현관 천장은 Y=2.765 m에서 끝나고 계단 소유 수직 테두리가 그 위에서 시작하며, 예약 전체를 전 높이 벽으로 만들지 않는다.
 @evidence principles/design/spaces.md#space-verification-address 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복, 참을 막는 난간을 검사 질문으로 둔다.
 @evidenceReview principles/design/spaces.md#space-verification-address #a143ab1 셋째 문단이 전면 창/계단 단면, 두 층의 같은 구멍, 방 바닥의 구멍 침범, 인접 벽 중복, 참을 막는 난간을 검사 질문으로 명시해 L형 구멍 주장을 반증할 주소를 둠을 확인했다.
 @evidence settings/10-house.md#openings 작은 상층 전면 창 뒤에 실제 계단실을 두고 가짜 창을 허용하지 않는다.
