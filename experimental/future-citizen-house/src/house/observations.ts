@@ -1,6 +1,7 @@
 import { builtSpaceVolumeBounds, builtSpaceContainsPoint, builtConvexCellVertices, builtEnvironmentElementBounds, builtEnvironmentEnvelopeFaces, builtEnvironmentEnvelopeCorners, builtSpaceObservationStations, Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { v } from "./assembly";
+import { boundaryCornerEyes } from "./observation-corners";
 import type { auditCanopy } from "./canopy-audit";
 export type Observation = { id: string; space: string; role: string; cameraSpace?: string; pose: { position: IAutoMovieVector3; target: IAutoMovieVector3 } | null; reason: string; section?: { height: number; remove: "above" | "below" }; fov: number };
 /** Every question is derived from the produced cells, connectors and faces.
@@ -98,6 +99,10 @@ export function observations(e: IAutoMovieBuiltEnvironment, canopy?: ReturnType<
         add(space.id, "cell-" + ci + "-corner-" + sx + "-" + sz, "additional-cell-corner", inside(p), center, "Additional L-cell observation; required corners retained");
       }
     }
+    if (space.kind === "room" && space.cells.length > 1)
+      for (const [index, point] of boundaryCornerEyes(space, y).entries())
+        add(space.id, `boundary-corner-${index}`, "actual-boundary-corner", point, center,
+          "Actual cell-union boundary; 0.25m inward from both walls. Bounding-box failures remain separately recorded.");
   }
   const faces = builtEnvironmentEnvelopeFaces(e);
   for (const face of faces) {

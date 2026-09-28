@@ -15,5 +15,7 @@ export function bathroom(a: Assembly): void {
   shower.box("riser", "steel", -0.90, 1.30, 0.10, 0.025, 1.8, 0.025);
   shower.box("head", "steel", -0.77, 2.18, 0.10, 0.3, 0.025, 0.22);
   cabinet(new Item(a, "bath-towels", r, -3.33, datum.floors[1], 3.3, -Math.PI / 2), 0.6, 1.1, 0.38, true);
-  lights(a, r, [[-4.14, 2.4], [-4.14, 4.8]]);
+  // The third fixture bisects the vanity and shower points over the clear
+  // central strip; the existing two keep their element identities.
+  lights(a, r, [[-4.14, 2.4], [-4.14, 4.8], [-4.14, 3.6]]);
 }

@@ -7,6 +7,13 @@ import { observations } from "../house/observations";
 import { auditHouse } from "../house/audit";
 import type { auditCanopy } from "../house/canopy-audit";
 import { pvCellTexture } from "../house/canopy-finish";
+import { makeTextureAssets } from "../materials/generate-textures.mjs";
+import type { MaterialTextureScaleAudit } from "../materials/observation";
+import { materialFrameQuestions } from "../materials/007-observation";
+
+// The deterministic texels are prepared once; each state receives the same
+// native image resources and the same declared material references.
+const finishTextures = makeTextureAssets();
 
 type ViewerPlacement = {
   node: string; model: string; position: IAutoMovieVector3;
@@ -17,7 +24,8 @@ type ViewerPlacement = {
 /** Resolve the actual library producer through the public engine for display. */
 export function createViewerPayload(state: State = initialState) {
   let canopyAudit: ReturnType<typeof auditCanopy> | undefined;
-  const environment = buildHouse(state, result => { canopyAudit = result; });
+  let materialTextureScaleAudit: MaterialTextureScaleAudit | undefined;
+  const environment = buildHouse(state, result => { canopyAudit = result; }, result => { materialTextureScaleAudit = result; });
   const audit = auditHouse(environment);
   if (audit.errors.length) throw new Error(audit.errors.join("\n"));
   const lowered = lowerBuiltEnvironment(environment);
@@ -59,10 +67,11 @@ export function createViewerPayload(state: State = initialState) {
     if (!models.some((model) => model.id === placement.model))
       throw new Error(placement.node + ": unresolved model " + placement.model);
   const clearance = passageClearance({ environment, models, placements });
+  const stations = observations(environment, canopyAudit);
   return {
-    environment, models, placements, audit, canopyAudit, state, clearance, textures: [pvCellTexture()],
+    environment, models, placements, audit, canopyAudit, materialTextureScaleAudit, state, clearance, textures: [pvCellTexture(), ...finishTextures],
     census: builtEnvironmentBuildingCensus(environment),
-    stations: observations(environment, canopyAudit),
+    stations, materialFrameQuestions: materialFrameQuestions(stations),
     // This is renderer transport, not a clearance report or persisted project.
     observationBasis: "Current environment cells, surfaces, connectors, faces and opening profiles; eye 1.60m, inset 0.25m; failed positions retained. Cylinder clearance and visual verdict are separate.",
   };

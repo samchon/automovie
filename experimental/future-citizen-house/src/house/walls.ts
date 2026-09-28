@@ -5,6 +5,7 @@ import { buildAutoMovieWall, type IAutoMovieWallOpening } from "@automovie/engin
 import { Assembly, rectangle, v, yaw } from "./assembly";
 import { datum, portals, roomById, type Portal, type Wall } from "./plan";
 import { finishDepth } from "./storeys/floors";
+import type { SurfaceRegion } from "../materials/surface-regions";
 export type Frame = { id: string; along: "x" | "z"; normal: 1 | -1; plane: number; a: number; b: number; floor: number; top: number; depth: number; spaces: string[] };
 export const rotation = (f: Frame) => yaw(f.along === "x" ? (f.normal === 1 ? 0 : Math.PI) : f.normal * Math.PI / 2);
 export const uSign = (f: Frame) => f.along === "x" ? f.normal : -f.normal;
@@ -23,14 +24,16 @@ export function localCut(f: Frame, id: string, a: number, b: number, sill: numbe
 export function wallFrame(w: Wall): Frame {
   return { id: w.id, along: w.axis === "x" ? "z" : "x", normal: 1, plane: w.plane, a: w.a, b: w.b, floor: datum.floors[w.level], top: datum.ceilings[w.level], depth: datum.wall, spaces: w.adjacent };
 }
-export function cutWall(a: Assembly, f: Frame, cuts: IAutoMovieWallOpening[], material: string, id = f.id, offset = 0, depth = f.depth, register = true): void {
+export function cutWall(a: Assembly, f: Frame, cuts: IAutoMovieWallOpening[], material: string, id = f.id, offset = 0, depth = f.depth, register = true, regions?: readonly SurfaceRegion[]): void {
   const mesh = buildAutoMovieWall({ width: f.b - f.a, height: f.top - f.floor, depth, openings: cuts });
-  const element = a.place(id + "-body", "wall", f.spaces[0], a.model(id + "-mesh", material, { type: "mesh", mesh }), position(f, (f.a + f.b) / 2, (f.floor + f.top) / 2, offset), v(1, 1, 1), rotation(f));
+  const element = a.place(id + "-body", "wall", f.spaces[0], a.model(id + "-mesh", material, { type: "mesh", mesh }, regions), position(f, (f.a + f.b) / 2, (f.floor + f.top) / 2, offset), v(1, 1, 1), rotation(f));
   if (register) a.wallRecords.push({ frame: f, cuts });
   if (register) a.environment.boundaries.push({ id: f.id, kind: f.spaces.length === 1 ? "exterior" : "partition", spaces: f.spaces, elements: [element], face: { origin: position(f, (f.a + f.b) / 2, (f.floor + f.top) / 2), rotation: rotation(f), thickness: f.depth, outline: rectangle(-(f.b - f.a) / 2, (f.b - f.a) / 2, -(f.top - f.floor) / 2, (f.top - f.floor) / 2) } });
 }
-export function bar(a: Assembly, f: Frame, id: string, space: string, material: string, u: number, y: number, width: number, height: number, depth: number, offset = 0): string {
-  return a.place(id, "frame-member", space, a.primitive(material), position(f, u, y, offset), v(width, height, depth), rotation(f));
+export function bar(a: Assembly, f: Frame, id: string, space: string, material: string, u: number, y: number, width: number, height: number, depth: number, offset = 0, faces?: import("../materials/surface-parts").FaceFinishes): string {
+  const point = position(f, u, y, offset);
+  return faces ? a.box(id, space, material, point.x, point.y, point.z, width, height, depth, rotation(f), faces)
+    : a.place(id, "frame-member", space, a.primitive(material), point, v(width, height, depth), rotation(f));
 }
 export const doorCuts = (f: Frame) => portals.filter((p) => p.wall === f.id).map((p) => localCut(f, p.id, p.center - p.width / 2 - 0.06, p.center + p.width / 2 + 0.06, f.floor, f.floor + p.height + 0.06));
 export function doorway(a: Assembly, f: Frame, p: Portal): void {

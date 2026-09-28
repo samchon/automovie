@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { createViewerPayload } from "./payload";
+import { materialStates } from "../materials/007-observation";
 
 const productionRoot = resolve(__dirname, "../..");
 
@@ -17,7 +18,7 @@ async function sourceBasis(): Promise<string> {
       else if (item.isFile()) hash.update(child).update(await readFile(resolve(productionRoot, child)));
     }
   }
-  for (const directory of ["src", "docs/settings", "docs/spaces", "docs/contracts", "public"]) await visit(directory);
+  for (const directory of ["src", "docs/settings", "docs/spaces", "docs/materials", "docs/models", "docs/instances", "docs/contracts", "public"]) await visit(directory);
   for (const file of ["package.json", "lint.config.ts"]) hash.update(file).update(await readFile(resolve(productionRoot, file)));
   return hash.digest("hex");
 }
@@ -55,10 +56,11 @@ async function main(): Promise<void> {
         }
         if (path === "/basis") { response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ basis })); return; }
         const privacy = url.searchParams.get("privacy") ?? "day", flex = url.searchParams.get("flex") ?? "work";
-        if ((privacy !== "day" && privacy !== "private" && privacy !== "night") || (flex !== "work" && flex !== "guest")) { response.writeHead(400).end("Invalid named house state"); return; }
+        const state = materialStates.find(state => state.privacy === privacy && state.flex === flex);
+        if (!state) { response.writeHead(400).end("Invalid named house state"); return; }
         const key = privacy + "/" + flex;
         let payload = payloads.get(key);
-        if (!payload) { payload = createViewerPayload({ privacy, flex }); payloads.set(key, payload); }
+        if (!payload) { payload = createViewerPayload(state); payloads.set(key, payload); }
         response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ basis, ...payload }));
         return;
       }

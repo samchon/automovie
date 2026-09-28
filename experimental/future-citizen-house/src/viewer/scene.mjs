@@ -61,8 +61,7 @@ function bake(entry, items, texture) {
   for (const { mesh } of items) if (material.map && mesh.uvs && (mesh.uvs.length !== mesh.positions.length / 3 * 2 || mesh.uvs.some((value) => !Number.isFinite(value))))
     throw new Error(entry.id + ": invalid primary UV array");
   const withUv = items.filter((item) => item.mesh.uvs).length;
-  const metricProjection = typeof entry.baseColorTexture === "object" && entry.baseColorTexture?.coordinateSource === "surface-metres";
-  if (material.map && withUv !== items.length && !metricProjection) throw new Error(entry.id + ": a textured batch needs primary UVs on every part");
+  if (material.map && withUv !== items.length) throw new Error(entry.id + ": a textured batch needs authored primary UVs on every part");
   const uv = Boolean(material.map) || withUv === items.length;
   const coloured = items.some((item) => item.colour || item.mesh.colors);
   let vertices = 0, indices = 0;
@@ -99,12 +98,8 @@ function bake(entry, items, texture) {
         normals[o] = normal.x; normals[o + 1] = normal.y; normals[o + 2] = normal.z;
       }
       if (uvs) {
-        if (mesh.uvs) { uvs[(v + k) * 2] = mesh.uvs[k * 2]; uvs[(v + k) * 2 + 1] = mesh.uvs[k * 2 + 1]; }
-        else if (metricProjection) {
-          if (!Number.isFinite(normal.x + normal.y + normal.z + point.x + point.y + point.z) || normal.lengthSq() < 0.5) throw new Error(entry.id + ": cannot derive metric primary UV");
-          const axis = Math.abs(normal.y) >= Math.abs(normal.x) && Math.abs(normal.y) >= Math.abs(normal.z) ? "y" : Math.abs(normal.x) >= Math.abs(normal.z) ? "x" : "z";
-          uvs[(v + k) * 2] = axis === "x" ? point.z : point.x;
-          uvs[(v + k) * 2 + 1] = axis === "y" ? point.z : point.y;
+        if (mesh.uvs) {
+          uvs[(v + k) * 2] = mesh.uvs[k * 2]; uvs[(v + k) * 2 + 1] = mesh.uvs[k * 2 + 1];
         } else throw new Error(entry.id + ": missing primary UV");
       }
       if (colours) {

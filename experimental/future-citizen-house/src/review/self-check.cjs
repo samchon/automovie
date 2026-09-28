@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, "../..");
 const checks = [
   ["--lint"],
   ["pure-tests.cjs", "--tsx"],
+  ["ceiling-light-audit.cjs", "--tsx"],
   ["space-literal-audit.cjs"],
   ["space-literal-fixture.cjs"],
   ["space-derive-audit.cjs"],
@@ -65,6 +66,7 @@ for (const args of checks) {
     command,
     {
       cwd: lint ? root : __dirname,
+      windowsHide: true,
       encoding: "utf8",
       maxBuffer: 64 * 1024 * 1024,
     },
@@ -94,7 +96,7 @@ if (process.argv.includes("--bench")) {
     const result = spawnSync(
       name.endsWith(".py") ? "python" : process.execPath,
       [path.join(probes, name), ...args],
-      { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+      { cwd: root, windowsHide: true, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
     );
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);

@@ -1,7 +1,7 @@
 /** Whole roof owner of the v-073 canopy, waterproof fall and drainage.
  * World XZ projections stay exact. Touching members remain separate solids;
  * measured loops replace the old repeated, full-bottom cassette boxes. */
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, tessellateToMesh } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import { Assembly, rectangle, v } from "../assembly";
@@ -13,7 +13,8 @@ import {
   heightRegion,
   putMesh,
 } from "../metric-solid";
-import { datum, exteriorWallZone } from "../plan";
+import { datum, exteriorWallZone, stairHole } from "../plan";
+import { partitionSurfaceRegions } from "../../materials/surface-regions";
 import { type Flat, type Solid, drainage } from "./roof-drainage";
 
 const canopyMinX = datum.minX - 0.3,
@@ -78,8 +79,8 @@ export function roof(a: Assembly): void {
   );
   // The roof owns everything above the 6.10m butt joint. Over the exterior
   // walls no ceiling finish sits under the slab, so a bearing ring closes it.
-  for (const [id, r] of exteriorWallZone())
-    a.box(
+  for (const [id, r] of exteriorWallZone()) {
+    const element = a.box(
       "roof-bearing-" + id,
       "house",
       "stone",
@@ -90,6 +91,22 @@ export function roof(a: Assembly): void {
       0.008,
       r[3] - r[2],
     );
+    if (id === "front") {
+      const placed = a.environment.elements.find(e => e.id === element)!;
+      const model = a.environment.models.find(m => m.id === placed.model)!;
+      // The 6mm underside exposed above the stair void is the same painted
+      // wall continuation. Select its actual world region in unit box local
+      // coordinates and keep the rest of the bearing ring as exterior stone.
+      const parts = model.parts.flatMap(part => {
+        const source = part.geometry.type === "mesh" ? part.geometry.mesh : tessellateToMesh(part.geometry.shape);
+        return partitionSurfaceRegions(source, part.material!, [{ finish: "plaster-paint", normal: "y-",
+          min: [(stairHole[0] - placed.transform.translation.x) / placed.transform.scale.x, -.5, (-datum.innerZ - placed.transform.translation.z) / placed.transform.scale.z],
+          max: [(stairHole[1] - placed.transform.translation.x) / placed.transform.scale.x, .5, .5] }]).map(p => ({ ...part, id: "surface/" + p.finish, material: p.finish, geometry: { type: "mesh" as const, mesh: p.mesh } }));
+      });
+      model.parts = parts;
+      model.materials.push(a.material("plaster-paint"));
+    }
+  }
   const weather = solid(
     "roof-weather",
     rectangle(datum.minX, datum.maxX, datum.minZ, datum.maxZ),
