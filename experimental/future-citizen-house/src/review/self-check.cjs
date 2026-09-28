@@ -35,16 +35,22 @@ const checks = [
   ["model-review-audit.cjs", "--faces"],
   ["model-review-audit.cjs", "--fixture-duplicates"],
   ["model-review-audit.cjs", "--fixture-faces"],
+  ["build-model-catalog.py", "--python", "--check"],
+  ["model-source-audit.cjs", "--tsx"],
+  ["model-source-audit.cjs", "--tsx", "--fixture"],
 ];
 let failures = 0;
 let total = checks.length;
 for (const args of checks) {
   const lint = args.includes("--lint");
   const tsx = args.includes("--tsx");
+  const python = args.includes("--python");
   const command = lint
     ? process.platform === "win32"
       ? ["/d", "/s", "/c", "npm run lint"]
       : ["run", "lint"]
+    : python
+      ? args.filter((arg) => arg !== "--python")
     : tsx
       ? ["-r", "tsx/cjs", ...args.filter((arg) => arg !== "--tsx")]
       : args;
@@ -53,7 +59,9 @@ for (const args of checks) {
       ? process.platform === "win32"
         ? "cmd.exe"
         : "npm"
-      : process.execPath,
+      : python
+        ? "python"
+        : process.execPath,
     command,
     {
       cwd: lint ? root : __dirname,
