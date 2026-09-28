@@ -11,6 +11,7 @@ import {
   encodeAutoMoviePathSegment,
 } from "./contentIdentity";
 import { parseAutoMovieStructuredJson } from "./duplicateAwareJson";
+import { isAutoMovieSourceOwnerBindingComplete } from "./sourceOwnerBinding";
 
 /**
  * Stable strict library-state refusal categories.
@@ -181,8 +182,7 @@ export const inspectAutoMovieLibraryProjectState = (props: {
     if (
       binding === undefined ||
       binding.sourceDigest !== owner.sourceDigest ||
-      binding.enforced === false ||
-      binding.reviewed === false
+      !isAutoMovieSourceOwnerBindingComplete(binding)
     )
       problems.push({
         code: "library-owner-mismatch",
@@ -210,7 +210,7 @@ export const inspectAutoMovieLibraryProjectState = (props: {
     }
   }
   for (const binding of evidence.sourceOwners) {
-    if (binding.enforced === false || binding.reviewed === false) continue;
+    if (!isAutoMovieSourceOwnerBindingComplete(binding)) continue;
     const identity = JSON.stringify([
       binding.branch,
       `${binding.targetPath}#${binding.targetAnchor}`,
@@ -221,7 +221,7 @@ export const inspectAutoMovieLibraryProjectState = (props: {
       problems.push({
         code: "library-owner-mismatch",
         path: "library/index.json",
-        message: `Reviewed source export "${binding.sourcePath}#${binding.exportName}" has no exact owner entry in the materialized library index.`,
+        message: `Completed source export "${binding.sourcePath}#${binding.exportName}" has no exact owner entry in the materialized library index.`,
       });
   }
   for (const file of props.manifest.files)

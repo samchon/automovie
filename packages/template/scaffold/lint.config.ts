@@ -14,10 +14,10 @@ import { fileURLToPath } from "node:url";
  * production review.
  *
  * Select the production shape, then advance one construction layer at a time
- * through `draft -> evidence -> review`. A film constructs settings,
+ * through `draft -> evidence`, where each layer completes. A film constructs settings,
  * treatments, scripts, and `docs/screenplays`, then independently revises the
  * frozen screenplay into `docs/final/screenplays` through the naturalness
- * stage. Shots and film sources consume only that reviewed final tree. A brief
+ * stage. Shots and film sources consume only that completed final tree. A brief
  * follows settings, briefs, shots, and film sources. A library selects settings
  * and any coherent set of delivered design/source pairs.
  *
@@ -31,7 +31,7 @@ import { fileURLToPath } from "node:url";
  * Naturalness revises dialogue, narration, and audience-read language only;
  * mechanically exact physical descriptions are copied unchanged. Follow
  * `.agents/skills/production-lifecycle/naturalness.md` for the revision scope
- * and upstream-repair procedure. Film and brief also require reviewed
+ * and upstream-repair procedure. Film and brief also require completed
  * productionSources as the parallel typed assembly input to filmSources.
  */
 export const productionEvidence = {

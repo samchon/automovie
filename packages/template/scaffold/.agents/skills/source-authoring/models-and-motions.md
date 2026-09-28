@@ -14,15 +14,15 @@ Before drafting, complete `discovery/core/common.md`, `discovery/design/designs.
 
 ## Anatomical face models
 
-Use `@automovie/human` when a reviewed model calls for numerically authored facial anatomy. Its installed package README and public JSDoc describe `IAutoMovieHumanFaceDocument`, `buildHumanFace`, component profiles and scalar controls. Keep the production's observed or authored basis, part settings, provenance and visible limitations under its model-source owner. The package supplies capability, not named people or photograph fitting.
+Use `@automovie/human` when a completed model calls for numerically authored facial anatomy. Its installed package README and public JSDoc describe `IAutoMovieHumanFaceDocument`, `buildHumanFace`, component profiles and scalar controls. Keep the production's observed or authored basis, part settings, provenance and visible limitations under its model-source owner. The package supplies capability, not named people or photograph fitting.
 
-Identity, observed expression and current expression are separate records. An omitted current expression means neutral; it does not replay the photographed smile. A motion owner may evaluate its reviewed time-varying expression and call the face builder for the selected pose. This is procedural reconstruction, not a skinned animation or a real-time playback guarantee. Record the sampling cost and supported combinations before choosing it for a shot.
+Identity, observed expression and current expression are separate records. An omitted current expression means neutral; it does not replay the photographed smile. A motion owner may evaluate its completed time-varying expression and call the face builder for the selected pose. This is procedural reconstruction, not a skinned animation or a real-time playback guarantee. Record the sampling cost and supported combinations before choosing it for a shot.
 
 Use the returned metre-valued `IAutoMovieModel` through the same model and instance realization path as other authored geometry. `exportHumanFace(model)` produces portable GLB bytes and glTF/resources without handing a class-bound document across module instances. A static facial GLTF/GLB may instead be adopted as an external model under the existing adoption procedure; its exported pose has no facial animation channels. Review the actual eyes, lips, dental occlusion, shared skin and all required views through the review-verification skill. Construction success does not settle likeness, hidden anatomy or unsupported oral physiology.
 
 ## Motion decisions
 
-`docs/motions` records a named transition over time: subject and starting state, endpoint, duration or timing domain, interpolation, invariants, collision or range limits, composition behavior, and observable acceptance. It cites the settings facts it preserves and every reviewed map, model, space, material, instance, or system interface whose state it changes; a motion that changes no model cites no model merely to fill the graph.
+`docs/motions` records a named transition over time: subject and starting state, endpoint, duration or timing domain, interpolation, invariants, collision or range limits, composition behavior, and observable acceptance. It cites the settings facts it preserves and every completed map, model, space, material, instance, or system interface whose state it changes; a motion that changes no model cites no model merely to fill the graph.
 
 Each exported motion function and each exported motion property cites exactly one motion document. Motion implementation lives under `src/motions`; a subject method may delegate to it. Do not hide reusable motion math inside a shot or claim an incidental render callback as a motion.
 
@@ -30,13 +30,13 @@ Before drafting, complete `discovery/core/common.md`, `discovery/design/designs.
 
 ## Gates
 
-Start an applicable branch at `models: "draft"` or `motions: "draft"`. Both begin after settings review. A motion may target a map, model, space, material, instance, or system interface. Design branches may proceed in parallel, but each newly active reviewed branch adds its foundation targets and reopens affected motion evidence; final motion review cites every active design branch it consumes and truthfully excludes only an unused permitted foundation target. Before `evidence`, require stable H2 owners, no placeholders, a complete first version, an omission and proportionality audit, and neutral review observations. Read every common and branch principle against each H2 in turn, then confirm that the H2 population supplies every common and branch-obligation owner.
+Start an applicable branch at `models: "draft"` or `motions: "draft"` through [Evidence staging](../evidence-graph/staging.md#transitions). A motion may target a map, model, space, material, instance, or system interface. Each completed foundation adds its targets and reopens affected motion evidence; cite every active completed design branch the motion consumes and truthfully exclude only an unused permitted foundation target. Before `evidence`, require stable H2 owners, no placeholders, a complete first version, an omission and proportionality audit, and neutral review observations. Read every common and branch principle against each H2 in turn, then confirm that the H2 population supplies every common and branch-obligation owner.
 
-Model source begins at `modelSources: "draft"` only after model review. Motion source begins at `motionSources: "draft"` only after motion review. Every exported owner implements reviewed design rather than making a new visual, structural, temporal, or parameter decision in code. Follow [Evidence staging](../evidence-graph/staging.md) for citations and reviews and this skill's geometry verification routes.
+Model source begins at `modelSources: "draft"` after model completion; motion source begins at `motionSources: "draft"` after motion completion. [Evidence staging](../evidence-graph/staging.md#transitions) owns those admission conditions. Every exported owner implements completed design rather than making a new visual, structural, temporal, or parameter decision in code. Follow this skill's geometry verification routes for the resulting actual output.
 
 ## Boundary cases
 
 - A semantic scale or clearance required regardless of representation is a settings fact; proxy dimensions, occupied bounds, and primitive decomposition are model decisions derived from it.
 - Settings authorize a state change and any semantic limit; a model names the joint, pivot, and construction-safe interface that realizes it; a motion owns the timed path within both contracts.
 - A treatment states why a movement matters; a script stages the physical event; a screenplay states the final audiovisual beat; a shot composes the implemented motions.
-- A library stops at its reviewed source branches. A film or brief may consume the same model or motion source through shots.
+- A library stops at its completed source branches and their required actual observations. A film or brief may consume the same model or motion source through shots.

@@ -34,7 +34,7 @@ import type { resolveAutoMovieSourceOwnerBinding } from "./sourceOwnerBinding";
  * @author Samchon
  */
 export const collectLibrarySourceRegistrations = (props: {
-  /** Project-relative source path selected by a reviewed source binding. */
+  /** Project-relative source path selected by an enforced graph binding. */
   path: string;
   /** Evaluate the selected module and return its named exports. */
   load: () => Readonly<Record<string, unknown>>;
