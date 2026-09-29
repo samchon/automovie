@@ -8,9 +8,11 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "./measurements/Auto
  * subcutaneous adipose and bone. A single tape circumference or body mass
  * cannot split these compartments. Region-specific sums must agree with a
  * whole-body observation over the same scan coverage, and no total supplies
- * the missing 3D location of an individual muscle or fat depot. QUADRA_HC and
- * TCIA full-body segmentation data illustrate the separately labeled tissues;
- * both are acquired supine, so their totals do not validate standing skin.
+ * the missing 3D location of an individual muscle or fat depot. QUADRA_HC's
+ * body-composition masks cover only the L3 level and cannot populate these
+ * whole-body fields. Even a CT/MRI collection labeled “total body” must have
+ * actual head-to-foot coverage verified before its volume is used here;
+ * supine tissue totals do not validate standing skin.
  * @author Samchon
  */
 export type IAutoMovieHumanBodyCompositionMeasurements =
