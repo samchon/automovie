@@ -1,6 +1,6 @@
 import { attachPortraitDentalRow } from "@automovie/human/face/anatomy/dental/attachPortraitDentalRow";
 import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
-import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
+import { portraitPoint as p } from "@automovie/human/common/mesh/portraitPoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

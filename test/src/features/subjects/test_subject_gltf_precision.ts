@@ -1,7 +1,7 @@
 import { inspectAutoMovieMeshTopology } from "@automovie/engine";
-import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
-import { placePortraitMesh } from "@automovie/human/face/mesh/placePortraitMesh";
-import { portraitMeshBuffers } from "@automovie/human/face/mesh/portraitMeshBuffers";
+import { portraitDocument } from "@automovie/human/common/export/portraitDocument";
+import { placePortraitMesh } from "@automovie/human/common/mesh/placePortraitMesh";
+import { portraitMeshBuffers } from "@automovie/human/common/mesh/portraitMeshBuffers";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";

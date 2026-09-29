@@ -1,6 +1,6 @@
 import { validateModel } from "@automovie/engine";
 import { createHumanFaceBasisBuilder } from "@automovie/human";
-import { portraitMeshBuffers } from "@automovie/human/face/mesh/portraitMeshBuffers";
+import { portraitMeshBuffers } from "@automovie/human/common/mesh/portraitMeshBuffers";
 import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";

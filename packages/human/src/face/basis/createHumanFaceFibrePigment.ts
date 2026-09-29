@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import { decodePortraitPng } from "../mesh/decodePortraitPng";
-import { encodePortraitPng } from "../mesh/encodePortraitPng";
+import { encodePortraitPng } from "../../common/mesh/encodePortraitPng";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 
 /**

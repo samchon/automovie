@@ -1,7 +1,7 @@
 import { createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { encodePortraitPng } from "../mesh/encodePortraitPng";
+import { encodePortraitPng } from "../../common/mesh/encodePortraitPng";
 
 /** How far a ray starts off its surface along the normal, metres. */
 const LIFT = 0.00005;

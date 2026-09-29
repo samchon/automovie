@@ -1,6 +1,6 @@
 import { unzlibSync } from "fflate";
 
-import type { IPortraitPngImage } from "./structures/IPortraitPngImage";
+import type { IPortraitPngImage } from "../../common/mesh/structures/IPortraitPngImage";
 
 /**
  * The PNG decoder for facial textures that are recoloured by numerical rules.

@@ -1,4 +1,4 @@
-import { assertTextSize } from "../../face/document/assertTextSize";
+import { assertTextSize } from "../../common/document/assertTextSize";
 import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieHumanBodyBasisDocument";
 import { admitHumanBodyBasisDocument } from "./admitHumanBodyBasisDocument";
 

@@ -10,7 +10,7 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { blendPortraitSkin } from "../skin/blendPortraitSkin";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
+import { portraitPoint as p } from "../../../common/mesh/portraitPoint";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitMinimumDirectionalSurfaceTargets } from "../../surface/portraitMinimumDirectionalSurfaceTargets";
 import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";

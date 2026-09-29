@@ -1,4 +1,4 @@
-import { Point } from "../../mesh/structures/Point";
+import { Point } from "../../../common/mesh/structures/Point";
 import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";

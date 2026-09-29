@@ -1,8 +1,8 @@
 import { portraitMix } from "@automovie/human/face/mesh/portraitMix";
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
+import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
 import { portraitRegion } from "@automovie/human/face/mesh/portraitRegion";
 import { portraitSpline } from "@automovie/human/face/mesh/portraitSpline";
 import { portraitTube } from "@automovie/human/face/mesh/portraitTube";

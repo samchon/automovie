@@ -1,7 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
+import { createHumanFaceBasisRegion } from "../../common/basis/createHumanFaceBasisRegion";
 
 /**
  * Emit a material region from an already evaluated connected surface.

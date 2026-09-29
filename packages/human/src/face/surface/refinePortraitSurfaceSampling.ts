@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 
-import { portraitNormals } from "../mesh/portraitNormals";
+import { portraitNormals } from "../../common/mesh/portraitNormals";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 
 /**

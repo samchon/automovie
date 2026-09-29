@@ -1,4 +1,4 @@
-import { portraitNormals } from "../../mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/portraitNormals";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
 import { IAutoMovieMesh } from "@automovie/interface";

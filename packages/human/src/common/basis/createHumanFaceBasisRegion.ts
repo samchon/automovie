@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
+import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 
 /**
  * Compile a material region's fixed source-to-UV correspondence once.

@@ -2,7 +2,6 @@ export * from "./admit";
 export * from "./applyHumanFaceControls";
 export * from "./assertHumanFaceEditableDetail";
 export * from "./assertFinite";
-export * from "./assertTextSize";
 export * from "./mergeHumanFaceSettings";
 export * from "./parseHumanFaceBasisDocument";
 export * from "./parseHumanFaceDocument";

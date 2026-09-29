@@ -1,5 +1,5 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import { portraitPoint } from "../../mesh/portraitPoint";
+import { portraitPoint } from "../../../common/mesh/portraitPoint";
 import { portraitSpline } from "../../mesh/portraitSpline";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitCheekShape } from "./IPortraitCheekShape";

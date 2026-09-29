@@ -8,7 +8,6 @@ export * from "./IAutoMovieHumanFaceComponentTree";
 export * from "./IAutoMovieHumanFaceDetailChannel";
 export * from "./IAutoMovieHumanFaceDocument";
 export * from "./IAutoMovieHumanFaceEditorSnapshot";
-export * from "./IAutoMovieHumanFaceEndpointScale";
 export * from "./IAutoMovieHumanFaceExpression";
 export * from "./IAutoMovieHumanFaceGroom";
 export * from "./IAutoMovieHumanFaceGroomCard";

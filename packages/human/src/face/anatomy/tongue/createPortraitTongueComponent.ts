@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../mesh/portraitNormals";
+import { portraitPoint } from "../../../common/mesh/portraitPoint";
+import { portraitNormals } from "../../../common/mesh/portraitNormals";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";

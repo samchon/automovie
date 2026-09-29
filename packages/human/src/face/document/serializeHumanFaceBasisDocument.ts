@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import { admit } from "./admit";
-import { assertTextSize } from "./assertTextSize";
+import { assertTextSize } from "../../common/document/assertTextSize";
 
 /**
  * Serialize the last valid document, keeping geometry in its immutable basis.

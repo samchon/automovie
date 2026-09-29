@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { portraitMix } from "../../mesh/portraitMix";
-import { portraitPoint } from "../../mesh/portraitPoint";
+import { portraitPoint } from "../../../common/mesh/portraitPoint";
 import { portraitPatch } from "../../mesh/portraitPatch";
 import { IPortraitOcularTissueBoundary } from "./structures/IPortraitOcularTissueBoundary";
 import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueShape";

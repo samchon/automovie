@@ -1,5 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitNormals } from "../../mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/portraitNormals";
 import { assertPortraitTongueShape } from "./assertPortraitTongueShape";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { frontWeight } from "./frontWeight";

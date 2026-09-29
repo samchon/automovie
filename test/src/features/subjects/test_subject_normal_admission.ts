@@ -1,4 +1,4 @@
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
+import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

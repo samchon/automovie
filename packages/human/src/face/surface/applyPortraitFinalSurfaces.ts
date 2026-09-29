@@ -1,4 +1,4 @@
-import { portraitNormals } from "../mesh/portraitNormals";
+import { portraitNormals } from "../../common/mesh/portraitNormals";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { IPortraitFinalSurface } from "./structures/IPortraitFinalSurface";
 import { IPortraitFinalSurfaceHost } from "./structures/IPortraitFinalSurfaceHost";

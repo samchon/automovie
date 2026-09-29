@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { Point } from "./structures/Point";
-import { p } from "./p";
+import { Point } from "../../common/mesh/structures/Point";
+import { p } from "../../common/mesh/p";
 import { portraitPatch as patch } from "./portraitPatch";
 
 /**

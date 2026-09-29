@@ -1,5 +1,5 @@
 import { Vector3, compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
-import { portraitNormals } from "../mesh/portraitNormals";
+import { portraitNormals } from "../../common/mesh/portraitNormals";
 import { portraitPart } from "../mesh/portraitPart";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";

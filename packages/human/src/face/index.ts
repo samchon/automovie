@@ -7,7 +7,6 @@ export * from "./build";
 export * from "./channels";
 export * from "./document";
 export * from "./editor";
-export * from "./export";
 export * from "./mesh";
 export type * from "./parameters";
 export * from "./structures";

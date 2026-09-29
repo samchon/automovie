@@ -1,4 +1,4 @@
-import { portraitNormals } from "../mesh/portraitNormals";
+import { portraitNormals } from "../../common/mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";

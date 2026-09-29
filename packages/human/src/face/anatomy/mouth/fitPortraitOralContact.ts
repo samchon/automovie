@@ -1,6 +1,6 @@
 import { measureAutoMovieMeshClearance } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitNormals } from "../../mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/portraitNormals";
 import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirectionalSurfaceTargets";
 
 /**

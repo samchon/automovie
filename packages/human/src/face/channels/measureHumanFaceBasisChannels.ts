@@ -3,7 +3,7 @@ import { poseHumanFaceSurface } from "../basis/poseHumanFaceSurface";
 import { resolveHumanFaceArticulation } from "../basis/resolveHumanFaceArticulation";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import { IAutoMovieHumanFaceChannelScale } from "../structures/IAutoMovieHumanFaceChannelScale";
-import { IAutoMovieHumanFaceEndpointScale } from "../structures/IAutoMovieHumanFaceEndpointScale";
+import { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanFaceEndpointScale";
 
 /**
  * Measure every channel's metric effect on an admitted connected facial basis.

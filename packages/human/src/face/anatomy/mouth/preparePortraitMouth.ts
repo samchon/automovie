@@ -1,4 +1,4 @@
-import { p } from "../../mesh/p";
+import { p } from "../../../common/mesh/p";
 import { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { createPortraitDentalArc } from "../dental/createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "../dental/preparePortraitDentalCrown";

@@ -1,8 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { type JSONDocument, WebIO } from "@gltf-transform/core";
 
-import { portraitDocument } from "../export/portraitDocument";
-import { portraitGltfExtensions } from "../export/portraitGltfExtensions";
+import { portraitDocument } from "../../common/export/portraitDocument";
+import { portraitGltfExtensions } from "../../common/export/portraitGltfExtensions";
 
 /**
  * Serialize an admitted static face to GLB and glTF with resident resources.

@@ -1,4 +1,4 @@
-import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
+import { portraitPoint as p } from "@automovie/human/common/mesh/portraitPoint";
 import { fitPortraitEyeSphere } from "@automovie/human/face/surface/fitPortraitEyeSphere";
 import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
 import { TestValidator } from "@nestia/e2e";

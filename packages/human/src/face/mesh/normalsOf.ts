@@ -1,4 +1,4 @@
-import { portraitNormals } from "./portraitNormals";
+import { portraitNormals } from "../../common/mesh/portraitNormals";
 
 /**
  * A shorter name for {@link portraitNormals}, used where a patch or a tube

@@ -1,7 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitPoint } from "../../mesh/portraitPoint";
+import { portraitPoint } from "../../../common/mesh/portraitPoint";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";

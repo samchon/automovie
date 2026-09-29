@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanFaceEndpointScale } from "../../face/structures/IAutoMovieHumanFaceEndpointScale";
+import type { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanFaceEndpointScale";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyChannelScale } from "../structures/IAutoMovieHumanBodyChannelScale";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";

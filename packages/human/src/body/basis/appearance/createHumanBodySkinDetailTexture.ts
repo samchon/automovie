@@ -1,6 +1,6 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../../face/mesh/encodePortraitPng";
+import { encodePortraitPng } from "../../../common/mesh/encodePortraitPng";
 import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieHumanBodySkinDetail";
 
 /**
