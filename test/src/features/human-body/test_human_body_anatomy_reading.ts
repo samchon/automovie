@@ -44,7 +44,7 @@ export const test_human_body_anatomy_reading = (): void => {
       {
         bone: "rightUpperArm",
         radiusMetres: 0.0234,
-        source: "measured",
+        source: "target",
         centerInside: false,
         nearestMetres: 0.005,
         clearanceMetres: -0.0284,
@@ -54,5 +54,6 @@ export const test_human_body_anatomy_reading = (): void => {
   TestValidator.predicate("contained head room", text.includes("left adult CT estimate radius 23.4 mm, skin room 22.8 mm"));
   TestValidator.predicate("head protrusion", text.includes("right entered measurement radius 23.4 mm, skin protrusion 3.4 mm"));
   TestValidator.predicate("centre already outside", text.includes("centre outside skin by 5.0 mm"));
+  TestValidator.predicate("target is not called an imaging observation", text.includes("right anatomical target radius 23.4 mm"));
   TestValidator.predicate("only head claimed", text.startsWith("Humeral heads only:"));
 };

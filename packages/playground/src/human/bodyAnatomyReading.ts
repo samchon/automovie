@@ -21,7 +21,12 @@ export function bodyAnatomyReading(reading: Reading): string | null {
     const side = head.bone === "leftUpperArm" ? "left" : "right";
     const radius = (head.radiusMetres * 1000).toFixed(1);
     const room = (Math.abs(head.clearanceMetres) * 1000).toFixed(1);
-    const origin = head.source === "measured" ? "entered measurement" : "adult CT estimate";
+    const origin =
+      head.source === "measured"
+        ? "entered measurement"
+        : head.source === "target"
+          ? "anatomical target"
+          : "adult CT estimate";
     return `${side} ${origin} radius ${radius} mm, ${
       head.centerInside
         ? head.clearanceMetres >= 0

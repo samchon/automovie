@@ -18,6 +18,6 @@ export interface IAutoMovieHumanBodyHumeralHead {
   /** Sphere-fitted articular radius in metres, converted from source mm. */
   radiusMetres: number;
 
-  /** Direct anatomical measurement or a prediction within the adult CT cohort. */
-  source: "measured" | "adult-ct-prior";
+  /** Direct imaging observation, named fictional target, or adult CT prior. */
+  source: "measured" | "target" | "adult-ct-prior";
 }

@@ -1,4 +1,5 @@
 export * from "./shoulder/createHumanBodyHumeralHeads";
+export * from "./shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
 export * from "./shoulder/IAutoMovieHumanBodyHumeralHead";
 export * from "./contact/measureHumanBodySpheresSkinClearance";
 export * from "./admitHumanBodyAnatomicalMeasurements";

@@ -1,6 +1,7 @@
 import {
   type IAutoMovieHumanBodyBuild,
   createHumanBodyHumeralHeads,
+  createHumanBodyHumeralHeadsFromAnatomicalMeasurements,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -81,4 +82,60 @@ export const test_human_body_humeral_heads = (): void => {
   );
   neutral[0].center.x = 0;
   TestValidator.equals("returned centre does not mutate caller rig", bones[0].posed.position.x, -0.3);
+
+  const anatomical = createHumanBodyHumeralHeadsFromAnatomicalMeasurements({
+    bones,
+    measurements: {
+      leftUpperLimb: {
+        upperArm: {
+          humerus: {
+            sphereFittedHeadRadius: {
+              kind: "observed",
+              millimetres: 20,
+              modality: "ct",
+              acquisitionPosture: "supine",
+            },
+          },
+        },
+      },
+      rightUpperLimb: {
+        upperArm: {
+          humerus: {
+            sphereFittedHeadRadius: { kind: "target", millimetres: 25 },
+          },
+        },
+      },
+    },
+  });
+  TestValidator.equals(
+    "typed observed and target radii keep independent sides and provenance",
+    anatomical.map(({ bone, radiusMetres, source, center }) => [bone, radiusMetres, source, center.x]),
+    [["leftUpperArm", 0.02, "measured", -0.3], ["rightUpperArm", 0.025, "target", 0.3]],
+  );
+  TestValidator.equals(
+    "missing anatomical radius does not invent an unvalidated prior",
+    createHumanBodyHumeralHeadsFromAnatomicalMeasurements({
+      bones,
+      measurements: { age: { kind: "target", years: 25 } },
+    }),
+    [],
+  );
+  TestValidator.predicate(
+    "a radiograph cannot provide a sphere-fitted 3D radius",
+    throwsError(() => createHumanBodyHumeralHeadsFromAnatomicalMeasurements({
+      bones,
+      measurements: {
+        leftUpperLimb: {
+          upperArm: {
+            humerus: { sphereFittedHeadRadius: {
+              kind: "observed",
+              millimetres: 20,
+              modality: "radiograph",
+              acquisitionPosture: "supine",
+            } as never },
+          },
+        },
+      },
+    })),
+  );
 };

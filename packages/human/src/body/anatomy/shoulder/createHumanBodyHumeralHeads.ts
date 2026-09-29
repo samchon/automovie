@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
 import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
+import { placeHumanBodyHumeralHead } from "./placeHumanBodyHumeralHead";
 
 /**
  * Instantiate left and right humeral articular heads in the posed body frame.
@@ -74,18 +75,12 @@ export function createHumanBodyHumeralHeads(input: {
         ? priorMetres
         : measuredMillimetres / 1000;
     if (radiusMetres === null) return [];
-    const posed = bones.find((entry) => entry.bone === bone)?.posed.position;
-    if (
-      posed === undefined ||
-      ![posed.x, posed.y, posed.z].every(Number.isFinite)
-    )
-      throw new Error("A humeral head needs its posed glenohumeral joint: " + bone);
-    return [{
+    return [placeHumanBodyHumeralHead({
       bone,
-      center: { ...posed },
       radiusMetres,
       source:
         measuredMillimetres === undefined ? "adult-ct-prior" : "measured",
-    }];
+      bones,
+    })];
   });
 }
