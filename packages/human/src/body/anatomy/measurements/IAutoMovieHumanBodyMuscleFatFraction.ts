@@ -16,7 +16,9 @@ export type IAutoMovieHumanBodyMuscleFatFraction =
   | {
       readonly kind: "observed";
       readonly fraction: number;
-      readonly modality: "mri-dixon";
+      readonly modality: "mri";
+      /** Quantitative water-fat separation with multi-echo correction. */
+      readonly method: "multi-echo-dixon-pdff";
       readonly acquisitionPosture: AutoMovieHumanBodyAcquisitionPosture;
       /** Absolute fraction uncertainty; unknown when omitted. */
       readonly uncertaintyFraction?: number;

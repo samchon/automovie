@@ -2,6 +2,8 @@ import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoM
 import type { IAutoMovieHumanBodyCoxalBoneMeasurements } from "./IAutoMovieHumanBodyCoxalBoneMeasurements";
 import type { IAutoMovieHumanBodyHipMeasurements } from "./IAutoMovieHumanBodyHipMeasurements";
 import type { IAutoMovieHumanBodySacrumMeasurements } from "./IAutoMovieHumanBodySacrumMeasurements";
+import type { IAutoMovieHumanBodySacrotuberousLigamentMeasurements } from "./IAutoMovieHumanBodySacrotuberousLigamentMeasurements";
+import type { IAutoMovieHumanBodyCoccyxMeasurements } from "./IAutoMovieHumanBodyCoccyxMeasurements";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
@@ -23,8 +25,14 @@ export type IAutoMovieHumanBodyPelvisMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
   interFemoralHeadDistance?: IAutoMovieHumanBodyAnatomicalLength;
   sacrum?: IAutoMovieHumanBodySacrumMeasurements;
+  /** One midline coccyx inferior to sacrum. */
+  coccyx?: IAutoMovieHumanBodyCoccyxMeasurements;
   leftCoxalBone?: IAutoMovieHumanBodyCoxalBoneMeasurements;
   rightCoxalBone?: IAutoMovieHumanBodyCoxalBoneMeasurements;
+  /** Left sacrum-to-ischium fibrous origin of gluteus maximus. */
+  leftSacrotuberousLigament?: IAutoMovieHumanBodySacrotuberousLigamentMeasurements;
+  /** Independent right sacrotuberous ligament. */
+  rightSacrotuberousLigament?: IAutoMovieHumanBodySacrotuberousLigamentMeasurements;
   leftHip?: IAutoMovieHumanBodyHipMeasurements;
   rightHip?: IAutoMovieHumanBodyHipMeasurements;
   }>;

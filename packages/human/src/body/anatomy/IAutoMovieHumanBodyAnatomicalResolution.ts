@@ -13,8 +13,10 @@
  * admission must refuse nonfinite errors or an empty cohort/revision.
  * @author Samchon
  */
-export type IAutoMovieHumanBodyAnatomicalResolution<Value> =
+export type IAutoMovieHumanBodyAnatomicalResolution<Id extends string, Value> =
   | {
+      /** Stable identity of the anatomical part or shared skin. */
+      readonly id: Id;
       /** Geometry passed the named validation cohort and domain checks. */
       readonly status: "resolved";
       /** Generated component, never user-authored mesh input. */
@@ -43,6 +45,8 @@ export type IAutoMovieHumanBodyAnatomicalResolution<Value> =
       };
     }
   | {
+      /** Names the exact part that could not be resolved. */
+      readonly id: Id;
       /** No validated individual component was generated. */
       readonly status: "unavailable";
       /** Distinguishes missing input, missing anatomy and domain failure. */
@@ -50,7 +54,10 @@ export type IAutoMovieHumanBodyAnatomicalResolution<Value> =
         | "missing-anatomical-input"
         | "missing-bone-landmark"
         | "missing-tissue-boundary"
+        | "inconsistent-measurements"
+        | "acquisition-not-registered"
         | "outside-observed-population"
         | "posture-not-validated"
-        | "geometry-not-validated";
+        | "geometry-not-validated"
+        | "contact-not-validated";
     };

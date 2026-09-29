@@ -1,5 +1,6 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyExternalObliqueMeasurements } from "./IAutoMovieHumanBodyExternalObliqueMeasurements";
+import type { IAutoMovieHumanBodyExternalObliqueAponeurosisMeasurements } from "./IAutoMovieHumanBodyExternalObliqueAponeurosisMeasurements";
 import type { IAutoMovieHumanBodyInternalObliqueMeasurements } from "./IAutoMovieHumanBodyInternalObliqueMeasurements";
 import type { IAutoMovieHumanBodyLatissimusDorsiMeasurements } from "./IAutoMovieHumanBodyLatissimusDorsiMeasurements";
 import type { IAutoMovieHumanBodyPectoralisMajorMeasurements } from "./IAutoMovieHumanBodyPectoralisMajorMeasurements";
@@ -22,6 +23,8 @@ export type IAutoMovieHumanBodyTrunkMusclesMeasurements =
     rectusAbdominis?: IAutoMovieHumanBodyRectusAbdominisMeasurements;
     /** Superficial lateral abdominal wall. */
     externalOblique?: IAutoMovieHumanBodyExternalObliqueMeasurements;
+    /** Separate aponeurotic sheet continued from external oblique. */
+    externalObliqueAponeurosis?: IAutoMovieHumanBodyExternalObliqueAponeurosisMeasurements;
     /** Deep lateral abdominal wall. */
     internalOblique?: IAutoMovieHumanBodyInternalObliqueMeasurements;
     /** Broad back-to-humerus muscle. */

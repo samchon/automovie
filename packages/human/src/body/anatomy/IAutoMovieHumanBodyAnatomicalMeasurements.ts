@@ -21,6 +21,11 @@ import type { IAutoMovieHumanBodySurfaceMeasurements } from "./surface/IAutoMovi
  * the legacy connected-skin builder. Extending modeled anatomy adds a named
  * component file and a field here, never a catch-all vertex array or a loose
  * `Record<string, number>` of shape weights.
+ * The editable scope is body size, exterior anthropometry, bony frame,
+ * musculoskeletal tissues and adipose compartments relevant to silhouette
+ * and articulation. It is not a medical authoring interface for each organ,
+ * vessel or nerve. Optional detailed bone/muscle readings do not become
+ * required controls for building one ordinary torso.
  *
  * Anatomical ownership is nested but attachments cross it: gluteus maximus
  * belongs to one pelvic hip region and attaches to shared sacrum, that side's

@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
- * Target or observed pectoralis-major volume, separate from breast and fat.
+ * Target or observed pectoralis-major volume or MRI fat fraction, separate from breast.
  *
  * It spans the clavicle, sternum and anterior thorax to insert on the humerus.
  * That cross-group attachment is part of generated anatomy; the body's

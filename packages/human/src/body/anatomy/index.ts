@@ -7,5 +7,13 @@ export type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./IAutoMovieHum
 export type { IAutoMovieHumanBodyCompositionMeasurements } from "./IAutoMovieHumanBodyCompositionMeasurements";
 export type { IAutoMovieHumanBodyAnatomicalResolution } from "./IAutoMovieHumanBodyAnatomicalResolution";
 export type { IAutoMovieHumanBodyGeneratedSolid } from "./IAutoMovieHumanBodyGeneratedSolid";
+export type { IAutoMovieHumanBodyGeneratedPart } from "./IAutoMovieHumanBodyGeneratedPart";
+export type { IAutoMovieHumanBodyGeneratedSkin } from "./IAutoMovieHumanBodyGeneratedSkin";
+export type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyGeneratedAnatomy";
+export type { IAutoMovieHumanBodyPartResolution } from "./IAutoMovieHumanBodyPartResolution";
+export type { AutoMovieHumanBodyBoneId } from "./AutoMovieHumanBodyBoneId";
+export type { AutoMovieHumanBodyMuscleId } from "./AutoMovieHumanBodyMuscleId";
+export type { AutoMovieHumanBodyConnectiveTissueId } from "./AutoMovieHumanBodyConnectiveTissueId";
 export type { IAutoMovieHumanBodyArticulation } from "./IAutoMovieHumanBodyArticulation";
+export type { IAutoMovieHumanBodyAxialArticulation } from "./IAutoMovieHumanBodyAxialArticulation";
 export type { IAutoMovieHumanBodyScapulothoracicContact } from "./IAutoMovieHumanBodyScapulothoracicContact";

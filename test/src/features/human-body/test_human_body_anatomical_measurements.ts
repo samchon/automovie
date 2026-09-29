@@ -54,9 +54,24 @@ export const test_human_body_anatomical_measurements = (): void => {
           protonDensityFatFraction: {
             kind: "observed",
             fraction: 0.04,
-            modality: "mri-dixon",
+            modality: "mri",
+            method: "multi-echo-dixon-pdff",
             acquisitionPosture: "supine",
           },
+        },
+      },
+      hand: {
+        thumb: {
+          firstMetacarpal: {
+            maximumLength: { kind: "target", millimetres: 45 },
+          },
+        },
+      },
+    },
+    rightLowerLimb: {
+      foot: {
+        hallux: {
+          firstMetatarsal: { boneVolume: { kind: "target", millilitres: 14 } },
         },
       },
     },
@@ -77,6 +92,20 @@ export const test_human_body_anatomical_measurements = (): void => {
   const cases: [string, unknown][] = [
     ["empty root", {}],
     ["empty nested part", { pelvis: { leftHip: {} } }],
+    [
+      "thumb has no middle phalanx",
+      {
+        leftUpperLimb: {
+          hand: {
+            thumb: {
+              middlePhalanx: {
+                maximumLength: { kind: "target", millimetres: 20 },
+              },
+            },
+          },
+        },
+      },
+    ],
     [
       "femur belongs to the lower limb",
       { pelvis: { leftHip: { femur: { maximumLength: { kind: "target", millimetres: 450 } } } } },
@@ -173,6 +202,24 @@ export const test_human_body_anatomical_measurements = (): void => {
           leftHip: {
             gluteusMaximus: {
               protonDensityFatFraction: { kind: "target", fraction: 1.2 },
+            },
+          },
+        },
+      },
+    ],
+    [
+      "CT attenuation is not Dixon PDFF",
+      {
+        leftUpperLimb: {
+          upperArm: {
+            bicepsBrachii: {
+              protonDensityFatFraction: {
+                kind: "observed",
+                fraction: 0.06,
+                modality: "ct",
+                method: "multi-echo-dixon-pdff",
+                acquisitionPosture: "supine",
+              },
             },
           },
         },

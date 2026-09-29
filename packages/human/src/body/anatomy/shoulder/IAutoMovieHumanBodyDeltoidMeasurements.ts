@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
- * Target or observed deltoid volume, distinct from shoulder skin relief.
+ * Target or observed deltoid volume or MRI fat fraction, distinct from skin relief.
  *
  * Its clavicular, acromial and scapular-spine origins converge on the humeral
  * deltoid tuberosity. A whole-muscle volume does not reveal their separate

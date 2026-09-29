@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
- * Target or observed volume of one gluteus medius, deep to maximus.
+ * Target or observed gluteus medius volume or MRI fat fraction, deep to maximus.
  *
  * The ilium and facets of the femoral greater trochanter define its origin
  * and insertion. Its separate CT/MRI volume must not be counted again as

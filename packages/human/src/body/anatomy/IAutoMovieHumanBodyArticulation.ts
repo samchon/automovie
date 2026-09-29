@@ -8,7 +8,9 @@ import type { AutoMovieHumanBodySide } from "./AutoMovieHumanBodySide";
  * coxal acetabulum and the same-side femoral head, a knee to the femoral and
  * tibial surfaces, and a shoulder to scapula/humerus.
  * `surfaceA` and `surfaceB` identify the pair without asserting a universal
- * proximal/distal order for midline and shoulder joints. A rig transform does
+ * proximal/distal order for midline and shoulder joints. The ankle mortise
+ * separately names tibia and fibula against talus, with a third surface.
+ * A rig transform does
  * not establish cartilage thickness, joint fit or a valid range of motion.
  * The scapulothoracic interface is a sliding contact, typed separately.
  * @author Samchon
@@ -36,8 +38,9 @@ export type IAutoMovieHumanBodyArticulation<Side extends AutoMovieHumanBodySide>
     }
   | {
       readonly joint: "talocrural";
-      readonly surfaceA: { readonly structure: `${Side}TibiaFibula`; readonly site: "ankleMortise" };
-      readonly surfaceB: { readonly structure: `${Side}Talus`; readonly site: "trochlea" };
+      readonly surfaceA: { readonly structure: `${Side}Tibia`; readonly site: "distalPlafondAndMedialMalleolus" };
+      readonly surfaceB: { readonly structure: `${Side}Fibula`; readonly site: "lateralMalleolus" };
+      readonly surfaceC: { readonly structure: `${Side}Talus`; readonly site: "trochlea" };
     }
   | {
       readonly joint: "subtalar";

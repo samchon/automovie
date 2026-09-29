@@ -14,6 +14,6 @@ export type IAutoMovieHumanBodySkinfoldThickness =
       readonly kind: "observed";
       readonly millimetres: number;
       readonly method: "skinfold-caliper";
-      readonly acquisitionPosture: "standing";
+      readonly acquisitionPosture: "standing" | "seated" | "supine";
       readonly uncertaintyMillimetres?: number;
     };

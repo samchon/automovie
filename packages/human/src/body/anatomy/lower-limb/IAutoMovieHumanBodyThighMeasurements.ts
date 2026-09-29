@@ -3,6 +3,7 @@ import type { IAutoMovieHumanBodyFemurMeasurements } from "./IAutoMovieHumanBody
 import type { IAutoMovieHumanBodyAdductorMagnusMeasurements } from "./IAutoMovieHumanBodyAdductorMagnusMeasurements";
 import type { IAutoMovieHumanBodyHamstringsMeasurements } from "./IAutoMovieHumanBodyHamstringsMeasurements";
 import type { IAutoMovieHumanBodyQuadricepsMeasurements } from "./IAutoMovieHumanBodyQuadricepsMeasurements";
+import type { IAutoMovieHumanBodyIliotibialTractMeasurements } from "./IAutoMovieHumanBodyIliotibialTractMeasurements";
 
 /**
  * One thigh's internal femur, distinct from its overlying gluteal muscles.
@@ -22,4 +23,6 @@ export type IAutoMovieHumanBodyThighMeasurements =
     hamstrings?: IAutoMovieHumanBodyHamstringsMeasurements;
     /** Large separate medial adductor. */
     adductorMagnus?: IAutoMovieHumanBodyAdductorMagnusMeasurements;
+    /** Lateral fascial tract receiving superficial gluteal fibres. */
+    iliotibialTract?: IAutoMovieHumanBodyIliotibialTractMeasurements;
   }>;
