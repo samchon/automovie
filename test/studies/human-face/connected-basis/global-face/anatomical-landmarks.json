@@ -1,0 +1,12 @@
+{
+  "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
+  "basisSha256": "c2e9c3fbb73d1ea0a9e9e4ec6808a6ccc7082730007f6418de38812b6be1acde",
+  "protocol": "3dfn-surface-landmarks",
+  "status": "candidate",
+  "left": {
+    "cheilion": { "kind": "vertex", "surface": "Human", "vertex": 13738 }
+  },
+  "right": {
+    "cheilion": { "kind": "vertex", "surface": "Human", "vertex": 6074 }
+  }
+}
