@@ -34,6 +34,7 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
   const posedSurface = basis.surfaces.map((surface) =>
     createHumanBodyPosedSurface(surface, basis.joints),
   );
+  const regionParts = basis.surfaces.map(createHumanBodySurfaceRegionParts);
   return (input: {
     document: IAutoMovieHumanBodyBasisDocument;
     shaped: ReturnType<typeof evaluateHumanBodyShape>;
@@ -85,8 +86,7 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
                   pose: document.pose ?? [],
                 });
               })();
-        return createHumanBodySurfaceRegionParts({
-          surface,
+        return regionParts[index]({
           positions,
           normals,
           skinMaterial: skin,

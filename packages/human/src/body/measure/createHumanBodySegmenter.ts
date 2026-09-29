@@ -2,6 +2,7 @@ import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
+import { humanBodyGpuRegion } from "../basis/humanBodyGpuRegion";
 
 type RegionPlan = {
   index: number;
@@ -35,6 +36,9 @@ type PartPlan = {
  * the builder's corner order and each render vertex against the same build's
  * connected posed skin, then copies that skin's metre positions and normals
  * into fresh parts. It never caches posed geometry or mutates input.
+ * Both this plan and the render region use `humanBodyGpuRegion` for the
+ * Float32 UV identity, so numerically different source corners that upload
+ * as the same UV never create a false extra seam here.
  *
  * This segmentation names contact witnesses, including self-contact inside
  * one dominant-bone region. A dominant skin weight is a rig attachment,
@@ -56,7 +60,8 @@ export function createHumanBodySegmenter(
   const plans: PartPlan[] = [];
   let sourceOffset = 0;
   for (const [surfaceIndex, surface] of basis.surfaces.entries()) {
-    for (const region of surface.regions) {
+    for (const original of surface.regions) {
+      const region = humanBodyGpuRegion(original);
       const outputByKey = new Map<string, number>();
       const order: number[] = [];
       const corners = region.indices.map((source, corner) => {

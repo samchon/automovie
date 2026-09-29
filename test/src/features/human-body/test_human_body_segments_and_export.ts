@@ -31,6 +31,8 @@ import { throwsError } from "../internal/predicates";
  *    different shaped builds but returns fresh posed buffers and source maps.
  *    A same-size builder mesh with reordered corners or a render copy that
  *    disagrees with the connected posed skin refuses.
+ * 6. Region compilation gathers site colour for skin and leaves an adjacent
+ *    material uncoloured across repeated builds without altering triangles.
  */
 export const test_human_body_segments_and_export = async (): Promise<void> => {
   const { basis, document } = humanBodyBasisFixture();
@@ -284,6 +286,21 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
   ];
   const builtRegions = createHumanBodyBasisBuilder(regions.basis)(
     regions.document,
+  );
+  const colouredRegions = createHumanBodyBasisBuilder(regions.basis)({
+    ...regions.document,
+    skinColour: { cheek: { r: 0.463, g: 0.2714, b: 0.2091 } },
+  });
+  const colouredSkin = colouredRegions.model.parts[0].geometry;
+  const plainAlternate = colouredRegions.model.parts[1].geometry;
+  TestValidator.predicate(
+    "site colour follows skin while the other compiled region stays plain",
+    colouredSkin.type === "mesh" &&
+      plainAlternate.type === "mesh" &&
+      colouredSkin.mesh.colors?.length === colouredSkin.mesh.positions.length &&
+      plainAlternate.mesh.colors === undefined &&
+      colouredSkin.mesh.indices?.length === 18 &&
+      plainAlternate.mesh.indices?.length === 18,
   );
   const segmentedRegions = segmentHumanBodyModel(regions.basis, builtRegions);
   TestValidator.equals(
