@@ -14,6 +14,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import simpleControls from "erased-data";
 import studyDocuments from "erased-data";
+import { connectedFaceComponents } from "./human/anatomy/connectedFaceComponents";
 import { readConnectedFaceAsset } from "./human/connectedAsset";
 import { mountConnectedFacePanel } from "./human/connectedPanel";
 import { createConnectedFaceViewport } from "./human/connectedViewport";
@@ -49,6 +50,7 @@ async function main(): Promise<void> {
       basis,
       initial,
       controlMap: simpleControls,
+      componentTree: connectedFaceComponents,
       studies: studyDocuments.map((document) =>
         parseHumanFaceBasisDocument(JSON.stringify(document)),
       ),

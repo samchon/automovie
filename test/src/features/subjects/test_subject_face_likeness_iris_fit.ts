@@ -3,8 +3,11 @@ import { TestValidator } from "@nestia/e2e";
 import { faceLikenessSrgbToLab } from "../../../scripts/face-review/faceLikenessColour";
 import {
   FACE_LIKENESS_IRIS_BASE_SHARE,
+  FACE_LIKENESS_IRIS_HUE,
   FACE_LIKENESS_IRIS_MEAN_BAND,
+  faceLikenessIrisHue,
   faceLikenessLabToLinear,
+  faceLikenessMelaninAlbedo,
   faceLikenessReflectance,
   fitFaceLikenessIrisPigment,
 } from "../../../scripts/face-review/faceLikenessIrisFit";
@@ -34,9 +37,19 @@ const linearToLab = (rgb: readonly number[]): [number, number, number] => {
  * 4. A missing iris or cheek sample gives no pigment; a black cheek refuses.
  * 5. A greyscale photograph (a cheek without chroma) gives a neutral albedo,
  *    the luminance ratio times the skin's luminance in every channel, where a
- *    colour photograph keeps the per-channel ratio and so the skin's hue;
- *    given a prior colour it takes that colour's chromaticity at the same
+ *    colour photograph keeps the per-channel ratio of a coloured sample; a
+ *    sample without chroma in a colour photograph is read like the
+ *    greyscale one rather than taking the inverse of the cheek's hue; given
+ *    a prior colour it takes that colour's chromaticity at the same
  *    luminance, and a prior without luminance leaves it neutral.
+ * 6. The iris hue by recorded ancestry: none without one; the East Asian
+ *    mean's linear colour, warm (red over green over blue); a greyscale
+ *    photograph's pigment then takes that hue at the luminance the neutral
+ *    fit gives, and a coloured iris in a colour photograph ignores it.
+ * 7. A melanin fibre's albedo: a colour in red-green-blue order stays; one
+ *    bluer than neutral pools to its luminance in every channel; green below
+ *    blue pools the two to their weighted mean with red kept; luminance is
+ *    kept throughout.
  */
 export const test_subject_face_likeness_iris_fit = (): void => {
   const close = (a: readonly number[], b: readonly number[], eps = 1e-4) =>
@@ -127,14 +140,28 @@ export const test_subject_face_likeness_iris_fit = (): void => {
     skin: tone,
   });
   const coloured = faceLikenessReflectance({
+    sample: linearToLab([0.06, 0.05, 0.03]),
+    cheek: linearToLab([0.5, 0.3, 0.25]),
+    skin: tone,
+  });
+  const black = faceLikenessReflectance({
     sample: linearToLab([0.05, 0.05, 0.05]),
     cheek: linearToLab([0.5, 0.3, 0.25]),
     skin: tone,
   });
+  const cheekY = Y([0.5, 0.3, 0.25]);
   TestValidator.predicate(
     "greyscale photograph",
     close(grey, [0.1 * Y(tone), 0.1 * Y(tone), 0.1 * Y(tone)]) &&
-      close(coloured, [0.1 * 0.4, (0.05 / 0.3) * 0.25, 0.2 * 0.2]),
+      close(coloured, [
+        (0.06 / 0.5) * 0.4,
+        (0.05 / 0.3) * 0.25,
+        (0.03 / 0.25) * 0.2,
+      ]) &&
+      close(
+        black,
+        [0, 1, 2].map(() => (0.05 / cheekY) * Y(tone)),
+      ),
   );
   const lip: [number, number, number] = [0.4, 0.1, 0.1];
   const tinted = faceLikenessReflectance({
@@ -157,5 +184,54 @@ export const test_subject_face_likeness_iris_fit = (): void => {
     ) &&
       nclose(Y(tinted), 0.1 * Y(tone), 1e-9) &&
       close(dark, grey),
+  );
+  const hue = faceLikenessIrisHue("asian")!;
+  const greyIris = {
+    iris: linearToLab([0.05, 0.05, 0.05]),
+    cheek: linearToLab([0.5, 0.5, 0.5]),
+    skin: tone,
+  };
+  const neutral = fitFaceLikenessIrisPigment(greyIris)!;
+  const warm = fitFaceLikenessIrisPigment({ ...greyIris, prior: hue })!;
+  const plain = fitFaceLikenessIrisPigment({
+    ...greyIris,
+    iris: linearToLab([0.06, 0.05, 0.03]),
+    cheek: linearToLab([0.5, 0.3, 0.25]),
+  })!;
+  TestValidator.predicate(
+    "iris hue by ancestry",
+    faceLikenessIrisHue(null) === undefined &&
+      close(hue, faceLikenessLabToLinear(FACE_LIKENESS_IRIS_HUE.asian), 0) &&
+      hue[0] > hue[1] &&
+      hue[1] > hue[2] &&
+      nclose(Y(warm.mean), Y(neutral.mean), 1e-9) &&
+      close(
+        warm.mean,
+        hue.map((c) => (c * Y(neutral.mean)) / Y(hue)),
+        1e-9,
+      ) &&
+      close(
+        fitFaceLikenessIrisPigment({
+          ...greyIris,
+          iris: linearToLab([0.06, 0.05, 0.03]),
+          cheek: linearToLab([0.5, 0.3, 0.25]),
+          prior: hue,
+        })!.mean,
+        plain.mean,
+        0,
+      ),
+  );
+  const pooled = faceLikenessMelaninAlbedo([0.3, 0.1, 0.2]);
+  const g = (0.7152 * 0.1 + 0.0722 * 0.2) / 0.7874;
+  TestValidator.predicate(
+    "melanin order",
+    close(faceLikenessMelaninAlbedo([0.3, 0.2, 0.1]), [0.3, 0.2, 0.1], 0) &&
+      close(
+        faceLikenessMelaninAlbedo([0.1, 0.2, 0.3]),
+        [0, 1, 2].map(() => Y([0.1, 0.2, 0.3])),
+        1e-12,
+      ) &&
+      close(pooled, [0.3, g, g], 1e-12) &&
+      nclose(Y(pooled), Y([0.3, 0.1, 0.2]), 1e-12),
   );
 };

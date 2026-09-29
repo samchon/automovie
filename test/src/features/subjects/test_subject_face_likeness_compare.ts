@@ -1,5 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
+import { FACE_LIKENESS_BROW_BAND_COLUMNS } from "../../../scripts/face-review/faceLikenessBrowBand";
 import { faceLikenessSrgbToLab } from "../../../scripts/face-review/faceLikenessColour";
 import {
   FACE_LIKENESS_BLENDSHAPES,
@@ -127,6 +128,43 @@ export const test_subject_face_likeness_compare = (): void => {
     reference: 0,
     render: 0,
   });
+  const browPoints = createFaceLikenessLandmarks().map(
+    ([x, y]) => [x / 2, y / 2] as [number, number],
+  );
+  for (const [side, x] of [
+    ["right", 65],
+    ["left", 85],
+  ] as const)
+    for (const [u, l] of FACE_LIKENESS_BROW_BAND_COLUMNS[side]) {
+      browPoints[u] = [x, 60];
+      browPoints[l] = [x, 62];
+    }
+  const browImage = {
+    width: 150,
+    height: 150,
+    rgb: new Uint8Array(150 * 150 * 3).fill(255),
+  };
+  for (let y = 60; y < 63; y++)
+    for (let x = 0; x < browImage.width; x++)
+      browImage.rgb.fill(
+        20,
+        3 * (y * browImage.width + x),
+        3 * (y * browImage.width + x) + 3,
+      );
+  const browFace = { ...face, landmarks: browPoints };
+  const bareHair = createFaceLikenessMask(0, 150, 150);
+  const measuredBrow = compareFaceLikeness({
+    reference: { face: browFace, image: browImage, hair: bareHair },
+    portrait: { face: browFace, image: browImage, hair: bareHair },
+    frame: { face: browFace, hair: bareHair },
+  });
+  TestValidator.predicate(
+    "brow reader reaches comparison",
+    measuredBrow.browBand.right.reference !== null &&
+      Math.abs(measuredBrow.browBand.right.reference - 0.1) <= 0.02 &&
+      measuredBrow.browBand.left.reference ===
+        measuredBrow.browBand.left.render,
+  );
 
   const taller = compareFaceLikeness({
     reference: { face, image, hair },
@@ -223,6 +261,27 @@ export const test_subject_face_likeness_compare = (): void => {
       nclose(teethSummary.lowerIncisorExposureSignedError!.median!, -0.03) &&
       teethSummary.incisalGapSignedError!.count === 0,
   );
+  const brows = summarizeFaceLikeness([
+    {
+      ...same,
+      browBand: {
+        right: { reference: 0.07, render: 0.05 },
+        left: { reference: null, render: 0.06 },
+      },
+    },
+    {
+      ...same,
+      browBand: {
+        right: { reference: 0.04, render: 0.06 },
+        left: { reference: 0.05, render: 0.05 },
+      },
+    },
+  ]);
+  TestValidator.predicate(
+    "brow error pairs only shared observations",
+    brows.browBandSignedError!.count === 2 &&
+      nclose(brows.browBandSignedError!.median!, -0.005),
+  );
   const summary = summarizeFaceLikeness([same, taller, blind]);
   TestValidator.predicate(
     "sclera ratio error",
@@ -242,6 +301,10 @@ export const test_subject_face_likeness_compare = (): void => {
   );
   const empty = summarizeFaceLikeness([]);
   TestValidator.equals("empty population", empty.landmarkRmsInterocular, {
+    median: null,
+    count: 0,
+  });
+  TestValidator.equals("no brow observations", empty.browBandSignedError, {
     median: null,
     count: 0,
   });

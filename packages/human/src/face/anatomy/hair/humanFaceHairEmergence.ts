@@ -10,9 +10,11 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  * gives 30 to 45 degrees over the mid-scalp and 15 to 20 at the frontal
  * hairline, with the frontotemporal angle at 10 to 15 and the temporal
  * hairline nearly flat at 5 to 10 (Shapiro & Shapiro, Facial Plast Surg Clin
- * North Am 2013). The lower end of each range is used, so hair lies against
- * the scalp and the surface contact holds it there rather than the field
- * having to push it down.
+ * North Am 2013, Fig. 7 and Proper Angle and Direction,
+ * https://shapiromedical.com/wp-content/uploads/2025/02/article_hairline-design.pdf).
+ * These are hair-restoration placement practices rather than measurements of
+ * every natural follicle. Choosing the lower end keeps roots near the scalp;
+ * contact then holds them there instead of the field pushing them down.
  */
 const SCALP_DEGREES = 30;
 const HAIRLINE_DEGREES = 15;

@@ -15,27 +15,32 @@
  *
  * Limits: the darkest tenth still mixes skin into a sparse brow, which reads
  * the brow paler, as the eye does; the brow ridge's shade darkens it a
- * little; a greyscale photograph yields a neutral brow
- * (`faceLikenessReflectance`). Pure: returns new
- * values.
+ * little; a greyscale photograph, or a brow too dark to show a hue, yields
+ * a neutral brow (`faceLikenessReflectance`), and a colour melanin cannot
+ * give is held to one it can (`faceLikenessMelaninAlbedo`). Pure: returns new values.
  */
-import { faceLikenessReflectance } from "./faceLikenessIrisFit";
+import {
+  faceLikenessMelaninAlbedo,
+  faceLikenessReflectance,
+} from "./faceLikenessIrisFit";
 
 /** One subject's fitted brow pigment, or null without both samples. */
 export function fitFaceLikenessBrowPigment(props: {
   brow: readonly [number, number, number] | null;
   cheek: readonly [number, number, number] | null;
   skin: readonly [number, number, number];
-  /** The colour a greyscale photograph cannot show (`faceLikenessReflectance`). */
+  /** The colour a photograph without a hue cannot show (`faceLikenessReflectance`). */
   prior?: readonly [number, number, number];
 }): { pigment: [number, number, number]; clamped: boolean } | null {
   if (props.brow === null || props.cheek === null) return null;
-  const raw = faceLikenessReflectance({
-    sample: props.brow,
-    cheek: props.cheek,
-    skin: props.skin,
-    prior: props.prior,
-  });
+  const raw = faceLikenessMelaninAlbedo(
+    faceLikenessReflectance({
+      sample: props.brow,
+      cheek: props.cheek,
+      skin: props.skin,
+      prior: props.prior,
+    }),
+  );
   return {
     pigment: raw.map((value) => Math.min(1, value)) as [number, number, number],
     clamped: raw.some((value) => value > 1),

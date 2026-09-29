@@ -11,11 +11,13 @@ import { portraitHairShadeFixture } from "../internal/portraitHairShadeFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Named hair populations are whole-array overrides in portable documents.
+ * Named source hair populations permit numeric styling and empty removal;
+ * a new guide-bearing population belongs to the immutable basis instead.
  * Scenarios:
  * 1. Omission remains absent; a basis layer sharing the legacy profile object
  *    resolves the same display defaults as its independently serialized twin.
- * 2. Replacement and an empty override replace all additional layers, never base hair.
+ * 2. A new empty population and an empty override replace additional layers,
+ *    never base hair; an authored guide replacement refuses.
  * 3. Inheritance restores the basis and snapshots cannot mutate it.
  * 4. Side replacement and unknown nested profile fields refuse.
  */
@@ -50,7 +52,7 @@ export const test_subject_human_hair_layers = (): void => {
   };
   const changed = replaceHumanFaceRegion({
     ...props,
-    value: [{ id: "outer", profile: { ...shape, coverage: 0.2 } }],
+    value: [{ id: "outer", profile: { ...shape, cards: [], coverage: 0.2 } }],
   });
   TestValidator.equals(
     "array replaced",
@@ -95,6 +97,7 @@ export const test_subject_human_hair_layers = (): void => {
         id: "explicit",
         profile: {
           ...shape,
+          cards: [],
           fibreNormalScale: 0.4,
           taperStart: 0.7,
           fibreShadeStrength: 0,
@@ -106,6 +109,17 @@ export const test_subject_human_hair_layers = (): void => {
     "explicit defaults retained",
     humanFaceRegionValue(explicit, "hairLayers"),
     explicit.detail!.hairLayers,
+  );
+  TestValidator.predicate(
+    "new guide population refuses",
+    throwsError(
+      () =>
+        replaceHumanFaceRegion({
+          ...props,
+          value: [{ id: "free", profile: shape }],
+        }),
+      "profile.cards",
+    ),
   );
   humanFaceRegionValue(face, "hairLayers")![0].id = "mutated";
   TestValidator.equals("caller preserved", face, before);

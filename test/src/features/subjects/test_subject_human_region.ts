@@ -15,7 +15,7 @@ import { throwsError } from "../internal/predicates";
 export const test_subject_human_region = (): void => {
   const original = humanFaceFixture();
   original.controls = { noseWidth: 0.1 };
-  const shape = { ...original.basis.recipe.eye, foldDepth: 0.45 };
+  const shape = { foldDepth: 0.45 };
   const common = replaceHumanFaceRegion({
     document: original,
     basisId: original.basis.id,

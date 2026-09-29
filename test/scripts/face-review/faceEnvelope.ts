@@ -1,3 +1,4 @@
+import { measureAutoMovieMeshCrossings } from "@automovie/engine";
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
 
 /**
@@ -230,77 +231,30 @@ function crossingPairs(
   support: ReadonlySet<number>,
   contact: ReadonlySet<number>,
 ): [number, number][] {
-  const corner = (t: number, e: number) =>
-    [0, 1, 2].map((k) => P[3 * I[t + e]! + k]!);
-  const cell = 0.004;
-  const cells = (t: number) => {
-    const points = [0, 1, 2].map((e) => corner(t, e));
-    const lo = [0, 1, 2].map((k) =>
-      Math.floor(Math.min(...points.map((p) => p[k]!)) / cell),
-    );
-    const hi = [0, 1, 2].map((k) =>
-      Math.floor(Math.max(...points.map((p) => p[k]!)) / cell),
-    );
-    const keys: string[] = [];
-    for (let x = lo[0]!; x <= hi[0]!; ++x)
-      for (let y = lo[1]!; y <= hi[1]!; ++y)
-        for (let z = lo[2]!; z <= hi[2]!; ++z) keys.push(`${x},${y},${z}`);
-    return keys;
+  const mesh = {
+    positions: P.slice(),
+    indices: I.slice(),
+    normals: null,
+    uvs: null,
+    skin: null,
   };
-  const grid = new Map<string, number[]>();
-  for (const t of support)
-    for (const key of cells(t)) {
-      if (!grid.has(key)) grid.set(key, []);
-      grid.get(key)!.push(t);
-    }
-  for (let t = 0; t < I.length; t += 3)
-    if (!support.has(t)) for (const key of cells(t)) grid.get(key)?.push(t);
   const seen = new Set<string>();
   const pairs: [number, number][] = [];
-  for (const members of grid.values())
-    for (let a = 0; a < members.length; ++a)
-      for (let b = a + 1; b < members.length; ++b) {
-        const [s, t] = [members[a]!, members[b]!];
-        if (!support.has(s) && !support.has(t)) continue;
-        if (contact.has(s) && contact.has(t)) continue;
-        const key = s < t ? `${s},${t}` : `${t},${s}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        const own = [0, 1, 2].map((e) => I[s + e]!);
-        if ([0, 1, 2].some((e) => own.includes(I[t + e]!))) continue;
-        const A = [0, 1, 2].map((e) => corner(s, e));
-        const B = [0, 1, 2].map((e) => corner(t, e));
-        if (
-          [0, 1, 2].some((e) => pierces(A[e]!, A[(e + 1) % 3]!, B)) ||
-          [0, 1, 2].some((e) => pierces(B[e]!, B[(e + 1) % 3]!, A))
-        )
-          pairs.push(s < t ? [s, t] : [t, s]);
-      }
+  for (const crossing of measureAutoMovieMeshCrossings(mesh, mesh, {
+    allPairs: true,
+    interiorTolerance: 1e-9,
+  })) {
+    if (crossing.coplanar) continue;
+    const [a, b] = [crossing.triangle * 3, crossing.other * 3].sort(
+      (one, other) => one - other,
+    );
+    if (!support.has(a) && !support.has(b)) continue;
+    if (contact.has(a) && contact.has(b)) continue;
+    if ([0, 1, 2].some((e) => I.slice(a, a + 3).includes(I[b + e]!))) continue;
+    const key = `${a}/${b}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    pairs.push([a, b]);
+  }
   return pairs;
-}
-
-/** Whether the open segment p0-p1 passes through triangle t. */
-function pierces(p0: number[], p1: number[], t: number[][]): boolean {
-  const sub = (a: number[], b: number[]) => [0, 1, 2].map((k) => a[k]! - b[k]!);
-  const cross = (a: number[], b: number[]) => [
-    a[1]! * b[2]! - a[2]! * b[1]!,
-    a[2]! * b[0]! - a[0]! * b[2]!,
-    a[0]! * b[1]! - a[1]! * b[0]!,
-  ];
-  const dot = (a: number[], b: number[]) =>
-    a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-  const d = sub(p1, p0);
-  const e1 = sub(t[1]!, t[0]!);
-  const e2 = sub(t[2]!, t[0]!);
-  const p = cross(d, e2);
-  const det = dot(e1, p);
-  if (Math.abs(det) < 1e-18) return false;
-  const s = sub(p0, t[0]!);
-  const u = dot(s, p) / det;
-  if (u < 0 || u > 1) return false;
-  const q = cross(s, e1);
-  const v = dot(d, q) / det;
-  if (v < 0 || u + v > 1) return false;
-  const along = dot(e2, q) / det;
-  return along > 1e-9 && along < 1 - 1e-9;
 }

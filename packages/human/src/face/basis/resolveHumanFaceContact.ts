@@ -29,6 +29,13 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * on their floor. Positions are corrected in place and the count of welded
  * vertices moved and the deepest excess per surface are returned for the
  * summary.
+ * Kozlov et al. 2017 use teeth-shaped collision surfaces and volume
+ * simulation to keep lips outside teeth in an animated rig
+ * (https://la.disneyresearch.com/wp-content/uploads/Enriching-Facial-Blendshape-Rigs-with-Physical-Simulation-Paper2.pdf).
+ * This builder uses neither their simulation nor measured tissue stiffness:
+ * its rest-clearance floor, neighbour averaging and allowed push budget are
+ * authored deterministic constraints. They do not prove all combinations
+ * anatomically valid or intersection-free.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Returns tissue pushed past its rest clearance to that clearance within the tissue budget and refuses beyond it.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Compiles the posed and rest colliders as sheets, applies the floor rule within reach and tolerance, and reports resolved counts and depths.
