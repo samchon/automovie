@@ -9,6 +9,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
+import { furnitureOakSample } from "../materials/furnishings/wood-grain.mjs";
 
 const SIZE = 512;
 const OUTPUT = new URL("../../public/textures/", import.meta.url);
@@ -56,6 +57,7 @@ const concrete = (color) => (x, y) => {
 /** Each expression is periodic in u/v; module sizes live in materialPreview.ts. */
 /** @type {Record<string, Sampler>} */
 const textures = {
+  "furniture-oak.png": (_x,_y,u,v) => furnitureOakSample(u,v),
   "siding.png": (x, y, _u, v) => {
     const seam = distanceToEdge(v) < 0.022;
     const grain = (noise(x, y, 16, 1) - 0.5) * 9 + (noise(x, y, 64, 2) - 0.5) * 5;

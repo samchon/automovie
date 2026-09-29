@@ -1,15 +1,17 @@
 /** Material binding checks against emitted solids and metric projections. */
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
+import { createRequire } from "node:module";
 
-import {
+const require = createRequire(import.meta.url);
+const {
   houseFinish,
   houseTextureUvs,
   houseWallFinishGroups,
   modelTextileMap,
-} from "../viewer/materialPreview";
-import { buildHouse } from "../spaces/house";
-import { buildHouseScene } from "../viewer/houseScene.cjs";
+} = require("../viewer/materialPreview.ts") as typeof import("../viewer/materialPreview");
+const { buildHouse } = require("../spaces/house.ts") as typeof import("../spaces/house");
+const { buildHouseScene } = require("../viewer/houseScene.cts") as typeof import("../viewer/houseScene.cjs");
 
 void test("every emitted house surface resolves to one authored finish", () => {
   const house = buildHouse();
@@ -19,10 +21,16 @@ void test("every emitted house surface resolves to one authored finish", () => {
   assert.ok(finishes.some((finish) => finish.id === "roof-shingle"));
   assert.ok(finishes.some((finish) => finish.id === "brick-red-brown"));
   assert.ok(finishes.some((finish) => finish.id === "paving-concrete"));
-  const posts = house.parts.filter((part) => part.id.startsWith("stair-post-") || part.id.startsWith("stair-guard-post-"));
+  const posts = house.parts.filter(
+    (part) => part.id.startsWith("stair-post-") || part.id.startsWith("stair-guard-post-"),
+  );
   assert.equal(posts.length, 4);
-  assert.ok(posts.every((part) => houseFinish(part.role, part.color).id === "interior-trim-white"));
-  assert.throws(() => houseFinish("wall", 0x123456), /unbound house surface/);
+  assert.ok(
+    posts.every(
+      (part) => houseFinish(part.role, part.color).id === "interior-trim-white",
+    ),
+  );
+  assert.throws(() => houseFinish("wall", 0x123456), /found 0/);
 });
 
 void test("metric tiles project by actual face and retain fallbacks", () => {
@@ -37,28 +45,49 @@ void test("metric tiles project by actual face and retain fallbacks", () => {
     [0, 0, 1, 1],
   );
   assert.deepEqual(
-    houseTextureUvs([1, 0, -2, 1, 1, -2], [1, 0, 0, 1, 0, 0], paving, "garden-terrace"),
+    houseTextureUvs(
+      [1, 0, -2, 1, 1, -2],
+      [1, 0, 0, 1, 0, 0],
+      paving,
+      "garden-terrace",
+    ),
     [-4, 0, -4, 2],
   );
   assert.deepEqual(
-    houseTextureUvs([1, 0, -2, 1.5, 0.4, -1.5], [0, 0.8, 0.6, 0, 0.8, 0.6], paving, "front-walk-connector-0-0-0"),
+    houseTextureUvs(
+      [1, 0, -2, 1.5, 0.4, -1.5],
+      [0, 0.8, 0.6, 0, 0.8, 0.6],
+      paving,
+      "front-walk-connector-0-0-0",
+    ),
     [2, -4, 3, -3],
   );
   assert.deepEqual(
-    houseTextureUvs([1, 0, -2, 1, 1, -2], [1, 0, 0, 1, 0, 0], paving, "front-walk-connector-0-0-0"),
+    houseTextureUvs(
+      [1, 0, -2, 1, 1, -2],
+      [1, 0, 0, 1, 0, 0],
+      paving,
+      "front-walk-connector-0-0-0",
+    ),
     [-4, 0, -4, 2],
   );
   const tread = houseFinish("stair", 0x9a6b43);
   assert.deepEqual(
-    houseTextureUvs([-1.8, 0.17, -1.73, -1.67, 0.17, -1.45], [0, 1, 0, 0, 1, 0], tread, "stair-lower-tread-1")?.map((value) => Math.round(value * 1000) / 1000),
+    houseTextureUvs([-1.8, 0.17, -1.73, -1.67, 0.17, -1.45], [0, 1, 0, 0, 1, 0], tread, "stair-lower-tread-1")?.map(
+      (value) => Math.round(value * 1000) / 1000,
+    ),
     [0, 0.233, 1, 0],
   );
   assert.deepEqual(
-    houseTextureUvs([-0.65, 1.53, -3.41, -0.37, 1.53, -3.54], [0, 1, 0, 0, 1, 0], tread, "stair-upper-tread-1")?.map((value) => Math.round(value * 1000) / 1000),
+    houseTextureUvs([-0.65, 1.53, -3.41, -0.37, 1.53, -3.54], [0, 1, 0, 0, 1, 0], tread, "stair-upper-tread-1")?.map(
+      (value) => Math.round(value * 1000) / 1000,
+    ),
     [1, 0, 0, 0.233],
   );
   assert.deepEqual(
-    houseTextureUvs([-1.8, 1.36, -3.41, -0.65, 1.36, -4.56], [0, 1, 0, 0, 1, 0], tread, "stair-landing")?.map((value) => Math.round(value * 1000) / 1000),
+    houseTextureUvs([-1.8, 1.36, -3.41, -0.65, 1.36, -4.56], [0, 1, 0, 0, 1, 0], tread, "stair-landing")?.map(
+      (value) => Math.round(value * 1000) / 1000,
+    ),
     [0, 0, 8.846, 0.958],
   );
   const shingle = houseFinish("roof", 0x3d3f43);
@@ -106,7 +135,7 @@ void test("siding binds only to outward wall faces", () => {
     groups.map((group) => [group.suffix, group.finish.id, group.indices]),
     [
       ["/exterior", "siding-warm-white", [0, 1, 2]],
-      ["/interior", "interior-painted-wall", [3, 4, 5, 6, 7, 8]],
+      ["/interior", "interior-wall-paint", [3, 4, 5, 6, 7, 8]],
     ],
   );
   assert.throws(
@@ -121,22 +150,42 @@ void test("siding binds only to outward wall faces", () => {
   const shared = buildHouse().parts.find((part) => part.id === "garage-shared-wall")!;
   assert.equal(
     houseWallFinishGroups(shared, shared.mesh.normals!, shared.mesh.indices!)[0]!.finish.id,
-    "interior-painted-wall",
+    "interior-wall-paint",
   );
 });
 
 void test("roof weather face alone receives shingles", () => {
   const roof = buildHouse().parts.find((part) => part.role === "roof" && part.color === 0x3d3f43)!;
-  const groups = houseWallFinishGroups(roof, roof.mesh.normals!, roof.mesh.indices!);
-  assert.deepEqual(groups.map((group) => group.finish.id), ["roof-shingle", "trim-white"]);
-  assert.equal(groups.reduce((sum, group) => sum + group.indices.length, 0), roof.mesh.indices!.length);
+  const groups = houseWallFinishGroups(
+    roof,
+    roof.mesh.normals!,
+    roof.mesh.indices!,
+  );
+  assert.deepEqual(
+    groups.map((group) => group.finish.id),
+    ["roof-shingle", "trim-white"],
+  );
+  assert.equal(
+    groups.reduce((sum, group) => sum + group.indices.length, 0),
+    roof.mesh.indices!.length,
+  );
 });
 
 void test("stair blocks bind oak tops and painted risers", () => {
   const tread = buildHouse().parts.find((part) => part.id === "stair-upper-tread-1")!;
-  const groups = houseWallFinishGroups(tread, tread.mesh.normals!, tread.mesh.indices!);
-  assert.deepEqual(groups.map((group) => group.finish.id), ["stair-tread-wood", "trim-white"]);
-  assert.equal(groups.reduce((sum, group) => sum + group.indices.length, 0), tread.mesh.indices!.length);
+  const groups = houseWallFinishGroups(
+    tread,
+    tread.mesh.normals!,
+    tread.mesh.indices!,
+  );
+  assert.deepEqual(
+    groups.map((group) => group.finish.id),
+    ["stair-tread-wood", "trim-white"],
+  );
+  assert.equal(
+    groups.reduce((sum, group) => sum + group.indices.length, 0),
+    tread.mesh.indices!.length,
+  );
 });
 
 void test("scene keeps exterior siding while painting the garage and family room faces", () => {
@@ -145,9 +194,10 @@ void test("scene keeps exterior siding while painting the garage and family room
     (item) => item.texture === "/textures/siding.png",
   );
   assert.ok(siding.length > 0);
-  assert.ok(siding.every((item) => item.id.endsWith("/exterior")));
+  assert.ok(siding.filter(item=>item.role==="wall").every((item) => item.id.endsWith("/exterior")));
+  assert.ok(siding.filter(item=>item.role==="model").every(item=>item.modelId?.startsWith("siding:")||(item.id.startsWith("repeat:")&&item.faceId?.startsWith("siding-"))));
   const painted = scene.items.filter(
-    (item) => item.color === 0xf0ebe1 && item.role === "wall",
+    (item) => item.color === 0xf1eee6 && item.role === "wall",
   );
   assert.ok(painted.some((item) => item.id === "garage-shared-wall"));
   assert.ok(painted.some((item) => item.id === "rear-main-wall/interior"));

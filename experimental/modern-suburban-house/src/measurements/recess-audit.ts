@@ -5,8 +5,12 @@ import { blindRecessWall, type IBlindRecess } from "../spaces/rooms/recess";
 import { block } from "../spaces/solids";
 
 const fixture: IBlindRecess = {
-  wallX: [0.75, 0.90], wallY: [3.06, 5.66], wallZ: [-8.95, -6.06],
-  openingY: [4.16, 4.56], openingZ: [-8.55, -8.15], depth: 0.08,
+  wallX: [0.75, 0.90],
+  wallY: [3.06, 5.66],
+  wallZ: [-8.95, -6.06],
+  openingY: [4.16, 4.56],
+  openingZ: [-8.55, -8.15],
+  depth: 0.08,
 };
 
 const verify = (input: IBlindRecess): void => {
@@ -17,21 +21,33 @@ const verify = (input: IBlindRecess): void => {
   if (!t.watertight || t.degenerate !== 0 || t.nonManifoldEdges !== 0 || t.boundaryEdges !== 0 || t.nonFinite !== 0)
     throw new Error(`blind recess topology failed: ${JSON.stringify(t)}`);
   if (Math.abs(t.volume - (outer - pocket)) > 1e-7)
-    throw new Error(`blind recess volume ${t.volume} differs from ${outer - pocket}`);
+    throw new Error(
+      `blind recess volume ${t.volume} differs from ${outer - pocket}`,
+    );
   if (solid.face.holes.length !== 0)
-    throw new Error("blind recess was incorrectly recorded as a through opening");
+    throw new Error(
+      "blind recess was incorrectly recorded as a through opening",
+    );
 };
 
 const mustReject = (input: IBlindRecess): void => {
-  try { blindRecessWall(input); }
-  catch { return; }
+  try {
+    blindRecessWall(input);
+  } catch {
+    return;
+  }
   throw new Error("blind recess accepted an open or degenerate boundary");
 };
 
 /** Invoked by the committed whole-house measurement producer. */
 export const verifyBlindRecessFixtures = (): void => {
   // Convex uncut reference: the removed pocket must be exactly the volume difference.
-  const convex = inspectAutoMovieMeshTopology(block([fixture.wallX[0], fixture.wallY[0], fixture.wallZ[0]], [fixture.wallX[1], fixture.wallY[1], fixture.wallZ[1]]));
+  const convex = inspectAutoMovieMeshTopology(
+    block(
+      [fixture.wallX[0], fixture.wallY[0], fixture.wallZ[0]],
+      [fixture.wallX[1], fixture.wallY[1], fixture.wallZ[1]],
+    ),
+  );
   const outer = 0.15 * 2.60 * 2.89;
   if (!convex.watertight || Math.abs(convex.volume - outer) > 1e-7)
     throw new Error("convex wall reference fixture failed");

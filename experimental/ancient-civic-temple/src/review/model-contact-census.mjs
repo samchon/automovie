@@ -130,6 +130,7 @@ const decisions = {
     ["껍질은 Z=", "tile row end meets next unit"],
     ["평기와의 뒤쪽", "tegula slab and row contact"],
     ["둥근기와의 열린", "tile feet land on ribs without overlap"],
+    ["이 구간이 들린", "ridge cap contacts both roof tiles and clears coping"],
     ["instances는 각", "tile cap clearance bound"],
     ["박공 용마루에서", "ridge cap contacts both roof tiles and clears coping"],
   ],
@@ -366,7 +367,7 @@ export const checkModelContactCensus = (output) => {
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const output = execFileSync(process.execPath, [fileURLToPath(new URL("./model-design-arithmetic.mjs", import.meta.url))], { encoding: "utf8" });
+  const output = execFileSync(process.execPath, [fileURLToPath(new URL("./model-design-arithmetic.mjs", import.meta.url))], { encoding: "utf8", windowsHide: true });
   process.stdout.write(output);
   process.exitCode = checkModelContactCensus(output).length > 0 ? 1 : 0;
 }

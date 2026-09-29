@@ -24,9 +24,9 @@ import { part } from "../solid-records";
 import { STOREYS } from "../storeys";
 import { STAIR_OPENING } from "../stair";
 import {
+  box,
   door,
   doorFloor,
-  box,
   partition,
   partitionSpan,
   roomCeiling,
@@ -56,17 +56,11 @@ const LINEN_HEIGHT = 2.2;
 /** Emit the hall finishes, its shares under the five room doors and the linen closet boundaries around its hollow interior. */
 /**
  * @evidence spaces/rooms/upper-hall.md This builder forms one L-shaped upper corridor and its hollow linen storage.
- * @evidenceReview spaces/rooms/upper-hall.md #ba7a76b UPPER_HALL traces the joined arrival and cross bands; buildUpperHall adds a separate linen-floor finish, opening strip, storage volume and enclosing parts under the same owner rather than another corridor.
  * @evidence spaces/rooms/upper-hall.md#upper-hall-plan The joined arrival and cross bands retain floor shares below five direct room doors.
- * @evidenceReview spaces/rooms/upper-hall.md#upper-hall-plan #d1275b5 UPPER_HALL's six-point outline joins the two authored bands; buildUpperHall takes five door spans from the respective bedroom and bath owners and supplies floor-finish shares beneath those direct room doors.
  * @evidence spaces/rooms/upper-hall.md#upper-linen-storage Four closet walls, a door opening, and an upper head enclose the 2.20 m storage volume.
- * @evidenceReview spaces/rooms/upper-hall.md#upper-linen-storage #fb7923e The storage floor covers its X/Z interior at the upper finish datum and the opening strip meets the hall floor; the front opening, side and rear partitions, and head enclose the volume up to upperFloor plus LINEN_HEIGHT.
  * @evidence principles/core/source-units.md#source-scope-preservation The hall does not create bedroom or bathroom partition bodies, and leaves linen shelves/leaves to models.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 buildUpperHall emits the hall and storage floors, their connecting opening strip, the hall ceiling and room-door shares, plus its linen enclosure partitions; it creates no bedroom or bathroom wall, shelf or leaf.
  * @evidence principles/core/source-units.md#source-substantive-completion The room, storage record, separate storage floor, connecting strip, five room-door strips and closed closet shell are built in a fixed order.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The return contains UPPER_HALL, its bounded linen storage, two floor zones and a connecting strip, ceiling finish, five room-door strips, four closet partitions and the head block.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work Emitting the linen storage beyond the corridor outline exposed its missing upper-floor finish; rooms/upper-hall.md#upper-linen-storage, 03-surface-owners.md#interior-surface-handoff and 08-floor-assembly.md#interstorey-floor-boundary were revised so this owner finishes the storage inset and opening without a second hall.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `buildUpperHall` now emits a floor for `linenStorage` and its opening beside the corridor floor; the cited hall, surface and interstorey owners allocate those areas to this one builder.
  */
 export const buildUpperHall = (): IRoomBuild => {
   const owner = UPPER_HALL.owner;
@@ -83,8 +77,16 @@ export const buildUpperHall = (): IRoomBuild => {
     storages: [linenStorage],
     parts: [
       roomFloor(UPPER_HALL),
-      roomFloor(UPPER_HALL, { id: linenStorage.id, outline: box(linenStorage.x, linenStorage.z) }),
-      doorFloor(UPPER_HALL, "upper-linen-opening", [1.97, 2.97], [STAIR_OPENING.turnZ, linenStorage.z[0]]),
+      roomFloor(UPPER_HALL, {
+        id: linenStorage.id,
+        outline: box(linenStorage.x, linenStorage.z),
+      }),
+      doorFloor(
+        UPPER_HALL,
+        "upper-linen-opening",
+        [1.97, 2.97],
+        [STAIR_OPENING.turnZ, linenStorage.z[0]],
+      ),
       roomCeiling(UPPER_HALL),
       doorFloor(
         UPPER_HALL,

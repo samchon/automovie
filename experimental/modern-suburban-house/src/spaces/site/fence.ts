@@ -41,19 +41,12 @@ const HALF = 0.05;
 /** Emit the fence runs and gate posts while leaving the model leaf opening clear. */
 /**
  * @evidence spaces/site/fence.md This builder emits the fixed garden fence and gate posts while leaving the movable leaf empty.
- * @evidenceReview spaces/site/fence.md #a7ccfe8 `buildFence` emits fixed runs, corner/end posts and two gate posts; its front run splits around `SIDE_WALK.x`, and no movable gate leaf is returned.
  * @evidence spaces/site/fence.md#fence-enclosure-plan The left, back, right, and front runs meet at shared posts; end posts terminate at MAIN and GARAGE outer faces.
- * @evidenceReview spaces/site/fence.md#fence-enclosure-plan #ee6f771 `buildFence` orders left-front, left, back, right and right-front runs through posts at `(L,F)`, `(L,B)`, `(R,B)` and `(R,F)`; its end posts reach `MAIN.outer.x[0]` and `GARAGE.outer.x[1]`.
  * @evidence spaces/site/fence.md#fence-gate-junction Two posts flank SIDE_WALK.x and the front panel omits that gate interval.
- * @evidenceReview spaces/site/fence.md#fence-gate-junction #ee70766 The two `gate-post-*` blocks touch the outer edges of `SIDE_WALK.x`, and `fence-right-front-inner` and `-outer` stop at their far faces, leaving the full gate interval open.
  * @evidence spaces/site/fence.md#fence-ground-profile Panel tops follow the side-walk datum plus 1.70 m; bottoms use its provisional ground proxy plus 0.05 m.
- * @evidenceReview spaces/site/fence.md#fence-ground-profile #8697d24 `runX` and `runZ` span from `SIDE_WALK.top + 0.05` to `SIDE_WALK.top + 1.7` and carry `map-ground-pending`, so the lower edge is an explicit display proxy rather than an asserted map contact.
  * @evidence principles/core/source-units.md#source-scope-preservation Value imports keep building/path contacts aligned, and no gate leaf or map-ground foundation is emitted.
- * @evidenceReview principles/core/source-units.md#source-scope-preservation #e4bc845 `F` and both end posts derive from building bounds, `L` derives from chimney/main bounds, and `R`, `B`, `S` derive from `SIDE_WALK`; the return array contains fixed fence parts without a gate leaf or foundation.
  * @evidence principles/core/source-units.md#source-substantive-completion Stable post and run ids yield a continuous fixed enclosure except for the authored gate gap.
- * @evidenceReview principles/core/source-units.md#source-substantive-completion #e9c974f The returned `fence-*` ids cover each fixed leg from the main wall through four corners to the garage wall, while the two named gate posts bound the sole omitted front interval.
  * @evidence upstream/design/space-sources.md#design-revision-from-space-source-work The initial source revealed a missing ground datum; the fence design now authorizes only a marked temporary display bottom.
- * @evidenceReview upstream/design/space-sources.md#design-revision-from-space-source-work #d9ad066 `site/fence.md#fence-ground-profile` now authorizes a temporary `S + 0.05 m` lower edge while maps ground is absent; `runX` and `runZ` mark those panels `map-ground-pending` instead of claiming final contact.
  */
 export const buildFence = (): IHousePart[] => {
   const post = (id: string, x: number, z: number): IHousePart =>

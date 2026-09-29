@@ -4,7 +4,6 @@
 
 <!--
 @evidence obligations/core/common.md#purpose-fit 아홉 모델 파일을 건물 부재·상설 가구·손에 드는 비품·대지 개체로 대조했다. portable이 없으면 벤치·수레·직물·작성 도구의 원형이, fixtures·wares가 없으면 제단·선반과 그 위 도기의 원형이 사라진다. 공통 축척·관절·검토 기준은 별도 생산 계약이 맡는다.
-@evidenceReview obligations/core/common.md#purpose-fit #7b32c66 아홉 원형 파일 각각의 역할을 본문 링크로 확인하고 공통 기준 세 항목은 원형 파일 수가 아닌 계약 claim으로 세는지 대조했다.
 -->
 
 이 population은 한 단층 시민 신전과 그 대지가 소비할 독립 부재의 blocking prototype을 설계한다. [모델 원칙](../../contracts/principles-models.md)은 공통 축척·UV0를 49개 원형 H2 각각에 요구한다. [모델 의무](../../contracts/obligations-models.md)는 관절 역할과 중립 검토 판을 맡는다. 원형 파일들은 각자 형상과 접합을 소유한다.
@@ -19,7 +18,6 @@
 
 <!--
 @evidence obligations/core/common.md#layer-boundary 모델 49개 H2 각각이 형상·점유와 local 축척·UV 원칙에 답하고, 관절 역할·중립 검토 판의 population 결론은 별도 의무 계정이 맡는다. 재료 반응은 materials, 방 안 복제·접촉은 instances, 물의 흐름과 빛은 systems, 외피·지면은 spaces가 맡는다.
-@evidenceReview obligations/core/common.md#layer-boundary #5271f94 원형마다 배정된 점유·UV 답과 두 의무 항목의 전체 역할 결산을 구분하고 재료·배치·시스템·공간 실체가 모델 설계에 중복되지 않는지 확인했다.
 -->
 
 원형을 정의하는 49개 H2는 각각 자기 prototype의 형상, part와 표면 ID, 가려진 접촉면과 빈 공간, 점유 범위와 배치 기준점을 결정한다. [축척·UV0 원칙](../../contracts/principles-models.md#temple-reference-scale)은 원형별 checklist라 각 H2가 자신의 점유와 투영을 따로 답한다. [관절·검토 판 의무](../../contracts/obligations-models.md)는 전체 모집단의 역할 배정과 관찰 계획을 결산한다. prototype 안에서 반복되는 부재의 개수·간격·첫 위치나 위상은 해당 모델 H2가 정하고, 실제 건물 안의 prototype 복제 수와 공간 경계에 따른 잘림은 instances가 판정된 공간과 합성 지붕에서 유도한다. 방 안 prototype의 배치와 다른 물체와의 실제 접촉도 instances가 정한다. 재료 결속·텍스처 반복 길이·fallback 색은 [재료 결속](../../materials/10-model-bindings.md#binding-map)이 소유하고, 비트맵 선택·색과 거칠기의 최종 반응도 materials가 소유한다.
@@ -30,9 +28,10 @@
 
 | 모델 H2 | part | 본문 문자 수 | 본문 SHA-256 |
 | --- | --- | ---: | --- |
-| [cladding/roof-tile](../../models/cladding.md#roof-tile) | `tegula` | 2564 | `3a345034f6bcb38637419d3385a57aa6bbd3b6d17725b9d39df582dc26ef32b9` |
-| [cladding/roof-tile](../../models/cladding.md#roof-tile) | `imbrex` | 2564 | `3a345034f6bcb38637419d3385a57aa6bbd3b6d17725b9d39df582dc26ef32b9` |
-| [cladding/ridge-tile](../../models/cladding.md#ridge-tile) | `ridge` | 2289 | `69d781a565bc3cfe169ff39069051c2fd3aa4f485c2fe634ef20f17d67dc0ca0` |
+| [cladding/roof-tile](../../models/cladding.md#roof-tile) | `tegula` | 2992 | `471a83264803bff0c38defe39d576bfae3dbb8d378a93cc157deab1494f26035` |
+| [cladding/roof-tile](../../models/cladding.md#roof-tile) | `lip` | 2992 | `471a83264803bff0c38defe39d576bfae3dbb8d378a93cc157deab1494f26035` |
+| [cladding/roof-tile](../../models/cladding.md#roof-tile) | `imbrex` | 2992 | `471a83264803bff0c38defe39d576bfae3dbb8d378a93cc157deab1494f26035` |
+| [cladding/ridge-tile](../../models/cladding.md#ridge-tile) | `ridge` | 2462 | `44f745e8304157f710048256651e6367252aada477311b7e6abf6887b60d0563` |
 | [columns/colonnade-column](../../models/columns.md#colonnade-column) | `plinth` | 1682 | `243793fb2bb4553afdf2345b1236759c9b9cc8989f448ac4e389d15bc30cb0b9` |
 | [columns/colonnade-column](../../models/columns.md#colonnade-column) | `base` | 1682 | `243793fb2bb4553afdf2345b1236759c9b9cc8989f448ac4e389d15bc30cb0b9` |
 | [columns/colonnade-column](../../models/columns.md#colonnade-column) | `shaft` | 1682 | `243793fb2bb4553afdf2345b1236759c9b9cc8989f448ac4e389d15bc30cb0b9` |
@@ -93,10 +92,10 @@
 | [landscape/broad-tree](../../models/landscape.md#broad-tree) | `branch` | 1333 | `8049b9b2c88e74f4fa7b522e91ebbf19eb7c72c1370af2fc14dca793c71d2fd6` |
 | [landscape/broad-tree](../../models/landscape.md#broad-tree) | `crown` | 1333 | `8049b9b2c88e74f4fa7b522e91ebbf19eb7c72c1370af2fc14dca793c71d2fd6` |
 | [landscape/grass-tuft](../../models/landscape.md#grass-tuft) | `blade` | 879 | `58bc461cba4a7cdda8bb1e4eb6075329bc2f557da4bd2efb1338ad6ab045a3ee` |
-| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `wall` | 1881 | `766f81bc1879934dffdc15ddfebaa343ec2179a3dcdb3ffbf11756ff7a82b266` |
-| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `plinth` | 1881 | `766f81bc1879934dffdc15ddfebaa343ec2179a3dcdb3ffbf11756ff7a82b266` |
-| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `roof` | 1881 | `766f81bc1879934dffdc15ddfebaa343ec2179a3dcdb3ffbf11756ff7a82b266` |
-| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `recess` | 1881 | `766f81bc1879934dffdc15ddfebaa343ec2179a3dcdb3ffbf11756ff7a82b266` |
+| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `wall` | 2028 | `4b42f178958a36ca2822fb6aac7b1400054e25e390beeb84f55610e2a0042505` |
+| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `plinth` | 2028 | `4b42f178958a36ca2822fb6aac7b1400054e25e390beeb84f55610e2a0042505` |
+| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `roof` | 2028 | `4b42f178958a36ca2822fb6aac7b1400054e25e390beeb84f55610e2a0042505` |
+| [landscape/neighbor-house](../../models/landscape.md#neighbor-house) | `recess` | 2028 | `4b42f178958a36ca2822fb6aac7b1400054e25e390beeb84f55610e2a0042505` |
 | [openings/door-frame](../../models/openings.md#door-frame) | `lining` | 1316 | `9c896531e31e272480389d40ef13324bd025a2c81be220605877ed9e768dce85` |
 | [openings/door-frame](../../models/openings.md#door-frame) | `surround` | 1316 | `9c896531e31e272480389d40ef13324bd025a2c81be220605877ed9e768dce85` |
 | [openings/double-door-leaf](../../models/openings.md#double-door-leaf) | `frame` | 2187 | `709e9621ea9b5c5018a467a2d544209684004abb7a5e46bcf3ca0984d09efa71` |
@@ -173,7 +172,6 @@
 
 <!--
 @evidence obligations/core/common.md#production-language 모델 결정과 실패 조건은 한국어 기술 서술체로 읽히고, plinth·tegula·hinge.<판 ID> 같은 part·표면·인터페이스 식별자와 anchor, API 성격의 용어만 원문을 유지한다. plumb cut처럼 처음 쓰는 기술 용어에는 한국어 풀이가 붙어 있다.
-@evidenceReview obligations/core/common.md#production-language #3ef4142 치수와 실패 조건의 한국어 문장, part·관절·상태의 원문 식별자, plumb cut의 첫 한국어 풀이를 실제 표기와 대조했다.
 -->
 
 settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 따라 모델 문서는 현대 표준 한국어로 쓴다. 치수·높이·실패 조건은 한국어 문장 안에서 m 단위 숫자로 적는다. part와 표면 이름(`plinth`, `shaft`, `tegula`, `imbrex`, `lining`, `surround`), 관절 인터페이스(`hinge.<판 ID>`), 상태 이름(`closed`, `open`), 문 ID(`door-entry` 등)와 anchor는 source와 같은 식별자라 원문을 유지한다.
@@ -184,23 +182,22 @@ settings의 [작업 언어](../../settings/00-delivery.md#working-language)에 �
 
 <!--
 @evidence obligations/core/common.md#proportionate-development 아래 아홉 원형 파일·49 H2의 생성 표와 H2별 분포를 사물 역할의 prototype 재사용에 대조했다. 기와·양개 문짝·수반은 기존 상세 단면을 유지하고 첨필·봉헌판은 얇은 부재만 정했으며 portable의 13 H2는 다방 재사용을 맡는다. 공통 규칙 세 H2는 별도 계약에 있으며 원형 분량에 섞지 않는다. 재생성 전 기준은 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`의 실제 blob을 같은 계수식으로 다시 재어 17 H2·14,799자로 검증했다.
-@evidenceReview obligations/core/common.md#proportionate-development #78feb28 아홉 원형 파일 49 H2의 본문 분량 표와 과거 17 H2의 비교 근거를 읽고 별도 소비자를 가진 원형 분할과 공통 계약의 경계를 확인했다.
 -->
 
 현재 모델 population의 파일·H2·본문 분량은 아래 self-check 생성 표로 고정한다. 본문 문자는 HTML 주석과 공백을 빼고 제목은 포함한 유니코드 코드 포인트 수다. 표에 없는 파일, 중복 파일, 낡은 행은 self-check 실패로 처리한다.
 
 | 모델 파일 | H2 | 주석·공백 제외 본문 문자 수 |
 | --- | ---: | ---: |
-| cladding.md | 2 | 3943 |
+| cladding.md | 2 | 4396 |
 | columns.md | 2 | 2270 |
 | entablature.md | 5 | 6179 |
 | fixtures.md | 10 | 10058 |
-| landscape.md | 4 | 4331 |
+| landscape.md | 4 | 4440 |
 | openings.md | 4 | 5026 |
 | portable.md | 13 | 11795 |
 | ritual.md | 3 | 2582 |
 | wares.md | 6 | 5976 |
-| 합계 | 49 | 52160 |
+| 합계 | 49 | 52722 |
 
 재생성 전 원본은 작업 트리에 없지만 Git `111dba96^:experimental/ancient-civic-temple/docs/models/temple-fit-out.md`에 남아 있다. 현재 계정의 `modelDocumentBodyLength`와 같은 방식으로 해당 blob의 HTML 주석·공백을 빼고 제목을 포함해 다시 세면 한 파일·17 H2·14,799자다. 그 H2 목록에는 `Column prototype`, `Door prototype`, `Roof tile prototype`이 각각 한 번씩 있어 당시 기둥·문짝·기와를 한 절로 묶은 기록도 확인된다. 현재 판은 문틀·양개·외개·창틀, 주랑·포치 원주, 평기와·용마루를 따로 두어 서로 다른 소비자와 변경 경로를 가진 결정이 각자 주소를 가진다.
 

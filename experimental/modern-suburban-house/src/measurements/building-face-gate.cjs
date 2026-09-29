@@ -11,7 +11,9 @@ const body = (file, anchor) => {
   let sections = cache.get(file);
   if (!sections) {
     sections = new Map();
-    for (const chunk of fs.readFileSync(path.join(docs, file), "utf8").split(/^## /m).slice(1)) {
+    for (const chunk of fs.readFileSync(path.join(docs, file), "utf8").split(/^## /m).slice(
+      1,
+    )) {
       const id = /\{#([^}]+)\}/.exec(chunk.split("\n", 1)[0])?.[1];
       if (id) sections.set(id, chunk.replace(/<!--[\s\S]*?-->/g, ""));
     }
@@ -19,8 +21,14 @@ const body = (file, anchor) => {
   }
   return sections.get(anchor) ?? "";
 };
-const approximateContents = new Set(["clothes", "folded", "shoe-box", "basket", "accessory"]);
-/** @param {{file:string; anchor?:string; id?:string; candidate:boolean}} row */
+const approximateContents = new Set([
+  "clothes",
+  "folded",
+  "shoe-box",
+  "basket",
+  "accessory",
+]);
+/** @param {{ file:string; anchor?:string; id?:string; candidate:boolean }} row */
 const isBuildingFaceMissing = (row) => {
   if (row.candidate || (row.id && approximateContents.has(row.id))) return false;
   if (/^0[1-6]-/.test(row.file)) return true;

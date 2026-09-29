@@ -17,7 +17,7 @@ The map must satisfy four conditions before drafting begins:
 - **Weight.** No unit exists to reach a count, and no event is compressed merely to fit one. Allocate the declared film scale under `obligations/core/common.md#proportionate-development`.
 - **Wholeness.** Each boundary leaves the audience with a complete part and a specific pressure, question, consequence, or formal state that the next part can answer. A cut that only interrupts is not a delivery boundary.
 
-Review the map against the complete reviewed treatment sequence. When the exercise exposes a treatment defect, repair that event and propagate its consequences before returning to the partition. When it exposes only a better delivery grouping, revise the map without manufacturing a matching treatment group.
+Review the map against the completed treatment sequence. When the exercise exposes a treatment defect, repair that event and propagate its consequences before returning to the partition. When it exposes only a better delivery grouping, revise the map without manufacturing a matching treatment group.
 
 ## Scope
 
@@ -37,7 +37,7 @@ Apply the narrative addressability obligation across the partition and the scrip
 
 Treat every script and caption boundary as an integer frame boundary on the one authored rational production clock. Destination audio samples, WebVTT milliseconds, and MP4 ticks use the shared nearest-half-up boundary mapping; do not calculate each carrier independently from decimal `fps`.
 
-Start at `scripts: "draft"` only after treatments are in `review`. Before `evidence`, enact every H4 in order and test physical possibility, timing, resources, settings capabilities, entry and exit continuity, proportional expansion beyond its actual treatment parents, and every consequential action, exchange, knowledge change, or silence. A summary that merely says these occur is not a script.
+Start at `scripts: "draft"` after treatment completion under [Evidence staging](../evidence-graph/staging.md#transitions). Before `evidence`, enact every H4 in order and test physical possibility, timing, resources, settings capabilities, entry and exit continuity, proportional expansion beyond its actual treatment parents, and every consequential action, exchange, knowledge change, or silence. A summary that merely says these occur is not a script.
 
 For the execution-handoff check, hand only the script to a cold reader and require a followable account of every unit as a physical event, including actor, affected part, relation, path, contact order, response, and result wherever applicable. Repair every essential story-level execution question that reader would have to invent without pulling camera or source implementation into the script.
 

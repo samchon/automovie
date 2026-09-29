@@ -10,7 +10,7 @@ import * as THREE from "three";
  * models. Identities and transforms still come from the payload unchanged:
  * each batch keeps the exact placement ids it carries, instance palettes become
  * per-vertex colour ratios, and a mirrored transform flips its triangle winding.
- * @param {Payload} payload */
+ * @param {Pick<Payload, "environment" | "models" | "placements" | "textures">} payload */
 export function uploadHouse(payload) {
   const root = new THREE.Group(); root.name = payload.environment.id;
   const texture = textureCache(payload.textures);
@@ -36,9 +36,10 @@ export function uploadHouse(payload) {
       if (part.transform) local.compose(new THREE.Vector3().copy(part.transform.translation), new THREE.Quaternion().copy(part.transform.rotation), new THREE.Vector3().copy(part.transform.scale));
       for (const p of placements) {
         const matrix = new THREE.Matrix4().compose(new THREE.Vector3().copy(p.position), new THREE.Quaternion().copy(p.rotation), new THREE.Vector3().copy(p.scale)).multiply(local);
-        // The engine palette is an absolute linear colour; divide by the base so
-        // the material colour times the vertex ratio reproduces it exactly once.
-        const colour = p.palette ? new THREE.Color(p.palette.r / Math.max(entry.baseColor.r, 1e-6), p.palette.g / Math.max(entry.baseColor.g, 1e-6), p.palette.b / Math.max(entry.baseColor.b, 1e-6)) : null;
+        // A declared shared reference preserves the native multi-material finish.
+        // Existing populations reproduce their absolute palette per part.
+        const reference = p.paletteReference ?? entry.baseColor;
+        const colour = p.palette ? new THREE.Color(p.palette.r / Math.max(reference.r, 1e-6), p.palette.g / Math.max(reference.g, 1e-6), p.palette.b / Math.max(reference.b, 1e-6)) : null;
         batch.items.push({ mesh: part.mesh, matrix, colour, node: p.node });
       }
       if (entry.emissive) for (const p of placements) {
@@ -61,8 +62,7 @@ function bake(entry, items, texture) {
   for (const { mesh } of items) if (material.map && mesh.uvs && (mesh.uvs.length !== mesh.positions.length / 3 * 2 || mesh.uvs.some((value) => !Number.isFinite(value))))
     throw new Error(entry.id + ": invalid primary UV array");
   const withUv = items.filter((item) => item.mesh.uvs).length;
-  const metricProjection = typeof entry.baseColorTexture === "object" && entry.baseColorTexture?.coordinateSource === "surface-metres";
-  if (material.map && withUv !== items.length && !metricProjection) throw new Error(entry.id + ": a textured batch needs primary UVs on every part");
+  if (material.map && withUv !== items.length) throw new Error(entry.id + ": a textured batch needs authored primary UVs on every part");
   const uv = Boolean(material.map) || withUv === items.length;
   const coloured = items.some((item) => item.colour || item.mesh.colors);
   let vertices = 0, indices = 0;
@@ -99,12 +99,8 @@ function bake(entry, items, texture) {
         normals[o] = normal.x; normals[o + 1] = normal.y; normals[o + 2] = normal.z;
       }
       if (uvs) {
-        if (mesh.uvs) { uvs[(v + k) * 2] = mesh.uvs[k * 2]; uvs[(v + k) * 2 + 1] = mesh.uvs[k * 2 + 1]; }
-        else if (metricProjection) {
-          if (!Number.isFinite(normal.x + normal.y + normal.z + point.x + point.y + point.z) || normal.lengthSq() < 0.5) throw new Error(entry.id + ": cannot derive metric primary UV");
-          const axis = Math.abs(normal.y) >= Math.abs(normal.x) && Math.abs(normal.y) >= Math.abs(normal.z) ? "y" : Math.abs(normal.x) >= Math.abs(normal.z) ? "x" : "z";
-          uvs[(v + k) * 2] = axis === "x" ? point.z : point.x;
-          uvs[(v + k) * 2 + 1] = axis === "y" ? point.z : point.y;
+        if (mesh.uvs) {
+          uvs[(v + k) * 2] = mesh.uvs[k * 2]; uvs[(v + k) * 2 + 1] = mesh.uvs[k * 2 + 1];
         } else throw new Error(entry.id + ": missing primary UV");
       }
       if (colours) {

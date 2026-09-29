@@ -2,6 +2,10 @@
 
 ## 회갈색 패널 수납장 {#greige-cabinet}
 <!--
+@evidence models/10-kitchen-dining.md#kitchen-base-run 하부장의 plinth·carcass·leaf·drawer-front만 회갈색 도막을 받고 석재 countertop과 홈 handle을 분리한다.
+@evidence models/10-kitchen-dining.md#kitchen-wall-cabinet 0.35 m 깊이 몸통과 두 leaf 전면에 같은 도막을 결속하되 하단 홈을 별도 돌출 손잡이로 칠하지 않는다.
+@evidence models/10-kitchen-dining.md#kitchen-island 섬의 carcass·drawer-front·leaf를 회갈색으로 이어 붙이고 상판 아래1.50 m 몸통의 스툴 쪽 돌출을 생성하지 않는다.
+@evidence models/12-service-rooms.md#laundry-upper-storage 문선 절개로 생긴 carcass 끝면과 두 leaf의 오목 하단 홈까지 회갈색 도막을 이어 붙이며 상판은 석재로 남긴다.
 @evidence principles/core/common.md#declared-basis 회갈색 패널 수납장의 #8A7F72·roughness 0.50은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 회갈색 패널 수납장은 models/10-kitchen-dining.md#kitchen-base-run, models/10-kitchen-dining.md#kitchen-island, models/10-kitchen-dining.md#kitchen-wall-cabinet와 욕실 세면장·세탁 상부장·접는 상판 받침의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 회갈색 패널 수납장은 #8A7F72(선형 0.254, 0.212, 0.168), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/cabinetry.ts`, 리뷰 관찰을 모두 적었다.
@@ -21,6 +25,7 @@
 
 ## 밝은 석재 상판 {#light-countertop}
 <!--
+@evidence models/12-service-rooms.md#laundry-folding-top top의 문선 절단면과 두 cleat socket 안쪽까지 석재 응답을 이어 붙이고 받침목 cleat은 도장 수납재로 분리한다.
 @evidence principles/core/common.md#declared-basis 밝은 석재 상판의 #E4E0D8·roughness 0.30은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 밝은 석재 상판은 주방 하부장·섬·세면장의 `countertop`과 세탁기 위 접는 상판의 `top`에만 결합한다. 받침 `cleat`는 회갈색 패널 수납장이 받으며 판 geometry는 각 모델에 남긴다.
 @evidence principles/core/common.md#substantive-completion 밝은 석재 상판은 #E4E0D8(선형 0.776, 0.745, 0.687), roughness 0.30, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/cabinetry.ts`, 리뷰 관찰을 모두 적었다.
@@ -39,6 +44,15 @@
 
 ## 스테인리스 가전과 수전 {#stainless-steel}
 <!--
+@evidence models/10-kitchen-dining.md#kitchen-refrigerator appliance-body·leaf·handle의 브러시 방향은 부재 길이이고 검은 control-panel 및 흰 appliance-interior는 별도 파티션으로 둔다.
+@evidence models/10-kitchen-dining.md#kitchen-range 레인지 appliance-body·leaf·handle은 금속이고 cooktop·control-panel의 검은 유리와 흰 appliance-interior는 스테인리스로 덮지 않는다.
+@evidence models/10-kitchen-dining.md#kitchen-dishwasher 식기세척기 appliance-body·leaf·홈 handle에 금속 응답을 주고 고정 control-panel은 검은 유리로, appliance-interior는 흰 에나멜로 남긴다.
+@evidence models/10-kitchen-dining.md#kitchen-microwave 전자레인지 appliance-body·leaf의 노출 금속과 door-window·control-panel의 검은 유리를 구별한다.
+@evidence models/12-service-rooms.md#garage-shelving 차고 선반의 0.04 m 각 post 네 개와 shelf 다섯에 노출 금속 응답을 적용하고 bin 네 개는 검은 도막값으로 분리한다.
+@evidence models/14-bathrooms.md#vanity-basin faucet과 손잡이만 스테인리스이며 basin 도기·countertop 석재·carcass 도막을 별도로 둔다.
+@evidence models/14-bathrooms.md#towel-bar 0.02 m 지름 rod와 wall bracket에 노출 금속 응답을 적용하고 아래 hanging cloth는 같은 광택을 받지 않는다.
+@evidence models/05-closet-fittings.md#coat-closet-rod-shelf 외투장 지름0.03 m rod의 길이/둘레 UV에 노출 스테인리스 응답을 적용하며 같은 원형 shelf는 흰 실내 trim으로 분리한다.
+@evidenceExclude models/05-closet-fittings.md#closet-fitting-fidelity 숨은 롤러·브래킷·선반 받침 나사는 수납 모델이 내지 않는 부재이므로 금속 재료 host로 추가하지 않는다. 옷/수건의 결속은 실제 소품이 생성될 때 별도 직물에 배정한다.
 @evidence principles/core/common.md#declared-basis 스테인리스 가전과 수전의 #C0C2C4·roughness 0.30은 settings/10-house.md#kitchen-equipment의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 스테인리스는 주방 가전과 수전, 욕실 수전·변기 레버, 차고 선반·공구, 세탁기 링·드럼의 금속 파티션에 결합하고 판과 기구의 geometry는 각각의 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 스테인리스 가전과 수전은 #C0C2C4(선형 0.527, 0.539, 0.552), roughness 0.30, metallic 1.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/appliances.ts`, 리뷰 관찰을 모두 적었다.
@@ -57,7 +71,7 @@
 
 표면 결속 계획: 가전·수전의 노출 스테인리스에는 0.02 m 반복의 방향성 헤어라인 거칠기 맵을 쓴다. 판의 길이 U를 연마 방향으로, 판 시작 모서리를 원점으로 하고 문·손잡이 파티션 경계에서 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
-추가 `rod`는 [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf)·[옷방 봉](../models/13-bedrooms.md#wardrobe-hanging)·[수건걸이](../models/14-bathrooms.md#towel-bar)의 금속부이고, 주방 `utensil`은 [조리 소품](../models/18-house-props.md#kitchen-food-utensils)이다. 검은 커튼 봉은 이 스테인리스가 아니라 실내 도장 금속이 받는다.
+추가 `rod`는 [외투장 봉](../models/05-closet-fittings.md#coat-closet-rod-shelf)·[옷방 봉](../models/13-bedrooms.md#wardrobe-hanging)·[수건걸이](../models/14-bathrooms.md#towel-bar)의 금속부이고, 주방 `utensil`은 [조리 소품](../models/18-house-props.md#kitchen-food-utensils)이다. 검은 커튼 봉은 이 스테인리스가 아니라 실내 도장 금속이 받는다. 외투장·린넨장·침실 미닫이 옷장의 rail과 rod, 옷방 rod는 노출 스테인리스이며 손잡이/오목 잡이만 검은 도장 금속이다. 이 구분은 2026-09-28 수납 내부 GPU 검사에서 같은 이름 rod의 결속이 black metal로 잘못 묶인 것을 바로잡은 것이다.
 
 [싱크 섬](../models/10-kitchen-dining.md#kitchen-island)의 `basin`은 이 금속을 받는다. [샤워부스](../models/14-bathrooms.md#sliding-shower-booth)의 `rail`도 이 금속을 받는다. [옷방 봉](../models/13-bedrooms.md#wardrobe-hanging)의 `rod`도 이 금속을 받는다.
 
@@ -82,6 +96,9 @@
 
 ## 흰 에나멜과 도기 {#white-enamel}
 <!--
+@evidence models/12-service-rooms.md#laundry-machine 세탁기·건조기의 appliance-body·leaf만 흰 에나멜이고 원형 glass 및 control-panel은 검은 응답으로 분리한다.
+@evidence models/14-bathrooms.md#shared-toilet tank·bowl·toilet-seat·lid의 실제 닫힌 면에 도기 광택을 주고 flush handle은 금속으로 남긴다.
+@evidence models/14-bathrooms.md#bathtub 파인 ceramic 안쪽 바닥·벽과 외곽 림에 도기 응답을 이어 붙이고 faucet 금속을 분리한다.
 @evidence principles/core/common.md#declared-basis 흰 에나멜과 도기의 #F5F5F2·roughness 0.25은 settings/10-house.md#laundry-mudroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 흰 에나멜과 도기는 변기·세면장·욕조·샤워 트레이, 세탁기 외장·가전 내부, 소품의 `container`·`bowl`·`lamp-base`에 결합하며 geometry는 각 원형에 남긴다.
 @evidence principles/core/common.md#substantive-completion 흰 에나멜과 도기는 #F5F5F2(선형 0.913, 0.913, 0.888), roughness 0.25, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/fixtures.ts`, 리뷰 관찰을 모두 적었다.
@@ -106,6 +123,22 @@
 
 ## 꿀빛 가구 목재 {#furniture-wood}
 <!--
+@evidence models/10-kitchen-dining.md#dining-table 식탁 top·apron·leg의 서로 다른 부재 길이 UV에 참나무 결을 맞추어 가로 상판 결이 수직 다리로 이어지지 않게 한다.
+@evidence models/10-kitchen-dining.md#dining-chair 의자 seat·leg·back의 목재를 같은 꿀빛으로 묶되 각 부재의 길이 UV를 각각 소비한다.
+@evidence models/10-kitchen-dining.md#kitchen-island-stool 스툴 seat·leg·footrest는 목재이고 네 다리 사이 열린 공간을 텍스처 판으로 메우지 않는다.
+@evidence models/11-living.md#low-table 낮은 테이블 top과 네 leg에 목리를 각 부재 길이로 맞추고0.03 m 상판 끝면도 같은 목재로 닫는다.
+@evidence models/11-living.md#reading-armchair 안락의자 leg만 목재 응답이고 seat-cushion·back·arm의 천갈이와 다른 결속을 둔다.
+@evidence models/12-service-rooms.md#mudroom-bench 머드룸 seat·carcass·shelf는 꿀빛 목재이고 shelf 위 shoe 두 덩어리는 별도 소품 파티션으로 남긴다.
+@evidence models/12-service-rooms.md#mudroom-coat-hooks 0.80 m 벽판 board의 긴 Z축에 목리를 맞추고 네 round hook과 cloth 두 벌에는 목리를 넘기지 않는다.
+@evidence models/12-service-rooms.md#pantry-l-shelf shelf 다섯과 cleat의 각 실제 길이 UV에 목리를 결속하며 L형 코너에 두 겹 결 판을 만들지 않는다.
+@evidence models/12-service-rooms.md#garage-workbench 작업대 top·leg·drawer-front가 꿀빛 목재를 받고 실제 handle과 도구의 금속 파티션은 분리된다.
+@evidence models/13-bedrooms.md#headboard-bed 침대 headboard·bed-frame만 목재이고 mattress·cover·pillow의 직물 파티션을 도막으로 덮지 않는다.
+@evidence models/13-bedrooms.md#nightstand-lamp 협탁 carcass·drawer-front는 목재이며 위 lamp-base·lamp-shade는 별도 등기구 파티션으로 남긴다.
+@evidence models/13-bedrooms.md#low-dresser 낮은 서랍장 carcass·drawer-front·leg의 길이별 목리와 handle의 다른 응답을 유지한다.
+@evidence models/13-bedrooms.md#child-desk 책상 top·leg·shelf의 목리만 맡고 책·연필통은 인쇄/소품 재료로 분리한다.
+@evidence models/13-bedrooms.md#desk-chair 책상 의자 seat·leg·back의 목재 응답을 맞추고 의자 회전 관절이나 쿠션을 추가하지 않는다.
+@evidence models/15-outdoor.md#terrace-table 야외 식탁의 틈 있는 top 널판과 apron·leg의 끝면에 목재 응답을 주며 판 사이 빈 틈은 재료 면으로 채우지 않는다.
+@evidence models/15-outdoor.md#terrace-chair 야외 의자 seat·back·leg의 목재 면에 결속하며 등받이 틈을 불투명 목재 텍스처로 막지 않는다.
 @evidence principles/core/common.md#declared-basis 꿀빛 가구 목재의 #A87A4E·roughness 0.50은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 꿀빛 목재는 식탁·의자뿐 아니라 책상·침대·협탁·팬트리 선반과 원목 식료품 상자·벤치·작업대·테라스 가구·벽난로 `mantel`의 지정된 목재 면에 결합하며 각각의 부재 경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 꿀빛 가구 목재는 #A87A4E(선형 0.392, 0.195, 0.076), roughness 0.50, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/wood.ts`, 리뷰 관찰을 모두 적었다.
@@ -121,16 +154,17 @@
 
 [낮은 목재 테이블](../settings/10-house.md#living), [목재 침대](../settings/10-house.md#primary-bedroom), 식탁·의자·책상, 팬트리 선반이다. 구성은 오일 마감 참나무 집성재다. 외관은 `#A87A4E`(선형 0.392, 0.195, 0.076), roughness 0.50, metallic 0.0, transmission 0.0이며 오크 결 맵을 부재 길이에 결속하고 모서리 음영으로 목재 덩어리의 두께도 읽힌다. [참나무색 마루](02-interior-shell.md#oak-floor)보다 약간 어두워 다리가 바닥에 묻히지 않도록 정했다. 결합 면은 [여섯 좌석 식탁](../models/10-kitchen-dining.md#dining-table)의 `top`·`apron`·`leg`, [식탁 의자](../models/10-kitchen-dining.md#dining-chair)의 `seat`·`leg`·`back`, [섬 스툴](../models/10-kitchen-dining.md#kitchen-island-stool)의 `seat`·`leg`·`footrest`, [책상 의자](../models/13-bedrooms.md#desk-chair)의 `seat`·`leg`·`back`이다.
 
-[낮은 목재 테이블](../models/11-living.md#low-table)의 `top`·`leg`, [작은 책상](../models/13-bedrooms.md#child-desk)의 `top`·`leg`·`shelf`, [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `headboard`·`bed-frame`, [협탁](../models/13-bedrooms.md#nightstand-lamp)의 `carcass`·`drawer-front`, [낮은 서랍장](../models/13-bedrooms.md#low-dresser)의 `carcass`·`drawer-front`·`leg`, 소파·[안락의자](../models/11-living.md#reading-armchair)의 `leg`, [팬트리 L형 선반](../models/12-service-rooms.md#pantry-l-shelf)의 `shelf`·`cleat`, [머드룸 신발 벤치](../models/12-service-rooms.md#mudroom-bench)의 `seat`·`carcass`·`shelf`, [공구 작업대](../models/12-service-rooms.md#garage-workbench)의 `top`·`leg`·`drawer-front`, [테라스 식탁](../models/15-outdoor.md#terrace-table)·[테라스 의자](../models/15-outdoor.md#terrace-chair)의 목재 면도 같은 재료를 받는다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 03과 05 view에서 가구와 마루가 같은 계열이되 구별되는지를 관찰한다.
+[낮은 목재 테이블](../models/11-living.md#low-table)의 `top`·`leg`, [작은 책상](../models/13-bedrooms.md#child-desk)의 `top`·`leg`·`shelf`, [머리판 있는 침대](../models/13-bedrooms.md#headboard-bed)의 `headboard`·`bed-frame`, [협탁](../models/13-bedrooms.md#nightstand-lamp)의 `carcass`·`drawer-front`, [낮은 서랍장](../models/13-bedrooms.md#low-dresser)의 `carcass`·`drawer-front`·`leg`, 소파·[안락의자](../models/11-living.md#reading-armchair)의 `leg`, [팬트리 L형 선반](../models/12-service-rooms.md#pantry-l-shelf)의 `shelf`·`cleat`, [머드룸 신발 벤치](../models/12-service-rooms.md#mudroom-bench)의 `seat`·`carcass`·`shelf`, [공구 작업대](../models/12-service-rooms.md#garage-workbench)의 `top`·`leg`·`drawer-front`, [테라스 식탁](../models/15-outdoor.md#terrace-table)·[테라스 의자](../models/15-outdoor.md#terrace-chair)의 목재 면도 같은 재료를 받는다. [머드룸 벽판](../models/12-service-rooms.md#mudroom-coat-hooks)의 `board`도 이 목재를 받고 긴 세계 Z축에 결을 맞춘다. source owner는 `src/materials/furnishings/wood.ts`이고, 리뷰는 03과 05 view에서 가구와 마루가 같은 계열이되 구별되는지를 관찰한다.
 
 [차고 공구판](../models/12-service-rooms.md#garage-tool-board)의 `board`·`tool-grip`, [거실 탁자 소품](../models/19-room-accents.md#living-tabletop-props)의 `tray`, [주방 조리 소품](../models/18-house-props.md#kitchen-food-utensils)의 `cutting-board`, [벽난로 선반](../models/11-living.md#fireplace-insert-mantel)의 `mantel`, [팬트리 용기](../models/12-service-rooms.md#pantry-containers)와 [옷방 바구니](../models/13-bedrooms.md#wardrobe-shelves)의 `basket`, [원목 식료품 상자](../models/12-service-rooms.md#pantry-containers)의 `box`, [자녀 책상](../models/13-bedrooms.md#child-desk)의 `pencil` 목재 부피도 이 재료를 받는다. 상자 결은 각 상자의 밑면 한 모서리에서 U를 길이, V를 높이로 투영하고 판 끝에서 새로 시작한다. 다른 부재도 길이 U·폭 V를 새로 시작한다.
 
-표면 결속 계획: 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
+표면 결속 계획: 식탁·침대·의자·선반 목재의 오크 결은 판 길이 U와 폭 0.15 m 모듈을 쓴다. `furniture-oak.png`는 길이 U 1.00 m·폭 V 0.15 m에서 주기적으로 이어지는 #A87A4E 결이며 마루판 이음선을 넣지 않는다. 각 모델 부재 시작 모서리를 원점으로 하고 다리·상판·서랍 전면의 접합에서 결 방향을 새로 잡는다. 아직 생성된 맵과 GPU 근접·리뷰 거리 판정은 없으므로 unverified다.
 
 주방 하부장의 `plinth`는 [회갈색 패널 수납장](#greige-cabinet), 책장의 `plinth`는 [짙은 책장 목재](#dark-bookcase-wood)가 받는다. 소파와 안락의자의 `base`는 [회베이지 천갈이](#grey-beige-upholstery)가 받는다. 이 H2의 목재 결합에는 두 `plinth`와 좌석 `base`를 넣지 않는다.
 
 ## 짙은 책장 목재 {#dark-bookcase-wood}
 <!--
+@evidence models/11-living.md#dark-bookcase 책장의 carcass·plinth·shelf는 짙은 호두나무이고 book은 천갈이·올리브·청회색 값 순환으로 남긴다.
 @evidence principles/core/common.md#declared-basis 짙은 책장 목재의 #4A3A2E·roughness 0.55은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 짙은 책장 목재는 models/11-living.md#dark-bookcase의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 짙은 책장 목재는 #4A3A2E(선형 0.068, 0.042, 0.027), roughness 0.55, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/wood.ts`, 리뷰 관찰을 모두 적었다.
@@ -151,6 +185,9 @@
 
 ## 회베이지 천갈이 {#grey-beige-upholstery}
 <!--
+@evidence models/11-living.md#fabric-sofa 소파 base·seat-cushion·back·arm의 폼 위 천만 무광 회베이지이고 아래 leg 목재를 구별한다.
+@evidence models/13-bedrooms.md#wardrobe-hanging wardrobe의 clothes 중 회베이지 변형만 이 직물 응답을 받고 rod·shelf는 금속·흰 도막으로 분리한다.
+@evidence models/19-room-accents.md#sofa-throws 소파 보조 pillow의 회베이지 변형은 같은 무광 직물이고 접힌 담요 folded는 수건 직물 변형을 따로 받는다.
 @evidence principles/core/common.md#declared-basis 회베이지 천갈이의 #B7AFA3·roughness 0.92은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 회베이지 천갈이는 소파·안락의자 몸체뿐 아니라 소파 쿠션, 옷방 옷의 회베이지 변형, 책 표지와 러그 테두리에 재사용한다. 각 원형의 geometry·경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 회베이지 천갈이는 #B7AFA3(선형 0.474, 0.429, 0.366), roughness 0.92, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
@@ -230,6 +267,8 @@
 
 ## 절제된 러그 {#muted-rug}
 <!--
+@evidence models/14-bathrooms.md#bath-floor-mats field·border가 모두 얇은 매트의 상하·끝면을 덮고 oak 또는 bath-floor-tile의 격자를 직물 무늬로 복사하지 않는다.
+@evidence models/11-living.md#floor-covering 러그 rug 한 얇은 닫힌 판에 직물 결을 주며 바로 아래 oak-floor와 겹친 마루 조각을 만들지 않는다.
 @evidence principles/core/common.md#declared-basis 절제된 러그의 #8E8579·roughness 0.95은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 절제된 러그는 models/11-living.md#floor-covering의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 절제된 러그는 #8E8579(선형 0.270, 0.235, 0.191), roughness 0.95, metallic 0.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/textiles.ts`, 리뷰 관찰을 모두 적었다.
@@ -248,6 +287,8 @@
 
 ## 흰 수건과 얇은 커튼 {#towel-curtain-textile}
 <!--
+@evidence models/13-bedrooms.md#primary-window-curtains 여덟 창의 양끝 패널이 공유하는 curtain 파티션만 얇은 직물을 받고 rod·bracket은 검은 금속으로 남겨 창 밖 시야와 광학 경계를 구별한다.
+@evidence models/18-house-props.md#linen-folded-towels 린넨장의 folded 더미 상하·옆 절단면에 같은 흰 직물 결을 붙이고 선반 shelf의 흰 도막과 광택을 구별한다.
 @evidence principles/core/common.md#declared-basis 흰 수건과 얇은 커튼의 #EAE6DC·roughness 0.95은 settings/10-house.md#shower-bathroom의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 흰 수건과 얇은 커튼은 수건걸이·접힌 린넨·욕조 커튼·여덟 창 커튼에, 같은 밝은 직물 외관은 협탁등·펜던트 갓에 결합한다. 각 부재 경계는 모델 owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 수건 #EAE6DC(roughness 0.95)와 커튼 #EDE9E0(roughness 0.90, transmission 0.30, 양면), 욕조·여덟 창 커튼의 `curtain` 파티션 및 수건·접힌 린넨 결속, source owner `src/materials/furnishings/textiles.ts`와 관찰을 모두 적는다.
@@ -273,6 +314,7 @@
 
 ## 거울 {#mirror}
 <!--
+@evidence models/14-bathrooms.md#wall-mirror 0.01 m mirror 판의 실제 앞면에서 현재 장면을 반사하고0.02 m 폭 mirror-frame은 검은 도막으로 따로 남긴다.
 @evidence principles/core/common.md#declared-basis 거울의 #EDEDED·roughness 0.02은 settings/10-house.md#powder의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 거울은 models/14-bathrooms.md#wall-mirror의 면에 마감만 결합하고 그 면의 geometry·경계는 host owner에 남긴다.
 @evidence principles/core/common.md#substantive-completion 거울은 #EDEDED(선형 0.847, 0.847, 0.847), roughness 0.02, metallic 1.0, transmission 0.0, 결합 면, source owner `src/materials/furnishings/fixtures.ts`, 리뷰 관찰을 모두 적었다.
@@ -290,8 +332,11 @@
 
 표면 결속 계획: 거울은 의도적으로 무문양의 매끈한 반사면이다. roughness 0.02·금속성 은막과 실제 장면 반사로 세면장 위 거울임을 보이고 frame 파티션에서 끝낸다. 회색 단색판이면 실패다. 실제 GPU 근접·리뷰 거리 판정은 아직 없으므로 unverified다.
 
+거울 앞판은 설치 three.js의 `Reflector`가 현재 같은 장면의 실제 geometry·재료·전역 광원으로 가상 반사 카메라를 렌더하는 평면 반사로 실현한다. 복제 사진·정적 반사 텍스처·회색판으로 대신하지 않는다. 반사 target은 512×512이고 거울의 첫 앞면 normal과 실제 좌표를 기준으로 한다. 뒷면과 가장자리의 두께도 같은 원형 mesh에 남기며, 거울끼리 다시 보이는 추가 반사는 설치 Reflector의 현재 visible 상태 안에서만 평가된다.
+
 ## 벽난로 화구 {#firebox-black}
 <!--
+@evidence models/11-living.md#fireplace-insert-mantel firebox와 firebox-trim에 발광 없는 내화재 응답을 주고 위 mantel의 목재 및 공간 owner의 굴뚝 brick을 구별한다.
 @evidence principles/core/common.md#declared-basis 벽난로 화구의 #1F1F20·roughness 0.90은 settings/10-house.md#living의 조건을 근거로 한 이 branch의 선택이며 사진 픽셀 값이 아니라고 00 색 공간 규칙과 함께 밝힌다.
 @evidence principles/core/common.md#scope-preservation 벽난로 화구 재료는 models/11-living.md#fireplace-insert-mantel의 `firebox`·`firebox-trim` 면에만 결합하고 벽돌 몸체는 spaces/envelope/left.ts에 남긴다.
 @evidence principles/core/common.md#substantive-completion 벽난로 화구는 #1F1F20, roughness 0.90, metallic 0.0, transmission 0.0, `firebox`·`firebox-trim` 결합, source owner `src/materials/furnishings/fixtures.ts`와 04 view 관찰을 적는다.
@@ -311,6 +356,8 @@
 
 ## 식재의 수피와 잎 {#planting-bark-foliage}
 <!--
+@evidence models/16-planting.md#site-shrub-prototype 관목의 중앙 하나와 가지 끝 여덟 foliage 군집에 잎색을 주고 여덟 bark 가지에 수피를 분리하며 개별 잎을 추가하지 않는다.
+@evidence models/16-planting.md#site-tree-prototypes 높이8.00 m·6.00 m 두 나무 원형의 bark와 닫힌 foliage 군집을 수피·잎 색으로 분리하고 각 실제 둘레/높이 UV를 소비한다.
 @evidence principles/core/common.md#declared-basis 레퍼런스 01의 실제 수관과 settings/10-house.md#site-identity의 성목·관목을 근거로 수피와 잎의 색·거칠기·결을 택한다.
 @evidence principles/core/common.md#scope-preservation models/16-planting.md#site-tree-prototypes와 #site-shrub-prototype의 `bark`·`foliage`, 18·19의 작은 식물 `stem`·`foliage`에 마감만 결합한다.
 @evidence principles/core/common.md#substantive-completion 수피 #675746·roughness 0.92, 잎 #617343·roughness 0.88, 국소 UV·반복 척도·source owner·관찰을 결정한다.
@@ -327,6 +374,10 @@
 
 ## 등기구의 확산면 {#light-fixture-surfaces}
 <!--
+@evidence models/17-light-fixtures.md#flush-ceiling-fixture 평판등 fixture-diffuser의0.012 m 실두께에 유백 투과 응답을 결속하고 fixture-housing은 검은 도막으로 남긴다.
+@evidence models/17-light-fixtures.md#pendant-fixtures pendant fixture-diffuser와 열린 fixture-shade를 분리하며 fixture-canopy·fixture-stem의 금속을 확산재로 만들지 않는다.
+@evidence models/17-light-fixtures.md#vanity-wall-fixture 세면 벽등의 fixture-diffuser에 유백 확산 응답을 주고 위아래 housing의 검은 도막을 분리한다.
+@evidence models/17-light-fixtures.md#porch-wall-sconce 벽등 fixture-glass에 맑은 투과 응답을 주고 housing·stem의 금속을 유백 diffuser 값으로 바꾸지 않는다.
 @evidence principles/core/common.md#declared-basis systems/02-interior-fixtures.md#interior-fixture-layout과 models/17-light-fixtures.md#flush-ceiling-fixture가 넘긴 등기구의 보이는 몸체와 확산면을 받는다.
 @evidence principles/core/common.md#scope-preservation 등기구의 확산면·유리·갓 마감만 결정하고 광원 광도·색온도·배치는 systems와 instances에 남긴다.
 @evidence principles/core/common.md#substantive-completion 확산면 #F4F1E9·roughness 0.36·transmission 0.35와 포치 유리 transmission 0.78, 재료 id·UV·검사 주소를 정한다.
@@ -345,6 +396,8 @@
 
 ## 음식과 액자 인쇄면 {#food-art-finishes}
 <!--
+@evidence models/18-house-props.md#kitchen-food-utensils fruit의 과일색만 이 인쇄/과일 owner가 받고 cutting-board·utensil·container·bowl은 각각 목재·금속·유리·도기로 분리한다.
+@evidence models/19-room-accents.md#wall-art-indoor-plant 액자의 art-print 면에만 인쇄 색을 두고 art-frame·container·stem·foliage는 표의 짙은 목재·도기·식재 응답으로 분리한다.
 @evidence principles/core/common.md#declared-basis 레퍼런스 03의 과일 그릇과 02–05의 벽 액자에 근거해 음식과 인쇄면을 별도 마감한다.
 @evidence principles/core/common.md#scope-preservation 18의 과일 표면과 19의 액자 인쇄면만 맡고 그릇·액자 테·가구 형상은 원형에 남긴다.
 @evidence principles/core/common.md#substantive-completion 과일 다섯의 순서별 색 세 가지와 인쇄면의 결정론적 띠 규칙·물리 모듈·source owner를 정한다.
@@ -361,6 +414,11 @@
 
 ## 나머지 소품 파티션 {#minor-prop-partitions}
 <!--
+@evidence models/12-service-rooms.md#garage-tool-board board·tool-steel·tool-grip·bin의 목재·노출 금속·검은 도막을 표의 별도 H2로 분리하며 이 원형이 선언하지 않은 타공 구멍을 색 점으로 추가하지 않는다.
+@evidence models/12-service-rooms.md#pantry-containers 선반 위 container는 유리, lid·basket·box는 목재로 나누며 세 변형에 하나의 용기색을 덮지 않는다.
+@evidence models/14-bathrooms.md#shower-niche-bottles 샤워 틈새 container 세 개는 흰 에나멜이고 lid는 검은 도막으로 나누며 niche 공간 및 벽 타일에는 용기색을 넘기지 않는다.
+@evidence models/18-house-props.md#porch-mat-planter 발판 field·border는 러그, 화분 container는 흰 도기, stem·foliage는 식재로 분리하며 포치 바닥 재료를 소품에 복사하지 않는다.
+@evidence models/19-room-accents.md#living-tabletop-props book은 직물색 순환, tray는 목재, container는 흰 도기, stem·foliage는 식재로 나누며 host 상판 top의 목리를 그대로 남긴다.
 @evidence principles/core/common.md#declared-basis 원형마다 표면 id를 확인해 기존 H2 재료를 다시 쓰되 다른 역할의 면을 같은 이름으로 숨기지 않는다.
 @evidence principles/core/common.md#scope-preservation 05·12·13·18·19의 수납·소품과 17의 기구 외장에 남은 면의 계획 결속을 맡는다. 외투장 `rod`와 침실 미닫이 옷장 `rail`·`rod`·`clothes`·`handle`을 원형 링크로 분리하며 실제 source 결속은 후속 materialSources에 남긴다.
 @evidence principles/core/common.md#substantive-completion 아래 표의 원형·id·재료 H2 매핑을 적고 현재 생성 맵과 GPU 결과를 unverified로 둔다.

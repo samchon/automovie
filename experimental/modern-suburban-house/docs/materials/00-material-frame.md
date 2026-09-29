@@ -137,6 +137,8 @@
 
 ## 표면 결·광학 응답과 텍스처 결속 {#material-texture-response}
 <!--
+@evidence models/00-model-frame.md#model-furniture-local-frame 가구·창호 각 면의 1 UV/m 투영과 개별 H2 우선 순위를 소비해 반복 모듈을 미터로 결속하며 materials가 좌표를 다시 생성하지 않는다.
+@evidence models/00-model-frame.md#model-representation-ceiling 실제 창틀·유리·문짝의 두께를 host에 남기고 재료 무늬로 누락한 부재를 대신하지 않으며 모델이 제외한 웨더스트립·나사를 복원하지 않는다.
 @evidence principles/core/common.md#declared-basis 사용자가 같은 날 비트맵 보류를 철회한 지시를 근거로 삼고 매끈한 표면과 반복 결이 필요한 표면을 구별한다.
 @evidence principles/core/common.md#scope-preservation siding·shingle course와 판 두께는 models/instances에 남기고 벽돌·타일 줄눈의 색·거칠기·법선 마스크와 면 결속은 materials가 받으며 발광은 systems에 남긴다.
 @evidence principles/core/common.md#substantive-completion 미터 모듈·투영 축·원점·회전·이음·실패 fallback과 validateTextureScale의 실제 모집단을 정한다.
@@ -172,6 +174,9 @@
 
 ## 면 결합 규칙 {#material-binding-rule}
 <!--
+@evidence models/00-model-frame.md#model-local-frame 개구부 아래 중앙/날씨 면 또는 열림 면의 원형 좌표를 가진 실제 host 면에만 결속하며 창·문 world 배치와 외곽은 변경하지 않는다.
+@evidence models/00-model-frame.md#model-surface-partition-naming 부재 역할 id와 안팎 접미사를 결속 키로 사용하고 모든 두께/끝면을 포함해 정확히 한 최종 재료를 준다.
+@evidenceExclude models/00-model-frame.md#model-reference-scale 문 90° 유효폭과 창의 순유리 폭은 모델 부재를 빼서 산출하는 geometry 검증이다. 이 면 결합 규칙은 기존 면 id에 색/광학값을 연결하며 사람 점유체나 개구부 폭을 생성·측정하지 않는다.
 @evidence principles/core/common.md#declared-basis 결합 대상이 spaces 03의 exterior-surface-handoff와 interior-surface-handoff owner 표라고 링크로 밝힌다.
 @evidence principles/core/common.md#scope-preservation 재료는 면의 경계·두께·개수를 바꾸지 않고 host owner 면에만 결합한다고 정한다.
 @evidence principles/core/common.md#substantive-completion 한 면 한 최종 재료, 벽돌·타일 줄눈의 단일 재료 내부 UV 마스크, host 부재 경계와 일치, 삼각형 단위 분할 금지, 단면 기본과 유리·얇은 커튼 양면 규칙을 모두 적었다.
@@ -193,6 +198,9 @@
 
 ## 재료 리뷰 견본 {#material-review-set}
 <!--
+@evidence models/03-interior-doors.md#interior-door-hinges 열한 문의 low/high 경첩과 기준 π/2 상태를 재료 판정에서 그대로 쓰며 열린 두 방 쪽의 패널/문선/철물 경계가 같은 결속을 유지하는지 대조한다.
+@evidence models/00-model-frame.md#model-representation-completion 모델 구조 판정과 의미 판정이 별개라는 기준을 받아 재료 견본 성공을 닫힌 부피·예약 맞춤 성공으로 보고하지 않는다.
+@evidence models/00-model-frame.md#model-review-set 동일 카메라의 face-id 오버레이와 실제 materials 뷰를 짝지어 바인딩 누출/누락을 확인하고 문 열림 상태에서도 같은 실제 면을 사용한다.
 @evidence principles/core/common.md#declared-basis 견본 조건이 frame-condition의 1536×1024 canvas·중성 배경과 lighting-state에서 온다고 밝힌다.
 @evidence principles/core/common.md#scope-preservation 재료 판정 견본만 정하고 관찰 위치·결과는 컴파일 산출물과 현재 GPU 프레임에서 읽는다고 남긴다.
 @evidence principles/core/common.md#substantive-completion 중성 조명 판, 기준 상태 판, 약 20 m·2 m·threshold·1 m 거리 견본, 상태 견본 네 가지와 실패 시 unverified 처리를 모두 적었다.
@@ -209,3 +217,7 @@
 -->
 
 재료 판정은 극적 shot 전에 고정된 견본으로 한다. 첫째 견본은 중성 조명 판이다. [리뷰 프레임 조건](../settings/20-verification.md#frame-condition)의 1536×1024 canvas와 중성 배경 위에 모든 재료 H2를 0.5 m 구와 0.5 m 평판으로 한 줄씩 놓고, 색온도 6500 K 상당의 방향광 하나와 균일한 환경광 아래 고정 노출로 찍는다. 이 판은 hex 명도 순서(흰 trim > 천장 > 실내 벽 > siding, charcoal 창틀 < 차고문)와 roughness 대역별 하이라이트 폭 순서를 한 화면에서 반증한다. 둘째 견본은 기준 상태 판이다. 같은 배열을 [빛과 기준 상태](../settings/20-verification.md#lighting-state)의 오후 key·하늘 fill과 켜진 따뜻한 실내등 아래 다시 찍어 따뜻한 조명에서 흰 계열이 서로 합쳐지거나 올리브·청회색 침구가 구별을 잃는지 본다. 셋째는 실제 host 위 거리 견본이다. 외부는 01 기본 view(사람 눈높이 1.6 m, 약 20 m)와 벽 앞 2 m 근접 view, 실내는 각 방 threshold view(바닥 위 1.6 m, 수직 FOV 60°)와 가구 앞 1 m 근접 view에서 재료 경계가 host 부재 끝선과 맞는지, 재료 없는 면이나 두 재료를 받은 면이 있는지, 실제 부재와 결속된 텍스처의 물리 scale·이음, 매끈한 표면의 광학 응답이 리뷰 거리에서 읽히는지 관찰한다. 넷째는 상태 견본이다. 이 production의 재료에는 시간 변화나 젖음·마모 상태가 없으므로 기준 상태 하나만 검사하고, 문 열림 상태에서 문짝 모서리가 같은 재료를 유지하는지만 더 본다. source owner는 `src/materials/review.ts`이며 관찰 위치와 결과는 컴파일된 산출물과 현재 GPU 프레임에서 읽고, 판이 없거나 실패하면 해당 재료 판정은 unverified로 남긴다.
+
+건물 단계의 판은 `buildingFinishes`가 현재 내보내는 36개 실제 finish를 순서대로 소비한다. 같은 id를 가진 재료를 더 만들거나 텍스처 색을 다른 swatch로 대체하지 않는다. `subject=material-review`의 `page=0`부터 한 페이지에 일곱 행씩 배분하며 마지막 페이지도 남은 한 행을 그대로 검사한다. 각 행의 왼쪽은 지름 0.5 m 구, 오른쪽은 0.5×0.5 m 평판이다. `mode=neutral`은 흰 key와 균일 fill, `mode=baseline`은 실제 HouseLighting의 같은 광원 목록·위치·환경값을 적용하며 두 판의 카메라·기하는 같다. 각 행의 실제 재료 id는 산출물의 materialReview.rows와 native 검사 표시가 같은 순서로 내보낸다. primitive tessellation의 빈 UV에는 검사 견본 owner가 구의 미터 경선·위선과 평판의 미터 평면 좌표를 붙이고 원래 finish의 texture module로 나눈다. 이 견본은 건물 catalogue의 관찰이며 아직 활성 source가 없는 소품 재료의 최종 완료를 대신하지 않는다.
+
+거울 finish의 평판은 실제 위생실 거울과 같은 FittingParts의 앞면 +Z producer와 `mirror` 면 의미를 보존하여 native 평면 반사를 사용한다. 구는 곡면 반사경을 새로 저작하지 않고 같은 금속 PBR 값을 검사한다. 현재 viewer에는 곡면 환경 반사가 없으므로 구의 정면이 어두운 것을 평면 거울 실패와 혼동하지 않으며, 거울의 실제 반사 판정은 평판과 실제 위생실 host에서 한다. 텍스처와 광학 상수는 이 관찰 차이 때문에 바꾸지 않는다.

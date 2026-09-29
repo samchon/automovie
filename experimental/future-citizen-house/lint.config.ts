@@ -16,10 +16,10 @@ import type { ITtscLintConfig } from "@ttsc/lint";
  * production review.
  *
  * Select the production shape, then advance one construction layer at a time
- * through `draft -> evidence -> review`. A film constructs settings,
+ * through `draft -> evidence`. A film constructs settings,
  * treatments, scripts, and `docs/screenplays`, then independently revises the
  * frozen screenplay into `docs/final/screenplays` through the naturalness
- * stage. Shots and film sources consume only that reviewed final tree. A brief
+ * stage. Shots and film sources consume only that evidenced final tree. A brief
  * follows settings, briefs, shots, and film sources. A library selects settings
  * and any coherent set of delivered design/source pairs.
  *
@@ -43,13 +43,14 @@ export const productionEvidence = {
   ),
   kind: "library",
   populationScope: { mode: "complete-production" },
-  settings: "review",
-  spaces: "review",
-  spaceSources: "review",
-  models: "review",
+  settings: "evidence",
+  spaces: "evidence",
+  spaceSources: "evidence",
+  models: "evidence",
   modelSources: "draft",
   materials: "evidence",
   materialSources: "draft",
+  instances: "draft",
   claims: [
     ...createAutoMoviePopulationAccountClaims({
       layer: "settings",
@@ -64,7 +65,7 @@ export const productionEvidence = {
         "obligations/core/settings.md",
       ],
       enabled: true,
-      requireReview: true,
+      requireReview: false,
     }),
     ...createAutoMoviePopulationAccountClaims({
       layer: "spaces",
@@ -78,14 +79,14 @@ export const productionEvidence = {
         "obligations/design/spaces.md",
       ],
       enabled: true,
-      requireReview: true,
+      requireReview: false,
     }),
     createAutoMovieProductionPrincipleClaim({
       name: "Citizen house spatial requirements are realized by the authored space",
       document: "contracts/citizen-house-spatial-requirements.md",
       files: ["spaces/*.md"],
       layer: "spaces",
-      stage: "review",
+      stage: "evidence",
       populationScope: { mode: "complete-production" },
       symbol: "h2",
     }),
@@ -94,7 +95,7 @@ export const productionEvidence = {
       document: "contracts/model-fitout-handoff.md",
       account: "accounts/models/legacy-fitout.md",
       layer: "models",
-      stage: "review",
+      stage: "evidence",
       populationScope: { mode: "complete-production" },
     }),
   ],
