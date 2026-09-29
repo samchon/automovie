@@ -6,11 +6,19 @@
   "type": "module",
   "exports": {
     "./gallery": "./src/gallery.ts",
-    "./collection": "./src/collection.ts"
+    "./collection": "./src/collection.ts",
+    "./tour-data": "./src/tourData.ts",
+    "./tour-export": "./src/tourExport.ts",
+    "./tour-camera": "./src/tourCamera.ts",
+    "./tour-frame": "./src/tourFrame.ts",
+    "./tour-ui": "./src/tourUi.ts",
+    "./tour-scene": "./src/tourScene.ts",
+    "./modern-scene": "./src/modernScene.ts"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "ttsc --noEmit && vite build",
+    "scenes": "tsx build/exportScenes.cts",
+    "dev": "pnpm scenes && vite",
+    "build": "pnpm scenes && ttsc --noEmit && vite build",
     "preview": "vite preview",
     "deploy": "pnpm run build && node build/deploy.cjs"
   },
@@ -24,6 +32,7 @@
   "dependencies": {
     "@automovie/viewer": "workspace:^",
     "medieval-baron-manor": "workspace:*",
+    "modern-suburban-house": "workspace:*",
     "three": "catalog:three"
   },
   "devDependencies": {
@@ -33,6 +42,7 @@
     "gh-pages": "^6.3.0",
     "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "tsx": "^4.23.15"
   }
 }
