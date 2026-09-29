@@ -5,6 +5,7 @@
  * face's frame so the two bases meet at the neck ring by vertex identity.
  */
 export * from "./basis";
+export * from "./anatomy";
 export * from "./constants";
 export * from "./document";
 export * from "./export";

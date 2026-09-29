@@ -12,9 +12,12 @@ import {
 import {
   type IAutoMovieHumanBodyBasis,
   createHumanBodyBasisBuilder,
+  createHumanBodyHumeralHeads,
   createHumanBodySegmenter,
   exportHumanBody,
+  measureHumanBodySpheresSkinClearance,
   parseHumanBodyBasisDocument,
+  projectHumanBodySimpleShape,
   stepHumanBodyArmsDown,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
@@ -140,15 +143,60 @@ export function createConnectedBodyRuntime(
       return { operation: "export", glb };
     }
     const model = packConnectedBodyModel(built.model);
-    return {
-      operation: "preview",
-      model,
-      crossings: request.measure
+    const crossings =
+      request.measure || request.anatomy
         ? await readContacts(
             segment(built).model,
             () => received !== mine,
           )
-        : null,
+        : null;
+    let anatomy: Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"] = null;
+    if (request.anatomy && crossings !== null) {
+      if (crossings.length !== 0)
+        anatomy = { status: "unavailable", reason: "skin-crossing" };
+      else {
+        const simple = projectHumanBodySimpleShape(basis, document.shape, []);
+        const heads = createHumanBodyHumeralHeads({
+          ageYears: simple.ageYears,
+          sex: simple.sex,
+          statureMetres: simple.statureMetres,
+          bones: built.bones,
+          radii: document.humeralHeads,
+        });
+        anatomy =
+          heads.length === 0
+            ? { status: "unavailable", reason: "ct-domain" }
+            : (() => {
+                const measured = measureHumanBodySpheresSkinClearance({
+                  skins: basis.surfaces.map((surface, index) => ({
+                    indices: surface.indices,
+                    positions: built.posedSurfaces[index].positions,
+                  })),
+                  spheres: heads.map(({ bone, center, radiusMetres }) => ({
+                    id: bone,
+                    center,
+                    radiusMetres,
+                  })),
+                });
+                return {
+                  status: "measured" as const,
+                  heads: heads.map((head, index) => ({
+                    bone: head.bone,
+                    radiusMetres: head.radiusMetres,
+                    source: head.source,
+                    centerInside: measured[index].centerInside,
+                    nearestMetres: measured[index].nearestMetres,
+                    clearanceMetres: measured[index].clearanceMetres,
+                  })),
+                };
+              })();
+      }
+    }
+    return {
+      operation: "preview",
+      model,
+      crossings: request.measure ? crossings : null,
+      anatomy,
       extras: { bones: built.bones, landmarks: built.landmarks },
     };
   };

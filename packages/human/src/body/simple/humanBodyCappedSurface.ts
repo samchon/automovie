@@ -15,6 +15,8 @@ interface CappedSurface {
   assertGeometry(): void;
   overlaps(other: CappedSurface): boolean;
   interiorPoint(): number[];
+  /** Solid-angle containment in this oriented capped metre surface. */
+  contains(point: number[]): boolean;
 }
 
 /**
@@ -93,6 +95,7 @@ export function humanBodyCappedSurface(
     volume,
     signedVolume,
     interiorPoint,
+    contains: (point) => inside(closed, point),
     assertGeometry(): void {
       if (!Number.isFinite(volume) || volume === 0)
         throw new Error("A capped body surface needs positive volume.");

@@ -4,7 +4,10 @@
  * arrays belong to one reply and the page may retain only the displayed frame.
  */
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
-import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyHumeralHead,
+  IAutoMovieHumanBodyShoulderPose,
+} from "@automovie/human";
 import type {
   IAutoMovieJointPose,
   IAutoMovieModel,
@@ -71,7 +74,7 @@ export type ConnectedBodyModel = Omit<IAutoMovieModel, "parts"> & {
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Sends the committed document to the static exporter.
  */
 export type ConnectedBodyRequest =
-  | { operation: "preview"; document: string; measure: boolean }
+  | { operation: "preview"; document: string; measure: boolean; anatomy?: boolean }
   | { operation: "export"; document: string }
   | { operation: "armsDown"; document: string };
 /** The matching result for one worker request.
@@ -85,6 +88,20 @@ export type ConnectedBodyResult =
       operation: "preview";
       model: ConnectedBodyModel;
       crossings: IAutoMovieModelCrossing[] | null;
+      anatomy:
+        | {
+            status: "measured";
+            heads: {
+              bone: IAutoMovieHumanBodyHumeralHead["bone"];
+              radiusMetres: number;
+              source: IAutoMovieHumanBodyHumeralHead["source"];
+              centerInside: boolean;
+              nearestMetres: number;
+              clearanceMetres: number;
+            }[];
+          }
+        | { status: "unavailable"; reason: "skin-crossing" | "ct-domain" }
+        | null;
       extras: Record<string, unknown>;
     }
   | { operation: "export"; glb: Uint8Array<ArrayBuffer> }

@@ -37,6 +37,18 @@ export interface IAutoMovieHumanBodyBasisDocument {
   shape: Record<string, number>;
 
   /**
+   * Optional measured spherical humeral-head radii in millimetres. These
+   * named articular dimensions override the adult CT population prior on
+   * their respective sides. Omission permits that prior only within its
+   * observed age and stature domain; a radius is not a shaft contour or a
+   * request for the user to place vertices in 3D.
+   */
+  humeralHeads?: {
+    leftRadiusMillimetres?: number;
+    rightRadiusMillimetres?: number;
+  };
+
+  /**
    * Optional non-humeral joint articulation in clinical degrees, sparse and
    * unique per bone, validated against each joint's range before skinning.
    * Omission is the rest pose the basis was authored in.

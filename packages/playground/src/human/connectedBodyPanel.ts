@@ -23,6 +23,9 @@ import {
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { createBodyContactWatch } from "./bodyContactWatch";
+import { bodyAnatomyReading } from "./bodyAnatomyReading";
+import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
+import type { ConnectedBodyResult } from "./connectedBodyProtocol";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
 import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
@@ -55,6 +58,7 @@ export function mountConnectedBodyPanel<
   Model extends {
     parts: number;
     crossings?: IAutoMovieModelCrossing[] | null;
+    anatomy?: Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"];
     extras?: Record<string, unknown>;
   },
 >(
@@ -67,6 +71,7 @@ export function mountConnectedBodyPanel<
       build: (
         document: IAutoMovieHumanBodyBasisDocument,
         measure?: boolean,
+        anatomy?: boolean,
       ) => Promise<Model>;
       cancel: () => void;
       publish: (model: Model) => void;
@@ -135,7 +140,7 @@ export function mountConnectedBodyPanel<
 <main><section><canvas id="body-canvas"></canvas><div class="toolbar views"><button data-view="0">Front</button><button data-view="45">Left ¾</button><button data-view="-45">Right ¾</button><button data-view="90">Left</button><button data-view="-90">Right</button><button data-view="180">Back</button><button id="fit-view">Fit</button><label><input id="clay" type="checkbox"> Clay</label><label><input id="shadows" type="checkbox" checked> Shadows</label><label><input id="face" type="checkbox" checked> Face</label></div></section>
 <aside><h1>Connected body editor</h1><p>Shape in millimetres and joints in clinical degrees on one connected skin</p><a href="connected-face.html">Open connected face editor</a><div id="body-status" role="status">Loading the numerical basis…</div>
 <fieldset id="editing" disabled><div class="toolbar"><button id="body-undo">Undo</button><button id="body-redo">Redo</button><button id="body-reset">Reset</button></div><div class="toolbar"><button id="body-save">Save document</button><button id="body-load">Load document</button><button id="body-glb">Export GLB</button><button id="body-contacts">Check contacts</button><input id="body-file" type="file" accept=".json,application/json" hidden></div>
-<h2>Simple body</h2><p>Identity-card values and tape measurements, read off the current body and expanded into the detailed channels; age sags and softens, muscle defines only where the body fat lets it.</p><div id="simple-controls"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Detailed measurements and pose</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${"Measurement · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>Enter a target in millimetres for a supported measurement; the current body is measured and solved in a worker. Joint angles remain clinical degrees.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
+<h2>Simple body</h2><p>Identity-card values and tape measurements, read off the current body and expanded into the detailed channels; age sags and softens, muscle defines only where the body fat lets it.</p><div id="simple-controls"></div><h2>Internal shoulder measurements</h2><p>Optional measured articular-head radii, one per side. Blank uses an adult CT population estimate within its observed age and stature range. Check contacts reads each head around the rig's posed shoulder centre against the skin; this does not establish an individual's bone centre or complete humerus.</p><div id="humeral-head-controls"></div><h2>Pose presets</h2><div id="pose-presets" class="toolbar"></div><h2>Detailed measurements and pose</h2><select id="control-kind" aria-label="Control group">${groups.map((g) => `<option value="${g}">${"Measurement · " + g}</option>`).join("")}<option value="pose">Pose · joints</option></select><p>Enter a target in millimetres for a supported measurement; the current body is measured and solved in a worker. Joint angles remain clinical degrees.</p><div id="basis-controls"></div><details><summary>Complete document</summary><textarea id="document-json" aria-label="Complete document"></textarea><button id="document-apply">Apply document</button></details></fieldset></aside></main>`;
   const element = <T extends HTMLElement>(id: string): T =>
     app.querySelector<T>("#" + id)!;
   const underwearRow = dom.createElement("div");
@@ -155,6 +160,7 @@ export function mountConnectedBodyPanel<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
       >
     | undefined;
+  const humeral: { controls?: ReturnType<typeof renderBodyHumeralHeadControls> } = {};
   let draft = structuredClone(props.initial);
   const intents = createBodyIntentGate();
   // Typed measurement targets are UI drafts. A committed pose rebuilds rows
@@ -173,6 +179,7 @@ export function mountConnectedBodyPanel<
   const refuse = (error: unknown): void => {
     withdraw();
     if (editor !== undefined) draft = editor.snapshot().document;
+    humeral.controls?.refresh(draft.humeralHeads, true);
     status(error instanceof Error ? error.message : String(error), "error");
   };
   const contacts = createBodyContactWatch({
@@ -200,6 +207,7 @@ export function mountConnectedBodyPanel<
     element<HTMLTextAreaElement>("document-json").value =
       serializeHumanBodyBasisDocument(state.document);
     underwear.value = state.document.underwear?.style ?? "";
+    humeral.controls?.refresh(state.document.humeralHeads);
     void simple.refresh(state.document.shape);
     renderControls();
   };
@@ -214,6 +222,7 @@ export function mountConnectedBodyPanel<
     if (!intents.isCurrent(ticket)) return false;
     if (success) show(editor!.snapshot().model);
     refresh();
+    if (!success) humeral.controls?.refresh(editor!.snapshot().document.humeralHeads, true);
     if (success) void contacts.after(editor!.snapshot().document, ticket);
     return success;
   };
@@ -390,6 +399,13 @@ export function mountConnectedBodyPanel<
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
   });
+  humeral.controls = renderBodyHumeralHeadControls({
+    dom,
+    container: element("humeral-head-controls"),
+    current: () => draft,
+    onChange: (next) => void change(next),
+    onRefuse: refuse,
+  });
   renderBodyPosePresets({
     dom,
     container: element("pose-presets"),
@@ -433,13 +449,16 @@ export function mountConnectedBodyPanel<
     const ticket = withdraw();
     status("Measuring which skin segments cross…", "building");
     try {
-      const posed = await viewport.build(editor!.snapshot().document, true);
+      const posed = await viewport.build(editor!.snapshot().document, true, true);
       const reading = posed.crossings;
+      const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
       viewport.dispose(posed);
       if (!intents.isCurrent(ticket)) return;
       const text = contacts.describe(reading);
       status(
-        text ?? "This build does not supply a crossing reading.",
+        [text ?? "This build does not supply a crossing reading.", anatomy]
+          .filter((line) => line !== null)
+          .join("\n"),
         text === null ? "error" : "ready",
       );
     } catch (error) {
