@@ -335,6 +335,7 @@ async function main(): Promise<void> {
       camera: viewport.cameraView,
       fit: viewport.fitView,
       clay: viewport.setClay,
+      ...viewport.observe,
       finish: viewport.finish,
       renderer: viewport.renderer,
     },

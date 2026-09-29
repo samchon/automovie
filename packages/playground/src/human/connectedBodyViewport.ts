@@ -13,6 +13,7 @@ import type {
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
+import { createHumanObservation } from "./observation/createHumanObservation";
 import { createHumanPreviewCamera } from "./previewScene";
 import type { HumanResidentPort } from "./residentWorker";
 import type { createHumanViewport } from "./viewport";
@@ -80,6 +81,14 @@ export function createConnectedBodyViewport(props: Host) {
   let active: THREE.Group | undefined;
   let companion: THREE.Group | undefined;
   let clayEnabled = false;
+  const observation = createHumanObservation({
+    scene,
+    camera,
+    orbit,
+    roots: () => (active === undefined ? [] : [active]),
+    clay,
+    height: () => canvas.getBoundingClientRect().height,
+  });
   const numerical = createConnectedBodyRenderer({
     loadTexture: props.loadTexture,
     maxAnisotropy: renderer.capabilities.getMaxAnisotropy(),
@@ -108,7 +117,8 @@ export function createConnectedBodyViewport(props: Host) {
   resize();
   const render = (): void => {
     orbit.update();
-    scene.overrideMaterial = clayEnabled ? clay : null;
+    observation.apply();
+    scene.overrideMaterial = observation.override(clayEnabled);
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(render);
@@ -125,6 +135,7 @@ export function createConnectedBodyViewport(props: Host) {
     dispose: (model: Model): void => numerical.dispose(model.frame),
     fitView,
     cameraView,
+    observe: observation.hooks,
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
     },
