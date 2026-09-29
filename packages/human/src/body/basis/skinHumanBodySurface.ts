@@ -33,11 +33,10 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * the upper chest it blends with, so a vertex whose first influence was the
  * arm could flip the girdle and the chest to opposite signs, and two almost
  * equal rotations cancelled, while its neighbour with the chest first did
- * not. With parent-aligned signs every vertex travels the arc the skeleton
- * travelled, the blend is invariant to the order influences are listed in,
- * and it cannot cancel while each joint turns less than a half turn from its
- * parent: parent and child real parts then have a nonnegative dot, so the
- * sum of positively weighted aligned parts stays away from zero.
+ * not. Parent-aligned signs remove that influence-order dependence. Pairwise
+ * alignment of parent and child does not prove that every set of four bones
+ * influencing one vertex shares a hemisphere, or that their weighted real
+ * parts can never cancel across a longer joint chain.
  *
  * The linear blend this replaces averaged the influences' rigid images, which
  * is a mean of rotation matrices: as two influences approach 180 degrees
@@ -45,13 +44,13 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * (the shipped basis's upper arm at flexion 180 collapsed to a thin plate),
  * and under a twist the mean's radius shrinks by the cosine of half the
  * angle, the candy-wrapper pinch. The dual quaternion blend is itself a rigid
- * transform, a screw motion between the influences, so a blended vertex keeps
- * its distance from the shared axis at every angle, a 50/50 vertex between a
- * still bone and one turned by θ turns by θ/2 about the same pivot, and the
- * per-vertex blend a corrective solver inverts to carry a posed displacement
- * back to rest is a rotation, always well conditioned. A vertex bound to one
- * bone with weight one is exactly rigid, the property the rigid-segment check
- * measures. The known limit is the bulge Kavan reports at a fold: the arc a
+ * transform, a screw motion between the influences. When two influences
+ * rotate about the same fixed pivot, their 50/50 vertex rotates by θ/2 and
+ * keeps its radius about that pivot. That special case does not establish a
+ * fixed anatomical joint centre, pairwise distance or local volume across
+ * differently weighted vertices. A vertex bound to one bone with weight one
+ * is exactly rigid, the property the rigid-segment check measures. The known
+ * limit is the bulge Kavan reports at a fold: the arc a
  * blended vertex walks lies outside the linear chord, so the inside of a
  * deep bend gains a little volume, which a pose corrective may take back.
  * Normals are not transported here: the builder recomputes them on the posed
