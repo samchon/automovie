@@ -24,6 +24,7 @@ export * from "./createAutoMovieSignedMeshQuery";
 export * from "./extrudeAutoMovieProfile";
 export * from "./extrudeAutoMovieRegion";
 export * from "./inspectAutoMovieMeshTopology";
+export * from "./weldedDegenerateTriangles";
 export * from "./loftAutoMovieSections";
 export * from "./measureAutoMovieMeshClearance";
 export * from "./measureAutoMovieMeshCrossings";

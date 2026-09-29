@@ -7,7 +7,8 @@
  * rest clearance and how deep the deepest one had gone.
  *
  * The summary describes what the evaluator did to the geometry a render
- * used; it certifies no visual acceptance. A refused document never
+ * used; it certifies neither visual acceptance nor an orientation-preserving,
+ * intersection-free skin. A refused document never
  * produces one, because the refusal names the deficient channel and the
  * millimetres instead.
  *

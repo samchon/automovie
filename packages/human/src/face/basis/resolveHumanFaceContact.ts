@@ -21,8 +21,9 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * oriented sheets with their closure triangles; a vertex farther than a
  * collider's reach at rest or posed, or one whose nearest feature at rest or
  * posed is a rim of an open sheet, reads no side and has no floor, so it is
- * left alone, which is the contract the sheet query states. Seam copies of one welded vertex are judged once
- * and moved together, so a push never opens a seam or changes the model's
+ * left alone, which is the contract the sheet query states. Seam copies of
+ * one welded vertex are judged once and moved together, so a push never
+ * opens a seam or changes the model's
  * admitted weld partition. A pushed vertex's neighbours take half the mean
  * push of the pushed vertices around them, so a correction spreads over one
  * ring instead of standing as a spike; the pushed vertices themselves stay
@@ -32,10 +33,21 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * Kozlov et al. 2017 use teeth-shaped collision surfaces and volume
  * simulation to keep lips outside teeth in an animated rig
  * (https://la.disneyresearch.com/wp-content/uploads/Enriching-Facial-Blendshape-Rigs-with-Physical-Simulation-Paper2.pdf).
+ * Their per-frame volumetric rest pose is an already authored facial
+ * performance that the simulation preserves; it does not repair an invalid
+ * source smile merely by adding contact physics.
  * This builder uses neither their simulation nor measured tissue stiffness:
  * its rest-clearance floor, neighbour averaging and allowed push budget are
  * authored deterministic constraints. They do not prove all combinations
  * anatomically valid or intersection-free.
+ * A pointwise clearance can hold at all corrected vertices while the edges
+ * between them invert or adjacent skin triangles cross. The one-ring spread
+ * does not solve a coupled tissue strain or require an orientation-preserving
+ * surface, so the returned counts cannot certify the performed skin as whole.
+ * The selected basis has requested expressions that are whole before this
+ * pass and folded after it. A replacement must validate both the collider
+ * clearance and the complete skin's orientation and self-contact, rather than
+ * reduce a penetration count in isolation.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Returns tissue pushed past its rest clearance to that clearance within the tissue budget and refuses beyond it.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Compiles the posed and rest colliders as sheets, applies the floor rule within reach and tolerance, and reports resolved counts and depths.
