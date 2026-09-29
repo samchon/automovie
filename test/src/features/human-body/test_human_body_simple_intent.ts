@@ -16,13 +16,17 @@ const deferred = <T>() => {
 
 /**
  * Simple body expansion shares the panel's intent order with shape, pose,
- * history, and load. Projection also observes that order before touching inputs.
+ * history, and load. Projection observes only the detailed rest shape and
+ * protects typed fields while filling the other inputs.
  *
  * Scenarios:
  * 1. A newer pose edit retires old expansion success and failure without changing shape.
- * 2. Two Apply clicks commit only the last result; a sole success and failure settle.
+ * 2. A later typed edit retires the expansion launched by an earlier Apply;
+ *    two Apply clicks commit only the last result.
  * 3. A changed shape retires an expansion even without a new ticket.
- * 4. Newer intent or typed input retires projection success and failure.
+ * 4. A newer non-shape intent keeps a valid projection and shares a pending
+ *    request; typed input preserves its field while other fields fill. A
+ *    newer shape retires the old projection, and obsolete errors stay silent.
  * 5. A pose-only commit keeps a typed simple draft and reuses its exact rest
  *    shape reading; a changed shape still asks the worker to read again.
  */
@@ -84,6 +88,15 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   TestValidator.equals("pose edit retires old expansion", applied, 0);
   TestValidator.equals("pose edit leaves shape unchanged", shape, {});
 
+  const changedDraft = deferred<Record<string, number>>();
+  expansion = () => changedDraft.promise;
+  apply.click();
+  input.value = "31";
+  input.dispatchEvent(new dom.defaultView!.Event("input"));
+  changedDraft.resolve({ waist: 1 });
+  await Promise.resolve();
+  TestValidator.equals("typed input retires earlier Apply", applied, 0);
+
   const oldFailure = deferred<Record<string, number>>();
   expansion = () => oldFailure.promise;
   apply.click();
@@ -104,11 +117,13 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   await Promise.resolve();
   TestValidator.equals("last Apply wins", shape, { waist: 2 });
   TestValidator.equals("only last Apply commits", applied, 1);
+  await controls.refresh(shape); // the panel reads each newly committed rest shape
 
   expansion = () => Promise.resolve({ waist: 3 });
   apply.click();
   await Promise.resolve();
   TestValidator.equals("sole Apply commits", shape, { waist: 3 });
+  await controls.refresh(shape);
   TestValidator.predicate(
     "Apply carries its reserved ticket",
     gate.isCurrent(appliedTicket),
@@ -130,6 +145,7 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   TestValidator.equals("changed shape prevents stale Apply", shape, {
     waist: 4,
   });
+  await controls.refresh(shape);
 
   const changedShapeFailure = deferred<Record<string, number>>();
   expansion = () => changedShapeFailure.promise;
@@ -143,18 +159,22 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
 
   const staleProjection = deferred<IAutoMovieHumanBodySimpleShape>();
   projected = () => staleProjection.promise;
+  const beforePending = projectionRequests;
   const staleRefresh = controls.refresh(shape);
-  gate.reserve();
+  const samePending = controls.refresh(shape);
+  gate.reserve(); // explicit contact reading, same detailed shape
   staleProjection.resolve({ ...simple, ageYears: 50 });
-  await staleRefresh;
+  await Promise.all([staleRefresh, samePending]);
   TestValidator.equals(
-    "newer intent keeps old projected input out",
+    "non-shape intent keeps a correct rest projection",
     input.value,
-    "30",
+    "50",
   );
+  TestValidator.equals("same pending shape has one worker request", projectionRequests, beforePending + 1);
 
   const staleProjectionFailure = deferred<IAutoMovieHumanBodySimpleShape>();
   projected = () => staleProjectionFailure.promise;
+  shape = { ...shape, chest: 1 };
   const staleFailureRefresh = controls.refresh(shape);
   gate.reserve();
   staleProjectionFailure.reject(new Error("stale projection"));
@@ -170,16 +190,22 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   const typedRefresh = controls.refresh(shape);
   input.value = "42";
   input.dispatchEvent(new dom.defaultView!.Event("input"));
-  typedProjection.resolve({ ...simple, ageYears: 50 });
+  typedProjection.resolve({ ...simple, ageYears: 50, statureMetres: 1.8 });
   await typedRefresh;
   TestValidator.equals(
     "typed value survives old projection",
     input.value,
     "42",
   );
+  TestValidator.equals(
+    "other simple fields fill while age remains typed",
+    dom.querySelector<HTMLInputElement>("#simple-statureMetres")!.value,
+    "180",
+  );
 
   const typedProjectionFailure = deferred<IAutoMovieHumanBodySimpleShape>();
   projected = () => typedProjectionFailure.promise;
+  shape = { ...shape, chest: 2 };
   const typedFailureRefresh = controls.refresh(shape);
   input.dispatchEvent(new dom.defaultView!.Event("input"));
   typedProjectionFailure.reject(new Error("obsolete projection"));
@@ -190,10 +216,36 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     ["Error: unreachable girth"],
   );
 
-  const acceptedShape = { ...shape };
   projected = () => Promise.resolve({ ...simple, ageYears: 45 });
   await controls.refresh(shape);
-  TestValidator.equals("current projection updates input", input.value, "45");
+  TestValidator.equals("retry preserves a typed age", input.value, "42");
+  const oldShapeProjection = deferred<IAutoMovieHumanBodySimpleShape>();
+  projected = () => oldShapeProjection.promise;
+  shape = { ...shape, chest: 3 };
+  const obsolete = controls.refresh(shape);
+  const newShapeProjection = deferred<IAutoMovieHumanBodySimpleShape>();
+  projected = () => newShapeProjection.promise;
+  shape = { ...shape, chest: 4 };
+  const newest = controls.refresh(shape);
+  oldShapeProjection.resolve({ ...simple, ageYears: 60 });
+  await obsolete;
+  TestValidator.equals("superseded shape leaves current field", input.value, "42");
+  newShapeProjection.resolve({ ...simple, ageYears: 55 });
+  await newest;
+  TestValidator.equals("new shape projection wins", input.value, "55");
+  const acceptedShape = { ...shape };
+  const undoProjection = deferred<IAutoMovieHumanBodySimpleShape>();
+  projected = () => undoProjection.promise;
+  shape = { ...shape, chest: 5 };
+  const undone = controls.refresh(shape);
+  input.value = "48";
+  input.dispatchEvent(new dom.defaultView!.Event("input"));
+  shape = acceptedShape;
+  await controls.refresh(shape);
+  TestValidator.equals("undo restores the prior shape reading", input.value, "55");
+  undoProjection.resolve({ ...simple, ageYears: 60 });
+  await undone;
+  TestValidator.equals("obsolete shape cannot replace the undo reading", input.value, "55");
   shape = { ...shape, hips: 2 };
   projected = () => Promise.reject(new Error("current projection failed"));
   await controls.refresh(shape);
@@ -203,6 +255,7 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   ]);
 
   shape = acceptedShape;
+  await controls.refresh(shape); // history restores the accepted body first
   input.value = "46";
   input.dispatchEvent(new dom.defaultView!.Event("input"));
   const beforePose = projectionRequests;
