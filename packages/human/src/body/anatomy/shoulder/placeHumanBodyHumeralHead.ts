@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
 import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
+import { placeHumanBodyArticularSphere } from "../placeHumanBodyArticularSphere";
 
 /**
  * Place one spherical articular head at the body's posed humeral joint centre.
@@ -23,18 +24,16 @@ export function placeHumanBodyHumeralHead(input: {
   const radiusMetres = input.source === "observed"
     ? input.observation.millimetres / 1000
     : input.radiusMetres;
-  if (!Number.isFinite(radiusMetres) || radiusMetres <= 0)
-    throw new Error("A humeral-head radius must be finite and positive.");
-  const posed = input.bones.find((entry) => entry.bone === input.bone)?.posed.position;
-  if (posed === undefined || ![posed.x, posed.y, posed.z].every(Number.isFinite))
-    throw new Error("A humeral head needs its posed glenohumeral joint: " + input.bone);
+  const sphere = placeHumanBodyArticularSphere({
+    bone: input.bone,
+    radiusMetres,
+    bones: input.bones,
+  });
   const provenance = input.source === "observed"
     ? { source: "observed" as const, observation: { ...input.observation } }
     : { source: input.source };
   return {
     ...provenance,
-    bone: input.bone,
-    center: { ...posed },
-    radiusMetres,
+    ...sphere,
   };
 }

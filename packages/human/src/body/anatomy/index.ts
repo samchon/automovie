@@ -1,5 +1,7 @@
 export * from "./shoulder/createHumanBodyHumeralHeads";
 export * from "./shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements";
+export * from "./lower-limb/createHumanBodyFemoralHeadsFromAnatomicalMeasurements";
+export type { IAutoMovieHumanBodyFemoralHead } from "./lower-limb/IAutoMovieHumanBodyFemoralHead";
 export * from "./shoulder/IAutoMovieHumanBodyHumeralHead";
 export * from "./contact/measureHumanBodySpheresSkinClearance";
 export * from "./admitHumanBodyAnatomicalMeasurements";
