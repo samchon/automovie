@@ -1,26 +1,30 @@
-import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
-import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
+import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
+import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
+import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
 import { portraitCranialChinHeight } from "../anatomy/cranium/portraitCranialChinHeight";
 import { portraitNeckShape } from "../anatomy/cranium/portraitNeckShape";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
-import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
-import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
-import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
+import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
-import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
 import { resolvePortraitSkinShape } from "../anatomy/skin/resolvePortraitSkinShape";
+import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
+import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 import { applyHumanFaceControls } from "./applyHumanFaceControls";
-import { resolveHumanFaceExpression } from "./resolveHumanFaceExpression";
+import { assertHumanFaceEditableDetail } from "./assertHumanFaceEditableDetail";
 import { mergeHumanFaceSettings } from "./mergeHumanFaceSettings";
+import { resolveHumanFaceExpression } from "./resolveHumanFaceExpression";
 
 /**
  * Interpret identity independently of edit history: fixed defaults, basis,
  * intermediate traits, explicit detailed overrides, then independent sides.
  * Observed and current expressions remain separate resolved records. This
  * numerical stage does not fetch, fit a photo, tessellate or accept likeness.
- * An explicit switch between final nasal shape alternatives replaces that
- * payload; partial fields within one alternative keep ordinary inheritance.
+ * Detail and side arrays cannot replace the basis's source geometry; this is
+ * checked even when a caller bypasses JSON parsing and invokes replay directly.
+ * An explicit empty-array switch of a final nasal alternative removes the
+ * inherited payload; nonempty alternative geometry stays in the source basis.
+ * Scalar fields within one alternative keep ordinary inheritance.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Resolves one standalone face without person-specific package defaults.
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives defaults, arrays, detailed overrides and side profiles one deterministic precedence.
@@ -28,6 +32,7 @@ import { mergeHumanFaceSettings } from "./mergeHumanFaceSettings";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Applies trait offsets before exact detail and side-specific replacements.
  */
 export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
+  assertHumanFaceEditableDetail(input);
   const document = structuredClone(input);
   if (document.basis.topology !== "mediapipe-478/1")
     throw new Error("Only the mediapipe-478/1 landmark topology is supported.");

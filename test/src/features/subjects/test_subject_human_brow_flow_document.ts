@@ -11,13 +11,14 @@ import { humanFaceFixture } from "../internal/humanFaceFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Eyebrow flow is a complete eye-region setting, including independent sides.
+ * Eyebrow flow witnesses belong to the source eye; the numerical density seed
+ * can still be edited independently on each side.
  *
  * Scenarios:
- * 1. Three longitudinal flow witnesses and a density seed survive the public
- *    document round trip; a nonnumeric seed refuses at shape admission.
- * 2. Left replacement uses a complete two-witness array while the right and an
- *    unrelated trait remain unchanged. Clearing restores common inheritance.
+ * 1. Source longitudinal flow witnesses and an edited density seed survive
+ *    the public document round trip; a nonnumeric seed refuses admission.
+ * 2. Left scalar replacement retains source flow and an unrelated trait;
+ *    a new two-witness array refuses. Clearing restores inheritance.
  * 3. Missing a required upper-root direction refuses at JSON admission.
  */
 export const test_subject_human_brow_flow_document = (): void => {
@@ -30,11 +31,15 @@ export const test_subject_human_brow_flow_document = (): void => {
       upper: { tip: 0.7 - at * 0.4, outwardBend: at * 3 },
     })),
   };
+  source.basis.recipe.eye.browProfile = {
+    ...source.basis.recipe.eye.browProfile!,
+    flow: structuredClone(flow),
+  };
   const common = replaceHumanFaceRegion({
     document: source,
     basisId: source.basis.id,
     region: "eye",
-    value: { browProfile: { flow, densitySeed: 0 } },
+    value: { browProfile: { densitySeed: 0 } },
   });
   const loaded = parseHumanFaceDocument(serializeHumanFaceDocument(common));
   TestValidator.equals(
@@ -53,8 +58,22 @@ export const test_subject_human_brow_flow_document = (): void => {
     basisId: source.basis.id,
     region: "eye",
     side: "left",
-    value: { browProfile: { flow: left, densitySeed: 7 } },
+    value: { browProfile: { densitySeed: 7 } },
   });
+  TestValidator.predicate(
+    "left free flow refuses",
+    throwsError(
+      () =>
+        replaceHumanFaceRegion({
+          document: loaded,
+          basisId: source.basis.id,
+          region: "eye",
+          side: "left",
+          value: { browProfile: { flow: left } } as never,
+        }),
+      "source geometry array",
+    ),
+  );
   const resolved = resolveHumanFaceDocument(paired);
   TestValidator.equals(
     "independent left density seed",
@@ -67,9 +86,9 @@ export const test_subject_human_brow_flow_document = (): void => {
     0,
   );
   TestValidator.equals(
-    "left whole-array replacement",
+    "left keeps source flow",
     resolved.left.eye.browProfile!.flow,
-    left,
+    flow,
   );
   TestValidator.equals(
     "right untouched",
@@ -95,7 +114,7 @@ export const test_subject_human_brow_flow_document = (): void => {
     flow,
   );
   const malformed = JSON.parse(serializeHumanFaceDocument(common));
-  delete malformed.detail.eye.browProfile.flow.sections[0].upper;
+  delete malformed.basis.recipe.eye.browProfile.flow.sections[0].upper;
   TestValidator.predicate(
     "incomplete flow rejected",
     throwsError(() => parseHumanFaceDocument(JSON.stringify(malformed))),

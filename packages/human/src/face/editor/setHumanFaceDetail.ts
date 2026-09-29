@@ -1,3 +1,4 @@
+import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertDetailValue } from "./assertDetailValue";
 import { definitionOf } from "./definitionOf";
@@ -20,6 +21,7 @@ export function setHumanFaceDetail(
   value: number | undefined,
   side?: "right" | "left",
 ): IAutoMovieHumanFaceDocument {
+  assertHumanFaceEditableDetail(document);
   const definition = definitionOf(id);
   assertDetailValue(definition, value);
   if (

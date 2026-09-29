@@ -15,8 +15,10 @@ import { humanFaceTongueChannels } from "./humanFaceTongueChannels";
 import { humanFaceUpperDentalChannels } from "./humanFaceUpperDentalChannels";
 
 /**
- * Scalar controls on the component profiles. Array and complete-object profiles
- * remain independently replaceable through the same region document editor.
+ * Scalar controls on the component profiles. Source geometry arrays are
+ * inherited by omission or cleared, never newly sculpted in detailed edits;
+ * appearance and the legacy named hair-layer scalar transaction have their
+ * separately admitted array semantics.
  * Ranges are editing envelopes; the part's coupled validator remains decisive.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Connects numerical sliders to actual detailed shape settings.

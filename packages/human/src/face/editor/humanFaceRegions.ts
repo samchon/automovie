@@ -1,6 +1,8 @@
 /**
  * Anatomical profile owners exposed by the document editor, excluding arbitrary
- * source-coordinate editing. Shared surface supplements remain in the document.
+ * source-coordinate editing. Shared surface supplements remain in the document;
+ * source geometry arrays may be retained or cleared, never replaced with new
+ * guide, curve, section or displacement populations by an edit.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Names the numerical editor's replaceable anatomical regions.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps region selection on actual profile owners.

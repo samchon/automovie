@@ -1,9 +1,11 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
+
+import { AutoMovieHumanFaceEditableEyeOverride } from "../AutoMovieHumanFaceEditableEyeOverride";
+import { AutoMovieHumanFaceEditableOverride } from "../AutoMovieHumanFaceEditableOverride";
+import { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
 import type { IPortraitCheekShape } from "../anatomy/cheek/IPortraitCheekShape";
 import type { IPortraitEarShape } from "../anatomy/ear/IPortraitEarShape";
-import type { IPortraitEyeShape } from "../anatomy/eye/structures/IPortraitEyeShape";
 import type { IPortraitComponentHost } from "../surface/structures/IPortraitComponentHost";
-import { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
 import { IAutoMovieHumanFaceBindings } from "./IAutoMovieHumanFaceBindings";
 import { IAutoMovieHumanFaceControls } from "./IAutoMovieHumanFaceControls";
 import { IAutoMovieHumanFaceExpression } from "./IAutoMovieHumanFaceExpression";
@@ -53,23 +55,44 @@ export interface IAutoMovieHumanFaceDocument {
   /** Optional intermediate trait offsets; omitted channels are zero. */
   controls?: IAutoMovieHumanFaceControls;
 
-  /** Explicit detailed overrides after intermediate controls; arrays replace whole populations. */
-  detail?: AutoMovieHumanFaceOverride<IAutoMovieHumanFaceRecipe>;
+  /**
+   * Explicit scalar/detail overrides after intermediate controls. Nonempty
+   * source geometry arrays are immutable basis content: omission inherits
+   * them, while [] may remove an inherited optional population.
+   * Additional hair layers may vary scalar styling but keep source card guides.
+   * Skin-colour regions and iris RGB affect reflectance rather than 3D shape.
+   * The runtime admission owns this boundary for parsed and direct documents.
+   */
+  detail?: Omit<
+    AutoMovieHumanFaceEditableOverride<IAutoMovieHumanFaceRecipe>,
+    "hairLayers" | "skinColour" | "eye"
+  > & {
+    /** Eye shape is scalar; iris RGB remains independent appearance. */
+    eye?: AutoMovieHumanFaceEditableEyeOverride;
+    /** Numerical legacy layer edits preserve each source card guide. */
+    hairLayers?: AutoMovieHumanFaceOverride<
+      IAutoMovieHumanFaceRecipe["hairLayers"]
+    >;
+    /** Reflectance fields change no geometric surface. */
+    skinColour?: AutoMovieHumanFaceOverride<
+      IAutoMovieHumanFaceRecipe["skinColour"]
+    >;
+  };
 
   /** Independent side profiles after common detail; omission keeps the common profile. */
   asymmetry?: {
     /** Anatomical right side (-X). */
     right?: {
-      eye?: AutoMovieHumanFaceOverride<IPortraitEyeShape>;
-      cheek?: AutoMovieHumanFaceOverride<IPortraitCheekShape>;
-      ear?: AutoMovieHumanFaceOverride<IPortraitEarShape>;
+      eye?: AutoMovieHumanFaceEditableEyeOverride;
+      cheek?: AutoMovieHumanFaceEditableOverride<IPortraitCheekShape>;
+      ear?: AutoMovieHumanFaceEditableOverride<IPortraitEarShape>;
     };
 
     /** Anatomical left side (+X). */
     left?: {
-      eye?: AutoMovieHumanFaceOverride<IPortraitEyeShape>;
-      cheek?: AutoMovieHumanFaceOverride<IPortraitCheekShape>;
-      ear?: AutoMovieHumanFaceOverride<IPortraitEarShape>;
+      eye?: AutoMovieHumanFaceEditableEyeOverride;
+      cheek?: AutoMovieHumanFaceEditableOverride<IPortraitCheekShape>;
+      ear?: AutoMovieHumanFaceEditableOverride<IPortraitEarShape>;
     };
   };
 

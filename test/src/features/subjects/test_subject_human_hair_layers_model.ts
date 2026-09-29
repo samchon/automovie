@@ -6,7 +6,7 @@ import { coarseHumanFaceFixture } from "../internal/humanFaceFixture";
 import { portraitHairShadeFixture } from "../internal/portraitHairShadeFixture";
 
 /**
- * Additional hair layers reach the full anatomical model without legacy hair.
+ * Source-owned hair layers reach the full anatomical model without legacy hair.
  * Scenarios:
  * 1. A named additional profile emits its own part and resident mask without legacy hair.
  * 2. Its authored pigment control persists without changing the caller's document.
@@ -14,14 +14,12 @@ import { portraitHairShadeFixture } from "../internal/portraitHairShadeFixture";
 export const test_subject_human_hair_layers_model = (): void => {
   const face = coarseHumanFaceFixture("layer-consumer"),
     { shape } = portraitHairShadeFixture();
-  face.detail = {
-    hairLayers: [
-      {
-        id: "outer",
-        profile: { ...shape, material: "hair", fibreShadeStrength: 0 },
-      },
-    ],
-  };
+  face.basis.recipe.hairLayers = [
+    {
+      id: "outer",
+      profile: { ...shape, material: "hair", fibreShadeStrength: 0 },
+    },
+  ];
   const before = structuredClone(face),
     model = buildHumanFace(face, 0);
   TestValidator.predicate(

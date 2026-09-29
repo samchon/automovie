@@ -1,9 +1,9 @@
 import { buildPortraitEars } from "@automovie/human/face/anatomy/cranium/buildPortraitEars";
 import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
+import { applyPortraitOralContact } from "@automovie/human/face/anatomy/mouth/applyPortraitOralContact";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
-import { applyPortraitOralContact } from "@automovie/human/face/anatomy/mouth/applyPortraitOralContact";
 import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
@@ -48,18 +48,6 @@ import type { portraitReview } from "./review";
  * @evidence src/subjects/generated-korean-girl-01/review.md#reference Supplies the geometry compared against the photograph in its recorded camera pose.
  * @evidence src/subjects/generated-korean-girl-01/review.md#clay Supplies the shared surface inspected independently of its material colours.
  * @evidence src/subjects/generated-korean-girl-01/review.md#component-replacement Assembles the component selections exercised by the replacement tests; fresh alternate-assembly captures remain pending for this revision.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#front #7c8e313 Reopened the frozen front frame after a byte-identical Node 22 GLB replay: the connected nose retains an angular base, the lower lids form regular bands and the visible crowns remain coarse. No likeness acceptance follows.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#left-oblique #580c386 Reopened the positive-yaw frozen frame: the exposed pinna and continuous nasal sidewall remain visible, with a broad cheek-to-mouth depression. Hidden anatomy and eye fitting remain unaccepted.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#right-oblique #5a791c9 Reopened the negative-yaw frozen frame: no detached upper nasal crosspiece is visible, the far eye is occluded and the coarse temporal hair overhang dominates.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#left-profile #6a3370e Reopened the frozen anatomical-left profile: forehead, nasal, lip and chin silhouettes are continuous without the rejected bridge spikes. Single-view depth inference is not independently verified.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#right-profile #c836ccb Reopened the opposing frozen profile: the nasal silhouette remains connected while the curtain hides most of the side head. Coarse lip and crown form does not establish posterior likeness.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#back #5c7de2a Reopened the frozen back frame and corrected the observation to retain its visible horizontal cap-to-curtain seam. The tightly framed coarse hair mass is not a reproduced groom.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#top #0b45dcc Reopened the frozen overhead frame: the cap is helmet-like and the exposed nasal silhouette has no detached triangular bridge projections. Posterior dimensions remain inferred.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#bottom #cd2a6e6 Reopened the frozen underside: two nasal openings and their lining are visible, the cropped neck is open, and the broad chin-to-throat transition and simplified columella remain unaccepted.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#rear-oblique #706d696 Reopened the frozen rear oblique and retained its cap-to-curtain seam in the record. No detached ear fragment is visible, while the curtain hides most of the head and cannot establish unseen likeness.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#reference #1899ddf Reopened the frozen recorded-pose frame and read the earlier measured oral-fit record. Synthetic lid, nasal and crown forms remain visible; the historical pixel comparisons were not remeasured in this pass.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#clay #6263b83 Reopened all three frozen clay frames: connected nasal and cranial surfaces retain angular alar form, broad perioral depressions and raised vermilion. Opaque clay corneas are not a colour-render optical verdict.
- * @evidenceReview src/subjects/generated-korean-girl-01/review.md#component-replacement #91a7335 Read the replacement history and its explicit uncertified contact figures against the preserved package replay. The byte-identical GLB establishes frozen construction preservation only; earlier numeric contacts, alternate assemblies and whole-PR review are not recertified here.
  * @evidence {@link portraitReview} Retains the construction review carrier for this assembled face; its written observations do not accept the likeness.
  */
 export function buildReferencePortrait(

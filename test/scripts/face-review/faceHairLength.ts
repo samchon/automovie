@@ -92,26 +92,31 @@ export function faceHairLowestRow(mask: IFaceHairMask): number | null {
 }
 
 /**
- * Where a fringe ends over the eyes: in each pixel column between the
- * lateral eye corners (33, 263), the lowest hair pixel from the top of the
- * forehead (landmark 10) down to the higher lower lid (145, 374), or the
- * forehead's top where the column has none; the index is the lower lid's
- * height above the 90th percentile of those rows, over the eye corners'
- * distance. A long fringe lowers it; a bare forehead gives the forehead's
- * height. The percentile reads the lowest tenth of the eye span, so a few
- * locks hanging across an eye count where a covered share would not tell
- * them from a fringe that stops at the brows. Null when the span or the
- * forehead is empty.
+ * Where a fringe ends over the eyes: in each pixel column between the upper
+ * lids' midpoints (`span`, landmarks 159 and 386, above the pupils: the
+ * fringe falls from the frontal hairline over the forehead's middle, while
+ * the columns out to the eye corners also take the temples' hair, which a
+ * curly head carries down beside the eyes), the lowest hair pixel from the
+ * top of the forehead (landmark 10) down to the higher lower lid (145, 374),
+ * or the forehead's top where the column has none; the index is the lower
+ * lid's height above the 90th percentile of those rows, over the lateral eye
+ * corners' distance (33, 263). A long fringe lowers it; a bare forehead
+ * gives the forehead's height. The percentile reads the lowest tenth of the
+ * span, so locks hanging across the eyes count where a covered share would
+ * not tell them from a fringe that stops at the brows. Null when the span
+ * or the forehead is empty.
  */
 export function faceHairFringeReach(props: {
   mask: IFaceHairMask;
   top: readonly [number, number];
   eyes: readonly [readonly [number, number], readonly [number, number]];
+  span: readonly [readonly [number, number], readonly [number, number]];
   lids: readonly [readonly [number, number], readonly [number, number]];
 }): number | null {
   const [a, b] = props.eyes;
-  const x0 = Math.max(0, Math.ceil(Math.min(a[0], b[0])));
-  const x1 = Math.min(props.mask.width, Math.floor(Math.max(a[0], b[0])));
+  const [p, q] = props.span;
+  const x0 = Math.max(0, Math.ceil(Math.min(p[0], q[0])));
+  const x1 = Math.min(props.mask.width, Math.floor(Math.max(p[0], q[0])));
   const y0 = Math.max(0, Math.ceil(props.top[1]));
   const lid = Math.min(props.lids[0][1], props.lids[1][1]);
   const y1 = Math.min(props.mask.height, Math.floor(lid));
@@ -123,7 +128,7 @@ export function faceHairFringeReach(props: {
       if (props.mask.data[y * props.mask.width + x] !== 0) edge = y + 1;
     edges.push(edge);
   }
-  edges.sort((p, q) => p - q);
+  edges.sort((m, n) => m - n);
   const edge =
     edges[Math.min(edges.length - 1, Math.floor(0.9 * edges.length))]!;
   return (lid - edge) / Math.hypot(a[0] - b[0], a[1] - b[1]);

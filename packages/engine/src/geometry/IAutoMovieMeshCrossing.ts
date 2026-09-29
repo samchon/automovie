@@ -3,16 +3,16 @@
  *
  * Ordinals are positions in each mesh's own `indices`, before any spatial
  * indexing, so a caller can map a report straight back to the buffer it owns.
- * A triangle is reported once with a single witness rather than once per
- * crossing pair, because the question a caller asks of this is which of its
- * triangles are compromised, not how many ways each one is.
+ * The default query reports one witness per first-mesh triangle. With the
+ * complete-pair option, a triangle may have several entries, one for each
+ * second-mesh triangle it crosses or overlaps in one plane.
  *
  * @author Samchon
  */
 export interface IAutoMovieMeshCrossing {
   /** First-mesh triangle ordinal, before any spatial indexing. */
   triangle: number;
-  /** A second-mesh triangle ordinal that pierces it. */
+  /** A second-mesh triangle ordinal that pierces or overlaps it. */
   other: number;
   /** True when the two lie in one plane and overlap without either piercing. */
   coplanar: boolean;

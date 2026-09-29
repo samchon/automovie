@@ -1,0 +1,78 @@
+{
+  "source": "mpfb-connected-head-2026-09-27-globe-cover",
+  "revision": "mpfb-connected-head-2026-09-28-crown-length",
+  "crowns": [
+    {
+      "centre": 0.003911314450412752,
+      "normMetres": 0.01169,
+      "beforeMetres": 0.011507181790353592,
+      "afterMetres": 0.01169
+    },
+    {
+      "centre": -0.00391131446068342,
+      "normMetres": 0.01169,
+      "beforeMetres": 0.011507181456108448,
+      "afterMetres": 0.01169
+    },
+    {
+      "centre": -0.010804004412070849,
+      "normMetres": 0.00934,
+      "beforeMetres": 0.009182051680924676,
+      "afterMetres": 0.00934
+    },
+    {
+      "centre": 0.010804009188383533,
+      "normMetres": 0.00934,
+      "beforeMetres": 0.00918223119982467,
+      "afterMetres": 0.00934
+    },
+    {
+      "centre": 0.01613696402267754,
+      "normMetres": 0.01083,
+      "beforeMetres": 0.009386689414308043,
+      "afterMetres": 0.01083
+    },
+    {
+      "centre": -0.01613696276845644,
+      "normMetres": 0.01083,
+      "beforeMetres": 0.009386687928958323,
+      "afterMetres": 0.01083
+    },
+    {
+      "centre": 0.01774442997941039,
+      "normMetres": 0.00933,
+      "beforeMetres": 0.007986653466853932,
+      "afterMetres": 0.00933
+    },
+    {
+      "centre": -0.017744432993595998,
+      "normMetres": 0.00933,
+      "beforeMetres": 0.007986787770927,
+      "afterMetres": 0.00933
+    }
+  ],
+  "recorded": "2026-09-27T17:44:56.483Z",
+  "citations": {
+    "norms": "Magne P, Gallucci GO, Belser UC. Anatomic crown width/length ratios of unworn and worn maxillary teeth in white subjects. J Prosthet Dent 2003;89:453-61: 146 extracted maxillary teeth (44 central incisors, 41 lateral incisors, 38 canines, 23 first premolars); longest incisocervical length to the CEJ, unworn central incisors 11.69 mm, unworn canines 10.83 mm, lateral incisors 9.34 to 9.55 mm, first premolars (all unworn) 9.33 mm."
+  },
+  "inputs": {
+    "basis": {
+      "sha256": "a4b3f0e9661a6bb307b410ebcdda5668fabfa03fa95aa5f52a2bf5e0b91ff187",
+      "bytes": 27136588
+    },
+    "subjects": {
+      "sha256": "ddf3baacb60df8dd549a889958e754a74a1b61c44fa333fdc15ab3056c3235b7",
+      "bytes": 119138
+    },
+    "controls": {
+      "sha256": "42a75f7277a87963abd8defb4f54d378207db8b095e4e96f506545802da3ab00",
+      "bytes": 7450
+    }
+  },
+  "outputs": {
+    "basis": {
+      "sha256": "e58cccd72a85895b589c5692a8cf59af0f2ce4c243924738938f2c4b0a19c26b",
+      "bytes": 27138823
+    }
+  }
+}

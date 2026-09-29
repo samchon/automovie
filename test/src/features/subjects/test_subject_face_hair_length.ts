@@ -35,9 +35,11 @@ const mask = () => {
  *    (6 - 4) / 2 = 1; hair cut by the frame or absent has no index; eye
  *    corners that coincide refuse.
  * 3. The fringe reach is the lower lid's height above the 90th percentile
- *    of each column's lowest hair between the eye corners, over their
- *    distance: a column of hair down to the lid gives zero, bare columns
- *    the forehead's height; an empty span or forehead gives none.
+ *    of each column's lowest hair between the span's points, over the eye
+ *    corners' distance: a column of hair down to the lid gives zero, bare
+ *    columns the forehead's height; hair outside a narrower span (column 2
+ *    beside a span of columns 3-5, corners 6 apart) is not read; an empty
+ *    span or forehead gives none.
  * 4. Seen from the front, hair a centimetre in front of a skin plane is
  *    visible over its own pixels and the same hair a centimetre behind it
  *    is hidden.
@@ -100,6 +102,10 @@ export const test_subject_face_hair_length = (): void => {
           [1, 0],
           [4, 0],
         ],
+        span: [
+          [1, 0],
+          [4, 0],
+        ],
         lids: [lid, lid],
       })!,
       0,
@@ -113,9 +119,30 @@ export const test_subject_face_hair_length = (): void => {
             [3, 0],
             [6, 0],
           ],
+          span: [
+            [3, 0],
+            [6, 0],
+          ],
           lids: [lid, lid],
         })!,
         1,
+        1e-12,
+      ) &&
+      nclose(
+        faceHairFringeReach({
+          mask: head,
+          top: [0, 1],
+          eyes: [
+            [0, 0],
+            [6, 0],
+          ],
+          span: [
+            [3, 0],
+            [6, 0],
+          ],
+          lids: [lid, lid],
+        })!,
+        (4 - 1) / 6,
         1e-12,
       ) &&
       faceHairFringeReach({
@@ -125,12 +152,20 @@ export const test_subject_face_hair_length = (): void => {
           [1, 0],
           [4, 0],
         ],
+        span: [
+          [1, 0],
+          [4, 0],
+        ],
         lids: [lid, lid],
       }) === null &&
       faceHairFringeReach({
         mask: head,
         top: [0, 1],
         eyes: [
+          [2, 0],
+          [2, 5],
+        ],
+        span: [
           [2, 0],
           [2, 5],
         ],

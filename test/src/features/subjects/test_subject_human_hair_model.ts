@@ -5,7 +5,8 @@ import { PNG } from "pngjs";
 import { coarseHumanFaceFixture } from "../internal/humanFaceFixture";
 
 /**
- * Hair guides and independent pigment controls reach the real face builder.
+ * Source-owned hair guides and independent scalar pigment controls reach the
+ * real face builder without making the guide array an editable detail.
  * Scenarios:
  * 1. A complete numeric hair profile emits one masked
  *    card material without replacing the shared base finish or caller data.
@@ -20,32 +21,31 @@ export const test_subject_human_hair_model = (): void => {
       ? { ...finish, alphaMode: "mask", alphaCutoff: 0.25 }
       : finish,
   );
-  doc.detail = {
-    hair: {
-      material: "hair",
-      cards: [
-        {
-          guide: [
-            [0, 120, 0],
-            [0, 110, -10],
-          ],
-          across: [
-            [1, 0, 0],
-            [1, 0, 0],
-          ],
-          width: 2,
-        },
-      ],
-      segments: 2,
-      widthScale: 1,
-      tipWidth: 0.5,
-      seed: 0,
-      fibres: 2,
-      coverage: 0.7,
-      fibreNormalScale: 0.4,
-      fibreShadeStrength: 0,
-    },
+  doc.basis.recipe.hair = {
+    material: "hair",
+    cards: [
+      {
+        guide: [
+          [0, 120, 0],
+          [0, 110, -10],
+        ],
+        across: [
+          [1, 0, 0],
+          [1, 0, 0],
+        ],
+        width: 2,
+      },
+    ],
+    segments: 2,
+    widthScale: 1,
+    tipWidth: 0.5,
+    seed: 0,
+    fibres: 2,
+    coverage: 0.7,
+    fibreNormalScale: 0.4,
+    fibreShadeStrength: 0,
   };
+  doc.detail = { hair: { fibreNormalScale: 0.4, fibreShadeStrength: 0 } };
   const before = structuredClone(doc),
     model = buildHumanFace(doc, 0);
   TestValidator.predicate(
