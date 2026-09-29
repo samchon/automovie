@@ -19,6 +19,7 @@ Follow the literal request; it is the contract, not a hint at what the user "rea
 - **Default over ask.** On an ambiguous detail, pick the sensible default and say what you chose; reserve questions for forks only the user can settle.
 - **Act on what the request already covers.** Take a reversible step the request implies instead of asking permission for it. When the user is describing a problem or asking a question rather than requesting a change, your assessment is the deliverable.
 - **Finish the turn's work.** A turn ends when the work is done. When your last paragraph is a plan, a promise, or a list of next steps, take that step now, retries and missing information included. Session length is never a stop condition. This governs stopping early and grants no authorization that a skill or this file withholds.
+- **Recheck every fifteen minutes.** Standing instruction (user, 2026-09-30, restating one given during the face work): in any kind of work, pause at least every fifteen minutes and judge the path you are on. Ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, and whether what you learned since the last pause changes the plan. Correct course at once when it does and record the correction in the run record. A running background job does not suspend the pause, and the pause is not a stopping point: continue the work after it.
 - **Record every user directive.** Immediately preserve each user instruction in the durable `.wiki/` worklog and track its implementation. Keep superseded instructions in the chronology with the instruction that replaces them; a session transition never cancels an unfulfilled request. The documentation skill owns the record's form and location.
 - **Ship each topic as a PR.** Standing instruction (user, 2026-07-06): every topic-unit of work is submitted as its own PR; never commit to `master` directly. Merge only on explicit user request or under a standing autonomous mandate (see the pull-request skill). Green CI remains the normal merge path.
 
@@ -33,6 +34,10 @@ What `automovie` is, what it deliberately does not do, the long-haul mission, th
 ### Development
 
 Work rules, testing, the per-change 100% coverage obligation, validation, consequence analysis, change integrity, `.agents/skills/development/SKILL.md`. Read before writing or modifying code.
+
+### Contracts
+
+The implementation acknowledgments that maintained source declarations answer with `@evidence` tags, in three additive checklist layers: common engineering principles, modeling principles, and anatomical principles for human forms, `.agents/skills/contracts/SKILL.md`. Read before implementing or reviewing maintained source, enrolling source in a contracts claim, or writing a checklist chapter. It owns no product requirement or specification; those stay with the evidence graph skill.
 
 ### Scaffold Authoring
 
@@ -100,4 +105,4 @@ Update AGENTS.md only for repository-contract changes: a new skill area, a renam
 - **Create or merge.** Add a skill when a substantial repository concern would otherwise inflate AGENTS.md beyond an index. Merge sibling concerns when they share most of their structure.
 - **Repository skill files only.** Keep repository skills to `SKILL.md` and conditionally loaded sibling documents. Do not create separate `multi-agent-*` skills or `agents/openai.yaml`; parallel variants belong under `multi-agent/`.
 - **Headings are plain.** No chapter numbers in skill or AGENTS.md headings. Use descriptive titles.
-- **Current set.** The repository skills are `project`, `development`, `scaffold`, `documentation`, `evidence-graph`, `review`, `multi-agent`, `discussion`, `issue-campaign`, `experiment`, `3d-modeling`, `viewer-verification`, and `pull-request`.
+- **Current set.** The repository skills are `project`, `development`, `contracts`, `scaffold`, `documentation`, `evidence-graph`, `review`, `multi-agent`, `discussion`, `issue-campaign`, `experiment`, `3d-modeling`, `viewer-verification`, and `pull-request`.

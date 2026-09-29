@@ -24,7 +24,7 @@ When a README falls inside a committed requirement or specification population, 
 
 Source JSDoc is English, in the interia voice: state what the type or function is and the non-obvious *why* (the design intent, the constraint it carries), not a paraphrase of the signature. Close interface types with `@author Samchon`. Examples in JSDoc are direction, not contract.
 
-When a public export participates in the committed contract graph, preserve and revise its citations under the [evidence graph skill](../evidence-graph/SKILL.md). This skill owns the prose and comment form; the evidence graph skill owns the cited layers and reachability.
+When a public export participates in the committed contract graph, preserve and revise its citations under the [evidence graph skill](../evidence-graph/SKILL.md). This skill owns the prose and comment form; the evidence graph skill owns the cited layers and reachability. A declaration enrolled in a contracts claim answers its chapters under the [contracts skill](../contracts/SKILL.md), which owns the questions while this skill owns how the answers are written.
 
 ### Source-file context
 
@@ -59,6 +59,7 @@ Give every instruction one canonical semantic owner. Edit that owner first, then
 | Repository `.agents/skills/<name>/SKILL.md` | One concern's trigger, exclusions, shared invariants, and direct routes. The directory and frontmatter `name` agree; substantial conditional phases live in directly linked one-level sibling documents. |
 | Documentation skill | Instruction classification, writing form, link integrity, package README and JSDoc form, and instruction-diff review. |
 | Development skill | Source and test rules, consequence analysis, the exact changed-position coverage obligation, validation, and change integrity. |
+| Contracts skill | The implementation checklist chapters, each chapter's single question, and the enrollment rule for declarations that answer them. |
 | Review skill | Whole-surface, fresh-round review semantics and Self-Review. Campaign procedures name when those rounds run without redefining them. |
 | Issue-campaign skills | Discovery, publication, implementation ownership, DAG dispatch, integration, and completion. The base campaign owns the ordinary shared-checkout topology; the multi-agent campaign owns only its explicitly selected isolated topology. |
 | Pull-request skill | Branch, commit, push, check, merge, and cleanup behavior. Other skills state when a remote action is due and link to this owner. |

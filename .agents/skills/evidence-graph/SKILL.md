@@ -71,6 +71,12 @@ A derived population selects the carriers to which the configured rules apply. S
 
 `@automovie/production` and `@automovie/playground` carry the same repository `evidence/graph`, `evidence/documented`, and `evidence/todo` obligations as the other public packages. Production owns the builder, project store, capture, inspection, and render-job contracts it implements. Playground owns the durable prototype-view surface it exports. Neither a removed transport boundary nor an application's smaller surface excuses its public exports from requirement and specification traceability.
 
+## The human package answers contracts
+
+`@automovie/human` is outside the required triangle. Its face and body declarations answer the [contracts skill](../contracts/SKILL.md), where the evidence is the cited measurement and anatomy written in JSDoc and the checked obligation is a chapter answer, not a requirement or specification citation. Its `lint.config.ts` configures contracts claims and no requirement or specification claim, and its exports carry no citation into the facial-authoring or body-authoring pages.
+
+Those pages under `docs/requirements` and `docs/specifications` remain product documents for their readers. Leaving them uncited by source is the decided state of this package, not unpaid debt, and the other public packages keep every obligation in this skill.
+
 ## Split independently payable units
 
 `evidence/graph` proves that a requirement or specification unit has a claimant. It does not prove that several partial claimants add up to the complete unit. When behaviors can mature, fail, or be implemented independently, give each one its own H3 with a stable anchor and let the native requirement or specification to claim to public-export triangle validate it directly.
