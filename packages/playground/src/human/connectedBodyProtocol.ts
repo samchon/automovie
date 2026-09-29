@@ -91,14 +91,16 @@ export type ConnectedBodyResult =
       anatomy:
         | {
             status: "measured";
-            heads: {
+            heads: ({
               bone: IAutoMovieHumanBodyHumeralHead["bone"];
               radiusMetres: number;
-              source: IAutoMovieHumanBodyHumeralHead["source"];
               centerInside: boolean;
               nearestMetres: number;
               clearanceMetres: number;
-            }[];
+            } & (
+              | Pick<Extract<IAutoMovieHumanBodyHumeralHead, { source: "observed" }>, "source" | "observation">
+              | { source: Exclude<IAutoMovieHumanBodyHumeralHead["source"], "observed"> }
+            ))[];
           }
         | { status: "unavailable"; reason: "skin-crossing" | "ct-domain" }
         | null;

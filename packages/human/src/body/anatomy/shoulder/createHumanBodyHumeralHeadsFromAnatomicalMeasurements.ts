@@ -24,11 +24,12 @@ export function createHumanBodyHumeralHeadsFromAnatomicalMeasurements(input: {
   return (["left", "right"] as const).flatMap((side) => {
     const radius = measurements[`${side}UpperLimb`]?.upperArm?.humerus?.sphereFittedHeadRadius;
     if (radius === undefined) return [];
-    return [placeHumanBodyHumeralHead({
+    const placement = {
       bone: side === "left" ? "leftUpperArm" : "rightUpperArm",
-      radiusMetres: radius.millimetres / 1000,
-      source: radius.kind === "observed" ? "measured" : "target",
       bones: input.bones,
-    })];
+    } as const;
+    return [radius.kind === "observed"
+      ? placeHumanBodyHumeralHead({ ...placement, source: "observed", observation: radius })
+      : placeHumanBodyHumeralHead({ ...placement, source: "target", radiusMetres: radius.millimetres / 1000 })];
   });
 }

@@ -5,7 +5,8 @@ type Reading = Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"]
 /**
  * Describe only the anatomical relation an explicit body check actually read.
  *
- * Direct measurement or adult CT allometry supplies a spherical articular
+ * Imaging observation, an explicitly named target, a legacy entered radius
+ * or adult CT allometry supplies a spherical articular
  * head. Its millimetre radius and exact skin clearance are reported separately so room
  * for the head cannot be mistaken for a complete humerus, scapula or muscle
  * contact result. Crossed skin has no valid inside, and a body outside the
@@ -22,7 +23,9 @@ export function bodyAnatomyReading(reading: Reading): string | null {
     const radius = (head.radiusMetres * 1000).toFixed(1);
     const room = (Math.abs(head.clearanceMetres) * 1000).toFixed(1);
     const origin =
-      head.source === "measured"
+      head.source === "observed"
+        ? `${head.observation.modality.toUpperCase()} observation`
+        : head.source === "measured"
         ? "entered measurement"
         : head.source === "target"
           ? "anatomical target"

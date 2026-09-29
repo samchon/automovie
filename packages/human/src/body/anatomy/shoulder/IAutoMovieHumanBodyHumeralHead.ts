@@ -1,23 +1,30 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
 
 /**
  * One rig-centred spherical humeral articular head in the posed body frame.
  *
- * A sphere-fitted CT head describes an articular component, not the shaft,
+ * A sphere-fitted imaging observation or explicit radius target describes an
+ * articular component, not the shaft,
  * tubercles or complete humerus. Its centre is the existing rig's posed
  * glenohumeral joint, which has not been verified as an individual's CT
  * humeral-head centre. A separate skin query must establish geometric room.
  */
-export interface IAutoMovieHumanBodyHumeralHead {
+export type IAutoMovieHumanBodyHumeralHead = {
   /** The upper-arm joint whose posed centre carries this side's head. */
   bone: "leftUpperArm" | "rightUpperArm";
 
   /** Posed glenohumeral rig centre in metres, Y up and Z forward. */
   center: IAutoMovieVector3;
 
-  /** Sphere-fitted articular radius in metres, converted from source mm. */
+  /** Articular sphere radius in metres, converted from supplied or prior mm. */
   radiusMetres: number;
 
-  /** Direct imaging observation, named fictional target, or adult CT prior. */
-  source: "measured" | "target" | "adult-ct-prior";
-}
+} & (
+  | { readonly source: "adult-ct-prior" | "target" | "measured" }
+  | {
+      /** This source records CT/MRI method and posture instead of losing it. */
+      readonly source: "observed";
+      readonly observation: Extract<IAutoMovieHumanBodyTomographicLength, { kind: "observed" }>;
+    }
+);

@@ -110,7 +110,12 @@ export const test_human_body_humeral_heads = (): void => {
   TestValidator.equals(
     "typed observed and target radii keep independent sides and provenance",
     anatomical.map(({ bone, radiusMetres, source, center }) => [bone, radiusMetres, source, center.x]),
-    [["leftUpperArm", 0.02, "measured", -0.3], ["rightUpperArm", 0.025, "target", 0.3]],
+    [["leftUpperArm", 0.02, "observed", -0.3], ["rightUpperArm", 0.025, "target", 0.3]],
+  );
+  TestValidator.equals(
+    "the observed head retains CT and acquisition posture",
+    anatomical[0].source === "observed" ? anatomical[0].observation : null,
+    { kind: "observed", millimetres: 20, modality: "ct", acquisitionPosture: "supine" },
   );
   TestValidator.equals(
     "missing anatomical radius does not invent an unvalidated prior",

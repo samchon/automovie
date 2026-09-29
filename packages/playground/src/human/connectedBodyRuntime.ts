@@ -23,6 +23,7 @@ import {
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
+import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
 import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
@@ -178,17 +179,7 @@ export function createConnectedBodyRuntime(
                     radiusMetres,
                   })),
                 });
-                return {
-                  status: "measured" as const,
-                  heads: heads.map((head, index) => ({
-                    bone: head.bone,
-                    radiusMetres: head.radiusMetres,
-                    source: head.source,
-                    centerInside: measured[index].centerInside,
-                    nearestMetres: measured[index].nearestMetres,
-                    clearanceMetres: measured[index].clearanceMetres,
-                  })),
-                };
+                return packHumanBodyHumeralHeadReading(heads, measured);
               })();
       }
     }
