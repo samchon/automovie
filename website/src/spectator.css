@@ -1,0 +1,91 @@
+/* Shared flight affordances; touch pads leave the centre available for look. */
+#view {
+  touch-action: none;
+}
+#view:focus-visible {
+  outline: 2px solid var(--accent, #315f42);
+  outline-offset: -3px;
+}
+.flight-pad {
+  display: none;
+}
+.flight-reset {
+  position: absolute;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper, #24231f);
+  color: var(--ink);
+  font:
+    11px system-ui,
+    sans-serif;
+}
+@media (max-width: 720px), (pointer: coarse) {
+  .flight-pad {
+    position: absolute;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    display: grid;
+    gap: 5px;
+    z-index: 1;
+    touch-action: none;
+    user-select: none;
+  }
+  .flight-pad button {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper, #24231f);
+    color: var(--ink);
+    font:
+      600 13px system-ui,
+      sans-serif;
+    box-shadow: 0 2px 8px #0002;
+    touch-action: none;
+  }
+  .flight-pad button:active {
+    background: var(--accent, #315f42);
+    color: #fff;
+  }
+  .flight-direction {
+    left: 16px;
+    grid-template-columns: repeat(3, 44px);
+  }
+  .flight-direction [data-flight="forward"] {
+    grid-column: 2;
+  }
+  .flight-direction [data-flight="left"] {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .flight-direction [data-flight="right"] {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  .flight-direction [data-flight="back"] {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .flight-height {
+    right: 16px;
+  }
+  .tour-caption {
+    bottom: 170px;
+  }
+}
+@media (max-width: 720px) {
+  /* Manor navigation shares the upper-right placement of the other tours. */
+  body #panel {
+    top: 74px;
+    bottom: auto;
+    left: auto;
+    right: 14px;
+    width: 260px;
+    max-height: 45dvh;
+    border-radius: 10px;
+  }
+}

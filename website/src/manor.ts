@@ -1,20 +1,18 @@
 // The manor showcase page: build the textured manor in the browser, then let
 // the visitor fly through it or jump between its authored views.
 //
-// The flight model follows this production's authored source preview:
-// yaw/pitch mouse look with world-up height and a lens zoom, so a view seen
-// here is the view its author framed. The page adds the featured shortlist, a
-// `?view=` deep link, and a loading card; it owns no scene, light, or camera.
+// Shared spectator input preserves the production's world-up flight and lens
+// zoom. The native source still owns scene construction, lighting and authored
+// views; this host owns only presentation, deep links and resource lifetime.
 import { mountViewer } from "@automovie/viewer";
 import {
   type IManorScene,
   createTexturedManorScene,
 } from "medieval-baron-manor/textured-scene";
-import { flightSpeedReadout } from "medieval-baron-manor/viewer/flight-speed-readout";
 import { mountPreviewNavigation } from "medieval-baron-manor/viewer/preview-navigation";
-import * as THREE from "three";
 
 import { bakeManor } from "./bakeManor";
+import { mountSpectatorControls } from "./spectatorControls";
 
 const VIEW_PARAMETER = "view";
 
@@ -138,113 +136,38 @@ const main = async (): Promise<void> => {
   const select = (id: string): void => {
     const index = indices.get(id);
     if (index === undefined) throw new Error(`Unknown manor view: ${id}`);
+    controls.clear();
     manor.applyView(index);
     manor.target.copy(manor.inspection.target.position);
     rememberView(id);
     views.highlight(id);
   };
   const views = mountViews(manor, select);
+  const controls = mountSpectatorControls({
+    canvas,
+    camera,
+    target: manor.target,
+    reset: () => select("reference-exterior"),
+    changed: () => manor.followLighting(),
+    notice: (message) => {
+      status.textContent = message;
+    },
+  });
   const initial = requestedView();
   select(
     initial !== null && indices.has(initial) ? initial : manor.views[0]!.id,
   );
-
-  const input = new AbortController();
-  const held = new Set<string>();
-  const directions = new Set([
-    "KeyW",
-    "KeyA",
-    "KeyS",
-    "KeyD",
-    "ArrowUp",
-    "ArrowLeft",
-    "ArrowDown",
-    "ArrowRight",
-    "Space",
-    "KeyC",
-    "ShiftLeft",
-    "ShiftRight",
-  ]);
-  const isForm = (target: EventTarget | null): boolean =>
-    target instanceof Element &&
-    target.closest("input, textarea, select, button, [contenteditable]") !==
-      null;
-  const maxPitch = THREE.MathUtils.degToRad(89);
-  const orientation = new THREE.Euler(0, 0, 0, "YXZ");
-  const forward = new THREE.Vector3();
-  const right = new THREE.Vector3();
-  const worldUp = new THREE.Vector3(0, 1, 0);
-  const travel = new THREE.Vector3();
-  camera.lookAt(manor.target);
-  let aimDistance = Math.max(manor.target.distanceTo(camera.position), 0.001);
-  const lastTarget = manor.target.clone();
-  const lastPosition = camera.position.clone();
-  const lastQuaternion = camera.quaternion.clone();
-  const rememberPose = (): void => {
-    lastPosition.copy(camera.position);
-    lastQuaternion.copy(camera.quaternion);
-    lastTarget.copy(manor.target);
-  };
-  // A selected authored view moves the camera outside this loop; adopt it
-  // rather than overwrite it with the yaw and pitch of the previous view.
-  const adoptAuthoredPose = (): void => {
-    const targetChanged = !manor.target.equals(lastTarget);
-    if (
-      !targetChanged &&
-      camera.position.equals(lastPosition) &&
-      camera.quaternion.equals(lastQuaternion)
-    )
-      return;
-    held.clear();
-    if (targetChanged) camera.lookAt(manor.target);
-    aimDistance = Math.max(manor.target.distanceTo(camera.position), 0.001);
-    rememberPose();
-  };
-  // The inspection light follows this eye through its target; it is never an
-  // orbit pivot.
-  const followEye = (): void => {
-    manor.target
-      .copy(camera.position)
-      .addScaledVector(camera.getWorldDirection(forward), aimDistance);
-    rememberPose();
-  };
-  const look = (movementX: number, movementY: number): void => {
-    adoptAuthoredPose();
-    orientation.setFromQuaternion(camera.quaternion, "YXZ");
-    orientation.y -= movementX * 0.0025;
-    orientation.x = THREE.MathUtils.clamp(
-      orientation.x - movementY * 0.0025,
-      -maxPitch,
-      maxPitch,
-    );
-    orientation.z = 0;
-    camera.up.copy(worldUp);
-    camera.quaternion.setFromEuler(orientation);
-    followEye();
-  };
-  const axis = (
-    positive: readonly string[],
-    negative: readonly string[],
-  ): number =>
-    Number(positive.some((key) => held.has(key))) -
-    Number(negative.some((key) => held.has(key)));
-
-  let previous = 0;
-  let speed = 4;
+  canvas.setAttribute(
+    "aria-label",
+    "Medieval manor interactive 3D scene. Click for mouse look; WASD or arrows fly; Space rises, C descends; Shift moves slowly; R resets; Escape releases the mouse.",
+  );
   let width = 0;
   let height = 0;
-  let requestingLock = false;
-  let inputNotice = "";
-  const frameSeconds: number[] = [];
   const mounted = mountViewer(
     canvas,
     scene,
     camera,
     (elapsed) => {
-      const real = Math.max(elapsed - previous, 0);
-      const delta = Math.min(real, 0.1);
-      previous = elapsed;
-      if (frameSeconds.push(real) > 15) frameSeconds.shift();
       if (canvas.clientWidth !== width || canvas.clientHeight !== height) {
         width = canvas.clientWidth;
         height = canvas.clientHeight;
@@ -256,44 +179,15 @@ const main = async (): Promise<void> => {
         camera.aspect = Math.max(width, 1) / Math.max(height, 1);
         camera.updateProjectionMatrix();
       }
-      adoptAuthoredPose();
-      const locked = document.pointerLockElement === canvas;
-      const fast = held.has("ShiftLeft") || held.has("ShiftRight");
-      const pace = speed * (fast ? 4 : 1);
-      if (locked) {
-        camera.getWorldDirection(forward);
-        right.set(1, 0, 0).applyQuaternion(camera.quaternion);
-        travel
-          .set(0, 0, 0)
-          .addScaledVector(
-            forward,
-            axis(["KeyW", "ArrowUp"], ["KeyS", "ArrowDown"]),
-          )
-          .addScaledVector(
-            right,
-            axis(["KeyD", "ArrowRight"], ["KeyA", "ArrowLeft"]),
-          )
-          .addScaledVector(worldUp, axis(["Space"], ["KeyC"]));
-        if (travel.lengthSq() !== 0)
-          camera.position.addScaledVector(travel.normalize(), pace * delta);
-      }
-      followEye();
-      // The baked meshes replaced the instance sets, so only the light follows.
+      controls.frame(elapsed);
+      // Baked meshes replaced the instance sets; only the light follows the eye.
       manor.followLighting();
-      orientation.setFromQuaternion(camera.quaternion, "YXZ");
-      status.textContent =
-        `x=${camera.position.x.toFixed(2)}` +
-        ` y=${camera.position.y.toFixed(2)} z=${camera.position.z.toFixed(2)}` +
-        ` · yaw=${THREE.MathUtils.radToDeg(orientation.y).toFixed(1)}°` +
-        ` pitch=${THREE.MathUtils.radToDeg(orientation.x).toFixed(1)}°` +
-        ` · fov=${camera.fov.toFixed(1)}°` +
-        ` · speed=${flightSpeedReadout(pace, frameSeconds, 0.1)}\n` +
-        (locked
-          ? "Mouse look · Esc releases"
-          : inputNotice || "Click the view to fly");
       return false;
     },
-    { pixelRatio: Math.min(window.devicePixelRatio, 1.5) },
+    {
+      pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+      preserveDrawingBuffer: true,
+    },
   );
   mounted.renderer.setClearColor(0x1c1a18, 1);
   manor.configureRenderer(mounted.renderer);
@@ -308,154 +202,15 @@ const main = async (): Promise<void> => {
   canvas.focus();
 
   const stop = (): void => {
-    held.clear();
-    input.abort();
+    controls.dispose();
     views.removeNavigation();
-    if (document.pointerLockElement === canvas) document.exitPointerLock();
     mounted.stop();
     void manor.disposeTextures();
   };
   window.addEventListener("pagehide", stop, { once: true });
-
-  window.addEventListener(
-    "keydown",
-    (event) => {
-      if (event.code === "Escape") {
-        held.clear();
-        if (document.pointerLockElement === canvas) document.exitPointerLock();
-        return;
-      }
-      if (
-        event.defaultPrevented ||
-        document.pointerLockElement !== canvas ||
-        isForm(event.target)
-      ) {
-        held.clear();
-        return;
-      }
-      if (event.code === "KeyQ" || event.code === "KeyE") {
-        if (!event.repeat)
-          speed = THREE.MathUtils.clamp(
-            event.code === "KeyQ" ? speed / 1.5 : speed * 1.5,
-            0.1,
-            100,
-          );
-        event.preventDefault();
-      } else if (directions.has(event.code)) {
-        held.add(event.code);
-        event.preventDefault();
-      }
-    },
-    { signal: input.signal },
-  );
-  window.addEventListener("keyup", (event) => held.delete(event.code), {
-    signal: input.signal,
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) location.reload();
   });
-  window.addEventListener(
-    "focusin",
-    (event) => {
-      held.clear();
-      if (isForm(event.target) && document.pointerLockElement === canvas)
-        document.exitPointerLock();
-    },
-    { signal: input.signal },
-  );
-  window.addEventListener(
-    "blur",
-    () => {
-      held.clear();
-      if (document.pointerLockElement === canvas) document.exitPointerLock();
-    },
-    { signal: input.signal },
-  );
-  document.addEventListener(
-    "pointerlockchange",
-    () => {
-      held.clear();
-      inputNotice = "";
-    },
-    { signal: input.signal },
-  );
-  const lockRefused = (error: unknown): void => {
-    requestingLock = false;
-    inputNotice =
-      "Mouse look was not acquired. Click to retry. " +
-      (error instanceof Error ? error.message : String(error));
-  };
-  canvas.addEventListener(
-    "click",
-    (event) => {
-      // A touch has no pointer to lock; its drag already looks around.
-      if ((event as Partial<PointerEvent>).pointerType === "touch") return;
-      if (requestingLock || document.pointerLockElement === canvas) return;
-      canvas.focus();
-      requestingLock = true;
-      try {
-        void Promise.resolve(canvas.requestPointerLock())
-          .then(() => {
-            requestingLock = false;
-          })
-          .catch(lockRefused);
-      } catch (error) {
-        lockRefused(error);
-      }
-    },
-    { signal: input.signal },
-  );
-  document.addEventListener(
-    "pointerlockerror",
-    () => lockRefused("The browser refused pointer lock."),
-    { signal: input.signal },
-  );
-  window.addEventListener(
-    "mousemove",
-    (event) => {
-      if (document.pointerLockElement === canvas)
-        look(event.movementX, event.movementY);
-    },
-    { signal: input.signal },
-  );
-  // One finger drags the view on a touch screen, where pointer lock and the
-  // keyboard flight do not exist.
-  let touch: { id: number; x: number; y: number } | null = null;
-  canvas.addEventListener(
-    "pointerdown",
-    (event) => {
-      if (event.pointerType !== "touch" || touch !== null) return;
-      touch = { id: event.pointerId, x: event.clientX, y: event.clientY };
-    },
-    { signal: input.signal },
-  );
-  canvas.addEventListener(
-    "pointermove",
-    (event) => {
-      if (touch === null || event.pointerId !== touch.id) return;
-      look((event.clientX - touch.x) * 2, (event.clientY - touch.y) * 2);
-      touch = { id: touch.id, x: event.clientX, y: event.clientY };
-    },
-    { signal: input.signal },
-  );
-  for (const type of ["pointerup", "pointercancel"] as const)
-    canvas.addEventListener(
-      type,
-      (event) => {
-        if (touch !== null && event.pointerId === touch.id) touch = null;
-      },
-      { signal: input.signal },
-    );
-  canvas.addEventListener(
-    "wheel",
-    (event) => {
-      event.preventDefault();
-      camera.fov = THREE.MathUtils.clamp(
-        camera.fov * Math.exp(event.deltaY * 0.001),
-        5,
-        110,
-      );
-      camera.updateProjectionMatrix();
-    },
-    { passive: false, signal: input.signal },
-  );
 };
 
 main().catch(fail);

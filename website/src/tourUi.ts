@@ -6,7 +6,6 @@
  * Selecting a room never invents a new pose. A collapsed panel remains keyboard
  * reachable, and mobile opens with the full canvas available.
  */
-import type { CameraAction } from "./tourCamera";
 import type { TourData } from "./tourData";
 
 export const mountTourUi = (
@@ -14,7 +13,6 @@ export const mountTourUi = (
   data: TourData,
   options: {
     select(id: string): void;
-    move(action: CameraAction, pan: boolean): void;
     collapsed: boolean;
   },
 ): { highlight(id: string): void; dispose(): void } => {
@@ -54,7 +52,7 @@ export const mountTourUi = (
   source.href = data.source;
   canvas.setAttribute(
     "aria-label",
-    `${data.title} interactive 3D scene. Arrow keys orbit; Shift and arrows pan; plus and minus zoom; R resets.`,
+    `${data.title} interactive 3D scene. Click for mouse look; WASD or arrows fly; Space rises, C descends; Shift moves slowly; R resets; Escape releases the mouse.`,
   );
   const buttons = new Map<string, HTMLButtonElement>();
   for (const view of data.views) {
@@ -86,30 +84,6 @@ export const mountTourUi = (
   listen(search, "input", filter);
   listen(toggle, "click", () => collapse(!panel.hidden));
   listen(reset, "click", () => options.select(data.initial));
-  for (const button of document.querySelectorAll<HTMLButtonElement>(
-    "[data-camera]",
-  ))
-    listen(button, "click", () =>
-      options.move(button.dataset.camera as CameraAction, false),
-    );
-  const keys: Record<string, CameraAction> = {
-    ArrowLeft: "left",
-    ArrowRight: "right",
-    ArrowUp: "up",
-    ArrowDown: "down",
-    "+": "in",
-    "=": "in",
-    "-": "out",
-  };
-  listen(canvas, "keydown", (event) => {
-    const key = event as KeyboardEvent;
-    if (key.defaultPrevented || key.altKey || key.ctrlKey || key.metaKey)
-      return;
-    if (key.key.toLowerCase() === "r") options.select(data.initial);
-    else if (keys[key.key]) options.move(keys[key.key]!, key.shiftKey);
-    else return;
-    key.preventDefault();
-  });
   return {
     highlight: (id) => {
       for (const [key, button] of buttons)

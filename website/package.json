@@ -10,6 +10,8 @@
     "./tour-data": "./src/tourData.ts",
     "./tour-export": "./src/tourExport.ts",
     "./tour-camera": "./src/tourCamera.ts",
+    "./spectator-camera": "./src/spectatorCamera.ts",
+    "./spectator-controls": "./src/spectatorControls.ts",
     "./tour-frame": "./src/tourFrame.ts",
     "./tour-ui": "./src/tourUi.ts",
     "./tour-scene": "./src/tourScene.ts",
