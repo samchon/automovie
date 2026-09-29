@@ -2,7 +2,7 @@
   {
     "id": "alan-rickman-connected",
     "name": "alan-rickman (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": 0.6153846153846154,
       "globalSexualDimorphism": 1,
@@ -97,12 +97,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.09,
-            0.09,
+            0.123,
+            0.123,
             0.13,
-            0.05,
+            0.0683,
             0.11,
-            0.12
+            0.164
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -302,7 +302,7 @@
   {
     "id": "daniel-radcliffe-connected",
     "name": "daniel-radcliffe (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -1,
       "globalSexualDimorphism": 1,
@@ -466,7 +466,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 1.65101
         },
         {
           "id": "fringe",
@@ -537,7 +538,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 1.65101
         }
       ]
     },
@@ -670,7 +672,7 @@
   {
     "id": "emma-watson-connected",
     "name": "emma-watson (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.08333333333333326,
       "globalSexualDimorphism": -1,
@@ -964,7 +966,7 @@
   {
     "id": "generated-black-boy-01-connected",
     "name": "generated-black-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
@@ -1088,9 +1090,9 @@
           },
           "finish": {
             "color": [
-              0.00833,
-              0.01135,
-              0.01429
+              0.00996,
+              0.00996,
+              0.00996
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -1108,26 +1110,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00107,
-          0.0012,
-          0.0015
+          0.00211,
+          0.00084,
+          0.00074
         ],
         "variation": [
-          0.00603,
-          0.00679,
-          0.00849
+          0.01191,
+          0.00476,
+          0.00421
         ]
       },
       "right": {
         "base": [
-          0.00107,
-          0.0012,
-          0.0015
+          0.00211,
+          0.00084,
+          0.00074
         ],
         "variation": [
-          0.00603,
-          0.00679,
-          0.00849
+          0.01191,
+          0.00476,
+          0.00421
         ]
       }
     },
@@ -1177,7 +1179,7 @@
   {
     "id": "generated-black-girl-01-connected",
     "name": "generated-black-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": -1,
@@ -1268,12 +1270,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.38,
-            0.38,
+            0.1958,
+            0.1958,
             0.44,
-            0.27,
+            0.1391,
             0.38,
-            0.4
+            0.2061
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.0023333333333333335,
@@ -1299,9 +1301,9 @@
           },
           "finish": {
             "color": [
-              0.00869,
-              0.01071,
-              0.01168
+              0.00973,
+              0.00973,
+              0.00973
             ],
             "roughness": 0.94,
             "fibres": 24,
@@ -1416,7 +1418,7 @@
   {
     "id": "generated-korean-boy-01-connected",
     "name": "generated-korean-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
@@ -1715,7 +1717,7 @@
   {
     "id": "generated-white-boy-01-connected",
     "name": "generated-white-boy-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.8333333333333333,
       "globalSexualDimorphism": 1,
@@ -2011,7 +2013,7 @@
   {
     "id": "generated-white-girl-01-connected",
     "name": "generated-white-girl-01 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": -1,
@@ -2326,7 +2328,7 @@
   {
     "id": "kim-min-jung-connected",
     "name": "kim-min-jung (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": 0.01538461538461533,
       "globalSexualDimorphism": -1,
@@ -2384,24 +2386,24 @@
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.01183,
-          0.01605,
-          0.01677
+          0.0152,
+          0.0152,
+          0.0152
         ],
         "density": 1.224
       },
       "Human.eyelashes01": {
         "pigment": [
-          0.01183,
-          0.01605,
-          0.01677
+          0.0152,
+          0.0152,
+          0.0152
         ]
       },
       "Human.eyelashes01.lower": {
         "pigment": [
-          0.01183,
-          0.01605,
-          0.01677
+          0.0152,
+          0.0152,
+          0.0152
         ]
       }
     },
@@ -2451,9 +2453,9 @@
           },
           "finish": {
             "color": [
-              0.01667,
-              0.03146,
-              0.04325
+              0.02728,
+              0.02728,
+              0.02728
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2464,7 +2466,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 1.41866
         },
         {
           "id": "fringe",
@@ -2510,9 +2513,9 @@
           },
           "finish": {
             "color": [
-              0.01166,
-              0.022,
-              0.03025
+              0.01908,
+              0.01908,
+              0.01908
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2535,33 +2538,34 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 1.41866
         }
       ]
     },
     "iris": {
       "left": {
         "base": [
-          0.00242,
-          0.00326,
-          0.00385
+          0.00574,
+          0.00225,
+          0.002
         ],
         "variation": [
-          0.01371,
-          0.01844,
-          0.02179
+          0.03248,
+          0.01274,
+          0.01133
         ]
       },
       "right": {
         "base": [
-          0.00242,
-          0.00326,
-          0.00385
+          0.00574,
+          0.00225,
+          0.002
         ],
         "variation": [
-          0.01371,
-          0.01844,
-          0.02179
+          0.03248,
+          0.01274,
+          0.01133
         ]
       }
     },
@@ -2668,7 +2672,7 @@
   {
     "id": "lee-tae-ri-connected",
     "name": "lee-tae-ri (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": 0.09230769230769242,
       "globalSexualDimorphism": -1,
@@ -2729,24 +2733,24 @@
       },
       "Human.eyebrow001": {
         "pigment": [
-          0.02869,
-          0.0161,
-          0.01299
+          0.02513,
+          0.01306,
+          0.01012
         ],
         "density": 1.296
       },
       "Human.eyelashes01": {
         "pigment": [
-          0.02869,
-          0.0161,
-          0.01299
+          0.02513,
+          0.01306,
+          0.01012
         ]
       },
       "Human.eyelashes01.lower": {
         "pigment": [
-          0.02869,
-          0.0161,
-          0.01299
+          0.02513,
+          0.01306,
+          0.01012
         ]
       }
     },
@@ -2765,12 +2769,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.058,
-            0.058,
+            0.0792,
+            0.0792,
             0.145,
-            0.0397,
+            0.0542,
             0.105,
-            0.0641
+            0.0875
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -2796,9 +2800,9 @@
           },
           "finish": {
             "color": [
-              0.02885,
-              0.02303,
-              0.01989
+              0.0243,
+              0.0243,
+              0.0243
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -2970,7 +2974,7 @@
   {
     "id": "maggie-smith-connected",
     "name": "maggie-smith (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": 0.8461538461538463,
       "globalSexualDimorphism": -1,
@@ -3062,12 +3066,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.0517,
-            0.0517,
+            0.0619,
+            0.0619,
             0.2,
-            0.0345,
+            0.0413,
             0.16,
-            0.062
+            0.0742
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3267,7 +3271,7 @@
   {
     "id": "michael-gambon-connected",
     "name": "michael-gambon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": 0.7230769230769232,
       "globalSexualDimorphism": 1,
@@ -3413,26 +3417,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00683,
-          0.00683,
-          0.00683
+          0.00764,
+          0.00664,
+          0.00628
         ],
         "variation": [
-          0.03862,
-          0.03862,
-          0.03862
+          0.04324,
+          0.03755,
+          0.03552
         ]
       },
       "right": {
         "base": [
-          0.00683,
-          0.00683,
-          0.00683
+          0.00764,
+          0.00664,
+          0.00628
         ],
         "variation": [
-          0.03862,
-          0.03862,
-          0.03862
+          0.04324,
+          0.03755,
+          0.03552
         ]
       }
     },
@@ -3539,7 +3543,7 @@
   {
     "id": "miriam-margolyes-connected",
     "name": "miriam-margolyes (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": 0.7076923076923078,
       "globalSexualDimorphism": -1,
@@ -3878,7 +3882,7 @@
   {
     "id": "oh-seung-yoon-connected",
     "name": "oh-seung-yoon (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.75,
       "globalSexualDimorphism": 1,
@@ -3950,12 +3954,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.0431,
-            0.0431,
+            0.0539,
+            0.0539,
             0.125,
-            0.0329,
+            0.0411,
             0.11,
-            0.0507
+            0.0634
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -3981,9 +3985,9 @@
           },
           "finish": {
             "color": [
-              0.00112,
-              0.00122,
-              0.00139
+              0.00118,
+              0.00118,
+              0.00118
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -4037,12 +4041,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.0431,
-            0.0431,
+            0.0539,
+            0.0539,
             0.085,
-            0.0431,
+            0.0539,
             0.085,
-            0.0431
+            0.0539
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -4068,9 +4072,9 @@
           },
           "finish": {
             "color": [
-              0.00078,
-              0.00085,
-              0.00098
+              0.00083,
+              0.00083,
+              0.00083
             ],
             "roughness": 0.73,
             "fibres": 24,
@@ -4100,26 +4104,26 @@
     "iris": {
       "left": {
         "base": [
-          0.00076,
-          0.00049,
-          0.00029
+          0.00102,
+          0.0004,
+          0.00036
         ],
         "variation": [
-          0.0043,
-          0.00275,
-          0.00162
+          0.00578,
+          0.00227,
+          0.00202
         ]
       },
       "right": {
         "base": [
-          0.00076,
-          0.00049,
-          0.00029
+          0.00102,
+          0.0004,
+          0.00036
         ],
         "variation": [
-          0.0043,
-          0.00275,
-          0.00162
+          0.00578,
+          0.00227,
+          0.00202
         ]
       }
     },
@@ -4226,7 +4230,7 @@
   {
     "id": "park-eun-bin-connected",
     "name": "park-eun-bin (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.41666666666666674,
       "globalSexualDimorphism": -1,
@@ -4310,12 +4314,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.0489,
-            0.0489,
+            0.0633,
+            0.0633,
             0.15,
-            0.0309,
+            0.04,
             0.12,
-            0.0695
+            0.0899
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -4382,7 +4386,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 0.2
         },
         {
           "id": "fringe",
@@ -4397,12 +4402,12 @@
             "back": 2.1
           },
           "lengthAxes": [
-            0.0438,
-            0.0438,
+            0.0567,
+            0.0567,
             0.085,
-            0.0438,
+            0.0567,
             0.085,
-            0.0438
+            0.0567
           ],
           "lengthVariation": 0.08,
           "samplingStep": 0.003,
@@ -4453,7 +4458,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 0.2
         }
       ]
     },
@@ -4586,7 +4592,7 @@
   {
     "id": "rupert-grint-connected",
     "name": "rupert-grint (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.9166666666666667,
       "globalSexualDimorphism": 1,
@@ -4879,7 +4885,7 @@
   {
     "id": "yoo-seung-ho-connected",
     "name": "yoo-seung-ho (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "globalAgeStructure": -0.25,
       "globalSexualDimorphism": 1,
@@ -4936,23 +4942,23 @@
       "Human.eyebrow001": {
         "pigment": [
           0.01516,
-          0.01221,
-          0.01266
+          0.01226,
+          0.01226
         ],
         "density": 1.283
       },
       "Human.eyelashes01": {
         "pigment": [
           0.01516,
-          0.01221,
-          0.01266
+          0.01226,
+          0.01226
         ]
       },
       "Human.eyelashes01.lower": {
         "pigment": [
           0.01516,
-          0.01221,
-          0.01266
+          0.01226,
+          0.01226
         ]
       }
     },
@@ -5043,7 +5049,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 1.21849
         },
         {
           "id": "fringe",
@@ -5114,7 +5121,8 @@
           "guides": {
             "fraction": 0.125,
             "neighbours": 4
-          }
+          },
+          "frontScale": 1.21849
         }
       ]
     },
@@ -5247,7 +5255,7 @@
   {
     "id": "kdy1-connected",
     "name": "kdy1 (connected study)",
-    "basis": "mpfb-connected-head-2026-09-27-globe-cover",
+    "basis": "mpfb-connected-head-2026-09-28-crown-scallop",
     "shape": {
       "asianAncestry": 1
     },

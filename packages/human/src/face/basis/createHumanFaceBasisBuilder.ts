@@ -4,25 +4,23 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
+import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
+import { createHumanFaceHairResultCache } from "../anatomy/hair/createHumanFaceHairResultCache";
 import { createHumanFaceScalpTint } from "../anatomy/hair/createHumanFaceScalpTint";
 import { createPortraitColourField } from "../anatomy/skin/createPortraitColourField";
-import { portraitNormals } from "../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
 import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
+import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
+import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
 import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
-import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
-import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
+import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { liftHumanFaceColours } from "./liftHumanFaceColours";
-import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
-import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
-import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
-import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
 
 /**
  * Compile a caller-owned connected facial prior into a deterministic builder.
@@ -49,6 +47,18 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * same transform before their own tissue rows are added. A basis without
  * articulation evaluates the same rest layer and poses nothing, which is the
  * purely linear prior; a basis without contact stops after posing.
+ * The pose evaluator owns that sequence in one module. The builder retains
+ * only the latest channel-weight vector and its posed positions, contact
+ * summary and common normals. An appearance-only change reuses those arrays,
+ * while each emitted region still gathers owned copies. Hair is generated
+ * again when the pose or its own numerical layers change; other edits receive
+ * a copy of the last generated cards and finish. Shape or expression changes
+ * replace the cached pose. Observers receive a copy of the contact summary
+ * so they cannot modify a later reused report. A hair result is certified only
+ * after the complete resident model passes validateModel. On a certified hit,
+ * the current base model still takes the model gate, and the part/material ID
+ * collision check still runs before composition; the engine's model validator
+ * has no cross-part geometry test beyond references and unique IDs.
  *
  * Pigmentation is sampled on immutable neutral source coordinates, then
  * gathered with the same region correspondence; the scalp under a hair
@@ -70,7 +80,10 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * report it without evaluating twice. With `occlusion`, each opaque material
  * with UVs of the finished face (before any hair) takes the ambient
  * occlusion baked from the evaluated geometry (`bakeHumanFaceOcclusion`) as
- * its occlusion texture; without it no texture is baked. A skin field that
+ * its occlusion texture. The resulting image is reused while the admitted
+ * pose stays the same: the source material's opaque classification is fixed,
+ * and colour, roughness and fibre edits do not change the geometry the rays
+ * read. Without the option no texture is baked. A skin field that
  * lightens a region past its material (a gain over one) is folded into the
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
@@ -94,10 +107,24 @@ export function createHumanFaceBasisBuilder(
     typia.assertEquals<IAutoMovieHumanFaceBasis>(input),
   );
   assertHumanFaceBasis(basis);
-  const buildHair = createHumanFaceHairBuilder(basis);
+  const buildHair = createHumanFaceHairResultCache(
+    createHumanFaceHairBuilder(basis),
+  );
   const scalpTint = createHumanFaceScalpTint(basis);
   const irisPigment = createHumanFaceIrisPigment(basis);
   const fibrePigment = createHumanFaceFibrePigment();
+  const evaluatePose = createHumanFaceBasisPoseCache(
+    basis.channels,
+    createHumanFaceBasisPoseEvaluator(basis),
+  );
+  const occlusion =
+    options?.occlusion === undefined ? undefined : { ...options.occlusion };
+  const bakeOcclusion =
+    occlusion === undefined
+      ? undefined
+      : createHumanFaceOcclusionCache((model) =>
+          bakeHumanFaceOcclusion(model, occlusion),
+        );
   const surfaces = basis.surfaces.map((surface) => ({
     surface,
     regions: surface.regions.map((region) => ({
@@ -105,14 +132,6 @@ export function createHumanFaceBasisBuilder(
       evaluate: createHumanFaceBasisRegion(region),
     })),
   }));
-  const closure = new Set(
-    basis.contact === undefined ? [] : [basis.contact.closure.channel],
-  );
-  const shapeChannels = new Set(
-    basis.channels
-      .filter((channel) => channel.kind === "shape")
-      .map((channel) => channel.id),
-  );
   let partitions:
     | ReturnType<typeof createMeshWeldPartitionMatcher>[]
     | undefined;
@@ -163,106 +182,8 @@ export function createHumanFaceBasisBuilder(
     }
     fibrePigment(document.materials, materials);
     irisPigment(document.iris, materials);
-    const rest = evaluateHumanFaceRest(basis, state, closure);
-    const motions =
-      basis.articulation === undefined
-        ? undefined
-        : resolveHumanFaceArticulation(
-            basis.articulation,
-            state.weights,
-            rest.landmarks,
-          ).motions;
-    let summary: IAutoMovieHumanFaceContactSummary | null = null;
-    let shaped: ReturnType<typeof evaluateHumanFaceRest> | undefined;
-    let frame: ReturnType<typeof measureHumanFaceAperture> | undefined;
-    const contact = basis.contact;
-    if (contact !== undefined) {
-      shaped = evaluateHumanFaceRest(basis, {
-        weights: new Map(
-          [...state.weights].filter(([id]) => shapeChannels.has(id)),
-        ),
-        activations: state.activations.filter((one) => one.shapeOnly),
-      });
-      const referenced = evaluateHumanFaceRest(
-        basis,
-        humanFaceBasisWeights(basis, {
-          shape: document.shape,
-          expression: { [contact.closure.reference]: 1 },
-        }),
-      );
-      frame = measureHumanFaceAperture(
-        basis,
-        contact,
-        shaped,
-        referenced,
-        rest,
-        motions!,
-      );
-      const weight = state.weights.get(contact.closure.channel) ?? 0;
-      const gain = weight * frame.closureRatio;
-      const endpoint = basis.channels.find(
-        (channel) => channel.id === contact.closure.channel,
-      )!.positive;
-      if (gain !== 0)
-        basis.surfaces.forEach((surface, index) => {
-          const rows = surface.targets[endpoint];
-          if (rows === undefined) return;
-          const positions = rest.surfaces[index];
-          for (let i = 0; i < rows.length; i += 4)
-            for (let axis = 0; axis < 3; axis++)
-              positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
-        });
-    }
-    const posed = new Map<string, number[]>();
-    basis.surfaces.forEach((surface, index) => {
-      posed.set(
-        surface.id,
-        motions !== undefined && (surface.attachments?.length ?? 0) > 0
-          ? poseHumanFaceSurface(
-              rest.surfaces[index],
-              surface.attachments!,
-              motions,
-            )
-          : rest.surfaces[index],
-      );
-    });
-    if (contact !== undefined) {
-      // The lips are read again after closure: passage and the summary judge
-      // the seam the render shows, not the aperture the closure was scaled to.
-      const lips = posed.get(contact.lips.surface)!;
-      const seam = [0, 1, 2].reduce(
-        (total, axis) =>
-          total +
-          (lips[3 * contact.lips.upper + axis] -
-            lips[3 * contact.lips.lower + axis]) *
-            [frame!.up.x, frame!.up.y, frame!.up.z][axis],
-        0,
-      );
-      frame = { ...frame!, lips: { ...frame!.lips, gap: seam } };
-      const passage = evaluateHumanFacePassage(
-        contact,
-        posed.get(contact.passage.surface)!,
-        frame,
-      );
-      const resolved = resolveHumanFaceContact(
-        basis,
-        contact,
-        posed,
-        new Map(
-          basis.surfaces.map((surface, index) => [
-            surface.id,
-            shaped!.surfaces[index],
-          ]),
-        ),
-      );
-      summary = {
-        interlabialMetres: frame!.lips.gap,
-        interincisalMetres: frame!.incisors.gap,
-        closureRatio: frame!.closureRatio,
-        passage,
-        resolved,
-      };
-    }
+    const pose = evaluatePose(state, document.shape);
+    const { positions: posed, normals, summary } = pose;
     const evaluated = new Map<string, readonly number[]>();
     const tints = scalpTint(document.hair, materials);
     const parts = surfaces.flatMap(({ surface, regions }) => {
@@ -285,7 +206,7 @@ export function createHumanFaceBasisBuilder(
             ? tint.slice()
             : colors.map((value, at) => value * tint[at]);
       const positions = posed.get(surface.id)!;
-      const normals = portraitNormals(positions, surface.indices);
+      const surfaceNormals = normals.get(surface.id)!;
       evaluated.set(surface.id, positions);
       return regions.map(({ region, evaluate }) => ({
         id: region.id,
@@ -293,7 +214,7 @@ export function createHumanFaceBasisBuilder(
         material: region.material,
         geometry: {
           type: "mesh" as const,
-          mesh: evaluate(positions, normals, colors),
+          mesh: evaluate(positions, surfaceNormals, colors),
         },
         attachedBone: null,
         transform: null,
@@ -333,11 +254,13 @@ export function createHumanFaceBasisBuilder(
           createMeshWeldPartitionMatcher(part.geometry.mesh.positions),
         );
     }
-    if (options?.occlusion !== undefined)
-      for (const [id, uri] of bakeHumanFaceOcclusion(model, options.occlusion))
+    if (bakeOcclusion !== undefined)
+      for (const [id, uri] of bakeOcclusion(pose, model))
         materialMap.get(id)!.occlusionTexture = uri;
     if (document.hair !== undefined && document.hair !== null) {
-      const hair = buildHair(document.hair, evaluated);
+      assertHumanFaceHair(document.hair);
+      const generated = buildHair(document.hair, evaluated, pose);
+      const hair = generated.value;
       if (
         hair.parts.some((part) =>
           model.parts.some((resident) => resident.id === part.id),
@@ -349,16 +272,31 @@ export function createHumanFaceBasisBuilder(
         throw new Error(
           "Numerical hair identities collide with resident face geometry or finishes.",
         );
+      // validateModel checks each part/material locally plus IDs and references.
+      // A certified hair copy passed the full model gate for this exact pose
+      // and hair document. Admit the current face/material changes separately
+      // before composing it; the collision check above settles shared IDs.
+      if (generated.certified) {
+        const validation = validateModel({ model });
+        if (!validation.success)
+          throw new Error(
+            "The numerical hairstyle did not form a valid resident model: " +
+              JSON.stringify(validation),
+          );
+      }
       model.parts.push(...hair.parts);
       model.materials.push(...hair.materials);
-      const validation = validateModel({ model });
-      if (!validation.success)
-        throw new Error(
-          "The numerical hairstyle did not form a valid resident model: " +
-            JSON.stringify(validation),
-        );
+      if (!generated.certified) {
+        const validation = validateModel({ model });
+        if (!validation.success)
+          throw new Error(
+            "The numerical hairstyle did not form a valid resident model: " +
+              JSON.stringify(validation),
+          );
+        generated.certify();
+      }
     }
-    options?.observe?.(summary);
+    options?.observe?.(summary === null ? null : structuredClone(summary));
     return model;
   };
   build({

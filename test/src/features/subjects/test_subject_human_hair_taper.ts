@@ -39,7 +39,7 @@ export const test_subject_human_hair_taper = (): void => {
   TestValidator.equals("legacy default", humanFaceDetailValue(face, id), 0);
   const detailOnly = structuredClone(face);
   delete detailOnly.basis.recipe.hair;
-  detailOnly.detail = { hair };
+  detailOnly.detail = { hair: { ...hair, cards: [] } };
   TestValidator.equals(
     "replacement default",
     humanFaceDetailValue(detailOnly, id),

@@ -6,8 +6,11 @@ import { createHumanPreviewCamera } from "./previewScene";
 /**
  * Own display state independently of numerical evaluation and file encoding.
  * The host supplies browser IO; this stage owns lighting, camera and clay.
- * Publishing swaps scene membership only. The caller owns geometry lifetimes,
- * allowing either disposable imported groups or resident editable buffers.
+ * Publishing swaps scene membership and marks shadows stale. The caller owns
+ * geometry lifetimes, allowing disposable or resident editable buffers.
+ * Shadows depend on the published geometry, hair finish and caster toggle,
+ * not the orbit camera. Refresh their eight maps at those transitions while
+ * the static scene renders without repeated shadow submissions between edits.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor Presents orbitable facial previews without changing the numerical document.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view Separates camera, lighting and display state from computation and export.
@@ -21,7 +24,10 @@ export function createHumanPreviewStage(props: {
     outputColorSpace: string;
     toneMapping: THREE.ToneMapping;
     toneMappingExposure: number;
-    shadowMap: Pick<THREE.WebGLShadowMap, "enabled" | "type">;
+    shadowMap: Pick<
+      THREE.WebGLShadowMap,
+      "enabled" | "type" | "autoUpdate" | "needsUpdate"
+    >;
     setSize: (width: number, height: number, updateStyle: boolean) => void;
     setAnimationLoop: (callback: () => void) => void;
     render: (scene: THREE.Scene, camera: THREE.PerspectiveCamera) => void;
@@ -49,6 +55,8 @@ export function createHumanPreviewStage(props: {
   renderer.toneMapping = THREE.LinearToneMapping;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1c252e);
   const shadowLights = addHumanPreviewRig({
@@ -81,6 +89,7 @@ export function createHumanPreviewStage(props: {
   });
   cameraView(0);
   const publish = (group: THREE.Group): void => {
+    renderer.shadowMap.needsUpdate = true;
     if (active === group) return;
     if (active !== undefined) scene.remove(active);
     active = group;
@@ -105,6 +114,7 @@ export function createHumanPreviewStage(props: {
     cameraView,
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
+      renderer.shadowMap.needsUpdate = true;
     },
     // A cast-shadow boundary can resemble a crease in the anatomical surface.
     // Toggle only the shadow casters: direct light, materials, geometry and the
@@ -112,6 +122,7 @@ export function createHumanPreviewStage(props: {
     // Changing the light's shadow count also refreshes Three's shader variant.
     setShadows: (enabled: boolean): void => {
       for (const light of shadowLights) light.castShadow = enabled;
+      renderer.shadowMap.needsUpdate = true;
     },
     finish: () => {
       render();

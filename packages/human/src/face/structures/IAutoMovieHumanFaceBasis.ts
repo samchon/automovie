@@ -6,7 +6,6 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
  * Coordinates and sparse differences use metres in a right-handed Y-up frame.
  * Each surface owns connectivity and normals across all of its material regions.
  * Changes to geometry, endpoints or attachments require a new basis identity.
- *
  * Endpoint interpolation describes an authored shape, not a physical muscle or
  * rigid-joint simulation. Metadata names what a control does; it does not prove
  * anatomical correctness, nonpenetration or likeness of arbitrary combinations.
@@ -30,7 +29,12 @@ export interface IAutoMovieHumanFaceBasis {
     /** Identity edits and transient performance remain separate in saved documents. */
     kind: "shape" | "expression";
 
-    /** Finite envelope, including zero; weights are refused rather than clamped. */
+    /**
+     * Finite source-authoring envelope, including zero; weights are refused
+     * rather than clamped. This bounds interpolation of authored endpoints,
+     * not population anatomy. A measured parameter needs a landmark mapping
+     * and population-appropriate norms before such a claim is possible.
+     */
     minimum: number;
     maximum: number;
 
@@ -144,23 +148,32 @@ export interface IAutoMovieHumanFaceBasis {
    * publishes a basis measures them from the source and records the fit.
    *
    * The jaw is a rotation about a transverse axis through the condylar axis
-   * point plus a translation coupled to it. Opening rotates by
+   * point plus a translation coupled to it. In vivo observations show both
+   * movements from initial opening (Lindauer et al. 1995,
+   * https://pubmed.ncbi.nlm.nih.gov/7771361/); Jasz et al. 2024 measured a
+   * near-linear relation only over the first 5 mm of incisal opening
+   * (https://pmc.ncbi.nlm.nih.gov/articles/PMC11026373/). The following
+   * endpoint-linear trajectory is an authored deterministic approximation,
+   * not a clinical path for the entire opening envelope. Opening rotates by
    * `opening.degrees * weight` and translates the whole mandible by
-   * `opening.translation * weight`, which is the in vivo coupling of condylar
-   * translation to rotation the preparation cites; protrusion and each
+   * `opening.translation * weight`; protrusion and each
    * laterotrusion add their own translation. The condylar axis point is the
    * `pivot` landmark plus `axisOffset`, derived once from the source's own
    * full-open transform under that coupling, and it follows the landmark
    * through every shape channel. The summed sagittal translation of opening
    * and protrusion may not exceed `translationLimitMetres`, which is what
-   * closes the bottom of the envelope of motion: a jaw already fully open has
-   * no protrusive capacity left, and a document asking for it is refused
-   * rather than clamped.
+   * sets this basis's supported simultaneous-motion budget. It is an authored
+   * refusal boundary, not a measured universal lack of protrusive capacity
+   * at full opening; a document past it is refused rather than clamped.
    *
    * Each eye rotates about its `center` landmark by the gaze channels listed,
    * each an authored unit axis, the degrees reached at weight one and the
    * globe translation that accompanies it, fitted from the source globe's own
-   * endpoint; the rotations compose in list order and the translations add. Lids are tissue and carry no globe weight: their gaze coupling is
+   * endpoint; the rotations compose in list order and the translations add.
+   * Demer and Clark 2019 measured eccentric, gaze-dependent rotation and
+   * translation (https://pubmed.ncbi.nlm.nih.gov/31239125/); this fixed
+   * landmark plus linear per-channel shift does not recover their individual
+   * trajectories. Lids are tissue and carry no globe weight: their gaze coupling is
    * whatever the source authored in the residual rows. Omission of the whole
    * field keeps a purely linear basis.
    */

@@ -59,13 +59,19 @@ export function faceGingivaScallopRise(
  * the anterior zeniths and the papillae halfway between neighbouring
  * zeniths, which do not rise (the crowns do not move, and a papilla fills
  * the embrasure up to their contact: raised with the zeniths, it opened a
- * triangle between the central incisors), never above the headroom of a crown whose ring's x
- * span its triangles meet, less one of the raster's pixels (its grid follows
- * the geometry's bounds). A final front view refuses if any ring opens
- * after all. The receipt lists each anterior crown's norm, height before, wish,
- * headroom, the scallop's value at its zenith (before the ceilings of other
- * rings that the gum's triangles there meet) and height after. Documents are rebuilt to check them and
- * restamped with the control map. Pure: the inputs are cloned.
+ * triangle between the central incisors), never above the headroom of a
+ * crown whose ring's x span its triangles meet, less one of the raster's
+ * pixels (its grid follows the geometry's bounds). A zenith's knot starts at
+ * its wish, held to its own ring's headroom less a pixel; the margin is read
+ * on the gum's triangles around the zenith, which rise less than the knot
+ * where no vertex stands on it, so each knot is then raised by what its
+ * margin still lacks until every margin is within a pixel of its norm or its
+ * knot stands at its ring's ceiling. A final front view refuses if any ring
+ * opens after all. The receipt lists each anterior crown's norm, height
+ * before, wish, headroom, the scallop's value at its zenith (before the
+ * ceilings of other rings that the gum's triangles there meet) and height
+ * after. Documents are rebuilt to check them and restamped with the control
+ * map. Pure: the inputs are cloned.
  */
 export function prepareGingivaScallopBasis(input: {
   basis: IAutoMovieHumanFaceBasis;
@@ -201,16 +207,6 @@ export function prepareGingivaScallopBasis(input: {
   const wish = anterior.map(([, crown], rank) =>
     Math.max(0, input.norms[Math.floor(rank / 2)]! - crown.visible),
   );
-  // Zeniths rise; the papillae between neighbouring crowns stay, filling
-  // the embrasure up to the contact the crowns keep.
-  const zeniths = anterior
-    .map(([, crown], rank) => [crown.centre, wish[rank]!] as const)
-    .sort((a, b) => a[0] - b[0]);
-  const knots = zeniths.flatMap((zenith, k) =>
-    k === 0
-      ? [zenith]
-      : [[(zeniths[k - 1]![0] + zenith[0]) / 2, 0] as const, zenith],
-  );
   const ceilings = upperCrowns.map((crown) => {
     const xs = rings.get(crown)!.map((vertex) => P[3 * vertex]!);
     // One pixel short: the raster's grid follows the geometry's bounds, so
@@ -221,9 +217,47 @@ export function prepareGingivaScallopBasis(input: {
       Math.max(0, headroom.get(crown)! - resolution),
     ] as const;
   });
-  const rise = (v: number) =>
-    faceGingivaScallopRise(knots, ceilings, original[3 * v]!, spans[v]!);
-  const moved = lift(rise);
+  // Zeniths rise; the papillae between neighbouring crowns stay, filling
+  // the embrasure up to the contact the crowns keep.
+  const scallop = (zenith: readonly number[]) => {
+    const zeniths = anterior
+      .map(([, crown], rank) => [crown.centre, zenith[rank]!] as const)
+      .sort((a, b) => a[0] - b[0]);
+    const knots = zeniths.flatMap((one, k) =>
+      k === 0 ? [one] : [[(zeniths[k - 1]![0] + one[0]) / 2, 0] as const, one],
+    );
+    return {
+      knots,
+      moved: lift((v) =>
+        faceGingivaScallopRise(knots, ceilings, original[3 * v]!, spans[v]!),
+      ),
+    };
+  };
+  // The margin is read on the gum's triangles around each zenith, so it
+  // rises less than the zenith's knot: the knots are raised by what the
+  // margin still lacks until every margin is within a pixel of its norm or
+  // its knot stands at its own ring's ceiling.
+  const own = anterior.map(([crown]) =>
+    Math.max(0, headroom.get(crown)! - resolution),
+  );
+  let zenith = wish.map((one, rank) => Math.min(one, own[rank]!));
+  let { knots, moved } = scallop(zenith);
+  for (let pass = 0; pass < 8; ++pass) {
+    const shown = measure(moved);
+    const next = anterior.map(([crown], rank) =>
+      Math.min(
+        own[rank]!,
+        zenith[rank]! +
+          Math.max(
+            0,
+            input.norms[Math.floor(rank / 2)]! - shown.get(crown)!.visible,
+          ),
+      ),
+    );
+    if (next.every((one, rank) => one - zenith[rank]! <= resolution)) break;
+    zenith = next;
+    ({ knots, moved } = scallop(zenith));
+  }
   const opened = [...open(moved)].filter((crown) => !already.has(crown));
   if (opened.length > 0)
     throw new Error(
