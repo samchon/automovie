@@ -10,6 +10,7 @@ import { evaluateHumanFaceHairDirection } from "./evaluateHumanFaceHairDirection
 import { humanFaceHairContact } from "./humanFaceHairContact";
 import { humanFaceHairEmergence } from "./humanFaceHairEmergence";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
+import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import { humanFaceHairLength } from "./humanFaceHairLength";
 import { humanFaceHairSequence } from "./humanFaceHairSequence";
 
@@ -250,21 +251,15 @@ export function integrateHumanFaceHairCurve(props: {
       along: IAutoMovieVector3,
     ): { point: IAutoMovieVector3; distance: number } => {
       const candidate = Vector3.add(p, Vector3.scale(along, h));
-      const roundoff =
-        64 *
-        Number.EPSILON *
-        Math.max(
-          Math.abs(p.x),
-          Math.abs(p.y),
-          Math.abs(p.z),
-          Math.abs(hit.signedDistance),
-          h,
-          clearance,
-        );
-      let point =
-        hit.signedDistance - h - epsilon > clearance + roundoff
-          ? candidate
-          : contact(candidate);
+      let point = humanFaceHairFreeDistanceBound({
+        sampled: p,
+        distance: hit.signedDistance,
+        candidate,
+        required: clearance,
+        allowance: epsilon,
+      })
+        ? candidate
+        : contact(candidate);
       let distance = Vector3.length(Vector3.subtract(point, p));
       if (distance > h + epsilon) {
         let low = 0,

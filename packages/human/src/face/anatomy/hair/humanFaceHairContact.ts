@@ -6,6 +6,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
+import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 
 const requireDirection = humanFaceHairFrame.direction;
 
@@ -19,6 +20,10 @@ const requireDirection = humanFaceHairFrame.direction;
  * so a strand keeps the same clearance its guides were integrated with
  * without being integrated itself. A projection that does not converge in 64
  * steps refuses.
+ * A successful sample is retained within this contact instance. If its
+ * 1-Lipschitz lower bound proves the next candidate free, projection returns
+ * that candidate without a new surface query. The witness is copied and owned
+ * by this collider, so another face cannot install a stale contact sample.
  *
  * The rule also carries the step its clearance was built from, because that
  * is the chord a curve may span and still keep the requested clearance along
@@ -80,11 +85,26 @@ export function humanFaceHairContact(props: {
             hit.signedDistance < 0 ? -1 : 1,
           ),
         );
+  let witness: { point: IAutoMovieVector3; free: number } | undefined;
   const project = (input: IAutoMovieVector3): IAutoMovieVector3 => {
+    if (
+      witness !== undefined &&
+      humanFaceHairFreeDistanceBound({
+        sampled: witness.point,
+        distance: witness.free,
+        candidate: input,
+        required: clearance,
+        allowance: epsilon,
+      })
+    )
+      return input;
     let p = input;
     for (let attempt = 0; attempt < 64; attempt++) {
       const hit = sample(p);
-      if (hit.signedDistance >= clearance - epsilon) return p;
+      if (hit.signedDistance >= clearance - epsilon) {
+        witness = { point: { ...p }, free: hit.signedDistance };
+        return p;
+      }
       p = Vector3.add(
         Vector3.create(hit.point[0], hit.point[1], hit.point[2]),
         Vector3.scale(outward(p, hit), clearance),

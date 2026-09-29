@@ -7,6 +7,7 @@ import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { portraitNormals } from "../../mesh/portraitNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
+import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import type { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
@@ -188,28 +189,16 @@ export function buildHumanFaceHairMesh(
         (1 -
           ((1 - layer.taper.tipWidth) * Math.max(0, t - layer.taper.start)) /
             (1 - layer.taper.start));
-      const travel =
-        sampled === undefined
-          ? Infinity
-          : Vector3.length(Vector3.subtract(points[at], sampled.point));
-      const roundoff =
-        sampled === undefined
-          ? 0
-          : 64 *
-            Number.EPSILON *
-            Math.max(
-              Math.abs(points[at].x),
-              Math.abs(points[at].y),
-              Math.abs(points[at].z),
-              Math.abs(sampled.free),
-              travel,
-              radius,
-              layer.clearance,
-            );
       let fitted = radius;
       if (
         sampled === undefined ||
-        sampled.free - travel <= radius + layer.clearance + roundoff
+        !humanFaceHairFreeDistanceBound({
+          sampled: sampled.point,
+          distance: sampled.free,
+          candidate: points[at],
+          required: radius + layer.clearance,
+          allowance: 0,
+        })
       ) {
         const free = props.query([
           points[at].x,
