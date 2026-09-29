@@ -49,6 +49,12 @@ const requireDirection = humanFaceHairFrame.direction;
  * chord is truncated by its remaining metric length. Blocked directions,
  * unrepresentable steps, short emergence and exhausted iteration budgets refuse
  * instead of returning a shorter lock or stored personal corrective.
+ * The current station's signed distance also certifies a free next step: by
+ * the closed surface's 1-Lipschitz distance bound, a candidate at most one
+ * step away cannot need projection when the current distance exceeds the
+ * contact projector's fibre-path clearance by that step and a floating-point margin. Such a step
+ * uses the exact same candidate the contact projector would return; stations
+ * near skin still take the original projection and bisection path.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Generates personal length and shape from shared scalar arithmetic.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Keeps contact, metric integration and the actual rendered stations under one owner.
@@ -243,7 +249,22 @@ export function integrateHumanFaceHairCurve(props: {
     const advance = (
       along: IAutoMovieVector3,
     ): { point: IAutoMovieVector3; distance: number } => {
-      let point = contact(Vector3.add(p, Vector3.scale(along, h)));
+      const candidate = Vector3.add(p, Vector3.scale(along, h));
+      const roundoff =
+        64 *
+        Number.EPSILON *
+        Math.max(
+          Math.abs(p.x),
+          Math.abs(p.y),
+          Math.abs(p.z),
+          Math.abs(hit.signedDistance),
+          h,
+          clearance,
+        );
+      let point =
+        hit.signedDistance - h - epsilon > clearance + roundoff
+          ? candidate
+          : contact(candidate);
       let distance = Vector3.length(Vector3.subtract(point, p));
       if (distance > h + epsilon) {
         let low = 0,
