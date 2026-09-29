@@ -10,6 +10,12 @@
  * Conchal height and breadth use the bowl's anatomical superior, inferior,
  * anterior and posterior extrema, with its long direction referenced to the
  * auricle attachment line (https://pmc.ncbi.nlm.nih.gov/articles/PMC6018292/).
+ * Tragus-to-antihelix, tragus-to-helix, conchal depth and lobule dimensions
+ * are separately measured in external-ear anthropometry
+ * (https://pubmed.ncbi.nlm.nih.gov/34821348/;
+ * https://www.sciencedirect.com/science/article/pii/S0165587603002210).
+ * A 3D auricle study classified the helix rim as rolled, broad over scapha,
+ * flat or concave (https://pmc.ncbi.nlm.nih.gov/articles/PMC10432210/).
  *
  * @author Samchon
  */
@@ -30,6 +36,20 @@ export interface IAutoMovieHumanFaceEarParameters {
   conchaLengthMm?: number;
   /** Anterior-to-posterior conchal bowl breadth, orthogonal to its length, mm. */
   conchaBreadthMm?: number;
+  /** Depth from conchal entrance plane to the bowl floor, mm. */
+  conchaDepthMm?: number;
+  /** Tragus-to-antihelix straight landmark distance, mm. */
+  tragusToAntihelixMm?: number;
+  /** Tragus-to-helix straight landmark distance, mm. */
+  tragusToHelixMm?: number;
+  /** Intertragic notch to lowest lobule extent, in mm. */
+  lobuleLengthMm?: number;
+  /** Maximum anterior-to-posterior lobule breadth, in mm. */
+  lobuleBreadthMm?: number;
+  /** Anatomical helix-rim observation, not a free outline control. */
+  helixRimProfile?: "rolled" | "broad-over-scapha" | "flat" | "concave-margin";
+  /** Korean CT lobule-shape categories, independent of attachment. */
+  lobuleShape?: "tapering" | "square" | "pendulate";
   /** Lobe attachment to cheek; a named anatomical category. */
   lobuleAttachment?: "free" | "partly-attached" | "attached";
 }

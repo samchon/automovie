@@ -11,9 +11,17 @@
  * relative to the pronasale-pogonion esthetic line; it is coupled to both
  * nasal tip and chin position
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC9571629/).
- * Landmark-pair fields are straight 3D distances in millimetres. Esthetic-line
- * fields are signed point-to-line distances in the sagittal profile; they are
- * not free vermilion curves or independent tissue-section control points.
+ * The Cupid's bow can be measured by the angle at labiale superius between
+ * the two crista-philtri peaks in 3D images
+ * (https://academic.oup.com/asj/article/44/8/NP606/7658370). A separate 3D
+ * study measures each peak's vertical height above the underlying labial
+ * fissure; its one-year-old cohort supplies a protocol, not an adult range
+ * (https://pubmed.ncbi.nlm.nih.gov/34402316/).
+ * Landmark-pair fields are straight 3D distances in millimetres; peak heights
+ * are vertical projections in the declared head frame. Esthetic-line fields
+ * are signed point-to-line distances in the sagittal profile, and the bow
+ * angle is in degrees. None is a free vermilion curve or an independent
+ * tissue-section control point.
  *
  * @author Samchon
  */
@@ -30,6 +38,12 @@ export interface IAutoMovieHumanFaceMouthParameters {
   lowerLipHeightMm?: number;
   /** Labiale superius to stomion, upper vermilion height in mm. */
   upperVermilionHeightMm?: number;
+  /** Right crista philtri–labiale superius–left crista philtri 3D angle, degrees. */
+  cupidBowCentralAngleDegrees?: number;
+  /** Left crista-philtri peak vertically above its fissure crossing, mm. */
+  leftCupidBowPeakHeightMm?: number;
+  /** Right crista-philtri peak vertically above its fissure crossing, mm. */
+  rightCupidBowPeakHeightMm?: number;
   /** Stomion to labiale inferius, lower vermilion height in mm. */
   lowerVermilionHeightMm?: number;
   /** Labiale inferius to sublabiale, lower cutaneous lip in mm. */

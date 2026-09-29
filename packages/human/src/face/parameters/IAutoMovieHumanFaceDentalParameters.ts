@@ -16,6 +16,11 @@
  * casts instead use primary canine cusp tips and second primary-molar central
  * fossae; these are separately named rather than passed off as permanent
  * first-molar measurements (https://pubmed.ncbi.nlm.nih.gov/19251244/).
+ * Individual crown mesiodistal and buccolingual maxima and clinical height
+ * are measured on permanent dental casts or intraoral scans; these three
+ * dimensions do not specify a free crown surface
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC8853791/;
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC10260306/).
  * Tooth identity uses
  * the ISO 3950:2016 two-digit system, whose published description designates
  * teeth and oral regions (https://www.iso.org/standard/68292.html); the FDI's
@@ -102,7 +107,9 @@ export namespace IAutoMovieHumanFaceDentalParameters {
     /** Present, not yet erupted, absent, or replaced at the coded position. */
     state: "erupted" | "unerupted" | "absent" | "prosthetic";
     /** Mesial-to-distal maximum crown width in mm when a crown is observed. */
-    crownWidthMm?: number;
+    mesiodistalCrownWidthMm?: number;
+    /** Buccal-to-lingual maximum crown width perpendicular to mesiodistal, mm. */
+    buccolingualCrownWidthMm?: number;
     /** Gingival-to-incisal/occlusal crown height in mm when observed. */
     crownHeightMm?: number;
   }

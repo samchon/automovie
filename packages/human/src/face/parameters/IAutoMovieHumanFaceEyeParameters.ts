@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFaceLowerEyelidParameters } from "./IAutoMovieHumanFaceLowerEyelidParameters";
+
 /**
  * External palpebral and internal optical measurements of both eyes.
  * The 3DFN study measures the canthal distances and each en-ex fissure length
@@ -60,5 +62,7 @@ export namespace IAutoMovieHumanFaceEyeParameters {
     anteriorCornealRadiusMm?: number;
     /** Central corneal full thickness in micrometres. */
     centralCornealThicknessMicrometres?: number;
+    /** Distinct lower-eyelid tissues and observed bag contributors. */
+    lowerEyelid?: IAutoMovieHumanFaceLowerEyelidParameters;
   }
 }
