@@ -3,6 +3,7 @@ export * from "./shoulder/createHumanBodyHumeralHeadsFromAnatomicalMeasurements"
 export * from "./shoulder/IAutoMovieHumanBodyHumeralHead";
 export * from "./contact/measureHumanBodySpheresSkinClearance";
 export * from "./admitHumanBodyAnatomicalMeasurements";
+export * from "./liftHumanBodySimpleAnatomicalTargets";
 export type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./IAutoMovieHumanBodyAnatomicalMeasurements";
 export type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./IAutoMovieHumanBodySimpleAnatomicalTargets";
 export type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "./IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
