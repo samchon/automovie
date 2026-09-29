@@ -48,6 +48,13 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * therefore narrows where the scalp is close and opens to its full covering
  * width as it leaves, instead of the whole path being lifted by half a ribbon.
  * Nothing here keeps two ribbons apart from each other.
+ * The signed distance of a closed set is 1-Lipschitz: a sampled station at
+ * distance d bounds any later station's free distance below by d minus the
+ * Euclidean separation. When that bound still exceeds the full half width
+ * plus requested clearance, the exact ribbon is already certified and no
+ * further skin query or width fit is needed. A conservative floating-point
+ * margin retains the ordinary query at the boundary. This only skips work;
+ * every integrated station and every emitted triangle stays the same.
  * Positions are already metres; no portrait millimetre conversion applies.
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
  *
@@ -125,6 +132,7 @@ export function buildHumanFaceHairMesh(
       ),
     );
     const distances = [0];
+    let sampled: { point: IAutoMovieVector3; free: number } | undefined;
     for (let at = 1; at < points.length; at++)
       distances.push(
         distances[at - 1] +
@@ -180,16 +188,41 @@ export function buildHumanFaceHairMesh(
         (1 -
           ((1 - layer.taper.tipWidth) * Math.max(0, t - layer.taper.start)) /
             (1 - layer.taper.start));
-      const free = props.query([
-        points[at].x,
-        points[at].y,
-        points[at].z,
-      ]).signedDistance;
-      const fitted = Math.min(
-        ...[-1, 1].map((side) =>
-          fit(points[at], Vector3.scale(frame, side), radius, free),
-        ),
-      );
+      const travel =
+        sampled === undefined
+          ? Infinity
+          : Vector3.length(Vector3.subtract(points[at], sampled.point));
+      const roundoff =
+        sampled === undefined
+          ? 0
+          : 64 *
+            Number.EPSILON *
+            Math.max(
+              Math.abs(points[at].x),
+              Math.abs(points[at].y),
+              Math.abs(points[at].z),
+              Math.abs(sampled.free),
+              travel,
+              radius,
+              layer.clearance,
+            );
+      let fitted = radius;
+      if (
+        sampled === undefined ||
+        sampled.free - travel <= radius + layer.clearance + roundoff
+      ) {
+        const free = props.query([
+          points[at].x,
+          points[at].y,
+          points[at].z,
+        ]).signedDistance;
+        sampled = { point: points[at], free };
+        fitted = Math.min(
+          ...[-1, 1].map((side) =>
+            fit(points[at], Vector3.scale(frame, side), radius, free),
+          ),
+        );
+      }
       for (const side of [-1, 1]) {
         const point = Vector3.add(
           points[at],
