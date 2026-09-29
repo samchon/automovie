@@ -9,7 +9,7 @@ Each chapter of a checklist below is a question that a declaration answers about
 
 Product promises and system contracts stay with the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract with the scaffold's shipped `contract` skill.
 
-An answer explains why the approach is appropriate, the assumptions it relies on and any unresolved departure. It does not certify outputs or claim that tests passed, and it states a real limitation instead of declaring compliance. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations). Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter, because excluding a whole checklist file answers nothing.
+An answer explains why the approach is appropriate, the assumptions it relies on and any unresolved departure. It does not certify outputs or claim that tests passed, and it states a real limitation instead of declaring compliance. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations). Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter, because excluding a whole checklist file would bypass every chapter in it.
 
 Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another. Types and functions are selected, and private helpers are reviewed with their owner.
 

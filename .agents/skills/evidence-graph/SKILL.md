@@ -73,7 +73,7 @@ A derived population selects the carriers to which the configured rules apply. S
 
 ## The human package answers contracts
 
-`@automovie/human` is outside the required triangle. Its face and body declarations answer the [contracts skill](../contracts/SKILL.md), where the evidence is the cited measurement and anatomy written in JSDoc and the checked obligation is a chapter answer, not a requirement or specification citation. Its `lint.config.ts` configures contracts claims and no requirement or specification claim, and its exports carry no citation into the facial-authoring or body-authoring pages.
+`@automovie/human` is the one exception to [Every public package participates](#every-public-package-participates) and lies outside the required triangle. Its face and body declarations answer the [contracts skill](../contracts/SKILL.md), where the evidence is the cited measurement and anatomy written in JSDoc and the checked obligation is a chapter answer. Its `lint.config.ts` configures contracts claims and no requirement or specification claim, and its exports do not cite the facial-authoring or body-authoring pages.
 
 Those pages under `docs/requirements` and `docs/specifications` remain product documents for their readers. Leaving them uncited by source is the decided state of this package, not unpaid debt, and the other public packages keep every obligation in this skill.
 

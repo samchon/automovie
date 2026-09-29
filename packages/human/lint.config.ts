@@ -13,8 +13,8 @@ import type { ITtscLintConfig } from "@ttsc/lint";
  *   a form. The document, editor and export folders and the face override
  *   types at the face root carry serialization, editing and export, which
  *   define no form, so they stay outside this population.
- * - The anatomy chapters apply to every declaration that stands for the body
- *   or its controls, which is everything except export.
+ * - The anatomy chapters apply to every declaration that stands for a human
+ *   body or its controls, which is everything except export.
  *
  * The rules currently warn while the checklists are being answered component
  * by component.
@@ -27,7 +27,7 @@ const formDeclarations = [
   "!src/**/export/**",
   "!src/face/*.ts",
 ];
-const bodyDeclarations = [...declarations, "!src/**/export/**"];
+const anatomicalDeclarations = [...declarations, "!src/**/export/**"];
 
 const checklist = (
   name: string,
@@ -60,8 +60,8 @@ const graph: ITtscEvidenceGraphConfig = {
       "modeling",
     ),
     checklist(
-      "human body declarations answer the anatomical principles",
-      bodyDeclarations,
+      "human anatomical declarations answer the anatomical principles",
+      anatomicalDeclarations,
       "anatomy",
     ),
   ],

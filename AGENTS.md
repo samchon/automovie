@@ -37,7 +37,7 @@ Work rules, testing, the per-change 100% coverage obligation, validation, conseq
 
 ### Contracts
 
-The implementation acknowledgments that maintained source declarations answer with `@evidence` tags, in three additive checklist layers: common engineering principles, modeling principles, and anatomical principles for human forms, `.agents/skills/contracts/SKILL.md`. Read before implementing or reviewing maintained source, enrolling source in a contracts claim, or writing a checklist chapter. It owns no product requirement or specification; those stay with the evidence graph skill.
+The implementation acknowledgments that maintained source declarations answer with `@evidence` tags, in three checklist layers: common engineering principles, modeling principles, and anatomical principles for human forms, `.agents/skills/contracts/SKILL.md`. Read before implementing or reviewing maintained source, enrolling source in a contracts claim, or writing a checklist chapter. It owns no product requirement or specification; those stay with the evidence graph skill.
 
 ### Scaffold Authoring
 
