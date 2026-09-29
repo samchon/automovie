@@ -5,6 +5,10 @@
  * A 3,600-person photographic study measured brow length, vertical breadth,
  * curvature and hair coverage, but its sample was adult women and does not
  * certify a universal range (https://pubmed.ncbi.nlm.nih.gov/31310328/).
+ * A separate standardized frontal-photograph study measured the superior
+ * brow-border arch apex above the border at the medial limbus in 100 women;
+ * that projected height is a scalar observation, not a user-drawn spline
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC3805639/).
  * Values describe a named hair-bearing region; no per-hair root or arch curve
  * can be authored through this type.
  *
@@ -21,6 +25,8 @@ export interface IAutoMovieHumanFaceBrowParameters {
   centralBrowToLidMm?: number;
   /** Lateral inferior hair margin to upper lid margin on that vertical, mm. */
   lateralBrowToLidMm?: number;
+  /** Superior-border arch apex above its medial-limbus level in frontal projection, mm. */
+  upperArchApexRiseMm?: number;
   /** Visible mature-hair coverage of the measured brow envelope, in [0,1]. */
   hairCoverageFraction?: number;
 }

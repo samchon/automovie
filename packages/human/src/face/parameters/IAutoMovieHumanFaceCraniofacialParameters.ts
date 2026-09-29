@@ -7,6 +7,11 @@
  * visible face and tragion distances; it did not assert that every distance
  * can be recovered from one portrait (Weinberg et al., 2016,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC4841054/, Table 2).
+ * A separate 3D photogrammetric protocol measures the soft-tissue
+ * nasion-subnasale-pogonion angle to retain midface/chin profile balance,
+ * which the listed linear widths and depths alone do not identify
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC4384937/). Its example subject
+ * is not a population range.
  *
  * @author Samchon
  */
@@ -29,6 +34,8 @@ export interface IAutoMovieHumanFaceCraniofacialParameters {
   upperFaceHeightMm?: number;
   /** Subnasale to gnathion, lower facial height. */
   lowerFaceHeightMm?: number;
+  /** Soft-tissue nasion-subnasale-pogonion 3D angle, in degrees. */
+  nasionSubnasalePogonionAngleDegrees?: number;
   /** Nasion to left tragion, 3DFN upper facial depth. */
   upperFaceDepthLeftMm?: number;
   /** Nasion to right tragion, explicit asymmetry beyond 3DFN's left sample. */

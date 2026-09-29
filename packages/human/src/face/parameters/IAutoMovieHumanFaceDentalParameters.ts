@@ -1,10 +1,13 @@
 /**
  * Teeth and centric occlusion, independent of facial vermilion shape.
- * Intercanine and first-intermolar widths name homologous dental cusp pairs;
- * they are arch measurements, not vertices or a hand-authored tooth mesh
- * (https://pmc.ncbi.nlm.nih.gov/articles/PMC4632224/). Arch depth is the
- * projected incisor midpoint to the first-molar transverse line, with the
- * occlusal-plane protocol fixed for both arches
+ * Intercanine and first-molar widths are dental-cast measurements, not
+ * vertices or a hand-authored tooth mesh. The cited study uses canine cusp
+ * tips in both arches, maxillary first-molar mesiobuccal cusp tips, and
+ * mandibular first-molar buccal grooves; these are distinct protocols
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC4632224/). The cited arch-depth
+ * study measures mandibular casts from central-incisor facial-axis points to
+ * first-molar facial-axis points, perpendicular to their transverse line;
+ * it does not establish a matching maxillary or cusp-tip depth
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6434674/). Tooth identity uses
  * the ISO 3950:2016 two-digit system, whose published description designates
  * teeth and oral regions (https://www.iso.org/standard/68292.html); the FDI's
@@ -20,10 +23,10 @@
 export interface IAutoMovieHumanFaceDentalParameters {
   /** Primary, mixed, permanent or absent natural dentition at reference pose. */
   stage: "primary" | "mixed" | "permanent" | "edentulous";
-  /** Maxillary arch in the fixed intercuspal reference pose. */
-  maxillary?: IAutoMovieHumanFaceDentalParameters.Arch;
-  /** Mandibular arch in the fixed intercuspal reference pose. */
-  mandibular?: IAutoMovieHumanFaceDentalParameters.Arch;
+  /** Maxillary dental cast in the declared jaw reference state. */
+  maxillary?: IAutoMovieHumanFaceDentalParameters.MaxillaryArch;
+  /** Mandibular dental cast in the declared jaw reference state. */
+  mandibular?: IAutoMovieHumanFaceDentalParameters.MandibularArch;
   /** Upper-incisor edge anterior to lower-incisor edge, signed mm. */
   overjetMm?: number;
   /** Upper-incisor edge inferior to lower-incisor edge, signed mm. */
@@ -39,16 +42,29 @@ export interface IAutoMovieHumanFaceDentalParameters {
 
 export namespace IAutoMovieHumanFaceDentalParameters {
   /**
-   * One arch's linear dimensions at homologous cusps, in mm.
+   * Maxillary permanent-dentition cast measurements, in mm. An unerupted or
+   * absent first molar cannot supply the corresponding measured width.
    * @author Samchon
    */
-  export interface Arch {
-    /** Left-to-right canine cusp-tip distance. */
-    intercanineWidthMm?: number;
+  export interface MaxillaryArch {
+    /** Left-to-right permanent canine cusp-tip distance. */
+    intercanineCuspWidthMm?: number;
     /** Left-to-right first-molar mesiobuccal cusp-tip distance. */
-    firstIntermolarWidthMm?: number;
-    /** Central-incisor midpoint to first-molar cusp line, projected in the occlusal plane. */
-    depthMm?: number;
+    firstMolarMesiobuccalCuspWidthMm?: number;
+  }
+
+  /**
+   * Mandibular permanent-dentition cast measurements, in mm. Width and depth
+   * come from different studies and must retain their respective landmarks.
+   * @author Samchon
+   */
+  export interface MandibularArch {
+    /** Left-to-right permanent canine cusp-tip distance. */
+    intercanineCuspWidthMm?: number;
+    /** First-molar buccal grooves at their gingival ends, or mid-buccal if indistinct. */
+    firstMolarBuccalGrooveWidthMm?: number;
+    /** Incisor to first-molar facial-axis lines, perpendicular cast-plane distance. */
+    firstMolarFacialAxisDepthMm?: number;
   }
 
   /**

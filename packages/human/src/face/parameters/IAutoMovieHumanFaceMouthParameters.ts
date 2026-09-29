@@ -11,8 +11,9 @@
  * relative to the pronasale-pogonion esthetic line; it is coupled to both
  * nasal tip and chin position
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC9571629/).
- * All fields are straight 3D distances in millimetres, not free vermilion
- * curves or independent tissue-section control points.
+ * Landmark-pair fields are straight 3D distances in millimetres. Esthetic-line
+ * fields are signed point-to-line distances in the sagittal profile; they are
+ * not free vermilion curves or independent tissue-section control points.
  *
  * @author Samchon
  */
