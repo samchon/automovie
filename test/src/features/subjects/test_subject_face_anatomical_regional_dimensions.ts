@@ -46,6 +46,11 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
     },
     tongue: { posteriorBaseCoronal: { widthMm: 41, heightMm: 33 } },
     performance: { lipPurseMagnitudeMm: 4.2 },
+    motionCapacity: {
+      jaw: { maximumInterincisalOpeningMm: 51, maximumLeftExcursionMm: 8 },
+      leftEye: { elevationDegrees: 22 },
+      rightEye: { elevationDegrees: 24 },
+    },
   };
   TestValidator.equals(
     "distinct biological and acquisition dimensions",
@@ -62,8 +67,9 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
       measured.mouth?.rightCupidBowPeakHeightMm,
       measured.dentition?.teeth?.["11"]?.buccolingualCrownWidthMm,
       measured.oralCavity?.properSpaceVolumeCm3,
+      measured.motionCapacity?.jaw?.maximumInterincisalOpeningMm,
     ],
-    [12, 6.6, 391, 16, 33, 2.9, 4.2, 2, 18, 6.5, 7, 4.4],
+    [12, 6.6, 391, 16, 33, 2.9, 4.2, 2, 18, 6.5, 7, 4.4, 51],
   );
   TestValidator.equals(
     "unobserved right short nostril axis remains unknown",

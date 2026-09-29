@@ -9,6 +9,7 @@ import type { IAutoMovieHumanFaceEyelashParameters } from "./IAutoMovieHumanFace
 import type { IAutoMovieHumanFaceFacialHairParameters } from "./IAutoMovieHumanFaceFacialHairParameters";
 import type { IAutoMovieHumanFaceHairParameters } from "./IAutoMovieHumanFaceHairParameters";
 import type { IAutoMovieHumanFaceMouthParameters } from "./IAutoMovieHumanFaceMouthParameters";
+import type { IAutoMovieHumanFaceMotionCapacityParameters } from "./IAutoMovieHumanFaceMotionCapacityParameters";
 import type { IAutoMovieHumanFaceNeckParameters } from "./IAutoMovieHumanFaceNeckParameters";
 import type { IAutoMovieHumanFaceNoseParameters } from "./IAutoMovieHumanFaceNoseParameters";
 import type { IAutoMovieHumanFaceOralCavityParameters } from "./IAutoMovieHumanFaceOralCavityParameters";
@@ -131,6 +132,9 @@ interface AutoMovieHumanFaceAnatomicalFields {
 
   /** Optical surface properties, separately from measured geometry. */
   appearance?: IAutoMovieHumanFaceAppearanceParameters;
+
+  /** Individually observed active motion endpoints, distinct from a pose. */
+  motionCapacity?: IAutoMovieHumanFaceMotionCapacityParameters;
 
   /** Posed motion relative to the neutral identity above. */
   performance?: IAutoMovieHumanFacePerformanceParameters;
