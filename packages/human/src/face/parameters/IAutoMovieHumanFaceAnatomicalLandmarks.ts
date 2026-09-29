@@ -21,8 +21,8 @@ export interface IAutoMovieHumanFaceAnatomicalLandmarks {
   basisSha256: string;
   /** Traditional closed-mouth 3DFN surface landmark definition. */
   protocol: "3dfn-surface-landmarks";
-  /** Candidate annotations are research inputs; only independently reviewed mappings may lower an edit. */
-  status: "candidate" | "reviewed";
+  /** Candidate/rejected annotations are research records; only independently reviewed mappings may lower an edit. */
+  status: "candidate" | "reviewed" | "rejected";
   /** Midline source points; omission means the source does not certify a point. */
   midline?: {
     /** Most anterior midforehead soft-tissue point above the nasal root. */
