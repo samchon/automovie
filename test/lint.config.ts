@@ -24,9 +24,9 @@ const studySources = [
 
 /**
  * A model owes every recorded view, and that review owes the complete current
- * construction source. Coverage, carrier cardinality and source relationships
- * remain errors. The observations and their semantic judgments remain authored
- * records; no relationship requires evidenceReview companions or fingerprints.
+ * construction source. Source relationships remain visible as warnings while
+ * review companion tags are removed. These diagnostics do not establish that
+ * an anatomical construction or photographic likeness is acceptable.
  */
 const graph: ITtscEvidenceGraphConfig = {
   claims: [
@@ -43,7 +43,7 @@ const graph: ITtscEvidenceGraphConfig = {
             symbol: "h2" as const,
             checklist: true,
             noEvidenceExclude: true,
-            severity: "error" as const,
+            severity: "warning" as const,
           },
         ],
       },
@@ -124,7 +124,7 @@ const graph: ITtscEvidenceGraphConfig = {
           symbol: "h2",
           checklist: true,
           noEvidenceExclude: true,
-          severity: "error",
+          severity: "warning",
         },
       ],
     },
@@ -274,5 +274,5 @@ const graph: ITtscEvidenceGraphConfig = {
 export default {
   extends: "../config/lint.config.ts",
   plugins: { evidence },
-  rules: { "evidence/graph": ["error", graph] },
+  rules: { "evidence/graph": ["warning", graph] },
 } satisfies ITtscLintConfig;

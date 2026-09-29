@@ -11,14 +11,15 @@ import { throwsError } from "../internal/predicates";
  * Saved face JSON retains the complete versioned source and authored settings without caches.
  *
  * Scenarios:
- * 1. Source, detailed arrays, asymmetric controls and nullable provenance round-trip independently.
+ * 1. Source arrays, scalar detail, asymmetric controls and nullable provenance
+ *    round-trip independently without making the source arrays editable.
  * 2. Unknown versions/fields, incomplete part fields, nonfinite values and blank identities refuse.
  * 3. The document-size endpoint is accepted and the adjacent oversized text refuses before parsing.
  */
 export const test_subject_human_document = (): void => {
   const document = humanFaceFixture();
   document.controls = { eyeHeight: 0.1 };
-  document.detail = { eye: { browProfile: { rootBand: [0.1, 0.3] } } };
+  document.detail = { eye: { widthScale: 1.1 } };
   document.asymmetry = { left: { eye: { irisRadius: 5 } } };
   document.reference = {
     url: null,

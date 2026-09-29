@@ -6,15 +6,10 @@ import type * as Human from "@automovie/human";
  * anatomical range or rendered improvement. The root carrier retains this domain.
  *
  * @evidence {@link Human.humanFaceDetailChannels} Maps the editor's detailed scalar inventory to real profile fields.
- * @evidenceReview {@link Human.humanFaceDetailChannels} #7e6251b Read every domain declaration and the shared metadata constructor against the prior inventory. All 107 evaluated channels retain their full values and display order, including the three unpaired mouth.cavityChamber paths beside the wall channel. The inherited-value reader, immutable writers and region panel still consume this inventory. Chamber expansions remain 0..30 and transition depth 0.1..60; editor bounds do not establish anatomy or coupled clearance.
  * @evidence {@link Human.humanFaceDetailValue} Reads the displayed scalar from the resolved common or side-specific anatomical profile.
- * @evidenceReview {@link Human.humanFaceDetailValue} #01290ac Read known-channel admission, full region resolution and field traversal. A missing optional profile returns undefined rather than inventing zero, while returned scalars reflect trait/detail precedence rather than merely echoing a draft slider.
  * @evidence {@link Human.IAutoMovieHumanFaceDetailChannel} Describes one detailed numerical control and its anatomical owner, inherited neutral and attachment.
- * @evidenceReview {@link Human.IAutoMovieHumanFaceDetailChannel} #c3c0eac Read the fields against the private panel and setters: path, units, minimum/maximum, step, side ownership and actual attachment description. Scalar range admission cannot certify that the resulting coupled geometry can be constructed.
  * @evidence {@link Human.setHumanFaceDetail} Writes or clears one precise override without flattening inherited part settings.
- * @evidenceReview {@link Human.setHumanFaceDetail} #ffe5f28 Read the setter and complete path helper after reproducing cross-owner aliases. Every existing path container is shallow-copied before descent, including arrays, so writes/removals cannot reach a shared basis or opposite profile. Missing paths still remain absent on removal, empty ancestors still prune, and finite/count/side admission is unchanged. This repairs the shared-object case that a whole structuredClone alone did not isolate.
  * @evidence {@link Human.setHumanFaceHairLayerDetail} Edits one explicitly named additional profile without re-entering its guide array or changing the legacy owner.
- * @evidenceReview {@link Human.setHumanFaceHairLayerDetail} #8f691d3 Read the setter and raw merge/path consumers after reproducing two layers sharing one profile. Raw composition retains authored omissions; path-local copies then detach the selected profile from sibling aliases. The corrected oracle clones each expected layer independently and directly asserts that the unselected shade remains omitted. Unknown/non-hair channels, invalid values and missing layers refuse; inheritance remains whole-array.
  *
  * @remarks
  * Internal domain inspection under the public inventory above. These owners

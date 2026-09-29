@@ -40,13 +40,13 @@ export const test_subject_human_hair_normal = (): void => {
   };
   input.basis.recipe.hair = hair;
   TestValidator.equals("basis default", humanFaceDetailValue(input, id), 0);
-  const detailed = {
+  const detailed: typeof input = {
     ...input,
     basis: {
       ...input.basis,
       recipe: { ...input.basis.recipe, hair: undefined },
     },
-    detail: { hair },
+    detail: { hair: { ...hair, cards: [] } },
   };
   TestValidator.equals(
     "detail-only default",

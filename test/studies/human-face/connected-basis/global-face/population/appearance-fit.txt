@@ -84,3 +84,23 @@ iris lee-tae-ri mean 0.0175 0.0087 0.0064
 iris michael-gambon mean 0.0253 0.0253 0.0253
 hair lee-tae-ri color 0.0289 0.0230 0.0199
 hair michael-gambon color 0.3868 0.3868 0.3868
+
+# 2026-09-28 greyscale iris hue: a greyscale photograph takes the recorded ancestry's iris hue (faceLikenessIrisHue, Edwards 2016 Table 3-2) at the photographed luminance; fit-face-iris.ts on the j21-b receipt with subject-facts.json, Michael Gambon only (the only greyscale photograph; Lee Tae-ri reproduces 0.0175 0.0087 0.0064).
+iris michael-gambon mean 0.0283 0.0246 0.0233
+
+# 2026-09-28 a sample without chroma: a photographed iris or hair whose own CIELAB chroma is under the just-noticeable difference (2.3, Mahy et al. 1994) shows no hue, and the per-channel ratio had handed it the inverse of the cheek's cast (black hair and dark brown irises blue); it now takes the luminance ratio with the prior's chromaticity (the ancestry's iris hue; neutral hair). fit-face-iris.ts and fit-face-hair.ts on the j21-b receipt; only the documents whose samples cross the threshold are written (Miriam Margolyes's iris, missing in that receipt, keeps the published pigment).
+iris generated-black-boy-01 mean 0.0078 0.0031 0.0028
+iris kim-min-jung mean 0.0213 0.0083 0.0074
+iris oh-seung-yoon mean 0.0038 0.0015 0.0013
+hair generated-black-boy-01 color 0.0100 0.0100 0.0100
+hair generated-black-girl-01 color 0.0097 0.0097 0.0097
+hair kim-min-jung color 0.0273 0.0273 0.0273
+hair kim-min-jung color 0.0191 0.0191 0.0191
+hair lee-tae-ri color 0.0243 0.0243 0.0243
+hair oh-seung-yoon color 0.0012 0.0012 0.0012
+hair oh-seung-yoon color 0.0008 0.0008 0.0008
+
+# 2026-09-28 melanin order: hair, brow and lash albedo held to red >= green >= blue (melanin absorption falls with wavelength; Jacques 2013) by luminance-weighted isotonic regression (faceLikenessMelaninAlbedo). fit-face-brows.ts on the j21-b receipt, pigments only (densities kept): Kim Min-jung's brow was bluer than neutral, Yoo Seung-ho's green under blue; Lee Tae-ri's brow had been left on the albedo before the recorded-sex refit and follows it now. No hair colour changes.
+brow kim-min-jung pigment 0.0152 0.0152 0.0152
+brow yoo-seung-ho pigment 0.0152 0.0123 0.0123
+brow lee-tae-ri pigment 0.0251 0.0131 0.0101

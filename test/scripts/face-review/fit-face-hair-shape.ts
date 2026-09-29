@@ -28,7 +28,7 @@
  *   with a common factor on each layer's hanging lengths, left, right, nape
  *   and back;
  * - the fringe (`faceHairFringeReach`, how far above the lower lids the
- *   lowest tenth of the hair over the eye span ends, over inter-ocular) with
+ *   lowest tenth of the hair between the pupils ends, over inter-ocular) with
  *   a factor on each layer's front scale, which cuts or grows every root by
  *   its frontal share (`frontScale`): the frontal hairline's roots take much
  *   of their length from the crown, which a factor on the front axis alone
@@ -122,7 +122,7 @@ const BROWS = [105, 334] as const;
  * Landmarks the indices read: forehead top, eye corners, lower lids, chin,
  * brows. The face oval's are read where the model anchors them.
  */
-const LANDMARKS = [10, 33, 263, 145, 374, 152, ...BROWS];
+const LANDMARKS = [10, 33, 263, 159, 386, 145, 374, 152, ...BROWS];
 type Layer = NonNullable<
   IAutoMovieHumanFaceBasisDocument["hair"]
 >["layers"][number];
@@ -234,6 +234,7 @@ const derived = documents.map((original) => {
         mask,
         top: at(10),
         eyes: [at(33), at(263)],
+        span: [at(159), at(386)],
         lids: [at(145), at(374)],
       }),
       cover:

@@ -6,14 +6,13 @@ import { humanFaceFixture } from "../internal/humanFaceFixture";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Alternative nasal surfaces replace another alternative rather than merging
- * incompatible controls from different document layers.
+ * Alternative nasal surfaces are source-basis geometry. Detailed scalar fields
+ * can refine the chosen alternative but cannot submit new free section arrays.
  *
  * Scenarios:
- * 1. All nine ordered pairs of additive, loft and local targets resolve to the
- *    selected payload while keeping inherited joining distances and owned data.
- * 2. Same-loft partial edits, untagged additive edits and empty overrides inherit
- *    their remaining fields. Ambiguous incoming or inherited shapes stay invalid.
+ * 1. Each source alternative replays with inherited joining distances.
+ * 2. Same-loft scalar edits preserve stations; a changed section or fullness
+ *    array refuses. Empty removal and ambiguous source shapes stay explicit.
  */
 export const test_subject_human_nasal_body_variants = (): void => {
   type Shape = Parameters<typeof createPortraitNasalBodySurface>[0];
@@ -54,20 +53,19 @@ export const test_subject_human_nasal_body_variants = (): void => {
     };
     return document;
   };
-  for (const basis of variants)
-    for (const selected of variants) {
-      const document = create(basis);
-      document.detail = { nose: { body: { shape: selected } } };
-      const saved = structuredClone(document),
-        actual = resolveHumanFaceDocument(document).recipe.nose.body!;
-      TestValidator.equals("one chosen payload", actual.shape, selected);
-      TestValidator.equals(
-        "surrounding dimensions inherit",
-        [actual.joinWidth, actual.depthReach],
-        [2, 40],
-      );
-      TestValidator.equals("input ownership", document, saved);
-    }
+  for (const basis of variants) {
+    const document = create(basis);
+    document.detail = { nose: { body: { joinWidth: 3 } } };
+    const saved = structuredClone(document),
+      actual = resolveHumanFaceDocument(document).recipe.nose.body!;
+    TestValidator.equals("source payload retained", actual.shape, basis);
+    TestValidator.equals(
+      "surrounding dimensions admit scalar detail",
+      [actual.joinWidth, actual.depthReach],
+      [3, 40],
+    );
+    TestValidator.equals("input ownership", document, saved);
+  }
   const partial = create({ section });
   partial.detail = {
     nose: { body: { shape: { section: { influence: 0.3 } } } },
@@ -78,11 +76,12 @@ export const test_subject_human_nasal_body_variants = (): void => {
     { section: { ...section, influence: 0.3 } },
   );
   const plain = create(additive);
-  plain.detail = { nose: { body: { shape: { fullness: [0.2, 0.3] } } } };
-  TestValidator.equals(
-    "untagged additive detail keeps its stations",
-    resolveHumanFaceDocument(plain).recipe.nose.body!.shape,
-    { ...additive, fullness: [0.2, 0.3] },
+  plain.detail = {
+    nose: { body: { shape: { fullness: [0.2, 0.3] } } },
+  } as never;
+  TestValidator.predicate(
+    "changed fullness array refuses",
+    throwsError(() => resolveHumanFaceDocument(plain), "source geometry array"),
   );
   plain.detail = { nose: { body: { shape: {} } } };
   TestValidator.equals(
@@ -100,20 +99,14 @@ export const test_subject_human_nasal_body_variants = (): void => {
           "one final nasal target",
         ),
       );
-      for (const inherited of [false, true]) {
-        const document = create(inherited ? mixed : variants[i]);
-        document.detail = {
-          nose: { body: { shape: inherited ? variants[j] : mixed } },
-        };
-        const shape =
-          resolveHumanFaceDocument(document).recipe.nose.body!.shape;
-        TestValidator.predicate(
-          "ambiguous layers are not silently repaired",
-          throwsError(
-            () => createPortraitNasalBodySurface(shape, 0, 1, [0, 0, 1], 2, 40),
-            "one final nasal target",
-          ),
-        );
-      }
+      const document = create(variants[i]);
+      document.detail = { nose: { body: { shape: mixed } } } as never;
+      TestValidator.predicate(
+        "mixed editable arrays refuse before construction",
+        throwsError(
+          () => resolveHumanFaceDocument(document),
+          "source geometry array",
+        ),
+      );
     }
 };

@@ -2,12 +2,14 @@
  * Write each published document's iris pigment from a population receipt.
  * Run from the test package:
  *
- *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-iris.ts RECEIPT SUBJECTS [OUTPUT]
+ *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-iris.ts RECEIPT SUBJECTS FACTS [OUTPUT]
  *
  * RECEIPT is a `measure-face-likeness.ts` output, SUBJECTS the published
  * `subjects.json`. For every measured subject the photograph's median iris
  * (both eyes averaged in CIELAB) and cheek colours and the document's own
- * `materials.skin` albedo go through `fitFaceLikenessIrisPigment`, and the
+ * `materials.skin` albedo go through `fitFaceLikenessIrisPigment`, with the
+ * recorded ancestry's hue (`faceLikenessIrisHue`, FACTS being
+ * `population/subject-facts.json`) for a greyscale photograph, and the
  * same pigment, rounded to five decimals, is written to both eyes. A subject
  * that was not measured keeps its document unchanged; one whose photograph
  * shows no iris (the lids over more than half of both, or no cheek) loses
@@ -18,11 +20,22 @@
 import fs from "node:fs";
 
 import { readFaceLikenessJson } from "./faceLikenessIo";
-import { fitFaceLikenessIrisPigment } from "./faceLikenessIrisFit";
+import {
+  faceLikenessIrisHue,
+  fitFaceLikenessIrisPigment,
+} from "./faceLikenessIrisFit";
+import type { IFacePopulationFacts } from "./facePopulationFacts";
 
-const [receiptFile, subjectsFile, output] = process.argv.slice(2);
-if (receiptFile === undefined || subjectsFile === undefined)
-  throw new Error("Supply RECEIPT SUBJECTS [OUTPUT].");
+const [receiptFile, subjectsFile, factsFile, output] = process.argv.slice(2);
+if (
+  receiptFile === undefined ||
+  subjectsFile === undefined ||
+  factsFile === undefined
+)
+  throw new Error("Supply RECEIPT SUBJECTS FACTS [OUTPUT].");
+const facts = readFaceLikenessJson<{
+  subjects: Record<string, Pick<IFacePopulationFacts, "ancestry">>;
+}>(factsFile).subjects;
 type Sample = { lab: [number, number, number] } | null;
 const receipt = readFaceLikenessJson<{
   subjects: {
@@ -71,6 +84,7 @@ for (const row of receipt.subjects) {
       row.colour!.cheekLeft!.reference,
     ]),
     skin: [skin.r, skin.g, skin.b],
+    prior: faceLikenessIrisHue(facts[row.subject]?.ancestry ?? null),
   });
   if (fit === null) {
     // No iris in the photograph (lids over more than half of it, or a
