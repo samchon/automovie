@@ -101,10 +101,7 @@ export const test_subject_face_vermilion = (): void => {
   const speckImage = image({ grey: true });
   speckImage.rgb[3 * (123 * 200 + 99) + 1] = 0;
   const speck = measureFaceLikenessVermilion(speckImage, landmarks());
-  const same = measureFaceLikenessVermilion(
-    image({ lip: SKIN }),
-    landmarks(),
-  );
+  const same = measureFaceLikenessVermilion(image({ lip: SKIN }), landmarks());
   const high = measureFaceLikenessVermilion(
     image(),
     landmarks({ 17: [100, 103] }),

@@ -21,10 +21,17 @@ export const test_subject_face_anatomical_parameter_contract = (): void => {
   };
   TestValidator.equals(
     "known left and right values stay independent",
-    [measured.eyes?.left?.fissureLengthMm, measured.eyes?.right?.fissureLengthMm],
+    [
+      measured.eyes?.left?.fissureLengthMm,
+      measured.eyes?.right?.fissureLengthMm,
+    ],
     [30.1, 29.7],
   );
-  TestValidator.equals("unseen tongue stays unknown", measured.tongue, undefined);
+  TestValidator.equals(
+    "unseen tongue stays unknown",
+    measured.tongue,
+    undefined,
+  );
 
   const directSculpt: IAutoMovieHumanFaceAnatomicalParameters = {
     referencePose: "eyes-open-forward-gaze-lips-apposed",

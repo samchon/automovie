@@ -1,4 +1,7 @@
-import { Vector3, type createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import {
+  Vector3,
+  type createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import { humanFaceHairContact } from "@automovie/human/face/anatomy/hair/humanFaceHairContact";
 import { humanFaceHairFreeDistanceBound } from "@automovie/human/face/anatomy/hair/humanFaceHairFreeDistanceBound";
 import { TestValidator } from "@nestia/e2e";
@@ -38,22 +41,53 @@ export const test_subject_human_hair_projection_bound = (): void => {
   });
   const first = Vector3.create(1.01, 0, 0);
   const second = Vector3.create(1.011, 0, 0);
-  TestValidator.predicate("first free point is retained", contact.project(first) === first);
-  TestValidator.predicate("certified point is retained", contact.project(second) === second);
+  TestValidator.predicate(
+    "first free point is retained",
+    contact.project(first) === first,
+  );
+  TestValidator.predicate(
+    "certified point is retained",
+    contact.project(second) === second,
+  );
   TestValidator.equals("one sample proves two free points", queries, 1);
   const third = Vector3.create(1.02, 0, 0);
-  TestValidator.predicate("uncertified farther point is retained after sampling", contact.project(third) === third);
+  TestValidator.predicate(
+    "uncertified farther point is retained after sampling",
+    contact.project(third) === third,
+  );
   TestValidator.equals("distance beyond the witness is queried", queries, 2);
   third.x = 100;
   const fourth = Vector3.create(1.021, 0, 0);
-  TestValidator.predicate("mutating caller point does not change witness", contact.project(fourth) === fourth);
-  TestValidator.equals("owned witness still certifies the next point", queries, 2);
+  TestValidator.predicate(
+    "mutating caller point does not change witness",
+    contact.project(fourth) === fourth,
+  );
+  TestValidator.equals(
+    "owned witness still certifies the next point",
+    queries,
+    2,
+  );
   const near = contact.project(Vector3.create(1.0005, 0, 0));
-  TestValidator.predicate("near point projects to contact clearance", nclose(near.x, 1 + contact.clearance, 1e-12));
+  TestValidator.predicate(
+    "near point projects to contact clearance",
+    nclose(near.x, 1 + contact.clearance, 1e-12),
+  );
   TestValidator.predicate("near point needed an actual query", queries >= 4);
   TestValidator.predicate(
     "exact boundary and nonfinite distance cannot certify free space",
-    !humanFaceHairFreeDistanceBound({ sampled: first, distance: contact.clearance, candidate: first, required: contact.clearance, allowance: 0 }) &&
-      !humanFaceHairFreeDistanceBound({ sampled: first, distance: NaN, candidate: second, required: contact.clearance, allowance: 0 }),
+    !humanFaceHairFreeDistanceBound({
+      sampled: first,
+      distance: contact.clearance,
+      candidate: first,
+      required: contact.clearance,
+      allowance: 0,
+    }) &&
+      !humanFaceHairFreeDistanceBound({
+        sampled: first,
+        distance: NaN,
+        candidate: second,
+        required: contact.clearance,
+        allowance: 0,
+      }),
   );
 };

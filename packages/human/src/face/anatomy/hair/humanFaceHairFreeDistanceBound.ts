@@ -42,5 +42,7 @@ export function humanFaceHairFreeDistanceBound(props: {
       props.required,
       props.allowance,
     );
-  return props.distance - separation - props.allowance > props.required + roundoff;
+  return (
+    props.distance - separation - props.allowance > props.required + roundoff
+  );
 }

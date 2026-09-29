@@ -1,4 +1,7 @@
-import { Vector3, type createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import {
+  Vector3,
+  type createAutoMovieSignedMeshQuery,
+} from "@automovie/engine";
 import { integrateHumanFaceHairCurve } from "@automovie/human/face/anatomy/hair/integrateHumanFaceHairCurve";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +21,9 @@ export const test_subject_human_hair_free_step = (): void => {
   const root = Vector3.create(1, 0.5, 0.5);
   const make = (flow: [number, number, number]) => {
     let queries = 0;
-    const query: ReturnType<typeof createAutoMovieSignedMeshQuery> = (point) => {
+    const query: ReturnType<typeof createAutoMovieSignedMeshQuery> = (
+      point,
+    ) => {
       queries++;
       return {
         point: [1, point[1], point[2]],
@@ -45,18 +50,26 @@ export const test_subject_human_hair_free_step = (): void => {
     return { curve, queries, layer };
   };
   const free = make([1, 0, 0]);
-  const length = free.curve.points.slice(1).reduce(
-    (total, point, at) =>
-      total + Vector3.length(Vector3.subtract(point, free.curve.points[at])),
-    0,
+  const length = free.curve.points
+    .slice(1)
+    .reduce(
+      (total, point, at) =>
+        total + Vector3.length(Vector3.subtract(point, free.curve.points[at])),
+      0,
+    );
+  TestValidator.predicate(
+    "free curve retains authored length",
+    nclose(length, 0.05, 1e-12),
   );
-  TestValidator.predicate("free curve retains authored length", nclose(length, 0.05, 1e-12));
   TestValidator.predicate(
     "free chords retain the admitted step",
-    free.curve.points.slice(2).every((point, at) =>
-      Vector3.length(Vector3.subtract(point, free.curve.points[at + 1])) <=
-      free.layer.samplingStep + 1e-12,
-    ),
+    free.curve.points
+      .slice(2)
+      .every(
+        (point, at) =>
+          Vector3.length(Vector3.subtract(point, free.curve.points[at + 1])) <=
+          free.layer.samplingStep + 1e-12,
+      ),
   );
   TestValidator.predicate(
     "one known distance serves the following free step",
@@ -69,6 +82,8 @@ export const test_subject_human_hair_free_step = (): void => {
   );
   TestValidator.predicate(
     "tangential curve holds its skin clearance",
-    near.curve.points.slice(1).every((point) => point.x - 1 >= near.layer.clearance - 1e-12),
+    near.curve.points
+      .slice(1)
+      .every((point) => point.x - 1 >= near.layer.clearance - 1e-12),
   );
 };

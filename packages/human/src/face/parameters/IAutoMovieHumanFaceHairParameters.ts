@@ -58,9 +58,17 @@ export interface IAutoMovieHumanFaceHairParameters {
     /** Observed midfrontal outline class, independent of age or sex. */
     outline?: "linear" | "triangular" | "round" | "m-shaped";
     /** Left temporal hairline class in the same study's four-class protocol. */
-    leftTemporalOutline?: "inverted-triangle" | "inverted-round" | "straight" | "convex";
+    leftTemporalOutline?:
+      | "inverted-triangle"
+      | "inverted-round"
+      | "straight"
+      | "convex";
     /** Right temporal hairline class, independently observed. */
-    rightTemporalOutline?: "inverted-triangle" | "inverted-round" | "straight" | "convex";
+    rightTemporalOutline?:
+      | "inverted-triangle"
+      | "inverted-round"
+      | "straight"
+      | "convex";
     /** Whether a central peak is present, independent of the broad outline. */
     centralPeak?: "present" | "absent";
   };
@@ -104,7 +112,12 @@ export interface IAutoMovieHumanFaceHairParameters {
     } | null;
     /** A gathering can coexist with a part and bangs; null means unbound. */
     gather?: {
-      anchorRegion: "vertex" | "occipital" | "nape" | "left-temporal" | "right-temporal";
+      anchorRegion:
+        | "vertex"
+        | "occipital"
+        | "nape"
+        | "left-temporal"
+        | "right-temporal";
       /** Free tail length beyond the gathered region, mm. */
       tailLengthMm: number;
     } | null;
@@ -134,7 +147,12 @@ export namespace IAutoMovieHumanFaceHairParameters {
    */
   export interface Whorl {
     /** Named scalp region, without a per-person root coordinate. */
-    region: "frontal" | "vertex" | "left-parietal" | "right-parietal" | "occipital";
+    region:
+      | "frontal"
+      | "vertex"
+      | "left-parietal"
+      | "right-parietal"
+      | "occipital";
     /** Rotation viewed toward skin along the local normal, or diffuse growth. */
     pattern: "clockwise" | "counterclockwise" | "diffuse";
   }

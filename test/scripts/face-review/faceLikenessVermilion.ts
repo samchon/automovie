@@ -141,7 +141,11 @@ export function measureFaceLikenessVermilion(
   const colour = (
     from: number,
     to: number,
-  ): { chroma: [number, number]; deviation: number; chromatic: boolean } | null => {
+  ): {
+    chroma: [number, number];
+    deviation: number;
+    chromatic: boolean;
+  } | null => {
     const within = samples.filter(({ t }) => t >= from && t <= to);
     if (within.length === 0) return null;
     const chroma: [number, number] = [
@@ -171,11 +175,7 @@ export function measureFaceLikenessVermilion(
     to: number,
     minimumContrast: number,
   ): FaceLikenessPoint | null => {
-    if (
-      skin === null ||
-      lip === null ||
-      (!skin.chromatic && !lip.chromatic)
-    )
+    if (skin === null || lip === null || (!skin.chromatic && !lip.chromatic))
       return null;
     const contrast = distance(lip.chroma, skin.chroma);
     if (

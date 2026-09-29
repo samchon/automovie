@@ -81,7 +81,10 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
   );
   TestValidator.equals(
     "observed absent crease differs from an unobserved one",
-    [measured.eyes?.left?.upperCreaseHeightMm, measured.eyes?.right?.upperCreaseHeightMm],
+    [
+      measured.eyes?.left?.upperCreaseHeightMm,
+      measured.eyes?.right?.upperCreaseHeightMm,
+    ],
     [null, 4.5],
   );
 

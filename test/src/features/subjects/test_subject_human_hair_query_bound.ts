@@ -15,19 +15,23 @@ import { nclose } from "../internal/predicates";
  *    queried, retaining the same source-surface clearance rule.
  */
 export const test_subject_human_hair_query_bound = (): void => {
-  const skin = createAutoMovieSignedMeshQuery(createSignedVoxelUnion([[0, 0, 0]]));
+  const skin = createAutoMovieSignedMeshQuery(
+    createSignedVoxelUnion([[0, 0, 0]]),
+  );
   const layer = { taper: { start: 0.7, tipWidth: 1 }, clearance: 0.001 };
   const build = (xs: number[]) => {
     const points = xs.map((x) => Vector3.create(x, 0.5, 0.5));
     let centreQueries = 0;
     const query: typeof skin = (point) => {
       if (
-        points.slice(1).some(
-          (station) =>
-            station.x === point[0] &&
-            station.y === point[1] &&
-            station.z === point[2],
-        )
+        points
+          .slice(1)
+          .some(
+            (station) =>
+              station.x === point[0] &&
+              station.y === point[1] &&
+              station.z === point[2],
+          )
       )
         centreQueries++;
       return skin(point);
@@ -47,9 +51,21 @@ export const test_subject_human_hair_query_bound = (): void => {
     return { mesh, centreQueries };
   };
   const clear = build([1, 1.02, 1.021, 1.022]);
-  TestValidator.equals("one centre query certifies free stations", clear.centreQueries, 1);
-  TestValidator.equals("every station keeps its paired ribbon row", clear.mesh.positions.length / 3, 7);
-  TestValidator.equals("one fan and two strip spans remain", clear.mesh.indices!.length / 3, 5);
+  TestValidator.equals(
+    "one centre query certifies free stations",
+    clear.centreQueries,
+    1,
+  );
+  TestValidator.equals(
+    "every station keeps its paired ribbon row",
+    clear.mesh.positions.length / 3,
+    7,
+  );
+  TestValidator.equals(
+    "one fan and two strip spans remain",
+    clear.mesh.indices!.length / 3,
+    5,
+  );
   for (let station = 1; station <= 3; station++) {
     const first = (2 * station - 1) * 3;
     const second = first + 3;
@@ -72,6 +88,14 @@ export const test_subject_human_hair_query_bound = (): void => {
     );
   }
   const near = build([1, 1.0015, 1.0025, 1.0035]);
-  TestValidator.equals("uncertified stations are queried", near.centreQueries, 3);
-  TestValidator.equals("near-skin ribbon retains the same topology", near.mesh.indices!.length / 3, 5);
+  TestValidator.equals(
+    "uncertified stations are queried",
+    near.centreQueries,
+    3,
+  );
+  TestValidator.equals(
+    "near-skin ribbon retains the same topology",
+    near.mesh.indices!.length / 3,
+    5,
+  );
 };

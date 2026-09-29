@@ -6,7 +6,10 @@ import { throwsError } from "../internal/predicates";
 
 /** Source weld redundancy is independent of edge incidence and face order. */
 export const test_subject_welded_degenerate_triangles = (): void => {
-  const mesh = (positions: number[], indices: number[] | null): IAutoMovieMesh => ({
+  const mesh = (
+    positions: number[],
+    indices: number[] | null,
+  ): IAutoMovieMesh => ({
     positions,
     indices,
     normals: null,

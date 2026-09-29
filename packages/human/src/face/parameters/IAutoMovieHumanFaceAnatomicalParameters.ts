@@ -8,8 +8,8 @@ import type { IAutoMovieHumanFaceEyeParameters } from "./IAutoMovieHumanFaceEyeP
 import type { IAutoMovieHumanFaceEyelashParameters } from "./IAutoMovieHumanFaceEyelashParameters";
 import type { IAutoMovieHumanFaceFacialHairParameters } from "./IAutoMovieHumanFaceFacialHairParameters";
 import type { IAutoMovieHumanFaceHairParameters } from "./IAutoMovieHumanFaceHairParameters";
-import type { IAutoMovieHumanFaceMouthParameters } from "./IAutoMovieHumanFaceMouthParameters";
 import type { IAutoMovieHumanFaceMotionCapacityParameters } from "./IAutoMovieHumanFaceMotionCapacityParameters";
+import type { IAutoMovieHumanFaceMouthParameters } from "./IAutoMovieHumanFaceMouthParameters";
 import type { IAutoMovieHumanFaceNeckParameters } from "./IAutoMovieHumanFaceNeckParameters";
 import type { IAutoMovieHumanFaceNoseParameters } from "./IAutoMovieHumanFaceNoseParameters";
 import type { IAutoMovieHumanFaceOralCavityParameters } from "./IAutoMovieHumanFaceOralCavityParameters";
@@ -92,10 +92,16 @@ interface AutoMovieHumanFaceAnatomicalFields {
   eyes?: IAutoMovieHumanFaceEyeParameters;
 
   /** Paired eyebrow envelopes and positions in the neutral expression. */
-  brows?: { left?: IAutoMovieHumanFaceBrowParameters; right?: IAutoMovieHumanFaceBrowParameters };
+  brows?: {
+    left?: IAutoMovieHumanFaceBrowParameters;
+    right?: IAutoMovieHumanFaceBrowParameters;
+  };
 
   /** Paired upper/lower lash populations attached to their eyelid margins. */
-  eyelashes?: { left?: IAutoMovieHumanFaceEyelashParameters; right?: IAutoMovieHumanFaceEyelashParameters };
+  eyelashes?: {
+    left?: IAutoMovieHumanFaceEyelashParameters;
+    right?: IAutoMovieHumanFaceEyelashParameters;
+  };
 
   /** External nasal landmark distances. */
   nose?: IAutoMovieHumanFaceNoseParameters;
@@ -107,7 +113,10 @@ interface AutoMovieHumanFaceAnatomicalFields {
   skinCondition?: IAutoMovieHumanFaceSkinConditionParameters;
 
   /** Internal cheek-fat compartments, independently measured by side. */
-  cheeks?: { left?: IAutoMovieHumanFaceCheekParameters; right?: IAutoMovieHumanFaceCheekParameters };
+  cheeks?: {
+    left?: IAutoMovieHumanFaceCheekParameters;
+    right?: IAutoMovieHumanFaceCheekParameters;
+  };
 
   /** External lips and oral aperture in the declared neutral state. */
   mouth?: IAutoMovieHumanFaceMouthParameters;
@@ -119,7 +128,10 @@ interface AutoMovieHumanFaceAnatomicalFields {
   tongue?: IAutoMovieHumanFaceTongueParameters;
 
   /** External auricles, with independently owned sides. */
-  ears?: { left?: IAutoMovieHumanFaceEarParameters; right?: IAutoMovieHumanFaceEarParameters };
+  ears?: {
+    left?: IAutoMovieHumanFaceEarParameters;
+    right?: IAutoMovieHumanFaceEarParameters;
+  };
 
   /** Biological scalp population and numerical grooming; null emits no visible layer. */
   scalpHair?: IAutoMovieHumanFaceHairParameters | null;
