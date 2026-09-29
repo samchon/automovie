@@ -15,8 +15,9 @@ import type { IAutoMovieHumanFaceLowerEyelidParameters } from "./IAutoMovieHuman
  * Corneal radius and central thickness likewise require ocular biometry
  * (https://pubmed.ncbi.nlm.nih.gov/11906297/).
  * Pupil diameter is light dependent: infrared pupillometry measured both
- * eyes under fixed 0, 0.5, 4, 32 and 250 lux illuminances, with decreasing
- * diameter as illuminance rose (https://pmc.ncbi.nlm.nih.gov/articles/PMC5278786/).
+ * eyes under successive 0, 0.5, 4, 32 and 250 lux illuminances after two
+ * minutes of low-mesopic adaptation, with decreasing diameter as illuminance
+ * rose (https://pmc.ncbi.nlm.nih.gov/articles/PMC5278786/).
  * A fixed-illuminance observation must not be mistaken for permanent iris
  * size or copied unchanged into every rendered lighting condition.
  * Eye appearance, gaze and eyelid motion have different owners.
@@ -54,7 +55,7 @@ export namespace IAutoMovieHumanFaceEyeParameters {
     pupilToBrowMm?: number;
     /** Horizontal nasal-to-temporal limbus diameter, white-to-white in mm. */
     horizontalLimbusDiameterMm?: number;
-    /** Pupil aperture diameter after adaptation to 250 lux at the eye, mm. */
+    /** Pupil diameter during the 250-lux step of that adapted, ascending protocol, mm. */
     pupilDiameterAt250LuxMm?: number;
     /** Internal cornea-to-retina axial length in mm; requires ocular biometry. */
     globeAxialLengthMm?: number;
