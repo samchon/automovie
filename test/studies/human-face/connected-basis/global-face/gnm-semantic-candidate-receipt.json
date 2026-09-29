@@ -1,0 +1,211 @@
+{
+  "purpose": "Source-prior viability study, not selected face basis or product acceptance",
+  "source": "google/GNM at a424b5153eec9154f3dfa5ee7f214e5817918d54",
+  "modelSha256": "67fef851c2e74ecad590dccf1b336afbb6bf0ae7cf981e5efeaf2160f178e745",
+  "modelFrame": "GNM source XYZ in metres; crossing centroid bounds are XYZ in millimetres",
+  "identityDecoderSha256": "1f069bf4975620e25a053772719a35678c9cfe6121e58bc4276a3515b53ac142",
+  "expressionDecoderSha256": "5eba165f8a414f73b24be96963d0a17e708c0856739ed85a19031f318dfb51e6",
+  "landmark68Sha256": "23e80357255116551c50d9477a367a19115ab1539d9a387ebcb9734bd997d6e7",
+  "sampling": {
+    "identityLatentNormalSeed": 20260929,
+    "expressionLatentNormalSeed": 20260930,
+    "sameLatentAcrossLabels": true,
+    "genderLabelIndices": {
+      "female": 0,
+      "male": 1
+    },
+    "ethnicityLabelIndices": {
+      "asian": 1,
+      "white": 2,
+      "black": 3
+    },
+    "expressionLabel": {
+      "name": "HAPPY",
+      "index": 5
+    },
+    "largestAbsIdentityCoefficient": 5.445400238037109
+  },
+  "metricProbe": {
+    "basis": "first 170 head identity coefficients and supplied 68 triangle-barycentric landmarks",
+    "namedDistanceProxyCount": 13,
+    "jacobianRank": 13,
+    "jacobianConditionNumber": 142.02314791034183,
+    "maximumOtherProxyMovementMmForSingleOneMmResponse": 2.059414061904543,
+    "leftEyeOneMmIsolatedCoefficientL2": 9.493707292901195,
+    "rightEyeOneMmIsolatedCoefficientL2": 9.471820693494108,
+    "oneMmIsDiagnosticOnly": true
+  },
+  "crossingPredicate": {
+    "source": "@automovie/engine measureAutoMovieMeshCrossings",
+    "exteriorVertexGroupThreshold": 0.5,
+    "triangleCount": 22636,
+    "vertexCount": 11460,
+    "allPairs": true,
+    "interiorTolerance": 1e-09,
+    "excludeCoplanarAndSharedVertexPairs": true,
+    "deduplicatePairOrder": true
+  },
+  "population": [
+    {
+      "label": "template",
+      "neutralExteriorSkinCrossingPairs": 153,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -23.041104897856712,
+          23.399310186505318
+        ],
+        [
+          230.47258456548056,
+          233.9331010977427
+        ],
+        [
+          118.0022085706393,
+          132.30586051940918
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": null,
+      "happyOppositeNormalExteriorTriangles": 5,
+      "happyLowerTeethRigidRmsMm": 0.1109113803171354,
+      "happyUpperTeethRigidRmsMm": 7.0756919336762015e-15
+    },
+    {
+      "label": "female-asian",
+      "neutralExteriorSkinCrossingPairs": 149,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -23.9595677703619,
+          23.834506670633953
+        ],
+        [
+          231.1361829439799,
+          235.56101322174072
+        ],
+        [
+          119.40398812294006,
+          134.20202831427255
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": 0,
+      "happyOppositeNormalExteriorTriangles": 4,
+      "happyLowerTeethRigidRmsMm": 0.11197101099858543,
+      "happyUpperTeethRigidRmsMm": 3.1135762259300894e-15
+    },
+    {
+      "label": "female-white",
+      "neutralExteriorSkinCrossingPairs": 160,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -24.085789918899536,
+          24.06107820570469
+        ],
+        [
+          231.23549421628317,
+          235.74709395567575
+        ],
+        [
+          119.06566470861435,
+          134.4437599182129
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": 0,
+      "happyOppositeNormalExteriorTriangles": 5,
+      "happyLowerTeethRigidRmsMm": 0.11103256380698891,
+      "happyUpperTeethRigidRmsMm": 6.969622540024967e-15
+    },
+    {
+      "label": "female-black",
+      "neutralExteriorSkinCrossingPairs": 138,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -24.77699952820937,
+          24.864394838611286
+        ],
+        [
+          231.08819127082825,
+          235.77295740445456
+        ],
+        [
+          119.9818104505539,
+          135.7716123263041
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": 0,
+      "happyOppositeNormalExteriorTriangles": 5,
+      "happyLowerTeethRigidRmsMm": 0.11331520999024979,
+      "happyUpperTeethRigidRmsMm": 1.0012548680247169e-14
+    },
+    {
+      "label": "male-asian",
+      "neutralExteriorSkinCrossingPairs": 157,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -24.510465562343597,
+          24.47608920435111
+        ],
+        [
+          230.7456781466802,
+          234.5148573319117
+        ],
+        [
+          119.22844250996907,
+          134.5596412817637
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": 0,
+      "happyOppositeNormalExteriorTriangles": 5,
+      "happyLowerTeethRigidRmsMm": 0.11619602894274368,
+      "happyUpperTeethRigidRmsMm": 2.1989342382854504e-14
+    },
+    {
+      "label": "male-white",
+      "neutralExteriorSkinCrossingPairs": 169,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -24.333128705620766,
+          24.433520312110584
+        ],
+        [
+          231.28107686837515,
+          235.11643211046854
+        ],
+        [
+          118.74247839053471,
+          134.22098259131113
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": 0,
+      "happyOppositeNormalExteriorTriangles": 3,
+      "happyLowerTeethRigidRmsMm": 0.11605677711827121,
+      "happyUpperTeethRigidRmsMm": 1.1016275804182962e-14
+    },
+    {
+      "label": "male-black",
+      "neutralExteriorSkinCrossingPairs": 149,
+      "neutralCrossingCentroidBoundsMm": [
+        [
+          -25.32249316573143,
+          25.278613592187565
+        ],
+        [
+          231.42539461453757,
+          235.64932743708292
+        ],
+        [
+          120.58305492003758,
+          136.6120328505834
+        ]
+      ],
+      "happyExteriorSkinCrossingPairs": 0,
+      "happyOppositeNormalExteriorTriangles": 4,
+      "happyLowerTeethRigidRmsMm": 0.11527799650554484,
+      "happyUpperTeethRigidRmsMm": 3.654077909933637e-15
+    }
+  ],
+  "limits": [
+    "Six labels share one latent sample and cannot measure identity diversity or likeness.",
+    "The 68 landmarks are not certified clinical caliper sites; no population ranges were adopted.",
+    "Only exterior skin self-crossings were read; inter-component contact remains untested.",
+    "The HAPPY expression and source template do not establish all expressions or intermediate strengths.",
+    "Opposite normals and proper triangle crossings answer different questions."
+  ]
+}

@@ -17,14 +17,17 @@
  * median of the middle half between its outer and inner landmarks (0 and
  * 13, 14 and 17). Colour here is chroma alone, a* and b*: the shadow below
  * the lower lip and the philtrum's shading change lightness, not
- * haemoglobin's redness. Each border is the first sample, from the skin
- * toward the lip within `WINDOW` of the detector's outer lip landmark (above
- * or below it) and the middle of the lip, whose chroma lies nearer the
- * lip's than the skin's and more than halfway from the skin's to the lip's.
- * A lip whose chroma differs from its skin's by less than `CONTRAST` (a
- * monochrome print; a lip no redder than its skin) is not read, nor a
- * border the window does not hold (its first sample already lip, or none
- * lip).
+ * haemoglobin's redness. Each border is the first sample from skin toward
+ * the inner lip whose chroma lies nearer the lip's than the skin's and more
+ * than halfway from skin to lip. For the lower border, the search reaches
+ * beyond the detector's outer point by that lip's own detector height;
+ * a distant red chin cannot stand in for the border. The upper search keeps
+ * its narrower detector window because the philtrum and nasal shadow can
+ * resemble lip chroma outside it. The class medians must separate by more
+ * than their combined within-region chroma deviations. A monochrome image
+ * or a search that starts on lip remains unread. A coloured outlier in one
+ * column or profile row cannot turn a monochrome reference into colour;
+ * both the row and the reference region require a chromatic majority.
  *
  * Pure: the image and points are read, never mutated.
  */
@@ -56,10 +59,9 @@ const COLUMNS = [-0.03, -0.02, -0.01, 0.01, 0.02, 0.03];
 const STEP = 0.002;
 /** The skin's samples lie 0.15 to this far beyond the outer landmarks. */
 const REACH = 0.35;
-/** How far beyond the detector's outer landmark a border is sought. */
-const WINDOW = 0.08;
-/** The least chroma difference between lip and skin, CIELAB units. */
-const CONTRAST = 4;
+/** Retained upper-lip search and chroma floor; its wider search sees philtrum. */
+const UPPER_WINDOW = 0.08;
+const UPPER_CONTRAST = 4;
 
 /** Read the vermilion's midline borders of a portrait. */
 export function measureFaceLikenessVermilion(
@@ -93,8 +95,13 @@ export function measureFaceLikenessVermilion(
   const [outerTop, innerTop, innerBottom, outerBottom] = [0, 13, 14, 17].map(
     along,
   ) as [number, number, number, number];
-  const samples: { t: number; chroma: [number, number] }[] = [];
+  const samples: {
+    t: number;
+    chroma: [number, number];
+    chromatic: boolean;
+  }[] = [];
   for (let t = outerTop - REACH; t <= outerBottom + REACH; t += STEP) {
+    let chromaticColumns = 0;
     const labs = COLUMNS.flatMap((offset) => {
       const x = Math.round(
         centre[0] + (t * down[0]! + offset * across[0]!) * iod,
@@ -104,6 +111,11 @@ export function measureFaceLikenessVermilion(
       );
       if (x < 0 || y < 0 || x >= image.width || y >= image.height) return [];
       const index = 3 * (y * image.width + x);
+      if (
+        image.rgb[index] !== image.rgb[index + 1] ||
+        image.rgb[index + 1] !== image.rgb[index + 2]
+      )
+        chromaticColumns++;
       return [
         faceLikenessSrgbToLab(
           image.rgb[index]!,
@@ -115,45 +127,69 @@ export function measureFaceLikenessVermilion(
     if (labs.length === 0) continue;
     samples.push({
       t,
+      chromatic: chromaticColumns > labs.length / 2,
       chroma: [
         faceLikenessMedian(labs.map((lab) => lab[1]))!,
         faceLikenessMedian(labs.map((lab) => lab[2]))!,
       ],
     });
   }
-  const colour = (from: number, to: number): [number, number] | null => {
+  const distance = (
+    a: readonly [number, number],
+    b: readonly [number, number],
+  ) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const colour = (
+    from: number,
+    to: number,
+  ): {
+    chroma: [number, number];
+    deviation: number;
+    chromatic: boolean;
+  } | null => {
     const within = samples.filter(({ t }) => t >= from && t <= to);
-    return within.length === 0
-      ? null
-      : [
-          faceLikenessMedian(within.map(({ chroma }) => chroma[0]))!,
-          faceLikenessMedian(within.map(({ chroma }) => chroma[1]))!,
-        ];
+    if (within.length === 0) return null;
+    const chroma: [number, number] = [
+      faceLikenessMedian(within.map((sample) => sample.chroma[0]))!,
+      faceLikenessMedian(within.map((sample) => sample.chroma[1]))!,
+    ];
+    return {
+      chroma,
+      chromatic:
+        faceLikenessMedian(within.map((sample) => Number(sample.chromatic)))! >
+        0.5,
+      deviation: faceLikenessMedian(
+        within.map((sample) => distance(sample.chroma, chroma)),
+      )!,
+    };
   };
-  const distance = (a: readonly [number, number], b: [number, number]) =>
-    Math.hypot(a[0] - b[0], a[1] - b[1]);
   const point = (t: number): FaceLikenessPoint => [
     centre[0] + t * iod * down[0]!,
     centre[1] + t * iod * down[1]!,
   ];
-  // One border: the first sample from the skin's side within the window
-  // nearer the lip's chroma than the skin's and past halfway to it.
+  // An observation needs separated colour populations and a skin-side
+  // transition within one detector-estimated lip height of its outer point.
   const border = (
-    skin: [number, number] | null,
-    lip: [number, number] | null,
+    skin: ReturnType<typeof colour>,
+    lip: ReturnType<typeof colour>,
     from: number,
     to: number,
+    minimumContrast: number,
   ): FaceLikenessPoint | null => {
-    if (skin === null || lip === null) return null;
-    const contrast = distance(lip, skin);
-    if (contrast < CONTRAST) return null;
+    if (skin === null || lip === null || (!skin.chromatic && !lip.chromatic))
+      return null;
+    const contrast = distance(lip.chroma, skin.chroma);
+    if (
+      contrast < minimumContrast ||
+      contrast <= skin.deviation + lip.deviation
+    )
+      return null;
     const order = samples.filter(
       ({ t }) => t >= Math.min(from, to) && t <= Math.max(from, to),
     );
     if (from > to) order.reverse();
     const lipLike = ({ chroma }: { chroma: [number, number] }) =>
-      distance(chroma, skin) > contrast / 2 &&
-      distance(chroma, lip) < distance(chroma, skin);
+      distance(chroma, skin.chroma) > contrast / 2 &&
+      distance(chroma, lip.chroma) < distance(chroma, skin.chroma);
     // A window that starts on the lip does not hold its border.
     if (order.length === 0 || lipLike(order[0]!)) return null;
     const found = order.find(lipLike);
@@ -166,8 +202,9 @@ export function measureFaceLikenessVermilion(
         outerTop + 0.25 * (innerTop - outerTop),
         outerTop + 0.75 * (innerTop - outerTop),
       ),
-      outerTop - WINDOW,
+      outerTop - UPPER_WINDOW,
       (outerTop + innerTop) / 2,
+      UPPER_CONTRAST,
     ),
     inferius: border(
       colour(outerBottom + 0.15, outerBottom + REACH),
@@ -175,8 +212,9 @@ export function measureFaceLikenessVermilion(
         innerBottom + 0.25 * (outerBottom - innerBottom),
         innerBottom + 0.75 * (outerBottom - innerBottom),
       ),
-      outerBottom + WINDOW,
-      (innerBottom + outerBottom) / 2,
+      outerBottom + (outerBottom - innerBottom),
+      innerBottom,
+      0,
     ),
   };
 }
