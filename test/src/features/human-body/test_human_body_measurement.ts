@@ -122,6 +122,11 @@ export const test_human_body_measurement = (): void => {
     side: "positive",
     channel: "measureWaistCirc",
   };
+  waist.basis.channels[1].id = "macroHeight";
+  waist.basis.correctives![0].inputs[1] = {
+    side: "positive",
+    channel: "macroHeight",
+  };
   const rules = measureHumanBodyBasisChannels(waist.basis);
   const girth = rules.find(
     (channel) => channel.id === "measureWaistCirc",
@@ -132,6 +137,14 @@ export const test_human_body_measurement = (): void => {
       nclose(girth.neutral!, 1.2) &&
       nclose(girth.positive!, 1.4) &&
       nclose(girth.negative!, 1.12),
+  );
+  const sharedHeight = rules.find(
+    (channel) => channel.id === "macroHeight",
+  )!.measurement!;
+  TestValidator.predicate(
+    "two anatomical rules read the same neutral shape",
+    nclose(sharedHeight.neutral!, 2) &&
+      nclose(sharedHeight.positive!, 2.5),
   );
   const tall = humanBodyBasisFixture();
   tall.basis.channels[1].id = "macroHeight";

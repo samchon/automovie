@@ -15,7 +15,9 @@ import type { IAutoMovieHumanBodySimplePosture } from "../structures/IAutoMovieH
  * - **Carriage.** The added kyphosis is flexion of the two thoracic joints,
  *   half each, and the neck extends by as much, within its range, so the
  *   head keeps its orientation and the gaze stays level while the head is
- *   carried forward.
+ *   carried forward. That joint split and neck compensation are authored rig
+ *   approximations; Koelé et al. report population Cobb angles, not these
+ *   two joint rotations or an individual cervical response.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Holds the age posture the simple tier derives, as numbers a user can audit against their sources.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Fixes the kyphosis by sex and age, the thoracic joints' shares and the compensating neck.

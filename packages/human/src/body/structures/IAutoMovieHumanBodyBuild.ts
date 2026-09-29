@@ -16,7 +16,11 @@ import type {
  * skinned static model the viewer draws and the static exporter accepts: its
  * parts carry no bone bindings and it has no skeleton, because the pose has
  * already been applied. `skeleton` is the rest skeleton of the shaped body,
- * and `bones` pairs each joint's rest and posed world transforms.
+ * and `bones` pairs each joint's rest and posed world transforms. The posed
+ * shared skin stays beside the render model in its original basis vertex
+ * order: garment cutting and contact partitioning read one connected answer
+ * before UV seams and materials duplicate its corners. Its arrays belong to
+ * this build and are not a second stored body document.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Exposes the rest and posed joint transforms so a consumer can verify that skinned vertices followed their bone's arc.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Returns the rest skeleton and per-bone world transforms the skinning formula composed.
@@ -25,6 +29,9 @@ import type {
 export interface IAutoMovieHumanBodyBuild {
   /** Posed static model: skinless parts, no skeleton, validated as a resident model. */
   model: IAutoMovieModel;
+
+  /** Posed connected skin per basis surface, before render/material splitting. */
+  posedSurfaces: { positions: number[]; normals: number[] }[];
 
   /** Rest skeleton of the shaped body, before the document's pose. */
   skeleton: IAutoMovieSkeleton;

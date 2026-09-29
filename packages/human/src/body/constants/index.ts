@@ -7,3 +7,4 @@ export * from "./HUMAN_BODY_SKIN_TONE";
 export * from "./HUMAN_BODY_SKIN_RELIEF_POSE";
 export * from "./HUMAN_BODY_SKIN_SCATTERING";
 export * from "./HUMAN_BODY_UNDERWEAR";
+export * from "./HUMAN_BODY_ANSUR_II_REFERENCE";

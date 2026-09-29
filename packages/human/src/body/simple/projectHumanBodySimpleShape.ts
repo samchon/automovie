@@ -1,17 +1,23 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
+import { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
+import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
+import { humanBodySimpleStature } from "./humanBodySimpleStature";
+import { humanBodySimpleVolume } from "./humanBodySimpleVolume";
 
 /** Iterations of the mass and fat fixed point; the density moves little per step. */
 const MASS_ITERATIONS = 4;
 
 /**
  * Read the simple tier back off a detailed shape: what a body's channel
- * weights say its sex, age, stature, mass, muscle and tape measurements are.
+ * weights say its legacy sex/muscle controls, age, stature, mass, six exterior
+ * girths and rig shoulder-centre distance are.
  *
- * Stature and the tape measurements are measured on the shaped body; mass is
+ * Stature, girths and the shoulder-joint distance are read on the shaped
+ * body; mass is
  * the skin volume at the density of the fat the body's own sex, age and
  * mass imply, over the age-dependent head-and-neck share and iterated to its
  * fixed point; sex, age and muscle read their
@@ -22,6 +28,9 @@ const MASS_ITERATIONS = 4;
  * measurements to read (all by default). This is the projection the editor shows and
  * the expansion subtracts, so a simple edit keeps whatever the detailed
  * shape carried that the simple tier does not name.
+ * The physical readings share one evaluated rest skin and landmark set;
+ * identity curves and the mass fixed point consume those same values without
+ * silently changing the candidate body between two tape sites.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Reads the identity-card values and tape measurements back from any detailed shape, so a simple edit changes only what it names.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the measured readings, the mass fixed point and the inverse-first-row identity reading the specification states.
@@ -39,7 +48,8 @@ export function projectHumanBodySimpleShape(
     channels.has(channel) ? (shape[channel] ?? 0) : 0;
   const firstRow = (channel: string) =>
     table.terms.find((row) => row.channel === channel)!;
-  const statureMetres = measure.stature(basis, shape);
+  const reader = createHumanBodyMeasurementReader(basis, shape);
+  const statureMetres = humanBodySimpleStature(reader);
   const sex = math.invertCurve(
     firstRow(table.identity.sex).curves[0].points,
     weight(table.identity.sex) / firstRow(table.identity.sex).gain,
@@ -49,7 +59,7 @@ export function projectHumanBodySimpleShape(
     weight(table.identity.ageYears) / firstRow(table.identity.ageYears).gain,
   );
   // the mass and the fat fraction that sets its density depend on each other
-  const volume = measure.volume(basis, shape);
+  const volume = humanBodySimpleVolume(basis, reader.shaped);
   let massKilograms = measure.mass(
     volume,
     math.density(table.mass.fatFraction[0] * 100),
@@ -91,7 +101,7 @@ export function projectHumanBodySimpleShape(
   for (const entry of table.measurements) {
     if (!measurements.includes(entry.parameter) || !channels.has(entry.channel))
       continue;
-    const value = measure.channel(basis, shape, entry.channel);
+    const value = humanBodySimpleChannel(reader, entry.channel);
     if (value !== null) simple[entry.parameter] = value;
   }
   return simple;

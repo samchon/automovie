@@ -15,6 +15,8 @@ interface CappedSurface {
   assertGeometry(): void;
   overlaps(other: CappedSurface): boolean;
   interiorPoint(): number[];
+  /** Solid-angle containment in this oriented capped metre surface. */
+  contains(point: number[]): boolean;
 }
 
 /**
@@ -60,11 +62,25 @@ export function humanBodyCappedSurface(
   const caps = mesh(capIndices);
   const at = (v: number): number[] => closedPositions.slice(v * 3, v * 3 + 3);
   let signedVolume = 0;
+  // The oriented tetrahedron sum V = Σ a · (b × c) / 6. Read each corner
+  // from the resident arrays: inverse mass projection repeats this exact
+  // sum for every candidate shape, while allocating three corner arrays and
+  // a cross-product array per triangle adds no geometry information.
   for (let i = 0; i < closedIndices.length; i += 3) {
-    const a = at(closedIndices[i]);
-    const b = at(closedIndices[i + 1]);
-    const c = at(closedIndices[i + 2]);
-    signedVolume += dot(a, cross(b, c)) / 6;
+    const a = closedIndices[i] * 3;
+    const b = closedIndices[i + 1] * 3;
+    const c = closedIndices[i + 2] * 3;
+    signedVolume +=
+      (closedPositions[a] *
+        (closedPositions[b + 1] * closedPositions[c + 2] -
+          closedPositions[b + 2] * closedPositions[c + 1]) +
+        closedPositions[a + 1] *
+          (closedPositions[b + 2] * closedPositions[c] -
+            closedPositions[b] * closedPositions[c + 2]) +
+        closedPositions[a + 2] *
+          (closedPositions[b] * closedPositions[c + 1] -
+            closedPositions[b + 1] * closedPositions[c])) /
+      6;
   }
   const volume = Math.abs(signedVolume);
   const interiorPoint = (): number[] => {
@@ -93,6 +109,7 @@ export function humanBodyCappedSurface(
     volume,
     signedVolume,
     interiorPoint,
+    contains: (point) => inside(closed, point),
     assertGeometry(): void {
       if (!Number.isFinite(volume) || volume === 0)
         throw new Error("A capped body surface needs positive volume.");
@@ -299,6 +316,14 @@ function coplanarOverlapArea(
   return Math.abs(twiceArea) / 2;
 }
 
+/**
+ * Select the current skin faces whose AABBs can meet a boundary cap.
+ *
+ * This is a broad phase only; the exact triangle test in `assertGeometry`
+ * still decides contact. The direct XYZ scan preserves the same inclusive
+ * AABB condition while avoiding temporary vertex and axis arrays for every
+ * face in each measured-mass inverse trial.
+ */
 function nearCapTriangles(
   positions: number[],
   source: number[],
@@ -314,16 +339,20 @@ function nearCapTriangles(
     }
   const nearby: number[] = [];
   for (let i = 0; i < source.length; i += 3) {
-    const vertices = source.slice(i, i + 3);
-    if (
-      [0, 1, 2].every((axis) => {
-        const values = vertices.map((vertex) => positions[vertex * 3 + axis]);
-        return (
-          Math.max(...values) >= low[axis] && Math.min(...values) <= high[axis]
-        );
-      })
-    )
-      nearby.push(...vertices);
+    const a = source[i];
+    const b = source[i + 1];
+    const c = source[i + 2];
+    let overlaps = true;
+    for (let axis = 0; axis < 3; axis++) {
+      const x = positions[a * 3 + axis];
+      const y = positions[b * 3 + axis];
+      const z = positions[c * 3 + axis];
+      if (Math.max(x, y, z) < low[axis] || Math.min(x, y, z) > high[axis]) {
+        overlaps = false;
+        break;
+      }
+    }
+    if (overlaps) nearby.push(a, b, c);
   }
   return nearby;
 }

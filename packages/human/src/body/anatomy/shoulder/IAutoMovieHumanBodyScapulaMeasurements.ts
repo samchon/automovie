@@ -1,0 +1,24 @@
+import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
+import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
+
+/**
+ * Target or observed dimensions of one scapula behind the thorax.
+ *
+ * The glenoid articulates with the humeral head and the acromion with the
+ * clavicle; the scapulothoracic glide is a separate motion of this bone over
+ * the rib cage. A skin shoulder point does not settle its angle, shape or
+ * landmarks. Marques et al. (doi:10.1007/s10439-025-03768-1) reconstruct a
+ * CT scapula from several palpated skin landmarks and a statistical model;
+ * neither that model nor those landmarks exist in the current exterior basis.
+ * These scalars therefore cannot masquerade as a resolved scapula.
+ * @author Samchon
+ */
+export type IAutoMovieHumanBodyScapulaMeasurements =
+  AutoMovieHumanBodyNonemptyMeasurements<{
+  boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+  /** Maximum bony superior-inferior span on an imaged scapula. */
+  height?: IAutoMovieHumanBodyAnatomicalLength;
+  /** Maximum bony medial-lateral span, not shoulder breadth through skin. */
+  breadth?: IAutoMovieHumanBodyAnatomicalLength;
+  }>;

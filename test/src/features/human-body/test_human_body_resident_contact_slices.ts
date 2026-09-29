@@ -57,12 +57,18 @@ export const test_human_body_resident_contact_slices =
       operation: "preview",
       document: text,
       measure: true,
+      anatomy: true,
     });
     if (whole.operation !== "preview") throw new Error("Expected preview.");
     TestValidator.equals(
       "sliced reading equals one call",
       whole.crossings,
       expected,
+    );
+    TestValidator.equals(
+      "crossed skin has no anatomical interior reading",
+      whole.anatomy,
+      { status: "unavailable", reason: "skin-crossing" },
     );
     const everyPair = await createConnectedBodyRuntime(basis, { sliceMs: 0 })({
       operation: "preview",
