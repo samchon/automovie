@@ -1,6 +1,6 @@
 # @automovie/website
 
-The public site at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/): an architectural collection showing the ancient civic temple, medieval baron manor, modern suburban house, and future citizen house. All four have exterior and interior galleries. The manor also has an interactive 3D tour.
+The public site at [samchon.github.io/automovie](https://samchon.github.io/automovie/): an architectural collection showing the ancient civic temple, medieval baron manor, modern suburban house, and future citizen house. All four have exterior and interior galleries. The manor also has an interactive 3D tour.
 
 The collection uses actual production captures. Its static articles own the copy, images, and links; the gallery enhances the image links with a native modal, view buttons, arrow-key navigation, and previous/next building controls. Escape or a backdrop click closes it and restores focus. Without JavaScript or native dialog support, each image link still opens its capture. See [capture provenance](public/shots/README.md) for the source of each image.
 

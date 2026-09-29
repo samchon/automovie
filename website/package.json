@@ -2,7 +2,7 @@
   "private": true,
   "name": "@automovie/website",
   "version": "0.1.0",
-  "description": "automovie website: the public showcase published at https://samchon.github.io/AutoMovie/",
+  "description": "automovie website: the public showcase published at https://samchon.github.io/automovie/",
   "type": "module",
   "exports": {
     "./gallery": "./src/gallery.ts",
@@ -20,7 +20,7 @@
     "type": "git",
     "url": "https://github.com/samchon/automovie"
   },
-  "homepage": "https://samchon.github.io/AutoMovie/",
+  "homepage": "https://samchon.github.io/automovie/",
   "dependencies": {
     "@automovie/viewer": "workspace:^",
     "medieval-baron-manor": "workspace:*",
