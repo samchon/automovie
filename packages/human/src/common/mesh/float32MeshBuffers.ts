@@ -1,5 +1,8 @@
-import { Vector3, weldedDegenerateTriangles } from "@automovie/engine";
+import { weldedDegenerateTriangles } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
+
+import { assertDirection } from "./assertDirection";
+import { triangleAreaVector } from "./triangleAreaVector";
 
 /**
  * Materialize the shared preview/glTF precision boundary and refuse surface loss.
@@ -66,42 +69,11 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh): {
   for (let face = 0; face < indices.length; face += 3) {
     if (degenerate.has(face / 3)) continue;
     assertDirection(
-      triangleArea(mesh.positions, indices, face),
-      triangleArea(positions, indices, face),
+      triangleAreaVector(mesh.positions, indices, face),
+      triangleAreaVector(positions, indices, face),
       face / 3,
       "Float32 conversion",
     );
   }
   return { positions, normals, uvs, indices };
-}
-
-function triangleArea(
-  values: ArrayLike<number>,
-  indices: ArrayLike<number>,
-  face: number,
-) {
-  const point = (id: number) =>
-    Vector3.create(values[3 * id], values[3 * id + 1], values[3 * id + 2]);
-  const [a, b, c] = [indices[face], indices[face + 1], indices[face + 2]].map(
-    point,
-  );
-  return Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a));
-}
-
-function assertDirection(
-  before: { x: number; y: number; z: number },
-  after: { x: number; y: number; z: number },
-  face: number,
-  stage: string,
-): void {
-  const beforeLength = Math.hypot(before.x, before.y, before.z);
-  const afterLength = Math.hypot(after.x, after.y, after.z);
-  const agreement =
-    (before.x / beforeLength) * (after.x / afterLength) +
-    (before.y / beforeLength) * (after.y / afterLength) +
-    (before.z / beforeLength) * (after.z / afterLength);
-  if (!(agreement > 0))
-    throw new Error(
-      `Portrait ${stage} must preserve nonredundant triangle ${face}.`,
-    );
 }
