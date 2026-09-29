@@ -34,6 +34,8 @@ export function placeHumanObservationCamera(
   target: readonly [number, number, number],
   distance: number,
 ): { position: [number, number, number]; target: [number, number, number] } {
+  if (!Object.hasOwn(DIRECTIONS, view))
+    throw new Error(`Unknown observation view "${String(view)}".`);
   const { azimuth, elevation } = DIRECTIONS[view];
   const a = (azimuth * Math.PI) / 180;
   const e = (elevation * Math.PI) / 180;

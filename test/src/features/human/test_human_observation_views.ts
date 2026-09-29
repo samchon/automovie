@@ -19,6 +19,7 @@ import { nclose } from "../internal/predicates";
  * 3. Negative twin: a left view is the mirror of the right view across the
  *    sagittal plane, not the same camera, and the front is not the back.
  * 4. The distance scales the offset linearly.
+ * 5. Negative twin: a name outside the eight views throws with the name.
  */
 export const test_human_observation_views = (): void => {
   const target: [number, number, number] = [0.1, 1.2, -0.3];
@@ -70,6 +71,13 @@ export const test_human_observation_views = (): void => {
     "front is not back",
     !near(offset("front"), offset("back")),
   );
+  let refusal = "";
+  try {
+    placeHumanObservationCamera("sideways" as never, target, 2);
+  } catch (error) {
+    refusal = (error as Error).message;
+  }
+  TestValidator.predicate("unknown view is refused by name", refusal.includes("sideways"));
   TestValidator.predicate(
     "the offset scales with the distance",
     near(offset("left-three-quarter", 4), offset("left-three-quarter").map((v) => 2 * v)),

@@ -25,6 +25,8 @@ import * as THREE from "three";
  * 5. Negative twin: a pass other than outline creates no rim, and applying the
  *    outline twice does not stack rims.
  * 6. A rim of a discarded group is forgotten when the group is replaced.
+ * 7. Negative twin: an unknown pass name throws with the name and leaves the
+ *    previous pass in force, instead of silently drawing the product frame.
  */
 export const test_human_observation_passes = (): void => {
   const scene = new THREE.Scene();
@@ -145,6 +147,14 @@ export const test_human_observation_passes = (): void => {
   hooks.pass("beauty");
   apply();
   TestValidator.equals("beauty removes the rims", rims(second).length, 0);
+  let refusal = "";
+  try {
+    hooks.pass("shiny" as never);
+  } catch (error) {
+    refusal = (error as Error).message;
+  }
+  TestValidator.predicate("unknown pass is refused by name", refusal.includes("shiny"));
+  TestValidator.equals("previous pass stays", hooks.state().pass, "beauty");
   TestValidator.predicate(
     "beauty gives every mesh its own material back",
     (c.material as THREE.MeshBasicMaterial).color.getHex() !== 0xffffff &&

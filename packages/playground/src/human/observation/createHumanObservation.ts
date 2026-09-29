@@ -60,6 +60,9 @@ export function createHumanObservation(host: {
   let pass: HumanObservationPass = "beauty";
   let isolated: Set<string> | null = null;
   const hidden = new Set<string>();
+  // the meshes this stage hid, so that it restores only those and never
+  // shows a mesh something else hid
+  const hiddenByUs = new Set<THREE.Mesh>();
   // nothing is written to the scene until a hook is used
   let engaged = false;
   const materials: Record<
@@ -155,6 +158,10 @@ void main() {
     orbit.update();
   };
 
+  const unmatched = (ids: readonly string[] | null): string[] => {
+    const names = new Set(meshes().map((mesh) => mesh.name));
+    return (ids ?? []).filter((id) => !names.has(id));
+  };
   const hooks = {
     /**
      * Place the display camera exactly: position and target in metres,
@@ -206,21 +213,32 @@ void main() {
       });
     },
 
-    /** Show only the named parts, or every part again with `null`. */
-    isolate: (ids: readonly string[] | null): void => {
+    /**
+     * Show only the named parts, or every part this stage hid again with
+     * `null`. Returns the names no displayed part carries, so a misspelled
+     * name shows as an unmatched entry and not as a blank frame.
+     */
+    isolate: (ids: readonly string[] | null): string[] => {
       engaged = true;
       isolated = ids === null ? null : new Set(ids);
+      return unmatched(ids);
     },
 
-    /** Hide the named parts, or show every hidden part again with `null`. */
-    hide: (ids: readonly string[] | null): void => {
+    /**
+     * Hide the named parts, or show every part this stage hid again with
+     * `null`. Returns the names no displayed part carries.
+     */
+    hide: (ids: readonly string[] | null): string[] => {
       engaged = true;
       hidden.clear();
       for (const id of ids ?? []) hidden.add(id);
+      return unmatched(ids);
     },
 
     /** Choose how the subject is drawn; `beauty` restores the product frame. */
     pass: (next: HumanObservationPass): void => {
+      if (!["beauty", "clay", "outline", ...Object.keys(materials)].includes(next))
+        throw new Error(`Unknown observation pass "${String(next)}".`);
       engaged = true;
       pass = next;
     },
@@ -257,10 +275,18 @@ void main() {
     apply: (): void => {
       if (!engaged) return;
       const shown = meshes();
-      for (const mesh of shown)
-        mesh.visible =
+      for (const mesh of shown) {
+        const wanted =
           (isolated === null || isolated.has(mesh.name)) &&
           !hidden.has(mesh.name);
+        if (!wanted && mesh.visible) {
+          mesh.visible = false;
+          hiddenByUs.add(mesh);
+        } else if (wanted && hiddenByUs.delete(mesh)) mesh.visible = true;
+      }
+      // a mesh that left the roots is not this stage's to keep hidden
+      for (const mesh of hiddenByUs)
+        if (!shown.includes(mesh)) hiddenByUs.delete(mesh);
       const seen = pass === "depth" || pass === "outline" ? subject() : null;
       if (pass === "depth" && seen !== null) {
         const distance = camera.position.distanceTo(seen.center);
