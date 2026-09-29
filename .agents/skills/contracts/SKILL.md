@@ -9,7 +9,7 @@ Each chapter of a checklist below is a question that a declaration answers about
 
 Product promises and system contracts stay with the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract with the scaffold's shipped `contract` skill.
 
-An answer explains why the approach is appropriate, the assumptions it relies on and any unresolved departure. It does not certify outputs or claim that tests passed, and it states a real limitation instead of declaring compliance. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations). Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter, because excluding a whole checklist file would bypass every chapter in it.
+An answer explains why the approach is appropriate, the assumptions it relies on and any unresolved departure. It does not certify outputs or claim that tests passed, and it states a real limitation instead of declaring compliance. Answer only what has been done: a chapter whose work is still open stays unanswered, and the missing answer is the todo. Keep open defects in the task's issue or worklog and never in the declaration, because a status comment goes stale. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations). Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter, because excluding a whole checklist file would bypass every chapter in it.
 
 Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another. Types and functions are selected, and private helpers are reviewed with their owner.
 
@@ -19,7 +19,7 @@ Principled implementation, clear and simple design, prohibited shortcuts and mea
 
 ## [Modeling Principles](modeling.md)
 
-Part identity and grouping, parameter channels, emitted geometry, spatial conventions and shared boundaries. Read when the declaration defines, builds or measures a form.
+Part identity and grouping, parameter channels, emitted geometry, spatial conventions, shared boundaries and rendered observation. Read when the declaration defines, builds or measures a form.
 
 ## [Anatomical Principles](anatomy.md)
 
@@ -30,4 +30,4 @@ Anatomical source, permitted range and parametric authority. Read when the decla
 - Give each question one chapter owner across all three files, and extend the owning chapter instead of adding a second one.
 - Keep each chapter an H2 with a stable anchor. The common chapters apply to every enrolled declaration, and every other chapter opens with an `Apply to` sentence.
 - Keep links out of the checklist files so each stays readable on its own.
-- Write under the [documentation skill](../documentation/SKILL.md) and review a changed checklist under its instruction-diff rounds.
+- Write and review a changed checklist under the documentation skill's [instructions document](../documentation/instructions.md).
