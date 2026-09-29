@@ -4,7 +4,7 @@ import {
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
-import { mountConnectedFacePanel } from "@automovie/playground/src/human/connectedPanel";
+import { mountConnectedFacePanel } from "@automovie/playground/src/human/face/connectedPanel";
 import { JSDOM } from "jsdom";
 
 import { humanFaceBasisFixture } from "./humanFaceBasisFixture";

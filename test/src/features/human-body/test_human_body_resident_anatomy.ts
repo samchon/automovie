@@ -1,5 +1,5 @@
 import { serializeHumanBodyBasisDocument } from "@automovie/human";
-import { createConnectedBodyRuntime } from "@automovie/playground/src/human/connectedBodyRuntime";
+import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanBodyShoulderFixture } from "../internal/humanBodyShoulderFixture";

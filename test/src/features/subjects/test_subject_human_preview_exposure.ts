@@ -5,7 +5,7 @@ import {
   balanceHumanPreviewRig,
   humanPreviewGreyCard,
   humanPreviewLinearExposure,
-} from "@automovie/playground/src/human/previewExposure";
+} from "@automovie/playground/src/human/common/previewExposure";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

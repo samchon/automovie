@@ -9,7 +9,7 @@
  * not physiological validity, likeness or interactive parameter-assignment time.
  */
 import type { IAutoMovieHumanFaceBasis } from "@automovie/human";
-import { createConnectedFaceRuntime } from "@automovie/playground/src/human/connectedRuntime";
+import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";

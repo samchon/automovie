@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyChannelScale } from "@automovie/human";
-import { renderBodyMeasuredControls } from "@automovie/playground/src/human/bodyMeasuredControls";
+import { renderBodyMeasuredControls } from "@automovie/playground/src/human/body/bodyMeasuredControls";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

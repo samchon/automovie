@@ -1,7 +1,7 @@
 import { validateModel } from "@automovie/engine";
 import { createHumanFaceBasisBuilder } from "@automovie/human";
 import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
-import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
+import { createConnectedFaceRenderer } from "@automovie/playground/src/human/face/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

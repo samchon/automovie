@@ -1,5 +1,5 @@
-import { bodyAnatomyReading } from "@automovie/playground/src/human/bodyAnatomyReading";
-import { packHumanBodyHumeralHeadReading } from "@automovie/playground/src/human/packHumanBodyHumeralHeadReading";
+import { bodyAnatomyReading } from "@automovie/playground/src/human/body/bodyAnatomyReading";
+import { packHumanBodyHumeralHeadReading } from "@automovie/playground/src/human/body/packHumanBodyHumeralHeadReading";
 import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
 

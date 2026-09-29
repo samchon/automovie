@@ -16,7 +16,7 @@ import type {
   ConnectedBodyModel,
   ConnectedBodyPart,
 } from "./connectedBodyProtocol";
-import { prepareHumanPreview } from "./previewScene";
+import { prepareHumanPreview } from "../common/previewScene";
 
 type Resident = {
   group: THREE.Group;

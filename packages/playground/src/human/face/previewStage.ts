@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { addHumanPreviewRig } from "./previewRig";
-import { createHumanPreviewCamera } from "./previewScene";
+import { addHumanPreviewRig } from "../common/previewRig";
+import { createHumanPreviewCamera } from "../common/previewScene";
 
 /**
  * Own display state independently of numerical evaluation and file encoding.

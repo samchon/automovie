@@ -13,9 +13,9 @@ import type {
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-import { createHumanPreviewCamera } from "./previewScene";
-import type { HumanResidentPort } from "./residentWorker";
-import type { createHumanViewport } from "./viewport";
+import { createHumanPreviewCamera } from "../common/previewScene";
+import type { HumanResidentPort } from "../common/residentWorker";
+import type { createHumanViewport } from "../common/viewport";
 
 type Host = Pick<
   Parameters<typeof createHumanViewport>[0],

@@ -3,7 +3,7 @@ import {
   parseHumanBodyBasisDocument,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
-import { renderBodyHumeralHeadControls } from "@automovie/playground/src/human/bodyHumeralHeadControls";
+import { renderBodyHumeralHeadControls } from "@automovie/playground/src/human/body/bodyHumeralHeadControls";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

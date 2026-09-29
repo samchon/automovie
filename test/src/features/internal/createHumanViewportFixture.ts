@@ -1,5 +1,5 @@
 import { serializeHumanFaceDocument } from "@automovie/human";
-import { createHumanViewport } from "@automovie/playground/src/human/viewport";
+import { createHumanViewport } from "@automovie/playground/src/human/common/viewport";
 import * as THREE from "three";
 
 type Options = Parameters<typeof createHumanViewport>[0];

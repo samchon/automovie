@@ -5,12 +5,12 @@
  * filename template would also package historical personal data in the directory.
  * Numerical documents never select an external resource.
  */
-import { readConnectedFaceAsset } from "./human/connectedAsset";
+import { readConnectedFaceAsset } from "./human/common/connectedAsset";
 import {
   type ConnectedFaceRequest,
   createConnectedFaceRuntime,
-} from "./human/connectedRuntime";
-import { createHumanResidentHandler } from "./human/residentHandler";
+} from "./human/common/connectedRuntime";
+import { createHumanResidentHandler } from "./human/common/residentHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const prepared = readConnectedFaceAsset({

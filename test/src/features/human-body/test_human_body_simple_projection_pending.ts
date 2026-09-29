@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
-import { renderBodySimpleControls } from "@automovie/playground/src/human/bodySimpleControls";
-import { createBodyIntentGate } from "@automovie/playground/src/human/createBodyIntentGate";
+import { renderBodySimpleControls } from "@automovie/playground/src/human/body/bodySimpleControls";
+import { createBodyIntentGate } from "@automovie/playground/src/human/body/createBodyIntentGate";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

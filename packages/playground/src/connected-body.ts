@@ -30,21 +30,21 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-import { createBodySimpleWorkerTransport } from "./human/bodySimpleWorkerTransport";
+import { createBodySimpleWorkerTransport } from "./human/body/bodySimpleWorkerTransport";
 import {
   readConnectedAssetRevision,
   readConnectedFaceAsset,
-} from "./human/connectedAsset";
-import { mountConnectedBodyPanel } from "./human/connectedBodyPanel";
-import { createConnectedBodyPort } from "./human/connectedBodyPort";
-import { createConnectedBodyViewport } from "./human/connectedBodyViewport";
+} from "./human/common/connectedAsset";
+import { mountConnectedBodyPanel } from "./human/body/connectedBodyPanel";
+import { createConnectedBodyPort } from "./human/body/connectedBodyPort";
+import { createConnectedBodyViewport } from "./human/body/connectedBodyViewport";
 import type {
   ConnectedFaceRequest,
   ConnectedFaceResult,
-} from "./human/connectedRuntime";
-import { prepareHumanPreview } from "./human/previewScene";
-import { createHumanResidentPort } from "./human/residentPort";
-import { createHumanResidentWorker } from "./human/residentWorker";
+} from "./human/common/connectedRuntime";
+import { prepareHumanPreview } from "./human/common/previewScene";
+import { createHumanResidentPort } from "./human/common/residentPort";
+import { createHumanResidentWorker } from "./human/common/residentWorker";
 
 type Transform = {
   position: IAutoMovieVector3;

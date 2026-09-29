@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanFaceComponentTree } from "@automovie/human";
-import { mountConnectedFaceControls } from "@automovie/playground/src/human/connectedControls";
+import { mountConnectedFaceControls } from "@automovie/playground/src/human/face/connectedControls";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

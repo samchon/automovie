@@ -5,19 +5,11 @@ import type { ITtscLintConfig } from "@ttsc/lint";
 const prototypeSources = ["src/**/*.ts", "!src/human/**/*.ts"];
 /**
  * The body editor's own adapters, which answer for the body contract and not
- * the face's: every `body*` and `connectedBody*` module under `src/human` and
- * the body's intent gate. Derived by pattern so a new body adapter answers
- * for the body contract from the moment it exists.
+ * the face's: every module under `src/human/body`. Derived by folder so a new
+ * body adapter answers for the body contract from the moment it exists.
  */
-const bodySources = [
-  "src/human/body*.ts",
-  "src/human/connectedBody*.ts",
-  "src/human/createBodyIntentGate.ts",
-];
-const faceSources = [
-  "src/human/**/*.ts",
-  ...bodySources.map((one) => "!" + one),
-];
+const bodySources = ["src/human/body/**/*.ts"];
+const faceSources = ["src/human/**/*.ts", "!src/human/body/**/*.ts"];
 
 /**
  * The private playground still carries a real deterministic-prototype contract.

@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
-import { mountConnectedBodyPanel } from "@automovie/playground/src/human/connectedBodyPanel";
+import { mountConnectedBodyPanel } from "@automovie/playground/src/human/body/connectedBodyPanel";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

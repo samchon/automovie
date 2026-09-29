@@ -8,7 +8,7 @@ import {
 } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { prepareHumanPreview } from "./previewScene";
+import { prepareHumanPreview } from "../common/previewScene";
 
 type Resident = {
   group: THREE.Group;

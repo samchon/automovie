@@ -1,4 +1,4 @@
-import { createConnectedFaceRuntime } from "@automovie/playground/src/human/connectedRuntime";
+import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceBasisFixture } from "../internal/humanFaceBasisFixture";

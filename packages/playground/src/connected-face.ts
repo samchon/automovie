@@ -14,11 +14,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import simpleControls from "../../../test/studies/human-face/connected-basis/global-face/simple-controls.json";
 import studyDocuments from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
-import { connectedFaceComponents } from "./human/anatomy/connectedFaceComponents";
-import { readConnectedFaceAsset } from "./human/connectedAsset";
-import { mountConnectedFacePanel } from "./human/connectedPanel";
-import { createConnectedFaceViewport } from "./human/connectedViewport";
-import { createHumanResidentPort } from "./human/residentPort";
+import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
+import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import { mountConnectedFacePanel } from "./human/face/connectedPanel";
+import { createConnectedFaceViewport } from "./human/face/connectedViewport";
+import { createHumanResidentPort } from "./human/common/residentPort";
 
 async function main(): Promise<void> {
   const basis = await readConnectedFaceAsset({

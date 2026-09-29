@@ -7,11 +7,11 @@ import type { createConnectedFaceRenderer } from "./connectedRenderer";
 import type {
   ConnectedFaceRequest,
   ConnectedFaceResult,
-} from "./connectedRuntime";
+} from "../common/connectedRuntime";
 import {
   type HumanResidentPort,
   createHumanResidentWorker,
-} from "./residentWorker";
+} from "../common/residentWorker";
 
 /**
  * Build connected preview candidates through a resident numerical worker.

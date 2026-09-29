@@ -1,4 +1,4 @@
-import type { createHumanPreviewBuilder } from "./previewBuilder";
+import type { createHumanPreviewBuilder } from "../common/previewBuilder";
 
 type Port = ReturnType<
   Parameters<typeof createHumanPreviewBuilder>[0]["worker"]

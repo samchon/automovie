@@ -4,7 +4,7 @@ import {
   float32MeshBuffers,
 } from "@automovie/human";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
+import { createConnectedFaceRenderer } from "@automovie/playground/src/human/face/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

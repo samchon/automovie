@@ -2,7 +2,7 @@ import {
   createHumanFaceBasisBuilder,
   float32MeshBuffers,
 } from "@automovie/human";
-import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
+import { createConnectedFaceRenderer } from "@automovie/playground/src/human/face/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
