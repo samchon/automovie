@@ -142,4 +142,4 @@ When execution is authorized, arm the changed carrier selector as the [developme
 
 This observation checks the changed wiring. It does not become a permanent source-text assertion or a dependency correctness suite.
 
-Inspect the Markdown and agent-instruction diff directly and run `git diff --check`. When a configured check or population observation cannot run, record the exact command, the reason and the remaining verification boundary in the run record and pull request. Report only unpaid relationships observed at the stated revision, because an unexecuted check is neither a verified graph nor evidence of zero debt.
+Inspect the Markdown and agent-instruction diff directly and run `git diff --check`. When a configured check or population observation cannot run, record the exact command, the reason and the remaining verification boundary in the pull request. Report only unpaid relationships observed at the stated revision, because an unexecuted check is neither a verified graph nor evidence of zero debt.

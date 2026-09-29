@@ -7,7 +7,7 @@ description: Defines automovie branch, commit, pull-request, check, and merge wo
 
 Work proceeds in topic-unit PRs, one coherent topic per PR, never committed to `master` directly. An ordinary topic PR opens after its required local verification. An authorized campaign's implementation-free claim PR follows the campaign override below.
 
-Permission to open is not permission to merge. Merge only when the user explicitly asks, or under a standing autonomous mandate: an autonomous campaign (the conquest loop) or an explicit instruction to carry the work through merge. The mandate is the request for every step it names, push and merge included, and every check, verification and Self-Review gate still applies to each step.
+Permission to open is not permission to merge. Merge only when the user explicitly asks, or under a standing autonomous mandate: an autonomous issue campaign or an explicit instruction to carry the work through merge. The mandate is the request for every step it names, push and merge included, and every check, verification and Self-Review gate still applies to each step.
 
 ## Branch From The Target
 
