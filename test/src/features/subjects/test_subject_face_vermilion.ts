@@ -16,21 +16,27 @@ const SEAM = [80, 40, 40] as const;
  * nearly), optionally grey or turned upside down.
  */
 const image = (
-  options: { upper?: number; grey?: boolean; flip?: boolean } = {},
+  options: {
+    upper?: number;
+    grey?: boolean;
+    flip?: boolean;
+    skin?: readonly [number, number, number];
+    lip?: readonly [number, number, number];
+  } = {},
 ) => {
   const rgb = new Uint8Array(200 * 200 * 3);
   for (let y = 0; y < 200; ++y)
     for (let x = 0; x < 200; ++x) {
       const colour =
         y >= (options.upper ?? 90) && y <= 99
-          ? LIP
+          ? (options.lip ?? LIP)
           : y === 100
             ? SEAM
             : y >= 101 && y <= 113
-              ? LIP
+              ? (options.lip ?? LIP)
               : y >= 115 && y <= 121
                 ? SHADOW
-                : SKIN;
+                : (options.skin ?? SKIN);
       const row = options.flip === true ? 199 - y : y;
       const grey = (colour[0] + colour[1] + colour[2]) / 3;
       for (let c = 0; c < 3; ++c)
@@ -65,10 +71,13 @@ const landmarks = (
  *    rows 92 and 110, and the shadow under the lower lip, darker but of the
  *    skin's chroma, does not count as lip.
  * 2. Upside down the frame turns with the face.
- * 3. A grey portrait reads neither border; a window that starts on the lip
- *    (the detector's lower landmark 7 px into it) or holds none (an upper
- *    vermilion thinner than the window reaches) reads that border only not.
- * 4. A missing landmark and coincident eyes refuse.
+ * 3. A grey portrait and a chromatic skin/lip pair of the same colour read
+ *    neither border; a detector point farther inside than its own lip-height
+ *    estimate and an upper lip with no class sample stay unread.
+ * 4. A lower lip of visually separated but under-four-unit chroma is read
+ *    against its own uniform skin, and a detector point moderately displaced
+ *    inward does not hide the visible border.
+ * 5. A missing landmark and coincident eyes refuse.
  */
 export const test_subject_face_vermilion = (): void => {
   const read = measureFaceLikenessVermilion(image(), landmarks());
@@ -88,6 +97,10 @@ export const test_subject_face_vermilion = (): void => {
       near(flipped.inferius, 100, 199 - 113.5),
   );
   const grey = measureFaceLikenessVermilion(image({ grey: true }), landmarks());
+  const same = measureFaceLikenessVermilion(
+    image({ lip: SKIN }),
+    landmarks(),
+  );
   const high = measureFaceLikenessVermilion(
     image(),
     landmarks({ 17: [100, 103] }),
@@ -97,10 +110,34 @@ export const test_subject_face_vermilion = (): void => {
     "unread",
     grey.superius === null &&
       grey.inferius === null &&
+      same.superius === null &&
+      same.inferius === null &&
       high.inferius === null &&
       near(high.superius, 100, 90) &&
       thin.superius === null &&
       near(thin.inferius, 100, 113.5),
+  );
+  const lowContrast = measureFaceLikenessVermilion(
+    image({ skin: [100, 70, 65], lip: [103, 67, 67] }),
+    landmarks(),
+  );
+  const shifted = measureFaceLikenessVermilion(
+    image(),
+    landmarks({ 17: [100, 107.5] }),
+  );
+  TestValidator.predicate(
+    "image-relative border admission",
+    lowContrast.superius === null &&
+      near(lowContrast.inferius, 100, 113.5) &&
+      near(shifted.inferius, 100, 113.5),
+  );
+  const cropped = image();
+  cropped.height = 85;
+  cropped.rgb = cropped.rgb.slice(0, cropped.width * cropped.height * 3);
+  const unreadCrop = measureFaceLikenessVermilion(cropped, landmarks());
+  TestValidator.predicate(
+    "no visible lip samples",
+    unreadCrop.superius === null && unreadCrop.inferius === null,
   );
   const missing = landmarks().map((p, k) => (k === 17 ? undefined! : p));
   const coincident = landmarks({ 362: [60, 40], 263: [80, 40] });
