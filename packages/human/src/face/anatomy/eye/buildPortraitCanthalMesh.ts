@@ -2,7 +2,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 as Point } from "@automovie/interface";
 import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitRegion } from "../../mesh/portraitRegion";
 import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 /**
@@ -79,7 +79,7 @@ export function buildPortraitCanthalMesh(
   }
   // Keep the exact optical normals at shared globe vertices. Newly introduced
   // apices have no analytic unique normal, so use their incident face average.
-  const normals = portraitNormals(positions, indices);
+  const normals = areaWeightedNormals(positions, indices);
   normals.splice(0, globe.normals!.length, ...globe.normals!);
   const surface = portraitRegion(positions, normals, indices);
   const connective = (i: number): boolean => {

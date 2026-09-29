@@ -1,5 +1,5 @@
 import { portraitMix } from "@automovie/human/face/mesh/portraitMix";
-import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
 import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
@@ -50,7 +50,7 @@ export const test_subject_mesh_geometry = (): void => {
   );
 
   const positions = [0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 1, 9, 9, 9];
-  const normals = portraitNormals(positions, [0, 1, 2, 0, 3, 1]);
+  const normals = areaWeightedNormals(positions, [0, 1, 2, 0, 3, 1]);
   TestValidator.predicate(
     "shared area-weighted normal",
     nclose(normals[0], 0) &&
@@ -58,7 +58,7 @@ export const test_subject_mesh_geometry = (): void => {
       nclose(normals[2], Math.SQRT1_2),
   );
   TestValidator.equals("unused vertex", normals.slice(12), [0, 0, 0]);
-  TestValidator.equals("empty normal field", portraitNormals([], []), []);
+  TestValidator.equals("empty normal field", areaWeightedNormals([], []), []);
   const region = portraitRegion(positions, normals, [0, 3, 1, 0, 1, 3]);
   TestValidator.equals(
     "region remaps repeated vertices",

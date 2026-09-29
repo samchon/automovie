@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 
 /**
- * Shared by placePortraitMesh, portraitMeshBuffers, which were one file until each public identity took its own.
+ * Shared by placeMeshPreservingFaces, float32MeshBuffers, which were one file until each public identity took its own.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Preserves each nonredundant face when a static part is placed for export.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Compares the engine's placed transform with its translation-free local transform, retaining mirror winding and refusing precision-driven face loss.

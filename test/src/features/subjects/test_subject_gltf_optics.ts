@@ -1,5 +1,5 @@
-import { portraitDocument } from "@automovie/human/common/export/createGltfDocument";
-import { portraitGltfExtensions } from "@automovie/human/common/export/gltfMaterialExtensions";
+import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
+import { gltfMaterialExtensions } from "@automovie/human/common/export/gltfMaterialExtensions";
 import { NodeIO } from "@gltf-transform/core";
 import type {
   Clearcoat,
@@ -52,8 +52,8 @@ export const test_subject_gltf_optics = async (): Promise<void> => {
     material: finish.id,
     transform: { ...IDENTITY_TRANSFORM, translation: { x: 2 * i, y: 0, z: 0 } },
   }));
-  const io = new NodeIO().registerExtensions(portraitGltfExtensions);
-  const bytes = await io.writeBinary(portraitDocument(model)),
+  const io = new NodeIO().registerExtensions(gltfMaterialExtensions);
+  const bytes = await io.writeBinary(createGltfDocument(model)),
     read = await io.readBinary(bytes);
   const materials = read.getRoot().listMaterials();
   for (const [i, expected] of [
@@ -113,7 +113,7 @@ export const test_subject_gltf_optics = async (): Promise<void> => {
     ],
     materials: [{ ...base, thickness: 0 }],
   };
-  const thinMaterial = portraitDocument(thin).getRoot().listMaterials()[0];
+  const thinMaterial = createGltfDocument(thin).getRoot().listMaterials()[0];
   TestValidator.equals(
     "implicit volume dependency",
     thinMaterial
@@ -124,7 +124,7 @@ export const test_subject_gltf_optics = async (): Promise<void> => {
   TestValidator.predicate(
     "open positive volume refused",
     throwsError(() =>
-      portraitDocument({
+      createGltfDocument({
         ...thin,
         materials: [{ ...base, transmission: 1, thickness: 0.001 }],
       }),
@@ -146,7 +146,7 @@ export const test_subject_gltf_optics = async (): Promise<void> => {
     TestValidator.predicate(
       "invalid optics refused",
       throwsError(() =>
-        portraitDocument({
+        createGltfDocument({
           ...model,
           materials: [
             { ...model.materials[0], ...change },

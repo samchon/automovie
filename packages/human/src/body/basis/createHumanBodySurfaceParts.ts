@@ -11,7 +11,7 @@
  */
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
@@ -62,7 +62,7 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
           lean: () => leanOf(index),
           document,
         });
-        const normals = portraitNormals(positions, surface.indices);
+        const normals = areaWeightedNormals(positions, surface.indices);
         posedSurfaces[index] = { positions, normals };
         // the skin's anatomical relief follows the pose: its creases deepen
         // where a bent joint folds the skin and its wrinkles flatten where it
@@ -78,7 +78,7 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
                   basis,
                   table: HUMAN_BODY_SKIN_RELIEF_POSE,
                   positions: atRestNow.surfaces[index],
-                  normals: portraitNormals(
+                  normals: areaWeightedNormals(
                     atRestNow.surfaces[index],
                     surface.indices,
                   ),

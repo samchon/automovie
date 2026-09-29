@@ -16,7 +16,7 @@ import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
-import { createHumanFaceBasisRegion } from "../../common/basis/createHumanBasisRegion";
+import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
@@ -129,7 +129,7 @@ export function createHumanFaceBasisBuilder(
     surface,
     regions: surface.regions.map((region) => ({
       region,
-      evaluate: createHumanFaceBasisRegion(region),
+      evaluate: createHumanBasisRegion(region),
     })),
   }));
   let partitions:

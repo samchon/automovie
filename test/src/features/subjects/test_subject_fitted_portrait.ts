@@ -1,6 +1,6 @@
 import {
   createPortraitMaterials,
-  portraitNormals,
+  areaWeightedNormals,
   portraitPart,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
@@ -25,7 +25,7 @@ export const test_subject_fitted_portrait = (): void => {
     {
       positions: packed,
       indices: [...referenceControlNet.indices],
-      normals: portraitNormals(packed, referenceControlNet.indices),
+      normals: areaWeightedNormals(packed, referenceControlNet.indices),
       uvs: null,
       skin: null,
     },

@@ -6,7 +6,7 @@ import {
   admitHumanBodyBasisDocument,
   createHumanBodyBasisBuilder,
   createHumanBodySkinDetailTexture,
-  decodePortraitPng,
+  decodePng,
   humanBodySimpleShapeMath,
   humanBodySkinMetresPerUv,
 } from "@automovie/human";
@@ -79,7 +79,7 @@ export const test_human_body_skin_detail = (): void => {
     sample === createHumanBodySkinDetailTexture(small) &&
       sample !== createHumanBodySkinDetailTexture({ ...small, seed: 2 }),
   );
-  const flat = decodePortraitPng(createHumanBodySkinDetailTexture(FLAT));
+  const flat = decodePng(createHumanBodySkinDetailTexture(FLAT));
   TestValidator.predicate(
     "a flat table is the flat normal",
     flat.width === 32 &&
@@ -93,7 +93,7 @@ export const test_human_body_skin_detail = (): void => {
       ),
   );
 
-  const grooves = decodePortraitPng(
+  const grooves = decodePng(
     createHumanBodySkinDetailTexture({
       ...FLAT,
       pixels: 64,
@@ -123,7 +123,7 @@ export const test_human_body_skin_detail = (): void => {
       depthMicrometres: 30,
     },
   });
-  const image = decodePortraitPng(pore);
+  const image = decodePng(pore);
   const cx = Math.floor(seededValue(FLAT.seed, 7, 0, 0, 1) * 64);
   const cy = Math.floor(seededValue(FLAT.seed, 7, 0, 0, 2) * 64);
   TestValidator.predicate(

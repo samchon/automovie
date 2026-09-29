@@ -8,7 +8,7 @@ import { Vector3 } from "@automovie/engine";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps adjoining skin and vermilion on one normal field before material separation.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Accumulates oriented triangle areas at shared vertices and normalizes their sums, retaining zero at unused vertices.
  */
-export const portraitNormals = (
+export const areaWeightedNormals = (
   positions: number[],
   indices: number[],
 ): number[] => {

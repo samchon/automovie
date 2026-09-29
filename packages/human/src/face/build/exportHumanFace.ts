@@ -1,8 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { type JSONDocument, WebIO } from "@gltf-transform/core";
 
-import { portraitDocument } from "../../common/export/createGltfDocument";
-import { portraitGltfExtensions } from "../../common/export/gltfMaterialExtensions";
+import { createGltfDocument } from "../../common/export/createGltfDocument";
+import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
 
 /**
  * Serialize an admitted static face to GLB and glTF with resident resources.
@@ -12,7 +12,7 @@ import { portraitGltfExtensions } from "../../common/export/gltfMaterialExtensio
  * bytes and JSON have no such module-instance identity requirement.
  *
  * This applies the same static geometry, Float32 and optical-material admission
- * as portraitDocument. It does not mutate the model, fetch resources or create
+ * as createGltfDocument. It does not mutate the model, fetch resources or create
  * an animation. Consumers register the supported extensions when reading.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Returns the face's actual static geometry and optical materials as independently readable assets.
@@ -22,8 +22,8 @@ export async function exportHumanFace(model: IAutoMovieModel): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
-  const document = portraitDocument(model);
-  const writer = new WebIO().registerExtensions(portraitGltfExtensions);
+  const document = createGltfDocument(model);
+  const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);
   const gltf = await writer.writeJSON(document);
   return { glb, gltf };

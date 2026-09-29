@@ -5,7 +5,7 @@
  * material groups, while this boundary validates each mesh the GPU receives.
  */
 import { validateMeshTopology } from "@automovie/engine";
-import { portraitMeshBuffers } from "@automovie/human";
+import { float32MeshBuffers } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import type {
@@ -30,7 +30,7 @@ export function packConnectedBodyModel(
     )
       throw new Error("Body previews require static mesh parts.");
     const mesh = part.geometry.mesh;
-    const packed = portraitMeshBuffers(mesh);
+    const packed = float32MeshBuffers(mesh);
     const material = model.materials.find((one) => one.id === part.material);
     if (
       !validateMeshTopology({

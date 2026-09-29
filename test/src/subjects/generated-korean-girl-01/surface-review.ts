@@ -185,16 +185,16 @@ import type {
  * @evidence {@link Human.portraitPoint} Supplies the common XYZ value used by the study's construction-space curves and component frames.
  * @evidence {@link Human.portraitMix} Interpolates scalar coordinates and dimensions within the authored surface sections.
  * @evidence {@link Human.portraitRayIntersection} Provides a bracketed camera-ray intersection for a caller-owned finite height surface.
- * @evidence {@link Human.portraitNormals} Computes the shared skin/lining normal field before material regions are separated.
+ * @evidence {@link Human.areaWeightedNormals} Computes the shared skin/lining normal field before material regions are separated.
  * @evidence {@link Human.portraitRegion} Extracts named material geometry while preserving the common field and original vertex identity.
  * @evidence {@link Human.portraitPart} Converts completed construction meshes into static metre-space AutoMovie parts.
  * @evidence {@link Human.portraitPatch} Produces the shared rectangular sampling lattice used by authored parametric surfaces.
  * @evidence {@link Human.portraitSpline} Interpolates ordered spatial landmarks for lid, dental and other study curves.
  * @evidence {@link Human.portraitTube} Sweeps the coarse lash/brow strands in their construction frame.
- * @evidence {@link Human.placePortraitMesh} Protects each part's actual placement before its final precision conversion.
- * @evidence {@link Human.portraitMeshBuffers} Materializes and validates the actual Float32/Uint32 geometry delivered to glTF.
- * @evidence {@link Human.portraitGltfExtensions} Declares the optical extension classes registered on this study's GLTF readers and writers.
- * @evidence {@link Human.portraitDocument} Converts the complete static study into resident GLTF material groups and attributes.
+ * @evidence {@link Human.placeMeshPreservingFaces} Protects each part's actual placement before its final precision conversion.
+ * @evidence {@link Human.float32MeshBuffers} Materializes and validates the actual Float32/Uint32 geometry delivered to glTF.
+ * @evidence {@link Human.gltfMaterialExtensions} Declares the optical extension classes registered on this study's GLTF readers and writers.
+ * @evidence {@link Human.createGltfDocument} Converts the complete static study into resident GLTF material groups and attributes.
  * @evidence {@link Human.IControlMesh} Carries the shared triangular control positions, connectivity and one material label per face.
  * @evidence {@link Human.subdivideControlMesh} Refines the connected triangular cage before its shared normals and interiors are finalized.
  * @evidence {@link Human.assertPortraitSkinTopology} Audits the declared openings and stitches of the complete control cage before refinement.

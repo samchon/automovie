@@ -10,12 +10,12 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.locateHumanFaceIrisDisc} Read the two-pass sphere fit, the protrusion-weighted axis, the azimuth reference and the anatomical half-angles.
  * @evidence {@link Human.rasterizeHumanFaceIrisTexels} Read the texel-centre barycentric test in UV, the neutral surface point, polar angle and azimuth, the first-claim rule and the limbus-plus-margin cut.
  * @evidence {@link Human.humanFaceIrisTexelColour} Read the normalized radius, the portrait eye's fibre formula and eight-band quantization, the limbal ring, the pupil and the two blended edges.
- * @evidence {@link Human.decodePortraitPng} Read the data URI and signature checks, the IHDR admission, IDAT concatenation, the five filters and the RGBA expansion.
- * @evidence {@link Human.encodePortraitPng} Read the size admission, filter-0 rows, the IHDR fields, zlib level 6 and the table CRC.
- * @evidence {@link Human.IPortraitPngImage} Read the decoded size and RGBA layout shared by the codec and the iris rule.
- * @evidence {@link Human.IPortraitPngImage.width} Read the positive integer width.
- * @evidence {@link Human.IPortraitPngImage.height} Read the positive integer height.
- * @evidence {@link Human.IPortraitPngImage.rgba} Read four bytes per pixel, row-major.
+ * @evidence {@link Human.decodePng} Read the data URI and signature checks, the IHDR admission, IDAT concatenation, the five filters and the RGBA expansion.
+ * @evidence {@link Human.encodePng} Read the size admission, filter-0 rows, the IHDR fields, zlib level 6 and the table CRC.
+ * @evidence {@link Human.IPngImage} Read the decoded size and RGBA layout shared by the codec and the iris rule.
+ * @evidence {@link Human.IPngImage.width} Read the positive integer width.
+ * @evidence {@link Human.IPngImage.height} Read the positive integer height.
+ * @evidence {@link Human.IPngImage.rgba} Read four bytes per pixel, row-major.
  * @evidence {@link Human.IHumanFaceIrisDisc} Read the disc record the locator returns and the rasterizer and colour rule consume.
  * @evidence {@link Human.IHumanFaceIrisDisc.centre} Read the sclera sphere centre in metres.
  * @evidence {@link Human.IHumanFaceIrisDisc.radius} Read the sclera sphere radius in metres.

@@ -1,7 +1,7 @@
-import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 
 /**
- * A shorter name for {@link portraitNormals}, used where a patch or a tube
+ * A shorter name for {@link areaWeightedNormals}, used where a patch or a tube
  * finishes a mesh and the surrounding expression is already dense.
  *
  * It computes nothing different. The alias exists because the construction
@@ -11,4 +11,4 @@ import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Reuses one normal derivation across the sampled surface constructions.
  * @author Samchon
  */
-export const normalsOf = portraitNormals;
+export const normalsOf = areaWeightedNormals;

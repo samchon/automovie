@@ -18,7 +18,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Checks each resident mesh's finite aligned Float32 attributes and face orientation before the preview's topology and publication stages.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Materializes aligned finite Float32 positions/normals/UV0 and Uint32 indices and compares each nonredundant triangle's oriented area.
  */
-export function portraitMeshBuffers(mesh: IAutoMovieMesh): {
+export function float32MeshBuffers(mesh: IAutoMovieMesh): {
   positions: Float32Array<ArrayBuffer>;
   normals: Float32Array<ArrayBuffer> | null;
   uvs: Float32Array<ArrayBuffer> | null;

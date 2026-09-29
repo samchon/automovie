@@ -1,7 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
 import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
@@ -78,7 +78,7 @@ export function createPortraitTongueComponent(
         );
         placed.positions.splice(i, 3, p.x, p.y, p.z);
       }
-      placed.normals = portraitNormals(placed.positions, placed.indices!);
+      placed.normals = areaWeightedNormals(placed.positions, placed.indices!);
       return {
         constraints: [],
         cutFaces: [],

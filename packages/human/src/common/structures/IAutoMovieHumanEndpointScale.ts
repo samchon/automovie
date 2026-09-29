@@ -8,7 +8,7 @@
  *
  * @author Samchon
  */
-export interface IAutoMovieHumanFaceEndpointScale {
+export interface IAutoMovieHumanEndpointScale {
   /** Root mean square displacement over every vertex of every surface. */
   displacement: number;
   /** Largest single-vertex displacement magnitude. */

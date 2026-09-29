@@ -1,4 +1,4 @@
-import { portraitDocument } from "@automovie/human/common/export/createGltfDocument";
+import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export const test_subject_anatomical_optical_export =
     );
     const io = new NodeIO();
     const document = await io.readBinary(
-      await io.writeBinary(portraitDocument(model)),
+      await io.writeBinary(createGltfDocument(model)),
     );
     const unit = (normals: ArrayLike<number>) => {
       for (let i = 0; i < normals.length; i += 3)

@@ -1,4 +1,4 @@
-import { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
+import { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 
 /**
  * How far one unit of a connected-basis channel actually moves the surface.
@@ -31,8 +31,8 @@ export interface IAutoMovieHumanFaceChannelScale {
   kind: "shape" | "expression";
 
   /** Metric effect of the positive endpoint, always present. */
-  positive: IAutoMovieHumanFaceEndpointScale;
+  positive: IAutoMovieHumanEndpointScale;
 
   /** Metric effect of the negative endpoint, or null for a nonnegative control. */
-  negative: IAutoMovieHumanFaceEndpointScale | null;
+  negative: IAutoMovieHumanEndpointScale | null;
 }

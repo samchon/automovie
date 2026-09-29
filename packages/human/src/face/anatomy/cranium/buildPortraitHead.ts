@@ -1,6 +1,6 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitRegion } from "../../mesh/portraitRegion";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
@@ -62,7 +62,7 @@ export function buildPortraitHead(
     interiors.flatMap((parts) => parts ?? []),
   );
   const packed = refined.positions.flat(),
-    normals = portraitNormals(packed, refined.indices);
+    normals = areaWeightedNormals(packed, refined.indices);
   const parts: IAutoMovieModelPart[] = [];
   for (let group = 0; group < regions.length; group++) {
     const selected: number[] = [];

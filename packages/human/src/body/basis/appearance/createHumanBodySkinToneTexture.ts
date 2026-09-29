@@ -1,6 +1,6 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../../common/mesh/encodePng";
+import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanBodySkinTone } from "../../structures/IAutoMovieHumanBodySkinTone";
 
 /**
@@ -62,7 +62,7 @@ export function createHumanBodySkinToneTexture(
   }
   for (let i = 0; i < size * size; i++) rgba[i * 4 + 3] = 255;
   return {
-    texture: encodePortraitPng({ width: size, height: size, rgba }),
+    texture: encodePng({ width: size, height: size, rgba }),
     compensation,
   };
 }

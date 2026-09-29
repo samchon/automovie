@@ -6,7 +6,7 @@ import {
   admitHumanBodyBasisDocument,
   createHumanBodyBasisBuilder,
   createHumanBodySkinToneTexture,
-  decodePortraitPng,
+  decodePng,
   humanBodySimpleShapeMath,
 } from "@automovie/human";
 import type { IAutoMovieTextureReference } from "@automovie/interface";
@@ -75,7 +75,7 @@ export const test_human_body_skin_tone = (): void => {
   );
 
   const white = createHumanBodySkinToneTexture(SMALL, 0);
-  const plain = decodePortraitPng(white.texture);
+  const plain = decodePng(white.texture);
   TestValidator.predicate(
     "zero strength is a white map and no compensation",
     plain.rgba.every((value) => value === 255) &&
@@ -83,7 +83,7 @@ export const test_human_body_skin_tone = (): void => {
   );
 
   const range = (
-    image: ReturnType<typeof decodePortraitPng>,
+    image: ReturnType<typeof decodePng>,
     channel: number,
   ) => {
     let least = Infinity;
@@ -96,7 +96,7 @@ export const test_human_body_skin_tone = (): void => {
     return most - least;
   };
   const only = (keep: "melanin" | "haemoglobin") =>
-    decodePortraitPng(
+    decodePng(
       createHumanBodySkinToneTexture(
         {
           ...SMALL,
@@ -122,7 +122,7 @@ export const test_human_body_skin_tone = (): void => {
       range(pigment, 1) > range(pigment, 0),
   );
 
-  const image = decodePortraitPng(sample.texture);
+  const image = decodePng(sample.texture);
   const means = [0, 1, 2].map((c) => {
     let sum = 0;
     for (let i = c; i < image.rgba.length; i += 4) sum += linear(image.rgba[i]);

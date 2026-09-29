@@ -1,7 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
-import { createHumanFaceBasisRegion } from "../../common/basis/createHumanBasisRegion";
+import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 
 /**
  * Emit a material region from an already evaluated connected surface.
@@ -17,5 +17,5 @@ export function humanFaceBasisRegion(
   normals: number[],
   region: IAutoMovieHumanFaceBasis["surfaces"][number]["regions"][number],
 ): IAutoMovieMesh {
-  return createHumanFaceBasisRegion(region)(positions, normals);
+  return createHumanBasisRegion(region)(positions, normals);
 }

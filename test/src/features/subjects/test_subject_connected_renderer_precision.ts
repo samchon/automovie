@@ -1,6 +1,6 @@
 import { validateModel } from "@automovie/engine";
 import { createHumanFaceBasisBuilder } from "@automovie/human";
-import { portraitMeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -52,7 +52,7 @@ export const test_subject_connected_renderer_precision =
     TestValidator.predicate(
       "export precision refuses",
       throwsError(
-        () => portraitMeshBuffers(geometry.mesh),
+        () => float32MeshBuffers(geometry.mesh),
         "preserve nonredundant triangle",
       ),
     );

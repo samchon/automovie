@@ -1,6 +1,6 @@
 import {
   createHumanFaceBasisBuilder,
-  portraitMeshBuffers,
+  float32MeshBuffers,
 } from "@automovie/human";
 import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
@@ -29,12 +29,12 @@ export const test_subject_connected_renderer_attributes =
     const source = first.meshes[0];
     TestValidator.equals(
       "UV0 packing matches GPU",
-      Array.from(portraitMeshBuffers(source).uvs!),
+      Array.from(float32MeshBuffers(source).uvs!),
       Array.from(first.resident.meshes[0].geometry.getAttribute("uv").array),
     );
     TestValidator.equals(
       "absent UV0 stays absent",
-      portraitMeshBuffers({ ...source, uvs: null }).uvs,
+      float32MeshBuffers({ ...source, uvs: null }).uvs,
       null,
     );
     for (const uvs of [

@@ -1,5 +1,5 @@
 import { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { portraitCutBoundary } from "../cranium/portraitCutBoundary";
 import { appendPortraitNasalRimSection } from "./appendPortraitNasalRimSection";
@@ -182,7 +182,7 @@ export function createPortraitNoseComponent(
       const skinNormals =
         rimSection === undefined && envelopes.length === 0
           ? undefined
-          : portraitNormals(
+          : areaWeightedNormals(
               host.positions.flatMap((point, id) => targets.get(id) ?? point),
               host.indices.filter(
                 (_value, index) => !nasalCuts.has(Math.floor(index / 3)),

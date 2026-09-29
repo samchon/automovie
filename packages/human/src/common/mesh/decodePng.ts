@@ -1,6 +1,6 @@
 import { unzlibSync } from "fflate";
 
-import type { IPortraitPngImage } from "./structures/IPngImage";
+import type { IPngImage } from "./structures/IPngImage";
 
 /**
  * The PNG decoder for facial textures that are recoloured by numerical rules.
@@ -14,7 +14,7 @@ import type { IPortraitPngImage } from "./structures/IPngImage";
  * depths, palettes and interlacing are refused by name rather than decoded
  * approximately, because a wrong decode would silently repaint a whole
  * texture. Decoding always yields RGBA bytes, alpha 255 where the source has
- * none. `encodePortraitPng` writes the result back.
+ * none. `encodePng` writes the result back.
  */
 
 /** The eight-byte PNG signature (W3C PNG, 2nd edition, section 5.2). */
@@ -27,7 +27,7 @@ const DATA_URI = "data:image/png;base64,";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reads the shared basis texture the numerical iris rule recolours, so no per-person image is stored.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Decodes the basis eye texture exactly before the iris texels are rewritten and refuses forms it cannot read exactly.
  */
-export function decodePortraitPng(uri: string): IPortraitPngImage {
+export function decodePng(uri: string): IPngImage {
   if (!uri.startsWith(DATA_URI))
     throw new Error("A facial texture must be a base64 PNG data URI.");
   const bytes = base64Bytes(uri.slice(DATA_URI.length));

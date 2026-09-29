@@ -1,8 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { type JSONDocument, WebIO } from "@gltf-transform/core";
 
-import { portraitDocument } from "../../common/export/createGltfDocument";
-import { portraitGltfExtensions } from "../../common/export/gltfMaterialExtensions";
+import { createGltfDocument } from "../../common/export/createGltfDocument";
+import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
 
 /**
  * Serialize a built body to GLB and glTF with resident resources.
@@ -23,8 +23,8 @@ export async function exportHumanBody(model: IAutoMovieModel): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
-  const document = portraitDocument(model);
-  const writer = new WebIO().registerExtensions(portraitGltfExtensions);
+  const document = createGltfDocument(model);
+  const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);
   const gltf = await writer.writeJSON(document);
   return { glb, gltf };

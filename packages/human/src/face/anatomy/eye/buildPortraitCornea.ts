@@ -1,5 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { IPortraitCornea } from "./structures/IPortraitCornea";
 
 /**
@@ -102,7 +102,7 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
   return {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

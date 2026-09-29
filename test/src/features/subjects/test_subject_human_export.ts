@@ -1,4 +1,4 @@
-import { exportHumanFace, portraitGltfExtensions } from "@automovie/human";
+import { exportHumanFace, gltfMaterialExtensions } from "@automovie/human";
 import { WebIO } from "@gltf-transform/core";
 import type { IOR } from "@gltf-transform/extensions";
 import { TestValidator } from "@nestia/e2e";
@@ -32,7 +32,7 @@ export const test_subject_human_export = async (): Promise<void> => {
   model.materials[0].ior = 1.376;
   const original = structuredClone(model);
   const exported = await exportHumanFace(model);
-  const reader = new WebIO().registerExtensions(portraitGltfExtensions);
+  const reader = new WebIO().registerExtensions(gltfMaterialExtensions);
   for (const document of [
     await reader.readBinary(exported.glb),
     await reader.readJSON(exported.gltf),

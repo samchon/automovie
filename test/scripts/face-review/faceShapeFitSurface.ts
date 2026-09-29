@@ -13,14 +13,14 @@
  *
  * `faceShapeFitSurfacePositions` recovers a basis surface's evaluated vertex
  * positions from a built model: every region part gathers the surface's
- * vertices in the fixed order `createHumanFaceBasisRegion` compiles, so
+ * vertices in the fixed order `createHumanBasisRegion` compiles, so
  * evaluating the same region on vertex-index "positions" returns that order.
  * Posing, articulation and contact are thereby included exactly as the
  * renderer receives them. Pure: inputs are read, new arrays are returned.
  */
 import {
   type IAutoMovieHumanFaceBasis,
-  createHumanFaceBasisRegion,
+  createHumanBasisRegion,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
@@ -45,7 +45,7 @@ export function faceShapeFitSurfacePositions(
   );
   const positions = new Array<number>(count * 3).fill(Number.NaN);
   for (const region of surface.regions) {
-    const sources = createHumanFaceBasisRegion(region)(
+    const sources = createHumanBasisRegion(region)(
       identity,
       identity,
     ).positions;

@@ -5,7 +5,7 @@
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Holds the exact decoded eye texture the iris rule rewrites and re-encodes.
  * @author Samchon
  */
-export interface IPortraitPngImage {
+export interface IPngImage {
   /** Width in pixels, a positive integer. */
   width: number;
 

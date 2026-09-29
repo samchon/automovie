@@ -1,7 +1,7 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitSpline } from "../../mesh/portraitSpline";
 import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
@@ -133,7 +133,7 @@ export function buildPortraitHairCards(
           "Hair card guides and width frames must produce finite nondegenerate triangles.",
         );
     }
-    mesh.normals = portraitNormals(mesh.positions, mesh.indices!);
+    mesh.normals = areaWeightedNormals(mesh.positions, mesh.indices!);
     meshes.push(mesh);
   }
   return meshes.length === 0

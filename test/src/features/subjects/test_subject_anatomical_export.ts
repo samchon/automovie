@@ -1,4 +1,4 @@
-import { portraitMeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -15,7 +15,7 @@ import { nclose } from "../internal/predicates";
  *
  * Scenarios:
  * 1. Pack every skin/lip part of the unrefined prior through the same buffer
- *    owner used by portraitDocument; all directions remain unit after Float32
+ *    owner used by createGltfDocument; all directions remain unit after Float32
  *    quantization. Full scene/topology validation is not the normal oracle.
  * 2. Zero, nonunit and nonfinite vectors are negative twins for the same
  *    predicate. Aggregate per accessor to avoid one assertion object per vertex.
@@ -49,7 +49,7 @@ export const test_subject_anatomical_export = (): void => {
   for (const part of model.parts) {
     if (part.geometry.type !== "mesh")
       throw new Error("The prior must supply resident surface meshes.");
-    const buffers = portraitMeshBuffers(part.geometry.mesh);
+    const buffers = float32MeshBuffers(part.geometry.mesh);
     TestValidator.predicate("delivered unit NORMAL", unit(buffers.normals!));
   }
 };

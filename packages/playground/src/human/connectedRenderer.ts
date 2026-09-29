@@ -1,5 +1,5 @@
 import { validateMeshTopology } from "@automovie/engine";
-import { portraitMeshBuffers } from "@automovie/human";
+import { float32MeshBuffers } from "@automovie/human";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import {
   AutoMovieTextureCache,
@@ -147,7 +147,7 @@ export function createConnectedFaceRenderer(props: {
           witnesses.push(previous!);
           return mesh;
         }
-        const packed = portraitMeshBuffers(mesh);
+        const packed = float32MeshBuffers(mesh);
         if (
           !validateMeshTopology({
             mesh: { ...mesh, positions: Array.from(packed.positions) },

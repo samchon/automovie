@@ -1,4 +1,4 @@
-import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { IPortraitFinalSurface } from "./structures/IPortraitFinalSurface";
 import { IPortraitFinalSurfaceHost } from "./structures/IPortraitFinalSurfaceHost";
@@ -35,7 +35,7 @@ export function applyPortraitFinalSurfaces(
     indices: Object.freeze([...mesh.indices]),
     groups: Object.freeze([...mesh.groups]),
     normals: Object.freeze(
-      portraitNormals(mesh.positions.flat(), mesh.indices),
+      areaWeightedNormals(mesh.positions.flat(), mesh.indices),
     ),
   });
   const proposals = surfaces.map((surface) => ({

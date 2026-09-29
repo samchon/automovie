@@ -1,6 +1,6 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../../common/mesh/encodePng";
+import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieHumanBodySkinDetail";
 
 /**
@@ -127,5 +127,5 @@ export function createHumanBodySkinDetailTexture(
         rgba[(y * size + x) * 4 + k] = Math.round(((n[k] + 1) / 2) * 255);
       rgba[(y * size + x) * 4 + 3] = 255;
     }
-  return encodePortraitPng({ width: size, height: size, rgba });
+  return encodePng({ width: size, height: size, rgba });
 }

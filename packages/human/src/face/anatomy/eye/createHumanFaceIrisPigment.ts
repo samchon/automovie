@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { decodePortraitPng } from "../../../common/mesh/decodePng";
-import { encodePortraitPng } from "../../../common/mesh/encodePng";
+import { decodePng } from "../../../common/mesh/decodePng";
+import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
@@ -113,7 +113,7 @@ export function createHumanFaceIrisPigment(
           });
         textures.set(
           material,
-          encodePortraitPng({
+          encodePng({
             width: texture.width,
             height: texture.height,
             rgba,
@@ -186,7 +186,7 @@ function prepare(globes: readonly IGlobe[]): Map<string, IPreparedTexture> {
   for (const globe of globes) {
     let texture = byMaterial.get(globe.material);
     if (texture === undefined) {
-      texture = { ...decodePortraitPng(globe.texture), eyes: [] };
+      texture = { ...decodePng(globe.texture), eyes: [] };
       byMaterial.set(globe.material, texture);
     }
     const disc = globe.disc;

@@ -1,5 +1,5 @@
 import {
-  portraitNormals,
+  areaWeightedNormals,
   portraitRegion,
   sealPortraitContactSeams,
 } from "@automovie/human";
@@ -28,7 +28,7 @@ export const test_subject_skin_colour_contact = (): void => {
     sealed.indices.length,
   );
   const packed = sealed.positions.flat(),
-    normals = portraitNormals(packed, sealed.indices);
+    normals = areaWeightedNormals(packed, sealed.indices);
   const rendered = portraitRegion(
     packed,
     normals,

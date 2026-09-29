@@ -1,6 +1,6 @@
 import { zlibSync } from "fflate";
 
-import type { IPortraitPngImage } from "./structures/IPngImage";
+import type { IPngImage } from "./structures/IPngImage";
 
 /**
  * The PNG encoder for facial textures that are recoloured by numerical rules.
@@ -8,7 +8,7 @@ import type { IPortraitPngImage } from "./structures/IPngImage";
  * `createHumanFaceIrisPigment` encodes its repainted eye texture with this
  * as a new data URI owned by the built material. It always writes 8-bit RGBA
  * with filter 0 and zlib level 6, so decoding the output with
- * `decodePortraitPng` reproduces the input bytes exactly and the same bytes
+ * `decodePng` reproduces the input bytes exactly and the same bytes
  * always yield the same string.
  */
 
@@ -30,7 +30,7 @@ const CRC_TABLE = Array.from({ length: 256 }, (_, byte) => {
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Emits the recoloured eye texture inside the model's own material, keeping replay free of external files.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Writes the recoloured eye texture losslessly as a fresh texture owned by the built material.
  */
-export function encodePortraitPng(image: IPortraitPngImage): string {
+export function encodePng(image: IPngImage): string {
   const { width, height, rgba } = image;
   if (
     !Number.isInteger(width) ||

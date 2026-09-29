@@ -1,7 +1,7 @@
 import {
   bakeHumanFaceOcclusion,
   createHumanFaceBasisBuilder,
-  decodePortraitPng,
+  decodePng,
 } from "@automovie/human";
 import type {
   IAutoMovieMaterial,
@@ -110,7 +110,7 @@ const model = (parts: IAutoMovieModelPart[]): IAutoMovieModel => ({
  */
 export const test_subject_human_face_occlusion = (): void => {
   const value = (uri: string, x: number, y: number, size: number) =>
-    decodePortraitPng(uri).rgba[4 * (y * size + x)]!;
+    decodePng(uri).rgba[4 * (y * size + x)]!;
   const alone = bakeHumanFaceOcclusion(
     model([
       square("floor", "floor", 0, 0.05, 1, 1),
@@ -171,7 +171,7 @@ export const test_subject_human_face_occlusion = (): void => {
     ]),
     { rays: 4, size: 4 },
   );
-  const open = decodePortraitPng(alone.get("floor")!);
+  const open = decodePng(alone.get("floor")!);
   TestValidator.predicate(
     "an open floor",
     open.rgba.every((byte, k) => k % 4 === 3 || byte === 255) &&

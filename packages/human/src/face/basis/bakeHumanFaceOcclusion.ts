@@ -1,7 +1,7 @@
 import { createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { encodePortraitPng } from "../../common/mesh/encodePng";
+import { encodePng } from "../../common/mesh/encodePng";
 
 /** How far a ray starts off its surface along the normal, metres. */
 const LIFT = 0.00005;
@@ -240,7 +240,7 @@ export function bakeHumanFaceOcclusion(
       );
       rgba.set([value, value, value, 255], 4 * texel);
     }
-    baked.set(material, encodePortraitPng({ width: size, height: size, rgba }));
+    baked.set(material, encodePng({ width: size, height: size, rgba }));
   }
   return baked;
 }

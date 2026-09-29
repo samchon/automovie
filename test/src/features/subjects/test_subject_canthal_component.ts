@@ -1,7 +1,7 @@
 import type { IPortraitEyePerformance } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyePerformance";
 import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
-import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";
@@ -88,7 +88,7 @@ export const test_subject_canthal_component = (): void => {
     const attached = plan.attach(cage, cage.positions, () => 1);
     const contact = attached.finalSurface!({
       ...cage,
-      normals: portraitNormals(cage.positions.flat(), cage.indices),
+      normals: areaWeightedNormals(cage.positions.flat(), cage.indices),
     });
     TestValidator.predicate(
       "finite actual final targets",

@@ -1,4 +1,4 @@
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
 import { IAutoMovieMesh } from "@automovie/interface";
@@ -93,7 +93,7 @@ export function preparePortraitDentalCrown(
   const mesh: IAutoMovieMesh = {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

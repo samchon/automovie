@@ -3,7 +3,7 @@ import {
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceComponentTree,
   type IAutoMovieHumanFaceControlMap,
-  type IAutoMovieHumanFaceEndpointScale,
+  type IAutoMovieHumanEndpointScale,
   createHumanFaceComponentTree,
   createHumanFaceControlMap,
   measureHumanFaceBasisChannels,
@@ -56,7 +56,7 @@ export function mountConnectedFaceControls(
   );
   const describe = (
     sign: string,
-    scale: IAutoMovieHumanFaceEndpointScale,
+    scale: IAutoMovieHumanEndpointScale,
     metric: { perWeight: number; unit: string } | null = null,
   ): string => {
     const measured =

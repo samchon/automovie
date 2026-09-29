@@ -20,7 +20,7 @@ import type {
 
 import { portraitMix as mix } from "../../mesh/portraitMix";
 import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitPatch as patch } from "../../mesh/portraitPatch";
 import { portraitRegion } from "../../mesh/portraitRegion";
@@ -237,7 +237,7 @@ export function buildPortraitEye(
             target.y * 1000,
             target.z * 1000,
           );
-        mesh.normals = portraitNormals(mesh.positions, mesh.indices!);
+        mesh.normals = areaWeightedNormals(mesh.positions, mesh.indices!);
       }
       if (surfaces.corner !== null)
         add(`${eye.name}-medial-conjunctiva`, surfaces.corner, "ocular-corner");

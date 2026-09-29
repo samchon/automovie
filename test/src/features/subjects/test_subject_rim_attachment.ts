@@ -1,4 +1,4 @@
-import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -73,7 +73,7 @@ export const test_subject_rim_attachment = (): void => {
     ...lining.positions.slice(27, 30),
   ];
   const map = [0, 1, 2, 3, 24, 12, 13, 14, 15, 25];
-  const normals = portraitNormals(joined, [
+  const normals = areaWeightedNormals(joined, [
     ...skin.indices!,
     ...lining.indices!.map((id) => map[id]),
   ]);

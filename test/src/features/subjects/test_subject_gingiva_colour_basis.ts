@@ -1,8 +1,8 @@
 import {
   type IAutoMovieHumanFaceBasis,
   createPortraitMaterials,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +78,7 @@ const dentition = (): IAutoMovieHumanFaceBasis => {
         ...one,
         id: "teeth",
         name: "teeth",
-        baseColorTexture: encodePortraitPng({ width: 8, height: 8, rgba }),
+        baseColorTexture: encodePng({ width: 8, height: 8, rgba }),
       })),
     contact: {
       incisors: { surface: "teeth", upper: 0, lower: 3 },
@@ -206,7 +206,7 @@ export const test_subject_gingiva_colour_basis = (): void => {
   };
   const out = prepareGingivaColourBasis(input);
   const read = (one: IAutoMovieHumanFaceBasis) =>
-    decodePortraitPng(one.materials[0]!.baseColorTexture as string).rgba;
+    decodePng(one.materials[0]!.baseColorTexture as string).rgba;
   const texel = (bytes: Uint8Array, x: number, y: number) =>
     JSON.stringify([0, 1, 2].map((c) => bytes[4 * (y * 8 + x) + c]!));
   TestValidator.predicate(

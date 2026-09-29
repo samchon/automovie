@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { decodePortraitPng } from "../../common/mesh/decodePng";
-import { encodePortraitPng } from "../../common/mesh/encodePng";
+import { decodePng } from "../../common/mesh/decodePng";
+import { encodePng } from "../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 
 /**
@@ -110,7 +110,7 @@ interface IDecodedFibres {
 }
 
 function decode(uri: string, cutoff: number): IDecodedFibres {
-  const image = decodePortraitPng(uri);
+  const image = decodePng(uri);
   const drawn: number[] = [];
   for (let texel = 0; texel < image.width * image.height; ++texel) {
     const alpha = image.rgba[4 * texel + 3]! / 255;
@@ -143,7 +143,7 @@ function paint(
     if (density !== undefined)
       rgba[4 * texel + 3] = Math.min(255, Math.round(alpha * density));
   }
-  return encodePortraitPng({
+  return encodePng({
     width: source.width,
     height: source.height,
     rgba,

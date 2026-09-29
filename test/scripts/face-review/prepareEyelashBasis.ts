@@ -2,7 +2,7 @@ import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
-  encodePortraitPng,
+  encodePng,
 } from "@automovie/human";
 
 /** A lid's lashes as the anatomy reports them. */
@@ -447,7 +447,7 @@ export function prepareEyelashBasis(input: {
     });
     let drawn = 0;
     for (let i = 3; i < rgba.length; i += 4) if (rgba[i]! > 0) ++drawn;
-    material.baseColorTexture = encodePortraitPng({
+    material.baseColorTexture = encodePng({
       width: input.size,
       height: input.size,
       rgba,

@@ -21,7 +21,7 @@ import { triangleArea } from "./triangleArea";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Preserves each nonredundant face when a static part is placed for export.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Compares the engine's placed transform with its translation-free local transform, retaining mirror winding and refusing precision-driven face loss.
  */
-export function placePortraitMesh(
+export function placeMeshPreservingFaces(
   mesh: IAutoMovieMesh,
   transform: IAutoMovieMeshTransform,
 ): IAutoMovieMesh {

@@ -1,5 +1,5 @@
 
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";
 import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
 import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
@@ -101,7 +101,7 @@ export function preparePortraitOralLining(
   const mesh: IAutoMovieMesh = {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

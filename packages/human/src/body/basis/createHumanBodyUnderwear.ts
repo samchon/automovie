@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_UNDERWEAR } from "../constants/HUMAN_BODY_UNDERWEAR";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
@@ -262,7 +262,7 @@ export function createHumanBodyUnderwear(
       }
       return {
         positions: out,
-        normals: portraitNormals(out, indices),
+        normals: areaWeightedNormals(out, indices),
         uvs: null,
         indices,
         skin: null,

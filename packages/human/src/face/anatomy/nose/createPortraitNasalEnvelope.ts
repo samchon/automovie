@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNasalRimJets } from "./portraitNasalRimJets";
 import { samplePortraitNasalEntry } from "./samplePortraitNasalEntry";
@@ -155,7 +155,7 @@ export function createPortraitNasalEnvelope(
       const rimNormals = ordered.map(() => offset.map((v) => -v / depth));
       const rimJets = frames(rim, rimNormals);
       const outerPoints = ordered.map((id) => cage.positions[id]);
-      const packedNormals = portraitNormals(
+      const packedNormals = areaWeightedNormals(
         cage.positions.flat(),
         cage.indices,
       );

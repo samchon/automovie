@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 
-import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 
 /**
@@ -46,7 +46,7 @@ export function refinePortraitSurfaceSampling(
     ].map((x) => x * 1000),
   }));
   const key = (a: number, b: number) => (a < b ? `${a}/${b}` : `${b}/${a}`);
-  const packedNormals = portraitNormals(input.positions.flat(), input.indices);
+  const packedNormals = areaWeightedNormals(input.positions.flat(), input.indices);
   const normals = input.positions.map((_, i) =>
     packedNormals.slice(i * 3, i * 3 + 3),
   );

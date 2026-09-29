@@ -13,7 +13,7 @@ import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Keeps pigment attached to its source vertex across material and UV boundaries.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Gathers optional reference RGB through the same fixed source correspondence as geometry.
  */
-export function createHumanFaceBasisRegion(
+export function createHumanBasisRegion(
   region: IHumanMaterialRegion,
 ): (
   positions: readonly number[],

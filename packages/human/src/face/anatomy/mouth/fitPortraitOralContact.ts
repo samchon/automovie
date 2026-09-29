@@ -1,6 +1,6 @@
 import { measureAutoMovieMeshClearance } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirectionalSurfaceTargets";
 
 /**
@@ -35,7 +35,7 @@ export function fitPortraitOralContact(
     clearance,
   ))
     lining.positions.splice(vertex * 3, 3, target.x, target.y, target.z);
-  lining.normals = portraitNormals(
+  lining.normals = areaWeightedNormals(
     lining.positions,
     lining.indices ??
       Array.from({ length: lining.positions.length / 3 }, (_, i) => i),

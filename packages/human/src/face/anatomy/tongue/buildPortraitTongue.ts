@@ -1,5 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitTongueShape } from "./assertPortraitTongueShape";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { frontWeight } from "./frontWeight";
@@ -75,7 +75,7 @@ export function buildPortraitTongue(
   return {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

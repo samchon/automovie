@@ -1,5 +1,5 @@
 import { Vector3, compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
-import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { portraitPart } from "../mesh/portraitPart";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
@@ -44,7 +44,7 @@ export function applyPortraitSurfaceLayers(
   const host = {
     positions: mesh.positions,
     indices: mesh.indices,
-    normals: portraitNormals(packed, mesh.indices),
+    normals: areaWeightedNormals(packed, mesh.indices),
   };
   const plans = [...layers]
     .sort((a, b) => compareCodeUnits(a.id, b.id))

@@ -1,7 +1,7 @@
 import {
   createPortraitHairNormalTexture,
   exportHumanFace,
-  portraitDocument,
+  createGltfDocument,
 } from "@automovie/human";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
@@ -89,7 +89,7 @@ export const test_subject_hair_normal_export = async (): Promise<void> => {
   shared.materials[0].baseColorTexture = uri;
   TestValidator.equals(
     "shared pixel bytes",
-    portraitDocument(shared).getRoot().listTextures().length,
+    createGltfDocument(shared).getRoot().listTextures().length,
     1,
   );
   for (const binding of [
@@ -101,7 +101,7 @@ export const test_subject_hair_normal_export = async (): Promise<void> => {
     bad.materials[0].normalTexture = binding;
     TestValidator.predicate(
       "unsupported normal binding",
-      throwsError(() => portraitDocument(bad)),
+      throwsError(() => createGltfDocument(bad)),
     );
   }
   const missing = structuredClone(model);
@@ -110,12 +110,12 @@ export const test_subject_hair_normal_export = async (): Promise<void> => {
   missing.parts[0].geometry.mesh.uvs = null;
   TestValidator.predicate(
     "normal map requires UV",
-    throwsError(() => portraitDocument(missing)),
+    throwsError(() => createGltfDocument(missing)),
   );
   const invalidScale = structuredClone(model);
   invalidScale.materials[0].normalScale = NaN;
   TestValidator.predicate(
     "finite scale required",
-    throwsError(() => portraitDocument(invalidScale)),
+    throwsError(() => createGltfDocument(invalidScale)),
   );
 };

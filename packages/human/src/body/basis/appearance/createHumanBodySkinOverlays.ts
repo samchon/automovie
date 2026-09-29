@@ -1,6 +1,6 @@
 import type { IAutoMovieMaterial, IAutoMovieMaterialOverlay } from "@automovie/interface";
 
-import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
@@ -71,7 +71,7 @@ export function createHumanBodySkinOverlays(input: {
     const lean = leanOf(index);
     let normals = restNormals.get(index);
     if (normals === undefined) {
-      normals = portraitNormals(rest, surface.indices);
+      normals = areaWeightedNormals(rest, surface.indices);
       restNormals.set(index, normals);
     }
     let tissue = 0;

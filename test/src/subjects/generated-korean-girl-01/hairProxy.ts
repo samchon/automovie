@@ -1,5 +1,5 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
 import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
@@ -174,6 +174,6 @@ export function buildPortraitHairProxy(
       );
     previous = ring;
   }
-  cap.normals = portraitNormals(cap.positions, cap.indices!);
+  cap.normals = areaWeightedNormals(cap.positions, cap.indices!);
   return [portraitPart("hair-mass", cap, "hair")];
 }
