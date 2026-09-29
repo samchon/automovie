@@ -53,7 +53,7 @@ For each immediately executable batch:
 4. Push and open a draft pull request referencing every batch issue by number and stating its owned files. The [claim rule](../issue-campaign/development.md#claim-the-complete-cycle) applies unchanged: no closing keyword in a body written before the code exists.
 5. Record the batch, worktree, branch, issues, owned files, pull request, and verification lanes in the campaign knowledge base.
 6. Implement the full consequence surface and the required positive, negative, boundary, and regression coverage. Every executable position the batch writes is exercised by a unit test under the development skill's exact obligation.
-7. Run `pnpm run format`, then commit and push coherent increments, each carrying the [commit closing lines](../issue-campaign/development.md#implement-in-parallel) for the issues it earns.
+7. Commit and push coherent increments, each carrying the [commit closing lines](../issue-campaign/development.md#implement-in-parallel) for the issues it earns. The [pull-request skill](../pull-request/SKILL.md#merge-on-explicit-request-or-standing-autonomous-mandate) owns the single formatting pass before an authorized merge.
 8. Run the narrowest proving command the [development skill's validation rule](../development/SKILL.md#validation) requires, then the broader locally owned lanes: `pnpm --filter @automovie/test start` for the suite.
 9. Freeze the head and complete solo Self-Review under the [review skill's law](../review/SKILL.md#non-negotiable-review-law). If code changes, rerun the necessary local gates and restart the full review.
 10. Let the lead independently verify issue fit, dispositions, evidence, and batch scope.
@@ -73,9 +73,9 @@ When batches overlap unexpectedly, stop the later mutation, report the exact fil
 After every parallel implementation batch is resolved and its worktree and external assets are removed:
 
 1. Create one cleanup worktree and topic branch from the integrated target.
-2. Install its dependencies with `pnpm install`, then run `pnpm run format`.
+2. Install its dependencies with `pnpm install`.
 3. Run the full integrated local validation the project and development skills require, including `pnpm run build` and `pnpm --filter @automovie/test start`.
-4. If formatting or integration validation changes files, open one ordinary cleanup pull request, let all CI checks run, and complete solo Self-Review while they run.
+4. If integration validation changes files, open one ordinary cleanup pull request, let all CI checks run, and complete solo Self-Review while they run.
 5. Repair every CI or review finding in the same cleanup pull request, including a red lane unrelated to the campaign's original changes, and repeat until the same head is green and clean.
 6. Merge with authorization, then remove the cleanup worktree, branch, and assignment-owned external assets.
 7. If integration produces no diff, complete solo Self-Review over the integrated target, then remove the unused cleanup worktree and branch without opening a pull request.
