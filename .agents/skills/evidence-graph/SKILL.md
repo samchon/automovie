@@ -107,7 +107,9 @@ Make every reason state why this claimant answers for that target. A restated he
 
 Use `@evidenceExclude` only when the claim intentionally owes nothing to the target, and state the boundary and why no implementation belongs there. An exclusion is not positive evidence and does not satisfy a reference configured with `noEvidenceExclude`.
 
-Repository and generated-production graphs never require `@evidenceReview`, `@evidenceExcludeReview` or companion fingerprints. Keep `evidence/review` disabled on the repository graph, because its complete population carries enough relationships that one companion sentence per edge becomes repeated acknowledgement and not inspection. The generated-production graph is separate: its completion stage is `evidence`, and it requires truthful relationships over its authored population plus the author's actual-output judgment under the shipped evidence-graph and review-verification skills. The scaffold's own target families and checklists are owned by the shipped skills, and this repository's triangle is imposed on no production.
+Repository and generated-production graphs never require `@evidenceReview`, `@evidenceExcludeReview` or companion fingerprints. Keep `evidence/review` disabled on the repository graph, because its complete population carries enough relationships that one companion sentence per edge becomes repeated acknowledgement and not inspection.
+
+The generated-production graph is separate. Its completion stage is `evidence`, and it requires truthful relationships over its authored population plus the author's actual-output judgment under the shipped evidence-graph and review-verification skills. The shipped skills own the scaffold's target families and checklists, and this repository's triangle is imposed on no production.
 
 ## Change workflow
 

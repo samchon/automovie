@@ -34,7 +34,7 @@ On a `codex exec resume` turn the session UUID is on the command line, and on a 
 
 Moving `USERPROFILE` and `HOME` to make a sandboxed agent's lock paths writable also moves `~/.codex`. The session file relocates, `codex exec resume` no longer finds the session, and a relocated rollout looks like a finished turn. Pin `CODEX_HOME` before the home moves, and afterwards verify that no `.codex` exists under the new home, that the session resumes on the same UUID and that the rollout still grows.
 
-The workaround also makes the supervisor and the agent fence against different coordination roots, so mutual exclusion never engages. Run rounds at turn boundaries only. On Claude Code, moving the home strands its MCP approval state in the user config, and the session then runs to completion touching zero product tools. Claude Code runs as the profile that owns the coordination root, so the workaround is unnecessary there. Say in the record whether the run stands on the stock configuration or an override.
+The workaround also makes the supervisor and the agent fence against different coordination roots, so mutual exclusion never engages. Take supervision actions at turn boundaries only. On Claude Code, moving the home strands its MCP approval state in the user config, and the session then runs to completion touching zero product tools. Claude Code runs as the profile that owns the coordination root, so the workaround is unnecessary there. Say in the record whether the run stands on the stock configuration or an override.
 
 ## Verify your instruments
 

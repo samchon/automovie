@@ -60,4 +60,4 @@ Apply the scaffold's [static-document update policy](../../../packages/template/
 
 For render, pose, expression, geometry, material or motion changes, also follow the [3D modeling](../3d-modeling/SKILL.md) and [viewer-verification](../viewer-verification/SKILL.md) skills.
 
-The [evidence graph skill](../evidence-graph/SKILL.md) owns committed requirement-to-source traceability for this repository's own packages. The generated-production graph is separate: apply that skill's citation honesty and diagnostic discipline to it and impose no requirement-specification-source triangle on a production.
+The [evidence graph skill](../evidence-graph/SKILL.md) owns this repository's own traceability and states how its citation discipline applies to a generated production's separate graph.
