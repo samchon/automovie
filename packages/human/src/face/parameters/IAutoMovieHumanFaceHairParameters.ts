@@ -34,10 +34,15 @@
 export interface IAutoMovieHumanFaceHairParameters {
   /** Root-bearing scalp sites. Unknown sites are omitted, not assigned a default density. */
   biology?: {
+    /** Central frontal scalp, behind the frontal hairline. */
     frontal?: IAutoMovieHumanFaceHairParameters.Site;
+    /** Crown/vertex scalp, where a whorl may occur. */
     vertex?: IAutoMovieHumanFaceHairParameters.Site;
+    /** Anatomical-left temple. */
     leftTemporal?: IAutoMovieHumanFaceHairParameters.Site;
+    /** Anatomical-right temple. */
     rightTemporal?: IAutoMovieHumanFaceHairParameters.Site;
+    /** Posterior occipital scalp, above the nape hairline. */
     occipital?: IAutoMovieHumanFaceHairParameters.Site;
   };
   /** Fixed anatomical landmarks locating the hair-bearing boundary. */
@@ -51,16 +56,25 @@ export interface IAutoMovieHumanFaceHairParameters {
     /** Inion to median occipital hairline point, straight 3D distance in mm. */
     midOccipitalFromInionMm?: number;
     /** Observed midfrontal outline class, independent of age or sex. */
-    outline?: "rounded" | "straight" | "triangular" | "m-shaped";
+    outline?: "linear" | "triangular" | "round" | "m-shaped";
+    /** Left temporal hairline class in the same study's four-class protocol. */
+    leftTemporalOutline?: "inverted-triangle" | "inverted-round" | "straight" | "convex";
+    /** Right temporal hairline class, independently observed. */
+    rightTemporalOutline?: "inverted-triangle" | "inverted-round" | "straight" | "convex";
     /** Whether a central peak is present, independent of the broad outline. */
     centralPeak?: "present" | "absent";
   };
   /** Regionally measured shaft lengths in mm, never individual guide paths. */
   length?: {
+    /** Frontal scalp current shaft length, mm. */
     frontalMm?: number;
+    /** Vertex scalp current shaft length, mm. */
     vertexMm?: number;
+    /** Anatomical-left temporal shaft length, mm. */
     leftTemporalMm?: number;
+    /** Anatomical-right temporal shaft length, mm. */
     rightTemporalMm?: number;
+    /** Occipital scalp current shaft length, mm. */
     occipitalMm?: number;
   };
   /** Observed curl morphology, separately from a renderer's wave/helix recipe. */
@@ -98,9 +112,13 @@ export interface IAutoMovieHumanFaceHairParameters {
     bangs?: "present" | "absent";
     /** Coarse, categorical comb direction in anatomically named scalp regions. */
     flow?: {
+      /** Superior scalp comb direction. */
       top?: IAutoMovieHumanFaceHairParameters.Flow;
+      /** Anatomical-left side comb direction. */
       leftSide?: IAutoMovieHumanFaceHairParameters.Flow;
+      /** Anatomical-right side comb direction. */
       rightSide?: IAutoMovieHumanFaceHairParameters.Flow;
+      /** Posterior scalp comb direction. */
       back?: IAutoMovieHumanFaceHairParameters.Flow;
     };
   };
