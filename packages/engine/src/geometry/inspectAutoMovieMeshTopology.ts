@@ -8,8 +8,9 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
 import { IAutoMovieMeshTopology } from "./IAutoMovieMeshTopology";
+import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
  * Measure a mesh's triangle topology instead of assuming it.
@@ -39,7 +40,9 @@ export const inspectAutoMovieMeshTopology = (
   const indices = triangleIndicesOf(mesh, "mesh topology");
   const key = (at: number): string =>
     [0, 1, 2]
-      .map((axis) => Math.round(mesh.positions[at * 3 + axis]! * WELD_SCALE))
+      .map((axis) =>
+        Math.round(mesh.positions[at * 3 + axis]! * MESH_WELD_GRID),
+      )
       .join(",");
   const edges = new Map<string, number>();
   const degenerateTriangles: number[] = [];
@@ -85,9 +88,6 @@ export const inspectAutoMovieMeshTopology = (
     volume: sixVolume / 6,
   };
 };
-
-/** Welding grid for topology queries: 1 nm, far below any building tolerance. */
-const WELD_SCALE = 1e9;
 
 /**
  * How many components of one optional attribute buffer are not finite numbers.
