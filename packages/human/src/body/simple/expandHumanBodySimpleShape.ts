@@ -44,11 +44,12 @@ const CONVERGENCE = 1e-5;
  * With `over`, an existing detailed shape, the result keeps that shape's
  * residue: the shape is projected back to the simple tier, the projection is
  * expanded, and only the difference between the new expansion and that one
- * is added to the shape, so an unchanged simple value changes nothing, a
- * detailed edit on a named channel survives, and the same simple values
- * give the same body whatever was edited in between. Channels the table
- * does not name pass through untouched. The result is a fresh record; the
- * detailed tier remains the document's canonical form.
+ * is added to the shape, so an unchanged simple value changes nothing and a
+ * detailed edit on a named channel survives. The result still depends on
+ * that detailed residue: identical simple inputs over different detailed
+ * shapes need not produce identical bodies. Channels the table does not name
+ * pass through untouched. The detailed tier remains the document's canonical
+ * form, and the returned record is fresh.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Turns the identity-card values and tape measurements into the detailed channel weights a document stores, met by measurement, and keeps the detailed residue when applied over a shape.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Evaluates the term table, the measured inversions in the specified order, the envelope refusals and the residual composition the specification lists.

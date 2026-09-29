@@ -426,9 +426,9 @@ export function mountConnectedBodyPanel<
       if (intents.isCurrent(ticket)) refuse(error);
     }
   };
-  // The body's rest crosses nothing by construction (the shipped census says
-  // so, between segments and within each), so the reading is absolute: any
-  // entry is a finding, and a segment named twice passes through itself.
+  // The basis neutral rest has no crossings; some combined shaped rests do.
+  // The reading is absolute for the committed document: any entry is a
+  // finding, and a segment named twice passes through itself.
   element("body-contacts").onclick = async () => {
     const ticket = withdraw();
     status("Measuring which skin segments cross…", "building");
