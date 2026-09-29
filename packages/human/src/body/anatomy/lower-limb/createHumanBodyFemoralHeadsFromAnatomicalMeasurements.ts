@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
-import { admitHumanBodyAnatomicalMeasurements } from "../admitHumanBodyAnatomicalMeasurements";
-import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../IAutoMovieHumanBodyAnatomicalMeasurements";
-import { placeHumanBodyArticularSphere } from "../placeHumanBodyArticularSphere";
+import { admitHumanBodyAnatomicalMeasurements } from "../measurements/admitHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import { placeHumanBodyArticularSphere } from "../articulation/placeHumanBodyArticularSphere";
 import type { IAutoMovieHumanBodyFemoralHead } from "./IAutoMovieHumanBodyFemoralHead";
 
 /**

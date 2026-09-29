@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyWholeBodyVolume } from "./measurements/IAutoMovieHumanBodyWholeBodyVolume";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "./measurements/AutoMovieHumanBodyNonemptyMeasurements";
+import type { IAutoMovieHumanBodyWholeBodyVolume } from "./IAutoMovieHumanBodyWholeBodyVolume";
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "./AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
  * Whole-body material totals constraining, not replacing, regional anatomy.

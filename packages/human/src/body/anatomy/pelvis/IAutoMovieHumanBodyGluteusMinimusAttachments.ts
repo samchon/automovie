@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /**
  * Deep minimus origin and anterior greater-trochanter insertion.

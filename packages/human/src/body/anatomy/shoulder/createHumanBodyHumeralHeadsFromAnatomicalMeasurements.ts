@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
-import { admitHumanBodyAnatomicalMeasurements } from "../admitHumanBodyAnatomicalMeasurements";
-import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../IAutoMovieHumanBodyAnatomicalMeasurements";
+import { admitHumanBodyAnatomicalMeasurements } from "../measurements/admitHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
 import { placeHumanBodyHumeralHead } from "./placeHumanBodyHumeralHead";
 

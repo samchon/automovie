@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 type PectoralisMajorOrigin<Side extends AutoMovieHumanBodySide> =
   | { structure: `${Side}Clavicle`; site: "medialAnteriorHalf" }

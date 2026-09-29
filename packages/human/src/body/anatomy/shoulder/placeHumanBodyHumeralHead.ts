@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
 import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
-import { placeHumanBodyArticularSphere } from "../placeHumanBodyArticularSphere";
+import { placeHumanBodyArticularSphere } from "../articulation/placeHumanBodyArticularSphere";
 
 /**
  * Place one spherical articular head at the body's posed humeral joint centre.

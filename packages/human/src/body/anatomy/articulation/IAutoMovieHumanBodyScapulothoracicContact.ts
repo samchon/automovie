@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "./AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /**
  * Scapula gliding over the posterior thoracic cage without a synovial joint.

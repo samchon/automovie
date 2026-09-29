@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
+import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 
 type ArticularHeadBone =
   | "leftUpperArm"

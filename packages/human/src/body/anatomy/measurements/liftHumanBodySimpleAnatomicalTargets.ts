@@ -3,8 +3,8 @@ import typia from "typia";
 import { admitHumanBodyAnatomicalMeasurements } from "./admitHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "./IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
 import type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./IAutoMovieHumanBodySimpleAnatomicalTargets";
-import type { IAutoMovieHumanBodyTrunkSurfaceMeasurements } from "./surface/IAutoMovieHumanBodyTrunkSurfaceMeasurements";
-import type { IAutoMovieHumanBodyLowerLimbSurfaceMeasurements } from "./surface/IAutoMovieHumanBodyLowerLimbSurfaceMeasurements";
+import type { IAutoMovieHumanBodyTrunkSurfaceMeasurements } from "../surface/IAutoMovieHumanBodyTrunkSurfaceMeasurements";
+import type { IAutoMovieHumanBodyLowerLimbSurfaceMeasurements } from "../surface/IAutoMovieHumanBodyLowerLimbSurfaceMeasurements";
 
 /**
  * Lift the simple tier's explicit physical targets into the detailed tree.

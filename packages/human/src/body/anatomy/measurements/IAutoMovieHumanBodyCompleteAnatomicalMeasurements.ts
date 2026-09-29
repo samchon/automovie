@@ -1,8 +1,8 @@
 import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./IAutoMovieHumanBodyAnatomicalMeasurements";
-import type { IAutoMovieHumanBodyAge } from "./measurements/IAutoMovieHumanBodyAge";
-import type { IAutoMovieHumanBodyMass } from "./measurements/IAutoMovieHumanBodyMass";
-import type { IAutoMovieHumanBodyStandingStature } from "./measurements/IAutoMovieHumanBodyStandingStature";
-import type { IAutoMovieHumanBodySurfaceMeasurements } from "./surface/IAutoMovieHumanBodySurfaceMeasurements";
+import type { IAutoMovieHumanBodyAge } from "./IAutoMovieHumanBodyAge";
+import type { IAutoMovieHumanBodyMass } from "./IAutoMovieHumanBodyMass";
+import type { IAutoMovieHumanBodyStandingStature } from "./IAutoMovieHumanBodyStandingStature";
+import type { IAutoMovieHumanBodySurfaceMeasurements } from "../surface/IAutoMovieHumanBodySurfaceMeasurements";
 
 /**
  * A full-scale detailed request rather than an isolated anatomical observation.

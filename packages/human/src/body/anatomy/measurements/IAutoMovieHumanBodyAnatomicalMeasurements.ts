@@ -1,11 +1,11 @@
-import type { IAutoMovieHumanBodyPelvisMeasurements } from "./pelvis/IAutoMovieHumanBodyPelvisMeasurements";
+import type { IAutoMovieHumanBodyPelvisMeasurements } from "../pelvis/IAutoMovieHumanBodyPelvisMeasurements";
 import type { IAutoMovieHumanBodyCompositionMeasurements } from "./IAutoMovieHumanBodyCompositionMeasurements";
-import type { IAutoMovieHumanBodyLowerLimbMeasurements } from "./lower-limb/IAutoMovieHumanBodyLowerLimbMeasurements";
-import type { IAutoMovieHumanBodyTrunkMeasurements } from "./thorax/IAutoMovieHumanBodyTrunkMeasurements";
-import type { IAutoMovieHumanBodyUpperLimbMeasurements } from "./upper-limb/IAutoMovieHumanBodyUpperLimbMeasurements";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "./measurements/AutoMovieHumanBodyNonemptyMeasurements";
-import type { IAutoMovieHumanBodyAge } from "./measurements/IAutoMovieHumanBodyAge";
-import type { IAutoMovieHumanBodySurfaceMeasurements } from "./surface/IAutoMovieHumanBodySurfaceMeasurements";
+import type { IAutoMovieHumanBodyLowerLimbMeasurements } from "../lower-limb/IAutoMovieHumanBodyLowerLimbMeasurements";
+import type { IAutoMovieHumanBodyTrunkMeasurements } from "../thorax/IAutoMovieHumanBodyTrunkMeasurements";
+import type { IAutoMovieHumanBodyUpperLimbMeasurements } from "../upper-limb/IAutoMovieHumanBodyUpperLimbMeasurements";
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "./AutoMovieHumanBodyNonemptyMeasurements";
+import type { IAutoMovieHumanBodyAge } from "./IAutoMovieHumanBodyAge";
+import type { IAutoMovieHumanBodySurfaceMeasurements } from "../surface/IAutoMovieHumanBodySurfaceMeasurements";
 
 /**
  * Sparse typed anatomical targets and observations for a body editor.

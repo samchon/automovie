@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 type GluteusMaximusOrigin<Side extends AutoMovieHumanBodySide> =
   | { structure: `${Side}CoxalBone`; site: "posteriorIlium" }

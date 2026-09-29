@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "./AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /**
  * Named opposing bony surfaces of one anatomical articulation.

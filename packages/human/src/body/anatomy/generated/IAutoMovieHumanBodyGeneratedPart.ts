@@ -1,6 +1,6 @@
-import type { AutoMovieHumanBodyBoneId } from "./AutoMovieHumanBodyBoneId";
-import type { AutoMovieHumanBodyConnectiveTissueId } from "./AutoMovieHumanBodyConnectiveTissueId";
-import type { AutoMovieHumanBodyMuscleId } from "./AutoMovieHumanBodyMuscleId";
+import type { AutoMovieHumanBodyBoneId } from "../identity/AutoMovieHumanBodyBoneId";
+import type { AutoMovieHumanBodyConnectiveTissueId } from "../identity/AutoMovieHumanBodyConnectiveTissueId";
+import type { AutoMovieHumanBodyMuscleId } from "../identity/AutoMovieHumanBodyMuscleId";
 import type { IAutoMovieHumanBodyGeneratedSolid } from "./IAutoMovieHumanBodyGeneratedSolid";
 
 type GeneratedMaterialPart<Id extends string, Tissue extends string> = {

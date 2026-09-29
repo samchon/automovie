@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyAnatomicalResolution } from "./IAutoMovieHumanBodyAnatomicalResolution";
 import type { IAutoMovieHumanBodyGeneratedSkin } from "./IAutoMovieHumanBodyGeneratedSkin";
 import type { IAutoMovieHumanBodyPartResolution } from "./IAutoMovieHumanBodyPartResolution";
-import type { AutoMovieHumanBodyPartId } from "./AutoMovieHumanBodyPartId";
+import type { AutoMovieHumanBodyPartId } from "../identity/AutoMovieHumanBodyPartId";
 
 /**
  * Resolution report for the connected exterior and individually named parts.

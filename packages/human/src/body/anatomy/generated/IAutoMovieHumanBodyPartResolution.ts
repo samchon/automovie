@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyAnatomicalResolution } from "./IAutoMovieHumanBodyAnatomicalResolution";
 import type { IAutoMovieHumanBodyGeneratedPart } from "./IAutoMovieHumanBodyGeneratedPart";
-import type { AutoMovieHumanBodyPartId } from "./AutoMovieHumanBodyPartId";
+import type { AutoMovieHumanBodyPartId } from "../identity/AutoMovieHumanBodyPartId";
 
 /**
  * A named internal part resolved with validation or explicitly unavailable.
