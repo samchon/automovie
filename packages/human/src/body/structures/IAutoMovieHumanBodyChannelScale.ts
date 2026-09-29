@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanFaceEndpointScale";
+import type { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 
 /**
  * How far one unit of a body channel moves the skin, and what it measures.

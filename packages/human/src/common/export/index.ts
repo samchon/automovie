@@ -1,2 +1,2 @@
-export * from "./portraitDocument";
-export * from "./portraitGltfExtensions";
+export * from "./createGltfDocument";
+export * from "./gltfMaterialExtensions";

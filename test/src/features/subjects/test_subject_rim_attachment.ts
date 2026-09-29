@@ -1,4 +1,4 @@
-import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
+import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

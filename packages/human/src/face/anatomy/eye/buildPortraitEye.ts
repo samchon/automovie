@@ -20,7 +20,7 @@ import type {
 
 import { portraitMix as mix } from "../../mesh/portraitMix";
 import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitPatch as patch } from "../../mesh/portraitPatch";
 import { portraitRegion } from "../../mesh/portraitRegion";

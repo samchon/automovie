@@ -2,7 +2,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 as Point } from "@automovie/interface";
 import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
-import { portraitNormals } from "../../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitRegion } from "../../mesh/portraitRegion";
 import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 /**

@@ -1,5 +1,5 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
+import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
 import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";

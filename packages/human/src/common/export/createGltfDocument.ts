@@ -14,8 +14,8 @@ import {
   KHRMaterialsVolume,
 } from "@gltf-transform/extensions";
 
-import { placePortraitMesh } from "../mesh/placePortraitMesh";
-import { portraitMeshBuffers } from "../mesh/portraitMeshBuffers";
+import { placePortraitMesh } from "../mesh/placeMeshPreservingFaces";
+import { portraitMeshBuffers } from "../mesh/float32MeshBuffers";
 
 /**
  * Convert a static AutoMovie portrait into portable glTF buffers and materials.

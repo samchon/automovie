@@ -4,7 +4,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitNormals } from "../../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";

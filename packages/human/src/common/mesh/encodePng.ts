@@ -1,6 +1,6 @@
 import { zlibSync } from "fflate";
 
-import type { IPortraitPngImage } from "./structures/IPortraitPngImage";
+import type { IPortraitPngImage } from "./structures/IPngImage";
 
 /**
  * The PNG encoder for facial textures that are recoloured by numerical rules.

@@ -1,5 +1,5 @@
-import { portraitDocument } from "@automovie/human/common/export/portraitDocument";
-import { portraitMeshBuffers } from "@automovie/human/common/mesh/portraitMeshBuffers";
+import { portraitDocument } from "@automovie/human/common/export/createGltfDocument";
+import { portraitMeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";

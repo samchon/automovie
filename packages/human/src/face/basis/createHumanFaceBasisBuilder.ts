@@ -16,7 +16,7 @@ import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
-import { createHumanFaceBasisRegion } from "../../common/basis/createHumanFaceBasisRegion";
+import { createHumanFaceBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";

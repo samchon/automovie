@@ -1,1 +1,1 @@
-export * from "./createHumanFaceBasisRegion";
+export * from "./createHumanBasisRegion";

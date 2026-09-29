@@ -2,7 +2,7 @@ import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/append
 import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
 import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
-import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
+import { portraitNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
 import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";

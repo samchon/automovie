@@ -11,7 +11,7 @@
  */
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { portraitNormals } from "../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_SKIN_RELIEF_POSE } from "../constants/HUMAN_BODY_SKIN_RELIEF_POSE";
 import { HUMAN_BODY_SKIN_SITES } from "../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";

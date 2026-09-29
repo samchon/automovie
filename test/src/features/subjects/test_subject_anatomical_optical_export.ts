@@ -1,4 +1,4 @@
-import { portraitDocument } from "@automovie/human/common/export/portraitDocument";
+import { portraitDocument } from "@automovie/human/common/export/createGltfDocument";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 

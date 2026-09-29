@@ -1,1 +1,1 @@
-export * from "./IPortraitPngImage";
+export * from "./IPngImage";

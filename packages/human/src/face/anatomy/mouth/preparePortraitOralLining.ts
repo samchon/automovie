@@ -1,5 +1,5 @@
 
-import { portraitNormals } from "../../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";
 import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
 import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";

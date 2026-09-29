@@ -1,6 +1,6 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { createHumanFaceBasisRegion } from "../../common/basis/createHumanFaceBasisRegion";
+import { createHumanFaceBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import { humanBodyGpuRegion } from "./humanBodyGpuRegion";
 

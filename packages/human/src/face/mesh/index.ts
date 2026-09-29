@@ -1,5 +1,4 @@
 export * from "./structures";
-export * from "./decodePortraitPng";
 export * from "./normalsOf";
 export * from "./p";
 export * from "./patch";

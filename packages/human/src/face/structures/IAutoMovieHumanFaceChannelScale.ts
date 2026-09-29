@@ -1,4 +1,4 @@
-import { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanFaceEndpointScale";
+import { IAutoMovieHumanFaceEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 
 /**
  * How far one unit of a connected-basis channel actually moves the surface.

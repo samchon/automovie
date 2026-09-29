@@ -1,6 +1,6 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
-import { portraitNormals } from "../../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitRegion } from "../../mesh/portraitRegion";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";

@@ -1,2 +1,2 @@
-export * from "./IAutoMovieHumanFaceEndpointScale";
+export * from "./IAutoMovieHumanEndpointScale";
 export * from "./IHumanMaterialRegion";

@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import { portraitNormals } from "../../../common/mesh/portraitNormals";
+import { portraitNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNasalRimJets } from "./portraitNasalRimJets";
 import { samplePortraitNasalEntry } from "./samplePortraitNasalEntry";
