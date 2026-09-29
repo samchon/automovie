@@ -26,11 +26,15 @@
  *   contour and occlusion boundaries at the current camera, and nothing about
  *   surface shape inside a flat region.
  */
-export type HumanObservationPass =
-  | "beauty"
-  | "clay"
-  | "normal"
-  | "depth"
-  | "flat"
-  | "wire"
-  | "outline";
+export const HUMAN_OBSERVATION_PASSES = [
+  "beauty",
+  "clay",
+  "normal",
+  "depth",
+  "flat",
+  "wire",
+  "outline",
+] as const;
+
+/** One of `HUMAN_OBSERVATION_PASSES`. */
+export type HumanObservationPass = (typeof HUMAN_OBSERVATION_PASSES)[number];

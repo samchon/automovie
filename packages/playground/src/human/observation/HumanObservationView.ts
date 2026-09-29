@@ -8,12 +8,16 @@
  * profile. The body editor uses the same names and directions as the face
  * editor so their observation records compare.
  */
-export type HumanObservationView =
-  | "front"
-  | "left-three-quarter"
-  | "left"
-  | "back"
-  | "right-three-quarter"
-  | "right"
-  | "top"
-  | "bottom";
+export const HUMAN_OBSERVATION_VIEWS = [
+  "front",
+  "left-three-quarter",
+  "left",
+  "back",
+  "right-three-quarter",
+  "right",
+  "top",
+  "bottom",
+] as const;
+
+/** One of `HUMAN_OBSERVATION_VIEWS`. */
+export type HumanObservationView = (typeof HUMAN_OBSERVATION_VIEWS)[number];
