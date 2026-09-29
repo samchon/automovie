@@ -1,9 +1,9 @@
 import { buildPortraitEars } from "@automovie/human/face/anatomy/cranium/buildPortraitEars";
 import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
+import { applyPortraitOralContact } from "@automovie/human/face/anatomy/mouth/applyPortraitOralContact";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
-import { applyPortraitOralContact } from "@automovie/human/face/anatomy/mouth/applyPortraitOralContact";
 import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 
