@@ -4,6 +4,10 @@
   "version": "0.1.0",
   "description": "automovie website: the public showcase published at https://samchon.github.io/AutoMovie/",
   "type": "module",
+  "exports": {
+    "./gallery": "./src/gallery.ts",
+    "./collection": "./src/collection.ts"
+  },
   "scripts": {
     "dev": "vite",
     "build": "ttsc --noEmit && vite build",
