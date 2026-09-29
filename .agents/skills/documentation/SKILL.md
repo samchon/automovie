@@ -1,95 +1,24 @@
 ---
 name: documentation
-description: Defines the .wiki/ working knowledge base, package README, code JSDoc, and agent-instruction conventions for automovie. Use before writing or modifying docs, AGENTS.md, or a SKILL.md, and revise the wiki as the work proceeds, not at the end.
+description: Defines the .wiki/ working knowledge base, package README, code JSDoc, source-file context, prose form, and agent-instruction conventions for automovie. Use before writing or modifying docs, AGENTS.md, or a SKILL.md, and revise the wiki as the work proceeds, not at the end.
 ---
 
 # Documentation
 
-## The `.wiki/` knowledge base
+Read the document that matches the surface you are writing. Every document here follows [prose form](prose.md).
 
-`.wiki/` (gitignored) is automovie's durable, cross-session knowledge base, written in Korean. It is local to a checkout and starts empty; read whatever it holds at session start, create what it does not hold yet, and revise as the work proceeds rather than at the end. Layout, created on demand: `00-governance` (operating manual, reading ledger), `01-progress` (current state, next priorities), `02-overview` (product), `03-philosophy` (the two harness articles + principles), `04-domain-research` (external study), `05-references` (agentica/autobe/interia), `06-architecture` (monorepo + per-package design), `07-decisions` (append-only decision log), `08-campaigns` (issue-campaign knowledge bases), `99-worklog` (dated logs).
+## [The `.wiki/` knowledge base](wiki.md)
 
-- Record a design choice in `07-decisions/` (append-only; a later entry supersedes an earlier one) the moment it is made.
-- Update `01-progress/README.md` whenever a package or capability lands.
-- Keep `06-architecture/` matching the code; when generalizing the rig/engine model, the design doc precedes or accompanies the code.
-- Separate confirmed fact (with file paths) from inference, and cite external sources by URL. References and domain study are evidence, not authority; do not transplant them verbatim.
+The ignored Korean working record: layout, decision log, user-instruction worklog, progress. Read at session start and whenever a decision, instruction or capability lands.
 
-## Package READMEs
+## [Package READMEs and code documentation](source-docs.md)
 
-Each package's `README.md` is English and practical: what it is, why it exists, the domain folders or public surface, and the conventions a contributor needs. It must stand alone from the ignored `.wiki`; link durable architecture to committed requirements, specifications, JSDoc, or another tracked owner instead of a private working path.
+README content, JSDoc voice, and the context every authored source file carries. Read before writing or changing a README, a JSDoc block or a source-file header.
 
-When a README falls inside a committed requirement or specification population, its participation is owned by the [evidence graph skill](../evidence-graph/SKILL.md). Do not remove it from that population by filename while editing prose or use documentation structure alone to decide an evidence exclusion.
+## [Agent instructions](instructions.md)
 
-## Code JSDoc
+How harnesses load `AGENTS.md` and skills, skill layout, writing rules, canonical ownership, and the instruction review gate. Read before editing `AGENTS.md` or any `SKILL.md`.
 
-Source JSDoc is English, in the interia voice: state what the type or function is and the non-obvious *why* (the design intent, the constraint it carries), not a paraphrase of the signature. Close interface types with `@author Samchon`. Examples in JSDoc are direction, not contract.
+## [Prose form](prose.md)
 
-When a public export participates in the committed contract graph, preserve and revise its citations under the [evidence graph skill](../evidence-graph/SKILL.md). This skill owns the prose and comment form; the evidence graph skill owns the cited layers and reachability. A declaration enrolled in a contracts claim answers its chapters under the [contracts skill](../contracts/SKILL.md), which owns the questions while this skill owns how the answers are written.
-
-### Source-file context
-
-Every authored source file must explain enough context within that file for a reader to understand its purpose without reconstructing the conversation or reading a private worklog. Provide a module-level explanation of the responsibility, actual entry points and consumers, inputs and outputs, ownership and mutation rules, processing order, and the reason that order matters. For declaration or data owners, explain their role, provenance, interpretation and consumers; execution details apply where execution exists. State units, coordinate frames, sign conventions, formula assumptions and degeneracies where they apply. For other domains, explain the corresponding state, protocol or execution assumptions rather than adding irrelevant geometry prose.
-
-Explain the non-obvious calculation and its derivation or source beside the code that owns it. Distinguish the invariants this module establishes from preconditions supplied by callers and limitations it does not solve. Name downstream consequences of changing a shared result, including which derived data becomes stale. A test or external link can provide additional evidence, but cannot replace the explanation of what this file does and why.
-
-Keep shared contracts at their canonical owner. A caller explains its role in that contract and links to the owner instead of copying another implementation or its full documentation. Sufficient local context and one semantic owner are complementary: the file explains its own responsibility, not every dependency's internals. The development skill's [Source file structure](../development/SKILL.md#source-file-structure) owns file size and decomposition; reduce responsibility rather than explanation when both obligations cannot fit.
-
-## Agent instructions
-
-`AGENTS.md` and `SKILL.md` files are operational documents for humans and agents. `AGENTS.md ## Maintenance` decides where a rule belongs; these rules decide how it is written. A revision should read as if it had always been there.
-
-- **Optimize for comprehension, not minimum length.** A shorter document that forces the reader to infer prerequisites, reasons, exceptions, or stop conditions is not concise. Include the context needed to execute correctly.
-- **Remove repetition, not substance.** State a rule once at its owning document and link to it elsewhere. Keep the rationale when it prevents a plausible mistake.
-- **Give each paragraph one job.** Split purpose, rule, rationale, procedure, and consequence when combining them would make the reader unpack a dense block.
-- **Use structure as compression.** Numbered lists for ordered procedures, bullets for choices or checklists, tables for repeated mappings, code blocks for exact commands. Do not hide a workflow inside one long sentence.
-- **State the rule before its reason.** Use negative phrasing only for a named failure mode that the affirmative rule does not already exclude. Write what to do and name the exclusion after it: "X, not Y" and a heading built the same way state a contrast and leave the reader to derive the instruction.
-- **Skills point, not paraphrase.** Do not restate what the `.wiki/`, READMEs, or source comments already say; link to them. Skills carry cross-cutting rules and conventions, not a second copy of project docs.
-
-Give every instruction one semantic owner and link to it elsewhere. A capability router belongs in `SKILL.md`; a substantial conditional phase belongs in one directly linked sibling Markdown file. A phase document owns one stage of one workflow, while a rule shared by every phase stays in the router. Do not create nested skill directories, `agents/openai.yaml`, or unreferenced examples and metadata.
-
-Before creating, moving, splitting, renaming, or editing an agent instruction, classify whether the rule is global behavior, a skill trigger, a shared procedure, a conditional phase, a product contract, or working knowledge. Do not copy a completion condition into several owners. Preserve necessary context, authority, stop conditions, and failure guards while removing ceremony and repeated conclusions.
-
-## Instruction authority
-
-Give every instruction one canonical semantic owner. Edit that owner first, then make every caller a link, trigger, or exact handoff sentence that adds only the caller's context.
-
-| Instruction surface | Canonical ownership |
-| --- | --- |
-| Root `AGENTS.md` | Repository-wide attitude and the skill trigger index. Its H2 surface is `Attitude`, `Skills`, and `Maintenance`; it does not restate skill procedures. |
-| Repository `.agents/skills/<name>/SKILL.md` | One concern's trigger, exclusions, shared invariants, and direct routes. The directory and frontmatter `name` agree; substantial conditional phases live in directly linked one-level sibling documents. |
-| Documentation skill | Instruction classification, writing form, link integrity, package README and JSDoc form, and instruction-diff review. |
-| Development skill | Source and test rules, consequence analysis, the exact changed-position coverage obligation, validation, and change integrity. |
-| Contracts skill | The implementation checklist chapters, and the rule that each question has exactly one chapter owner. |
-| Review skill | Whole-surface, fresh-round review semantics and Self-Review. Campaign procedures name when those rounds run without redefining them. |
-| Issue-campaign skills | Discovery, publication, implementation ownership, DAG dispatch, integration, and completion. The base campaign owns the ordinary shared-checkout topology; the multi-agent campaign owns only its explicitly selected isolated topology. |
-| Pull-request skill | Branch, commit, push, check, merge, and cleanup behavior. Other skills state when a remote action is due and link to this owner. |
-| Scaffold maintenance and shipped skills | The generated project's contract and authoring doctrine. The scaffold ships the `contract`, `production-lifecycle`, `evidence-graph`, `source-authoring`, and `review-verification` routers; repository instructions point to them instead of copying their production procedure. |
-| Product contracts, package READMEs, and public JSDoc | Product promises, system contracts, package use, and public API meaning. Instructions route work to those owners and do not become a second contract corpus. |
-
-When a procedure crosses owners, write the handoff as the condition, the named destination, and what authority transfers. Do not copy the destination's completion rule, test matrix, command list, or failure policy into the caller. A user-selected workflow may override an execution detail for that run; record the override in the run or pull-request chronology rather than rewriting a durable repository rule.
-
-Review every changed instruction literally with its linked callers and described implementation. Check frontmatter, directory and `name` agreement, trigger scope, links, unique ownership, prose-line form, and contradictory or duplicate completion points. After corrections stop, require two consecutive complete instruction-diff rounds with no finding and no edit before final repository gates.
-
-## Prose line breaks
-
-Write each Markdown paragraph on one source line. Never hard-wrap a single paragraph at a fixed column: Markdown already soft-wraps it, while manual wrapping makes small edits reflow unrelated lines.
-
-One source line does not mean one long paragraph. Insert a blank line whenever the idea changes. Keep structural line breaks for paragraphs, list items, headings, tables, and fenced code.
-
-Agent instructions have no repository-wide formatter. Inspect Markdown-only and agent-instruction diffs directly, then run `git diff --check`. The pull-request skill owns the single source-formatting pass before an authorized merge.
-
-## Voice
-
-Plain and direct. State the fact and stop.
-
-- No em dashes. Use a period, comma, colon, or parentheses, whichever the sentence actually needs.
-- No emoji.
-- No spaced double hyphen in prose. CLI separators remain code and are not prose.
-- No filler adjectives: "powerful", "seamless", "robust", "effortless".
-- No AI-cliche phrasing: "not only X but also Y", "whether you're X or Y", "it's worth noting", "let's dive in", "delve into", "leverage" for "use", and reflexive hedging.
-- No wrap-up sentence that just restates the paragraph.
-- No mannered prose. Use the literal phrase where one exists. Mannered prose puts metaphor or flourish in its place, writing "a dial worth turning" for "a parameter worth varying" or "this point earns its keep" for "this point still matters", which makes the reader work so the writer can perform and drags in connotations nobody chose.
-
-The mannered-prose item is recent and most of the corpus predates it. Apply it to prose you write or revise, and leave a corpus-wide re-voicing as its own topic, because rewriting a settled instruction for style alone risks changing what it requires.
-
-Check these rules directly while reviewing repository instructions, package READMEs, scaffold Markdown, and TypeScript comments. They stop at the shipped contract corpus under `packages/template/scaffold/docs`, where [screenplay naturalness](../../../packages/template/scaffold/.agents/skills/production-lifecycle/naturalness.md#qualified-complete-reading) owns authored language and forbids starting from a phrase list. Code syntax, literal values, and quoted historical evidence keep their original meaning; they are not prose to rewrite for voice. The [instruction-diff review](#instruction-authority) owns the review gate.
+Line breaks and voice for every Markdown file, README and comment.

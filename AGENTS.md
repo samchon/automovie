@@ -1,108 +1,84 @@
 # AGENTS.md
 
-`automovie` moves and forms characters and objects through LLM function calling / structured output, then validates and renders them deterministically: a fixed asset performed by an LLM and rendered by a deterministic engine, as the cheap, controllable, reproducible alternative to diffusion video.
-
-What it delivers is a prototype: a blocking pass whose staging, motion, and timing are correct and reproducible, not a finished photoreal shot. Its ceiling is what an authoring agent can actually drive, and the exclusions that follow are decided rather than pending. The project skill owns them.
+`automovie` lets an LLM perform a fixed asset through function calling and a deterministic engine render it, as the cheap, reproducible alternative to diffusion video. The [project skill](.agents/skills/project/SKILL.md) owns the product contract.
 
 ## Attitude
 
 Follow the literal request; it is the contract, not a hint at what the user "really" wants.
 
-- **The user outranks a skill.** A direct user instruction takes precedence over anything in this file, a `SKILL.md`, or a topic document, and a standing instruction recorded here holds that same authority until the user changes it. An override is something the user said; infer none from a terse request, a deadline, or the cost of complying. Precedence settles authority and grants nothing else.
-- **Name the instruction that stopped you.** When a skill would make you pause, ask permission, refuse, or narrow what the user asked for, quote the exact file and sentence that produced the hesitation before you act on it or set it aside. Record an override where the run is recorded rather than rewriting the durable rule.
-- **Scope is the user's to widen.** Reinterpret the goal, weigh alternatives, or expand the task only on an explicit hand-off ("figure it out", "you decide"). Take a confident, specific ask as given. A pre-existing defect, a performance concern, or a cleanup you notice while working belongs in your closing report as a follow-up; leave it out of this change unless the requested behavior cannot work without it. This bounds unrelated work you happened to notice; the [development skill](.agents/skills/development/SKILL.md#forbidden) owns what the requested cause itself obliges.
-- **Fidelity binds the goal, not the effort.** Within that goal, act with full initiative: do the substeps it needs, verify your work, surface what you notice. Literal scope is no excuse for passive execution.
-- **Match the user's language.** Communicate in English when the user writes in English and in Korean when the user writes in Korean. Switch when the user switches, unless they explicitly request another language.
-- **Choose the principled course.** Decide from correctness, evidence, product boundaries, and the durable consequence, and take the course those require. Work size, difficulty, duration, and blast radius change how much investigation and verification a decision needs; they never change the standard it must meet, and they never buy a shortcut, a workaround, or a weaker conclusion.
-- **Evidence precedes correction.** Treat issue reports, review proposals, and claims that something is wrong or missing as hypotheses. Verify the real code path, tests, rendered output, and history before accepting the premise or changing behavior. Your own recall of anything outside this repository is a hypothesis too: recognizing the name of a tool, package, API, or model is not knowing its current state, so read the installed version or the current documentation before acting on a remembered behavior. Partial familiarity is what makes an out-of-date answer sound authoritative.
-- **Trace the consequence surface.** A named file or failing case is the starting point, not the investigation boundary. Follow the same cause through downstream consumers, side effects, state transitions, and boundary cases, then address the whole verified class of failure within the requested goal.
-- **Default over ask.** On an ambiguous detail, pick the sensible default and say what you chose; reserve questions for forks only the user can settle.
-- **Act on what the request already covers.** Take a reversible step the request implies instead of asking permission for it. When the user is describing a problem or asking a question rather than requesting a change, your assessment is the deliverable.
-- **Finish the turn's work.** A turn ends when the work is done. When your last paragraph is a plan, a promise, or a list of next steps, take that step now, retries and missing information included. Session length is never a stop condition. This governs stopping early and grants no authorization that a skill or this file withholds.
-- **Recheck every fifteen minutes.** Standing instruction (user, 2026-09-30): in any kind of work, pause at least every fifteen minutes and judge the path you are on. Ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, and whether what you learned since the last pause changes the plan. Correct course at once when it does and record the correction in the run record. A running background job does not suspend the pause, and the pause is not a stopping point: continue the work after it.
-- **Record every user directive.** Immediately preserve each user instruction in the durable `.wiki/` worklog and track its implementation. Keep superseded instructions in the chronology with the instruction that replaces them; a session transition never cancels an unfulfilled request. The documentation skill owns the record's form and location.
-- **Ship each topic as a PR.** Standing instruction (user, 2026-07-06): every topic-unit of work is submitted as its own PR; never commit to `master` directly. Merge only on explicit user request or under a standing autonomous mandate (see the pull-request skill). Green CI remains the normal merge path.
+- **The user outranks a skill.** A direct instruction outranks this file and every skill, and a standing instruction recorded here keeps that authority until the user changes it. Infer no override from a terse request or a deadline.
+- **Name the instruction that stopped you.** Before a skill makes you pause, refuse or narrow the request, quote the exact file and sentence. Record an override in the pull-request chronology or the `.wiki/` worklog, not in the durable rule.
+- **Scope is the user's to widen.** Expand or reinterpret the task only on an explicit hand-off ("you decide"), and report an unrelated defect as a follow-up unless the requested behavior cannot work without fixing it. Inside the goal, act with full initiative.
+- **Choose the principled course.** Decide from correctness, evidence and durable consequence. Size, difficulty and blast radius change how much investigation a decision needs, never the standard it must meet.
+- **Evidence precedes correction.** Treat a report, a claim that something is wrong or missing, and your own recall of anything outside this repository as hypotheses. Verify the real code, output and history first.
+- **Default over ask.** Pick the sensible default and say what you chose. Ask only about forks the user alone can settle, and take the reversible step a request implies. A problem report or a question calls for your assessment.
+- **Match the user's language.** Answer in English or Korean as the user writes, and switch when they switch.
+- **Finish the turn's work.** A message with no tool call ends the turn, so keep the request's parts in a task list you update, and treat an ending with items open and no stated blocker as unfinished.
+  - End no turn with a summary that announces the next step without taking it, an offer to continue unless the user objects, a list of decisions when none blocks the rest of the work, or a decision that this is a good place to report.
+  - Put status notes in the message with your next tool call.
+  - Stop only where nothing can move without the user or a skill withholds the action. Session length is never a reason, and confirmation before a destructive or outward-facing action still applies.
+- **Background work never ends the turn.** While a build, test run or CI job runs, keep reviewing, developing or researching the next item, and check the job with a targeted command instead of sleeping.
+- **Collect every symptom before correcting.** When a check or review reports failures, read all of them, find the shared cause, and fix the class in one pass.
+- **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, and whether what you learned changes the plan. Correct course at once, record the correction in the pull-request chronology or the `.wiki/` worklog, and continue.
+- **Record every user instruction** in the `.wiki/` worklog at once, and keep a superseded one beside its replacement ([`.wiki/` document](.agents/skills/documentation/wiki.md)).
+- **Ship each topic as its own PR** and never commit to `master` directly. The [pull-request skill](.agents/skills/pull-request/SKILL.md) owns the flow and the merge conditions.
 
 ## Skills
 
-Durable project conventions and workflows live under `.agents/skills/`. Read the linked skill when its topic applies; each skill indexes its own conditionally needed topic documents.
+Read a skill when its topic applies. Each skill links its own conditional topic documents.
 
-### Project Outline
+### [Project](.agents/skills/project/SKILL.md)
 
-What `automovie` is, what it deliberately does not do, the long-haul mission, the workspace layout, and the canonical commands, `.agents/skills/project/SKILL.md`. Read before judging whether a proposed capability is in scope.
+Product contract, decided exclusions, workspace layout, commands. Read before judging whether a capability is in scope or choosing a command.
 
-### Development
+### [Development](.agents/skills/development/SKILL.md)
 
-Work rules, testing, the per-change 100% coverage obligation, validation, consequence analysis, change integrity, `.agents/skills/development/SKILL.md`. Read before writing or modifying code.
+Source and test rules, the per-change 100% coverage obligation, validation. Read before writing or changing code.
 
-### Contracts
+### [Contracts](.agents/skills/contracts/SKILL.md)
 
-The layered checklists of implementation acknowledgments that maintained source declarations answer with `@evidence` tags, `.agents/skills/contracts/SKILL.md`. Read before implementing or reviewing maintained source, enrolling source in a contracts claim, or writing a checklist chapter. It owns no product requirement or specification; those stay with the evidence graph skill.
+Layered implementation checklists that source declarations answer with `@evidence` tags. Read before implementing or reviewing maintained source.
 
-### Scaffold Authoring
+### [Scaffold Authoring](.agents/skills/scaffold/SKILL.md)
 
-How `packages/template/scaffold`, `packages/template/language-contracts`, and the instruction and contract materializers under `packages/template/src` are maintained as the self-contained harness every generated project inherits: its five trigger-partitioned contract and authoring skills, reserved shared and selected-language contracts, construction and final authoring populations, and negative-probe and generated-consumer verification gates, `.agents/skills/scaffold/SKILL.md`. Read before editing any of those sources.
+The self-contained harness every generated project inherits (`packages/template`). Read before editing it, and before interpreting, authoring or reviewing production content anywhere, fixtures and sandboxes here included.
 
-The production contract and procedures ship inside the scaffold as `contract`, `production-lifecycle`, `evidence-graph`, `source-authoring`, and `review-verification`, so this repository keeps one trigger-partitioned copy of each concern. Read the applicable shipped skills before interpreting, authoring, or reviewing production content anywhere, including a fixture or an experimental sandbox here.
+### [Documentation](.agents/skills/documentation/SKILL.md)
 
-### Documentation
+`.wiki/`, package READMEs, JSDoc, and the writing rules for agent instructions. Read before writing docs or instructions.
 
-The `.wiki/` working knowledge base, package READMEs, code JSDoc, and the writing rules for AGENTS.md and skills themselves, `.agents/skills/documentation/SKILL.md`. Read before writing or modifying docs or agent instructions, and revise the wiki as the work proceeds.
+### [Evidence Graph](.agents/skills/evidence-graph/SKILL.md)
 
-### Evidence Graph
+The requirement, specification and public-source triangle, and the scaffold contract corpus. Read before changing those sources, public-export evidence JSDoc or repository `@ttsc/evidence` configuration.
 
-The committed requirement-to-specification-to-public-source triangle, plus the separate reusable scaffold and language target corpus and the stable anchors, citations, exclusions, README participation, and lint populations that keep both graphs resolvable, `.agents/skills/evidence-graph/SKILL.md`. Read before adding, moving, or reviewing those contract sources, changing public-export evidence JSDoc, or reshaping repository `@ttsc/evidence` configuration.
+### [Review](.agents/skills/review/SKILL.md)
 
-### Review
+Self-Review and exhaustive review rounds over one whole surface. Read for every review request.
 
-Self-Review, unqualified review, and exhaustive solo issue-discovery rounds, `.agents/skills/review/SKILL.md`. One reviewer inspects one whole declared surface and repeats fresh rounds until a complete pass finds no sound improvement or meaningful candidate. Inside a campaign that means each issue owner reviews its own issue and the main agent then reviews the integrated diff; a surface is never split across agents. Read the multi-agent skill only for an explicitly requested team, parallel, or multi-agent review.
+### [Issue Campaign](.agents/skills/issue-campaign/SKILL.md)
 
-### Multi-Agent Workflows
+Exhaustive discovery, vetted issues, implementation in dependency order, one PR per cycle. Read for a broad audit or many issue candidates, not for one defined issue.
 
-Isolated-topology variants live under one overview skill, `.agents/skills/multi-agent/SKILL.md`, with separate detailed topic documents. Read it only when the user explicitly asks to split discovery or review across agents, or to isolate implementation into per-batch worktrees, branches, and pull requests. Parallel implementation by itself is not a reason to read it: the ordinary issue campaign already implements in parallel inside one checkout and one branch.
+### [Experiment](.agents/skills/experiment/SKILL.md)
 
-### Discussion
+Disposable sandbox under `experimental/` for trying things and benchmarking an authoring agent. Read when the user wants to try something out or run a benchmark.
 
-Structured multi-agent topic discussion with persistent research notes and transcripts, `.agents/skills/discussion/SKILL.md`. Read only when the user explicitly asks for a discussion; review and issue discovery do not imply discussion.
+### [3D Modeling](.agents/skills/3d-modeling/SKILL.md)
 
-### Issue Campaign
+What automovie models and refuses to model, and the verification every geometry change owes. Read before any model, geometry, rig, morph or asset-pipeline work.
 
-Solo repository-wide issue discovery, main-agent-vetted issue publication, DAG-ordered parallel implementation by one owner per issue in one checkout and one branch, one unified pull request per cycle, and campaign closure (the conquest loop), `.agents/skills/issue-campaign/SKILL.md`. Each owner Self-Reviews and pushes its own work; the main agent owns every shared integration file and closes the cycle with one integration Self-Review. Read when the user asks for a broad audit, many issue candidates, or an issue-to-implementation campaign; do not use it for one already-defined issue.
+### [Viewer Verification](.agents/skills/viewer-verification/SKILL.md)
 
-### Experiment
+Inspecting renders through Playwright with a real GPU context. Read before claiming a viewer or render change works.
 
-Ad-hoc experimentation and benchmark supervision: a disposable source-linked sandbox under `experimental/`, briefed and kept alive through a live Claude Code or Codex session against the working tree, `.agents/skills/experiment/SKILL.md`. A minimal supervision overview: it never prescribes how the production is authored, reviewed, staged, or judged, which the shipped scaffold skills own, and it attaches no separate reviewer agent. Read when the user wants to try something out, run a benchmark against an authoring agent, or drive a generated project's scripts by hand.
+### [Pull Request Submission](.agents/skills/pull-request/SKILL.md)
 
-### 3D Modeling
-
-What automovie models and what it refuses to model, plus the verification discipline every geometry, parameter, and derived-data change is held to, `.agents/skills/3d-modeling/SKILL.md`. Read before any model, geometry, rig, morph, or asset-pipeline work, and before proposing anything that would raise a figure's fidelity.
-
-### Viewer Verification
-
-Driving the viewer/playground through the Playwright library to inspect renders, poses, and motion against expectation, `.agents/skills/viewer-verification/SKILL.md`. Read before claiming a viewer or render change works, and to reach a real GPU context rather than a software fallback that reads like one.
-
-### Pull Request Submission
-
-Branch, commit, pull request, check, and merge flow, `.agents/skills/pull-request/SKILL.md`. Read when shipping a topic-unit PR under the standing instruction, when the user asks to open, update, or merge one, or when a standing autonomous mandate authorizes end-to-end delivery; never merge on unprompted initiative.
+Branch, commit, PR, checks, merge. Read when shipping, opening, updating or merging a PR; never merge on unprompted initiative.
 
 ## Maintenance
 
-### Writing style
+AGENTS.md is the portal for Claude Code (via `CLAUDE.md -> @AGENTS.md`) and Codex CLI: product identity, global attitude, skill index. `## Attitude` is the one home of global agent-behavior rules.
 
-AGENTS.md and SKILL.md files are read by humans as well as agents. Read the documentation skill's [Instruction authority](.agents/skills/documentation/SKILL.md#instruction-authority) section before editing either; it owns instruction classification, semantic ownership, writing form, link integrity, and the two-clean-round review gate.
+Update this file only for a repository-contract change: a new, renamed or merged skill, a workflow that fits no skill, or a rule that must apply before any skill loads.
 
-### AGENTS.md
-
-This is the single shared entry point for both Claude Code (via `CLAUDE.md -> @AGENTS.md`) and Codex CLI. Keep it to the brief product identity, global attitude, and skill index. The H2s are `## Attitude`, `## Skills`, and `## Maintenance`; `## Attitude` is the one place global agent-behavior rules live.
-
-Update AGENTS.md only for repository-contract changes: a new skill area, a renamed or merged skill, a workflow that no longer fits an existing skill, or a coding-agent rule that applies globally before any skill loads. This file and the skills are living documents: keep them current as conventions, layout, and the mission evolve.
-
-### Skills
-
-- **Location.** `.agents/skills/<kebab-name>/SKILL.md`. No numeric prefix. Each file opens with YAML frontmatter whose `name` matches the directory and whose third-person `description` states what the skill covers and when to use it; Codex requires the frontmatter to load the skill. Claude Code only auto-discovers `.claude/skills/`, so it reads these via the AGENTS.md pointers rather than the frontmatter.
-- **Core in SKILL.md, conditional topics as sibling documents.** Keep always-applicable procedure in SKILL.md. Move a topic needed only under a specific condition to a one-level-deep sibling document and link it with that read condition.
-- **Two trigger surfaces, one scope.** The frontmatter description is the full trigger contract, including exclusions. The AGENTS.md pointer mirrors that scope more briefly. Correct the frontmatter first when the scope changes.
-- **Create or merge.** Add a skill when a substantial repository concern would otherwise inflate AGENTS.md beyond an index. Merge sibling concerns when they share most of their structure.
-- **Repository skill files only.** Keep repository skills to `SKILL.md` and conditionally loaded sibling documents. Do not create separate `multi-agent-*` skills or `agents/openai.yaml`; parallel variants belong under `multi-agent/`.
-- **Headings are plain.** No chapter numbers in skill or AGENTS.md headings. Use descriptive titles.
-- **Current set.** The repository skills are `project`, `development`, `contracts`, `scaffold`, `documentation`, `evidence-graph`, `review`, `multi-agent`, `discussion`, `issue-campaign`, `experiment`, `3d-modeling`, `viewer-verification`, and `pull-request`.
+The [documentation skill's instructions document](.agents/skills/documentation/instructions.md) owns skill layout, how instructions are written, and their review.

@@ -5,107 +5,102 @@ description: Defines automovie implementation rules, testing standards (pure uni
 
 # Development
 
-## Contents
-
-- [Forbidden](#forbidden)
-- [Work Rules](#work-rules)
-- [Source file structure](#source-file-structure)
-- [Implementation strategy](#implementation-strategy)
-- [Consequence Analysis](#consequence-analysis)
-- [Testing](#testing)
-- [Coverage is 100% on what you write](#coverage-is-100-on-what-you-write)
-- [Validation](#validation)
-- [Change Integrity](#change-integrity)
-
 ## Forbidden
 
-These three are never acceptable; choosing any one means the approach is already wrong.
+Choosing any of these three means the approach is already wrong.
 
-- **No shortcut in place of the implementation.** Hardcoding, monkey patching, and test-only logic are defined in the contracts skill's [Prohibited Implementation Shortcuts](../contracts/common.md#prohibited-implementation-shortcuts) chapter, which owns them. Fix the general logic against the real requirement.
-- **No forcing a broken design.** When the same failure keeps returning under patch after patch, the design is wrong. Stop, find the root cause, and fix the design instead of looping forever on symptoms.
-- **No whack-a-mole.** Don't patch the one case that surfaced and move on. Think expansively about every case the same root cause can produce, and seal them all with coverage so the class of failure cannot recur.
+- **No shortcut in place of the implementation.** Hardcoding, monkey patching and test-only logic are defined in the contracts skill's [Prohibited Implementation Shortcuts](../contracts/common.md#prohibited-implementation-shortcuts) chapter. Fix the general logic against the real requirement.
+- **No forcing a broken design.** When one failure returns under patch after patch, the design is wrong. Stop, find the root cause and fix the design.
+- **No whack-a-mole.** Do not patch the one case that surfaced. Seal the whole class it belongs to under [Consequence Analysis](#consequence-analysis).
 
 ## Work Rules
 
-- Match existing conventions. Before adding a file, type, or test, open a nearby peer and mirror its naming, location, and style; don't create parallel structures.
-- Respect package boundaries. `three.js` is imported only inside `viewer` among the library packages (`playground` imports it as the demo application that mounts the viewer); computation flows through `engine`; `production` orchestrates `interface`, `engine`, `evidence`, and `render`; and the authoring surface is the generated project's tracked instructions and scripts plus the `cli` scaffolder. The sole MCP exception is `@automovie/mcp`'s read-only authored Markdown reference navigation: no authoring, execution, evidence judgment, or production-action tools belong there. No test enforces this, so it is read in review. The `interface` package stays pure types with **no runtime dependency**: it is the AST the LLM emits against, and its constraints live in field JSDoc, not in `typia` tags (which is why the last such tag, and interface's `typia` dependency, were removed).
-- **Rough types in `interface`.** Primitives are plain `string`/`number`: no wrapper aliases like `AutoMovieUuid`, no `typia` tag constraints (`Minimum`, `MinItems`, `Format`). Units and ranges are documented in field JSDoc and enforced at runtime by `engine` validators (this is where the ROM differentiator lives). The only structural constraints are closed `AutoMovie*` unions (bone names, ARKit channels, presets, easing). Those are allowed-value sets, not wrappers.
-- Keep changes surgical. Touch only what the request and the verified consequence surface require; do not refactor adjacent code without a product reason. Edit the lines that change instead of rewriting the file around them. Unless the file is short or most of it is moving, a whole-file rewrite produces the same result while spending more output and burying the real change in a diff a reviewer then has to reconstruct.
-- Ask for everything you already know you need in one step. When the next reads, searches, or checks do not depend on one another's results, issue them together rather than one per turn. Walking a package file by file returns the same information at a multiple of the wall clock, and the [review skill's whole-surface rule](../review/SKILL.md#non-negotiable-review-law) makes that walk long by design.
-- Preserve committed traceability when changing a public export. Read the [evidence graph skill](../evidence-graph/SKILL.md), update its direct requirement and specification citations with the implementation, and validate the affected triangle rather than treating JSDoc as incidental text.
-- **A solver lands with the consumer that calls it.** A validated, fully covered fold no product path reaches is a public surface with maintenance cost and no effect on any frame; one cycle shipped three of them past every gate. Wire the producer to its consumer in the same change, register it on a reviewed package README or on the shipped authoring skill, or mark a deliberately early API with `@publicUnconsumed <planned consumer>: <reason>`. That tag is the declared form, so the next reader is not left parsing prose: the planned consumer names a concrete future component and the reason explains why the API must land before it, while `none`, `unknown`, `TBD`, and equivalent placeholders are invalid. A test proves behavior but remains test reach rather than a product consumer, so test-only reach never counts as wiring. Self-Review traces each new public callable to its real repository consumer, reviewed authoring document, or valid early-API declaration; it does not recreate that judgment as a source-text or repository-shape test.
-- **A deliberate break lives one at a time, and the tree is safe at every instant.** Disabling a guard to prove a scenario actually fails is the only way to know a green suite is measuring anything, so the technique is required rather than merely allowed. What is not allowed is holding two of them, or leaving one across a step you might not return from: a session limit ended four owners in the same instant, and one of them was mid-flip. What sat in the tree was `if (true) return;` on the line after the knowledge gate's early exit, which would have opened every capture without the compile status that gates it, and it compiled, kept most of the suite green, and read as ordinary work in the diff. Flip one condition, run the one scenario it pins, restore it by edit, and only then take the next; `git checkout` is not a restore here, because it discards whatever else the shared checkout has gained. Judge the flip by which assertion failed, never by the run failing: the runner type-checks the project before it starts, so a flip that changes a type rather than a condition exits non-zero having executed nothing. One cycle spent two attempts inside that trap, widening a predicate's input type until it broke a caller, then a test double, before the third attempt produced a behavioral failure at the intended assertion; reading either earlier exit as proof would have recorded an unexercised guard as verified. When no flip of the code compiles at all, that is the answer rather than an obstacle: the invariant is type-enforced, so the wrong behavior cannot be written, and the honest record says so and arms the assertion from the input side instead. The same cycle met a discriminated-union mapping whose every corruption failed to compile; reshaping it into runtime branches to make a flip possible would have traded a compile-time guarantee for one observation. A flip also has to remove the asserted refusal's cause rather than merely move it: widening a channel guard from two to three left a scenario that declares six channels still refusing, so the suite passed and the guard looked armed while nothing had been tested. Before any commit, read `git status` and `git diff` rather than trusting memory of what you changed.
-- **A configured check is not a running check until it has been made to fail.** A guard you disabled and restored is armed by definition; a guard configured by a selector may never have been armed at all, and it reports the same green either way. The former scaffold graph config carried a claim binding every shot to the script scene it realizes, with `symbol: "function"`. A shot is `export const opening = defineShot(...)`, a `const` initialized with a call, which `@ttsc/evidence` classifies as a `property`. The claim selected no host, a claim with an empty host population is dropped before its references are read, and deleting **every** citation it was supposed to require still reported PASS. It had enforced nothing since the day it was written. The same shape has already cost this repository twice more: a lint probe with no `package.json` produced no diagnostics for anything, and a CI workflow reported success having run zero steps. So when you add or inherit a lint rule, an evidence claim, a coverage threshold, or a CI job, delete the thing it is supposed to catch and watch it go red before you believe the green. Where the check has a population, count what it selected rather than trusting that it selected anything. Read a gate by its exit code and its own output, never by a number you derived from it: one owner's harness captured the run into a variable, consulted `$?` after that capture, and reported `errors=0` for a run that exited 2, so a red evidence graph was recorded as green until an unrelated `pnpm pack` failed on the same two diagnostics. A derived count that disagrees with an exit code is not a measurement, it is a false witness.
-- Update the matching `.wiki/` doc in the same change when behavior, architecture, or a decision changes (see `documentation/SKILL.md`).
+- **Match existing conventions.** Before adding a file, type or test, open a nearby peer and mirror its naming, location and style, so no second structure appears.
+- **Respect package boundaries.** `three.js` is imported only inside `viewer` among the library packages (`playground` imports it to mount the viewer). Computation flows through `engine`. `production` orchestrates `interface`, `engine`, `evidence` and `render`. The authoring surface is the generated project's tracked instructions and scripts plus the `cli` scaffolder. `@automovie/mcp` only reads authored Markdown references and holds no authoring, execution, evidence-judgment or production-action tool. No test enforces these boundaries, so review reads them.
+- **Rough types in `interface`.** The package is pure types with no runtime dependency, because it is the AST the LLM emits against. Primitives are plain `string` and `number`: no wrapper aliases such as `AutoMovieUuid` and no `typia` tag constraints (`Minimum`, `MinItems`, `Format`). Units and ranges are documented in field JSDoc and enforced at runtime by `engine` validators, which is where the range-of-motion differentiator lives. The only structural constraints are closed `AutoMovie*` unions (bone names, ARKit channels, presets, easing), which are allowed-value sets and not wrappers.
+- **Keep changes surgical.** Touch only what the request and the verified consequence surface require. Edit the lines that change instead of rewriting a file, unless the file is short or mostly moving: a rewrite yields the same result at more output and hides the real change in the diff.
+- **Batch independent work.** Issue independent reads, searches and checks together. Walking a package file by file returns the same information at a multiple of the wall clock.
+- **Preserve committed traceability.** When you change a public export, update its direct requirement and specification citations with the implementation and validate the affected triangle under the [evidence graph skill](../evidence-graph/SKILL.md).
+- **A producer lands with the consumer that calls it.** A validated, fully covered solver that no product path reaches is public surface with maintenance cost and no effect on any frame. Wire it to its consumer in the same change, register it on a reviewed package README or the shipped authoring skill, or mark a deliberately early API `@publicUnconsumed <planned consumer>: <reason>`, naming a concrete future component and why the API must land first (`none`, `unknown` and `TBD` are invalid). Test-only reach never counts as wiring. Self-Review traces each new public callable to its consumer, document or valid declaration.
+- **Break one guard at a time and keep the tree safe.** Disabling a guard to prove a scenario fails is required, because it is the only way to know a green suite measures anything.
+  1. Hold one break at a time, and never leave one across a step you might not return from: a session limit can end the work mid-flip and leave code that compiles, passes most tests and reads as ordinary work.
+  2. Flip one condition, run the one scenario it pins, and restore it by edit. `git checkout` is no restore, because it discards other uncommitted work in the tree.
+  3. Judge the flip by which assertion failed, not by the run failing: the runner type-checks first, so a flip that changes a type exits non-zero having executed nothing.
+  4. Remove the asserted refusal's cause instead of moving it. Widening a guard while a scenario still trips another one leaves the guard looking armed with nothing tested.
+  5. When no flip compiles, the invariant is type-enforced. Record that and arm the assertion from the input side, and do not reshape the type into runtime branches to make a flip possible.
+  6. Before any commit, read `git status` and `git diff` instead of trusting memory of what you changed.
+- **A configured check is not running until it has been made to fail.** A guard configured by a selector may never have been armed and reports the same green either way: an evidence claim whose selector matched no host once passed with every required citation deleted. When you add or inherit a lint rule, evidence claim, coverage threshold or CI job, delete what it should catch and watch it go red, and count what a population check selected. Read a gate by its exit code and its own output, never by a number derived from it.
+- **Update the matching `.wiki/` doc in the same change** when behavior, architecture or a decision changes, under the [documentation skill](../documentation/wiki.md).
 
 ## Source file structure
 
-Every authored source file is limited to 500 physical lines, including comments and blank lines. This applies to library code, application code, scripts, tests and source files containing only declarations or authored data. Do not compress statements, remove necessary explanation, change formatting or move logic into nominal data files to evade it.
+Every authored source file is at most 500 physical lines, comments and blank lines included. This covers library code, application code, scripts, tests and files holding only declarations or authored data. Do not compress statements, remove necessary explanation, change formatting or move logic into nominal data files to evade the limit.
 
-Split by cohesive responsibility and explicit inputs and outputs. Keep one owner for each formula, boundary and mutable state transition, with a small orchestrator naming their order. A forwarding chain that only redistributes lines does not establish those responsibilities. Preserve public behavior and the real consumer path during a split, and apply the existing per-change test obligation to the extracted code.
+Give each public identity its own file, named after it: one exported symbol per file, with `index.ts` barrels excepted. Where `evidence/singular` is enabled it enforces this (an error in engine and interface, a warning in human).
 
-Each source file also owes the documentation skill's [Source-file context](../documentation/SKILL.md#source-file-context). The size limit never excuses missing context. Existing oversized files are unresolved violations, not precedents or exemptions; identify them in the task's consequence surface and do not report that surface as compliant until they are resolved.
+Split by cohesive responsibility and explicit inputs and outputs. Keep one owner for each formula, boundary and mutable state transition, with a small orchestrator naming their order. A forwarding chain that only redistributes lines establishes no responsibility. Preserve public behavior and the real consumer path during a split, and apply the per-change test obligation to the extracted code.
+
+Each file also owes the documentation skill's [Source-file context](../documentation/source-docs.md#source-file-context), and the size limit never excuses missing context. An existing oversized file is an unresolved violation, not a precedent: name it in the task's consequence surface and do not report that surface compliant until it is resolved.
 
 ## Implementation strategy
 
-When choosing an uncertain implementation method or revisiting repeated failed corrections, apply the shared [Implementation strategy procedure](../../../packages/template/scaffold/.agents/skills/source-authoring/implementation-strategy.md). For repository development, committed requirements and specifications own the intended behavior, `.wiki/` records research and decisions, this skill owns implementation and testing, and the repository review and pull-request skills own review and delivery. Generated productions use the procedure's shipped workflow owners.
+When you choose among uncertain implementation methods or revisit repeated failed corrections, apply the shared [implementation strategy procedure](../../../packages/template/scaffold/.agents/skills/source-authoring/implementation-strategy.md). For repository development, committed requirements and specifications own the intended behavior, `.wiki/` records research and decisions, this skill owns implementation and testing, and the review and pull-request skills own review and delivery.
 
 ## Consequence Analysis
 
-Treat a reported example as one witness of a cause, not the complete problem statement. Before changing code, trace the same cause through:
+Treat a reported example as one witness of a cause. Before changing code, trace the same cause through:
 
 - every caller and downstream consumer, including generated-project scripts and the viewer's projection of engine output;
-- normal, error, and recovery state transitions;
-- sampling, caching, and determinism (the same inputs must always yield the same frames);
+- normal, error and recovery state transitions;
+- sampling, caching and determinism (the same inputs always yield the same frames);
 - Windows and POSIX behavior;
 - compatibility constraints and boundary inputs.
 
-Fix the verified class of failure, not only the reported witness. Cover positive, negative, and boundary cases without expanding the user's product goal.
+Fix the verified class of failure, and cover positive, negative and boundary cases without expanding the user's product goal.
 
 ## Testing
 
-Tests are `@nestia/e2e` `DynamicExecutor` cases under `test/src/features/<domain>/`. **One scenario per file, the exported `test_<snake_case>` matching the file name.** Builders and boolean predicates live under `features/internal/` (`createSkeleton`, `joint`, `makeMotion`, `hasViolation`, `vclose`, `qclose`); do not reach into another concern's internals.
+Tests are `@nestia/e2e` `DynamicExecutor` cases under `test/src/features/<domain>/`. Write one scenario per file, with the exported `test_<snake_case>` matching the file name. Builders and boolean predicates live under `features/internal/` (`createSkeleton`, `joint`, `makeMotion`, `hasViolation`, `vclose`, `qclose`); do not reach into another concern's internals.
 
-Only unit and logic tests belong in this repository. Exercise a function or module through its typed inputs and observable result, including its positive, negative, and boundary behavior. Do not install a generated project, launch a CLI or child process, reproduce operating-system or filesystem semantics, or keep an end-to-end scenario whose cost does not prove product logic. There is no fixture project in this repository and no helper that writes one to a temporary directory; a branch that can only be reached by compiling a whole project is a branch whose owner has not been separated into a testable function yet, and the fix is that separation, not a fixture.
+Only unit and logic tests belong in this repository. Exercise a function or module through its typed inputs and observable result, including positive, negative and boundary behavior. Do not install a generated project, launch a CLI or child process, reproduce operating-system or filesystem semantics, or keep an end-to-end scenario whose cost does not prove product logic. The repository has no fixture project and no helper that writes one to a temporary directory. A branch reachable only by compiling a whole project belongs to a function not yet separated out, and the fix is that separation.
 
-**Every test function finishes in under 500 ms, without exception.** The runner prints each scenario's elapsed time; a scenario over the budget is deleted or rewritten against a smaller unit, never kept because of what it proves. Package-local test directories do not exist either: every test in the repository is a scenario under `test/src/features/`.
+Every test function finishes in under 500 ms, without exception. The runner prints each scenario's elapsed time, and an over-budget scenario is deleted or rewritten against a smaller unit, however much it proves. Every test is a scenario under `test/src/features/`, and package-local test directories do not exist.
 
-Never hardcode a test to the current repository shape or implementation text. A test must not read source, `package.json`, workflow YAML, configuration bytes, line counts, export spellings, or a generated file merely to compare them with literals copied from the same implementation. Expected values come from the product contract, a specification, or an independent calculation; when the only way to update a test is to copy the implementation's new output, the test does not qualify.
+A test never encodes the current repository shape or implementation text. It must not read source, `package.json`, workflow YAML, configuration bytes, line counts, export spellings or a generated file to compare them with literals copied from the same implementation. Expected values come from the product contract, a specification or an independent calculation. A test whose only update path is copying the implementation's new output does not qualify.
 
-Assert with `TestValidator.equals(title, actual, expected)` for exact values and `TestValidator.predicate(title, <boolean>)` for floats (build the boolean with the `nclose`/`vclose`/`qclose` helpers, never deep-equality on floats). Code JSDoc is English in the interia voice: a contract paragraph (what it pins and why) followed by a numbered `Scenarios:` list naming each experiment's inputs, expected result, and the branch it guards.
+Assert with `TestValidator.equals(title, actual, expected)` for exact values and `TestValidator.predicate(title, <boolean>)` for floats, building the boolean with `nclose`, `vclose` or `qclose` and never with deep equality on floats. Code JSDoc is English in the interia voice: a contract paragraph (what the test pins and why) followed by a numbered `Scenarios:` list naming each experiment's inputs, expected result and the branch it guards.
 
-Run with `pnpm --filter @automovie/test start`; type-check with `pnpm --filter @automovie/test build` (the suite itself runs straight through `ttsx`, with no emitted compile step).
+Run with `pnpm --filter @automovie/test start`, and type-check with `pnpm --filter @automovie/test build`. The suite itself runs straight through `ttsx` with no emitted compile step.
 
-**A case that arranges its own subject must fail when the arrangement fails.** Build the subject through typed in-memory inputs and confirm the intended state before asserting its outcome. A negative twin that never changes the relevant input tests the happy path again. Do not recreate source-rewriting probes or source-digest snapshots to enforce this rule.
+A case that arranges its own subject must fail when the arrangement fails. Build the subject through typed in-memory inputs and confirm the intended state before asserting its outcome, because a negative twin that never changes the relevant input tests the happy path again. Use no source-rewriting probes or source-digest snapshots for this.
 
-**A measurement nothing gates goes back up.** Counting a defect class is what makes it payable, and paying it down once is not the same as keeping it down. Three counts in this repository have drifted while a tool that measured them sat unused: diagnostic codes outgrew the guides that name them, guide coverage emptied and refilled without anyone noticing, and the folded-assertion count returned after a PR drove it down. When you build the measure, wire it to a check in the same change, and fix the total rather than a per-file exemption list, because an exemption list is the thing that never shrinks.
+Wire a measurement to a check. A defect count nothing gates drifts back up after it was reduced. When you build the measure, connect it to a check in the same change and fix the total, not a per-file exemption list, because an exemption list never shrinks.
 
 ## Coverage is 100% on what you write
 
-**Every executable position on a line a change writes is exercised by a unit test on statements, branches, functions, and lines.** That is the obligation, it is per change, and it is not negotiable by difficulty. A whole new file is every line of it. Inherited gaps in files a change did not touch are their own work rather than a toll on the next unrelated change.
+Every executable position on a line a change writes is exercised by a unit test on statements, branches, functions and lines. The obligation is per change and does not bend to difficulty. A new file is every line of it, and inherited gaps in files a change did not touch are their own work.
 
-This is a deliberate departure from the general advice that test volume should be scaled to a change's risk, and it outranks that advice here. Take from that advice the shape of a case: write each one focused on a single behavior and sized like its neighbours, and keep scratch checks and throwaway probes out of the committed suite. The cases enumerated below are each such a behavior, so a negative twin, an opposite branch arm, and a boundary are three tests. Judging a change small, reversible, or mechanical is not a route out of the obligation.
+A change's size, reversibility or mechanical nature never reduces the obligation, whatever general advice says about scaling test volume to risk. Keep each case focused on one behavior and sized like its neighbours, and keep scratch checks out of the committed suite. A negative twin, an opposite branch arm and a boundary are three tests.
 
-The repository carries no coverage instrument and no coverage gate; the obligation is met by the tests a change ships and verified by the reviewer reading the diff beside them. When a unit is too large to see that every branch is reached, split it into functions whose inputs a test can construct in memory.
+The repository has no coverage instrument or gate. The change's tests meet the obligation and the reviewer verifies it by reading the diff beside them. When a unit is too large to see that every branch is reached, split it into functions whose inputs a test can construct in memory.
 
-**100% is earned by testing, not by hiding code.** A suite of happy paths that reaches every line is not 100% correctness:
+Reaching every line is not correctness, and 100% must come from tests and never from hiding code:
 
-- **A negative twin for every positive.** Wherever a validator fires (ROM, range, temporal, type), pin an adjacent case one property away where it must NOT fire. An over-match stays invisible until the counter-example exists.
-- **Both sides of every branch.** A `?? null`, an `if`, a discriminated union arm: exercise each side with a real input (asymmetric keyframes, opposite-hemisphere slerp, a non-box primitive, a skeletonless model).
-- **Boundaries.** The empty case, the single element, the exact limit, the immobile axis, the degenerate/zero input.
-- **Oracle-derived expectations.** Take expected numbers from the spec or hand math, not from whatever the code currently emits. A snapshot of the code's own output locks its bugs in.
+- **A negative twin for every positive.** Wherever a validator fires (range of motion, range, temporal, type), pin an adjacent case one property away where it must not fire, because an over-match stays invisible until the counter-example exists.
+- **Both sides of every branch.** Exercise each side of a `?? null`, an `if` and a discriminated-union arm with a real input (asymmetric keyframes, opposite-hemisphere slerp, a non-box primitive, a skeletonless model).
+- **Boundaries.** The empty case, the single element, the exact limit, the immobile axis, the degenerate or zero input.
+- **Oracle-derived expectations.** Take expected numbers from the specification or hand math. A snapshot of the code's own output locks its bugs in.
 
-Do not reach 100% by ignoring a branch. A genuinely unreachable defensive branch is removed by refactoring (drop a dead lookup, document a precondition), not excused.
+Remove a genuinely unreachable defensive branch by refactoring (drop a dead lookup, document a precondition) instead of excusing it.
 
 ## Validation
 
 Run the narrowest command that proves the change first, then a broader one when shared behavior or packaging changed. Report any command that could not be run.
 
-- **Bug fix**: name the failing case and expected behavior; add a repro test that fails before and passes after.
-- **Feature**: name the observable behavior; exercise it end-to-end, and for a render/viewer change verify visually (`viewer-verification/SKILL.md`).
-- **Refactor**: name what stays unchanged; rely on the suite or a behavior-locking probe.
-- **Review**: name concrete risks, missing tests, regressions.
+- **Bug fix**: name the failing case and expected behavior, and add a repro test that fails before the fix and passes after.
+- **Feature**: name the observable behavior and exercise it through its real consumer path; verify a render or viewer change visually under the [viewer-verification skill](../viewer-verification/SKILL.md).
+- **Refactor**: name what stays unchanged, and rely on the suite or a behavior-locking probe.
 
 ## Change Integrity
 
-Treat tests, fixtures, CI workflows, package wiring, dependencies, the `interface` core types, and the ROM/constraint tables as part of the specification. Changing them needs an explicit user request or a clear product reason, and the final report must call it out. For broad rewrites (e.g. generalizing the rig model), preserve existing public behavior in reviewable slices and inspect the diff before trusting a green run.
+Tests, fixtures, CI workflows, package wiring, dependencies, the `interface` core types and the range-of-motion and constraint tables are part of the specification. Changing them needs an explicit user request or a clear product reason, and the final report calls it out. For a broad rewrite such as generalizing the rig model, preserve existing public behavior in reviewable slices and inspect the diff before trusting a green run.
