@@ -31,7 +31,8 @@ Open `connected-face.html` or `connected-body.html`, wait for the panel to repor
 
 - `view(name, { distance?, fov? })` looks at the whole subject from `front`, `left-three-quarter`, `left`, `back`, `right-three-quarter`, `right`, `top` or `bottom`. Left and right are the figure's anatomical sides.
 - `look({ position, target, fov })` places the camera exactly and lifts the orbit's limits. `frame({ center, radius, view?, fov? })` frames a sphere of the displayed space, which is how a joint or a seam is zoomed.
-- `parts()` lists the displayed meshes by name, `isolate(names | null)` and `hide(names | null)` show or hide them, and `state()` reports the current pass, isolation and hidden names. A part here is a mesh, which today is a material region and not yet an anatomical part.
+- `parts()` lists the displayed meshes by name, `isolate(names | null)` and `hide(names | null)` show or hide them and return the names no displayed part carries, and `state()` reports the current pass, isolation and hidden names. A part here is a mesh, which today is a material region and not yet an anatomical part. The hooks hide and restore only the meshes they hid themselves, and an unknown pass or view name throws.
+- On the body page, `companion()` resolves once the face seated beside the body has been built, so a capture after it always shows the same figure.
 - `pass(name)` draws the subject as `beauty` (the product frame), `clay`, `normal`, `depth`, `flat`, `wire` or `outline`. No pass replaces a lit `beauty` frame for judging material or light; the meaning and limits of each are on the pass type's JSDoc.
 
 Call `finish` after any hook before capturing. Only `change` edits the document.
