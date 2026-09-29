@@ -17,8 +17,8 @@ const CONVERGENCE = 1e-5;
 
 /**
  * Expand the simple tier into the detailed one: channel weights of a body
- * document from sex, age, stature, mass, muscle and the tape measurements
- * given.
+ * document from legacy appearance sex/muscle controls, age, stature, mass,
+ * six optional exterior girths and an optional rig-shoulder-centre distance.
  *
  * The term table `HUMAN_BODY_SIMPLE_SHAPE` gives every channel its weight as
  * a sum of gains times products of curves over the parameters and the two
@@ -34,7 +34,7 @@ const CONVERGENCE = 1e-5;
  * through the same bounded metric solver the detailed editor uses, with the
  * head allowance added to the ring height. Because stature, girth and mass
  * change one another, their weights are then solved in rounds until none
- * moves: each requested tape measurement uses its channel's rule, and the
+ * moves: each requested girth or rig distance uses its channel's rule, and the
  * weight channel reads the mass the skin volume
  * encloses at the fat fraction's density over the age-dependent head-and-neck
  * share. A value outside measured reach is refused with that reach, never clamped;

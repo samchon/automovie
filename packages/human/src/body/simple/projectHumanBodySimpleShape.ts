@@ -13,9 +13,11 @@ const MASS_ITERATIONS = 4;
 
 /**
  * Read the simple tier back off a detailed shape: what a body's channel
- * weights say its sex, age, stature, mass, muscle and tape measurements are.
+ * weights say its legacy sex/muscle controls, age, stature, mass, six exterior
+ * girths and rig shoulder-centre distance are.
  *
- * Stature and the tape measurements are measured on the shaped body; mass is
+ * Stature, girths and the shoulder-joint distance are read on the shaped
+ * body; mass is
  * the skin volume at the density of the fat the body's own sex, age and
  * mass imply, over the age-dependent head-and-neck share and iterated to its
  * fixed point; sex, age and muscle read their

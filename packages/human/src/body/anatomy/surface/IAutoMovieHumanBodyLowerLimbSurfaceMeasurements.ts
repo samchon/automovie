@@ -6,7 +6,7 @@ import type { IAutoMovieHumanBodyThighSurfaceMeasurements } from "./IAutoMovieHu
 /**
  * One leg and foot's exterior measurements from defined skin landmarks.
  *
- * Maximum thigh and calf circumferences are distinct from the volumes of
+ * Mid-thigh and maximum-calf circumferences are distinct from the volumes of
  * quadriceps, hamstrings or triceps surae. A skin hip-to-knee distance does
  * not equal maximum femur length, and a knee-to-ankle distance does not equal
  * tibial length. Length and girth conditions can later be solved against

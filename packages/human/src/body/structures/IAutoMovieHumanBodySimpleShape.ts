@@ -30,7 +30,7 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShape {
-  /** Feminine -1 through masculine +1, continuous. */
+  /** Legacy basis appearance coordinate from feminine -1 to masculine +1; not a biological sex measurement or an anatomical tissue dimension. */
   sex: number;
 
   /** Years, inside the basis's age nodes (the source's child node is 11 years, its old node 90). */
@@ -42,7 +42,7 @@ export interface IAutoMovieHumanBodySimpleShape {
   /** Body mass in kilograms, solved against the measured skin volume at the estimated fat fraction's density. */
   massKilograms: number;
 
-  /** Muscularity -1 through +2, the source's muscle macro before the age loss the table applies; 1 is a trained body, 2 the source's competition node. */
+  /** Legacy basis muscle macro from -1 to +2 before its age response; 1 is the source's trained node and 2 its competition node, not measured muscle volume or force. */
   muscle: number;
 
   /** Waist girth in metres, the smallest horizontal girth of the trunk, solved against its rule when given. */
@@ -57,12 +57,12 @@ export interface IAutoMovieHumanBodySimpleShape {
   /** Distance in metres between basis shoulder joint centres, not a palpable biacromial breadth; solved against its rule when given. */
   shoulderMetres?: number;
 
-  /** Thigh girth in metres, the largest girth of the thigh across its axis in its upper part, solved against its rule when given; both thighs move together. */
+  /** Thigh girth in metres, the maximum section within the basis hip-to-knee band at 25–60% of its joint segment, solved against that rule; both thighs move together. */
   thighMetres?: number;
 
-  /** Upper arm girth in metres, the largest girth of the relaxed upper arm across its axis, solved against its rule when given; both arms move together. */
+  /** Upper-arm girth in metres, the maximum section within the basis shoulder-to-elbow band at 50–75% of its joint segment, solved against that rule; both arms move together. */
   upperArmMetres?: number;
 
-  /** Calf girth in metres, the largest girth of the calf across its axis, solved against its rule when given; both calves move together. */
+  /** Calf girth in metres, the maximum section within the basis knee-to-ankle band at 15–50% of its joint segment, solved against that rule; both calves move together. */
   calfMetres?: number;
 }

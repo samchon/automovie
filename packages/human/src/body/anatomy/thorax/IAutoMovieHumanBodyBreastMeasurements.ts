@@ -21,7 +21,9 @@ import type { IAutoMovieHumanBodySurfaceDistance } from "../measurements/IAutoMo
  */
 export type IAutoMovieHumanBodyBreastMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
+  /** Glandular and fibrous tissue above pectoral fascia, per one breast. */
   fibroglandularVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+  /** This breast's adipose tissue, excluding chest-wall subcutaneous fat. */
   adiposeVolume?: IAutoMovieHumanBodyAnatomicalVolume;
   /** Palpable medial-to-lateral breast base width, not torso chest breadth. */
   baseWidth?: IAutoMovieHumanBodySurfaceDistance;

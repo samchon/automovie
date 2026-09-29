@@ -50,7 +50,8 @@ import { HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT_MALE } from "./simple-shape/H
  * reproduced from their own sex, age, stature, mass and chest and buttock
  * girths read their own buttock depth, waist breadth, depth and girth at the
  * omphalion, thigh and calf girths and bust point height.
- * Stature, mass and the tape measurements are not rows: they are
+ * Stature, mass, six exterior girths and the rig shoulder-centre distance are
+ * not rows: they are
  * solved by measurement against the basis, with the head allowance, the mass
  * model and the channel each measurement is solved on given here. The body
  * mass index the fat rows read is mass over stature squared.
