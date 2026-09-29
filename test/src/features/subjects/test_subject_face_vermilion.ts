@@ -71,9 +71,10 @@ const landmarks = (
  *    rows 92 and 110, and the shadow under the lower lip, darker but of the
  *    skin's chroma, does not count as lip.
  * 2. Upside down the frame turns with the face.
- * 3. A grey portrait and a chromatic skin/lip pair of the same colour read
- *    neither border; a detector point farther inside than its own lip-height
- *    estimate and an upper lip with no class sample stay unread.
+ * 3. A grey portrait, one stray coloured pixel in it, and a chromatic
+ *    skin/lip pair of the same colour read neither border; a detector point
+ *    farther inside than its own lip-height estimate and an upper lip with
+ *    no class sample stay unread.
  * 4. A lower lip of visually separated but under-four-unit chroma is read
  *    against its own uniform skin, and a detector point moderately displaced
  *    inward does not hide the visible border.
@@ -97,6 +98,9 @@ export const test_subject_face_vermilion = (): void => {
       near(flipped.inferius, 100, 199 - 113.5),
   );
   const grey = measureFaceLikenessVermilion(image({ grey: true }), landmarks());
+  const speckImage = image({ grey: true });
+  speckImage.rgb[3 * (123 * 200 + 99) + 1] = 0;
+  const speck = measureFaceLikenessVermilion(speckImage, landmarks());
   const same = measureFaceLikenessVermilion(
     image({ lip: SKIN }),
     landmarks(),
@@ -110,6 +114,8 @@ export const test_subject_face_vermilion = (): void => {
     "unread",
     grey.superius === null &&
       grey.inferius === null &&
+      speck.superius === null &&
+      speck.inferius === null &&
       same.superius === null &&
       same.inferius === null &&
       high.inferius === null &&

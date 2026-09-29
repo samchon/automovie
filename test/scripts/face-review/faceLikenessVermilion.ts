@@ -25,7 +25,9 @@
  * its narrower detector window because the philtrum and nasal shadow can
  * resemble lip chroma outside it. The class medians must separate by more
  * than their combined within-region chroma deviations. A monochrome image
- * or a search that starts on lip remains unread.
+ * or a search that starts on lip remains unread. A coloured outlier in one
+ * column or profile row cannot turn a monochrome reference into colour;
+ * both the row and the reference region require a chromatic majority.
  *
  * Pure: the image and points are read, never mutated.
  */
@@ -99,7 +101,7 @@ export function measureFaceLikenessVermilion(
     chromatic: boolean;
   }[] = [];
   for (let t = outerTop - REACH; t <= outerBottom + REACH; t += STEP) {
-    let chromatic = false;
+    let chromaticColumns = 0;
     const labs = COLUMNS.flatMap((offset) => {
       const x = Math.round(
         centre[0] + (t * down[0]! + offset * across[0]!) * iod,
@@ -109,9 +111,11 @@ export function measureFaceLikenessVermilion(
       );
       if (x < 0 || y < 0 || x >= image.width || y >= image.height) return [];
       const index = 3 * (y * image.width + x);
-      chromatic ||=
+      if (
         image.rgb[index] !== image.rgb[index + 1] ||
-        image.rgb[index + 1] !== image.rgb[index + 2];
+        image.rgb[index + 1] !== image.rgb[index + 2]
+      )
+        chromaticColumns++;
       return [
         faceLikenessSrgbToLab(
           image.rgb[index]!,
@@ -123,7 +127,7 @@ export function measureFaceLikenessVermilion(
     if (labs.length === 0) continue;
     samples.push({
       t,
-      chromatic,
+      chromatic: chromaticColumns > labs.length / 2,
       chroma: [
         faceLikenessMedian(labs.map((lab) => lab[1]))!,
         faceLikenessMedian(labs.map((lab) => lab[2]))!,
@@ -146,7 +150,9 @@ export function measureFaceLikenessVermilion(
     ];
     return {
       chroma,
-      chromatic: within.some((sample) => sample.chromatic),
+      chromatic:
+        faceLikenessMedian(within.map((sample) => Number(sample.chromatic)))! >
+        0.5,
       deviation: faceLikenessMedian(
         within.map((sample) => distance(sample.chroma, chroma)),
       )!,
