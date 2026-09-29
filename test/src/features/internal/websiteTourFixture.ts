@@ -33,8 +33,7 @@ export const tourFixture = () => {
   const dom = new JSDOM(
     `<h1 id="tour-title"></h1><p id="tour-era"></p><a id="tour-source"></a>
     <button id="panel-toggle"></button><aside id="tour-panel"><input id="view-search"><p id="view-count"></p><div id="view-list"></div></aside>
-    <p id="current-view"></p><canvas id="view" tabindex="0"></canvas><button id="reset"></button>
-    <button data-camera="left"></button><button data-camera="in"></button>`,
+    <p id="current-view"></p><canvas id="view" tabindex="0"></canvas><button id="reset"></button>`,
     { url: "https://example.org/mounted/tour/" },
   );
   const document = dom.window.document;

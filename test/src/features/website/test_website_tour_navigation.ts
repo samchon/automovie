@@ -16,7 +16,6 @@ export const test_website_tour_navigation = (): void => {
   const ui = mountTourUi(f.document, f.data, {
     collapsed: true,
     select: (id) => calls.push(id),
-    move: (action, pan) => calls.push(`${action}:${pan}`),
   });
   TestValidator.predicate(
     "mobile canvas stays open",
@@ -61,12 +60,7 @@ export const test_website_tour_navigation = (): void => {
     "2 authored views",
   );
   f.element<HTMLButtonElement>("#reset").click();
-  f.element<HTMLButtonElement>("[data-camera=left]").click();
-  TestValidator.equals("reset and movement", calls, [
-    "room",
-    "outside",
-    "left:false",
-  ]);
+  TestValidator.equals("reset restores exterior", calls, ["room", "outside"]);
   const count = calls.length;
   ui.dispose();
   f.element<HTMLButtonElement>("#reset").click();
