@@ -43,11 +43,7 @@ A residual, a fitted preset, or a baked artifact is defined against a base (`sub
 
 - Nest types by anatomy or domain and document each channel in its field JSDoc. The form a channel takes is answered under the contracts skill's [Parameter Channels](../contracts/modeling.md#parameter-channels) chapter.
 - Ranges are enforced by `engine` validators, never by `typia` tags in `interface`; the development skill's rough-types rule owns that boundary.
-- Record the study behind a numeric range in the JSDoc of the declaration that carries the range, as the contracts skill's [Anatomical Source](../contracts/anatomy.md#anatomical-source) chapter asks. Keep working notes in `.wiki/04-domain-research/`, and read that directory before deriving a range again.
-
-## Human editors
-
-The face and body editors in [`packages/human`](../../../packages/human/README.md) start from their types. Complete the anatomical type vocabulary (components, measurements, ranges, and the conversions between simple and detailed inputs) before attaching logic to it, and run experiments against the finished types. The [anatomical chapters](../contracts/anatomy.md) state what each of those types and functions answers.
+- Record the study behind a numeric range in `.wiki/04-domain-research/`, and read that directory before deriving one again.
 
 ## Every angle, every scale
 

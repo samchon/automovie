@@ -5,7 +5,7 @@ description: Defines the implementation acknowledgments that maintained source d
 
 # Implementation Contracts
 
-Each chapter of a checklist below is a question that a declaration answers about its own implementation, with an `@evidence contracts/<file>.md#<chapter> <reason>` tag in its JSDoc. `@ttsc/evidence` requires one answer per selected declaration and chapter, and the [review skill](../review/SKILL.md) judges whether an answer is true. The human package's `lint.config.ts` owns which declarations answer which checklist.
+Each chapter of a checklist below is a question that a declaration answers about its own implementation, with an `@evidence contracts/<file>.md#<chapter> <reason>` tag in its JSDoc. `@ttsc/evidence` requires one answer per selected declaration and chapter, and the [review skill](../review/SKILL.md) judges whether an answer is true. The owning package's `lint.config.ts` decides which declarations answer which checklist.
 
 Product promises and system contracts stay with the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract with the scaffold's shipped `contract` skill.
 

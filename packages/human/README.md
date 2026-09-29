@@ -6,6 +6,8 @@ The [face requirements](../../docs/requirements/actors/facial-authoring/contract
 
 The eye component separates shape contracts (`eyeShape`), copied input admission (`eyeComponentInputs`), transverse tissue formulas (`eyeLidRows`), shared ring attachment (`eyeMargins`), optical shell construction (`eyeOpticalSurface`), final skin contact (`eyeSurfaceContact`) and refined interior construction (`eyeInterior`). `eyes` orchestrates their fit/attach/finish lifecycle and retains its existing exports. Both skin constraints and emitted lid rings call the same section calculation; drawing and contact call the same optical shell builder. Keep those numerical owners shared when adding a shape control, and test section arithmetic separately from whole-face fitting.
 
+Design the parameter types first. Complete the anatomical type vocabulary (components, measurements, ranges, and the conversions between simple and detailed inputs) before attaching logic to it, and run experiments against the finished types.
+
 Node consumers require Node 22.23.2 or later. Older Node 22 loaders can expose an unevaluated ES-module dependency when a CommonJS package and an external ES-module glTF reader share the same import graph. Consumer import order must not be used to mask that runtime defect.
 
 ## Face documents and editing

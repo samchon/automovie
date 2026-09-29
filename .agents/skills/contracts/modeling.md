@@ -6,7 +6,7 @@ These chapters address how a declaration that defines, builds or measures a form
 
 Apply to declarations that define one part of a form or a group of parts.
 
-A part is the smallest piece of the represented form that has its own identity, such as an eyelid, a bone or a window. Represent each part by one declaration with its own name. Build every larger form as a group that composes parts and smaller groups, so a face is a group of feature groups and a feature group is a group of parts. A group owns its composition and the order of its members, and it does not copy a member's shape or values.
+A part is the smallest piece of the represented form that has its own identity, such as a door, a window or a bone. Represent each part by one declaration with its own name. Build every larger form as a group that composes parts and smaller groups, so a building is a group of storeys and a storey is a group of rooms. A group owns its composition and the order of its members, and it does not copy a member's shape or values.
 
 Identify the part or group the declaration represents and the members it composes. Explain why the division falls where it does, so that a change to one part reaches its neighbors only through the shared boundaries that join them. State when one declaration holds more than one part and why it cannot be split.
 
