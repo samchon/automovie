@@ -14,11 +14,15 @@ import { nclose, throwsError } from "../internal/predicates";
  *    under a ceiling whose ring span meets the vertex's triangles' span.
  * 2. Norms of 0.08: the four inner crowns (headroom past the norm) rise to
  *    it at their zeniths while the papillae between them stay; the short
- *    outer crowns rise only to their ring headroom less one pixel; no ring
- *    opens; the fixture's upper octahedron, sealed by nothing, is gum and
- *    rides with the flat rise beyond the outermost zenith, unclipped by any
- *    ring; its mandibular crown stays.
- * 3. The documents and controls name the new revision; a basis without
+ *    outer crowns' zenith knots stand at their ring headroom less one
+ *    pixel; no ring opens; the fixture's upper octahedron, sealed by
+ *    nothing, is gum and rides with the flat rise beyond the outermost
+ *    zenith; its mandibular crown stays.
+ * 3. A zenith between gum vertices: with the gum's column at 2.15 moved to
+ *    2.16 and norms of 0.07, the margin over that crown rises two thirds of
+ *    its knot, so the knot is raised past the wish until the margin stands
+ *    within a pixel of the norm.
+ * 4. The documents and controls name the new revision; a basis without
  *    contact or an incisor surface, a repeated or blank revision, and a
  *    dentition showing fewer than six crowns refuse.
  */
@@ -76,18 +80,32 @@ export const test_subject_gingiva_scallop_basis = (): void => {
       nclose(riseAt(column(2.15)), inner[0]!.wishMetres, 0.0041) &&
       riseAt(column((2.15 + 2.21) / 2)) === 0 &&
       nclose(riseAt(column(2.03)), outer[0]!.riseMetres, 1e-12) &&
-      // Beyond the outermost zenith, flat, and held by the ring it meets.
+      // Beyond the outermost zenith, flat.
       nclose(riseAt(0), outer[0]!.riseMetres, 1e-12) &&
       [0, 1, 2, 3, 4, 5].every((v) =>
         nclose(
           after.positions[3 * v + 1]! - teeth.positions[3 * v + 1]!,
-          outer[0]!.wishMetres,
+          outer[0]!.riseMetres,
           1e-12,
         ),
       ) &&
       after.positions
         .slice(18, 3 * offset)
         .every((value, i) => value === teeth.positions[18 + i]),
+  );
+  const between = structuredClone(basis);
+  between.surfaces.find((one) => one.id === "teeth")!.positions[
+    3 * (added.gum + column(2.15))
+  ] = 2.16;
+  const moved = prepareGingivaScallopBasis({
+    ...base,
+    basis: between,
+    norms: [0.07, 0.07, 0.07],
+  }).receipt.anterior.find((one) => Math.abs(one.centre - 2.15) < 1e-9)!;
+  TestValidator.predicate(
+    "between",
+    moved.riseMetres > moved.wishMetres &&
+      Math.abs(moved.afterMetres - 0.07) <= 0.004,
   );
   TestValidator.equals(
     "restamped",

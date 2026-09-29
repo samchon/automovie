@@ -21,10 +21,7 @@ import { throwsError } from "../internal/predicates";
  */
 export const test_subject_human_eye_sphere_fit = (): void => {
   const original = humanFaceFixture();
-  const value = {
-    ...humanFaceRegionValue(original, "eye")!,
-    sphereFit: "observation-ray" as const,
-  };
+  const value = { sphereFit: "observation-ray" as const };
   const changed = replaceHumanFaceRegion({
     document: original,
     basisId: original.basis.id,

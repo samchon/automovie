@@ -19,6 +19,7 @@
  * questions, and none of them is an identity or likeness verdict. Inputs are
  * caller-owned and never mutated.
  */
+import { faceLikenessBrowBand } from "./faceLikenessBrowBand";
 import {
   type IFaceLikenessColour,
   type IFaceLikenessImage,
@@ -101,6 +102,11 @@ export interface IFaceLikenessComparison {
     { reference: number | null; render: number | null }
   >;
   blendshapes: Record<string, IFaceLikenessPair>;
+  /** Visible brow height over inter-ocular distance, null when unreadable. */
+  browBand: Record<
+    "right" | "left",
+    { reference: number | null; render: number | null }
+  >;
   hair: {
     head: IFaceLikenessOverlap;
     covered: IFaceLikenessOverlap;
@@ -285,6 +291,36 @@ export function compareFaceLikeness(props: {
       ),
     ),
     blendshapes,
+    browBand: {
+      right: {
+        reference: faceLikenessBrowBand({
+          image: reference.image,
+          landmarks: fixed,
+          side: "right",
+          hair: reference.hair,
+        }),
+        render: faceLikenessBrowBand({
+          image: portrait.image,
+          landmarks: moving,
+          side: "right",
+          hair: portrait.hair,
+        }),
+      },
+      left: {
+        reference: faceLikenessBrowBand({
+          image: reference.image,
+          landmarks: fixed,
+          side: "left",
+          hair: reference.hair,
+        }),
+        render: faceLikenessBrowBand({
+          image: portrait.image,
+          landmarks: moving,
+          side: "left",
+          hair: portrait.hair,
+        }),
+      },
+    },
     hair: {
       head: faceLikenessMaskOverlap(
         reference.hair,
@@ -386,6 +422,8 @@ export function summarizeFaceLikeness(
         row.colour.browToneRight.deltaE76,
         row.colour.browToneLeft.deltaE76,
       ]),
+    browBandSignedError: (row) =>
+      mean([difference(row.browBand.right), difference(row.browBand.left)]),
     irisMinusSkinLightnessError: (row) =>
       difference(row.colour.irisMinusSkinLightness),
     hairMinusSkinLightnessError: (row) =>

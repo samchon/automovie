@@ -1,4 +1,7 @@
+import type { AutoMovieHumanFaceEditableEyeOverride } from "../AutoMovieHumanFaceEditableEyeOverride";
+import type { AutoMovieHumanFaceEditableOverride } from "../AutoMovieHumanFaceEditableOverride";
 import type { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
+import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 import { humanFaceRegions } from "./humanFaceRegions";
@@ -7,6 +10,9 @@ import { humanFaceRegions } from "./humanFaceRegions";
  * Replace only one exact detailed profile. The incoming profile is bound to the
  * current basis revision; unrelated traits, sides and profiles remain untouched.
  * Undefined removes the selected override and restores inherited interpretation.
+ * The result refuses nonempty source geometry arrays in editable detail,
+ * including free relief, section and hair-card guides. Source cards in the
+ * separately named legacy hair-layer scalar transaction are the exception.
  * Geometry and complete schema admission still precede editor publication.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Preserves unrelated settings when a region is replaced or reset to inheritance.
@@ -19,7 +25,13 @@ export function replaceHumanFaceRegion<
   basisId: string;
   region: K;
   side?: "right" | "left";
-  value: AutoMovieHumanFaceOverride<IAutoMovieHumanFaceRecipe[K]> | undefined;
+  value:
+    | (K extends "hairLayers" | "skinColour"
+        ? AutoMovieHumanFaceOverride<IAutoMovieHumanFaceRecipe[K]>
+        : K extends "eye"
+          ? AutoMovieHumanFaceEditableEyeOverride
+          : AutoMovieHumanFaceEditableOverride<IAutoMovieHumanFaceRecipe[K]>)
+    | undefined;
 }): IAutoMovieHumanFaceDocument {
   assertRegion(props.region, props.side);
   if (props.basisId !== props.document.basis.id)
@@ -40,6 +52,7 @@ export function replaceHumanFaceRegion<
     Object.assign(detail, { [props.region]: value });
     if (value === undefined) delete detail[props.region];
   }
+  assertHumanFaceEditableDetail(document);
   return document;
 }
 

@@ -22,7 +22,16 @@ export interface IAutoMovieHumanFaceBasisDocument {
   /** Must equal the supplied basis identity; no implicit migration occurs. */
   basis: string;
 
-  /** Persistent identity edits against the basis's named shape endpoints. */
+  /**
+   * Persistent identity weights against the basis's named shape endpoints.
+   * These dimensionless values are not anthropometric measurements. Weinberg
+   * et al. 2016 report landmark-derived, age/sex-specific norms from 2,454
+   * photographed 3D faces aged 3–40 in its recruited cohort
+   * (https://pubmed.ncbi.nlm.nih.gov/26492185/); neither those measured
+   * distances nor that cohort's age/ancestry limits map automatically to this basis's
+   * artist-authored morph weights. The current channel bounds therefore do
+   * not certify a scientifically supported physiological range.
+   */
   shape: Record<string, number>;
 
   /** Current transient expression; omitted channels mean source neutral. */

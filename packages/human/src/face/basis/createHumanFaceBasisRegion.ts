@@ -16,9 +16,9 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
 export function createHumanFaceBasisRegion(
   region: IAutoMovieHumanFaceBasis["surfaces"][number]["regions"][number],
 ): (
-  positions: number[],
-  normals: number[],
-  colors?: number[],
+  positions: readonly number[],
+  normals: readonly number[],
+  colors?: readonly number[],
 ) => IAutoMovieMesh {
   const vertices = new Map<string, number>();
   const sources: number[] = [];
@@ -37,7 +37,7 @@ export function createHumanFaceBasisRegion(
     indices.push(index);
   });
   return (positions, normals, colors) => {
-    const gather = (values: number[]): number[] => {
+    const gather = (values: readonly number[]): number[] => {
       const output = new Array<number>(sources.length * 3);
       for (let i = 0; i < sources.length; i++)
         for (let axis = 0; axis < 3; axis++)

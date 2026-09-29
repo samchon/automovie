@@ -18,14 +18,13 @@ import { throwsError } from "../internal/predicates";
  * 2. An unsupported optical frame refuses at JSON admission.
  */
 export const test_subject_human_optical_frame = (): void => {
-  const original = humanFaceFixture(),
-    value = humanFaceRegionValue(original, "eye")!;
+  const original = humanFaceFixture();
   const changed = replaceHumanFaceRegion({
     document: original,
     basisId: original.basis.id,
     region: "eye",
     side: "left",
-    value: { ...value, opticalFrame: "radial" },
+    value: { opticalFrame: "radial" },
   });
   TestValidator.equals(
     "radial JSON exact",
@@ -58,7 +57,7 @@ export const test_subject_human_optical_frame = (): void => {
     document: original,
     basisId: original.basis.id,
     region: "eye",
-    value: { ...value, opticalFrame: "head-plane" },
+    value: { opticalFrame: "head-plane" },
   });
   TestValidator.equals(
     "explicit old JSON",

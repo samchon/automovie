@@ -14,6 +14,7 @@ type Resident = {
   group: THREE.Group;
   signature: string;
   meshes: THREE.Mesh[];
+  witnesses: MeshWitness[];
   textures: AutoMovieTextureCache;
   released: boolean;
 };
@@ -21,7 +22,66 @@ type Frame = {
   resident: Resident;
   model: IAutoMovieModel;
   meshes: IAutoMovieMesh[];
+  witnesses: MeshWitness[];
 };
+
+type MeshWitness = {
+  positions: readonly number[];
+  normals: readonly number[] | null;
+  indices: readonly number[] | null;
+  uvs: readonly number[] | null;
+  closed: boolean;
+};
+
+/** Exact source arrays certified by the Float32 and manifold gates. */
+function witnessOf(mesh: IAutoMovieMesh, closed: boolean): MeshWitness {
+  return {
+    positions: mesh.positions.slice(),
+    normals: mesh.normals?.slice() ?? null,
+    indices: mesh.indices?.slice() ?? null,
+    uvs: mesh.uvs?.slice() ?? null,
+    closed,
+  };
+}
+
+/**
+ * Equality is exact rather than a hash: equal input arrays and the same
+ * closure obligation have the same Float32 conversion and topology verdict.
+ * Vertex colours are omitted because neither geometry gate reads them; the
+ * numerical model admission and GPU material preparation still do.
+ */
+function matchesWitness(
+  mesh: IAutoMovieMesh,
+  closed: boolean,
+  witness: MeshWitness | undefined,
+): boolean {
+  if (witness === undefined || closed !== witness.closed) return false;
+  const same = (
+    values: readonly number[] | null,
+    previous: readonly number[] | null,
+  ): boolean =>
+    values === null || previous === null
+      ? values === previous
+      : values.length === previous.length &&
+        values.every((value, index) => value === previous[index]);
+  return (
+    same(mesh.positions, witness.positions) &&
+    same(mesh.normals, witness.normals) &&
+    same(mesh.indices, witness.indices) &&
+    same(mesh.uvs, witness.uvs)
+  );
+}
+
+/** Material thickness determines whether an otherwise open surface must seal. */
+function needsClosedSurface(
+  model: IAutoMovieModel,
+  part: IAutoMovieModel["parts"][number],
+): boolean {
+  return model.materials.some(
+    (material) =>
+      material.id === part.material && (material.thickness ?? 0) > 0,
+  );
+}
 
 /** Geometry and materials belong to the group; the cache owns its textures. */
 function disposeGroup(group: THREE.Group): void {
@@ -42,6 +102,11 @@ function disposeGroup(group: THREE.Group): void {
  * Every preparation checks the actual Float32 representation before cache reuse
  * or texture loading. Export validates its merged material geometry separately;
  * this boundary validates each local mesh that the GPU will actually receive.
+ * A published resident retains exact copies of the source positions, normals,
+ * indices and UVs that passed those checks. An appearance edit with the same
+ * arrays and closure requirement reuses that verdict; any changed array takes
+ * the complete Float32/topology gates. Publication compares once more before
+ * writing GPU buffers so a candidate cannot change after preparation.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Keeps pending numerical edits separate from the committed visible face.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Refuses Float32 surface loss, invalid attributes and topology before resource preparation or publication of a resident frame.
@@ -67,7 +132,8 @@ export function createConnectedFaceRenderer(props: {
       // model kind instead of accidentally updating a rig or primitive in place.
       if (model.skeleton !== null)
         throw new Error("Connected previews require static resident meshes.");
-      const meshes = model.parts.map((part) => {
+      const witnesses: MeshWitness[] = [];
+      const meshes = model.parts.map((part, index) => {
         if (
           part.geometry.type !== "mesh" ||
           part.attachedBone !== null ||
@@ -75,20 +141,24 @@ export function createConnectedFaceRenderer(props: {
         )
           throw new Error("Connected previews require static resident meshes.");
         const mesh = part.geometry.mesh;
+        const closed = needsClosedSurface(model, part);
+        const previous = active?.witnesses[index];
+        if (matchesWitness(mesh, closed, previous)) {
+          witnesses.push(previous!);
+          return mesh;
+        }
         const packed = portraitMeshBuffers(mesh);
         if (
           !validateMeshTopology({
             mesh: { ...mesh, positions: Array.from(packed.positions) },
-            expectClosed: model.materials.some(
-              (material) =>
-                material.id === part.material && (material.thickness ?? 0) > 0,
-            ),
+            expectClosed: closed,
           }).success
         )
           throw new Error(
             "Connected Float32 geometry must preserve its required topology: " +
               part.id,
           );
+        witnesses.push(witnessOf(mesh, closed));
         return mesh;
       });
       const signature = JSON.stringify({
@@ -106,7 +176,7 @@ export function createConnectedFaceRenderer(props: {
         }),
       });
       if (active?.signature === signature)
-        return { resident: active, model, meshes };
+        return { resident: active, model, meshes, witnesses };
       const textures = new AutoMovieTextureCache(async (asset) => {
         const texture = await props.loadTexture(asset);
         // Connected assets retain the glTF UV convention used by the exporter.
@@ -126,12 +196,14 @@ export function createConnectedFaceRenderer(props: {
             signature,
             textures,
             released: false,
+            witnesses,
             meshes: model.parts.map(
               (part) => built.parts.get(part.id) as THREE.Mesh,
             ),
           },
           model,
           meshes,
+          witnesses,
         };
       } catch (error) {
         if (group !== undefined) disposeGroup(group);
@@ -142,6 +214,31 @@ export function createConnectedFaceRenderer(props: {
     publish: (frame: Frame): THREE.Group => {
       if (frame.resident.released)
         throw new Error("This prepared face has been released.");
+      if (
+        frame.model.parts.length !== frame.meshes.length ||
+        frame.witnesses.length !== frame.meshes.length
+      )
+        throw new Error(
+          "Prepared face geometry changed before publication: parts",
+        );
+      // A candidate can be held across asynchronous editor work. Check that
+      // the arrays about to reach the GPU are the arrays preparation admitted,
+      // including any closure rule changed through its material binding.
+      for (const [index, mesh] of frame.meshes.entries()) {
+        const part = frame.model.parts[index];
+        if (
+          part === undefined ||
+          !matchesWitness(
+            mesh,
+            needsClosedSurface(frame.model, part),
+            frame.witnesses[index],
+          )
+        )
+          throw new Error(
+            "Prepared face geometry changed before publication: " +
+              (part?.id ?? index),
+          );
+      }
       // Every buffer has matching shape because the signature contains its
       // lengths and static topology. No asynchronous work occurs during commit.
       for (const [index, mesh] of frame.meshes.entries()) {
@@ -164,6 +261,7 @@ export function createConnectedFaceRenderer(props: {
       frame.resident.group.name = frame.model.name ?? frame.model.id;
       if (active !== undefined && active !== frame.resident) release(active);
       active = frame.resident;
+      active.witnesses = frame.witnesses;
       return active.group;
     },
     dispose,

@@ -46,7 +46,12 @@ export function createHumanViewportFixture(
       camera.lookAt(orbit.target);
     },
   };
-  const renderer: Options["renderer"] = {
+  const renderer: Options["renderer"] & {
+    shadowMap: Pick<
+      THREE.WebGLShadowMap,
+      "enabled" | "type" | "autoUpdate" | "needsUpdate"
+    >;
+  } = {
     capabilities: { getMaxAnisotropy: () => options.maxAnisotropy ?? 16 },
     setPixelRatio: (ratio) => {
       ratios.push(ratio);
@@ -54,7 +59,12 @@ export function createHumanViewportFixture(
     outputColorSpace: THREE.LinearSRGBColorSpace,
     toneMapping: THREE.NoToneMapping,
     toneMappingExposure: 0,
-    shadowMap: { enabled: false, type: THREE.BasicShadowMap },
+    shadowMap: {
+      enabled: false,
+      type: THREE.BasicShadowMap,
+      autoUpdate: true,
+      needsUpdate: false,
+    },
     setSize: (width, height, updateStyle) => {
       sizes.push([width, height, Number(updateStyle)]);
     },

@@ -20,7 +20,8 @@ export const test_subject_human_hair_material_admission = (): void => {
   const doc = coarseHumanFaceFixture("hair-admission");
   doc.appearance = createPortraitMaterials();
   const shape = { ...portraitHairShadeFixture().shape, material: "hair" };
-  doc.detail = { hair: shape };
+  doc.basis.recipe.hair = shape;
+  doc.detail = { hair: { material: "hair" } };
   const missing = structuredClone(doc);
   missing.detail!.hair!.material = "absent";
   TestValidator.predicate(

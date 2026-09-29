@@ -10,6 +10,7 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
+  type IAutoMovieHumanFaceComponentTree,
   type IAutoMovieHumanFaceContactSummary,
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceEditor,
@@ -45,6 +46,7 @@ export function mountConnectedFacePanel<
     basis: IAutoMovieHumanFaceBasis;
     initial: IAutoMovieHumanFaceBasisDocument;
     controlMap?: IAutoMovieHumanFaceControlMap;
+    componentTree?: IAutoMovieHumanFaceComponentTree;
     /** Application-owned studies; never embedded in the numerical package. */
     studies?: readonly IAutoMovieHumanFaceBasisDocument[];
     presets: { name: string; expression: Record<string, number> }[];
@@ -174,6 +176,7 @@ ${state.model.parts} material regions · committed numerical state${articulated}
   const controls = mountConnectedFaceControls(app, {
     basis: props.basis,
     map: props.controlMap,
+    components: props.componentTree,
     document: () => draft,
     change,
     refuse,
