@@ -1,0 +1,60 @@
+# 관찰과 뷰어 사용 조건
+
+## 관찰 장치와 프레임 {#review-apparatus}
+
+<!--
+@evidence principles/core/common.md#declared-basis 1600×1000·deviceScaleFactor=1·FOV 50°와 카메라 위치 규칙은 재현을 위해 채택한 제작 검사 조건이다.
+@evidence principles/core/common.md#scope-preservation 모든 topology 관찰을 유지하고 작은 방·L자 모서리의 실패를 유리한 대체 위치로 지우지 않는다.
+@evidence principles/core/common.md#substantive-completion 장치·frame·눈높이·threshold·모서리·내부 중심·외부 거리 도출·실패 기록을 정해 관찰자가 조건을 발명하지 않는다.
+@evidence principles/core/settings.md#fact-status 카메라 눈높이는 인체 인증값이 아니며 HTTP 200·canvas 수·DOM 장치명은 실제 GPU 관찰이 아니다.
+@evidence principles/core/settings.md#source-support channel chromium과 실제 RENDERER 요구는 사용자 지시이고 수치 카메라 조건은 가상 검사 입력으로 한정한다.
+@evidence principles/core/settings.md#capability-boundary 카메라의 시야·raster·GPU 정보는 관찰 장치의 조건이며 주택이나 주민의 생산세계 능력이 아니다. 이 H2의 검사용 절개는 벽이 실제로 사라질 수 있다는 능력을 추가하지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 작은 공간에서 0.25m 안쪽 조건을 만족하지 못하면 원래 id를 실패로 남기고 대체 view는 추가 질문으로만 둔다.
+@evidence principles/core/settings.md#observable-identity 이 H2는 카메라·raster·GPU 관찰 장치를 정하며 관찰되는 집의 형태를 바꾸지 않는다. 장치가 확인할 실제 정체는 003의 외피와 002의 생활 프로그램에서 온다.
+-->
+
+**근거: 이번 production의 재현 가능한 검사를 위한 저작 결정이다.** 실제 3D WebGL 뷰어에서 1600×1000 CSS pixel, deviceScaleFactor=1, 원근 카메라 수직 FOV 50°를 기본으로 한다. 외부와 방 안 모두 같은 재료·빛을 사용하며 컷마다 노출을 바꾸지 않는다. 외관의 완결 형상과 각 실내의 자기 동일성을 판정하며 미세 표면 촬영이나 실물 시공 인증으로 확대하지 않는다.
+
+GPU 관찰은 사용자 지정 Playwright channel chromium에서 수행하고, WebGL 컨텍스트가 반환한 실제 RENDERER와 캡처한 URL·관찰 id·source 기준을 함께 기록한다. 기본 헤드리스 채널, DOM에 적힌 장치 이름, HTTP 200, canvas 개수만으로 GPU 실현을 인정하지 않는다. WebGL 컨텍스트나 실제 GPU 정보를 얻지 못하면 해당 관찰은 unverified다. source compile 실패·빈 캔버스·error banner·가려진 건물은 완료 프레임이 아니다.
+
+검사의 분모는 [관찰과 종료](001-production.md#delivery-review-condition)가 소유한다. 설정은 대표 카메라 몇 개를 선택해 그 분모를 줄이지 않는다. 방의 눈높이는 해당 finished floor에서 1.60m, threshold 관찰은 해당 문 안쪽 0.25m를 기본으로 한다. 안쪽 모서리 관찰은 맞닿는 두 벽에서 각각 0.25m 떨어진 눈높이 점에서 방 안을 향한다. 이 값은 가상 검사 카메라 조건이며 거주자의 키나 인체 접근성 인증값이 아니다. 작은 공간이나 L자 경계에서 조건을 만족하지 못하면 그 id와 이유를 실패로 남기고 대체 위치는 추가 관찰로만 둔다.
+
+원래 모서리·문턱 카메라의 눈 또는 이미 도출된 내부 목표까지의 선분이 현재 부재에 가려지면 그 주소와 화면을 유지하고 `clear-eye` 추가 관찰을 붙인다. 모델이 있는 모든 실제 element bounds를 읽고, 원래 눈높이 점에서 내부 중심까지의 선분을 최대 5cm 간격으로 전진하여 자기 공간 안의 첫 8cm 카메라 포켓과 목표까지 열린 선분을 찾는다. 눈과 목표까지의 각 표본을 중심으로 ±8cm의 작은 box가 부재 bounds와 겹치지 않아야 한다. 문짝은 상위 벽의 소유라도 카메라를 가릴 수 있으므로 자기 방에 소속된 물체만 검사하지 않는다. 이는 목표 한 선분의 보수적인 카메라 장애물 검사이며 전체 시야각의 완전한 가시성·인체 통행·삼각형 충돌 인증은 아니다. 보충점이 없으면 성공으로 대신하지 않는다. 관찰 분모에는 원래 위치와 추가 위치가 모두 남는다.
+
+중심 4방위의 시작점은 실제 room 안이어야 한다. 공간이 비볼록하여 평면 중심이 밖에 나오면 engine의 포함 판정으로 확인한 내부 중심을 사용하고 선택 근거를 기록한다. 외부 관찰은 topology의 노출 면 법선과 bounds에서 해당 면을 프레임에 넣는 거리를 파생한다. setting은 대지 전체, 입면은 해당 면 전체, 모서리는 접하는 두 면, 지붕과 하부는 각각 가림 없는 검사 위치를 가진다. 절개가 필요한 하부나 방 경계 관찰은 검사 모드로 명시하며 전달용 외관으로 세지 않는다. 위치·수·id의 최종 값은 source 사본이 아닌 현재 컴파일 산출물에서 읽는다.
+
+## 사용자가 조작하는 범위 {#operator-access}
+
+<!--
+@evidence principles/core/common.md#declared-basis 한국어 library 운영자에게 허용할 camera·관찰·프라이버시·작업실 상태 선택을 제작 계약으로 정한다.
+@evidence principles/core/common.md#scope-preservation 외부 궤도와 방 내부 관찰, 초기화·id 선택·두 작업실 상태를 빠뜨리지 않고 검사 도구를 기본 장면과 구분한다.
+@evidence principles/core/common.md#substantive-completion 상태 변경의 producer 입력·정지 형상·패널 기록·검사 결과 재개와 source 치수 편집 금지를 결정한다.
+@evidence principles/core/settings.md#fact-status 외피 숨김으로 생긴 시야는 clear glass의 성능이 아니며 조명 변경 frame을 기존 재료 증거로 쓰지 않는다.
+@evidence principles/core/settings.md#source-support 공개 조작은 이 제작의 선택이며 현재 viewer가 이미 이를 구현했다거나 외부 UI 표준 인증을 받았다고 주장하지 않는다.
+@evidence principles/core/settings.md#capability-boundary 사용자는 허용된 관찰과 정지 상태를 선택할 수 있지만 공간 그래프·source 치수나 중간 변형 애니메이션은 조작하지 않는다.
+@evidence principles/core/settings.md#constraint-sufficiency 라벨·절개·외피 숨김은 검사 모드에서만 켜고 기본 off로 두며 유리 상태는 채택한 세 종류로 제한한다.
+@evidence principles/core/settings.md#observable-identity 운영자의 camera와 상태 선택은 접근 계약이며 별도의 시각 subject를 추가하지 않는다. 선택해 보이는 유리와 작업실의 실제 상태 형태는 003과 002의 해당 canon을 소비한다.
+-->
+
+**근거: 시민 주택 library를 평가할 한국어 사용자의 조작 계약이다.** 외부 궤도 회전·이동·확대, 방 안 원근 관찰, camera 초기화, 컴파일된 공간 및 관찰 id 선택을 제공한다. 외피 숨김·층 절개·라벨·관찰 오버레이는 검사 모드에서만 가능하고 기본은 모두 꺼짐이다. 선택한 공간 밖 카메라가 방 내부를 답한 것으로 기록되지 않도록 현재 room과 관찰 id를 화면 밖의 정보 패널에 표시한다.
+
+가변 작업실은 기본 작업 상태와 추가 손님 수면 상태를 이름 있는 선택 요소로 전환한다. 두 상태 모두 같은 컴파일 producer의 명시 입력으로 정지 형상을 만들며 중간 변형 애니메이션은 제공하지 않는다. 상태를 바꾸면 이전 검사의 결과를 유지하지 않고 현재 선택을 정보 패널과 관찰 기준에 기록한다.
+
+장면의 유리 상태는 [프라이버시](003-spatial-basis.md#privacy-states)의 낮·사적·야간 상태만 선택한다. 상태를 바꾸면 광학 표현과 shade 위치가 함께 바뀌고 그 상태를 관찰 기준에 기록한다. 벽을 숨겨 얻은 시야를 clear glass의 성능으로 보고하거나, 조명을 바꾼 프레임을 이전 재료의 읽힘으로 보고하지 않는다. 사용자는 source 치수나 공간 그래프를 뷰어에서 임의 편집하지 않는다.
+
+## 접근성 납품의 분류 {#accessibility-products}
+
+<!--
+@evidence principles/core/common.md#declared-basis 시간축·주민·음성 없는 한국어 library라는 납품 형태에서 접근성 제품을 분류한다.
+@evidence principles/core/common.md#scope-preservation 한국어 설명·텍스트 id·이름 있는 controls·focus·키보드 대안을 필수로 남기고 색과 pointer만에 의존하지 않는다.
+@evidence principles/core/common.md#substantive-completion 필수 대안의 실현 owner와 자막·전사·오디오 설명의 의도적 부재, 비시각 사용자의 남는 한계를 함께 결정한다.
+@evidence principles/core/settings.md#fact-status 텍스트 topology는 시각 자기 동일성의 동등한 비시각 인증이 아니고 실물 접근성은 미검증이다.
+@evidence principles/core/settings.md#source-support 제품 분류는 이 납품의 결정이며 WCAG나 무장애 주택 인증을 통과했다는 외부 사실을 붙이지 않는다.
+@evidence principles/core/settings.md#capability-boundary 키보드 대안과 음성 트랙의 분류는 납품 제품과 접근 경로의 조건이다. 이 H2가 집·주민의 상태 능력을 추가하지 않으며 실제 유리·침대의 허용 상태는 privacy-states와 flex-states가 소유한다.
+@evidence principles/core/settings.md#constraint-sufficiency 불필요한 자막의 부재를 이유로 한국어 문서·focus·키보드 대안까지 빼거나 실제 문·계단 연결 의무를 줄이지 않는다.
+@evidence principles/core/settings.md#observable-identity 텍스트·focus·키보드 대안의 분류는 접근성 납품이며 건물의 감각 정체를 새로 정의하지 않는다. 텍스트 topology가 001#delivery-fidelity의 시각 판정을 대신하지 않는 경계를 유지한다.
+-->
+
+**근거: 시간축·주민 캐릭터·음성 트랙이 없는 한국어 library라는 납품 형태다.** 한국어 설명, 텍스트로 읽을 수 있는 공간/관찰 id 목록, 이름 있는 조작 요소, 보이는 키보드 focus, 키보드로 선택·초기화·회전·이동·확대하는 대안은 필수이며 viewer와 README가 실현한다. pointer drag만으로 장면 접근을 제한하지 않는다. 색만으로 검사 상태를 구분하지 않고 글자로 현재 공간·모드·유리 상태를 표시한다.
+
+자막·음성 전사·오디오 설명 트랙은 의도적으로 없다. 납품에 대사·시간축·소리가 없기 때문이며, 시각 판정을 비시각 사용자에게 동등하게 제공했다고 주장하지 않는다. 텍스트 topology와 설계 설명은 제공하지만 건물의 시각적 자기 동일성을 대체 인증하지 않는다. 물리적 무장애 주택 인증과 실제 설비 조작의 접근성은 미검증이다. 이 경계는 문·계단을 실제로 연결해야 한다는 고정 그래프 의무를 없애지 않는다.

@@ -122,7 +122,7 @@ export const test_evidence_authored_contract_applicability = (): void => {
             root: "docs",
             files: [file],
             symbol: "h2",
-            requireReview: review,
+            requireReview: false,
           })),
         );
         const references = createAutoMovieAuthoredPrincipleReferences(
@@ -150,7 +150,7 @@ export const test_evidence_authored_contract_applicability = (): void => {
               symbol: "h2",
               checklist: true,
               noEvidenceExclude: true,
-              requireReview: review,
+              requireReview: false,
             },
           );
       }
@@ -182,7 +182,7 @@ export const test_evidence_authored_contract_applicability = (): void => {
         symbol: "h2",
         checklist: true,
         noEvidenceExclude: true,
-        requireReview: review,
+        requireReview: false,
       })),
     );
 };

@@ -9,11 +9,11 @@ import { namedFacts } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Exact path, export, owner, digest, and current review resolve together.
- * 2. Missing, ambiguous, swapped-owner, stale-source, and stale-review edges
+ * 1. Exact path, export, owner, digest, and enforced completion resolve together.
+ * 2. Missing, ambiguous, swapped-owner, stale-source, and incomplete edges
  *    fail with distinct reasons.
  * 3. A path alias and a same-named export from another branch cannot borrow the
- *    reviewed edge.
+ *    completed edge.
  */
 export const test_production_source_owner_binding = (): void => {
   const binding: IAutoMovieProductionEvidenceSourceOwnerBinding = {
@@ -51,7 +51,7 @@ export const test_production_source_owner_binding = (): void => {
   };
 
   TestValidator.equals(
-    "source owner binding admits exactly one current reviewed edge",
+    "source owner binding admits exactly one current completed edge",
     namedFacts([
       ["exactEdgeResolves", () => resolve().success],
       [
@@ -84,17 +84,16 @@ export const test_production_source_owner_binding = (): void => {
         () => resolve({ sourceDigest: "sha256:changed" }).reason === "digest",
       ],
       [
-        "unreviewedEdgeBlocksReview",
+        "incompleteEdgeBlocksAdmission",
         () =>
-          resolve({ bindings: [{ ...binding, reviewed: false }] }).reason ===
+          resolve({ bindings: [{ ...binding, stage: "draft" }] }).reason ===
           "review",
       ],
       [
-        "evidenceStageMayDiagnoseBeforeReview",
+        "evidenceStageCompletesWithoutCompanionReview",
         () =>
           resolve({
             bindings: [{ ...binding, reviewed: false, stage: "evidence" }],
-            requireReviewed: false,
           }).success,
       ],
       [
@@ -116,8 +115,8 @@ export const test_production_source_owner_binding = (): void => {
       runtimeOwnerCannotDisambiguateSeveralTargets: true,
       swappedOwnerIsDistinct: true,
       staleSourceIsDistinct: true,
-      unreviewedEdgeBlocksReview: true,
-      evidenceStageMayDiagnoseBeforeReview: true,
+      incompleteEdgeBlocksAdmission: true,
+      evidenceStageCompletesWithoutCompanionReview: true,
       pathAliasCannotBorrowEdge: true,
       otherBranchCannotBorrowEdge: true,
     },

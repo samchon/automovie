@@ -6,6 +6,7 @@ import type {
 
 import type { AutoMovieAuthoredDocumentLayer } from "./AutoMovieAuthoredDocumentLayer";
 import type { AutoMovieProductionKind } from "./createAutoMovieEvidenceConfig";
+import { projectAutoMovieNativeReferences } from "./projectAutoMovieNativeClaims";
 
 /**
  * Selects shared contracts by the work an authored layer actually produces.
@@ -83,10 +84,10 @@ export function selectAutoMovieScreenplayNaturalnessContractFiles(): string[] {
  * Binds every final screenplay unit to every selected naturalness target.
  *
  * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Requires each final unit to answer its selected naturalness contracts without exclusions.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Carries the visible final stage into every naturalness target's review requirement.
+ * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Keeps every naturalness target's checklist without companion-review requirements.
  */
 export function createAutoMovieScreenplayNaturalnessReferences(
-  review: boolean,
+  _review: boolean,
 ): ITtscEvidenceGraphMarkdownReference[] {
   return selectAutoMovieScreenplayNaturalnessContractFiles().map((file) => ({
     type: "markdown",
@@ -95,7 +96,7 @@ export function createAutoMovieScreenplayNaturalnessReferences(
     symbol: "h2",
     checklist: true,
     noEvidenceExclude: true,
-    requireReview: review,
+    requireReview: false,
   }));
 }
 
@@ -103,12 +104,12 @@ export function createAutoMovieScreenplayNaturalnessReferences(
  * Binds a layer's open searches to its work-specific contract hosts.
  *
  * @evidence requirements/production-evidence/graph.md#agent-production-evidence-discovery Selects common and specialist discovery duties for the authored role, including language searches for narrative layers.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-discovery Emits ordinary discovery coverage with current review flags and permitted truthful no-result exclusions.
+ * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-discovery Emits ordinary discovery coverage with permitted truthful no-result exclusions.
  */
 export function createAutoMovieAuthoredDiscoveryReferences(
   kind: AutoMovieProductionKind | null,
   layer: AutoMovieAuthoredDocumentLayer,
-  review: boolean,
+  _review: boolean,
 ): ITtscEvidenceGraphMarkdownReference[] {
   return selectAutoMovieAuthoredContractFiles(kind, layer).discovery.map(
     (file) => ({
@@ -116,7 +117,7 @@ export function createAutoMovieAuthoredDiscoveryReferences(
       root: "docs",
       files: [file],
       symbol: "h2",
-      requireReview: review,
+      requireReview: false,
     }),
   );
 }
@@ -125,12 +126,12 @@ export function createAutoMovieAuthoredDiscoveryReferences(
  * Binds each applicable principle to every selected authored unit.
  *
  * @evidence requirements/production-evidence/graph.md#agent-production-evidence-shared-contract Preserves independent per-unit principle answers after role selection.
- * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits the selected principle files with no-exclusion checklist and current stage review flags.
+ * @evidence specifications/production-evidence/graph.md#spec-authoring-production-evidence-shared-contract Emits the selected principle files with no-exclusion checklist and companion-free structural flags.
  */
 export function createAutoMovieAuthoredPrincipleReferences(
   kind: AutoMovieProductionKind | null,
   layer: AutoMovieAuthoredDocumentLayer,
-  review: boolean,
+  _review: boolean,
 ): ITtscEvidenceGraphMarkdownReference[] {
   return selectAutoMovieAuthoredContractFiles(kind, layer).principles.map(
     (file) => ({
@@ -140,7 +141,7 @@ export function createAutoMovieAuthoredPrincipleReferences(
       symbol: "h2",
       checklist: true,
       noEvidenceExclude: true,
-      requireReview: review,
+      requireReview: false,
     }),
   );
 }
@@ -173,7 +174,7 @@ export function createAutoMovieAuthoredFileClaims(
       files: populationFiles,
       symbol: "file",
       disabled: !enabled,
-      reference: references,
+      reference: projectAutoMovieNativeReferences(references),
     },
   ];
 }
