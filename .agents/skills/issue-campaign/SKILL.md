@@ -22,7 +22,7 @@ An external blocker that makes these impossible means the campaign is reported a
 
 The user's requested phase boundary controls how far to proceed. An audit-only request does not permit publishing issues, pushing branches, opening pull requests or merging. A standing autonomous mandate (see the [pull-request skill](../pull-request/SKILL.md)) authorizes only the remote actions it names.
 
-Apply [AGENTS.md's **Choose the principled course** rule](../../../AGENTS.md#attitude) to every admission, disposition, implementation and review decision. A campaign's scale and duration demand stronger evidence and deeper consequence analysis and never justify admitting an unverified candidate or accepting a weaker standard.
+A campaign's scale and duration demand stronger evidence and deeper consequence analysis and never justify admitting an unverified candidate or accepting a weaker standard, as AGENTS.md's [principled-course rule](../../../AGENTS.md#attitude) requires of every decision.
 
 Read the project, development and review skills first.
 

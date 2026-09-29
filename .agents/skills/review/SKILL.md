@@ -9,7 +9,7 @@ description: Defines exhaustive review and Self-Review for automovie. Use for ev
 
 Perform every review in this skill yourself, from scratch, over the entire declared surface.
 
-Apply [AGENTS.md's **Choose the principled course** rule](../../../AGENTS.md#attitude) to every review decision. A review's duration, difficulty and consequence surface are reasons to inspect more deeply, never to pass over a sound improvement, accept an unsupported claim or lower the completion standard.
+A review's duration, difficulty and consequence surface are reasons to inspect more deeply, never to pass over a sound improvement, accept an unsupported claim or lower the completion standard, as AGENTS.md's [principled-course rule](../../../AGENTS.md#attitude) requires of every decision.
 
 A complete round satisfies all four rules:
 

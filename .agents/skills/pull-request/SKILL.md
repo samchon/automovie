@@ -17,7 +17,7 @@ Use the current checkout and one topic branch for ordinary pull requests, issue 
 
 ## Commit Logical Units
 
-Make one commit per coherent unit, not one mega-commit for a large diff. Use the `<type>(<scope>): <subject>` message style and end the message with the `Co-Authored-By` trailer. Stage explicit paths when the working tree is mixed, and never include unrelated user changes silently. Inspect Markdown-only and agent-instruction diffs directly and run `git diff --check`. Formatting runs once before merge, as described below, and not for intermediate commits, draft heads or correction pushes.
+Make one commit per coherent unit, not one mega-commit for a large diff. Use the `<type>(<scope>): <subject>` message style and end the message with the `Co-Authored-By` trailer. Stage explicit paths when the working tree is mixed, and never include unrelated user changes silently. Formatting runs once before merge, as described below, and not for intermediate commits, draft heads or correction pushes.
 
 ## Write The Pull Request
 

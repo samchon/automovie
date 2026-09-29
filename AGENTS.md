@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`automovie` moves and forms characters and objects through LLM function calling and structured output, then validates and renders them deterministically, as the cheap, controllable, reproducible alternative to diffusion video. It delivers a prototype, a reproducible blocking pass, and not a finished shot. The [project skill](.agents/skills/project/SKILL.md) owns the product contract.
+`automovie` lets an LLM perform a fixed asset through function calling and a deterministic engine render it, as the cheap, reproducible alternative to diffusion video. The [project skill](.agents/skills/project/SKILL.md) owns the product contract.
 
 ## Attitude
 
