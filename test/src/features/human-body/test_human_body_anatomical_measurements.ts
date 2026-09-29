@@ -33,6 +33,16 @@ export const test_human_body_anatomical_measurements = (): void => {
       },
     },
     pelvis: {
+      interAnteriorSuperiorIliacSpineDistance: {
+        kind: "observed",
+        millimetres: 230,
+        modality: "ct",
+        acquisitionPosture: "supine",
+      },
+      anteriorPosteriorIliacSpineMidpointDepth: {
+        kind: "target",
+        millimetres: 130,
+      },
       leftHip: {
         gluteusMaximus: {
           protonDensityFatFraction: { kind: "target", fraction: 0.07 },
@@ -129,6 +139,19 @@ export const test_human_body_anatomical_measurements = (): void => {
       { leftUpperLimb: { shoulder: { humerus: { maximumLength: { kind: "target", millimetres: 320 } } } } },
     ],
     ["direct sculpt", { surface: { positionsMetres: [0, 1, 2] } }],
+    [
+      "projected pelvic width cannot be CT landmark width",
+      {
+        pelvis: {
+          interAnteriorSuperiorIliacSpineDistance: {
+            kind: "observed",
+            millimetres: 230,
+            modality: "radiograph",
+            acquisitionPosture: "standing",
+          },
+        },
+      },
+    ],
     [
       "radiograph volume",
       {
