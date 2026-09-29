@@ -9,6 +9,6 @@ export * from "./document";
 export * from "./editor";
 export * from "./export";
 export * from "./mesh";
-export * from "./parameters";
+export type * from "./parameters";
 export * from "./structures";
 export * from "./surface";
