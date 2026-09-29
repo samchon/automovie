@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanFaceActionParameters } from "./IAutoMovieHumanFaceActionParameters";
+
 /**
  * Observable motion relative to one measured neutral identity.
  * Jaw opening is rotational with coupled condylar translation, not an
@@ -25,6 +27,8 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFacePerformanceParameters {
+  /** Observed ordinal FACS appearances, distinct from physical displacements. */
+  actions?: IAutoMovieHumanFaceActionParameters;
   /** Mandible relative to the identity's intercuspal neutral. */
   jaw?: {
     /** Nonnegative opening rotation in degrees; translation follows a supported joint path. */

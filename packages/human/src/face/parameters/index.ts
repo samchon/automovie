@@ -1,5 +1,6 @@
 /** Anatomical numerical input contracts; no current basis resolver consumes them. */
 export type * from "./IAutoMovieHumanFaceAnatomicalParameters";
+export type * from "./IAutoMovieHumanFaceActionParameters";
 export type * from "./IAutoMovieHumanFaceAppearanceParameters";
 export type * from "./IAutoMovieHumanFaceBrowParameters";
 export type * from "./IAutoMovieHumanFaceCheekParameters";
