@@ -16,7 +16,27 @@ export default defineConfig({
     fs: { allow: [resolve(__dirname, "..")] },
   },
   preview: { host: "127.0.0.1", port: 4174, strictPort: true },
-  resolve: { dedupe: ["three"] },
+  resolve: {
+    dedupe: ["three"],
+    alias: {
+      "production-temple-scene": resolve(
+        __dirname,
+        "../experimental/ancient-civic-temple/src/viewer/scene.mjs",
+      ),
+      "production-temple-daylight": resolve(
+        __dirname,
+        "../experimental/ancient-civic-temple/src/viewer/daylight.mjs",
+      ),
+      "production-future-scene": resolve(
+        __dirname,
+        "../experimental/future-citizen-house/src/viewer/scene.mjs",
+      ),
+      "production-future-daylight": resolve(
+        __dirname,
+        "../experimental/future-citizen-house/src/viewer/illumination.mjs",
+      ),
+    },
+  },
   build: {
     outDir: "dist",
     // The manor page carries three.js, the engine, and 144 KB of authored
@@ -26,6 +46,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         manor: resolve(__dirname, "manor/index.html"),
+        tour: resolve(__dirname, "tour/index.html"),
       },
     },
   },

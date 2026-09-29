@@ -3,6 +3,12 @@
   "private": true,
   "type": "module",
   "version": "0.1.0",
+  "exports": {
+    "./viewer/scene": {
+      "types": "./src/viewer/scene.d.mts",
+      "default": "./src/viewer/scene.mjs"
+    }
+  },
   "license": "MIT",
   "description": "An AutoMovie coding-agent production repository.",
   "engines": {
@@ -10,10 +16,7 @@
   },
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
@@ -22,9 +25,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "rootDir": ".",
     "noEmitOnError": true,
     "inlineSourceMap": true,
@@ -38,10 +39,7 @@
     "allowJs": true,
     "checkJs": true
   },
-  "include": [
-    "lint.config.ts",
-    "src"
-  ],
+  "include": ["lint.config.ts", "src"],
   "scripts": {
     "lint": "ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",

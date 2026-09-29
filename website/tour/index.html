@@ -1,0 +1,88 @@
+<!doctype html>
+<!-- Shared website chrome; the queried building's original source supplies
+     geometry, materials, lighting and authored world-space camera choices. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4ef" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../src/tour.css" />
+    <title>Architectural tour · AutoMovie</title>
+  </head>
+  <body>
+    <header class="tour-header">
+      <a
+        class="back"
+        href="../#collection"
+        aria-label="Back to the building collection"
+        >← <span>Collection</span></a
+      >
+      <div class="title">
+        <p id="tour-era">Architectural collection</p>
+        <h1 id="tour-title">3D tour</h1>
+      </div>
+      <a id="tour-source" href="https://github.com/samchon/automovie"
+        >View source ↗</a
+      >
+    </header>
+    <main>
+      <canvas
+        id="view"
+        tabindex="0"
+        aria-label="Interactive building scene"
+      ></canvas>
+      <div id="loading" role="status" aria-live="polite">
+        <span class="loader" aria-hidden="true"></span>
+        <h2>Step inside.</h2>
+        <p id="phase">Preparing your 3D tour</p>
+        <a href="../#collection">Back to collection</a
+        ><button type="button" onclick="location.reload()">Try again</button>
+      </div>
+      <div class="view-chrome">
+        <div class="view-heading">
+          <p>Explore the building</p>
+          <button
+            id="panel-toggle"
+            aria-expanded="true"
+            aria-controls="tour-panel"
+          >
+            Hide views
+          </button>
+        </div>
+        <aside id="tour-panel" aria-label="Authored camera views">
+          <label for="view-search">Find a room or viewpoint</label
+          ><input
+            id="view-search"
+            type="search"
+            placeholder="Search views…"
+            autocomplete="off"
+          />
+          <p id="view-count" role="status"></p>
+          <div id="view-list"></div>
+        </aside>
+      </div>
+      <div class="camera-dock" aria-label="Camera controls">
+        <button data-camera="left" aria-label="Orbit left">←</button
+        ><button data-camera="right" aria-label="Orbit right">→</button
+        ><span></span><button data-camera="in" aria-label="Zoom in">+</button
+        ><button data-camera="out" aria-label="Zoom out">−</button><span></span
+        ><button id="reset">Reset view</button>
+      </div>
+      <div class="tour-caption">
+        <p id="current-view"></p>
+        <p id="status" role="status">Loading live 3D</p>
+      </div>
+      <details class="help">
+        <summary>How to explore</summary>
+        <p>Drag to orbit. Right drag to pan. Scroll to zoom.</p>
+        <p>Touch: one finger rotates; two fingers zoom and pan.</p>
+        <p>
+          Keyboard: arrows orbit, Shift + arrows pan, + / − zoom, R resets.
+          Select an authored view to enter a room.
+        </p>
+      </details>
+    </main>
+    <script type="module" src="../src/tour.ts"></script>
+  </body>
+</html>

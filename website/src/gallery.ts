@@ -1,5 +1,5 @@
 /**
- * Enhance the collection's static image links with a native modal gallery.
+ * Enhance the collection's secondary capture links with a native modal gallery.
  * collection.ts supplies its document; this module reads each article once,
  * then owns the selected building/view and all dialog mutations. Captures,
  * copy and destination links remain authored in index.html, the single data
@@ -43,7 +43,7 @@ export const mountGallery = (document: Document): (() => void) => {
     document.querySelectorAll<HTMLElement>(".building"),
     (article) => {
       const opener = required<HTMLAnchorElement>(article, "[data-gallery]");
-      const exterior = required<HTMLImageElement>(opener, "img");
+      const exterior = required<HTMLImageElement>(article, "img");
       const template = required<HTMLTemplateElement>(
         article,
         ".building-views",
