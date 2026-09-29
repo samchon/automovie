@@ -1,5 +1,5 @@
 import { Point } from "./structures/Point";
-import { p } from "./p";
+import { portraitPoint as p } from "./portraitPoint";
 
 /**
  * Intersect a measured camera ray with a continuous finite Z surface, in mm.

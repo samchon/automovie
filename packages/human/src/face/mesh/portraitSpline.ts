@@ -1,4 +1,4 @@
-import { p } from "./p";
+import { portraitPoint as p } from "./portraitPoint";
 import type { Point } from "./structures/Point";
 
 /**

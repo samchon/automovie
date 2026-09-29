@@ -1,7 +1,4 @@
 export * from "./structures";
-export * from "./normalsOf";
-export * from "./p";
-export * from "./patch";
 export * from "./portraitFacesInsideLoop";
 export * from "./portraitMix";
 export * from "./portraitPart";
