@@ -29,13 +29,19 @@ import { throwsError } from "../internal/predicates";
  *    single mesh carries the box's triangles.
  * 5. A basis-compiled partition reuses UV and skin ownership across two
  *    different shaped builds but returns fresh posed buffers and source maps.
- *    A same-size builder mesh with reordered corners refuses.
+ *    A same-size builder mesh with reordered corners or a render copy that
+ *    disagrees with the connected posed skin refuses.
  */
 export const test_human_body_segments_and_export = async (): Promise<void> => {
   const { basis, document } = humanBodyBasisFixture();
   const build = createHumanBodyBasisBuilder(basis);
   const built = build(document);
   const { model, sources } = segmentHumanBodyModel(basis, built);
+  TestValidator.equals(
+    "the build retains one connected posed skin before material splitting",
+    [built.posedSurfaces.length, built.posedSurfaces[0].positions],
+    [1, basis.surfaces[0].positions],
+  );
   TestValidator.equals(
     "one part per bone in joint order",
     model.parts.map((part) => part.id),
@@ -62,6 +68,20 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     [4, 5, 6, 7].every((v) => sources.get("spine")!.includes(v)) &&
       [0, 1, 2, 3].every((v) => sources.get("hips")!.includes(v)) &&
       sources.get("spine")!.length === 8,
+  );
+  TestValidator.predicate(
+    "segmented vertices read the same connected skin by source identity",
+    model.parts.every((part) => {
+      if (part.geometry.type !== "mesh") return false;
+      const mesh = part.geometry.mesh;
+      return sources.get(part.id)!.every((source, vertex) =>
+        [0, 1, 2].every(
+          (axis) =>
+            mesh.positions[vertex * 3 + axis] ===
+            built.posedSurfaces[0].positions[source * 3 + axis],
+        ),
+      );
+    }),
   );
   const segment = createHumanBodySegmenter(basis);
   const atRest = segment(built);
@@ -108,6 +128,78 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
   TestValidator.predicate(
     "same-size reordered builder corners refuse",
     throwsError(() => segment(reordered), "corner order"),
+  );
+  const divergent = {
+    ...built,
+    model: {
+      ...built.model,
+      parts: [
+        {
+          ...firstPart,
+          geometry: {
+            type: "mesh" as const,
+            mesh: {
+              ...firstPart.geometry.mesh,
+              positions: firstPart.geometry.mesh.positions.map((value, index) =>
+                index === 0 ? value + 0.01 : value,
+              ),
+            },
+          },
+        },
+      ],
+    },
+  };
+  TestValidator.predicate(
+    "a divergent render copy cannot redefine the connected skin",
+    throwsError(() => segment(divergent), "connected posed skin") &&
+      throwsError(
+        () =>
+          segment({
+            ...built,
+            posedSurfaces: [
+              { ...built.posedSurfaces[0], positions: [] },
+            ],
+          }),
+        "connected posed skin",
+      ) &&
+      throwsError(
+        () =>
+          segment({
+            ...built,
+            posedSurfaces: [
+              { ...built.posedSurfaces[0], normals: [] },
+            ],
+          }),
+        "connected posed skin",
+      ) &&
+      throwsError(
+        () => segment({ ...built, posedSurfaces: [] }),
+        "connected posed skin",
+      ),
+  );
+  const badNormal = {
+    ...built,
+    model: {
+      ...built.model,
+      parts: [
+        {
+          ...firstPart,
+          geometry: {
+            type: "mesh" as const,
+            mesh: {
+              ...firstPart.geometry.mesh,
+              normals: firstPart.geometry.mesh.normals!.map((value, index) =>
+                index === 0 ? value + 0.01 : value,
+              ),
+            },
+          },
+        },
+      ],
+    },
+  };
+  TestValidator.predicate(
+    "render normals cannot diverge from connected skin normals",
+    throwsError(() => segment(badNormal), "connected posed skin"),
   );
 
   // 2. top corners 4, 5, 6, 7 on hips, chest, chest, spine: the top triangle

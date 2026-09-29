@@ -155,6 +155,7 @@ export function createHumanBodyBasisBuilder(
       );
     return {
       model,
+      posedSurfaces,
       skeleton,
       bones: basis.joints
         .map((joint) => transforms.get(joint.bone)!)
