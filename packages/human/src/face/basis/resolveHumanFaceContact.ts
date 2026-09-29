@@ -33,6 +33,9 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * Kozlov et al. 2017 use teeth-shaped collision surfaces and volume
  * simulation to keep lips outside teeth in an animated rig
  * (https://la.disneyresearch.com/wp-content/uploads/Enriching-Facial-Blendshape-Rigs-with-Physical-Simulation-Paper2.pdf).
+ * Their per-frame volumetric rest pose is an already authored facial
+ * performance that the simulation preserves; it does not repair an invalid
+ * source smile merely by adding contact physics.
  * This builder uses neither their simulation nor measured tissue stiffness:
  * its rest-clearance floor, neighbour averaging and allowed push budget are
  * authored deterministic constraints. They do not prove all combinations
