@@ -20,7 +20,7 @@ type Hooks = Record<
       | undefined;
     view: (name: string) => void;
     pass: (name: string) => void;
-    isolate: (names: string[] | null) => void;
+    isolate: (names: string[] | null) => string[];
     finish: () => void;
   }
 >;
@@ -113,16 +113,19 @@ export async function captureBodyFrames(input: {
         continue;
       }
     }
-    const url = await page.evaluate(
+    const shot = await page.evaluate(
       ([name, view, pass, isolate, selector]) => {
         const hooks = (window as unknown as Hooks)[name as string];
-        hooks.isolate(isolate as string[] | null);
+        const unmatched = hooks.isolate(isolate as string[] | null);
         hooks.view(view as string);
         hooks.pass(pass as string);
         hooks.finish();
-        return (document.querySelector(selector as string) as HTMLCanvasElement).toDataURL(
-          "image/png",
-        );
+        return {
+          unmatched,
+          url: (
+            document.querySelector(selector as string) as HTMLCanvasElement
+          ).toDataURL("image/png"),
+        };
       },
       [hook, frame.view, frame.pass, frame.isolate, canvas] as [
         string,
@@ -132,7 +135,15 @@ export async function captureBodyFrames(input: {
         string,
       ],
     );
-    const bytes = Buffer.from(url.slice(url.indexOf(",") + 1), "base64");
+    // a name no displayed part carries would draw an empty frame and record it
+    if (shot.unmatched.length !== 0)
+      throw new Error(
+        `No displayed part is named ${shot.unmatched.join(", ")}; isolating it would draw a blank frame.`,
+      );
+    const bytes = Buffer.from(
+      shot.url.slice(shot.url.indexOf(",") + 1),
+      "base64",
+    );
     const state =
       frame.isolate === null
         ? frame.state
