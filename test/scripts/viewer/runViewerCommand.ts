@@ -119,6 +119,12 @@ export async function runViewerCommand(
     return VIEWER_EXIT.ok;
   }
   const server = io.serve();
+  // no process id means the spawn failed; recording it, waiting for it or
+  // killing it would act on process zero, which signals the caller's own group
+  if (!(server.pid > 0)) {
+    io.log("viewer: the server process could not be started.");
+    return VIEWER_EXIT.failed;
+  }
   io.writeRecord({ pid: server.pid, startedAt: new Date().toISOString() });
   if (!(await io.waitHealthy())) {
     await io.kill(server.pid);

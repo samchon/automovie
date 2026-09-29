@@ -96,6 +96,8 @@ const io: IViewerIo = {
       pid: child.pid ?? 0,
       exited: new Promise((resolve) => {
         child.on("exit", (code) => resolve(code ?? 1));
+        // a spawn that fails never exits, so its error ends the wait
+        child.on("error", () => resolve(1));
       }),
     };
   },

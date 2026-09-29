@@ -20,6 +20,9 @@ import { createViewerIoFixture } from "../internal/createViewerIoFixture";
  * 5. Absent, and the server never answers: it is killed, the record cleared,
  *    failed.
  * 6. Another program holds the port: the foreign exit code and no effect.
+ * 7. A server that could not be started (no process id): failed, nothing is
+ *    recorded or waited for, and nothing is killed, because signalling process
+ *    zero would reach the caller's own process group.
  */
 export const test_viewer_command_ensure = async (): Promise<void> => {
   const healthy = createViewerIoFixture({
@@ -112,6 +115,16 @@ export const test_viewer_command_ensure = async (): Promise<void> => {
     "wait",
     "kill 4242",
     "clear",
+  ]);
+
+  const unstartable = createViewerIoFixture({ servePid: 0 });
+  TestValidator.equals(
+    "no process id",
+    await runViewerCommand("ensure", unstartable.io),
+    VIEWER_EXIT.failed,
+  );
+  TestValidator.equals("nothing recorded, waited for or killed", unstartable.calls, [
+    "serve",
   ]);
 
   const foreign = createViewerIoFixture({

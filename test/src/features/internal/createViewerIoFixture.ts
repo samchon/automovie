@@ -15,6 +15,7 @@ export function createViewerIoFixture(
     healthy?: boolean;
     exitCode?: number;
     renderer?: string;
+    servePid?: number;
   } = {},
 ) {
   const calls: string[] = [];
@@ -41,7 +42,10 @@ export function createViewerIoFixture(
     },
     serve: () => {
       calls.push("serve");
-      return { pid: 4242, exited: Promise.resolve(state.exitCode ?? 0) };
+      return {
+        pid: state.servePid ?? 4242,
+        exited: Promise.resolve(state.exitCode ?? 0),
+      };
     },
     waitHealthy: async () => {
       calls.push("wait");
