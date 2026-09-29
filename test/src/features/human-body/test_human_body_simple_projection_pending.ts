@@ -46,6 +46,7 @@ export const test_human_body_simple_projection_pending = async (): Promise<void>
     onApply: (next) => { shape = next; },
     onRefuse: (error) => { refusals.push(String(error)); },
     onBusy: () => {},
+    onDraftChanged: () => {},
   });
   const input = (key: string) => dom.querySelector<HTMLInputElement>("#simple-" + key)!;
   const apply = dom.querySelector<HTMLButtonElement>("#simple-apply")!;

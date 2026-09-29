@@ -128,7 +128,8 @@ const FIELDS: {
  * shape, body intent and input draft are still current. The panel reserves
  * a body intent before an expansion begins. A later edit of any body field,
  * including pose with unchanged shape, or a later typed input retires that
- * expansion's success or failure.
+ * expansion's success or failure. When typing retires the current expansion,
+ * the panel returns to a ready draft status rather than leaving "Solving".
  * Apply cannot silently reuse an exact reading from a different shape while
  * the current shape is still being projected. A user may enter every required
  * value directly; an untouched required field waits for this body's reading.
@@ -177,6 +178,8 @@ export const renderBodySimpleControls = (props: {
   ) => void;
   onRefuse: (error: unknown) => void;
   onBusy: (text: string) => void;
+  /** Restore a ready status when a typed draft retires its in-flight solve. */
+  onDraftChanged: () => void;
 }): { refresh: (shape: Record<string, number>) => Promise<void> } => {
   const { dom, container } = props;
   container.replaceChildren();
@@ -184,6 +187,7 @@ export const renderBodySimpleControls = (props: {
   // belongs to one rest shape, while Apply belongs to one input draft.
   let generation = 0;
   let editGeneration = 0;
+  let expanding: number | null = null;
   // a tape measurement is solved only when the user changed it: the value
   // shown is the body's own reading, and re-solving it after a change of
   // sex or mass would pin a girth the new body no longer has
@@ -222,6 +226,11 @@ export const renderBodySimpleControls = (props: {
     const touch = (): void => {
       editGeneration++;
       edited.add(field.key);
+      if (expanding !== null) {
+        const ticket = expanding;
+        expanding = null;
+        if (props.isCurrentIntent(ticket)) props.onDraftChanged();
+      }
     };
     number.addEventListener("input", touch);
     number.addEventListener("change", touch);
@@ -276,6 +285,7 @@ export const renderBodySimpleControls = (props: {
   // shape equality alone cannot identify a newer edit of another field.
   apply.onclick = async () => {
     const ticket = props.reserveIntent();
+    expanding = ticket;
     const over = props.current();
     const draft = editGeneration;
     props.onBusy("Solving the simple body against the basis…");
@@ -287,6 +297,8 @@ export const renderBodySimpleControls = (props: {
     } catch (error) {
       if (props.isCurrentIntent(ticket) && sameShape(props.current(), over) && draft === editGeneration)
         props.onRefuse(error);
+    } finally {
+      if (expanding === ticket) expanding = null;
     }
   };
   const note = dom.createElement("small");

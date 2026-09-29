@@ -398,6 +398,7 @@ export function mountConnectedBodyPanel<
     },
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
+    onDraftChanged: () => status("Simple body draft changed; apply again.", "ready"),
   });
   humeral.controls = renderBodyHumeralHeadControls({
     dom,

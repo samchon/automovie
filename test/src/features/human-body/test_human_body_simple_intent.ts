@@ -49,6 +49,7 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   let applied = 0;
   let appliedTicket = 0;
   const refusals: string[] = [];
+  let draftChanged = 0;
   const controls = renderBodySimpleControls({
     dom,
     container,
@@ -68,6 +69,7 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     },
     onRefuse: (error) => refusals.push(String(error)),
     onBusy: () => {},
+    onDraftChanged: () => { draftChanged++; },
   });
   const apply = dom.querySelector<HTMLButtonElement>("#simple-apply")!;
   const input = dom.querySelector<HTMLInputElement>("#simple-ageYears")!;
@@ -83,6 +85,8 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     1,
   );
   gate.reserve(); // a pose-only edit leaves the shape unchanged
+  input.dispatchEvent(new dom.defaultView!.Event("input"));
+  TestValidator.equals("old solve cannot rename a later edit's status", draftChanged, 0);
   oldSuccess.resolve({ waist: 1 });
   await Promise.resolve();
   TestValidator.equals("pose edit retires old expansion", applied, 0);
@@ -93,6 +97,7 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   apply.click();
   input.value = "31";
   input.dispatchEvent(new dom.defaultView!.Event("input"));
+  TestValidator.equals("typed draft clears current solve status", draftChanged, 1);
   changedDraft.resolve({ waist: 1 });
   await Promise.resolve();
   TestValidator.equals("typed input retires earlier Apply", applied, 0);
