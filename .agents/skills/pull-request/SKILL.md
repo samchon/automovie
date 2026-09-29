@@ -19,7 +19,7 @@ Only an explicitly selected multi-agent campaign creates isolated worktrees, und
 
 ## Commit Logical Units
 
-One commit per coherent unit, not a single mega-commit when the diff is large. Use the repository's `<type>(<scope>): <subject>` message style, and end the message with the `Co-Authored-By` trailer. Run `pnpm run format` before commits that change configured source. For Markdown-only and agent-instruction commits, inspect the direct diff and run `git diff --check` instead.
+One commit per coherent unit, not a single mega-commit when the diff is large. Use the repository's `<type>(<scope>): <subject>` message style, and end the message with the `Co-Authored-By` trailer. Do not run the repository formatter for intermediate commits, draft heads or correction pushes. Inspect Markdown-only and agent-instruction diffs directly and run `git diff --check`.
 
 Stage explicit paths when the worktree is mixed. Never include unrelated user changes silently.
 
@@ -47,7 +47,9 @@ A campaign implementation cycle reads CI once per settled head instead, under it
 
 ## Merge On Explicit Request Or Standing Autonomous Mandate
 
-When the user explicitly asks to merge, or a standing autonomous mandate authorizes it, and every required check passes, squash-merge the PR (matching the repo's linear history) and delete the branch.
+When the user explicitly asks to merge, or a standing autonomous mandate authorizes it, finish implementation and CI repair first. For a pull request that changes configured source, run the formatter once on the final candidate before merging: use `pnpm run format` in an exclusive checkout, or format only the pull request's owned paths in a shared checkout because the root command writes across the repository. Commit any formatting diff to the same pull request and wait for required checks on that head. A Markdown-only pull request needs no source-formatting pass.
+
+When every required check passes on the formatted final head, squash-merge the PR (matching the repo's linear history) and delete the branch.
 
 After GitHub records the merge, observe the `master` push `build` and `test` checks on the exact merge commit. A green pull-request head does not substitute for the post-merge event, and a red master run reopens delivery work immediately.
 
