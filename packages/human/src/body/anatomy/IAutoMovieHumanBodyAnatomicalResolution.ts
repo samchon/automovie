@@ -52,6 +52,7 @@ export type IAutoMovieHumanBodyAnatomicalResolution<Id extends string, Value> =
       /** Distinguishes missing input, missing anatomy and domain failure. */
       readonly reason:
         | "missing-anatomical-input"
+        | "anatomical-variant-absent"
         | "missing-bone-landmark"
         | "missing-tissue-boundary"
         | "inconsistent-measurements"

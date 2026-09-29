@@ -62,6 +62,24 @@ const wrongDigit: IAutoMovieHumanBodyAnatomicalMeasurements = {
   },
 };
 
+const biphalangealFifthToe: IAutoMovieHumanBodyAnatomicalMeasurements = {
+  rightLowerLimb: {
+    foot: { fifthToe: { phalangealPattern: "biphalangeal" } },
+  },
+};
+
+const impossibleBiphalangealToe: IAutoMovieHumanBodyAnatomicalMeasurements = {
+  rightLowerLimb: {
+    foot: {
+      fifthToe: {
+        phalangealPattern: "biphalangeal",
+        // @ts-expect-error A two-phalange ray has no separate middle bone.
+        middlePhalanx: { boneVolume: { kind: "target", millilitres: 1 } },
+      },
+    },
+  },
+};
+
 const wrongVolumeMethod: IAutoMovieHumanBodyAnatomicalMeasurements = {
   pelvis: {
     leftHip: {
@@ -130,4 +148,4 @@ const wrongResult: Extract<
   },
 };
 
-void [simple, detailed, incomplete, oldMorph, wrongDigit, wrongVolumeMethod, projectedHipDistance, wrongSide, wrongBone, wrongResult];
+void [simple, detailed, incomplete, oldMorph, wrongDigit, biphalangealFifthToe, impossibleBiphalangealToe, wrongVolumeMethod, projectedHipDistance, wrongSide, wrongBone, wrongResult];

@@ -73,6 +73,7 @@ export const test_human_body_anatomical_measurements = (): void => {
         hallux: {
           firstMetatarsal: { boneVolume: { kind: "target", millilitres: 14 } },
         },
+        fifthToe: { phalangealPattern: "biphalangeal" },
       },
     },
   };
@@ -101,6 +102,19 @@ export const test_human_body_anatomical_measurements = (): void => {
               middlePhalanx: {
                 maximumLength: { kind: "target", millimetres: 20 },
               },
+            },
+          },
+        },
+      },
+    ],
+    [
+      "two-phalanx fifth toe cannot contain a middle bone",
+      {
+        rightLowerLimb: {
+          foot: {
+            fifthToe: {
+              phalangealPattern: "biphalangeal",
+              middlePhalanx: { boneVolume: { kind: "target", millilitres: 1 } },
             },
           },
         },
