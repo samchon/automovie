@@ -1,6 +1,6 @@
 <!doctype html>
-<!-- The static collection owns each building's copy and captured views. The
-     gallery enhances its image links; the collection also works without JS. -->
+<!-- Primary building links open their actual 3D tours. Secondary capture links
+     retain a progressively enhanced gallery with ordinary image fallbacks. -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -71,15 +71,14 @@
       >
         <div class="section-heading">
           <h2 id="collection-title">The buildings <span>4 scenes</span></h2>
-          <p>Open a gallery. Take a look inside.</p>
+          <p>Enter a 3D scene. Find your way inside.</p>
         </div>
         <div class="building-grid">
           <article class="building" id="ancient">
             <a
-              class="building-image"
-              href="shots/ancient-exterior.png"
-              data-gallery
-              aria-label="Open the civic temple gallery"
+              class="building-image tour-link"
+              href="tour/?building=ancient"
+              aria-label="Explore the civic temple in 3D"
             >
               <img
                 src="shots/ancient-exterior.png"
@@ -90,7 +89,7 @@
               />
               <span class="image-label">Ancient</span>
               <span class="image-action" aria-hidden="true"
-                >View gallery <span>↗</span></span
+                >Explore in 3D <span>↗</span></span
               >
             </a>
             <div class="building-heading">
@@ -102,6 +101,12 @@
               Stone colonnades, tiled roofs, and a quiet courtyard at the heart
               of civic life.
             </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/ancient-exterior.png"
+              >View captures</a
+            >
             <a
               class="source-link"
               href="https://github.com/samchon/AutoMovie/tree/master/experimental/ancient-civic-temple"
@@ -120,10 +125,9 @@
 
           <article class="building" id="medieval">
             <a
-              class="building-image"
-              href="shots/reference-exterior.webp"
-              data-gallery
-              aria-label="Open the baron manor gallery"
+              class="building-image tour-link"
+              href="manor/?view=reference-exterior"
+              aria-label="Explore the baron manor in 3D"
             >
               <img
                 src="shots/reference-exterior.webp"
@@ -133,7 +137,7 @@
               />
               <span class="image-label">Medieval</span>
               <span class="image-action" aria-hidden="true"
-                >View gallery <span>↗</span></span
+                >Explore in 3D <span>↗</span></span
               >
             </a>
             <div class="building-heading">
@@ -145,16 +149,17 @@
               An exposed timber frame, a hearth warmed hall, and a garden
               between two wings.
             </p>
-            <div class="building-links">
-              <a class="tour-link" href="manor/?view=reference-exterior"
-                >Enter the 3D tour <span aria-hidden="true">→</span></a
-              >
-              <a
-                class="source-link"
-                href="https://github.com/samchon/AutoMovie/tree/master/experimental/medieval-baron-manor"
-                >View source <span aria-hidden="true">↗</span></a
-              >
-            </div>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/reference-exterior.webp"
+              >View captures</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/samchon/AutoMovie/tree/master/experimental/medieval-baron-manor"
+              >View source <span aria-hidden="true">↗</span></a
+            >
             <template class="building-views">
               <img
                 src="shots/reference-courtyard.webp"
@@ -189,10 +194,9 @@
 
           <article class="building" id="modern">
             <a
-              class="building-image"
-              href="shots/modern-exterior.png"
-              data-gallery
-              aria-label="Open the suburban house gallery"
+              class="building-image tour-link"
+              href="tour/?building=modern"
+              aria-label="Explore the suburban house in 3D"
             >
               <img
                 src="shots/modern-exterior.png"
@@ -203,7 +207,7 @@
               />
               <span class="image-label">Modern</span>
               <span class="image-action" aria-hidden="true"
-                >View gallery <span>↗</span></span
+                >Explore in 3D <span>↗</span></span
               >
             </a>
             <div class="building-heading">
@@ -215,6 +219,12 @@
               A familiar front porch, white siding, and carefully framed spaces
               for everyday life.
             </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/modern-exterior.png"
+              >View captures</a
+            >
             <a
               class="source-link"
               href="https://github.com/samchon/AutoMovie/tree/master/experimental/modern-suburban-house"
@@ -233,10 +243,9 @@
 
           <article class="building" id="future">
             <a
-              class="building-image"
-              href="shots/future-exterior.png"
-              data-gallery
-              aria-label="Open the citizen house gallery"
+              class="building-image tour-link"
+              href="tour/?building=future"
+              aria-label="Explore the citizen house in 3D"
             >
               <img
                 src="shots/future-exterior.png"
@@ -247,7 +256,7 @@
               />
               <span class="image-label">Future</span>
               <span class="image-action" aria-hidden="true"
-                >View gallery <span>↗</span></span
+                >Explore in 3D <span>↗</span></span
               >
             </a>
             <div class="building-heading">
@@ -259,6 +268,12 @@
               A solar canopy above, planted edges below, and an open interior
               ready for tomorrow.
             </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/future-exterior.png"
+              >View captures</a
+            >
             <a
               class="source-link"
               href="https://github.com/samchon/AutoMovie/tree/master/experimental/future-citizen-house"
