@@ -50,10 +50,13 @@ const armBlock = (
  * a trunk bound to `upperChest` (`|x| <= half`, y 2.0 to 2.85, `|z| <= 0.1`)
  * and a left arm block bound to `leftUpperArm`, 0.3 m long and 0.04 m thick,
  * laid along the measured A-pose (elevation 45) from a shoulder at
- * (0.25, 3). The right arm carries no skin.
+ * (0.25, 3). The right arm carries no skin. An optional third closed block
+ * bound to the chest lets a test place a distinct contact island without
+ * changing the arm's rest pose or adding an intersecting basis interior.
  */
 export const humanBodyTrunkArmFixture = (
   half: number,
+  obstacle?: { low: number[]; high: number[] },
 ): IAutoMovieHumanBodyBasis => {
   const { basis } = humanBodyShoulderFixture();
   const shoulder = [0.25, 3, 0];
@@ -101,5 +104,23 @@ export const humanBodyTrunkArmFixture = (
       weights: Array.from({ length: 8 }, () => [1, 0, 0, 0]).flat(),
     },
   }));
+  if (obstacle !== undefined) {
+    const mesh = block(obstacle.low, obstacle.high, 0);
+    basis.surfaces.push({
+      ...basis.surfaces[0],
+      id: "lateral-obstacle",
+      positions: mesh.positions,
+      indices: mesh.indices,
+      targets: structuredClone(targets),
+      regions: [
+        {
+          id: "lateral-obstacle/skin",
+          material: "skin",
+          indices: mesh.indices,
+          uvs: null,
+        },
+      ],
+    });
+  }
   return basis;
 };

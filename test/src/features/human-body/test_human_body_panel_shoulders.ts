@@ -21,7 +21,6 @@ export const test_human_body_panel_shoulders = async (): Promise<void> => {
   const panel = mountConnectedBodyPanel(app, {
     basis,
     initial,
-    shapes: [],
     poses: [
       {
         name: "Overhead",
@@ -47,7 +46,14 @@ export const test_human_body_panel_shoulders = async (): Promise<void> => {
       setShadows: () => {},
     }),
     seat: () => {},
-    simple: { expand: async () => ({}), project: async () => simple },
+    simple: {
+      expand: async () => ({}),
+      project: async () => simple,
+      solveMeasurement: async (shape, _channel, targetMetres) => ({
+        shape,
+        actualMetres: targetMetres,
+      }),
+    },
     download: () => {},
   });
   await panel.ready;

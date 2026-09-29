@@ -62,7 +62,7 @@ export interface IAutoMovieHumanBodySimpleShapeTable {
     };
   };
 
-  /** Optional tape measurements: the channel each is solved on, whose rule in `HUMAN_BODY_MEASUREMENTS` reads it. */
+  /** Optional exterior girths and rig shoulder-centre distance: each channel is solved by its own `HUMAN_BODY_MEASUREMENTS` rule. */
   measurements: {
     parameter:
       | "waistMetres"

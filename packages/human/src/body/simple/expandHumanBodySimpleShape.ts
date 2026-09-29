@@ -1,4 +1,5 @@
 import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
+import { solveHumanBodyMeasuredChannel } from "../measure/solveHumanBodyMeasuredChannel";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
 import { humanBodySimpleShapeDirection as direction } from "./humanBodySimpleShapeDirection";
@@ -16,8 +17,8 @@ const CONVERGENCE = 1e-5;
 
 /**
  * Expand the simple tier into the detailed one: channel weights of a body
- * document from sex, age, stature, mass, muscle and the tape measurements
- * given.
+ * document from legacy appearance sex/muscle controls, age, stature, mass,
+ * six optional exterior girths and an optional rig-shoulder-centre distance.
  *
  * The term table `HUMAN_BODY_SIMPLE_SHAPE` gives every channel its weight as
  * a sum of gains times products of curves over the parameters and the two
@@ -29,24 +30,26 @@ const CONVERGENCE = 1e-5;
  * identity back as the first row's inverse of the weight less the other rows,
  * which is only the sum's inverse.
  * The measured values are then solved in turn, each with the weights so far
- * worn: the height channel is sampled at -1, 0 and +1 and the stature (ring
- * height above the ground plus the head allowance) inverted linearly
- * between the samples; then, in rounds until no weight moves, because a
- * girth and the mass change each other, each tape measurement given for its
- * channel's rule and the weight channel for the mass the skin volume
+ * worn: the height channel is inverted against the actual shaped-skin height
+ * through the same bounded metric solver the detailed editor uses, with the
+ * head allowance added to the ring height. Because stature, girth and mass
+ * change one another, their weights are then solved in rounds until none
+ * moves: each requested girth or rig distance uses its channel's rule, and the
+ * weight channel reads the mass the skin volume
  * encloses at the fat fraction's density over the age-dependent head-and-neck
- * share. A value outside what the samples reach is refused with the reach, never clamped;
+ * share. A value outside measured reach is refused with that reach, never clamped;
  * a basis without the solved channels, or a measurement its surface cannot
  * answer, is refused before geometry is kept.
  *
  * With `over`, an existing detailed shape, the result keeps that shape's
  * residue: the shape is projected back to the simple tier, the projection is
  * expanded, and only the difference between the new expansion and that one
- * is added to the shape, so an unchanged simple value changes nothing, a
- * detailed edit on a named channel survives, and the same simple values
- * give the same body whatever was edited in between. Channels the table
- * does not name pass through untouched. The result is a fresh record; the
- * detailed tier remains the document's canonical form.
+ * is added to the shape, so an unchanged simple value changes nothing and a
+ * detailed edit on a named channel survives. The result still depends on
+ * that detailed residue: identical simple inputs over different detailed
+ * shapes need not produce identical bodies. Channels the table does not name
+ * pass through untouched. The detailed tier remains the document's canonical
+ * form, and the returned record is fresh.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Turns the identity-card values and tape measurements into the detailed channel weights a document stores, met by measurement, and keeps the detailed residue when applied over a shape.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Evaluates the term table, the measured inversions in the specified order, the envelope refusals and the residual composition the specification lists.
@@ -110,21 +113,25 @@ export function expandHumanBodySimpleShape(
       direction.solve(basis, shape, along, target, read, what, saturate),
     );
   };
-  solve(
-    direction.alone(basis, table.solved.stature),
-    simple.statureMetres,
-    (trial) => measure.stature(basis, trial),
-    "stature",
-  );
+  const stature = table.solved.stature;
+  const matchStature = (): void => {
+    shape[stature] = solveHumanBodyMeasuredChannel({
+      basis,
+      shape,
+      channel: stature,
+      targetMetres:
+        simple.statureMetres - table.stature.headAboveRingMetres,
+    }).shape[stature] ?? 0;
+  };
+  matchStature();
   const density = math.density(
     math.fat(simple, parameters.bodyMassIndex).percent,
   );
-  // The tape girths and the mass move each other, so they are solved against
-  // each other until the weights settle, each step saturating at its reach
-  // end: a girth read before the mass has converged may be out of reach of
-  // that intermediate body and within reach of the solved one. The pass that
-  // follows the fixed point is strict, so a target the converged body cannot
-  // reach is refused with that body's reach and nothing is clamped.
+  // Girths, mass and stature move one another. The intermediate pass may
+  // saturate a target outside that transient body's reach; the pass after
+  // convergence is strict, and the final stature reading is inverted on the
+  // body after its mass and tape weights have settled.
+  const statureAlong = direction.alone(basis, stature);
   const pass = (saturate: boolean): number => {
     const before = { ...shape };
     for (const entry of table.measurements) {
@@ -151,6 +158,13 @@ export function expandHumanBodySimpleShape(
       "mass",
       saturate,
     );
+    solve(
+      statureAlong,
+      simple.statureMetres,
+      (trial) => measure.stature(basis, trial),
+      "stature",
+      saturate,
+    );
     return Math.max(
       ...Object.keys(shape).map((id) =>
         Math.abs(shape[id] - (before[id] ?? 0)),
@@ -160,6 +174,7 @@ export function expandHumanBodySimpleShape(
   for (let round = 0; round < PASSES; round++)
     if (pass(true) < CONVERGENCE) break;
   pass(false);
+  matchStature();
   if (over === undefined) return shape;
   // only the measurements this request names are read back, so an omitted
   // one leaves its channel exactly as the shape had it

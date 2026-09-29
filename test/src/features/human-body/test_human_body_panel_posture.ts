@@ -56,7 +56,6 @@ export const test_human_body_panel_posture = async (): Promise<void> => {
   const panel = mountConnectedBodyPanel(app, {
     basis,
     initial,
-    shapes: [],
     poses: [],
     viewport: () => ({
       build: async () => ({ parts: 1, crossings: null, extras: {} }),
@@ -73,6 +72,10 @@ export const test_human_body_panel_posture = async (): Promise<void> => {
     simple: {
       expand: async () => ({}),
       project: async () => simple(),
+      solveMeasurement: async (shape, _channel, targetMetres) => ({
+        shape,
+        actualMetres: targetMetres,
+      }),
     },
     download: () => {},
   });

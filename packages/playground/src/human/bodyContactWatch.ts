@@ -2,8 +2,10 @@ import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
 
 /**
- * Read the committed body's skin contact on its own, so a pose or a shape
- * that sends skin through skin is never shown without saying so.
+ * Read the committed body's skin contact after an editing pause and report
+ * the result beside that document. A transient edit superseded before the
+ * pause has no reading, and a reading reports intersections without solving
+ * tissue contact.
  *
  * The body builder does not refuse a crossing: whether soft tissue may press
  * is the census's question, and a crossing reading costs about a second,
@@ -16,7 +18,7 @@ import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
  * the superseded reading (`createConnectedBodyRuntime`), so the next preview
  * waits at most one slice behind it rather than the whole reading.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reports skin passing through skin on every committed body instead of only when the author asks.
+ * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Reports skin passing through skin after the committed body remains current through the editing pause instead of only when the author asks.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor Reads the committed document's contact after a pause and discards the reading when a newer intent supersedes it.
  */
 export function createBodyContactWatch<
