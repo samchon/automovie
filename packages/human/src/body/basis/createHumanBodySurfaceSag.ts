@@ -22,10 +22,12 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  * position throughout, so the field fades into it. `down` is the basis frame's -Y, the direction the neutral stands
  * against.
  *
- * The calibration: a breast about 8 to 10 cm thick moves 3 to 6 cm between
- * prone and supine MRI, 0.3 to 0.6 of its thickness for gravity reversed,
- * which the model gives as `gain · softness · 2`; the declared gain is read
- * against that. The rest-minus-lean value is a difference between two
+ * The declared gain is an authored exterior response, not a measured tissue
+ * modulus. Carbonaro et al. (2012, doi:10.1016/j.ejrad.2012.02.013)
+ * measured 3 to 6 cm median breast-lesion displacement between prone and
+ * supine MRI in eleven patients; lesion motion does not measure a full skin
+ * displacement field or a universal ratio to breast thickness. The
+ * rest-minus-lean value is a difference between two
  * authored exterior skins, not an imaged fat or muscle boundary. Both skins
  * can self-cross under the same pose, so this field cannot serve as a bone
  * collider, a tissue compression limit, or a volume-preserving contact law.
