@@ -302,6 +302,14 @@ function coplanarOverlapArea(
   return Math.abs(twiceArea) / 2;
 }
 
+/**
+ * Select the current skin faces whose AABBs can meet a boundary cap.
+ *
+ * This is a broad phase only; the exact triangle test in `assertGeometry`
+ * still decides contact. The direct XYZ scan preserves the same inclusive
+ * AABB condition while avoiding temporary vertex and axis arrays for every
+ * face in each measured-mass inverse trial.
+ */
 function nearCapTriangles(
   positions: number[],
   source: number[],
@@ -317,16 +325,20 @@ function nearCapTriangles(
     }
   const nearby: number[] = [];
   for (let i = 0; i < source.length; i += 3) {
-    const vertices = source.slice(i, i + 3);
-    if (
-      [0, 1, 2].every((axis) => {
-        const values = vertices.map((vertex) => positions[vertex * 3 + axis]);
-        return (
-          Math.max(...values) >= low[axis] && Math.min(...values) <= high[axis]
-        );
-      })
-    )
-      nearby.push(...vertices);
+    const a = source[i];
+    const b = source[i + 1];
+    const c = source[i + 2];
+    let overlaps = true;
+    for (let axis = 0; axis < 3; axis++) {
+      const x = positions[a * 3 + axis];
+      const y = positions[b * 3 + axis];
+      const z = positions[c * 3 + axis];
+      if (Math.max(x, y, z) < low[axis] || Math.min(x, y, z) > high[axis]) {
+        overlaps = false;
+        break;
+      }
+    }
+    if (overlaps) nearby.push(a, b, c);
   }
   return nearby;
 }
