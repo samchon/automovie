@@ -9,6 +9,7 @@
     />
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <title>Medieval Baron Manor · AutoMovie</title>
+    <link rel="stylesheet" href="../src/spectator.css" />
     <style>
       :root {
         color-scheme: dark;
@@ -78,7 +79,11 @@
         border-radius: 6px;
         background: var(--panel);
         color: var(--muted);
-        font: 12px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font:
+          12px/1.5 ui-monospace,
+          "Cascadia Mono",
+          Consolas,
+          monospace;
         white-space: pre-wrap;
         pointer-events: none;
       }
@@ -216,7 +221,11 @@
         padding: 0 4px;
         border: 1px solid var(--line);
         border-radius: 4px;
-        font: 11px ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font:
+          11px ui-monospace,
+          "Cascadia Mono",
+          Consolas,
+          monospace;
         text-align: center;
         color: var(--ink);
       }
@@ -254,7 +263,11 @@
       #loading .phase {
         margin-top: 18px;
         color: var(--ink);
-        font: 13px ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font:
+          13px ui-monospace,
+          "Cascadia Mono",
+          Consolas,
+          monospace;
       }
       #loading .bar {
         width: 240px;
@@ -327,14 +340,26 @@
       <div id="featured"></div>
       <div id="keys">
         <kbd>Click</kbd> mouse look · <kbd>Esc</kbd> release<br />
-        <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> fly · <kbd>Space</kbd>
-        / <kbd>C</kbd> rise / descend<br />
-        <kbd>Shift</kbd> fast · <kbd>Q</kbd> / <kbd>E</kbd> slower / faster ·
-        <kbd>Wheel</kbd> field of view
+        <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> fly ·
+        <kbd>Space</kbd> / <kbd>C</kbd> rise / descend<br />
+        Fast by default (8 m/s) · <kbd>Shift</kbd> slow (2 m/s)<br />
+        <kbd>R</kbd> reset · <kbd>Wheel</kbd> field of view
       </div>
       <div id="scene"></div>
     </aside>
-    <div id="status"></div>
+    <div class="flight-pad flight-direction" aria-label="Hold to move">
+      <button data-flight="forward" aria-label="Fly forward">&uarr;</button>
+      <button data-flight="left" aria-label="Fly left">&larr;</button>
+      <button data-flight="right" aria-label="Fly right">&rarr;</button>
+      <button data-flight="back" aria-label="Fly backward">&darr;</button>
+    </div>
+    <div class="flight-pad flight-height" aria-label="Hold to change height">
+      <button data-flight="up" aria-label="Fly up">Up</button>
+      <button data-flight="down" aria-label="Fly down">Down</button>
+      <button data-flight="slow" aria-label="Hold to move slowly">Slow</button>
+    </div>
+    <button class="flight-reset" data-flight-reset>Reset view</button>
+    <div id="status" role="status"></div>
     <div id="loading">
       <div class="card">
         <h1>Medieval Baron Manor</h1>
