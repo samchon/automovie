@@ -336,6 +336,9 @@ async function main(): Promise<void> {
       fit: viewport.fitView,
       clay: viewport.setClay,
       ...viewport.observe,
+      // Resolves once the companion face has been built and seated (or has
+      // failed), so a capture taken after it always shows the same figure.
+      companion: (): Promise<void> => faceReady.then(() => undefined),
       finish: viewport.finish,
       renderer: viewport.renderer,
     },
