@@ -21,6 +21,7 @@ type Hooks = Record<
     view: (name: string) => void;
     pass: (name: string) => void;
     isolate: (names: string[] | null) => string[];
+    companion: () => Promise<void>;
     finish: () => void;
   }
 >;
@@ -105,6 +106,12 @@ export async function captureBodyFrames(input: {
         hook,
       );
       applied = key;
+      // the face beside the body is seated asynchronously; a frame taken
+      // before it arrives would show a different figure than the next one
+      await page.evaluate(
+        (name) => (window as unknown as Hooks)[name].companion(),
+        hook,
+      );
       if (reason !== null) {
         if (input.onRefused === "throw")
           throw new Error(`The editor refused state "${frame.state}": ${reason}`);

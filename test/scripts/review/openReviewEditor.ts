@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 import { judgeViewerFreshness } from "../viewer/judgeViewerFreshness";
@@ -47,7 +48,6 @@ export async function openReviewEditor(
 ) {
   const root = path.resolve(__dirname, "../../..");
   const human = path.join(root, "packages/human");
-  const fs = await import("node:fs");
   const entry = path.join(human, "lib/browser/index.js");
   const freshness = judgeViewerFreshness(
     newestModification(path.join(human, "src")),

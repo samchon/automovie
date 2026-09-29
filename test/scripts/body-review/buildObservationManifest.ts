@@ -21,6 +21,12 @@ export const OBSERVATION_MANIFEST_SCHEMA = 1;
  * back from `drawn`, not restated, so the manifest cannot claim a view it
  * did not draw.
  *
+ * A digest names the exact bytes of one frame. Two runs of the same frame on
+ * the same GPU are not guaranteed to share it: in a measured pair of runs 18
+ * of 20 frames matched and the other two differed by one colour level in one
+ * pixel, which is rasterization noise and not a change of shape. Equal
+ * digests therefore prove identity, unequal ones do not prove difference.
+ *
  * @param input The unit, the run identity and what was drawn.
  */
 export function buildObservationManifest(input: {
