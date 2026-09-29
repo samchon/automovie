@@ -12,7 +12,7 @@ Settle these before the first turn, because a brief edited mid-run can no longer
 2. The condition that ends the run, and the reference set it is checked against. Your own list going empty is not one.
 3. The supervisor's boundary: what you do (launch, keep alive, relay the user's directives, record) and what you do not (author, review, stage, judge or send method).
 
-Name once **which source governs, and for what**. A subject and its references disagree more often than expected: a fixed massing said "one main body and nothing else" while the reference showed a chimney. An agent that meets a contradiction with no rule either stops, which costs a turn, or picks, which silently makes the brief mean what it picked. Whether an agent asks or decides depends on the model, its effort and the harness's autonomy instruction, so read a stop or a continue against the frozen basis that [records.md](records.md#freeze-identity-before-launch) requires and not against what the surface afforded.
+Name once **which source governs, and for what**. A subject and its references disagree more often than expected, for example a fixed massing that allows one main body while the reference shows a chimney. An agent that meets a contradiction with no rule either stops, which costs a turn, or picks, which silently makes the brief mean what it picked. Whether an agent asks or decides depends on the model, its effort and the harness's autonomy instruction, so read a stop or a continue against the frozen basis that [records.md](records.md#freeze-identity-before-launch) requires and not against what the surface afforded.
 
 ## Withhold the method
 
