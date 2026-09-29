@@ -23,6 +23,8 @@ const deferred = <T>() => {
  * 2. Two Apply clicks commit only the last result; a sole success and failure settle.
  * 3. A changed shape retires an expansion even without a new ticket.
  * 4. Newer intent or typed input retires projection success and failure.
+ * 5. A pose-only commit keeps a typed simple draft and reuses its exact rest
+ *    shape reading; a changed shape still asks the worker to read again.
  */
 export const test_human_body_simple_intent = async (): Promise<void> => {
   const dom = new JSDOM("<!doctype html><main id='app'></main>").window
@@ -38,6 +40,7 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   };
   let shape: Record<string, number> = {};
   let projected = () => Promise.resolve(simple);
+  let projectionRequests = 0;
   let expansion = () => Promise.resolve<Record<string, number>>({ waist: 1 });
   let applied = 0;
   let appliedTicket = 0;
@@ -46,7 +49,10 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     dom,
     container,
     expand: () => expansion(),
-    project: () => projected(),
+    project: () => {
+      projectionRequests++;
+      return projected();
+    },
     current: () => shape,
     reserveIntent: gate.reserve,
     currentIntent: gate.currentTicket,
@@ -184,13 +190,32 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     ["Error: unreachable girth"],
   );
 
+  const acceptedShape = { ...shape };
   projected = () => Promise.resolve({ ...simple, ageYears: 45 });
   await controls.refresh(shape);
   TestValidator.equals("current projection updates input", input.value, "45");
+  shape = { ...shape, hips: 2 };
   projected = () => Promise.reject(new Error("current projection failed"));
   await controls.refresh(shape);
   TestValidator.equals("current projection failure reports", refusals, [
     "Error: unreachable girth",
     "Error: current projection failed",
   ]);
+
+  shape = acceptedShape;
+  input.value = "46";
+  input.dispatchEvent(new dom.defaultView!.Event("input"));
+  const beforePose = projectionRequests;
+  gate.reserve(); // a pose-only commit keeps the measured rest shape
+  await controls.refresh(shape);
+  TestValidator.equals(
+    "pose does not reread identical rest shape",
+    projectionRequests,
+    beforePose,
+  );
+  TestValidator.equals(
+    "pose preserves the unfinished simple input",
+    input.value,
+    "46",
+  );
 };

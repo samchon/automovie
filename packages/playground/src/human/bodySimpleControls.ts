@@ -137,6 +137,9 @@ const FIELDS: {
  * shape, to stand the body in the posture its age implies. A refused expansion (a stature, mass
  * or girth the basis cannot reach) is reported through the editor's status,
  * and the document keeps its last valid state.
+ * A pose-only commit leaves the rest shape unchanged, so `refresh` reuses
+ * the last accepted reading and preserves any unfinished input text. A shape
+ * change invalidates that reading and requests the worker again.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
@@ -180,6 +183,7 @@ export const renderBodySimpleControls = (props: {
   const edited = new Set<keyof IAutoMovieHumanBodySimpleShape>();
   // the last projection, unrounded; the inputs show it to two decimals
   let exact: IAutoMovieHumanBodySimpleShape | null = null;
+  let measuredShape: Record<string, number> | null = null;
   const inputs = new Map<
     keyof IAutoMovieHumanBodySimpleShape,
     HTMLInputElement
@@ -263,6 +267,7 @@ export const renderBodySimpleControls = (props: {
     refresh: async (shape) => {
       const ticket = ++generation;
       const intent = props.currentIntent();
+      if (measuredShape !== null && sameShape(measuredShape, shape)) return;
       let projected: IAutoMovieHumanBodySimpleShape;
       try {
         projected = await props.project(shape);
@@ -275,6 +280,7 @@ export const renderBodySimpleControls = (props: {
       if (ticket !== generation || !props.isCurrentIntent(intent)) return;
       edited.clear();
       exact = projected;
+      measuredShape = { ...shape };
       for (const field of FIELDS) {
         const value = projected[field.key];
         inputs.get(field.key)!.value =
