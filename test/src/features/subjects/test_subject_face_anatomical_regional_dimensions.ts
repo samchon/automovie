@@ -35,6 +35,7 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
       leftCupidBowPeakHeightMm: 7,
       rightCupidBowPeakHeightMm: 6.5,
     },
+    oralCavity: { properSpaceVolumeCm3: 4.4 },
     dentition: {
       stage: "permanent",
       maxillary: {
@@ -60,8 +61,9 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
       measured.ears?.left?.tragusToAntihelixMm,
       measured.mouth?.rightCupidBowPeakHeightMm,
       measured.dentition?.teeth?.["11"]?.buccolingualCrownWidthMm,
+      measured.oralCavity?.properSpaceVolumeCm3,
     ],
-    [12, 6.6, 391, 16, 33, 2.9, 4.2, 2, 18, 6.5, 7],
+    [12, 6.6, 391, 16, 33, 2.9, 4.2, 2, 18, 6.5, 7, 4.4],
   );
   TestValidator.equals(
     "unobserved right short nostril axis remains unknown",
@@ -87,4 +89,13 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
     },
   };
   void invalid;
+
+  // @ts-expect-error The contrast-CBCT protocol seats the tip at lower incisors.
+  const invalidOralReference: IAutoMovieHumanFaceAnatomicalParameters = {
+    referencePose: "eyes-open-forward-gaze-lips-apposed",
+    jawReference: "habitual-closure",
+    dentition: { stage: "edentulous" },
+    oralCavity: { properSpaceVolumeCm3: 4.4 },
+  };
+  void invalidOralReference;
 };

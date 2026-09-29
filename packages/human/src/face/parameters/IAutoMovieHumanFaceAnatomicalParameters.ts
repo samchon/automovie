@@ -11,6 +11,7 @@ import type { IAutoMovieHumanFaceHairParameters } from "./IAutoMovieHumanFaceHai
 import type { IAutoMovieHumanFaceMouthParameters } from "./IAutoMovieHumanFaceMouthParameters";
 import type { IAutoMovieHumanFaceNeckParameters } from "./IAutoMovieHumanFaceNeckParameters";
 import type { IAutoMovieHumanFaceNoseParameters } from "./IAutoMovieHumanFaceNoseParameters";
+import type { IAutoMovieHumanFaceOralCavityParameters } from "./IAutoMovieHumanFaceOralCavityParameters";
 import type { IAutoMovieHumanFacePerformanceParameters } from "./IAutoMovieHumanFacePerformanceParameters";
 import type { IAutoMovieHumanFaceSkinColourParameters } from "./IAutoMovieHumanFaceSkinColourParameters";
 import type { IAutoMovieHumanFaceSkinConditionParameters } from "./IAutoMovieHumanFaceSkinConditionParameters";
@@ -64,6 +65,8 @@ export type IAutoMovieHumanFaceAnatomicalParameters =
           dentition?: IAutoMovieHumanFaceDentalParameters & {
             stage: "edentulous";
           };
+          /** This oral-space protocol requires contact at the lower incisors. */
+          oralCavity?: never;
         }
     );
 
@@ -107,6 +110,9 @@ interface AutoMovieHumanFaceAnatomicalFields {
 
   /** External lips and oral aperture in the declared neutral state. */
   mouth?: IAutoMovieHumanFaceMouthParameters;
+
+  /** Observed oral cavity proper space at the stated tongue and dental pose. */
+  oralCavity?: IAutoMovieHumanFaceOralCavityParameters;
 
   /** MRI-observed internal tongue identity; a face photo leaves it unknown. */
   tongue?: IAutoMovieHumanFaceTongueParameters;

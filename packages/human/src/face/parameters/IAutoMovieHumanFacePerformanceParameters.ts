@@ -8,6 +8,11 @@
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6707237/). Three-dimensional smile
  * studies measure commissure and lip motion against a resting face
  * (https://www.plasticsurgerygroup.co.uk/media/oume4vbf/quantitative-analysis-of-normal-smile-with-3d-stereophotogrammetry-an-aid-to-facial-reanimation.pdf).
+ * Clinical mouth opening is also measured as the distance between the
+ * maxillary and mandibular central incisal edges at the midline
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC3428458/). It exists only when
+ * those teeth or documented prosthetic equivalents are present; lip separation
+ * is a different clearance.
  * Four-dimensional stereophotogrammetry also defines lip-purse magnitude as
  * the mean 3D rest-to-performance displacement of labiale superius and
  * labiale inferius; that scalar is an observed outcome of coordinated lip
@@ -24,6 +29,8 @@ export interface IAutoMovieHumanFacePerformanceParameters {
   jaw?: {
     /** Nonnegative opening rotation in degrees; translation follows a supported joint path. */
     openingDegrees?: number;
+    /** Nonnegative central-incisor edge gap in mm; requires those dental edges. */
+    interincisalGapMm?: number;
     /** Anterior-positive, posterior-negative mandibular excursion in mm. */
     protrusionMm?: number;
     /** Anatomical-left positive lateral excursion in mm. */
