@@ -4,7 +4,7 @@ Read this document in full when the user authorizes implementation pull requests
 
 ## Rules
 
-- Put every accepted, implementation-ready issue of the cycle into one pull request. The issue DAG orders the implementation inside that pull request and never sets the pull-request count.
+- Put every accepted, implementation-ready issue of the cycle into one pull request. The issue DAG orders the implementation inside that pull request and never sets the pull-request count, and packages, invariants and validation lanes never split the cycle.
 - Use the current checkout and one topic branch, as the [pull-request skill](../pull-request/SKILL.md#branch-from-the-target) requires, with no per-issue branch or pull request.
 - Review each issue's surface when it lands, then run one integration Self-Review over the whole base-to-head diff. The integration round inherits nothing from the earlier rounds.
 - The pull request's ordinary CI and a clean integration Self-Review are the acceptance gates, and both must hold on the same immutable head. Repair every red CI lane in that pull request, including a failure that predates the campaign or has nothing to do with its issues.
@@ -19,7 +19,7 @@ Recompute the published-issue dependency DAG. It decides the order in which the 
 4. Put every remaining issue into one cycle ledger with its acceptance matrix, consequence surface, affected files and DAG predecessors.
 5. Order the ledger so that every issue follows its predecessors.
 
-Packages, invariants and validation lanes never split the cycle. Keep issue-level commits, and keep the pull request the integrated campaign unit. Difficulty never removes an issue. When a resolution needs a judgment call about design, invariant ownership or an acceptable behavior change, settle it from the issue's evidence and implement that decision in the cycle.
+Keep issue-level commits. Difficulty never removes an issue. When a resolution needs a judgment call about design, invariant ownership or an acceptable behavior change, settle it from the issue's evidence and implement that decision in the cycle.
 
 ## Claim the complete cycle
 
@@ -48,7 +48,7 @@ For each issue, in order:
 - **Never narrow the type-check to your own files to hide a failure.** A `tsconfig` that includes only one fold can pass while the change breaks an excluded consumer. Use the repository's canonical command for acceptance. A scratch configuration is a diagnostic and no acceptance result.
 - **A local build is not proof for a commit.** Wiring that references a file you have not committed compiles locally and fails in CI, so verify the target is tracked.
 - **Emitted artifacts are not source, and a stale one can disarm a transform.** Running the type-checker without `--noEmit` drops output beside every `.ts`, the loader prefers it, and an emission path that omits the configured typia transform turns every validator into a "no transform configured" stub that throws or accepts everything. Type-check with the repository's own command and run no entry from outside a project root. When a scenario fails in a package you did not touch, look for emitted output beside its sources before you look at its logic.
-- **Write escapes and not control characters.** A literal NUL makes a file binary to `grep` and diff, and a literal BOM renders identically to its `﻿` escape, so an edit tool reads old and new as equal and refuses the fix. Write the character as `String.fromCharCode(0xfeff)`, which is greppable, reviewable and repairable.
+- **Write escapes and not control characters.** A literal NUL makes a file binary to `grep` and diff, and a literal BOM renders identically to its `\ufeff` escape, so an edit tool reads old and new as equal and refuses the fix. Write the character as `String.fromCharCode(0xfeff)`, which is greppable, reviewable and repairable.
 - **Match the shell.** A here-string spelling from one shell passed to another is taken literally and lands as the commit subject.
 
 ### Honest reporting
@@ -70,7 +70,7 @@ When either gate finds a defect:
 3. Commit and push the correction without an intermediate formatting pass.
 4. Let the new CI run finish and restart the integration Self-Review as a fresh complete round over the new head.
 
-Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Continue until the same immutable head has green required checks and a complete integration round with no sound improvement. Submit each finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event, with line-specific findings inline, under the [pull-request skill](../pull-request/SKILL.md#write-the-pull-request).
+Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Submit each finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event, with line-specific findings inline, under the [pull-request skill](../pull-request/SKILL.md#write-the-pull-request).
 
 ## Merge and clean up
 

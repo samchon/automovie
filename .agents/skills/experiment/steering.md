@@ -6,7 +6,7 @@ Read this document when a Claude Code or Codex session runs for hours and you st
 
 `codex exec resume <session-uuid> "<message>"` runs exactly one turn and exits. A live process does not prove the agent is working, and an exited process does not prove it stopped.
 
-- **Poll the session file's size and never its timestamp.** `~/.codex/sessions/` holds one file per session, growing while a turn runs and stopping when it ends. On Windows the last-write time does not move while the writer holds the file open, so a working turn shows a frozen stamp. Two equal sizes over a sensible interval mean idle, and growth means alive.
+- **Poll the session file's size and never its timestamp.** `~/.codex/sessions/` holds one file per session, growing while a turn runs and stopping when it ends. On Windows the last-write time does not move while the writer holds the file open, so a working turn shows a frozen stamp. Two equal sizes across an interval longer than the turn's longest silent tool call mean idle, and growth means alive.
 - **Prefer the process exit as the primary signal** when the turn was launched as a process you watch, with the size as the cross-check. Never kill a session on a size reading alone.
 - **Believe a boundary only when three signals agree:** the launched process, the rollout size and the disk. Process and rollout answer whether the session is alive, and only disk answers whether work is happening: a quota-exhausted session keeps a live process and a growing rollout of retry chatter while the disk sits at zero. Pick the artifact signal from the turn's deliverable, disk for an authoring turn and the transcript for an analysis turn, and say which one you read.
 - **Treat a notification and its absence as no signal.** A completion notice describes the task wrapper and not the session, and an exit code of 0 there can hide a real exit 2 from a rejected flag. Read the exit code of the command you ran. A finished turn can also go unannounced, so poll on a cadence.
@@ -16,7 +16,7 @@ Read this document when a Claude Code or Codex session runs for hours and you st
 
 Input to a session that is mid-turn is refused with `thread-store conflict: thread <uuid> already has an active writer`, and the turn keeps producing evidence meanwhile. Keep the next message in a file and have the retry loop re-read that file on every attempt, so editing it changes what eventually arrives.
 
-- Name the session UUID explicitly, because `--last` resolves to a sub-agent thread and fails.
+- Name the session UUID explicitly, because `--last` can resolve to a thread that refuses input.
 - `codex exec resume` accepts no `-C`, so change directory first.
 - `codex exec resume` does not inherit the session's model but takes the configured default. Pass `-m` on every resume, read the harness's model warning, and record which turns ran under which model, because a substitution also rewrites what the session records.
 
@@ -38,7 +38,7 @@ The workaround also makes the supervisor and the agent fence against different c
 
 ## Verify your instruments
 
-An instrument that answers confidently about input it never received is the family's signature, and it fails in either direction. Make each instrument state its input count and treat zero as a failure and never as a result, so an empty comparison cannot render a verdict.
+An instrument that answers confidently about input it never received is the signature of this class of failure, and it fails in either direction. Make each instrument state its input count and treat zero as a failure and never as a result, so an empty comparison cannot render a verdict.
 
 | The instrument | What it returns |
 | --- | --- |
@@ -93,4 +93,4 @@ A checkpoint report is the agent's claim and no reading of its output. Compare e
 
 That comparison holds only where frames are written to a fixed path. Under content-addressed directories a re-render lands in a new digest directory, so re-reading the old paths returns `CHANGED 0` whatever happened, and a comparison whose answer the addressing scheme fixes cannot fail. The signal there is new paths appearing, and the old-path comparison is a labelled tripwire. The propagation shape can fail: with the design untouched nothing derived moves, and with the design touched its dependents move and only the shots facing the change move their pixels. Artifact propagation is wholesale, since a shot contract embeds the whole built environment, and only rendered pixels are proportional.
 
-Hash only what the product wrote (`generated/`, the design and production records, the reports and the renders), and take the snapshot on both sides of the same command. A change can be count-invariant and still move every pixel, as double-sided doors did at 1,929 elements before and after, so a count shows that geometry was added and never that nothing changed. Compare digests and open the frame.
+Hash only what the product wrote (`generated/`, the design and production records, the reports and the renders), and take the snapshot on both sides of the same command. A change can be count-invariant and still move every pixel, as rebuilding every door double-sided does with an identical element count, so a count shows that geometry was added and never that nothing changed. Compare digests and open the frame.

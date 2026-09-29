@@ -71,7 +71,7 @@ A package that the [project skill](../project/SKILL.md#layout) lists as answerin
 
 `evidence/graph` proves that a unit has a claimant. It does not prove that several partial claimants add up to the complete unit. When behaviors can mature, fail or be implemented independently, give each its own H3 with a stable anchor and let the native triangle validate it directly.
 
-Create no parallel fragment grammar, carrier tag or ownership ledger. Such records duplicate the Markdown unit and source citation identities and drift when either changes. If several packages implement one inseparable unit, every positive citation must implement the complete unit, and if none does, the unit is too broad and must be split before it is cited.
+Create no second fragment grammar, carrier tag or ownership ledger. Such records duplicate the Markdown unit and source citation identities and drift when either changes. If several packages implement one inseparable unit, every positive citation must implement the complete unit, and if none does, the unit is too broad and must be split before it is cited.
 
 Leave a unit nobody implements without a positive carrier and do not exclude it. An exclusion states that the claim intentionally owes nothing, and spending one on unfinished work confuses a decided boundary with an unexamined gap.
 

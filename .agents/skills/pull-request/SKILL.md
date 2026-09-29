@@ -29,13 +29,11 @@ The title describes the merged outcome in `<type>(<scope>)` style, not the work 
 
 ## Campaign Override
 
-Before a campaign implementation push or pull request, complete the [campaign development procedure](../issue-campaign/development.md). Its commit-message, check-cadence, CI-repair and cleanup rules override the ordinary flow here.
+A campaign implementation cycle follows the [campaign development procedure](../issue-campaign/development.md), whose commit-message, CI-cadence, CI-repair and cleanup rules override the ordinary flow here.
 
 ## Read Checks For The Applicable Head
 
 After every push, watch `gh pr checks <PR>` until each check settles. On failure, fetch the job log, diagnose the real cause, fix it in place and push a new commit. Both `build` and `test` must pass, and a green unrelated job does not accept a failed required surface. The workflows own their commands; the [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write) owns the unit-test obligation. The `build` and `test` workflows run for pull requests and for pushes to `master`.
-
-A campaign implementation cycle reads CI once per settled head under its own development procedure. Its intermediate commits are not gates, and its merge still requires the settled head's green required checks.
 
 ## Merge On Explicit Request Or Standing Autonomous Mandate
 

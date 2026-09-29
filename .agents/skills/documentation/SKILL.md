@@ -47,7 +47,7 @@ A test or an external link adds evidence and never replaces this explanation. Ke
 `AGENTS.md` and `SKILL.md` files are operational documents for humans and agents. `AGENTS.md ## Maintenance` decides where a rule belongs and this section decides how it is written. A revision reads as if it had always been there.
 
 - **Optimize for comprehension, not minimum length.** A shorter document that makes the reader infer prerequisites, reasons, exceptions or stop conditions is not concise. Include the context needed to execute correctly.
-- **Remove repetition, not substance.** State a rule once at its owning document and link to it elsewhere. Keep the rationale when it prevents a plausible mistake.
+- **Remove repetition, not substance.** Keep the rationale when it prevents a plausible mistake.
 - **Give each paragraph one job.** Split purpose, rule, rationale, procedure and consequence instead of making the reader unpack a dense block.
 - **Use structure as compression.** Numbered lists for ordered procedures, bullets for choices or checklists, tables for repeated mappings, code blocks for exact commands. Do not hide a workflow inside one long sentence.
 - **State the rule before its reason.** Write what to do, then name the exclusion. Use negative phrasing only for a named failure mode the affirmative rule does not already exclude, because "X, not Y" and a heading built the same way state a contrast and leave the reader to derive the instruction.
@@ -78,8 +78,6 @@ A capability router belongs in `SKILL.md`. A substantial conditional phase belon
 | Pull-request skill | Branch, commit, push, check, merge and cleanup behavior. Other skills say when a remote action is due and link to it. |
 | Scaffold skill and the scaffold's shipped skills | The generated project's contract and authoring doctrine. Repository instructions point to it and do not copy its production procedure. |
 | Product contracts, package READMEs and public JSDoc | Product promises, system contracts, package use and public API meaning. Instructions route work to them and do not become a second contract corpus. |
-
-A user-selected workflow may override an execution detail for one run. Record the override in the run or pull-request chronology and leave the durable rule alone.
 
 Review every changed instruction literally against its linked callers and the implementation it describes. Check frontmatter, directory and `name` agreement, trigger scope, links, unique ownership, prose-line form, and contradictory or duplicate completion points. After the corrections stop, run two consecutive complete instruction-diff rounds with no finding and no edit before the final repository gates. This tightens the review skill's single clean round on purpose, because one instruction change alters every later run.
 
