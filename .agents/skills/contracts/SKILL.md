@@ -5,52 +5,29 @@ description: Defines the implementation acknowledgments that maintained source d
 
 # Implementation Contracts
 
-A contracts chapter is a question that a declaration answers about its own implementation. The answer is an `@evidence` tag in the declaration's JSDoc, and the checklist reference makes `@ttsc/evidence` require one answer per selected declaration and chapter. The checker confirms that an answer exists. Whether the answer is true is the [review skill's](../review/SKILL.md) work.
+Each chapter of a checklist below is a question that a declaration answers about its own implementation, with an `@evidence contracts/<file>.md#<chapter> <reason>` tag in its JSDoc. `@ttsc/evidence` requires one answer per selected declaration and chapter, and the [review skill](../review/SKILL.md) judges whether an answer is true. The human package's `lint.config.ts` owns which declarations answer which checklist.
 
-Product promises belong in `docs/requirements` and system contracts in `docs/specifications`, under the [evidence graph skill](../evidence-graph/SKILL.md). A generated production's own contract belongs to the scaffold's shipped `contract` skill. A contracts chapter cites neither layer and owns no product behavior.
+Product promises and system contracts stay with the [evidence graph skill](../evidence-graph/SKILL.md), and a generated production's contract with the scaffold's shipped `contract` skill.
 
-## Reading order
+An answer explains why the approach is appropriate, the assumptions it relies on and any unresolved departure. It does not certify outputs or claim that tests passed, and it states a real limitation instead of declaring compliance. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations). Use `@evidenceExclude` only for a chapter that does not apply, naming that chapter, because excluding a whole checklist file answers nothing.
 
-Read [common.md](common.md) for every enrolled declaration. Add [modeling.md](modeling.md) when the declaration defines, builds or measures a form, and add [anatomy.md](anatomy.md) when it stands for a living human body. Select chapters by what the declaration does.
+Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another. Types and functions are selected, and private helpers are reviewed with their owner.
 
-The layers are additive. Modeling and anatomy chapters ask only what the layer beneath them does not, so a declaration answers each chapter once and never repeats another chapter's argument.
+## [Common Implementation Principles](common.md)
 
-## Ownership
+Principled implementation, clear and simple design, prohibited shortcuts and meaningful documentation. Every enrolled declaration answers these.
 
-Each chapter owns one question. Revise a checklist so that this table stays true.
+## [Modeling Principles](modeling.md)
 
-| Layer | Chapter | Question owned |
-| --- | --- | --- |
-| Common | Principled Implementation | Why does the method or value representation establish the required meaning under its stated premises? |
-| Common | Clear and Simple Design | Why are the code's responsibilities and structural elements clear and necessary for current requirements? |
-| Common | Prohibited Implementation Shortcuts | Does the implementation rely on hardcoding, monkey patching, test-only logic or a compensation for a disproven assumption? |
-| Common | Meaningful documentation | What useful information is written for users and maintainers, and does it follow the documentation skill? |
-| Modeling | Part Identity and Grouping | Which part or group of the represented form is this, and which members does it compose? |
-| Modeling | Parameter Channels | Does each channel vary one trait, with a zero neutral, a documented positive direction and an explicit pair rule? |
-| Modeling | Emitted Geometry | Why does the representation emit this many primitives of each kind? |
-| Modeling | Spatial Conventions | In which unit and frame do the values live, and where are they converted? |
-| Modeling | Shared Boundaries | What single definition joins two adjoining parts, and what keeps them joined under every admitted configuration? |
-| Anatomy | Anatomical Source | Which measurement or study does each value rest on, under what population and conditions, and is the value measured, derived, fitted or conventional? |
-| Anatomy | Permitted Range | Why is every admitted value and combination one a living body can take, and how are dependent bounds and combinations decided? |
-| Anatomy | Parametric Authority | Is every input a named measurement, motion or closed choice that cannot address geometry, and how do simple and detailed inputs convert? |
+Part identity and grouping, parameter channels, emitted geometry, spatial conventions and shared boundaries. Read when the declaration defines, builds or measures a form.
 
-The neighboring boundaries are these. Principled Implementation asks whether a method is valid for the representation it receives, and Anatomical Source asks where the empirical value comes from. Clear and Simple Design asks about the code's responsibilities and where one policy lives, and Part Identity and Grouping asks about the represented form's parts. Emitted Geometry asks how much a declaration emits, and the cost of computing it lies outside these chapters. Parameter Channels asks about the form of a channel, Spatial Conventions asks about the units and frames its values live in, and Parametric Authority asks what kind of quantity a human input may be. Permitted Range asks which states are admitted, and Parametric Authority never repeats it.
+## [Anatomical Principles](anatomy.md)
 
-## Writing an answer
+Anatomical source, permitted range and parametric authority. Read when the declaration stands for a living human body.
 
-Explain why the implementation approach is appropriate, the assumptions it relies on and any unresolved departure. Do not certify outputs, list regression cases or claim that tests passed. State an actual limitation, and never declare compliance with a chapter the implementation does not meet. Write the tag as `@evidence contracts/<file>.md#<chapter-anchor> <reason>` and address every fact the chapter asks for. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations) rules. Use `@evidenceExclude` only for a chapter that genuinely does not apply to that declaration, name that chapter in the target, and give the reason. An exclusion of a whole checklist file bypasses every chapter in it, so it is never an answer.
+## Maintaining the checklists
 
-Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another.
-
-Select types and functions. A property keeps its native documentation and is covered by its type. Include private helpers when reviewing the owning declaration, so that delegation does not hide an implementation decision.
-
-## Maintaining a checklist
-
-- Keep every chapter an H2 in a checklist document, with a heading whose anchor stays stable. The common chapters apply to every enrolled declaration and say so once in their introduction. Every other chapter opens with an `Apply to` sentence that states which declarations owe it.
-- Keep links out of checklist documents so each remains readable on its own. Links belong to this file.
-- Give each question one chapter owner. Before adding a chapter, find whether an existing chapter already owns its question and extend that one.
-- Write under the [documentation skill](../documentation/SKILL.md), and review a changed checklist under its instruction-diff rounds.
-
-## Enrollment
-
-The human package's `lint.config.ts` owns which declarations answer which layer. Derive each population from a source-tree glob under the [evidence graph skill](../evidence-graph/SKILL.md#derive-the-carrier-population), with the common claim over the whole package and the modeling and anatomy claims over the directories whose declarations do what those layers ask. Verify an enrollment as the [development skill](../development/SKILL.md) requires of a configured check: count what the claim selected, then remove one answer and confirm the check reports it.
+- Give each question one chapter owner across all three files, and extend the owning chapter instead of adding a second one.
+- Keep each chapter an H2 with a stable anchor. The common chapters apply to every enrolled declaration, and every other chapter opens with an `Apply to` sentence.
+- Keep links out of the checklist files so each stays readable on its own.
+- Write under the [documentation skill](../documentation/SKILL.md) and review a changed checklist under its instruction-diff rounds.

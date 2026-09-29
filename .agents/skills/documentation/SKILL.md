@@ -59,7 +59,7 @@ Give every instruction one canonical semantic owner. Edit that owner first, then
 | Repository `.agents/skills/<name>/SKILL.md` | One concern's trigger, exclusions, shared invariants, and direct routes. The directory and frontmatter `name` agree; substantial conditional phases live in directly linked one-level sibling documents. |
 | Documentation skill | Instruction classification, writing form, link integrity, package README and JSDoc form, and instruction-diff review. |
 | Development skill | Source and test rules, consequence analysis, the exact changed-position coverage obligation, validation, and change integrity. |
-| Contracts skill | The implementation checklist chapters, each chapter's single question, and the enrollment rule for declarations that answer them. |
+| Contracts skill | The implementation checklist chapters, and the rule that each question has exactly one chapter owner. |
 | Review skill | Whole-surface, fresh-round review semantics and Self-Review. Campaign procedures name when those rounds run without redefining them. |
 | Issue-campaign skills | Discovery, publication, implementation ownership, DAG dispatch, integration, and completion. The base campaign owns the ordinary shared-checkout topology; the multi-agent campaign owns only its explicitly selected isolated topology. |
 | Pull-request skill | Branch, commit, push, check, merge, and cleanup behavior. Other skills state when a remote action is due and link to this owner. |
