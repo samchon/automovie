@@ -23,9 +23,17 @@ Two details decide whether the frame is real.
 - **Import by absolute file URL.** The library resolves only from `test/`, so a script written to a scratchpad cannot find it by name. `NODE_PATH` is ignored under ESM. Import `test/node_modules/playwright/index.mjs` by its full `file:///` URL instead.
 - **Ask for `channel: "chromium"`.** The default launch drops to `chromium_headless_shell`, which has no GPU. With the real channel this repository reaches a real device through ANGLE. **Log the `RENDERER` string on every run.** Silently falling back to a software rasterizer and reading the result as a GPU frame is this procedure's main false result.
 
+## Product editors
+
+Judge the face and body editors on the frames the product draws. Serve the playground with `pnpm --filter @automovie/playground dev` at `http://127.0.0.1:5173`, which builds `@automovie/human` once and does not rebuild it. Keep that server running for the whole task so each observation costs one navigation, and start it as an in-session background job so ending the session ends it. After a change to human source, rebuild the package and reload before you capture, because a capture of an older build reports a feature as absent.
+
+Open `connected-face.html` or `connected-body.html`, wait for the panel to report a committed state, and drive the page through `window.__connectedFace` or `window.__connectedBody`: `change` applies a document as a slider commit does, `camera` and `fit` move the display camera, `clay` switches the material-independent view, `finish` completes the frame, and `renderer` returns the graphics device to log. The face page also offers `look`, which places the camera exactly. Only `change` edits the document. The other hooks change the display and never the document.
+
+Frames go to gitignored directories and never into the repository.
+
 ## Getting engine code into the page
 
-Do not stand up vite or a bundler. Split it in two, which is simpler:
+For engine geometry that no product page shows, do not stand up vite or a bundler. Split it in two, which is simpler:
 
 1. Run the TypeScript export entry through `pnpm exec ttsx -P <owning-tsconfig.json> <entry.ts>` from the repository root. The owning project supplies its type checks and configured transforms. Import the engine source module directly to inspect the working-tree implementation, build the geometry or pose, and write the result to JSON. Face-review entries use `test/tsconfig.scripts.json`; a diagnostic entry needs a project that includes it. The [development skill](../development/SKILL.md#validation) owns repository acceptance checks.
 2. A dependency-free static page reads that JSON and draws it. It opens over `file://`, so no server is involved.

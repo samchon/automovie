@@ -10,6 +10,19 @@ Design the parameter types first. Complete the anatomical type vocabulary (compo
 
 Every declaration in the package answers the [contracts skill](../contracts/SKILL.md): common, modeling and anatomical chapters, with the science written in JSDoc. The package cites no requirement or specification page. The facial-authoring and body-authoring pages under `docs/` remain product documents that its source does not cite, and the [evidence graph skill](../evidence-graph/SKILL.md) lists the package as outside the triangle.
 
+## Observe part by part
+
+A declaration that owns a part, a joint or an assembly answers the contracts skill's [Rendered Observation](../contracts/modeling.md#rendered-observation) chapter. This section names the units and their sources.
+
+- **Parts.** Enumerate them from their owners: the body's `AutoMovieHumanBodyPartId` and the surface groups under `body/anatomy/surface`, the face's `IAutoMovieHumanFaceComponentTree` and the regions under `face/anatomy`. Keep no second list.
+- **Joints.** Observe two parts joined by a rig articulation as assembled, at the extremes of both, because an opening seam appears only there.
+- **Whole.** Observe proportion, mass and the reference poses last, after the parts and joints, because they couple every part.
+- **Views.** Take the directions the [facial review contract](../../../docs/specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review) requires: front, anatomical left and right oblique and profile, back, and a material-independent clay. The body uses the same directions.
+- **Shared basis.** A change to a shared basis reaches every part built on it, so observe each of them again. An answer written before the change no longer describes the result.
+- **Locality.** Renders and reference images stay on the local machine, in `.shots/` or the `.wiki/`. The answer and the issue describe them in words.
+
+Drive the viewer as the [viewer-verification skill](../viewer-verification/SKILL.md) describes.
+
 ## Investigate a face
 
 Use this procedure for numerical facial shape, expression, skin, hair and their shared attachments. It is a development procedure and grants no likeness approval or new anatomical capability.

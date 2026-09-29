@@ -41,7 +41,9 @@ A residual, a fitted preset or a baked artifact is defined against a base (`subj
 
 ## Every angle, every scale
 
-A model is not its most flattering view. Verify front, three-quarter and side, and verify at the distance the shot uses: a proxy that reads at fifty metres can be nonsense in a close framing, and a shape tuned in close-up can vanish in a crowd. Silhouette survives distance, so judge it there.
+A model is not its most flattering view. Verify at the distance the shot uses: a proxy that reads at fifty metres can be nonsense in a close framing, and a shape tuned in close-up can vanish in a crowd. Silhouette survives distance, so judge it there.
+
+The views, extremes and scales a part, a joint or an assembly owes are answered under the contracts skill's [Rendered Observation](../contracts/modeling.md#rendered-observation) chapter.
 
 ## Pipeline discipline
 
