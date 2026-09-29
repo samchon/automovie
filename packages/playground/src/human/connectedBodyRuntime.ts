@@ -1,8 +1,9 @@
 /**
- * Keep one admitted basis evaluator in a worker. A preview packs transferable
- * geometry and measurements; export runs only on an explicit request. The last
- * evaluated document may be reused for export, while a different committed
- * document is evaluated independently of an in-flight draft.
+ * Keep one admitted basis evaluator and contact partition in a worker.
+ * A preview packs transferable geometry and measurements; export runs only
+ * on an explicit request. The last evaluated document may be reused for
+ * export, while a different committed document is evaluated independently
+ * of an in-flight draft.
  */
 import {
   type IAutoMovieModelCrossing,
@@ -11,14 +12,18 @@ import {
 import {
   type IAutoMovieHumanBodyBasis,
   createHumanBodyBasisBuilder,
+  createHumanBodyHumeralHeads,
+  createHumanBodySegmenter,
   exportHumanBody,
+  measureHumanBodySpheresSkinClearance,
   parseHumanBodyBasisDocument,
-  segmentHumanBodyModel,
+  projectHumanBodySimpleShape,
   stepHumanBodyArmsDown,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
+import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
 import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
@@ -52,6 +57,7 @@ export function createConnectedBodyRuntime(
   } = {},
 ) {
   const evaluate = createHumanBodyBasisBuilder(basis);
+  const segment = createHumanBodySegmenter(basis);
   const sliceMs = options.sliceMs ?? 25;
   const yieldThread =
     options.yieldThread ??
@@ -109,7 +115,7 @@ export function createConnectedBodyRuntime(
     if (request.operation === "armsDown") {
       // the same slicing as a contact reading: a step at a time, abandoned
       // when a later request supersedes it
-      const steps = stepHumanBodyArmsDown(basis, evaluate, document);
+      const steps = stepHumanBodyArmsDown(basis, evaluate, document, segment);
       let since = Date.now();
       let next = steps.next();
       while (next.done !== true) {
@@ -138,15 +144,50 @@ export function createConnectedBodyRuntime(
       return { operation: "export", glb };
     }
     const model = packConnectedBodyModel(built.model);
+    const crossings =
+      request.measure || request.anatomy
+        ? await readContacts(
+            segment(built).model,
+            () => received !== mine,
+          )
+        : null;
+    let anatomy: Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"] = null;
+    if (request.anatomy && crossings !== null) {
+      if (crossings.length !== 0)
+        anatomy = { status: "unavailable", reason: "skin-crossing" };
+      else {
+        const simple = projectHumanBodySimpleShape(basis, document.shape, []);
+        const heads = createHumanBodyHumeralHeads({
+          ageYears: simple.ageYears,
+          sex: simple.sex,
+          statureMetres: simple.statureMetres,
+          bones: built.bones,
+          radii: document.humeralHeads,
+        });
+        anatomy =
+          heads.length === 0
+            ? { status: "unavailable", reason: "ct-domain" }
+            : (() => {
+                const measured = measureHumanBodySpheresSkinClearance({
+                  skins: basis.surfaces.map((surface, index) => ({
+                    indices: surface.indices,
+                    positions: built.posedSurfaces[index].positions,
+                  })),
+                  spheres: heads.map(({ bone, center, radiusMetres }) => ({
+                    id: bone,
+                    center,
+                    radiusMetres,
+                  })),
+                });
+                return packHumanBodyHumeralHeadReading(heads, measured);
+              })();
+      }
+    }
     return {
       operation: "preview",
       model,
-      crossings: request.measure
-        ? await readContacts(
-            segmentHumanBodyModel(basis, built).model,
-            () => received !== mine,
-          )
-        : null,
+      crossings: request.measure ? crossings : null,
+      anatomy,
       extras: { bones: built.bones, landmarks: built.landmarks },
     };
   };

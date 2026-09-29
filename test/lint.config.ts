@@ -185,6 +185,7 @@ const graph: ITtscEvidenceGraphConfig = {
         files: ["src/body/**/*.ts", "!src/**/index.ts"],
         symbol: ["type", "function", "property"],
         noEvidenceExclude: true,
+        severity: "warning",
       },
     },
     {

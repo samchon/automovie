@@ -1,5 +1,7 @@
 export * from "./AutoMovieHumanBodySimpleParameter";
 export * from "./IAutoMovieHumanBodyBasis";
+export * from "./rig/IAutoMovieHumanBodyBasisJoint";
+export * from "./surface/IAutoMovieHumanBodyBasisSurface";
 export * from "./IAutoMovieHumanBodyBasisDocument";
 export * from "./IAutoMovieHumanBodyShoulderPose";
 export * from "./IAutoMovieHumanBodyBuild";
@@ -13,3 +15,8 @@ export * from "./IAutoMovieHumanBodySkinDetail";
 export * from "./IAutoMovieHumanBodySkinTone";
 export * from "./IAutoMovieHumanBodySkinReliefPose";
 export * from "./IAutoMovieHumanBodyUnderwear";
+export * from "./shape/IAutoMovieHumanBodyBasisChannel";
+export * from "./shape/IAutoMovieHumanBodyBasisCorrective";
+export * from "./rig/IAutoMovieHumanBodyBasisLandmarks";
+export * from "./rig/IAutoMovieHumanBodyBasisCoupling";
+export * from "./rig/IAutoMovieHumanBodyBasisPelvifemoral";

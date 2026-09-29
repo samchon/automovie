@@ -49,9 +49,9 @@ import { nclose } from "../internal/predicates";
  * 4. Saturation: a 90-year-old at BMI 30 with muscle -1 gets ptosis 1 (the
  *    product 1.2 saturates) and muscle -1 (the sarcopenia row cannot go
  *    below the envelope); age 90 reads the last curve point.
- * 5. Stature: a 1.75 m ring plus the head allowance solves to height -0.5
- *    and a 1.9 m ring to -0.2; a stature the samples do not reach is refused
- *    with the reach.
+ * 5. Stature: a 1.75 m ring plus the head allowance solves to height -0.5;
+ *    a 1.9 m ring is measured to the requested height within half a 0.1 mm
+ *    readout. A stature the basis does not reach is refused with its reach.
  * 6. Mass: the solved weight reproduces the requested kilograms when the
  *    result is measured back at the same age-specific density and head share,
  *    a heavier request solves heavier, the density is bounded at both ends
@@ -278,7 +278,10 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.equals("ptosis saturates", old.buttocksPtosis, 1);
   TestValidator.equals("muscle saturates", old.macroMuscle, -1);
   TestValidator.equals("age at the last point", old.macroAge, 1);
-  TestValidator.predicate("stature 1.9 m ring", nclose(old.macroHeight, -0.2));
+  TestValidator.predicate(
+    "stature 1.9 m ring is measured back",
+    nclose(measureHumanBodySimpleShape.stature(basis, old), 1.9 + head, 0.00005),
+  );
   TestValidator.error("stature beyond the reach", () =>
     expandHumanBodySimpleShape(basis, { ...base, statureMetres: 1.2 }),
   );

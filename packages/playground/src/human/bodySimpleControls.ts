@@ -120,12 +120,19 @@ const FIELDS: {
  * projects it), so a user reads the body's own stature, mass and girths
  * before changing one. Projection and expansion are the package's measured
  * inversions and take seconds, so both are asked of a worker (`expand`,
- * `project`); a projection that lands after a newer one, or after the user
- * typed, is dropped, and one that fails is reported. The panel reserves a
- * body intent before an expansion begins. A later edit of any body field,
- * including pose with unchanged shape, retires that expansion's success or
- * failure. Projection observes the same intent generation so stale readings
- * cannot rewrite inputs or status while a later edit builds.
+ * `project`). A projection depends on the detailed shape alone. One pending
+ * request serves repeated refreshes of that shape; a new shape retires it,
+ * while a contact read or pose edit of unchanged shape leaves it valid.
+ * Text typed during the read stays in its own field and the other inputs
+ * receive the projection. A projection failure is reported only while its
+ * shape, body intent and input draft are still current. The panel reserves
+ * a body intent before an expansion begins. A later edit of any body field,
+ * including pose with unchanged shape, or a later typed input retires that
+ * expansion's success or failure. When typing retires the current expansion,
+ * the panel returns to a ready draft status rather than leaving "Solving".
+ * Apply cannot silently reuse an exact reading from a different shape while
+ * the current shape is still being projected. A user may enter every required
+ * value directly; an untouched required field waits for this body's reading.
  * Applying expands the values over the current shape, which keeps every
  * detailed edit the simple tier does not name and changes only what the
  * edited values drive; a tape measurement is solved only when the user
@@ -137,6 +144,9 @@ const FIELDS: {
  * shape, to stand the body in the posture its age implies. A refused expansion (a stature, mass
  * or girth the basis cannot reach) is reported through the editor's status,
  * and the document keeps its last valid state.
+ * A pose-only commit leaves the rest shape unchanged, so `refresh` reuses
+ * the last accepted reading and preserves any unfinished input text. A shape
+ * change invalidates that reading and requests the worker again.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Lets a user author a body from sex, age, stature, mass, muscle and tape measurements, read back off the current body and expanded into the stored channel weights.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Bounds each input by the specified envelope, applies the expansion over the current shape and leaves blank measurements unsolved.
@@ -168,18 +178,27 @@ export const renderBodySimpleControls = (props: {
   ) => void;
   onRefuse: (error: unknown) => void;
   onBusy: (text: string) => void;
+  /** Restore a ready status when a typed draft retires its in-flight solve. */
+  onDraftChanged: () => void;
 }): { refresh: (shape: Record<string, number>) => Promise<void> } => {
   const { dom, container } = props;
   container.replaceChildren();
-  // a projection still in flight when the user types must not overwrite
-  // what was typed: an edit retires every pending projection
+  // Projection and user input have different invalidation keys: a projection
+  // belongs to one rest shape, while Apply belongs to one input draft.
   let generation = 0;
+  let editGeneration = 0;
+  let expanding: number | null = null;
   // a tape measurement is solved only when the user changed it: the value
   // shown is the body's own reading, and re-solving it after a change of
   // sex or mass would pin a girth the new body no longer has
   const edited = new Set<keyof IAutoMovieHumanBodySimpleShape>();
-  // the last projection, unrounded; the inputs show it to two decimals
-  let exact: IAutoMovieHumanBodySimpleShape | null = null;
+  // the last projection, unrounded and paired with its exact rest shape
+  let measured: {
+    shape: Record<string, number>;
+    values: IAutoMovieHumanBodySimpleShape;
+  } | null = null;
+  let requestedShape: Record<string, number> | null = null;
+  let pending: { shape: Record<string, number>; result: Promise<void> } | null = null;
   const inputs = new Map<
     keyof IAutoMovieHumanBodySimpleShape,
     HTMLInputElement
@@ -205,8 +224,13 @@ export const renderBodySimpleControls = (props: {
     number.placeholder = field.optional ? "blank keeps the body's own" : "";
     label.htmlFor = number.id;
     const touch = (): void => {
-      generation++;
+      editGeneration++;
       edited.add(field.key);
+      if (expanding !== null) {
+        const ticket = expanding;
+        expanding = null;
+        if (props.isCurrentIntent(ticket)) props.onDraftChanged();
+      }
     };
     number.addEventListener("input", touch);
     number.addEventListener("change", touch);
@@ -218,15 +242,33 @@ export const renderBodySimpleControls = (props: {
     container.append(row);
     inputs.set(field.key, number);
   }
+  const display = (values: IAutoMovieHumanBodySimpleShape): void => {
+    for (const field of FIELDS) {
+      if (edited.has(field.key)) continue;
+      const value = values[field.key];
+      inputs.get(field.key)!.value =
+        value === undefined
+          ? ""
+          : String(Math.round(value * field.scale * 100) / 100);
+    }
+  };
   const read = (): IAutoMovieHumanBodySimpleShape => {
     const simple: Record<string, number> = {};
+    const projected =
+      measured !== null && sameShape(measured.shape, props.current())
+        ? measured.values
+        : null;
     for (const field of FIELDS) {
       const text = inputs.get(field.key)!.value.trim();
       if (field.optional && (text === "" || !edited.has(field.key))) continue;
-      if (exact !== null && !edited.has(field.key)) {
-        simple[field.key] = exact[field.key]!;
+      if (projected !== null && !edited.has(field.key)) {
+        simple[field.key] = projected[field.key]!;
         continue;
       }
+      if (!edited.has(field.key))
+        throw new Error(
+          `${field.label} has not been read from the current body yet.`,
+        );
       // an empty required value is not zero; it has not been read yet
       if (text === "")
         throw new Error(
@@ -243,16 +285,20 @@ export const renderBodySimpleControls = (props: {
   // shape equality alone cannot identify a newer edit of another field.
   apply.onclick = async () => {
     const ticket = props.reserveIntent();
+    expanding = ticket;
     const over = props.current();
+    const draft = editGeneration;
     props.onBusy("Solving the simple body against the basis…");
     try {
       const simple = read();
       const shape = await props.expand(simple, over);
-      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
+      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over) && draft === editGeneration)
         props.onApply(shape, ticket, simple);
     } catch (error) {
-      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over))
+      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over) && draft === editGeneration)
         props.onRefuse(error);
+    } finally {
+      if (expanding === ticket) expanding = null;
     }
   };
   const note = dom.createElement("small");
@@ -260,28 +306,48 @@ export const renderBodySimpleControls = (props: {
     "Read off the current body; applying expands through the package's table and measured inversions into the detailed channels below, keeping the detailed edits it does not name.";
   container.append(apply, note);
   return {
-    refresh: async (shape) => {
+    refresh: (shape) => {
+      const changed =
+        requestedShape !== null && !sameShape(requestedShape, shape);
+      if (changed) edited.clear();
+      requestedShape = { ...shape };
+      if (measured !== null && sameShape(measured.shape, shape)) {
+        if (changed) {
+          ++generation;
+          pending = null;
+          display(measured.values);
+        }
+        return Promise.resolve();
+      }
+      if (pending !== null && sameShape(pending.shape, shape))
+        return pending.result;
+      const target = { ...shape };
       const ticket = ++generation;
       const intent = props.currentIntent();
-      let projected: IAutoMovieHumanBodySimpleShape;
-      try {
-        projected = await props.project(shape);
-      } catch (error) {
-        // a projection that fails is reported, never left as blank inputs
-        if (ticket === generation && props.isCurrentIntent(intent))
-          props.onRefuse(error);
-        return;
-      }
-      if (ticket !== generation || !props.isCurrentIntent(intent)) return;
-      edited.clear();
-      exact = projected;
-      for (const field of FIELDS) {
-        const value = projected[field.key];
-        inputs.get(field.key)!.value =
-          value === undefined
-            ? ""
-            : String(Math.round(value * field.scale * 100) / 100);
-      }
+      const draft = editGeneration;
+      const result = (async (): Promise<void> => {
+        let projected: IAutoMovieHumanBodySimpleShape;
+        try {
+          projected = await props.project(target);
+        } catch (error) {
+          if (
+            ticket === generation &&
+            sameShape(props.current(), target) &&
+            props.isCurrentIntent(intent) &&
+            draft === editGeneration
+          )
+            props.onRefuse(error);
+          return;
+        }
+        if (ticket !== generation || !sameShape(props.current(), target)) return;
+        measured = { shape: target, values: projected };
+        display(projected);
+      })();
+      pending = { shape: target, result };
+      void result.then(() => {
+        if (pending?.result === result) pending = null;
+      });
+      return result;
     },
   };
 };

@@ -1,9 +1,8 @@
 /// <reference lib="webworker" />
 /**
  * A worker that owns the body editor's simple tier: it loads the shipped
- * body basis once and answers two requests, the expansion of simple values
- * over a detailed shape and the projection of a detailed shape back to
- * simple values. Both run the package's measured inversions (dozens of full
+ * body basis once and answers expansion, projection and one measured detailed
+ * channel target. Each runs the package's measured inversions (dozens of full
  * shape evaluations), which would hold the page's main thread for seconds,
  * so they run here and the page stays responsive while they solve.
  */
@@ -12,6 +11,7 @@ import {
   type IAutoMovieHumanBodySimpleShape,
   expandHumanBodySimpleShape,
   projectHumanBodySimpleShape,
+  solveHumanBodyMeasuredChannel,
 } from "@automovie/human";
 
 import { readConnectedFaceAsset } from "./human/connectedAsset";
@@ -37,6 +37,13 @@ scope.onmessage = async (
         over?: Record<string, number>;
       }
     | { id: number; kind: "project"; shape: Record<string, number> }
+    | {
+        id: number;
+        kind: "solveMeasurement";
+        shape: Record<string, number>;
+        channel: string;
+        targetMetres: number;
+      }
   >,
 ) => {
   const request = event.data;
@@ -45,7 +52,14 @@ scope.onmessage = async (
     const result =
       request.kind === "expand"
         ? expandHumanBodySimpleShape(basis, request.simple, request.over)
-        : projectHumanBodySimpleShape(basis, request.shape);
+        : request.kind === "project"
+          ? projectHumanBodySimpleShape(basis, request.shape)
+          : solveHumanBodyMeasuredChannel({
+              basis,
+              shape: request.shape,
+              channel: request.channel,
+              targetMetres: request.targetMetres,
+            });
     scope.postMessage({ id: request.id, result });
   } catch (error) {
     scope.postMessage({

@@ -3,20 +3,19 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 
 /**
- * Evaluate named channels and correctives on skin and landmarks alike.
+ * Evaluate named channels and correctives over their resident skin and landmark rows.
  *
  * For each vertex p the result is p + sum(abs(weight) * endpoint) +
- * sum(activation * corrective target), in that order. The same named endpoint
- * and corrective rows apply to landmarks, so the joint follows authored shape
- * channels. Per-person vertex rows are not a document input.
+ * sum(activation * corrective target), in that order. Landmark rows are
+ * applied when an endpoint declares them, so those authored shape channels
+ * move their joints with the skin. Per-person vertex rows are not a document
+ * input.
  *
  * The returned buffers are fresh copies; the basis is never mutated. A surface
  * that carries no row for an endpoint is left where it is, which is how the
  * admission's "every endpoint moves something" rule and a per-surface sparse
  * payload coexist.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Produces the deterministic shaped surface and landmarks that the same document yields regardless of edit order.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Applies `|weight| x endpoint`, then activation-scaled correctives, to surfaces and landmarks by endpoint name.
  */
 export function evaluateHumanBodyShape(
   basis: IAutoMovieHumanBodyBasis,

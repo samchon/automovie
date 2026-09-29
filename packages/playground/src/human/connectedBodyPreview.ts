@@ -42,6 +42,7 @@ export function createConnectedBodyPreview(props: {
     build: async (
       document: IAutoMovieHumanBodyBasisDocument,
       measure = false,
+      anatomy = false,
     ) => {
       cancel();
       const ticket = generation;
@@ -49,6 +50,7 @@ export function createConnectedBodyPreview(props: {
         operation: "preview",
         document: serializeHumanBodyBasisDocument(document),
         measure,
+        anatomy,
       });
       withdraw = request.cancel;
       const result = await request.result;
@@ -64,6 +66,7 @@ export function createConnectedBodyPreview(props: {
         frame,
         parts: result.model.parts.length,
         crossings: result.crossings,
+        anatomy: result.anatomy,
         extras: result.extras,
       };
     },

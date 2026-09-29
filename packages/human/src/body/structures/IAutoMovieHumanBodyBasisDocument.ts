@@ -14,8 +14,6 @@ import type { IAutoMovieHumanBodyUnderwear } from "./IAutoMovieHumanBodyUnderwea
  * names decides what every field means, and a basis mismatch is refused rather
  * than migrated.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Separates basis revision, named channel weights, joint pose and material adjustments in one replayable record, with no per-person vertex rows.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Fixes the document's fields and the neutral meaning of every omission the save boundary and the builder share.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBasisDocument {
@@ -28,8 +26,27 @@ export interface IAutoMovieHumanBodyBasisDocument {
   /** Must equal the supplied basis identity; no implicit migration occurs. */
   basis: string;
 
-  /** Persistent numeric shape edits against the basis's named, bounded channels. */
+  /**
+   * Canonical basis weights for replay, including legacy authored morphs.
+   * These are internal document coordinates, not a request for the user to
+   * sculpt vertices. The editor derives supported values from anthropometric
+   * inputs or from a named metric rule solved on the current shaped body;
+   * unmeasured source morphs remain readable for existing documents but do
+   * not become detailed anatomical input controls.
+   */
   shape: Record<string, number>;
+
+  /**
+   * Optional measured spherical humeral-head radii in millimetres. These
+   * named articular dimensions override the adult CT population prior on
+   * their respective sides. Omission permits that prior only within its
+   * observed age and stature domain; a radius is not a shaft contour or a
+   * request for the user to place vertices in 3D.
+   */
+  humeralHeads?: {
+    leftRadiusMillimetres?: number;
+    rightRadiusMillimetres?: number;
+  };
 
   /**
    * Optional non-humeral joint articulation in clinical degrees, sparse and
@@ -73,11 +90,11 @@ export interface IAutoMovieHumanBodyBasisDocument {
   skinTone?: { strength: number };
 
   /**
-   * Optional superficial veins of the skin, where the basis draws them: with
-   * the skin detail on, they show at `strength` in [0,1] over the lean body,
-   * and the tissue the document's body carries over its lean self hides
-   * them further, as a vein deeper under the skin takes less of the light.
-   * Omission shows none.
+   * Optional superficial veins of the skin, where the basis draws them:
+   * they show at `strength` in [0,1] over the lean body independently of
+   * skin micro-relief. Tissue the document's body carries over its lean self
+   * hides them further, as a vein deeper under the skin takes less light.
+   * A request without any declared vein layer is refused. Omission shows none.
    */
   skinVeins?: { strength: number };
 

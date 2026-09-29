@@ -30,7 +30,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-import archetypes from "../../../test/studies/human-body/connected-basis/archetypes.json";
 import { createBodySimpleWorkerTransport } from "./human/bodySimpleWorkerTransport";
 import {
   readConnectedAssetRevision,
@@ -235,38 +234,14 @@ async function main(): Promise<void> {
           ask<Record<string, number>>({ kind: "expand", simple, over }),
         project: (shape) =>
           ask<IAutoMovieHumanBodySimpleShape>({ kind: "project", shape }),
-      },
-      shapes: [
-        { name: "Neutral", shape: {} },
-        { name: "Female", shape: { macroGender: -1 } },
-        { name: "Male", shape: { macroGender: 1 } },
-        { name: "Child", shape: { macroAge: -1 } },
-        { name: "Old", shape: { macroAge: 1 } },
-        { name: "Heavy", shape: { macroWeight: 1 } },
-        { name: "Thin", shape: { macroWeight: -1 } },
-        { name: "Muscular", shape: { macroMuscle: 1 } },
-        { name: "Tall", shape: { macroHeight: 1 } },
-        { name: "Short", shape: { macroHeight: -1 } },
-        // the simple tier's review population, each solved on click
-        ...Object.entries(
-          archetypes as Record<
-            string,
-            {
-              simple: IAutoMovieHumanBodySimpleShape;
-              detail?: Record<string, number>;
-            }
-          >,
-        ).map(([name, archetype]) => ({
-          name: name.replace(/-/g, " "),
-          shape: async () => ({
-            ...(await ask<Record<string, number>>({
-              kind: "expand",
-              simple: archetype.simple,
-            })),
-            ...archetype.detail,
+        solveMeasurement: (shape, channel, targetMetres) =>
+          ask<{ shape: Record<string, number>; actualMetres: number }>({
+            kind: "solveMeasurement",
+            shape,
+            channel,
+            targetMetres,
           }),
-        })),
-      ],
+      },
       poses: [
         { name: "A-pose", pose: [] },
         {

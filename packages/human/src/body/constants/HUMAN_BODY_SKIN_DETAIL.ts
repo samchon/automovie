@@ -10,15 +10,19 @@ import type { IAutoMovieHumanBodySkinDetail } from "../structures/IAutoMovieHuma
  *   polygon per square millimetre (Trojahn et al. 2015): two families at
  *   right angles about 0.8 mm apart, 40 µm deep, and their secondary lines a
  *   quarter millimetre apart, 12 µm deep.
- * - **Pores**: body follicles run 14 to 32 per cm² (Otberg et al. 2004: back
- *   29, thorax 22, upper arm 32, forearm 18, thigh 17, calf 14), their
- *   orifices about 80 µm across on the forearm and wider on the trunk and
- *   legs; 22 per cm² at a 45 µm Gaussian radius.
+ * - **Follicular openings**: Otberg et al. 2004 measured hair-follicle
+ *   densities in six volunteers (doi:10.1046/j.0022-202X.2003.22110.x):
+ *   back 29, thorax 22, upper arm 32, forearm 18, thigh 17 and calf 14 per
+ *   cm². The common tile depicts the thorax's 22 as representative dimples
+ *   at a 45 µm Gaussian radius. It does not predict each site's follicle
+ *   density or model every sweat-gland pore.
  * - **Age**: forearm roughness Ra rises from 16.9 µm at 20 to 29 years to
  *   28.5 µm at 60 to 74 (Li et al. 2006), a factor of 1.7 by `macroAge` 0.65
  *   (67 years); the primary lines deepen as the secondary fade (Zahouani et
  *   al. 2014). The elderly skin's loss of one line orientation (Corcuff et
- *   al. 1991) is not modelled: the tile keeps both families.
+ *   al. 1991) is not modelled: the tile keeps both families. Ra is aggregate
+ *   surface roughness, not a direct measurement of these groove depths; the
+ *   age factors are an authored appearance proxy.
  *
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Holds the measured line and pore statistics the skin's close-range relief is made of.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the tile, the line families, the pores and the age curve the relief is generated from.

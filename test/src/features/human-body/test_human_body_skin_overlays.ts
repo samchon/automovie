@@ -39,21 +39,22 @@ function textured(surface: Surface): Surface {
 }
 
 /**
- * A surface's layers are bound as the skin's overlays when the document's
- * skin detail is on.
+ * A surface's nail plates bind independently of optional skin micro-relief.
  *
  * Scenarios:
  * 1. With a nails layer, a document with skin detail gets one replacing
  *    overlay on the skin: its colour and normal map bound once over the
  *    UVs, clamped, sRGB and linear, its roughness, and full strength. A
  *    layer without a normal map binds none.
- * 2. A document without skin detail keeps the plain skin; one with a cheek
- *    over nails drawn for another tints them by the palm's albedo against
- *    that cheek's, and without a drawn cheek the nails stay as drawn.
+ * 2. A document without skin detail still wears its nail plates; one with a
+ *    cheek over nails drawn for another tints them by the palm's albedo
+ *    against that cheek's, and without a drawn cheek the nails stay as drawn.
  * 3. A layer of an unknown kind is refused by the schema; a second nails
  *    layer on the same material, a colour or normal map that is not a PNG
  *    data URI, a material without textured regions and a roughness outside
  *    [0, 1] by the basis admission.
+ * 4. A textured non-skin material still cannot silently consume an anatomical
+ *    nail layer intended to replace skin.
  */
 export const test_human_body_skin_overlays = (): void => {
   const { basis, document } = humanBodyBasisFixture();
@@ -95,10 +96,9 @@ export const test_human_body_skin_overlays = (): void => {
       skinOf([{ ...nails, normal: undefined }], true).overlays![0]!
         .normalTexture === null,
   );
-  TestValidator.equals(
-    "without skin detail the skin stays plain",
-    skinOf([nails], false).overlays,
-    undefined,
+  TestValidator.predicate(
+    "nail plates remain when micro-relief is omitted",
+    skinOf([nails], false).overlays?.[0]?.blend === "replace",
   );
   // a document's cheek tints the nails by the palm's albedo against the
   // cheek they were drawn for
@@ -157,5 +157,12 @@ export const test_human_body_skin_overlays = (): void => {
       roughness: true,
       cheek: true,
     },
+  );
+  const other = withOverlays([{ ...nails, material: "flesh" }]);
+  other.materials = [...basis.materials, { ...basis.materials[0], id: "flesh" }];
+  other.surfaces[0].regions[0].material = "flesh";
+  TestValidator.predicate(
+    "a textured non-skin material cannot silently swallow nails",
+    throwsError(() => createHumanBodyBasisBuilder(other), "skin material"),
   );
 };
