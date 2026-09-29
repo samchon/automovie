@@ -62,11 +62,25 @@ export function humanBodyCappedSurface(
   const caps = mesh(capIndices);
   const at = (v: number): number[] => closedPositions.slice(v * 3, v * 3 + 3);
   let signedVolume = 0;
+  // The oriented tetrahedron sum V = Σ a · (b × c) / 6. Read each corner
+  // from the resident arrays: inverse mass projection repeats this exact
+  // sum for every candidate shape, while allocating three corner arrays and
+  // a cross-product array per triangle adds no geometry information.
   for (let i = 0; i < closedIndices.length; i += 3) {
-    const a = at(closedIndices[i]);
-    const b = at(closedIndices[i + 1]);
-    const c = at(closedIndices[i + 2]);
-    signedVolume += dot(a, cross(b, c)) / 6;
+    const a = closedIndices[i] * 3;
+    const b = closedIndices[i + 1] * 3;
+    const c = closedIndices[i + 2] * 3;
+    signedVolume +=
+      (closedPositions[a] *
+        (closedPositions[b + 1] * closedPositions[c + 2] -
+          closedPositions[b + 2] * closedPositions[c + 1]) +
+        closedPositions[a + 1] *
+          (closedPositions[b + 2] * closedPositions[c] -
+            closedPositions[b] * closedPositions[c + 2]) +
+        closedPositions[a + 2] *
+          (closedPositions[b] * closedPositions[c + 1] -
+            closedPositions[b + 1] * closedPositions[c])) /
+      6;
   }
   const volume = Math.abs(signedVolume);
   const interiorPoint = (): number[] => {
