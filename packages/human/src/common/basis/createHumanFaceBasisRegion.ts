@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
+import type { IHumanMaterialRegion } from "../structures/IHumanMaterialRegion";
 
 /**
  * Compile a material region's fixed source-to-UV correspondence once.
@@ -14,7 +14,7 @@ import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieH
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Gathers optional reference RGB through the same fixed source correspondence as geometry.
  */
 export function createHumanFaceBasisRegion(
-  region: IAutoMovieHumanFaceBasis["surfaces"][number]["regions"][number],
+  region: IHumanMaterialRegion,
 ): (
   positions: readonly number[],
   normals: readonly number[],
