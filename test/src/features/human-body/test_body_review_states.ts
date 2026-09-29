@@ -12,7 +12,9 @@ import { standardBodyReviewStates } from "../../../scripts/body-review/standardB
  *    pose, and each state name is used once (an object cannot repeat a key,
  *    so the count of names equals the count of states).
  * 2. Every shape value is finite and within [-1, 1].
- * 3. Every pose angle is finite or null, and no pose names a bone twice.
+ * 3. Every pose angle is finite or null, and no pose names a bone twice; every
+ *    shoulder goal names an upper arm once, with a plane in [-180, 180), and a
+ *    finite non-negative elevation and axial rotation.
  * 4. Each call returns fresh objects, so a caller editing one state cannot
  *    change the next call's.
  */
@@ -37,6 +39,25 @@ export const test_body_review_states = (): void => {
         [entry.flexion, entry.abduction, entry.twist].every(
           (angle) => angle === null || Number.isFinite(angle),
         ),
+      ),
+    );
+  }
+  for (const name of names) {
+    const goals = states[name].shoulders ?? [];
+    TestValidator.equals(
+      `${name} goals name an arm once`,
+      new Set(goals.map((goal) => goal.bone)).size,
+      goals.length,
+    );
+    TestValidator.predicate(
+      `${name} shoulder goals in range`,
+      goals.every(
+        (goal) =>
+          goal.plane >= -180 &&
+          goal.plane < 180 &&
+          Number.isFinite(goal.elevation) &&
+          goal.elevation >= 0 &&
+          Number.isFinite(goal.axialRotation),
       ),
     );
   }

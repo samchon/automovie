@@ -70,6 +70,8 @@ async function main(): Promise<void> {
           )[editorName as string].change(document as object),
         [hook, { ...base, id: name, name, ...all[name] }],
       );
+      // a refused document leaves the previous one applied, so an error ends
+      // the wait as well as a built document does
       await page.waitForFunction(
         ([editorName, id]) => {
           const snapshot = (
@@ -77,16 +79,36 @@ async function main(): Promise<void> {
               string,
               {
                 snapshot: () =>
-                  | { status?: string; document: { id: string } }
+                  | {
+                      status?: string;
+                      error?: string | null;
+                      document: { id: string };
+                    }
                   | undefined;
               }
             >
           )[editorName as string].snapshot();
-          return snapshot?.status === "ready" && snapshot.document.id === id;
+          return (
+            snapshot !== undefined &&
+            ((snapshot.status === "ready" && snapshot.document.id === id) ||
+              (snapshot.error !== undefined && snapshot.error !== null))
+          );
         },
         [hook, name],
         { timeout: 300000 },
       );
+      const refusal = await page.evaluate(
+        (editorName) =>
+          (
+            window as unknown as Record<
+              string,
+              { snapshot: () => { error?: string | null } | undefined }
+            >
+          )[editorName].snapshot()?.error ?? null,
+        hook,
+      );
+      if (refusal !== null)
+        throw new Error(`The editor refused state "${name}": ${refusal}`);
       for (const view of request.views)
         for (const pass of request.passes) {
           const url = await page.evaluate(

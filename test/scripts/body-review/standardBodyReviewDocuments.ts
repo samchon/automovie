@@ -1,9 +1,13 @@
+import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
 /** A review state: the shape channels and pose a document is built from. */
 export interface IBodyReviewState {
   shape: Record<string, number>;
   pose: IAutoMovieJointPose[];
+
+  /** Thorax-relative upper arm goals; an arm is raised through these, not through its joint row. */
+  shoulders?: IAutoMovieHumanBodyShoulderPose[];
 }
 
 const joint = (
@@ -21,7 +25,10 @@ const joint = (
  *
  * Each state names macro channels and joint angles in the units the editor
  * takes: macro channels in `[-1, 1]` about the basis neutral and joint angles
- * in clinical degrees. None is a person; a state is a probe of the shape
+ * in clinical degrees. Arms are raised through `shoulders`, the thorax-relative
+ * goals the builder resolves into the clavicle, scapula and humerus (plane 0
+ * lateral, +90 anterior; total elevation and axial rotation in degrees); the
+ * editor refuses an upper arm raised through its joint row. None is a person; a state is a probe of the shape
  * space and of a joint's range. The set is a starting population for a
  * review and never an acceptance list: a change that claims a region also
  * looks at the states that region's contract names. The documents built
@@ -32,7 +39,19 @@ export function standardBodyReviewStates(): Record<string, IBodyReviewState> {
   const state = (
     shape: Record<string, number>,
     pose: IAutoMovieJointPose[] = [],
-  ): IBodyReviewState => ({ shape, pose });
+    shoulders?: IAutoMovieHumanBodyShoulderPose[],
+  ): IBodyReviewState =>
+    shoulders === undefined ? { shape, pose } : { shape, pose, shoulders };
+  const arms = (
+    plane: number,
+    elevation: number,
+  ): IAutoMovieHumanBodyShoulderPose[] =>
+    (["leftUpperArm", "rightUpperArm"] as const).map((bone) => ({
+      bone,
+      plane,
+      elevation,
+      axialRotation: 0,
+    }));
   return {
     neutral: state({}),
     female: state({ macroGender: -1 }),
@@ -48,25 +67,12 @@ export function standardBodyReviewStates(): Record<string, IBodyReviewState> {
       macroMuscle: 0.8,
       macroHeight: 0.6,
     }),
-    "t-pose": state({}, [
-      joint("leftUpperArm", null, 90),
-      joint("rightUpperArm", null, 90),
-      joint("leftLowerArm", 0),
-      joint("rightLowerArm", 0),
-    ]),
-    "arms-down": state({}, [
-      joint("leftUpperArm", null, 0),
-      joint("rightUpperArm", null, 0),
-      joint("leftLowerArm", 0),
-      joint("rightLowerArm", 0),
-    ]),
+    "arms-lateral-90": state({}, [], arms(0, 90)),
+    "arms-forward-90": state({}, [], arms(90, 90)),
+    "arms-overhead": state({}, [], arms(30, 150)),
     "elbows-90": state({}, [
       joint("leftLowerArm", 90),
       joint("rightLowerArm", 90),
-    ]),
-    "arms-overhead": state({}, [
-      joint("leftUpperArm", null, 170),
-      joint("rightUpperArm", null, 170),
     ]),
     "hips-90": state({}, [
       joint("leftUpperLeg", 90),
