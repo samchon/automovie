@@ -935,6 +935,9 @@ importers:
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../packages/viewer
+      '@automovie/website':
+        specifier: workspace:*
+        version: link:../website
       '@gltf-transform/core':
         specifier: catalog:gltf
         version: 4.5.0

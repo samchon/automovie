@@ -11,6 +11,7 @@
   "author": "Samchon",
   "license": "MIT",
   "dependencies": {
+    "@automovie/website": "workspace:*",
     "medieval-baron-manor": "workspace:*",
     "@automovie/archetypes": "workspace:^",
     "automovie": "workspace:^",

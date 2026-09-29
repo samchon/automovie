@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 // GitHub Pages serves the site under the repository name, and that path is
-// case-sensitive (`/AutoMovie/` answers, `/automovie/` does not). A relative
+// case-sensitive (currently `/automovie/`). A relative
 // base keeps every asset URL correct wherever the build is mounted, so a
 // repository rename or a local preview needs no rebuild.
 export default defineConfig({
