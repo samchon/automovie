@@ -341,6 +341,17 @@ em {
 .site-footer a {
   color: var(--muted);
 }
+.gallery-link {
+  display: inline-block;
+  margin-right: 20px;
+  color: var(--muted);
+  font-size: 12px;
+  text-underline-offset: 4px;
+}
+.building-image.tour-link {
+  margin: 0;
+  color: inherit;
+}
 @media (max-width: 1000px) {
   .page-width {
     width: calc(100% - 64px);
