@@ -5,6 +5,9 @@
  * (https://doi.org/10.1111/ics.12510). A photographic validation study
  * measured beard density but warned against equating an image score with a
  * biological follicle count (https://pmc.ncbi.nlm.nih.gov/articles/PMC3676674/).
+ * The cited upper-lip site was sampled as one region. Left/right subdivision
+ * preserves an individual's asymmetry but has no separate bilateral cohort
+ * interval from that study.
  * This type carries no follicle coordinates, beard cards or private textures.
  * Vellus facial hair belongs to skin appearance and is not removed by a null
  * visible-beard document.
@@ -12,8 +15,10 @@
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceFacialHairParameters {
-  /** Hair directly above the upper vermilion. */
-  upperLip?: IAutoMovieHumanFaceFacialHairParameters.Site;
+  /** Anatomical-left moustache region above the upper vermilion. */
+  leftUpperLip?: IAutoMovieHumanFaceFacialHairParameters.Site;
+  /** Anatomical-right moustache region above the upper vermilion. */
+  rightUpperLip?: IAutoMovieHumanFaceFacialHairParameters.Site;
   /** Mental eminence below the lower lip. */
   chin?: IAutoMovieHumanFaceFacialHairParameters.Site;
   /** Anatomical left cheek. */

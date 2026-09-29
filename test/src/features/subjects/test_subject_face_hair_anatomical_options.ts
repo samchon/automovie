@@ -27,6 +27,10 @@ export const test_subject_face_hair_anatomical_options = (): void => {
         flow: { top: "parting", leftSide: "pulled-back" },
       },
     },
+    facialHair: {
+      leftUpperLip: { terminalHairsPerCm2: 31 },
+      rightUpperLip: { terminalHairsPerCm2: 26 },
+    },
   };
   TestValidator.equals(
     "observed whorl and independent styling categories",
@@ -35,8 +39,10 @@ export const test_subject_face_hair_anatomical_options = (): void => {
       face.scalpHair?.whorls?.[0]?.pattern,
       face.scalpHair?.arrangement?.part?.side,
       face.scalpHair?.arrangement?.gather?.anchorRegion,
+      face.facialHair?.leftUpperLip?.terminalHairsPerCm2,
+      face.facialHair?.rightUpperLip?.terminalHairsPerCm2,
     ],
-    ["inverted-round", "clockwise", "left", "occipital"],
+    ["inverted-round", "clockwise", "left", "occipital", 31, 26],
   );
 
   const invalid: IAutoMovieHumanFaceAnatomicalParameters = {

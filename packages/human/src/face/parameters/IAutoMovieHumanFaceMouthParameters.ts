@@ -17,6 +17,9 @@
  * study measures each peak's vertical height above the underlying labial
  * fissure; its one-year-old cohort supplies a protocol, not an adult range
  * (https://pubmed.ncbi.nlm.nih.gov/34402316/).
+ * Side-specific crista-philtri–cheilion distances are another observed
+ * upper-lip measure; the cited sample of Caucasian women does not provide
+ * universal norms (https://pmc.ncbi.nlm.nih.gov/articles/PMC11799052/).
  * Landmark-pair fields are straight 3D distances in millimetres; peak heights
  * are vertical projections in the declared head frame. Esthetic-line fields
  * are signed point-to-line distances in the sagittal profile, and the bow
@@ -28,6 +31,10 @@
 export interface IAutoMovieHumanFaceMouthParameters {
   /** Right-to-left cheilion, labial fissure width in mm. */
   fissureWidthMm?: number;
+  /** Left crista philtri to left cheilion, straight 3D distance in mm. */
+  leftCristaPhiltriToCheilionMm?: number;
+  /** Right crista philtri to right cheilion, straight 3D distance in mm. */
+  rightCristaPhiltriToCheilionMm?: number;
   /** Right-to-left crista philtri, philtrum width in mm. */
   philtrumWidthMm?: number;
   /** Subnasale to labiale superius, philtrum length in mm. */

@@ -34,6 +34,8 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
       cupidBowCentralAngleDegrees: 135,
       leftCupidBowPeakHeightMm: 7,
       rightCupidBowPeakHeightMm: 6.5,
+      leftCristaPhiltriToCheilionMm: 19,
+      rightCristaPhiltriToCheilionMm: 20,
     },
     oralCavity: { properSpaceVolumeCm3: 4.4 },
     dentition: {
@@ -68,8 +70,9 @@ export const test_subject_face_anatomical_regional_dimensions = (): void => {
       measured.dentition?.teeth?.["11"]?.buccolingualCrownWidthMm,
       measured.oralCavity?.properSpaceVolumeCm3,
       measured.motionCapacity?.jaw?.maximumInterincisalOpeningMm,
+      measured.mouth?.rightCristaPhiltriToCheilionMm,
     ],
-    [12, 6.6, 391, 16, 33, 2.9, 4.2, 2, 18, 6.5, 7, 4.4, 51],
+    [12, 6.6, 391, 16, 33, 2.9, 4.2, 2, 18, 6.5, 7, 4.4, 51, 20],
   );
   TestValidator.equals(
     "unobserved right short nostril axis remains unknown",
