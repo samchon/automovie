@@ -14,5 +14,6 @@ export type * from "./IAutoMovieHumanFaceMouthParameters";
 export type * from "./IAutoMovieHumanFaceNoseParameters";
 export type * from "./IAutoMovieHumanFacePerformanceParameters";
 export type * from "./IAutoMovieHumanFaceSkinColourParameters";
+export type * from "./IAutoMovieHumanFaceSkinConditionParameters";
 export type * from "./IAutoMovieHumanFaceSoftTissueParameters";
 export type * from "./IAutoMovieHumanFaceTongueParameters";

@@ -12,6 +12,7 @@ import type { IAutoMovieHumanFaceMouthParameters } from "./IAutoMovieHumanFaceMo
 import type { IAutoMovieHumanFaceNoseParameters } from "./IAutoMovieHumanFaceNoseParameters";
 import type { IAutoMovieHumanFacePerformanceParameters } from "./IAutoMovieHumanFacePerformanceParameters";
 import type { IAutoMovieHumanFaceSkinColourParameters } from "./IAutoMovieHumanFaceSkinColourParameters";
+import type { IAutoMovieHumanFaceSkinConditionParameters } from "./IAutoMovieHumanFaceSkinConditionParameters";
 import type { IAutoMovieHumanFaceSoftTissueParameters } from "./IAutoMovieHumanFaceSoftTissueParameters";
 import type { IAutoMovieHumanFaceTongueParameters } from "./IAutoMovieHumanFaceTongueParameters";
 
@@ -74,6 +75,9 @@ export interface IAutoMovieHumanFaceAnatomicalParameters {
 
   /** Ultrasound-observed skin and soft tissue by anatomical site. */
   softTissue?: IAutoMovieHumanFaceSoftTissueParameters;
+
+  /** Protocol-specific observed regional skin lines, hollows and jawline sagging. */
+  skinCondition?: IAutoMovieHumanFaceSkinConditionParameters;
 
   /** Internal cheek-fat compartments, independently measured by side. */
   cheeks?: { left?: IAutoMovieHumanFaceCheekParameters; right?: IAutoMovieHumanFaceCheekParameters };
