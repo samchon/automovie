@@ -11,5 +11,6 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyDeltoidMeasurements {
+  /** One deltoid muscle belly, excluding overlying adipose tissue. */
   readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
 }

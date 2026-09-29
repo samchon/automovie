@@ -7,8 +7,9 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  * Subcutaneous adipose lies outside the abdominal muscular fascia; visceral
  * adipose lies within the abdominal cavity. Each field denotes a 3D volume
  * over a documented abdominal region, not the area of one L3 CT slice.
- * Admission must require compatible superior/inferior segmentation boundaries
- * before comparing or combining the two values. Neither alone gives
+ * The shared `region` supplies matching superior/inferior bony boundaries;
+ * a later tissue resolver must also check observed posture and segmentation
+ * method before combining two observations. Neither alone gives
  * the shape of a belly fold or a contact-compression modulus.
  * @author Samchon
  */

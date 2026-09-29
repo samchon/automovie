@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyAnatomicalAngle } from "../measurements/IAutoMovieHumanBodyAnatomicalAngle";
 import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
+import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
@@ -15,7 +16,7 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyHumerusMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  sphereFittedHeadRadius?: IAutoMovieHumanBodyAnatomicalLength;
+  sphereFittedHeadRadius?: IAutoMovieHumanBodyTomographicLength;
   maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
   neckShaftAngle?: IAutoMovieHumanBodyAnatomicalAngle;
   }>;

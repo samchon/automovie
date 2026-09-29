@@ -11,5 +11,6 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyPectoralisMajorMeasurements {
+  /** Pectoralis major alone, beneath the separate breast and adipose tissue. */
   readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
 }

@@ -10,5 +10,6 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySacrumMeasurements {
+  /** One midline sacral bone; its volume is separate from both coxal bones. */
   readonly boneVolume: IAutoMovieHumanBodyAnatomicalVolume;
 }

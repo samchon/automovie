@@ -28,6 +28,7 @@ export const test_human_body_anatomical_measurements = (): void => {
     },
     pelvis: {
       leftHip: {
+        femur: { anteversion: { kind: "target", degrees: -5 } },
         gluteusMaximus: {
           muscleBellyVolume: {
             kind: "observed",
@@ -83,6 +84,23 @@ export const test_human_body_anatomical_measurements = (): void => {
               metres: 0.75,
               method: "caliper",
               acquisitionPosture: "standing",
+            },
+          },
+        },
+      },
+    ],
+    [
+      "projected circle is not a sphere-fitted head",
+      {
+        pelvis: {
+          leftHip: {
+            femur: {
+              sphereFittedHeadRadius: {
+                kind: "observed",
+                millimetres: 22,
+                modality: "radiograph",
+                acquisitionPosture: "supine",
+              },
             },
           },
         },

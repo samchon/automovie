@@ -20,8 +20,7 @@ export function admitHumanBodyAnatomicalMeasurements(
 ): IAutoMovieHumanBodyAnatomicalMeasurements {
   const measurements =
     typia.assertEquals<IAutoMovieHumanBodyAnatomicalMeasurements>(input);
-  const visit = (node: unknown): void => {
-    if (node === null || typeof node !== "object") return;
+  const visit = (node: object): void => {
     for (const [key, value] of Object.entries(node)) {
       if (typeof value === "number") {
         const valid =
@@ -32,7 +31,7 @@ export function admitHumanBodyAnatomicalMeasurements(
               : value > 0));
         if (!valid)
           throw new Error(`Body anatomical ${key} needs a finite physical value.`);
-      } else visit(value);
+      } else if (typeof value === "object") visit(value as object);
     }
   };
   visit(measurements);

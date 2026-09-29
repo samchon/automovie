@@ -16,37 +16,37 @@
 export type IAutoMovieHumanBodyAnatomicalResolution<Value> =
   | {
       /** Geometry passed the named validation cohort and domain checks. */
-      status: "resolved";
+      readonly status: "resolved";
       /** Generated component, never user-authored mesh input. */
-      value: Value;
+      readonly value: Value;
       /** Population prior may remain even when no individual imaging exists. */
-      source: "measurement-conditioned" | "population-predicted";
+      readonly source: "measurement-conditioned" | "population-predicted";
       /** Revision identity of the shape generator evaluated below. */
-      generatorRevision: string;
+      readonly generatorRevision: string;
       /** Held-out 3D surface error, not merely volume or landmark fit. */
-      validation: {
+      readonly validation: {
         /** Cohort with independently observed anatomy. */
-        cohort: string;
+        readonly cohort: string;
         /** Number of distinct people in the held-out evaluation. */
-        subjects: number;
+        readonly subjects: number;
         /** Inclusive chronological age domain in years. */
-        ageYears: [number, number];
+        readonly ageYears: readonly [number, number];
         /** Inclusive standing stature domain in metres. */
-        statureMetres: [number, number];
+        readonly statureMetres: readonly [number, number];
         /** Inclusive BMI domain; not a claim BMI determines composition. */
-        bodyMassIndex: [number, number];
+        readonly bodyMassIndex: readonly [number, number];
         /** Posture in which reference anatomy and error were evaluated. */
-        posture: "standing" | "supine" | "prone" | "seated";
+        readonly posture: "standing" | "supine" | "prone" | "seated";
         /** Surface distance to held-out observed anatomy, not a volume fit. */
-        meanSurfaceErrorMillimetres: number;
-        p95SurfaceErrorMillimetres: number;
+        readonly meanSurfaceErrorMillimetres: number;
+        readonly p95SurfaceErrorMillimetres: number;
       };
     }
   | {
       /** No validated individual component was generated. */
-      status: "unavailable";
+      readonly status: "unavailable";
       /** Distinguishes missing input, missing anatomy and domain failure. */
-      reason:
+      readonly reason:
         | "missing-anatomical-input"
         | "missing-bone-landmark"
         | "missing-tissue-boundary"
