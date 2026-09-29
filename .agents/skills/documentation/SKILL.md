@@ -46,9 +46,9 @@ A test or an external link adds evidence and never replaces this explanation. Ke
 
 `AGENTS.md` and `SKILL.md` files are operational documents for humans and agents. `AGENTS.md ## Maintenance` decides where a rule belongs and this section decides how it is written. A revision reads as if it had always been there.
 
-- **Optimize for comprehension, not minimum length.** A shorter document that makes the reader infer prerequisites, reasons, exceptions or stop conditions is not concise. Include the context needed to execute correctly.
-- **Remove repetition, not substance.** Keep the rationale when it prevents a plausible mistake.
-- **Give each paragraph one job.** Split purpose, rule, rationale, procedure and consequence instead of making the reader unpack a dense block.
+- **Optimize for comprehension.** A shorter document that makes the reader infer prerequisites, reasons, exceptions or stop conditions is not concise. Include the context needed to execute correctly.
+- **Remove repetition and keep substance.** Keep the rationale when it prevents a plausible mistake.
+- **Give each paragraph one job.** Split purpose, rule, rationale, procedure and consequence instead of making the reader separate a dense block.
 - **Use structure as compression.** Numbered lists for ordered procedures, bullets for choices or checklists, tables for repeated mappings, code blocks for exact commands. Do not hide a workflow inside one long sentence.
 - **State the rule before its reason.** Write what to do, then name the exclusion. Use negative phrasing only for a named failure mode the affirmative rule does not already exclude, because "X, not Y" and a heading built the same way state a contrast and leave the reader to derive the instruction.
 - **Point instead of paraphrasing.** Do not restate what the `.wiki/`, a README or a source comment already says; link to it. A skill carries cross-cutting rules and conventions, not a second copy of project docs.

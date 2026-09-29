@@ -73,7 +73,7 @@ Send an observation with an explicit invitation to contradict it, so a rebuttal 
 
 ## Harness disclosures
 
-The environment tells the agent things too. A Claude Code harness injects the complete tool-name list unrequested, so discoverability is a property of the harness and a comparison between harnesses measures the harnesses. A readable root that contains this repository lets the session read the tracked baseline, and `git log` reaches a session that opens nothing, because subject lines carry the narrative. Record this as a condition of the run and split the axis: production legibility stays measurable, and blindness to being in an experiment is spent.
+The environment tells the agent things too. A Claude Code harness injects the complete tool-name list unrequested, so discoverability is a property of the harness and a comparison between harnesses measures the harnesses. A readable root that contains this repository lets the session read the tracked baseline, and `git log` reaches a session that opens nothing, because subject lines carry the narrative. Record this as a condition of the run and split the axis: production legibility stays measurable, and blindness to being in an experiment is lost.
 
 ## Ask for its list
 

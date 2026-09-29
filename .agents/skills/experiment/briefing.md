@@ -18,9 +18,9 @@ Name once **which source governs, and for what**. A subject and its references d
 
 Give the agent the target and the evidence: what the thing is and what it has to end up looking like. The route the agent takes is the observation.
 
-Withholding fails at the filesystem before it fails at the prompt. Keep every operational document outside the work root. A sandbox under `experimental/` sits inside this repository's git root, and Codex discovers `.agents/skills/` from that root, so the repository's engineering practice leaks in. No brief can withhold it, so record it as a condition of the run.
+Withholding usually fails at the filesystem, before the prompt is read. Keep every operational document outside the work root. A sandbox under `experimental/` sits inside this repository's git root, and Codex discovers `.agents/skills/` from that root, so the repository's engineering practice leaks in. No brief can withhold it, so record it as a condition of the run.
 
-Naming a tool spends the measurement. Decide before turn one whether the run measures what an agent does with the tools or whether it finds them, because a tool named once is named for the whole session, including anything quoted back from the product's own diagnostics.
+Naming a tool removes the measurement of whether the agent finds it. Decide before turn one whether the run measures what an agent does with the tools or whether it finds them, because a tool named once is named for the whole session, including anything quoted back from the product's own diagnostics.
 
 ## Send observations
 
@@ -28,7 +28,7 @@ Report what you measured and where. Name a cause only from a code path you have 
 
 A user directive is the exception. Relay it verbatim and at once, because it outranks the brief.
 
-Decide per item what to say. Pre-announce what would cost a turn to misread, such as a capture after a repack refusing until the production is recompiled. Withhold what the agent's reading of it is the measurement of, and remember that telling the agent a defect you found spends the finding: when you want to know whether the product's own gate catches a class, run the gate first, or send the trace and record that the gate is now untested for that class. Relay a tool's output whole, or say which part you cut.
+Decide per item what to say. Pre-announce what would cost a turn to misread, such as a capture after a repack refusing until the production is recompiled. Withhold what the agent's reading of it is the measurement of, and remember that telling the agent about a defect you found removes the chance to observe it: when you want to know whether the product's own gate catches a class, run the gate first, or send the trace and record that the gate is now untested for that class. Relay a tool's output whole, or say which part you cut.
 
 A borrowed number becomes a target and then measures itself. State the outcome you want (nothing important still reads as a bare box) and no element count, because an author given a number reaches it.
 

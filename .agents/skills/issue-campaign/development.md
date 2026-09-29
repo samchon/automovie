@@ -31,7 +31,7 @@ Claim the whole cycle before implementing anything:
 4. Reference every cycle issue by number, mark verification pending, and state that the pull request owns the complete accepted cycle.
 5. Record the checkout, branch, pull request, head SHA, issue set, order and external temporary-asset ledger in `.wiki`.
 
-Put no closing keyword in the claim body. It is written before any code exists, so a claim-time `Closes #n` list closes whatever the cycle later drops, defers, narrows or disproves and buries the analysis those issues carry. The cycle's closing set is the union of the commit closing lines, which makes the merge close exactly what landed.
+Put no closing keyword in the claim body. It is written before any code exists, so a claim-time `Closes #n` list closes whatever the cycle later drops, defers, narrows or disproves and hides the analysis those issues carry. The cycle's closing set is the union of the commit closing lines, which makes the merge close exactly what landed.
 
 ## Implement in dependency order
 
@@ -40,11 +40,11 @@ For each issue, in order:
 1. Implement it across every layer its **Scope** section names, tracing the full consequence surface. A capability the authoring agent has to call is not done until it is on the sandbox engine surface, and one that exists without a surface entry, a barrel export or a guide sentence has the "capability exists and cannot be reached" defect the vertical contract prevents.
 2. Meet the [development skill's coverage obligation](../development/SKILL.md#coverage-is-100-on-what-you-write) for every position you wrote.
 3. Run a complete Self-Review over the issue's surface under the [review skill's law](../review/SKILL.md#non-negotiable-review-law), repeating full rounds until one finds nothing.
-4. Commit and push. End the message body with `Refs #n` while the issue is in flight, and use `Close #n: <issue title>` only in the commit that earns the acceptance, as its own paragraph before the `Co-Authored-By` trailer. Do not format during implementation, because the [pull-request skill](../pull-request/SKILL.md#merge-on-explicit-request-or-standing-autonomous-mandate) places the single formatting pass immediately before an authorized merge.
+4. Commit and push. End the message body with `Refs #n` while the issue is in flight, and use `Close #n: <issue title>` only in the commit that completes the acceptance, as its own paragraph before the `Co-Authored-By` trailer. Do not format during implementation, because the [pull-request skill](../pull-request/SKILL.md#merge-on-explicit-request-or-standing-autonomous-mandate) places the single formatting pass immediately before an authorized merge.
 
 ### Pitfalls
 
-- **One unresolved import anywhere in the working tree refuses every scenario.** The root `pnpm test` and the package `start` command type-check the whole test project before the runner starts, and being uncommitted or untracked buys no safety. Keep the tree type-clean between edits.
+- **One unresolved import anywhere in the working tree refuses every scenario.** The root `pnpm test` and the package `start` command type-check the whole test project before the runner starts, and an uncommitted or untracked file breaks it just as a tracked one does. Keep the tree type-clean between edits.
 - **Never narrow the type-check to your own files to hide a failure.** A `tsconfig` that includes only one fold can pass while the change breaks an excluded consumer. Use the repository's canonical command for acceptance. A scratch configuration is a diagnostic and no acceptance result.
 - **A local build is not proof for a commit.** Wiring that references a file you have not committed compiles locally and fails in CI, so verify the target is tracked.
 - **Emitted artifacts are not source, and a stale one can disarm a transform.** Running the type-checker without `--noEmit` drops output beside every `.ts`, the loader prefers it, and an emission path that omits the configured typia transform turns every validator into a "no transform configured" stub that throws or accepts everything. Type-check with the repository's own command and run no entry from outside a project root. When a scenario fails in a package you did not touch, look for emitted output beside its sources before you look at its logic.

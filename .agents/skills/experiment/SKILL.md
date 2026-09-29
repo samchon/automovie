@@ -11,7 +11,7 @@ An experiment answers one question by running the real thing. Create a disposabl
 
 This skill supervises. It never tells the authoring agent how to author, review, stage or judge its production. The generated project's shipped skills and contracts own all of that, including the author's own rendered Self-Review and every stage transition. A missing rule about the work is a gap in the [scaffold](../scaffold/SKILL.md) and never a line in a benchmark brief or in this skill.
 
-Attach no separate, paired or adversarial reviewer agent to judge the production. The authoring agent looks at its own renders, repairs and advances its own stages, because a separate reviewer becomes the defect-finding step and the writers stop checking their own work.
+Attach no separate, paired or adversarial reviewer agent to judge the production. The authoring agent looks at its own renders, repairs and advances its own stages, because a separate reviewer becomes the defect-finding step and the authoring agent stops checking its own work.
 
 The supervisor creates and refreshes the sandbox, launches and resumes sessions and keeps them alive, relays the user's directives unchanged, records the run and reports what was observed. It writes no production source, sends no method and issues no verdict.
 

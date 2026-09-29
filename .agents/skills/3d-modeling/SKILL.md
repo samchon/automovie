@@ -25,7 +25,7 @@ Claiming a fix before showing the verified render is forbidden. Let the render c
 
 ## Rebuild a broken foundation
 
-When a base representation is fundamentally wrong, rebuild it. Each corrective fights the last, and the result is a patched version of the original error. A corrective is legitimate only when the base is sound and the change is small, measured and verified against a render.
+When a base representation is fundamentally wrong, rebuild it. Each corrective undoes part of the previous one, and the result is a patched version of the original error. A corrective is legitimate only when the base is sound and the change is small, measured and verified against a render.
 
 Compute one quantity in one function. A hand copy is a second answer that eventually disagrees with the first, so the code that draws is the code that measures.
 
