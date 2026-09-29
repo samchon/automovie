@@ -9,7 +9,8 @@ import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./IAutoMovieHuma
  * impossible modality/quantity pairs, wrong group ownership and empty parts.
  * All scalar values must be finite. Length, girth, mass and volume are
  * positive; chronological age and quantified measurement uncertainty may be
- * zero. Angles may have either sign because their clinical axes differ by
+ * zero, and MRI proton-density fat fractions lie in [0,1]. Angles may have
+ * either sign because their clinical axes differ by
  * component. Population-specific ranges and whether one scalar can produce
  * a valid surface belong to the component resolver, not this input gate.
  * No exterior or internal geometry is created by admitting a record.
@@ -26,9 +27,11 @@ export function admitHumanBodyAnatomicalMeasurements(
         const valid =
           Number.isFinite(value) &&
           (key === "degrees" ||
-            (key === "years" || key.startsWith("uncertainty")
-              ? value >= 0
-              : value > 0));
+            (key === "fraction" || key === "uncertaintyFraction"
+              ? value >= 0 && value <= 1
+              : key === "years" || key.startsWith("uncertainty")
+                ? value >= 0
+                : value > 0));
         if (!valid)
           throw new Error(`Body anatomical ${key} needs a finite physical value.`);
       } else if (typeof value === "object") visit(value as object);

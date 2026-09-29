@@ -1,6 +1,8 @@
 import type { IAutoMovieHumanBodyPelvisMeasurements } from "./pelvis/IAutoMovieHumanBodyPelvisMeasurements";
-import type { IAutoMovieHumanBodyShoulderMeasurements } from "./shoulder/IAutoMovieHumanBodyShoulderMeasurements";
+import type { IAutoMovieHumanBodyCompositionMeasurements } from "./IAutoMovieHumanBodyCompositionMeasurements";
+import type { IAutoMovieHumanBodyLowerLimbMeasurements } from "./lower-limb/IAutoMovieHumanBodyLowerLimbMeasurements";
 import type { IAutoMovieHumanBodyTrunkMeasurements } from "./thorax/IAutoMovieHumanBodyTrunkMeasurements";
+import type { IAutoMovieHumanBodyUpperLimbMeasurements } from "./upper-limb/IAutoMovieHumanBodyUpperLimbMeasurements";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "./measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAge } from "./measurements/IAutoMovieHumanBodyAge";
 import type { IAutoMovieHumanBodySurfaceMeasurements } from "./surface/IAutoMovieHumanBodySurfaceMeasurements";
@@ -21,9 +23,9 @@ import type { IAutoMovieHumanBodySurfaceMeasurements } from "./surface/IAutoMovi
  * `Record<string, number>` of shape weights.
  *
  * Anatomical ownership is nested but attachments cross it: gluteus maximus
- * belongs to one hip and attaches to shared sacrum, that side's coxal bone,
- * femur and iliotibial tract; pectoralis major belongs to one shoulder and
- * spans the chest wall and humerus. The generated body must have one connected
+ * belongs to one pelvic hip region and attaches to shared sacrum, that side's
+ * coxal bone, lower-limb femur and iliotibial tract; pectoralis major belongs
+ * to the chest wall and inserts on the upper-limb humerus. The generated body must have one connected
  * exterior skin after these internal parts are resolved and posed.
  * @author Samchon
  */
@@ -33,12 +35,18 @@ export type IAutoMovieHumanBodyAnatomicalMeasurements =
     age?: IAutoMovieHumanBodyAge;
     /** Named exterior targets or measurements, including paired limbs. */
     surface?: IAutoMovieHumanBodySurfaceMeasurements;
+    /** Whole-body tissue totals, never a substitute for regional boundaries. */
+    composition?: IAutoMovieHumanBodyCompositionMeasurements;
     /** Spine, breast and abdominal compartments of the torso. */
     trunk?: IAutoMovieHumanBodyTrunkMeasurements;
-    /** One sacrum, paired coxal bones, hips, femora and three gluteal muscles. */
+    /** One sacrum, paired coxal bones and pelvic gluteal regions. */
     pelvis?: IAutoMovieHumanBodyPelvisMeasurements;
-    /** Independent left shoulder complex and upper-arm bone. */
-    leftShoulder?: IAutoMovieHumanBodyShoulderMeasurements;
-    /** Independent right shoulder complex and upper-arm bone. */
-    rightShoulder?: IAutoMovieHumanBodyShoulderMeasurements;
+    /** Left shoulder girdle, arm and forearm with independent bones. */
+    leftUpperLimb?: IAutoMovieHumanBodyUpperLimbMeasurements;
+    /** Right shoulder girdle, arm and forearm with independent bones. */
+    rightUpperLimb?: IAutoMovieHumanBodyUpperLimbMeasurements;
+    /** Left femur, knee, tibia/fibula and hindfoot. */
+    leftLowerLimb?: IAutoMovieHumanBodyLowerLimbMeasurements;
+    /** Right femur, knee, tibia/fibula and hindfoot. */
+    rightLowerLimb?: IAutoMovieHumanBodyLowerLimbMeasurements;
   }>;

@@ -1,6 +1,8 @@
-import type { IAutoMovieHumanBodyAnatomicalAngle } from "../measurements/IAutoMovieHumanBodyAnatomicalAngle";
 import type { IAutoMovieHumanBodyAbdominalAdiposeMeasurements } from "./IAutoMovieHumanBodyAbdominalAdiposeMeasurements";
 import type { IAutoMovieHumanBodyBreastMeasurements } from "./IAutoMovieHumanBodyBreastMeasurements";
+import type { IAutoMovieHumanBodyTrunkMusclesMeasurements } from "./IAutoMovieHumanBodyTrunkMusclesMeasurements";
+import type { IAutoMovieHumanBodySpineMeasurements } from "./IAutoMovieHumanBodySpineMeasurements";
+import type { IAutoMovieHumanBodyThoracicCageMeasurements } from "./IAutoMovieHumanBodyThoracicCageMeasurements";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
@@ -17,9 +19,15 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyTrunkMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  lumbarLordosis?: IAutoMovieHumanBodyAnatomicalAngle;
-  thoracicKyphosis?: IAutoMovieHumanBodyAnatomicalAngle;
+  /** Midline vertebral curvatures separate from pose commands. */
+  spine?: IAutoMovieHumanBodySpineMeasurements;
+  /** Bony ribs and sternum beneath soft tissue and skin. */
+  thoracicCage?: IAutoMovieHumanBodyThoracicCageMeasurements;
   leftBreast?: IAutoMovieHumanBodyBreastMeasurements;
   rightBreast?: IAutoMovieHumanBodyBreastMeasurements;
+  /** Independent left chest, abdominal and back muscle bellies. */
+  leftMuscles?: IAutoMovieHumanBodyTrunkMusclesMeasurements;
+  /** Independent right chest, abdominal and back muscle bellies. */
+  rightMuscles?: IAutoMovieHumanBodyTrunkMusclesMeasurements;
   abdominalAdipose?: IAutoMovieHumanBodyAbdominalAdiposeMeasurements;
   }>;

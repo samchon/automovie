@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
+import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
  * Target or observed deltoid volume, distinct from shoulder skin relief.
@@ -10,7 +10,5 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * to support the axillary or shoulder surface.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyDeltoidMeasurements {
-  /** One deltoid muscle belly, excluding overlying adipose tissue. */
-  readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
-}
+export type IAutoMovieHumanBodyDeltoidMeasurements =
+  IAutoMovieHumanBodyMuscleMeasurements;

@@ -1,6 +1,7 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodySurfaceDistance } from "../measurements/IAutoMovieHumanBodySurfaceDistance";
 import type { IAutoMovieHumanBodySurfaceGirth } from "../measurements/IAutoMovieHumanBodySurfaceGirth";
+import type { IAutoMovieHumanBodySkinfoldThickness } from "../measurements/IAutoMovieHumanBodySkinfoldThickness";
 
 /**
  * One upper arm's skin measures, separate from the humerus and its muscles.
@@ -17,6 +18,8 @@ export type IAutoMovieHumanBodyUpperArmSurfaceMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
     /** Girth halfway from acromion to olecranon with the arm relaxed at the side; this is the clinical MUAC station, not a biceps maximum. */
     midUpperArmGirth?: IAutoMovieHumanBodySurfaceGirth;
+    /** Posterior triceps skinfold at the acromion–olecranon midpoint. */
+    tricepsSkinfold?: IAutoMovieHumanBodySkinfoldThickness;
     /** Palpable acromion to lateral humeral epicondyle. */
     shoulderToElbowLength?: IAutoMovieHumanBodySurfaceDistance;
   }>;

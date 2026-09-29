@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
+import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
  * Target or observed volume of one gluteus maximus, independent of fat.
@@ -13,7 +13,5 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * doi:10.1038/s41597-025-05997-4).
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyGluteusMaximusMeasurements {
-  /** Volume of one muscle belly, separate from posterior subcutaneous fat. */
-  readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
-}
+export type IAutoMovieHumanBodyGluteusMaximusMeasurements =
+  IAutoMovieHumanBodyMuscleMeasurements;

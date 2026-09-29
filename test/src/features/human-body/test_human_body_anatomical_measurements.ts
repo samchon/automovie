@@ -13,6 +13,12 @@ import { throwsError } from "../internal/predicates";
 export const test_human_body_anatomical_measurements = (): void => {
   const valid: IAutoMovieHumanBodyAnatomicalMeasurements = {
     age: { kind: "target", years: 25 },
+    composition: {
+      skeletalMuscleVolume: { kind: "target", millilitres: 25_000 },
+    },
+    trunk: {
+      spine: { lumbarLordosis: { kind: "target", degrees: 40 } },
+    },
     surface: {
       stature: { kind: "target", metres: 1.7 },
       mass: { kind: "target", kilograms: 60 },
@@ -28,12 +34,27 @@ export const test_human_body_anatomical_measurements = (): void => {
     },
     pelvis: {
       leftHip: {
-        femur: { anteversion: { kind: "target", degrees: -5 } },
         gluteusMaximus: {
+          protonDensityFatFraction: { kind: "target", fraction: 0.07 },
           muscleBellyVolume: {
             kind: "observed",
             millilitres: 557,
             modality: "ct",
+            acquisitionPosture: "supine",
+          },
+        },
+      },
+    },
+    leftLowerLimb: {
+      thigh: { femur: { anteversion: { kind: "target", degrees: -5 } } },
+    },
+    leftUpperLimb: {
+      upperArm: {
+        bicepsBrachii: {
+          protonDensityFatFraction: {
+            kind: "observed",
+            fraction: 0.04,
+            modality: "mri-dixon",
             acquisitionPosture: "supine",
           },
         },
@@ -56,6 +77,14 @@ export const test_human_body_anatomical_measurements = (): void => {
   const cases: [string, unknown][] = [
     ["empty root", {}],
     ["empty nested part", { pelvis: { leftHip: {} } }],
+    [
+      "femur belongs to the lower limb",
+      { pelvis: { leftHip: { femur: { maximumLength: { kind: "target", millimetres: 450 } } } } },
+    ],
+    [
+      "humerus belongs to the upper arm",
+      { leftUpperLimb: { shoulder: { humerus: { maximumLength: { kind: "target", millimetres: 320 } } } } },
+    ],
     ["direct sculpt", { surface: { positionsMetres: [0, 1, 2] } }],
     [
       "radiograph volume",
@@ -92,8 +121,8 @@ export const test_human_body_anatomical_measurements = (): void => {
     [
       "projected circle is not a sphere-fitted head",
       {
-        pelvis: {
-          leftHip: {
+        leftLowerLimb: {
+          thigh: {
             femur: {
               sphereFittedHeadRadius: {
                 kind: "observed",
@@ -123,6 +152,32 @@ export const test_human_body_anatomical_measurements = (): void => {
     ],
     ["nonfinite age", { age: { kind: "target", years: Number.NaN } }],
     ["negative age", { age: { kind: "target", years: -1 } }],
+    [
+      "partial scan is not whole-body composition",
+      {
+        composition: {
+          skeletalMuscleVolume: {
+            kind: "observed",
+            millilitres: 24_000,
+            modality: "mri",
+            acquisitionPosture: "supine",
+            coverage: "abdomen-only",
+          },
+        },
+      },
+    ],
+    [
+      "fat fraction above one",
+      {
+        pelvis: {
+          leftHip: {
+            gluteusMaximus: {
+              protonDensityFatFraction: { kind: "target", fraction: 1.2 },
+            },
+          },
+        },
+      },
+    ],
     ["zero stature", { surface: { stature: { kind: "target", metres: 0 } } }],
     ["negative mass", { surface: { mass: { kind: "target", kilograms: -1 } } }],
     [

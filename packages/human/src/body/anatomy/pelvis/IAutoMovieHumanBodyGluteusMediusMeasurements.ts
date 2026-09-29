@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
+import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
  * Target or observed volume of one gluteus medius, deep to maximus.
@@ -9,7 +9,5 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * the tendon footprint and standing muscle surface unresolved.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyGluteusMediusMeasurements {
-  /** One side's medius belly rather than overlying maximus or adipose. */
-  readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
-}
+export type IAutoMovieHumanBodyGluteusMediusMeasurements =
+  IAutoMovieHumanBodyMuscleMeasurements;

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
+import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
  * Target or observed volume of one gluteus minimus, deep to medius.
@@ -9,7 +9,5 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * The generator must establish its own surface and attachments separately.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyGluteusMinimusMeasurements {
-  /** Deep minimus belly, excluding medius and subcutaneous adipose. */
-  readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
-}
+export type IAutoMovieHumanBodyGluteusMinimusMeasurements =
+  IAutoMovieHumanBodyMuscleMeasurements;

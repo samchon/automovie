@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
+import type { IAutoMovieHumanBodyMuscleMeasurements } from "../measurements/IAutoMovieHumanBodyMuscleMeasurements";
 
 /**
  * Target or observed pectoralis-major volume, separate from breast and fat.
@@ -10,7 +10,5 @@ import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoM
  * displacement or arbitrary pectoral morph gain.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyPectoralisMajorMeasurements {
-  /** Pectoralis major alone, beneath the separate breast and adipose tissue. */
-  readonly muscleBellyVolume: IAutoMovieHumanBodyAnatomicalVolume;
-}
+export type IAutoMovieHumanBodyPectoralisMajorMeasurements =
+  IAutoMovieHumanBodyMuscleMeasurements;
