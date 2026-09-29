@@ -349,6 +349,7 @@ em {
   text-underline-offset: 4px;
 }
 .building-image.tour-link {
+  display: block;
   margin: 0;
   color: inherit;
 }
