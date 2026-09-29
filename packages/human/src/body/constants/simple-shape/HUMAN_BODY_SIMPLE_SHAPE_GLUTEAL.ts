@@ -3,7 +3,17 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
 /**
  * Authored gluteal ptosis, volume and pelvic tone relations. Gonzalez 2006 (doi:10.1007/s00266-005-0051-y) associated age and weight with ptosis, while Babuccu et al. 2004 (doi:10.1007/s00266-004-4010-9) found adult weight rather than age effects. These knots are not a universal causal law.
  *
- * The rows are authored MPFB-derived skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
+ * The rows are authored MPFB-derived exterior-skin controls, not muscle or fat
+ * compartment measurements. QUADRA_HC's 48 healthy adults have separately
+ * segmented left/right gluteus maximus, medius and minimus volumes
+ * (doi:10.1038/s41597-025-05997-4), but those supine CT volumes do not give
+ * this basis a standing tissue boundary or map a muscle input to a skin
+ * projection. In the current body, removing the `buttocksVolume` and
+ * `pelvisTone` responses changes a young adult's exterior volume by about
+ * 0.7 L without changing the existing groin self-crossings. Thus the gains
+ * below are legacy appearance assumptions, not physiological volume gains or
+ * contact coefficients; replacing that representation requires independent
+ * bone, muscle, fat and standing-skin geometry.
  */
 export const HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
     {
@@ -55,8 +65,8 @@ export const HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL: IAutoMovieHumanBodySimpleShapeTabl
       ],
     },
     {
-      // gluteal muscle mass, both ways from the average: the muscle a body
-      // carries shows as the buttock's projection
+      // Legacy exterior response to the simple muscle input. No measured
+      // gluteus volume or standing skin projection is inferred by this row.
       channel: "buttocksVolume",
       gain: 0.5,
       curves: [
@@ -86,8 +96,8 @@ export const HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL: IAutoMovieHumanBodySimpleShapeTabl
       ],
     },
     {
-      // the pelvic soft tissue's tone: raised by muscle, lost with age, the
-      // lost tone lowering the gluteal mass as a whole (global tissue ptosis)
+      // Legacy pelvis-skin response. This channel is neither a tissue stiffness
+      // measurement nor a constraint for anatomical contact or local volume.
       channel: "pelvisTone",
       gain: 0.5,
       curves: [
