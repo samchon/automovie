@@ -12,6 +12,11 @@
  * photograph (https://pubmed.ncbi.nlm.nih.gov/20363029/).
  * Corneal radius and central thickness likewise require ocular biometry
  * (https://pubmed.ncbi.nlm.nih.gov/11906297/).
+ * Pupil diameter is light dependent: infrared pupillometry measured both
+ * eyes under fixed 0, 0.5, 4, 32 and 250 lux illuminances, with decreasing
+ * diameter as illuminance rose (https://pmc.ncbi.nlm.nih.gov/articles/PMC5278786/).
+ * A fixed-illuminance observation must not be mistaken for permanent iris
+ * size or copied unchanged into every rendered lighting condition.
  * Eye appearance, gaze and eyelid motion have different owners.
  *
  * @author Samchon
@@ -41,12 +46,14 @@ export namespace IAutoMovieHumanFaceEyeParameters {
     fissureHeightMm?: number;
     /** Exocanthion height minus endocanthion height in the head frame, mm. */
     lateralCanthusRiseMm?: number;
-    /** Upper-lid margin to crease on the pupil's vertical, mm; absent if no visible crease. */
-    upperCreaseHeightMm?: number;
+    /** Upper-lid margin to visible crease on the pupil vertical, mm; null means observed absent, omission means unknown. */
+    upperCreaseHeightMm?: number | null;
     /** Centre of pupil to lower eyebrow margin on the same vertical, mm. */
     pupilToBrowMm?: number;
     /** Horizontal nasal-to-temporal limbus diameter, white-to-white in mm. */
     horizontalLimbusDiameterMm?: number;
+    /** Pupil aperture diameter after adaptation to 250 lux at the eye, mm. */
+    pupilDiameterAt250LuxMm?: number;
     /** Internal cornea-to-retina axial length in mm; requires ocular biometry. */
     globeAxialLengthMm?: number;
     /** Mean central anterior corneal curvature radius in mm. */

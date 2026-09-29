@@ -11,13 +11,22 @@
  * temporal hairline from the lateral canthus; its pattern labels describe the
  * observed outline, not a sex preset
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC8367035/).
+ * A separate 500-person hairline-topography study identifies the median
+ * occipital hairline on the neck and measures it against inion in a 20-person
+ * imaging subgroup (https://pmc.ncbi.nlm.nih.gov/articles/PMC13119439/).
  * Loussouarn et al. measured curve diameter, curl index, waves and twists on
  * a 6 cm stretched sample in 2,449 people rather than assigning a renderer
  * helix or sine-wave mode to a whole ancestry
  * (https://pubmed.ncbi.nlm.nih.gov/17919196/).
- * Arrangement is an authored hairstyle category and measured part/tail
- * length, not follicle anatomy. A procedural groom may derive guides from
- * such inputs before generating strands and hair cards
+ * Scalp-whorl observations distinguish number, anatomical region and rotation;
+ * clockwise, counterclockwise and diffuse patterns are observed rather than
+ * invented per-person guide paths
+ * (https://www.sciencedirect.com/science/article/pii/S0022202X23019954;
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC7362971/).
+ * Arrangement is authored hairstyle information, separate from follicle
+ * anatomy. The public MetaHuman hairstyle generator combines a parting line,
+ * regional orientation, bangs and downstream guide generation; its guides
+ * belong to the generator rather than a personal numerical document
  * (https://dev.epicgames.com/documentation/metahuman/mh-groom-hairstyle-generator).
  *
  * @author Samchon
@@ -39,6 +48,8 @@ export interface IAutoMovieHumanFaceHairParameters {
     leftTemporalFromCanthusMm?: number;
     /** Right lateral canthus to its temporal hairline in the frontal plane, mm. */
     rightTemporalFromCanthusMm?: number;
+    /** Inion to median occipital hairline point, straight 3D distance in mm. */
+    midOccipitalFromInionMm?: number;
     /** Observed midfrontal outline class, independent of age or sex. */
     outline?: "rounded" | "straight" | "triangular" | "m-shaped";
     /** Whether a central peak is present, independent of the broad outline. */
@@ -65,26 +76,51 @@ export interface IAutoMovieHumanFaceHairParameters {
     /** Eight-class empirical morphology label, not a geometry preset. */
     loussouarnClass?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   };
-  /** Static grooming topology. Every option remains scalar/enum authored. */
-  arrangement?:
-    | { kind: "free" }
-    | {
-        kind: "parted";
-        side: "centre" | "left" | "right";
-        /** Part origin's lateral distance from the frontal midline, mm. */
-        offsetMm: number;
-        /** Length of the visible part posterior from its frontal origin, mm. */
-        reachMm: number;
-      }
-    | {
-        kind: "gathered";
-        anchorRegion: "vertex" | "occipital" | "nape" | "left-temporal" | "right-temporal";
-        /** Tail length after the tie, in mm. */
-        tailLengthMm: number;
-      };
+  /** Observed follicle-flow whorls; each entry is region and enum, never XYZ. */
+  whorls?: IAutoMovieHumanFaceHairParameters.Whorl[];
+  /** Composable grooming observations and choices; no root or guide paths. */
+  arrangement?: {
+    /** null records an intentionally unparted style; omission is unknown. */
+    part?: {
+      side: "centre" | "left" | "right";
+      /** Part origin's lateral distance from the frontal midline, mm. */
+      offsetMm: number;
+      /** Length of the visible part posterior from its frontal origin, mm. */
+      reachMm: number;
+    } | null;
+    /** A gathering can coexist with a part and bangs; null means unbound. */
+    gather?: {
+      anchorRegion: "vertex" | "occipital" | "nape" | "left-temporal" | "right-temporal";
+      /** Free tail length beyond the gathered region, mm. */
+      tailLengthMm: number;
+    } | null;
+    /** Front hair worn over the forehead, independent of hairline position. */
+    bangs?: "present" | "absent";
+    /** Coarse, categorical comb direction in anatomically named scalp regions. */
+    flow?: {
+      top?: IAutoMovieHumanFaceHairParameters.Flow;
+      leftSide?: IAutoMovieHumanFaceHairParameters.Flow;
+      rightSide?: IAutoMovieHumanFaceHairParameters.Flow;
+      back?: IAutoMovieHumanFaceHairParameters.Flow;
+    };
+  };
 }
 
 export namespace IAutoMovieHumanFaceHairParameters {
+  /** Regional procedural orientation, not a curve or root-level direction. */
+  export type Flow = "parting" | "pulled-back" | "pulled-forward";
+
+  /**
+   * One observed scalp whorl's categorical location and growth-flow pattern.
+   * @author Samchon
+   */
+  export interface Whorl {
+    /** Named scalp region, without a per-person root coordinate. */
+    region: "frontal" | "vertex" | "left-parietal" | "right-parietal" | "occipital";
+    /** Rotation viewed toward skin along the local normal, or diffuse growth. */
+    pattern: "clockwise" | "counterclockwise" | "diffuse";
+  }
+
   /**
    * Measurements from one named scalp site, not one rendered strand.
    * @author Samchon

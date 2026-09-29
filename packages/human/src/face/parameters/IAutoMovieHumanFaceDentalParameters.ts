@@ -8,7 +8,15 @@
  * study measures mandibular casts from central-incisor facial-axis points to
  * first-molar facial-axis points, perpendicular to their transverse line;
  * it does not establish a matching maxillary or cusp-tip depth
- * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6434674/). Tooth identity uses
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6434674/).
+ * A CBCT study separately measures hard-palate width and depth in the
+ * first-molar coronal plane at the cementoenamel junction; these describe
+ * the palatal vault rather than arbitrary oral-wall offsets
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC11916223/). Primary-dentition
+ * casts instead use primary canine cusp tips and second primary-molar central
+ * fossae; these are separately named rather than passed off as permanent
+ * first-molar measurements (https://pubmed.ncbi.nlm.nih.gov/19251244/).
+ * Tooth identity uses
  * the ISO 3950:2016 two-digit system, whose published description designates
  * teeth and oral regions (https://www.iso.org/standard/68292.html); the FDI's
  * educational chart shows the permanent and primary quadrants
@@ -42,27 +50,39 @@ export interface IAutoMovieHumanFaceDentalParameters {
 
 export namespace IAutoMovieHumanFaceDentalParameters {
   /**
-   * Maxillary permanent-dentition cast measurements, in mm. An unerupted or
-   * absent first molar cannot supply the corresponding measured width.
+   * Maxillary dental-cast measurements, in mm. A field needs its named teeth
+   * actually present; tooth stage alone does not guarantee their eruption.
    * @author Samchon
    */
   export interface MaxillaryArch {
     /** Left-to-right permanent canine cusp-tip distance. */
     intercanineCuspWidthMm?: number;
+    /** Left-to-right primary canine cusp-tip distance. */
+    primaryIntercanineCuspWidthMm?: number;
     /** Left-to-right first-molar mesiobuccal cusp-tip distance. */
     firstMolarMesiobuccalCuspWidthMm?: number;
+    /** Left-to-right primary second-molar central-fossa distance. */
+    primarySecondMolarCentralFossaWidthMm?: number;
+    /** Hard-palate coronal width at first-molar cementoenamel-junction level, mm. */
+    palatalVaultWidthAtFirstMolarCejMm?: number;
+    /** Hard-palate vault depth from that first-molar CEJ transverse level, mm. */
+    palatalVaultDepthAtFirstMolarCejMm?: number;
   }
 
   /**
-   * Mandibular permanent-dentition cast measurements, in mm. Width and depth
+   * Mandibular dental-cast measurements, in mm. Width and depth
    * come from different studies and must retain their respective landmarks.
    * @author Samchon
    */
   export interface MandibularArch {
     /** Left-to-right permanent canine cusp-tip distance. */
     intercanineCuspWidthMm?: number;
+    /** Left-to-right primary canine cusp-tip distance. */
+    primaryIntercanineCuspWidthMm?: number;
     /** First-molar buccal grooves at their gingival ends, or mid-buccal if indistinct. */
     firstMolarBuccalGrooveWidthMm?: number;
+    /** Left-to-right primary second-molar central-fossa distance. */
+    primarySecondMolarCentralFossaWidthMm?: number;
     /** Incisor to first-molar facial-axis lines, perpendicular cast-plane distance. */
     firstMolarFacialAxisDepthMm?: number;
   }

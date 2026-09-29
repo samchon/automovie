@@ -11,7 +11,12 @@ export const test_subject_face_anatomical_parameter_contract = (): void => {
     dentition: { stage: "permanent", teeth: { "11": { state: "erupted" } } },
     scalpHair: {
       biology: { frontal: { terminalHairsPerCm2: 154 } },
-      arrangement: { kind: "parted", side: "left", offsetMm: 4, reachMm: 70 },
+      arrangement: {
+        part: { side: "left", offsetMm: 4, reachMm: 70 },
+        gather: { anchorRegion: "occipital", tailLengthMm: 120 },
+        bangs: "absent",
+        flow: { top: "parting", leftSide: "pulled-back" },
+      },
     },
   };
   TestValidator.equals(

@@ -8,6 +8,11 @@
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC6707237/). Three-dimensional smile
  * studies measure commissure and lip motion against a resting face
  * (https://www.plasticsurgerygroup.co.uk/media/oume4vbf/quantitative-analysis-of-normal-smile-with-3d-stereophotogrammetry-an-aid-to-facial-reanimation.pdf).
+ * Four-dimensional stereophotogrammetry also defines lip-purse magnitude as
+ * the mean 3D rest-to-performance displacement of labiale superius and
+ * labiale inferius; that scalar is an observed outcome of coordinated lip
+ * motion, not an editable pair of XYZ targets
+ * (https://pmc.ncbi.nlm.nih.gov/articles/PMC10560183/).
  * These source measurements do not supply a universal independent box of
  * valid simultaneous motions; a future resolver must preserve teeth, globe,
  * tongue and tissue contact when it maps the named values to joints and skin.
@@ -34,6 +39,8 @@ export interface IAutoMovieHumanFacePerformanceParameters {
   rightFace?: IAutoMovieHumanFacePerformanceParameters.Side;
   /** Nonnegative midline upper-to-lower vermilion gap in mm on the posed rim. */
   interlabialGapMm?: number;
+  /** Mean 3D displacement of upper/lower midline labiale during lip purse, mm. */
+  lipPurseMagnitudeMm?: number;
   /** Anterior-positive tongue-tip movement from neutral in mm; needs oral passage admission. */
   tongueTipAdvanceMm?: number;
 }

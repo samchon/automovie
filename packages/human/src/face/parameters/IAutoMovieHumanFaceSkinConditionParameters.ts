@@ -17,6 +17,9 @@
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC10411921/), and jawline sagging
  * on grades 1–5 (https://onlinelibrary.wiley.com/doi/10.1111/jocd.14661).
  * Their categories cannot be pooled into one interchangeable "skin age".
+ * The cited fine-line validation photographed the left cheek at 45 degrees;
+ * the right-side field uses the same mirrored region definition but has no
+ * separate right-side reliability claim from that study.
  * None of these observations determines a unique 3D crease, fat compartment,
  * elastic modulus or person's age. A future resolver must reproduce the
  * observed regional result without accepting a free curve or vertex edit.

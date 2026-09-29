@@ -9,6 +9,7 @@ import { TestValidator } from "@nestia/e2e";
  *    named in one permanent dentition document.
  * 2. A mandibular groove width placed in the maxillary arch is rejected at
  *    compile time, before any source-basis lowering is attempted.
+ * 3. A known edentulous jaw cannot claim maximum tooth intercuspation.
  */
 export const test_subject_face_anatomical_measurement_protocols = (): void => {
   const measured: IAutoMovieHumanFaceAnatomicalParameters = {
@@ -46,4 +47,12 @@ export const test_subject_face_anatomical_measurement_protocols = (): void => {
     },
   };
   void invalid;
+
+  // @ts-expect-error An edentulous jaw has no natural intercuspal reference.
+  const invalidJaw: IAutoMovieHumanFaceAnatomicalParameters = {
+    referencePose: "eyes-open-forward-gaze-lips-apposed",
+    jawReference: "maximum-intercuspation",
+    dentition: { stage: "edentulous" },
+  };
+  void invalidJaw;
 };

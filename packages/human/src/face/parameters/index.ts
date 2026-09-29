@@ -11,6 +11,7 @@ export type * from "./IAutoMovieHumanFaceEyelashParameters";
 export type * from "./IAutoMovieHumanFaceFacialHairParameters";
 export type * from "./IAutoMovieHumanFaceHairParameters";
 export type * from "./IAutoMovieHumanFaceMouthParameters";
+export type * from "./IAutoMovieHumanFaceNeckParameters";
 export type * from "./IAutoMovieHumanFaceNoseParameters";
 export type * from "./IAutoMovieHumanFacePerformanceParameters";
 export type * from "./IAutoMovieHumanFaceSkinColourParameters";

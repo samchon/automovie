@@ -9,6 +9,7 @@ import type { IAutoMovieHumanFaceEyelashParameters } from "./IAutoMovieHumanFace
 import type { IAutoMovieHumanFaceFacialHairParameters } from "./IAutoMovieHumanFaceFacialHairParameters";
 import type { IAutoMovieHumanFaceHairParameters } from "./IAutoMovieHumanFaceHairParameters";
 import type { IAutoMovieHumanFaceMouthParameters } from "./IAutoMovieHumanFaceMouthParameters";
+import type { IAutoMovieHumanFaceNeckParameters } from "./IAutoMovieHumanFaceNeckParameters";
 import type { IAutoMovieHumanFaceNoseParameters } from "./IAutoMovieHumanFaceNoseParameters";
 import type { IAutoMovieHumanFacePerformanceParameters } from "./IAutoMovieHumanFacePerformanceParameters";
 import type { IAutoMovieHumanFaceSkinColourParameters } from "./IAutoMovieHumanFaceSkinColourParameters";
@@ -45,12 +46,31 @@ import type { IAutoMovieHumanFaceTongueParameters } from "./IAutoMovieHumanFaceT
  * @publicUnconsumed createHumanFaceAnatomicalResolver: User-directed type-first contract; the current basis has no validated anatomical landmark inverse, so accepting these values as supported edits would silently ignore or misinterpret them.
  * @author Samchon
  */
-export interface IAutoMovieHumanFaceAnatomicalParameters {
+export type IAutoMovieHumanFaceAnatomicalParameters =
+  AutoMovieHumanFaceAnatomicalFields &
+    (
+      | {
+          /** A dentate jaw closes at maximum intercuspation. */
+          jawReference: "maximum-intercuspation";
+          /** Omitted stage remains unknown; an observed edentulous jaw is excluded. */
+          dentition?: IAutoMovieHumanFaceDentalParameters & {
+            stage: "primary" | "mixed" | "permanent";
+          };
+        }
+      | {
+          /** An edentulous jaw uses its documented habitual closure. */
+          jawReference: "habitual-closure";
+          /** Omitted stage remains unknown; observed natural dentition is excluded. */
+          dentition?: IAutoMovieHumanFaceDentalParameters & {
+            stage: "edentulous";
+          };
+        }
+    );
+
+/** Shared observed fields; the exported union owns dental-reference coupling. */
+interface AutoMovieHumanFaceAnatomicalFields {
   /** Fixed acquisition state for the surface measurements below. */
   referencePose: "eyes-open-forward-gaze-lips-apposed";
-
-  /** Dentate intercuspation or edentulous habitual closure; a validator relates this to dentition. */
-  jawReference: "maximum-intercuspation" | "habitual-closure";
 
   /** Optional age of the observed person, in completed years; never a shape dial. */
   ageYears?: number;
@@ -60,6 +80,9 @@ export interface IAutoMovieHumanFaceAnatomicalParameters {
 
   /** Cranial and facial landmark distances in the declared neutral state. */
   craniofacial?: IAutoMovieHumanFaceCraniofacialParameters;
+
+  /** Calibrated neck-section and cervicomental observations in neutral posture. */
+  neck?: IAutoMovieHumanFaceNeckParameters;
 
   /** Eye aperture and optical measurements, with independently owned sides. */
   eyes?: IAutoMovieHumanFaceEyeParameters;
@@ -84,9 +107,6 @@ export interface IAutoMovieHumanFaceAnatomicalParameters {
 
   /** External lips and oral aperture in the declared neutral state. */
   mouth?: IAutoMovieHumanFaceMouthParameters;
-
-  /** Dental arches, occlusion and tooth presence, distinct from lip shape. */
-  dentition?: IAutoMovieHumanFaceDentalParameters;
 
   /** MRI-observed internal tongue identity; a face photo leaves it unknown. */
   tongue?: IAutoMovieHumanFaceTongueParameters;
