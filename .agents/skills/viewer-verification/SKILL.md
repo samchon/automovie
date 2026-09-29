@@ -37,7 +37,7 @@ Create the context with `preserveDrawingBuffer: true` and call `gl.finish()` at 
 1. Build the page that shows the thing: the playground or website page that mounts `mountViewer`, or a minimal page that builds a model and applies the pose.
 2. **Render a calibration frame first.** Put a reference shape whose coordinates you typed by hand (untouched by the code under test) beside the subject, and fix the reading convention on it. Without that, every later reading is circular: you are using the thing you are testing to decide what its own output means.
 3. Load the page, set the model and the pose or motion, advance the player to the target time, and capture.
-4. Read the capture against the intended result: the bones bend the right way, the limbs sit where forward kinematics says, the expression shows the named emotion, the camera frames the subject, materials and lighting are sane.
+4. Read the capture against the intended result: the bones bend the right way, the limbs sit where forward kinematics says, the expression shows the named emotion, the camera frames the subject, materials and lighting are sane. For a dense region such as a face, a joint or a seam, capture at a higher resolution and crop and zoom into the region under test, and take measurements with `gl.readPixels` or an image library, instead of judging one downscaled full frame.
 5. For motion, sample several timestamps (start, midpoints, end) and confirm the in-betweens are coherent, not just the keyframes.
 6. Report concrete observations tagged `[regression]` / `[polish]` / `[nit]` / `[ok]`. Fix obvious visual breaks in the same turn before continuing.
 
