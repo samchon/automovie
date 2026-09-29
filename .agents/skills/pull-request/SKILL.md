@@ -29,7 +29,7 @@ The title describes the merged outcome in `<type>(<scope>)` style, not the work 
 
 ## Campaign Override
 
-A campaign implementation cycle follows the [campaign development procedure](../issue-campaign/development.md), whose commit-message, CI-cadence, CI-repair and cleanup rules override the ordinary flow here.
+A campaign implementation cycle is one topic-unit pull request for its whole accepted issue set. It follows the [campaign development procedure](../issue-campaign/development.md), whose commit-message, CI-cadence, CI-repair and cleanup rules override the ordinary flow here.
 
 ## Read Checks For The Applicable Head
 
