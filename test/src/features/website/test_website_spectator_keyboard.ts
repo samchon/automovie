@@ -18,6 +18,11 @@ export const test_website_spectator_keyboard = (): void => {
     !f.key("KeyW").defaultPrevented,
   );
   f.canvas.focus();
+  TestValidator.predicate(
+    "window-level flight key handled",
+    f.key("KeyW", "keydown", {}, f.dom.window).defaultPrevented,
+  );
+  f.key("KeyW", "keyup", {}, f.dom.window);
   for (const [code, axis] of [
     ["KeyW", [0, 0, -1]],
     ["ArrowUp", [0, 0, -1]],

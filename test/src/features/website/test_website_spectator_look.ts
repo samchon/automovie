@@ -32,6 +32,7 @@ export const test_website_spectator_look = (): void => {
     ),
   );
   for (const sign of [1, -1]) {
+    camera.rotation.set(0, 0, 0.4, "YXZ");
     lookSpectatorCamera(camera, target, 0, sign * 100000);
     const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, "YXZ");
     TestValidator.predicate(
