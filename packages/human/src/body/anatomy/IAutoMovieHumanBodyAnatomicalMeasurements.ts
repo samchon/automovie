@@ -35,7 +35,7 @@ export type IAutoMovieHumanBodyAnatomicalMeasurements =
     surface?: IAutoMovieHumanBodySurfaceMeasurements;
     /** Spine, breast and abdominal compartments of the torso. */
     trunk?: IAutoMovieHumanBodyTrunkMeasurements;
-    /** One sacrum, paired coxal bones, hips, femora and gluteal muscles. */
+    /** One sacrum, paired coxal bones, hips, femora and three gluteal muscles. */
     pelvis?: IAutoMovieHumanBodyPelvisMeasurements;
     /** Independent left shoulder complex and upper-arm bone. */
     leftShoulder?: IAutoMovieHumanBodyShoulderMeasurements;

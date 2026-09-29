@@ -106,6 +106,21 @@ export const test_human_body_anatomical_measurements = (): void => {
         },
       },
     ],
+    [
+      "supine fold distance is not a standing breast arc",
+      {
+        trunk: {
+          leftBreast: {
+            nippleToInframammaryFoldArc: {
+              kind: "observed",
+              metres: 0.075,
+              method: "tape",
+              acquisitionPosture: "supine",
+            },
+          },
+        },
+      },
+    ],
     ["nonfinite age", { age: { kind: "target", years: Number.NaN } }],
     ["negative age", { age: { kind: "target", years: -1 } }],
     ["zero stature", { surface: { stature: { kind: "target", metres: 0 } } }],
