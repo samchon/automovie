@@ -30,15 +30,17 @@ Choosing any of these three means the approach is already wrong.
   5. When no flip compiles, the invariant is type-enforced. Record that and arm the assertion from the input side, and do not reshape the type into runtime branches to make a flip possible.
   6. Before any commit, read `git status` and `git diff` instead of trusting memory of what you changed.
 - **A configured check is not running until it has been made to fail.** A guard configured by a selector may never have been armed and reports the same green either way: an evidence claim whose selector matched no host once passed with every required citation deleted. When you add or inherit a lint rule, evidence claim, coverage threshold or CI job, delete what it should catch and watch it go red, and count what a population check selected. Read a gate by its exit code and its own output, never by a number derived from it.
-- **Update the matching `.wiki/` doc in the same change** when behavior, architecture or a decision changes, under the [documentation skill](../documentation/SKILL.md).
+- **Update the matching `.wiki/` doc in the same change** when behavior, architecture or a decision changes, under the [documentation skill](../documentation/wiki.md).
 
 ## Source file structure
 
 Every authored source file is at most 500 physical lines, comments and blank lines included. This covers library code, application code, scripts, tests and files holding only declarations or authored data. Do not compress statements, remove necessary explanation, change formatting or move logic into nominal data files to evade the limit.
 
+Give each public identity its own file, named after it: one exported symbol per file, with `index.ts` barrels excepted. Where `evidence/singular` is enabled it enforces this (an error in engine and interface, a warning in human).
+
 Split by cohesive responsibility and explicit inputs and outputs. Keep one owner for each formula, boundary and mutable state transition, with a small orchestrator naming their order. A forwarding chain that only redistributes lines establishes no responsibility. Preserve public behavior and the real consumer path during a split, and apply the per-change test obligation to the extracted code.
 
-Each file also owes the documentation skill's [Source-file context](../documentation/SKILL.md#source-file-context), and the size limit never excuses missing context. An existing oversized file is an unresolved violation, not a precedent: name it in the task's consequence surface and do not report that surface compliant until it is resolved.
+Each file also owes the documentation skill's [Source-file context](../documentation/source-docs.md#source-file-context), and the size limit never excuses missing context. An existing oversized file is an unresolved violation, not a precedent: name it in the task's consequence surface and do not report that surface compliant until it is resolved.
 
 ## Implementation strategy
 

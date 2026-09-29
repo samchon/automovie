@@ -13,7 +13,7 @@ The contract router and the procedures that author a production ship inside the 
 
 Read the applicable shipped skills before you interpret, author or review production content anywhere, a fixture or an experimental sandbox in this repository included.
 
-Editing an instruction or contract document under the scaffold or language-contract roots changes what every future generated project is told to do. Apply the [documentation skill](../documentation/SKILL.md), verify that the links resolve from a generated project and not from this repository, and run the verification gates below.
+Editing an instruction or contract document under the scaffold or language-contract roots changes what every future generated project is told to do. Apply the [documentation skill's instructions document](../documentation/instructions.md), verify that the links resolve from a generated project and not from this repository, and run the verification gates below.
 
 ## The shared contract inventory
 

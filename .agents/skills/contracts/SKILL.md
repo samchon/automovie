@@ -30,4 +30,4 @@ Anatomical source, permitted range and parametric authority. Read when the decla
 - Give each question one chapter owner across all three files, and extend the owning chapter instead of adding a second one.
 - Keep each chapter an H2 with a stable anchor. The common chapters apply to every enrolled declaration, and every other chapter opens with an `Apply to` sentence.
 - Keep links out of the checklist files so each stays readable on its own.
-- Write under the [documentation skill](../documentation/SKILL.md) and review a changed checklist under its instruction-diff rounds.
+- Write and review a changed checklist under the documentation skill's [instructions document](../documentation/instructions.md).

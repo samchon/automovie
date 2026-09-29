@@ -33,7 +33,7 @@ A campaign implementation cycle is one topic-unit pull request for its whole acc
 
 ## Read Checks For The Applicable Head
 
-After every push, watch `gh pr checks <PR>` until each check settles. On failure, fetch the job log, diagnose the real cause, fix it in place and push a new commit. Both `build` and `test` must pass, and a green unrelated job does not accept a failed required surface. The workflows own their commands; the [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write) owns the unit-test obligation. The `build` and `test` workflows run for pull requests and for pushes to `master`.
+After every push, watch `gh pr checks <PR>` until each check settles. On failure, fetch the job log and diagnose the real cause. Push the fix only after every check of the current head has settled, because the `build`, `test` and `website` workflows cancel in-progress runs on a new push and discard the failures the other checks had not yet reported. Both `build` and `test` must pass, and a green unrelated job does not accept a failed required surface. The workflows own their commands; the [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write) owns the unit-test obligation. The `build` and `test` workflows run for pull requests and for pushes to `master`.
 
 ## Merge On Explicit Request Or Standing Autonomous Mandate
 

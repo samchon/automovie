@@ -17,8 +17,10 @@ Follow the literal request; it is the contract, not a hint at what the user "rea
   - End no turn with a summary that announces the next step without taking it, an offer to continue unless the user objects, a list of decisions when none blocks the rest of the work, or a decision that this is a good place to report.
   - Put status notes in the message with your next tool call.
   - Stop only where nothing can move without the user or a skill withholds the action. Session length is never a reason, and confirmation before a destructive or outward-facing action still applies.
+- **Background work never ends the turn.** While a build, test run or CI job runs, keep reviewing, developing or researching the next item, and check the job with a targeted command instead of sleeping.
+- **Collect every symptom before correcting.** When a check or review reports failures, read all of them, find the shared cause, and fix the class in one pass.
 - **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, and whether what you learned changes the plan. Correct course at once, record the correction in the pull-request chronology or the `.wiki/` worklog, and continue.
-- **Record every user instruction** in the `.wiki/` worklog at once, and keep a superseded one beside its replacement ([documentation skill](.agents/skills/documentation/SKILL.md)).
+- **Record every user instruction** in the `.wiki/` worklog at once, and keep a superseded one beside its replacement ([`.wiki/` document](.agents/skills/documentation/wiki.md)).
 - **Ship each topic as its own PR** and never commit to `master` directly. The [pull-request skill](.agents/skills/pull-request/SKILL.md) owns the flow and the merge conditions.
 
 ## Skills
@@ -79,11 +81,4 @@ AGENTS.md is the portal for Claude Code (via `CLAUDE.md -> @AGENTS.md`) and Code
 
 Update this file only for a repository-contract change: a new, renamed or merged skill, a workflow that fits no skill, or a rule that must apply before any skill loads.
 
-Skills live at `.agents/skills/<kebab-name>/SKILL.md` with plain descriptive headings and no numeric prefix.
-
-- Put conditional topics in sibling documents one level deep, linked with their read condition.
-- Match the frontmatter `name` to the directory, and write a third-person `description` that states what the skill covers, when to use it and its exclusions. Codex needs the frontmatter to load a skill, and Claude Code reads skills through the pointers above.
-- Make each pointer mirror its description's scope, and correct the description first when the scope changes.
-- Add a skill when a concern would otherwise inflate this file, merge skills that share most of their structure, and create no `agents/openai.yaml`.
-
-The [documentation skill](.agents/skills/documentation/SKILL.md#instruction-authority) owns how instructions are written and reviewed.
+The [documentation skill's instructions document](.agents/skills/documentation/instructions.md) owns skill layout, how instructions are written, and their review.
