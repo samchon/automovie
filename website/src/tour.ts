@@ -1,8 +1,8 @@
 /**
  * Browser entry for the temple, suburban and future-house tours. It loads a
  * compressed native transport beneath the site's mount path, then mounts its
- * original scene uploader and shared accessible navigation. The existing manor
- * route retains its richer production-specific flight and inspection views.
+ * original scene uploader, shared spectator flight and accessible navigation.
+ * The manor route uses the same input with its production-specific scene.
  * Readiness follows texture decode, scene construction and the first GPU frame.
  * A disposed page reloads on BFCache restoration to reacquire its GPU resources.
  */
@@ -12,9 +12,9 @@ import { uploadHouse } from "production-future-scene";
 import { createTempleDaylight } from "production-temple-daylight";
 import { uploadTemple } from "production-temple-scene";
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-import { applyTourView, moveTourCamera } from "./tourCamera";
+import { mountSpectatorControls } from "./spectatorControls";
+import { applyTourView } from "./tourCamera";
 import { buildingFromQuery, readTourData } from "./tourData";
 import { createTourFrame } from "./tourFrame";
 import { loadTourScene } from "./tourScene";
@@ -48,12 +48,12 @@ const main = async (): Promise<void> => {
   );
   phase.textContent = "Preparing materials and geometry";
   const camera = new THREE.PerspectiveCamera();
-  let frame: () => boolean = () => true;
+  let frame: (elapsed: number) => boolean = () => true;
   const mounted = mountViewer(
     canvas,
     new THREE.Scene(),
     camera,
-    () => frame(),
+    (elapsed) => frame(elapsed),
     {
       pixelRatio: Math.min(devicePixelRatio, 1.5),
       preserveDrawingBuffer: true,
@@ -92,16 +92,12 @@ const main = async (): Promise<void> => {
     renderer,
     finish: () => gl.finish(),
   });
-  frame = drawing.frame;
-  const controls = new OrbitControls(camera, canvas);
-  controls.enableDamping = false;
-  controls.minDistance = 0.05;
-  controls.maxDistance = 250;
+  const target = new THREE.Vector3();
   const indices = new Map(data.views.map((view) => [view.id, view]));
   const select = (id: string): void => {
     const view = indices.get(id)!;
-    applyTourView(camera, controls.target, view);
-    controls.update();
+    controls.clear();
+    applyTourView(camera, target, view);
     ui.highlight(id);
     const url = new URL(location.href);
     url.searchParams.set("view", id);
@@ -111,19 +107,26 @@ const main = async (): Promise<void> => {
   const ui = mountTourUi(document, data, {
     collapsed: matchMedia("(max-width: 720px)").matches,
     select,
-    move: (action, pan) => {
-      moveTourCamera(camera, controls.target, action, pan);
-      controls.update();
-      drawing.invalidate();
+  });
+  const controls = mountSpectatorControls({
+    canvas,
+    camera,
+    target,
+    reset: () => select(data.initial),
+    changed: drawing.invalidate,
+    notice: (message) => {
+      status.textContent = message;
     },
   });
+  frame = (elapsed) => {
+    if (controls.frame(elapsed)) drawing.invalidate();
+    return drawing.frame();
+  };
   const requested = new URLSearchParams(location.search).get("view");
   select(requested && indices.has(requested) ? requested : data.initial);
   document.title = `${data.title} · AutoMovie 3D`;
-  controls.addEventListener("change", drawing.invalidate);
   drawing.frame();
   loading.hidden = true;
-  status.textContent = "Live 3D · Drag to orbit · Scroll to zoom";
   canvas.addEventListener("webglcontextlost", (event) => {
     event.preventDefault();
     mounted.stop();

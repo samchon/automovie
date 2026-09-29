@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#f5f4ef" />
     <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../src/tour.css" />
+    <link rel="stylesheet" href="../src/spectator.css" />
     <title>Architectural tour · AutoMovie</title>
   </head>
   <body>
@@ -63,11 +64,20 @@
         </aside>
       </div>
       <div class="camera-dock" aria-label="Camera controls">
-        <button data-camera="left" aria-label="Orbit left">←</button
-        ><button data-camera="right" aria-label="Orbit right">→</button
-        ><span></span><button data-camera="in" aria-label="Zoom in">+</button
-        ><button data-camera="out" aria-label="Zoom out">−</button><span></span
-        ><button id="reset">Reset view</button>
+        <button id="reset">Reset view</button>
+      </div>
+      <div class="flight-pad flight-direction" aria-label="Hold to move">
+        <button data-flight="forward" aria-label="Fly forward">&uarr;</button>
+        <button data-flight="left" aria-label="Fly left">&larr;</button>
+        <button data-flight="right" aria-label="Fly right">&rarr;</button>
+        <button data-flight="back" aria-label="Fly backward">&darr;</button>
+      </div>
+      <div class="flight-pad flight-height" aria-label="Hold to change height">
+        <button data-flight="up" aria-label="Fly up">Up</button>
+        <button data-flight="down" aria-label="Fly down">Down</button>
+        <button data-flight="slow" aria-label="Hold to move slowly">
+          Slow
+        </button>
       </div>
       <div class="tour-caption">
         <p id="current-view"></p>
@@ -75,11 +85,12 @@
       </div>
       <details class="help">
         <summary>How to explore</summary>
-        <p>Drag to orbit. Right drag to pan. Scroll to zoom.</p>
-        <p>Touch: one finger rotates; two fingers zoom and pan.</p>
+        <p>Click to capture the mouse. Move it to look; Esc releases.</p>
+        <p>WASD / arrows fly. Space rises, C descends. R resets.</p>
+        <p>Fast by default (8 m/s). Hold Shift to move slowly (2 m/s).</p>
         <p>
-          Keyboard: arrows orbit, Shift + arrows pan, + / − zoom, R resets.
-          Select an authored view to enter a room.
+          Scroll changes the lens. On touch, drag to look and hold the direction
+          buttons to fly. Choose a view to enter a room.
         </p>
       </details>
     </main>
