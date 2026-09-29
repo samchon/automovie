@@ -59,14 +59,16 @@ export interface IAutoMovieHumanBodyBasisSurface {
   };
 
   /**
-   * Soft-tissue sag under gravity after skinning, or absent for none. A
-   * vertex carries the tissue the document's rest body has over the same
-   * body with each `lean` channel at its weight, along the rest normal;
-   * its compliance is that times `gain` and the softness, `base` plus the
-   * sum of each `softness.channels` gain times the document's weight of that
-   * channel, held in `range`; it moves by compliance times the change of
-   * gravity's direction (-Y) in its skin's frame, smoothed over `sweeps`
-   * half-steps with the open boundary held.
+   * Soft-tissue sag proxy under gravity after skinning, or absent for none.
+   * A vertex reads the outward difference between the document's rest skin
+   * and the same body's `lean` shape along the rest normal. This is a
+   * difference between two exterior skins, not a measured fat or muscle
+   * boundary; neither skin is guaranteed free of crossings in every pose.
+   * Compliance is that difference times `gain` and the softness. Softness is
+   * `base` plus the sum of each `softness.channels` gain times the document's
+   * weight of that channel, held in `range`. It moves by compliance times
+   * the change of gravity's direction (-Y) in its skin's frame, smoothed
+   * over `sweeps` half-steps with the open boundary held.
    */
   sag?: {
     lean: Record<string, number>;
