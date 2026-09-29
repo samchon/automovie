@@ -43,6 +43,8 @@ Open `connected-face.html` or `connected-body.html`, wait for the panel to repor
 
 Call `finish` after any hook before capturing. Only `change` edits the document.
 
+The body runner `test/scripts/body-review/capture-editor.ts` drives these hooks for a set of states, views and passes (`pnpm exec ttsx -P tsconfig.scripts.json scripts/body-review/capture-editor.ts <name> [--states a,b] [--views v,w] [--passes p,q] [--documents file.json]`, from `test/`). It first refuses a stale human build, a foreign server and a software renderer, writes each frame to `.shots/body-review/editor-<name>/<state>__<view>__<pass>.png`, and writes `captures.json` beside them with each frame's SHA-256, the renderer string, the revision and the build freshness, and no image bytes. Read the frames yourself; the record says what was drawn, not that it is right.
+
 Frames go to gitignored directories and never into the repository.
 
 ## Getting engine code into the page
