@@ -1,15 +1,6 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
-
-/** A fitted articular head, not the shaft, tubercles or complete humerus. */
-export interface IAutoMovieHumanBodyHumeralHead {
-  bone: "leftUpperArm" | "rightUpperArm";
-  center: IAutoMovieVector3;
-  radiusMetres: number;
-  source: "measured" | "adult-ct-prior";
-}
+import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
 
 /**
  * Instantiate left and right humeral articular heads in the posed body frame.
