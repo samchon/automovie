@@ -8,13 +8,15 @@ import type { IAutoMovieHumanBodyAge } from "./measurements/IAutoMovieHumanBodyA
 import type { IAutoMovieHumanBodySurfaceMeasurements } from "./surface/IAutoMovieHumanBodySurfaceMeasurements";
 
 /**
- * Typed anatomical targets and observations for a body editor.
+ * Sparse typed anatomical targets and observations for a body editor.
  *
  * The simple exterior tier still owns the currently generated body. This
  * separate record owns named exterior and internal dimensions and
  * compartment volumes, nested by the structures that generate them. A `target`
  * asks for a plausible fictional measurement; `observed` records an actual
  * acquisition and its posture. Omitted values are unknown rather than zero;
+ * this partial record is not by itself a complete renderable person. The
+ * complete detailed tier requires age, standing stature and body mass.
  * an estimator must identify its observed population and error or return an
  * unavailable part. This record
  * is not the current MPFB `shape` channel map and is not yet interpreted by

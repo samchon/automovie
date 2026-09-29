@@ -4,6 +4,8 @@ export * from "./contact/measureHumanBodySpheresSkinClearance";
 export * from "./admitHumanBodyAnatomicalMeasurements";
 export type { IAutoMovieHumanBodyAnatomicalMeasurements } from "./IAutoMovieHumanBodyAnatomicalMeasurements";
 export type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./IAutoMovieHumanBodySimpleAnatomicalTargets";
+export type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "./IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
+export type { IAutoMovieHumanBodyParametricParameters } from "./IAutoMovieHumanBodyParametricParameters";
 export type { IAutoMovieHumanBodyCompositionMeasurements } from "./IAutoMovieHumanBodyCompositionMeasurements";
 export type { IAutoMovieHumanBodyAnatomicalResolution } from "./IAutoMovieHumanBodyAnatomicalResolution";
 export type { IAutoMovieHumanBodyGeneratedSolid } from "./IAutoMovieHumanBodyGeneratedSolid";
@@ -18,3 +20,8 @@ export type { AutoMovieHumanBodyConnectiveTissueId } from "./AutoMovieHumanBodyC
 export type { IAutoMovieHumanBodyArticulation } from "./IAutoMovieHumanBodyArticulation";
 export type { IAutoMovieHumanBodyAxialArticulation } from "./IAutoMovieHumanBodyAxialArticulation";
 export type { IAutoMovieHumanBodyScapulothoracicContact } from "./IAutoMovieHumanBodyScapulothoracicContact";
+export type { IAutoMovieHumanBodyGluteusMaximusAttachments } from "./pelvis/IAutoMovieHumanBodyGluteusMaximusAttachments";
+export type { IAutoMovieHumanBodyGluteusMediusAttachments } from "./pelvis/IAutoMovieHumanBodyGluteusMediusAttachments";
+export type { IAutoMovieHumanBodyGluteusMinimusAttachments } from "./pelvis/IAutoMovieHumanBodyGluteusMinimusAttachments";
+export type { IAutoMovieHumanBodyDeltoidAttachments } from "./shoulder/IAutoMovieHumanBodyDeltoidAttachments";
+export type { IAutoMovieHumanBodyPectoralisMajorAttachments } from "./thorax/IAutoMovieHumanBodyPectoralisMajorAttachments";
