@@ -73,8 +73,13 @@
   .flight-height {
     right: 16px;
   }
-  .tour-caption {
+  /* Reserve pad clearance regardless of shared and tour stylesheet order. */
+  main .tour-caption {
     bottom: 170px;
+  }
+  /* Touch pads occupy the desktop help corner, including on wider tablets. */
+  main .help {
+    display: none;
   }
 }
 @media (max-width: 720px) {
