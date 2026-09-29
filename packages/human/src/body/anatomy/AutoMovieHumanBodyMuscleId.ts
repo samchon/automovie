@@ -13,6 +13,8 @@ export type AutoMovieHumanBodyMuscleId =
     | "GluteusMaximus"
     | "GluteusMedius"
     | "GluteusMinimus"
+    | "PsoasMajor"
+    | "Iliacus"
     | "PectoralisMajor"
     | "RectusAbdominis"
     | "ExternalOblique"

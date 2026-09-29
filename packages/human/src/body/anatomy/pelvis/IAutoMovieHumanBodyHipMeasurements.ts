@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodyGluteusMaximusMeasurements } from "./IAutoMovieHumanBodyGluteusMaximusMeasurements";
 import type { IAutoMovieHumanBodyGluteusMediusMeasurements } from "./IAutoMovieHumanBodyGluteusMediusMeasurements";
 import type { IAutoMovieHumanBodyGluteusMinimusMeasurements } from "./IAutoMovieHumanBodyGluteusMinimusMeasurements";
+import type { IAutoMovieHumanBodyIliopsoasMeasurements } from "./IAutoMovieHumanBodyIliopsoasMeasurements";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
@@ -20,4 +21,6 @@ export type IAutoMovieHumanBodyHipMeasurements =
   gluteusMaximus?: IAutoMovieHumanBodyGluteusMaximusMeasurements;
   gluteusMedius?: IAutoMovieHumanBodyGluteusMediusMeasurements;
   gluteusMinimus?: IAutoMovieHumanBodyGluteusMinimusMeasurements;
+  /** Lumbar/iliac hip flexors with a separately measured combined CT label. */
+  iliopsoas?: IAutoMovieHumanBodyIliopsoasMeasurements;
   }>;
