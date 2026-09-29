@@ -53,7 +53,7 @@ export interface IAutoMovieHumanFaceHairParameters {
     leftTemporalFromCanthusMm?: number;
     /** Right lateral canthus to its temporal hairline in the frontal plane, mm. */
     rightTemporalFromCanthusMm?: number;
-    /** Inion to median occipital hairline point, straight 3D distance in mm. */
+    /** Inion to median occipital hairline point under the cited imaging protocol, mm. */
     midOccipitalFromInionMm?: number;
     /** Observed midfrontal outline class, independent of age or sex. */
     outline?: "linear" | "triangular" | "round" | "m-shaped";
