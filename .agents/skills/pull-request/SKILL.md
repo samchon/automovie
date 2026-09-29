@@ -5,54 +5,40 @@ description: Defines automovie branch, commit, pull-request, check, and merge wo
 
 # Pull Request Submission
 
-Standing instruction (user, 2026-07-06): work proceeds in **topic-unit PRs**: one coherent topic per PR, never committed to `master` directly. An ordinary topic PR opens after its required local verification; an authorized campaign's implementation-free claim PR follows the applicable campaign override below.
+Work proceeds in topic-unit PRs, one coherent topic per PR, never committed to `master` directly. An ordinary topic PR opens after its required local verification. An authorized campaign's implementation-free claim PR follows the campaign override below.
 
-Permission to open is not permission to merge. Merge only when the user explicitly asks, or under a **standing autonomous mandate**, an autonomous campaign (e.g. the conquest loop) or an explicit instruction to carry the work through merge. The mandate is the request for every step it names, including push and merge, and every check, verification, and Self-Review gate still applies to each step.
+Permission to open is not permission to merge. Merge only when the user explicitly asks, or under a standing autonomous mandate: an autonomous issue campaign or an explicit instruction to carry the work through merge. The mandate is the request for every step it names, push and merge included, and every check, verification and Self-Review gate still applies to each step.
 
 ## Branch From The Target
 
-Branch from the PR target (`master` unless stated otherwise); never commit to the target directly. Name the branch to reflect the change: `feat/<scope>`, `fix/<scope>`, `test/<scope>`, `docs/<scope>`, `ci/<scope>`.
+Branch from the PR target (`master` unless stated otherwise) and name the branch for the change: `feat/<scope>`, `fix/<scope>`, `test/<scope>`, `docs/<scope>`, `ci/<scope>`.
 
-Ordinary pull requests, issue campaigns, and Self-Review use the current checkout and one topic branch. This holds even when a campaign runs several issue owners at once: they share that checkout and that branch, each committing only its own paths. Do not create another clone or worktree for them. If unrelated or protected work prevents a safe branch switch, preserve it and report the blocker rather than stashing, reverting, mixing it, or creating a worktree.
-
-Only an explicitly selected multi-agent campaign creates isolated worktrees, under that campaign's file-ownership and cleanup rules.
+Use the current checkout and one topic branch for ordinary pull requests, issue campaigns and Self-Review. Create no other clone or worktree. When unrelated or protected work blocks a safe branch switch, preserve it and report the blocker instead of stashing, reverting or mixing it.
 
 ## Commit Logical Units
 
-One commit per coherent unit, not a single mega-commit when the diff is large. Use the repository's `<type>(<scope>): <subject>` message style, and end the message with the `Co-Authored-By` trailer. Do not run the repository formatter for intermediate commits, draft heads or correction pushes. Inspect Markdown-only and agent-instruction diffs directly and run `git diff --check`.
-
-Stage explicit paths when the worktree is mixed. Never include unrelated user changes silently.
+Make one commit per coherent unit, not one mega-commit for a large diff. Use the `<type>(<scope>): <subject>` message style and end the message with the `Co-Authored-By` trailer. Stage explicit paths when the working tree is mixed, and never include unrelated user changes silently. Formatting runs once before merge, as described below, and not for intermediate commits, draft heads or correction pushes.
 
 ## Write The Pull Request
 
-Write the PR body at open: intent, scope, deferred items, test plan. Treat it as the PR's historical intent statement. Use a file-backed body for multiline Markdown when opening through `gh`.
+Write the PR body at open: intent, scope, deferred items, test plan. It is the PR's historical intent statement, so do not rewrite it on every follow-up push. Use a file-backed body for multiline Markdown through `gh`.
 
-Do not rewrite the body on every follow-up push. Record later CI fixes, newly found issues, and Self-Review results as formal GitHub pull-request reviews with the `COMMENT` event so the thread preserves chronology. Use an inline review comment when an observation belongs to a changed line, and the review body for commit-wide or round-wide results. Never `APPROVE` or `REQUEST_CHANGES` on your own pull request.
+Record later CI fixes, newly found issues and Self-Review results as formal GitHub pull-request reviews with the `COMMENT` event, so the thread keeps its chronology. Use an inline comment for an observation tied to a changed line and the review body for commit-wide or round-wide results. Never `APPROVE` or `REQUEST_CHANGES` on your own pull request.
 
 The title describes the merged outcome in `<type>(<scope>)` style, not the work process.
 
 ## Campaign Override
 
-Before a campaign implementation push or pull request, complete the selected campaign's development procedure. Ordinary issue campaigns use `.agents/skills/issue-campaign/development.md` in the current checkout, including when several issue owners implement at once. Campaigns the user asked to isolate into per-batch worktrees, branches, or pull requests use `.agents/skills/multi-agent/issue-campaign.md`. Their ownership, worktree, commit-message, check-cadence, CI-repair, and cleanup rules override the ordinary flow here.
-
-A campaign owner pushes its own commits. It stages explicit paths, never `git add -A`, and never rewrites or force-pushes a branch other owners are committing onto.
+A campaign implementation cycle is one topic-unit pull request for its whole accepted issue set. It follows the [campaign development procedure](../issue-campaign/development.md), whose commit-message, CI-cadence, CI-repair and cleanup rules override the ordinary flow here.
 
 ## Read Checks For The Applicable Head
 
-After every push, watch `gh pr checks <PR>` until each check settles. On failure, fetch the job log, diagnose the real cause, fix it in place, push a new commit, and let the checks resume. Both `build` and `test` must pass; do not treat a green unrelated job as acceptance for a failed required surface. The workflows own their actual commands. The [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write) owns the changed-position unit-test obligation and how review verifies it; CI has no coverage instrument or coverage gate.
-
-The `build` and `test` workflows run for pull requests and pushes to `master`.
-
-A campaign implementation cycle reads CI once per settled head instead, under its own development procedure. Its intermediate commits are not gates, and its merge still requires the settled head's green required checks.
+After every push, watch `gh pr checks <PR>` until each check settles. On failure, fetch the job log and diagnose the real cause. Push the fix only after every check of the current head has settled, because the `build`, `test` and `website` workflows cancel in-progress runs on a new push and discard the failures the other checks had not yet reported. Both `build` and `test` must pass, and a green unrelated job does not accept a failed required surface. The workflows own their commands; the [development skill](../development/SKILL.md#coverage-is-100-on-what-you-write) owns the unit-test obligation. The `build` and `test` workflows run for pull requests and for pushes to `master`.
 
 ## Merge On Explicit Request Or Standing Autonomous Mandate
 
-When the user explicitly asks to merge, or a standing autonomous mandate authorizes it, finish implementation and CI repair first. For a pull request that changes configured source, run the formatter once on the final candidate before merging: use `pnpm run format` in an exclusive checkout, or format only the pull request's owned paths in a shared checkout because the root command writes across the repository. Commit any formatting diff to the same pull request and wait for required checks on that head. A Markdown-only pull request needs no source-formatting pass.
+Finish implementation and CI repair first. For a pull request that changes configured source, run the formatter once on the final candidate: `pnpm run format` when the checkout holds only this pull request's changes, and otherwise format only the pull request's paths, because the root command writes across the repository. Commit any formatting diff to the same pull request and wait for required checks on that head. A Markdown-only pull request needs no source-formatting pass.
 
-When every required check passes on the formatted final head, squash-merge the PR (matching the repo's linear history) and delete the branch.
+When every required check passes on the formatted final head, squash-merge (the repository keeps linear history) and delete the branch. After GitHub records the merge, observe the `master` push `build` and `test` checks on the exact merge commit. A green pull-request head does not substitute for the post-merge event, and a red `master` run reopens delivery work immediately.
 
-After GitHub records the merge, observe the `master` push `build` and `test` checks on the exact merge commit. A green pull-request head does not substitute for the post-merge event, and a red master run reopens delivery work immediately.
-
-If CI is red because code, tests, build, formatting, or generated artifacts failed, fix the PR and wait for green.
-
-If CI cannot start or finish for external repository infrastructure reasons outside the topic's code scope (for example billing, service outage, missing runner capacity, or permissions), report the exact blocker, document the local verification in the PR, and merge only after the user explicitly repeats the merge instruction. Do not force-merge against GitHub branch protection; if GitHub refuses the merge, report the blocker.
+If CI is red because code, tests, build, formatting or generated artifacts failed, fix the pull request and wait for green. If CI cannot start or finish for external infrastructure reasons outside the topic's code (billing, service outage, missing runner capacity, permissions), report the exact blocker, document the local verification in the pull request, and merge only after the user explicitly repeats the merge instruction. Never force-merge against branch protection; if GitHub refuses the merge, report the blocker.
