@@ -1,6 +1,6 @@
 ---
 name: viewer-verification
-description: Defines how to drive the viewer/playground through the Playwright library to inspect renders, poses, and motion against expectation, including how to reach a real GPU context and how to compare against previous behavior without disturbing a shared checkout. Use before claiming a viewer, render, pose, motion, or expression change works.
+description: Defines how to drive the viewer/playground through the Playwright library to inspect renders, poses, and motion against expectation, including how to reach a real GPU context and how to compare against previous behavior without disturbing the working tree. Use before claiming a viewer, render, pose, motion, or expression change works.
 ---
 
 # Viewer Verification
@@ -21,7 +21,7 @@ Playwright is a **library** here, not a tool server. This repository registers n
 Two details decide whether the frame is real.
 
 - **Import by absolute file URL.** The library resolves only from `test/`, so a script written to a scratchpad cannot find it by name. `NODE_PATH` is ignored under ESM. Import `test/node_modules/playwright/index.mjs` by its full `file:///` URL instead.
-- **Ask for `channel: "chromium"`.** The default launch drops to `chromium_headless_shell`, which has no GPU. With the real channel this repository reaches a real device through ANGLE. **Log the `RENDERER` string on every run.** Silently falling back to a software rasterizer and reading the result as a GPU frame is this procedure's main way of lying to you.
+- **Ask for `channel: "chromium"`.** The default launch drops to `chromium_headless_shell`, which has no GPU. With the real channel this repository reaches a real device through ANGLE. **Log the `RENDERER` string on every run.** Silently falling back to a software rasterizer and reading the result as a GPU frame is this procedure's main false result.
 
 ## Getting engine code into the page
 
@@ -37,15 +37,15 @@ Create the context with `preserveDrawingBuffer: true` and call `gl.finish()` at 
 1. Build the page that shows the thing: the playground or website page that mounts `mountViewer`, or a minimal page that builds a model and applies the pose.
 2. **Render a calibration frame first.** Put a reference shape whose coordinates you typed by hand (untouched by the code under test) beside the subject, and fix the reading convention on it. Without that, every later reading is circular: you are using the thing you are testing to decide what its own output means.
 3. Load the page, set the model and the pose or motion, advance the player to the target time, and capture.
-4. Read the capture against the intended result: the bones bend the right way, the limbs sit where forward kinematics says, the expression shows the named emotion, the camera frames the subject, materials and lighting are sane. For a dense region such as a face, a joint or a seam, capture at a higher resolution and crop and zoom into the region under test, and take measurements with `gl.readPixels` or an image library, instead of judging one downscaled full frame.
+4. Read the capture against the intended result: the bones bend the right way, the limbs sit where forward kinematics says, the expression shows the named emotion, the camera frames the subject, materials and lighting match the authored values. For a dense region such as a face, a joint or a seam, capture at a higher resolution and crop and zoom into the region under test, and take measurements with `gl.readPixels` or an image library, instead of judging one downscaled full frame.
 5. For motion, sample several timestamps (start, midpoints, end) and confirm the in-betweens are coherent, not just the keyframes.
 6. Report concrete observations tagged `[regression]` / `[polish]` / `[nit]` / `[ok]`. Fix obvious visual breaks in the same turn before continuing.
 
 ## Comparing against the previous behavior
 
-Never `git stash` or check out an older commit to get the "before" frame. A shared checkout usually carries other people's uncommitted work, and that move destroys it.
+Never `git stash` or check out an older commit to get the "before" frame. The working tree usually carries the user's uncommitted work, and that move destroys it.
 
-Reflect the quantity under test in code instead and render the twin beside the fix. A mirrored-UV twin proved the atlas handedness fix without touching a single tracked file, and it doubles as a check on the instrument: a measurement that reports the same verdict for both the fix and its mirror is not reading what it claims to read.
+Reflect the quantity under test in code instead and render the twin beside the fix, without touching a tracked file. The twin doubles as a check on the instrument: a measurement that gives the same verdict for the fix and its mirror is not reading what it claims to read.
 
 ## Cross-check against the engine
 

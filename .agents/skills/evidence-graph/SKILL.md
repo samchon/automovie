@@ -7,25 +7,23 @@ description: Defines automovie's committed trace from product requirements throu
 
 ## Contract layers
 
-Keep the committed contract in three distinct layers.
+The committed contract has three layers.
 
 | Layer | Owns | Does not own |
 | --- | --- | --- |
-| `docs/requirements/` | Product promises a user can observe, request, or judge | Package design, symbol names, implementation procedure |
+| `docs/requirements/` | Product promises a user can observe, request or judge | Package design, symbol names, implementation procedure |
 | `docs/specifications/` | System contracts that make those promises precise | Package ownership, API reference, contributor tutorial |
 | Public source JSDoc | The implementation identity and why it carries its contracts | A second requirements or specifications corpus |
 
-Write specifications around system boundaries, state, invariants, inputs, outputs, failures, and compatibility. Do not organize them by package name. One specification may be implemented by several symbols in several packages.
+Write specifications around system boundaries, state, invariants, inputs, outputs, failures and compatibility, and never by package name. One specification may be implemented by several symbols in several packages. Create no `docs/packages/` or `docs/modules/`: package usage belongs in package READMEs and exported API detail in JSDoc.
 
-Do not create `docs/packages/` or `docs/modules/`. Package usage belongs in package READMEs, and exported API detail belongs in JSDoc.
+Research and `.wiki/` stay outside the committed contract population. They justify decisions, and a citation to research does not discharge a product promise.
 
-Keep research and `.wiki/` outside the committed product-contract population. They justify decisions and preserve working knowledge, but a citation to research does not discharge a product promise.
-
-When writing or revising the reusable production targets under `packages/template/scaffold/docs` or `packages/template/language-contracts`, read the [shared production-contract source pool](references.md) before searching anew. It records which durable source settles which kind of question without coupling sources to the contract anchors that happen to cite them today. Verify every selected link and used passage again before citation.
+When you write or revise the reusable production targets under `packages/template/scaffold/docs` or `packages/template/language-contracts`, read the [shared source pool](references.md) before searching anew, and verify every selected link and used passage again before citing it.
 
 ## Required triangle
 
-Configure and validate all three positive edge families:
+Configure and validate three positive edge families:
 
 ```text
 specification -> requirement
@@ -33,63 +31,59 @@ public source -> specification
 public source -> requirement
 ```
 
-Require every controlled requirement section to receive positive specification evidence. Require every controlled specification section to cite the requirements it makes precise. Permit only the narrow README relationship exclusions described below. Require every selected public source symbol to cite at least one requirement and at least one specification that it materially implements.
+- Every controlled requirement section receives positive specification evidence.
+- Every controlled specification section cites the requirements it makes precise, and only the narrow README exclusions below are permitted.
+- Every selected public source symbol cites at least one requirement and at least one specification that it materially implements.
+- Select the complete public export surface and enable `evidence/documented` for it, so every exported symbol has a JSDoc carrier. Never narrow files or symbol kinds to avoid obligations.
 
-Select the complete public export surface rather than narrowing files or symbol kinds to avoid obligations. Enable `evidence/documented` for that surface so every exported symbol has a JSDoc carrier. Configure both graph relationships and inspect every affected implementation export for truthful direct citations to both document layers.
+For each direct source-to-requirement edge, at least one specification the source cites must reach the same requirement through configured positive specification edges. A source citing unrelated documents is not consistent merely because both citations resolve.
 
-For each direct `source -> requirement` edge, require at least one specification cited by that source to reach the same requirement through one or more configured positive specification edges. A source citing unrelated documents is not consistent merely because both citations resolve.
+In Self-Review, trace this path from resolved unit identities and configured positive edges, then read the source, specification and requirement to confirm they express the same implemented behavior. Matching words, folder names and package ownership prove nothing.
 
-Trace this path in Self-Review from resolved unit identities and configured positive edges, then read the source, specification, and requirement to verify that they express the same implemented behavior. Matching words, folder names, or package ownership do not establish that relationship.
-
-Do not set `uniqueEvidence` on a specification reference merely to manufacture an owner. Shared implementation is valid. Do not set `singleEvidencePerSymbol` where a real source symbol or specification section can answer for more than one unit. Preserve the at-least-one citation obligation without turning it into an exactly-one relationship.
+Do not set `uniqueEvidence` on a specification reference to manufacture an owner, or `singleEvidencePerSymbol` where a symbol or section can answer for several units. Shared implementation is valid, and the obligation is at least one citation and never exactly one.
 
 ## Validation responsibilities
 
-Use each owner for the contract it actually evaluates.
-
 | Owner | Responsibility |
 | --- | --- |
-| Native `@ttsc/evidence` | Evaluate the graph relationships, documentation carriers, and declared unrealized work configured through `evidence/graph`, `evidence/documented`, and `evidence/todo` in each active lint project. Use its published configuration and diagnostics as the dependency contract. |
-| AutoMovie product validation | Enforce the generated production's declaration, physical population boundaries, contract inventory, stages, and topology through [`@automovie/evidence`](../../../packages/evidence/src/createAutoMovieEvidenceConfig.ts). These are production input invariants, separate from this repository's requirement-to-source graph. |
-| Semantic Self-Review | Read the actual carrier, target, reason, exclusions, and downstream behavior. Confirm complete carrier selection, README participation, stable identities, both direct citation families, and the required triangle against what the implementation does. |
+| Native `@ttsc/evidence` | Evaluate the graph relationships, documentation carriers and declared unrealized work configured through `evidence/graph`, `evidence/documented` and `evidence/todo` in each active lint project. Its published configuration and diagnostics are the dependency contract. |
+| AutoMovie product validation | Enforce the generated production's declaration, physical population boundaries, contract inventory, stages and topology through [`@automovie/evidence`](../../../packages/evidence/src/createAutoMovieEvidenceConfig.ts). These are production input invariants, separate from this repository's graph. |
+| Semantic Self-Review | Read the actual carrier, target, reason, exclusions and downstream behavior, and confirm complete carrier selection, README participation, stable identities, both citation families and the triangle against what the implementation does. |
 
-Keep source-text snapshots, repository-shape validators, and unpaid-host exception lists out of this workflow. Do not add a second validator to retest the native dependency. A passing configured check records that check's result; it does not establish that every product promise is implemented or that every citation is truthful.
+Keep source-text snapshots, repository-shape validators and unpaid-host exception lists out of this workflow, and add no second validator to retest the native dependency. A passing check records that check's result. It does not establish that every product promise is implemented or every citation is truthful.
 
-## Derive the carrier population
+## Carrier population
 
-Derive the complete carrier population from a source-tree glob. Never define that complete set as the union of hand-written paths.
+Derive the complete carrier population from a source-tree glob and never from a hand-written union of paths. A listed population makes "owes no evidence" the default for every file added later, and nothing reports the omission.
 
-A listed population makes "owes no evidence" the default for every file added after the list was written, and nothing reports the omission. This failure once left the repaint implementation and other source files outside their package graphs while the surrounding configuration promised automatic document admission.
+- Write each whole-population exclusion as a negative pattern beside the positive one, and state in the population's JSDoc why that file owes no package contract. Three reasons are accepted: a barrel re-exports declarations that already answer at their definition, a process entry point is not a contract carrier, and a generated file is not authored.
+- Cross every directory depth (`src/**/*.ts`), because a one-level glob admits only the top directory.
+- Derive a domain-partitioned population by subtraction. A specialized claim names the stable files of its domain, and one residual claim starts from the complete glob and subtracts those assignments, so a new source answers for the residual domain until someone assigns it elsewhere. `@ttsc/evidence` evaluates patterns left to right and a later positive pattern re-admits what an earlier negative removed, so add a file back after the spread.
+- Selection alone establishes nothing about what a carrier implements. Self-Review inspects every changed public carrier against its actual contract under the triangle above, and any unpaid relationship it records names the exact reviewed population and revision.
 
-Write each whole-population exclusion as a negative pattern beside the positive one and state in the population's JSDoc why that file owes no package contract. The repository currently accepts three reasons: a barrel re-exports declarations that already answer at their definition, a process entry point is not a contract carrier, and a generated file is not authored. Cross every directory depth (`src/**/*.ts`), because a one-level glob admits only the top directory.
+## Package participation
 
-Derive a domain-partitioned population by subtraction. A specialized claim may name the stable files assigned to its domain, but one residual claim starts from the complete source glob and subtracts those assignments. A new source then answers for the residual domain until someone deliberately assigns it elsewhere. Pattern order decides the result: `@ttsc/evidence` evaluates left to right and a later positive pattern re-admits what an earlier negative removed, so a claim that adds one file back to a residual writes it after the spread rather than before it.
+`@automovie/production` and `@automovie/playground` carry the same `evidence/graph`, `evidence/documented` and `evidence/todo` obligations as the other public packages. Production owns the builder, project store, capture, inspection and render-job contracts it implements, and playground owns the durable prototype-view surface it exports. A smaller application surface never excuses a public export from requirement and specification traceability.
 
-A derived population selects the carriers to which the configured rules apply. Selection alone does not establish what a carrier implements. Self-Review must inspect every changed public carrier against its actual contract, require the direct citations described in [Required triangle](#required-triangle), and reject a missing or unrelated answer. Record any observed unpaid relationships with their exact reviewed population and revision; an earlier count is not a current baseline.
-
-## Every public package participates
-
-`@automovie/production` and `@automovie/playground` carry the same repository `evidence/graph`, `evidence/documented`, and `evidence/todo` obligations as the other public packages. Production owns the builder, project store, capture, inspection, and render-job contracts it implements. Playground owns the durable prototype-view surface it exports. Neither a removed transport boundary nor an application's smaller surface excuses its public exports from requirement and specification traceability. A package that the [project skill](../project/SKILL.md#layout) lists as answering the [contracts skill](../contracts/SKILL.md) instead is outside this triangle.
+A package that the [project skill](../project/SKILL.md#layout) lists as answering the [contracts skill](../contracts/SKILL.md) is outside this triangle.
 
 ## Split independently payable units
 
-`evidence/graph` proves that a requirement or specification unit has a claimant. It does not prove that several partial claimants add up to the complete unit. When behaviors can mature, fail, or be implemented independently, give each one its own H3 with a stable anchor and let the native requirement or specification to claim to public-export triangle validate it directly.
+`evidence/graph` proves that a unit has a claimant. It does not prove that several partial claimants add up to the complete unit. When behaviors can mature, fail or be implemented independently, give each its own H3 with a stable anchor and let the native triangle validate it directly.
 
-Do not create a parallel fragment grammar, carrier tag, or ownership ledger. Those auxiliary records duplicate the Markdown unit and source citation identities, drift when either side changes, and still cannot prove semantic completeness. If several packages genuinely implement one inseparable unit, every positive citation must truthfully implement that complete unit. If none does, the unit is too broad and must be split before it is cited.
+Create no parallel fragment grammar, carrier tag or ownership ledger. Such records duplicate the Markdown unit and source citation identities and drift when either changes. If several packages implement one inseparable unit, every positive citation must implement the complete unit, and if none does, the unit is too broad and must be split before it is cited.
 
-Leave a unit nobody implements without a positive public carrier rather than excluding it. An exclusion states that the selected claim intentionally owes nothing; spending one on unfinished work confuses a decided package boundary with an unexamined product gap.
+Leave a unit nobody implements without a positive carrier and do not exclude it. An exclusion states that the claim intentionally owes nothing, and spending one on unfinished work confuses a decided boundary with an unexamined gap.
 
-## Stable document identities
+## Stable identities
 
-Give every controlled H2 and H3 an explicit, unique lowercase ASCII anchor. Keep the anchor stable when prose is revised or translated so citations survive wording changes.
+Give every controlled H2 and H3 an explicit, unique, lowercase ASCII anchor, and keep it stable through prose revision and translation so citations survive wording changes.
 
-Select Markdown by its contract role, not by a filename exception. In the repository contract graph, README files participate like every other matching Markdown file. Never remove `README.md` from a glob because some of its sections are explanatory.
-
-When one README section truly has no obligation in a particular claim, let an eligible claim host carry the narrowest `@evidenceExclude` for that target. Do not blanket-exclude the file or use exclusion to hide an unimplemented promise.
+Select Markdown by contract role and never by filename exception. README files participate like every other matching Markdown file, and removing `README.md` from a glob because some sections are explanatory is forbidden. When one README section owes nothing to a claim, let an eligible claim host carry the narrowest `@evidenceExclude` for that target.
 
 ## Author citations
 
-Place Markdown citations in HTML comments under the heading or at the file position that owns the claim. Place TypeScript citations in the JSDoc of the selected public export or public member.
+Place a Markdown citation in an HTML comment under the heading or at the file position that owns the claim, and a TypeScript citation in the JSDoc of the selected public export or member.
 
 ```md
 ## Deterministic playback {#deterministic-playback}
@@ -107,50 +101,45 @@ Place Markdown citations in HTML comments under the heading or at the file posit
 export function sampleTimeline(): void;
 ```
 
-Resolve targets from the active claim's `root`, files, and symbol selectors. Copying a path from another project or claim is not evidence that it resolves here.
+Resolve targets from the active claim's `root`, files and symbol selectors. A path copied from another project or claim is not evidence that it resolves here.
 
-Make every reason state why this claimant answers for that target. A restatement of the heading, an ownership assertion, or a sentence written only to silence a diagnostic is not a reason. Test it by exchange: read this claimant's sentence against a sibling that answers the same target, and the sibling's against this one. If neither becomes false, neither was written about the export it sits on. Counting the export's members or lines describes its size rather than what the target required, and a statement about how something is written, such as an identifier, a number, or a path, must use the export's own rendering, because reading the export is the only check this graph has.
+Make every reason state why this claimant answers for that target. A restated heading, an ownership assertion or a sentence written to silence a diagnostic is not a reason. Test it by exchange: read this claimant's sentence against a sibling that answers the same target, and the sibling's against this one. If neither becomes false, neither was written about the export it sits on. Counting members or lines describes size and not what the target required, and a statement about how something is written (an identifier, a number, a path) must use the export's own rendering.
 
-Use `@evidenceExclude` only when the selected claim intentionally owes no relationship to the target. State the specific boundary and why no implementation belongs there. An exclusion is not positive implementation evidence and must not satisfy a reference configured with `noEvidenceExclude`.
+Use `@evidenceExclude` only when the claim intentionally owes nothing to the target, and state the boundary and why no implementation belongs there. An exclusion is not positive evidence and does not satisfy a reference configured with `noEvidenceExclude`.
 
-Require truthful `@evidence` and applicable `@evidenceExclude` relationships over the complete declared population. Repository and generated-production graphs never require `@evidenceReview`, `@evidenceExcludeReview` or companion fingerprints. Semantic inspection and actual-output verification remain the owning review procedures’ responsibilities.
-
-## Repository evidence review companions
-
-Keep `evidence/review` disabled on the repository requirement-specification-source graph. Its complete source population carries enough relationships that one companion review sentence per positive or excluded edge becomes repeated package-boundary acknowledgement rather than semantic inspection. No gate currently refuses a lint configuration that changes this decision.
-
-Apply [Validation responsibilities](#validation-responsibilities) to the repository graph. The [development skill](../development/SKILL.md) owns tests and changed-position coverage, and the [review skill](../review/SKILL.md) owns the complete semantic review procedure.
-
-The generated-production graph is separate. Its completion stage is `evidence`, and a retained `review` declaration has the same structural policy. It requires truthful relationships over its whole authored population and the author’s actual-output judgment under the shipped evidence-graph and review-verification skills. It never reinstates native companion-review requirements.
+Repository and generated-production graphs never require `@evidenceReview`, `@evidenceExcludeReview` or companion fingerprints. Keep `evidence/review` disabled on the repository graph, because its complete population carries enough relationships that one companion sentence per edge becomes repeated acknowledgement and not inspection. The generated-production graph is separate: its completion stage is `evidence`, and it requires truthful relationships over its authored population plus the author's actual-output judgment under the shipped evidence-graph and review-verification skills. The scaffold's own target families and checklists are owned by the shipped skills, and this repository's triangle is imposed on no production.
 
 ## Change workflow
 
-1. Read the documentation skill and update `.wiki/` as the decision develops. Read the project skill for product scope, the development skill for source or test changes, the scaffold skill when the shared contract inventory or the scaffold harness changes, and the scaffold's shipped evidence-graph skill when a production's own graph is involved.
-2. Inspect the current typed `lint.config.ts` files, workspace scripts and CI workflows, applicable AutoMovie product validators and their logic tests, the active `@ttsc/evidence` documentation and type declarations, and every affected citation. Do not treat an archived branch or an earlier decision as the active implementation.
-3. Classify each statement as requirement, specification, package usage, public API contract, research, or working knowledge before choosing its home. For a reusable production discovery, upstream, principle, obligation, or naturalness target, check [the shared source pool](references.md) before searching anew and verify every selected link directly.
+1. Read the documentation skill and update `.wiki/` as the decision develops. Read the project skill for scope, the development skill for source or test changes, the scaffold skill when the shared contract inventory changes, and the scaffold's shipped evidence-graph skill when a production's own graph is involved.
+2. Inspect the current typed `lint.config.ts` files, workspace scripts and CI workflows, the applicable product validators and their logic tests, the active `@ttsc/evidence` documentation and declarations, and every affected citation. An archived branch or earlier decision is not the active implementation.
+3. Classify each statement as requirement, specification, package usage, public API contract, research or working knowledge before choosing its home.
 4. Describe each claim-reference pair as one sentence before configuring it. If the sentence does not match the selected files and symbol kinds, correct the population.
-5. Add or revise the contract text, stable anchors, and positive citations together. Preserve direct requirement and specification citations on every affected public source symbol.
-6. Inspect every affected source triangle under [Required triangle](#required-triangle), including selected README units and stable anchors. Correct the actual document, citation, or claim population when it disagrees with the intended contract.
-7. Follow [Verify](#verify) for the configured checks and population observations, then Self-Review the whole declared evidence surface under the review skill.
+5. Add or revise the contract text, stable anchors and positive citations together, keeping direct requirement and specification citations on every affected public source symbol.
+6. Inspect every affected source triangle, including selected README units and anchors, and correct the document, citation or claim population wherever it disagrees with the intended contract.
+7. Run [Verify](#verify), then Self-Review the whole declared evidence surface under the review skill.
 
 ## Interpret failures
 
-Treat a missing acknowledgement as an unpaid relationship. Build the missing artifact or add a truthful citation from the artifact that already answers for it. Do not add an exclusion or unrelated citation only to make the build green.
-
-Treat a dangling target as contract drift. Find whether the document, anchor, root, glob, or symbol identity moved, then update every real dependent or restore the stable identity.
-
-Treat an uncovered requirement during requirements-first work as visible implementation debt. A deliberately red graph is more accurate than a false specification or source citation. Record the phase and debt in `.wiki/` and the pull request instead of weakening the permanent rule.
-
-The scaffold production ladder is a separate graph with its own populations and topology. Its exact reusable target corpus includes discovery, principles, obligations, upstream revision, naturalness, and the selected language module. Discovery is file-level coverage over the flat `docs/contracts/*.md` population, with one claim for each active authored Markdown layer. Upstream revision is an exclusion-permitted unit checklist over each inheriting authored or source population. A retained discovery result belongs in the contract file that states the adopted rule and an additive claim enforces it; a true no-result receives one concrete population-wide exclusion only in `docs/contracts/index.md`. Authored H2, H3, and H4 units never host the discovery audit. Apply this skill's citation honesty and lint-inspection rules there, but use the scaffold's `contract`, `production-lifecycle`, `evidence-graph`, `source-authoring`, and `review-verification` skills to decide which canonical question, procedure, and stage answers each target. Do not impose the repository requirement-specification-source triangle on generated productions.
+- A missing acknowledgement is an unpaid relationship. Build the missing artifact, or add a truthful citation from the artifact that already answers for it. Add no exclusion or unrelated citation to make the build green.
+- A dangling target is contract drift. Find whether the document, anchor, root, glob or symbol identity moved, then update every real dependent or restore the stable identity.
+- An uncovered requirement during requirements-first work is visible implementation debt. A deliberately red graph is more accurate than a false citation, so record the phase and debt in `.wiki/` and the pull request and leave the permanent rule alone.
 
 ## Verify
 
-Run the configured `ttsc --noEmit` or package build for every affected claim project. When the repository docs workspace exists, run its declared lint script; when package source citations change, run the owning package build.
+Run the configured `ttsc --noEmit` or package build for every affected claim project. When the repository docs workspace exists, run its declared lint script, and when package source citations change, run the owning package build.
 
-For a graph-configuration change, inspect the actual roots, globs, exclusions, symbol selectors, and relationship options beside the selected contracts and exports. Confirm the claim includes the intended README roles and every affected carrier. Record the observation's revision, selected population, and native diagnostic separately from the semantic review result.
+For a graph-configuration change, inspect the actual roots, globs, exclusions, symbol selectors and relationship options beside the selected contracts and exports, and confirm the claim includes the intended README roles and every affected carrier. Record the observation's revision, selected population and native diagnostic apart from the semantic review result.
 
-When reviewing a generated graph adapter, compare its emitted native configuration and authored declaration under the [native input projection contract](../../../docs/specifications/production-evidence/native-input.md#spec-authoring-production-evidence-native-boundary). Use the installed native types and evaluator behavior to judge this boundary.
+When reviewing a generated graph adapter, compare its emitted native configuration and authored declaration under the [native input projection contract](../../../docs/specifications/production-evidence/native-input.md#spec-authoring-production-evidence-native-boundary), and judge the boundary by the installed native types and evaluator behavior.
 
-When execution is authorized, observe a changed carrier selector through the owning project's configured native lint. Add one disposable carrier the selector is meant to admit, give it a dangling citation, and confirm that its diagnostic names that carrier. Exclude only that carrier from the changed selector and confirm the diagnostic disappears. Restore the selector and remove the disposable carrier before rerunning the normal check. This observation checks the changed repository wiring; it does not become a permanent source-text assertion or a dependency correctness suite.
+When execution is authorized, arm the changed carrier selector as the [development skill](../development/SKILL.md#work-rules) requires of every configured check:
 
-Inspect the Markdown and agent-instruction diff directly, then run `git diff --check`. If a configured check or population observation cannot run, record the exact command or observation, the reason, and the remaining verification boundary in the run record and pull request. Report only unpaid relationships actually observed at the stated revision; an incomplete or unexecuted check is not a verified graph or evidence of zero debt.
+1. Add one disposable carrier the selector is meant to admit and give it a dangling citation.
+2. Confirm that the diagnostic names that carrier.
+3. Exclude only that carrier from the selector and confirm the diagnostic disappears.
+4. Restore the selector and remove the carrier before rerunning the normal check.
+
+This observation checks the changed wiring. It does not become a permanent source-text assertion or a dependency correctness suite.
+
+Inspect the Markdown and agent-instruction diff directly and run `git diff --check`. When a configured check or population observation cannot run, record the exact command, the reason and the remaining verification boundary in the run record and pull request. Report only unpaid relationships observed at the stated revision, because an unexecuted check is neither a verified graph nor evidence of zero debt.
