@@ -13,7 +13,7 @@ import { preparePortraitMouth } from "./preparePortraitMouth";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { innerLoop } from "./structures/innerLoop";
+import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
@@ -105,7 +105,7 @@ export function createPortraitMouthComponent(
   return {
     id: "mouth",
     fit: (host) => {
-      const inner = innerLoop(socket);
+      const inner = portraitMouthInnerLoop(socket);
       const lips = portraitLipTriangles(host.indices, socket);
       const skin = new Set<number>();
       const lipKeys = new Set<string>();

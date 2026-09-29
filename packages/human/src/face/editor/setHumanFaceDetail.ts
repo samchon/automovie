@@ -1,8 +1,8 @@
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertDetailValue } from "./assertDetailValue";
-import { definitionOf } from "./definitionOf";
-import { writeDetail } from "./writeDetail";
+import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
+import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
 
 /**
  * Write or remove one exact scalar override without flattening the rest of a
@@ -22,7 +22,7 @@ export function setHumanFaceDetail(
   side?: "right" | "left",
 ): IAutoMovieHumanFaceDocument {
   assertHumanFaceEditableDetail(document);
-  const definition = definitionOf(id);
+  const definition = humanFaceDetailDefinition(id);
   assertDetailValue(definition, value);
   if (
     side !== undefined &&
@@ -35,5 +35,5 @@ export function setHumanFaceDetail(
     definition.region,
     ...definition.path,
   ];
-  return writeDetail(next, path, value);
+  return writeHumanFaceDetail(next, path, value);
 }

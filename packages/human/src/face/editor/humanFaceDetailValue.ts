@@ -1,5 +1,5 @@
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
-import { definitionOf } from "./definitionOf";
+import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
 import { humanFaceRegionValue } from "./humanFaceRegionValue";
 
 /**
@@ -13,7 +13,7 @@ export function humanFaceDetailValue(
   id: string,
   side?: "right" | "left",
 ): number | undefined {
-  const definition = definitionOf(id);
+  const definition = humanFaceDetailDefinition(id);
   let value: unknown = humanFaceRegionValue(document, definition.region, side);
   for (const key of definition.path) {
     if (value === undefined) return undefined;

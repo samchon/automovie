@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import { normalizedRim } from "./normalizedRim";
-import { rimNormal } from "./rimNormal";
+import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
 
 /**
  * Regularize one ordered nasal rim in its own fitted plane. Zero copies the
@@ -28,7 +28,7 @@ export function fitPortraitNostrilRim(
     );
   if (amount === 0) return points.map((point) => [...point]);
   const { scale, normalized, center, local } = normalizedRim(points);
-  const normal = rimNormal(local);
+  const normal = portraitNostrilRimNormal(local);
   let chord = Vector3.create(0, 0, 0),
     longest = 0;
   for (let i = 0; i < local.length; i++)

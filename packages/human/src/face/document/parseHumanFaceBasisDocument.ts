@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
-import { admit } from "./admit";
+import { admitHumanFaceBasisDocument } from "./admitHumanFaceBasisDocument";
 import { assertTextSize } from "../../common/document/assertTextSize";
 
 /**
@@ -14,5 +14,5 @@ export function parseHumanFaceBasisDocument(
   text: string,
 ): IAutoMovieHumanFaceBasisDocument {
   assertTextSize(text);
-  return admit(JSON.parse(text));
+  return admitHumanFaceBasisDocument(JSON.parse(text));
 }

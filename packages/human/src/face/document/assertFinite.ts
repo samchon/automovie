@@ -1,5 +1,11 @@
 /**
- * Shared by parseHumanFaceDocument, serializeHumanFaceDocument, which were one file until each public identity took its own.
+ * Refuse a face document that holds a non-finite number or a cyclic reference,
+ * walking every nested object.
+ *
+ * Shared by `parseHumanFaceDocument` (load) and `serializeHumanFaceDocument`
+ * (save), so a document that cannot be saved cannot be loaded either.
+ * `ancestors` is the path of objects being walked, so an object reached twice
+ * without being its own ancestor (a shared but acyclic reference) is accepted.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Loads the complete independent face document without a measurement runtime.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses an unsupported landmark topology and unknown nested fields rather than silently dropping them.

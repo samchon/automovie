@@ -1,6 +1,6 @@
-import { advance } from "./advance";
-import { contactFrame } from "./contactFrame";
-import { project } from "./project";
+import { advancePoint } from "./advancePoint";
+import { portraitDirectionalContactFrame } from "./portraitDirectionalContactFrame";
+import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
 import { Vector3, measureAutoMovieMeshClearance } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
@@ -21,10 +21,10 @@ export function portraitDirectionalSurfaceTargets(
   direction: IAutoMovieVector3,
   clearance = 0,
 ): { vertex: number; target: IAutoMovieVector3 }[] {
-  const { forward, across, up } = contactFrame(direction, clearance);
+  const { forward, across, up } = portraitDirectionalContactFrame(direction, clearance);
   const measured = measureAutoMovieMeshClearance(
-    project(front, across, up, forward),
-    project(back, across, up, forward),
+    projectMeshOntoFrame(front, across, up, forward),
+    projectMeshOntoFrame(back, across, up, forward),
     "z",
   );
   const indices =
@@ -39,7 +39,7 @@ export function portraitDirectionalSurfaceTargets(
   }
   return [...travels].map(([vertex, distance]) => ({
     vertex,
-    target: advance(
+    target: advancePoint(
       Vector3.create(
         front.positions[vertex * 3],
         front.positions[vertex * 3 + 1],

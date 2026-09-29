@@ -1,5 +1,5 @@
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { innerLoop } from "./structures/innerLoop";
+import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
 
 /**
  * Select the connected vermilion band by its two anatomical boundary loops.
@@ -18,7 +18,7 @@ export function portraitLipTriangles(
   const edgeKey = (a: number, b: number): string =>
     `${Math.min(a, b)}/${Math.max(a, b)}`;
   const barriers = new Set<string>();
-  for (const loop of [socket.outer, innerLoop(socket)])
+  for (const loop of [socket.outer, portraitMouthInnerLoop(socket)])
     for (let i = 0; i < loop.length; i++)
       barriers.add(edgeKey(loop[i], loop[(i + 1) % loop.length]));
   const incident = new Map<string, number[]>();

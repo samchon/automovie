@@ -1,5 +1,5 @@
 import type { IPortraitHairShape } from "./IPortraitHairShape";
-import { createTexture } from "./createTexture";
+import { createPortraitHairFibreTexture } from "./createPortraitHairFibreTexture";
 
 /**
  * Generate a resident PNG mask for a bundle of painted fibres. The 128 by 256
@@ -26,7 +26,7 @@ export function createPortraitHairTexture(
   shadeStrength = 1,
   mixture?: { pigment: readonly number[]; grey: number },
 ): string {
-  return createTexture(
+  return createPortraitHairFibreTexture(
     seed,
     fibres,
     coverage,

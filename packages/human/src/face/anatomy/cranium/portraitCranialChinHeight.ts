@@ -1,4 +1,4 @@
-import { facialOval } from "./facialOval";
+import { portraitFacialOvalVertices } from "./portraitFacialOvalVertices";
 
 /**
  * Read the lowest point on the facial-oval boundary. Both trait
@@ -11,7 +11,7 @@ import { facialOval } from "./facialOval";
 export function portraitCranialChinHeight(
   positions: readonly (readonly number[])[],
 ): number {
-  const heights = facialOval.map((id) => positions[id]?.[1]);
+  const heights = portraitFacialOvalVertices.map((id) => positions[id]?.[1]);
   if (!heights.every(Number.isFinite))
     throw new Error("The cranial boundary requires finite resident heights.");
   return Math.min(...heights);

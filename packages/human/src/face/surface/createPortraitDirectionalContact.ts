@@ -1,6 +1,6 @@
-import { advance } from "./advance";
-import { contactFrame } from "./contactFrame";
-import { project } from "./project";
+import { advancePoint } from "./advancePoint";
+import { portraitDirectionalContactFrame } from "./portraitDirectionalContactFrame";
+import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
@@ -22,9 +22,9 @@ export function createPortraitDirectionalContact(
   direction: IAutoMovieVector3,
   clearance = 0,
 ): (point: IAutoMovieVector3) => IAutoMovieVector3 {
-  const { forward, across, up } = contactFrame(direction, clearance);
+  const { forward, across, up } = portraitDirectionalContactFrame(direction, clearance);
   const sample = createAutoMovieMeshDepthSampler(
-    project(mesh, across, up, forward),
+    projectMeshOntoFrame(mesh, across, up, forward),
     "z",
   );
   return (point) => {
@@ -34,6 +34,6 @@ export function createPortraitDirectionalContact(
     if (hit === null) return point;
     const distance = hit.maximum + clearance - Vector3.dot(point, forward);
     if (distance <= 0) return point;
-    return advance(point, forward, distance);
+    return advancePoint(point, forward, distance);
   };
 }

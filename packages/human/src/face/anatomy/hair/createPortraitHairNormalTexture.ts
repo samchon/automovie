@@ -1,5 +1,5 @@
 import type { IPortraitHairShape } from "./IPortraitHairShape";
-import { createTexture } from "./createTexture";
+import { createPortraitHairFibreTexture } from "./createPortraitHairFibreTexture";
 
 /**
  * Generate an RGB tangent-space normal PNG from the same fibre coverage that
@@ -21,5 +21,5 @@ export function createPortraitHairNormalTexture(
   curl?: IPortraitHairShape["fibreCurl"],
   mixture?: { pigment: readonly number[]; grey: number },
 ): string {
-  return createTexture(seed, fibres, coverage, true, curl, 1, mixture);
+  return createPortraitHairFibreTexture(seed, fibres, coverage, true, curl, 1, mixture);
 }

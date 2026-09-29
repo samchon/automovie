@@ -9,4 +9,4 @@
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Produces closed indexed rings, shared poles and geometric normals from named lingual dimensions.
  * @author Samchon
  */
-export const rows = 32;
+export const portraitTongueRows = 32;

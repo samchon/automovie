@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { assertDirection } from "./assertDirection";
-import { triangleArea } from "./triangleArea";
+import { triangleAreaVector } from "./triangleAreaVector";
 
 /**
  * Place each source face without losing it to a large translation's precision.
@@ -49,8 +49,8 @@ export function placeMeshPreservingFaces(
   for (let face = 0; face < placed.indices!.length; face += 3) {
     if (redundant.has(face / 3)) continue;
     assertDirection(
-      triangleArea(reference.positions, reference.indices!, face),
-      triangleArea(placed.positions, placed.indices!, face),
+      triangleAreaVector(reference.positions, reference.indices!, face),
+      triangleAreaVector(placed.positions, placed.indices!, face),
       face / 3,
       "placement",
     );

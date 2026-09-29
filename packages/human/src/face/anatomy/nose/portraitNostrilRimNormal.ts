@@ -2,7 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import { normalizedRim } from "./normalizedRim";
 
 /**
- * Shared by resizePortraitNostrilRim, fitPortraitNostrilRim, which were one file until each public identity took its own.
+ * The unit normal of a nostril rim's plane from its centred points.
+ *
+ * Shared by `resizePortraitNostrilRim` and `fitPortraitNostrilRim`. The
+ * oriented area normal comes from the complete closed boundary, because
+ * individual edges can be short or collinear without changing the plane's
+ * meaning. Refuses a rim of zero oriented area.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Changes nostril width and height independently of whole-nose dimensions and opening rotation.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Scales the aperture in its own normalized plane while retaining normal residuals and copying unit-scale inputs exactly.
@@ -10,7 +15,7 @@ import { normalizedRim } from "./normalizedRim";
  */
 // The oriented area normal comes from the complete closed boundary. Individual
 // edges can be short or collinear without changing the meaning of its plane.
-export const rimNormal = (local: ReturnType<typeof normalizedRim>["local"]) => {
+export const portraitNostrilRimNormal = (local: ReturnType<typeof normalizedRim>["local"]) => {
   let normal = Vector3.create();
   for (let i = 0; i < local.length; i++)
     normal = Vector3.add(

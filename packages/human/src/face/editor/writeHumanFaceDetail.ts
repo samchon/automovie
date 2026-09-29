@@ -1,13 +1,21 @@
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 
 /**
- * Shared by setHumanFaceDetail, setHumanFaceHairLayerDetail, which were one file until each public identity took its own.
+ * Write or delete one numeric detail at a path of a document, in place on the
+ * copy the caller passes.
+ *
+ * Containers along the path are detached first: `structuredClone` preserves
+ * aliases, so a selected side or layer must not also edit its basis or a
+ * sibling. Writing creates missing containers. Clearing (`undefined`) deletes
+ * the key and every ancestor it leaves empty, and returns the document
+ * unchanged when the path does not exist. Shared by `setHumanFaceDetail` and
+ * `setHumanFaceHairLayerDetail`.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Connects numerical sliders to actual detailed shape settings.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Provides field meaning, applied-value inspection and anatomical attachment context.
  * @author Samchon
  */
-export function writeDetail(
+export function writeHumanFaceDetail(
   next: IAutoMovieHumanFaceDocument,
   path: readonly string[],
   value: number | undefined,

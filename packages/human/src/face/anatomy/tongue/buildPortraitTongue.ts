@@ -3,7 +3,7 @@ import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitTongueShape } from "./assertPortraitTongueShape";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { frontWeight } from "./frontWeight";
-import { rows } from "./rows";
+import { portraitTongueRows } from "./portraitTongueRows";
 
 /**
  * Sample a closed tongue in a local millimetre frame. Sinusoidal cross-sections
@@ -36,8 +36,8 @@ export function buildPortraitTongue(
     );
   const positions: number[] = [0, 0, performance.advance],
     indices: number[] = [];
-  for (let row = 1; row < rows; row++) {
-    const v = row / rows,
+  for (let row = 1; row < portraitTongueRows; row++) {
+    const v = row / portraitTongueRows,
       r = Math.sin(Math.PI * v);
     for (let col = 0; col < columns; col++) {
       const a = (2 * Math.PI * col) / columns,
@@ -59,7 +59,7 @@ export function buildPortraitTongue(
   for (let col = 0; col < columns; col++) {
     const next = (col + 1) % columns;
     indices.push(0, 1 + col, 1 + next);
-    for (let row = 0; row < rows - 2; row++) {
+    for (let row = 0; row < portraitTongueRows - 2; row++) {
       const a = 1 + row * columns + col,
         b = a + columns,
         c = 1 + row * columns + next,
@@ -67,9 +67,9 @@ export function buildPortraitTongue(
       indices.push(a, b, c, c, b, d);
     }
     indices.push(
-      1 + (rows - 2) * columns + col,
+      1 + (portraitTongueRows - 2) * columns + col,
       back,
-      1 + (rows - 2) * columns + next,
+      1 + (portraitTongueRows - 2) * columns + next,
     );
   }
   return {

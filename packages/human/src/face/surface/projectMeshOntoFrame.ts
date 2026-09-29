@@ -2,13 +2,17 @@ import { Vector3 } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * Shared by createPortraitDirectionalIntersection, createPortraitDirectionalContact, portraitDirectionalSurfaceTargets, portraitMinimumDirectionalSurfaceTargets, which were one file until each public identity took its own.
+ * A copy of a mesh with its positions expressed in a directional frame: each
+ * position becomes its dot products with `across`, `up` and `forward`. The
+ * copy sets `normals` to null. Refuses positions that are incomplete or not
+ * finite. Shared by the directional contact and
+ * intersection constructors.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Resolves an attachment to its actual resident surface while retaining the original observation projection.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Intersects the foremost triangle in one orthonormal directional frame without first translating the query origin.
  * @author Samchon
  */
-export function project(
+export function projectMeshOntoFrame(
   mesh: IAutoMovieMesh,
   across: IAutoMovieVector3,
   up: IAutoMovieVector3,

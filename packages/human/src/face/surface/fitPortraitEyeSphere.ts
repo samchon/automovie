@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
-import { mean } from "./mean";
+import { meanPoint } from "./meanPoint";
 
 /**
  * Fit a spherical cap with an explicit depth-fitting direction. The default
@@ -33,11 +33,11 @@ export function fitPortraitEyeSphere(
       "Eye fitting needs finite lid curves, a viewing direction and a positive radius.",
     );
   const rim = [...lower, ...upper.slice(1, -1).reverse()];
-  const center = mean(rim);
+  const center = meanPoint(rim);
   let normal = Vector3.normalize(
     Vector3.cross(
       Vector3.subtract(upper[upper.length - 1], upper[0]),
-      Vector3.subtract(mean(upper), mean(lower)),
+      Vector3.subtract(meanPoint(upper), meanPoint(lower)),
     ),
   );
   if (Vector3.length(normal) === 0)

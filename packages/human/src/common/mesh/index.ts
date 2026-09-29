@@ -5,4 +5,4 @@ export * from "./encodePng";
 export * from "./placeMeshPreservingFaces";
 export * from "./float32MeshBuffers";
 export * from "./areaWeightedNormals";
-export * from "./triangleArea";
+export * from "./triangleAreaVector";

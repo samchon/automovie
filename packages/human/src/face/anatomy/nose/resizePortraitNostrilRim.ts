@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import { normalizedRim } from "./normalizedRim";
-import { rimNormal } from "./rimNormal";
+import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
 
 /**
  * Resize a nasal aperture within its own fitted plane, about its centroid.
@@ -32,7 +32,7 @@ export function resizePortraitNostrilRim(
     );
   if (width === 1 && height === 1) return points.map((point) => [...point]);
   const { scale, center, local } = normalizedRim(points);
-  const normal = rimNormal(local);
+  const normal = portraitNostrilRimNormal(local);
   const guide =
     normal.y === 0 && normal.z === 0
       ? Vector3.create(0, 1, 0)

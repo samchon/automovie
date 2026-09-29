@@ -12,7 +12,7 @@ import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanF
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Admits the compact document schema without changing its basis identity or supplied controls.
  * @author Samchon
  */
-export function admit(input: unknown): IAutoMovieHumanFaceBasisDocument {
+export function admitHumanFaceBasisDocument(input: unknown): IAutoMovieHumanFaceBasisDocument {
   const document = typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
   if (document.hair !== undefined && document.hair !== null)
     assertHumanFaceHair(document.hair);

@@ -4,7 +4,11 @@ import { IPortraitHairShape } from "./IPortraitHairShape";
 import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
 
 /**
- * Shared by createPortraitHairTexture, createPortraitHairNormalTexture, which were one file until each public identity took its own.
+ * Paint the hair's fibre texture as a PNG data URI: the shade texture or, with
+ * `normal`, its normal map.
+ *
+ * Shared by `createPortraitHairTexture` and `createPortraitHairNormalTexture`
+ * so the two textures use one fibre layout and cannot drift apart.
  *
  * An optional fibre mixture paints greying hair. Greying is a follicle's own
  * switch, so a greying head is an admixture of white and pigmented fibres
@@ -26,7 +30,7 @@ import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Applies finite inclusive curl-pattern envelopes before either geometry or texture construction.
  * @author Samchon
  */
-export function createTexture(
+export function createPortraitHairFibreTexture(
   seed: number,
   fibres: number,
   coverage: number,

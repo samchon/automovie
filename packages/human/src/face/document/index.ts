@@ -1,4 +1,4 @@
-export * from "./admit";
+export * from "./admitHumanFaceBasisDocument";
 export * from "./applyHumanFaceControls";
 export * from "./assertHumanFaceEditableDetail";
 export * from "./assertFinite";
