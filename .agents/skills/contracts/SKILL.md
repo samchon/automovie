@@ -25,20 +25,20 @@ Each chapter owns one question. Revise a checklist so that this table stays true
 | Common | Clear and Simple Design | Why are the code's responsibilities and structural elements clear and necessary for current requirements? |
 | Common | Prohibited Implementation Shortcuts | Does the implementation rely on hardcoding, monkey patching, test-only logic or a compensation for a disproven assumption? |
 | Common | Meaningful documentation | What useful information is written for users and maintainers, and does it follow the documentation skill? |
-| Modeling | Part Identity and Grouping | Which part or group of the represented form is this, and who owns its shared boundaries, frames and formulas? |
-| Modeling | Parameter Channels | Does each channel vary one trait, with a zero neutral, a documented unit and sign, and an explicit pair rule? |
+| Modeling | Part Identity and Grouping | Which part or group of the represented form is this, and which members does it compose? |
+| Modeling | Parameter Channels | Does each channel vary one trait, with a zero neutral, a documented positive direction and an explicit pair rule? |
 | Modeling | Emitted Geometry | Why does the representation emit this many primitives of each kind? |
 | Modeling | Spatial Conventions | In which unit and frame do the values live, and where are they converted? |
-| Modeling | Shared Boundaries | What keeps two adjoining parts joined under every admitted configuration? |
-| Anatomy | Anatomical Source | Which measurement or study does each value rest on, under what population and conditions, and is the value measured, derived or fitted? |
-| Anatomy | Permitted Range | Why is every admitted value and combination one a living body can take? |
+| Modeling | Shared Boundaries | What single definition joins two adjoining parts, and what keeps them joined under every admitted configuration? |
+| Anatomy | Anatomical Source | Which measurement or study does each value rest on, under what population and conditions, and is the value measured, derived, fitted or conventional? |
+| Anatomy | Permitted Range | Why is every admitted value and combination one a living body can take, and how are dependent bounds and combinations decided? |
 | Anatomy | Parametric Authority | Is every input a named measurement, motion or closed choice that cannot address geometry, and how do simple and detailed inputs convert? |
 
-The neighboring boundaries are these. Principled Implementation asks whether a method is valid for the representation it receives, and Anatomical Source asks where the empirical value comes from. Clear and Simple Design asks about the code's responsibilities, and Part Identity and Grouping asks about the represented form's parts. Emitted Geometry asks how much a declaration emits, and the cost of computing it lies outside these chapters. Parameter Channels asks about the form of a channel, and Parametric Authority asks what kind of quantity a human input may be.
+The neighboring boundaries are these. Principled Implementation asks whether a method is valid for the representation it receives, and Anatomical Source asks where the empirical value comes from. Clear and Simple Design asks about the code's responsibilities and where one policy lives, and Part Identity and Grouping asks about the represented form's parts. Emitted Geometry asks how much a declaration emits, and the cost of computing it lies outside these chapters. Parameter Channels asks about the form of a channel, Spatial Conventions asks about the units and frames its values live in, and Parametric Authority asks what kind of quantity a human input may be. Permitted Range asks which states are admitted, and Parametric Authority never repeats it.
 
 ## Writing an answer
 
-Explain why the implementation approach is appropriate, the assumptions it relies on and any unresolved departure. Do not certify outputs, list regression cases or claim that tests passed. State an actual limitation, and never declare compliance with a chapter the implementation does not meet. Write the tag as `@evidence contracts/<file>.md#<chapter-anchor> <reason>`, address every fact the chapter asks for, and use `@evidenceExclude` only for a chapter that genuinely does not apply to that declaration, with the reason.
+Explain why the implementation approach is appropriate, the assumptions it relies on and any unresolved departure. Do not certify outputs, list regression cases or claim that tests passed. State an actual limitation, and never declare compliance with a chapter the implementation does not meet. Write the tag as `@evidence contracts/<file>.md#<chapter-anchor> <reason>` and address every fact the chapter asks for. Keep the reason honest under the evidence graph skill's [Author citations](../evidence-graph/SKILL.md#author-citations) rules. Use `@evidenceExclude` only for a chapter that genuinely does not apply to that declaration, name that chapter in the target, and give the reason. An exclusion of a whole checklist file bypasses every chapter in it, so it is never an answer.
 
 Meet every applicable chapter together. No chapter permits weakening supported behavior to satisfy another.
 

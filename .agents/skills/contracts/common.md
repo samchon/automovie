@@ -35,7 +35,7 @@ A permanent acknowledgment concerns mechanisms present in the implementation. It
 
 ## Meaningful documentation
 
-Write useful native documentation for public declarations and members. Explain purpose and the nonobvious facts needed to use them, such as ownership, units, failure effects or optional-state meaning. Repeating names, types and executable branches does not supply that context.
+Write useful native documentation for public declarations and members. Explain purpose and the nonobvious facts needed to use them, such as ownership, failure effects or optional-state meaning. Repeating names, types and executable branches does not supply that context.
 
 Follow the documentation skill in related repository documents and apply its paragraph separation, clear prose and explanation of reasons to native comments. Concision does not justify forcing different ideas into one paragraph.
 

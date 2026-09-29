@@ -6,17 +6,17 @@ These chapters address how a declaration that defines, builds or measures a form
 
 Apply to declarations that define one part of a form or a group of parts.
 
-A part is the smallest piece of the represented form that has its own identity, such as an eyelid, a bone or a window. Represent each part by one declaration with its own name. Build every larger form as a group that composes parts and smaller groups, so a face is a group of feature groups and a feature group is a group of parts. A group owns its composition and the order of its members, and it does not copy a member's shape, values or formulas. Give each shared boundary, coordinate transform and formula one owning declaration that every neighbor calls.
+A part is the smallest piece of the represented form that has its own identity, such as an eyelid, a bone or a window. Represent each part by one declaration with its own name. Build every larger form as a group that composes parts and smaller groups, so a face is a group of feature groups and a feature group is a group of parts. A group owns its composition and the order of its members, and it does not copy a member's shape or values.
 
-Identify the part or group the declaration represents, the members it composes, and the shared boundaries, frames and formulas it owns or borrows. Explain why the division falls where it does, so that a change to one part reaches its neighbors only through the boundaries that connect them. State when one declaration holds more than one part and why it cannot be split.
+Identify the part or group the declaration represents and the members it composes. Explain why the division falls where it does, so that a change to one part reaches its neighbors only through the shared boundaries that join them. State when one declaration holds more than one part and why it cannot be split.
 
 ## Parameter Channels
 
 Apply to declarations that define or consume a channel that varies a form.
 
-Give each channel one trait that varies independently of the other channels. Make neutral the zero of the channel, so that a configuration is an offset from neutral. Document the unit and the meaning of each sign. Carry a paired feature as a left and a right value with an explicit rule, so that asymmetry is authored data and the base form stays symmetric.
+Give each channel one trait that varies independently of the other channels. Make neutral the zero of the channel, so that a configuration is an offset from neutral. Document which direction of the trait a positive value moves. Carry a paired feature as a left and a right value with an explicit rule, so that asymmetry is authored data and the base form stays symmetric.
 
-Identify the trait each channel varies, its unit, its neutral, its sign convention and how a pair is represented. Explain why no two channels vary the same trait, and name each channel whose effect depends on the value of another.
+Identify the trait each channel varies, its neutral, the direction of its positive values and how a pair is represented. Explain why no two channels vary the same trait, and name each channel whose effect depends on the value of another.
 
 ## Emitted Geometry
 
@@ -28,11 +28,11 @@ Identify the representation, the parameters that determine the count of each pri
 
 ## Spatial Conventions
 
-Apply to declarations whose values carry a unit, a coordinate frame or a sign.
+Apply to declarations whose values carry a unit or a coordinate frame.
 
 Keep every value in one declared unit and one coordinate frame inside a declaration, and convert only where frames or units meet. Use one handedness, axis order and origin per frame. Make each conversion an explicit, named step owned by one declaration.
 
-Identify the unit, frame, origin, axis directions and sign of each input and output, and the conversions the declaration performs at its boundary. Explain how the declaration behaves in degenerate configurations of its frame, such as a zero-length axis or a pole.
+Identify the unit, frame, origin and axis directions of each input and output, and the conversions the declaration performs at its boundary.
 
 ## Shared Boundaries
 
