@@ -6,7 +6,7 @@ Read this document before you change or investigate `packages/human` (the face a
 
 Design the parameter types first. Complete the anatomical type vocabulary (components, measurements, ranges, and the conversions between simple and detailed inputs) before attaching logic to it, and run experiments against the finished types. Logic attached to an unfinished vocabulary is rewritten each time the vocabulary moves.
 
-## Contracts, not the triangle
+## Contracts
 
 Every declaration in the package answers the [contracts skill](../contracts/SKILL.md): common, modeling and anatomical chapters, with the science written in JSDoc. The package cites no requirement or specification page. The facial-authoring and body-authoring pages under `docs/` remain product documents that its source does not cite, and the [evidence graph skill](../evidence-graph/SKILL.md) lists the package as outside the triangle.
 

@@ -15,7 +15,7 @@ Choosing any of these three means the approach is already wrong.
 
 ## Work Rules
 
-- **Match existing conventions.** Before adding a file, type or test, open a nearby peer and mirror its naming, location and style, so no parallel structure appears.
+- **Match existing conventions.** Before adding a file, type or test, open a nearby peer and mirror its naming, location and style, so no second structure appears.
 - **Respect package boundaries.** `three.js` is imported only inside `viewer` among the library packages (`playground` imports it to mount the viewer). Computation flows through `engine`. `production` orchestrates `interface`, `engine`, `evidence` and `render`. The authoring surface is the generated project's tracked instructions and scripts plus the `cli` scaffolder. `@automovie/mcp` only reads authored Markdown references and holds no authoring, execution, evidence-judgment or production-action tool. No test enforces these boundaries, so review reads them.
 - **Rough types in `interface`.** The package is pure types with no runtime dependency, because it is the AST the LLM emits against. Primitives are plain `string` and `number`: no wrapper aliases such as `AutoMovieUuid` and no `typia` tag constraints (`Minimum`, `MinItems`, `Format`). Units and ranges are documented in field JSDoc and enforced at runtime by `engine` validators, which is where the range-of-motion differentiator lives. The only structural constraints are closed `AutoMovie*` unions (bone names, ARKit channels, presets, easing), which are allowed-value sets and not wrappers.
 - **Keep changes surgical.** Touch only what the request and the verified consequence surface require. Edit the lines that change instead of rewriting a file, unless the file is short or mostly moving: a rewrite yields the same result at more output and buries the real change in the diff.
@@ -70,7 +70,7 @@ Assert with `TestValidator.equals(title, actual, expected)` for exact values and
 
 Run with `pnpm --filter @automovie/test start`, and type-check with `pnpm --filter @automovie/test build`. The suite itself runs straight through `ttsx` with no emitted compile step.
 
-A case that arranges its own subject must fail when the arrangement fails. Build the subject through typed in-memory inputs and confirm the intended state before asserting its outcome, because a negative twin that never changes the relevant input tests the happy path again. Do not recreate source-rewriting probes or source-digest snapshots for this.
+A case that arranges its own subject must fail when the arrangement fails. Build the subject through typed in-memory inputs and confirm the intended state before asserting its outcome, because a negative twin that never changes the relevant input tests the happy path again. Use no source-rewriting probes or source-digest snapshots for this.
 
 Wire a measurement to a check. A defect count nothing gates drifts back up after being paid down. When you build the measure, connect it to a check in the same change and fix the total, not a per-file exemption list, because an exemption list never shrinks.
 
@@ -78,7 +78,7 @@ Wire a measurement to a check. A defect count nothing gates drifts back up after
 
 Every executable position on a line a change writes is exercised by a unit test on statements, branches, functions and lines. The obligation is per change and does not bend to difficulty. A new file is every line of it, and inherited gaps in files a change did not touch are their own work.
 
-This outranks the general advice to scale test volume to a change's risk. Take from that advice the shape of a case: one behavior per case, sized like its neighbours, with scratch checks kept out of the committed suite. A negative twin, an opposite branch arm and a boundary are three tests. Judging a change small, reversible or mechanical is no route out.
+A change's size, reversibility or mechanical nature never reduces the obligation, whatever general advice says about scaling test volume to risk. Keep each case focused on one behavior and sized like its neighbours, and keep scratch checks out of the committed suite. A negative twin, an opposite branch arm and a boundary are three tests.
 
 The repository has no coverage instrument or gate. The change's tests meet the obligation and the reviewer verifies it by reading the diff beside them. When a unit is too large to see that every branch is reached, split it into functions whose inputs a test can construct in memory.
 

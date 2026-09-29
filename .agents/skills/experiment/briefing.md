@@ -22,7 +22,7 @@ Withholding fails at the filesystem before it fails at the prompt. Keep every op
 
 Naming a tool spends the measurement. Decide before turn one whether the run measures what an agent does with the tools or whether it finds them, because a tool named once is named for the whole session, including anything quoted back from the product's own diagnostics.
 
-## Send observations, not causes
+## Send observations
 
 Report what you measured and where. Name a cause only from a code path you have read, which as supervisor you usually have not. A diagnosis sent as an instruction overrides the shipped skills without either of you noticing. Say how you obtained each claim so the agent can challenge the frame it came from.
 

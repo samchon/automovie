@@ -25,7 +25,7 @@ Two details decide whether the frame is real.
 
 ## Getting engine code into the page
 
-Do not stand up vite or a bundler. Split it in two, which is both simpler and more robust:
+Do not stand up vite or a bundler. Split it in two, which is simpler:
 
 1. Run the TypeScript export entry through `pnpm exec ttsx -P <owning-tsconfig.json> <entry.ts>` from the repository root. The owning project supplies its type checks and configured transforms. Import the engine source module directly to inspect the working-tree implementation, build the geometry or pose, and write the result to JSON. Face-review entries use `test/tsconfig.scripts.json`; a diagnostic entry needs a project that includes it. The [development skill](../development/SKILL.md#validation) owns repository acceptance checks.
 2. A dependency-free static page reads that JSON and draws it. It opens over `file://`, so no server is involved.

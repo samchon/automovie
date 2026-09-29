@@ -1,6 +1,6 @@
 # Recording A Benchmark Campaign
 
-Read this document before launching a benchmark. It owns the durable record, the causal claim ceiling and the operation protocol. [briefing.md](briefing.md) owns what the writer sees, [steering.md](steering.md) owns live-session mechanics. The record never judges the production, because the authoring agent's shipped skills own that.
+Read this document before launching a benchmark. It owns the durable record, the causal claim ceiling and the run protocol. [briefing.md](briefing.md) owns what the authoring agent sees, and [steering.md](steering.md) owns live-session mechanics. The record never judges the production, because the authoring agent's shipped skills own that.
 
 Start from the repository's [experiment campaign issue template](../../../.github/ISSUE_TEMPLATE/experiment-campaign.md). The issue is the self-contained launch contract and durable conclusion. Live operational notes may stay in `.wiki`, generated evidence stays with its production, and measurements that must outlive a deleted sandbox belong in the issue. Chat history and private notes are never the only carrier of a run fact.
 
@@ -16,7 +16,7 @@ Give the campaign, every subject, condition, experimental unit, run, record and 
 
 Freeze and digest the brief, repository head, packed package set, harness and skill revisions, model, reasoning effort, tool versions, policy, working and readable roots, network mode, input bytes, observation plan, and the planned runtime and resource envelope. Record the actual model, effort, tools, roots, network behavior, elapsed time and resource use beside the plan. An unsupported or unreadable actual value is `unverified` with the reason and never a copy of the plan.
 
-Use `disabled`, `controlled` or `open` as the retrieval mode. A controlled or open run declares allowed and denied domains, exposure limits and the information the writer must not receive, and each retrieval receipt carries a sanitized query, resulting URL, timestamp, actor, purpose and disposition. Record no credential value or key name.
+Use `disabled`, `controlled` or `open` as the retrieval mode. A controlled or open run declares allowed and denied domains, exposure limits and the information the authoring agent must not receive, and each retrieval receipt carries a sanitized query, resulting URL, timestamp, actor, purpose and disposition. Record no credential value or key name.
 
 Retain only observable trajectory material: user and assistant messages, visible tool calls and results, timestamps and process outcomes, never hidden reasoning. The trajectory manifest records source, format version, byte length, digest, first and last timestamp, storage location, retention period, access boundary, redactions and privacy disposition. A copied or redacted trajectory gets a transfer receipt binding source and destination digests and stating every transformation.
 
@@ -24,7 +24,7 @@ Run preflight against the exact launch paths and runtime. On Windows, record whe
 
 ## Declare the causal ceiling
 
-A repetition under one condition measures consistency and variability under that condition. It does not identify whether the writer, brief, model, harness or product caused the result. Set the strongest allowed disposition before reading the outcome:
+A repetition under one condition measures consistency and variability under that condition. It does not identify whether the authoring agent, brief, model, harness or product caused the result. Set the strongest allowed disposition before reading the outcome:
 
 | Design | Allowed disposition | Claim ceiling |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ A run starts at `declared` and ends in exactly one terminal state: `completed`, 
 
 Each transition receipt records its id, a monotonic sequence, run id and generation, from and to states, timestamp, actor, reason, evidence identities and result. A transition is invalid when it uses an unlisted edge, follows a terminal state, changes the frozen basis or has no receipt. A replacement generation never covers, edits or deletes the interrupted generation's record.
 
-The observer samples every active unit on a predeclared cadence and timer. Each liveness receipt records its id and monotonic sequence, the process identity and creation time, transcript growth, the artifact signal chosen from the turn's requested deliverable, last progress time, timer deadline and one disposition: `alive`, `idle`, `stalled`, `finished` or `unknown`. An out-of-order sample or a timer expiry without a disposition is an operational failure. Writer self-report and a wrapper notification are observations and never terminal evidence.
+The supervisor samples every active unit on a predeclared cadence and timer. Each liveness receipt records its id and monotonic sequence, the process identity and creation time, transcript growth, the artifact signal chosen from the turn's requested deliverable, last progress time, timer deadline and one disposition: `alive`, `idle`, `stalled`, `finished` or `unknown`. An out-of-order sample or a timer expiry without a disposition is an operational failure. The authoring agent's self-report and a wrapper notification are observations and never terminal evidence.
 
 Create an intervention receipt before acting. It names the run and generation, owner, timestamp, evidence, reason, intended action, affected process or artifact identities and recovery boundary, and it is closed afterwards with the exact action, result, terminal or successor state, process exit evidence, preserved artifacts and cleanup result. A silent kill, restart or replacement is invalid even when the replacement succeeds.
 
@@ -57,7 +57,7 @@ The close audit lists every launched process, session, sandbox, temporary path, 
 
 Read the filled issue and records against these invalid patterns. This is a manual contract check and no source-text test.
 
-- Different subject ids counted as one replicate group; a causal product, brief, model or writer claim without a comparator; a controlled comparison with two changed axes or no repetition in one condition; a fixed global sample size or a mandatory binary metric for visual judgment.
+- Different subject ids counted as one replicate group; a causal product, brief, model or authoring-agent claim without a comparator; a controlled comparison with two changed axes or no repetition in one condition; a fixed global sample size or a mandatory binary metric for visual judgment.
 - A resumed run silently adopting today's harness; planned values copied into missing actual fields; a run launched before preflight; a replacement that overwrites or lacks an interrupted predecessor and notice; a planned path exceeding the recorded path limit.
 - A retrieval-enabled run without policy and sanitized receipts; a trajectory digest without retention, privacy or hidden-reasoning exclusion.
 - An out-of-order liveness sample or an unresolved timer; an intervention recorded only after the action or left without its closing half; a launched process without a final disposition and cleanup or transfer owner.

@@ -7,7 +7,7 @@
 Follow the literal request; it is the contract, not a hint at what the user "really" wants.
 
 - **The user outranks a skill.** A direct instruction outranks this file and every skill, and a standing instruction recorded here keeps that authority until the user changes it. Infer no override from a terse request or a deadline.
-- **Name the instruction that stopped you.** Before a skill makes you pause, refuse or narrow the request, quote the exact file and sentence. Record an override in the run, not in the durable rule.
+- **Name the instruction that stopped you.** Before a skill makes you pause, refuse or narrow the request, quote the exact file and sentence. Record an override in the pull-request chronology or the `.wiki/` worklog, not in the durable rule.
 - **Scope is the user's to widen.** Expand or reinterpret the task only on an explicit hand-off ("you decide"), and report an unrelated defect as a follow-up unless the requested behavior cannot work without fixing it. Inside the goal, act with full initiative.
 - **Choose the principled course.** Decide from correctness, evidence and durable consequence. Size, difficulty and blast radius change how much investigation a decision needs, never the standard it must meet.
 - **Evidence precedes correction.** Treat a report, a claim that something is wrong or missing, and your own recall of anything outside this repository as hypotheses. Verify the real code, output and history first.
@@ -17,7 +17,7 @@ Follow the literal request; it is the contract, not a hint at what the user "rea
   - End no turn with a summary that announces the next step without taking it, an offer to continue unless the user objects, a list of decisions when none blocks the rest of the work, or a decision that this is a good place to report.
   - Put status notes in the message with your next tool call.
   - Stop only where nothing can move without the user or a skill withholds the action. Session length is never a reason, and confirmation before a destructive or outward-facing action still applies.
-- **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, and whether what you learned changes the plan. Correct course at once, record the correction in the run record, and continue.
+- **Recheck every fifteen minutes.** In any work, pause and ask whether you still serve the literal request, whether the approach is principled under the [contracts skill](.agents/skills/contracts/SKILL.md)'s common chapters or has become a chain of workarounds, and whether what you learned changes the plan. Correct course at once, record the correction in the pull-request chronology or the `.wiki/` worklog, and continue.
 - **Record every user instruction** in the `.wiki/` worklog at once, and keep a superseded one beside its replacement ([documentation skill](.agents/skills/documentation/SKILL.md)).
 - **Ship each topic as its own PR** and never commit to `master` directly. The [pull-request skill](.agents/skills/pull-request/SKILL.md) owns the flow and the merge conditions.
 

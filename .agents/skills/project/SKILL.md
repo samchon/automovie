@@ -15,7 +15,7 @@ description: Defines the automovie product contract, what the product deliberate
 
 The endgame is to represent all objects and all motion (rigs, range-of-motion constraints, joint dependencies and drivers, cameras, lights, scenes, time) well enough to assemble a film from objects and motion alone. The early function-calling schema may stay humble (a clothed character that walks, runs, dances), but `interface` and `engine` are built to the final goal and stay permanently extensible: every future axis (a rig profile, a finer detail layer, a camera, a prop, dynamics, a timeline) is additive, never a rewrite. A bare imported 3D model has no constraints or dependencies, and adding that semantic layer is what makes automovie an engine and not a model holder.
 
-This is a long-haul mission. Work proceeds in small reviewable PRs, and `.wiki/` is revised as understanding changes (`.wiki/07-decisions/` holds the decision log; `.wiki/` is local to a checkout and may be empty, so write there as understanding accrues). `interia`, the sibling interior-spaces project, shares automovie's philosophy and conventions and forms one set with it long-term.
+This is a long-haul mission. `interia`, the sibling interior-spaces project, shares automovie's philosophy and conventions and forms one set with it long-term.
 
 ## Out of Scope
 
@@ -54,7 +54,7 @@ A logic example belongs in a pure unit test, a shipped archetype in `packages/ar
 - `website/` (`@automovie/website`): the Vite static site published to GitHub Pages at `https://samchon.github.io/automovie/` by `.github/workflows/website.yml`. The [website README](../../../website/README.md) owns its collection, tours, galleries and commands.
 - `config/` (`@automovie/config`): the workspace-wide base `tsconfig.json` and shared lint policy.
 - `docs/` (`@automovie/docs`): product requirements and package-independent system specifications, checked as an evidence graph during the workspace build.
-- `.wiki/` (gitignored): the working knowledge base (research, design, decisions, worklog), local to a checkout and often empty. Read what it holds at session start and write what it lacks.
+- `.wiki/` (gitignored): the working knowledge base, owned by the documentation skill.
 - `.references/` (gitignored): downloaded reference materials (specifications, example models, motion datasets) for reference study.
 
 ## Commands

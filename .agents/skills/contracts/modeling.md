@@ -24,7 +24,7 @@ Apply to declarations that decide which primitives a form emits, such as vertice
 
 Derive the emitted population from the representation the form requires. Use a parametric surface, subdivision, a card, an instance or a level of detail wherever the form is regular enough for it, and emit an individual primitive only for a feature the representation cannot express. A population that follows from the form grows with the form's resolution parameters, and it does not grow with the number of features an author added.
 
-Identify the representation, the parameters that determine the count of each primitive kind, and the counts at the supported extremes. Explain why no smaller representation expresses the form. This chapter concerns how much the declaration emits. The cost of computing it is a separate question.
+Identify the representation, the parameters that determine the count of each primitive kind, and the counts at the supported extremes. Explain why no smaller representation expresses the form. This chapter concerns how much the declaration emits. The cost of computing it is outside this chapter.
 
 ## Spatial Conventions
 
