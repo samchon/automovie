@@ -1,344 +1,389 @@
 <!doctype html>
+<!-- Primary building links open their actual 3D tours. Secondary capture links
+     retain a progressively enhanced gallery with ordinary image fallbacks. -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4ef" />
     <meta
       name="description"
-      content="AutoMovie moves and forms characters and objects through LLM function calling, then validates and renders them deterministically. Fly through its first public showcase, a procedural medieval baron manor."
+      content="Explore four architectural scenes across ancient, medieval, modern, and future worlds. Built from source and rendered deterministically with AutoMovie."
     />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <title>AutoMovie</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #1c1a18;
-        --bg-raised: #242120;
-        --ink: #e9e4d8;
-        --muted: #a9a294;
-        --line: rgba(233, 228, 216, 0.14);
-        --accent: #d9a441;
-        --accent-ink: #1c1a18;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--ink);
-        font:
-          16px/1.55 system-ui,
-          -apple-system,
-          "Segoe UI",
-          sans-serif;
-      }
-      a {
-        color: inherit;
-      }
-      .wrap {
-        max-width: 1040px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-      header.top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 22px 0;
-      }
-      .wordmark {
-        font-weight: 700;
-        font-size: 18px;
-        letter-spacing: 0.02em;
-        text-decoration: none;
-      }
-      nav a {
-        margin-left: 22px;
-        color: var(--muted);
-        text-decoration: none;
-        font-size: 15px;
-      }
-      nav a:hover {
-        color: var(--ink);
-      }
-      .hero {
-        display: grid;
-        gap: 28px;
-        padding: 36px 0 20px;
-      }
-      .hero h1 {
-        margin: 0;
-        font-size: clamp(30px, 4.6vw, 46px);
-        line-height: 1.12;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        max-width: 20ch;
-      }
-      .hero p.lead {
-        margin: 0;
-        max-width: 58ch;
-        color: var(--muted);
-        font-size: 18px;
-      }
-      .actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-      }
-      .button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 20px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 15px;
-      }
-      .button.primary {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: var(--accent-ink);
-      }
-      .button.primary:hover {
-        filter: brightness(1.08);
-      }
-      .button:not(.primary):hover {
-        border-color: var(--ink);
-      }
-      figure.shot {
-        margin: 0;
-        overflow: hidden;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--bg-raised);
-      }
-      figure.shot a {
-        display: block;
-      }
-      figure.shot img {
-        display: block;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 16 / 10;
-        object-fit: cover;
-      }
-      figure.shot figcaption {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 10px 14px;
-        color: var(--muted);
-        font-size: 14px;
-      }
-      .facts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 14px;
-        padding: 26px 0;
-      }
-      .fact {
-        padding: 16px 18px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--bg-raised);
-      }
-      .fact strong {
-        display: block;
-        font-size: 22px;
-        font-weight: 700;
-      }
-      .fact span {
-        color: var(--muted);
-        font-size: 14px;
-      }
-      section.about {
-        padding: 10px 0 30px;
-        display: grid;
-        gap: 14px;
-        max-width: 68ch;
-        color: var(--muted);
-      }
-      section.about h2 {
-        margin: 0;
-        color: var(--ink);
-        font-size: 22px;
-      }
-      section.about p {
-        margin: 0;
-      }
-      section.about code {
-        padding: 1px 5px;
-        border-radius: 4px;
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--ink);
-        font: 14px ui-monospace, "Cascadia Mono", Consolas, monospace;
-      }
-      .gallery {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 14px;
-        padding: 0 0 40px;
-      }
-      footer {
-        padding: 26px 0 40px;
-        border-top: 1px solid var(--line);
-        color: var(--muted);
-        font-size: 14px;
-      }
-      footer a {
-        text-decoration: none;
-      }
-      footer a:hover {
-        color: var(--ink);
-      }
-    </style>
+    <link rel="stylesheet" href="src/collection.css" />
+    <link rel="stylesheet" href="src/gallery.css" />
+    <title>AutoMovie · The architectural collection</title>
   </head>
   <body>
-    <div class="wrap">
-      <header class="top">
-        <a class="wordmark" href="./">AutoMovie</a>
-        <nav>
-          <a href="manor/">Manor viewer</a>
-          <a href="https://github.com/samchon/AutoMovie">GitHub</a>
-        </nav>
-      </header>
+    <a class="skip-link" href="#collection">Skip to the collection</a>
+    <header class="site-header page-width">
+      <a class="wordmark" href="./" aria-label="AutoMovie home">
+        <svg
+          viewBox="0 0 28 28"
+          width="28"
+          height="28"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M14 2 25 8.5v11L14 26 3 19.5v-11L14 2Z M3 8.5 14 15l11-6.5 M14 15v11 M14 2v13"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linejoin="round"
+          />
+        </svg>
+        AutoMovie
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#collection">Collection</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/samchon/AutoMovie"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
 
-      <main>
-        <section class="hero">
-          <h1>A medieval manor, written as source and built in your browser.</h1>
-          <p class="lead">
-            AutoMovie moves and forms characters and objects through LLM
-            function calling, then validates and renders them with a
-            deterministic engine. Its first public showcase is a baron's
-            timber-framed manor: sixteen rooms, a courtyard garden, and every
-            beam, tile, and casement generated from authored code the moment the
-            page opens.
+    <main>
+      <section class="hero page-width" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">
+            <span class="status-dot" aria-hidden="true"></span> The
+            architectural collection
           </p>
-          <div class="actions">
-            <a class="button primary" href="manor/">Open the manor viewer →</a>
+          <h1 id="hero-title">Four eras.<br /><em>Places to imagine.</em></h1>
+        </div>
+        <div class="hero-note">
+          <p>
+            From a stone courtyard to a home of tomorrow. Four worlds, built
+            from source and rendered with AutoMovie.
+          </p>
+          <a class="browse-link" href="#collection"
+            >Explore the buildings <span aria-hidden="true">↓</span></a
+          >
+        </div>
+      </section>
+
+      <section
+        id="collection"
+        class="collection page-width"
+        aria-labelledby="collection-title"
+      >
+        <div class="section-heading">
+          <h2 id="collection-title">The buildings <span>4 scenes</span></h2>
+          <p>Enter a 3D scene. Find your way inside.</p>
+        </div>
+        <div class="building-grid">
+          <article class="building" id="ancient">
             <a
-              class="button"
-              href="https://github.com/samchon/AutoMovie/tree/master/experimental/medieval-baron-manor"
-              >Read the manor source</a
+              class="building-image tour-link"
+              href="tour/?building=ancient"
+              aria-label="Explore the civic temple in 3D"
             >
-          </div>
-          <figure class="shot">
-            <a href="manor/?view=reference-exterior">
+              <img
+                src="shots/ancient-exterior.png"
+                width="1600"
+                height="1000"
+                fetchpriority="high"
+                alt="A civic temple with red tiled roofs, stone walls, and a colonnaded central courtyard."
+              />
+              <span class="image-label">Ancient</span>
+              <span class="image-action" aria-hidden="true"
+                >Explore in 3D <span>↗</span></span
+              >
+            </a>
+            <div class="building-heading">
+              <p class="era">Ancient world</p>
+              <span class="building-number">01</span>
+            </div>
+            <h3>Civic temple</h3>
+            <p class="building-description">
+              Stone colonnades, tiled roofs, and a quiet courtyard at the heart
+              of civic life.
+            </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/ancient-exterior.png"
+              >View captures</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/samchon/AutoMovie/tree/master/experimental/ancient-civic-temple"
+              >View source <span aria-hidden="true">↗</span></a
+            >
+            <template class="building-views">
+              <img
+                src="shots/ancient-interior.png"
+                width="1600"
+                height="1000"
+                data-label="Worship hall"
+                alt="Inside the temple's worship hall, looking through open doors toward the courtyard fountain."
+              />
+            </template>
+          </article>
+
+          <article class="building" id="medieval">
+            <a
+              class="building-image tour-link"
+              href="manor/?view=reference-exterior"
+              aria-label="Explore the baron manor in 3D"
+            >
               <img
                 src="shots/reference-exterior.webp"
                 width="1440"
                 height="900"
-                alt="The manor from the south-east: two timber-framed wings under terracotta roofs around a courtyard with a pond."
+                alt="A timber framed medieval manor with two wings surrounding a courtyard garden."
               />
+              <span class="image-label">Medieval</span>
+              <span class="image-action" aria-hidden="true"
+                >Explore in 3D <span>↗</span></span
+              >
             </a>
-            <figcaption>
-              <span>Exterior from the south-east, as the viewer renders it.</span>
-              <span>Click to fly there</span>
-            </figcaption>
-          </figure>
-        </section>
-
-        <section class="facts" aria-label="Manor facts">
-          <div class="fact">
-            <strong>16 rooms</strong>
-            <span>on two floors around a courtyard</span>
-          </div>
-          <div class="fact">
-            <strong>192 entries</strong>
-            <span>authored building, furnishing, and garden pieces</span>
-          </div>
-          <div class="fact">
-            <strong>7 textures</strong>
-            <span>oak, limestone, plaster, terracotta, linen, bark, soil</span>
-          </div>
-          <div class="fact">
-            <strong>144 KB</strong>
-            <span>of source generates the whole house</span>
-          </div>
-        </section>
-
-        <section class="gallery" aria-label="Manor views">
-          <figure class="shot">
-            <a href="manor/?view=reference-courtyard">
+            <div class="building-heading">
+              <p class="era">Medieval world</p>
+              <span class="building-number">02</span>
+            </div>
+            <h3>Baron manor</h3>
+            <p class="building-description">
+              An exposed timber frame, a hearth warmed hall, and a garden
+              between two wings.
+            </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/reference-exterior.webp"
+              >View captures</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/samchon/AutoMovie/tree/master/experimental/medieval-baron-manor"
+              >View source <span aria-hidden="true">↗</span></a
+            >
+            <template class="building-views">
               <img
                 src="shots/reference-courtyard.webp"
                 width="1440"
                 height="900"
-                loading="lazy"
-                alt="The courtyard garden with its pond, apple tree, and benches between the two wings."
+                data-label="Courtyard"
+                alt="The manor's courtyard garden with a pond, apple tree, and benches between its two wings."
               />
-            </a>
-            <figcaption><span>Courtyard</span></figcaption>
-          </figure>
-          <figure class="shot">
-            <a href="manor/?view=hall--corner-b">
               <img
                 src="shots/hall.webp"
                 width="1440"
                 height="900"
-                loading="lazy"
-                alt="The great hall interior with its hearth, long table, and exposed ceiling joists."
+                data-label="Great hall"
+                alt="The manor's great hall with a hearth, long table, and exposed ceiling joists."
               />
-            </a>
-            <figcaption><span>Great hall</span></figcaption>
-          </figure>
-          <figure class="shot">
-            <a href="manor/?view=ground-plan">
               <img
                 src="shots/ground-plan.webp"
                 width="1440"
                 height="900"
-                loading="lazy"
-                alt="The ground floor cut open from above, showing every room and its furnishings in plan."
+                data-label="Ground plan"
+                alt="The manor's ground floor viewed from above with its roof removed to reveal the rooms."
               />
-            </a>
-            <figcaption><span>Ground plan</span></figcaption>
-          </figure>
-          <figure class="shot">
-            <a href="manor/?view=frame-axonometric">
               <img
                 src="shots/frame-axonometric.webp"
                 width="1440"
                 height="900"
-                loading="lazy"
-                alt="The manor with its roof envelope removed, exposing the rafters and the timber frame."
+                data-label="Timber frame"
+                alt="The manor's exposed timber structure, revealing rafters, beams, and floor joists."
               />
+            </template>
+          </article>
+
+          <article class="building" id="modern">
+            <a
+              class="building-image tour-link"
+              href="tour/?building=modern"
+              aria-label="Explore the suburban house in 3D"
+            >
+              <img
+                src="shots/modern-exterior.png"
+                width="1536"
+                height="1024"
+                loading="lazy"
+                alt="A two storey suburban house with white siding, brick foundations, a covered porch, and an attached garage."
+              />
+              <span class="image-label">Modern</span>
+              <span class="image-action" aria-hidden="true"
+                >Explore in 3D <span>↗</span></span
+              >
             </a>
-            <figcaption><span>Timber frame</span></figcaption>
-          </figure>
-        </section>
+            <div class="building-heading">
+              <p class="era">Modern world</p>
+              <span class="building-number">03</span>
+            </div>
+            <h3>Suburban house</h3>
+            <p class="building-description">
+              A familiar front porch, white siding, and carefully framed spaces
+              for everyday life.
+            </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/modern-exterior.png"
+              >View captures</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/samchon/AutoMovie/tree/master/experimental/modern-suburban-house"
+              >View source <span aria-hidden="true">↗</span></a
+            >
+            <template class="building-views">
+              <img
+                src="shots/modern-interior.png"
+                width="1536"
+                height="1024"
+                data-label="Living room"
+                alt="Inside the suburban house, with a framed window, white panelled door, wooden floor, and brick hearth."
+              />
+            </template>
+          </article>
 
-        <section class="about">
-          <h2>What you are looking at</h2>
-          <p>
-            The manor is a finished AutoMovie production. A coding agent
-            authored it as ordinary source files under
-            <code>experimental/medieval-baron-manor</code>: procedural models
-            for the frame, roof, joinery, furnishings, and garden; a material
-            file binding seven albedo textures by physical metres; and an
-            instance definition that finds every repeated member and places it
-            once as a shared prototype. Nothing is sculpted or scanned.
-          </p>
-          <p>
-            The viewer runs that source directly. It decodes the textures,
-            derives the shared prototypes, builds the scene, and then lets you
-            fly through it or jump between the observation views the author
-            framed while reviewing the house. What you see is the blocking
-            pass AutoMovie is for: staging, proportion, and placement that are
-            correct and reproducible, not a photoreal render.
-          </p>
-        </section>
-      </main>
+          <article class="building" id="future">
+            <a
+              class="building-image tour-link"
+              href="tour/?building=future"
+              aria-label="Explore the citizen house in 3D"
+            >
+              <img
+                src="shots/future-exterior.png"
+                width="1600"
+                height="1000"
+                loading="lazy"
+                alt="A compact two storey future home with tall glazed windows, planted borders, and a solar panel canopy."
+              />
+              <span class="image-label">Future</span>
+              <span class="image-action" aria-hidden="true"
+                >Explore in 3D <span>↗</span></span
+              >
+            </a>
+            <div class="building-heading">
+              <p class="era">Future world</p>
+              <span class="building-number">04</span>
+            </div>
+            <h3>Citizen house</h3>
+            <p class="building-description">
+              A solar canopy above, planted edges below, and an open interior
+              ready for tomorrow.
+            </p>
+            <a
+              class="gallery-link"
+              data-gallery
+              href="shots/future-exterior.png"
+              >View captures</a
+            >
+            <a
+              class="source-link"
+              href="https://github.com/samchon/AutoMovie/tree/master/experimental/future-citizen-house"
+              >View source <span aria-hidden="true">↗</span></a
+            >
+            <template class="building-views">
+              <img
+                src="shots/future-interior.png"
+                width="1600"
+                height="1000"
+                data-label="Common room"
+                alt="The future home's common room with full height glazing, a dining table, and a kitchen island."
+              />
+            </template>
+          </article>
+        </div>
+      </section>
 
-      <footer>
-        <a href="https://github.com/samchon/AutoMovie">samchon/AutoMovie</a>
-        · MIT License
-      </footer>
-    </div>
+      <section id="about" class="about" aria-labelledby="about-title">
+        <div class="page-width about-content">
+          <div>
+            <p class="eyebrow">Made with AutoMovie</p>
+            <h2 id="about-title">Source becomes<br /><em>a scene.</em></h2>
+          </div>
+          <div class="about-copy">
+            <p>
+              AutoMovie lets an AI author form and move characters and objects,
+              then validates and renders the result deterministically.
+            </p>
+            <p>
+              These architectural scenes show its prototype style: reproducible
+              geometry, materials, and staging. A starting point for a story you
+              can direct.
+            </p>
+            <a href="https://github.com/samchon/AutoMovie"
+              >Explore the project <span aria-hidden="true">↗</span></a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer page-width">
+      <span>AutoMovie</span>
+      <p>Built from source. Open to explore.</p>
+      <a href="https://github.com/samchon/AutoMovie/blob/master/LICENSE"
+        >MIT License <span aria-hidden="true">↗</span></a
+      >
+    </footer>
+
+    <dialog
+      id="gallery"
+      aria-labelledby="gallery-title"
+      aria-describedby="gallery-description"
+    >
+      <div class="gallery-header">
+        <div>
+          <p id="gallery-era" class="eyebrow"></p>
+          <h2 id="gallery-title" aria-live="polite"></h2>
+        </div>
+        <button
+          id="gallery-close"
+          class="icon-button"
+          type="button"
+          aria-label="Close gallery"
+          autofocus
+        >
+          ×
+        </button>
+      </div>
+      <p id="gallery-description"></p>
+      <figure class="gallery-figure">
+        <div id="gallery-picture"></div>
+        <figcaption id="gallery-caption" aria-live="polite"></figcaption>
+      </figure>
+      <div class="gallery-tools">
+        <div id="gallery-views" role="group" aria-label="Choose a view"></div>
+        <a id="gallery-original"
+          >Open full image <span aria-hidden="true">↗</span></a
+        >
+      </div>
+      <div class="gallery-footer">
+        <div class="gallery-navigation">
+          <button
+            id="gallery-previous"
+            class="icon-button"
+            type="button"
+            aria-label="Previous building"
+          >
+            ←
+          </button>
+          <span id="gallery-count" aria-label="Building position"></span>
+          <button
+            id="gallery-next"
+            class="icon-button"
+            type="button"
+            aria-label="Next building"
+          >
+            →
+          </button>
+        </div>
+        <div class="gallery-links">
+          <a id="gallery-tour" hidden
+            >Enter the 3D tour <span aria-hidden="true">→</span></a
+          ><a id="gallery-source"
+            >View source <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </div>
+    </dialog>
+    <script type="module" src="src/collection.ts"></script>
   </body>
 </html>

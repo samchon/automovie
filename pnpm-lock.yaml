@@ -935,6 +935,9 @@ importers:
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../packages/viewer
+      '@automovie/website':
+        specifier: workspace:*
+        version: link:../website
       '@gltf-transform/core':
         specifier: catalog:gltf
         version: 4.5.0
@@ -965,6 +968,9 @@ importers:
       medieval-baron-manor:
         specifier: workspace:*
         version: link:../experimental/medieval-baron-manor
+      modern-suburban-house:
+        specifier: workspace:*
+        version: link:../experimental/modern-suburban-house
       onnxruntime-node:
         specifier: catalog:media
         version: 1.21.0
@@ -1023,6 +1029,9 @@ importers:
       medieval-baron-manor:
         specifier: workspace:*
         version: link:../experimental/medieval-baron-manor
+      modern-suburban-house:
+        specifier: workspace:*
+        version: link:../experimental/modern-suburban-house
       three:
         specifier: catalog:three
         version: 0.186.0
@@ -1039,6 +1048,9 @@ importers:
       gh-pages:
         specifier: ^6.3.0
         version: 6.3.0
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
       ttsc:
         specifier: catalog:typescript
         version: 0.29.0

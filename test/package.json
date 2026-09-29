@@ -11,7 +11,9 @@
   "author": "Samchon",
   "license": "MIT",
   "dependencies": {
+    "@automovie/website": "workspace:*",
     "medieval-baron-manor": "workspace:*",
+    "modern-suburban-house": "workspace:*",
     "@automovie/archetypes": "workspace:^",
     "automovie": "workspace:^",
     "@automovie/evidence": "workspace:^",

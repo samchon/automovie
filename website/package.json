@@ -2,11 +2,25 @@
   "private": true,
   "name": "@automovie/website",
   "version": "0.1.0",
-  "description": "automovie website: the public showcase published at https://samchon.github.io/AutoMovie/",
+  "description": "automovie website: the public showcase published at https://samchon.github.io/automovie/",
   "type": "module",
+  "exports": {
+    "./gallery": "./src/gallery.ts",
+    "./collection": "./src/collection.ts",
+    "./tour-data": "./src/tourData.ts",
+    "./tour-export": "./src/tourExport.ts",
+    "./tour-camera": "./src/tourCamera.ts",
+    "./spectator-camera": "./src/spectatorCamera.ts",
+    "./spectator-controls": "./src/spectatorControls.ts",
+    "./tour-frame": "./src/tourFrame.ts",
+    "./tour-ui": "./src/tourUi.ts",
+    "./tour-scene": "./src/tourScene.ts",
+    "./modern-scene": "./src/modernScene.ts"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "ttsc --noEmit && vite build",
+    "scenes": "tsx build/exportScenes.cts",
+    "dev": "pnpm scenes && vite",
+    "build": "pnpm scenes && ttsc --noEmit && vite build",
     "preview": "vite preview",
     "deploy": "pnpm run build && node build/deploy.cjs"
   },
@@ -16,10 +30,11 @@
     "type": "git",
     "url": "https://github.com/samchon/automovie"
   },
-  "homepage": "https://samchon.github.io/AutoMovie/",
+  "homepage": "https://samchon.github.io/automovie/",
   "dependencies": {
     "@automovie/viewer": "workspace:^",
     "medieval-baron-manor": "workspace:*",
+    "modern-suburban-house": "workspace:*",
     "three": "catalog:three"
   },
   "devDependencies": {
@@ -29,6 +44,7 @@
     "gh-pages": "^6.3.0",
     "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "tsx": "^4.23.15"
   }
 }
