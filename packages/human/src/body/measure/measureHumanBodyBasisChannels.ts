@@ -2,6 +2,7 @@ import type { IAutoMovieHumanFaceEndpointScale } from "../../face/structures/IAu
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyChannelScale } from "../structures/IAutoMovieHumanBodyChannelScale";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
+import { createHumanBodyMeasurementReader } from "./createHumanBodyMeasurementReader";
 import { evaluateHumanBodyMeasurement } from "./evaluateHumanBodyMeasurement";
 import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
 
@@ -20,6 +21,9 @@ import { humanBodyMeasurementRule } from "./humanBodyMeasurementRule";
  * `humanBodyBasisWeights` and `evaluateHumanBodyShape` the builder uses, so a
  * value measured here is the value the built body has. A rule whose landmarks
  * the basis lacks, or whose plane finds no closed loop, reports null values.
+ * Every channel's neutral rule reads one lazily compiled rest skin; positive
+ * and negative endpoints remain separate shaped bodies and are each evaluated
+ * independently.
  * The basis is read, never mutated, and is expected to have passed
  * `assertHumanBodyBasis`; an empty surface population is refused here because
  * an RMS over nothing would publish NaN.
@@ -62,6 +66,9 @@ export function measureHumanBodyBasisChannels(
     rule: IAutoMovieHumanBodyMeasurement,
     shape: Record<string, number>,
   ): number | null => evaluateHumanBodyMeasurement(basis, shape, rule);
+  let neutralReader: ReturnType<typeof createHumanBodyMeasurementReader> | undefined;
+  const neutralRule = (rule: IAutoMovieHumanBodyMeasurement): number | null =>
+    (neutralReader ??= createHumanBodyMeasurementReader(basis, {})).read(rule);
   return basis.channels
     .filter(
       (channel) =>
@@ -81,7 +88,7 @@ export function measureHumanBodyBasisChannels(
             : {
                 id: channel.id,
                 kind: rule.kind,
-                neutral: evaluateRule(rule, {}),
+                neutral: neutralRule(rule),
                 positive: evaluateRule(rule, { [channel.id]: channel.maximum }),
                 negative:
                   channel.negative === null
