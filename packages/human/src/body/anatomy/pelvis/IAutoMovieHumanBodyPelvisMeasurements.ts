@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
+import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
 import type { IAutoMovieHumanBodyCoxalBoneMeasurements } from "./IAutoMovieHumanBodyCoxalBoneMeasurements";
 import type { IAutoMovieHumanBodyHipMeasurements } from "./IAutoMovieHumanBodyHipMeasurements";
 import type { IAutoMovieHumanBodySacrumMeasurements } from "./IAutoMovieHumanBodySacrumMeasurements";
@@ -23,7 +23,8 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyPelvisMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  interFemoralHeadDistance?: IAutoMovieHumanBodyAnatomicalLength;
+  /** Three-dimensional centre-to-centre distance of both fitted heads. */
+  interFemoralHeadDistance?: IAutoMovieHumanBodyTomographicLength;
   sacrum?: IAutoMovieHumanBodySacrumMeasurements;
   /** One midline coccyx inferior to sacrum. */
   coccyx?: IAutoMovieHumanBodyCoccyxMeasurements;

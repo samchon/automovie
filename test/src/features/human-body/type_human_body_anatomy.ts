@@ -74,6 +74,18 @@ const wrongVolumeMethod: IAutoMovieHumanBodyAnatomicalMeasurements = {
   },
 };
 
+const projectedHipDistance: IAutoMovieHumanBodyAnatomicalMeasurements = {
+  pelvis: {
+    interFemoralHeadDistance: {
+      kind: "observed",
+      millimetres: 170,
+      // @ts-expect-error A 2D projection is not a 3D head-centre distance.
+      modality: "radiograph",
+      acquisitionPosture: "supine",
+    },
+  },
+};
+
 const wrongSide: IAutoMovieHumanBodyGluteusMaximusAttachments<"left"> = {
   origins: [
     {
@@ -114,4 +126,4 @@ const wrongResult: Extract<
   },
 };
 
-void [simple, detailed, incomplete, oldMorph, wrongDigit, wrongVolumeMethod, wrongSide, wrongBone, wrongResult];
+void [simple, detailed, incomplete, oldMorph, wrongDigit, wrongVolumeMethod, projectedHipDistance, wrongSide, wrongBone, wrongResult];
