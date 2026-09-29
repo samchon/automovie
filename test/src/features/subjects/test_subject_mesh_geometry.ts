@@ -1,11 +1,11 @@
-import { portraitMix } from "@automovie/human/face/mesh/portraitMix";
+import { linearInterpolate } from "@automovie/human/face/mesh/linearInterpolate";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
-import { portraitRegion } from "@automovie/human/face/mesh/portraitRegion";
-import { portraitSpline } from "@automovie/human/face/mesh/portraitSpline";
-import { portraitTube } from "@automovie/human/face/mesh/portraitTube";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
+import { extractTriangleRegion } from "@automovie/human/face/mesh/extractTriangleRegion";
+import { catmullRomPoint } from "@automovie/human/face/mesh/catmullRomPoint";
+import { sweepEightSidedTube } from "@automovie/human/face/mesh/sweepEightSidedTube";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -25,8 +25,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    and Z-parallel strand tangents refuse because the section guide is Z.
  */
 export const test_subject_mesh_geometry = (): void => {
-  const p = portraitPoint;
-  const rectangle = portraitPatch((u, v) => p(1000 * u, 2000 * v, 0), 1, 1);
+  const p = millimetrePoint;
+  const rectangle = triangulateSurfaceLattice((u, v) => p(1000 * u, 2000 * v, 0), 1, 1);
   TestValidator.equals(
     "rectangle winding",
     rectangle.indices,
@@ -37,7 +37,7 @@ export const test_subject_mesh_geometry = (): void => {
     rectangle.normals,
     [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
   );
-  const part = portraitPart("rectangle", rectangle, "finish");
+  const part = createMetricMeshPart("rectangle", rectangle, "finish");
   TestValidator.predicate(
     "metric mesh part",
     part.geometry.type === "mesh" &&
@@ -45,7 +45,7 @@ export const test_subject_mesh_geometry = (): void => {
   );
   TestValidator.equals(
     "interpolation permits extrapolation",
-    portraitMix(2, 4, 2),
+    linearInterpolate(2, 4, 2),
     6,
   );
 
@@ -59,7 +59,7 @@ export const test_subject_mesh_geometry = (): void => {
   );
   TestValidator.equals("unused vertex", normals.slice(12), [0, 0, 0]);
   TestValidator.equals("empty normal field", areaWeightedNormals([], []), []);
-  const region = portraitRegion(positions, normals, [0, 3, 1, 0, 1, 3]);
+  const region = extractTriangleRegion(positions, normals, [0, 3, 1, 0, 1, 3]);
   TestValidator.equals(
     "region remaps repeated vertices",
     region.indices,
@@ -77,24 +77,24 @@ export const test_subject_mesh_geometry = (): void => {
   );
   TestValidator.equals(
     "empty region",
-    portraitRegion(positions, normals, []).positions,
+    extractTriangleRegion(positions, normals, []).positions,
     [],
   );
 
   const line = [p(0, 0, 0), p(2, 4, 6)];
-  TestValidator.equals("spline start clamp", portraitSpline(line, -1), line[0]);
-  TestValidator.equals("spline end clamp", portraitSpline(line, 2), line[1]);
+  TestValidator.equals("spline start clamp", catmullRomPoint(line, -1), line[0]);
+  TestValidator.equals("spline end clamp", catmullRomPoint(line, 2), line[1]);
   TestValidator.equals(
     "spline midpoint",
-    portraitSpline(line, 0.5),
+    catmullRomPoint(line, 0.5),
     p(1, 2, 3),
   );
   TestValidator.equals(
     "interior spline segment",
-    portraitSpline([p(0, 0, 0), p(1, 2, 3), p(2, 4, 6), p(3, 6, 9)], 0.5),
+    catmullRomPoint([p(0, 0, 0), p(1, 2, 3), p(2, 4, 6), p(3, 6, 9)], 0.5),
     p(1.5, 3, 4.5),
   );
-  const tube = portraitTube(
+  const tube = sweepEightSidedTube(
     (t) => p(0, 10 * t, 0),
     (t) => 1 + t,
     2,
@@ -114,6 +114,6 @@ export const test_subject_mesh_geometry = (): void => {
   ])
     TestValidator.predicate(
       "unsupported strand tangent refuses",
-      throwsError(() => portraitTube(curve, () => 0.1, 2), "tangent"),
+      throwsError(() => sweepEightSidedTube(curve, () => 0.1, 2), "tangent"),
     );
 };

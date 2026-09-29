@@ -1,5 +1,5 @@
-import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
-import { portraitRayIntersection } from "@automovie/human/face/mesh/portraitRayIntersection";
+import { millimetrePoint as p } from "@automovie/human/face/mesh/millimetrePoint";
+import { intersectRayWithHeightField } from "@automovie/human/face/mesh/intersectRayWithHeightField";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -13,7 +13,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * 3. An unbracketed plane and either non-finite endpoint are refused explicitly.
  */
 export const test_subject_gaze_intersection = (): void => {
-  const point = portraitRayIntersection(
+  const point = intersectRayWithHeightField(
     p(0, 0, 0),
     p(0.5, 0.25, 1),
     () => 4,
@@ -27,7 +27,7 @@ export const test_subject_gaze_intersection = (): void => {
     "camera-plane invariants",
     nclose(point.x - 0.5 * point.z, 0) && nclose(point.y - 0.25 * point.z, 0),
   );
-  const descending = portraitRayIntersection(
+  const descending = intersectRayWithHeightField(
     p(0, 0, 10),
     p(0, 0, -1),
     () => 4,
@@ -37,27 +37,27 @@ export const test_subject_gaze_intersection = (): void => {
   TestValidator.predicate(
     "lower endpoint",
     nclose(
-      portraitRayIntersection(p(0, 0, 0), p(0, 0, 1), () => 0, [0, 10]).z,
+      intersectRayWithHeightField(p(0, 0, 0), p(0, 0, 1), () => 0, [0, 10]).z,
       0,
     ),
   );
   TestValidator.predicate(
     "upper endpoint",
     nclose(
-      portraitRayIntersection(p(0, 0, 0), p(0, 0, 1), () => 10, [0, 10]).z,
+      intersectRayWithHeightField(p(0, 0, 0), p(0, 0, 1), () => 10, [0, 10]).z,
       10,
     ),
   );
   TestValidator.predicate(
     "unbracketed surface",
     throwsError(() =>
-      portraitRayIntersection(p(0, 0, 0), p(0, 0, 1), () => 20, [0, 10]),
+      intersectRayWithHeightField(p(0, 0, 0), p(0, 0, 1), () => 20, [0, 10]),
     ),
   );
   TestValidator.predicate(
     "non-finite lower endpoint",
     throwsError(() =>
-      portraitRayIntersection(
+      intersectRayWithHeightField(
         p(0, 0, 0),
         p(1, 0, 1),
         (x) => (x === 0 ? Infinity : 4),
@@ -68,7 +68,7 @@ export const test_subject_gaze_intersection = (): void => {
   TestValidator.predicate(
     "non-finite upper endpoint",
     throwsError(() =>
-      portraitRayIntersection(
+      intersectRayWithHeightField(
         p(0, 0, 0),
         p(1, 0, 1),
         (x) => (x === 10 ? Infinity : 4),

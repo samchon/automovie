@@ -4,7 +4,7 @@ import { IPortraitCornea } from "./structures/IPortraitCornea";
 
 /**
  * Construct a closed optical shell with a single vertex at each axial pole.
- * Positions remain in millimetres until portraitPart creates model data.
+ * Positions remain in millimetres until createMetricMeshPart creates model data.
  *
  * At radius r, subtract the globe's sag from the corneal sphere's sag, each
  * measured relative to the declared unclipped aperture radius. Adding that

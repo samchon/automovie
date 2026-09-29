@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { Point } from "./structures/Point";
-import { portraitPoint as p } from "./portraitPoint";
-import { portraitPatch as patch } from "./portraitPatch";
+import { millimetrePoint as p } from "./millimetrePoint";
+import { triangulateSurfaceLattice as patch } from "./triangulateSurfaceLattice";
 
 /**
  * An eight-sided swept strand in the same frame as its guiding curve.
@@ -12,7 +12,7 @@ import { portraitPatch as patch } from "./portraitPatch";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Forms swept lash and brow strands in the shared construction frame.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses an eight-sided ring around each finite non-Z-parallel curve tangent, retaining one centre, radius and frame per ring.
  */
-export const portraitTube = (
+export const sweepEightSidedTube = (
   curve: (t: number) => Point,
   width: (t: number) => number,
   rows: number,

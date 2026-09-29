@@ -1,4 +1,4 @@
-import { portraitPoint as p } from "./portraitPoint";
+import { millimetrePoint as p } from "./millimetrePoint";
 import type { Point } from "./structures/Point";
 
 /**
@@ -10,7 +10,7 @@ import type { Point } from "./structures/Point";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Evaluates uniform Catmull-Rom interpolation with clamped progress and repeated endpoint neighbors, without claiming arc-length spacing.
  * @author Samchon
  */
-export const portraitSpline = (points: Point[], progress: number): Point => {
+export const catmullRomPoint = (points: Point[], progress: number): Point => {
   const t = Math.max(0, Math.min(1, progress)) * (points.length - 1);
   const i = Math.min(points.length - 2, Math.floor(t)),
     u = t - i;

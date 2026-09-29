@@ -1,7 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitMix } from "../../mesh/portraitMix";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitPatch } from "../../mesh/portraitPatch";
+import { linearInterpolate } from "../../mesh/linearInterpolate";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
+import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitOcularTissueBoundary } from "./structures/IPortraitOcularTissueBoundary";
 import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueShape";
 
@@ -54,7 +54,7 @@ export const createPortraitOcularTissues = (
     const corner =
       shape.cornerLength === 0
         ? null
-        : portraitPatch(
+        : triangulateSurfaceLattice(
             (u, v) => {
               // Both meshes retain increasing X, hence outward (+Z) winding. The
               // anatomical side changes distance from the medial corner, not winding.
@@ -64,7 +64,7 @@ export const createPortraitOcularTissues = (
                   : boundary.maximumX - shape.cornerLength * (1 - u);
               const distance = boundary.side === "left" ? u : 1 - u;
               const { lower, upper } = section(x);
-              const y = portraitMix(lower.y, upper.y, v);
+              const y = linearInterpolate(lower.y, upper.y, v);
               const across = Math.sin(Math.PI * v) ** 2;
               const along = Math.sin(Math.PI * distance) ** 2;
               // The caruncle occupies the medial body; the narrower plica crest sits
@@ -73,15 +73,15 @@ export const createPortraitOcularTissues = (
               // not population statistics. A zero projection retains a flat tissue mask.
               const caruncle = Math.exp(-(((distance - 0.42) / 0.26) ** 2));
               const plica = Math.exp(-(((distance - 0.82) / 0.08) ** 2));
-              const rim = portraitMix(lower.z, upper.z, v);
+              const rim = linearInterpolate(lower.z, upper.z, v);
               const z =
-                portraitMix(rim, globe(x, y), across) +
+                linearInterpolate(rim, globe(x, y), across) +
                 across *
                   along *
                   (0.02 +
                     shape.caruncleProjection * caruncle +
                     shape.plicaProjection * plica);
-              return portraitPoint(x, y, z);
+              return millimetrePoint(x, y, z);
             },
             32,
             12,
@@ -89,9 +89,9 @@ export const createPortraitOcularTissues = (
     const lowerMargin =
       shape.lowerMarginWidth === 0
         ? null
-        : portraitPatch(
+        : triangulateSurfaceLattice(
             (u, v) => {
-              const x = portraitMix(boundary.minimumX, boundary.maximumX, u);
+              const x = linearInterpolate(boundary.minimumX, boundary.maximumX, u);
               const { lower, upper } = section(x);
               const fade = Math.sin(Math.PI * u);
               // Never span more than half the local aperture. This also closes the
@@ -102,9 +102,9 @@ export const createPortraitOcularTissues = (
               );
               const y = lower.y + width * v;
               const z =
-                portraitMix(lower.z, globe(x, y), v) +
+                linearInterpolate(lower.z, globe(x, y), v) +
                 shape.lowerMarginLift * fade * Math.sin(Math.PI * v);
-              return portraitPoint(x, y, z);
+              return millimetrePoint(x, y, z);
             },
             80,
             4,

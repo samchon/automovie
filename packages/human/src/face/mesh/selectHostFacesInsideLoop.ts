@@ -8,7 +8,7 @@ import { selectAutoMovieTriangleRegion } from "@automovie/engine";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Selects a component's host patch by anatomical boundary connectivity rather than image-plane containment.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Delegates the inward-oriented loop to the engine's triangle-region selector, preserving original removable face identities.
  */
-export function portraitFacesInsideLoop(
+export function selectHostFacesInsideLoop(
   host: IPortraitComponentHost,
   loop: number[],
 ): number[] {

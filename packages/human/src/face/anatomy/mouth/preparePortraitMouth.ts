@@ -1,4 +1,4 @@
-import { portraitPoint as p } from "../../mesh/portraitPoint";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { createPortraitDentalArc } from "../dental/createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "../dental/preparePortraitDentalCrown";
@@ -8,9 +8,9 @@ import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformanc
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-import { portraitMix as mix } from "../../mesh/portraitMix";
-import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
-import { portraitPatch as patch } from "../../mesh/portraitPatch";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
 
 /**
  * Recess the mouth interior behind the photographed lip opening, then place

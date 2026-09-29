@@ -10,7 +10,7 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates an anatomical material region without introducing an independent lighting seam.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Compacts only referenced vertex identities while retaining the parent's positions, normals and triangle order.
  */
-export const portraitRegion = (
+export const extractTriangleRegion = (
   positions: number[],
   normals: number[],
   indices: number[],

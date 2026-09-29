@@ -1,6 +1,6 @@
 import { createPortraitOcularTissues } from "@automovie/human/face/anatomy/eye/createPortraitOcularTissues";
 import { type IPortraitOcularTissueBoundary } from "@automovie/human/face/anatomy/eye/structures/IPortraitOcularTissueBoundary";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -25,8 +25,8 @@ export const test_subject_ocular_tissue_refusals = (): void => {
     side: "left",
     minimumX: -1,
     maximumX: 1,
-    lower: (x) => portraitPoint(x, x * x - 1, 0),
-    upper: (x) => portraitPoint(x, 1 - x * x, 0),
+    lower: (x) => millimetrePoint(x, x * x - 1, 0),
+    upper: (x) => millimetrePoint(x, 1 - x * x, 0),
     globe: () => 0,
   };
   const build = createPortraitOcularTissues(shape);
@@ -61,9 +61,9 @@ export const test_subject_ocular_tissue_refusals = (): void => {
       throwsError(() => build({ ...frame, ...override }), "aperture"),
     );
   for (const override of [
-    { lower: (x: number) => portraitPoint(x, 5, 0) },
-    { upper: (x: number) => portraitPoint(x, 2, NaN) },
-    { lower: () => portraitPoint(NaN, -2, 0) },
+    { lower: (x: number) => millimetrePoint(x, 5, 0) },
+    { upper: (x: number) => millimetrePoint(x, 2, NaN) },
+    { lower: () => millimetrePoint(NaN, -2, 0) },
   ])
     TestValidator.predicate(
       "invalid lids refuse",

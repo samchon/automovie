@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { portraitPoint } from "../../mesh/portraitPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
@@ -56,7 +56,7 @@ export function createPortraitTongueComponent(
       )
         throw new Error("Tongue sockets must name resident host vertices.");
       const point = (id: number) =>
-        portraitPoint(...(host.positions[id] as [number, number, number]));
+        millimetrePoint(...(host.positions[id] as [number, number, number]));
       const placed = attachPortraitOralMesh(local, {
         rightCorner: point(socket.rightCorner),
         leftCorner: point(socket.leftCorner),

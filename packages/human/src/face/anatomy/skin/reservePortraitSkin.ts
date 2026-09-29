@@ -1,4 +1,4 @@
-import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
+import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
 import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { autoMoviePlanarRegionFailure } from "@automovie/engine";
 
@@ -33,7 +33,7 @@ export function reservePortraitSkin(
     throw new Error(
       "Reserved skin needs one finite XYZ target per seam vertex.",
     );
-  let selected = new Set(portraitFacesInsideLoop(host, [...inner]));
+  let selected = new Set(selectHostFacesInsideLoop(host, [...inner]));
   const point = (p: readonly number[]) => ({ x: p[0] / 1000, y: p[1] / 1000 });
   for (;;) {
     const edges = new Map<string, { a: number; b: number; count: number }>();

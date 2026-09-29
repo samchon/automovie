@@ -1,6 +1,6 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitSpline } from "../../mesh/portraitSpline";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitCheekShape } from "./IPortraitCheekShape";
 import { IPortraitCheekSocket } from "./IPortraitCheekSocket";
@@ -135,7 +135,7 @@ export function createPortraitCheekLayer(
       if (shape.foldDepth === 0) return fields;
       const path = socket.nasolabial.map((id) => {
         const point = host.positions[id];
-        return portraitPoint(point[0], point[1], point[2]);
+        return millimetrePoint(point[0], point[1], point[2]);
       });
       let length = 0;
       for (let i = 1; i < path.length; i++)
@@ -158,7 +158,7 @@ export function createPortraitCheekLayer(
       const samples = Array.from(
         { length: 16 * (path.length - 1) + 1 },
         (_value, i) => ({
-          point: portraitSpline(path, i / (16 * (path.length - 1))),
+          point: catmullRomPoint(path, i / (16 * (path.length - 1))),
           physical: 0,
           normalized: 0,
         }),

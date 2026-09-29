@@ -9,7 +9,7 @@ import { areaWeightedNormals as normalsOf } from "../../common/mesh/areaWeighted
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs connected sampled surfaces for ocular, oral and strand components.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples a shared unit-square lattice, emits du-cross-dv triangle winding and derives one common normal field.
  */
-export const portraitPatch = (
+export const triangulateSurfaceLattice = (
   surface: (u: number, v: number) => Point,
   columns: number,
   rows: number,

@@ -3,8 +3,8 @@ import { attachPortraitDentalRow } from "@automovie/human/face/anatomy/dental/at
 import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
 import { buildPortraitEyebrow } from "@automovie/human/face/anatomy/brow/buildPortraitEyebrow";
 import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { assertPortraitFitBasis } from "../portraitFitBasis";
@@ -105,15 +105,15 @@ export function attachFittedPortraitContext(
       ),
     );
   const oralPoint = (id: number) =>
-    portraitPoint(landmarks[id][0], landmarks[id][1], landmarks[id][2]);
+    millimetrePoint(landmarks[id][0], landmarks[id][1], landmarks[id][2]);
   model.parts.push(
-    portraitPart(
+    createMetricMeshPart(
       "tooth-upper-arch",
       attachPortraitDentalRow(buildPortraitDentalRow(portraitDentalRow), {
         rightCorner: oralPoint(portraitDentalSocket.rightCorner),
         leftCorner: oralPoint(portraitDentalSocket.leftCorner),
         upperLipMiddle: oralPoint(portraitDentalSocket.upperLipMiddle),
-        up: portraitPoint(0, 1, 0),
+        up: millimetrePoint(0, 1, 0),
         ...portraitDentalPlacement,
       }),
       "teeth",

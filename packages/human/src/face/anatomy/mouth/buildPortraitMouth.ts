@@ -1,4 +1,4 @@
-import { portraitPart } from "../../mesh/portraitPart";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { preparePortraitMouth } from "./preparePortraitMouth";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
@@ -26,5 +26,5 @@ export function buildPortraitMouth(
     shape,
     performance,
     skinIndices,
-  ).map(({ id, mesh, material }) => portraitPart(id, mesh, material));
+  ).map(({ id, mesh, material }) => createMetricMeshPart(id, mesh, material));
 }

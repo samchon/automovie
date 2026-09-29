@@ -1,5 +1,5 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { portraitPart } from "../../mesh/portraitPart";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { createPortraitControlLayer } from "../../surface/createPortraitControlLayer";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitOrbitalSupportShape } from "./structures/IPortraitOrbitalSupportShape";
@@ -63,7 +63,7 @@ export function createPortraitOrbitalSupport(
           );
       }
       const skin = createAutoMovieMeshDepthSampler(
-        portraitPart(
+        createMetricMeshPart(
           "orbital-section-basis",
           {
             positions: host.positions.flat(),

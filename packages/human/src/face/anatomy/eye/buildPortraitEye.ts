@@ -5,7 +5,7 @@
  * Exact canthal endpoints bound the interpolated wet tissue; sclera and the
  * connective region partition one external hull. Iris/pupil/cornea use the
  * optical sphere and rotate together with gaze, independently of that lining.
- * Only portraitPart crosses to model metres. Changing support or a refined
+ * Only createMetricMeshPart crosses to model metres. Changing support or a refined
  * margin invalidates tissue, optics, lashes and brow attachment together.
  */
 import {
@@ -18,14 +18,14 @@ import type {
   IAutoMovieVector3 as Point,
 } from "@automovie/interface";
 
-import { portraitMix as mix } from "../../mesh/portraitMix";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitPatch as patch } from "../../mesh/portraitPatch";
-import { portraitRegion } from "../../mesh/portraitRegion";
-import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
-import { portraitTube as tube } from "../../mesh/portraitTube";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
+import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { sweepEightSidedTube as tube } from "../../mesh/sweepEightSidedTube";
 import type { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
 import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirectionalSurfaceTargets";
 import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
@@ -70,10 +70,10 @@ export function buildPortraitEye(
   const parts: IAutoMovieModelPart[] = [];
   const add = (
     id: string,
-    mesh: Parameters<typeof portraitPart>[1],
+    mesh: Parameters<typeof createMetricMeshPart>[1],
     finish: string,
   ): void => {
-    parts.push(portraitPart(id, mesh, finish));
+    parts.push(createMetricMeshPart(id, mesh, finish));
   };
   const landmark = (id: number): Point =>
     p(source[id][0], source[id][1], source[id][2]);
@@ -129,7 +129,7 @@ export function buildPortraitEye(
       canthal === undefined
         ? undefined
         : createAutoMovieMeshDepthSampler(
-            portraitPart("canthal-height", canthal.surface, white).geometry
+            createMetricMeshPart("canthal-height", canthal.surface, white).geometry
               .mesh,
             "z",
           );
@@ -191,7 +191,7 @@ export function buildPortraitEye(
         ? createPortraitOpticalFrame(sphere, center)
         : undefined;
     const opticalCenter = radial === undefined ? center : radial.sphere.center;
-    const support = portraitPart(
+    const support = createMetricMeshPart(
       "ocular-tissue-support",
       mergeAutoMovieMeshes([
         sclera,
@@ -221,7 +221,7 @@ export function buildPortraitEye(
       // construction mm before add() crosses the common model-unit boundary.
       for (const mesh of [surfaces.corner, surfaces.lowerMargin]) {
         if (mesh === null) continue;
-        const metric = portraitPart("ocular-tissue-contact", mesh, white)
+        const metric = createMetricMeshPart("ocular-tissue-contact", mesh, white)
           .geometry.mesh;
         const targets = portraitDirectionalSurfaceTargets(
           metric,
@@ -344,7 +344,7 @@ export function buildPortraitEye(
           if (indices.length === 0) return;
           add(
             `${eye.name}-iris-${group}`,
-            portraitRegion(mesh.positions, mesh.normals!, indices),
+            extractTriangleRegion(mesh.positions, mesh.normals!, indices),
             `${shape.irisPigment === undefined ? "iris" : eye.name + "-iris"}-${group}`,
           );
         });

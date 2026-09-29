@@ -2,7 +2,7 @@ import { buildPortraitEars } from "@automovie/human/face/anatomy/cranium/buildPo
 import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
 import { applyPortraitOralContact } from "@automovie/human/face/anatomy/mouth/applyPortraitOralContact";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
 import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
@@ -27,7 +27,7 @@ import type { portraitReview } from "./review";
  * The control net owns measurement provenance. Replaceable components supply
  * exact skin attachments; the host adapts surrounding skin and refines their
  * common surface before each component finishes against its actual opening.
- * Every part crosses the same engine-owned metre conversion in portraitPart before becoming AutoMovie
+ * Every part crosses the same engine-owned metre conversion in createMetricMeshPart before becoming AutoMovie
  * model data. Optional coarse hair supports silhouette inspection; detailed
  * hair and torso remain outside this face iteration.
  *
@@ -83,7 +83,7 @@ export function buildReferencePortrait(
     assembly.surfaceLayers,
   );
   head.parts = applyPortraitOralContact(head.parts, assembly.oralContact);
-  const skin = portraitPart(
+  const skin = createMetricMeshPart(
     "ear-attachment-basis",
     {
       positions: head.refined.positions.flat(),
@@ -106,7 +106,7 @@ export function buildReferencePortrait(
       positions.slice(3 * i, 3 * i + 3).map((value) => value * 1000),
     );
   });
-  // portraitPart preserves mesh geometry while applying the same metre boundary
+  // createMetricMeshPart preserves mesh geometry while applying the same metre boundary
   // used by the GLTF exporter; the ear sampler therefore reads renderer units.
   return {
     id: "generated-korean-girl-01",

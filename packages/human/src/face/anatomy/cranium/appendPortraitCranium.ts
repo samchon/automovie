@@ -1,4 +1,4 @@
-import { portraitMix as mix } from "../../mesh/portraitMix";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { resolvePortraitCraniumShape } from "./resolvePortraitCraniumShape";
 import { portraitCranialChinHeight } from "./portraitCranialChinHeight";

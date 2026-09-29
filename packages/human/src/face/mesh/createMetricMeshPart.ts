@@ -1,6 +1,6 @@
 import { transformAutoMovieMesh } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-import { portraitPoint as p } from "./portraitPoint";
+import { millimetrePoint as p } from "./millimetrePoint";
 
 /**
  * The sole millimetre-to-metre boundary. Every part uses the engine's same
@@ -9,7 +9,7 @@ import { portraitPoint as p } from "./portraitPoint";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places every procedural facial component in the same metric model representation.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the engine transform for the sole millimetre-to-metre conversion and emits an unbound mesh part with no extra part transform.
  */
-export const portraitPart = (
+export const createMetricMeshPart = (
   id: string,
   mesh: IAutoMovieMesh,
   finish: string,

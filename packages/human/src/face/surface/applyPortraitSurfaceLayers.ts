@@ -1,6 +1,6 @@
 import { Vector3, compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
-import { portraitPart } from "../mesh/portraitPart";
+import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
@@ -61,7 +61,7 @@ export function applyPortraitSurfaceLayers(
       );
   packed.length = 0;
   for (const point of mesh.positions) packed.push(...point);
-  const metric = portraitPart(
+  const metric = createMetricMeshPart(
     "surface-basis",
     {
       positions: packed,

@@ -11,10 +11,10 @@
  */
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
-import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
 import { type IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitDirectionalContact } from "../../surface/createPortraitDirectionalContact";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
@@ -161,7 +161,7 @@ export function createPortraitEyeComponent(
         shape.lidContact !== "cornea"
           ? undefined
           : createPortraitDirectionalContact(
-              portraitPart(
+              createMetricMeshPart(
                 "corneal-attachment-basis",
                 buildPortraitEyeContactBasis(
                   portraitEyeSphereIntersection(
@@ -239,7 +239,7 @@ export function createPortraitEyeComponent(
       // bridges that depth to the fitted ocular contact instead of extruding a flat
       // annulus from the aperture. The two boundaries keep distinct ownership.
       const support = createAutoMovieMeshDepthSampler(
-        portraitPart(
+        createMetricMeshPart(
           "orbital-support-basis",
           {
             positions: host.positions.flat(),
@@ -276,7 +276,7 @@ export function createPortraitEyeComponent(
           reach: shape.blendReach,
         };
       });
-      const cutFaces = portraitFacesInsideLoop(host, loop);
+      const cutFaces = selectHostFacesInsideLoop(host, loop);
       const reservation =
         shape.skinAttachment === undefined
           ? undefined

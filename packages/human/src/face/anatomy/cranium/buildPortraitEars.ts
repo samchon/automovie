@@ -1,9 +1,9 @@
 import { createAutoMovieMeshDepthSampler, transformAutoMovieMesh } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitPatch } from "../../mesh/portraitPatch";
-import { portraitSpline } from "../../mesh/portraitSpline";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { IPortraitEarShape } from "../ear/IPortraitEarShape";
 import { portraitEarShape } from "../ear/portraitEarShape";
 import { resolvePortraitEarSampling } from "../ear/resolvePortraitEarSampling";
@@ -25,7 +25,7 @@ export function buildPortraitEars(
   skin: IAutoMovieMesh,
   shape: IPortraitEarShape = portraitEarShape,
   selectedSide?: "right" | "left",
-): ReturnType<typeof portraitPart>[] {
+): ReturnType<typeof createMetricMeshPart>[] {
   if (
     selectedSide !== undefined &&
     selectedSide !== "right" &&
@@ -61,7 +61,7 @@ export function buildPortraitEars(
     outlinePoints[1],
   ];
   const outline = (u: number) =>
-    portraitSpline(
+    catmullRomPoint(
       closed,
       (1 + u * outlinePoints.length) / (outlinePoints.length + 2),
     );
@@ -71,7 +71,7 @@ export function buildPortraitEars(
   });
   const stroke = (points: number[][]) =>
     Array.from({ length: 25 }, (_, i) =>
-      portraitSpline(
+      catmullRomPoint(
         points.map(([y, z]) => p(0, y, z)),
         i / 24,
       ),
@@ -137,7 +137,7 @@ export function buildPortraitEars(
   // the pinna remains a separate shell, not a claim of welded skin topology.
   const frontZ = Math.max(...outlinePoints.map((point) => point.z));
   const depthSpan = frontZ - Math.min(...outlinePoints.map((point) => point.z));
-  const parts: ReturnType<typeof portraitPart>[] = [];
+  const parts: ReturnType<typeof createMetricMeshPart>[] = [];
   for (const side of selectedSide === undefined
     ? [-1, 1]
     : [selectedSide === "left" ? 1 : -1]) {
@@ -156,7 +156,7 @@ export function buildPortraitEars(
         shape.embedding
       );
     };
-    const front = portraitPatch(
+    const front = triangulateSurfaceLattice(
       (u, v) => {
         const edge = outline(u),
           r = 0.0001 + 0.9999 * v,
@@ -171,7 +171,7 @@ export function buildPortraitEars(
       sampling.columns,
       sampling.frontRows,
     );
-    const back = portraitPatch(
+    const back = triangulateSurfaceLattice(
       (u, v) => {
         const edge = outline(1 - u),
           r = 0.0001 + 0.9999 * v,
@@ -193,7 +193,7 @@ export function buildPortraitEars(
       ["ear-back", back],
     ] as const)
       parts.push(
-        portraitPart(
+        createMetricMeshPart(
           `${side === 1 ? "left" : "right"}-${name}`,
           transformAutoMovieMesh(mesh, { scale: p(side, 1, 1) }),
           "skin",

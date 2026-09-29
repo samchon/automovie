@@ -17,7 +17,7 @@ import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbit
 import { createPortraitSkinLayer } from "../anatomy/skin/createPortraitSkinLayer";
 import { createPortraitSkinColour } from "../anatomy/skin/createPortraitSkinColour";
 import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitTongueComponent";
-import { portraitPart } from "../mesh/portraitPart";
+import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import { createPortraitReliefCurveLayer } from "../anatomy/skin/createPortraitReliefCurveLayer";
 import { createPortraitReliefLayer } from "../anatomy/skin/createPortraitReliefLayer";
 import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
@@ -184,7 +184,7 @@ export function buildHumanFace(
             sample: colour,
           },
   });
-  const skin = portraitPart(
+  const skin = createMetricMeshPart(
     "temporal-attachment",
     {
       positions: head.refined.positions.flat(),
@@ -198,7 +198,7 @@ export function buildHumanFace(
   const referenceSkin =
     colour === undefined
       ? undefined
-      : portraitPart(
+      : createMetricMeshPart(
           "reference-temporal-attachment",
           {
             positions: head.refined.reference!.flat(),

@@ -1,7 +1,7 @@
 import {
   createPortraitMaterials,
   areaWeightedNormals,
-  portraitPart,
+  createMetricMeshPart,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -20,7 +20,7 @@ import { throwsError } from "../internal/predicates";
  */
 export const test_subject_fitted_portrait = (): void => {
   const packed = referenceControlNet.positions.flat();
-  const skin = portraitPart(
+  const skin = createMetricMeshPart(
     "anatomical-skin",
     {
       positions: packed,

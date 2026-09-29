@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 as Point } from "@automovie/interface";
-import { portraitPart } from "../../mesh/portraitPart";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { createPortraitDirectionalIntersection } from "../../surface/createPortraitDirectionalIntersection";
 
 /**
@@ -18,10 +18,10 @@ export function createPortraitCanthalIntersection(
   mesh: IAutoMovieMesh,
   direction: Point,
 ): (point: Point) => Point {
-  const metric = portraitPart("canthal-support", mesh, "skin").geometry.mesh;
+  const metric = createMetricMeshPart("canthal-support", mesh, "skin").geometry.mesh;
   const intersect = createPortraitDirectionalIntersection(metric, direction);
   return (point) => {
-    // Match portraitPart's uniform engine scale exactly. Dividing by 1000
+    // Match createMetricMeshPart's uniform engine scale exactly. Dividing by 1000
     // instead can round an apex one ulp outside its transformed footprint.
     const hit = intersect(Vector3.scale(point, 0.001));
     if (hit === null)

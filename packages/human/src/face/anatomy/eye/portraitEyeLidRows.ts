@@ -1,5 +1,5 @@
 
-import { portraitMix as mix } from "../../mesh/portraitMix";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 import type { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";

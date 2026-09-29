@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { portraitPatch } from "../../mesh/portraitPatch";
+import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitEyelashProfile } from "./IPortraitEyelashProfile";
 import { assertPortraitEyelashProfile } from "./assertPortraitEyelashProfile";
 
@@ -72,7 +72,7 @@ export function buildPortraitEyelash(
         (Math.atan2(sine, cosine) * 180) / Math.PI,
       );
   }
-  return portraitPatch(
+  return triangulateSurfaceLattice(
     (u, t) => {
       const half = (curl * t) / 2;
       const distance = length * t * (half === 0 ? 1 : Math.sin(half) / half);

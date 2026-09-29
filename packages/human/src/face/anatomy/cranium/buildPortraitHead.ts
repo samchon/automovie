@@ -1,8 +1,8 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitRegion } from "../../mesh/portraitRegion";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { assertPortraitInteriorBindings } from "../../surface/assertPortraitInteriorBindings";
@@ -24,7 +24,7 @@ export type { IPortraitHeadPerformance } from "./structures/IPortraitHeadPerform
  * exact resident coordinates and named cycles must follow directed mesh edges.
  *
  * Host, source and refined positions use millimetres. Part packing converts
- * geometry to model units through portraitPart. Resident vertex IDs survive
+ * geometry to model units through createMetricMeshPart. Resident vertex IDs survive
  * sealing even when its index equivalence removes coincident seam faces.
  * Linear skin colours use per-corner values when contact welding preserved
  * distinct material samples. Independent interiors receive no stale normals.
@@ -84,9 +84,9 @@ export function buildPortraitHead(
       }
     if (selected.length !== 0)
       parts.push(
-        portraitPart(
+        createMetricMeshPart(
           regions[group].id,
-          portraitRegion(packed, normals, selected, colors),
+          extractTriangleRegion(packed, normals, selected, colors),
           regions[group].material,
         ),
       );
@@ -97,7 +97,7 @@ export function buildPortraitHead(
       ...(native === undefined
         ? finishers[i].finish(refined)
         : native.map(({ id, mesh, material }) =>
-            portraitPart(id, mesh, material),
+            createMetricMeshPart(id, mesh, material),
           )),
     );
   }

@@ -6,12 +6,12 @@
  *
  * The producer reads the sealed final skin without mutation and returns fresh
  * native meshes in head millimetres. This adapter neither caches nor clones
- * those buffers: their owner supplies them, and portraitPart owns metric packing.
+ * those buffers: their owner supplies them, and createMetricMeshPart owns metric packing.
  * Native indices, unit normals, material identities and order are retained.
  */
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
-import { portraitPart } from "../mesh/portraitPart";
+import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import type { IPortraitInterior } from "./structures/IPortraitInterior";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 
@@ -30,7 +30,7 @@ export function createPortraitInteriorFinisher(
     prepareInteriors: prepare,
     finish: (refined: IControlMesh): IAutoMovieModelPart[] =>
       prepare(refined).map(({ id, mesh, material }) =>
-        portraitPart(id, mesh, material),
+        createMetricMeshPart(id, mesh, material),
       ),
   };
 }

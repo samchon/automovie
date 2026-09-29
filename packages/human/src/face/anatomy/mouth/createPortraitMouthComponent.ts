@@ -1,5 +1,5 @@
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { assertPortraitDentalCrown } from "../dental/assertPortraitDentalCrown";
@@ -198,7 +198,7 @@ export function createPortraitMouthComponent(
       }
       return {
         constraints,
-        cutFaces: portraitFacesInsideLoop(host, inner),
+        cutFaces: selectHostFacesInsideLoop(host, inner),
         attach: (cage, _adapted, region) => {
           // Material ownership follows the original anatomical band through
           // other components' cuts. The host contains no lip-specific policy.

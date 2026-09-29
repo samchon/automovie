@@ -3,8 +3,8 @@ import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitSpline } from "../../mesh/portraitSpline";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { resolvePortraitSkinShape } from "./resolvePortraitSkinShape";
@@ -69,7 +69,7 @@ export function createPortraitSkinLayer(
       const mouth = curve(bindings.mouth.upper),
         lowerMouth = curve(bindings.mouth.lower);
       const skin = createAutoMovieMeshDepthSampler(
-        portraitPart(
+        createMetricMeshPart(
           "skin-morphology-basis",
           {
             positions: host.positions.flat(),
@@ -122,7 +122,7 @@ export function createPortraitSkinLayer(
             const t = sample / count,
               progress = (travelled + length * t) / total;
             // A sine envelope retains the continuous interior and zero ends.
-            const at = portraitSpline(guide, (i + t) / lengths.length);
+            const at = catmullRomPoint(guide, (i + t) / lengths.length);
             support(
               at.x,
               at.y,

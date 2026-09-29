@@ -1,4 +1,4 @@
-import { portraitPoint as p } from "../../mesh/portraitPoint";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { createPortraitDentalArc } from "./createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "./preparePortraitDentalCrown";

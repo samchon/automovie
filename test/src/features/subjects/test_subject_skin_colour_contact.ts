@@ -1,6 +1,6 @@
 import {
   areaWeightedNormals,
-  portraitRegion,
+  extractTriangleRegion,
   sealPortraitContactSeams,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
@@ -29,7 +29,7 @@ export const test_subject_skin_colour_contact = (): void => {
   );
   const packed = sealed.positions.flat(),
     normals = areaWeightedNormals(packed, sealed.indices);
-  const rendered = portraitRegion(
+  const rendered = extractTriangleRegion(
     packed,
     normals,
     sealed.indices,
@@ -69,7 +69,7 @@ export const test_subject_skin_colour_contact = (): void => {
     TestValidator.predicate(
       "invalid corners refuse",
       throwsError(
-        () => portraitRegion(packed, normals, sealed.indices, complete),
+        () => extractTriangleRegion(packed, normals, sealed.indices, complete),
         "corner colours",
       ),
     );

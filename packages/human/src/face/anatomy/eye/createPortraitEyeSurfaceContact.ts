@@ -10,8 +10,8 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { blendPortraitSkin } from "../skin/blendPortraitSkin";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitPart } from "../../mesh/portraitPart";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { portraitMinimumDirectionalSurfaceTargets } from "../../surface/portraitMinimumDirectionalSurfaceTargets";
 import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
@@ -51,7 +51,7 @@ export function createPortraitEyeSurfaceContact({
       p(gaze[0], gaze[1], gaze[2]),
       direction,
     );
-    const optical = portraitPart(
+    const optical = createMetricMeshPart(
       "corneal-contact-basis",
       buildPortraitEyeContactBasis(
         center,

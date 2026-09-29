@@ -1,6 +1,6 @@
 import { createPortraitOcularTissues } from "@automovie/human/face/anatomy/eye/createPortraitOcularTissues";
 import { type IPortraitOcularTissueBoundary } from "@automovie/human/face/anatomy/eye/structures/IPortraitOcularTissueBoundary";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -29,8 +29,8 @@ export const test_subject_ocular_tissues = (): void => {
     side: "left",
     minimumX: -10,
     maximumX: 10,
-    lower: (x) => portraitPoint(x, -height(x), 12),
-    upper: (x) => portraitPoint(x, height(x), 12),
+    lower: (x) => millimetrePoint(x, -height(x), 12),
+    upper: (x) => millimetrePoint(x, height(x), 12),
     globe: () => 12,
   };
   const build = createPortraitOcularTissues(shape);
@@ -71,8 +71,8 @@ export const test_subject_ocular_tissues = (): void => {
     side: "left",
     minimumX: 1,
     maximumX: 21,
-    lower: (x) => portraitPoint(x, -height(x - 11) - 7, 15),
-    upper: (x) => portraitPoint(x, height(x - 11) - 7, 15),
+    lower: (x) => millimetrePoint(x, -height(x - 11) - 7, 15),
+    upper: (x) => millimetrePoint(x, height(x - 11) - 7, 15),
     globe: () => 15,
   });
   for (const key of ["corner", "lowerMargin"] as const)

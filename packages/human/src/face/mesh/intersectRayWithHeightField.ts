@@ -1,5 +1,5 @@
 import { Point } from "./structures/Point";
-import { portraitPoint as p } from "./portraitPoint";
+import { millimetrePoint as p } from "./millimetrePoint";
 
 /**
  * Intersect a measured camera ray with a continuous finite Z surface, in mm.
@@ -9,7 +9,7 @@ import { portraitPoint as p } from "./portraitPoint";
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places an observed point on an ocular support surface without changing its camera projection.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Bisects a finite bracketed ray/height residual in construction millimetres, supporting either bracket direction.
  */
-export const portraitRayIntersection = (
+export const intersectRayWithHeightField = (
   origin: Point,
   direction: Point,
   height: (x: number, y: number) => number,

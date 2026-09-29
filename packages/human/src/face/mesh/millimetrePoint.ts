@@ -7,7 +7,7 @@ import type { Point } from "./structures/Point";
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Constructs an XYZ vector without changing its caller-owned millimetre coordinates.
  * @author Samchon
  */
-export const portraitPoint = (x: number, y: number, z: number): Point => ({
+export const millimetrePoint = (x: number, y: number, z: number): Point => ({
   x,
   y,
   z,

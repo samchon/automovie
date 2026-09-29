@@ -30,7 +30,7 @@ export function sampleHistoricalHair(props: {
   const shape = resolveHumanFaceGroom(props);
   const parts = buildPortraitHairCards(shape);
   if (parts.length === 0) return [];
-  // The inspected tessellator returns portraitPart(mesh); its public annotation
+  // The inspected tessellator returns createMetricMeshPart(mesh); its public annotation
   // is the wider model-part union. No injected producer participates here.
   const mesh = (parts[0].geometry as { type: "mesh"; mesh: IAutoMovieMesh })
     .mesh;

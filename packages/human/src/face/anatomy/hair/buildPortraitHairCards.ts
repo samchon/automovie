@@ -1,9 +1,9 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-import { portraitPoint } from "../../mesh/portraitPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitSpline } from "../../mesh/portraitSpline";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
 import { IPortraitHairShape } from "./IPortraitHairShape";
 
@@ -74,8 +74,8 @@ export function buildPortraitHairCards(
       throw new Error(
         "Each hair card needs paired finite guide/frame stations and a positive bounded width.",
       );
-    const guide = card.guide.map((p) => portraitPoint(...p));
-    const across = card.across.map((p) => portraitPoint(...p));
+    const guide = card.guide.map((p) => millimetrePoint(...p));
+    const across = card.across.map((p) => millimetrePoint(...p));
     const mesh: IAutoMovieMesh = {
       positions: [],
       indices: [],
@@ -85,8 +85,8 @@ export function buildPortraitHairCards(
     };
     for (let row = 0; row <= shape.segments; row++) {
       const t = row / shape.segments;
-      const center = portraitSpline(guide, t),
-        frame = portraitSpline(across, t);
+      const center = catmullRomPoint(guide, t),
+        frame = catmullRomPoint(across, t);
       const direction = Vector3.normalize(frame);
       if (
         ![direction.x, direction.y, direction.z].every(Number.isFinite) ||
@@ -119,7 +119,7 @@ export function buildPortraitHairCards(
       const [a, b, c] = mesh
         .indices!.slice(i, i + 3)
         .map((id) =>
-          portraitPoint(
+          millimetrePoint(
             mesh.positions[id * 3],
             mesh.positions[id * 3 + 1],
             mesh.positions[id * 3 + 2],
@@ -139,7 +139,7 @@ export function buildPortraitHairCards(
   return meshes.length === 0
     ? []
     : [
-        portraitPart(
+        createMetricMeshPart(
           "scalp-hair-cards",
           mergeAutoMovieMeshes(meshes),
           shape.material,

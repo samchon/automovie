@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitSpline } from "../../mesh/portraitSpline";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
 
 /**
@@ -26,7 +26,7 @@ export function createPortraitDentalArc(
       "A dental arc needs a finite upper rim and positive row length.",
     );
   const core = Array.from({ length: 257 }, (_v, i) =>
-    portraitSpline(upper, i / 256),
+    catmullRomPoint(upper, i / 256),
   );
   const extension = Math.max(12, rowLength / 2);
   const tail = (

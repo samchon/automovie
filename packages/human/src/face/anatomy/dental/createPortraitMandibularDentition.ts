@@ -1,7 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitPoint } from "../../mesh/portraitPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";
@@ -74,7 +74,7 @@ export function createPortraitMandibularDentition(
       )
         throw new Error("Mandibular sockets must name resident host vertices.");
       const point = (id: number) =>
-        portraitPoint(...(host.positions[id] as [number, number, number]));
+        millimetrePoint(...(host.positions[id] as [number, number, number]));
       const placed = attachPortraitDentalRow(row, {
         rightCorner: point(socket.rightCorner),
         leftCorner: point(socket.leftCorner),
