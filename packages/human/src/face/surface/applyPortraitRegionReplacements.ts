@@ -1,4 +1,4 @@
-import { portraitCutBoundary } from "../anatomy/cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "../mesh/orderCutPatchBoundary";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { IPortraitRegionReplacement } from "./structures/IPortraitRegionReplacement";
 
@@ -25,7 +25,7 @@ export function applyPortraitRegionReplacements(
     );
   const plans = replacements.map((replacement) => ({
     replacement,
-    boundary: portraitCutBoundary(
+    boundary: orderCutPatchBoundary(
       mesh.groups.flatMap((group, face) =>
         group === replacement.group
           ? [mesh.indices.slice(face * 3, face * 3 + 3)]

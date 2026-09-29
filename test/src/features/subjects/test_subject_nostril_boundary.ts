@@ -1,4 +1,4 @@
-import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -15,7 +15,7 @@ import { throwsError } from "../internal/predicates";
 export const test_subject_nostril_boundary = (): void => {
   TestValidator.equals(
     "ordered square perimeter",
-    portraitCutBoundary([
+    orderCutPatchBoundary([
       [2, 3, 0],
       [2, 0, 1],
     ]),
@@ -55,6 +55,6 @@ export const test_subject_nostril_boundary = (): void => {
   ])
     TestValidator.predicate(
       "non-simple opening refused",
-      throwsError(() => portraitCutBoundary(faces)),
+      throwsError(() => orderCutPatchBoundary(faces)),
     );
 };

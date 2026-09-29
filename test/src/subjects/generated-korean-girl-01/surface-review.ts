@@ -142,7 +142,7 @@ import type {
  * @evidence {@link Human.IPortraitCheekShape.foldDepth} Controls nonnegative groove magnitude before the negative-Z field sign.
  * @evidence {@link Human.IPortraitCheekShape.foldReach} Sets the fold's depth support and its normalized path metric.
  * @evidence {@link Human.createPortraitCheekLayer} Derives owned cheek and fold fields from live refined skin attachments.
- * @evidence {@link Human.portraitCutBoundary} Orders the exposed edges of a selected triangle patch.
+ * @evidence {@link Human.orderCutPatchBoundary} Orders the exposed edges of a selected triangle patch.
  * @evidence {@link Human.IPortraitSkinConstraint} Carries one exact resident skin target and its surrounding adaptation reach.
  * @evidence {@link Human.IPortraitSkinConstraint.vertex} Identifies the existing attachment point rather than appending another seam sample.
  * @evidence {@link Human.IPortraitSkinConstraint.target} Supplies absolute construction-space XYZ for the pinned skin sample.

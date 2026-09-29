@@ -9,3 +9,4 @@ export * from "./extractTriangleRegion";
 export * from "./catmullRomPoint";
 export * from "./sweepEightSidedTube";
 export * from "./subdivideControlMesh";
+export * from "./orderCutPatchBoundary";

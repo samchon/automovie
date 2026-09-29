@@ -1,5 +1,5 @@
 import { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { portraitCutBoundary } from "../cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "../../mesh/orderCutPatchBoundary";
 import { portraitNasalCavityOffset } from "./portraitNasalCavityOffset";
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 
@@ -19,7 +19,7 @@ export function appendPortraitNostrils(
   const { positions, indices, groups } = cage;
   const offset = portraitNasalCavityOffset(shape);
   for (const faces of nostrilFaces) {
-    const boundary = portraitCutBoundary(faces);
+    const boundary = orderCutPatchBoundary(faces);
     const ids = [...new Set(boundary.flatMap((edge) => [edge.a, edge.b]))];
     const center = [0, 1, 2].map(
       (axis) =>

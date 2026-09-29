@@ -1,7 +1,7 @@
 import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
-import { portraitCutBoundary } from "../cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "../../mesh/orderCutPatchBoundary";
 import { appendPortraitNasalRimSection } from "./appendPortraitNasalRimSection";
 import { appendPortraitNostrils } from "./appendPortraitNostrils";
 import { createPortraitNasalEnvelope } from "./createPortraitNasalEnvelope";
@@ -189,7 +189,7 @@ export function createPortraitNoseComponent(
               ),
             );
       for (const faces of openings) {
-        const ids = portraitCutBoundary(faces).map((edge) => edge.a);
+        const ids = orderCutPatchBoundary(faces).map((edge) => edge.a);
         const rim = resizePortraitNostrilRim(
           fitPortraitNostrilRim(
             ids.map((id) => [
@@ -235,7 +235,7 @@ export function createPortraitNoseComponent(
         rimSection === undefined
           ? undefined
           : openings.map((faces) => {
-              const ids = portraitCutBoundary(faces).map((edge) => edge.a);
+              const ids = orderCutPatchBoundary(faces).map((edge) => edge.a);
               const section = createPortraitNasalRimSection(
                 ids.map((id) => targets.get(id)!),
                 rimSection,
@@ -245,7 +245,7 @@ export function createPortraitNoseComponent(
               return { ids, section };
             });
       const fittedEnvelopes = envelopes.map((profile, index) => {
-        const ids = portraitCutBoundary(openings[index]).map((edge) => edge.a);
+        const ids = orderCutPatchBoundary(openings[index]).map((edge) => edge.a);
         const envelope = createPortraitNasalEnvelope(
           ids.map((id) => targets.get(id)!),
           ids.map((id) => skinNormals!.slice(id * 3, id * 3 + 3)),
@@ -296,7 +296,7 @@ export function createPortraitNoseComponent(
           const innerLoops =
             rimBands === undefined
               ? openings.map((faces) =>
-                  portraitCutBoundary(faces).map((edge) => edge.a),
+                  orderCutPatchBoundary(faces).map((edge) => edge.a),
                 )
               : rimBands.map(({ ids, section }) =>
                   appendPortraitNasalRimSection(cage, ids, section, bandGroup!),

@@ -1,4 +1,4 @@
-import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import type { IAutoMovieMesh } from "@automovie/interface";
@@ -206,8 +206,8 @@ export function replacePortraitRimAttachment(
   const opposite = faces.filter(
     (face) => Math.sign(liningPoints[face[0]][0]) !== side,
   );
-  const selectedRim = portraitCutBoundary(selected).map((edge) => edge.a);
-  const otherRim = portraitCutBoundary(opposite).map((edge) => edge.a);
+  const selectedRim = orderCutPatchBoundary(selected).map((edge) => edge.a);
+  const otherRim = orderCutPatchBoundary(opposite).map((edge) => edge.a);
   const shared = new Map<number, number>();
   for (const id of [...selectedRim, ...otherRim]) {
     const resident = skinIds.get(key(liningPoints[id]));

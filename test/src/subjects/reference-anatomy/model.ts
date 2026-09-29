@@ -1,7 +1,7 @@
 import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/appendPortraitNeck";
 import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
-import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
 import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
@@ -148,7 +148,7 @@ export function buildAnatomicalStudy(
   });
   // The native crop is one open ring. Reverse its existing boundary direction
   // before adding neck faces, giving every shared edge opposite incident winding.
-  const boundary = portraitCutBoundary(
+  const boundary = orderCutPatchBoundary(
     Array.from({ length: cage.indices.length / 3 }, (_v, i) =>
       cage.indices.slice(i * 3, i * 3 + 3),
     ),

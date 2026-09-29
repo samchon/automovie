@@ -1,4 +1,4 @@
-import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { appendPortraitNostrils } from "@automovie/human/face/anatomy/nose/appendPortraitNostrils";
 import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
 import { TestValidator } from "@nestia/e2e";
@@ -38,7 +38,7 @@ export const test_subject_nostril_frame = (): void => {
   for (const cut of portraitNoseSocket.nostrils) {
     const ids = [
       ...new Set(
-        portraitCutBoundary(
+        orderCutPatchBoundary(
           cut.map((i) => host.indices.slice(i * 3, i * 3 + 3)),
         ).flatMap((e) => [e.a, e.b]),
       ),

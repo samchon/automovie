@@ -155,7 +155,7 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.parseHumanFaceDocument} Admits a complete selected document before a numerical preview or replay begins.
  * @evidence {@link Human.placeMeshPreservingFaces} Protects each part's actual placement before its final precision conversion.
  * @evidence {@link Human.portraitCranialChinHeight} Derives the cranial continuation's chin datum from the retained facial oval.
- * @evidence {@link Human.portraitCutBoundary} Orders the exposed edges of a selected triangle patch.
+ * @evidence {@link Human.orderCutPatchBoundary} Orders the exposed edges of a selected triangle patch.
  * @evidence {@link Human.portraitDirectionalSurfaceTargets} Converts complete engine face-clearance deficits into shared metric vertex targets.
  * @evidence {@link Human.portraitMinimumDirectionalSurfaceTargets} Projects both resident meshes through the existing contact frame, requests bounded area-weighted engine displacements and maps those metric travels back to original vertex identities. The retained twelve current-basis eye queries converge with no advance beyond their conservative caps; whole-face propagation and Float32 output require their separate renewed checks.
  * @evidence {@link Human.createGltfDocument} Converts the complete static study into resident GLTF material groups and attributes.
