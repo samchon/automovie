@@ -1,6 +1,6 @@
 import { createPortraitOcularTissues } from "@automovie/human/face/anatomy/eye/createPortraitOcularTissues";
 import { type IPortraitOcularTissueBoundary } from "@automovie/human/face/anatomy/eye/structures/IPortraitOcularTissueBoundary";
-import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

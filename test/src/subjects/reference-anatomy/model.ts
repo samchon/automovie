@@ -5,7 +5,7 @@ import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portr
 import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
-import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import { portraitRegion } from "@automovie/human/face/mesh/portraitRegion";
 import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
 import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";

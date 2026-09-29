@@ -1,7 +1,7 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { portraitMix } from "../../mesh/portraitMix";
-import { portraitPoint } from "../../../common/mesh/portraitPoint";
+import { portraitPoint } from "../../mesh/portraitPoint";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitPatch } from "../../mesh/portraitPatch";
 import { portraitSpline } from "../../mesh/portraitSpline";

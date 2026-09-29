@@ -1,4 +1,4 @@
-import { Point } from "../../../common/mesh/structures/Point";
+import { Point } from "../../mesh/structures/Point";
 import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitEyeCornea } from "./buildPortraitEyeCornea";
 import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";

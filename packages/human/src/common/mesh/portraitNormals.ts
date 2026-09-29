@@ -1,5 +1,4 @@
 import { Vector3 } from "@automovie/engine";
-import { p } from "./p";
 
 /**
  * Area-weighted normals over shared triangle vertices. Compute these before
@@ -18,12 +17,12 @@ export const portraitNormals = (
     const a = indices[i] * 3,
       b = indices[i + 1] * 3,
       c = indices[i + 2] * 3;
-    const ab = p(
+    const ab = Vector3.create(
       positions[b] - positions[a],
       positions[b + 1] - positions[a + 1],
       positions[b + 2] - positions[a + 2],
     );
-    const ac = p(
+    const ac = Vector3.create(
       positions[c] - positions[a],
       positions[c + 1] - positions[a + 1],
       positions[c + 2] - positions[a + 2],
@@ -44,7 +43,7 @@ export const portraitNormals = (
     )
       throw new Error("Portrait normals require finite accumulated areas.");
     const normal = Vector3.normalize(
-      p(normals[i], normals[i + 1], normals[i + 2]),
+      Vector3.create(normals[i], normals[i + 1], normals[i + 2]),
     );
     normals[i] = normal.x;
     normals[i + 1] = normal.y;

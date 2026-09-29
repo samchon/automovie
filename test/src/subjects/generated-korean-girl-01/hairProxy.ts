@@ -2,7 +2,7 @@ import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import { portraitNormals } from "@automovie/human/common/mesh/portraitNormals";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
 import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
-import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /** Subject-owned continuous hair-cap controls. */

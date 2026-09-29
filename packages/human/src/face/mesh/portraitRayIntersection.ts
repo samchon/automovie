@@ -1,5 +1,5 @@
-import { Point } from "../../common/mesh/structures/Point";
-import { p } from "../../common/mesh/p";
+import { Point } from "./structures/Point";
+import { p } from "./p";
 
 /**
  * Intersect a measured camera ray with a continuous finite Z surface, in mm.

@@ -1,6 +1,6 @@
 import { transformAutoMovieMesh } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-import { p } from "../../common/mesh/p";
+import { p } from "./p";
 
 /**
  * The sole millimetre-to-metre boundary. Every part uses the engine's same

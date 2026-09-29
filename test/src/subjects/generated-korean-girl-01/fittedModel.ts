@@ -4,7 +4,7 @@ import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/bui
 import { buildPortraitEyebrow } from "@automovie/human/face/anatomy/brow/buildPortraitEyebrow";
 import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { assertPortraitFitBasis } from "../portraitFitBasis";

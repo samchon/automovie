@@ -1,5 +1,5 @@
 import { buildPortraitEye } from "@automovie/human/face/anatomy/eye/buildPortraitEye";
-import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";

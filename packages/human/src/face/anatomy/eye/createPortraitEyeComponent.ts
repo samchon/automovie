@@ -11,7 +11,7 @@
  */
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
-import { portraitPoint as p } from "../../../common/mesh/portraitPoint";
+import { portraitPoint as p } from "../../mesh/portraitPoint";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
 import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";

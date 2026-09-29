@@ -1,6 +1,6 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPoint } from "@automovie/human/common/mesh/portraitPoint";
+import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
 import { portraitRayIntersection } from "@automovie/human/face/mesh/portraitRayIntersection";
 import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
 import type { IPortraitComponentHost } from "@automovie/human/face/surface/structures/IPortraitComponentHost";

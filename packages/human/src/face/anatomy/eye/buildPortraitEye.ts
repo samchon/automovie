@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { portraitMix as mix } from "../../mesh/portraitMix";
-import { portraitPoint as p } from "../../../common/mesh/portraitPoint";
+import { portraitPoint as p } from "../../mesh/portraitPoint";
 import { portraitNormals } from "../../../common/mesh/portraitNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitPatch as patch } from "../../mesh/portraitPatch";

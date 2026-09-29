@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { portraitPoint as p } from "../../../common/mesh/portraitPoint";
+import { portraitPoint as p } from "../../mesh/portraitPoint";
 import { portraitSpline } from "../../mesh/portraitSpline";
 import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
 

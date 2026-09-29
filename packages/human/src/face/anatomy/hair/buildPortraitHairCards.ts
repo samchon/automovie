@@ -1,6 +1,6 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-import { portraitPoint } from "../../../common/mesh/portraitPoint";
+import { portraitPoint } from "../../mesh/portraitPoint";
 import { portraitNormals } from "../../../common/mesh/portraitNormals";
 import { portraitPart } from "../../mesh/portraitPart";
 import { portraitSpline } from "../../mesh/portraitSpline";
