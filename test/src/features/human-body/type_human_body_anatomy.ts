@@ -8,6 +8,7 @@ import type {
 
 /** Compile-time contract: physical tiers, anatomy, methods and side relations. */
 const simple = {
+  generatorRevision: "compile-only",
   tier: "simple",
   targets: {
     ageYears: 25,
@@ -17,6 +18,7 @@ const simple = {
 } satisfies IAutoMovieHumanBodyParametricParameters;
 
 const detailed = {
+  generatorRevision: "compile-only",
   tier: "detailed",
   targets: {
     age: { kind: "target", years: 25 },
@@ -31,12 +33,14 @@ const detailed = {
 } satisfies IAutoMovieHumanBodyParametricParameters;
 
 const incomplete: IAutoMovieHumanBodyParametricParameters = {
+  generatorRevision: "compile-only",
   tier: "detailed",
   // @ts-expect-error A renderable detailed request needs stature and mass.
   targets: { age: { kind: "target", years: 25 } },
 };
 
 const oldMorph: IAutoMovieHumanBodyParametricParameters = {
+  generatorRevision: "compile-only",
   tier: "simple",
   targets: {
     ageYears: 25,

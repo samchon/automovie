@@ -12,7 +12,10 @@ import type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./IAutoMovieHum
  * not yet implemented by the legacy MPFB connected-skin builder.
  * @author Samchon
  */
-export type IAutoMovieHumanBodyParametricParameters =
+export type IAutoMovieHumanBodyParametricParameters = {
+  /** Exact code-native anatomical generator revision; mismatches are refused. */
+  readonly generatorRevision: string;
+} & (
   | {
       readonly tier: "simple";
       readonly targets: IAutoMovieHumanBodySimpleAnatomicalTargets;
@@ -20,4 +23,5 @@ export type IAutoMovieHumanBodyParametricParameters =
   | {
       readonly tier: "detailed";
       readonly targets: IAutoMovieHumanBodyCompleteAnatomicalMeasurements;
-    };
+    }
+);
