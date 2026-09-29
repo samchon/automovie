@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanBodyAnatomicalResolution } from "./IAutoMovieHumanBodyAnatomicalResolution";
 import type { IAutoMovieHumanBodyGeneratedSkin } from "./IAutoMovieHumanBodyGeneratedSkin";
 import type { IAutoMovieHumanBodyPartResolution } from "./IAutoMovieHumanBodyPartResolution";
+import type { AutoMovieHumanBodyPartId } from "./AutoMovieHumanBodyPartId";
 
 /**
  * Resolution report for the connected exterior and individually named parts.
@@ -17,6 +18,8 @@ export interface IAutoMovieHumanBodyGeneratedAnatomy {
     "skin",
     IAutoMovieHumanBodyGeneratedSkin
   >;
-  /** Independently resolved or refused bony and soft-tissue interiors. */
-  readonly parts: readonly IAutoMovieHumanBodyPartResolution[];
+  /** Every named internal component reports a resolved value or refusal. */
+  readonly parts: {
+    readonly [Id in AutoMovieHumanBodyPartId]: IAutoMovieHumanBodyPartResolution<Id>;
+  };
 }

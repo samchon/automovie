@@ -12,6 +12,7 @@ export type { IAutoMovieHumanBodyGeneratedSkin } from "./IAutoMovieHumanBodyGene
 export type { IAutoMovieHumanBodyGeneratedAnatomy } from "./IAutoMovieHumanBodyGeneratedAnatomy";
 export type { IAutoMovieHumanBodyPartResolution } from "./IAutoMovieHumanBodyPartResolution";
 export type { AutoMovieHumanBodyBoneId } from "./AutoMovieHumanBodyBoneId";
+export type { AutoMovieHumanBodyPartId } from "./AutoMovieHumanBodyPartId";
 export type { AutoMovieHumanBodyMuscleId } from "./AutoMovieHumanBodyMuscleId";
 export type { AutoMovieHumanBodyConnectiveTissueId } from "./AutoMovieHumanBodyConnectiveTissueId";
 export type { IAutoMovieHumanBodyArticulation } from "./IAutoMovieHumanBodyArticulation";

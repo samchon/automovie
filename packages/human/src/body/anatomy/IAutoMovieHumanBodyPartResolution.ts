@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanBodyAnatomicalResolution } from "./IAutoMovieHumanBodyAnatomicalResolution";
 import type { IAutoMovieHumanBodyGeneratedPart } from "./IAutoMovieHumanBodyGeneratedPart";
+import type { AutoMovieHumanBodyPartId } from "./AutoMovieHumanBodyPartId";
 
 /**
  * A named internal part resolved with validation or explicitly unavailable.
@@ -10,7 +11,10 @@ import type { IAutoMovieHumanBodyGeneratedPart } from "./IAutoMovieHumanBodyGene
  * @author Samchon
  */
 export type IAutoMovieHumanBodyPartResolution<
-  Part extends IAutoMovieHumanBodyGeneratedPart = IAutoMovieHumanBodyGeneratedPart,
-> = Part extends IAutoMovieHumanBodyGeneratedPart
-  ? IAutoMovieHumanBodyAnatomicalResolution<Part["id"], Part>
+  Id extends AutoMovieHumanBodyPartId = AutoMovieHumanBodyPartId,
+> = Id extends AutoMovieHumanBodyPartId
+  ? IAutoMovieHumanBodyAnatomicalResolution<
+      Id,
+      Extract<IAutoMovieHumanBodyGeneratedPart, { readonly id: Id }>
+    >
   : never;
