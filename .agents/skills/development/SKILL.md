@@ -19,10 +19,9 @@ description: Defines automovie implementation rules, testing standards (pure uni
 
 ## Forbidden
 
-These four are never acceptable; choosing any one means the approach is already wrong.
+These three are never acceptable; choosing any one means the approach is already wrong.
 
-- **No monkey-patching or hardcoding.** Don't special-case a consumer, a fixture name, or an expected value to make output match. Fix the general logic.
-- **No test-passing-only logic.** Code exists to be correct, not to turn a check green. A branch whose only purpose is to satisfy one assertion is a bug in disguise.
+- **No shortcut in place of the implementation.** Hardcoding, monkey patching, and test-only logic are defined in the contracts skill's [Prohibited Implementation Shortcuts](../contracts/common.md#prohibited-implementation-shortcuts) chapter, which owns them. Fix the general logic against the real requirement.
 - **No forcing a broken design.** When the same failure keeps returning under patch after patch, the design is wrong. Stop, find the root cause, and fix the design instead of looping forever on symptoms.
 - **No whack-a-mole.** Don't patch the one case that surfaced and move on. Think expansively about every case the same root cause can produce, and seal them all with coverage so the class of failure cannot recur.
 

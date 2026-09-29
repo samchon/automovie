@@ -41,8 +41,7 @@ A residual, a fitted preset, or a baked artifact is defined against a base (`sub
 
 ## Parameters and rigs
 
-- Anatomy-nested or domain-nested types, one channel per nameable trait, with sign semantics and defaults in field JSDoc. Neutral is zero, and a configuration is an offset from neutral.
-- Paired features carry left and right with an explicit rule, so asymmetry is authored data rather than something baked into the base.
+- Nest types by anatomy or domain and document each channel in its field JSDoc. The form a channel takes is answered under the contracts skill's [Parameter Channels](../contracts/modeling.md#parameter-channels) chapter.
 - Ranges are enforced by `engine` validators, never by `typia` tags in `interface`; the development skill's rough-types rule owns that boundary.
 - Record the study behind a numeric range in `.wiki/04-domain-research/`, and read that directory before deriving one again.
 
