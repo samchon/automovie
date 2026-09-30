@@ -187,6 +187,8 @@ window.show = async (model, options) => {
       material = material.clone();
       (material as THREE.MeshStandardMaterial).vertexColors = true;
     }
+    if (options.normal === true)
+      material = new THREE.MeshNormalMaterial({ side: THREE.DoubleSide });
     if (hairMask)
       material = maskMaterialOf(
         portraitWebHairMaskPart(part.id),

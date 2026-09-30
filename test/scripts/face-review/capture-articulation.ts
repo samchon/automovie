@@ -21,7 +21,8 @@
  * per-model camera. This runner records an estimate, not recovered physical
  * intrinsics. A JSON file without model parts and materials is skipped.
  * Views include front, both three-quarters, both profiles, back and frontal
- * clay; `mouth` is a close view of the oral region and `eyes` of the orbits.
+ * clay; `mouth` is a close view of the oral region and `eyes` of the orbits, and
+ * `eyes-normal` and `eyes-normal-quarter` draw the same orbits as shading normals.
  * The screenshot is the canvas element after `gl.finish()`.
  */
 import { createHash } from "node:crypto";
@@ -51,6 +52,20 @@ const VIEWS: Record<string, IPortraitWebOptions> = {
     clay: true,
     distance: 0.26,
     target: [0, -0.045, 0.1],
+  },
+  "eyes-normal": {
+    yaw: 0,
+    pitch: 5,
+    normal: true,
+    distance: 0.24,
+    target: [0, 0.03, 0.12],
+  },
+  "eyes-normal-quarter": {
+    yaw: 35,
+    pitch: 3,
+    normal: true,
+    distance: 0.16,
+    target: [0.03, 0.03, 0.11],
   },
   eyes: {
     yaw: 0,

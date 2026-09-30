@@ -44,6 +44,8 @@ export interface IPortraitWebOptions {
   target?: readonly number[];
   fov?: number;
   clay?: boolean;
+  /** Draw the shading normals as colour, a form-revealing structural pass. */
+  normal?: boolean;
   hairMask?: boolean;
   only?: string[];
 }
