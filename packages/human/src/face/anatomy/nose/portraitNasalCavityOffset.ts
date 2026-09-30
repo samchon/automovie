@@ -7,7 +7,7 @@ import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
  * Input and output are head-frame millimetres; tilt is in degrees.
  *
  * @evidence contracts/common.md#principled-implementation Rotating the authored (x,y,z) offset about the head X axis by the tilt, y'=y cos t - z sin t and z'=y sin t + z cos t, is the same rotation the nose component applies to the aperture, so lining and rim share one frame.
- * @evidence contracts/common.md#clear-and-simple-design One rotation shared by the envelope path and the legacy lining.
+ * @evidence contracts/common.md#clear-and-simple-design One rotation, owned here, that the lining reads.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject special-casing; the result follows the offset and the tilt.
  * @evidence contracts/common.md#meaningful-documentation The comment states the shared frame, the units and that the tilt is in degrees.
  * @evidence contracts/modeling.md#spatial-conventions Input and output are head-frame millimetres with +X anatomical left, +Y up, +Z anterior; tilt is degrees about +X and is converted to radians here.

@@ -29,7 +29,6 @@ import type * as NasalReference from "./nasalReference";
  * @evidence {@link Configuration.portraitEyeSockets} Binds the active eye aperture, iris and brow boundary identities.
  * @evidence {@link Configuration.alternatePortraitEye} Supplies an independently replaceable eye profile for component-assembly scenarios.
  * @evidence {@link Configuration.portraitNoseSocket} Binds the active nose's cut, aperture and lining anchors.
- * @evidence {@link Configuration.portraitNasalSection} Selects the optional cubic nasal-section evaluator input.
  * @evidence {@link Configuration.alternatePortraitNose} Supplies an independently replaceable nose profile for component-assembly scenarios.
  * @evidence {@link Configuration.portraitMouthSocket} Binds the active mouth opening, lip and dental attachment identities.
  * @evidence {@link Configuration.portraitDentalRow} Selects the ordered upper dental profiles, arch dimensions and contact policy.

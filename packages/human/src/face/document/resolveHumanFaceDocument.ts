@@ -126,24 +126,6 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
     applyHumanFaceControls(baseline, chinY, document.controls),
     document.detail,
   );
-  const nasalOverride = document.detail?.nose?.body?.shape;
-  const nasalBasis = baseline.nose.body?.shape;
-  if (nasalOverride !== undefined && nasalBasis !== undefined) {
-    // A new alternative replaces the old shape's complete payload. Within the
-    // same alternative, ordinary detailed-field inheritance still applies.
-    // Ambiguous inputs remain ambiguous for geometry admission to refuse.
-    const keys = ["stations", "section", "lobules"] as const;
-    const incoming = keys.filter((key) => key in nasalOverride);
-    const inherited = keys.filter((key) => key in nasalBasis);
-    if (
-      incoming.length === 1 &&
-      inherited.length === 1 &&
-      incoming[0] !== inherited[0]
-    )
-      recipe.nose.body!.shape = structuredClone(nasalOverride) as NonNullable<
-        IAutoMovieHumanFaceRecipe["nose"]["body"]
-      >["shape"];
-  }
   recipe.skin = resolvePortraitSkinShape(recipe.skin);
   if (recipe.hair !== undefined) recipe.hair = resolveHair(recipe.hair);
   if (recipe.hairLayers !== undefined)

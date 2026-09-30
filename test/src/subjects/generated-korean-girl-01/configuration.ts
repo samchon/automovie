@@ -43,7 +43,6 @@ export {
 
 export {
   portraitNoseSocket,
-  portraitNasalSection,
   portraitNoseShape,
   alternatePortraitNose,
 } from "./noseSettings";

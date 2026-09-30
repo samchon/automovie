@@ -29,9 +29,6 @@ export interface IPortraitNoseSocket {
   /** Original triangle ordinals for each nasal opening. */
   nostrils: number[][];
 
-  /** Optional retained vertex supplying the local section loft's XYZ datum. */
-  sectionAnchor?: number;
-
   /** Three retained skin datums spanning the nasal root and paired facial base. */
   supportPlane?: readonly number[];
 }

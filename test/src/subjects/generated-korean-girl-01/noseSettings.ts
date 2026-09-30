@@ -1,12 +1,11 @@
 /**
- * Frozen nasal dimensions, sections and attachments for the retained reference study.
+ * Frozen nasal dimensions and attachments for the retained reference study.
  * configuration.ts assembles these values; unit document fixtures own separate
  * immutable input data. Lengths use head millimetres and socket IDs refer to
  * controlNet. These are the unchanged historical inputs, not a new fitting pass.
  * Callers clone a profile before editing it; shared configuration stays fixed.
  */
 import { portraitNostrilContains } from "@automovie/human/face/anatomy/nose/portraitNostrilContains";
-import type { IPortraitNasalSection } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalSection";
 import { type IPortraitNoseShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseShape";
 import { type IPortraitNoseSocket } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseSocket";
 
@@ -22,7 +21,6 @@ export const portraitNoseSocket: IPortraitNoseSocket = {
   alarOffset: 12.5,
   alarY: -13.5,
   alarRadius: 5.5,
-  sectionAnchor: 4,
   surface: referenceControlNet.positions
     .slice(0, 468)
     .flatMap((point, id) =>
@@ -50,46 +48,6 @@ export const portraitNoseSocket: IPortraitNoseSocket = {
   }),
 };
 
-/**
- * Connected lower-nasal depth controls relative to retained tip datum 4.
- * Columns run from the anatomical right outer join through its alar body,
- * lower-tip shoulders and centre, then to the independent left-side controls.
- * Rows progress from the philtral root through the columellar turn, lower tip,
- * alar/dome body and lower dorsum. Every value is an authored millimetre fit.
- * These are cubic shape poles, not sampled anatomy or population dimensions.
- *
- * When selected, the grid is evaluated on the final refined exterior. Its absolute head-Z
- * target expresses the lower turn and paired alar sections directly, rather
- * than summing extra tip/ala inflation. The four-millimetre rectangular edge
- * transition joins the surrounding host. A separate six-millimetre collar
- * preserves the already fitted aperture's position and first derivative.
- * Aperture sizing and lining precede this exterior-only operation, so changing
- * these poles cannot refit their plane. This optional study profile is not
- * selected by the current assembly and has no accepted likeness claim.
- */
-export const portraitNasalSection: IPortraitNasalSection = {
-  transverse: [-22, -18, -12, -6, 0, 6, 12, 18, 22],
-  stations: [
-    // Inferior philtral root, meeting the unchanged host at the lower domain edge.
-    { height: -18, depths: [-30, -27, -22, -18, -17.5, -18, -22, -27, -30] },
-    // Control the columellar root's width through both lower-tip shoulders.
-    { height: -14, depths: [-29, -25, -17, -13.5, -13, -13.5, -17, -25, -29] },
-    { height: -10, depths: [-27, -21, -11, -4.8, -4, -4.8, -11, -21, -27] },
-    // Paired alar bodies and central dome share the same transverse construction.
-    { height: -6, depths: [-26, -13.5, -6.5, -0.8, 0, -0.8, -6.5, -13.5, -26] },
-    { height: -2, depths: [-26, -12.8, -5.5, 1, 2, 1, -5.5, -12.8, -26] },
-    // Guide the superior sections toward the unchanged bridge.
-    {
-      height: 2,
-      depths: [-27, -16.5, -7.5, -0.8, 0.5, -0.8, -7.5, -16.5, -27],
-    },
-    { height: 6, depths: [-29, -23, -13.5, -5, -3.5, -5, -13.5, -23, -29] },
-    { height: 10, depths: [-30, -25, -17, -9, -7, -9, -17, -25, -30] },
-  ],
-  joinWidth: 4,
-  influence: 1,
-};
-
 /** Subject-owned nasal offsets and cavity dimensions; see IPortraitNoseShape for units. */
 export const portraitNoseShape: IPortraitNoseShape = {
   widthScale: 1,
@@ -97,7 +55,7 @@ export const portraitNoseShape: IPortraitNoseShape = {
   // support so tip, sidewall and rim samples follow one projection relationship.
   // This fitting trial changes depth, not a claim that tip roundness is solved.
   depthScale: 0.78,
-  // Local lobules, curve refinement and an exterior rim band remain optional.
+  // Only the basic construction remains; richer nasal forms are not inputs.
   // Their tested presets did not improve the complete nasal surface, so the
   // active fit uses the prior basic construction rather than its pinched trial.
   // Zero offsets preserve the control net's inferred tip and alar depths.

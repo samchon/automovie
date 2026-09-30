@@ -224,7 +224,6 @@ import type {
  * @evidence {@link Human.createPortraitEyeSupport} Establishes one eye's fixed optical identity before any lid performance is applied.
  * @evidence {@link Human.createPortraitEyeSurfaceContact} Resolves the shared skin against this eye's actual optical volume.
  * @evidence {@link Human.createPortraitHairFibreTexture} Builds the hair texture both the colour and normal maps are generated from.
- * @evidence {@link Human.sampleCyclicNasalSection} Closes a circumferential nasal station list without repeating its first sample.
  * @evidence {@link Human.portraitFacialOvalVertices} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
  * @evidence {@link Human.fitPortraitCanthalSphere} Fits the optical body independently of the canthal aperture width.
  * @evidence {@link Human.frontWeight} States how much of the tongue's forward shaping reaches a given station.
@@ -241,7 +240,6 @@ import type {
  * @evidence {@link Human.portraitTongueRows} States how many rings the lingual surface is sampled along, root to tip.
  * @evidence {@link Human.solvePortraitSkinSystem} Solves the sparse Dirichlet system the skin relief is relaxed on.
  * @evidence {@link Human.triangleAreaVector} Measures a triangle so a degenerate face is not carried into an export.
- * @evidence {@link Human.unitNasalNormal} Normalises a nasal envelope station to its own circumferential unit.
  */
 export const portraitSurfaceReview = {
   scope: "surface construction inspection",
