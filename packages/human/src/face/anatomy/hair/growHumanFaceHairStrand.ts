@@ -24,6 +24,55 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  * which is the hierarchy admitting that these guides do not describe this
  * root's flow. The segment out of the root is the emergence the guides also
  * take and is held to the clearance instead, not to the step.
+ *
+ * @evidence contracts/common.md#principled-implementation Every station after
+ *   the root is projected by the same contact rule the guides were integrated
+ *   with, and the strand is kept only if no later chord exceeds the step plus
+ *   its rounding allowance, because the clearance argument for the straight
+ *   segments between stations rests on that chord. The segment out of the root
+ *   is exempt, being the emergence. A strand that fails, or that the projection
+ *   refuses, is grown by the integrator instead, which is the definition the
+ *   hierarchy approximates. The fallback catches the projection's refusal and
+ *   returns to the definition, so it corrects a real difference between an
+ *   interpolated and an integrated curve and does not mask a wrong premise.
+ * @evidence contracts/common.md#clear-and-simple-design One decision per
+ *   strand between placing and growing; the caller owns the station budget of
+ *   whichever curve returns.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
+ *   case for a subject or style: the placement test and the fallback are the
+ *   same for every strand.
+ * @evidence contracts/common.md#meaningful-documentation The comment states
+ *   why the hierarchy is an optimisation, when it grows a strand instead and
+ *   what the chord bound protects.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The
+ *   function computes a value and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function
+ *   defines no channel and reads the hairstyle document's fields without varying
+ *   a form; the document type owns their meaning.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits
+ *   no primitive; it returns a centreline whose stations are the strand's or the
+ *   integrator's.
+ * @evidence contracts/modeling.md#spatial-conventions Points are posed metres
+ *   in the head frame, the chord bound is the contact's step in metres, and the
+ *   returned clearance is the contact's fibre clearance in metres; nothing is
+ *   converted.
+ * @evidence contracts/modeling.md#shared-boundaries The strand meets the skin
+ *   through the same contact instance and clearance as the guides, so
+ *   interpolated and integrated hair keep one clearance from one definition.
+ *   Where blended guides disagree the chord test fails and the strand is
+ *   integrated, which is the configuration in which the interpolated join would
+ *   open.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function
+ *   owns no part, group or joint and displays nothing; the builder that owns the
+ *   assembled hair is where the result is observed.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
+ *   no anatomical value of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,
+ *   bounds or combines no anatomical quantity; assertHumanFaceHair owns
+ *   admission of the hairstyle document.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
+ *   shapes a human form through this function; it reads quantities the hairstyle
+ *   document already names and admits.
  */
 export function growHumanFaceHairStrand(props: {
   strand: {
