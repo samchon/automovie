@@ -13,7 +13,7 @@ import type {
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-import { createHumanObservation } from "../observation/createHumanObservation";
+import { createHumanObservation } from "../common/observation/createHumanObservation";
 import { createHumanPreviewCamera } from "../common/previewScene";
 import type { HumanResidentPort } from "../common/residentWorker";
 import type { createHumanViewport } from "../common/viewport";

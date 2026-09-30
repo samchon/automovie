@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { addHumanPreviewRig } from "../common/previewRig";
-import { createHumanObservation } from "../observation/createHumanObservation";
+import { createHumanObservation } from "../common/observation/createHumanObservation";
 import { createHumanPreviewCamera } from "../common/previewScene";
 
 /**

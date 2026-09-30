@@ -1,11 +1,11 @@
 import {
   HUMAN_OBSERVATION_PASSES,
   type HumanObservationPass,
-} from "@automovie/playground/src/human/observation/HumanObservationPass";
+} from "@automovie/playground/src/human/common/observation/HumanObservationPass";
 import {
   HUMAN_OBSERVATION_VIEWS,
   type HumanObservationView,
-} from "@automovie/playground/src/human/observation/HumanObservationView";
+} from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
 /** What one body capture run was asked to draw. */
 export interface IBodyCaptureRequest {

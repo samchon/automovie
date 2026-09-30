@@ -1,5 +1,5 @@
-import type { HumanObservationPass } from "@automovie/playground/src/human/observation/HumanObservationPass";
-import type { HumanObservationView } from "@automovie/playground/src/human/observation/HumanObservationView";
+import type { HumanObservationPass } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
+import type { HumanObservationView } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
 import type { IBodyReviewState } from "./standardBodyReviewDocuments";
 

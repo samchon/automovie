@@ -1,5 +1,5 @@
-import type { HumanObservationView } from "@automovie/playground/src/human/observation/HumanObservationView";
-import { placeHumanObservationCamera } from "@automovie/playground/src/human/observation/placeHumanObservationCamera";
+import type { HumanObservationView } from "@automovie/playground/src/human/common/observation/HumanObservationView";
+import { placeHumanObservationCamera } from "@automovie/playground/src/human/common/observation/placeHumanObservationCamera";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";

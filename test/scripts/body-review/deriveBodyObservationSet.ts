@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBasisJoint } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
-import type { HumanObservationView } from "@automovie/playground/src/human/observation/HumanObservationView";
+import type { HumanObservationView } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
 import type { IBodyObservationFrame } from "./IBodyObservationFrame";
 import type { IBodyObservationUnit } from "./IBodyObservationUnit";

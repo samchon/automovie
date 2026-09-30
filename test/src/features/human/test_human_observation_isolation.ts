@@ -1,4 +1,4 @@
-import { createHumanObservation } from "@automovie/playground/src/human/observation/createHumanObservation";
+import { createHumanObservation } from "@automovie/playground/src/human/common/observation/createHumanObservation";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

@@ -1,5 +1,5 @@
-import { createHumanObservation } from "@automovie/playground/src/human/observation/createHumanObservation";
-import type { HumanObservationPass } from "@automovie/playground/src/human/observation/HumanObservationPass";
+import { createHumanObservation } from "@automovie/playground/src/human/common/observation/createHumanObservation";
+import type { HumanObservationPass } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
