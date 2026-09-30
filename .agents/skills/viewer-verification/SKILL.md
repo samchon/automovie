@@ -23,6 +23,16 @@ Two details decide whether the frame is real.
 - **Import by absolute file URL.** The library resolves only from `test/`, so a script written to a scratchpad cannot find it by name. `NODE_PATH` is ignored under ESM. Import `test/node_modules/playwright/index.mjs` by its full `file:///` URL instead.
 - **Ask for `channel: "chromium"`.** The default launch drops to `chromium_headless_shell`, which has no GPU. With the real channel this repository reaches a real device through ANGLE. **Log the `RENDERER` string on every run.** Silently falling back to a software rasterizer and reading the result as a GPU frame is this procedure's main false result.
 
+## Resident development viewer
+
+`test/scripts/human-viewer/human-shot.mts` is the standard way to look at a human part. A resident GPU server on `http://127.0.0.1:5175` opens a published face document or a standard body state by address and answers a PNG in about a second, and it rebuilds what changed in the working tree. The session starts it once as an attached background job and never restarts or stops a server it did not start. From `test/`:
+
+```bash
+pnpm exec ttsx -P scripts/human-viewer/tsconfig.json scripts/human-viewer/human-shot.mts <ensure|status|stop|render|sheet|compare|warm> [key=value ...] [--output file.png]
+```
+
+The fields are `doc` (a face document id, or `body:<state>`), `parts` (mesh names, comma separated), `view` and `pass` (the names below), `frame` (`x,y,z,radius` in metres), `ao` (`on`, `off` by default), `size`, and for a face with a local reference photograph `ref` (`split`, `overlay` or `swipe`) and `opacity`. `render` draws one frame, `sheet` several views, and `compare` the reference beside or over the render at the photograph's own camera. A frame is evidence only when the response's renderer names real hardware. The runners of the next section remain for what the address cannot name: a candidate basis or a hand-written document.
+
 ## Product editors
 
 Judge the face and body editors on the frames the product draws. The playground dev server at `http://127.0.0.1:5173` serves them, and the tool `test/scripts/viewer/viewer.ts` owns its life. Run it from `test/` as `pnpm exec ttsx -P tsconfig.scripts.json scripts/viewer/viewer.ts <command>`:

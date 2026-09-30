@@ -137,12 +137,6 @@ The optional [nasal lobule sections](../../../packages/human/src/components/nasa
 
 ## Export a GLTF
 
-Run the tracked exporter from the repository root after installing the workspace dependencies. The exporter uses repository-relative output paths and writes staging artifacts in `.shots/face-experiment/`; export alone does not replace the published `preview/` bundle.
-
-```powershell
-pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/face-review/export.ts
-```
-
 The GLB is self-contained. The JSON GLTF uses its sibling `portrait.bin`. `createGltfDocument` preserves metallic/roughness colour, emission, alpha mode, sidedness and the supported scalar transmission, IOR, volume and clearcoat extensions. Every GLTF reader or writer must register `gltfMaterialExtensions`; an unregistered SDK writer can discard extension data. The converter refuses rigs. Supported resident texture bindings and their export limits are documented in the [human construction surface](../../../packages/human/README.md#construction-surface). Positive material thickness requires a closed manifold mesh.
 
 Export checks actual representation precision. Each part's placement is compared with the same engine transform applied to translation-free face coordinates, preventing a large origin from silently erasing a face before Float32 conversion. The converter then checks each nonredundant placed face at Float32 precision and validates every final material group's manifold/winding, with closure additionally required for optical volume. Original pole/seam redundancy uses the engine's existing welded triangle identities. It is not a subject-specific area allowance, and equal before/after degenerate counts cannot excuse a different newly lost face.
@@ -159,24 +153,8 @@ The model review graph reports warnings so an incomplete source relationship doe
 
 After changing geometry or an appearance dependency, build a new GLTF, freeze its bytes and capture profile, and inspect front, both obliques, both profiles, back, reference pose and clay. Compare visible feature boundaries against the original image and record failures as well as successes in the study review. A green graph is not an acceptance of likeness.
 
-Run `test/scripts/face-review/preview.ps1` from PowerShell to export and publish the latest complete bundle. The script requires the installed workspace, Chromium and Blender 5.1 at its declared local path. It publishes `.shots/face-experiment/preview` only after export, all fourteen Cycles captures and comparison verification finish. The bundle includes `portrait.glb`, JSON GLTF/buffer, the hash-checked `model.json` with named parts, `comparison.png`, `views.png`, `clay-views.png`, camera/light profile and hashes. Previous and incomplete capture directories are recycled instead of accumulating numbered rounds. A failed export or render leaves the previous complete preview available.
-
-```powershell
-./test/scripts/face-review/preview.ps1
-```
-
-The Blender executable is `C:/Program Files/Blender Foundation/Blender 5.1/blender.exe`. The comparison step uses the Playwright Chromium installation available to `test`; install that browser with `pnpm --filter @automovie/test exec playwright install chromium` if it is absent. Progress and process failures are written to `.shots/face-experiment/preview.log`. The publisher and diagnostic writers share an exclusive-create `preview.lock`; wait for its owner to finish before starting another writer. An interrupted Node diagnostic can leave the file behind. Inspect process ownership before manually removing such a lease; a timestamp alone does not establish that its owner has stopped.
-
-`comparison.png` places the source photograph beside an actual GLTF render. `reference.png` is also a render, in the estimated source-camera pose. `views.png` contains nine views, including steep top/bottom and an opposing rear oblique and `clay-views.png` contains three views without the colour finishes. The receipts inside `preview/` identify the exact model, configuration, profile and frame bytes. Read those files for artifact identity; a source edit may be newer than the last successfully published capture.
-
 `captureProfile.ts` owns Cycles sampling and its explicit denoising switch. The legacy publisher's broad-form profile uses 64 samples with denoising enabled. That profile does not establish fine hair or brow quality; the filter can change small surface features. Later human hair and brow studies carry their own capture conditions. Compare the capture profile as well as the GLB digest when assessing an appearance change.
 
-The review points to the fixed preview path and records the exact inspected GLB digest. A new preview does not automatically renew that review. Renderer differences must not be credited as geometry improvements. Import-only changes, private module state and external renderer-script changes also require a new manual inspection.
+The review records the exact inspected GLB digest. A new export does not automatically renew that review. Renderer differences must not be credited as geometry improvements. Import-only changes and private module state also require a new manual inspection.
 
 Run `pnpm --filter @automovie/test build` for the source and face-review script graph/type checks and `pnpm --filter @automovie/test start --include test_subject_` for the pure unit scenarios. Those tests check geometry, assembly and export behavior. Likeness is judged from the frames.
-
-## Observe captured feature dimensions
-
-Run `pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/face-review/measure-preview.ts` after complete publication to compare image-detector estimates with the exact captured scleral boundaries. The optional diagnostic uses the existing `.references/face-measurement` setup (`measure.html`, `vision_bundle.mjs`, `face_landmarker.task`) and records those file hashes and the browser version. Its versioned remote MediaPipe WASM response bytes are not pinned; this is not a complete runtime digest. It writes `preview/landmark-observation.json` and preserves the separate anatomical study's frozen measurements. Synthetic-image detector estimates are not ground truth: inspect them beside the named mesh boundary and actual image before changing shape parameters.
-
-Both that observer and `project-landmarks.ts` hold the shared lease from capture reads through publication. They validate every consumed source, model, GLB, configuration, profile and reference-image byte population and recheck the entire receipt digest before writing, so a different renderer/frame with the same GLB/profile is a different generation. Projection prepares its PNG in memory and writes a receipt containing both PNG and capture SHA-256 after the image. A failed write can leave an incomplete pair; consumers must check those identities. This is not crash-atomic multi-file publication or protection against arbitrary concurrent writers that ignore the lease.
