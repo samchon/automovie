@@ -20,7 +20,7 @@ export function createPortraitNasalRimSection(
 ): { outer: number[][]; crest: number[][]; rim: number[][] } {
   if (
     !Number.isFinite(shape.width) ||
-    shape.width / 1000 <= 0 ||
+    shape.width <= 0 ||
     !Number.isFinite(shape.crest) ||
     points.length < 3 ||
     skinNormals.length !== points.length ||
