@@ -159,15 +159,7 @@ export function humanBodyBasisWeights(
   // so no pose wears more than one whole correction of a family, and a
   // kernel whose window reaches no other centre of its family is exactly
   // its own correction at its centre.
-  const families = correctives.map((corrective) =>
-    corrective.inputs.map((input, at) =>
-      "shoulder" in input
-        ? input.shoulder +
-          "|" +
-          JSON.stringify(corrective.inputs.filter((_, other) => other !== at))
-        : null,
-    ),
-  );
+  const { families, examples: named } = correctivePlan(basis);
   const values = correctives.map((corrective) =>
     corrective.inputs.map((input) => ("shoulder" in input ? kernel(input) : 1)),
   );
@@ -188,32 +180,15 @@ export function humanBodyBasisWeights(
   // one, so a mixed body wears a blend of the corrections solved on its
   // traits rather than all of them added. A body on one example's channels
   // alone reads a sum of at most one and wears that example as solved.
-  const shapes = correctives.map((corrective) => {
-    const posed = corrective.inputs.filter(
-      (input): input is Exclude<Input, { channel: string }> =>
-        !("channel" in input),
-    );
-    const tissue = corrective.inputs.filter(
-      (input): input is Extract<Input, { channel: string }> =>
-        "channel" in input,
-    );
-    if (posed.length === 0 || tissue.length === 0) return null;
-    return {
-      pose: posed
-        .map((input) =>
-          "shoulder" in input
-            ? `${input.shoulder}|${JSON.stringify(input.orientation)}`
-            : `${input.bone}.${input.axis}.${input.side}`,
-        )
-        .sort((a, b) => a.localeCompare(b))
-        .join("+"),
-      example: tissue
-        .map((input) => `${input.channel}.${input.side}`)
-        .sort((a, b) => a.localeCompare(b))
-        .join("+"),
-      factor: tissue.reduce((total, input) => total * ramp(input), 1),
-    };
-  });
+  const shapes = named.map((one) =>
+    one === null
+      ? null
+      : {
+          pose: one.pose,
+          example: one.example,
+          factor: one.tissue.reduce((total, input) => total * ramp(input), 1),
+        },
+  );
   const examples = new Map<string, Map<string, number>>();
   for (const shape of shapes) {
     if (shape === null) continue;
@@ -251,3 +226,73 @@ export function humanBodyBasisWeights(
   }));
   return { weights, activations, pose };
 }
+
+type Corrective = NonNullable<IAutoMovieHumanBodyBasis["correctives"]>[number];
+type CorrectiveInput = Corrective["inputs"][number];
+
+/**
+ * What the corrective table alone fixes: each shoulder kernel's family key
+ * and each shape example's pose key, example key and channel drivers. None of
+ * it reads a weight or a pose, and the keys cost a JSON encoding per
+ * corrective, which the simple tier's inversions would otherwise pay on
+ * every one of their hundred-odd trial bodies. An admitted basis is
+ * immutable, so the plan is read once per basis and shared.
+ */
+function correctivePlan(basis: IAutoMovieHumanBodyBasis): {
+  families: (string | null)[][];
+  examples: ({
+    pose: string;
+    example: string;
+    tissue: Extract<CorrectiveInput, { channel: string }>[];
+  } | null)[];
+} {
+  const cached = plans.get(basis);
+  if (cached !== undefined) return cached;
+  const correctives = basis.correctives ?? [];
+  const plan = {
+    families: correctives.map((corrective) =>
+      corrective.inputs.map((input, at) =>
+        "shoulder" in input
+          ? input.shoulder +
+            "|" +
+            JSON.stringify(
+              corrective.inputs.filter((_, other) => other !== at),
+            )
+          : null,
+      ),
+    ),
+    examples: correctives.map((corrective) => {
+      const posed = corrective.inputs.filter(
+        (input): input is Exclude<CorrectiveInput, { channel: string }> =>
+          !("channel" in input),
+      );
+      const tissue = corrective.inputs.filter(
+        (input): input is Extract<CorrectiveInput, { channel: string }> =>
+          "channel" in input,
+      );
+      if (posed.length === 0 || tissue.length === 0) return null;
+      return {
+        pose: posed
+          .map((input) =>
+            "shoulder" in input
+              ? `${input.shoulder}|${JSON.stringify(input.orientation)}`
+              : `${input.bone}.${input.axis}.${input.side}`,
+          )
+          .sort((a, b) => a.localeCompare(b))
+          .join("+"),
+        example: tissue
+          .map((input) => `${input.channel}.${input.side}`)
+          .sort((a, b) => a.localeCompare(b))
+          .join("+"),
+        tissue,
+      };
+    }),
+  };
+  plans.set(basis, plan);
+  return plan;
+}
+
+const plans = new WeakMap<
+  IAutoMovieHumanBodyBasis,
+  ReturnType<typeof correctivePlan>
+>();

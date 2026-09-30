@@ -18,19 +18,40 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * Several loops usually exist (a plane through a thigh also cuts the other
  * thigh and both hands); the one whose centroid is closest to the seed is the
  * measurement, and null is returned when no closed loop exists. Cost is
- * linear in the triangle count per call.
+ * linear in the triangle count per call. A caller that cuts one surface at
+ * many parallel stations passes `triangles`, the ordinals its own index
+ * found near this plane (`indexHumanBodySectionTriangles`), and the walk then
+ * reads only those. They must ascend and include every triangle that
+ * straddles the plane; the section is then exactly the one a full walk
+ * gives, because the extra triangles straddle nothing and the crossings
+ * keep the full walk's order.
  *
  * The perimeter follows the contour into every concavity; the girth is the
  * perimeter of the loop's convex hull in the plane, which is what a tape
  * pulled around the body reads: it bridges the gluteal cleft, the
  * inframammary fold and the navel as the ISO 8559-1 and ANSUR tape girths
  * do, and equals the perimeter on a convex section.
+ *
+ * @evidence contracts/common.md#principled-implementation A plane cuts a triangle exactly when its corners lie on both sides, edge crossings are interpolated linearly and keyed by their edge so neighbours share them, the loop is walked through those keys, and the tape girth is the convex hull perimeter of the planar loop (Andrew's monotone chain). A vertex on the plane counts positive so every crossing is interior to its edge. The optional triangle list only narrows which triangles are read and must contain every straddler in ascending order; the result is then identical to a full walk.
+ * @evidence contracts/common.md#clear-and-simple-design One responsibility: the cut of a triangle surface by a plane and the loop nearest a seed. The plane, the seed and the candidate triangles are the caller's; no anatomy is held here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No landmark, rule or expected girth is named, and the candidate list is only a narrowing of the same exact test.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the method, the loop selection, the tape convention, the null answers, the cost and the candidate-list contract.
+ * @evidence contracts/modeling.md#spatial-conventions Positions, plane and results are metres in the frame of the surface the caller passes, and the body faces +Z; the only conversion is the named orthonormal plane frame used for the hull.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function measures a section and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no geometry, only measurements of a section.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint a viewer displays.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function holds no anatomy; the rule that places the plane carries the source.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function is not an input through which a caller shapes a body.
  */
 export function measureHumanBodySection(
   positions: number[],
   indices: number[],
   plane: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
   seed: IAutoMovieVector3,
+  triangles?: readonly number[],
 ): {
   perimeter: number;
   girth: number;
@@ -40,11 +61,18 @@ export function measureHumanBodySection(
 } | null {
   const count = positions.length / 3;
   const distance = new Float64Array(count);
-  for (let v = 0; v < count; v++)
+  const measure = (v: number): void => {
     distance[v] =
       (positions[v * 3] - plane.point.x) * plane.normal.x +
       (positions[v * 3 + 1] - plane.point.y) * plane.normal.y +
       (positions[v * 3 + 2] - plane.point.z) * plane.normal.z;
+  };
+  // only the vertices a walked triangle reads are measured; the rest of the
+  // buffer stays zero and is never read
+  if (triangles === undefined) for (let v = 0; v < count; v++) measure(v);
+  else
+    for (const t of triangles)
+      for (let k = 0; k < 3; k++) measure(indices[t * 3 + k]);
   const points = new Map<string, [number, number, number]>();
   const adjacency = new Map<string, string[]>();
   const crossing = (a: number, b: number): string => {
@@ -61,7 +89,9 @@ export function measureHumanBodySection(
     }
     return key;
   };
-  for (let t = 0; t < indices.length; t += 3) {
+  const walked = triangles?.length ?? indices.length / 3;
+  for (let step = 0; step < walked; step++) {
+    const t = (triangles === undefined ? step : triangles[step]) * 3;
     const keys: string[] = [];
     for (let k = 0; k < 3; k++) {
       const a = indices[t + k];
