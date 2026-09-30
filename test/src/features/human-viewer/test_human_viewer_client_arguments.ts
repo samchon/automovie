@@ -25,6 +25,7 @@ export function test_human_viewer_client_arguments(): void {
     "ensure",
     "status",
     "stop",
+    "watch",
     "render",
     "compare",
     "warm",
@@ -45,6 +46,7 @@ export function test_human_viewer_client_arguments(): void {
     ["render", "--output", "--bad"],
     ["render", "--output", "a", "--output", "b"],
     ["stop", "doc=a"],
+    ["watch", "doc=a"],
     ["ensure", "--output", "a"],
     ["warm", "--output", "a"],
   ]) {

@@ -14,6 +14,7 @@ export function parseHumanShotRequest(args: readonly string[]): {
     | "ensure"
     | "status"
     | "stop"
+    | "watch"
     | "render"
     | "sheet"
     | "compare"
@@ -27,6 +28,7 @@ export function parseHumanShotRequest(args: readonly string[]): {
       "ensure",
       "status",
       "stop",
+      "watch",
       "render",
       "sheet",
       "compare",
@@ -34,7 +36,7 @@ export function parseHumanShotRequest(args: readonly string[]): {
     ].includes(command)
   )
     throw new Error(
-      "Give ensure, status, stop, render, sheet, compare or warm",
+      "Give ensure, status, stop, watch, render, sheet, compare or warm",
     );
   const fields = new URLSearchParams();
   let output: string | null = null;

@@ -55,8 +55,62 @@ const kill = (pid: number): void => {
     });
   else process.kill(pid, "SIGTERM");
 };
+/**
+ * Keep the viewer alive from outside its process. A server that answers
+ * nothing for `STALL_MS` (a refused connection counts, since a full listen
+ * backlog refuses) is killed by the pid it recorded and started again, and an
+ * absent one is started at once. The watcher owns the restarted server as a
+ * child, so stopping the watcher stops it.
+ */
+async function watch(): Promise<void> {
+  const STALL_MS = 30000;
+  let silentSince: number | null = null;
+  for (;;) {
+    let health: Health | null | undefined;
+    try {
+      health = await probe();
+    } catch {
+      health = undefined;
+    }
+    const record = path.join(storage, "server.json");
+    const saved = fs.existsSync(record)
+      ? (JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number })
+      : null;
+    if (health?.ready === true || health?.service !== undefined) silentSince = null;
+    else {
+      silentSince ??= Date.now();
+      const alive = saved !== null && processAlive(saved.pid);
+      if (!alive && owned?.exitCode !== null) {
+        console.error("watch: no server, starting");
+        start();
+        silentSince = Date.now();
+      } else if (Date.now() - silentSince > STALL_MS) {
+        console.error("watch: server silent for " + STALL_MS / 1000 + " s, restarting");
+        if (saved !== null) kill(saved.pid);
+        if (owned?.pid) kill(owned.pid);
+        fs.rmSync(record, { force: true });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        });
+        start();
+        silentSince = Date.now() + 120000;
+      }
+    }
+    await new Promise((resolve) => {
+      setTimeout(resolve, 3000);
+    });
+  }
+}
+const processAlive = (pid: number): boolean => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
 async function main(): Promise<void> {
-  let health = await probe();
+  const health = await probe();
   if (request.command === "status") {
     console.log(JSON.stringify(health ?? { ready: false }));
     process.exitCode = health?.ready ? 0 : 3;
@@ -79,7 +133,14 @@ async function main(): Promise<void> {
     fs.rmSync(record, { force: true });
     return;
   }
+  if (request.command === "watch") return watch();
   if (health === null) {
+    start();
+  }
+  await ready();
+}
+/** Start the server as a child of this process. */
+function start(): void {
     const require = createRequire(import.meta.url);
     const launcher = path.join(
       path.dirname(require.resolve("ttsc/package.json")),
@@ -107,7 +168,9 @@ async function main(): Promise<void> {
     process.once("SIGTERM", () => {
       if (owned?.pid) kill(owned.pid);
     });
-  }
+}
+async function ready(): Promise<void> {
+  let health = await probe();
   for (let attempt = 0; !health?.ready && attempt < 3000; ++attempt) {
     if (owned?.exitCode !== null && owned?.exitCode !== undefined)
       throw new Error("The owned viewer exited before readiness");
