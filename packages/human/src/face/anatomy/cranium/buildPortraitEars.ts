@@ -8,8 +8,10 @@ import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
+import { weldLatticeSeamNormals } from "../../mesh/weldLatticeSeamNormals";
 import { IPortraitEarShape } from "../ear/IPortraitEarShape";
 import { portraitEarShape } from "../ear/portraitEarShape";
+import { pinnaHelixRimWeight } from "../ear/pinnaHelixRimWeight";
 import { resolvePortraitEarSampling } from "../ear/resolvePortraitEarSampling";
 
 /**
@@ -90,12 +92,14 @@ export function buildPortraitEars(
     [8, 0],
     [13, 7],
   ]);
-  const distanceSquared = (
+  // Nearest point of a sampled path to (y, z): squared distance and the path
+  // parameter in [0, 1] of that point, so a ridge can vary along its length.
+  const nearest = (
     y: number,
     z: number,
     path: ReturnType<typeof stroke>,
-  ): number => {
-    let result = Infinity;
+  ): { squared: number; along: number } => {
+    let result = { squared: Infinity, along: 0 };
     for (let i = 0; i < path.length - 1; i++) {
       const a = path[i],
         b = path[i + 1],
@@ -105,13 +109,23 @@ export function buildPortraitEars(
         0,
         Math.min(1, ((y - a.y) * dy + (z - a.z) * dz) / (dy * dy + dz * dz)),
       );
-      result = Math.min(
-        result,
-        (y - a.y - t * dy) ** 2 + (z - a.z - t * dz) ** 2,
-      );
+      const squared = (y - a.y - t * dy) ** 2 + (z - a.z - t * dz) ** 2;
+      if (squared < result.squared)
+        result = { squared, along: (i + t) / (path.length - 1) };
     }
     return result;
   };
+  const distanceSquared = (
+    y: number,
+    z: number,
+    path: ReturnType<typeof stroke>,
+  ): number => nearest(y, z, path).squared;
+  // The helix is the cartilage rim; it ends at the lobule, which is soft
+  // tissue without cartilage and carries no rim. The ridge therefore fades
+  // out over one outline segment before the first lobule point and back in
+  // after the last, both named by outline index. The rim's arc parameter is
+  // the outline's, because the helix samples the outline uniformly.
+  const lobule = { from: 5, to: 7 };
   const bump = (
     y: number,
     z: number,
@@ -121,7 +135,13 @@ export function buildPortraitEars(
     wz: number,
   ): number => Math.exp(-(((y - cy) / wy) ** 2 + ((z - cz) / wz) ** 2));
   const relief = (y: number, z: number): number =>
-    2.8 * Math.exp(-distanceSquared(y, z, helix) / 1.35 ** 2) +
+    2.8 *
+      pinnaHelixRimWeight(
+        nearest(y, z, helix).along,
+        outlinePoints.length,
+        lobule,
+      ) *
+      Math.exp(-distanceSquared(y, z, helix) / 1.35 ** 2) +
     1.7 *
       Math.exp(
         -Math.min(
@@ -158,7 +178,7 @@ export function buildPortraitEars(
         shape.embedding
       );
     };
-    const front = triangulateSurfaceLattice(
+    const front = weldLatticeSeamNormals(triangulateSurfaceLattice(
       (u, v) => {
         const edge = outline(u),
           r = 0.0001 + 0.9999 * v,
@@ -172,8 +192,8 @@ export function buildPortraitEars(
       },
       sampling.columns,
       sampling.frontRows,
-    );
-    const back = triangulateSurfaceLattice(
+    ), sampling.columns, sampling.frontRows);
+    const back = weldLatticeSeamNormals(triangulateSurfaceLattice(
       (u, v) => {
         const edge = outline(1 - u),
           r = 0.0001 + 0.9999 * v,
@@ -189,7 +209,7 @@ export function buildPortraitEars(
       },
       sampling.columns,
       sampling.backRows,
-    );
+    ), sampling.columns, sampling.backRows);
     for (const [name, mesh] of [
       ["pinna", front],
       ["ear-back", back],
