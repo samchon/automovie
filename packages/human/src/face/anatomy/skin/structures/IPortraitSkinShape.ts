@@ -8,8 +8,6 @@ import { portraitSkinParameters } from "../portraitSkinParameters";
  * not a biological age predictor or a viscoelastic simulation.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Separates persistent skin condition from transient expression folds.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Declares one numerical skin layer on the shared anatomical surface.
  */
 export type IPortraitSkinShape = Partial<
   Record<(typeof portraitSkinParameters)[number]["id"], number>

@@ -1,4 +1,4 @@
-import { portraitCutBoundary } from "../anatomy/cranium/portraitCutBoundary";
+import { orderCutPatchBoundary } from "../mesh/orderCutPatchBoundary";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { IPortraitRegionReplacement } from "./structures/IPortraitRegionReplacement";
 
@@ -7,8 +7,6 @@ import { IPortraitRegionReplacement } from "./structures/IPortraitRegionReplacem
  * Regions must be distinct and present with one oriented loop. Removal occurs
  * once on an owned mesh; appending one patch cannot change another's boundary
  * basis. Empty replacements preserve the input object exactly.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Replaces independently reserved component regions without changing another region's attachment basis.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Resolves all distinct boundaries before one owned removal pass, preserves surviving vertices and appends each patch against its precomputed loop.
  */
 export function applyPortraitRegionReplacements(
   mesh: IControlMesh,
@@ -25,7 +23,7 @@ export function applyPortraitRegionReplacements(
     );
   const plans = replacements.map((replacement) => ({
     replacement,
-    boundary: portraitCutBoundary(
+    boundary: orderCutPatchBoundary(
       mesh.groups.flatMap((group, face) =>
         group === replacement.group
           ? [mesh.indices.slice(face * 3, face * 3 + 3)]

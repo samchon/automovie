@@ -1,8 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
-import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFaceGroom";
 import { resolveHumanFaceGroom } from "../document/resolveHumanFaceGroom";
+import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFaceGroom";
 
 /**
  * Give a built connected face the hair authored against its own surfaces.
@@ -24,8 +24,6 @@ import { resolveHumanFaceGroom } from "../document/resolveHumanFaceGroom";
  * and an approximation for any other; whether the result reads as that person's
  * hair is a judgement no measurement here makes.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds the authored scalp locks to the anatomical components a built face carries.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Composes resolved hair strips and their generated finish into the resident model.
  * @author Samchon
  */
 export function appendHumanFaceGroom(props: {

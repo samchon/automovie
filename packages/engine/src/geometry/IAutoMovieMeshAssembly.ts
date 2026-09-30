@@ -1,5 +1,6 @@
-import { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
 
 /**
  * One merged mesh plus the material groups its members occupy.

@@ -1,4 +1,14 @@
-import { AutoMovieRenderMetric, IAutoMovieRenderBudget, IAutoMovieRenderContributor, IAutoMovieRenderFinding, IAutoMovieRenderInventory, IAutoMovieRenderReport, IAutoMovieRenderTarget, IAutoMovieSemanticMask } from "@automovie/interface";
+import {
+  AutoMovieRenderMetric,
+  IAutoMovieRenderBudget,
+  IAutoMovieRenderContributor,
+  IAutoMovieRenderFinding,
+  IAutoMovieRenderInventory,
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_RENDER_METRICS } from "./constants/AUTOMOVIE_RENDER_METRICS";

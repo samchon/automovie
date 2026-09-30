@@ -1,4 +1,8 @@
-import { IAutoMovieMaterialSubstance, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieMaterialSubstance,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**

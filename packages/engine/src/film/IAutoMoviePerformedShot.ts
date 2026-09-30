@@ -1,4 +1,9 @@
-import { IAutoMovieBeatEndFootPlant, IAutoMovieConstraintViolation, IAutoMovieMotion, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieConstraintViolation,
+  IAutoMovieMotion,
+  IAutoMovieShot,
+} from "@automovie/interface";
 
 /**
  * A performed shot: the assembled {@link IAutoMovieShot} plus the dense motion

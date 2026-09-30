@@ -1,4 +1,7 @@
-import { IAutoMoviePropBox, IAutoMovieServiceSegment } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceSegment,
+} from "@automovie/interface";
 
 /**
  * The single world volume a whole run is contained by.

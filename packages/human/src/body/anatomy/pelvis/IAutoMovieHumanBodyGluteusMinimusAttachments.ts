@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /**
  * Deep minimus origin and anterior greater-trochanter insertion.
@@ -12,13 +12,17 @@ export interface IAutoMovieHumanBodyGluteusMinimusAttachments<
   Side extends AutoMovieHumanBodySide,
 > {
   /** Deep iliac origin between the anterior and inferior gluteal lines. */
-  readonly origins: readonly [{
-    structure: `${Side}CoxalBone`;
-    site: "iliumBetweenAnteriorAndInferiorGlutealLines";
-  }];
+  readonly origins: readonly [
+    {
+      structure: `${Side}CoxalBone`;
+      site: "iliumBetweenAnteriorAndInferiorGlutealLines";
+    },
+  ];
   /** Anterior facet of the same side's greater trochanter. */
-  readonly insertions: readonly [{
-    structure: `${Side}Femur`;
-    site: "greaterTrochanterAnteriorFacet";
-  }];
+  readonly insertions: readonly [
+    {
+      structure: `${Side}Femur`;
+      site: "greaterTrochanterAnteriorFacet";
+    },
+  ];
 }

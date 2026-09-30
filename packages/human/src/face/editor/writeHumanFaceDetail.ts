@@ -1,0 +1,47 @@
+import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
+
+/**
+ * Write or delete one numeric detail at a path of a document, in place on the
+ * copy the caller passes.
+ *
+ * Containers along the path are detached first: `structuredClone` preserves
+ * aliases, so a selected side or layer must not also edit its basis or a
+ * sibling. Writing creates missing containers. Clearing (`undefined`) deletes
+ * the key and every ancestor it leaves empty, and returns the document
+ * unchanged when the path does not exist. Shared by `setHumanFaceDetail` and
+ * `setHumanFaceHairLayerDetail`.
+ *
+ * @author Samchon
+ */
+export function writeHumanFaceDetail(
+  next: IAutoMovieHumanFaceDocument,
+  path: readonly string[],
+  value: number | undefined,
+): IAutoMovieHumanFaceDocument {
+  let object = next as unknown as Record<string, unknown>;
+  const ancestors: { object: Record<string, unknown>; key: string }[] = [];
+  for (const key of path.slice(0, -1)) {
+    if (object[key] === undefined) {
+      if (value === undefined) return next;
+      object[key] = {};
+    } else {
+      // structuredClone preserves aliases. Detach only the containers on this
+      // path so a selected side/layer cannot also edit its basis or sibling.
+      const child = object[key] as Record<string, unknown> | unknown[];
+      object[key] = Array.isArray(child) ? [...child] : { ...child };
+    }
+    ancestors.push({ object, key });
+    object = object[key] as Record<string, unknown>;
+  }
+  const key = path[path.length - 1];
+  if (value === undefined) {
+    if (!Object.hasOwn(object, key)) return next;
+    delete object[key];
+    for (const parent of ancestors.reverse()) {
+      if (Object.keys(object).length !== 0) break;
+      delete parent.object[parent.key];
+      object = parent.object;
+    }
+  } else object[key] = value;
+  return next;
+}

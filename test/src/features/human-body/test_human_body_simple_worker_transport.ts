@@ -1,4 +1,4 @@
-import { createBodySimpleWorkerTransport } from "@automovie/playground/src/human/bodySimpleWorkerTransport";
+import { createBodySimpleWorkerTransport } from "@automovie/playground/src/human/body/bodySimpleWorkerTransport";
 import { TestValidator } from "@nestia/e2e";
 
 type Envelope = { id: number; kind: string };

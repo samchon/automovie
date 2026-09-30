@@ -1,9 +1,9 @@
+import { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 import { evaluateHumanFaceRest } from "../basis/evaluateHumanFaceRest";
 import { poseHumanFaceSurface } from "../basis/poseHumanFaceSurface";
 import { resolveHumanFaceArticulation } from "../basis/resolveHumanFaceArticulation";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import { IAutoMovieHumanFaceChannelScale } from "../structures/IAutoMovieHumanFaceChannelScale";
-import { IAutoMovieHumanFaceEndpointScale } from "../structures/IAutoMovieHumanFaceEndpointScale";
 
 /**
  * Measure every channel's metric effect on an admitted connected facial basis.
@@ -34,9 +34,6 @@ import { IAutoMovieHumanFaceEndpointScale } from "../structures/IAutoMovieHumanF
  *
  * @param basis Admitted immutable basis to measure.
  * @returns One record per channel, in the basis's own channel order.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components States the metre magnitude of each named control's increase and decrease, which a dimensionless endpoint weight alone leaves undescribed.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Derives the unit a basis control carries from its own authored endpoint displacements rather than restating an authored constant.
  */
 export function measureHumanFaceBasisChannels(
   basis: IAutoMovieHumanFaceBasis,
@@ -75,7 +72,7 @@ export function measureHumanFaceBasisChannels(
   // sparse row is cheaper than taking its length for every row. A joint's
   // channel is instead posed through the same attachment blend the builder
   // uses, and measured vertex by vertex against the neutral.
-  const measure = (name: string): IAutoMovieHumanFaceEndpointScale => {
+  const measure = (name: string): IAutoMovieHumanEndpointScale => {
     let sumOfSquares = 0;
     let largestSquare = 0;
     let rowCount = 0;

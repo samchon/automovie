@@ -3,9 +3,6 @@ import { IPortraitFacialFrameShape } from "./structures/IPortraitFacialFrameShap
 /**
  * Resolve facial-frame dimensions without clipping and return owned settings.
  * Identity uses scales of one and displacements of zero, irrespective of person.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Defines omission, signed neutral values and finite detailed frame bounds.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Refuses out-of-envelope facial-frame combinations before constructing parts.
  */
 export function resolvePortraitFacialFrameShape(
   input: IPortraitFacialFrameShape = {},

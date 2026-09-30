@@ -1,14 +1,14 @@
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/appendPortraitNeck";
-import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
 import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
-import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
-import { portraitRegion } from "@automovie/human/face/mesh/portraitRegion";
-import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
 import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "@automovie/human/face/mesh/extractTriangleRegion";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
+import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
+import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import {
@@ -148,7 +148,7 @@ export function buildAnatomicalStudy(
   });
   // The native crop is one open ring. Reverse its existing boundary direction
   // before adding neck faces, giving every shared edge opposite incident winding.
-  const boundary = portraitCutBoundary(
+  const boundary = orderCutPatchBoundary(
     Array.from({ length: cage.indices.length / 3 }, (_v, i) =>
       cage.indices.slice(i * 3, i * 3 + 3),
     ),
@@ -224,7 +224,7 @@ export function buildAnatomicalStudy(
     for (let i = 0; i < centres.length; i++) centres[i] = warp(centres[i]);
   }
   const packed = cage.positions.flat(),
-    normals = portraitNormals(packed, cage.indices);
+    normals = areaWeightedNormals(packed, cage.indices);
   const parts = [];
   for (const [group, material] of [
     [0, "skin"],
@@ -234,9 +234,9 @@ export function buildAnatomicalStudy(
       (_v, i) => cage.groups[Math.floor(i / 3)] === group,
     );
     parts.push(
-      portraitPart(
+      createMetricMeshPart(
         "anatomical-" + material,
-        portraitRegion(packed, normals, indices),
+        extractTriangleRegion(packed, normals, indices),
         material,
       ),
     );
@@ -251,12 +251,12 @@ export function buildAnatomicalStudy(
     centre: number[],
     material: string,
   ) =>
-    portraitPart(
+    createMetricMeshPart(
       id,
       {
         ...mesh,
         // Positions, centre and radius share construction millimetres. The ratio
-        // is dimensionless and portraitPart retains its direction at metre export.
+        // is dimensionless and createMetricMeshPart retains its direction at metre export.
         normals: mesh.positions.map(
           (value, index) => (value - centre[index % 3]) / shape.eyeRadius,
         ),
@@ -268,20 +268,20 @@ export function buildAnatomicalStudy(
     const gaze = fit?.gazeOrigins?.[side];
     const irisCenter =
       gaze === undefined
-        ? portraitPoint(x, y, z + shape.eyeRadius)
+        ? millimetrePoint(x, y, z + shape.eyeRadius)
         : portraitEyeSphereIntersection(
-            { center: portraitPoint(x, y, z), radius: shape.eyeRadius },
-            portraitPoint(gaze[0], gaze[1], gaze[2]),
-            portraitPoint(...(fit!.viewRay as [number, number, number])),
+            { center: millimetrePoint(x, y, z), radius: shape.eyeRadius },
+            millimetrePoint(gaze[0], gaze[1], gaze[2]),
+            millimetrePoint(...(fit!.viewRay as [number, number, number])),
           );
     parts.push(
       opticalPart(
         "study-globe-" + side,
-        portraitPatch(
+        triangulateSurfaceLattice(
           (u, v) => {
             const a = 2 * Math.PI * u,
               b = Math.PI * (v - 0.5);
-            return portraitPoint(
+            return millimetrePoint(
               x + shape.eyeRadius * Math.sin(a) * Math.cos(b),
               y + shape.eyeRadius * Math.sin(b),
               z + shape.eyeRadius * Math.cos(a) * Math.cos(b),
@@ -301,11 +301,11 @@ export function buildAnatomicalStudy(
       parts.push(
         opticalPart(
           "study-" + name + "-" + side,
-          portraitPatch(
+          triangulateSurfaceLattice(
             (u, v) => {
               const dx = radius * v * Math.cos(2 * Math.PI * u),
                 dy = -radius * v * Math.sin(2 * Math.PI * u);
-              return portraitPoint(
+              return millimetrePoint(
                 irisCenter.x + dx,
                 irisCenter.y + dy,
                 z +

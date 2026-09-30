@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 /**
  * Gluteus medius origin on ilium and insertion on the greater trochanter.
@@ -11,13 +11,19 @@ export interface IAutoMovieHumanBodyGluteusMediusAttachments<
   Side extends AutoMovieHumanBodySide,
 > {
   /** Iliac origin between the gluteal lines. */
-  readonly origins: readonly [{
-    structure: `${Side}CoxalBone`;
-    site: "iliumBetweenGlutealLines";
-  }];
+  readonly origins: readonly [
+    {
+      structure: `${Side}CoxalBone`;
+      site: "iliumBetweenGlutealLines";
+    },
+  ];
   /** Facet on this side's greater trochanter. */
-  readonly insertions: readonly [{
-    structure: `${Side}Femur`;
-    site: "greaterTrochanterLateralFacet" | "greaterTrochanterSuperoposteriorFacet";
-  }];
+  readonly insertions: readonly [
+    {
+      structure: `${Side}Femur`;
+      site:
+        | "greaterTrochanterLateralFacet"
+        | "greaterTrochanterSuperoposteriorFacet";
+    },
+  ];
 }

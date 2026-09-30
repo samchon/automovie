@@ -142,12 +142,12 @@ import type {
  * @evidence {@link Human.IPortraitCheekShape.foldDepth} Controls nonnegative groove magnitude before the negative-Z field sign.
  * @evidence {@link Human.IPortraitCheekShape.foldReach} Sets the fold's depth support and its normalized path metric.
  * @evidence {@link Human.createPortraitCheekLayer} Derives owned cheek and fold fields from live refined skin attachments.
- * @evidence {@link Human.portraitCutBoundary} Orders the exposed edges of a selected triangle patch.
+ * @evidence {@link Human.orderCutPatchBoundary} Orders the exposed edges of a selected triangle patch.
  * @evidence {@link Human.IPortraitSkinConstraint} Carries one exact resident skin target and its surrounding adaptation reach.
  * @evidence {@link Human.IPortraitSkinConstraint.vertex} Identifies the existing attachment point rather than appending another seam sample.
  * @evidence {@link Human.IPortraitSkinConstraint.target} Supplies absolute construction-space XYZ for the pinned skin sample.
  * @evidence {@link Human.IPortraitSkinConstraint.reach} Limits adaptation by distance travelled along connected skin edges.
- * @evidence {@link Human.portraitFacesInsideLoop} Delegates anatomical-loop face selection to the engine's connectivity owner.
+ * @evidence {@link Human.selectHostFacesInsideLoop} Delegates anatomical-loop face selection to the engine's connectivity owner.
  * @evidence {@link Human.IPortraitRegionReplacement} Describes a reserved group and its later appender against the refined socket.
  * @evidence {@link Human.IPortraitRegionReplacement.group} Names the reserved face population inherited through subdivision.
  * @evidence {@link Human.IPortraitRegionReplacement.append} Installs a sampled source after the shared host has refined its socket.
@@ -182,19 +182,19 @@ import type {
  * @evidence {@link Human.IPortraitComponentPlan.constraints} Defines the complete exact attachment requests collected before skin blending.
  * @evidence {@link Human.IPortraitComponentPlan.cutFaces} Identifies original faces replaced by component topology.
  * @evidence {@link Human.IPortraitComponentPlan.attach} Appends shared geometry and returns the actual final-surface consumers.
- * @evidence {@link Human.portraitPoint} Supplies the common XYZ value used by the study's construction-space curves and component frames.
- * @evidence {@link Human.portraitMix} Interpolates scalar coordinates and dimensions within the authored surface sections.
- * @evidence {@link Human.portraitRayIntersection} Provides a bracketed camera-ray intersection for a caller-owned finite height surface.
- * @evidence {@link Human.portraitNormals} Computes the shared skin/lining normal field before material regions are separated.
- * @evidence {@link Human.portraitRegion} Extracts named material geometry while preserving the common field and original vertex identity.
- * @evidence {@link Human.portraitPart} Converts completed construction meshes into static metre-space AutoMovie parts.
- * @evidence {@link Human.portraitPatch} Produces the shared rectangular sampling lattice used by authored parametric surfaces.
- * @evidence {@link Human.portraitSpline} Interpolates ordered spatial landmarks for lid, dental and other study curves.
- * @evidence {@link Human.portraitTube} Sweeps the coarse lash/brow strands in their construction frame.
- * @evidence {@link Human.placePortraitMesh} Protects each part's actual placement before its final precision conversion.
- * @evidence {@link Human.portraitMeshBuffers} Materializes and validates the actual Float32/Uint32 geometry delivered to glTF.
- * @evidence {@link Human.portraitGltfExtensions} Declares the optical extension classes registered on this study's GLTF readers and writers.
- * @evidence {@link Human.portraitDocument} Converts the complete static study into resident GLTF material groups and attributes.
+ * @evidence {@link Human.millimetrePoint} Supplies the common XYZ value used by the study's construction-space curves and component frames.
+ * @evidence {@link Human.linearInterpolate} Interpolates scalar coordinates and dimensions within the authored surface sections.
+ * @evidence {@link Human.intersectRayWithHeightField} Provides a bracketed camera-ray intersection for a caller-owned finite height surface.
+ * @evidence {@link Human.areaWeightedNormals} Computes the shared skin/lining normal field before material regions are separated.
+ * @evidence {@link Human.extractTriangleRegion} Extracts named material geometry while preserving the common field and original vertex identity.
+ * @evidence {@link Human.createMetricMeshPart} Converts completed construction meshes into static metre-space AutoMovie parts.
+ * @evidence {@link Human.triangulateSurfaceLattice} Produces the shared rectangular sampling lattice used by authored parametric surfaces.
+ * @evidence {@link Human.catmullRomPoint} Interpolates ordered spatial landmarks for lid, dental and other study curves.
+ * @evidence {@link Human.sweepEightSidedTube} Sweeps the coarse lash/brow strands in their construction frame.
+ * @evidence {@link Human.placeMeshPreservingFaces} Protects each part's actual placement before its final precision conversion.
+ * @evidence {@link Human.float32MeshBuffers} Materializes and validates the actual Float32/Uint32 geometry delivered to glTF.
+ * @evidence {@link Human.gltfMaterialExtensions} Declares the optical extension classes registered on this study's GLTF readers and writers.
+ * @evidence {@link Human.createGltfDocument} Converts the complete static study into resident GLTF material groups and attributes.
  * @evidence {@link Human.IControlMesh} Carries the shared triangular control positions, connectivity and one material label per face.
  * @evidence {@link Human.subdivideControlMesh} Refines the connected triangular cage before its shared normals and interiors are finalized.
  * @evidence {@link Human.assertPortraitSkinTopology} Audits the declared openings and stitches of the complete control cage before refinement.
@@ -214,37 +214,34 @@ import type {
  * @evidence {@link Human.IPortraitHeadFormation.appearance} Pairs observed colour coordinates with current component geometry.
  * @evidence {@link Human.preparePortraitHead} Prepares shared skin and retains component finishers for the actual head consumer.
  * @evidence {@link Human.buildPortraitHead} Consumes prepared shared skin before contact sealing, common normals, material separation and attached interiors.
- * @evidence {@link Human.advance} Steps a directional surface walk one sample along the recorded ray.
+ * @evidence {@link Human.advancePoint} Steps a directional surface walk one sample along the recorded ray.
  * @evidence {@link Human.assertDirection} Refuses a degenerate placement direction before a static part is oriented for export.
  * @evidence {@link Human.buildPortraitCanthalMesh} Builds the canthal tissue that joins the lid margins at both corners.
  * @evidence {@link Human.buildPortraitEyeContactBasis} Combines the cornea and, when resident, the optical globe into the volume lid attachment is constrained against.
  * @evidence {@link Human.buildPortraitEyeCornea} Builds one closed corneal shell, used for drawing and for optical contact alike.
- * @evidence {@link Human.contactFrame} Fixes the frame a directional surface contact is measured in.
+ * @evidence {@link Human.portraitDirectionalContactFrame} Fixes the frame a directional surface contact is measured in.
  * @evidence {@link Human.createPortraitCanthalIntersection} Intersects an emitted support from either side along the recorded camera ray.
  * @evidence {@link Human.createPortraitEyeSupport} Establishes one eye's fixed optical identity before any lid performance is applied.
  * @evidence {@link Human.createPortraitEyeSurfaceContact} Resolves the shared skin against this eye's actual optical volume.
- * @evidence {@link Human.createTexture} Builds the hair texture both the colour and normal maps are generated from.
- * @evidence {@link Human.cyclic} Closes a circumferential nasal station list without repeating its first sample.
- * @evidence {@link Human.facialOval} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
+ * @evidence {@link Human.createPortraitHairFibreTexture} Builds the hair texture both the colour and normal maps are generated from.
+ * @evidence {@link Human.sampleCyclicNasalSection} Closes a circumferential nasal station list without repeating its first sample.
+ * @evidence {@link Human.portraitFacialOvalVertices} Resolves the chin-relative cranial envelope the cranium and chin height are both measured against.
  * @evidence {@link Human.fitPortraitCanthalSphere} Fits the optical body independently of the canthal aperture width.
  * @evidence {@link Human.frontWeight} States how much of the tongue's forward shaping reaches a given station.
- * @evidence {@link Human.innerLoop} Binds the replaceable mouth aperture loop the lip triangles and the component both read.
- * @evidence {@link Human.mean} Averages the sample set the optical globe is fitted from.
+ * @evidence {@link Human.portraitMouthInnerLoop} Binds the replaceable mouth aperture loop the lip triangles and the component both read.
+ * @evidence {@link Human.meanPoint} Averages the sample set the optical globe is fitted from.
  * @evidence {@link Human.normalizedRim} Normalises a nostril rim so width and height can be changed independently.
- * @evidence {@link Human.normalsOf} Names the shared normal computation where a patch or tube finishes a mesh.
- * @evidence {@link Human.p} Names the head-frame point constructor where an expression is dense with points.
- * @evidence {@link Human.patch} Names the shared patch sampler where a construction samples several surfaces at once.
  * @evidence {@link Human.Point} Names the head-frame point every facial construction is written in.
  * @evidence {@link Human.portraitEyeLidRows} Produces the lid sample rows both profiles are built from.
  * @evidence {@link Human.portraitEyeLoop} Orders the socket's aperture identities counterclockwise, sharing both canthi exactly once.
- * @evidence {@link Human.project} Projects a point onto the surface a directional contact is measured against.
+ * @evidence {@link Human.projectMeshOntoFrame} Projects a point onto the surface a directional contact is measured against.
  * @evidence {@link Human.resolvePortraitEyeInputs} Owns and validates one eye's numerical inputs before any host is fitted.
- * @evidence {@link Human.rimNormal} Gives the nostril rim its outward normal for independent width and height edits.
- * @evidence {@link Human.roles} Names the lower-lid tissue offsets separately from the profile that applies them.
- * @evidence {@link Human.rows} States how many rings the lingual surface is sampled along, root to tip.
+ * @evidence {@link Human.portraitNostrilRimNormal} Gives the nostril rim its outward normal for independent width and height edits.
+ * @evidence {@link Human.portraitLowerLidRoles} Names the lower-lid tissue offsets separately from the profile that applies them.
+ * @evidence {@link Human.portraitTongueRows} States how many rings the lingual surface is sampled along, root to tip.
  * @evidence {@link Human.solvePortraitSkinSystem} Solves the sparse Dirichlet system the skin relief is relaxed on.
- * @evidence {@link Human.triangleArea} Measures a triangle so a degenerate face is not carried into an export.
- * @evidence {@link Human.unit} Normalises a nasal envelope station to its own circumferential unit.
+ * @evidence {@link Human.triangleAreaVector} Measures a triangle so a degenerate face is not carried into an export.
+ * @evidence {@link Human.unitNasalNormal} Normalises a nasal envelope station to its own circumferential unit.
  */
 export const portraitSurfaceReview = {
   scope: "surface construction inspection",

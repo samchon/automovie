@@ -1,10 +1,16 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry, IAutoMovieSemanticMaskGap } from "@automovie/interface";
-import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+  IAutoMovieSemanticMaskGap,
+} from "@automovie/interface";
+
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";
+import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
 import { autoMovieSoftBodyNodeName } from "./autoMovieSoftBodyNodeName";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_SEMANTIC_MASK_COLORS } from "./constants/AUTOMOVIE_SEMANTIC_MASK_COLORS";
 import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "./constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
 import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "./constants/AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";

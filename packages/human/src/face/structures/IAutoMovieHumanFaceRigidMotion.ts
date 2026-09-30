@@ -13,8 +13,6 @@ import type {
  * `resolveHumanFaceArticulation` produces one per owner from the expression
  * weights; `poseHumanFaceSurface` applies them through the attachments.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Names the one rigid transform every tissue bound to a joint receives.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Fixes the pivot-relative rotation plus translation form the posing and its inverse evaluate.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceRigidMotion {

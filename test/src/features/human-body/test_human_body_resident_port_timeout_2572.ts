@@ -1,4 +1,4 @@
-import { createConnectedBodyPort } from "@automovie/playground/src/human/connectedBodyPort";
+import { createConnectedBodyPort } from "@automovie/playground/src/human/body/connectedBodyPort";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";

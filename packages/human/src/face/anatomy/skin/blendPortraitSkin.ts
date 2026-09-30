@@ -8,8 +8,8 @@
  * Changes here propagate into every attached component, refined skin, normals
  * and exported face, so derived face artifacts must be rebuilt together.
  */
-import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstraint";
 import { solvePortraitSkinSystem } from "./solvePortraitSkinSystem";
+import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstraint";
 
 /**
  * Adapt neighbouring skin to a set of exact component attachments. Distances
@@ -22,8 +22,6 @@ import { solvePortraitSkinSystem } from "./solvePortraitSkinSystem";
  * skin outside the declared reach, with an independently checked residual.
  * Failure to converge is refused. This interpolates the seam; it does not infer
  * the anatomical correctness of the component's requested shape.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Adapts connected host skin to exact component attachments without letting part order choose the winning displacement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Propagates bounded geodesic reach and solves overlapping positive-weight graph displacements while preserving fixed seam targets and disconnected geometry.
  */
 export function blendPortraitSkin(
   positions: number[][],

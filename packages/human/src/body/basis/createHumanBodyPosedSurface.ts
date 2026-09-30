@@ -35,7 +35,12 @@ export function createHumanBodyPosedSurface(
       ? null
       : createHumanBodySurfaceSag(surface, surface.sag);
   return ({ shaped, transforms, rest, lean, document }) => {
-    const skinned = skinHumanBodySurface(shaped, surface.skin, joints, transforms);
+    const skinned = skinHumanBodySurface(
+      shaped,
+      surface.skin,
+      joints,
+      transforms,
+    );
     if (sag === null || rest === null) return skinned;
     const declared = surface.sag!;
     const softness = Math.min(

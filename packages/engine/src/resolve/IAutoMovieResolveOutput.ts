@@ -1,4 +1,5 @@
 import { IAutoMovieDriver } from "@automovie/interface";
+
 import { IAutoMovieResolveViolation } from "./IAutoMovieResolveViolation";
 
 /**

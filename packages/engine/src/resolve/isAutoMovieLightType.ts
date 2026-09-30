@@ -1,4 +1,5 @@
 import { IAutoMovieLight } from "@automovie/interface";
+
 import { AUTO_MOVIE_LIGHT_TYPES } from "./constants/AUTO_MOVIE_LIGHT_TYPES";
 
 /**

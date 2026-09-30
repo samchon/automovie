@@ -1,4 +1,8 @@
-import type { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState } from "@automovie/interface";
+import type {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+} from "@automovie/interface";
+
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
 

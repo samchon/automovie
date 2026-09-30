@@ -33,7 +33,7 @@ The required rendered effect determines whether a missing responsibility needs a
 
 ## Frames, units and derivation {#frames-and-derivation}
 
-Construction uses millimetres, +Y up, +Z anterior and +X anatomical left. `portraitPart` remains the single millimetre-to-metre conversion for delivered AutoMovie geometry. A component's local origin and axes derive from its group references. Subject-specific landmark IDs belong to socket data, never to a general component implementation.
+Construction uses millimetres, +Y up, +Z anterior and +X anatomical left. `createMetricMeshPart` remains the single millimetre-to-metre conversion for delivered AutoMovie geometry. A component's local origin and axes derive from its group references. Subject-specific landmark IDs belong to socket data, never to a general component implementation.
 
 A group resolves its arrangement once from the common basis. Every dependent surface, material volume and attachment consumes that result. A larger globe must move the lid's declared contact calculation; a different crown must participate in the same arch arrangement; a new ear must attach to the current host. An accessory does not independently estimate a point that the host already computes.
 

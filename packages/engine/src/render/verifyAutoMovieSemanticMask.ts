@@ -1,7 +1,8 @@
 import { IAutoMovieSemanticMask } from "@automovie/interface";
+
+import { AutoMovieSemanticMaskVerificationError } from "./AutoMovieSemanticMaskVerificationError";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
-import { AutoMovieSemanticMaskVerificationError } from "./AutoMovieSemanticMaskVerificationError";
 
 /** Current full-payload semantic-mask format. */
 const SEMANTIC_MASK_VERSION = 2;

@@ -15,23 +15,23 @@ import {
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { sampleFormationMotion } from "../sampleFormationMotion";
-import { transformFormationPoint } from "../transformFormationPoint";
 import { Quaternion } from "../math/Quaternion";
 import { sampleMotion } from "../motion/sampleMotion";
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
+import { sampleFormationMotion } from "../sampleFormationMotion";
+import { transformFormationPoint } from "../transformFormationPoint";
+import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
-import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";
-import { projectToNdc } from "./projectToNdc";
-import { resolveCameraAt } from "./resolveCameraAt";
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
 import { formationMemberExtent } from "./formationMemberExtent";
 import { formationSubjectBox } from "./formationSubjectBox";
+import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { nodeSubjectExtent } from "./nodeSubjectExtent";
+import { projectToNdc } from "./projectToNdc";
+import { resolveCameraAt } from "./resolveCameraAt";
 
 /**
  * Derive and validate contract outcomes from actual compiled artifacts.

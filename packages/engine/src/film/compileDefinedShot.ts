@@ -1,15 +1,23 @@
-import { IAutoMovieBeatEndState, IAutoMovieConstraintViolation, IAutoMovieDefinedShot, IAutoMovieShotProgram, IAutoMovieShotSourceOutput, IAutoMovieStage } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndState,
+  IAutoMovieConstraintViolation,
+  IAutoMovieDefinedShot,
+  IAutoMovieShotProgram,
+  IAutoMovieShotSourceOutput,
+  IAutoMovieStage,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
+import { IAutoMovieCompiledDefinedShot } from "./IAutoMovieCompiledDefinedShot";
+import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
+import { IAutoMovieShotRuntime } from "./IAutoMovieShotRuntime";
 import { blockBeat } from "./blockBeat";
 import { performShot } from "./performShot";
 import { realizeShotContract } from "./realizeShotContract";
 import { resolveBeatEnd } from "./resolveBeatEnd";
 import { resolveBeatOpening } from "./resolveBeatOpening";
 import { stageScene } from "./stageScene";
-import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
-import { IAutoMovieCompiledDefinedShot } from "./IAutoMovieCompiledDefinedShot";
-import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
-import { IAutoMovieShotRuntime } from "./IAutoMovieShotRuntime";
 
 /**
  * Compile a registered shot directly.

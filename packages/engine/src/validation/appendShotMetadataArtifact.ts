@@ -1,15 +1,16 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { sampleTimes } from "../motion/sampleTimes";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
 import { validateArrayArtifact } from "./validateArrayArtifact";
+import { validateClipArtifact } from "./validateClipArtifact";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateVectorArtifact } from "./validateVectorArtifact";
-import { validateClipArtifact } from "./validateClipArtifact";
 
 /** The closed event-kind union, gated the way the engine's compilers emit it. */
 const EVENT_KINDS = new Set([

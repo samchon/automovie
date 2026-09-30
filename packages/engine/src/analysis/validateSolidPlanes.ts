@@ -1,4 +1,8 @@
-import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";

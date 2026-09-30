@@ -1,4 +1,16 @@
-import { AutoMovieAffordanceKind, IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMoviePropBox, IAutoMoviePropRelation, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieAffordanceKind,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieModel,
+  IAutoMoviePropBox,
+  IAutoMoviePropRelation,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { tessellate } from "../geometry/tessellate";
 import { Matrix4 } from "../math/Matrix4";
 import { ViolationCollector } from "../validation/ViolationCollector";

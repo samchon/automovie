@@ -1,6 +1,7 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitSpline } from "../../mesh/portraitSpline";
+
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitCheekShape } from "./IPortraitCheekShape";
 import { IPortraitCheekSocket } from "./IPortraitCheekSocket";
@@ -21,8 +22,6 @@ import { IPortraitCheekSocket } from "./IPortraitCheekSocket";
  * and require rendered inspection; no cadaver measurement is claimed here.
  * At most 256 groove samples are admitted so an arbitrarily narrow requested
  * radius cannot create an unbounded field population.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds named cheek supports and a continuous nasolabial groove from current skin bindings.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies profiles, mirrors optional offsets and integrates bounded compact fields along normalized arc distance with a physical end fade.
  */
 export function createPortraitCheekLayer(
   socketInput: IPortraitCheekSocket,
@@ -135,7 +134,7 @@ export function createPortraitCheekLayer(
       if (shape.foldDepth === 0) return fields;
       const path = socket.nasolabial.map((id) => {
         const point = host.positions[id];
-        return portraitPoint(point[0], point[1], point[2]);
+        return millimetrePoint(point[0], point[1], point[2]);
       });
       let length = 0;
       for (let i = 1; i < path.length; i++)
@@ -158,7 +157,7 @@ export function createPortraitCheekLayer(
       const samples = Array.from(
         { length: 16 * (path.length - 1) + 1 },
         (_value, i) => ({
-          point: portraitSpline(path, i / (16 * (path.length - 1))),
+          point: catmullRomPoint(path, i / (16 * (path.length - 1))),
           physical: 0,
           normalized: 0,
         }),

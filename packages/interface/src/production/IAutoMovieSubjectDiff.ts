@@ -1,5 +1,5 @@
-import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 import { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
+import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary";
 
 /**
  * Structural comparison of two compiled subject inventories.

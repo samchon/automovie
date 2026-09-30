@@ -1,10 +1,11 @@
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
 import { convexHull2D } from "../math/convexHull2D";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { finitePoint } from "./finitePoint";
 import { finiteVector } from "./finiteVector";
 import { meshOf } from "./meshOf";
 import { pathFrames } from "./pathFrames";
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Sweep a convex 2D profile along a 3D polyline using a stable local frame.

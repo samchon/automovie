@@ -1,13 +1,13 @@
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitPoint } from "../../mesh/portraitPoint";
-import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";
 import { preparePortraitDentalRow } from "./preparePortraitDentalRow";
 import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
-import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 
 /**
  * Resident lower enamel attached to the observed mandibular frame. Its own
@@ -18,11 +18,6 @@ import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
  * Fit owns the observed-relative pose in head millimetres; native preparation
  * returns a fresh copy without applying that rotation again. The compatibility
  * finisher packs the same producer's mesh through the shared metric boundary.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds independently authored mandibular enamel to the oral structures.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Attaches lower teeth to the mandible while maxillary teeth remain fixed.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Owns lower crown dimensions, arch shape and inferior cervical placement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Moves the intact lower row through one observed-relative jaw rotation.
  */
 export function createPortraitMandibularDentition(
   inputSocket: {
@@ -74,7 +69,7 @@ export function createPortraitMandibularDentition(
       )
         throw new Error("Mandibular sockets must name resident host vertices.");
       const point = (id: number) =>
-        portraitPoint(...(host.positions[id] as [number, number, number]));
+        millimetrePoint(...(host.positions[id] as [number, number, number]));
       const placed = attachPortraitDentalRow(row, {
         rightCorner: point(socket.rightCorner),
         leftCorner: point(socket.leftCorner),

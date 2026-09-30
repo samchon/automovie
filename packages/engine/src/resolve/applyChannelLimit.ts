@@ -1,7 +1,8 @@
 import { IAutoMovieChannelLimit } from "@automovie/interface";
-import { channelKey } from "./channelKey";
+
 import { IAutoMovieClampOutcome } from "./IAutoMovieClampOutcome";
 import { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
+import { channelKey } from "./channelKey";
 
 /**
  * The CONSTRAIN pass for one channel: clamp a sampled value to a channel limit

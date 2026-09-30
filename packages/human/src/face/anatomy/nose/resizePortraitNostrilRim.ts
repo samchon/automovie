@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
+
 import { normalizedRim } from "./normalizedRim";
-import { rimNormal } from "./rimNormal";
+import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
 
 /**
  * Resize a nasal aperture within its own fitted plane, about its centroid.
@@ -12,8 +13,6 @@ import { rimNormal } from "./rimNormal";
  * Normal residuals remain unchanged, so sizing does not flatten an irregular
  * rim. Overall nasal width and explicit aperture rotation belong to the caller
  * and run after this local operation. Output stays in the input length unit.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Changes nostril width and height independently of whole-nose dimensions and opening rotation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Scales the aperture in its own normalized plane while retaining normal residuals and copying unit-scale inputs exactly.
  */
 export function resizePortraitNostrilRim(
   points: number[][],
@@ -32,7 +31,7 @@ export function resizePortraitNostrilRim(
     );
   if (width === 1 && height === 1) return points.map((point) => [...point]);
   const { scale, center, local } = normalizedRim(points);
-  const normal = rimNormal(local);
+  const normal = portraitNostrilRimNormal(local);
   const guide =
     normal.y === 0 && normal.z === 0
       ? Vector3.create(0, 1, 0)

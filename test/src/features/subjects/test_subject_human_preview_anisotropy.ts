@@ -1,4 +1,4 @@
-import { prepareHumanPreview } from "@automovie/playground/src/human/previewScene";
+import { prepareHumanPreview } from "@automovie/playground/src/human/common/previewScene";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 
 /** Directions shorter than this carry no direction at all. */

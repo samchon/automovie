@@ -22,9 +22,6 @@ const direction = (values: readonly number[]): boolean =>
  * Even a zero-count layer must have valid fields. Shared surface/domain lookup,
  * actual root emergence and contact feasibility belong to the compiled builder.
  * The input and its nested arrays are read without mutation or normalization.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Refuses invalid numerical hair documents before evaluating shared facial geometry.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Applies finite metric, angular, appearance, identity and combined allocation conditions to every layer.
  */
 export function assertHumanFaceHair(input: IAutoMovieHumanFaceHair): void {
   const hair = typia.assertEquals<IAutoMovieHumanFaceHair>(input);

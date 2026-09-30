@@ -1,4 +1,7 @@
-import { AutoMovieViolationKind, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  AutoMovieViolationKind,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 
 /**
  * Build one {@link IAutoMovieConstraintViolation}. Defaults to `"error"`.

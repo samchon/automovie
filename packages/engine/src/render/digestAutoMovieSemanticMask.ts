@@ -1,4 +1,8 @@
-import { AutoMovieContentDigest, IAutoMovieSemanticMask } from "@automovie/interface";
+import {
+  AutoMovieContentDigest,
+  IAutoMovieSemanticMask,
+} from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 

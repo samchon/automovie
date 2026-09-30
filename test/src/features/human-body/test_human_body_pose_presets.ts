@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
-import { renderBodyPosePresets } from "@automovie/playground/src/human/bodyPosePresets";
+import { renderBodyPosePresets } from "@automovie/playground/src/human/body/bodyPosePresets";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

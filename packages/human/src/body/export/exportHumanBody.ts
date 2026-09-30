@@ -1,8 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import { type JSONDocument, WebIO } from "@gltf-transform/core";
 
-import { portraitDocument } from "../../face/export/portraitDocument";
-import { portraitGltfExtensions } from "../../face/export/portraitGltfExtensions";
+import { createGltfDocument } from "../../common/export/createGltfDocument";
+import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensions";
 
 /**
  * Serialize a built body to GLB and glTF with resident resources.
@@ -15,16 +15,13 @@ import { portraitGltfExtensions } from "../../face/export/portraitGltfExtensions
  * replays the document through the builder rather than animating the file.
  * The package keeps document creation and the writer in one module instance
  * for the same reason the face does: glTF-Transform relies on class identity.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-export Delivers the evaluated posed body as portable GLB and glTF with no rig, the document remaining the source of another pose.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Writes the static surface through the shared Float32 exporter, document and writer in one module instance.
  */
 export async function exportHumanBody(model: IAutoMovieModel): Promise<{
   glb: Uint8Array<ArrayBuffer>;
   gltf: JSONDocument;
 }> {
-  const document = portraitDocument(model);
-  const writer = new WebIO().registerExtensions(portraitGltfExtensions);
+  const document = createGltfDocument(model);
+  const writer = new WebIO().registerExtensions(gltfMaterialExtensions);
   const glb = await writer.writeBinary(document);
   const gltf = await writer.writeJSON(document);
   return { glb, gltf };

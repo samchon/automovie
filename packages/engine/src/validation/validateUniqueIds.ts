@@ -1,4 +1,5 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { isRecord } from "./isRecord";
 import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateUniqueBy } from "./validateUniqueBy";

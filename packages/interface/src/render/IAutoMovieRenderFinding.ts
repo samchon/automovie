@@ -1,5 +1,5 @@
-import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 import { AutoMovieRenderFindingStatus } from "./AutoMovieRenderFindingStatus";
+import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
 import { IAutoMovieRenderContributor } from "./IAutoMovieRenderContributor";
 
 /**

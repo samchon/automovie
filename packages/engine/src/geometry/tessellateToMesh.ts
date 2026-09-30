@@ -1,4 +1,5 @@
 import { AutoMoviePrimitiveShape, IAutoMovieMesh } from "@automovie/interface";
+
 import { tessellate } from "./tessellate";
 
 /**

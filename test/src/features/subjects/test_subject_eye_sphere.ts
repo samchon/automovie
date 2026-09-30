@@ -1,4 +1,4 @@
-import { portraitPoint as p } from "@automovie/human/face/mesh/portraitPoint";
+import { millimetrePoint as p } from "@automovie/human/face/mesh/millimetrePoint";
 import { fitPortraitEyeSphere } from "@automovie/human/face/surface/fitPortraitEyeSphere";
 import { portraitEyeSphereHeight } from "@automovie/human/face/surface/portraitEyeSphereHeight";
 import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";

@@ -2,8 +2,8 @@ import {
   type IPortraitComponent,
   type IPortraitInterior,
   buildPortraitHead,
+  createMetricMeshPart,
   createPortraitInteriorFinisher,
-  portraitPart,
   preparePortraitHead,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
@@ -82,7 +82,7 @@ export const test_subject_native_interiors = (): void => {
                 },
           finish: () => {
             events.push(`finish:${id}`);
-            return [portraitPart(id, triangle(), "teeth")];
+            return [createMetricMeshPart(id, triangle(), "teeth")];
           },
         }),
       }),

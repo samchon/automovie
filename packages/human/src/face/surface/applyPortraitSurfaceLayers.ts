@@ -1,8 +1,13 @@
-import { Vector3, compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
-import { portraitNormals } from "../mesh/portraitNormals";
-import { portraitPart } from "../mesh/portraitPart";
-import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
+import {
+  Vector3,
+  compareCodeUnits,
+  createAutoMovieMeshDeformer,
+} from "@automovie/engine";
+
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
+import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 
 /**
@@ -22,8 +27,6 @@ import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
  * inserts shared midpoints without moving the basis; omission preserves its
  * triangles. Material groups survive, and the caller recomputes normals after
  * the boundary fade, whose spatial gradient also changes the surface slope.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Applies composed skin movement while preserving open attachment rims, original material groups and caller-owned coordinates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Fixes field summation by layer ID and passes the geodesic fade with its differential into the engine's final deformation checks.
  */
 export function applyPortraitSurfaceLayers(
   mesh: IControlMesh,
@@ -44,7 +47,7 @@ export function applyPortraitSurfaceLayers(
   const host = {
     positions: mesh.positions,
     indices: mesh.indices,
-    normals: portraitNormals(packed, mesh.indices),
+    normals: areaWeightedNormals(packed, mesh.indices),
   };
   const plans = [...layers]
     .sort((a, b) => compareCodeUnits(a.id, b.id))
@@ -61,7 +64,7 @@ export function applyPortraitSurfaceLayers(
       );
   packed.length = 0;
   for (const point of mesh.positions) packed.push(...point);
-  const metric = portraitPart(
+  const metric = createMetricMeshPart(
     "surface-basis",
     {
       positions: packed,

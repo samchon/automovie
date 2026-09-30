@@ -1,4 +1,4 @@
-import { createHumanPreviewWorkerPort } from "@automovie/playground/src/human/workerPort";
+import { createHumanPreviewWorkerPort } from "@automovie/playground/src/human/face/workerPort";
 import { TestValidator } from "@nestia/e2e";
 
 /**

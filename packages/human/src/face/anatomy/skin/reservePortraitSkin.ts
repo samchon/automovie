@@ -1,6 +1,7 @@
-import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
-import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { autoMoviePlanarRegionFailure } from "@automovie/engine";
+
+import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
+import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 
 /**
  * Reserve enough connected host skin to contain a component's proposed outer
@@ -18,8 +19,6 @@ import { autoMoviePlanarRegionFailure } from "@automovie/engine";
  * reservations remain the assembler's responsibility; overlapping cuts refuse
  * there before attachment. This supplies an unambiguous planar chart, not an
  * anatomical section, tangent match, or arbitrary 3D intersection certificate.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Reserves connected host skin large enough for a component's proposed seam without a guessed influence radius.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Grows finite vertex-adjacent face rings until one simple boundary strictly contains the new XY seam, preserving original host data.
  */
 export function reservePortraitSkin(
   host: IPortraitComponentHost,
@@ -33,7 +32,7 @@ export function reservePortraitSkin(
     throw new Error(
       "Reserved skin needs one finite XYZ target per seam vertex.",
     );
-  let selected = new Set(portraitFacesInsideLoop(host, [...inner]));
+  let selected = new Set(selectHostFacesInsideLoop(host, [...inner]));
   const point = (p: readonly number[]) => ({ x: p[0] / 1000, y: p[1] / 1000 });
   for (;;) {
     const edges = new Map<string, { a: number; b: number; count: number }>();

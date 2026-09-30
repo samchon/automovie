@@ -1,4 +1,7 @@
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Evaluated scene-node transform available to one soft fixed step.

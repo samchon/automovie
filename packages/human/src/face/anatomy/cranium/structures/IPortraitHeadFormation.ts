@@ -1,6 +1,6 @@
-import type { IPortraitCraniumShape } from "./IPortraitCraniumShape";
 import { IPortraitComponent } from "../../../surface/structures/IPortraitComponent";
 import { IPortraitComponentHost } from "../../../surface/structures/IPortraitComponentHost";
+import type { IPortraitCraniumShape } from "./IPortraitCraniumShape";
 import { IPortraitHeadPerformance } from "./IPortraitHeadPerformance";
 import { IPortraitNeckShape } from "./IPortraitNeckShape";
 
@@ -11,8 +11,6 @@ import { IPortraitNeckShape } from "./IPortraitNeckShape";
  * Paired component identities and topology are validated before interpolation.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Supplies the common cranial and colour basis against which replaceable attachments are prepared.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Preserves region and replacement correspondence before producing a shared refined skin.
  */
 export interface IPortraitHeadFormation {
   /** Reference cranial shape, shared by current and colour-reference assembly. */

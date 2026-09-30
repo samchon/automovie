@@ -1,4 +1,9 @@
-import { IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "./ViolationCollector";
 

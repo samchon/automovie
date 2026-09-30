@@ -33,7 +33,9 @@ export function solveHumanBodyMeasuredChannel(input: {
   const channel = basis.channels.find((one) => one.id === id);
   const rule = humanBodyMeasurementRule(id);
   if (channel === undefined || rule === undefined)
-    throw new Error("A detailed body measurement needs a named measured channel: " + id);
+    throw new Error(
+      "A detailed body measurement needs a named measured channel: " + id,
+    );
   const worn = (weight: number): Record<string, number> => {
     const trial = { ...shape };
     if (weight === 0) delete trial[id];

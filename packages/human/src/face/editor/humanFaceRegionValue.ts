@@ -1,15 +1,12 @@
+import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
-import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
 import { assertRegion } from "./assertRegion";
 import { humanFaceRegions } from "./humanFaceRegions";
 
 /**
  * Read the actual combined profile, including an explicitly requested side.
  * Missing optional profiles remain absent rather than becoming invented data.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes applied values after traits, details and independent side overrides.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Makes the final interpreted profile inspectable independently of edit history.
  */
 export function humanFaceRegionValue<
   K extends (typeof humanFaceRegions)[number],

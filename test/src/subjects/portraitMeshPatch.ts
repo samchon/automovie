@@ -3,10 +3,10 @@ import {
   selectAutoMovieTriangleRegion,
   triangulateAutoMovieRegion,
 } from "@automovie/engine";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/structures/IPortraitFinalSurfaceHost";
-import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 
 import { fitPortraitJoinReference } from "./portraitJoinReference";
 import {
@@ -244,7 +244,7 @@ export function createPortraitMeshPatchComponent(
               if (attachment.boundaryContinuity !== "tangent")
                 return fairPortraitSurface(refined, joinGroup, viewRay);
               const sample = createAutoMovieMeshDepthSampler(
-                portraitPart(
+                createMetricMeshPart(
                   "joining-source",
                   {
                     positions: source.mesh.positions.flat(),

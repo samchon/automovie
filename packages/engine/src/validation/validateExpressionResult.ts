@@ -1,4 +1,8 @@
-import { IAutoMovieExpression, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieExpression,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { validateExpression } from "./validateExpression";
 
 /**

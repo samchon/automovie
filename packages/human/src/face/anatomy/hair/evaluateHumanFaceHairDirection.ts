@@ -17,9 +17,6 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * direction. This is a kinematic field, without an elastic energy or gravity
  * simulation. A cancelled direction refuses instead of choosing a random comb.
  * Inputs remain unchanged and the returned unit vector is independently owned.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Defines shared styling arithmetic for every numerical face.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Evaluates parting, lift and curl from scalar fields rather than authored personal curves.
  */
 export function evaluateHumanFaceHairDirection(props: {
   layer: IAutoMovieHumanFaceHair.Layer;

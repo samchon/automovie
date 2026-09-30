@@ -7,8 +7,6 @@
  * and +X anatomical left. Fields describe static styling, not follicle biology,
  * elastic-rod dynamics, hair-to-hair contact or a biological density calibration.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Separates numerical personal differences from shared source geometry and attachments.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Stores field parameters while keeping generated curves outside authored documents.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceHair {
@@ -18,8 +16,6 @@ export interface IAutoMovieHumanFaceHair {
 
 /**
  * Field types nested under the numerical hairstyle document.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps personal styling within numerical documents.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Groups layer inputs without exposing generated guide coordinates.
  */
 export namespace IAutoMovieHumanFaceHair {
   /**
@@ -33,8 +29,6 @@ export namespace IAutoMovieHumanFaceHair {
    * hair is a smaller `count` or a lower `finish.coverage`, never a narrower
    * ribbon, and the `clearance` below is the fibre path's, not the ribbon's.
    *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses each scalp population through shared generation rules and scalar edits.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Names the reference domain, reproducible population and independent length, flow, curl and finish fields.
    * @author Samchon
    */
   export interface Layer {
@@ -101,9 +95,6 @@ export namespace IAutoMovieHumanFaceHair {
      * individual curve or tie vertex is stored. A gathered layer integrates
      * all roots because whole-curve guide interpolation would mix the two
      * stages at different arc fractions.
-     *
-     * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps a tied style in reusable numerical controls without personal groom geometry.
-     * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Carries the polar tie, approach, tail and optional cross-section inputs the shared generator evaluates.
      */
     gather?: {
       anchor: { polar: number; azimuth: number };
@@ -194,8 +185,6 @@ export namespace IAutoMovieHumanFaceHair {
    * Root sampling and parting use the same arithmetic but independent inputs.
    * It stores six field coefficients, never a root list or curve samples.
    *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Describes local numerical populations without personal geometry.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Shares the meaning of spatial envelopes between sampling and styling.
    * @author Samchon
    */
   export interface Region {

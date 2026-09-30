@@ -1,10 +1,11 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { portraitNormals } from "../../mesh/portraitNormals";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { IPortraitCornea } from "./structures/IPortraitCornea";
 
 /**
  * Construct a closed optical shell with a single vertex at each axial pole.
- * Positions remain in millimetres until portraitPart creates model data.
+ * Positions remain in millimetres until createMetricMeshPart creates model data.
  *
  * At radius r, subtract the globe's sag from the corneal sphere's sag, each
  * measured relative to the declared unclipped aperture radius. Adding that
@@ -15,8 +16,6 @@ import { IPortraitCornea } from "./structures/IPortraitCornea";
  * The back surface is an axial offset, not a second physiological curvature.
  * Reverse its triangle winding and join the outer rim so material volume has a
  * manifold boundary. The single centre vertices avoid degenerate pole quads.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs the cornea as a closed optical volume rather than an open highlight surface.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Adds corneal-minus-globe sag over the supplied support, reverses the offset back surface and joins both rims with single axial poles.
  */
 export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
   if (
@@ -102,7 +101,7 @@ export function buildPortraitCornea(input: IPortraitCornea): IAutoMovieMesh {
   return {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

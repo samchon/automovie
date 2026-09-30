@@ -13,8 +13,6 @@ import { IPortraitNasalJet } from "./structures/IPortraitNasalJet";
  * The returned derivative is with respect to physical distance, not t. Exact
  * endpoint returns avoid arithmetic moving a shared seam. Nonrepresentable
  * controls or derivatives refuse rather than emitting a broken surface.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Joins complete nasal section jets without independently fitting neighboring seam derivatives.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Evaluates the equivalent cubic Bernstein controls with convex de Casteljau interpolation, exact endpoints and finite physical derivatives.
  */
 export function samplePortraitNasalSection(
   left: IPortraitNasalJet,

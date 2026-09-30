@@ -1,4 +1,9 @@
-import { IAutoMovieGait, IAutoMovieMotion, IAutoMovieProfile } from "@automovie/interface";
+import {
+  IAutoMovieGait,
+  IAutoMovieMotion,
+  IAutoMovieProfile,
+} from "@automovie/interface";
+
 import { gaitMotion } from "./gaitMotion";
 
 const assertUniqueProfileGaitNames = (

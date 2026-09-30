@@ -4,8 +4,6 @@
  * melanin and haemoglobin, vary about their site mean, and the variation's
  * growth with age.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Types the chromophore statistics a user can read to see what the skin's tone variation is made of.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Declares the table form: tile size and resolution, each chromophore's band, spread and absorbance, seed and the age curve.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySkinTone {

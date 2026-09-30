@@ -1,11 +1,19 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
-import { sampleMotion } from "./sampleMotion";
 import { fitChainToTarget } from "./fitChainToTarget";
+import { sampleMotion } from "./sampleMotion";
 
 /**
  * Re-key the sampled frames densely, re-solving every pinned leg onto its

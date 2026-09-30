@@ -12,8 +12,6 @@ import type { IPortraitIrisPigment } from "../anatomy/eye/structures/IPortraitIr
  * are linear RGB reflectances under the renderer's own light, not colours
  * sampled from a photograph. Omission or null keeps the basis texture.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Makes the iris colour of each eye an authored component value independent of eye shape and gaze.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Declares one iris pigment per articulated eye for the connected basis texture rule.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceIris {

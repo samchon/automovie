@@ -6,8 +6,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * The hidden posterior continuation is inferred, not measured from the photo.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Defines arc-length position and horizontal tangents for placing an enamel row on its shared guide.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries millimetre guide length, the central station and a bounded XZ-distance sampler for crown placement.
  */
 export interface IPortraitDentalArc {
   /** Total horizontal arc length, including the posterior continuations. */

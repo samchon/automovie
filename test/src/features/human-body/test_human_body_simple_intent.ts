@@ -1,6 +1,6 @@
 import { type IAutoMovieHumanBodySimpleShape } from "@automovie/human";
-import { renderBodySimpleControls } from "@automovie/playground/src/human/bodySimpleControls";
-import { createBodyIntentGate } from "@automovie/playground/src/human/createBodyIntentGate";
+import { renderBodySimpleControls } from "@automovie/playground/src/human/body/bodySimpleControls";
+import { createBodyIntentGate } from "@automovie/playground/src/human/body/createBodyIntentGate";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 
@@ -69,7 +69,9 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     },
     onRefuse: (error) => refusals.push(String(error)),
     onBusy: () => {},
-    onDraftChanged: () => { draftChanged++; },
+    onDraftChanged: () => {
+      draftChanged++;
+    },
   });
   const apply = dom.querySelector<HTMLButtonElement>("#simple-apply")!;
   const input = dom.querySelector<HTMLInputElement>("#simple-ageYears")!;
@@ -86,7 +88,11 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   );
   gate.reserve(); // a pose-only edit leaves the shape unchanged
   input.dispatchEvent(new dom.defaultView!.Event("input"));
-  TestValidator.equals("old solve cannot rename a later edit's status", draftChanged, 0);
+  TestValidator.equals(
+    "old solve cannot rename a later edit's status",
+    draftChanged,
+    0,
+  );
   oldSuccess.resolve({ waist: 1 });
   await Promise.resolve();
   TestValidator.equals("pose edit retires old expansion", applied, 0);
@@ -97,7 +103,11 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   apply.click();
   input.value = "31";
   input.dispatchEvent(new dom.defaultView!.Event("input"));
-  TestValidator.equals("typed draft clears current solve status", draftChanged, 1);
+  TestValidator.equals(
+    "typed draft clears current solve status",
+    draftChanged,
+    1,
+  );
   changedDraft.resolve({ waist: 1 });
   await Promise.resolve();
   TestValidator.equals("typed input retires earlier Apply", applied, 0);
@@ -175,7 +185,11 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
     input.value,
     "50",
   );
-  TestValidator.equals("same pending shape has one worker request", projectionRequests, beforePending + 1);
+  TestValidator.equals(
+    "same pending shape has one worker request",
+    projectionRequests,
+    beforePending + 1,
+  );
 
   const staleProjectionFailure = deferred<IAutoMovieHumanBodySimpleShape>();
   projected = () => staleProjectionFailure.promise;
@@ -234,7 +248,11 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   const newest = controls.refresh(shape);
   oldShapeProjection.resolve({ ...simple, ageYears: 60 });
   await obsolete;
-  TestValidator.equals("superseded shape leaves current field", input.value, "42");
+  TestValidator.equals(
+    "superseded shape leaves current field",
+    input.value,
+    "42",
+  );
   newShapeProjection.resolve({ ...simple, ageYears: 55 });
   await newest;
   TestValidator.equals("new shape projection wins", input.value, "55");
@@ -247,10 +265,18 @@ export const test_human_body_simple_intent = async (): Promise<void> => {
   input.dispatchEvent(new dom.defaultView!.Event("input"));
   shape = acceptedShape;
   await controls.refresh(shape);
-  TestValidator.equals("undo restores the prior shape reading", input.value, "55");
+  TestValidator.equals(
+    "undo restores the prior shape reading",
+    input.value,
+    "55",
+  );
   undoProjection.resolve({ ...simple, ageYears: 60 });
   await undone;
-  TestValidator.equals("obsolete shape cannot replace the undo reading", input.value, "55");
+  TestValidator.equals(
+    "obsolete shape cannot replace the undo reading",
+    input.value,
+    "55",
+  );
   shape = { ...shape, hips: 2 };
   projected = () => Promise.reject(new Error("current projection failed"));
   await controls.refresh(shape);

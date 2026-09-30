@@ -1,10 +1,10 @@
 import { validateModel } from "@automovie/engine";
 import {
   createHumanFaceBasisBuilder,
-  portraitMeshBuffers,
+  float32MeshBuffers,
 } from "@automovie/human";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
+import { createConnectedFaceRenderer } from "@automovie/playground/src/human/face/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -72,7 +72,7 @@ export const test_subject_connected_renderer_topology =
     );
     TestValidator.equals(
       "face areas survive packing",
-      portraitMeshBuffers(planes(0.001)).indices.length,
+      float32MeshBuffers(planes(0.001)).indices.length,
       6,
     );
     TestValidator.equals(

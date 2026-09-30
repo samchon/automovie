@@ -1,7 +1,8 @@
-import { portraitNormals } from "../../mesh/portraitNormals";
+import { IAutoMovieMesh } from "@automovie/interface";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * A closed crown loft with a narrow cervical end, broad body and thin cutting
@@ -17,8 +18,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * a continuous central edge even when the two proximal corners differ.
  * The result pairs this owned mesh with its directed cervical cap cycle; the
  * cycle is constructed with the loft, before any row placement or packing.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a closed enamel crown with independently located mesial and distal contours.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples both authored contact crests, joins cervical and incisal caps to their rings and derives normals from the resulting oriented loft.
  */
 export function preparePortraitDentalCrown(
   s: IPortraitDentalCrown,
@@ -93,7 +92,7 @@ export function preparePortraitDentalCrown(
   const mesh: IAutoMovieMesh = {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

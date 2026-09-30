@@ -1,4 +1,8 @@
-import { IAutoMovieGeneratedAcquisition, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieGeneratedAcquisition,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 
 /** A plain SHA-256 content digest as this project writes it. */

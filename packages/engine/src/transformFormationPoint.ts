@@ -1,4 +1,7 @@
-import { IAutoMovieFormationMotionState, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieFormationMotionState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Apply a sampled formation state to one designed world-space point.

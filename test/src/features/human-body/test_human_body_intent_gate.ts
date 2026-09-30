@@ -1,4 +1,4 @@
-import { createBodyIntentGate } from "@automovie/playground/src/human/createBodyIntentGate";
+import { createBodyIntentGate } from "@automovie/playground/src/human/body/createBodyIntentGate";
 import { TestValidator } from "@nestia/e2e";
 
 const deferred = <T>() => {

@@ -2,9 +2,6 @@ import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
 
 /**
  * Refuse crown profiles before they can alter the row's physical clearances.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Refuses nonphysical enamel profiles before they enter crown construction or arch spacing.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Checks positive crown dimensions and adjacent limits for both proximal crests, cervical ratios and incisal rises.
  */
 export function assertPortraitDentalCrown(s: IPortraitDentalCrown): void {
   if (

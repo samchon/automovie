@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, transformAutoMovieMesh } from "@automovie/engine";
 import { buildPortraitCornea } from "@automovie/human/face/anatomy/eye/buildPortraitCornea";
-import { portraitEyeSphereHeight } from "@automovie/human/face/surface/portraitEyeSphereHeight";
 import { createPortraitOpticalFrame } from "@automovie/human/face/anatomy/eye/createPortraitOpticalFrame";
+import { portraitEyeSphereHeight } from "@automovie/human/face/surface/portraitEyeSphereHeight";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError, vclose } from "../internal/predicates";

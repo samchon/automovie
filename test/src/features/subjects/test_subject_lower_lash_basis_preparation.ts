@@ -1,8 +1,8 @@
 import {
   type IAutoMovieHumanFaceBasis,
   createPortraitMaterials,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,7 +15,7 @@ const texture = (): string => {
   for (let y = 0; y < 8; ++y)
     for (let x = 0; x < 8; ++x)
       rgba[4 * (8 * y + x) + 3] = y < 4 || x % 2 === 0 ? 255 : 0;
-  return encodePortraitPng({ width: 8, height: 8, rgba });
+  return encodePng({ width: 8, height: 8, rgba });
 };
 
 /**
@@ -122,7 +122,7 @@ export const test_subject_lower_lash_basis_preparation = (): void => {
       receipt.length.lower === 0.5 &&
       prepared.documents[0]!.basis === "analytic-lash/2",
   );
-  const lower = decodePortraitPng(
+  const lower = decodePng(
     prepared.basis.materials.find((one) => one.id === "lash.lower")!
       .baseColorTexture as string,
   );

@@ -1,4 +1,10 @@
-import { AutoMovieAnalysisDomain, IAutoMovieAnalysisOutcome, IAutoMovieAnalysisRun, IAutoMovieAnalysisSolver } from "@automovie/interface";
+import {
+  AutoMovieAnalysisDomain,
+  IAutoMovieAnalysisOutcome,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSolver,
+} from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";

@@ -11,9 +11,6 @@
  * immutable, and the simple tier reads the same neck ring at every sample of
  * every inversion, where walking the topology again cost more than the
  * shape it measures. Callers treat the result as read-only.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Finds the clip ring the height rule reads from the surface itself.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Realizes the boundary-edge definition of the ring the measurement rules refer to.
  */
 export function humanBodySurfaceBoundary(indices: number[]): number[];
 export function humanBodySurfaceBoundary(

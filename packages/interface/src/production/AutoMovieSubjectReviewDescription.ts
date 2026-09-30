@@ -1,5 +1,5 @@
-import { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
 import { IAutoMovieFormationSubjectReviewDescription } from "./IAutoMovieFormationSubjectReviewDescription";
+import { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
 
 /**
  * Compiled description accepted by the subject-review unit.

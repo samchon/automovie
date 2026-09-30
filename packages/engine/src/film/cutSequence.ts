@@ -1,4 +1,5 @@
 import { IAutoMovieEditPlan, IAutoMovieShot } from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieCut } from "./IAutoMovieCut";
 

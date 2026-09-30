@@ -14,11 +14,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import simpleControls from "../../../test/studies/human-face/connected-basis/global-face/simple-controls.json";
 import studyDocuments from "../../../test/studies/human-face/connected-basis/global-face/subjects.json";
-import { connectedFaceComponents } from "./human/anatomy/connectedFaceComponents";
-import { readConnectedFaceAsset } from "./human/connectedAsset";
-import { mountConnectedFacePanel } from "./human/connectedPanel";
-import { createConnectedFaceViewport } from "./human/connectedViewport";
-import { createHumanResidentPort } from "./human/residentPort";
+import { readConnectedFaceAsset } from "./human/common/connectedAsset";
+import { createHumanResidentPort } from "./human/common/residentPort";
+import { connectedFaceComponents } from "./human/face/anatomy/connectedFaceComponents";
+import { mountConnectedFacePanel } from "./human/face/connectedPanel";
+import { createConnectedFaceViewport } from "./human/face/connectedViewport";
 
 async function main(): Promise<void> {
   const basis = await readConnectedFaceAsset({
@@ -29,10 +29,6 @@ async function main(): Promise<void> {
           import.meta.url,
         ),
       ),
-    decode: (bytes) =>
-      new Response(
-        new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")),
-      ).text(),
   });
   const initial: IAutoMovieHumanFaceBasisDocument = {
     id: "connected-reference",
@@ -42,8 +38,6 @@ async function main(): Promise<void> {
     expression: {},
   };
   let viewport!: ReturnType<typeof createConnectedFaceViewport>;
-  let camera!: THREE.PerspectiveCamera;
-  let orbit!: OrbitControls;
   const panel = mountConnectedFacePanel(
     document.querySelector<HTMLDivElement>("#app")!,
     {
@@ -74,10 +68,7 @@ async function main(): Promise<void> {
             antialias: true,
             preserveDrawingBuffer: true,
           }),
-          orbit: (stageCamera) => {
-            camera = stageCamera;
-            return (orbit = new OrbitControls(stageCamera, canvas));
-          },
+          orbit: (stageCamera) => new OrbitControls(stageCamera, canvas),
           worker: () =>
             createHumanResidentPort(
               new Worker(
@@ -106,24 +97,10 @@ async function main(): Promise<void> {
       snapshot: panel.snapshot,
       document: () => panel.snapshot()?.document,
       camera: viewport.cameraView,
-      // A review places the camera where a photograph's was: position and
-      // target in metres, vertical field of view in degrees. It moves the
-      // display camera only, as an orbit drag would, and lifts the orbit's
-      // distance limits and damping so the placement is exact.
-      look: (view: {
-        position: [number, number, number];
-        target: [number, number, number];
-        fov: number;
-      }): void => {
-        orbit.enableDamping = false;
-        orbit.minDistance = 0;
-        orbit.maxDistance = Infinity;
-        orbit.target.set(...view.target);
-        camera.position.set(...view.position);
-        camera.fov = view.fov;
-        camera.updateProjectionMatrix();
-        orbit.update();
-      },
+      // Review hooks: exact placement, named views, region framing, part
+      // isolation and hiding, structural passes. They change what is drawn
+      // and never the document.
+      ...viewport.observe,
       finish: viewport.finish,
       renderer: viewport.renderer,
     },

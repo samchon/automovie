@@ -1,7 +1,7 @@
 {
   "name": "@automovie/human",
   "version": "0.1.0",
-  "description": "Deterministic anatomical face construction and replayable editing documents",
+  "description": "Deterministic anatomical face and body construction and replayable editing documents",
   "engines": {
     "node": ">=22.23.2"
   },
@@ -10,6 +10,14 @@
     ".": {
       "browser": "./lib/browser/index.js",
       "default": "./src/index.ts"
+    },
+    "./body/*": {
+      "browser": "./lib/browser/body/*.js",
+      "default": "./src/body/*.ts"
+    },
+    "./common/*": {
+      "browser": "./lib/browser/common/*.js",
+      "default": "./src/common/*.ts"
     },
     "./face/*": {
       "browser": "./lib/browser/face/*.js",
@@ -44,6 +52,16 @@
         "types": "./lib/index.d.ts",
         "browser": "./lib/browser/index.js",
         "default": "./lib/index.js"
+      },
+      "./body/*": {
+        "types": "./lib/body/*.d.ts",
+        "browser": "./lib/browser/body/*.js",
+        "default": "./lib/body/*.js"
+      },
+      "./common/*": {
+        "types": "./lib/common/*.d.ts",
+        "browser": "./lib/browser/common/*.js",
+        "default": "./lib/common/*.js"
       },
       "./face/*": {
         "types": "./lib/face/*.d.ts",

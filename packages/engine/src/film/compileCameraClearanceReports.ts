@@ -1,16 +1,27 @@
-import { IAutoMovieCamera, IAutoMovieCameraClearanceReport, IAutoMovieClip, IAutoMovieModel, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShot, IAutoMovieShotCoverage, IAutoMovieTransform } from "@automovie/interface";
-import { sampleTimes } from "../motion/sampleTimes";
+import {
+  IAutoMovieCamera,
+  IAutoMovieCameraClearanceReport,
+  IAutoMovieClip,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieShotCoverage,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { sampleMotion } from "../motion/sampleMotion";
+import { sampleTimes } from "../motion/sampleTimes";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { validateModel } from "../validation/validateModel";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { foldRoot } from "./foldRoot";
-import { evaluateCameraClearance } from "./evaluateCameraClearance";
-import { computeModelRestExtent } from "./computeModelRestExtent";
-import { resolveCameraAt } from "./resolveCameraAt";
-import { nodeSubjectBox } from "./nodeSubjectBox";
+import { validateModel } from "../validation/validateModel";
 import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
+import { computeModelRestExtent } from "./computeModelRestExtent";
+import { evaluateCameraClearance } from "./evaluateCameraClearance";
+import { foldRoot } from "./foldRoot";
+import { nodeSubjectBox } from "./nodeSubjectBox";
+import { resolveCameraAt } from "./resolveCameraAt";
 
 /** A measured model and the conservative radius used while it moves. */
 interface IMeasuredObstacle {

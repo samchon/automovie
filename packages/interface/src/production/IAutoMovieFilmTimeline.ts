@@ -1,9 +1,9 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 import { IAutoMovieAudioCue } from "./IAutoMovieAudioCue";
 import { IAutoMovieEffectCue } from "./IAutoMovieEffectCue";
 import { IAutoMovieFilmOmission } from "./IAutoMovieFilmOmission";
 import { IAutoMovieFilmTimelineSegment } from "./IAutoMovieFilmTimelineSegment";
+import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
 /**
  * Canonical global timeline consumed by review, oracle and render layers.

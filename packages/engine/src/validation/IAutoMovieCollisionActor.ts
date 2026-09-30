@@ -1,4 +1,10 @@
-import { AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBody,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieCapsuleProxy } from "./validateCapsule";

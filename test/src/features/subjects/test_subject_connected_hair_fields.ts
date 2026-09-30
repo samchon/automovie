@@ -1,4 +1,4 @@
-import { connectedHairFields } from "@automovie/playground/src/human/connectedHairFields";
+import { connectedHairFields } from "@automovie/playground/src/human/face/connectedHairFields";
 import { TestValidator } from "@nestia/e2e";
 
 import { createNumericalHairFixture } from "../internal/createNumericalHairFixture";

@@ -4,8 +4,6 @@
  * RGB and does not infer a biological chromophore concentration.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Gives regional skin colour independent named controls and a stable anatomical attachment.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Declares a reference anchor, millimetre envelope and bounded linear RGB attenuation.
  */
 export interface IPortraitSkinColourRegion {
   /** Unique nonempty anatomical or authored region identity. */

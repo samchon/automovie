@@ -1,13 +1,13 @@
 import { IAutoMovieModel } from "../model/IAutoMovieModel";
 import { IAutoMovieProductionLighting } from "../scene/IAutoMovieProductionLighting";
+import { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
+import { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
 import type { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSource";
 import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import { IAutoMovieModelRecipe } from "./IAutoMovieModelRecipe";
 import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
-import { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
-import { IAutoMovieCompiledInstanceSet } from "./IAutoMovieCompiledInstanceSet";
 import { IAutoMovieSourceOracle } from "./IAutoMovieSourceOracle";
+import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Frozen input available to a coding-agent-owned shot source builder.

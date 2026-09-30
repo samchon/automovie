@@ -1,4 +1,8 @@
-import { IAutoMovieConstraintViolation, IAutoMovieScriptNode } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieScriptNode,
+} from "@automovie/interface";
+
 import { beatNodeOf } from "./beatNodeOf";
 
 /**

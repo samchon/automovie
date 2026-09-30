@@ -6,15 +6,15 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { getConstraint } from "../rom/getConstraint";
-import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
+import { getConstraint } from "../rom/getConstraint";
 import { armChainFault } from "./armChainFault";
-import { decomposeJointRotation } from "./decomposeJointRotation";
 import { clinicalDeviation } from "./clinicalDeviation";
+import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
+import { decomposeJointRotation } from "./decomposeJointRotation";
 import { hingedArmArticulation } from "./hingedArmArticulation";
 import { jointRomOvershoot } from "./jointRomOvershoot";
-import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "./resolvePose";
 
 /** A joint whose three clinical angles are all known numbers. */

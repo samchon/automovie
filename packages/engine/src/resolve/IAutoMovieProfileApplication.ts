@@ -1,4 +1,7 @@
-import { IAutoMovieProfile, IAutoMovieProfileBinding } from "@automovie/interface";
+import {
+  IAutoMovieProfile,
+  IAutoMovieProfileBinding,
+} from "@automovie/interface";
 
 /**
  * One application of a profile onto a concrete subtree: the reusable profile

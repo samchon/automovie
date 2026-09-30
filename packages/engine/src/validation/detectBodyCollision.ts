@@ -1,16 +1,26 @@
-import { AutoMovieHumanoidBone, IAutoMovieBody, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieSkeletonTopology, indexSkeletonTopology, resolvePose } from "../kinematics";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBody,
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  IAutoMovieSkeletonTopology,
+  indexSkeletonTopology,
+  resolvePose,
+} from "../kinematics";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
-import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
+import { sampleTimes } from "../motion/sampleTimes";
 import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionResponse";
 import { suggestCollisionResponse } from "../physics/suggestCollisionResponse";
-import { validateCapsule } from "./validateCapsule";
-import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieBodyCollisionResult } from "./IAutoMovieBodyCollisionResult";
 import { IAutoMovieCollisionActor } from "./IAutoMovieCollisionActor";
+import { ViolationCollector } from "./ViolationCollector";
+import { fkReachableBones } from "./fkReachableBones";
+import { validateCapsule } from "./validateCapsule";
 
 const DEFAULT_SAMPLE_RATE = 24;
 

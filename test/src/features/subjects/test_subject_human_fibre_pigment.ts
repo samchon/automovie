@@ -1,8 +1,8 @@
 import {
   createHumanFaceBasisBuilder,
   createHumanFaceFibrePigment,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 import type { IAutoMovieMaterial } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -31,7 +31,7 @@ const card = (): IAutoMovieMaterial => ({
   metallic: 0,
   opacity: 1,
   emissive: null,
-  baseColorTexture: encodePortraitPng({
+  baseColorTexture: encodePng({
     width: 2,
     height: 2,
     rgba: new Uint8Array([
@@ -74,7 +74,7 @@ export const test_subject_human_fibre_pigment = (): void => {
   const dark = toLinear(10) / toLinear(20);
   const painted = [card()];
   rule({ brow: { pigment: [0.3, 0.12, 0.05] } }, painted);
-  const image = decodePortraitPng(painted[0]!.baseColorTexture as string);
+  const image = decodePng(painted[0]!.baseColorTexture as string);
   const expected = (ratio: number) =>
     [0.3, 0.12, 0.05].map((value) => srgb(value * ratio));
   TestValidator.equals("pigment by luminance ratio", Array.from(image.rgba), [
@@ -90,7 +90,7 @@ export const test_subject_human_fibre_pigment = (): void => {
   const faint = [
     {
       ...card(),
-      baseColorTexture: encodePortraitPng({
+      baseColorTexture: encodePng({
         width: 1,
         height: 1,
         rgba: new Uint8Array([20, 20, 20, 30]),
@@ -105,9 +105,10 @@ export const test_subject_human_fibre_pigment = (): void => {
   );
   TestValidator.equals(
     "nothing drawn",
-    Array.from(
-      decodePortraitPng(faint[0]!.baseColorTexture as string).rgba,
-    ).slice(0, 3),
+    Array.from(decodePng(faint[0]!.baseColorTexture as string).rgba).slice(
+      0,
+      3,
+    ),
     expected(1),
   );
   const blended = [{ ...card(), alphaMode: "blend" as const }];
@@ -117,9 +118,10 @@ export const test_subject_human_fibre_pigment = (): void => {
   );
   TestValidator.equals(
     "blend draws every covered texel",
-    Array.from(
-      decodePortraitPng(blended[0]!.baseColorTexture as string).rgba,
-    ).slice(4, 7),
+    Array.from(decodePng(blended[0]!.baseColorTexture as string).rgba).slice(
+      4,
+      7,
+    ),
     expected(1),
   );
   TestValidator.equals(
@@ -133,7 +135,7 @@ export const test_subject_human_fibre_pigment = (): void => {
     rule({ brow: { density } }, materials);
     return {
       alpha: Array.from(
-        decodePortraitPng(materials[0]!.baseColorTexture as string).rgba,
+        decodePng(materials[0]!.baseColorTexture as string).rgba,
       ).filter((_, k) => k % 4 === 3),
       factor: materials[0]!.baseColor.r,
     };

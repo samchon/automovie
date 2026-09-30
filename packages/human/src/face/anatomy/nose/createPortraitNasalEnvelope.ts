@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
-import { portraitNormals } from "../../mesh/portraitNormals";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNasalRimJets } from "./portraitNasalRimJets";
 import { samplePortraitNasalEntry } from "./samplePortraitNasalEntry";
 import { samplePortraitNasalSection } from "./samplePortraitNasalSection";
 import { IPortraitNasalEnvelope } from "./structures/IPortraitNasalEnvelope";
 import { IPortraitNasalEnvelopeSection } from "./structures/IPortraitNasalEnvelopeSection";
+import { sampleCyclicNasalSection } from "./structures/sampleCyclicNasalSection";
+import { unitNasalNormal } from "./structures/unitNasalNormal";
 
 /**
  * Fit one numerical envelope and return its refined-region appender. Original
@@ -19,9 +22,6 @@ import { IPortraitNasalEnvelopeSection } from "./structures/IPortraitNasalEnvelo
  * jet, then consumes the same jet in the recessed vestibule. Depth/axis come
  * solely from the caller's rotated cavity offset. This is authored surface
  * geometry, not a reconstructed airway or a self-intersection certificate.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Builds skin, rolled aperture and vestibule as one connected numerical surface without independently positioned lining.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Resolves cyclic original-to-refined boundary lineage, preserves resident attachment vertices and samples shared Hermite jets after subdivision.
  */
 export function createPortraitNasalEnvelope(
   inputPoints: readonly (readonly number[])[],
@@ -70,7 +70,7 @@ export function createPortraitNasalEnvelope(
       "A nasal envelope needs ordered finite sections, positive widths, unit crest positions and 2..64 samples per interval.",
     );
   const points = inputPoints.map((p) => [...p]);
-  const normals = inputNormals.map((p) => unit(p));
+  const normals = inputNormals.map((p) => unitNasalNormal(p));
   const offset = [...inputOffset],
     depth = Math.hypot(...offset);
   if (!Number.isFinite(depth) || depth === 0)
@@ -147,7 +147,9 @@ export function createPortraitNasalEnvelope(
         (_, i) => boundary[(start + i) % boundary.length],
       );
       const count = ordered.length;
-      const rim = ordered.map((_, i) => cyclic(points, i / count));
+      const rim = ordered.map((_, i) =>
+        sampleCyclicNasalSection(points, i / count),
+      );
       // The exterior skin can turn through the aperture plane. Its normals
       // therefore cannot orient the entire rolled rim: projecting them there
       // can change sign around one closed opening. The separately owned inward
@@ -155,7 +157,7 @@ export function createPortraitNasalEnvelope(
       const rimNormals = ordered.map(() => offset.map((v) => -v / depth));
       const rimJets = frames(rim, rimNormals);
       const outerPoints = ordered.map((id) => cage.positions[id]);
-      const packedNormals = portraitNormals(
+      const packedNormals = areaWeightedNormals(
         cage.positions.flat(),
         cage.indices,
       );
@@ -273,32 +275,4 @@ export function createPortraitNasalEnvelope(
       cage.groups.push(...groups);
     },
   };
-}
-
-function unit(p: readonly number[]): number[] {
-  const n = Vector3.normalize(
-    Vector3.create(...(p as [number, number, number])),
-  );
-  if (Vector3.length(n) === 0 || ![n.x, n.y, n.z].every(Number.isFinite))
-    throw new Error("A nasal envelope needs nonzero finite surface normals.");
-  return [n.x, n.y, n.z];
-}
-
-function cyclic(points: readonly number[][], phase: number): number[] {
-  const at = phase * points.length,
-    index = Math.floor(at),
-    t = at - index;
-  const p = (i: number) => points[(i + points.length) % points.length];
-  return samplePortraitNasalSection(
-    {
-      point: p(index),
-      derivative: p(index + 1).map((v, axis) => (v - p(index - 1)[axis]) / 2),
-    },
-    {
-      point: p(index + 1),
-      derivative: p(index + 2).map((v, axis) => (v - p(index)[axis]) / 2),
-    },
-    1,
-    t,
-  ).point;
 }

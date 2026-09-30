@@ -1,4 +1,8 @@
-import { AutoMovieContentDigest, IAutoMovieDesignLineage } from "@automovie/interface";
+import {
+  AutoMovieContentDigest,
+  IAutoMovieDesignLineage,
+} from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { validateDesignLineage } from "./validateDesignLineage";

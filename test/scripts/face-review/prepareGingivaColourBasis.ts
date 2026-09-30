@@ -2,8 +2,8 @@ import {
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 
 import { meshComponents } from "./prepareGingivaBasis";
@@ -294,7 +294,7 @@ export function prepareGingivaColourBasis(input: {
   const binding = material?.baseColorTexture;
   if (typeof binding !== "string")
     throw new Error("Gingiva colour needs the dentition's textured region.");
-  const image = decodePortraitPng(binding);
+  const image = decodePng(binding);
   const { width: W, height: H } = image;
   const uv = new Map<number, readonly [number, number]>(
     region!.indices.map((v, k) => [
@@ -336,7 +336,7 @@ export function prepareGingivaColourBasis(input: {
     rings: input.rings,
   });
   const moved = faceMoveTexels({ rgba: image.rgba, owner, offset });
-  material!.baseColorTexture = encodePortraitPng({
+  material!.baseColorTexture = encodePng({
     width: W,
     height: H,
     rgba: moved.rgba,

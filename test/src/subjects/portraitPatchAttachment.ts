@@ -1,10 +1,10 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
-import { portraitRayIntersection } from "@automovie/human/face/mesh/portraitRayIntersection";
 import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
-import type { IPortraitComponentHost } from "@automovie/human/face/surface/structures/IPortraitComponentHost";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { intersectRayWithHeightField } from "@automovie/human/face/mesh/intersectRayWithHeightField";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
+import type { IPortraitComponentHost } from "@automovie/human/face/surface/structures/IPortraitComponentHost";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 /** Optional source-surface attachment of a patch's outer host boundary. */
@@ -59,7 +59,7 @@ export function fitPortraitPatchBoundary(
   );
   if (Vector3.length(direction) === 0)
     throw new Error("Patch attachment needs a nonzero view ray.");
-  const geometry = portraitPart(
+  const geometry = createMetricMeshPart(
     "patch-attachment-basis",
     {
       positions: source.positions.flat(),
@@ -73,8 +73,8 @@ export function fitPortraitPatchBoundary(
   const sample = createAutoMovieMeshDepthSampler(geometry.mesh, "z");
   return boundary.map((vertex) => {
     const point = host.positions[vertex];
-    const target = portraitRayIntersection(
-      portraitPoint(...(point as [number, number, number])),
+    const target = intersectRayWithHeightField(
+      millimetrePoint(...(point as [number, number, number])),
       direction,
       (x, y) => {
         const hit = sample(x / 1000, y / 1000);

@@ -25,9 +25,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * pulled around the body reads: it bridges the gluteal cleft, the
  * inframammary fold and the navel as the ISO 8559-1 and ANSUR tape girths
  * do, and equals the perimeter on a convex section.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Computes the closed section contour a girth rule reads on the evaluated surface.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Realizes the plane cut, closed-loop chaining and seed-nearest selection the girth rule specifies.
  */
 export function measureHumanBodySection(
   positions: number[],

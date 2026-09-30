@@ -4,20 +4,26 @@ import {
 } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { portraitNormals } from "../../mesh/portraitNormals";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 import { humanFaceHairFreeDistanceBound } from "./humanFaceHairFreeDistanceBound";
 import type { integrateHumanFaceHairCurve } from "./integrateHumanFaceHairCurve";
+import { selectHumanFaceHairStations } from "./selectHumanFaceHairStations";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 
 /**
  * Mesh integrated metric curves with transported transverse ribbon frames.
  * The numerical hair builder passes the exact generated stations; this owner
- * never resamples or fits a second curve. A root vertex opens into a triangular
- * fan, followed by paired rows. UV v is measured cumulative arc length divided
- * by total measured length, and taper uses that same coordinate.
+ * never resamples or fits a second curve. It meshes the subset of them that
+ * carries the curve (`selectHumanFaceHairStations`): a station within a tenth
+ * of the ribbon's half width, and a quarter of the requested clearance, of the
+ * straight run between its kept neighbours gets no row, so a straight lock is
+ * one segment and a curl keeps the stations that bend it. A root vertex opens
+ * into a triangular fan, followed by paired rows. UV v is measured cumulative
+ * arc length divided by total measured length over every integrated station,
+ * and taper uses that same coordinate.
  *
  * The first nonparallel tangent fixes the binormal of the emergence/combing
  * plane. Starting from skin normal cross root tangent would be singular for
@@ -54,13 +60,10 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * Euclidean separation. When that bound still exceeds the full half width
  * plus requested clearance, the exact ribbon is already certified and no
  * further skin query or width fit is needed. A conservative floating-point
- * margin retains the ordinary query at the boundary. This only skips work;
- * every integrated station and every emitted triangle stays the same.
+ * margin retains the ordinary query at the boundary. This only skips work; every
+ * kept station and every emitted triangle stays the same.
  * Positions are already metres; no portrait millimetre conversion applies.
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Materializes numerical locks without storing personal mesh data.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Renders the same integrated stations used for metric evaluation and keeps each ribbon's own corners outside the skin.
  */
 export function buildHumanFaceHairMesh(
   curves: ReturnType<typeof integrateHumanFaceHairCurve>[],
@@ -140,6 +143,19 @@ export function buildHumanFaceHairMesh(
           Vector3.length(Vector3.subtract(points[at], points[at - 1])),
       );
     const total = distances[distances.length - 1];
+    const radiusAt = (t: number): number =>
+      (width / 2) *
+      (1 -
+        ((1 - layer.taper.tipWidth) * Math.max(0, t - layer.taper.start)) /
+          (1 - layer.taper.start));
+    // A ribbon needs only the stations that carry its bends: a dropped one lies
+    // within a tenth of the ribbon's half width there, and within a quarter of
+    // the requested clearance, of the straight run that replaces it.
+    const kept = selectHumanFaceHairStations({
+      points,
+      tolerance: (_, to) =>
+        Math.min(0.1 * radiusAt(distances[to] / total), 0.25 * layer.clearance),
+    });
     const reference =
       tangents.find(
         (tangent) =>
@@ -161,8 +177,9 @@ export function buildHumanFaceHairMesh(
     if (facing < 0) frame = Vector3.scale(frame, -1);
     positions.push(points[0].x, points[0].y, points[0].z);
     uvs.push(0.5, 0);
-    for (let at = 1; at < points.length; at++) {
-      const before = tangents[at - 1],
+    for (let order = 1; order < kept.length; order++) {
+      const at = kept[order];
+      const before = tangents[kept[order - 1]],
         after = tangents[at];
       const cosine = Math.max(-1, Math.min(1, Vector3.dot(before, after)));
       if (1 + cosine <= 64 * Number.EPSILON)
@@ -184,11 +201,7 @@ export function buildHumanFaceHairMesh(
         ),
       );
       const t = distances[at] / total;
-      const radius =
-        (width / 2) *
-        (1 -
-          ((1 - layer.taper.tipWidth) * Math.max(0, t - layer.taper.start)) /
-            (1 - layer.taper.start));
+      const radius = radiusAt(t);
       let fitted = radius;
       if (
         sampled === undefined ||
@@ -220,8 +233,8 @@ export function buildHumanFaceHairMesh(
         positions.push(point.x, point.y, point.z);
         uvs.push((side + 1) / 2, t);
       }
-      const row = offset + 2 * at - 1;
-      if (at === 1) indices.push(offset, row, row + 1);
+      const row = offset + 2 * order - 1;
+      if (order === 1) indices.push(offset, row, row + 1);
       else indices.push(row - 2, row, row - 1, row - 1, row, row + 1);
     }
   });
@@ -246,7 +259,7 @@ export function buildHumanFaceHairMesh(
   return {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs,
     skin: null,
   };

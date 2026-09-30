@@ -1,7 +1,12 @@
-import { IAutoMovieFormationMotionState, IAutoMovieFormationSlotState, IAutoMovieVector3 } from "@automovie/interface";
-import { transformFormationPoint } from "./transformFormationPoint";
+import {
+  IAutoMovieFormationMotionState,
+  IAutoMovieFormationSlotState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieFormationSlotPlacement } from "./IAutoMovieFormationSlotPlacement";
 import { rotateFormationLocalOffset } from "./rotateFormationLocalOffset";
+import { transformFormationPoint } from "./transformFormationPoint";
 
 /**
  * Compose a unit's cue and one member's own cue into that member's placement.

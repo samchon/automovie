@@ -1,7 +1,7 @@
 import { createAutoMovieMeshRayCaster } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { encodePortraitPng } from "../mesh/encodePortraitPng";
+import { encodePng } from "../../common/mesh/encodePng";
 
 /** How far a ray starts off its surface along the normal, metres. */
 const LIFT = 0.00005;
@@ -24,9 +24,6 @@ const LIFT = 0.00005;
  * written as equal 8-bit R, G and B. A vertex without a normal is taken as
  * fully visible. The model is not changed. It refuses a ray count or size
  * that is not a positive integer.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-surface-maps Computes how much ambient light reaches each surface point from the document's own geometry, deterministically and without images.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-occlusion Casts the specified cosine-weighted rays against opaque triangles and rasterizes the visibility over each material's UVs with the stated seam filling.
  */
 export function bakeHumanFaceOcclusion(
   model: IAutoMovieModel,
@@ -240,7 +237,7 @@ export function bakeHumanFaceOcclusion(
       );
       rgba.set([value, value, value, 255], 4 * texel);
     }
-    baked.set(material, encodePortraitPng({ width: size, height: size, rgba }));
+    baked.set(material, encodePng({ width: size, height: size, rgba }));
   }
   return baked;
 }

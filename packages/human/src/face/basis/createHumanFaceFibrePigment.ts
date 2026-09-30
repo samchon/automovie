@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { decodePortraitPng } from "../mesh/decodePortraitPng";
-import { encodePortraitPng } from "../mesh/encodePortraitPng";
+import { decodePng } from "../../common/mesh/decodePng";
+import { encodePng } from "../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 
 /**
@@ -37,10 +37,6 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * an embedded PNG with coverage (alpha mode mask or blend). The pigment is an
  * authored optical value under the renderer's light, not a reflectance
  * recovered from a photograph.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Makes brow and lash fibre colour and density authored values painted by one rule on the shared cards.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses brow and lash differences as numerical material values over the common basis textures instead of personal images.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-fibre Repaints covered texels from the pigment and their luminance under the drawn texels' median, held at one, and scales coverage by the density.
  */
 export function createHumanFaceFibrePigment(): (
   overrides: IAutoMovieHumanFaceBasisDocument["materials"],
@@ -110,7 +106,7 @@ interface IDecodedFibres {
 }
 
 function decode(uri: string, cutoff: number): IDecodedFibres {
-  const image = decodePortraitPng(uri);
+  const image = decodePng(uri);
   const drawn: number[] = [];
   for (let texel = 0; texel < image.width * image.height; ++texel) {
     const alpha = image.rgba[4 * texel + 3]! / 255;
@@ -143,7 +139,7 @@ function paint(
     if (density !== undefined)
       rgba[4 * texel + 3] = Math.min(255, Math.round(alpha * density));
   }
-  return encodePortraitPng({
+  return encodePng({
     width: source.width,
     height: source.height,
     rgba,

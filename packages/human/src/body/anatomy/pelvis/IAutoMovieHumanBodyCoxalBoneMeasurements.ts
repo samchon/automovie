@@ -1,6 +1,6 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
  * Target or observed dimensions of one os coxae (ilium, ischium and pubis).
@@ -17,9 +17,9 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyCoxalBoneMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  /** Segmented volume of this one bone, excluding the opposite side. */
-  boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+    /** Segmented volume of this one bone, excluding the opposite side. */
+    boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
 
-  /** Diameter of its articular acetabulum, independent of the femoral head. */
-  acetabularDiameter?: IAutoMovieHumanBodyAnatomicalLength;
+    /** Diameter of its articular acetabulum, independent of the femoral head. */
+    acetabularDiameter?: IAutoMovieHumanBodyAnatomicalLength;
   }>;

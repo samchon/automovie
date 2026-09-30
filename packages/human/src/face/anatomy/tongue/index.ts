@@ -4,4 +4,4 @@ export * from "./buildPortraitTongue";
 export * from "./createPortraitTongueComponent";
 export * from "./frontWeight";
 export * from "./portraitTongueParameters";
-export * from "./rows";
+export * from "./portraitTongueRows";

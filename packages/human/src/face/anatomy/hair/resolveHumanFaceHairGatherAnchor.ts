@@ -15,9 +15,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * different piece of scalp. This function selects one point; it never authors
  * or caches a strand path. Changes to the source geometry invalidate the
  * resolved triangle and therefore the basis revision.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps a shared numerical tie attached to source geometry under every identity edit.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Resolves a polar styling input to a current barycentric scalp point without a stored personal guide.
  */
 export function resolveHumanFaceHairGatherAnchor(props: {
   origin: IAutoMovieVector3;

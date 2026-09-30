@@ -11,9 +11,6 @@ import { humanBodyCappedSurface } from "./humanBodyCappedSurface";
  * loop is fanned to its own vertex centroid with the winding its triangles
  * imply. This closes each opening independently, including a top and bottom
  * opening on one surface.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Reads the skin volume the body mass index is solved against.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the tetrahedron sum and the boundary cap the mass model specifies.
  */
 export function measureHumanBodyVolume(
   positions: number[],

@@ -12,8 +12,6 @@ import { IPortraitNasalSectionStation } from "./IPortraitNasalSectionStation";
  * point never evaluates more than 4096 authored scalar controls.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Supplies an asymmetric connected nasal depth basis rather than a collection of independent bumps.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines bounded tensor-product cubic control arrays, a physical edge join and an explicit host-to-loft influence.
  */
 export interface IPortraitNasalSection {
   /** Four through 64 strictly increasing local-X control positions, in mm. */

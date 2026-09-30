@@ -1,8 +1,8 @@
 import { pointInPolygon } from "../architecture/pointInPolygon";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { AutoMovieRingPlacement } from "./AutoMovieRingPlacement";
-import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
 
 /**
  * Where `(x, z)` stands relative to one ring.

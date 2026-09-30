@@ -6,9 +6,9 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { IAutoMovieProfilePoint } from "../geometry/IAutoMovieProfilePoint";
 import { sweepAutoMovieProfile } from "../geometry/sweepAutoMovieProfile";
-import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
 

@@ -1,10 +1,8 @@
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare ear scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes pinna span, projection, tilt and signed vertical placement as numerical details.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Preserves the ear profile paths and units used by side-specific overrides and temporal attachment.
  */
 export const humanFaceEarChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

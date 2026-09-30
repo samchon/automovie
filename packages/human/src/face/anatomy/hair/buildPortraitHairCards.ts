@@ -1,19 +1,18 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../mesh/portraitNormals";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitSpline } from "../../mesh/portraitSpline";
-import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { IPortraitHairShape } from "./IPortraitHairShape";
+import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
 
 /**
  * Tessellate cubic guide strips with root-to-tip UVs. Each row has two vertices
  * and each interval two triangles, independent of painted fibre count. Normals
  * come from the emitted triangles. No camera-facing rotation or random state
  * enters the construction. Caller guides and profiles remain unchanged.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs curved surface hair locks from named guide and width controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Emits metric strips with shared sampling, deterministic UVs and finite nondegenerate frames.
  */
 export function buildPortraitHairCards(
   shape: IPortraitHairShape,
@@ -74,8 +73,8 @@ export function buildPortraitHairCards(
       throw new Error(
         "Each hair card needs paired finite guide/frame stations and a positive bounded width.",
       );
-    const guide = card.guide.map((p) => portraitPoint(...p));
-    const across = card.across.map((p) => portraitPoint(...p));
+    const guide = card.guide.map((p) => millimetrePoint(...p));
+    const across = card.across.map((p) => millimetrePoint(...p));
     const mesh: IAutoMovieMesh = {
       positions: [],
       indices: [],
@@ -85,8 +84,8 @@ export function buildPortraitHairCards(
     };
     for (let row = 0; row <= shape.segments; row++) {
       const t = row / shape.segments;
-      const center = portraitSpline(guide, t),
-        frame = portraitSpline(across, t);
+      const center = catmullRomPoint(guide, t),
+        frame = catmullRomPoint(across, t);
       const direction = Vector3.normalize(frame);
       if (
         ![direction.x, direction.y, direction.z].every(Number.isFinite) ||
@@ -119,7 +118,7 @@ export function buildPortraitHairCards(
       const [a, b, c] = mesh
         .indices!.slice(i, i + 3)
         .map((id) =>
-          portraitPoint(
+          millimetrePoint(
             mesh.positions[id * 3],
             mesh.positions[id * 3 + 1],
             mesh.positions[id * 3 + 2],
@@ -133,13 +132,13 @@ export function buildPortraitHairCards(
           "Hair card guides and width frames must produce finite nondegenerate triangles.",
         );
     }
-    mesh.normals = portraitNormals(mesh.positions, mesh.indices!);
+    mesh.normals = areaWeightedNormals(mesh.positions, mesh.indices!);
     meshes.push(mesh);
   }
   return meshes.length === 0
     ? []
     : [
-        portraitPart(
+        createMetricMeshPart(
           "scalp-hair-cards",
           mergeAutoMovieMeshes(meshes),
           shape.material,

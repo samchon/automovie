@@ -30,7 +30,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IAutoMovieHumanFaceBasisDocument.shape} Read explicit shape-group validation, neutral omission and signed endpoint weights without clamping.
  * @evidence {@link Human.IAutoMovieHumanFaceBasisDocument.expression} Read expression-group validation and independent transient state; the source endpoint model does not guarantee physiological interpolation.
  * @evidence {@link Human.IAutoMovieHumanFaceBasisDocument.materials} Read resident-ID validation, optional RGB/roughness boundaries, material copying and preservation of resident texture bytes.
- * @evidence {@link Human.createHumanFaceBasisRegion} Read source/UV identity compilation and owned position/normal gathers against hand-permuted seam, null UV and empty examples.
+ * @evidence {@link Human.createHumanBasisRegion} Read source/UV identity compilation and owned position/normal gathers against hand-permuted seam, null UV and empty examples.
  * @evidence {@link Human.bakeHumanFaceOcclusion} Read opaque occluders, fully UV-mapped receivers, the cosine-weighted spiral cast off the surface to the bounding diagonal, UV rasterization and seam filling.
  * @evidence {@link Human.createHumanFaceBasisBuilder} Read schema admission, immutable compilation, range checks, ordered signed sparse sums, common normal reconstruction, UV/material separation and final model validation. The actual worker consumes the builder and the existing exporter emits its result.
  * @evidence {@link Human.IAutoMovieHumanFaceBasis.landmarks} Read the joint-cube landmarks, their neutral XYZ and sparse shape rows, and that an expression carries no landmark row.
@@ -77,9 +77,9 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.kind} Read the shape/expression discriminator copied from the channel so grouping needs no second lookup.
  * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.positive} Read the always-present positive endpoint measurement.
  * @evidence {@link Human.IAutoMovieHumanFaceChannelScale.negative} Read the null result for a nonnegative control, distinguished from a measured zero.
- * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale} Read the endpoint record's metre units and its explicit limit: a large displacement states how far geometry moves, never that the result is anatomically valid or a likeness.
- * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale.displacement} Read the root mean square over every resident vertex, including untouched ones, which is what makes a wide endpoint outrank a narrow one of equal distance.
- * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale.peak} Read the largest single-vertex magnitude, taken as the square root of the largest squared row.
- * @evidence {@link Human.IAutoMovieHumanFaceEndpointScale.vertices} Read the count of sparse rows the endpoint carries across all surfaces.
+ * @evidence {@link Human.IAutoMovieHumanEndpointScale} Read the endpoint record's metre units and its explicit limit: a large displacement states how far geometry moves, never that the result is anatomically valid or a likeness.
+ * @evidence {@link Human.IAutoMovieHumanEndpointScale.displacement} Read the root mean square over every resident vertex, including untouched ones, which is what makes a wide endpoint outrank a narrow one of equal distance.
+ * @evidence {@link Human.IAutoMovieHumanEndpointScale.peak} Read the largest single-vertex magnitude, taken as the square root of the largest squared row.
+ * @evidence {@link Human.IAutoMovieHumanEndpointScale.vertices} Read the count of sparse rows the endpoint carries across all surfaces.
  */
 export const humanFaceConnectedReview = true;

@@ -1,8 +1,8 @@
 import {
   createHumanFaceBasisBuilder,
-  portraitMeshBuffers,
+  float32MeshBuffers,
 } from "@automovie/human";
-import { createConnectedFaceRenderer } from "@automovie/playground/src/human/connectedRenderer";
+import { createConnectedFaceRenderer } from "@automovie/playground/src/human/face/connectedRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -29,12 +29,12 @@ export const test_subject_connected_renderer_attributes =
     const source = first.meshes[0];
     TestValidator.equals(
       "UV0 packing matches GPU",
-      Array.from(portraitMeshBuffers(source).uvs!),
+      Array.from(float32MeshBuffers(source).uvs!),
       Array.from(first.resident.meshes[0].geometry.getAttribute("uv").array),
     );
     TestValidator.equals(
       "absent UV0 stays absent",
-      portraitMeshBuffers({ ...source, uvs: null }).uvs,
+      float32MeshBuffers({ ...source, uvs: null }).uvs,
       null,
     );
     for (const uvs of [
@@ -49,7 +49,7 @@ export const test_subject_connected_renderer_attributes =
         await renderer
           .prepare(invalid)
           .catch((error: unknown) => (error as Error).message),
-        "Portrait UV0 must remain complete and finite at Float32 precision.",
+        "Model UV0 must remain complete and finite at Float32 precision.",
       );
     }
     for (const [attribute, value] of [
@@ -67,8 +67,8 @@ export const test_subject_connected_renderer_attributes =
           .prepare(invalid)
           .catch((error: unknown) => (error as Error).message),
         attribute === "normals" && value === 0
-          ? "Portrait GLTF NORMAL values must be unit directions."
-          : "Portrait Float32 buffers must contain only finite components.",
+          ? "Model GLTF NORMAL values must be unit directions."
+          : "Model Float32 buffers must contain only finite components.",
       );
     }
     TestValidator.predicate(

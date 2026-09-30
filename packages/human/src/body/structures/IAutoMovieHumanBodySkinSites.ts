@@ -3,8 +3,6 @@
  * and linear RGB channel, the albedo `exp(a) · cheek^b` as `[a, b]`, and the
  * weights that assign each vertex of the skin to the sites.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Types the site relations a user can read to see how the body's colour follows the face's.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Declares the table form: the coloured material, the per-site channel fits, the site assignment's facing ramps, exposure, sweeps and collar.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySkinSites {

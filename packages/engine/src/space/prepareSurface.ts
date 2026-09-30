@@ -1,6 +1,7 @@
 import { IAutoMovieSurface } from "@automovie/interface";
-import { surfaceFootprint } from "./surfaceFootprint";
+
 import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
+import { surfaceFootprint } from "./surfaceFootprint";
 
 /**
  * Precompute one surface footprint hull for repeated point queries.

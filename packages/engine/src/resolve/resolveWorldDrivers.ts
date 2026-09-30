@@ -1,12 +1,21 @@
-import { IAutoMovieAimDriver, IAutoMovieDriver, IAutoMovieIKDriver, IAutoMovieParentDriver, IAutoMovieQuaternion, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAimDriver,
+  IAutoMovieDriver,
+  IAutoMovieIKDriver,
+  IAutoMovieParentDriver,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { rotationBetween } from "../math/rotationBetween";
 import { applyIterativeIK } from "./applyIterativeIK";
 import { blendVec } from "./blendVec";
 import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
-import { rotationBetween } from "../math/rotationBetween";
 import { validateInfluence } from "./validateInfluence";
 
 const VECTOR_AXES = ["x", "y", "z"] as const;

@@ -1,12 +1,20 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
-import { jointToQuaternion } from "./jointToQuaternion";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
+import { jointToQuaternion } from "./jointToQuaternion";
 
 const ROOT_PARENT = "__root__";
 

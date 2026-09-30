@@ -1,4 +1,7 @@
-import { IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  IAutoMovieOpeningProfile,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
 
 /**
  * The straight polygon that exactly bounds a possibly arced outline.

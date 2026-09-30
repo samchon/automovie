@@ -1,5 +1,5 @@
 import { serializeHumanFaceDocument } from "@automovie/human";
-import { createHumanPreviewBuilder } from "@automovie/playground/src/human/previewBuilder";
+import { createHumanPreviewBuilder } from "@automovie/playground/src/human/common/previewBuilder";
 
 type Options = Parameters<typeof createHumanPreviewBuilder<string>>[0];
 type Worker = ReturnType<Options["worker"]>;

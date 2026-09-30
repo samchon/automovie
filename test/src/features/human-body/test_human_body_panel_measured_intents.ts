@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodySimpleShape } from "@automovie/human";
-import { mountConnectedBodyPanel } from "@automovie/playground/src/human/connectedBodyPanel";
+import { mountConnectedBodyPanel } from "@automovie/playground/src/human/body/connectedBodyPanel";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 
@@ -96,7 +96,8 @@ export const test_human_body_panel_measured_intents =
       simple: {
         expand: async () => ({}),
         project: async () => simple,
-        solveMeasurement: () => (++solves === 1 ? slow.promise : failing.promise),
+        solveMeasurement: () =>
+          ++solves === 1 ? slow.promise : failing.promise,
       },
       download: (filename, bytes) => {
         downloads.push({ filename, bytes });
@@ -163,7 +164,11 @@ export const test_human_body_panel_measured_intents =
     await Promise.resolve();
     TestValidator.equals(
       "current export downloads the body",
-      [downloads[0]?.filename, (downloads[0]?.bytes as Uint8Array)[0], published],
+      [
+        downloads[0]?.filename,
+        (downloads[0]?.bytes as Uint8Array)[0],
+        published,
+      ],
       [initial.id + ".glb", 4, 4],
     );
   };

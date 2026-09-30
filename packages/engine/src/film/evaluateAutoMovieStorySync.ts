@@ -1,4 +1,9 @@
-import { IAutoMovieShotStoryTime, IAutoMovieStorySyncOutcome, IAutoMovieStorySyncPoint } from "@automovie/interface";
+import {
+  IAutoMovieShotStoryTime,
+  IAutoMovieStorySyncOutcome,
+  IAutoMovieStorySyncPoint,
+} from "@automovie/interface";
+
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
 /**

@@ -7,9 +7,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import { humanFaceStudyDocuments } from "../../../test/studies/human-face/studies";
-import { mountHumanFacePanel } from "./human/panel";
-import { createHumanViewport } from "./human/viewport";
-import { createHumanPreviewWorkerPort } from "./human/workerPort";
+import { createHumanViewport } from "./human/common/viewport";
+import { mountHumanFacePanel } from "./human/face/panel";
+import { createHumanPreviewWorkerPort } from "./human/face/workerPort";
 
 const subjects = Object.entries(humanFaceStudyDocuments)
   .map(([id, document]) => ({ id, read: async () => JSON.stringify(document) }))

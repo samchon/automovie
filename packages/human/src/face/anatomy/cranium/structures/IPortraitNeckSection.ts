@@ -3,8 +3,6 @@
  * Distances are millimetres in the shared head frame.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Exposes transverse, anterior, posterior and axis controls for one cervical section.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines the metric cross-section used to sample the neck around its cranial attachment.
  */
 export interface IPortraitNeckSection {
   /** Height of this section; sections descend from upper to lower to crop. */

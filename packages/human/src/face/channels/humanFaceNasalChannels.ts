@@ -11,8 +11,6 @@ import { type IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieH
 
 /**
  * Declare nose scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes external nose support and aperture shape through signed numerical detail controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Retains nasal envelope and cavity profile paths and scalar bounds while the nasal component admits their common geometry.
  */
 export const humanFaceNasalChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

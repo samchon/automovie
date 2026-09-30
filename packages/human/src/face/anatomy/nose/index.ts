@@ -17,7 +17,7 @@ export * from "./portraitNasalViewRay";
 export * from "./portraitNoseDepth";
 export * from "./portraitNostrilContains";
 export * from "./resizePortraitNostrilRim";
-export * from "./rimNormal";
+export * from "./portraitNostrilRimNormal";
 export * from "./samplePortraitNasalEntry";
 export * from "./samplePortraitNasalSection";
 export * from "./structures";

@@ -1,4 +1,8 @@
-import { IAutoMoviePropBox, IAutoMovieServiceNetwork } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMovieServiceNetwork,
+} from "@automovie/interface";
+
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 

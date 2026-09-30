@@ -1,9 +1,19 @@
-import { IAutoMovieCompiledInstancePrototype, IAutoMovieCompiledInstanceSet, IAutoMovieSubjectArtifact, IAutoMovieSubjectChange, IAutoMovieSubjectDescription, IAutoMovieSubjectDiff, IAutoMovieSubjectDiffFanout, IAutoMovieSubjectMemberSummary } from "@automovie/interface";
-import { selectInstancePrototype } from "./populationRuntime/selectInstancePrototype";
-import { compareAutoMovieRenderIds } from "./render";
+import {
+  IAutoMovieCompiledInstancePrototype,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectChange,
+  IAutoMovieSubjectDescription,
+  IAutoMovieSubjectDiff,
+  IAutoMovieSubjectDiffFanout,
+  IAutoMovieSubjectMemberSummary,
+} from "@automovie/interface";
+
+import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "./constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { describeAutoMovieSubjects } from "./describeAutoMovieSubjects";
-import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "./constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
+import { selectInstancePrototype } from "./populationRuntime/selectInstancePrototype";
+import { compareAutoMovieRenderIds } from "./render";
 
 /**
  * Compare two compiled subject inventories without rendering either artifact.

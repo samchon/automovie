@@ -13,14 +13,19 @@ import { nclose } from "../internal/predicates";
  *    need only the first centre query; all original rows and triangles remain.
  * 2. Three stations beside the surface exhaust that bound and each centre is
  *    queried, retaining the same source-surface clearance rule.
+ * 3. Stations on one straight run collapse to the fan and one row at its end.
  */
 export const test_subject_human_hair_query_bound = (): void => {
   const skin = createAutoMovieSignedMeshQuery(
     createSignedVoxelUnion([[0, 0, 0]]),
   );
   const layer = { taper: { start: 0.7, tipWidth: 1 }, clearance: 0.001 };
-  const build = (xs: number[]) => {
-    const points = xs.map((x) => Vector3.create(x, 0.5, 0.5));
+  // Each station steps aside by more than the mesher's chord tolerance, so
+  // every one is a bend and keeps its row.
+  const build = (xs: number[], bend = 0.002) => {
+    const points = xs.map((x, at) =>
+      Vector3.create(x, 0.5 + (at % 2) * bend, 0.5),
+    );
     let centreQueries = 0;
     const query: typeof skin = (point) => {
       if (
@@ -97,5 +102,16 @@ export const test_subject_human_hair_query_bound = (): void => {
     "near-skin ribbon retains the same topology",
     near.mesh.indices!.length / 3,
     5,
+  );
+  const straight = build([1, 1.02, 1.021, 1.022], 0);
+  TestValidator.equals(
+    "a straight run keeps only its fan and end row",
+    straight.mesh.positions.length / 3,
+    3,
+  );
+  TestValidator.equals(
+    "and one triangle",
+    straight.mesh.indices!.length / 3,
+    1,
   );
 };

@@ -1,11 +1,11 @@
-import type { IAutoMovieHumanFaceEndpointScale } from "../../face/structures/IAutoMovieHumanFaceEndpointScale";
+import type { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 
 /**
  * How far one unit of a body channel moves the skin, and what it measures.
  *
  * A body channel is a dimensionless authored weight like a face channel, so
  * the per-unit RMS displacement, peak and moved-vertex count are reported the
- * same way (`IAutoMovieHumanFaceEndpointScale`, metres, over the whole
+ * same way (`IAutoMovieHumanEndpointScale`, metres, over the whole
  * surface). What the body adds is the measurement: a girth, a distance or a
  * height evaluated on the shaped surface, so a channel that the source calls
  * `measure-bust-circ` can be shown and typed as millimetres of bust girth
@@ -13,8 +13,6 @@ import type { IAutoMovieHumanFaceEndpointScale } from "../../face/structures/IAu
  * and a rule that cannot be evaluated on this basis (the neck lies above the
  * clip) reports null values inside a present record.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Reports each channel's neutral value and per-unit change in metres beside its geometric commitment.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Carries the RMS, peak and moved-vertex figures together with the rule's neutral, positive and negative evaluations.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyChannelScale {
@@ -25,10 +23,10 @@ export interface IAutoMovieHumanBodyChannelScale {
   group: string;
 
   /** Metric effect of the positive endpoint, always present. */
-  positive: IAutoMovieHumanFaceEndpointScale;
+  positive: IAutoMovieHumanEndpointScale;
 
   /** Metric effect of the negative endpoint, or null for a nonnegative control. */
-  negative: IAutoMovieHumanFaceEndpointScale | null;
+  negative: IAutoMovieHumanEndpointScale | null;
 
   /**
    * The measurement rule bound to this channel, evaluated in metres at the

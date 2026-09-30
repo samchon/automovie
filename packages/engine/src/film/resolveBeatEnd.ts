@@ -1,15 +1,28 @@
-import { IAutoMovieBeatEndActorState, IAutoMovieBeatEndFootPlant, IAutoMovieBeatEndState, IAutoMovieClip, IAutoMovieMotion, IAutoMovieMountBinding, IAutoMoviePose, IAutoMovieSceneNode, IAutoMovieShot, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieBeatEndState,
+  IAutoMovieClip,
+  IAutoMovieMotion,
+  IAutoMovieMountBinding,
+  IAutoMoviePose,
+  IAutoMovieSceneNode,
+  IAutoMovieShot,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { IResolveBeatProps } from "./IResolveBeatProps";
+import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 import { gaitPhaseOf } from "./gaitPhaseOf";
 import { plantsAtEnd } from "./plantsAtEnd";
 import { rootVelocityOf } from "./rootVelocityOf";
-import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
-import { IResolveBeatProps } from "./IResolveBeatProps";
 
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 

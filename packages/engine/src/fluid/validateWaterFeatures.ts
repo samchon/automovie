@@ -1,4 +1,10 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMovieValidation, IAutoMovieWaterFeature } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieFluidDomain,
+  IAutoMovieValidation,
+  IAutoMovieWaterFeature,
+} from "@automovie/interface";
+
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceIsConvex } from "../architecture/builtSpaceIsConvex";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";

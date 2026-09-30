@@ -36,9 +36,6 @@ type Shoulder = NonNullable<
  * painted plane.
  * Changing a basis's envelope changes which documents replay, so it needs a
  * new basis identity like any other joint range.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Refuses a humeral direction past the clinical reach of its plane instead of treating plane and elevation as independent limits.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Evaluates the periodic piecewise-linear plane envelope, admits both poles by direction and checks axial rotation separately.
  */
 export function humanBodyShoulderElevationLimit(
   range: Pick<Shoulder["range"], "envelope">,

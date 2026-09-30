@@ -1,9 +1,9 @@
 import type { IPortraitFinalSurface } from "../../surface/structures/IPortraitFinalSurface";
 import { createPortraitNasalBody } from "./createPortraitNasalBody";
-import { type IPortraitNasalBodyShape } from "./structures/IPortraitNasalBodyShape";
 import { createPortraitNasalLobules } from "./createPortraitNasalLobules";
-import { type IPortraitNasalLobule } from "./structures/IPortraitNasalLobule";
 import { createPortraitNasalSection } from "./createPortraitNasalSection";
+import { type IPortraitNasalBodyShape } from "./structures/IPortraitNasalBodyShape";
+import { type IPortraitNasalLobule } from "./structures/IPortraitNasalLobule";
 import { type IPortraitNasalSection } from "./structures/IPortraitNasalSection";
 
 /**
@@ -32,8 +32,6 @@ import { type IPortraitNasalSection } from "./structures/IPortraitNasalSection";
  * reach, then a cubic fade to zero at the reach, so supported anterior targets
  * are not attenuated merely for lying behind the tip. The common rim fade
  * still takes precedence; no alternative repairs a wrong aperture tangent.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Shapes the refined nasal exterior while preserving the shared aperture and vestibular lining.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Masks additive, loft or copied-datum local-section targets by the actual lining boundary, with a full anterior depth plateau for final local sections.
  */
 export function createPortraitNasalBodySurface(
   shape:

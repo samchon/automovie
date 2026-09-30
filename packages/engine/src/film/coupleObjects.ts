@@ -1,14 +1,25 @@
-import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieClip, IAutoMovieConstraintViolation, IAutoMovieInteractionEvent, IAutoMovieMotion, IAutoMovieScene, IAutoMovieSkeleton, IAutoMovieTransform } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieClip,
+  IAutoMovieConstraintViolation,
+  IAutoMovieInteractionEvent,
+  IAutoMovieMotion,
+  IAutoMovieScene,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { compileAttach } from "./compileAttach";
+import { IAttachJob } from "./IAttachJob";
+import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { bakedTransformAt } from "./bakedTransformAt";
+import { compileAttach } from "./compileAttach";
 import { followClipOf } from "./followClipOf";
 import { handoffEvents } from "./handoffEvents";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import { IAttachJob } from "./IAttachJob";
 
 /** The per-node lookups a follow bake needs from the compiled shot. */
 interface ICoupleContext {

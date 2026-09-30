@@ -1,28 +1,26 @@
 import type { IPortraitCheekShape } from "../anatomy/cheek/IPortraitCheekShape";
-import type { IPortraitNeckShape } from "../anatomy/cranium/structures/IPortraitNeckShape";
 import type { IPortraitCraniumShape } from "../anatomy/cranium/structures/IPortraitCraniumShape";
+import type { IPortraitFacialFrameShape } from "../anatomy/cranium/structures/IPortraitFacialFrameShape";
+import type { IPortraitNeckShape } from "../anatomy/cranium/structures/IPortraitNeckShape";
 import type { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import type { IPortraitDentalRow } from "../anatomy/dental/structures/IPortraitDentalRow";
 import type { IPortraitEarShape } from "../anatomy/ear/IPortraitEarShape";
 import type { IPortraitEyeShape } from "../anatomy/eye/structures/IPortraitEyeShape";
-import type { IPortraitFacialFrameShape } from "../anatomy/cranium/structures/IPortraitFacialFrameShape";
-import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
+import type { IPortraitOrbitalSupportShape } from "../anatomy/eye/structures/IPortraitOrbitalSupportShape";
 import type { IPortraitHairLayer } from "../anatomy/hair/IPortraitHairLayer";
+import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import type { IPortraitMouthShape } from "../anatomy/mouth/structures/IPortraitMouthShape";
 import type { IPortraitNoseShape } from "../anatomy/nose/structures/IPortraitNoseShape";
-import type { IPortraitOrbitalSupportShape } from "../anatomy/eye/structures/IPortraitOrbitalSupportShape";
+import type { IPortraitReliefCurve } from "../anatomy/skin/structures/IPortraitReliefCurve";
+import type { IPortraitReliefRegion } from "../anatomy/skin/structures/IPortraitReliefRegion";
 import type { IPortraitSkinColourRegion } from "../anatomy/skin/structures/IPortraitSkinColourRegion";
 import type { IPortraitSkinShape } from "../anatomy/skin/structures/IPortraitSkinShape";
 import type { IPortraitTongueShape } from "../anatomy/tongue/IPortraitTongueShape";
-import type { IPortraitReliefCurve } from "../anatomy/skin/structures/IPortraitReliefCurve";
-import type { IPortraitReliefRegion } from "../anatomy/skin/structures/IPortraitReliefRegion";
 
 /**
  * Complete subject-owned part profiles. These are shape inputs, not a mesh
  * cache or a population preset. Optional supports retain their fixed defaults.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Owns the component profiles from which one anatomical face is built.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Connects part geometry, skin supports, dentition and cervical continuation.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceRecipe {

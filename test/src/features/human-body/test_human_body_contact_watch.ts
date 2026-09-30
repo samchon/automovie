@@ -1,6 +1,6 @@
 import type { IAutoMovieModelCrossing } from "@automovie/engine";
 import type { IAutoMovieHumanBodyBasisDocument } from "@automovie/human";
-import { createBodyContactWatch } from "@automovie/playground/src/human/bodyContactWatch";
+import { createBodyContactWatch } from "@automovie/playground/src/human/body/bodyContactWatch";
 import { TestValidator } from "@nestia/e2e";
 
 /**

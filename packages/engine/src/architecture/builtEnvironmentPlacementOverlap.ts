@@ -1,4 +1,11 @@
-import { AutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltPlacementOverlapResult, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieBuiltPlacementBodyLocator,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltPlacementOverlapResult,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";

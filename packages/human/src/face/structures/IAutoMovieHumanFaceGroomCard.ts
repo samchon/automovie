@@ -12,8 +12,6 @@
  * cross product. Binding is not simulation: nothing here moves under force, and
  * a lock that intersects the scalp when seated still intersects it afterwards.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Names the rooted guide, width and transverse orientation of one surface-based hair lock.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines head-space guide stations that emit a continuous UV-bearing strip.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceGroomCard {

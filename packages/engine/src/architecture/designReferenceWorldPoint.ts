@@ -1,4 +1,9 @@
-import { IAutoMovieDesignPoint, IAutoMovieDesignSourceFrame, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieDesignPoint,
+  IAutoMovieDesignSourceFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { designFrameScale } from "./designFrameScale";
 

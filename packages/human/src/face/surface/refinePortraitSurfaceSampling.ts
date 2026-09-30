@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 
-import { portraitNormals } from "../mesh/portraitNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 
 /**
@@ -20,9 +20,6 @@ import type { IControlMesh } from "../mesh/structures/IControlMesh";
  * Exactly coincident free-rim samples are pending tissue contact. Their
  * incident faces retain sampling until the assembler welds the seam, avoiding
  * unmatched subdivisions and differently curved opposed commissural folds.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Resolves narrow anatomical surface fields on connected skin rather than hiding them between coarse samples.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Adds conforming tangent-guided samples while retaining original vertices, open rims and material-region ownership.
  */
 export function refinePortraitSurfaceSampling(
   input: IControlMesh,
@@ -46,7 +43,10 @@ export function refinePortraitSurfaceSampling(
     ].map((x) => x * 1000),
   }));
   const key = (a: number, b: number) => (a < b ? `${a}/${b}` : `${b}/${a}`);
-  const packedNormals = portraitNormals(input.positions.flat(), input.indices);
+  const packedNormals = areaWeightedNormals(
+    input.positions.flat(),
+    input.indices,
+  );
   const normals = input.positions.map((_, i) =>
     packedNormals.slice(i * 3, i * 3 + 3),
   );

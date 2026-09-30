@@ -1,6 +1,6 @@
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
 import { TestValidator } from "@nestia/e2e";
 
 import {
@@ -78,7 +78,7 @@ export const test_subject_optical_radial_component = (): void => {
     const attached = plan.attach(cage, positions, () => 1);
     const contacts = attached.finalSurface!({
       ...cage,
-      normals: portraitNormals(cage.positions.flat(), cage.indices),
+      normals: areaWeightedNormals(cage.positions.flat(), cage.indices),
     });
     TestValidator.predicate(
       "radial contact emits finite targets",

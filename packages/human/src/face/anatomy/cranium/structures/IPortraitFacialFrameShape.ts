@@ -3,8 +3,6 @@
  * landmark basis. They alter the common host before any attached part is built,
  * not a finished eyeball or an unrelated arbitrary displacement field.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Owns facial proportions, temporal breadth and mandibular/chin form.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Shares the changed facial foundation with all anatomical attachments.
  * @author Samchon
  */
 export interface IPortraitFacialFrameShape {

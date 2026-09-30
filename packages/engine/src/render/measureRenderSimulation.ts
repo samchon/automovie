@@ -17,14 +17,14 @@ import type {
 import { fluidDomainBudget } from "../fluid/fluidDomainBudget";
 import { plantingBudget } from "../soft/plantingBudget";
 import { softBodyBudget } from "../soft/softBodyBudget";
+import type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
+import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_FLOW_BYTES } from "./constants/AUTOMOVIE_FLOW_BYTES";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "./constants/AUTOMOVIE_NORMAL_BYTES";
 import { AUTOMOVIE_POSITION_BYTES } from "./constants/AUTOMOVIE_POSITION_BYTES";
 import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
-import type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
-import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 
 /**
  * Extend prior counts with simulated drawable costs and explicit missing inputs.

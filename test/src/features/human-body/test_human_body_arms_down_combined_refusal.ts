@@ -27,7 +27,10 @@ export const test_human_body_arms_down_combined_refusal = (): void => {
     basis.landmarks.positions.splice(at, 3, ...values);
   };
   const angle = Math.PI / 4;
-  for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
     atLandmark(`${side}-shoulder`, [sign * 0.25, 3, 0]);
     atLandmark(`${side}-elbow`, [
       sign * (0.25 + 0.3 * Math.sin(angle)),
@@ -41,8 +44,12 @@ export const test_human_body_arms_down_combined_refusal = (): void => {
     ]);
   }
   const faces = [
-    [0, 2, 3, 1], [4, 5, 7, 6], [0, 1, 5, 4],
-    [2, 6, 7, 3], [0, 4, 6, 2], [1, 3, 7, 5],
+    [0, 2, 3, 1],
+    [4, 5, 7, 6],
+    [0, 1, 5, 4],
+    [2, 6, 7, 3],
+    [0, 4, 6, 2],
+    [1, 3, 7, 5],
   ];
   const indices = faces.flatMap(([a, b, c, d]) => [a, b, c, a, c, d]);
   const source = basis.surfaces[0];
@@ -67,7 +74,9 @@ export const test_human_body_arms_down_combined_refusal = (): void => {
       positions,
       indices,
       targets: structuredClone(source.targets),
-      regions: [{ id: `${side}-arm/skin`, material: "skin", indices, uvs: null }],
+      regions: [
+        { id: `${side}-arm/skin`, material: "skin", indices, uvs: null },
+      ],
       skin: {
         joints: [`${side}UpperArm` as const],
         boneIndices: Array.from({ length: 32 }, () => 0),
@@ -84,9 +93,10 @@ export const test_human_body_arms_down_combined_refusal = (): void => {
         { bone: "rightUpperArm", plane: 0, elevation: right, axialRotation: 0 },
       ],
     });
-    return measureAutoMovieModelCrossings(
-      segmentHumanBodyModel(basis, built).model,
-    ).length > 0;
+    return (
+      measureAutoMovieModelCrossings(segmentHumanBodyModel(basis, built).model)
+        .length > 0
+    );
   };
   TestValidator.equals(
     "separate arm goals are clear but their combination crosses",
@@ -95,6 +105,9 @@ export const test_human_body_arms_down_combined_refusal = (): void => {
   );
   TestValidator.predicate(
     "combined first-safe goals refuse new cross-arm contact",
-    throwsError(() => solveHumanBodyArmsDown(basis, build, document), "cannot combine"),
+    throwsError(
+      () => solveHumanBodyArmsDown(basis, build, document),
+      "cannot combine",
+    ),
   );
 };

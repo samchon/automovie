@@ -14,14 +14,52 @@ import { throwsError } from "../internal/predicates";
  * 2. The same analytic body with its ordinary names still admits.
  */
 export const test_human_body_record_key_names = (): void => {
-  const changes: [string, (basis: ReturnType<typeof humanBodyBasisFixture>["basis"]) => void][] = [
-    ["channel", (basis) => { basis.channels[0].id = "constructor"; }],
-    ["corrective", (basis) => { basis.correctives![0].id = "toString"; }],
-    ["endpoint", (basis) => { basis.channels[0].positive = "valueOf"; }],
-    ["landmark", (basis) => { basis.landmarks.ids[0] = "__proto__"; }],
-    ["material", (basis) => { basis.materials[0].id = "hasOwnProperty"; }],
-    ["surface", (basis) => { basis.surfaces[0].id = "isPrototypeOf"; }],
-    ["region", (basis) => { basis.surfaces[0].regions[0].id = "constructor"; }],
+  const changes: [
+    string,
+    (basis: ReturnType<typeof humanBodyBasisFixture>["basis"]) => void,
+  ][] = [
+    [
+      "channel",
+      (basis) => {
+        basis.channels[0].id = "constructor";
+      },
+    ],
+    [
+      "corrective",
+      (basis) => {
+        basis.correctives![0].id = "toString";
+      },
+    ],
+    [
+      "endpoint",
+      (basis) => {
+        basis.channels[0].positive = "valueOf";
+      },
+    ],
+    [
+      "landmark",
+      (basis) => {
+        basis.landmarks.ids[0] = "__proto__";
+      },
+    ],
+    [
+      "material",
+      (basis) => {
+        basis.materials[0].id = "hasOwnProperty";
+      },
+    ],
+    [
+      "surface",
+      (basis) => {
+        basis.surfaces[0].id = "isPrototypeOf";
+      },
+    ],
+    [
+      "region",
+      (basis) => {
+        basis.surfaces[0].regions[0].id = "constructor";
+      },
+    ],
   ];
   for (const [title, change] of changes) {
     const { basis } = humanBodyBasisFixture();

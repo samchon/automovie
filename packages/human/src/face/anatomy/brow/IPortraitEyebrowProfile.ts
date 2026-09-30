@@ -6,8 +6,6 @@ import { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
  * The width and location of the brow belong to its separate boundary binding.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates brow fibre dimensions and distribution from the underlying orbital skin form.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines millimetre strand radius, clearance and bend with bounded sampling, cross-brow root span and endpoint density fades.
  */
 export interface IPortraitEyebrowProfile {
   /** Optional skin-following ribbon instead of an eight-sided tube; omission preserves tube geometry. */

@@ -280,7 +280,11 @@ export const test_human_body_simple_shape = (): void => {
   TestValidator.equals("age at the last point", old.macroAge, 1);
   TestValidator.predicate(
     "stature 1.9 m ring is measured back",
-    nclose(measureHumanBodySimpleShape.stature(basis, old), 1.9 + head, 0.00005),
+    nclose(
+      measureHumanBodySimpleShape.stature(basis, old),
+      1.9 + head,
+      0.00005,
+    ),
   );
   TestValidator.error("stature beyond the reach", () =>
     expandHumanBodySimpleShape(basis, { ...base, statureMetres: 1.2 }),

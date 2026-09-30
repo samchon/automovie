@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { portraitNormals } from "../../face/mesh/portraitNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_UNDERWEAR } from "../constants/HUMAN_BODY_UNDERWEAR";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
@@ -67,9 +67,6 @@ import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHuman
  * soft-tissue sag with the document's body at rest and its posed surfaces,
  * and appends the parts after the skin's regions, which is why the segment
  * partition and the contact reading, which read the skin, leave them out.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-underwear Cuts the plain underwear of either style from the posed skin, so it fits every shape and follows every pose.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear Evaluates the coverage rules on the body at rest, clips at their zero and lifts the kept skin along the posed normals.
  */
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,
@@ -262,7 +259,7 @@ export function createHumanBodyUnderwear(
       }
       return {
         positions: out,
-        normals: portraitNormals(out, indices),
+        normals: areaWeightedNormals(out, indices),
         uvs: null,
         indices,
         skin: null,

@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
 
 /**
@@ -19,12 +20,14 @@ export type IAutoMovieHumanBodyHumeralHead = {
 
   /** Articular sphere radius in metres, converted from supplied or prior mm. */
   radiusMetres: number;
-
 } & (
   | { readonly source: "adult-ct-prior" | "target" | "measured" }
   | {
       /** This source records CT/MRI method and posture instead of losing it. */
       readonly source: "observed";
-      readonly observation: Extract<IAutoMovieHumanBodyTomographicLength, { kind: "observed" }>;
+      readonly observation: Extract<
+        IAutoMovieHumanBodyTomographicLength,
+        { kind: "observed" }
+      >;
     }
 );

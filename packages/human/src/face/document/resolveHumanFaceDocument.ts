@@ -25,11 +25,6 @@ import { resolveHumanFaceExpression } from "./resolveHumanFaceExpression";
  * An explicit empty-array switch of a final nasal alternative removes the
  * inherited payload; nonempty alternative geometry stays in the source basis.
  * Scalar fields within one alternative keep ordinary inheritance.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Resolves one standalone face without person-specific package defaults.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives defaults, arrays, detailed overrides and side profiles one deterministic precedence.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Retains the supported source topology as the one admitted interpretation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Applies trait offsets before exact detail and side-specific replacements.
  */
 export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
   assertHumanFaceEditableDetail(input);

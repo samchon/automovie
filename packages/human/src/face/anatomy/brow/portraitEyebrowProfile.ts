@@ -2,9 +2,6 @@ import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 
 /**
  * Authored brow fibre dimensions; these are rendering controls, not measured hair data.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Supplies reusable fibre dimensions for brows fitted to caller-owned skin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Provides the default strand radius, taper, arch, bend and sample count; it does not supply a person's brow boundary.
  */
 export const portraitEyebrowProfile: IPortraitEyebrowProfile = {
   // Provisional fibre dimensions preserve a visible strand at close range.

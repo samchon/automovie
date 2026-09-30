@@ -14,8 +14,6 @@ import { IPortraitNasalBodyShape } from "./structures/IPortraitNasalBodyShape";
  * is a scalar to apply on the recorded image-depth ray, not necessarily head Z.
  * Aperture position, orientation, section jets and outer joining are deliberately
  * absent from this part's shape controls and are composed by the shared surface.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Forms central, tip-shoulder and alar volumes on shared nasal skin rather than overlapping shells.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses bounded C1 longitudinal interpolation and compact transverse sections, returning lateral movement and image-depth displacement without refitting apertures.
  */
 export function createPortraitNasalBody(
   input: IPortraitNasalBodyShape,

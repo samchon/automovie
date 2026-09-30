@@ -1,14 +1,14 @@
-import { createConnectedBodyPort } from "@automovie/playground/src/human/connectedBodyPort";
-import { createConnectedBodyPreview } from "@automovie/playground/src/human/connectedBodyPreview";
+import { createConnectedBodyPort } from "@automovie/playground/src/human/body/connectedBodyPort";
+import { createConnectedBodyPreview } from "@automovie/playground/src/human/body/connectedBodyPreview";
 import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
-} from "@automovie/playground/src/human/connectedBodyProtocol";
-import type { createConnectedBodyRenderer } from "@automovie/playground/src/human/connectedBodyRenderer";
+} from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import type { createConnectedBodyRenderer } from "@automovie/playground/src/human/body/connectedBodyRenderer";
 import type {
   HumanResidentPort,
   HumanResidentReply,
-} from "@automovie/playground/src/human/residentWorker";
+} from "@automovie/playground/src/human/common/residentWorker";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanBodyBasisFixture } from "../internal/humanBodyBasisFixture";

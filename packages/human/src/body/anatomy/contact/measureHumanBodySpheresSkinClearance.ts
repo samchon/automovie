@@ -34,9 +34,13 @@ export function measureHumanBodySpheresSkinClearance(input: {
       sphere.id.trim() === "" ||
       !Number.isFinite(sphere.radiusMetres) ||
       sphere.radiusMetres <= 0 ||
-      ![sphere.center.x, sphere.center.y, sphere.center.z].every(Number.isFinite)
+      ![sphere.center.x, sphere.center.y, sphere.center.z].every(
+        Number.isFinite,
+      )
     )
-      throw new Error("An internal sphere needs an id, finite centre and positive radius in metres.");
+      throw new Error(
+        "An internal sphere needs an id, finite centre and positive radius in metres.",
+      );
     return {
       ...sphere,
       point: [sphere.center.x, sphere.center.y, sphere.center.z],
@@ -64,7 +68,9 @@ export function measureHumanBodySpheresSkinClearance(input: {
   }
   return spheres.map(({ id, radiusMetres, squared, interiors }) => {
     if (interiors > 1)
-      throw new Error("An internal component cannot occupy overlapping skin solids: " + id);
+      throw new Error(
+        "An internal component cannot occupy overlapping skin solids: " + id,
+      );
     const nearestMetres = Math.sqrt(squared);
     return {
       id,

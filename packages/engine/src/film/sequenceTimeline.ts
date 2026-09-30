@@ -1,4 +1,5 @@
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 

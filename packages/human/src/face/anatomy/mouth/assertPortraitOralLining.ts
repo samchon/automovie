@@ -3,9 +3,6 @@ import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
 /**
  * Admit oral lining depth and the fraction before its posterior taper. These
  * are authoring dimensions, not recovered palate or pharyngeal measurements.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps the selected cavity's depth and wall shape explicit and finite.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Requires positive representable depth and a wall fraction in [0,0.95].
  */
 export function assertPortraitOralLining(
   depth: number,

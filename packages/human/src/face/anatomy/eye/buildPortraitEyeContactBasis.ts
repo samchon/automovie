@@ -1,16 +1,15 @@
+import { mergeAutoMovieMeshes } from "@automovie/engine";
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { Point } from "../../mesh/structures/Point";
 import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitEyeCornea } from "./buildPortraitEyeCornea";
 import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 import { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import { mergeAutoMovieMeshes } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Combine the cornea and, when resident, the full optical globe for skin contact.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Provides the optical volume against which eyelid attachment is constrained.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Includes the anterior globe for performance or radial optics without changing the drawn corneal construction.
  */
 // A resident globe extends beyond the original photographed aperture. Its
 // complete forward shell participates in contact, including adjacent orbital

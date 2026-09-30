@@ -1,8 +1,8 @@
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertDetailValue } from "./assertDetailValue";
-import { definitionOf } from "./definitionOf";
-import { writeDetail } from "./writeDetail";
+import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
+import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
 
 /**
  * Write or remove one exact scalar override without flattening the rest of a
@@ -11,9 +11,6 @@ import { writeDetail } from "./writeDetail";
  * return to omission, so an inherited optional component stays optional.
  * Shared authored objects are detached along the edited path, so neither a
  * write nor removal can alter another owner through a caller-supplied alias.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Separates one user detail from inherited settings and independent sides.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Preserves override intent rather than serializing a derived combined profile.
  */
 export function setHumanFaceDetail(
   document: IAutoMovieHumanFaceDocument,
@@ -22,7 +19,7 @@ export function setHumanFaceDetail(
   side?: "right" | "left",
 ): IAutoMovieHumanFaceDocument {
   assertHumanFaceEditableDetail(document);
-  const definition = definitionOf(id);
+  const definition = humanFaceDetailDefinition(id);
   assertDetailValue(definition, value);
   if (
     side !== undefined &&
@@ -35,5 +32,5 @@ export function setHumanFaceDetail(
     definition.region,
     ...definition.path,
   ];
-  return writeDetail(next, path, value);
+  return writeHumanFaceDetail(next, path, value);
 }

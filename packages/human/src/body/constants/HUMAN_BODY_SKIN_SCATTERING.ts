@@ -7,9 +7,6 @@
  * that distance: a lit side bleeds soft and red into the shadow where the
  * body curves within a few millimetres (fingers, toes, the rim of a fold),
  * and broad surfaces stay as they were.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Holds the measured scattering distance the body's skin is rendered with.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the skin material's subsurface radius from the measured diffuse mean free path.
  */
 export const HUMAN_BODY_SKIN_SCATTERING: { r: number; g: number; b: number } = {
   r: 0.00367,

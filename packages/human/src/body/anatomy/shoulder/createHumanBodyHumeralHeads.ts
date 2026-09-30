@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
+import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
 import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
 import { placeHumanBodyHumeralHead } from "./placeHumanBodyHumeralHead";
 
@@ -44,14 +44,18 @@ export function createHumanBodyHumeralHeads(input: {
     sex > 1 ||
     statureMetres <= 0
   )
-    throw new Error("Humeral-head estimation needs finite body identity, nonnegative age and positive stature.");
+    throw new Error(
+      "Humeral-head estimation needs finite body identity, nonnegative age and positive stature.",
+    );
   if (
     radii !== undefined &&
     Object.values(radii).some(
       (radius) => !Number.isFinite(radius) || radius <= 0,
     )
   )
-    throw new Error("Measured humeral-head radii must be finite positive millimetres.");
+    throw new Error(
+      "Measured humeral-head radii must be finite positive millimetres.",
+    );
   const withinPrior =
     ageYears >= 18 &&
     ageYears <= 79 &&
@@ -75,12 +79,14 @@ export function createHumanBodyHumeralHeads(input: {
         ? priorMetres
         : measuredMillimetres / 1000;
     if (radiusMetres === null) return [];
-    return [placeHumanBodyHumeralHead({
-      bone,
-      radiusMetres,
-      source:
-        measuredMillimetres === undefined ? "adult-ct-prior" : "measured",
-      bones,
-    })];
+    return [
+      placeHumanBodyHumeralHead({
+        bone,
+        radiusMetres,
+        source:
+          measuredMillimetres === undefined ? "adult-ct-prior" : "measured",
+        bones,
+      }),
+    ];
   });
 }

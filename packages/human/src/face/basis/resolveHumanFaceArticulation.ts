@@ -43,9 +43,6 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
  * Landmarks are read from the shaped rest, never from the neutral, so an
  * identity that moves a globe or the jaw pivot moves the joint with it. The
  * result is fresh; inputs are not mutated.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Drives the mandible and globes as joints from expression channels, coupling rotation and translation and refusing combinations outside the supported envelope.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Forms each owner's rigid motion from the shaped landmarks, the authored axes and degrees, and the translation budget the specification states.
  */
 export function resolveHumanFaceArticulation(
   articulation: NonNullable<IAutoMovieHumanFaceBasis["articulation"]>,

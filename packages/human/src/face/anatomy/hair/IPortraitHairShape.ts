@@ -5,8 +5,6 @@ import { IPortraitHairCard } from "./IPortraitHairCard";
  * Sampling changes geometry cost without changing the guide population. The
  * material names a resident finish; construction supplies its procedural mask.
  * This is static groom authoring, not strand simulation or a hairstyle preset.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Keeps authored lock arrays replaceable as one independent numerical profile.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Separates complete card replacement from width, taper and tessellation controls.
  * @author Samchon
  */
 export interface IPortraitHairShape {

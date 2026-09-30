@@ -1,10 +1,10 @@
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { portraitEyeLoop } from "./portraitEyeLoop";
-import { portraitEyeLidRows } from "./portraitEyeLidRows";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 import { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
+import { portraitEyeLidRows } from "./portraitEyeLidRows";
+import { portraitEyeLoop } from "./portraitEyeLoop";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 
 /**
  * Attach the lid rows to the already fitted shared outer rim. New inner vertex
@@ -13,8 +13,6 @@ import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
  * An optional sphere-projected guide retains the gaze-independent outer seam
  * while the supplied aperture carries the inner ocular contact. Their XY
  * difference fades to zero across the same section bridge as its depth.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Joins upper and lower tissue rows to the already fitted common eye boundary.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Adds seven shared lid rings and oriented triangles, retains registered skin-region ownership and returns the inner rim's resident identities.
  */
 export function appendPortraitEyeMargins(
   cage: IControlMesh,

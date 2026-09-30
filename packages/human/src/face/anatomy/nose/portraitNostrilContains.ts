@@ -9,9 +9,6 @@
  */
 /**
  * Select an ellipse footprint while binding a measured host socket.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Selects the initial nostril footprint used when binding a measured host.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Tests strict interior membership of the caller-owned elliptical XY footprint without changing connectivity.
  */
 export const portraitNostrilContains = (
   x: number,

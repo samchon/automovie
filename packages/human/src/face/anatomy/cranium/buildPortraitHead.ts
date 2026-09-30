@@ -1,13 +1,13 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
-import { portraitNormals } from "../../mesh/portraitNormals";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitRegion } from "../../mesh/portraitRegion";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
+import { assertPortraitInteriorBindings } from "../../surface/assertPortraitInteriorBindings";
+import { sealPortraitContactSeams } from "../../surface/sealPortraitContactSeams";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
-import { assertPortraitInteriorBindings } from "../../surface/assertPortraitInteriorBindings";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
-import { sealPortraitContactSeams } from "../../surface/sealPortraitContactSeams";
 import { preparePortraitHead } from "./preparePortraitHead";
 import { type IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
 
@@ -24,14 +24,11 @@ export type { IPortraitHeadPerformance } from "./structures/IPortraitHeadPerform
  * exact resident coordinates and named cycles must follow directed mesh edges.
  *
  * Host, source and refined positions use millimetres. Part packing converts
- * geometry to model units through portraitPart. Resident vertex IDs survive
+ * geometry to model units through createMetricMeshPart. Resident vertex IDs survive
  * sealing even when its index equivalence removes coincident seam faces.
  * Linear skin colours use per-corner values when contact welding preserved
  * distinct material samples. Independent interiors receive no stale normals.
  * The caller's host is retained and each call constructs new output arrays.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Publishes the joined skin and dependent interiors produced from one prepared component assembly.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Seals declared contacts, stages native interiors before common normals and metric packing, and retains legacy finishers in component order.
  */
 export function buildPortraitHead(
   host: IPortraitComponentHost,
@@ -62,7 +59,7 @@ export function buildPortraitHead(
     interiors.flatMap((parts) => parts ?? []),
   );
   const packed = refined.positions.flat(),
-    normals = portraitNormals(packed, refined.indices);
+    normals = areaWeightedNormals(packed, refined.indices);
   const parts: IAutoMovieModelPart[] = [];
   for (let group = 0; group < regions.length; group++) {
     const selected: number[] = [];
@@ -84,9 +81,9 @@ export function buildPortraitHead(
       }
     if (selected.length !== 0)
       parts.push(
-        portraitPart(
+        createMetricMeshPart(
           regions[group].id,
-          portraitRegion(packed, normals, selected, colors),
+          extractTriangleRegion(packed, normals, selected, colors),
           regions[group].material,
         ),
       );
@@ -97,7 +94,7 @@ export function buildPortraitHead(
       ...(native === undefined
         ? finishers[i].finish(refined)
         : native.map(({ id, mesh, material }) =>
-            portraitPart(id, mesh, material),
+            createMetricMeshPart(id, mesh, material),
           )),
     );
   }

@@ -1,8 +1,8 @@
 import { IAutoMovieGait } from "../motion/IAutoMovieGait";
-import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 import { IAutoMovieChannelLimit } from "./IAutoMovieChannelLimit";
 import { IAutoMovieDriver } from "./IAutoMovieDriver";
 import { IAutoMovieProfileControl } from "./IAutoMovieProfileControl";
+import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 
 /**
  * A profile (= USD applied schema): a declarative capability layered onto a

@@ -8,7 +8,6 @@ export * from "./createHumanFaceBasisPoseEvaluator";
 export * from "./createHumanFaceComponentTree";
 export * from "./bakeHumanFaceOcclusion";
 export * from "./createHumanFaceFibrePigment";
-export * from "./createHumanFaceBasisRegion";
 export * from "./createHumanFaceOcclusionCache";
 export * from "./createHumanFaceControlMap";
 export * from "./evaluateHumanFacePassage";

@@ -1,7 +1,7 @@
+import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { appendPortraitEyeMargins } from "@automovie/human/face/anatomy/eye/appendPortraitEyeMargins";
 import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
-import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import type { IPortraitLowerLidProfile } from "@automovie/human/face/anatomy/eye/structures/IPortraitLowerLidProfile";
 import { TestValidator } from "@nestia/e2e";
 

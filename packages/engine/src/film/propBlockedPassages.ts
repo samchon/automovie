@@ -1,4 +1,11 @@
-import { IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieModel, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieModel,
+  IAutoMoviePropBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtConnectorSection } from "../architecture/builtConnectorSection";
 import { tessellate } from "../geometry/tessellate";
 import { Matrix4 } from "../math/Matrix4";

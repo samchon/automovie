@@ -13,7 +13,9 @@ import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
  * correspondence.
  * It does not certify muscle physiology or collision-free combinations.
  */
-export function assertHumanBodyBasisShape(basis: IAutoMovieHumanBodyBasis): Set<string> {
+export function assertHumanBodyBasisShape(
+  basis: IAutoMovieHumanBodyBasis,
+): Set<string> {
   const channels = new Map(
     basis.channels.map((channel) => [channel.id, channel]),
   );

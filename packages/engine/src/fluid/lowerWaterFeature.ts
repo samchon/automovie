@@ -1,9 +1,13 @@
-import { IAutoMovieFluidDomain, IAutoMovieWaterFeature } from "@automovie/interface";
-import { sampleFluidSpray } from "./sampleFluidSpray";
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieWaterFeature,
+} from "@automovie/interface";
+
+import { IAutoMovieWaterFeatureFrame } from "./IAutoMovieWaterFeatureFrame";
 import { fluidSurfaceGeometry } from "./fluidSurfaceGeometry";
 import { sampleFluidDomain } from "./sampleFluidDomain";
+import { sampleFluidSpray } from "./sampleFluidSpray";
 import { simulateFluidDomain } from "./simulateFluidDomain";
-import { IAutoMovieWaterFeatureFrame } from "./IAutoMovieWaterFeatureFrame";
 
 /**
  * Lower one bound water feature to everything a renderer needs at a shot

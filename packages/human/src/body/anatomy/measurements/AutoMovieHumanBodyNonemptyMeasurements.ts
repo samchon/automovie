@@ -8,7 +8,5 @@
  * finite values, physical ranges, acquisition methods or consistent posture.
  */
 export type AutoMovieHumanBodyNonemptyMeasurements<T> = {
-  [Key in keyof T]-?: Readonly<
-    Required<Pick<T, Key>> & Partial<Omit<T, Key>>
-  >;
+  [Key in keyof T]-?: Readonly<Required<Pick<T, Key>> & Partial<Omit<T, Key>>>;
 }[keyof T];

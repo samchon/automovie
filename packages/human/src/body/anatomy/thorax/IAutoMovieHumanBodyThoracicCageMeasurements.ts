@@ -1,8 +1,8 @@
-import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
-import type { IAutoMovieHumanBodySternumMeasurements } from "./IAutoMovieHumanBodySternumMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { IAutoMovieHumanBodyCostalCartilagesMeasurements } from "./IAutoMovieHumanBodyCostalCartilagesMeasurements";
 import type { IAutoMovieHumanBodyRibsMeasurements } from "./IAutoMovieHumanBodyRibsMeasurements";
+import type { IAutoMovieHumanBodySternumMeasurements } from "./IAutoMovieHumanBodySternumMeasurements";
 
 /**
  * Bony thoracic frame around the lungs, separate from breast and skin girth.

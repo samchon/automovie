@@ -1,6 +1,6 @@
-import { portraitCutBoundary } from "@automovie/human/face/anatomy/cranium/portraitCutBoundary";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
@@ -206,8 +206,8 @@ export function replacePortraitRimAttachment(
   const opposite = faces.filter(
     (face) => Math.sign(liningPoints[face[0]][0]) !== side,
   );
-  const selectedRim = portraitCutBoundary(selected).map((edge) => edge.a);
-  const otherRim = portraitCutBoundary(opposite).map((edge) => edge.a);
+  const selectedRim = orderCutPatchBoundary(selected).map((edge) => edge.a);
+  const otherRim = orderCutPatchBoundary(opposite).map((edge) => edge.a);
   const shared = new Map<number, number>();
   for (const id of [...selectedRim, ...otherRim]) {
     const resident = skinIds.get(key(liningPoints[id]));
@@ -281,7 +281,7 @@ export function replacePortraitRimAttachment(
   for (let i = 0; i < commonIndices.length; i += 3)
     if (commonIndices.slice(i, i + 3).some((id) => changed.has(id)))
       commonIndices.slice(i, i + 3).forEach((id) => affected.add(id));
-  const normals = portraitNormals(joined.flat(), commonIndices);
+  const normals = areaWeightedNormals(joined.flat(), commonIndices);
   for (let id = 0; id < skin.positions.length / 3; id++)
     if (affected.has(id))
       for (let axis = 0; axis < 3; axis++)

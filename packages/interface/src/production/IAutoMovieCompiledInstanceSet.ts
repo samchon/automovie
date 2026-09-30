@@ -1,11 +1,11 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 import { IAutoMovieCompiledInstancePrototype } from "./IAutoMovieCompiledInstancePrototype";
 import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 import { IAutoMovieInstanceChunk } from "./IAutoMovieInstanceChunk";
+import { IAutoMovieInstanceSetDesign } from "./IAutoMovieInstanceSetDesign";
+import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compact generated runtime for a non-formation instance set.

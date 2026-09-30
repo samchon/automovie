@@ -1,4 +1,7 @@
-import { AutoMovieBodyRegion, AutoMovieHumanoidBone } from "@automovie/interface";
+import {
+  AutoMovieBodyRegion,
+  AutoMovieHumanoidBone,
+} from "@automovie/interface";
 
 /**
  * What one action's clip lost to its region mask, for the caller that must

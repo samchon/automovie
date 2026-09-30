@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 type DeltoidOrigin<Side extends AutoMovieHumanBodySide> =
   | { structure: `${Side}Clavicle`; site: "lateralThird" }
@@ -21,8 +21,10 @@ export interface IAutoMovieHumanBodyDeltoidAttachments<
   /** One or more origin regions on this side's clavicle and scapula. */
   readonly origins: readonly [DeltoidOrigin<Side>, ...DeltoidOrigin<Side>[]];
   /** The deltoid tuberosity on the same side's humerus. */
-  readonly insertions: readonly [{
-    structure: `${Side}Humerus`;
-    site: "deltoidTuberosity";
-  }];
+  readonly insertions: readonly [
+    {
+      structure: `${Side}Humerus`;
+      site: "deltoidTuberosity";
+    },
+  ];
 }

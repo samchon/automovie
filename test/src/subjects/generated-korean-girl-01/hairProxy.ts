@@ -1,8 +1,8 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
-import { portraitPart } from "@automovie/human/face/mesh/portraitPart";
-import { portraitPatch } from "@automovie/human/face/mesh/portraitPatch";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
+import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /** Subject-owned continuous hair-cap controls. */
@@ -99,7 +99,7 @@ export function buildPortraitHairProxy(
   // The central fringe is the cap's own boundary. A separate overlapping sheet
   // would preserve a second cap beneath it and cast a false attachment ridge.
   // Its compact angular influence retains the temples and exposed left ear.
-  const cap = portraitPatch(
+  const cap = triangulateSurfaceLattice(
     (u, v) => {
       const azimuth = 2 * Math.PI * u;
       const front = Math.max(0, Math.cos(azimuth));
@@ -112,7 +112,7 @@ export function buildPortraitHairProxy(
         smoothMaximum(smoothMaximum(25, frontalBoundary, 8), earClearance, 8) -
         fringe * (19 + 2 * Math.cos(12 * angle));
       const polar = 0.002 + v * (Math.acos((boundaryY - 30) / ry) - 0.002);
-      const point = portraitPoint(
+      const point = millimetrePoint(
         rx * Math.sin(polar) * Math.sin(azimuth),
         30 + ry * Math.cos(polar),
         -32 + rz * Math.sin(polar) * Math.cos(azimuth),
@@ -174,6 +174,6 @@ export function buildPortraitHairProxy(
       );
     previous = ring;
   }
-  cap.normals = portraitNormals(cap.positions, cap.indices!);
-  return [portraitPart("hair-mass", cap, "hair")];
+  cap.normals = areaWeightedNormals(cap.positions, cap.indices!);
+  return [createMetricMeshPart("hair-mass", cap, "hair")];
 }

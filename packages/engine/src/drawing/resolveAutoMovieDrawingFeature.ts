@@ -1,12 +1,17 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieDrawingFeature, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawingFeature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
+import { IAutoMovieDrawingFeatureResolution } from "./IAutoMovieDrawingFeatureResolution";
 import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
 import { autoMovieDrawingWorldMatrices } from "./autoMovieDrawingWorldMatrices";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingTriangles";
-import { IAutoMovieDrawingFeatureResolution } from "./IAutoMovieDrawingFeatureResolution";
 
 /**
  * Resolve one pinned feature against the design as it stands now.

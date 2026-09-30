@@ -1,17 +1,16 @@
+import { transformAutoMovieMesh } from "@automovie/engine";
+
 import { Point } from "../../mesh/structures/Point";
-import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
-import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitCornea } from "./buildPortraitCornea";
 import { createPortraitOpticalFrame } from "./createPortraitOpticalFrame";
 import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
-import { transformAutoMovieMesh } from "@automovie/engine";
+import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 
 /**
  * Build the same closed corneal shell for drawing and optical contact.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a resident cornea from one eye's metric optical dimensions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the declared radial/head frame, limbus/aperture extent and gaze transform in both consumers.
  */
 // Drawing and contact construct the same closed optical shell. The complete
 // limbus is independent of aperture clipping; both consumers retain its sphere,

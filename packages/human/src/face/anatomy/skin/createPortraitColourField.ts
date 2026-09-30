@@ -14,9 +14,6 @@ import type { IPortraitColourField } from "./structures/IPortraitColourField";
  * The kernel is held at one against floating-point overshoot near the centre.
  * Sampling resolution belongs to the consuming surface. A narrow field needs
  * enough surface samples; this function neither subdivides nor invents detail.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Evaluates numeric colour fields without photographs or illumination.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Owns the shared C2 compact-support envelope and deterministic named composition.
  */
 export function createPortraitColourField(
   input: readonly IPortraitColourField[],

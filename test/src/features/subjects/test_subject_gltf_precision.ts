@@ -1,7 +1,7 @@
 import { inspectAutoMovieMeshTopology } from "@automovie/engine";
-import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
-import { placePortraitMesh } from "@automovie/human/face/mesh/placePortraitMesh";
-import { portraitMeshBuffers } from "@automovie/human/face/mesh/portraitMeshBuffers";
+import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
+import { placeMeshPreservingFaces } from "@automovie/human/common/mesh/placeMeshPreservingFaces";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
@@ -52,7 +52,7 @@ export const test_subject_gltf_precision = async (): Promise<void> => {
         geometry: { type: "mesh", mesh: geometry },
       },
     ];
-    return portraitDocument(model);
+    return createGltfDocument(model);
   };
   const unit = (x: number) => mesh([x, 0, 0, x + 1, 0, 0, x, 1, 0]);
   const io = new NodeIO();
@@ -155,7 +155,7 @@ export const test_subject_gltf_precision = async (): Promise<void> => {
     "quantized open surfaces must retain edge topology",
     throwsError(() => document(planes(0.001))),
   );
-  const implicit = portraitMeshBuffers({ ...unit(0), indices: null });
+  const implicit = float32MeshBuffers({ ...unit(0), indices: null });
   TestValidator.equals(
     "implicit indices are resident",
     Array.from(implicit.indices),
@@ -168,10 +168,10 @@ export const test_subject_gltf_precision = async (): Promise<void> => {
   );
   TestValidator.equals(
     "empty buffer population",
-    Array.from(portraitMeshBuffers(mesh([])).positions),
+    Array.from(float32MeshBuffers(mesh([])).positions),
     [],
   );
-  portraitMeshBuffers({ ...unit(0), normals: [0, 0, 1, 0, 0, 1, 0, 0, 1] });
+  float32MeshBuffers({ ...unit(0), normals: [0, 0, 1, 0, 0, 1, 0, 0, 1] });
   for (const invalid of [
     mesh([0, 0, 0, 1e39, 0, 0, 0, 1, 0]),
     { ...unit(0), normals: [0, 0, 1e39, 0, 0, 1, 0, 0, 1] },
@@ -179,7 +179,7 @@ export const test_subject_gltf_precision = async (): Promise<void> => {
   ])
     TestValidator.predicate(
       "unrepresentable resident buffers refuse",
-      throwsError(() => portraitMeshBuffers(invalid)),
+      throwsError(() => float32MeshBuffers(invalid)),
     );
 
   const far = { ...IDENTITY_TRANSFORM, translation: { x: 1e16, y: 0, z: 0 } };
@@ -208,7 +208,7 @@ export const test_subject_gltf_precision = async (): Promise<void> => {
   // Model-part TRS requires positive scale; the general geometry operation
   // supports baking a mirror into the resident mesh before that model boundary.
   document(
-    placePortraitMesh(unit(0), {
+    placeMeshPreservingFaces(unit(0), {
       rotation: turn,
       scale: { x: -1, y: 2, z: 1 },
     }),
@@ -222,10 +222,10 @@ export const test_subject_gltf_precision = async (): Promise<void> => {
       }),
     ),
   );
-  placePortraitMesh({ ...unit(0), indices: null }, {});
+  placeMeshPreservingFaces({ ...unit(0), indices: null }, {});
   TestValidator.equals(
     "empty placement population",
-    placePortraitMesh(mesh([]), {}).positions,
+    placeMeshPreservingFaces(mesh([]), {}).positions,
     [],
   );
   for (const scaleZ of [1e-150, 1e-155]) {

@@ -1,4 +1,5 @@
 import { polygonIsSimple } from "@automovie/engine";
+
 import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { createPortraitLidSectionSampler } from "./createPortraitLidSectionSampler";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
@@ -10,10 +11,6 @@ import { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection"
  * interpolation. Shared smoothstep interpolates each longitudinal witness.
  * Explicit closed sections permit a returning hood and supply its unfolding
  * target without changing the outer skin attachment or station identities.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Supplies the eye's independent upper tissue section from authored anatomical witnesses.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Keeps the ordinary ordered sampler and validates explicit folded transverse sections with a fixed outer attachment.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Unfolds the same named upper tissue stations from observed closure toward an authored closed section.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Uses observed-relative closure without changing optical dimensions or inferring hidden tissue from a photograph.
  */
 export function createPortraitUpperLidProfile(
   input: IPortraitUpperLidProfile,

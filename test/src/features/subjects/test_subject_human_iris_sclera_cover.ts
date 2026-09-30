@@ -1,7 +1,4 @@
-import {
-  createHumanFaceIrisPigment,
-  decodePortraitPng,
-} from "@automovie/human";
+import { createHumanFaceIrisPigment, decodePng } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceIrisGlobeFixture } from "../internal/humanFaceIrisGlobeFixture";
@@ -30,7 +27,7 @@ export const test_subject_human_iris_sclera_cover = (): void => {
   });
   const covered = structuredClone(large.materials);
   createHumanFaceIrisPigment(large)({ left: brown, right: brown }, covered);
-  const wide = decodePortraitPng(covered[1].baseColorTexture as string);
+  const wide = decodePng(covered[1].baseColorTexture as string);
   const polar = (x: number, y: number) =>
     (Math.hypot((x + 0.5) / 256 - 0.25, (y + 0.5) / 256 - 0.5) / 0.2) * 180;
   const rgb = (image: typeof wide, x: number, y: number) =>
@@ -71,7 +68,7 @@ export const test_subject_human_iris_sclera_fallback = (): void => {
   });
   const plain = structuredClone(bare.materials);
   createHumanFaceIrisPigment(bare)({ left: brown, right: brown }, plain);
-  const gapped = decodePortraitPng(plain[1].baseColorTexture as string);
+  const gapped = decodePng(plain[1].baseColorTexture as string);
   const rgb = (image: typeof gapped, x: number, y: number) =>
     [...image.rgba.subarray(4 * (y * 256 + x), 4 * (y * 256 + x) + 3)].join();
   const fallback: string[] = [];

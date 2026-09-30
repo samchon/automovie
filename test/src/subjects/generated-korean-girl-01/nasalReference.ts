@@ -47,7 +47,7 @@ export function buildPortraitNasalReference(
     },
     fit,
   );
-  // The prior emits this named part through portraitPart, whose result is a
+  // The prior emits this named part through createMetricMeshPart, whose result is a
   // mesh. Its complete bytes are still admitted below before IDs are consumed.
   const skin = (
     fitted.parts.find((p) => p.id === "anatomical-skin")!.geometry as Extract<

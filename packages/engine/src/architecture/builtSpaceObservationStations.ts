@@ -1,18 +1,26 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltSpace, IAutoMoviePlanarPoint, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltSpace,
+  IAutoMoviePlanarPoint,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
+import { IAutoMovieSpaceObservationStation } from "./IAutoMovieSpaceObservationStation";
+import { builtConvexCellVertices } from "./builtConvexCellVertices";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
-import { outlineHull } from "./outlineHull";
-import { polygonBounds } from "./polygonBounds";
+import { builtSpaceVolumeBounds } from "./builtSpaceVolumeBounds";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 import { AUTOMOVIE_OBSERVATION_EYE_HEIGHT } from "./constants/AUTOMOVIE_OBSERVATION_EYE_HEIGHT";
 import { AUTOMOVIE_OBSERVATION_INSET_LADDER } from "./constants/AUTOMOVIE_OBSERVATION_INSET_LADDER";
 import { AUTOMOVIE_OBSERVATION_PROBE } from "./constants/AUTOMOVIE_OBSERVATION_PROBE";
-import { IAutoMovieSpaceObservationStation } from "./IAutoMovieSpaceObservationStation";
-import { builtConvexCellVertices } from "./builtConvexCellVertices";
-import { builtSpaceVolumeBounds } from "./builtSpaceVolumeBounds";
+import { outlineHull } from "./outlineHull";
+import { polygonBounds } from "./polygonBounds";
 
 /** Area-weighted centroid of a planar outline, or its vertex mean when flat. */
 const outlineCentroid = (

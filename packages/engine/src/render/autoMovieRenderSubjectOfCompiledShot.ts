@@ -1,8 +1,9 @@
 import { IAutoMovieCompiledShotSource } from "@automovie/interface";
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";
 import { autoMovieRenderSubjectOfShot } from "./autoMovieRenderSubjectOfShot";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /**
  * Read a compiled shot as the complete drawable world one frame commits to.

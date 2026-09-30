@@ -1,4 +1,5 @@
 import { AutoMovieGrammarStyleIntent } from "@automovie/interface";
+
 import { AutoMovieGrammarDiagnosticCode } from "../AutoMovieGrammarDiagnosticCode";
 
 /**

@@ -315,8 +315,7 @@ const BASE_ROUTE_DEFINITIONS = {
   },
   "production-sources": {
     owner: "project-authored TypeScript modules under src",
-    input:
-      "lint.config.ts source populations and their typed source exports",
+    input: "lint.config.ts source populations and their typed source exports",
     consumer:
       "@automovie/evidence source graph and selected public runtime APIs",
     route: ".agents/skills/source-authoring/compilation.md",

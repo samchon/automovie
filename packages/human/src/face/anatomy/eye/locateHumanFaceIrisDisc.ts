@@ -53,9 +53,6 @@ const HUMAN_FACE_PUPIL_DIAMETER_MM = 3.5;
 
 /**
  * Locate the optical axis and anatomical iris disc of a textured globe.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places the iris of each eye by the globe's own corneal protrusion and population ocular proportions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Fits the sclera sphere twice, weights the corneal protrusion into an axis and derives the limbal and pupillary half-angles from anatomical ratios.
  */
 export function locateHumanFaceIrisDisc(
   positions: readonly (readonly [number, number, number])[],

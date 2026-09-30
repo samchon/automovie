@@ -1,4 +1,5 @@
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
+
 import { shortestRestLength } from "./shortestRestLength";
 
 /**

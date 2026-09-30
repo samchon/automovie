@@ -3,8 +3,8 @@ import {
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceBasisBuilder,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 
 /**
@@ -125,7 +125,7 @@ export function prepareLowerLashBasis(input: {
   if (below.length === 0 || upper.length === 0)
     throw new Error("The lash card needs both an upper and a lower piece.");
 
-  const image = decodePortraitPng(material.baseColorTexture);
+  const image = decodePng(material.baseColorTexture);
   const { width, height } = image;
   // Texels whose centre lies in a triangle's texture footprint.
   const texels = (t: number): number[] => {
@@ -264,7 +264,7 @@ export function prepareLowerLashBasis(input: {
     ...material,
     id: lowerId,
     name: lowerId,
-    baseColorTexture: encodePortraitPng({ ...image, rgba }),
+    baseColorTexture: encodePng({ ...image, rgba }),
   });
   const pick = (triangles: number[]) => ({
     indices: triangles.flatMap((t) => region.indices.slice(3 * t, 3 * t + 3)),

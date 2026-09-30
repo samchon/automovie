@@ -1,4 +1,8 @@
-import { IAutoMovieOpeningProfile, IAutoMoviePlanarPoint } from "@automovie/interface";
+import {
+  IAutoMovieOpeningProfile,
+  IAutoMoviePlanarPoint,
+} from "@automovie/interface";
+
 import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 

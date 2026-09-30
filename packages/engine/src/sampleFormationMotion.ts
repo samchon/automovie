@@ -1,4 +1,5 @@
 import { IAutoMovieFormationMotion } from "@automovie/interface";
+
 import { IAutoMovieSampledFormationMotion } from "./IAutoMovieSampledFormationMotion";
 import { easingProgress } from "./easingProgress";
 import { lerp } from "./lerp";

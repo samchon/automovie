@@ -11,8 +11,6 @@
  * a fan triangle facing against the rim's own area vector means the rim is
  * not, and it refuses rather than return a folded cap. Pure: returns new
  * arrays.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Keeps the closed hair contact surface embedded under any admitted deformation of its opening.
  */
 export function closeHumanFaceHairContact(
   positions: readonly number[],

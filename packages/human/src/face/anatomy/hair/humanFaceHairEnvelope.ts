@@ -9,9 +9,6 @@ import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFa
  * The exponent is the squared Mahalanobis distance for independent axes, with
  * peak one at the centre. An absent envelope is uniform. Very remote points
  * may underflow to zero; sampling owns its explicit exhaustion refusal.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Uses one numerical envelope for local populations and styling.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Keeps spatial weights independent of individual guide coordinates.
  */
 export function humanFaceHairEnvelope(
   point: IAutoMovieVector3,

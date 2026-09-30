@@ -1,8 +1,8 @@
-import { type IPortraitSurfaceControl } from "@automovie/human/face/surface/structures/IPortraitSurfaceControl";
-import { createPortraitControlLayer } from "@automovie/human/face/surface/createPortraitControlLayer";
 import { createPortraitReliefLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefLayer";
 import { type IPortraitReliefCurve } from "@automovie/human/face/anatomy/skin/structures/IPortraitReliefCurve";
 import { type IPortraitReliefRegion } from "@automovie/human/face/anatomy/skin/structures/IPortraitReliefRegion";
+import { createPortraitControlLayer } from "@automovie/human/face/surface/createPortraitControlLayer";
+import { type IPortraitSurfaceControl } from "@automovie/human/face/surface/structures/IPortraitSurfaceControl";
 import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 
 /**

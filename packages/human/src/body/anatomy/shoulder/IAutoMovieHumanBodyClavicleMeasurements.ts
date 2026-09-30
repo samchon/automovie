@@ -1,6 +1,6 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
  * Target or observed dimensions of one clavicle between sternum and scapula.
@@ -13,6 +13,6 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyClavicleMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
-  boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+    maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
+    boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
   }>;

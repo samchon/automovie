@@ -1,10 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 /**
- * Shared by resizePortraitNostrilRim, fitPortraitNostrilRim, which were one file until each public identity took its own.
+ * Centre and scale a nostril rim's millimetre points for plane and ellipse
+ * fitting.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Changes nostril width and height independently of whole-nose dimensions and opening rotation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Scales the aperture in its own normalized plane while retaining normal residuals and copying unit-scale inputs exactly.
+ * `scale` is the largest absolute coordinate (1 when every coordinate is zero),
+ * `normalized` the points divided by it, `center` their mean and `local` the
+ * centred vectors. Shared by `fitPortraitNostrilRim` and
+ * `resizePortraitNostrilRim` so both fit on the same basis.
+ *
  * @author Samchon
  */
 // Both ellipse fitting and aperture sizing use this same centred, normalized

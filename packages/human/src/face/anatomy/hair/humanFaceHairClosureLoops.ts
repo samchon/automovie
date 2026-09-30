@@ -8,8 +8,6 @@
  * `closeHumanFaceHairContact` can cap each loop at its current centre. An
  * edge used twice with one direction, or a rim that does not chain into
  * closed loops, refuses: the closure then does not describe an opening.
- *
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Keeps the closed hair contact surface embedded under any admitted deformation of its opening.
  */
 export function humanFaceHairClosureLoops(
   closure: readonly number[],

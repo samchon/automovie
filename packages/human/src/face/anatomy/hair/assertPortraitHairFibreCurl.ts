@@ -4,8 +4,6 @@ import type { IPortraitHairShape } from "./IPortraitHairShape";
  * Admit a complete normalized curl pattern independently of groom population.
  * Geometry and texture construction call the same admission, so an empty groom
  * cannot conceal an invalid optional profile until strands are added later.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Rejects invalid complete curl profiles without clamping or mutating the authored values.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Applies finite inclusive curl-pattern envelopes before either geometry or texture construction.
  */
 export function assertPortraitHairFibreCurl(
   curl: NonNullable<IPortraitHairShape["fibreCurl"]>,

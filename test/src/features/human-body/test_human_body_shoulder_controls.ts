@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
-import { renderBodyShoulderControls } from "@automovie/playground/src/human/bodyShoulderControls";
+import { renderBodyShoulderControls } from "@automovie/playground/src/human/body/bodyShoulderControls";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

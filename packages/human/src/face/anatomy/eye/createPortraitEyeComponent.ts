@@ -1,4 +1,3 @@
-
 /**
  * Orchestrate the replaceable eye's fit, attachment and refined finish.
  * Inputs describe an observed aperture in head millimetres (+Z anterior).
@@ -11,29 +10,31 @@
  */
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
-import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
-import { type IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
 import { createPortraitDirectionalContact } from "../../surface/createPortraitDirectionalContact";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
-import { refinePortraitSkinBridge } from "../skin/refinePortraitSkinBridge";
+import { type IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { portraitSkinAnnulus } from "../skin/portraitSkinAnnulus";
+import { refinePortraitSkinBridge } from "../skin/refinePortraitSkinBridge";
 import { reservePortraitSkin } from "../skin/reservePortraitSkin";
-import { resolvePortraitEyeInputs } from "./resolvePortraitEyeInputs";
-import { buildPortraitEye } from "./buildPortraitEye";
-import { portraitEyeLoop } from "./portraitEyeLoop";
-import { portraitEyeLidRows } from "./portraitEyeLidRows";
 import { appendPortraitEyeMargins } from "./appendPortraitEyeMargins";
+import { buildPortraitEye } from "./buildPortraitEye";
 import { buildPortraitEyeContactBasis } from "./buildPortraitEyeContactBasis";
-import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import { posePortraitLidCurves } from "./posePortraitLidCurves";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 import { createPortraitEyeSupport } from "./createPortraitEyeSupport";
 import { createPortraitEyeSurfaceContact } from "./createPortraitEyeSurfaceContact";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
+import { portraitEyeLidRows } from "./portraitEyeLidRows";
+import { portraitEyeLoop } from "./portraitEyeLoop";
+import { posePortraitLidCurves } from "./posePortraitLidCurves";
+import { resolvePortraitEyeInputs } from "./resolvePortraitEyeInputs";
+import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+
 // Keep the established component module imports while definitions own their contracts.
 export type { IPortraitAegyoSalShape } from "./structures/IPortraitAegyoSalShape";
 export type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
@@ -42,9 +43,6 @@ export { appendPortraitEyeMargins } from "./appendPortraitEyeMargins";
 export { buildPortraitEye } from "./buildPortraitEye";
 /**
  * Fit one replaceable eye and expose its actual outer lid as the skin seam.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits a swappable eye whose outer lid seam is shared with the surrounding skin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Builds observed-relative lid rows around a fixed globe, reserves or adapts host skin, and resolves final optical contact before constructing interiors.
  */
 export function createPortraitEyeComponent(
   inputSocket: IPortraitEyeSocket,
@@ -161,7 +159,7 @@ export function createPortraitEyeComponent(
         shape.lidContact !== "cornea"
           ? undefined
           : createPortraitDirectionalContact(
-              portraitPart(
+              createMetricMeshPart(
                 "corneal-attachment-basis",
                 buildPortraitEyeContactBasis(
                   portraitEyeSphereIntersection(
@@ -239,7 +237,7 @@ export function createPortraitEyeComponent(
       // bridges that depth to the fitted ocular contact instead of extruding a flat
       // annulus from the aperture. The two boundaries keep distinct ownership.
       const support = createAutoMovieMeshDepthSampler(
-        portraitPart(
+        createMetricMeshPart(
           "orbital-support-basis",
           {
             positions: host.positions.flat(),
@@ -276,7 +274,7 @@ export function createPortraitEyeComponent(
           reach: shape.blendReach,
         };
       });
-      const cutFaces = portraitFacesInsideLoop(host, loop);
+      const cutFaces = selectHostFacesInsideLoop(host, loop);
       const reservation =
         shape.skinAttachment === undefined
           ? undefined

@@ -1,10 +1,8 @@
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare dentition scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes maxillary arch dimensions, tooth gap and placement through the detailed editor.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Carries fixed maxillary millimetre controls into dentition overrides independently of the moving mandibular arch.
  */
 export const humanFaceUpperDentalChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

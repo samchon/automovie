@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * These dimensionless rows set visible skin channel weights. They neither reconstruct tissue volumes nor establish safe contact in a combined pose.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_UPPER_LEG_FAT_LEFT: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_UPPER_LEG_FAT_LEFT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // thigh fat, more on women (gynoid, front and lateral thigh sites)
       channel: "upperlegFatLeft",
@@ -28,4 +29,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_UPPER_LEG_FAT_LEFT: IAutoMovieHumanBodySimp
         },
       ],
     },
-];
+  ];

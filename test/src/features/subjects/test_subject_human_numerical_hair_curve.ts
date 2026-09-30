@@ -11,7 +11,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * Rendered ribbon stations preserve the integrator's actual metric curve.
  * Scenarios:
  * 1. A lock normal to a unit cube stays straight, rooted and exactly 50 mm long;
- *    averaged mesh rows reproduce its centreline and UV v measures that length.
+ *    its ribbon is a fan and one row at the tip, whose UV v measures that length.
  * 2. A field asking for a tighter turn than the tightest natural curl is held
  *    to it, and short emergence and a singular length chart refuse instead of
  *    shortening.
@@ -60,29 +60,27 @@ export const test_subject_human_numerical_hair_curve = (): void => {
     widths: [0.002],
     query: props.query,
   });
+  // A straight lock is one segment: the fan at the root and one paired row at
+  // the tip, whatever number of stations the integrator placed between.
   TestValidator.equals(
-    "single fan then paired rows",
+    "straight lock is a fan and one row",
     mesh.positions.length / 3,
-    1 + 2 * (curve.points.length - 1),
+    3,
   );
-  for (let at = 1; at < curve.points.length; at++) {
-    const offset = 3 * (2 * at - 1);
-    const center = Vector3.create(
-      ...([0, 1, 2].map(
-        (axis) =>
-          (mesh.positions[offset + axis] + mesh.positions[offset + 3 + axis]) /
-          2,
-      ) as [number, number, number]),
-    );
-    TestValidator.predicate(
-      "mesh uses actual station",
-      vclose(center, curve.points[at], 1e-12),
-    );
-    TestValidator.predicate(
-      "metric UV",
-      nclose(mesh.uvs![(2 * at - 1) * 2 + 1], (center.x - 1) / 0.05, 1e-12),
-    );
-  }
+  const tip = curve.points[curve.points.length - 1];
+  const center = Vector3.create(
+    ...([0, 1, 2].map(
+      (axis) => (mesh.positions[3 + axis] + mesh.positions[6 + axis]) / 2,
+    ) as [number, number, number]),
+  );
+  TestValidator.predicate(
+    "mesh uses the actual last station",
+    vclose(center, tip, 1e-12),
+  );
+  TestValidator.predicate(
+    "metric UV",
+    nclose(mesh.uvs![3], (center.x - 1) / 0.05, 1e-12),
+  );
   // A field asking for a tighter turn than the tightest curl a head grows is
   // held to it: the eight-class survey puts that curve diameter below 1.2 cm,
   // so one step turns at most h / 6 mm.

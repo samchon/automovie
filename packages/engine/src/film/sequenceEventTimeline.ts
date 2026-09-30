@@ -1,4 +1,5 @@
 import { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 import { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";

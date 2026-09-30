@@ -1,5 +1,5 @@
-import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 
 /**
  * The model-space box a node subject is framed and graded from: what its model

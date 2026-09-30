@@ -6,9 +6,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * millimetres. Positive rotation opens inferiorly for tissue anterior to the
  * hinge. A fixed weight is an attachment responsibility, not a muscle model;
  * angle times weight makes the corresponding inverse exactly the same motion.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Separates mandibular movement from fixed maxillary and optical anatomy.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Evaluates a bounded hinge rotation with explicit tissue attachment weights.
  */
 export function posePortraitJawPoint(
   point: IAutoMovieVector3,

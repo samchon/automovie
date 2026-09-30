@@ -1,6 +1,10 @@
-import { IAutoMovieVector3, IAutoMovieWorldSurface } from "@automovie/interface";
-import { worldGroundHeight } from "./worldGroundHeight";
+import {
+  IAutoMovieVector3,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
+
 import { IAutoMovieFormationGrounding } from "./IAutoMovieFormationGrounding";
+import { worldGroundHeight } from "./worldGroundHeight";
 
 /**
  * How far the terrain under one point rises above the terrain under the anchor.

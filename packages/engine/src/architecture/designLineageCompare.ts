@@ -1,4 +1,10 @@
-import { IAutoMovieDesignComparison, IAutoMovieDesignDifference, IAutoMovieDesignLineage, IAutoMovieDesignVariant } from "@automovie/interface";
+import {
+  IAutoMovieDesignComparison,
+  IAutoMovieDesignDifference,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignVariant,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { validateDesignLineage } from "./validateDesignLineage";
 

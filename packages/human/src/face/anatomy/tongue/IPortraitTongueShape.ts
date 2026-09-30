@@ -5,8 +5,6 @@
  * A named resident material supplies its finish without changing other tissues.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates tongue volume and median groove from oral depth, lips and enamel.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Declares local lingual dimensions and observed oral placement without embedding a person preset.
  */
 export interface IPortraitTongueShape {
   /** Transverse body semiaxis in [5,35] mm. */

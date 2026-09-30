@@ -1,4 +1,9 @@
-import { IAutoMovieAngleRange, IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+} from "@automovie/interface";
+
 import { swingConeBlend } from "./swingConeBlend";
 
 const clampAxis = (

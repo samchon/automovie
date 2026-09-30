@@ -1,11 +1,15 @@
+import {
+  IAutoMovieModel,
+  IAutoMovieRenderModelCost,
+} from "@automovie/interface";
+
 import { tessellate } from "../geometry/tessellate";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "./constants/AUTOMOVIE_NORMAL_BYTES";
 import { AUTOMOVIE_POSITION_BYTES } from "./constants/AUTOMOVIE_POSITION_BYTES";
 import { AUTOMOVIE_SKIN_BYTES } from "./constants/AUTOMOVIE_SKIN_BYTES";
 import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { IAutoMovieModel, IAutoMovieRenderModelCost } from "@automovie/interface";
 
 /**
  * Exact geometry cost of one model, memoized by model id.

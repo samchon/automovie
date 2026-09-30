@@ -1,4 +1,5 @@
 import type { IAutoMovieProductionLipSyncJoin } from "@automovie/interface";
+
 import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 
 /**

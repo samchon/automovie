@@ -1,4 +1,10 @@
-import { IAutoMoviePropBox, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePropBox,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { IAutoMoviePropClearanceBounds } from "./IAutoMoviePropClearanceBounds";

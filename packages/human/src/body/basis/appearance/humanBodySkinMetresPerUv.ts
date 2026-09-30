@@ -7,9 +7,6 @@ import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanB
  * both. A layout packs regions at different densities, so a detail tiled at
  * one scale over it is right at the median and within the layout's own spread
  * elsewhere. A material none of whose triangles has a UV area is refused.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Reads the physical scale of the shipped UV layout so the skin detail is tiled at its measured size.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Implements the per-triangle area ratio and its median over the material's textured regions.
  */
 export function humanBodySkinMetresPerUv(
   basis: IAutoMovieHumanBodyBasis,

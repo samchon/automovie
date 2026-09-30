@@ -2,9 +2,9 @@ import { createHumanFaceBasisBuilder } from "@automovie/human";
 import type {
   ConnectedFaceRequest,
   ConnectedFaceResult,
-} from "@automovie/playground/src/human/connectedRuntime";
-import { createConnectedFaceViewport } from "@automovie/playground/src/human/connectedViewport";
-import type { HumanResidentPort } from "@automovie/playground/src/human/residentWorker";
+} from "@automovie/playground/src/human/common/connectedRuntime";
+import type { HumanResidentPort } from "@automovie/playground/src/human/common/residentWorker";
+import { createConnectedFaceViewport } from "@automovie/playground/src/human/face/connectedViewport";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

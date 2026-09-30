@@ -16,7 +16,8 @@ import { nclose, vclose } from "../internal/predicates";
  * 1. Free rows span 2 mm in X and remain in the z=4 mm contact-parallel plane.
  * 2. Cyclic coordinate rotations preserve that geometric result, including
  *    directions for which a least-aligned world-axis root frame happens to work.
- * 3. The root and every station centre remain exactly on the input polyline.
+ * 3. The root and every kept station centre remain exactly on the input
+ *    polyline; a station collinear with its neighbours is not meshed.
  * 4. Every combed triangle faces along the root's outward normal, for the
  *    bend into +Y and its mirror into -Y alike: a ribbon over the scalp faces
  *    away from it, whichever way the curve happens to turn.
@@ -67,9 +68,11 @@ export const test_subject_human_numerical_hair_frame = (): void => {
       "root retained",
       vclose(point(0), points[0], 1e-12),
     );
-    for (let at = 1; at < points.length; at++) {
-      const a = point(2 * at - 1),
-        b = point(2 * at);
+    // The two combed stations after the bend are collinear with it, so the
+    // ribbon keeps the bend and the tip and drops the station between them.
+    for (const [row, at] of [1, 3].entries()) {
+      const a = point(2 * row + 1),
+        b = point(2 * row + 2);
       const width = Vector3.subtract(b, a);
       TestValidator.predicate(
         "width follows the emergence/combing plane",

@@ -7,7 +7,8 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  *
  * The rows are authored MPFB-derived skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     ...["outerThighFatLeft", "outerThighFatRight"].map(
       (channel): Term => ({
         // gynoid fat: the outer thighs, more on women, less with age
@@ -39,4 +40,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_OUTER_THIGH_FAT: IAutoMovieHumanBodySimpleS
         ],
       }),
     ),
-];
+  ];

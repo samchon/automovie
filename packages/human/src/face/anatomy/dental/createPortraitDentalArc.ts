@@ -1,7 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitSpline } from "../../mesh/portraitSpline";
+
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
 
 /**
@@ -9,8 +10,6 @@ import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
  * Sampling uses cumulative XZ distance, independent of any Y variation. The
  * current dental row supplies a planar elliptical guide and owns its common
  * gingival height; this sampler does not attach individual teeth to lip points.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Continues an ordered dental guide posteriorly and spaces crowns by horizontal arc distance rather than image X.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Builds cumulative XZ stations, rejects degenerate corner tangents and interpolates a position and tangent within the finite guide.
  */
 export function createPortraitDentalArc(
   upper: IAutoMovieVector3[],
@@ -26,7 +25,7 @@ export function createPortraitDentalArc(
       "A dental arc needs a finite upper rim and positive row length.",
     );
   const core = Array.from({ length: 257 }, (_v, i) =>
-    portraitSpline(upper, i / 256),
+    catmullRomPoint(upper, i / 256),
   );
   const extension = Math.max(12, rowLength / 2);
   const tail = (

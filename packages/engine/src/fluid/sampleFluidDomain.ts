@@ -1,4 +1,8 @@
-import { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
+
 import { simulateFluidDomain } from "./simulateFluidDomain";
 
 /**

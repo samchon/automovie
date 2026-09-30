@@ -18,7 +18,8 @@ import { MUSCLE_THICKNESS_BY_SEX } from "./MUSCLE_THICKNESS_BY_SEX";
  * (doi:10.1152/jappl.2000.89.1.81) constrains the sex-dependent regional
  * muscle share; it does not provide a skin-visible contour for every muscle.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_DEFINITION: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_DEFINITION: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // a trained upper body widens from the latissimus and deltoids into a
       // V over a narrower waist, more on a man (swimmers' wide shoulders and
@@ -128,4 +129,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_DEFINITION: IAutoMovieHumanBodySimpleShapeT
         },
       ],
     },
-];
+  ];

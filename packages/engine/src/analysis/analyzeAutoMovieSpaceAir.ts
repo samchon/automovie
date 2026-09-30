@@ -1,9 +1,15 @@
-import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisWarning } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisWarning,
+} from "@automovie/interface";
+
+import { IAutoMovieSpaceAirRequest } from "./IAutoMovieSpaceAirRequest";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
-import { IAutoMovieSpaceAirRequest } from "./IAutoMovieSpaceAirRequest";
 
 /**
  * Solve one space for ventilation, and refuse to pretend it solved the air.

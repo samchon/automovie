@@ -8,8 +8,6 @@ import type { IAutoMovieHumanFaceIris } from "./IAutoMovieHumanFaceIris";
  * their authored negative endpoint, not an extrapolated positive endpoint.
  * The document contains no photo, mesh cache, renderer or Blender dependency.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Separates compact shape and performance edits from reusable source geometry.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Binds deterministic edits to one exact basis revision and preserves material overrides independently.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasisDocument {

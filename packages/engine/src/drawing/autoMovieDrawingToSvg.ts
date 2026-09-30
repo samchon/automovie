@@ -1,4 +1,10 @@
-import { AutoMovieDrawingRole, IAutoMovieDrawing, IAutoMovieDrawingPoint, IAutoMovieDrawingView } from "@automovie/interface";
+import {
+  AutoMovieDrawingRole,
+  IAutoMovieDrawing,
+  IAutoMovieDrawingPoint,
+  IAutoMovieDrawingView,
+} from "@automovie/interface";
+
 import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "./constants/AUTOMOVIE_DRAWING_SVG_MARGIN";
 
 /**

@@ -1,5 +1,5 @@
-import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
 import { IAutoMovieAcceptanceCriterion } from "./IAutoMovieAcceptanceCriterion";
+import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
 
 /**
  * A required or optional acceptance scenario for a shot or film.

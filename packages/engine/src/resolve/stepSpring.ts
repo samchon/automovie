@@ -1,4 +1,9 @@
-import { IAutoMovieSpringDriver, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieSpringDriver,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
