@@ -3,8 +3,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The component-wise mean of a nonempty list of points. An empty list divides
- * by zero, so callers pass at least one point. Shared by `IPortraitEyeSphere`
- * and `fitPortraitEyeSphere`.
+ * by zero, so callers pass at least one point. `fitPortraitEyeSphere` uses it
+ * for the centre of the sample set.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates the fitted globe centre and curvature radius from gaze or visible aperture size.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines the common millimetre spherical support used by eyelid contact, sclera and iris placement.
