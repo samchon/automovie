@@ -91,6 +91,8 @@ export const test_subject_human_hair_station_selection = (): void => {
   const kept = select(long, () => 0.1);
   TestValidator.predicate(
     "a long zig-zag keeps every station and its ends",
-    kept.length === long.length && kept[0] === 0 && kept[kept.length - 1] === long.length - 1,
+    kept.length === long.length &&
+      kept[0] === 0 &&
+      kept[kept.length - 1] === long.length - 1,
   );
 };

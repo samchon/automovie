@@ -1,5 +1,5 @@
-
 import { Vector3 } from "@automovie/engine";
+
 /**
  * The recorded camera's first two rows define its image plane. Their normalized
  * cross product is the direction on which a displacement preserves both image

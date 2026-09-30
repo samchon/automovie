@@ -9,13 +9,13 @@
  */
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
-import { blendPortraitSkin } from "../skin/blendPortraitSkin";
-import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
 import { portraitMinimumDirectionalSurfaceTargets } from "../../surface/portraitMinimumDirectionalSurfaceTargets";
 import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
-import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
 import type { IPortraitFinalSurface } from "../../surface/structures/IPortraitFinalSurface";
+import { blendPortraitSkin } from "../skin/blendPortraitSkin";
 import { buildPortraitEyeContactBasis } from "./buildPortraitEyeContactBasis";
 import type { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";

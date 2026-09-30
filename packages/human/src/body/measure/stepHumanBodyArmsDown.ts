@@ -36,8 +36,9 @@ export function* stepHumanBodyArmsDown(
     document: IAutoMovieHumanBodyBasisDocument,
   ) => IAutoMovieHumanBodyBuild,
   document: IAutoMovieHumanBodyBasisDocument,
-  segment: ReturnType<typeof createHumanBodySegmenter> =
-    createHumanBodySegmenter(basis),
+  segment: ReturnType<
+    typeof createHumanBodySegmenter
+  > = createHumanBodySegmenter(basis),
 ): Generator<
   undefined,
   Pick<IAutoMovieHumanBodyBasisDocument, "pose" | "shoulders">,

@@ -24,7 +24,9 @@ export function reviewFileName(frame: {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
     if (reduced === "")
-      throw new Error(`A review frame needs a ${label} name with a letter or digit.`);
+      throw new Error(
+        `A review frame needs a ${label} name with a letter or digit.`,
+      );
     return reduced;
   };
   return `${part("state", frame.state)}__${part("view", frame.view)}__${part("pass", frame.pass)}.png`;

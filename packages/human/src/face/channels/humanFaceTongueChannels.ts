@@ -1,7 +1,6 @@
 import { portraitTongueParameters } from "../anatomy/tongue/portraitTongueParameters";
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
-
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare tongue scalar controls for the common document editor.

@@ -1,9 +1,9 @@
 import {
+  type IAutoMovieHumanEndpointScale,
   type IAutoMovieHumanFaceBasis,
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceComponentTree,
   type IAutoMovieHumanFaceControlMap,
-  type IAutoMovieHumanEndpointScale,
   createHumanFaceComponentTree,
   createHumanFaceControlMap,
   measureHumanFaceBasisChannels,

@@ -1,4 +1,9 @@
-import { KHRMaterialsClearcoat, KHRMaterialsIOR, KHRMaterialsTransmission, KHRMaterialsVolume } from "@gltf-transform/extensions";
+import {
+  KHRMaterialsClearcoat,
+  KHRMaterialsIOR,
+  KHRMaterialsTransmission,
+  KHRMaterialsVolume,
+} from "@gltf-transform/extensions";
 
 /**
  * Register this supported optical material set on every glTF reader and writer.

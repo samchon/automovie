@@ -1,8 +1,8 @@
 import {
   buildPortraitHairCards,
+  createGltfDocument,
   createPortraitHairTexture,
   exportHumanFace,
-  createGltfDocument,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 import { PNG } from "pngjs";

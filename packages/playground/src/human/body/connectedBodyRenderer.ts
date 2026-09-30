@@ -12,11 +12,11 @@ import {
 } from "@automovie/viewer";
 import * as THREE from "three";
 
+import { prepareHumanPreview } from "../common/previewScene";
 import type {
   ConnectedBodyModel,
   ConnectedBodyPart,
 } from "./connectedBodyProtocol";
-import { prepareHumanPreview } from "../common/previewScene";
 
 type Resident = {
   group: THREE.Group;

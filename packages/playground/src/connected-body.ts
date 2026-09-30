@@ -31,13 +31,13 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import { createBodySimpleWorkerTransport } from "./human/body/bodySimpleWorkerTransport";
+import { mountConnectedBodyPanel } from "./human/body/connectedBodyPanel";
+import { createConnectedBodyPort } from "./human/body/connectedBodyPort";
+import { createConnectedBodyViewport } from "./human/body/connectedBodyViewport";
 import {
   readConnectedAssetRevision,
   readConnectedFaceAsset,
 } from "./human/common/connectedAsset";
-import { mountConnectedBodyPanel } from "./human/body/connectedBodyPanel";
-import { createConnectedBodyPort } from "./human/body/connectedBodyPort";
-import { createConnectedBodyViewport } from "./human/body/connectedBodyViewport";
 import type {
   ConnectedFaceRequest,
   ConnectedFaceResult,

@@ -11,8 +11,8 @@
  * (equal positions), not normals, collision freedom, tissue mechanics or a full
  * manifold union. Compound junctions retain every face and all their owners.
  */
-import type { IPortraitInterior } from "./structures/IPortraitInterior";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import type { IPortraitInterior } from "./structures/IPortraitInterior";
 
 /**
  * Validate the live native correspondences consumed by head materialization.

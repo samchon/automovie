@@ -1,7 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
+
 import { meanPoint } from "./meanPoint";
+import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
 
 /**
  * Fit a spherical cap with an explicit depth-fitting direction. The default

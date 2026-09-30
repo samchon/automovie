@@ -1,8 +1,8 @@
 import { mergeAutoMovieMeshes } from "@automovie/engine";
-import { attachPortraitDentalRow } from "@automovie/human/face/anatomy/dental/attachPortraitDentalRow";
-import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
 import { buildPortraitEyebrow } from "@automovie/human/face/anatomy/brow/buildPortraitEyebrow";
 import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
+import { attachPortraitDentalRow } from "@automovie/human/face/anatomy/dental/attachPortraitDentalRow";
+import { buildPortraitDentalRow } from "@automovie/human/face/anatomy/dental/buildPortraitDentalRow";
 import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
 import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import type { IAutoMovieModel } from "@automovie/interface";

@@ -31,7 +31,14 @@ export const test_body_observation_arguments = (): void => {
   );
   TestValidator.equals(
     "kind and id",
-    parseBodyObservationArguments(["--", "run", "--unit", "joint", "--id", "spine>chest"]),
+    parseBodyObservationArguments([
+      "--",
+      "run",
+      "--unit",
+      "joint",
+      "--id",
+      "spine>chest",
+    ]),
     { name: "run", unit: "joint", id: "spine>chest" },
   );
   for (const unit of ["part", "joint", "whole"] as const)
@@ -44,7 +51,11 @@ export const test_body_observation_arguments = (): void => {
     ["no kind", ["run"], "--unit"],
     ["unknown kind", ["run", "--unit", "seam"], "--unit"],
     ["id for whole", ["run", "--unit", "whole", "--id", "x"], "no --id"],
-    ["unknown option", ["run", "--unit", "part", "--all", "1"], "Unknown option"],
+    [
+      "unknown option",
+      ["run", "--unit", "part", "--all", "1"],
+      "Unknown option",
+    ],
     ["no value", ["run", "--unit"], "needs a value"],
     ["option as value", ["run", "--unit", "--id", "x"], "needs a value"],
     ["no name", ["--unit", "part"], "exactly one"],

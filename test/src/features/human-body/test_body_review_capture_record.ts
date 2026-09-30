@@ -26,7 +26,13 @@ export const test_body_review_capture_record = (): void => {
     humanBuildFresh: true,
     frames: [
       { state: "a", view: "front", pass: "beauty", file: "one.png", bytes },
-      { state: "a", view: "back", pass: "beauty", file: "two.png", bytes: other },
+      {
+        state: "a",
+        view: "back",
+        pass: "beauty",
+        file: "two.png",
+        bytes: other,
+      },
     ],
   });
   TestValidator.equals(
@@ -39,12 +45,11 @@ export const test_body_review_capture_record = (): void => {
     record.captures.map((capture) => capture.file),
     ["one.png", "two.png"],
   );
-  TestValidator.equals("header", [record.kind, record.renderer, record.revision, record.humanBuildFresh], [
-    "body",
-    "ANGLE (AMD, AMD Radeon 780M)",
-    "abc1234+local",
-    true,
-  ]);
+  TestValidator.equals(
+    "header",
+    [record.kind, record.renderer, record.revision, record.humanBuildFresh],
+    ["body", "ANGLE (AMD, AMD Radeon 780M)", "abc1234+local", true],
+  );
   TestValidator.predicate(
     "no bytes field",
     record.captures.every((capture) => !("bytes" in capture)),

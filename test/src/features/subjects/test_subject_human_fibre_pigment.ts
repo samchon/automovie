@@ -105,9 +105,10 @@ export const test_subject_human_fibre_pigment = (): void => {
   );
   TestValidator.equals(
     "nothing drawn",
-    Array.from(
-      decodePng(faint[0]!.baseColorTexture as string).rgba,
-    ).slice(0, 3),
+    Array.from(decodePng(faint[0]!.baseColorTexture as string).rgba).slice(
+      0,
+      3,
+    ),
     expected(1),
   );
   const blended = [{ ...card(), alphaMode: "blend" as const }];
@@ -117,9 +118,10 @@ export const test_subject_human_fibre_pigment = (): void => {
   );
   TestValidator.equals(
     "blend draws every covered texel",
-    Array.from(
-      decodePng(blended[0]!.baseColorTexture as string).rgba,
-    ).slice(4, 7),
+    Array.from(decodePng(blended[0]!.baseColorTexture as string).rgba).slice(
+      4,
+      7,
+    ),
     expected(1),
   );
   TestValidator.equals(

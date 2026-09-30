@@ -4,6 +4,7 @@ import {
   transformAutoMovieMesh,
 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import { assertDirection } from "./assertDirection";
 import { triangleAreaVector } from "./triangleAreaVector";
 

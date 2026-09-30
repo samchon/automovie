@@ -9,11 +9,23 @@
 export type IAutoMovieHumanBodyAxialArticulation =
   | {
       readonly joint: "lumbosacral";
-      readonly surfaceA: { readonly structure: "lumbarL5"; readonly site: "inferiorEndplate" };
-      readonly surfaceB: { readonly structure: "sacrum"; readonly site: "superiorS1Endplate" };
+      readonly surfaceA: {
+        readonly structure: "lumbarL5";
+        readonly site: "inferiorEndplate";
+      };
+      readonly surfaceB: {
+        readonly structure: "sacrum";
+        readonly site: "superiorS1Endplate";
+      };
     }
   | {
       readonly joint: "pubicSymphysis";
-      readonly surfaceA: { readonly structure: "leftCoxalBone"; readonly site: "pubicSymphysealSurface" };
-      readonly surfaceB: { readonly structure: "rightCoxalBone"; readonly site: "pubicSymphysealSurface" };
+      readonly surfaceA: {
+        readonly structure: "leftCoxalBone";
+        readonly site: "pubicSymphysealSurface";
+      };
+      readonly surfaceB: {
+        readonly structure: "rightCoxalBone";
+        readonly site: "pubicSymphysealSurface";
+      };
     };

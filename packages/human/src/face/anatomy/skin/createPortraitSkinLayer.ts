@@ -1,12 +1,12 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 
+import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
-import { catmullRomPoint } from "../../mesh/catmullRomPoint";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
-import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { resolvePortraitSkinShape } from "./resolvePortraitSkinShape";
 import { type IPortraitSkinShape } from "./structures/IPortraitSkinShape";
 

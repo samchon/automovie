@@ -8,8 +8,8 @@
  * Changes here propagate into every attached component, refined skin, normals
  * and exported face, so derived face artifacts must be rebuilt together.
  */
-import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstraint";
 import { solvePortraitSkinSystem } from "./solvePortraitSkinSystem";
+import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstraint";
 
 /**
  * Adapt neighbouring skin to a set of exact component attachments. Distances

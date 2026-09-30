@@ -1,10 +1,10 @@
 import typia from "typia";
 
-import { admitHumanBodyAnatomicalMeasurements } from "./admitHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyLowerLimbSurfaceMeasurements } from "../surface/IAutoMovieHumanBodyLowerLimbSurfaceMeasurements";
+import type { IAutoMovieHumanBodyTrunkSurfaceMeasurements } from "../surface/IAutoMovieHumanBodyTrunkSurfaceMeasurements";
 import type { IAutoMovieHumanBodyCompleteAnatomicalMeasurements } from "./IAutoMovieHumanBodyCompleteAnatomicalMeasurements";
 import type { IAutoMovieHumanBodySimpleAnatomicalTargets } from "./IAutoMovieHumanBodySimpleAnatomicalTargets";
-import type { IAutoMovieHumanBodyTrunkSurfaceMeasurements } from "../surface/IAutoMovieHumanBodyTrunkSurfaceMeasurements";
-import type { IAutoMovieHumanBodyLowerLimbSurfaceMeasurements } from "../surface/IAutoMovieHumanBodyLowerLimbSurfaceMeasurements";
+import { admitHumanBodyAnatomicalMeasurements } from "./admitHumanBodyAnatomicalMeasurements";
 
 /**
  * Lift the simple tier's explicit physical targets into the detailed tree.
@@ -20,24 +20,40 @@ import type { IAutoMovieHumanBodyLowerLimbSurfaceMeasurements } from "../surface
 export function liftHumanBodySimpleAnatomicalTargets(
   input: IAutoMovieHumanBodySimpleAnatomicalTargets,
 ): IAutoMovieHumanBodyCompleteAnatomicalMeasurements {
-  const simple = typia.assertEquals<IAutoMovieHumanBodySimpleAnatomicalTargets>(input);
+  const simple =
+    typia.assertEquals<IAutoMovieHumanBodySimpleAnatomicalTargets>(input);
   const length = (metres: number) => ({ kind: "target" as const, metres });
   let trunk: IAutoMovieHumanBodyTrunkSurfaceMeasurements | undefined;
   if (simple.bustAtNippleLevelMetres !== undefined)
     trunk = { bustGirth: length(simple.bustAtNippleLevelMetres) };
   if (simple.waistAtRibIliacMidpointMetres !== undefined)
-    trunk = { ...trunk, ribIliacMidpointWaistGirth: length(simple.waistAtRibIliacMidpointMetres) };
+    trunk = {
+      ...trunk,
+      ribIliacMidpointWaistGirth: length(simple.waistAtRibIliacMidpointMetres),
+    };
   if (simple.buttockGirthMetres !== undefined)
     trunk = { ...trunk, buttockGirth: length(simple.buttockGirthMetres) };
   if (simple.biacromialBreadthMetres !== undefined)
-    trunk = { ...trunk, biacromialBreadth: length(simple.biacromialBreadthMetres) };
-  const upperLimb = (metres: number) => ({ upperArm: { midUpperArmGirth: length(metres) } });
-  const lowerLimb = (): IAutoMovieHumanBodyLowerLimbSurfaceMeasurements | undefined => {
+    trunk = {
+      ...trunk,
+      biacromialBreadth: length(simple.biacromialBreadthMetres),
+    };
+  const upperLimb = (metres: number) => ({
+    upperArm: { midUpperArmGirth: length(metres) },
+  });
+  const lowerLimb = ():
+    | IAutoMovieHumanBodyLowerLimbSurfaceMeasurements
+    | undefined => {
     let limb: IAutoMovieHumanBodyLowerLimbSurfaceMeasurements | undefined;
     if (simple.pairedMidThighGirthMetres !== undefined)
-      limb = { thigh: { midThighGirth: length(simple.pairedMidThighGirthMetres) } };
+      limb = {
+        thigh: { midThighGirth: length(simple.pairedMidThighGirthMetres) },
+      };
     if (simple.pairedMaximumCalfGirthMetres !== undefined)
-      limb = { ...limb, leg: { maximumCalfGirth: length(simple.pairedMaximumCalfGirthMetres) } };
+      limb = {
+        ...limb,
+        leg: { maximumCalfGirth: length(simple.pairedMaximumCalfGirthMetres) },
+      };
     return limb;
   };
   const leftLowerLimb = lowerLimb();
@@ -48,14 +64,18 @@ export function liftHumanBodySimpleAnatomicalTargets(
       stature: length(simple.standingStatureMetres),
       mass: { kind: "target" as const, kilograms: simple.bodyMassKilograms },
       ...(trunk === undefined ? {} : { trunk }),
-      ...(simple.pairedMidUpperArmGirthMetres === undefined ? {} : {
-        leftUpperLimb: upperLimb(simple.pairedMidUpperArmGirthMetres),
-        rightUpperLimb: upperLimb(simple.pairedMidUpperArmGirthMetres),
-      }),
-      ...(leftLowerLimb === undefined || rightLowerLimb === undefined ? {} : {
-        leftLowerLimb,
-        rightLowerLimb,
-      }),
+      ...(simple.pairedMidUpperArmGirthMetres === undefined
+        ? {}
+        : {
+            leftUpperLimb: upperLimb(simple.pairedMidUpperArmGirthMetres),
+            rightUpperLimb: upperLimb(simple.pairedMidUpperArmGirthMetres),
+          }),
+      ...(leftLowerLimb === undefined || rightLowerLimb === undefined
+        ? {}
+        : {
+            leftLowerLimb,
+            rightLowerLimb,
+          }),
     },
   } satisfies IAutoMovieHumanBodyCompleteAnatomicalMeasurements;
   admitHumanBodyAnatomicalMeasurements(detailed);

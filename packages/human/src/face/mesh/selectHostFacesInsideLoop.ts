@@ -1,5 +1,6 @@
-import { IPortraitComponentHost } from "../surface/structures/IPortraitComponentHost";
 import { selectAutoMovieTriangleRegion } from "@automovie/engine";
+
+import { IPortraitComponentHost } from "../surface/structures/IPortraitComponentHost";
 
 /**
  * Select the original patch bounded by the inward-oriented anatomical loop.

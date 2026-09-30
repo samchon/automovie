@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { posePortraitJawPoint } from "./posePortraitJawPoint";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 

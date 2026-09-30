@@ -1,8 +1,8 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
-import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
 import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
+import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /** Subject-owned continuous hair-cap controls. */

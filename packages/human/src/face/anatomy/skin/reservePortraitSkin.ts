@@ -1,6 +1,7 @@
+import { autoMoviePlanarRegionFailure } from "@automovie/engine";
+
 import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
 import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
-import { autoMoviePlanarRegionFailure } from "@automovie/engine";
 
 /**
  * Reserve enough connected host skin to contain a component's proposed outer

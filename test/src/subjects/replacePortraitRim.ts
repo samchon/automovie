@@ -1,6 +1,6 @@
-import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
-import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**

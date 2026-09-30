@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+
 import { normalizedRim } from "./normalizedRim";
 
 /**
@@ -13,7 +14,9 @@ import { normalizedRim } from "./normalizedRim";
  */
 // The oriented area normal comes from the complete closed boundary. Individual
 // edges can be short or collinear without changing the meaning of its plane.
-export const portraitNostrilRimNormal = (local: ReturnType<typeof normalizedRim>["local"]) => {
+export const portraitNostrilRimNormal = (
+  local: ReturnType<typeof normalizedRim>["local"],
+) => {
   let normal = Vector3.create();
   for (let i = 0; i < local.length; i++)
     normal = Vector3.add(

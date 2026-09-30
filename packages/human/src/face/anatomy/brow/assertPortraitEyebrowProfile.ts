@@ -1,5 +1,5 @@
-import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
+import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 
 /**
  * Refuse invalid fibre dimensions before fitting an eye or allocating brow meshes.

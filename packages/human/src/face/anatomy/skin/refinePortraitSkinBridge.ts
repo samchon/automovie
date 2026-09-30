@@ -1,5 +1,3 @@
-
-
 /**
  * Retriangulate a skin annulus after adding original-surface interior samples.
  * Boundary edges are retained. Interior diagonals use the planar Delaunay test

@@ -28,8 +28,10 @@ export interface IAutoMovieHumanBodyPectoralisMajorAttachments<
     ...PectoralisMajorOrigin<Side>[],
   ];
   /** Lateral lip of the same side's intertubercular sulcus. */
-  readonly insertions: readonly [{
-    structure: `${Side}Humerus`;
-    site: "lateralLipIntertubercularSulcus";
-  }];
+  readonly insertions: readonly [
+    {
+      structure: `${Side}Humerus`;
+      site: "lateralLipIntertubercularSulcus";
+    },
+  ];
 }

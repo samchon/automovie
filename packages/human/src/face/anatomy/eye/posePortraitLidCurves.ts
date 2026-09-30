@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 

@@ -1,4 +1,5 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
+
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import { IAutoMovieHumanFaceGroomCard } from "./IAutoMovieHumanFaceGroomCard";
 

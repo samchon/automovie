@@ -1,9 +1,13 @@
-import { createAutoMovieMeshDepthSampler, transformAutoMovieMesh } from "@automovie/engine";
+import {
+  createAutoMovieMeshDepthSampler,
+  transformAutoMovieMesh,
+} from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { millimetrePoint as p } from "../../mesh/millimetrePoint";
-import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
-import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
+
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitEarShape } from "../ear/IPortraitEarShape";
 import { portraitEarShape } from "../ear/portraitEarShape";
 import { resolvePortraitEarSampling } from "../ear/resolvePortraitEarSampling";

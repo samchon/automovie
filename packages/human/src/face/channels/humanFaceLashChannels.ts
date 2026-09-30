@@ -1,7 +1,7 @@
 import { portraitEyelashParameters } from "../anatomy/lash/portraitEyelashParameters";
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
-import { millimetrePoint as p } from "../mesh/millimetrePoint";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { millimetrePoint as p } from "../mesh/millimetrePoint";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare lashes scalar controls for the common document editor.

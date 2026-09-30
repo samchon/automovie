@@ -2,11 +2,11 @@ import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import { createHumanBodyMeasurementReader } from "../measure/createHumanBodyMeasurementReader";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
-import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
 import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
-import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
+import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
 import { humanBodySimpleStature } from "./humanBodySimpleStature";
 import { humanBodySimpleVolume } from "./humanBodySimpleVolume";
+import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
 
 /** Iterations of the mass and fat fixed point; the density moves little per step. */
 const MASS_ITERATIONS = 4;

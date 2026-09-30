@@ -1,9 +1,9 @@
 import type { IPortraitFinalSurface } from "../../surface/structures/IPortraitFinalSurface";
 import { createPortraitNasalBody } from "./createPortraitNasalBody";
-import { type IPortraitNasalBodyShape } from "./structures/IPortraitNasalBodyShape";
 import { createPortraitNasalLobules } from "./createPortraitNasalLobules";
-import { type IPortraitNasalLobule } from "./structures/IPortraitNasalLobule";
 import { createPortraitNasalSection } from "./createPortraitNasalSection";
+import { type IPortraitNasalBodyShape } from "./structures/IPortraitNasalBodyShape";
+import { type IPortraitNasalLobule } from "./structures/IPortraitNasalLobule";
 import { type IPortraitNasalSection } from "./structures/IPortraitNasalSection";
 
 /**

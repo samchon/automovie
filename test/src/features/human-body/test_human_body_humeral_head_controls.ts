@@ -22,45 +22,94 @@ import { throwsError } from "../internal/predicates";
  */
 export const test_human_body_humeral_head_controls = (): void => {
   const { document: initial } = humanBodyBasisFixture();
-  const dom = new JSDOM("<!doctype html><main id='controls'></main>").window.document;
+  const dom = new JSDOM("<!doctype html><main id='controls'></main>").window
+    .document;
   let current = initial;
   const refused: string[] = [];
   const controls = renderBodyHumeralHeadControls({
     dom,
     container: dom.querySelector<HTMLElement>("#controls")!,
     current: () => current,
-    onChange: (next) => { current = next; },
-    onRefuse: (error) => { refused.push(error.message); },
+    onChange: (next) => {
+      current = next;
+    },
+    onRefuse: (error) => {
+      refused.push(error.message);
+    },
   });
   const left = dom.querySelector<HTMLInputElement>("#humeral-head-left")!;
   const right = dom.querySelector<HTMLInputElement>("#humeral-head-right")!;
   const buttons = [...dom.querySelectorAll<HTMLButtonElement>("button")];
   controls.refresh(current.humeralHeads);
-  TestValidator.equals("no measurement starts blank", [left.value, right.value], ["", ""]);
+  TestValidator.equals(
+    "no measurement starts blank",
+    [left.value, right.value],
+    ["", ""],
+  );
   left.value = "24.5";
   buttons[0].click();
-  TestValidator.equals("left observed radius enters document", current.humeralHeads, { leftRadiusMillimetres: 24.5 });
+  TestValidator.equals(
+    "left observed radius enters document",
+    current.humeralHeads,
+    { leftRadiusMillimetres: 24.5 },
+  );
   controls.refresh(current.humeralHeads);
   right.value = "25";
   buttons[1].click();
-  TestValidator.equals("right radius retains independent left", current.humeralHeads, { leftRadiusMillimetres: 24.5, rightRadiusMillimetres: 25 });
+  TestValidator.equals(
+    "right radius retains independent left",
+    current.humeralHeads,
+    { leftRadiusMillimetres: 24.5, rightRadiusMillimetres: 25 },
+  );
   controls.refresh(current.humeralHeads);
   left.value = "24.2";
   controls.refresh(current.humeralHeads);
-  TestValidator.equals("pose-only refresh preserves unapplied number", left.value, "24.2");
+  TestValidator.equals(
+    "pose-only refresh preserves unapplied number",
+    left.value,
+    "24.2",
+  );
   controls.refresh(current.humeralHeads, true);
-  TestValidator.equals("failed edit resets to committed number", left.value, "24.5");
+  TestValidator.equals(
+    "failed edit resets to committed number",
+    left.value,
+    "24.5",
+  );
   left.value = "";
   buttons[0].click();
-  TestValidator.equals("blank removes only left measurement", current.humeralHeads, { rightRadiusMillimetres: 25 });
+  TestValidator.equals(
+    "blank removes only left measurement",
+    current.humeralHeads,
+    { rightRadiusMillimetres: 25 },
+  );
   right.value = "";
   buttons[1].click();
-  TestValidator.equals("both blank omit direct measurements", current.humeralHeads, undefined);
+  TestValidator.equals(
+    "both blank omit direct measurements",
+    current.humeralHeads,
+    undefined,
+  );
   left.value = "-1";
   buttons[0].click();
-  TestValidator.predicate("invalid radius refuses without edit", refused.length === 1 && current.humeralHeads === undefined);
+  TestValidator.predicate(
+    "invalid radius refuses without edit",
+    refused.length === 1 && current.humeralHeads === undefined,
+  );
   current.humeralHeads = { rightRadiusMillimetres: 26 };
-  TestValidator.equals("round trip measured radius", parseHumanBodyBasisDocument(serializeHumanBodyBasisDocument(current)).humeralHeads, current.humeralHeads);
+  TestValidator.equals(
+    "round trip measured radius",
+    parseHumanBodyBasisDocument(serializeHumanBodyBasisDocument(current))
+      .humeralHeads,
+    current.humeralHeads,
+  );
   for (const radius of [0, -1, NaN, Infinity])
-    TestValidator.predicate("invalid document radius refuses " + radius, throwsError(() => admitHumanBodyBasisDocument({ ...current, humeralHeads: { rightRadiusMillimetres: radius } })));
+    TestValidator.predicate(
+      "invalid document radius refuses " + radius,
+      throwsError(() =>
+        admitHumanBodyBasisDocument({
+          ...current,
+          humeralHeads: { rightRadiusMillimetres: radius },
+        }),
+      ),
+    );
 };

@@ -24,7 +24,9 @@ export const measureHumanBodySimpleShape = {
     basis: IAutoMovieHumanBodyBasis,
     shape: Record<string, number>,
   ): number {
-    return humanBodySimpleStature(createHumanBodyMeasurementReader(basis, shape));
+    return humanBodySimpleStature(
+      createHumanBodyMeasurementReader(basis, shape),
+    );
   },
 
   volume(

@@ -9,7 +9,10 @@
  *
  * @author Samchon
  */
-export function assertFinite(value: unknown, ancestors = new Set<object>()): void {
+export function assertFinite(
+  value: unknown,
+  ancestors = new Set<object>(),
+): void {
   if (typeof value === "number" && !Number.isFinite(value))
     throw new Error("Face document numbers must be finite.");
   if (value !== null && typeof value === "object") {

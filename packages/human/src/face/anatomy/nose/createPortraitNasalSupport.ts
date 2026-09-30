@@ -1,5 +1,3 @@
-
-
 /**
  * Resolve one nasal projection scale from a skin attachment plane. Three
  * subject-owned points span that plane in head XY; height is measured in head

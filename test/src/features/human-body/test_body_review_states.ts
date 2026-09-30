@@ -32,7 +32,11 @@ export const test_body_review_states = (): void => {
       ),
     );
     const bones = pose.map((entry) => entry.bone);
-    TestValidator.equals(`${name} names a bone once`, new Set(bones).size, bones.length);
+    TestValidator.equals(
+      `${name} names a bone once`,
+      new Set(bones).size,
+      bones.length,
+    );
     TestValidator.predicate(
       `${name} angles`,
       pose.every((entry) =>

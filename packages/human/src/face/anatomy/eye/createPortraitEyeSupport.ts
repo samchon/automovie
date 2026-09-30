@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
 
-import { fitPortraitCanthalSphere } from "./fitPortraitCanthalSphere";
-import { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
-import { createPortraitCanthalIntersection } from "./createPortraitCanthalIntersection";
 import { fitPortraitEyeSphere } from "../../surface/fitPortraitEyeSphere";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
+import { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
+import { createPortraitCanthalIntersection } from "./createPortraitCanthalIntersection";
+import { fitPortraitCanthalSphere } from "./fitPortraitCanthalSphere";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 
 /**

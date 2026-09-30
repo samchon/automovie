@@ -103,7 +103,9 @@ export const test_subject_human_worker_success = async (): Promise<void> => {
     glb: new Uint8Array([9]),
     gltf: { json: { asset: { version: "2.0" } }, resources: {} },
   };
-  const reading = (measure?: (input: typeof model) => IAutoMovieModelCrossing[]) => {
+  const reading = (
+    measure?: (input: typeof model) => IAutoMovieModelCrossing[],
+  ) => {
     const replies: unknown[] = [];
     return {
       replies,
@@ -119,7 +121,10 @@ export const test_subject_human_worker_success = async (): Promise<void> => {
     };
   };
   const asked = reading((input) => {
-    TestValidator.predicate("the reading is taken from the built model", input === model);
+    TestValidator.predicate(
+      "the reading is taken from the built model",
+      input === model,
+    );
     return [crossing];
   });
   await asked.handle("serialized", true);

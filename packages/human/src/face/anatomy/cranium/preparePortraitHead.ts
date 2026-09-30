@@ -1,15 +1,15 @@
-import { blendPortraitSkin } from "../skin/blendPortraitSkin";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
+import { subdivideControlMesh } from "../../mesh/subdivideControlMesh";
 import { applyPortraitFinalSurfaces } from "../../surface/applyPortraitFinalSurfaces";
 import { applyPortraitRegionReplacements } from "../../surface/applyPortraitRegionReplacements";
-import { assertPortraitSkinTopology } from "../skin/assertPortraitSkinTopology";
 import { applyPortraitSurfaceLayers } from "../../surface/applyPortraitSurfaceLayers";
-import { subdivideControlMesh } from "../../mesh/subdivideControlMesh";
-import { appendPortraitCranium } from "./appendPortraitCranium";
-import { appendPortraitNeck } from "./appendPortraitNeck";
-import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
+import { assertPortraitSkinTopology } from "../skin/assertPortraitSkinTopology";
+import { blendPortraitSkin } from "../skin/blendPortraitSkin";
+import { appendPortraitCranium } from "./appendPortraitCranium";
+import { appendPortraitNeck } from "./appendPortraitNeck";
 import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
 
 /**

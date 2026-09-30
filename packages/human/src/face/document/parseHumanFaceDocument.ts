@@ -1,7 +1,7 @@
 import typia from "typia";
 
-import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertTextSize } from "../../common/document/assertTextSize";
+import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { assertFinite } from "./assertFinite";
 import { assertHumanFaceEditableDetail } from "./assertHumanFaceEditableDetail";
 

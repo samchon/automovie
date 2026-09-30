@@ -1,5 +1,10 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitEyelashProfile } from "./IPortraitEyelashProfile";
 import { assertPortraitEyelashProfile } from "./assertPortraitEyelashProfile";

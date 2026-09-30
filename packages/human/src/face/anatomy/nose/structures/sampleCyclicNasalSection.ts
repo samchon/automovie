@@ -11,7 +11,10 @@ import { samplePortraitNasalSection } from "../samplePortraitNasalSection";
  *
  * @author Samchon
  */
-export function sampleCyclicNasalSection(points: readonly number[][], phase: number): number[] {
+export function sampleCyclicNasalSection(
+  points: readonly number[][],
+  phase: number,
+): number[] {
   const at = phase * points.length,
     index = Math.floor(at),
     t = at - index;

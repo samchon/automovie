@@ -18,11 +18,10 @@
  * into the repository. `judgeObservationManifest` tells later whether a
  * manifest still describes the source.
  */
+import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
-
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
 import { openReviewEditor } from "../review/openReviewEditor";
 import { readSourceRevision } from "../review/readSourceRevision";
@@ -39,7 +38,10 @@ async function main(): Promise<void> {
   const basis = JSON.parse(
     gunzipSync(
       fs.readFileSync(
-        path.join(root, "test/studies/human-body/connected-basis/basis.json.gz"),
+        path.join(
+          root,
+          "test/studies/human-body/connected-basis/basis.json.gz",
+        ),
       ),
     ).toString("utf8"),
   ) as IAutoMovieHumanBodyBasis;

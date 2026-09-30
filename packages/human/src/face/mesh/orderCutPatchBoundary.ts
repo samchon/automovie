@@ -1,5 +1,3 @@
-
-
 /**
  * Boundary edges of a connected cut patch, preserving its original winding.
  */

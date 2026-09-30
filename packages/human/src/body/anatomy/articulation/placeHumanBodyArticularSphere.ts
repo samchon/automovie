@@ -16,17 +16,25 @@ type ArticularHeadBone =
  * and finite posed-centre checks, while each owner decides provenance.
  * @author Samchon
  */
-export function placeHumanBodyArticularSphere<Bone extends ArticularHeadBone>(
-  input: {
-    bone: Bone;
-    radiusMetres: number;
-    bones: IAutoMovieHumanBodyBuild["bones"];
-  },
-): { bone: Bone; center: { x: number; y: number; z: number }; radiusMetres: number } {
+export function placeHumanBodyArticularSphere<
+  Bone extends ArticularHeadBone,
+>(input: {
+  bone: Bone;
+  radiusMetres: number;
+  bones: IAutoMovieHumanBodyBuild["bones"];
+}): {
+  bone: Bone;
+  center: { x: number; y: number; z: number };
+  radiusMetres: number;
+} {
   if (!Number.isFinite(input.radiusMetres) || input.radiusMetres <= 0)
     throw new Error("An articular-head radius must be finite and positive.");
-  const posed = input.bones.find((entry) => entry.bone === input.bone)?.posed.position;
-  if (posed === undefined || ![posed.x, posed.y, posed.z].every(Number.isFinite))
+  const posed = input.bones.find((entry) => entry.bone === input.bone)?.posed
+    .position;
+  if (
+    posed === undefined ||
+    ![posed.x, posed.y, posed.z].every(Number.isFinite)
+  )
     throw new Error("An articular head needs its posed joint: " + input.bone);
   return {
     bone: input.bone,

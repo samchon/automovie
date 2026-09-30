@@ -66,7 +66,9 @@ export function measureHumanBodyBasisChannels(
     rule: IAutoMovieHumanBodyMeasurement,
     shape: Record<string, number>,
   ): number | null => evaluateHumanBodyMeasurement(basis, shape, rule);
-  let neutralReader: ReturnType<typeof createHumanBodyMeasurementReader> | undefined;
+  let neutralReader:
+    | ReturnType<typeof createHumanBodyMeasurementReader>
+    | undefined;
   const neutralRule = (rule: IAutoMovieHumanBodyMeasurement): number | null =>
     (neutralReader ??= createHumanBodyMeasurementReader(basis, {})).read(rule);
   return basis.channels

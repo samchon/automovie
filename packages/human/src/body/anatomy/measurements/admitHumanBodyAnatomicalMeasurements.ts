@@ -33,7 +33,9 @@ export function admitHumanBodyAnatomicalMeasurements(
                 ? value >= 0
                 : value > 0));
         if (!valid)
-          throw new Error(`Body anatomical ${key} needs a finite physical value.`);
+          throw new Error(
+            `Body anatomical ${key} needs a finite physical value.`,
+          );
       } else if (typeof value === "object") visit(value as object);
     }
   };

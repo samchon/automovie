@@ -43,7 +43,11 @@ async function main(): Promise<void> {
   const names = request.states ?? Object.keys(all);
   for (const name of names)
     if (all[name] === undefined) throw new Error(`Unknown state "${name}".`);
-  const output = path.join(root, ".shots/body-review", `editor-${request.name}`);
+  const output = path.join(
+    root,
+    ".shots/body-review",
+    `editor-${request.name}`,
+  );
 
   const editor = await openReviewEditor(
     "body",

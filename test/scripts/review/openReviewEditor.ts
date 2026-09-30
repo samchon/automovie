@@ -13,8 +13,16 @@ const PAGES: Record<
   ReviewEditorKind,
   { html: string; hook: string; canvas: string }
 > = {
-  body: { html: "connected-body.html", hook: "__connectedBody", canvas: "#body-canvas" },
-  face: { html: "connected-face.html", hook: "__connectedFace", canvas: "#face-canvas" },
+  body: {
+    html: "connected-body.html",
+    hook: "__connectedBody",
+    canvas: "#body-canvas",
+  },
+  face: {
+    html: "connected-face.html",
+    hook: "__connectedFace",
+    canvas: "#face-canvas",
+  },
 };
 
 /**
@@ -110,9 +118,9 @@ export async function openReviewEditor(
     const renderer = await page.evaluate(
       (name) =>
         String(
-          (
-            window as unknown as Record<string, { renderer: () => unknown }>
-          )[name].renderer(),
+          (window as unknown as Record<string, { renderer: () => unknown }>)[
+            name
+          ].renderer(),
         ),
       hook,
     );

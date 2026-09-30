@@ -82,10 +82,7 @@ export const test_human_body_skin_tone = (): void => {
       white.compensation.every((value) => value === 1),
   );
 
-  const range = (
-    image: ReturnType<typeof decodePng>,
-    channel: number,
-  ) => {
+  const range = (image: ReturnType<typeof decodePng>, channel: number) => {
     let least = Infinity;
     let most = -Infinity;
     for (let i = channel; i < image.rgba.length; i += 4) {

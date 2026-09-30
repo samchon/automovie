@@ -19,7 +19,11 @@ import { reviewFileName } from "../../../scripts/review/reviewFileName";
 export const test_body_review_file_name = (): void => {
   TestValidator.equals(
     "plain",
-    reviewFileName({ state: "Hips-90", view: "left-three-quarter", pass: "beauty" }),
+    reviewFileName({
+      state: "Hips-90",
+      view: "left-three-quarter",
+      pass: "beauty",
+    }),
     "hips-90__left-three-quarter__beauty.png",
   );
   TestValidator.equals(

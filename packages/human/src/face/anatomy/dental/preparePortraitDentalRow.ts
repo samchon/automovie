@@ -1,10 +1,14 @@
+import {
+  mergeAutoMovieMeshes,
+  separateAutoMovieMeshSequence,
+} from "@automovie/engine";
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { createPortraitDentalArc } from "./createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "./preparePortraitDentalCrown";
 import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
-import { mergeAutoMovieMeshes, separateAutoMovieMeshSequence } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Compose one resident enamel group before attaching it to the face. The local

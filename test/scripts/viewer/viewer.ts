@@ -38,9 +38,12 @@ const windows = process.platform === "win32";
 
 const probe: IViewerIo["probe"] = async () => {
   try {
-    const response = await fetch(`http://127.0.0.1:${PORT}/connected-body.html`, {
-      signal: AbortSignal.timeout(3000),
-    });
+    const response = await fetch(
+      `http://127.0.0.1:${PORT}/connected-body.html`,
+      {
+        signal: AbortSignal.timeout(3000),
+      },
+    );
     return classifyViewerResponse({
       status: response.status,
       text: await response.text(),
@@ -126,7 +129,10 @@ const io: IViewerIo = {
   },
   renderer: async () => {
     const { chromium } = await import("playwright");
-    const browser = await chromium.launch({ channel: "chromium", headless: true });
+    const browser = await chromium.launch({
+      channel: "chromium",
+      headless: true,
+    });
     try {
       const page = await browser.newPage();
       await page.goto(`http://127.0.0.1:${PORT}/connected-body.html`, {
@@ -134,15 +140,17 @@ const io: IViewerIo = {
       });
       await page.waitForFunction(
         () =>
-          (window as unknown as { __connectedBody?: unknown }).__connectedBody !==
-          undefined,
+          (window as unknown as { __connectedBody?: unknown })
+            .__connectedBody !== undefined,
         undefined,
         { timeout: 120000 },
       );
       return await page.evaluate(() =>
         String(
           (
-            window as unknown as { __connectedBody: { renderer: () => unknown } }
+            window as unknown as {
+              __connectedBody: { renderer: () => unknown };
+            }
           ).__connectedBody.renderer(),
         ),
       );

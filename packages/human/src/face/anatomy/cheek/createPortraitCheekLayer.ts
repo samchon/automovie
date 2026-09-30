@@ -1,6 +1,7 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import { millimetrePoint } from "../../mesh/millimetrePoint";
+
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitCheekShape } from "./IPortraitCheekShape";
 import { IPortraitCheekSocket } from "./IPortraitCheekSocket";

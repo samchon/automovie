@@ -1,10 +1,10 @@
+import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
-import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { portraitJawSkinWeight } from "../mouth/portraitJawSkinWeight";
-import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { portraitLipTriangles } from "../mouth/portraitLipTriangles";
+import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 
 /**
  * Attach brow elevation and mandibular skin movement to the same source host

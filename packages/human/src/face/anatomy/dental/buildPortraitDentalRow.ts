@@ -1,6 +1,7 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { preparePortraitDentalRow } from "./preparePortraitDentalRow";
 import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Preserve the mesh-only dental-row API. Native preparation owns the arch,

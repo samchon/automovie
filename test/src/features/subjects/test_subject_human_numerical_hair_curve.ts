@@ -62,14 +62,21 @@ export const test_subject_human_numerical_hair_curve = (): void => {
   });
   // A straight lock is one segment: the fan at the root and one paired row at
   // the tip, whatever number of stations the integrator placed between.
-  TestValidator.equals("straight lock is a fan and one row", mesh.positions.length / 3, 3);
+  TestValidator.equals(
+    "straight lock is a fan and one row",
+    mesh.positions.length / 3,
+    3,
+  );
   const tip = curve.points[curve.points.length - 1];
   const center = Vector3.create(
     ...([0, 1, 2].map(
       (axis) => (mesh.positions[3 + axis] + mesh.positions[6 + axis]) / 2,
     ) as [number, number, number]),
   );
-  TestValidator.predicate("mesh uses the actual last station", vclose(center, tip, 1e-12));
+  TestValidator.predicate(
+    "mesh uses the actual last station",
+    vclose(center, tip, 1e-12),
+  );
   TestValidator.predicate(
     "metric UV",
     nclose(mesh.uvs![3], (center.x - 1) / 0.05, 1e-12),

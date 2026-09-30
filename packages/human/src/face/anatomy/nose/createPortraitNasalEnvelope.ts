@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNasalRimJets } from "./portraitNasalRimJets";
@@ -146,7 +147,9 @@ export function createPortraitNasalEnvelope(
         (_, i) => boundary[(start + i) % boundary.length],
       );
       const count = ordered.length;
-      const rim = ordered.map((_, i) => sampleCyclicNasalSection(points, i / count));
+      const rim = ordered.map((_, i) =>
+        sampleCyclicNasalSection(points, i / count),
+      );
       // The exterior skin can turn through the aperture plane. Its normals
       // therefore cannot orient the entire rolled rim: projecting them there
       // can change sign around one closed opening. The separately owned inward

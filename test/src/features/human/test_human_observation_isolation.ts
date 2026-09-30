@@ -81,7 +81,11 @@ export const test_human_observation_isolation = (): void => {
   TestValidator.equals("hide b", visible(), [true, false, true]);
   hooks.isolate(["b", "c"]);
   apply();
-  TestValidator.equals("hidden wins over isolated", visible(), [false, false, true]);
+  TestValidator.equals("hidden wins over isolated", visible(), [
+    false,
+    false,
+    true,
+  ]);
   hooks.hide(null);
   hooks.isolate(null);
   apply();
@@ -94,7 +98,11 @@ export const test_human_observation_isolation = (): void => {
 
   hooks.isolate(["nothing"]);
   apply();
-  TestValidator.equals("unknown name isolates nothing", visible(), [false, false, false]);
+  TestValidator.equals("unknown name isolates nothing", visible(), [
+    false,
+    false,
+    false,
+  ]);
   TestValidator.equals("companion still untouched", companion.visible, true);
 
   TestValidator.equals(
@@ -102,8 +110,14 @@ export const test_human_observation_isolation = (): void => {
     hooks.isolate(["a", "zzz", "yyy"]),
     ["zzz", "yyy"],
   );
-  TestValidator.equals("hide returns them too", hooks.hide(["qqq", "a"]), ["qqq"]);
-  TestValidator.equals("null returns none", [hooks.isolate(null), hooks.hide(null)], [[], []]);
+  TestValidator.equals("hide returns them too", hooks.hide(["qqq", "a"]), [
+    "qqq",
+  ]);
+  TestValidator.equals(
+    "null returns none",
+    [hooks.isolate(null), hooks.hide(null)],
+    [[], []],
+  );
 
   hooks.isolate(["c"]);
   const swapped = new THREE.Group();
@@ -111,7 +125,11 @@ export const test_human_observation_isolation = (): void => {
   swapped.add(d, e);
   roots = [swapped];
   apply();
-  TestValidator.equals("a swapped-in group obeys isolation", [d.visible, e.visible], [true, false]);
+  TestValidator.equals(
+    "a swapped-in group obeys isolation",
+    [d.visible, e.visible],
+    [true, false],
+  );
 
   hooks.hide(["d"]);
   hooks.pass("normal");

@@ -1,11 +1,12 @@
 import { Vector3, mergeAutoMovieMeshes } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-import { millimetrePoint } from "../../mesh/millimetrePoint";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
-import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { IPortraitHairShape } from "./IPortraitHairShape";
+import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
 
 /**
  * Tessellate cubic guide strips with root-to-tip UVs. Each row has two vertices

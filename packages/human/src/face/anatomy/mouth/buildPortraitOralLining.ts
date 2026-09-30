@@ -1,6 +1,7 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { preparePortraitOralLining } from "./preparePortraitOralLining";
 import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Preserve the standalone lining mesh API. The same native producer supplies

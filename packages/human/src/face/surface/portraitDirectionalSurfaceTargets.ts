@@ -1,8 +1,9 @@
+import { Vector3, measureAutoMovieMeshClearance } from "@automovie/engine";
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
 import { advancePoint } from "./advancePoint";
 import { portraitDirectionalContactFrame } from "./portraitDirectionalContactFrame";
 import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
-import { Vector3, measureAutoMovieMeshClearance } from "@automovie/engine";
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Resolve complete triangle contact in the same frame as point contact. Each
@@ -19,7 +20,10 @@ export function portraitDirectionalSurfaceTargets(
   direction: IAutoMovieVector3,
   clearance = 0,
 ): { vertex: number; target: IAutoMovieVector3 }[] {
-  const { forward, across, up } = portraitDirectionalContactFrame(direction, clearance);
+  const { forward, across, up } = portraitDirectionalContactFrame(
+    direction,
+    clearance,
+  );
   const measured = measureAutoMovieMeshClearance(
     projectMeshOntoFrame(front, across, up, forward),
     projectMeshOntoFrame(back, across, up, forward),

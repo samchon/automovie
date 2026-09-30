@@ -1,9 +1,10 @@
+import { IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";
-import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
 import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
-import { IAutoMovieMesh } from "@automovie/interface";
+import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
+
 /**
  * Close the interior behind one actual refined lip boundary. The seed chooses
  * its oriented free cycle from a lip band that may also have an outer boundary.

@@ -1,10 +1,14 @@
-
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieVector3 as Point } from "@automovie/interface";
-import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as Point,
+} from "@automovie/interface";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
 import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
+import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
+
 /**
  * Extend the actual sampled globe to fixed canthi by an incremental convex hull.
  * The eye component builds this immutable identity support before blink/gaze.

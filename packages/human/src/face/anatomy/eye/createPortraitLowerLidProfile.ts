@@ -1,8 +1,8 @@
-
 import { createPortraitLidSectionSampler } from "./createPortraitLidSectionSampler";
 import { IPortraitLowerLidProfile } from "./structures/IPortraitLowerLidProfile";
 import { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
 import { portraitLowerLidRoles } from "./structures/portraitLowerLidRoles";
+
 /**
  * Own and interpolate the full lower-lid section. Cubic smoothstep between
  * witnesses keeps each scalar within its endpoints and gives zero longitudinal
@@ -13,5 +13,9 @@ import { portraitLowerLidRoles } from "./structures/portraitLowerLidRoles";
 export function createPortraitLowerLidProfile(
   input: IPortraitLowerLidProfile,
 ): (at: number) => IPortraitLowerLidSection {
-  return createPortraitLidSectionSampler(input.sections, portraitLowerLidRoles, "Lower-lid");
+  return createPortraitLidSectionSampler(
+    input.sections,
+    portraitLowerLidRoles,
+    "Lower-lid",
+  );
 }

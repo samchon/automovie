@@ -1,7 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+
 import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
 
 /**

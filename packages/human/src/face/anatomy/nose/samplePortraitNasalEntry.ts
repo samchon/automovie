@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+
 import { samplePortraitNasalSection } from "./samplePortraitNasalSection";
 import { IPortraitNasalApertureFrame } from "./structures/IPortraitNasalApertureFrame";
 import { IPortraitNasalRimJet } from "./structures/IPortraitNasalRimJet";

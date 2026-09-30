@@ -127,7 +127,8 @@ export function renderBodyMeasuredControls(props: {
     note.textContent =
       `Neutral ${mm(measurement.neutral)}; source endpoints ` +
       [measurement.negative, measurement.positive].map(mm).join(" to ") +
-      ". The current body's reach may differ." + population;
+      ". The current body's reach may differ." +
+      population;
     row.append(label, entry, note);
     props.container.append(row);
   }

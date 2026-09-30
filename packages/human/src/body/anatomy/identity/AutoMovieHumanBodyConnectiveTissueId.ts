@@ -7,9 +7,8 @@ import type { AutoMovieHumanBodySide } from "./AutoMovieHumanBodySide";
  * aponeurosis are fibrous tissues. A material label is not a bone ID.
  * @author Samchon
  */
-export type AutoMovieHumanBodyConnectiveTissueId =
-  `${AutoMovieHumanBodySide}${
-    | "CostalCartilages"
-    | "SacrotuberousLigament"
-    | "IliotibialTract"
-    | "ExternalObliqueAponeurosis"}`;
+export type AutoMovieHumanBodyConnectiveTissueId = `${AutoMovieHumanBodySide}${
+  | "CostalCartilages"
+  | "SacrotuberousLigament"
+  | "IliotibialTract"
+  | "ExternalObliqueAponeurosis"}`;

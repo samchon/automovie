@@ -74,13 +74,14 @@ export const test_body_capture_arguments = (): void => {
     ["repeated", ["run", "--views", "front,front"], "repeats"],
     ["empty list", ["run", "--states", ","], "names nothing"],
     ["no value", ["run", "--views"], "needs a value"],
-    ["option instead of value", ["run", "--views", "--passes", "clay"], "needs a value"],
+    [
+      "option instead of value",
+      ["run", "--views", "--passes", "clay"],
+      "needs a value",
+    ],
     ["unknown option", ["run", "--colour", "red"], "Unknown option"],
     ["no name", ["--views", "front"], "exactly one"],
     ["two names", ["a", "b"], "exactly one"],
   ] as const)
-    TestValidator.predicate(
-      title,
-      refusal([...argv]).includes(fragment),
-    );
+    TestValidator.predicate(title, refusal([...argv]).includes(fragment));
 };

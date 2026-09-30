@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import { linearInterpolate } from "../../mesh/linearInterpolate";
 import { millimetrePoint } from "../../mesh/millimetrePoint";
 import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
@@ -89,7 +90,11 @@ export const createPortraitOcularTissues = (
         ? null
         : triangulateSurfaceLattice(
             (u, v) => {
-              const x = linearInterpolate(boundary.minimumX, boundary.maximumX, u);
+              const x = linearInterpolate(
+                boundary.minimumX,
+                boundary.maximumX,
+                u,
+              );
               const { lower, upper } = section(x);
               const fade = Math.sin(Math.PI * u);
               // Never span more than half the local aperture. This also closes the

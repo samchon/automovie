@@ -22,16 +22,16 @@ import {
 } from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { createBodyContactWatch } from "./bodyContactWatch";
 import { bodyAnatomyReading } from "./bodyAnatomyReading";
+import { createBodyContactWatch } from "./bodyContactWatch";
 import { renderBodyHumeralHeadControls } from "./bodyHumeralHeadControls";
-import type { ConnectedBodyResult } from "./connectedBodyProtocol";
+import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import { renderBodyPoseControls } from "./bodyPoseControls";
 import { type BodyPosePreset, renderBodyPosePresets } from "./bodyPosePresets";
-import { renderBodyMeasuredControls } from "./bodyMeasuredControls";
 import { renderBodyShoulderControls } from "./bodyShoulderControls";
 import { renderBodySimpleControls } from "./bodySimpleControls";
 import { connectedBodyPanelMarkup } from "./connectedBodyPanelMarkup";
+import type { ConnectedBodyResult } from "./connectedBodyProtocol";
 import { createBodyIntentGate } from "./createBodyIntentGate";
 import { mountBodyUnderwearSelect } from "./mountBodyUnderwearSelect";
 
@@ -114,10 +114,9 @@ export function mountConnectedBodyPanel<
 ) {
   const dom = app.ownerDocument;
   const scales = new Map(
-    measureHumanBodyBasisChannels(props.basis, { measuredOnly: true }).map((scale) => [
-      scale.id,
-      scale,
-    ]),
+    measureHumanBodyBasisChannels(props.basis, { measuredOnly: true }).map(
+      (scale) => [scale.id, scale],
+    ),
   );
   const groups = [
     ...new Set(
@@ -145,7 +144,9 @@ export function mountConnectedBodyPanel<
         typeof createHumanFaceEditor<Model, IAutoMovieHumanBodyBasisDocument>
       >
     | undefined;
-  const humeral: { controls?: ReturnType<typeof renderBodyHumeralHeadControls> } = {};
+  const humeral: {
+    controls?: ReturnType<typeof renderBodyHumeralHeadControls>;
+  } = {};
   let draft = structuredClone(props.initial);
   const intents = createBodyIntentGate();
   // Typed measurement targets are UI drafts. A committed pose rebuilds rows
@@ -207,7 +208,8 @@ export function mountConnectedBodyPanel<
     if (!intents.isCurrent(ticket)) return false;
     if (success) show(editor!.snapshot().model);
     refresh();
-    if (!success) humeral.controls?.refresh(editor!.snapshot().document.humeralHeads, true);
+    if (!success)
+      humeral.controls?.refresh(editor!.snapshot().document.humeralHeads, true);
     if (success) void contacts.after(editor!.snapshot().document, ticket);
     return success;
   };
@@ -383,7 +385,8 @@ export function mountConnectedBodyPanel<
     },
     onRefuse: refuse,
     onBusy: (text) => status(text, "building"),
-    onDraftChanged: () => status("Simple body draft changed; apply again.", "ready"),
+    onDraftChanged: () =>
+      status("Simple body draft changed; apply again.", "ready"),
   });
   humeral.controls = renderBodyHumeralHeadControls({
     dom,
@@ -435,7 +438,11 @@ export function mountConnectedBodyPanel<
     const ticket = withdraw();
     status("Measuring which skin segments cross…", "building");
     try {
-      const posed = await viewport.build(editor!.snapshot().document, true, true);
+      const posed = await viewport.build(
+        editor!.snapshot().document,
+        true,
+        true,
+      );
       const reading = posed.crossings;
       const anatomy = bodyAnatomyReading(posed.anatomy ?? null);
       viewport.dispose(posed);

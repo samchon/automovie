@@ -154,10 +154,7 @@ export function buildHumanFaceHairMesh(
     const kept = selectHumanFaceHairStations({
       points,
       tolerance: (_, to) =>
-        Math.min(
-          0.1 * radiusAt(distances[to] / total),
-          0.25 * layer.clearance,
-        ),
+        Math.min(0.1 * radiusAt(distances[to] / total), 0.25 * layer.clearance),
     });
     const reference =
       tangents.find(

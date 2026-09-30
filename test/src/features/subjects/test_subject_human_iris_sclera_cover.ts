@@ -1,7 +1,4 @@
-import {
-  createHumanFaceIrisPigment,
-  decodePng,
-} from "@automovie/human";
+import { createHumanFaceIrisPigment, decodePng } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceIrisGlobeFixture } from "../internal/humanFaceIrisGlobeFixture";

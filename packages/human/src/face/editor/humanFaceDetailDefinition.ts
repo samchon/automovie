@@ -8,7 +8,9 @@ import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanF
  *
  * @author Samchon
  */
-export function humanFaceDetailDefinition(id: string): IAutoMovieHumanFaceDetailChannel {
+export function humanFaceDetailDefinition(
+  id: string,
+): IAutoMovieHumanFaceDetailChannel {
   const definition = humanFaceDetailChannels.find(
     (channel) => channel.id === id,
   );

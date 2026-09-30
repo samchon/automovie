@@ -42,7 +42,9 @@ export const test_subject_vertex_colour_export = (): void => {
     TestValidator.predicate(
       "invalid RGB refused",
       throwsError(() =>
-        createGltfDocument(vertexColourModel([{ ...colored, colors: invalid }])),
+        createGltfDocument(
+          vertexColourModel([{ ...colored, colors: invalid }]),
+        ),
       ),
     );
 };

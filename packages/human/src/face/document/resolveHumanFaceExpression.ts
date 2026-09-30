@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanFaceExpression } from "../structures/IAutoMovieHumanFaceExpression";
 import { humanFaceExpressionDefinitions } from "../channels/humanFaceExpressionDefinitions";
+import type { IAutoMovieHumanFaceExpression } from "../structures/IAutoMovieHumanFaceExpression";
 
 /**
  * Expand omitted performance channels to explicit neutral values and refuse

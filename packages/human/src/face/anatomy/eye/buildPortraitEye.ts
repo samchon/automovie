@@ -18,30 +18,30 @@ import type {
   IAutoMovieVector3 as Point,
 } from "@automovie/interface";
 
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
 import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
-import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
-import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
-import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
-import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { sweepEightSidedTube as tube } from "../../mesh/sweepEightSidedTube";
-import type { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
+import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
 import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirectionalSurfaceTargets";
-import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
-import { createPortraitOpticalFrame } from "./createPortraitOpticalFrame";
-import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { buildPortraitEyeCornea } from "./buildPortraitEyeCornea";
-import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
-import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitEyebrow } from "../brow/buildPortraitEyebrow";
 import { buildPortraitEyelash } from "../lash/buildPortraitEyelash";
+import type { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
+import { buildPortraitEyeCornea } from "./buildPortraitEyeCornea";
+import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
 import type { createPortraitOcularTissues } from "./createPortraitOcularTissues";
+import { createPortraitOpticalFrame } from "./createPortraitOpticalFrame";
+import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
+import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 
 const pi = Math.PI,
   tau = pi * 2;
@@ -124,8 +124,8 @@ export function buildPortraitEye(
       canthal === undefined
         ? undefined
         : createAutoMovieMeshDepthSampler(
-            createMetricMeshPart("canthal-height", canthal.surface, white).geometry
-              .mesh,
+            createMetricMeshPart("canthal-height", canthal.surface, white)
+              .geometry.mesh,
             "z",
           );
     const eyeZ = (x: number, y: number): number => {
@@ -216,8 +216,11 @@ export function buildPortraitEye(
       // construction mm before add() crosses the common model-unit boundary.
       for (const mesh of [surfaces.corner, surfaces.lowerMargin]) {
         if (mesh === null) continue;
-        const metric = createMetricMeshPart("ocular-tissue-contact", mesh, white)
-          .geometry.mesh;
+        const metric = createMetricMeshPart(
+          "ocular-tissue-contact",
+          mesh,
+          white,
+        ).geometry.mesh;
         const targets = portraitDirectionalSurfaceTargets(
           metric,
           support,

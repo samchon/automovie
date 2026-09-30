@@ -1,7 +1,8 @@
-
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { Point } from "./structures/Point";
+
 import { areaWeightedNormals as normalsOf } from "../../common/mesh/areaWeightedNormals";
+import { Point } from "./structures/Point";
+
 /**
  * Sample a surface over [0,1] squared and triangulate its shared lattice.
  * The positive normal follows du cross dv. Closure belongs to the surface:

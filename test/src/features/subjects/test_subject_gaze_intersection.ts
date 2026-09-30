@@ -1,5 +1,5 @@
-import { millimetrePoint as p } from "@automovie/human/face/mesh/millimetrePoint";
 import { intersectRayWithHeightField } from "@automovie/human/face/mesh/intersectRayWithHeightField";
+import { millimetrePoint as p } from "@automovie/human/face/mesh/millimetrePoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

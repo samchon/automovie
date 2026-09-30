@@ -7,16 +7,16 @@
  * later caller edits cannot change its fit. Host topology and combined surface
  * feasibility belong to the fit/attachment consumers, after this local gate.
  */
-import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
-import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 import { assertPortraitEyebrowProfile } from "../brow/assertPortraitEyebrowProfile";
 import { portraitEyebrowProfile } from "../brow/portraitEyebrowProfile";
 import { assertPortraitEyelashProfile } from "../lash/assertPortraitEyelashProfile";
+import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import { createPortraitOcularTissues } from "./createPortraitOcularTissues";
 import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
+import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 
 /**
  * Own and validate one eye's numerical inputs before any host is fitted.

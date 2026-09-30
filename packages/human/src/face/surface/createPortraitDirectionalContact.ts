@@ -1,8 +1,9 @@
+import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
 import { advancePoint } from "./advancePoint";
 import { portraitDirectionalContactFrame } from "./portraitDirectionalContactFrame";
 import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
-import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Contact against the actual resident surface along one declared direction.
@@ -20,7 +21,10 @@ export function createPortraitDirectionalContact(
   direction: IAutoMovieVector3,
   clearance = 0,
 ): (point: IAutoMovieVector3) => IAutoMovieVector3 {
-  const { forward, across, up } = portraitDirectionalContactFrame(direction, clearance);
+  const { forward, across, up } = portraitDirectionalContactFrame(
+    direction,
+    clearance,
+  );
   const sample = createAutoMovieMeshDepthSampler(
     projectMeshOntoFrame(mesh, across, up, forward),
     "z",

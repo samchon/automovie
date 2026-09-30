@@ -12,7 +12,10 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  *
  * @author Samchon
  */
-export function portraitDirectionalContactFrame(direction: IAutoMovieVector3, clearance: number) {
+export function portraitDirectionalContactFrame(
+  direction: IAutoMovieVector3,
+  clearance: number,
+) {
   if (
     ![direction.x, direction.y, direction.z, clearance].every(
       Number.isFinite,

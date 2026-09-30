@@ -112,13 +112,13 @@ export function expandHumanBodySimpleShape(
   };
   const stature = table.solved.stature;
   const matchStature = (): void => {
-    shape[stature] = solveHumanBodyMeasuredChannel({
-      basis,
-      shape,
-      channel: stature,
-      targetMetres:
-        simple.statureMetres - table.stature.headAboveRingMetres,
-    }).shape[stature] ?? 0;
+    shape[stature] =
+      solveHumanBodyMeasuredChannel({
+        basis,
+        shape,
+        channel: stature,
+        targetMetres: simple.statureMetres - table.stature.headAboveRingMetres,
+      }).shape[stature] ?? 0;
   };
   matchStature();
   const density = math.density(

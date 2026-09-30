@@ -43,7 +43,10 @@ export function refinePortraitSurfaceSampling(
     ].map((x) => x * 1000),
   }));
   const key = (a: number, b: number) => (a < b ? `${a}/${b}` : `${b}/${a}`);
-  const packedNormals = areaWeightedNormals(input.positions.flat(), input.indices);
+  const packedNormals = areaWeightedNormals(
+    input.positions.flat(),
+    input.indices,
+  );
   const normals = input.positions.map((_, i) =>
     packedNormals.slice(i * 3, i * 3 + 3),
   );

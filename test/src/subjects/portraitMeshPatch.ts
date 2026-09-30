@@ -4,9 +4,9 @@ import {
   triangulateAutoMovieRegion,
 } from "@automovie/engine";
 import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import type { IPortraitFinalSurfaceHost } from "@automovie/human/face/surface/structures/IPortraitFinalSurfaceHost";
-import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 
 import { fitPortraitJoinReference } from "./portraitJoinReference";
 import {

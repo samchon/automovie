@@ -12,8 +12,8 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
-import type { IPortraitInterior } from "./structures/IPortraitInterior";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import type { IPortraitInterior } from "./structures/IPortraitInterior";
 
 /**
  * Give a native producer the established finish API without a second geometry

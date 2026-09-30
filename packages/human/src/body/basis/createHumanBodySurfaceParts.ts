@@ -42,9 +42,12 @@ export function createHumanBodySurfaceParts(basis: IAutoMovieHumanBodyBasis) {
     transforms: Parameters<typeof skinHumanBodySurface>[3];
     restAll: () => ReturnType<typeof evaluateHumanBodyShape>;
     leanOf: (index: number) => number[];
-    coloured: ReturnType<ReturnType<typeof createHumanBodyAppearance>>["coloured"];
+    coloured: ReturnType<
+      ReturnType<typeof createHumanBodyAppearance>
+    >["coloured"];
   }) => {
-    const { document, shaped, posed, transforms, restAll, leanOf, coloured } = input;
+    const { document, shaped, posed, transforms, restAll, leanOf, coloured } =
+      input;
     const skin = HUMAN_BODY_SKIN_SITES.material;
     // gravity's change in the skin's frame moves the soft tissue; a document
     // at the rest pose the basis was authored in hangs as authored

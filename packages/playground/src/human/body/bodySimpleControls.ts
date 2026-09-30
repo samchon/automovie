@@ -198,7 +198,8 @@ export const renderBodySimpleControls = (props: {
     values: IAutoMovieHumanBodySimpleShape;
   } | null = null;
   let requestedShape: Record<string, number> | null = null;
-  let pending: { shape: Record<string, number>; result: Promise<void> } | null = null;
+  let pending: { shape: Record<string, number>; result: Promise<void> } | null =
+    null;
   const inputs = new Map<
     keyof IAutoMovieHumanBodySimpleShape,
     HTMLInputElement
@@ -292,10 +293,18 @@ export const renderBodySimpleControls = (props: {
     try {
       const simple = read();
       const shape = await props.expand(simple, over);
-      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over) && draft === editGeneration)
+      if (
+        props.isCurrentIntent(ticket) &&
+        sameShape(props.current(), over) &&
+        draft === editGeneration
+      )
         props.onApply(shape, ticket, simple);
     } catch (error) {
-      if (props.isCurrentIntent(ticket) && sameShape(props.current(), over) && draft === editGeneration)
+      if (
+        props.isCurrentIntent(ticket) &&
+        sameShape(props.current(), over) &&
+        draft === editGeneration
+      )
         props.onRefuse(error);
     } finally {
       if (expanding === ticket) expanding = null;
@@ -339,7 +348,8 @@ export const renderBodySimpleControls = (props: {
             props.onRefuse(error);
           return;
         }
-        if (ticket !== generation || !sameShape(props.current(), target)) return;
+        if (ticket !== generation || !sameShape(props.current(), target))
+          return;
         measured = { shape: target, values: projected };
         display(projected);
       })();

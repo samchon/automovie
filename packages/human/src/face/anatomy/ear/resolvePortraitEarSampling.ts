@@ -1,5 +1,5 @@
-
 import { IPortraitEarShape } from "./IPortraitEarShape";
+
 /**
  * Validate the pinna's anatomical dimensions and resolve independent sampling.
  * The returned sampling record is owned by the caller, including defaults.

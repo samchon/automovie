@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { buildObservationManifest } from "../../../scripts/body-review/buildObservationManifest";
 import type { IBodyObservationUnit } from "../../../scripts/body-review/IBodyObservationUnit";
+import { buildObservationManifest } from "../../../scripts/body-review/buildObservationManifest";
 import { judgeObservationManifest } from "../../../scripts/body-review/judgeObservationManifest";
 
 /**
@@ -83,7 +83,11 @@ export const test_body_observation_manifest = (): void => {
   });
   for (const [title, changed, fragment] of [
     ["revision", { ...manifest, revision: "def5678" }, "revision def5678"],
-    ["local marker", { ...manifest, revision: "abc1234+local" }, "abc1234+local"],
+    [
+      "local marker",
+      { ...manifest, revision: "abc1234+local" },
+      "abc1234+local",
+    ],
     ["basis", { ...manifest, basisId: "basis-r17" }, "basis basis-r17"],
     ["build", { ...manifest, humanBuildFresh: false }, "older than its source"],
     ["schema", { ...manifest, schema: 2 }, "schema 2"],
@@ -95,8 +99,17 @@ export const test_body_observation_manifest = (): void => {
     );
   }
   const worst = judgeObservationManifest(
-    { ...manifest, schema: 2, revision: "x", basisId: "y", humanBuildFresh: false },
+    {
+      ...manifest,
+      schema: 2,
+      revision: "x",
+      basisId: "y",
+      humanBuildFresh: false,
+    },
     current,
   );
-  TestValidator.predicate("unknown schema wins", worst.reason.includes("schema 2"));
+  TestValidator.predicate(
+    "unknown schema wins",
+    worst.reason.includes("schema 2"),
+  );
 };

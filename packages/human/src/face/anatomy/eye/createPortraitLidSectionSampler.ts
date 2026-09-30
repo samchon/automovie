@@ -1,4 +1,3 @@
-
 type Section<K extends string> = { attachment: number } & Record<
   K,
   { offset: number; projection: number }

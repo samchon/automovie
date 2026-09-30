@@ -75,8 +75,20 @@ export function deriveBodyObservationSet(input: {
       unit: "part",
       id: part,
       frames: [
-        ...frames("neutral", neutral, [...HORIZON, "top", "bottom"], ["beauty", "normal"], [part]),
-        ...frames("neutral", neutral, ["front", "left", "back", "right"], ["beauty"], null),
+        ...frames(
+          "neutral",
+          neutral,
+          [...HORIZON, "top", "bottom"],
+          ["beauty", "normal"],
+          [part],
+        ),
+        ...frames(
+          "neutral",
+          neutral,
+          ["front", "left", "back", "right"],
+          ["beauty"],
+          null,
+        ),
       ],
       excluded: [],
     });
@@ -128,7 +140,12 @@ export function deriveBodyObservationSet(input: {
           shape: {},
           pose: [],
           shoulders: [
-            { bone: joint.bone as "leftUpperArm", plane, elevation, axialRotation: 0 },
+            {
+              bone: joint.bone as "leftUpperArm",
+              plane,
+              elevation,
+              axialRotation: 0,
+            },
           ],
         });
       for (const [name, value] of [
@@ -139,7 +156,12 @@ export function deriveBodyObservationSet(input: {
           shape: {},
           pose: [],
           shoulders: [
-            { bone: joint.bone as "leftUpperArm", plane: 0, elevation: 90, axialRotation: value },
+            {
+              bone: joint.bone as "leftUpperArm",
+              plane: 0,
+              elevation: 90,
+              axialRotation: value,
+            },
           ],
         });
     } else {
@@ -156,16 +178,25 @@ export function deriveBodyObservationSet(input: {
             continue;
           }
           add(state, { shape: {}, pose: [row(joint.bone, angles)] });
-          const shared = parent?.shoulder === undefined ? parent?.constraint?.[axis] : null;
-          if (shared !== null && shared !== undefined && shared.min !== shared.max) {
+          const shared =
+            parent?.shoulder === undefined ? parent?.constraint?.[axis] : null;
+          if (
+            shared !== null &&
+            shared !== undefined &&
+            shared.min !== shared.max
+          ) {
             const together = `${joint.parent}-${joint.bone}-${axis}-${end}-together`;
             const parentAngles = { [axis]: shared[end] };
             const parentReason = admitted(parent!, parentAngles);
-            if (parentReason !== null) unit.excluded.push({ state: together, reason: parentReason });
+            if (parentReason !== null)
+              unit.excluded.push({ state: together, reason: parentReason });
             else
               add(together, {
                 shape: {},
-                pose: [row(joint.parent!, parentAngles), row(joint.bone, angles)],
+                pose: [
+                  row(joint.parent!, parentAngles),
+                  row(joint.bone, angles),
+                ],
               });
           }
         }

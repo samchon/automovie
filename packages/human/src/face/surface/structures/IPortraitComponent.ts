@@ -1,6 +1,7 @@
+import { IAutoMovieMaterial } from "@automovie/interface";
+
 import { IPortraitComponentHost } from "./IPortraitComponentHost";
 import { IPortraitComponentPlan } from "./IPortraitComponentPlan";
-import { IAutoMovieMaterial } from "@automovie/interface";
 
 /**
  * A swappable anatomical component. The assembler depends on this protocol,

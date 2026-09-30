@@ -237,7 +237,9 @@ void main() {
 
     /** Choose how the subject is drawn; `beauty` restores the product frame. */
     pass: (next: HumanObservationPass): void => {
-      if (!["beauty", "clay", "outline", ...Object.keys(materials)].includes(next))
+      if (
+        !["beauty", "clay", "outline", ...Object.keys(materials)].includes(next)
+      )
         throw new Error(`Unknown observation pass "${String(next)}".`);
       engaged = true;
       pass = next;

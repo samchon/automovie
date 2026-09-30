@@ -74,7 +74,12 @@ export type ConnectedBodyModel = Omit<IAutoMovieModel, "parts"> & {
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-export Sends the committed document to the static exporter.
  */
 export type ConnectedBodyRequest =
-  | { operation: "preview"; document: string; measure: boolean; anatomy?: boolean }
+  | {
+      operation: "preview";
+      document: string;
+      measure: boolean;
+      anatomy?: boolean;
+    }
   | { operation: "export"; document: string }
   | { operation: "armsDown"; document: string };
 /** The matching result for one worker request.
@@ -98,8 +103,19 @@ export type ConnectedBodyResult =
               nearestMetres: number;
               clearanceMetres: number;
             } & (
-              | Pick<Extract<IAutoMovieHumanBodyHumeralHead, { source: "observed" }>, "source" | "observation">
-              | { source: Exclude<IAutoMovieHumanBodyHumeralHead["source"], "observed"> }
+              | Pick<
+                  Extract<
+                    IAutoMovieHumanBodyHumeralHead,
+                    { source: "observed" }
+                  >,
+                  "source" | "observation"
+                >
+              | {
+                  source: Exclude<
+                    IAutoMovieHumanBodyHumeralHead["source"],
+                    "observed"
+                  >;
+                }
             ))[];
           }
         | { status: "unavailable"; reason: "skin-crossing" | "ct-domain" }

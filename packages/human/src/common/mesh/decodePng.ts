@@ -68,8 +68,7 @@ export function decodePng(uri: string): IPngImage {
   const pixels = new Uint8Array(stride * header.height);
   for (let y = 0; y < header.height; ++y) {
     const filter = raw[y * (stride + 1)];
-    if (filter > 4)
-      throw new Error("The texture PNG has an unknown filter.");
+    if (filter > 4) throw new Error("The texture PNG has an unknown filter.");
     for (let x = 0; x < stride; ++x) {
       const left = x >= channels ? pixels[y * stride + x - channels] : 0;
       const up = y > 0 ? pixels[(y - 1) * stride + x] : 0;

@@ -41,7 +41,8 @@ export function judgeObservationManifest(
   if (!manifest.humanBuildFresh)
     return {
       stale: true,
-      reason: "The manifest was drawn from a human build older than its source.",
+      reason:
+        "The manifest was drawn from a human build older than its source.",
     };
   return { stale: false, reason: "" };
 }

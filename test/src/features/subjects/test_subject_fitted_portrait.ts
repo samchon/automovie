@@ -1,7 +1,7 @@
 import {
-  createPortraitMaterials,
   areaWeightedNormals,
   createMetricMeshPart,
+  createPortraitMaterials,
 } from "@automovie/human";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";

@@ -1,4 +1,3 @@
-
 /**
  * Orchestrate the replaceable eye's fit, attachment and refined finish.
  * Inputs describe an observed aperture in head millimetres (+Z anterior).
@@ -11,29 +10,31 @@
  */
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
-import { millimetrePoint as p } from "../../mesh/millimetrePoint";
-import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+
 import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
-import { type IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitDirectionalContact } from "../../surface/createPortraitDirectionalContact";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
-import { refinePortraitSkinBridge } from "../skin/refinePortraitSkinBridge";
+import { type IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { portraitSkinAnnulus } from "../skin/portraitSkinAnnulus";
+import { refinePortraitSkinBridge } from "../skin/refinePortraitSkinBridge";
 import { reservePortraitSkin } from "../skin/reservePortraitSkin";
-import { resolvePortraitEyeInputs } from "./resolvePortraitEyeInputs";
-import { buildPortraitEye } from "./buildPortraitEye";
-import { portraitEyeLoop } from "./portraitEyeLoop";
-import { portraitEyeLidRows } from "./portraitEyeLidRows";
 import { appendPortraitEyeMargins } from "./appendPortraitEyeMargins";
+import { buildPortraitEye } from "./buildPortraitEye";
 import { buildPortraitEyeContactBasis } from "./buildPortraitEyeContactBasis";
-import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import { posePortraitLidCurves } from "./posePortraitLidCurves";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 import { createPortraitEyeSupport } from "./createPortraitEyeSupport";
 import { createPortraitEyeSurfaceContact } from "./createPortraitEyeSurfaceContact";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
+import { portraitEyeLidRows } from "./portraitEyeLidRows";
+import { portraitEyeLoop } from "./portraitEyeLoop";
+import { posePortraitLidCurves } from "./posePortraitLidCurves";
+import { resolvePortraitEyeInputs } from "./resolvePortraitEyeInputs";
+import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+
 // Keep the established component module imports while definitions own their contracts.
 export type { IPortraitAegyoSalShape } from "./structures/IPortraitAegyoSalShape";
 export type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";

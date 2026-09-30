@@ -21,14 +21,47 @@ export const test_human_body_resident_anatomy = async (): Promise<void> => {
   };
   const runtime = createConnectedBodyRuntime(basis);
   const text = serializeHumanBodyBasisDocument(document);
-  const ordinary = await runtime({ operation: "preview", document: text, measure: false });
+  const ordinary = await runtime({
+    operation: "preview",
+    document: text,
+    measure: false,
+  });
   if (ordinary.operation !== "preview") throw new Error("Expected preview.");
-  TestValidator.equals("ordinary edit skips internal read", ordinary.anatomy, null);
-  const checked = await runtime({ operation: "preview", document: text, measure: true, anatomy: true });
+  TestValidator.equals(
+    "ordinary edit skips internal read",
+    ordinary.anatomy,
+    null,
+  );
+  const checked = await runtime({
+    operation: "preview",
+    document: text,
+    measure: true,
+    anatomy: true,
+  });
   if (checked.operation !== "preview") throw new Error("Expected preview.");
   TestValidator.equals("analytic skin has no crossings", checked.crossings, []);
   if (checked.anatomy?.status !== "measured")
-    throw new Error("Expected measured articular heads on the valid analytic skin.");
-  TestValidator.equals("both observed radii reach worker", checked.anatomy.heads.map((head) => [head.bone, head.radiusMetres, head.source]), [["leftUpperArm", 0.023, "measured"], ["rightUpperArm", 0.025, "measured"]]);
-  TestValidator.predicate("metric skin distances remain finite", checked.anatomy.heads.every((head) => Number.isFinite(head.nearestMetres) && Number.isFinite(head.clearanceMetres)));
+    throw new Error(
+      "Expected measured articular heads on the valid analytic skin.",
+    );
+  TestValidator.equals(
+    "both observed radii reach worker",
+    checked.anatomy.heads.map((head) => [
+      head.bone,
+      head.radiusMetres,
+      head.source,
+    ]),
+    [
+      ["leftUpperArm", 0.023, "measured"],
+      ["rightUpperArm", 0.025, "measured"],
+    ],
+  );
+  TestValidator.predicate(
+    "metric skin distances remain finite",
+    checked.anatomy.heads.every(
+      (head) =>
+        Number.isFinite(head.nearestMetres) &&
+        Number.isFinite(head.clearanceMetres),
+    ),
+  );
 };

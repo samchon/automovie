@@ -10,8 +10,7 @@ const joint = (
   parent: string | null,
   constraint: Joint["constraint"],
   extra: Partial<Joint> = {},
-): Joint =>
-  ({ bone, parent, constraint, ...extra }) as unknown as Joint;
+): Joint => ({ bone, parent, constraint, ...extra }) as unknown as Joint;
 const constraint = (
   flexion: ReturnType<typeof range> | null,
   abduction: ReturnType<typeof range> | null = null,
@@ -107,7 +106,11 @@ export const test_body_observation_set = (): void => {
       "spine-chest-flexion-max-together",
     ],
   );
-  TestValidator.equals("six views by two passes each", chest.frames.length, 5 * 12);
+  TestValidator.equals(
+    "six views by two passes each",
+    chest.frames.length,
+    5 * 12,
+  );
   const together = chest.frames.find(
     (frame) => frame.state === "spine-chest-flexion-max-together",
   )!;
@@ -130,11 +133,17 @@ export const test_body_observation_set = (): void => {
   );
   TestValidator.predicate(
     "the spine unit has no together state, its parent is the root",
-    !find("hips>spine").frames.some((frame) => frame.state.includes("together")),
+    !find("hips>spine").frames.some((frame) =>
+      frame.state.includes("together"),
+    ),
   );
 
   const leg = find("hips>leftLowerLeg");
-  TestValidator.equals("cone excludes the 150 degree end", leg.excluded.length, 1);
+  TestValidator.equals(
+    "cone excludes the 150 degree end",
+    leg.excluded.length,
+    1,
+  );
   TestValidator.predicate(
     "reason names the cone",
     leg.excluded[0].reason.includes("120") &&
@@ -170,13 +179,21 @@ export const test_body_observation_set = (): void => {
   const overhead = arm.frames.find(
     (frame) => frame.state === "leftUpperArm-plane-0-elevation-max",
   )!;
-  TestValidator.equals("goal, no joint row", [overhead.document.pose, overhead.document.shoulders], [
-    [],
-    [{ bone: "leftUpperArm", plane: 0, elevation: 170, axialRotation: 0 }],
-  ]);
+  TestValidator.equals(
+    "goal, no joint row",
+    [overhead.document.pose, overhead.document.shoulders],
+    [
+      [],
+      [{ bone: "leftUpperArm", plane: 0, elevation: 170, axialRotation: 0 }],
+    ],
+  );
 
   const whole = units[units.length - 1];
-  TestValidator.equals("whole is last", [whole.unit, whole.id], ["whole", "whole"]);
+  TestValidator.equals(
+    "whole is last",
+    [whole.unit, whole.id],
+    ["whole", "whole"],
+  );
   TestValidator.equals("whole frames", whole.frames.length, 2 * 7 * 2);
   TestValidator.predicate(
     "whole has the pole and clay",
@@ -191,7 +208,9 @@ export const test_body_observation_set = (): void => {
   );
   TestValidator.equals(
     "deterministic",
-    JSON.stringify(deriveBodyObservationSet({ parts: ["Human/skin"], joints, wholeStates })),
+    JSON.stringify(
+      deriveBodyObservationSet({ parts: ["Human/skin"], joints, wholeStates }),
+    ),
     JSON.stringify(units),
   );
   const grown = deriveBodyObservationSet({
@@ -199,7 +218,11 @@ export const test_body_observation_set = (): void => {
     joints,
     wholeStates,
   });
-  TestValidator.equals("a new part is one new unit", grown.length, units.length + 1);
+  TestValidator.equals(
+    "a new part is one new unit",
+    grown.length,
+    units.length + 1,
+  );
   TestValidator.equals(
     "the other units are the same",
     JSON.stringify(grown.filter((unit) => unit.id !== "Human/hair")),

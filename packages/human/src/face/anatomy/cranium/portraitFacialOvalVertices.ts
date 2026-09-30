@@ -1,5 +1,3 @@
-
-
 /**
  * The clockwise boundary of the measured facial patch as vertex identities of
  * the shared face, starting at the forehead. The identities are the face's own:

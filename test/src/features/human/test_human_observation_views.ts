@@ -77,9 +77,15 @@ export const test_human_observation_views = (): void => {
   } catch (error) {
     refusal = (error as Error).message;
   }
-  TestValidator.predicate("unknown view is refused by name", refusal.includes("sideways"));
+  TestValidator.predicate(
+    "unknown view is refused by name",
+    refusal.includes("sideways"),
+  );
   TestValidator.predicate(
     "the offset scales with the distance",
-    near(offset("left-three-quarter", 4), offset("left-three-quarter").map((v) => 2 * v)),
+    near(
+      offset("left-three-quarter", 4),
+      offset("left-three-quarter").map((v) => 2 * v),
+    ),
   );
 };

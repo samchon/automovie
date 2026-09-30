@@ -1,6 +1,6 @@
-import type { IPortraitCraniumShape } from "./IPortraitCraniumShape";
 import { IPortraitComponent } from "../../../surface/structures/IPortraitComponent";
 import { IPortraitComponentHost } from "../../../surface/structures/IPortraitComponentHost";
+import type { IPortraitCraniumShape } from "./IPortraitCraniumShape";
 import { IPortraitHeadPerformance } from "./IPortraitHeadPerformance";
 import { IPortraitNeckShape } from "./IPortraitNeckShape";
 

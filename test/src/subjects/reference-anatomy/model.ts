@@ -1,14 +1,14 @@
-import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/appendPortraitNeck";
-import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
-import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
-import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
-import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
-import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
-import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
-import { extractTriangleRegion } from "@automovie/human/face/mesh/extractTriangleRegion";
-import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
+import { appendPortraitNeck } from "@automovie/human/face/anatomy/cranium/appendPortraitNeck";
+import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
+import { portraitNeckShape } from "@automovie/human/face/anatomy/cranium/portraitNeckShape";
 import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "@automovie/human/face/mesh/extractTriangleRegion";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
+import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
+import { portraitEyeSphereIntersection } from "@automovie/human/face/surface/portraitEyeSphereIntersection";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
 import {

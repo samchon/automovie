@@ -1,4 +1,5 @@
 import { polygonIsSimple } from "@automovie/engine";
+
 import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { createPortraitLidSectionSampler } from "./createPortraitLidSectionSampler";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";

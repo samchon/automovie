@@ -1,5 +1,5 @@
-import { createHumanObservation } from "@automovie/playground/src/human/common/observation/createHumanObservation";
 import type { HumanObservationPass } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
+import { createHumanObservation } from "@automovie/playground/src/human/common/observation/createHumanObservation";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -101,7 +101,11 @@ export const test_human_observation_passes = (): void => {
     ) as THREE.Mesh[];
   hooks.pass("wire");
   apply();
-  TestValidator.equals("no rim outside the outline pass", rims(first).length, 0);
+  TestValidator.equals(
+    "no rim outside the outline pass",
+    rims(first).length,
+    0,
+  );
 
   hooks.pass("outline");
   apply();
@@ -110,7 +114,8 @@ export const test_human_observation_passes = (): void => {
   TestValidator.predicate(
     "meshes are drawn white under the outline pass",
     [a, b].every(
-      (mesh) => (mesh.material as THREE.MeshBasicMaterial).color.getHex() === 0xffffff,
+      (mesh) =>
+        (mesh.material as THREE.MeshBasicMaterial).color.getHex() === 0xffffff,
     ),
   );
   const shell = (a.children[0] as THREE.Mesh).material as THREE.ShaderMaterial;
@@ -142,7 +147,11 @@ export const test_human_observation_passes = (): void => {
   second.add(c);
   roots = [second];
   apply();
-  TestValidator.equals("the new group gets its own rim", rims(second).length, 1);
+  TestValidator.equals(
+    "the new group gets its own rim",
+    rims(second).length,
+    1,
+  );
 
   hooks.pass("beauty");
   apply();
@@ -153,7 +162,10 @@ export const test_human_observation_passes = (): void => {
   } catch (error) {
     refusal = (error as Error).message;
   }
-  TestValidator.predicate("unknown pass is refused by name", refusal.includes("shiny"));
+  TestValidator.predicate(
+    "unknown pass is refused by name",
+    refusal.includes("shiny"),
+  );
   TestValidator.equals("previous pass stays", hooks.state().pass, "beauty");
   TestValidator.predicate(
     "beauty gives every mesh its own material back",

@@ -123,9 +123,11 @@ export const test_viewer_command_ensure = async (): Promise<void> => {
     await runViewerCommand("ensure", unstartable.io),
     VIEWER_EXIT.failed,
   );
-  TestValidator.equals("nothing recorded, waited for or killed", unstartable.calls, [
-    "serve",
-  ]);
+  TestValidator.equals(
+    "nothing recorded, waited for or killed",
+    unstartable.calls,
+    ["serve"],
+  );
 
   const foreign = createViewerIoFixture({
     probe: { open: true, playground: false },

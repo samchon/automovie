@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { IPortraitCornea } from "./structures/IPortraitCornea";
 

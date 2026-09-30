@@ -43,7 +43,11 @@ export function renderBodyHumeralHeadControls(props: {
       const text = input.value.trim();
       const value = text === "" ? undefined : Number(text);
       if (value !== undefined && (!Number.isFinite(value) || value <= 0)) {
-        props.onRefuse(new Error("A measured humeral-head radius must be a positive number of millimetres."));
+        props.onRefuse(
+          new Error(
+            "A measured humeral-head radius must be a positive number of millimetres.",
+          ),
+        );
         return;
       }
       const next = structuredClone(props.current());
@@ -62,7 +66,8 @@ export function renderBodyHumeralHeadControls(props: {
     refresh: (radii, force = false) => {
       for (const [, key] of sides) {
         const value = radii?.[key];
-        if (!force && committed.has(key) && committed.get(key) === value) continue;
+        if (!force && committed.has(key) && committed.get(key) === value)
+          continue;
         inputs.get(key)!.value = value === undefined ? "" : String(value);
         committed.set(key, value);
       }

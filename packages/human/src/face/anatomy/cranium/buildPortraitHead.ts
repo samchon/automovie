@@ -3,11 +3,11 @@ import type { IAutoMovieModelPart } from "@automovie/interface";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
+import { assertPortraitInteriorBindings } from "../../surface/assertPortraitInteriorBindings";
+import { sealPortraitContactSeams } from "../../surface/sealPortraitContactSeams";
 import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
-import { assertPortraitInteriorBindings } from "../../surface/assertPortraitInteriorBindings";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
-import { sealPortraitContactSeams } from "../../surface/sealPortraitContactSeams";
 import { preparePortraitHead } from "./preparePortraitHead";
 import { type IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
 

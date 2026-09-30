@@ -2,12 +2,12 @@ import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { millimetrePoint } from "../../mesh/millimetrePoint";
-import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { attachPortraitDentalRow } from "./attachPortraitDentalRow";
 import { preparePortraitDentalRow } from "./preparePortraitDentalRow";
 import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
-import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 
 /**
  * Resident lower enamel attached to the observed mandibular frame. Its own

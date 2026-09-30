@@ -1,11 +1,11 @@
-import { linearInterpolate } from "@automovie/human/face/mesh/linearInterpolate";
 import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
-import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
-import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
-import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
-import { extractTriangleRegion } from "@automovie/human/face/mesh/extractTriangleRegion";
 import { catmullRomPoint } from "@automovie/human/face/mesh/catmullRomPoint";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "@automovie/human/face/mesh/extractTriangleRegion";
+import { linearInterpolate } from "@automovie/human/face/mesh/linearInterpolate";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import { sweepEightSidedTube } from "@automovie/human/face/mesh/sweepEightSidedTube";
+import { triangulateSurfaceLattice } from "@automovie/human/face/mesh/triangulateSurfaceLattice";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -26,7 +26,11 @@ import { nclose, throwsError } from "../internal/predicates";
  */
 export const test_subject_mesh_geometry = (): void => {
   const p = millimetrePoint;
-  const rectangle = triangulateSurfaceLattice((u, v) => p(1000 * u, 2000 * v, 0), 1, 1);
+  const rectangle = triangulateSurfaceLattice(
+    (u, v) => p(1000 * u, 2000 * v, 0),
+    1,
+    1,
+  );
   TestValidator.equals(
     "rectangle winding",
     rectangle.indices,
@@ -82,7 +86,11 @@ export const test_subject_mesh_geometry = (): void => {
   );
 
   const line = [p(0, 0, 0), p(2, 4, 6)];
-  TestValidator.equals("spline start clamp", catmullRomPoint(line, -1), line[0]);
+  TestValidator.equals(
+    "spline start clamp",
+    catmullRomPoint(line, -1),
+    line[0],
+  );
   TestValidator.equals("spline end clamp", catmullRomPoint(line, 2), line[1]);
   TestValidator.equals(
     "spline midpoint",

@@ -1,4 +1,3 @@
-
 /**
  * Subject-level pinna placement and dimensions. Lengths are millimetres and
  * scales multiply the authored outline independently of the host's shape.

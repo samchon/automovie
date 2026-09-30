@@ -1,4 +1,7 @@
-import type { IAutoMovieMaterial, IAutoMovieMaterialOverlay } from "@automovie/interface";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieMaterialOverlay,
+} from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
@@ -91,9 +94,7 @@ export function createHumanBodySkinOverlays(input: {
       .filter((overlay) => overlay.material === skin)
       .flatMap((overlay): IAutoMovieMaterialOverlay[] => {
         const normalTexture =
-          overlay.normal === undefined
-            ? null
-            : once(overlay.normal, "linear");
+          overlay.normal === undefined ? null : once(overlay.normal, "linear");
         if (overlay.kind === "nails") {
           const cheek = document.skinColour?.cheek;
           const palm = (rgb: { r: number; g: number; b: number }) =>

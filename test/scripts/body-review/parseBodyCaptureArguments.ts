@@ -65,13 +65,16 @@ export function parseBodyCaptureArguments(argv: string[]): IBodyCaptureRequest {
     const value = rest[at + 1];
     if (value === undefined || value.startsWith("--"))
       throw new Error(`The option ${argument} needs a value.`);
-    if (!["--states", "--views", "--passes", "--documents", "--basis"].includes(argument))
+    if (
+      !["--states", "--views", "--passes", "--documents", "--basis"].includes(
+        argument,
+      )
+    )
       throw new Error(`Unknown option ${argument}.`);
     options.set(argument, value);
     at++;
   }
-  if (positional.length !== 1)
-    throw new Error("Give exactly one run name.");
+  if (positional.length !== 1) throw new Error("Give exactly one run name.");
   const list = <Name extends string>(
     option: string,
     allowed: readonly Name[] | null,
@@ -80,7 +83,8 @@ export function parseBodyCaptureArguments(argv: string[]): IBodyCaptureRequest {
     const raw = options.get(option);
     if (raw === undefined) return fallback;
     const names = raw.split(",").filter((name) => name !== "");
-    if (names.length === 0) throw new Error(`The option ${option} names nothing.`);
+    if (names.length === 0)
+      throw new Error(`The option ${option} names nothing.`);
     if (new Set(names).size !== names.length)
       throw new Error(`The option ${option} repeats a name.`);
     for (const name of names)

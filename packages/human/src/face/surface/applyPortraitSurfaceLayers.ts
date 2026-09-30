@@ -1,8 +1,13 @@
-import { Vector3, compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
+import {
+  Vector3,
+  compareCodeUnits,
+  createAutoMovieMeshDeformer,
+} from "@automovie/engine";
+
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
-import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import { refinePortraitSurfaceSampling } from "./refinePortraitSurfaceSampling";
 import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 
 /**

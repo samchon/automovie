@@ -23,11 +23,11 @@ import {
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { packConnectedBodyModel } from "./connectedBodyGeometry";
-import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
 import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
+import { packHumanBodyHumeralHeadReading } from "./packHumanBodyHumeralHeadReading";
 
 /** Compile the basis once and evaluate all later body requests against it.
  *
@@ -146,12 +146,12 @@ export function createConnectedBodyRuntime(
     const model = packConnectedBodyModel(built.model);
     const crossings =
       request.measure || request.anatomy
-        ? await readContacts(
-            segment(built).model,
-            () => received !== mine,
-          )
+        ? await readContacts(segment(built).model, () => received !== mine)
         : null;
-    let anatomy: Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"] = null;
+    let anatomy: Extract<
+      ConnectedBodyResult,
+      { operation: "preview" }
+    >["anatomy"] = null;
     if (request.anatomy && crossings !== null) {
       if (crossings.length !== 0)
         anatomy = { status: "unavailable", reason: "skin-crossing" };

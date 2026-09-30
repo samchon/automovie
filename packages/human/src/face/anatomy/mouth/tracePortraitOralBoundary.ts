@@ -1,5 +1,3 @@
-
-
 /**
  * Select the actual oral attachment from a refined, oriented skin surface.
  * oralLining calls this before constructing its interior depth rings. The seed

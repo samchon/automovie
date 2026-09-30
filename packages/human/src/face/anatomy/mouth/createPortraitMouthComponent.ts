@@ -1,7 +1,9 @@
+import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
 import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
-import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { assertPortraitDentalCrown } from "../dental/assertPortraitDentalCrown";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";
 import { createPortraitLipBandSampler } from "./createPortraitLipBandSampler";
@@ -14,7 +16,6 @@ import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformanc
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
 import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
-import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Fit the lips, adapt adjacent skin and finish the selected oral interior at

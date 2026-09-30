@@ -1,5 +1,5 @@
-import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { orderCutPatchBoundary } from "../../mesh/orderCutPatchBoundary";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { portraitNasalCavityOffset } from "./portraitNasalCavityOffset";
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 

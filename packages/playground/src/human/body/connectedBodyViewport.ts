@@ -7,16 +7,16 @@
  */
 import * as THREE from "three";
 
+import { createHumanObservation } from "../common/observation/createHumanObservation";
+import { createHumanPreviewCamera } from "../common/previewScene";
+import type { HumanResidentPort } from "../common/residentWorker";
+import type { createHumanViewport } from "../common/viewport";
 import { createConnectedBodyPreview } from "./connectedBodyPreview";
 import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
 } from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
-import { createHumanObservation } from "../common/observation/createHumanObservation";
-import { createHumanPreviewCamera } from "../common/previewScene";
-import type { HumanResidentPort } from "../common/residentWorker";
-import type { createHumanViewport } from "../common/viewport";
 
 type Host = Pick<
   Parameters<typeof createHumanViewport>[0],

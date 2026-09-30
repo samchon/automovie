@@ -1,16 +1,16 @@
-import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { orderCutPatchBoundary } from "../../mesh/orderCutPatchBoundary";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
+import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { appendPortraitNasalRimSection } from "./appendPortraitNasalRimSection";
 import { appendPortraitNostrils } from "./appendPortraitNostrils";
+import { createPortraitNasalBodySurface } from "./createPortraitNasalBodySurface";
 import { createPortraitNasalEnvelope } from "./createPortraitNasalEnvelope";
 import { createPortraitNasalLobules } from "./createPortraitNasalLobules";
 import { createPortraitNasalRimSection } from "./createPortraitNasalRimSection";
 import { createPortraitNasalSection } from "./createPortraitNasalSection";
-import { fitPortraitNostrilRim } from "./fitPortraitNostrilRim";
-import { createPortraitNasalBodySurface } from "./createPortraitNasalBodySurface";
 import { createPortraitNasalSupport } from "./createPortraitNasalSupport";
+import { fitPortraitNostrilRim } from "./fitPortraitNostrilRim";
 import { portraitNasalCavityOffset } from "./portraitNasalCavityOffset";
 import { portraitNoseDepth } from "./portraitNoseDepth";
 import { resizePortraitNostrilRim } from "./resizePortraitNostrilRim";
@@ -242,7 +242,9 @@ export function createPortraitNoseComponent(
               return { ids, section };
             });
       const fittedEnvelopes = envelopes.map((profile, index) => {
-        const ids = orderCutPatchBoundary(openings[index]).map((edge) => edge.a);
+        const ids = orderCutPatchBoundary(openings[index]).map(
+          (edge) => edge.a,
+        );
         const envelope = createPortraitNasalEnvelope(
           ids.map((id) => targets.get(id)!),
           ids.map((id) => skinNormals!.slice(id * 3, id * 3 + 3)),

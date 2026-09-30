@@ -85,7 +85,10 @@ export async function captureBodyFrames(input: {
           (window as unknown as Hooks)[name as string].change(
             document as object,
           ),
-        [hook, { ...base, id: frame.state, name: frame.state, ...frame.document }],
+        [
+          hook,
+          { ...base, id: frame.state, name: frame.state, ...frame.document },
+        ],
       );
       await page.waitForFunction(
         ([name, id]) => {
@@ -114,7 +117,9 @@ export async function captureBodyFrames(input: {
       );
       if (reason !== null) {
         if (input.onRefused === "throw")
-          throw new Error(`The editor refused state "${frame.state}": ${reason}`);
+          throw new Error(
+            `The editor refused state "${frame.state}": ${reason}`,
+          );
         refused.push({ state: frame.state, reason });
         skip = key;
         continue;

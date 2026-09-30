@@ -1,8 +1,12 @@
-import type { IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
-import { buildPortraitHairCards } from "./buildPortraitHairCards";
-import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
+
 import { IPortraitHairLayer } from "./IPortraitHairLayer";
 import { IPortraitHairShape } from "./IPortraitHairShape";
+import { buildPortraitHairCards } from "./buildPortraitHairCards";
+import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
 
 /**
  * Assemble legacy hair and up to eight additional independent surface layers.

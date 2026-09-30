@@ -1,5 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieVector3 as Point } from "@automovie/interface";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as Point,
+} from "@automovie/interface";
+
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { createPortraitDirectionalIntersection } from "../../surface/createPortraitDirectionalIntersection";
 
@@ -15,7 +19,8 @@ export function createPortraitCanthalIntersection(
   mesh: IAutoMovieMesh,
   direction: Point,
 ): (point: Point) => Point {
-  const metric = createMetricMeshPart("canthal-support", mesh, "skin").geometry.mesh;
+  const metric = createMetricMeshPart("canthal-support", mesh, "skin").geometry
+    .mesh;
   const intersect = createPortraitDirectionalIntersection(metric, direction);
   return (point) => {
     // Match createMetricMeshPart's uniform engine scale exactly. Dividing by 1000

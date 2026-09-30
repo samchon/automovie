@@ -1,12 +1,12 @@
-
 import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
+import type { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
+import type { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
+import { portraitEyeLoop } from "./portraitEyeLoop";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
-import type { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
-import type { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
 import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
-import { portraitEyeLoop } from "./portraitEyeLoop";
+
 /**
  * One numerical section calculation supplies both the skin constraint and lid rings.
  * Coordinates and offsets are millimetres; an optional fixed guide owns the

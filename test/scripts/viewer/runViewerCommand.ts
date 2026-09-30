@@ -93,7 +93,9 @@ export async function runViewerCommand(
     // belong to an unrelated program: forget it and kill nothing
     if (!probe.open) {
       io.clearRecord();
-      io.log("viewer: the recorded server is no longer running; record cleared.");
+      io.log(
+        "viewer: the recorded server is no longer running; record cleared.",
+      );
       return VIEWER_EXIT.ok;
     }
     await io.kill(record.pid);

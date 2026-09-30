@@ -14,8 +14,8 @@ import {
   KHRMaterialsVolume,
 } from "@gltf-transform/extensions";
 
-import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
+import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
 
 /**
  * Convert a static AutoMovie model into portable glTF buffers and materials.

@@ -1,7 +1,8 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { assertPortraitDentalCrown } from "./assertPortraitDentalCrown";
 import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * A closed crown loft with a narrow cervical end, broad body and thin cutting

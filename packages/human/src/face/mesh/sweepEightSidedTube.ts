@@ -1,7 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { Point } from "./structures/Point";
+
 import { millimetrePoint as p } from "./millimetrePoint";
+import { Point } from "./structures/Point";
 import { triangulateSurfaceLattice as patch } from "./triangulateSurfaceLattice";
 
 /**

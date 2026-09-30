@@ -19,5 +19,13 @@ export function createPortraitHairNormalTexture(
   curl?: IPortraitHairShape["fibreCurl"],
   mixture?: { pigment: readonly number[]; grey: number },
 ): string {
-  return createPortraitHairFibreTexture(seed, fibres, coverage, true, curl, 1, mixture);
+  return createPortraitHairFibreTexture(
+    seed,
+    fibres,
+    coverage,
+    true,
+    curl,
+    1,
+    mixture,
+  );
 }

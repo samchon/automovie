@@ -1,6 +1,6 @@
+import { assertTextSize } from "../../common/document/assertTextSize";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import { admitHumanFaceBasisDocument } from "./admitHumanFaceBasisDocument";
-import { assertTextSize } from "../../common/document/assertTextSize";
 
 /**
  * Load compact connected-basis edits without resolving an asset or photograph.

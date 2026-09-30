@@ -1,5 +1,6 @@
-import { judgeViewerRenderer } from "../../../scripts/viewer/judgeViewerRenderer";
 import { TestValidator } from "@nestia/e2e";
+
+import { judgeViewerRenderer } from "../../../scripts/viewer/judgeViewerRenderer";
 
 /**
  * A frame counts as a GPU frame only when the renderer string is not a

@@ -1,6 +1,6 @@
-import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { appendPortraitNostrils } from "@automovie/human/face/anatomy/nose/appendPortraitNostrils";
 import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
+import { orderCutPatchBoundary } from "@automovie/human/face/mesh/orderCutPatchBoundary";
 import { TestValidator } from "@nestia/e2e";
 
 import {

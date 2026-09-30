@@ -1,8 +1,9 @@
+import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
 import { advancePoint } from "./advancePoint";
 import { portraitDirectionalContactFrame } from "./portraitDirectionalContactFrame";
 import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
-import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Intersect the foremost resident triangle along a fixed forward direction.

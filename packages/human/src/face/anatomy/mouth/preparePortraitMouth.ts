@@ -1,4 +1,9 @@
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { createPortraitDentalArc } from "../dental/createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "../dental/preparePortraitDentalCrown";
@@ -7,10 +12,6 @@ import { preparePortraitOralLining } from "./preparePortraitOralLining";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
-import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
-import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
 
 /**
  * Recess the mouth interior behind the photographed lip opening, then place
@@ -146,8 +147,6 @@ export function preparePortraitMouth(
   }
   return parts;
 }
-
-
 
 type Point = IAutoMovieVector3;
 const pi = Math.PI;

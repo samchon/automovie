@@ -1,6 +1,9 @@
 import type { ConnectedBodyResult } from "./connectedBodyProtocol";
 
-type Reading = Extract<ConnectedBodyResult, { operation: "preview" }>["anatomy"];
+type Reading = Extract<
+  ConnectedBodyResult,
+  { operation: "preview" }
+>["anatomy"];
 
 /**
  * Describe only the anatomical relation an explicit body check actually read.
@@ -26,10 +29,10 @@ export function bodyAnatomyReading(reading: Reading): string | null {
       head.source === "observed"
         ? `${head.observation.modality.toUpperCase()} observation`
         : head.source === "measured"
-        ? "entered measurement"
-        : head.source === "target"
-          ? "anatomical target"
-          : "adult CT estimate";
+          ? "entered measurement"
+          : head.source === "target"
+            ? "anatomical target"
+            : "adult CT estimate";
     return `${side} ${origin} radius ${radius} mm, ${
       head.centerInside
         ? head.clearanceMetres >= 0

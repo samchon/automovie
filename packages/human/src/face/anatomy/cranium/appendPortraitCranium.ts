@@ -1,9 +1,9 @@
 import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { resolvePortraitCraniumShape } from "./resolvePortraitCraniumShape";
 import { portraitCranialChinHeight } from "./portraitCranialChinHeight";
-import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
 import { portraitFacialOvalVertices } from "./portraitFacialOvalVertices";
+import { resolvePortraitCraniumShape } from "./resolvePortraitCraniumShape";
+import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
 
 /**
  * Continue the caller's facial boundary across the cranial vault and jaw.

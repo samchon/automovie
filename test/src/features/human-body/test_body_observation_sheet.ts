@@ -26,7 +26,11 @@ export const test_body_observation_sheet = (): void => {
     refused: [],
   });
   TestValidator.equals("three images", (html.match(/<img /g) ?? []).length, 3);
-  TestValidator.equals("two state groups", (html.match(/<section>/g) ?? []).length, 2);
+  TestValidator.equals(
+    "two state groups",
+    (html.match(/<section>/g) ?? []).length,
+    2,
+  );
   TestValidator.predicate(
     "captions",
     html.includes("front · beauty") && html.includes("left · normal"),

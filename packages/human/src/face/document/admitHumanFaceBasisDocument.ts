@@ -10,7 +10,9 @@ import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanF
  *
  * @author Samchon
  */
-export function admitHumanFaceBasisDocument(input: unknown): IAutoMovieHumanFaceBasisDocument {
+export function admitHumanFaceBasisDocument(
+  input: unknown,
+): IAutoMovieHumanFaceBasisDocument {
   const document = typia.assertEquals<IAutoMovieHumanFaceBasisDocument>(input);
   if (document.hair !== undefined && document.hair !== null)
     assertHumanFaceHair(document.hair);

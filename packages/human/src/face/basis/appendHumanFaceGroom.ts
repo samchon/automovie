@@ -1,8 +1,8 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
-import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFaceGroom";
 import { resolveHumanFaceGroom } from "../document/resolveHumanFaceGroom";
+import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFaceGroom";
 
 /**
  * Give a built connected face the hair authored against its own surfaces.

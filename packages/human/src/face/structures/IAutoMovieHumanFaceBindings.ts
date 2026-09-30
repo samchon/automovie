@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IPortraitCheekSocket } from "../anatomy/cheek/IPortraitCheekSocket";
 import type { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import type { IPortraitEyeSocket } from "../anatomy/eye/structures/IPortraitEyeSocket";

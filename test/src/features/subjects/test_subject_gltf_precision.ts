@@ -1,7 +1,7 @@
 import { inspectAutoMovieMeshTopology } from "@automovie/engine";
 import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
-import { placeMeshPreservingFaces } from "@automovie/human/common/mesh/placeMeshPreservingFaces";
 import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
+import { placeMeshPreservingFaces } from "@automovie/human/common/mesh/placeMeshPreservingFaces";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";

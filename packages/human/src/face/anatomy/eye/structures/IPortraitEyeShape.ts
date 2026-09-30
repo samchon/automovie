@@ -1,11 +1,11 @@
-
 import { IPortraitEyebrowProfile } from "../../brow/IPortraitEyebrowProfile";
+import { IPortraitEyelashProfile } from "../../lash/IPortraitEyelashProfile";
 import { IPortraitAegyoSalShape } from "./IPortraitAegyoSalShape";
 import { IPortraitIrisPigment } from "./IPortraitIrisPigment";
 import { IPortraitLowerLidProfile } from "./IPortraitLowerLidProfile";
 import { IPortraitOcularTissueShape } from "./IPortraitOcularTissueShape";
 import { IPortraitUpperLidProfile } from "./IPortraitUpperLidProfile";
-import { IPortraitEyelashProfile } from "../../lash/IPortraitEyelashProfile";
+
 /**
  * Numerical eye shape independent of its host socket. Lengths are millimetres;
  * width/opening multipliers deform the fitted aperture, not an isolated eyeball.

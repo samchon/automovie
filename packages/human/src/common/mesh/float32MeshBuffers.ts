@@ -25,9 +25,7 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh): {
 } {
   const degenerate = new Set(weldedDegenerateTriangles(mesh));
   if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
-    throw new Error(
-      "Model normal buffers must align with resident positions.",
-    );
+    throw new Error("Model normal buffers must align with resident positions.");
   const positions = new Float32Array(mesh.positions);
   const normals = mesh.normals === null ? null : new Float32Array(mesh.normals);
   const uvs = mesh.uvs === null ? null : new Float32Array(mesh.uvs);

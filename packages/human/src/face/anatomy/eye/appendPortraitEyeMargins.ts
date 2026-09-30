@@ -1,10 +1,10 @@
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { portraitEyeLoop } from "./portraitEyeLoop";
-import { portraitEyeLidRows } from "./portraitEyeLidRows";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 import { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
+import { portraitEyeLidRows } from "./portraitEyeLidRows";
+import { portraitEyeLoop } from "./portraitEyeLoop";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 
 /**
  * Attach the lid rows to the already fitted shared outer rim. New inner vertex

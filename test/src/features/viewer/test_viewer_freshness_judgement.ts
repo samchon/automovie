@@ -1,5 +1,6 @@
-import { judgeViewerFreshness } from "../../../scripts/viewer/judgeViewerFreshness";
 import { TestValidator } from "@nestia/e2e";
+
+import { judgeViewerFreshness } from "../../../scripts/viewer/judgeViewerFreshness";
 
 /**
  * The browser build is fresh when it is not older than the newest source.
@@ -25,7 +26,8 @@ export const test_viewer_freshness_judgement = (): void => {
   const newer = judgeViewerFreshness(201, 200);
   TestValidator.predicate(
     "newer source is stale",
-    !newer.fresh && newer.reason.includes("pnpm --filter @automovie/human build"),
+    !newer.fresh &&
+      newer.reason.includes("pnpm --filter @automovie/human build"),
   );
   const missing = judgeViewerFreshness(100, null);
   TestValidator.predicate(

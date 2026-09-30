@@ -3,6 +3,7 @@ import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMes
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
@@ -16,7 +17,6 @@ import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
-import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";

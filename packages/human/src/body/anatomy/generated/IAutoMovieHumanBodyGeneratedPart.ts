@@ -30,11 +30,17 @@ export type IAutoMovieHumanBodyGeneratedPart =
   | GeneratedMaterialPart<AutoMovieHumanBodyBoneId, "bone">
   | GeneratedMaterialPart<AutoMovieHumanBodyMuscleId, "skeletal-muscle">
   | GeneratedMaterialPart<
-      Exclude<AutoMovieHumanBodyConnectiveTissueId, `${string}CostalCartilages`>,
+      Exclude<
+        AutoMovieHumanBodyConnectiveTissueId,
+        `${string}CostalCartilages`
+      >,
       "fibrous-connective"
     >
   | GeneratedMaterialPart<
-      Extract<AutoMovieHumanBodyConnectiveTissueId, `${string}CostalCartilages`>,
+      Extract<
+        AutoMovieHumanBodyConnectiveTissueId,
+        `${string}CostalCartilages`
+      >,
       "cartilage"
     >
   | GeneratedMaterialPart<

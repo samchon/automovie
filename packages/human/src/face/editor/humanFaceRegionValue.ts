@@ -1,6 +1,6 @@
+import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
-import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
 import { assertRegion } from "./assertRegion";
 import { humanFaceRegions } from "./humanFaceRegions";
 

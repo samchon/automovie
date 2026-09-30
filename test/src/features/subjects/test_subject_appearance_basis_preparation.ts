@@ -115,20 +115,14 @@ export const test_subject_appearance_basis_preparation = (): void => {
     material("eye").baseColorTexture,
     basis.materials.find((one) => one.id === "eye")!.baseColorTexture,
   );
-  const texel = (
-    image: ReturnType<typeof decodePng>,
-    u: number,
-    v: number,
-  ) => {
+  const texel = (image: ReturnType<typeof decodePng>, u: number, v: number) => {
     const at =
       4 *
       (Math.floor(v * image.height) * image.width +
         Math.floor(u * image.width));
     return Array.from(image.rgba.slice(at, at + 3));
   };
-  const enamel = decodePng(
-    material("enamel").baseColorTexture as string,
-  );
+  const enamel = decodePng(material("enamel").baseColorTexture as string);
   const lab = faceLikenessSrgbToLab(
     ...(texel(enamel, 0.6, 0.3) as [number, number, number]),
   );

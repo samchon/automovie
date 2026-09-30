@@ -1,7 +1,8 @@
+import { IAutoMovieMesh } from "@automovie/interface";
 
 import { preparePortraitDentalCrown } from "./preparePortraitDentalCrown";
 import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
-import { IAutoMovieMesh } from "@automovie/interface";
+
 /**
  * Build the standalone enamel mesh through the same native crown producer used
  * by dental rows. Existing callers retain the mesh-only API and owned buffers.

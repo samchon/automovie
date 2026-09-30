@@ -1,10 +1,10 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
-import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
-import { intersectRayWithHeightField } from "@automovie/human/face/mesh/intersectRayWithHeightField";
 import type { IPortraitSkinConstraint } from "@automovie/human/face/anatomy/skin/structures/IPortraitSkinConstraint";
-import type { IPortraitComponentHost } from "@automovie/human/face/surface/structures/IPortraitComponentHost";
+import { createMetricMeshPart } from "@automovie/human/face/mesh/createMetricMeshPart";
+import { intersectRayWithHeightField } from "@automovie/human/face/mesh/intersectRayWithHeightField";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
+import type { IPortraitComponentHost } from "@automovie/human/face/surface/structures/IPortraitComponentHost";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 /** Optional source-surface attachment of a patch's outer host boundary. */

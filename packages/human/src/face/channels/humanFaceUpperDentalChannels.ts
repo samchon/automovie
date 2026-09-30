@@ -1,5 +1,5 @@
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare dentition scalar controls for the common document editor.

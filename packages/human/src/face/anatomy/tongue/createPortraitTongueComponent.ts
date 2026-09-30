@@ -1,12 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { millimetrePoint } from "../../mesh/millimetrePoint";
+
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
-import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
-import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
-import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
+import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
+import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { attachPortraitOralMesh } from "../mouth/attachPortraitOralMesh";
+import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { buildPortraitTongue } from "./buildPortraitTongue";
 

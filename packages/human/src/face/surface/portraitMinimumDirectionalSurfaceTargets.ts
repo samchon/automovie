@@ -18,7 +18,10 @@ export function portraitMinimumDirectionalSurfaceTargets(
   direction: IAutoMovieVector3,
   clearance = 0,
 ): { vertex: number; target: IAutoMovieVector3 }[] {
-  const { forward, across, up } = portraitDirectionalContactFrame(direction, clearance);
+  const { forward, across, up } = portraitDirectionalContactFrame(
+    direction,
+    clearance,
+  );
   return minimizeAutoMovieMeshClearance(
     projectMeshOntoFrame(front, across, up, forward),
     projectMeshOntoFrame(back, across, up, forward),

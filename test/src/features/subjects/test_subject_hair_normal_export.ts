@@ -1,7 +1,7 @@
 import {
+  createGltfDocument,
   createPortraitHairNormalTexture,
   exportHumanFace,
-  createGltfDocument,
 } from "@automovie/human";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";

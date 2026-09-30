@@ -1,10 +1,10 @@
-import type { IAutoMovieHumanFaceControls } from "../structures/IAutoMovieHumanFaceControls";
-import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 import { portraitNeckShape } from "../anatomy/cranium/portraitNeckShape";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
-import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
+import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import { humanFaceControlDefinitions } from "../channels/humanFaceControlDefinitions";
+import type { IAutoMovieHumanFaceControls } from "../structures/IAutoMovieHumanFaceControls";
+import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 
 /**
  * Apply intermediate offsets to a copied recipe before detailed overrides.

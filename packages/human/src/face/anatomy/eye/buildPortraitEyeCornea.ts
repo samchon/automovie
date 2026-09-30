@@ -1,12 +1,13 @@
+import { transformAutoMovieMesh } from "@automovie/engine";
+
 import { Point } from "../../mesh/structures/Point";
-import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
-import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitCornea } from "./buildPortraitCornea";
 import { createPortraitOpticalFrame } from "./createPortraitOpticalFrame";
 import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
-import { transformAutoMovieMesh } from "@automovie/engine";
+import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 
 /**
  * Build the same closed corneal shell for drawing and optical contact.

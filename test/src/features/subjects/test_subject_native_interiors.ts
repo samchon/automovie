@@ -2,8 +2,8 @@ import {
   type IPortraitComponent,
   type IPortraitInterior,
   buildPortraitHead,
-  createPortraitInteriorFinisher,
   createMetricMeshPart,
+  createPortraitInteriorFinisher,
   preparePortraitHead,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";

@@ -1,26 +1,26 @@
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { createPortraitCheekLayer } from "../anatomy/cheek/createPortraitCheekLayer";
-import { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import { buildPortraitEars } from "../anatomy/cranium/buildPortraitEars";
-import { createPortraitEyeComponent } from "../anatomy/eye/createPortraitEyeComponent";
-import { createPortraitFacePerformanceComponent } from "../anatomy/cranium/createPortraitFacePerformanceComponent";
-import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
 import { buildPortraitHead } from "../anatomy/cranium/buildPortraitHead";
-import { createPortraitJawContinuation } from "../anatomy/mouth/createPortraitJawContinuation";
+import { createPortraitFacePerformanceComponent } from "../anatomy/cranium/createPortraitFacePerformanceComponent";
+import { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import { createPortraitMandibularDentition } from "../anatomy/dental/createPortraitMandibularDentition";
+import { createPortraitEyeComponent } from "../anatomy/eye/createPortraitEyeComponent";
+import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbitalSupport";
+import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
+import { createPortraitJawContinuation } from "../anatomy/mouth/createPortraitJawContinuation";
 import { createPortraitMouthComponent } from "../anatomy/mouth/createPortraitMouthComponent";
 import { createPortraitNoseComponent } from "../anatomy/nose/createPortraitNoseComponent";
-import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbitalSupport";
-import { createPortraitSkinLayer } from "../anatomy/skin/createPortraitSkinLayer";
-import { createPortraitSkinColour } from "../anatomy/skin/createPortraitSkinColour";
-import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitTongueComponent";
-import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
 import { createPortraitReliefCurveLayer } from "../anatomy/skin/createPortraitReliefCurveLayer";
 import { createPortraitReliefLayer } from "../anatomy/skin/createPortraitReliefLayer";
+import { createPortraitSkinColour } from "../anatomy/skin/createPortraitSkinColour";
+import { createPortraitSkinLayer } from "../anatomy/skin/createPortraitSkinLayer";
+import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitTongueComponent";
 import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
+import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
+import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 
 /**
  * Construct one resident anatomical face from a standalone numerical document.

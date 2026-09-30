@@ -6,12 +6,12 @@
  */
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
-import { readConnectedFaceAsset } from "./human/common/connectedAsset";
 import {
   type ConnectedBodyRequest,
   connectedBodyTransfers,
 } from "./human/body/connectedBodyProtocol";
 import { createConnectedBodyRuntime } from "./human/body/connectedBodyRuntime";
+import { readConnectedFaceAsset } from "./human/common/connectedAsset";
 import { createHumanResidentHandler } from "./human/common/residentHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;

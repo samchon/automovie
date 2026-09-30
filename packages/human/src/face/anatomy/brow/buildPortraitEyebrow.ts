@@ -1,15 +1,16 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
+
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { linearInterpolate } from "../../mesh/linearInterpolate";
 import { millimetrePoint } from "../../mesh/millimetrePoint";
-import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
-import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
-import { catmullRomPoint } from "../../mesh/catmullRomPoint";
-import { sweepEightSidedTube } from "../../mesh/sweepEightSidedTube";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
+import { sweepEightSidedTube } from "../../mesh/sweepEightSidedTube";
+import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
+import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
 
 /**
@@ -183,7 +184,9 @@ export function buildPortraitEyebrow(
             1,
             shape.segments,
           );
-    parts.push(createMetricMeshPart(`${binding.side}-brow-hair-${i}`, fibre, "brows"));
+    parts.push(
+      createMetricMeshPart(`${binding.side}-brow-hair-${i}`, fibre, "brows"),
+    );
   }
   return parts;
 }

@@ -1,9 +1,10 @@
+import { IAutoMovieModelPart } from "@automovie/interface";
+
 import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { preparePortraitMouth } from "./preparePortraitMouth";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { IAutoMovieModelPart } from "@automovie/interface";
 
 /**
  * Preserve the direct oral builder in model metres. Native preparation owns

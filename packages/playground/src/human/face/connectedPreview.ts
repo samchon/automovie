@@ -3,7 +3,6 @@ import {
   serializeHumanFaceBasisDocument,
 } from "@automovie/human";
 
-import type { createConnectedFaceRenderer } from "./connectedRenderer";
 import type {
   ConnectedFaceRequest,
   ConnectedFaceResult,
@@ -12,6 +11,7 @@ import {
   type HumanResidentPort,
   createHumanResidentWorker,
 } from "../common/residentWorker";
+import type { createConnectedFaceRenderer } from "./connectedRenderer";
 
 /**
  * Build connected preview candidates through a resident numerical worker.
