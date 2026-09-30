@@ -84,7 +84,7 @@ export const test_subject_connected_renderer_precision =
       await fresh
         .prepare(textured)
         .catch((error: unknown) => (error as Error).message),
-      "Portrait Float32 conversion must preserve nonredundant triangle 0.",
+      "Model Float32 conversion must preserve nonredundant triangle 0.",
     );
     TestValidator.equals("precision admission precedes resources", textures, 0);
     for (let i = 0; i < geometry.mesh.positions.length; i += 3)

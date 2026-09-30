@@ -28,6 +28,6 @@ export function assertDirection(
     (before.z / beforeLength) * (after.z / afterLength);
   if (!(agreement > 0))
     throw new Error(
-      `Portrait ${stage} must preserve nonredundant triangle ${face}.`,
+      `Model ${stage} must preserve nonredundant triangle ${face}.`,
     );
 }

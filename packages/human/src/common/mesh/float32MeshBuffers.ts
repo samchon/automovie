@@ -30,7 +30,7 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh): {
   const degenerate = new Set(weldedDegenerateTriangles(mesh));
   if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
     throw new Error(
-      "Portrait normal buffers must align with resident positions.",
+      "Model normal buffers must align with resident positions.",
     );
   const positions = new Float32Array(mesh.positions);
   const normals = mesh.normals === null ? null : new Float32Array(mesh.normals);
@@ -40,7 +40,7 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh): {
     (uvs.length !== (positions.length / 3) * 2 || !uvs.every(Number.isFinite))
   )
     throw new Error(
-      "Portrait UV0 must remain complete and finite at Float32 precision.",
+      "Model UV0 must remain complete and finite at Float32 precision.",
     );
   const indices = new Uint32Array(
     mesh.indices ??
@@ -51,7 +51,7 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh): {
     (normals !== null && !normals.every(Number.isFinite))
   )
     throw new Error(
-      "Portrait Float32 buffers must contain only finite components.",
+      "Model Float32 buffers must contain only finite components.",
     );
   if (normals !== null)
     for (let offset = 0; offset < normals.length; offset += 3) {
@@ -64,7 +64,7 @@ export function float32MeshBuffers(mesh: IAutoMovieMesh): {
         normals[offset + 2],
       );
       if (Math.abs(length - 1) > 2 ** -23)
-        throw new Error("Portrait GLTF NORMAL values must be unit directions.");
+        throw new Error("Model GLTF NORMAL values must be unit directions.");
     }
   for (let face = 0; face < indices.length; face += 3) {
     if (degenerate.has(face / 3)) continue;

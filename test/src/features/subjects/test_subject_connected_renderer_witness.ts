@@ -103,7 +103,7 @@ export const test_subject_connected_renderer_witness =
       await renderer
         .prepare(malformedNormal)
         .catch((error: unknown) => (error as Error).message),
-      "Portrait GLTF NORMAL values must be unit directions.",
+      "Model GLTF NORMAL values must be unit directions.",
     );
     const malformedUv = structuredClone(appearance);
     if (malformedUv.parts[0].geometry.type !== "mesh")
@@ -114,7 +114,7 @@ export const test_subject_connected_renderer_witness =
       await renderer
         .prepare(malformedUv)
         .catch((error: unknown) => (error as Error).message),
-      "Portrait UV0 must remain complete and finite at Float32 precision.",
+      "Model UV0 must remain complete and finite at Float32 precision.",
     );
     const tampered = await renderer.prepare(appearance);
     tampered.model.parts.push(structuredClone(tampered.model.parts[0]));

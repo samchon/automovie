@@ -49,7 +49,7 @@ export const test_subject_connected_renderer_attributes =
         await renderer
           .prepare(invalid)
           .catch((error: unknown) => (error as Error).message),
-        "Portrait UV0 must remain complete and finite at Float32 precision.",
+        "Model UV0 must remain complete and finite at Float32 precision.",
       );
     }
     for (const [attribute, value] of [
@@ -67,8 +67,8 @@ export const test_subject_connected_renderer_attributes =
           .prepare(invalid)
           .catch((error: unknown) => (error as Error).message),
         attribute === "normals" && value === 0
-          ? "Portrait GLTF NORMAL values must be unit directions."
-          : "Portrait Float32 buffers must contain only finite components.",
+          ? "Model GLTF NORMAL values must be unit directions."
+          : "Model Float32 buffers must contain only finite components.",
       );
     }
     TestValidator.predicate(

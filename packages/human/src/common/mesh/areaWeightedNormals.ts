@@ -41,7 +41,7 @@ export const areaWeightedNormals = (
       !Number.isFinite(normals[i + 1]) ||
       !Number.isFinite(normals[i + 2])
     )
-      throw new Error("Portrait normals require finite accumulated areas.");
+      throw new Error("Model normals require finite accumulated areas.");
     const normal = Vector3.normalize(
       Vector3.create(normals[i], normals[i + 1], normals[i + 2]),
     );

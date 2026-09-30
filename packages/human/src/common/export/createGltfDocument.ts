@@ -18,7 +18,7 @@ import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 
 /**
- * Convert a static AutoMovie portrait into portable glTF buffers and materials.
+ * Convert a static AutoMovie model into portable glTF buffers and materials.
  * Metallic/roughness colour, emission, alpha modes and scalar optical material
  * fields and resident PNG base-colour, normal and occlusion textures are
  * preserved.
@@ -46,7 +46,7 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
     )
   )
     throw new Error(
-      "Portrait export accepts static models with resident base-colour, normal and occlusion PNG only.",
+      "Model export accepts static models with resident base-colour, normal and occlusion PNG only.",
     );
   const document = new Document();
   const buffer = document.createBuffer();
@@ -66,7 +66,7 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
               skin: null,
             };
       if (part.attachedBone !== null || mesh.skin !== null)
-        throw new Error("Portrait export does not flatten bone bindings.");
+        throw new Error("Model export does not flatten bone bindings.");
       return placeMeshPreservingFaces(
         mesh,
         part.transform === null
@@ -90,7 +90,7 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
       }).success
     )
       throw new Error(
-        "Portrait Float32 material geometry must preserve its required topology: " +
+        "Model Float32 material geometry must preserve its required topology: " +
           finish.id,
       );
     const alphaModes = {
@@ -142,7 +142,7 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
         );
       if (typeof binding !== "string" || prefix === undefined)
         throw new Error(
-          "Portrait textures must be resident PNG or JPEG data URIs with default UV0 sampling.",
+          "Model textures must be resident PNG or JPEG data URIs with default UV0 sampling.",
         );
       const mediaType = prefix.slice("data:".length, -";base64,".length);
       if (
@@ -151,7 +151,7 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
         !mesh.uvs.every(Number.isFinite)
       )
         throw new Error(
-          "Textured portrait groups require complete finite UV0 coordinates.",
+          "Textured model groups require complete finite UV0 coordinates.",
         );
       let texture = textures.get(binding);
       if (texture === undefined) {
@@ -168,7 +168,7 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
           facts.height <= 0
         )
           throw new Error(
-            "Portrait resident texture must contain a positive-size header of its declared type.",
+            "Model resident texture must contain a positive-size header of its declared type.",
           );
         texture = document
           .createTexture()
@@ -280,9 +280,9 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
       (part) => !model.materials.some((finish) => finish.id === part.material),
     )
   )
-    throw new Error("Every portrait part must name a resident material.");
+    throw new Error("Every model part must name a resident material.");
   const validation = validateModel({ model });
   if (!validation.success)
-    throw new Error("Portrait model is invalid: " + JSON.stringify(validation));
+    throw new Error("Model model is invalid: " + JSON.stringify(validation));
   return document;
 }
