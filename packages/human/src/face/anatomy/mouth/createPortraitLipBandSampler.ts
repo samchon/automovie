@@ -4,6 +4,20 @@ import { IPortraitLipCoordinate } from "./structures/IPortraitLipCoordinate";
  * One authoritative curved-band sample supplies both normalized coordinates and
  * its skin/oral boundaries. A contour edit must not independently guess the
  * inner Y against which lip thickness is changed. All heights remain in mm.
+ *
+ * @evidence contracts/common.md#principled-implementation Each band is a strip between two curves that advance strictly in X, so its height at any x is a piecewise-linear lookup on each curve, and a point's `across` is its height's position between the outer and inner heights, clamped to [0, 1]; `lateral` is x normalized between the two shared inner corners. The premises (finite points, strictly increasing X, corners shared and inside the outer span, upper above lower) are checked, the segment interpolation is a convex sum and the height ratio is normalized by the largest magnitude so large finite coordinates cannot overflow.
+ * @evidence contracts/common.md#clear-and-simple-design One sampler returns the coordinate and both boundary heights together, so callers cannot guess the inner height independently of the coordinate.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named: the two outer paths are extracted from the loop's own extreme-X corners and the band is decided against the curved inner centreline, not a fixed head Y.
+ * @evidence contracts/common.md#meaningful-documentation The comment states why one sampler supplies the coordinates and the boundary heights, and that all heights are millimetres.
+ * @evidence contracts/modeling.md#spatial-conventions Inputs are head-frame millimetre XYZ points; the coordinate is unitless and the heights are millimetres; Z is not inferred.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function samples a strip and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
+ * @evidence contracts/modeling.md#shared-boundaries The coordinates and the two boundary heights come from the same curves in one call, so a thickness change that scales about the inner boundary and the skin that follows it are measured against one definition; the curves must share their inner corners inside the outer span or the sampler refuses.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint; the bands it measures are observed under the mouth component.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity; it refuses malformed curves and a lower lip above the upper.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function.
  */
 export const createPortraitLipBandSampler = (
   outer: readonly (readonly number[])[],
