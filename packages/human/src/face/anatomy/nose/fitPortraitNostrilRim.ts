@@ -10,6 +10,20 @@ import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
  * and recentering preserves the original centroid before blending.
  * The operation is independent of head orientation and does not choose a new
  * nasal opening or alter its connectivity. All distances remain millimetres.
+ *
+ * @evidence contracts/common.md#principled-implementation The rim is projected into its Newell plane, the longest planar chord fixes a frame, and the principal angle 0.5 atan2(2 Sxy, Sxx - Syy) of the second moments is the classical orientation of the moment ellipse; the fitted ellipse uses the boundary's own extents on those axes, is parameterised by perimeter progress so each vertex keeps its cyclic owner, and is recentred to the measured centroid before a linear blend by the amount. Zero copies the rim exactly. A collinear rim gives a zero radius and refuses through the finite-output check.
+ * @evidence contracts/common.md#clear-and-simple-design One fit that blends a measured cycle toward its own moment ellipse; connectivity and the opening choice stay with the host.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is special-cased; the ellipse is derived from the rim alone and the blend amount is the caller's named roundness.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the plane, the axes, the perimeter parameterisation, the recentring, the exact-copy case and the units.
+ * @evidence contracts/modeling.md#spatial-conventions Input and output are head millimetres; the blend amount is dimensionless in [0,1]; the fit is head-orientation independent because it works in the rim's own plane.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group; it is a numerical helper of the nostril aperture owner.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no mesh primitives; it returns values for its caller to place.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and meets no neighbouring part; the callers that share its result own the boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part or joint; the nose component that consumes it is the declaration that observes the assembled result.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value, range or proportion of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity; callers admit theirs.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function is arithmetic on values its owner already named, not an input through which a caller shapes a human form.
  */
 export function fitPortraitNostrilRim(
   points: number[][],

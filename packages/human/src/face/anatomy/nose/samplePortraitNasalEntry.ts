@@ -14,6 +14,20 @@ import { IPortraitNasalRimJet } from "./structures/IPortraitNasalRimJet";
  * Depth and both intervals use millimetres. Progress spans [0,1] from rim to
  * floor. The returned initial derivative points inward, opposite the exterior
  * co-normal. Neither the body height nor a newly fitted plane moves the datum.
+ *
+ * @evidence contracts/common.md#principled-implementation The meridian is two cubic Hermite intervals through the rim jet, a middle section (rim contracted about the aperture origin and translated inward by the depth) and a floor point, with one shared middle derivative and a radial end derivative in the floor plane so all meridians approach one smooth pole; the split follows the two spans so parameter speed is uniform. Non-positive depth, a contraction outside (0,1) or coincident sections refuse.
+ * @evidence contracts/common.md#clear-and-simple-design One meridian sampler that consumes the same jet as the exterior band and the shared Hermite sampler.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject special-casing; the lining follows the jet, the frame, the depth and the contraction only.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the sections, the derivatives, the units, and that this is a geometric lining hypothesis and not a measured airway.
+ * @evidence contracts/modeling.md#spatial-conventions Points and depth are head millimetres; progress is dimensionless in [0,1] from rim to floor; the inward axis is the aperture frame's normalised inward direction.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group; it is a numerical helper of the nasal vestibule owner.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no mesh primitives; it returns values for its caller to place.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and meets no neighbouring part; the callers that share its result own the boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part or joint; the nose component that consumes it is the declaration that observes the assembled result.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value, range or proportion of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity; callers admit theirs.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function is arithmetic on values its owner already named, not an input through which a caller shapes a human form.
  */
 export function samplePortraitNasalEntry(
   rim: IPortraitNasalRimJet,

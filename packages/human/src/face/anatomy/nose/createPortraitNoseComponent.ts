@@ -14,11 +14,27 @@ import { fitPortraitNostrilRim } from "./fitPortraitNostrilRim";
 import { portraitNasalCavityOffset } from "./portraitNasalCavityOffset";
 import { portraitNoseDepth } from "./portraitNoseDepth";
 import { resizePortraitNostrilRim } from "./resizePortraitNostrilRim";
+import { resolvePortraitNoseShape } from "./resolvePortraitNoseShape";
 import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
 import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
 
 /**
  * Build one replaceable nose against the host's declared nasal attachment.
+ *
+ * The socket (host attachments, in millimetres of the head frame: +X anatomical
+ * left, +Y up, +Z anterior) and the shape are copied and admitted here, and
+ * `fit` later reads the actual host. Fitting proceeds in one order: resolve one
+ * depth field (support plane scale, tip and alar relief, optional section or
+ * lobules) and use it for both the exterior targets and the pre-fit aperture
+ * samples; regularize, resize, rotate and raise each opening; then, for the
+ * legacy path, an optional exterior rim band, or for the envelope path a
+ * complete per-opening envelope. `attach` runs after host subdivision and adds
+ * the lining that shares the fitted rim vertices, and an optional final body
+ * surface that preserves the rim and its first derivative.
+ *
+ * A refused shape or socket throws before any geometry exists; the caller's
+ * inputs are never mutated. The lining is a geometric hypothesis, not a
+ * measured airway, and no likeness is claimed by any branch.
  */
 export function createPortraitNoseComponent(
   inputSocket: IPortraitNoseSocket,
@@ -34,82 +50,15 @@ export function createPortraitNoseComponent(
         ? undefined
         : [...inputSocket.supportPlane],
   };
-  const shape = { ...inputShape, cavityOffset: [...inputShape.cavityOffset] };
   const bindLobules = createPortraitNasalLobules(inputShape.lobules);
-  const rimSection =
-    inputShape.rimSection === undefined
-      ? undefined
-      : { ...inputShape.rimSection };
-  const envelopes = structuredClone(inputShape.envelopes ?? []);
-  if (
-    envelopes.length !== 0 &&
-    (envelopes.length !== socket.nostrils.length ||
-      rimSection !== undefined ||
-      inputShape.body !== undefined ||
-      inputShape.rimRefinement === "curve")
-  )
-    throw new Error(
-      "Complete nasal envelopes need one profile per opening and cannot stack legacy rim or final-body construction.",
-    );
-  if (
-    (shape.rimRefinement ?? "surface") !== "surface" &&
-    shape.rimRefinement !== "curve"
-  )
-    throw new Error("Nasal rim refinement must be surface or curve.");
-  const body =
-    inputShape.body === undefined
-      ? undefined
-      : structuredClone(inputShape.body);
-  if (inputShape.section !== undefined && body !== undefined)
-    throw new Error(
-      "Choose one pre-fit or final nasal section basis, not two stacked constructions.",
-    );
-  if (
-    (inputShape.lobules?.length ?? 0) !== 0 &&
-    (inputShape.section !== undefined || body !== undefined)
-  )
-    throw new Error(
-      "Choose local nasal lobules or a complete section/body basis.",
-    );
-  if (
-    (shape.depthScale ?? 1) !== 1 &&
-    (inputShape.section !== undefined ||
-      (body !== undefined && !("lobules" in body.shape)))
-  )
-    throw new Error("Choose one nasal depth-scale or section/body basis.");
-  if (!Number.isFinite(shape.depthScale ?? 1) || (shape.depthScale ?? 1) <= 0)
-    throw new Error("Nasal depth scale must be finite and positive.");
+  const { shape, rimSection, envelopes, body } = resolvePortraitNoseShape(
+    inputShape,
+    socket.nostrils.length,
+  );
   const section =
     inputShape.section === undefined
       ? undefined
       : createPortraitNasalSection(inputShape.section);
-  if (
-    [
-      shape.widthScale,
-      shape.nostrilWidthScale,
-      shape.nostrilHeightScale,
-      shape.cavityContraction,
-      shape.rimSupport,
-    ].some((v) => !Number.isFinite(v) || v <= 0) ||
-    shape.cavityContraction >= 1 ||
-    shape.rimSupport >= 1 ||
-    !Number.isFinite(shape.rimRoundness) ||
-    shape.rimRoundness < 0 ||
-    shape.rimRoundness > 1 ||
-    !Number.isFinite(shape.blendReach) ||
-    shape.blendReach < 0 ||
-    ![
-      shape.tipProjection,
-      shape.alarProjection,
-      shape.nostrilRise,
-      shape.nostrilTilt,
-    ].every(Number.isFinite) ||
-    shape.cavityOffset.length !== 3 ||
-    !shape.cavityOffset.every(Number.isFinite)
-  )
-    throw new Error(
-      "Nasal dimensions must be finite, with positive openings and a contracted inner lining.",
-    );
   return {
     id: "nose",
     fit: (host) => {
