@@ -44,6 +44,22 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * constructed portrait eye's band semantics so one pigment reads the same on
  * both face builders; they are an authored optical approximation, not a
  * recovered reflectance.
+ *
+ * The returned rule mutates the `materials` array it is handed (the builder's
+ * own clone of the basis materials), replacing only the embedded texture of
+ * each eye's globe material with a new PNG data URI; the basis and the caller's
+ * pigments are never modified. Lengths in the disc geometry are metres in the
+ * basis frame, angles are radians, and texture coordinates are pixels.
+ *
+ * @evidence contracts/common.md#principled-implementation The iris is an absolute length of the eye, so its disc is located from the globe's geometry and sized in millimetres by the population values that `locateHumanFaceIrisDisc` cites, then only the texels inside that disc are repainted from the document's eight bands through the shared texel rule and every other texel keeps the basis colour. Where the asset's painted iris extends past the anatomical disc, the excess is covered with the mean sclera colour of the ring just outside it, blended across the edge, so no second ring appears. Colour blending is done in linear light and stored back through the exact sRGB transfer function.
+ * @evidence contracts/common.md#clear-and-simple-design The function compiles the geometry once per basis, then paints per document from a cache keyed by the two pigments; disc location, rasterization and texel colour are three separate owners, and the private helpers only find the globe and decode the texture.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No asset name, subject, fixture or photograph is consulted; the globe is found by its attachment weights and texture alone. The only mutation of foreign data is of the materials array the builder passes for exactly this purpose, and it is documented.
+ * @evidence contracts/common.md#meaningful-documentation The comment states why a colour override cannot do this job, the compile-time and per-document steps, the size rule and the cover of the excess painted iris, what is unchanged, what refuses, what is mutated and the units.
+ * @evidence contracts/modeling.md#spatial-conventions Disc geometry is basis-frame metres and radians and painting is in pixel space, with the millimetre-to-metre conversion done once inside the disc locator; the sRGB decode and encode of the texture are named steps that cite IEC 61966-2-1.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function repaints a texture and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the document's iris pigments and defines no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it changes no geometry.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the limbal edge is an appearance blend inside one texture.
  */
 export function createHumanFaceIrisPigment(
   basis: IAutoMovieHumanFaceBasis,
