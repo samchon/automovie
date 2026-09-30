@@ -1,17 +1,8 @@
+import { HUMAN_OBSERVATION_VIEWS } from "@automovie/playground/src/human/common/observation/HumanObservationView";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
-
-const VIEWS = [
-  "front",
-  "left-three-quarter",
-  "left",
-  "back",
-  "right-three-quarter",
-  "right",
-  "top",
-  "bottom",
-];
 
 /**
  * The link that opens a document in the navigable viewer, the request that
@@ -34,6 +25,6 @@ export function openHumanViewerHref(
     view: "/view#" + encoded,
     render: "/render?" + encoded,
     thumbnail: "/render?" + thumbnail,
-    sheet: "/sheet?" + encoded + "&axes=" + encodeURIComponent("view:" + VIEWS.join(",")),
+    sheet: "/sheet?" + encoded + "&axes=" + encodeURIComponent("view:" + HUMAN_OBSERVATION_VIEWS.join(",")),
   };
 }

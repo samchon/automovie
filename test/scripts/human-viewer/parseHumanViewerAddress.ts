@@ -1,3 +1,6 @@
+import { HUMAN_OBSERVATION_PASSES } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
+import { HUMAN_OBSERVATION_VIEWS } from "@automovie/playground/src/human/common/observation/HumanObservationView";
+
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
@@ -37,24 +40,9 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   }
   const view = fields.get("view") ?? "front";
   const pass = fields.get("pass") ?? "beauty";
-  if (
-    ![
-      "front",
-      "left-three-quarter",
-      "left",
-      "back",
-      "right-three-quarter",
-      "right",
-      "top",
-      "bottom",
-    ].includes(view)
-  )
+  if (!(HUMAN_OBSERVATION_VIEWS as readonly string[]).includes(view))
     throw new Error(`Unknown view: ${view}`);
-  if (
-    !["beauty", "clay", "normal", "depth", "flat", "wire", "outline"].includes(
-      pass,
-    )
-  )
+  if (!(HUMAN_OBSERVATION_PASSES as readonly string[]).includes(pass))
     throw new Error(`Unknown pass: ${pass}`);
   const number = (
     key: string,
