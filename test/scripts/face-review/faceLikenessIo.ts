@@ -3,7 +3,7 @@
  *
  * `plan-face-likeness.ts` and `measure-face-likeness.ts` read the detector
  * output and the capture records and PNGs of `capture-articulation.ts` and
- * `capture-editor-views.ts` through these helpers, so both runners agree on
+ * `human-viewer/capture-face-references.mts` through these helpers, so both runners agree on
  * one interpretation of every file.
  *
  * The detector is an external instrument that this repository does not run

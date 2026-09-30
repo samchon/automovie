@@ -1,58 +1,37 @@
-import fs from "node:fs";
-import path from "node:path";
-
-import { openReviewEditor } from "../review/openReviewEditor";
+import type { IHumanViewerClient } from "../human-viewer/connectHumanViewer";
 import { reviewFileName } from "../review/reviewFileName";
 import type { IBodyObservationFrame } from "./IBodyObservationFrame";
 
-type Editor = Awaited<ReturnType<typeof openReviewEditor>>;
-type Hooks = Record<
-  string,
-  {
-    document: () => object;
-    change: (value: object) => unknown;
-    snapshot: () =>
-      | {
-          status?: string;
-          error?: string | null;
-          document: { id: string };
-        }
-      | undefined;
-    view: (name: string) => void;
-    pass: (name: string) => void;
-    isolate: (names: string[] | null) => string[];
-    companion: () => Promise<void>;
-    finish: () => void;
-  }
->;
-
 /**
- * Draw the requested frames of the product body editor, applying each state
- * once for the run of frames that share it, and write the PNGs.
+ * Draw the requested frames of a body through the resident viewer and write
+ * the PNGs.
  *
- * A state is applied through the page's own `change`, the transaction a slider
- * commits, and its frames are drawn through the observation hooks (`view`,
- * `pass`, `isolate`, then `finish`) and read from the canvas as PNG. A
- * document the editor refuses leaves the previous one applied, so the wait
- * ends on the editor's error as well as on a built document. With
- * `onRefused: "throw"` the refusal stops the run with its text; with
- * `"record"` the state's remaining frames are skipped and the refusal is
- * returned with the state name, so an extreme the validator still refuses is
- * visible in the record instead of hanging the run or vanishing.
+ * Every distinct state is composed into a body document (`id` and `name` the
+ * state, `basis` the body basis the states are built on, then the state's shape,
+ * joint rows and shoulder goals) and offered to the viewer once under
+ * `label`, so a state is built once for all the views and passes that share it.
+ * A frame is one render of `file:<label>/<state>` at a named view and pass with
+ * its parts isolated. A state the numerical builder refuses is refused by the
+ * viewer with a reason: with `onRefused: "throw"` that stops the run with the
+ * text, with `"record"` the state's remaining frames are skipped and the
+ * refusal is returned with the state name, so an extreme the validator still
+ * refuses is visible in the record instead of vanishing. A part name no
+ * displayed part carries stops the run either way, because isolating nothing
+ * would draw and record a blank frame. A candidate basis, when given, is the
+ * one the documents are built against (it must keep the basis identity they
+ * name).
  *
  * Frame files are named from the state, the view and the pass, with the
- * isolated parts in the state so an isolated and an assembled frame of the
- * same state never share a file. Frames are returned in the order drawn with
- * their bytes; the caller builds the record from them. The caller owns the
- * editor and closes it.
- *
- * @param input The open editor, the frames in drawing order, the output
- * directory, and how a refusal is handled.
+ * isolated parts in the state so an isolated and an assembled frame of the same
+ * state never share a file. Frames are returned in the order drawn with their
+ * bytes; the caller writes them (`writeBodyFrames`) and builds the record.
  */
 export async function captureBodyFrames(input: {
-  editor: Editor;
+  viewer: IHumanViewerClient;
+  label: string;
+  basisId: string;
+  candidateBasis?: string | null;
   frames: readonly IBodyObservationFrame[];
-  output: string;
   onRefused: "throw" | "record";
 }): Promise<{
   drawn: {
@@ -65,116 +44,69 @@ export async function captureBodyFrames(input: {
   }[];
   refused: { state: string; reason: string }[];
 }> {
-  const { editor, output } = input;
-  const { page, hook, canvas } = editor;
-  fs.mkdirSync(output, { recursive: true });
-  const base = await page.evaluate(
-    (name) => (window as unknown as Hooks)[name].document(),
-    hook,
-  );
-  const drawn: Awaited<ReturnType<typeof captureBodyFrames>>["drawn"] = [];
-  const refused: { state: string; reason: string }[] = [];
-  let applied: string | null = null;
-  let skip: string | null = null;
+  const { viewer } = input;
+  const documents = new Map<string, { id: string; document: object }>();
+  const names = new Set<string>();
   for (const frame of input.frames) {
     const key = JSON.stringify([frame.state, frame.document]);
-    if (key === skip) continue;
-    if (key !== applied) {
-      await page.evaluate(
-        ([name, document]) =>
-          (window as unknown as Hooks)[name as string].change(
-            document as object,
-          ),
-        [
-          hook,
-          { ...base, id: frame.state, name: frame.state, ...frame.document },
-        ],
-      );
-      await page.waitForFunction(
-        ([name, id]) => {
-          const snapshot = (window as unknown as Hooks)[
-            name as string
-          ].snapshot();
-          return (
-            snapshot !== undefined &&
-            ((snapshot.status === "ready" && snapshot.document.id === id) ||
-              (snapshot.error !== undefined && snapshot.error !== null))
-          );
-        },
-        [hook, frame.state],
-        { timeout: 300000 },
-      );
-      const reason = await page.evaluate(
-        (name) => (window as unknown as Hooks)[name].snapshot()?.error ?? null,
-        hook,
-      );
-      applied = key;
-      // the face beside the body is seated asynchronously; a frame taken
-      // before it arrives would show a different figure than the next one
-      await page.evaluate(
-        (name) => (window as unknown as Hooks)[name].companion(),
-        hook,
-      );
-      if (reason !== null) {
-        if (input.onRefused === "throw")
-          throw new Error(
-            `The editor refused state "${frame.state}": ${reason}`,
-          );
-        refused.push({ state: frame.state, reason });
-        skip = key;
-        continue;
-      }
-    }
-    const shot = await page.evaluate(
-      ([name, view, pass, isolate, selector]) => {
-        const hooks = (window as unknown as Hooks)[name as string];
-        const unmatched = hooks.isolate(isolate as string[] | null);
-        hooks.view(view as string);
-        hooks.pass(pass as string);
-        hooks.finish();
-        return {
-          unmatched,
-          url: (
-            document.querySelector(selector as string) as HTMLCanvasElement
-          ).toDataURL("image/png"),
-        };
+    if (documents.has(key)) continue;
+    let id = frame.state;
+    for (let copy = 2; names.has(id); ++copy) id = `${frame.state}~${copy}`;
+    names.add(id);
+    documents.set(key, {
+      id,
+      document: {
+        id,
+        name: id,
+        basis: input.basisId,
+        ...frame.document,
       },
-      [hook, frame.view, frame.pass, frame.isolate, canvas] as [
-        string,
-        string,
-        string,
-        string[] | null,
-        string,
-      ],
-    );
-    // a name no displayed part carries would draw an empty frame and record it
-    if (shot.unmatched.length !== 0)
-      throw new Error(
-        `No displayed part is named ${shot.unmatched.join(", ")}; isolating it would draw a blank frame.`,
-      );
-    const bytes = Buffer.from(
-      shot.url.slice(shot.url.indexOf(",") + 1),
-      "base64",
-    );
+    });
+  }
+  await viewer.drop({
+    label: input.label,
+    documents: [...documents.values()].map((entry) => entry.document as { id: string }),
+    candidateBasis: input.candidateBasis,
+  });
+  const drawn: Awaited<ReturnType<typeof captureBodyFrames>>["drawn"] = [];
+  const refused: { state: string; reason: string }[] = [];
+  const skipped = new Set<string>();
+  for (const frame of input.frames) {
+    const key = JSON.stringify([frame.state, frame.document]);
+    if (skipped.has(key)) continue;
+    const rendered = await viewer.render({
+      doc: `file:${input.label}/${documents.get(key)!.id}`,
+      view: frame.view,
+      pass: frame.pass,
+      ...(frame.isolate === null ? {} : { parts: frame.isolate.join(",") }),
+      size: "900",
+    });
+    if (!rendered.ok) {
+      if (rendered.error.startsWith("Unknown mesh"))
+        throw new Error(
+          `No displayed part is named ${rendered.error.slice("Unknown mesh: ".length)}; isolating it would draw a blank frame.`,
+        );
+      if (input.onRefused === "throw")
+        throw new Error(
+          `The viewer refused state "${frame.state}": ${rendered.error}`,
+        );
+      refused.push({ state: frame.state, reason: rendered.error });
+      skipped.add(key);
+      continue;
+    }
     const state =
       frame.isolate === null
         ? frame.state
         : `${frame.state}-only-${frame.isolate.join("-")}`;
     const file = reviewFileName({ state, view: frame.view, pass: frame.pass });
-    fs.writeFileSync(path.join(output, file), bytes);
     drawn.push({
       state,
       view: frame.view,
       pass: frame.pass,
       file,
-      bytes,
+      bytes: rendered.bytes,
       isolate: frame.isolate,
     });
   }
-  await page.evaluate((name) => {
-    const hooks = (window as unknown as Hooks)[name];
-    hooks.isolate(null);
-    hooks.pass("beauty");
-  }, hook);
   return { drawn, refused };
 }

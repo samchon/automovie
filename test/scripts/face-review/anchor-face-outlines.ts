@@ -7,7 +7,7 @@
  *
  * STUDY holds `basis.json.gz`; ANCHORS is an `anchor-face-landmarks.ts`
  * output on a basis of the same surface (its id is kept, the jaw's basis
- * recorded beside it). CAPTURES is a `capture-editor-views.ts` record of
+ * recorded beside it). CAPTURES is a `human-viewer/capture-face-references.mts` record of
  * the neutral document rendered through the product editor under each
  * subject's camera (the same renders the instrument and the render
  * correction read), and DETECTIONS one detector run over

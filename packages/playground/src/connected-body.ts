@@ -327,22 +327,6 @@ async function main(): Promise<void> {
       },
     },
   );
-  Object.assign(window, {
-    __connectedBody: {
-      snapshot: panel.snapshot,
-      document: () => panel.snapshot()?.document,
-      change: panel.change,
-      camera: viewport.cameraView,
-      fit: viewport.fitView,
-      clay: viewport.setClay,
-      ...viewport.observe,
-      // Resolves once the companion face has been built and seated (or has
-      // failed), so a capture taken after it always shows the same figure.
-      companion: (): Promise<void> => faceReady.then(() => undefined),
-      finish: viewport.finish,
-      renderer: viewport.renderer,
-    },
-  });
   await panel.ready;
 }
 void main().catch((error: unknown) => {

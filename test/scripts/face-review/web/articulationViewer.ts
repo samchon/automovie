@@ -13,7 +13,7 @@
  * white and everything else black, the hair texture's alpha still cutting its
  * fibres before depth testing. The lights and materials are the review's own
  * and are enough for geometry (landmarks, silhouettes), not for appearance,
- * which the product editor's stage draws (`capture-editor-views.ts`).
+ * which the product editor's stage draws (`human-viewer/capture-face-references.mts`).
  */
 import * as THREE from "three";
 

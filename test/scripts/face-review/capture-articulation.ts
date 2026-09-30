@@ -29,7 +29,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { judgeViewerRenderer } from "../viewer/judgeViewerRenderer";
+import { judgeViewerRenderer } from "../human-viewer/judgeViewerRenderer";
 import type { IPortraitWebModel, IPortraitWebOptions } from "./web/IPortraitWebModel";
 import {
   type IPortraitWebPose,
