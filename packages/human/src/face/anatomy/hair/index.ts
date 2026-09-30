@@ -25,6 +25,8 @@ export * from "./humanFaceHairlineCoverage";
 export * from "./humanFaceHairSequence";
 export * from "./integrateHumanFaceHairCurve";
 export * from "./limitHumanFaceHairTurn";
+export * from "./measureHumanFaceHairDomainArea";
+export * from "./seatHumanFaceHairRoots";
 export * from "./interpolateHumanFaceHairStrands";
 export * from "./resolveHumanFaceHairGatherAnchor";
 export * from "./buildPortraitHairCards";
