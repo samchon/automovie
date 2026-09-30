@@ -25,6 +25,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     "ref",
     "opacity",
     "pitch",
+    "look",
   ];
   for (const key of fields.keys()) {
     if (!allowed.includes(key))
@@ -78,6 +79,27 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
       throw new Error("frame requires a finite centre and positive radius");
     frame = values as NonNullable<typeof frame>;
   }
+  const lookText = fields.get("look");
+  let look: HumanViewerAddress["look"] = null;
+  if (lookText !== null) {
+    const values = lookText
+      .split(",")
+      .map((text) => (text.trim() === "" ? NaN : Number(text)));
+    if (
+      (values.length !== 6 && values.length !== 7) ||
+      !values.every(Number.isFinite) ||
+      Math.abs(values[0]) > 180 ||
+      Math.abs(values[1]) >= 90 ||
+      values[2] <= 0 ||
+      (values.length === 7 && (values[6] <= 0 || values[6] >= 180))
+    )
+      throw new Error(
+        "look requires yaw, pitch, distance, target x, y, z and an optional field of view",
+      );
+    look = (
+      values.length === 6 ? [...values, 28] : values
+    ) as NonNullable<HumanViewerAddress["look"]>;
+  }
   const ao = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");
   if (fields.has("fmt") && fields.get("fmt") !== "png")
@@ -98,6 +120,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     parts: parts === null ? [] : parts.split(","),
     view: view as HumanViewerAddress["view"],
     pitch: number("pitch", 0, -89, 89),
+    look,
     pass: pass as HumanViewerAddress["pass"],
     frame,
     ao: ao === "on",

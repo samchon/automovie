@@ -104,6 +104,7 @@ function port<Input, Output>(
             worker.postMessage({
               id: workerId,
               domain: selected.domain,
+              basis: selected.basis,
               input: { ...input, occlusion: ao },
             });
           });
@@ -133,6 +134,9 @@ function port<Input, Output>(
 }
 
 async function show(address: HumanViewerAddress): Promise<void> {
+  // A hand-written document can appear or change after the page loaded.
+  if (address.doc.startsWith("file:"))
+    catalogue = await (await fetch("/docs")).json();
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
@@ -260,6 +264,17 @@ async function show(address: HumanViewerAddress): Promise<void> {
       view: address.view,
       pitch: address.pitch,
     });
+  if (address.look !== null) {
+    const [yaw, pitch, distance, x, y, z, fov] = address.look;
+    active.observe.look({
+      position: faceShapeFitView(
+        { yaw, pitch, distance, target: [x, y, z], fov },
+        address.size,
+      ).eye,
+      target: [x, y, z],
+      fov,
+    });
+  }
   active.finish();
   const reference = document.querySelector<HTMLImageElement>("#reference")!;
   const controls = document.querySelector<HTMLDivElement>(

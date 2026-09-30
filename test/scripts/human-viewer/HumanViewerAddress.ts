@@ -36,6 +36,15 @@ export interface HumanViewerAddress {
   /** Optional sphere centre and radius in metres. */
   frame: [number, number, number, number] | null;
 
+  /**
+   * Exact camera in the displayed model's metres: yaw and pitch in degrees,
+   * the distance from the target, the target and the vertical field of view
+   * in degrees, placed as `faceShapeFitView` places a portrait camera. It
+   * overrides `view`, `pitch` and `frame`, so a measured pose renders exactly
+   * where it was measured.
+   */
+  look: [number, number, number, number, number, number, number] | null;
+
   /** Bake numerical ambient occlusion when true. */
   ao: boolean;
 

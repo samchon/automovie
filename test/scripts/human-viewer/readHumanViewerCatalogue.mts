@@ -11,13 +11,17 @@
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
-import { gunzipSync } from "node:zlib";
+import path from "node:path";
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
+import { readHumanViewerInputs } from "./readHumanViewerInputs";
 
 export function readHumanViewerCatalogue(props: {
   basisFiles: { face: string; body: string };
   documentsFile: string;
+  /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
+  inputsDirectory?: string;
   source: string;
 }): HumanViewerCatalogue {
   const hash = (bytes: string | Buffer): string =>
@@ -26,11 +30,10 @@ export function readHumanViewerCatalogue(props: {
   const bases = Object.fromEntries(
     Object.entries(props.basisFiles).map(([domain, file]) => {
       const bytes = fs.readFileSync(file);
-      const id = /^\s*\{\s*"id"\s*:\s*("(?:[^"\\]|\\.)*")/.exec(
-        gunzipSync(bytes).toString("utf8"),
-      );
-      if (id === null) throw new Error("Basis does not open with an identity");
-      return [domain, { id: JSON.parse(id[1]) as string, digest: hash(bytes) }];
+      return [
+        domain,
+        { id: readHumanViewerBasisIdentity(bytes), digest: hash(bytes) },
+      ];
     }),
   );
   const subjects = JSON.parse(
@@ -49,8 +52,20 @@ export function readHumanViewerCatalogue(props: {
     },
     ...subjects,
   ];
+  const inputs =
+    props.inputsDirectory !== undefined && fs.existsSync(props.inputsDirectory)
+      ? readHumanViewerInputs({
+          io: {
+            names: () => fs.readdirSync(props.inputsDirectory!),
+            read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
+          },
+          bases: bases as Record<"face" | "body", { id: string; digest: string }>,
+          source,
+        })
+      : { documents: [], rejected: [] };
   return {
     revision: source,
+    rejected: inputs.rejected,
     documents: [
       ...faces.map((document) => ({
         id: document.id,
@@ -72,6 +87,7 @@ export function readHumanViewerCatalogue(props: {
           key: hash(JSON.stringify(document) + bases.body.digest + source),
         };
       }),
+      ...inputs.documents,
     ],
   };
 }

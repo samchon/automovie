@@ -18,6 +18,7 @@ export function test_human_viewer_address_roundtrip(): void {
     pass: "beauty",
     frame: null,
     pitch: 0,
+    look: null,
     ao: false,
     size: 900,
     ref: null,

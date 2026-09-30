@@ -16,8 +16,9 @@ import { type Page, chromium } from "playwright";
 import { PNG } from "pngjs";
 import { createServer } from "vite";
 
-import { judgeViewerRenderer } from "../viewer/judgeViewerRenderer";
+import { judgeViewerRenderer } from "./judgeViewerRenderer";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
+import { applyHumanViewerPose } from "./applyHumanViewerPose";
 import { composeHumanViewerPixels } from "./composeHumanViewerPixels";
 import { encodeHumanViewerPreview } from "./encodeHumanViewerPreview";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
@@ -25,6 +26,7 @@ import { planHumanViewerSheet } from "./planHumanViewerSheet";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
 import { renderHumanViewerSheet } from "./renderHumanViewerSheet.mjs";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { serveHumanViewerReference } from "./serveHumanViewerReference.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(directory, "../../..");
@@ -43,6 +45,7 @@ const documentsFile = path.join(
   root,
   "test/studies/human-face/connected-basis/global-face/subjects.json",
 );
+const inputsDirectory = path.join(storage, "inputs");
 const hash = (bytes: string | Buffer): string =>
   createHash("sha256").update(bytes).digest("hex");
 const sourceFiles = new Map<string, string>();
@@ -87,7 +90,12 @@ const revision = (): string =>
       .join("\n"),
   );
 const catalogue = () =>
-  readHumanViewerCatalogue({ basisFiles, documentsFile, source: revision() });
+  readHumanViewerCatalogue({
+    basisFiles,
+    documentsFile,
+    inputsDirectory,
+    source: revision(),
+  });
 let inventory = catalogue();
 let page: Page;
 let renderer = "";
@@ -163,55 +171,7 @@ async function main(): Promise<void> {
         errors,
       });
     if (url.pathname === "/docs") return json(inventory);
-    if (url.pathname === "/reference-info" || url.pathname === "/reference") {
-      const id = (url.searchParams.get("doc") ?? "").replace(/-connected$/, "");
-      const directory = path.join(storage, "references");
-      const filename = fs.existsSync(directory)
-        ? fs
-            .readdirSync(directory)
-            .find(
-              (name) =>
-                path.parse(name).name === id &&
-                /\.(png|jpg|jpeg|webp)$/i.test(name),
-            )
-        : undefined;
-      if (url.pathname === "/reference-info") {
-        const poses = JSON.parse(
-          fs.readFileSync(
-            path.join(
-              root,
-              "test/studies/human-face/connected-basis/global-face/population/poses-lens-frame.json",
-            ),
-            "utf8",
-          ),
-        );
-        const landmarksFile = path.join(directory, "landmarks.json");
-        const landmarks = fs.existsSync(landmarksFile)
-          ? JSON.parse(fs.readFileSync(landmarksFile, "utf8"))[id]
-          : undefined;
-        return json({
-          available: filename !== undefined,
-          camera: filename === undefined ? null : (poses[id] ?? null),
-          landmarks: landmarks ?? [],
-        });
-      }
-      if (filename === undefined) {
-        response.statusCode = 404;
-        response.end();
-        return;
-      }
-      response.setHeader("Cache-Control", "no-store");
-      response.setHeader(
-        "Content-Type",
-        filename.endsWith(".png")
-          ? "image/png"
-          : filename.endsWith(".webp")
-            ? "image/webp"
-            : "image/jpeg",
-      );
-      fs.createReadStream(path.join(directory, filename)).pipe(response);
-      return;
-    }
+    if (serveHumanViewerReference({ url, response, root, storage, json })) return;
     if (url.pathname.startsWith("/basis/")) {
       const domain = url.pathname.slice(7);
       if (domain !== "face" && domain !== "body") {
@@ -219,9 +179,34 @@ async function main(): Promise<void> {
         response.end();
         return;
       }
+      const candidate = url.searchParams.get("candidate");
+      const file =
+        candidate === null
+          ? basisFiles[domain]
+          : path.join(
+              inputsDirectory,
+              candidate.split("@")[0] + ".basis.json.gz",
+            );
+      if (
+        (candidate !== null && !/^[A-Za-z0-9._-]+(@[0-9a-f]+)?$/.test(candidate)) ||
+        !fs.existsSync(file)
+      ) {
+        response.statusCode = 404;
+        response.end();
+        return;
+      }
       response.setHeader("Content-Type", "application/gzip");
-      fs.createReadStream(basisFiles[domain]).pipe(response);
+      fs.createReadStream(file).pipe(response);
       return;
+    }
+    if (url.pathname === "/rescan") {
+      inventory = catalogue();
+      return json({
+        documents: inventory.documents
+          .filter((entry) => entry.id.startsWith("file:"))
+          .map((entry) => entry.id),
+        rejected: inventory.rejected,
+      });
     }
     if (url.pathname.startsWith("/cache/")) {
       const key = url.pathname.slice(7);
@@ -287,6 +272,12 @@ async function main(): Promise<void> {
         fields.delete("against");
         if (url.pathname === "/sheet" && !fields.has("size"))
           fields.set("size", "320");
+        applyHumanViewerPose(fields, (file) =>
+          fs.readFileSync(
+            path.join(root, "test/studies/human-face/connected-basis/global-face/population", file + ".json"),
+            "utf8",
+          ),
+        );
         const address = parseHumanViewerAddress(fields.toString());
         const selectedRevision = inventory.revision;
         let png: Buffer;
@@ -424,7 +415,9 @@ async function main(): Promise<void> {
       port: 5175,
     }),
   );
+  fs.mkdirSync(inputsDirectory, { recursive: true });
   vite.watcher.add([
+    inputsDirectory,
     ...sourceRoots,
     ...sourceFiles.keys(),
     ...Object.values(basisFiles),
@@ -434,6 +427,10 @@ async function main(): Promise<void> {
   const changed = new Set<string>();
   vite.watcher.on("all", (_event, input: string) => {
     const file = path.resolve(input);
+    if (file.startsWith(inputsDirectory + path.sep)) {
+      inventory = catalogue();
+      return;
+    }
     const ownedSource =
       sourceRoots.some((directory) => file.startsWith(directory + path.sep)) &&
       /\.(ts|mts|cts|json|html|wasm)$/.test(file);
