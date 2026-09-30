@@ -2,6 +2,7 @@ import type { IAutoMovieHumanBodyBasisJoint } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 import type { HumanObservationView } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
+import { createJointPoseRow } from "./createJointPoseRow";
 import type { IBodyObservationFrame } from "./IBodyObservationFrame";
 import type { IBodyObservationUnit } from "./IBodyObservationUnit";
 import type { IBodyReviewState } from "./standardBodyReviewDocuments";
@@ -124,13 +125,7 @@ export function deriveBodyObservationSet(input: {
     const row = (
       bone: string,
       angles: Partial<Record<(typeof AXES)[number], number>>,
-    ): IAutoMovieJointPose =>
-      ({
-        bone,
-        flexion: angles.flexion ?? null,
-        abduction: angles.abduction ?? null,
-        twist: angles.twist ?? null,
-      }) as unknown as IAutoMovieJointPose;
+    ): IAutoMovieJointPose => createJointPoseRow(bone, angles);
 
     add("neutral", neutral);
     if (joint.shoulder !== undefined) {
