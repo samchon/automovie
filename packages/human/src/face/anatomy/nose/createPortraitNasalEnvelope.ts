@@ -7,8 +7,8 @@ import { samplePortraitNasalEntry } from "./samplePortraitNasalEntry";
 import { samplePortraitNasalSection } from "./samplePortraitNasalSection";
 import { IPortraitNasalEnvelope } from "./structures/IPortraitNasalEnvelope";
 import { IPortraitNasalEnvelopeSection } from "./structures/IPortraitNasalEnvelopeSection";
-import { sampleCyclicNasalSection } from "./structures/sampleCyclicNasalSection";
-import { unitNasalNormal } from "./structures/unitNasalNormal";
+import { sampleCyclicNasalSection } from "./sampleCyclicNasalSection";
+import { unitNasalNormal } from "./unitNasalNormal";
 
 /**
  * Fit one numerical envelope and return its refined-region appender. Original

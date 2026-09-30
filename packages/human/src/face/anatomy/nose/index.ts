@@ -18,6 +18,8 @@ export * from "./portraitNoseDepth";
 export * from "./portraitNostrilContains";
 export * from "./resizePortraitNostrilRim";
 export * from "./portraitNostrilRimNormal";
+export * from "./sampleCyclicNasalSection";
 export * from "./samplePortraitNasalEntry";
 export * from "./samplePortraitNasalSection";
 export * from "./structures";
+export * from "./unitNasalNormal";

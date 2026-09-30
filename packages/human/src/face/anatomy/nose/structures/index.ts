@@ -11,5 +11,3 @@ export * from "./IPortraitNasalSection";
 export * from "./IPortraitNasalSectionStation";
 export * from "./IPortraitNoseShape";
 export * from "./IPortraitNoseSocket";
-export * from "./sampleCyclicNasalSection";
-export * from "./unitNasalNormal";
