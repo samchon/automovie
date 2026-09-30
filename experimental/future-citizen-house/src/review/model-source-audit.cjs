@@ -1,5 +1,5 @@
 // Exhaustively build every reviewed model state and inspect its source mesh.
-// build-model-catalog.py --check separately compares records to the docs.
+// build-model-catalog.cts --check separately compares records to the docs.
 const fs = require("node:fs");
 const path = require("node:path");
 const root = path.resolve(__dirname, "../..");

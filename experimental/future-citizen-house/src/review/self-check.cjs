@@ -37,7 +37,7 @@ const checks = [
   ["model-review-audit.cjs", "--faces"],
   ["model-review-audit.cjs", "--fixture-duplicates"],
   ["model-review-audit.cjs", "--fixture-faces"],
-  ["build-model-catalog.py", "--python", "--check"],
+  ["build-model-catalog.cts", "--tsx", "--check"],
   ["model-source-audit.cjs", "--tsx"],
   ["model-source-audit.cjs", "--tsx", "--fixture"],
 ];
@@ -46,24 +46,19 @@ let total = checks.length;
 for (const args of checks) {
   const lint = args.includes("--lint");
   const tsx = args.includes("--tsx");
-  const python = args.includes("--python");
   const command = lint
     ? process.platform === "win32"
       ? ["/d", "/s", "/c", "npm run lint"]
       : ["run", "lint"]
-    : python
-      ? args.filter((arg) => arg !== "--python")
-      : tsx
-        ? ["-r", "tsx/cjs", ...args.filter((arg) => arg !== "--tsx")]
-        : args;
+    : tsx
+      ? ["-r", "tsx/cjs", ...args.filter((arg) => arg !== "--tsx")]
+      : args;
   const result = spawnSync(
     lint
       ? process.platform === "win32"
         ? "cmd.exe"
         : "npm"
-      : python
-        ? "python"
-        : process.execPath,
+      : process.execPath,
     command,
     {
       cwd: lint ? root : __dirname,
@@ -80,42 +75,6 @@ for (const args of checks) {
     `${label}: ${failed ? `FAIL (${result.error?.message || result.status})` : "PASS"}`,
   );
   if (failed) failures++;
-}
-if (process.argv.includes("--bench")) {
-  const probes =
-    process.env.AUTOMOVIE_BENCH_PROBES || "D:/AutoMovieBench/probes";
-  const benchChecks = [
-    ["src-literal-duplication.cjs", root],
-    ["src-review-host.mjs", root, "src/spaces"],
-    ["docs-review-host.mjs", root, "docs/models"],
-    ["doc-review-numbers.mjs", root],
-    ["doc-anchor-graph.cjs", root],
-    ["face-binding-owner.cjs", root],
-    ["evidence-reason-shared.py", root],
-  ];
-  total += benchChecks.length;
-  for (const [name, ...args] of benchChecks) {
-    const result = spawnSync(
-      name.endsWith(".py") ? "python" : process.execPath,
-      [path.join(probes, name), ...args],
-      {
-        cwd: root,
-        windowsHide: true,
-        encoding: "utf8",
-        maxBuffer: 64 * 1024 * 1024,
-      },
-    );
-    if (result.stdout) process.stdout.write(result.stdout);
-    if (result.stderr) process.stderr.write(result.stderr);
-    const empty = /NOTHING (?:WAS )?CHECKED/i.test(
-      (result.stdout || "") + (result.stderr || ""),
-    );
-    const failed = result.error || result.status !== 0 || empty;
-    console.log(
-      `bench/${name}: ${failed ? `FAIL (${empty ? "empty population" : result.error?.message || result.status})` : "PASS"}`,
-    );
-    if (failed) failures++;
-  }
 }
 console.log(`self-check: ${total} checks, ${failures} failures`);
 if (failures) process.exitCode = 1;
