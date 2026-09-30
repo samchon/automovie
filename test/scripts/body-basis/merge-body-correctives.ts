@@ -2,13 +2,13 @@ import {
   type IAutoMovieHumanBodyBasis,
   createHumanBodyBasisBuilder,
 } from "@automovie/human";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync, gzipSync } from "node:zlib";
 
 import { assertBodyCorrectiveBasis } from "./assertBodyCorrectiveBasis";
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
+import { createBodyCorrectiveMergeReceipt } from "./createBodyCorrectiveMergeReceipt";
 import {
   type IBodyCorrectiveShard,
   mergeBodyCorrectives,
@@ -76,23 +76,18 @@ createHumanBodyBasisBuilder(basis);
 const document = Buffer.from(JSON.stringify(basis));
 const compressed = gzipSync(document);
 fs.writeFileSync(outPath, compressed);
-const sha = (bytes: Buffer): string =>
-  crypto.createHash("sha256").update(bytes).digest("hex");
 const receiptPath = option("--receipt");
 if (receiptPath !== undefined)
   fs.writeFileSync(
     receiptPath,
     JSON.stringify(
-      {
-        basis: revision,
-        supersedes: input.id,
-        inputSha256,
+      createBodyCorrectiveMergeReceipt({
+        revision,
+        input: { id: input.id, sha256: inputSha256 },
         steps,
-        uncompressedSha256: sha(document),
-        uncompressedBytes: document.length,
-        compressedSha256: sha(compressed),
-        compressedBytes: compressed.length,
-      },
+        document,
+        compressed,
+      }),
       null,
       2,
     ) + "\n",

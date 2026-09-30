@@ -4,6 +4,7 @@ import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
 import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
+import { createBodyCorrectiveShardMetadata } from "./createBodyCorrectiveShardMetadata";
 import { createBodyCorrectiveSession } from "./createBodyCorrectiveSession";
 import {
   type BodyCensusSets,
@@ -69,6 +70,10 @@ const loaded = JSON.parse(
   gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
 ) as IAutoMovieHumanBodyBasis;
 const basisSha256 = bodyCorrectiveBasisDigest(loaded);
+const shardMetadata = createBodyCorrectiveShardMetadata({
+  id: loaded.id,
+  sha256: basisSha256,
+});
 const dropped = new Set(
   (loaded.correctives ?? [])
     .filter((corrective) => drop?.test(corrective.id) === true)
@@ -120,8 +125,7 @@ const save = (): void =>
   fs.writeFileSync(
     path.join(output, "pose.json"),
     JSON.stringify({
-      basis: loaded.id,
-      basisSha256,
+      ...shardMetadata,
       set,
       only: only?.source ?? null,
       side: side ?? null,
