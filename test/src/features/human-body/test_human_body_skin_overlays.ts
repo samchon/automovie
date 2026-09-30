@@ -159,7 +159,10 @@ export const test_human_body_skin_overlays = (): void => {
     },
   );
   const other = withOverlays([{ ...nails, material: "flesh" }]);
-  other.materials = [...basis.materials, { ...basis.materials[0], id: "flesh" }];
+  other.materials = [
+    ...basis.materials,
+    { ...basis.materials[0], id: "flesh" },
+  ];
   other.surfaces[0].regions[0].material = "flesh";
   TestValidator.predicate(
     "a textured non-skin material cannot silently swallow nails",

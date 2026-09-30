@@ -24,6 +24,9 @@ export type IAutoMovieHumanBodyFemoralHead = {
   | {
       readonly source: "observed";
       /** Direct CT/MRI acquisition and posture retained with the radius. */
-      readonly observation: Extract<IAutoMovieHumanBodyTomographicLength, { kind: "observed" }>;
+      readonly observation: Extract<
+        IAutoMovieHumanBodyTomographicLength,
+        { kind: "observed" }
+      >;
     }
 );

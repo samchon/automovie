@@ -1,4 +1,14 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieFluidDomain, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMoviePlantingPlacement, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieFluidDomain,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingInstallation,
+  IAutoMoviePlantingPlacement,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { ViolationCollector } from "../validation/ViolationCollector";

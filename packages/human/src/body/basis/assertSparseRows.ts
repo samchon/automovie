@@ -7,9 +7,6 @@
  * displacement, which is the single format every surface, landmark
  * and corrective payload of the body basis shares. A caller names what it is
  * checking so the refusal points at the offending endpoint.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Rejects malformed named endpoint rows before they can be applied.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Enforces the strictly increasing, resident, nonzero `[index, dx, dy, dz]` row format.
  */
 export function assertSparseRows(
   rows: number[],

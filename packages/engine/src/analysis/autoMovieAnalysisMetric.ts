@@ -1,4 +1,9 @@
-import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisTarget, IAutoMovieAnalysisWarning } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisTarget,
+  IAutoMovieAnalysisWarning,
+} from "@automovie/interface";
 
 /**
  * Build one metric, resolving whatever target the production declared for it.

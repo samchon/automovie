@@ -5,8 +5,6 @@ import { IPortraitLipSection } from "./structures/IPortraitLipSection";
  * Own a section profile and evaluate forward relief in its live lip coordinates.
  * Both band edges and both corners receive exactly zero: the section cannot
  * independently move the skin junction, aperture, or dental attachment.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Shapes the upper tubercle and paired lower pads without moving the skin junction, oral rim or corners.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies the section profile and applies bounded smooth envelopes whose edge and corner displacement is exactly zero.
  */
 export const createPortraitLipSection = (
   input: IPortraitLipSection,

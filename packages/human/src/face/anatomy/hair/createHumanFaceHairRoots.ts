@@ -31,9 +31,6 @@ import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
  * The caller multiplies it by the domain's area on the current shape, which is
  * the area the population actually grows on, and a density reads that when a
  * population is too small to measure its own neighbourhoods.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Uses common anatomical correspondence for numerically authored populations.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Samples stable area roots without storing individual guide coordinates.
  */
 export function createHumanFaceHairRoots(props: {
   positions: readonly number[];

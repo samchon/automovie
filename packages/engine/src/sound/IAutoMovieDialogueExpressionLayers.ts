@@ -1,4 +1,7 @@
-import type { AutoMovieExpressionPreset, IAutoMovieExpression } from "@automovie/interface";
+import type {
+  AutoMovieExpressionPreset,
+  IAutoMovieExpression,
+} from "@automovie/interface";
 
 /**
  * Authored expression and derived mouth layers at one frame.

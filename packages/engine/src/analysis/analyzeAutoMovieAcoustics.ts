@@ -1,13 +1,20 @@
-import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
-import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
-import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
-import { AUTOMOVIE_SABINE_CONSTANT } from "./constants/AUTOMOVIE_SABINE_CONSTANT";
 import { IAutoMovieAcousticReceiver } from "./IAutoMovieAcousticReceiver";
 import { IAutoMovieAcousticRequest } from "./IAutoMovieAcousticRequest";
+import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
+import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { AUTOMOVIE_SABINE_CONSTANT } from "./constants/AUTOMOVIE_SABINE_CONSTANT";
+import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
+import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
 /** Distances shorter than this are the same point. */
 const EPSILON = 1e-12;

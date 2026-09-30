@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanFaceEndpointScale } from "../../face/structures/IAutoMovieHumanFaceEndpointScale";
+import type { IAutoMovieHumanEndpointScale } from "../../common/structures/IAutoMovieHumanEndpointScale";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyChannelScale } from "../structures/IAutoMovieHumanBodyChannelScale";
 import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHumanBodyMeasurement";
@@ -39,7 +39,7 @@ export function measureHumanBodyBasisChannels(
   );
   if (resident === 0)
     throw new Error("A body basis needs resident vertices to measure.");
-  const scale = (name: string): IAutoMovieHumanFaceEndpointScale => {
+  const scale = (name: string): IAutoMovieHumanEndpointScale => {
     let sumOfSquares = 0;
     let largestSquare = 0;
     let rowCount = 0;
@@ -66,7 +66,9 @@ export function measureHumanBodyBasisChannels(
     rule: IAutoMovieHumanBodyMeasurement,
     shape: Record<string, number>,
   ): number | null => evaluateHumanBodyMeasurement(basis, shape, rule);
-  let neutralReader: ReturnType<typeof createHumanBodyMeasurementReader> | undefined;
+  let neutralReader:
+    | ReturnType<typeof createHumanBodyMeasurementReader>
+    | undefined;
   const neutralRule = (rule: IAutoMovieHumanBodyMeasurement): number | null =>
     (neutralReader ??= createHumanBodyMeasurementReader(basis, {})).read(rule);
   return basis.channels

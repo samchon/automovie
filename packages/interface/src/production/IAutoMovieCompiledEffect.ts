@@ -1,7 +1,7 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieEffectRecipe } from "./IAutoMovieEffectRecipe";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 import { IAutoMovieShotEffectCue } from "./IAutoMovieShotEffectCue";
+import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compiler-owned deterministic effect runtime consumed by viewer and oracle.

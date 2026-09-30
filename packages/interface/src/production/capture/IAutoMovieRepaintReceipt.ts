@@ -1,6 +1,6 @@
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
-import { IAutoMovieProductionMediaProbe } from "../IAutoMovieProductionMediaProbe";
 import { AutoMovieContentDigest } from "../AutoMovieContentDigest";
+import { IAutoMovieProductionMediaProbe } from "../IAutoMovieProductionMediaProbe";
 import { AutoMovieRepaintReferenceRole } from "./AutoMovieRepaintReferenceRole";
 import { IAutoMovieRepaintExecutionPolicy } from "./IAutoMovieRepaintExecutionPolicy";
 import { IAutoMovieRepaintGeneratorProvenance } from "./IAutoMovieRepaintGeneratorProvenance";

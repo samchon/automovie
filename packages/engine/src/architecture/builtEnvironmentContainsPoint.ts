@@ -1,4 +1,9 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 
 /**

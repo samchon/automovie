@@ -38,9 +38,6 @@ const requireDirection = humanFaceHairFrame.direction;
  * A ribbon is far wider than the fibre path it stands for, and paying for that
  * width here would lift every strand off the scalp by half a ribbon; the mesh
  * owner keeps the ribbon's own corners outside instead.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps guides and interpolated strands outside the shared surface by one rule.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair States the fibre clearance from the step and the requested clearance and projects along the nearest feature of the closed collider.
  */
 export function humanFaceHairContact(props: {
   layer: Pick<IAutoMovieHumanFaceHair.Layer, "samplingStep" | "clearance">;

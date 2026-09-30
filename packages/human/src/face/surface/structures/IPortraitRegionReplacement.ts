@@ -9,8 +9,6 @@ import type { IControlMesh } from "../../mesh/structures/IControlMesh";
  * vertex order. The head assembler pairs current and reference appenders.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Assigns a component a reserved refined-skin region and its owned appended geometry.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Binds one nonnegative region label to an append operation that receives the fixed oriented host boundary.
  */
 export interface IPortraitRegionReplacement {
   /** Unique reserved face-region label, inherited through host subdivision. */

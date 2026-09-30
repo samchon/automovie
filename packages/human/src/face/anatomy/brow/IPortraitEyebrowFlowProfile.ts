@@ -6,8 +6,6 @@ import { IPortraitEyebrowFlowDirection } from "./IPortraitEyebrowFlowDirection";
  * Interpolation across the root band permits convergence without adding fibres.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Authors distinct head, body and tail directions and upper/lower root-band convergence.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Orders two through 32 complete direction witnesses over anatomical progress zero to one.
  */
 export interface IPortraitEyebrowFlowProfile {
   /** Strictly increasing complete witnesses, including medial zero and lateral one. */

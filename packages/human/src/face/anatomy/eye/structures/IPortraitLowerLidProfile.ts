@@ -8,8 +8,6 @@ import { IPortraitLowerLidSection } from "./IPortraitLowerLidSection";
  * The eye blends the detailed section into its basic canthi with a declared
  * sine weight; it does not add the new projections to the old lower roll.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Allows a complete sequence of lower-lid sections to replace the basic tissue profile.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines two-to-32 medial-to-lateral witnesses spanning both canthi without assuming head-X handedness.
  */
 export interface IPortraitLowerLidProfile {
   /** Two through 32 strictly ordered section witnesses, including zero and one. */

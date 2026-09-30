@@ -1,10 +1,16 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieSoftBodyDomain, IAutoMovieSoftFurnishing, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
-import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
+import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
 const FURNISHING_KINDS = new Set([
   "curtain",

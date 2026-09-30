@@ -1,7 +1,7 @@
 import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 import type { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
+import { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 
 /**
  * Recomputable identity of one exact render-plan generation and runtime.

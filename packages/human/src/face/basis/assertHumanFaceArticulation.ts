@@ -26,9 +26,6 @@ const finiteTriple = (values: readonly number[]): boolean =>
  *
  * This is structural admission. It does not judge the anatomy of an axis or
  * a weight; the preparation receipt that published them owns that evidence.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Refuses a rig whose joints, landmarks or attachment weights could not be evaluated as declared.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Checks landmark rows, unit axes, channel ownership, the translation limit against the authored opening and the unit-sum sparse attachments.
  */
 export function assertHumanFaceArticulation(
   basis: IAutoMovieHumanFaceBasis,

@@ -1,4 +1,5 @@
 import { IAutoMovieGaitLimb } from "@automovie/interface";
+
 import { positiveModulo } from "../math/positiveModulo";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";

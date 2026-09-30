@@ -3,8 +3,6 @@
  * local X; the component receives their identities instead of embedding them.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Binds a replaceable eye to caller-owned canthi, aperture curves, gaze marker and brow boundaries.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines ordered resident upper/lower rim identities and anatomical handedness without embedding any person's landmark numbers.
  */
 export interface IPortraitEyeSocket {
   /** Anatomical side; positive host X is left. */

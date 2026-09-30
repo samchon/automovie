@@ -21,9 +21,6 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * gap that is short and the millimetres measured and needed, so an author
  * opens the jaw or parts the lips by a stated amount instead of guessing.
  * Nothing is clamped or moved here.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Refuses a tongue through closed teeth or sealed lips by naming the short channel and the opening it needs.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Measures protrusion and slab thickness against both apertures within the tolerance the basis declares.
  */
 export function evaluateHumanFacePassage(
   contact: Contact,

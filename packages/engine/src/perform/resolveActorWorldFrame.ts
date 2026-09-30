@@ -1,4 +1,5 @@
 import { IAutoMovieMotion } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";

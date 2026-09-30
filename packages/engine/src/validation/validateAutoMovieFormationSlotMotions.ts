@@ -1,4 +1,10 @@
-import { IAutoMovieCompiledFormation, IAutoMovieDiagnostic, IAutoMovieFormationSlotMotion, IAutoMovieShotContract } from "@automovie/interface";
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieShotContract,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 

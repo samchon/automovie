@@ -1,10 +1,8 @@
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare lowerDentition scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes mandibular arch dimensions and placement through the detailed editor.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Carries lower dentition millimetre controls into the jaw-owned profile without changing upper dentition settings.
  */
 export const humanFaceLowerDentalChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

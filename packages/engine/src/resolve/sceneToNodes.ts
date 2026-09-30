@@ -1,4 +1,11 @@
-import { IAutoMovieModel, IAutoMovieNode, IAutoMoviePropArticulation, IAutoMoviePropSpec, IAutoMovieScene } from "@automovie/interface";
+import {
+  IAutoMovieModel,
+  IAutoMovieNode,
+  IAutoMoviePropArticulation,
+  IAutoMoviePropSpec,
+  IAutoMovieScene,
+} from "@automovie/interface";
+
 import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
 import { placementNodePrefix } from "./placementNodePrefix";
 

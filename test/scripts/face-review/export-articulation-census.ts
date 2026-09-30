@@ -22,7 +22,7 @@ import type {
   IAutoMovieHumanFaceBasis,
   IAutoMovieHumanFaceBasisDocument,
 } from "@automovie/human";
-import { createConnectedFaceRuntime } from "@automovie/playground/src/human/connectedRuntime";
+import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";

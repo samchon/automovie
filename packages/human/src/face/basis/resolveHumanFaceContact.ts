@@ -48,9 +48,6 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * pass and folded after it. A replacement must validate both the collider
  * clearance and the complete skin's orientation and self-contact, rather than
  * reduce a penetration count in isolation.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Returns tissue pushed past its rest clearance to that clearance within the tissue budget and refuses beyond it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Compiles the posed and rest colliders as sheets, applies the floor rule within reach and tolerance, and reports resolved counts and depths.
  */
 export function resolveHumanFaceContact(
   basis: IAutoMovieHumanFaceBasis,

@@ -23,9 +23,6 @@ import type { IAutoMovieHumanBodySkinReliefPose } from "../structures/IAutoMovie
  * zero. The frame is the rest skeleton's: `Y` from the joint to its bone's
  * tail, `X = Y × reference`, `Z = X × Y`. With no table joint off rest the
  * surface keeps the relief as drawn and this returns `null`.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Makes the skin's creases deepen where a bent joint folds it and its wrinkles flatten where it stretches.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Implements the relief weights: the travelled share of each joint's range, the vertex's side by its rest normal and the axial Gaussian within the reach.
  */
 export const humanBodyReliefWeights = (props: {
   basis: IAutoMovieHumanBodyBasis;

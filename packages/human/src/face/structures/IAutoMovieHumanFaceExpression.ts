@@ -3,8 +3,6 @@
  * expression in these same units; the current expression is evaluated relative
  * to that observation. Omitted channels are zero, which denotes neutral.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Separates neutral, observed and currently requested facial performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Declares paired lids and brows, oral performance and gaze independently of optical size.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceExpression {

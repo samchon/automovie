@@ -23,9 +23,6 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
 
 /**
  * Rasterize globe triangles into the iris texels of a disc.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Finds the painted iris of one eye on the texture through the globe's own surface geometry.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Maps each texel centre through its triangle's UVs to the neutral surface and keeps those within the limbus and its blending margin.
  */
 export function rasterizeHumanFaceIrisTexels(props: {
   width: number;

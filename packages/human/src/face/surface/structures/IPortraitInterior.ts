@@ -8,8 +8,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * seam aliases. Explicit interior attachments retain their own native pairs.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Carries a component-owned anatomical interior and its finish before model construction.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Keeps native interior geometry in head millimetres until the single metric model boundary.
  */
 export interface IPortraitInterior {
   /** Stable model-part identity, retained when the mesh is finally packed. */

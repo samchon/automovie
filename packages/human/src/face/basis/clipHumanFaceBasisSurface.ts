@@ -21,9 +21,6 @@ type Stencil = { a: number; b: number; t: number };
  * Prepare numerical hair domains/contact closure after clipping. Their triangle
  * and vertex correspondence cannot be copied through a new cut; supplied hair
  * metadata refuses so this operation never leaves a stale closed collider.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Maintains one shared facial correspondence when preparing an attachment boundary.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Clips neutral connectivity with shared affine endpoint and corner-UV correspondence.
  */
 export function clipHumanFaceBasisSurface(
   source: Surface,

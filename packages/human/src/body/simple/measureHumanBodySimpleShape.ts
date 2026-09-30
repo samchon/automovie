@@ -18,16 +18,15 @@ import { humanBodySimpleVolume } from "./humanBodySimpleVolume";
  * projection reuses one reader for its stature, mass and tape results. These
  * are the values expansion inverts and projection reports. A rule the surface
  * cannot answer (no section loop or a missing landmark) answers null.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Reads the stature and skin volume a requested height and mass are met against.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the height rule plus head allowance and the capped tetrahedron volume the mass model specifies.
  */
 export const measureHumanBodySimpleShape = {
   stature(
     basis: IAutoMovieHumanBodyBasis,
     shape: Record<string, number>,
   ): number {
-    return humanBodySimpleStature(createHumanBodyMeasurementReader(basis, shape));
+    return humanBodySimpleStature(
+      createHumanBodyMeasurementReader(basis, shape),
+    );
   },
 
   volume(

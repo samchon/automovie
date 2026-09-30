@@ -1,11 +1,8 @@
-
 import { IPortraitEarShape } from "./IPortraitEarShape";
+
 /**
  * Validate the pinna's anatomical dimensions and resolve independent sampling.
  * The returned sampling record is owned by the caller, including defaults.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Rejects invalid dimensions and admits explicit tessellation without changing identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Resolves bounded integer sampling independently of metric ear parameters.
  */
 export function resolvePortraitEarSampling(
   shape: IPortraitEarShape,

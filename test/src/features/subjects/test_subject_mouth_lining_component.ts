@@ -2,7 +2,7 @@ import {
   buildPortraitHead,
   buildPortraitMouth,
   createPortraitMouthComponent,
-  portraitMeshBuffers,
+  float32MeshBuffers,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -80,7 +80,7 @@ export const test_subject_mouth_lining_component = (): void => {
     id = successors.get(id)!;
   }
   TestValidator.equals("same seeded cycle", id, portraitMouthSocket.upper[0]);
-  portraitMeshBuffers(mesh);
+  float32MeshBuffers(mesh);
   const closed = buildPortraitHead(
     referenceControlNet,
     [

@@ -1,2 +1,1 @@
-export * from "./portraitDocument";
-export * from "./portraitGltfExtensions";
+export * from "./exportHumanFace";

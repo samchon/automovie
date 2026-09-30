@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A resolved bone transform after forward kinematics: the bone's local rotation

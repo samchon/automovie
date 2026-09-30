@@ -1,4 +1,4 @@
-import { portraitNormals } from "../mesh/portraitNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
 import { IPortraitFinalSurface } from "./structures/IPortraitFinalSurface";
 import { IPortraitFinalSurfaceHost } from "./structures/IPortraitFinalSurfaceHost";
@@ -15,8 +15,6 @@ import { IPortraitFinalSurfaceHost } from "./structures/IPortraitFinalSurfaceHos
  * normals to the assembler's one common recomputation afterward. Empty providers
  * or empty proposals retain the original mesh. It owns composition and numeric
  * admission, while each part owns its section geometry and boundary derivatives.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Combines independent final component surfaces without order-dependent attachment drift.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Freezes one common host, copies each provider's proposals and refuses conflicting targets before applying any position.
  */
 export function applyPortraitFinalSurfaces(
   mesh: IControlMesh,
@@ -35,7 +33,7 @@ export function applyPortraitFinalSurfaces(
     indices: Object.freeze([...mesh.indices]),
     groups: Object.freeze([...mesh.groups]),
     normals: Object.freeze(
-      portraitNormals(mesh.positions.flat(), mesh.indices),
+      areaWeightedNormals(mesh.positions.flat(), mesh.indices),
     ),
   });
   const proposals = surfaces.map((surface) => ({

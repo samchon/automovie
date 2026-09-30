@@ -1,4 +1,8 @@
-import { AutoMovieGrammarStyleIntent, IAutoMovieCameraIntent } from "@automovie/interface";
+import {
+  AutoMovieGrammarStyleIntent,
+  IAutoMovieCameraIntent,
+} from "@automovie/interface";
+
 import { IAutoMovieGrammarCameraObservation } from "./IAutoMovieGrammarCameraObservation";
 import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectObservation";
 

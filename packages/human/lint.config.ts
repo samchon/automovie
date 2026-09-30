@@ -79,5 +79,22 @@ export default {
     "evidence/graph": ["warning", graph],
     "evidence/singular": "warning",
     "evidence/todo": "warning",
+    // Dependencies run face -> common <- body. `common` imports neither
+    // anatomy, and the two anatomies never import each other.
+    "boundaries/element-types": [
+      "error",
+      {
+        elements: [
+          { type: "common", pattern: "src/common/**" },
+          { type: "body", pattern: "src/body/**" },
+          { type: "face", pattern: "src/face/**" },
+        ],
+        rules: [
+          { from: "common", disallow: ["body", "face"] },
+          { from: "body", disallow: "face" },
+          { from: "face", disallow: "body" },
+        ],
+      },
+    ],
   },
 } satisfies ITtscLintConfig;

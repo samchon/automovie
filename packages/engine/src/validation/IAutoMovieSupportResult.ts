@@ -1,4 +1,8 @@
-import { IAutoMovieInteractionEvent, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IAutoMovieToppling } from "./IAutoMovieToppling";
 
 /**

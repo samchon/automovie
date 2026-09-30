@@ -12,8 +12,6 @@ import type { AutoMovieHumanBodySimpleParameter } from "./AutoMovieHumanBodySimp
  * inversions solve. The table is data so a relation is audited and tuned as
  * a row, never as code.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Types the relations a user can read to see what each simple parameter drives.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Declares the table form the expansion evaluates: envelope, head allowance, age-dependent head share, pediatric and adult fat estimates and product-of-curves rows.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimpleShapeTable {

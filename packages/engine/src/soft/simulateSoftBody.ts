@@ -1,4 +1,10 @@
-import type { IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftCollider, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftCollider,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
 import { IAutoMovieSoftBodyResolvedAnchor } from "./IAutoMovieSoftBodyResolvedAnchor";
 import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedCapsule";

@@ -3,8 +3,6 @@
  * thoracic kyphosis grows past the source body's own, which spine joints
  * carry it, and which joint turns the head back so the gaze stays level.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Types the posture the simple tier derives from a body's age and sex, as data a user can read.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Declares the posture table: the kyphosis by sex and age, the thoracic joints' shares and the compensating joint.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySimplePosture {

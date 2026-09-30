@@ -32,9 +32,6 @@ import { stepHumanBodyArmsDown } from "./stepHumanBodyArmsDown";
  * builder's reason; nothing is clamped. Cost grows with the larger first-safe
  * whole-degree elevation, with one shared build per degree. The editor runs
  * it off the page one step at a time (`stepHumanBodyArmsDown`).
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Gives the Arms down preset a body-specific rest at first skin contact instead of a fixed angle that drives the arms through heavy bodies.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Solves the preset's lateral-plane elevation per arm against the same segment crossing instrument the contact check uses, charging only contact the rest pose lacks.
  */
 export function solveHumanBodyArmsDown(
   basis: IAutoMovieHumanBodyBasis,

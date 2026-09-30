@@ -1,15 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import { meanPoint } from "./meanPoint";
 import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
-import { mean } from "./mean";
 
 /**
  * Fit a spherical cap with an explicit depth-fitting direction. The default
  * uses the canthal plane. Observation-ray fitting retains the rim mean's image
  * position instead of letting uncertain rim depth tilt the centre away from it.
  * Both use the mean rim residual for depth and never consult current gaze.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits the globe from the lid aperture without making gaze the anatomical orientation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects the canthal-plane or recorded-ray fitting direction, preserves default arithmetic and refuses insufficient spherical support.
  */
 export function fitPortraitEyeSphere(
   upper: IAutoMovieVector3[],
@@ -33,11 +32,11 @@ export function fitPortraitEyeSphere(
       "Eye fitting needs finite lid curves, a viewing direction and a positive radius.",
     );
   const rim = [...lower, ...upper.slice(1, -1).reverse()];
-  const center = mean(rim);
+  const center = meanPoint(rim);
   let normal = Vector3.normalize(
     Vector3.cross(
       Vector3.subtract(upper[upper.length - 1], upper[0]),
-      Vector3.subtract(mean(upper), mean(lower)),
+      Vector3.subtract(meanPoint(upper), meanPoint(lower)),
     ),
   );
   if (Vector3.length(normal) === 0)

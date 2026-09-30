@@ -1,6 +1,6 @@
 import { AutoMovieContentDigest } from "../production/AutoMovieContentDigest";
-import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
 import { IAutoMovieRenderFinding } from "./IAutoMovieRenderFinding";
+import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
 
 /**
  * A bounded verdict: every budgeted render cost, what it measured, and who pays

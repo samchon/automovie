@@ -1,5 +1,6 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
-import { portraitPart } from "../../mesh/portraitPart";
+
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import { createPortraitControlLayer } from "../../surface/createPortraitControlLayer";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitOrbitalSupportShape } from "./structures/IPortraitOrbitalSupportShape";
@@ -13,8 +14,6 @@ import { IPortraitOrbitalSupportShape } from "./structures/IPortraitOrbitalSuppo
  * This defines a compact displacement field over existing skin, not internal
  * bone anatomy or a complete volumetric tissue reconstruction. Open-lid masking
  * remains owned by the surface assembler; brow fibres consume the final skin.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Forms the upper-orbit skin relationship before the eyebrow fibres are attached.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Queries each forehead/brow/sulcus sample on actual skin, then solves all requested movements together through the shared control-layer owner.
  */
 export function createPortraitOrbitalSupport(
   side: "left" | "right",
@@ -63,7 +62,7 @@ export function createPortraitOrbitalSupport(
           );
       }
       const skin = createAutoMovieMeshDepthSampler(
-        portraitPart(
+        createMetricMeshPart(
           "orbital-section-basis",
           {
             positions: host.positions.flat(),

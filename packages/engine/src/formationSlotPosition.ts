@@ -1,9 +1,13 @@
-import { IAutoMovieFormationDesign, IAutoMovieVector3 } from "@automovie/interface";
-import { seededValue } from "./math/seededValue";
+import {
+  IAutoMovieFormationDesign,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieFormationPlacement } from "./IAutoMovieFormationPlacement";
 import { IAutoMovieFormationReform } from "./IAutoMovieFormationReform";
 import { formationGroundRelief } from "./formationGroundRelief";
 import { lerp } from "./lerp";
+import { seededValue } from "./math/seededValue";
 
 /**
  * Where one slot of a formation stands at rest, in world space.

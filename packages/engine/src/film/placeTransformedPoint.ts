@@ -1,4 +1,5 @@
 import { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 

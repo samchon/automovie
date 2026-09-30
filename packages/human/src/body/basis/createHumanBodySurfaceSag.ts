@@ -31,9 +31,6 @@ type Surface = IAutoMovieHumanBodyBasis["surfaces"][number];
  * authored exterior skins, not an imaged fat or muscle boundary. Both skins
  * can self-cross under the same pose, so this field cannot serve as a bone
  * collider, a tissue compression limit, or a volume-preserving contact law.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Moves the skin's soft tissue with gravity as a pose turns it, zero at the rest pose.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Implements the declared sag: tissue thickness against the lean body, softness from the document's channels, gravity's change in the skin's frame, smoothing and the held boundary.
  */
 export function createHumanBodySurfaceSag(
   surface: Surface,

@@ -1,4 +1,8 @@
-import { IAutoMovieScript, IAutoMovieShotReviewWrite } from "@automovie/interface";
+import {
+  IAutoMovieScript,
+  IAutoMovieShotReviewWrite,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieShotReview } from "./IAutoMovieShotReview";
 

@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";

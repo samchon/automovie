@@ -1,4 +1,9 @@
-import { p } from "../../mesh/p";
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitInterior } from "../../surface/structures/IPortraitInterior";
 import { createPortraitDentalArc } from "../dental/createPortraitDentalArc";
 import { preparePortraitDentalCrown } from "../dental/preparePortraitDentalCrown";
@@ -7,10 +12,6 @@ import { preparePortraitOralLining } from "./preparePortraitOralLining";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
-import { portraitMix as mix } from "../../mesh/portraitMix";
-import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
-import { portraitPatch as patch } from "../../mesh/portraitPatch";
 
 /**
  * Recess the mouth interior behind the photographed lip opening, then place
@@ -20,8 +21,6 @@ import { portraitPatch as patch } from "../../mesh/portraitPatch";
  * Lips themselves remain in the shared facial mesh, preserving their skin join.
  * Selecting cavityWall requires final skin indices and replaces the detached
  * backdrop with an enclosure joined to every actual refined oral-rim vertex.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a recessed oral interior and optional individually sized upper crowns behind the refined opening.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects the legacy backdrop or actual-rim enclosure, omits a fully closed performed cavity and rotates each legacy crown and its normals along the common arch.
  */
 export function preparePortraitMouth(
   source: number[][],
@@ -148,8 +147,6 @@ export function preparePortraitMouth(
   }
   return parts;
 }
-
-
 
 type Point = IAutoMovieVector3;
 const pi = Math.PI;

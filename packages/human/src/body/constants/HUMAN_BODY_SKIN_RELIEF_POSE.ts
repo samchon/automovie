@@ -21,9 +21,6 @@ import type { IAutoMovieHumanBodySkinReliefPose } from "../structures/IAutoMovie
  *   range the stretched skin is smooth. Straightening past rest does the
  *   reverse. Both change linearly with the share of the range the joint has
  *   travelled from rest; the deepening to half again at the end is authored.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Holds the joints and factors by which the skin's creases follow a pose.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the relief-pose joints, their widths and reaches, and the deepening and flattening factors.
  */
 export const HUMAN_BODY_SKIN_RELIEF_POSE: IAutoMovieHumanBodySkinReliefPose = {
   joints: [

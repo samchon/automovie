@@ -1,5 +1,6 @@
-import { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWitness";
 
 type Triangle = {
   points: number[][];

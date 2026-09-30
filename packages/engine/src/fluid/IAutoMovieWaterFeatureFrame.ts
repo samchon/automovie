@@ -1,4 +1,8 @@
-import { IAutoMovieFluidSpraySample, IAutoMovieFluidState, IAutoMovieFluidSurface } from "@automovie/interface";
+import {
+  IAutoMovieFluidSpraySample,
+  IAutoMovieFluidState,
+  IAutoMovieFluidSurface,
+} from "@automovie/interface";
 
 /**
  * One frame of a bound water feature: the state, its surface, and its spray.

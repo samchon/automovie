@@ -2,7 +2,6 @@ import { Quaternion } from "../math/Quaternion";
 import { convexHull2D } from "../math/convexHull2D";
 import { positiveModulo } from "../math/positiveModulo";
 import { seededValue } from "../math/seededValue";
-import { AUTOMOVIE_MAX_PATTERN_CELLS } from "./constants/AUTOMOVIE_MAX_PATTERN_CELLS";
 import { IAutoMoviePatternCandidate } from "./IAutoMoviePatternCandidate";
 import { IAutoMoviePatternFinding } from "./IAutoMoviePatternFinding";
 import { IAutoMoviePatternPlacement } from "./IAutoMoviePatternPlacement";
@@ -12,6 +11,7 @@ import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantiti
 import { IAutoMovieSurfacePattern } from "./IAutoMovieSurfacePattern";
 import { IAutoMovieSurfacePatternResult } from "./IAutoMovieSurfacePatternResult";
 import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
+import { AUTOMOVIE_MAX_PATTERN_CELLS } from "./constants/AUTOMOVIE_MAX_PATTERN_CELLS";
 
 /** Domain constant separating variant draws from every other seeded decision. */
 const VARIANT_DOMAIN = 0x7061_7474;

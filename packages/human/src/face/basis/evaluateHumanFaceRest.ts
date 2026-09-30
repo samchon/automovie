@@ -21,9 +21,6 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * sparse payload coexist. Channels named in `except` are skipped, which is
  * how a contact basis holds its closure channel back for the aperture-scaled
  * pass; their correctives still activate on the raw weights.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Produces the deterministic rest surface that the same document yields regardless of edit order.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Applies `|weight| x endpoint` in channel order, then activation-scaled correctives, to surfaces and landmarks by endpoint name.
  */
 export function evaluateHumanFaceRest(
   basis: IAutoMovieHumanFaceBasis,

@@ -1,8 +1,12 @@
-import { AutoMovieHumanoidBone, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieArmChainFault } from "./IAutoMovieArmChainFault";
+import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 
 /**
  * Sine of the angle below which a hinge counts as parallel to the segment it

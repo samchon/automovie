@@ -1,21 +1,31 @@
-import { IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { aimYawPitch } from "../kinematics/aimYawPitch";
 import { gazeChainJoints } from "../kinematics/gazeChainJoints";
 import { reachPose } from "../kinematics/reachPose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { holdMotion } from "../motion/holdMotion";
+import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { ease } from "../motion/ease";
 import { gaitMotion } from "../motion/gaitMotion";
 import { gestureMotion } from "../motion/gestureMotion";
-import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
+import { holdMotion } from "../motion/holdMotion";
 import { locomoteMotion } from "../motion/locomoteMotion";
 import { reactMotion } from "../motion/reactMotion";
 import { timeScaleMotion } from "../motion/timeScaleMotion";
-import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
-import { resolveTargetPoint } from "./resolveTargetPoint";
+import { IAutoMovieActorContext } from "./IAutoMovieActorContext";
 import { IAutoMovieActorWorldFrame } from "./IAutoMovieActorWorldFrame";
+import { resolveTargetPoint } from "./resolveTargetPoint";
 
 /** Keyframes per gait cycle the reference synthesiser bakes. */
 const GAIT_SAMPLES = 8;

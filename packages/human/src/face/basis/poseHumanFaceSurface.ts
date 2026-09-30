@@ -24,9 +24,6 @@ type Attachments = NonNullable<
  *
  * Normals are not transported here: the builder recomputes them on the posed
  * surface. Inputs are never mutated; results are fresh buffers.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Moves teeth, tongue, lining and lip tissue with the same mandibular transform, and the globes with their own, before tissue detail is read.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Implements the weighted sum of rigid images over sparse attachments and its exact per-vertex inverse.
  */
 export function poseHumanFaceSurface(
   positions: readonly number[],

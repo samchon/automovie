@@ -1,11 +1,21 @@
-import type { IAutoMovieAcousticResponseProfile, IAutoMovieCompiledShotSource, IAutoMovieFilmTimeline, IAutoMovieFormationBounds, IAutoMovieProductionSoundPlan, IAutoMovieShotContract, IAutoMovieSoundPropagationProfile, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieAcousticResponseProfile,
+  IAutoMovieCompiledShotSource,
+  IAutoMovieFilmTimeline,
+  IAutoMovieFormationBounds,
+  IAutoMovieProductionSoundPlan,
+  IAutoMovieShotContract,
+  IAutoMovieSoundPropagationProfile,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolveCameraAt } from "../film/resolveCameraAt";
-import { sampleFormationMotion } from "../sampleFormationMotion";
-import { transformFormationBounds } from "../transformFormationBounds";
-import { transformFormationPoint } from "../transformFormationPoint";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { sampleFormationMotion } from "../sampleFormationMotion";
+import { transformFormationBounds } from "../transformFormationBounds";
+import { transformFormationPoint } from "../transformFormationPoint";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
 
 /**

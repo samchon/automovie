@@ -1,4 +1,5 @@
 import { AutoMovieChannelValueType } from "@automovie/interface";
+
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
 /**

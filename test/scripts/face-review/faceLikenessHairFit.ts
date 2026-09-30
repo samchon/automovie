@@ -1,4 +1,4 @@
-import { createPortraitHairTexture, decodePortraitPng } from "@automovie/human";
+import { createPortraitHairTexture, decodePng } from "@automovie/human";
 
 import {
   faceLikenessMelaninAlbedo,
@@ -63,7 +63,7 @@ export function faceLikenessHairMeanShade(props: {
   coverage: number;
   shade: number;
 }): number {
-  const image = decodePortraitPng(
+  const image = decodePng(
     createPortraitHairTexture(
       props.seed,
       props.fibres,

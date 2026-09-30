@@ -1,6 +1,10 @@
-import { IAutoMovieRenderReport, IAutoMovieRenderTarget } from "@automovie/interface";
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import {
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
+
 import { IAutoMovieRenderTargetDrift } from "./IAutoMovieRenderTargetDrift";
+import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /**
  * Decide whether a report is still evidence about the target in front of you.

@@ -1,6 +1,6 @@
 import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
-import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
+import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 
 /**
  * An actual PNG frame bound to a compile and render bundle.

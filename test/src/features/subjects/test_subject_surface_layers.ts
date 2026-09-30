@@ -1,5 +1,5 @@
-import { type IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 import { applyPortraitSurfaceLayers } from "@automovie/human/face/surface/applyPortraitSurfaceLayers";
+import { type IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

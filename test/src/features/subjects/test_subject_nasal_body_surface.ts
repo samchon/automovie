@@ -1,5 +1,5 @@
-import type { IPortraitNasalBodyShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalBodyShape";
 import { createPortraitNasalBodySurface } from "@automovie/human/face/anatomy/nose/createPortraitNasalBodySurface";
+import type { IPortraitNasalBodyShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalBodyShape";
 import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
 import { TestValidator } from "@nestia/e2e";
 

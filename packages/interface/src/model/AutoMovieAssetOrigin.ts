@@ -15,7 +15,6 @@
  * @author Samchon
  */
 export type AutoMovieAssetOrigin =
-
   /** Geometry assembled by automovie's generation phase. */
   | "generated"
 

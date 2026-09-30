@@ -9,11 +9,6 @@ import { IAutoMovieHumanFaceEditorSnapshot } from "../structures/IAutoMovieHuman
  *
  * A rejected or superseded request resolves false. Subscribers are deliberately
  * outside this pure state owner; the browser adapter reads snapshots to render.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Implements undo, redo, reset and last-valid-state recovery under asynchronous edits.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Uses request generations to prevent late success or failure from overwriting current state.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-editor This renderer-independent state owner exposes editing and history operations; the playground adapter owns DOM controls, camera interaction and downloads.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor-view This package has no DOM, camera or file-picker adapter; the application binds these operations to the transactional editor.
  */
 export function createHumanFaceEditor<
   Model,

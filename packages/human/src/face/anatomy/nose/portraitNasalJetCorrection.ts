@@ -6,8 +6,6 @@ import { samplePortraitNasalSection } from "./samplePortraitNasalSection";
  * negative into the vestibule. The requested derivative therefore changes sign
  * when using the inward section's positive local parameter. Both sides reach
  * the same boundary value and physical derivative at distance zero.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Matches exterior and vestibular boundary jets while leaving the far section unchanged.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Changes the transverse derivative sign for inward travel and blends the boundary correction to a zero far-end jet.
  */
 export function portraitNasalJetCorrection(
   positionDelta: readonly number[],

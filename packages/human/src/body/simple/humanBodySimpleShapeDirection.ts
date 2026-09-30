@@ -16,9 +16,6 @@ const SAMPLES = [-1, -0.5, 0, 0.5, 1];
  * a reading of the shaped body, the scalar is sampled at five fractions of
  * the range and inverted linearly, so the reach a request can be refused
  * against is the reading at the range's ends.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Solves one requested measurement by moving the channels it names in proportion and reading the body back.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the direction, the five-sample inversion and the envelope-holding step the specification fixes for the solved values.
  */
 export const humanBodySimpleShapeDirection = {
   /** A channel alone over its envelope. */

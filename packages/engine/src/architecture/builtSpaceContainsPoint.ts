@@ -1,4 +1,9 @@
-import { IAutoMovieBuiltSpace, IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltSpace,
+  IAutoMovieSpaceShell,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 
 const PLANE_NORMAL_EPSILON = 1e-12;

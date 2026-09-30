@@ -1,6 +1,13 @@
-import type { AutoMovieHumanoidBone, AutoMovieInterpolation, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieSkeleton } from "@automovie/interface";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieInterpolation,
+  IAutoMovieMotion,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
+import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";

@@ -5,8 +5,6 @@
  * This is authored enclosure geometry, not measured palate or gingival anatomy.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates internal oral room from the visible lip aperture and tooth placement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines finite transverse and vertical expansions with a positive vestibular transition depth.
  */
 export interface IPortraitOralChamber {
   /** Additional transverse half-extent in mm, finite and nonnegative. */

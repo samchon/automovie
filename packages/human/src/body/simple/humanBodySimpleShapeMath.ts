@@ -9,11 +9,8 @@ import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHum
  * a parameter record.
  *
  * Kept apart from the two public functions so that each of them reads as
- * the sequence the specification states and so a curve or a fat estimate
+ * the sequence they implement and so a curve or a fat estimate
  * has one implementation to test.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Evaluates the relations a simple parameter expands through, the same way forward and back.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Realizes the flat-ended curve, age-specific fat and head mass rules, and product-of-curves rows the specification fixes.
  */
 export const humanBodySimpleShapeMath = {
   /** A piecewise-linear curve through ascending points, flat outside them. */

@@ -1,4 +1,8 @@
-import { IAutoMovieClip, IAutoMovieInteractionEvent, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMovieInteractionEvent,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 
 /**
  * The outcome of a gravity-expectation check: the `warning` envelope, the

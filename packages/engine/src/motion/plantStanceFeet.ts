@@ -1,17 +1,22 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
-import { pinStanceTargets } from "./pinStanceTargets";
-import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
-import { assemblePlantedFeet } from "./assemblePlantedFeet";
-import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
-import { resolveBoneMap } from "./resolveBoneMap";
-import { sampleTimes } from "./sampleTimes";
-import { sampleMotion } from "./sampleMotion";
 import { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import { IAutoMoviePlantedFeet } from "./IAutoMoviePlantedFeet";
+import { assemblePlantedFeet } from "./assemblePlantedFeet";
+import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
+import { pinStanceTargets } from "./pinStanceTargets";
+import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
+import { resolveBoneMap } from "./resolveBoneMap";
+import { sampleMotion } from "./sampleMotion";
+import { sampleTimes } from "./sampleTimes";
 
 const DEFAULT_SAMPLE_RATE = 24;
 

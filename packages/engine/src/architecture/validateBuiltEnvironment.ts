@@ -1,11 +1,35 @@
-import { IAutoMovieBoundaryFace, IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment, IAutoMovieBuiltOpening, IAutoMovieBuiltPopulation, IAutoMovieBuiltSpace, IAutoMovieConnectorCarriage, IAutoMovieConnectorSection, IAutoMovieConnectorState, IAutoMovieInstanceSetDesign, IAutoMovieMovablePanel, IAutoMovieOpeningProfile, IAutoMovieOperationState, IAutoMoviePlanarPoint, IAutoMovieQuaternion, IAutoMovieSpaceShell, IAutoMovieTravelMotion, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBoundaryFace,
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltOpening,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieBuiltSpace,
+  IAutoMovieConnectorCarriage,
+  IAutoMovieConnectorSection,
+  IAutoMovieConnectorState,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieMovablePanel,
+  IAutoMovieOpeningProfile,
+  IAutoMovieOperationState,
+  IAutoMoviePlanarPoint,
+  IAutoMovieQuaternion,
+  IAutoMovieSpaceShell,
+  IAutoMovieTravelMotion,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateModel } from "../validation/validateModel";
 import { validateSpace } from "../validation/validateSpace";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
-import { ViolationCollector } from "../validation/ViolationCollector";
+import { builtEnvironmentContainsPoint } from "./builtEnvironmentContainsPoint";
+import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
+import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 import { PLANAR_EPSILON } from "./constants/PLANAR_EPSILON";
 import { outlineHull } from "./outlineHull";
 import { polygonDoubleArea } from "./polygonDoubleArea";
@@ -13,9 +37,6 @@ import { polygonInside } from "./polygonInside";
 import { polygonIsSimple } from "./polygonIsSimple";
 import { polygonShortestEdge } from "./polygonShortestEdge";
 import { polygonsOverlap } from "./polygonsOverlap";
-import { builtEnvironmentContainsPoint } from "./builtEnvironmentContainsPoint";
-import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
-import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 
 const CONNECTOR_KINDS = [
   "passage",

@@ -4,8 +4,6 @@ import { IPortraitCranialStation } from "./IPortraitCranialStation";
  * Optional cranial form controls. Omission reproduces the fixed section
  * construction. A supplied station array replaces the complete sagittal set.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Declares optional scalar, object and object-array cranial controls with replacement semantics.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps fixed defaults and explicit section replacement separate.
  * @author Samchon
  */
 export interface IPortraitCraniumShape {

@@ -1,13 +1,14 @@
 import { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
-import { segmentIndex } from "../math/segmentIndex";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
+import { segmentIndex } from "../math/segmentIndex";
 import { clipDurationFault } from "../validation/clipDurationFault";
 import { clipLoopFault } from "../validation/clipLoopFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
+import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
-import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
 
 /**
  * The SAMPLE pass: evaluate every track of a clip at time `seconds`, returning

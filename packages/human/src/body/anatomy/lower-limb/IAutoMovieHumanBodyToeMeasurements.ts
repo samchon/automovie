@@ -25,7 +25,14 @@ export type IAutoMovieHumanBodyToeMeasurements =
     middlePhalanx?: IAutoMovieHumanBodySmallBoneMeasurements;
     /** Distal phalanx supporting the nail bed. */
     distalPhalanx?: IAutoMovieHumanBodySmallBoneMeasurements;
-  }> & (
-    | { readonly phalangealPattern: "biphalangeal"; readonly middlePhalanx?: never }
-    | { readonly phalangealPattern?: "triphalangeal"; readonly middlePhalanx?: IAutoMovieHumanBodySmallBoneMeasurements }
-  );
+  }> &
+    (
+      | {
+          readonly phalangealPattern: "biphalangeal";
+          readonly middlePhalanx?: never;
+        }
+      | {
+          readonly phalangealPattern?: "triphalangeal";
+          readonly middlePhalanx?: IAutoMovieHumanBodySmallBoneMeasurements;
+        }
+    );

@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieImpactKind } from "./AutoMovieImpactKind";
 import { IAutoMovieImpact } from "./IAutoMovieImpact";

@@ -17,9 +17,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * the basis. A disconnected graph or degenerate gradient arithmetic refuses;
  * input arrays remain caller-owned. The returned closure owns the compiled
  * query and immutable gradient vectors for one evaluated face.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Applies the same surface-directed gathering rule to every numerical face document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Derives an attraction field from current shared scalp distances without storing a personal guide.
  */
 export function createHumanFaceHairGatherField(props: {
   positions: readonly number[];

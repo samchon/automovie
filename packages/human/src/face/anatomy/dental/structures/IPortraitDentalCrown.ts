@@ -5,8 +5,6 @@ import { IPortraitDentalSideContour } from "./IPortraitDentalSideContour";
  * towards the lip. The cervical ratio and cutting-edge rise distinguish crown
  * profiles independently of the dental arch's spacing and orientation.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Defines the enamel dimensions and optional independent proximal contours of an individual crown.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries millimetre crown width, height, half-depth, cervical ratio and cutting-edge rise independently of arch placement.
  */
 export interface IPortraitDentalCrown {
   /** Maximum transverse width. */

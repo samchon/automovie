@@ -3,9 +3,6 @@ import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
 /**
  * Resolve copied cranial sections before the assembler mutates its cage.
  * The host's actual chin sets only explicitly chin-relative lower envelopes.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Resolves omission and complete section replacement, refusing invalid final envelopes.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Checks finite dimensions, section order and envelope bounds without clipping input.
  */
 export function resolvePortraitCraniumShape(
   chinY: number,

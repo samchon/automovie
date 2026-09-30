@@ -1,4 +1,4 @@
-import { connectedFaceArticulationDegrees } from "@automovie/playground/src/human/anatomy/connectedFaceArticulationDegrees";
+import { connectedFaceArticulationDegrees } from "@automovie/playground/src/human/face/anatomy/connectedFaceArticulationDegrees";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

@@ -1,4 +1,8 @@
-import { IAutoMovieRenderReport, IAutoMovieRenderTarget } from "@automovie/interface";
+import {
+  IAutoMovieRenderReport,
+  IAutoMovieRenderTarget,
+} from "@automovie/interface";
+
 import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
 
 /**

@@ -8,9 +8,9 @@
  */
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { positive } from "./positive";
-import { emptyMeshTarget } from "./emptyMeshTarget";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
+import { emptyMeshTarget } from "./emptyMeshTarget";
+import { positive } from "./positive";
 import { triangulateRegion } from "./triangulateRegion";
 
 /**

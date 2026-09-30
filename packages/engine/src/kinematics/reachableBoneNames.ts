@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 

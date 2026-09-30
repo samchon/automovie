@@ -1,6 +1,6 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
-import type { IAutoMovieHumanBodyExternalObliqueMeasurements } from "./IAutoMovieHumanBodyExternalObliqueMeasurements";
 import type { IAutoMovieHumanBodyExternalObliqueAponeurosisMeasurements } from "./IAutoMovieHumanBodyExternalObliqueAponeurosisMeasurements";
+import type { IAutoMovieHumanBodyExternalObliqueMeasurements } from "./IAutoMovieHumanBodyExternalObliqueMeasurements";
 import type { IAutoMovieHumanBodyInternalObliqueMeasurements } from "./IAutoMovieHumanBodyInternalObliqueMeasurements";
 import type { IAutoMovieHumanBodyLatissimusDorsiMeasurements } from "./IAutoMovieHumanBodyLatissimusDorsiMeasurements";
 import type { IAutoMovieHumanBodyPectoralisMajorMeasurements } from "./IAutoMovieHumanBodyPectoralisMajorMeasurements";

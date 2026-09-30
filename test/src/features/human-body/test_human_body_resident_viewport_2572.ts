@@ -1,7 +1,7 @@
 import { createHumanBodyBasisBuilder } from "@automovie/human";
-import { packConnectedBodyModel } from "@automovie/playground/src/human/connectedBodyGeometry";
-import { createConnectedBodyPort } from "@automovie/playground/src/human/connectedBodyPort";
-import { createConnectedBodyViewport } from "@automovie/playground/src/human/connectedBodyViewport";
+import { packConnectedBodyModel } from "@automovie/playground/src/human/body/connectedBodyGeometry";
+import { createConnectedBodyPort } from "@automovie/playground/src/human/body/connectedBodyPort";
+import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

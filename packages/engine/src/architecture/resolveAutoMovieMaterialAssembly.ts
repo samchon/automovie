@@ -1,4 +1,8 @@
-import { IAutoMovieMaterialAssembly, IAutoMovieMaterialSubstance } from "@automovie/interface";
+import {
+  IAutoMovieMaterialAssembly,
+  IAutoMovieMaterialSubstance,
+} from "@automovie/interface";
+
 import { IAutoMovieAssemblyHost } from "./IAutoMovieAssemblyHost";
 import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";

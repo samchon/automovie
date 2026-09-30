@@ -1,11 +1,18 @@
-import { IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { convexHull2D } from "../math/convexHull2D";
+import { IAutoMovieHeightSurface } from "../space/IAutoMovieHeightSurface";
 import { footprintConvexPieces } from "../space/footprintConvexPieces";
 import { footprintRing } from "../space/footprintRing";
 import { surfaceFootprint } from "../space/surfaceFootprint";
-import { IAutoMovieHeightSurface } from "../space/IAutoMovieHeightSurface";
 import { IAutoMoviePropSupportFace } from "./IAutoMoviePropSupportFace";
 
 /** Tolerance for containment and fit comparisons, in metres. */

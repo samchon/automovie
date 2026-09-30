@@ -1,11 +1,11 @@
 import {
   createHairCardShadowMaterial,
   hairFibreShadowOpacity,
-} from "@automovie/playground/src/human/hairCardShadow";
+} from "@automovie/playground/src/human/common/hairCardShadow";
 import {
   disposeHumanPreview,
   prepareHumanPreview,
-} from "@automovie/playground/src/human/previewScene";
+} from "@automovie/playground/src/human/common/previewScene";
 import { buildMaterial } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";

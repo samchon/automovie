@@ -13,8 +13,6 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * translation of a disc over a head-aligned height field. Shortest-arc rotation
  * carries both optical layers without changing their radii or thickness.
  * All coordinates retain construction millimetres until model conversion.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Orients iris pigment and its corneal shell together on their resident globe.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Supplies one centred spherical support and rigid radial placement for drawing and optical contact.
  */
 export function createPortraitOpticalFrame(
   sphere: IPortraitEyeSphere,

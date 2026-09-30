@@ -1,4 +1,4 @@
-import { humanPreviewSoftbox } from "@automovie/playground/src/human/previewSoftbox";
+import { humanPreviewSoftbox } from "@automovie/playground/src/human/common/previewSoftbox";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";

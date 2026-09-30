@@ -1,9 +1,6 @@
 /**
  * Shared shape admission and editor envelopes. These are authoring bounds,
  * not measured population limits; the caller supplies each chosen value.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives each lash axis a unit and bounded editing meaning.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Shares one scalar envelope between geometry admission and the detail editor.
  */
 export const portraitEyelashParameters = [
   {

@@ -1,4 +1,11 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import { AutoMovieGenericGesture } from "./AutoMovieGenericGesture";
 
 const GENERIC = new Set<string>([

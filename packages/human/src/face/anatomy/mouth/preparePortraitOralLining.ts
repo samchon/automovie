@@ -1,9 +1,10 @@
-
-import { portraitNormals } from "../../mesh/portraitNormals";
-import { assertPortraitOralLining } from "./assertPortraitOralLining";
-import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
-import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
+import { assertPortraitOralLining } from "./assertPortraitOralLining";
+import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
+import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
+
 /**
  * Close the interior behind one actual refined lip boundary. The seed chooses
  * its oriented free cycle from a lip band that may also have an outer boundary.
@@ -16,11 +17,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * This enclosure does not reconstruct gingiva or certify tissue clearance.
  * The returned boundary names the source skin vertex for each initial mesh
  * vertex, in order. Both boundary and mesh arrays are newly owned.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs an explicit oral enclosure separately from teeth and tongue.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples a declared straight-wall fraction and posterior cosine taper in head millimetres.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Uses the final skin's actual attachment boundary after refinement and performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Traces the seeded free cycle, copies every refined rim point and opposes its skin-edge winding.
  */
 export function preparePortraitOralLining(
   surface: {
@@ -101,7 +97,7 @@ export function preparePortraitOralLining(
   const mesh: IAutoMovieMesh = {
     positions,
     indices,
-    normals: portraitNormals(positions, indices),
+    normals: areaWeightedNormals(positions, indices),
     uvs: null,
     skin: null,
   };

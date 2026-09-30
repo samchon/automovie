@@ -1,4 +1,4 @@
-import { connectedFaceJawExcursionMillimetres } from "@automovie/playground/src/human/anatomy/connectedFaceJawExcursionMillimetres";
+import { connectedFaceJawExcursionMillimetres } from "@automovie/playground/src/human/face/anatomy/connectedFaceJawExcursionMillimetres";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";

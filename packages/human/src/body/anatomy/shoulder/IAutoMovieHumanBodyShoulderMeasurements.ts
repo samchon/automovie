@@ -1,8 +1,8 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyClavicleMeasurements } from "./IAutoMovieHumanBodyClavicleMeasurements";
 import type { IAutoMovieHumanBodyDeltoidMeasurements } from "./IAutoMovieHumanBodyDeltoidMeasurements";
-import type { IAutoMovieHumanBodyScapulaMeasurements } from "./IAutoMovieHumanBodyScapulaMeasurements";
 import type { IAutoMovieHumanBodyRotatorCuffMeasurements } from "./IAutoMovieHumanBodyRotatorCuffMeasurements";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
+import type { IAutoMovieHumanBodyScapulaMeasurements } from "./IAutoMovieHumanBodyScapulaMeasurements";
 
 /**
  * One side's shoulder-complex measurements, with independently owned parts.
@@ -18,9 +18,9 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyShoulderMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  clavicle?: IAutoMovieHumanBodyClavicleMeasurements;
-  scapula?: IAutoMovieHumanBodyScapulaMeasurements;
-  deltoid?: IAutoMovieHumanBodyDeltoidMeasurements;
-  /** Four scapular rotator-cuff bellies with humeral insertions. */
-  rotatorCuff?: IAutoMovieHumanBodyRotatorCuffMeasurements;
+    clavicle?: IAutoMovieHumanBodyClavicleMeasurements;
+    scapula?: IAutoMovieHumanBodyScapulaMeasurements;
+    deltoid?: IAutoMovieHumanBodyDeltoidMeasurements;
+    /** Four scapular rotator-cuff bellies with humeral insertions. */
+    rotatorCuff?: IAutoMovieHumanBodyRotatorCuffMeasurements;
   }>;

@@ -1,4 +1,9 @@
-import { IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { validatePose } from "./validatePose";
 
 /**

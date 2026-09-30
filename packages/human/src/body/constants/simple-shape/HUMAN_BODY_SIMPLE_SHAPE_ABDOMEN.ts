@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * These dimensionless rows set visible skin channel weights. They neither reconstruct tissue volumes nor establish safe contact in a combined pose.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_ABDOMEN: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_ABDOMEN: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // the abdominal wall's tone: raised by muscle
       channel: "stomachTone",
@@ -65,4 +66,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_ABDOMEN: IAutoMovieHumanBodySimpleShapeTabl
         },
       ],
     },
-];
+  ];

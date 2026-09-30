@@ -1,8 +1,9 @@
 import { IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
-import { validateTransformScalars } from "./validateTransformScalars";
 import { ViolationCollector } from "./ViolationCollector";
+import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
  * Validate a {@link IAutoMoviePose} against its skeleton.

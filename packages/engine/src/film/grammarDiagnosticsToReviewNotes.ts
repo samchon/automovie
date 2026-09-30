@@ -1,4 +1,5 @@
 import { IAutoMovieReviewNote } from "@automovie/interface";
+
 import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
 
 /**

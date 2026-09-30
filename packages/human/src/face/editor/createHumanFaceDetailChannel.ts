@@ -2,8 +2,6 @@ import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanF
 
 /**
  * Construct one independently documented scalar channel without admitting geometry.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Keeps numerical authoring channels tied to their anatomical profile and units.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Supplies scalar editing envelopes while leaving coupled geometry admission to the component.
  */
 export const createHumanFaceDetailChannel = (
   region: Exclude<

@@ -1,10 +1,8 @@
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare hair scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes guide width, taper, painted fibres, curl and sampling through hair detail controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Uses the same hair profile leaves for the legacy owner and named additional layers, separating painted effects from mesh sampling.
  */
 export const humanFaceHairChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

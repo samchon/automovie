@@ -1,11 +1,12 @@
 import { IAutoMovieLight } from "@automovie/interface";
+
 import { withArticle } from "../text/withArticle";
 import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
-import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
+import { IAutoMovieShotLightingInput } from "./IAutoMovieShotLightingInput";
 import { applyLightOverride } from "./applyLightOverride";
+import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "./parseLightPointer";
 import { sampleClip } from "./sampleClip";
-import { IAutoMovieShotLightingInput } from "./IAutoMovieShotLightingInput";
 
 /**
  * The APPLY pass for light animation: evaluate a shot's `lightMotions` at

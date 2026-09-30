@@ -11,9 +11,6 @@ type Shoulder = NonNullable<
  * total elevation and axial rotation ranges, then the joint-sinus maximum of
  * its plane, with the overhead pole judged by direction rather than by the
  * plane the author happened to write (see `humanBodyShoulderElevationLimit`).
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Admits a shoulder goal only inside the clinical reach of its direction and refuses the rest instead of clamping it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Applies the elevation and axial ranges, the plane envelope and the pole rule that the builder, basis admission and editor share.
  */
 export function humanBodyShoulderReaches(
   shoulder: Pick<Shoulder, "range">,

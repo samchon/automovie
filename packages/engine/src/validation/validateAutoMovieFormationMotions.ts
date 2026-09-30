@@ -1,4 +1,9 @@
-import { IAutoMovieCompiledShotSource, IAutoMovieDiagnostic, IAutoMovieShotContract } from "@automovie/interface";
+import {
+  IAutoMovieCompiledShotSource,
+  IAutoMovieDiagnostic,
+  IAutoMovieShotContract,
+} from "@automovie/interface";
+
 import { autoMovieModelGaits } from "../index";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";

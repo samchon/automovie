@@ -1,5 +1,6 @@
-import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 
 type Triangle = {
   points: number[][];

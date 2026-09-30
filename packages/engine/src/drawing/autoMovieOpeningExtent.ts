@@ -1,4 +1,5 @@
 import { IAutoMovieOpeningProfile } from "@automovie/interface";
+
 import { outlineHull } from "../architecture/outlineHull";
 import { polygonBounds } from "../architecture/polygonBounds";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";

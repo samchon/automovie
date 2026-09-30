@@ -1,7 +1,7 @@
 import {
   type IAutoMovieHumanFaceBasis,
   createPortraitMaterials,
-  encodePortraitPng,
+  encodePng,
 } from "@automovie/human";
 
 /**
@@ -49,7 +49,7 @@ export function humanFaceIrisGlobeFixture(
           if (degrees <= options.painted)
             rgba.fill(64, 4 * (y * size + x), 4 * (y * size + x) + 3);
         }
-  const texture = encodePortraitPng({ width: size, height: size, rgba });
+  const texture = encodePng({ width: size, height: size, rgba });
   const positions: number[] = [];
   const indices: number[] = [];
   const uvs: number[] = [];

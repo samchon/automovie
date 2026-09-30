@@ -1,16 +1,17 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
+import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { asArray } from "./asArray";
+import { clipLoopFault } from "./clipLoopFault";
+import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
 import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
 import { validateArrayArtifact } from "./validateArrayArtifact";
+import { validateHonorableChannel } from "./validateHonorableChannel";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
-import { clipLoopFault } from "./clipLoopFault";
-import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
-import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
-import { validateHonorableChannel } from "./validateHonorableChannel";
 
 /**
  * One clip's structural contract, to the depth every consumer dereferences it.

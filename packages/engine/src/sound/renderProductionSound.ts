@@ -1,9 +1,13 @@
-import type { IAutoMovieProductionSoundAnalysis, IAutoMovieProductionSoundPlan } from "@automovie/interface";
+import type {
+  IAutoMovieProductionSoundAnalysis,
+  IAutoMovieProductionSoundPlan,
+} from "@automovie/interface";
+
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
-import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 import { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";
+import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 
 /**
  * Render the event palette, procedural score, and already synthesized dialogue

@@ -1,11 +1,8 @@
-import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
+import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 
 /**
  * Refuse invalid fibre dimensions before fitting an eye or allocating brow meshes.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Refuses impossible strand dimensions and populations before brow mesh construction.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Checks finite radii, taper, bounded segments and roots/spans inside the supporting brow, including optional endpoint fades.
  */
 export function assertPortraitEyebrowProfile(
   shape: IPortraitEyebrowProfile,

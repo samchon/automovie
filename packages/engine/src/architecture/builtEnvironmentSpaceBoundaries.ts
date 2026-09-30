@@ -1,4 +1,7 @@
-import { IAutoMovieBuiltBoundary, IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import {
+  IAutoMovieBuiltBoundary,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
 
 /**
  * Return every boundary that encloses or separates a logical space.

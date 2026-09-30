@@ -1,9 +1,13 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 import { IAutoMovieBuiltEnvelopeCorner } from "./IAutoMovieBuiltEnvelopeCorner";
 import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
+import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 
 /**
  * Every meeting of two exposed facades of one building unit.

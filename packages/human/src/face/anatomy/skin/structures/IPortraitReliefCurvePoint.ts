@@ -6,8 +6,6 @@
  * continuous authored path rather than a collection of unrelated blobs.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Lets a narrow anatomical crest follow live component attachments.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines one retained skin anchor with a metric offset, support radius and signed displacement along a relief curve.
  */
 export interface IPortraitReliefCurvePoint {
   /** Resident skin vertex used to follow component replacement. */

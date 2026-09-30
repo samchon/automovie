@@ -1,9 +1,15 @@
-import { IAutoMovieSoftAnalysis, IAutoMovieSoftBodyDomain, IAutoMovieSoftBodyState, IAutoMovieSoftFurnishing } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnalysis,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftFurnishing,
+} from "@automovie/interface";
+
+import { IAutoMovieSoftFurnishingFrame } from "./IAutoMovieSoftFurnishingFrame";
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
 import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
-import { IAutoMovieSoftFurnishingFrame } from "./IAutoMovieSoftFurnishingFrame";
 
 /**
  * Lower one bound furnishing to everything a renderer needs at a shot second,

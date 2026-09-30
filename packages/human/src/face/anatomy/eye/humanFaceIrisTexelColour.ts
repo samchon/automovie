@@ -19,9 +19,6 @@ const HUMAN_FACE_PUPIL_COLOUR: readonly [number, number, number] = [
  * Inside the pupil the pupil colour is used. Both edges blend linearly over
  * `edge` radians either side: into the pupil, and outward into the
  * texture's `original` colour, so the sclera keeps its painted detail.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Draws a limbal ring, fibre bands and a pupil from the authored pigment alone.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Evaluates the band of a texel from its normalized radius and azimuth and blends both edges.
  */
 export function humanFaceIrisTexelColour(props: {
   theta: number;

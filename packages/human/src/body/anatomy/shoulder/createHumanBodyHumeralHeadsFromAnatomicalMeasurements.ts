@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBuild } from "../../structures/IAutoMovieHumanBodyBuild";
-import { admitHumanBodyAnatomicalMeasurements } from "../admitHumanBodyAnatomicalMeasurements";
-import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../IAutoMovieHumanBodyAnatomicalMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalMeasurements } from "../measurements/IAutoMovieHumanBodyAnatomicalMeasurements";
+import { admitHumanBodyAnatomicalMeasurements } from "../measurements/admitHumanBodyAnatomicalMeasurements";
 import type { IAutoMovieHumanBodyHumeralHead } from "./IAutoMovieHumanBodyHumeralHead";
 import { placeHumanBodyHumeralHead } from "./placeHumanBodyHumeralHead";
 
@@ -22,14 +22,26 @@ export function createHumanBodyHumeralHeadsFromAnatomicalMeasurements(input: {
 }): IAutoMovieHumanBodyHumeralHead[] {
   const measurements = admitHumanBodyAnatomicalMeasurements(input.measurements);
   return (["left", "right"] as const).flatMap((side) => {
-    const radius = measurements[`${side}UpperLimb`]?.upperArm?.humerus?.sphereFittedHeadRadius;
+    const radius =
+      measurements[`${side}UpperLimb`]?.upperArm?.humerus
+        ?.sphereFittedHeadRadius;
     if (radius === undefined) return [];
     const placement = {
       bone: side === "left" ? "leftUpperArm" : "rightUpperArm",
       bones: input.bones,
     } as const;
-    return [radius.kind === "observed"
-      ? placeHumanBodyHumeralHead({ ...placement, source: "observed", observation: radius })
-      : placeHumanBodyHumeralHead({ ...placement, source: "target", radiusMetres: radius.millimetres / 1000 })];
+    return [
+      radius.kind === "observed"
+        ? placeHumanBodyHumeralHead({
+            ...placement,
+            source: "observed",
+            observation: radius,
+          })
+        : placeHumanBodyHumeralHead({
+            ...placement,
+            source: "target",
+            radiusMetres: radius.millimetres / 1000,
+          }),
+    ];
   });
 }

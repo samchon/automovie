@@ -1,4 +1,4 @@
-import { portraitNormals } from "../mesh/portraitNormals";
+import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
@@ -148,7 +148,7 @@ export function createHumanFaceBasisPoseEvaluator(
     const normals = new Map(
       basis.surfaces.map((surface) => [
         surface.id,
-        portraitNormals(posed.get(surface.id)!, surface.indices),
+        areaWeightedNormals(posed.get(surface.id)!, surface.indices),
       ]),
     );
     return { positions: posed, normals, summary };

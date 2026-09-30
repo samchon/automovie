@@ -1,18 +1,16 @@
-
-import { portraitMix as mix } from "../../mesh/portraitMix";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
+import type { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
+import type { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
+import { portraitEyeLoop } from "./portraitEyeLoop";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
-import type { createPortraitLowerLidProfile } from "./createPortraitLowerLidProfile";
 import type { IPortraitLowerLidSection } from "./structures/IPortraitLowerLidSection";
-import type { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
 import type { IPortraitUpperLidSection } from "./structures/IPortraitUpperLidSection";
-import { portraitEyeLoop } from "./portraitEyeLoop";
+
 /**
  * One numerical section calculation supplies both the skin constraint and lid rings.
  * Coordinates and offsets are millimetres; an optional fixed guide owns the
  * outer seam while posed contact fades across the same transverse section.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs named upper/lower tissue rows from independent anatomical profiles.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Keeps host attachment targets and emitted eyelid geometry on one section formula.
  */
 // One calculation supplies both the part boundary constraint and its lid rows.
 // The host and the component therefore cannot disagree about the seam position.

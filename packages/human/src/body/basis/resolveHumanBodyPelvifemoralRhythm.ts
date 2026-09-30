@@ -28,9 +28,6 @@ const LEGS = ["leftUpperLeg", "rightUpperLeg"] as const;
  * coupled angles; these outputs are what the engine's range validation
  * judges, next to the coupled angles themselves. The pelvis turn about the
  * hip centres is the builder's; this function only produces angles.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Moves the pelvis and lumbar spine with a lifted thigh by a declared, cited rhythm instead of posing hip flexion against a fixed pelvis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Derives the shared tilt from the larger trunk-relative leg flexion and the pelvic-relative root, lumbar and hip angles the pose validation judges.
  */
 export function resolveHumanBodyPelvifemoralRhythm(
   basis: Pick<IAutoMovieHumanBodyBasis, "joints" | "pelvifemoral">,

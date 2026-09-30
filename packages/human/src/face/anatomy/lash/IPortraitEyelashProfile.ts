@@ -6,8 +6,6 @@
  * This rigid attachment does not simulate individual-hair dynamics.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates lash length, launch, curl, lateral fan and fibre cross-section from the aperture.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines a bounded numerical strand profile attached to the final upper margin.
  */
 export interface IPortraitEyelashProfile {
   /** Maximum centreline arc length in [0.1,20] mm; canthal and growth weights shorten individual lashes. */

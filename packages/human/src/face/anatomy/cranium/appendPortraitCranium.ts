@@ -1,9 +1,9 @@
-import { portraitMix as mix } from "../../mesh/portraitMix";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { resolvePortraitCraniumShape } from "./resolvePortraitCraniumShape";
 import { portraitCranialChinHeight } from "./portraitCranialChinHeight";
+import { portraitFacialOvalVertices } from "./portraitFacialOvalVertices";
+import { resolvePortraitCraniumShape } from "./resolvePortraitCraniumShape";
 import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
-import { facialOval } from "./facialOval";
 
 /**
  * Continue the caller's facial boundary across the cranial vault and jaw.
@@ -15,8 +15,6 @@ import { facialOval } from "./facialOval";
  * Its ordered boundary belongs to the neck builder, so the finished skin is one
  * surface rather than a closed head intersecting a separate cylinder.
  * The input retains the first 468 measured facial vertex identities.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Continues the facial oval into distinct cranial vault, occipital and mandibular envelopes.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Builds ordered sagittal sections and a shared posterior cap while leaving an oriented collar for the neck.
  */
 export function appendPortraitCranium(
   cage: IControlMesh,
@@ -35,7 +33,7 @@ export function appendPortraitCranium(
     chinY,
     shape,
   );
-  const angles = facialOval.map((id) =>
+  const angles = portraitFacialOvalVertices.map((id) =>
     Math.atan2(
       positions[id][0] / frame.width,
       (positions[id][1] - frame.centerY) / frame.height,
@@ -66,13 +64,13 @@ export function appendPortraitCranium(
   // One transition row leaves the observed oval gradually. This is a control
   // row for the common subdivision surface, not an extra overlapping shell.
   sections.unshift(
-    facialOval.map((id, i) =>
+    portraitFacialOvalVertices.map((id, i) =>
       positions[id].map((value, axis) =>
         mix(value, sections[0][i][axis], transition),
       ),
     ),
   );
-  const rings = [facialOval];
+  const rings = [portraitFacialOvalVertices];
   for (const section of sections)
     rings.push(section.map((point) => positions.push(point) - 1));
 
@@ -85,7 +83,7 @@ export function appendPortraitCranium(
     firstColumn = 12,
     lastColumn = 24;
   for (let row = 1; row < rings.length; row++)
-    for (let column = 0; column < facialOval.length; column++) {
+    for (let column = 0; column < portraitFacialOvalVertices.length; column++) {
       if (
         row > firstRow &&
         row <= lastRow &&
@@ -93,7 +91,7 @@ export function appendPortraitCranium(
         column < lastColumn
       )
         continue;
-      const next = (column + 1) % facialOval.length;
+      const next = (column + 1) % portraitFacialOvalVertices.length;
       indices.push(
         rings[row - 1][column],
         rings[row - 1][next],

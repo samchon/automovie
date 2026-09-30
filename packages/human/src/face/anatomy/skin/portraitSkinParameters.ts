@@ -3,9 +3,6 @@
  * weights persistent folds, volume loss and descent together; each regional
  * amount remains independently authored. Expression creasing is independent,
  * so a taut face may crease temporarily without acquiring resting age folds.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Gives skin folds and soft-tissue descent named, unit-bearing controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Shares scalar defaults and bounds between construction and the numerical editor.
  */
 export const portraitSkinParameters = [
   {

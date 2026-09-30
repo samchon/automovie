@@ -22,9 +22,6 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * at either end of its span, which is the whole envelope unless the input
  * names one. A corrective is shape-only when every driver is a shape channel,
  * which is what lets landmarks and identity read it.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Refuses unsupported channels and out-of-envelope weights instead of clamping them.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
  */
 export function humanFaceBasisWeights(
   basis: IAutoMovieHumanFaceBasis,

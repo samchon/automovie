@@ -2,9 +2,9 @@ import {
   createHumanBodyBasisBuilder,
   serializeHumanBodyBasisDocument,
 } from "@automovie/human";
-import { packConnectedBodyModel } from "@automovie/playground/src/human/connectedBodyGeometry";
-import { connectedBodyTransfers } from "@automovie/playground/src/human/connectedBodyProtocol";
-import { createConnectedBodyRuntime } from "@automovie/playground/src/human/connectedBodyRuntime";
+import { packConnectedBodyModel } from "@automovie/playground/src/human/body/connectedBodyGeometry";
+import { connectedBodyTransfers } from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
 import { WebIO } from "@gltf-transform/core";
 import {
   KHRMaterialsClearcoat,

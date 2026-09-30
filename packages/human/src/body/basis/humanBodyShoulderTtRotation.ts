@@ -8,9 +8,6 @@ const DOWN = Vector3.create(0, -1, 0);
 /**
  * Direct tilt into the selected plane, followed by independent rotation about
  * the resulting humeral axis. There is no initial long-axis turn, unlike YXY.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Gives an authored humerothoracic elevation its direction without coupling plane choice into axial rotation.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Rotates about the plane's transverse axis before applying a separate final-axis torsion.
  */
 export function humanBodyShoulderTtRotation(
   pose: IAutoMovieHumanBodyShoulderPose,

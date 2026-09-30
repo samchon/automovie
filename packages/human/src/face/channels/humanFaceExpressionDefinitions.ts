@@ -1,9 +1,6 @@
 /**
  * Authoring ranges for independent performance channels. These are supported
  * kinematic controls, not medical population limits or detector probabilities.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Gives the editor explicit neutral, side and unit semantics for performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Separates closure, gaze, perioral movement and mandibular angle.
  */
 export const humanFaceExpressionDefinitions = [
   {

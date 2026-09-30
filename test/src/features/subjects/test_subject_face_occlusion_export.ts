@@ -1,4 +1,4 @@
-import { encodePortraitPng, exportHumanFace } from "@automovie/human";
+import { encodePng, exportHumanFace } from "@automovie/human";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,7 @@ export const test_subject_face_occlusion_export = async (): Promise<void> => {
       skin: null,
     },
   };
-  const uri = encodePortraitPng({
+  const uri = encodePng({
     width: 2,
     height: 2,
     rgba: new Uint8Array([

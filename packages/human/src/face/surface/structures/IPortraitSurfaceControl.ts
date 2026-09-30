@@ -4,8 +4,6 @@
  * It is not the amplitude of another independently added bump.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Names one resident datum and its total requested movement so a local control remains attached to the shared skin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Declares the stable control name, retained vertex, millimetre offset and millimetre displacement consumed by the coupled solve.
  */
 export interface IPortraitSurfaceControl {
   /** Unique anatomical responsibility, also fixing deterministic solve order. */

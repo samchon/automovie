@@ -7,8 +7,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * once by the group's lift and recess. Corner points establish orientation,
  * never per-tooth positions or scaling. All points and offsets use millimetres.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Binds the complete enamel group through oral anchors and one rigid lift/recess frame.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines a corner chord, independent upward guide and upper-lip origin for a single millimetre attachment transform.
  */
 export interface IPortraitDentalAttachment {
   /** Anatomical right oral corner in head millimetres. */

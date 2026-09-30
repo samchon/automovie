@@ -1,4 +1,8 @@
-import { IAutoMovieAssetProvenance, IAutoMovieModel } from "@automovie/interface";
+import {
+  IAutoMovieAssetProvenance,
+  IAutoMovieModel,
+} from "@automovie/interface";
+
 import { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 

@@ -1,5 +1,5 @@
 import { buildPortraitEye } from "@automovie/human/face/anatomy/eye/buildPortraitEye";
-import { portraitPoint } from "@automovie/human/face/mesh/portraitPoint";
+import { millimetrePoint } from "@automovie/human/face/mesh/millimetrePoint";
 import { TestValidator } from "@nestia/e2e";
 
 import { portraitEyeShapeFixture } from "../internal/portraitEyeShapeFixture";
@@ -53,7 +53,7 @@ export const test_subject_sclera_normals = (): void => {
         tissues: undefined,
         sampling: { eyeColumns: 4, eyeRows: 2, irisColumns: 8, irisRows: 2 },
       },
-      { center: portraitPoint(offset[0], offset[1], offset[2]), radius: 2 },
+      { center: millimetrePoint(offset[0], offset[1], offset[2]), radius: 2 },
     );
     const part = parts.find((part) => part.id === "left-sclera")!;
     if (part.geometry.type !== "mesh")

@@ -1,4 +1,9 @@
-import { AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieModel,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 
 /**

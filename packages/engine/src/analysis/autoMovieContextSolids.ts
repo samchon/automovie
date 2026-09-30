@@ -1,4 +1,8 @@
-import { IAutoMovieContextOccluder, IAutoMovieEnvironmentContext } from "@automovie/interface";
+import {
+  IAutoMovieContextOccluder,
+  IAutoMovieEnvironmentContext,
+} from "@automovie/interface";
+
 import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 
 /**

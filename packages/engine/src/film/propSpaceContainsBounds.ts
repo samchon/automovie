@@ -1,4 +1,9 @@
-import { IAutoMovieBuiltEnvironment, IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 

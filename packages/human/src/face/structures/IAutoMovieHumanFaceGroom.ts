@@ -1,4 +1,5 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
+
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import { IAutoMovieHumanFaceGroomCard } from "./IAutoMovieHumanFaceGroomCard";
 
@@ -12,8 +13,6 @@ import { IAutoMovieHumanFaceGroomCard } from "./IAutoMovieHumanFaceGroomCard";
  * that could not state its own finish would be unusable without editing the
  * basis it was authored against.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Keeps authored lock arrays replaceable as one independent numerical profile.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Separates complete card replacement from width, taper and tessellation controls.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceGroom {

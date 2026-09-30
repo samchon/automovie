@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import { IAutoMovieRestFrame } from "../IAutoMovieRestFrame";
 
 /**

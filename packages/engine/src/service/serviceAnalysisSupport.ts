@@ -1,4 +1,9 @@
-import { AutoMovieServiceDiscipline, IAutoMovieBuiltEnvironment, IAutoMovieServiceNetwork } from "@automovie/interface";
+import {
+  AutoMovieServiceDiscipline,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieServiceNetwork,
+} from "@automovie/interface";
+
 import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
 import { IAutoMovieServiceCheckReport } from "./IAutoMovieServiceCheckReport";
 

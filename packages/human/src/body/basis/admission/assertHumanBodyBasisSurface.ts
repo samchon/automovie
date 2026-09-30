@@ -1,4 +1,7 @@
-import { measureAutoMovieMeshCrossings, validateMeshTopology } from "@automovie/engine";
+import {
+  measureAutoMovieMeshCrossings,
+  validateMeshTopology,
+} from "@automovie/engine";
 
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
 import { humanBodyCappedSurface } from "../../simple/humanBodyCappedSurface";

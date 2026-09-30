@@ -1,4 +1,11 @@
-import { AutoMovieDesignLifecycleRole, AutoMovieDesignPresence, IAutoMovieDesignLineage, IAutoMovieDesignPhaseSnapshot, IAutoMovieDesignPhaseState } from "@automovie/interface";
+import {
+  AutoMovieDesignLifecycleRole,
+  AutoMovieDesignPresence,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignPhaseSnapshot,
+  IAutoMovieDesignPhaseState,
+} from "@automovie/interface";
+
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { validateDesignLineage } from "./validateDesignLineage";
 

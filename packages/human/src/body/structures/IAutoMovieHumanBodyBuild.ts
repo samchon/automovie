@@ -22,8 +22,6 @@ import type {
  * before UV seams and materials duplicate its corners. Its arrays belong to
  * this build and are not a second stored body document.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Exposes the rest and posed joint transforms so a consumer can verify that skinned vertices followed their bone's arc.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Returns the rest skeleton and per-bone world transforms the skinning formula composed.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyBuild {

@@ -1,5 +1,5 @@
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { innerLoop } from "./structures/innerLoop";
+import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
 
 /**
  * Select the connected vermilion band by its two anatomical boundary loops.
@@ -8,8 +8,6 @@ import { innerLoop } from "./structures/innerLoop";
  * This preserves the authored contour after subdivision; a centroid-in-polygon
  * paint test can select half of a boundary quad and produce a jagged lip edge.
  * Returned identities are triangle numbers in the supplied connectivity.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps the vermilion material bound to the complete connected anatomical band.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Floods triangle adjacency from an interior seed while treating both outer lip and inner mouth loops as uncrossable barriers.
  */
 export function portraitLipTriangles(
   triangles: number[],
@@ -18,7 +16,7 @@ export function portraitLipTriangles(
   const edgeKey = (a: number, b: number): string =>
     `${Math.min(a, b)}/${Math.max(a, b)}`;
   const barriers = new Set<string>();
-  for (const loop of [socket.outer, innerLoop(socket)])
+  for (const loop of [socket.outer, portraitMouthInnerLoop(socket)])
     for (let i = 0; i < loop.length; i++)
       barriers.add(edgeKey(loop[i], loop[(i + 1) % loop.length]));
   const incident = new Map<string, number[]>();

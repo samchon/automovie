@@ -1,4 +1,9 @@
-import { IAutoMovieSubjectArtifact, IAutoMovieSubjectReviewTarget, IAutoMovieSubjectReviewUnit } from "@automovie/interface";
+import {
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectReviewTarget,
+  IAutoMovieSubjectReviewUnit,
+} from "@automovie/interface";
+
 import { describeAutoMovieSubject } from "./describeAutoMovieSubject";
 
 /**

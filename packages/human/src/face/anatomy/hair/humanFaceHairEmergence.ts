@@ -33,9 +33,6 @@ const HAIRLINE_DEGREES = 15;
  * combed; a field with no tangential part leaves the hair on its normal, since
  * there is no direction to lie down in. The caller owns what happens after
  * emergence, including the surface contact this direction is projected by.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Emerges every generated hair by one shared anatomical rule instead of a per-person correction.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair States the exit angle from the scalp and tilts the normal toward the growth field by it.
  */
 export function humanFaceHairEmergence(props: {
   hairline: IAutoMovieHumanFaceHair.Layer["hairline"];

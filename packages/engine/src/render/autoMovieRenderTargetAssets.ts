@@ -1,4 +1,8 @@
-import { AutoMovieContentDigest, IAutoMovieRenderTargetAsset } from "@automovie/interface";
+import {
+  AutoMovieContentDigest,
+  IAutoMovieRenderTargetAsset,
+} from "@automovie/interface";
+
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /**

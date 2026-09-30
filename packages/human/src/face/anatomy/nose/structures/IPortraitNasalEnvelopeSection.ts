@@ -2,8 +2,6 @@
  * One exterior-to-vestibule section around an ordered nasal opening.
  * Width, crest and roll are independent of the opening's fitted position.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates circumferential tissue width, crest position and inward roll instead of assigning one torus section to every nasal margin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines an ordered unit-perimeter station with metric exterior dimensions and a signed shared-rim tangent angle.
  * @author Samchon
  */
 export interface IPortraitNasalEnvelopeSection {

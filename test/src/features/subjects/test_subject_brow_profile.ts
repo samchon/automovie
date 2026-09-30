@@ -1,7 +1,7 @@
 import { assertPortraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/assertPortraitEyebrowProfile";
 import { portraitEyebrowProfile } from "@automovie/human/face/anatomy/brow/portraitEyebrowProfile";
-import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { TestValidator } from "@nestia/e2e";
 
 import {

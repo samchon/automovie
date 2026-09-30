@@ -1,4 +1,4 @@
-import { createHumanResidentPort } from "@automovie/playground/src/human/residentPort";
+import { createHumanResidentPort } from "@automovie/playground/src/human/common/residentPort";
 import { TestValidator } from "@nestia/e2e";
 
 /**

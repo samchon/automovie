@@ -1,7 +1,11 @@
-import { IAutoMovieFormationSlotMotion, IAutoMovieFormationSlotState } from "@automovie/interface";
+import {
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieFormationSlotState,
+} from "@automovie/interface";
+
+import { IDENTITY_FORMATION_SLOT_STATE } from "./constants/IDENTITY_FORMATION_SLOT_STATE";
 import { easingProgress } from "./easingProgress";
 import { lerp } from "./lerp";
-import { IDENTITY_FORMATION_SLOT_STATE } from "./constants/IDENTITY_FORMATION_SLOT_STATE";
 
 /**
  * Sample what one named member of a unit is doing differently at one time.

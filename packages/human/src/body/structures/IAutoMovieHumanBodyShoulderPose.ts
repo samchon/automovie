@@ -8,9 +8,6 @@
  * rotation is external. At elevation 0° the plane is unobservable; at 180°
  * `(plane + d, axialRotation - 2d)` is the same orientation. Both poles remain
  * authorable, and these equivalent angles are never silently canonicalized.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Gives an author a plane, total elevation and independent humeral axial rotation for each shoulder.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Fixes the thorax frame, sides, angles and pole equivalence of the shoulder orientation.
  */
 export interface IAutoMovieHumanBodyShoulderPose {
   /** Which measured upper arm receives this thorax-relative goal. */

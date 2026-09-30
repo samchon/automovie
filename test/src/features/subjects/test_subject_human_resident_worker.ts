@@ -1,7 +1,7 @@
 import {
   type HumanResidentPort,
   createHumanResidentWorker,
-} from "@automovie/playground/src/human/residentWorker";
+} from "@automovie/playground/src/human/common/residentWorker";
 import { TestValidator } from "@nestia/e2e";
 
 /**

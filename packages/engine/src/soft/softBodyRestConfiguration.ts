@@ -1,4 +1,7 @@
-import type { IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The configuration a panel is in before a single step is integrated: the

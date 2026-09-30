@@ -1,7 +1,7 @@
-import type { IAutoMovieExternalMotionBasis } from "./IAutoMovieExternalMotionBasis";
-import type { IAutoMovieExternalMotionTake } from "./IAutoMovieExternalMotionTake";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
+import type { IAutoMovieExternalMotionBasis } from "./IAutoMovieExternalMotionBasis";
 import { IAutoMovieExternalMotionReceiptResource } from "./IAutoMovieExternalMotionReceiptResource";
+import type { IAutoMovieExternalMotionTake } from "./IAutoMovieExternalMotionTake";
 
 /**
  * Complete byte-grounded source basis consumed by one motion conversion.

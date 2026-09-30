@@ -7,8 +7,6 @@ import { IPortraitLipBandKnot } from "./structures/IPortraitLipBandKnot";
  * those same endpoint values. Adjacent knots use a cubic smoothstep, so values
  * stay within their positive endpoint hull with zero slope at the knots.
  * The function owns copied data; a provided zero or empty array is invalid.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Changes vermilion thickness independently of aperture size while preserving the two commissures.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Admits a scalar or two-to-64-knot profile and interpolates positive ratios inside their endpoint hull with identity corners.
  */
 export function createPortraitLipBandScale(
   input?: number | readonly IPortraitLipBandKnot[],

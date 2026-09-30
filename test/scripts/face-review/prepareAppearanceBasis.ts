@@ -3,8 +3,8 @@ import {
   type IAutoMovieHumanFaceBasisDocument,
   type IAutoMovieHumanFaceControlMap,
   createHumanFaceBasisBuilder,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 
 import { faceLikenessSrgbToLab } from "./faceLikenessColour";
@@ -135,7 +135,7 @@ export function prepareAppearanceBasis(input: {
   for (const id of eyeMaterials) material(id).roughness = ocular.roughness;
 
   // The enamel: every crown texel shifted to the target median.
-  const enamelImage = decodePortraitPng(
+  const enamelImage = decodePng(
     material(region.material).baseColorTexture as string,
   );
   const crownTexels = new Set<number>();
@@ -162,7 +162,7 @@ export function prepareAppearanceBasis(input: {
     const rgb = labToSrgb(labs[at]!.map((value, c) => value + shift[c]!));
     for (let c = 0; c < 3; ++c) enamelImage.rgba[4 * index + c] = rgb[c]!;
   });
-  material(region.material).baseColorTexture = encodePortraitPng(enamelImage);
+  material(region.material).baseColorTexture = encodePng(enamelImage);
   const labsAfter = [...crownTexels].map((index) =>
     faceLikenessSrgbToLab(
       enamelImage.rgba[4 * index]!,

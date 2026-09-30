@@ -1,15 +1,15 @@
-import { blendPortraitSkin } from "../skin/blendPortraitSkin";
+import { IControlMesh } from "../../mesh/structures/IControlMesh";
+import { subdivideControlMesh } from "../../mesh/subdivideControlMesh";
 import { applyPortraitFinalSurfaces } from "../../surface/applyPortraitFinalSurfaces";
 import { applyPortraitRegionReplacements } from "../../surface/applyPortraitRegionReplacements";
-import { assertPortraitSkinTopology } from "../skin/assertPortraitSkinTopology";
 import { applyPortraitSurfaceLayers } from "../../surface/applyPortraitSurfaceLayers";
-import { subdivideControlMesh } from "../../mesh/subdivideControlMesh";
-import { appendPortraitCranium } from "./appendPortraitCranium";
-import { appendPortraitNeck } from "./appendPortraitNeck";
-import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
 import { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
+import { assertPortraitSkinTopology } from "../skin/assertPortraitSkinTopology";
+import { blendPortraitSkin } from "../skin/blendPortraitSkin";
+import { appendPortraitCranium } from "./appendPortraitCranium";
+import { appendPortraitNeck } from "./appendPortraitNeck";
 import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
 
 /**
@@ -26,9 +26,6 @@ import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
  * This phase boundary is not a nonintersection or anatomical validity proof.
  * Changing the prepared surface invalidates downstream normals and interiors;
  * callers must derive those from the final surface instead of cached geometry.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Fits and refines replaceable components on one shared surface before dependent interiors are generated.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Validates cut ownership and shared topology while retaining contact declarations and resident IDs for final assembly.
  */
 export function preparePortraitHead(
   host: IPortraitComponentHost,

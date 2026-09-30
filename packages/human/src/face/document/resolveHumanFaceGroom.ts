@@ -56,8 +56,6 @@ const seatTriangle = (
  * a silently wrong point on the head instead of reporting that the groom and
  * the face do not belong together.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places authored hair locks on the named facial surface they grow from.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Resolves seated guide stations into head-space strips through the shared card construction.
  * @author Samchon
  */
 export function resolveHumanFaceGroom(props: {

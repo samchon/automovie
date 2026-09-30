@@ -16,9 +16,6 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * its reference opening; a purely linear basis has no such direction. The
  * check reads names and neutral geometry only; whether a document's
  * combination passes the rules is the evaluation's answer, not admission's.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Refuses a contact declaration that names absent tissue or channels before a document could be judged against it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Checks the aperture pairs, closure coupling, passage, colliders and budgets the specification requires of a contact block.
  */
 export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   const contact = basis.contact;

@@ -1,4 +1,9 @@
-import { IAutoMovieBeatEndState, IAutoMovieCompiledContractRealization, IAutoMovieShotSourceOutput } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndState,
+  IAutoMovieCompiledContractRealization,
+  IAutoMovieShotSourceOutput,
+} from "@automovie/interface";
+
 import { IAutoMovieAuthoringDiagnostic } from "./IAutoMovieAuthoringDiagnostic";
 import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 

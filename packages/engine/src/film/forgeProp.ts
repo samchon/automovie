@@ -1,7 +1,12 @@
-import { IAutoMovieModel, IAutoMovieNode, IAutoMoviePropSpec } from "@automovie/interface";
+import {
+  IAutoMovieModel,
+  IAutoMovieNode,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
+
 import { profileSemanticKeys } from "../resolve/profileSemanticKeys";
-import { validateModel } from "../validation/validateModel";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { validateModel } from "../validation/validateModel";
 import { IAutoMovieForgedProp } from "./IAutoMovieForgedProp";
 
 /**

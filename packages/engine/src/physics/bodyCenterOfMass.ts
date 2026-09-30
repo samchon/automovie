@@ -1,4 +1,5 @@
 import { IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
+
 import { deriveCenterOfMass } from "./deriveCenterOfMass";
 
 /**

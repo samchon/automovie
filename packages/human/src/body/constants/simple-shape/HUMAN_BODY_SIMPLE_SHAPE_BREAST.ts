@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * These dimensionless rows set visible skin channel weights. They neither reconstruct tissue volumes nor establish safe contact in a combined pose.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_BREAST: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_BREAST: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // the breast descends with age, most across menopause, and with body mass (Regnault grades; post-menopause and BMI are independent risk factors)
       channel: "breastTransDownUp",
@@ -149,4 +150,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_BREAST: IAutoMovieHumanBodySimpleShapeTable
         },
       ],
     },
-];
+  ];

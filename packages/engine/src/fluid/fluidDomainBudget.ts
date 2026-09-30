@@ -1,4 +1,8 @@
-import { IAutoMovieFluidBudget, IAutoMovieFluidDomain } from "@automovie/interface";
+import {
+  IAutoMovieFluidBudget,
+  IAutoMovieFluidDomain,
+} from "@automovie/interface";
+
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
 /**

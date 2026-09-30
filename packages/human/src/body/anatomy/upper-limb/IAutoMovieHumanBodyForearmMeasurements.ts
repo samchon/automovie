@@ -1,9 +1,9 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
-import type { IAutoMovieHumanBodyRadiusMeasurements } from "./IAutoMovieHumanBodyRadiusMeasurements";
-import type { IAutoMovieHumanBodyUlnaMeasurements } from "./IAutoMovieHumanBodyUlnaMeasurements";
 import type { IAutoMovieHumanBodyBrachioradialisMeasurements } from "./IAutoMovieHumanBodyBrachioradialisMeasurements";
 import type { IAutoMovieHumanBodyExtensorDigitorumMeasurements } from "./IAutoMovieHumanBodyExtensorDigitorumMeasurements";
 import type { IAutoMovieHumanBodyFlexorDigitorumSuperficialisMeasurements } from "./IAutoMovieHumanBodyFlexorDigitorumSuperficialisMeasurements";
+import type { IAutoMovieHumanBodyRadiusMeasurements } from "./IAutoMovieHumanBodyRadiusMeasurements";
+import type { IAutoMovieHumanBodyUlnaMeasurements } from "./IAutoMovieHumanBodyUlnaMeasurements";
 
 /**
  * Two distinct forearm bones and separately named muscle bellies.

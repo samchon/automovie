@@ -6,8 +6,6 @@ import { createPortraitNasalRimSection } from "./createPortraitNasalRimSection";
  * The host supplies the band's skin material group. The returned loop is used
  * directly by vestibular lining and optional curve refinement, so there is no
  * second independently positioned aperture. All ring winding follows the cut.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Connects nasal exterior tissue to resident host skin and returns the same inner aperture to the lining.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Appends crest/rim rings and oriented skin-band triangles against validated outer IDs and one registered material group.
  */
 export function appendPortraitNasalRimSection(
   cage: IControlMesh,

@@ -24,9 +24,6 @@ import { humanBodyShoulderTtRotation } from "./humanBodyShoulderTtRotation";
  * how much the girdle parent has already moved. The girdle still carries the
  * shoulder centre; a rigid delta about that centre transports the arm's
  * descendants, preserving every forearm/hand joint articulation and offset.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Positions each humerus by the authored total thorax-relative direction while preserving the moved shoulder centre and its attached chain.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Composes direct plane tilt and final-axis torsion, subtracts the measured A-pose and the coupled girdle contribution, and transports the resulting humeral subtree.
  */
 export function resolveHumanBodyShoulders(
   basis: Pick<IAutoMovieHumanBodyBasis, "joints">,

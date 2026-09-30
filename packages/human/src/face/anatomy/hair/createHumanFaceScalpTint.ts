@@ -29,9 +29,6 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  *
  * The returned function yields, per surface id, one RGB gain triple per
  * vertex, or nothing for a document without hair.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Derives the scalp colour under hair from the hair parameters every document already carries, with no per-person paint.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Ramps coverage across the hairline transition, weights it by the root region and multiplies the skin finish toward the hair colour.
  */
 export function createHumanFaceScalpTint(
   basis: IAutoMovieHumanFaceBasis,

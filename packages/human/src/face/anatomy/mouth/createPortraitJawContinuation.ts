@@ -1,10 +1,10 @@
+import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
 import type { IPortraitComponentHost } from "../../surface/structures/IPortraitComponentHost";
-import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
-import type { IPortraitNeckShape } from "../cranium/structures/IPortraitNeckShape";
 import { createPortraitFacePerformanceComponent } from "../cranium/createPortraitFacePerformanceComponent";
 import type { IPortraitHeadPerformance } from "../cranium/structures/IPortraitHeadPerformance";
+import type { IPortraitNeckShape } from "../cranium/structures/IPortraitNeckShape";
 import { portraitJawSkinWeight } from "./portraitJawSkinWeight";
 import { posePortraitJawPoint } from "./posePortraitJawPoint";
 
@@ -21,9 +21,6 @@ import { posePortraitJawPoint } from "./posePortraitJawPoint";
  * band retains facial performance's weight. These are kinematic attachments,
  * not recovered muscle weights, joint translation or a collision simulation.
  * Matching observed/current angles omit the extra assembly path exactly.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Carries mandibular motion into connected head tissue while retaining fixed posterior and lower-neck attachments.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Builds continuation in its reference frame and poses only its appended vertices before common skin refinement.
  */
 export function createPortraitJawContinuation(
   inputHost: IPortraitComponentHost,

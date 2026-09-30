@@ -1,4 +1,7 @@
-import { AutoMoviePrimitiveShape, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMoviePrimitiveShape,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Centroid of a primitive in its own local frame (meters).

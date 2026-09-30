@@ -1,26 +1,26 @@
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import { createPortraitCheekLayer } from "../anatomy/cheek/createPortraitCheekLayer";
-import { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import { buildPortraitEars } from "../anatomy/cranium/buildPortraitEars";
-import { createPortraitEyeComponent } from "../anatomy/eye/createPortraitEyeComponent";
-import { createPortraitFacePerformanceComponent } from "../anatomy/cranium/createPortraitFacePerformanceComponent";
-import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
 import { buildPortraitHead } from "../anatomy/cranium/buildPortraitHead";
-import { createPortraitJawContinuation } from "../anatomy/mouth/createPortraitJawContinuation";
+import { createPortraitFacePerformanceComponent } from "../anatomy/cranium/createPortraitFacePerformanceComponent";
+import { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import { createPortraitMandibularDentition } from "../anatomy/dental/createPortraitMandibularDentition";
+import { createPortraitEyeComponent } from "../anatomy/eye/createPortraitEyeComponent";
+import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbitalSupport";
+import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
+import { createPortraitJawContinuation } from "../anatomy/mouth/createPortraitJawContinuation";
 import { createPortraitMouthComponent } from "../anatomy/mouth/createPortraitMouthComponent";
 import { createPortraitNoseComponent } from "../anatomy/nose/createPortraitNoseComponent";
-import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbitalSupport";
-import { createPortraitSkinLayer } from "../anatomy/skin/createPortraitSkinLayer";
-import { createPortraitSkinColour } from "../anatomy/skin/createPortraitSkinColour";
-import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitTongueComponent";
-import { portraitPart } from "../mesh/portraitPart";
 import { createPortraitReliefCurveLayer } from "../anatomy/skin/createPortraitReliefCurveLayer";
 import { createPortraitReliefLayer } from "../anatomy/skin/createPortraitReliefLayer";
+import { createPortraitSkinColour } from "../anatomy/skin/createPortraitSkinColour";
+import { createPortraitSkinLayer } from "../anatomy/skin/createPortraitSkinLayer";
+import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitTongueComponent";
 import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
+import { createMetricMeshPart } from "../mesh/createMetricMeshPart";
+import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 
 /**
  * Construct one resident anatomical face from a standalone numerical document.
@@ -33,17 +33,6 @@ import { resolveHumanFaceDocument } from "../document/resolveHumanFaceDocument";
  * Model validation proves construction admission, not visual quality or
  * likeness. Static glTF precision/material admission and direct multi-view
  * review remain separate gates after this function returns.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Replays one face solely from its anatomical document.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Resolves a cloned basis and recipe without photo IO, random state or editor history.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Assembles the resident cranium, eyes, nose, lips, upper dentition, ears and neck.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Applies independent observed-relative facial performance without moving maxillary teeth with the lip.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Connects numerical part profiles to actual geometry rather than metadata-only controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Builds posed shared tissue with fixed optical identity and explicit mandibular attachments.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Builds optional regional skin colour on reference tissue independently of current performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Pairs observed/current component cages, transports reference coordinates and emits linear RGB on head and pinna surfaces.
- * @evidenceExclude requirements/actors/facial-authoring/README.md#face-requirements This domain index also covers application controls and subjective study review; the numerical library owns face construction and export, not the complete authoring workflow.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/README.md#face-specifications This index joins replay, UI and inspection boundaries; this builder does not own the browser adapter or human review process.
  */
 export function buildHumanFace(
   document: IAutoMovieHumanFaceDocument,
@@ -184,7 +173,7 @@ export function buildHumanFace(
             sample: colour,
           },
   });
-  const skin = portraitPart(
+  const skin = createMetricMeshPart(
     "temporal-attachment",
     {
       positions: head.refined.positions.flat(),
@@ -198,7 +187,7 @@ export function buildHumanFace(
   const referenceSkin =
     colour === undefined
       ? undefined
-      : portraitPart(
+      : createMetricMeshPart(
           "reference-temporal-attachment",
           {
             positions: head.refined.reference!.flat(),

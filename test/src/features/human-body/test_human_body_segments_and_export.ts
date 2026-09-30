@@ -76,13 +76,15 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     model.parts.every((part) => {
       if (part.geometry.type !== "mesh") return false;
       const mesh = part.geometry.mesh;
-      return sources.get(part.id)!.every((source, vertex) =>
-        [0, 1, 2].every(
-          (axis) =>
-            mesh.positions[vertex * 3 + axis] ===
-            built.posedSurfaces[0].positions[source * 3 + axis],
-        ),
-      );
+      return sources
+        .get(part.id)!
+        .every((source, vertex) =>
+          [0, 1, 2].every(
+            (axis) =>
+              mesh.positions[vertex * 3 + axis] ===
+              built.posedSurfaces[0].positions[source * 3 + axis],
+          ),
+        );
     }),
   );
   const segment = createHumanBodySegmenter(basis);
@@ -100,7 +102,8 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
     ) &&
       atRest.sources !== shaped.sources &&
       atRest.sources.get("hips") !== shaped.sources.get("hips") &&
-      JSON.stringify([...atRest.sources]) === JSON.stringify([...shaped.sources]),
+      JSON.stringify([...atRest.sources]) ===
+        JSON.stringify([...shaped.sources]),
   );
   TestValidator.equals(
     "a later shape leaves the first built positions alone",
@@ -142,8 +145,8 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
             type: "mesh" as const,
             mesh: {
               ...firstPart.geometry.mesh,
-              positions: firstPart.geometry.mesh.positions.map((value, index) =>
-                index === 0 ? value + 0.01 : value,
+              positions: firstPart.geometry.mesh.positions.map(
+                (value, index) => (index === 0 ? value + 0.01 : value),
               ),
             },
           },
@@ -158,9 +161,7 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
         () =>
           segment({
             ...built,
-            posedSurfaces: [
-              { ...built.posedSurfaces[0], positions: [] },
-            ],
+            posedSurfaces: [{ ...built.posedSurfaces[0], positions: [] }],
           }),
         "connected posed skin",
       ) &&
@@ -168,9 +169,7 @@ export const test_human_body_segments_and_export = async (): Promise<void> => {
         () =>
           segment({
             ...built,
-            posedSurfaces: [
-              { ...built.posedSurfaces[0], normals: [] },
-            ],
+            posedSurfaces: [{ ...built.posedSurfaces[0], normals: [] }],
           }),
         "connected posed skin",
       ) &&

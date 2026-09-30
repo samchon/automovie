@@ -1,5 +1,6 @@
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieBody } from "@automovie/interface";
+
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Validate an {@link IAutoMovieBody}'s rough scalars: mass must be finite and

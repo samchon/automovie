@@ -1,8 +1,9 @@
-import { advance } from "./advance";
-import { contactFrame } from "./contactFrame";
-import { project } from "./project";
 import { Vector3, measureAutoMovieMeshClearance } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
+
+import { advancePoint } from "./advancePoint";
+import { portraitDirectionalContactFrame } from "./portraitDirectionalContactFrame";
+import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
 
 /**
  * Resolve complete triangle contact in the same frame as point contact. Each
@@ -12,8 +13,6 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
  * The caller applies these metric targets through its shared skin adapter and
  * recomputes normals. This conservative construction preserves projected
  * topology; it does not decide anatomical thickness or fit quality.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Supplies shared-skin vertex targets that clear complete contacting triangles, not just sampled corners.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Measures front/back triangle clearance in a common directional frame and applies the maximum incident travel to each affected vertex.
  */
 export function portraitDirectionalSurfaceTargets(
   front: IAutoMovieMesh,
@@ -21,10 +20,13 @@ export function portraitDirectionalSurfaceTargets(
   direction: IAutoMovieVector3,
   clearance = 0,
 ): { vertex: number; target: IAutoMovieVector3 }[] {
-  const { forward, across, up } = contactFrame(direction, clearance);
+  const { forward, across, up } = portraitDirectionalContactFrame(
+    direction,
+    clearance,
+  );
   const measured = measureAutoMovieMeshClearance(
-    project(front, across, up, forward),
-    project(back, across, up, forward),
+    projectMeshOntoFrame(front, across, up, forward),
+    projectMeshOntoFrame(back, across, up, forward),
     "z",
   );
   const indices =
@@ -39,7 +41,7 @@ export function portraitDirectionalSurfaceTargets(
   }
   return [...travels].map(([vertex, distance]) => ({
     vertex,
-    target: advance(
+    target: advancePoint(
       Vector3.create(
         front.positions[vertex * 3],
         front.positions[vertex * 3 + 1],

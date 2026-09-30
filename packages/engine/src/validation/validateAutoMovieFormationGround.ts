@@ -1,7 +1,22 @@
-import { IAutoMovieDiagnostic, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieScene, IAutoMovieShotContract, IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
-import { formationSlotPosition, heightAt, placeFormationSlot, sampleFormationMotion, sampleFormationSlotMotion } from "../index";
-import { engineDiagnostic } from "./engineDiagnostic";
+import {
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationMotion,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieScene,
+  IAutoMovieShotContract,
+  IAutoMovieSpace,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieFormationPlacement } from "../IAutoMovieFormationPlacement";
+import {
+  formationSlotPosition,
+  heightAt,
+  placeFormationSlot,
+  sampleFormationMotion,
+  sampleFormationSlotMotion,
+} from "../index";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Metres a member may travel between neighbouring samples inside one cue.

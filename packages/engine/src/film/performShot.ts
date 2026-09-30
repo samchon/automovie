@@ -1,52 +1,78 @@
-import { AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieActionTarget, IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingCoverage, IAutoMovieCamera, IAutoMovieCameraAction, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieFormationMotion, IAutoMovieGroupTarget, IAutoMovieInteractionEvent, IAutoMovieModel, IAutoMovieMotion, IAutoMoviePerformance, IAutoMoviePropSpec, IAutoMovieQuaternion, IAutoMovieScript, IAutoMovieShot, IAutoMovieShotCoverage, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { sampleFormationMotion } from "../sampleFormationMotion";
-import { transformFormationPoint } from "../transformFormationPoint";
-import { armChainFault } from "../kinematics/armChainFault";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieActionTarget,
+  IAutoMovieBeatEndState,
+  IAutoMovieBlocking,
+  IAutoMovieBlockingCoverage,
+  IAutoMovieCamera,
+  IAutoMovieCameraAction,
+  IAutoMovieClip,
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationMotion,
+  IAutoMovieGroupTarget,
+  IAutoMovieInteractionEvent,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMoviePerformance,
+  IAutoMoviePropSpec,
+  IAutoMovieQuaternion,
+  IAutoMovieScript,
+  IAutoMovieShot,
+  IAutoMovieShotCoverage,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
+import { armChainFault } from "../kinematics/armChainFault";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { plantStanceFeet } from "../motion/plantStanceFeet";
 import { sampleMotion } from "../motion/sampleMotion";
+import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
 import { actionRegion } from "../perform/actionRegion";
 import { bodyRegionBones } from "../perform/bodyRegionBones";
-import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
 import { compilePerformance } from "../perform/compilePerformance";
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { scenePlacements } from "../perform/scenePlacements";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { sampleFormationMotion } from "../sampleFormationMotion";
 import { spaceGround } from "../space/spaceGround";
-import { withArticle } from "../text/withArticle";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { validateMotion } from "../validation/validateMotion";
-import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
-import { validateShotArtifact } from "../validation/validateShotArtifact";
+import { withArticle } from "../text/withArticle";
+import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
+import { validateMotion } from "../validation/validateMotion";
+import { validateShotArtifact } from "../validation/validateShotArtifact";
 import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";
-import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
-import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
+import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
 import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
+import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
+import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
+import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
+import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
 import { compileCameraMove } from "./compileCameraMove";
+import { compileLaunch } from "./compileLaunch";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
-import { compileLaunch } from "./compileLaunch";
+import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { coupleObjects } from "./coupleObjects";
-import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
-import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
-import { IAutoMovieFramedBox } from "./IAutoMovieFramedBox";
-import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 import { formationMemberExtent } from "./formationMemberExtent";
 import { formationSubjectBox } from "./formationSubjectBox";
 import { framedBoxOf } from "./framedBoxOf";
+import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { nodeSubjectExtent } from "./nodeSubjectExtent";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
-import { IAutoMoviePerformedShot } from "./IAutoMoviePerformedShot";
 
 /**
  * A node's animated **world** position over shot time: its staged `base` plus

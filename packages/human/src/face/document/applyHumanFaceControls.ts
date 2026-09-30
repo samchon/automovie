@@ -1,18 +1,15 @@
-import type { IAutoMovieHumanFaceControls } from "../structures/IAutoMovieHumanFaceControls";
-import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 import { portraitNeckShape } from "../anatomy/cranium/portraitNeckShape";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
-import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
+import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import { humanFaceControlDefinitions } from "../channels/humanFaceControlDefinitions";
+import type { IAutoMovieHumanFaceControls } from "../structures/IAutoMovieHumanFaceControls";
+import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 
 /**
  * Apply intermediate offsets to a copied recipe before detailed overrides.
  * Unknown or out-of-envelope controls refuse rather than becoming inactive
  * sliders. Part builders subsequently validate the combined detailed result.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Applies independent intermediate traits while preserving the original recipe.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Enforces finite ranges and a fixed trait interpretation before detail replacement.
  */
 export function applyHumanFaceControls(
   basis: IAutoMovieHumanFaceRecipe,

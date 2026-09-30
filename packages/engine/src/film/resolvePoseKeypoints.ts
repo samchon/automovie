@@ -1,10 +1,21 @@
-import { AutoMovieHumanoidBone, IAutoMovieCamera, IAutoMovieDeliveryCrop, IAutoMoviePose, IAutoMoviePoseKeypoint, IAutoMovieShot, IAutoMovieSkeleton, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieCamera,
+  IAutoMovieDeliveryCrop,
+  IAutoMoviePose,
+  IAutoMoviePoseKeypoint,
+  IAutoMovieShot,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { resolvePose } from "../kinematics/resolvePose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { DEFAULT_KEYPOINT_BONES } from "./constants/DEFAULT_KEYPOINT_BONES";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
-import { DEFAULT_KEYPOINT_BONES } from "./constants/DEFAULT_KEYPOINT_BONES";
 
 /** Assumed render aspect (width/height): the scene camera carries no aspect. */
 const DEFAULT_ASPECT = 16 / 9;

@@ -14,7 +14,7 @@ import {
   solveHumanBodyMeasuredChannel,
 } from "@automovie/human";
 
-import { readConnectedFaceAsset } from "./human/connectedAsset";
+import { readConnectedFaceAsset } from "./human/common/connectedAsset";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const prepared = readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({

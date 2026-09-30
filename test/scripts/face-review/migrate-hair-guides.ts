@@ -30,4 +30,6 @@ for (const document of documents)
       converted++;
     }
 fs.writeFileSync(file, JSON.stringify(documents, null, 2) + "\n");
-console.log(`converted ${converted} hair layers in ${documents.length} documents`);
+console.log(
+  `converted ${converted} hair layers in ${documents.length} documents`,
+);

@@ -1,4 +1,8 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
+
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 
 const requireSpace = (

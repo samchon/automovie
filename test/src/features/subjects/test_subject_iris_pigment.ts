@@ -1,5 +1,5 @@
-import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { createPortraitIrisMaterials } from "@automovie/human/face/anatomy/eye/createPortraitIrisMaterials";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,4 +1,7 @@
-import { IAutoMovieConstraintViolation, IAutoMovieModel } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 /**
  * A forged cast: every stand-in rig validated and keyed by the cast node it

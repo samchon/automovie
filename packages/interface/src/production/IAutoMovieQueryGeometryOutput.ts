@@ -1,6 +1,6 @@
-import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { AutoMovieGeometryQuery } from "./AutoMovieGeometryQuery";
+import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 import { IAutoMovieGeometryResult } from "./IAutoMovieGeometryResult";
 
 /**

@@ -1,7 +1,7 @@
 import {
   type IAutoMovieHumanFaceBasis,
-  decodePortraitPng,
-  encodePortraitPng,
+  decodePng,
+  encodePng,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -68,7 +68,7 @@ const fixture = (): {
     id: "enamel",
     name: "enamel",
     baseColor: { r: 1, g: 1, b: 1, a: 1, hex: null },
-    baseColorTexture: encodePortraitPng({ width: size, height: size, rgba }),
+    baseColorTexture: encodePng({ width: size, height: size, rgba }),
   });
   const teeth = basis.surfaces.find((one) => one.id === "teeth")!;
   const region = teeth.regions[0]!;
@@ -115,20 +115,14 @@ export const test_subject_appearance_basis_preparation = (): void => {
     material("eye").baseColorTexture,
     basis.materials.find((one) => one.id === "eye")!.baseColorTexture,
   );
-  const texel = (
-    image: ReturnType<typeof decodePortraitPng>,
-    u: number,
-    v: number,
-  ) => {
+  const texel = (image: ReturnType<typeof decodePng>, u: number, v: number) => {
     const at =
       4 *
       (Math.floor(v * image.height) * image.width +
         Math.floor(u * image.width));
     return Array.from(image.rgba.slice(at, at + 3));
   };
-  const enamel = decodePortraitPng(
-    material("enamel").baseColorTexture as string,
-  );
+  const enamel = decodePng(material("enamel").baseColorTexture as string);
   const lab = faceLikenessSrgbToLab(
     ...(texel(enamel, 0.6, 0.3) as [number, number, number]),
   );

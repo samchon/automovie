@@ -1,8 +1,12 @@
-import { IAutoMovieDrawingFrame, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieDrawingFrame,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
 import { IAutoMovieDrawingEdge } from "./IAutoMovieDrawingEdge";
 import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
+import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /**

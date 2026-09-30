@@ -20,9 +20,6 @@ import { humanFaceUpperDentalChannels } from "./humanFaceUpperDentalChannels";
  * appearance and the legacy named hair-layer scalar transaction have their
  * separately admitted array semantics.
  * Ranges are editing envelopes; the part's coupled validator remains decisive.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Connects numerical sliders to actual detailed shape settings.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Provides field meaning, applied-value inspection and anatomical attachment context.
  */
 export const humanFaceDetailChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

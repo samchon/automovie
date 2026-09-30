@@ -3,9 +3,6 @@ import type { IAutoMovieHumanFaceControls } from "../structures/IAutoMovieHumanF
 /**
  * Intermediate trait inventory shared by admission and the numerical editor.
  * Ranges are authoring envelopes, not measurements of a population's anatomy.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives intermediate face controls stable identifiers, units, defaults and signed effects.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Shares the finite control ranges between input admission and editing.
  */
 export const humanFaceControlDefinitions = [
   {

@@ -1,8 +1,8 @@
 import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMoviePose } from "../pose/IAutoMoviePose";
-import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
 import { IAutoMovieBeatEndFootPlant } from "./IAutoMovieBeatEndFootPlant";
+import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
 
 /**
  * One actor's resolved state at the end of a compiled beat.

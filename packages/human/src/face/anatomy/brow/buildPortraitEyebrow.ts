@@ -1,15 +1,16 @@
 import { Vector3, createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
-import { portraitMix } from "../../mesh/portraitMix";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitPatch } from "../../mesh/portraitPatch";
-import { portraitSpline } from "../../mesh/portraitSpline";
-import { portraitTube } from "../../mesh/portraitTube";
+
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { linearInterpolate } from "../../mesh/linearInterpolate";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
 import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
+import { sweepEightSidedTube } from "../../mesh/sweepEightSidedTube";
+import { triangulateSurfaceLattice } from "../../mesh/triangulateSurfaceLattice";
 import { IPortraitEyebrowProfile } from "./IPortraitEyebrowProfile";
 import { assertPortraitEyebrowProfile } from "./assertPortraitEyebrowProfile";
+import { createPortraitEyebrowFlow } from "./createPortraitEyebrowFlow";
 import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
 
 /**
@@ -29,11 +30,9 @@ import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
  * Curved-surface contact remains subject to the actual rendered inspection.
  *
  * The caller supplies millimetre skin coordinates and retained boundary IDs.
- * The acceleration structure uses engine metres; emitted parts use portraitPart
+ * The acceleration structure uses engine metres; emitted parts use createMetricMeshPart
  * for their final metric conversion. Zero fibres produce no parts. Counts above
  * 4096 refuse rather than allocating an unbounded brow mesh population.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs individually rooted eyebrow fibres on the final forehead surface.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Queries the skin depth and local normal per strand sample, applies anatomical outward bend and deterministic density thinning, and emits metric parts.
  */
 export function buildPortraitEyebrow(
   skin: IControlMesh,
@@ -59,7 +58,7 @@ export function buildPortraitEyebrow(
     throw new Error(
       "Eyebrow boundaries need a side and resident skin identities.",
     );
-  const mesh = portraitPart(
+  const mesh = createMetricMeshPart(
     "brow-attachment-basis",
     {
       positions: skin.positions.flat(),
@@ -84,15 +83,15 @@ export function buildPortraitEyebrow(
     const z = depth(x, y);
     const dx = (depth(x + epsilon, y) - depth(x - epsilon, y)) / (2 * epsilon);
     const dy = (depth(x, y + epsilon) - depth(x, y - epsilon)) / (2 * epsilon);
-    const normal = Vector3.normalize(portraitPoint(-dx, -dy, 1));
-    return portraitPoint(
+    const normal = Vector3.normalize(millimetrePoint(-dx, -dy, 1));
+    return millimetrePoint(
       x + normal.x * offset,
       y + normal.y * offset,
       z + normal.z * offset,
     );
   };
   const landmark = (id: number) =>
-    portraitPoint(...(skin.positions[id] as [number, number, number]));
+    millimetrePoint(...(skin.positions[id] as [number, number, number]));
   const top = binding.upper.map(landmark),
     bottom = binding.lower.map(landmark);
   const outward = binding.side === "left" ? 1 : -1;
@@ -107,8 +106,8 @@ export function buildPortraitEyebrow(
   const parts: IAutoMovieModelPart[] = [];
   for (let i = 0; i < fibres; i++) {
     const u = (i + 0.5) / fibres,
-      a = portraitSpline(bottom, u),
-      b = portraitSpline(top, u);
+      a = catmullRomPoint(bottom, u),
+      b = catmullRomPoint(top, u);
     // Distribute roots within the authored band, then use its complete flow or
     // the basic upward/outward sweep. Density is independent of fibre radius.
     const rootBand = shape.rootBand ?? [0.1, 0.22];
@@ -144,10 +143,10 @@ export function buildPortraitEyebrow(
     const radius = (t: number) =>
       (shape.radius + (i % 3) * shape.radiusStep) * (1 - shape.taper * t);
     const projected = (t: number) => {
-      const v = portraitMix(start, end, t);
-      return portraitPoint(
-        portraitMix(a.x, b.x, v) + outward * outwardBend * t * t,
-        portraitMix(a.y, b.y, v),
+      const v = linearInterpolate(start, end, t);
+      return millimetrePoint(
+        linearInterpolate(a.x, b.x, v) + outward * outwardBend * t * t,
+        linearInterpolate(a.y, b.y, v),
         0,
       );
     };
@@ -161,14 +160,14 @@ export function buildPortraitEyebrow(
     };
     const fibre =
       shape.representation === undefined
-        ? portraitTube(curve, radius, shape.segments)
-        : portraitPatch(
+        ? sweepEightSidedTube(curve, radius, shape.segments)
+        : triangulateSurfaceLattice(
             (u, t) => {
               const center = projected(t);
               const before = projected(Math.max(0, t - 0.001)),
                 after = projected(Math.min(1, t + 0.001));
               const across = Vector3.normalize(
-                portraitPoint(before.y - after.y, after.x - before.x, 0),
+                millimetrePoint(before.y - after.y, after.x - before.x, 0),
               );
               if (across.x === 0 && across.y === 0)
                 throw new Error(
@@ -185,7 +184,9 @@ export function buildPortraitEyebrow(
             1,
             shape.segments,
           );
-    parts.push(portraitPart(`${binding.side}-brow-hair-${i}`, fibre, "brows"));
+    parts.push(
+      createMetricMeshPart(`${binding.side}-brow-hair-${i}`, fibre, "brows"),
+    );
   }
   return parts;
 }

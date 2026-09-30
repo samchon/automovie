@@ -1,4 +1,4 @@
-import type { AutoMovieHumanBodySide } from "../AutoMovieHumanBodySide";
+import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide";
 
 type PectoralisMajorOrigin<Side extends AutoMovieHumanBodySide> =
   | { structure: `${Side}Clavicle`; site: "medialAnteriorHalf" }
@@ -28,8 +28,10 @@ export interface IAutoMovieHumanBodyPectoralisMajorAttachments<
     ...PectoralisMajorOrigin<Side>[],
   ];
   /** Lateral lip of the same side's intertubercular sulcus. */
-  readonly insertions: readonly [{
-    structure: `${Side}Humerus`;
-    site: "lateralLipIntertubercularSulcus";
-  }];
+  readonly insertions: readonly [
+    {
+      structure: `${Side}Humerus`;
+      site: "lateralLipIntertubercularSulcus";
+    },
+  ];
 }

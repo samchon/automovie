@@ -1,4 +1,9 @@
-import { IAutoMovieMotion, IAutoMovieSceneNode, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieMotion,
+  IAutoMovieSceneNode,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { sampleMotion } from "../motion/sampleMotion";
 import { VELOCITY_DT } from "./constants/VELOCITY_DT";

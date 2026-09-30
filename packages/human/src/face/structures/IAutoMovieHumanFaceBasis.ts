@@ -10,8 +10,6 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
  * rigid-joint simulation. Metadata names what a control does; it does not prove
  * anatomical correctness, nonpenetration or likeness of arbitrary combinations.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Carries a reusable connected facial prior with separately named shape and expression endpoints.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Defines immutable shared surfaces, material regions and sparse endpoint correspondence in metres.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBasis {
@@ -269,9 +267,6 @@ export interface IAutoMovieHumanFaceBasis {
    * occlusal overlap under laterotrusion is a crossing census fact, not a
    * refusal here. Omission keeps the articulated basis without contact
    * evaluation.
-   *
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Declares the coupled lip, tooth and tongue evaluation whose refusals name the deficient channel and the measured millimetres.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Publishes the aperture landmarks, closure coupling, passage rule, colliders and tissue budgets the builder evaluates in order.
    */
   contact?: {
     /** Vermilion seam midline vertices on one surface, upper then lower. */

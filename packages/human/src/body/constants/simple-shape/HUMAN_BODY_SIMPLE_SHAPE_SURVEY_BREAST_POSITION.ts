@@ -9,7 +9,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  * is a universal relation for children or unobserved populations. The table
  * assembly preserves these rows' original summation order.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // ANSUR II people: breastTransDownUp, women
       channel: "breastTransDownUp",
@@ -35,4 +36,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_BREAST_POSITION: IAutoMovieHumanBody
         },
       ],
     },
-];
+  ];

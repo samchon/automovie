@@ -1,7 +1,9 @@
-import { p } from "../../mesh/p";
-import { portraitFacesInsideLoop } from "../../mesh/portraitFacesInsideLoop";
-import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
+import { IAutoMovieVector3 } from "@automovie/interface";
+
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop";
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { assertPortraitDentalCrown } from "../dental/assertPortraitDentalCrown";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";
 import { createPortraitLipBandSampler } from "./createPortraitLipBandSampler";
@@ -13,16 +15,12 @@ import { preparePortraitMouth } from "./preparePortraitMouth";
 import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformance";
 import { IPortraitMouthShape } from "./structures/IPortraitMouthShape";
 import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
-import { innerLoop } from "./structures/innerLoop";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
 
 /**
  * Fit the lips, adapt adjacent skin and finish the selected oral interior at
  * the refined rim. A connected lining receives only the final lip triangles,
  * retaining every refined boundary vertex without scanning the whole head.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits shared lips and adjacent skin, with separate maxillary teeth required during oral performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies oral settings, applies curved-band thickness and observed-relative motion, and passes final lip-group connectivity to a selected oral lining.
  */
 export function createPortraitMouthComponent(
   inputSocket: IPortraitMouthSocket,
@@ -105,7 +103,7 @@ export function createPortraitMouthComponent(
   return {
     id: "mouth",
     fit: (host) => {
-      const inner = innerLoop(socket);
+      const inner = portraitMouthInnerLoop(socket);
       const lips = portraitLipTriangles(host.indices, socket);
       const skin = new Set<number>();
       const lipKeys = new Set<string>();
@@ -198,7 +196,7 @@ export function createPortraitMouthComponent(
       }
       return {
         constraints,
-        cutFaces: portraitFacesInsideLoop(host, inner),
+        cutFaces: selectHostFacesInsideLoop(host, inner),
         attach: (cage, _adapted, region) => {
           // Material ownership follows the original anatomical band through
           // other components' cuts. The host contains no lip-specific policy.

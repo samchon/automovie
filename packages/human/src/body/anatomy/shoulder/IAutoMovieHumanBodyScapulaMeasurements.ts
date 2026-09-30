@@ -1,6 +1,6 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
  * Target or observed dimensions of one scapula behind the thorax.
@@ -16,9 +16,9 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyScapulaMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
-  /** Maximum bony superior-inferior span on an imaged scapula. */
-  height?: IAutoMovieHumanBodyAnatomicalLength;
-  /** Maximum bony medial-lateral span, not shoulder breadth through skin. */
-  breadth?: IAutoMovieHumanBodyAnatomicalLength;
+    boneVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+    /** Maximum bony superior-inferior span on an imaged scapula. */
+    height?: IAutoMovieHumanBodyAnatomicalLength;
+    /** Maximum bony medial-lateral span, not shoulder breadth through skin. */
+    breadth?: IAutoMovieHumanBodyAnatomicalLength;
   }>;

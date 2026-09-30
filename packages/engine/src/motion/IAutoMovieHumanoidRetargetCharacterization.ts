@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import { AutoMovieRetargetContactPolicy } from "./AutoMovieRetargetContactPolicy";
 import { AutoMovieRetargetFacing } from "./AutoMovieRetargetFacing";
 import { AutoMovieRetargetRomPolicy } from "./AutoMovieRetargetRomPolicy";

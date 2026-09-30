@@ -1,4 +1,4 @@
-import { createHumanFaceWorkerHandler } from "@automovie/playground/src/human/workerHandler";
+import { createHumanFaceWorkerHandler } from "@automovie/playground/src/human/face/workerHandler";
 import { TestValidator } from "@nestia/e2e";
 
 /**

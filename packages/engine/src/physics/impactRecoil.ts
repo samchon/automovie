@@ -1,4 +1,10 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { clampJointRom } from "../rom/clampJointRom";
 import { getConstraint } from "../rom/getConstraint";
 import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";

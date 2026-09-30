@@ -1,4 +1,5 @@
 import { AutoMovieDesignReferenceMedia } from "@automovie/interface";
+
 import { AUTO_MOVIE_DESIGN_REFERENCE_MEDIA } from "./constants/AUTO_MOVIE_DESIGN_REFERENCE_MEDIA";
 
 /**

@@ -14,8 +14,6 @@ import { createPortraitHairTexture } from "./createPortraitHairTexture";
  * finish becomes the unpigmented fibre, that proportion of the painted fibres
  * keeps it and the rest take the authored colour as an encoded multiplier.
  * Zero or omission leaves the finish and every texture byte as they were.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Gives numerical hair cards a resident fibre mask while preserving authored finish controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Separates card texture and mask handling from shared untextured finishes without changing geometry.
  */
 export function createPortraitHairMaterial(
   finish: IAutoMovieMaterial,

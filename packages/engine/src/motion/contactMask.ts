@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
+
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 
 /**

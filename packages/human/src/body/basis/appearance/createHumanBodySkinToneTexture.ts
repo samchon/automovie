@@ -1,6 +1,6 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../../face/mesh/encodePortraitPng";
+import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanBodySkinTone } from "../../structures/IAutoMovieHumanBodySkinTone";
 
 /**
@@ -21,9 +21,6 @@ import type { IAutoMovieHumanBodySkinTone } from "../../structures/IAutoMovieHum
  * per primary, which the material's base colour is multiplied by. Every
  * value comes from the table, the strength and `seededValue`, so the same
  * inputs yield the same bytes.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Gives the body's skin the uneven tone of real skin, from its two chromophores' absorbance.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Implements the tone map: the chromophore fields, the optical density, the multiplier, its normalization and encoding.
  */
 export function createHumanBodySkinToneTexture(
   table: IAutoMovieHumanBodySkinTone,
@@ -62,7 +59,7 @@ export function createHumanBodySkinToneTexture(
   }
   for (let i = 0; i < size * size; i++) rgba[i * 4 + 3] = 255;
   return {
-    texture: encodePortraitPng({ width: size, height: size, rgba }),
+    texture: encodePng({ width: size, height: size, rgba }),
     compensation,
   };
 }

@@ -1,6 +1,6 @@
 import {
-  appendHumanFaceGroom,
   type IAutoMovieHumanFaceGroom,
+  appendHumanFaceGroom,
 } from "@automovie/human";
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -139,7 +139,11 @@ export const test_subject_human_groom_composition = (): void => {
     "the hair part names the generated finish, not the base one",
     dressed.parts[1].material !== finish.id,
   );
-  TestValidator.equals("the face is not mutated", JSON.stringify(model), snapshot);
+  TestValidator.equals(
+    "the face is not mutated",
+    JSON.stringify(model),
+    snapshot,
+  );
   TestValidator.equals(
     "the groom is not mutated",
     JSON.stringify(source),

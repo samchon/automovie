@@ -2,7 +2,7 @@ import {
   buildPortraitHead,
   buildPortraitMouth,
   createPortraitMouthComponent,
-  portraitMeshBuffers,
+  float32MeshBuffers,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -74,7 +74,7 @@ export const test_subject_mouth_chamber_component = (): void => {
     "consumer uses chamber",
     mesh.positions.some((v, i) => Math.abs(v - before.positions[i]) > 0.001),
   );
-  portraitMeshBuffers(mesh);
+  float32MeshBuffers(mesh);
   const performance = { lipPart: 0, observedLipPart: 10 };
   const closed = buildPortraitHead(
     referenceControlNet,

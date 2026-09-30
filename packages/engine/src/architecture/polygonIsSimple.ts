@@ -1,4 +1,5 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
+
 import { PLANAR_EPSILON } from "../geometry/constants/PLANAR_EPSILON";
 
 /**

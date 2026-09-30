@@ -8,8 +8,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * The alias exists so a reader of a curve or a patch sees the space rather than
  * a bare triple.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Provides the shared head-frame point values consumed by anatomical part builders.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Names the XYZ vector the sampled facial surfaces are expressed in.
  * @author Samchon
  */
 export type Point = IAutoMovieVector3;

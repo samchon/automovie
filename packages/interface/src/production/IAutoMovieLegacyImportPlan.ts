@@ -1,10 +1,10 @@
-import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
-import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
+import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 import { IAutoMovieLegacyImportInventoryEntry } from "./IAutoMovieLegacyImportInventoryEntry";
 import { IAutoMovieLegacyOwnedDirectoryBaseline } from "./IAutoMovieLegacyOwnedDirectoryBaseline";
 import { IAutoMovieLegacySourceTodo } from "./IAutoMovieLegacySourceTodo";
+import { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
+import { IAutoMovieShotContract } from "./IAutoMovieShotContract";
 
 /**
  * Immutable, non-destructive interpretation of one resident legacy project.

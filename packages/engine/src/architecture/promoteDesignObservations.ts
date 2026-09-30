@@ -1,4 +1,9 @@
-import { IAutoMovieDesignPromotion, IAutoMovieDesignReference, IAutoMovieDesignWithholding } from "@automovie/interface";
+import {
+  IAutoMovieDesignPromotion,
+  IAutoMovieDesignReference,
+  IAutoMovieDesignWithholding,
+} from "@automovie/interface";
+
 import { designFrameScale } from "./designFrameScale";
 import { designReferenceWorldPoint } from "./designReferenceWorldPoint";
 import { validateDesignReference } from "./validateDesignReference";

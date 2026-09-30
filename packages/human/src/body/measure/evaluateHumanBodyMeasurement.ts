@@ -7,9 +7,6 @@ import { createHumanBodyMeasurementReader } from "./createHumanBodyMeasurementRe
  * projection uses `createHumanBodyMeasurementReader` when it reads several
  * rules on exactly the same shape; an inverse trial is a new shape and uses
  * this direct entry.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Computes a rule's value on the shaped surface, the number the editor prints and the simple tier solves against.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Realizes the three rule kinds, the station walk and the null answers the specification lists.
  */
 export function evaluateHumanBodyMeasurement(
   basis: IAutoMovieHumanBodyBasis,

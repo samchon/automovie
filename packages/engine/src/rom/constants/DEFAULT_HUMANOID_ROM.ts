@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieAngleRange, IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
 
 const range = (min: number, max: number): IAutoMovieAngleRange => ({
   min,

@@ -1,4 +1,8 @@
-import { IAutoMoviePlantingArrangement, IAutoMoviePlantingState, IAutoMovieSoftAnalysis } from "@automovie/interface";
+import {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingState,
+  IAutoMovieSoftAnalysis,
+} from "@automovie/interface";
 
 /**
  * One installation's derived planting, beside an honest account of it.

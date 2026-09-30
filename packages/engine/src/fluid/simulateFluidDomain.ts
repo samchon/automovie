@@ -1,4 +1,7 @@
-import { IAutoMovieFluidDomain, IAutoMovieFluidState } from "@automovie/interface";
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidState,
+} from "@automovie/interface";
 
 /**
  * Integrate a fluid domain to one **absolute** step of its fixed clock.
