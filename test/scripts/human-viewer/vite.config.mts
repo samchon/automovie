@@ -5,9 +5,10 @@
  * and workspace builds separately enforce all lint and type populations.
  * The production playground configuration is untouched.
  */
+import { spawn } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { TtscCompiler } from "ttsc";
 import { type ViteDevServer, defineConfig } from "vite";
 
 import { createHumanViewerCompilation } from "./createHumanViewerCompilation";
@@ -15,18 +16,44 @@ import { createHumanViewerTransform } from "./createHumanViewerTransform";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const human = path.resolve(directory, "../../../packages/human");
+const output = path.resolve(
+  directory,
+  "../../../.shots/human-viewer",
+  `compile-${process.pid}.json`,
+);
+interface IGraph {
+  edges: Record<string, string[]>;
+  globals: string[];
+  configs: string[];
+  candidates?: Record<string, string[]>;
+  resolutionInputs?: string[];
+}
 let server: ViteDevServer;
-const compiler = new TtscCompiler({
-  cwd: human,
-  tsconfig: path.join(human, "tsconfig.json"),
-  plugins: [{ transform: "typia/lib/transform" }],
-});
-const compilation = createHumanViewerCompilation(() => {
-  const result = compiler.transform();
-  if (result.type !== "success") throw new Error(JSON.stringify(result));
+// The transform runs in a child process: it is a synchronous call that takes
+// tens of seconds, and inside this process it froze every request.
+const compilation = createHumanViewerCompilation(async () => {
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  await new Promise<undefined>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [path.join(directory, "compile-human.mts"), human, output],
+      { windowsHide: true, stdio: "ignore" },
+    );
+    child.once("error", reject);
+    child.once("exit", (code) =>
+      code === 0 ? resolve(undefined) : reject(new Error(`The human compile exited with ${code}`)),
+    );
+  });
+  const result = JSON.parse(fs.readFileSync(output, "utf8")) as {
+    files?: Record<string, string>;
+    graph?: IGraph;
+    error?: string;
+  };
+  fs.rmSync(output, { force: true });
+  if (result.files === undefined) throw new Error(result.error ?? "The human compile failed");
   const files = Object.fromEntries(
-    Object.entries(result.typescript).map(([file, source]) => [
-      path.resolve(human, file).replace(/\\/g, "/"),
+    Object.entries(result.files).map(([file, source]) => [
+      path.resolve(human, file).replaceAll("\\", "/"),
       source,
     ]),
   );
@@ -53,7 +80,7 @@ export default defineConfig({
       ...createHumanViewerTransform(
         path.join(human, "src"),
         async (id) => {
-          const code = compilation.source(id);
+          const code = await compilation.source(id);
           return code === undefined ? undefined : { code };
         },
         compilation.invalidate,

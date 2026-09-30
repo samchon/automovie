@@ -1,37 +1,41 @@
 import { TestValidator } from "@nestia/e2e";
 
 import { createHumanViewerCompilation } from "../../../scripts/human-viewer/createHumanViewerCompilation";
+import { rejectsWith } from "../internal/rejectsWith";
 
 /**
  * All transformed modules in one generation share one complete compiler result.
  * Scenarios:
- * 1. Multiple module lookups and a missing module compile once.
- * 2. Invalidation recompiles and a failed generation cannot serve its predecessor.
+ * 1. Multiple module lookups, concurrent ones and a missing module compile once.
+ * 2. Invalidation recompiles, including when it arrives during a compile, and
+ *    a failed generation cannot serve its predecessor.
  * 3. Repair after failure can compile and publish a fresh generation.
  */
-export function test_human_viewer_compilation_generation(): void {
+export async function test_human_viewer_compilation_generation(): Promise<void> {
   let count = 0;
   let fail = false;
-  const owner = createHumanViewerCompilation(() => {
+  const owner = createHumanViewerCompilation(async () => {
     ++count;
+    await Promise.resolve();
     if (fail) throw new Error("broken source");
     return { a: String(count), b: "other" };
   });
-  TestValidator.equals("first", owner.source("a"), "1");
-  TestValidator.equals("same generation", owner.source("b"), "other");
-  TestValidator.equals("missing", owner.source("absent"), undefined);
+  const [first, second] = await Promise.all([owner.source("a"), owner.source("b")]);
+  TestValidator.equals("first", first, "1");
+  TestValidator.equals("same generation", second, "other");
+  TestValidator.equals("missing", await owner.source("absent"), undefined);
   TestValidator.equals("one compile", count, 1);
   owner.invalidate();
-  TestValidator.equals("new generation", owner.source("a"), "2");
+  const pending = owner.source("a");
+  owner.invalidate();
+  TestValidator.equals("stale caller keeps its snapshot", await pending, "2");
+  TestValidator.equals("withdrawn during compile", await owner.source("a"), "3");
   owner.invalidate();
   fail = true;
-  let refused = false;
-  try {
-    owner.source("a");
-  } catch {
-    refused = true;
-  }
-  TestValidator.predicate("failure refuses", refused);
+  TestValidator.predicate(
+    "failure refuses",
+    await rejectsWith(() => owner.source("a"), "broken source"),
+  );
   fail = false;
-  TestValidator.equals("repaired", owner.source("a"), "4");
+  TestValidator.equals("repaired", await owner.source("a"), "5");
 }
