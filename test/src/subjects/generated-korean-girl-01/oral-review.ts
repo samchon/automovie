@@ -110,6 +110,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.portraitTongueStation} Reads the builder's vertex layout as a station from tip to root for the jaw weighting.
  * @evidence {@link Human.retreatPortraitEnamel} Moves an enamel arch rigidly behind the lip mesh along Z, sharing the fit's retreat with the cavity-less closed-mouth contact.
  * @evidence {@link Human.resolvePortraitOralContact} Keeps each present arch behind the lips and the cavity behind the arch when the real face builder assembles its parts.
+ * @evidence {@link Human.assertPortraitTongueWithinArch} Refuses a tongue wider than the lower dental arch that must contain it, at every ring in plan.
  * @evidence {@link Human.portraitTongueRingStation} Spaces the lingual rings by the angle of the closing ellipse so its rounded poles are resolved.
  * @evidence {@link Human.portraitTongueWidthEnvelope} Gives the tongue a rounded plan outline as an ellipse of the station.
  */

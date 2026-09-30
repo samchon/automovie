@@ -1,5 +1,6 @@
 export * from "./IPortraitTongueShape";
 export * from "./assertPortraitTongueShape";
+export * from "./assertPortraitTongueWithinArch";
 export * from "./buildPortraitTongue";
 export * from "./createPortraitTongueComponent";
 export * from "./frontWeight";

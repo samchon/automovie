@@ -9,6 +9,7 @@ import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import { portraitEarSampling } from "../anatomy/ear/portraitEarSampling";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import { resolvePortraitSkinShape } from "../anatomy/skin/resolvePortraitSkinShape";
+import { assertPortraitTongueWithinArch } from "../anatomy/tongue/assertPortraitTongueWithinArch";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
 import { applyHumanFaceControls } from "./applyHumanFaceControls";
@@ -163,6 +164,12 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
   const expression = resolveHumanFaceExpression(document.expression);
   if (recipe.tongue !== undefined && bindings.jawHinge === undefined)
     throw new Error("A tongue profile requires an explicit jaw hinge.");
+  if (recipe.tongue !== undefined && recipe.lowerDentition !== undefined)
+    assertPortraitTongueWithinArch(
+      recipe.tongue,
+      recipe.lowerDentition.row,
+      recipe.lowerDentition.placement.recess,
+    );
   if (
     recipe.tongue === undefined &&
     [
