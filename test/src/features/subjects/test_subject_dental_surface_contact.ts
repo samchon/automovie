@@ -10,8 +10,9 @@ import { throwsError } from "../internal/predicates";
  * Scenarios:
  * 1. Three curved-arch crowns receive a 0.5 mm surface gap while each crown
  *    retains one rigid X translation, its original Y/Z and its normals.
- * 2. Omitted contact retains nominal placement; explicit zero still enforces
- *    nonpenetration. Negative and nonfinite contact-gap requests refuse.
+ * 2. Omitted contact is explicit zero: touching at most, never interpenetrating,
+ *    while unseparated nominal placement would overlap. Negative and nonfinite
+ *    contact-gap requests refuse.
  */
 export const test_subject_dental_surface_contact = (): void => {
   const profile = {
@@ -30,9 +31,9 @@ export const test_subject_dental_surface_contact = (): void => {
   const base = buildPortraitDentalRow(shape),
     placed = buildPortraitDentalRow({ ...shape, contactGap: 0.5 });
   TestValidator.equals(
-    "omitted option is identity",
+    "omitted option is explicit zero",
     base,
-    buildPortraitDentalRow({ ...shape, contactGap: undefined }),
+    buildPortraitDentalRow({ ...shape, contactGap: 0 }),
   );
   const crown = buildPortraitDentalCrown(profile, 1),
     stride = crown.positions.length,
@@ -78,7 +79,7 @@ export const test_subject_dental_surface_contact = (): void => {
   );
   for (const [mesh, gap] of [
     [placed, 0.0005],
-    [buildPortraitDentalRow({ ...shape, contactGap: 0 }), 0],
+    [base, 0],
   ] as const)
     for (let j = 1; j < 3; j++)
       for (let i = 0; i < j; i++) {

@@ -5,6 +5,7 @@ import { selectHostFacesInsideLoop } from "../../mesh/selectHostFacesInsideLoop"
 import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
 import { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { assertPortraitDentalCrown } from "../dental/assertPortraitDentalCrown";
+import { resolvePortraitDentalCrown } from "../dental/resolvePortraitDentalCrown";
 import { assertPortraitOralLining } from "./assertPortraitOralLining";
 import { createPortraitLipBandSampler } from "./createPortraitLipBandSampler";
 import { createPortraitLipBandScale } from "./createPortraitLipBandScale";
@@ -21,6 +22,13 @@ import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
  * Fit the lips, adapt adjacent skin and finish the selected oral interior at
  * the refined rim. A connected lining receives only the final lip triangles,
  * retaining every refined boundary vertex without scanning the whole head.
+ *
+ * @evidence contracts/common.md#principled-implementation The lips are the host triangles inside the band selected by the socket's loops. Their vertices are moved by constraints: width and opening are scaled about the mouth's own centre, corner lift is a quadratic weight of the lateral position, projections fade as (1 - corner^2), relief and seam projection are the boundary-zero envelopes of the section, and band thickness scales about the actual inner curve of that lateral position. The performance moves the paired rims first and every other vertex by the same displacement, so the vermilion keeps its section. Material ownership follows the original band through other components' cuts.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named, the host is not mutated and no lip-specific policy lives in the host.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the component fits, adapts and finishes and that a connected lining receives only the final lip triangles.
+ * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres on the host; the interior is packed once at the metric boundary by its finisher.
+ * @evidence contracts/modeling.md#shared-boundaries The lip band, the cutaneous border, the aperture and the interior lining are all built from one socket: the outer loop is shared with the skin by the host cut and border refinement, the aperture cycle is the one loop both the cut and the flood use, and the lining's rim is the traced refined boundary. Section and seam relief are zero on those boundaries. The enamel is not fitted against the lips or the cavity backdrop here; measured on the fixture face the upper arch crosses both by default, and the opt-in contact fit is the resolution.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical value of its own; the lip dimensions are authored.
  */
 export function createPortraitMouthComponent(
   inputSocket: IPortraitMouthSocket,
@@ -70,12 +78,9 @@ export function createPortraitMouthComponent(
   )
     throw new Error("Lip border refinement must be surface or curve.");
   for (const crown of shape.crowns)
-    assertPortraitDentalCrown({
-      ...crown,
-      depth: shape.dentalDepth,
-      cervicalWidth: crown.cervicalWidth ?? 0.78,
-      edgeRise: crown.edgeRise ?? 0.035 * crown.height,
-    });
+    assertPortraitDentalCrown(
+      resolvePortraitDentalCrown(crown, shape.dentalDepth),
+    );
   if (
     [
       shape.widthScale,
