@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "rootDir": "." },
-  "include": ["scripts/face-review/*.ts", "scripts/face-review/web/*.ts", "scripts/body-review/*.ts", "scripts/viewer/*.ts", "scripts/review/*.ts", "scripts/human-viewer/**/*.ts"]
+  "include": ["scripts/face-review/*.ts", "scripts/face-review/web/*.ts", "scripts/body-review/*.ts", "scripts/body-basis/*.ts", "scripts/viewer/*.ts", "scripts/review/*.ts", "scripts/human-viewer/**/*.ts"]
 }
