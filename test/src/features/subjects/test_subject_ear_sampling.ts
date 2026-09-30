@@ -1,4 +1,8 @@
-import { portraitEarShape, resolvePortraitEarSampling } from "@automovie/human";
+import {
+  portraitEarSampling,
+  portraitEarShape,
+  resolvePortraitEarSampling,
+} from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -7,7 +11,8 @@ import { throwsError } from "../internal/predicates";
  * Pinna sampling is a bounded precision setting, not an anatomical scale.
  *
  * Scenarios:
- * 1. Omission and both inclusive bounds resolve to independent owned records.
+ * 1. Omission and both inclusive bounds resolve to independent owned records;
+ *    the shared default owner stays frozen and untouched by a caller's edit.
  * 2. Adjacent invalid bounds, fractional counts and nonfinite dimensions refuse.
  * 3. Zero embedding is valid; zero scale/projection and negative embedding refuse.
  */
@@ -16,6 +21,17 @@ export const test_subject_ear_sampling = (): void => {
     "default precision",
     resolvePortraitEarSampling(portraitEarShape),
     { columns: 112, frontRows: 60, backRows: 40 },
+  );
+  const defaulted = resolvePortraitEarSampling(portraitEarShape);
+  defaulted.columns++;
+  TestValidator.equals("shared default is untouched", portraitEarSampling, {
+    columns: 112,
+    frontRows: 60,
+    backRows: 40,
+  });
+  TestValidator.predicate(
+    "shared default is frozen",
+    Object.isFrozen(portraitEarSampling),
   );
   for (const sampling of [
     { columns: 8, frontRows: 2, backRows: 2 },

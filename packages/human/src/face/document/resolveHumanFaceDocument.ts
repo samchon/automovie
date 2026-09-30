@@ -6,6 +6,7 @@ import { portraitNeckShape } from "../anatomy/cranium/portraitNeckShape";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
 import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
+import { portraitEarSampling } from "../anatomy/ear/portraitEarSampling";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import { resolvePortraitSkinShape } from "../anatomy/skin/resolvePortraitSkinShape";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
@@ -116,9 +117,7 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
     ear: {
       ...(document.basis.recipe.ear ?? portraitEarShape),
       sampling: document.basis.recipe.ear?.sampling ?? {
-        columns: 112,
-        frontRows: 60,
-        backRows: 40,
+        ...portraitEarSampling,
       },
     },
     cranium: resolvePortraitCraniumShape(chinY, document.basis.recipe.cranium),

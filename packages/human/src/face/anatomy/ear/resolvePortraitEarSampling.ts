@@ -1,8 +1,17 @@
 import { IPortraitEarShape } from "./IPortraitEarShape";
+import { portraitEarSampling } from "./portraitEarSampling";
 
 /**
  * Validate the pinna's anatomical dimensions and resolve independent sampling.
  * The returned sampling record is owned by the caller, including defaults.
+ *
+ * Bounds here only keep dimensions finite and positive: a living pinna range
+ * is not encoded, so a positive but implausible scale is admitted.
+ *
+ * @evidence contracts/common.md#principled-implementation Admission is closed-form: every placement and scale must be finite, scales and projection strictly positive, embedding nonnegative, and the tessellation integers inside inclusive bounds, so a NaN, a fractional count or an adjacent out-of-range value refuses before geometry is built. The result is a copy, so the caller's shape and the shared default are never mutated. The bounds are tessellation budgets, not anatomical limits.
+ * @evidence contracts/common.md#clear-and-simple-design One validator and one default owner (`portraitEarSampling`); this validator and the document resolver consume the same default instead of repeating it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is special-cased and nothing is patched around another module; the default is a named contract constant.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what is validated, that the sampling is independent of anatomy and that the caller owns the returned record.
  */
 export function resolvePortraitEarSampling(
   shape: IPortraitEarShape,
@@ -24,11 +33,7 @@ export function resolvePortraitEarSampling(
     throw new Error(
       "Pinna dimensions need finite placement, positive scales/projection and nonnegative embedding.",
     );
-  const sampling = shape.sampling ?? {
-    columns: 112,
-    frontRows: 60,
-    backRows: 40,
-  };
+  const sampling = shape.sampling ?? portraitEarSampling;
   if (
     ![sampling.columns, sampling.frontRows, sampling.backRows].every(
       Number.isInteger,
