@@ -18,11 +18,23 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * Only texels within `limbus + margin` are kept; the first triangle to claim
  * a texel keeps it, which only matters on a shared edge where both agree.
  *
- * Pure: the triangles and disc are read, a new list is returned.
- */
-
-/**
- * Rasterize globe triangles into the iris texels of a disc.
+ * Pure: the triangles and disc are read, a new list is returned. Positions are
+ * metres in the basis frame, angles are radians, and texel coordinates are
+ * pixels with image row `y` growing with `v`. A triangle with zero UV area is
+ * skipped, so a degenerate triangle claims no texel.
+ *
+ * @evidence contracts/common.md#principled-implementation A texel centre lies inside a triangle exactly when its barycentric coordinates in the corner UVs are all non-negative, and the same barycentric weights applied to the triangle's positions give the surface point that texel shows, so the polar angle and azimuth are exact on the polyhedral surface and not read back from pixels. Testing centres, not corners, makes each texel belong to the surface it samples, and first-claim-wins is sound because a texel shared by two triangles lies on their common edge where both give the same point.
+ * @evidence contracts/common.md#clear-and-simple-design One pure function walks each triangle's texel bounding box once and records the kept texels in three parallel arrays, with no option and no state beyond the claimed set.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is named after an asset or a subject; the texels follow from the triangles, the disc and the margin alone.
+ * @evidence contracts/common.md#meaningful-documentation The comment states the containment rule, the meaning of theta and phi, the row convention, what is kept and the claim rule, the units and the degenerate triangle behaviour.
+ * @evidence contracts/modeling.md#spatial-conventions The function names three frames and one conversion: metre positions in the basis frame, UV in the unit square scaled to pixels with rows growing with v, and polar angles in radians about the disc axis with azimuth from its reference direction; the mapping between them is the barycentric step it owns.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function rasterizes texels and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits texel indices and no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the edge blend at the limbus belongs to the texel colour rule.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the disc and margin are its caller's.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines and converts no input a caller shapes a face through.
  */
 export function rasterizeHumanFaceIrisTexels(props: {
   width: number;

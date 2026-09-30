@@ -10,6 +10,27 @@ import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueSh
  * Own a tissue profile and build both surfaces in one live ocular frame.
  * The medial mound and lateral plica share a patch between the actual lids;
  * neither is a floating sphere with an independently guessed attachment.
+ *
+ * The profile is copied and validated once (every dimension finite and
+ * nonnegative). Each call then takes one boundary (an ordered aperture in head
+ * millimetres, its lid and globe samplers) and returns the medial mound
+ * (`corner`, a 32 by 12 lattice, absent when its length is zero) and the lower
+ * margin (`lowerMargin`, an 80 by 4 lattice, absent when its width is zero), so
+ * their vertex counts are fixed at 429 and 405 whatever the eye. The mound's
+ * caruncle and plica envelopes, their positions at 0.42 and 0.82 of the region
+ * and the 0.02 mm base relief are procedural shape constants and not
+ * population statistics. A non-finite or negative dimension, an unordered
+ * aperture, a mound longer than half the aperture, non-finite or unordered lid
+ * samples and a non-finite globe height throw.
+ *
+ * @evidence contracts/common.md#principled-implementation Both surfaces are parametric patches whose rows are interpolated between the actual lid samples at each X and the supporting globe height at that point, so they close on both lids by construction, and their reliefs are multiplied by sin-squared envelopes across and along the patch, which vanish at the lids and at the joins. The mound's axis is measured from the medial canthus on either side, so a mirrored eye differs only in which end is medial.
+ * @evidence contracts/common.md#clear-and-simple-design One function copies a profile and returns one closure that builds both surfaces from a shared boundary, because they share the lid samples and globe height of one live frame and separate functions would repeat that sampling.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The surfaces are a function of the profile and the boundary only; the envelope constants are stated shape conventions, no case is named after a subject or fixture, and nothing is patched around another module.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what each call takes and returns, the lattice sizes and counts, which constants are conventions, and every refusal.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The function returns two surfaces, the medial conjunctival mound and the lower lid margin, each of which the eye builder emits as its own named part. They are built together because both are defined against the same lid samples and globe height of one boundary, and splitting them would duplicate that sampling.
+ * @evidence contracts/modeling.md#emitted-geometry Each surface is a fixed lattice, 32 by 12 (429 vertices) and 80 by 4 (405 vertices), independent of the aperture, and the profile only removes one when its length or width is zero. The surfaces are small regular patches, so a lattice is the representation, and no feature-by-feature primitive is added.
+ * @evidence contracts/modeling.md#spatial-conventions The boundary, the samplers and the emitted lattices are head millimetres in one right-handed frame with +Z anterior, and the function converts nothing.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes a tissue profile and defines no channel; the profile fields are declared by its type.
  */
 export const createPortraitOcularTissues = (
   input: IPortraitOcularTissueShape,
