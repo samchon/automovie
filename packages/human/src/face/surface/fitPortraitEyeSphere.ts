@@ -15,6 +15,11 @@ import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Degenerate lids, a zero view ray and an unspannable radius refuse.
  * @evidence contracts/common.md#meaningful-documentation States the two alignments, that the fit ignores current gaze and that depth is the mean rim residual.
  * @evidence contracts/modeling.md#spatial-conventions Points, view ray and radius share one frame and unit (construction millimetres for the portrait eye).
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping fitPortraitEyeSphere is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels fitPortraitEyeSphere defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry fitPortraitEyeSphere emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries fitPortraitEyeSphere constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation fitPortraitEyeSphere owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function fitPortraitEyeSphere(
   upper: IAutoMovieVector3[],

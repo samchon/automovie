@@ -32,6 +32,8 @@ type Stencil = { a: number; b: number; t: number };
  * @evidenceExclude contracts/anatomy.md#anatomical-source clipHumanFaceBasisSurface carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range clipHumanFaceBasisSurface admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority clipHumanFaceBasisSurface defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping clipHumanFaceBasisSurface is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels clipHumanFaceBasisSurface defines and consumes no parameter channel of a form.
  */
 export function clipHumanFaceBasisSurface(
   source: Surface,

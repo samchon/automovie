@@ -24,6 +24,11 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceContact carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceContact admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceContact defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertHumanFaceContact is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels assertHumanFaceContact defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry assertHumanFaceContact emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries assertHumanFaceContact constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation assertHumanFaceContact owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   const contact = basis.contact;

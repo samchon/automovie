@@ -21,6 +21,7 @@ import { IPortraitReliefRegion } from "./structures/IPortraitReliefRegion";
  * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part.
  * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no measurement: each region's amounts belong to the caller's document.
  * @evidenceExclude contracts/anatomy.md#permitted-range It refuses non-finite or non-positive dimensions but bounds no anatomical quantity.
+ * @evidenceExclude contracts/modeling.md#parameter-channels createPortraitReliefLayer defines and consumes no parameter channel of a form.
  */
 export function createPortraitReliefLayer(
   id: string,

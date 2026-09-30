@@ -17,6 +17,9 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * @evidenceExclude contracts/anatomy.md#anatomical-source IPortraitInterior carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range IPortraitInterior admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority IPortraitInterior defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#parameter-channels IPortraitInterior defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry IPortraitInterior emits no primitive.
+ * @evidenceExclude contracts/modeling.md#rendered-observation IPortraitInterior owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  * @author Samchon
  */
 export interface IPortraitInterior {

@@ -34,6 +34,9 @@ const LIFT = 0.00005;
  * @evidenceExclude contracts/anatomy.md#anatomical-source bakeHumanFaceOcclusion carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range bakeHumanFaceOcclusion admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority bakeHumanFaceOcclusion defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping bakeHumanFaceOcclusion is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels bakeHumanFaceOcclusion defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries bakeHumanFaceOcclusion constructs no surface that meets another part.
  */
 export function bakeHumanFaceOcclusion(
   model: IAutoMovieModel,

@@ -23,6 +23,7 @@ import { IPortraitReliefCurve } from "./structures/IPortraitReliefCurve";
  * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part.
  * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no measurement of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range It bounds no anatomical quantity.
+ * @evidenceExclude contracts/modeling.md#parameter-channels createPortraitReliefCurveLayer defines and consumes no parameter channel of a form.
  */
 export function createPortraitReliefCurveLayer(
   id: string,

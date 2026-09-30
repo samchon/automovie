@@ -31,6 +31,11 @@ import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
  * @evidence contracts/modeling.md#spatial-conventions Millimetres for radius, offsets and displacements, divided by 1000 for the engine's metre fields.
  * @evidenceExclude contracts/anatomy.md#anatomical-source createPortraitControlLayer carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range createPortraitControlLayer admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createPortraitControlLayer is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels createPortraitControlLayer defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry createPortraitControlLayer emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries createPortraitControlLayer constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation createPortraitControlLayer owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function createPortraitControlLayer(
   id: string,

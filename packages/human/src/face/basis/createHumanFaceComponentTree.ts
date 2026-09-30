@@ -21,6 +21,10 @@ const DOCUMENT_FIELDS = ["hair", "iris", "skin", "materials"] as const;
  * @evidenceExclude contracts/anatomy.md#anatomical-source createHumanFaceComponentTree carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range createHumanFaceComponentTree admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority createHumanFaceComponentTree defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceComponentTree emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries createHumanFaceComponentTree constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#spatial-conventions createHumanFaceComponentTree defines no value that carries a unit or a coordinate frame of its own.
+ * @evidenceExclude contracts/modeling.md#rendered-observation createHumanFaceComponentTree owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function createHumanFaceComponentTree(
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels" | "surfaces">,

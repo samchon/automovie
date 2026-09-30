@@ -29,6 +29,10 @@ import type { IPortraitInterior } from "./structures/IPortraitInterior";
  * @evidenceExclude contracts/anatomy.md#anatomical-source assertPortraitInteriorBindings carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range assertPortraitInteriorBindings admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority assertPortraitInteriorBindings defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertPortraitInteriorBindings is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels assertPortraitInteriorBindings defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry assertPortraitInteriorBindings emits no primitive.
+ * @evidenceExclude contracts/modeling.md#rendered-observation assertPortraitInteriorBindings owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertPortraitInteriorBindings(
   skin: Pick<IControlMesh, "positions">,

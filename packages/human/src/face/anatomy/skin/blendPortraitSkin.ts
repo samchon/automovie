@@ -32,6 +32,9 @@ import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstrai
  * @evidenceExclude contracts/anatomy.md#anatomical-source blendPortraitSkin carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range blendPortraitSkin admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority blendPortraitSkin defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping blendPortraitSkin is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels blendPortraitSkin defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry blendPortraitSkin emits no primitive.
  */
 export function blendPortraitSkin(
   positions: number[][],

@@ -20,6 +20,7 @@ import { createPortraitIrisMaterials } from "../eye/createPortraitIrisMaterials"
  * @evidenceExclude contracts/anatomy.md#anatomical-source The finishes are authored appearance controls, not anatomical measurements, as the comments state.
  * @evidenceExclude contracts/anatomy.md#permitted-range It admits no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority It defines no caller input.
+ * @evidenceExclude contracts/modeling.md#rendered-observation createPortraitMaterials owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function createPortraitMaterials(): IAutoMovieMaterial[] {
   const materials: IAutoMovieMaterial[] = [];

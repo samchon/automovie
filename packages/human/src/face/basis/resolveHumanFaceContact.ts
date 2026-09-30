@@ -54,6 +54,9 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * @evidence contracts/common.md#meaningful-documentation States the floor rule, the cover, the rim exception, the seam grouping, the spread and the limits (pointwise clearance does not prevent inverted edges).
  * @evidence contracts/modeling.md#spatial-conventions Basis metres; millimetres appear only in error text.
  * @evidenceExclude contracts/anatomy.md#parametric-authority resolveHumanFaceContact defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping resolveHumanFaceContact is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels resolveHumanFaceContact defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry resolveHumanFaceContact emits no primitive.
  */
 export function resolveHumanFaceContact(
   basis: IAutoMovieHumanFaceBasis,

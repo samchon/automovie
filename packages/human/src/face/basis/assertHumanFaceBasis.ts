@@ -19,6 +19,11 @@ import { assertHumanFaceContact } from "./assertHumanFaceContact";
  * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceBasis carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceBasis admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceBasis defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping assertHumanFaceBasis is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels assertHumanFaceBasis defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry assertHumanFaceBasis emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries assertHumanFaceBasis constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation assertHumanFaceBasis owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   const unique = (ids: string[]): void => {

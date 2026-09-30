@@ -37,6 +37,9 @@ import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
  * @evidenceExclude contracts/anatomy.md#anatomical-source applyPortraitSurfaceLayers carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range applyPortraitSurfaceLayers admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority applyPortraitSurfaceLayers defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping applyPortraitSurfaceLayers is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels applyPortraitSurfaceLayers defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry applyPortraitSurfaceLayers emits no primitive.
  */
 export function applyPortraitSurfaceLayers(
   mesh: IControlMesh,

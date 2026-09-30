@@ -23,6 +23,10 @@ import type { IAutoMovieHumanFaceControlMap } from "../structures/IAutoMovieHuma
  * @evidence contracts/modeling.md#parameter-channels A simple coordinate is one group mean over named fine channels; zero is neutral because every member's neutral is zero. It is reversible: the fine weights are recovered as mean plus residual, which is the stated inverse.
  * @evidence contracts/anatomy.md#parametric-authority Every input is a named group coordinate or a named fine shape channel with a range; nothing addresses a vertex, curve, strand or patch. The conversion between simple and fine values is the deterministic mean-plus-residual map, whose inverse is the projection.
  * @evidence contracts/modeling.md#spatial-conventions Coordinates are dimensionless normalised weights.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceControlMap is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceControlMap emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries createHumanFaceControlMap constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation createHumanFaceControlMap owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function createHumanFaceControlMap(props: {
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels">;

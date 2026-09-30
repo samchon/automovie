@@ -17,6 +17,7 @@ import type { IControlMesh } from "../../mesh/structures/IControlMesh";
  * @evidenceExclude contracts/anatomy.md#anatomical-source assertPortraitSkinTopology carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range assertPortraitSkinTopology admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority assertPortraitSkinTopology defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#rendered-observation assertPortraitSkinTopology owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function assertPortraitSkinTopology(
   cage: IControlMesh,

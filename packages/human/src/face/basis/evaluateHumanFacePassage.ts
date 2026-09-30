@@ -27,6 +27,11 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It refuses with figures and moves nothing.
  * @evidence contracts/common.md#meaningful-documentation States the geometric rule, the plane, and what the error tells an author.
  * @evidence contracts/modeling.md#spatial-conventions Basis metres in the shared head frame; millimetres appear only in the message text.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping evaluateHumanFacePassage is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#parameter-channels evaluateHumanFacePassage defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry evaluateHumanFacePassage emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries evaluateHumanFacePassage constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation evaluateHumanFacePassage owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function evaluateHumanFacePassage(
   contact: Contact,

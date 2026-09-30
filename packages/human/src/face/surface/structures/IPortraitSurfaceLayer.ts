@@ -18,6 +18,8 @@ import { IPortraitSurfaceHost } from "./IPortraitSurfaceHost";
  * @evidenceExclude contracts/anatomy.md#anatomical-source IPortraitSurfaceLayer carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range IPortraitSurfaceLayer admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority IPortraitSurfaceLayer defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries IPortraitSurfaceLayer constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation IPortraitSurfaceLayer owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  * @author Samchon
  */
 export interface IPortraitSurfaceLayer {

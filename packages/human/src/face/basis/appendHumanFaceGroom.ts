@@ -32,6 +32,7 @@ import type { IAutoMovieHumanFaceGroom } from "../structures/IAutoMovieHumanFace
  * @evidenceExclude contracts/anatomy.md#anatomical-source appendHumanFaceGroom carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range appendHumanFaceGroom admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority appendHumanFaceGroom defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#parameter-channels appendHumanFaceGroom defines and consumes no parameter channel of a form.
  * @author Samchon
  */
 export function appendHumanFaceGroom(props: {

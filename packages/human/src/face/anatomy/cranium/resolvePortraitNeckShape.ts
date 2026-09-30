@@ -23,6 +23,10 @@ import type { IPortraitNeckShape } from "./structures/IPortraitNeckShape";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific constant: the single reference chin height is documented as the height the default was authored below, and a nonfinite chin refuses.
  * @evidence contracts/common.md#meaningful-documentation States the two cases, the shift rule, the reason and the unit and frame.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Y up; only heights change.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping resolvePortraitNeckShape is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry resolvePortraitNeckShape emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries resolvePortraitNeckShape constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation resolvePortraitNeckShape owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function resolvePortraitNeckShape(
   chinY: number,

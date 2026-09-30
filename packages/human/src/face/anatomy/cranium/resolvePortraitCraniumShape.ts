@@ -20,6 +20,10 @@ import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid set refuses and is never clipped; the default stations are documented defaults, not a special case for any subject.
  * @evidence contracts/common.md#meaningful-documentation States the units and frame, the descending order, that the default is authored, the chin-relative rule and each refusal.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Y up and +Z anterior; chinY is read in the same frame.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping resolvePortraitCraniumShape is a computation over existing data and defines no part or group of parts.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry resolvePortraitCraniumShape emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries resolvePortraitCraniumShape constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation resolvePortraitCraniumShape owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  */
 export function resolvePortraitCraniumShape(
   chinY: number,

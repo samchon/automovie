@@ -17,6 +17,10 @@ import { IPortraitComponentPlan } from "./IPortraitComponentPlan";
  * @evidenceExclude contracts/anatomy.md#anatomical-source IPortraitComponent carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range IPortraitComponent admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority IPortraitComponent defines no input through which a caller shapes a human form.
+ * @evidenceExclude contracts/modeling.md#parameter-channels IPortraitComponent defines and consumes no parameter channel of a form.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry IPortraitComponent emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries IPortraitComponent constructs no surface that meets another part.
+ * @evidenceExclude contracts/modeling.md#rendered-observation IPortraitComponent owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
  * @author Samchon
  */
 export interface IPortraitComponent {
