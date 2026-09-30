@@ -24,6 +24,8 @@ interface Best {
 }
 
 interface Edge {
+  low: number;
+  high: number;
   normal: number[];
   count: number;
   balance: number;
@@ -49,6 +51,8 @@ interface Triangle {
   }[];
   low: number[];
   high: number[];
+  /** Box centre per axis, measured once for the hierarchy's median splits. */
+  centre: number[];
 }
 
 type Node = {
@@ -149,7 +153,7 @@ export function createAutoMovieSignedMeshQuery(
   const identities = new Map<string, number>();
   const vertices: number[] = [];
   for (let at = 0; at < positions.length; at += 3) {
-    const key = positions.slice(at, at + 3).join(",");
+    const key = `${positions[at]},${positions[at + 1]},${positions[at + 2]}`;
     let identity = identities.get(key);
     if (identity === undefined) {
       identity = identities.size;
@@ -164,7 +168,8 @@ export function createAutoMovieSignedMeshQuery(
     { length: identities.size },
     () => new Map<number, Set<number>>(),
   );
-  const edges = new Map<string, Edge>();
+  const edges = new Map<number, Edge>();
+  const welded = identities.size;
   const triangles: Triangle[] = [];
   for (let at = 0; at < indices.length; at += 3) {
     const source = indices.slice(at, at + 3);
@@ -204,10 +209,16 @@ export function createAutoMovieSignedMeshQuery(
         }
         neighbors.add(y);
       }
-      const key = from < to ? `${from}:${to}` : `${to}:${from}`;
+      const key = from < to ? from * welded + to : to * welded + from;
       let edge = edges.get(key);
       if (edge === undefined) {
-        edge = { normal: [0, 0, 0], count: 0, balance: 0 };
+        edge = {
+          low: Math.min(from, to),
+          high: Math.max(from, to),
+          normal: [0, 0, 0],
+          count: 0,
+          balance: 0,
+        };
         edges.set(key, edge);
       }
       for (let axis = 0; axis < 3; axis++) edge.normal[axis] += normal[axis];
@@ -223,6 +234,8 @@ export function createAutoMovieSignedMeshQuery(
         edge,
       });
     }
+    const low = a.map((value, axis) => Math.min(value, b[axis], c[axis]));
+    const high = a.map((value, axis) => Math.max(value, b[axis], c[axis]));
     triangles.push({
       id: at / 3,
       a,
@@ -234,8 +247,9 @@ export function createAutoMovieSignedMeshQuery(
       abac,
       determinant,
       segments,
-      low: a.map((value, axis) => Math.min(value, b[axis], c[axis])),
-      high: a.map((value, axis) => Math.max(value, b[axis], c[axis])),
+      low,
+      high,
+      centre: low.map((value, axis) => (value + high[axis]) / 2),
     });
   }
   const open = options?.boundary === "open";
@@ -253,9 +267,11 @@ export function createAutoMovieSignedMeshQuery(
     unit(edge.normal);
   }
   const rim = new Set<number>();
-  for (const [key, edge] of edges.entries())
-    if (edge.count === 1)
-      for (const vertex of key.split(":")) rim.add(Number(vertex));
+  for (const edge of edges.values())
+    if (edge.count === 1) {
+      rim.add(edge.low);
+      rim.add(edge.high);
+    }
   for (const [vertex, link] of links.entries()) {
     if (link.size === 0) continue;
     const visited = new Set<number>(),
@@ -381,10 +397,7 @@ const buildTree = (triangles: Triangle[]): Node => {
   if (triangles.length <= 12) return { low, high, triangles };
   const sizes = subtract(high, low),
     axis = sizes.indexOf(Math.max(...sizes));
-  triangles.sort(
-    (a, b) =>
-      (a.low[axis] + a.high[axis]) / 2 - (b.low[axis] + b.high[axis]) / 2,
-  );
+  triangles.sort((a, b) => a.centre[axis] - b.centre[axis]);
   const middle = Math.floor(triangles.length / 2);
   return {
     low,
