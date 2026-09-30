@@ -7,8 +7,6 @@
  * old document. The `/render` and `/sheet` links are built from the same
  * address and therefore draw what the viewport shows.
  */
-import { HUMAN_OBSERVATION_PASSES } from "@automovie/playground/src/human/common/observation/HumanObservationPass";
-import { HUMAN_OBSERVATION_VIEWS } from "@automovie/playground/src/human/common/observation/HumanObservationView";
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
@@ -16,6 +14,7 @@ import { changeHumanViewerParts } from "./changeHumanViewerParts";
 import { describeHumanViewerDocuments } from "./describeHumanViewerDocuments";
 import { neighbourHumanViewerDocument } from "./neighbourHumanViewerDocument";
 import { openHumanViewerHref } from "./openHumanViewerHref";
+import { humanViewerChoices } from "./humanViewerChoices";
 
 const element = <T extends HTMLElement>(id: string): T =>
   document.querySelector<T>("#" + id)!;
@@ -38,14 +37,14 @@ export function mountHumanViewerControls(props: {
   const change = (fields: Partial<HumanViewerAddress>): void => {
     if (current !== null) props.navigate({ ...current, ...fields });
   };
-  for (const view of HUMAN_OBSERVATION_VIEWS) {
+  for (const view of humanViewerChoices.views) {
     const button = document.createElement("button");
     button.dataset.view = view;
     button.textContent = view.replace("-three-quarter", " 3/4");
     button.addEventListener("click", () => change({ view }));
     views.append(button);
   }
-  for (const name of HUMAN_OBSERVATION_PASSES)
+  for (const name of humanViewerChoices.passes)
     pass.append(new Option(name, name));
   doc.addEventListener("change", () =>
     change({ doc: doc.value, parts: [], hide: [], frame: null }),

@@ -77,6 +77,12 @@ export default defineConfig({
   root: directory,
   plugins: [
     {
+      // An edit never reloads or hot-replaces a page a person is using: the
+      // host page shows a banner and redraws when asked, keeping its state.
+      name: "human-viewer-no-hot-update",
+      handleHotUpdate: () => [],
+    },
+    {
       ...createHumanViewerTransform(
         path.join(human, "src"),
         async (id) => {

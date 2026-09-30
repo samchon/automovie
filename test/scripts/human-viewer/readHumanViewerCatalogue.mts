@@ -22,6 +22,8 @@ export function readHumanViewerCatalogue(props: {
   documentsFile: string;
   /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
   inputsDirectory?: string;
+  /** Identity and digest of a basis file; the server supplies a memoized reader so the tens of megabytes are hashed once. */
+  basisOf?: (file: string) => { id: string; digest: string };
   /** The digests the page reloads on and each domain's builds depend on. */
   revisions: { browser: string; face: string; body: string };
 }): HumanViewerCatalogue {
@@ -30,6 +32,7 @@ export function readHumanViewerCatalogue(props: {
   const sources = props.revisions;
   const bases = Object.fromEntries(
     Object.entries(props.basisFiles).map(([domain, file]) => {
+      if (props.basisOf !== undefined) return [domain, props.basisOf(file)];
       const bytes = fs.readFileSync(file);
       return [
         domain,

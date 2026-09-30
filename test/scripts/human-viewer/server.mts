@@ -11,12 +11,14 @@ import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { gzipSync } from "node:zlib";
+import { promisify } from "node:util";
+import { gzip } from "node:zlib";
 import { type Page, chromium } from "playwright";
 import { PNG } from "pngjs";
 import { createServer } from "vite";
 
 import { HumanViewerQueueFullError } from "./HumanViewerQueueFullError";
+import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { judgeViewerRenderer } from "./judgeViewerRenderer";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { applyHumanViewerPose } from "./applyHumanViewerPose";
@@ -25,6 +27,7 @@ import { createHumanViewerQueue } from "./createHumanViewerQueue";
 import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
 import { encodeHumanViewerPreview } from "./encodeHumanViewerPreview";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
+import { openHumanViewerHref } from "./openHumanViewerHref";
 import { planHumanViewerSheet } from "./planHumanViewerSheet";
 import { readHumanViewerCatalogue } from "./readHumanViewerCatalogue.mjs";
 import { renderHumanViewerSheet } from "./renderHumanViewerSheet.mjs";
@@ -62,10 +65,27 @@ const readText = (file: string): string | undefined => {
     return undefined;
   }
 };
+/** Digest and identity of a large input file, recomputed only when it changes on disk. */
+const memoized = new Map<string, { stamp: string; digest: string; id: string }>();
+const basisOf = (file: string): { id: string; digest: string } => {
+  const stat = fs.statSync(file);
+  const stamp = `${stat.mtimeMs}:${stat.size}`;
+  let kept = memoized.get(file);
+  if (kept?.stamp !== stamp) {
+    const bytes = fs.readFileSync(file);
+    kept = {
+      stamp,
+      digest: hash(bytes),
+      id: file.endsWith(".gz") ? readHumanViewerBasisIdentity(bytes) : "",
+    };
+    memoized.set(file, kept);
+  }
+  return kept;
+};
 /** The published bases and subject list: inputs no import graph names. */
 const basisDigest = (): string =>
   [...Object.values(basisFiles), documentsFile]
-    .map((file) => hash(fs.readFileSync(file)))
+    .map((file) => basisOf(file).digest)
     .join("");
 let bases = basisDigest();
 // Each digest covers only what its build imports, so an edit to the eye never
@@ -111,6 +131,7 @@ const catalogue = () =>
     basisFiles,
     documentsFile,
     inputsDirectory,
+    basisOf,
     revisions: revisions.current(),
   });
 let inventory = catalogue();
@@ -121,20 +142,46 @@ let readyRevision = "";
 let sourceUpdating = false;
 /** Requests allowed to wait behind the running one before a new one is refused. */
 const QUEUE_LIMIT = 12;
+const gzipAsync = promisify(gzip);
 const queue = createHumanViewerQueue({
   limit: QUEUE_LIMIT,
+  patience: 3,
   now: () => performance.now(),
 });
 /** The last edit that reached a build, and the edit still waiting for its first frame. */
 let lastEdit: { files: string[]; at: string; moved: string[] } | null = null;
 let pendingEditAt: number | null = null;
+/** Milliseconds each stage of the last capture took; the rest of a request is the sum. */
+interface IPhases {
+  /** Waiting in the queue behind other requests. */
+  queueMs?: number;
+  /** Waiting for the GPU page to have loaded its modules (compile and transform). */
+  pageWaitMs?: number;
+  /** Inside the page: build (numerical worker or disk cache) plus drawing. */
+  showMs?: number;
+  /** Of showMs, the numerical worker's own build, zero when the result came from a cache. */
+  buildMs?: number;
+  /** Reading the canvas back to a PNG data URL. */
+  pngMs?: number;
+  /** Decoding the data URL into bytes in the server. */
+  decodeMs?: number;
+  /** Writing the response after the capture. */
+  responseMs?: number;
+  /** Request received to response written. */
+  totalMs?: number;
+}
+let phases: IPhases = {};
 let lastRender: {
   doc: string;
   ms: number;
   build: "cache" | "built";
   sinceEditMs: number | null;
+  phases: IPhases;
 } | null = null;
 const lastBuild: Record<string, { doc: string; ms: number } | undefined> = {};
+/** Every numerical build this server saw, by document, so a saving can be measured. */
+const builds: Record<string, { ms: number; ao: boolean; at: string }> = {};
+const warming = { revision: "", total: 0, done: 0, skipped: 0, current: null as string | null };
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
   if (sourceUpdating) throw new Error("Source revision is being prepared");
   if (!judgeViewerRenderer(renderer).real)
@@ -149,6 +196,7 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
     undefined,
     { timeout: 120000 },
   );
+  const waited = performance.now();
   // Passing the viewer explicitly avoids serializing a closure into the page.
   const result = await page.evaluate(
     async (input) => {
@@ -166,11 +214,16 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
       if (viewer.revision() !== input.revision)
         throw new Error("The source revision has not finished loading");
       const before = viewer.builds();
+      const t0 = performance.now();
       await viewer.show(input.address);
+      const t1 = performance.now();
+      const png = viewer.png();
       return {
-        png: viewer.png(),
+        png,
         built: viewer.builds() - before,
         buildMs: viewer.buildMs(),
+        showMs: t1 - t0,
+        pngMs: performance.now() - t1,
       };
     },
     { address, revision: selectedRevision },
@@ -180,16 +233,103 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
       "Source changed during capture; the mixed revision was discarded",
     );
   const ms = performance.now() - started;
+  const decoded = performance.now();
+  const bytes = Buffer.from(result.png.split(",")[1], "base64");
+  phases = {
+    pageWaitMs: waited - started,
+    showMs: result.showMs,
+    buildMs: result.built === 0 ? 0 : result.buildMs,
+    pngMs: result.pngMs,
+    decodeMs: performance.now() - decoded,
+  };
   const domain = address.doc.startsWith("body:") ? "body" : "face";
-  if (result.built !== 0) lastBuild[domain] = { doc: address.doc, ms: result.buildMs };
+  if (result.built !== 0) {
+    lastBuild[domain] = { doc: address.doc, ms: result.buildMs };
+    builds[address.doc] = {
+      ms: result.buildMs,
+      ao: address.ao,
+      at: new Date().toISOString(),
+    };
+  }
   lastRender = {
     doc: address.doc,
     ms,
     build: result.built === 0 ? "cache" : "built",
     sinceEditMs: pendingEditAt === null ? null : Date.now() - pendingEditAt,
+    phases,
   };
   pendingEditAt = null;
-  return Buffer.from(result.png.split(",")[1], "base64");
+  return bytes;
+}
+/**
+ * The disk file of a thumbnail: the address and the numerical key of its
+ * document name it, so an edit that changes the document's build makes a new
+ * file and a stale picture is never served for it. Null for an address that
+ * does not parse or names no document.
+ */
+function thumbnailFile(search: string): string | null {
+  try {
+    const fields = new URLSearchParams(search);
+    fields.delete("lane");
+    const address = parseHumanViewerAddress(fields.toString());
+    const document = inventory.documents.find((entry) => entry.id === address.doc);
+    if (document === undefined) return null;
+    return path.join(
+      storage,
+      "thumbnails",
+      hash(serializeHumanViewerAddress(address) + document.key) + ".png",
+    );
+  } catch {
+    return null;
+  }
+}
+/**
+ * Build every published document that has no numerical result on disk yet, at
+ * the lowest priority, so the first person or script to ask for one finds it
+ * built. Each document is its own queue entry: a request in a higher lane
+ * starts as soon as the one running finishes. A new source revision ends the
+ * pass, which the page reload restarts.
+ */
+async function writeThumbnail(file: string, png: Buffer): Promise<void> {
+  await fs.promises.mkdir(path.dirname(file), { recursive: true });
+  await fs.promises.writeFile(file + ".tmp", png);
+  await fs.promises.rename(file + ".tmp", file);
+}
+async function warm(revision: string): Promise<void> {
+  // The thumbnail is the frame the index shows, so drawing it also builds the model.
+  const thumbnail = (id: string): string =>
+    openHumanViewerHref(id).thumbnail.slice("/render?".length);
+  const pending = inventory.documents.filter((entry) => {
+    const file = thumbnailFile(thumbnail(entry.id));
+    return file !== null && !fs.existsSync(file);
+  });
+  Object.assign(warming, {
+    revision,
+    total: inventory.documents.length,
+    done: inventory.documents.length - pending.length,
+    skipped: 0,
+    current: null,
+  });
+  for (const entry of pending) {
+    if (inventory.revision !== revision || warming.revision !== revision) return;
+    warming.current = entry.id;
+    try {
+      await queue.run(
+        "warm " + entry.id,
+        async () => {
+          const search = thumbnail(entry.id);
+          const png = await capture(parseHumanViewerAddress(search));
+          const file = thumbnailFile(search);
+          if (file !== null) await writeThumbnail(file, png);
+        },
+        "bulk",
+      );
+      ++warming.done;
+    } catch {
+      ++warming.skipped;
+    }
+  }
+  warming.current = null;
 }
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
@@ -220,6 +360,8 @@ async function main(): Promise<void> {
         lastEdit,
         lastRender,
         lastBuild,
+        builds,
+        warm: warming,
         uptimeMs: Math.round(process.uptime() * 1000),
       });
     if (url.pathname === "/docs") return json(inventory);
@@ -276,22 +418,22 @@ async function main(): Promise<void> {
         const chunks: Buffer[] = [];
         request.on("data", (chunk: Buffer) => chunks.push(chunk));
         request.on("end", () => {
-          try {
-            const bytes = Buffer.concat(chunks);
-            const payload = JSON.parse(bytes.toString("utf8"));
+          void (async () => {
+            const payload = JSON.parse(Buffer.concat(chunks).toString("utf8"));
             if (payload.operation !== "preview" || payload.model === undefined)
               throw new Error("Expected numerical preview");
-            fs.writeFileSync(
+            // Compression runs off the event loop so /health keeps answering.
+            await fs.promises.writeFile(
               file + ".tmp",
-              gzipSync(encodeHumanViewerPreview(payload)),
+              await gzipAsync(encodeHumanViewerPreview(payload)),
             );
-            fs.renameSync(file + ".tmp", file);
+            await fs.promises.rename(file + ".tmp", file);
             response.statusCode = 204;
             response.end();
-          } catch {
+          })().catch(() => {
             response.statusCode = 400;
             json({ error: "Invalid numerical cache payload" });
-          }
+          });
         });
         return;
       }
@@ -316,8 +458,39 @@ async function main(): Promise<void> {
       )
     ) {
       const start = performance.now();
+      const lane = url.searchParams.get("lane") ?? (url.pathname === "/warm" ? "bulk" : "cli");
+      if (lane !== "ui" && lane !== "cli" && lane !== "bulk") {
+        response.statusCode = 422;
+        return json({ error: "lane must be ui, cli or bulk" });
+      }
+      // A misspelled document fails here, not after a wait in the queue.
+      for (const name of ["doc", "against"]) {
+        const wanted = url.searchParams.get(name);
+        if (
+          wanted !== null &&
+          url.searchParams.get("axes") === null &&
+          !inventory.documents.some((entry) => entry.id === wanted)
+        ) {
+          response.statusCode = 422;
+          return json({
+            error: `Unknown document ${wanted}; ${inventory.documents.length} are published, see /docs`,
+          });
+        }
+      }
+      if (url.pathname === "/render" && lane === "bulk") {
+        const file = thumbnailFile(url.search);
+        if (file !== null && fs.existsSync(file)) {
+          response.setHeader("Content-Type", "image/png");
+          response.setHeader("X-Human-Build", "thumbnail-cache");
+          fs.createReadStream(file).pipe(response);
+          return;
+        }
+      }
+      const received = performance.now();
       void queue.run(url.pathname + url.search, async () => {
+        const queued = performance.now() - received;
         const fields = new URLSearchParams(url.search);
+        fields.delete("lane");
         const axes = fields.get("axes");
         fields.delete("axes");
         const against = fields.get("against");
@@ -402,9 +575,31 @@ async function main(): Promise<void> {
             })),
           );
         }
+        if (url.pathname === "/render" && lane === "bulk") {
+          const file = thumbnailFile(url.search);
+          if (file !== null) await writeThumbnail(file, png);
+        }
+        const before = performance.now();
         response.setHeader("Content-Type", "image/png");
         response.end(png);
-      }).catch((error: unknown) => {
+        phases = {
+          ...phases,
+          queueMs: queued,
+          responseMs: performance.now() - before,
+          totalMs: performance.now() - received,
+        };
+        if (lastRender !== null) lastRender.phases = phases;
+        console.log(
+          "REQUEST",
+          url.pathname,
+          address.doc,
+          JSON.stringify(
+            Object.fromEntries(
+              Object.entries(phases).map(([key, value]) => [key, Math.round(value)]),
+            ),
+          ),
+        );
+      }, lane).catch((error: unknown) => {
         response.statusCode = error instanceof HumanViewerQueueFullError ? 503 : 422;
         if (error instanceof HumanViewerQueueFullError)
           response.setHeader("Retry-After", "10");
@@ -441,8 +636,10 @@ async function main(): Promise<void> {
     console.error(error.message);
   });
   page.on("console", (message) => {
-    if (message.text().startsWith("HUMAN_READY "))
+    if (message.text().startsWith("HUMAN_READY ")) {
       readyRevision = message.text().slice(12);
+      void warm(readyRevision);
+    }
   });
   await page.goto("http://127.0.0.1:5175/view#ao=off", {
     timeout: 600000,

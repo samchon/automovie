@@ -1,9 +1,14 @@
 import { HumanViewerQueueFullError } from "./HumanViewerQueueFullError";
 
+/** The lanes of the GPU queue, highest priority first. */
+export type HumanViewerLane = "ui" | "cli" | "bulk";
+
+const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
+
 /** What the server reports about its request queue. */
 export interface IHumanViewerQueueStatus {
-  /** Requests accepted and not yet started. */
-  waiting: number;
+  /** Requests accepted and not yet started, per lane. */
+  waiting: Record<HumanViewerLane, number>;
 
   /** The label of the request the GPU page is working on, or null when idle. */
   running: string | null;
@@ -16,54 +21,90 @@ export interface IHumanViewerQueueStatus {
 }
 
 /**
- * The one lane GPU requests share. Requests run one at a time in the order
- * they arrive, and a request that finds `limit` others already waiting is
- * refused at once with the reason instead of joining a line no one can see the
- * end of. The status names the running request and the length of the line so
- * a stalled server can be told from a busy one.
+ * The one GPU page every request shares, served in three lanes: `ui` for a
+ * person waiting on the screen, `cli` for scripted captures and `bulk` for
+ * thumbnails and pre-building. A request in a higher lane starts before every
+ * waiting request of a lower one, and requests of a lane run in arrival
+ * order; a running request is never cut off. So that a busy person cannot
+ * starve the scripts, after `patience` consecutive `ui` starts a waiting `cli`
+ * request goes next. A request that finds `limit` others already waiting in
+ * its lane is refused at once with the reason instead of joining a line no one
+ * can see the end of. The status names the running request and each lane's
+ * length so a stalled server can be told from a busy one.
  */
 export function createHumanViewerQueue(props: {
   limit: number;
+  patience: number;
   now: () => number;
 }) {
   if (!Number.isInteger(props.limit) || props.limit < 1)
     throw new Error("The queue limit must be a positive integer");
-  let tail: Promise<void> = Promise.resolve();
-  let waiting = 0;
+  if (!Number.isInteger(props.patience) || props.patience < 1)
+    throw new Error("The queue patience must be a positive integer");
+  interface IEntry {
+    label: string;
+    start: () => Promise<void>;
+  }
+  const lines: Record<HumanViewerLane, IEntry[]> = { ui: [], cli: [], bulk: [] };
   let running: { label: string; start: number } | null = null;
   let last: IHumanViewerQueueStatus["last"] = null;
+  let streak = 0;
+  const pick = (): IEntry | undefined => {
+    const order =
+      streak >= props.patience && lines.cli.length !== 0
+        ? (["cli", "ui", "bulk"] as const)
+        : LANES;
+    for (const lane of order)
+      if (lines[lane].length !== 0) {
+        streak = lane === "ui" ? streak + 1 : 0;
+        return lines[lane].shift();
+      }
+    return undefined;
+  };
+  const drain = (): void => {
+    if (running !== null) return;
+    const entry = pick();
+    if (entry !== undefined) void entry.start();
+  };
   return {
-    run: <T>(label: string, task: () => Promise<T>): Promise<T> => {
-      if (waiting >= props.limit)
+    run: <T>(
+      label: string,
+      task: () => Promise<T>,
+      lane: HumanViewerLane = "cli",
+    ): Promise<T> => {
+      if (lines[lane].length >= props.limit)
         return Promise.reject(
           new HumanViewerQueueFullError(
-            `${waiting} requests are already waiting behind ${running?.label ?? "the running one"}; retry later`,
+            `${lines[lane].length} ${lane} requests are already waiting behind ${running?.label ?? "the running one"}; retry later`,
           ),
         );
-      ++waiting;
-      const result = tail.then(async () => {
-        --waiting;
-        const start = props.now();
-        running = { label, start };
-        let failed = true;
-        try {
-          const value = await task();
-          failed = false;
-          return value;
-        } finally {
-          last = { label, ms: props.now() - start, failed };
-          running = null;
-        }
+      return new Promise<T>((resolve, reject) => {
+        lines[lane].push({
+          label,
+          start: async () => {
+            const start = props.now();
+            running = { label, start };
+            let failed = true;
+            try {
+              resolve(await task());
+              failed = false;
+            } catch (error) {
+              reject(error);
+            } finally {
+              last = { label, ms: props.now() - start, failed };
+              running = null;
+              drain();
+            }
+          },
+        });
+        drain();
       });
-      tail = result.then(() => {}).catch(() => {});
-      return result;
     },
     status: (): IHumanViewerQueueStatus => ({
-      waiting,
+      waiting: { ui: lines.ui.length, cli: lines.cli.length, bulk: lines.bulk.length },
       running: running?.label ?? null,
       runningMs: running === null ? null : props.now() - running.start,
       last,
     }),
   };
 }
-

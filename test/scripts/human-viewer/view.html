@@ -31,6 +31,7 @@ output{min-width:3.2em;display:inline-block;color:var(--dim)}
 @media (max-width:760px){#body{flex-direction:column}#parts{width:auto;max-height:34vh;border-right:0;border-bottom:1px solid var(--line)}}
 </style>
 </head><body>
+<div id="banner" hidden style="background:#6b5a1e;padding:6px 12px;cursor:pointer">The source changed. Click to redraw with the same address.</div>
 <div id="bar">
   <span class="group"><a href="/">Index</a><a href="/parts.html">Parts</a></span>
   <span class="group"><button id="prev" title="Previous document">Prev</button><select id="doc" aria-label="Document"></select><button id="next" title="Next document">Next</button></span>
@@ -39,7 +40,9 @@ output{min-width:3.2em;display:inline-block;color:var(--dim)}
   <span class="group"><label>Pitch <input id="pitch" type="range" min="-89" max="89" step="1"></label><output id="pitch-out"></output></span>
   <span class="group"><label>Zoom <input id="zoom" type="range" min="0.25" max="4" step="0.05"></label><output id="zoom-out"></output></span>
   <span class="group"><select id="size" aria-label="Size"><option>480</option><option>640</option><option>900</option><option>1200</option></select></span>
+  <span class="group"><label title="Redraw by itself after 20 quiet seconds"><input id="auto" type="checkbox"> auto</label></span>
   <span class="group"><label><input id="ao" type="checkbox"> AO</label></span>
+  <span class="group" id="progress" style="color:var(--accent)"></span>
   <span class="group"><a id="render-link" href="/render" target="_blank">/render</a><button id="copy-render">Copy</button><a id="sheet-link" href="/sheet" target="_blank">/sheet</a><button id="copy-sheet">Copy</button></span>
 </div>
 <div id="body">
