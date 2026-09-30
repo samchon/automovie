@@ -18,6 +18,7 @@ import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
 import type { IAutoMovieHumanPersonBuild } from "../structures/IAutoMovieHumanPersonBuild";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
+import { keepHumanPersonHairClear } from "./keepHumanPersonHairClear";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 
 /** The one connected skin surface of a basis: the surface that draws the skin material. */
@@ -58,6 +59,9 @@ const skinSurfaceOf = <
  * 4. Normals are computed once over the joined skin, so every part that has a
  *    seam vertex agrees about it, and each render part reads its vertices back
  *    through the region's own corner table.
+ * 5. Generated hair (the face parts no basis region draws) is kept off the
+ *    posed body at the clearance the hair document asked of the head
+ *    (`keepHumanPersonHairClear`).
  *
  * The seam is derived once from the two neutral surfaces, so an evaluation
  * only moves vertices; the result validates as a resident model. Parts and
@@ -66,8 +70,8 @@ const skinSurfaceOf = <
  * material. Everything is metres in the shared Y-up, Z-forward frame, posed.
  * The person builder owns no anatomy: it does not validate that the head is a
  * plausible size for the stature, that the face's neck matches the body's
- * measured neck girth, or that hair clears the shoulders; those are separate
- * relations a person document does not yet carry.
+ * measured neck girth; those are separate relations a person document does
+ * not yet carry.
  *
  * @evidence contracts/common.md#principled-implementation The order follows data dependence: the colour must exist before the body is built, the skinned face before the collar can follow it, the conformed collar before the joined normals, and the normals before the parts are read back; each stage cites its owner for its own premises.
  * @evidence contracts/common.md#clear-and-simple-design An orchestrator that calls one named owner per stage and holds only the tables compiled once (the seam, the face weights, the region corner tables).
@@ -100,12 +104,11 @@ export function createHumanPersonBuilder(props: {
     face: { basis: faceBasis.id, surface: faceSkin.surface },
     body: { basis: bodyBasis.id, surface: bodySkin.surface },
   });
-  const faceWeights = createHumanPersonFaceSkin({
-    seam,
-    face: faceSkin.surface.positions,
-    body: bodySkin.surface.positions,
-    bodySkin: bodySkin.surface.skin,
-  });
+  // the skin the mandible carries, whose lowest vertex ends the face's neck
+  const jawVertices: number[] = [];
+  const jaw = faceSkin.surface.attachments?.find((one) => one.owner === "jaw");
+  for (let i = 0; jaw !== undefined && i < jaw.rows.length; i += 2)
+    if (jaw.rows[i + 1] > HUMAN_PERSON_SEAM.jawShare) jawVertices.push(jaw.rows[i]);
   const faceCount = faceSkin.surface.positions.length / 3;
   const covered = new Set(seam.covered);
   const bodyKept: number[] = [];
@@ -156,20 +159,25 @@ export function createHumanPersonBuilder(props: {
     });
 
     // the face skin's shared vertices, read back from its render parts
-    const shared = new Array<number>(faceCount * 3).fill(0);
+    const raw = new Array<number>(faceCount * 3).fill(0);
     for (const part of face.parts) {
       const sources = faceRegions.get(part.id);
       if (sources === undefined || part.geometry.type !== "mesh") continue;
       const { positions } = part.geometry.mesh;
       sources.forEach((source, vertex) => {
         for (let axis = 0; axis < 3; axis++)
-          shared[source * 3 + axis] =
-            positions[vertex * 3 + axis] +
-            [head.shift.x, head.shift.y, head.shift.z][axis];
+          raw[source * 3 + axis] = positions[vertex * 3 + axis];
       });
     }
+    const faceWeights = createHumanPersonFaceSkin({
+      seam,
+      face: raw,
+      body: bodySkin.surface.positions,
+      bodySkin: bodySkin.surface.skin,
+      jawVertices,
+    });
     const facePosed = skinHumanBodySurface(
-      shared,
+      raw.map((value, at) => value + [head.shift.x, head.shift.y, head.shift.z][at % 3]),
       faceWeights,
       bodyBasis.joints,
       bones,
@@ -201,6 +209,7 @@ export function createHumanPersonBuilder(props: {
     };
 
     const parts: IAutoMovieModel["parts"] = [];
+    const hair: number[] = [];
     for (const part of face.parts) {
       if (part.geometry.type !== "mesh")
         throw new Error("A face part is a mesh: " + part.id);
@@ -209,7 +218,30 @@ export function createHumanPersonBuilder(props: {
         sources !== undefined
           ? read(part.geometry.mesh, sources, facePosed, 0)
           : moved(part.geometry.mesh, head);
+      if (sources === undefined) hair.push(parts.length);
       parts.push(prefixed("face", part, mesh));
+    }
+    // generated hair: kept off the shoulders once the body has been posed
+    if (hair.length > 0) {
+      const layers = document.face.hair?.layers ?? [];
+      const clearance = Math.max(
+        0,
+        ...layers.map((layer) => layer.clearance + layer.samplingStep / 2),
+      );
+      const meshOf = (index: number): IAutoMovieMesh =>
+        (parts[index].geometry as { mesh: IAutoMovieMesh }).mesh;
+      const cleared = keepHumanPersonHairClear({
+        positions: bodyPosed,
+        indices: bodyKept,
+        hair: hair.map((index) => meshOf(index)).map((mesh) => ({
+          positions: mesh.positions,
+          indices: mesh.indices!,
+        })),
+        clearance,
+      });
+      hair.forEach((index, k) => {
+        meshOf(index).positions = cleared[k];
+      });
     }
     for (const part of body.model.parts) {
       if (part.geometry.type !== "mesh")

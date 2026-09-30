@@ -30,7 +30,12 @@ import { nclose, throwsError } from "../internal/predicates";
  *    zero, and every body loop vertex follows a face edge whose foot is within
  *    the height gap and the chord of the face polygon.
  * 3. A body that already ends below the face loop covers nothing and keeps its
- *    own top ring as the loop; without a reach the default is used.
+ *    own top ring as the loop. Without a given reach the reach is read from the
+ *    body's skin weights: with the neck bone dominant on the two rings nearest
+ *    the loop and the upper chest below, the running neck share stays above a
+ *    half through the fourth ring (16 of 32 vertices) and falls to 16 of 33 at
+ *    the first vertex of the fifth, 0.04 from the loop, which is the reach. With
+ *    neither a given reach nor weights the seam refuses.
  * 4. Refusals: a face with two open loops; a body with two open loops; a
  *    nonpositive or non-finite reach; a body whose triangles face inward (the
  *    ribbon then folds against the neck); and a body folded so that the covered
@@ -150,16 +155,45 @@ export const test_human_person_seam = (): void => {
   const uncovered = createHumanPersonSeam({
     face: { basis: "f", surface: skin(face, "f") },
     body: { basis: "b", surface: skin(clear, "b") },
+    reachMetres: 0.04,
   });
   TestValidator.equals(
     "a body already below the face covers nothing",
     [uncovered.covered, [...uncovered.bodyLoop].sort((a, b) => a - b)],
     [[], clear.rings[5]],
   );
-  TestValidator.equals(
-    "the default reach is used when none is given",
-    uncovered.collar.reachMetres,
-    0.04,
+  const count = clear.positions.length / 3;
+  const neckRings = new Set([...clear.rings[5], ...clear.rings[4]]);
+  const weighted = createHumanPersonSeam({
+    face: { basis: "f", surface: skin(face, "f") },
+    body: {
+      basis: "b",
+      surface: {
+        ...skin(clear, "b"),
+        skin: {
+          joints: ["neck", "upperChest"],
+          boneIndices: Array.from({ length: count }, (_, v) =>
+            neckRings.has(v) ? [0, 0, 0, 0] : [1, 0, 0, 0],
+          ).flat(),
+          weights: Array.from({ length: count }, () => [1, 0, 0, 0]).flat(),
+        },
+      },
+    },
+  });
+  TestValidator.predicate(
+    "the reach is where the neck stops being the skin's majority",
+    nclose(weighted.collar.reachMetres, 0.04, 1e-9),
+  );
+  TestValidator.predicate(
+    "no reach and no weights refuses",
+    throwsError(
+      () =>
+        createHumanPersonSeam({
+          face: { basis: "f", surface: skin(face, "f") },
+          body: { basis: "b", surface: skin(clear, "b") },
+        }),
+      "given or read",
+    ),
   );
 
   const twoLoopFace = humanPersonTube({
@@ -195,7 +229,7 @@ export const test_human_person_seam = (): void => {
   for (const reach of [0, -1, Number.NaN, Infinity])
     TestValidator.predicate(
       "reach " + reach + " refuses",
-      throwsError(() => make(face, body, reach), "positive finite"),
+      throwsError(() => make(face, body, reach), "positive finite reach"),
     );
   TestValidator.predicate(
     "a body facing inward folds the ribbon",

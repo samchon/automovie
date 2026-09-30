@@ -8,3 +8,4 @@ export * from "./measureHumanSurfaceDistances";
 export * from "./zipHumanBoundaryLoops";
 export * from "./createHumanPersonFaceSkin";
 export * from "./dropHumanMeshTriangles";
+export * from "./measureHumanNeckReach";

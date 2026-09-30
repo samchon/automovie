@@ -7,6 +7,7 @@ import { countHumanRibbonFolds } from "./countHumanRibbonFolds";
 import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
 import { createHumanLoopHeight } from "./createHumanLoopHeight";
 import { findHumanBoundaryLoops } from "./findHumanBoundaryLoops";
+import { measureHumanNeckReach } from "./measureHumanNeckReach";
 import { measureHumanSurfaceDistances } from "./measureHumanSurfaceDistances";
 import { zipHumanBoundaryLoops } from "./zipHumanBoundaryLoops";
 
@@ -15,6 +16,12 @@ type Skin = {
   id: string;
   positions: readonly number[];
   indices: readonly number[];
+  /** Four-influence skin weights per vertex, when the surface is skinned. */
+  skin?: {
+    joints: readonly string[];
+    boneIndices: readonly number[];
+    weights: readonly number[];
+  };
 };
 
 /**
@@ -37,7 +44,9 @@ type Skin = {
  * 3. the retained body boundary must be one loop, which `zipHumanBoundaryLoops`
  *    joins to the face loop with a ribbon of the loops' own vertices;
  * 4. the retained loop follows the nearest face loop edge, and body skin
- *    within `reachMetres` along the surface follows the loop with a C2
+ *    within the reach along the surface (the extent of the neck by the body's
+ *    own skin weights, `measureHumanNeckReach`, unless `reachMetres` is given)
+ *    follows the loop with a C2
  *    compact-support weight (Wendland's (1 - r)^4 (4 r + 1), one at the loop
  *    and smooth to zero at the reach), so a face whose neck differs from the
  *    body's is met without moving the shoulder.
@@ -60,7 +69,7 @@ type Skin = {
  * @evidence contracts/modeling.md#spatial-conventions Metres, Y up, +Z anterior, +X anatomical left, the frame both bases share; azimuth is about the vertical through the face loop's centroid.
  * @evidence contracts/modeling.md#shared-boundaries The ribbon's vertices are the two loops' own, so both sides share one definition of the boundary and the seam has no vertex of its own that could disagree; covering the overlap leaves no double layer at the neutral.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel and varies with nothing but the two neutral surfaces.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The seam carries no anatomical value; its reach is a named construction convention in `HUMAN_PERSON_SEAM`.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The seam carries no anatomical value of its own; its reach is read from the body basis's authored skin weights (`measureHumanNeckReach`).
  * @evidenceExclude contracts/anatomy.md#permitted-range The function bounds no anatomical value; the composed documents' ranges are their owners'.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input a caller shapes a human form with.
  */
@@ -69,9 +78,6 @@ export function createHumanPersonSeam(props: {
   body: { basis: string; surface: Skin };
   reachMetres?: number;
 }): IAutoMovieHumanPersonSeam {
-  const reachMetres = props.reachMetres ?? HUMAN_PERSON_SEAM.reachMetres;
-  if (!(reachMetres > 0) || !Number.isFinite(reachMetres))
-    throw new Error("The seam's reach must be a positive finite length.");
   const { face, body } = props;
   const point = (skin: Skin, vertex: number): IAutoMovieVector3 => ({
     x: skin.positions[vertex * 3],
@@ -183,6 +189,23 @@ export function createHumanPersonSeam(props: {
     kept,
     bodyLoop,
   );
+  const reachMetres =
+    props.reachMetres ??
+    (body.surface.skin === undefined
+      ? Number.NaN
+      : measureHumanNeckReach(distance, (vertex) => {
+          const skin = body.surface.skin!;
+          let dominant = 0;
+          for (let k = 1; k < 4; k++)
+            if (skin.weights[vertex * 4 + k] > skin.weights[vertex * 4 + dominant])
+              dominant = k;
+          const bone = skin.joints[skin.boneIndices[vertex * 4 + dominant]];
+          return bone === "neck" || bone === "head";
+        }));
+  if (!(reachMetres > 0) || !Number.isFinite(reachMetres))
+    throw new Error(
+      "The seam needs a positive finite reach, given or read from the body's skin weights.",
+    );
   const band: IAutoMovieHumanPersonSeam["collar"]["band"] = [];
   for (let vertex = 0; vertex < distance.length; vertex++) {
     if (!(distance[vertex] < reachMetres)) continue;
