@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+
 import { createHumanViewerCache } from "../../../scripts/human-viewer/createHumanViewerCache";
 
 /**
@@ -9,8 +10,11 @@ import { createHumanViewerCache } from "../../../scripts/human-viewer/createHuma
  */
 export function test_human_viewer_cache_recency(): void {
   const released: number[] = [];
-  const cache = createHumanViewerCache<number>(2, (value) => { released.push(value); });
-  cache.set("first", 1); cache.set("second", 2);
+  const cache = createHumanViewerCache<number>(2, (value) => {
+    released.push(value);
+  });
+  cache.set("first", 1);
+  cache.set("second", 2);
   TestValidator.equals("miss", cache.get("absent"), undefined);
   TestValidator.equals("hit", cache.get("first"), 1);
   cache.set("third", 3);

@@ -9,8 +9,12 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The eviction policy treats every document identically.
  * @evidence contracts/common.md#meaningful-documentation Describes recency, lifetime ownership and failed-build admission.
  */
-export function createHumanViewerCache<Value>(capacity: number, dispose: (value: Value) => void) {
-  if (!Number.isInteger(capacity) || capacity < 1) throw new Error("Cache capacity must be a positive integer");
+export function createHumanViewerCache<Value>(
+  capacity: number,
+  dispose: (value: Value) => void,
+) {
+  if (!Number.isInteger(capacity) || capacity < 1)
+    throw new Error("Cache capacity must be a positive integer");
   const entries = new Map<string, Value>();
   return {
     get: (key: string): Value | undefined => {

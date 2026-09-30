@@ -10,15 +10,26 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses an injected supported transform operation rather than replacing dependency methods.
  * @evidence contracts/common.md#meaningful-documentation Explains runtime-transform ownership independently of canonical type and lint validation.
  */
-export function createHumanViewerTransform<Result>(sourceRoot: string,
-  transform: (id: string, source: string) => Promise<Result | undefined>, reset: () => void) {
+export function createHumanViewerTransform<Result>(
+  sourceRoot: string,
+  transform: (id: string, source: string) => Promise<Result | undefined>,
+  reset: () => void,
+) {
   const prefix = sourceRoot.replace(/\\/g, "/").replace(/\/$/, "") + "/";
   return {
     name: "human-viewer-typia",
     enforce: "pre" as const,
-    transform: async (source: string, id: string): Promise<Result | undefined> => {
+    transform: async (
+      source: string,
+      id: string,
+    ): Promise<Result | undefined> => {
       const file = id.split("?")[0].replace(/\\/g, "/");
-      if (!file.startsWith(prefix) || !file.endsWith(".ts") || file.endsWith(".d.ts")) return undefined;
+      if (
+        !file.startsWith(prefix) ||
+        !file.endsWith(".ts") ||
+        file.endsWith(".d.ts")
+      )
+        return undefined;
       return transform(file, source);
     },
     watchChange: reset,

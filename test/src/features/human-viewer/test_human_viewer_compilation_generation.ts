@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+
 import { createHumanViewerCompilation } from "../../../scripts/human-viewer/createHumanViewerCompilation";
 
 /**
@@ -22,9 +23,14 @@ export function test_human_viewer_compilation_generation(): void {
   TestValidator.equals("one compile", count, 1);
   owner.invalidate();
   TestValidator.equals("new generation", owner.source("a"), "2");
-  owner.invalidate(); fail = true;
+  owner.invalidate();
+  fail = true;
   let refused = false;
-  try { owner.source("a"); } catch { refused = true; }
+  try {
+    owner.source("a");
+  } catch {
+    refused = true;
+  }
   TestValidator.predicate("failure refuses", refused);
   fail = false;
   TestValidator.equals("repaired", owner.source("a"), "4");

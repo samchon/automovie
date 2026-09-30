@@ -11,17 +11,34 @@
  */
 export function decodeHumanViewerPreview(text: string): unknown {
   const value = JSON.parse(text, (_key, entry) => {
-    if (entry === null || typeof entry !== "object" || !("$array" in entry)) return entry;
-    if (!Array.isArray(entry.values) || !entry.values.every((element: unknown) => typeof element === "number" && Number.isFinite(element)))
+    if (entry === null || typeof entry !== "object" || !("$array" in entry))
+      return entry;
+    if (
+      !Array.isArray(entry.values) ||
+      !entry.values.every(
+        (element: unknown) =>
+          typeof element === "number" && Number.isFinite(element),
+      )
+    )
       throw new Error("Invalid cached geometry array");
     if (entry.$array === "Float32") return new Float32Array(entry.values);
     if (entry.$array === "Uint32") {
-      if (!entry.values.every((element: number) => Number.isInteger(element) && element >= 0 && element <= 0xffffffff))
+      if (
+        !entry.values.every(
+          (element: number) =>
+            Number.isInteger(element) && element >= 0 && element <= 0xffffffff,
+        )
+      )
         throw new Error("Invalid cached geometry index");
       return new Uint32Array(entry.values);
     }
     throw new Error("Unknown cached array kind");
   });
-  if (value === null || value.operation !== "preview" || value.model === undefined) throw new Error("Invalid numerical preview cache");
+  if (
+    value === null ||
+    value.operation !== "preview" ||
+    value.model === undefined
+  )
+    throw new Error("Invalid numerical preview cache");
   return value;
 }

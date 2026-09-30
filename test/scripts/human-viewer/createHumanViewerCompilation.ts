@@ -10,13 +10,17 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Stores actual transformed source rather than generated validators or expected outputs.
  * @evidence contracts/common.md#meaningful-documentation Explains complete-generation publication, failure and input-watch obligations.
  */
-export function createHumanViewerCompilation(compile: () => Record<string, string>) {
+export function createHumanViewerCompilation(
+  compile: () => Record<string, string>,
+) {
   let generation: Record<string, string> | undefined;
   return {
     source: (file: string): string | undefined => {
       generation ??= compile();
       return generation[file];
     },
-    invalidate: (): void => { generation = undefined; },
+    invalidate: (): void => {
+      generation = undefined;
+    },
   };
 }

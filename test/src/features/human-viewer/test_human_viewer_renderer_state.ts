@@ -1,5 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
-import { PCFShadowMap, PCFSoftShadowMap, BasicShadowMap } from "three";
+import { BasicShadowMap, PCFShadowMap, PCFSoftShadowMap } from "three";
+
 import { drawHumanViewerFrame } from "../../../scripts/human-viewer/drawHumanViewerFrame";
 
 /**
@@ -10,10 +11,28 @@ import { drawHumanViewerFrame } from "../../../scripts/human-viewer/drawHumanVie
  * 3. Supported other shadow modes remain intact and completed refresh is retained.
  */
 export function test_human_viewer_renderer_state(): void {
-  const settings = { outputColorSpace: "srgb", toneMapping: 1, toneMappingExposure: 0.25,
-    shadowMap: { enabled: true, type: PCFSoftShadowMap as number, autoUpdate: false, needsUpdate: true } };
-  const renderer = { outputColorSpace: "other", toneMapping: 4, toneMappingExposure: 1,
-    shadowMap: { enabled: false, type: BasicShadowMap as number, autoUpdate: true, needsUpdate: false } };
+  const settings = {
+    outputColorSpace: "srgb",
+    toneMapping: 1,
+    toneMappingExposure: 0.25,
+    shadowMap: {
+      enabled: true,
+      type: PCFSoftShadowMap as number,
+      autoUpdate: false,
+      needsUpdate: true,
+    },
+  };
+  const renderer = {
+    outputColorSpace: "other",
+    toneMapping: 4,
+    toneMappingExposure: 1,
+    shadowMap: {
+      enabled: false,
+      type: BasicShadowMap as number,
+      autoUpdate: true,
+      needsUpdate: false,
+    },
+  };
   let draws = 0;
   drawHumanViewerFrame(settings, renderer, () => {
     ++draws;
@@ -23,9 +42,15 @@ export function test_human_viewer_renderer_state(): void {
     TestValidator.equals("space", renderer.outputColorSpace, "srgb");
     renderer.shadowMap.needsUpdate = false;
   });
-  TestValidator.equals("refresh retained", settings.shadowMap.needsUpdate, false);
+  TestValidator.equals(
+    "refresh retained",
+    settings.shadowMap.needsUpdate,
+    false,
+  );
   settings.shadowMap.type = BasicShadowMap;
-  drawHumanViewerFrame(settings, renderer, () => { ++draws; });
+  drawHumanViewerFrame(settings, renderer, () => {
+    ++draws;
+  });
   TestValidator.equals("other mode", renderer.shadowMap.type, BasicShadowMap);
   TestValidator.equals("draws", draws, 2);
 }

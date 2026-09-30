@@ -10,5 +10,6 @@
  * @evidence contracts/common.md#meaningful-documentation Explains why successful transport and device selection are insufficient evidence of drawing.
  */
 export function assertHumanViewerFrame(error: number, noError: number): void {
-  if (error !== noError) throw new Error("GPU drawing failed with WebGL error " + error);
+  if (error !== noError)
+    throw new Error("GPU drawing failed with WebGL error " + error);
 }

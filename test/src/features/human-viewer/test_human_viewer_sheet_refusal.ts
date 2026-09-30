@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+
 import { parseHumanViewerAddress } from "../../../scripts/human-viewer/parseHumanViewerAddress";
 import { planHumanViewerSheet } from "../../../scripts/human-viewer/planHumanViewerSheet";
 
@@ -11,11 +12,35 @@ import { planHumanViewerSheet } from "../../../scripts/human-viewer/planHumanVie
 export function test_human_viewer_sheet_refusal(): void {
   const base = parseHumanViewerAddress("");
   const refuse = (axes: string, documents: string[] = []): boolean => {
-    try { planHumanViewerSheet(base, axes, documents); return false; } catch { return true; }
+    try {
+      planHumanViewerSheet(base, axes, documents);
+      return false;
+    } catch {
+      return true;
+    }
   };
-  for (const axes of ["", "view", ":front", "view:", "view:front;view:left", "source:a", "view:front,", "pass:no", "subject:missing", "state:missing", "subject:*"])
+  for (const axes of [
+    "",
+    "view",
+    ":front",
+    "view:",
+    "view:front;view:left",
+    "source:a",
+    "view:front,",
+    "pass:no",
+    "subject:missing",
+    "state:missing",
+    "subject:*",
+  ])
     TestValidator.predicate("refuses " + axes, refuse(axes));
-  const documents = Array.from({ length: 513 }, (_value, index) => "subject-" + index);
-  TestValidator.equals("boundary", planHumanViewerSheet(base, "subject:*", documents.slice(0, 512)).length, 512);
+  const documents = Array.from(
+    { length: 513 },
+    (_value, index) => "subject-" + index,
+  );
+  TestValidator.equals(
+    "boundary",
+    planHumanViewerSheet(base, "subject:*", documents.slice(0, 512)).length,
+    512,
+  );
   TestValidator.predicate("over limit", refuse("subject:*", documents));
 }

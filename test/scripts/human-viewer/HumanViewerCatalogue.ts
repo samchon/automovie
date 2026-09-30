@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanBodyBasisDocument, IAutoMovieHumanFaceBasisDocument } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanFaceBasisDocument,
+} from "@automovie/human";
 
 /**
  * Public, photograph-free inventory returned by the loopback server. Content
@@ -17,7 +20,7 @@ export interface HumanViewerCatalogue {
 
   /** Display inputs and their document/basis/source digests. */
   documents: ({ id: string; key: string } & (
-    { domain: "face"; document: IAutoMovieHumanFaceBasisDocument } |
-    { domain: "body"; document: IAutoMovieHumanBodyBasisDocument }
+    | { domain: "face"; document: IAutoMovieHumanFaceBasisDocument }
+    | { domain: "body"; document: IAutoMovieHumanBodyBasisDocument }
   ))[];
 }

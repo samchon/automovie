@@ -11,9 +11,17 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Encodes the actual display record without subject exceptions.
  * @evidence contracts/common.md#meaningful-documentation Explains bookmark equivalence and local reference privacy.
  */
-export function serializeHumanViewerAddress(address: HumanViewerAddress): string {
-  const fields = new URLSearchParams({ doc: address.doc, view: address.view, pass: address.pass,
-    ao: address.ao ? "on" : "off", size: String(address.size), opacity: String(address.opacity) });
+export function serializeHumanViewerAddress(
+  address: HumanViewerAddress,
+): string {
+  const fields = new URLSearchParams({
+    doc: address.doc,
+    view: address.view,
+    pass: address.pass,
+    ao: address.ao ? "on" : "off",
+    size: String(address.size),
+    opacity: String(address.opacity),
+  });
   if (address.parts.length !== 0) fields.set("parts", address.parts.join(","));
   if (address.frame !== null) fields.set("frame", address.frame.join(","));
   if (address.ref !== null) fields.set("ref", address.ref);

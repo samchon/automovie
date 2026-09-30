@@ -1,0 +1,77 @@
+/**
+ * Read the immutable numerical study inputs and name their model-cache keys.
+ * The server owns source watching; this reader owns basis identity, document
+ * population and digest composition. It never reads reference photographs.
+ * A basis without its opening identity refuses before catalogue publication.
+ *
+ * @evidence contracts/common.md#principled-implementation Document, basis and source digests identify the numerical generation independently of display state.
+ * @evidence contracts/common.md#clear-and-simple-design Catalogue reading is one responsibility separated from HTTP and browser lifecycle.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Published subjects and standard states supply the population without consumer-specific cases.
+ * @evidence contracts/common.md#meaningful-documentation Describes immutable inputs, cache authority and identity refusal.
+ */
+import { createHash } from "node:crypto";
+import fs from "node:fs";
+import { gunzipSync } from "node:zlib";
+import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
+import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+
+export function readHumanViewerCatalogue(props: {
+  basisFiles: { face: string; body: string };
+  documentsFile: string;
+  source: string;
+}): HumanViewerCatalogue {
+  const hash = (bytes: string | Buffer): string =>
+    createHash("sha256").update(bytes).digest("hex");
+  const source = props.source;
+  const bases = Object.fromEntries(
+    Object.entries(props.basisFiles).map(([domain, file]) => {
+      const bytes = fs.readFileSync(file);
+      const id = /^\s*\{\s*"id"\s*:\s*("(?:[^"\\]|\\.)*")/.exec(
+        gunzipSync(bytes).toString("utf8"),
+      );
+      if (id === null) throw new Error("Basis does not open with an identity");
+      return [domain, { id: JSON.parse(id[1]) as string, digest: hash(bytes) }];
+    }),
+  );
+  const subjects = JSON.parse(
+    fs.readFileSync(props.documentsFile, "utf8"),
+  ) as Extract<
+    HumanViewerCatalogue["documents"][number],
+    { domain: "face" }
+  >["document"][];
+  const faces = [
+    {
+      id: "connected-reference",
+      name: "CC0 connected reference",
+      basis: bases.face.id,
+      shape: {},
+      expression: {},
+    },
+    ...subjects,
+  ];
+  return {
+    revision: source,
+    documents: [
+      ...faces.map((document) => ({
+        id: document.id,
+        domain: "face" as const,
+        document,
+        key: hash(JSON.stringify(document) + bases.face.digest + source),
+      })),
+      ...Object.entries(standardBodyReviewStates()).map(([name, state]) => {
+        const document = {
+          id: "body:" + name,
+          name,
+          basis: bases.body.id,
+          ...state,
+        };
+        return {
+          id: document.id,
+          domain: "body" as const,
+          document,
+          key: hash(JSON.stringify(document) + bases.body.digest + source),
+        };
+      }),
+    ],
+  };
+}

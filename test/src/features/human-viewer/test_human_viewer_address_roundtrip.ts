@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+
 import { parseHumanViewerAddress } from "../../../scripts/human-viewer/parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "../../../scripts/human-viewer/serializeHumanViewerAddress";
 
@@ -10,13 +11,39 @@ import { serializeHumanViewerAddress } from "../../../scripts/human-viewer/seria
  */
 export function test_human_viewer_address_roundtrip(): void {
   const defaults = parseHumanViewerAddress("");
-  TestValidator.equals("defaults", defaults, { doc: "connected-reference", parts: [], view: "front", pass: "beauty",
-    frame: null, ao: false, size: 900, ref: null, opacity: 0.5 });
-  TestValidator.equals("default roundtrip", parseHumanViewerAddress(serializeHumanViewerAddress(defaults)), defaults);
-  const selected = { ...defaults, doc: "body:subject & identity", parts: ["eye-left", "eye-right"],
-    view: "left" as const, pass: "normal" as const, frame: [0, 0.1, -0.2, 0.04] as [number, number, number, number],
-    ao: true, size: 320, ref: "swipe" as const, opacity: 0.75 };
+  TestValidator.equals("defaults", defaults, {
+    doc: "connected-reference",
+    parts: [],
+    view: "front",
+    pass: "beauty",
+    frame: null,
+    ao: false,
+    size: 900,
+    ref: null,
+    opacity: 0.5,
+  });
+  TestValidator.equals(
+    "default roundtrip",
+    parseHumanViewerAddress(serializeHumanViewerAddress(defaults)),
+    defaults,
+  );
+  const selected = {
+    ...defaults,
+    doc: "body:subject & identity",
+    parts: ["eye-left", "eye-right"],
+    view: "left" as const,
+    pass: "normal" as const,
+    frame: [0, 0.1, -0.2, 0.04] as [number, number, number, number],
+    ao: true,
+    size: 320,
+    ref: "swipe" as const,
+    opacity: 0.75,
+  };
   const query = serializeHumanViewerAddress(selected);
   TestValidator.equals("hash", parseHumanViewerAddress("#" + query), selected);
-  TestValidator.equals("query", parseHumanViewerAddress("?" + query + "&fmt=png"), selected);
+  TestValidator.equals(
+    "query",
+    parseHumanViewerAddress("?" + query + "&fmt=png"),
+    selected,
+  );
 }

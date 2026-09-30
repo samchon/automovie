@@ -13,18 +13,39 @@ import { PCFShadowMap, PCFSoftShadowMap } from "three";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the renderer's supported fields and Three's explicit soft-PCF-to-PCF equivalence without altering dependency methods.
  * @evidence contracts/common.md#meaningful-documentation Explains the sampler mismatch and the cached-frame boundary that requires normalization.
  */
-export function drawHumanViewerFrame(settings: {
-  outputColorSpace: string; toneMapping: number; toneMappingExposure: number;
-  shadowMap: { enabled: boolean; type: number; autoUpdate: boolean; needsUpdate: boolean };
-}, renderer: {
-  outputColorSpace: string; toneMapping: number; toneMappingExposure: number;
-  shadowMap: { enabled: boolean; type: number; autoUpdate: boolean; needsUpdate: boolean };
-}, draw: () => void): void {
+export function drawHumanViewerFrame(
+  settings: {
+    outputColorSpace: string;
+    toneMapping: number;
+    toneMappingExposure: number;
+    shadowMap: {
+      enabled: boolean;
+      type: number;
+      autoUpdate: boolean;
+      needsUpdate: boolean;
+    };
+  },
+  renderer: {
+    outputColorSpace: string;
+    toneMapping: number;
+    toneMappingExposure: number;
+    shadowMap: {
+      enabled: boolean;
+      type: number;
+      autoUpdate: boolean;
+      needsUpdate: boolean;
+    };
+  },
+  draw: () => void,
+): void {
   renderer.outputColorSpace = settings.outputColorSpace;
   renderer.toneMapping = settings.toneMapping;
   renderer.toneMappingExposure = settings.toneMappingExposure;
   Object.assign(renderer.shadowMap, settings.shadowMap, {
-    type: settings.shadowMap.type === PCFSoftShadowMap ? PCFShadowMap : settings.shadowMap.type,
+    type:
+      settings.shadowMap.type === PCFSoftShadowMap
+        ? PCFShadowMap
+        : settings.shadowMap.type,
   });
   draw();
   settings.shadowMap.needsUpdate = renderer.shadowMap.needsUpdate;

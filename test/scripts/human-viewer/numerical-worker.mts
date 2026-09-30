@@ -12,16 +12,40 @@ import { createConnectedFaceRuntime } from "@automovie/playground/src/human/comm
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 let face: Promise<ReturnType<typeof createConnectedFaceRuntime>> | undefined;
 let body: Promise<ReturnType<typeof createConnectedBodyRuntime>> | undefined;
-scope.onmessage = async (event: MessageEvent<{ id: number; domain: "face" | "body"; input: { document: string; occlusion?: boolean } }>) => {
+scope.onmessage = async (
+  event: MessageEvent<{
+    id: number;
+    domain: "face" | "body";
+    input: { document: string; occlusion?: boolean };
+  }>,
+) => {
   const { id, domain, input } = event.data;
   try {
-    const runtime = domain === "face"
-      ? await (face ??= readConnectedFaceAsset({ read: () => fetch("/basis/face") }).then((basis) => createConnectedFaceRuntime({ basis })))
-      : await (body ??= readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({ read: () => fetch("/basis/body") }).then(createConnectedBodyRuntime));
+    const runtime =
+      domain === "face"
+        ? await (face ??= readConnectedFaceAsset({
+            read: () => fetch("/basis/face"),
+          }).then((basis) => createConnectedFaceRuntime({ basis })))
+        : await (body ??= readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
+            read: () => fetch("/basis/body"),
+          }).then(createConnectedBodyRuntime));
     const start = performance.now();
-    const value = await runtime({ ...input, operation: "preview", measure: false });
-    scope.postMessage({ id, success: true, value, buildMs: performance.now() - start });
+    const value = await runtime({
+      ...input,
+      operation: "preview",
+      measure: false,
+    });
+    scope.postMessage({
+      id,
+      success: true,
+      value,
+      buildMs: performance.now() - start,
+    });
   } catch (error) {
-    scope.postMessage({ id, success: false, error: error instanceof Error ? error.message : String(error) });
+    scope.postMessage({
+      id,
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };

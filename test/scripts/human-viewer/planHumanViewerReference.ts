@@ -9,9 +9,22 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reference composition changes pixels only and never optimizes anatomical inputs.
  * @evidence contracts/common.md#meaningful-documentation Explains absent-reference behavior and the photograph-free plan boundary.
  */
-export function planHumanViewerReference(available: boolean, mode: "split" | "overlay" | "swipe" | null, opacity: number):
-  { enabled: boolean; mode: "split" | "overlay" | "swipe" | null; renderOpacity: number } {
-  if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1) throw new Error("Reference opacity must lie between zero and one");
-  if (!available || mode === null) return { enabled: false, mode: null, renderOpacity: 1 };
-  return { enabled: true, mode, renderOpacity: mode === "overlay" ? opacity : 1 };
+export function planHumanViewerReference(
+  available: boolean,
+  mode: "split" | "overlay" | "swipe" | null,
+  opacity: number,
+): {
+  enabled: boolean;
+  mode: "split" | "overlay" | "swipe" | null;
+  renderOpacity: number;
+} {
+  if (!Number.isFinite(opacity) || opacity < 0 || opacity > 1)
+    throw new Error("Reference opacity must lie between zero and one");
+  if (!available || mode === null)
+    return { enabled: false, mode: null, renderOpacity: 1 };
+  return {
+    enabled: true,
+    mode,
+    renderOpacity: mode === "overlay" ? opacity : 1,
+  };
 }

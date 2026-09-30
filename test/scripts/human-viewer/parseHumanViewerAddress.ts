@@ -13,21 +13,56 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
  */
 export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const fields = new URLSearchParams(input.replace(/^[#?]/, ""));
-  const allowed = ["doc", "parts", "view", "pass", "frame", "ao", "size", "fmt", "ref", "opacity"];
+  const allowed = [
+    "doc",
+    "parts",
+    "view",
+    "pass",
+    "frame",
+    "ao",
+    "size",
+    "fmt",
+    "ref",
+    "opacity",
+  ];
   for (const key of fields.keys()) {
-    if (!allowed.includes(key)) throw new Error(`Unknown display field: ${key}`);
-    if (fields.getAll(key).length !== 1) throw new Error(`Repeated display field: ${key}`);
+    if (!allowed.includes(key))
+      throw new Error(`Unknown display field: ${key}`);
+    if (fields.getAll(key).length !== 1)
+      throw new Error(`Repeated display field: ${key}`);
   }
   const view = fields.get("view") ?? "front";
   const pass = fields.get("pass") ?? "beauty";
-  if (!["front", "left-three-quarter", "left", "back", "right-three-quarter", "right", "top", "bottom"].includes(view))
+  if (
+    ![
+      "front",
+      "left-three-quarter",
+      "left",
+      "back",
+      "right-three-quarter",
+      "right",
+      "top",
+      "bottom",
+    ].includes(view)
+  )
     throw new Error(`Unknown view: ${view}`);
-  if (!["beauty", "clay", "normal", "depth", "flat", "wire", "outline"].includes(pass))
+  if (
+    !["beauty", "clay", "normal", "depth", "flat", "wire", "outline"].includes(
+      pass,
+    )
+  )
     throw new Error(`Unknown pass: ${pass}`);
-  const number = (key: string, fallback: number, min: number, max: number): number => {
+  const number = (
+    key: string,
+    fallback: number,
+    min: number,
+    max: number,
+  ): number => {
     const text = fields.get(key);
-    const value = text === null ? fallback : text.trim() === "" ? NaN : Number(text);
-    if (!Number.isFinite(value) || value < min || value > max) throw new Error(`Invalid ${key}`);
+    const value =
+      text === null ? fallback : text.trim() === "" ? NaN : Number(text);
+    if (!Number.isFinite(value) || value < min || value > max)
+      throw new Error(`Invalid ${key}`);
     return value;
   };
   const size = number("size", 900, 32, 2048);
@@ -35,22 +70,37 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const frameText = fields.get("frame");
   let frame: HumanViewerAddress["frame"] = null;
   if (frameText !== null) {
-    const values = frameText.split(",").map((text) => text.trim() === "" ? NaN : Number(text));
+    const values = frameText
+      .split(",")
+      .map((text) => (text.trim() === "" ? NaN : Number(text)));
     if (values.length !== 4 || !values.every(Number.isFinite) || values[3] <= 0)
       throw new Error("frame requires a finite centre and positive radius");
     frame = values as NonNullable<typeof frame>;
   }
   const ao = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");
-  if (fields.has("fmt") && fields.get("fmt") !== "png") throw new Error("Only PNG is supported");
+  if (fields.has("fmt") && fields.get("fmt") !== "png")
+    throw new Error("Only PNG is supported");
   const ref = fields.get("ref");
-  if (ref !== null && !["split", "overlay", "swipe"].includes(ref)) throw new Error("Unknown reference mode");
+  if (ref !== null && !["split", "overlay", "swipe"].includes(ref))
+    throw new Error("Unknown reference mode");
   const doc = fields.get("doc") ?? "connected-reference";
   if (doc.trim() === "") throw new Error("doc must name a published document");
   const parts = fields.get("parts");
-  if (parts !== null && (parts === "" || parts.split(",").some((part) => part.trim() === "")))
+  if (
+    parts !== null &&
+    (parts === "" || parts.split(",").some((part) => part.trim() === ""))
+  )
     throw new Error("parts must contain mesh names");
-  return { doc, parts: parts === null ? [] : parts.split(","), view: view as HumanViewerAddress["view"],
-    pass: pass as HumanViewerAddress["pass"], frame, ao: ao === "on", size,
-    ref: ref as HumanViewerAddress["ref"], opacity: number("opacity", 0.5, 0, 1) };
+  return {
+    doc,
+    parts: parts === null ? [] : parts.split(","),
+    view: view as HumanViewerAddress["view"],
+    pass: pass as HumanViewerAddress["pass"],
+    frame,
+    ao: ao === "on",
+    size,
+    ref: ref as HumanViewerAddress["ref"],
+    opacity: number("opacity", 0.5, 0, 1),
+  };
 }

@@ -13,21 +13,26 @@ import * as THREE from "three";
  * @evidence contracts/common.md#meaningful-documentation Defines metre units, display-transform mutation and explicit degeneracy refusal.
  * @evidence contracts/modeling.md#spatial-conventions Returns centre and radius in the scene's metre-based world frame after applying mesh transforms.
  */
-export function frameHumanViewerParts(root: THREE.Object3D, names: readonly string[]):
-  { center: [number, number, number]; radius: number } {
+export function frameHumanViewerParts(
+  root: THREE.Object3D,
+  names: readonly string[],
+): { center: [number, number, number]; radius: number } {
   const selected = new Set(names);
   const found = new Set<string>();
   const bounds = new THREE.Box3();
   root.updateWorldMatrix(true, true);
   root.traverse((object) => {
     const mesh = object as THREE.Mesh;
-    if (!mesh.isMesh || (selected.size !== 0 && !selected.has(mesh.name))) return;
+    if (!mesh.isMesh || (selected.size !== 0 && !selected.has(mesh.name)))
+      return;
     found.add(mesh.name);
     bounds.expandByObject(mesh, true);
   });
-  if (names.some((name) => !found.has(name))) throw new Error("A selected part is not displayed");
+  if (names.some((name) => !found.has(name)))
+    throw new Error("A selected part is not displayed");
   if (bounds.isEmpty()) throw new Error("No displayed geometry to frame");
   const sphere = bounds.getBoundingSphere(new THREE.Sphere());
-  if (!Number.isFinite(sphere.radius) || sphere.radius <= 0) throw new Error("Part geometry is collapsed or nonfinite");
+  if (!Number.isFinite(sphere.radius) || sphere.radius <= 0)
+    throw new Error("Part geometry is collapsed or nonfinite");
   return { center: sphere.center.toArray(), radius: sphere.radius };
 }
