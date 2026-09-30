@@ -47,6 +47,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * same transform before their own tissue rows are added. A basis without
  * articulation evaluates the same rest layer and poses nothing, which is the
  * purely linear prior; a basis without contact stops after posing.
+ *
  * The pose evaluator owns that sequence in one module. The builder retains
  * only the latest channel-weight vector and its posed positions, contact
  * summary and common normals. An appearance-only change reuses those arrays,
@@ -73,20 +74,35 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * neutral. Repeated edits retain that structure and check their welded vertex
  * partition; a changed partition takes the full model gate again. Finite
  * normal construction and channel/material domains remain per-edit checks.
+ *
  * Export still admits Float32. The contact stage establishes only the floor
  * rule it states and the passage it refuses; the crossing census still
  * measures the rest. An `observe` callback receives each successful build's
  * contact summary, or null on a basis without contact, so a runtime can
- * report it without evaluating twice. With `occlusion`, each opaque material
+ * report it without evaluating twice.
+ *
+ * With `occlusion`, each opaque material
  * with UVs of the finished face (before any hair) takes the ambient
  * occlusion baked from the evaluated geometry (`bakeHumanFaceOcclusion`) as
  * its occlusion texture. The resulting image is reused while the admitted
  * pose stays the same: the source material's opaque classification is fixed,
  * and colour, roughness and fibre edits do not change the geometry the rays
- * read. Without the option no texture is baked. A skin field that
+ * read. Without the option no texture is baked.
+ *
+ * A skin field that
  * lightens a region past its material (a gain over one) is folded into the
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
+ *
+ * @evidence contracts/common.md#principled-implementation The builder evaluates a fixed pipeline per document (weights, rest layer, articulation, closure, attached posing, passage and contact, common normals, region separation) in an order each stage's owner documents, and reuses a result only when its inputs are identical: the pose cache is keyed by the ordered channel weights, the occlusion cache by pose identity, and the hair cache by pose and hair layers. Model structure and materials are admitted once on the neutral, and each edit re-checks its welded vertex partition, taking the full model gate again when the partition changes, because deformation is the only thing that can change welded incidence.
+ * @evidence contracts/common.md#clear-and-simple-design An orchestrator: it holds the caches and calls one named owner per stage; no stage's formula lives in it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached hair result is certified only after the full model passes validateModel, and identity collisions with resident geometry refuse; nothing is special-cased for a subject or a document.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order with each owner, what is retained between edits, what is admitted once and per edit, and the limits of the contact stage.
+ * @evidence contracts/modeling.md#emitted-geometry Each edit emits the basis's resident triangles split into their declared material regions plus generated hair; the count follows the basis and the numerical hair layers' own resolution parameters, not the number of authored controls.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres in the Y-up +Z-anterior head frame throughout; colour multipliers are linear RGB in [0,1] after liftHumanFaceColours.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The builder carries no anatomical value of its own; the stages that do (articulation, contact) answer for it.
+ * @evidenceExclude contracts/anatomy.md#permitted-range Admission of controls is delegated to humanFaceBasisWeights and the stage owners; the builder bounds no anatomical quantity itself.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The builder consumes a compact document of named channel weights, materials and layers; it defines no input, and the document schema owns the input vocabulary.
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,

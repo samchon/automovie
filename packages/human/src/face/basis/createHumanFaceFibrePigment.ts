@@ -37,6 +37,18 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * an embedded PNG with coverage (alpha mode mask or blend). The pigment is an
  * authored optical value under the renderer's light, not a reflectance
  * recovered from a photograph.
+ *
+ * @evidence contracts/common.md#principled-implementation Each covered texel takes the pigment times min(1, L / Lref), with L the texel's linear luminance (Rec. 709 weights on sRGB-decoded values) and Lref the median luminance of the drawn texels, so darker texels keep their fibre-to-fibre shading while the source's brighter bleed fringes are painted at the pigment itself. Density multiplies coverage and holds it to one. Conversions use the sRGB transfer function's constants (0.04045, 12.92, 1.055, 2.4); results are cached by the requested values, so replay of the same document reuses bytes.
+ * @evidence contracts/common.md#clear-and-simple-design A decode step, a paint step and a two-map cache; the rule lives in the two helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A pigment component or density out of range and a material without embedded coverage refuse; nothing is guessed.
+ * @evidence contracts/common.md#meaningful-documentation States the rule, its reference, the units (linear RGB in, 8-bit sRGB out), the cache and that the pigment is an authored optical value, not a recovered reflectance.
+ * @evidence contracts/modeling.md#spatial-conventions Linear RGB inputs and 8-bit sRGB texture bytes; the two named helpers toLinear and toByte are the only conversions.
+ * @evidence contracts/anatomy.md#parametric-authority Its inputs are a named pigment (linear RGB) and a density factor on a named material; neither addresses a vertex, curve, strand or patch.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It repaints one texture per overridden material and emits no primitive.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It is a texture rule, not a part or a group of parts.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The pigment and density are appearance values of an authored material, not anatomical measurements.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It bounds appearance components (pigment in [0,1], density in [0,4]), not an anatomical quantity.
  */
 export function createHumanFaceFibrePigment(): (
   overrides: IAutoMovieHumanFaceBasisDocument["materials"],

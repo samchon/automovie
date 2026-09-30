@@ -30,6 +30,15 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  *
  * Only four vertices are posed here, so the measure is cheap enough to run
  * before the surfaces are posed, which is when the closure rows need it.
+ *
+ * @evidence contracts/common.md#principled-implementation Apertures are signed projections of upper minus lower onto a vertical made perpendicular to the mandibular axis (the axis is removed from world up and the result normalised), so the frame does not tilt with the arc of opening and a protrusion is not read as a rise. The closure ratio is the current lip aperture less the shape-only rest aperture over the reference opening's aperture less the same rest aperture, clamped below at zero; a reference opening that does not part the lips refuses because the ratio would be undefined.
+ * @evidence contracts/common.md#clear-and-simple-design Only four vertices are posed, so the measure runs before the surfaces are posed, which the closure rows need; it delegates skinning to poseHumanFaceSurface.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific constant; degenerate axes and reference openings refuse.
+ * @evidence contracts/common.md#meaningful-documentation States the frame, the layers it reads, the ratio, and why the measure is cheap enough to run first.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres; up and forward are unit vectors of the basis frame.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source measureHumanFaceAperture carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range measureHumanFaceAperture admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority measureHumanFaceAperture defines no input through which a caller shapes a human form.
  */
 export function measureHumanFaceAperture(
   basis: IAutoMovieHumanFaceBasis,

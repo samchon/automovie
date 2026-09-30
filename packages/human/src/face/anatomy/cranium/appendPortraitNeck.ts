@@ -11,6 +11,18 @@ import { IPortraitNeckShape } from "./structures/IPortraitNeckShape";
  * controlled separately and the lower neck widens towards its cropped base.
  * All vertices share the head's subdivision and normal field.
  * The collar must be the oriented opening returned by appendPortraitCranium.
+ *
+ * @evidence contracts/common.md#principled-implementation Each collar vertex follows a cubic Bezier from the collar to the upper cervical section whose first handle follows the adjacent head tangent and whose second aligns with the upper-to-lower direction, with handle lengths bounded by the collar spacing, the remaining distance and the drop so the curve cannot backtrack; the lower sections are linearly interpolated. An optional quartic adds only anterior volume with zero value and derivative at both ends.
+ * @evidence contracts/common.md#clear-and-simple-design Validate the sections, build the handles, emit rings; the collar comes from the cranium builder.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid sections and a zero incoming tangent refuse.
+ * @evidence contracts/common.md#meaningful-documentation States what joins where, that the crop is an open inspection boundary and that the collar must be the oriented opening of the cranium.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The neck rings are appended to the same cage as the cranium and share its subdivision and normals, so the neck is a region of the head's one skin surface.
+ * @evidence contracts/modeling.md#emitted-geometry The population is 22 rings (12 curve samples, 8 and 2 section interpolations) over the collar boundary of the fixed lattice, set by the representation and not by authored features.
+ * @evidence contracts/modeling.md#shared-boundaries The first ring is built on the cranium's collar vertices themselves, so the joint carries no gap or overlap, and the incoming head tangent sets the first handle, which gives tangent continuity at the join; it opens at the crop by design.
+ * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Z anterior; the cervical axis and radii are in that frame.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source appendPortraitNeck carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range appendPortraitNeck admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority appendPortraitNeck defines no input through which a caller shapes a human form.
  */
 export function appendPortraitNeck(
   cage: IControlMesh,

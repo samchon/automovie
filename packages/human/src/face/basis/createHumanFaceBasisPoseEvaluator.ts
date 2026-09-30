@@ -26,6 +26,15 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * complete endpoint path into a clinical trajectory. The rest-clearance
  * contact stage is also a deterministic authored constraint rather than
  * measured tissue mechanics; resolveHumanFaceContact owns that distinction.
+ *
+ * @evidence contracts/common.md#principled-implementation The geometry stage runs rest layer, joint motions from the shaped landmarks, aperture measurement and aperture-scaled closure rows, sparse linear-blend posing, tongue passage, contact resolution and common normals in that order; the order is forced by data dependence, because the closure needs the posed aperture pairs, the passage needs the posed seam, and the contact floor needs both the posed and the shape-only rest surfaces.
+ * @evidence contracts/common.md#clear-and-simple-design One function that sequences named stage owners and returns positions, normals and the summary; appearance is entirely downstream.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It clamps nothing and repairs nothing: a document past a stage's budget refuses there.
+ * @evidence contracts/common.md#meaningful-documentation States the order, the frame and units, who owns the returned arrays and cites the jaw source with the limits of endpoint interpolation.
+ * @evidence contracts/modeling.md#spatial-conventions Positions in basis metres in the Y-up +Z-anterior head frame, as the docs state; no conversion happens.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source createHumanFaceBasisPoseEvaluator carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range createHumanFaceBasisPoseEvaluator admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority createHumanFaceBasisPoseEvaluator defines no input through which a caller shapes a human form.
  */
 export function createHumanFaceBasisPoseEvaluator(
   basis: IAutoMovieHumanFaceBasis,

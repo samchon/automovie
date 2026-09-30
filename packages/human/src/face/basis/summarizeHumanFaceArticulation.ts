@@ -18,6 +18,15 @@ import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
  * rest layer the builder evaluates, so the pivot and centres it reports are
  * the ones the render used. A basis without articulation summarizes to null.
  * This describes the requested motion; it certifies no contact or anatomy.
+ *
+ * @evidence contracts/common.md#principled-implementation The report reads the same shaped rest landmarks and the same resolver the builder uses, so the pivot and centres it prints are those the render used and a document past the translation budget fails with the same refusal before any geometry is formed. The eye angle is 2 atan2(|vector part|, |w|) of the unit rotation quaternion, the rotation angle of that rotation.
+ * @evidence contracts/common.md#clear-and-simple-design One function that resolves weights, landmarks and articulation and reformats them in the units a reader checks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It describes the requested motion and certifies nothing, as the docs say.
+ * @evidence contracts/common.md#meaningful-documentation States the units, the null result for a basis without articulation and the limits of what is reported.
+ * @evidence contracts/modeling.md#spatial-conventions Degrees for angles, metres for translation and pivot, in the basis frame.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source summarizeHumanFaceArticulation carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range summarizeHumanFaceArticulation admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority summarizeHumanFaceArticulation defines no input through which a caller shapes a human form.
  */
 export function summarizeHumanFaceArticulation(
   basis: IAutoMovieHumanFaceBasis,
