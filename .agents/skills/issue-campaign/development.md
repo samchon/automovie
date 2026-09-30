@@ -7,7 +7,7 @@ Read this document in full when the user authorizes implementation pull requests
 - Put every accepted, implementation-ready issue of the cycle into one pull request. The issue DAG orders the implementation inside that pull request and never sets the pull-request count, and packages, invariants and validation lanes never split the cycle.
 - Use the current checkout and one topic branch, as the [pull-request skill](../pull-request/SKILL.md#branch-from-the-target) requires, with no per-issue branch or pull request.
 - Review each issue's surface when it lands, then run one integration Self-Review over the whole base-to-head diff. The integration round inherits nothing from the earlier rounds.
-- The pull request's ordinary CI and a clean integration Self-Review are the acceptance gates, and both must hold on the same immutable head. Repair every red CI lane in that pull request, including a failure that predates the campaign or has nothing to do with its issues.
+- The pull request's ordinary CI and a clean integration Self-Review are the acceptance gates, and both must hold on the same immutable head; the merge-time formatting commit follows that head and needs neither a new CI run nor a new review round. Repair every red CI lane in that pull request, including a failure that predates the campaign or has nothing to do with its issues.
 
 ## Plan one cycle pull request
 
@@ -70,7 +70,7 @@ When either gate finds a defect:
 3. Commit and push the correction without an intermediate formatting pass.
 4. Let the new CI run finish and restart the integration Self-Review as a fresh complete round over the new head.
 
-Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. Submit each finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event, with line-specific findings inline, under the [pull-request skill](../pull-request/SKILL.md#write-the-pull-request).
+Do not merge a head whose green checks belong to an older SHA or whose clean review predates a correction. The one exception is the merge-time formatting commit, which changes layout only and is merged right after it is pushed. Submit each finding round and the final clean round as a formal GitHub pull-request review with the `COMMENT` event, with line-specific findings inline, under the [pull-request skill](../pull-request/SKILL.md#write-the-pull-request).
 
 ## Merge and clean up
 
