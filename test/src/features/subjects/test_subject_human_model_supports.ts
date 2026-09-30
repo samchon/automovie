@@ -11,7 +11,7 @@ import { coarseHumanFaceFixture } from "../internal/humanFaceFixture";
  * Optional supports and both dental arches reach the resident face assembler.
  *
  * Scenarios:
- * 1. Paired cheeks/orbits, point relief and connected curves share one host.
+ * 1. Paired cheeks share one host with both dental arches.
  * 2. Maxillary and mandibular crowns remain distinct parts with an authored jaw hinge.
  * 3. An observed open mouth stays open when the current expression matches it.
  */
@@ -23,57 +23,6 @@ export const test_subject_human_model_supports = (): void => {
     right: portraitCheekSockets[0],
     left: portraitCheekSockets[1],
   };
-  const orbit = {
-    radius: 8,
-    stations: [
-      {
-        name: "brow",
-        anchor: 10,
-        forehead: { height: 3, projection: 0 },
-        browProjection: 0,
-        sulcus: { descent: 3, projection: 0 },
-      },
-    ],
-  };
-  recipe.orbits = { right: orbit, left: structuredClone(orbit) };
-  recipe.relief = [
-    {
-      id: "frontal-relief",
-      regions: [
-        {
-          name: "frontal",
-          anchor: 10,
-          offset: [0, 0, 0],
-          radius: [10, 10, 10],
-          displacement: [0, 0, 0.01],
-        },
-      ],
-    },
-  ];
-  recipe.curves = [
-    {
-      id: "frontal-curve",
-      curves: [
-        {
-          name: "forehead",
-          points: [
-            {
-              anchor: 10,
-              offset: [-2, 0, 0],
-              radius: [3, 3, 3],
-              displacement: [0, 0, 0.01],
-            },
-            {
-              anchor: 10,
-              offset: [2, 0, 0],
-              radius: [3, 3, 3],
-              displacement: [0, 0, 0.01],
-            },
-          ],
-        },
-      ],
-    },
-  ];
   const row = {
     halfWidth: 24,
     depth: 18,

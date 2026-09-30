@@ -16,7 +16,6 @@ export * from "./createPortraitLidSectionSampler";
 export * from "./createPortraitLowerLidProfile";
 export * from "./createPortraitOcularTissues";
 export * from "./createPortraitOpticalFrame";
-export * from "./createPortraitOrbitalSupport";
 export * from "./createPortraitUpperLidProfile";
 export * from "./fitPortraitCanthalSphere";
 export * from "./humanFaceIrisTexelColour";

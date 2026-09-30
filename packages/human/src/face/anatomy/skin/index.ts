@@ -1,7 +1,5 @@
 export * from "./assertPortraitSkinTopology";
 export * from "./blendPortraitSkin";
-export * from "./createPortraitReliefCurveLayer";
-export * from "./createPortraitReliefLayer";
 export * from "./createPortraitSkinColour";
 export * from "./createPortraitColourField";
 export * from "./createPortraitSkinLayer";

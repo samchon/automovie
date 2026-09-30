@@ -6,13 +6,10 @@ import type { createPortraitDentalComponent } from "../anatomy/dental/createPort
 import type { IPortraitDentalRow } from "../anatomy/dental/structures/IPortraitDentalRow";
 import type { IPortraitEarShape } from "../anatomy/ear/IPortraitEarShape";
 import type { IPortraitEyeShape } from "../anatomy/eye/structures/IPortraitEyeShape";
-import type { IPortraitOrbitalSupportShape } from "../anatomy/eye/structures/IPortraitOrbitalSupportShape";
 import type { IPortraitHairLayer } from "../anatomy/hair/IPortraitHairLayer";
 import type { IPortraitHairShape } from "../anatomy/hair/IPortraitHairShape";
 import type { IPortraitMouthShape } from "../anatomy/mouth/structures/IPortraitMouthShape";
 import type { IPortraitNoseShape } from "../anatomy/nose/structures/IPortraitNoseShape";
-import type { IPortraitReliefCurve } from "../anatomy/skin/structures/IPortraitReliefCurve";
-import type { IPortraitReliefRegion } from "../anatomy/skin/structures/IPortraitReliefRegion";
 import type { IPortraitSkinColourRegion } from "../anatomy/skin/structures/IPortraitSkinColourRegion";
 import type { IPortraitSkinShape } from "../anatomy/skin/structures/IPortraitSkinShape";
 import type { IPortraitTongueShape } from "../anatomy/tongue/IPortraitTongueShape";
@@ -54,12 +51,6 @@ export interface IAutoMovieHumanFaceRecipe {
   /** Common malar, medial, buccal and modiolus supports; omission adds no cheek layer. */
   cheek?: IPortraitCheekShape;
 
-  /** Complete right and left upper-orbit section groups; omission adds no orbital layer. */
-  orbits?: {
-    right: IPortraitOrbitalSupportShape;
-    left: IPortraitOrbitalSupportShape;
-  };
-
   /** Cranial sections; omission retains the fixed continuation. */
   cranium?: IPortraitCraniumShape;
 
@@ -86,10 +77,4 @@ export interface IAutoMovieHumanFaceRecipe {
     /** Inferior cervical-plane drop and posterior recess from the observed lower inner-lip midpoint, in nonnegative mm. */
     placement: { drop: number; recess: number };
   };
-
-  /** Additional named skin supports; this does not substitute for the part profiles above. */
-  relief?: readonly { id: string; regions: readonly IPortraitReliefRegion[] }[];
-
-  /** Additional connected named skin curves, such as philtral crests. */
-  curves?: readonly { id: string; curves: readonly IPortraitReliefCurve[] }[];
 }

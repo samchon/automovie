@@ -16,7 +16,7 @@ import type { portraitSurfaceReview } from "./surface-review";
  * Missing coverage now warns; this intermediate account does
  * not claim whole-source or likeness acceptance.
  *
- * @evidence {@link portraitOcularReview} Retains optical identity, lids, lashes, brows and orbital support inspections within the complete construction account.
+ * @evidence {@link portraitOcularReview} Retains optical identity, lids, lashes and brows inspections within the complete construction account.
  * @evidence {@link portraitNasalReview} Retains external nasal body, aperture sections and shared nasal attachment inspections within the complete construction account.
  * @evidence {@link portraitOralReview} Retains lips, oral enclosure, tongue, teeth and mandibular performance inspections within the complete construction account.
  * @evidence {@link portraitSurfaceReview} Retains shared topology, skin, cranium, materials and model export inspections within the complete construction account.

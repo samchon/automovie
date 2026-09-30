@@ -8,14 +8,11 @@ import { createPortraitFacePerformanceComponent } from "../anatomy/cranium/creat
 import { createPortraitDentalComponent } from "../anatomy/dental/createPortraitDentalComponent";
 import { createPortraitMandibularDentition } from "../anatomy/dental/createPortraitMandibularDentition";
 import { createPortraitEyeComponent } from "../anatomy/eye/createPortraitEyeComponent";
-import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbitalSupport";
 import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
 import { createPortraitJawContinuation } from "../anatomy/mouth/createPortraitJawContinuation";
 import { createPortraitMouthComponent } from "../anatomy/mouth/createPortraitMouthComponent";
 import { resolvePortraitOralContact } from "../anatomy/mouth/resolvePortraitOralContact";
 import { createPortraitNoseComponent } from "../anatomy/nose/createPortraitNoseComponent";
-import { createPortraitReliefCurveLayer } from "../anatomy/skin/createPortraitReliefCurveLayer";
-import { createPortraitReliefLayer } from "../anatomy/skin/createPortraitReliefLayer";
 import { createPortraitSkinColour } from "../anatomy/skin/createPortraitSkinColour";
 import { createPortraitSkinLayer } from "../anatomy/skin/createPortraitSkinLayer";
 import { createPortraitTongueComponent } from "../anatomy/tongue/createPortraitTongueComponent";
@@ -135,17 +132,6 @@ export function buildHumanFace(
       face[side].cheek === undefined
         ? []
         : [createPortraitCheekLayer(bindings.cheeks![side], face[side].cheek!)],
-    ),
-    ...(recipe.orbits === undefined
-      ? []
-      : (["right", "left"] as const).map((side) =>
-          createPortraitOrbitalSupport(side, recipe.orbits![side]),
-        )),
-    ...(recipe.relief ?? []).map((layer) =>
-      createPortraitReliefLayer(layer.id, layer.regions),
-    ),
-    ...(recipe.curves ?? []).map((layer) =>
-      createPortraitReliefCurveLayer(layer.id, layer.curves),
     ),
   ];
   const head = buildPortraitHead(host, components, subdivisionRounds, layers, {

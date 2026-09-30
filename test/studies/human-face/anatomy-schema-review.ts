@@ -80,11 +80,6 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IPortraitNeckShape} Groups upper/lower neck sections and the crop policy for the cranial continuation.
  * @evidence {@link Human.IPortraitNoseShape} Separates exterior, opening, lining and optional complete-basis controls.
  * @evidence {@link Human.IPortraitNoseSocket} Binds procedural nasal controls and original opening faces to the measured host.
- * @evidence {@link Human.IPortraitOrbitalSupportShape} Groups bounded upper-orbit sections under one interpolation support.
- * @evidence {@link Human.IPortraitOrbitalSupportStation} Owns one forehead/brow/sulcus section on a subject-bound upper orbit.
- * @evidence {@link Human.IPortraitReliefCurve} Groups ordered curve controls under one named surface responsibility.
- * @evidence {@link Human.IPortraitReliefCurvePoint} Declares one resident attachment, offset, support and displacement control for a continuous anatomical surface curve.
- * @evidence {@link Human.IPortraitReliefRegion} Separates each support's live vertex binding and offset from its metric support radii and signed displacement.
  * @evidence {@link Human.IPortraitSkinConstraint} Carries one exact resident skin target and its surrounding adaptation reach.
  */
 export const humanFaceAnatomySchemaReview = true;

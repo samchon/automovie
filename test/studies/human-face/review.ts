@@ -103,7 +103,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.buildPortraitMouth} Builds the recessed cavity and, when requested, the legacy upper crowns from final lip curves.
  * @evidence {@link Human.createHumanFaceEditor} Owns atomic face-document/model publication, cancellation and undoable history for the application.
  * @evidence {@link Human.createPortraitCheekLayer} Derives owned cheek and fold fields from live refined skin attachments.
- * @evidence {@link Human.createPortraitControlLayer} Solves coupled anatomical targets into fields consumed by the shared surface assembler.
  * @evidence {@link Human.createPortraitDentalArc} Samples the supplied dental guide by cumulative XZ distance rather than projected width or spline progress.
  * @evidence {@link Human.createPortraitDentalComponent} Attaches the complete dental row to live refined oral anchors without cutting or deforming skin.
  * @evidence {@link Human.createPortraitDirectionalIntersection} Intersects the foremost resident triangle from either side while preserving the original transverse projection; the canthal consumer uses its actual emitted surface.
@@ -125,9 +124,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.createPortraitNasalSection} Evaluates the optional continuous nasal depth loft against a translated host datum.
  * @evidence {@link Human.createPortraitNasalSupport} Resolves nasal projection from one subject-bound facial support plane.
  * @evidence {@link Human.createPortraitNoseComponent} Fits procedural exterior and shared nasal openings before constructing their lining.
- * @evidence {@link Human.createPortraitOrbitalSupport} Builds the actual skin-based upper-orbit field consumed by portraitAssembly.
- * @evidence {@link Human.createPortraitReliefCurveLayer} Samples adjacent controls into overlapping metric fields while preserving live endpoints and boundary ownership.
- * @evidence {@link Human.createPortraitReliefLayer} Converts owned anatomical support settings into engine deformation fields on the live skin.
  * @evidence {@link Human.exportHumanFace} Carries the actual static face as GLB and glTF/resources through a module-independent byte boundary.
  * @evidence {@link Human.fitPortraitNostrilRim} Regularizes an authored nasal cut boundary while preserving cyclic vertex ownership and centroid.
  * @evidence {@link Human.fitPortraitOralContact} Places the rigid enamel group behind its lip and then fits the cavity behind that placed group.
@@ -148,7 +144,6 @@ import type { humanFaceStudyDocuments } from "./studies";
  * @evidence {@link Human.IPortraitFinalSurface} Specifies a callback returning resident vertex targets rather than a detached mesh.
  * @evidence {@link Human.IPortraitFinalSurfaceHost} Exposes the common post-layer geometry seen by final component proposals.
  * @evidence {@link Human.IPortraitRegionReplacement} Describes a reserved group and its later appender against the refined socket.
- * @evidence {@link Human.IPortraitSurfaceControl} Describes a named requested movement on the common refined surface.
  * @evidence {@link Human.IPortraitSurfaceHost} Gives anatomical layers the shared post-subdivision coordinates, topology and normal field.
  * @evidence {@link Human.IPortraitSurfaceLayer} Separates a surface layer's identity from its derivation of metric engine fields on live attachments.
  * @evidence {@link Human.mergeHumanFaceSettings} Composes basis, detail and side settings without retaining mutable input objects.
