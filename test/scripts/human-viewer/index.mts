@@ -20,7 +20,7 @@ const rejected = document.querySelector<HTMLElement>("#rejected")!;
 const buttons = [
   ...document.querySelectorAll<HTMLButtonElement>("[data-domain]"),
 ];
-let domain: "all" | "face" | "body" = "all";
+let domain: "all" | "face" | "body" | "person" = "all";
 let revision = "";
 
 const thumbnails = createHumanViewerThumbnails({ revision: () => revision });

@@ -5,6 +5,10 @@
  * and owns the document paired with it. The face shown beside the body remains
  * display only and never enters the body export.
  */
+import type {
+  IAutoMovieHumanBodyBasisDocument,
+  IAutoMovieHumanPersonDocument,
+} from "@automovie/human";
 import * as THREE from "three";
 
 import { createHumanObservation } from "../common/observation/createHumanObservation";
@@ -18,19 +22,25 @@ import type {
 } from "./connectedBodyProtocol";
 import { createConnectedBodyRenderer } from "./connectedBodyRenderer";
 
-type Host = Pick<
+type Host<Document> = Pick<
   Parameters<typeof createHumanViewport>[0],
   "canvas" | "pixelRatio" | "renderer" | "orbit" | "observeResize"
 > & {
   worker: () => HumanResidentPort<ConnectedBodyRequest, ConnectedBodyResult>;
   loadTexture: (asset: string) => Promise<THREE.Texture>;
+  /** Text of a document for the worker; a body document unless the stage draws people. */
+  serialize?: (document: Document) => string;
 };
 
 /** Assemble the body renderer, resident worker and metre-scale display scene.
  * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Presents orbit, clay, shadow and companion face controls around the committed posed body.
  * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Keeps camera and companion display state separate from numerical body documents.
  */
-export function createConnectedBodyViewport(props: Host) {
+export function createConnectedBodyViewport<
+  Document extends
+    | IAutoMovieHumanBodyBasisDocument
+    | IAutoMovieHumanPersonDocument = IAutoMovieHumanBodyBasisDocument,
+>(props: Host<Document>) {
   const { renderer, canvas } = props;
   renderer.setPixelRatio(Math.min(props.pixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -93,9 +103,10 @@ export function createConnectedBodyViewport(props: Host) {
     loadTexture: props.loadTexture,
     maxAnisotropy: renderer.capabilities.getMaxAnisotropy(),
   });
-  const preview = createConnectedBodyPreview({
+  const preview = createConnectedBodyPreview<Document>({
     worker: props.worker,
     renderer: numerical,
+    serialize: props.serialize,
   });
   type Model = Awaited<ReturnType<typeof preview.build>>;
   const {

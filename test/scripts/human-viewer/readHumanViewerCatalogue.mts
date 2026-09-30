@@ -56,6 +56,32 @@ export function readHumanViewerCatalogue(props: {
     },
     ...subjects,
   ];
+  // a person is a published face on the neutral body, and the reference face
+  // on each standard body state, joined at the neck
+  const people = [
+    ...faces.map((document) => ({
+      id: "person:" + document.id,
+      name: document.name ?? document.id,
+      face: document,
+      body: {
+        id: "person-body",
+        name: "neutral body",
+        basis: bases.body.id,
+        shape: {},
+      },
+    })),
+    ...Object.entries(standardBodyReviewStates()).map(([name, state]) => ({
+      id: "person:reference:" + name,
+      name: "reference " + name,
+      face: faces[0],
+      body: {
+        id: "person-body:" + name,
+        name,
+        basis: bases.body.id,
+        ...state,
+      },
+    })),
+  ];
   const inputs =
     props.inputsDirectory !== undefined && fs.existsSync(props.inputsDirectory)
       ? readHumanViewerInputs({
@@ -91,6 +117,18 @@ export function readHumanViewerCatalogue(props: {
           key: hash(JSON.stringify(document) + bases.body.digest + sources.body),
         };
       }),
+      ...people.map((document) => ({
+        id: document.id,
+        domain: "person" as const,
+        document,
+        key: hash(
+          JSON.stringify(document) +
+            bases.face.digest +
+            bases.body.digest +
+            sources.face +
+            sources.body,
+        ),
+      })),
       ...inputs.documents,
     ],
   };

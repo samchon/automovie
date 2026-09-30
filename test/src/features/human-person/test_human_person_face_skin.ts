@@ -4,7 +4,7 @@ import {
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
  * The face skin takes the body collar's weights at the cut and the head above

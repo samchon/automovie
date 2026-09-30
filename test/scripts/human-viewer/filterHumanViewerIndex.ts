@@ -8,7 +8,7 @@ import type { IHumanViewerIndexEntry } from "./describeHumanViewerDocuments";
  */
 export function filterHumanViewerIndex(
   entries: readonly IHumanViewerIndexEntry[],
-  filter: { text: string; domain: "all" | "face" | "body" },
+  filter: { text: string; domain: "all" | "face" | "body" | "person" },
 ): IHumanViewerIndexEntry[] {
   const words = filter.text.toLowerCase().split(/\s+/).filter((word) => word !== "");
   return entries.filter((entry) => {

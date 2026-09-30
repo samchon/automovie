@@ -1,6 +1,7 @@
 import type {
   IAutoMovieHumanBodyBasisDocument,
   IAutoMovieHumanFaceBasisDocument,
+  IAutoMovieHumanPersonDocument,
 } from "@automovie/human";
 
 /**
@@ -24,6 +25,7 @@ export interface HumanViewerCatalogue {
   documents: ({ id: string; key: string; basis?: string } & (
     | { domain: "face"; document: IAutoMovieHumanFaceBasisDocument }
     | { domain: "body"; document: IAutoMovieHumanBodyBasisDocument }
+    | { domain: "person"; document: IAutoMovieHumanPersonDocument }
   ))[];
 
   /** Input files that were refused, with the reason, so one bad file hides no other. */

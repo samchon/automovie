@@ -4,14 +4,19 @@
  * per domain; it delegates every preview to the unchanged product runtime.
  * Models cross the structured-clone boundary, never reference photographs.
  */
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type {
+  IAutoMovieHumanBodyBasis,
+  IAutoMovieHumanFaceBasis,
+} from "@automovie/human";
 import { createConnectedBodyRuntime } from "@automovie/playground/src/human/body/connectedBodyRuntime";
 import { readConnectedFaceAsset } from "@automovie/playground/src/human/common/connectedAsset";
 import { createConnectedFaceRuntime } from "@automovie/playground/src/human/common/connectedRuntime";
+import { createConnectedPersonRuntime } from "@automovie/playground/src/human/person/createConnectedPersonRuntime";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const face = new Map<string, Promise<ReturnType<typeof createConnectedFaceRuntime>>>();
 const body = new Map<string, Promise<ReturnType<typeof createConnectedBodyRuntime>>>();
+const person = new Map<string, Promise<ReturnType<typeof createConnectedPersonRuntime>>>();
 /** The published basis, or the candidate a hand-written document was dropped beside. */
 const basisUrl = (domain: string, candidate: string | undefined): string =>
   `/basis/${domain}` +
@@ -36,7 +41,7 @@ const runtimeOf = <T,>(
 scope.onmessage = async (
   event: MessageEvent<{
     id: number;
-    domain: "face" | "body";
+    domain: "face" | "body" | "person";
     basis?: string;
     input: { document: string; occlusion?: boolean };
   }>,
@@ -45,7 +50,18 @@ scope.onmessage = async (
   const identity = domain + ":" + (basis ?? "");
   try {
     const runtime =
-      domain === "face"
+      domain === "person"
+        ? await runtimeOf(person, identity, async () =>
+            createConnectedPersonRuntime({
+              face: await readConnectedFaceAsset<IAutoMovieHumanFaceBasis>({
+                read: () => fetch(basisUrl("face", undefined)),
+              }),
+              body: await readConnectedFaceAsset<IAutoMovieHumanBodyBasis>({
+                read: () => fetch(basisUrl("body", undefined)),
+              }),
+            }),
+          )
+        : domain === "face"
         ? await runtimeOf(face, identity, () =>
             readConnectedFaceAsset({
               read: () => fetch(basisUrl(domain, basis)),

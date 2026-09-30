@@ -9,7 +9,7 @@ export interface IHumanViewerIndexEntry {
   label: string;
 
   /** Numerical domain, which the face and body filters select. */
-  domain: "face" | "body";
+  domain: "face" | "body" | "person";
 
   /** Heading it is listed under. */
   section: string;
@@ -44,6 +44,8 @@ export function describeHumanViewerDocuments(
       return { id: entry.id, label: entry.id.slice(5), domain: entry.domain, section: "Local input" };
     if (entry.domain === "face")
       return { id: entry.id, label, domain: "face", section: "Face" };
+    if (entry.domain === "person")
+      return { id: entry.id, label, domain: "person", section: "Person" };
     const channels = Object.keys(document.shape ?? {});
     const posed =
       (document.pose?.length ?? 0) !== 0 || (document.shoulders?.length ?? 0) !== 0;

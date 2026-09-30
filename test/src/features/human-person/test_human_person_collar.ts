@@ -41,6 +41,7 @@ export const test_human_person_collar = (): void => {
     ribbon: [],
     collar: {
       reachMetres: 0.04,
+      headReachMetres: 0.02,
       follow: [
         { edge: 0, fraction: 0.5 },
         { edge: 2, fraction: 0.25 },
