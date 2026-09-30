@@ -1,8 +1,9 @@
-import { humanFaceDetailChannels } from "../channels/humanFaceDetailChannels";
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import { mergeHumanFaceSettings } from "../document/mergeHumanFaceSettings";
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
+import { assertDetailValue } from "./assertDetailValue";
+import { humanFaceDetailDefinition } from "./humanFaceDetailDefinition";
+import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
 
 /**
  * Edit one named additional hair layer with the existing hair scalar vocabulary.
@@ -21,7 +22,7 @@ export function setHumanFaceHairLayerDetail(
   id: string,
   value: number,
 ): IAutoMovieHumanFaceDocument {
-  const definition = definitionOf(id);
+  const definition = humanFaceDetailDefinition(id);
   if (definition.region !== "hair")
     throw new Error("A hair layer accepts only hair detail channels.");
   assertDetailValue(definition, value);
@@ -33,67 +34,11 @@ export function setHumanFaceHairLayerDetail(
   if (index < 0) throw new Error("The selected hair layer does not exist.");
   const next = structuredClone(document);
   (next.detail ??= {}).hairLayers = layers;
-  const edited = writeDetail(
+  const edited = writeHumanFaceDetail(
     next,
     ["detail", "hairLayers", String(index), "profile", ...definition.path],
     value,
   );
   assertHumanFaceEditableDetail(edited);
   return edited;
-}
-
-function assertDetailValue(
-  definition: IAutoMovieHumanFaceDetailChannel,
-  value: number | undefined,
-): void {
-  if (
-    value !== undefined &&
-    (!Number.isFinite(value) ||
-      value < definition.minimum ||
-      value > definition.maximum ||
-      (definition.unit === "count" && !Number.isInteger(value)))
-  )
-    throw new Error(`Invalid numerical detail: ${definition.id}.`);
-}
-
-function writeDetail(
-  next: IAutoMovieHumanFaceDocument,
-  path: readonly string[],
-  value: number | undefined,
-): IAutoMovieHumanFaceDocument {
-  let object = next as unknown as Record<string, unknown>;
-  const ancestors: { object: Record<string, unknown>; key: string }[] = [];
-  for (const key of path.slice(0, -1)) {
-    if (object[key] === undefined) {
-      if (value === undefined) return next;
-      object[key] = {};
-    } else {
-      // structuredClone preserves aliases. Detach only the containers on this
-      // path so a selected side/layer cannot also edit its basis or sibling.
-      const child = object[key] as Record<string, unknown> | unknown[];
-      object[key] = Array.isArray(child) ? [...child] : { ...child };
-    }
-    ancestors.push({ object, key });
-    object = object[key] as Record<string, unknown>;
-  }
-  const key = path[path.length - 1];
-  if (value === undefined) {
-    if (!Object.hasOwn(object, key)) return next;
-    delete object[key];
-    for (const parent of ancestors.reverse()) {
-      if (Object.keys(object).length !== 0) break;
-      delete parent.object[parent.key];
-      object = parent.object;
-    }
-  } else object[key] = value;
-  return next;
-}
-
-function definitionOf(id: string): IAutoMovieHumanFaceDetailChannel {
-  const definition = humanFaceDetailChannels.find(
-    (channel) => channel.id === id,
-  );
-  if (definition === undefined)
-    throw new Error(`Unknown anatomical detail: ${id}.`);
-  return definition;
 }

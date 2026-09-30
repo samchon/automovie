@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
+import { assertFinite } from "./assertFinite";
 import { parseHumanFaceDocument } from "./parseHumanFaceDocument";
 
 /**
@@ -16,16 +17,4 @@ export function serializeHumanFaceDocument(
   const text = JSON.stringify(document, null, 2);
   parseHumanFaceDocument(text);
   return text;
-}
-
-function assertFinite(value: unknown, ancestors = new Set<object>()): void {
-  if (typeof value === "number" && !Number.isFinite(value))
-    throw new Error("Face document numbers must be finite.");
-  if (value !== null && typeof value === "object") {
-    if (ancestors.has(value))
-      throw new Error("Face documents cannot contain cyclic references.");
-    ancestors.add(value);
-    for (const item of Object.values(value)) assertFinite(item, ancestors);
-    ancestors.delete(value);
-  }
 }

@@ -4,6 +4,7 @@ import type { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
+import { assertRegion } from "./assertRegion";
 import { humanFaceRegions } from "./humanFaceRegions";
 
 /**
@@ -54,17 +55,4 @@ export function replaceHumanFaceRegion<
   }
   assertHumanFaceEditableDetail(document);
   return document;
-}
-
-function assertRegion(region: string, side?: string): void {
-  if (!(humanFaceRegions as readonly string[]).includes(region))
-    throw new Error("Unknown anatomical face region.");
-  if (
-    side !== undefined &&
-    ((side !== "right" && side !== "left") ||
-      (region !== "eye" && region !== "ear" && region !== "cheek"))
-  )
-    throw new Error(
-      "Only eyes, cheeks and pinnae have independent side-profile overrides.",
-    );
 }

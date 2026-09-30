@@ -54,8 +54,8 @@ The unaccepted source-patch study remains separately inspectable in `nasalRefere
 | [portraitSurface.ts](../../../packages/human/src/geometry/portraitSurface.ts) | Compose anatomical deformation layers on refined skin while preserving its open attachment rims |
 | [portraitRelief.ts](../../../packages/human/src/geometry/portraitRelief.ts) | Bind named support regions to the actual refined skin and convert their metric fields |
 | [geometry.ts](../../../packages/human/src/geometry/geometry.ts) and [subdivideControlMesh.ts](../../../packages/human/src/geometry/subdivideControlMesh.ts) | Sampling, interpolation, subdivision, shared normals and metric conversion |
-| [portraitDocument.ts](../../../packages/human/src/geometry/portraitDocument.ts) | Static GLTF conversion preserving resident buffers and supported material factors |
-| [portraitMeshBuffers.ts](../../../packages/human/src/geometry/portraitMeshBuffers.ts) | Placement and Float32 face-preservation checks using the engine's existing transform and welded-pole policy |
+| [createGltfDocument.ts](../../../packages/human/src/common/export/createGltfDocument.ts) | Static GLTF conversion preserving resident buffers and supported material factors |
+| [float32MeshBuffers.ts](../../../packages/human/src/common/mesh/float32MeshBuffers.ts) | Placement and Float32 face-preservation checks using the engine's existing transform and welded-pole policy |
 | `captureProfile.ts` | Fixed camera, crop and area-light conditions for inspection |
 | `portraitCaptureDiagnostic.ts` | Consumed capture-byte identity and diagnostic publication lease |
 
@@ -143,7 +143,7 @@ Run the tracked exporter from the repository root after installing the workspace
 pnpm exec ttsx -P test/tsconfig.scripts.json test/scripts/face-review/export.ts
 ```
 
-The GLB is self-contained. The JSON GLTF uses its sibling `portrait.bin`. `portraitDocument` preserves metallic/roughness colour, emission, alpha mode, sidedness and the supported scalar transmission, IOR, volume and clearcoat extensions. Every GLTF reader or writer must register `portraitGltfExtensions`; an unregistered SDK writer can discard extension data. The converter refuses rigs. Supported resident texture bindings and their export limits are documented in the [human construction surface](../../../packages/human/README.md#construction-surface). Positive material thickness requires a closed manifold mesh.
+The GLB is self-contained. The JSON GLTF uses its sibling `portrait.bin`. `createGltfDocument` preserves metallic/roughness colour, emission, alpha mode, sidedness and the supported scalar transmission, IOR, volume and clearcoat extensions. Every GLTF reader or writer must register `gltfMaterialExtensions`; an unregistered SDK writer can discard extension data. The converter refuses rigs. Supported resident texture bindings and their export limits are documented in the [human construction surface](../../../packages/human/README.md#construction-surface). Positive material thickness requires a closed manifold mesh.
 
 Export checks actual representation precision. Each part's placement is compared with the same engine transform applied to translation-free face coordinates, preventing a large origin from silently erasing a face before Float32 conversion. The converter then checks each nonredundant placed face at Float32 precision and validates every final material group's manifold/winding, with closure additionally required for optical volume. Original pole/seam redundancy uses the engine's existing welded triangle identities. It is not a subject-specific area allowance, and equal before/after degenerate counts cannot excuse a different newly lost face.
 
