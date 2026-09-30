@@ -16,45 +16,23 @@
  * is 4 mm a side at full span. Its ends are checked for faults on the
  * neutral (`faceSupportFaults`).
  */
-import {
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanFaceControlMap,
-  createHumanFaceBasisBuilder,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
+import { createHumanFaceBasisBuilder } from "@automovie/human";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
 import { faceSupportFaults } from "./faceEnvelope";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
 import { faceUnseenParts } from "./faceUnseenNorms";
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareFaceBreadthBasis } from "./prepareFaceBreadthBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
-const source = basis.json as IAutoMovieHumanFaceBasis;
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
+const source = basis.json;
 const human = source.surfaces.find((one) => one.id === "Human")!;
 const P = human.positions;
 const eyes = source.surfaces.find((one) => one.id === "Human.low-poly")!;
@@ -119,8 +97,8 @@ const frame = {
 };
 const prepared = prepareFaceBreadthBasis({
   basis: source,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  documents: subjects.json,
+  controls: controls.json,
   revision,
   skin: "Human",
   channel: "faceBreadth",
@@ -151,36 +129,17 @@ const faults = [-2, 2].map((w) =>
     triangles,
   }),
 );
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
-});
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const receipt = {
-  ...prepared.receipt,
-  faultsAtEnds: faults,
-  recorded: new Date().toISOString(),
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
+writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "face-breadth-receipt.json",
+  prepared,
+  inputs: { basis, subjects, controls },
+  fields: {
+    faultsAtEnds: faults,
   },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "face-breadth-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
+  recorded: new Date(),
+});
 console.log(
   JSON.stringify({ ...prepared.receipt, faultsAtEnds: faults }, null, 2),
 );

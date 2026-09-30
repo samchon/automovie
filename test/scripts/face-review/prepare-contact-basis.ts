@@ -35,44 +35,22 @@
  *   source authored.
  * - Tolerance 0.05 mm absorbs the seven-decimal rounding of published rows.
  */
-import type {
-  IAutoMovieHumanFaceBasis,
-  IAutoMovieHumanFaceBasisDocument,
-  IAutoMovieHumanFaceControlMap,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareContactBasis } from "./prepareContactBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
 const HOLDAWAY_UPPER_LIP_THICKNESS_METRES = 0.01341;
 const started = Date.now();
 const prepared = prepareContactBasis({
-  basis: basis.json as IAutoMovieHumanFaceBasis,
+  basis: basis.json,
   lips: { surface: "Human", region: "Human/lips" },
   incisors: { surface: "Human.teeth_base" },
   midlineBandMetres: 0.006,
@@ -97,45 +75,26 @@ const prepared = prepareContactBasis({
   toleranceMetres: 0.00005,
   decimals: 7,
   revision,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  documents: subjects.json,
+  controls: controls.json,
 });
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
+const { receipt } = writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "contact-receipt.json",
+  prepared,
+  inputs: { basis, subjects, controls },
+  fields: {
+    elapsedSeconds: Math.round((Date.now() - started) / 100) / 10,
+    citations: {
+      closureSemantics:
+        "MPFB faceservice.py: mouthClose 'Closes the lips while the jaw remains open' (ARKit face unit).",
+      lipBudget:
+        "Holdaway upper lip thickness, vermilion point to upper incisor labial surface, 13.41 +- 2.70 mm (Saudi Dent J 2011, n=93); norm 13-14 mm.",
+      tonguePassage:
+        "Kier & Smith 1985, muscular hydrostat: constant volume, so a tongue cannot be pressed through closed teeth or sealed lips.",
+    },
+  },
+  recorded: new Date(),
 });
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
-const receipt = {
-  ...prepared.receipt,
-  recorded: new Date().toISOString(),
-  elapsedSeconds: Math.round((Date.now() - started) / 100) / 10,
-  citations: {
-    closureSemantics:
-      "MPFB faceservice.py: mouthClose 'Closes the lips while the jaw remains open' (ARKit face unit).",
-    lipBudget:
-      "Holdaway upper lip thickness, vermilion point to upper incisor labial surface, 13.41 +- 2.70 mm (Saudi Dent J 2011, n=93); norm 13-14 mm.",
-    tonguePassage:
-      "Kier & Smith 1985, muscular hydrostat: constant volume, so a tongue cannot be pressed through closed teeth or sealed lips.",
-  },
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
-  },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "contact-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
 console.log(JSON.stringify(receipt, null, 2));

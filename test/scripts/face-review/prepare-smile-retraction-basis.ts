@@ -20,16 +20,8 @@
  * full weight (no fault added to the smiled source) and read again at the
  * norm's weight.
  */
-import {
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanFaceControlMap,
-  createHumanFaceBasisBuilder,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
+import { type IAutoMovieHumanFaceBasis, createHumanFaceBasisBuilder } from "@automovie/human";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
 import { faceSupportFaults } from "./faceEnvelope";
 import {
@@ -40,31 +32,17 @@ import {
 } from "./faceMidsagittal";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
 import { faceMidlineTriangles } from "./faceUnseenNorms";
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareSmileRetractionBasis } from "./prepareSmileRetractionBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
-const source = basis.json as IAutoMovieHumanFaceBasis;
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
+const source = basis.json;
 const LABIAL = 0.01039;
 const NORM = { upper: 0.00263, lower: 0.00196 };
 const skinOf = (one: IAutoMovieHumanFaceBasis, smile: number) =>
@@ -145,8 +123,8 @@ const retraction = {
 };
 const prepared = prepareSmileRetractionBasis({
   basis: source,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  documents: subjects.json,
+  controls: controls.json,
   revision,
   skin: "Human",
   lips: "Human/lips",
@@ -176,54 +154,35 @@ const faults = faceSupportFaults({
   contact,
 });
 const after = read3(skinOf(prepared.basis, weight));
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
-});
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
 const mm = (value: number) => Number((value * 1000).toFixed(3));
-const receipt = {
-  ...prepared.receipt,
-  weight: Number(weight.toFixed(4)),
-  norm: { labial: mm(LABIAL), upper: mm(NORM.upper), lower: mm(NORM.lower) },
-  sourceSmile: {
-    upper: mm(own.upper - rest.upper),
-    lower: mm(own.lower - rest.lower),
+const { receipt } = writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "smile-retraction-receipt.json",
+  prepared,
+  inputs: { basis, subjects, controls },
+  fields: {
+    weight: Number(weight.toFixed(4)),
+    norm: { labial: mm(LABIAL), upper: mm(NORM.upper), lower: mm(NORM.lower) },
+    sourceSmile: {
+      upper: mm(own.upper - rest.upper),
+      lower: mm(own.lower - rest.lower),
+    },
+    retractionPerUnit: {
+      upper: mm(retraction.upper),
+      lower: mm(retraction.lower),
+    },
+    revised: {
+      width: mm(after.width - rest.width),
+      upper: mm(after.upper - rest.upper),
+      lower: mm(after.lower - rest.lower),
+    },
+    faultsAtFullSmile: faults,
+    citations:
+      "Posed smile against rest, 41 adults, 3D surface imaging: PMC12549365 (labial width +10.39 mm; |Prn-Ls|z +2.63 mm; |Prn-Li|z +1.96 mm).",
   },
-  retractionPerUnit: {
-    upper: mm(retraction.upper),
-    lower: mm(retraction.lower),
-  },
-  revised: {
-    width: mm(after.width - rest.width),
-    upper: mm(after.upper - rest.upper),
-    lower: mm(after.lower - rest.lower),
-  },
-  faultsAtFullSmile: faults,
-  recorded: new Date().toISOString(),
-  citations:
-    "Posed smile against rest, 41 adults, 3D surface imaging: PMC12549365 (labial width +10.39 mm; |Prn-Ls|z +2.63 mm; |Prn-Li|z +1.96 mm).",
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
-  },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "smile-retraction-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
+  recorded: new Date(),
+});
 console.log(
   JSON.stringify(
     { ...receipt, inputs: undefined, outputs: undefined },

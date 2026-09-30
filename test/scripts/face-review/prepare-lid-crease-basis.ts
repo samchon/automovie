@@ -13,49 +13,27 @@
  * ultrasound, 48 adults aged 17 to 46: Rad Proc 2021;26), the fold of one
  * layer the crease draws, and the faults at the minimum and one step past.
  */
-import {
-  type IAutoMovieHumanFaceBasis,
-  type IAutoMovieHumanFaceBasisDocument,
-  type IAutoMovieHumanFaceControlMap,
-  createHumanFaceBasisBuilder,
-} from "@automovie/human";
-import { createHash } from "node:crypto";
+import { createHumanFaceBasisBuilder } from "@automovie/human";
 import fs from "node:fs";
-import path from "node:path";
-import { gunzipSync, gzipSync } from "node:zlib";
 
 import { faceSupportFaults } from "./faceEnvelope";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
+import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareLidCreaseBasis } from "./prepareLidCreaseBasis";
+import { readFaceBasisStudy } from "./readFaceBasisStudy";
+import { writeFaceBasisRevision } from "./writeFaceBasisRevision";
 
-const [studyDirectory, revision, output] = process.argv.slice(2);
-if (
-  studyDirectory === undefined ||
-  revision === undefined ||
-  output === undefined ||
-  fs.existsSync(output)
-)
-  throw new Error(
-    "Supply the study directory, the new revision and a new output directory.",
-  );
-const read = (name: string): { bytes: Buffer; json: unknown } => {
-  const bytes = fs.readFileSync(path.join(studyDirectory, name));
-  return {
-    bytes,
-    json: JSON.parse(
-      (name.endsWith(".gz") ? gunzipSync(bytes) : bytes).toString("utf8"),
-    ),
-  };
-};
-const basis = read("basis.json.gz");
-const subjects = read("subjects.json");
-const controls = read("simple-controls.json");
-const source = basis.json as IAutoMovieHumanFaceBasis;
+const { studyDirectory, revision, output } = parseFaceBasisRevisionArguments(
+  process.argv.slice(2),
+  fs.existsSync,
+);
+const { basis, subjects, controls } = readFaceBasisStudy(fs, studyDirectory);
+const source = basis.json;
 const channels = ["leftEyelidFoldConvexity", "rightEyelidFoldConvexity"];
 const input = {
   basis: source,
-  documents: subjects.json as IAutoMovieHumanFaceBasisDocument[],
-  controls: controls.json as IAutoMovieHumanFaceControlMap,
+  documents: subjects.json,
+  controls: controls.json,
   revision,
   skin: "Human",
   channels,
@@ -96,45 +74,26 @@ const faults = {
   past: minimum > -1 ? faultsAt(Number((minimum - 0.02).toFixed(2))) : null,
 };
 const prepared = prepareLidCreaseBasis({ ...input, minimum });
-fs.mkdirSync(output, { recursive: true });
-const basisBytes = gzipSync(JSON.stringify(prepared.basis) + "\n", {
-  level: 9,
-});
-fs.writeFileSync(path.join(output, "basis.json.gz"), basisBytes);
-fs.writeFileSync(
-  path.join(output, "subjects.json"),
-  JSON.stringify(prepared.documents, null, 2) + "\n",
-);
-fs.writeFileSync(
-  path.join(output, "simple-controls.json"),
-  JSON.stringify(prepared.controls, null, 2) + "\n",
-);
-const digest = (bytes: Buffer): string =>
-  createHash("sha256").update(bytes).digest("hex");
 const mm = (value: number) => Number((value * 1000).toFixed(3));
-const receipt = {
-  ...prepared.receipt,
-  channels: prepared.receipt.channels.map((one) => ({
-    ...one,
-    depth: mm(one.depth),
-    slide: mm(one.slide),
-  })),
-  layer: { skin: 0.98, orbicularis: 0.76, total: 1.74 },
-  faults,
-  recorded: new Date().toISOString(),
-  citations:
-    "Upper eyelid skin with subcutaneous tissue 0.98 +- 0.17 mm, orbicularis oculi 0.76 +- 0.1 mm, high-frequency ultrasound, 48 healthy adults aged 17 to 46 (Rad Proc 2021;26).",
-  inputs: {
-    basis: { sha256: digest(basis.bytes), bytes: basis.bytes.length },
-    subjects: { sha256: digest(subjects.bytes), bytes: subjects.bytes.length },
-    controls: { sha256: digest(controls.bytes), bytes: controls.bytes.length },
+const { receipt } = writeFaceBasisRevision({
+  io: fs,
+  output,
+  receiptFile: "lid-crease-receipt.json",
+  prepared,
+  inputs: { basis, subjects, controls },
+  fields: {
+    channels: prepared.receipt.channels.map((one) => ({
+      ...one,
+      depth: mm(one.depth),
+      slide: mm(one.slide),
+    })),
+    layer: { skin: 0.98, orbicularis: 0.76, total: 1.74 },
+    faults,
+    citations:
+      "Upper eyelid skin with subcutaneous tissue 0.98 +- 0.17 mm, orbicularis oculi 0.76 +- 0.1 mm, high-frequency ultrasound, 48 healthy adults aged 17 to 46 (Rad Proc 2021;26).",
   },
-  outputs: { basis: { sha256: digest(basisBytes), bytes: basisBytes.length } },
-};
-fs.writeFileSync(
-  path.join(output, "lid-crease-receipt.json"),
-  JSON.stringify(receipt, null, 2) + "\n",
-);
+  recorded: new Date(),
+});
 console.log(
   JSON.stringify(
     { ...receipt, inputs: undefined, outputs: undefined },
