@@ -23,6 +23,13 @@ export interface HumanViewerAddress {
   /** Anatomical viewing direction from the shared observation hook. */
   view: HumanObservationView;
 
+  /**
+   * Degrees added to the named view's elevation about the framed centre,
+   * positive raising the camera. It reaches views from below or above at any
+   * oblique azimuth, where the eight named directions cannot.
+   */
+  pitch: number;
+
   /** Display-only material pass. */
   pass: HumanObservationPass;
 

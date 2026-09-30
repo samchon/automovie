@@ -250,13 +250,15 @@ async function show(address: HumanViewerAddress): Promise<void> {
     active.observe.frame({
       ...frameHumanViewerParts(resident.group, address.parts),
       view: address.view,
+      pitch: address.pitch,
     });
-  else if (address.frame === null) active.observe.view(address.view);
+  else if (address.frame === null) active.observe.view(address.view, { pitch: address.pitch });
   else
     active.observe.frame({
       center: address.frame.slice(0, 3) as [number, number, number],
       radius: address.frame[3],
       view: address.view,
+      pitch: address.pitch,
     });
   active.finish();
   const reference = document.querySelector<HTMLImageElement>("#reference")!;

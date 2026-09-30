@@ -23,6 +23,7 @@ export function serializeHumanViewerAddress(
     opacity: String(address.opacity),
   });
   if (address.parts.length !== 0) fields.set("parts", address.parts.join(","));
+  if (address.pitch !== 0) fields.set("pitch", String(address.pitch));
   if (address.frame !== null) fields.set("frame", address.frame.join(","));
   if (address.ref !== null) fields.set("ref", address.ref);
   return fields.toString();

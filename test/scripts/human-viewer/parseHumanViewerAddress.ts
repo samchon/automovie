@@ -24,6 +24,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     "fmt",
     "ref",
     "opacity",
+    "pitch",
   ];
   for (const key of fields.keys()) {
     if (!allowed.includes(key))
@@ -96,6 +97,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     doc,
     parts: parts === null ? [] : parts.split(","),
     view: view as HumanViewerAddress["view"],
+    pitch: number("pitch", 0, -89, 89),
     pass: pass as HumanViewerAddress["pass"],
     frame,
     ao: ao === "on",

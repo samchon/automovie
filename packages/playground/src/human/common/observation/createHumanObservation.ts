@@ -177,7 +177,7 @@ void main() {
      */
     view: (
       name: HumanObservationView,
-      options: { distance?: number; fov?: number } = {},
+      options: { distance?: number; fov?: number; pitch?: number } = {},
     ): void => {
       const seen = subject();
       const fov = options.fov ?? camera.fov;
@@ -186,7 +186,10 @@ void main() {
       const distance =
         options.distance ??
         (seen === null ? FALLBACK_DISTANCE : fitDistance(seen.radius, fov));
-      place({ ...placeHumanObservationCamera(name, center, distance), fov });
+      place({
+        ...placeHumanObservationCamera(name, center, distance, options.pitch),
+        fov,
+      });
     },
 
     /**
@@ -201,6 +204,7 @@ void main() {
       radius: number;
       view?: HumanObservationView;
       fov?: number;
+      pitch?: number;
     }): void => {
       const fov = region.fov ?? camera.fov;
       place({
@@ -208,6 +212,7 @@ void main() {
           region.view ?? "front",
           region.center,
           fitDistance(region.radius, fov),
+          region.pitch,
         ),
         fov,
       });
