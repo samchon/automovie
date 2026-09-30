@@ -14,7 +14,7 @@ export interface IFaceSkinSiteGroup {
   mean: [number, number, number];
 }
 
-/** The skin site norms (`derive-skin-site-norms.py`): group -> site -> sex. */
+/** The skin site norms (`derive-skin-site-norms.ts`): group -> site -> sex. */
 export interface IFaceSkinSiteNorms {
   groups: Record<
     string,

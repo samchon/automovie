@@ -8,7 +8,7 @@
  * STUDY holds `basis.json.gz` and `subjects.json`; ANCHORS is the
  * `anchor-face-landmarks.ts` output on the same basis, whose view of each
  * subject's camera anchors that subject's landmarks; DETECTIONS holds the
- * photographs as `photo:<subject>` (`detect-face-likeness.py`); POSES is the
+ * photographs as `photo:<subject>` (the external detector); POSES is the
  * `plan-face-likeness.ts yaw` pose file, whose camera the fit projects
  * through.
  *

@@ -1,7 +1,7 @@
 /**
  * The review capture camera as a pure projection and ray model.
  *
- * `capture-articulation.mjs` renders through a three.js
+ * `capture-articulation.ts` renders through a three.js
  * `PerspectiveCamera(28, 1, ...)` placed at
  * `target + distance * (cos p sin y, sin p, cos p cos y)` and aimed at the
  * target with world +Y up, into a square `viewport` of pixels. The shape fit

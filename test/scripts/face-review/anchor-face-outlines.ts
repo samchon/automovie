@@ -7,10 +7,10 @@
  *
  * STUDY holds `basis.json.gz`; ANCHORS is an `anchor-face-landmarks.ts`
  * output on a basis of the same surface (its id is kept, the jaw's basis
- * recorded beside it). CAPTURES is a `capture-editor-views.mjs` record of
+ * recorded beside it). CAPTURES is a `capture-editor-views.ts` record of
  * the neutral document rendered through the product editor under each
  * subject's camera (the same renders the instrument and the render
- * correction read), and DETECTIONS one `detect-face-likeness.py` run over
+ * correction read), and DETECTIONS one detector run over
  * them with the skin segmenter, image ids `neutral:<file stem>`. Each view's
  * jaw outline (`measureFaceLikenessJawOutline`: soft-tissue menton and the
  * two points of each level) and vermilion borders

@@ -1,6 +1,6 @@
 import type { IFacePopulationFacts } from "./facePopulationFacts";
 
-/** One group's cheek albedo over its subjects, from `derive-skin-albedo-norms.py`. */
+/** One group's cheek albedo over its subjects, from `derive-skin-albedo-norms.ts`. */
 export interface IFaceSkinAlbedoGroup {
   subjects: number;
   mean: [number, number, number];
@@ -34,7 +34,7 @@ export const FACE_SKIN_ALBEDO_GROUPS = {
  * value is the albedo times an unknown gain, and every ratio rule of the
  * iris, brow and hair fits multiplies this albedo. The norms are cheek
  * spectra of the International Skin Spectra Archive integrated into linear
- * sRGB under D65 (`derive-skin-albedo-norms.py`); the subject takes the
+ * sRGB under D65 (`derive-skin-albedo-norms.ts`); the subject takes the
  * subject-weighted mean of the groups measuring its recorded ancestry
  * (`FACE_SKIN_ALBEDO_GROUPS`: East Asian is the archive's Chinese and
  * Japanese groups together, there being no Korean one), of its recorded sex

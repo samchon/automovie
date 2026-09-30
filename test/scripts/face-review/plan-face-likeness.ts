@@ -12,11 +12,11 @@
  * `subject-receipt.json`. The order of a run is fixed:
  *
  * 1. `export-subject-views.ts` exports the published documents, and
- *    `capture-articulation.mjs` captures `front`, `left-quarter` and
+ *    `capture-articulation.ts` captures `front`, `left-quarter` and
  *    `front-high` (the camera 20 degrees above).
  * 2. `manifest` lists each photograph `REFS/<subject>.*` (id
  *    `photo:<subject>`) and every non-mask render PNG of each capture
- *    directory (id `LABEL:<file stem>`) for `detect-face-likeness.py`. The
+ *    directory (id `LABEL:<file stem>`) for the external detector. The
  *    labels are `calibration` for the step 1 capture and `portrait` and
  *    `frame` for the captures of steps 3 and 4, which share file names. A photograph that is absent or whose SHA-256
  *    differs from the receipt is left out and reported as missing.
@@ -91,7 +91,7 @@ import {
 
 const RECEIPT =
   "studies/human-face/connected-basis/global-face/subject-receipt.json";
-/** `capture-articulation.mjs`'s viewport, field of view and portrait camera. */
+/** `capture-articulation.ts`'s viewport, field of view and portrait camera. */
 const VIEWPORT = 900;
 const FOV_DEGREES = 28;
 const PORTRAIT_DISTANCE = 0.62;

@@ -81,7 +81,7 @@
  * `calibration-study` writes the reference head's calibration documents
  * (`faceExpressionCalibrationDocuments`) beside STUDY's basis, with a pose
  * file placing every one at POSE.json's camera, for
- * `capture-editor-views.mjs`.
+ * `capture-editor-views.ts`.
  *
  * `calibrate` turns the product-editor renders of the reference head, one per
  * expression channel and weight (ids `cal:cal-<channel>-<percent>` and

@@ -5,7 +5,7 @@ import {
   createHumanFaceBasisBuilder,
 } from "@automovie/human";
 
-/** Rows `population_rows.py` writes: channels, correctives and their sparse rows. */
+/** The rows an external MPFB sampling reduces to: channels, correctives and their sparse rows. */
 export interface IPopulationRows {
   channels: IAutoMovieHumanFaceBasis["channels"];
   correctives: NonNullable<IAutoMovieHumanFaceBasis["correctives"]>;
@@ -19,8 +19,7 @@ export interface IPopulationRows {
  * MPFB blends them.
  *
  * `prepare-population-basis.ts` calls this with the published basis and the
- * rows `population_rows.py` derived from `extract-face-population.py`'s
- * samples. The three ancestry channels are one-sided shares in [0, 1], each
+ * rows an external Blender and MPFB session derived from its samples. The three ancestry channels are one-sided shares in [0, 1], each
  * the pure ancestry replacing the source's equal mixture; shares summing past
  * one describe no MPFB human, which the document derivation never writes and
  * the control group's description states. Every corrective is driven by the existing `globalSexualDimorphism`

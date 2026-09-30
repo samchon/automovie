@@ -4,7 +4,7 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/verify-population-basis.ts BASIS.json.gz CORNERS.json.gz
  *
- * CORNERS is what `population_rows.py` writes beside the rows: every sampled
+ * CORNERS is what the external sampling writes beside the rows: every sampled
  * MPFB state as eye-frame displacements from the neutral. Each corner is
  * built at the controls it corresponds to (the ancestry share one, the
  * dimorphism and age channels at -1, 0 or 1) and its rest surfaces compared

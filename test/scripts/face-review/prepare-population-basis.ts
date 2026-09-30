@@ -5,8 +5,8 @@
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/prepare-population-basis.ts STUDY ROWS.json.gz REVISION OUTPUT
  *
  * STUDY is the published global-face study directory (basis.json.gz,
- * subjects.json, simple-controls.json), ROWS what `population_rows.py` wrote
- * from `extract-face-population.py`'s samples, REVISION the new basis
+ * subjects.json, simple-controls.json), ROWS the population rows (`IPopulationRows`)
+ * an external Blender and MPFB session's samples reduce to, REVISION the new basis
  * identity and OUTPUT a new directory that receives basis.json.gz, the
  * restamped subjects and controls, and population-receipt.json.
  *
@@ -83,7 +83,7 @@ const receipt = {
     systemAssets:
       "makehuman_system_assets_cc0.zip, 280737770 bytes (system-assets-receipt.json)",
     sampling:
-      "extract-face-population.py: race {equal mixture, african, asian, caucasian} x gender {0, 0.5, 1} x age {0.25, 0.5, 1}; muscle and weight 0.5",
+      "external MPFB sampling in Blender: race {equal mixture, african, asian, caucasian} x gender {0, 0.5, 1} x age {0.25, 0.5, 1}; muscle and weight 0.5",
   },
   model:
     "MPFB TargetService.calculate_target_stack_from_macro_info_dict: race-gender-age and universal-gender-age-muscle-weight targets weighted by products of their components, which is multilinear in the ancestry shares and in each side of the dimorphism and age channels.",

@@ -4,7 +4,7 @@
  *
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-lips.ts DETECTIONS_DIR SUBJECTS [OUTPUT]
  *
- * DETECTIONS_DIR is a `detect-face-likeness.py` output over the photographs
+ * DETECTIONS_DIR is a detector output over the photographs
  * (ids `photo:<subject>`), SUBJECTS the published `subjects.json`. For every
  * photograph the vermilion of both lips (`faceLikenessLipColour`) and both
  * cheeks, hair excluded (`faceLikenessCheekColour`), are sampled and averaged

@@ -6,11 +6,11 @@
  *   ttsx -P tsconfig.scripts.json --no-plugins scripts/face-review/fit-face-hair-shape.ts STUDY DETECTIONS_DIR POSES ANCHORS FACTS SHOULDERS OUTPUT
  *
  * STUDY holds `basis.json.gz` and `subjects.json`; DETECTIONS_DIR is a
- * `detect-face-likeness.py` output over the photographs (ids
+ * detector output over the photographs (ids
  * `photo:<subject>`, with their hair masks); POSES and ANCHORS are the
  * published portrait cameras and landmark anchors; FACTS the recorded subject
  * facts and SHOULDERS `population/shoulder-drop-norms.json`
- * (`derive-shoulder-drop-norms.py`). Three indices are read on
+ * (`derive-shoulder-drop-norms.ts`). Three indices are read on
  * the photograph from its head hair (`faceHairHeadMask`, components reaching
  * above the brows, so a collar or a beard does not count) and on the
  * document's built model under the same camera from the hair the camera

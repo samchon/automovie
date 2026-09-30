@@ -2,9 +2,31 @@
  * File formats shared by the face likeness runners.
  *
  * `plan-face-likeness.ts` and `measure-face-likeness.ts` read the detector
- * output of `detect-face-likeness.py` and the capture records and PNGs of
- * `capture-articulation.mjs` through these helpers, so both runners agree on
- * one interpretation of every file. PNGs are decoded by `pngjs` into RGBA;
+ * output and the capture records and PNGs of `capture-articulation.ts` and
+ * `capture-editor-views.ts` through these helpers, so both runners agree on
+ * one interpretation of every file.
+ *
+ * The detector is an external instrument that this repository does not run
+ * (the operator supplies it and its model files, which are never committed):
+ * MediaPipe (0.10.35) Face Landmarker and Hair Segmenter, and optionally the
+ * multiclass selfie segmenter, run over a manifest `{"images": [{"id",
+ * "path", "photo"}]}` into a new directory. It writes `detections.json`
+ * (`IFaceLikenessDetections`, with the SHA-256 of every model file), and for
+ * each photograph `<id>__hair.png` (the hair segmenter's class 1, 0 or 255)
+ * and `<id>__rgb.png` (the EXIF-oriented decoded pixels, lossless, so colour
+ * sampling reads exactly what the detectors saw). Face Landmarker runs with
+ * two faces allowed so a second face is refused instead of one person being
+ * chosen from a group photograph: exactly one face of 478 landmarks gives
+ * `face` (landmarks in image pixels, the facial transformation matrix and
+ * the blendshape scores by name) and any other count gives `face: null`,
+ * a missing observation and never a zero score. With the multiclass segmenter
+ * an image with one face also gets `<id>__faceskin.png` (`:` in the id
+ * written as `--`, because on NTFS a colon names a stream): its face-skin class
+ * over a square crop about the face, 1.5 times the landmarks' larger extent
+ * and clipped to the image, placed back in the frame; a crop whose channels
+ * differ by under two levels on average is monochrome and gets none, the
+ * segmenter telling skin by its colour. A render's hair is never segmented:
+ * the capture's hair ID pass is its mask. PNGs are decoded by `pngjs` into RGBA;
  * a mask is set where the red channel is at least 128, which matches both
  * the photograph segmenter's 0/255 grey PNG and the capture's white-on-black
  * hair ID pass. Reads only; nothing here writes.
