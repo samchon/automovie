@@ -29,9 +29,6 @@ const matrixOf = (
  * A blend whose rotations cancel to a singular `L` is refused, because such a
  * vertex has no rest position that reproduces the pose; an unattached vertex
  * is returned unchanged. Inputs are never mutated; the result is fresh.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Recovers the rest-space residual an authored pose leaves over the shared joint motion.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Inverts the per-vertex affine blend exactly and refuses a singular blend.
  */
 export function unposeHumanFaceSurface(
   posed: readonly number[],

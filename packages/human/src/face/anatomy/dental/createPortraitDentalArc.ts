@@ -9,8 +9,6 @@ import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
  * Sampling uses cumulative XZ distance, independent of any Y variation. The
  * current dental row supplies a planar elliptical guide and owns its common
  * gingival height; this sampler does not attach individual teeth to lip points.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Continues an ordered dental guide posteriorly and spaces crowns by horizontal arc distance rather than image X.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Builds cumulative XZ stations, rejects degenerate corner tangents and interpolates a position and tangent within the finite guide.
  */
 export function createPortraitDentalArc(
   upper: IAutoMovieVector3[],

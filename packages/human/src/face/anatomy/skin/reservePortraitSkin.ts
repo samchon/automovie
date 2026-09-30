@@ -18,8 +18,6 @@ import { autoMoviePlanarRegionFailure } from "@automovie/engine";
  * reservations remain the assembler's responsibility; overlapping cuts refuse
  * there before attachment. This supplies an unambiguous planar chart, not an
  * anatomical section, tangent match, or arbitrary 3D intersection certificate.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Reserves connected host skin large enough for a component's proposed seam without a guessed influence radius.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Grows finite vertex-adjacent face rings until one simple boundary strictly contains the new XY seam, preserving original host data.
  */
 export function reservePortraitSkin(
   host: IPortraitComponentHost,

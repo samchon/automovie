@@ -9,8 +9,6 @@ import { samplePortraitNasalSection } from "../samplePortraitNasalSection";
  * `samplePortraitNasalSection` at its own parameter. Shared by
  * `IPortraitNasalEnvelope` and `createPortraitNasalEnvelope`.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates circumferential tissue width, crest position and inward roll instead of assigning one torus section to every nasal margin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines an ordered unit-perimeter station with metric exterior dimensions and a signed shared-rim tangent angle.
  * @author Samchon
  */
 export function sampleCyclicNasalSection(points: readonly number[][], phase: number): number[] {

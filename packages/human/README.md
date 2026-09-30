@@ -2,7 +2,7 @@
 
 Procedural anatomical face construction. Components fit to one immutable host, share their skin boundaries and finish internal geometry against the refined surface. The package contains no named person, photograph or fitting runtime. Construction coordinates use millimetres, +Y up, +Z anterior and anatomical left +X; the model boundary converts them to metres.
 
-The [face requirements](../../docs/requirements/actors/facial-authoring/contract.md) and [parameter and editing specifications](../../docs/specifications/asset-and-representation/facial-authoring/contract.md) own the contract. Optional numerical hair cards and skin-following eyebrow ribbons belong to the same static facial asset.
+Optional numerical hair cards and skin-following eyebrow ribbons belong to the same static facial asset.
 
 The eye component separates shape contracts (`eyeShape`), copied input admission (`eyeComponentInputs`), transverse tissue formulas (`eyeLidRows`), shared ring attachment (`eyeMargins`), optical shell construction (`eyeOpticalSurface`), final skin contact (`eyeSurfaceContact`) and refined interior construction (`eyeInterior`). `eyes` orchestrates their fit/attach/finish lifecycle and retains its existing exports. Both skin constraints and emitted lid rings call the same section calculation; drawing and contact call the same optical shell builder. Keep those numerical owners shared when adding a shape control, and test section arithmetic separately from whole-face fitting.
 
@@ -165,7 +165,7 @@ The package has three source folders and one dependency direction: `face -> comm
 
 ## Body below the neck
 
-`body/` evaluates a connected body basis, the complement of the connected face's triangles below the neck ring, in the face's frame (metres, +Y up, +Z forward, +X anatomical left) so the two bases meet by vertex identity. The [body requirements](../../docs/requirements/actors/body-authoring/contract.md) and [basis, joint and measurement specifications](../../docs/specifications/asset-and-representation/body-authoring/contract.md) own the contract; the shipped basis and its receipts live in the [connected body study](../../test/studies/human-body/connected-basis/README.md).
+`body/` evaluates a connected body basis, the complement of the connected face's triangles below the neck ring, in the face's frame (metres, +Y up, +Z forward, +X anatomical left) so the two bases meet by vertex identity. The shipped basis and its receipts live in the [connected body study](../../test/studies/human-body/connected-basis/README.md).
 
 `body/structures/shape/` owns channel and corrective declarations; `body/structures/rig/` owns shape-dependent landmarks, public rig joints, couplings and pelvic rhythm; `body/structures/surface/` owns the one shared-vertex skin surface contract. `body/constants/simple-shape/` holds the ordered empirical term populations consumed by the simple editor tier. The current connected study contains one external skin surface and no internal bone, muscle or fat meshes. These type files separate the existing contract's responsibilities; they do not turn VRM joints into anatomical bone surfaces or independently articulating scapulae.
 

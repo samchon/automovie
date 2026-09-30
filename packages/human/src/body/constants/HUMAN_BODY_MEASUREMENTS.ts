@@ -21,9 +21,6 @@ import type { IAutoMovieHumanBodyMeasurement } from "../structures/IAutoMovieHum
  * have no rule: the neck lies above the clip and belongs to the face basis.
  * `macroHeight` reads the ring height above the ground as the body's stand-in
  * for stature.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Binds each millimetre channel to a stated public measurement definition and leaves the neck channels honestly unmeasured.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Supplies the landmark segments, plane orientation, sampling and extremum choice each rule kind requires.
  */
 export const HUMAN_BODY_MEASUREMENTS: Record<
   string,

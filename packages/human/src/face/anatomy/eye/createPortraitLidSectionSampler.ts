@@ -9,8 +9,6 @@ type Section<K extends string> = { attachment: number } & Record<
  * row order; an anatomical validator may instead admit a returning fold and
  * is then applied to every authored and interpolated section. Positive finite
  * offsets and an attachment outside all tissue remain common requirements.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Interpolates the named tissue stations used by both eyelid component profiles.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Owns copied section witnesses, common dimension bounds and default row ordering or explicit anatomical section validation under shared interpolation.
  */
 export function createPortraitLidSectionSampler<K extends string>(
   input: readonly { at: number; section: Section<K> }[],

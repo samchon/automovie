@@ -7,8 +7,6 @@ import { IPortraitSurfaceHost } from "./IPortraitSurfaceHost";
  * the same unmodified surface. A layer changes skin, not a detached overlay.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Identifies a replaceable anatomical layer whose fields derive from the resident skin rather than a detached overlay.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Couples each stable layer ID to a metric field factory evaluated against the unmodified shared host.
  */
 export interface IPortraitSurfaceLayer {
   /** Unique stable identity, used for deterministic composition order. */

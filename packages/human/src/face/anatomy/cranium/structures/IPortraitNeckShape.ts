@@ -5,8 +5,6 @@ import { IPortraitNeckSection } from "./IPortraitNeckSection";
  * The crop is an open inspection boundary, not a shoulder or torso model.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates upper neck, lower neck and crop controls rather than representing the neck as a scaled sphere.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Supplies three ordered cervical sections for the shared head-to-neck surface.
  */
 export interface IPortraitNeckShape {
   /**

@@ -15,9 +15,6 @@ import { humanFaceRegions } from "./humanFaceRegions";
  * including free relief, section and hair-card guides. Source cards in the
  * separately named legacy hair-layer scalar transaction are the exception.
  * Geometry and complete schema admission still precede editor publication.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Preserves unrelated settings when a region is replaced or reset to inheritance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Rejects stale-basis replacement and keeps one explicit override owner.
  */
 export function replaceHumanFaceRegion<
   K extends (typeof humanFaceRegions)[number],

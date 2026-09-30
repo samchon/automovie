@@ -32,8 +32,6 @@ import { portraitEyebrowProfile } from "./portraitEyebrowProfile";
  * The acceleration structure uses engine metres; emitted parts use createMetricMeshPart
  * for their final metric conversion. Zero fibres produce no parts. Counts above
  * 4096 refuse rather than allocating an unbounded brow mesh population.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs individually rooted eyebrow fibres on the final forehead surface.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Queries the skin depth and local normal per strand sample, applies anatomical outward bend and deterministic density thinning, and emits metric parts.
  */
 export function buildPortraitEyebrow(
   skin: IControlMesh,

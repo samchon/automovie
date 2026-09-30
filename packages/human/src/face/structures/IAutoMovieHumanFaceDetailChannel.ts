@@ -5,8 +5,6 @@ import { humanFaceRegions } from "../editor/humanFaceRegions";
  * value, not a universal person's dimension. Coupled geometry still requires
  * successful construction; these scalar envelopes cannot prove attachment.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives detailed editor channels stable anatomical semantics and signed units.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Declares scalar editing envelopes separately from coupled geometry admission.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceDetailChannel {

@@ -4,9 +4,6 @@ import { humanFaceRegionValue } from "./humanFaceRegionValue";
 
 /**
  * Read one present scalar from the final applied anatomical profile.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Displays actual combined values rather than echoing a slider's requested number.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Resolves side-aware scalar display through the document interpreter.
  */
 export function humanFaceDetailValue(
   document: IAutoMovieHumanFaceDocument,

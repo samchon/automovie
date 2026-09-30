@@ -26,9 +26,6 @@ const CRC_TABLE = Array.from({ length: 256 }, (_, byte) => {
 
 /**
  * Encode RGBA bytes as a base64 PNG data URI.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Emits the recoloured eye texture inside the model's own material, keeping replay free of external files.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Writes the recoloured eye texture losslessly as a fresh texture owned by the built material.
  */
 export function encodePng(image: IPngImage): string {
   const { width, height, rgba } = image;

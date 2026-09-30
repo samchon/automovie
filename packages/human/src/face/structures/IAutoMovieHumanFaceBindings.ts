@@ -10,8 +10,6 @@ import type { IPortraitNoseSocket } from "../anatomy/nose/structures/IPortraitNo
  * Coordinates are basis observations; these bindings identify anatomy rather
  * than pretending arbitrary vertex movement is a detail-control system.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Preserves one document's topology and anatomical bindings for independent replay.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Binds the landmark topology interpretation to the recorded host.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceBindings {

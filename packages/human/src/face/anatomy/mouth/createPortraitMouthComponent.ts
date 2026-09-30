@@ -20,9 +20,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * Fit the lips, adapt adjacent skin and finish the selected oral interior at
  * the refined rim. A connected lining receives only the final lip triangles,
  * retaining every refined boundary vertex without scanning the whole head.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits shared lips and adjacent skin, with separate maxillary teeth required during oral performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies oral settings, applies curved-band thickness and observed-relative motion, and passes final lip-group connectivity to a selected oral lining.
  */
 export function createPortraitMouthComponent(
   inputSocket: IPortraitMouthSocket,

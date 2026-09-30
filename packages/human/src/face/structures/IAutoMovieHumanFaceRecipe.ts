@@ -21,8 +21,6 @@ import type { IPortraitReliefRegion } from "../anatomy/skin/structures/IPortrait
  * Complete subject-owned part profiles. These are shape inputs, not a mesh
  * cache or a population preset. Optional supports retain their fixed defaults.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Owns the component profiles from which one anatomical face is built.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Connects part geometry, skin supports, dentition and cervical continuation.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceRecipe {

@@ -7,8 +7,6 @@
  * `ancestors` is the path of objects being walked, so an object reached twice
  * without being its own ancestor (a shared but acyclic reference) is accepted.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Loads the complete independent face document without a measurement runtime.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses an unsupported landmark topology and unknown nested fields rather than silently dropping them.
  * @author Samchon
  */
 export function assertFinite(value: unknown, ancestors = new Set<object>()): void {

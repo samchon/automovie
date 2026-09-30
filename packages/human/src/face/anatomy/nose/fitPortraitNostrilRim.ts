@@ -9,8 +9,6 @@ import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
  * and recentering preserves the original centroid before blending.
  * The operation is independent of head orientation and does not choose a new
  * nasal opening or alter its connectivity. All distances remain millimetres.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Regularizes an ordered nostril boundary without changing its cyclic attachment identities.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Fits a centred principal-axis ellipse using perimeter progress and blends it with the admitted millimetre rim.
  */
 export function fitPortraitNostrilRim(
   points: number[][],

@@ -6,8 +6,6 @@ import { humanFaceRegions } from "./humanFaceRegions";
  * `left` overrides. Shared by `humanFaceRegionValue` and
  * `replaceHumanFaceRegion`.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Names the numerical editor's replaceable anatomical regions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps region selection on actual profile owners.
  * @author Samchon
  */
 export function assertRegion(region: string, side?: string): void {

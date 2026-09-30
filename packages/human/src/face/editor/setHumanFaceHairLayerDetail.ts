@@ -12,9 +12,6 @@ import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
  * deliberately absent: inheritance resets the entire additional-layer region.
  * The copied layer's nonempty card guides must exactly match its source basis;
  * this method changes only a scalar finish/shape field, not a hair path.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Edits a named layer's numeric profile without requiring its guide array to be re-entered.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Uses the same hair channel bounds and units while retaining complete-array replacement semantics.
  */
 export function setHumanFaceHairLayerDetail(
   document: IAutoMovieHumanFaceDocument,

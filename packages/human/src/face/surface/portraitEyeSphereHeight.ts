@@ -2,9 +2,6 @@ import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
 
 /**
  * Front-facing spherical height, shared by sclera and the visible iris layers.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Shares one globe height between visible sclera and iris layers.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Evaluates the anterior spherical surface at head-frame XY and refuses samples outside its finite aperture.
  */
 export function portraitEyeSphereHeight(
   sphere: IPortraitEyeSphere,

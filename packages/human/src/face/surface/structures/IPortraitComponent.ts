@@ -8,8 +8,6 @@ import { IAutoMovieMaterial } from "@automovie/interface";
  * supply different geometry while retaining the same attachment protocol.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Defines a swappable anatomical part through identity, optional finishes and a host-fitting operation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Lets separate left/right parts provide their own geometry while the assembler consumes one common attachment protocol.
  */
 export interface IPortraitComponent {
   /** Optional component-owned finishes; scalar properties follow this part's dimensions. */

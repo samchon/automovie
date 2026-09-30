@@ -16,10 +16,6 @@ import { triangleAreaVector } from "./triangleAreaVector";
  * so an output face opposing its source face is not an acceptable rotation.
  * No photograph, subject name, absolute area threshold or renderer verdict
  * exempts a face. All coordinates remain in the input's local metre frame.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Preserves metric facial surface orientation and unit normal directions at actual glTF buffer precision.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Supplies the precision admission used before preparing a new visible face.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Checks each resident mesh's finite aligned Float32 attributes and face orientation before the preview's topology and publication stages.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Materializes aligned finite Float32 positions/normals/UV0 and Uint32 indices and compares each nonredundant triangle's oriented area.
  */
 export function float32MeshBuffers(mesh: IAutoMovieMesh): {
   positions: Float32Array<ArrayBuffer>;

@@ -14,9 +14,6 @@ import { gltfMaterialExtensions } from "../../common/export/gltfMaterialExtensio
  * This applies the same static geometry, Float32 and optical-material admission
  * as createGltfDocument. It does not mutate the model, fetch resources or create
  * an animation. Consumers register the supported extensions when reading.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Returns the face's actual static geometry and optical materials as independently readable assets.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Keeps document and writer in one module instance before exposing portable GLB bytes and glTF resources.
  */
 export async function exportHumanFace(model: IAutoMovieModel): Promise<{
   glb: Uint8Array<ArrayBuffer>;

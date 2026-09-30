@@ -8,8 +8,6 @@ import { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanF
 /**
  * Finite scalar admission is shared by loading and saving this flat schema.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Loads independent numerical edits while refusing unknown fields and invalid scalar values.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Admits the compact document schema without changing its basis identity or supplied controls.
  * @author Samchon
  */
 export function admitHumanFaceBasisDocument(input: unknown): IAutoMovieHumanFaceBasisDocument {

@@ -24,9 +24,6 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  * which is the hierarchy admitting that these guides do not describe this
  * root's flow. The segment out of the root is the emergence the guides also
  * take and is held to the clearance instead, not to the step.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps every generated strand outside the shared surface, growing the ones a projection cannot place.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Projects interpolated stations by the guides' contact rule and integrates the strand when that projection refuses or its chords exceed the integrator's step.
  */
 export function growHumanFaceHairStrand(props: {
   strand: {

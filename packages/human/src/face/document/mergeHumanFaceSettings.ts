@@ -5,9 +5,6 @@ import type { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
  * value retains its basis, object fields recurse, and arrays replace in full.
  * This is composition, not raw-document validation; part admission still checks
  * the resolved dimensions and relationships before geometry can be published.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Implements omission, nested overrides and whole-array replacement without input mutation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Gives detail and side overrides one history-independent composition rule.
  */
 export function mergeHumanFaceSettings<T>(
   basis: T,

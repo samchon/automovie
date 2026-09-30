@@ -26,8 +26,6 @@ import { assertPortraitHairFibreCurl } from "./assertPortraitHairFibreCurl";
  * fibre and the painted pigment multiplies it. Omitting the mixture leaves
  * every byte as it was.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Rejects invalid complete curl profiles without clamping or mutating the authored values.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Applies finite inclusive curl-pattern envelopes before either geometry or texture construction.
  * @author Samchon
  */
 export function createPortraitHairFibreTexture(

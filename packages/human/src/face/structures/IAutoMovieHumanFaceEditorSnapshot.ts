@@ -4,8 +4,6 @@ import type { IAutoMovieHumanFaceDocument } from "./IAutoMovieHumanFaceDocument"
  * The last committed face and the status of its latest requested replacement.
  * Document snapshots are copied; the model is an opaque read-only renderer value.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-editor-state Separates the last valid face from pending or failed edits and exposes history availability.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-editor Carries committed state without granting a pending build publication authority.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceEditorSnapshot<

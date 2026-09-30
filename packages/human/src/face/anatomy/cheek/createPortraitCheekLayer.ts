@@ -21,8 +21,6 @@ import { IPortraitCheekSocket } from "./IPortraitCheekSocket";
  * and require rendered inspection; no cadaver measurement is claimed here.
  * At most 256 groove samples are admitted so an arbitrarily narrow requested
  * radius cannot create an unbounded field population.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds named cheek supports and a continuous nasolabial groove from current skin bindings.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies profiles, mirrors optional offsets and integrates bounded compact fields along normalized arc distance with a physical end fade.
  */
 export function createPortraitCheekLayer(
   socketInput: IPortraitCheekSocket,

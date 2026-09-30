@@ -8,8 +8,6 @@ import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
  * This preserves the authored contour after subdivision; a centroid-in-polygon
  * paint test can select half of a boundary quad and produce a jagged lip edge.
  * Returned identities are triangle numbers in the supplied connectivity.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps the vermilion material bound to the complete connected anatomical band.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Floods triangle adjacency from an interior seed while treating both outer lip and inner mouth loops as uncrossable barriers.
  */
 export function portraitLipTriangles(
   triangles: number[],

@@ -26,9 +26,6 @@ import { IPortraitHeadFormation } from "./structures/IPortraitHeadFormation";
  * This phase boundary is not a nonintersection or anatomical validity proof.
  * Changing the prepared surface invalidates downstream normals and interiors;
  * callers must derive those from the final surface instead of cached geometry.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Fits and refines replaceable components on one shared surface before dependent interiors are generated.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Validates cut ownership and shared topology while retaining contact declarations and resident IDs for final assembly.
  */
 export function preparePortraitHead(
   host: IPortraitComponentHost,

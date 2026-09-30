@@ -11,11 +11,6 @@ import { portraitTongueRows } from "./portraitTongueRows";
  * Raise offsets the centreline by sin(pi*v)^2; advance moves the anterior body
  * by one minus smoothstep(v), leaving the posterior endpoint fixed. A backwards
  * advance that would reverse the longitudinal parameterization is refused.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs independent lingual volume rather than colouring the cavity back wall.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Produces closed indexed rings, shared poles and geometric normals from named lingual dimensions.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Separates observed shape from current dorsal and anterior displacement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Applies endpoint-aware observed-relative tongue displacements without changing enamel or lips.
  */
 export function buildPortraitTongue(
   shape: IPortraitTongueShape,

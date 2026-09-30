@@ -33,8 +33,6 @@ import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
  * Prefer exportHumanFace for portable bytes. This low-level Document must be
  * written by the same glTF-Transform module instance that created it; mixing
  * CommonJS and ES-module instances can discard its geometry during writing.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Converts resident static facial parts and supported materials into portable glTF without silently flattening rigs or textures.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Groups transformed parts by material, validates final Float32 topology and optical closure, and creates indexed accessors with required material extensions.
  */
 export function createGltfDocument(model: IAutoMovieModel): Document {
   if (

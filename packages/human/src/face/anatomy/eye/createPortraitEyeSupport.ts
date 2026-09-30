@@ -20,9 +20,6 @@ import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
  * drawing and later contact. These owned meshes are read-only to consumers;
  * changes of aperture, dimensions or tessellation require a new fit, whereas
  * blink/gaze reuse the identity. This does not settle final skin clearance.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps optical identity and canthal attachment independent of performed visibility.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects legacy cap support or a fixed canthal hull before constructing shared eyelid sections.
  */
 export function createPortraitEyeSupport(
   upper: readonly Point[],

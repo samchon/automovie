@@ -9,8 +9,6 @@ import { triangulateSurfaceLattice as patch } from "./triangulateSurfaceLattice"
  * The Z guide is suitable for anterior eyelash and eyebrow paths, whose
  * tangents are never parallel to Z. Zero, nonfinite and Z-parallel tangents
  * refuse before a collapsed ring can enter the model. Width is radius, in mm.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Forms swept lash and brow strands in the shared construction frame.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses an eight-sided ring around each finite non-Z-parallel curve tangent, retaining one centre, radius and frame per ring.
  */
 export const sweepEightSidedTube = (
   curve: (t: number) => Point,

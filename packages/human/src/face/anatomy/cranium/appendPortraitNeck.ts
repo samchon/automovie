@@ -11,8 +11,6 @@ import { IPortraitNeckShape } from "./structures/IPortraitNeckShape";
  * controlled separately and the lower neck widens towards its cropped base.
  * All vertices share the head's subdivision and normal field.
  * The collar must be the oriented opening returned by appendPortraitCranium.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Joins throat and nape to the head through controlled cervical sections on one skin surface.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples tangent-guided collar transitions and ordered neck rings using shared indices and material ownership.
  */
 export function appendPortraitNeck(
   cage: IControlMesh,

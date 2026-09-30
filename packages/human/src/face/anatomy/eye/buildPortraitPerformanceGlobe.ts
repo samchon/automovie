@@ -5,9 +5,6 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * Construct one complete globe independent of eyelid visibility. Single pole
  * vertices and wrapped ring indices avoid collapsed rectangular pole cells.
  * The surrounding opaque tissues, not a changing optical mesh, hide the globe.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Keeps a resident optical identity under animated eyelids.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Does not shrink or refit the globe as the aperture closes.
  */
 export function buildPortraitPerformanceGlobe(
   sphere: IPortraitEyeSphere,

@@ -48,11 +48,6 @@ const pi = Math.PI,
 
 /**
  * Build the sclera, gaze, iris, lashes and brow against this eye's refined rim.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs resident sclera, iris, pupil, cornea, wet tissues, lashes and brows against a refined eyelid.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the shared globe and view-ray intersection for optics, fixed-sphere performance, deterministic pigment bands and final-surface brow attachment.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Attaches profiled lashes at the final margin and carries their supplied observed-relative orientation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Keeps strand transport separate from fixed optical identity and gaze.
  */
 export function buildPortraitEye(
   source: number[][],

@@ -3,8 +3,6 @@
  * on the measured host, fixed before a component deforms its openings.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Binds replaceable nasal skin and openings to the caller's host rather than embedding a person's coordinates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines the midline, relief support locations, surface vertices, original cut-face ordinals and optional section/support datums.
  */
 export interface IPortraitNoseSocket {
   /** Nasal midline in the host frame, in mm. */

@@ -6,8 +6,6 @@ import { millimetrePoint as p } from "./millimetrePoint";
  * Moving along this ray preserves the reference image position while allowing
  * the point to sit on the actual eye surface. The supplied interval must
  * bracket a finite root; bisection handles either direction and endpoint roots.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places an observed point on an ocular support surface without changing its camera projection.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Bisects a finite bracketed ray/height residual in construction millimetres, supporting either bracket direction.
  */
 export const intersectRayWithHeightField = (
   origin: Point,

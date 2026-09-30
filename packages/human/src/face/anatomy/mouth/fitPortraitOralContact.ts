@@ -10,8 +10,6 @@ import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirecti
  * whole placed arch through shared triangle targets. Input buffers are owned by
  * the caller and remain unchanged. Clearance is a construction gap, not a
  * measurement of this subject's soft-tissue thickness.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Keeps a rigid enamel arch behind the actual lip surface and clears its surrounding lining.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Computes one posterior crown-group translation, then uses complete-triangle directional targets to move cavity vertices and recompute their normals.
  */
 export function fitPortraitOralContact(
   lips: IAutoMovieMesh,

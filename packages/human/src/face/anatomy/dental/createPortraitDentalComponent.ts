@@ -14,10 +14,6 @@ import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * independent controls. All offsets and local geometry use millimetres.
  * Observed-maxilla attachment instead captures the host before performance,
  * so a facial expression cannot translate or tilt the upper arch with a lip.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits an upper enamel row as a non-cutting interior component using caller-owned oral bindings.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defers the upper row to final oral anchors or an explicitly captured observed-maxilla frame, preserving its rigid group placement.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Separates resident maxillary teeth from the moving oral aperture.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Retains an observed upper-arch attachment during lip and mandibular performance.
  */
 export function createPortraitDentalComponent(
   inputSocket: {

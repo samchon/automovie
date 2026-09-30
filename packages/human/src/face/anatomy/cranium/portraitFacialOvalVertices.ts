@@ -7,8 +7,6 @@
  * under subdivision. Shared by `portraitCranialChinHeight` and
  * `appendPortraitCranium`.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Resolves chin-relative cranial envelopes against the resident face boundary.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Shares the actual cranial attachment datum between control interpretation and construction.
  * @author Samchon
  */
 // Clockwise boundary of the measured facial patch, starting at the forehead.

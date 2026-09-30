@@ -10,9 +10,6 @@ import { createPortraitDirectionalIntersection } from "../../surface/createPortr
  * A point in front of the surface descends to it as well. A missed
  * ray is an unsupported aperture and refuses; it cannot keep a fictitious
  * sphere intersection outside the resident optical disk.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places a performed lid on the same resident globe and canthal tissue that will be drawn.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Intersects actual support triangles along the normalized observation ray and refuses uncovered aperture samples.
  */
 export function createPortraitCanthalIntersection(
   mesh: IAutoMovieMesh,

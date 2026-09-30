@@ -34,9 +34,6 @@ const SITES = ["protected", "exposed", "neck", "dorsal", "palmar"] as const;
  * per channel, and per surface the per-vertex multipliers of that base
  * (albedo over base, each in (0, 1]), which the builder attaches to the
  * regions of the table's material.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Colours the body's skin by anatomical site from the face's cheek, meeting the face in its colour at the neck.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Implements the site assignment, the fits, the collar band and the base-and-multiplier split the specification fixes.
  */
 export function createHumanBodySkinColour(
   basis: IAutoMovieHumanBodyBasis,

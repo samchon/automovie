@@ -5,8 +5,6 @@ import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFa
 
 /**
  * Declare tongue scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Connects native tongue dimensions to numerical editing without duplicating their ranges.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Maps tongue parameter IDs and bounds to tongue profile leaves with a millimetre editing step.
  */
 export const humanFaceTongueChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

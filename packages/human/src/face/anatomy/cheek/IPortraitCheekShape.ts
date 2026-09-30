@@ -11,8 +11,6 @@ import { IPortraitCheekVolume } from "./IPortraitCheekVolume";
  * an explicitly authored support profile and rendered verification.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Controls raised cheek masses independently of the adjacent nasolabial groove.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines four distinct support envelopes plus groove width, depth and depth reach on the shared skin.
  */
 export interface IPortraitCheekShape {
   /** Upper cheek support below the lateral orbital margin. */

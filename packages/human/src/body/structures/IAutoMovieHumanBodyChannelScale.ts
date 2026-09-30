@@ -13,8 +13,6 @@ import type { IAutoMovieHumanEndpointScale } from "../../common/structures/IAuto
  * and a rule that cannot be evaluated on this basis (the neck lies above the
  * clip) reports null values inside a present record.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Reports each channel's neutral value and per-unit change in metres beside its geometric commitment.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Carries the RMS, peak and moved-vertex figures together with the rule's neutral, positive and negative evaluations.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyChannelScale {

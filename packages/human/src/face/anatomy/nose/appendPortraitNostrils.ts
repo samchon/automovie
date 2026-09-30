@@ -7,8 +7,6 @@ import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
  * Build lining and cavity from the actual fitted rim. Original rim IDs stay
  * shared with the face. Changing an opening therefore changes its lining and
  * neighbouring skin together instead of placing a new cavity under an old hole.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs nasal lining from the actual fitted aperture instead of placing a cavity under an unrelated hole.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Retains the host rim IDs, adds support and contracted deep rings, and joins them to the floor using the same rotated cavity offset.
  */
 export function appendPortraitNostrils(
   cage: IControlMesh,

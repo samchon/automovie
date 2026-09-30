@@ -15,8 +15,6 @@ import { portraitFacialOvalVertices } from "./portraitFacialOvalVertices";
  * Its ordered boundary belongs to the neck builder, so the finished skin is one
  * surface rather than a closed head intersecting a separate cylinder.
  * The input retains the first 468 measured facial vertex identities.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Continues the facial oval into distinct cranial vault, occipital and mandibular envelopes.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Builds ordered sagittal sections and a shared posterior cap while leaving an oriented collar for the neck.
  */
 export function appendPortraitCranium(
   cage: IControlMesh,

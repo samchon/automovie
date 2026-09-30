@@ -19,9 +19,6 @@ import type { IControlMesh } from "../mesh/structures/IControlMesh";
  * Give a native producer the established finish API without a second geometry
  * implementation. Upper/lower dentition, tongue and oral cavity use this bridge.
  * The caller spreads the result into its attachment declaration.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Keeps component replacement compatible while exposing owned interiors before model packing.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Shares one refined-surface producer between native preparation and the existing component finisher.
  */
 export function createPortraitInteriorFinisher(
   prepare: (refined: IControlMesh) => IPortraitInterior[],

@@ -13,9 +13,6 @@ import { humanBodySimpleShapeMath } from "./humanBodySimpleShapeMath";
  * orientation. A body that has added none returns no rows. The rows are a
  * document pose's own, in anatomical degrees; a pose that names the same
  * joints replaces them.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Gives the posture a body's age and sex imply, as the pose rows a document carries.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Implements the kyphosis by age and sex, its thoracic shares and the clamped neck compensation.
  */
 export const humanBodySimplePosture = (
   basis: IAutoMovieHumanBodyBasis,

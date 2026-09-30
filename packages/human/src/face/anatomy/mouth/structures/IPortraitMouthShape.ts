@@ -9,8 +9,6 @@ import { IPortraitOralChamber } from "./IPortraitOralChamber";
  * The row contains its own crown dimensions rather than one repeated tooth.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates lip width, aperture, thickness, relief, cavity and optional legacy enamel dimensions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries metric oral controls, replaceable band/section profiles and individual crown settings relative to the caller's socket.
  */
 export interface IPortraitMouthShape {
   /** Width multiplier about the centre between the mouth corners. */

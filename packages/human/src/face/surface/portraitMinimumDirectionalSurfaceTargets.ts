@@ -11,9 +11,6 @@ import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
  * overlap condition survives the engine's joint solve, while incident face
  * deficits bound how far any vertex may advance. The consumer owns subsequent
  * skin propagation, seam correspondence, normals and exported contact checks.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Supplies shared-skin contact targets with minimum area-weighted motion inside the existing conservative displacement envelope.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Projects the resident meshes through the common directional frame and carries the engine's joint vertex displacements back to metric attachment targets.
  */
 export function portraitMinimumDirectionalSurfaceTargets(
   front: IAutoMovieMesh,

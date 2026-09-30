@@ -21,8 +21,6 @@ import { createPortraitUpperLidProfile } from "./createPortraitUpperLidProfile";
 /**
  * Own and validate one eye's numerical inputs before any host is fitted.
  * Optional profile samplers retain their own copied station populations.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates metric anatomical admission from mutable host fitting.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Preserves optical compatibility, dimension bounds, input ownership and the established refusal order.
  */
 export function resolvePortraitEyeInputs(
   inputSocket: IPortraitEyeSocket,

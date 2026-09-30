@@ -23,9 +23,6 @@ import type { IAutoMovieHumanBodySkinDetail } from "../structures/IAutoMovieHuma
  *   al. 1991) is not modelled: the tile keeps both families. Ra is aggregate
  *   surface roughness, not a direct measurement of these groove depths; the
  *   age factors are an authored appearance proxy.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Holds the measured line and pore statistics the skin's close-range relief is made of.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the tile, the line families, the pores and the age curve the relief is generated from.
  */
 export const HUMAN_BODY_SKIN_DETAIL: IAutoMovieHumanBodySkinDetail = {
   seed: 20260925,

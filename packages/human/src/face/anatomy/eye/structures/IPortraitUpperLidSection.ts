@@ -7,8 +7,6 @@ import { IPortraitUpperLidPoint } from "./IPortraitUpperLidPoint";
  * the hood across the crease, while retaining a simple transverse skin curve.
  * Relief replaces the basic fold depth and volume rather than adding them twice.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Names independent margin, tarsal, crease, hood and preseptal surface controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines six named upper tissue stations with a live host-skin attachment and an explicit folded-profile alternative.
  */
 export interface IPortraitUpperLidSection {
   /** Narrow dry margin outside the ocular contact rim. */

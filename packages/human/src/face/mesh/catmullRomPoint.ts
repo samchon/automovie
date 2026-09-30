@@ -6,8 +6,6 @@ import type { Point } from "./structures/Point";
  * Progress is clamped, and endpoint neighbours repeat rather than extrapolate.
  * This is a spatial curve, not an arc-length parameterization.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Supplies the continuous spatial guides used by anatomical rims and attachments.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Evaluates uniform Catmull-Rom interpolation with clamped progress and repeated endpoint neighbors, without claiming arc-length spacing.
  * @author Samchon
  */
 export const catmullRomPoint = (points: Point[], progress: number): Point => {

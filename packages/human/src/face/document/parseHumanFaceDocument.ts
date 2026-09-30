@@ -11,9 +11,6 @@ import { assertHumanFaceEditableDetail } from "./assertHumanFaceEditableDetail";
  * geometry-dependent topology and attachment admission run during build.
  * Editable overrides cannot introduce source-coordinate arrays; an immutable
  * basis recipe may still carry the licensed geometry it replays.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Loads the complete independent face document without a measurement runtime.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Refuses an unsupported landmark topology and unknown nested fields rather than silently dropping them.
  */
 export function parseHumanFaceDocument(
   text: string,

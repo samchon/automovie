@@ -20,8 +20,6 @@ import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfac
  * Lips themselves remain in the shared facial mesh, preserving their skin join.
  * Selecting cavityWall requires final skin indices and replaces the detached
  * backdrop with an enclosure joined to every actual refined oral-rim vertex.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a recessed oral interior and optional individually sized upper crowns behind the refined opening.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects the legacy backdrop or actual-rim enclosure, omits a fully closed performed cavity and rotates each legacy crown and its normals along the common arch.
  */
 export function preparePortraitMouth(
   source: number[][],

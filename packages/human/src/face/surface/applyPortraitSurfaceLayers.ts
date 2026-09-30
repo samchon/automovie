@@ -22,8 +22,6 @@ import { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
  * inserts shared midpoints without moving the basis; omission preserves its
  * triangles. Material groups survive, and the caller recomputes normals after
  * the boundary fade, whose spatial gradient also changes the surface slope.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Applies composed skin movement while preserving open attachment rims, original material groups and caller-owned coordinates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Fixes field summation by layer ID and passes the geodesic fade with its differential into the engine's final deformation checks.
  */
 export function applyPortraitSurfaceLayers(
   mesh: IControlMesh,

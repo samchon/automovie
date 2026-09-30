@@ -9,8 +9,6 @@ import { IPortraitNasalSection } from "./IPortraitNasalSection";
  * same changed vertices seed the surrounding skin blend and recessed cavity.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates nasal body, tip, alae, nostril aperture, rim tissue and cavity dimensions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries explicit alternative depth bases plus coupled opening scales, tilt, rim refinement and lining controls on the same host.
  */
 export interface IPortraitNoseShape {
   /** Width multiplier about the socket midline. */

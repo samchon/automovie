@@ -10,9 +10,6 @@ import { humanFaceControlDefinitions } from "../channels/humanFaceControlDefinit
  * Apply intermediate offsets to a copied recipe before detailed overrides.
  * Unknown or out-of-envelope controls refuse rather than becoming inactive
  * sliders. Part builders subsequently validate the combined detailed result.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Applies independent intermediate traits while preserving the original recipe.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Enforces finite ranges and a fixed trait interpretation before detail replacement.
  */
 export function applyHumanFaceControls(
   basis: IAutoMovieHumanFaceRecipe,

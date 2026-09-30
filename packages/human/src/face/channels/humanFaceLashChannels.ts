@@ -5,8 +5,6 @@ import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFa
 
 /**
  * Declare lashes scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Connects the native eyelash parameter vocabulary to upper lash profile editing.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Prefixes each native lash parameter with upperLashProfile while retaining its units, bounds, step and effect.
  */
 export const humanFaceLashChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

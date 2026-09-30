@@ -3,8 +3,6 @@
  * `rasterizeHumanFaceIrisTexels` and painted by the iris pigment rule.
  * The three arrays are parallel, one entry per kept texel.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Lists which texels of an eye texture are that eye's iris, located by geometry.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Carries each kept texel's index, polar angle and azimuth for the pigment rule.
  * @author Samchon
  */
 export interface IHumanFaceIrisTexels {

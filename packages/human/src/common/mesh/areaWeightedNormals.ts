@@ -5,8 +5,6 @@ import { Vector3 } from "@automovie/engine";
  * separating skin and lip material groups so their colour boundary cannot
  * introduce a lighting seam. An unused vertex retains the engine's zero normal.
  * Unrepresentable accumulated areas refuse before normalization can emit NaN.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps adjoining skin and vermilion on one normal field before material separation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Accumulates oriented triangle areas at shared vertices and normalizes their sums, retaining zero at unused vertices.
  */
 export const areaWeightedNormals = (
   positions: number[],

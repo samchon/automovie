@@ -5,8 +5,6 @@
  * angles radians from the optical axis; the limbus and pupil are the
  * population's absolute sizes on this globe.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Describes where the iris of one eye lies on its globe, independent of any person's texture.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Carries the sclera sphere, optical axis, azimuth reference and anatomical half-angles the iris rule paints within.
  * @author Samchon
  */
 export interface IHumanFaceIrisDisc {

@@ -9,8 +9,6 @@ import { IPortraitOcularTissueShape } from "./structures/IPortraitOcularTissueSh
  * Own a tissue profile and build both surfaces in one live ocular frame.
  * The medial mound and lateral plica share a patch between the actual lids;
  * neither is a floating sphere with an independently guessed attachment.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs caruncular/plica relief and a lower wet margin within the actual eye opening.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies nonnegative tissue settings, checks live lid/support samples and bounds the lower strip to half the local aperture.
  */
 export const createPortraitOcularTissues = (
   input: IPortraitOcularTissueShape,

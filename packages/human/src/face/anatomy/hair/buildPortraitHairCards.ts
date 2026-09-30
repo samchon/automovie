@@ -12,8 +12,6 @@ import { IPortraitHairShape } from "./IPortraitHairShape";
  * and each interval two triangles, independent of painted fibre count. Normals
  * come from the emitted triangles. No camera-facing rotation or random state
  * enters the construction. Caller guides and profiles remain unchanged.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs curved surface hair locks from named guide and width controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Emits metric strips with shared sampling, deterministic UVs and finite nondegenerate frames.
  */
 export function buildPortraitHairCards(
   shape: IPortraitHairShape,

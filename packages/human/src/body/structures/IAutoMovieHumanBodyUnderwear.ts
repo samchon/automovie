@@ -9,8 +9,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * regions are rules on the body's landmarks, never vertex lists for one
  * person (`HUMAN_BODY_UNDERWEAR`).
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-underwear Names the two plain underwear styles a document can put on the body and its optional colour.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear Types the document field whose style picks the regions the builder cuts.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodyUnderwear {

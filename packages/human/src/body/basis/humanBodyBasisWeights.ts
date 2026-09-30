@@ -48,9 +48,6 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * sum where it exceeds one: a mixed body wears a blend of its traits'
  * corrections instead of their sum, and a body on one example alone wears it
  * as solved.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Refuses unsupported channels and out-of-envelope weights instead of clamping them.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Computes the `|weight| x endpoint` selection and the product corrective activation the evaluation order applies.
  */
 export function humanBodyBasisWeights(
   basis: IAutoMovieHumanBodyBasis,

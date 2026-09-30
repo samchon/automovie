@@ -11,11 +11,6 @@ import { assertPortraitEyelashProfile } from "./assertPortraitEyelashProfile";
  * Optional motion supplies observed and current globe-to-lid directions in
  * the same frame. Their shortest rotation acts about the current root, without
  * changing length or radius. Antipodal directions have no unique transport.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Builds a numerical lash from its current margin root without reshaping skin or optics.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Preserves arc length under signed curl and mirrors the fan with anatomical side.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Carries the strand orientation with lid motion while leaving its current root fixed.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Applies observed-relative rigid radial transport independently of gaze and optical geometry.
  */
 export function buildPortraitEyelash(
   origin: IAutoMovieVector3,

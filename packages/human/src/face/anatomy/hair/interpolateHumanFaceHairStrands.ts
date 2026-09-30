@@ -40,9 +40,6 @@ type StrandRoot = {
  * query: a strand inherits the clearance its guides were integrated with.
  * Whether that inherited clearance holds between guides is what the crossing
  * census measures, not what this function guarantees.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Grows every strand from shared guides by a scalp-distance rule, storing no strand coordinates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Interpolates strands from their nearest same-side guides at equal arc-length fractions and scales them to their own length.
  */
 export function interpolateHumanFaceHairStrands(props: {
   layer: IAutoMovieHumanFaceHair.Layer;

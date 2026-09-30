@@ -3,8 +3,6 @@
  * Centre and radii use the same length unit. The field changes reflectance,
  * never geometry, illumination or a biological pigment concentration.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Expresses regional colour through position, extent, RGB and strength instead of a painted image.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Supplies a reference-space envelope for deterministic colour transport.
  * @author Samchon
  */
 export interface IPortraitColourField {

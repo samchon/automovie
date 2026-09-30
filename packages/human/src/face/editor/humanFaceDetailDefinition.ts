@@ -6,8 +6,6 @@ import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanF
  * the detail reader `humanFaceDetailValue` and the writers `setHumanFaceDetail`
  * and `setHumanFaceHairLayerDetail`.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Connects numerical sliders to actual detailed shape settings.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Provides field meaning, applied-value inspection and anatomical attachment context.
  * @author Samchon
  */
 export function humanFaceDetailDefinition(id: string): IAutoMovieHumanFaceDetailChannel {

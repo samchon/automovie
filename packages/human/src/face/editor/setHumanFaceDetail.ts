@@ -11,9 +11,6 @@ import { writeHumanFaceDetail } from "./writeHumanFaceDetail";
  * return to omission, so an inherited optional component stays optional.
  * Shared authored objects are detached along the edited path, so neither a
  * write nor removal can alter another owner through a caller-supplied alias.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Separates one user detail from inherited settings and independent sides.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Preserves override intent rather than serializing a derived combined profile.
  */
 export function setHumanFaceDetail(
   document: IAutoMovieHumanFaceDocument,

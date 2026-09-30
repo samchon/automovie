@@ -21,9 +21,6 @@ import type { IAutoMovieHumanBodySkinTone } from "../../structures/IAutoMovieHum
  * per primary, which the material's base colour is multiplied by. Every
  * value comes from the table, the strength and `seededValue`, so the same
  * inputs yield the same bytes.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Gives the body's skin the uneven tone of real skin, from its two chromophores' absorbance.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Implements the tone map: the chromophore fields, the optical density, the multiplier, its normalization and encoding.
  */
 export function createHumanBodySkinToneTexture(
   table: IAutoMovieHumanBodySkinTone,

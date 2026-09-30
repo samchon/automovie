@@ -5,9 +5,6 @@ import { humanFaceExpressionDefinitions } from "../channels/humanFaceExpressionD
  * Expand omitted performance channels to explicit neutral values and refuse
  * inactive spellings or values outside the supported envelope. Paired channels
  * remain independent; omission on one side never copies the opposite side.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Keeps expression independent from identity and resolves explicit side defaults.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Admits finite performance before anatomical geometry is allocated.
  */
 export function resolveHumanFaceExpression(
   input: IAutoMovieHumanFaceExpression = {},

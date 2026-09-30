@@ -20,9 +20,6 @@ import type { IControlMesh } from "../mesh/structures/IControlMesh";
  * Exactly coincident free-rim samples are pending tissue contact. Their
  * incident faces retain sampling until the assembler welds the seam, avoiding
  * unmatched subdivisions and differently curved opposed commissural folds.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Resolves narrow anatomical surface fields on connected skin rather than hiding them between coarse samples.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Adds conforming tangent-guided samples while retaining original vertices, open rims and material-region ownership.
  */
 export function refinePortraitSurfaceSampling(
   input: IControlMesh,

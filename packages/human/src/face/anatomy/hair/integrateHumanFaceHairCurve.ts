@@ -56,9 +56,6 @@ const requireDirection = humanFaceHairFrame.direction;
  * contact projector's fibre-path clearance by that step and a floating-point margin. Such a step
  * uses the exact same candidate the contact projector would return; stations
  * near skin still take the original projection and bisection path.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Generates personal length and shape from shared scalar arithmetic.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Keeps contact, metric integration and the actual rendered stations under one owner.
  */
 export function integrateHumanFaceHairCurve(props: {
   layer: IAutoMovieHumanFaceHair.Layer;

@@ -7,8 +7,6 @@ import { createPortraitIrisMaterials } from "../eye/createPortraitIrisMaterials"
  * from the photograph, and the reference photo is not used as a skin texture.
  * Keep IDs stable: the anatomical builders bind their parts to these names.
  * Diagnostic clay views replace finishes while keeping these same mesh buffers.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Supplies stable material identities used by anatomical skin, ocular, nasal and oral parts.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Creates fresh untextured linear-RGB PBR records, including the shared iris palette and separate corneal-supporting tissue finishes.
  */
 export function createPortraitMaterials(): IAutoMovieMaterial[] {
   const materials: IAutoMovieMaterial[] = [];

@@ -6,9 +6,6 @@ import { IPortraitEyebrowFlowProfile } from "./IPortraitEyebrowFlowProfile";
  * linear root-band interpolation are convex, retaining bounded endpoint tips.
  * The query's root fraction is within the authored band, not the whole brow;
  * a collapsed band is sampled at one half by the fibre builder.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Supplies the actual strand builder with independently authored longitudinal and cross-brow flow.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Validates finite complete witnesses and returns copied, bounded tip and signed sweep samples.
  */
 export function createPortraitEyebrowFlow(input: IPortraitEyebrowFlowProfile) {
   const sections = structuredClone(input.sections);

@@ -10,8 +10,6 @@
  * Shared by `placeMeshPreservingFaces` after a linear placement and by
  * `float32MeshBuffers` after Float32 rounding.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Preserves each nonredundant face when a static part is placed for export.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Compares the engine's placed transform with its translation-free local transform, retaining mirror winding and refusing precision-driven face loss.
  * @author Samchon
  */
 export function assertDirection(

@@ -17,9 +17,6 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * do not force a larger optical radius. Radius remains an authored dimension,
  * not a clinical estimate. Skin attachment and performed corneal clearance
  * remain separate admission conditions of the consuming component.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits one identity globe while retaining independently located canthi.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Separates the optical radius from aperture support and intersects visible-anchor depth constraints before expression.
  */
 export function fitPortraitCanthalSphere(
   upper: readonly Point[],

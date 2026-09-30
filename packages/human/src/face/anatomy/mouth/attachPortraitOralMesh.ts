@@ -5,9 +5,6 @@ import { IPortraitOralAttachment } from "./structures/IPortraitOralAttachment";
 /**
  * Place a resident oral mesh without changing its local distances. Positions
  * and normals use the same orthonormal frame; all returned buffers are owned.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Shares rigid oral placement across enamel and the independent tongue body.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Refuses degenerate frames, missing normals and nonfinite transformed buffers rather than publishing invalid anatomy.
  */
 export function attachPortraitOralMesh(
   input: IAutoMovieMesh,

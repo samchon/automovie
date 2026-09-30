@@ -4,8 +4,6 @@
  * one. Distinct prime bases choose independent coordinates of the same retained
  * sequence identity; no mutable random state or personal geometry participates.
  * Zero maps to zero. The operation reads scalar inputs and returns a scalar.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Replays personal scalar variation independently of discarded root candidates.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Gives root sampling and styling one stable sequence identity.
  */
 export function humanFaceHairSequence(index: number, base: number): number {
   let inverse = 1 / base,

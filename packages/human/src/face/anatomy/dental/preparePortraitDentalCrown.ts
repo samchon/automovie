@@ -17,8 +17,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * a continuous central edge even when the two proximal corners differ.
  * The result pairs this owned mesh with its directed cervical cap cycle; the
  * cycle is constructed with the loft, before any row placement or packing.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a closed enamel crown with independently located mesial and distal contours.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples both authored contact crests, joins cervical and incisal caps to their rings and derives normals from the resulting oriented loft.
  */
 export function preparePortraitDentalCrown(
   s: IPortraitDentalCrown,

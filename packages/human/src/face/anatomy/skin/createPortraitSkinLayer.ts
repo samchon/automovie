@@ -22,11 +22,6 @@ import { type IPortraitSkinShape } from "./structures/IPortraitSkinShape";
  * silhouette. Open rims retain the surface assembler's geodesic protection.
  * Displacements use head Y/Z, not simulated material stress or measured age.
  * Zero laxity and expression creasing require no new attachment or topology.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Forms named forehead, glabellar, orbital and oral creases with separate soft-tissue descent.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Emits one skin-bound field layer using actual surface depth and millimetre anatomy.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Keeps persistent folds separate from creases driven by current facial performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Reads current paired brows, lids and mouth performance without changing optical identity.
  */
 export function createPortraitSkinLayer(
   inputBindings: Pick<IAutoMovieHumanFaceBindings, "eyes" | "mouth">,

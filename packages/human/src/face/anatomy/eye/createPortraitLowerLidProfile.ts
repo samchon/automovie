@@ -9,8 +9,6 @@ import { portraitLowerLidRoles } from "./structures/portraitLowerLidRoles";
  * derivative at a witness. Ordered offsets remain ordered under the same
  * convex weights, so a fold cannot cross its neighbouring tissue row.
  * The consumer still owns shared skin attachment, canthal fade and contact.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs a continuous lower-lid tissue section from complete authored witnesses.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies and validates ordered offsets, then uses shared convex smoothstep weights so adjacent tissue rows retain their order.
  */
 export function createPortraitLowerLidProfile(
   input: IPortraitLowerLidProfile,

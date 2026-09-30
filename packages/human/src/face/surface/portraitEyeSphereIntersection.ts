@@ -4,9 +4,6 @@ import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
 
 /**
  * Intersect the sphere on the hemisphere facing the supplied camera direction.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Projects observed lid contact onto the camera-facing hemisphere of its resident globe.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Solves the view-direction ray/sphere intersection and refuses a zero direction or nonfinite or negative discriminant.
  */
 export function portraitEyeSphereIntersection(
   sphere: IPortraitEyeSphere,

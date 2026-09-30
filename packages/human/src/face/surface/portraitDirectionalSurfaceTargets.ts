@@ -12,8 +12,6 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
  * The caller applies these metric targets through its shared skin adapter and
  * recomputes normals. This conservative construction preserves projected
  * topology; it does not decide anatomical thickness or fit quality.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Supplies shared-skin vertex targets that clear complete contacting triangles, not just sampled corners.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Measures front/back triangle clearance in a common directional frame and applies the maximum incident travel to each affected vertex.
  */
 export function portraitDirectionalSurfaceTargets(
   front: IAutoMovieMesh,

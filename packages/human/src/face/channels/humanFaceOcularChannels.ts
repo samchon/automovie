@@ -3,8 +3,6 @@ import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFa
 
 /**
  * Declare eye scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes identity aperture, lid relief, optical dimensions and brow detail through numerical controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Separates identity aperture from blink and keeps scalar optical envelopes subordinate to coupled eye construction.
  */
 export const humanFaceOcularChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

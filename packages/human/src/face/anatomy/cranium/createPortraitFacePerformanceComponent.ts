@@ -17,9 +17,6 @@ import { portraitLipTriangles } from "../mouth/portraitLipTriangles";
  * minimum for a closed observation; lower facial tissue follows the hinge.
  * Brow movement adapts neighbouring skin over twelve mm and the resident brow
  * fibres subsequently read the final shared skin instead of a detached offset.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Carries brow and mandibular performance through their actual facial attachments.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Keeps fixed optics and maxillary tissue separate from the moving lower face.
  */
 export function createPortraitFacePerformanceComponent(
   inputBindings: IAutoMovieHumanFaceBindings,

@@ -44,10 +44,6 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * constructed portrait eye's band semantics so one pigment reads the same on
  * both face builders; they are an authored optical approximation, not a
  * recovered reflectance.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Makes each eye's iris colour an authored value painted by one rule on the shared eye texture.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses iris differences as numerical pigments over the common basis texture instead of personal images.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Locates each articulated globe, paints its anatomical disc by band and blends the limbus into the unchanged sclera.
  */
 export function createHumanFaceIrisPigment(
   basis: IAutoMovieHumanFaceBasis,

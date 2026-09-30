@@ -27,9 +27,6 @@ import type { IAutoMovieHumanBodySkinTone } from "../structures/IAutoMovieHumanB
  * - **Age.** The variation grows with age (Kikuchi et al. 2015, facial
  *   chromophore heterogeneity). The factor of 2 by `macroAge` 0.65
  *   (67 years) is authored.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Holds the chromophore statistics the skin's tone variation is made of.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the tile, both chromophores' bands, spreads and absorbance, and the age curve the variation is generated from.
  */
 export const HUMAN_BODY_SKIN_TONE: IAutoMovieHumanBodySkinTone = {
   seed: 20260926,

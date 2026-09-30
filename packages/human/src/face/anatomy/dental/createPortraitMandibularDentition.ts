@@ -18,11 +18,6 @@ import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
  * Fit owns the observed-relative pose in head millimetres; native preparation
  * returns a fresh copy without applying that rotation again. The compatibility
  * finisher packs the same producer's mesh through the shared metric boundary.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds independently authored mandibular enamel to the oral structures.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Attaches lower teeth to the mandible while maxillary teeth remain fixed.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Owns lower crown dimensions, arch shape and inferior cervical placement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Moves the intact lower row through one observed-relative jaw rotation.
  */
 export function createPortraitMandibularDentition(
   inputSocket: {

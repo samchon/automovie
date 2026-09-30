@@ -12,9 +12,6 @@ import { humanFaceHairSequence } from "./humanFaceHairSequence";
  * the root's frontal (+Z) weight. Guides and interpolated strands share it, which is
  * how a strand between two guides keeps its own regional length instead of
  * theirs. A root on the chart origin has no direction and refuses.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Derives every root's length from shared regional fields and its stable sample identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Combines the six positive axial lengths by the absolute chart components and applies the seeded variation.
  */
 export function humanFaceHairLength(
   layer: Pick<

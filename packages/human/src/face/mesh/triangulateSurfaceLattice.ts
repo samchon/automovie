@@ -6,8 +6,6 @@ import { areaWeightedNormals as normalsOf } from "../../common/mesh/areaWeighted
  * Sample a surface over [0,1] squared and triangulate its shared lattice.
  * The positive normal follows du cross dv. Closure belongs to the surface:
  * a tube without caps remains open, and coincident pole rows are not welded.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs connected sampled surfaces for ocular, oral and strand components.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples a shared unit-square lattice, emits du-cross-dv triangle winding and derives one common normal field.
  */
 export const triangulateSurfaceLattice = (
   surface: (u: number, v: number) => Point,

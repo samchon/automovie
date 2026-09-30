@@ -3,8 +3,6 @@
  * and wrinkles it carries, how far along and around each joint their skin
  * reaches, and how much a fold deepens or a stretch flattens them.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Types the joints and factors by which the skin's creases follow a pose, as data a user can read.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Declares the relief-pose table: joints with their axial width and reach, and the deepening and flattening factors.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySkinReliefPose {

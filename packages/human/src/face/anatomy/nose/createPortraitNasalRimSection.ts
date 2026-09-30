@@ -11,8 +11,6 @@ import { IPortraitNasalRimSection } from "./structures/IPortraitNasalRimSection"
  * of width and a halfway crest separate its location from tissue thickness.
  * The resulting three rings are one connected skin section, not a torus mesh
  * placed over an unrelated hole. The caller owns host fitting and subdivision.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Builds a connected shoulder and crest around the existing nostril rather than overlaying a torus.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Derives exterior directions from supplied skin normals and the shared rim jets, preserving the original inner ring exactly.
  */
 export function createPortraitNasalRimSection(
   points: readonly (readonly number[])[],

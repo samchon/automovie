@@ -50,9 +50,6 @@ const CONVERGENCE = 1e-5;
  * shapes need not produce identical bodies. Channels the table does not name
  * pass through untouched. The detailed tier remains the document's canonical
  * form, and the returned record is fresh.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Turns the identity-card values and tape measurements into the detailed channel weights a document stores, met by measurement, and keeps the detailed residue when applied over a shape.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Evaluates the term table, the measured inversions in the specified order, the envelope refusals and the residual composition the specification lists.
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,

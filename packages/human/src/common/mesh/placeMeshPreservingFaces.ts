@@ -18,8 +18,6 @@ import { triangleAreaVector } from "./triangleAreaVector";
  * become meaningful when enlarged, and must not then disappear merely because
  * its placed origin is huge. Conversely an intentionally shrunken redundant
  * pole follows the existing engine policy at its actual metric scale.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-export Preserves each nonredundant face when a static part is placed for export.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-export Compares the engine's placed transform with its translation-free local transform, retaining mirror winding and refusing precision-driven face loss.
  */
 export function placeMeshPreservingFaces(
   mesh: IAutoMovieMesh,

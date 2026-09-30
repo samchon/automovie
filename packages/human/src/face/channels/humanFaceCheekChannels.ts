@@ -3,8 +3,6 @@ import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFa
 
 /**
  * Declare cheek scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes malar, medial, buccal and nasolabial detail with independent cheek ownership.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps cheek projections and groove depth in millimetres while the cheek component owns shared-skin attachment.
  */
 export const humanFaceCheekChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

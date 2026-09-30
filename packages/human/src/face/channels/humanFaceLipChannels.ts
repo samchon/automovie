@@ -3,8 +3,6 @@ import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFa
 
 /**
  * Declare mouth scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes aperture, commissure, contact and vermilion shape as mouth detail controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps mouth profile paths, signed effects and scalar bounds distinct from the shared oral geometry admission.
  */
 export const humanFaceLipChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

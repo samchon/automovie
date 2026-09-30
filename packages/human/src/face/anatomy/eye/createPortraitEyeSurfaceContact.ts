@@ -24,8 +24,6 @@ import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
  * Resolve final shared skin against this eye's actual optical volume.
  * Closed margins share the foremost correction along the observation ray,
  * so independent triangle contacts cannot reopen their coincident seam.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Preserves shared eyelid attachment while clearing the resident ocular volume.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses triangle overlap, geodesic propagation and closed-rim correspondence after common refinement.
  */
 export function createPortraitEyeSurfaceContact({
   iris,

@@ -9,9 +9,6 @@ import { admitHumanBodyBasisDocument } from "./admitHumanBodyBasisDocument";
  * editors share one loader budget; schema and finite-number admission precede
  * any worker allocation in the browser. The compiled basis separately owns
  * channel names, ranges, joints and model admission.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Loads a saved body document from text alone and refuses a malformed one before it reaches a basis.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Applies the shared UTF-16 envelope and the parse-time admission the save boundary defines.
  */
 export function parseHumanBodyBasisDocument(
   text: string,

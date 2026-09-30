@@ -8,8 +8,6 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
  * finite. Shared by the directional contact and
  * intersection constructors.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Resolves an attachment to its actual resident surface while retaining the original observation projection.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Intersects the foremost triangle in one orthonormal directional frame without first translating the query origin.
  * @author Samchon
  */
 export function projectMeshOntoFrame(

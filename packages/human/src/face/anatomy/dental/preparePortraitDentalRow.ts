@@ -14,8 +14,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * Neither a lip landmark's height nor an individual ray hit can tilt one tooth.
  * Returns the merged owned mesh and one directed cervical cycle per input
  * crown in that crown's order, expressed in merged native vertex identities.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Places independent crowns along one dental arch without tilting each tooth to a lip landmark.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples an elliptical guide, rotates crown positions and normals together, and optionally separates their complete proximal surfaces.
  */
 export function preparePortraitDentalRow(input: IPortraitDentalRow) {
   const shape = structuredClone(input);

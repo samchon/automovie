@@ -11,8 +11,6 @@ import { portraitEyeLoop } from "./portraitEyeLoop";
  * One numerical section calculation supplies both the skin constraint and lid rings.
  * Coordinates and offsets are millimetres; an optional fixed guide owns the
  * outer seam while posed contact fades across the same transverse section.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs named upper/lower tissue rows from independent anatomical profiles.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Keeps host attachment targets and emitted eyelid geometry on one section formula.
  */
 // One calculation supplies both the part boundary constraint and its lid rows.
 // The host and the component therefore cannot disagree about the seam position.

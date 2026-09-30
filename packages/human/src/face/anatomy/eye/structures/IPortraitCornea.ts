@@ -7,8 +7,6 @@
  * optical surface, not a complete physiological model of the eye.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Defines a closed anterior optical shell separately from the sclera and iris pigment.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries the aperture, globe/corneal curvatures, rim lift, positive axial thickness and angular clipping in construction millimetres.
  */
 export interface IPortraitCornea {
   /** In-plane centre of the iris/corneal aperture; surface supplies its depth. */

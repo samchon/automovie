@@ -4,8 +4,6 @@ import { Vector3 } from "@automovie/engine";
  * A nasal surface normal as a unit vector, refusing a zero or non-finite one.
  * Used by `createPortraitNasalEnvelope` on every section normal it receives.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates circumferential tissue width, crest position and inward roll instead of assigning one torus section to every nasal margin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines an ordered unit-perimeter station with metric exterior dimensions and a signed shared-rim tangent angle.
  * @author Samchon
  */
 export function unitNasalNormal(p: readonly number[]): number[] {

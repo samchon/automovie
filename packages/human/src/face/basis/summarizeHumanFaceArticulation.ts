@@ -18,9 +18,6 @@ import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
  * rest layer the builder evaluates, so the pivot and centres it reports are
  * the ones the render used. A basis without articulation summarizes to null.
  * This describes the requested motion; it certifies no contact or anatomy.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation States the joint motion a document requests and names the refusal of an unsupported combination instead of clamping it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Reads the shaped landmarks, the coupled opening translation and the sagittal budget through the same resolution the builder poses with.
  */
 export function summarizeHumanFaceArticulation(
   basis: IAutoMovieHumanFaceBasis,

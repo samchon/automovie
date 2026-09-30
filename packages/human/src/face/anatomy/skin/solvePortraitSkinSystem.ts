@@ -22,8 +22,6 @@
  * Changing this solve changes attached/refined skin and derived face exports.
  * Only local arrays are changed, so failure cannot leave a partially edited
  * caller mesh.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Solves one shared skin displacement axis without part-order ownership or partial caller mutation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Verifies the positive-weight Dirichlet residual and refuses numerical breakdown or exhausted convergence.
  */
 export function solvePortraitSkinSystem(
   multiply: (values: number[]) => number[],

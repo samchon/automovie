@@ -13,8 +13,6 @@ import { IPortraitNasalRimJet } from "./structures/IPortraitNasalRimJet";
  * Depth and both intervals use millimetres. Progress spans [0,1] from rim to
  * floor. The returned initial derivative points inward, opposite the exterior
  * co-normal. Neither the body height nor a newly fitted plane moves the datum.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Forms a connected vestibular meridian from the shared aperture rim to a recessed floor.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses two Hermite intervals with a common middle derivative and a radial floor derivative about the fixed inward group axis.
  */
 export function samplePortraitNasalEntry(
   rim: IPortraitNasalRimJet,

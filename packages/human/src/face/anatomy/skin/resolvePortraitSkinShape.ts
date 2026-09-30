@@ -4,9 +4,6 @@ import { IPortraitSkinShape } from "./structures/IPortraitSkinShape";
 /**
  * Resolve owned complete skin settings without clipping invalid input. The
  * same envelopes supply the editor; geometry admission remains a later gate.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Preserves omission defaults and refuses unsupported skin values.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Resolves finite bounded skin settings independently of edit history.
  */
 export function resolvePortraitSkinShape(
   input: IPortraitSkinShape = {},

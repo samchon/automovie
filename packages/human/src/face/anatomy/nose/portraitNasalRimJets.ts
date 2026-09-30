@@ -6,8 +6,6 @@ import { IPortraitNasalRimJet } from "./structures/IPortraitNasalRimJet";
  * follows the cyclic boundary. Its cross product with the existing common
  * normal gives the co-normal; the supplied adjacent exterior point chooses the
  * physical outward sign. No body-volume parameter participates in this frame.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Derives one consistent exterior/vestibular frame from the actual final nasal rim.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the cyclic tangent, common skin normal and adjacent exterior witness to choose an unambiguous outward co-normal.
  */
 export function portraitNasalRimJets(
   points: readonly (readonly number[])[],

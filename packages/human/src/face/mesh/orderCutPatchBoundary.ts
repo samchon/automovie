@@ -2,9 +2,6 @@
 
 /**
  * Boundary edges of a connected cut patch, preserving its original winding.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Retains the oriented attachment rim of a selected component cut.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Counts the cut's edges and refuses an empty, open, branched or multiple-loop boundary before returning its cyclic order.
  */
 export function orderCutPatchBoundary(
   faces: number[][],

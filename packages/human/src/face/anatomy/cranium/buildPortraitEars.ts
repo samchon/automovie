@@ -18,8 +18,6 @@ import { resolvePortraitEarSampling } from "../ear/resolvePortraitEarSampling";
  * engine mirrors the other ear, including winding and normals. The back
  * surface meets the front at the same rim, and the inner attachment lies inside
  * the head; there is no floating decorative loop masquerading as an ear.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs helix, antihelix, concha and lobule relief on connected anterior/posterior pinna shells.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Samples each actual temporal surface, embeds the root, shares the front/back rim and mirrors the opposite side's positions, winding and normals.
  */
 export function buildPortraitEars(
   skin: IAutoMovieMesh,

@@ -67,9 +67,6 @@ import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHuman
  * soft-tissue sag with the document's body at rest and its posed surfaces,
  * and appends the parts after the skin's regions, which is why the segment
  * partition and the contact reading, which read the skin, leave them out.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-underwear Cuts the plain underwear of either style from the posed skin, so it fits every shape and follows every pose.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear Evaluates the coverage rules on the body at rest, clips at their zero and lifts the kept skin along the posed normals.
  */
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,

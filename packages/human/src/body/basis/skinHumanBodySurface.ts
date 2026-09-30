@@ -73,9 +73,6 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * programming error rather than a data error, and it throws. Any corrective
  * row solved as `rigid − linear` on the former blend is a derivative of this
  * formula and is stale under it.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Moves each vertex by a rigid screw motion blended from its bones' frame changes, so a half-open joint places skin on the arc at every angle, including the fold where a linear mean would flatten it.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Implements the specification's rigid transform per vertex: each bone's `posed ∘ rest⁻¹` as a unit dual quaternion, combined by the skin weights, normalized and applied, with unit-weight vertices exactly rigid.
  */
 export function skinHumanBodySurface(
   positions: number[],

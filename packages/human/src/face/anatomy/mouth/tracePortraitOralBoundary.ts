@@ -20,9 +20,6 @@
  * enclosure reverses these edges when joining its inward-facing surface. The
  * opposite incident edges of every interior triangle cancel, so unique free
  * outgoing edges imply unique incoming edges and a closed boundary cycle.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Identifies the resident oral opening that an independently formed interior must join.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Preserves the seeded refined boundary and rejects incomplete, branched, nonmanifold or collapsed attachment data.
  */
 export function tracePortraitOralBoundary(
   surface: {

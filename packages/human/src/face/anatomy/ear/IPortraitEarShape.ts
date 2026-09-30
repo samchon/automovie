@@ -4,8 +4,6 @@
  * scales multiply the authored outline independently of the host's shape.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates pinna placement, anatomical scale, projection and embedded root dimensions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines head-frame millimetre placement with independent bounded angular/front/back sampling controls.
  */
 export interface IPortraitEarShape {
   /** Vertical centre in the head frame. */

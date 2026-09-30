@@ -7,9 +7,6 @@ import { IPortraitMouthPerformance } from "./structures/IPortraitMouthPerformanc
  * populations retain a coincident seam through the same boundary subdivision
  * rule. Surrounding band points receive the rim's displacement, preserving
  * their section thickness instead of flattening both vermilion bodies.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Closes actual lip boundaries rather than scaling the entire mouth into a line.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Preserves the resident upper and lower lip bodies during observed-relative performance.
  */
 export function createPortraitMouthPerformance(
   upper: readonly IAutoMovieVector3[],

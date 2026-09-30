@@ -14,8 +14,6 @@ import { IPortraitNasalLobule } from "./structures/IPortraitNasalLobule";
  * displacements. The group calls this same evaluator for exterior and rim
  * samples before lining construction. Omission/empty returns exact identity.
  * No posterior surface is selected here: the nose socket owns the population.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Shapes anterior nasal sections without accumulating overlapping inflation bumps.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies bounded lobule profiles, combines their ellipsoid targets by normalized weights and fades value and slope back to the host.
  */
 export function createPortraitNasalLobules(
   input: readonly IPortraitNasalLobule[] = [],

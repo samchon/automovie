@@ -12,8 +12,6 @@ import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
  * Normal residuals remain unchanged, so sizing does not flatten an irregular
  * rim. Overall nasal width and explicit aperture rotation belong to the caller
  * and run after this local operation. Output stays in the input length unit.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Changes nostril width and height independently of whole-nose dimensions and opening rotation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Scales the aperture in its own normalized plane while retaining normal residuals and copying unit-scale inputs exactly.
  */
 export function resizePortraitNostrilRim(
   points: number[][],

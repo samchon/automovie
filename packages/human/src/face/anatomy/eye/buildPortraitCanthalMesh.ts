@@ -20,9 +20,6 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * support planes where independent tangent cones would overlap. At finite
  * resolution these are planar faces; increasing sampling approaches tangent
  * sphere/cone continuity but cannot certify likeness or anatomical placement.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Connects separately fixed canthi to a resident optical body without enlarging that body.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Shares the emitted convex support faces between drawing and directional lid contact.
  */
 export function buildPortraitCanthalMesh(
   sphere: IPortraitEyeSphere,

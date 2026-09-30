@@ -29,9 +29,6 @@ export type { IPortraitHeadPerformance } from "./structures/IPortraitHeadPerform
  * Linear skin colours use per-corner values when contact welding preserved
  * distinct material samples. Independent interiors receive no stale normals.
  * The caller's host is retained and each call constructs new output arrays.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Publishes the joined skin and dependent interiors produced from one prepared component assembly.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Seals declared contacts, stages native interiors before common normals and metric packing, and retains legacy finishers in component order.
  */
 export function buildPortraitHead(
   host: IPortraitComponentHost,

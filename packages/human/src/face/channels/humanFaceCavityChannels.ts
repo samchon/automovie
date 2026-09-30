@@ -3,8 +3,6 @@ import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFa
 
 /**
  * Declare mouth scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes oral cavity wall and chamber dimensions in the same detailed editor as lip shape.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Distinguishes the wall ratio from chamber millimetre dimensions while oral construction admits their combined clearance.
  */
 export const humanFaceCavityChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

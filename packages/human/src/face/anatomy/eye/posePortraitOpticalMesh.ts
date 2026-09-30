@@ -7,9 +7,6 @@ import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
  * Rotate an optical mesh about its unchanged globe centre. All distances use
  * the mesh's construction millimetres, while normals receive rotation only.
  * A zero gaze difference preserves every number rather than renormalizing it.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Rotates iris and corneal geometry for gaze without changing their size or thickness.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Applies one rigid optical transform shared by drawing and contact.
  */
 export function posePortraitOpticalMesh(
   input: IAutoMovieMesh,

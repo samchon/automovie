@@ -9,9 +9,6 @@ import { humanBodyShoulderTtRotation } from "./humanBodyShoulderTtRotation";
  * therefore produce the same distance; a tight floating-point identity
  * tolerance avoids an apparent millionth-degree gap between equivalent
  * 180° gauges. The output lies in [0,180] degrees.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Drives shoulder tissue from physical humeral orientation instead of a plane or axial scalar that becomes non-unique at the poles.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Measures pose-space corrective distance from the TT quaternions so equivalent pole coordinates cannot activate different tissue.
  */
 export function humanBodyShoulderOrientationDistance(
   a: IAutoMovieHumanBodyShoulderPose,

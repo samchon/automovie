@@ -18,11 +18,6 @@ import { buildPortraitTongue } from "./buildPortraitTongue";
  * Fit captures the performed mesh in head millimetres. Native preparation gives
  * each consumer a fresh copy with matching normals; compatibility finish packs
  * this same producer's result without repeating attachment or jaw motion.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds a separately finished lingual interior without cutting skin or moving teeth.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the observed lower oral midpoint and shared orthonormal oral placement.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Carries the anterior tongue with the mandible independently of lip separation, smile and pucker.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Applies observed-relative dorsal elevation, anterior displacement and weighted mandibular rotation with a fixed posterior endpoint.
  */
 export function createPortraitTongueComponent(
   inputSocket: {

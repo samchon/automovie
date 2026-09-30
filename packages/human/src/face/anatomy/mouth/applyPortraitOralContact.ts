@@ -5,8 +5,6 @@ import { fitPortraitOralContact } from "./fitPortraitOralContact";
  * Resolve an optional, explicit oral relationship after the component interiors
  * exist. Omission retains the parts verbatim; a declared relationship must name
  * distinct resident untransformed meshes. Only enamel and lining are replaced.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Applies an explicitly named lips/enamel/cavity relationship without changing unrelated parts.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Admits three distinct resident untransformed meshes and replaces only the fitted enamel and lining returned by the contact solver.
  */
 export function applyPortraitOralContact(
   parts: IAutoMovieModelPart[],

@@ -8,8 +8,6 @@ import { meanPoint } from "./meanPoint";
  * uses the canthal plane. Observation-ray fitting retains the rim mean's image
  * position instead of letting uncertain rim depth tilt the centre away from it.
  * Both use the mean rim residual for depth and never consult current gaze.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits the globe from the lid aperture without making gaze the anatomical orientation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects the canthal-plane or recorded-ray fitting direction, preserves default arithmetic and refuses insufficient spherical support.
  */
 export function fitPortraitEyeSphere(
   upper: IAutoMovieVector3[],

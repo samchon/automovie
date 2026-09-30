@@ -64,9 +64,6 @@ const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
  * kept station and every emitted triangle stays the same.
  * Positions are already metres; no portrait millimetre conversion applies.
  * Neither input curves nor layer fields mutate; the mesh owns all its buffers.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Materializes numerical locks without storing personal mesh data.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Renders the same integrated stations used for metric evaluation and keeps each ribbon's own corners outside the skin.
  */
 export function buildHumanFaceHairMesh(
   curves: ReturnType<typeof integrateHumanFaceHairCurve>[],

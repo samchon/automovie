@@ -21,9 +21,6 @@ import { unitNasalNormal } from "./structures/unitNasalNormal";
  * jet, then consumes the same jet in the recessed vestibule. Depth/axis come
  * solely from the caller's rotated cavity offset. This is authored surface
  * geometry, not a reconstructed airway or a self-intersection certificate.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Builds skin, rolled aperture and vestibule as one connected numerical surface without independently positioned lining.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Resolves cyclic original-to-refined boundary lineage, preserves resident attachment vertices and samples shared Hermite jets after subdivision.
  */
 export function createPortraitNasalEnvelope(
   inputPoints: readonly (readonly number[])[],

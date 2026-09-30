@@ -23,9 +23,6 @@ const DATA_URI = "data:image/png;base64,";
 
 /**
  * Decode a base64 PNG data URI into RGBA bytes.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reads the shared basis texture the numerical iris rule recolours, so no per-person image is stored.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Decodes the basis eye texture exactly before the iris texels are rewritten and refuses forms it cannot read exactly.
  */
 export function decodePng(uri: string): IPngImage {
   if (!uri.startsWith(DATA_URI))

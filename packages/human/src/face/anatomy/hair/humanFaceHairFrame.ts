@@ -9,8 +9,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * for numerical conditioning; this chooses a frame, never a growth direction.
  * Engine vector arithmetic owns normalization. Inputs remain unchanged and all
  * outputs are fresh dimensionless vectors in the caller's common head frame.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Keeps field/frame evaluation independent of a person's identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Gives curl and generated strips the same nondegenerate transverse convention.
  */
 export const humanFaceHairFrame = {
   direction(value: IAutoMovieVector3): IAutoMovieVector3 {

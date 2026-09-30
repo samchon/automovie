@@ -29,9 +29,6 @@ const SIDES = ["left", "right"] as const;
  * evaluates one request at a time) hands its thread back between steps and
  * stops iterating when a later request supersedes the solve; the synchronous
  * function runs every step at once.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-editor Lets the editor interrupt an arms-down solve a newer edit supersedes instead of holding the body worker for its whole length.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-editor-view Pauses the preset's lateral-plane search after each crossing read so the worker can yield between steps.
  */
 export function* stepHumanBodyArmsDown(
   basis: IAutoMovieHumanBodyBasis,

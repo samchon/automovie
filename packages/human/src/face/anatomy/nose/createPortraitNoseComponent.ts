@@ -19,9 +19,6 @@ import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
 
 /**
  * Build one replaceable nose against the host's declared nasal attachment.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits a replaceable nose whose aperture, surrounding skin and recessed cavity share one boundary.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Owns copied nasal settings, admits mutually exclusive depth bases, fits each rim once and attaches lining plus optional final exterior shaping.
  */
 export function createPortraitNoseComponent(
   inputSocket: IPortraitNoseSocket,

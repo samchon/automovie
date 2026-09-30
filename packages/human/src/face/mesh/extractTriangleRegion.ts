@@ -7,8 +7,6 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  * the old vertex index, not rounded coordinates; seams are never welded here.
  * Optional per-corner linear RGB splits a shared vertex only when its two
  * tissue colours differ, retaining the parent's common normal on both copies.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates an anatomical material region without introducing an independent lighting seam.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Compacts only referenced vertex identities while retaining the parent's positions, normals and triangle order.
  */
 export const extractTriangleRegion = (
   positions: number[],

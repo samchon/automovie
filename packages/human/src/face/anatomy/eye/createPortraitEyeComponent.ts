@@ -42,9 +42,6 @@ export { appendPortraitEyeMargins } from "./appendPortraitEyeMargins";
 export { buildPortraitEye } from "./buildPortraitEye";
 /**
  * Fit one replaceable eye and expose its actual outer lid as the skin seam.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Fits a swappable eye whose outer lid seam is shared with the surrounding skin.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Builds observed-relative lid rows around a fixed globe, reserves or adapts host skin, and resolves final optical contact before constructing interiors.
  */
 export function createPortraitEyeComponent(
   inputSocket: IPortraitEyeSocket,

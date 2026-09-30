@@ -10,9 +10,6 @@ import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFa
  * axis, where azimuth is undefined, it is the smallest of the four. Root
  * sampling and the scalp's own coverage both read it, so a document states
  * one hairline.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reads one shared hairline rule from four scalar angles for every identity.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Blends the front, back, left and right hairline angles by the squared horizontal chart components.
  */
 export function humanFaceHairlineBoundary(
   direction: IAutoMovieVector3,

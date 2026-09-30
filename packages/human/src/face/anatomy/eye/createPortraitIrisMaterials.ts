@@ -10,8 +10,6 @@ import { IPortraitIrisPigment } from "./structures/IPortraitIrisPigment";
  * convex combination of the admitted endpoints, checking those endpoints is
  * sufficient for the entire palette. The iris geometry owns band membership;
  * this material owner cannot alter the limbus, pupil, gaze or corneal surface.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Creates independently named pigment finishes without changing ocular dimensions or gaze.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Validates both RGB endpoints and emits eight fresh rough pigment materials at uniform interpolation stations.
  */
 export function createPortraitIrisMaterials(
   prefix: string,
