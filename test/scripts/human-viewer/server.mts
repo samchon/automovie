@@ -33,6 +33,8 @@ const basisFiles = { face: path.join(root, "test/studies/human-face/connected-ba
 const documentsFile = path.join(root, "test/studies/human-face/connected-basis/global-face/subjects.json");
 const hash = (bytes: string | Buffer): string => createHash("sha256").update(bytes).digest("hex");
 const sourceFiles = new Map<string, string>();
+const sourceRoots = ["human", "engine", "interface", "viewer", "playground"].map((name) => path.join(root, "packages", name, "src"));
+sourceRoots.push(directory);
 function collect(directory: string): void {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     const file = path.join(directory, entry.name);
@@ -40,8 +42,7 @@ function collect(directory: string): void {
     else if (/\.(ts|mts|cts|json|html|wasm)$/.test(file)) sourceFiles.set(file, hash(fs.readFileSync(file)));
   }
 }
-for (const name of ["human", "engine", "interface", "viewer", "playground"]) collect(path.join(root, "packages", name, "src"));
-collect(directory);
+for (const source of sourceRoots) collect(source);
 for (const file of ["pnpm-lock.yaml", "config/tsconfig.json", "packages/human/tsconfig.json", "packages/human/package.json", "test/package.json"])
   sourceFiles.set(path.join(root, file), hash(fs.readFileSync(path.join(root, file))));
 const revision = (): string => hash([...sourceFiles].sort(([a], [b]) => a.localeCompare(b)).map(([file, digest]) => path.relative(root, file) + ":" + digest).join("\n"));
@@ -70,6 +71,7 @@ let page: Page;
 let renderer = "";
 let errors: string[] = [];
 let readyRevision = "";
+let sourceUpdating = false;
 let queue: Promise<void> = Promise.resolve();
 const serial = <T,>(task: () => Promise<T>): Promise<T> => {
   const next = queue.then(task);
@@ -77,6 +79,7 @@ const serial = <T,>(task: () => Promise<T>): Promise<T> => {
   return next;
 };
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
+  if (sourceUpdating) throw new Error("Source revision is being prepared");
   if (!judgeViewerRenderer(renderer).real) throw new Error("A real GPU is required: " + renderer);
   if (errors.length !== 0) throw new Error("Source transformation failed: " + errors.join("; "));
   const selectedRevision = inventory.revision;
@@ -90,7 +93,7 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
     await viewer.show(input.address);
     return viewer.png();
   }, { address, revision: selectedRevision });
-  if (inventory.revision !== selectedRevision) throw new Error("Source changed during capture; the mixed revision was discarded");
+  if (sourceUpdating || inventory.revision !== selectedRevision) throw new Error("Source changed during capture; the mixed revision was discarded");
   return Buffer.from(result.split(",")[1], "base64");
 }
 async function sheet(cells: ReturnType<typeof planHumanViewerSheet>): Promise<Buffer> {
@@ -122,7 +125,7 @@ async function main(): Promise<void> {
   const middleware = (request: IncomingMessage, response: ServerResponse, next: () => void): void => {
     const url = new URL(request.url ?? "/", "http://127.0.0.1:5175");
     const json = (value: unknown): void => { response.setHeader("Content-Type", "application/json"); response.end(JSON.stringify(value)); };
-    if (url.pathname === "/health") return json({ service: "automovie-human-viewer", pid: process.pid, revision: inventory.revision, renderer, ready: readyRevision === inventory.revision && errors.length === 0, errors });
+    if (url.pathname === "/health") return json({ service: "automovie-human-viewer", pid: process.pid, revision: inventory.revision, renderer, ready: !sourceUpdating && readyRevision === inventory.revision && errors.length === 0, errors });
     if (url.pathname === "/docs") return json(inventory);
     if (url.pathname === "/reference-info" || url.pathname === "/reference") {
       const id = (url.searchParams.get("doc") ?? "").replace(/-connected$/, "");
@@ -235,21 +238,29 @@ async function main(): Promise<void> {
   console.log("RENDERER", renderer);
   if (!judgeViewerRenderer(renderer).real) throw new Error("Software renderer refused");
   fs.writeFileSync(path.join(storage, "server.json"), JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString(), port: 5175 }));
-  vite.watcher.add([...sourceFiles.keys(), ...Object.values(basisFiles), documentsFile]);
+  vite.watcher.add([...sourceRoots, ...sourceFiles.keys(), ...Object.values(basisFiles), documentsFile]);
   let reload: ReturnType<typeof setTimeout> | undefined;
+  const changed = new Set<string>();
   vite.watcher.on("all", (_event, input: string) => {
     const file = path.resolve(input);
-    if (!sourceFiles.has(file) && !Object.values(basisFiles).includes(file) && file !== documentsFile) return;
-    if (sourceFiles.has(file)) {
-      if (fs.existsSync(file)) sourceFiles.set(file, hash(fs.readFileSync(file)));
-      else sourceFiles.delete(file);
-    }
-    inventory = catalogue();
+    const ownedSource = sourceRoots.some((directory) => file.startsWith(directory + path.sep)) && /\.(ts|mts|cts|json|html|wasm)$/.test(file);
+    if (!ownedSource && !sourceFiles.has(file) && !Object.values(basisFiles).includes(file) && file !== documentsFile) return;
+    sourceUpdating = true;
+    changed.add(file);
     if (reload !== undefined) clearTimeout(reload);
     reload = setTimeout(() => {
       errors = [];
       readyRevision = "";
-      vite.ws.send({ type: "custom", event: "human:revision", data: { revision: inventory.revision } });
+      try {
+        for (const changedFile of changed) {
+          if (fs.existsSync(changedFile)) sourceFiles.set(changedFile, hash(fs.readFileSync(changedFile)));
+          else sourceFiles.delete(changedFile);
+        }
+        changed.clear();
+        inventory = catalogue();
+        sourceUpdating = false;
+        vite.ws.send({ type: "custom", event: "human:revision", data: { revision: inventory.revision } });
+      } catch (error) { errors.push(error instanceof Error ? error.message : String(error)); }
     }, 100);
   });
   const close = async (): Promise<void> => {
