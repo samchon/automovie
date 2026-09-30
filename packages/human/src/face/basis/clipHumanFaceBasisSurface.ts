@@ -21,6 +21,17 @@ type Stencil = { a: number; b: number; t: number };
  * Prepare numerical hair domains/contact closure after clipping. Their triangle
  * and vertex correspondence cannot be copied through a new cut; supplied hair
  * metadata refuses so this operation never leaves a stale closed collider.
+ *
+ * @evidence contracts/common.md#principled-implementation Clipping a triangle mesh at a plane keeps the part with y >= plane: each source edge crossing the plane owns one intersection vertex whose position is the affine blend of its ends (y set to the plane), so shape, expression and corrective rows and attachment weights, all affine in the vertices, are evaluated by the same frozen stencil and correspondence survives edits. Convex polygons from clipping are fanned into triangles and corner UVs interpolate along the same edge parameter.
+ * @evidence contracts/common.md#clear-and-simple-design One pass over regions building stencils, then one pass over positions, rows and attachments.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Hair metadata that would go stale refuses; an attachment on a clipped triangle is never silently dropped by the caller's contract.
+ * @evidence contracts/common.md#meaningful-documentation States the stencil, the retained-triangle map, the open cut and the caller's duties after a new revision.
+ * @evidence contracts/modeling.md#emitted-geometry The population is the source's retained triangles plus at most two triangles per clipped triangle, and one new vertex per crossing edge; a cap or further surface below the cut is not emitted, by contract.
+ * @evidence contracts/modeling.md#shared-boundaries Both sides of a shared clipped edge use the one intersection vertex owned by that undirected edge, so adjacent triangles and regions meet at identical positions; the cut boundary itself is left open by design.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres along the neutral Y axis for the plane and vertices; nothing is converted.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source clipHumanFaceBasisSurface carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range clipHumanFaceBasisSurface admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority clipHumanFaceBasisSurface defines no input through which a caller shapes a human form.
  */
 export function clipHumanFaceBasisSurface(
   source: Surface,

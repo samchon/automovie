@@ -16,6 +16,14 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * its reference opening; a purely linear basis has no such direction. The
  * check reads names and neutral geometry only; whether a document's
  * combination passes the rules is the evaluation's answer, not admission's.
+ *
+ * @evidence contracts/common.md#principled-implementation Admission proves, before any document is evaluated, that every surface and channel the contact declaration names exists, the aperture pairs are two distinct resident vertices of one surface, closure and reference are different expression channels, each collider seals into a surface the engine's oriented sheet query accepts on the neutral, and every metre figure is finite and nonnegative. It reads names and neutral geometry only.
+ * @evidence contracts/common.md#clear-and-simple-design One declaration checked in order; the sheet query itself is the engine's admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every violation throws; nothing is repaired or defaulted.
+ * @evidence contracts/common.md#meaningful-documentation States the requirement of articulation, the checks and that the evaluation, not admission, answers whether a combination passes.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceContact carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceContact admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceContact defines no input through which a caller shapes a human form.
  */
 export function assertHumanFaceContact(basis: IAutoMovieHumanFaceBasis): void {
   const contact = basis.contact;

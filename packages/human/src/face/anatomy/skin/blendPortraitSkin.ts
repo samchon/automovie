@@ -22,6 +22,16 @@ import type { IPortraitSkinConstraint } from "./structures/IPortraitSkinConstrai
  * skin outside the declared reach, with an independently checked residual.
  * Failure to converge is refused. This interpolates the seam; it does not infer
  * the anatomical correctness of the component's requested shape.
+ *
+ * @evidence contracts/common.md#principled-implementation Pinned attachment vertices are Dirichlet boundaries and the surrounding displacement solves the graph Laplace equation with weights 1/edge length, restricted to the vertices within the declared geodesic reach (multi-source Dijkstra on remaining reach); the reduced matrix is positive definite because every free component reaches a pin. Displacement is harmonic on the host graph, so it decays with distance and never overshoots its pins. It interpolates a seam; it does not simulate tissue, as documented.
+ * @evidence contracts/common.md#clear-and-simple-design Connectivity and reach first, then one conjugate-gradient solve per axis; the solver is a separate owner.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory pins are refused rather than resolved by order, and a solve that does not converge is refused.
+ * @evidence contracts/common.md#meaningful-documentation States units, the equation solved, the refusal cases and that changing it invalidates every attached component.
+ * @evidence contracts/modeling.md#spatial-conventions One local millimetre frame for positions and geodesic distances; nothing is converted.
+ * @evidence contracts/modeling.md#shared-boundaries Every component pins the same host vertex identities, so all attachments share one definition of the skin they meet; overlapping requests solve together and order does not select a winner. The join opens (the call refuses) when two components request different positions for one vertex.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source blendPortraitSkin carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range blendPortraitSkin admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority blendPortraitSkin defines no input through which a caller shapes a human form.
  */
 export function blendPortraitSkin(
   positions: number[][],

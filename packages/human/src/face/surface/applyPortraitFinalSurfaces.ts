@@ -15,6 +15,16 @@ import { IPortraitFinalSurfaceHost } from "./structures/IPortraitFinalSurfaceHos
  * normals to the assembler's one common recomputation afterward. Empty providers
  * or empty proposals retain the original mesh. It owns composition and numeric
  * admission, while each part owns its section geometry and boundary derivatives.
+ *
+ * @evidence contracts/common.md#principled-implementation Every provider reads one frozen snapshot of the refined surface and returns proposals that are collected before any is applied, so the result cannot depend on provider order; matching proposals for one vertex may share it and incompatible ones refuse instead of choosing a winner.
+ * @evidence contracts/common.md#clear-and-simple-design Snapshot, collect, validate, apply; topology, groups and normals are left to their owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No provider is special-cased and no conflict is resolved by order.
+ * @evidence contracts/common.md#meaningful-documentation States the immutability of the snapshot, the ownership rule and what is preserved.
+ * @evidence contracts/modeling.md#shared-boundaries Providers propose positions for shared resident vertices, and an incompatible proposal for the same vertex refuses, so component parts meeting at one vertex agree on it.
+ * @evidence contracts/modeling.md#spatial-conventions Positions stay in construction millimetres; nothing is converted.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source applyPortraitFinalSurfaces carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range applyPortraitFinalSurfaces admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority applyPortraitFinalSurfaces defines no input through which a caller shapes a human form.
  */
 export function applyPortraitFinalSurfaces(
   mesh: IControlMesh,

@@ -21,6 +21,15 @@ import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFace
  * sparse payload coexist. Channels named in `except` are skipped, which is
  * how a contact basis holds its closure channel back for the aperture-scaled
  * pass; their correctives still activate on the raw weights.
+ *
+ * @evidence contracts/common.md#principled-implementation The rest layer is p + sum |w| * endpoint over the channels in basis order plus activation * corrective, with the negative endpoint used for a negative weight; it is linear in the weights, order independent in exact arithmetic, and the rows are sparse so an absent row leaves a vertex where it is. Landmarks receive the same rows so a joint follows the shape that moves it.
+ * @evidence contracts/common.md#clear-and-simple-design One accumulate function applied to surfaces and to landmarks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case; `except` names channels held back for a documented aperture-scaled pass.
+ * @evidence contracts/common.md#meaningful-documentation States the formula, the treatment of expression endpoints on an articulated basis and the fresh-copy rule.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres in the Y-up +Z-anterior head frame, unchanged.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source evaluateHumanFaceRest carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range evaluateHumanFaceRest admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority evaluateHumanFaceRest defines no input through which a caller shapes a human form.
  */
 export function evaluateHumanFaceRest(
   basis: IAutoMovieHumanFaceBasis,

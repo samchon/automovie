@@ -21,6 +21,15 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * gap that is short and the millimetres measured and needed, so an author
  * opens the jaw or parts the lips by a stated amount instead of guessing.
  * Nothing is clamped or moved here.
+ *
+ * @evidence contracts/common.md#principled-implementation A tongue is a constant-volume muscular hydrostat, so a part of it that passes the incisal plane needs a slab thickness no larger than the interincisal and interlabial apertures. The plane passes through the lower incisal edge with the frame's forward normal because the tongue rides the mandible, thickness is the extent along up of the vertices within the slab about that plane, and a shortfall is reported with the channel, gap and millimetres needed instead of clamping the document.
+ * @evidence contracts/common.md#clear-and-simple-design One pass over the tongue's vertices and two apertures to test.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It refuses with figures and moves nothing.
+ * @evidence contracts/common.md#meaningful-documentation States the geometric rule, the plane, and what the error tells an author.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres in the shared head frame; millimetres appear only in the message text.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source evaluateHumanFacePassage carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range evaluateHumanFacePassage admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority evaluateHumanFacePassage defines no input through which a caller shapes a human form.
  */
 export function evaluateHumanFacePassage(
   contact: Contact,

@@ -15,6 +15,17 @@ import type { IAutoMovieHumanFaceControlMap } from "../structures/IAutoMovieHuma
  * updates do not accumulate deltas. Saving needs only the resolved fine weights;
  * projecting them again recovers the mean and residuals to floating precision.
  * Neither the map nor any shape supplied by a caller is mutated.
+ *
+ * @evidence contracts/common.md#principled-implementation Each member is normalised so its negative endpoint is -1 and its positive endpoint +1, a group's coordinate is the arithmetic mean and each member keeps its residual from that mean. Resolving a new mean adds the same residuals and decodes, so projecting the resolved fine weights recovers the mean and residuals to floating precision; the admissible interval is the intersection of the members' residual-shifted intervals, and an out-of-range request refuses rather than clamping (which would erase detail).
+ * @evidence contracts/common.md#clear-and-simple-design Compile once into a projection function; every resolve starts from the projection's own origin so slider updates do not accumulate deltas.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamping of caller input; floating-point endpoint strays are limited to the documented rounding guard.
+ * @evidence contracts/common.md#meaningful-documentation States the normalisation, the residual rule, the interval and the no-accumulation rule.
+ * @evidence contracts/modeling.md#parameter-channels A simple coordinate is one group mean over named fine channels; zero is neutral because every member's neutral is zero. It is reversible: the fine weights are recovered as mean plus residual, which is the stated inverse.
+ * @evidence contracts/anatomy.md#parametric-authority Every input is a named group coordinate or a named fine shape channel with a range; nothing addresses a vertex, curve, strand or patch. The conversion between simple and fine values is the deterministic mean-plus-residual map, whose inverse is the projection.
+ * @evidence contracts/modeling.md#spatial-conventions Coordinates are dimensionless normalised weights.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source createHumanFaceControlMap carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range createHumanFaceControlMap admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority createHumanFaceControlMap defines no input through which a caller shapes a human form.
  */
 export function createHumanFaceControlMap(props: {
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels">;

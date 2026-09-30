@@ -11,6 +11,14 @@ import { assertHumanFaceContact } from "./assertHumanFaceContact";
  * This rejects broken data before an edit can allocate a partially formed model.
  * A valid topological surface may still self-intersect; this is not collision
  * detection or anatomical acceptance of the supplied artistic prior.
+ *
+ * @evidence contracts/common.md#principled-implementation Admission proves the premises every evaluator relies on: unique identities, neutral-containing channel envelopes, correctives that drive only existing sides with peaks in (0,1], finite resident buffers, an oriented surface accepted by the engine's topology validator, sparse rows strictly increasing and nonzero, regions that partition the original oriented triangles exactly, and that every endpoint moves a surface or drives a joint. A topologically valid surface may still self-intersect, which the docs state.
+ * @evidence contracts/common.md#clear-and-simple-design A single linear sequence of checks; articulation and contact admission delegate to their own owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every violation throws with a named cause; nothing is repaired.
+ * @evidence contracts/common.md#meaningful-documentation States the order, the one-time call site and what admission does not certify.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source assertHumanFaceBasis carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range assertHumanFaceBasis admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority assertHumanFaceBasis defines no input through which a caller shapes a human form.
  */
 export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   const unique = (ids: string[]): void => {
