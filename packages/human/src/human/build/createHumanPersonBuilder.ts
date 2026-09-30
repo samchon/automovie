@@ -11,6 +11,7 @@ import { createHumanFaceBasisBuilder } from "../../face/basis/createHumanFaceBas
 import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieHumanFaceBasis";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
+import { deriveHumanPersonFace } from "../document/deriveHumanPersonFace";
 import { conformHumanPersonCollar } from "../seam/conformHumanPersonCollar";
 import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
 import { createHumanPersonFaceSkin } from "../seam/createHumanPersonFaceSkin";
@@ -155,7 +156,8 @@ export function createHumanPersonBuilder(props: {
     const body = buildBody(
       deriveHumanPersonBody({ document, faceMaterials: faceBasis.materials }),
     );
-    const face = buildFace(document.face);
+    const faceDocument = deriveHumanPersonFace(document);
+    const face = buildFace(faceDocument);
     const bones = new Map(body.bones.map((one) => [one.bone, one]));
     const head = createHumanPersonHeadTransform({
       neutral: neutralHead,
@@ -233,7 +235,7 @@ export function createHumanPersonBuilder(props: {
     }
     // generated hair: kept off the shoulders once the body has been posed
     if (hair.length > 0) {
-      const layers = document.face.hair?.layers ?? [];
+      const layers = faceDocument.hair?.layers ?? [];
       const clearance = Math.max(
         0,
         ...layers.map((layer) => layer.clearance + layer.samplingStep / 2),
@@ -346,7 +348,7 @@ export function createHumanPersonBuilder(props: {
         ...body.bones,
         ...resolveHumanPersonFaceBones({
           basis: faceBasis,
-          document: document.face,
+          document: faceDocument,
           head,
         }),
       ],

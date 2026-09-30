@@ -14,6 +14,8 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../../face/structures/IAu
  *   face's resolved skin base colour and the body document must not state its
  *   own (`skinColour` is derived, and a body document that carries it is
  *   refused, because two values for one person's colour would disagree).
+ * - Age and sex can be stated once (`population`), which makes the head the age
+ *   and sex of the body.
  * - The head is the face's and the neck below the chin is the face's until the
  *   seam, which the body follows (`IAutoMovieHumanPersonSeam`); the body's
  *   pose carries the face on its `head` joint.
@@ -36,4 +38,16 @@ export interface IAutoMovieHumanPersonDocument {
 
   /** The body, against the body basis the person builder was compiled with, with no `skinColour` of its own. */
   body: IAutoMovieHumanBodyBasisDocument;
+
+  /**
+   * How the person's age and sex are stated. Omission keeps the two documents
+   * independent: the face takes whatever `globalAgeStructure` and
+   * `globalSexualDimorphism` it states and the body whatever `macroAge` and
+   * `macroGender` it states, which can make a child's body carry an adult's
+   * head. `"linked"` states them once, in the body (its macros are the
+   * person's), and derives the face's two axes from them by the shared macro
+   * scale (`deriveHumanPersonFace`), so a face document that states either is
+   * refused rather than overridden.
+   */
+  population?: "linked";
 }
