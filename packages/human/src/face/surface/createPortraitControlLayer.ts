@@ -23,6 +23,15 @@ import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
  * handle movements is not a guarantee of likeness or global nonintersection.
  * The surrounding surface assembler retains its open-rim mask; a control in
  * that protected collar consequently does not promise its full displacement.
+ *
+ * @evidence contracts/common.md#principled-implementation The controls define a radial-basis interpolation with the engine's compact kernel: the matrix entries are the kernel sampled by the engine itself, the weights solve K c = d by Gauss-Jordan elimination with partial pivoting (the normalised matrix has unit diagonal and entries at most one in magnitude), and near-singular systems refuse. The final field is checked by the same engine, including its Jacobians and emitted triangle orientations, so no independently copied kernel can drift.
+ * @evidence contracts/common.md#clear-and-simple-design Sample the matrix, eliminate, emit fields; up to 96 controls bound the dense solve.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Coincident or unresolved controls refuse; no compensating regularisation is added.
+ * @evidence contracts/common.md#meaningful-documentation States the interpolation, the size bound and that a control in the protected collar does not promise its full displacement.
+ * @evidence contracts/modeling.md#spatial-conventions Millimetres for radius, offsets and displacements, divided by 1000 for the engine's metre fields.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source createPortraitControlLayer carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range createPortraitControlLayer admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority createPortraitControlLayer defines no input through which a caller shapes a human form.
  */
 export function createPortraitControlLayer(
   id: string,

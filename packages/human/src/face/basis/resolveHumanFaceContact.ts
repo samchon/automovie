@@ -48,6 +48,14 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * pass and folded after it. A replacement must validate both the collider
  * clearance and the complete skin's orientation and self-contact, rather than
  * reduce a penetration count in isolation.
+ *
+ * @evidence contracts/common.md#principled-implementation Each soft vertex keeps its rest clearance from every rigid collider, capped at the collider's cover (so a lid keeps its thickness over a globe while lips meet teeth with none), and only tissue that a pose pushed below that floor is moved, along the nearest feature's normal, exactly to the floor; a push past the surface's budget refuses with surface, vertex and depth. Vertices whose nearest feature at rest or posed is an open-sheet rim read no side and are left alone. Seam copies of one welded vertex are judged once and moved together so the weld partition is preserved. The one-ring spread and the floor rule are authored deterministic constraints, which the docs state, and are not tissue mechanics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It moves nothing past its budget; it refuses, and the docs state what the pass does not prove.
+ * @evidence contracts/common.md#meaningful-documentation States the floor rule, the cover, the rim exception, the seam grouping, the spread and the limits (pointwise clearance does not prevent inverted edges).
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres; millimetres appear only in error text.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source resolveHumanFaceContact carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range resolveHumanFaceContact admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority resolveHumanFaceContact defines no input through which a caller shapes a human form.
  */
 export function resolveHumanFaceContact(
   basis: IAutoMovieHumanFaceBasis,

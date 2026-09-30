@@ -1,8 +1,28 @@
 import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
 
 /**
- * Resolve copied cranial sections before the assembler mutates its cage.
- * The host's actual chin sets only explicitly chin-relative lower envelopes.
+ * Resolve the cranial stations and cap controls into owned copies before the
+ * assembler mutates its cage. Every length is in millimetres in the head frame
+ * (+Y up, +Z anterior). Stations descend in Z from the forehead to the occiput;
+ * omitted input takes the default vault, which is authored (four dimensioned
+ * sections and three occipital rings whose crown and floor follow their width)
+ * and is not a measurement of any subject.
+ *
+ * The host's actual chin, chinY, is added only to the floor of a station
+ * marked chinRelative, so a lower envelope can follow the face it continues.
+ * An invalid set refuses instead of being clipped: fewer than five or more than
+ * 64 stations, Z that does not strictly descend, a crown Z posterior to its
+ * station Z, a nonpositive width, a crown at or below its floor, a negative cap
+ * depth, a transition outside (0,1) or a nonpositive angular frame.
+ *
+ * @evidence contracts/common.md#principled-implementation Resolution copies the stations, adds the host's chin height only to stations marked chinRelative and checks the ordering premises the builder relies on (strictly descending Z, crown Z not posterior to its station, positive width, crown above floor, five to 64 stations, cap depth, transition in (0,1), positive frame), so the ring lattice built from them is well ordered.
+ * @evidence contracts/common.md#clear-and-simple-design One function that merges input over the default vault and checks the merged result.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid set refuses and is never clipped; the default stations are documented defaults, not a special case for any subject.
+ * @evidence contracts/common.md#meaningful-documentation States the units and frame, the descending order, that the default is authored, the chin-relative rule and each refusal.
+ * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Y up and +Z anterior; chinY is read in the same frame.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source resolvePortraitCraniumShape carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range resolvePortraitCraniumShape admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority resolvePortraitCraniumShape defines no input through which a caller shapes a human form.
  */
 export function resolvePortraitCraniumShape(
   chinY: number,

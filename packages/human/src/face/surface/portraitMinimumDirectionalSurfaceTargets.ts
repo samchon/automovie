@@ -11,6 +11,15 @@ import { projectMeshOntoFrame } from "./projectMeshOntoFrame";
  * overlap condition survives the engine's joint solve, while incident face
  * deficits bound how far any vertex may advance. The consumer owns subsequent
  * skin propagation, seam correspondence, normals and exported contact checks.
+ *
+ * @evidence contracts/common.md#principled-implementation The engine's joint minimisation keeps every original overlap condition while bounding how far any vertex advances, so the travel is the least that clears all triangles in the directional frame; the targets are advanced along the same fixed direction.
+ * @evidence contracts/common.md#clear-and-simple-design It frames, delegates to the engine's minimiser and maps distances to targets.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case or compensating path.
+ * @evidence contracts/common.md#meaningful-documentation States the shared frame and that skin propagation, seams and normals belong to the consumer.
+ * @evidence contracts/modeling.md#spatial-conventions Engine metres in the shared directional frame.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source portraitMinimumDirectionalSurfaceTargets carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range portraitMinimumDirectionalSurfaceTargets admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority portraitMinimumDirectionalSurfaceTargets defines no input through which a caller shapes a human form.
  */
 export function portraitMinimumDirectionalSurfaceTargets(
   front: IAutoMovieMesh,

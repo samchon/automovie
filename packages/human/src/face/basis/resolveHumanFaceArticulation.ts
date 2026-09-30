@@ -43,6 +43,15 @@ import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHum
  * Landmarks are read from the shaped rest, never from the neutral, so an
  * identity that moves a globe or the jaw pivot moves the joint with it. The
  * result is fresh; inputs are not mutated.
+ *
+ * @evidence contracts/common.md#principled-implementation The jaw rotates by opening.degrees * w about the condylar axis point (pivot landmark plus axis offset) and translates by the summed opening, protrusion and laterotrusion translations, each scaled by its weight; each eye rotates about its own centre by its gaze channels in list order and shifts by the summed translations. The combined sagittal translation is checked against the authored budget and a document past it is refused with the figures instead of clamped. Landmarks are read from the shaped rest, so an identity that moves the pivot moves the joint. Scaling one authored endpoint across the range is this rig's approximation, as the docs state.
+ * @evidence contracts/common.md#clear-and-simple-design Weights to rigid motions, in one function with the budget check first.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamping: clamping one control to honour another would hide an edit of the document.
+ * @evidence contracts/common.md#meaningful-documentation States the motions, the budget, the landmark source, and the limits of the linear endpoint path with the sources it does and does not follow.
+ * @evidence contracts/modeling.md#spatial-conventions Basis metres for pivots and translations, degrees for angles, unit quaternions for rotations.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source resolveHumanFaceArticulation carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range resolveHumanFaceArticulation admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority resolveHumanFaceArticulation defines no input through which a caller shapes a human form.
  */
 export function resolveHumanFaceArticulation(
   articulation: NonNullable<IAutoMovieHumanFaceBasis["articulation"]>,

@@ -9,6 +9,18 @@ import { IPortraitReliefRegion } from "./structures/IPortraitReliefRegion";
  * identity and millimetre conversion. Neighbouring supports add before common
  * normals are recomputed, and the surface assembler protects open eye/mouth rims.
  * These envelopes model visible tissue relief, not separate internal organs.
+ *
+ * @evidence contracts/common.md#principled-implementation Each region becomes one engine deformation field centred at the live anchor position plus its offset, with radii and displacement converted from millimetres to metres; the engine owns the compact kernel and its Jacobian checks, and a zero displacement produces no field.
+ * @evidence contracts/common.md#clear-and-simple-design An adapter that owns attachment identity and the unit conversion; the kernel is not duplicated.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case; invalid names, anchors and radii refuse.
+ * @evidence contracts/common.md#meaningful-documentation States who owns the kernel, what the adapter owns and that the envelopes are visible relief.
+ * @evidence contracts/modeling.md#spatial-conventions Millimetres in, engine metres out at the single division by 1000 in the field construction.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping A layer is a displacement field set, not a part or a group of parts.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits fields, not primitives; the engine's deformer moves existing vertices.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface; the assembler protects open rims.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no measurement: each region's amounts belong to the caller's document.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It refuses non-finite or non-positive dimensions but bounds no anatomical quantity.
  */
 export function createPortraitReliefLayer(
   id: string,

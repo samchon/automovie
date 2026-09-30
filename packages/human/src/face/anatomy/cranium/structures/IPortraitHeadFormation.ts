@@ -10,6 +10,11 @@ import { IPortraitNeckShape } from "./IPortraitNeckShape";
  * are a material sampling basis, not a physical rest shape for a tissue solver.
  * Paired component identities and topology are validated before interpolation.
  *
+ * @evidence contracts/common.md#principled-implementation The formation groups the reference cranium, neck, performance and the optional colour-reference appearance that preparePortraitHead and buildPortraitHead share, so current and colour-reference assembly use the same inputs.
+ * @evidence contracts/common.md#clear-and-simple-design One optional record per concern.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts IPortraitHeadFormation carries no behaviour, special case or compensating path; it is a declaration.
+ * @evidence contracts/common.md#meaningful-documentation States that appearance coordinates are a material sampling basis and not a tissue rest shape, and that pairing is validated before interpolation.
+ * @evidence contracts/modeling.md#part-identity-and-grouping It is a group that composes the cranium, neck, performance and appearance declarations and copies none of their values.
  * @author Samchon
  */
 export interface IPortraitHeadFormation {

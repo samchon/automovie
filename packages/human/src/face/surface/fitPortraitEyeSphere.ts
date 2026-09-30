@@ -9,6 +9,15 @@ import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
  * uses the canthal plane. Observation-ray fitting retains the rim mean's image
  * position instead of letting uncertain rim depth tilt the centre away from it.
  * Both use the mean rim residual for depth and never consult current gaze.
+ *
+ * @evidence contracts/common.md#principled-implementation For each rim point with in-plane distance e and height h along the fitting normal, a sphere of radius r whose centre lies on the normal through the rim mean at offset t satisfies |e|^2 + (h - t)^2 = r^2, so t = h - sqrt(r^2 - |e|^2); the fit takes the mean of these per-point offsets, and a rim the radius cannot span refuses. The observation-ray alignment keeps the rim mean's image position rather than letting uncertain rim depth tilt the centre.
+ * @evidence contracts/common.md#clear-and-simple-design Mean, normal, mean depth; the alignment option chooses the fitting direction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Degenerate lids, a zero view ray and an unspannable radius refuse.
+ * @evidence contracts/common.md#meaningful-documentation States the two alignments, that the fit ignores current gaze and that depth is the mean rim residual.
+ * @evidence contracts/modeling.md#spatial-conventions Points, view ray and radius share one frame and unit (construction millimetres for the portrait eye).
+ * @evidenceExclude contracts/anatomy.md#anatomical-source fitPortraitEyeSphere carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range fitPortraitEyeSphere admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority fitPortraitEyeSphere defines no input through which a caller shapes a human form.
  */
 export function fitPortraitEyeSphere(
   upper: IAutoMovieVector3[],

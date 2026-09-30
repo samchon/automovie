@@ -3,6 +3,15 @@ import { IPortraitFacialFrameShape } from "./structures/IPortraitFacialFrameShap
 /**
  * Resolve facial-frame dimensions without clipping and return owned settings.
  * Identity uses scales of one and displacements of zero, irrespective of person.
+ *
+ * @evidence contracts/common.md#principled-implementation Defaults are the identity (scales of one, displacements of zero) and every supplied value is checked against its documented interval and returned as an owned copy; an out-of-range value refuses rather than being clipped.
+ * @evidence contracts/common.md#clear-and-simple-design Merge over the identity, check each value.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No clipping, special case or compensating path.
+ * @evidence contracts/common.md#meaningful-documentation States identity irrespective of person and the no-clipping rule; the intervals are documented on the parameter type.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries resolvePortraitFacialFrameShape constructs no surface that meets another part.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source resolvePortraitFacialFrameShape carries no anatomical value, range, proportion, landmark or tissue behaviour.
+ * @evidenceExclude contracts/anatomy.md#permitted-range resolvePortraitFacialFrameShape admits, bounds and combines no anatomical value.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority resolvePortraitFacialFrameShape defines no input through which a caller shapes a human form.
  */
 export function resolvePortraitFacialFrameShape(
   input: IPortraitFacialFrameShape = {},

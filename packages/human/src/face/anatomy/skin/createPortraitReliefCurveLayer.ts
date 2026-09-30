@@ -11,6 +11,18 @@ import { IPortraitReliefCurve } from "./structures/IPortraitReliefCurve";
  * authored controls retain the curve's measured end points and tangent scale.
  * Empty curves are identity; zero displacement controls are retained only as
  * interpolation anchors, so a curve can fade into an unchanged host.
+ *
+ * @evidence contracts/common.md#principled-implementation Each curve segment is sampled at its start and two interior thirds by linear interpolation of centre, radius and displacement in the live attachment frame, and the final control is sampled once, so the engine's compact kernel supplies the smooth overlap of a continuous path; zero-displacement controls are kept as anchors so a curve can fade into unchanged skin.
+ * @evidence contracts/common.md#clear-and-simple-design A sampler over control pairs that emits engine fields; the kernel is the engine's.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case; malformed curves refuse.
+ * @evidence contracts/common.md#meaningful-documentation States the sampling rule and the identity for empty curves.
+ * @evidence contracts/modeling.md#spatial-conventions Millimetres in, engine metres out through the /1000 conversions.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping A layer is a displacement field set, not a part or a group of parts.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits at most three fields per segment plus one, bounded by 32 controls per curve.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source It carries no measurement of its own.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It bounds no anatomical quantity.
  */
 export function createPortraitReliefCurveLayer(
   id: string,
