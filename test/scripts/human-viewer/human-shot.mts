@@ -83,7 +83,7 @@ async function watch(): Promise<void> {
       if (!alive && owned?.exitCode !== null) {
         console.error("watch: no server, starting");
         start();
-        silentSince = Date.now();
+        silentSince = Date.now() + 180000;
       } else if (Date.now() - silentSince > STALL_MS) {
         console.error("watch: server silent for " + STALL_MS / 1000 + " s, restarting");
         if (saved !== null) kill(saved.pid);
@@ -93,7 +93,7 @@ async function watch(): Promise<void> {
           setTimeout(resolve, 3000);
         });
         start();
-        silentSince = Date.now() + 120000;
+        silentSince = Date.now() + 180000;
       }
     }
     await new Promise((resolve) => {
