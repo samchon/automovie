@@ -6,7 +6,7 @@ import {
   validateModel,
 } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
-import { Document } from "@gltf-transform/core";
+import { Document, TextureInfo } from "@gltf-transform/core";
 import {
   KHRMaterialsClearcoat,
   KHRMaterialsIOR,
@@ -16,6 +16,9 @@ import {
 
 import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
 import { placeMeshPreservingFaces } from "../mesh/placeMeshPreservingFaces";
+
+/** glTF sampler wrap mode 33071: a face texture never tiles past its UV0 square. */
+const CLAMP = TextureInfo.WrapMode.CLAMP_TO_EDGE;
 
 /**
  * Convert a static AutoMovie model into portable glTF buffers and materials.
@@ -176,17 +179,17 @@ export function createGltfDocument(model: IAutoMovieModel): Document {
       }
       if (slot === "baseColorTexture") {
         material.setBaseColorTexture(texture);
-        material.getBaseColorTextureInfo()!.setWrapS(33071).setWrapT(33071);
+        material.getBaseColorTextureInfo()!.setWrapS(CLAMP).setWrapT(CLAMP);
       } else if (slot === "normalTexture") {
         material
           .setNormalTexture(texture)
           .setNormalScale(finish.normalScale ?? 1);
-        material.getNormalTextureInfo()!.setWrapS(33071).setWrapT(33071);
+        material.getNormalTextureInfo()!.setWrapS(CLAMP).setWrapT(CLAMP);
       } else {
         material
           .setOcclusionTexture(texture)
           .setOcclusionStrength(finish.occlusionStrength ?? 1);
-        material.getOcclusionTextureInfo()!.setWrapS(33071).setWrapT(33071);
+        material.getOcclusionTextureInfo()!.setWrapS(CLAMP).setWrapT(CLAMP);
       }
     }
     if (finish.transmission !== undefined || finish.thickness !== undefined)
