@@ -1,5 +1,5 @@
 /**
- * One decoded facial texture: its size and row-major RGBA bytes.
+ * One decoded texture: its size and row-major RGBA bytes.
  *
  * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Carries the shared basis texture between decoding and the numerical recolouring rule.
  * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Holds the exact decoded eye texture the iris rule rewrites and re-encodes.

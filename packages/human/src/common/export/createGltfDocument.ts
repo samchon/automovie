@@ -29,7 +29,7 @@ import { float32MeshBuffers } from "../mesh/float32MeshBuffers";
  * extension set; clients must support every optical extension used by a model.
  * Geometry and closed optical volumes are checked again at the actual Float32
  * output boundary; a valid double-precision source can lose a face on export.
- * This is a static facial-asset exporter, not a general scene-export API.
+ * This is a static model exporter, not a general scene-export API.
  * Prefer exportHumanFace for portable bytes. This low-level Document must be
  * written by the same glTF-Transform module instance that created it; mixing
  * CommonJS and ES-module instances can discard its geometry during writing.

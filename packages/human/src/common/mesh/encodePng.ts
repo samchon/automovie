@@ -3,7 +3,7 @@ import { zlibSync } from "fflate";
 import type { IPngImage } from "./structures/IPngImage";
 
 /**
- * The PNG encoder for facial textures that are recoloured by numerical rules.
+ * The PNG encoder for textures that are recoloured by numerical rules.
  *
  * `createHumanFaceIrisPigment` encodes its repainted eye texture with this
  * as a new data URI owned by the built material. It always writes 8-bit RGBA

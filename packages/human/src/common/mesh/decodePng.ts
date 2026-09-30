@@ -3,7 +3,7 @@ import { unzlibSync } from "fflate";
 import type { IPngImage } from "./structures/IPngImage";
 
 /**
- * The PNG decoder for facial textures that are recoloured by numerical rules.
+ * The PNG decoder for textures that are recoloured by numerical rules.
  *
  * `createHumanFaceIrisPigment` decodes a basis material's `data:image/png`
  * texture, rewrites the texels its rule owns and encodes the result as a new
@@ -29,10 +29,10 @@ const DATA_URI = "data:image/png;base64,";
  */
 export function decodePng(uri: string): IPngImage {
   if (!uri.startsWith(DATA_URI))
-    throw new Error("A facial texture must be a base64 PNG data URI.");
+    throw new Error("A texture must be a base64 PNG data URI.");
   const bytes = base64Bytes(uri.slice(DATA_URI.length));
   if (SIGNATURE.some((value, index) => bytes[index] !== value))
-    throw new Error("The facial texture is not a PNG.");
+    throw new Error("The texture is not a PNG.");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let offset = 8;
   let header: { width: number; height: number; type: number } | null = null;
@@ -46,7 +46,7 @@ export function decodePng(uri: string): IPngImage {
       const type = body[9];
       if (depth !== 8 || ![0, 2, 4, 6].includes(type) || body[12] !== 0)
         throw new Error(
-          "Facial textures must be non-interlaced 8-bit grey, RGB or RGBA PNGs.",
+          "Textures must be non-interlaced 8-bit grey, RGB or RGBA PNGs.",
         );
       header = {
         width: view.getUint32(offset + 8),
@@ -58,7 +58,7 @@ export function decodePng(uri: string): IPngImage {
     offset += 12 + length;
   }
   if (header === null || data.length === 0)
-    throw new Error("The facial texture PNG has no image header or data.");
+    throw new Error("The texture PNG has no image header or data.");
   const channels = { 0: 1, 2: 3, 4: 2, 6: 4 }[header.type]!;
   const stride = header.width * channels;
   const joined = new Uint8Array(
@@ -67,12 +67,12 @@ export function decodePng(uri: string): IPngImage {
   data.reduce((at, part) => (joined.set(part, at), at + part.length), 0);
   const raw = unzlibSync(joined);
   if (raw.length !== (stride + 1) * header.height)
-    throw new Error("The facial texture PNG data does not match its size.");
+    throw new Error("The texture PNG data does not match its size.");
   const pixels = new Uint8Array(stride * header.height);
   for (let y = 0; y < header.height; ++y) {
     const filter = raw[y * (stride + 1)];
     if (filter > 4)
-      throw new Error("The facial texture PNG has an unknown filter.");
+      throw new Error("The texture PNG has an unknown filter.");
     for (let x = 0; x < stride; ++x) {
       const left = x >= channels ? pixels[y * stride + x - channels] : 0;
       const up = y > 0 ? pixels[(y - 1) * stride + x] : 0;

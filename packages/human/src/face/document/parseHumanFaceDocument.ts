@@ -1,6 +1,7 @@
 import typia from "typia";
 
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
+import { assertTextSize } from "../../common/document/assertTextSize";
 import { assertFinite } from "./assertFinite";
 import { assertHumanFaceEditableDetail } from "./assertHumanFaceEditableDetail";
 
@@ -17,10 +18,7 @@ import { assertHumanFaceEditableDetail } from "./assertHumanFaceEditableDetail";
 export function parseHumanFaceDocument(
   text: string,
 ): IAutoMovieHumanFaceDocument {
-  if (text.length > 16 * 1024 * 1024)
-    throw new Error(
-      "Face documents must fit within 16,777,216 UTF-16 code units.",
-    );
+  assertTextSize(text);
   const document = typia.assertEquals<IAutoMovieHumanFaceDocument>(
     JSON.parse(text),
   );
