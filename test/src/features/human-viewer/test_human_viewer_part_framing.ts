@@ -26,7 +26,7 @@ export function test_human_viewer_part_framing(): void {
   TestValidator.equals("all", frameHumanViewerParts(root, []), assembly);
   const point = new THREE.Mesh(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0], 3)));
   point.name = "point";
-  for (const [object, names] of [[root, ["missing"]], [new THREE.Group(), []], [point, ["point"]]] as const) {
+  for (const [object, names] of [[root, ["part", "missing"]], [new THREE.Group(), []], [point, ["point"]]] as const) {
     let refused = false;
     try { frameHumanViewerParts(object, names); } catch { refused = true; }
     TestValidator.predicate("unframeable refuses", refused);

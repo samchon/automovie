@@ -75,6 +75,6 @@ async function main(): Promise<void> {
       console.log(JSON.stringify({ file: filename, revision: response.headers.get("x-human-revision"), renderer: response.headers.get("x-renderer"), ms: response.headers.get("x-render-ms") }));
     }
   }
-  if (owned !== undefined) await new Promise<void>((resolve) => { owned!.once("exit", () => resolve()); });
+  if (owned !== undefined) await new Promise<undefined>((resolve) => { owned!.once("exit", () => resolve(undefined)); });
 }
 void main().catch((error: unknown) => { if (owned?.pid) kill(owned.pid); console.error(String(error)); process.exitCode = 1; });
