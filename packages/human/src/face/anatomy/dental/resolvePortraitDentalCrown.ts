@@ -21,7 +21,6 @@ import type { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The defaults are construction defaults of the basic profile and cite no measured tooth.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the crown type's named dimensions.
  * @author Samchon
  */

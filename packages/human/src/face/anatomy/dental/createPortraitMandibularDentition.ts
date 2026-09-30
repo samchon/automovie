@@ -27,7 +27,6 @@ import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the observed and current jaw angles from the expression rather than defining a channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The primitives are the row's own.
  * @evidence contracts/modeling.md#shared-boundaries The row is placed in the frame of the lower lip anchor and rotated about the same hinge as the lower lip and tongue, through one shared rotation, so lower enamel, lip and tongue move as one mandible; it is not brought into contact with the upper row, so occlusal contact is not guaranteed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical value; the lower row's dimensions are authored.
  * @evidence contracts/anatomy.md#parametric-authority Inputs are three named oral landmarks, two named nonnegative placement offsets, a named hinge with observed and current angles and a row of named crown dimensions; none addresses a vertex, curve or patch.
  */
 export function createPortraitMandibularDentition(

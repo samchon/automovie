@@ -90,7 +90,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IPortraitLipCoordinate} Locates a sample inside one curved vermilion band without subject-specific vertex identities.
  * @evidence {@link Human.createPortraitLipSection} Evaluates owned vermilion relief with exactly zero contribution at both band edges and corners.
  * @evidence {@link Human.createPortraitLipCoordinates} Binds outer and inner lip curves to the section's normalized coordinates.
- * @evidence {@link Human.buildPortraitDentalRow} Composes the owned crowns on a nominal arch and resolves optional proximal contact before merging the group.
+ * @evidence {@link Human.buildPortraitDentalRow} Composes the owned crowns on a nominal arch and separates their complete proximal surfaces before merging the group.
  * @evidence {@link Human.createPortraitDentalComponent} Attaches the complete dental row to live refined oral anchors without cutting or deforming skin.
  * @evidence {@link Human.IPortraitInterior} Inspects the owned pre-packing anatomical descriptor.
  * @evidence {@link Human.IPortraitInterior.id} Carries the existing part identity through preparation.
@@ -104,5 +104,10 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.preparePortraitOralLining} Retains the traced skin IDs beside the native oral mesh.
  * @evidence {@link Human.IPortraitInterior.loops} Declares named directed anatomical cycles in native vertex space.
  * @evidence {@link Human.IPortraitInterior.attachments} Declares explicit skin or interior correspondences.
+ * @evidence {@link Human.separatePortraitDentalCrowns} Shifts ordered crowns along X until their complete proximal surfaces stop overlapping.
+ * @evidence {@link Human.resolvePortraitDentalCrown} Completes an omitted cervical ratio and edge rise with the basic crown profile in one place.
+ * @evidence {@link Human.portraitTongueColumns} States how many samples go round each lingual ring, read by the builder and the station function.
+ * @evidence {@link Human.portraitTongueStation} Reads the builder's vertex layout as a station from tip to root for the jaw weighting.
+ * @evidence {@link Human.portraitTongueWidthEnvelope} Gives the tongue a rounded plan outline as an ellipse of the station.
  */
 export const portraitOralReview = { scope: "oral construction inspection" };

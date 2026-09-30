@@ -11,7 +11,6 @@
  * @evidenceExclude contracts/modeling.md#emitted-geometry The type emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The type builds no surface; both lip boundaries stay fixed by the scaling that consumes it.
  * @evidenceExclude contracts/modeling.md#rendered-observation The type owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The knot carries no anatomical value of its own; the values a caller authors are construction ratios.
  * @evidenceExclude contracts/anatomy.md#permitted-range The type admits nothing; `createPortraitLipBandScale` bounds the ratios.
  * @author Samchon
  */

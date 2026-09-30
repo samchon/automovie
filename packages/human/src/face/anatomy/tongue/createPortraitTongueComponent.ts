@@ -30,7 +30,6 @@ import { portraitTongueStation } from "./portraitTongueStation";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The primitives are the builder's own.
  * @evidence contracts/modeling.md#spatial-conventions Sockets name host vertices; the local millimetre body is mapped to the head millimetre frame by the shared oral attachment, then rotated in degrees about the head-frame hinge, and packed once at the metric boundary.
  * @evidence contracts/modeling.md#shared-boundaries The tongue is placed in the same lower-lip frame and rotated about the same hinge and by the same rotation function as the lower lip and lower enamel, with the posterior end held fixed, so the anterior body moves with the mandible without the root leaving its place. The tongue is not brought into contact with the teeth or the lining, so the join with them is not guaranteed.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical value; the tongue dimensions are authored.
  * @evidence contracts/anatomy.md#parametric-authority Inputs are three named oral landmarks, a named hinge, the named lingual dimensions and the observed and current expressions; none addresses a vertex, curve or patch.
  */
 export function createPortraitTongueComponent(

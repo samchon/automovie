@@ -20,7 +20,6 @@
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function cites no measured tongue outline; an ellipse is the construction's rounded body, stated as such.
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical quantity.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function.
  * @author Samchon

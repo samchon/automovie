@@ -28,7 +28,6 @@ import { portraitMouthInnerLoop } from "./structures/portraitMouthInnerLoop";
  * @evidence contracts/common.md#meaningful-documentation The comment states what the component fits, adapts and finishes and that a connected lining receives only the final lip triangles.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres on the host; the interior is packed once at the metric boundary by its finisher.
  * @evidence contracts/modeling.md#shared-boundaries The lip band, the cutaneous border, the aperture and the interior lining are all built from one socket: the outer loop is shared with the skin by the host cut and border refinement, the aperture cycle is the one loop both the cut and the flood use, and the lining's rim is the traced refined boundary. Section and seam relief are zero on those boundaries. The enamel is not fitted against the lips or the cavity backdrop here; measured on the fixture face the upper arch crosses both by default, and the opt-in contact fit is the resolution.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical value of its own; the lip dimensions are authored.
  */
 export function createPortraitMouthComponent(
   inputSocket: IPortraitMouthSocket,

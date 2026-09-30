@@ -25,7 +25,6 @@ import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
  * @evidence contracts/modeling.md#spatial-conventions Millimetres in the crown's local frame with +Y towards the gingiva and +Z towards the lip; the cervical cycle is vertex identities.
  * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the crown's dimensions as inputs and defines no channel of its own.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The declaration builds one crown; the clearance between neighbours is the row's separation.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical measurement; the exponents and thickness profile are construction choices for a rounded crown.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the crown type's named dimensions.
  */
 export function preparePortraitDentalCrown(

@@ -30,7 +30,6 @@ import { IPortraitMouthSocket } from "./structures/IPortraitMouthSocket";
  * @evidence contracts/modeling.md#emitted-geometry The backdrop is a fixed 100 by 30 lattice, the enclosure follows the rim, and the crowns are the caller's; none grows with authored features beyond the crowns the caller lists.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres in; interiors are returned in millimetres and packed once at the metric boundary by the callers.
  * @evidence contracts/modeling.md#shared-boundaries When a wall is selected the lining is attached to every actual refined rim vertex through the declared attachments, so the interior and the lip band share one boundary. The detached backdrop is not joined to the skin, which is its documented legacy form, and the enamel is not fitted against the lips or the backdrop, so enamel can cross them.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical measurement; crown widths and cavity depth are authored.
  * @evidence contracts/anatomy.md#parametric-authority Inputs are named mouth dimensions, a named performance and named crown dimensions; none addresses a vertex, curve or patch of the interior.
  */
 export function preparePortraitMouth(

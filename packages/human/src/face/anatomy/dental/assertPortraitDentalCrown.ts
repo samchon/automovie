@@ -13,7 +13,6 @@ import { IPortraitDentalCrown } from "./structures/IPortraitDentalCrown";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The bounds are the loft's arithmetic and cite no measured tooth dimension.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input through which a caller shapes a face; it refuses values of inputs declared on the crown type.
  */
 export function assertPortraitDentalCrown(s: IPortraitDentalCrown): void {

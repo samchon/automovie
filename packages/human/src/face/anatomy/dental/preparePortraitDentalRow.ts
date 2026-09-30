@@ -25,7 +25,6 @@ import { IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * @evidence contracts/modeling.md#spatial-conventions Millimetres in the group's local frame (+X across the arch, +Y towards the gingiva, +Z towards the lip); the separation solves in metres and converts back at one named step in `separatePortraitDentalCrowns`.
  * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes the row's dimensions and defines no channel of its own.
  * @evidence contracts/modeling.md#shared-boundaries Neighbouring crowns meet at one boundary definition, the contact gap: every adjacent pair is separated from complete surfaces so they touch at most, verified by the sequence separation's clearance measurement along X, and the nominal ellipse is only a guide. The join is measured along one axis, so a crown pair whose rotated proximal faces overlap in a direction the X measurement does not see is a limit of the engine measurement.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical measurement; the arch is an authored ellipse.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the row type's named dimensions.
  */
 export function preparePortraitDentalRow(input: IPortraitDentalRow) {

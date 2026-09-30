@@ -23,7 +23,6 @@ import { type IPortraitDentalRow } from "./structures/IPortraitDentalRow";
  * @evidenceExclude contracts/modeling.md#parameter-channels The declaration consumes no channel; lift and recess are placement offsets.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The primitives are the row's own.
  * @evidence contracts/modeling.md#shared-boundaries The row is attached at the same corner and midpoint vertices the mouth uses, through the shared oral frame, so the enamel sits in the frame of the moving lips at refined-oral attachment and in the observed maxilla frame at the maxillary attachment; it does not follow lip motion in the latter, which is the intended separation of a rigid maxilla from a moving lip.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical value; the row's dimensions are authored.
  * @evidenceExclude contracts/anatomy.md#permitted-range The declaration admits sockets and finite offsets only.
  * @evidence contracts/anatomy.md#parametric-authority Inputs are three named oral landmarks, two named placement offsets, a closed choice of attachment frame and a row of named crown dimensions; none addresses a vertex, curve or patch of the enamel.
  */

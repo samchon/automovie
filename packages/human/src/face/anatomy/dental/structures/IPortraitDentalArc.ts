@@ -15,7 +15,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The type emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The type builds no surface.
  * @evidenceExclude contracts/modeling.md#rendered-observation The type owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The type carries no anatomical value; the posterior continuation it exposes is constructed by `createPortraitDentalArc` and documented there as inferred.
  * @evidenceExclude contracts/anatomy.md#permitted-range The type admits nothing; the sampler refuses a distance off the guide.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this type; it is produced by `createPortraitDentalArc` from a guide.
  * @author Samchon

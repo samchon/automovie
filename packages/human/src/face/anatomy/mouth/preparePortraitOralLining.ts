@@ -26,7 +26,6 @@ import { tracePortraitOralBoundary } from "./tracePortraitOralBoundary";
  * @evidence contracts/modeling.md#emitted-geometry The population is rows (23 rings plus the pole) times the rim's own vertex count, so it follows the refined rim's resolution and is independent of the depth, wall and chamber values; a card or a single cap could not join every actual rim vertex.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres in and out; depth and chamber values are millimetres and the wall a fraction.
  * @evidence contracts/modeling.md#shared-boundaries The rim vertices are the exact skin boundary vertices traced from the refined surface, and the returned boundary names the skin vertex behind each, so the lining and the lip band share one boundary and cannot open at the join for any admitted depth, wall or chamber. Its back is a free enclosure that other oral parts may cross.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The lining carries no anatomical measurement; the enclosure is documented as authored.
  * @evidence contracts/anatomy.md#parametric-authority Inputs are a named depth, a named wall fraction and a named chamber in millimetres; none addresses a vertex, curve or patch of the lining.
  */
 export function preparePortraitOralLining(

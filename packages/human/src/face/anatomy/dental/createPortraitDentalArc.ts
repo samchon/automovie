@@ -20,7 +20,6 @@ import { IPortraitDentalArc } from "./structures/IPortraitDentalArc";
  * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; the fixed sample counts are internal to the parameterization.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The function cites no measured arch; the guide is supplied by the caller and the posterior tail is constructed.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input shapes a form through this function beyond the guide it parameterizes.
  */
 export function createPortraitDentalArc(

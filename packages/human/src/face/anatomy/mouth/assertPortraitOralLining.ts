@@ -14,7 +14,6 @@ import { IPortraitOralChamber } from "./structures/IPortraitOralChamber";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no part, group or joint.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The bounds are those of the enclosure's arithmetic and are not anatomical measurements.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines no input through which a caller shapes a face; it refuses values of inputs declared elsewhere.
  */
 export function assertPortraitOralLining(

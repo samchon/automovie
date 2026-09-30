@@ -30,7 +30,6 @@ import { posePortraitJawPoint } from "./posePortraitJawPoint";
  * @evidenceExclude contracts/modeling.md#emitted-geometry The declaration emits no primitive; it poses appended tissue before common subdivision.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres and degrees about the +X hinge; the polar angle is radians internally and converted at the rotation.
  * @evidence contracts/modeling.md#shared-boundaries The rotation is continued to a posterior hinge plane and the lower cervical section that stay anchored, joined with unit endpoint derivatives, and the oral band keeps facial performance's own weight, so the field is continuous with the fixed and the oral tissue. It does not model condylar translation or guarantee that skin is free of self-intersection.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The declaration carries no anatomical measurement; the hinge and lower section come from the document.
  */
 export function createPortraitJawContinuation(
   inputHost: IPortraitComponentHost,
