@@ -19,7 +19,7 @@ const origin = "http://127.0.0.1:5175";
 const request = parseHumanShotRequest(process.argv.slice(2));
 type Health = { service: string; pid: number; revision: string; renderer: string; ready: boolean; errors: string[] };
 let owned: ChildProcess | undefined;
-const probe = async (): Promise<Health | null> => {
+const probe = async (): Promise<Health | null | undefined> => {
   try {
     const response = await fetch(origin + "/health", { signal: AbortSignal.timeout(2000) });
     const health = await response.json() as Health;
@@ -27,6 +27,7 @@ const probe = async (): Promise<Health | null> => {
     return health;
   } catch (error) {
     if ((error as { cause?: { code?: string } }).cause?.code === "ECONNREFUSED") return null;
+    if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) return undefined;
     throw error;
   }
 };
@@ -40,6 +41,7 @@ async function main(): Promise<void> {
   if (request.command === "stop") {
     const record = path.join(storage, "server.json");
     if (health === null) { console.log("human-viewer absent"); return; }
+    if (health === undefined) throw new Error("The port is busy; ownership cannot yet be verified");
     const saved = fs.existsSync(record) ? JSON.parse(fs.readFileSync(record, "utf8")) as { pid: number } : null;
     if (saved === null || saved.pid !== health.pid) throw new Error("The running server is not owned by this checkout");
     kill(saved.pid); fs.rmSync(record, { force: true }); return;
