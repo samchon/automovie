@@ -10,7 +10,9 @@ import { throwsError } from "../internal/predicates";
  *
  * Scenarios:
  * 1. Positive lengths, nonnegative offsets, signed displacements and sampling
- *    counts reject nonfinite or out-of-range values before host fitting.
+ *    counts reject nonfinite or out-of-range values before host fitting; an
+ *    upper lid admits 160 lashes, the top of the reported anatomical range,
+ *    and refuses 161.
  * 2. Optical containment and contact/frame compatibility reject one-field
  *    contradictions while admitting their adjacent valid profile.
  * 3. Pretarsal dimensions and all seven weights retain their own boundaries.
@@ -76,7 +78,12 @@ export const test_subject_eye_input_admission = (): void => {
       0,
     );
   }
-  for (const value of [0, 1.5, NaN]) refuse({ upperLashes: value });
+  for (const value of [0, 1.5, NaN, 161]) refuse({ upperLashes: value });
+  TestValidator.equals(
+    "the anatomical ceiling of one upper lid is admitted",
+    admit({ upperLashes: 160 }).shape.upperLashes,
+    160,
+  );
   for (const key of ["eyeColumns", "eyeRows", "irisColumns", "irisRows"])
     refuse({ sampling: { ...valid.sampling, [key]: 0 } });
   refuse({ sampling: { ...valid.sampling, eyeColumns: 1 } });

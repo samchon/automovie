@@ -1,5 +1,14 @@
 import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
 
+/** Population horizontal visible iris diameter, millimetres. */
+const HUMAN_FACE_LIMBAL_DIAMETER_MM = 11.71;
+
+/** Population transverse globe diameter, millimetres. */
+const HUMAN_FACE_GLOBE_DIAMETER_MM = 24.2;
+
+/** Light-adapted pupil diameter of an indoor portrait, millimetres. */
+const HUMAN_FACE_PUPIL_DIAMETER_MM = 3.5;
+
 /**
  * Anatomical iris disc of one textured globe, found from its geometry alone.
  *
@@ -40,19 +49,26 @@ import type { IHumanFaceIrisDisc } from "./structures/IHumanFaceIrisDisc";
  * the positions. It refuses fewer than eight vertices, a degenerate fit and a
  * globe without a protruding cornea or without sclera vertices behind it,
  * because each leaves no axis to paint.
- */
-
-/** Population horizontal visible iris diameter, millimetres. */
-const HUMAN_FACE_LIMBAL_DIAMETER_MM = 11.71;
-
-/** Population transverse globe diameter, millimetres. */
-const HUMAN_FACE_GLOBE_DIAMETER_MM = 24.2;
-
-/** Light-adapted pupil diameter of an indoor portrait, millimetres. */
-const HUMAN_FACE_PUPIL_DIAMETER_MM = 3.5;
-
-/**
- * Locate the optical axis and anatomical iris disc of a textured globe.
+ *
+ * The result is metres in the basis frame with angles in radians from the
+ * optical axis, and the limbus and pupil are absolute lengths of the eye taken
+ * from the population values above and not from the asset's painting. The
+ * globe of the population is 24.2 mm across, so a globe fitted larger than
+ * that carries the same absolute iris on a larger sphere and the iris then
+ * covers a smaller angle.
+ *
+ * @evidence contracts/common.md#principled-implementation An algebraic least-squares sphere is linear in its centre and the constant term, so the four normal equations are solved directly by pivoted elimination after taking points about their mean, which keeps the equations well conditioned far from the origin. The cornea stands outside the sphere of the rest of the globe, so the direction of that excess is the optical axis; the first fit is biased forward by the cornea, so refitting on vertices more than 45 degrees from the first axis, which no anatomical proportion lets be cornea, removes the bias. On a chord of a sphere of radius r, 2 r sin(theta) equals the iris diameter, which is the asin used for the half-angle. Degenerate inputs (fewer than eight vertices, no sclera behind the cornea, an unresolved fit, no protrusion above rounding) are refused because each leaves no axis.
+ * @evidence contracts/common.md#clear-and-simple-design One pure function turns vertex positions into one disc description in the fixed order fit, axis, refit, axis and angles, with the fit and axis helpers private to it and no option.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No asset name, texture pixel, photograph or subject is read; the only constants are three published population lengths. The 45 degree sclera cut is a geometric margin, not a tuned value.
+ * @evidence contracts/common.md#meaningful-documentation The comment gives the processing order with the reason for each step, the units, the azimuth reference and its degenerate case, the population values and what each refusal means.
+ * @evidence contracts/modeling.md#spatial-conventions Positions are basis-frame metres, the centre and radius are in metres, every angle is in radians, and the world +Y azimuth reference (world +X for a vertical axis) is stated; the only unit conversion is millimetre to metre applied to the three population lengths.
+ * @evidence contracts/anatomy.md#anatomical-source The visible iris diameter of 11.71 mm is the horizontal white-to-white corneal diameter that Ruefer, Schroeder and Erb (Cornea 2005;24:259-261) measured with the Orbscan II in 390 healthy white subjects aged 10 to 80 (mean 11.71, standard deviation 0.42), and the globe diameter of 24.2 mm is the mean transverse diameter Bekerman, Gottlieb and Vaiman (J Ophthalmol 2014:503645) measured on CT of 250 healthy adults (range 21 to 27 mm); both were read as published abstracts. The two are measured values. The declaration applies the white population's iris length to every ancestry and takes the horizontal white-to-white diameter as the visible iris diameter. The 3.5 mm pupil is a convention: it is stated to lie inside the range Watson and Yellott (J Vis 2012) give for a young adult at indoor luminance, but that range was not re-derived when this answer was written.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function locates a disc on a globe and defines no part or group.
+ * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the edge blend between the painted iris and the sclera belongs to the pigment rule that consumes this disc.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The function admits no anatomical input; it derives the disc from geometry and three constants.
+ * @evidenceExclude contracts/anatomy.md#parametric-authority The function has no caller input that shapes a face; the disc follows from the globe geometry.
  */
 export function locateHumanFaceIrisDisc(
   positions: readonly (readonly [number, number, number])[],
