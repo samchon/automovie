@@ -3,5 +3,8 @@ export * from "./assertPortraitTongueShape";
 export * from "./buildPortraitTongue";
 export * from "./createPortraitTongueComponent";
 export * from "./frontWeight";
+export * from "./portraitTongueColumns";
 export * from "./portraitTongueParameters";
 export * from "./portraitTongueRows";
+export * from "./portraitTongueStation";
+export * from "./portraitTongueWidthEnvelope";
