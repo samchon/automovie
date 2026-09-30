@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.scripts.json",
+  "compilerOptions": { "module": "esnext", "moduleResolution": "bundler", "rootDir": "../../..", "types": ["node", "vite/client"] },
+  "include": ["*.ts", "*.mts"]
+}
