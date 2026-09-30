@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { addHumanPreviewRig } from "../common/previewRig";
+import { createHumanObservation } from "../observation/createHumanObservation";
 import { createHumanPreviewCamera } from "../common/previewScene";
 
 /**
@@ -77,6 +78,14 @@ export function createHumanPreviewStage(props: {
   });
   let active: THREE.Group | undefined;
   let clayEnabled = false;
+  const observation = createHumanObservation({
+    scene,
+    camera,
+    orbit,
+    roots: () => (active === undefined ? [] : [active]),
+    clay,
+    height: () => canvas.getBoundingClientRect().height,
+  });
   const {
     cameraView,
     fitView,
@@ -103,7 +112,8 @@ export function createHumanPreviewStage(props: {
   resize();
   const render = (): void => {
     orbit.update();
-    scene.overrideMaterial = clayEnabled ? clay : null;
+    observation.apply();
+    scene.overrideMaterial = observation.override(clayEnabled);
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(render);
@@ -112,6 +122,7 @@ export function createHumanPreviewStage(props: {
     publish,
     fitView,
     cameraView,
+    observe: observation.hooks,
     setClay: (enabled: boolean): void => {
       clayEnabled = enabled;
       renderer.shadowMap.needsUpdate = true;

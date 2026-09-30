@@ -20,6 +20,7 @@ A declaration that owns a part, a joint or an assembly answers the contracts ski
 - **Views.** Take the directions the [facial review contract](../../../docs/specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review) requires: front, anatomical left and right oblique and profile, back, and a material-independent clay. The body uses the same directions.
 - **Shared basis.** A change to a shared basis reaches every part built on it, so observe each of them again. An answer written before the change no longer describes the result.
 - **Locality.** Renders and reference images stay on the local machine, in `.shots/` or the `.wiki/`. The answer and the issue describe them in words.
+- **Body tool.** `test/scripts/body-review/observe-body.ts <name> --unit part|joint|whole [--id <unit id>]` derives these units from their owners (the displayed parts, the rig's joints with their clinical ranges, the standard whole-body states) and draws them, writing a local sheet and a `manifest.json` per unit (revision, basis id, renderer, per-frame SHA-256, the states the editor refused and the extremes the rig does not admit, no image bytes). A manifest whose revision or basis is no longer current is stale, and an answer written from it no longer describes the result. The tool draws what the rig admits and records what it refuses; whether a frame is right is still read by eye.
 
 Drive the viewer as the [viewer-verification skill](../viewer-verification/SKILL.md) describes.
 

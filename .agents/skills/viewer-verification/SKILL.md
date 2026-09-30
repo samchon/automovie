@@ -25,9 +25,25 @@ Two details decide whether the frame is real.
 
 ## Product editors
 
-Judge the face and body editors on the frames the product draws. Serve the playground with `pnpm --filter @automovie/playground dev` at `http://127.0.0.1:5173`, which builds `@automovie/human` once and does not rebuild it. Keep that server running for the whole task so each observation costs one navigation, and start it as an in-session background job so ending the session ends it. After a change to human source, rebuild the package and reload before you capture, because a capture of an older build reports a feature as absent.
+Judge the face and body editors on the frames the product draws. The playground dev server at `http://127.0.0.1:5173` serves them, and the tool `test/scripts/viewer/viewer.ts` owns its life. Run it from `test/` as `pnpm exec ttsx -P tsconfig.scripts.json scripts/viewer/viewer.ts <command>`:
 
-Open `connected-face.html` or `connected-body.html`, wait for the panel to report a committed state, and drive the page through `window.__connectedFace` or `window.__connectedBody`: `change` applies a document as a slider commit does, `camera` and `fit` move the display camera, `clay` switches the material-independent view, `finish` completes the frame, and `renderer` returns the graphics device to log. The face page also offers `look`, which places the camera exactly. Only `change` edits the document. The other hooks change the display and never the document.
+- `ensure` leaves a healthy, fresh server alone, rebuilds `@automovie/human` when its source is newer than the browser build (the running server reads the new files on the next page load), and otherwise builds if needed and starts the server and stays attached to it. Start `ensure` as an in-session background job so ending the session ends the server. Keep the server running for the whole task so each observation costs one navigation.
+- `status` reports whether the port serves the playground, the revision, and whether the human build is fresh. Its exit code is 0 for ready, 3 for absent, 4 when another program holds the port and 5 for a stale build. `status --gpu` also opens the body editor in a browser and prints the renderer string, and exits 6 when it names a software rasterizer.
+- `stop` ends the server this tool started and its whole process tree. It acts only on the process id it recorded, and only while the port still serves the playground. It never touches a program it did not start.
+
+A server the dev command or another shell started is served but not owned: `ensure` reuses it and `stop` leaves it. The dev server does not rebuild `@automovie/human`, so a capture of an older build reports a feature as absent; run `status` before capturing and rebuild when it says the build is stale. The tool takes no port from another program, opens no window, and judges nothing about the frame: read the `RENDERER` string on every run as the previous section says.
+
+Open `connected-face.html` or `connected-body.html`, wait for the panel to report a committed state, and drive the page through `window.__connectedFace` or `window.__connectedBody`: `change` (body) applies a document as a slider commit does, `camera` and `fit` move the display camera, `clay` switches the material-independent view, `finish` completes the frame, and `renderer` returns the graphics device to log. Both pages share the observation hooks, which change the display and never the document:
+
+- `view(name, { distance?, fov? })` looks at the whole subject from `front`, `left-three-quarter`, `left`, `back`, `right-three-quarter`, `right`, `top` or `bottom`. Left and right are the figure's anatomical sides.
+- `look({ position, target, fov })` places the camera exactly and lifts the orbit's limits. `frame({ center, radius, view?, fov? })` frames a sphere of the displayed space, which is how a joint or a seam is zoomed.
+- `parts()` lists the displayed meshes by name, `isolate(names | null)` and `hide(names | null)` show or hide them and return the names no displayed part carries, and `state()` reports the current pass, isolation and hidden names. A part here is a mesh, which today is a material region and not yet an anatomical part. The hooks hide and restore only the meshes they hid themselves, and an unknown pass or view name throws.
+- On the body page, `companion()` resolves once the face seated beside the body has been built, so a capture after it always shows the same figure.
+- `pass(name)` draws the subject as `beauty` (the product frame), `clay`, `normal`, `depth`, `flat`, `wire` or `outline`. No pass replaces a lit `beauty` frame for judging material or light; the meaning and limits of each are on the pass type's JSDoc.
+
+Call `finish` after any hook before capturing. Only `change` edits the document.
+
+The body runner `test/scripts/body-review/capture-editor.ts` drives these hooks for a set of states, views and passes (`pnpm exec ttsx -P tsconfig.scripts.json scripts/body-review/capture-editor.ts <name> [--states a,b] [--views v,w] [--passes p,q] [--documents file.json]`, from `test/`). It first refuses a stale human build, a foreign server and a software renderer, writes each frame to `.shots/body-review/editor-<name>/<state>__<view>__<pass>.png`, and writes `captures.json` beside them with each frame's SHA-256, the renderer string, the revision and the build freshness, and no image bytes. Read the frames yourself; the record says what was drawn, not that it is right.
 
 Frames go to gitignored directories and never into the repository.
 
