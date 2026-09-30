@@ -7,6 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync, gzipSync } from "node:zlib";
 
+import { assertBodyCorrectiveBasis } from "./assertBodyCorrectiveBasis";
+import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import {
   type IBodyCorrectiveShard,
   mergeBodyCorrectives,
@@ -24,12 +26,13 @@ import {
  * in the order given (`mergeBodyCorrectives`): the correctives it dropped are
  * removed, the correctives it solved are appended together with the mirrors
  * of the sided ones and the symmetrized rows of the midline ones. A shard
- * solved on another revision than the input basis is refused, because its rows
- * are displacements from that revision's surface. The merged basis is compiled
+ * solved on another revision or payload than the input basis is refused,
+ * including historical shards without a payload digest, because its rows
+ * depend on that input's weights and rig as well as its surface. The merged basis is compiled
  * by `createHumanBodyBasisBuilder`, which admits it or throws, before anything
  * is written. The receipt records the two revisions, what was dropped, added,
  * mirrored and symmetrized, and the digests of the basis document and the
- * compressed file.
+ * compressed file, with the complete input digest recorded as `inputSha256`.
  */
 const argv = process.argv.slice(2);
 const option = (name: string): string | undefined =>
@@ -49,16 +52,15 @@ if (shardPaths.length === 0) throw new Error("Give at least one shard.");
 const input = JSON.parse(
   gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
 ) as IAutoMovieHumanBodyBasis;
+const inputSha256 = bodyCorrectiveBasisDigest(input);
 let basis = input;
 const steps: object[] = [];
 for (const shardPath of shardPaths) {
   const shard = JSON.parse(fs.readFileSync(shardPath, "utf8")) as IBodyCorrectiveShard & {
     basis: string;
+    basisSha256?: string;
   };
-  if (shard.basis !== input.id)
-    throw new Error(
-      `${shardPath} was solved on ${shard.basis}, not on ${input.id}.`,
-    );
+  assertBodyCorrectiveBasis({ id: input.id, sha256: inputSha256 }, shard, shardPath);
   const merged = mergeBodyCorrectives(basis, shard, revision);
   basis = merged.basis;
   steps.push({
@@ -84,6 +86,7 @@ if (receiptPath !== undefined)
       {
         basis: revision,
         supersedes: input.id,
+        inputSha256,
         steps,
         uncompressedSha256: sha(document),
         uncompressedBytes: document.length,

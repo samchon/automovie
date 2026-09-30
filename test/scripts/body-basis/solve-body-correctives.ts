@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
+import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
 import { createBodyCorrectiveSession } from "./createBodyCorrectiveSession";
 import {
   type BodyCensusSets,
@@ -30,7 +31,8 @@ import {
  *   solved again on a basis that no longer wears them. The shard records the
  *   dropped ids and the merge tool removes them from the basis it publishes.
  *
- * The shard is `pose.json` in the output directory: the basis revision, the
+ * The shard is `pose.json` in the output directory: the basis revision and
+ * complete input payload digest (`bodyCorrectiveBasisDigest`), the
  * set, the filters, the dropped ids, the correctives with their rest rows and
  * one record per visited state (the pairs that crossed, the onset, the
  * verification and the outcome). It is rewritten after every state. A basis
@@ -66,6 +68,7 @@ if (side !== undefined && side !== "left")
 const loaded = JSON.parse(
   gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
 ) as IAutoMovieHumanBodyBasis;
+const basisSha256 = bodyCorrectiveBasisDigest(loaded);
 const dropped = new Set(
   (loaded.correctives ?? [])
     .filter((corrective) => drop?.test(corrective.id) === true)
@@ -118,6 +121,7 @@ const save = (): void =>
     path.join(output, "pose.json"),
     JSON.stringify({
       basis: loaded.id,
+      basisSha256,
       set,
       only: only?.source ?? null,
       side: side ?? null,
