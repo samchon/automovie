@@ -1,6 +1,7 @@
 import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
 import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
 import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
+import { portraitFacialFrameWidthLimit } from "../anatomy/cranium/portraitFacialFrameWidthLimit";
 import { portraitCranialChinHeight } from "../anatomy/cranium/portraitCranialChinHeight";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
 import { resolvePortraitNeckShape } from "../anatomy/cranium/resolvePortraitNeckShape";
@@ -144,6 +145,14 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
   });
   const right = side("right"),
     left = side("left");
+  const widthLimit = portraitFacialFrameWidthLimit(observationHost, frame, [
+    { socket: bindings.eyes.right, shape: right.eye },
+    { socket: bindings.eyes.left, shape: left.eye },
+  ]);
+  if (frame.widthScale > widthLimit)
+    throw new Error(
+      `Facial-frame widthScale ${frame.widthScale} exceeds ${widthLimit.toFixed(3)}, the widest at which both eyes fit their sockets.`,
+    );
   if (
     (right.cheek !== undefined || left.cheek !== undefined) &&
     bindings.cheeks === undefined

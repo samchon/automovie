@@ -24,7 +24,7 @@ export interface IAutoMovieHumanFaceRecipe {
   /** Skin laxity, regional folds and tissue descent; omitted settings retain the unchanged surface. */
   skin?: IPortraitSkinShape;
 
-  /** Named reference-attached linear skin-colour regions; [] clears the inherited population. */
+  /** Linear colour at named skin sites of the fixed landmark basis, one per site; [] clears the inherited population. */
   skinColour?: readonly IPortraitSkinColourRegion[];
 
   /** Optional surface-based scalp locks, authored in head millimetres. Omission adds no hairstyle. */

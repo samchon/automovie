@@ -6,7 +6,6 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFaceFixture } from "../internal/humanFaceFixture";
-import { skinColourRegion } from "../internal/skinColourFixture";
 
 /**
  * Performed skin carries the observed cage's material coordinates.
@@ -26,11 +25,7 @@ export const test_subject_skin_colour_performance = (): void => {
   );
   const reference = buildPortraitHead(host, [rest], 1);
   const sample = createPortraitSkinColour(host, [
-    {
-      ...skinColourRegion(),
-      anchor: bindings.eyes.right.browTop[1],
-      radius: [30, 30, 30],
-    },
+    { site: "forehead", gain: [0.8, 0.6, 0.4], strength: 1 },
   ]);
   const performed = buildPortraitHead(host, [moved], 1, [], {
     appearance: { host, components: [rest], sample },

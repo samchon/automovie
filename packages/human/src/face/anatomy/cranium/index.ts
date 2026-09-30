@@ -7,6 +7,7 @@ export * from "./createPortraitFacialFrame";
 export * from "./createPortraitMaterials";
 export * from "./portraitFacialOvalVertices";
 export * from "./portraitCranialChinHeight";
+export * from "./portraitFacialFrameWidthLimit";
 export * from "./portraitNeckShape";
 export * from "./resolvePortraitNeckShape";
 export * from "./preparePortraitHead";

@@ -1,11 +1,13 @@
-import type { IPortraitSkinColourRegion } from "@automovie/human";
+import type {
+  IPortraitColourField,
+  IPortraitSkinColourRegion,
+} from "@automovie/human";
 import type { IControlMesh } from "@automovie/human/face/mesh/structures/IControlMesh";
 
 /** A compact origin-centred pigment with unequal radii and RGB attenuation. */
-export const skinColourRegion = (): IPortraitSkinColourRegion => ({
+export const skinColourField = (): IPortraitColourField => ({
   name: "test-region",
-  anchor: 0,
-  offset: [0, 0, 0],
+  center: [0, 0, 0],
   radius: [2, 4, 8],
   gain: [0.8, 0.6, 0.4],
   strength: 0.5,
@@ -21,4 +23,11 @@ export const skinColourSquare = (): IControlMesh => ({
   ],
   indices: [0, 1, 2, 0, 2, 3],
   groups: [0, 0],
+});
+
+/** One named forehead colour with RGB attenuation and half strength. */
+export const skinColourRegion = (): IPortraitSkinColourRegion => ({
+  site: "forehead",
+  gain: [0.8, 0.6, 0.4],
+  strength: 0.5,
 });
