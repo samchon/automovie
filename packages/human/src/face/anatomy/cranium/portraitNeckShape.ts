@@ -23,3 +23,10 @@ export const portraitNeckShape: IPortraitNeckShape = {
   lower: { y: -145, width: 58.5, front: 53.1, back: 61.3, centre: -36.7 },
   crop: { y: -150, width: 59.9, front: 53.1, back: 61.3, centre: -36.7 },
 };
+
+/**
+ * The chin height, in millimetres, of the host the default sections were
+ * authored below. `resolvePortraitNeckShape` shifts the default sections by
+ * the difference between a subject's actual chin and this height.
+ */
+export const portraitNeckReferenceChin = -83.5;

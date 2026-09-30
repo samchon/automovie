@@ -2,8 +2,8 @@ import { portraitEyebrowProfile } from "../anatomy/brow/portraitEyebrowProfile";
 import { createPortraitFacialFrame } from "../anatomy/cranium/createPortraitFacialFrame";
 import { createPortraitMaterials } from "../anatomy/cranium/createPortraitMaterials";
 import { portraitCranialChinHeight } from "../anatomy/cranium/portraitCranialChinHeight";
-import { portraitNeckShape } from "../anatomy/cranium/portraitNeckShape";
 import { resolvePortraitCraniumShape } from "../anatomy/cranium/resolvePortraitCraniumShape";
+import { resolvePortraitNeckShape } from "../anatomy/cranium/resolvePortraitNeckShape";
 import { resolvePortraitFacialFrameShape } from "../anatomy/cranium/resolvePortraitFacialFrameShape";
 import { portraitEarShape } from "../anatomy/ear/portraitEarShape";
 import { portraitEarSampling } from "../anatomy/ear/portraitEarSampling";
@@ -113,7 +113,7 @@ export function resolveHumanFaceDocument(input: IAutoMovieHumanFaceDocument) {
       browProfile:
         document.basis.recipe.eye.browProfile ?? portraitEyebrowProfile,
     },
-    neck: document.basis.recipe.neck ?? portraitNeckShape,
+    neck: resolvePortraitNeckShape(chinY, document.basis.recipe.neck),
     ear: {
       ...(document.basis.recipe.ear ?? portraitEarShape),
       sampling: document.basis.recipe.ear?.sampling ?? {
