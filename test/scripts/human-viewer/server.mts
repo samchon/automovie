@@ -44,6 +44,7 @@ function collect(directory: string): void {
 }
 for (const source of sourceRoots) collect(source);
 for (const file of ["pnpm-lock.yaml", "config/tsconfig.json", "packages/human/tsconfig.json", "packages/human/package.json", "test/package.json",
+  "test/scripts/body-review/standardBodyReviewDocuments.ts", "test/scripts/face-review/faceShapeFitCamera.ts", "test/scripts/face-review/faceLikenessFraming.ts",
   ...Object.values(basisFiles).map((file) => path.relative(root, file)), path.relative(root, documentsFile)])
   sourceFiles.set(path.join(root, file), hash(fs.readFileSync(path.join(root, file))));
 const revision = (): string => hash([...sourceFiles].sort(([a], [b]) => a.localeCompare(b)).map(([file, digest]) => path.relative(root, file) + ":" + digest).join("\n"));
