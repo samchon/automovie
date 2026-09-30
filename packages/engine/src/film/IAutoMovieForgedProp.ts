@@ -1,4 +1,7 @@
-import { IAutoMovieConstraintViolation, IAutoMoviePropSpec } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
 
 /**
  * A forged prop: the spec gated on both contracts, ready for staging to place

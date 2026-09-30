@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * These dimensionless rows set visible skin channel weights. They neither reconstruct tissue volumes nor establish safe contact in a combined pose.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_UPPER_ARM_FAT_RIGHT: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_UPPER_ARM_FAT_RIGHT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // upper-arm fat, more on women (triceps site)
       channel: "upperarmFatRight",
@@ -28,4 +29,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_UPPER_ARM_FAT_RIGHT: IAutoMovieHumanBodySim
         },
       ],
     },
-];
+  ];

@@ -1,4 +1,5 @@
 import { IAutoMovieCameraIntent } from "@automovie/interface";
+
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 
 /**

@@ -1,4 +1,5 @@
 import { IAutoMovieCompiledShotSource } from "@automovie/interface";
+
 import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";

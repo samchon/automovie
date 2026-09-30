@@ -1,4 +1,8 @@
-import { IAutoMovieModelRecipe, IAutoMovieSceneNode, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieModelRecipe,
+  IAutoMovieSceneNode,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * One generated visible wall/building block and its support footprint.

@@ -1,4 +1,9 @@
-import { IAutoMovieEnvironmentContext, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieEnvironmentContext,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateSolidPlanes } from "./validateSolidPlanes";

@@ -1,9 +1,14 @@
-import { IAutoMovieBody, IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBody,
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieFreeFallResult } from "./IAutoMovieFreeFallResult";
+import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_MARGIN = 0.02;
 

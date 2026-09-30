@@ -1,4 +1,5 @@
 import { AutoMovieHumanoidBone, IAutoMovieBone } from "@automovie/interface";
+
 import { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
 
 /**

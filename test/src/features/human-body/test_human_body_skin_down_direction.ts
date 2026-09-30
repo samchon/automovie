@@ -1,5 +1,8 @@
 import { Quaternion } from "@automovie/engine";
-import { humanBodySkinDownDirection, skinHumanBodySurface } from "@automovie/human";
+import {
+  humanBodySkinDownDirection,
+  skinHumanBodySurface,
+} from "@automovie/human";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,23 +34,24 @@ export const test_human_body_skin_down_direction = (): void => {
   ];
   const still = Quaternion.identity();
   const turned = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90);
-  const transforms: Parameters<typeof humanBodySkinDownDirection>[0]["transforms"] =
-    new Map([
-      [
-        "leftUpperArm",
-        {
-          rest: { position: { x: 0, y: 0, z: 0 }, rotation: still },
-          posed: { position: { x: 0, y: 0, z: 0 }, rotation: turned },
-        },
-      ],
-      [
-        "leftLowerArm",
-        {
-          rest: { position: { x: 0, y: 1, z: 0 }, rotation: still },
-          posed: { position: { x: 0, y: 1, z: 0 }, rotation: turned },
-        },
-      ],
-    ]);
+  const transforms: Parameters<
+    typeof humanBodySkinDownDirection
+  >[0]["transforms"] = new Map([
+    [
+      "leftUpperArm",
+      {
+        rest: { position: { x: 0, y: 0, z: 0 }, rotation: still },
+        posed: { position: { x: 0, y: 0, z: 0 }, rotation: turned },
+      },
+    ],
+    [
+      "leftLowerArm",
+      {
+        rest: { position: { x: 0, y: 1, z: 0 }, rotation: still },
+        posed: { position: { x: 0, y: 1, z: 0 }, rotation: turned },
+      },
+    ],
+  ]);
   const positions = [0.1, 0.5, 0, 0.1, 0, 0, 0.1, 2, 0];
   const skin = {
     joints: ["leftUpperArm", "leftLowerArm"] as AutoMovieHumanoidBone[],
@@ -71,10 +75,11 @@ export const test_human_body_skin_down_direction = (): void => {
   );
   TestValidator.predicate(
     "twist clamps have a one-sided downward derivative",
-    [1, 2].every((vertex) =>
-      nclose(down[vertex * 3], 0, 1e-5) &&
-      nclose(down[vertex * 3 + 1], -1, 1e-5) &&
-      nclose(down[vertex * 3 + 2], 0, 1e-5),
+    [1, 2].every(
+      (vertex) =>
+        nclose(down[vertex * 3], 0, 1e-5) &&
+        nclose(down[vertex * 3 + 1], -1, 1e-5) &&
+        nclose(down[vertex * 3 + 2], 0, 1e-5),
     ),
   );
 };

@@ -1,4 +1,10 @@
-import { IAutoMovieMaterialAssembly, IAutoMovieMaterialLayer, IAutoMovieMaterialSubstance, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieMaterialAssembly,
+  IAutoMovieMaterialLayer,
+  IAutoMovieMaterialSubstance,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { IAutoMovieAssemblyHost } from "./IAutoMovieAssemblyHost";
 

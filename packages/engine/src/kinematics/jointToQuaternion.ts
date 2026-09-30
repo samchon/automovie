@@ -1,9 +1,13 @@
-import { IAutoMovieJointPose, IAutoMovieQuaternion } from "@automovie/interface";
+import {
+  IAutoMovieJointPose,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toRigAngle } from "../rom/toRigAngle";
-import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
+import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 const JOINT_AXES = ["flexion", "abduction", "twist"] as const;

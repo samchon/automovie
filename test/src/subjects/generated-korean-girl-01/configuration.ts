@@ -2,19 +2,19 @@
 import { type IPortraitCheekShape } from "@automovie/human/face/anatomy/cheek/IPortraitCheekShape";
 import { type IPortraitCheekSocket } from "@automovie/human/face/anatomy/cheek/IPortraitCheekSocket";
 import { createPortraitCheekLayer } from "@automovie/human/face/anatomy/cheek/createPortraitCheekLayer";
+import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
 import { createPortraitDentalComponent } from "@automovie/human/face/anatomy/dental/createPortraitDentalComponent";
 import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
+import { createPortraitOrbitalSupport } from "@automovie/human/face/anatomy/eye/createPortraitOrbitalSupport";
 import { type IPortraitEyeShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitEyeShape";
-import { createPortraitMaterials } from "@automovie/human/face/anatomy/cranium/createPortraitMaterials";
+import { type IPortraitOrbitalSupportShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitOrbitalSupportShape";
 import { createPortraitMouthComponent } from "@automovie/human/face/anatomy/mouth/createPortraitMouthComponent";
 import { type IPortraitMouthShape } from "@automovie/human/face/anatomy/mouth/structures/IPortraitMouthShape";
 import { createPortraitNoseComponent } from "@automovie/human/face/anatomy/nose/createPortraitNoseComponent";
 import { type IPortraitNoseShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseShape";
-import { createPortraitOrbitalSupport } from "@automovie/human/face/anatomy/eye/createPortraitOrbitalSupport";
-import { type IPortraitOrbitalSupportShape } from "@automovie/human/face/anatomy/eye/structures/IPortraitOrbitalSupportShape";
-import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import { createPortraitReliefCurveLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefCurveLayer";
 import { createPortraitReliefLayer } from "@automovie/human/face/anatomy/skin/createPortraitReliefLayer";
+import type { IPortraitComponent } from "@automovie/human/face/surface/structures/IPortraitComponent";
 import type { IPortraitSurfaceLayer } from "@automovie/human/face/surface/structures/IPortraitSurfaceLayer";
 
 import {

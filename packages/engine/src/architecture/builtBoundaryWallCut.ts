@@ -1,9 +1,10 @@
 import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { IAutoMovieBoundaryWallCut } from "./IAutoMovieBoundaryWallCut";
 import { outlineHull } from "./outlineHull";
 import { polygonBounds } from "./polygonBounds";
-import { IAutoMovieBoundaryWallCut } from "./IAutoMovieBoundaryWallCut";
 
 /**
  * Turn one boundary's declared face into the wall panel a mesh kernel can cut.

@@ -13,7 +13,6 @@
  * @author Samchon
  */
 export type AutoMovieViolationKind =
-
   /** Tier 1: wrong type, bad enum value, missing required field. */
   | "type"
 

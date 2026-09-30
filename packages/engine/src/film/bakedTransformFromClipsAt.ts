@@ -1,4 +1,5 @@
 import { IAutoMovieClip, IAutoMovieTransform } from "@automovie/interface";
+
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 
 /**

@@ -1,7 +1,7 @@
 import type { IAutoMovieSemanticMask } from "../render/IAutoMovieSemanticMask";
-import type { IAutoMovieProductionSoundEvidence } from "./IAutoMovieProductionSoundEvidence";
 import { IAutoMovieProductionAudioProbe } from "./IAutoMovieProductionAudioProbe";
 import { IAutoMovieProductionPngPicture } from "./IAutoMovieProductionPngPicture";
+import type { IAutoMovieProductionSoundEvidence } from "./IAutoMovieProductionSoundEvidence";
 import { IAutoMovieProductionVideoProbe } from "./IAutoMovieProductionVideoProbe";
 import { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
 

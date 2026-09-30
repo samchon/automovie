@@ -1,17 +1,23 @@
-import { IAutoMovieConstraintViolation, IAutoMovieScene, IAutoMovieShot, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieScene,
+  IAutoMovieShot,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
+import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
+import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
+import { toValidation } from "./toValidation";
 import { validateArrayArtifact } from "./validateArrayArtifact";
+import { validateClipArtifact } from "./validateClipArtifact";
 import { validateNonEmptyId } from "./validateNonEmptyId";
 import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
-import { toValidation } from "./toValidation";
-import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
-import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
-import { validateClipArtifact } from "./validateClipArtifact";
 
 /**
  * The shot artifact's structural contract, owned by the engine that produces

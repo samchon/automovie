@@ -1,18 +1,19 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
 import { AutoMovieLightProperty } from "../resolve/AutoMovieLightProperty";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { asArray } from "./asArray";
+import { channelValueWidth } from "./channelValueWidth";
 import { isRecord } from "./isRecord";
+import { lightClipChannelGate } from "./lightClipChannelGate";
 import { pushViolation } from "./pushViolation";
 import { validateArrayArtifact } from "./validateArrayArtifact";
+import { validateClipArtifact } from "./validateClipArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
-import { channelValueWidth } from "./channelValueWidth";
-import { lightClipChannelGate } from "./lightClipChannelGate";
-import { validateClipArtifact } from "./validateClipArtifact";
 
 /**
  * The shot's `lightMotions`, gated the way every other optional shot field is:

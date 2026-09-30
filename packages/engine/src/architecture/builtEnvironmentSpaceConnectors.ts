@@ -1,4 +1,7 @@
-import { IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
 
 /**
  * Return every connector landing on a logical space, endpoints and route

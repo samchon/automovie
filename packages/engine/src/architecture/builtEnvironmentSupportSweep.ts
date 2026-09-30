@@ -1,4 +1,12 @@
-import { AutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltFloatingBody, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltSupportSweepReport, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieBuiltPlacementBodyLocator,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltFloatingBody,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltSupportSweepReport,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
 

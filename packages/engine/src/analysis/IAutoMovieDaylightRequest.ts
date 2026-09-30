@@ -1,6 +1,10 @@
-import { IAutoMovieAnalysisTarget, IAutoMovieEnvironmentContext } from "@automovie/interface";
-import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
+import {
+  IAutoMovieAnalysisTarget,
+  IAutoMovieEnvironmentContext,
+} from "@automovie/interface";
+
 import { IAutoMovieAnalysisLuminaire } from "./IAutoMovieAnalysisLuminaire";
+import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
 import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
 
 /**

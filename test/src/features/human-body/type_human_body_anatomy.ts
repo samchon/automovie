@@ -144,8 +144,28 @@ const wrongResult: Extract<
     tissue: "bone",
     // @ts-expect-error A right femur cannot fulfill the left femur result.
     id: "rightFemur",
-    solids: [{ positionsMetres: [], tetrahedra: [], boundaryTriangles: [], volumeCubicMetres: 1 }],
+    solids: [
+      {
+        positionsMetres: [],
+        tetrahedra: [],
+        boundaryTriangles: [],
+        volumeCubicMetres: 1,
+      },
+    ],
   },
 };
 
-void [simple, detailed, incomplete, oldMorph, wrongDigit, biphalangealFifthToe, impossibleBiphalangealToe, wrongVolumeMethod, projectedHipDistance, wrongSide, wrongBone, wrongResult];
+void [
+  simple,
+  detailed,
+  incomplete,
+  oldMorph,
+  wrongDigit,
+  biphalangealFifthToe,
+  impossibleBiphalangealToe,
+  wrongVolumeMethod,
+  projectedHipDistance,
+  wrongSide,
+  wrongBone,
+  wrongResult,
+];

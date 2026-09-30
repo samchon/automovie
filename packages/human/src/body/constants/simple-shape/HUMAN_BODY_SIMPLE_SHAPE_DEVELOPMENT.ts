@@ -7,7 +7,8 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  *
  * The rows are authored MPFB-derived skin controls, not muscle or fat compartment measurements. Their age and sex sources and extrapolation limits are stated beside the relation they own.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       channel: "macroGender",
       gain: 1,
@@ -106,4 +107,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_DEVELOPMENT: IAutoMovieHumanBodySimpleShape
         ],
       }),
     ),
-];
+  ];

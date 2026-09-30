@@ -1,12 +1,20 @@
-import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieEnvironmentInstant } from "@automovie/interface";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieEnvironmentInstant,
+} from "@automovie/interface";
+
+import { IAutoMovieEnvelopeRequest } from "./IAutoMovieEnvelopeRequest";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
-import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
-import { IAutoMovieEnvelopeRequest } from "./IAutoMovieEnvelopeRequest";
+import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
 /**
  * Magnus coefficients for saturation vapour pressure over water, as published

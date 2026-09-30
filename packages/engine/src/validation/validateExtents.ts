@@ -1,5 +1,6 @@
-import { ViolationCollector } from "./ViolationCollector";
 import { AutoMoviePrimitiveShape } from "@automovie/interface";
+
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Push a `type` violation for an unknown primitive shape, or a `range`

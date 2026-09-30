@@ -1,8 +1,18 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieConnectorCarriage, IAutoMovieConnectorState, IAutoMovieMovablePanel, IAutoMovieOperationState, IAutoMovieQuaternion, IAutoMovieSpace, IAutoMovieTravelMotion } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieConnectorCarriage,
+  IAutoMovieConnectorState,
+  IAutoMovieMovablePanel,
+  IAutoMovieOperationState,
+  IAutoMovieQuaternion,
+  IAutoMovieSpace,
+  IAutoMovieTravelMotion,
+} from "@automovie/interface";
+
+import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
 
 /**

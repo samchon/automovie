@@ -1,4 +1,8 @@
-import { IAutoMovieSubjectReviewObservation, IAutoMovieSubjectReviewTarget } from "@automovie/interface";
+import {
+  IAutoMovieSubjectReviewObservation,
+  IAutoMovieSubjectReviewTarget,
+} from "@automovie/interface";
+
 import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReviewCurrentContext";
 
 /**

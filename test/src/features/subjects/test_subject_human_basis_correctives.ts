@@ -1,6 +1,6 @@
 import {
-  createHumanFaceBasisBuilder,
   type IAutoMovieHumanFaceBasis,
+  createHumanFaceBasisBuilder,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,7 +9,9 @@ import { nclose, throwsError } from "../internal/predicates";
 
 /** The analytic basis with one corrective added over its two channels. */
 const withCorrective = (
-  over: Partial<NonNullable<IAutoMovieHumanFaceBasis["correctives"]>[number]> = {},
+  over: Partial<
+    NonNullable<IAutoMovieHumanFaceBasis["correctives"]>[number]
+  > = {},
 ) => {
   const { basis, document } = humanFaceBasisFixture();
   const square = basis.surfaces[0];
@@ -119,7 +121,11 @@ export const test_subject_human_basis_correctives = (): void => {
   TestValidator.predicate(
     "an activation that would exceed the endpoint is capped at it",
     nclose(
-      corner(wide.basis, { ...document, shape: { width: 2 }, expression: { lift: 1 } }),
+      corner(wide.basis, {
+        ...document,
+        shape: { width: 2 },
+        expression: { lift: 1 },
+      }),
       1 + 1,
     ),
   );
@@ -177,7 +183,8 @@ export const test_subject_human_basis_correctives = (): void => {
   TestValidator.predicate(
     "a corrective naming an endpoint no surface carries refuses",
     throwsError(
-      () => createHumanFaceBasisBuilder(withCorrective({ target: "absent" }).basis),
+      () =>
+        createHumanFaceBasisBuilder(withCorrective({ target: "absent" }).basis),
       "endpoint",
     ),
   );

@@ -1,4 +1,7 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
 
 /**
  * Total demand one system is declared to carry, in the system's own unit.

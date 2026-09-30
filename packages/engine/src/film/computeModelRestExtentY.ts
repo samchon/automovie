@@ -1,4 +1,5 @@
 import { IAutoMovieModel } from "@automovie/interface";
+
 import { computeModelRestExtent } from "./computeModelRestExtent";
 
 /**

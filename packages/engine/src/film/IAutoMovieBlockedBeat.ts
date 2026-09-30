@@ -1,4 +1,8 @@
-import { IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieConstraintViolation } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndState,
+  IAutoMovieBlocking,
+  IAutoMovieConstraintViolation,
+} from "@automovie/interface";
 
 /**
  * A validated blocking: the beat's shot plan, coherent with the script and the

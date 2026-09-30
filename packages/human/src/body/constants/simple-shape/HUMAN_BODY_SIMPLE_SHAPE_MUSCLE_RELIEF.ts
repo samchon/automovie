@@ -8,7 +8,8 @@ type Term = IAutoMovieHumanBodySimpleShapeTable["terms"][number];
  *
  * These dimensionless rows set visible skin channel weights. They neither reconstruct tissue volumes nor establish safe contact in a combined pose.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_MUSCLE_RELIEF: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_MUSCLE_RELIEF: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       channel: "absDefinition",
       gain: 1,
@@ -63,4 +64,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_MUSCLE_RELIEF: IAutoMovieHumanBodySimpleSha
         ],
       }),
     ),
-];
+  ];

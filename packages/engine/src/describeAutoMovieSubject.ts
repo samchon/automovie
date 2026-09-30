@@ -1,11 +1,30 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieCompiledInstanceSet, IAutoMovieModel, IAutoMovieModelPart, IAutoMovieSubjectArtifact, IAutoMovieSubjectBox, IAutoMovieSubjectDescription, IAutoMovieSubjectMaterial, IAutoMovieSubjectMemberSummary, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { builtEnvironmentDescendantSpaces, builtEnvironmentElementBounds, builtEnvironmentSpaceContentBounds, builtInstanceSetPlacementBounds } from "./architecture";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieSubjectArtifact,
+  IAutoMovieSubjectBox,
+  IAutoMovieSubjectDescription,
+  IAutoMovieSubjectMaterial,
+  IAutoMovieSubjectMemberSummary,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  builtEnvironmentDescendantSpaces,
+  builtEnvironmentElementBounds,
+  builtEnvironmentSpaceContentBounds,
+  builtInstanceSetPlacementBounds,
+} from "./architecture";
+import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { tessellate } from "./geometry";
 import { resolvePose } from "./kinematics";
 import { Matrix4, Quaternion } from "./math";
 import { instanceSlot } from "./populationRuntime/instanceSlot";
 import { compareAutoMovieRenderIds } from "./render";
-import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 
 /**
  * Describe one stable subject address from a compiled shot artifact.

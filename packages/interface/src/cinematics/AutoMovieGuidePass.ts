@@ -23,7 +23,6 @@
  * @author Samchon
  */
 export type AutoMovieGuidePass =
-
   /** Ordinary shaded render. */
   | "beauty"
 

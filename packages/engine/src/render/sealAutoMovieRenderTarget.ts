@@ -1,4 +1,10 @@
-import { IAutoMovieRenderTarget, IAutoMovieRenderTargetAsset, IAutoMovieRenderTargetRenderer, IAutoMovieRenderTargetSettings } from "@automovie/interface";
+import {
+  IAutoMovieRenderTarget,
+  IAutoMovieRenderTargetAsset,
+  IAutoMovieRenderTargetRenderer,
+  IAutoMovieRenderTargetSettings,
+} from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 

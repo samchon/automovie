@@ -1,4 +1,8 @@
-import { IAutoMoviePlantingBudget, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain } from "@automovie/interface";
+import {
+  IAutoMoviePlantingBudget,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+} from "@automovie/interface";
 
 /**
  * The bounded cost a planting recipe, and optionally its cluster, adds to a

@@ -1,7 +1,7 @@
-import { IAutoMovieRepaintParameters } from "./IAutoMovieRepaintParameters";
-import { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
 import { IAutoMovieDiagnostic } from "../IAutoMovieDiagnostic";
+import { IAutoMovieRepaintParameters } from "./IAutoMovieRepaintParameters";
 import { IAutoMovieRepaintReceipt } from "./IAutoMovieRepaintReceipt";
+import { IAutoMovieRepaintReferenceInput } from "./IAutoMovieRepaintReferenceInput";
 
 /**
  * Result of one optional diffusion rendition request.

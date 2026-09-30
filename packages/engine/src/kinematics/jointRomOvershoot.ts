@@ -1,4 +1,8 @@
-import { IAutoMovieJointConstraint, IAutoMovieJointPose } from "@automovie/interface";
+import {
+  IAutoMovieJointConstraint,
+  IAutoMovieJointPose,
+} from "@automovie/interface";
+
 import { validateJointRom } from "../rom/validateJointRom";
 import { ViolationCollector } from "../validation/ViolationCollector";
 

@@ -1,4 +1,8 @@
-import { IAutoMovieActionCall, IAutoMovieBeatEndState, IAutoMovieMotion } from "@automovie/interface";
+import {
+  IAutoMovieActionCall,
+  IAutoMovieBeatEndState,
+  IAutoMovieMotion,
+} from "@automovie/interface";
 
 /**
  * The **content seam** of the action builder. Given one action call (and the

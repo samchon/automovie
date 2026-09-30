@@ -1,4 +1,11 @@
-import { AutoMovieAnalysisDomain, IAutoMovieAnalysisDomainRollup, IAutoMovieAnalysisGap, IAutoMovieAnalysisReport, IAutoMovieAnalysisRun } from "@automovie/interface";
+import {
+  AutoMovieAnalysisDomain,
+  IAutoMovieAnalysisDomainRollup,
+  IAutoMovieAnalysisGap,
+  IAutoMovieAnalysisReport,
+  IAutoMovieAnalysisRun,
+} from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { withArticle } from "../text/withArticle";
 import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAINS";

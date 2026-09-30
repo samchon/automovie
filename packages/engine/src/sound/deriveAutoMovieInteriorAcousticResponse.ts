@@ -1,7 +1,13 @@
-import type { AutoMovieContentDigest, IAutoMovieAcousticResponseProfile, IAutoMovieAnalysisRun, IAutoMovieProductionAcousticResponse } from "@automovie/interface";
+import type {
+  AutoMovieContentDigest,
+  IAutoMovieAcousticResponseProfile,
+  IAutoMovieAnalysisRun,
+  IAutoMovieProductionAcousticResponse,
+} from "@automovie/interface";
+
+import { IAutoMovieAcousticRequest } from "../analysis/IAutoMovieAcousticRequest";
 import { analyzeAutoMovieAcoustics } from "../analysis/analyzeAutoMovieAcoustics";
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieAcousticRequest } from "../analysis/IAutoMovieAcousticRequest";
 
 /**
  * Derive the shared room-path result from a selected acoustic profile.

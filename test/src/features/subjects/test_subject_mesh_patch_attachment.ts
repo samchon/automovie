@@ -1,7 +1,7 @@
-import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
-import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
 import { assertPortraitSkinTopology } from "@automovie/human/face/anatomy/skin/assertPortraitSkinTopology";
+import { blendPortraitSkin } from "@automovie/human/face/anatomy/skin/blendPortraitSkin";
 import { subdivideControlMesh } from "@automovie/human/face/mesh/subdivideControlMesh";
+import { applyPortraitFinalSurfaces } from "@automovie/human/face/surface/applyPortraitFinalSurfaces";
 import { TestValidator } from "@nestia/e2e";
 
 import { createPortraitMeshPatchComponent } from "../../subjects/portraitMeshPatch";

@@ -1,8 +1,8 @@
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
-import { projectileAt } from "./projectileAt";
 import { IAutoMovieHit } from "./IAutoMovieHit";
+import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import { IAutoMovieSphere } from "./IAutoMovieSphere";
+import { projectileAt } from "./projectileAt";
 import { segmentSphere } from "./segmentSphere";
 
 /**

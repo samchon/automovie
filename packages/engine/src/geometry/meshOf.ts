@@ -1,5 +1,6 @@
-import { Vector3 } from "../math/Vector3";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { Vector3 } from "../math/Vector3";
 
 /**
  * Produces a procedural mesh whose normals follow its actual geometry.

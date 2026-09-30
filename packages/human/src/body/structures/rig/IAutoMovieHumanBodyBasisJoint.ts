@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
 
 /**
  * One rig joint defined by two shape-dependent landmarks and a parent bone.

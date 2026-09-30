@@ -1,4 +1,8 @@
-import { IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import {
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
+
 import { IAutoMovieSemanticMaskResolution } from "./IAutoMovieSemanticMaskResolution";
 
 /**

@@ -162,7 +162,13 @@ export const test_subject_human_groom_seating = (): void => {
     "a moved and turned seat carries its lock with it",
     moved.cards[0].guide.every((station, index) =>
       station.every((value, axis) =>
-        nclose(value, [[0, 1500, 0], [0, 1500, 100]][index][axis]),
+        nclose(
+          value,
+          [
+            [0, 1500, 0],
+            [0, 1500, 100],
+          ][index][axis],
+        ),
       ),
     ),
   );
@@ -197,7 +203,8 @@ export const test_subject_human_groom_seating = (): void => {
     TestValidator.predicate(
       "an unresolvable seat refuses: " + reason,
       throwsError(
-        () => resolveHumanFaceGroom({ groom: groom([broken]), model: reference }),
+        () =>
+          resolveHumanFaceGroom({ groom: groom([broken]), model: reference }),
         reason,
       ),
     );

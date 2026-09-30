@@ -1,4 +1,5 @@
 import { AutoMovieAnalysisDomain } from "@automovie/interface";
+
 import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAINS";
 
 /**

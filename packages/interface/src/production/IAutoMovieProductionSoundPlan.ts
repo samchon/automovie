@@ -1,7 +1,7 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 import { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
 import { IAutoMovieProductionDialogueLine } from "./IAutoMovieProductionDialogueLine";
+import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 import { IAutoMovieProductionSoundCue } from "./IAutoMovieProductionSoundCue";
 import { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent";
 import { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";

@@ -1,4 +1,9 @@
-import { IAutoMovieFormationBounds, IAutoMovieFormationMotionState, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieFormationBounds,
+  IAutoMovieFormationMotionState,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { transformFormationPoint } from "./transformFormationPoint";
 
 /**

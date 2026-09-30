@@ -1,6 +1,10 @@
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
+
 import { swingConeAngle } from "../rom/swingConeAngle";
 import { ViolationCollector } from "./ViolationCollector";
-import { IAutoMovieAngleRange, IAutoMovieJointConstraint } from "@automovie/interface";
 
 const CONSTRAINT_AXES = ["flexion", "abduction", "twist"] as const;
 

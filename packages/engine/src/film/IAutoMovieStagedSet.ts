@@ -1,4 +1,8 @@
-import { IAutoMovieConstraintViolation, IAutoMovieMountBinding, IAutoMovieScene } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieMountBinding,
+  IAutoMovieScene,
+} from "@automovie/interface";
 
 /**
  * A staged film set: the composed {@link IAutoMovieScene} plus the persistent

@@ -1,7 +1,11 @@
-import { IAutoMovieFormationDesign, IAutoMovieFormationSlot } from "@automovie/interface";
-import { formationSlotRecord } from "./formationSlotRecord";
+import {
+  IAutoMovieFormationDesign,
+  IAutoMovieFormationSlot,
+} from "@automovie/interface";
+
 import { IAutoMovieFormationGrounding } from "./IAutoMovieFormationGrounding";
 import { formationSlotPosition } from "./formationSlotPosition";
+import { formationSlotRecord } from "./formationSlotRecord";
 
 /**
  * Regenerate one exact source-designed formation slot in constant memory.

@@ -1,8 +1,8 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalAngle } from "../measurements/IAutoMovieHumanBodyAnatomicalAngle";
 import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { IAutoMovieHumanBodyTomographicAngle } from "../measurements/IAutoMovieHumanBodyTomographicAngle";
 import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
  * Target or observed dimensions of one femur rather than its overlying skin.
@@ -17,15 +17,15 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyFemurMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  /** Sphere-fitted articular head radius, not shaft or trochanter radius. */
-  sphereFittedHeadRadius?: IAutoMovieHumanBodyTomographicLength;
+    /** Sphere-fitted articular head radius, not shaft or trochanter radius. */
+    sphereFittedHeadRadius?: IAutoMovieHumanBodyTomographicLength;
 
-  /** Maximum osseous femur length, not external leg length. */
-  maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
+    /** Maximum osseous femur length, not external leg length. */
+    maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
 
-  /** Neck axis relative to shaft axis, using the same clinical bone axes. */
-  neckShaftAngle?: IAutoMovieHumanBodyAnatomicalAngle;
+    /** Neck axis relative to shaft axis, using the same clinical bone axes. */
+    neckShaftAngle?: IAutoMovieHumanBodyAnatomicalAngle;
 
-  /** Neck rotation around the shaft relative to the condylar reference. */
-  anteversion?: IAutoMovieHumanBodyTomographicAngle;
+    /** Neck rotation around the shaft relative to the condylar reference. */
+    anteversion?: IAutoMovieHumanBodyTomographicAngle;
   }>;

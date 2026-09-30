@@ -2,21 +2,21 @@ import { IAutoMovieEnvironmentContext } from "../analysis/IAutoMovieEnvironmentC
 import { IAutoMovieDeliveryCrop } from "../cinematics/IAutoMovieDeliveryCrop";
 import { IAutoMovieRenderBudget } from "../render/IAutoMovieRenderBudget";
 import { IAutoMovieProductionLighting } from "../scene/IAutoMovieProductionLighting";
-import type { IAutoMovieExternalMotionAdoption } from "./IAutoMovieExternalMotionAdoption";
 import type { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
+import { IAutoMovieCaptionReadabilityProfile } from "./IAutoMovieCaptionReadabilityProfile";
+import type { IAutoMovieExternalMotionAdoption } from "./IAutoMovieExternalMotionAdoption";
+import { IAutoMovieProductionDeliverable } from "./IAutoMovieProductionDeliverable";
+import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
+import { IAutoMovieProductionMixedVisualDeliveryPolicy } from "./IAutoMovieProductionMixedVisualDeliveryPolicy";
 import type { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt";
+import { IAutoMovieProductionVisualDeliveryLane } from "./IAutoMovieProductionVisualDeliveryLane";
 import type { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
+import { IAutoMovieStoryClock } from "./IAutoMovieStoryClock";
 import type { IAutoMovieRepaintExecutionPolicy } from "./capture/IAutoMovieRepaintExecutionPolicy";
 import type { IAutoMovieRepaintGeneratorAdoption } from "./capture/IAutoMovieRepaintGeneratorAdoption";
 import type { IAutoMovieRepaintParameters } from "./capture/IAutoMovieRepaintParameters";
 import type { IAutoMovieRepaintReferenceInput } from "./capture/IAutoMovieRepaintReferenceInput";
 import type { IAutoMovieRepaintRequestEvidence } from "./capture/IAutoMovieRepaintRequestEvidence";
-import { IAutoMovieCaptionReadabilityProfile } from "./IAutoMovieCaptionReadabilityProfile";
-import { IAutoMovieProductionDeliverable } from "./IAutoMovieProductionDeliverable";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
-import { IAutoMovieProductionMixedVisualDeliveryPolicy } from "./IAutoMovieProductionMixedVisualDeliveryPolicy";
-import { IAutoMovieProductionVisualDeliveryLane } from "./IAutoMovieProductionVisualDeliveryLane";
-import { IAutoMovieStoryClock } from "./IAutoMovieStoryClock";
 
 /**
  * Global frame and art-direction invariants for one production.

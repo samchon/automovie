@@ -1,4 +1,8 @@
-import { IAutoMovieSoftAnalysis, IAutoMovieSoftBodyState, IAutoMovieSoftBodySurface } from "@automovie/interface";
+import {
+  IAutoMovieSoftAnalysis,
+  IAutoMovieSoftBodyState,
+  IAutoMovieSoftBodySurface,
+} from "@automovie/interface";
 
 /**
  * One frame of a bound furnishing: what was computed, and what was claimed.

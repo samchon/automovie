@@ -13,11 +13,11 @@ import { HUMAN_BODY_SKIN_SCATTERING } from "../../constants/HUMAN_BODY_SKIN_SCAT
 import { HUMAN_BODY_SKIN_SITES } from "../../constants/HUMAN_BODY_SKIN_SITES";
 import type { IAutoMovieHumanBodyBasis } from "../../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBasisDocument } from "../../structures/IAutoMovieHumanBodyBasisDocument";
+import { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
 import { createHumanBodySkinColour } from "./createHumanBodySkinColour";
 import { createHumanBodySkinDetail } from "./createHumanBodySkinDetail";
 import { createHumanBodySkinOverlays } from "./createHumanBodySkinOverlays";
 import { createHumanBodySkinTone } from "./createHumanBodySkinTone";
-import { evaluateHumanBodyShape } from "../evaluateHumanBodyShape";
 
 /**
  * Resolve one document's material copies and per-surface colour multipliers.
@@ -93,8 +93,7 @@ export function createHumanBodyAppearance(basis: IAutoMovieHumanBodyBasis) {
         : (siteColour ??= createHumanBodySkinColour(basis))(
             [cheek.r, cheek.g, cheek.b],
             // the skin over a joint lightens as the coupled pose folds it
-            (bone) =>
-              pose.find((row) => row.bone === bone)?.flexion ?? null,
+            (bone) => pose.find((row) => row.bone === bone)?.flexion ?? null,
           );
     if (coloured !== null) {
       const [r, g, b] = coloured.base;

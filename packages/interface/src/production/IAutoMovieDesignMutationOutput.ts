@@ -1,6 +1,6 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieDesignTarget } from "./IAutoMovieDesignTarget";
 import { IAutoMovieDesignMutationConsequences } from "./IAutoMovieDesignMutationConsequences";
+import { IAutoMovieDesignTarget } from "./IAutoMovieDesignTarget";
 import { IAutoMovieDiagnostic } from "./IAutoMovieDiagnostic";
 
 /**

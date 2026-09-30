@@ -1,4 +1,8 @@
-import { IAutoMovieLight, IAutoMovieProductionLighting } from "@automovie/interface";
+import {
+  IAutoMovieLight,
+  IAutoMovieProductionLighting,
+} from "@automovie/interface";
+
 import { resolveShotLighting } from "../resolve/resolveShotLighting";
 
 /**

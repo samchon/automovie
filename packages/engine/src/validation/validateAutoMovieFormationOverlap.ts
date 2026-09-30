@@ -1,9 +1,22 @@
-import { IAutoMovieDiagnostic, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieModel, IAutoMovieShotContract, IAutoMovieVector3 } from "@automovie/interface";
-import { formationSlotPosition, placeFormationSlot, sampleFormationMotion, sampleFormationSlotMotion } from "../index";
-import { engineDiagnostic } from "./engineDiagnostic";
+import {
+  IAutoMovieDiagnostic,
+  IAutoMovieFormationMotion,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieModel,
+  IAutoMovieShotContract,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieFormationPlacement } from "../IAutoMovieFormationPlacement";
+import {
+  formationSlotPosition,
+  placeFormationSlot,
+  sampleFormationMotion,
+  sampleFormationSlotMotion,
+} from "../index";
 import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * One reading as a reader wants it: three decimals, so a metre is stated to the

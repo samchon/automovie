@@ -5,8 +5,8 @@
  * controlNet. These are the unchanged historical inputs, not a new fitting pass.
  * Callers clone a profile before editing it; shared configuration stays fixed.
  */
-import type { IPortraitNasalSection } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalSection";
 import { portraitNostrilContains } from "@automovie/human/face/anatomy/nose/portraitNostrilContains";
+import type { IPortraitNasalSection } from "@automovie/human/face/anatomy/nose/structures/IPortraitNasalSection";
 import { type IPortraitNoseShape } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseShape";
 import { type IPortraitNoseSocket } from "@automovie/human/face/anatomy/nose/structures/IPortraitNoseSocket";
 

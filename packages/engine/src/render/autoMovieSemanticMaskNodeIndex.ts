@@ -1,4 +1,7 @@
-import { IAutoMovieSemanticMask, IAutoMovieSemanticMaskEntry } from "@automovie/interface";
+import {
+  IAutoMovieSemanticMask,
+  IAutoMovieSemanticMaskEntry,
+} from "@automovie/interface";
 
 /**
  * Index a mask by the scene node ids that draw each entry.

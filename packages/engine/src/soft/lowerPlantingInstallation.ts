@@ -1,9 +1,15 @@
-import { IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMovieSoftAnalysis } from "@automovie/interface";
+import {
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingInstallation,
+  IAutoMovieSoftAnalysis,
+} from "@automovie/interface";
+
+import { IAutoMoviePlantingFrame } from "./IAutoMoviePlantingFrame";
 import { arrangePlantingCluster } from "./arrangePlantingCluster";
 import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
-import { IAutoMoviePlantingFrame } from "./IAutoMoviePlantingFrame";
 
 /**
  * Lower one bound installation to everything a renderer needs, beside an honest

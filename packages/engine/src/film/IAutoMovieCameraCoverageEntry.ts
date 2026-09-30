@@ -1,4 +1,5 @@
 import { IAutoMovieCameraIntent } from "@automovie/interface";
+
 import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 
 /**

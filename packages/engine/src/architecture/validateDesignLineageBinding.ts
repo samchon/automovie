@@ -1,4 +1,8 @@
-import { IAutoMovieDesignLineage, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieDesignLineage,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
 
 /**

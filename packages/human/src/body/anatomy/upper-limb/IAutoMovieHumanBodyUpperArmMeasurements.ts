@@ -1,7 +1,7 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
-import type { IAutoMovieHumanBodyHumerusMeasurements } from "./IAutoMovieHumanBodyHumerusMeasurements";
 import type { IAutoMovieHumanBodyBicepsBrachiiMeasurements } from "./IAutoMovieHumanBodyBicepsBrachiiMeasurements";
 import type { IAutoMovieHumanBodyBrachialisMeasurements } from "./IAutoMovieHumanBodyBrachialisMeasurements";
+import type { IAutoMovieHumanBodyHumerusMeasurements } from "./IAutoMovieHumanBodyHumerusMeasurements";
 import type { IAutoMovieHumanBodyTricepsBrachiiMeasurements } from "./IAutoMovieHumanBodyTricepsBrachiiMeasurements";
 
 /**

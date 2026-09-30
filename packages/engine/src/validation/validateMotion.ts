@@ -6,9 +6,9 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { ViolationCollector } from "./ViolationCollector";
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
-import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Maximum per-axis angular speed (degrees per second) the temporal verifier

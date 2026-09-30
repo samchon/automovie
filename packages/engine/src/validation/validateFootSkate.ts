@@ -1,11 +1,23 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieJointAxes, IAutoMovieSkeletonTopology, indexSkeletonTopology, resolvePose } from "../kinematics";
-import { windowSampleTimes } from "../motion/windowSampleTimes";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  IAutoMovieJointAxes,
+  IAutoMovieSkeletonTopology,
+  indexSkeletonTopology,
+  resolvePose,
+} from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
+import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieFootContactWindow } from "./IAutoMovieFootContactWindow";
+import { ViolationCollector } from "./ViolationCollector";
+import { fkReachableBones } from "./fkReachableBones";
 
 const DEFAULT_SAMPLE_RATE = 24;
 

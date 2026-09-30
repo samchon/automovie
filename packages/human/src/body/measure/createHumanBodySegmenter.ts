@@ -1,8 +1,8 @@
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 
+import { humanBodyGpuRegion } from "../basis/humanBodyGpuRegion";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyBuild } from "../structures/IAutoMovieHumanBodyBuild";
-import { humanBodyGpuRegion } from "../basis/humanBodyGpuRegion";
 
 type RegionPlan = {
   index: number;
@@ -45,9 +45,9 @@ type PartPlan = {
  * not a physical bone surface or a tissue boundary. The caller still runs
  * exact triangle crossing checks on each newly posed result.
  */
-export function createHumanBodySegmenter(
-  basis: IAutoMovieHumanBodyBasis,
-): (built: IAutoMovieHumanBodyBuild) => {
+export function createHumanBodySegmenter(basis: IAutoMovieHumanBodyBasis): (
+  built: IAutoMovieHumanBodyBuild,
+) => {
   model: IAutoMovieModel;
   sources: Map<string, number[]>;
 } {
@@ -123,8 +123,7 @@ export function createHumanBodySegmenter(
           region: regionIndex,
           surface: surfaceIndex,
           sourceOffset,
-          id:
-            regionCount === 1 ? bone : `${bone}/${surface.id}/${region.id}`,
+          id: regionCount === 1 ? bone : `${bone}/${surface.id}/${region.id}`,
           outputs,
           indices,
           sources: outputs.map((output) => sourceOffset + order[output]),
@@ -136,7 +135,9 @@ export function createHumanBodySegmenter(
   plans.sort((a, b) => a.bone - b.bone || a.region - b.region);
   return (built) => {
     if (built.model.parts.length < regionCount)
-      throw new Error("The segment partition needs every built surface region.");
+      throw new Error(
+        "The segment partition needs every built surface region.",
+      );
     const meshes = regions.map((region) => {
       const posed = built.posedSurfaces[region.surface];
       const source = basis.surfaces[region.surface];

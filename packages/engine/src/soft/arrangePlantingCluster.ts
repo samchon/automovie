@@ -1,4 +1,12 @@
-import { IAutoMoviePlantingArrangement, IAutoMoviePlantingCluster, IAutoMoviePlantingPlacement, IAutoMovieQuaternion, IAutoMovieSoftBounds, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePlantingArrangement,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingPlacement,
+  IAutoMovieQuaternion,
+  IAutoMovieSoftBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { seededValue } from "../math/seededValue";
 
 const SALT_PLACE_X = 0x706c6378;

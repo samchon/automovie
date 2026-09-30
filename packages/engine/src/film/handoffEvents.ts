@@ -1,4 +1,5 @@
 import { IAutoMovieInteractionEvent } from "@automovie/interface";
+
 import { eventTimeKey } from "./eventTimeKey";
 
 /**

@@ -1,18 +1,23 @@
-import { IAutoMovieChannel, IAutoMovieConstraintViolation, IAutoMoviePropSpec } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieConstraintViolation,
+  IAutoMoviePropSpec,
+} from "@automovie/interface";
+
 import { IAutoMovieProfileApplication } from "../resolve/IAutoMovieProfileApplication";
 import { channelKey } from "../resolve/channelKey";
-import { resolveFrame } from "../resolve/resolveFrame";
 import { placementNodePrefix } from "../resolve/placementNodePrefix";
+import { resolveFrame } from "../resolve/resolveFrame";
 import { sceneToNodes } from "../resolve/sceneToNodes";
-import { pushViolation } from "../validation/pushViolation";
-import { IAutoMovieNodeChannel } from "../validation/IAutoMovieNodeChannel";
-import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 import { IAutoMovieClipChannelGate } from "../validation/IAutoMovieClipChannelGate";
+import { IAutoMovieNodeChannel } from "../validation/IAutoMovieNodeChannel";
+import { ViolationCollector } from "../validation/ViolationCollector";
+import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
+import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { forgeProp } from "./forgeProp";
 import { IAutoMovieObjectMotionGate } from "./IAutoMovieObjectMotionGate";
+import { forgeProp } from "./forgeProp";
 
 /**
  * Gate the object clips a shot's source authored, so a moving thing that is not

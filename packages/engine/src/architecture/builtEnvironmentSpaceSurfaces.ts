@@ -1,4 +1,7 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
 /**
  * Report the support patches usable in a logical space and its descendants.

@@ -1,7 +1,7 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAnatomicalAngle } from "../measurements/IAutoMovieHumanBodyAnatomicalAngle";
 import type { IAutoMovieHumanBodyAnatomicalLength } from "../measurements/IAutoMovieHumanBodyAnatomicalLength";
 import type { IAutoMovieHumanBodyTomographicLength } from "../measurements/IAutoMovieHumanBodyTomographicLength";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 
 /**
  * Target or observed osseous dimensions of one humerus.
@@ -16,7 +16,7 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyHumerusMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  sphereFittedHeadRadius?: IAutoMovieHumanBodyTomographicLength;
-  maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
-  neckShaftAngle?: IAutoMovieHumanBodyAnatomicalAngle;
+    sphereFittedHeadRadius?: IAutoMovieHumanBodyTomographicLength;
+    maximumLength?: IAutoMovieHumanBodyAnatomicalLength;
+    neckShaftAngle?: IAutoMovieHumanBodyAnatomicalAngle;
   }>;

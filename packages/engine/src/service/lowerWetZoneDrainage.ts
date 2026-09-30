@@ -1,4 +1,11 @@
-import { IAutoMovieFluidDomain, IAutoMovieFluidDrain, IAutoMovieFluidSource, IAutoMovieServiceNetwork, IAutoMovieServiceNode, IAutoMovieServiceSystem } from "@automovie/interface";
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieFluidDrain,
+  IAutoMovieFluidSource,
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
 
 /** Media a floor drain is allowed to discharge into. */
 const WASTE_MEDIUM = "waste-water";

@@ -1,4 +1,5 @@
 import { IAutoMovieFace, IAutoMovieValidation } from "@automovie/interface";
+
 import { validateFace } from "./validateFace";
 
 /**

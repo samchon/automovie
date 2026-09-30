@@ -1,4 +1,8 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceSystem } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceSystem,
+} from "@automovie/interface";
+
 import { IAutoMovieServiceSchematic } from "./IAutoMovieServiceSchematic";
 import { portOwners } from "./portOwners";
 import { routeLength } from "./routeLength";

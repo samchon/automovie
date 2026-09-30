@@ -1,4 +1,8 @@
-import { IAutoMovieAngleRange, IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  IAutoMovieAngleRange,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
+
 import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
 import { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 

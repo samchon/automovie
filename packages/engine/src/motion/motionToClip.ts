@@ -1,13 +1,20 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTrack } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieTrack,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../resolve/constants/MOTION_ROOT_NODE_ID";
 import { lowerSkeletonNodes } from "../resolve/lowerSkeletonNodes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { sampleTimes } from "./sampleTimes";
-import { sampleMotion } from "./sampleMotion";
 import { IAutoMovieMotionClipBridge } from "./IAutoMovieMotionClipBridge";
+import { sampleMotion } from "./sampleMotion";
+import { sampleTimes } from "./sampleTimes";
 
 const DEFAULT_SAMPLE_RATE = 24;
 

@@ -1,4 +1,7 @@
-import { IAutoMovieAnalysisTarget, IAutoMovieAnalysisWarning } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisTarget,
+  IAutoMovieAnalysisWarning,
+} from "@automovie/interface";
 
 /**
  * Report every declared target that names no metric the study reports.

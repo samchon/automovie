@@ -8,14 +8,14 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
-import { foldRoot } from "./foldRoot";
+import { sampleTimes } from "../motion/sampleTimes";
+import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
 import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
+import { foldRoot } from "./foldRoot";
+import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNotes";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
-import { IAutoMovieGrammarDiagnostic } from "./IAutoMovieGrammarDiagnostic";
-import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNotes";
 
 /** Assumed render aspect (width/height), the scene camera carries no aspect. */
 const DEFAULT_ASPECT = 16 / 9;

@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyAnatomicalAngle } from "../measurements/IAutoMovieHumanBodyAnatomicalAngle";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalAngle } from "../measurements/IAutoMovieHumanBodyAnatomicalAngle";
 import type { IAutoMovieHumanBodyCervicalVertebraeMeasurements } from "./IAutoMovieHumanBodyCervicalVertebraeMeasurements";
 import type { IAutoMovieHumanBodyLumbarVertebraeMeasurements } from "./IAutoMovieHumanBodyLumbarVertebraeMeasurements";
 import type { IAutoMovieHumanBodyThoracicVertebraeMeasurements } from "./IAutoMovieHumanBodyThoracicVertebraeMeasurements";

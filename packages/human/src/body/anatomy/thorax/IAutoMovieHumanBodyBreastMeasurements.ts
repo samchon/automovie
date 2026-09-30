@@ -1,5 +1,5 @@
-import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
+import type { IAutoMovieHumanBodyAnatomicalVolume } from "../measurements/IAutoMovieHumanBodyAnatomicalVolume";
 import type { IAutoMovieHumanBodySurfaceArc } from "../measurements/IAutoMovieHumanBodySurfaceArc";
 import type { IAutoMovieHumanBodySurfaceDistance } from "../measurements/IAutoMovieHumanBodySurfaceDistance";
 
@@ -21,14 +21,14 @@ import type { IAutoMovieHumanBodySurfaceDistance } from "../measurements/IAutoMo
  */
 export type IAutoMovieHumanBodyBreastMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  /** Glandular and fibrous tissue above pectoral fascia, per one breast. */
-  fibroglandularVolume?: IAutoMovieHumanBodyAnatomicalVolume;
-  /** This breast's adipose tissue, excluding chest-wall subcutaneous fat. */
-  adiposeVolume?: IAutoMovieHumanBodyAnatomicalVolume;
-  /** Palpable medial-to-lateral breast base width, not torso chest breadth. */
-  baseWidth?: IAutoMovieHumanBodySurfaceDistance;
-  /** Skin-contoured path from sternal notch to this side's nipple. */
-  sternalNotchToNippleArc?: IAutoMovieHumanBodySurfaceArc;
-  /** Unstretched standing skin path from nipple to the lowest fold point. */
-  nippleToInframammaryFoldArc?: IAutoMovieHumanBodySurfaceArc;
+    /** Glandular and fibrous tissue above pectoral fascia, per one breast. */
+    fibroglandularVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+    /** This breast's adipose tissue, excluding chest-wall subcutaneous fat. */
+    adiposeVolume?: IAutoMovieHumanBodyAnatomicalVolume;
+    /** Palpable medial-to-lateral breast base width, not torso chest breadth. */
+    baseWidth?: IAutoMovieHumanBodySurfaceDistance;
+    /** Skin-contoured path from sternal notch to this side's nipple. */
+    sternalNotchToNippleArc?: IAutoMovieHumanBodySurfaceArc;
+    /** Unstretched standing skin path from nipple to the lowest fold point. */
+    nippleToInframammaryFoldArc?: IAutoMovieHumanBodySurfaceArc;
   }>;

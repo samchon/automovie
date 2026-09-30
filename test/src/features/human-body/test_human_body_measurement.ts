@@ -143,8 +143,7 @@ export const test_human_body_measurement = (): void => {
   )!.measurement!;
   TestValidator.predicate(
     "two anatomical rules read the same neutral shape",
-    nclose(sharedHeight.neutral!, 2) &&
-      nclose(sharedHeight.positive!, 2.5),
+    nclose(sharedHeight.neutral!, 2) && nclose(sharedHeight.positive!, 2.5),
   );
   const tall = humanBodyBasisFixture();
   tall.basis.channels[1].id = "macroHeight";

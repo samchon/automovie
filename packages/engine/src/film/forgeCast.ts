@@ -1,6 +1,11 @@
-import { IAutoMovieForgePlan, IAutoMovieModel, IAutoMovieScript } from "@automovie/interface";
-import { validateModel } from "../validation/validateModel";
+import {
+  IAutoMovieForgePlan,
+  IAutoMovieModel,
+  IAutoMovieScript,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
+import { validateModel } from "../validation/validateModel";
 import { IAutoMovieForgedCast } from "./IAutoMovieForgedCast";
 
 /**

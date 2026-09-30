@@ -1,7 +1,13 @@
-import { IAutoMovieBeatEndState, IAutoMovieBlocking, IAutoMovieBlockingCamera, IAutoMovieScript } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndState,
+  IAutoMovieBlocking,
+  IAutoMovieBlockingCamera,
+  IAutoMovieScript,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 import { IAutoMovieBlockedBeat } from "./IAutoMovieBlockedBeat";
+import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /** The closed framing union, gated at runtime the way performShot gates it. */
 const CAMERA_FRAMINGS = new Set<IAutoMovieBlockingCamera["framing"]>([

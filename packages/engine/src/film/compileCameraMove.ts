@@ -1,10 +1,16 @@
-import { IAutoMovieCamera, IAutoMovieClip, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieCamera,
+  IAutoMovieClip,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ease } from "../motion/ease";
+import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 import { FRAMING_AIM_FRACTION } from "./constants/FRAMING_AIM_FRACTION";
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
-import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
 import { lookRotation } from "./lookRotation";
 
 /** World up: the horizon a camera keeps level. */

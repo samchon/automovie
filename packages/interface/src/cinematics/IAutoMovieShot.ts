@@ -1,7 +1,7 @@
 import { IAutoMovieClip } from "../core/IAutoMovieClip";
 import { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
-import { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
 import { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
+import { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
 import { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
 import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
 

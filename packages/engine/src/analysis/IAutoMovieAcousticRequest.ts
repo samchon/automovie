@@ -1,4 +1,5 @@
 import { IAutoMovieAnalysisTarget } from "@automovie/interface";
+
 import { IAutoMovieAcousticPartition } from "./IAutoMovieAcousticPartition";
 import { IAutoMovieAcousticReceiver } from "./IAutoMovieAcousticReceiver";
 import { IAutoMovieAcousticSource } from "./IAutoMovieAcousticSource";

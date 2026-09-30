@@ -1,10 +1,16 @@
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieSoftBodyDomain, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { Quaternion } from "../math/Quaternion";
-import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 import { IAutoMovieSoftBodyBoundarySample } from "./IAutoMovieSoftBodyBoundarySample";
 import { IAutoMovieWearableSoftFrame } from "./IAutoMovieWearableSoftFrame";
 import { IAutoMovieWearableSoftResult } from "./IAutoMovieWearableSoftResult";
+import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
 /**
  * Resolve and simulate one explicitly admitted moving soft-body domain.

@@ -1,4 +1,7 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
 /**
  * Name the building unit that owns a logical space.

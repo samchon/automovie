@@ -9,16 +9,16 @@
  */
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
+import { PLANAR_EPSILON } from "../architecture/constants/PLANAR_EPSILON";
 import { Vector3 } from "../math/Vector3";
-import { finiteVector } from "./finiteVector";
-import { emptyMeshTarget } from "./emptyMeshTarget";
-import { pushFlatTriangle } from "./pushFlatTriangle";
 import { IAutoMovieLoftSection } from "./IAutoMovieLoftSection";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { IAutoMovieRegionTriangulation } from "./IAutoMovieRegionTriangulation";
-import { pathFrames } from "./pathFrames";
-import { PLANAR_EPSILON } from "../architecture/constants/PLANAR_EPSILON";
 import { canonicalRegion } from "./canonicalRegion";
+import { emptyMeshTarget } from "./emptyMeshTarget";
+import { finiteVector } from "./finiteVector";
+import { pathFrames } from "./pathFrames";
+import { pushFlatTriangle } from "./pushFlatTriangle";
 import { signedArea } from "./signedArea";
 import { trianglesOf } from "./trianglesOf";
 

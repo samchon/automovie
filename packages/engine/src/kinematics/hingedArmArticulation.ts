@@ -1,9 +1,10 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { aimRotation } from "./aimRotation";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
+import { aimRotation } from "./aimRotation";
 
 const RAD2DEG = 180 / Math.PI;
 

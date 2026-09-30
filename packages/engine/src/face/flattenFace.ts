@@ -1,4 +1,8 @@
-import { AutoMovieFaceParameterName, IAutoMovieFace } from "@automovie/interface";
+import {
+  AutoMovieFaceParameterName,
+  IAutoMovieFace,
+} from "@automovie/interface";
+
 import { IAutoMovieFaceTrait } from "./IAutoMovieFaceTrait";
 
 /** Traits with one morph target: symmetric features. */

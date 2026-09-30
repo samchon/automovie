@@ -1,4 +1,8 @@
-import { IAutoMovieCompiledFormation, IAutoMovieFormationMotion } from "@automovie/interface";
+import {
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationMotion,
+} from "@automovie/interface";
+
 import { sampleFormationMotion } from "../sampleFormationMotion";
 import { transformFormationBounds } from "../transformFormationBounds";
 import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";

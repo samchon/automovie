@@ -1,5 +1,6 @@
-import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 import { IAutoMovieMesh } from "@automovie/interface";
+
+import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 
 /**
  * One named member of an assembly, optionally placed by its own transform.

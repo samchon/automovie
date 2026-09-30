@@ -1,10 +1,11 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { aimRotation } from "./aimRotation";
-import { solveTwoBoneIK } from "./solveTwoBoneIK";
 import { IAutoMovieChainBone } from "./IAutoMovieChainBone";
 import { IAutoMovieTwoBoneArticulation } from "./IAutoMovieTwoBoneArticulation";
+import { aimRotation } from "./aimRotation";
+import { solveTwoBoneIK } from "./solveTwoBoneIK";
 
 /** World-down, the pole a natural elbow or knee bends away from. */
 const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };

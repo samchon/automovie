@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * The 2012 ANSUR II working database contains 4,082 men, 1,986 women and 93 direct measurements. The connected body's authoring fit used a 300-person subset. These exterior and rig proportions are not internal bone geometry or a universal growth law.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT_MALE: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT_MALE: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // ANSUR II people: hipScaleVert, men. A taller pelvis lowers the
       // reproduced men's crotch, fitted with the other rows.
@@ -42,4 +43,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT_MALE: IAutoMovieHumanBody
         },
       ],
     },
-];
+  ];

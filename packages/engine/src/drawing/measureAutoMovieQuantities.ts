@@ -1,4 +1,14 @@
-import { AutoMovieQuantityBasis, AutoMovieQuantitySubject, AutoMovieQuantityUnit, IAutoMovieBuiltEnvironment, IAutoMovieDrawingGap, IAutoMovieQuantityContributor, IAutoMovieQuantityFinding, IAutoMovieQuantityReport } from "@automovie/interface";
+import {
+  AutoMovieQuantityBasis,
+  AutoMovieQuantitySubject,
+  AutoMovieQuantityUnit,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDrawingGap,
+  IAutoMovieQuantityContributor,
+  IAutoMovieQuantityFinding,
+  IAutoMovieQuantityReport,
+} from "@automovie/interface";
+
 import { builtSpaceShellVolume } from "../architecture/builtSpaceShellVolume";
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { Vector3 } from "../math/Vector3";
@@ -6,12 +16,12 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { footprintArea } from "../space/footprintArea";
 import { surfaceFootprint } from "../space/surfaceFootprint";
-import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
-import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
+import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
 import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "./constants/AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
 import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS";
 import { AUTOMOVIE_QUANTITY_SUBJECTS } from "./constants/AUTOMOVIE_QUANTITY_SUBJECTS";
+import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /** The unit each subject is measured in. */
 const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =

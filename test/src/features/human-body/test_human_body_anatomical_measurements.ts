@@ -1,6 +1,6 @@
 import {
-  admitHumanBodyAnatomicalMeasurements,
   type IAutoMovieHumanBodyAnatomicalMeasurements,
+  admitHumanBodyAnatomicalMeasurements,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -132,11 +132,23 @@ export const test_human_body_anatomical_measurements = (): void => {
     ],
     [
       "femur belongs to the lower limb",
-      { pelvis: { leftHip: { femur: { maximumLength: { kind: "target", millimetres: 450 } } } } },
+      {
+        pelvis: {
+          leftHip: {
+            femur: { maximumLength: { kind: "target", millimetres: 450 } },
+          },
+        },
+      },
     ],
     [
       "humerus belongs to the upper arm",
-      { leftUpperLimb: { shoulder: { humerus: { maximumLength: { kind: "target", millimetres: 320 } } } } },
+      {
+        leftUpperLimb: {
+          shoulder: {
+            humerus: { maximumLength: { kind: "target", millimetres: 320 } },
+          },
+        },
+      },
     ],
     ["direct sculpt", { surface: { positionsMetres: [0, 1, 2] } }],
     [

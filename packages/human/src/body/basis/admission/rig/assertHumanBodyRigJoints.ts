@@ -21,7 +21,9 @@ const AXES = ["abduction", "twist"] as const;
  * anatomical limitation is not fixed by admitting a TT angle.
  * The returned bone set is what skin attachment may name.
  */
-export function assertHumanBodyRigJoints(basis: IAutoMovieHumanBodyBasis): Set<AutoMovieHumanoidBone> {
+export function assertHumanBodyRigJoints(
+  basis: IAutoMovieHumanBodyBasis,
+): Set<AutoMovieHumanoidBone> {
   const landmarks = new Set(basis.landmarks.ids);
   if (
     basis.landmarks.ids.length === 0 ||

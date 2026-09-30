@@ -1,6 +1,7 @@
 import { IAutoMovieFormationMotion } from "@automovie/interface";
-import { easingProgress } from "./easingProgress";
+
 import { IAutoMovieFormationCadenceSegment } from "./IAutoMovieFormationCadenceSegment";
+import { easingProgress } from "./easingProgress";
 
 /**
  * Cut one unit's cue sequence into the intervals its cadence is made of.

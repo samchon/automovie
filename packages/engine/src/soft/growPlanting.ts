@@ -1,4 +1,14 @@
-import { IAutoMoviePlantingBranch, IAutoMoviePlantingDomain, IAutoMoviePlantingLeaf, IAutoMoviePlantingState, IAutoMoviePruningEnvelope, IAutoMovieQuaternion, IAutoMovieSoftBounds, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMoviePlantingBranch,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingLeaf,
+  IAutoMoviePlantingState,
+  IAutoMoviePruningEnvelope,
+  IAutoMovieQuaternion,
+  IAutoMovieSoftBounds,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { mixSeed } from "../math/mixSeed";
 import { seededValue } from "../math/seededValue";
 

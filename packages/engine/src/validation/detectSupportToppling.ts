@@ -1,11 +1,15 @@
-import { IAutoMovieInteractionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
 import { convexHull2D } from "../math/convexHull2D";
 import { nearestHullEdge } from "../math/nearestHullEdge";
 import { pointHullDistance } from "../math/pointHullDistance";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
+import { ViolationCollector } from "./ViolationCollector";
 
 const DEFAULT_MARGIN = 0.02;
 

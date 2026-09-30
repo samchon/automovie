@@ -1,18 +1,24 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieProfileBinding, IAutoMovieSkeleton } from "@automovie/interface";
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieProfileBinding,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
+import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";
-import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
+import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateMotion } from "../validation/validateMotion";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { preserveRetargetContacts } from "./preserveRetargetContacts";
 import { IAutoMovieHumanoidRetargetProps } from "./IAutoMovieHumanoidRetargetProps";
 import { IAutoMovieHumanoidRetargetResult } from "./IAutoMovieHumanoidRetargetResult";
 import { IAutoMovieHumanoidRigCharacterization } from "./IAutoMovieHumanoidRigCharacterization";
+import { preserveRetargetContacts } from "./preserveRetargetContacts";
 
 const EPSILON = 1e-6;
 

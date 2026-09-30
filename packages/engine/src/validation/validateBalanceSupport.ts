@@ -1,13 +1,24 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieJointAxes, indexSkeletonTopology, resolvePose } from "../kinematics";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  IAutoMovieJointAxes,
+  indexSkeletonTopology,
+  resolvePose,
+} from "../kinematics";
 import { convexHull2D } from "../math/convexHull2D";
 import { pointHullDistance } from "../math/pointHullDistance";
-import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
+import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieBalanceSupportWindow } from "./IAutoMovieBalanceSupportWindow";
+import { ViolationCollector } from "./ViolationCollector";
+import { fkReachableBones } from "./fkReachableBones";
 
 const DEFAULT_MARGIN = 0.02;
 

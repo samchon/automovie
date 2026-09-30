@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * These dimensionless rows set visible skin channel weights. They neither reconstruct tissue volumes nor establish safe contact in a combined pose.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_NECK: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_NECK: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // submental fat with body mass
       channel: "neckDouble",
@@ -35,4 +36,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_NECK: IAutoMovieHumanBodySimpleShapeTable["
         },
       ],
     },
-];
+  ];

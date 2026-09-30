@@ -1,4 +1,32 @@
-import type { IAutoMovieBuiltEnvironment, IAutoMovieDesignEvidence, IAutoMovieDesignLineage, IAutoMovieDesignReference, IAutoMovieEffectRecipe, IAutoMovieFluidDomain, IAutoMovieFormationMotion, IAutoMovieFormationSlotMotion, IAutoMovieInstanceSetDesign, IAutoMovieModel, IAutoMovieMotion, IAutoMoviePlantingCluster, IAutoMoviePlantingDomain, IAutoMoviePlantingInstallation, IAutoMoviePropSpec, IAutoMovieServiceNetwork, IAutoMovieShotActorProgram, IAutoMovieShotEffectCue, IAutoMovieSoftBodyDomain, IAutoMovieSoftFurnishing, IAutoMovieSpace, IAutoMovieStageSetPiece, IAutoMovieWaterFeature, IAutoMovieWorldEffectZone, IAutoMovieWorldLandmark, IAutoMovieWorldRoute, IAutoMovieWorldSurface } from "@automovie/interface";
+import type {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieDesignEvidence,
+  IAutoMovieDesignLineage,
+  IAutoMovieDesignReference,
+  IAutoMovieEffectRecipe,
+  IAutoMovieFluidDomain,
+  IAutoMovieFormationMotion,
+  IAutoMovieFormationSlotMotion,
+  IAutoMovieInstanceSetDesign,
+  IAutoMovieModel,
+  IAutoMovieMotion,
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+  IAutoMoviePlantingInstallation,
+  IAutoMoviePropSpec,
+  IAutoMovieServiceNetwork,
+  IAutoMovieShotActorProgram,
+  IAutoMovieShotEffectCue,
+  IAutoMovieSoftBodyDomain,
+  IAutoMovieSoftFurnishing,
+  IAutoMovieSpace,
+  IAutoMovieStageSetPiece,
+  IAutoMovieWaterFeature,
+  IAutoMovieWorldEffectZone,
+  IAutoMovieWorldLandmark,
+  IAutoMovieWorldRoute,
+  IAutoMovieWorldSurface,
+} from "@automovie/interface";
 
 /**
  * What one subject puts into the shot it appears in.

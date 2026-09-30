@@ -1,4 +1,5 @@
 import { IAutoMovieConstraintViolation } from "@automovie/interface";
+
 import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
 

@@ -9,7 +9,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  * is a universal relation for children or unobserved populations. The table
  * assembly preserves these rows' original summation order.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // ANSUR II people: hipScaleVert, women. The reproduced women's crotch
       // stood below theirs; a shorter pelvis raises the crotch by 20 mm per
@@ -50,4 +51,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_HEIGHT: IAutoMovieHumanBodySimpl
         },
       ],
     },
-];
+  ];
