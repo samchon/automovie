@@ -15,9 +15,6 @@ import type { IAutoMovieHumanFaceControlMap } from "../structures/IAutoMovieHuma
  * updates do not accumulate deltas. Saving needs only the resolved fine weights;
  * projecting them again recovers the mean and residuals to floating precision.
  * Neither the map nor any shape supplied by a caller is mutated.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Converts simple edits into the canonical fine representation while retaining asymmetric and unlisted detail.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Implements explicit endpoint normalization, mean/residual projection, bounded lowering and origin-based replay.
  */
 export function createHumanFaceControlMap(props: {
   basis: Pick<IAutoMovieHumanFaceBasis, "id" | "channels">;

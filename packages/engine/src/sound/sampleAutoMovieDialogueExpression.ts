@@ -1,4 +1,5 @@
 import type { IAutoMovieExpression } from "@automovie/interface";
+
 import { IAutoMovieDialogueExpressionLayers } from "./IAutoMovieDialogueExpressionLayers";
 import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTimeline";
 

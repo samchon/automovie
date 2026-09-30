@@ -1,8 +1,8 @@
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { withArticle } from "../text/withArticle";
-import { pushViolation } from "./pushViolation";
 import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
+import { pushViolation } from "./pushViolation";
 
 /**
  * A LIGHT clip's track must address one staged light's animatable property, and

@@ -2,7 +2,7 @@ import {
   type IAutoMovieHumanFaceDocument,
   resolveHumanFaceDocument,
 } from "@automovie/human";
-import { mountHumanFacePanel } from "@automovie/playground/src/human/panel";
+import { mountHumanFacePanel } from "@automovie/playground/src/human/face/panel";
 import { JSDOM } from "jsdom";
 
 import { humanFaceFixture } from "./humanFaceFixture";

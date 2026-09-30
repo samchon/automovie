@@ -1,9 +1,10 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { convexHull2D } from "../math/convexHull2D";
 import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 import { positive } from "./positive";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Extrude a convex XY profile along local Z into a closed triangle mesh.

@@ -6,4 +6,4 @@ export * from "./IPortraitMouthShape";
 export * from "./IPortraitMouthSocket";
 export * from "./IPortraitOralAttachment";
 export * from "./IPortraitOralChamber";
-export * from "./innerLoop";
+export * from "./portraitMouthInnerLoop";

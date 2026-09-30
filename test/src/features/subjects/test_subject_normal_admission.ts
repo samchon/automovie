@@ -1,4 +1,4 @@
-import { portraitNormals } from "@automovie/human/face/mesh/portraitNormals";
+import { areaWeightedNormals } from "@automovie/human/common/mesh/areaWeightedNormals";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -28,7 +28,7 @@ export const test_subject_normal_admission = (): void => {
   const indices = [0, 1, 2, 1, 3, 2];
   TestValidator.equals(
     "finite shared area retains planar direction",
-    portraitNormals(positions(1e305), indices),
+    areaWeightedNormals(positions(1e305), indices),
     [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
   );
   for (const height of [1e306, 1e307, Infinity, NaN])
@@ -40,7 +40,7 @@ export const test_subject_normal_admission = (): void => {
       );
       TestValidator.predicate(
         "each unrepresentable normal component refuses",
-        throwsError(() => portraitNormals(rotated, indices), "normal"),
+        throwsError(() => areaWeightedNormals(rotated, indices), "normal"),
       );
     }
 };

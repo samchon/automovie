@@ -1,4 +1,16 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace, IAutoMovieDrawingConnectorPlace, IAutoMovieDrawingGap, IAutoMovieDrawingOpeningPlace, IAutoMovieDrawingSchedule, IAutoMovieDrawingScheduleBox, IAutoMovieDrawingSchedulePlace, IAutoMovieDrawingScheduleRow, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+  IAutoMovieDrawingConnectorPlace,
+  IAutoMovieDrawingGap,
+  IAutoMovieDrawingOpeningPlace,
+  IAutoMovieDrawingSchedule,
+  IAutoMovieDrawingScheduleBox,
+  IAutoMovieDrawingSchedulePlace,
+  IAutoMovieDrawingScheduleRow,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtEnvironmentAdjacentSpaces } from "../architecture/builtEnvironmentAdjacentSpaces";
 import { builtEnvironmentBuildingOfSpace } from "../architecture/builtEnvironmentBuildingOfSpace";
 import { builtEnvironmentSpaceConnectors } from "../architecture/builtEnvironmentSpaceConnectors";
@@ -8,15 +20,15 @@ import { builtEnvironmentSpaceNodes } from "../architecture/builtEnvironmentSpac
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
-import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
+import { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
 import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingWorldMatrices } from "./autoMovieDrawingWorldMatrices";
+import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
+import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
+import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "./constants/AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingTriangles";
-import { AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS } from "./constants/AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS";
-import { AutoMovieDrawingScheduleSubject } from "./AutoMovieDrawingScheduleSubject";
 
 /**
  * Count one design's rooms, openings or connectors.

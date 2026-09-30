@@ -1,4 +1,7 @@
-import { IAutoMovieEnvironmentContext, IAutoMovieEnvironmentInstant } from "@automovie/interface";
+import {
+  IAutoMovieEnvironmentContext,
+  IAutoMovieEnvironmentInstant,
+} from "@automovie/interface";
 
 /**
  * The instant of a context by id, or null when it names none.

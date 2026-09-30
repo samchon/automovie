@@ -1,4 +1,5 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { Vector3 } from "./Vector3";
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));

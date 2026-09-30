@@ -1,4 +1,8 @@
-import { IAutoMovieConvexSpaceCell, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieConvexSpaceCell,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
 

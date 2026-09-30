@@ -18,9 +18,6 @@ import type { IAutoMovieHumanBodySimplePosture } from "../structures/IAutoMovieH
  *   carried forward. That joint split and neck compensation are authored rig
  *   approximations; Koelé et al. report population Cobb angles, not these
  *   two joint rotations or an individual cervical response.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-simple-shape Holds the age posture the simple tier derives, as numbers a user can audit against their sources.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-simple-shape Fixes the kyphosis by sex and age, the thoracic joints' shares and the compensating neck.
  */
 export const HUMAN_BODY_SIMPLE_POSTURE: IAutoMovieHumanBodySimplePosture = {
   kyphosis: {

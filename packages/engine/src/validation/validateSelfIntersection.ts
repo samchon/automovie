@@ -1,13 +1,24 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3 } from "@automovie/interface";
-import { IAutoMovieJointAxes, indexSkeletonTopology, resolvePose } from "../kinematics";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import {
+  IAutoMovieJointAxes,
+  indexSkeletonTopology,
+  resolvePose,
+} from "../kinematics";
 import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
-import { sampleTimes } from "../motion/sampleTimes";
 import { sampleMotion } from "../motion/sampleMotion";
+import { sampleTimes } from "../motion/sampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieCapsuleProxy, validateCapsule } from "./validateCapsule";
-import { fkReachableBones } from "./fkReachableBones";
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieCapsuleProxyPair } from "./IAutoMovieCapsuleProxyPair";
+import { ViolationCollector } from "./ViolationCollector";
+import { fkReachableBones } from "./fkReachableBones";
+import { IAutoMovieCapsuleProxy, validateCapsule } from "./validateCapsule";
 
 const DEFAULT_SAMPLE_RATE = 24;
 

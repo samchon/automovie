@@ -1,6 +1,6 @@
-import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
 import { AutoMovieGrammarStyleIntent } from "./AutoMovieGrammarStyleIntent";
 import { IAutoMovieNamedState } from "./IAutoMovieNamedState";
+import { IAutoMovieSceneEvidence } from "./IAutoMovieSceneEvidence";
 import { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
 import { IAutoMovieShotParticipant } from "./IAutoMovieShotParticipant";
 import { IAutoMovieShotReviewFrame } from "./IAutoMovieShotReviewFrame";

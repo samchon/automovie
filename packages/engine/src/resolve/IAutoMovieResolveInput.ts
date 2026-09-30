@@ -1,4 +1,10 @@
-import { IAutoMovieChannelLimit, IAutoMovieClip, IAutoMovieDriver, IAutoMovieNode } from "@automovie/interface";
+import {
+  IAutoMovieChannelLimit,
+  IAutoMovieClip,
+  IAutoMovieDriver,
+  IAutoMovieNode,
+} from "@automovie/interface";
+
 import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
 import { IAutoMovieResolveSprings } from "./IAutoMovieResolveSprings";
 

@@ -4,6 +4,7 @@ import type { AutoMovieHumanFaceOverride } from "../AutoMovieHumanFaceOverride";
 import { assertHumanFaceEditableDetail } from "../document/assertHumanFaceEditableDetail";
 import type { IAutoMovieHumanFaceDocument } from "../structures/IAutoMovieHumanFaceDocument";
 import type { IAutoMovieHumanFaceRecipe } from "../structures/IAutoMovieHumanFaceRecipe";
+import { assertRegion } from "./assertRegion";
 import { humanFaceRegions } from "./humanFaceRegions";
 
 /**
@@ -14,9 +15,6 @@ import { humanFaceRegions } from "./humanFaceRegions";
  * including free relief, section and hair-card guides. Source cards in the
  * separately named legacy hair-layer scalar transaction are the exception.
  * Geometry and complete schema admission still precede editor publication.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Preserves unrelated settings when a region is replaced or reset to inheritance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Rejects stale-basis replacement and keeps one explicit override owner.
  */
 export function replaceHumanFaceRegion<
   K extends (typeof humanFaceRegions)[number],
@@ -54,17 +52,4 @@ export function replaceHumanFaceRegion<
   }
   assertHumanFaceEditableDetail(document);
   return document;
-}
-
-function assertRegion(region: string, side?: string): void {
-  if (!(humanFaceRegions as readonly string[]).includes(region))
-    throw new Error("Unknown anatomical face region.");
-  if (
-    side !== undefined &&
-    ((side !== "right" && side !== "left") ||
-      (region !== "eye" && region !== "ear" && region !== "cheek"))
-  )
-    throw new Error(
-      "Only eyes, cheeks and pinnae have independent side-profile overrides.",
-    );
 }

@@ -1,8 +1,8 @@
 import { IAutoMovieDeliveryCrop } from "../cinematics/IAutoMovieDeliveryCrop";
 import { IAutoMovieRenderObservation } from "../render/IAutoMovieRenderObservation";
 import { IAutoMovieSemanticMaskEvidence } from "../render/IAutoMovieSemanticMaskEvidence";
-import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { AutoMovieCaptureObservation } from "./AutoMovieCaptureObservation";
+import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
 import { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
 import { IAutoMoviePreviewFrameInput } from "./IAutoMoviePreviewFrameInput";
 

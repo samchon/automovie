@@ -2,9 +2,6 @@ import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 
 /**
  * Admit eye performance independently of a mesh or an editor's slider ranges.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Refuses unsupported closure and gaze inputs before constructing posed tissues.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Keeps observed closure invertible and current performance finite.
  */
 export function assertPortraitEyePerformance(
   input: IPortraitEyePerformance,

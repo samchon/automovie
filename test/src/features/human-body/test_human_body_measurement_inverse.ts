@@ -1,5 +1,6 @@
 import { invertHumanBodyMeasurement } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
+
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
@@ -75,7 +76,13 @@ export const test_human_body_measurement_inverse = (): void => {
   TestValidator.predicate(
     "reversing response refuses",
     throwsError(
-      () => solve((weight) => weight + 2 * Math.sin(Math.PI * weight), 0.75, 0, [0, 1]),
+      () =>
+        solve(
+          (weight) => weight + 2 * Math.sin(Math.PI * weight),
+          0.75,
+          0,
+          [0, 1],
+        ),
       "reverses",
     ),
   );
@@ -93,7 +100,9 @@ export const test_human_body_measurement_inverse = (): void => {
   );
   TestValidator.predicate(
     "invalid envelope and current weight refuse",
-    throwsError(() => solve((weight) => weight, 0.5, 0, [1, -1]), "ordered range") &&
-      throwsError(() => solve((weight) => weight, 0.5, 2), "current weight"),
+    throwsError(
+      () => solve((weight) => weight, 0.5, 0, [1, -1]),
+      "ordered range",
+    ) && throwsError(() => solve((weight) => weight, 0.5, 2), "current weight"),
   );
 };

@@ -1,9 +1,14 @@
-import { AutoMovieHumanoidBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { IAutoMovieCollisionResponse } from "./IAutoMovieCollisionResponse";
 import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
-import { resolveImpact } from "./resolveImpact";
 import { impactRecoil } from "./impactRecoil";
 import { impulseToRecoilPush } from "./impulseToRecoilPush";
-import { IAutoMovieCollisionResponse } from "./IAutoMovieCollisionResponse";
+import { resolveImpact } from "./resolveImpact";
 
 /**
  * Suggest how a collision resolves: run {@link resolveImpact} for the impulse,

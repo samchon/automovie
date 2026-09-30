@@ -5,7 +5,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  *
  * The 2012 ANSUR II working database contains 4,082 men, 1,986 women and 93 direct measurements. The connected body's authoring fit used a 300-person subset. These exterior and rig proportions are not internal bone geometry or a universal growth law.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_LEG_LENGTH: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_LEG_LENGTH: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // ANSUR II people: measureUpperlegHeight, men. The reproduced men's hip
       // joint stood 51 mm above the survey's trochanterion and their knee 29 mm
@@ -86,4 +87,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_LEG_LENGTH: IAutoMovieHumanBodySimpl
         },
       ],
     },
-];
+  ];

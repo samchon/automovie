@@ -5,7 +5,6 @@
  * @evidence specifications/interior-space/services-wet-and-fluid.md#interior-space-service-network-contract Types `AutoMovieServiceNodeKind` for the interior space service network contract system contract.
  */
 export type AutoMovieServiceNodeKind =
-
   /** Where the medium enters or leaves the building: a main, a panel, a stack. */
   | "source"
 

@@ -1,7 +1,8 @@
 import { IAutoMovieCompiledEffect } from "@automovie/interface";
-import { mixSeed } from "./math/mixSeed";
+
 import { IAutoMovieEffectParticle } from "./IAutoMovieEffectParticle";
 import { IAutoMovieEffectSample } from "./IAutoMovieEffectSample";
+import { mixSeed } from "./math/mixSeed";
 
 /**
  * Sample a compiled primitive effect from its absolute fixed-step clock.

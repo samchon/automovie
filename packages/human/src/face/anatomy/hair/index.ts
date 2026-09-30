@@ -30,4 +30,4 @@ export * from "./buildPortraitHairGroom";
 export * from "./createPortraitHairMaterial";
 export * from "./createPortraitHairNormalTexture";
 export * from "./createPortraitHairTexture";
-export * from "./createTexture";
+export * from "./createPortraitHairFibreTexture";

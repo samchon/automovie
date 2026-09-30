@@ -11,17 +11,14 @@
  * (equal positions), not normals, collision freedom, tissue mechanics or a full
  * manifold union. Compound junctions retain every face and all their owners.
  */
-import type { IPortraitInterior } from "./structures/IPortraitInterior";
 import type { IControlMesh } from "../mesh/structures/IControlMesh";
+import type { IPortraitInterior } from "./structures/IPortraitInterior";
 
 /**
  * Validate the live native correspondences consumed by head materialization.
  * Skin is addressed by a null part; every other target uses an interior ID.
  * Named loops may have faces on both sides, as cervical rings of capped enamel
  * do. No face is removed and no collision pair is excluded by this admission.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Admits explicit component-to-skin and component-to-component attachment identities before output construction.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Checks resident shared vertices and exact common coordinates without a second geometric boundary estimate.
  */
 export function assertPortraitInteriorBindings(
   skin: Pick<IControlMesh, "positions">,

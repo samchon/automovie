@@ -1,12 +1,13 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { portraitPoint } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../mesh/portraitNormals";
-import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
-import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
-import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
+import { millimetrePoint } from "../../mesh/millimetrePoint";
+import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
+import { createPortraitInteriorFinisher } from "../../surface/createPortraitInteriorFinisher";
+import type { IPortraitComponent } from "../../surface/structures/IPortraitComponent";
 import { attachPortraitOralMesh } from "../mouth/attachPortraitOralMesh";
+import { posePortraitJawPoint } from "../mouth/posePortraitJawPoint";
 import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { buildPortraitTongue } from "./buildPortraitTongue";
 
@@ -18,11 +19,6 @@ import { buildPortraitTongue } from "./buildPortraitTongue";
  * Fit captures the performed mesh in head millimetres. Native preparation gives
  * each consumer a fresh copy with matching normals; compatibility finish packs
  * this same producer's result without repeating attachment or jaw motion.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds a separately finished lingual interior without cutting skin or moving teeth.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the observed lower oral midpoint and shared orthonormal oral placement.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Carries the anterior tongue with the mandible independently of lip separation, smile and pucker.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Applies observed-relative dorsal elevation, anterior displacement and weighted mandibular rotation with a fixed posterior endpoint.
  */
 export function createPortraitTongueComponent(
   inputSocket: {
@@ -56,7 +52,7 @@ export function createPortraitTongueComponent(
       )
         throw new Error("Tongue sockets must name resident host vertices.");
       const point = (id: number) =>
-        portraitPoint(...(host.positions[id] as [number, number, number]));
+        millimetrePoint(...(host.positions[id] as [number, number, number]));
       const placed = attachPortraitOralMesh(local, {
         rightCorner: point(socket.rightCorner),
         leftCorner: point(socket.leftCorner),
@@ -78,7 +74,7 @@ export function createPortraitTongueComponent(
         );
         placed.positions.splice(i, 3, p.x, p.y, p.z);
       }
-      placed.normals = portraitNormals(placed.positions, placed.indices!);
+      placed.normals = areaWeightedNormals(placed.positions, placed.indices!);
       return {
         constraints: [],
         cutFaces: [],

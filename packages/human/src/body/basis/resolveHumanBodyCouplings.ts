@@ -51,9 +51,6 @@ import { resolveHumanBodyPelvifemoralRhythm } from "./resolveHumanBodyPelvifemor
  * unknown, and a sum past the output axis's range stays past it, so the
  * engine's pose validation refuses each of them in the builder as it did
  * before, with the coupled angle in the diagnostic.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Applies the basis's declared joint couplings so an elevated arm moves its girdle with it, adding to the document's clinical angles without storing the addition in the document.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Reads the TT total elevation on upper-arm sources and the swing cone on other sources, applies the declared curve to the girdle axis, lists the pelvifemoral rhythm's additions, and leaves the sums to pose validation.
  */
 export function resolveHumanBodyCouplings(
   basis: Pick<

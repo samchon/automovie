@@ -30,9 +30,6 @@ import type { IAutoMovieHumanBodySkinSites } from "../structures/IAutoMovieHuman
  * pigmentation is an authored extrapolation, not population validation.
  * The fits, their group means and
  * coefficients of determination are in the body study's skin-sites receipt.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Holds the measured cheek-to-site relations a body's skin colour is read through, so it meets the face in colour.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Fixes the site fits, the site assignment's weights and the collar band the builder evaluates.
  */
 export const HUMAN_BODY_SKIN_SITES: IAutoMovieHumanBodySkinSites = {
   material: "skin",

@@ -1,4 +1,11 @@
-import { AutoMovieHumanoidBone, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieModel,
+  IAutoMovieQuaternion,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { tessellate } from "../geometry/tessellate";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

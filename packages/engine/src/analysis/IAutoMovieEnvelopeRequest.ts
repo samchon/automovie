@@ -1,4 +1,8 @@
-import { IAutoMovieAnalysisTarget, IAutoMovieEnvironmentContext } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisTarget,
+  IAutoMovieEnvironmentContext,
+} from "@automovie/interface";
+
 import { IAutoMovieEnvelopeAssembly } from "./IAutoMovieEnvelopeAssembly";
 import { IAutoMovieEnvelopeBridge } from "./IAutoMovieEnvelopeBridge";
 import { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";

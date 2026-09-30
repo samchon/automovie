@@ -1,4 +1,10 @@
-import { IAutoMovieSubjectReviewCoverage, IAutoMovieSubjectReviewTarget, IAutoMovieSubjectReviewUnit, IAutoMovieSubjectReviewViewpoint } from "@automovie/interface";
+import {
+  IAutoMovieSubjectReviewCoverage,
+  IAutoMovieSubjectReviewTarget,
+  IAutoMovieSubjectReviewUnit,
+  IAutoMovieSubjectReviewViewpoint,
+} from "@automovie/interface";
+
 import { IAutoMovieCurrentSubjectReviewObservation } from "./IAutoMovieCurrentSubjectReviewObservation";
 import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReviewCurrentContext";
 

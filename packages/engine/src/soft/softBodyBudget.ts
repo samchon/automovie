@@ -1,4 +1,8 @@
-import type { IAutoMovieSoftBodyBudget, IAutoMovieSoftBodyDomain } from "@automovie/interface";
+import type {
+  IAutoMovieSoftBodyBudget,
+  IAutoMovieSoftBodyDomain,
+} from "@automovie/interface";
+
 import { softBodyTravelNumber } from "./softBodyTravelNumber";
 
 /**

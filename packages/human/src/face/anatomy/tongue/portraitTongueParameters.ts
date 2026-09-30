@@ -1,9 +1,6 @@
 /**
  * Editing envelopes shared by tongue construction and scalar controls. These
  * are finite authoring ranges, not biological population measurements.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Gives each lingual shape axis a stable unit, direction and editable range.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Uses one scalar envelope for detailed editing and complete profile admission.
  */
 export const portraitTongueParameters = [
   {

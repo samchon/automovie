@@ -1,9 +1,9 @@
+import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyAbdominalAdiposeMeasurements } from "./IAutoMovieHumanBodyAbdominalAdiposeMeasurements";
 import type { IAutoMovieHumanBodyBreastMeasurements } from "./IAutoMovieHumanBodyBreastMeasurements";
-import type { IAutoMovieHumanBodyTrunkMusclesMeasurements } from "./IAutoMovieHumanBodyTrunkMusclesMeasurements";
 import type { IAutoMovieHumanBodySpineMeasurements } from "./IAutoMovieHumanBodySpineMeasurements";
 import type { IAutoMovieHumanBodyThoracicCageMeasurements } from "./IAutoMovieHumanBodyThoracicCageMeasurements";
-import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
+import type { IAutoMovieHumanBodyTrunkMusclesMeasurements } from "./IAutoMovieHumanBodyTrunkMusclesMeasurements";
 
 /**
  * Target or observed trunk anatomy above the pelvic girdle.
@@ -19,15 +19,15 @@ import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/Aut
  */
 export type IAutoMovieHumanBodyTrunkMeasurements =
   AutoMovieHumanBodyNonemptyMeasurements<{
-  /** Midline vertebral curvatures separate from pose commands. */
-  spine?: IAutoMovieHumanBodySpineMeasurements;
-  /** Bony ribs and sternum beneath soft tissue and skin. */
-  thoracicCage?: IAutoMovieHumanBodyThoracicCageMeasurements;
-  leftBreast?: IAutoMovieHumanBodyBreastMeasurements;
-  rightBreast?: IAutoMovieHumanBodyBreastMeasurements;
-  /** Independent left chest, abdominal and back muscle bellies. */
-  leftMuscles?: IAutoMovieHumanBodyTrunkMusclesMeasurements;
-  /** Independent right chest, abdominal and back muscle bellies. */
-  rightMuscles?: IAutoMovieHumanBodyTrunkMusclesMeasurements;
-  abdominalAdipose?: IAutoMovieHumanBodyAbdominalAdiposeMeasurements;
+    /** Midline vertebral curvatures separate from pose commands. */
+    spine?: IAutoMovieHumanBodySpineMeasurements;
+    /** Bony ribs and sternum beneath soft tissue and skin. */
+    thoracicCage?: IAutoMovieHumanBodyThoracicCageMeasurements;
+    leftBreast?: IAutoMovieHumanBodyBreastMeasurements;
+    rightBreast?: IAutoMovieHumanBodyBreastMeasurements;
+    /** Independent left chest, abdominal and back muscle bellies. */
+    leftMuscles?: IAutoMovieHumanBodyTrunkMusclesMeasurements;
+    /** Independent right chest, abdominal and back muscle bellies. */
+    rightMuscles?: IAutoMovieHumanBodyTrunkMusclesMeasurements;
+    abdominalAdipose?: IAutoMovieHumanBodyAbdominalAdiposeMeasurements;
   }>;

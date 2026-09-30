@@ -1,5 +1,5 @@
-import { createHumanResidentHandler } from "@automovie/playground/src/human/residentHandler";
-import type { HumanResidentReply } from "@automovie/playground/src/human/residentWorker";
+import { createHumanResidentHandler } from "@automovie/playground/src/human/common/residentHandler";
+import type { HumanResidentReply } from "@automovie/playground/src/human/common/residentWorker";
 import { TestValidator } from "@nestia/e2e";
 
 /**

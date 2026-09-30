@@ -1,4 +1,10 @@
-import { AutoMovieHumanoidBone, IAutoMovieMotion, IAutoMovieProfileBinding, IAutoMovieSkeleton } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotion,
+  IAutoMovieProfileBinding,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";

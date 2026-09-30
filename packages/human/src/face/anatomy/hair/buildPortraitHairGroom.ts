@@ -1,8 +1,12 @@
-import type { IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
-import { buildPortraitHairCards } from "./buildPortraitHairCards";
-import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
+import type {
+  IAutoMovieMaterial,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
+
 import { IPortraitHairLayer } from "./IPortraitHairLayer";
 import { IPortraitHairShape } from "./IPortraitHairShape";
+import { buildPortraitHairCards } from "./buildPortraitHairCards";
+import { createPortraitHairMaterial } from "./createPortraitHairMaterial";
 
 /**
  * Assemble legacy hair and up to eight additional independent surface layers.
@@ -11,9 +15,6 @@ import { IPortraitHairShape } from "./IPortraitHairShape";
  * preceding layer's generated material. Omitted layers preserve legacy output.
  * The layer limit bounds authoring cost, not anatomical density. Invalid empty
  * profiles still refuse; no texture or unused finish is allocated for them.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs separately shaded scalp populations without changing the face or shared base finishes.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Keeps additional layer identities, texture ownership and base-finish lookup independent of ordering.
  */
 export function buildPortraitHairGroom(props: {
   hair?: IPortraitHairShape;

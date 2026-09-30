@@ -1,4 +1,10 @@
-import { IAutoMovieBeatEndFootPlant, IAutoMovieMotion, IAutoMovieScene, IAutoMovieShot } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieMotion,
+  IAutoMovieScene,
+  IAutoMovieShot,
+} from "@automovie/interface";
+
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**

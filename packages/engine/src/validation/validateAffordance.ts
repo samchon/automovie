@@ -1,8 +1,9 @@
+import { IAutoMovieAffordance } from "@automovie/interface";
+
 import { convexHull2D } from "../math/convexHull2D";
 import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
-import { IAutoMovieAffordance } from "@automovie/interface";
 
 /**
  * Validate one {@link IAutoMovieAffordance}: a non-empty id, finite frame

@@ -7,8 +7,6 @@ import { IPortraitDentalCrown } from "./IPortraitDentalCrown";
  * anterior midpoint is the origin. These are authored portrait dimensions, not
  * a dental scan or a claim of physiological reconstruction.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates each ordered enamel crown from the arch dimensions, spacing and optional inter-crown clearance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines an elliptical maxillary guide and a shared gingival plane in millimetres; individual crowns retain independent profiles.
  */
 export interface IPortraitDentalRow {
   /** Positive transverse semiaxis of the arch, in mm. */

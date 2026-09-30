@@ -1,15 +1,23 @@
-import { AutoMovieBodyRegion, AutoMovieHumanoidBone, IAutoMovieActionCall, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  AutoMovieBodyRegion,
+  AutoMovieHumanoidBone,
+  IAutoMovieActionCall,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import { IAutoMoviePlacement } from "../motion/IAutoMoviePlacement";
 import { arrangeMotion } from "../motion/arrangeMotion";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sequenceMotion } from "../motion/sequenceMotion";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { actionRegion } from "./actionRegion";
-import { blendPoses } from "./blendPoses";
-import { bodyRegionBones } from "./bodyRegionBones";
 import { IAutoMovieActionSynthesizer } from "./IAutoMovieActionSynthesizer";
 import { IAutoMovieCompiledPerformance } from "./IAutoMovieCompiledPerformance";
 import { IAutoMovieMaskedContent } from "./IAutoMovieMaskedContent";
+import { actionRegion } from "./actionRegion";
+import { blendPoses } from "./blendPoses";
+import { bodyRegionBones } from "./bodyRegionBones";
 
 const ROOT_REGIONS = new Set<AutoMovieBodyRegion>(["lowerBody", "fullBody"]);
 

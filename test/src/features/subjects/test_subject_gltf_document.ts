@@ -1,4 +1,4 @@
-import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
+import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
@@ -64,7 +64,7 @@ export const test_subject_gltf_document = async (): Promise<void> => {
   ];
   const io = new NodeIO();
   const read = await io.readBinary(
-    await io.writeBinary(portraitDocument(model)),
+    await io.writeBinary(createGltfDocument(model)),
   );
   const root = read.getRoot();
   TestValidator.equals(
@@ -130,7 +130,7 @@ export const test_subject_gltf_document = async (): Promise<void> => {
     ["opaque", "OPAQUE"],
     ["blend", "BLEND"],
   ] as const) {
-    const explicit = portraitDocument({
+    const explicit = createGltfDocument({
       ...model,
       parts: [model.parts[0]],
       materials: [{ ...model.materials[0], alphaMode: mode, opacity: 1 }],
@@ -142,7 +142,7 @@ export const test_subject_gltf_document = async (): Promise<void> => {
     );
   }
   const rejected = (change: Partial<IAutoMovieModel>): boolean =>
-    throwsError(() => portraitDocument({ ...model, ...change }));
+    throwsError(() => createGltfDocument({ ...model, ...change }));
   TestValidator.predicate(
     "opaque alpha contradiction refused",
     rejected({

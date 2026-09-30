@@ -5,7 +5,7 @@
  * Exact canthal endpoints bound the interpolated wet tissue; sclera and the
  * connective region partition one external hull. Iris/pupil/cornea use the
  * optical sphere and rotate together with gaze, independently of that lining.
- * Only portraitPart crosses to model metres. Changing support or a refined
+ * Only createMetricMeshPart crosses to model metres. Changing support or a refined
  * margin invalidates tissue, optics, lashes and brow attachment together.
  */
 import {
@@ -18,41 +18,36 @@ import type {
   IAutoMovieVector3 as Point,
 } from "@automovie/interface";
 
-import { portraitMix as mix } from "../../mesh/portraitMix";
-import { portraitPoint as p } from "../../mesh/portraitPoint";
-import { portraitNormals } from "../../mesh/portraitNormals";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitPatch as patch } from "../../mesh/portraitPatch";
-import { portraitRegion } from "../../mesh/portraitRegion";
-import { portraitSpline as interpolate } from "../../mesh/portraitSpline";
-import { portraitTube as tube } from "../../mesh/portraitTube";
-import type { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
+import { catmullRomPoint as interpolate } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
+import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
+import { linearInterpolate as mix } from "../../mesh/linearInterpolate";
+import { millimetrePoint as p } from "../../mesh/millimetrePoint";
+import type { IControlMesh } from "../../mesh/structures/IControlMesh";
+import { sweepEightSidedTube as tube } from "../../mesh/sweepEightSidedTube";
+import { triangulateSurfaceLattice as patch } from "../../mesh/triangulateSurfaceLattice";
 import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirectionalSurfaceTargets";
-import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { portraitEyeSphereHeight } from "../../surface/portraitEyeSphereHeight";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
-import { createPortraitOpticalFrame } from "./createPortraitOpticalFrame";
-import type { IControlMesh } from "../../mesh/structures/IControlMesh";
-import { buildPortraitEyeCornea } from "./buildPortraitEyeCornea";
-import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
-import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
-import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
-import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
-import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
+import { type IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
 import { buildPortraitEyebrow } from "../brow/buildPortraitEyebrow";
 import { buildPortraitEyelash } from "../lash/buildPortraitEyelash";
+import type { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
+import { buildPortraitEyeCornea } from "./buildPortraitEyeCornea";
+import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
 import type { createPortraitOcularTissues } from "./createPortraitOcularTissues";
+import { createPortraitOpticalFrame } from "./createPortraitOpticalFrame";
+import { posePortraitOpticalMesh } from "./posePortraitOpticalMesh";
+import { type IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
+import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
+import type { IPortraitEyeSocket } from "./structures/IPortraitEyeSocket";
 
 const pi = Math.PI,
   tau = pi * 2;
 
 /**
  * Build the sclera, gaze, iris, lashes and brow against this eye's refined rim.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Constructs resident sclera, iris, pupil, cornea, wet tissues, lashes and brows against a refined eyelid.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses the shared globe and view-ray intersection for optics, fixed-sphere performance, deterministic pigment bands and final-surface brow attachment.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Attaches profiled lashes at the final margin and carries their supplied observed-relative orientation.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Keeps strand transport separate from fixed optical identity and gaze.
  */
 export function buildPortraitEye(
   source: number[][],
@@ -70,10 +65,10 @@ export function buildPortraitEye(
   const parts: IAutoMovieModelPart[] = [];
   const add = (
     id: string,
-    mesh: Parameters<typeof portraitPart>[1],
+    mesh: Parameters<typeof createMetricMeshPart>[1],
     finish: string,
   ): void => {
-    parts.push(portraitPart(id, mesh, finish));
+    parts.push(createMetricMeshPart(id, mesh, finish));
   };
   const landmark = (id: number): Point =>
     p(source[id][0], source[id][1], source[id][2]);
@@ -129,8 +124,8 @@ export function buildPortraitEye(
       canthal === undefined
         ? undefined
         : createAutoMovieMeshDepthSampler(
-            portraitPart("canthal-height", canthal.surface, white).geometry
-              .mesh,
+            createMetricMeshPart("canthal-height", canthal.surface, white)
+              .geometry.mesh,
             "z",
           );
     const eyeZ = (x: number, y: number): number => {
@@ -191,7 +186,7 @@ export function buildPortraitEye(
         ? createPortraitOpticalFrame(sphere, center)
         : undefined;
     const opticalCenter = radial === undefined ? center : radial.sphere.center;
-    const support = portraitPart(
+    const support = createMetricMeshPart(
       "ocular-tissue-support",
       mergeAutoMovieMeshes([
         sclera,
@@ -221,8 +216,11 @@ export function buildPortraitEye(
       // construction mm before add() crosses the common model-unit boundary.
       for (const mesh of [surfaces.corner, surfaces.lowerMargin]) {
         if (mesh === null) continue;
-        const metric = portraitPart("ocular-tissue-contact", mesh, white)
-          .geometry.mesh;
+        const metric = createMetricMeshPart(
+          "ocular-tissue-contact",
+          mesh,
+          white,
+        ).geometry.mesh;
         const targets = portraitDirectionalSurfaceTargets(
           metric,
           support,
@@ -237,7 +235,7 @@ export function buildPortraitEye(
             target.y * 1000,
             target.z * 1000,
           );
-        mesh.normals = portraitNormals(mesh.positions, mesh.indices!);
+        mesh.normals = areaWeightedNormals(mesh.positions, mesh.indices!);
       }
       if (surfaces.corner !== null)
         add(`${eye.name}-medial-conjunctiva`, surfaces.corner, "ocular-corner");
@@ -344,7 +342,7 @@ export function buildPortraitEye(
           if (indices.length === 0) return;
           add(
             `${eye.name}-iris-${group}`,
-            portraitRegion(mesh.positions, mesh.normals!, indices),
+            extractTriangleRegion(mesh.positions, mesh.normals!, indices),
             `${shape.irisPigment === undefined ? "iris" : eye.name + "-iris"}-${group}`,
           );
         });

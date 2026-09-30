@@ -1,4 +1,8 @@
-import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 
 /** A ray whose slope against a plane is under this is parallel to it. */

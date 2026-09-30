@@ -1,4 +1,8 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltPopulation, IAutoMovieBuiltSpace } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPopulation,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
 /**
  * Report the compact populations standing in a logical space and its

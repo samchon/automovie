@@ -1,4 +1,11 @@
-import { IAutoMovieBuiltEnvironment, IAutoMoviePropRelationTarget, IAutoMoviePropSpec, IAutoMovieStageSetPiece, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMoviePropRelationTarget,
+  IAutoMoviePropSpec,
+  IAutoMovieStageSetPiece,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { footprintInteriorPoint } from "../space/footprintInteriorPoint";

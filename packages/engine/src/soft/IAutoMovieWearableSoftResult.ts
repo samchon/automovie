@@ -1,4 +1,5 @@
 import type { IAutoMovieSoftBodyState } from "@automovie/interface";
+
 import { IAutoMovieWearableSoftBudget } from "./IAutoMovieWearableSoftBudget";
 
 /**

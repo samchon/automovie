@@ -18,9 +18,6 @@ import { humanFaceHairFrame } from "./humanFaceHairFrame";
  * thickness. The integrator still limits turning and checks skin contact;
  * this derivative alone promises neither a collision-free tube nor a complete
  * ponytail. Inputs stay caller-owned, and the returned field has no state.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expands a tied bundle through one reusable numerical cross-section rule.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Derives tail volume from radius and reach instead of storing individual strand offsets.
  */
 export function createHumanFaceHairTailSpread(props: {
   axis: IAutoMovieVector3;

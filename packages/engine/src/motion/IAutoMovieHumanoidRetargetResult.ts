@@ -1,4 +1,5 @@
 import { IAutoMovieMotion, IAutoMovieValidation } from "@automovie/interface";
+
 import { IAutoMovieHumanoidRetargetCharacterization } from "./IAutoMovieHumanoidRetargetCharacterization";
 
 /**

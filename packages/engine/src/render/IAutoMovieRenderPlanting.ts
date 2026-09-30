@@ -1,4 +1,8 @@
-import { IAutoMoviePlantingCluster, IAutoMoviePlantingDomain } from "@automovie/interface";
+import {
+  IAutoMoviePlantingCluster,
+  IAutoMoviePlantingDomain,
+} from "@automovie/interface";
+
 import { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
 
 /**

@@ -4,8 +4,6 @@ import { IPortraitLipCoordinate } from "./structures/IPortraitLipCoordinate";
  * One authoritative curved-band sample supplies both normalized coordinates and
  * its skin/oral boundaries. A contour edit must not independently guess the
  * inner Y against which lip thickness is changed. All heights remain in mm.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps lip thickness edits bound to the same cutaneous and oral contours used by the mouth.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Checks ordered finite curves and shared corners, then returns band coordinates and both local Y boundaries from one interpolation.
  */
 export const createPortraitLipBandSampler = (
   outer: readonly (readonly number[])[],

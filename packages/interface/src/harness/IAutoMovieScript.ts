@@ -1,6 +1,6 @@
-import { IAutoMovieScriptNode } from "./IAutoMovieScriptNode";
 import { IAutoMovieBeat } from "./IAutoMovieBeat";
 import { IAutoMovieCastMember } from "./IAutoMovieCastMember";
+import { IAutoMovieScriptNode } from "./IAutoMovieScriptNode";
 
 /**
  * The script: the macro plan the rest of the production works from.

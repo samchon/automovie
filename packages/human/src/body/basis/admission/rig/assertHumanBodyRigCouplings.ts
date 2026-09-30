@@ -19,7 +19,10 @@ import type { IAutoMovieHumanBodyBasis } from "../../../structures/IAutoMovieHum
  */
 export function assertHumanBodyRigCouplings(
   basis: IAutoMovieHumanBodyBasis,
-  joints: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieHumanBodyBasis["joints"][number]>,
+  joints: ReadonlyMap<
+    AutoMovieHumanoidBone,
+    IAutoMovieHumanBodyBasis["joints"][number]
+  >,
 ): void {
   // A coupling is a declared driver, so everything it names must resolve and
   // everything it can add must already be admissible: declared source and

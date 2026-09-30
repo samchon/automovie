@@ -1,4 +1,12 @@
-import { AutoMovieHumanoidBone, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { reachableBoneNames } from "../kinematics/reachableBoneNames";
@@ -6,12 +14,12 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { groundFunction } from "../space/groundFunction";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { contactMask } from "./contactMask";
-import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
+import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
+import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
+import { contactMask } from "./contactMask";
 import { fitChainToTarget } from "./fitChainToTarget";
 import { resolveBoneMap } from "./resolveBoneMap";
-import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
 /** Contact tolerance above the source ground counted as a planted contact. */
 const DEFAULT_TOLERANCE = 0.02;

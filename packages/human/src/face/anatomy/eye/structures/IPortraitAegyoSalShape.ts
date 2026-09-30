@@ -2,8 +2,6 @@
  * Optional one-body pretarsal roll. These values shape visible surface
  * fullness in the lower-lid construction; they are not a claim about muscle
  * thickness or a detached tissue mesh.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates optional pretarsal fullness from optical contact and the upper-lid fold.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines one continuous lower roll with metric crest/shoulder dimensions and optional seven-station medial-to-lateral weights.
  * @author Samchon
  */
 export interface IPortraitAegyoSalShape {

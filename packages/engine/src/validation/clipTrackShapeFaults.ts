@@ -1,7 +1,8 @@
 import { AutoMovieInterpolation } from "@automovie/interface";
+
 import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
-import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
 import { channelValueWidth } from "./channelValueWidth";
+import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
 
 /**
  * Every way one track's keyframe payload can be unreadable, in the order

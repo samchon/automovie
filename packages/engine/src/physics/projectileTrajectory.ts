@@ -1,4 +1,5 @@
 import { IAutoMovieClip, IAutoMovieVector3 } from "@automovie/interface";
+
 import { aimRotation } from "../kinematics/aimRotation";
 import { IAutoMovieProjectile } from "./IAutoMovieProjectile";
 import { projectileAt } from "./projectileAt";

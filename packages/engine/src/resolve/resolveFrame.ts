@@ -1,21 +1,28 @@
-import { IAutoMovieChannelLimit, IAutoMovieClip, IAutoMovieDriver, IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
-import { applyChannelLimit } from "./applyChannelLimit";
-import { bindProfile } from "./bindProfile";
-import { channelKey } from "./channelKey";
-import { composeScene } from "./composeScene";
-import { resolveDrivers } from "./resolveDrivers";
-import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
-import { sampleClip } from "./sampleClip";
-import { sampleClipSequence } from "./sampleClipSequence";
-import { IAutoMovieSpringSphere } from "./IAutoMovieSpringSphere";
-import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
-import { stepSpring } from "./stepSpring";
-import { childrenIndex } from "./childrenIndex";
-import { resolveWorldDrivers } from "./resolveWorldDrivers";
-import { readWorld } from "./readWorld";
+import {
+  IAutoMovieChannelLimit,
+  IAutoMovieClip,
+  IAutoMovieDriver,
+  IAutoMovieNode,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { IAutoMovieResolveInput } from "./IAutoMovieResolveInput";
 import { IAutoMovieResolveOutput } from "./IAutoMovieResolveOutput";
 import { IAutoMovieResolveViolation } from "./IAutoMovieResolveViolation";
+import { IAutoMovieSampledChannel } from "./IAutoMovieSampledChannel";
+import { IAutoMovieSpringSphere } from "./IAutoMovieSpringSphere";
+import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
+import { applyChannelLimit } from "./applyChannelLimit";
+import { bindProfile } from "./bindProfile";
+import { channelKey } from "./channelKey";
+import { childrenIndex } from "./childrenIndex";
+import { composeScene } from "./composeScene";
+import { readWorld } from "./readWorld";
+import { resolveDrivers } from "./resolveDrivers";
+import { resolveWorldDrivers } from "./resolveWorldDrivers";
+import { sampleClip } from "./sampleClip";
+import { sampleClipSequence } from "./sampleClipSequence";
+import { stepSpring } from "./stepSpring";
 
 /**
  * Resolve one frame of a scene: SAMPLE the clip, DRIVE the channel-space

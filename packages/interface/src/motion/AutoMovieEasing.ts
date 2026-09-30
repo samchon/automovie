@@ -15,7 +15,6 @@
  * @author Samchon
  */
 export type AutoMovieEasing =
-
   /** Constant-rate linear blend. */
   | "linear"
 

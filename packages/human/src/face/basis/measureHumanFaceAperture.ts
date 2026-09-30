@@ -30,9 +30,6 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  *
  * Only four vertices are posed here, so the measure is cheap enough to run
  * before the surfaces are posed, which is when the closure rows need it.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Reads the interlabial and interincisal apertures the coupled closure and passage rules are judged on.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Poses the aperture vertex pairs alone, orders them along the opening direction and forms the closure ratio from rest, reference and current apertures.
  */
 export function measureHumanFaceAperture(
   basis: IAutoMovieHumanFaceBasis,

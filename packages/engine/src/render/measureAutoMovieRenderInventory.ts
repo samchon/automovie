@@ -23,14 +23,14 @@ import type {
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 
-import { resolveAutoMovieMaterial } from "./resolveAutoMovieMaterial";
+import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
+import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { texturesOf } from "./texturesOf";
 import { AUTOMOVIE_TEXEL_BYTES } from "./constants/AUTOMOVIE_TEXEL_BYTES";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
-import type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
-import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
+import { resolveAutoMovieMaterial } from "./resolveAutoMovieMaterial";
+import { texturesOf } from "./texturesOf";
 
 /**
  * Measure what one frame of a subject commits the renderer to.

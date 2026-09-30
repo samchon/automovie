@@ -1,4 +1,8 @@
-import type { IAutoMovieProductionDialogueLine, IAutoMovieProductionViseme } from "@automovie/interface";
+import type {
+  IAutoMovieProductionDialogueLine,
+  IAutoMovieProductionViseme,
+} from "@automovie/interface";
+
 import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
 import { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 import { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";

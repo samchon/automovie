@@ -1,7 +1,7 @@
 import {
   type IAutoMovieHumanFaceBasis,
   createHumanFaceIrisPigment,
-  decodePortraitPng,
+  decodePng,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -44,7 +44,7 @@ export const test_subject_human_iris_pigment_rule = (): void => {
   const blue = { base: [0.02, 0.05, 0.12], variation: [0, 0, 0] };
   const materials = structuredClone(basis.materials);
   rule({ left: brown, right: blue }, materials);
-  const image = decodePortraitPng(materials[1].baseColorTexture as string);
+  const image = decodePng(materials[1].baseColorTexture as string);
   // Azimuthal UV: texture radius 0.2 * theta / pi of the 256 texels.
   const texel = (centreU: number, degrees: number): number[] => {
     const x = Math.floor((centreU + (0.2 * degrees) / 180) * 256);
@@ -80,7 +80,7 @@ export const test_subject_human_iris_pigment_rule = (): void => {
   const varied = { base: [0.05, 0.02, 0.01], variation: [0.2, 0.1, 0.05] };
   const banded = structuredClone(basis.materials);
   rule({ left: varied, right: varied }, banded);
-  const bands = decodePortraitPng(banded[1].baseColorTexture as string);
+  const bands = decodePng(banded[1].baseColorTexture as string);
   const at = (degrees: number, phiDegrees: number): number[] => {
     const r = (0.2 * degrees) / 180;
     const phi = (phiDegrees * Math.PI) / 180;

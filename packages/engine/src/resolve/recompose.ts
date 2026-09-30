@@ -1,4 +1,5 @@
 import { IAutoMovieTransform } from "@automovie/interface";
+
 import { Matrix4 } from "../math/Matrix4";
 import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";

@@ -1,5 +1,3 @@
-
-
 /**
  * Resolve one nasal projection scale from a skin attachment plane. Three
  * subject-owned points span that plane in head XY; height is measured in head
@@ -10,8 +8,6 @@
  * The plane is solved in coordinates normalized about the first datum. Signed
  * distance from this plane is scaled uniformly, preserving its fixed points.
  * A vertical or unresolved XY plane refuses rather than guessing another axis.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Scales nasal projection from one shared skin attachment plane rather than separately moving the nostril rims.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Solves an admitted normalized head-XY plane and returns uniform signed-height displacement, with omitted/unit scale as exact identity.
  */
 export function createPortraitNasalSupport(
   points: readonly (readonly number[])[],

@@ -1,4 +1,7 @@
-import { IAutoMovieConstraintViolation, IAutoMovieReviewNote } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieReviewNote,
+} from "@automovie/interface";
 
 /**
  * A normalized review verdict: pass the shot through, or hand the correction

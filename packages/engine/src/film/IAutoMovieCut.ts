@@ -1,4 +1,7 @@
-import { IAutoMovieConstraintViolation, IAutoMovieSequence } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieSequence,
+} from "@automovie/interface";
 
 /**
  * An assembled cut: the {@link IAutoMovieSequence} the ASSEMBLE stage edited, or

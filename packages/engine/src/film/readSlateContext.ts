@@ -1,4 +1,5 @@
 import { IAutoMovieSlate } from "@automovie/interface";
+
 import { IAutoMovieStoredContext } from "./IAutoMovieStoredContext";
 import { IAutoMovieStoredContextRequest } from "./IAutoMovieStoredContextRequest";
 

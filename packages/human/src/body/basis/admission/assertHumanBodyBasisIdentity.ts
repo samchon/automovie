@@ -6,7 +6,9 @@ import { assertHumanBodyUniqueIds } from "./assertHumanBodyUniqueIds";
  * its channels, landmarks, surfaces, materials and material regions.
  * Cross-population endpoint residency follows shape and surface admission.
  */
-export function assertHumanBodyBasisIdentity(basis: IAutoMovieHumanBodyBasis): void {
+export function assertHumanBodyBasisIdentity(
+  basis: IAutoMovieHumanBodyBasis,
+): void {
   assertHumanBodyUniqueIds([basis.id], "identities");
   assertHumanBodyUniqueIds(
     basis.channels.map((channel) => channel.id),

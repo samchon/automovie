@@ -1,7 +1,7 @@
 import {
   type IAutoMovieHumanFaceBasis,
   createPortraitMaterials,
-  decodePortraitPng,
+  decodePng,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
@@ -325,7 +325,7 @@ export const test_subject_eyelash_basis_preparation = (): void => {
   const prepared = prepareEyelashBasis(base);
   const material = prepared.basis.materials.find((one) => one.id === "lash")!;
   const brow = prepared.basis.materials.find((one) => one.id === "brow")!;
-  const image = decodePortraitPng(material.baseColorTexture as string);
+  const image = decodePng(material.baseColorTexture as string);
   TestValidator.predicate(
     "material",
     material.alphaMode === "blend" &&

@@ -5,7 +5,7 @@ import {
   parseHumanFaceDocument,
 } from "@automovie/human";
 
-import { createHumanFaceWorkerHandler } from "./human/workerHandler";
+import { createHumanFaceWorkerHandler } from "./human/face/workerHandler";
 
 const scope = self as unknown as DedicatedWorkerGlobalScope;
 const handle = createHumanFaceWorkerHandler({

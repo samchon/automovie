@@ -1,4 +1,5 @@
 import { IAutoMovieMesh, IAutoMovieValidation } from "@automovie/interface";
+
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 

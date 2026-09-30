@@ -1,6 +1,6 @@
-import { IAutoMovieOnHitReaction } from "./IAutoMovieOnHitReaction";
 import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import { IAutoMovieOnHitReaction } from "./IAutoMovieOnHitReaction";
 
 /**
  * Loose a projectile toward a target; engine: `projectileAt` +

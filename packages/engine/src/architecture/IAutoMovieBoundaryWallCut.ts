@@ -1,4 +1,5 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+
 import { IAutoMovieWallOpening } from "../geometry/IAutoMovieWallOpening";
 
 /**

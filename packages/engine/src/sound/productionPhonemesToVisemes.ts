@@ -1,4 +1,7 @@
-import type { IAutoMovieProductionPhonemeChunk, IAutoMovieProductionViseme } from "@automovie/interface";
+import type {
+  IAutoMovieProductionPhonemeChunk,
+  IAutoMovieProductionViseme,
+} from "@automovie/interface";
 
 /**
  * Derive a bounded frame-normalized VRM mouth sequence from Kokoro phonemes.

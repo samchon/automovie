@@ -1,16 +1,25 @@
-import { IAutoMovieCameraClearanceEnvelope, IAutoMovieLight, IAutoMovieSceneNode, IAutoMovieScript, IAutoMovieStage, IAutoMovieStageLight, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieCameraClearanceEnvelope,
+  IAutoMovieLight,
+  IAutoMovieSceneNode,
+  IAutoMovieScript,
+  IAutoMovieStage,
+  IAutoMovieStageLight,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { aimRotation } from "../kinematics/aimRotation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AUTO_MOVIE_LIGHT_TYPES } from "../resolve/constants/AUTO_MOVIE_LIGHT_TYPES";
 import { isAutoMovieLightType } from "../resolve/isAutoMovieLightType";
 import { withArticle } from "../text/withArticle";
+import { ViolationCollector } from "../validation/ViolationCollector";
 import { isRecord } from "../validation/isRecord";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
-import { ViolationCollector } from "../validation/ViolationCollector";
-import { lookRotation } from "./lookRotation";
 import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
+import { lookRotation } from "./lookRotation";
 
 /** Cameras look down local −Z (glTF convention); lights shine down −Z too. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };

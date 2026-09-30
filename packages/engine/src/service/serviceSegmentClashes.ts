@@ -1,4 +1,8 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServiceNode } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServiceNode,
+} from "@automovie/interface";
+
 import { propBoundsOverlap } from "../film/propBoundsOverlap";
 import { IAutoMovieServiceClash } from "./IAutoMovieServiceClash";
 import { portOwners } from "./portOwners";

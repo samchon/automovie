@@ -37,7 +37,9 @@ export function invertHumanBodyMeasurement(input: {
     current < range[0] ||
     current > range[1]
   )
-    throw new Error("A body measurement inverse needs a finite ordered range containing the current weight.");
+    throw new Error(
+      "A body measurement inverse needs a finite ordered range containing the current weight.",
+    );
   if (!Number.isFinite(targetMetres))
     throw new Error("A body measurement target must be finite metres.");
   const read = (weight: number): number => {
@@ -83,7 +85,7 @@ export function invertHumanBodyMeasurement(input: {
       throw new Error("The measured response reverses inside " + label + ".");
     if (Math.abs(atCandidate - targetMetres) <= HALF_READOUT_METRES)
       return { weight: candidate, actualMetres: atCandidate };
-    if ((atCandidate < targetMetres) === increasing) {
+    if (atCandidate < targetMetres === increasing) {
       low = candidate;
       atLow = atCandidate;
     } else {

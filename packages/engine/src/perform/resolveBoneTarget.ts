@@ -1,4 +1,9 @@
-import { IAutoMovieActionTarget, IAutoMovieMotion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieActionTarget,
+  IAutoMovieMotion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../kinematics/resolvePose";
 import { Quaternion } from "../math/Quaternion";

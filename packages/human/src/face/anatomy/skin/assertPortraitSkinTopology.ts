@@ -4,8 +4,6 @@ import type { IControlMesh } from "../../mesh/structures/IControlMesh";
  * A composed skin may have declared anatomical openings, but no accidental
  * cracks, missing stitches or oppositely assembled component faces. Audit the
  * shared control cage before subdivision could multiply a broken attachment.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Refuses accidental cracks or oppositely assembled component faces before skin refinement.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Matches every singly incident edge to a declared opening and requires two oppositely wound incidences everywhere else.
  */
 export function assertPortraitSkinTopology(
   cage: IControlMesh,

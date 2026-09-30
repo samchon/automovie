@@ -1,4 +1,5 @@
 import { AutoMoviePrimitiveShape } from "@automovie/interface";
+
 import { ITessellation } from "./ITessellation";
 
 /**

@@ -1,6 +1,7 @@
 import { IAutoMovieModelRecipe, IAutoMovieVector3 } from "@automovie/interface";
-import { productionRuntimeModelId } from "./productionRuntimeModelId";
+
 import { IAutoMovieWorldBlock } from "./IAutoMovieWorldBlock";
+import { productionRuntimeModelId } from "./productionRuntimeModelId";
 
 /**
  * Build one box-proxy wall or building from a grounded base and size.

@@ -1,5 +1,5 @@
-import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
-import { portraitMeshBuffers } from "@automovie/human/face/mesh/portraitMeshBuffers";
+import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
+import { float32MeshBuffers } from "@automovie/human/common/mesh/float32MeshBuffers";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
@@ -30,7 +30,7 @@ export const test_subject_gltf_normals = async (): Promise<void> => {
   model.parts = [{ ...model.parts[0], geometry: { type: "mesh", mesh } }];
   const io = new NodeIO();
   const glb = await io.readBinary(
-    await io.writeBinary(portraitDocument(model)),
+    await io.writeBinary(createGltfDocument(model)),
   );
   const attribute = glb
     .getRoot()
@@ -53,7 +53,7 @@ export const test_subject_gltf_normals = async (): Promise<void> => {
         "NORMAL contract also applies to redundant faces",
         throwsError(
           () =>
-            portraitMeshBuffers({
+            float32MeshBuffers({
               ...mesh,
               positions,
               normals: [...normal, ...normal, ...normal],
@@ -63,7 +63,7 @@ export const test_subject_gltf_normals = async (): Promise<void> => {
       );
   for (const sign of [-1, 1]) {
     const normal = [0, 0, 1 + sign * 2 ** -23];
-    portraitMeshBuffers({
+    float32MeshBuffers({
       ...mesh,
       normals: [...normal, ...normal, ...normal],
     });
@@ -72,7 +72,7 @@ export const test_subject_gltf_normals = async (): Promise<void> => {
       "error beyond Float32 roundoff refuses",
       throwsError(
         () =>
-          portraitMeshBuffers({
+          float32MeshBuffers({
             ...mesh,
             normals: [...invalid, ...invalid, ...invalid],
           }),
@@ -94,17 +94,17 @@ export const test_subject_gltf_normals = async (): Promise<void> => {
   };
   TestValidator.predicate(
     "document enforces NORMAL identity",
-    throwsError(() => portraitDocument(invalidModel), "unit"),
+    throwsError(() => createGltfDocument(invalidModel), "unit"),
   );
   TestValidator.equals(
     "absent normal accessor",
-    portraitMeshBuffers({ ...mesh, normals: null }).normals,
+    float32MeshBuffers({ ...mesh, normals: null }).normals,
     null,
   );
   TestValidator.equals(
     "empty NORMAL population",
     Array.from(
-      portraitMeshBuffers({ ...mesh, positions: [], indices: [], normals: [] })
+      float32MeshBuffers({ ...mesh, positions: [], indices: [], normals: [] })
         .normals!,
     ),
     [],

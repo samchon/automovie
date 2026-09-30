@@ -3,8 +3,6 @@
  * the skin surface, its primary line families and its pores, in physical
  * units, and the relief's deepening with age.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Types the measured micro-relief statistics a user can read to see what the skin detail is made of.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Declares the table form: tile size and resolution, line families, pores, seed and the age curve.
  * @author Samchon
  */
 export interface IAutoMovieHumanBodySkinDetail {

@@ -1,4 +1,13 @@
-import { AutoMovieBuiltPlacementBasis, AutoMovieBuiltPlacementSupportLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds, IAutoMovieBuiltSupportQuery, IAutoMovieBuiltSupportResult, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieBuiltPlacementBasis,
+  AutoMovieBuiltPlacementSupportLocator,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPlacementBounds,
+  IAutoMovieBuiltSupportQuery,
+  IAutoMovieBuiltSupportResult,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMoviePropSupportFace } from "../film/IAutoMoviePropSupportFace";
 import { propSupportGap } from "../film/propSupportGap";
 import { footprintConvexPieces } from "../space/footprintConvexPieces";

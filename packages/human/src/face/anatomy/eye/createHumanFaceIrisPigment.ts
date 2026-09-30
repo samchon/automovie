@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
-import { decodePortraitPng } from "../../mesh/decodePortraitPng";
-import { encodePortraitPng } from "../../mesh/encodePortraitPng";
+import { decodePng } from "../../../common/mesh/decodePng";
+import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
 import { createPortraitIrisMaterials } from "./createPortraitIrisMaterials";
@@ -44,10 +44,6 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * constructed portrait eye's band semantics so one pigment reads the same on
  * both face builders; they are an authored optical approximation, not a
  * recovered reflectance.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Makes each eye's iris colour an authored value painted by one rule on the shared eye texture.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Expresses iris differences as numerical pigments over the common basis texture instead of personal images.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-iris Locates each articulated globe, paints its anatomical disc by band and blends the limbus into the unchanged sclera.
  */
 export function createHumanFaceIrisPigment(
   basis: IAutoMovieHumanFaceBasis,
@@ -113,7 +109,7 @@ export function createHumanFaceIrisPigment(
           });
         textures.set(
           material,
-          encodePortraitPng({
+          encodePng({
             width: texture.width,
             height: texture.height,
             rgba,
@@ -186,7 +182,7 @@ function prepare(globes: readonly IGlobe[]): Map<string, IPreparedTexture> {
   for (const globe of globes) {
     let texture = byMaterial.get(globe.material);
     if (texture === undefined) {
-      texture = { ...decodePortraitPng(globe.texture), eyes: [] };
+      texture = { ...decodePng(globe.texture), eyes: [] };
       byMaterial.set(globe.material, texture);
     }
     const disc = globe.disc;

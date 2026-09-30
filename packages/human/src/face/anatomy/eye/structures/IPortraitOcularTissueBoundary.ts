@@ -4,8 +4,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * The eye supplies its final refined lid curves and resident ocular support.
  * X increases on both sides; anatomical left has its medial corner at minimum X.
  * Upper and lower curves share endpoints and return millimetre head coordinates.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Binds ocular tissues to the same refined lid curves and support used by the eye.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries anatomical handedness, ordered canthal X bounds and live upper/lower/globe samples in head millimetres.
  * @author Samchon
  */
 export interface IPortraitOcularTissueBoundary {

@@ -1,5 +1,6 @@
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieColor } from "@automovie/interface";
+
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Reports normalized colour-range and optional hexadecimal-label violations on model materials.

@@ -1,4 +1,5 @@
 import type { IAutoMovieShotBuildContext } from "@automovie/interface";
+
 import { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
 
 /**

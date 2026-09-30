@@ -1,16 +1,23 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
+import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
+import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
+import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
+import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
 import { resolveBoneMap } from "./resolveBoneMap";
 

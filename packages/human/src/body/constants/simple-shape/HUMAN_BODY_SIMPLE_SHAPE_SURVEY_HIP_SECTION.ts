@@ -9,7 +9,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  * is a universal relation for children or unobserved populations. The table
  * assembly preserves these rows' original summation order.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_SECTION: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_SECTION: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     // The ANSUR II people rows (below): reproduced from their own sex, age,
     // stature, mass and chest and buttock girths, the survey's people read
     // buttocks, waists at the omphalion, thighs, crotches and (men's) hip
@@ -93,4 +94,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_HIP_SECTION: IAutoMovieHumanBodySimp
         },
       ],
     },
-];
+  ];

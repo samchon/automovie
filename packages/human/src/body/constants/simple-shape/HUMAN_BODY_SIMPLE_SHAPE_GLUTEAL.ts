@@ -15,7 +15,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  * contact coefficients; replacing that representation requires independent
  * bone, muscle, fat and standing-skin geometry.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // authored age/BMI relation; the source studies disagree on age effects
       channel: "buttocksPtosis",
@@ -124,4 +125,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_GLUTEAL: IAutoMovieHumanBodySimpleShapeTabl
         },
       ],
     },
-];
+  ];

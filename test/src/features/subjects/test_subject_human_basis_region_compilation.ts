@@ -1,6 +1,6 @@
 import {
   type IAutoMovieHumanFaceBasis,
-  createHumanFaceBasisRegion,
+  createHumanBasisRegion,
   humanFaceBasisRegion,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
@@ -26,7 +26,7 @@ export const test_subject_human_basis_region_compilation = (): void => {
     };
   const positions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   const normals = [0, 0, 1, 0, 1, 0, 1, 0, 0];
-  const evaluate = createHumanFaceBasisRegion(region);
+  const evaluate = createHumanBasisRegion(region);
   const expected = {
     positions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3],
     normals: [0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1],
@@ -65,7 +65,7 @@ export const test_subject_human_basis_region_compilation = (): void => {
     [later.normals![0], later.normals![9]],
     [-1, -1],
   );
-  const untextured = createHumanFaceBasisRegion({
+  const untextured = createHumanBasisRegion({
     ...region,
     indices: [2, 1, 0, 2, 0, 1],
     uvs: null,
@@ -80,7 +80,7 @@ export const test_subject_human_basis_region_compilation = (): void => {
   for (const uvs of [null, []])
     TestValidator.equals(
       "empty correspondence",
-      createHumanFaceBasisRegion({ ...region, indices: [], uvs })([], []),
+      createHumanBasisRegion({ ...region, indices: [], uvs })([], []),
       { positions: [], normals: [], indices: [], uvs, skin: null },
     );
 };

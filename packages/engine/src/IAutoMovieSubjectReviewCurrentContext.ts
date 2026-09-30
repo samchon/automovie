@@ -1,4 +1,7 @@
-import { AutoMovieContentDigest, IAutoMovieSubjectReviewTarget } from "@automovie/interface";
+import {
+  AutoMovieContentDigest,
+  IAutoMovieSubjectReviewTarget,
+} from "@automovie/interface";
 
 /**
  * Exact current context against which verified subject observations are folded.

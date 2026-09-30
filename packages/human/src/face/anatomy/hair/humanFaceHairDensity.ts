@@ -33,9 +33,6 @@ const NEIGHBOURS = 4;
  * Search is the direct pairwise one within the admitted thousand-root layer.
  * This states coverage, not the fibre's own diameter, and nothing here keeps a
  * ribbon outside the skin; `buildHumanFaceHairMesh` owns that.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Derives generated ribbon coverage from the population instead of an authored width.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Reads the local root density and returns the scalp side each root covers.
  */
 export function humanFaceHairDensity(props: {
   roots: readonly IAutoMovieVector3[];

@@ -1,4 +1,5 @@
 import { IAutoMoviePose, IAutoMovieSkeleton } from "@automovie/interface";
+
 import { clampJointToSkeleton } from "./clampJointToSkeleton";
 
 /**

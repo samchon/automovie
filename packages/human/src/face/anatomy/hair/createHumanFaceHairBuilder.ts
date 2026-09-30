@@ -42,9 +42,6 @@ import { resolveHumanFaceHairGatherAnchor } from "./resolveHumanFaceHairGatherAn
  * the domain its own sampler accepted taken on this face's own triangles, so a
  * thinned hairline widens its ribbons exactly as far as it thinned them and a
  * larger head widens them with it.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reuses one anatomical domain and shared generator across numerical identities.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair Connects numerical roots, fields, contact, strips and procedural finish to current face geometry.
  */
 export function createHumanFaceHairBuilder(input: IAutoMovieHumanFaceBasis) {
   const sources = new Map(

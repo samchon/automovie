@@ -1,6 +1,6 @@
 import { validateMeshTopology } from "@automovie/engine";
-import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { buildPortraitCornea } from "@automovie/human/face/anatomy/eye/buildPortraitCornea";
+import { createPortraitEyeComponent } from "@automovie/human/face/anatomy/eye/createPortraitEyeComponent";
 import { type IPortraitCornea } from "@automovie/human/face/anatomy/eye/structures/IPortraitCornea";
 import { TestValidator } from "@nestia/e2e";
 

@@ -1,9 +1,10 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
 import { convexHull2D } from "../math/convexHull2D";
-import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
 import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
 import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
+import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
 import { footprintRing } from "./footprintRing";
 import { footprintRingPlacement } from "./footprintRingPlacement";
 

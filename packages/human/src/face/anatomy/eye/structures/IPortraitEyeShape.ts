@@ -1,18 +1,16 @@
-
 import { IPortraitEyebrowProfile } from "../../brow/IPortraitEyebrowProfile";
+import { IPortraitEyelashProfile } from "../../lash/IPortraitEyelashProfile";
 import { IPortraitAegyoSalShape } from "./IPortraitAegyoSalShape";
 import { IPortraitIrisPigment } from "./IPortraitIrisPigment";
 import { IPortraitLowerLidProfile } from "./IPortraitLowerLidProfile";
 import { IPortraitOcularTissueShape } from "./IPortraitOcularTissueShape";
 import { IPortraitUpperLidProfile } from "./IPortraitUpperLidProfile";
-import { IPortraitEyelashProfile } from "../../lash/IPortraitEyelashProfile";
+
 /**
  * Numerical eye shape independent of its host socket. Lengths are millimetres;
  * width/opening multipliers deform the fitted aperture, not an isolated eyeball.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates aperture, eyelid tissue, cornea, iris/pupil, lashes and brow controls within one eye.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines replaceable metric eye profiles with independent optical dimensions, lower-lid sections, attachment modes and tessellation controls.
  */
 export interface IPortraitEyeShape {
   /** Multiplier of the socket aperture width; one retains its measured width. */
@@ -103,8 +101,6 @@ export interface IPortraitEyeShape {
    * support, the fixed canthal midpoint instead anchors that image position.
    * Neither fit recovers an anatomical globe centre. Current gaze and blink
    * do not choose this mode.
-   * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Selects an explicit ocular placement basis without changing current expression or forcing a new fit onto existing documents.
-   * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Carries the optional canthal-plane or recorded-ray depth fitting choice to the spherical support builder.
    */
   sphereFit?: "aperture-plane" | "observation-ray";
 

@@ -1,4 +1,7 @@
-import { IAutoMovieConstraintViolation, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 
 /**
  * Wrap a violation list into an {@link IAutoMovieValidation}. Any

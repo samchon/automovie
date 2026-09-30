@@ -1,9 +1,10 @@
+import { IAutoMovieMesh } from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
 import { finiteVector } from "./finiteVector";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * Place a rigid mesh by translation, unit quaternion, and per-axis scale.

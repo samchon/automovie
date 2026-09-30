@@ -1,5 +1,5 @@
 import type { IAutoMovieJointPose } from "@automovie/interface";
-import { renderBodyPoseControls } from "@automovie/playground/src/human/bodyPoseControls";
+import { renderBodyPoseControls } from "@automovie/playground/src/human/body/bodyPoseControls";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 

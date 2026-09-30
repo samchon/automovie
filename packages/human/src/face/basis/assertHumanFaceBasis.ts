@@ -11,8 +11,6 @@ import { assertHumanFaceContact } from "./assertHumanFaceContact";
  * This rejects broken data before an edit can allocate a partially formed model.
  * A valid topological surface may still self-intersect; this is not collision
  * detection or anatomical acceptance of the supplied artistic prior.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Refuses invalid reusable correspondence and missing or duplicated material triangles.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Checks shared topology, sparse endpoint ordering, channel domains and complete oriented partitions.
  */
 export function assertHumanFaceBasis(basis: IAutoMovieHumanFaceBasis): void {
   const unique = (ids: string[]): void => {

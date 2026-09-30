@@ -1,4 +1,9 @@
-import { IAutoMovieChannel, IAutoMovieChannelLimit, IAutoMovieDriver } from "@automovie/interface";
+import {
+  IAutoMovieChannel,
+  IAutoMovieChannelLimit,
+  IAutoMovieDriver,
+} from "@automovie/interface";
+
 import { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
 import { IAutoMovieProfileApplication } from "./IAutoMovieProfileApplication";
 

@@ -1,6 +1,7 @@
+import { IAutoMovieMesh, IAutoMovieMeshSkin } from "@automovie/interface";
+
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
-import { IAutoMovieMesh, IAutoMovieMeshSkin } from "@automovie/interface";
 
 /**
  * Checks resident attribute cardinality, numeric ranges, joint bindings and shared topology before model use.

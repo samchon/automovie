@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 as Point } from "@automovie/interface";
 
-import { fitPortraitCanthalSphere } from "./fitPortraitCanthalSphere";
-import { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
-import { createPortraitCanthalIntersection } from "./createPortraitCanthalIntersection";
 import { fitPortraitEyeSphere } from "../../surface/fitPortraitEyeSphere";
 import { portraitEyeSphereIntersection } from "../../surface/portraitEyeSphereIntersection";
+import { buildPortraitCanthalMesh } from "./buildPortraitCanthalMesh";
+import { createPortraitCanthalIntersection } from "./createPortraitCanthalIntersection";
+import { fitPortraitCanthalSphere } from "./fitPortraitCanthalSphere";
 import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
 
 /**
@@ -20,9 +20,6 @@ import type { IPortraitEyeShape } from "./structures/IPortraitEyeShape";
  * drawing and later contact. These owned meshes are read-only to consumers;
  * changes of aperture, dimensions or tessellation require a new fit, whereas
  * blink/gaze reuse the identity. This does not settle final skin clearance.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Keeps optical identity and canthal attachment independent of performed visibility.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Selects legacy cap support or a fixed canthal hull before constructing shared eyelid sections.
  */
 export function createPortraitEyeSupport(
   upper: readonly Point[],

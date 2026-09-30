@@ -1,9 +1,10 @@
+import { IAutoMovieModelPart } from "@automovie/interface";
+
 import { IPortraitSkinConstraint } from "../../anatomy/skin/structures/IPortraitSkinConstraint";
 import { IControlMesh } from "../../mesh/structures/IControlMesh";
 import { IPortraitFinalSurface } from "./IPortraitFinalSurface";
 import { IPortraitInterior } from "./IPortraitInterior";
 import { IPortraitRegionReplacement } from "./IPortraitRegionReplacement";
-import { IAutoMovieModelPart } from "@automovie/interface";
 
 /**
  * An anatomical part fitted to one host. Its boundary constraints drive the
@@ -13,8 +14,6 @@ import { IAutoMovieModelPart } from "@automovie/interface";
  * Native preparation is additive: existing direct finish callers still work.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Sequences fitted constraints, cut ownership, shared attachment and refined interior construction.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Carries declared rims, curve constraints, replacements, final surface proposals and the finisher obtained only after attachment.
  */
 export interface IPortraitComponentPlan {
   /** Exact boundary/control positions requested before the host blends skin. */

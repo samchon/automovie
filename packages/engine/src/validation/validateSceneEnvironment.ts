@@ -3,8 +3,8 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { isRecord } from "./isRecord";
 import { ViolationCollector } from "./ViolationCollector";
+import { isRecord } from "./isRecord";
 
 const TONE_MAPPINGS = new Set(["none", "acesFilmic"]);
 const SHADOW_TYPES = new Set(["pcf", "pcfSoft", "vsm"]);

@@ -1,4 +1,9 @@
-import { AutoMovieBuiltPlacementBodyLocator, IAutoMovieBuiltEnvironment, IAutoMovieBuiltPlacementBounds } from "@automovie/interface";
+import {
+  AutoMovieBuiltPlacementBodyLocator,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltPlacementBounds,
+} from "@automovie/interface";
+
 import { builtEnvironmentElementBounds } from "./builtEnvironmentElementBounds";
 import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBounds";
 

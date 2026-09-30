@@ -17,9 +17,6 @@ import type { IAutoMovieHumanBodyBasisDocument } from "../structures/IAutoMovieH
  * for the right reason. Exact schema admission refuses legacy per-vertex
  * identity rows and generic upper-arm Euler poses instead of dropping or
  * reinterpreting them. Duplicate shoulder and generic pose bones refuse here.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-document Refuses nonfinite numbers, empty identifiers and duplicate pose bones at both the load and the save boundary.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-document Performs the schema and finiteness admission the specification assigns to parsing, leaving membership and range to the compiled basis.
  */
 export function admitHumanBodyBasisDocument(
   input: unknown,

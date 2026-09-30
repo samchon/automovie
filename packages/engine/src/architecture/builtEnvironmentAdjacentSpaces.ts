@@ -1,4 +1,7 @@
-import { IAutoMovieBuiltConnector, IAutoMovieBuiltEnvironment } from "@automovie/interface";
+import {
+  IAutoMovieBuiltConnector,
+  IAutoMovieBuiltEnvironment,
+} from "@automovie/interface";
 
 /**
  * Return spaces directly joined by a boundary or traversal connector.

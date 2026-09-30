@@ -1,4 +1,7 @@
-import { IAutoMovieDefinedShot, IAutoMovieShotDefinition } from "@automovie/interface";
+import {
+  IAutoMovieDefinedShot,
+  IAutoMovieShotDefinition,
+} from "@automovie/interface";
 
 /**
  * Register one coding-agent-authored shot.

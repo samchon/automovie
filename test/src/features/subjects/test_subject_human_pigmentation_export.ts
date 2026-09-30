@@ -1,7 +1,7 @@
 import {
   createHumanFaceBasisBuilder,
   exportHumanFace,
-  portraitGltfExtensions,
+  gltfMaterialExtensions,
 } from "@automovie/human";
 import { WebIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
@@ -38,7 +38,7 @@ export const test_subject_human_pigmentation_export =
     const { glb } = await exportHumanFace(model);
     const root = (
       await new WebIO()
-        .registerExtensions(portraitGltfExtensions)
+        .registerExtensions(gltfMaterialExtensions)
         .readBinary(glb)
     ).getRoot();
     for (const mesh of root.listMeshes())

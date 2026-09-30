@@ -1,4 +1,5 @@
 import { IAutoMovieMotion } from "@automovie/interface";
+
 import { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";
 
 /**

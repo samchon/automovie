@@ -1,8 +1,8 @@
 import type { AutoMovieHumanBodyNonemptyMeasurements } from "../measurements/AutoMovieHumanBodyNonemptyMeasurements";
 import type { IAutoMovieHumanBodyCalcaneusMeasurements } from "./IAutoMovieHumanBodyCalcaneusMeasurements";
-import type { IAutoMovieHumanBodyTalusMeasurements } from "./IAutoMovieHumanBodyTalusMeasurements";
 import type { IAutoMovieHumanBodyHalluxMeasurements } from "./IAutoMovieHumanBodyHalluxMeasurements";
 import type { IAutoMovieHumanBodyMidfootMeasurements } from "./IAutoMovieHumanBodyMidfootMeasurements";
+import type { IAutoMovieHumanBodyTalusMeasurements } from "./IAutoMovieHumanBodyTalusMeasurements";
 import type { IAutoMovieHumanBodyToeMeasurements } from "./IAutoMovieHumanBodyToeMeasurements";
 
 /**

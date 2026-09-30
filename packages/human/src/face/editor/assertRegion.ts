@@ -1,10 +1,11 @@
 import { humanFaceRegions } from "./humanFaceRegions";
 
 /**
- * Shared by humanFaceRegionValue, replaceHumanFaceRegion, which were one file until each public identity took its own.
+ * Refuse an unknown anatomical face region, or a side given to a region that
+ * has no independent side profile: only eyes, ears and cheeks carry `right` and
+ * `left` overrides. Shared by `humanFaceRegionValue` and
+ * `replaceHumanFaceRegion`.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Names the numerical editor's replaceable anatomical regions.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Keeps region selection on actual profile owners.
  * @author Samchon
  */
 export function assertRegion(region: string, side?: string): void {

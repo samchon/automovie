@@ -1,11 +1,11 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
-import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 import { IAutoMovieCompiledFormationHero } from "./IAutoMovieCompiledFormationHero";
 import { IAutoMovieCompiledFormationLod } from "./IAutoMovieCompiledFormationLod";
 import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
 import { IAutoMovieFormationChunk } from "./IAutoMovieFormationChunk";
+import { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
+import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
 
 /**
  * Compact generated formation runtime; it never stores every anonymous slot.

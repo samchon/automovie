@@ -1,4 +1,8 @@
-import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMoviePose } from "@automovie/interface";
+import {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 /**
  * Hold a single pose for `duration` seconds: the simplest "action" an actor can

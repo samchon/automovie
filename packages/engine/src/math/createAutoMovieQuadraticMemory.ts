@@ -1,6 +1,6 @@
-import data from "./quadraticKernelBytes.json";
 import { IAutoMovieQuadraticHeap } from "./IAutoMovieQuadraticHeap";
 import { createAutoMovieQuadraticHost } from "./createAutoMovieQuadraticHost";
+import data from "./quadraticKernelBytes.json";
 
 type KernelExports = {
   memory: WebAssembly.Memory;

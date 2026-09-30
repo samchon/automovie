@@ -1,12 +1,12 @@
 import { createAutoMovieMeshDepthSampler } from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
 
+import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
+import { catmullRomPoint } from "../../mesh/catmullRomPoint";
+import { createMetricMeshPart } from "../../mesh/createMetricMeshPart";
 import type { IAutoMovieHumanFaceBindings } from "../../structures/IAutoMovieHumanFaceBindings";
 import type { IAutoMovieHumanFaceExpression } from "../../structures/IAutoMovieHumanFaceExpression";
-import { portraitPart } from "../../mesh/portraitPart";
-import { portraitSpline } from "../../mesh/portraitSpline";
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
-import { resolveHumanFaceExpression } from "../../document/resolveHumanFaceExpression";
 import { resolvePortraitSkinShape } from "./resolvePortraitSkinShape";
 import { type IPortraitSkinShape } from "./structures/IPortraitSkinShape";
 
@@ -22,11 +22,6 @@ import { type IPortraitSkinShape } from "./structures/IPortraitSkinShape";
  * silhouette. Open rims retain the surface assembler's geodesic protection.
  * Displacements use head Y/Z, not simulated material stress or measured age.
  * Zero laxity and expression creasing require no new attachment or topology.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-condition Forms named forehead, glabellar, orbital and oral creases with separate soft-tissue descent.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-condition Emits one skin-bound field layer using actual surface depth and millimetre anatomy.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Keeps persistent folds separate from creases driven by current facial performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Reads current paired brows, lids and mouth performance without changing optical identity.
  */
 export function createPortraitSkinLayer(
   inputBindings: Pick<IAutoMovieHumanFaceBindings, "eyes" | "mouth">,
@@ -69,7 +64,7 @@ export function createPortraitSkinLayer(
       const mouth = curve(bindings.mouth.upper),
         lowerMouth = curve(bindings.mouth.lower);
       const skin = createAutoMovieMeshDepthSampler(
-        portraitPart(
+        createMetricMeshPart(
           "skin-morphology-basis",
           {
             positions: host.positions.flat(),
@@ -122,7 +117,7 @@ export function createPortraitSkinLayer(
             const t = sample / count,
               progress = (travelled + length * t) / total;
             // A sine envelope retains the continuous interior and zero ends.
-            const at = portraitSpline(guide, (i + t) / lengths.length);
+            const at = catmullRomPoint(guide, (i + t) / lengths.length);
             support(
               at.x,
               at.y,

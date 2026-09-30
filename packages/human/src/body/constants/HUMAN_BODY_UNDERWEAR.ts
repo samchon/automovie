@@ -13,9 +13,6 @@ import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHuman
  * down the thigh; the briefs' leg line rises from the crotch to above the
  * hip joint; the bra's band runs under the breasts, and its upper edge is
  * higher in front than behind, with a strap over each shoulder.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-underwear Holds the landmark rules every body's underwear regions are read by, so no person carries a garment of their own.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-underwear Fixes the landmarks, fractions, lift and fabric the underwear rules evaluate.
  */
 export const HUMAN_BODY_UNDERWEAR: IAutoMovieHumanBodyUnderwear.ITable = {
   material: "underwear",

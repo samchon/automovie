@@ -16,12 +16,6 @@ import { IAutoMovieHumanFaceRecipe } from "./IAutoMovieHumanFaceRecipe";
  * explicit side overrides and expression. Photographs and measurement tools
  * are provenance only and never executable replay dependencies.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-document Stores an independent face document with basis, detail, asymmetry and appearance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-document Separates observed topology and shape settings from deterministic interpretation.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-provenance Retains the selected photo URL, byte digest, known author/license and source-quality decision without fetching it.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-provenance Uses an optional reference with nullable unknown facts; it never participates in shape resolution.
- * @evidenceExclude requirements/actors/facial-authoring/contract.md#actor-face-review Subject inventories, rendered-view observations and likeness decisions belong to the authoring study, not the replayable face document or geometry library.
- * @evidenceExclude specifications/asset-and-representation/facial-authoring/contract.md#face-spec-review The library emits a model for external capture and inspection; it does not issue a subjective likeness verdict or a per-study review receipt.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceDocument {

@@ -1,4 +1,4 @@
-import { portraitDocument } from "@automovie/human/face/export/portraitDocument";
+import { createGltfDocument } from "@automovie/human/common/export/createGltfDocument";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -17,7 +17,7 @@ import {
 export const test_subject_vertex_colour_export = (): void => {
   const colored = vertexColourMesh();
   const { colors: _colors, ...bare } = colored;
-  const doc = portraitDocument(vertexColourModel([colored, bare]));
+  const doc = createGltfDocument(vertexColourModel([colored, bare]));
   const primitive = doc.getRoot().listMeshes()[0]!.listPrimitives()[0]!;
   const colors = primitive.getAttribute("COLOR_0")!;
   TestValidator.equals("RGB accessor type", colors.getType(), "VEC3");
@@ -28,7 +28,7 @@ export const test_subject_vertex_colour_export = (): void => {
   TestValidator.equals("RGB count", colors.getCount(), 6);
   TestValidator.equals(
     "uncoloured export omits attribute",
-    portraitDocument(vertexColourModel([bare]))
+    createGltfDocument(vertexColourModel([bare]))
       .getRoot()
       .listMeshes()[0]!
       .listPrimitives()[0]!
@@ -42,7 +42,9 @@ export const test_subject_vertex_colour_export = (): void => {
     TestValidator.predicate(
       "invalid RGB refused",
       throwsError(() =>
-        portraitDocument(vertexColourModel([{ ...colored, colors: invalid }])),
+        createGltfDocument(
+          vertexColourModel([{ ...colored, colors: invalid }]),
+        ),
       ),
     );
 };

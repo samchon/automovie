@@ -7,8 +7,6 @@ import { IPortraitUpperLidSection } from "./IPortraitUpperLidSection";
  * A supplied section population replaces its predecessor; omission is handled
  * by the eye and preserves the original basic upper-lid formulas.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Allows medial and lateral upper folds to have different transverse tissue profiles.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Requires two through 32 ordered witnesses spanning anatomical medial zero to lateral one.
  */
 export interface IPortraitUpperLidProfile {
   /** Two through 32 complete sections, strictly ordered and including both ends. */

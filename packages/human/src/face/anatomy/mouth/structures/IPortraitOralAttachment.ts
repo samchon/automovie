@@ -7,8 +7,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * Corners orient the component; they never scale its authored dimensions.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Gives dental and lingual interiors the same explicit anatomical attachment convention.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Separates an oral component's local dimensions from its rigid origin and orientation.
  */
 export interface IPortraitOralAttachment {
   /** Anatomical right oral corner in head millimetres. */

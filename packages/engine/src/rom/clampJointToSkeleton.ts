@@ -1,6 +1,7 @@
 import { IAutoMovieJointPose, IAutoMovieSkeleton } from "@automovie/interface";
-import { getConstraint } from "./getConstraint";
+
 import { clampJointRom } from "./clampJointRom";
+import { getConstraint } from "./getConstraint";
 
 /**
  * Clamp one joint against the skeleton's effective ROM: the bone's own

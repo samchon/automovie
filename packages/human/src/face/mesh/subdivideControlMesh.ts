@@ -11,8 +11,6 @@ import { IControlMesh } from "./structures/IControlMesh";
  * These are position constraints, not a normal crease or separate overlaid
  * mesh. Their effect on the adjoining surface must be inspected in clay.
  * Omission and an empty curve list retain the original Loop calculation.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Refines joined anatomical surfaces while retaining common edges and declared closed boundary curves.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Applies shared Loop vertex/edge rules, curve-specific one-dimensional refinement and inherited face labels across each round.
  */
 export function subdivideControlMesh(
   input: IControlMesh,

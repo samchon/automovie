@@ -1,4 +1,5 @@
 import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
+
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 
 /**

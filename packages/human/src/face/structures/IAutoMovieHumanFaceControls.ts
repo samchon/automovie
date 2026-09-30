@@ -2,8 +2,6 @@
  * Intermediate anatomical controls, expressed as offsets from the recorded
  * recipe. Zero retains that recipe; final detail values are resolved afterward.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Separates intermediate trait offsets from detailed part settings.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Gives every intermediate value a fixed neutral and signed interpretation.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceControls {

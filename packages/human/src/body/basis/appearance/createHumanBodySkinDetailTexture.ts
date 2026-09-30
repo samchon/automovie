@@ -1,6 +1,6 @@
 import { seededValue } from "@automovie/engine";
 
-import { encodePortraitPng } from "../../../face/mesh/encodePortraitPng";
+import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieHumanBodySkinDetail";
 
 /**
@@ -21,9 +21,6 @@ import type { IAutoMovieHumanBodySkinDetail } from "../../structures/IAutoMovieH
  * wrapped central differences of the height, both in micrometres, stored as
  * `(n + 1) / 2` in linear 8-bit RGB with opaque alpha. Every value comes from
  * the table and `seededValue`, so the same table yields the same bytes.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-connected-basis Gives the body's skin the micro-relief of real skin at close range, from measured line and pore statistics.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-basis Implements the tileable relief: line families, warps, pores, the normal from the height and its encoding.
  */
 export function createHumanBodySkinDetailTexture(
   table: IAutoMovieHumanBodySkinDetail,
@@ -127,5 +124,5 @@ export function createHumanBodySkinDetailTexture(
         rgba[(y * size + x) * 4 + k] = Math.round(((n[k] + 1) / 2) * 255);
       rgba[(y * size + x) * 4 + 3] = 255;
     }
-  return encodePortraitPng({ width: size, height: size, rgba });
+  return encodePng({ width: size, height: size, rgba });
 }

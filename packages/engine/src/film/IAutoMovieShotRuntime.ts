@@ -1,4 +1,19 @@
-import { AutoMovieHumanoidBone, IAutoMovieBeatEndFootPlant, IAutoMovieBeatEndState, IAutoMovieClip, IAutoMovieCompiledFormation, IAutoMovieFormationDesign, IAutoMovieFormationMotion, IAutoMovieModel, IAutoMovieProductionDesign, IAutoMoviePropSpec, IAutoMovieSkeleton, IAutoMovieVector3, IAutoMovieWorldDesign } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBeatEndFootPlant,
+  IAutoMovieBeatEndState,
+  IAutoMovieClip,
+  IAutoMovieCompiledFormation,
+  IAutoMovieFormationDesign,
+  IAutoMovieFormationMotion,
+  IAutoMovieModel,
+  IAutoMovieProductionDesign,
+  IAutoMoviePropSpec,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+  IAutoMovieWorldDesign,
+} from "@automovie/interface";
+
 import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";

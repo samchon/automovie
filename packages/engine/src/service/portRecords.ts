@@ -1,4 +1,7 @@
-import { IAutoMovieServiceNetwork, IAutoMovieServicePort } from "@automovie/interface";
+import {
+  IAutoMovieServiceNetwork,
+  IAutoMovieServicePort,
+} from "@automovie/interface";
 
 /**
  * Map every port id to the port record itself, first declaration winning.

@@ -3,9 +3,6 @@ import { IPortraitNoseSocket } from "./structures/IPortraitNoseSocket";
 
 /**
  * Smooth nasal volume controls evaluated in the subject-owned socket frame.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Evaluates basic tip and alar volume within the declared nasal socket.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Adds signed tip and paired alar Gaussian relief using the caller's metric centres and support radii.
  */
 export function portraitNoseDepth(
   point: number[],

@@ -1,4 +1,9 @@
-import { AutoMovieArkitChannel, AutoMovieExpressionPreset, IAutoMovieExpression } from "@automovie/interface";
+import {
+  AutoMovieArkitChannel,
+  AutoMovieExpressionPreset,
+  IAutoMovieExpression,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "./ViolationCollector";
 
 /**

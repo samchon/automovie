@@ -1,7 +1,11 @@
-import { compareCodeUnits, createAutoMovieMeshDeformer } from "@automovie/engine";
+import {
+  compareCodeUnits,
+  createAutoMovieMeshDeformer,
+} from "@automovie/engine";
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
-import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
+
 import { IPortraitSurfaceControl } from "./structures/IPortraitSurfaceControl";
+import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
 
 /**
  * Interpolate a complete set of anatomical controls with the engine's compact
@@ -19,8 +23,6 @@ import { IPortraitSurfaceControl } from "./structures/IPortraitSurfaceControl";
  * handle movements is not a guarantee of likeness or global nonintersection.
  * The surrounding surface assembler retains its open-rim mask; a control in
  * that protected collar consequently does not promise its full displacement.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Solves copied local handles together, including stationary anchors, before returning one replaceable skin layer.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Sorts controls by name, rejects ambiguous or singular bindings and converts the coupled millimetre movements into metric engine fields.
  */
 export function createPortraitControlLayer(
   id: string,

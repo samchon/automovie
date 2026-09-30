@@ -12,9 +12,6 @@ import { IPortraitFacialFrameShape } from "./structures/IPortraitFacialFrameShap
  * A nonzero brow projection additionally needs both caller-owned eye sockets.
  * Its shared superior-orbit envelope preserves their aperture and changes the
  * outer skin before fitting eyelid attachments, not as a later skin overlay.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Makes jaw, chin, forehead, brow-foundation and temple controls actual shared anatomical construction.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Rebuilds surrounding parts from one changed host instead of moving independent overlays.
  */
 export function createPortraitFacialFrame(
   host: IPortraitComponentHost,

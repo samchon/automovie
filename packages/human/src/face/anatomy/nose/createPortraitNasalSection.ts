@@ -19,8 +19,6 @@ import { IPortraitNasalSection } from "./structures/IPortraitNasalSection";
  * original host remains the boundary datum; no detached nasal overlay is made.
  * Head-Z displacement can move projected image XY under an oblique source pose.
  * That drift must be measured rather than called exact source correspondence.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Replaces local nasal depth continuously while retaining the host at the section boundary.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Uses clamped cubic de Boor evaluation and physical-axis inversion, then applies independent quintic edge fades to the signed head-Z displacement.
  */
 export const createPortraitNasalSection = (
   input: IPortraitNasalSection,

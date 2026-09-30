@@ -1,4 +1,5 @@
 import { IAutoMovieCamera, IAutoMovieShotCoverage } from "@automovie/interface";
+
 import { IAutoMovieCameraCoverageEntry } from "./IAutoMovieCameraCoverageEntry";
 import { compileCameraMove } from "./compileCameraMove";
 

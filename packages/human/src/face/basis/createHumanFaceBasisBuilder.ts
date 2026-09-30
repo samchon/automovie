@@ -3,6 +3,7 @@ import { createMeshWeldPartitionMatcher } from "@automovie/engine/math/createMes
 import type { IAutoMovieModel } from "@automovie/interface";
 import typia from "typia";
 
+import { createHumanBasisRegion } from "../../common/basis/createHumanBasisRegion";
 import { createHumanFaceIrisPigment } from "../anatomy/eye/createHumanFaceIrisPigment";
 import { assertHumanFaceHair } from "../anatomy/hair/assertHumanFaceHair";
 import { createHumanFaceHairBuilder } from "../anatomy/hair/createHumanFaceHairBuilder";
@@ -16,7 +17,6 @@ import { assertHumanFaceBasis } from "./assertHumanFaceBasis";
 import { bakeHumanFaceOcclusion } from "./bakeHumanFaceOcclusion";
 import { createHumanFaceBasisPoseCache } from "./createHumanFaceBasisPoseCache";
 import { createHumanFaceBasisPoseEvaluator } from "./createHumanFaceBasisPoseEvaluator";
-import { createHumanFaceBasisRegion } from "./createHumanFaceBasisRegion";
 import { createHumanFaceFibrePigment } from "./createHumanFaceFibrePigment";
 import { createHumanFaceOcclusionCache } from "./createHumanFaceOcclusionCache";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
@@ -28,7 +28,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * resident model through exportHumanFace. Offline modelling tools supply the
  * licensed geometry; none run here and no source photo is needed for replay.
  *
- * The order per document is fixed and is what the specification states:
+ * The order per document is fixed:
  * channel weights and corrective activations (`humanFaceBasisWeights`), then
  * the rest layer of every surface and landmark (`evaluateHumanFaceRest`:
  * `p + sum(|weight| * endpoint) + sum(activation * corrective)`, the closure
@@ -87,14 +87,6 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * lightens a region past its material (a gain over one) is folded into the
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-surface-maps Bakes the optional ambient occlusion of the evaluated face into its materials without changing geometry.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Same edits yield the same model; shape and expression are read from the same base under one evaluation order.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-connected-basis Evaluates rest, articulation and contact in the specified order and gates on the neutral once.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-articulation Applies one mandibular and two ocular transforms through shared attachments before any local expression is read.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-articulation Evaluates rest layer, shaped landmarks, joint resolution, attached posing and normals in that order.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Scales lip closure to the aperture it closes and judges tongue passage and tissue contact on the same articulated state.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Runs aperture measurement, scaled closure, posing, passage and floor resolution in the specified order.
  */
 export function createHumanFaceBasisBuilder(
   input: IAutoMovieHumanFaceBasis,
@@ -129,7 +121,7 @@ export function createHumanFaceBasisBuilder(
     surface,
     regions: surface.regions.map((region) => ({
       region,
-      evaluate: createHumanFaceBasisRegion(region),
+      evaluate: createHumanBasisRegion(region),
     })),
   }));
   let partitions:

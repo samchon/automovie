@@ -1,5 +1,5 @@
-import { footprintContains } from "./footprintContains";
 import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
+import { footprintContains } from "./footprintContains";
 
 /**
  * Is `(x, z)` on a prepared surface footprint?

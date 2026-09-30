@@ -1,5 +1,5 @@
-import { IAutoMovieRepaintRuntimeIdentity } from "./capture/IAutoMovieRepaintRuntimeIdentity";
 import { IAutoMovieProductionRepaintInput } from "./IAutoMovieProductionRepaintInput";
+import { IAutoMovieRepaintRuntimeIdentity } from "./capture/IAutoMovieRepaintRuntimeIdentity";
 
 /**
  * Host-owned optional diffusion adapter.

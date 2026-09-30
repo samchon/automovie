@@ -1,4 +1,5 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
+
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitReliefRegion } from "./structures/IPortraitReliefRegion";
 
@@ -8,8 +9,6 @@ import { IPortraitReliefRegion } from "./structures/IPortraitReliefRegion";
  * identity and millimetre conversion. Neighbouring supports add before common
  * normals are recomputed, and the surface assembler protects open eye/mouth rims.
  * These envelopes model visible tissue relief, not separate internal organs.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Adds explicitly authored tissue supports while leaving their connected skin and boundary masking with the assembler.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Copies named regions, resolves live anchors and converts nonzero compact displacement fields from millimetres to engine metres.
  */
 export function createPortraitReliefLayer(
   id: string,

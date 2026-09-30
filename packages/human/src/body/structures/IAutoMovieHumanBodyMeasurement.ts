@@ -19,8 +19,6 @@
  * section loop found by a girth rule, which is how a front-chest width is read
  * on a mesh that has no chest-corner landmarks.
  *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-measurements Names each rule by the public measurement definition it follows so a millimetre figure has a stated meaning.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-measurements Types the three rule kinds and the landmark, plane and extremum parameters the evaluator reads.
  * @author Samchon
  */
 export type IAutoMovieHumanBodyMeasurement =

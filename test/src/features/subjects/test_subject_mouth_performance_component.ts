@@ -1,4 +1,4 @@
-import { portraitMeshBuffers } from "@automovie/human";
+import { float32MeshBuffers } from "@automovie/human";
 import { buildPortraitHead } from "@automovie/human/face/anatomy/cranium/buildPortraitHead";
 import { createPortraitMouthComponent } from "@automovie/human/face/anatomy/mouth/createPortraitMouthComponent";
 import { TestValidator } from "@nestia/e2e";
@@ -46,7 +46,7 @@ export const test_subject_mouth_performance_component = (): void => {
     head.refined.positions.every((point) => point.every(Number.isFinite)),
   );
   for (const part of head.parts)
-    if (part.geometry.type === "mesh") portraitMeshBuffers(part.geometry.mesh);
+    if (part.geometry.type === "mesh") float32MeshBuffers(part.geometry.mesh);
   portraitMouthSocket.upper.forEach((id, i) =>
     TestValidator.equals(
       "subdivided shared seam",

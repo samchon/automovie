@@ -1,11 +1,15 @@
-import { IAutoMovieFluidDomain, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieFluidDomain,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { fluidCourantNumber } from "./fluidCourantNumber";
 import { FLUID_MAX_CELLS } from "./constants/FLUID_MAX_CELLS";
 import { FLUID_MAX_FLOWS } from "./constants/FLUID_MAX_FLOWS";
 import { FLUID_MAX_SPRAYS } from "./constants/FLUID_MAX_SPRAYS";
 import { FLUID_MAX_SPRAY_PARTICLES } from "./constants/FLUID_MAX_SPRAY_PARTICLES";
 import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
+import { fluidCourantNumber } from "./fluidCourantNumber";
 
 const BOUNDARY_KINDS = new Set(["wall", "open"]);
 

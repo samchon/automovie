@@ -1,11 +1,17 @@
-import { IAutoMovieInteractionEvent, IAutoMovieLaunchAction, IAutoMovieReactAction, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieInteractionEvent,
+  IAutoMovieLaunchAction,
+  IAutoMovieReactAction,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { solveBallisticLaunch } from "../physics/solveBallisticLaunch";
-import { solveMovingLaunch } from "../physics/solveMovingLaunch";
 import { projectileAt } from "../physics/projectileAt";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
-import { eventTimeKey } from "./eventTimeKey";
+import { solveBallisticLaunch } from "../physics/solveBallisticLaunch";
+import { solveMovingLaunch } from "../physics/solveMovingLaunch";
 import { IAutoMovieLaunchResult } from "./IAutoMovieLaunchResult";
+import { eventTimeKey } from "./eventTimeKey";
 
 /** The default fall the launch solves against: Earth gravity, world −Y. */
 const DEFAULT_GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };

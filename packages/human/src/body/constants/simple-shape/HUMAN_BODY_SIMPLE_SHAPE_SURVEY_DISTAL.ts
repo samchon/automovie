@@ -15,7 +15,8 @@ import type { IAutoMovieHumanBodySimpleShapeTable } from "../../structures/IAuto
  * not a universal growth law or a direct bone-radius measurement. The simple
  * tier composes these after the proximal survey relations.
  */
-export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL: IAutoMovieHumanBodySimpleShapeTable["terms"] = [
+export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL: IAutoMovieHumanBodySimpleShapeTable["terms"] =
+  [
     {
       // ANSUR II people: measureWristCirc, women. The reproduced women's wrists
       // stood thin, most when lean (-30 mm at a body mass index of 18, -5 at
@@ -140,4 +141,4 @@ export const HUMAN_BODY_SIMPLE_SHAPE_SURVEY_DISTAL: IAutoMovieHumanBodySimpleSha
         },
       ],
     },
-];
+  ];

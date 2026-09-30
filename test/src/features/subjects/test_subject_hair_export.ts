@@ -1,8 +1,8 @@
 import {
   buildPortraitHairCards,
+  createGltfDocument,
   createPortraitHairTexture,
   exportHumanFace,
-  portraitDocument,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 import { PNG } from "pngjs";
@@ -51,7 +51,7 @@ export const test_subject_hair_export = async (): Promise<void> => {
     alphaCutoff: 0.45,
     doubleSided: true,
   };
-  const document = portraitDocument(model),
+  const document = createGltfDocument(model),
     root = document.getRoot();
   TestValidator.equals("one PNG", root.listTextures().length, 1);
   TestValidator.equals(
@@ -92,7 +92,7 @@ export const test_subject_hair_export = async (): Promise<void> => {
   });
   TestValidator.equals(
     "PNG deduplicated",
-    portraitDocument(duplicate).getRoot().listTextures().length,
+    createGltfDocument(duplicate).getRoot().listTextures().length,
     1,
   );
   for (const binding of [
@@ -104,7 +104,7 @@ export const test_subject_hair_export = async (): Promise<void> => {
     bad.materials[0].baseColorTexture = binding;
     TestValidator.predicate(
       "unsupported texture",
-      throwsError(() => portraitDocument(bad)),
+      throwsError(() => createGltfDocument(bad)),
     );
   }
   for (const offset of [12, 16, 20]) {
@@ -115,7 +115,7 @@ export const test_subject_hair_export = async (): Promise<void> => {
       "data:image/png;base64," + broken.toString("base64");
     TestValidator.predicate(
       "invalid PNG header",
-      throwsError(() => portraitDocument(bad)),
+      throwsError(() => createGltfDocument(bad)),
     );
   }
   for (const uvs of [
@@ -129,7 +129,7 @@ export const test_subject_hair_export = async (): Promise<void> => {
     bad.parts[0].geometry.mesh.uvs = uvs;
     TestValidator.predicate(
       "invalid UVs",
-      throwsError(() => portraitDocument(bad)),
+      throwsError(() => createGltfDocument(bad)),
     );
   }
 };

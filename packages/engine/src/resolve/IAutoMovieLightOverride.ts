@@ -1,4 +1,8 @@
-import { IAutoMovieColor, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieColor,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The animatable property values accumulated for one light before they are

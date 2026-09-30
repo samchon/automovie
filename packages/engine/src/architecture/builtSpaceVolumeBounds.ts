@@ -1,4 +1,9 @@
-import { IAutoMovieBuiltSpace, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieBuiltSpace,
+  IAutoMovieSubjectBox,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
 
 /** Grow a box by one point, creating it when there is none yet. */

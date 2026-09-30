@@ -1,4 +1,5 @@
 import { IAutoMovieAnalysisRun } from "@automovie/interface";
+
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 
 /**

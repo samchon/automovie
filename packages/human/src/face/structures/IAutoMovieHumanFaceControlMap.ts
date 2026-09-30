@@ -5,8 +5,6 @@
  * silently change another. This is a coordinate transform, not a biological
  * model, an anatomical measurement, or a replacement for fine shape weights.
  *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Keeps fine facial edits authoritative while exposing simpler numerical controls.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Defines basis-bound groups whose normalized residual detail survives simple edits.
  * @author Samchon
  */
 export interface IAutoMovieHumanFaceControlMap {

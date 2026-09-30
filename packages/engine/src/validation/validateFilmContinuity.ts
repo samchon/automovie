@@ -1,4 +1,9 @@
-import { IAutoMovieBeatEndActorState, IAutoMovieBeatEndState, IAutoMovieValidation } from "@automovie/interface";
+import {
+  IAutoMovieBeatEndActorState,
+  IAutoMovieBeatEndState,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+
 import { IResolveBeatProps } from "../film/IResolveBeatProps";
 import { resolveBeatEnd } from "../film/resolveBeatEnd";
 import { resolveBeatOpening } from "../film/resolveBeatOpening";

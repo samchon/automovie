@@ -7,9 +7,9 @@ import {
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
-import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "./constants/AUTOMOVIE_INSTANCE_CHUNK_SIZE";
 import { IAutoMovieInstanceSetPlacement } from "./IAutoMovieInstanceSetPlacement";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
+import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "./constants/AUTOMOVIE_INSTANCE_CHUNK_SIZE";
 import { instanceSlot } from "./instanceSlot";
 import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
 

@@ -1,4 +1,8 @@
-import { IAutoMovieClip, IAutoMoviePropSpec, IAutoMovieScene } from "@automovie/interface";
+import {
+  IAutoMovieClip,
+  IAutoMoviePropSpec,
+  IAutoMovieScene,
+} from "@automovie/interface";
 
 /**
  * What one shot's authored object clips are checked against.

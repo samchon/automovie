@@ -8,9 +8,6 @@ import { IPortraitSkinColourRegion } from "./structures/IPortraitSkinColourRegio
  * between control vertices is not lost by interpolating white endpoint RGB.
  * Region names fix product order, making declaration order irrelevant.
  * Gains lie in [0,1]: this path has no material to fold a lightening into.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-skin-colour Evaluates authored pigmentation independently of current pose and lighting.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-skin-colour Applies the compact C2 compact-support envelope to transported reference coordinates and multiplies named linear RGB contributions.
  */
 export function createPortraitSkinColour(
   host: IPortraitComponentHost,

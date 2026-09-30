@@ -38,7 +38,8 @@ export const test_human_body_gpu_uv_corners = (): void => {
   TestValidator.predicate(
     "source UVs retain full precision while the output carries Float32 UVs",
     region.uvs[occurrences[1] * 2] === 0.25 + 1e-10 &&
-      geometry.mesh.uvs?.every((value) => value === Math.fround(value)) === true,
+      geometry.mesh.uvs?.every((value) => value === Math.fround(value)) ===
+        true,
   );
   const segmented = createHumanBodySegmenter(basis)(first);
   TestValidator.equals(

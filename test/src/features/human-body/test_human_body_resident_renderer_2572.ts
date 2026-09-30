@@ -1,6 +1,6 @@
 import { createPortraitMaterials } from "@automovie/human";
-import type { ConnectedBodyModel } from "@automovie/playground/src/human/connectedBodyProtocol";
-import { createConnectedBodyRenderer } from "@automovie/playground/src/human/connectedBodyRenderer";
+import type { ConnectedBodyModel } from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import { createConnectedBodyRenderer } from "@automovie/playground/src/human/body/connectedBodyRenderer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 

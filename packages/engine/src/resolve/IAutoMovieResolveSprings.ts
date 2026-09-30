@@ -1,5 +1,5 @@
-import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
 import { IAutoMovieSpringCollider } from "./IAutoMovieSpringCollider";
+import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
 
 /**
  * The cross-frame inputs that let {@link resolveFrame} step spring drivers

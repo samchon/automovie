@@ -1,11 +1,12 @@
 import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
+
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { builtEnvironmentDescendantSpaces } from "./builtEnvironmentDescendantSpaces";
-import { builtEnvironmentSpaceConnectors } from "./builtEnvironmentSpaceConnectors";
-import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 import { IAutoMovieBuildingObservationCensus } from "./IAutoMovieBuildingObservationCensus";
+import { builtEnvironmentDescendantSpaces } from "./builtEnvironmentDescendantSpaces";
 import { builtEnvironmentEnvelopeCorners } from "./builtEnvironmentEnvelopeCorners";
 import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
+import { builtEnvironmentSpaceConnectors } from "./builtEnvironmentSpaceConnectors";
+import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 
 /**
  * The complete observation topology of every building unit in one environment.

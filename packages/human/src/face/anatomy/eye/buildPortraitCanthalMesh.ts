@@ -1,10 +1,14 @@
-
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh, IAutoMovieVector3 as Point } from "@automovie/interface";
-import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
-import { portraitNormals } from "../../mesh/portraitNormals";
-import { portraitRegion } from "../../mesh/portraitRegion";
+import type {
+  IAutoMovieMesh,
+  IAutoMovieVector3 as Point,
+} from "@automovie/interface";
+
+import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
+import { extractTriangleRegion } from "../../mesh/extractTriangleRegion";
 import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSphere";
+import { buildPortraitPerformanceGlobe } from "./buildPortraitPerformanceGlobe";
+
 /**
  * Extend the actual sampled globe to fixed canthi by an incremental convex hull.
  * The eye component builds this immutable identity support before blink/gaze.
@@ -20,9 +24,6 @@ import type { IPortraitEyeSphere } from "../../surface/structures/IPortraitEyeSp
  * support planes where independent tangent cones would overlap. At finite
  * resolution these are planar faces; increasing sampling approaches tangent
  * sphere/cone continuity but cannot certify likeness or anatomical placement.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Connects separately fixed canthi to a resident optical body without enlarging that body.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Shares the emitted convex support faces between drawing and directional lid contact.
  */
 export function buildPortraitCanthalMesh(
   sphere: IPortraitEyeSphere,
@@ -79,9 +80,9 @@ export function buildPortraitCanthalMesh(
   }
   // Keep the exact optical normals at shared globe vertices. Newly introduced
   // apices have no analytic unique normal, so use their incident face average.
-  const normals = portraitNormals(positions, indices);
+  const normals = areaWeightedNormals(positions, indices);
   normals.splice(0, globe.normals!.length, ...globe.normals!);
-  const surface = portraitRegion(positions, normals, indices);
+  const surface = extractTriangleRegion(positions, normals, indices);
   const connective = (i: number): boolean => {
     const face = Math.floor(i / 3) * 3;
     return indices.slice(face, face + 3).some((id) => id >= opticalCount);
@@ -90,12 +91,12 @@ export function buildPortraitCanthalMesh(
   // Retaining buried globe faces at a shared horizon would create three
   // incident faces after the exporter's geometric weld. Partition this one
   // external boundary by tissue ownership; both parts retain its exact normals.
-  const exposed = portraitRegion(
+  const exposed = extractTriangleRegion(
     positions,
     normals,
     indices.filter((_id, i) => !connective(i)),
   );
-  const extension = portraitRegion(
+  const extension = extractTriangleRegion(
     positions,
     normals,
     indices.filter((_id, i) => connective(i)),

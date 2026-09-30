@@ -1,8 +1,8 @@
-import { AutoMovieCaptureTarget } from "./AutoMovieCaptureTarget";
 import { AutoMovieGuidePass } from "../../cinematics/AutoMovieGuidePass";
 import { AutoMovieContentDigest } from "../AutoMovieContentDigest";
 import { IAutoMovieDiagnostic } from "../IAutoMovieDiagnostic";
 import { IAutoMovieReviewTarget } from "../IAutoMovieReviewTarget";
+import { AutoMovieCaptureTarget } from "./AutoMovieCaptureTarget";
 import { IAutoMovieCaptureReceipt } from "./IAutoMovieCaptureReceipt";
 
 /**

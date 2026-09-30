@@ -34,9 +34,6 @@ import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBody
  * the root keeps its world frame and head as translation. Because the
  * landmarks are read after the shape, the joint centres follow the body they
  * sit in, which is what the source's joint cubes were for.
- *
- * @evidence requirements/actors/body-authoring/contract.md#actor-body-joints Recomputes every joint centre from shaped landmarks so the pivots follow the body's form, and expresses each joint in the standard humanoid skeleton.
- * @evidence specifications/asset-and-representation/body-authoring/contract.md#body-spec-joints Builds the `Y x F` frame, the parent-relative rest transform and the sign rest frames the specification defines.
  */
 export function resolveHumanBodySkeleton(
   basis: IAutoMovieHumanBodyBasis,

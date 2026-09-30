@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { assertPortraitEyePerformance } from "./assertPortraitEyePerformance";
 import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
 
@@ -8,9 +9,6 @@ import { IPortraitEyePerformance } from "./structures/IPortraitEyePerformance";
  * identity sphere. The upper margin supplies three quarters of closure travel;
  * the lower supplies one quarter. These are explicit authoring kinematics, not
  * a simulation of individual muscle fibres. The outer skin guide stays separate.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Evaluates open, closed and observed-relative lid movement on one anatomical boundary.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Changes aperture visibility independently of optical dimensions.
  */
 export function posePortraitLidCurves(
   upper: readonly IAutoMovieVector3[],

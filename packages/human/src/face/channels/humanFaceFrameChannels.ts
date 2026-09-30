@@ -1,10 +1,8 @@
-import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 import { createHumanFaceDetailChannel as channel } from "../editor/createHumanFaceDetailChannel";
+import { IAutoMovieHumanFaceDetailChannel } from "../structures/IAutoMovieHumanFaceDetailChannel";
 
 /**
  * Declare frame scalar controls for the common document editor.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Exposes facial width, length and named foundation projections through the detailed editor.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-controls Carries signed foundation dimensions into the shared host profile, leaving the host to admit their combined deformation.
  */
 export const humanFaceFrameChannels: readonly IAutoMovieHumanFaceDetailChannel[] =
   [

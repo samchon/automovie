@@ -6,8 +6,6 @@ import { IPortraitLowerLidPoint } from "./IPortraitLowerLidPoint";
  * so its depth is owned by the host rather than supplied a second time here.
  * Internal sample positions increase strictly in the order listed below.
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Distinguishes margin, pretarsal roll, subtarsal boundary and preseptal continuation in one eyelid section.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Requires six ordered tissue stations and an outer live-skin attachment beyond them.
  */
 export interface IPortraitLowerLidSection {
   /** Narrow skin margin outside the wet opening. */

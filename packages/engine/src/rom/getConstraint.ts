@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieJointConstraint } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
+} from "@automovie/interface";
+
 import { DEFAULT_HUMANOID_ROM } from "./constants/DEFAULT_HUMANOID_ROM";
 
 /**

@@ -1,4 +1,9 @@
-import { IAutoMovieQuaternion, IAutoMovieShot, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieQuaternion,
+  IAutoMovieShot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
 import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";

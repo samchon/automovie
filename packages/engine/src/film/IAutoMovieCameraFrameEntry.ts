@@ -1,4 +1,5 @@
 import { IAutoMovieCameraAction } from "@automovie/interface";
+
 import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
 
 /**

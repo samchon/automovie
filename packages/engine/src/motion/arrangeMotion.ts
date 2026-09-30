@@ -1,4 +1,5 @@
 import { IAutoMovieKeyframe, IAutoMovieMotion } from "@automovie/interface";
+
 import { addPositiveModulo } from "../math/addPositiveModulo";
 import { IAutoMoviePlacement } from "./IAutoMoviePlacement";
 

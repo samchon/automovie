@@ -1,4 +1,10 @@
-import { IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Quaternion } from "../math/Quaternion";
 import { AutoMoviePathGround } from "./AutoMoviePathGround";
 import { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";

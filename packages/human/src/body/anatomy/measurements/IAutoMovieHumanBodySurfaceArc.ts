@@ -9,5 +9,7 @@ import type { AutoMovieHumanBodySurfaceDimension } from "./AutoMovieHumanBodySur
  * measure both paths separately in a breast-scanning validation study.
  * @author Samchon
  */
-export type IAutoMovieHumanBodySurfaceArc =
-  AutoMovieHumanBodySurfaceDimension<"tape" | "surface-scan", "standing">;
+export type IAutoMovieHumanBodySurfaceArc = AutoMovieHumanBodySurfaceDimension<
+  "tape" | "surface-scan",
+  "standing"
+>;

@@ -6,7 +6,12 @@
  * the girdle, and turns the pelvis about the two hip centres. The transforms
  * share the builder's Y-up, Z-forward metre frame; no mesh is moved here.
  */
-import { Quaternion, Vector3, resolvePose, validatePose } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolvePose,
+  validatePose,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,

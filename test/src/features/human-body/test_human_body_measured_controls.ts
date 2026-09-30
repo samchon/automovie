@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyChannelScale } from "@automovie/human";
-import { renderBodyMeasuredControls } from "@automovie/playground/src/human/bodyMeasuredControls";
+import { renderBodyMeasuredControls } from "@automovie/playground/src/human/body/bodyMeasuredControls";
 import { TestValidator } from "@nestia/e2e";
 import { JSDOM } from "jsdom";
 
@@ -76,10 +76,11 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
         calls.push({ channel, target: targetMetres });
         if (pending)
           return new Promise((resolve) => {
-            release = () => resolve({
-              shape: { ...shape, width: 0.9 },
-              actualMetres: targetMetres,
-            });
+            release = () =>
+              resolve({
+                shape: { ...shape, width: 0.9 },
+                actualMetres: targetMetres,
+              });
           });
         return {
           shape: { ...shape, width: 0.5 },
@@ -101,20 +102,32 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
     "measurement shown without sculpt statistics",
     container.querySelectorAll(".row").length === 1 &&
       container.querySelector("#control-width-slider") === null &&
-      container.querySelector("#scale-width")?.textContent?.includes(
-        "Neutral 200.0 mm",
-      ) === true &&
-      container.querySelector("#scale-width")?.textContent?.includes("vertices") === false &&
-      container.querySelector("#scale-width")?.textContent?.includes("ANSUR II") === false,
+      container
+        .querySelector("#scale-width")
+        ?.textContent?.includes("Neutral 200.0 mm") === true &&
+      container
+        .querySelector("#scale-width")
+        ?.textContent?.includes("vertices") === false &&
+      container
+        .querySelector("#scale-width")
+        ?.textContent?.includes("ANSUR II") === false,
   );
   const target = container.querySelector<HTMLInputElement>("#control-width")!;
   const apply = container.querySelector<HTMLButtonElement>("button")!;
   apply.click();
-  TestValidator.equals("blank refuses without solving", [calls.length, refused.length], [0, 1]);
+  TestValidator.equals(
+    "blank refuses without solving",
+    [calls.length, refused.length],
+    [0, 1],
+  );
   current = { ...current, name: "A newer draft" };
   target.value = "250";
   target.dispatchEvent(new dom.defaultView!.Event("input"));
-  TestValidator.equals("typed millimetre draft is retained", drafts.get("width"), "250");
+  TestValidator.equals(
+    "typed millimetre draft is retained",
+    drafts.get("width"),
+    "250",
+  );
   apply.click();
   for (let attempt = 0; attempt < 5 && reports.length === 0; attempt++)
     await Promise.resolve();
@@ -133,12 +146,28 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
   ticket++;
   release();
   await Promise.resolve();
-  TestValidator.equals("superseded measurement cannot edit", current.shape.width, 0.5);
+  TestValidator.equals(
+    "superseded measurement cannot edit",
+    current.shape.width,
+    0.5,
+  );
   render("macro", "");
-  TestValidator.equals("unmeasured macro is hidden", container.querySelectorAll(".row").length, 0);
+  TestValidator.equals(
+    "unmeasured macro is hidden",
+    container.querySelectorAll(".row").length,
+    0,
+  );
   render("torso", "absent");
-  TestValidator.equals("unmatched search is empty", container.querySelectorAll(".row").length, 0);
-  basis.channels.push({ ...basis.channels[0], id: "measureHipsCirc", group: "hips" });
+  TestValidator.equals(
+    "unmatched search is empty",
+    container.querySelectorAll(".row").length,
+    0,
+  );
+  basis.channels.push({
+    ...basis.channels[0],
+    id: "measureHipsCirc",
+    group: "hips",
+  });
   const measured = scales.get("width")!;
   scales.set("measureHipsCirc", {
     ...measured,
@@ -147,7 +176,8 @@ export const test_human_body_measured_controls = async (): Promise<void> => {
     measurement: { ...measured.measurement!, id: "measureHipsCirc" },
   });
   render("hips", "hips");
-  const survey = container.querySelector("#scale-measureHipsCirc")?.textContent ?? "";
+  const survey =
+    container.querySelector("#scale-measureHipsCirc")?.textContent ?? "";
   TestValidator.predicate(
     "comparable tape names its survey population without imposing a limit",
     survey.includes("ANSUR II soldiers age 17–58 (P1–P99)") &&

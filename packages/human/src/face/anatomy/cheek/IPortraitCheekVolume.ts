@@ -4,8 +4,6 @@
  * Zero projection and lift retain the supplied host's existing expression.
  *
  * @author Samchon
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Separates visible cheek displacement from support radius and anatomical attachment offset.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Defines a mirrored outward/up/forward centre shift, three positive support radii and signed anterior/upward movement.
  */
 export interface IPortraitCheekVolume {
   /**

@@ -1,6 +1,7 @@
 import { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
-import { placeTransformedPoint } from "./placeTransformedPoint";
+
 import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
+import { placeTransformedPoint } from "./placeTransformedPoint";
 import { pointSubjectBox } from "./pointSubjectBox";
 
 /**

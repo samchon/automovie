@@ -1,7 +1,7 @@
-import { pushViolation } from "./pushViolation";
+import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 import { IAutoMovieNodeChannel } from "./IAutoMovieNodeChannel";
 import { NODE_CHANNEL_PATHS } from "./constants/NODE_CHANNEL_PATHS";
-import { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
+import { pushViolation } from "./pushViolation";
 
 /**
  * A TRANSFORM clip's track must address a channel the pipeline can HONOR

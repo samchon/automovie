@@ -10,8 +10,6 @@ import { triangulateAutoMovieRegion } from "@automovie/engine";
  * Positions use construction mm and are read only. Admission finishes before
  * the caller appends returned indices, so an impossible join changes no cage.
  * Common subdivision and normal computation remain with the skin assembler.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Joins retained outer skin to an inner component boundary using their shared vertex identities.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Admits strictly nested planar rings, maps triangulation back to resident XYZ vertices and preserves matching projected winding.
  */
 export function portraitSkinAnnulus(
   positions: readonly (readonly number[])[],

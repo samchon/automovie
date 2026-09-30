@@ -1,4 +1,5 @@
 import type { IAutoMovieColor } from "@automovie/interface";
+
 import { linearColorToSrgbHex } from "./linearColorToSrgbHex";
 
 /**

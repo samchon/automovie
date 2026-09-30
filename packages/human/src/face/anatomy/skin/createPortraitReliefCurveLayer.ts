@@ -1,4 +1,5 @@
 import type { IAutoMovieMeshDeformationField } from "@automovie/interface";
+
 import type { IPortraitSurfaceLayer } from "../../surface/structures/IPortraitSurfaceLayer";
 import { IPortraitReliefCurve } from "./structures/IPortraitReliefCurve";
 
@@ -10,8 +11,6 @@ import { IPortraitReliefCurve } from "./structures/IPortraitReliefCurve";
  * authored controls retain the curve's measured end points and tangent scale.
  * Empty curves are identity; zero displacement controls are retained only as
  * interpolation anchors, so a curve can fade into an unchanged host.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-anatomical-components Forms connected narrow anatomical relief from ordered skin-bound control points.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-components Interpolates metric centres, radii and displacements along each segment and supplies overlapping compact fields to the shared surface layer.
  */
 export function createPortraitReliefCurveLayer(
   id: string,

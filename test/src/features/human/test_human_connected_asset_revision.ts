@@ -1,4 +1,4 @@
-import { readConnectedAssetRevision } from "@automovie/playground/src/human/connectedAsset";
+import { readConnectedAssetRevision } from "@automovie/playground/src/human/common/connectedAsset";
 import { TestValidator } from "@nestia/e2e";
 import { gzipSync } from "node:zlib";
 

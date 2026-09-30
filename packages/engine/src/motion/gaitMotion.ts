@@ -1,4 +1,12 @@
-import { IAutoMovieGait, IAutoMovieGaitLimb, IAutoMovieJointPose, IAutoMovieKeyframe, IAutoMovieMotion, IAutoMovieTransform } from "@automovie/interface";
+import {
+  IAutoMovieGait,
+  IAutoMovieGaitLimb,
+  IAutoMovieJointPose,
+  IAutoMovieKeyframe,
+  IAutoMovieMotion,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import { addPositiveModulo } from "../math/addPositiveModulo";
 import { positiveModulo } from "../math/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";

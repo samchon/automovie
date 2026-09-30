@@ -23,8 +23,8 @@ import { humanBodyTrunkArmFixture } from "../internal/humanBodyTrunkArmFixture";
  */
 export const test_human_body_arms_down_nonmonotone = (): void => {
   const basis = humanBodyTrunkArmFixture(0.24, {
-    low: [0.36, 2.70, -0.03],
-    high: [0.39, 2.80, 0.03],
+    low: [0.36, 2.7, -0.03],
+    high: [0.39, 2.8, 0.03],
   });
   const build = createHumanBodyBasisBuilder(basis);
   const document = {
@@ -33,8 +33,18 @@ export const test_human_body_arms_down_nonmonotone = (): void => {
     basis: basis.id,
     shape: {},
     pose: [
-      { bone: "leftLowerArm" as const, flexion: 0, abduction: null, twist: null },
-      { bone: "rightLowerArm" as const, flexion: 0, abduction: null, twist: null },
+      {
+        bone: "leftLowerArm" as const,
+        flexion: 0,
+        abduction: null,
+        twist: null,
+      },
+      {
+        bone: "rightLowerArm" as const,
+        flexion: 0,
+        abduction: null,
+        twist: null,
+      },
     ],
   };
   const crosses = (elevation: number): boolean => {

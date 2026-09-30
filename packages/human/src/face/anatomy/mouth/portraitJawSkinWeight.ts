@@ -2,9 +2,6 @@
  * Smooth mandibular attachment across the observed oral band in millimetres.
  * A closed or inverted observation retains the four-mm transition used by
  * facial performance; the same field continues onto appended head tissue.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Shares one lower-face attachment weight between facial and cervical performance.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-expression Interpolates the observed upper/lower oral heights without assigning maxillary tissue to the jaw.
  */
 export function portraitJawSkinWeight(
   y: number,

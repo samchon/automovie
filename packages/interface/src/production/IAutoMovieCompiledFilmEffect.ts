@@ -1,6 +1,6 @@
 import { AutoMovieContentDigest } from "./AutoMovieContentDigest";
-import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 import { IAutoMovieCompiledEffect } from "./IAutoMovieCompiledEffect";
+import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 
 /**
  * Compiler-owned film-global effect runtime consumed by preview and capture.

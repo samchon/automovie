@@ -45,12 +45,24 @@ export const test_human_body_measured_channel = (): void => {
   );
   TestValidator.predicate(
     "unmeasured and absent channels refuse",
-    throwsError(() => solveHumanBodyMeasuredChannel({ ...input, channel: "width" }), "named measured") &&
-      throwsError(() => solveHumanBodyMeasuredChannel({ ...input, channel: "absent" }), "named measured"),
+    throwsError(
+      () => solveHumanBodyMeasuredChannel({ ...input, channel: "width" }),
+      "named measured",
+    ) &&
+      throwsError(
+        () => solveHumanBodyMeasuredChannel({ ...input, channel: "absent" }),
+        "named measured",
+      ),
   );
   TestValidator.predicate(
     "invalid and unreachable metric targets refuse",
-    throwsError(() => solveHumanBodyMeasuredChannel({ ...input, targetMetres: Infinity }), "finite") &&
-      throwsError(() => solveHumanBodyMeasuredChannel({ ...input, targetMetres: 3 }), "reaches"),
+    throwsError(
+      () => solveHumanBodyMeasuredChannel({ ...input, targetMetres: Infinity }),
+      "finite",
+    ) &&
+      throwsError(
+        () => solveHumanBodyMeasuredChannel({ ...input, targetMetres: 3 }),
+        "reaches",
+      ),
   );
 };

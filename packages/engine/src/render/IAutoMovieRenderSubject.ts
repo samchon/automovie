@@ -1,4 +1,12 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieCompiledEffect, IAutoMovieCompiledFormation, IAutoMovieCompiledInstanceSet, IAutoMovieModel, IAutoMovieScene } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieCompiledEffect,
+  IAutoMovieCompiledFormation,
+  IAutoMovieCompiledInstanceSet,
+  IAutoMovieModel,
+  IAutoMovieScene,
+} from "@automovie/interface";
+
 import { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSource";

@@ -11,9 +11,6 @@
  * intersection-free skin. A refused document never
  * produces one, because the refusal names the deficient channel and the
  * millimetres instead.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-contact Reports resolved vertex counts and depths beside the apertures the coupled rules were judged on.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-contact Carries the apertures, ratio, passage measure and resolution counts the evaluation order produces.
  */
 export interface IAutoMovieHumanFaceContactSummary {
   /** Signed interlabial gap along the opening direction after closure, metres. */

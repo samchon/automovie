@@ -1,5 +1,3 @@
-
-
 /**
  * Retriangulate a skin annulus after adding original-surface interior samples.
  * Boundary edges are retained. Interior diagonals use the planar Delaunay test
@@ -8,8 +6,6 @@
  * XY attachment chart. The caller owns that annulus admission. Incomplete,
  * nonfinite or numerically degenerate triangles are refused here.
  * Positions are head millimetres; the caller provides the original skin query.
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-controls-replacement Retains sampled host curvature inside a replacement seam rather than discarding every interior skin witness.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Preserves annulus boundaries while redistributing interior edges around original-surface samples before common subdivision.
  */
 export function refinePortraitSkinBridge(
   input: readonly (readonly number[])[],

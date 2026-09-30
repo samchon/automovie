@@ -1,4 +1,7 @@
-import { AutoMovieBodyRegion, AutoMovieHumanoidBone } from "@automovie/interface";
+import {
+  AutoMovieBodyRegion,
+  AutoMovieHumanoidBone,
+} from "@automovie/interface";
 
 /** Hips + both legs (the locomotion / stance region). */
 const LOWER = [

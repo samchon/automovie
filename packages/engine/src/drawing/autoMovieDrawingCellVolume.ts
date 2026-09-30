@@ -1,4 +1,8 @@
-import { IAutoMovieHalfSpacePlane, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";

@@ -10,9 +10,6 @@ import type { IControlMesh } from "../mesh/structures/IControlMesh";
  * Original positions and vertex identities remain available to anatomical
  * finishers; resident triangles use the welded representative. Unselected open
  * eyes, the neck crop, ordinary nearby surfaces and their topology stay intact.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-expression Turns fully closed oral or eyelid contact into one shared skin seam.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-attachments Preserves one resident surface at explicit closed tissue contact instead of emitting opposing duplicate faces.
  */
 export function sealPortraitContactSeams(
   mesh: IControlMesh,

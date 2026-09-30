@@ -1,22 +1,32 @@
-import { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricGap, IAutoMovieAnalysisRun, IAutoMovieAnalysisSample, IAutoMovieAnalysisWarning, IAutoMovieEnvironmentInstant, IAutoMovieReferenceGround, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricGap,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalysisSample,
+  IAutoMovieAnalysisWarning,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieReferenceGround,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
+import { IAutoMovieAnalysisLuminaire } from "./IAutoMovieAnalysisLuminaire";
+import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
+import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
+import { IAutoMovieDaylightRequest } from "./IAutoMovieDaylightRequest";
+import { assertAutoMovieAnalysisSolids } from "./assertAutoMovieAnalysisSolids";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
-import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
-import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
-import { assertAutoMovieAnalysisSolids } from "./assertAutoMovieAnalysisSolids";
 import { autoMovieContextSolids } from "./autoMovieContextSolids";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { autoMovieHemisphereDirections } from "./autoMovieHemisphereDirections";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 import { autoMovieSkyward } from "./autoMovieSkyward";
-import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
+import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { AUTOMOVIE_DAYLIGHT_SKY_MODEL } from "./constants/AUTOMOVIE_DAYLIGHT_SKY_MODEL";
-import { IAutoMovieAnalysisLuminaire } from "./IAutoMovieAnalysisLuminaire";
-import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
-import { IAutoMovieDaylightRequest } from "./IAutoMovieDaylightRequest";
+import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
+import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
+import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
 /** Directions and lengths shorter than this are degenerate. */
 const EPSILON = 1e-12;

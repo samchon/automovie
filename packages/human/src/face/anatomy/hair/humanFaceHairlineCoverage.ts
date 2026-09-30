@@ -27,9 +27,6 @@ const TRANSITION_METRES = 0.01;
  * ends, so neither the boundary nor the full scalp shows a seam. Root
  * sampling thins its population by this and the scalp takes the hair's colour
  * by it, which is what makes a hairline one boundary rather than two.
- *
- * @evidence requirements/actors/facial-authoring/contract.md#actor-face-connected-basis Reads one shared hairline transition for every identity, with no per-person edge.
- * @evidence specifications/asset-and-representation/facial-authoring/contract.md#face-spec-parametric-hair States the transition depth and the smoothstep both the population and the scalp colour read.
  */
 export function humanFaceHairlineCoverage(
   direction: IAutoMovieVector3,

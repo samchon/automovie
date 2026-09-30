@@ -1,5 +1,6 @@
-import { ViolationCollector } from "./ViolationCollector";
 import { IAutoMovieSkeleton } from "@automovie/interface";
+
+import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * Reports unresolved parents, invalid root counts and unreachable skeleton members in original bone order.

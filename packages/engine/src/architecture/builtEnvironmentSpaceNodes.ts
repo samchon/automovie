@@ -1,4 +1,7 @@
-import { IAutoMovieBuiltEnvironment, IAutoMovieBuiltSpace } from "@automovie/interface";
+import {
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
+} from "@automovie/interface";
 
 /**
  * Name what is staged in a logical space and its descendants.
