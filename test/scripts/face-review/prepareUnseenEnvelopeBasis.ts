@@ -5,7 +5,7 @@ import type {
 } from "@automovie/human";
 
 import { extendFaceEnvelope } from "./faceEnvelope";
-import type { FaceUnseenReading, IFaceUnseenIndex } from "./faceUnseenNorms";
+import type { FaceUnseenReading, IFaceUnseenIndex } from "./faceUnseenIndices";
 
 /**
  * The unseen envelope revision of the connected face basis: each control

@@ -2,7 +2,7 @@
  * Square solve of paired anthropometric indices: each control is set until
  * its own index on the model equals the photograph's.
  *
- * `derive-face-documents.ts` passes one control per index of
+ * The removed `derive-face-documents.ts` passes one control per index of
  * `FACE_ANTHROPOMETRY_INDICES` and an `evaluate` that builds the model at
  * given control values and measures every index under the photograph's
  * camera. The system has as many unknowns as observations, so it describes a
@@ -228,7 +228,7 @@ export function solveFaceAnthropometry(props: {
  * settles where the population makes it most probable, each miss weighed
  * by how much the population itself varies.
  *
- * `derive-face-documents.ts` solves what a frontal photograph cannot show
+ * The removed `derive-face-documents.ts` solves what a frontal photograph cannot show
  * this way, after the photograph's own indices (`solveFaceAnthropometry`):
  * measurements are met exactly, norms as the prior they are. Their readings
  * follow landmarks that can step from one sample of a profile to the next,

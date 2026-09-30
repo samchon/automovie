@@ -5,7 +5,7 @@
  * `PerspectiveCamera(28, 1, ...)` placed at
  * `target + distance * (cos p sin y, sin p, cos p cos y)` and aimed at the
  * target with world +Y up, into a square `viewport` of pixels. The shape fit
- * (`fit-face-landmarks.ts`) and the landmark correspondence need the same
+ * (the removed `fit-face-landmarks.ts`) and the landmark correspondence need the same
  * mapping without a browser: `faceShapeFitProject` takes a basis-frame point
  * (metres) to image pixels (+x right, +y down, pixel centres at half
  * integers), and `faceShapeFitRay` takes an image pixel back to the ray the

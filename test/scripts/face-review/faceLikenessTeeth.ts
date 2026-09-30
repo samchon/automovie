@@ -1,7 +1,7 @@
 /**
  * Incisal edges read from a portrait's mouth.
  *
- * `fit-face-landmarks.ts` adds these as observations beside the face-mesh
+ * The removed `fit-face-landmarks.ts` adds these as observations beside the face-mesh
  * landmarks, and `measure-face-likeness.ts` compares a render's with its
  * photograph's. The mesh landmarks trace the lips but never the teeth, so a
  * smile's lower lip can be matched either by lowering the lip or by opening
