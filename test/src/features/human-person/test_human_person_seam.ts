@@ -36,10 +36,13 @@ import { nclose, throwsError } from "../internal/predicates";
  *    half through the fourth ring (16 of 32 vertices) and falls to 16 of 33 at
  *    the first vertex of the fifth, 0.04 from the loop, which is the reach. With
  *    neither a given reach nor weights the seam refuses.
- * 4. Refusals: a face with two open loops; a body with two open loops; a
- *    nonpositive or non-finite reach; a body whose triangles face inward (the
- *    ribbon then folds against the neck); and a body folded so that the covered
- *    band cuts it into three open loops.
+ * 4. The head reach is read from the same weights: the head has weight 0.4 on
+ *    the two neck rings and none below, so 95 percent of its total lies within
+ *    the second ring, 0.01 from the loop.
+ * 5. Refusals: a face with two open loops; a body with two open loops; a
+ *    nonpositive or non-finite reach; a body whose triangles face inward (its
+ *    loop then runs the same way as the face loop, which no ribbon merges);
+ *    and a body folded so that the covered band cuts it into three open loops.
  */
 export const test_human_person_seam = (): void => {
   const face = humanPersonTube({
@@ -63,6 +66,7 @@ export const test_human_person_seam = (): void => {
     face: { basis: "face/1", surface: skin(face, "face-skin") },
     body: { basis: "body/1", surface: skin(body, "body-skin") },
     reachMetres: 0.035,
+    headReachMetres: 0.02,
   });
   TestValidator.equals(
     "the seam names the revisions and surfaces it was derived on",
@@ -156,6 +160,7 @@ export const test_human_person_seam = (): void => {
     face: { basis: "f", surface: skin(face, "f") },
     body: { basis: "b", surface: skin(clear, "b") },
     reachMetres: 0.04,
+    headReachMetres: 0.02,
   });
   TestValidator.equals(
     "a body already below the face covers nothing",
@@ -171,11 +176,13 @@ export const test_human_person_seam = (): void => {
       surface: {
         ...skin(clear, "b"),
         skin: {
-          joints: ["neck", "upperChest"],
+          joints: ["neck", "upperChest", "head"],
           boneIndices: Array.from({ length: count }, (_, v) =>
-            neckRings.has(v) ? [0, 0, 0, 0] : [1, 0, 0, 0],
+            neckRings.has(v) ? [0, 2, 0, 0] : [1, 0, 0, 0],
           ).flat(),
-          weights: Array.from({ length: count }, () => [1, 0, 0, 0]).flat(),
+          weights: Array.from({ length: count }, (_, v) =>
+            neckRings.has(v) ? [0.6, 0.4, 0, 0] : [1, 0, 0, 0],
+          ).flat(),
         },
       },
     },
@@ -183,6 +190,10 @@ export const test_human_person_seam = (): void => {
   TestValidator.predicate(
     "the reach is where the neck stops being the skin's majority",
     nclose(weighted.collar.reachMetres, 0.04, 1e-9),
+  );
+  TestValidator.predicate(
+    "the head reach is where the head's weight has gone",
+    nclose(weighted.collar.headReachMetres, 0.01, 1e-9),
   );
   TestValidator.predicate(
     "no reach and no weights refuses",
@@ -217,6 +228,7 @@ export const test_human_person_seam = (): void => {
       face: { basis: "f", surface: skin(faceTube, "f") },
       body: { basis: "b", surface: skin(bodyTube, "b") },
       reachMetres,
+      headReachMetres: 0.02,
     });
   TestValidator.predicate(
     "a face with two open loops refuses",
@@ -232,7 +244,7 @@ export const test_human_person_seam = (): void => {
       throwsError(() => make(face, body, reach), "positive finite reach"),
     );
   TestValidator.predicate(
-    "a body facing inward folds the ribbon",
+    "a body facing inward has no ribbon that runs along the face loop",
     throwsError(
       () =>
         make(
@@ -245,7 +257,7 @@ export const test_human_person_seam = (): void => {
             inward: true,
           }),
         ),
-      "folds against the neck",
+      "in order",
     ),
   );
   TestValidator.predicate(

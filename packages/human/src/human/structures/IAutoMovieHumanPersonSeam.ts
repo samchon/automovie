@@ -63,6 +63,13 @@ export interface IAutoMovieHumanPersonSeam {
     reachMetres: number;
 
     /**
+     * Metres of the face's neck skin above the loop over which its weights
+     * rise from the body's at the collar to the head's alone: the length over
+     * which the body's own weights let the head go, read from them.
+     */
+    headReachMetres: number;
+
+    /**
      * For each vertex of `bodyLoop`, the face loop edge nearest to it at the
      * neutral: edge `edge` runs from `faceLoop[edge]` to the next loop vertex
      * and `fraction` in [0,1] is the foot of the perpendicular along it.

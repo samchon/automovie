@@ -17,9 +17,8 @@ import { nclose, throwsError } from "../internal/predicates";
  * upper chest 0.5; 2 is neck 0.4, upper chest 0.3, left shoulder 0.2 and right
  * shoulder 0.1; 3 is neck 0.6 and upper chest 0.4. The blend length is 0.015,
  * so a vertex 0.0075 above the loop is half way (t = 0.5), where the C2
- * smootherstep 10 t^3 - 15 t^4 + 6 t^5 is exactly 0.5. The blend length is
- * measured, not given: the jaw-carried vertex 9 stands 0.015 above the loop, so
- * the blend is 0.015.
+ * smootherstep 10 t^3 - 15 t^4 + 6 t^5 is exactly 0.5. The head reach, the
+ * length over which the weights rise to the head's, is 0.015.
  *
  * Scenarios:
  * 1. A vertex on the loop at azimuth 0 has t = 0 and the collar's weights
@@ -33,22 +32,24 @@ import { nclose, throwsError } from "../internal/predicates";
  *    at 0.5 and the body's four at half): the smallest, the right shoulder,
  *    is dropped and the rest renormalize by 0.95, so no vertex carries more
  *    than four and every vector sums to one.
- * 6. The blend follows the face: with the jaw vertex 0.03 up the blend is 0.03
- *    and vertex 4 (t = 0.25) has the smootherstep 0.10352 of the head; with a
- *    jaw vertex on the loop the floor of one millimetre applies and vertex 4
- *    is the head alone; with no jaw vertex the function refuses.
- */
+ * 6. A longer head reach spreads the ramp: with 0.03, vertex 4 (t = 0.25) has the
+ *    smootherstep 0.10352 of the head.
+ * 7. A jaw-carried vertex is the head whole whatever its height: vertex 4
+ *    marked as jaw has the head alone, while vertex 8 below it does not. */
 export const test_human_person_face_skin = (): void => {
   const at = (degrees: number, y: number): number[] => [
     Math.sin((degrees * Math.PI) / 180),
     y,
     Math.cos((degrees * Math.PI) / 180),
   ];
-  const seam = {
-    axis: { x: 0, z: 0 },
-    faceLoop: [0, 1, 2, 3],
-    bodyLoop: [0, 1, 2, 3],
-  } as IAutoMovieHumanPersonSeam;
+  const seamOf = (headReachMetres: number): IAutoMovieHumanPersonSeam =>
+    ({
+      axis: { x: 0, z: 0 },
+      faceLoop: [0, 1, 2, 3],
+      bodyLoop: [0, 1, 2, 3],
+      collar: { headReachMetres },
+    }) as IAutoMovieHumanPersonSeam;
+  const seam = seamOf(0.015);
   const face = [
     ...at(0, 0),
     ...at(90, 0),
@@ -81,7 +82,7 @@ export const test_human_person_face_skin = (): void => {
     face,
     body,
     bodySkin,
-    jawVertices: [9],
+    jawVertices: [],
   });
   const weightsOf = (vertex: number): Record<string, number> => {
     const found: Record<string, number> = {};
@@ -138,11 +139,11 @@ export const test_human_person_face_skin = (): void => {
 
   const smooth = (t: number): number => t * t * t * (10 - 15 * t + 6 * t * t);
   const longer = createHumanPersonFaceSkin({
-    seam,
+    seam: seamOf(0.03),
     face,
     body,
     bodySkin,
-    jawVertices: [5],
+    jawVertices: [],
   });
   const at4 = Object.fromEntries(
     [0, 1, 2, 3]
@@ -153,34 +154,22 @@ export const test_human_person_face_skin = (): void => {
       ]),
   );
   TestValidator.predicate(
-    "a longer chin gives a longer blend",
+    "a longer head reach spreads the ramp",
     nclose(at4.head, smooth(0.25), 1e-9) &&
       nclose(at4.neck, 0.6 * (1 - smooth(0.25)), 1e-9),
   );
-  const floored = createHumanPersonFaceSkin({
+  const jawed = createHumanPersonFaceSkin({
     seam,
     face,
     body,
     bodySkin,
-    jawVertices: [0],
+    jawVertices: [4],
   });
   TestValidator.predicate(
-    "a jaw vertex on the loop leaves the floor of a millimetre",
-    floored.weights[16] === 1 && floored.boneIndices[16] === 0,
-  );
-  TestValidator.predicate(
-    "no jaw vertex refuses",
-    throwsError(
-      () =>
-        createHumanPersonFaceSkin({
-          seam,
-          face,
-          body,
-          bodySkin,
-          jawVertices: [],
-        }),
-      "no jaw-carried vertex",
-    ),
+    "a jaw-carried vertex is the head whole, its neighbour below is not",
+    jawed.weights[16] === 1 &&
+      jawed.boneIndices[16] === 0 &&
+      jawed.weights[32] < 1,
   );
   TestValidator.equals(
     "the table has four entries per vertex",

@@ -12,6 +12,7 @@ import type { IAutoMovieHumanFaceBasis } from "../../face/structures/IAutoMovieH
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import { deriveHumanPersonBody } from "../document/deriveHumanPersonBody";
 import { conformHumanPersonCollar } from "../seam/conformHumanPersonCollar";
+import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
 import { createHumanPersonFaceSkin } from "../seam/createHumanPersonFaceSkin";
 import { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
 import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
@@ -122,6 +123,10 @@ export function createHumanPersonBuilder(props: {
       ? seam.faceLoop[local]
       : faceCount + seam.bodyLoop[local - seam.faceLoop.length],
   );
+  const seamSeeds = [
+    ...seam.faceLoop,
+    ...seam.bodyLoop.map((vertex) => vertex + faceCount),
+  ];
   const joinedIndices = [
     ...faceSkin.surface.indices,
     ...bodyKept.map((vertex) => vertex + faceCount),
@@ -187,10 +192,15 @@ export function createHumanPersonBuilder(props: {
       face: facePosed,
       body: body.posedSurfaces[bodySkin.index].positions,
     });
-    const normals = areaWeightedNormals(
-      [...facePosed, ...bodyPosed],
-      joinedIndices,
-    );
+    const normals = fairHumanSeamNormals({
+      indices: joinedIndices,
+      normals: areaWeightedNormals(
+        [...facePosed, ...bodyPosed],
+        joinedIndices,
+      ),
+      seeds: seamSeeds,
+      rings: HUMAN_PERSON_SEAM.fairRings,
+    });
 
     const read = (
       mesh: IAutoMovieMesh,

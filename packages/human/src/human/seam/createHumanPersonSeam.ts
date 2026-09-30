@@ -1,15 +1,14 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
-import { countHumanRibbonFolds } from "./countHumanRibbonFolds";
 import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
 import { createHumanLoopHeight } from "./createHumanLoopHeight";
 import { findHumanBoundaryLoops } from "./findHumanBoundaryLoops";
+import { measureHumanHeadReach } from "./measureHumanHeadReach";
 import { measureHumanNeckReach } from "./measureHumanNeckReach";
 import { measureHumanSurfaceDistances } from "./measureHumanSurfaceDistances";
-import { zipHumanBoundaryLoops } from "./zipHumanBoundaryLoops";
+import { mergeHumanBoundaryLoops } from "./mergeHumanBoundaryLoops";
 
 /** One connected skin surface as a basis holds it: shared vertices and oriented triangles. */
 type Skin = {
@@ -41,8 +40,9 @@ type Skin = {
  *    its own azimuth is covered, and every triangle touching one is removed,
  *    which leaves every retained boundary vertex at or below the face loop
  *    and so a ribbon that never runs back over the face's own triangles;
- * 3. the retained body boundary must be one loop, which `zipHumanBoundaryLoops`
- *    joins to the face loop with a ribbon of the loops' own vertices;
+ * 3. the retained body boundary must be one loop, which `mergeHumanBoundaryLoops`
+ *    joins to the face loop, in the order the body's vertices stand along it,
+ *    with a ribbon of the loops' own vertices;
  * 4. the retained loop follows the nearest face loop edge, and body skin
  *    within the reach along the surface (the extent of the neck by the body's
  *    own skin weights, `measureHumanNeckReach`, unless `reachMetres` is given)
@@ -57,11 +57,11 @@ type Skin = {
  * decision embeds both revisions and reads no document, so it is derived once
  * per basis pair and every shape and pose after it only moves vertices.
  * Refusals name the cause: not one open loop on each skin, a retained body
- * boundary that is not one loop, or a ribbon whose triangles face against the
- * surfaces at the neutral.
+ * boundary that is not one loop, or a retained loop that does not run along the
+ * face loop in order.
  *
- * @evidence contracts/common.md#principled-implementation The covered set is the body skin above the face's cut, decided by height against azimuth, which is the one relation two overlapping cuts of one vertical tube determine; the zipper, the loop walk and the Wendland weight each state their own premises, and the ribbon check compares its triangle normals with the neck's outward direction so a fold at the neutral refuses instead of shipping.
- * @evidence contracts/common.md#clear-and-simple-design The function sequences named owners (loops, azimuth, distances, zipper) in the order the data dependence forces and computes only the covered set, the follow table and the band itself.
+ * @evidence contracts/common.md#principled-implementation The covered set is the body skin above the face's cut, decided by height against azimuth, which is the one relation two overlapping cuts of one vertical tube determine; the merge, the loop walk and the Wendland weight each state their own premises, and the joined skin is checked to be an oriented manifold along the seam so a misoriented ribbon refuses instead of shipping.
+ * @evidence contracts/common.md#clear-and-simple-design The function sequences named owners (loops, azimuth, distances, merge) in the order the data dependence forces and computes only the covered set, the follow table and the band itself.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex number, loop length or subject is special-cased; the constants are named in `HUMAN_PERSON_SEAM` with their status, and every unmet precondition refuses.
  * @evidence contracts/common.md#meaningful-documentation The comment states the four steps, the vertical-tube assumption, the refusals and that the result depends on the neutral surfaces only.
  * @evidence contracts/modeling.md#part-identity-and-grouping The seam is a relation between two existing parts, the face skin and the body skin; it adds a ribbon that belongs to neither, named in the composed model as its own part.
@@ -77,6 +77,7 @@ export function createHumanPersonSeam(props: {
   face: { basis: string; surface: Skin };
   body: { basis: string; surface: Skin };
   reachMetres?: number;
+  headReachMetres?: number;
 }): IAutoMovieHumanPersonSeam {
   const { face, body } = props;
   const point = (skin: Skin, vertex: number): IAutoMovieVector3 => ({
@@ -134,31 +135,6 @@ export function createHumanPersonSeam(props: {
   const bodyPoints = bodyLoop.map((vertex) => point(body.surface, vertex));
   const bodyAzimuth = createHumanLoopAzimuth(bodyPoints, centre);
 
-  const ribbon = zipHumanBoundaryLoops(facePoints, bodyPoints);
-  // A ribbon triangle must face as the skin it joins does at each corner.
-  const faceNormals = areaWeightedNormals(
-    Array.from(face.surface.positions),
-    Array.from(face.surface.indices),
-  );
-  const bodyNormals = areaWeightedNormals(
-    Array.from(body.surface.positions),
-    kept,
-  );
-  const { folded } = countHumanRibbonFolds(
-    ribbon,
-    [...facePoints, ...bodyPoints],
-    [
-      ...faceLoop.flatMap((vertex) => faceNormals.slice(vertex * 3, vertex * 3 + 3)),
-      ...bodyLoop.flatMap((vertex) => bodyNormals.slice(vertex * 3, vertex * 3 + 3)),
-    ],
-  );
-  if (folded > 0)
-    throw new Error(
-      "The ribbon folds against the neck in " +
-        folded +
-        " triangles at the neutral.",
-    );
-
   const follow = bodyPoints.map((p) => {
     let best = { edge: 0, fraction: 0, distance: Infinity };
     for (let edge = 0; edge < facePoints.length; edge++) {
@@ -184,6 +160,26 @@ export function createHumanPersonSeam(props: {
     return { edge: best.edge, fraction: best.fraction };
   });
 
+  // each retained loop vertex stands at a position along the face loop, and
+  // the two loops are merged in that order
+  const ribbon = mergeHumanBoundaryLoops(
+    facePoints.length,
+    follow.map(({ edge, fraction }) => edge + fraction),
+  );
+  // The joined skin must be an oriented manifold along the seam: the ribbon
+  // runs opposite to every surface edge it meets, and a directed edge held
+  // twice (a misoriented loop) refuses in the boundary walk.
+  const faceCount = face.surface.positions.length / 3;
+  findHumanBoundaryLoops([
+    ...face.surface.indices,
+    ...kept.map((vertex) => vertex + faceCount),
+    ...ribbon.map((local) =>
+      local < faceLoop.length
+        ? faceLoop[local]
+        : bodyLoop[local - faceLoop.length] + faceCount,
+    ),
+  ]);
+
   const distance = measureHumanSurfaceDistances(
     body.surface.positions,
     kept,
@@ -205,6 +201,26 @@ export function createHumanPersonSeam(props: {
   if (!(reachMetres > 0) || !Number.isFinite(reachMetres))
     throw new Error(
       "The seam needs a positive finite reach, given or read from the body's skin weights.",
+    );
+  const headReachMetres =
+    props.headReachMetres ??
+    (body.surface.skin === undefined
+      ? Number.NaN
+      : measureHumanHeadReach(
+          distance,
+          (vertex) => {
+            const skin = body.surface.skin!;
+            let total = 0;
+            for (let k = 0; k < 4; k++)
+              if (skin.joints[skin.boneIndices[vertex * 4 + k]] === "head")
+                total += skin.weights[vertex * 4 + k];
+            return total;
+          },
+          reachMetres,
+        ));
+  if (!(headReachMetres > 0) || !Number.isFinite(headReachMetres))
+    throw new Error(
+      "The seam needs a positive finite head reach, given or read from the body's skin weights.",
     );
   const band: IAutoMovieHumanPersonSeam["collar"]["band"] = [];
   for (let vertex = 0; vertex < distance.length; vertex++) {
@@ -232,6 +248,6 @@ export function createHumanPersonSeam(props: {
     bodyLoop,
     covered,
     ribbon,
-    collar: { reachMetres, follow, band },
+    collar: { reachMetres, headReachMetres, follow, band },
   };
 }
