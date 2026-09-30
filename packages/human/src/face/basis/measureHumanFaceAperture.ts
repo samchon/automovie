@@ -36,9 +36,6 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific constant; degenerate axes and reference openings refuse.
  * @evidence contracts/common.md#meaningful-documentation States the frame, the layers it reads, the ratio, and why the measure is cheap enough to run first.
  * @evidence contracts/modeling.md#spatial-conventions Basis metres; up and forward are unit vectors of the basis frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source measureHumanFaceAperture carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range measureHumanFaceAperture admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority measureHumanFaceAperture defines no input through which a caller shapes a human form.
  */
 export function measureHumanFaceAperture(
   basis: IAutoMovieHumanFaceBasis,

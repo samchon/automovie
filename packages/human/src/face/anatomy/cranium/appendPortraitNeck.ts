@@ -20,9 +20,6 @@ import { IPortraitNeckShape } from "./structures/IPortraitNeckShape";
  * @evidence contracts/modeling.md#emitted-geometry The population is 22 rings (12 curve samples, 8 and 2 section interpolations) over the collar boundary of the fixed lattice, set by the representation and not by authored features.
  * @evidence contracts/modeling.md#shared-boundaries The first ring is built on the cranium's collar vertices themselves, so the joint carries no gap or overlap, and the incoming head tangent sets the first handle, which gives tangent continuity at the join; it opens at the crop by design.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Z anterior; the cervical axis and radii are in that frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source appendPortraitNeck carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range appendPortraitNeck admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority appendPortraitNeck defines no input through which a caller shapes a human form.
  */
 export function appendPortraitNeck(
   cage: IControlMesh,

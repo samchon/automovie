@@ -29,9 +29,6 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * @evidence contracts/common.md#meaningful-documentation States the boundary role, the activation form with its reason, the in-between semantics and shape-only classification.
  * @evidence contracts/modeling.md#parameter-channels Each channel is one signed trait whose neutral is zero (admission requires the envelope to contain zero); the positive and negative endpoints are named separately. Correctives are the declared dependencies between channels and they are computed here, not hidden in the geometry.
  * @evidence contracts/modeling.md#spatial-conventions Weights are dimensionless coordinates in each channel's envelope; no unit conversion happens.
- * @evidenceExclude contracts/anatomy.md#anatomical-source humanFaceBasisWeights carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range humanFaceBasisWeights admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority humanFaceBasisWeights defines no input through which a caller shapes a human form.
  */
 export function humanFaceBasisWeights(
   basis: IAutoMovieHumanFaceBasis,

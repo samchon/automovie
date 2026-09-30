@@ -24,8 +24,6 @@ import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It describes the requested motion and certifies nothing, as the docs say.
  * @evidence contracts/common.md#meaningful-documentation States the units, the null result for a basis without articulation and the limits of what is reported.
  * @evidence contracts/modeling.md#spatial-conventions Degrees for angles, metres for translation and pivot, in the basis frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source summarizeHumanFaceArticulation carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range summarizeHumanFaceArticulation admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority summarizeHumanFaceArticulation defines no input through which a caller shapes a human form.
  */
 export function summarizeHumanFaceArticulation(

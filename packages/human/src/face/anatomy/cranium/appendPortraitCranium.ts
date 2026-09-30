@@ -24,9 +24,6 @@ import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
  * @evidence contracts/modeling.md#emitted-geometry The population follows from the station count and the fixed 36-vertex oval: (stations + 1) new rings of 36 vertices (the collar cut-out omits faces, not vertices), plus one 9 x 9 cap patch; no author feature changes it. A smaller lattice would not carry the jaw-to-vault turn.
  * @evidence contracts/modeling.md#shared-boundaries The first ring is the measured oval's own vertex identities and the collar boundary is returned in oriented order for the neck, so the face patch, cranium and neck are one connected surface with no duplicated corners; a station set that does not descend in depth refuses.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Y up and +Z anterior throughout.
- * @evidenceExclude contracts/anatomy.md#anatomical-source appendPortraitCranium carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range appendPortraitCranium admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority appendPortraitCranium defines no input through which a caller shapes a human form.
  */
 export function appendPortraitCranium(
   cage: IControlMesh,

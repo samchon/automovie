@@ -53,8 +53,6 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It moves nothing past its budget; it refuses, and the docs state what the pass does not prove.
  * @evidence contracts/common.md#meaningful-documentation States the floor rule, the cover, the rim exception, the seam grouping, the spread and the limits (pointwise clearance does not prevent inverted edges).
  * @evidence contracts/modeling.md#spatial-conventions Basis metres; millimetres appear only in error text.
- * @evidenceExclude contracts/anatomy.md#anatomical-source resolveHumanFaceContact carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range resolveHumanFaceContact admits, bounds and combines no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority resolveHumanFaceContact defines no input through which a caller shapes a human form.
  */
 export function resolveHumanFaceContact(

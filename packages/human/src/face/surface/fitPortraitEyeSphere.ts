@@ -15,9 +15,6 @@ import { IPortraitEyeSphere } from "./structures/IPortraitEyeSphere";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Degenerate lids, a zero view ray and an unspannable radius refuse.
  * @evidence contracts/common.md#meaningful-documentation States the two alignments, that the fit ignores current gaze and that depth is the mean rim residual.
  * @evidence contracts/modeling.md#spatial-conventions Points, view ray and radius share one frame and unit (construction millimetres for the portrait eye).
- * @evidenceExclude contracts/anatomy.md#anatomical-source fitPortraitEyeSphere carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range fitPortraitEyeSphere admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority fitPortraitEyeSphere defines no input through which a caller shapes a human form.
  */
 export function fitPortraitEyeSphere(
   upper: IAutoMovieVector3[],

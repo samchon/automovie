@@ -20,9 +20,6 @@ import { IPortraitCraniumShape } from "./structures/IPortraitCraniumShape";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid set refuses and is never clipped; the default stations are documented defaults, not a special case for any subject.
  * @evidence contracts/common.md#meaningful-documentation States the units and frame, the descending order, that the default is authored, the chin-relative rule and each refusal.
  * @evidence contracts/modeling.md#spatial-conventions Head-frame millimetres with +Y up and +Z anterior; chinY is read in the same frame.
- * @evidenceExclude contracts/anatomy.md#anatomical-source resolvePortraitCraniumShape carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range resolvePortraitCraniumShape admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority resolvePortraitCraniumShape defines no input through which a caller shapes a human form.
  */
 export function resolvePortraitCraniumShape(
   chinY: number,

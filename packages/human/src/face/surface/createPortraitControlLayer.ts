@@ -31,7 +31,6 @@ import type { IPortraitSurfaceLayer } from "./structures/IPortraitSurfaceLayer";
  * @evidence contracts/modeling.md#spatial-conventions Millimetres for radius, offsets and displacements, divided by 1000 for the engine's metre fields.
  * @evidenceExclude contracts/anatomy.md#anatomical-source createPortraitControlLayer carries no anatomical value, range, proportion, landmark or tissue behaviour.
  * @evidenceExclude contracts/anatomy.md#permitted-range createPortraitControlLayer admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority createPortraitControlLayer defines no input through which a caller shapes a human form.
  */
 export function createPortraitControlLayer(
   id: string,

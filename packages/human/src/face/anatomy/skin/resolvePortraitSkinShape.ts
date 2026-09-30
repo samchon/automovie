@@ -10,9 +10,6 @@ import { IPortraitSkinShape } from "./structures/IPortraitSkinShape";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamping and no special case.
  * @evidence contracts/common.md#meaningful-documentation States the no-clipping rule and that the same envelopes serve the editor and that geometry admission is a later gate.
  * @evidenceExclude contracts/modeling.md#shared-boundaries resolvePortraitSkinShape constructs no surface that meets another part.
- * @evidenceExclude contracts/anatomy.md#anatomical-source resolvePortraitSkinShape carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range resolvePortraitSkinShape admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority resolvePortraitSkinShape defines no input through which a caller shapes a human form.
  */
 export function resolvePortraitSkinShape(
   input: IPortraitSkinShape = {},

@@ -32,9 +32,6 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts It clamps nothing and repairs nothing: a document past a stage's budget refuses there.
  * @evidence contracts/common.md#meaningful-documentation States the order, the frame and units, who owns the returned arrays and cites the jaw source with the limits of endpoint interpolation.
  * @evidence contracts/modeling.md#spatial-conventions Positions in basis metres in the Y-up +Z-anterior head frame, as the docs state; no conversion happens.
- * @evidenceExclude contracts/anatomy.md#anatomical-source createHumanFaceBasisPoseEvaluator carries no anatomical value, range, proportion, landmark or tissue behaviour.
- * @evidenceExclude contracts/anatomy.md#permitted-range createHumanFaceBasisPoseEvaluator admits, bounds and combines no anatomical value.
- * @evidenceExclude contracts/anatomy.md#parametric-authority createHumanFaceBasisPoseEvaluator defines no input through which a caller shapes a human form.
  */
 export function createHumanFaceBasisPoseEvaluator(
   basis: IAutoMovieHumanFaceBasis,
