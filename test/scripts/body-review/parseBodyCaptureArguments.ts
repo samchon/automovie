@@ -23,6 +23,9 @@ export interface IBodyCaptureRequest {
 
   /** A JSON file of `{ state: { shape, pose } }` that replaces the standard states, or null. */
   documents: string | null;
+
+  /** A candidate basis file (`.json` or `.json.gz`) served to the editor in place of the shipped one, or null. */
+  basis: string | null;
 }
 
 /** The six horizon views a body review needs by default, without the poles. */
@@ -37,7 +40,7 @@ const DEFAULT_VIEWS: HumanObservationView[] = [
 
 /**
  * Read the command line of the body capture runner:
- * `<name> [--states a,b] [--views v,w] [--passes p,q] [--documents file]`.
+ * `<name> [--states a,b] [--views v,w] [--passes p,q] [--documents file] [--basis file]`.
  *
  * Views and passes are checked against the names the page hooks accept, so a
  * misspelling fails here, before a browser is opened, and not halfway through
@@ -62,7 +65,7 @@ export function parseBodyCaptureArguments(argv: string[]): IBodyCaptureRequest {
     const value = rest[at + 1];
     if (value === undefined || value.startsWith("--"))
       throw new Error(`The option ${argument} needs a value.`);
-    if (!["--states", "--views", "--passes", "--documents"].includes(argument))
+    if (!["--states", "--views", "--passes", "--documents", "--basis"].includes(argument))
       throw new Error(`Unknown option ${argument}.`);
     options.set(argument, value);
     at++;
@@ -91,5 +94,6 @@ export function parseBodyCaptureArguments(argv: string[]): IBodyCaptureRequest {
     views: list("--views", HUMAN_OBSERVATION_VIEWS, DEFAULT_VIEWS)!,
     passes: list("--passes", HUMAN_OBSERVATION_PASSES, ["beauty", "clay"])!,
     documents: options.get("--documents") ?? null,
+    basis: options.get("--basis") ?? null,
   };
 }

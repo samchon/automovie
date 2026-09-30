@@ -2,7 +2,7 @@
  * Draw the product body editor on a real GPU, state by state and view by
  * view, and write the frames and a record of them.
  *
- *   pnpm exec ttsx -P tsconfig.scripts.json scripts/body-review/capture-editor.ts <name> [--states a,b] [--views v,w] [--passes p,q] [--documents file.json]
+ *   pnpm exec ttsx -P tsconfig.scripts.json scripts/body-review/capture-editor.ts <name> [--states a,b] [--views v,w] [--passes p,q] [--documents file.json] [--basis file.json.gz]
  *
  * Run from `test/` with the viewer up (`scripts/viewer/viewer.ts ensure`).
  * Frames land in `.shots/body-review/editor-<name>/<state>__<view>__<pass>.png`
@@ -17,7 +17,8 @@
  * and a software renderer before the first frame. A page error during the run
  * fails it after the frames are written, so a run that drew garbage cannot
  * pass quietly. States default to `standardBodyReviewStates`; `--documents`
- * replaces them.
+ * replaces them, and `--basis` serves a candidate basis (the identity must
+ * match the published one) in place of the shipped basis for this run.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -44,7 +45,10 @@ async function main(): Promise<void> {
     if (all[name] === undefined) throw new Error(`Unknown state "${name}".`);
   const output = path.join(root, ".shots/body-review", `editor-${request.name}`);
 
-  const editor = await openReviewEditor("body");
+  const editor = await openReviewEditor(
+    "body",
+    request.basis === null ? {} : { basisFile: path.resolve(request.basis) },
+  );
   console.log("RENDERER", editor.renderer);
   try {
     const { drawn } = await captureBodyFrames({

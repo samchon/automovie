@@ -16,8 +16,9 @@ const refusal = (argv: string[]): string => {
  *
  * Scenarios:
  * 1. A bare name gets the six horizon views, the `beauty` and `clay` passes,
- *    every state, and no documents file.
- * 2. Every option is read: states, views, passes and the documents file; the
+ *    every state, and no documents file and no candidate basis.
+ * 2. Every option is read: states, views, passes, the documents file and a
+ *    candidate basis file; the
  *    `--` separator a package script adds is ignored.
  * 3. The poles and every structural pass are accepted by name.
  * 4. Negative twins: an unknown view, an unknown pass, a repeated name, an
@@ -39,6 +40,7 @@ export const test_body_capture_arguments = (): void => {
     ],
     passes: ["beauty", "clay"],
     documents: null,
+    basis: null,
   });
   const full = parseBodyCaptureArguments([
     "--",
@@ -51,6 +53,8 @@ export const test_body_capture_arguments = (): void => {
     "normal,depth,flat,wire,outline",
     "--documents",
     "states.json",
+    "--basis",
+    "candidate.json.gz",
   ]);
   TestValidator.equals("states", full.states, ["neutral", "sitting"]);
   TestValidator.equals("views", full.views, ["top", "front"]);
@@ -62,6 +66,7 @@ export const test_body_capture_arguments = (): void => {
     "outline",
   ]);
   TestValidator.equals("documents", full.documents, "states.json");
+  TestValidator.equals("basis", full.basis, "candidate.json.gz");
 
   for (const [title, argv, fragment] of [
     ["unknown view", ["run", "--views", "sideways"], "sideways"],

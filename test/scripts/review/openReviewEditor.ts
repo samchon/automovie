@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { gzipSync } from "node:zlib";
 
 import { judgeViewerFreshness } from "../viewer/judgeViewerFreshness";
 import { judgeViewerRenderer } from "../viewer/judgeViewerRenderer";
@@ -40,11 +41,20 @@ const PAGES: Record<
  *
  * @param kind Which editor.
  * @param options Server origin and viewport, defaulted to the dev server and a
- * 1310 by 900 window (the face panel's 410 px column leaves a 900 px canvas).
+ * 1310 by 900 window (the face panel's 410 px column leaves a 900 px canvas),
+ * and an optional candidate basis file (`.json` or `.json.gz`) that the page
+ * receives in place of its own kind's shipped basis, so a candidate reads as
+ * the product draws it without replacing the published one. The candidate
+ * must keep the published basis identity, because the editor's documents name
+ * it.
  */
 export async function openReviewEditor(
   kind: ReviewEditorKind,
-  options: { base?: string; viewport?: { width: number; height: number } } = {},
+  options: {
+    base?: string;
+    viewport?: { width: number; height: number };
+    basisFile?: string;
+  } = {},
 ) {
   const root = path.resolve(__dirname, "../../..");
   const human = path.join(root, "packages/human");
@@ -69,6 +79,17 @@ export async function openReviewEditor(
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(String(error)));
     const { html, hook, canvas } = PAGES[kind];
+    if (options.basisFile !== undefined) {
+      const raw = fs.readFileSync(options.basisFile);
+      const body = options.basisFile.endsWith(".gz") ? raw : gzipSync(raw);
+      await page.route(`**/human-${kind}/**/basis.json.gz`, (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/gzip",
+          body,
+        }),
+      );
+    }
     await page.goto(`${options.base ?? "http://127.0.0.1:5173"}/${html}`, {
       timeout: 300000,
     });
