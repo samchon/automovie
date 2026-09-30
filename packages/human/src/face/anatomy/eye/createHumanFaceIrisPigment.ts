@@ -1,6 +1,8 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
 import { decodePng } from "../../../common/mesh/decodePng";
+import { linearToSrgbByte } from "../../../common/colour/linearToSrgbByte";
+import { srgbByteToLinear } from "../../../common/colour/srgbByteToLinear";
 import { encodePng } from "../../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceIris } from "../../structures/IAutoMovieHumanFaceIris";
@@ -100,7 +102,7 @@ export function createHumanFaceIrisPigment(
           texels.index.forEach((index, at) => {
             const theta = texels.theta[at];
             const painted = [0, 1, 2].map((c) =>
-              toLinear(texture.rgba[4 * index + c]),
+              srgbByteToLinear(texture.rgba[4 * index + c]),
             );
             // Under an anatomical disc smaller than the texture's painted
             // iris, the rest of that iris becomes sclera, blended into the
@@ -121,7 +123,7 @@ export function createHumanFaceIrisPigment(
               edge: EDGE,
               original: original as [number, number, number],
             });
-            for (let c = 0; c < 3; ++c) rgba[4 * index + c] = toByte(colour[c]);
+            for (let c = 0; c < 3; ++c) rgba[4 * index + c] = linearToSrgbByte(colour[c]);
           });
         textures.set(
           material,
@@ -216,7 +218,7 @@ function prepare(globes: readonly IGlobe[]): Map<string, IPreparedTexture> {
     texels.index.forEach((index, at) => {
       if (texels.theta[at] <= disc.painted + EDGE) return;
       for (let c = 0; c < 3; ++c)
-        sum[c] += toLinear(texture!.rgba[4 * index + c]);
+        sum[c] += srgbByteToLinear(texture!.rgba[4 * index + c]);
       ++count;
     });
     texture.eyes.push({
@@ -274,17 +276,4 @@ function linear(material: IAutoMovieMaterial): [number, number, number] {
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
-}
-
-/** IEC 61966-2-1 sRGB decoding of one 8-bit channel. */
-function toLinear(byte: number): number {
-  const c = byte / 255;
-  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-}
-
-/** IEC 61966-2-1 sRGB encoding of one linear channel to 8 bits. */
-function toByte(value: number): number {
-  const c =
-    value <= 0.0031308 ? value * 12.92 : 1.055 * value ** (1 / 2.4) - 0.055;
-  return Math.round(clamp01(c) * 255);
 }

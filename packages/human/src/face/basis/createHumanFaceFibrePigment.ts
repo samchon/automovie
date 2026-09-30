@@ -1,5 +1,7 @@
 import type { IAutoMovieMaterial } from "@automovie/interface";
 
+import { linearToSrgbByte } from "../../common/colour/linearToSrgbByte";
+import { srgbByteToLinear } from "../../common/colour/srgbByteToLinear";
 import { decodePng } from "../../common/mesh/decodePng";
 import { encodePng } from "../../common/mesh/encodePng";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
@@ -42,7 +44,7 @@ import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieH
  * @evidence contracts/common.md#clear-and-simple-design A decode step, a paint step and a two-map cache; the rule lives in the two helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A pigment component or density out of range and a material without embedded coverage refuse; nothing is guessed.
  * @evidence contracts/common.md#meaningful-documentation States the rule, its reference, the units (linear RGB in, 8-bit sRGB out), the cache and that the pigment is an authored optical value, not a recovered reflectance.
- * @evidence contracts/modeling.md#spatial-conventions Linear RGB inputs and 8-bit sRGB texture bytes; the two named helpers toLinear and toByte are the only conversions.
+ * @evidence contracts/modeling.md#spatial-conventions Linear RGB inputs and 8-bit sRGB texture bytes; the shared srgbByteToLinear and linearToSrgbByte are the only conversions.
  * @evidence contracts/anatomy.md#parametric-authority Its inputs are a named pigment (linear RGB) and a density factor on a named material; neither addresses a vertex, curve, strand or patch.
  * @evidenceExclude contracts/modeling.md#emitted-geometry It repaints one texture per overridden material and emits no primitive.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping It is a texture rule, not a part or a group of parts.
@@ -146,7 +148,7 @@ function paint(
           ? 1
           : Math.min(1, luminance(source.rgba, texel) / source.reference);
       for (let c = 0; c < 3; ++c)
-        rgba[4 * texel + c] = toByte(pigment[c]! * ratio);
+        rgba[4 * texel + c] = linearToSrgbByte(pigment[c]! * ratio);
     }
     if (density !== undefined)
       rgba[4 * texel + 3] = Math.min(255, Math.round(alpha * density));
@@ -160,19 +162,8 @@ function paint(
 
 function luminance(rgba: Uint8Array, texel: number): number {
   return (
-    0.2126 * toLinear(rgba[4 * texel]!) +
-    0.7152 * toLinear(rgba[4 * texel + 1]!) +
-    0.0722 * toLinear(rgba[4 * texel + 2]!)
+    0.2126 * srgbByteToLinear(rgba[4 * texel]!) +
+    0.7152 * srgbByteToLinear(rgba[4 * texel + 1]!) +
+    0.0722 * srgbByteToLinear(rgba[4 * texel + 2]!)
   );
-}
-
-function toLinear(byte: number): number {
-  const c = byte / 255;
-  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-}
-
-function toByte(linear: number): number {
-  const c =
-    linear <= 0.0031308 ? 12.92 * linear : 1.055 * linear ** (1 / 2.4) - 0.055;
-  return Math.round(Math.min(1, Math.max(0, c)) * 255);
 }
