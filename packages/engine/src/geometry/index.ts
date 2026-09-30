@@ -14,6 +14,7 @@ export * from "./IAutoMovieRegionTriangulation";
 export * from "./IAutoMovieWallOpening";
 export * from "./ITessellation";
 export * from "./autoMoviePlanarRegionFailure";
+export * from "./buildAutoMovieMeshQueryHierarchy";
 export * from "./buildAutoMoviePolyhedron";
 export * from "./buildAutoMovieRegionFace";
 export * from "./buildAutoMovieWall";

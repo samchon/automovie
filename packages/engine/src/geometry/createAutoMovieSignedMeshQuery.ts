@@ -1,5 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
+import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /** A nearest geometric feature and its oriented distance in mesh-local metres. */
@@ -55,10 +57,7 @@ interface Triangle {
   centre: number[];
 }
 
-type Node = {
-  low: number[];
-  high: number[];
-} & ({ triangles: Triangle[] } | { left: Node; right: Node });
+type Node = ReturnType<typeof buildAutoMovieMeshQueryHierarchy<Triangle>>;
 
 const subtract = (a: readonly number[], b: readonly number[]): number[] =>
   a.map((value, axis) => value - b[axis]);
@@ -168,8 +167,8 @@ export function createAutoMovieSignedMeshQuery(
     { length: identities.size },
     () => new Map<number, Set<number>>(),
   );
-  const edges = new Map<number, Edge>();
-  const welded = identities.size;
+  const edges = new Map<number | string, Edge>();
+  const edgeKey = createMeshEdgeKey(identities.size);
   const triangles: Triangle[] = [];
   for (let at = 0; at < indices.length; at += 3) {
     const source = indices.slice(at, at + 3);
@@ -209,7 +208,7 @@ export function createAutoMovieSignedMeshQuery(
         }
         neighbors.add(y);
       }
-      const key = from < to ? from * welded + to : to * welded + from;
+      const key = edgeKey(Math.min(from, to), Math.max(from, to));
       let edge = edges.get(key);
       if (edge === undefined) {
         edge = {
@@ -290,7 +289,7 @@ export function createAutoMovieSignedMeshQuery(
       );
     unit(vertexNormals[vertex]);
   }
-  const root = buildTree(triangles);
+  const root = buildAutoMovieMeshQueryHierarchy(triangles);
   // Callers walk: a hair strand steps a few millimetres, a contact pass sweeps
   // one ring of a surface. The feature that won the last query is therefore
   // usually still near, and measuring it first gives the traversal a bound
@@ -384,27 +383,6 @@ const bound = (
     y = Math.max(0, node.low[1] - point[1], point[1] - node.high[1]),
     z = Math.max(0, node.low[2] - point[2], point[2] - node.high[2]);
   return x * x + y * y + z * z;
-};
-
-const buildTree = (triangles: Triangle[]): Node => {
-  const low = [Infinity, Infinity, Infinity],
-    high = [-Infinity, -Infinity, -Infinity];
-  for (const triangle of triangles)
-    for (let axis = 0; axis < 3; axis++) {
-      low[axis] = Math.min(low[axis], triangle.low[axis]);
-      high[axis] = Math.max(high[axis], triangle.high[axis]);
-    }
-  if (triangles.length <= 12) return { low, high, triangles };
-  const sizes = subtract(high, low),
-    axis = sizes.indexOf(Math.max(...sizes));
-  triangles.sort((a, b) => a.centre[axis] - b.centre[axis]);
-  const middle = Math.floor(triangles.length / 2);
-  return {
-    low,
-    high,
-    left: buildTree(triangles.slice(0, middle)),
-    right: buildTree(triangles.slice(middle)),
-  };
 };
 
 /**
