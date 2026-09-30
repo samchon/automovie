@@ -281,16 +281,14 @@ export function createAutoMovieSignedMeshQuery(
   return (point) => {
     if (point.length !== 3 || !point.every(Number.isFinite))
       throw new Error("Signed mesh queries require finite XYZ coordinates.");
-    const extent2 = point.reduce(
-      (total, value, axis) =>
-        total +
-        Math.max(
-          Math.abs(value - root.low[axis]),
-          Math.abs(value - root.high[axis]),
-        ) **
-          2,
-      0,
-    );
+    let extent2 = 0;
+    for (let axis = 0; axis < 3; axis++) {
+      const reach = Math.max(
+        Math.abs(point[axis] - root.low[axis]),
+        Math.abs(point[axis] - root.high[axis]),
+      );
+      extent2 += reach ** 2;
+    }
     if (!Number.isFinite(extent2))
       throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: Best = {
@@ -303,20 +301,7 @@ export function createAutoMovieSignedMeshQuery(
       boundary: false,
     };
     if (recent !== undefined) consider(point, recent, vertexNormals, rim, best);
-    const visit = (node: Node): void => {
-      if (bound(node, point) > best.distance2) return;
-      if ("triangles" in node) {
-        for (const triangle of node.triangles)
-          consider(point, triangle, vertexNormals, rim, best);
-      } else if (bound(node.left, point) <= bound(node.right, point)) {
-        visit(node.left);
-        visit(node.right);
-      } else {
-        visit(node.right);
-        visit(node.left);
-      }
-    };
-    visit(root);
+    visit(root, bound(root, point), point, vertexNormals, rim, best);
     recent = best.hit;
     // A nonempty finite admitted tree always supplies a nearest feature.
     const hit = best,
@@ -333,6 +318,38 @@ export function createAutoMovieSignedMeshQuery(
     };
   };
 }
+
+/**
+ * Nearest-first traversal of the bounding-box hierarchy. A node is entered
+ * whenever its box is no farther than the running best, and its children's
+ * boxes are measured once here and passed down, so the order and the pruning
+ * are those of a traversal that re-measured them on entry, without the
+ * repeated measurement or a closure allocated per query.
+ */
+const visit = (
+  node: Node,
+  nodeBound: number,
+  point: readonly number[],
+  vertexNormals: number[][],
+  rim: ReadonlySet<number>,
+  best: Best,
+): void => {
+  if (nodeBound > best.distance2) return;
+  if ("triangles" in node) {
+    for (const triangle of node.triangles)
+      consider(point, triangle, vertexNormals, rim, best);
+    return;
+  }
+  const left = bound(node.left, point),
+    right = bound(node.right, point);
+  if (left <= right) {
+    visit(node.left, left, point, vertexNormals, rim, best);
+    visit(node.right, right, point, vertexNormals, rim, best);
+  } else {
+    visit(node.right, right, point, vertexNormals, rim, best);
+    visit(node.left, left, point, vertexNormals, rim, best);
+  }
+};
 
 /** Bounding boxes are lower bounds, so traversal order cannot select a farther feature. */
 const bound = (node: Node, point: readonly number[]): number => {
