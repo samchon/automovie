@@ -14,7 +14,7 @@ export function test_human_viewer_client_arguments(): void {
   TestValidator.equals("identity", fields.get("doc"), "subject & id");
   TestValidator.equals("axes", fields.get("axes"), "view:front,left;pass:clay");
   TestValidator.equals("output", selected.output, "local image.png");
-  for (const command of ["ensure", "status", "stop", "render", "compare", "warm"])
+  for (const command of ["ensure", "status", "stop", "render", "compare", "warm"] as const)
     TestValidator.equals("command", parseHumanShotRequest([command]).command, command);
   for (const args of [[], ["other"], ["render", "bad"], ["render", "--bad"], ["render", "doc=a", "doc=b"],
     ["render", "--output"], ["render", "--output", ""], ["render", "--output", "--bad"],
