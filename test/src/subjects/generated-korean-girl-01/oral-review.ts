@@ -108,6 +108,8 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.resolvePortraitDentalCrown} Completes an omitted cervical ratio and edge rise with the basic crown profile in one place.
  * @evidence {@link Human.portraitTongueColumns} States how many samples go round each lingual ring, read by the builder and the station function.
  * @evidence {@link Human.portraitTongueStation} Reads the builder's vertex layout as a station from tip to root for the jaw weighting.
+ * @evidence {@link Human.retreatPortraitEnamel} Moves an enamel arch rigidly behind the lip mesh along Z, sharing the fit's retreat with the cavity-less closed-mouth contact.
+ * @evidence {@link Human.resolvePortraitOralContact} Keeps each present arch behind the lips and the cavity behind the arch when the real face builder assembles its parts.
  * @evidence {@link Human.portraitTongueWidthEnvelope} Gives the tongue a rounded plan outline as an ellipse of the station.
  */
 export const portraitOralReview = { scope: "oral construction inspection" };

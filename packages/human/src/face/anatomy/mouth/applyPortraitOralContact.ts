@@ -1,16 +1,19 @@
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 
 import { fitPortraitOralContact } from "./fitPortraitOralContact";
+import { retreatPortraitEnamel } from "./retreatPortraitEnamel";
 
 /**
  * Resolve an optional, explicit oral relationship after the component interiors
  * exist. Omission retains the parts verbatim; a declared relationship must name
  * distinct resident untransformed meshes. Only enamel and lining are replaced.
+ * A relationship without a cavity, as a closed mouth has none, retreats the
+ * enamel behind the lips only.
  *
- * @evidence contracts/common.md#principled-implementation It resolves an explicit relationship by part identity: three distinct resident head-frame meshes are read, fitted by `fitPortraitOralContact` and only the enamel and cavity parts are replaced, so the fit cannot touch any other part. Omission returns the parts verbatim.
+ * @evidence contracts/common.md#principled-implementation It resolves an explicit relationship by part identity: the lips, the enamel and, when named, the cavity are read as distinct resident head-frame meshes, fitted by `fitPortraitOralContact` (or, with no cavity, by `retreatPortraitEnamel`) and only the enamel and cavity parts are replaced, so the fit cannot touch any other part. Omission returns the parts verbatim.
  * @evidence contracts/common.md#clear-and-simple-design One adapter from part identities to the fit; no policy beyond admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No part name is special-cased: the caller names the three parts.
- * @evidence contracts/common.md#meaningful-documentation The comment states omission, the admission of distinct resident untransformed meshes and which parts are replaced.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No part name is special-cased: the caller names the parts.
+ * @evidence contracts/common.md#meaningful-documentation The comment states omission, the admission of distinct resident untransformed meshes, which parts are replaced and the cavity-less relationship of a closed mouth.
  * @evidence contracts/modeling.md#spatial-conventions Meshes are in the head frame in metres, as the fit requires, and only untransformed, unattached meshes are admitted.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function replaces two parts by identity and defines no part or group.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
@@ -22,11 +25,20 @@ import { fitPortraitOralContact } from "./fitPortraitOralContact";
  */
 export function applyPortraitOralContact(
   parts: IAutoMovieModelPart[],
-  contact?: { lips: string; enamel: string; cavity: string; clearance: number },
+  contact?: {
+    lips: string;
+    enamel: string;
+    cavity?: string;
+    clearance: number;
+  },
 ): IAutoMovieModelPart[] {
   if (contact === undefined) return parts;
-  if (new Set([contact.lips, contact.enamel, contact.cavity]).size !== 3)
-    throw new Error("Oral contact needs three distinct part identities.");
+  const named =
+    contact.cavity === undefined
+      ? [contact.lips, contact.enamel]
+      : [contact.lips, contact.enamel, contact.cavity];
+  if (new Set(named).size !== named.length)
+    throw new Error("Oral contact needs distinct part identities.");
   const read = (id: string): IAutoMovieMesh => {
     const matches = parts.filter((part) => part.id === id);
     const part = matches[0];
@@ -41,16 +53,27 @@ export function applyPortraitOralContact(
       );
     return part.geometry.mesh;
   };
-  const fitted = fitPortraitOralContact(
-    read(contact.lips),
-    read(contact.enamel),
-    read(contact.cavity),
-    contact.clearance,
-  );
+  const enamel = read(contact.enamel);
+  const fitted =
+    contact.cavity === undefined
+      ? {
+          enamel: retreatPortraitEnamel(
+            read(contact.lips),
+            enamel,
+            contact.clearance,
+          ),
+          cavity: undefined,
+        }
+      : fitPortraitOralContact(
+          read(contact.lips),
+          enamel,
+          read(contact.cavity),
+          contact.clearance,
+        );
   return parts.map((part) =>
     part.id === contact.enamel
       ? { ...part, geometry: { type: "mesh", mesh: fitted.enamel } }
-      : part.id === contact.cavity
+      : part.id === contact.cavity && fitted.cavity !== undefined
         ? { ...part, geometry: { type: "mesh", mesh: fitted.cavity } }
         : part,
   );

@@ -12,6 +12,7 @@ import { createPortraitOrbitalSupport } from "../anatomy/eye/createPortraitOrbit
 import { buildPortraitHairGroom } from "../anatomy/hair/buildPortraitHairGroom";
 import { createPortraitJawContinuation } from "../anatomy/mouth/createPortraitJawContinuation";
 import { createPortraitMouthComponent } from "../anatomy/mouth/createPortraitMouthComponent";
+import { resolvePortraitOralContact } from "../anatomy/mouth/resolvePortraitOralContact";
 import { createPortraitNoseComponent } from "../anatomy/nose/createPortraitNoseComponent";
 import { createPortraitReliefCurveLayer } from "../anatomy/skin/createPortraitReliefCurveLayer";
 import { createPortraitReliefLayer } from "../anatomy/skin/createPortraitReliefLayer";
@@ -217,7 +218,7 @@ export function buildHumanFace(
     id: face.document.id,
     name: face.document.name,
     origin: "generated",
-    parts: [...head.parts, ...hair, ...ears],
+    parts: [...resolvePortraitOralContact(head.parts), ...hair, ...ears],
     materials: [
       ...materials,
       ...components.flatMap((component) => component.materials ?? []),

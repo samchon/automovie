@@ -1,8 +1,8 @@
-import { measureAutoMovieMeshClearance } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { areaWeightedNormals } from "../../../common/mesh/areaWeightedNormals";
 import { portraitDirectionalSurfaceTargets } from "../../surface/portraitDirectionalSurfaceTargets";
+import { retreatPortraitEnamel } from "./retreatPortraitEnamel";
 
 /**
  * Fit two oral interiors behind the actual lip mesh in the head's +Z-forward
@@ -29,14 +29,7 @@ export function fitPortraitOralContact(
   cavity: IAutoMovieMesh,
   clearance: number,
 ): { enamel: IAutoMovieMesh; cavity: IAutoMovieMesh } {
-  if (!Number.isFinite(clearance) || clearance < 0)
-    throw new Error("Oral clearance must be finite and nonnegative metres.");
-  let retreat = 0;
-  for (const { minimum } of measureAutoMovieMeshClearance(lips, enamel, "z"))
-    retreat = Math.max(retreat, clearance - minimum);
-  const placed = structuredClone(enamel);
-  for (let i = 2; i < placed.positions.length; i += 3)
-    placed.positions[i] -= retreat;
+  const placed = retreatPortraitEnamel(lips, enamel, clearance);
   const lining = structuredClone(cavity);
   for (const { vertex, target } of portraitDirectionalSurfaceTargets(
     lining,
