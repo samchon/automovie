@@ -31,6 +31,10 @@ interface IGraph {
 let server: ViteDevServer;
 // The transform runs in a child process: it is a synchronous call that takes
 // tens of seconds, and inside this process it froze every request.
+const status = path.resolve(
+  directory,
+  "../../../.shots/human-viewer/source-status.json",
+);
 const compilation = createHumanViewerCompilation(async () => {
   fs.mkdirSync(path.dirname(output), { recursive: true });
   await new Promise<undefined>((resolve, reject) => {
@@ -72,6 +76,10 @@ const compilation = createHumanViewerCompilation(async () => {
         ].map((file) => path.resolve(human, file))),
   ]);
   return files;
+}, (report) => {
+  // The server reads this file for /health, since it cannot import this module's state.
+  fs.mkdirSync(path.dirname(status), { recursive: true });
+  fs.writeFileSync(status, JSON.stringify(report));
 });
 export default defineConfig({
   root: directory,

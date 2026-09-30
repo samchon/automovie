@@ -182,13 +182,22 @@ const lastBuild: Record<string, { doc: string; ms: number } | undefined> = {};
 /** Every numerical build this server saw, by document, so a saving can be measured. */
 const builds: Record<string, { ms: number; ao: boolean; at: string }> = {};
 const warming = { revision: "", total: 0, done: 0, skipped: 0, current: null as string | null };
+/** What the compile process last reported, read from the file it writes. */
+function sourceStatus(): { error: string | null; goodAt: string | null } {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(storage, "source-status.json"), "utf8"),
+    ) as { error: string | null; goodAt: string | null };
+  } catch {
+    return { error: null, goodAt: null };
+  }
+}
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
-  if (sourceUpdating) throw new Error("Source revision is being prepared");
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("A real GPU is required: " + renderer);
-  if (errors.length !== 0)
-    throw new Error("Source transformation failed: " + errors.join("; "));
-  const selectedRevision = inventory.revision;
+  // A broken working tree never stops the last good build from being drawn:
+  // the frame says which build it came from and the source error stands beside it.
+  const selectedRevision = readyRevision === "" ? inventory.revision : readyRevision;
   const started = performance.now();
   await page.waitForFunction(
     () =>
@@ -228,7 +237,7 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
     },
     { address, revision: selectedRevision },
   );
-  if (sourceUpdating || inventory.revision !== selectedRevision)
+  if (readyRevision !== selectedRevision)
     throw new Error(
       "Source changed during capture; the mixed revision was discarded",
     );
@@ -315,7 +324,7 @@ async function warm(revision: string): Promise<void> {
     current: null,
   });
   for (const entry of pending) {
-    if (inventory.revision !== revision || warming.revision !== revision) return;
+    if (readyRevision !== revision || warming.revision !== revision) return;
     warming.current = entry.id;
     try {
       await queue.run(
@@ -353,10 +362,16 @@ async function main(): Promise<void> {
         pid: process.pid,
         revision: inventory.revision,
         renderer,
-        ready:
-          !sourceUpdating &&
-          readyRevision === inventory.revision &&
-          errors.length === 0,
+        // A ready server can draw. It may be drawing the last good build
+        // while the newest source fails: `serving` and `sourceError` say so.
+        ready: readyRevision !== "" && renderer !== "",
+        serving: {
+          revision: readyRevision,
+          current: inventory.revision,
+          stale: readyRevision !== inventory.revision,
+          goodAt: sourceStatus().goodAt,
+        },
+        sourceError: sourceStatus().error ?? errors[errors.length - 1] ?? null,
         errors,
         sourceUpdating,
         revisions: revisions.current(),
@@ -515,14 +530,15 @@ async function main(): Promise<void> {
           ),
         );
         const address = parseHumanViewerAddress(fields.toString());
-        const selectedRevision = inventory.revision;
+        const selectedRevision =
+          readyRevision === "" ? inventory.revision : readyRevision;
         let png: Buffer;
         if (url.pathname === "/sheet") {
           if (axes === null) throw new Error("A sheet requires review axes");
           png = await renderHumanViewerSheet({
             page,
             capture,
-            revision: () => inventory.revision,
+            revision: () => readyRevision,
             cells: planHumanViewerSheet(
               address,
               axes,
@@ -559,9 +575,10 @@ async function main(): Promise<void> {
           composed.data.set(compared.data);
           png = PNG.sync.write(composed);
         } else png = await capture(address);
-        if (inventory.revision !== selectedRevision)
+        if (readyRevision !== selectedRevision)
           throw new Error("Source changed during request");
         response.setHeader("X-Human-Revision", selectedRevision);
+        response.setHeader("X-Human-Stale", String(selectedRevision !== inventory.revision));
         response.setHeader(
           "X-Viewer-Address",
           serializeHumanViewerAddress(address),
@@ -647,12 +664,17 @@ async function main(): Promise<void> {
     console.error(error.message);
   });
   page.on("console", (message) => {
+    if (message.text().startsWith("HUMAN_ERROR ")) {
+      errors = [message.text().slice(12)];
+      return;
+    }
     if (message.text().startsWith("HUMAN_READY ")) {
+      errors = [];
       readyRevision = message.text().slice(12);
       void warm(readyRevision);
     }
   });
-  await page.goto("http://127.0.0.1:5175/view#ao=off", {
+  await page.goto("http://127.0.0.1:5175/view?resident=1#ao=off", {
     timeout: 600000,
     waitUntil: "domcontentloaded",
   });
@@ -707,8 +729,6 @@ async function main(): Promise<void> {
         changed.clear();
         const { moved } = revisions.changed(files.map(slash));
         if (moved.length !== 0) {
-          errors = [];
-          readyRevision = "";
           lastEdit = { files: files.map((file) => path.relative(root, file)), at: new Date().toISOString(), moved };
           pendingEditAt = Date.now();
           inventory = catalogue();

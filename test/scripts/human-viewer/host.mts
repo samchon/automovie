@@ -46,8 +46,16 @@ const settle = (): void => {
   clearInterval(waiting);
   progress.textContent = "";
 };
+let goodAt = "";
 const showError = (message: string): void => {
   settle();
+  console.log("HUMAN_ERROR " + message.slice(0, 500));
+  if (active !== undefined) {
+    banner.hidden = false;
+    banner.textContent =
+      `Source error; still showing the last good build${goodAt === "" ? "" : " from " + goodAt}. Click to try again. ` +
+      message.slice(0, 300);
+  }
   error.textContent = message;
   error.style.display = "block";
 };
@@ -91,7 +99,10 @@ let quiet: ReturnType<typeof setTimeout> | undefined;
  * offers a redraw that keeps the address, and with the option on the redraw
  * happens by itself once edits have been quiet for twenty seconds.
  */
+const resident = new URLSearchParams(location.search).has("resident");
 function changedSource(): void {
+  // The server's own page has no one to ask: it redraws at once.
+  if (resident) return prepare();
   banner.hidden = false;
   clearTimeout(quiet);
   if (auto.checked) quiet = setTimeout(prepare, 20000);
@@ -154,6 +165,9 @@ addEventListener(
     active = candidate;
     candidate = undefined;
     active.style.visibility = "visible";
+    goodAt = new Date().toLocaleTimeString();
+    banner.hidden = true;
+    banner.textContent = "The source changed. Click to redraw with the same address.";
     settle();
     error.style.display = "none";
     const viewer = (): HumanViewerHandle =>
