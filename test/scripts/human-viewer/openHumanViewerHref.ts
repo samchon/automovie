@@ -1,0 +1,27 @@
+import type { HumanViewerAddress } from "./HumanViewerAddress";
+import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
+import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+
+/**
+ * The link that opens a document in the navigable viewer, and the request
+ * that renders it. Both carry the one address encoding, so the page the
+ * owner clicks and the picture a script asks for describe the same frame.
+ * `fields` overrides the defaults of a fresh address, and the thumbnail is
+ * the clay front view at a small square size.
+ */
+export function openHumanViewerHref(
+  doc: string,
+  fields: Partial<HumanViewerAddress> = {},
+): { view: string; render: string; thumbnail: string } {
+  const address = {
+    ...parseHumanViewerAddress(new URLSearchParams({ doc }).toString()),
+    ...fields,
+  };
+  const encoded = serializeHumanViewerAddress(address);
+  const thumbnail = serializeHumanViewerAddress({ ...address, pass: "clay", size: 160 });
+  return {
+    view: "/view#" + encoded,
+    render: "/render?" + encoded,
+    thumbnail: "/render?" + thumbnail,
+  };
+}
