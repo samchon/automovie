@@ -22,11 +22,12 @@ export function readHumanViewerCatalogue(props: {
   documentsFile: string;
   /** Directory of hand-written documents and candidate bases, absent or empty when unused. */
   inputsDirectory?: string;
-  source: string;
+  /** The digests the page reloads on and each domain's builds depend on. */
+  revisions: { browser: string; face: string; body: string };
 }): HumanViewerCatalogue {
   const hash = (bytes: string | Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
-  const source = props.source;
+  const sources = props.revisions;
   const bases = Object.fromEntries(
     Object.entries(props.basisFiles).map(([domain, file]) => {
       const bytes = fs.readFileSync(file);
@@ -60,18 +61,18 @@ export function readHumanViewerCatalogue(props: {
             read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
           },
           bases: bases as Record<"face" | "body", { id: string; digest: string }>,
-          source,
+          sources,
         })
       : { documents: [], rejected: [] };
   return {
-    revision: source,
+    revision: sources.browser,
     rejected: inputs.rejected,
     documents: [
       ...faces.map((document) => ({
         id: document.id,
         domain: "face" as const,
         document,
-        key: hash(JSON.stringify(document) + bases.face.digest + source),
+        key: hash(JSON.stringify(document) + bases.face.digest + sources.face),
       })),
       ...Object.entries(standardBodyReviewStates()).map(([name, state]) => {
         const document = {
@@ -84,7 +85,7 @@ export function readHumanViewerCatalogue(props: {
           id: document.id,
           domain: "body" as const,
           document,
-          key: hash(JSON.stringify(document) + bases.body.digest + source),
+          key: hash(JSON.stringify(document) + bases.body.digest + sources.body),
         };
       }),
       ...inputs.documents,

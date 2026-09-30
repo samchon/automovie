@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
 import type { HumanViewerCatalogue } from "../../../scripts/human-viewer/HumanViewerCatalogue";
+import { changeHumanViewerParts } from "../../../scripts/human-viewer/changeHumanViewerParts";
 import { describeHumanViewerDocuments } from "../../../scripts/human-viewer/describeHumanViewerDocuments";
 import { filterHumanViewerIndex } from "../../../scripts/human-viewer/filterHumanViewerIndex";
 import { neighbourHumanViewerDocument } from "../../../scripts/human-viewer/neighbourHumanViewerDocument";
@@ -26,6 +27,9 @@ const body = (name: string, rest: Record<string, unknown>): Entry =>
  *    keeps the order, and restricts to a domain.
  * 3. Stepping wraps at both ends, starts from an end for an unknown current
  *    document, and refuses an empty list.
+ * 5. A part is switched into or out of the isolated or hidden set once, in
+ *    order, leaving the rest of the address alone, and the sheet link asks for
+ *    the eight views of the same frame.
  * 4. The view link, the render request and the thumbnail carry one address:
  *    the thumbnail is the same document as a small clay frame, an override
  *    reaches all three, and the link parses back to the address.
@@ -76,4 +80,18 @@ export const test_human_viewer_index = (): void => {
   TestValidator.equals("render", href.render.startsWith("/render?doc=body%3Aneutral&view=left&pass=beauty"), true);
   const thumbnail = parseHumanViewerAddress(href.thumbnail.slice("/render?".length));
   TestValidator.equals("thumbnail", [thumbnail.doc, thumbnail.view, thumbnail.pass, thumbnail.size], ["body:neutral", "left", "clay", 160]);
+  const base = parseHumanViewerAddress("doc=a&view=left");
+  const isolated = changeHumanViewerParts(
+    changeHumanViewerParts(base, "eye", "parts", true),
+    "lid",
+    "parts",
+    true,
+  );
+  TestValidator.equals("isolated", isolated.parts, ["eye", "lid"]);
+  TestValidator.equals("once", changeHumanViewerParts(isolated, "eye", "parts", true).parts, ["lid", "eye"]);
+  TestValidator.equals("off", changeHumanViewerParts(isolated, "eye", "parts", false).parts, ["lid"]);
+  TestValidator.equals("hidden set", changeHumanViewerParts(base, "hair", "hide", true).hide, ["hair"]);
+  TestValidator.equals("rest kept", changeHumanViewerParts(base, "hair", "hide", true).view, "left");
+  TestValidator.equals("empty", changeHumanViewerParts(changeHumanViewerParts(base, "x", "hide", true), "x", "hide", false).hide, []);
+  TestValidator.equals("sheet", href.sheet.includes("axes=view%3Afront%2Cleft-three-quarter%2Cleft%2Cback%2Cright-three-quarter%2Cright%2Ctop%2Cbottom"), true);
 };

@@ -16,6 +16,8 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const allowed = [
     "doc",
     "parts",
+    "hide",
+    "zoom",
     "view",
     "pass",
     "frame",
@@ -115,9 +117,17 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     (parts === "" || parts.split(",").some((part) => part.trim() === ""))
   )
     throw new Error("parts must contain mesh names");
+  const hide = fields.get("hide");
+  if (
+    hide !== null &&
+    (hide === "" || hide.split(",").some((part) => part.trim() === ""))
+  )
+    throw new Error("hide must contain mesh names");
   return {
     doc,
     parts: parts === null ? [] : parts.split(","),
+    hide: hide === null ? [] : hide.split(","),
+    zoom: number("zoom", 1, 0.2, 8),
     view: view as HumanViewerAddress["view"],
     pitch: number("pitch", 0, -89, 89),
     look,

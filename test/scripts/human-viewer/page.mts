@@ -53,12 +53,14 @@ const pending = new Map<
 >();
 let sequence = 0;
 let builds = 0;
+let buildMs = 0;
 worker.onmessage = ({ data }) => {
   const request = pending.get(data.id);
   pending.delete(data.id);
   if (request === undefined) return;
   if (data.success) {
     ++builds;
+    buildMs = data.buildMs ?? 0;
     request.resolve(data.value);
   } else request.reject(new Error(data.error));
 };
@@ -250,17 +252,24 @@ async function show(address: HumanViewerAddress): Promise<void> {
   );
   if (missing.length !== 0)
     throw new Error("Unknown mesh: " + missing.join(","));
-  if (address.frame === null && address.parts.length !== 0)
+  const hidden = active.observe.hide(
+    address.hide.length === 0 ? null : address.hide,
+  );
+  if (hidden.length !== 0) throw new Error("Unknown mesh: " + hidden.join(","));
+  if (address.frame === null && (address.parts.length !== 0 || address.zoom !== 1)) {
+    const box = frameHumanViewerParts(resident.group, address.parts);
     active.observe.frame({
-      ...frameHumanViewerParts(resident.group, address.parts),
+      center: box.center,
+      radius: box.radius / address.zoom,
       view: address.view,
       pitch: address.pitch,
     });
-  else if (address.frame === null) active.observe.view(address.view, { pitch: address.pitch });
+  } else if (address.frame === null)
+    active.observe.view(address.view, { pitch: address.pitch });
   else
     active.observe.frame({
       center: address.frame.slice(0, 3) as [number, number, number],
-      radius: address.frame[3],
+      radius: address.frame[3] / address.zoom,
       view: address.view,
       pitch: address.pitch,
     });
@@ -336,21 +345,23 @@ async function show(address: HumanViewerAddress): Promise<void> {
   }
   current = address;
   status.textContent = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
-  const gallery = document.querySelector<HTMLDivElement>("#gallery")!;
-  gallery.replaceChildren();
-  for (const name of active.observe.parts()) {
-    const anchor = document.createElement("a");
-    anchor.textContent = name;
-    anchor.href =
-      "#" +
-      serializeHumanViewerAddress({ ...address, parts: [name], frame: null });
-    gallery.append(anchor);
-  }
 }
 
 let queue = Promise.resolve();
+/** Tell the host page what is displayed, so its controls follow the frame. */
+const announce = (): void => {
+  parent.postMessage(
+    {
+      type: "human:address",
+      address: serializeHumanViewerAddress(current),
+      parts: active.observe.parts(),
+      doc: current.doc,
+    },
+    location.origin,
+  );
+};
 const apply = (address: HumanViewerAddress): Promise<void> => {
-  const next = queue.then(() => show(address));
+  const next = queue.then(() => show(address)).then(announce);
   queue = next.catch((error: unknown) => {
     status.textContent = error instanceof Error ? error.message : String(error);
   });
@@ -360,15 +371,7 @@ async function main(): Promise<void> {
   catalogue = await (await fetch("/docs")).json();
   await apply(parseHumanViewerAddress(location.hash));
   addEventListener("hashchange", () => {
-    void apply(parseHumanViewerAddress(location.hash)).then(() => {
-      parent.postMessage(
-        {
-          type: "human:address",
-          address: serializeHumanViewerAddress(current),
-        },
-        location.origin,
-      );
-    });
+    void apply(parseHumanViewerAddress(location.hash));
   });
   Object.assign(window, {
     __humanViewer: {
@@ -377,6 +380,7 @@ async function main(): Promise<void> {
       renderer: () => String(active.renderer()),
       revision: () => catalogue.revision,
       builds: () => builds,
+      buildMs: () => buildMs,
       address: () => current,
       png: () => {
         active.finish();

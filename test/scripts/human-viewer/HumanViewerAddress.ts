@@ -20,6 +20,9 @@ export interface HumanViewerAddress {
   /** Exact mesh names; empty means the assembled subject. */
   parts: string[];
 
+  /** Exact mesh names hidden, the rest shown; combines with `parts` by hiding from the isolated set. */
+  hide: string[];
+
   /** Anatomical viewing direction from the shared observation hook. */
   view: HumanObservationView;
 
@@ -44,6 +47,12 @@ export interface HumanViewerAddress {
    * where it was measured.
    */
   look: [number, number, number, number, number, number, number] | null;
+
+  /**
+   * Multiplier of the fitted camera distance's inverse: two shows the framed
+   * subject twice as large, a half twice as far. The framing centre stays.
+   */
+  zoom: number;
 
   /** Bake numerical ambient occlusion when true. */
   ao: boolean;

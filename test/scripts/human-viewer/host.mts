@@ -77,6 +77,7 @@ addEventListener(
       renderer: () => viewer().renderer(),
       revision: () => viewer().revision(),
       builds: () => viewer().builds(),
+      buildMs: () => viewer().buildMs(),
       address: () => viewer().address(),
       png: () => viewer().png(),
     };

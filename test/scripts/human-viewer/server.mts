@@ -16,10 +16,13 @@ import { type Page, chromium } from "playwright";
 import { PNG } from "pngjs";
 import { createServer } from "vite";
 
+import { HumanViewerQueueFullError } from "./HumanViewerQueueFullError";
 import { judgeViewerRenderer } from "./judgeViewerRenderer";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { applyHumanViewerPose } from "./applyHumanViewerPose";
 import { composeHumanViewerPixels } from "./composeHumanViewerPixels";
+import { createHumanViewerQueue } from "./createHumanViewerQueue";
+import { createHumanViewerRevisions } from "./createHumanViewerRevisions";
 import { encodeHumanViewerPreview } from "./encodeHumanViewerPreview";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { planHumanViewerSheet } from "./planHumanViewerSheet";
@@ -48,53 +51,67 @@ const documentsFile = path.join(
 const inputsDirectory = path.join(storage, "inputs");
 const hash = (bytes: string | Buffer): string =>
   createHash("sha256").update(bytes).digest("hex");
-const sourceFiles = new Map<string, string>();
-const sourceRoots = [
+const slash = (file: string): string => file.replaceAll("\\", "/");
+const rootPath = slash(root);
+const playground = (file: string): string =>
+  `${rootPath}/packages/playground/src/human/${file}`;
+const readText = (file: string): string | undefined => {
+  try {
+    return fs.readFileSync(file, "utf8");
+  } catch {
+    return undefined;
+  }
+};
+/** The published bases and subject list: inputs no import graph names. */
+const basisDigest = (): string =>
+  [...Object.values(basisFiles), documentsFile]
+    .map((file) => hash(fs.readFileSync(file)))
+    .join("");
+let bases = basisDigest();
+// Each digest covers only what its build imports, so an edit to the eye never
+// invalidates a body document and a test or screen invalidates nothing.
+const revisions = createHumanViewerRevisions({
+  root: rootPath,
+  entries: {
+    browser: ["page.mts", "host.mts", "scene.html", "view.html"].map(
+      (name) => `${slash(directory)}/${name}`,
+    ),
+    face: [
+      playground("common/connectedAsset.ts"),
+      playground("common/connectedRuntime.ts"),
+    ],
+    body: [
+      playground("common/connectedAsset.ts"),
+      playground("body/connectedBodyRuntime.ts"),
+    ],
+  },
+  extra: [
+    "pnpm-lock.yaml",
+    "config/tsconfig.json",
+    "packages/human/tsconfig.json",
+    "packages/human/package.json",
+    "test/package.json",
+  ].map((file) => `${rootPath}/${file}`),
+  bases: () => bases,
+  io: {
+    exists: (file) => fs.existsSync(file) && fs.statSync(file).isFile(),
+    read: readText,
+  },
+});
+const watched = [
   "human",
   "engine",
   "interface",
   "viewer",
   "playground",
 ].map((name) => path.join(root, "packages", name, "src"));
-sourceRoots.push(directory);
-function collect(directory: string): void {
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) collect(file);
-    else if (/\.(ts|mts|cts|json|html|wasm)$/.test(file))
-      sourceFiles.set(file, hash(fs.readFileSync(file)));
-  }
-}
-for (const source of sourceRoots) collect(source);
-for (const file of [
-  "pnpm-lock.yaml",
-  "config/tsconfig.json",
-  "packages/human/tsconfig.json",
-  "packages/human/package.json",
-  "test/package.json",
-  "test/scripts/body-review/standardBodyReviewDocuments.ts",
-  "test/scripts/face-review/faceShapeFitCamera.ts",
-  "test/scripts/face-review/faceLikenessFraming.ts",
-  ...Object.values(basisFiles).map((file) => path.relative(root, file)),
-  path.relative(root, documentsFile),
-])
-  sourceFiles.set(
-    path.join(root, file),
-    hash(fs.readFileSync(path.join(root, file))),
-  );
-const revision = (): string =>
-  hash(
-    [...sourceFiles]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([file, digest]) => path.relative(root, file) + ":" + digest)
-      .join("\n"),
-  );
+watched.push(directory);
 const catalogue = () =>
   readHumanViewerCatalogue({
     basisFiles,
     documentsFile,
     inputsDirectory,
-    source: revision(),
+    revisions: revisions.current(),
   });
 let inventory = catalogue();
 let page: Page;
@@ -102,12 +119,22 @@ let renderer = "";
 let errors: string[] = [];
 let readyRevision = "";
 let sourceUpdating = false;
-let queue: Promise<void> = Promise.resolve();
-const serial = <T,>(task: () => Promise<T>): Promise<T> => {
-  const next = queue.then(task);
-  queue = next.then(() => {}).catch(() => {});
-  return next;
-};
+/** Requests allowed to wait behind the running one before a new one is refused. */
+const QUEUE_LIMIT = 12;
+const queue = createHumanViewerQueue({
+  limit: QUEUE_LIMIT,
+  now: () => performance.now(),
+});
+/** The last edit that reached a build, and the edit still waiting for its first frame. */
+let lastEdit: { files: string[]; at: string; moved: string[] } | null = null;
+let pendingEditAt: number | null = null;
+let lastRender: {
+  doc: string;
+  ms: number;
+  build: "cache" | "built";
+  sinceEditMs: number | null;
+} | null = null;
+const lastBuild: Record<string, { doc: string; ms: number } | undefined> = {};
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
   if (sourceUpdating) throw new Error("Source revision is being prepared");
   if (!judgeViewerRenderer(renderer).real)
@@ -115,6 +142,7 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
   if (errors.length !== 0)
     throw new Error("Source transformation failed: " + errors.join("; "));
   const selectedRevision = inventory.revision;
+  const started = performance.now();
   await page.waitForFunction(
     () =>
       Boolean((window as unknown as { __humanViewer?: unknown }).__humanViewer),
@@ -130,13 +158,20 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
             show: (address: HumanViewerAddress) => Promise<void>;
             png: () => string;
             revision: () => string;
+            builds: () => number;
+            buildMs: () => number;
           };
         }
       ).__humanViewer;
       if (viewer.revision() !== input.revision)
         throw new Error("The source revision has not finished loading");
+      const before = viewer.builds();
       await viewer.show(input.address);
-      return viewer.png();
+      return {
+        png: viewer.png(),
+        built: viewer.builds() - before,
+        buildMs: viewer.buildMs(),
+      };
     },
     { address, revision: selectedRevision },
   );
@@ -144,7 +179,17 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
     throw new Error(
       "Source changed during capture; the mixed revision was discarded",
     );
-  return Buffer.from(result.split(",")[1], "base64");
+  const ms = performance.now() - started;
+  const domain = address.doc.startsWith("body:") ? "body" : "face";
+  if (result.built !== 0) lastBuild[domain] = { doc: address.doc, ms: result.buildMs };
+  lastRender = {
+    doc: address.doc,
+    ms,
+    build: result.built === 0 ? "cache" : "built",
+    sinceEditMs: pendingEditAt === null ? null : Date.now() - pendingEditAt,
+  };
+  pendingEditAt = null;
+  return Buffer.from(result.png.split(",")[1], "base64");
 }
 async function main(): Promise<void> {
   fs.mkdirSync(path.join(storage, "cache"), { recursive: true });
@@ -169,6 +214,13 @@ async function main(): Promise<void> {
           readyRevision === inventory.revision &&
           errors.length === 0,
         errors,
+        sourceUpdating,
+        revisions: revisions.current(),
+        queue: { limit: QUEUE_LIMIT, ...queue.status() },
+        lastEdit,
+        lastRender,
+        lastBuild,
+        uptimeMs: Math.round(process.uptime() * 1000),
       });
     if (url.pathname === "/docs") return json(inventory);
     if (serveHumanViewerReference({ url, response, root, storage, json })) return;
@@ -264,7 +316,7 @@ async function main(): Promise<void> {
       )
     ) {
       const start = performance.now();
-      void serial(async () => {
+      void queue.run(url.pathname + url.search, async () => {
         const fields = new URLSearchParams(url.search);
         const axes = fields.get("axes");
         fields.delete("axes");
@@ -331,6 +383,7 @@ async function main(): Promise<void> {
           serializeHumanViewerAddress(address),
         );
         response.setHeader("X-Renderer", renderer);
+        response.setHeader("X-Human-Build", lastRender?.build ?? "unknown");
         response.setHeader(
           "X-Render-Ms",
           (performance.now() - start).toFixed(1),
@@ -352,7 +405,9 @@ async function main(): Promise<void> {
         response.setHeader("Content-Type", "image/png");
         response.end(png);
       }).catch((error: unknown) => {
-        response.statusCode = 422;
+        response.statusCode = error instanceof HumanViewerQueueFullError ? 503 : 422;
+        if (error instanceof HumanViewerQueueFullError)
+          response.setHeader("Retry-After", "10");
         json({ error: error instanceof Error ? error.message : String(error) });
       });
       return;
@@ -418,8 +473,7 @@ async function main(): Promise<void> {
   fs.mkdirSync(inputsDirectory, { recursive: true });
   vite.watcher.add([
     inputsDirectory,
-    ...sourceRoots,
-    ...sourceFiles.keys(),
+    ...watched,
     ...Object.values(basisFiles),
     documentsFile,
   ]);
@@ -431,36 +485,33 @@ async function main(): Promise<void> {
       inventory = catalogue();
       return;
     }
-    const ownedSource =
-      sourceRoots.some((directory) => file.startsWith(directory + path.sep)) &&
-      /\.(ts|mts|cts|json|html|wasm)$/.test(file);
-    if (
-      !ownedSource &&
-      !sourceFiles.has(file) &&
-      !Object.values(basisFiles).includes(file) &&
-      file !== documentsFile
-    )
-      return;
+    const inputFile =
+      Object.values(basisFiles).includes(file) || file === documentsFile;
+    // An edit to a file no build reads cannot change a frame or a cache key.
+    if (!inputFile && !revisions.reaches(slash(file))) return;
     sourceUpdating = true;
     changed.add(file);
     if (reload !== undefined) clearTimeout(reload);
     reload = setTimeout(() => {
-      errors = [];
-      readyRevision = "";
       try {
-        for (const changedFile of changed) {
-          if (fs.existsSync(changedFile))
-            sourceFiles.set(changedFile, hash(fs.readFileSync(changedFile)));
-          else sourceFiles.delete(changedFile);
-        }
+        bases = basisDigest();
+        const files = [...changed];
         changed.clear();
-        inventory = catalogue();
+        const { moved } = revisions.changed(files.map(slash));
+        if (moved.length !== 0) {
+          errors = [];
+          readyRevision = "";
+          lastEdit = { files: files.map((file) => path.relative(root, file)), at: new Date().toISOString(), moved };
+          pendingEditAt = Date.now();
+          inventory = catalogue();
+        }
         sourceUpdating = false;
-        vite.ws.send({
-          type: "custom",
-          event: "human:revision",
-          data: { revision: inventory.revision },
-        });
+        if (moved.includes("browser"))
+          vite.ws.send({
+            type: "custom",
+            event: "human:revision",
+            data: { revision: inventory.revision },
+          });
       } catch (error) {
         errors.push(error instanceof Error ? error.message : String(error));
       }

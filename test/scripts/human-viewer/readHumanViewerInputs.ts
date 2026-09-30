@@ -22,13 +22,13 @@ export interface IHumanViewerInputsIo {
  * a sidecar exists, else its domain's published basis; anything else is
  * rejected with the reason and the rest still load, because one wrong file
  * must not hide the others. The key hashes the document, the basis digest it
- * is built against and the source revision, so editing a file or the builder
+ * is built against and the digest of the source its domain's build reads, so editing a file or the builder
  * gives a new resident and never a stale frame. Photographs are never read.
  */
 export function readHumanViewerInputs(props: {
   io: IHumanViewerInputsIo;
   bases: Record<"face" | "body", { id: string; digest: string }>;
-  source: string;
+  sources: Record<"face" | "body", string>;
 }): {
   documents: HumanViewerCatalogue["documents"];
   rejected: { file: string; reason: string }[];
@@ -68,7 +68,7 @@ export function readHumanViewerInputs(props: {
           id,
           domain,
           document,
-          key: hash(JSON.stringify(document) + digest + props.source),
+          key: hash(JSON.stringify(document) + digest + props.sources[domain]),
           ...(candidate === null
             ? {}
             : { basis: `${name}@${digest.slice(0, 12)}` }),

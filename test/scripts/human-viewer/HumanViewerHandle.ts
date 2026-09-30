@@ -27,6 +27,9 @@ export interface HumanViewerHandle {
   /** Actual numerical worker builds, excluding disk and GPU cache hits. */
   builds(): number;
 
+  /** Milliseconds the numerical worker took for the last build, zero before the first. */
+  buildMs(): number;
+
   /** Last committed display selection. */
   address(): HumanViewerAddress;
 

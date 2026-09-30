@@ -14,6 +14,8 @@ export function test_human_viewer_address_roundtrip(): void {
   TestValidator.equals("defaults", defaults, {
     doc: "connected-reference",
     parts: [],
+    hide: [],
+    zoom: 1,
     view: "front",
     pass: "beauty",
     frame: null,
@@ -33,6 +35,8 @@ export function test_human_viewer_address_roundtrip(): void {
     ...defaults,
     doc: "body:subject & identity",
     parts: ["eye-left", "eye-right"],
+    hide: ["hair", "skin"],
+    zoom: 2.5,
     view: "left" as const,
     pass: "normal" as const,
     frame: [0, 0.1, -0.2, 0.04] as [number, number, number, number],
