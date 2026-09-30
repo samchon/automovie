@@ -150,6 +150,8 @@ export function humanBodyUnderwearFixture(armFrom = Infinity): {
     color: { r: 0.5, g: 0.4, b: 0.3 },
     roughness: 0.8,
     offsetMetres: 0.004,
+    // the panels are flat, so no crease needs bridging
+    spanMetres: 0,
     uncovered: ["leftUpperArm"],
     landmarks: {
       pelvis: "pelvis",

@@ -14,8 +14,8 @@ import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
  * The document's tone strength and age select a deterministic 1/20-strength
  * bin. Each bin's generated texture is cached only for this basis; the
  * document's copied skin material receives the tiled sRGB map and its
- * compensating base colour. The median source UV-to-surface area ratio sets
- * one repeat count in metres; local UV stretch still varies across the body.
+ * compensating base colour. The area-weighted median source UV-to-surface
+ * area ratio sets one repeat count in metres; local UV stretch still varies across the body.
  * This stage reads the body basis
  * and document and mutates only the caller's fresh material copy. It changes
  * neither the shared skin positions nor the per-site colour multipliers.

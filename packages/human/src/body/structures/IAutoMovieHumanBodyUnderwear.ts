@@ -43,6 +43,15 @@ export namespace IAutoMovieHumanBodyUnderwear {
     offsetMetres: number;
 
     /**
+     * Width of the widest skin crease the fabric bridges instead of following
+     * it down, metres (twice the radius of the ball the fabric cannot bend
+     * tighter than); zero lays the fabric on the skin everywhere. Creases
+     * narrower than three fifths of it are always bridged, wider ones
+     * never are, and wider concavities keep their depth.
+     */
+    spanMetres: number;
+
+    /**
      * Bones whose skin is never covered, with every bone below them: a
      * vertex is outside once half its skin weight is theirs.
      */

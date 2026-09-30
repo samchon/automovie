@@ -9,64 +9,55 @@ import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import { HUMAN_BODY_UNDERWEAR } from "../constants/HUMAN_BODY_UNDERWEAR";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodyUnderwear } from "../structures/IAutoMovieHumanBodyUnderwear";
+import { closeHumanBodyUnderwearCreases } from "./closeHumanBodyUnderwearCreases";
+import { createHumanBodyUnderwearCoverage } from "./createHumanBodyUnderwearCoverage";
+import { cutHumanBodyUnderwearSurface } from "./cutHumanBodyUnderwearSurface";
 
 /**
  * Plain default underwear cut from the posed skin.
  *
  * The garment is the skin itself lifted off the body: every surface's
  * triangles are kept where a coverage field is positive and clipped where it
- * changes sign, and the kept surface is moved `offsetMetres` along the posed
- * skin's normals. Because it is made of the posed skin, the underwear
- * follows every shape, pose, corrective and soft-tissue sag the skin does,
- * with no cloth simulation and nothing authored per person.
+ * changes sign (`cutHumanBodyUnderwearSurface`), carried across every skin
+ * crease narrower than the table's `spanMetres`
+ * (`closeHumanBodyUnderwearCreases`), and lifted `offsetMetres` along the
+ * skin's normals (the closing surface's where it bridged). Because it is made
+ * of the posed skin, the underwear follows every shape, pose, corrective and
+ * soft-tissue sag the skin does, with no cloth simulation and nothing authored
+ * per person.
  *
- * The coverage field is read on the body at rest (the document's shape
- * without its pose), so the garment's edges stay on the same skin whatever
- * the pose. It is a signed distance-like value in metres, positive inside,
- * built from the table's landmark rules (`HUMAN_BODY_UNDERWEAR`):
- *
- * - **Briefs.** Below the waistband height (a fraction from the pelvis up to
- *   the lumbar landmark) and above the leg line. The line is read against the
- *   hip joints: their mean height, depth and half distance, and the thighs'
- *   mean hip-to-knee length. Within the gusset (a distance from the midline,
- *   X against the pelvis) it stands at the crotch depth below the hip
- *   joints; from there it runs linearly to the outer hip's depth at the
- *   outer distance and holds it beyond, so the front view is the brief's V
- *   or, with equal depths, the boxer's hem. The outer depth blends from the
- *   back value to the front value as the vertex's depth runs from half the
- *   hips' half distance behind the hip joints to as far in front, so the
- *   back covers the buttock.
- * - **Bra** (`bra-and-briefs` only). A band from under the breasts (a
- *   fraction from the nipple down to the lower chest) to an upper edge a
- *   fraction up toward the clavicle, higher in front than behind: the edge
- *   blends by depth from the back (at the chest landmark's depth or behind)
- *   to the front (at the nipple's depth or ahead). A strap on each side
- *   (a band in X around a fraction from the clavicle out to the shoulder)
- *   runs from the band over the shoulder. The nipple is one skin vertex of
- *   one surface; the body is taken to be symmetric about the pelvis, so its
- *   height and depth serve both sides.
- * - **Arms.** A vertex half of whose skin belongs to the table's uncovered
- *   bones or their descendants is outside (the term is `0.5 - weight`, a
- *   metre per unit of weight, steep enough never to bind elsewhere), so the
- *   bra's arm holes follow the arm's skin rather than a plane.
- *
- * A triangle with all three corners inside is kept; one with one or two is
- * clipped at the zero of the field along its edges (linear, the crossing
- * held at least 5% of an edge from either corner so no clipped triangle
- * degenerates), and a crossing is shared by both triangles of its edge, so
- * the garment is as manifold as the skin. A surface with no kept triangle
- * emits no part. Normals are recomputed on the lifted surface; the posed
- * skin's normals must be nonzero wherever a triangle is kept.
+ * The coverage field is read on the body at rest (the document's shape without
+ * its pose), so the garment's edges stay on the same skin whatever the pose;
+ * `createHumanBodyUnderwearCoverage` owns its rules. A vertex half of whose
+ * skin belongs to the table's uncovered bones or their descendants is outside,
+ * so the bra's arm holes follow the arm's skin. A surface with no kept
+ * triangle emits no part. Normals are recomputed on the lifted surface, and a
+ * bridged vertex takes its normal from the closing surface, where the
+ * collapsed triangles of a crease's floor carry none; the posed skin's normals
+ * must be nonzero wherever a triangle is kept.
  *
  * The compiled closure caches the uncovered weight per vertex, which depends
  * on the basis alone; a basis material with the table's material id is
- * refused on compilation, and a colour outside [0,1], a missing landmark or
- * a nipple vertex outside its surface when a document asks for the style
- * that reads it. The body builder (`createHumanBodyBasisBuilder`) is the
- * consumer: it compiles this once per basis, calls it after skinning and
- * soft-tissue sag with the document's body at rest and its posed surfaces,
- * and appends the parts after the skin's regions, which is why the segment
- * partition and the contact reading, which read the skin, leave them out.
+ * refused on compilation, and a colour outside [0,1], a missing landmark or a
+ * nipple vertex outside its surface when a document asks for the style that
+ * reads it. The body builder (`createHumanBodyBasisBuilder`) is the consumer: it
+ * compiles this once per basis, calls it after skinning and soft-tissue sag
+ * with the document's body at rest and its posed surfaces, and appends the
+ * parts after the skin's regions, which is why the segment partition and the
+ * contact reading, which read the skin, leave them out. Closing the creases
+ * costs a fraction of a build and only when a document wears underwear.
+ *
+ * @evidence contracts/common.md#principled-implementation Cutting a triangle mesh by a per-vertex field, then lifting it along the vertex normals, keeps the garment made of the skin's own triangulation, so it follows every shape and pose the skin does; the coverage field is read at rest so its edges stay on one place of the skin, and the closing bridges creases the way cloth that cannot bend tighter than a radius does. The offset is a constant thickness along the normal, exact for a flat skin and an approximation where the skin curves tighter than the offset.
+ * @evidence contracts/common.md#clear-and-simple-design The function compiles the per-basis arm weights and orchestrates, per call, the field, the cut and the closing in that order; each of the three has its own file and owner, and only the material and the parts are assembled here.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex list, person or fixture is named: the garment is rules on the body's landmarks and the skin's own triangles, and the closing is a general geometric operation. Nothing patches another module.
+ * @evidence contracts/common.md#meaningful-documentation The comment states what the garment is made of, in which state each input is read, what is refused and the consumer that calls it.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The garment is one part per covered skin surface, named after that surface and the garment material, and appended after the skin's regions, so it never merges with a skin part and the skin's segment partition leaves it out.
+ * @evidence contracts/modeling.md#parameter-channels The document's underwear is one closed choice of style and one optional colour, two independent traits; the shape, pose and sag channels reach the garment only through the posed skin it is cut from.
+ * @evidence contracts/modeling.md#emitted-geometry The triangles are the skin's own where kept and at most two per clipped skin triangle; the closing moves vertices and adds none, so the count follows the skin's tessellation and the field and never grows with the garment's features.
+ * @evidence contracts/modeling.md#spatial-conventions Every value is metres in the basis frame (+Y up, +Z front, +X the body's left); the field is evaluated at the rest positions and the geometry taken from the same vertex indices of the posed skin, the one correspondence between the two states, and the closing reads the posed frame.
+ * @evidence contracts/anatomy.md#anatomical-source The landmarks are the basis's own joints and the nipple vertex; the fractions of the table are costume convention set by rendering, stated as such in its documentation, and no measurement is claimed for them.
+ * @evidence contracts/anatomy.md#permitted-range The colour is admitted in [0,1] per channel and refused otherwise, the style is a closed choice, and a missing landmark or nipple vertex refuses with its name, leaving the caller's document unchanged.
+ * @evidence contracts/anatomy.md#parametric-authority The inputs are a closed style and a colour; no input addresses a vertex, curve or patch, and the garment's edges come from the table's rules on landmarks.
  */
 export function createHumanBodyUnderwear(
   basis: IAutoMovieHumanBodyBasis,
@@ -100,168 +91,60 @@ export function createHumanBodyUnderwear(
     return weights;
   });
   return ({ underwear, rest, posed }) => {
-    const { style } = underwear;
     const color = underwear.color ?? table.color;
     if (![color.r, color.g, color.b].every((value) => value >= 0 && value <= 1))
       throw new Error("Body underwear needs a colour in [0,1].");
-    const landmark = (id: string): IAutoMovieVector3 => {
-      const found = rest.landmarks[id];
-      if (found === undefined)
-        throw new Error("Body underwear needs the landmark " + id + ".");
-      return found;
-    };
-    const names = table.landmarks;
-    const pelvis = landmark(names.pelvis);
-    const briefs = table.briefs[style];
-    const waist =
-      pelvis.y + briefs.waist * (landmark(names.lumbar).y - pelvis.y);
-    // the hip joints' mean height and depth, their half distance and the
-    // thighs' mean length
-    const hips = [landmark(names.hips.left), landmark(names.hips.right)];
-    const knees = [landmark(names.knees.left), landmark(names.knees.right)];
-    const hipY = (hips[0].y + hips[1].y) / 2;
-    const hipZ = (hips[0].z + hips[1].z) / 2;
-    const half = Math.abs(hips[0].x - hips[1].x) / 2;
-    const thigh =
-      hips
-        .map((hip, k) =>
-          Math.hypot(
-            knees[k].x - hip.x,
-            knees[k].y - hip.y,
-            knees[k].z - hip.z,
-          ),
-        )
-        .reduce((sum, length) => sum + length, 0) / 2;
-    const clamp = (value: number) => Math.min(1, Math.max(0, value));
-    // the leg line's height: at the crotch within the gusset, rising (or
-    // falling) linearly to the outer hip's height by the outer distance, that
-    // height blended from the back to the front over the hip joints' depth
-    const legLine = (x: number, z: number) => {
-      const outer =
-        briefs.back +
-        (briefs.front - briefs.back) * clamp(0.5 + (z - hipZ) / half);
-      const across = clamp(
-        (Math.abs(x - pelvis.x) - briefs.gusset * half) /
-          ((briefs.outer - briefs.gusset) * half),
-      );
-      return hipY - thigh * (briefs.crotch + (outer - briefs.crotch) * across);
-    };
-    const bra =
-      style === "bra-and-briefs"
-        ? (() => {
-            const rule = table.bra;
-            const { surface, vertex } = rule.nipple;
-            const on = rest.surfaces[surface];
-            if (
-              on === undefined ||
-              !Number.isInteger(vertex) ||
-              vertex < 0 ||
-              vertex * 3 + 2 >= on.length
-            )
-              throw new Error("Body underwear needs its nipple vertex.");
-            const nipple = on.slice(vertex * 3, vertex * 3 + 3);
-            const clavicle = landmark(names.clavicle);
-            const shoulder = landmark(names.shoulder);
-            const chest = landmark(names.lowerChest);
-            const up = clavicle.y - nipple[1];
-            const reach = Math.abs(shoulder.x - clavicle.x);
-            return {
-              bottom: nipple[1] - rule.bottom * (nipple[1] - chest.y),
-              front: nipple[1] + rule.front * up,
-              back: nipple[1] + rule.back * up,
-              backDepth: chest.z,
-              frontDepth: nipple[2],
-              strap: Math.abs(clavicle.x - pelvis.x) + rule.strap * reach,
-              strapHalfWidth: rule.strapHalfWidth * reach,
-            };
-          })()
-        : null;
-    const coverage = (x: number, y: number, z: number, arm: number) => {
-      let inside = Math.min(waist - y, y - legLine(x, z));
-      if (bra !== null) {
-        const front = clamp(
-          (z - bra.backDepth) / (bra.frontDepth - bra.backDepth),
-        );
-        const top = bra.back + (bra.front - bra.back) * front;
-        const band = Math.min(y - bra.bottom, top - y);
-        const strap = Math.min(
-          y - bra.bottom,
-          bra.strapHalfWidth - Math.abs(Math.abs(x - pelvis.x) - bra.strap),
-        );
-        inside = Math.max(inside, band, strap);
-      }
-      return Math.min(inside, 0.5 - arm);
-    };
+    const coverage = createHumanBodyUnderwearCoverage({
+      table,
+      style: underwear.style,
+      rest,
+    });
+    // the posed skin of every surface, which the closing reads
+    const skin = basis.surfaces.map((surface, index) => ({
+      positions: posed[index].positions,
+      indices: surface.indices,
+    }));
     const meshes = basis.surfaces.map((surface, index) => {
       const at = rest.surfaces[index];
-      const { positions, normals } = posed[index];
-      const count = at.length / 3;
-      const field = new Float64Array(count);
-      for (let v = 0; v < count; v++)
+      const field = new Float64Array(at.length / 3);
+      for (let v = 0; v < field.length; v++)
         field[v] = coverage(
           at[v * 3],
           at[v * 3 + 1],
           at[v * 3 + 2],
           armWeights[index][v],
         );
-      const out: number[] = [];
-      const emitted = new Map<string, number>();
-      const emit = (a: number, b: number): number => {
-        // a kept corner (b === a), or the crossing on the edge a-b read from
-        // its lower index so both triangles of the edge share it
-        const [low, high] = a <= b ? [a, b] : [b, a];
-        const key = low + "/" + high;
-        let id = emitted.get(key);
-        if (id !== undefined) return id;
-        const t =
-          low === high
-            ? 0
-            : Math.min(
-                0.95,
-                Math.max(0.05, field[low] / (field[low] - field[high])),
-              );
-        const normal = [0, 1, 2].map(
+      // the kept surface on the skin, before the lift, and the lift's normals
+      const cut = cutHumanBodyUnderwearSurface({
+        indices: surface.indices,
+        positions: posed[index].positions,
+        normals: posed[index].normals,
+        field,
+      });
+      const closed = closeHumanBodyUnderwearCreases({
+        skin,
+        points: cut.points,
+        normals: cut.normals,
+        offsetMetres: table.offsetMetres,
+        spanMetres: table.spanMetres,
+      });
+      const shaded = areaWeightedNormals(closed.positions, cut.indices);
+      for (let v = 0; v < closed.bridged.length; v++) {
+        const weight = closed.bridged[v];
+        if (weight === 0) continue;
+        const blend = [0, 1, 2].map(
           (k) =>
-            normals[low * 3 + k] +
-            t * (normals[high * 3 + k] - normals[low * 3 + k]),
+            shaded[v * 3 + k] +
+            weight * (closed.normals[v * 3 + k] - shaded[v * 3 + k]),
         );
-        const norm = Math.hypot(normal[0], normal[1], normal[2]);
-        for (let k = 0; k < 3; k++)
-          out.push(
-            positions[low * 3 + k] +
-              t * (positions[high * 3 + k] - positions[low * 3 + k]) +
-              (table.offsetMetres * normal[k]) / norm,
-          );
-        id = out.length / 3 - 1;
-        emitted.set(key, id);
-        return id;
-      };
-      const indices: number[] = [];
-      for (let i = 0; i < surface.indices.length; i += 3) {
-        const corners = [0, 1, 2].map((k) => surface.indices[i + k]);
-        const inside = corners.map((v) => field[v] > 0);
-        const kept = inside.filter(Boolean).length;
-        if (kept === 0) continue;
-        if (kept === 3) {
-          indices.push(...corners.map((v) => emit(v, v)));
-          continue;
-        }
-        // rotate the winding so the lone corner (inside with one kept, the
-        // outside one with two) comes first
-        const lone = inside.findIndex((flag) => flag === (kept === 1));
-        const [a, b, c] = [0, 1, 2].map((k) => corners[(lone + k) % 3]);
-        if (kept === 1) indices.push(emit(a, a), emit(a, b), emit(a, c));
-        else {
-          const ab = emit(a, b);
-          const ca = emit(c, a);
-          indices.push(ab, emit(b, b), emit(c, c), ab, emit(c, c), ca);
-        }
+        const size = Math.hypot(blend[0], blend[1], blend[2]);
+        for (let k = 0; k < 3; k++) shaded[v * 3 + k] = blend[k] / size;
       }
       return {
-        positions: out,
-        normals: areaWeightedNormals(out, indices),
+        positions: closed.positions,
+        normals: shaded,
         uvs: null,
-        indices,
+        indices: cut.indices,
         skin: null,
       };
     });

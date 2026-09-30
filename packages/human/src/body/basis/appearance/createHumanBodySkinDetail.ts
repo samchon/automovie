@@ -14,7 +14,7 @@ import { humanBodySkinMetresPerUv } from "./humanBodySkinMetresPerUv";
 /**
  * Compile the body skin's optional micro-normal detail.
  *
- * One generated microtexture and its median UV repeat count are cached per
+ * One generated microtexture and its area-weighted median UV repeat count are cached per
  * basis revision. Each document's copied skin material receives a strength
  * modulated by its age channel and the optional source anatomical relief.
  * `HUMAN_BODY_SKIN_DETAIL` owns the measured line, pore and age inputs

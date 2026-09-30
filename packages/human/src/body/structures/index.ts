@@ -13,6 +13,7 @@ export * from "./IAutoMovieHumanBodySimplePosture";
 export * from "./IAutoMovieHumanBodySkinSites";
 export * from "./IAutoMovieHumanBodySkinDetail";
 export * from "./IAutoMovieHumanBodySkinTone";
+export * from "./IAutoMovieHumanBodySkinVoxels";
 export * from "./IAutoMovieHumanBodySkinReliefPose";
 export * from "./IAutoMovieHumanBodyUnderwear";
 export * from "./shape/IAutoMovieHumanBodyBasisChannel";
