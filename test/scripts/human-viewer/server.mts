@@ -242,7 +242,11 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
     pngMs: result.pngMs,
     decodeMs: performance.now() - decoded,
   };
-  const domain = address.doc.startsWith("body:") ? "body" : "face";
+  const domain = address.doc.startsWith("person:")
+    ? "person"
+    : address.doc.startsWith("body:")
+      ? "body"
+      : "face";
   if (result.built !== 0) {
     lastBuild[domain] = { doc: address.doc, ms: result.buildMs };
     builds[address.doc] = {
@@ -365,7 +369,14 @@ async function main(): Promise<void> {
         uptimeMs: Math.round(process.uptime() * 1000),
       });
     if (url.pathname === "/docs") return json(inventory);
-    if (serveHumanViewerReference({ url, response, root, storage, json })) return;
+    if (serveHumanViewerReference({
+        url,
+        response,
+        root,
+        storage,
+        documents: inventory.documents.map((entry) => entry.id),
+        json,
+      })) return;
     if (url.pathname.startsWith("/basis/")) {
       const domain = url.pathname.slice(7);
       if (domain !== "face" && domain !== "body") {

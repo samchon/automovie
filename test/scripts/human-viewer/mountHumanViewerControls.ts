@@ -8,9 +8,11 @@
  * address and therefore draw what the viewport shows.
  */
 
+import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
 import { changeHumanViewerParts } from "./changeHumanViewerParts";
+import { humanViewerPhotoLook } from "./humanViewerPhotoLook";
 import { describeHumanViewerDocuments } from "./describeHumanViewerDocuments";
 import { neighbourHumanViewerDocument } from "./neighbourHumanViewerDocument";
 import { openHumanViewerHref } from "./openHumanViewerHref";
@@ -21,7 +23,9 @@ const element = <T extends HTMLElement>(id: string): T =>
 
 export function mountHumanViewerControls(props: {
   navigate: (address: HumanViewerAddress) => void;
+  landmarks: (shown: boolean) => void;
 }) {
+  let photoCamera: IFaceLikenessCamera | null = null;
   let current: HumanViewerAddress | null = null;
   let ids: string[] = [];
   let names: string[] = [];
@@ -79,6 +83,29 @@ export function mountHumanViewerControls(props: {
     element("zoom-out").textContent = Number(zoom.value).toFixed(2) + "x";
   });
   zoom.addEventListener("change", () => change({ zoom: Number(zoom.value) }));
+  const ref = element<HTMLSelectElement>("ref");
+  const mix = element<HTMLInputElement>("opacity");
+  const against = element<HTMLSelectElement>("against");
+  ref.addEventListener("change", () =>
+    change({ ref: (ref.value || null) as HumanViewerAddress["ref"] }),
+  );
+  mix.addEventListener("change", () => change({ opacity: Number(mix.value) }));
+  element("photo-camera").addEventListener("click", () => {
+    if (photoCamera !== null)
+      change({ look: humanViewerPhotoLook(photoCamera), frame: null });
+  });
+  element<HTMLInputElement>("landmarks-toggle").addEventListener("change", (event) =>
+    props.landmarks((event.target as HTMLInputElement).checked),
+  );
+  against.addEventListener("change", () => {
+    const link = element<HTMLAnchorElement>("compare-link");
+    link.hidden = against.value === "";
+    if (current !== null && against.value !== "")
+      link.href =
+        openHumanViewerHref(current.doc, current).render.replace("/render?", "/compare?") +
+        "&against=" +
+        encodeURIComponent(against.value);
+  });
   element("part-reset").addEventListener("click", () =>
     change({ parts: [], hide: [] }),
   );
@@ -136,6 +163,8 @@ export function mountHumanViewerControls(props: {
       const entries = describeHumanViewerDocuments(catalogue);
       ids = entries.map((entry) => entry.id);
       doc.replaceChildren();
+      against.replaceChildren(new Option("difference against...", ""));
+      for (const entry of entries) against.append(new Option(entry.label, entry.id));
       const groups = new Map<string, HTMLOptGroupElement>();
       for (const entry of entries) {
         let group = groups.get(entry.section);
@@ -174,6 +203,15 @@ export function mountHumanViewerControls(props: {
       element<HTMLAnchorElement>("sheet-link").href = hrefs.sheet;
       names = [...parts];
       draw();
+      ref.value = address.ref ?? "";
+      mix.value = String(address.opacity);
+    },
+
+    /** Show the photograph controls when a local photograph exists, else hide them silently. */
+    photo: (info: { available: boolean; camera: IFaceLikenessCamera | null }): void => {
+      photoCamera = info.camera;
+      element("photo").hidden = !info.available;
+      element<HTMLButtonElement>("photo-camera").disabled = info.camera === null;
     },
   };
 }

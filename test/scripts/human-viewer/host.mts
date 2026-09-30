@@ -51,11 +51,33 @@ const showError = (message: string): void => {
   error.textContent = message;
   error.style.display = "block";
 };
+let landmarks = false;
+const showLandmarks = (): void => {
+  const svg = active?.contentDocument?.querySelector<SVGSVGElement>("#landmarks");
+  if (svg) svg.style.display = landmarks ? "block" : "none";
+};
 const controls = mountHumanViewerControls({
   navigate: (address: HumanViewerAddress) => {
     location.hash = serializeHumanViewerAddress(address);
   },
+  landmarks: (shown) => {
+    landmarks = shown;
+    showLandmarks();
+  },
 });
+/** Ask whether a local photograph exists for the displayed document. */
+const loadPhoto = async (doc: string): Promise<void> => {
+  try {
+    controls.photo(
+      (await (
+        await fetch("/reference-info?" + new URLSearchParams({ doc }))
+      ).json()) as Parameters<typeof controls.photo>[0],
+    );
+  } catch {
+    controls.photo({ available: false, camera: null });
+  }
+  showLandmarks();
+};
 const refreshCatalogue = async (): Promise<void> => {
   controls.catalogue(
     (await (await fetch("/docs")).json()) as HumanViewerCatalogue,
@@ -114,10 +136,9 @@ addEventListener(
       history.replaceState(null, "", "#" + event.data.address);
       settle();
       error.style.display = "none";
-      controls.show(
-        parseHumanViewerAddress(event.data.address),
-        event.data.parts ?? [],
-      );
+      const shown = parseHumanViewerAddress(event.data.address);
+      controls.show(shown, event.data.parts ?? []);
+      void loadPhoto(shown.doc);
       return;
     }
     if (candidate === undefined || event.source !== candidate.contentWindow)
@@ -157,7 +178,10 @@ addEventListener(
     Object.assign(window, { __humanViewer: handle });
     console.log("HUMAN_READY " + handle.revision());
     void refreshCatalogue()
-      .then(() => controls.show(handle.address(), handle.parts()))
+      .then(() => {
+        controls.show(handle.address(), handle.parts());
+        return loadPhoto(handle.address().doc);
+      })
       .catch((failure: unknown) => showError(String(failure)));
   },
 );

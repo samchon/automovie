@@ -22,6 +22,8 @@ const buttons = [
 ];
 let domain: "all" | "face" | "body" | "person" = "all";
 let revision = "";
+/** Documents with a local reference photograph, empty when there are none. */
+let photographed = new Set<string>();
 
 const thumbnails = createHumanViewerThumbnails({ revision: () => revision });
 
@@ -44,19 +46,28 @@ function draw(): void {
     grid.className = "grid";
     for (const entry of members) {
       const href = openHumanViewerHref(entry.id);
-      const card = document.createElement("a");
+      const card = document.createElement("div");
       card.className = "card";
-      card.href = href.view;
       card.dataset.key = entry.id;
       card.dataset.thumbnail = href.thumbnail;
-      card.title = entry.id;
+      const open = document.createElement("a");
+      open.href = href.view;
+      open.title = entry.id;
       const frame = document.createElement("div");
       frame.className = "frame";
       frame.textContent = "Not drawn yet";
       const label = document.createElement("span");
       label.className = "label";
       label.textContent = entry.label;
-      card.append(frame, label);
+      open.append(frame, label);
+      card.append(open);
+      if (photographed.has(entry.id)) {
+        const compare = document.createElement("a");
+        compare.className = "compare";
+        compare.href = openHumanViewerHref(entry.id, { ref: "split" }).view;
+        compare.textContent = "Compare with photo";
+        card.append(compare);
+      }
       grid.append(card);
       thumbnails.watch(card);
     }
@@ -77,6 +88,14 @@ async function load(): Promise<void> {
   rejected.textContent = catalogue.rejected
     .map((item) => `${item.file}: ${item.reason}`)
     .join("\n");
+  try {
+    photographed = new Set(
+      ((await (await fetch("/reference-index")).json()) as { documents: string[] })
+        .documents,
+    );
+  } catch {
+    photographed = new Set();
+  }
   draw();
 }
 search.addEventListener("input", draw);

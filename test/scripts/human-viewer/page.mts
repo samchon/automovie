@@ -9,6 +9,11 @@ import type {
   ConnectedBodyRequest,
   ConnectedBodyResult,
 } from "@automovie/playground/src/human/body/connectedBodyProtocol";
+import {
+  type IAutoMovieHumanBodyBasisDocument,
+  type IAutoMovieHumanPersonDocument,
+  serializeHumanPersonDocument,
+} from "@automovie/human";
 import { createConnectedBodyViewport } from "@automovie/playground/src/human/body/connectedBodyViewport";
 import type {
   ConnectedFaceRequest,
@@ -73,7 +78,10 @@ let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
 let active:
   | ReturnType<typeof createConnectedFaceViewport>
-  | ReturnType<typeof createConnectedBodyViewport>;
+  | ReturnType<
+      typeof createConnectedBodyViewport<IAutoMovieHumanBodyBasisDocument>
+    >
+  | ReturnType<typeof createConnectedBodyViewport<IAutoMovieHumanPersonDocument>>;
 type Resident = {
   stage: typeof active;
   group: THREE.Group;
@@ -222,6 +230,26 @@ async function show(address: HumanViewerAddress): Promise<void> {
           disposeHumanPreview(model.frame.resident.group);
         },
       };
+    } else if (selected.domain === "person") {
+      // a whole person is drawn by the body stage: the worker answers its
+      // protocol with the composed model, and only the document text differs
+      const stage = createConnectedBodyViewport<IAutoMovieHumanPersonDocument>({
+        ...props,
+        serialize: serializeHumanPersonDocument,
+        worker: () =>
+          port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false),
+      });
+      const model = await stage.build(selected.document);
+      stage.publish(model);
+      resident = {
+        stage,
+        group: model.frame.resident.group,
+        release: () => {
+          stage.disposeWorker();
+          controls.forEach((control) => control.dispose());
+          disposeHumanPreview(model.frame.resident.group);
+        },
+      };
     } else {
       const stage = createConnectedBodyViewport({
         ...props,
@@ -286,9 +314,6 @@ async function show(address: HumanViewerAddress): Promise<void> {
   }
   active.finish();
   const reference = document.querySelector<HTMLImageElement>("#reference")!;
-  const controls = document.querySelector<HTMLDivElement>(
-    "#reference-controls",
-  )!;
   const info = (await (
     await fetch("/reference-info?" + new URLSearchParams({ doc: address.doc }))
   ).json()) as {
@@ -296,7 +321,6 @@ async function show(address: HumanViewerAddress): Promise<void> {
     camera: IFaceLikenessCamera | null;
     landmarks: { x: number; y: number; group: string }[];
   };
-  controls.hidden = !info.available;
   const comparison = planHumanViewerReference(
     info.available,
     address.ref,
@@ -391,27 +415,6 @@ async function main(): Promise<void> {
     },
   });
   parent.postMessage({ type: "human:ready" }, location.origin);
-  const mode = document.querySelector<HTMLSelectElement>("#reference-mode")!;
-  const opacity =
-    document.querySelector<HTMLInputElement>("#reference-opacity")!;
-  const updateReference = (): void => {
-    location.hash = serializeHumanViewerAddress({
-      ...current,
-      ref: mode.value as NonNullable<HumanViewerAddress["ref"]>,
-      opacity: Number(opacity.value),
-    });
-  };
-  mode.addEventListener("change", updateReference);
-  opacity.addEventListener("input", updateReference);
-  document
-    .querySelector<HTMLInputElement>("#reference-landmarks")!
-    .addEventListener("change", (event) => {
-      document.querySelector<SVGSVGElement>("#landmarks")!.style.display = (
-        event.target as HTMLInputElement
-      ).checked
-        ? "block"
-        : "none";
-    });
   // A human orbit is display-only. Finish on demand and while the pointer moves.
   canvas.addEventListener("pointermove", () => active.finish());
   canvas.addEventListener("wheel", () =>
