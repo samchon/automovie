@@ -5,6 +5,7 @@ import { IPortraitTongueShape } from "./IPortraitTongueShape";
 import { assertPortraitTongueShape } from "./assertPortraitTongueShape";
 import { frontWeight } from "./frontWeight";
 import { portraitTongueColumns } from "./portraitTongueColumns";
+import { portraitTongueRingStation } from "./portraitTongueRingStation";
 import { portraitTongueRows } from "./portraitTongueRows";
 import { portraitTongueWidthEnvelope } from "./portraitTongueWidthEnvelope";
 
@@ -13,12 +14,13 @@ import { portraitTongueWidthEnvelope } from "./portraitTongueWidthEnvelope";
  * join single anterior/posterior poles, with an upper-only median depression.
  * Their width follows `portraitTongueWidthEnvelope`, a rounded plan outline,
  * and their thickness follows sin(pi*v), so the tip is blunt from above and thin
- * from the side, with v the station from tip (0) to root (1).
+ * from the side, with v the station from tip (0) to root (1) of `portraitTongueRingStation`,
+ * whose rings are spaced by angle so a rounded pole is resolved.
  * Raise offsets the centreline by sin(pi*v)^2; advance moves the anterior body
  * by one minus smoothstep(v), leaving the posterior endpoint fixed. A backwards
  * advance that would reverse the longitudinal parameterization is refused.
  *
- * @evidence contracts/common.md#principled-implementation The body is a stack of elliptical rings between two poles: each ring has the plan half-width of `portraitTongueWidthEnvelope` and the vertical half-thickness of a sine envelope, with a dorsal rise added as sin^2 so both poles stay fixed, and an upper-only Gaussian groove. Raising offsets the centreline; advancing moves the anterior body by one minus smoothstep of the station, which leaves the posterior pole fixed, and a retraction that would reverse the longitudinal order is refused. Normals are area-weighted over the closed indexed surface.
+ * @evidence contracts/common.md#principled-implementation The body is a stack of elliptical rings between two poles: each ring has the plan half-width of `portraitTongueWidthEnvelope` and the vertical half-thickness of a sine envelope, with a dorsal rise added as sin^2 so both poles stay fixed, and an upper-only Gaussian groove. Raising offsets the centreline; advancing moves the anterior body by one minus smoothstep of the station, which leaves the posterior pole fixed, and a retraction that would reverse the longitudinal order is refused. Normals are area-weighted over the closed indexed surface, and the rings sit at angle-spaced stations so the rounded poles are resolved.
  * @evidence contracts/common.md#clear-and-simple-design One builder over one vertex layout, read by the station function; the rounding and weighting live in their own small owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named; every constant is a documented dimension of the shape type or a tessellation count.
  * @evidence contracts/common.md#meaningful-documentation The comment states the sections, the two envelopes, what raise and advance do and the refused retraction.
@@ -49,7 +51,7 @@ export function buildPortraitTongue(
   const positions: number[] = [0, 0, performance.advance],
     indices: number[] = [];
   for (let row = 1; row < portraitTongueRows; row++) {
-    const v = row / portraitTongueRows,
+    const v = portraitTongueRingStation(row),
       r = Math.sin(Math.PI * v),
       w = portraitTongueWidthEnvelope(v);
     for (let col = 0; col < portraitTongueColumns; col++) {

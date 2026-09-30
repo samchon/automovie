@@ -1,10 +1,12 @@
 import { portraitTongueColumns } from "./portraitTongueColumns";
+import { portraitTongueRingStation } from "./portraitTongueRingStation";
 import { portraitTongueRows } from "./portraitTongueRows";
 
 /**
  * The longitudinal station of a vertex of `buildPortraitTongue`'s surface: zero
- * at the anterior pole and one at the posterior pole, and `ring / rows` for a
- * vertex on ring `ring` of the sampled rings between them.
+ * at the anterior pole and one at the posterior pole, and
+ * `portraitTongueRingStation(ring)` for a vertex on ring `ring` of the sampled
+ * rings between them.
  *
  * The surface is laid out as the anterior pole, then `rows - 1` rings of
  * `portraitTongueColumns` vertices from tip to root, then the posterior pole.
@@ -13,7 +15,7 @@ import { portraitTongueRows } from "./portraitTongueRows";
  * from the builder's vertex order. It expects an index into a tongue built by
  * that builder and does not validate it.
  *
- * @evidence contracts/common.md#principled-implementation The builder lays out the anterior pole, then rows minus one rings of columns vertices, then the posterior pole, so a vertex's ring is floor((vertex - 1)/columns) and its station is (ring + 1)/rows, with the two poles at zero and one.
+ * @evidence contracts/common.md#principled-implementation The builder lays out the anterior pole, then rows minus one rings of columns vertices, then the posterior pole, so a vertex's ring is floor((vertex - 1)/columns) and its station is the ring station of ring + 1, (1 - cos(pi (ring + 1)/rows))/2, with the two poles at zero and one.
  * @evidence contracts/common.md#clear-and-simple-design It is the only reader of the builder's vertex layout outside the builder, replacing a private copy in the component.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is named, and it does not search coordinates for the station.
  * @evidence contracts/common.md#meaningful-documentation The comment states the layout, why the function exists and that it does not validate its argument.
@@ -33,5 +35,6 @@ export const portraitTongueStation = (vertex: number): number =>
     ? 0
     : vertex === 1 + (portraitTongueRows - 1) * portraitTongueColumns
       ? 1
-      : (Math.floor((vertex - 1) / portraitTongueColumns) + 1) /
-        portraitTongueRows;
+      : portraitTongueRingStation(
+          Math.floor((vertex - 1) / portraitTongueColumns) + 1,
+        );

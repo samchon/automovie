@@ -1,6 +1,7 @@
 import {
   buildPortraitTongue,
   portraitTongueColumns,
+  portraitTongueRingStation,
   portraitTongueRows,
   portraitTongueStation,
   portraitTongueWidthEnvelope,
@@ -17,11 +18,12 @@ import { nclose } from "../internal/predicates";
  * 1. The width envelope is the ellipse sqrt(1-(1-2v)^2): zero at both poles,
  *    one at mid-body, sqrt(0.75) at both quarter stations, and rising as a
  *    square root from the tip (envelope over sqrt(v) tends to 2), not linearly.
- * 2. A built ring a quarter of the length from the tip has the hand-computed
- *    lateral and dorsal extent, so width follows the envelope while thickness
- *    keeps its sine profile and the mid-body semiaxes stay the authored ones.
- * 3. The station of a vertex follows the builder's layout at both poles, the
- *    first and last vertex of a ring and the neighbouring rings.
+ * 2. Ring 8 of 32 sits at angle pi/4 of the closing ellipse, station
+ *    (1 - cos(pi/4))/2, so its half-width is the authored one times sin(pi/4)
+ *    and its thickness keeps the sine profile of that station.
+ * 3. Ring stations are angle spaced with the mid-body ring exactly at one half,
+ *    and the station of a vertex follows the builder's layout at both poles,
+ *    the first and last vertex of a ring and the neighbouring rings.
  */
 export const test_subject_tongue_planform = (): void => {
   TestValidator.predicate(
@@ -41,19 +43,20 @@ export const test_subject_tongue_planform = (): void => {
   );
   const shape = portraitTongueFixture(),
     mesh = buildPortraitTongue(shape);
-  const ring = 8,
+  const row = 8,
     at = (col: number) =>
       mesh.positions.slice(
-        (1 + (ring - 1) * portraitTongueColumns + col) * 3,
-        (2 + (ring - 1) * portraitTongueColumns + col) * 3,
+        (1 + (row - 1) * portraitTongueColumns + col) * 3,
+        (2 + (row - 1) * portraitTongueColumns + col) * 3,
       );
   TestValidator.predicate(
-    "quarter-length ring width follows the ellipse",
-    nclose(at(0)[0], shape.halfWidth * Math.sqrt(0.75)),
+    "ring width follows the ellipse",
+    nclose(at(0)[0], shape.halfWidth * Math.sin(Math.PI / 4)),
   );
-  const s = Math.sin(Math.PI / 4);
+  const station = (1 - Math.cos(Math.PI / 4)) / 2,
+    s = Math.sin(Math.PI * station);
   TestValidator.predicate(
-    "quarter-length ring thickness keeps the sine profile",
+    "ring thickness keeps the sine profile",
     nclose(
       at(portraitTongueColumns / 4)[1],
       shape.halfThickness * s +
@@ -67,12 +70,24 @@ export const test_subject_tongue_planform = (): void => {
     2 + (portraitTongueRows - 1) * portraitTongueColumns,
   );
   const last = 1 + (portraitTongueRows - 1) * portraitTongueColumns;
+  const ring = (k: number): number =>
+    (1 - Math.cos((Math.PI * k) / portraitTongueRows)) / 2;
+  TestValidator.predicate(
+    "mid-body ring at one half, poles at zero and one",
+    nclose(portraitTongueRingStation(portraitTongueRows / 2), 0.5) &&
+      portraitTongueRingStation(0) === 0 &&
+      nclose(portraitTongueRingStation(portraitTongueRows), 1) &&
+      nclose(
+        portraitTongueRingStation(3) + portraitTongueRingStation(portraitTongueRows - 3),
+        1,
+      ),
+  );
   for (const [vertex, expected] of [
     [0, 0],
-    [1, 1 / portraitTongueRows],
-    [portraitTongueColumns, 1 / portraitTongueRows],
-    [portraitTongueColumns + 1, 2 / portraitTongueRows],
-    [last - 1, (portraitTongueRows - 1) / portraitTongueRows],
+    [1, ring(1)],
+    [portraitTongueColumns, ring(1)],
+    [portraitTongueColumns + 1, ring(2)],
+    [last - 1, ring(portraitTongueRows - 1)],
     [last, 1],
   ] as const)
     TestValidator.predicate(

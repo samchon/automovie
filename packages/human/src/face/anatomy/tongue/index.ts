@@ -5,6 +5,7 @@ export * from "./createPortraitTongueComponent";
 export * from "./frontWeight";
 export * from "./portraitTongueColumns";
 export * from "./portraitTongueParameters";
+export * from "./portraitTongueRingStation";
 export * from "./portraitTongueRows";
 export * from "./portraitTongueStation";
 export * from "./portraitTongueWidthEnvelope";

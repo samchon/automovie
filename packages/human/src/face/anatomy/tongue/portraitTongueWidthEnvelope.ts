@@ -6,9 +6,12 @@
  * the authored half-width is the mid-body semiaxis, and falling as the square
  * root of the distance from either end, so the tip is rounded. A sine envelope
  * would taper linearly to a point and draw the tongue in dorsal view as a
- * lemon; the tongue's apex is blunt, and the root pole is only a closure of the
- * volume. The vertical extent keeps its own envelope in the builder, so the
- * tip stays thin from above and below while the plan outline stays round.
+ * lemon. The ellipse is the plain rounded body of an authored volume and not a
+ * measured outline: a real tongue changes its plan shape with posture, for
+ * example pointing when protruded, which this envelope does not model, and the
+ * root pole is only a closure of the volume. The vertical extent keeps its own
+ * envelope in the builder, so the tip stays thin from above and below while the
+ * plan outline stays round.
  *
  * @evidence contracts/common.md#principled-implementation The ellipse outline sqrt(1 - (1 - 2v)^2) is one at mid-body, zero at both ends and rises as a square root from either end, which is the rounded end of an ellipse; the sine envelope it replaces tapers linearly to a point. It is clamped at zero against rounding just outside [0, 1].
  * @evidence contracts/common.md#clear-and-simple-design One function read by the builder for the plan outline; the thickness keeps its own envelope in the builder.
