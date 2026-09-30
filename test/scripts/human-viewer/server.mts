@@ -1,6 +1,6 @@
 /**
  * Loopback-only resident GPU server, started as an attached session job:
- * `pnpm exec ttsx -P tsconfig.scripts.json scripts/human-viewer/server.ts`.
+ * `pnpm exec ttsx -P scripts/human-viewer/tsconfig.json scripts/human-viewer/server.mts`.
  * Vite transforms working-tree source; one real Chromium page serializes
  * capture requests. Numerical disk payloads and PID ownership live under the
  * ignored .shots tree. The host never edits documents or anatomical source.
@@ -43,7 +43,8 @@ function collect(directory: string): void {
   }
 }
 for (const source of sourceRoots) collect(source);
-for (const file of ["pnpm-lock.yaml", "config/tsconfig.json", "packages/human/tsconfig.json", "packages/human/package.json", "test/package.json"])
+for (const file of ["pnpm-lock.yaml", "config/tsconfig.json", "packages/human/tsconfig.json", "packages/human/package.json", "test/package.json",
+  ...Object.values(basisFiles).map((file) => path.relative(root, file)), path.relative(root, documentsFile)])
   sourceFiles.set(path.join(root, file), hash(fs.readFileSync(path.join(root, file))));
 const revision = (): string => hash([...sourceFiles].sort(([a], [b]) => a.localeCompare(b)).map(([file, digest]) => path.relative(root, file) + ":" + digest).join("\n"));
 function catalogue(): HumanViewerCatalogue {
@@ -197,7 +198,7 @@ async function main(): Promise<void> {
           }
           return json({ revision: selectedRevision, warmed });
         } else if (url.pathname === "/compare") {
-          if (against === null) throw new Error("A comparison requires an against document or revision");
+          if (against === null) throw new Error("A comparison requires an against document");
           const first = PNG.sync.read(await capture(address));
           const second = PNG.sync.read(await capture({ ...address, doc: against }));
           const compared = composeHumanViewerPixels(first.width, first.height, first.data, second.data);

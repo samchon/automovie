@@ -25,6 +25,7 @@ import { planHumanViewerReference } from "./planHumanViewerReference";
 import { faceShapeFitView } from "../face-review/faceShapeFitCamera";
 import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
 import { frameHumanViewerParts } from "./frameHumanViewerParts";
+import { assertHumanViewerFrame } from "./assertHumanViewerFrame";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
@@ -193,7 +194,12 @@ async function main(): Promise<void> {
   Object.assign(window, { __humanViewer: {
     show: apply, parts: () => active.observe.parts(), renderer: () => String(active.renderer()),
     revision: () => catalogue.revision, builds: () => builds, address: () => current,
-    png: () => { active.finish(); return canvas.toDataURL("image/png"); },
+    png: () => {
+      active.finish();
+      const gl = renderer.getContext();
+      assertHumanViewerFrame(gl.getError(), gl.NO_ERROR);
+      return canvas.toDataURL("image/png");
+    },
   } });
   parent.postMessage({ type: "human:ready" }, location.origin);
   const mode = document.querySelector<HTMLSelectElement>("#reference-mode")!;
