@@ -24,6 +24,7 @@ import { decodeHumanViewerPreview } from "./decodeHumanViewerPreview";
 import { planHumanViewerReference } from "./planHumanViewerReference";
 import { faceShapeFitView } from "../face-review/faceShapeFitCamera";
 import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
+import { frameHumanViewerParts } from "./frameHumanViewerParts";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
@@ -49,7 +50,7 @@ worker.onerror = (error) => {
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
 let active: ReturnType<typeof createConnectedFaceViewport> | ReturnType<typeof createConnectedBodyViewport>;
-type Resident = { stage: typeof active; release: () => void };
+type Resident = { stage: typeof active; group: THREE.Group; release: () => void };
 const residents = createHumanViewerCache<Resident>(32, (resident) => resident.release());
 
 /** Product worker transport backed by the server's digest cache. */
@@ -109,12 +110,12 @@ async function show(address: HumanViewerAddress): Promise<void> {
       const stage = createConnectedFaceViewport({ ...props, worker: () => port<ConnectedFaceRequest, ConnectedFaceResult>(selected, address.ao) });
       const model = await stage.build(selected.document, false, address.ao);
       stage.publish(model);
-      resident = { stage, release: () => { stage.cancel(); controls.forEach((control) => control.dispose()); disposeHumanPreview(model.frame.resident.group); } };
+      resident = { stage, group: model.frame.resident.group, release: () => { stage.cancel(); controls.forEach((control) => control.dispose()); disposeHumanPreview(model.frame.resident.group); } };
     } else {
       const stage = createConnectedBodyViewport({ ...props, worker: () => port<ConnectedBodyRequest, ConnectedBodyResult>(selected, false) });
       const model = await stage.build(selected.document);
       stage.publish(model);
-      resident = { stage, release: () => { stage.disposeWorker(); controls.forEach((control) => control.dispose()); disposeHumanPreview(model.frame.resident.group); } };
+      resident = { stage, group: model.frame.resident.group, release: () => { stage.disposeWorker(); controls.forEach((control) => control.dispose()); disposeHumanPreview(model.frame.resident.group); } };
     }
     residents.set(key, resident);
   }
@@ -125,7 +126,9 @@ async function show(address: HumanViewerAddress): Promise<void> {
   active.observe.pass(address.pass);
   const missing = active.observe.isolate(address.parts.length === 0 ? null : address.parts);
   if (missing.length !== 0) throw new Error("Unknown mesh: " + missing.join(","));
-  if (address.frame === null) active.observe.view(address.view);
+  if (address.frame === null && address.parts.length !== 0)
+    active.observe.frame({ ...frameHumanViewerParts(resident.group, address.parts), view: address.view });
+  else if (address.frame === null) active.observe.view(address.view);
   else active.observe.frame({ center: address.frame.slice(0, 3) as [number, number, number], radius: address.frame[3], view: address.view });
   active.finish();
   const reference = document.querySelector<HTMLImageElement>("#reference")!;
