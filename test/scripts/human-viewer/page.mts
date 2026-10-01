@@ -38,6 +38,11 @@ import { frameHumanViewerParts } from "./frameHumanViewerParts";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { planHumanViewerReference } from "./planHumanViewerReference";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { resizeHumanViewerFrame } from "./resizeHumanViewerFrame";
+import { admitHumanViewerCatalogue } from "./admitHumanViewerCatalogue";
+import { assertHumanViewerSource } from "./assertHumanViewerSource";
+import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceError";
+import type { HumanViewerWork } from "./HumanViewerWork";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
@@ -60,10 +65,19 @@ const pending = new Map<
 let sequence = 0;
 let builds = 0;
 let buildMs = 0;
+let workingDocument = "";
+const work = (phase: HumanViewerWork["phase"]): void => {
+  console.log("HUMAN_WORK " + JSON.stringify({ revision: catalogue?.revision ?? "bootstrap",
+    frame: new URLSearchParams(location.search).get("generation") ?? "direct",
+    doc: workingDocument, phase, at: Date.now(), pending: pending.size,
+    geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
+  } satisfies HumanViewerWork));
+};
 worker.onmessage = ({ data }) => {
   const request = pending.get(data.id);
   pending.delete(data.id);
   if (request === undefined) return;
+  work("numeric-reply");
   if (data.success) {
     ++builds;
     buildMs = data.buildMs ?? 0;
@@ -74,6 +88,7 @@ worker.onerror = (error) => {
   for (const request of pending.values())
     request.reject(new Error(error.message));
   pending.clear();
+  work("failed");
 };
 let catalogue: HumanViewerCatalogue;
 let current: HumanViewerAddress;
@@ -86,6 +101,7 @@ let active:
 type Resident = {
   stage: typeof active;
   group: THREE.Group;
+  resize: () => void;
   release: () => void;
 };
 const residents = createHumanViewerCache<Resident>(32, (resident) =>
@@ -104,11 +120,13 @@ function port<Input, Output>(
     postMessage: ({ id, input }) => {
       const key = selected.key + (ao ? "-ao" : "-direct");
       void (async () => {
+        work("cache-read");
         const cached = await fetch(`/cache/${key}`);
         let value: Result;
         if (cached.ok)
           value = decodeHumanViewerPreview(await cached.text()) as Result;
         else {
+          work("build");
           value = await new Promise<Result>((resolve, reject) => {
             const workerId = ++sequence;
             pending.set(workerId, { resolve, reject });
@@ -121,33 +139,38 @@ function port<Input, Output>(
           });
           // Only numerical results enter disk persistence. Photos remain in a
           // separate display layer, and are never serialized here.
+          work("cache-write");
           await fetch(`/cache/${key}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: encodeHumanViewerPreview(value),
           });
         }
+        work("prepare");
         transport.onmessage?.({
           data: { id, success: true, value: value as Output },
         });
-      })().catch((error: unknown) =>
+      })().catch((error: unknown) => {
+        work("failed");
         transport.onmessage?.({
           data: {
             id,
             success: false,
             error: error instanceof Error ? error.message : String(error),
           },
-        }),
-      );
+        });
+      });
     },
   };
   return transport;
 }
 
 async function show(address: HumanViewerAddress): Promise<void> {
+  workingDocument = address.doc;
+  work("loading");
   // A hand-written document can appear or change after the page loaded.
   if (address.doc.startsWith("file:"))
-    catalogue = await (await fetch("/docs")).json();
+    catalogue = admitHumanViewerCatalogue(catalogue, await (await fetch("/docs")).json());
   const selected = catalogue.documents.find(
     (entry) => entry.id === address.doc,
   );
@@ -161,6 +184,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
   let resident = residents.get(key);
   if (resident === undefined) {
     const controls: OrbitControls[] = [];
+    let resize = (): void => {};
     const settings = {
       outputColorSpace: THREE.SRGBColorSpace as string,
       toneMapping: THREE.LinearToneMapping as THREE.ToneMapping,
@@ -211,7 +235,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
         controls.push(orbit);
         return orbit;
       },
-      observeResize: (_resize: () => void) => {},
+      observeResize: (observer: () => void) => { resize = observer; },
       loadTexture: (asset: string) => loader.loadAsync(asset),
     };
     if (selected.domain === "face") {
@@ -224,6 +248,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
       stage.publish(model);
       resident = {
         stage,
+        resize,
         group: model.frame.resident.group,
         release: () => {
           stage.cancel();
@@ -244,6 +269,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
       stage.publish(model);
       resident = {
         stage,
+        resize,
         group: model.frame.resident.group,
         release: () => {
           stage.disposeWorker();
@@ -261,6 +287,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
       stage.publish(model);
       resident = {
         stage,
+        resize,
         group: model.frame.resident.group,
         release: () => {
           stage.disposeWorker();
@@ -272,8 +299,9 @@ async function show(address: HumanViewerAddress): Promise<void> {
     residents.set(key, resident);
   }
   active = resident.stage;
-  renderer.setSize(address.size, address.size, false);
-  // Resizing the shared surface precedes framing, which observes its aspect.
+  work("draw");
+  resizeHumanViewerFrame(address.size, display, canvas, resident.resize);
+  // The stage pairs renderer size with camera projection before fitting.
   active.fitView();
   applyHumanViewerVisibility(active, address);
   if (address.frame === null && (address.parts.length !== 0 || address.zoom !== 1)) {
@@ -360,6 +388,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
     svg.append(circle);
   }
   current = address;
+  work("idle");
   status.textContent = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
 }
 
@@ -384,8 +413,14 @@ const apply = (address: HumanViewerAddress): Promise<void> => {
   return next;
 };
 async function main(): Promise<void> {
+  const source = async (): Promise<void> => {
+    const health = await (await fetch("/health")).json() as Parameters<typeof humanViewerCandidateSourceError>[0];
+    assertHumanViewerSource(humanViewerCandidateSourceError(health));
+  };
+  await source();
   catalogue = await (await fetch("/docs")).json();
   await apply(parseHumanViewerAddress(location.hash));
+  await source();
   addEventListener("hashchange", () => {
     void apply(parseHumanViewerAddress(location.hash));
   });

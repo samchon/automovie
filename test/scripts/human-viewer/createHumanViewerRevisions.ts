@@ -1,19 +1,8 @@
 import { createHash } from "node:crypto";
 
 import { collectHumanViewerImports } from "./collectHumanViewerImports";
-import type { IHumanViewerResolveIo } from "./resolveHumanViewerImport";
-
-/** The digests that decide what the viewer must rebuild. */
-export interface IHumanViewerRevisions {
-  /** Digest of what the page and its worker load; a change reloads the page. */
-  browser: string;
-
-  /** Digest of what a face build reads; the cache key of a face document. */
-  face: string;
-
-  /** Digest of what a body build reads; the cache key of a body document. */
-  body: string;
-}
+import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
+import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
 
 /**
  * The revision digests of the viewer, each over only the files it truly
@@ -22,7 +11,9 @@ export interface IHumanViewerRevisions {
  * A face digest hashes the source graph the face runtime imports, so an edit
  * to a body module, a test, a document or a viewer screen leaves every face
  * document's cache key alone, and the same holds for the body. The browser
- * digest hashes the page's graph, whose worker graph contains both runtimes,
+ * A person digest additionally follows the actual composition runtime: seam,
+ * hair and assembly edits invalidate person packets even when both isolated
+ * domain builders stay unchanged. The browser graph contains all runtimes,
  * with the published bases, because a resident worker keeps the code and
  * basis it loaded. `extra` names files that change every result without being
  * imported (a lockfile, a compiler configuration).
@@ -74,13 +65,17 @@ export function createHumanViewerRevisions(props: {
     const browser = graph(props.entries.browser);
     const face = graph(props.entries.face);
     const body = graph(props.entries.body);
-    reached = new Set([...browser, ...face, ...body]);
+    const person = graph(props.entries.person);
+    // A missing dependency still has a resolution candidate. Keep that path
+    // watched so its repair can recover the failed source generation.
+    reached = new Set([...browser, ...face, ...body, ...person, ...present.keys()]);
     return {
       browser: createHash("sha256")
         .update(digest(browser) + props.bases())
         .digest("hex"),
       face: digest(face),
       body: digest(body),
+      person: digest(person),
     };
   };
   let current = compute();

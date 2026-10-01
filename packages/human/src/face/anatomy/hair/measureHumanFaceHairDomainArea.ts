@@ -1,17 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 
 /**
- * The area a hair population grows on, on the face as it now stands: the
- * share of the growth domain its roots' own acceptance covers, times the
- * domain's triangles measured on the current positions. The share is measured
- * on the neutral domain, where candidates are uniform, and the area on the
- * current shape, so a larger head grows the same population on more scalp.
+ * A current-domain area proxy for a hair population: its neutral acceptance
+ * share times the domain's triangles measured on the current positions. Under
+ * uniform area scaling this carries the mask's area fraction to the current
+ * shape. Under nonuniform deformation it does not integrate the accepted
+ * patch's local area scales; the neutral share is a construction approximation.
  * It is the fallback that `humanFaceHairDensity` reads when a population is
  * too small to measure its own neighbourhoods.
  *
  * Positions are metres and the result is square metres. Inputs are read only.
  *
- * @evidence contracts/common.md#principled-implementation The area of a triangle is half the length of the cross product of two edges, so the sum over the domain's triangles on the current positions is the domain's area, and the accepted share of a uniform candidate stream estimates the fraction of that area the masks leave; the product is the area the population occupies. The share is an estimate from the sampled candidates, not an exact integral of the masks.
+ * @evidence contracts/common.md#principled-implementation Half the edge cross-product length measures each current triangle's area. Their sum is multiplied by the acceptance share sampled on the neutral domain. This is a current-domain proxy, not an exact integral over the accepted current patch: nonuniform deformation can change local area in correlation with the mask, while this function retains one neutral share. Sampling error and that transfer approximation are separate limitations.
  * @evidence contracts/common.md#clear-and-simple-design One pure function of the share, the domain triangles, the resident indices and the current positions, extracted from the builder so its stages read in order.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No special case for a subject or shape; the area is measured, not looked up.
  * @evidence contracts/common.md#meaningful-documentation The comment states the two measurements taken on different shapes and why, who reads the result and the units.

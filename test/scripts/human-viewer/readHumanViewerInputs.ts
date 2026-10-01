@@ -1,14 +1,11 @@
+import { admitHumanPersonDocument } from "@automovie/human";
 import { createHash } from "node:crypto";
 
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerInputsIo } from "./IHumanViewerInputsIo";
 import { classifyHumanViewerInput } from "./classifyHumanViewerInput";
+import { humanViewerPersonKey } from "./humanViewerPersonKey";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
-
-/** The files of the viewer's inputs directory, by name. */
-export interface IHumanViewerInputsIo {
-  names(): string[];
-  read(name: string): Buffer;
-}
 
 /**
  * The hand-written documents and candidate bases dropped into the viewer's
@@ -24,11 +21,15 @@ export interface IHumanViewerInputsIo {
  * must not hide the others. The key hashes the document, the basis digest it
  * is built against and the digest of the source its domain's build reads, so editing a file or the builder
  * gives a new resident and never a stale frame. Photographs are never read.
+ * A Person uses both published basis identities and digests, both anatomy
+ * sources and the actual composer's numerical source. Its paired schema is
+ * admitted by the Person owner. A candidate Person sidecar refuses explicitly:
+ * one candidate file does not specify the two independent basis authorities.
  */
 export function readHumanViewerInputs(props: {
   io: IHumanViewerInputsIo;
   bases: Record<"face" | "body", { id: string; digest: string }>;
-  sources: Record<"face" | "body", string>;
+  sources: Record<"face" | "body" | "person", string>;
 }): {
   documents: HumanViewerCatalogue["documents"];
   rejected: { file: string; reason: string }[];
@@ -54,6 +55,22 @@ export function readHumanViewerInputs(props: {
         const named = (document as { id?: unknown; basis?: unknown });
         if (typeof named.id !== "string" || named.id === "")
           throw new Error("A document needs an id");
+        if (domain === "person") {
+          if (candidate !== null)
+            throw new Error("Person inputs use the published face and body bases; a candidate Person sidecar is unsupported.");
+          const person = admitHumanPersonDocument(document);
+          if (person.face.basis !== props.bases.face.id)
+            throw new Error(`The person names face basis ${person.face.basis} but is built on ${props.bases.face.id}`);
+          if (person.body.basis !== props.bases.body.id)
+            throw new Error(`The person names body basis ${person.body.basis} but is built on ${props.bases.body.id}`);
+          documents.push({
+            id: many ? `file:${name}/${person.id}` : `file:${name}`,
+            domain: "person",
+            document: person,
+            key: humanViewerPersonKey({ document: person, bases: props.bases, sources: props.sources }),
+          });
+          continue;
+        }
         const identity =
           candidate === null
             ? props.bases[domain].id

@@ -2,16 +2,28 @@ import { HUMAN_BODY_SIMPLE_SHAPE } from "../constants/HUMAN_BODY_SIMPLE_SHAPE";
 import { solveHumanBodyMeasuredChannel } from "../measure/solveHumanBodyMeasuredChannel";
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
 import type { IAutoMovieHumanBodySimpleShape } from "../structures/IAutoMovieHumanBodySimpleShape";
+import { assertHumanBodySimpleValues } from "./assertHumanBodySimpleValues";
+import type { IHumanBodySimpleUnknown } from "./IHumanBodySimpleUnknown";
+import { humanBodySimpleChannel } from "./humanBodySimpleChannel";
 import { humanBodySimpleShapeDirection as direction } from "./humanBodySimpleShapeDirection";
 import { humanBodySimpleShapeMath as math } from "./humanBodySimpleShapeMath";
+import { humanBodySimpleStature } from "./humanBodySimpleStature";
+import { humanBodySimpleVolume } from "./humanBodySimpleVolume";
 import { measureHumanBodySimpleShape as measure } from "./measureHumanBodySimpleShape";
 import { projectHumanBodySimpleShape } from "./projectHumanBodySimpleShape";
+import { solveHumanBodySimpleCoupling } from "./solveHumanBodySimpleCoupling";
 
 /**
- * The coupled inversions (a girth changes the volume the mass is read from
- * and the mass changes the girth) are solved in rounds with each other worn
- * until no solved weight moves more than the tolerance, or this many rounds.
+ * Numerical acceptance budgets for the canonical expanded body: one
+ * millimetre for tapes, a tenth of a millimetre for stature and fifty grams
+ * for mass. These budgets do not establish instrument or anatomical accuracy.
  */
+const TAPE_TOLERANCE_METRES = 1e-3;
+const STATURE_TOLERANCE_METRES = 1e-4;
+const MASS_TOLERANCE_KILOGRAMS = 0.05;
+type Reader = Parameters<typeof humanBodySimpleStature>[0];
+/** Warm-up passes before simultaneous inversion; failure resumes the original eight-pass budget. */
+const ROUNDS = 2;
 const PASSES = 8;
 const CONVERGENCE = 1e-5;
 
@@ -49,7 +61,23 @@ const CONVERGENCE = 1e-5;
  * that detailed residue: identical simple inputs over different detailed
  * shapes need not produce identical bodies. Channels the table does not name
  * pass through untouched. The detailed tier remains the document's canonical
- * form, and the returned record is fresh.
+ * form, and the returned record is fresh. The canonical expansion is checked
+ * against all requested readings before this detailed residue is reapplied;
+ * those readings are not promised for the residue-bearing result.
+ *
+ * @evidence contracts/common.md#principled-implementation Table terms are summed before envelope projection so the inverse reads the same combined channel map. Sequential measured-reach inversions warm up a simultaneous shared-body solve; unresolved systems retain complete strict reach sampling. A final shared-body assertion checks every canonical requested reading after stature reconciliation. The optional detailed-residue result deliberately preserves prior edits and is not covered by that target assertion.
+ * @evidence contracts/common.md#clear-and-simple-design One compiler orders table expansion, measured inversion, canonical verification and optional residue transfer; numerical iteration and measurement definitions have separate owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No person or photograph is selected. The numerical budgets and pass counts are stated policies, not anatomical limits; measured-reach refusal remains separate from transient warm-up saturation.
+ * @evidence contracts/common.md#meaningful-documentation States the simple-to-detailed conversion, coupled physical readings, omitted measurements, refusal, detailed residue and the precise boundary of canonical target verification.
+ * @evidence contracts/modeling.md#spatial-conventions Requested stature and tapes use metres and mass uses kilograms; measurement owners read the shaped rest skin and channel weights remain dimensionless.
+ * @evidence contracts/modeling.md#parameter-channels The simple fields compile into existing detailed basis channels through the declared term and measurement tables; omitted tapes are not read back during residue transfer and unknown table channels are skipped.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping This compiler defines no part or group.
+ * @evidenceExclude contracts/modeling.md#emitted-geometry It emits detailed weights; the body builder owns the resulting surface.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries It constructs no surface or boundary.
+ * @evidenceExclude contracts/modeling.md#rendered-observation It owns no displayed part or joint; the body builder owns the emitted form.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The simple table and measurement owners define the anatomical formulas and constants; this compiler introduces only explicitly numerical acceptance budgets.
+ * @evidenceExclude contracts/anatomy.md#permitted-range The table and basis own admitted parameter envelopes; this compiler enforces those existing envelopes without defining a new physiological interval.
+ * @evidence contracts/anatomy.md#parametric-authority Named simple measurements compile to the detailed tier, which remains canonical. The optional detailed residue preserves that existing detailed authority and can change the achieved simple readings; it is documented rather than concealed by a target-success claim.
  */
 export function expandHumanBodySimpleShape(
   basis: IAutoMovieHumanBodyBasis,
@@ -168,10 +196,52 @@ export function expandHumanBodySimpleShape(
       ),
     );
   };
-  for (let round = 0; round < PASSES; round++)
-    if (pass(true) < CONVERGENCE) break;
-  pass(false);
+  let round = 0;
+  for (; round < ROUNDS; round++) if (pass(true) < CONVERGENCE) break;
+  const unknowns: IHumanBodySimpleUnknown[] = [
+    ...table.measurements.flatMap((entry) => {
+      const target = simple[entry.parameter];
+      return target === undefined
+        ? []
+        : [
+            {
+              name: entry.parameter,
+              tolerance: TAPE_TOLERANCE_METRES,
+              along: direction.alone(basis, entry.channel),
+              target,
+              read: (reader: Reader) =>
+                humanBodySimpleChannel(reader, entry.channel),
+            },
+          ];
+    }),
+    {
+      name: "massKilograms",
+      tolerance: MASS_TOLERANCE_KILOGRAMS,
+      along: direction.mass(basis, parameters),
+      target: simple.massKilograms,
+      read: (reader: Reader) =>
+        measure.mass(
+          humanBodySimpleVolume(basis, reader.shaped),
+          density,
+          simple.ageYears,
+          parameters.bodyMassIndex,
+        ),
+    },
+    {
+      name: "statureMetres",
+      tolerance: STATURE_TOLERANCE_METRES,
+      along: statureAlong,
+      target: simple.statureMetres,
+      read: humanBodySimpleStature,
+    },
+  ];
+  const together = solveHumanBodySimpleCoupling(basis, shape, unknowns);
+  if (together === null) {
+    for (; round < PASSES; round++) if (pass(true) < CONVERGENCE) break;
+    pass(false);
+  } else Object.assign(shape, together);
   matchStature();
+  assertHumanBodySimpleValues(basis, shape, unknowns);
   if (over === undefined) return shape;
   // only the measurements this request names are read back, so an omitted
   // one leaves its channel exactly as the shape had it

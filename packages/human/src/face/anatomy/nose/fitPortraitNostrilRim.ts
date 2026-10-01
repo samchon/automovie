@@ -17,7 +17,6 @@ import { portraitNostrilRimNormal } from "./portraitNostrilRimNormal";
  * @evidence contracts/common.md#meaningful-documentation The comment states the plane, the axes, the perimeter parameterisation, the recentring, the exact-copy case and the units.
  * @evidence contracts/modeling.md#spatial-conventions Input and output are head millimetres; the blend amount is dimensionless in [0,1]; the fit is head-orientation independent because it works in the rim's own plane.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group; it is a numerical helper of the nostril aperture owner.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no mesh primitives; it returns values for its caller to place.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and meets no neighbouring part; the callers that share its result own the boundary.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part or joint; the nose component that consumes it is the declaration that observes the assembled result.

@@ -1,10 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 
 import { rejectsWith } from "../internal/rejectsWith";
-import {
-  type IHumanViewerClientIo,
-  connectHumanViewer,
-} from "../../../scripts/human-viewer/connectHumanViewer";
+import type { IHumanViewerClientIo } from "../../../scripts/human-viewer/IHumanViewerClientIo";
+import { connectHumanViewer } from "../../../scripts/human-viewer/connectHumanViewer";
 
 const response = (status: number, body: unknown, headers: Record<string, string> = {}) => ({
   ok: status < 400,

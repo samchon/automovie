@@ -49,7 +49,7 @@ import type * as Human from "@automovie/human";
  * @evidence {@link Human.IAutoMovieHumanFaceContactSummary.passage} Read the tongue's protrusion and slab thickness, or null behind the plane.
  * @evidence {@link Human.IAutoMovieHumanFaceContactSummary.resolved} Read per soft surface the vertices returned to their floor and the deepest excess.
  * @evidence {@link Human.assertHumanFaceContact} Read the admission of names, vertex pairs, channels, colliders, soft budgets and the sealed collider's sheet query.
- * @evidence {@link Human.measureHumanFaceAperture} Read the opening frame from the lower incisor's reference drop, the posed vertex pairs and the closure ratio.
+ * @evidence {@link Human.measureHumanFaceAperture} Read the opening frame formed by projecting basis Y-up perpendicular to the mandibular axis, the posed vertex pairs and the closure ratio. The reference opening's incisor motion does not define this frame.
  * @evidence {@link Human.evaluateHumanFacePassage} Read the incisal plane, protrusion, slab thickness and the refusal against both apertures.
  * @evidence {@link Human.resolveHumanFaceContact} Read the rest floor rule over sheet colliders within reach and the budget refusal.
  * @evidence {@link Human.poseHumanFaceSurface} Read the sparse linear blend: each attached vertex moves by the weighted sum of its owners' rigid displacements.

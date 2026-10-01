@@ -1,7 +1,7 @@
-import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
+import type { IAutoMovieHumanBodyBasis, IAutoMovieHumanBodyShoulderPose } from "@automovie/human";
 import type { IAutoMovieJointPose } from "@automovie/interface";
 
-import type { IBodyCorrectiveState } from "./bodyCorrectiveState";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 
 /** A census finding as the census receipt records it. */
 export interface IBodyCensusFinding {
@@ -9,6 +9,7 @@ export interface IBodyCensusFinding {
   document: {
     shape?: Record<string, number>;
     pose?: IAutoMovieJointPose[];
+    shoulders?: IAutoMovieHumanBodyShoulderPose[];
   };
 }
 
@@ -92,18 +93,20 @@ export function listCensusStates(
   const out: IBodyCorrectiveState[] = [];
   for (const one of sets)
     for (const finding of census[one]?.findings ?? []) {
-      const pose = finding.document.pose ?? [];
+      const pose = (finding.document.pose ?? []).map((joint) => ({ ...joint }));
+      const shoulders = finding.document.shoulders ?? [];
       out.push({
         name: finding.name,
         set: one,
         group:
-          pose.length === 0
+          pose.length === 0 && shoulders.length === 0
             ? "rest"
             : Object.keys(finding.document.shape ?? {}).length > 0
-              ? "pose:" + JSON.stringify([pose, []])
+              ? "pose:" + JSON.stringify([pose, shoulders])
               : finding.name.split("@")[0],
-        shape: finding.document.shape ?? {},
+        shape: { ...finding.document.shape },
         pose,
+        ...(finding.document.shoulders === undefined ? {} : { shoulders: shoulders.map((goal) => ({ ...goal })) }),
       });
     }
   const generality = (state: IBodyCorrectiveState): [number, number] => {

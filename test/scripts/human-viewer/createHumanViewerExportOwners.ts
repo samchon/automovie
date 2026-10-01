@@ -1,7 +1,5 @@
-import {
-  type IHumanViewerResolveIo,
-  resolveHumanViewerImport,
-} from "./resolveHumanViewerImport";
+import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
+import { resolveHumanViewerImport } from "./resolveHumanViewerImport";
 
 interface IExports {
   declared: Set<string>;

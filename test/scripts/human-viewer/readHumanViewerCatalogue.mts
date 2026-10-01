@@ -14,6 +14,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import type { IHumanViewerRevisions } from "./IHumanViewerRevisions";
+import { humanViewerPersonKey } from "./humanViewerPersonKey";
 import { readHumanViewerBasisIdentity } from "./readHumanViewerBasisIdentity";
 import { readHumanViewerInputs } from "./readHumanViewerInputs";
 
@@ -25,21 +27,20 @@ export function readHumanViewerCatalogue(props: {
   /** Identity and digest of a basis file; the server supplies a memoized reader so the tens of megabytes are hashed once. */
   basisOf?: (file: string) => { id: string; digest: string };
   /** The digests the page reloads on and each domain's builds depend on. */
-  revisions: { browser: string; face: string; body: string };
+  revisions: IHumanViewerRevisions;
 }): HumanViewerCatalogue {
   const hash = (bytes: string | Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
   const sources = props.revisions;
-  const bases = Object.fromEntries(
-    Object.entries(props.basisFiles).map(([domain, file]) => {
-      if (props.basisOf !== undefined) return [domain, props.basisOf(file)];
-      const bytes = fs.readFileSync(file);
-      return [
-        domain,
-        { id: readHumanViewerBasisIdentity(bytes), digest: hash(bytes) },
-      ];
-    }),
-  );
+  const readBasis = (file: string): { id: string; digest: string } => {
+    if (props.basisOf !== undefined) return props.basisOf(file);
+    const bytes = fs.readFileSync(file);
+    return { id: readHumanViewerBasisIdentity(bytes), digest: hash(bytes) };
+  };
+  const bases = {
+    face: readBasis(props.basisFiles.face),
+    body: readBasis(props.basisFiles.body),
+  };
   const subjects = JSON.parse(
     fs.readFileSync(props.documentsFile, "utf8"),
   ) as Extract<
@@ -89,7 +90,7 @@ export function readHumanViewerCatalogue(props: {
             names: () => fs.readdirSync(props.inputsDirectory!),
             read: (name) => fs.readFileSync(path.join(props.inputsDirectory!, name)),
           },
-          bases: bases as Record<"face" | "body", { id: string; digest: string }>,
+          bases,
           sources,
         })
       : { documents: [], rejected: [] };
@@ -121,13 +122,7 @@ export function readHumanViewerCatalogue(props: {
         id: document.id,
         domain: "person" as const,
         document,
-        key: hash(
-          JSON.stringify(document) +
-            bases.face.digest +
-            bases.body.digest +
-            sources.face +
-            sources.body,
-        ),
+        key: humanViewerPersonKey({ document, bases, sources }),
       })),
       ...inputs.documents,
     ],

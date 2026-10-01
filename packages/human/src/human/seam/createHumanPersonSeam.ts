@@ -2,7 +2,11 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HUMAN_PERSON_SEAM } from "../constants/HUMAN_PERSON_SEAM";
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
-import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
+import { createHumanPersonCut } from "./createHumanPersonCut";
+import { evaluateHumanPersonCut } from "./evaluateHumanPersonCut";
+import { humanPersonCutBoneWeights } from "./humanPersonCutBoneWeights";
+import { createHumanLoopParameterLookup } from "./createHumanLoopParameterLookup";
+import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
 import { createHumanLoopHeight } from "./createHumanLoopHeight";
 import { findHumanBoundaryLoops } from "./findHumanBoundaryLoops";
 import { measureHumanHeadReach } from "./measureHumanHeadReach";
@@ -37,12 +41,15 @@ type Skin = {
  *    axis (the vertical through the loop's centroid, `createHumanLoopAzimuth`);
  * 2. every body vertex near the neck (within `HUMAN_PERSON_SEAM.radialGuard`
  *    times the body loop's greatest radius) that lies above that height at
- *    its own azimuth is covered, and every triangle touching one is removed,
- *    which leaves every retained boundary vertex at or below the face loop
- *    and so a ribbon that never runs back over the face's own triangles;
+ *    its own azimuth is covered. The vertex-sampled signed height/radial
+ *    margins define an affine scalar field on each source triangle. Clipping
+ *    keeps its nonpositive portion with shared frozen edge intersections,
+ *    avoiding a staircase boundary through lower source rows. This sampled
+ *    cut approximates the analytic angular profile rather than reproducing it;
  * 3. the retained body boundary must be one loop, which `mergeHumanBoundaryLoops`
  *    joins to the face loop, in the order the body's vertices stand along it,
- *    with a ribbon of the loops' own vertices;
+ *    with a logical adjacency stencil of the loops' own vertices. The person
+ *    builder subdivides the two skins onto one boundary before display;
  * 4. the retained loop follows the nearest face loop edge, and body skin
  *    within the reach along the surface (the extent of the neck by the body's
  *    own skin weights, `measureHumanNeckReach`, unless `reachMetres` is given)
@@ -53,21 +60,25 @@ type Skin = {
  *
  * The neck is taken to be a roughly vertical tube at the neutral, which the
  * frame's Y-up convention and the anatomical position give; the azimuth
- * parameterization refuses a loop that does not surround the axis once. The
+ * height profile requires the face loop to surround the axis once. The clipped
+ * body contour may have local radial reversals; its nearest-face follow must
+ * instead be cyclically ordered, as the merge owner strictly requires. The band
+ * brackets that same projected face-edge coordinate, so a boundary source
+ * reads its own displacement without assuming a radial body contour. The
  * decision embeds both revisions and reads no document, so it is derived once
  * per basis pair and every shape and pose after it only moves vertices.
  * Refusals name the cause: not one open loop on each skin, a retained body
  * boundary that is not one loop, or a retained loop that does not run along the
  * face loop in order.
  *
- * @evidence contracts/common.md#principled-implementation The covered set is the body skin above the face's cut, decided by height against azimuth, which is the one relation two overlapping cuts of one vertical tube determine; the merge, the loop walk and the Wendland weight each state their own premises, and the joined skin is checked to be an oriented manifold along the seam so a misoriented ribbon refuses instead of shipping.
- * @evidence contracts/common.md#clear-and-simple-design The function sequences named owners (loops, azimuth, distances, merge) in the order the data dependence forces and computes only the covered set, the follow table and the band itself.
+ * @evidence contracts/common.md#principled-implementation The covered interior is sampled from height against azimuth and the radial guard, then extended as a piecewise-linear scalar over source triangles; shared crossing stencils retain the lower portion rather than exposing a staircase row, without claiming an exact analytic angular cut; the merge, the loop walk and the Wendland weight each state their own premises, and the joined skin is checked to be an oriented manifold along the seam so a misoriented ribbon refuses instead of shipping.
+ * @evidence contracts/common.md#clear-and-simple-design The function sequences named owners (loops, azimuth, distances, merge) in the order the data dependence forces and computes the frozen cut, its retained-loop follow table and the compact-support band.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex number, loop length or subject is special-cased; the constants are named in `HUMAN_PERSON_SEAM` with their status, and every unmet precondition refuses.
  * @evidence contracts/common.md#meaningful-documentation The comment states the four steps, the vertical-tube assumption, the refusals and that the result depends on the neutral surfaces only.
- * @evidence contracts/modeling.md#part-identity-and-grouping The seam is a relation between two existing parts, the face skin and the body skin; it adds a ribbon that belongs to neither, named in the composed model as its own part.
- * @evidence contracts/modeling.md#emitted-geometry The ribbon has one triangle per loop edge, the fewest a strip between two closed loops can have, and no other geometry is emitted.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The seam relates the two existing skin surfaces by boundary source identities; its logical ribbon supplies adjacency rather than a third displayed skin part.
+ * @evidence contracts/modeling.md#emitted-geometry The cut appends one vertex per strict crossing edge and retains at most two triangles per source triangle; the logical cross-loop stencil has one triangle per loop edge, and displayed subdivision is owned by stitchHumanPersonBoundary.
  * @evidence contracts/modeling.md#spatial-conventions Metres, Y up, +Z anterior, +X anatomical left, the frame both bases share; azimuth is about the vertical through the face loop's centroid.
- * @evidence contracts/modeling.md#shared-boundaries The ribbon's vertices are the two loops' own, so both sides share one definition of the boundary and the seam has no vertex of its own that could disagree; covering the overlap leaves no double layer at the neutral.
+ * @evidence contracts/modeling.md#shared-boundaries Each body crossing has one undirected-edge affine stencil shared by adjacent triangles and regions. The follow table associates the retained sampled contour with the face loop; collar alignment and stitchHumanPersonBoundary establish the final displayed common polyline, while the sampled contour is not the exact analytic angular cut.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel and varies with nothing but the two neutral surfaces.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The seam carries no anatomical value of its own; its reach is read from the body basis's authored skin weights (`measureHumanNeckReach`).
  * @evidenceExclude contracts/anatomy.md#permitted-range The function bounds no anatomical value; the composed documents' ranges are their owners'.
@@ -108,22 +119,20 @@ export function createHumanPersonSeam(props: {
   const guard =
     HUMAN_PERSON_SEAM.radialGuard *
     Math.max(...bodyLoops[0].map((vertex) => around(point(body.surface, vertex))));
-  const used = new Set(body.surface.indices);
-  const covered: number[] = [];
-  for (const vertex of [...used].sort((a, b) => a - b)) {
+  // Positive samples identify the height/radial covered interior; zero is retained.
+  // Its affine extension inside each triangle is the declared approximation,
+  // not an exact evaluation of the angular profile between source vertices.
+  const margins = Array.from({ length: body.surface.positions.length / 3 }, (_, vertex) => {
     const p = point(body.surface, vertex);
-    if (
-      around(p) <= guard &&
-      p.y > faceHeight(Math.atan2(p.x - centre.x, p.z - centre.z))
-    )
-      covered.push(vertex);
-  }
-  const removed = new Set(covered);
-  const kept: number[] = [];
-  for (let corner = 0; corner < body.surface.indices.length; corner += 3) {
-    const triangle = body.surface.indices.slice(corner, corner + 3);
-    if (!triangle.some((vertex) => removed.has(vertex))) kept.push(...triangle);
-  }
+    return Math.min(
+      guard - around(p),
+      p.y - faceHeight(Math.atan2(p.x - centre.x, p.z - centre.z)),
+    );
+  });
+  const covered = [...new Set(body.surface.indices)].filter((vertex) => margins[vertex] > 0).sort((a, b) => a - b);
+  const cut = createHumanPersonCut(body.surface.indices, margins);
+  const kept = cut.indices;
+  const bodySurface = { ...body.surface, positions: evaluateHumanPersonCut(body.surface.positions, cut) };
   const retained = findHumanBoundaryLoops(kept);
   if (retained.length !== 1)
     throw new Error(
@@ -132,33 +141,8 @@ export function createHumanPersonSeam(props: {
         " open loops on the body skin; the seam needs exactly one.",
     );
   const bodyLoop = retained[0];
-  const bodyPoints = bodyLoop.map((vertex) => point(body.surface, vertex));
-  const bodyAzimuth = createHumanLoopAzimuth(bodyPoints, centre);
-
-  const follow = bodyPoints.map((p) => {
-    let best = { edge: 0, fraction: 0, distance: Infinity };
-    for (let edge = 0; edge < facePoints.length; edge++) {
-      const a = facePoints[edge];
-      const b = facePoints[(edge + 1) % facePoints.length];
-      const along = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
-      const length = along.x * along.x + along.y * along.y + along.z * along.z;
-      const raw =
-        length === 0
-          ? 0
-          : ((p.x - a.x) * along.x +
-              (p.y - a.y) * along.y +
-              (p.z - a.z) * along.z) /
-            length;
-      const fraction = Math.min(1, Math.max(0, raw));
-      const distance = Math.hypot(
-        p.x - (a.x + along.x * fraction),
-        p.y - (a.y + along.y * fraction),
-        p.z - (a.z + along.z * fraction),
-      );
-      if (distance < best.distance) best = { edge, fraction, distance };
-    }
-    return { edge: best.edge, fraction: best.fraction };
-  });
+  const bodyPoints = bodyLoop.map((vertex) => point(bodySurface, vertex));
+  const follow = bodyPoints.map((p) => projectHumanLoopPoint(facePoints, p));
 
   // each retained loop vertex stands at a position along the face loop, and
   // the two loops are merged in that order
@@ -181,7 +165,7 @@ export function createHumanPersonSeam(props: {
   ]);
 
   const distance = measureHumanSurfaceDistances(
-    body.surface.positions,
+    bodySurface.positions,
     kept,
     bodyLoop,
   );
@@ -190,12 +174,8 @@ export function createHumanPersonSeam(props: {
     (body.surface.skin === undefined
       ? Number.NaN
       : measureHumanNeckReach(distance, (vertex) => {
-          const skin = body.surface.skin!;
-          let dominant = 0;
-          for (let k = 1; k < 4; k++)
-            if (skin.weights[vertex * 4 + k] > skin.weights[vertex * 4 + dominant])
-              dominant = k;
-          const bone = skin.joints[skin.boneIndices[vertex * 4 + dominant]];
+          const weights = humanPersonCutBoneWeights(body.surface.skin!, vertex, cut);
+          const bone = [...weights].sort((a, b) => b[1] - a[1])[0][0];
           return bone === "neck" || bone === "head";
         }));
   if (!(reachMetres > 0) || !Number.isFinite(reachMetres))
@@ -209,12 +189,7 @@ export function createHumanPersonSeam(props: {
       : measureHumanHeadReach(
           distance,
           (vertex) => {
-            const skin = body.surface.skin!;
-            let total = 0;
-            for (let k = 0; k < 4; k++)
-              if (skin.joints[skin.boneIndices[vertex * 4 + k]] === "head")
-                total += skin.weights[vertex * 4 + k];
-            return total;
+            return humanPersonCutBoneWeights(body.surface.skin!, vertex, cut).get("head") ?? 0;
           },
           reachMetres,
         ));
@@ -222,13 +197,20 @@ export function createHumanPersonSeam(props: {
     throw new Error(
       "The seam needs a positive finite head reach, given or read from the body's skin weights.",
     );
+  const bracket = createHumanLoopParameterLookup(follow.map(({ edge, fraction }) => edge + fraction), faceLoop.length);
+  const boundaryAt = new Map(bodyLoop.map((vertex, index) => [vertex, index]));
   const band: IAutoMovieHumanPersonSeam["collar"]["band"] = [];
   for (let vertex = 0; vertex < distance.length; vertex++) {
     if (!(distance[vertex] < reachMetres)) continue;
-    const p = point(body.surface, vertex);
-    const { low, high, along } = bodyAzimuth.bracket(
-      Math.atan2(p.x - centre.x, p.z - centre.z),
-    );
+    const p = point(bodySurface, vertex);
+    const projected = projectHumanLoopPoint(facePoints, p);
+    // Boundary sources retain their own Dirichlet displacement even when two
+    // native points project to the same face sample. Interior lookup uses the
+    // last tied resident; final collapsed samples belong to the stitch owner.
+    const boundary = boundaryAt.get(vertex);
+    const { low, high, along } = boundary === undefined
+      ? bracket(projected.edge + projected.fraction)
+      : { low: boundary, high: boundary, along: 0 };
     const r = distance[vertex] / reachMetres;
     band.push({
       vertex,
@@ -247,6 +229,7 @@ export function createHumanPersonSeam(props: {
     faceLoop,
     bodyLoop,
     covered,
+    cut,
     ribbon,
     collar: { reachMetres, headReachMetres, follow, band },
   };

@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanFaceControlMap,
 } from "@automovie/human";
 
-import { extendFaceEnvelope } from "./faceEnvelope";
+import { extendFaceEnvelope } from "./extendFaceEnvelope";
 import type { FaceUnseenReading, IFaceUnseenIndex } from "./faceUnseenIndices";
 
 /**

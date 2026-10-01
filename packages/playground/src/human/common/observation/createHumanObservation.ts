@@ -33,6 +33,8 @@ const FALLBACK_DISTANCE = 0.65;
  * on-screen buttons use, so a hook and a button at the same view agree.
  * Nothing here needs a GPU: the caller owns the renderer and calls `finish`
  * after a hook to complete the frame.
+ * Visibility and material-pass transitions notify the viewport's shadow owner;
+ * a camera-only or unchanged display leaves static shadow maps resident.
  *
  * @param host The viewport's scene graph and orbit.
  * @param host.scene Scene whose override material carries the pass.
@@ -41,6 +43,7 @@ const FALLBACK_DISTANCE = 0.65;
  * @param host.roots Displayed subject groups, in the scene.
  * @param host.clay The viewport's grey material, shared with its clay toggle.
  * @param host.height Height of the drawing surface in CSS pixels, which sets the outline's width.
+ * @param host.invalidateShadows Notify the viewport when its cached caster display changes.
  */
 export function createHumanObservation(host: {
   scene: THREE.Scene;
@@ -55,6 +58,8 @@ export function createHumanObservation(host: {
   roots: () => THREE.Object3D[];
   clay: THREE.Material;
   height: () => number;
+  /** Invalidate the viewport's cached shadows when caster display state changes. */
+  invalidateShadows?: () => void;
 }) {
   const { camera, orbit } = host;
   let pass: HumanObservationPass = "beauty";
@@ -247,6 +252,7 @@ void main() {
       )
         throw new Error(`Unknown observation pass "${String(next)}".`);
       engaged = true;
+      if (pass !== next) host.invalidateShadows?.();
       pass = next;
     },
 
@@ -289,7 +295,11 @@ void main() {
         if (!wanted && mesh.visible) {
           mesh.visible = false;
           hiddenByUs.add(mesh);
-        } else if (wanted && hiddenByUs.delete(mesh)) mesh.visible = true;
+          host.invalidateShadows?.();
+        } else if (wanted && hiddenByUs.delete(mesh)) {
+          mesh.visible = true;
+          host.invalidateShadows?.();
+        }
       }
       // a mesh that left the roots is not this stage's to keep hidden
       for (const mesh of hiddenByUs)

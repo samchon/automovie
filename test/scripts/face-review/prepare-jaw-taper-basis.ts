@@ -23,7 +23,7 @@
 import { createHumanFaceBasisBuilder } from "@automovie/human";
 import fs from "node:fs";
 
-import { faceSupportFaults } from "./faceEnvelope";
+import { faceSupportFaults } from "./faceSupportFaults";
 import { faceMidsagittalLandmarks } from "./faceMidsagittal";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
 import { faceMidlineTriangles } from "./faceUnseenNorms";

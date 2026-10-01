@@ -15,10 +15,10 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * between the two loop vertices that bracket the skin vertex and the weight
  * is one at the loop and falls smoothly (C2) to zero at the reach.
  *
- * Because the loop lies on the face's own loop polyline, the seam has zero
- * width in every configuration in which the two loops keep their order around
- * the neck: there is no gap to open, and the ribbon between them degenerates
- * to zero area. The price is local: the body's skin below the collar takes up
+ * Each retained body-loop vertex lies on the face polyline. Unequal boundary
+ * partitions can still span a face corner with a body chord; the person
+ * builder's boundary subdivision makes both skins follow the same union
+ * of samples and closes that wedge. The price is local: the body's skin below the collar takes up
  * the whole mismatch (a few millimetres at the neutral, where the body's loop
  * stands a little under the face's, and whatever two different necks ask for)
  * within the reach, so a mismatch of the order of the reach itself compresses
@@ -31,7 +31,7 @@ import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPer
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a body, a shape or a pose; the same arithmetic runs whether the mismatch is zero or large.
  * @evidence contracts/common.md#meaningful-documentation The comment states what moves, where it lands, why the seam has no width and the cost of that.
  * @evidence contracts/modeling.md#spatial-conventions Metres in the shared Y-up, +Z-anterior frame; every position is an evaluated position of the two skins.
- * @evidence contracts/modeling.md#shared-boundaries The retained loop lies on the face's loop polyline in every configuration, which is the strongest form of one shared definition of the boundary: the join cannot open, and it stays valid until the mismatch approaches the reach, where the neck compresses.
+ * @evidence contracts/modeling.md#shared-boundaries Every retained body-loop vertex is evaluated from one face edge and fraction; the person builder subsequently subdivides both boundary partitions through their union, because coincidence of the vertices alone does not close a chord across a corner.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function moves vertices of two existing parts and defines no part.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel; it reads two evaluated surfaces.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it returns the body's own vertices moved.

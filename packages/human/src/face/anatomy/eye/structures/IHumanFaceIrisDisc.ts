@@ -2,11 +2,13 @@
  * Where the iris of one eye lies on its globe, found from the globe's own
  * geometry by `locateHumanFaceIrisDisc` and consumed by the iris texel
  * rasterizer and pigment rule. Lengths are metres in the basis frame,
- * angles radians from the optical axis; the limbus and pupil are the
- * population's absolute sizes on this globe.
+ * angles radians from the estimated optical axis. The limbus uses a
+ * population white-to-white proxy and the pupil an explicit optical size
+ * convention on the fitted neutral sphere; these are not measurements of
+ * each subject's cornea or guarantees after identity deformation.
  *
  * @evidence contracts/common.md#principled-implementation The fields are the minimum that fix a circular disc on a sphere: its centre and radius, the optical axis, an azimuth reference and the limbal, pupillary and painted half-angles, so a texel's polar coordinates against them classify it as pupil, iris or beyond.
- * @evidence contracts/common.md#clear-and-simple-design A flat record of eight fields produced by one function and consumed by the rasterizer and the pigment rule.
+ * @evidence contracts/common.md#clear-and-simple-design A flat record of seven fields produced by one function and consumed by the rasterizer and the pigment rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A type carries no mechanism and names no subject or asset.
  * @evidence contracts/common.md#meaningful-documentation Each field states its meaning, unit and reference, and the record states its producer, its consumers and its frame.
  * @evidence contracts/modeling.md#spatial-conventions Lengths are metres in the basis frame and angles are radians from the axis, and the azimuth reference is a unit vector perpendicular to the axis, each stated on its field.
@@ -14,20 +16,21 @@
  * @evidenceExclude contracts/modeling.md#parameter-channels The record defines no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The record emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no surface.
- * @evidenceExclude contracts/anatomy.md#anatomical-source The record holds the result; the population lengths behind the limbus, pupil and painted angles are cited on `locateHumanFaceIrisDisc`, which owns them.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The derived coordinate record owns no displayed part or joint.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The record holds the result; `locateHumanFaceIrisDisc` owns the population iris/globe proxies and the explicit pupil convention, with their source domains and limitations.
  * @evidenceExclude contracts/anatomy.md#permitted-range The record admits or bounds no value; the producer derives every field.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The record is derived data and no caller input shapes a face through it.
  *
  * @author Samchon
  */
 export interface IHumanFaceIrisDisc {
-  /** Sclera sphere centre, metres. */
+  /** Least-squares sclera sphere centre, metres in the neutral basis frame. */
   centre: [number, number, number];
 
-  /** Sclera sphere radius, metres. */
+  /** Least-squares sclera sphere radius, metres. */
   radius: number;
 
-  /** Unit optical axis, from the centre through the corneal apex. */
+  /** Estimated unit optical axis, from protrusion above the fitted sphere. */
   axis: [number, number, number];
 
   /** Unit azimuth reference perpendicular to `axis`. */
@@ -40,9 +43,9 @@ export interface IHumanFaceIrisDisc {
   pupil: number;
 
   /**
-   * Half-angle at which the asset's own texture ends its painted iris,
-   * radians: the population ratio of iris to globe, which the painting
-   * follows whatever the globe's size.
+   * Estimated painted-iris half-angle in radians, from the declared
+   * population iris-to-globe ratio. The producer does not measure a texture
+   * boundary; repainting uses this shared painting convention.
    */
   painted: number;
 }

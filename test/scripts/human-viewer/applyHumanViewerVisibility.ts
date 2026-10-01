@@ -2,7 +2,7 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
 
 /**
  * Apply one display selection to a reused product viewport before camera
- * framing and drawing. Every show restores shadows and pass, then isolates
+ * framing and drawing. Every show restores light directions, shadows and pass, then isolates
  * and hides meshes; a prior capture's state cannot become the next default.
  * Product viewport hooks own materials, lights and shadow-map invalidation.
  * An unknown isolation or hidden mesh refuses before a frame is delivered.
@@ -17,6 +17,7 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
  */
 export function applyHumanViewerVisibility(
   stage: {
+    setLightDirection?: (input: HumanViewerAddress["light"]) => void;
     setShadows: (enabled: boolean) => void;
     observe: {
       pass: (pass: HumanViewerAddress["pass"]) => void;
@@ -25,8 +26,13 @@ export function applyHumanViewerVisibility(
     };
   },
   address: Pick<HumanViewerAddress, "pass" | "parts" | "hide"> &
-    Partial<Pick<HumanViewerAddress, "shadows">>,
+    Partial<Pick<HumanViewerAddress, "shadows" | "light">>,
 ): void {
+  const light = address.light ?? null;
+  if (stage.setLightDirection === undefined) {
+    if (light !== null)
+      throw new Error("Light direction overrides require a Body or Person viewport");
+  } else stage.setLightDirection(light);
   stage.setShadows(address.shadows ?? true);
   stage.observe.pass(address.pass);
   const missing = stage.observe.isolate(

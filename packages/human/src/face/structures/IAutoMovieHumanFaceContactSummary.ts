@@ -11,15 +11,17 @@
  * intersection-free skin. A refused document never
  * produces one, because the refusal names the deficient channel and the
  * millimetres instead.
+ *
+ * @author Samchon
  */
 export interface IAutoMovieHumanFaceContactSummary {
-  /** Signed interlabial gap along the opening direction after closure, metres. */
+  /** Signed interlabial gap along the opening direction after closure and tissue contact, metres. */
   interlabialMetres: number;
 
-  /** Signed interincisal gap along the opening direction, metres. */
+  /** Signed interincisal gap along the opening direction on the final posed geometry, metres. */
   interincisalMetres: number;
 
-  /** Ratio of the current lip aperture to the reference aperture, never negative. */
+  /** Preliminary posed aperture ratio used to scale closure before contact, never negative. */
   closureRatio: number;
 
   /** Tongue past the incisal plane: how far and how thick over the slab, or null when it stayed behind. */

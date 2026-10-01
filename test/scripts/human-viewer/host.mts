@@ -12,10 +12,12 @@ import type { HumanViewerHandle } from "./HumanViewerHandle";
 import { mountHumanViewerControls } from "./mountHumanViewerControls";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { createHumanViewerGeneration } from "./createHumanViewerGeneration";
 
 type Child = Window & { __humanViewer: HumanViewerHandle };
 let active: HTMLIFrameElement | undefined;
 let candidate: HTMLIFrameElement | undefined;
+let committed: ReturnType<typeof createHumanViewerGeneration> | undefined;
 let generation = 0;
 const stage = document.querySelector<HTMLElement>("#stage")!;
 const error = document.querySelector<HTMLDivElement>("#error")!;
@@ -161,6 +163,7 @@ addEventListener(
       return;
     }
     if (event.data.type !== "human:ready") return;
+    committed?.retire();
     active?.remove();
     active = candidate;
     candidate = undefined;
@@ -170,24 +173,24 @@ addEventListener(
     banner.textContent = "The source changed. Click to redraw with the same address.";
     settle();
     error.style.display = "none";
-    const viewer = (): HumanViewerHandle =>
-      (active!.contentWindow as Child).__humanViewer;
+    committed = createHumanViewerGeneration((active.contentWindow as Child).__humanViewer);
+    const viewer = committed.handle;
     const handle: HumanViewerHandle = {
       show: async (address) => {
-        await viewer().show(address);
+        await viewer.show(address);
         history.replaceState(
           null,
           "",
           "#" + serializeHumanViewerAddress(address),
         );
       },
-      parts: () => viewer().parts(),
-      renderer: () => viewer().renderer(),
-      revision: () => viewer().revision(),
-      builds: () => viewer().builds(),
-      buildMs: () => viewer().buildMs(),
-      address: () => viewer().address(),
-      png: () => viewer().png(),
+      parts: () => viewer.parts(),
+      renderer: () => viewer.renderer(),
+      revision: () => viewer.revision(),
+      builds: () => viewer.builds(),
+      buildMs: () => viewer.buildMs(),
+      address: () => viewer.address(),
+      png: () => viewer.png(),
     };
     Object.assign(window, { __humanViewer: handle });
     console.log("HUMAN_READY " + handle.revision());

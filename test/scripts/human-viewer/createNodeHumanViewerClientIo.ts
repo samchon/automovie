@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import type { IHumanViewerClientIo } from "./connectHumanViewer";
+import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
 
 /**
  * The client's machine access on the real file system: global `fetch` and the

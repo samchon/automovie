@@ -6,8 +6,7 @@ import type { IAutoMovieHumanBodyBuild } from "../../body/structures/IAutoMovieH
  * What one evaluation of a person document produces.
  *
  * `model` is the whole person as one static resident model: the face's parts
- * and materials under `face:` names, the body's under `body:` names, and the
- * ribbon that joins their skins as the part `seam:skin`, all in the body
+ * and materials under `face:` names, the body's under `body:` names, all in the body
  * basis frame (metres, Y up, +Z forward), posed. The face's skin parts and
  * the body's are the same shared skin joined into one manifold at the neck,
  * with one normal at each seam vertex for every part that has it. `body` is
@@ -33,7 +32,7 @@ export interface IAutoMovieHumanPersonBuild {
 
   /** The state of the join at the neck on this evaluation. */
   seam: {
-    /** Triangles of the ribbon between the two skins (zero area: the body collar lies on the face loop). */
+    /** Displayed joining ribbon triangles. Shared boundary subdivision needs none and returns zero. */
     ribbonTriangles: number;
 
     /**

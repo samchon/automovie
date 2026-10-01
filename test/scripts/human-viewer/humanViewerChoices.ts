@@ -8,6 +8,8 @@ import type { HumanObservationView } from "@automovie/playground/src/human/commo
  * clauses make the compiler refuse a name the playground does not know.
  */
 export const humanViewerChoices = {
+  /** Body viewport's public inspection-light names, used by parsing and UI. */
+  lights: ["key", "fill", "rim"] as const,
   views: [
     "front",
     "left-three-quarter",

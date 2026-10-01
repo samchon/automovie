@@ -1,9 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import type {
-  HumanViewerRender,
-  IHumanViewerClient,
-} from "../../../scripts/human-viewer/connectHumanViewer";
+import type { HumanViewerRender } from "../../../scripts/human-viewer/HumanViewerRender";
+import type { IHumanViewerClient } from "../../../scripts/human-viewer/IHumanViewerClient";
 import { rejectsWith } from "../internal/rejectsWith";
 import { captureBodyFrames } from "../../../scripts/body-review/captureBodyFrames";
 

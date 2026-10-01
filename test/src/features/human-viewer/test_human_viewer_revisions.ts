@@ -34,7 +34,7 @@ const files = (): Map<string, string> =>
     [`${P}/human/src/body/unused.ts`, `export const never = 1;`],
     [
       `${P}/playground/src/human/common/asset.ts`,
-      `import { Bone } from "@automovie/human";\nimport("./lazy.js");\nnew Worker(new URL("./w.mts", import.meta.url));`,
+      `import { Rig as Bone } from "@automovie/human";\nimport("./lazy.js");\nnew Worker(new URL("./w.mts", import.meta.url));`,
     ],
     [`${P}/playground/src/human/common/lazy.ts`, `export const lazy = 1;`],
     [`${P}/playground/src/human/common/w.mts`, `export {};`],
@@ -59,6 +59,7 @@ const build = (map: Map<string, string>) =>
       ],
       face: [`${P}/playground/src/human/face/run.ts`],
       body: [`${P}/playground/src/human/body/run.ts`],
+      person: [`${P}/playground/src/human/face/run.ts`, `${P}/playground/src/human/body/run.ts`],
     },
     extra: [`${R}/lock.yaml`],
     bases: () => "bases",
@@ -144,6 +145,13 @@ export const test_human_viewer_revisions = (): void => {
     "playground/src/human/common/w.mts",
     "playground/src/human/face/run.ts",
   ]);
+  const asset = `${P}/playground/src/human/common/asset.ts`;
+  const validAsset = map.get(asset)!;
+  map.set(asset, validAsset.replace("Rig as Bone", "UnknownExport"));
+  const unresolved = graph(`${P}/playground/src/human/face/run.ts`);
+  TestValidator.predicate("unresolved named import retains whole target", unresolved.includes("human/src/index.ts") && unresolved.includes("human/src/body/torso.ts"));
+  TestValidator.predicate("whole target does not invent unrelated source", !unresolved.includes("human/src/body/unused.ts"));
+  map.set(asset, validAsset);
 
   const revisions = build(map);
   const before = revisions.current();
@@ -158,7 +166,7 @@ export const test_human_viewer_revisions = (): void => {
   TestValidator.equals(
     "eye edit",
     edit(`${P}/human/src/face/eye.ts`, `export const Eye = 2;`),
-    ["browser", "face"],
+    ["browser", "face", "person"],
   );
   TestValidator.equals(
     "torso edit",
@@ -166,12 +174,12 @@ export const test_human_viewer_revisions = (): void => {
       `${P}/human/src/body/torso.ts`,
       `import { Bone } from "./bone";\nexport function Torso() { return 1; }`,
     ),
-    ["body", "browser"],
+    ["body", "browser", "person"],
   );
   TestValidator.equals(
     "shared edit",
     edit(`${P}/human/src/body/bone.ts`, `export class Bone { x = 1 }`),
-    ["body", "browser", "face"],
+    ["body", "browser", "face", "person"],
   );
   TestValidator.equals("test edit", edit(`${P}/human/src/unrelated.test.ts`, "changed"), []);
   TestValidator.equals("unused edit", edit(`${P}/human/src/body/unused.ts`, "changed"), []);
@@ -179,6 +187,7 @@ export const test_human_viewer_revisions = (): void => {
     "body",
     "browser",
     "face",
+    "person",
   ]);
   edit(
     `${P}/human/src/face/eye.ts`,
@@ -194,5 +203,6 @@ export const test_human_viewer_revisions = (): void => {
   TestValidator.equals("removed", edit(`${P}/human/src/face/lid.ts`, undefined), [
     "browser",
     "face",
+    "person",
   ]);
 };

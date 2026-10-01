@@ -4,13 +4,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
 
 /**
- * The tightest turn the integrator lets a hair take: a path whose radius of
- * curvature is this many metres. A step of length h then turns at most h / 0.006
- * radians, which keeps successive tangents far from antiparallel so the ribbon
- * frame stays well conditioned. The value is the construction limit of this
- * integrator. An earlier note attributes it to the tightest class of the
- * Loussouarn et al. (2007) curliness survey, but that survey's curve diameters
- * were not read here, so no anatomical claim rests on it.
+ * Construction scale for limiting the requested direction change to h / 0.006
+ * radians at a nominal metre step h. This keeps the requested tangents away
+ * from antiparallel; contact projection and shortened steps may give the
+ * realised polyline a different local curvature.
+ *
+ * Loussouarn et al. (2007, Int J Dermatol 46 Suppl.1, 2-6) classify washed,
+ * dried 6 cm hairs by two-dimensional curve diameter and other descriptors.
+ * Their 1.2 cm diameter cutoff is a classification boundary, not a lower bound
+ * on three-dimensional local curvature radius. This construction scale is
+ * therefore a numerical convention and carries no biological-radius claim.
  */
 const TIGHTEST_RADIUS = 0.006;
 

@@ -1,7 +1,10 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IAutoMovieHumanPersonSeam } from "../structures/IAutoMovieHumanPersonSeam";
+import { humanPersonCutBoneWeights } from "./humanPersonCutBoneWeights";
 import { createHumanLoopAzimuth } from "./createHumanLoopAzimuth";
+import { createHumanLoopParameterLookup } from "./createHumanLoopParameterLookup";
+import { projectHumanLoopPoint } from "./projectHumanLoopPoint";
 import { createHumanLoopHeight } from "./createHumanLoopHeight";
 
 /**
@@ -15,9 +18,11 @@ import { createHumanLoopHeight } from "./createHumanLoopHeight";
  * the head alone would tear away from the collar it is joined to. The weights
  * that fix this are read from the body itself:
  *
- * - at azimuth `a` about the neck the body's retained loop has weights
- *   interpolated between the two loop vertices that bracket `a`
- *   (`createHumanLoopAzimuth`), the collar's weights on that side;
+ * - at the face's nearest polyline parameter the body's retained loop has
+ *   weights interpolated between the corresponding two follow samples
+ *   (`createHumanLoopParameterLookup`), the collar's weights on that side. A frozen
+ *   cut intersection reads its original endpoints' complete bone-wise affine
+ *   map before this face owner's final four-influence limit;
  * - the mandible's skin is the head's whole. `jawVertices` are the face skin
  *   vertices the jaw carries (attachment weight above
  *   `HUMAN_PERSON_SEAM.jawShare`), and they take the head alone whatever their
@@ -35,8 +40,10 @@ import { createHumanLoopHeight } from "./createHumanLoopHeight";
  *   what dual quaternion skinning here accepts.
  *
  * `face` is the evaluated face skin before it is posed, so the heights are the
- * document's own; `body` is the body's neutral skin, which only its loop's
- * azimuths are read from. The weights of a vertex far above the cut are exactly
+ * document's own. Caller-authored seams without a cut retain the original
+ * angular lookup on `body`, the neutral skin. Generated cuts read the shared
+ * ordered nearest-face correspondence, even when their native body contour
+ * is not radial. The weights of a vertex far above the cut are exactly
  * the head's, so the whole cranium, jaw and everything the face builder
  * attaches to it is rigid with the head bone, as the face already is.
  *
@@ -44,12 +51,12 @@ import { createHumanLoopHeight } from "./createHumanLoopHeight";
  * quaternion skinning poses the face skin unchanged. `joints` lists the bones
  * the table names, the head first.
  *
- * @evidence contracts/common.md#principled-implementation Reading the collar's weights by azimuth and rising to the head by a smooth function of the distance above the cut is what makes both skins follow the same transform at the seam and the head alone above it; taking the ramp's length from the body's own head weights makes the twist spread over the length the body spreads it over, and forcing the mandible's skin to the head keeps the chin rigid; C2 smootherstep keeps the weights, and so the skin's strain, continuous across the ramp, and pruning to four influences with renormalization keeps each weight vector a convex combination.
- * @evidence contracts/common.md#clear-and-simple-design The function is one pass over the face vertices with the azimuth lookup and the loop height as its only geometric inputs, after the jaw's vertices are marked.
+ * @evidence contracts/common.md#principled-implementation Reading the body's complete collar weight map through the shared nearest-face correspondence and rising to the head by a smooth function of height above the cut spreads neck motion while retaining the head alone above it; final positional continuity belongs to the collar and stitch owners rather than assuming nonlinear skinning commutes with interpolation; taking the ramp's length from the body's own head weights makes the twist spread over the length the body spreads it over, and forcing the mandible's skin to the head keeps the chin rigid; C2 smootherstep keeps the weights, and so the skin's strain, continuous across the ramp, and pruning to four influences with renormalization keeps each weight vector a convex combination.
+ * @evidence contracts/common.md#clear-and-simple-design The function is one pass over the face vertices with the shared correspondence lookup and the loop height as its geometric inputs, after the jaw's vertices are marked.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex is special-cased and no length is supplied: the ramp length is the body's measured head reach, the jaw's vertices are the face's own attachment, and the weights are read from the body's authored table.
  * @evidence contracts/common.md#meaningful-documentation The comment states why the face needs the body's weights, the rules that build them, the ramp and its length, why the jaw is rigid, and the influence limit.
  * @evidence contracts/modeling.md#spatial-conventions Metres, Y up, angle from +Z towards +X about the seam's axis; weights are dimensionless.
- * @evidence contracts/modeling.md#shared-boundaries The seam's two skins take one transform at the cut because the face's weights there are the body loop's, which is the definition both sides share; the face's weights stay the head's above the head reach, so the join is valid for any pose of the head, neck and chest and opens only where the body's weights at the collar differ strongly between adjacent loop vertices.
+ * @evidence contracts/modeling.md#shared-boundaries The face reads the body's complete bone-wise affine weight field at frozen cut intersections before its final four-influence limit. These weights spread neck motion; they do not make nonlinear skinning commute with edge interpolation. Final posed positional continuity belongs to conformHumanPersonCollar and stitchHumanPersonBoundary, and unsupported folds remain their admission failures.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function computes weights for one existing part and defines none.
  * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it emits a weight table.
@@ -90,10 +97,13 @@ export function createHumanPersonFaceSkin(props: {
   );
   const reach = seam.collar.headReachMetres;
   const jaw = new Set(jawVertices);
-  const collar = createHumanLoopAzimuth(
-    seam.bodyLoop.map((vertex) => point(body, vertex)),
-    seam.axis,
-  );
+  const facePoints = seam.faceLoop.map((vertex) => point(face, vertex));
+  // Caller-authored seams without a cut retain their original angular lookup.
+  // Generated cuts use the ordered shared face correspondence rather than
+  // requiring a clipped native body contour to be a radial graph.
+  const bracket = seam.cut === undefined
+    ? createHumanLoopAzimuth(seam.bodyLoop.map((vertex) => point(body, vertex)), seam.axis).bracket
+    : createHumanLoopParameterLookup(seam.collar.follow.map(({ edge, fraction }) => edge + fraction), seam.faceLoop.length);
   const joints: AutoMovieHumanoidBone[] = ["head"];
   const boneOf = (bone: AutoMovieHumanoidBone): number => {
     let index = joints.indexOf(bone);
@@ -104,16 +114,8 @@ export function createHumanPersonFaceSkin(props: {
     return index;
   };
   /** The body's weights at a vertex, by bone. */
-  const bodyWeights = (vertex: number): Map<AutoMovieHumanoidBone, number> => {
-    const found = new Map<AutoMovieHumanoidBone, number>();
-    for (let k = 0; k < 4; k++) {
-      const weight = bodySkin.weights[vertex * 4 + k];
-      if (weight === 0) continue;
-      const bone = bodySkin.joints[bodySkin.boneIndices[vertex * 4 + k]];
-      found.set(bone, (found.get(bone) ?? 0) + weight);
-    }
-    return found;
-  };
+  const bodyWeights = (vertex: number): Map<AutoMovieHumanoidBone, number> =>
+    humanPersonCutBoneWeights(bodySkin, vertex, seam.cut);
   const count = face.length / 3;
   const boneIndices = new Array<number>(count * 4).fill(0);
   const weights = new Array<number>(count * 4).fill(0);
@@ -128,7 +130,8 @@ export function createHumanPersonFaceSkin(props: {
       continue;
     }
     const smooth = t * t * t * (10 - 15 * t + 6 * t * t);
-    const { low, high, along } = collar.bracket(angle);
+    const projected = projectHumanLoopPoint(facePoints, p);
+    const { low, high, along } = bracket(seam.cut === undefined ? angle : projected.edge + projected.fraction);
     const mixed = new Map<AutoMovieHumanoidBone, number>([["head", smooth]]);
     for (const [loop, share] of [
       [low, 1 - along],

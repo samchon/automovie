@@ -2,47 +2,11 @@ import {
   BODY_POSE_DEFECT_ZONES,
   type BodyPoseDefectZone,
 } from "./bodyPoseDefectZone";
-
-/** Triangles whose posed area falls below this share of the rest area count as crushed. */
-export const BODY_POSE_SHRINK_RATIO = 0.35;
-
-/** Triangles whose posed area exceeds this multiple of the rest area count as stretched. */
-export const BODY_POSE_STRETCH_RATIO = 2.8;
-
-/** A dihedral angle that rose by more than this many degrees counts as a new fold. */
-export const BODY_POSE_FOLD_DEGREES = 60;
-
-/** What one zone of a posed skin shows against the same body at rest. */
-export interface IBodyPoseZoneDefects {
-  /** Triangles whose first vertex lies in the zone and whose rest area is not degenerate. */
-  triangles: number;
-
-  /** Smallest and largest posed-over-rest triangle area, `1` when the zone has no triangle. */
-  minAreaRatio: number;
-  maxAreaRatio: number;
-
-  /** Triangles below `BODY_POSE_SHRINK_RATIO` and above `BODY_POSE_STRETCH_RATIO`. */
-  crushed: number;
-  stretched: number;
-
-  /** The largest rise of a dihedral angle from rest to pose, degrees, and where it is (posed metres). */
-  worstFold: number;
-  worstFoldAt: [number, number, number] | null;
-
-  /** Edges whose dihedral angle rose by more than `BODY_POSE_FOLD_DEGREES`. */
-  folds: number;
-}
-
-/** The census of one posed skin against its own rest. */
-export interface IBodyPoseDefects {
-  zones: Record<BodyPoseDefectZone, IBodyPoseZoneDefects>;
-
-  /** Posed over rest surface area of the whole skin. */
-  areaRatio: number;
-
-  /** Posed over rest volume, each open rim closed by a fan to its centroid. */
-  volumeRatio: number;
-}
+import { BODY_POSE_FOLD_DEGREES } from "./BODY_POSE_FOLD_DEGREES";
+import { BODY_POSE_SHRINK_RATIO } from "./BODY_POSE_SHRINK_RATIO";
+import { BODY_POSE_STRETCH_RATIO } from "./BODY_POSE_STRETCH_RATIO";
+import type { IBodyPoseDefects } from "./IBodyPoseDefects";
+import type { IBodyPoseZoneDefects } from "./IBodyPoseZoneDefects";
 
 /**
  * Read what a pose did to a connected skin, by comparing it triangle by
@@ -62,14 +26,16 @@ export interface IBodyPoseDefects {
  * share an edge, so a natural crease at rest (the gluteal cleft) is not
  * counted twice. The volume ratio is the enclosed volume, by the divergence
  * theorem over the closed surface, which reads a limb that lost its thickness
- * at a bend; a skin can keep every triangle and still lose volume, which only
- * a tissue model, and not skinning, restores. The instruments answer
+ * at a bend. A skin can keep its area and still lose enclosed volume; this
+ * ratio alone does not identify whether the cause or remedy is the rig,
+ * skinning, correctives or a tissue model. The instruments answer
  * different questions, and none of them says that a shape is right: a frame
  * is read by eye.
  *
  * The thresholds are census cut-offs and not anatomical limits: a triangle
  * twice its rest size at the inside of a bent knee is skin that stretched,
- * and 2.8 is where a triangle is visibly a stretched sliver in a render.
+ * and 2.8 selects a diagnostic tail for closer inspection. These numerical
+ * cut-offs establish no physiological threshold or visual acceptance.
  */
 export function measureBodyPoseDefects(input: {
   indices: readonly number[];

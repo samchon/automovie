@@ -49,11 +49,11 @@ export function buildPortraitEars(
     [10, -18],
     [1, -14],
     [-9, -7],
-    [-18, 4],
-    [-21, 11],
-    [-18, 20],
-    [-9, 22],
-    [-3, 22],
+    [-18, 3],
+    [-22, 9],
+    [-21, 16],
+    [-14, 21],
+    [-5, 22],
     [7, 20],
     [17, 17],
     [23, 3],
@@ -80,17 +80,21 @@ export function buildPortraitEars(
         i / 24,
       ),
     );
+  // The antihelix is a curved ridge that forks into a superior and an inferior
+  // crus; both crura arc away from the fork instead of running straight.
   const antihelix = stroke([
     [-12, 7],
-    [-6, 2],
-    [3, -5],
-    [10, -8],
-    [16, -8],
+    [-7, 3],
+    [0, -3],
+    [8, -7],
+    [15, -9],
+    [19, -8],
   ]);
   const fork = stroke([
-    [3, -5],
-    [8, 0],
-    [13, 7],
+    [0, -3],
+    [5, -2],
+    [10, 2],
+    [14, 8],
   ]);
   // Nearest point of a sampled path to (y, z): squared distance and the path
   // parameter in [0, 1] of that point, so a ridge can vary along its length.
@@ -125,7 +129,7 @@ export function buildPortraitEars(
   // out over one outline segment before the first lobule point and back in
   // after the last, both named by outline index. The rim's arc parameter is
   // the outline's, because the helix samples the outline uniformly.
-  const lobule = { from: 5, to: 7 };
+  const lobule = { from: 5, to: 8 };
   const bump = (
     y: number,
     z: number,
@@ -134,25 +138,26 @@ export function buildPortraitEars(
     wy: number,
     wz: number,
   ): number => Math.exp(-(((y - cy) / wy) ** 2 + ((z - cz) / wz) ** 2));
-  const relief = (y: number, z: number): number =>
-    2.8 *
-      pinnaHelixRimWeight(
-        nearest(y, z, helix).along,
-        outlinePoints.length,
-        lobule,
-      ) *
-      Math.exp(-distanceSquared(y, z, helix) / 1.35 ** 2) +
-    1.7 *
-      Math.exp(
-        -Math.min(
-          distanceSquared(y, z, antihelix),
-          distanceSquared(y, z, fork),
-        ) /
-          1.15 ** 2,
-      ) -
-    1.7 * bump(y, z, -1, 4, 6, 6) +
-    2.2 * bump(y, z, -5, 11, 3, 2.2) +
-    1.0 * bump(y, z, -17, 11, 5, 6);
+  const relief = (y: number, z: number): number => {
+    const rim = nearest(y, z, helix);
+    return (
+      2.8 *
+        pinnaHelixRimWeight(rim.along, outlinePoints.length, lobule) *
+        Math.exp(-rim.squared / 1.35 ** 2) +
+      2.2 *
+        Math.exp(
+          -Math.min(
+            distanceSquared(y, z, antihelix),
+            distanceSquared(y, z, fork),
+          ) /
+            1.7 ** 2,
+        ) -
+      2 * bump(y, z, -1, 4, 6.5, 6.5) +
+      2.2 * bump(y, z, -5, 11, 3, 2.2) +
+      1.8 * bump(y, z, -12, 6, 3, 2.6) +
+      1.0 * bump(y, z, -17, 11, 5, 6)
+    );
+  };
   // Both anatomical sides read their actual refined temporal surface. The old
   // fixed X taper left the lower pinna buried after the cranial base widened.
   // The anterior root is embedded and the posterior edge projects outwards;

@@ -10,7 +10,7 @@ import type { AutoMovieHumanBodySide } from "../identity/AutoMovieHumanBodySide"
  * @evidence contracts/common.md#clear-and-simple-design Two readonly members, the origins and the insertions, each a closed union of named structure and site; nothing else.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration is a type and holds no behaviour, so no special case, foreign mutation or compensating path exists in it.
  * @evidence contracts/common.md#meaningful-documentation The comment states that both references share a side and require resolved bone surfaces and that a rig hip point cannot identify the tendon footprint; each member names its site.
- * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The declaration defines no part or group: it relates gluteus medius to bone and fascia parts declared elsewhere by name and copies none of them.
+ * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The declaration defines no part or group: it relates gluteus medius to the same-side coxal bone and femur through named attachment sites and copies neither bone's shape or measurements.
  * @evidenceExclude contracts/modeling.md#parameter-channels The declaration names attachment sites, not shape channels: no value varies a form and nothing here has a neutral zero.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The declaration emits no primitive.
  * @evidenceExclude contracts/modeling.md#spatial-conventions The declaration holds no value with a unit or a frame: every entry is a structure name and a site name.

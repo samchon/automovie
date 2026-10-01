@@ -16,11 +16,16 @@ import { conformHumanPersonCollar } from "../seam/conformHumanPersonCollar";
 import { fairHumanSeamNormals } from "../seam/fairHumanSeamNormals";
 import { createHumanPersonFaceSkin } from "../seam/createHumanPersonFaceSkin";
 import { createHumanPersonSeam } from "../seam/createHumanPersonSeam";
+import { clipHumanPersonMesh } from "../seam/clipHumanPersonMesh";
+import { evaluateHumanPersonCut } from "../seam/evaluateHumanPersonCut";
 import { dropHumanMeshTriangles } from "../seam/dropHumanMeshTriangles";
 import type { IAutoMovieHumanPersonBuild } from "../structures/IAutoMovieHumanPersonBuild";
 import type { IAutoMovieHumanPersonDocument } from "../structures/IAutoMovieHumanPersonDocument";
 import { createHumanPersonHeadTransform } from "./createHumanPersonHeadTransform";
-import { keepHumanPersonHairClear } from "./keepHumanPersonHairClear";
+import { clearHumanPersonHair } from "./clearHumanPersonHair";
+import { meshOfHumanPart } from "./meshOfHumanPart";
+import { moveHumanMeshRigidly } from "./moveHumanMeshRigidly";
+import { stitchHumanPersonBoundary } from "./stitchHumanPersonBoundary";
 import { resolveHumanPersonFaceBones } from "./resolveHumanPersonFaceBones";
 
 /** The one connected skin surface of a basis: the surface that draws the skin material. */
@@ -55,21 +60,25 @@ const skinSurfaceOf = <
  *    rigid with the bone (`createHumanPersonHeadTransform`); the face skin is
  *    skinned by weights read from the body's own collar (`createHumanPersonFaceSkin`)
  *    so its neck turns with the body's neck.
- * 3. The body's collar follows the face's neck (`conformHumanPersonCollar`),
- *    the body gives up the skin above the face's cut, and a ribbon of the
- *    two loops' own vertices joins the skins (`IAutoMovieHumanPersonSeam`).
- * 4. Normals are computed once over the joined skin, so every part that has a
- *    seam vertex agrees about it, and each render part reads its vertices back
- *    through the region's own corner table.
+ * 3. Frozen source-edge stencils append the body's cut points after its own
+ *    nonlinear posing. The collar follows the face's neck
+ *    (`conformHumanPersonCollar`); the scalar cut retains lower portions of
+ *    crossing triangles without exposing a staircase through original rows.
+ * 4. Normals are computed over the joined clipped skin adjacency. Each
+ *    render part reads its vertices through its region's corner table, then
+ *    both boundaries are subdivided onto one union of their samples
+ *    (`stitchHumanPersonBoundary`) with shared interpolated unit normals.
  * 5. Generated hair (the face parts no basis region draws) is kept off the
  *    posed body at the clearance the hair document asked of the head
- *    (`keepHumanPersonHairClear`).
+ *    (`clearHumanPersonHair`).
  *
- * The seam is derived once from the two neutral surfaces, so an evaluation
- * only moves vertices; the result validates as a resident model. Parts and
+ * The seam's source loops are derived once from the neutral surfaces. Each
+ * evaluation owns the posed Float32 boundary partition and may emit a
+ * different subdivision; the result validates as a resident model. Parts and
  * materials carry a `face:` or `body:` prefix (the two bases each name their
- * skin `skin`), and the ribbon is the part `seam:skin` in the face's skin
- * material. Everything is metres in the shared Y-up, Z-forward frame, posed.
+ * skin `skin`). The joint is the two skins' shared polyline and emits no
+ * zero-area ribbon part. Everything is metres in the shared Y-up, Z-forward
+ * frame, posed.
  * The person builder owns no anatomy: it does not validate that the head is a
  * plausible size for the stature, that the face's neck matches the body's
  * measured neck girth; those are separate relations a person document does
@@ -79,12 +88,11 @@ const skinSurfaceOf = <
  * @evidence contracts/common.md#clear-and-simple-design An orchestrator that calls one named owner per stage and holds only the tables compiled once (the seam, the face weights, the region corner tables).
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is special-cased for a document or a basis revision; refusals name the actual causes, and the two anatomies' own builders admit their documents.
  * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order, the naming rule, the frame and what the builder does not judge.
- * @evidence contracts/modeling.md#part-identity-and-grouping The person is a group of two anatomies' parts and one seam part; every part keeps its owner's identity under a prefix and none is copied or merged.
+ * @evidence contracts/modeling.md#part-identity-and-grouping The person is a group of the two anatomies' parts; each keeps its owner's identity under a prefix, and the boundary subdivision does not introduce a third skin identity.
  * @evidence contracts/modeling.md#spatial-conventions One frame, metres, Y up, +Z forward, the frame both bases share; the conversion between the neutral frame and the shaped rest frame is the head transform's named shift.
- * @evidence contracts/modeling.md#shared-boundaries The face skin, the ribbon and the body skin are one manifold at the neck, joined by shared vertices and one normal per seam vertex; the join opens only where the collar's mismatch to the face exceeds the seam's reach.
+ * @evidence contracts/modeling.md#shared-boundaries The face and body skin triangles use the same union of boundary samples and the same position and normal for each; the body's coarse chord is subdivided through the face's corners instead of joined by a degenerate ribbon.
  * @evidenceExclude contracts/modeling.md#parameter-channels The builder consumes no channel of its own; the two documents keep theirs.
- * @evidenceExclude contracts/modeling.md#emitted-geometry The person emits what its two anatomies emit less the covered skin plus one ribbon triangle per loop edge; it adds no other primitive.
- * @evidenceExclude contracts/modeling.md#rendered-observation The observation of the assembled person is recorded with the seam's own declaration; the builder answers for no part alone.
+ * @evidence contracts/modeling.md#emitted-geometry The person clips body triangles through frozen source-edge intersections and subdivides only triangles incident to the shared boundary; the boundary owner documents the centroid fan's population.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The builder carries no anatomical value of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range The builder bounds no anatomical quantity; the two documents' ranges are their owners'.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The builder consumes two documents of named inputs and adds none.
@@ -112,13 +120,9 @@ export function createHumanPersonBuilder(props: {
   for (let i = 0; jaw !== undefined && i < jaw.rows.length; i += 2)
     if (jaw.rows[i + 1] > HUMAN_PERSON_SEAM.jawShare) jawVertices.push(jaw.rows[i]);
   const faceCount = faceSkin.surface.positions.length / 3;
-  const covered = new Set(seam.covered);
-  const bodyKept: number[] = [];
-  for (let c = 0; c < bodySkin.surface.indices.length; c += 3) {
-    const triangle = bodySkin.surface.indices.slice(c, c + 3);
-    if (!triangle.some((vertex) => covered.has(vertex)))
-      bodyKept.push(...triangle);
-  }
+  const cut = seam.cut!;
+  const bodyKept = cut.indices;
+  const neutralBody = evaluateHumanPersonCut(bodySkin.surface.positions, cut);
   const ribbonGlobal = seam.ribbon.map((local) =>
     local < seam.faceLoop.length
       ? seam.faceLoop[local]
@@ -133,6 +137,11 @@ export function createHumanPersonBuilder(props: {
     ...bodyKept.map((vertex) => vertex + faceCount),
     ...ribbonGlobal,
   ];
+  const faceRegionIds = new Set(
+    faceBasis.surfaces.flatMap((surface) =>
+      surface.regions.map((region) => region.id),
+    ),
+  );
   const faceRegions = new Map(
     faceSkin.surface.regions.map((region) => [
       region.id,
@@ -169,8 +178,8 @@ export function createHumanPersonBuilder(props: {
     const raw = new Array<number>(faceCount * 3).fill(0);
     for (const part of face.parts) {
       const sources = faceRegions.get(part.id);
-      if (sources === undefined || part.geometry.type !== "mesh") continue;
-      const { positions } = part.geometry.mesh;
+      if (sources === undefined) continue;
+      const { positions } = meshOfHumanPart(part);
       sources.forEach((source, vertex) => {
         for (let axis = 0; axis < 3; axis++)
           raw[source * 3 + axis] = positions[vertex * 3 + axis];
@@ -179,7 +188,7 @@ export function createHumanPersonBuilder(props: {
     const faceWeights = createHumanPersonFaceSkin({
       seam,
       face: raw,
-      body: bodySkin.surface.positions,
+      body: neutralBody,
       bodySkin: bodySkin.surface.skin,
       jawVertices,
     });
@@ -189,10 +198,11 @@ export function createHumanPersonBuilder(props: {
       bodyBasis.joints,
       bones,
     );
+    const bodyBeforeCollar = evaluateHumanPersonCut(body.posedSurfaces[bodySkin.index].positions, cut);
     const bodyPosed = conformHumanPersonCollar({
       seam,
       face: facePosed,
-      body: body.posedSurfaces[bodySkin.index].positions,
+      body: bodyBeforeCollar,
     });
     const normals = fairHumanSeamNormals({
       indices: joinedIndices,
@@ -220,92 +230,72 @@ export function createHumanPersonBuilder(props: {
       return out;
     };
 
-    const parts: IAutoMovieModel["parts"] = [];
-    const hair: number[] = [];
-    for (const part of face.parts) {
-      if (part.geometry.type !== "mesh")
-        throw new Error("A face part is a mesh: " + part.id);
+    const placed = face.parts.map((part) => {
+      const mesh = meshOfHumanPart(part);
       const sources = faceRegions.get(part.id);
-      const mesh =
-        sources !== undefined
-          ? read(part.geometry.mesh, sources, facePosed, 0)
-          : moved(part.geometry.mesh, head);
-      if (sources === undefined) hair.push(parts.length);
-      parts.push(prefixed("face", part, mesh));
-    }
+      return {
+        ...part,
+        geometry: {
+          type: "mesh" as const,
+          mesh:
+            sources === undefined
+              ? moveHumanMeshRigidly(mesh, head)
+              : stitchHumanPersonBoundary({
+                  mesh: read(mesh, sources, facePosed, 0),
+                  sources,
+                  side: "face",
+                  seam,
+                  face: facePosed,
+                  faceNormals: normals,
+                }),
+        },
+      };
+    });
     // generated hair: kept off the shoulders once the body has been posed
-    if (hair.length > 0) {
-      const layers = faceDocument.hair?.layers ?? [];
-      const clearance = Math.max(
-        0,
-        ...layers.map((layer) => layer.clearance + layer.samplingStep / 2),
-      );
-      const meshOf = (index: number): IAutoMovieMesh =>
-        (parts[index].geometry as { mesh: IAutoMovieMesh }).mesh;
-      const cleared = keepHumanPersonHairClear({
-        positions: bodyPosed,
-        indices: bodyKept,
-        hair: hair.map((index) => meshOf(index)).map((mesh) => ({
-          positions: mesh.positions,
-          indices: mesh.indices!,
-        })),
-        clearance,
-      });
-      hair.forEach((index, k) => {
-        meshOf(index).positions = cleared[k];
-      });
-    }
+    clearHumanPersonHair({
+      parts: placed,
+      isGenerated: (id) => !faceRegionIds.has(id),
+      layers: faceDocument.hair?.layers ?? [],
+      positions: bodyPosed,
+      indices: bodyKept,
+    });
+    const parts: IAutoMovieModel["parts"] = placed.map((part) =>
+      prefixed("face", part, meshOfHumanPart(part)),
+    );
     for (const part of body.model.parts) {
-      if (part.geometry.type !== "mesh")
-        throw new Error("A body part is a mesh: " + part.id);
+      const mesh = meshOfHumanPart(part);
       const sources = bodyRegions.get(part.id);
       if (sources === undefined) {
-        parts.push(prefixed("body", part, part.geometry.mesh));
+        parts.push(prefixed("body", part, mesh));
         continue;
       }
-      const patched = read(part.geometry.mesh, sources, bodyPosed, faceCount);
+      const clipped = clipHumanPersonMesh(mesh, sources, cut);
+      const retained = read(clipped.mesh, clipped.sources, bodyPosed, faceCount);
       parts.push(
         prefixed(
           "body",
           part,
-          dropHumanMeshTriangles(patched, (vertex) =>
-            covered.has(sources[vertex]),
+          dropHumanMeshTriangles(
+            stitchHumanPersonBoundary({
+              mesh: retained,
+              sources: clipped.sources,
+              side: "body",
+              seam,
+              face: facePosed,
+              faceNormals: normals,
+              bodyBeforeCollar,
+            }),
+            () => false,
           ),
         ),
       );
     }
 
-    const loop = [...seam.faceLoop, ...seam.bodyLoop.map((v) => v + faceCount)];
-    const ribbonPoints = loop.map((vertex) => {
-      const at = vertex < faceCount ? facePosed : bodyPosed;
-      const index = vertex < faceCount ? vertex : vertex - faceCount;
-      return { x: at[index * 3], y: at[index * 3 + 1], z: at[index * 3 + 2] };
-    });
-    const ribbonNormals = loop.flatMap((vertex) =>
-      normals.slice(vertex * 3, vertex * 3 + 3),
-    );
-    parts.push({
-      id: "seam:skin",
-      name: "seam:skin",
-      material: "face:" + HUMAN_PERSON_SEAM.skinMaterial,
-      geometry: {
-        type: "mesh",
-        mesh: {
-          positions: ribbonPoints.flatMap((p) => [p.x, p.y, p.z]),
-          normals: ribbonNormals,
-          uvs: null,
-          indices: seam.ribbon.slice(),
-          skin: null,
-        },
-      },
-      attachedBone: null,
-      transform: null,
-    });
     // how far the two documents' necks disagreed: the most the body's own
     // collar had to move to lie on the face's
     let collarShift = 0;
     for (const vertex of seam.bodyLoop) {
-      const own = body.posedSurfaces[bodySkin.index].positions;
+      const own = bodyBeforeCollar;
       collarShift = Math.max(
         collarShift,
         Math.hypot(
@@ -353,7 +343,7 @@ export function createHumanPersonBuilder(props: {
         }),
       ],
       seam: {
-        ribbonTriangles: seam.ribbon.length / 3,
+        ribbonTriangles: 0,
         collarShiftMetres: collarShift,
       },
     };
@@ -373,35 +363,4 @@ function prefixed(
     material: owner + ":" + part.material,
     geometry: { type: "mesh", mesh },
   };
-}
-
-/** A mesh of the head frame carried onto the posed head. */
-function moved(
-  mesh: IAutoMovieMesh,
-  head: ReturnType<typeof createHumanPersonHeadTransform>,
-): IAutoMovieMesh {
-  const positions = mesh.positions.slice();
-  for (let vertex = 0; vertex < positions.length; vertex += 3) {
-    const p = head.point({
-      x: positions[vertex],
-      y: positions[vertex + 1],
-      z: positions[vertex + 2],
-    });
-    positions[vertex] = p.x;
-    positions[vertex + 1] = p.y;
-    positions[vertex + 2] = p.z;
-  }
-  const normals = mesh.normals === null ? null : mesh.normals.slice();
-  if (normals !== null)
-    for (let vertex = 0; vertex < normals.length; vertex += 3) {
-      const n = head.direction({
-        x: normals[vertex],
-        y: normals[vertex + 1],
-        z: normals[vertex + 2],
-      });
-      normals[vertex] = n.x;
-      normals[vertex + 1] = n.y;
-      normals[vertex + 2] = n.z;
-    }
-  return { ...mesh, positions, normals };
 }

@@ -18,6 +18,7 @@ export * from "./humanBodyReliefWeights";
 export * from "./humanBodySkinDownDirection";
 export * from "./humanBodyShoulderTtRotation";
 export * from "./humanBodyShoulderOrientationDistance";
+export * from "./humanBodyShoulderPoseFromDirection";
 export * from "./humanBodyShoulderElevationLimit";
 export * from "./humanBodyShoulderReaches";
 export * from "./resolveHumanBodyCouplings";

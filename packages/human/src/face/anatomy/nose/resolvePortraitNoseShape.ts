@@ -20,13 +20,11 @@ import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject or fixture is special-cased; every refusal is a statement about the shape alone.
  * @evidence contracts/common.md#meaningful-documentation The comment lists each refusal class, the ownership of the copy and the limit of what admission means.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part; it admits the shape of the nose component.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function validates channels defined on IPortraitNoseShape and defines none.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitives.
- * @evidenceExclude contracts/modeling.md#spatial-conventions The function converts no unit or frame; the millimetre and degree fields are checked for finiteness only.
+ * @evidence contracts/modeling.md#spatial-conventions The copied shape retains head millimetres for displacements, degrees for tilt and dimensionless ratios for scales, as defined by IPortraitNoseShape; admission converts none of these quantities.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no boundary.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part; the component observes the assembled nose.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value.
- * @evidenceExclude contracts/anatomy.md#permitted-range Finite positive checks are not living-body bounds, so this chapter is not answered here.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function admits inputs defined on IPortraitNoseShape and adds none.
  */
 export function resolvePortraitNoseShape(

@@ -17,14 +17,14 @@ type Skin = IAutoMovieHumanBodyBasis["surfaces"][number]["skin"];
  *
  * The rule is geometric and applies to every vertex the same way. Let `theta`
  * be the angle at the glenohumeral centre between the vertex and the upward
- * axis (+Y) in the rest pose. The humeral weight is kept whole from
- * `fullDegrees` down to the horizontal plane and beyond, kept at none at or
- * above `onsetDegrees`, and blended between them by a smoothstep. The removed
+ * axis (+Y) in the rest pose. The humeral weight is kept whole at
+ * and beyond `fullDegrees`, kept at none at or below `onsetDegrees`, and
+ * blended between them by a smoothstep. The removed
  * share is added to the girdle bone of the same side. The weights of a vertex
  * still sum to one and it keeps at most four influences: when a fifth would
  * appear the smallest is dropped and the rest are renormalised. A vertex with
- * no humeral weight, or on the far side of the midline from the joint, is not
- * read at all.
+ * no humeral weight, or on the far side of the midline from the joint, is
+ * left unchanged.
  *
  * `onsetDegrees` and `fullDegrees` are an authored convention, not a measured
  * value: the horizontal plane through the joint centre (90 degrees) separates
@@ -35,6 +35,16 @@ type Skin = IAutoMovieHumanBodyBasis["surfaces"][number]["skin"];
  * Pure: the input skin is not modified, and the result owns its arrays. The
  * caller owns the frame: positions and centres are metres in the basis rest
  * frame (Y up, Z forward), the left arm on +X.
+ * The caller supplies basis-admitted positions and four-influence skin data.
+ * A vertex at the joint centre has no upward angle and is left unchanged:
+ * rotation about that centre cannot move it, so no directional attachment
+ * can be inferred there. Ramp endpoints must be finite and inside [0, 180],
+ * the range of the angle between two nonzero vectors.
+ *
+ * @evidence contracts/common.md#principled-implementation A smoothstep of the angle off the rest upward axis transfers the humeral share to its same-side girdle, preserving the normalized four-influence representation. The geometric rule is an authored attachment convention, not a population motion estimate; a zero-radius vertex has no defined angle and remains unchanged.
+ * @evidence contracts/common.md#clear-and-simple-design One pass per side reads each vertex's existing shares, transfers one share and stores at most four normalized influences; the function returns independent arrays rather than mutating the input.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The rule depends on admitted geometry and named bone ownership, with no photograph, subject-specific value or fixture case. Zero radius is a geometric degeneracy, not a selected vertex exemption.
+ * @evidence contracts/common.md#meaningful-documentation The comment identifies the regeneration consumer's frame, input admission precondition, convention rather than measurement, degeneracy behavior and ownership of every returned array.
  */
 export function reweightHumanBodyShoulderSkin(props: {
   positions: readonly number[];
@@ -44,8 +54,16 @@ export function reweightHumanBodyShoulderSkin(props: {
   fullDegrees: number;
 }): { skin: Skin; changed: number } {
   const { positions, skin, centres, onsetDegrees, fullDegrees } = props;
-  if (!(onsetDegrees < fullDegrees))
-    throw new Error("The girdle ramp needs onset below full.");
+  if (
+    !Number.isFinite(onsetDegrees) ||
+    !Number.isFinite(fullDegrees) ||
+    onsetDegrees < 0 ||
+    fullDegrees > 180 ||
+    !(onsetDegrees < fullDegrees)
+  )
+    throw new Error(
+      "The girdle ramp needs finite angles in [0, 180] and onset below full.",
+    );
   const boneIndices = skin.boneIndices.slice();
   const weights = skin.weights.slice();
   let changed = 0;
@@ -63,8 +81,10 @@ export function reweightHumanBodyShoulderSkin(props: {
       const dz = positions[3 * v + 2] - centre.z;
       // the joint's own side of the midline only
       if (side * positions[3 * v] <= 0) continue;
+      const radius = Math.hypot(dx, dy, dz);
+      if (radius === 0) continue;
       const theta =
-        (Math.acos(dy / Math.hypot(dx, dy, dz)) * 180) / Math.PI;
+        (Math.acos(Math.max(-1, Math.min(1, dy / radius))) * 180) / Math.PI;
       const t = Math.min(
         1,
         Math.max(0, (theta - onsetDegrees) / (fullDegrees - onsetDegrees)),
@@ -98,5 +118,8 @@ export function reweightHumanBodyShoulderSkin(props: {
       ++changed;
     }
   }
-  return { skin: { ...skin, boneIndices, weights }, changed };
+  return {
+    skin: { joints: skin.joints.slice(), boneIndices, weights },
+    changed,
+  };
 }

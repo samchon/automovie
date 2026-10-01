@@ -11,6 +11,8 @@ import {
   faceFrontVisible,
   meshComponents,
 } from "./prepareGingivaBasis";
+import type { IDentalClinicalRegistration } from "./IDentalClinicalRegistration";
+import { measureDentalClinicalHeight } from "./measureDentalClinicalHeight";
 
 /**
  * A gum vertex's rise: linear in its x between the anterior crowns' zenith
@@ -46,12 +48,15 @@ export function faceGingivaScallopRise(
  * The gingiva revision raised the upper gum as one body, and the canines'
  * root rings bounded the rise (their crown meshes are the shortest), so the
  * central incisors still show 7.75 mm of the 9.35 their norm gives and a
- * smile that bares them to the photograph's lip line bares a band of gum
- * above them. A real gingival margin is scalloped: each crown has its own
+ * frontal display is not the axial clinical measurement. Registered axis,
+ * gingival-zenith and incisal/cusp anchors are required before any norm drives
+ * a rise. A real gingival margin is scalloped: each crown has its own
  * zenith. Here each of the six anterior maxillary crowns (paired with
  * `norms` by rank from the midline: centrals, laterals, canines, as in the
  * gingiva revision) wants its zenith raised by its shortfall (norm less the
- * height a front view shows, `faceClinicalCrowns`), and every upper crown
+ * registered axial height), converted to Y rise by its fixed-axis and moving-
+ * anchor response. The front raster selects visible crowns and checks rings;
+ * it supplies no clinical landmark. Every upper crown
  * (anterior or not) has a ring headroom: the largest rigid rise of the gum
  * at which the front view shows no part of its root ring it did not show
  * before, found by bisection to one of the raster's pixels. Each
@@ -64,14 +69,18 @@ export function faceGingivaScallopRise(
  * pixels (its grid follows the geometry's bounds). A zenith's knot starts at
  * its wish, held to its own ring's headroom less a pixel; the margin is read
  * on the gum's triangles around the zenith, which rise less than the knot
- * where no vertex stands on it, so each knot is then raised by what its
- * margin still lacks until every margin is within a pixel of its norm or its
+ * where no vertex stands on it, so each knot is then raised by the registered
+ * height shortfall converted to Y movement until each change is within the
+ * supplied geometric resolution or its
  * knot stands at its ring's ceiling. A final front view refuses if any ring
  * opens after all. The receipt lists each anterior crown's norm, height
  * before, wish, headroom, the scallop's value at its zenith (before the
  * ceilings of other rings that the gum's triangles there meet) and height
  * after. Documents are rebuilt to check them and restamped with the control
- * map. Pure: the inputs are cloned.
+ * map. The receipt labels registered-landmark axial measurements. Sample
+ * means are targets under their recorded population conditions and define
+ * no permitted range. Landmark identity and acquisition remain the registrar's
+ * evidence obligation. Inputs are cloned and no source is changed in place.
  */
 export function prepareGingivaScallopBasis(input: {
   basis: IAutoMovieHumanFaceBasis;
@@ -80,11 +89,14 @@ export function prepareGingivaScallopBasis(input: {
   revision: string;
   norms: readonly [number, number, number];
   resolution: number;
+  /** Source-component registrations; absent metadata cannot drive clinical norms. */
+  registrations?: ReadonlyMap<number, IDentalClinicalRegistration>;
 }): {
   basis: IAutoMovieHumanFaceBasis;
   documents: IAutoMovieHumanFaceBasisDocument[];
   controls: IAutoMovieHumanFaceControlMap;
   receipt: {
+    clinicalMeasurement: "registered-landmark-axis-distance";
     source: string;
     revision: string;
     anterior: {
@@ -204,8 +216,16 @@ export function prepareGingivaScallopBasis(input: {
     .slice(0, 6);
   if (anterior.length < 6)
     throw new Error("The front view shows fewer than six maxillary crowns.");
-  const wish = anterior.map(([, crown], rank) =>
-    Math.max(0, input.norms[Math.floor(rank / 2)]! - crown.visible),
+  const moving = new Set([...component.keys()].filter(upperGum));
+  const clinical = (positions: readonly number[], crown: number) => {
+    const measured = measureDentalClinicalHeight(positions, basis.id, input.registrations?.get(crown), moving);
+    if (!(measured.metresPerUpShift > 0))
+      throw new Error("A clinical gingival zenith must follow the maxillary gum in the cervical direction.");
+    return measured;
+  };
+  const initial = new Map(anterior.map(([crown]) => [crown, clinical(original, crown)]));
+  const wish = anterior.map(([crown], rank) =>
+    Math.max(0, (input.norms[Math.floor(rank / 2)]! - initial.get(crown)!.heightMetres) / initial.get(crown)!.metresPerUpShift),
   );
   const ceilings = upperCrowns.map((crown) => {
     const xs = rings.get(crown)!.map((vertex) => P[3 * vertex]!);
@@ -243,14 +263,14 @@ export function prepareGingivaScallopBasis(input: {
   let zenith = wish.map((one, rank) => Math.min(one, own[rank]!));
   let { knots, moved } = scallop(zenith);
   for (let pass = 0; pass < 8; ++pass) {
-    const shown = measure(moved);
+    const shown = new Map(anterior.map(([crown]) => [crown, clinical(moved, crown)]));
     const next = anterior.map(([crown], rank) =>
       Math.min(
         own[rank]!,
         zenith[rank]! +
           Math.max(
             0,
-            input.norms[Math.floor(rank / 2)]! - shown.get(crown)!.visible,
+            (input.norms[Math.floor(rank / 2)]! - shown.get(crown)!.heightMetres) / shown.get(crown)!.metresPerUpShift,
           ),
       ),
     );
@@ -269,7 +289,7 @@ export function prepareGingivaScallopBasis(input: {
         .join(", ")} after all.`,
     );
   moved.forEach((value, i) => (P[i] = value));
-  const after = measure(P);
+  const after = new Map(anterior.map(([crown]) => [crown, clinical(P, crown)]));
   const source = basis.id;
   basis.id = revision;
   const build = createHumanFaceBasisBuilder(basis);
@@ -283,19 +303,20 @@ export function prepareGingivaScallopBasis(input: {
     documents: restamped,
     controls: { ...controls, basis: revision },
     receipt: {
+      clinicalMeasurement: "registered-landmark-axis-distance",
       source,
       revision,
       anterior: anterior.map(([crown, measured], rank) => ({
         centre: measured.centre,
         normMetres: input.norms[Math.floor(rank / 2)]!,
-        beforeMetres: measured.visible,
+        beforeMetres: initial.get(crown)!.heightMetres,
         wishMetres: wish[rank]!,
         headroomMetres: headroom.get(crown)!,
         riseMetres: faceGingivaScallopRise(knots, ceilings, measured.centre, [
           measured.centre,
           measured.centre,
         ]),
-        afterMetres: after.get(crown)!.visible,
+        afterMetres: after.get(crown)!.heightMetres,
       })),
     },
   };

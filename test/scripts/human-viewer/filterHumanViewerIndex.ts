@@ -1,4 +1,4 @@
-import type { IHumanViewerIndexEntry } from "./describeHumanViewerDocuments";
+import type { IHumanViewerIndexEntry } from "./IHumanViewerIndexEntry";
 
 /**
  * The index entries that match a search text and a domain filter. The text

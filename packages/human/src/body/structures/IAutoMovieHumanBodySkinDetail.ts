@@ -16,8 +16,10 @@ export interface IAutoMovieHumanBodySkinDetail {
   tileMillimetres: number;
 
   /**
-   * Line families: grooves along the integer direction `(a, b)`, `hypot(a,
-   * b)` of them across the tile, each a Gaussian valley of `depth` and
+   * Line families: `(a, b)` are the integer phase coefficients in the UV
+   * frame. Unwarped grooves follow constant `a*u + b*v`, so their tangent direction
+   * is `(-b, a)` and their spacing is the tile side divided by `hypot(a, b)`.
+   * Each is a Gaussian valley of `depth` and
    * `width` micrometres whose phase wanders by up to `wander` of a groove and
    * whose depth varies along it by up to `vary` of itself, breaking where it
    * reaches nothing.

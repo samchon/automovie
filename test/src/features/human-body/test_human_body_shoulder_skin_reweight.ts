@@ -93,6 +93,7 @@ export const test_human_body_shoulder_skin_reweight = (): void => {
   ];
   const skin = { joints: JOINTS, boneIndices, weights };
   const before = JSON.stringify(skin);
+  const withoutGirdle: AutoMovieHumanoidBone[] = ["upperChest", "leftUpperArm"];
   const run = (onsetDegrees = 70, fullDegrees = 110) =>
     reweightHumanBodyShoulderSkin({
       positions,
@@ -174,7 +175,7 @@ export const test_human_body_shoulder_skin_reweight = (): void => {
       () =>
         reweightHumanBodyShoulderSkin({
           positions,
-          skin: { ...skin, joints: ["upperChest", "leftUpperArm"] as AutoMovieHumanoidBone[] },
+          skin: { ...skin, joints: withoutGirdle },
           centres,
           onsetDegrees: 70,
           fullDegrees: 110,

@@ -37,9 +37,10 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * the apertures of the posed vertex pairs (`measureHumanFaceAperture`) and
  * the closure rows added to the rest layer scaled by weight and aperture
  * ratio, then each attached surface posed through its sparse weights
- * (`poseHumanFaceSurface`), then the tongue's passage judged
- * (`evaluateHumanFacePassage`) and soft tissue held outside the dental
- * colliders (`resolveHumanFaceContact`), then common normals and region
+ * (`poseHumanFaceSurface`), then soft tissue held outside the dental
+ * colliders (`resolveHumanFaceContact`), then final apertures and the tongue's
+ * passage judged on those corrected positions (`evaluateHumanFacePassage`),
+ * then common normals and region
  * separation. Shape is identity, a joint's centre is identity, and the
  * expression rows of an articulated basis are rest-space residuals over the
  * joint motion, so a mandibular arch stays a rigid body on the arc at every
@@ -94,7 +95,7 @@ import { liftHumanFaceColours } from "./liftHumanFaceColours";
  * material's base colour so vertex colours stay in [0, 1] and every albedo
  * is kept (`liftHumanFaceColours`); an albedo past one refuses.
  *
- * @evidence contracts/common.md#principled-implementation The builder evaluates a fixed pipeline per document (weights, rest layer, articulation, closure, attached posing, passage and contact, common normals, region separation) in an order each stage's owner documents, and reuses a result only when its inputs are identical: the pose cache is keyed by the ordered channel weights, the occlusion cache by pose identity, and the hair cache by pose and hair layers. Model structure and materials are admitted once on the neutral, and each edit re-checks its welded vertex partition, taking the full model gate again when the partition changes, because deformation is the only thing that can change welded incidence.
+ * @evidence contracts/common.md#principled-implementation The builder evaluates weights, rest layer, articulation, closure, attached posing, contact, final-aperture/passage admission, common normals and region separation in the pose owner's documented order. Reuse is keyed by the inputs each stage reads: channel weights for pose, pose identity for occlusion, and pose plus hair layers for hair. Every edit re-checks its welded vertex partition and takes full model admission again when it changes.
  * @evidence contracts/common.md#clear-and-simple-design An orchestrator: it holds the caches and calls one named owner per stage; no stage's formula lives in it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached hair result is certified only after the full model passes validateModel, and identity collisions with resident geometry refuse; nothing is special-cased for a subject or a document.
  * @evidence contracts/common.md#meaningful-documentation The comment gives the stage order with each owner, what is retained between edits, what is admitted once and per edit, and the limits of the contact stage.

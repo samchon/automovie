@@ -15,7 +15,6 @@
  * @evidence contracts/common.md#meaningful-documentation The comment states the plane, the units, the identity case, the normalisation and the refusals.
  * @evidence contracts/modeling.md#spatial-conventions Points and displacement are head millimetres (+X left, +Y up, +Z anterior); the height is measured along Z, not along the plane normal, as the comment states.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group; it is a numerical helper of the nasal projection owner.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no mesh primitives; it returns values for its caller to place.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and meets no neighbouring part; the callers that share its result own the boundary.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part or joint; the nose component that consumes it is the declaration that observes the assembled result.

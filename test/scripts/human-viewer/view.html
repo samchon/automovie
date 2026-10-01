@@ -8,6 +8,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:13px/
 body{display:flex;flex-direction:column}
 #bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--line)}
 #bar .group{display:flex;gap:4px;align-items:center}
+#light-controls[hidden]{display:none}
 button,select,input[type=search]{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:4px 8px;font:inherit}
 button{cursor:pointer}
 button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
@@ -42,6 +43,14 @@ output{min-width:3.2em;display:inline-block;color:var(--dim)}
   <span class="group"><select id="size" aria-label="Size"><option>480</option><option>640</option><option>900</option><option>1200</option></select></span>
   <span class="group"><label title="Redraw by itself after 20 quiet seconds"><input id="auto" type="checkbox"> auto</label></span>
   <span class="group"><label><input id="ao" type="checkbox"> AO</label></span>
+  <form class="group" id="light-controls" hidden aria-label="Inspection light direction">
+    <label>Light <select id="light-name" aria-label="Inspection light"></select></label>
+    <input id="light-x" type="text" inputmode="decimal" aria-label="Light direction X" placeholder="X" size="5">
+    <input id="light-y" type="text" inputmode="decimal" aria-label="Light direction Y" placeholder="Y" size="5">
+    <input id="light-z" type="text" inputmode="decimal" aria-label="Light direction Z" placeholder="Z" size="5">
+    <button type="submit">Apply</button><button type="button" id="light-reset">Default lights</button>
+    <span id="light-error" role="status"></span>
+  </form>
   <span class="group" id="photo" hidden title="A local reference photograph exists for this document"><select id="ref" aria-label="Photograph"><option value="">photo off</option><option value="split">split</option><option value="overlay">overlay</option><option value="swipe">swipe</option></select><label>Mix <input id="opacity" type="range" min="0" max="1" step="0.01"></label><button id="photo-camera" title="Place the camera where the photograph was taken">Photo camera</button><label><input id="landmarks-toggle" type="checkbox"> landmarks</label></span>
   <span class="group"><select id="against" aria-label="Difference against"><option value="">difference against...</option></select><a id="compare-link" href="/compare" target="_blank" hidden>/compare</a></span>
   <span class="group" id="progress" style="color:var(--accent)"></span>

@@ -14,6 +14,8 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  * its walls, which the projection reports by refusing; `integrate` then
  * grows that one root like a guide. The caller owns the station budget of
  * whichever curve comes back.
+ * Projection refusal chooses integration; an integration refusal is propagated
+ * unchanged. The integrator is called once outside the placement's catch.
  *
  * A placed strand is also held to the chord its guides were integrated with.
  * Interpolation scales the blended displacements to the strand's own regional
@@ -35,6 +37,8 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  *   hierarchy approximates. The fallback catches the projection's refusal and
  *   returns to the definition, so it corrects a real difference between an
  *   interpolated and an integrated curve and does not mask a wrong premise.
+ *   The placement catch never retries a refusing integrator: integration runs
+ *   once after the decision, and its own failure is propagated unchanged.
  * @evidence contracts/common.md#clear-and-simple-design One decision per
  *   strand between placing and growing; the caller owns the station budget of
  *   whichever curve returns.
@@ -57,8 +61,9 @@ import type { humanFaceHairContact } from "./humanFaceHairContact";
  *   returned clearance is the contact's fibre clearance in metres; nothing is
  *   converted.
  * @evidence contracts/modeling.md#shared-boundaries The strand meets the skin
- *   through the same contact instance and clearance as the guides, so
- *   interpolated and integrated hair keep one clearance from one definition.
+ *   through the guides' shared contact rule and nominal half-step plus requested
+ *   clearance. Each curve owns a separate instance with a rounding allowance
+ *   scaled to its own root and length; these are not the same object.
  *   Where blended guides disagree the chord test fails and the strand is
  *   integrated, which is the configuration in which the interpolated join would
  *   open.
@@ -94,29 +99,41 @@ export function growHumanFaceHairStrand(props: {
   normal: IAutoMovieVector3;
 } {
   const { strand, contact } = props;
+  const points: IAutoMovieVector3[] = [];
+  let placed = true;
   try {
-    const points = strand.points.map((point, index) =>
-      index === 0 ? point : contact.project(point),
-    );
     // The root's own emergence is the clearance, as it is for a guide, and
-    // stands outside this bound like the integrator's launch segment.
+    // stands outside this bound like the integrator's launch segment. Each
+    // station is projected and its chord checked before the next is queried,
+    // so a strand that has to be grown is recognised at its first bad chord
+    // and the stations after it are never projected.
     const chord = contact.step + contact.epsilon;
-    for (let at = 2; at < points.length; at++) {
-      const span = points[at],
-        before = points[at - 1];
-      if (
-        Math.hypot(span.x - before.x, span.y - before.y, span.z - before.z) >
-        chord
-      )
-        return props.integrate();
+    for (let at = 0; at < strand.points.length; at++) {
+      const point =
+        at === 0 ? strand.points[0] : contact.project(strand.points[at]);
+      if (at >= 2) {
+        const before = points[at - 1];
+        if (
+          Math.hypot(
+            point.x - before.x,
+            point.y - before.y,
+            point.z - before.z,
+          ) > chord
+        ) {
+          placed = false;
+          break;
+        }
+      }
+      points.push(point);
     }
-    return {
-      points,
-      length: strand.length,
-      clearance: contact.clearance - contact.epsilon,
-      normal: { ...strand.normal },
-    };
   } catch {
-    return props.integrate();
+    placed = false;
   }
+  if (!placed) return props.integrate();
+  return {
+    points,
+    length: strand.length,
+    clearance: contact.clearance - contact.epsilon,
+    normal: { ...strand.normal },
+  };
 }

@@ -20,14 +20,13 @@
  * manifold. Local vertex numbers are the first loop's `0 .. count - 1` followed
  * by the second loop's `count + j`.
  *
- * When every second-loop vertex lies on the first loop's polyline, as it does
- * once the collar has been placed on the face's loop, each triangle has its
- * three corners on one edge of the polyline (or on two adjacent edges, across a
- * corner) and so has no area to speak of, and it has none in any pose, because
- * the parameters are fixed by the neutral and the placement keeps them. That is
- * the point of merging in place of choosing diagonals by length: a ribbon of
- * chosen diagonals folds back on itself as soon as the loops stop standing the
- * distance apart they had at the neutral.
+ * When the second-loop vertices lie on the first polyline, triangles on one
+ * edge are collinear but triangles spanning a corner retain area: a body edge
+ * cuts across that corner rather than following it. The stencil therefore
+ * supplies logical adjacency for the seam's normal sharing, not renderable
+ * zero-area geometry. `stitchHumanPersonBoundary` subdivides each skin onto
+ * the union of the loop samples before display, so neither a collinear face
+ * nor the corner's wedge needs to be emitted as a third skin region.
  *
  * The parameters must be cyclically ordered, that is nonincreasing in the
  * given direction around the loop with at most one wrap from the smallest back

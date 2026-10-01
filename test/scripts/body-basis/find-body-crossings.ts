@@ -13,11 +13,12 @@ import { summarizeBodyContacts } from "./readBodyContacts";
  *
  * Usage, from `test/`:
  *
- * `pnpm exec ttsx -P tsconfig.scripts.json scripts/body-basis/find-body-crossings.ts --basis <in.gz> --out <receipt.json> [--angles 75,90,100,110,125] [--extra-shapes '{"heavy@0.7":{"macroWeight":0.7}}'] [--side left]`
+ * `pnpm exec ttsx -P tsconfig.scripts.json scripts/body-basis/find-body-crossings.ts --basis <in.gz> --out <receipt.json> [--angles 75,90,100,110,125] [--extra-shapes '{"heavy@0.7":{"macroWeight":0.7}}'] [--only <regex>] [--side left]`
  *
  * The population is `listBodyHipStates`: the neutral body and every macro
  * channel at each end of its envelope, plus the extra shapes given as JSON,
  * each with the left, the right and both thighs flexed to each angle. With
+ * `--only` keeps the states whose name matches the pattern. With
  * `--side left` the right-thigh-only states are left out, since the solver
  * publishes a right corrective as the mirror of its left one. The receipt is
  * `{ sets: { hips: { findings } } }`, the form `solve-body-correctives.ts
@@ -44,10 +45,12 @@ const extra = JSON.parse(option("--extra-shapes") ?? "{}") as Record<
 const basis = JSON.parse(
   gunzipSync(fs.readFileSync(basisPath)).toString("utf8"),
 ) as IAutoMovieHumanBodyBasis;
+const only = option("--only") === undefined ? null : new RegExp(option("--only")!);
 const states = listBodyHipStates(basis, angles, extra).filter(
   (state) =>
-    option("--side") !== "left" ||
-    !state.name.split(":")[1].startsWith("rightUpperLeg"),
+    (only === null || only.test(state.name)) &&
+    (option("--side") !== "left" ||
+      !state.name.split(":")[1].startsWith("rightUpperLeg")),
 );
 console.log(states.length, "states on", basis.id);
 const { findings, refused } = findBodyCrossings(basis, states, (state, found) =>

@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceRigidMotion } from "../structures/IAutoMovieHumanFaceRigidMotion";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
+import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
 
 type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
@@ -14,11 +15,13 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * and incisal edge vertex pairs, after the pairs alone have been posed by the
  * articulation the state resolves to.
  *
- * The frame is the basis frame's own vertical made perpendicular to the
- * mandibular axis, which is the cranial vertical every clinical aperture is
- * measured along, and forward is that axis crossed with up; the chord of
- * the opening at the incisors would tilt the frame backward by the arc's
- * half angle and read protrusion as a rise. Both apertures are signed
+ * Up is the normalized component of basis Y-up perpendicular to the declared
+ * mandibular axis; forward is that axis crossed with up. This is a model
+ * measurement convention. An axis with a Y component changes up from the
+ * original basis vertical. An incisor's displacement can include both jaw
+ * rotation and coupled translation and does not define this fixed frame.
+ * Clinical comparisons require their own registered measurement frame and
+ * acquisition protocol. Both apertures are signed
  * projections of upper minus lower onto up, so a sealed pair reads near
  * zero and an open one its separation. The closure ratio
  * compares the current lip aperture to the reference aperture, each less the
@@ -31,13 +34,12 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * Only four vertices are posed here, so the measure is cheap enough to run
  * before the surfaces are posed, which is when the closure rows need it.
  *
- * @evidence contracts/common.md#principled-implementation Apertures are signed projections of upper minus lower onto a vertical made perpendicular to the mandibular axis (the axis is removed from world up and the result normalised), so the frame does not tilt with the arc of opening and a protrusion is not read as a rise. The closure ratio is the current lip aperture less the shape-only rest aperture over the reference opening's aperture less the same rest aperture, clamped below at zero; a reference opening that does not part the lips refuses because the ratio would be undefined.
+ * @evidence contracts/common.md#principled-implementation Both apertures project upper minus lower onto normalized basis Y-up with its mandibular-axis component removed. This frame follows the declared basis axis, and posed translations contribute their components along it. The closure ratio is the current lip aperture less the shape-only rest aperture over the reference opening's aperture less the same rest aperture, clamped below at zero; a reference opening that does not part the lips refuses because the ratio would be undefined. The model convention establishes no universal clinical vertical or incisor-chord direction.
  * @evidence contracts/common.md#clear-and-simple-design Only four vertices are posed, so the measure runs before the surfaces are posed, which the closure rows need; it delegates skinning to poseHumanFaceSurface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject-specific constant; degenerate axes and reference openings refuse.
  * @evidence contracts/common.md#meaningful-documentation States the frame, the layers it reads, the ratio, and why the measure is cheap enough to run first.
  * @evidence contracts/modeling.md#spatial-conventions Basis metres; up and forward are unit vectors of the basis frame.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping measureHumanFaceAperture is a computation over existing data and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels measureHumanFaceAperture defines and consumes no parameter channel of a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry measureHumanFaceAperture emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries measureHumanFaceAperture constructs no surface that meets another part.
  * @evidenceExclude contracts/modeling.md#rendered-observation measureHumanFaceAperture owns no part, group or joint that a viewer displays; the parts built with it are observed by their owners.
@@ -120,8 +122,6 @@ export function measureHumanFaceAperture(
     );
   const up = Vector3.scale(raised, 1 / length);
   const forward = Vector3.cross(axis, up);
-  const gapOf = (upper: IAutoMovieVector3, lower: IAutoMovieVector3): number =>
-    Vector3.dot(Vector3.subtract(upper, lower), up);
   const lipsAt = (
     layer: {
       surfaces: number[][];
@@ -129,9 +129,10 @@ export function measureHumanFaceAperture(
     },
     weights: ReadonlyMap<string, number>,
   ): number =>
-    gapOf(
+    measureHumanFaceApertureGap(
       at(contact.lips.surface, contact.lips.upper, layer, weights),
       at(contact.lips.surface, contact.lips.lower, layer, weights),
+      up,
     );
   const lipsRest = lipsAt(shaped, new Map());
   const lipsReference = lipsAt(referenced, reference);
@@ -149,7 +150,7 @@ export function measureHumanFaceAperture(
       motions,
     ),
   };
-  const lipsGap = gapOf(current.upper, current.lower);
+  const lipsGap = measureHumanFaceApertureGap(current.upper, current.lower, up);
   const span = lipsReference - lipsRest;
   if (!(span > 0) || !Number.isFinite(span))
     throw new Error(
@@ -173,7 +174,7 @@ export function measureHumanFaceAperture(
     up,
     forward,
     lips: { ...current, gap: lipsGap },
-    incisors: { ...incisors, gap: gapOf(incisors.upper, incisors.lower) },
+    incisors: { ...incisors, gap: measureHumanFaceApertureGap(incisors.upper, incisors.lower, up) },
     closureRatio: Math.max(0, (lipsGap - lipsRest) / span),
   };
 }

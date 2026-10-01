@@ -3,12 +3,14 @@ import {
   createHumanBodyBasisBuilder,
   createHumanBodySegmenter,
 } from "@automovie/human";
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import {
-  type IBodyCorrectiveState,
-  bodyCorrectiveDocument,
-} from "./bodyCorrectiveState";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
+import { buildBodyCorrectiveSample } from "./buildBodyCorrectiveSample";
+import { bodyCorrectiveVerificationAccepts } from "./bodyCorrectiveVerificationAccepts";
+import { readBodyCorrectiveVerification } from "./readBodyCorrectiveVerification";
+import { readBodyCorrectiveShoulderRest } from "./readBodyCorrectiveShoulderRest";
+import { readBodyCorrectiveShoulderMotion } from "./readBodyCorrectiveShoulderMotion";
+import { createBodyCorrectiveDrivers } from "./createBodyCorrectiveDrivers";
 import {
   type IBodyCorrectiveWorld,
   createBodyCorrectiveWorld,
@@ -22,10 +24,7 @@ import {
   readMovedBodyContacts,
   summarizeBodyContacts,
 } from "./readBodyContacts";
-import {
-  type BodyCorrectiveDriver,
-  withBodyCorrective,
-} from "./withBodyCorrective";
+import { withBodyCorrective } from "./withBodyCorrective";
 
 /** Bisection resolution of a joint onset, degrees, and of a channel onset, weight. */
 const RESOLUTION = 2.5;
@@ -127,7 +126,7 @@ export function createBodyCorrectiveSession(
     state: IBodyCorrectiveState,
     t: number,
     u: number,
-  ) => compiled(bodyCorrectiveDocument(world, state, t, u, basis.id));
+  ) => buildBodyCorrectiveSample({ world, state, t, u, basis: basis.id, build: compiled });
   const pairsOn = (
     basis: IAutoMovieHumanBodyBasis,
     compiled: typeof build,
@@ -156,48 +155,18 @@ export function createBodyCorrectiveSession(
       (["flexion", "abduction", "twist"] as const)
         .filter((axis) => joint[axis] !== null)
         .map((axis) => ({
-          bone: joint.bone as AutoMovieHumanoidBone,
+          bone: joint.bone,
           axis,
           angle: joint[axis]!,
           rest: world.neutral.get(joint.bone)![axis],
         })),
     );
     // a rest finding (a channel or trait set) has no travel to bisect
-    const widest = Math.max(
+    const clinicalWidest = Math.max(
       0,
       ...posedAxes.map((one) => Math.abs(one.angle - one.rest)),
     );
     const heaviest = Math.max(0, ...Object.values(state.shape).map(Math.abs));
-    const drivers = (
-      onset: number,
-      full: number,
-      from: number,
-      to: number,
-    ): BodyCorrectiveDriver[] => [
-      // a named body's contact is carried by its macro tissue: the other
-      // channels the simple tier set are that body's detail and gate nothing
-      ...Object.entries(state.shape)
-        .filter(
-          ([channel, weight]) =>
-            weight !== 0 &&
-            ((state.set !== "bodies" && state.set !== "bodyposes") ||
-              macros.has(channel)),
-        )
-        .map(([channel, weight]) => ({
-          channel,
-          side: weight < 0 ? ("negative" as const) : ("positive" as const),
-          onset: from * Math.abs(weight),
-          full: to * Math.abs(weight),
-        })),
-      ...posedAxes.map((one) => ({
-        bone: one.bone,
-        axis: one.axis,
-        side:
-          one.angle > one.rest ? ("positive" as const) : ("negative" as const),
-        onset: onset * Math.abs(one.angle - one.rest),
-        full: full * Math.abs(one.angle - one.rest),
-      })),
-    ];
     let clean = 0;
     const queue: { t: number; u: number }[] = [{ t: 1, u: 1 }];
     let visits = 0;
@@ -231,7 +200,15 @@ export function createBodyCorrectiveSession(
         });
       };
       let before: IBodyContactPair[];
+      let widest = clinicalWidest;
+      let shoulderMotion: ReturnType<typeof readBodyCorrectiveShoulderMotion> = [];
       try {
+        const goals = state.shoulders ?? [];
+        if (goals.length > 0) {
+          const rests = readBodyCorrectiveShoulderRest(builtAt(working, build, state, 0, u));
+          shoulderMotion = readBodyCorrectiveShoulderMotion({ goals, rests });
+          widest = Math.max(widest, ...shoulderMotion.map((motion) => motion.travelDegrees));
+        }
         before = pairsOn(working, build, state, t, u);
       } catch (error) {
         record(
@@ -289,7 +266,13 @@ export function createBodyCorrectiveSession(
           }
           from = low;
         }
-        const inputs = drivers(lo, t, from, u);
+        let inputs: ReturnType<typeof createBodyCorrectiveDrivers>;
+        try {
+          inputs = createBodyCorrectiveDrivers({ state, macros, axes: posedAxes, shoulderMotion, onset: lo, full: t, from, to: u });
+        } catch (error: unknown) {
+          record("driver refused: " + (error instanceof Error ? error.message : String(error)), null);
+          continue;
+        }
         outcome = "beyond the budget";
         let attempt: ReturnType<typeof pushBodyContacts> | null = null;
         let verification: object[] = [];
@@ -310,7 +293,7 @@ export function createBodyCorrectiveSession(
           if (candidate === null) break;
           const candidateBuild = createHumanBodyBasisBuilder(candidate);
           const moved = new Set(attempt.rest.keys());
-          const atFull = pairsMoved(
+          const full = readBodyCorrectiveVerification(() => pairsMoved(
             candidate,
             candidateBuild,
             state,
@@ -318,23 +301,28 @@ export function createBodyCorrectiveSession(
             u,
             moved,
             before,
-          );
-          let atMid: IBodyContactPair[] = [];
-          if (widest > 0)
-            try {
-              atMid = pairsOn(candidate, candidateBuild, state, midpoint, u);
-            } catch {
-              atMid = [];
-            }
-          const atLighter =
-            heaviest > 0
-              ? pairsOn(candidate, candidateBuild, state, t, u / 2)
-              : [];
+          ));
+          const mid = readBodyCorrectiveVerification(widest > 0
+            ? () => pairsOn(candidate, candidateBuild, state, midpoint, u) : undefined);
+          const lighter = readBodyCorrectiveVerification(heaviest > 0
+            ? () => pairsOn(candidate, candidateBuild, state, t, u / 2) : undefined);
           verification = [
-            { t, u, pairs: atFull.length },
-            { t: midpoint, u, pairs: atMid.length },
-            ...(heaviest > 0 ? [{ t, u: u / 2, pairs: atLighter.length }] : []),
+            { t, u, sample: full },
+            { t: midpoint, u, sample: mid },
+            { t, u: u / 2, sample: lighter },
           ];
+          if (full.kind === "refused") {
+            outcome = "verification refused: " + full.reason;
+            break;
+          }
+          const refused = [mid, lighter].find((sample) => sample.kind === "refused");
+          if (refused !== undefined) {
+            outcome = "verification refused: " + refused.reason;
+            break;
+          }
+          const atFull = full.pairs;
+          const atMid = mid.kind === "measured" ? mid.pairs : [];
+          const atLighter = lighter.kind === "measured" ? lighter.pairs : [];
           if (atFull.length > 0) {
             if (
               countBodyContactTriangles(atFull) >=
@@ -345,7 +333,7 @@ export function createBodyCorrectiveSession(
             continue;
           }
           outcome =
-            atMid.length === 0 && atLighter.length === 0
+            bodyCorrectiveVerificationAccepts({ full, midpoint: mid, lighter })
               ? "repaired"
               : atMid.length > 0
                 ? "repaired; the midpoint of the joint ramp still crosses and is queued"

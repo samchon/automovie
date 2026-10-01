@@ -26,11 +26,11 @@ import { humanFaceHairlineBoundary } from "./humanFaceHairlineBoundary";
  * than inventing roots outside the domain. Arrays are copied on compilation.
  *
  * The sampler also reports the share of the domain its own acceptance covers:
- * candidates are uniform over the neutral domain, so the share of them the
- * hairline and the region admit is the share of that domain those masks leave.
- * The caller multiplies it by the domain's area on the current shape, which is
- * the area the population actually grows on, and a density reads that when a
- * population is too small to measure its own neighbourhoods.
+ * candidates follow the neutral domain's area measure, so their accepted share
+ * estimates the masks' neutral area fraction. The caller multiplies it by the
+ * current total domain area as a density fallback for a small population. That
+ * proxy does not integrate local area scaling under nonuniform deformation;
+ * sampling error and neutral-to-current transfer are separate approximations.
  *
  * @evidence contracts/common.md#principled-implementation A triangle is chosen
  *   by inverting the cumulative area with a binary search, and a point inside it

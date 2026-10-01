@@ -17,6 +17,8 @@ import { describeHumanViewerDocuments } from "./describeHumanViewerDocuments";
 import { neighbourHumanViewerDocument } from "./neighbourHumanViewerDocument";
 import { openHumanViewerHref } from "./openHumanViewerHref";
 import { humanViewerChoices } from "./humanViewerChoices";
+import { mountHumanViewerLightControls } from "./mountHumanViewerLightControls";
+import { humanViewerLightDocuments } from "./humanViewerLightDocuments";
 
 const element = <T extends HTMLElement>(id: string): T =>
   document.querySelector<T>("#" + id)!;
@@ -29,6 +31,7 @@ export function mountHumanViewerControls(props: {
   let current: HumanViewerAddress | null = null;
   let ids: string[] = [];
   let names: string[] = [];
+  let lightDocuments = new Set<string>();
   const doc = element<HTMLSelectElement>("doc");
   const pass = element<HTMLSelectElement>("pass");
   const size = element<HTMLSelectElement>("size");
@@ -41,6 +44,14 @@ export function mountHumanViewerControls(props: {
   const change = (fields: Partial<HumanViewerAddress>): void => {
     if (current !== null) props.navigate({ ...current, ...fields });
   };
+  const lighting = mountHumanViewerLightControls({
+    form: element<HTMLFormElement>("light-controls"),
+    name: element<HTMLSelectElement>("light-name"),
+    components: [element<HTMLInputElement>("light-x"), element<HTMLInputElement>("light-y"), element<HTMLInputElement>("light-z")],
+    reset: element<HTMLButtonElement>("light-reset"),
+    error: element<HTMLElement>("light-error"),
+    navigate: (light) => change({ light }),
+  });
   for (const view of humanViewerChoices.views) {
     const button = document.createElement("button");
     button.dataset.view = view;
@@ -51,7 +62,7 @@ export function mountHumanViewerControls(props: {
   for (const name of humanViewerChoices.passes)
     pass.append(new Option(name, name));
   doc.addEventListener("change", () =>
-    change({ doc: doc.value, parts: [], hide: [], frame: null }),
+    change({ doc: doc.value, parts: [], hide: [], frame: null, light: null }),
   );
   for (const [id, step] of [
     ["prev", -1],
@@ -64,6 +75,7 @@ export function mountHumanViewerControls(props: {
           parts: [],
           hide: [],
           frame: null,
+          light: null,
         });
     });
   pass.addEventListener("change", () =>
@@ -160,6 +172,7 @@ export function mountHumanViewerControls(props: {
   return {
     /** Rebuild the document list from a fresh catalogue. */
     catalogue: (catalogue: HumanViewerCatalogue): void => {
+      lightDocuments = humanViewerLightDocuments(catalogue.documents);
       const entries = describeHumanViewerDocuments(catalogue);
       ids = entries.map((entry) => entry.id);
       doc.replaceChildren();
@@ -181,6 +194,7 @@ export function mountHumanViewerControls(props: {
     /** Show the displayed address and the meshes the viewport reports. */
     show: (address: HumanViewerAddress, parts: readonly string[]): void => {
       current = address;
+      lighting.show(address.light ?? null, lightDocuments.has(address.doc));
       if (!ids.includes(address.doc))
         doc.append(new Option(address.doc, address.doc));
       doc.value = address.doc;

@@ -1,54 +1,5 @@
-/** What the client needs from the machine: HTTP and the viewer's inputs directory. */
-export interface IHumanViewerClientIo {
-  fetch(url: string): Promise<{
-    ok: boolean;
-    status: number;
-    headers: { get(name: string): string | null };
-    json(): Promise<unknown>;
-    arrayBuffer(): Promise<ArrayBuffer>;
-  }>;
-
-  /** Write one file of the viewer's inputs directory. */
-  writeInput(name: string, data: string): void;
-
-  /** Copy a local file into the viewer's inputs directory under a name. */
-  copyInput(name: string, source: string): void;
-}
-
-/** A rendered frame, or the reason the viewer refused it. */
-export type HumanViewerRender =
-  | { ok: true; bytes: Buffer; renderer: string }
-  | { ok: false; error: string };
-
-/** A connected resident viewer. */
-export interface IHumanViewerClient {
-  /** The graphics device string the server reported when it was ready. */
-  renderer: string;
-
-  /** Source revision the server was built from. */
-  revision: string;
-
-  /**
-   * Offer hand-written documents to the viewer as `file:<label>/<document id>`,
-   * with an optional candidate basis they are built against. Refuses with the
-   * server's reason when it rejects the file.
-   */
-  drop(props: {
-    label: string;
-    documents: { id: string }[];
-    candidateBasis?: string | null;
-  }): Promise<void>;
-
-  /** Render one address (the display fields of the address grammar). */
-  render(fields: Record<string, string>): Promise<HumanViewerRender>;
-
-  /**
-   * The names of the meshes the address displays. A name is a material region
-   * and not an anatomical part, as the server states.
-   */
-  parts(fields: Record<string, string>): Promise<string[]>;
-}
-
+import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
+import type { IHumanViewerClient } from "./IHumanViewerClient";
 /**
  * Connect to the resident development viewer and return a client over it.
  *

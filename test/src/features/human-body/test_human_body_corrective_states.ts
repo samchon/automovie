@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { bodyCorrectiveDocument } from "../../../scripts/body-basis/bodyCorrectiveState";
+import { bodyCorrectiveDocument } from "../../../scripts/body-basis/bodyCorrectiveDocument";
 import {
   createBodyCorrectiveWorld,
   segmentBodyPositions,

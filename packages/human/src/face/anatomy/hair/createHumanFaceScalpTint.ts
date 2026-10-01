@@ -17,7 +17,8 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  * the transition zone at the hairline (its depth converted to a polar angle
  * at the vertex's distance from the domain origin), times the layer's root
  * region envelope, so a fringe tints only where its roots grow. Where
- * layers overlap the densest layer's colour wins; a greying layer contributes
+ * layers overlap the greatest coverage weight wins, retaining the earlier
+ * layer at a tie; a greying layer contributes
  * the mixture its proportion of unpigmented fibres makes, since that is what
  * stands over the scalp. The tint is a multiplier
  * on the skin's own finish at that vertex, `1 + (hair / skin - 1) * coverage`
@@ -33,10 +34,11 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  * @evidence contracts/common.md#principled-implementation Under a layer the
  *   skin gain is 1 + (hair / skin - 1) * coverage per channel, clamped to [0,
  *   1], with coverage the hairline ramp times the root-region envelope, so it is
- *   one where roots stand and falls to no change where they do not, and a hair
+ *   a per-vertex coverage proxy rather than sampled root occupancy, and a hair
  *   lighter than the skin leaves the skin alone. A greying layer contributes
  *   hair + (1 - hair) * grey, the mixture of unpigmented and pigmented fibres.
- *   The densest layer wins where layers overlap. It assumes hair colour and the
+ *   The greatest coverage weight wins where layers overlap, retaining the
+ *   earlier layer at a tie. It assumes hair colour and the
  *   skin's base colour are in the same linear RGB, as the finish is documented.
  * @evidence contracts/common.md#clear-and-simple-design One compiled rule
  *   reading only what the document declares, returning per-vertex gains that the
@@ -58,10 +60,11 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  *   head-frame metres, the domain origin is the same frame, coverage is
  *   dimensionless, and gains are dimensionless multipliers of linear RGB;
  *   nothing is converted.
- * @evidence contracts/modeling.md#shared-boundaries The boundary between
- *   tinted scalp and untinted skin is the hairline coverage that root sampling
- *   also reads, so it is one definition that the hair and the tint share, and
- *   the ramp falls to zero at the hairline with zero slope so no seam appears.
+ * @evidenceExclude contracts/modeling.md#shared-boundaries The function returns
+ *   colour gains on an existing surface and constructs no geometric join.
+ *   The sampler's hard polar boundary and the tint's smooth coverage ramp both
+ *   read humanFaceHairlineBoundary, but that does not make their sampled visual
+ *   boundaries identical or certify a seam-free assembled hairstyle.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries
  *   no anatomical value of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits,

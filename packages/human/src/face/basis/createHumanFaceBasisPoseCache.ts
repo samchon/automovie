@@ -10,13 +10,15 @@ import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
  * The evaluator receives the shape record because reference aperture closure
  * measures the same identity; it may cache only outputs that downstream
  * appearance, hair, observer and renderer consumers treat as read-only.
+ * It consumes the admitted channel weights; the basis and weight admission
+ * stage retain the channel identities, ranges and dependencies. Comparing
+ * these values does not certify independent anatomical traits or their ranges.
  *
  * @evidence contracts/common.md#principled-implementation The pose is a pure function of the admitted weights (shape channels included), so retaining the last result and replacing it whenever any weight in channel order changes is exact memoization; omission and an explicit zero compare equal because both read as 0.
  * @evidence contracts/common.md#clear-and-simple-design One retained entry keyed by the ordered weight vector; no eviction policy or option.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No test-only or subject-specific logic; a changed weight always recomputes.
  * @evidence contracts/common.md#meaningful-documentation States the key, why omission equals zero, and that cached outputs must be treated as read-only.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseCache is a pure computation and defines no part or group of parts.
- * @evidenceExclude contracts/modeling.md#parameter-channels createHumanFaceBasisPoseCache defines and consumes no parameter channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry createHumanFaceBasisPoseCache decides no primitive population of a form.
  * @evidenceExclude contracts/modeling.md#shared-boundaries createHumanFaceBasisPoseCache constructs no surface that meets another part.
  * @evidenceExclude contracts/modeling.md#rendered-observation createHumanFaceBasisPoseCache owns no part, group or joint that a viewer displays; its consumers own the observation.

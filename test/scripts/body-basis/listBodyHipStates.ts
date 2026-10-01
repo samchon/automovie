@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanBodyBasis } from "@automovie/human";
 
-import type { IBodyCorrectiveState } from "./bodyCorrectiveState";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
 
 /**
  * The hip-flexion review population: every body shape of a list, each with

@@ -23,9 +23,9 @@ const TRANSITION_METRES = 0.01;
  * chart origin.
  *
  * The ramp is the smoothstep of that fraction, which has zero slope at both
- * ends, so neither the boundary nor the full scalp shows a seam. Root
- * sampling thins its population by this and the scalp takes the hair's colour
- * by it, which is what makes a hairline one boundary rather than two.
+ * ends. Scalp tint and root emergence consume this transition. Root sampling
+ * uses the shared polar boundary directly, not this coverage ramp, so this
+ * function does not promise a gradual spatial thinning of the root population.
  *
  * @evidence contracts/common.md#principled-implementation The depth of the
  *   transition zone is a length, so it is turned into a polar angle as arc =
@@ -33,11 +33,11 @@ const TRANSITION_METRES = 0.01;
  *   holds while the zone is small against that distance (1 cm against a head
  *   radius of some ten centimetres), where the sphere's arc is well
  *   approximated. The ramp is the smoothstep r^2 (3 - 2r), which has zero slope
- *   at both ends, so neither the boundary nor the full scalp shows a seam. A
+ *   at both ends, so the scalar coverage has no endpoint slope jump. A
  *   zero-length direction refuses because its polar angle does not exist.
- * @evidence contracts/common.md#clear-and-simple-design One function that root
- *   thinning and the scalp tint both call, so the hairline is one boundary and
- *   not two.
+ * @evidence contracts/common.md#clear-and-simple-design One transition ramp
+ *   shared by scalp tint and emergence; the sampler's polar boundary remains
+ *   with humanFaceHairlineBoundary rather than this coverage function.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No special
  *   case for a subject or style; the value depends only on the direction and the
  *   layer's hairline.

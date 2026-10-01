@@ -18,8 +18,8 @@ import { humanFaceBasisFixture } from "../internal/humanFaceBasisFixture";
  * 1. A worker model appears in the actual Three scene only after publication.
  * 2. Export bytes travel independently; disposal preserves the active group.
  * 3. Cancellation withdraws a pending numerical candidate.
- * 4. A static face keeps shadow maps resident between edits; first display,
- *    repeated resident publication, clay and caster transitions refresh them.
+ * 4. First display, repeated publication, clay and caster transitions request
+ *    shadow refresh; unchanged visibility and camera do not request another.
  */
 export const test_subject_connected_viewport = async (): Promise<void> => {
   const f = createHumanViewportFixture();
@@ -75,14 +75,14 @@ export const test_subject_connected_viewport = async (): Promise<void> => {
   f.renderer.shadowMap.needsUpdate = false;
   viewport.publish(built);
   TestValidator.equals(
-    "newly published face refreshes shadows",
+    "newly published face requests shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     true,
   );
   f.renderer.shadowMap.needsUpdate = false;
   viewport.publish(built);
   TestValidator.equals(
-    "resident deformation refreshes shadows",
+    "resident deformation requests shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     true,
   );
@@ -92,36 +92,48 @@ export const test_subject_connected_viewport = async (): Promise<void> => {
     built.frame.resident.group.parent === f.frames[0].scene,
   );
   f.renderer.shadowMap.needsUpdate = false;
+  const part = viewport.observe.parts()[0];
+  TestValidator.predicate("published face has a caster", part !== undefined);
+  viewport.observe.hide([part]);
+  viewport.finish();
+  TestValidator.equals("hidden face caster requests shadow refresh", f.renderer.shadowMap.needsUpdate, true);
+  f.renderer.shadowMap.needsUpdate = false;
+  viewport.finish();
+  TestValidator.equals("unchanged isolation requests no extra shadow refresh", f.renderer.shadowMap.needsUpdate, false);
+  viewport.observe.hide(null);
+  viewport.finish();
+  TestValidator.equals("restored face caster requests shadow refresh", f.renderer.shadowMap.needsUpdate, true);
+  f.renderer.shadowMap.needsUpdate = false;
   viewport.cameraView(90);
   TestValidator.equals(
-    "orbit camera leaves static shadow maps resident",
+    "orbit camera requests no shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     false,
   );
   viewport.setClay(true);
   TestValidator.equals(
-    "clay transition refreshes shadow policy",
+    "clay transition requests shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     true,
   );
   f.renderer.shadowMap.needsUpdate = false;
   viewport.setClay(false);
   TestValidator.equals(
-    "return to material refreshes shadow policy",
+    "return to material requests shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     true,
   );
   f.renderer.shadowMap.needsUpdate = false;
   viewport.setShadows(false);
   TestValidator.equals(
-    "caster removal refreshes shadow policy",
+    "caster removal requests shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     true,
   );
   f.renderer.shadowMap.needsUpdate = false;
   viewport.setShadows(true);
   TestValidator.equals(
-    "caster restoration refreshes shadow policy",
+    "caster restoration requests shadow refresh",
     f.renderer.shadowMap.needsUpdate,
     true,
   );

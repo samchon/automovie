@@ -1,8 +1,6 @@
 import { createHumanViewerExportOwners } from "./createHumanViewerExportOwners";
-import {
-  type IHumanViewerResolveIo,
-  resolveHumanViewerImport,
-} from "./resolveHumanViewerImport";
+import type { IHumanViewerResolveIo } from "./IHumanViewerResolveIo";
+import { resolveHumanViewerImport } from "./resolveHumanViewerImport";
 
 const FROM = /\b(?:import|export)\s+(?:type\s+)?([^;'"()]*?)\s*from\s*["']([^"']+)["']/g;
 const OTHER = new RegExp(

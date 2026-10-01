@@ -2,6 +2,7 @@ import {
   type IAutoMovieHumanPersonSeam,
   createHumanPersonSeam,
 } from "@automovie/human";
+import { evaluateHumanPersonCut } from "@automovie/human/human/seam/evaluateHumanPersonCut";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanPersonTube } from "../internal/humanPersonTubeFixture";
@@ -12,23 +13,16 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * The face is a tube of twelve vertices per ring, radius 0.05, rings at 0,
  * 0.02 and 0.04, capped on top, so its only open loop is the ring at height 0.
- * The body is a tube of eight per ring, capped at the bottom, with rings every
- * 0.01 from -0.055 up to 0.025, so it overlaps the face by the rings above
- * height 0 (0.005, 0.015 and 0.025, 24 vertices) and its retained top ring is
- * at -0.005, 0.005 below the face loop. The reach is 0.035, so the rings 0.01,
- * 0.02 and 0.03 below the retained loop are inside it and the ring 0.04 below
- * is not.
+ * The body is a tube of eight per ring with rings from -0.055 to 0.025.
+ * Its affine scalar cut crosses eight vertical and eight diagonal source edges
+ * at height zero. The old ring at -0.005 remains interior and never becomes a
+ * full-weight collar boundary. Expectations follow the planar cut by hand.
  *
  * Scenarios:
- * 1. The covered set is exactly the three upper body rings, the retained loop
- *    is exactly the ring at -0.005, the ribbon has 12 + 8 triangles and the
- *    loops are the tubes' own.
- * 2. The band is the retained ring (weight one) and the three rings below it
- *    at the Wendland weight (1 - r)^4 (4 r + 1) of r = 0.01 / 0.035, 0.02 /
- *    0.035 and 0.03 / 0.035; the fourth ring and the covered rings are absent.
- *    Band vertices at a loop vertex azimuth take that vertex with fraction
- *    zero, and every body loop vertex follows a face edge whose foot is within
- *    the height gap and the chord of the face polygon.
+ * 1. The three positive rings are covered while sixteen shared crossings form
+ *    the retained loop at zero; the lower original ring stays retained.
+ * 2. The new loop has weight one. The original rings at -0.005, -0.015 and
+ *    -0.025 take the Wendland weight of their shortest vertical distance.
  * 3. A body that already ends below the face loop covers nothing and keeps its
  *    own top ring as the loop. Without a given reach the reach is read from the
  *    body's skin weights: with the neck bone dominant on the two rings nearest
@@ -80,10 +74,12 @@ export const test_human_person_seam = (): void => {
       (a, b) => a - b,
     ),
   );
-  TestValidator.equals(
-    "the retained loop is the ring below the face loop",
-    [...seam.bodyLoop].sort((a, b) => a - b),
-    body.rings[5],
+  const cutPositions = evaluateHumanPersonCut(body.positions, seam.cut!);
+  TestValidator.predicate(
+    "the cut intersects the source edges at height zero instead of deleting the lower ring",
+    seam.bodyLoop.length === 16 && seam.bodyLoop.every((vertex) =>
+      vertex >= body.positions.length / 3 && nclose(cutPositions[vertex * 3 + 1], 0, 1e-12),
+    ) && body.rings[5].every((vertex) => seam.cut!.indices.includes(vertex) && !seam.bodyLoop.includes(vertex)),
   );
   TestValidator.equals(
     "the face loop is the face tube's lower ring",
@@ -93,7 +89,7 @@ export const test_human_person_seam = (): void => {
   TestValidator.equals(
     "one ribbon triangle per loop edge",
     seam.ribbon.length / 3,
-    12 + 8,
+    12 + 16,
   );
 
   const weight = (metres: number): number => {
@@ -104,10 +100,9 @@ export const test_human_person_seam = (): void => {
     seam.collar.band.map((entry) => [entry.vertex, entry]),
   );
   const expectations: [number, number][] = [
-    [5, 1],
-    [4, weight(0.01)],
-    [3, weight(0.02)],
-    [2, weight(0.03)],
+    [5, weight(0.005)],
+    [4, weight(0.015)],
+    [3, weight(0.025)],
   ];
   for (const [ring, expected] of expectations)
     TestValidator.predicate(
@@ -117,17 +112,11 @@ export const test_human_person_seam = (): void => {
         return entry !== undefined && nclose(entry.weight, expected, 1e-9);
       }),
     );
-  TestValidator.equals(
-    "the band is those four rings alone",
-    seam.collar.band.length,
-    4 * 8,
-  );
   TestValidator.predicate(
-    "a band vertex at a loop vertex azimuth brackets that vertex",
-    body.rings[4].every((vertex, k) => {
-      const entry = byVertex.get(vertex)!;
-      return seam.bodyLoop[entry.low] === body.rings[5][k] && entry.along === 0;
-    }),
+    "new cut vertices own weight one and the old lower ring is interior",
+    seam.bodyLoop.every((vertex) => byVertex.get(vertex)?.weight === 1) &&
+      body.rings[5].every((vertex) => byVertex.get(vertex)!.weight < 1) &&
+      body.rings[1].every((vertex) => !byVertex.has(vertex)),
   );
   const point = (positions: number[], vertex: number): number[] => [
     positions[vertex * 3],
@@ -139,7 +128,7 @@ export const test_human_person_seam = (): void => {
     seam.collar.follow.every(({ edge, fraction }, j) => {
       const a = point(face.positions, seam.faceLoop[edge]);
       const b = point(face.positions, seam.faceLoop[(edge + 1) % 12]);
-      const p = point(body.positions, seam.bodyLoop[j]);
+      const p = point(cutPositions, seam.bodyLoop[j]);
       const foot = [0, 1, 2].map(
         (axis) => a[axis] * (1 - fraction) + b[axis] * fraction,
       );

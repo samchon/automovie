@@ -24,9 +24,9 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  *
  * At compile time each articulated eye (`basis.articulation.eyes`) finds its
  * globe: the triangles of a textured region whose three vertices are bound to
- * that eye with weight one. Their neutral positions give the iris disc
- * (`locateHumanFaceIrisDisc`). The texture is decoded and the disc rasterized
- * (`rasterizeHumanFaceIrisTexels`) only when a document first carries `iris`,
+ * that eye with weight one. Their neutral positions are retained for the iris
+ * disc (`locateHumanFaceIrisDisc`). Disc admission, texture decoding and its
+ * rasterization (`rasterizeHumanFaceIrisTexels`) happen only when a document first carries `iris`,
  * because most documents never pay for it. Per document the texels are
  * painted by `humanFaceIrisTexelColour` and the material's texture is
  * replaced by a new PNG; the last result is cached by its pigments, so replay
@@ -38,6 +38,10 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * painted iris is covered with the mean sclera colour of the ring just
  * outside it, blended across the painted edge, so no second, darker ring
  * shows around the anatomical iris.
+ * The disc's lengths describe the neutral basis. Identity morphs subsequently
+ * carry that painted texture with the globe, so this rule does not preserve
+ * the same measured iris diameter under a nonrigid identity change. The cache
+ * key is pigment only because painting uses that shared neutral geometry.
  *
  * The rule changes no geometry and no other material. Omission or null leaves
  * the materials untouched, byte for byte. It refuses a pigment outside the
@@ -53,7 +57,7 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * pigments are never modified. Lengths in the disc geometry are metres in the
  * basis frame, angles are radians, and texture coordinates are pixels.
  *
- * @evidence contracts/common.md#principled-implementation The iris is an absolute length of the eye, so its disc is located from the globe's geometry and sized in millimetres by the population values that `locateHumanFaceIrisDisc` cites, then only the texels inside that disc are repainted from the document's eight bands through the shared texel rule and every other texel keeps the basis colour. Where the asset's painted iris extends past the anatomical disc, the excess is covered with the mean sclera colour of the ring just outside it, blended across the edge, so no second ring appears. Colour blending is done in linear light and stored back through the exact sRGB transfer function.
+ * @evidence contracts/common.md#principled-implementation The locator supplies an absolute iris chord and conventional pupil on the fitted neutral sphere; identity deformation after painting is outside that size guarantee. Only the mapped iris texels are repainted from the document's eight bands. Excess painting outside that disc is covered with a mean sclera colour under the locator's declared painted-angle convention, which is not a measured texture boundary. Blending is in linear light and encoded through the exact sRGB transfer function; these optical conventions do not establish physiological iris anatomy.
  * @evidence contracts/common.md#clear-and-simple-design The function compiles the geometry once per basis, then paints per document from a cache keyed by the two pigments; disc location, rasterization and texel colour are three separate owners, and the private helpers only find the globe and decode the texture.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No asset name, subject, fixture or photograph is consulted; the globe is found by its attachment weights and texture alone. The only mutation of foreign data is of the materials array the builder passes for exactly this purpose, and it is documented.
  * @evidence contracts/common.md#meaningful-documentation The comment states why a colour override cannot do this job, the compile-time and per-document steps, the size rule and the cover of the excess painted iris, what is unchanged, what refuses, what is mutated and the units.
@@ -62,6 +66,10 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * @evidenceExclude contracts/modeling.md#parameter-channels The function consumes the document's iris pigments and defines no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no primitive; it changes no geometry.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the limbal edge is an appearance blend inside one texture.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The rule repaints materials and owns no displayed part or joint; the connected face builder owns the eye assembly.
+ * @evidenceExclude contracts/anatomy.md#anatomical-source The disc locator owns the anatomical size proxies; this rule introduces only stated optical painting and blending conventions.
+ * @evidenceExclude contracts/anatomy.md#permitted-range It checks optical pigment components and no physiological interval.
+ * @evidence contracts/anatomy.md#parametric-authority Each articulated left/right eye takes its named linear-RGB pigment endpoints; callers supply no texel, vertex, curve or surface patch through this rule. The mapping into palette bands is deterministic and does not recover pigment from a photograph.
  */
 export function createHumanFaceIrisPigment(
   basis: IAutoMovieHumanFaceBasis,
@@ -187,7 +195,7 @@ function findGlobe(
         material: region.material,
         texture,
         triangles,
-        disc: locateHumanFaceIrisDisc(vertices.map(point)),
+        positions: vertices.map(point),
       };
     }
   }
@@ -203,7 +211,7 @@ function prepare(globes: readonly IGlobe[]): Map<string, IPreparedTexture> {
       texture = { ...decodePng(globe.texture), eyes: [] };
       byMaterial.set(globe.material, texture);
     }
-    const disc = globe.disc;
+    const disc = locateHumanFaceIrisDisc(globe.positions);
     const reach = Math.max(disc.limbus, disc.painted);
     const texels = rasterizeHumanFaceIrisTexels({
       width: texture.width,
@@ -244,7 +252,7 @@ interface IGlobe {
     positions: [number, number, number][];
     uvs: [number, number][];
   }[];
-  disc: IHumanFaceIrisDisc;
+  positions: [number, number, number][];
 }
 
 /**

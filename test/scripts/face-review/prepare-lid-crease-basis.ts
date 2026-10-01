@@ -16,7 +16,7 @@
 import { createHumanFaceBasisBuilder } from "@automovie/human";
 import fs from "node:fs";
 
-import { faceSupportFaults } from "./faceEnvelope";
+import { faceSupportFaults } from "./faceSupportFaults";
 import { faceShapeFitSurfacePositions } from "./faceShapeFitSurface";
 import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
 import { prepareLidCreaseBasis } from "./prepareLidCreaseBasis";

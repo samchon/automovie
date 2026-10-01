@@ -1,4 +1,7 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import {
+  createAutoMovieSignedMeshQuery,
+  solveAutoMovieQuadraticProgram,
+} from "@automovie/engine";
 
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceContactSummary } from "../structures/IAutoMovieHumanFaceContactSummary";
@@ -13,9 +16,12 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * it: a lid over a globe keeps its thickness, while lips meet the teeth
  * with none), so tissue the source authored touching or slightly inside a
  * tooth at rest is left there, and only tissue that a pose pushed deeper is
- * moved back, along the nearest feature's normal, exactly to that floor. A
- * push larger than the surface's budget refuses the document by surface,
- * vertex and depth.
+ * corrected against every known collider floor together. A largest
+ * single-floor projection that satisfies the full affine floors retains the
+ * exact normal response; otherwise the shared QP minimizes squared local
+ * displacement with the existing clearance tolerance. A candidate must also
+ * pass all original signed queries and its actual Euclidean movement budget.
+ * Solver success alone admits no correction.
  *
  * The colliders are compiled twice per document, at rest and posed, as
  * oriented sheets with their closure triangles; a vertex farther than a
@@ -27,15 +33,20 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * admitted weld partition. A pushed vertex's neighbours take half the mean
  * push of the pushed vertices around them, so a correction spreads over one
  * ring instead of standing as a spike; the pushed vertices themselves stay
- * on their floor. Positions are corrected in place and the count of welded
- * vertices moved and the deepest excess per surface are returned for the
- * summary.
+ * on their validated floor. The one-ring candidates are rechecked against
+ * their original queries and total movement budget too. An original floor
+ * that becomes unverifiable at a sheet rim or beyond reach refuses instead
+ * of silently losing that constraint. Owned staging arrays preserve every
+ * supplied pose buffer until every soft surface passes; successful results
+ * are then copied in place, retaining those buffer identities. The summary
+ * counts directly corrected welded groups, excluding spread-only neighbours,
+ * and retains the deepest initial collider excess, not net travel.
  * Kozlov et al. 2017 use teeth-shaped collision surfaces and volume
  * simulation to keep lips outside teeth in an animated rig
  * (https://la.disneyresearch.com/wp-content/uploads/Enriching-Facial-Blendshape-Rigs-with-Physical-Simulation-Paper2.pdf).
- * Their per-frame volumetric rest pose is an already authored facial
- * performance that the simulation preserves; it does not repair an invalid
- * source smile merely by adding contact physics.
+ * They also detect and resolve intersections in rest configurations with
+ * their simulation. Removing those intersections does not establish the
+ * anatomical correctness of an authored smile or every expression mixture.
  * This builder uses neither their simulation nor measured tissue stiffness:
  * its rest-clearance floor, neighbour averaging and allowed push budget are
  * authored deterministic constraints. They do not prove all combinations
@@ -44,14 +55,11 @@ type Contact = NonNullable<IAutoMovieHumanFaceBasis["contact"]>;
  * between them invert or adjacent skin triangles cross. The one-ring spread
  * does not solve a coupled tissue strain or require an orientation-preserving
  * surface, so the returned counts cannot certify the performed skin as whole.
- * The selected basis has requested expressions that are whole before this
- * pass and folded after it. A replacement must validate both the collider
- * clearance and the complete skin's orientation and self-contact, rather than
- * reduce a penetration count in isolation.
  *
- * @evidence contracts/common.md#principled-implementation Each soft vertex keeps its rest clearance from every rigid collider, capped at the collider's cover (so a lid keeps its thickness over a globe while lips meet teeth with none), and only tissue that a pose pushed below that floor is moved, along the nearest feature's normal, exactly to the floor; a push past the surface's budget refuses with surface, vertex and depth. Vertices whose nearest feature at rest or posed is an open-sheet rim read no side and are left alone. Seam copies of one welded vertex are judged once and moved together so the weld partition is preserved. The one-ring spread and the floor rule are authored deterministic constraints, which the docs state, and are not tissue mechanics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It moves nothing past its budget; it refuses, and the docs state what the pass does not prove.
- * @evidence contracts/common.md#meaningful-documentation States the floor rule, the cover, the rim exception, the seam grouping, the spread and the limits (pointwise clearance does not prevent inverted edges).
+ * @evidence contracts/common.md#principled-implementation Rest-clearance floors are captured on the original point for every queryable collider. Joint candidates use the shared minimum-displacement QP in positive budget units, while exact single-floor witnesses retain the original normal response. All moved points, including one-ring neighbours, must satisfy original signed-query floors within the declared tolerance and the strict Euclidean net budget before any supplied buffer is committed. Unverifiable query support refuses. These authored geometric constraints are not tissue mechanics or whole-skin validity.
+ * @evidence contracts/common.md#clear-and-simple-design One orchestrator owns query witnesses, welded groups, local displacement and one-ring verification; the engine owns signed geometry and the shared QP.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No budget or tolerance is enlarged and no radial clipping substitutes for a failed witness. Staging keeps all supplied pose arrays unchanged on refusal.
+ * @evidence contracts/common.md#meaningful-documentation States the original floor/query ownership, strict net budget, solver and spread checks, atomic mutation, summary interpretation and skin-validity limits.
  * @evidence contracts/modeling.md#spatial-conventions Basis metres; millimetres appear only in error text.
  * @evidenceExclude contracts/anatomy.md#parametric-authority resolveHumanFaceContact defines no input through which a caller shapes a human form.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping resolveHumanFaceContact is a computation over existing data and defines no part or group of parts.
@@ -115,13 +123,15 @@ export function resolveHumanFaceContact(
         p[axis] >= box.low[axis] - reach && p[axis] <= box.high[axis] + reach,
     );
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
-  return contact.soft.map((soft) => {
+  const staged = new Map<string, number[]>();
+  const resolved = contact.soft.map((soft) => {
     const surface = surfaces.get(soft.surface)!;
-    const positions = posed.get(soft.surface)!;
+    const original = posed.get(soft.surface)!;
+    const positions = [...original];
     const rest = shaped.get(soft.surface)!;
-    // Seam copies of one welded vertex are queried once and moved together,
-    // so a push never splits a weld: the model keeps its admitted partition
-    // and the seam stays closed.
+    // Coincident posed copies move together, but their distinct shaped points
+    // retain every original rest floor. Posed coincidence does not establish
+    // equal clearance before the pose.
     const groups = new Map<string, number[]>();
     const groupOf = new Int32Array(positions.length / 3);
     for (let vertex = 0; vertex * 3 < positions.length; vertex++) {
@@ -135,12 +145,27 @@ export function resolveHumanFaceContact(
       members.push(vertex);
     }
     const pushes = new Map<number, number[]>();
+    const floors = new Map<number, { collider: typeof colliders[number]; floor: number }[]>();
+    const verify = (vertex: number): void => {
+      const point = positions.slice(3 * vertex, 3 * vertex + 3);
+      const travel = Math.hypot(...point.map((value, axis) => value - original[3 * vertex + axis]));
+      if (!Number.isFinite(travel) || travel > soft.budgetMetres)
+        throw new Error(`${soft.surface} has an unverified net contact move of ${mm(travel)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`);
+      for (const witness of floors.get(vertex)!) {
+        const hit = witness.collider.now.query(point);
+        if (!near(witness.collider.now, witness.collider.reach, point) ||
+            hit.boundary || hit.distance > witness.collider.reach)
+          throw new Error(`${soft.surface} contact floor cannot be verified at vertex ${vertex}: the corrected point leaves the oriented sheet's reach or meets its rim.`);
+        if (witness.floor - hit.signedDistance > contact.toleranceMetres)
+          throw new Error(`${soft.surface} violates an original contact floor at vertex ${vertex} after correction by ${mm(witness.floor - hit.signedDistance)} mm.`);
+      }
+    };
     let deepest = 0;
     for (const members of groups.values()) {
       const vertex = members[0];
       const p = positions.slice(3 * vertex, 3 * vertex + 3);
-      const r = rest.slice(3 * vertex, 3 * vertex + 3);
-      let push: number[] | undefined;
+      const known: { collider: typeof colliders[number]; floor: number }[] = [];
+      const rows: ContactFloor[] = [];
       for (const collider of colliders) {
         if (!near(collider.now, collider.reach, p)) continue;
         const hit = collider.now.query(p);
@@ -148,28 +173,36 @@ export function resolveHumanFaceContact(
         // The floor is only known where the rest reading is one the sheet
         // can give: within reach and off its rim. Elsewhere the vertex has no
         // floor and is left alone rather than pushed from an assumed zero.
-        if (!near(collider.rest, collider.reach, r)) continue;
-        const before = collider.rest.query(r);
-        if (before.boundary || before.distance > collider.reach) continue;
-        const floor = Math.min(before.signedDistance, collider.cover);
-        const excess = floor - hit.signedDistance;
-        if (excess <= contact.toleranceMetres) continue;
-        if (excess > soft.budgetMetres)
-          throw new Error(
-            `${soft.surface} penetrates a rigid surface by ${mm(excess)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`,
-          );
-        deepest = Math.max(deepest, excess);
-        push ??= [0, 0, 0];
-        for (let axis = 0; axis < 3; axis++) {
-          push[axis] += excess * hit.normal[axis];
-          p[axis] += excess * hit.normal[axis];
+        for (const member of members) {
+          const r = rest.slice(3 * member, 3 * member + 3);
+          if (!near(collider.rest, collider.reach, r)) continue;
+          const before = collider.rest.query(r);
+          if (before.boundary || before.distance > collider.reach) continue;
+          const floor = Math.min(before.signedDistance, collider.cover);
+          const excess = floor - hit.signedDistance;
+          known.push({ collider, floor });
+          rows.push({ normal: hit.normal, minimum: excess });
+          if (excess <= contact.toleranceMetres) continue;
+          if (excess > soft.budgetMetres)
+            throw new Error(
+              `${soft.surface} penetrates a rigid surface by ${mm(excess)} mm at vertex ${vertex}, past its ${mm(soft.budgetMetres)} mm tissue budget.`,
+            );
+          deepest = Math.max(deepest, excess);
         }
       }
-      if (push === undefined) continue;
+      floors.set(vertex, known);
+      if (!rows.some((row) => row.minimum > contact.toleranceMetres)) continue;
+      let push: number[];
+      try {
+        push = contactCorrection(rows, soft.budgetMetres, contact.toleranceMetres);
+      } catch (error) {
+        throw new Error(`${soft.surface} contact correction at vertex ${vertex} has no verified witness within its ${mm(soft.budgetMetres)} mm net tissue budget: ${String(error)}`);
+      }
       pushes.set(vertex, push);
       for (const member of members)
         for (let axis = 0; axis < 3; axis++)
-          positions[3 * member + axis] = p[axis];
+          positions[3 * member + axis] = p[axis] + push[axis];
+      verify(vertex);
     }
     if (pushes.size > 0) {
       const neighbours = new Map<number, Set<number>>();
@@ -204,12 +237,56 @@ export function resolveHumanFaceContact(
         for (const member of groups.get(key)!)
           for (let axis = 0; axis < 3; axis++)
             positions[3 * member + axis] += (0.5 * total[axis]) / total[3];
+        verify(vertex);
       }
     }
+    staged.set(soft.surface, positions);
     return {
       surface: soft.surface,
       vertices: pushes.size,
       maxDepthMetres: deepest,
     };
   });
+  // No supplied pose buffer is changed until every soft surface has a witness.
+  for (const [surface, positions] of staged) {
+    const output = posed.get(surface)!;
+    for (let at = 0; at < positions.length; at++) output[at] = positions[at];
+  }
+  return resolved;
+}
+
+/** Original unit-normal affine floors in the posed point's metre frame. */
+type ContactFloor = { normal: readonly number[]; minimum: number };
+
+/**
+ * A bounded local clearance witness. A largest single-floor projection that
+ * satisfies all full floors attains the norm lower bound and needs no native solve.
+ * Otherwise the shared QP minimizes squared displacement in budget units.
+ * Redundant rows below -budget follow from Cauchy-Schwarz for unit normals.
+ * Only the existing contact tolerance is used; no radial clip is performed.
+ * Actual signed geometry is checked by the caller before committing any move.
+ */
+function contactCorrection(rows: readonly ContactFloor[], budget: number, tolerance: number): number[] {
+  const needed = rows.filter((row) => row.minimum > tolerance);
+  const largest = needed.reduce((a, b) => a.minimum >= b.minimum ? a : b);
+  const direct = largest.normal.map((value) => value * largest.minimum);
+  const satisfies = (vector: readonly number[], slack: number) => rows.every((row) =>
+    row.normal.reduce((sum, value, axis) => sum + value * vector[axis], 0) >= row.minimum - slack);
+  if (Math.hypot(...direct) <= budget && satisfies(direct, 0)) return direct;
+  // A required positive displacement with zero budget already refused above.
+  const result = solveAutoMovieQuadraticProgram({
+    diagonal: [1, 1, 1], linear: [0, 0, 0],
+    rows: rows.filter((row) => row.minimum - tolerance > -budget).map((row) => ({
+      indices: [0, 1, 2], weights: [...row.normal],
+      lower: (row.minimum - tolerance) / budget, upper: null,
+    })),
+  });
+  if (result.status !== 1)
+    throw new Error("The simultaneous contact solve returned no verified displacement.");
+  const vector = result.primal.map((value) => value * budget);
+  // NaN cannot satisfy an affine comparison; an infinite norm exceeds the
+  // admitted finite budget. These checks also reject nonfinite native output.
+  if (!satisfies(vector, tolerance) || Math.hypot(...vector) > budget)
+    throw new Error("The simultaneous contact candidate violates an original affine floor or net tissue budget.");
+  return vector;
 }

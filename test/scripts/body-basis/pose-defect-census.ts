@@ -8,12 +8,14 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { standardBodyReviewStates } from "../body-review/standardBodyReviewDocuments";
+import { bodyCorrectiveBasisDigest } from "./bodyCorrectiveBasisDigest";
+import { bodyPoseCensusSourceDigest } from "./bodyPoseCensusSourceDigest";
 import { bodyPoseDefectZone } from "./bodyPoseDefectZone";
-import {
-  type IBodyPoseDefectRow,
-  formatBodyPoseDefectTable,
-} from "./formatBodyPoseDefectTable";
-import { measureBodyPoseDefects } from "./measureBodyPoseDefects";
+import { formatBodyPoseDefectTable } from "./formatBodyPoseDefectTable";
+import type { IBodyPoseCensusIdentity } from "./IBodyPoseCensusIdentity";
+import { readBodyPoseCensusArguments } from "./readBodyPoseCensusArguments";
+import { resolveBodyPoseCensusInput } from "./resolveBodyPoseCensusInput";
+import { runBodyPoseDefectCensus } from "./runBodyPoseDefectCensus";
 
 /**
  * Census what each standard pose does to each standard body's skin, so that a
@@ -21,29 +23,65 @@ import { measureBodyPoseDefects } from "./measureBodyPoseDefects";
  * by its before and after tables.
  *
  * Usage, from `test/`:
- * `pnpm exec ttsx -P tsconfig.scripts.json scripts/body-basis/pose-defect-census.ts <label> [shapes] [poses]`
+ * `pnpm exec ttsx -P tsconfig.scripts.json scripts/body-basis/pose-defect-census.ts <label> [shapes] [poses] [--basis <input.gz>]`
  * where `shapes` and `poses` are comma separated names of
  * `standardBodyReviewStates` (defaults: every body shape, every pose). The
  * shape of a state is its channels and the pose is its joint rows and
  * shoulder goals; a shape is built at rest first and each pose is compared
  * with that same body. It writes `.shots/pose-defect-census/<label>.md` and
- * `<label>.json` (the basis id, the git head, the rows and the refusals),
+ * `<label>.json` (the basis id, captured input identity, rows and refusals),
  * local and ignored, and prints the table. `measureBodyPoseDefects` owns the
  * measures and reads the skin in basis order through `posedSurfaces`.
+ *
+ * The source snapshot covers the numerical packages and engine kernels, the
+ * census/review scripts, manifests, compiler configuration, dependency lock
+ * and Node runtime. Exact source bytes and complete basis JSON are checked
+ * before and after every state and before publication. A change aborts instead
+ * of labeling mixed rows with the head found at the end. This deliberately
+ * rejects even an unrelated edit within those covered package populations.
+ * These are sampled identity checks, not a continuous filesystem monitor;
+ * the shared checkout still needs a reserved source/basis freeze for the run.
  */
-const label = process.argv[2];
-if (label === undefined || label.startsWith("--"))
-  throw new Error("Give a label for the census as the first argument.");
+const options = readBodyPoseCensusArguments(process.argv.slice(2));
+const label = options.label;
 const root = path.resolve(__dirname, "../../..");
-const basis = JSON.parse(
+const basisPath = resolveBodyPoseCensusInput({
+  selected: options.basis,
+  shipped: path.join(root, "test/studies/human-body/connected-basis/basis.json.gz"),
+  resolveExplicit: (file) => path.resolve(file),
+});
+const readBasis = (): IAutoMovieHumanBodyBasis => JSON.parse(
   zlib
     .gunzipSync(
-      fs.readFileSync(
-        path.join(root, "test/studies/human-body/connected-basis/basis.json.gz"),
-      ),
+      fs.readFileSync(basisPath),
     )
     .toString("utf8"),
 ) as IAutoMovieHumanBodyBasis;
+const basis = readBasis();
+const snapshot = (inputBasis = readBasis()): IBodyPoseCensusIdentity => ({
+  basis: { id: inputBasis.id, sha256: bodyCorrectiveBasisDigest(inputBasis) },
+  head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root }).toString().trim(),
+  sourceSha256: bodyPoseCensusSourceDigest([
+    ...[...new Set(fs.globSync([
+      "packages/{human,engine,interface}/src/**/*.{ts,mts,cts,json}",
+      "packages/engine/vendor/**/*.{wasm,js,mjs,cjs,ts,json,rs,toml,c,h}",
+      "test/scripts/body-{basis,review}/**/*.{ts,mts,cts,json}",
+      "packages/{human,engine,interface}/package.json",
+      "config/**/*.{ts,json}",
+      "test/{package,tsconfig,tsconfig.scripts}.json",
+      "package.json",
+      "pnpm-lock.yaml",
+    ], { cwd: root }))].map((file) => ({
+      path: file.replaceAll("\\", "/"),
+      bytes: fs.readFileSync(path.join(root, file)),
+    })),
+    {
+      path: "@runtime/node",
+      bytes: Buffer.from(`${process.version}/${process.platform}/${process.arch}`),
+    },
+  ]),
+});
+const identity = snapshot(basis);
 const states = standardBodyReviewStates();
 const pick = (argument: string | undefined, fallback: string[]): string[] =>
   argument === undefined ? fallback : argument.split(",");
@@ -62,45 +100,17 @@ const zones = Array.from({ length: surface.positions.length / 3 }, (_, v) => {
       best = k;
   return bodyPoseDefectZone(surface.skin.joints[surface.skin.boneIndices[4 * v + best]]);
 });
-const rows: IBodyPoseDefectRow[] = [];
-for (const shape of pick(process.argv[3], shapeNames)) {
-  const rest = build({
-    id: shape,
-    name: shape,
-    basis: basis.id,
-    shape: states[shape].shape,
-  }).posedSurfaces[0].positions;
-  for (const pose of pick(process.argv[4], poseNames)) {
-    try {
-      const posed = build({
-        id: shape + "-" + pose,
-        name: shape + "-" + pose,
-        basis: basis.id,
-        shape: states[shape].shape,
-        pose: states[pose].pose,
-        shoulders: states[pose].shoulders,
-      }).posedSurfaces[0].positions;
-      rows.push({
-        shape,
-        pose,
-        defects: measureBodyPoseDefects({
-          indices: surface.indices,
-          rest,
-          posed,
-          zoneOfVertex: (v) => zones[v],
-        }),
-      });
-    } catch (error) {
-      rows.push({
-        shape,
-        pose,
-        defects: null,
-        refused: (error as Error).message.slice(0, 120),
-      });
-    }
-    console.log(shape, pose);
-  }
-}
+const rows = runBodyPoseDefectCensus({
+  identity,
+  snapshot,
+  states,
+  shapes: pick(options.shapes, shapeNames),
+  poses: pick(options.poses, poseNames),
+  indices: surface.indices,
+  zoneOfVertex: (v) => zones[v],
+  build: (document) => build(document).posedSurfaces[0].positions,
+  progress: (shape, pose) => console.log(shape, pose),
+});
 const directory = path.join(root, ".shots/pose-defect-census");
 fs.mkdirSync(directory, { recursive: true });
 const table = formatBodyPoseDefectTable(rows);
@@ -110,9 +120,9 @@ fs.writeFileSync(
   JSON.stringify(
     {
       basis: basis.id,
-      head: execFileSync("git", ["rev-parse", "HEAD"], { cwd: root })
-        .toString()
-        .trim(),
+      basisPath,
+      head: identity.head,
+      identity,
       rows,
     },
     null,

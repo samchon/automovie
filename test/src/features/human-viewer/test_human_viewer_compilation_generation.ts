@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { createHumanViewerCompilation, type IHumanViewerCompilationStatus } from "../../../scripts/human-viewer/createHumanViewerCompilation";
+import type { IHumanViewerCompilationStatus } from "../../../scripts/human-viewer/IHumanViewerCompilationStatus";
+import { createHumanViewerCompilation } from "../../../scripts/human-viewer/createHumanViewerCompilation";
 import { rejectsWith } from "../internal/rejectsWith";
 
 /**

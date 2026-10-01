@@ -16,7 +16,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * Scenarios:
  * 1. A quarter-turn keeps each rim's centre and X coordinates, mapping Y to Z
- *    and Z to negative Y. Vertices outside the cut rims remain unchanged.
+ *    and Z to negative Y. Skin farther than the adaptation reach from every
+ *    rim remains unchanged, while skin within it follows the turned rim.
  * 2. A simple planar square rotates the cavity offset from [0,3,-5] to [0,5,3],
  *    while retaining the same lining connectivity and material population.
  */
@@ -56,12 +57,33 @@ export const test_subject_nostril_frame = (): void => {
       );
     }
   }
+  // The rotation reaches the skin around a rim only through the adaptation
+  // reach; skin farther than that from every rim vertex is untouched.
+  const reach = portraitNoseShape.blendReach;
+  const distance = (id: number): number =>
+    Math.min(
+      ...[...boundary].map((rim) =>
+        Math.hypot(
+          ...host.positions[id].map((v, axis) => v - host.positions[rim][axis]),
+        ),
+      ),
+    );
   TestValidator.predicate(
-    "nasal volume stays independent",
+    "skin beyond the reach stays independent",
     [...a].every(
       ([id, point]) =>
         boundary.has(id) ||
+        distance(id) < reach ||
         point.every((value, axis) => nclose(value, b.get(id)![axis])),
+    ),
+  );
+  TestValidator.predicate(
+    "skin within the reach follows the turned rim",
+    [...a].some(
+      ([id, point]) =>
+        !boundary.has(id) &&
+        distance(id) < reach &&
+        point.some((value, axis) => !nclose(value, b.get(id)![axis])),
     ),
   );
   const cage = {

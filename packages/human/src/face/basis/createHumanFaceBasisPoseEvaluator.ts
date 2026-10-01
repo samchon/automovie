@@ -1,3 +1,5 @@
+import { Vector3 } from "@automovie/engine";
+
 import { areaWeightedNormals } from "../../common/mesh/areaWeightedNormals";
 import type { IAutoMovieHumanFaceBasis } from "../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceBasisDocument } from "../structures/IAutoMovieHumanFaceBasisDocument";
@@ -6,6 +8,7 @@ import { evaluateHumanFacePassage } from "./evaluateHumanFacePassage";
 import { evaluateHumanFaceRest } from "./evaluateHumanFaceRest";
 import { humanFaceBasisWeights } from "./humanFaceBasisWeights";
 import { measureHumanFaceAperture } from "./measureHumanFaceAperture";
+import { measureHumanFaceApertureGap } from "./measureHumanFaceApertureGap";
 import { poseHumanFaceSurface } from "./poseHumanFaceSurface";
 import { resolveHumanFaceArticulation } from "./resolveHumanFaceArticulation";
 import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
@@ -14,7 +17,9 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * Compile the connected basis's geometry stage, independent of appearance.
  * One call receives admitted channel weights and the matching identity shape,
  * and owns rest deformation, shaped joint landmarks, aperture-scaled closure,
- * attached posing, passage/contact and shared surface normals in that order.
+ * attached posing, contact, final aperture/passage and shared surface normals
+ * in that order. Closure scaling reads the earlier posed aperture, while the
+ * admission and summary read the corrected geometry the renderer receives.
  * All positions remain basis metres in the Y-up, +Z-anterior head frame.
  * The returned arrays are owned by the caller and must not be modified by a
  * renderer or hair producer if a later appearance edit reuses them. Material
@@ -27,9 +32,9 @@ import { resolveHumanFaceContact } from "./resolveHumanFaceContact";
  * contact stage is also a deterministic authored constraint rather than
  * measured tissue mechanics; resolveHumanFaceContact owns that distinction.
  *
- * @evidence contracts/common.md#principled-implementation The geometry stage runs rest layer, joint motions from the shaped landmarks, aperture measurement and aperture-scaled closure rows, sparse linear-blend posing, tongue passage, contact resolution and common normals in that order; the order is forced by data dependence, because the closure needs the posed aperture pairs, the passage needs the posed seam, and the contact floor needs both the posed and the shape-only rest surfaces.
+ * @evidence contracts/common.md#principled-implementation Closure scaling reads the preliminary posed aperture, then attached surfaces pose and contact reads both posed and shape-only rest positions. Final aperture pairs and the tongue's complete slab section are measured after contact, so the admission and reported gaps read the same geometry as normals and the renderer.
  * @evidence contracts/common.md#clear-and-simple-design One function that sequences named stage owners and returns positions, normals and the summary; appearance is entirely downstream.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It clamps nothing and repairs nothing: a document past a stage's budget refuses there.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Contact correction belongs to resolveHumanFaceContact's declared rest-clearance rule and tissue budget; this orchestrator adds no compensating deformation. A document past a stage's budget refuses there.
  * @evidence contracts/common.md#meaningful-documentation States the order, the frame and units, who owns the returned arrays and cites the jaw source with the limits of endpoint interpolation.
  * @evidence contracts/modeling.md#spatial-conventions Positions in basis metres in the Y-up +Z-anterior head frame, as the docs state; no conversion happens.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping createHumanFaceBasisPoseEvaluator is a computation over existing data and defines no part or group of parts.
@@ -118,22 +123,6 @@ export function createHumanFaceBasisPoseEvaluator(
       );
     });
     if (contact !== undefined) {
-      // Passage judges the closed seam the rendered face actually shows.
-      const lips = posed.get(contact.lips.surface)!;
-      const seam = [0, 1, 2].reduce(
-        (total, axis) =>
-          total +
-          (lips[3 * contact.lips.upper + axis] -
-            lips[3 * contact.lips.lower + axis]) *
-            [frame!.up.x, frame!.up.y, frame!.up.z][axis],
-        0,
-      );
-      frame = { ...frame!, lips: { ...frame!.lips, gap: seam } };
-      const passage = evaluateHumanFacePassage(
-        contact,
-        posed.get(contact.passage.surface)!,
-        frame,
-      );
       const resolved = resolveHumanFaceContact(
         basis,
         contact,
@@ -144,6 +133,24 @@ export function createHumanFaceBasisPoseEvaluator(
             shaped!.surfaces[index],
           ]),
         ),
+      );
+      const pair = (entry: typeof contact.lips) => {
+        const positions = posed.get(entry.surface)!;
+        const point = (vertex: number) => Vector3.create(
+          positions[3 * vertex],
+          positions[3 * vertex + 1],
+          positions[3 * vertex + 2],
+        );
+        const upper = point(entry.upper);
+        const lower = point(entry.lower);
+        return { upper, lower, gap: measureHumanFaceApertureGap(upper, lower, frame!.up) };
+      };
+      frame = { ...frame!, lips: pair(contact.lips), incisors: pair(contact.incisors) };
+      const passage = evaluateHumanFacePassage(
+        contact,
+        posed.get(contact.passage.surface)!,
+        frame,
+        basis.surfaces.find((surface) => surface.id === contact.passage.surface)!.indices,
       );
       summary = {
         interlabialMetres: frame!.lips.gap,

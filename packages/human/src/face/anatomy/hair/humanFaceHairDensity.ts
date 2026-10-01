@@ -3,12 +3,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * How many neighbours the local density is read from. The k-nearest-neighbour
- * estimator of Loftsgaarden & Quesenberry (1965) reads the density at a sample
- * from the disc that reaches its k-th neighbour; its unbiased form divides by
- * k - 1, which needs k >= 3 for a finite variance, and every further neighbour
- * widens the disc a root's own neighbourhood is read from. Four is that
- * smallest stable choice, not a style control: it is the estimator's own
- * numerical parameter, like an iteration budget.
+ * construction of Loftsgaarden & Quesenberry (1964, NASA-CR-59360) reads a
+ * neighbourhood out to its k-th observation. Here a local homogeneous planar
+ * Poisson approximation derives the intensity estimate (k - 1) / (pi D_k^2),
+ * whose variance is intensity squared / (k - 2). Three is the smallest finite
+ * variance choice; four is a fixed estimation convention that halves that
+ * variance while widening the sampled neighbourhood. It is not an anatomical
+ * value or a style control, and low-discrepancy scalp roots only approximate
+ * this stochastic model.
  */
 const NEIGHBOURS = 4;
 
@@ -39,7 +41,8 @@ const NEIGHBOURS = 4;
  *   distributed with shape k, so (k - 1) / (pi * D_k^2) is an unbiased estimate
  *   of l when k > 1 and has finite variance when k > 2; the area a root stands
  *   for is the reciprocal, pi * D_k^2 / (k - 1), and its side is D_k * sqrt(pi /
- *   (k - 1)) as computed. Four neighbours is the smallest stable choice. The
+ *   (k - 1)) as computed. Its intensity variance is l^2 / (k - 2), so four
+ *   neighbours halve the variance of the smallest finite choice, three. The
  *   premises are approximate here: the roots are a low-discrepancy sample on a
  *   curved surface, the distance is the Euclidean chord and not the geodesic,
  *   and a root at a thinning boundary has neighbours on one side only, so its

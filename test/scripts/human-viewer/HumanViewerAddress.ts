@@ -60,6 +60,14 @@ export interface HumanViewerAddress {
   /** Cast display shadows through the viewport's lights; absent addresses default on. */
   shadows: boolean;
 
+  /**
+   * Body/Person inspection override for one studio light. The dimensionless
+   * direction points from the world-origin target toward the light in Y-up
+   * coordinates. Null restores the viewport's original studio directions.
+   * It affects display only and never participates in numerical cache keys.
+   */
+  light: { name: string; direction: [number, number, number] } | null;
+
   /** Square capture side in pixels. */
   size: number;
 

@@ -4,10 +4,8 @@ import {
   createHumanBodySegmenter,
 } from "@automovie/human";
 
-import {
-  type IBodyCorrectiveState,
-  bodyCorrectiveDocument,
-} from "./bodyCorrectiveState";
+import type { IBodyCorrectiveState } from "./IBodyCorrectiveState";
+import { bodyCorrectiveDocument } from "./bodyCorrectiveDocument";
 import { createBodyCorrectiveWorld } from "./bodyCorrectiveWorld";
 import {
   type IBodyContactPair,
@@ -20,6 +18,7 @@ export interface IBodyCrossingFinding {
   document: {
     shape: Record<string, number>;
     pose: IBodyCorrectiveState["pose"];
+    shoulders?: IBodyCorrectiveState["shoulders"];
   };
 
   /** The crossing pairs and how many triangles of each side they pierce. */
@@ -67,7 +66,10 @@ export function findBodyCrossings(
     if (pairs.length > 0)
       findings.push({
         name: state.name,
-        document: { shape: state.shape, pose: state.pose },
+        document: {
+          shape: { ...state.shape }, pose: state.pose.map((joint) => ({ ...joint })),
+          ...(state.shoulders === undefined ? {} : { shoulders: state.shoulders.map((goal) => ({ ...goal })) }),
+        },
         pairs,
       });
   }

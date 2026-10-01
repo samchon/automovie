@@ -1,4 +1,4 @@
-import type { IHumanViewerClient } from "../human-viewer/connectHumanViewer";
+import type { IHumanViewerClient } from "../human-viewer/IHumanViewerClient";
 import { reviewFileName } from "../review/reviewFileName";
 import type { IBodyObservationFrame } from "./IBodyObservationFrame";
 

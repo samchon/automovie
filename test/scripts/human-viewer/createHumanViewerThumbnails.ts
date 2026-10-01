@@ -13,13 +13,16 @@
  * Each card is an element with a `.frame` child; `key` names its picture in
  * the cache and `url` is the `/render` request that draws it.
  */
+import { planHumanViewerThumbnailRevision } from "./planHumanViewerThumbnailRevision";
+
 export function createHumanViewerThumbnails(props: {
   /** The source revision the server reports now; a picture from another is stale. */
   revision: () => string;
 }) {
   const cache = async (): Promise<Cache | null> => {
     try {
-      return await caches.open("human-viewer-thumbnails");
+      // The previous cache schema labeled responses with request-time source.
+      return await caches.open("human-viewer-thumbnails-v2");
     } catch {
       return null;
     }
@@ -67,19 +70,22 @@ export function createHumanViewerThumbnails(props: {
             ((await response.json()) as { error?: string }).error ??
               response.statusText,
           );
-        return response.blob();
+        return { bytes: await response.blob(), authority: planHumanViewerThumbnailRevision(
+          props.revision(), response.headers.get("X-Human-Revision"),
+          response.headers.get("X-Human-Stale") === "true",
+        ) };
       });
-      await store?.put(
+      if (bytes.authority.cache) await store?.put(
         name,
-        new Response(bytes, {
+        new Response(bytes.bytes, {
           headers: {
             "Content-Type": "image/png",
-            "X-Revision": props.revision(),
+            "X-Revision": bytes.authority.revision!,
           },
         }),
       );
-      image.src = URL.createObjectURL(bytes);
-      image.classList.remove("stale");
+      image.src = URL.createObjectURL(bytes.bytes);
+      image.classList.toggle("stale", bytes.authority.stale);
     } catch (failure) {
       if (failure instanceof Error && failure.message === "scrolled away") {
         started.delete(card);

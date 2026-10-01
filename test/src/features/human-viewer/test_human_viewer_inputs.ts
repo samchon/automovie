@@ -49,7 +49,7 @@ export const test_human_viewer_inputs = (): void => {
       "note.txt": "ignored",
     }),
     bases,
-    sources: { face: "rev", body: "rev" },
+    sources: { face: "rev", body: "rev", person: "person-rev" },
   });
   const ids = result.documents.map((entry) => entry.id);
   TestValidator.equals("ids", ids, [
@@ -65,7 +65,7 @@ export const test_human_viewer_inputs = (): void => {
   const same = readHumanViewerInputs({
     io: io({ "cand.json": JSON.stringify({ ...face, basis: "face-basis" }) }),
     bases,
-    sources: { face: "rev", body: "rev" },
+    sources: { face: "rev", body: "rev", person: "person-rev" },
   });
   TestValidator.predicate("keys differ", same.documents[0]!.key !== byId["file:cand"]!.key);
   TestValidator.equals(

@@ -1,26 +1,6 @@
+import type { IHumanViewerReferenceIo } from "./IHumanViewerReferenceIo";
+import type { IHumanViewerReference } from "./IHumanViewerReference";
 import type { IFaceLikenessCamera } from "../face-review/faceLikenessFraming";
-
-/** What the reference resolver may ask of the local reference folder. */
-export interface IHumanViewerReferenceIo {
-  /** File names in `references` (`""`) or `references/body` (`"body"`), empty when absent. */
-  list(folder: "" | "body"): string[];
-
-  /** A parsed JSON resource, or undefined when it is absent. */
-  readJson(name: "poses" | "landmarks" | "manifest"): unknown;
-}
-
-/** The photograph a document is compared with, and how to place the camera like it. */
-export interface IHumanViewerReference {
-  /** Folder and file name of the photograph, always a plain name inside the reference folder. */
-  folder: "" | "body";
-  file: string;
-
-  /** The camera the photograph was taken from, or null when none was recorded. */
-  camera: IFaceLikenessCamera | null;
-
-  /** Observed landmarks in unit image coordinates, empty when none were recorded. */
-  landmarks: { x: number; y: number; group: string }[];
-}
 
 const IMAGE = /^[A-Za-z0-9._-]+\.(png|jpe?g|webp)$/i;
 

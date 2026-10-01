@@ -23,6 +23,7 @@ export function test_human_viewer_address_roundtrip(): void {
     look: null,
     ao: false,
     shadows: true,
+    light: null,
     size: 900,
     ref: null,
     opacity: 0.5,

@@ -1,6 +1,7 @@
 
 import type { HumanViewerAddress } from "./HumanViewerAddress";
 import { humanViewerChoices } from "./humanViewerChoices";
+import { parseHumanViewerLight } from "./parseHumanViewerLight";
 
 /**
  * Admit the same fields from a bookmark hash or an HTTP query. Refuse unknown
@@ -25,6 +26,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     "frame",
     "ao",
     "shadows",
+    "light",
     "size",
     "fmt",
     "ref",
@@ -95,6 +97,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const shadows = fields.get("shadows") ?? "on";
   if (shadows !== "on" && shadows !== "off")
     throw new Error("shadows must be on or off");
+  const light = fields.get("light");
   if (fields.has("fmt") && fields.get("fmt") !== "png")
     throw new Error("Only PNG is supported");
   const ref = fields.get("ref");
@@ -126,6 +129,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     frame,
     ao: ao === "on",
     shadows: shadows === "on",
+    light: light === null ? null : parseHumanViewerLight(light),
     size,
     ref: ref as HumanViewerAddress["ref"],
     opacity: number("opacity", 0.5, 0, 1),

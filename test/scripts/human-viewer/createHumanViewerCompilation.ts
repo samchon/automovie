@@ -1,12 +1,4 @@
-/** What the last compile attempts left behind. */
-export interface IHumanViewerCompilationStatus {
-  /** The failure of the newest attempt, or null when it succeeded. */
-  error: string | null;
-
-  /** When the newest successful generation finished, or null before the first. */
-  goodAt: string | null;
-}
-
+import type { IHumanViewerCompilationStatus } from "./IHumanViewerCompilationStatus";
 /**
  * Own one whole-project source transformation between filesystem invalidations.
  * The compiler adapter supplies a complete path-to-TypeScript map or rejects;
@@ -38,29 +30,35 @@ export function createHumanViewerCompilation(
   now: () => string = () => new Date().toISOString(),
 ) {
   let generation: Promise<Record<string, string>> | undefined;
+  let epoch = 0;
   let good: Record<string, string> | undefined;
   let goodAt: string | null = null;
   return {
     source: async (file: string): Promise<string | undefined> => {
+      const selectedEpoch = epoch;
       const started = (generation ??= compile().then((files) => {
-        good = files;
-        goodAt = now();
-        report({ error: null, goodAt });
+        if (selectedEpoch === epoch) {
+          good = files;
+          goodAt = now();
+          report({ error: null, goodAt });
+        }
         return files;
       }));
       try {
         return (await started)[file];
       } catch (error) {
         if (generation === started) generation = undefined;
-        report({
-          error: error instanceof Error ? error.message : String(error),
-          goodAt,
-        });
+        if (selectedEpoch === epoch)
+          report({
+            error: error instanceof Error ? error.message : String(error),
+            goodAt,
+          });
         if (good === undefined) throw error;
         return good[file];
       }
     },
     invalidate: (): void => {
+      ++epoch;
       generation = undefined;
     },
   };

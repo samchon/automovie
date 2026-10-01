@@ -75,11 +75,6 @@ const HAIRLINE_DEGREES = 15;
  *   two constants are the lower ends of the mid-scalp and frontal ranges, chosen
  *   by convention so roots stay near the scalp. The temporal and occipital
  *   angles are not modelled, because the paper gives no occipital figure.
- * @evidence contracts/anatomy.md#permitted-range The exit elevation is a blend
- *   of the two constants weighted by a coverage in [0, 1], so it lies between 15
- *   and 30 degrees, inside both sourced ranges. The one exception is a field
- *   with no tangential part, which returns the normal itself and is stated in
- *   the comment.
  * @evidenceExclude contracts/anatomy.md#parametric-authority No caller input
  *   shapes a human form through this function; it reads quantities the hairstyle
  *   document already names and admits.

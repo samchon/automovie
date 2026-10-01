@@ -12,7 +12,6 @@ import { IPortraitNoseShape } from "./structures/IPortraitNoseShape";
  * @evidence contracts/common.md#meaningful-documentation The comment states the shared frame, the units and that the tilt is in degrees.
  * @evidence contracts/modeling.md#spatial-conventions Input and output are head-frame millimetres with +X anatomical left, +Y up, +Z anterior; tilt is degrees about +X and is converted to radians here.
  * @evidenceExclude contracts/modeling.md#part-identity-and-grouping The function defines no part or group; it is a numerical helper of the nasal aperture owner.
- * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel that varies a form.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits no mesh primitives; it returns values for its caller to place.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface and meets no neighbouring part; the callers that share its result own the boundary.
  * @evidenceExclude contracts/modeling.md#rendered-observation The function owns no displayed part or joint; the nose component that consumes it is the declaration that observes the assembled result.

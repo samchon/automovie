@@ -151,7 +151,7 @@ function start(): void {
       [
         launcher,
         "-P",
-        path.join(directory, "tsconfig.json"),
+        path.join(directory, "tsconfig.node.json"),
         path.join(directory, "server.mts"),
       ],
       {

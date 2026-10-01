@@ -14,7 +14,7 @@
  */
 import fs from "node:fs";
 
-import { extendFaceEnvelope } from "./faceEnvelope";
+import { extendFaceEnvelope } from "./extendFaceEnvelope";
 import { faceMidlineTriangles, faceUnseenParts, measureFaceUnseen } from "./faceUnseenNorms";
 import { faceUnseenIntervals } from "./faceUnseenPopulation";
 import { parseFaceBasisRevisionArguments } from "./parseFaceBasisRevisionArguments";
