@@ -12,6 +12,7 @@
  * @evidenceExclude contracts/modeling.md#parameter-channels The record defines no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The record holds texels and emits no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The record builds no surface.
+ * @evidenceExclude contracts/modeling.md#rendered-observation The record is derived index data that owns no part and displays nothing; the painted result is observed under the colour rule that consumes it.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The record carries positions on a globe and no anatomical value of its own.
  * @evidenceExclude contracts/anatomy.md#permitted-range The record admits or bounds no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The record is derived data and no caller input shapes a face through it.

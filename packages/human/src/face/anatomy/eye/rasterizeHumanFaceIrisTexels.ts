@@ -32,6 +32,7 @@ import type { IHumanFaceIrisTexels } from "./structures/IHumanFaceIrisTexels";
  * @evidenceExclude contracts/modeling.md#parameter-channels The function defines and consumes no channel.
  * @evidenceExclude contracts/modeling.md#emitted-geometry The function emits texel indices and no primitive.
  * @evidenceExclude contracts/modeling.md#shared-boundaries The function builds no surface; the edge blend at the limbus belongs to the texel colour rule.
+ * @evidence contracts/modeling.md#rendered-observation The texels it selects were seen painted on the connected globe through the resident viewer on a real GPU (ANGLE AMD Radeon 780M): 2048 px beauty front eye-band crops of one subject shape in blue, pale-grey, near-black and brown pigment, and its left three-quarter. The iris is a closed circle with no gap, wedge or texture seam at the limbus and the pupil is concentric in every case, and the oblique view foreshortens it as an ellipse in the globe's own plane. Not taken: profile at iris scale and a document whose identity morph deforms the globe, where the painted size follows the globe as the pigment rule's JSDoc states.
  * @evidenceExclude contracts/anatomy.md#anatomical-source The function carries no anatomical value; the disc and margin are its caller's.
  * @evidenceExclude contracts/anatomy.md#permitted-range The function admits or bounds no anatomical value.
  * @evidenceExclude contracts/anatomy.md#parametric-authority The function defines and converts no input a caller shapes a face through.
