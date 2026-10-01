@@ -17,9 +17,15 @@ import { nclose, throwsError } from "../internal/predicates";
  * 3. Moving outward beyond another original collider's 0.5 mm reach refuses;
  *    a 1.1 mm reach twin verifies the same final point and accepts. A tilted
  *    sheet also refuses when its query distance exceeds reach inside its box.
- * 4. A directly corrected vertex spreads 0.4 mm to a neighbour originally
- *    between opposed sheets. A 0.2 mm corridor refuses the new penetration;
- *    a 0.6 mm corridor accepts and counts only the directly corrected group.
+ * 4. A directly corrected vertex's 0.4 mm smoothing target reaches a neighbour
+ *    originally between opposed sheets. A 0.2 mm corridor lets the neighbour
+ *    take the nearest move that keeps its own floors (to the far sheet, x =
+ *    0.2 mm) and not the whole 0.4 mm; a 0.6 mm corridor takes the whole move.
+ *    Both count only the directly corrected group.
+ * 5. A neighbour 0.2 mm outside a plane that reads only within 0.25 mm has a
+ *    0.4 mm smoothing target that would leave that reach with no proof of the
+ *    floor (0.4 mm of travel exceeds the 0.2 mm reading), so it stays at its
+ *    original place while the directly corrected vertex is still accepted.
  */
 export const test_subject_human_contact_original_witnesses = (): void => {
   const contradictory = fixture([[1, 0, 0], [-1, 0, 0]], [0.0005, 0, 0], 0.002);
@@ -92,12 +98,12 @@ export const test_subject_human_contact_original_witnesses = (): void => {
     spread.posed.get(soft.id)!.splice(3, 3, 0.0001, 0.001, 0);
     spread.shaped.get(soft.id)!.splice(3, 3, 0.0001, 0.001, 0);
     assertHumanFaceBasis(spread.basis);
-    const original = JSON.stringify([...spread.posed]);
     if (width === 0.0002) {
-      TestValidator.predicate("one-ring cannot enter an originally satisfied opposed collider",
-        throwsError(() => resolveHumanFaceContact(spread.basis, spread.basis.contact!, spread.posed, spread.shaped),
-          ["violates an original contact floor", "vertex 1", "0.30 mm"]));
-      TestValidator.equals("spread refusal preserves every pose", JSON.stringify([...spread.posed]), original);
+      const buffer = spread.posed.get(soft.id)!;
+      const summary = resolveHumanFaceContact(spread.basis, spread.basis.contact!, spread.posed, spread.shaped);
+      TestValidator.predicate("one-ring takes the move nearest its target that stays inside its own corridor",
+        nclose(buffer[3], width, 1e-12));
+      TestValidator.equals("a limited spread-only neighbour is still excluded from the count", summary[0].vertices, 1);
     } else {
       const buffer = spread.posed.get(soft.id)!;
       const summary = resolveHumanFaceContact(spread.basis, spread.basis.contact!, spread.posed, spread.shaped);
@@ -107,4 +113,23 @@ export const test_subject_human_contact_original_witnesses = (): void => {
       TestValidator.predicate("successful contact preserves the output array identity", buffer === spread.posed.get(soft.id));
     }
   }
+
+  const keep = fixture([[1, 0, 0], [1, 0, 0]], [-0.0008, 0, 0], 0.001);
+  keep.basis.contact!.colliders[1].reachMetres = 0.00025;
+  const plane = keep.basis.surfaces.find((one) => one.id === "budget-plane-1")!;
+  const near = keep.basis.surfaces.find((one) => one.id === "budget-soft")!;
+  for (let at = 0; at < 9; at += 3) {
+    plane.positions[at] = -0.0001;
+    keep.posed.get(plane.id)![at] = -0.0001;
+    keep.shaped.get(plane.id)![at] = -0.0001;
+  }
+  near.positions.splice(3, 3, 0.0001, 0.001, 0);
+  keep.posed.get(near.id)!.splice(3, 3, 0.0001, 0.001, 0);
+  keep.shaped.get(near.id)!.splice(3, 3, 0.0001, 0.001, 0);
+  assertHumanFaceBasis(keep.basis);
+  const kept = keep.posed.get(near.id)!;
+  const summary = resolveHumanFaceContact(keep.basis, keep.basis.contact!, keep.posed, keep.shaped);
+  TestValidator.predicate("the directly corrected vertex is accepted", nclose(kept[0], 0, 1e-12));
+  TestValidator.equals("a neighbour whose smoothing move leaves a sheet's reach stays put", kept[3], 0.0001);
+  TestValidator.equals("the kept neighbour is not counted", summary[0].vertices, 1);
 };

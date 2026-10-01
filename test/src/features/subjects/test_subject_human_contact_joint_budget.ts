@@ -21,6 +21,10 @@ import { nclose, throwsError } from "../internal/predicates";
  *    (0,7.5,10) mm, length 12.5 mm inside 13 mm; sequential 13.86 mm is unnecessary.
  * 5. A single exact active floor retains its boundary correction and zero
  *    budget accepts an unchanged point whose original floors are satisfied.
+ * 6. Floors 0.3 nm past what the 1 mm budget reaches (0.6 and 0.8000004 mm) are
+ *    met within the fixture's 1 nm tolerance, inside the budget: half the
+ *    tolerance relaxes a floor only where the budget cannot reach it, so the
+ *    candidate does not land on the admission edge.
  */
 export const test_subject_human_contact_joint_budget = (): void => {
   const orthogonal = [[1, 0, 0], [0, 1, 0]];
@@ -63,6 +67,9 @@ export const test_subject_human_contact_joint_budget = (): void => {
   const single = fixture([[1, 0, 0]], [-0.0008, 0, 0], 0.0008);
   TestValidator.predicate("exact single-floor budget boundary",
     nclose(admitted(single, [[1, 0, 0]]).travel, 0.0008, 1e-12));
+  const past = admitted(fixture(orthogonal, [-0.0006, -0.0008000004, 0], 0.001), orthogonal);
+  TestValidator.predicate("floors past the budget relax by the tolerance and stay inside it",
+    past.travel <= 0.001 && past.travel >= Math.hypot(0.0006, 0.0008000004) - Math.SQRT2 * past.tolerance);
   const resting = fixture(orthogonal, [0.0008, 0.0008, 0], 0);
   resting.shaped.get("budget-soft")!.splice(0, 3, ...resting.point);
   TestValidator.equals("zero budget leaves an admitted rest point unchanged",
