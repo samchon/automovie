@@ -31,7 +31,12 @@ import { resolveHumanBodyCouplings } from "./resolveHumanBodyCouplings";
  * added exactly as on one the document wrote; the pose itself is validated
  * later by the builder, so this reads angles without judging them. Upper-arm
  * drivers read TT total elevation or axial rotation from the separate
- * shoulder goal and its measured A-pose rest. Old fixed-axis upper-arm
+ * shoulder goal and its A-pose rest, which is the basis's fixed A-pose unless
+ * the caller passes `shoulderRest`, the shaped body's own rest per arm
+ * (`resolveHumanBodyShapedShoulderRest`). An omitted goal then means that
+ * rest for the kernels, the elevation drivers and the couplings alike, so
+ * omitting a goal and writing the rest as an explicit goal select the same
+ * deformation; a measurement path that has no shaped skeleton passes none. Old fixed-axis upper-arm
  * drivers cannot pass basis admission. A TT orientation kernel contributes
  * its clamped fall-off from its centre, divided by the sum of its family's
  * kernels where that sum exceeds one: a family is the kernels of one humerus
@@ -54,6 +59,10 @@ export function humanBodyBasisWeights(
   document: Pick<IAutoMovieHumanBodyBasisDocument, "shape" | "pose"> & {
     shoulders?: IAutoMovieHumanBodyShoulderPose[];
   },
+  shoulderRest: ReadonlyMap<
+    IAutoMovieHumanBodyShoulderPose["bone"],
+    IAutoMovieHumanBodyShoulderPose
+  > = new Map(),
 ): {
   weights: Map<string, number>;
   activations: { target: string; activation: number }[];
@@ -83,6 +92,7 @@ export function humanBodyBasisWeights(
     basis,
     document.pose ?? [],
     document.shoulders ?? [],
+    shoulderRest,
   ).joints;
   const angles = new Map(pose.map((joint) => [joint.bone, joint]));
   const shoulderAngles = new Map(
@@ -91,7 +101,12 @@ export function humanBodyBasisWeights(
   const shoulderNeutral = new Map(
     basis.joints
       .filter((joint) => joint.shoulder !== undefined)
-      .map((joint) => [joint.bone, joint.shoulder!.neutral]),
+      .map((joint) => [
+        joint.bone,
+        shoulderRest.get(
+          joint.bone as IAutoMovieHumanBodyShoulderPose["bone"],
+        ) ?? joint.shoulder!.neutral,
+      ]),
   );
   /** One shoulder kernel's value: the clamped fall-off from its centre. */
   const kernel = (

@@ -59,6 +59,10 @@ export function resolveHumanBodyCouplings(
   >,
   pose: readonly IAutoMovieJointPose[],
   shoulders: readonly IAutoMovieHumanBodyShoulderPose[] = [],
+  shoulderRest: ReadonlyMap<
+    IAutoMovieHumanBodyShoulderPose["bone"],
+    IAutoMovieHumanBodyShoulderPose
+  > = new Map(),
 ): {
   /** The document's joints with every nonzero coupled ordinate added; the document's own entries when nothing is coupled. */
   joints: IAutoMovieJointPose[];
@@ -91,7 +95,11 @@ export function resolveHumanBodyCouplings(
             source?.abduction ?? rest.abduction,
           )
         : (shoulders.find((one) => one.bone === coupling.source.bone)
-            ?.elevation ?? shoulder.neutral.elevation);
+            ?.elevation ??
+          shoulderRest.get(
+            coupling.source.bone as IAutoMovieHumanBodyShoulderPose["bone"],
+          )?.elevation ??
+          shoulder.neutral.elevation);
     const degrees = evaluateCurve(coupling.curve, elevation);
     if (degrees === 0) continue;
     const { bone, axis } = coupling.output;

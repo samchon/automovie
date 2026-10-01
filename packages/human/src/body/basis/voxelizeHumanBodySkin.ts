@@ -8,13 +8,17 @@ import { measureHumanBodyDistanceField } from "./measureHumanBodyDistanceField";
  * The grid covers the points padded by `pad`, in cubic cells of `cell`. Every
  * skin triangle that reaches it is sampled at a barycentric spacing of at most
  * `cell / 2`, and each sample falls in the voxel nearest to it. Each occupied
- * voxel keeps the mean of its samples' positions and the mean of their
- * pseudo-normals: the angle-weighted vertex normals of the mesh, blended by
- * the sample's barycentric weights (Baerentzen and Aanaes 2005, "Signed
- * distance computation using the angle weighted pseudonormal", IEEE TVCG
- * 11(3)). The pseudo-normal is what tells the air from the flesh on a concave
- * feature, where the normal of one adjoining face reads a point behind a
- * crease's floor as in front of its wall. The exact distance transform of the
+ * voxel keeps the mean of its samples' positions and the mean of their sign
+ * normals: the pseudo-normal of the feature the sample lies on, which is the
+ * face normal inside a face, the sum of the two unit face normals on an edge
+ * and the angle-weighted vertex normal at a vertex (Baerentzen and Aanaes 2005,
+ * "Signed distance computation using the angle weighted pseudonormal", IEEE
+ * TVCG 11(3)). A pseudo-normal is valid only on its own feature, so a sample
+ * inside a face is never blended with the normals at the face's corners, which
+ * tilt it away from the face it lies on. The pseudo-normal is what tells the
+ * air from the flesh on a concave feature, where the normal of one adjoining
+ * face reads a point behind a crease's floor as in front of its wall. The exact
+ * distance transform of the
  * occupied voxels (`measureHumanBodyDistanceField`) is the distance from each
  * voxel to the skin, to within the cell.
  *
@@ -79,18 +83,15 @@ export function voxelizeHumanBodySkin(props: {
     // depends on
     const reaching = trianglesReaching(corner, indices, origin, dimensions, cell);
     const pseudo = pseudoNormals(corner, indices, reaching);
+    const vertices = corner.length / 3;
     for (const t of reaching) {
       const a = indices[t] * 3;
       const b = indices[t + 1] * 3;
       const c = indices[t + 2] * 3;
-      const e1 = [corner[b] - corner[a], corner[b + 1] - corner[a + 1], corner[b + 2] - corner[a + 2]];
+      const e1 =[corner[b] - corner[a], corner[b + 1] - corner[a + 1], corner[b + 2] - corner[a + 2]];
       const e2 = [corner[c] - corner[a], corner[c + 1] - corner[a + 1], corner[c + 2] - corner[a + 2]];
-      const face = [
-        e1[1] * e2[2] - e1[2] * e2[1],
-        e1[2] * e2[0] - e1[0] * e2[2],
-        e1[0] * e2[1] - e1[1] * e2[0],
-      ];
-      if (Math.hypot(face[0], face[1], face[2]) === 0) continue;
+      const unit = pseudo.face.get(t);
+      if (unit === undefined) continue;
       const steps = Math.max(
         1,
         Math.ceil(
@@ -124,10 +125,14 @@ export function voxelizeHumanBodySkin(props: {
           positions[taken * 3] = px;
           positions[taken * 3 + 1] = py;
           positions[taken * 3 + 2] = pz;
-          const w0 = 1 - wi - wj;
-          for (let k = 0; k < 3; k++)
-            normals[taken * 3 + k] =
-              w0 * pseudo[a + k] + wi * pseudo[b + k] + wj * pseudo[c + k];
+          const normal = featureNormal(
+            pseudo,
+            vertices,
+            [indices[t], indices[t + 1], indices[t + 2]],
+            [steps - i - j, i, j],
+            unit,
+          );
+          for (let k = 0; k < 3; k++) normals[taken * 3 + k] = normal[k];
           ++taken;
         }
     }
@@ -299,18 +304,35 @@ function trianglesReaching(
   return reaching;
 }
 
+/** The sign normals of the triangles a mesh offers a grid, by feature. */
+interface IPseudoNormals {
+  /** Angle-weighted vertex pseudo-normals, three numbers per vertex. */
+  vertex: Float64Array;
+
+  /** Sum of the unit normals of the triangles that share an edge, by edge key. */
+  edge: Map<number, number[]>;
+
+  /** Unit face normal of the triangle at each offset into `indices`. */
+  face: Map<number, number[]>;
+}
+
 /**
- * The angle-weighted vertex normals (pseudo-normals) over the given triangles of a mesh: each
- * triangle adds its unit normal to its corners weighted by the angle it spans
- * there. Their sign against the vector to a point nearest a vertex or an edge
- * tells the air from the flesh on convex and reflex features alike.
+ * The pseudo-normals of the given triangles of a mesh, one per feature: the
+ * unit normal of each face, the sum of the unit normals of the faces that share
+ * an edge, and the angle-weighted sum at each vertex, which are exactly the
+ * three that Baerentzen and Aanaes (2005) prove give the sign of a point whose
+ * nearest surface point lies on that feature. A sample inside a face therefore
+ * carries the face normal and is never tilted by the faces at its corners.
  */
 function pseudoNormals(
   positions: readonly number[],
   indices: readonly number[],
   triangles: readonly number[],
-): Float64Array {
-  const result = new Float64Array(positions.length);
+): IPseudoNormals {
+  const vertex = new Float64Array(positions.length);
+  const edge = new Map<number, number[]>();
+  const face = new Map<number, number[]>();
+  const count = positions.length / 3;
   const p = new Float64Array(9);
   for (const t of triangles) {
     for (let k = 0; k < 3; k++)
@@ -321,7 +343,13 @@ function pseudoNormals(
     const fz = (p[3] - p[0]) * (p[7] - p[1]) - (p[4] - p[1]) * (p[6] - p[0]);
     const size = Math.hypot(fx, fy, fz);
     if (size === 0) continue;
+    const unit = [fx / size, fy / size, fz / size];
+    face.set(t, unit);
     for (let k = 0; k < 3; k++) {
+      const key = edgeKey(indices[t + k], indices[t + ((k + 1) % 3)], count);
+      const sum = edge.get(key);
+      if (sum === undefined) edge.set(key, unit.slice());
+      else for (let axis = 0; axis < 3; axis++) sum[axis] += unit[axis];
       const n = ((k + 1) % 3) * 3;
       const m = ((k + 2) % 3) * 3;
       const o = k * 3;
@@ -334,12 +362,43 @@ function pseudoNormals(
       const cosine =
         (ax * bx + ay * by + az * bz) /
         (Math.hypot(ax, ay, az) * Math.hypot(bx, by, bz));
-      const angle = Math.acos(Math.min(1, Math.max(-1, cosine))) / size;
+      const angle = Math.acos(Math.min(1, Math.max(-1, cosine)));
       const at = indices[t + k] * 3;
-      result[at] += angle * fx;
-      result[at + 1] += angle * fy;
-      result[at + 2] += angle * fz;
+      vertex[at] += angle * unit[0];
+      vertex[at + 1] += angle * unit[1];
+      vertex[at + 2] += angle * unit[2];
     }
   }
-  return result;
+  return { vertex, edge, face };
+}
+
+/** The key of the undirected edge between two vertices of a mesh of `count`. */
+function edgeKey(first: number, second: number, count: number): number {
+  return Math.min(first, second) * count + Math.max(first, second);
+}
+
+/**
+ * The pseudo-normal of the feature a triangle sample lies on. The sample's
+ * barycentric weights, in whole steps, are zero on the corners opposite its
+ * feature: two zeros put it on a vertex, one on an edge, none inside the face.
+ * Every edge of a triangle that has a face normal has an edge normal, so only
+ * a triangle without area, which the caller skips, lacks one.
+ */
+function featureNormal(
+  pseudo: IPseudoNormals,
+  count: number,
+  corners: readonly [number, number, number],
+  weights: readonly [number, number, number],
+  face: readonly number[],
+): readonly number[] {
+  const present = [0, 1, 2].filter((k) => weights[k] !== 0);
+  if (present.length === 1) {
+    const at = corners[present[0]] * 3;
+    return [pseudo.vertex[at], pseudo.vertex[at + 1], pseudo.vertex[at + 2]];
+  }
+  if (present.length === 2)
+    return pseudo.edge.get(
+      edgeKey(corners[present[0]], corners[present[1]], count),
+    )!;
+  return face;
 }

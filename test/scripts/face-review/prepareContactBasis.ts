@@ -281,8 +281,24 @@ export function prepareContactBasis(input: IContactBasisInput) {
     ]),
   );
   const authored = new Map<string, number>();
+  // The probe must not refuse for budget, yet its correction solve scales by
+  // the budget, so an unbounded value overflows to a non-finite displacement
+  // and refuses an endpoint for arithmetic. The extent of the whole assembly
+  // is finite and no tissue correction can move a vertex farther than that.
+  const low = [Infinity, Infinity, Infinity];
+  const high = [-Infinity, -Infinity, -Infinity];
+  for (const one of basis.surfaces)
+    for (let at = 0; at < one.positions.length; at++) {
+      low[at % 3] = Math.min(low[at % 3], one.positions[at]);
+      high[at % 3] = Math.max(high[at % 3], one.positions[at]);
+    }
+  const assemblyExtent = Math.hypot(
+    high[0] - low[0],
+    high[1] - low[1],
+    high[2] - low[2],
+  );
   const probeBudgets = new Map(
-    input.soft.map((entry) => [entry.surface, Number.MAX_VALUE]),
+    input.soft.map((entry) => [entry.surface, assemblyExtent]),
   );
   const probed: { endpoint: string; refused: string }[] = [];
   const probe = createHumanFaceBasisBuilder(

@@ -9,12 +9,29 @@ type GluteusMaximusInsertion<Side extends AutoMovieHumanBodySide> =
   | { structure: `${Side}Femur`; site: "glutealTuberosity" }
   | { structure: `${Side}IliotibialTract`; site: "proximalTract" };
 
+/** One anatomical side's whole record: its origins and insertions never name the other side. */
+interface IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<Side extends AutoMovieHumanBodySide> {
+  /** At least one named pelvic origin in the same anatomical side. */
+  readonly origins: readonly [
+    GluteusMaximusOrigin<Side>,
+    ...GluteusMaximusOrigin<Side>[],
+  ];
+  /** At least one femoral or iliotibial insertion on that side. */
+  readonly insertions: readonly [
+    GluteusMaximusInsertion<Side>,
+    ...GluteusMaximusInsertion<Side>[],
+  ];
+}
+
 /**
  * Same-side anatomical origins and insertions of a generated gluteus maximus.
  *
  * Named sites are output relations among the resolved coxal bone, sacrum,
  * femur and fascia. They are never user-supplied XYZ positions. A nearest
  * segmented bone voxel alone cannot identify a tendon attachment.
+ *
+ * The type distributes over `Side`: a record is wholly one side's, so a union
+ * `Side` admits either side's record and never a record that mixes the two.
  *
  * @evidence contracts/common.md#principled-implementation The origins and insertions are closed unions templated on `Side`, so each site can only name a structure of the same side (`${Side}CoxalBone`, the shared sacrum, `${Side}SacrotuberousLigament`, `${Side}Femur`, `${Side}IliotibialTract`); the tuple `[X, ...X[]]` requires at least one of each, so an attachment record cannot be empty.
  * @evidence contracts/common.md#clear-and-simple-design Two readonly members, the origins and the insertions, each a closed union of named structure and site; nothing else.
@@ -30,17 +47,6 @@ type GluteusMaximusInsertion<Side extends AutoMovieHumanBodySide> =
  * @evidence contracts/anatomy.md#parametric-authority Every entry is a structure of the same side and a site from a closed union of named landmarks, so a caller can name an attachment but cannot place one: no coordinate, vertex or surface patch is expressible.
  * @author Samchon
  */
-export interface IAutoMovieHumanBodyGluteusMaximusAttachments<
+export type IAutoMovieHumanBodyGluteusMaximusAttachments<
   Side extends AutoMovieHumanBodySide,
-> {
-  /** At least one named pelvic origin in the same anatomical side. */
-  readonly origins: readonly [
-    GluteusMaximusOrigin<Side>,
-    ...GluteusMaximusOrigin<Side>[],
-  ];
-  /** At least one femoral or iliotibial insertion on that side. */
-  readonly insertions: readonly [
-    GluteusMaximusInsertion<Side>,
-    ...GluteusMaximusInsertion<Side>[],
-  ];
-}
+> = Side extends AutoMovieHumanBodySide ? IAutoMovieHumanBodyGluteusMaximusAttachmentsRecord<Side> : never;

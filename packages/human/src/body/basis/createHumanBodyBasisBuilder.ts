@@ -10,10 +10,12 @@ import { createHumanBodyAppearance } from "./appearance/createHumanBodyAppearanc
 import { assertHumanBodyBasis } from "./assertHumanBodyBasis";
 import { createHumanBodySurfaceParts } from "./createHumanBodySurfaceParts";
 import { createHumanBodyUnderwear } from "./createHumanBodyUnderwear";
+import { evaluateHumanBodyLandmarks } from "./evaluateHumanBodyLandmarks";
 import { evaluateHumanBodyShape } from "./evaluateHumanBodyShape";
 import { humanBodyBasisWeights } from "./humanBodyBasisWeights";
 import { humanBodyShoulderReaches } from "./humanBodyShoulderReaches";
 import { resolveHumanBodyBuildPose } from "./resolveHumanBodyBuildPose";
+import { resolveHumanBodyShapedShoulderRest } from "./resolveHumanBodyShapedShoulderRest";
 
 /**
  * Compile a caller-owned connected body basis into a deterministic builder.
@@ -60,7 +62,21 @@ export function createHumanBodyBasisBuilder(
       throw new Error(
         "Body edits need nonempty identities and the exact compiled basis revision.",
       );
-    const state = humanBodyBasisWeights(basis, document);
+    // an omitted shoulder goal is the shaped body's own rest, which every
+    // reader of the goal shares, so the arms are read before the pose weights
+    const shoulderRestOf = (shape: Record<string, number>) =>
+      resolveHumanBodyShapedShoulderRest(
+        basis,
+        evaluateHumanBodyLandmarks(
+          basis,
+          humanBodyBasisWeights(basis, { shape, pose: undefined }),
+        ),
+      );
+    const state = humanBodyBasisWeights(
+      basis,
+      document,
+      shoulderRestOf(document.shape),
+    );
     for (const shoulder of document.shoulders ?? []) {
       const contract = basis.joints.find(
         (joint) => joint.bone === shoulder.bone,
@@ -82,12 +98,16 @@ export function createHumanBodyBasisBuilder(
     const atRest = (shape: Record<string, number>) =>
       evaluateHumanBodyShape(
         basis,
-        humanBodyBasisWeights(basis, {
-          ...document,
-          shape,
-          pose: undefined,
-          shoulders: undefined,
-        }),
+        humanBodyBasisWeights(
+          basis,
+          {
+            ...document,
+            shape,
+            pose: undefined,
+            shoulders: undefined,
+          },
+          shoulderRestOf(shape),
+        ),
       );
     // each is evaluated once, on first use: the document at rest (the
     // shaped body itself when it is not posed) and each surface's lean self

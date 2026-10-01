@@ -35,6 +35,10 @@ const fold = (name: string, shape: Record<string, number> = {}) => ({
  *    crossing above it), the queued one ends at the midpoint, the working
  *    basis carries both with their rows, the input basis is not mutated, and
  *    the working basis poses the state without a crossing.
+ * 2. The first record keeps its one crossing pair, the vertices pushed and
+ *    the log, and its verification holds the three checks in a fixed order:
+ *    full angle and midpoint measured, and the half-weight check not sampled
+ *    because a pose-only state has no weighted channel to lighten.
  */
 export const test_human_body_corrective_session_repair = (): void => {
   const basis = bodyCorrectiveBoxFixture({ short: true });
@@ -89,10 +93,16 @@ export const test_human_body_corrective_session_repair = (): void => {
     0,
   );
   TestValidator.predicate(
-    "a record keeps the pairs, the verification and the log",
+    "a record keeps the pairs, the pushed vertices and the log",
     records[0].crossing!.pairs.length === 1 &&
-      records[0].crossing!.verification.length === 2 &&
       records[0].crossing!.log.length > 0 &&
       records[0].crossing!.vertices > 0,
+  );
+  TestValidator.equals(
+    "the verification names the full, midpoint and lighter checks, the lighter one unrequested because no channel carries weight",
+    records[0].crossing!.verification.map(
+      (check) => (check as { sample: { kind: string } }).sample.kind,
+    ),
+    ["measured", "measured", "not-sampled"],
   );
 };

@@ -1,6 +1,8 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyBasis } from "../structures/IAutoMovieHumanBodyBasis";
+import { applyHumanBodyShapeRows } from "./applyHumanBodyShapeRows";
+import { evaluateHumanBodyLandmarks } from "./evaluateHumanBodyLandmarks";
 
 /**
  * Evaluate named channels and correctives over their resident skin and landmark rows.
@@ -24,55 +26,10 @@ export function evaluateHumanBodyShape(
     activations: { target: string; activation: number }[];
   },
 ): { surfaces: number[][]; landmarks: Record<string, IAutoMovieVector3> } {
-  const accumulate = (
-    positions: number[],
-    targets: Record<string, number[]>,
-    name: string,
-    gain: number,
-  ): void => {
-    const rows = targets[name];
-    if (rows === undefined) return;
-    for (let i = 0; i < rows.length; i += 4)
-      for (let axis = 0; axis < 3; axis++)
-        positions[rows[i] * 3 + axis] += gain * rows[i + axis + 1];
-  };
-  const shape = (
-    positions: number[],
-    targets: Record<string, number[]>,
-  ): void => {
-    for (const channel of basis.channels) {
-      const weight = state.weights.get(channel.id) ?? 0;
-      if (weight === 0) continue;
-      accumulate(
-        positions,
-        targets,
-        weight < 0 ? channel.negative! : channel.positive,
-        Math.abs(weight),
-      );
-    }
-    for (const corrective of state.activations)
-      if (corrective.activation > 0)
-        accumulate(
-          positions,
-          targets,
-          corrective.target,
-          corrective.activation,
-        );
-  };
   const surfaces = basis.surfaces.map((surface) => {
     const positions = surface.positions.slice();
-    shape(positions, surface.targets);
+    applyHumanBodyShapeRows(basis, state, positions, surface.targets);
     return positions;
   });
-  const marks = basis.landmarks.positions.slice();
-  shape(marks, basis.landmarks.targets);
-  const landmarks: Record<string, IAutoMovieVector3> = {};
-  basis.landmarks.ids.forEach((id, i) => {
-    landmarks[id] = {
-      x: marks[i * 3],
-      y: marks[i * 3 + 1],
-      z: marks[i * 3 + 2],
-    };
-  });
-  return { surfaces, landmarks };
+  return { surfaces, landmarks: evaluateHumanBodyLandmarks(basis, state) };
 }
