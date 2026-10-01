@@ -57,13 +57,25 @@ const skin = [1, -1].flatMap((side) =>
  *    tip row of the flat card lies straight forward.
  * 3. A target equal to a card's own angle turns that card by nothing
  *    (negative twin of 2).
- * 4. With a floor of 90 degrees, a card whose columns stand at 80, 130, 138,
+ * 4. With a level margin and `inward` 1, a card whose columns stand at 80, 130, 138,
  *    130 and 120 degrees and whose centre is turned to 95 (delta -43)
  *    carries the 130 and 120 columns only to 90 (turns -40 and -30), turns the
  *    centre fully, leaves the 80 column (already below the floor) alone,
  *    counts four limited columns (the three limited and the untouched one), and without a floor every column takes
  *    the full -43 (so the 120 column ends at 77 degrees).
- * 5. The basis revision moves only the named region, restamps documents and
+ * 5. On a margin rising 0.2 per unit along +x, with every chord leaning 0.02
+ *    toward -x (the side the margin's inward normal points away from the
+ *    chord), the unlimited turn leaves tips pointing back across the aperture
+ *    (positive frontal component along the inward normal) and the limited
+ *    turn leaves every tip at or below zero, at zero for the column that
+ *    stopped, with the unlimited turn untouched by the limit.
+ * 6. A curled card whose tip row stands at 143 degrees but whose middle row
+ *    stands at 108 degrees: the unlimited turn to 95 carries the middle row
+ *    up across the aperture (positive y, about 60 degrees), and the limited
+ *    turn stops it at the margin (y at most zero, zero for the stopped
+ *    column), because the limit reads every vertex of the column and not only
+ *    the root-to-tip chord.
+ * 7. The basis revision moves only the named region, restamps documents and
  *    controls, leaves the input untouched and keeps the other region; a
  *    repeated revision, a missing lash or skin surface, a missing or
  *    unmapped region and a region sharing vertices with another refuse.
@@ -157,7 +169,7 @@ export const test_subject_lash_orientation_basis = (): void => {
     const p = run.moved.get(tipVertex)!;
     return eyelashSagittalAngle([0, p[1] - fanned.positions[3 * column + 1]!, p[2] - fanned.positions[3 * column + 2]!]);
   };
-  const limitedRun = hingeEyelashRegion({ ...fanned, target: 95, floor: 90 });
+  const limitedRun = hingeEyelashRegion({ ...fanned, target: 95, inward: 1 });
   const freeRun = hingeEyelashRegion({ ...fanned, target: 95 });
   TestValidator.predicate(
     "floor",
@@ -171,6 +183,82 @@ export const test_subject_lash_orientation_basis = (): void => {
       freeRun.cards[0]!.limited === 0 &&
       nclose(angleAfter(freeRun, 4), 77, 1e-9) &&
       nclose(angleAfter(freeRun, 0), 37, 1e-9),
+  );
+
+  const sloped = (() => {
+    const positions: number[] = [];
+    const uvOf: [number, number][] = [];
+    const a = (130 * Math.PI) / 180;
+    for (let r = 0; r < 3; ++r)
+      for (let c = 0; c < 5; ++c) {
+        const x = 0.01 + 0.005 * c;
+        positions.push(x - 0.01 * r, 0.2 * 0.005 * c + 0.005 * r * Math.cos(a), 0.005 * r * Math.sin(a));
+        uvOf.push([0.1 + 0.2 * c, 0.8 - 0.3 * r]);
+      }
+    const indices: number[] = [];
+    const uvs: number[] = [];
+    for (let r = 0; r < 2; ++r)
+      for (let c = 0; c < 4; ++c)
+        for (const v of [5 * r + c, 5 * r + c + 1, 5 * r + c + 6, 5 * r + c, 5 * r + c + 6, 5 * r + c + 5]) {
+          indices.push(v);
+          uvs.push(...uvOf[v]!);
+        }
+    return { positions, indices, uvs, skin: skin.slice(0, 15) };
+  })();
+  const inwardDot = (run: ReturnType<typeof hingeEyelashRegion>, column: number): number => {
+    const tipPoint = run.moved.get(10 + column)!;
+    const rootPoint = [sloped.positions[3 * column]!, sloped.positions[3 * column + 1]!];
+    const norm = Math.hypot(0.2, 1);
+    return ((tipPoint[0] - rootPoint[0]!) * -0.2 + (tipPoint[1] - rootPoint[1]!)) / norm;
+  };
+  const freeSloped = hingeEyelashRegion({ ...sloped, target: 95 });
+  const limitedSloped = hingeEyelashRegion({ ...sloped, target: 95, inward: 1 });
+  const dots = [0, 1, 2, 3, 4].map((c) => inwardDot(limitedSloped, c));
+  TestValidator.predicate(
+    "sloped margin",
+    [0, 1, 2, 3, 4].some((c) => inwardDot(freeSloped, c) > 1e-6) &&
+      dots.every((d) => d <= 1e-6) &&
+      dots.some((d) => Math.abs(d) < 1e-6) &&
+      limitedSloped.cards[0]!.limited > 0 &&
+      freeSloped.cards[0]!.limited === 0,
+  );
+
+  const curled = (() => {
+    const positions: number[] = [];
+    const uvOf: [number, number][] = [];
+    const rows = [
+      [0, 0],
+      [-0.001, 0.003],
+      [0.01 * Math.cos((143 * Math.PI) / 180), 0.01 * Math.sin((143 * Math.PI) / 180)],
+    ];
+    for (let r = 0; r < 3; ++r)
+      for (let c = 0; c < 5; ++c) {
+        positions.push(0.01 + 0.005 * c, rows[r]![0]!, rows[r]![1]!);
+        uvOf.push([0.1 + 0.2 * c, 0.8 - 0.3 * r]);
+      }
+    const indices: number[] = [];
+    const uvs: number[] = [];
+    for (let r = 0; r < 2; ++r)
+      for (let c = 0; c < 4; ++c)
+        for (const v of [5 * r + c, 5 * r + c + 1, 5 * r + c + 6, 5 * r + c, 5 * r + c + 6, 5 * r + c + 5]) {
+          indices.push(v);
+          uvs.push(...uvOf[v]!);
+        }
+    return { positions, indices, uvs, skin: skin.slice(0, 15) };
+  })();
+  const bulge = hingeEyelashRegion({ ...curled, target: 95 });
+  const kept = hingeEyelashRegion({ ...curled, target: 95, inward: 1 });
+  const midY = (run: ReturnType<typeof hingeEyelashRegion>, column: number): number =>
+    run.moved.get(5 + column)![1]!;
+  const tipY = (run: ReturnType<typeof hingeEyelashRegion>, column: number): number =>
+    run.moved.get(10 + column)![1]!;
+  TestValidator.predicate(
+    "curled card",
+    [0, 1, 2, 3, 4].every((c) => midY(bulge, c) > 1e-4) &&
+      [0, 1, 2, 3, 4].every((c) => midY(kept, c) <= 1e-9 && tipY(kept, c) <= 1e-9) &&
+      [0, 1, 2, 3, 4].some((c) => Math.abs(midY(kept, c)) < 1e-9) &&
+      kept.cards[0]!.limited === 5 &&
+      bulge.cards[0]!.limited === 0,
   );
 
   const lower = card(30, 1, 0);

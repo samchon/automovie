@@ -10,8 +10,8 @@ import { type IHingedEyelashCard, hingeEyelashRegion } from "./hingeEyelashRegio
 export interface IEyelashOrientationLid {
   region: string;
   target: number;
-  /** Least sagittal angle any column may take, degrees from the upward vertical. */
-  floor?: number;
+  /** Aperture side along +y (+1 lower lid, -1 upper); see `hingeEyelashRegion`. */
+  inward?: 1 | -1;
 }
 
 /**
@@ -71,7 +71,7 @@ export function prepareLashOrientationBasis(input: {
       uvs: region.uvs,
       skin: skin.positions,
       target: lid.target,
-      ...(lid.floor === undefined ? {} : { floor: lid.floor }),
+      ...(lid.inward === undefined ? {} : { inward: lid.inward }),
     });
     for (const [vertex, point] of moved) surface.positions.splice(3 * vertex, 3, ...point);
     return { region: lid.region, target: lid.target, cards, vertices: moved.size };

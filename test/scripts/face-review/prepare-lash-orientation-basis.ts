@@ -11,8 +11,9 @@
  * the right eyelid, angle between the lash root and the vertical line. The
  * lower value was 90.0 (SD 10.1) degrees for men and 99.8 (SD 10.8) for
  * women; the target is their mean, 94.9, with equal numbers of each sex.
- * The floor of 90 degrees keeps every lower column from pointing above the
- * horizontal. Its basis is Procianoy F, Mendonca TB, Bins CA, Lang MP
+ * The inward normal limit keeps every lower column from pointing back across
+ * the aperture (its frontal component along the margin's upward normal stays
+ * at most zero; on a level margin, a floor of 90 degrees). Its basis is Procianoy F, Mendonca TB, Bins CA, Lang MP
  * (Ophthal Plast Reconstr Surg 2015, abstract read; the full text
  * and its baseline definition were not reachable): 60 patients in three age
  * groups, frontal photographs of the lower lid, mediolateral lash angle to a
@@ -21,7 +22,7 @@
  * abstract's conclusion (the central and medial angles approach 90 degrees
  * with age) reads as pointing downward, so no third of the lid points up.
  * That reading of the baseline as the horizontal is this entry's inference,
- * and the floor itself, being the horizontal of the head frame, is a stated
+ * and the limit itself, being the margin normal of the head frame, is a stated
  * convention and not a measured value. The upper cards already lie inside the source's range (61.4 to 71.8) and
  * are not moved. The source is Japanese-only, limited to the central 2 mm of
  * one lid, and its photographs were not controlled for cosmetics; the datum
@@ -51,7 +52,7 @@ const prepared = prepareLashOrientationBasis({
     {
       region: "Human.eyelashes01/Human.eyelashes01.lower",
       target: (90.0 + 99.8) / 2,
-      floor: 90,
+      inward: 1 as const,
     },
   ],
 });

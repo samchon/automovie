@@ -67,10 +67,11 @@ const rotate = (v: Vec, axis: Vec, degrees: number): Vec => {
  * the lid; chord lengths and the card's fan and curl are preserved; only the
  * elevation changes. Tangents tilt away from x along the lid, so a column
  * off-centre turns about a slightly tilted axis and its own angle changes by
- * about, not exactly, the card's turn. With a `floor`, a column whose turn
- * would take its chord below that sagittal angle turns only as far as the
- * floor (a column already below it does not turn), so no lash is carried
- * upward past the lid-margin side of horizontal. Pure: returns the moved vertices.
+ * about, not exactly, the card's turn. With `inward`, a column whose turn
+ * would point its chord back across the aperture (its frontal component along
+ * the margin's inward normal above zero) turns only as far as the margin
+ * (a column already pointing back does not turn), so no lash is carried over
+ * the visible eye white; on a level margin this is a floor of 90 degrees. Pure: returns the moved vertices.
  */
 export function hingeEyelashRegion(props: {
   positions: readonly number[];
@@ -79,10 +80,14 @@ export function hingeEyelashRegion(props: {
   skin: readonly number[];
   target: number;
   /**
-   * The least sagittal angle any column may take after the turn, degrees from
-   * the upward vertical; omit for none. A column already below it is left as it is.
+   * Which way the aperture lies along +y of the head frame: +1 for a lower
+   * lid (the eye is above its margin), -1 for an upper one; omit for no limit.
+   * With it, no column may end with its chord pointing back across the
+   * aperture: in the frontal (x, y) plane the chord's component along the
+   * margin's inward normal (perpendicular to the root line, on the aperture
+   * side) stays at or below zero. A column that already does is left as it is.
    */
-  floor?: number;
+  inward?: 1 | -1;
 }): { moved: Map<number, Vec>; cards: IHingedEyelashCard[] } {
   const { positions: P, indices: I, uvs } = props;
   const parent = new Map<number, number>();
@@ -123,21 +128,6 @@ export function hingeEyelashRegion(props: {
     };
     const turnedChord = (c: number, degrees: number): number =>
       eyelashSagittalAngle(rotate(sub(tip[c]!, root[c]!), axis(c), degrees));
-    // One turn per column: the card's delta, unless it would carry the column
-    // below the floor, then the largest turn (toward zero) that stops at it.
-    const turns = root.map((_, c) => {
-      const floor = props.floor;
-      if (floor === undefined || turnedChord(c, delta) >= floor) return delta;
-      if (turnedChord(c, 0) < floor) return 0;
-      let [low, high] = delta < 0 ? [delta, 0] : [0, delta];
-      for (let i = 0; i < 60; ++i) {
-        const middle = (low + high) / 2;
-        const holds = turnedChord(c, middle) >= floor;
-        if (holds === delta < 0) high = middle;
-        else low = middle;
-      }
-      return delta < 0 ? high : low;
-    });
     const column = (uv: readonly number[]): number => {
       let best = 0;
       let nearest = Infinity;
@@ -153,6 +143,49 @@ export function hingeEyelashRegion(props: {
       }
       return best;
     };
+    // Every vertex of the card belongs to a column; its offset from that
+    // column's root is what the hinge turns, so the limit below is read on all
+    // of them (a curled card can bulge across the aperture between root and tip).
+    const members: Vec[][] = root.map(() => []);
+    {
+      const seen = new Set<number>();
+      indices.forEach((vertex, i) => {
+        if (seen.has(vertex)) return;
+        seen.add(vertex);
+        const c = column([pieceUvs[2 * i]!, pieceUvs[2 * i + 1]!]);
+        members[c]!.push(sub([P[3 * vertex]!, P[3 * vertex + 1]!, P[3 * vertex + 2]!], root[c]!));
+      });
+    }
+    // The chord's frontal component along the margin's inward normal at column
+    // c after a turn of `degrees`; at most zero means it leaves the margin.
+    const across = (c: number, degrees: number): number => {
+      const t = sub(root[Math.min(columns - 1, c + 1)]!, root[Math.max(0, c - 1)]!);
+      const length = Math.hypot(t[0], t[1]);
+      const normal = [-t[1] / length, t[0] / length];
+      const sign = Math.sign(normal[1]!) === props.inward || normal[1] === 0 ? 1 : -1;
+      return Math.max(
+        ...members[c]!.map((offset) => {
+          const v = rotate(offset, axis(c), degrees);
+          return sign * (v[0] * normal[0]! + v[1] * normal[1]!);
+        }),
+      );
+    };
+    const holds = (c: number, degrees: number): boolean =>
+      props.inward === undefined || across(c, degrees) <= 1e-12;
+    // One turn per column: the card's delta, unless it would point the column
+    // back across the aperture, then the largest turn (toward zero) that stops
+    // at the margin; a column that already points back is not turned.
+    const turns = root.map((_, c) => {
+      if (holds(c, delta)) return delta;
+      if (!holds(c, 0)) return 0;
+      let [low, high] = delta < 0 ? [delta, 0] : [0, delta];
+      for (let i = 0; i < 60; ++i) {
+        const middle = (low + high) / 2;
+        if (holds(c, middle) === delta < 0) high = middle;
+        else low = middle;
+      }
+      return delta < 0 ? high : low;
+    });
     indices.forEach((vertex, i) => {
       if (moved.has(vertex)) return;
       const c = column([pieceUvs[2 * i]!, pieceUvs[2 * i + 1]!]);
