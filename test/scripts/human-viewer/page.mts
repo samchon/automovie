@@ -38,6 +38,7 @@ import { frameHumanViewerParts } from "./frameHumanViewerParts";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { planHumanViewerReference } from "./planHumanViewerReference";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
+import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
 const display = document.querySelector<HTMLDivElement>("#display")!;
@@ -274,16 +275,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
   renderer.setSize(address.size, address.size, false);
   // Resizing the shared surface precedes framing, which observes its aspect.
   active.fitView();
-  active.observe.pass(address.pass);
-  const missing = active.observe.isolate(
-    address.parts.length === 0 ? null : address.parts,
-  );
-  if (missing.length !== 0)
-    throw new Error("Unknown mesh: " + missing.join(","));
-  const hidden = active.observe.hide(
-    address.hide.length === 0 ? null : address.hide,
-  );
-  if (hidden.length !== 0) throw new Error("Unknown mesh: " + hidden.join(","));
+  applyHumanViewerVisibility(active, address);
   if (address.frame === null && (address.parts.length !== 0 || address.zoom !== 1)) {
     const box = frameHumanViewerParts(resident.group, address.parts);
     active.observe.frame({

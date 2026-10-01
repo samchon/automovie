@@ -19,6 +19,7 @@ export function serializeHumanViewerAddress(
     view: address.view,
     pass: address.pass,
     ao: address.ao ? "on" : "off",
+    shadows: address.shadows ? "on" : "off",
     size: String(address.size),
     opacity: String(address.opacity),
   });

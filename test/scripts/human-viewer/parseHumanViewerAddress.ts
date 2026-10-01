@@ -24,6 +24,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     "pass",
     "frame",
     "ao",
+    "shadows",
     "size",
     "fmt",
     "ref",
@@ -91,6 +92,9 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   }
   const ao = fields.get("ao") ?? "off";
   if (ao !== "off" && ao !== "on") throw new Error("ao must be on or off");
+  const shadows = fields.get("shadows") ?? "on";
+  if (shadows !== "on" && shadows !== "off")
+    throw new Error("shadows must be on or off");
   if (fields.has("fmt") && fields.get("fmt") !== "png")
     throw new Error("Only PNG is supported");
   const ref = fields.get("ref");
@@ -121,6 +125,7 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     pass: pass as HumanViewerAddress["pass"],
     frame,
     ao: ao === "on",
+    shadows: shadows === "on",
     size,
     ref: ref as HumanViewerAddress["ref"],
     opacity: number("opacity", 0.5, 0, 1),

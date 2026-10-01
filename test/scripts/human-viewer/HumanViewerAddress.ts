@@ -57,6 +57,9 @@ export interface HumanViewerAddress {
   /** Bake numerical ambient occlusion when true. */
   ao: boolean;
 
+  /** Cast display shadows through the viewport's lights; absent addresses default on. */
+  shadows: boolean;
+
   /** Square capture side in pixels. */
   size: number;
 

@@ -22,6 +22,7 @@ export function test_human_viewer_address_roundtrip(): void {
     pitch: 0,
     look: null,
     ao: false,
+    shadows: true,
     size: 900,
     ref: null,
     opacity: 0.5,
