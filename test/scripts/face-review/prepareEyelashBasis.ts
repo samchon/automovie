@@ -5,6 +5,10 @@ import {
   encodePng,
 } from "@automovie/human";
 
+import { faceEyelashTransverseScale } from "./faceEyelashTransverseScale";
+import { locateFaceEyelashTriangle } from "./locateFaceEyelashTriangle";
+import { rasterizeEyelashSegment } from "./rasterizeEyelashSegment";
+
 /** A lid's lashes as the anatomy reports them. */
 export interface IEyelashNorm {
   /** The lash surface region that carries this lid's cards. */
@@ -253,24 +257,11 @@ export const faceEyelashLift = (
   card: IEyelashCard,
   point: readonly [number, number],
 ): [number, number, number] | null => {
-  for (const triangle of card.triangles) {
-    const [a, b, c] = triangle.uv;
-    const den = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
-    if (den === 0) continue;
-    const u =
-      ((b[1] - c[1]) * (point[0] - c[0]) + (c[0] - b[0]) * (point[1] - c[1])) /
-      den;
-    const v =
-      ((c[1] - a[1]) * (point[0] - c[0]) + (a[0] - c[0]) * (point[1] - c[1])) /
-      den;
-    const eps = -1e-9;
-    if (u < eps || v < eps || u + v > 1 - eps) continue;
-    const [p, q, r] = triangle.xyz;
-    return [0, 1, 2].map(
-      (k) => u * p[k]! + v * q[k]! + (1 - u - v) * r[k]!,
-    ) as [number, number, number];
-  }
-  return null;
+  const patch = locateFaceEyelashTriangle(card, point);
+  if (patch === null) return null;
+  const [u, v, w] = patch.weights;
+  const [p, q, r] = patch.triangle.xyz;
+  return [0, 1, 2].map((axis) => u * p[axis] + v * q[axis] + w * r[axis]) as [number, number, number];
 };
 
 /**
@@ -351,30 +342,31 @@ export function drawEyelashTexture(props: {
         reach = s / steps;
       }
       if (!(reach > 0) || !(spent > 0)) continue;
-      // Pixels per metre on the card, from the drawn span and its arc length.
-      const pixels =
-        (Math.hypot(end[0] - start[0], end[1] - start[1]) * reach * size) /
-        spent;
       const x0 = start[0] * size;
       const y0 = start[1] * size;
       const x1 = (start[0] + (end[0] - start[0]) * reach) * size;
       const y1 = (start[1] + (end[1] - start[1]) * reach) * size;
       const span = Math.hypot(x1 - x0, y1 - y0);
-      const samples = Math.max(2, Math.ceil(span * 3));
-      for (let s = 0; s <= samples; ++s) {
+      const samples = Math.max(2, Math.ceil(span));
+      const coverage = new Map<number, number>();
+      let previousPixel: [number, number] = [x0, y0];
+      let previousWidth = norm.diameter * 1e-3 * size /
+        faceEyelashTransverseScale(card, start, [end[0] - start[0], end[1] - start[1]]);
+      for (let s = 1; s <= samples; ++s) {
         const t = s / samples;
-        const width = norm.diameter * 1e-3 * pixels * (1 - 0.9 * t);
         const cx = x0 + (x1 - x0) * t;
         const cy = y0 + (y1 - y0) * t;
-        // A width below a pixel covers that fraction of the pixel it crosses;
-        // a wider fibre covers the pixels within half its width.
-        const half = Math.max(0.5, width / 2);
-        const alpha = Math.min(1, width) / (samples / Math.max(1, span));
-        for (let y = Math.floor(cy - half); y <= Math.ceil(cy + half); ++y)
-          for (let x = Math.floor(cx - half); x <= Math.ceil(cx + half); ++x)
-            if (Math.hypot(x + 0.5 - cx, y + 0.5 - cy) <= half)
-              plot(x, y, Math.min(1, alpha));
+        const transverse = faceEyelashTransverseScale(card, [cx / size, cy / size],
+          [end[0] - start[0], end[1] - start[1]]);
+        const width = norm.diameter * 1e-3 * size / transverse * (1 - 0.9 * t);
+        const pixel: [number, number] = [cx, cy];
+        rasterizeEyelashSegment({ start: previousPixel, end: pixel,
+          widthStart: previousWidth, widthEnd: width, size, coverage });
+        previousPixel = pixel;
+        previousWidth = width;
       }
+      for (const [pixel, area] of coverage)
+        plot(pixel % size, Math.floor(pixel / size), area);
     }
   }
   return rgba;
