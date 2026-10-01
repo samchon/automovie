@@ -8,10 +8,12 @@ import { warmHumanViewerDocuments } from "../../../scripts/human-viewer/warmHuma
  * Scenarios:
  * 1. Cached documents need no capture; errors do not hide later missing items.
  * 2. Source revision changes or a replacement warm pass withdraw remaining work.
- * 3. An empty catalogue completes with zero counters and no current item.
+ * 3. A skipped document is listed with its first-line cause.
+ * 4. An empty catalogue completes with zero counters and no current item.
  */
 export const test_human_viewer_warm_documents = async (): Promise<void> => {
-  const status = { revision: "", total: 0, done: 0, skipped: 0, current: null as string | null };
+  const status = { revision: "", total: 0, done: 0, skipped: 0,
+    failures: [] as { id: string; reason: string }[], current: null as string | null };
   const captured: string[] = [];
   const queued: string[] = [];
   const props = {
@@ -31,7 +33,8 @@ export const test_human_viewer_warm_documents = async (): Promise<void> => {
   TestValidator.equals("only missing entries", queued, ["bad", "next"]);
   TestValidator.equals("captures", captured, ["bad", "next"]);
   TestValidator.equals("complete counts", status, {
-    revision: "first", total: 3, done: 2, skipped: 1, current: null,
+    revision: "first", total: 3, done: 2, skipped: 1,
+    failures: [{ id: "bad", reason: "unavailable document" }], current: null,
   });
   queued.length = 0;
   await warmHumanViewerDocuments({ ...props, currentRevision: () => "new-source" });
@@ -45,6 +48,6 @@ export const test_human_viewer_warm_documents = async (): Promise<void> => {
   TestValidator.equals("old failure does not increment replacement counters", status.skipped, 0);
   await warmHumanViewerDocuments({ ...props, documents: [] });
   TestValidator.equals("empty", status, {
-    revision: "first", total: 0, done: 0, skipped: 0, current: null,
+    revision: "first", total: 0, done: 0, skipped: 0, failures: [], current: null,
   });
 };

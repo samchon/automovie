@@ -17,6 +17,9 @@ export const test_human_viewer_reference_capture = (): void => {
     height: 0,
     getContext: () => ({
       globalAlpha: 1,
+      fillStyle: "",
+      arc: () => {},
+      fill: () => {},
       save: () => {},
       restore: () => {},
       beginPath: () => {},
@@ -32,6 +35,7 @@ export const test_human_viewer_reference_capture = (): void => {
   const url = captureHumanViewerReference({
     composition: { mode: "split", opacity: 0.5, size: 20 },
     photo,
+    landmarks: [],
     render: "R",
     create: () => surface,
   });
@@ -43,6 +47,7 @@ export const test_human_viewer_reference_capture = (): void => {
     captureHumanViewerReference({
       composition: { mode: "split", opacity: 0.5, size: 20 },
       photo,
+      landmarks: [],
       render: "R",
       create: () => ({ ...surface, getContext: () => null }),
     });

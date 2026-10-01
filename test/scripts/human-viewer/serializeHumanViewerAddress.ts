@@ -12,7 +12,8 @@ import type { HumanViewerAddress } from "./HumanViewerAddress";
  * @evidence contracts/common.md#meaningful-documentation Explains bookmark equivalence and local reference privacy.
  */
 export function serializeHumanViewerAddress(
-  address: Omit<HumanViewerAddress, "light"> & Partial<Pick<HumanViewerAddress, "light">>,
+  address: Omit<HumanViewerAddress, "light" | "landmarks" | "calibrate"> &
+    Partial<Pick<HumanViewerAddress, "light" | "landmarks" | "calibrate">>,
 ): string {
   const fields = new URLSearchParams({
     doc: address.doc,
@@ -30,6 +31,8 @@ export function serializeHumanViewerAddress(
   if (address.look !== null) fields.set("look", address.look.join(","));
   if (address.frame !== null) fields.set("frame", address.frame.join(","));
   if (address.ref !== null) fields.set("ref", address.ref);
+  if (address.landmarks === true) fields.set("landmarks", "on");
+  if (address.calibrate === true) fields.set("calibrate", "on");
   const light = address.light ?? null;
   if (light !== null)
     fields.set("light", [light.name, ...light.direction].join(","));

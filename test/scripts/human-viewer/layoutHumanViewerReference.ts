@@ -21,6 +21,13 @@ export interface IHumanViewerReferenceLayer {
   clip: IHumanViewerReferenceBox | null;
 }
 
+/** One observed landmark placed in capture pixels. */
+export interface IHumanViewerReferenceMarker {
+  x: number;
+  y: number;
+  group: string;
+}
+
 /**
  * The pixel layout of a capture that shows a reference photograph beside or
  * over the render. The display page draws the photograph as a DOM layer above
@@ -32,6 +39,8 @@ export interface IHumanViewerReferenceLayer {
  * right. `overlay` draws the photograph over the render at opacity
  * `1 - opacity`, so `opacity` is the render's share of the mix. `swipe` shows
  * the photograph only right of the `opacity` fraction of the width.
+ * Landmarks are observed on the photograph in unit image coordinates, so each
+ * marker lands inside the photograph's fitted box, whichever mode places it.
  * The plan reads no image bytes and records no file name or path.
  *
  * @evidence contracts/common.md#principled-implementation Contain-fitting is the uniform scale min(cell/width, cell/height); the other geometry follows from the three closed modes.
@@ -44,13 +53,21 @@ export interface IHumanViewerReferenceLayer {
  * @param size Square cell side in pixels, positive.
  * @param opacity Render share in overlay mode, swipe position in swipe mode, between zero and one.
  * @param photo Natural photograph size in pixels, both positive.
+ * @param landmarks Observed landmarks in unit image coordinates, empty for none.
  */
 export function layoutHumanViewerReference(
   mode: "split" | "overlay" | "swipe",
   size: number,
   opacity: number,
   photo: { width: number; height: number },
-): { width: number; height: number; layers: IHumanViewerReferenceLayer[] } {
+  landmarks: readonly { x: number; y: number; group: string }[] = [],
+): {
+  width: number;
+  height: number;
+  layers: IHumanViewerReferenceLayer[];
+  markers: IHumanViewerReferenceMarker[];
+  markerRadius: number;
+} {
   if (!(size > 0) || !(photo.width > 0) || !(photo.height > 0))
     throw new Error("Reference layout needs positive sizes");
   if (!(opacity >= 0 && opacity <= 1))
@@ -65,6 +82,17 @@ export function layoutHumanViewerReference(
     h,
   });
   const cell = { x: 0, y: 0, w: size, h: size };
+  const place = (left: number) => {
+    const box = fitted(left);
+    return {
+      markers: landmarks.map((point) => ({
+        x: box.x + point.x * box.w,
+        y: box.y + point.y * box.h,
+        group: point.group,
+      })),
+      markerRadius: Math.max(2, size * 0.004),
+    };
+  };
   const render: IHumanViewerReferenceLayer = {
     source: "render",
     box: cell,
@@ -75,6 +103,7 @@ export function layoutHumanViewerReference(
     return {
       width: size * 2,
       height: size,
+      ...place(size),
       layers: [
         render,
         { source: "photo", box: fitted(size), alpha: 1, clip: null },
@@ -84,6 +113,7 @@ export function layoutHumanViewerReference(
     return {
       width: size,
       height: size,
+      ...place(0),
       layers: [
         render,
         { source: "photo", box: fitted(0), alpha: 1 - opacity, clip: null },
@@ -92,6 +122,7 @@ export function layoutHumanViewerReference(
   return {
     width: size,
     height: size,
+    ...place(0),
     layers: [
       render,
       {

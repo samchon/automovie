@@ -6,6 +6,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import type { HumanViewerCatalogue } from "./HumanViewerCatalogue";
+import { humanViewerThumbnailDirectory } from "./planHumanViewerThumbnailPrune";
 import { parseHumanViewerAddress } from "./parseHumanViewerAddress";
 import { serializeHumanViewerAddress } from "./serializeHumanViewerAddress";
 
@@ -38,7 +39,8 @@ export function humanViewerThumbnailFile(
     return path.join(
       storage,
       "thumbnails",
-      hash(serializeHumanViewerAddress(address) + document.key + inventory.revision) + ".png",
+      humanViewerThumbnailDirectory(inventory.revision),
+      hash(serializeHumanViewerAddress(address) + document.key) + ".png",
     );
   } catch {
     return null;

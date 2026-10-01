@@ -1,5 +1,6 @@
 import type { IHumanViewerClientIo } from "./IHumanViewerClientIo";
 import type { IHumanViewerClient } from "./IHumanViewerClient";
+import { retryHumanViewerFetch } from "./retryHumanViewerFetch";
 /**
  * Connect to the resident development viewer and return a client over it.
  *
@@ -16,7 +17,16 @@ export async function connectHumanViewer(props: {
   io: IHumanViewerClientIo;
   origin: string;
 }): Promise<IHumanViewerClient> {
-  const { io, origin } = props;
+  const { origin } = props;
+  // A loaded server resets kept-alive sockets; every route is safe to ask again.
+  const io: IHumanViewerClientIo = {
+    ...props.io,
+    fetch: (url) =>
+      retryHumanViewerFetch(() => props.io.fetch(url), {
+        attempts: 3,
+        pause: (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }),
+      }),
+  };
   const health = await io.fetch(origin + "/health");
   const status = (await health.json()) as {
     service?: string;

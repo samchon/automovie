@@ -14,7 +14,9 @@ import { type Page, chromium } from "playwright";
 import { PNG } from "pngjs";
 import { createServer } from "vite";
 
-import { HumanViewerQueueFullError } from "./HumanViewerQueueFullError";
+import { HumanViewerStartingError } from "./HumanViewerStartingError";
+import { classifyHumanViewerRefusal } from "./classifyHumanViewerRefusal";
+import { forHumanViewerComparison } from "./forHumanViewerComparison";
 import { createHumanViewerSource } from "./createHumanViewerSource.mjs";
 import type { IHumanViewerPhases } from "./IHumanViewerPhases";
 import { judgeViewerRenderer } from "./judgeViewerRenderer";
@@ -39,6 +41,12 @@ import { subscribeHumanViewerSources } from "./subscribeHumanViewerSources";
 import { createHumanViewerWarmReadiness } from "./createHumanViewerWarmReadiness";
 import { describeHumanViewerCapture } from "./describeHumanViewerCapture";
 import { describeHumanViewerPass } from "./describeHumanViewerPass";
+import { humanViewerQueuePosition } from "./humanViewerQueuePosition";
+import { createHumanViewerThumbnailStore } from "./createHumanViewerThumbnailStore";
+import { createNodeHumanViewerThumbnailDisk } from "./createNodeHumanViewerThumbnailDisk";
+import { waitForHumanViewerGeneration } from "./waitForHumanViewerGeneration";
+import { retryAcrossHumanViewerGeneration } from "./retryAcrossHumanViewerGeneration";
+import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const source = createHumanViewerSource(directory);
@@ -51,13 +59,17 @@ let readyRevision = "";
 let sourceUpdating = false;
 let work: ReturnType<typeof readHumanViewerWork> = null;
 const lifetime = createHumanViewerCaptureLifetime();
-const warmReadiness = createHumanViewerWarmReadiness((revision) => { void warm(revision); });
+// Edits arrive in bursts, so a revision warms only after sixty quiet seconds.
+const warmReadiness = createHumanViewerWarmReadiness((revision) => { void warm(revision); },
+  { stableMs: 60000 });
 /** Requests allowed to wait behind the running one before a new one is refused. */
 const QUEUE_LIMIT = 12;
 const queue = createHumanViewerQueue({
   limit: QUEUE_LIMIT,
   patience: 3,
   now: () => performance.now(),
+  // Background warming starts only when no modeler has asked for a minute.
+  quietMs: 60000,
 });
 /** The last edit that reached a build, and the edit still waiting for its first frame. */
 let lastEdit: { files: string[]; at: string; moved: string[] } | null = null;
@@ -73,11 +85,14 @@ let lastRender: {
 const lastBuild: Record<string, { doc: string; ms: number } | undefined> = {};
 /** Every numerical build this server saw, by document, so a saving can be measured. */
 const builds: Record<string, { ms: number; ao: boolean; at: string }> = {};
-const warming = { revision: "", total: 0, done: 0, skipped: 0, current: null as string | null };
+const warming = { revision: "", total: 0, done: 0, skipped: 0,
+  failures: [] as { id: string; reason: string }[], current: null as string | null };
 /** What the compile process last reported, read from the file it writes. */
 const sourceStatus = () => readHumanViewerCompilationStatus(() =>
   fs.readFileSync(path.join(storage, "source-status.json"), "utf8"));
 async function capture(address: HumanViewerAddress): Promise<Buffer> {
+  if (renderer.trim() === "")
+    throw new HumanViewerStartingError("The viewer is starting, retry");
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("A real GPU is required: " + renderer);
   // A broken working tree never stops the last good build from being drawn:
@@ -107,6 +122,19 @@ async function capture(address: HumanViewerAddress): Promise<Buffer> {
   pendingEditAt = null;
   return bytes;
 }
+/** Wait until the page has a ready generation again, at most thirty seconds. */
+const settleGeneration = (): Promise<void> => waitForHumanViewerGeneration(
+  () => readyRevision !== "" && !sourceUpdating,
+  (ms) => new Promise<undefined>((resolve) => { setTimeout(resolve, ms); }));
+const thumbnails = createHumanViewerThumbnailStore(createNodeHumanViewerThumbnailDisk(fs, path.join),
+  path.join(storage, "thumbnails"), path.join);
+/** Stream a stored PNG with its provenance headers. */
+function sendPng(response: ServerResponse, file: string, headers: Record<string, string>): void {
+  response.setHeader("Content-Type", "image/png");
+  for (const [name, value] of Object.entries(headers)) response.setHeader(name, value);
+  fs.createReadStream(file).pipe(response);
+}
+const pruneThumbnails = (): void => thumbnails.prune(inventory.revision);
 const thumbnailFile = (search: string): string | null =>
   humanViewerThumbnailFile(search, storage, inventory);
 /**
@@ -214,17 +242,18 @@ async function main(): Promise<void> {
       }
       if (url.pathname === "/render" && lane === "bulk") {
         const file = thumbnailFile(url.search);
-        if (file !== null && fs.existsSync(file)) {
-          response.setHeader("Content-Type", "image/png");
-          response.setHeader("X-Human-Build", "thumbnail-cache");
-          response.setHeader("X-Human-Revision", inventory.revision);
-          response.setHeader("X-Human-Stale", "false");
-          fs.createReadStream(file).pipe(response);
-          return;
-        }
+        if (file !== null && fs.existsSync(file))
+          return sendPng(response, file, { "X-Human-Build": "thumbnail-cache",
+            "X-Human-Revision": inventory.revision, "X-Human-Stale": "false" });
+        // The new revision has not drawn it yet: show the last good picture, dimmed.
+        const older = file === null ? null : thumbnails.stale(file, inventory.revision);
+        if (older !== null)
+          return sendPng(response, older, { "X-Human-Build": "thumbnail-stale", "X-Human-Stale": "true" });
       }
       const received = performance.now();
-      void queue.run(url.pathname + url.search, async () => {
+      const ahead = humanViewerQueuePosition(queue.status(), lane);
+      let settledMs = 0;
+      void queue.run(url.pathname + url.search, () => retryAcrossHumanViewerGeneration(async () => {
         const queued = performance.now() - received;
         const fields = new URLSearchParams(url.search);
         fields.delete("lane");
@@ -269,9 +298,9 @@ async function main(): Promise<void> {
         } else if (url.pathname === "/compare") {
           if (against === null)
             throw new Error("A comparison requires an against document");
-          const first = PNG.sync.read(await capture(address));
+          const first = PNG.sync.read(await capture(forHumanViewerComparison(address, address.doc)));
           const second = PNG.sync.read(
-            await capture({ ...address, doc: against }),
+            await capture(forHumanViewerComparison(address, against)),
           );
           const compared = composeHumanViewerPixels(
             first.width,
@@ -295,6 +324,9 @@ async function main(): Promise<void> {
           serializeHumanViewerAddress(address),
         );
         response.setHeader("X-Renderer", renderer);
+        // Time spent behind other requests and waiting out a source rebuild.
+        response.setHeader("X-Human-Queue-Position", String(ahead));
+        response.setHeader("X-Human-Waited-Ms", String(Math.round(queued + settledMs)));
         response.setHeader("X-Pass-Reading", describeHumanViewerPass(address.pass));
         response.setHeader("X-Human-Build", lastRender?.build ?? "unknown");
         response.setHeader(
@@ -339,11 +371,16 @@ async function main(): Promise<void> {
             ),
           ),
         );
-      }, lane).catch((error: unknown) => {
-        response.statusCode = error instanceof HumanViewerQueueFullError ? 503 : 422;
-        if (error instanceof HumanViewerQueueFullError)
-          response.setHeader("Retry-After", "10");
-        json({ error: error instanceof Error ? error.message : String(error) });
+      }, { settle: async () => {
+        const began = performance.now();
+        await settleGeneration();
+        settledMs += performance.now() - began;
+      }, attempts: 4 }), lane).catch((error: unknown) => {
+        const refusal = classifyHumanViewerRefusal(error);
+        response.statusCode = refusal.status;
+        if (refusal.retryAfter !== null)
+          response.setHeader("Retry-After", String(refusal.retryAfter));
+        json({ error: describeHumanViewerFailure(error instanceof Error ? error.message : String(error)) });
       });
       return;
     }
@@ -416,6 +453,7 @@ async function main(): Promise<void> {
   console.log("RENDERER", renderer);
   if (!judgeViewerRenderer(renderer).real)
     throw new Error("Software renderer refused");
+  pruneThumbnails();
   warmReadiness.hardware();
   fs.writeFileSync(
     path.join(storage, "server.json"),
@@ -437,6 +475,7 @@ async function main(): Promise<void> {
         at: new Date().toISOString(), moved };
       pendingEditAt = Date.now();
       inventory = catalogue();
+      pruneThumbnails();
     },
     browser: () => vite.ws.send({ type: "custom", event: "human:revision",
       data: { revision: inventory.revision } }),

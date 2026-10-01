@@ -3,11 +3,14 @@ import type { IHumanViewerReferenceLayer } from "./layoutHumanViewerReference";
 /** The 2D drawing surface this module needs, so a test can stand in for a canvas. */
 export interface IHumanViewerReferenceContext {
   globalAlpha: number;
+  fillStyle: unknown;
   save(): void;
   restore(): void;
   beginPath(): void;
   rect(x: number, y: number, w: number, h: number): void;
   clip(): void;
+  arc(x: number, y: number, r: number, from: number, to: number): void;
+  fill(): void;
   drawImage(
     image: unknown,
     x: number,
@@ -32,6 +35,8 @@ export function drawHumanViewerReference(
   context: IHumanViewerReferenceContext,
   layers: readonly IHumanViewerReferenceLayer[],
   images: { render: unknown; photo: unknown },
+  markers: { x: number; y: number }[] = [],
+  markerRadius = 2,
 ): void {
   for (const layer of layers) {
     context.save();
@@ -49,5 +54,12 @@ export function drawHumanViewerReference(
       layer.box.h,
     );
     context.restore();
+  }
+  // Landmarks are the last layer, so no photograph or render hides them.
+  context.fillStyle = "#00ffff";
+  for (const marker of markers) {
+    context.beginPath();
+    context.arc(marker.x, marker.y, markerRadius, 0, Math.PI * 2);
+    context.fill();
   }
 }

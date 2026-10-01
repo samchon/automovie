@@ -30,6 +30,8 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     "size",
     "fmt",
     "ref",
+    "landmarks",
+    "calibrate",
     "opacity",
     "pitch",
     "look",
@@ -97,6 +99,12 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
   const shadows = fields.get("shadows") ?? "on";
   if (shadows !== "on" && shadows !== "off")
     throw new Error("shadows must be on or off");
+  const landmarks = fields.get("landmarks") ?? "off";
+  if (landmarks !== "off" && landmarks !== "on")
+    throw new Error("landmarks must be on or off");
+  const calibrate = fields.get("calibrate") ?? "off";
+  if (calibrate !== "off" && calibrate !== "on")
+    throw new Error("calibrate must be on or off");
   const light = fields.get("light");
   if (fields.has("fmt") && fields.get("fmt") !== "png")
     throw new Error("Only PNG is supported");
@@ -129,6 +137,8 @@ export function parseHumanViewerAddress(input: string): HumanViewerAddress {
     frame,
     ao: ao === "on",
     shadows: shadows === "on",
+    landmarks: landmarks === "on",
+    calibrate: calibrate === "on",
     light: light === null ? null : parseHumanViewerLight(light),
     size,
     ref: ref as HumanViewerAddress["ref"],

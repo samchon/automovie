@@ -26,6 +26,8 @@ export function test_human_viewer_address_roundtrip(): void {
     light: null,
     size: 900,
     ref: null,
+    landmarks: false,
+    calibrate: false,
     opacity: 0.5,
   });
   TestValidator.equals(

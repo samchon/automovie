@@ -61,18 +61,9 @@ const showError = (message: string): void => {
   error.textContent = message;
   error.style.display = "block";
 };
-let landmarks = false;
-const showLandmarks = (): void => {
-  const svg = active?.contentDocument?.querySelector<SVGSVGElement>("#landmarks");
-  if (svg) svg.style.display = landmarks ? "block" : "none";
-};
 const controls = mountHumanViewerControls({
   navigate: (address: HumanViewerAddress) => {
     location.hash = serializeHumanViewerAddress(address);
-  },
-  landmarks: (shown) => {
-    landmarks = shown;
-    showLandmarks();
   },
 });
 /** Ask whether a local photograph exists for the displayed document. */
@@ -86,7 +77,6 @@ const loadPhoto = async (doc: string): Promise<void> => {
   } catch {
     controls.photo({ available: false, camera: null });
   }
-  showLandmarks();
 };
 const refreshCatalogue = async (): Promise<void> => {
   controls.catalogue(

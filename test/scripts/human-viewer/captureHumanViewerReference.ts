@@ -22,6 +22,8 @@ export function captureHumanViewerReference(props: {
     size: number;
   };
   photo: { naturalWidth: number; naturalHeight: number };
+  /** Landmarks to draw, unit image coordinates; empty draws none. */
+  landmarks: { x: number; y: number; group: string }[];
   render: unknown;
   create: () => {
     width: number;
@@ -36,6 +38,7 @@ export function captureHumanViewerReference(props: {
     composition.size,
     composition.opacity,
     { width: photo.naturalWidth, height: photo.naturalHeight },
+    props.landmarks,
   );
   const out = props.create();
   out.width = layout.width;
@@ -45,6 +48,6 @@ export function captureHumanViewerReference(props: {
   drawHumanViewerReference(context, layout.layers, {
     render: props.render,
     photo: props.photo,
-  });
+  }, layout.markers, layout.markerRadius);
   return out.toDataURL("image/png");
 }

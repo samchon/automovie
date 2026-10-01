@@ -44,7 +44,10 @@ import { assertHumanViewerSource } from "./assertHumanViewerSource";
 import { humanViewerCandidateSourceError } from "./humanViewerCandidateSourceError";
 import type { HumanViewerWork } from "./HumanViewerWork";
 import { applyHumanViewerVisibility } from "./applyHumanViewerVisibility";
+import { addHumanViewerCalibration } from "./addHumanViewerCalibration";
 import { captureHumanViewerReference } from "./captureHumanViewerReference";
+import { drawHumanViewerLandmarks } from "./drawHumanViewerLandmarks";
+import { layoutHumanViewerReference } from "./layoutHumanViewerReference";
 import { createHumanViewerSpans } from "./createHumanViewerSpans";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
@@ -101,6 +104,7 @@ let composition: {
   mode: "split" | "overlay" | "swipe";
   opacity: number;
   size: number;
+  landmarks: { x: number; y: number; group: string }[];
 } | null = null;
 let active:
   | ReturnType<typeof createConnectedFaceViewport>
@@ -311,6 +315,8 @@ async function show(address: HumanViewerAddress): Promise<void> {
     residents.set(key, resident);
   }
   active = resident.stage;
+  // A rig left from an earlier show must not enter this show's framing.
+  addHumanViewerCalibration(resident.group, false);
   work("draw");
   resizeHumanViewerFrame(address.size, display, canvas, resident.resize);
   // The stage pairs renderer size with camera projection before fitting.
@@ -344,6 +350,7 @@ async function show(address: HumanViewerAddress): Promise<void> {
       fov,
     });
   }
+  addHumanViewerCalibration(resident.group, address.calibrate);
   active.finish();
   const reference = document.querySelector<HTMLImageElement>("#reference")!;
   const info = (await (
@@ -387,24 +394,23 @@ async function show(address: HumanViewerAddress): Promise<void> {
       mode: comparison.mode!,
       opacity: address.opacity,
       size: address.size,
+      landmarks: address.landmarks ? info.landmarks : [],
     };
     active.finish();
   } else canvas.style.width = `${address.size}px`;
-  const svg = document.querySelector<SVGSVGElement>("#landmarks")!;
-  svg.replaceChildren();
-  svg.setAttribute("viewBox", "0 0 1 1");
-  for (const point of info.landmarks) {
-    const circle = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle",
-    );
-    circle.setAttribute("cx", String(point.x));
-    circle.setAttribute("cy", String(point.y));
-    circle.setAttribute("r", "0.004");
-    circle.setAttribute("fill", "#00ffff");
-    circle.setAttribute("data-group", point.group);
-    svg.append(circle);
-  }
+  drawHumanViewerLandmarks(
+    document.querySelector<SVGSVGElement>("#landmarks")!,
+    () => document.createElementNS("http://www.w3.org/2000/svg", "circle"),
+    composition === null || !address.landmarks
+      ? null
+      : (() => {
+          const layout = layoutHumanViewerReference(composition.mode, composition.size,
+            composition.opacity, { width: reference.naturalWidth, height: reference.naturalHeight },
+            info.landmarks);
+          return { width: layout.width, height: layout.height,
+            radius: layout.markerRadius, markers: layout.markers };
+        })(),
+  );
   current = address;
   work("idle");
   status.textContent = `${address.doc} • ${address.view} • ${address.pass} • ${(performance.now() - start).toFixed(1)} ms • ${active.renderer()}`;
@@ -460,6 +466,7 @@ async function main(): Promise<void> {
         // The photograph is a DOM layer above the canvas, so compose it in.
         return captureHumanViewerReference({
           composition,
+          landmarks: composition.landmarks,
           photo: document.querySelector<HTMLImageElement>("#reference")!,
           render: canvas,
           create: () => document.createElement("canvas"),

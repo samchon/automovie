@@ -13,13 +13,19 @@ const LANES: readonly HumanViewerLane[] = ["ui", "cli", "bulk"];
  * starve the scripts, after `patience` consecutive `ui` starts a waiting `cli`
  * request goes next. A request that finds `limit` others already waiting in
  * its lane is refused at once with the reason instead of joining a line no one
- * can see the end of. The status names the running request and each lane's
+ * can see the end of. A `bulk` request is also held back until no `ui` or
+ * `cli` request has arrived for `quietMs`, so background work never starts in
+ * front of a person or script that is about to ask. The status names the running request and each lane's
  * length so a stalled server can be told from a busy one.
  */
 export function createHumanViewerQueue(props: {
   limit: number;
   patience: number;
   now: () => number;
+  /** Quiet period before a bulk request may start; zero or absent means none. */
+  quietMs?: number;
+  /** Runs a callback after a delay; defaults to `setTimeout`. */
+  later?: (run: () => void, ms: number) => void;
 }) {
   if (!Number.isInteger(props.limit) || props.limit < 1)
     throw new Error("The queue limit must be a positive integer");
@@ -33,13 +39,17 @@ export function createHumanViewerQueue(props: {
   let running: { label: string; start: number } | null = null;
   let last: IHumanViewerQueueStatus["last"] = null;
   let streak = 0;
+  let foregroundAt = Number.NEGATIVE_INFINITY;
+  let timer = false;
+  const quiet = (): boolean =>
+    (props.quietMs ?? 0) <= 0 || props.now() - foregroundAt >= (props.quietMs ?? 0);
   const pick = (): IEntry | undefined => {
     const order =
       streak >= props.patience && lines.cli.length !== 0
         ? (["cli", "ui", "bulk"] as const)
         : LANES;
     for (const lane of order)
-      if (lines[lane].length !== 0) {
+      if (lines[lane].length !== 0 && (lane !== "bulk" || quiet())) {
         streak = lane === "ui" ? streak + 1 : 0;
         return lines[lane].shift();
       }
@@ -49,6 +59,14 @@ export function createHumanViewerQueue(props: {
     if (running !== null) return;
     const entry = pick();
     if (entry !== undefined) void entry.start();
+    else if (lines.bulk.length !== 0 && !timer) {
+      // Only gated bulk work waits: look again when the quiet period can end.
+      timer = true;
+      (props.later ?? ((run, ms) => void setTimeout(run, ms)))(() => {
+        timer = false;
+        drain();
+      }, Math.max(1, (props.quietMs ?? 0) - (props.now() - foregroundAt)));
+    }
   };
   return {
     run: <T>(
@@ -62,6 +80,7 @@ export function createHumanViewerQueue(props: {
             `${lines[lane].length} ${lane} requests are already waiting behind ${running?.label ?? "the running one"}; retry later`,
           ),
         );
+      if (lane !== "bulk") foregroundAt = props.now();
       return new Promise<T>((resolve, reject) => {
         lines[lane].push({
           label,

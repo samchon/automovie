@@ -68,6 +68,16 @@ export interface HumanViewerAddress {
    */
   light: { name: string; direction: [number, number, number] } | null;
 
+  /** Mark the photograph's observed landmarks over it, when a photograph is shown. */
+  landmarks: boolean;
+
+  /**
+   * Add the hand-typed calibration spheres of `humanViewerCalibrationRig` beside
+   * the subject, after framing, so a frame can be checked against independent
+   * arithmetic. Off by default; it adds geometry to the picture only.
+   */
+  calibrate: boolean;
+
   /** Square capture side in pixels. */
   size: number;
 

@@ -9,6 +9,8 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Applies the same cache and generation rules to every document with no fixture-specific warm path.
  * @evidence contracts/common.md#meaningful-documentation Defines queue ownership, yielding and withdrawal when either source or pass authority changes.
  */
+import { describeHumanViewerFailure } from "./describeHumanViewerFailure";
+
 export async function warmHumanViewerDocuments(props: {
   revision: string;
   documents: readonly { id: string }[];
@@ -21,6 +23,8 @@ export async function warmHumanViewerDocuments(props: {
     total: number;
     done: number;
     skipped: number;
+    /** Why each skipped document failed, by document, for the current pass. */
+    failures: { id: string; reason: string }[];
     current: string | null;
   };
 }): Promise<void> {
@@ -30,21 +34,24 @@ export async function warmHumanViewerDocuments(props: {
     total: props.documents.length,
     done: props.documents.length - pending.length,
     skipped: 0,
+    failures: [],
     current: null,
   });
   for (const entry of pending) {
     if (props.currentRevision() !== props.revision ||
         props.status.revision !== props.revision) return;
     props.status.current = entry.id;
-    let failed = false;
+    let failed: string | null = null;
     try {
       await props.queue(entry.id, () => props.capture(entry.id));
-    } catch {
-      failed = true;
+    } catch (error) {
+      failed = describeHumanViewerFailure(error instanceof Error ? error.message : String(error));
     }
     if (props.status.revision !== props.revision) return;
-    if (failed) ++props.status.skipped;
-    else ++props.status.done;
+    if (failed !== null) {
+      ++props.status.skipped;
+      props.status.failures.push({ id: entry.id, reason: failed });
+    } else ++props.status.done;
   }
   props.status.current = null;
 }

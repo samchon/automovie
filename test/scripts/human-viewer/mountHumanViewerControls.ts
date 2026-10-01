@@ -25,7 +25,6 @@ const element = <T extends HTMLElement>(id: string): T =>
 
 export function mountHumanViewerControls(props: {
   navigate: (address: HumanViewerAddress) => void;
-  landmarks: (shown: boolean) => void;
 }) {
   let photoCamera: IFaceLikenessCamera | null = null;
   let current: HumanViewerAddress | null = null;
@@ -106,8 +105,9 @@ export function mountHumanViewerControls(props: {
     if (photoCamera !== null)
       change({ look: humanViewerPhotoLook(photoCamera), frame: null });
   });
-  element<HTMLInputElement>("landmarks-toggle").addEventListener("change", (event) =>
-    props.landmarks((event.target as HTMLInputElement).checked),
+  const landmarks = element<HTMLInputElement>("landmarks-toggle");
+  landmarks.addEventListener("change", () =>
+    change({ landmarks: landmarks.checked }),
   );
   against.addEventListener("change", () => {
     const link = element<HTMLAnchorElement>("compare-link");
@@ -205,6 +205,7 @@ export function mountHumanViewerControls(props: {
       pitch.value = String(address.pitch);
       zoom.value = String(address.zoom);
       ao.checked = address.ao;
+      landmarks.checked = address.landmarks;
       element("pitch-out").textContent = address.pitch + " deg";
       element("zoom-out").textContent = address.zoom.toFixed(2) + "x";
       for (const button of views.querySelectorAll<HTMLButtonElement>("button"))

@@ -23,8 +23,12 @@ export function applyHumanViewerPose(
   if (separator < 1 || subject === "" || !/^[a-z0-9-]+$/.test(file))
     throw new Error("pose requires <pose file>:<subject>");
   if (fields.has("look")) throw new Error("pose and look both place the camera");
-  fields.set(
-    "look",
-    resolveHumanViewerPose(JSON.parse(read(file)), subject),
-  );
+  let text: string;
+  try {
+    text = read(file);
+  } catch {
+    // The reader's own error names a local path, which stays local.
+    throw new Error(`Unknown pose file: ${file}`);
+  }
+  fields.set("look", resolveHumanViewerPose(JSON.parse(text), subject));
 }
