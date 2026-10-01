@@ -20,6 +20,8 @@ export * from "./humanFaceHairEmergence";
 export * from "./humanFaceHairDensity";
 export * from "./humanFaceHairFrame";
 export * from "./humanFaceHairLength";
+export * from "./humanFaceHairPartOccupancy";
+export * from "./humanFaceHairPartSide";
 export * from "./humanFaceHairlineBoundary";
 export * from "./humanFaceHairlineCoverage";
 export * from "./humanFaceHairSequence";

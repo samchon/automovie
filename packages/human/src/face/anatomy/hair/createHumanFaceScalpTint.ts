@@ -4,6 +4,7 @@ import type { IAutoMovieMaterial } from "@automovie/interface";
 import type { IAutoMovieHumanFaceBasis } from "../../structures/IAutoMovieHumanFaceBasis";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
+import { humanFaceHairPartOccupancy } from "./humanFaceHairPartOccupancy";
 import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
 
 /**
@@ -16,8 +17,10 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  * a coverage in [0, 1]: one well inside the hairline, rising smoothly across
  * the transition zone at the hairline (its depth converted to a polar angle
  * at the vertex's distance from the domain origin), times the layer's root
- * region envelope, so a fringe tints only where its roots grow. Where
- * layers overlap the greatest coverage weight wins, retaining the earlier
+ * region envelope, so a fringe tints only where its roots grow, times what the
+ * layer's parting leaves bare (`humanFaceHairPartOccupancy`), so the scalp keeps
+ * its own colour along a parting where the combing has taken the fibres away.
+ * Where layers overlap the greatest coverage weight wins, retaining the earlier
  * layer at a tie; a greying layer contributes
  * the mixture its proportion of unpigmented fibres makes, since that is what
  * stands over the scalp. The tint is a multiplier
@@ -33,8 +36,9 @@ import { humanFaceHairlineCoverage } from "./humanFaceHairlineCoverage";
  *
  * @evidence contracts/common.md#principled-implementation Under a layer the
  *   skin gain is 1 + (hair / skin - 1) * coverage per channel, clamped to [0,
- *   1], with coverage the hairline ramp times the root-region envelope, so it is
- *   a per-vertex coverage proxy rather than sampled root occupancy, and a hair
+ *   1], with coverage the hairline ramp times the root-region envelope times one
+ *   minus the parting's bare share, so it is a per-vertex coverage proxy rather
+ *   than sampled root occupancy or sampled ribbons, and a hair
  *   lighter than the skin leaves the skin alone. A greying layer contributes
  *   hair + (1 - hair) * grey, the mixture of unpigmented and pigmented fibres.
  *   The greatest coverage weight wins where layers overlap, retaining the
@@ -134,9 +138,15 @@ export function createHumanFaceScalpTint(
         );
         const direction = Vector3.subtract(point, origin);
         if (!(Vector3.length(direction) > 0)) continue;
+        // A parting is the one place the document itself takes fibres away.
+        const bare =
+          layer.part === undefined
+            ? 0
+            : humanFaceHairPartOccupancy(point, layer.part);
         const coverage =
           humanFaceHairlineCoverage(direction, layer.hairline) *
-          humanFaceHairEnvelope(point, layer.rootRegion);
+          humanFaceHairEnvelope(point, layer.rootRegion) *
+          (1 - bare);
         if (coverage <= 0) continue;
         if (coverage <= entry.weight[vertex]) continue;
         entry.weight[vertex] = coverage;

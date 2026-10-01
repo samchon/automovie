@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieHumanFaceHair } from "../../structures/IAutoMovieHumanFaceHair";
 import { humanFaceHairEnvelope } from "./humanFaceHairEnvelope";
 import { humanFaceHairFrame } from "./humanFaceHairFrame";
+import { humanFaceHairPartSide } from "./humanFaceHairPartSide";
 
 const { perpendicular, direction: requireDirection } = humanFaceHairFrame;
 
@@ -76,9 +77,7 @@ export function evaluateHumanFaceHairDirection(props: {
   const part = layer.part;
   if (part !== undefined) {
     const axis = Vector3.normalize(Vector3.create(...part.normal));
-    const side = Math.tanh(
-      (Vector3.dot(root, axis) - part.offset) / part.transitionWidth,
-    );
+    const side = humanFaceHairPartSide(root, part);
     const comb = Vector3.add(
       Vector3.scale(axis, side),
       Vector3.create(...part.bias),
